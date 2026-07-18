@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f8f4ec">
+<title>Brickford</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%235d3f26' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M24 88 V46 M76 88 V46'/%3E%3Cpath d='M24 46 A26 26 0 0 1 76 46'/%3E%3Cpath d='M14 88 H86'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn" aria-label="Open navigation">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h14M2 9h14M2 14h14"/></svg>
+</button>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="crest">
+      <svg viewBox="0 0 120 120" aria-label="Brickford arch mark">
+        <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <path d="M34 100 V56 M50 100 V56 M70 100 V56 M86 100 V56"/>
+          <path d="M34 56 A26 26 0 0 1 86 56"/>
+          <path d="M50 56 A10 10 0 0 1 70 56"/>
+          <path d="M34 79 H50 M70 79 H86"/>
+          <path d="M24 100 H96"/>
+        </g>
+      </svg>
+      <div class="name-en">Brickford</div>
+      <div class="est">Self-built university · Est. 2026</div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <a href="#/" data-route="/">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10 L10 3 L17 10 M5 8.5 V17 H15 V8.5"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-group-label">Academics</div>
+      <a href="#/courses" data-route="/courses">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4 Q7 2.5 10 4.5 Q13 2.5 17 4 V15 Q13 13.5 10 15.5 Q7 13.5 3 15 Z M10 4.5 V15.5"/></svg>
+        Courses
+      </a>
+      <a href="#/workshop" data-route="/workshop">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
+        Workshop
+      </a>
+      <a href="#/exams" data-route="/exams">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/></svg>
+        Exam Hall
+      </a>
+      <a href="#/electives" data-route="/electives">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 4 H4 V16 H16 V11.5 M12 3 H17 V8 M17 3 L9.5 10.5"/></svg>
+        Outside Courses
+      </a>
+      <a href="#/transcript" data-route="/transcript">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="4.5"/><path d="M7.5 10.5 L6 17.5 L10 15.5 L14 17.5 L12.5 10.5"/></svg>
+        Transcript &amp; Gates
+      </a>
+      <div class="nav-group-label">Discipline</div>
+      <a href="#/review" data-route="/review">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M7 2.5 V5.5 M13 2.5 V5.5"/></svg>
+        Weekly Review
+      </a>
+      <a href="#/treasury" data-route="/treasury">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6 V14 M12.5 7.5 Q10 6 8.5 7.7 Q7 9.5 10 10 Q13 10.5 11.5 12.3 Q10 14 7.5 12.5"/></svg>
+        Treasury
+      </a>
+      <a href="#/library" data-route="/library">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3 H8 V17 H4 Z M8 3 H12 V17 H8 Z M12.5 3.5 L16.5 4.5 L13.5 17 L10 16"/></svg>
+        Library
+      </a>
+      <a href="#/guide" data-route="/guide">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6 V10.5 L13 12"/></svg>
+        The Handbook
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div style="display:flex; gap:8px;">
+        <button class="btn ghost" id="themeBtn" style="flex:1;">Theme</button>
+        <button class="btn ghost" id="exportBtn" style="flex:1;">Backup</button>
+      </div>
+      <button class="btn ghost" id="importBtn" style="width:100%;">Restore backup</button>
+      <input type="file" id="importFile" accept=".json" style="display:none;">
+      <div class="motto">From imitation to invention</div>
+    </div>
+  </aside>
+
+  <main class="main" id="view" tabindex="-1"></main>
+</div>
+
+<nav class="tabbar" id="tabbar" aria-label="Quick navigation">
+  <a href="#/" data-route="/">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10 L10 3 L17 10 M5 8.5 V17 H15 V8.5"/></svg>
+    Home
+  </a>
+  <a href="#/courses" data-route="/courses">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4 Q7 2.5 10 4.5 Q13 2.5 17 4 V15 Q13 13.5 10 15.5 Q7 13.5 3 15 Z M10 4.5 V15.5"/></svg>
+    Courses
+  </a>
+  <a href="#/exams" data-route="/exams">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/></svg>
+    Exams
+  </a>
+  <a href="#/workshop" data-route="/workshop">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
+    Workshop
+  </a>
+  <a href="#/review" data-route="/review">
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M7 2.5 V5.5 M13 2.5 V5.5"/></svg>
+    Review
+  </a>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div class="chart-tip" id="chartTip"></div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="data/curriculum.js"></script>
+<script defer src="data/workshop.js"></script>
+<script defer src="data/quiz-linear-algebra.js"></script>
+<script defer src="data/quiz-calculus.js"></script>
+<script defer src="data/quiz-probability.js"></script>
+<script defer src="data/quiz-zero-to-hero.js"></script>
+<script defer src="data/quiz-dsa.js"></script>
+<script defer src="data/quiz-math-for-ml.js"></script>
+<script defer src="data/quiz-llm-engineering.js"></script>
+<script defer src="js/quiz-engine.js"></script>
+<script defer src="js/app.js"></script>
+</body>
+</html>

@@ -9,7 +9,12 @@
   const $ = (sel, el) => (el || document).querySelector(sel);
   const $$ = (sel, el) => Array.from((el || document).querySelectorAll(sel));
   const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const todayISO = () => new Date().toISOString().slice(0, 10);
+  // Local calendar date — NOT toISOString() (that's UTC and shows the
+  // wrong day for anyone ahead of UTC, e.g. Bahrain UTC+3 before 3 AM).
+  const todayISO = () => {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
   const fmtBHD = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString();
   function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
   function weekNumber() { return Math.max(1, Math.floor(daysBetween(D.START_DATE, todayISO()) / 7) + 1); }
@@ -457,7 +462,23 @@
     const c = D.COURSES.find(x => x.id === cid);
     if (!c) return "<p>Unknown course.</p>";
     if (c.tracker) return trackerCourse(c);
-    let li = 0;
+    const cst = courseLessonStats(c);
+    const cmastery = courseMastery(c);
+    const cbest = c.quiz ? bestQuiz(c.quiz) : null;
+    const [clvlEn, clvlGrade] = standing(cmastery);
+    const checkpoint =
+      '<div class="card feature" style="margin-top:16px;">' +
+      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
+      '<h2>Course checkpoint — your level</h2><span class="pill">' + cst.done + " / " + cst.total + " lessons</span></div>" +
+      '<div style="margin:10px 0; max-width:520px;"><div class="bar"><i style="transform:scaleX(' + (cmastery / 100) + ');"></i></div></div>' +
+      '<p style="font-size:var(--fs-small);"><strong style="font-size:1.1rem;">' + cmastery + "% · " + clvlEn + (clvlGrade !== "—" ? " (Grade " + clvlGrade + ")" : "") + "</strong>" +
+      (cbest != null ? ' · best exam <strong>' + cbest + "%</strong>" : "") + "</p>" +
+      (c.quiz
+        ? '<p style="font-size:var(--fs-small); margin-top:6px;">Sit the checkpoint to see exactly where you stand on ' + esc(c.code) + " — 15 questions drawn fresh from the bank, graded instantly with your verdict and the exact questions you missed.</p>" +
+          '<div style="margin-top:12px;"><a class="btn" href="#/quiz/' + c.quiz + '">Sit the ' + esc(c.code) + ' checkpoint exam</a></div>'
+        : '<p style="font-size:var(--fs-small); margin-top:6px;">This course is proven by building, not multiple choice — reimplement the papers, ship the systems. Your level here is the labs you complete with proof.</p>' +
+          '<div style="margin-top:12px;"><a class="btn" href="#/workshop">Prove it in the Workshop</a></div>') +
+      "</div>";
     return '<div class="view-enter"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
       '<div class="sub">' + esc(c.desc) + "</div>" +
       '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">' +
@@ -473,7 +494,7 @@
             '<span class="n">' + (i + 1) + '</span><span class="t">' + esc(l.t) + "</span>" +
             (done ? '<span class="tick">✓</span>' : "") + "</a>";
         }).join("") + "</div>"
-      ).join("") + "</div>";
+      ).join("") + checkpoint + "</div>";
   };
 
   function trackerCourse(c) {

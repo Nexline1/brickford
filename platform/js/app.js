@@ -241,6 +241,22 @@
         if (!S.problems[cat + "|" + p]) { out.push(p); if (out.length >= n) return out; }
     return out;
   }
+  // The live "next up" across tracks — shared by the Dashboard plan and the
+  // Calendar day brief. Always resolves to the scholar's true position.
+  function planItems() {
+    const mathNext = ["math110", "math120", "math130"].map(nextLessonOf).filter(Boolean)
+      .sort((a, b) => courseMastery(a.c) - courseMastery(b.c))[0];
+    const spineNext = nextLessonOf("ai200") || nextLessonOf("ai210") || nextLessonOf("ai300");
+    const probs = nextProblems(2);
+    return { mathNext, spineNext, probs };
+  }
+  // The week-plan row that governs a given calendar date.
+  function weekRowFor(iso) {
+    const w = Math.max(1, Math.floor(daysBetween(D.START_DATE, iso) / 7) + 1);
+    const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
+    return { w, row };
+  }
+  const PHASE_COLOR = ["var(--ink-3)", "var(--accent)", "var(--accent-2)", "var(--bad)"];
 
   // ---------- charts (hand-rolled SVG, single-series, chart ink = brand) ----------
   function lineChart(values, labels, opts) {
@@ -573,6 +589,101 @@
   };
 
   let timerH = null;
+  let calCursor = null; // "YYYY-MM" of the displayed month
+  let calSel = null;    // "YYYY-MM-DD" of the selected day
+
+  function monthGridHTML() {
+    const today = todayISO();
+    if (!calCursor) calCursor = today.slice(0, 7);
+    if (!calSel) calSel = today > D.START_DATE ? today : D.START_DATE;
+    const [cy, cm] = calCursor.split("-").map(Number);
+    const first = new Date(cy, cm - 1, 1);
+    const monthName = first.toLocaleString("en-US", { month: "long", year: "numeric" });
+    const startPad = first.getDay(); // 0=Sun
+    const daysInMonth = new Date(cy, cm, 0).getDate();
+    const gateByDate = {};
+    gatePlan().forEach(g => { if (!g.doneDate) gateByDate[g.target] = g; });
+    const dow = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      .map(d => '<div class="cal-dow">' + d + "</div>").join("");
+    let cells = "";
+    for (let i = 0; i < startPad; i++) cells += '<div class="cal-cell blank"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = cy + "-" + pad2(cm) + "-" + pad2(d);
+      const before = iso < D.START_DATE;
+      const cls = ["cal-cell"];
+      if (iso === today) cls.push("today");
+      if (iso === calSel) cls.push("sel");
+      if (before) cls.push("rest");
+      let inner = '<span class="dnum">';
+      if (!before) { const { row } = weekRowFor(iso); inner += '<span class="pdot" style="background:' + PHASE_COLOR[row.phase] + '"></span>'; }
+      inner += d + "</span>";
+      if (before) {
+        inner += '<span class="ctag" style="color:var(--ink-3);">Before start</span>';
+      } else {
+        const { w, row } = weekRowFor(iso);
+        const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
+        if (gateByDate[iso]) inner += '<span class="cflag">◆ Gate ' + gateByDate[iso].n + "</span>";
+        else if (isSunday) inner += '<span class="cflag" style="color:var(--accent-2);">Review</span>';
+        inner += '<span class="ctag">' + esc(row.tag) + "</span>";
+        inner += '<span class="chrs">W' + w + " · ~4.5h</span>";
+      }
+      cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
+    }
+    return '<div class="card"><div class="cal-head"><h2>' + monthName + "</h2>" +
+      '<div class="cal-nav"><button class="btn ghost" data-cal-nav="prev" aria-label="Previous month">‹</button>' +
+      '<button class="btn ghost" data-cal-nav="today">Today</button>' +
+      '<button class="btn ghost" data-cal-nav="next" aria-label="Next month">›</button></div></div>' +
+      '<div class="cal-grid">' + dow + cells + "</div>" +
+      '<div class="cal-legend">' +
+      '<span><span class="pdot" style="background:var(--accent)"></span>Phase 1</span>' +
+      '<span><span class="pdot" style="background:var(--accent-2)"></span>Phase 2</span>' +
+      '<span><span class="pdot" style="background:var(--bad)"></span>Phase 3</span>' +
+      '<span style="color:var(--accent);">◆ Gate</span><span style="color:var(--accent-2);">Sun · Review</span></div></div>';
+  }
+
+  function dayDetailHTML() {
+    const iso = calSel;
+    if (iso < D.START_DATE) {
+      return '<div class="card"><h2>The climb hasn’t started yet</h2><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Day 1 is ' + D.START_DATE + '. Pick that day or later to see the brief.</p></div>';
+    }
+    const dObj = new Date(iso + "T00:00:00");
+    const nice = dObj.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    const day = Math.max(1, daysBetween(D.START_DATE, iso) + 1);
+    const { w, row } = weekRowFor(iso);
+    const isSunday = dObj.getDay() === 0;
+    const isToday = iso === todayISO();
+    const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
+    const { mathNext, spineNext, probs } = planItems();
+
+    const brief = (block, time, what, href, btn) =>
+      '<div class="plan-row"><span class="block">' + block + '</span><span class="what">' + what +
+      (time ? ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny);">' + time + "</span>" : "") + "</span>" +
+      (href ? '<a class="btn ghost go" href="' + href + '">' + btn + "</a>" : "") + "</div>";
+
+    return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
+      "<h2>" + nice + (isToday ? " — today" : "") + "</h2>" +
+      '<span class="pill teal">Day ' + day + " · Week " + w + "</span></div>" +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
+      (gate ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + '</strong><div style="font-size:var(--fs-small); margin-top:2px;">' + esc(gate.req) + "</div></div>" : "") +
+      '<div style="margin-top:10px;">' +
+      '<div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:2px;">Today’s brief · ~4h 40m</div>' +
+      brief("Theory 2h",
+        mathNext ? "<strong>" + esc(mathNext.c.code) + "</strong> — " + esc(mathNext.l.t) : "Math complete — review or sit an exam",
+        "", mathNext ? "#/lesson/" + mathNext.c.id + "/" + mathNext.ui + "/" + mathNext.li : "#/exams", "Open") +
+      brief("Build 1.5h",
+        spineNext ? "<strong>" + esc(spineNext.c.code) + "</strong> — " + esc(spineNext.l.t) : "Spine complete — original project work",
+        "", spineNext ? "#/lesson/" + spineNext.c.id + "/" + spineNext.ui + "/" + spineNext.li : "#/workshop", "Open") +
+      brief("Practice",
+        probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done",
+        "45m", "#/course/cs150", "Tracker") +
+      brief("Drill", missPool().length ? "<strong>" + missPool().length + "</strong> missed questions in the pool" : "Pool clear — a random drill", "10m", "#/drill", "Drill") +
+      brief("Publish", "Turn today’s notes into a public post", "30m", "#/review", "Review") +
+      (isSunday ? brief("Sunday", "Seal the week — no shipped artifact = a failed week", "30m", "#/review", "Seal") : "") +
+      "</div>" +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">The brief’s theme comes from your week plan; the Open buttons always jump to your true next lesson — so tackling them in order keeps you on schedule.</p>' +
+      "</div>";
+  }
+
   V.diag = function (id) {
     const d = D.DIAGNOSTICS.find(x => x.id === id);
     if (!d) return "<p>Unknown examination.</p>";
@@ -669,7 +780,10 @@
       { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The rhythm</div><h1>Calendar</h1>' +
-      '<div class="sub">Google-native — no sign-in, no API key, no third-party app permission. These are the same “Add to Calendar” links every website uses; Google opens the event for you to confirm.</div></div>' +
+      '<div class="sub">Your month at a glance — click any day for its brief and jump straight into the lesson. Below: one-click Google Calendar links (no sign-in, no API key) and a full export.</div></div>' +
+
+      monthGridHTML() +
+      dayDetailHTML() +
 
       '<div class="card"><h2>Daily start time</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">When the Deep Track block begins — used for every link below.</p>' +
@@ -1037,6 +1151,22 @@
         const bar = root.querySelector(".bar.teal > i");
         if (bar) bar.style.transform = "scaleX(" + n / 150 + ")";
         if (n === 150) toast("One hundred and fifty. The gate number is met.");
+      };
+    });
+    // calendar month grid
+    $$("[data-cal-day]", root).forEach(c => {
+      c.onclick = () => { calSel = c.dataset.calDay; render(); };
+    });
+    $$("[data-cal-nav]", root).forEach(b => {
+      b.onclick = () => {
+        const nav = b.dataset.calNav;
+        if (nav === "today") { calCursor = todayISO().slice(0, 7); calSel = todayISO() > D.START_DATE ? todayISO() : D.START_DATE; }
+        else {
+          const [y, m] = (calCursor || todayISO().slice(0, 7)).split("-").map(Number);
+          const nd = new Date(y, m - 1 + (nav === "next" ? 1 : -1), 1);
+          calCursor = nd.getFullYear() + "-" + pad2(nd.getMonth() + 1);
+        }
+        render();
       };
     });
     // workshop labs + proof URLs + psets + electives

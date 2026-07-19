@@ -471,6 +471,35 @@ tr:last-child td { border-bottom: none; }
 /* ---------- KaTeX sizing ---------- */
 .katex { font-size: 1.02em; }
 
+/* ---------- Month calendar grid ---------- */
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: var(--sp-3); }
+.cal-head h2 { font-size: 1.3rem; }
+.cal-nav { display: flex; gap: 6px; }
+.cal-nav button { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.cal-dow { background: var(--surface-2); text-align: center; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 8px 0; font-weight: 600; }
+.cal-cell { background: var(--surface); min-height: 92px; padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; position: relative; transition: background-color var(--t-micro) ease; }
+.cal-cell:hover { background: var(--bg-2); }
+.cal-cell.blank { background: var(--bg-2); cursor: default; }
+.cal-cell.today { box-shadow: inset 0 0 0 2px var(--accent); }
+.cal-cell.sel { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
+.cal-cell .dnum { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--ink-2); display: flex; align-items: center; gap: 5px; }
+.cal-cell.today .dnum { color: var(--accent); font-weight: 600; }
+.cal-cell .pdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.cal-cell .ctag { font-size: 0.64rem; line-height: 1.3; color: var(--ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cal-cell .chrs { margin-top: auto; font-family: var(--font-mono); font-size: 0.58rem; color: var(--ink-3); }
+.cal-cell .cflag { font-size: 0.56rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
+.cal-cell.rest { background: var(--bg-2); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.cal-legend .pdot { width: 7px; height: 7px; border-radius: 50%; }
+@media (max-width: 640px) {
+  .cal-cell { min-height: 62px; padding: 4px; }
+  .cal-cell .ctag { -webkit-line-clamp: 1; font-size: 0.55rem; }
+  .cal-cell .chrs { display: none; }
+  .cal-dow { font-size: 0.55rem; }
+}
+
 /* ---------- Plan rows (dashboard day plan) ---------- */
 .plan-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
 .plan-row:last-child { border-bottom: none; padding-bottom: 0; }

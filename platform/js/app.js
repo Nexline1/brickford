@@ -252,7 +252,7 @@
   const V = {};
 
   V.dashboard = function () {
-    const day = daysBetween(D.START_DATE, todayISO()) + 1;
+    const day = Math.max(1, daysBetween(D.START_DATE, todayISO()) + 1);
     const f = currentFocus();
     const g = nextGate();
     const st = streak();

@@ -47,7 +47,7 @@
     psets: {},          // psetItemId -> true
     electives: {},      // electiveId -> "planned" | "done"
     treasury: { offer: "", clients: [], entries: [], niche: "" },
-    settings: { theme: "light", lastBackup: null },
+    settings: { theme: "light", lastBackup: null, dailyStart: "08:00" },
   };
   let S;
   try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || "{}")); }
@@ -148,6 +148,82 @@
     const projected = last.doneDate || last.target;
     return { projected, aheadDays: daysBetween(projected, baseline) };
   }
+
+  // ---------- calendar (Google-native, no OAuth, no API key) ----------
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function ymd(iso) { return iso.replace(/-/g, ""); }
+  function addDaysISO(iso, n) {
+    const p = iso.split("-").map(Number);
+    const d = new Date(p[0], p[1] - 1, p[2] + n);
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  function dailyStartTime() { return (S.settings.dailyStart || "08:00").split(":").map(Number); }
+  function addMinutesClock(hhmm, mins) {
+    const [h, m] = hhmm.split(":").map(Number);
+    const t = ((h * 60 + m + mins) % 1440 + 1440) % 1440;
+    return pad2(Math.floor(t / 60)) + ":" + pad2(t % 60);
+  }
+  function addMinutesClock(hhmm, mins) {
+    const [h, m] = hhmm.split(":").map(Number);
+    const total = h * 60 + m + mins;
+    return pad2(Math.floor((total % 1440) / 60)) + ":" + pad2(total % 60);
+  }
+  // Google's own "quick add" URL — opens Calendar with the event pre-filled.
+  // No sign-in flow of ours, no client ID, no API key: it's the same link
+  // any "Add to Google Calendar" button on the web uses.
+  function gcalUrl(title, details, opts) {
+    opts = opts || {};
+    let dates;
+    if (opts.allDay) {
+      dates = ymd(opts.startDate) + "/" + ymd(addDaysISO(opts.endDate || opts.startDate, 1));
+    } else {
+      const [sh, sm] = opts.atTime ? opts.atTime.split(":").map(Number) : dailyStartTime();
+      const startMin = sh * 60 + sm, endMin = startMin + (opts.durationMin || 60);
+      const t = m => pad2(Math.floor((m % 1440) / 60)) + pad2(m % 60) + "00";
+      dates = ymd(opts.startDate) + "T" + t(startMin) + "/" + ymd(opts.startDate) + "T" + t(endMin);
+    }
+    const params = new URLSearchParams({ action: "TEMPLATE", text: title, dates, details: details || "" });
+    if (opts.recur) params.set("recur", "RRULE:" + opts.recur);
+    return "https://calendar.google.com/calendar/render?" + params.toString();
+  }
+  function buildICS() {
+    const [sh, sm] = dailyStartTime();
+    const endMin = sh * 60 + sm + 300; // ~5h Deep Track block
+    const t = m => pad2(Math.floor((m % 1440) / 60)) + pad2(m % 60) + "00";
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const esc = s => String(s).replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
+    const events = [];
+    events.push([
+      "BEGIN:VEVENT", "UID:brickford-daily@brickford.local", "DTSTAMP:" + stamp,
+      "DTSTART:" + ymd(D.START_DATE) + "T" + t(sh * 60 + sm) + "00",
+      "DTEND:" + ymd(D.START_DATE) + "T" + t(endMin) + "00",
+      "RRULE:FREQ=DAILY",
+      "SUMMARY:Brickford — Deep Track",
+      "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
+      "END:VEVENT",
+    ].join("\r\n"));
+    const startDow = new Date(D.START_DATE + "T00:00:00").getDay();
+    const sunday = addDaysISO(D.START_DATE, (7 - startDow) % 7);
+    events.push([
+      "BEGIN:VEVENT", "UID:brickford-review@brickford.local", "DTSTAMP:" + stamp,
+      "DTSTART:" + ymd(sunday) + "T180000", "DTEND:" + ymd(sunday) + "T183000",
+      "RRULE:FREQ=WEEKLY;BYDAY=SU",
+      "SUMMARY:Brickford — Weekly Review (seal the week)",
+      "DESCRIPTION:" + esc("No shipped artifact = a failed week. Fill the row before the day ends."),
+      "END:VEVENT",
+    ].join("\r\n"));
+    gatePlan().filter(g => !g.doneDate).forEach(g => {
+      events.push([
+        "BEGIN:VEVENT", "UID:brickford-gate" + g.n + "@brickford.local", "DTSTAMP:" + stamp,
+        "DTSTART;VALUE=DATE:" + ymd(g.target), "DTEND;VALUE=DATE:" + ymd(addDaysISO(g.target, 1)),
+        "SUMMARY:" + esc("Brickford Gate " + g.n + " — " + g.label),
+        "DESCRIPTION:" + esc(g.req),
+        "END:VEVENT",
+      ].join("\r\n"));
+    });
+    return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Brickford//EN\r\nCALSCALE:GREGORIAN\r\n" + events.join("\r\n") + "\r\nEND:VCALENDAR\r\n";
+  }
+
   function nextLessonOf(cid) {
     const c = D.COURSES.find(x => x.id === cid);
     if (!c || c.tracker) return null;
@@ -581,6 +657,51 @@
       "</tbody></table></div></div></div>";
   };
 
+  V.calendar = function () {
+    const start = S.settings.dailyStart || "08:00";
+    const openGates = gatePlan().filter(g => !g.doneDate);
+    const dailyLink = gcalUrl("Brickford — Deep Track",
+      "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan.",
+      { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=DAILY" });
+    const nextSunday = addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7);
+    const reviewLink = gcalUrl("Brickford — Weekly Review (seal the week)",
+      "No shipped artifact = a failed week. Fill the row before the day ends.",
+      { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
+
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The rhythm</div><h1>Calendar</h1>' +
+      '<div class="sub">Google-native — no sign-in, no API key, no third-party app permission. These are the same “Add to Calendar” links every website uses; Google opens the event for you to confirm.</div></div>' +
+
+      '<div class="card"><h2>Daily start time</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">When the Deep Track block begins — used for every link below.</p>' +
+      '<div style="display:flex; gap:10px; align-items:flex-end; margin-top:10px; max-width:260px;">' +
+      '<div style="flex:1;"><label class="field">Start time</label><input type="text" id="calStart" value="' + esc(start) + '" placeholder="08:00" inputmode="numeric"></div>' +
+      '<button class="btn ghost" data-act="saveCalStart">Save</button></div></div>' +
+
+      '<div class="card feature"><h2>Add the recurring rituals</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">One click each — opens Google Calendar with the event ready to save.</p>' +
+      '<div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">' +
+      '<a class="btn" href="' + dailyLink + '" target="_blank" rel="noopener">Add Deep Track — daily, ' + esc(start) + "–" + esc(addMinutesClock(start, 300)) + ' ↗</a>' +
+      '<a class="btn ghost" href="' + reviewLink + '" target="_blank" rel="noopener">Add Weekly Review — Sundays 18:00 ↗</a>' +
+      "</div></div>" +
+
+      '<div class="card"><h2>Add your open gate deadlines</h2>' +
+      (openGates.length
+        ? '<div style="margin-top:6px;">' + openGates.map(g =>
+            '<div class="plan-row"><span class="block">Gate ' + g.n + '</span><span class="what"><strong>' + esc(g.label) + "</strong> — target " + g.target + "</span>" +
+            '<a class="btn ghost go" href="' + gcalUrl("Brickford Gate " + g.n + " — " + g.label, g.req, { allDay: true, startDate: g.target }) + '" target="_blank" rel="noopener">Add ↗</a></div>'
+          ).join("") + "</div>"
+        : '<p style="color:var(--good); margin-top:6px;">All five gates passed — nothing left to schedule.</p>') +
+      "</div>" +
+
+      '<div class="card"><h2>Export everything</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">One <code>.ics</code> file with the daily block, the weekly review, and every open gate deadline. In Google Calendar: Settings → Import &amp; export → Import. Works the same in Apple Calendar and Outlook.</p>' +
+      '<div style="margin-top:12px;"><button class="btn" data-act="downloadIcs">Download brickford.ics</button></div></div>' +
+
+      '<div class="card"><h2>This week at a glance</h2><div class="table-wrap"><table><thead><tr><th>Block</th><th>Time</th><th>What</th></tr></thead><tbody>' +
+      D.SCHEDULE.map(s => "<tr><td><strong style='color:var(--ink);'>" + esc(s.block) + "</strong></td><td>" + esc(s.time) + "</td><td>" + esc(s.note) + "</td></tr>").join("") +
+      "</tbody></table></div></div></div>";
+  };
+
   V.treasury = function () {
     const t = S.treasury;
     const total = revenueTotal();
@@ -877,6 +998,19 @@
           if (!amount) return;
           S.treasury.entries.push({ date: todayISO(), amount, note: $("#enNote").value.trim() });
           save(); render(); toast(fmtBHD(amount) + " recorded.");
+        } else if (act === "saveCalStart") {
+          const v = $("#calStart").value.trim();
+          if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { toast("Use 24h HH:MM, e.g. 08:00."); return; }
+          S.settings.dailyStart = v; save(); render();
+          toast("Start time saved — links updated.");
+        } else if (act === "downloadIcs") {
+          const blob = new Blob([buildICS()], { type: "text/calendar" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "brickford.ics";
+          a.click();
+          URL.revokeObjectURL(a.href);
+          toast("brickford.ics downloaded — import it into Google Calendar.");
         }
       };
     });
@@ -1032,6 +1166,7 @@
     else if (r === "/drill") html = V.drill();
     else if (r === "/electives") html = V.electives();
     else if (r === "/guide") html = V.guide();
+    else if (r === "/calendar") html = V.calendar();
     else if (r === "/library") html = V.library();
     else if (seg[0] === "doc") html = V.doc(seg[1]);
     else html = V.dashboard();

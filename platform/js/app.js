@@ -1054,12 +1054,20 @@
 
   // ---------- boot ----------
   function boot() {
-    document.documentElement.dataset.theme = S.settings.theme || "light";
-    $("#themeBtn").onclick = () => {
-      S.settings.theme = S.settings.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = S.settings.theme;
-      save();
+    const applyTheme = () => {
+      document.documentElement.dataset.theme = S.settings.theme || "light";
+      $$("#themeMenu [data-theme-pick]").forEach(b =>
+        b.classList.toggle("on", b.dataset.themePick === (S.settings.theme || "light")));
     };
+    applyTheme();
+    $("#themeBtn").onclick = () => $("#themeMenu").classList.toggle("open");
+    $$("#themeMenu [data-theme-pick]").forEach(b => {
+      b.onclick = () => {
+        S.settings.theme = b.dataset.themePick;
+        save(); applyTheme();
+        $("#themeMenu").classList.remove("open");
+      };
+    });
     $("#exportBtn").onclick = exportBackup;
     $("#importBtn").onclick = () => $("#importFile").click();
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };

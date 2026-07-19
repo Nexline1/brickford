@@ -630,9 +630,9 @@
       cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
     }
     return '<div class="card"><div class="cal-head"><h2>' + monthName + "</h2>" +
-      '<div class="cal-nav"><button class="btn ghost" data-cal-nav="prev" aria-label="Previous month">‹</button>' +
+      '<div class="cal-nav"><button class="btn ghost" data-cal-nav="prev" aria-label="Previous month"><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 1.5 L2 6.5 L6.5 11.5"/></svg></button>' +
       '<button class="btn ghost" data-cal-nav="today">Today</button>' +
-      '<button class="btn ghost" data-cal-nav="next" aria-label="Next month">›</button></div></div>' +
+      '<button class="btn ghost" data-cal-nav="next" aria-label="Next month"><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5 L6 6.5 L1.5 11.5"/></svg></button></div></div>' +
       '<div class="cal-grid">' + dow + cells + "</div>" +
       '<div class="cal-legend">' +
       '<span><span class="pdot" style="background:var(--accent)"></span>Phase 1</span>' +

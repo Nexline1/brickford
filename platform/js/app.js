@@ -292,12 +292,6 @@
     }
     return _turnCache[cid];
   }
-  // A lesson's position within its whole course: { n, total } → "lecture 7/51".
-  function coursePos(cid, ui, li) {
-    const flat = flatLessons(cid);
-    const i = flat.findIndex(x => x.ui === ui && x.li === li);
-    return { n: i + 1, total: flat.length };
-  }
   const THEORY_ROT = ["math110", "math120", "math130"];
   const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research" };
   const P2_DAY = 182; // day index where Phase 2 opens (week 27)
@@ -383,14 +377,22 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
-  // "How many lectures of each subject today": 3 × MATH 110 (31m video) · 1 × AI 200 …
+  // The day's quota per subject, with live progress against it:
+  // "2/4 lectures · Lin Algebra · 41m video" — fills in as lessons are ticked.
   function dayLoadHTML(real) {
     if (!real.length) return "";
     const load = {};
-    real.forEach(it => { (load[it.code] = load[it.code] || { n: 0, min: 0 }).n++; load[it.code].min += it.l.min || 0; });
-    const txt = Object.entries(load).map(([code, v]) =>
-      "<strong>" + v.n + " × " + esc(code) + "</strong>" + (v.min ? " (" + v.min + "m video)" : "")).join(" · ");
-    return '<div style="font-size:var(--fs-small); color:var(--ink-2); margin:2px 0 8px;">Load: ' + txt + "</div>";
+    real.forEach(it => {
+      const L = load[it.code] = load[it.code] || { n: 0, done: 0, min: 0, cid: it.cid };
+      L.n++; if (schedDone(it)) L.done++; L.min += it.l.min || 0;
+    });
+    const chips = Object.entries(load).map(([code, v]) => {
+      const full = v.done === v.n;
+      return '<span class="pill ' + (full ? "good" : "teal") + '" style="text-transform:none; letter-spacing:0.02em;">' +
+        (full ? "✓ " : "") + v.done + "/" + v.n + " lecture" + (v.n === 1 ? "" : "s") + " · " + esc(COURSE_SHORT[v.cid] || code) +
+        (v.min ? " · " + v.min + "m video" : "") + "</span>";
+    }).join(" ");
+    return '<div style="display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 10px;">' + chips + "</div>";
   }
   // One shared renderer for a scheduled item (dashboard + calendar detail).
   function schedRowHTML(it) {
@@ -398,12 +400,10 @@
       return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) + '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
     }
     const dn = schedDone(it);
-    const pos = coursePos(it.cid, it.ui, it.li);
     const dur = it.l.min
       ? (it.l.min >= 60 ? Math.floor(it.l.min / 60) + "h" + (it.l.min % 60 ? pad2(it.l.min % 60) : "") : it.l.min + "m") + " video"
       : (it.l.paper ? "paper" : "reading");
-    const meta = ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny); white-space:nowrap;">lecture ' + pos.n + "/" + pos.total +
-      " · " + dur +
+    const meta = ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny); white-space:nowrap;">' + dur +
       (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + "</span>";
     return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
       (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +

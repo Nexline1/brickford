@@ -270,6 +270,28 @@
     }
     return _flatCache[cid];
   }
+  // Pack each theory turn to a ~2h budget using real video minutes.
+  let _turnCache = null;
+  function theoryTurns(cid) {
+    _turnCache = _turnCache || {};
+    if (!_turnCache[cid]) {
+      const flat = flatLessons(cid);
+      const turns = [];
+      let i = 0;
+      while (i < flat.length) {
+        let effort = 0, j = i;
+        while (j < flat.length) {
+          const e = (flat[j].l.min || 50) * 2.4 + 6;
+          if (j > i && effort + e > 130) break;
+          effort += e; j++;
+        }
+        turns.push([i, j]);
+        i = j;
+      }
+      _turnCache[cid] = turns;
+    }
+    return _turnCache[cid];
+  }
   // A lesson's position within its whole course: { n, total } → "lecture 7/51".
   function coursePos(cid, ui, li) {
     const flat = flatLessons(cid);
@@ -289,16 +311,21 @@
     const items = [];
 
     // ---- Theory ----
-    // Stage 1 (≈weeks 1–22): the three math courses rotate LA→Calc→Prob,
-    // ONE lesson per turn — calibrated to the measured reality that an
-    // honest watch → rebuild-from-memory → notes cycle fills the 2h block.
-    // All three still land by week ~22, before Phase 2 opens at week 27.
-    const rotFlat = flatLessons(THEORY_ROT[d % 3]);
+    // Stage 1: the three math courses rotate LA→Calc→Prob. Each turn packs
+    // the ~2h block by REAL video minutes (scraped from YouTube): effort per
+    // lesson = minutes × 2.4 + 6 (watch + rebuild-from-memory + notes), so a
+    // day holds ~4 ten-minute 3B1B chapters but only one 50-minute MIT
+    // lecture. Lesson count per day varies; the two hours don't.
+    const rot = THEORY_ROT[d % 3];
+    const turns = theoryTurns(rot);
     const turn = Math.floor(d / 3);
     let theoryAdded = false;
-    if (turn < rotFlat.length) {
-      items.push(Object.assign({ track: "Theory" }, rotFlat[turn]));
-      theoryAdded = true;
+    if (turn < turns.length) {
+      const rotFlat = flatLessons(rot);
+      for (let k = turns[turn][0]; k < turns[turn][1]; k++) {
+        items.push(Object.assign({ track: "Theory" }, rotFlat[k]));
+        theoryAdded = true;
+      }
     }
     if (!theoryAdded && d >= P2_DAY) {
       // Stage 3 (week 27+): the depth chain — Math for ML daily, then GPU &
@@ -356,6 +383,15 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
+  // "How many lectures of each subject today": 3 × MATH 110 (31m video) · 1 × AI 200 …
+  function dayLoadHTML(real) {
+    if (!real.length) return "";
+    const load = {};
+    real.forEach(it => { (load[it.code] = load[it.code] || { n: 0, min: 0 }).n++; load[it.code].min += it.l.min || 0; });
+    const txt = Object.entries(load).map(([code, v]) =>
+      "<strong>" + v.n + " × " + esc(code) + "</strong>" + (v.min ? " (" + v.min + "m video)" : "")).join(" · ");
+    return '<div style="font-size:var(--fs-small); color:var(--ink-2); margin:2px 0 8px;">Load: ' + txt + "</div>";
+  }
   // One shared renderer for a scheduled item (dashboard + calendar detail).
   function schedRowHTML(it) {
     if (it.pseudo) {
@@ -363,8 +399,11 @@
     }
     const dn = schedDone(it);
     const pos = coursePos(it.cid, it.ui, it.li);
+    const dur = it.l.min
+      ? (it.l.min >= 60 ? Math.floor(it.l.min / 60) + "h" + (it.l.min % 60 ? pad2(it.l.min % 60) : "") : it.l.min + "m") + " video"
+      : (it.l.paper ? "paper" : "reading");
     const meta = ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny); white-space:nowrap;">lecture ' + pos.n + "/" + pos.total +
-      " · " + (it.track === "Theory" ? "~2h" : "~1.5h") +
+      " · " + dur +
       (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + "</span>";
     return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
       (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
@@ -528,6 +567,7 @@
       '<div class="grid cols-2" style="margin-top:16px;">' +
       '<div class="card"><h2>Today’s plan</h2>' +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Today’s slot in the fixed syllabus — see the Calendar for the whole map.</p>' +
+      dayLoadHTML(todaySched.filter(it => !it.pseudo)) +
       (backlog > 0
         ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + backlog + "</strong> unfinished lesson" + (backlog === 1 ? "" : "s") + ' from earlier days — clear them first</span><a class="btn ghost go" href="#/calendar">Calendar</a></div>'
         : "") +
@@ -888,6 +928,7 @@
       (gate ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + '</strong><div style="font-size:var(--fs-small); margin-top:2px;">' + esc(gate.req) + "</div></div>" : "") +
       '<div style="margin-top:12px;">' +
       '<div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:2px;">' + briefLabel + "</div>" +
+      dayLoadHTML(real) +
       (schedRows || brief("Study", "Beyond the scheduled syllabus — project work per the week focus above", "", "#/workshop", "Workshop")) +
       brief("Practice",
         probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done",
@@ -1190,7 +1231,7 @@
       '<div class="card"><h2>The daily loop — 4 to 5 hours, 7 days</h2>' +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day. The calendar is a fixed syllabus — each date owns its lessons; the Dashboard shows today’s slot.</p><div style="margin-top:6px;">' +
       row("1", "Open the Dashboard", "today’s scheduled lessons are listed, plus an Owed row if earlier days have unfinished lessons — clear those first", "#/", "Open") +
-      row("2", "Theory · ~2h", "today’s ONE math lesson (the rotation: Linear Algebra → Calculus → Probability). Watch, rebuild it from memory, take notes — that cycle IS the 2 hours. Finish early? Psets in the Workshop", null, "") +
+      row("2", "Theory · ~2h", "today’s math lessons (the rotation: Linear Algebra → Calculus → Probability). The 2h block packs by real video length — ~4 short 3Blue1Brown chapters, or one full MIT lecture. Watch, rebuild from memory, take notes", null, "") +
       row("3", "Build · ~1.5h", "today’s spine lesson (a Karpathy lesson spans ~5 days — “day 2 of 5” means keep rebuilding it) plus the two named NeetCode problems", null, "") +
       row("4", "Drill · ~10 min", "the Daily Drill serves questions YOU missed. Answer right, they leave; answer wrong, they stay. This is where knowledge becomes permanent", "#/drill", "Drill") +
       row("5", "Publish · ~30 min", "turn today’s lesson notes into a post draft. Notes live under every lecture — write them as future posts", null, "") +

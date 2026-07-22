@@ -283,13 +283,15 @@
     const items = [];
 
     // ---- Theory ----
-    // Stage 1 (≈weeks 1–12): the three math courses rotate LA→Calc→Prob,
-    // two lessons per turn, advancing in parallel.
+    // Stage 1 (≈weeks 1–22): the three math courses rotate LA→Calc→Prob,
+    // ONE lesson per turn — calibrated to the measured reality that an
+    // honest watch → rebuild-from-memory → notes cycle fills the 2h block.
+    // All three still land by week ~22, before Phase 2 opens at week 27.
     const rotFlat = flatLessons(THEORY_ROT[d % 3]);
     const turn = Math.floor(d / 3);
     let theoryAdded = false;
-    for (let k = turn * 2; k < Math.min(turn * 2 + 2, rotFlat.length); k++) {
-      items.push(Object.assign({ track: "Theory" }, rotFlat[k]));
+    if (turn < rotFlat.length) {
+      items.push(Object.assign({ track: "Theory" }, rotFlat[turn]));
       theoryAdded = true;
     }
     if (!theoryAdded && d >= P2_DAY) {
@@ -783,7 +785,7 @@
         const names = [];
         sched.forEach(it => { const n = it.pseudo ? it.short : (COURSE_SHORT[it.cid] || it.code); if (n && !names.includes(n)) names.push(n); });
         inner += '<span class="ctag">' + (names.length ? esc(names.join(" + ")) : esc(row.tag)) + "</span>";
-        inner += '<span class="chrs">' + (real.length && iso <= today ? dn + "/" + real.length + " done" : "W" + w + " · ~4.5h") + "</span>";
+        inner += '<span class="chrs">' + (real.length && iso <= today ? dn + "/" + real.length + " done" : "W" + w + " · ~5h") + "</span>";
       }
       cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
     }
@@ -853,8 +855,8 @@
 
     const briefLabel = status === "missed" ? "This day’s lessons — finish what’s owed"
       : status === "partial" ? "This day’s lessons — finish the rest"
-      : status === "upcoming" ? "This day’s lessons · ~4h 40m"
-      : "Today’s lessons · ~4h 40m";
+      : status === "upcoming" ? "This day’s lessons · ~5h (theory 2h · build 1.5h · practice 45m · drill 10m · publish 30m)"
+      : "Today’s lessons · ~5h (theory 2h · build 1.5h · practice 45m · drill 10m · publish 30m)";
 
     return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
       "<h2>" + nice + "</h2>" +
@@ -1167,7 +1169,7 @@
       '<div class="card"><h2>The daily loop — 4 to 5 hours, 7 days</h2>' +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day. The calendar is a fixed syllabus — each date owns its lessons; the Dashboard shows today’s slot.</p><div style="margin-top:6px;">' +
       row("1", "Open the Dashboard", "today’s scheduled lessons are listed, plus an Owed row if earlier days have unfinished lessons — clear those first", "#/", "Open") +
-      row("2", "Theory · ~2h", "today’s two math lessons (the rotation: Linear Algebra → Calculus → Probability). Watch actively, then run the rebuild-from-memory checklist under the video", null, "") +
+      row("2", "Theory · ~2h", "today’s ONE math lesson (the rotation: Linear Algebra → Calculus → Probability). Watch, rebuild it from memory, take notes — that cycle IS the 2 hours. Finish early? Psets in the Workshop", null, "") +
       row("3", "Build · ~1.5h", "today’s spine lesson (a Karpathy lesson spans ~5 days — “day 2 of 5” means keep rebuilding it) plus the two named NeetCode problems", null, "") +
       row("4", "Drill · ~10 min", "the Daily Drill serves questions YOU missed. Answer right, they leave; answer wrong, they stay. This is where knowledge becomes permanent", "#/drill", "Drill") +
       row("5", "Publish · ~30 min", "turn today’s lesson notes into a post draft. Notes live under every lecture — write them as future posts", null, "") +

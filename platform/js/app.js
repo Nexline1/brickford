@@ -262,6 +262,25 @@
     return { w, row };
   }
   const PHASE_COLOR = ["var(--ink-3)", "var(--accent)", "var(--accent-2)", "var(--bad)"];
+  // What was actually done on a given date — the per-day progress line.
+  function dayActivity(iso) {
+    let lessons = 0;
+    Object.values(S.lessons).forEach(l => { if (l && l.doneAt === iso) lessons++; });
+    let problems = 0;
+    Object.values(S.problems).forEach(v => { if (v === iso) problems++; });
+    const sealed = S.studyDays.includes(iso);
+    return { lessons, problems, sealed, any: lessons + problems > 0 || sealed };
+  }
+  // Status of a calendar day relative to today and what was done.
+  function dayStatus(iso) {
+    const today = todayISO();
+    if (iso > today) return "upcoming";
+    if (iso === today) return "today";
+    const a = dayActivity(iso);
+    if (a.sealed) return "completed";
+    if (a.any) return "partial";
+    return "missed";
+  }
 
   // ---------- charts (hand-rolled SVG, single-series, chart ink = brand) ----------
   function lineChart(values, labels, opts) {
@@ -631,22 +650,30 @@
     for (let d = 1; d <= daysInMonth; d++) {
       const iso = cy + "-" + pad2(cm) + "-" + pad2(d);
       const before = iso < D.START_DATE;
+      const status = before ? null : dayStatus(iso);
       const cls = ["cal-cell"];
       if (iso === today) cls.push("today");
       if (iso === calSel) cls.push("sel");
       if (before) cls.push("rest");
+      if (status === "completed") cls.push("cdone");
+      else if (status === "missed") cls.push("cmiss");
+      else if (status === "partial") cls.push("cpart");
       let inner = '<span class="dnum">';
       if (!before) { const { row } = weekRowFor(iso); inner += '<span class="pdot" style="background:' + PHASE_COLOR[row.phase] + '"></span>'; }
       inner += d + "</span>";
+      if (status === "completed") inner += '<span class="cmark" style="color:var(--good);">✓</span>';
+      else if (status === "missed") inner += '<span class="cmark" style="color:var(--bad);">!</span>';
+      else if (status === "partial") inner += '<span class="cmark" style="color:var(--accent-2);">◐</span>';
       if (before) {
         inner += '<span class="ctag" style="color:var(--ink-3);">Before start</span>';
       } else {
         const { w, row } = weekRowFor(iso);
         const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
+        const a = dayActivity(iso);
         if (gateByDate[iso]) inner += '<span class="cflag">◆ Gate ' + gateByDate[iso].n + "</span>";
         else if (isSunday) inner += '<span class="cflag" style="color:var(--accent-2);">Review</span>';
         inner += '<span class="ctag">' + esc(row.tag) + "</span>";
-        inner += '<span class="chrs">W' + w + " · ~4.5h</span>";
+        inner += '<span class="chrs">' + (a.any ? a.lessons + "L · " + a.problems + "P" : "W" + w + " · ~4.5h") + "</span>";
       }
       cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
     }
@@ -659,7 +686,8 @@
       '<span><span class="pdot" style="background:var(--accent)"></span>Phase 1</span>' +
       '<span><span class="pdot" style="background:var(--accent-2)"></span>Phase 2</span>' +
       '<span><span class="pdot" style="background:var(--bad)"></span>Phase 3</span>' +
-      '<span style="color:var(--accent);">◆ Gate</span><span style="color:var(--accent-2);">Sun · Review</span></div></div>';
+      '<span style="color:var(--accent);">◆ Gate</span>' +
+      '<span style="color:var(--good);">✓ Done</span><span style="color:var(--bad);">! Missed</span></div></div>';
   }
 
   function dayDetailHTML() {
@@ -673,6 +701,8 @@
     const { w, row } = weekRowFor(iso);
     const isSunday = dObj.getDay() === 0;
     const isToday = iso === todayISO();
+    const status = dayStatus(iso);
+    const act = dayActivity(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
     const { mathNext, spineNext, probs } = planItems();
 
@@ -681,13 +711,44 @@
       (time ? ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny);">' + time + "</span>" : "") + "</span>" +
       (href ? '<a class="btn ghost go" href="' + href + '">' + btn + "</a>" : "") + "</div>";
 
+    const statusPill = {
+      today: '<span class="pill teal">Today</span>',
+      upcoming: '<span class="pill">Upcoming</span>',
+      completed: '<span class="pill good">✓ Completed</span>',
+      partial: '<span class="pill" style="color:var(--accent-2); border-color:var(--accent-2);">Partly done</span>',
+      missed: '<span class="pill crimson">Missed — catch up</span>',
+    }[status];
+
+    // Per-day progress line: what was actually done on this date.
+    const target = 2; // lessons that make a "full" study day (theory + build)
+    const fill = Math.min(1, (act.lessons + (act.sealed ? 1 : 0)) / (target + 1));
+    const progressLine =
+      '<div style="margin-top:12px;">' +
+      '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
+      '<span style="letter-spacing:0.14em; text-transform:uppercase; font-weight:600;">Progress this day</span>' +
+      '<span class="mono">' + act.lessons + ' lesson' + (act.lessons === 1 ? "" : "s") + " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
+      '<div class="bar' + (act.sealed ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div></div>';
+
+    const catchUp = (status === "missed" || status === "partial")
+      ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>' +
+        (status === "missed" ? "You missed this day — pick it back up." : "You started but didn’t finish this day.") +
+        '</strong><div style="font-size:var(--fs-small); margin-top:2px;">Nothing is lost. Brickford is sequential, so the buttons below open the exact lessons you still owe. Clear them, then move on to today.</div></div>'
+      : "";
+
+    const briefLabel = status === "missed" ? "Catch-up plan — finish what’s owed"
+      : status === "partial" ? "Finish this day"
+      : status === "upcoming" ? "The plan for this day · ~4h 40m"
+      : "Today’s brief · ~4h 40m";
+
     return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
-      "<h2>" + nice + (isToday ? " — today" : "") + "</h2>" +
-      '<span class="pill teal">Day ' + day + " · Week " + w + "</span></div>" +
+      "<h2>" + nice + "</h2>" +
+      '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill + '<span class="pill teal">Day ' + day + " · Week " + w + "</span></div></div>" +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
+      progressLine +
+      catchUp +
       (gate ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + '</strong><div style="font-size:var(--fs-small); margin-top:2px;">' + esc(gate.req) + "</div></div>" : "") +
-      '<div style="margin-top:10px;">' +
-      '<div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:2px;">Today’s brief · ~4h 40m</div>' +
+      '<div style="margin-top:12px;">' +
+      '<div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:2px;">' + briefLabel + "</div>" +
       brief("Theory 2h",
         mathNext ? "<strong>" + esc(mathNext.c.code) + "</strong> — " + esc(mathNext.l.t) : "Math complete — review or sit an exam",
         "", mathNext ? "#/lesson/" + mathNext.c.id + "/" + mathNext.ui + "/" + mathNext.li : "#/exams", "Open") +
@@ -701,7 +762,7 @@
       brief("Publish", "Turn today’s notes into a public post", "30m", "#/review", "Review") +
       (isSunday ? brief("Sunday", "Seal the week — no shipped artifact = a failed week", "30m", "#/review", "Seal") : "") +
       "</div>" +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">The brief’s theme comes from your week plan; the Open buttons always jump to your true next lesson — so tackling them in order keeps you on schedule.</p>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">The brief’s theme comes from your week plan; the Open buttons always jump to your true next lesson — so tackling them in order keeps you on schedule, even after a busy day.</p>' +
       "</div>";
   }
 
@@ -1092,7 +1153,7 @@
           if (!m) return;
           const k = lessonKey(m[1], +m[2], +m[3]);
           const st = S.lessons[k] || { done: false, notes: "", checks: [] };
-          if (act === "toggleDone") st.done = !st.done;
+          if (act === "toggleDone") { st.done = !st.done; if (st.done) st.doneAt = todayISO(); else delete st.doneAt; }
           st.notes = $("#lessonNotes") ? $("#lessonNotes").value : st.notes;
           S.lessons[k] = st; save();
           if (act === "toggleDone") { render(); toast(st.done ? "Lecture marked complete." : "Unmarked."); }
@@ -1163,7 +1224,7 @@
     // problem tracker
     $$("[data-prob]", root).forEach(cb => {
       cb.onchange = () => {
-        S.problems[cb.dataset.prob] = cb.checked; save();
+        S.problems[cb.dataset.prob] = cb.checked ? todayISO() : false; save();
         const c = D.COURSES.find(x => x.tracker);
         // update header count without full rerender
         const n = dsaCount();

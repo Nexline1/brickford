@@ -229,15 +229,6 @@
     return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Brickford//EN\r\nCALSCALE:GREGORIAN\r\n" + events.join("\r\n") + "\r\nEND:VCALENDAR\r\n";
   }
 
-  function nextLessonOf(cid) {
-    const c = D.COURSES.find(x => x.id === cid);
-    if (!c || c.tracker) return null;
-    for (let ui = 0; ui < c.units.length; ui++)
-      for (let li = 0; li < c.units[ui].lessons.length; li++)
-        if (!(S.lessons[lessonKey(cid, ui, li)] || {}).done)
-          return { c, ui, li, l: c.units[ui].lessons[li] };
-    return null;
-  }
   function nextProblems(n) {
     const c = D.COURSES.find(x => x.tracker);
     const out = [];
@@ -245,15 +236,6 @@
       for (const p of c.problems[cat])
         if (!S.problems[cat + "|" + p]) { out.push(p); if (out.length >= n) return out; }
     return out;
-  }
-  // The live "next up" across tracks — shared by the Dashboard plan and the
-  // Calendar day brief. Always resolves to the scholar's true position.
-  function planItems() {
-    const mathNext = ["math110", "math120", "math130"].map(nextLessonOf).filter(Boolean)
-      .sort((a, b) => courseMastery(a.c) - courseMastery(b.c))[0];
-    const spineNext = nextLessonOf("ai200") || nextLessonOf("ai210") || nextLessonOf("ai300");
-    const probs = nextProblems(2);
-    return { mathNext, spineNext, probs };
   }
   // The week-plan row that governs a given calendar date.
   function weekRowFor(iso) {
@@ -1183,10 +1165,10 @@
       '<div class="sub">This platform is an operating system, not a library. It works only if you run the loops. Three loops, seven laws, and a map of every room.</div></div>' +
 
       '<div class="card"><h2>The daily loop — 4 to 5 hours, 7 days</h2>' +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day. The Dashboard generates the exact items; you just execute.</p><div style="margin-top:6px;">' +
-      row("1", "Open the Dashboard", "read Today’s plan — it already knows your next lecture, next problems, and your miss pool", "#/", "Open") +
-      row("2", "Theory · ~2h", "the math lecture it picked (lowest-mastery course first). Watch actively, then run the rebuild-from-memory checklist under the video", null, "") +
-      row("3", "Build · ~1.5h", "the spine lecture (Zero to Hero → papers later) plus the two named NeetCode problems. Tick them in the tracker", null, "") +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day. The calendar is a fixed syllabus — each date owns its lessons; the Dashboard shows today’s slot.</p><div style="margin-top:6px;">' +
+      row("1", "Open the Dashboard", "today’s scheduled lessons are listed, plus an Owed row if earlier days have unfinished lessons — clear those first", "#/", "Open") +
+      row("2", "Theory · ~2h", "today’s two math lessons (the rotation: Linear Algebra → Calculus → Probability). Watch actively, then run the rebuild-from-memory checklist under the video", null, "") +
+      row("3", "Build · ~1.5h", "today’s spine lesson (a Karpathy lesson spans ~5 days — “day 2 of 5” means keep rebuilding it) plus the two named NeetCode problems", null, "") +
       row("4", "Drill · ~10 min", "the Daily Drill serves questions YOU missed. Answer right, they leave; answer wrong, they stay. This is where knowledge becomes permanent", "#/drill", "Drill") +
       row("5", "Publish · ~30 min", "turn today’s lesson notes into a post draft. Notes live under every lecture — write them as future posts", null, "") +
       row("6", "Seal the day", "press “Mark today’s Deep Track done”. The streak only counts pressed days", "#/", "Mark") +

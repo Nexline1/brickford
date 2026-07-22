@@ -289,28 +289,103 @@
     return _flatCache[cid];
   }
   const THEORY_ROT = ["math110", "math120", "math130"];
-  const SPINE = ["ai200", "ai210"];
-  const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai" };
+  const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research" };
+  const P2_DAY = 182; // day index where Phase 2 opens (week 27)
+  // Pacing is calibrated to the gates: spine content done ~week 13 with
+  // weeks 14-26 for the original-project block (Gate 2, month 6 = GPT from
+  // scratch); papers at 3 weeks each put 8+ reimplementations before Gate 3
+  // (month 12) and all 16 before Gate 4 (month 18).
   function scheduledFor(iso) {
     const d = daysBetween(D.START_DATE, iso);
     if (d < 0) return [];
     const items = [];
-    const flat = flatLessons(THEORY_ROT[d % 3]);
+
+    // ---- Theory ----
+    // Stage 1 (≈weeks 1–12): the three math courses rotate LA→Calc→Prob,
+    // two lessons per turn, advancing in parallel.
+    const rotFlat = flatLessons(THEORY_ROT[d % 3]);
     const turn = Math.floor(d / 3);
-    for (let k = turn * 2; k < Math.min(turn * 2 + 2, flat.length); k++)
-      items.push(Object.assign({ track: "Theory" }, flat[k]));
-    const spineFlat = SPINE.flatMap(flatLessons);
-    if (d < spineFlat.length) items.push(Object.assign({ track: "Build" }, spineFlat[d]));
+    let theoryAdded = false;
+    for (let k = turn * 2; k < Math.min(turn * 2 + 2, rotFlat.length); k++) {
+      items.push(Object.assign({ track: "Theory" }, rotFlat[k]));
+      theoryAdded = true;
+    }
+    if (!theoryAdded && d >= P2_DAY) {
+      // Stage 3 (week 27+): the depth chain — Math for ML daily, then GPU &
+      // Systems and LLM Engineering every 2nd day, then Research every 3rd.
+      const chain = [["math210", 1], ["sys250", 2], ["ai310", 2], ["res400", 3]];
+      let off = d - P2_DAY;
+      for (const [cid, span] of chain) {
+        const flat = flatLessons(cid);
+        const len = flat.length * span;
+        if (off < len) {
+          items.push(Object.assign({ track: "Theory", dayN: (off % span) + 1, spanN: span }, flat[Math.floor(off / span)]));
+          theoryAdded = true;
+          break;
+        }
+        off -= len;
+      }
+    }
+    if (!theoryAdded) {
+      // Stage 2 (math done → week 26): psets and exam prep keep the blade sharp.
+      items.push(d < P2_DAY
+        ? { track: "Theory", pseudo: true, short: "Psets", t: "Problem sets & exam prep — MIT psets, Stat 110 practice, checkpoint exams", href: "#/workshop" }
+        : { track: "Theory", pseudo: true, short: "Frontier", t: "Frontier study on your fork — new papers, ARENA, outside courses", href: "#/electives" });
+    }
+
+    // ---- Build ----
+    // The spine, paced for the rebuild ritual: 3B1B primer 1/day, each
+    // Karpathy lesson 5 days, big-picture 2 days, each fast.ai lesson 4 days.
+    const segs = [["ai200", 0, 1], ["ai200", 1, 5], ["ai200", 2, 2], ["ai210", 0, 4]];
+    let off = d, buildAdded = false;
+    for (const [cid, ui, span] of segs) {
+      const c = D.COURSES.find(x => x.id === cid);
+      const les = c.units[ui].lessons;
+      const len = les.length * span;
+      if (off < len) {
+        const li = Math.floor(off / span);
+        items.push({ track: "Build", cid, ui, li, l: les[li], code: c.code, dayN: (off % span) + 1, spanN: span });
+        buildAdded = true;
+        break;
+      }
+      off -= len;
+    }
+    if (!buildAdded) {
+      if (d < P2_DAY) {
+        // Weeks ~14–26: the original-project block that fills Gate 2.
+        items.push({ track: "Build", pseudo: true, short: "Project", t: "Original project block — your GPT on your corpus, nanoGPT depth, labs (see week focus)", href: "#/workshop" });
+      } else {
+        // Week 27+: the Paper Room, one canonical paper per 3 weeks.
+        const papers = flatLessons("ai300");
+        const pi = Math.floor((d - P2_DAY) / 21);
+        if (pi < papers.length) items.push(Object.assign({ track: "Build", dayN: ((d - P2_DAY) % 21) + 1, spanN: 21 }, papers[pi]));
+        else items.push({ track: "Build", pseudo: true, short: "Frontier", t: "Frontier build — ship on your fork: labs, open source, product", href: "#/workshop" });
+      }
+    }
     return items;
   }
-  function schedDone(it) { return !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
-  // Unfinished scheduled lessons from days already past.
+  function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
+  function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
+  // One shared renderer for a scheduled item (dashboard + calendar detail).
+  function schedRowHTML(it) {
+    if (it.pseudo) {
+      return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) + '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
+    }
+    const dn = schedDone(it);
+    const dayTag = it.spanN > 1 ? ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny);">day ' + it.dayN + " of " + it.spanN + "</span>" : "";
+    return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
+      (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
+      "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + dayTag + "</span>" +
+      '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
+  }
+  // Unfinished scheduled lessons from days already past (multi-day lessons
+  // count once — via a set of lesson keys).
   function backlogCount() {
     const today = todayISO();
-    let n = 0;
+    const owed = new Set();
     for (let iso = D.START_DATE; iso < today; iso = addDaysISO(iso, 1))
-      scheduledFor(iso).forEach(it => { if (!schedDone(it)) n++; });
-    return n;
+      realSched(iso).forEach(it => { if (!schedDone(it)) owed.add(lessonKey(it.cid, it.ui, it.li)); });
+    return owed.size;
   }
   // Status of a calendar day: judged against ITS OWN scheduled lessons —
   // catching up late still turns the day green. Falls back to activity
@@ -319,7 +394,7 @@
     const today = todayISO();
     if (iso > today) return "upcoming";
     if (iso === today) return "today";
-    const sched = scheduledFor(iso);
+    const sched = realSched(iso);
     if (sched.length) {
       const done = sched.filter(schedDone).length;
       if (done === sched.length) return "completed";
@@ -464,14 +539,8 @@
         ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + backlog + "</strong> unfinished lesson" + (backlog === 1 ? "" : "s") + ' from earlier days — clear them first</span><a class="btn ghost go" href="#/calendar">Calendar</a></div>'
         : "") +
       '<div style="margin-top:6px;">' +
-      todaySched.map(it => {
-        const dn = schedDone(it);
-        return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
-          (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
-          "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + "</span>" +
-          '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
-      }).join("") +
-      (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Beyond the scheduled syllabus — project work per the week focus</span><a class="btn ghost go" href="#/workshop">Workshop</a></div>') +
+      todaySched.map(schedRowHTML).join("") +
+      (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Before Day 1 — calibration and setup</span><a class="btn ghost go" href="#/guide">Handbook</a></div>') +
       '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
       (probs.length ? "NeetCode next: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done.") +
       '</span><a class="btn ghost go" href="#/course/cs150">Tracker</a></div>' +
@@ -724,14 +793,15 @@
         const { w, row } = weekRowFor(iso);
         const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
         const sched = scheduledFor(iso);
-        const dn = sched.filter(schedDone).length;
+        const real = sched.filter(it => !it.pseudo);
+        const dn = real.filter(schedDone).length;
         if (gateByDate[iso]) inner += '<span class="cflag">◆ Gate ' + gateByDate[iso].n + "</span>";
         else if (isSunday) inner += '<span class="cflag" style="color:var(--accent-2);">Review</span>';
         // The day's own courses, so the structure reads straight off the grid
         const names = [];
-        sched.forEach(it => { const n = COURSE_SHORT[it.cid] || it.code; if (!names.includes(n)) names.push(n); });
+        sched.forEach(it => { const n = it.pseudo ? it.short : (COURSE_SHORT[it.cid] || it.code); if (n && !names.includes(n)) names.push(n); });
         inner += '<span class="ctag">' + (names.length ? esc(names.join(" + ")) : esc(row.tag)) + "</span>";
-        inner += '<span class="chrs">' + (sched.length && iso <= today ? dn + "/" + sched.length + " done" : "W" + w + " · ~4.5h") + "</span>";
+        inner += '<span class="chrs">' + (real.length && iso <= today ? dn + "/" + real.length + " done" : "W" + w + " · ~4.5h") + "</span>";
       }
       cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
     }
@@ -763,7 +833,8 @@
     const act = dayActivity(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
     const sched = scheduledFor(iso);
-    const schedDoneN = sched.filter(schedDone).length;
+    const real = sched.filter(it => !it.pseudo);
+    const schedDoneN = real.filter(schedDone).length;
     const probs = nextProblems(2);
 
     const brief = (block, time, what, href, btn) =>
@@ -772,13 +843,7 @@
       (href ? '<a class="btn ghost go" href="' + href + '">' + btn + "</a>" : "") + "</div>";
 
     // This day's own lessons — fixed forever, done state shown per lesson.
-    const schedRows = sched.map(it => {
-      const dn = schedDone(it);
-      return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
-        (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
-        "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + "</span>" +
-        '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
-    }).join("");
+    const schedRows = sched.map(schedRowHTML).join("");
 
     const statusPill = {
       today: '<span class="pill teal">Today</span>',
@@ -789,12 +854,12 @@
     }[status];
 
     // Per-day progress line: this day's scheduled lessons, done vs owed.
-    const fill = sched.length ? schedDoneN / sched.length : (act.sealed ? 1 : 0);
+    const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
     const progressLine =
       '<div style="margin-top:12px;">' +
       '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
       '<span style="letter-spacing:0.14em; text-transform:uppercase; font-weight:600;">Progress this day</span>' +
-      '<span class="mono">' + (sched.length ? schedDoneN + " of " + sched.length + " lessons" : "no scheduled lessons") +
+      '<span class="mono">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
       " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
       '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div></div>';
 

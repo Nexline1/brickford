@@ -270,27 +270,62 @@
     }
     return _flatCache[cid];
   }
-  // Pack each theory turn to a ~2h budget using real video minutes.
-  let _turnCache = null;
-  function theoryTurns(cid) {
-    _turnCache = _turnCache || {};
-    if (!_turnCache[cid]) {
-      const flat = flatLessons(cid);
-      const turns = [];
-      let i = 0;
-      while (i < flat.length) {
-        let effort = 0, j = i;
+  // ---- pacing: real video minutes → daily quotas ----
+  // effort(min) ≈ watch + notes + immediate practice = minutes × 1.8 + 4.
+  // Theory block ≈ 2h (120m), Build ≈ 1.5h (90m). Short videos pack several
+  // to a day; a lesson whose effort exceeds its block spans days ("day 2 of 4").
+  const EFFORT = m => m * 1.8 + 4;
+  const THEORY_BUDGET = 120, BUILD_BUDGET = 90;
+  function packWindows(flat, from, budget) {
+    const out = [];
+    let i = from;
+    while (i < flat.length) {
+      const e = EFFORT(flat[i].l.min || 50);
+      if (e > budget * 1.15) {
+        const n = Math.ceil(e / budget);
+        for (let k = 1; k <= n; k++) out.push({ idxs: [i], dayN: k, spanN: n });
+        i++;
+      } else {
+        let eff = 0, j = i;
         while (j < flat.length) {
-          const e = (flat[j].l.min || 50) * 2.4 + 6;
-          if (j > i && effort + e > 130) break;
-          effort += e; j++;
+          const ej = EFFORT(flat[j].l.min || 50);
+          if (ej > budget * 1.15) break;
+          if (j > i && eff + ej > budget * 1.05) break;
+          eff += ej; j++;
         }
-        turns.push([i, j]);
+        const idxs = []; for (let k = i; k < j; k++) idxs.push(k);
+        out.push({ idxs });
         i = j;
       }
-      _turnCache[cid] = turns;
     }
-    return _turnCache[cid];
+    return out;
+  }
+  let _winCache = null;
+  function fixedWindows(key, flat, budget) {
+    _winCache = _winCache || {};
+    if (!_winCache[key]) _winCache[key] = packWindows(flat, 0, budget);
+    return _winCache[key];
+  }
+  function firstUnfinished(flat) {
+    for (let i = 0; i < flat.length; i++)
+      if (!(S.lessons[lessonKey(flat[i].cid, flat[i].ui, flat[i].li)] || {}).done) return i;
+    return flat.length;
+  }
+  // The work-ahead mechanism. Past days and today are frozen (history stays
+  // history; today can be completed and turn green). Days AFTER today
+  // re-anchor to your first unfinished lesson: clear more than today's quota
+  // and tomorrow automatically asks for the NEXT lessons, never repeats.
+  // Falling behind does NOT shift dates — missed lessons stay owed on their
+  // own days and the backlog counts them.
+  function windowFor(key, flat, budget, slot, todaySlot) {
+    const fixed = fixedWindows(key, flat, budget);
+    if (todaySlot < 0 && firstUnfinished(flat) === 0) return fixed[slot] || null;
+    if (slot <= todaySlot) return fixed[slot] || null;
+    const fu = firstUnfinished(flat);
+    const nextFixedStart = todaySlot + 1 < fixed.length ? fixed[todaySlot + 1].idxs[0] : flat.length;
+    if (fu <= nextFixedStart) return fixed[slot] || null;
+    const dyn = packWindows(flat, fu, budget);
+    return dyn[slot - todaySlot - 1] || null;
   }
   const THEORY_ROT = ["math110", "math120", "math130"];
   const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research" };
@@ -305,21 +340,20 @@
     const items = [];
 
     // ---- Theory ----
-    // Stage 1: the three math courses rotate LA→Calc→Prob. Each turn packs
-    // the ~2h block by REAL video minutes (scraped from YouTube): effort per
-    // lesson = minutes × 2.4 + 6 (watch + rebuild-from-memory + notes), so a
-    // day holds ~4 ten-minute 3B1B chapters but only one 50-minute MIT
-    // lecture. Lesson count per day varies; the two hours don't.
-    const rot = THEORY_ROT[d % 3];
-    const turns = theoryTurns(rot);
+    // Stage 1: the three math courses rotate LA→Calc→Prob, each day's quota
+    // packed from REAL video minutes to fill the ~2h block — ~5 short 3B1B
+    // chapters, or one 50-minute MIT lecture. Future days re-anchor if you
+    // work ahead (see windowFor).
+    const dT = daysBetween(D.START_DATE, todayISO());
+    const rotIdx = d % 3, rot = THEORY_ROT[rotIdx];
+    const rotFlat = flatLessons(rot);
     const turn = Math.floor(d / 3);
+    const todayTurn = dT < 0 ? -1 : Math.floor((dT - rotIdx) / 3); // this course's last turn on/before today
+    const tw = windowFor("t:" + rot, rotFlat, THEORY_BUDGET, turn, todayTurn);
     let theoryAdded = false;
-    if (turn < turns.length) {
-      const rotFlat = flatLessons(rot);
-      for (let k = turns[turn][0]; k < turns[turn][1]; k++) {
-        items.push(Object.assign({ track: "Theory" }, rotFlat[k]));
-        theoryAdded = true;
-      }
+    if (tw) {
+      tw.idxs.forEach(k => items.push(Object.assign({ track: "Theory", dayN: tw.dayN, spanN: tw.spanN }, rotFlat[k])));
+      theoryAdded = tw.idxs.length > 0;
     }
     if (!theoryAdded && d >= P2_DAY) {
       // Stage 3 (week 27+): the depth chain — Math for ML daily, then GPU &
@@ -345,21 +379,15 @@
     }
 
     // ---- Build ----
-    // The spine, paced for the rebuild ritual: 3B1B primer 1/day, each
-    // Karpathy lesson 5 days, big-picture 2 days, each fast.ai lesson 4 days.
-    const segs = [["ai200", 0, 1], ["ai200", 1, 5], ["ai200", 2, 2], ["ai210", 0, 4]];
-    let off = d, buildAdded = false;
-    for (const [cid, ui, span] of segs) {
-      const c = D.COURSES.find(x => x.id === cid);
-      const les = c.units[ui].lessons;
-      const len = les.length * span;
-      if (off < len) {
-        const li = Math.floor(off / span);
-        items.push({ track: "Build", cid, ui, li, l: les[li], code: c.code, dayN: (off % span) + 1, spanN: span });
-        buildAdded = true;
-        break;
-      }
-      off -= len;
+    // The spine (Zero to Hero → fast.ai), packed by real minutes into the
+    // ~1.5h block: short primer videos pair up; a 2h+ Karpathy build spans
+    // several days ("day 2 of 4"). Future days re-anchor if you work ahead.
+    const spineFlat = flatLessons("ai200").concat(flatLessons("ai210"));
+    const bw = windowFor("b:spine", spineFlat, BUILD_BUDGET, d, dT < 0 ? -1 : dT);
+    let buildAdded = false;
+    if (bw) {
+      bw.idxs.forEach(k => items.push(Object.assign({ track: "Build", dayN: bw.dayN, spanN: bw.spanN }, spineFlat[k])));
+      buildAdded = bw.idxs.length > 0;
     }
     if (!buildAdded) {
       if (d < P2_DAY) {
@@ -1231,7 +1259,7 @@
       '<div class="card"><h2>The daily loop — 4 to 5 hours, 7 days</h2>' +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day. The calendar is a fixed syllabus — each date owns its lessons; the Dashboard shows today’s slot.</p><div style="margin-top:6px;">' +
       row("1", "Open the Dashboard", "today’s scheduled lessons are listed, plus an Owed row if earlier days have unfinished lessons — clear those first", "#/", "Open") +
-      row("2", "Theory · ~2h", "today’s math lessons (the rotation: Linear Algebra → Calculus → Probability). The 2h block packs by real video length — ~4 short 3Blue1Brown chapters, or one full MIT lecture. Watch, rebuild from memory, take notes", null, "") +
+      row("2", "Theory · ~2h", "today’s math lessons (the rotation: Linear Algebra → Calculus → Probability). The 2h block packs by real video length — 4–6 short 3Blue1Brown chapters, or one full MIT lecture. Work past today’s quota and tomorrow automatically advances", null, "") +
       row("3", "Build · ~1.5h", "today’s spine lesson (a Karpathy lesson spans ~5 days — “day 2 of 5” means keep rebuilding it) plus the two named NeetCode problems", null, "") +
       row("4", "Drill · ~10 min", "the Daily Drill serves questions YOU missed. Answer right, they leave; answer wrong, they stay. This is where knowledge becomes permanent", "#/drill", "Drill") +
       row("5", "Publish · ~30 min", "turn today’s lesson notes into a post draft. Notes live under every lecture — write them as future posts", null, "") +

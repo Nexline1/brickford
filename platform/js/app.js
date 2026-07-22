@@ -271,11 +271,61 @@
     const sealed = S.studyDays.includes(iso);
     return { lessons, problems, sealed, any: lessons + problems > 0 || sealed };
   }
-  // Status of a calendar day relative to today and what was done.
+  // ---------- the fixed syllabus ----------
+  // Every date owns its lessons, permanently. Yesterday's content stays on
+  // yesterday; tomorrow's is previewable today. Theory rotates the three
+  // math courses (LA → Calc → Prob, two lessons per turn) so they advance
+  // in parallel like real university courses; Build walks the AI spine in
+  // order, one lesson per day. Progress never reshuffles this map.
+  let _flatCache = null;
+  function flatLessons(cid) {
+    _flatCache = _flatCache || {};
+    if (!_flatCache[cid]) {
+      const c = D.COURSES.find(x => x.id === cid);
+      const out = [];
+      (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => out.push({ cid, ui, li, l, code: c.code })));
+      _flatCache[cid] = out;
+    }
+    return _flatCache[cid];
+  }
+  const THEORY_ROT = ["math110", "math120", "math130"];
+  const SPINE = ["ai200", "ai210"];
+  const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai" };
+  function scheduledFor(iso) {
+    const d = daysBetween(D.START_DATE, iso);
+    if (d < 0) return [];
+    const items = [];
+    const flat = flatLessons(THEORY_ROT[d % 3]);
+    const turn = Math.floor(d / 3);
+    for (let k = turn * 2; k < Math.min(turn * 2 + 2, flat.length); k++)
+      items.push(Object.assign({ track: "Theory" }, flat[k]));
+    const spineFlat = SPINE.flatMap(flatLessons);
+    if (d < spineFlat.length) items.push(Object.assign({ track: "Build" }, spineFlat[d]));
+    return items;
+  }
+  function schedDone(it) { return !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
+  // Unfinished scheduled lessons from days already past.
+  function backlogCount() {
+    const today = todayISO();
+    let n = 0;
+    for (let iso = D.START_DATE; iso < today; iso = addDaysISO(iso, 1))
+      scheduledFor(iso).forEach(it => { if (!schedDone(it)) n++; });
+    return n;
+  }
+  // Status of a calendar day: judged against ITS OWN scheduled lessons —
+  // catching up late still turns the day green. Falls back to activity
+  // for days beyond the scheduled syllabus.
   function dayStatus(iso) {
     const today = todayISO();
     if (iso > today) return "upcoming";
     if (iso === today) return "today";
+    const sched = scheduledFor(iso);
+    if (sched.length) {
+      const done = sched.filter(schedDone).length;
+      if (done === sched.length) return "completed";
+      if (done > 0 || dayActivity(iso).any) return "partial";
+      return "missed";
+    }
     const a = dayActivity(iso);
     if (a.sealed) return "completed";
     if (a.any) return "partial";
@@ -377,9 +427,8 @@
     const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
     const weeksArr = S.weeks.slice(-12);
     const backupAge = S.settings.lastBackup ? daysBetween(S.settings.lastBackup, todayISO()) : null;
-    const mathNext = ["math110", "math120", "math130"].map(nextLessonOf).filter(Boolean)
-      .sort((a, b) => courseMastery(a.c) - courseMastery(b.c))[0];
-    const spineNext = nextLessonOf("ai200") || nextLessonOf("ai210");
+    const todaySched = scheduledFor(todayISO());
+    const backlog = backlogCount();
     const probs = nextProblems(2);
     const drift = planDrift();
 
@@ -410,14 +459,19 @@
 
       '<div class="grid cols-2" style="margin-top:16px;">' +
       '<div class="card"><h2>Today’s plan</h2>' +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Generated from your actual position, not a fixed timetable.</p>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Today’s slot in the fixed syllabus — see the Calendar for the whole map.</p>' +
+      (backlog > 0
+        ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + backlog + "</strong> unfinished lesson" + (backlog === 1 ? "" : "s") + ' from earlier days — clear them first</span><a class="btn ghost go" href="#/calendar">Calendar</a></div>'
+        : "") +
       '<div style="margin-top:6px;">' +
-      '<div class="plan-row"><span class="block">Theory 2h</span><span class="what">' +
-      (mathNext ? "<strong>" + esc(mathNext.c.code) + "</strong> — " + esc(mathNext.l.t) : "All math lectures complete — review or sit an exam") +
-      "</span>" + (mathNext ? '<a class="btn ghost go" href="#/lesson/' + mathNext.c.id + "/" + mathNext.ui + "/" + mathNext.li + '">Open</a>' : '<a class="btn ghost go" href="#/exams">Exams</a>') + "</div>" +
-      '<div class="plan-row"><span class="block">Build 1.5h</span><span class="what">' +
-      (spineNext ? "<strong>" + esc(spineNext.c.code) + "</strong> — " + esc(spineNext.l.t) : "Spine complete — original project work") +
-      "</span>" + (spineNext ? '<a class="btn ghost go" href="#/lesson/' + spineNext.c.id + "/" + spineNext.ui + "/" + spineNext.li + '">Open</a>' : "") + "</div>" +
+      todaySched.map(it => {
+        const dn = schedDone(it);
+        return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
+          (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
+          "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + "</span>" +
+          '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
+      }).join("") +
+      (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Beyond the scheduled syllabus — project work per the week focus</span><a class="btn ghost go" href="#/workshop">Workshop</a></div>') +
       '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
       (probs.length ? "NeetCode next: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done.") +
       '</span><a class="btn ghost go" href="#/course/cs150">Tracker</a></div>' +
@@ -669,11 +723,15 @@
       } else {
         const { w, row } = weekRowFor(iso);
         const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
-        const a = dayActivity(iso);
+        const sched = scheduledFor(iso);
+        const dn = sched.filter(schedDone).length;
         if (gateByDate[iso]) inner += '<span class="cflag">◆ Gate ' + gateByDate[iso].n + "</span>";
         else if (isSunday) inner += '<span class="cflag" style="color:var(--accent-2);">Review</span>';
-        inner += '<span class="ctag">' + esc(row.tag) + "</span>";
-        inner += '<span class="chrs">' + (a.any ? a.lessons + "L · " + a.problems + "P" : "W" + w + " · ~4.5h") + "</span>";
+        // The day's own courses, so the structure reads straight off the grid
+        const names = [];
+        sched.forEach(it => { const n = COURSE_SHORT[it.cid] || it.code; if (!names.includes(n)) names.push(n); });
+        inner += '<span class="ctag">' + (names.length ? esc(names.join(" + ")) : esc(row.tag)) + "</span>";
+        inner += '<span class="chrs">' + (sched.length && iso <= today ? dn + "/" + sched.length + " done" : "W" + w + " · ~4.5h") + "</span>";
       }
       cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
     }
@@ -704,12 +762,23 @@
     const status = dayStatus(iso);
     const act = dayActivity(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
-    const { mathNext, spineNext, probs } = planItems();
+    const sched = scheduledFor(iso);
+    const schedDoneN = sched.filter(schedDone).length;
+    const probs = nextProblems(2);
 
     const brief = (block, time, what, href, btn) =>
       '<div class="plan-row"><span class="block">' + block + '</span><span class="what">' + what +
       (time ? ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny);">' + time + "</span>" : "") + "</span>" +
       (href ? '<a class="btn ghost go" href="' + href + '">' + btn + "</a>" : "") + "</div>";
+
+    // This day's own lessons — fixed forever, done state shown per lesson.
+    const schedRows = sched.map(it => {
+      const dn = schedDone(it);
+      return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
+        (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
+        "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + "</span>" +
+        '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
+    }).join("");
 
     const statusPill = {
       today: '<span class="pill teal">Today</span>',
@@ -719,26 +788,26 @@
       missed: '<span class="pill crimson">Missed — catch up</span>',
     }[status];
 
-    // Per-day progress line: what was actually done on this date.
-    const target = 2; // lessons that make a "full" study day (theory + build)
-    const fill = Math.min(1, (act.lessons + (act.sealed ? 1 : 0)) / (target + 1));
+    // Per-day progress line: this day's scheduled lessons, done vs owed.
+    const fill = sched.length ? schedDoneN / sched.length : (act.sealed ? 1 : 0);
     const progressLine =
       '<div style="margin-top:12px;">' +
       '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
       '<span style="letter-spacing:0.14em; text-transform:uppercase; font-weight:600;">Progress this day</span>' +
-      '<span class="mono">' + act.lessons + ' lesson' + (act.lessons === 1 ? "" : "s") + " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
-      '<div class="bar' + (act.sealed ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div></div>';
+      '<span class="mono">' + (sched.length ? schedDoneN + " of " + sched.length + " lessons" : "no scheduled lessons") +
+      " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
+      '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div></div>';
 
     const catchUp = (status === "missed" || status === "partial")
       ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>' +
-        (status === "missed" ? "You missed this day — pick it back up." : "You started but didn’t finish this day.") +
-        '</strong><div style="font-size:var(--fs-small); margin-top:2px;">Nothing is lost. Brickford is sequential, so the buttons below open the exact lessons you still owe. Clear them, then move on to today.</div></div>'
+        (status === "missed" ? "You missed this day — its lessons are still here." : "You started this day but didn’t finish it.") +
+        '</strong><div style="font-size:var(--fs-small); margin-top:2px;">This day’s content never moves. Clear the unticked lessons below and the day turns green — even late. That’s getting back on track.</div></div>'
       : "";
 
-    const briefLabel = status === "missed" ? "Catch-up plan — finish what’s owed"
-      : status === "partial" ? "Finish this day"
-      : status === "upcoming" ? "The plan for this day · ~4h 40m"
-      : "Today’s brief · ~4h 40m";
+    const briefLabel = status === "missed" ? "This day’s lessons — finish what’s owed"
+      : status === "partial" ? "This day’s lessons — finish the rest"
+      : status === "upcoming" ? "This day’s lessons · ~4h 40m"
+      : "Today’s lessons · ~4h 40m";
 
     return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
       "<h2>" + nice + "</h2>" +
@@ -749,12 +818,7 @@
       (gate ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + '</strong><div style="font-size:var(--fs-small); margin-top:2px;">' + esc(gate.req) + "</div></div>" : "") +
       '<div style="margin-top:12px;">' +
       '<div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:2px;">' + briefLabel + "</div>" +
-      brief("Theory 2h",
-        mathNext ? "<strong>" + esc(mathNext.c.code) + "</strong> — " + esc(mathNext.l.t) : "Math complete — review or sit an exam",
-        "", mathNext ? "#/lesson/" + mathNext.c.id + "/" + mathNext.ui + "/" + mathNext.li : "#/exams", "Open") +
-      brief("Build 1.5h",
-        spineNext ? "<strong>" + esc(spineNext.c.code) + "</strong> — " + esc(spineNext.l.t) : "Spine complete — original project work",
-        "", spineNext ? "#/lesson/" + spineNext.c.id + "/" + spineNext.ui + "/" + spineNext.li : "#/workshop", "Open") +
+      (schedRows || brief("Study", "Beyond the scheduled syllabus — project work per the week focus above", "", "#/workshop", "Workshop")) +
       brief("Practice",
         probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done",
         "45m", "#/course/cs150", "Tracker") +
@@ -762,7 +826,7 @@
       brief("Publish", "Turn today’s notes into a public post", "30m", "#/review", "Review") +
       (isSunday ? brief("Sunday", "Seal the week — no shipped artifact = a failed week", "30m", "#/review", "Seal") : "") +
       "</div>" +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">The brief’s theme comes from your week plan; the Open buttons always jump to your true next lesson — so tackling them in order keeps you on schedule, even after a busy day.</p>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">This calendar is a fixed syllabus: each date owns these exact lessons, forever. Theory rotates Linear Algebra → Calculus → Probability so all three advance together; Build walks the AI spine in order. Click any past or future day to see precisely its material.</p>' +
       "</div>";
   }
 

@@ -270,6 +270,12 @@
     }
     return _flatCache[cid];
   }
+  // A lesson's position within its whole course: { n, total } → "lecture 7/51".
+  function coursePos(cid, ui, li) {
+    const flat = flatLessons(cid);
+    const i = flat.findIndex(x => x.ui === ui && x.li === li);
+    return { n: i + 1, total: flat.length };
+  }
   const THEORY_ROT = ["math110", "math120", "math130"];
   const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research" };
   const P2_DAY = 182; // day index where Phase 2 opens (week 27)
@@ -356,10 +362,13 @@
       return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) + '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
     }
     const dn = schedDone(it);
-    const dayTag = it.spanN > 1 ? ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny);">day ' + it.dayN + " of " + it.spanN + "</span>" : "";
+    const pos = coursePos(it.cid, it.ui, it.li);
+    const meta = ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny); white-space:nowrap;">lecture ' + pos.n + "/" + pos.total +
+      " · " + (it.track === "Theory" ? "~2h" : "~1.5h") +
+      (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + "</span>";
     return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
       (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
-      "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + dayTag + "</span>" +
+      "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + meta + "</span>" +
       '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
   }
   // Unfinished scheduled lessons from days already past (multi-day lessons
@@ -612,7 +621,11 @@
       (c.quiz ? '<a class="btn" href="#/quiz/' + c.quiz + '">Sit the examination</a>' : "") +
       "</div></div>" +
       c.units.map((u, ui) =>
-        '<div class="card"><h2 style="margin-bottom:6px;">' + esc(u.name) + "</h2>" +
+        '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px;"><h2>' + esc(u.name) + "</h2>" +
+        (function () {
+          const uDone = u.lessons.filter((_, i) => (S.lessons[lessonKey(c.id, ui, i)] || {}).done).length;
+          return '<span class="pill' + (uDone === u.lessons.length ? " good" : "") + '">' + uDone + " / " + u.lessons.length + " lectures</span>";
+        })() + "</div>" +
         u.lessons.map((l, i) => {
           const k = lessonKey(c.id, ui, i);
           const done = (S.lessons[k] || {}).done;
@@ -839,13 +852,21 @@
 
     // Per-day progress line: this day's scheduled lessons, done vs owed.
     const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
+    // Where you stand in each course featured today: "Lin Algebra 6/51".
+    const courseStand = [...new Set(real.map(it => it.cid))].map(cid => {
+      const c = D.COURSES.find(x => x.id === cid);
+      const cs = courseLessonStats(c);
+      return "<strong>" + esc(COURSE_SHORT[cid] || c.code) + "</strong> " + cs.done + "/" + cs.total + " lectures done";
+    }).join(" · ");
     const progressLine =
       '<div style="margin-top:12px;">' +
       '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
       '<span style="letter-spacing:0.14em; text-transform:uppercase; font-weight:600;">Progress this day</span>' +
       '<span class="mono">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
       " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
-      '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div></div>';
+      '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
+      (courseStand ? '<div style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:6px;">' + courseStand + "</div>" : "") +
+      "</div>";
 
     const catchUp = (status === "missed" || status === "partial")
       ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>' +

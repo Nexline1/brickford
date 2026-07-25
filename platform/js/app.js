@@ -200,15 +200,16 @@
     const events = [];
     events.push([
       "BEGIN:VEVENT", "UID:brickford-daily@brickford.local", "DTSTAMP:" + stamp,
-      "DTSTART:" + ymd(D.START_DATE) + "T" + t(sh * 60 + sm) + "00",
-      "DTEND:" + ymd(D.START_DATE) + "T" + t(endMin) + "00",
+      "DTSTART:" + ymd(D.START_DATE) + "T" + t(sh * 60 + sm),
+      "DTEND:" + ymd(D.START_DATE) + "T" + t(endMin),
       "RRULE:FREQ=DAILY",
       "SUMMARY:Brickford — Deep Track",
       "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
       "END:VEVENT",
     ].join("\r\n"));
     const startDow = new Date(D.START_DATE + "T00:00:00").getDay();
-    const sunday = addDaysISO(D.START_DATE, (7 - startDow) % 7);
+    // A Sunday start date must not review a week that hasn't run yet.
+    const sunday = addDaysISO(D.START_DATE, (7 - startDow) % 7 || 7);
     events.push([
       "BEGIN:VEVENT", "UID:brickford-review@brickford.local", "DTSTAMP:" + stamp,
       "DTSTART:" + ymd(sunday) + "T180000", "DTEND:" + ymd(sunday) + "T183000",

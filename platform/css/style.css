@@ -301,9 +301,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .card.feature a { color: var(--panel-accent); }
 
 .grid { display: grid; gap: var(--sp-3); }
-.grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+/* min() keeps the track from claiming more than the container has: a bare
+   minmax(300px,…) overflows the viewport on a 320px phone. */
+.grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+.grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
+.grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); }
 
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
@@ -500,6 +502,43 @@ tr:last-child td { border-bottom: none; }
 .cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .cal-legend .pdot { width: 7px; height: 7px; border-radius: 50%; }
+/* Phones: restack table rows as labelled blocks. A desktop table on a narrow
+   card clips its trailing columns past the card edge — including interactive
+   ones — so below 640px each row becomes a self-contained block instead. */
+@media (max-width: 640px) {
+  .table-wrap { overflow-x: visible; }
+  .stack-table, .stack-table tbody, .stack-table tr, .stack-table td { display: block; width: auto; }
+  .stack-table thead { display: none; }
+  .stack-table tr {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 6px 12px; margin-bottom: 10px; background: var(--bg-2);
+  }
+  .stack-table tr:last-child { margin-bottom: 0; }
+  .stack-table td {
+    border: none; padding: 6px 0;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 4px 14px;
+    text-align: left;
+    /* Wrap the value onto its own line rather than pushing it off the card. */
+    flex-wrap: wrap; overflow-wrap: anywhere;
+  }
+  .stack-table td + td { border-top: 1px solid var(--line); }
+  .stack-table td::before {
+    content: attr(data-label);
+    font-size: var(--fs-tiny); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-3); text-align: left; flex-shrink: 0;
+  }
+  /* A progress bar is a block child: as a flex item it would collapse to zero
+     width, and its track shares the stacked row's colour — so stretch and
+     re-tint it. */
+  .stack-table td > .bar { flex: 1 1 auto; min-width: 90px; background: var(--line); }
+  /* Unlabelled cells (icon links) and full-width empty-state rows stay plain. */
+  .stack-table td:not([data-label]) { justify-content: flex-end; }
+  .stack-table td:not([data-label])::before { content: none; }
+  .stack-table td[colspan] { text-align: left; justify-content: flex-start; }
+  /* Cells set nowrap for desktop columns must wrap once stacked. */
+  .stack-table td[style*="nowrap"] { white-space: normal !important; }
+}
+
 @media (max-width: 640px) {
   .cal-cell { min-height: 62px; padding: 4px; }
   .cal-cell .ctag { -webkit-line-clamp: 1; font-size: 0.55rem; }

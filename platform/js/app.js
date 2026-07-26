@@ -1562,6 +1562,24 @@
     const h = location.hash.replace(/^#/, "") || "/";
     return h;
   }
+  // Phone layout for tables: a desktop table on a 300px-wide card clips its
+  // last columns off the card edge — on Outside Courses that hid the Status
+  // control entirely. Stamping each body cell with its column header lets CSS
+  // restack the row as labelled lines below 640px, with nothing off-screen.
+  function stackTables(root) {
+    $$(".table-wrap table", root).forEach(t => {
+      const heads = $$("thead th", t).map(th => th.textContent.trim());
+      if (!heads.length) return;
+      t.classList.add("stack-table");
+      $$("tbody tr", t).forEach(tr => {
+        Array.from(tr.children).forEach((td, i) => {
+          if (td.hasAttribute("colspan")) return;
+          if (heads[i]) td.setAttribute("data-label", heads[i]);
+        });
+      });
+    });
+  }
+
   function render() {
     clearInterval(timerH);
     const r = route();
@@ -1588,6 +1606,7 @@
     else html = V.dashboard();
     view.innerHTML = html;
     renderMath(view);
+    stackTables(view);
     wire(view, r);
     // nav active state (sidebar + mobile tab bar)
     $$(".nav a, .tabbar a").forEach(a => {

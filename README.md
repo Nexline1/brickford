@@ -3,7 +3,7 @@
 > **This kit now lives inside your university platform: double-click `Brickford.bat` in this folder.**
 > It opens **Brickford** in your browser — courses with embedded lectures, the Exam Hall (timers + auto-graded exams), transcript & gates, weekly review, treasury, and this document rendered in the Library. The launcher window also prints a **phone URL** (works on the same Wi-Fi while the PC is on). Use the platform's **Backup** button weekly; progress lives per-browser, and Backup/Restore moves it between devices.
 
-Start date: 2026-07-26 (Day 1, a Sunday — week boundaries and the Sunday review land together). Everything here is measurable. No vibes, only results.
+Start date: 2026-07-27 (Day 1, a Monday — each week runs Monday to Sunday, and the Sunday review seals it). Everything here is measurable. No vibes, only results.
 
 ---
 

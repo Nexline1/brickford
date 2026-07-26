@@ -283,6 +283,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   padding: var(--sp-4);
 }
 .card + .card { margin-top: var(--sp-3); }
+/* Inside a grid the gap already spaces cards; the stacking margin above would
+   also apply to grid siblings and push every card but the first down. */
+.grid > .card + .card, .tiles > .card + .card { margin-top: 0; }
 .card.hoverable { transition: border-color var(--t-hover) ease; }
 .card.hoverable:hover { border-color: var(--line-strong); }
 
@@ -362,6 +365,10 @@ label.field { display: block; font-size: var(--fs-tiny); text-transform: upperca
 .bar { height: 4px; background: var(--bg-2); border-radius: 999px; overflow: hidden; }
 .bar > i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transform-origin: left; transition: transform 600ms var(--ease); }
 .bar.teal > i { background: var(--accent-2); }
+/* .bar.grow sweeps from empty on first paint; --w carries the target scale.
+   The inline transform stays as the reduced-motion / no-JS resting state. */
+.bar.grow > i { animation: barGrow 760ms var(--ease) 100ms both; }
+@keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(var(--w, 1)); } }
 
 /* Stat tiles */
 .stat { padding: var(--sp-3) var(--sp-4); }
@@ -410,6 +417,10 @@ tr:last-child td { border-bottom: none; }
   font-family: var(--font-body); font-size: var(--fs-small); line-height: 1.6;
   transition: border-color var(--t-micro) ease, background-color var(--t-micro) ease;
 }
+/* Questions are drawn at random, so any sitting may serve a long formula or
+   unbreakable token. Break it instead of letting it push the page sideways. */
+.opt, .opt > * { min-width: 0; }
+.opt { overflow-wrap: anywhere; }
 .opt:hover { border-color: var(--line-strong); background: var(--bg-2); }
 .opt .key { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
 .opt.sel { border-color: var(--ink); color: var(--ink); }
@@ -472,6 +483,9 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- KaTeX sizing ---------- */
 .katex { font-size: 1.02em; }
+/* Display math cannot wrap; let the equation scroll inside its own box rather
+   than widening the page. */
+.katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 2px 0; }
 
 /* ---------- Month calendar grid ---------- */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: var(--sp-3); }
@@ -546,6 +560,62 @@ tr:last-child td { border-bottom: none; }
   .cal-dow { font-size: 0.55rem; }
 }
 
+/* ---------- Dashboard: hero, rings, tiles ---------- */
+/* One band across the top: identity + day on the left, today's ring right. */
+.hero { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; }
+.hero .hero-text { flex: 1 1 320px; min-width: 0; }
+.hero h1 { margin-top: 4px; }
+.hero .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: var(--fs-small); color: var(--ink-2); }
+.hero .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
+/* When the ring wraps below the text on a phone, keep it on the right edge
+   rather than stranded at the left. */
+.hero > .ring-wrap { margin-left: auto; }
+
+/* Donut progress. pathLength=100 makes the dash maths percentage-direct. */
+.ring { display: block; flex-shrink: 0; }
+.ring circle { fill: none; stroke-linecap: round; }
+.ring .track { stroke: var(--line); }
+.ring .fill {
+  stroke: var(--accent); stroke-dasharray: 100; stroke-dashoffset: 100;
+  animation: ringDraw 900ms var(--ease) 80ms forwards;
+}
+.ring .fill.teal { stroke: var(--accent-2); }
+.ring .fill.good { stroke: var(--good); }
+@keyframes ringDraw { to { stroke-dashoffset: var(--to, 100); } }
+.ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
+.ring-wrap .ring-label {
+  position: absolute; text-align: center; font-family: var(--font-mono);
+  font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
+}
+.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
+
+/* Compact metric tiles — 2 across on phones instead of four full-width cards. */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-3); }
+@media (max-width: 860px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); }
+.tile .t-label { font-size: var(--fs-tiny); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.tile .t-value { font-family: var(--font-mono); font-size: 1.55rem; font-weight: 500; line-height: 1.2; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tile .t-value .unit { font-family: var(--font-body); font-size: 0.72rem; color: var(--ink-3); }
+/* auto keeps every tile's bar on the same baseline, so a tile without one
+   (Posts, Treasury) does not leave the row ragged. */
+.tile .bar { margin-top: auto; }
+.tile .t-value { margin-bottom: 10px; }
+
+/* Staggered entrance for a list of cards or rows. */
+.stagger > * { animation: riseIn 300ms var(--ease) both; }
+@keyframes riseIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.stagger > *:nth-child(1) { animation-delay: 30ms; }
+.stagger > *:nth-child(2) { animation-delay: 70ms; }
+.stagger > *:nth-child(3) { animation-delay: 110ms; }
+.stagger > *:nth-child(4) { animation-delay: 150ms; }
+.stagger > *:nth-child(5) { animation-delay: 190ms; }
+.stagger > *:nth-child(6) { animation-delay: 230ms; }
+.stagger > *:nth-child(7) { animation-delay: 270ms; }
+.stagger > *:nth-child(n+8) { animation-delay: 300ms; }
+
+/* A feature card in a 2-column grid must not stretch to the tall column. */
+.grid.top > * { align-self: start; }
+
 /* ---------- Plan rows (dashboard day plan) ---------- */
 .plan-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
 .plan-row:last-child { border-bottom: none; padding-bottom: 0; }
@@ -553,6 +623,16 @@ tr:last-child td { border-bottom: none; }
 .plan-row .what { flex: 1; min-width: 0; font-size: var(--fs-small); color: var(--ink-2); }
 .plan-row .what strong { color: var(--ink); font-weight: 600; }
 .plan-row .go { flex-shrink: 0; }
+/* Phones: a fixed 84px chip plus a button left the text ~100px wide, so one
+   short sentence wrapped over six lines. Chip and action share the first line,
+   the text takes the full width below. Must come after `.what { flex: 1 }`
+   above — equal specificity, so source order decides. */
+@media (max-width: 640px) {
+  .plan-row { flex-wrap: wrap; gap: 4px 10px; }
+  .plan-row .block { order: 1; }
+  .plan-row .go { order: 2; margin-left: auto; }
+  .plan-row .what { order: 3; flex: 1 1 100%; }
+}
 
 /* ---------- Responsive ---------- */
 .menu-btn { display: none; }

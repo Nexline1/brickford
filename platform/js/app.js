@@ -117,9 +117,8 @@
   }
   function currentFocus() {
     const w = weekNumber();
-    const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to);
-    const last = D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
-    return { week: w, focus: row ? row.focus : last.focus };
+    const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
+    return { week: w, focus: row.focus, tag: row.tag, phase: row.phase };
   }
   function addMonths(iso, m) {
     // Local-date arithmetic; toISOString would shift the day in non-UTC zones.
@@ -564,73 +563,119 @@
     const weeksArr = S.weeks.slice(-12);
     const backupAge = S.settings.lastBackup ? daysBetween(S.settings.lastBackup, todayISO()) : null;
     const todaySched = scheduledFor(todayISO());
+    const real = todaySched.filter(it => !it.pseudo);
+    const doneToday = real.filter(schedDone).length;
     const backlog = backlogCount();
     const probs = nextProblems(2);
     const drift = planDrift();
+    const dsa = dsaCount(), posts = postsTotal(), rev = Math.round(revenueTotal());
+    const dayPct = real.length ? (doneToday / real.length) * 100 : (studiedToday ? 100 : 0);
+    const charted = weeksArr.some(w => (+w.dsa || 0) || (+w.revenue || 0));
+
+    // Gate progress: how far through this gate's own window we are, so the
+    // ring reads as "time spent" against the countdown beside it.
+    let gatePct = 0, gateLeft = 0;
+    if (g) {
+      gateLeft = Math.max(0, daysBetween(todayISO(), g.target));
+      const span = g.months * 30.4;
+      gatePct = Math.max(0, Math.min(100, ((span - gateLeft) / span) * 100));
+    }
+
+    const tile = (label, valueHTML, barPct, tone) =>
+      '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + valueHTML + "</div>" +
+      (barPct == null ? "" : '<div class="bar grow' + (tone ? " " + tone : "") + '"><i style="--w:' + (barPct / 100) + '; transform:scaleX(' + (barPct / 100) + ');"></i></div>') +
+      "</div>";
+    const num = (v, dec) => '<span data-count="' + v + '"' + (dec ? ' data-dec="' + dec + '"' : "") + ">" + (dec ? v.toFixed(dec) : v) + "</span>";
 
     return '<div class="view-enter">' +
-      '<div class="page-head"><div class="kicker">' + esc(D.IDENTITY.est) + '</div>' +
-      '<h1>' + greet + ' — <span class="mono" style="color:var(--accent);">Day ' + String(day).padStart(3, "0") + '</span> of the climb</h1>' +
-      '<div class="sub">Week ' + f.week + ' · ' + esc(f.focus) + "</div></div>" +
+      // ---- Hero: identity, day, one short line of context, today's ring ----
+      '<div class="page-head hero">' +
+      '<div class="hero-text"><div class="kicker">' + esc(D.IDENTITY.est) + "</div>" +
+      "<h1>" + greet + ' — <span class="mono" style="color:var(--accent);">Day ' + String(day).padStart(3, "0") + "</span></h1>" +
+      '<div class="meta"><span>Week ' + f.week + '</span><span class="dot"></span><span>Phase ' + f.phase + '</span><span class="dot"></span>' +
+      '<span class="pill gold">' + esc(f.tag) + "</span>" +
+      (studiedToday ? '<span class="pill good">✓ today marked</span>' : "") + "</div></div>" +
+      ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 92) +
+      "</div>" +
 
       (S.settings.lastLesson
         ? '<div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
-          '<div><div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">Continue where you left off</div>' +
+          '<div><div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">Continue</div>' +
           '<div style="color:var(--ink); font-weight:600; margin-top:2px;">' + esc(S.settings.lastLesson.label) + "</div></div>" +
           '<a class="btn" href="#/lesson/' + S.settings.lastLesson.cid + "/" + S.settings.lastLesson.ui + "/" + S.settings.lastLesson.li + '">Resume ▸</a></div>'
         : "") +
 
       (backupAge === null || backupAge > 14
         ? '<div class="card" style="border-color:var(--line-strong); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;"><span style="font-size:var(--fs-small); color:var(--ink-2);">' +
-          (backupAge === null ? "No backup has ever been taken. Your progress lives in this browser — export a backup file now." : "Last backup was " + backupAge + " days ago.") +
+          (backupAge === null ? "Progress lives in this browser only — take a backup." : "Last backup " + backupAge + " days ago.") +
           '</span><button class="btn" data-act="backup">Export backup</button></div>'
         : "") +
 
-      '<div class="grid cols-4" style="margin-top:16px;">' +
-      '<div class="card stat"><div class="stat-label">Streak</div><div class="stat-value">' + st + ' <span class="unit">days</span></div><div class="stat-sub">' + (studiedToday ? "Today is counted." : "Today not yet marked.") + "</div></div>" +
-      '<div class="card stat"><div class="stat-label">DSA solved</div><div class="stat-value">' + dsaCount() + ' <span class="unit">/ 150</span></div><div class="stat-sub">Month-6 gate target</div></div>' +
-      '<div class="card stat"><div class="stat-label">Posts published</div><div class="stat-value">' + postsTotal() + '</div><div class="stat-sub">Become undeniable in public</div></div>' +
-      '<div class="card stat"><div class="stat-label">Treasury</div><div class="stat-value">' + Math.round(revenueTotal()) + ' <span class="unit">BHD</span></div><div class="stat-sub">Earning track, ≤2h/day</div></div>' +
+      // ---- Four metrics, two across on phones ----
+      '<div class="tiles stagger" style="margin-top:16px;">' +
+      tile("Streak", num(st) + ' <span class="unit">days</span>', Math.min(100, st / 30 * 100)) +
+      tile("DSA", num(dsa) + ' <span class="unit">/ 150</span>', dsa / 150 * 100) +
+      tile("Posts", num(posts), null) +
+      tile("Treasury", num(rev) + ' <span class="unit">BHD</span>', null) +
       "</div>" +
 
-      '<div class="grid cols-2" style="margin-top:16px;">' +
-      '<div class="card"><h2>Today’s plan</h2>' +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Today’s slot in the fixed syllabus — see the Calendar for the whole map.</p>' +
-      dayLoadHTML(todaySched.filter(it => !it.pseudo)) +
+      '<div class="grid cols-2 top" style="margin-top:16px;">' +
+      // ---- Today ----
+      '<div class="card"><div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
+      "<h2>Today</h2>" +
+      (real.length ? '<span class="mono" style="font-size:var(--fs-small); color:var(--ink-3);">' + doneToday + " of " + real.length + " done</span>" : "") +
+      "</div>" +
+      (real.length ? '<div class="bar grow" style="margin-top:10px;"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div>' : "") +
+      dayLoadHTML(real) +
       (backlog > 0
-        ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + backlog + "</strong> unfinished lesson" + (backlog === 1 ? "" : "s") + ' from earlier days — clear them first</span><a class="btn ghost go" href="#/calendar">Calendar</a></div>'
+        ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + (backlog > 20 ? "20+" : backlog) + "</strong> lesson" + (backlog === 1 ? "" : "s") + " behind</span><a class=\"btn ghost go\" href=\"#/calendar\">Calendar</a></div>"
         : "") +
-      '<div style="margin-top:6px;">' +
+      '<div class="stagger" style="margin-top:6px;">' +
       todaySched.map(schedRowHTML).join("") +
       (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Before Day 1 — calibration and setup</span><a class="btn ghost go" href="#/guide">Handbook</a></div>') +
       '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
-      (probs.length ? "NeetCode next: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done.") +
+      (probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 done.") +
       '</span><a class="btn ghost go" href="#/course/cs150">Tracker</a></div>' +
       '<div class="plan-row"><span class="block">Drill</span><span class="what">' +
-      (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting in the pool" : "Pool clear — a random drill keeps the blade sharp") +
+      (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting" : "Pool clear") +
       '</span><a class="btn ghost go" href="#/drill">Drill</a></div>' +
-      '<div class="plan-row"><span class="block">Publish</span><span class="what">Turn today’s notes into public output — the weekly post is non-negotiable.</span><a class="btn ghost go" href="#/review">Review</a></div>' +
+      '<div class="plan-row"><span class="block">Publish</span><span class="what">Notes → public output</span><a class="btn ghost go" href="#/review">Review</a></div>' +
       "</div>" +
       '<div style="margin-top:14px;">' + (studiedToday
         ? '<span class="pill good">✓ Deep Track marked for today</span>'
         : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div></div>" +
 
-      '<div class="card feature"><h2>Next gate' + (g ? " — " + esc(g.label) : "") + "</h2>" +
+      // ---- Next gate: countdown + how far through its window ----
+      '<div class="card feature">' +
+      '<div style="display:flex; align-items:center; gap:var(--sp-4); flex-wrap:wrap;">' +
+      '<div style="flex:1 1 180px; min-width:0;">' +
+      "<h2>" + (g ? "Gate " + g.n + " — " + esc(g.label) : "All gates passed") + "</h2>" +
       (g
-        ? '<div class="mono" style="margin:8px 0 4px; font-size:1.7rem; color:var(--accent);">' + Math.max(0, daysBetween(todayISO(), g.target)) + " days remain</div>" +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(g.req) + "</p>" +
-          '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:6px;">Target ' + g.target + ' · adaptive — pass early and every later gate moves earlier · <a href="#/transcript">Transcript &amp; Gates</a></p>' +
-          '<p style="font-size:var(--fs-tiny); margin-top:2px; color:var(--ink-3);">Projected finish ' + drift.projected +
-          (drift.aheadDays > 0 ? ' · <span style="color:var(--good);">' + drift.aheadDays + " days ahead of the 3-year baseline</span>"
-            : drift.aheadDays < 0 ? ' · <span style="color:var(--bad);">' + (-drift.aheadDays) + " days behind the 3-year baseline</span>"
-            : " · on baseline") + "</p>"
-        : '<p style="color:var(--good);">All five gates passed. You are what you set out to become.</p>') +
+        ? '<div class="mono" style="margin:6px 0 2px; font-size:1.9rem; color:var(--accent);">' + num(gateLeft) + ' <span style="font-size:0.8rem; color:var(--panel-ink);">days left</span></div>' +
+          '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(g.req) + "</p>"
+        : '<p style="color:var(--good);">You are what you set out to become.</p>') +
+      "</div>" +
+      (g ? ringHTML(gatePct, Math.round(gatePct) + "%", "elapsed", "", 92) : "") +
+      "</div>" +
+      (g
+        ? '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">Target ' + g.target + " · finish " + drift.projected +
+          (drift.aheadDays > 0 ? ' · <span style="color:var(--good);">' + drift.aheadDays + " days ahead</span>"
+            : drift.aheadDays < 0 ? ' · <span style="color:var(--bad);">' + (-drift.aheadDays) + " days behind</span>"
+            : " · on baseline") +
+          ' · <a href="#/transcript">All gates</a></p>'
+        : "") +
       "</div></div>" +
 
-      '<div class="grid cols-2" style="margin-top:16px;">' +
-      '<div class="card"><h2>DSA problems over time</h2>' + lineChart(weeksArr.map(w => +w.dsa || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
-      '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
-      "</div></div>";
+      // ---- Charts only once there is something to plot ----
+      (charted
+        ? '<div class="grid cols-2" style="margin-top:16px;">' +
+          '<div class="card"><h2>DSA over time</h2>' + lineChart(weeksArr.map(w => +w.dsa || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
+          '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
+          "</div>"
+        : '<div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
+          '<span style="font-size:var(--fs-small); color:var(--ink-2);">Seal your first week to start the charts.</span>' +
+          '<a class="btn ghost" href="#/review">Weekly Review</a></div>') +
+      "</div>";
   };
 
   V.courses = function () {
@@ -1562,6 +1607,37 @@
     const h = location.hash.replace(/^#/, "") || "/";
     return h;
   }
+  // SVG donut. pathLength=100 lets the dash offset be read straight off the
+  // percentage, so the CSS animation just sweeps to (100 - pct).
+  function ringHTML(pct, label, sub, tone, size) {
+    const s = size || 84, r = (s - 9) / 2, p = Math.max(0, Math.min(100, Math.round(pct)));
+    return '<div class="ring-wrap" style="width:' + s + "px; height:" + s + 'px;">' +
+      '<svg class="ring" width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + " " + s + '" aria-hidden="true">' +
+      '<circle class="track" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r + '" stroke-width="5"/>' +
+      '<circle class="fill' + (tone ? " " + tone : "") + '" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r +
+      '" stroke-width="5" pathLength="100" style="--to:' + (100 - p) + '; transform:rotate(-90deg); transform-origin:center;"/>' +
+      "</svg>" +
+      '<div class="ring-label">' + esc(label) + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</div></div>";
+  }
+
+  // Count a number up from zero on entry. The element already holds its final
+  // text, so this is decoration only — reduced-motion and no-JS both keep it.
+  function animateCounts(root) {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    $$("[data-count]", root).forEach(el => {
+      const to = parseFloat(el.getAttribute("data-count"));
+      if (!isFinite(to) || to === 0) return;
+      const dec = +(el.getAttribute("data-dec") || 0), t0 = performance.now(), dur = 700;
+      el.textContent = (0).toFixed(dec);
+      const step = now => {
+        const k = Math.min(1, (now - t0) / dur);
+        el.textContent = (to * (1 - Math.pow(1 - k, 3))).toFixed(dec);
+        if (k < 1) requestAnimationFrame(step); else el.textContent = to.toFixed(dec);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
   // Phone layout for tables: a desktop table on a 300px-wide card clips its
   // last columns off the card edge — on Outside Courses that hid the Status
   // control entirely. Stamping each body cell with its column header lets CSS
@@ -1607,6 +1683,7 @@
     view.innerHTML = html;
     renderMath(view);
     stackTables(view);
+    animateCounts(view);
     wire(view, r);
     // nav active state (sidebar + mobile tab bar)
     $$(".nav a, .tabbar a").forEach(a => {

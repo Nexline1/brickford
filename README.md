@@ -48,6 +48,37 @@ Write ONE productized offer using skills you already have. Template:
 
 Rules: fixed scope, fixed price, delivery ≤ 2 weeks, max 2 clients at once, ≤2 h/day. Your Arabic+English+German and real agency experience is the moat.
 
+## Verifying this record
+
+The platform keeps an append-only log of every completed lecture, examination,
+gate and sealed week. Each entry commits to the one before it:
+
+    hash = sha256(canonical_json({ i, ts, type, ref, data, prev }))
+    prev = the previous entry's hash   (first entry: "brickford-genesis")
+
+Edit, insert or delete any past entry and every hash after it stops matching.
+**The Record** page shows the current verdict and exports the whole log.
+
+To check an exported `brickford-record-*.json` yourself, without trusting this
+code: every entry ships the exact bytes that were hashed, so
+
+    printf '%s' "<preimage>" | shasum -a 256
+
+must reproduce that entry's `hash`, and each `prev` must equal the previous
+entry's `hash`.
+
+**What this does and does not prove.** The chain proves the log has not been
+edited since it was written. It does not, by itself, prove *when* anything
+happened — the timestamps are self-reported. That is what the anchors are for:
+publishing a head hash somewhere with its own independent timestamp (a commit
+in this repo, a public post) pins the whole history before it to that date,
+because the hash could not have been computed from a log that did not yet
+exist. Anchor often; each one hardens everything before it. The strongest
+evidence remains the external artifacts themselves — repositories, commits,
+pull requests, published posts — which carry timestamps nobody here controls.
+
+---
+
 ## 5. Weekly Rhythm starts immediately
 
 Every Sunday: fill one row in [progress-log.md](progress-log.md). A week with no shipped artifact = failed week, regardless of hours "studied."

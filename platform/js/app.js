@@ -60,6 +60,98 @@
   S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
   function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+  S.ledger = S.ledger || [];
+  S.anchors = S.anchors || [];
+
+  // ---------- SHA-256, synchronous, no dependencies ----------
+  // The record's hash chain needs hashing inside the existing save paths.
+  // crypto.subtle is async and would turn every checkbox handler into a
+  // promise, so this is the plain implementation. Verified against Node's
+  // crypto for the padding boundaries (55/56/63/64 bytes) and unicode.
+  const sha256 = (function () {
+    const K = [
+      0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+      0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+      0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+      0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+      0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+      0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+      0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+      0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+    const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+    return function (msg) {
+      const bytes = [];
+      for (let i = 0; i < msg.length; i++) {
+        let c = msg.codePointAt(i);
+        if (c > 0xffff) i++;
+        if (c < 0x80) bytes.push(c);
+        else if (c < 0x800) bytes.push(0xc0 | (c >> 6), 0x80 | (c & 63));
+        else if (c < 0x10000) bytes.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+        else bytes.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+      }
+      const hi = Math.floor(bytes.length / 536870912), lo = (bytes.length * 8) >>> 0;
+      bytes.push(0x80);
+      while (bytes.length % 64 !== 56) bytes.push(0);
+      bytes.push((hi >>> 24) & 255, (hi >>> 16) & 255, (hi >>> 8) & 255, hi & 255,
+                 (lo >>> 24) & 255, (lo >>> 16) & 255, (lo >>> 8) & 255, lo & 255);
+      let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+      const w = new Array(64);
+      for (let off = 0; off < bytes.length; off += 64) {
+        for (let i = 0; i < 16; i++)
+          w[i] = ((bytes[off+i*4] << 24) | (bytes[off+i*4+1] << 16) | (bytes[off+i*4+2] << 8) | bytes[off+i*4+3]) >>> 0;
+        for (let i = 16; i < 64; i++) {
+          const s0 = rotr(w[i-15],7) ^ rotr(w[i-15],18) ^ (w[i-15] >>> 3);
+          const s1 = rotr(w[i-2],17) ^ rotr(w[i-2],19) ^ (w[i-2] >>> 10);
+          w[i] = (w[i-16] + s0 + w[i-7] + s1) >>> 0;
+        }
+        let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+        for (let i = 0; i < 64; i++) {
+          const S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25);
+          const ch = (e & f) ^ (~e & g);
+          const t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+          const S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22);
+          const mj = (a & b) ^ (a & c) ^ (b & c);
+          const t2 = (S0 + mj) >>> 0;
+          h=g; g=f; f=e; e=(d + t1) >>> 0; d=c; c=b; b=a; a=(t1 + t2) >>> 0;
+        }
+        H = [(H[0]+a)>>>0,(H[1]+b)>>>0,(H[2]+c)>>>0,(H[3]+d)>>>0,(H[4]+e)>>>0,(H[5]+f)>>>0,(H[6]+g)>>>0,(H[7]+h)>>>0];
+      }
+      return H.map(x => x.toString(16).padStart(8, "0")).join("");
+    };
+  })();
+
+  // ---------- the record: an append-only hash chain ----------
+  // Every entry commits to the one before it, so removing or editing any past
+  // entry changes every hash after it and the chain fails to verify. That
+  // proves internal consistency; it cannot prove *when* something happened on
+  // its own — for that the head hash gets published somewhere with its own
+  // timestamp (see anchors on the Record page).
+  const GENESIS = "brickford-genesis";
+  // Sorted keys so the same entry always hashes identically.
+  function canon(v) {
+    if (v === null || typeof v !== "object") return JSON.stringify(v === undefined ? null : v);
+    if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
+    return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+  }
+  function logEvent(type, ref, data) {
+    const prev = S.ledger.length ? S.ledger[S.ledger.length - 1].hash : GENESIS;
+    const e = { i: S.ledger.length, ts: new Date().toISOString(), type: type, ref: String(ref || ""), data: data || {}, prev: prev };
+    e.hash = sha256(canon(e));
+    S.ledger.push(e);
+    save();
+    return e;
+  }
+  function verifyChain(list) {
+    const L = list || S.ledger;
+    for (let i = 0; i < L.length; i++) {
+      const e = L[i];
+      const body = { i: e.i, ts: e.ts, type: e.type, ref: e.ref, data: e.data, prev: e.prev };
+      if (e.i !== i || e.prev !== (i ? L[i - 1].hash : GENESIS) || sha256(canon(body)) !== e.hash)
+        return { ok: false, brokenAt: i, count: L.length };
+    }
+    return { ok: true, count: L.length, head: L.length ? L[L.length - 1].hash : GENESIS };
+  }
+  const chainHead = () => (S.ledger.length ? S.ledger[S.ledger.length - 1].hash : GENESIS);
 
   // ---------- computed ----------
   const dsaCount = () => Object.values(S.problems).filter(Boolean).length;
@@ -699,7 +791,7 @@
         '<div style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:5px;">' + ls.done + " / " + ls.total + (c.tracker ? " problems" : " lessons") + "</div></div></a>";
     };
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Registrar</div><h1>Course Catalog</h1>' +
-      '<div class="sub">' + D.COURSES.length + ' courses across four phases. Free, world-class, permanent. Mastery = lessons completed (60%) + best examination (40%). Locked phases open as the plan advances — or as you pass gates early.</div></div>' +
+      '<div class="sub">' + D.COURSES.length + ' courses · four phases · free and permanent.</div></div>' +
       PHASES.map(ph => {
         const cs = D.COURSES.filter(c => c.phase === ph[0]);
         if (!cs.length) return "";
@@ -723,7 +815,7 @@
       '<p style="font-size:var(--fs-small);"><strong style="font-size:1.1rem;">' + cmastery + "% · " + clvlEn + (clvlGrade !== "—" ? " (Grade " + clvlGrade + ")" : "") + "</strong>" +
       (cbest != null ? ' · best exam <strong>' + cbest + "%</strong>" : "") + "</p>" +
       (c.quiz
-        ? '<p style="font-size:var(--fs-small); margin-top:6px;">Sit the checkpoint to see exactly where you stand on ' + esc(c.code) + " — 15 questions drawn fresh from the bank, graded instantly with your verdict and the exact questions you missed.</p>" +
+        ? '<p style="font-size:var(--fs-small); margin-top:6px;">15 questions on ' + esc(c.code) + ", drawn fresh, graded instantly.</p>" +
           '<div style="margin-top:12px;"><a class="btn" href="#/quiz/' + c.quiz + '">Sit the ' + esc(c.code) + ' checkpoint exam</a></div>'
         : '<p style="font-size:var(--fs-small); margin-top:6px;">This course is proven by building, not multiple choice — reimplement the papers, ship the systems. Your level here is the labs you complete with proof.</p>' +
           '<div style="margin-top:12px;"><a class="btn" href="#/workshop">Prove it in the Workshop</a></div>') +
@@ -819,7 +911,7 @@
 
   V.exams = function () {
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exam Hall</h1>' +
-      '<div class="sub">Two tiers. Official diagnostics decide the shape of Phase 1 (≥70% gate). Concept examinations are auto-graded, drawn fresh from question banks each sitting.</div></div>' +
+      '<div class="sub">Diagnostics set Phase 1’s shape (≥70%). Concept exams are auto-graded, drawn fresh each sitting.</div></div>' +
       "<h2 style='margin:6px 0 12px;'>Official diagnostics</h2><div class='grid cols-2'>" +
       D.DIAGNOSTICS.map(d => {
         const r = S.diag[d.id] || {};
@@ -854,6 +946,7 @@
           (S.quizAttempts[bankId] = S.quizAttempts[bankId] || []).push({ date: todayISO(), score: res.score, total: res.total, pct: res.pct });
           updateMisses(bankId, res.missed, res.correct);
           save();
+          logEvent("exam", bankId, { score: res.score, total: res.total, pct: res.pct });
           toast("Recorded: " + res.pct + "% in the register.");
         },
         onExit() { location.hash = "#/exams"; },
@@ -1041,6 +1134,151 @@
       "</div></div></div>";
   };
 
+  // Consistency at a glance: one square per day, a column per week.
+  function heatmapHTML(nWeeks) {
+    const today = todayISO();
+    const lastSunday = addDaysISO(today, -new Date(today + "T00:00:00").getDay());
+    const alignedStart = addDaysISO(D.START_DATE, -new Date(D.START_DATE + "T00:00:00").getDay());
+    let first = addDaysISO(lastSunday, -7 * ((nWeeks || 26) - 1));
+    if (first < alignedStart) first = alignedStart;
+    const cols = [];
+    for (let wk = first; wk <= lastSunday; wk = addDaysISO(wk, 7)) {
+      let col = "";
+      for (let d = 0; d < 7; d++) {
+        const iso = addDaysISO(wk, d);
+        if (iso < D.START_DATE || iso > today) { col += '<i class="hc void"></i>'; continue; }
+        const a = dayActivity(iso);
+        const lvl = Math.min(4, a.lessons + a.problems + (a.sealed ? 1 : 0));
+        col += '<button class="hc l' + lvl + (iso === today ? " now" : "") + '" data-hday="' + iso +
+          '" title="' + iso + " · " + a.lessons + " lesson" + (a.lessons === 1 ? "" : "s") +
+          ", " + a.problems + " problem" + (a.problems === 1 ? "" : "s") + (a.sealed ? ", sealed" : "") +
+          '" aria-label="' + iso + '"></button>';
+      }
+      cols.push('<div class="hcol">' + col + "</div>");
+    }
+    return '<div class="heat">' + cols.join("") + "</div>";
+  }
+
+  // The exact bytes hashed for an entry. Published in the export so a third
+  // party can re-run the hash with standard tools instead of trusting this app.
+  function preimage(e) {
+    return canon({ i: e.i, ts: e.ts, type: e.type, ref: e.ref, data: e.data, prev: e.prev });
+  }
+  function recordBundle() {
+    return {
+      platform: "Brickford", startDate: D.START_DATE,
+      exportedAt: new Date().toISOString(),
+      count: S.ledger.length, head: chainHead(), genesis: GENESIS,
+      howToVerify: [
+        "1. For each entry: sha256(preimage) must equal its hash.",
+        "   Shell check: printf '%s' \"<preimage>\" | shasum -a 256",
+        "2. entry[i].prev must equal entry[i-1].hash; entry[0].prev must equal the genesis string.",
+        "3. Any edited, inserted or removed entry changes every hash after it, so the chain stops matching.",
+        "4. Timestamps are self-reported. Trust them only as far as the anchors below: each anchor is a head hash published somewhere with its own independent timestamp.",
+      ],
+      anchors: S.anchors,
+      entries: S.ledger.map(e => Object.assign({}, e, { preimage: preimage(e) })),
+    };
+  }
+  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed" };
+  function eventLine(e) {
+    const d = e.data || {};
+    if (e.type === "exam") return "Examination · " + e.ref + " · " + d.pct + "% (" + d.score + "/" + d.total + ")";
+    if (e.type === "diagnostic") return "Diagnostic · " + e.ref + (d.score == null ? " · completed" : " · " + d.score + "%");
+    if (e.type === "gate") return (d.passed ? "Gate passed · " : "Gate un-marked · ") + e.ref;
+    if (e.type === "week") return "Week sealed · " + e.ref + (d.shipped ? " · shipped: " + d.shipped : " · nothing shipped");
+    if (e.type === "lab") return (d.done ? "Lab shipped · " : "Lab un-marked · ") + e.ref;
+    if (e.type === "lesson") return (d.done ? "Lecture completed · " : "Lecture un-marked · ") + e.ref;
+    if (e.type === "problem") return (d.solved ? "Problem solved · " : "Problem un-marked · ") + e.ref;
+    if (e.type === "day") return "Deep Track day sealed";
+    return (EV_LABEL[e.type] || e.type) + " · " + e.ref;
+  }
+
+  V.record = function () {
+    const v = verifyChain();
+    const led = S.ledger;
+    const milestones = led.filter(e => ["exam", "diagnostic", "gate", "week", "lab"].indexOf(e.type) >= 0).slice(-14).reverse();
+    const counts = {};
+    led.forEach(e => { counts[e.type] = (counts[e.type] || 0) + 1; });
+    const first = led.length ? led[0].ts.slice(0, 10) : "—";
+    const last = led.length ? led[led.length - 1].ts.slice(0, 10) : "—";
+    const sealedDays = S.studyDays.length;
+
+    const tile = (label, value) =>
+      '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + value + "</div></div>";
+
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>The Record</h1>' +
+      '<div class="sub">Every step, hash-chained in order. Edit one and the rest stop matching.</div></div>' +
+
+      // ---- verdict ----
+      '<div class="card"><div class="vseal">' +
+      '<div class="vico ' + (v.ok ? "ok" : "bad") + '">' + (v.ok ? "✓" : "!") + "</div>" +
+      '<div class="vtext"><div class="vhead">' +
+      (v.ok ? "Chain intact — " + v.count + " entr" + (v.count === 1 ? "y" : "ies") : "Chain broken at entry " + v.brokenAt) +
+      "</div>" +
+      '<div style="font-size:var(--fs-small); color:var(--ink-2);">' +
+      (led.length ? first + " → " + last : "Nothing recorded yet — the first completed lecture starts the chain.") +
+      "</div></div>" +
+      '<div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">' +
+      '<button class="btn ghost" data-act="copyHead">Copy head hash</button>' +
+      '<button class="btn" data-act="exportRecord">Download record</button></div>' +
+      "</div>" +
+      (led.length ? '<div class="hash" style="margin-top:12px;"><span style="color:var(--ink-3);">head</span> ' + esc(chainHead()) + "</div>" : "") +
+      "</div>" +
+
+      // ---- shape of the record ----
+      '<div class="tiles stagger" style="margin-top:16px;">' +
+      tile("Entries", '<span data-count="' + led.length + '">' + led.length + "</span>") +
+      tile("Days sealed", '<span data-count="' + sealedDays + '">' + sealedDays + "</span>") +
+      tile("Examinations", '<span data-count="' + (counts.exam || 0) + '">' + (counts.exam || 0) + "</span>") +
+      tile("Lectures", '<span data-count="' + (counts.lesson || 0) + '">' + (counts.lesson || 0) + "</span>") +
+      "</div>" +
+
+      // ---- heatmap ----
+      '<div class="card" style="margin-top:16px;"><h2>Consistency</h2>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">One square per day · tap for that day</p>' +
+      heatmapHTML(26) +
+      '<div class="cal-legend"><span>Quiet</span>' +
+      [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
+      "<span>Busy</span></div></div>" +
+
+      // ---- anchors: the part that makes dates mean something ----
+      '<div class="card" style="margin-top:16px;"><h2>Public anchors</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Timestamps inside this app are self-reported. Publish the head hash somewhere public — a commit, a post — and its date becomes third-party evidence that the record existed then.</p>' +
+      (S.anchors.length
+        ? '<div class="tl" style="margin-top:10px;">' + S.anchors.slice().reverse().map((a, ri) => {
+            const i = S.anchors.length - 1 - ri;
+            return '<div class="tl-row"><span class="tl-date">' + esc(a.date) + "</span>" +
+              '<span class="tl-what">' + (a.url ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.where || a.url) + "</a>" : esc(a.where || "—")) +
+              '<div class="hash" style="margin-top:4px;">' + esc(a.head) + "</div></span>" +
+              '<button class="btn ghost" data-delanchor="' + i + '">Remove</button></div>';
+          }).join("") + "</div>"
+        : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:8px;">No anchors yet.</p>') +
+      '<div class="grid cols-2" style="margin-top:12px;">' +
+      '<div><label class="field" for="anWhere">Where published</label><input id="anWhere" type="text" placeholder="e.g. commit in nexline1/brickford, or an X post"></div>' +
+      '<div><label class="field" for="anUrl">Link (optional)</label><input id="anUrl" type="text" placeholder="https://…"></div>' +
+      "</div>" +
+      '<div style="margin-top:10px;"><button class="btn" data-act="addAnchor">Anchor today\u2019s head</button></div></div>' +
+
+      // ---- milestones ----
+      (milestones.length
+        ? '<div class="card" style="margin-top:16px;"><h2>Milestones</h2><div class="tl stagger" style="margin-top:8px;">' +
+          milestones.map(e => '<div class="tl-row"><span class="tl-date">' + e.ts.slice(0, 10) + "</span>" +
+            '<span class="tl-what">' + esc(eventLine(e)) + "</span></div>").join("") +
+          "</div></div>"
+        : "") +
+
+      // ---- verify someone else's file ----
+      '<div class="card" style="margin-top:16px;"><h2>Verify a record file</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Anyone can check an exported record here, or re-run the hashes themselves — the file ships the exact bytes that were hashed.</p>' +
+      '<div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
+      '<button class="btn ghost" data-act="pickRecord">Choose file…</button>' +
+      '<input type="file" id="recFile" accept=".json" style="display:none;">' +
+      '<span id="recResult" style="font-size:var(--fs-small); color:var(--ink-2);"></span></div></div>' +
+
+      "</div>";
+  };
+
   V.transcript = function () {
     const counted = D.COURSES.filter(c => !c.elective && c.phase <= currentPhase());
     const overall = counted.length ? Math.round(counted.reduce((a, c) => a + courseMastery(c), 0) / counted.length) : 0;
@@ -1080,7 +1318,7 @@
     const w = weekNumber();
     const logged = S.weeks.some(x => +x.week === w);
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Sunday ritual</div><h1>Weekly Review</h1>' +
-      '<div class="sub">One row per week, no exceptions. A week with no shipped artifact is a failed week — regardless of hours “studied”. The chain must not break.</div></div>' +
+      '<div class="sub">One row per week. No shipped artifact = a failed week.</div></div>' +
       '<div class="card"><h2>Week ' + w + (logged ? " — already logged" : "") + "</h2>" +
       '<div class="grid cols-2" style="margin-top:10px;">' +
       '<div><label class="field">Shipped this week (repo, post, PR, delivery — or empty if none)</label><input type="text" id="rvShipped" placeholder="e.g. flashcards-cli on GitHub + blog post #1"></div>' +
@@ -1111,7 +1349,7 @@
       { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The rhythm</div><h1>Calendar</h1>' +
-      '<div class="sub">Your month at a glance — click any day for its brief and jump straight into the lesson. Below: one-click Google Calendar links (no sign-in, no API key) and a full export.</div></div>' +
+      '<div class="sub">Tap any day for its brief.</div></div>' +
 
       monthGridHTML() +
       dayDetailHTML() +
@@ -1139,7 +1377,7 @@
       "</div>" +
 
       '<div class="card"><h2>Export everything</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">One <code>.ics</code> file with the daily block, the weekly review, and every open gate deadline. In Google Calendar: Settings → Import &amp; export → Import. Works the same in Apple Calendar and Outlook.</p>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Daily block, weekly review, and every open gate. Import into Google, Apple, or Outlook.</p>' +
       '<div style="margin-top:12px;"><button class="btn" data-act="downloadIcs">Download brickford.ics</button></div></div>' +
 
       '<div class="card"><h2>This week at a glance</h2><div class="table-wrap"><table><thead><tr><th>Block</th><th>Time</th><th>What</th></tr></thead><tbody>' +
@@ -1151,7 +1389,7 @@
     const t = S.treasury;
     const total = revenueTotal();
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Earning Track</div><h1>Treasury</h1>' +
-      '<div class="sub">≤ 2 hours per day, maximum 2 clients, fixed scope and price. This funds the mission — it never becomes the mission. Raise prices ~20% after every 2 completed projects.</div></div>' +
+      '<div class="sub">≤2h/day · max 2 clients · fixed scope and price · +20% after every 2 projects.</div></div>' +
       (function () {
         const locked = D.NICHES.find(x => x.id === t.niche);
         if (locked) {
@@ -1203,7 +1441,7 @@
     const pool = missPool();
     const phases = [[0, "Phase 0 — Calibration"], [1, "Phase 1 — Foundations"], [2, "Phase 2 — Depth"], [3, "Phase 3 — Frontier"]];
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The forge</div><h1>Workshop</h1>' +
-      '<div class="sub">Watching is not knowing. Labs with acceptance criteria, problem sets on paper, and a daily drill built from your own mistakes. Proof or it didn’t happen.</div></div>' +
+      '<div class="sub">Labs, problem sets on paper, and a drill built from your own mistakes.</div></div>' +
 
       '<div class="grid cols-3">' +
       '<div class="card stat"><div class="stat-label">Labs shipped</div><div class="stat-value">' + labsDone + ' <span class="unit">/ ' + D.LABS.length + "</span></div></div>" +
@@ -1276,7 +1514,7 @@
   V.electives = function () {
     const phases = { 0: "Phase 0", 1: "Phase 1", 2: "Phase 2", 3: "Phase 3" };
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The outside world</div><h1>Outside Courses</h1>' +
-      '<div class="sub">Other people’s universities — audit free, take what serves the plan, pay only when a credential unlocks a door. Click a status to cycle: untracked → planned → done.</div></div>' +
+      '<div class="sub">Audit free. Pay only when a credential opens a door. Tap a status to cycle.</div></div>' +
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>Provider</th><th>Course</th><th>Fits</th><th>Cost</th><th>Brickford verdict</th><th></th><th>Status</th></tr></thead><tbody>' +
       D.ELECTIVES.map(e => {
         const st = S.electives[e.id];
@@ -1300,37 +1538,37 @@
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + what + "</p></a>";
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Handbook</div><h1>How to run Brickford</h1>' +
-      '<div class="sub">This platform is an operating system, not a library. It works only if you run the loops. Three loops, seven laws, and a map of every room.</div></div>' +
+      '<div class="sub">Three loops, seven laws, one map. It works only if you run it.</div></div>' +
 
       '<div class="card"><h2>The daily loop — 4 to 5 hours, 7 days</h2>' +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day. The calendar is a fixed syllabus — each date owns its lessons; the Dashboard shows today’s slot.</p><div style="margin-top:6px;">' +
-      row("1", "Open the Dashboard", "today’s scheduled lessons are listed, plus an Owed row if earlier days have unfinished lessons — clear those first", "#/", "Open") +
-      row("2", "Theory · ~2h", "today’s math lessons (the rotation: Linear Algebra → Calculus → Probability). The 2h block packs by real video length — 4–6 short 3Blue1Brown chapters, or one full MIT lecture. Work past today’s quota and tomorrow automatically advances", null, "") +
-      row("3", "Build · ~1.5h", "today’s spine lesson (a Karpathy lesson spans ~5 days — “day 2 of 5” means keep rebuilding it) plus the two named NeetCode problems", null, "") +
-      row("4", "Drill · ~10 min", "the Daily Drill serves questions YOU missed. Answer right, they leave; answer wrong, they stay. This is where knowledge becomes permanent", "#/drill", "Drill") +
-      row("5", "Publish · ~30 min", "turn today’s lesson notes into a post draft. Notes live under every lecture — write them as future posts", null, "") +
-      row("6", "Seal the day", "press “Mark today’s Deep Track done”. The streak only counts pressed days", "#/", "Mark") +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">Same order every day.</p><div style="margin-top:6px;">' +
+      row("1", "Open the Dashboard", "today’s lessons, plus anything owed from earlier days", "#/", "Open") +
+      row("2", "Theory · ~2h", "the math rotation — Linear Algebra → Calculus → Probability", null, "") +
+      row("3", "Build · ~1.5h", "today’s spine lesson + the two named NeetCode problems", null, "") +
+      row("4", "Drill · ~10 min", "the questions you missed, served back until they stick", "#/drill", "Drill") +
+      row("5", "Publish · ~30 min", "today’s notes → a post draft", null, "") +
+      row("6", "Seal the day", "the streak counts pressed days", "#/", "Mark") +
       "</div></div>" +
 
       '<div class="card"><h2>The weekly loop — Sunday, 30 minutes</h2><div style="margin-top:6px;">' +
-      row("1", "Weekly Review", "fill the row: what shipped, DSA count, posts, revenue. No artifact = the week is sealed as FAILED, visibly. That pressure is the feature", "#/review", "Review") +
-      row("2", "Sit one examination", "one concept exam in the Hall (aim ≥85% = Mastered) — it feeds course mastery 40%", "#/exams", "Exams") +
-      row("3", "Export a backup", "sidebar → Backup. Your progress lives in this browser; the file is your insurance and your device-sync tool", null, "") +
+      row("1", "Weekly Review", "what shipped, DSA, posts, revenue. No artifact = a failed week", "#/review", "Review") +
+      row("2", "Sit one examination", "one concept exam · ≥85% is Mastered · 40% of course mastery", "#/exams", "Exams") +
+      row("3", "Export a backup", "sidebar → Backup. This browser is the only copy", null, "") +
       "</div></div>" +
 
       '<div class="card"><h2>The monthly loop — gate day</h2><div style="margin-top:6px;">' +
-      row("1", "Transcript & Gates", "check the next gate’s requirements against reality. Pass it the day it’s true — every later gate immediately moves earlier. The 3-year plan compresses only through this page", "#/transcript", "Gates") +
-      row("2", "Workshop audit", "labs are your portfolio. Each done lab needs a proof URL — that list IS your CV until an employer replaces it", "#/workshop", "Labs") +
+      row("1", "Transcript & Gates", "pass a gate the day it is true — every later target moves earlier", "#/transcript", "Gates") +
+      row("2", "Workshop audit", "every done lab needs a proof URL — the list is your CV", "#/workshop", "Labs") +
       "</div></div>" +
 
       '<h2 style="margin:26px 0 12px;">The seven laws</h2><div class="card">' +
-      law("1 · Never just watch", "Every lecture ends with the rebuild ritual: close the video, reproduce the code or derivation from memory, compare. Watching feels like learning; rebuilding is learning.") +
-      law("2 · The gates are honest or they are nothing", "You grade your own exams and mark your own gates. Cheat here and you cheat only the person the whole platform exists for.") +
-      law("3 · Ship every week", "A shipped artifact — repo, post, delivery — or the week is failed. Public output is how a self-taught engineer becomes undeniable.") +
-      law("4 · The drill is daily", "Ten minutes. Your miss pool is a map of exactly what you don’t know; drain it daily and exams stop being scary.") +
-      law("5 · One niche, capped hours", "Treasury work stays ≤2h/day, max 2 clients, one locked niche, ten pitches before judging. It funds the mission; it never becomes it.") +
-      law("6 · Proof or it didn’t happen", "Labs without proof URLs don’t count. Links to real repos and posts are the only currency that converts to jobs.") +
-      law("7 · Back up weekly", "Progress lives in the browser. Export every Sunday; restore on your phone to carry the university in your pocket.") +
+      law("1 · Never just watch", "Close the video, rebuild from memory, compare.") +
+      law("2 · The gates are honest or they are nothing", "You grade yourself. Cheat and you cheat only yourself.") +
+      law("3 · Ship every week", "A repo, a post, or a delivery. Or the week is failed.") +
+      law("4 · The drill is daily", "Ten minutes. The miss pool maps what you don’t know.") +
+      law("5 · One niche, capped hours", "≤2h/day, max 2 clients, one niche. It funds the mission.") +
+      law("6 · Proof or it didn’t happen", "No proof URL, no credit. Links are the only currency.") +
+      law("7 · Back up weekly", "Export every Sunday. Restore anywhere.") +
       "</div>" +
 
       '<h2 style="margin:26px 0 12px;">The map — what each room is for</h2><div class="grid cols-2">' +
@@ -1346,7 +1584,7 @@
       "</div>" +
 
       '<div class="card" style="margin-top:16px;"><h2>Right now — Phase 0, weeks 1–2</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Before the loops begin at full speed, calibrate: sit the three math diagnostics in the Exam Hall (≥70% or a gap-block activates), do the coding diagnostic (flashcards lab, no AI), set up GitHub/blog/X, and run the niche’s first five moves in the Treasury. When all four are done, Phase 1 starts and the Dashboard takes over.</p>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Four things, then Phase 1 opens: three math diagnostics (≥70%), the coding diagnostic, GitHub/blog/X, and the Treasury’s first five moves.</p>' +
       '<div style="margin-top:12px;"><a class="btn" href="#/exams">Enter the Exam Hall</a></div></div>' +
       "</div>";
   };
@@ -1360,7 +1598,7 @@
   ];
   V.library = function () {
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Knowledge base</div><h1>Library</h1>' +
-      '<div class="sub">The founding documents of your ascent, and every external resource. The roadmap is law; revise it deliberately, never abandon it.</div></div>' +
+      '<div class="sub">The founding documents, and every external resource.</div></div>' +
       '<div class="grid cols-2">' +
       DOCS.map(d => '<a class="card hoverable" href="#/doc/' + d.id + '" style="text-decoration:none;"><h3>' + esc(d.title) + '</h3><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + esc(d.sub) + "</p></a>").join("") +
       '</div><div class="card" style="margin-top:16px;"><h2>External halls</h2><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
@@ -1392,9 +1630,29 @@
       b.onclick = () => {
         const act = b.dataset.act;
         if (act === "studied") {
-          if (!S.studyDays.includes(todayISO())) S.studyDays.push(todayISO());
+          if (!S.studyDays.includes(todayISO())) { S.studyDays.push(todayISO()); logEvent("day", todayISO(), {}); }
           save(); render();
           toast("Counted. The chain grows.");
+        } else if (act === "copyHead") {
+          const h = chainHead();
+          if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));
+          else toast(h);
+        } else if (act === "exportRecord") {
+          const blob = new Blob([JSON.stringify(recordBundle(), null, 2)], { type: "application/json" });
+          const a2 = document.createElement("a");
+          a2.href = URL.createObjectURL(blob);
+          a2.download = "brickford-record-" + todayISO() + ".json";
+          a2.click(); URL.revokeObjectURL(a2.href);
+          toast("Record exported — " + S.ledger.length + " entries.");
+        } else if (act === "addAnchor") {
+          const where = ($("#anWhere") && $("#anWhere").value.trim()) || "";
+          const url = ($("#anUrl") && $("#anUrl").value.trim()) || "";
+          if (!where && !url) { toast("Say where you published it."); return; }
+          if (!S.ledger.length) { toast("Nothing to anchor yet."); return; }
+          S.anchors.push({ date: todayISO(), head: chainHead(), where: where, url: url });
+          save(); render(); toast("Anchored. Its public timestamp now backs this record.");
+        } else if (act === "pickRecord") {
+          if ($("#recFile")) $("#recFile").click();
         } else if (act === "backup") {
           exportBackup();
         } else if (act === "toggleDone" || act === "saveNotes") {
@@ -1405,17 +1663,20 @@
           if (act === "toggleDone") { st.done = !st.done; if (st.done) st.doneAt = todayISO(); else delete st.doneAt; }
           st.notes = $("#lessonNotes") ? $("#lessonNotes").value : st.notes;
           S.lessons[k] = st; save();
+          if (act === "toggleDone") logEvent("lesson", k, { done: st.done });
           if (act === "toggleDone") { render(); toast(st.done ? "Lecture marked complete." : "Unmarked."); }
           else toast("Notes preserved.");
         } else if (act === "saveDiag") {
           const m = location.hash.match(/#\/diag\/(.+)/);
           const v = parseFloat($("#diagScore").value);
           if (!isFinite(v)) { toast("Enter the honest number."); return; }
-          S.diag[m[1]] = { score: Math.round(v), date: todayISO() }; save(); render();
+          S.diag[m[1]] = { score: Math.round(v), date: todayISO() };
+          logEvent("diagnostic", m[1], { score: Math.round(v) }); save(); render();
           toast(v >= 70 ? "Verified. Full speed." : "Recorded. The gap block begins — truth over comfort.");
         } else if (act === "saveDiagDone") {
           const m = location.hash.match(/#\/diag\/(.+)/);
-          S.diag[m[1]] = { score: null, date: todayISO() }; save(); render(); toast("Diagnostic marked complete.");
+          S.diag[m[1]] = { score: null, date: todayISO() };
+          logEvent("diagnostic", m[1], { score: null }); save(); render(); toast("Diagnostic marked complete.");
         } else if (act === "logWeek") {
           const w = weekNumber();
           const entry = {
@@ -1428,6 +1689,7 @@
           };
           const i = S.weeks.findIndex(x => +x.week === w);
           if (i >= 0) S.weeks[i] = entry; else S.weeks.push(entry);
+          logEvent("week", "week" + w, { shipped: entry.shipped, dsa: entry.dsa, posts: entry.posts, revenue: entry.revenue });
           save(); render();
           toast(entry.shipped ? "Week " + w + " sealed." : "Week " + w + " sealed — as a failed week. Next week answers it.");
         } else if (act === "saveOffer") {
@@ -1474,6 +1736,7 @@
     $$("[data-prob]", root).forEach(cb => {
       cb.onchange = () => {
         S.problems[cb.dataset.prob] = cb.checked ? todayISO() : false; save();
+        logEvent("problem", cb.dataset.prob, { solved: cb.checked });
         const c = D.COURSES.find(x => x.tracker);
         // update header count without full rerender
         const n = dsaCount();
@@ -1506,6 +1769,7 @@
         const st = S.labs[cb.dataset.lab] || { done: false, proof: "" };
         st.done = cb.checked;
         S.labs[cb.dataset.lab] = st; save();
+        logEvent("lab", cb.dataset.lab, { done: st.done });
         if (cb.checked) toast("Lab shipped. Paste the proof URL below it.");
       };
     });
@@ -1537,11 +1801,54 @@
         save(); render();
       };
     });
+    // heatmap day -> that day in the calendar
+    $$("[data-hday]", root).forEach(el => {
+      el.onclick = () => {
+        calSel = el.dataset.hday; calCursor = calSel.slice(0, 7);
+        location.hash = "#/calendar";
+      };
+    });
+    $$("[data-delanchor]", root).forEach(b => {
+      b.onclick = () => { S.anchors.splice(+b.dataset.delanchor, 1); save(); render(); toast("Anchor removed."); };
+    });
+    // verify an exported record file, independently of the live state
+    if ($("#recFile", root)) {
+      $("#recFile", root).onchange = ev => {
+        const f = ev.target.files && ev.target.files[0];
+        const out = $("#recResult", root);
+        if (!f || !out) return;
+        const rd = new FileReader();
+        rd.onload = () => {
+          let bundle;
+          try { bundle = JSON.parse(rd.result); } catch (e) { out.innerHTML = '<span style="color:var(--bad);">Not valid JSON.</span>'; return; }
+          const entries = bundle.entries || [];
+          if (!entries.length) { out.innerHTML = '<span style="color:var(--bad);">No entries in that file.</span>'; return; }
+          const chain = verifyChain(entries);
+          // if the file ships preimages, confirm they hash to the stated hash
+          let preOk = true, preBad = -1;
+          entries.forEach((e, i) => {
+            if (preOk && typeof e.preimage === "string") {
+              if (sha256(e.preimage) !== e.hash || e.preimage !== preimage(e)) { preOk = false; preBad = i; }
+            }
+          });
+          if (chain.ok && preOk)
+            out.innerHTML = '<span style="color:var(--good);">✓ ' + entries.length + " entries verify · " +
+              esc(entries[0].ts.slice(0, 10)) + " → " + esc(entries[entries.length - 1].ts.slice(0, 10)) +
+              ' · head ' + esc(String(entries[entries.length - 1].hash).slice(0, 12)) + "…</span>";
+          else if (!chain.ok)
+            out.innerHTML = '<span style="color:var(--bad);">✗ chain breaks at entry ' + chain.brokenAt + " of " + entries.length + "</span>";
+          else
+            out.innerHTML = '<span style="color:var(--bad);">✗ entry ' + preBad + " does not hash to its stated value</span>";
+        };
+        rd.readAsText(f);
+      };
+    }
     // gates
     $$("[data-gate]", root).forEach(b => {
       b.onclick = () => {
         const n = +b.dataset.gate;
         S.gates[n] = S.gates[n] ? false : todayISO();
+        logEvent("gate", "gate" + n, { passed: !!S.gates[n] });
         save(); render();
         if (S.gates[n]) toast("Gate " + n + " passed — every later target just moved earlier.");
       };
@@ -1670,6 +1977,7 @@
     else if (seg[0] === "quiz") html = V.quiz(seg[1]);
     else if (seg[0] === "diag") html = V.diag(seg[1]);
     else if (r === "/transcript") html = V.transcript();
+    else if (r === "/record") html = V.record();
     else if (r === "/review") html = V.review();
     else if (r === "/treasury") html = V.treasury();
     else if (r === "/workshop") html = V.workshop();

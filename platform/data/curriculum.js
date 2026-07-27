@@ -663,7 +663,7 @@ DAR.DIAGNOSTICS = [
     minutes: 180, gate: 70,
     pdf: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/b799045edd80df18879088bcf872b214_MIT18_06S10_Final_Exam.pdf",
     solutions: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/45790724487e46dcc02f55d0fc092ab7_MIT18_06S10_Final_Answers.pdf",
-    note: "Exam conditions: timer on, no notes, no AI, no internet beyond the PDF. Open solutions ONLY after finishing.",
+    note: "Timer on. No notes, no AI, no internet beyond the PDF. Solutions only after finishing.",
   },
   {
     id: "diag-calc", title: "MIT 18.01 Final Examination", subject: "Calculus",

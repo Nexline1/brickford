@@ -61,6 +61,7 @@
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
   function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
   S.ledger = S.ledger || [];
+  S.review = S.review || {};
   S.anchors = S.anchors || [];
 
   // ---------- SHA-256, synchronous, no dependencies ----------
@@ -185,12 +186,61 @@
   }
   function lessonKey(cid, u, i) { return cid + "." + u + "." + i; }
   function courseLessonStats(c) {
-    let total = 0, done = 0;
+    let total = 0, done = 0, verified = 0;
     (c.units || []).forEach((u, ui) => u.lessons.forEach((_, li) => {
       total++;
-      if ((S.lessons[lessonKey(c.id, ui, li)] || {}).done) done++;
+      const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+      if (st.done) done++;
+      if (st.verified) verified++;
     }));
-    return { total, done };
+    return { total, done, verified };
+  }
+
+  // ---------- watched is not learned ----------
+  // Two separate numbers, deliberately. Coverage is how much of the syllabus
+  // you have sat through; mastery is how much you have proven by recalling it
+  // cold, solving problems unaided, and explaining it. A video you watched
+  // moves coverage and nothing else.
+  const PRACTICE_TARGET = 3;         // problems solved unaided per lecture
+  const RECALL_MIN = 120;            // characters of a real blank-page attempt
+  const EXPLAIN_MIN = 80;            // characters of a plain-language explanation
+  function lessonGates(st, l) {
+    st = st || {};
+    const need = (l && l.solve) || PRACTICE_TARGET;
+    return [
+      { id: "recall", label: "Recalled cold", ok: (st.recall || "").trim().length >= RECALL_MIN,
+        hint: "write what the lecture established, from memory" },
+      { id: "rebuild", label: "Rebuilt from memory", ok: [0, 1, 2].every(i => (st.checks || [])[i]),
+        hint: "tick the three rebuild steps" },
+      { id: "solve", label: (st.solved || 0) + " of " + need + " problems unaided", ok: (st.solved || 0) >= need,
+        hint: "solve " + need + " problems without help" },
+      { id: "explain", label: "Explained plainly", ok: (st.notes || "").trim().length >= EXPLAIN_MIN,
+        hint: "explain it in a few plain sentences" },
+    ];
+  }
+  const lessonCanVerify = (st, l) => lessonGates(st, l).every(g => g.ok);
+
+  // ---------- spaced recall ----------
+  // A verified lecture comes back on a widening schedule. Forgetting it resets
+  // the interval; recalling it solidly pushes it further out.
+  const BOXES = [2, 7, 21, 60, 120];
+  function scheduleReview(k, box) {
+    const b = Math.max(0, Math.min(BOXES.length - 1, box || 0));
+    S.review[k] = { box: b, due: addDaysISO(todayISO(), BOXES[b]), last: todayISO(),
+                    lapses: (S.review[k] && S.review[k].lapses) || 0 };
+  }
+  function reviewsDue() {
+    const today = todayISO();
+    return Object.keys(S.review).filter(k => {
+      const st = S.lessons[k];
+      return st && st.verified && S.review[k].due <= today;
+    }).sort((a, b) => S.review[a].due < S.review[b].due ? -1 : 1);
+  }
+  function lessonLabel(k) {
+    const parts = k.split(".");
+    const c = D.COURSES.find(x => x.id === parts[0]);
+    if (!c || !c.units[parts[1]] || !c.units[parts[1]].lessons[parts[2]]) return k;
+    return { code: c.code, cid: c.id, ui: +parts[1], li: +parts[2], title: c.units[parts[1]].lessons[parts[2]].t };
   }
   function courseMastery(c) {
     if (c.tracker) {
@@ -198,10 +248,16 @@
       const q = bestQuiz(c.quiz);
       return Math.round((q == null ? p : p * 0.6 + (q / 100) * 0.4) * 100);
     }
-    const { total, done } = courseLessonStats(c);
-    const lr = total ? done / total : 0;
+    const { total, verified } = courseLessonStats(c);
+    const lr = total ? verified / total : 0;
     const q = c.quiz ? bestQuiz(c.quiz) : null;
     return Math.round((q == null ? lr : lr * 0.6 + (q / 100) * 0.4) * 100);
+  }
+  // How much of the syllabus has been sat through — progress, not proof.
+  function courseCoverage(c) {
+    if (c.tracker) return Math.round(dsaCount() / 150 * 100);
+    const { total, done } = courseLessonStats(c);
+    return total ? Math.round(done / total * 100) : 0;
   }
   function standing(pct) {
     return pct >= 85 ? ["Mastered", "A"] : pct >= 70 ? ["Proficient", "B"] :
@@ -661,6 +717,8 @@
     const probs = nextProblems(2);
     const drift = planDrift();
     const dsa = dsaCount(), posts = postsTotal(), rev = Math.round(revenueTotal());
+    const due = reviewsDue();
+    const proven = Object.values(S.lessons).filter(l => l && l.verified).length;
     const dayPct = real.length ? (doneToday / real.length) * 100 : (studiedToday ? 100 : 0);
     const charted = weeksArr.some(w => (+w.dsa || 0) || (+w.revenue || 0));
 
@@ -699,7 +757,7 @@
 
       (backupAge === null || backupAge > 14
         ? '<div class="card" style="border-color:var(--line-strong); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;"><span style="font-size:var(--fs-small); color:var(--ink-2);">' +
-          (backupAge === null ? "Progress lives in this browser only — take a backup." : "Last backup " + backupAge + " days ago.") +
+          (backupAge === null ? "This browser is the only copy." : "Last backup " + backupAge + " days ago.") +
           '</span><button class="btn" data-act="backup">Export backup</button></div>'
         : "") +
 
@@ -707,7 +765,7 @@
       '<div class="tiles stagger" style="margin-top:16px;">' +
       tile("Streak", num(st) + ' <span class="unit">days</span>', Math.min(100, st / 30 * 100)) +
       tile("DSA", num(dsa) + ' <span class="unit">/ 150</span>', dsa / 150 * 100) +
-      tile("Posts", num(posts), null) +
+      tile("Proven", num(proven), null) +
       tile("Treasury", num(rev) + ' <span class="unit">BHD</span>', null) +
       "</div>" +
 
@@ -722,7 +780,12 @@
       (backlog > 0
         ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + (backlog > 20 ? "20+" : backlog) + "</strong> lesson" + (backlog === 1 ? "" : "s") + " behind</span><a class=\"btn ghost go\" href=\"#/calendar\">Calendar</a></div>"
         : "") +
-      '<div class="stagger" style="margin-top:6px;">' +
+      '<div style="margin-top:6px;">' +
+      (due.length
+        ? '<div class="plan-row"><span class="block" style="color:var(--accent-2); background:color-mix(in srgb, var(--accent-2) 12%, transparent);">Recall</span>' +
+          '<span class="what"><strong>' + due.length + "</strong> lecture" + (due.length === 1 ? "" : "s") + " due before new material</span>" +
+          '<a class="btn ghost go" href="#/recall">Recall</a></div>'
+        : "") +
       todaySched.map(schedRowHTML).join("") +
       (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Before Day 1 — calibration and setup</span><a class="btn ghost go" href="#/guide">Handbook</a></div>') +
       '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
@@ -731,7 +794,7 @@
       '<div class="plan-row"><span class="block">Drill</span><span class="what">' +
       (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting" : "Pool clear") +
       '</span><a class="btn ghost go" href="#/drill">Drill</a></div>' +
-      '<div class="plan-row"><span class="block">Publish</span><span class="what">Notes → public output</span><a class="btn ghost go" href="#/review">Review</a></div>' +
+      '<div class="plan-row"><span class="block">Publish</span><span class="what">Notes → post</span><a class="btn ghost go" href="#/review">Review</a></div>' +
       "</div>" +
       '<div style="margin-top:14px;">' + (studiedToday
         ? '<span class="pill good">✓ Deep Track marked for today</span>'
@@ -765,7 +828,7 @@
           '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           "</div>"
         : '<div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
-          '<span style="font-size:var(--fs-small); color:var(--ink-2);">Seal your first week to start the charts.</span>' +
+          '<span style="font-size:var(--fs-small); color:var(--ink-2);">Seal a week to start the charts.</span>' +
           '<a class="btn ghost" href="#/review">Weekly Review</a></div>') +
       "</div>";
   };
@@ -782,13 +845,17 @@
       const m = courseMastery(c);
       const ls = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
       const locked = c.phase > phase;
+      const cov = courseCoverage(c);
       return '<a href="#/course/' + c.id + '" class="card hoverable course-card ' + c.color + (locked ? " locked" : "") + '" style="text-decoration:none;"><div class="edge"></div>' +
         '<div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="code">' + esc(c.code) + "</span>" +
         (locked ? '<span class="pill">Unlocks in Phase ' + c.phase + "</span>" : '<span class="pill gold">' + m + "% mastery</span>") + "</div>" +
         "<h3>" + esc(c.title) + "</h3>" +
         '<div class="desc">' + esc(c.desc) + "</div>" +
-        '<div style="margin-top:14px;"><div class="bar"><i style="transform:scaleX(' + (m / 100) + ');"></i></div>' +
-        '<div style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:5px;">' + ls.done + " / " + ls.total + (c.tracker ? " problems" : " lessons") + "</div></div></a>";
+        '<div style="margin-top:14px;"><div class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u><i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></div>' +
+        '<div style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:5px;">' +
+        (c.tracker ? ls.done + " / " + ls.total + " problems"
+                   : ls.done + " watched · " + ls.verified + " proven · " + ls.total + " lectures") +
+        "</div></div></a>";
     };
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Registrar</div><h1>Course Catalog</h1>' +
       '<div class="sub">' + D.COURSES.length + ' courses · four phases · free and permanent.</div></div>' +
@@ -869,6 +936,11 @@
     const u = c.units[ui], l = u.lessons[li];
     const k = lessonKey(cid, ui, li);
     const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+    const gates = lessonGates(st, l);
+    const gatesOk = gates.filter(g => g.ok).length;
+    const canVerify = gatesOk === 4;
+    const need = l.solve || PRACTICE_TARGET;
+    const rv = S.review[k];
     S.settings.lastLesson = { cid, ui: +ui, li: +li, label: c.code + " · " + l.t };
     save();
     const src = l.v
@@ -894,15 +966,67 @@
           (l.read ? '<a class="btn ' + (l.paper ? "ghost" : "") + '" href="' + l.read + '" target="_blank" rel="noopener">' + (l.paper ? "Companion reading" : "Open the reading") + ' ↗</a>' : "") +
           "</div>"
         : "") +
-      '<div class="grid cols-2" style="margin-top:16px;">' +
-      '<div class="card"><h2>Rebuild-from-memory ritual</h2>' +
+      // ---- the four gates: watching is not learning ----
+      '<div class="grid cols-2 top" style="margin-top:16px;">' +
+      '<div class="card"><div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
+      "<h2>Prove it</h2>" +
+      '<span class="mono" style="font-size:var(--fs-small); color:var(--ink-3);">' + gatesOk + " of 4</span></div>" +
+      '<div class="bar grow" style="margin-top:10px;"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
+      '<div class="gates" style="margin-top:12px;">' +
+      gates.map(g => '<div class="gate-row' + (g.ok ? " ok" : "") + '"><span class="gmark">' + (g.ok ? "✓" : "") + "</span>" +
+        '<span class="gtext">' + esc(g.label) + (g.ok ? "" : ' <span style="color:var(--ink-3);">— ' + esc(g.hint) + "</span>") + "</span></div>").join("") +
+      "</div>" +
+
+      // 1 · blank-page recall
+      '<div style="margin-top:16px;"><label class="field" for="lessonRecall">1 · Recall it cold — no video, no notes</label>' +
+      '<div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">' +
+      '<button class="btn ghost" data-act="recallTimer">Start 3-minute recall</button>' +
+      '<span class="mono" id="recallClock" style="font-size:var(--fs-small); color:var(--ink-3);"></span></div>' +
+      '<textarea id="lessonRecall" placeholder="What did this lecture establish? Definitions, the key result, why it works.">' + esc(st.recall || "") + "</textarea></div>" +
+
+      // 2 · rebuild
+      '<div style="margin-top:16px;"><div class="field">2 · Rebuild from memory</div>' +
       objectives.map((o, i) =>
-        '<label class="check-row"><input type="checkbox" data-check="' + i + '" ' + (st.checks[i] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG + '</span><span class="check-label">' + esc(o) + "</span></label>"
-      ).join("") +
-      '<div style="margin-top:14px;">' +
-      '<button class="btn ' + (st.done ? "ghost" : "") + '" data-act="toggleDone">' + (st.done ? "✓ Completed — unmark" : "Mark lecture complete") + "</button></div></div>" +
-      '<div class="card"><h2>Notes</h2><textarea id="lessonNotes" placeholder="What did you learn? What broke your brain? Write it — this becomes your weekly post.">' + esc(st.notes) + '</textarea>' +
-      '<div style="margin-top:10px;"><button class="btn ghost" data-act="saveNotes">Save notes</button></div></div></div>' +
+        '<label class="check-row"><input type="checkbox" data-check="' + i + '" ' + ((st.checks || [])[i] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG + '</span><span class="check-label">' + esc(o) + "</span></label>"
+      ).join("") + "</div>" +
+
+      // 3 · solve, from a real source with solutions
+      '<div style="margin-top:16px;"><div class="field">3 · Solve ' + need + ' problems unaided</div>' +
+      '<div style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(c.practice ? c.practice.label : "Problems from the course source") + "</div>" +
+      '<div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
+      (c.practice ? '<a class="btn ghost" href="' + c.practice.url + '" target="_blank" rel="noopener">Open problems ↗</a>' : "") +
+      (c.quiz ? '<a class="btn ghost" href="#/quiz/' + c.quiz + '">Auto-graded bank</a>' : "") +
+      '<span style="display:inline-flex; align-items:center; gap:6px;">' +
+      '<button class="btn ghost" data-solve="-1" aria-label="one fewer">−</button>' +
+      '<span class="mono" id="solvedN" style="min-width:2.5em; text-align:center;">' + (st.solved || 0) + "</span>" +
+      '<button class="btn ghost" data-solve="1" aria-label="one more">+</button>' +
+      "</span></div></div>" +
+
+      // 4 · explain
+      '<div style="margin-top:16px;"><label class="field" for="lessonNotes">4 · Explain it plainly — this becomes your post</label>' +
+      '<textarea id="lessonNotes" placeholder="Explain it as if to a smart friend who has not seen it. No jargon you cannot unpack.">' + esc(st.notes) + "</textarea></div>" +
+
+      '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
+      '<button class="btn ghost" data-act="saveLesson">Save</button>' +
+      (st.verified
+        ? '<span class="pill good">✓ Verified ' + esc(st.verifiedAt || "") + "</span>" +
+          '<button class="btn ghost" data-act="unverify">Unverify</button>'
+        : '<button class="btn" data-act="verify"' + (canVerify ? "" : ' disabled title="Finish the four gates first"') + ">Verify mastery</button>") +
+      "</div></div>" +
+
+      // ---- watched vs proven, stated plainly ----
+      '<div class="card"><h2>Where this lecture stands</h2>' +
+      '<div class="tl" style="margin-top:8px;">' +
+      '<div class="tl-row"><span class="tl-what">Watched</span><span class="pill' + (st.done ? " teal" : "") + '">' + (st.done ? "yes" : "not yet") + "</span></div>" +
+      '<div class="tl-row"><span class="tl-what">Proven</span><span class="pill' + (st.verified ? " good" : "") + '">' + (st.verified ? "yes" : "not yet") + "</span></div>" +
+      (rv ? '<div class="tl-row"><span class="tl-what">Next recall</span><span class="mono" style="font-size:var(--fs-small); color:' + (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></div>" : "") +
+      "</div>" +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:12px;">Only <strong>proven</strong> counts toward mastery. Watching moves coverage.</p>' +
+      '<div style="margin-top:12px;">' +
+      '<button class="btn ghost" data-act="toggleDone">' + (st.done ? "Unmark watched" : "Mark watched") + "</button></div>" +
+      (l.paper || l.read ? "" : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">Pause the video before each result and predict it. Prediction first, explanation second — that is what makes it stick.</p>') +
+      "</div></div>" +
+
       '<div style="display:flex; justify-content:space-between; margin-top:16px;">' +
       (prev ? '<a class="btn ghost" href="' + prev + '">← Previous</a>' : "<span></span>") +
       (next ? '<a class="btn" href="' + next + '">Next lecture →</a>' : '<a class="btn" href="#/course/' + cid + '">Course complete view</a>') +
@@ -1193,6 +1317,129 @@
     if (e.type === "day") return "Deep Track day sealed";
     return (EV_LABEL[e.type] || e.type) + " · " + e.ref;
   }
+
+  // Recall, then judge yourself. Forgetting resets the interval; solid recall
+  // pushes it out. This is the revision engine — watching once is not enough.
+  // Why the method is the method, drawn rather than argued: one curve for
+  // watch-and-move-on, one for recall at widening intervals.
+  function retentionSVG() {
+    const W = 620, H = 165, pad = 26, days = 130;
+    const X = d => pad + (d / days) * (W - pad - 10);
+    const Y = r => H - pad - (r / 100) * (H - pad - 22);
+    const dec = (from, t, tau, r0) => r0 * Math.exp(-(t - from) / tau);
+    let passive = "";
+    for (let d = 0; d <= days; d += 2) passive += (d ? "L" : "M") + X(d).toFixed(1) + " " + Y(100 * Math.exp(-d / 13)).toFixed(1) + " ";
+    const marks = [0, 2, 9, 30, 90];
+    let spaced = "", dots = "";
+    marks.forEach((m, i) => {
+      const end = i + 1 < marks.length ? marks[i + 1] : days;
+      const tau = 13 * (i + 1) * 1.5;
+      for (let d = m; d <= end; d += 1.5) {
+        const r = dec(m, d, tau, 100);
+        spaced += (d === m && i === 0 ? "M" : "L") + X(d).toFixed(1) + " " + Y(r).toFixed(1) + " ";
+      }
+      if (i + 1 < marks.length) spaced += "L" + X(end).toFixed(1) + " " + Y(100).toFixed(1) + " ";
+      if (m > 0) dots += '<circle cx="' + X(m).toFixed(1) + '" cy="' + Y(100).toFixed(1) + '" r="3.4" fill="var(--accent)"/>';
+    });
+    return '<svg class="curve" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Retention decays quickly without recall; each recall resets it and flattens the decay">' +
+      '<line x1="' + pad + '" y1="' + Y(0) + '" x2="' + (W - 10) + '" y2="' + Y(0) + '" stroke="var(--line)"/>' +
+      '<line x1="' + pad + '" y1="' + Y(0) + '" x2="' + pad + '" y2="' + Y(100) + '" stroke="var(--line)"/>' +
+      '<text x="4" y="' + (Y(100) + 4) + '" class="ctick">100%</text>' +
+      '<text x="' + pad + '" y="' + (H - 8) + '" class="ctick">day 0</text>' +
+      '<text x="' + (W - 40) + '" y="' + (H - 8) + '" class="ctick">day 130</text>' +
+      '<path d="' + passive + '" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 3"/>' +
+      '<path d="' + spaced + '" fill="none" stroke="var(--accent)" stroke-width="2.2" class="curve-draw"/>' +
+      dots + "</svg>";
+  }
+
+  V.method = function () {
+    const step = (n, title, body) =>
+      '<div class="mstep"><span class="mnum">' + n + '</span><div><strong style="color:var(--ink);">' + title + "</strong>" +
+      '<div style="font-size:var(--fs-small); color:var(--ink-2);">' + body + "</div></div></div>";
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">Method</div><h1>How to actually learn here</h1>' +
+      '<div class="sub">Watching is the cheapest part. These loops are the rest.</div></div>' +
+
+      // ---- the curve does the arguing ----
+      '<div class="card"><h2>Why watching fades</h2>' +
+      retentionSVG() +
+      '<div class="cal-legend" style="margin-top:4px;">' +
+      '<span><i style="width:14px;height:0;border-top:2px dashed var(--bad);display:inline-block;"></i> watch once</span>' +
+      '<span><i style="width:14px;height:0;border-top:2px solid var(--accent);display:inline-block;"></i> recall at widening gaps</span>' +
+      '<span><i class="pdot" style="background:var(--accent);"></i> a recall check</span></div></div>' +
+
+      // ---- the four gates ----
+      '<div class="card" style="margin-top:16px;"><h2>Four gates per lecture</h2>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 12px;">All four, or it counts as watched — not proven</p>' +
+      '<div class="stagger">' +
+      step(1, "Recall cold", "Blank page, three minutes, no video. What did it establish?") +
+      step(2, "Rebuild", "Reproduce the derivation or the code from memory. Diff it.") +
+      step(3, "Solve unaided", "Three problems from the real source. Solutions only after.") +
+      step(4, "Explain plainly", "A few sentences a smart friend would follow. That is your post.") +
+      "</div></div>" +
+
+      // ---- spacing ----
+      '<div class="card" style="margin-top:16px;"><h2>Then it comes back</h2>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 12px;">Solid recall pushes it out · forgetting resets it</p>' +
+      '<div class="spacing">' +
+      BOXES.map((d, i) => '<div class="sp-node"><span class="sp-dot" style="opacity:' + (0.45 + i * 0.14).toFixed(2) + '"></span>' +
+        '<span class="sp-lab">' + d + "d</span></div>").join('<span class="sp-line"></span>') +
+      "</div>" +
+      '<div style="margin-top:14px;"><a class="btn" href="#/recall">Open Recall</a></div></div>' +
+
+      // ---- coverage vs mastery, shown ----
+      '<div class="card" style="margin-top:16px;"><h2>Two different numbers</h2>' +
+      '<div style="margin-top:10px;"><div style="display:flex; justify-content:space-between; font-size:var(--fs-small); color:var(--ink-2);"><span>Watched</span><span class="mono">70%</span></div>' +
+      '<div class="bar" style="margin-top:4px;"><u style="transform:scaleX(0.7);"></u></div></div>' +
+      '<div style="margin-top:12px;"><div style="display:flex; justify-content:space-between; font-size:var(--fs-small); color:var(--ink);"><span>Proven</span><span class="mono">25%</span></div>' +
+      '<div class="bar" style="margin-top:4px;"><i style="transform:scaleX(0.25);"></i></div></div>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:12px;">Mastery counts the second one. The gap is the honest picture of where you stand.</p>' +
+      "</div></div>";
+  };
+
+  V.recall = function () {
+    const due = reviewsDue();
+    const all = Object.keys(S.review).filter(k => (S.lessons[k] || {}).verified);
+    const next = all.filter(k => S.review[k].due > todayISO())
+      .sort((a, b) => S.review[a].due < S.review[b].due ? -1 : 1).slice(0, 6);
+    const card = k => {
+      const L = lessonLabel(k);
+      if (typeof L === "string") return "";
+      const rv = S.review[k];
+      return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;">' +
+        '<div><div style="font-size:var(--fs-tiny); letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">' + esc(L.code) + "</div>" +
+        '<div style="color:var(--ink); font-weight:600;">' + esc(L.title) + "</div></div>" +
+        '<span class="pill' + (rv.lapses > 1 ? " crimson" : "") + '">interval ' + BOXES[rv.box] + "d" + (rv.lapses ? " · " + rv.lapses + " lapse" + (rv.lapses === 1 ? "" : "s") : "") + "</span></div>" +
+        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:8px;">Say it out loud before you open anything. Then judge honestly.</p>' +
+        '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
+        '<button class="btn ghost" data-recall="forgot" data-k="' + esc(k) + '">Forgot</button>' +
+        '<button class="btn ghost" data-recall="shaky" data-k="' + esc(k) + '">Shaky</button>' +
+        '<button class="btn" data-recall="solid" data-k="' + esc(k) + '">Solid</button>' +
+        '<a class="btn ghost" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">Open lecture</a></div></div>';
+    };
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">Revision</div><h1>Recall</h1>' +
+      '<div class="sub">Proven lectures come back before you forget them.</div></div>' +
+
+      (due.length
+        ? '<div class="tiles stagger" style="margin-bottom:16px;">' +
+          '<div class="card tile"><div class="t-label">Due now</div><div class="t-value"><span data-count="' + due.length + '">' + due.length + "</span></div></div>" +
+          '<div class="card tile"><div class="t-label">Scheduled</div><div class="t-value"><span data-count="' + all.length + '">' + all.length + "</span></div></div>" +
+          "</div>" + due.slice(0, 8).map(card).join("")
+        : '<div class="card"><div class="vseal"><div class="vico ok">✓</div><div class="vtext"><div class="vhead">Nothing due</div>' +
+          '<div style="font-size:var(--fs-small); color:var(--ink-2);">' +
+          (all.length ? all.length + " lecture" + (all.length === 1 ? "" : "s") + " scheduled ahead." : "Prove a lecture and it enters the rotation.") +
+          "</div></div></div></div>") +
+
+      (next.length
+        ? '<div class="card" style="margin-top:16px;"><h2>Coming up</h2><div class="tl" style="margin-top:8px;">' +
+          next.map(k => {
+            const L = lessonLabel(k);
+            if (typeof L === "string") return "";
+            return '<div class="tl-row"><span class="tl-date">' + esc(S.review[k].due) + "</span>" +
+              '<span class="tl-what">' + esc(L.code) + " · " + esc(L.title) + "</span></div>";
+          }).join("") + "</div></div>"
+        : "") +
+      "</div>";
+  };
 
   V.record = function () {
     const v = verifyChain();
@@ -1655,17 +1902,39 @@
           if ($("#recFile")) $("#recFile").click();
         } else if (act === "backup") {
           exportBackup();
-        } else if (act === "toggleDone" || act === "saveNotes") {
+        } else if (act === "toggleDone" || act === "saveNotes" || act === "saveLesson" || act === "verify" || act === "unverify") {
           const m = location.hash.match(/#\/lesson\/([^/]+)\/(\d+)\/(\d+)/);
           if (!m) return;
           const k = lessonKey(m[1], +m[2], +m[3]);
           const st = S.lessons[k] || { done: false, notes: "", checks: [] };
-          if (act === "toggleDone") { st.done = !st.done; if (st.done) st.doneAt = todayISO(); else delete st.doneAt; }
-          st.notes = $("#lessonNotes") ? $("#lessonNotes").value : st.notes;
+          // always carry the open editors into state so nothing is lost
+          if ($("#lessonNotes")) st.notes = $("#lessonNotes").value;
+          if ($("#lessonRecall")) st.recall = $("#lessonRecall").value;
+          const cs = D.COURSES.find(x => x.id === m[1]);
+          const ls = cs && cs.units[+m[2]] ? cs.units[+m[2]].lessons[+m[3]] : null;
+          if (act === "toggleDone") {
+            st.done = !st.done;
+            if (st.done) st.doneAt = todayISO(); else delete st.doneAt;
+          }
+          if (act === "verify") {
+            if (!lessonCanVerify(st, ls)) { S.lessons[k] = st; save(); render(); toast("Finish the four gates first."); return; }
+            st.verified = true; st.verifiedAt = todayISO();
+            if (!st.done) { st.done = true; st.doneAt = st.doneAt || todayISO(); }
+            S.lessons[k] = st;
+            scheduleReview(k, 0);
+            logEvent("verified", k, { solved: st.solved || 0 });
+            save(); render();
+            toast("Proven. First recall check in " + BOXES[0] + " days.");
+            return;
+          }
+          if (act === "unverify") {
+            st.verified = false; delete st.verifiedAt; delete S.review[k];
+            S.lessons[k] = st; logEvent("unverified", k, {}); save(); render();
+            toast("Unverified."); return;
+          }
           S.lessons[k] = st; save();
-          if (act === "toggleDone") logEvent("lesson", k, { done: st.done });
-          if (act === "toggleDone") { render(); toast(st.done ? "Lecture marked complete." : "Unmarked."); }
-          else toast("Notes preserved.");
+          if (act === "toggleDone") { logEvent("lesson", k, { done: st.done }); render(); toast(st.done ? "Marked watched — mastery still needs the four gates." : "Unmarked."); }
+          else { render(); toast("Saved."); }
         } else if (act === "saveDiag") {
           const m = location.hash.match(/#\/diag\/(.+)/);
           const v = parseFloat($("#diagScore").value);
@@ -1729,7 +1998,10 @@
         const k = lessonKey(m[1], +m[2], +m[3]);
         const st = S.lessons[k] || { done: false, notes: "", checks: [] };
         st.checks[+cb.dataset.check] = cb.checked;
-        S.lessons[k] = st; save();
+        // carry the open editors so a re-render cannot discard unsaved text
+        if ($("#lessonNotes")) st.notes = $("#lessonNotes").value;
+        if ($("#lessonRecall")) st.recall = $("#lessonRecall").value;
+        S.lessons[k] = st; save(); render();
       };
     });
     // problem tracker
@@ -1799,6 +2071,53 @@
         else if (cur === "planned") S.electives[id] = "done";
         else delete S.electives[id];
         save(); render();
+      };
+    });
+    // 3-minute blank-page recall timer
+    $$('[data-act="recallTimer"]', root).forEach(b => {
+      b.onclick = () => {
+        const clock = $("#recallClock", root);
+        if (!clock) return;
+        let left = 180;
+        clearInterval(timerH);
+        const tick = () => {
+          clock.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0") + " left";
+          if (left <= 0) { clearInterval(timerH); clock.textContent = "time — stop writing, now compare"; toast("Recall window closed. Compare against the source."); }
+          left--;
+        };
+        tick();
+        timerH = setInterval(tick, 1000);
+        const ta = $("#lessonRecall", root);
+        if (ta) ta.focus();
+      };
+    });
+    // problems solved unaided
+    $$("[data-solve]", root).forEach(b => {
+      b.onclick = () => {
+        const m = location.hash.match(/#\/lesson\/([^/]+)\/(\d+)\/(\d+)/);
+        if (!m) return;
+        const k = lessonKey(m[1], +m[2], +m[3]);
+        const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+        if ($("#lessonNotes", root)) st.notes = $("#lessonNotes", root).value;
+        if ($("#lessonRecall", root)) st.recall = $("#lessonRecall", root).value;
+        st.solved = Math.max(0, (st.solved || 0) + (+b.dataset.solve));
+        S.lessons[k] = st; save(); render();
+      };
+    });
+    // recall grading: forgetting resets the interval, solid recall extends it
+    $$("[data-recall]", root).forEach(btn => {
+      btn.onclick = () => {
+        const k = btn.dataset.k, grade = btn.dataset.recall;
+        const rv = S.review[k];
+        if (!rv) return;
+        if (grade === "forgot") { rv.lapses = (rv.lapses || 0) + 1; scheduleReview(k, 0); S.review[k].lapses = rv.lapses; }
+        else if (grade === "shaky") { const l = rv.lapses || 0; scheduleReview(k, rv.box); S.review[k].lapses = l; }
+        else { const l = rv.lapses || 0; scheduleReview(k, (rv.box || 0) + 1); S.review[k].lapses = l; }
+        logEvent("recall", k, { grade: grade, box: S.review[k].box });
+        save(); render();
+        toast(grade === "solid" ? "Solid — next check in " + BOXES[S.review[k].box] + " days."
+          : grade === "shaky" ? "Held at " + BOXES[S.review[k].box] + " days."
+          : "Reset — back in " + BOXES[0] + " days. That is the system working.");
       };
     });
     // heatmap day -> that day in the calendar
@@ -1978,6 +2297,8 @@
     else if (seg[0] === "diag") html = V.diag(seg[1]);
     else if (r === "/transcript") html = V.transcript();
     else if (r === "/record") html = V.record();
+    else if (r === "/recall") html = V.recall();
+    else if (r === "/method") html = V.method();
     else if (r === "/review") html = V.review();
     else if (r === "/treasury") html = V.treasury();
     else if (r === "/workshop") html = V.workshop();

@@ -366,7 +366,11 @@ label.field { display: block; font-size: var(--fs-tiny); text-transform: upperca
 .check-label { font-size: var(--fs-small); color: var(--ink-2); }
 
 /* Progress bars */
-.bar { height: 4px; background: var(--bg-2); border-radius: 999px; overflow: hidden; }
+.bar { height: 4px; background: var(--bg-2); border-radius: 999px; overflow: hidden; position: relative; }
+/* Two truths in one bar: the pale fill is what you have watched, the solid
+   fill is what you have actually proven. The gap between them is the point. */
+.bar > u { position: absolute; inset: 0; display: block; border-radius: 999px; transform-origin: left; background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.bar > i { position: relative; }
 .bar > i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transform-origin: left; transition: transform 600ms var(--ease); }
 .bar.teal > i { background: var(--accent-2); }
 /* .bar.grow sweeps from empty on first paint; --w carries the target scale.
@@ -632,6 +636,40 @@ tr:last-child td { border-bottom: none; }
 
 /* A feature card in a 2-column grid must not stretch to the tall column. */
 .grid.top > * { align-self: start; }
+
+/* ---------- Method: curves, steps, spacing ---------- */
+.curve { width: 100%; height: auto; display: block; }
+.curve .ctick { font-family: var(--font-mono); font-size: 8px; fill: var(--ink-3); }
+/* Draw the good curve on rather than snapping it in. */
+.curve-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: drawLine 1400ms var(--ease) 120ms forwards; }
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+.mstep { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.mstep:last-child { border-bottom: none; }
+.mstep .mnum {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+}
+
+.spacing { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+.spacing .sp-node { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+.spacing .sp-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+.spacing .sp-lab { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+.spacing .sp-line { flex: 1; min-width: 14px; height: 1px; background: var(--line-strong); margin-bottom: 16px; }
+
+/* ---------- Lecture gates: the four proofs ---------- */
+.gates { display: flex; flex-direction: column; gap: 2px; }
+.gate-row { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; font-size: var(--fs-small); color: var(--ink-2); }
+.gate-row .gmark {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid var(--line-strong); display: grid; place-items: center;
+  font-size: 0.65rem; font-weight: 700; color: transparent;
+  transition: background-color var(--t-hover) ease, color var(--t-hover) ease, border-color var(--t-hover) ease;
+}
+.gate-row.ok .gmark { background: color-mix(in srgb, var(--good) 16%, transparent); border-color: transparent; color: var(--good); }
+.gate-row.ok .gtext { color: var(--ink); }
+.gate-row .gtext { min-width: 0; }
 
 /* ---------- The Record: heatmap, verification seal, hashes ---------- */
 /* Consistency at a glance: one square per day, columns are weeks. */

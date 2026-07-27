@@ -48,6 +48,23 @@ Write ONE productized offer using skills you already have. Template:
 
 Rules: fixed scope, fixed price, delivery ≤ 2 weeks, max 2 clients at once, ≤2 h/day. Your Arabic+English+German and real agency experience is the moat.
 
+## The method — watched is not learned
+
+A lecture can be **watched** or **proven**, and they are different numbers.
+Mastery counts only the second. To prove one, four gates:
+
+1. **Recall cold** — blank page, three minutes, no video
+2. **Rebuild** — reproduce the derivation or code from memory, then diff it
+3. **Solve unaided** — three problems from the course's real source
+4. **Explain plainly** — a few sentences a smart friend would follow
+
+Proving a lecture puts it into spaced recall: it returns at 2, 7, 21, 60 and
+120 days. Solid recall pushes the interval out; forgetting resets it. Due
+recalls appear on the Dashboard ahead of new material, because relearning what
+is fading beats covering more ground. See **Method** and **Recall** in the app.
+
+---
+
 ## Verifying this record
 
 The platform keeps an append-only log of every completed lecture, examination,

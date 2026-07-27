@@ -62,6 +62,7 @@
   function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
   S.ledger = S.ledger || [];
   S.review = S.review || {};
+  S.concepts = S.concepts || {};
   S.anchors = S.anchors || [];
 
   // ---------- SHA-256, synchronous, no dependencies ----------
@@ -1080,6 +1081,7 @@
   };
 
   let timerH = null;
+  let sketchDirty = false;
   let calCursor = null; // "YYYY-MM" of the displayed month
   let calSel = null;    // "YYYY-MM-DD" of the selected day
 
@@ -1351,6 +1353,171 @@
       '<path d="' + spaced + '" fill="none" stroke="var(--accent)" stroke-width="2.2" class="curve-draw"/>' +
       dots + "</svg>";
   }
+
+  // ---------- concepts: ideas rather than videos ----------
+  const CONCEPTS = () => (D.CONCEPTS || []);
+  const conceptById = id => CONCEPTS().find(c => c.id === id);
+  const cKey = id => "c:" + id;                  // recall keys for concepts
+  function conceptState(id) {
+    S.concepts[id] = S.concepts[id] || { sketches: [], proven: false, attempts: 0 };
+    return S.concepts[id];
+  }
+  // Longest prerequisite chain — the graph's natural reading order.
+  function conceptDepth(list) {
+    const byId = {}; list.forEach(c => byId[c.id] = c);
+    const d = {};
+    const walk = id => {
+      if (d[id] != null) return d[id];
+      const c = byId[id];
+      if (!c || !(c.prereq || []).length) return d[id] = 0;
+      d[id] = 0; // guard against a cycle slipping past the harness
+      return d[id] = 1 + Math.max.apply(null, c.prereq.map(p => byId[p] ? walk(p) : 0));
+    };
+    list.forEach(c => walk(c.id));
+    return d;
+  }
+  // The map of a subject: columns are prerequisite depth, edges are dependencies.
+  function conceptGraph(courseId) {
+    const list = CONCEPTS().filter(c => c.course === courseId);
+    if (!list.length) return "";
+    const d = conceptDepth(list);
+    const cols = {};
+    list.forEach(c => (cols[d[c.id]] = cols[d[c.id]] || []).push(c));
+    const depths = Object.keys(cols).map(Number).sort((a, b) => a - b);
+    const NW = 118, NH = 42, GX = 158, GY = 56, PAD = 14;
+    const rows = Math.max.apply(null, depths.map(k => cols[k].length));
+    const W = PAD * 2 + (depths.length - 1) * GX + NW, H = PAD * 2 + (rows - 1) * GY + NH;
+    const pos = {};
+    depths.forEach((k, ci) => cols[k].forEach((c, ri) => {
+      const n = cols[k].length;
+      pos[c.id] = { x: PAD + ci * GX, y: PAD + ri * GY + (rows - n) * GY / 2 };
+    }));
+    let edges = "";
+    list.forEach(c => (c.prereq || []).forEach(p => {
+      if (!pos[p]) return;
+      const a = pos[p], b = pos[c.id];
+      const x1 = a.x + NW, y1 = a.y + NH / 2, x2 = b.x, y2 = b.y + NH / 2;
+      edges += '<path d="M' + x1 + " " + y1 + " C" + (x1 + 26) + " " + y1 + " " + (x2 - 26) + " " + y2 + " " + x2 + " " + y2 +
+        '" fill="none" stroke="var(--line-strong)" stroke-width="1.3"/>';
+    }));
+    let nodes = "";
+    list.forEach(c => {
+      const st = S.concepts[c.id] || {};
+      const cls = st.proven ? "proven" : (st.sketches || []).length || st.attempts ? "seen" : "";
+      const { x, y } = pos[c.id];
+      // Greedy wrap onto two lines. Once a word has spilled to line two every
+      // later word must follow it, or the title reads out of order.
+      let l1 = "", l2 = "";
+      c.title.split(" ").forEach(w => {
+        if (!l2 && (l1 + " " + w).trim().length <= 18) l1 = (l1 + " " + w).trim();
+        else l2 = (l2 + " " + w).trim();
+      });
+      if (l2.length > 20) l2 = l2.slice(0, 19).replace(/\s+\S*$/, "") + "…";
+      nodes += '<g class="cg-node ' + cls + '" data-concept="' + esc(c.id) + '" tabindex="0" role="link" aria-label="' + esc(c.title) + '">' +
+        '<rect x="' + x + '" y="' + y + '" width="' + NW + '" height="' + NH + '" rx="6"/>' +
+        '<text x="' + (x + NW / 2) + '" y="' + (y + (l2 ? 17 : 25)) + '" text-anchor="middle">' + esc(l1) + "</text>" +
+        (l2 ? '<text x="' + (x + NW / 2) + '" y="' + (y + 31) + '" text-anchor="middle">' + esc(l2) + "</text>" : "") +
+        "</g>";
+    });
+    return '<div class="cg-wrap"><svg class="cg" viewBox="0 0 ' + W + " " + H + '" style="width:' + W + 'px;">' + edges + nodes + "</svg></div>";
+  }
+
+  V.atlas = function () {
+    const PH = [[0, "Foundations"], [1, "The Spine"], [2, "Depth"], [3, "Frontier"]];
+    const here = currentPhase();
+    const courseNode = c => {
+      const m = courseMastery(c), cov = courseCoverage(c);
+      const locked = c.phase > here;
+      return '<a class="atlas-node' + (locked ? " locked" : "") + '" href="#/course/' + c.id + '">' +
+        '<div class="an-code">' + esc(c.code) + "</div>" +
+        '<div class="an-title">' + esc(c.title) + "</div>" +
+        '<div class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u><i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></div>' +
+        '<div class="an-num mono">' + m + "%</div></a>";
+    };
+    const gates = gatePlan();
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The whole climb</h1>' +
+      '<div class="sub">Pale is watched · solid is proven.</div></div>' +
+      PH.map(([n, name]) => {
+        const cs = D.COURSES.filter(c => c.phase === n);
+        if (!cs.length) return "";
+        const g = gates[n];
+        return '<div class="atlas-band' + (n === here ? " now" : "") + '">' +
+          '<div class="ab-head"><span class="ab-n mono">' + n + "</span>" +
+          '<span class="ab-name">' + name + "</span>" +
+          (n === here ? '<span class="pill gold">you are here</span>' : "") +
+          (g ? '<span class="ab-gate mono">gate ' + g.n + " · " + esc(g.target) + "</span>" : "") + "</div>" +
+          '<div class="atlas-row">' + cs.map(courseNode).join("") + "</div></div>";
+      }).join("") +
+      (CONCEPTS().length
+        ? '<div class="card" style="margin-top:16px;"><h2>Linear algebra, as ideas</h2>' +
+          '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">Left depends on nothing · each column needs the one before</p>' +
+          conceptGraph("math110") + "</div>"
+        : "") +
+      "</div>";
+  };
+
+  V.concept = function (id) {
+    const c = conceptById(id);
+    if (!c) return '<div class="card">Unknown concept.</div>';
+    const st = conceptState(id);
+    const revealed = !!st.revealed;
+    const rv = S.review[cKey(id)];
+    const course = D.COURSES.find(x => x.id === c.course);
+    const last = (st.sketches || [])[st.sketches.length - 1];
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">' +
+      (course ? '<a href="#/course/' + course.id + '">' + esc(course.code) + "</a>" : "Concept") + "</div>" +
+      "<h1>" + esc(c.title) + "</h1>" +
+      '<div class="sub">' + esc(c.one) + "</div></div>" +
+
+      // ---- draw it before you are shown it ----
+      '<div class="card"><div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
+      "<h2>Draw it from memory</h2>" +
+      (st.proven ? '<span class="pill good">✓ proven</span>' : "") + "</div>" +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">Sketch first — then compare. Producing beats recognising.</p>' +
+      '<canvas id="sketchPad" class="sketchpad" width="640" height="360"></canvas>' +
+      '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
+      '<button class="btn ghost" data-act="sketchClear">Clear</button>' +
+      '<button class="btn ghost" data-act="sketchSave" data-cid="' + esc(id) + '">Save sketch</button>' +
+      (revealed
+        ? '<button class="btn ghost" data-act="hideFig" data-cid="' + esc(id) + '">Hide the figure</button>'
+        : '<button class="btn" data-act="revealFig" data-cid="' + esc(id) + '">Reveal the figure</button>') +
+      '<span class="mono" style="font-size:var(--fs-tiny); color:var(--ink-3);">' +
+      (st.sketches || []).length + " saved</span></div>" +
+      (last ? '<div style="margin-top:12px;"><div class="field">Your last sketch · ' + esc(last.date) + "</div>" +
+        '<img class="sketch-prev" src="' + last.png + '" alt="your previous sketch"></div>' : "") +
+      "</div>" +
+
+      // ---- the reference figure ----
+      (revealed && D.FIG && D.FIG[c.fig]
+        ? '<div class="card" style="margin-top:16px;"><h2>The figure</h2>' + D.FIG[c.fig]({}) +
+          '<div class="tl" style="margin-top:10px;">' +
+          '<div class="tl-row"><span class="tl-date">trap</span><span class="tl-what">' + esc(c.miss) + "</span></div>" +
+          '<div class="tl-row"><span class="tl-date">in AI</span><span class="tl-what">' + esc(c.applies) + "</span></div>" +
+          "</div></div>"
+        : "") +
+
+      // ---- probes ----
+      '<div class="card" style="margin-top:16px;"><h2>Probe</h2>' +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">All of them right, once, and this idea enters spaced recall</p>' +
+      '<div id="probeMount"><button class="btn" data-act="startProbe" data-cid="' + esc(id) + '">Begin ' + c.probes.length + " question" + (c.probes.length === 1 ? "" : "s") + "</button></div></div>" +
+
+      // ---- where it sits ----
+      '<div class="grid cols-2 top" style="margin-top:16px;">' +
+      '<div class="card"><h2>Stands on</h2>' +
+      ((c.prereq || []).length
+        ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">' +
+          c.prereq.map(p => { const q = conceptById(p); return q ? '<a class="pill wrapping" href="#/concept/' + p + '">' + esc(q.title) + "</a>" : ""; }).join("") + "</div>"
+        : '<p style="font-size:var(--fs-small); color:var(--ink-2);">Nothing — this is bedrock.</p>') +
+      (rv ? '<div class="tl" style="margin-top:12px;"><div class="tl-row"><span class="tl-what">Next recall</span>' +
+        '<span class="mono" style="font-size:var(--fs-small); color:' + (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></div></div>" : "") +
+      "</div>" +
+      '<div class="card"><h2>Taught in</h2><div class="tl" style="margin-top:8px;">' +
+      (c.lectures || []).map(k => {
+        const L = lessonLabel(k);
+        if (typeof L === "string") return "";
+        return '<div class="tl-row"><span class="tl-what"><a href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">' + esc(L.title) + "</a></span></div>";
+      }).join("") + "</div></div></div></div>";
+  };
 
   V.method = function () {
     const step = (n, title, body) =>
@@ -1880,6 +2047,53 @@
           if (!S.studyDays.includes(todayISO())) { S.studyDays.push(todayISO()); logEvent("day", todayISO(), {}); }
           save(); render();
           toast("Counted. The chain grows.");
+        } else if (act === "revealFig" || act === "hideFig") {
+          const st = conceptState(b.dataset.cid);
+          st.revealed = act === "revealFig";
+          save(); render();
+        } else if (act === "sketchClear") {
+          const cv = $("#sketchPad");
+          if (cv) { const g = cv.getContext("2d"); g.clearRect(0, 0, cv.width, cv.height); sketchDirty = false; }
+        } else if (act === "sketchSave") {
+          const cv = $("#sketchPad"), id = b.dataset.cid;
+          if (!cv) return;
+          // Downscale hard: storage is a few megabytes total and sketches are
+          // the only thing here that could ever fill it.
+          const small = document.createElement("canvas");
+          small.width = 320; small.height = 180;
+          small.getContext("2d").drawImage(cv, 0, 0, 320, 180);
+          const png = small.toDataURL("image/png");
+          const st = conceptState(id);
+          st.sketches = (st.sketches || []).concat([{ date: todayISO(), png: png }]).slice(-2);
+          try { save(); } catch (e) {
+            st.sketches = st.sketches.slice(-1);
+            try { save(); toast("Storage is tight — keeping only the newest sketch."); }
+            catch (e2) { st.sketches = []; save(); toast("Out of storage. Export a backup, then clear old sketches."); return; }
+          }
+          render(); toast("Sketch saved. Now reveal and compare.");
+        } else if (act === "startProbe") {
+          const c = conceptById(b.dataset.cid);
+          const mount = $("#probeMount");
+          if (!c || !mount || !window.DAR.Quiz) return;
+          const st = conceptState(c.id);
+          st.attempts = (st.attempts || 0) + 1; save();
+          DAR.Quiz.mount(mount, { title: c.title, course: (D.COURSES.find(x => x.id === c.course) || {}).code || "", perSitting: c.probes.length, questions: c.probes }, {
+            onFinish(res) {
+              const s2 = conceptState(c.id);
+              if (res.pct === 100) {
+                const already = s2.proven;
+                s2.proven = true; s2.provenAt = todayISO();
+                if (!already) { scheduleReview(cKey(c.id), 0); logEvent("concept", c.id, { proven: true }); }
+                save();
+                toast(already ? "Still solid." : "Proven — first recall in " + BOXES[0] + " days.");
+              } else {
+                logEvent("probe", c.id, { pct: res.pct });
+                save();
+                toast(res.pct + "% — read the misses, then sit it again.");
+              }
+            },
+            onExit() { render(); },
+          });
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));
@@ -2072,6 +2286,35 @@
         else delete S.electives[id];
         save(); render();
       };
+    });
+    // Sketch pad: pointer drawing, restored nothing — the point is a blank page.
+    if ($("#sketchPad", root)) {
+      const cv = $("#sketchPad", root), g = cv.getContext("2d");
+      let drawing = false;
+      const themeInk = getComputedStyle(document.documentElement).getPropertyValue("--ink").trim() || "#2b2118";
+      g.lineWidth = 2.4; g.lineCap = "round"; g.lineJoin = "round"; g.strokeStyle = themeInk;
+      const at = ev => {
+        const r = cv.getBoundingClientRect();
+        return [(ev.clientX - r.left) * (cv.width / r.width), (ev.clientY - r.top) * (cv.height / r.height)];
+      };
+      cv.addEventListener("pointerdown", ev => {
+        drawing = true; sketchDirty = true; cv.setPointerCapture(ev.pointerId);
+        const [x, y] = at(ev); g.beginPath(); g.moveTo(x, y);
+      });
+      cv.addEventListener("pointermove", ev => {
+        if (!drawing) return;
+        ev.preventDefault();
+        const [x, y] = at(ev); g.lineTo(x, y); g.stroke();
+      });
+      const stop = () => { drawing = false; };
+      cv.addEventListener("pointerup", stop);
+      cv.addEventListener("pointerleave", stop);
+    }
+    // Concept graph nodes navigate.
+    $$("[data-concept]", root).forEach(n => {
+      const go = () => { location.hash = "#/concept/" + n.dataset.concept; };
+      n.onclick = go;
+      n.onkeydown = ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); } };
     });
     // 3-minute blank-page recall timer
     $$('[data-act="recallTimer"]', root).forEach(b => {
@@ -2299,6 +2542,8 @@
     else if (r === "/record") html = V.record();
     else if (r === "/recall") html = V.recall();
     else if (r === "/method") html = V.method();
+    else if (r === "/atlas") html = V.atlas();
+    else if (seg[0] === "concept") html = V.concept(seg[1]);
     else if (r === "/review") html = V.review();
     else if (r === "/treasury") html = V.treasury();
     else if (r === "/workshop") html = V.workshop();

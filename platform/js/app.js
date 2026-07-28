@@ -716,6 +716,8 @@
     const doneToday = real.filter(schedDone).length;
     const backlog = backlogCount();
     const probs = nextProblems(2);
+    const trackerC = D.COURSES.find(x => x.tracker);
+    const probsCat = trackerC ? Object.keys(trackerC.problems).find(cat => trackerC.problems[cat].some(p => !S.problems[cat + "|" + p])) : null;
     const drift = planDrift();
     const dsa = dsaCount(), posts = postsTotal(), rev = Math.round(revenueTotal());
     const due = reviewsDue();
@@ -790,7 +792,10 @@
       todaySched.map(schedRowHTML).join("") +
       (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Before Day 1 — calibration and setup</span><a class="btn ghost go" href="#/guide">Handbook</a></div>') +
       '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
-      (probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 done.") +
+      (probs.length
+        ? (probsCat ? esc(probsCat) + " · " : "") + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") +
+          ' <span style="color:var(--ink-3);">— separate track from the maths</span>'
+        : "All 150 done.") +
       '</span><a class="btn ghost go" href="#/course/cs150">Tracker</a></div>' +
       '<div class="plan-row"><span class="block">Drill</span><span class="what">' +
       (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting" : "Pool clear") +
@@ -912,6 +917,9 @@
 
   function trackerCourse(c) {
     const cats = Object.keys(c.problems);
+    // Work top-down through the roadmap: the current category is the first with
+    // anything left in it, which is also where nextProblems() is drawing from.
+    const thisCat = cats.find(cat => c.problems[cat].some(p => !S.problems[cat + "|" + p])) || null;
     return '<div class="view-enter"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
       '<div class="sub">' + esc(c.desc) + "</div>" +
       '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">' +
@@ -919,6 +927,21 @@
       '<a class="btn" href="#/quiz/' + c.quiz + '">Sit the concept examination</a></div>' +
       '<div style="margin-top:14px; max-width:420px;"><div class="bar teal"><i style="transform:scaleX(' + (dsaCount() / 150) + ');"></i></div>' +
       '<div style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;"><strong style="color:var(--ink);">' + dsaCount() + " / 150</strong> — the Month-6 gate number</div></div></div>" +
+
+      // The page used to be a bare list of problem names, which said nothing
+      // about what to do or why this track exists alongside the mathematics.
+      '<div class="card"><h2>How this track works</h2>' +
+      '<div class="tl" style="margin-top:6px;">' +
+      '<div class="tl-row"><span class="tl-date">why</span><span class="tl-what">Interviews are still solved on a whiteboard, and reading a paper into working code needs a language you do not have to fight. That is what this buys.</span></div>' +
+      '<div class="tl-row"><span class="tl-date">apart</span><span class="tl-what">This runs <strong>parallel</strong> to the mathematics and does not depend on it. Nothing here builds on linear algebra, and nothing in linear algebra needs this. They are two tracks on the same day.</span></div>' +
+      '<div class="tl-row"><span class="tl-date">order</span><span class="tl-what">Top to bottom, category by category. The list below is the NeetCode roadmap order — do not shop around in it.</span></div>' +
+      '<div class="tl-row"><span class="tl-date">each</span><span class="tl-what">Read the problem, write it yourself, run it. Stuck past 25 minutes: read the editorial, close it, then write it again from memory. Tick it only when it ran.</span></div>' +
+      "</div>" +
+      (thisCat
+        ? '<div style="margin-top:12px;"><span class="pill gold">this week · ' + esc(thisCat) + "</span></div>"
+        : "") +
+      "</div>" +
+
       '<div class="grid cols-2">' +
       cats.map(cat => {
         const probs = c.problems[cat];
@@ -942,6 +965,7 @@
     const canVerify = gatesOk === 4;
     const need = l.solve || PRACTICE_TARGET;
     const rv = S.review[k];
+    const hasSummary = !!(D.SUMMARIES || {})[k];
     S.settings.lastLesson = { cid, ui: +ui, li: +li, label: c.code + " · " + l.t };
     save();
     const src = l.v
@@ -1023,8 +1047,12 @@
       (rv ? '<div class="tl-row"><span class="tl-what">Next recall</span><span class="mono" style="font-size:var(--fs-small); color:' + (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></div>" : "") +
       "</div>" +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:12px;">Only <strong>proven</strong> counts toward mastery. Watching moves coverage.</p>' +
-      '<div style="margin-top:12px;">' +
-      '<button class="btn ghost" data-act="toggleDone">' + (st.done ? "Unmark watched" : "Mark watched") + "</button></div>" +
+      '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
+      '<button class="btn ghost" data-act="toggleDone">' + (st.done ? "Unmark watched" : "Mark watched") + "</button>" +
+      (st.done
+        ? '<a class="btn" href="#/summary/' + cid + "/" + ui + "/" + li + '">Summary ' + (hasSummary ? "▸" : "") + "</a>"
+        : '<button class="btn" disabled title="Mark it watched first">Summary — locked</button>') +
+      "</div>" +
       (l.paper || l.read ? "" : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">Pause the video before each result and predict it. Prediction first, explanation second — that is what makes it stick.</p>') +
       "</div></div>" +
 
@@ -1057,19 +1085,31 @@
         return '<div class="card hoverable"><div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="pill gold">' + esc(b.course) + "</span>" +
           (best != null ? '<span class="pill ' + (best >= 70 ? "good" : "") + '">best ' + best + "%</span>" : '<span class="pill">unattempted</span>') + "</div>" +
           "<h3 style='margin-top:6px;'>" + esc(b.title) + "</h3>" +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + b.questions.length + " questions in the bank · " + (b.perSitting || 15) + " per sitting · " + at.length + " attempt" + (at.length === 1 ? "" : "s") + "</p>" +
-          '<div style="margin-top:12px;"><a class="btn" href="#/quiz/' + id + '">Begin sitting</a></div></div>';
+          '<p style="font-size:var(--fs-small); color:var(--ink-2);"><strong>' + unlockedIdx(id).length + "</strong> of " + b.questions.length + " unlocked by what you have watched · " + at.length + " attempt" + (at.length === 1 ? "" : "s") + "</p>" +
+          '<div style="margin-top:12px;">' +
+          (unlockedIdx(id).length
+            ? '<a class="btn" href="#/quiz/' + id + '">Begin sitting</a>'
+            : '<button class="btn" disabled title="Watch a lecture from this course first">Locked</button>') +
+          "</div></div>";
       }).join("") + "</div></div>";
   };
 
   V.quiz = function (bankId) {
     const bank = D.QUIZZES[bankId];
     if (!bank) return "<p>Unknown examination.</p>";
+    const U = unlockedBank(bankId);
     setTimeout(() => {
-      DAR.Quiz.mount($("#quizMount"), bank, {
+      if (!U.unlocked) {
+        $("#quizMount").innerHTML = '<div class="card"><h2>Nothing unlocked yet</h2>' +
+          '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">This examination only draws on lectures you have watched. Watch one and it opens.</p>' +
+          '<div style="margin-top:12px;"><a class="btn" href="#/courses">Go to the course</a></div></div>';
+        return;
+      }
+      DAR.Quiz.mount($("#quizMount"), U.bank, {
         onFinish(res) {
           (S.quizAttempts[bankId] = S.quizAttempts[bankId] || []).push({ date: todayISO(), score: res.score, total: res.total, pct: res.pct });
-          updateMisses(bankId, res.missed, res.correct);
+          // res indices are into the unlocked subset; translate back to the bank.
+          updateMisses(bankId, res.missed.map(i => U.map[i]), res.correct.map(i => U.map[i]));
           save();
           logEvent("exam", bankId, { score: res.score, total: res.total, pct: res.pct });
           toast("Recorded: " + res.pct + "% in the register.");
@@ -1354,6 +1394,35 @@
       dots + "</svg>";
   }
 
+  // ---------- only ask what has been taught ----------
+  // Testing un-encoded material is not retrieval practice, it is discouragement.
+  // A question unlocks when the lecture that teaches it has been watched. Banks
+  // whose questions are not yet tagged fall back to "the course has begun", so
+  // an unopened course can never appear in a drill.
+  function questionUnlocked(bankId, q) {
+    if (q && q.after) return !!(S.lessons[q.after] || {}).done;
+    const course = D.COURSES.find(c => c.quiz === bankId);
+    if (!course) return false;
+    return courseLessonStats(course).done > 0 || !!(course.tracker && dsaCount() > 0);
+  }
+  function unlockedIdx(bankId) {
+    const bank = D.QUIZZES[bankId];
+    if (!bank) return [];
+    return bank.questions.map((q, i) => questionUnlocked(bankId, q) ? i : -1).filter(i => i >= 0);
+  }
+  // A bank restricted to what you have covered, ready for DAR.Quiz.mount.
+  function unlockedBank(bankId) {
+    const bank = D.QUIZZES[bankId];
+    const idx = unlockedIdx(bankId);
+    return {
+      bank: Object.assign({}, bank, {
+        questions: idx.map(i => bank.questions[i]),
+        perSitting: Math.min(bank.perSitting || 15, idx.length),
+      }),
+      map: idx, total: bank.questions.length, unlocked: idx.length,
+    };
+  }
+
   // ---------- concepts: ideas rather than videos ----------
   const CONCEPTS = () => (D.CONCEPTS || []);
   const conceptById = id => CONCEPTS().find(c => c.id === id);
@@ -1421,6 +1490,51 @@
     });
     return '<div class="cg-wrap"><svg class="cg" viewBox="0 0 ' + W + " " + H + '" style="width:' + W + 'px;">' + edges + nodes + "</svg></div>";
   }
+
+  V.summary = function (cid, ui, li) {
+    const k = lessonKey(cid, ui, li);
+    const sm = (D.SUMMARIES || {})[k];
+    const c = D.COURSES.find(x => x.id === cid);
+    const l = c && c.units[ui] ? c.units[ui].lessons[li] : null;
+    const st = S.lessons[k] || {};
+    if (!l) return '<div class="card">Unknown lecture.</div>';
+    const back = "#/lesson/" + cid + "/" + ui + "/" + li;
+    // The gate: a summary must never become a substitute for the lecture.
+    if (!st.done)
+      return '<div class="view-enter"><div class="card"><h2>Locked</h2>' +
+        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">Watch the lecture and mark it watched. A summary is for review, not for skipping.</p>' +
+        '<div style="margin-top:12px;"><a class="btn" href="' + back + '">Back to the lecture</a></div></div></div>';
+    if (!sm)
+      return '<div class="view-enter"><div class="page-head"><div class="kicker">' + esc(c.code) + '</div><h1>' + esc(l.t) + "</h1></div>" +
+        '<div class="card"><h2>Not written yet</h2>' +
+        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">Summaries are authored lecture by lecture. This one is still to come — the ones that exist are marked in the course view.</p>' +
+        '<div style="margin-top:12px;"><a class="btn ghost" href="' + back + '">Back to the lecture</a></div></div></div>';
+    return '<div class="view-enter"><div class="page-head"><div class="kicker"><a href="' + back + '">' + esc(c.code) + " · " + esc(l.t) + "</a></div>" +
+      "<h1>Summary</h1>" +
+      '<div class="sub">' + esc(sm.takeaway) + "</div></div>" +
+
+      '<div class="card"><h2>How it builds</h2><div class="beats stagger">' +
+      sm.beats.map((b, i) =>
+        '<div class="beat"><div class="beat-n mono">' + (i + 1) + "</div>" +
+        '<div class="beat-body"><div class="beat-t">' + b.t + "</div>" +
+        '<div class="beat-d">' + b.d + "</div>" +
+        (b.fig && D.FIG && D.FIG[b.fig] ? '<div class="beat-fig">' + D.FIG[b.fig]({}) + "</div>" : "") +
+        "</div></div>").join("") + "</div></div>" +
+
+      '<div class="grid cols-2 top" style="margin-top:16px;">' +
+      '<div class="card"><h2>The worked pattern</h2><div class="beat-d" style="margin-top:6px;">' + sm.worked + "</div></div>" +
+      '<div class="card"><h2>Where people slip</h2><div class="beat-d" style="margin-top:6px;">' + sm.watch + "</div>" +
+      ((sm.concepts || []).length
+        ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:12px;">' +
+          sm.concepts.map(id => { const q = (D.CONCEPTS || []).find(x => x.id === id); return q ? '<a class="pill wrapping" href="#/concept/' + id + '">' + esc(q.title) + "</a>" : ""; }).join("") + "</div>"
+        : "") + "</div></div>" +
+
+      (sm.checks && sm.checks.length
+        ? '<div class="card" style="margin-top:16px;"><h2>Did it stick?</h2>' +
+          '<div id="sumCheck"><button class="btn" data-act="startSummaryCheck" data-k="' + esc(k) + '">Check yourself · ' + sm.checks.length + " question" + (sm.checks.length === 1 ? "" : "s") + "</button></div></div>"
+        : "") +
+      '<div style="margin-top:16px;"><a class="btn ghost" href="' + back + '">Back to the lecture</a></div></div>';
+  };
 
   V.atlas = function () {
     const PH = [[0, "Foundations"], [1, "The Spine"], [2, "Depth"], [3, "Frontier"]];
@@ -1894,16 +2008,25 @@
 
   V.drill = function () {
     setTimeout(() => {
-      let pool = missPool().sort(() => Math.random() - 0.5).slice(0, 10);
+      let pool = missPool().filter(p => questionUnlocked(p.bankId, D.QUIZZES[p.bankId].questions[p.idx]))
+        .sort(() => Math.random() - 0.5).slice(0, 10);
       if (pool.length < 5) {
+        // Pad only from material already taught — never from a course you have
+        // not opened. That was the bug that served SVD questions on day one.
         const have = new Set(pool.map(p => p.bankId + "|" + p.idx));
-        const all = Object.keys(D.QUIZZES).flatMap(b => D.QUIZZES[b].questions.map((_, i) => ({ bankId: b, idx: i })));
+        const all = Object.keys(D.QUIZZES).flatMap(b => unlockedIdx(b).map(i => ({ bankId: b, idx: i })));
         all.sort(() => Math.random() - 0.5);
         for (const p of all) {
           if (pool.length >= 10) break;
           const k = p.bankId + "|" + p.idx;
           if (!have.has(k)) { have.add(k); pool.push(p); }
         }
+      }
+      if (!pool.length) {
+        $("#drillMount").innerHTML = '<div class="card"><h2>Nothing to drill yet</h2>' +
+          '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">The drill only serves lectures you have already watched. Watch one, then come back.</p>' +
+          '<div style="margin-top:12px;"><a class="btn" href="#/">Today\u2019s plan</a></div></div>';
+        return;
       }
       const map = pool; // position in the synthetic bank -> {bankId, idx}
       const bank = {
@@ -2071,6 +2194,14 @@
             catch (e2) { st.sketches = []; save(); toast("Out of storage. Export a backup, then clear old sketches."); return; }
           }
           render(); toast("Sketch saved. Now reveal and compare.");
+        } else if (act === "startSummaryCheck") {
+          const sm = (D.SUMMARIES || {})[b.dataset.k];
+          const mount = $("#sumCheck");
+          if (!sm || !mount || !window.DAR.Quiz) return;
+          DAR.Quiz.mount(mount, { title: "Summary check", course: "Review", perSitting: sm.checks.length, questions: sm.checks }, {
+            onFinish(res) { logEvent("summary-check", b.dataset.k, { pct: res.pct }); save(); },
+            onExit() { render(); },
+          });
         } else if (act === "startProbe") {
           const c = conceptById(b.dataset.cid);
           const mount = $("#probeMount");
@@ -2544,6 +2675,7 @@
     else if (r === "/method") html = V.method();
     else if (r === "/atlas") html = V.atlas();
     else if (seg[0] === "concept") html = V.concept(seg[1]);
+    else if (seg[0] === "summary") html = V.summary(seg[1], +seg[2], +seg[3]);
     else if (r === "/review") html = V.review();
     else if (r === "/treasury") html = V.treasury();
     else if (r === "/workshop") html = V.workshop();

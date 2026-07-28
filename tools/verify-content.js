@@ -10,7 +10,10 @@ const fs = require("fs"), vm = require("vm"), path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
 ["platform/data/curriculum.js", "platform/data/workshop.js", "platform/js/figures.js",
- "platform/data/concepts-linear-algebra.js"]
+ "platform/data/concepts-linear-algebra.js",
+ "platform/data/quiz-linear-algebra.js","platform/data/quiz-calculus.js","platform/data/quiz-probability.js",
+ "platform/data/quiz-dsa.js","platform/data/quiz-zero-to-hero.js","platform/data/quiz-math-for-ml.js",
+ "platform/data/quiz-llm-engineering.js","platform/data/summaries-math110.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
 const D = ctx.DAR;
@@ -122,6 +125,44 @@ D.CONCEPTS.forEach(c => {
   });
 });
 
+// ---------- exam banks: nothing may be asked before it is taught ----------
+// Each question names the lecture that unlocks it. A tag that cannot be read at
+// a glance cannot be trusted, so the mapping is printed grouped by lecture.
+const lessonTitle = {};
+D.COURSES.forEach(c => (c.units || []).forEach((u, ui) =>
+  u.lessons.forEach((l, li) => lessonTitle[c.id + "." + ui + "." + li] = l.t)));
+
+const banks = D.QUIZZES || {};
+let tagged = 0, untagged = 0;
+Object.keys(banks).forEach(id => {
+  const course = D.COURSES.find(c => c.quiz === id);
+  ok(!!course, "bank " + id + ": belongs to a course");
+  banks[id].questions.forEach((q, i) => {
+    if (q.after) {
+      tagged++;
+      ok(!!lessonTitle[q.after], id + " q" + i + ": unlock key '" + q.after + "' resolves to a lecture");
+      if (course) ok(q.after.indexOf(course.id + ".") === 0, id + " q" + i + ": unlocks from its own course");
+    } else untagged++;
+  });
+});
+
+if (process.argv.indexOf("--tags") >= 0) {
+  Object.keys(banks).forEach(id => {
+    const g = {};
+    banks[id].questions.forEach(q => { if (q.after) (g[q.after] = g[q.after] || []).push(q.q); });
+    const keys = Object.keys(g).sort((a, b) => {
+      const A = a.split("."), B = b.split(".");
+      return (A[1] - B[1]) || (A[2] - B[2]);
+    });
+    if (!keys.length) return;
+    console.log("\n" + id.toUpperCase());
+    keys.forEach(k => {
+      console.log("  " + k + "  " + lessonTitle[k]);
+      g[k].forEach(q => console.log("      · " + q.replace(/\$|\\\\/g, "").slice(0, 60)));
+    });
+  });
+}
+
 // ---------- practice sources ----------
 D.COURSES.forEach(c => {
   ok(!!c.practice && /^https:\/\//.test(c.practice.url), c.code + ": has an https practice source");
@@ -130,6 +171,7 @@ D.COURSES.forEach(c => {
 
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + numChecked + " numeric answers recomputed, "
-    + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures"
+    + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
+    + tagged + " questions gated (" + untagged + " untagged)"
   : fail + " of " + checks + " checks FAILED"));
 process.exit(fail === 0 ? 0 : 1);

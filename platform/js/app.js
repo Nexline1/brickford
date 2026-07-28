@@ -205,9 +205,20 @@
   const PRACTICE_TARGET = 3;         // problems solved unaided per lecture
   const RECALL_MIN = 120;            // characters of a real blank-page attempt
   const EXPLAIN_MIN = 80;            // characters of a plain-language explanation
+  // Three problems is right for a 50-minute MIT lecture and absurd for a
+  // 10-minute chapter. A gate that is disproportionate gets faked, and a faked
+  // gate destroys the value of the whole record.
+  function practiceTarget(l) {
+    if (l && l.solve) return l.solve;
+    const m = l && l.min;
+    if (!m) return 2;
+    if (m <= 15) return 1;
+    if (m <= 35) return 2;
+    return 3;
+  }
   function lessonGates(st, l) {
     st = st || {};
-    const need = (l && l.solve) || PRACTICE_TARGET;
+    const need = practiceTarget(l);
     return [
       { id: "recall", label: "Recalled cold", ok: (st.recall || "").trim().length >= RECALL_MIN,
         hint: "write what the lecture established, from memory" },
@@ -589,10 +600,22 @@
   }
   // Unfinished scheduled lessons from days already past (multi-day lessons
   // count once — via a set of lesson keys).
+  // The first day you actually did something. Before that there is no debt:
+  // a syllabus that assigns lessons to dates you were never present for will
+  // greet a new arrival with a backlog, which is both false and discouraging.
+  function firstActivityISO() {
+    let first = null;
+    S.studyDays.forEach(d => { if (!first || d < first) first = d; });
+    Object.values(S.lessons).forEach(l => { if (l && l.doneAt && (!first || l.doneAt < first)) first = l.doneAt; });
+    Object.values(S.problems).forEach(v => { if (typeof v === "string" && (!first || v < first)) first = v; });
+    return first;
+  }
   function backlogCount() {
     const today = todayISO();
+    const from = firstActivityISO();
+    if (!from) return 0;                       // nothing started, nothing owed
     const owed = new Set();
-    for (let iso = D.START_DATE; iso < today; iso = addDaysISO(iso, 1))
+    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1))
       realSched(iso).forEach(it => { if (!schedDone(it)) owed.add(lessonKey(it.cid, it.ui, it.li)); });
     return owed.size;
   }
@@ -740,6 +763,10 @@
       "</div>";
     const num = (v, dec) => '<span data-count="' + v + '"' + (dec ? ' data-dec="' + dec + '"' : "") + ">" + (dec ? v.toFixed(dec) : v) + "</span>";
 
+    // Before anything has been done, six zero tiles and an empty chart read as
+    // failure. Point at the one next action instead.
+    const started = !!firstActivityISO();
+    const firstUp = real[0];
     return '<div class="view-enter">' +
       // ---- Hero: identity, day, one short line of context, today's ring ----
       '<div class="page-head hero">' +
@@ -750,6 +777,14 @@
       (studiedToday ? '<span class="pill good">✓ today marked</span>' : "") + "</div></div>" +
       ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 92) +
       "</div>" +
+
+      (!started && firstUp
+        ? '<div class="card feature"><div style="display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;">' +
+          '<div style="flex:1 1 220px; min-width:0;"><div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">Start here</div>' +
+          '<div style="color:var(--ink); font-weight:600; font-size:1.05rem; margin-top:2px;">' + esc(firstUp.code) + " — " + esc(firstUp.l.t) + "</div>" +
+          '<div style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">One lecture. Everything else fills in behind you.</div></div>' +
+          '<a class="btn" href="#/lesson/' + firstUp.cid + "/" + firstUp.ui + "/" + firstUp.li + '">Open ▸</a></div></div>'
+        : "") +
 
       (S.settings.lastLesson
         ? '<div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
@@ -778,6 +813,8 @@
       "<h2>Today</h2>" +
       (real.length ? '<span class="mono" style="font-size:var(--fs-small); color:var(--ink-3);">' + doneToday + " of " + real.length + " done</span>" : "") +
       "</div>" +
+      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:4px;">' +
+      'Theory · the maths under every layer &nbsp;·&nbsp; Build · the network itself &nbsp;·&nbsp; Practice · a separate track</p>' +
       (real.length ? '<div class="bar grow" style="margin-top:10px;"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div>' : "") +
       dayLoadHTML(real) +
       (backlog > 0
@@ -833,9 +870,11 @@
           '<div class="card"><h2>DSA over time</h2>' + lineChart(weeksArr.map(w => +w.dsa || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           "</div>"
-        : '<div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
-          '<span style="font-size:var(--fs-small); color:var(--ink-2);">Seal a week to start the charts.</span>' +
-          '<a class="btn ghost" href="#/review">Weekly Review</a></div>') +
+        : started
+          ? '<div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
+            '<span style="font-size:var(--fs-small); color:var(--ink-2);">Seal a week to start the charts.</span>' +
+            '<a class="btn ghost" href="#/review">Weekly Review</a></div>'
+          : "") +
       "</div>";
   };
 
@@ -963,9 +1002,12 @@
     const gates = lessonGates(st, l);
     const gatesOk = gates.filter(g => g.ok).length;
     const canVerify = gatesOk === 4;
-    const need = l.solve || PRACTICE_TARGET;
+    const need = practiceTarget(l);
     const rv = S.review[k];
     const hasSummary = !!(D.SUMMARIES || {})[k];
+    // The concepts this lecture teaches already carry a sentence on where the
+    // idea shows up in AI. Reuse it rather than writing new prose.
+    const lessonWhy = (D.CONCEPTS || []).filter(x => (x.lectures || []).indexOf(k) >= 0).slice(0, 3);
     S.settings.lastLesson = { cid, ui: +ui, li: +li, label: c.code + " · " + l.t };
     save();
     const src = l.v
@@ -1047,6 +1089,13 @@
       (rv ? '<div class="tl-row"><span class="tl-what">Next recall</span><span class="mono" style="font-size:var(--fs-small); color:' + (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></div>" : "") +
       "</div>" +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:12px;">Only <strong>proven</strong> counts toward mastery. Watching moves coverage.</p>' +
+      (lessonWhy.length
+        ? '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line);">' +
+          '<div class="field">Why this matters</div>' +
+          lessonWhy.map(x => '<div style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">' +
+            esc(x.applies) + ' <a href="#/concept/' + x.id + '" style="white-space:nowrap;">' + esc(x.title) + " \u203a</a></div>").join("") +
+          "</div>"
+        : "") +
       '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
       '<button class="btn ghost" data-act="toggleDone">' + (st.done ? "Unmark watched" : "Mark watched") + "</button>" +
       (st.done

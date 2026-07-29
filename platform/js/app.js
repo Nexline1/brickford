@@ -747,7 +747,10 @@
     });
     const chips = Object.entries(load).map(([code, v]) => {
       const full = v.done === v.n;
-      return '<span class="pill ' + (full ? "good" : "teal") + '" style="text-transform:none; letter-spacing:0.02em;">' +
+      // `.pill` is nowrap, which is right for a status word and wrong for a
+      // sentence: at 320px "0/1 lecture · Zero to Hero · 146m video" ran 19px
+      // past the viewport. `.wrapping` is the variant that exists for this.
+      return '<span class="pill wrapping ' + (full ? "good" : "teal") + '">' +
         (full ? "✓ " : "") + v.done + "/" + v.n + " lecture" + (v.n === 1 ? "" : "s") + " · " + esc(COURSE_SHORT[v.cid] || code) +
         (v.min ? " · " + v.min + "m video" : "") + "</span>";
     }).join(" ");
@@ -896,6 +899,94 @@
   // ---------- views ----------
   const V = {};
 
+  // ---------- the one next action ----------
+  // A dashboard that offers eight equal choices is one you stand in front of
+  // instead of using. This resolves the single thing to do, and both the hero
+  // and the rail render the same answer — so the next lecture is one tap away
+  // from any page rather than something to navigate back to.
+  // Karpathy's lecture titles run past 60 characters; a button is not a place
+  // for a sentence.
+  const clipTitle = (s, n) => (s.length > n ? s.slice(0, n - 1).replace(/[\s—·-]+$/, "") + "…" : s);
+  function nextAction() {
+    const real = realSched(todayISO());
+    const nextUp = real.find(it => !schedDone(it));
+    const due = reviewsDue();
+    if (nextUp) {
+      const c = D.COURSES.find(x => x.id === nextUp.cid);
+      return {
+        href: "#/lesson/" + nextUp.cid + "/" + nextUp.ui + "/" + nextUp.li,
+        kind: "lecture", code: nextUp.code, title: nextUp.l.t,
+        fac: c ? facClass(c) : "",
+        label: nextUp.code + " — " + clipTitle(nextUp.l.t, 38),
+        hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
+              (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
+        verb: "Open",
+      };
+    }
+    if (due.length) return {
+      href: "#/recall", kind: "recall", code: "RECALL",
+      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
+      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
+      hint: "due before new material", verb: "Start",
+    };
+    if (S.settings.lastLesson) {
+      const L = S.settings.lastLesson;
+      return {
+        href: "#/lesson/" + L.cid + "/" + L.ui + "/" + L.li, kind: "resume", code: "RESUME",
+        title: L.label, label: "Resume " + clipTitle(L.label, 40),
+        hint: "picking up where you stopped", verb: "Resume",
+      };
+    }
+    return {
+      href: "#/atlas", kind: "none", code: "TODAY", title: "Nothing scheduled",
+      label: "Open the Atlas", hint: "nothing scheduled today", verb: "Atlas",
+    };
+  }
+
+  // The rail, and its collapsed one-line form for phones. Same data, both
+  // rendered outside #view so they survive every route change.
+  function mountRail() {
+    const a = nextAction();
+    const real = realSched(todayISO());
+    const doneToday = real.filter(schedDone).length;
+    const pct = real.length ? (doneToday / real.length) * 100 : (S.studyDays.includes(todayISO()) ? 100 : 0);
+    const studied = S.studyDays.includes(todayISO());
+
+    const rail = $("#rail");
+    if (rail) rail.innerHTML =
+      '<div class="rail-card ' + (a.fac || "") + '">' +
+      '<div class="rl-ring">' + ringHTML(pct, real.length ? doneToday + "/" + real.length : (studied ? "✓" : "—"), "today", pct >= 100 ? "good" : "", 84) + "</div>" +
+      '<div class="rl-label">Next up</div>' +
+      '<div class="rl-code">' + esc(a.code) + "</div>" +
+      '<div class="rl-title">' + esc(clipTitle(a.title, 56)) + "</div>" +
+      '<div class="rl-meta">' + esc(a.hint) + "</div>" +
+      '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>" +
+      (studied
+        ? '<div class="rl-foot"><span>Day sealed</span><b style="color:var(--good);">✓</b></div>'
+        : '<div class="rl-foot"><span>Streak</span><b>' + streak() + "d</b></div>") +
+      "</div>";
+
+    const bar = $("#railbar");
+    if (bar) bar.innerHTML =
+      '<span class="rb-main"><span class="rb-label">Next</span>' +
+      '<span class="rb-t">' + esc(a.code) + " · " + esc(a.title) + "</span></span>" +
+      '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>";
+    measureFurniture();
+  }
+
+  // The tab bar is 58px on paper and 66px in fact — its padding carries
+  // env(safe-area-inset-bottom), which no stylesheet can predict. A hard-coded
+  // guess put the action bar 8px on top of it. So measure both and publish the
+  // real heights, which is also what reserves the right amount of scroll room.
+  function measureFurniture() {
+    const set = (name, el) => {
+      const h = el && getComputedStyle(el).display !== "none" ? Math.ceil(el.getBoundingClientRect().height) : 0;
+      document.documentElement.style.setProperty(name, h + "px");
+    };
+    set("--tabbar-h", $(".tabbar"));
+    set("--railbar-h", $("#railbar"));
+  }
+
   V.dashboard = function () {
     const day = Math.max(1, daysBetween(D.START_DATE, todayISO()) + 1);
     const f = currentFocus();
@@ -940,31 +1031,7 @@
     const started = !!firstActivityISO();
     const firstUp = real[0];
 
-    // ---- One primary action, decided here so the hero has exactly one button ----
-    // A dashboard that offers eight equal choices is a dashboard you stand in
-    // front of instead of using. Everything else on the page is reference.
-    const nextUp = real.find(it => !schedDone(it));
-    // Karpathy's lecture titles run to 60 characters; a button is not a place
-    // for a sentence.
-    const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).replace(/[\s—·-]+$/, "") + "…" : s);
-    let cta;
-    if (nextUp) {
-      cta = {
-        href: "#/lesson/" + nextUp.cid + "/" + nextUp.ui + "/" + nextUp.li,
-        label: nextUp.code + " — " + clip(nextUp.l.t, 38),
-        hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
-              (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
-      };
-    } else if (due.length) {
-      cta = { href: "#/recall", label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"), hint: "due before new material" };
-    } else if (S.settings.lastLesson) {
-      cta = {
-        href: "#/lesson/" + S.settings.lastLesson.cid + "/" + S.settings.lastLesson.ui + "/" + S.settings.lastLesson.li,
-        label: "Resume " + clip(S.settings.lastLesson.label, 40), hint: "picking up where you stopped",
-      };
-    } else {
-      cta = { href: "#/atlas", label: "Open the Atlas", hint: "nothing scheduled today" };
-    }
+    const cta = nextAction();
 
     // A scheduled lecture, as the largest thing under the hero.
     const taskHTML = (it, i) => {
@@ -1050,7 +1117,7 @@
       '<div style="flex:1 1 180px; min-width:0;">' +
       "<h2>" + (g ? "Gate " + g.n + " — " + esc(g.label) : "All gates passed") + "</h2>" +
       (g
-        ? '<div class="mono" style="margin:6px 0 2px; font-size:1.9rem; color:var(--accent);">' + num(gateLeft) + ' <span style="font-size:0.8rem; color:var(--panel-ink);">days left</span></div>' +
+        ? '<div class="mono" style="margin:6px 0 2px; font-size:1.9rem; color:var(--accent);">' + num(gateLeft) + ' <span style="font-size:0.8rem; color:var(--ink-2); font-family:var(--font-body);">days left</span></div>' +
           '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(g.req) + "</p>"
         : '<p style="color:var(--good);">You are what you set out to become.</p>') +
       "</div>" +
@@ -3136,6 +3203,9 @@
     stackTables(view);
     animateCounts(view);
     wire(view, r);
+    // Rendered after the view, because V.lesson writes settings.lastLesson while
+    // it renders and the rail reads it.
+    mountRail();
     // nav active state (sidebar + mobile tab bar)
     $$(".nav a, .tabbar a").forEach(a => {
       const rt = a.dataset.route;
@@ -3171,6 +3241,9 @@
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
     $("#menuBtn").onclick = () => $("#sidebar").classList.toggle("open");
     window.addEventListener("hashchange", render);
+    // Rotating the phone changes which furniture exists and how tall it is.
+    let rt = null;
+    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measureFurniture, 120); });
     render();
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.

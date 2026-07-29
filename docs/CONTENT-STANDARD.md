@@ -80,12 +80,39 @@ will rehearse the error for months.
   the calendar bug hid two days a week behind `overflow: hidden` and produced no
   document overflow at all, so the audit checks both.
 
+## Contrast is a gate, not a preference
+
+**Every text/background pair clears 4.5:1** (3:1 for ≥24px, or ≥18.66px bold), in all six
+themes, on every route. `node tools/verify-contrast.js` proves it and exits non-zero if not.
+
+This rule exists because of a specific failure. `.fact` and `.unit` were given
+`background: var(--panel)` — the dark sidebar colour — while their text stayed `var(--ink)`,
+which in the light theme is the same hex. Text painted its own background colour: five empty
+boxes on the dashboard and a dark block where the daily rituals should have been. Every check
+in place at the time passed, because they all measured accent colours and layout geometry and
+none asked whether text could be read.
+
+Three rules follow from it:
+
+- **Inks are solid values, never alpha.** An alpha ink passes on one surface and fails on the
+  next, so it cannot be checked by reading the stylesheet. `--ink-3` at `rgba(…, 0.46)`
+  measured 2.83:1 on white across the entire platform.
+- **`--panel` belongs to `.sidebar` and `.tabbar` only.** The harness fails the build if a
+  `--panel` background appears in any other rule.
+- **A component that paints the panel must re-scope the ink with it.** The tabbar carried the
+  dark fill but inherited the page's `--ink-3`, giving 2.6:1 labels.
+
+And the idiom that caused it is gone: emphasis is a rule, a weight, and space — never a filled
+block that re-scopes eight tokens and breaks every child that assumes light-theme values.
+
 ## Verification before any deploy
 
 ```
 node tools/verify-content.js          # content + numerics + graph
-# Playwright: all routes × 320/390/768/1280, six themes, reduced motion
+node tools/verify-contrast.js         # 4.5:1, every route × six themes × two widths
+# Playwright: all routes × 320/390/768/1280 — no overflow AND no clipped content
 ```
 
 Then read the screenshots. Numbers said the calendar was fine; a screenshot said it was
-cut in half.
+cut in half. And a passing layout sweep said the dashboard was fine while three of its blocks
+were invisible.

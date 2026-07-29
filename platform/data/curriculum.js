@@ -15,7 +15,8 @@ DAR.IDENTITY = {
 
 DAR.COURSES = [
   {
-    id: "math110", code: "MATH 110", title: "Linear Algebra", faculty: "Mathematics",
+    id: "math110",
+    instructor: {"name": "Gilbert Strang · Grant Sanderson", "org": "MIT · 3Blue1Brown"}, code: "MATH 110", title: "Linear Algebra", faculty: "Mathematics",
     practice: { label: "18.06 problem sets and exams — solutions included", url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" },
     phase: 0, color: "gold",
     desc: "The language of machine learning. Intuition first (3Blue1Brown), then the full MIT 18.06 course by Gilbert Strang — the most celebrated linear algebra course ever taught.",
@@ -90,7 +91,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "math120", code: "MATH 120", title: "Single-Variable Calculus", faculty: "Mathematics",
+    id: "math120",
+    instructor: {"name": "David Jerison · Grant Sanderson", "org": "MIT · 3Blue1Brown"}, code: "MATH 120", title: "Single-Variable Calculus", faculty: "Mathematics",
     practice: { label: "18.01 problem sets and exams — solutions included", url: "https://ocw.mit.edu/courses/18-01-single-variable-calculus-fall-2006/" },
     phase: 0, color: "teal",
     desc: "Derivatives, integrals, and why they work — intuition from 3Blue1Brown, rigor from MIT 18.01 (Prof. David Jerison).",
@@ -161,7 +163,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "math130", code: "MATH 130", title: "Probability", faculty: "Mathematics",
+    id: "math130",
+    instructor: {"name": "Joe Blitzstein", "org": "Harvard University"}, code: "MATH 130", title: "Probability", faculty: "Mathematics",
     practice: { label: "Stat 110 strategic practice — solutions inside each PDF", url: "https://stat110.hsites.harvard.edu/" },
     phase: 0, color: "crimson",
     desc: "Harvard's legendary Statistics 110 with Joe Blitzstein — probability as a way of thinking. The mathematical soul of machine learning.",
@@ -214,7 +217,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "cs150", code: "CS 150", title: "Algorithms & Data Structures", faculty: "Computer Science",
+    id: "cs150",
+    instructor: {"name": "NeetCode", "org": "Self-paced"}, code: "CS 150", title: "Algorithms & Data Structures", faculty: "Computer Science",
     practice: { label: "NeetCode — write it, run it, no peeking", url: "https://neetcode.io/roadmap" },
     phase: 0, color: "teal",
     desc: "The NeetCode 150 — the canonical interview-and-fundamentals problem set. Solve in Python, no AI assistance. Your checked count feeds the Dashboard and the Month-6 gate (150 problems).",
@@ -246,7 +250,8 @@ DAR.COURSES = [
     units: [],
   },
   {
-    id: "ai200", code: "AI 200", title: "Neural Networks: Zero to Hero", faculty: "Artificial Intelligence",
+    id: "ai200",
+    instructor: {"name": "Andrej Karpathy", "org": "Eureka Labs"}, code: "AI 200", title: "Neural Networks: Zero to Hero", faculty: "Artificial Intelligence",
     practice: { label: "Karpathy’s end-of-video exercises, then rebuild the notebook blind", url: "https://karpathy.ai/zero-to-hero.html" },
     phase: 1, color: "gold",
     desc: "The spine of Phase 1. Andrej Karpathy builds neural networks — from a single gradient to GPT-2 — live, from scratch. Rule: watch a segment → close the video → rebuild from memory → compare. A 2-hour lecture legitimately takes 6–8 hours to own.",
@@ -301,7 +306,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "ai210", code: "AI 210", title: "Practical Deep Learning", faculty: "Artificial Intelligence",
+    id: "ai210",
+    instructor: {"name": "Jeremy Howard", "org": "fast.ai"}, code: "AI 210", title: "Practical Deep Learning", faculty: "Artificial Intelligence",
     practice: { label: "fast.ai chapter questionnaire, then the notebook", url: "https://course.fast.ai/" },
     phase: 1, color: "teal",
     desc: "fast.ai part 1 (Jeremy Howard) — top-down: train real models on real data from lesson one. Runs alongside AI 200; this is breadth while Karpathy is depth.",
@@ -327,7 +333,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "phys100", code: "PHYS 100", title: "Classical Mechanics", faculty: "Physics",
+    id: "phys100",
+    instructor: {"name": "Walter Lewin", "org": "MIT"}, code: "PHYS 100", title: "Classical Mechanics", faculty: "Physics",
     practice: { label: "8.01SC problem sets — solutions included", url: "https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/" },
     phase: 2, color: "crimson", elective: true,
     desc: "Elective — unlocks in Phase 2. Walter Lewin's MIT 8.01 (Fall 1999): the most famous physics lectures ever recorded. For the physicist in you — scheduled so it never derails Phase 1.",
@@ -382,7 +389,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "math210", code: "MATH 210", title: "Mathematics for Machine Learning", faculty: "Mathematics",
+    id: "math210",
+    instructor: {"name": "Alan Edelman · Steven Johnson", "org": "MIT · Cambridge"}, code: "MATH 210", title: "Mathematics for Machine Learning", faculty: "Mathematics",
     practice: { label: "Mathematics for ML exercises at the end of each chapter", url: "https://mml-book.github.io/" },
     phase: 2, color: "gold",
     desc: "The math that deep learning actually runs on: matrix calculus (the derivative of a matrix function, done right), the optimization that trains every model, and the information theory behind every loss function.",
@@ -454,7 +462,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "ai300", code: "AI 300", title: "The Paper Room", faculty: "Artificial Intelligence",
+    id: "ai300",
+    instructor: {"name": "Primary literature", "org": "Paper reimplementation"}, code: "AI 300", title: "The Paper Room", faculty: "Artificial Intelligence",
     practice: { label: "Reimplement the core, then diff against the annotated version", url: "https://nn.labml.ai/" },
     phase: 2, color: "crimson",
     desc: "Sixteen papers that built modern AI. The ritual is fixed: read the paper cold, reimplement it, and match a number from it. Gate 3 is fed entirely from this room.",
@@ -507,7 +516,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "sys250", code: "SYS 250", title: "GPU & Systems Engineering", faculty: "Systems",
+    id: "sys250",
+    instructor: {"name": "Tianqi Chen · Zico Kolter", "org": "Carnegie Mellon"}, code: "SYS 250", title: "GPU & Systems Engineering", faculty: "Systems",
     practice: { label: "dlsyscourse assignments", url: "https://dlsyscourse.org/" },
     phase: 2, color: "teal",
     desc: "Build a deep-learning framework from scratch (CMU 10-714: autograd, NDArray backend, GPU acceleration), then go down to the metal with CUDA kernels. The engineer fork's unfair advantage.",
@@ -569,7 +579,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "ai310", code: "AI 310", title: "LLM Engineering", faculty: "Artificial Intelligence",
+    id: "ai310",
+    instructor: {"name": "Percy Liang · Tatsunori Hashimoto", "org": "Stanford CS336"}, code: "AI 310", title: "LLM Engineering", faculty: "Artificial Intelligence",
     practice: { label: "CS336 assignments", url: "https://cs336.stanford.edu/" },
     phase: 2, color: "gold",
     desc: "Stanford CS336 — the full pipeline of building a language model from scratch in 2025: tokenization, architecture, kernels, parallelism, scaling laws, inference, evals, data. Then the applied layer: finetune, evaluate, serve.",
@@ -617,7 +628,8 @@ DAR.COURSES = [
     ],
   },
   {
-    id: "res400", code: "RES 400", title: "Research & Frontier", faculty: "Research",
+    id: "res400",
+    instructor: {"name": "David Silver", "org": "DeepMind · UCL"}, code: "RES 400", title: "Research & Frontier", faculty: "Research",
     practice: { label: "ARENA exercises", url: "https://www.arena.education/" },
     phase: 3, color: "crimson",
     desc: "The researcher fork: reinforcement learning from Silver's classic course, mechanistic interpretability from the primary sources, and the craft of doing research that matters.",

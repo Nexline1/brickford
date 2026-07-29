@@ -693,6 +693,14 @@
         }
         off -= len;
       }
+      // Classical mechanics runs as a parallel light track rather than a link in
+      // the chain: 37 lectures inserted sequentially would push systems and LLM
+      // engineering back by months. One lecture every fourth day covers the
+      // course across weeks 27-48 without touching the spine.
+      const physFlat = flatLessons("phys100");
+      const pIdx = Math.floor((d - P2_DAY) / 4);
+      if ((d - P2_DAY) % 4 === 0 && pIdx >= 0 && pIdx < physFlat.length)
+        items.push(Object.assign({ track: "Theory", dayN: 1, spanN: 1 }, physFlat[pIdx]));
     }
     if (!theoryAdded) {
       // Stage 2 (math done → week 26): psets and exam prep keep the blade sharp.
@@ -1076,6 +1084,58 @@
       }).join("") + "</div>";
   };
 
+  // ---------- course listing furniture ----------
+  // Facts a person actually decides on: length, effort, who taught it, when it
+  // starts, where they stand. Each is a number with a label, never a sentence.
+  function factsHTML(cells) {
+    return '<div class="facts">' + cells.filter(Boolean).map(f =>
+      '<div class="fact' + (f.lead ? " lead" : "") + '"><b>' + f.v + "</b><span>" + esc(f.k) + "</span></div>"
+    ).join("") + "</div>";
+  }
+  function courseHours(c) {
+    let m = 0;
+    (c.units || []).forEach(u => u.lessons.forEach(l => { m += (l.min || 0); }));
+    return m;
+  }
+  function hoursLabel(m) {
+    if (!m) return "—";
+    const h = Math.floor(m / 60);
+    return h ? h + "h" + (m % 60 ? " " + (m % 60) + "m" : "") : m + "m";
+  }
+  function taughtHTML(c) {
+    if (!c.instructor) return "";
+    // Initials from the first named person; a monogram, not a stock avatar.
+    const first = c.instructor.name.split("·")[0].trim();
+    const ini = first.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+    return '<div class="taught"><span class="av">' + esc(ini) + "</span><span>" +
+      '<span class="tn">' + esc(c.instructor.name) + "</span>" +
+      '<span class="to">' + esc(c.instructor.org) + "</span></span></div>";
+  }
+  function courseFacts(c) {
+    const starts = courseStartDays();
+    const start = starts[c.id];
+    const dToday = daysBetween(D.START_DATE, todayISO());
+    const when = c.tracker ? "every day"
+      : start == null ? "—"
+      : start <= dToday ? "running" : "week " + (Math.floor(start / 7) + 1);
+    if (c.tracker) {
+      return factsHTML([
+        { k: "problems", v: 150 },
+        { k: "solved", v: dsaCount(), lead: true },
+        { k: "left", v: 150 - dsaCount() },
+        { k: "runs", v: when },
+      ]);
+    }
+    const cst = courseLessonStats(c);
+    return factsHTML([
+      { k: "lectures", v: cst.total },
+      { k: "video", v: hoursLabel(courseHours(c)) },
+      { k: "watched", v: cst.done },
+      { k: "proven", v: cst.verified, lead: true },
+      { k: "begins", v: when },
+    ]);
+  }
+
   V.course = function (cid) {
     const c = D.COURSES.find(x => x.id === cid);
     if (!c) return "<p>Unknown course.</p>";
@@ -1097,26 +1157,36 @@
         : '<p style="font-size:var(--fs-small); margin-top:6px;">This course is proven by building, not multiple choice — reimplement the papers, ship the systems. Your level here is the labs you complete with proof.</p>' +
           '<div style="margin-top:12px;"><a class="btn" href="#/workshop">Prove it in the Workshop</a></div>') +
       "</div>";
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
+    // Open the unit you are actually in — the first with anything left — and
+    // leave the rest shut. Nobody scrolls a fully-expanded 36-lecture syllabus.
+    const unitDone = ui => c.units[ui].lessons.filter((_, i) => (S.lessons[lessonKey(c.id, ui, i)] || {}).done).length;
+    let openUi = c.units.findIndex((u, ui) => unitDone(ui) < u.lessons.length);
+    if (openUi < 0) openUi = 0;
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
       '<div class="sub">' + esc(c.desc) + "</div>" +
-      '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">' +
-      c.external.map(e => '<a class="btn ghost" href="' + e.url + '" target="_blank" rel="noopener">' + esc(e.label) + " ↗</a>").join("") +
+      courseFacts(c) + taughtHTML(c) +
+      '<div class="row-actions">' +
       (c.quiz ? '<a class="btn" href="#/quiz/' + c.quiz + '">Sit the examination</a>' : "") +
+      c.external.map(e => '<a class="btn ghost" href="' + e.url + '" target="_blank" rel="noopener">' + esc(e.label) + " ↗</a>").join("") +
       "</div></div>" +
-      c.units.map((u, ui) =>
-        '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px;"><h2>' + esc(u.name) + "</h2>" +
-        (function () {
-          const uDone = u.lessons.filter((_, i) => (S.lessons[lessonKey(c.id, ui, i)] || {}).done).length;
-          return '<span class="pill' + (uDone === u.lessons.length ? " good" : "") + '">' + uDone + " / " + u.lessons.length + " lectures</span>";
-        })() + "</div>" +
-        u.lessons.map((l, i) => {
-          const k = lessonKey(c.id, ui, i);
-          const done = (S.lessons[k] || {}).done;
-          return '<a class="lesson-row ' + (done ? "done" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
-            '<span class="n">' + (i + 1) + '</span><span class="t">' + esc(l.t) + "</span>" +
-            (done ? '<span class="tick">✓</span>' : "") + "</a>";
-        }).join("") + "</div>"
-      ).join("") + checkpoint + "</div>";
+      c.units.map((u, ui) => {
+        const dn = unitDone(ui), tot = u.lessons.length;
+        return '<details class="unit"' + (ui === openUi ? " open" : "") + '>' +
+          '<summary><span class="u-name">' + esc(u.name) + "</span>" +
+          '<span class="pill' + (dn === tot ? " good" : "") + '">' + dn + "/" + tot + "</span>" +
+          '<span class="u-prog" style="width:' + (tot ? (dn / tot) * 100 : 0) + '%;"></span></summary>' +
+          '<div class="u-body">' +
+          u.lessons.map((l, i) => {
+            const k = lessonKey(c.id, ui, i);
+            const st = S.lessons[k] || {};
+            return '<a class="lesson-row ' + (st.done ? "done" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
+              '<span class="n">' + (i + 1) + '</span><span class="t">' + esc(l.t) + "</span>" +
+              (l.min ? '<span class="dur">' + l.min + "m</span>" : "") +
+              // The tick column is always present so the durations stay aligned;
+              // one tick is watched, two is proven.
+              '<span class="tick">' + (st.verified ? "✓✓" : st.done ? "✓" : "") + "</span></a>";
+          }).join("") + "</div></details>";
+      }).join("") + checkpoint + "</div>";
   };
 
   function trackerCourse(c) {
@@ -1124,13 +1194,15 @@
     // Work top-down through the roadmap: the current category is the first with
     // anything left in it, which is also where nextProblems() is drawing from.
     const thisCat = cats.find(cat => c.problems[cat].some(p => !S.problems[cat + "|" + p])) || null;
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
       '<div class="sub">' + esc(c.desc) + "</div>" +
-      '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">' +
+      courseFacts(c) + taughtHTML(c) +
+      '<div class="row-actions">' +
+      '<a class="btn" href="#/quiz/' + c.quiz + '">Sit the concept examination</a>' +
       c.external.map(e => '<a class="btn ghost" href="' + e.url + '" target="_blank" rel="noopener">' + esc(e.label) + " ↗</a>").join("") +
-      '<a class="btn" href="#/quiz/' + c.quiz + '">Sit the concept examination</a></div>' +
+      "</div>" +
       '<div style="margin-top:14px; max-width:420px;"><div class="bar teal"><i style="transform:scaleX(' + (dsaCount() / 150) + ');"></i></div>' +
-      '<div style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;"><strong style="color:var(--ink);">' + dsaCount() + " / 150</strong> — the Month-6 gate number</div></div></div>" +
+      '<div class="muted" style="margin-top:6px;"><strong style="color:var(--ink);">' + dsaCount() + " / 150</strong> — the Month-6 gate number</div></div></div>" +
 
       // The page used to be a bare list of problem names, which said nothing
       // about what to do or why this track exists alongside the mathematics.

@@ -690,6 +690,37 @@ tr:last-child td { border-bottom: none; }
   }
 }
 
+/* ---------- Faculty colour carried through the daily pages ---------- */
+/* A plan row should say which subject it belongs to before it is read. */
+.plan-row { border-left: 3px solid transparent; padding-left: 10px; margin-left: -10px; transition: border-color var(--t-hover) ease, background-color var(--t-hover) ease; }
+.plan-row[class*="fac-"] { border-left-color: color-mix(in srgb, var(--fac) 55%, transparent); }
+@media (hover: hover) {
+  .plan-row:hover { background: color-mix(in srgb, var(--fac, var(--accent)) 5%, transparent); border-left-color: var(--fac, var(--accent)); }
+}
+.plan-row .block { color: var(--fac, var(--accent)); background: color-mix(in srgb, var(--fac, var(--accent)) 10%, transparent); }
+
+/* Concept graph nodes inherit their subject, so the map is readable by colour. */
+.cg-node[class*="fac-"] rect { stroke: color-mix(in srgb, var(--fac) 42%, var(--line-strong)); }
+.cg-node[class*="fac-"].seen rect { fill: color-mix(in srgb, var(--fac) 10%, var(--surface)); }
+.cg-node[class*="fac-"].proven rect { fill: color-mix(in srgb, var(--fac) 20%, var(--surface)); stroke: var(--fac); }
+.cg-node[class*="fac-"]:hover rect, .cg-node[class*="fac-"]:focus-visible rect { stroke: var(--fac); stroke-width: 2; }
+
+/* Exam banks read as their course. */
+.card.course-card .code { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--fac, var(--accent)); letter-spacing: 0.06em; }
+
+/* ---------- Entrance: content settles rather than snapping in ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .view-enter > .card,
+  .view-enter > .grid > .card,
+  .view-enter > .tiles > .card { animation: settleIn 320ms var(--ease) both; }
+  .view-enter > .card:nth-child(2) { animation-delay: 40ms; }
+  .view-enter > .card:nth-child(3) { animation-delay: 80ms; }
+  .view-enter > .card:nth-child(n+4) { animation-delay: 110ms; }
+  @keyframes settleIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  /* A completed row confirms itself instead of just changing colour. */
+  .plan-row .what strong { transition: color var(--t-hover) ease; }
+}
+
 /* ---------- Utilities ----------
    Every repeated inline style is a place the design can drift, so the recurring
    ones live here instead. */

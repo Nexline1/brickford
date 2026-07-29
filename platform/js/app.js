@@ -748,7 +748,7 @@
   // One shared renderer for a scheduled item (dashboard + calendar detail).
   function schedRowHTML(it) {
     if (it.pseudo) {
-      return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) + '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
+    return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) + '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
     }
     const dn = schedDone(it);
     const dur = it.l.min
@@ -756,7 +756,8 @@
       : (it.l.paper ? "paper" : "reading");
     const meta = ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny); white-space:nowrap;">' + dur +
       (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + "</span>";
-    return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' +
+    const fc = D.COURSES.find(x => x.id === it.cid);
+    return '<div class="plan-row' + (fc ? " " + facClass(fc) : "") + '"><span class="block">' + it.track + '</span><span class="what">' +
       (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
       "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + meta + "</span>" +
       '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
@@ -1295,7 +1296,9 @@
         const b = D.QUIZZES[id];
         const at = S.quizAttempts[id] || [];
         const best = bestQuiz(id);
-        return '<div class="card hoverable"><div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="pill gold">' + esc(b.course) + "</span>" +
+        const bc = D.COURSES.find(x => x.quiz === id);
+        return '<div class="card hoverable course-card ' + (bc ? facClass(bc) : "") + '"><div class="edge"></div>' +
+          '<div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="code">' + esc(b.course) + "</span>" +
           (best != null ? '<span class="pill ' + (best >= 70 ? "good" : "") + '">best ' + best + "%</span>" : '<span class="pill">unattempted</span>') + "</div>" +
           "<h3 style='margin-top:6px;'>" + esc(b.title) + "</h3>" +
           '<p style="font-size:var(--fs-small); color:var(--ink-2);"><strong>' + unlockedIdx(id).length + "</strong> of " + b.questions.length + " unlocked by what you have watched · " + at.length + " attempt" + (at.length === 1 ? "" : "s") + "</p>" +
@@ -1695,7 +1698,8 @@
         else l2 = (l2 + " " + w).trim();
       });
       if (l2.length > 20) l2 = l2.slice(0, 19).replace(/\s+\S*$/, "") + "…";
-      nodes += '<g class="cg-node ' + cls + '" data-concept="' + esc(c.id) + '" tabindex="0" role="link" aria-label="' + esc(c.title) + '">' +
+      const cc = D.COURSES.find(x => x.id === c.course);
+      nodes += '<g class="cg-node ' + cls + (cc ? " " + facClass(cc) : "") + '" data-concept="' + esc(c.id) + '" tabindex="0" role="link" aria-label="' + esc(c.title) + '">' +
         '<rect x="' + x + '" y="' + y + '" width="' + NW + '" height="' + NH + '" rx="6"/>' +
         '<text x="' + (x + NW / 2) + '" y="' + (y + (l2 ? 17 : 25)) + '" text-anchor="middle">' + esc(l1) + "</text>" +
         (l2 ? '<text x="' + (x + NW / 2) + '" y="' + (y + 31) + '" text-anchor="middle">' + esc(l2) + "</text>" : "") +

@@ -1788,21 +1788,49 @@
       "</div></div></div>";
   };
 
+  // When does each course actually begin? Derived from the schedule itself
+  // rather than a hand-maintained phase field, because those drifted apart:
+  // AI 200 is scheduled from day one while being labelled a 2027 course.
+  let _startCache = null;
+  function courseStartDays() {
+    if (_startCache) return _startCache;
+    const out = {};
+    for (let d = 0; d <= 400; d++) {
+      const iso = addDaysISO(D.START_DATE, d);
+      scheduledFor(iso).forEach(it => {
+        if (it.cid && out[it.cid] == null) out[it.cid] = d;
+      });
+      if (Object.keys(out).length >= D.COURSES.length) break;
+    }
+    return (_startCache = out);
+  }
+
   V.atlas = function () {
     const PH = [[0, "Foundations"], [1, "The Spine"], [2, "Depth"], [3, "Frontier"]];
     const here = currentPhase();
+    const starts = courseStartDays();
+    const dToday = daysBetween(D.START_DATE, todayISO());
     const courseNode = c => {
       const m = courseMastery(c), cov = courseCoverage(c);
-      const locked = c.phase > here;
+      const start = starts[c.id];
+      const running = start != null && start <= dToday;
+      const locked = c.tracker ? false : start == null ? true : !running;
+      // A tracker course never appears in the lesson schedule because it has no
+      // lessons — it is practised every day through the problem list instead.
+      const when = c.tracker ? "daily practice"
+        : start == null ? "unscheduled"
+        : running ? "running now"
+        : "opens week " + (Math.floor(start / 7) + 1);
       return '<a class="atlas-node' + (locked ? " locked" : "") + '" href="#/course/' + c.id + '">' +
         '<div class="an-code">' + esc(c.code) + "</div>" +
         '<div class="an-title">' + esc(c.title) + "</div>" +
         '<div class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u><i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></div>' +
-        '<div class="an-num mono">' + m + "%</div></a>";
+        '<div class="row-split"><span class="an-num mono">' + m + '%</span>' +
+        '<span class="an-when' + (running ? " now" : "") + '">' + when + "</span></div></a>";
     };
     const gates = gatePlan();
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The whole climb</h1>' +
-      '<div class="sub">Pale is watched · solid is proven.</div></div>' +
+      '<div class="sub">Pale is watched · solid is proven. Tracks run in parallel — the maths and the neural networks both start on day one.</div></div>' +
       PH.map(([n, name]) => {
         const cs = D.COURSES.filter(c => c.phase === n);
         if (!cs.length) return "";
@@ -1810,7 +1838,7 @@
         return '<div class="atlas-band' + (n === here ? " now" : "") + '">' +
           '<div class="ab-head"><span class="ab-n mono">' + n + "</span>" +
           '<span class="ab-name">' + name + "</span>" +
-          (n === here ? '<span class="pill gold">you are here</span>' : "") +
+          (n === here ? '<span class="pill gold">current phase</span>' : "") +
           (g ? '<span class="ab-gate mono">gate ' + g.n + " · " + esc(g.target) + "</span>" : "") + "</div>" +
           '<div class="atlas-row">' + cs.map(courseNode).join("") + "</div></div>";
       }).join("") +

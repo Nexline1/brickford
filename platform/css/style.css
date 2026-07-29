@@ -227,9 +227,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 .crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
-.crest svg { width: 54px; height: 54px; color: var(--accent); }
-.crest .name-en { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; color: var(--ink); margin-top: 2px; letter-spacing: -0.01em; }
-.crest .est { font-size: var(--fs-tiny); color: var(--ink-3); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+.crest svg { width: 46px; height: 46px; color: var(--accent); }
+.crest .name-en {
+  font-family: var(--font-display); font-weight: 600; font-size: 1.45rem; color: var(--ink);
+  margin-top: 6px; letter-spacing: 0.06em; text-transform: uppercase;
+}
+/* A hairline between name and descriptor — the lockup device every institutional
+   identity in the references uses to say "this is a seal, not a logotype". */
+.crest .wordrule { width: 34px; height: 1px; background: var(--accent); margin: 7px auto 6px; opacity: 0.85; }
+.crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
 .nav a {
@@ -708,7 +714,10 @@ tr:last-child td { border-bottom: none; }
 .atlas-node.locked { opacity: 0.55; }
 .atlas-node .an-code { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--accent); }
 .atlas-node .an-title { font-size: var(--fs-small); color: var(--ink); font-weight: 600; margin: 2px 0 8px; }
-.atlas-node .an-num { font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
+.atlas-node .an-num { font-size: var(--fs-tiny); color: var(--ink-3); }
+.atlas-node .row-split { margin-top: 5px; }
+.atlas-node .an-when { font-size: var(--fs-tiny); color: var(--ink-3); }
+.atlas-node .an-when.now { color: var(--accent); font-weight: 600; }
 
 /* ---------- Method: curves, steps, spacing ---------- */
 .curve { width: 100%; height: auto; display: block; }

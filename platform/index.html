@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f8f4ec">
 <title>Brickford</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%235d3f26' stroke-width='9' stroke-linecap='square'%3E%3Cpath d='M22 104 V58 A38 38 0 0 1 98 58 V104'/%3E%3Cpath d='M54 104 V70 A6 6 0 0 1 66 70 V104'/%3E%3Cpath d='M12 104 H108'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 122'%3E%3Cpath d='M10 8 H90 V62 C90 90 70 108 50 116 C30 108 10 90 10 62 Z' fill='%235d3f26'/%3E%3Cg fill='none' stroke='%23f4ead9' stroke-width='7'%3E%3Cpath d='M31 92 V60 A19 19 0 0 1 69 60 V92'/%3E%3Cpath d='M22 92 H78'/%3E%3C/g%3E%3Ccircle cx='50' cy='45' r='5' fill='%23c99a63'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260729a">
+<link rel="stylesheet" href="css/style.css?v=20260729b">
 </head>
 <body>
 
@@ -21,16 +21,18 @@
 <div class="shell">
   <aside class="sidebar" id="sidebar">
     <div class="crest">
-      <svg viewBox="0 0 120 120" aria-label="Brickford mark">
-          <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="square">
-            <path d="M22 104 V58 A38 38 0 0 1 98 58 V104"/>
-            <path d="M38 104 V60 A22 22 0 0 1 82 60 V104"/>
-            <path d="M54 104 V70 A6 6 0 0 1 66 70 V104"/>
-            <path d="M12 104 H108"/>
+      <svg viewBox="0 0 100 122" aria-label="Brickford crest">
+          <path class="cr-field" d="M10 8 H90 V62 C90 90 70 108 50 116 C30 108 10 90 10 62 Z"/>
+          <path class="cr-edge" d="M10 8 H90 V62 C90 90 70 108 50 116 C30 108 10 90 10 62 Z"/>
+          <g class="cr-mark">
+            <path d="M31 92 V60 A19 19 0 0 1 69 60 V92"/>
+            <path d="M43 92 V70 A7 7 0 0 1 57 70 V92"/>
+            <path d="M22 92 H78"/>
           </g>
-          <g fill="currentColor">
-            <rect x="56" y="14" width="8" height="8" transform="rotate(45 60 18)"/>
+          <g class="cr-rays">
+            <path d="M50 20 V34"/><path d="M36 25 L41 36"/><path d="M64 25 L59 36"/>
           </g>
+          <circle class="cr-star" cx="50" cy="45" r="4.5"/>
         </svg>
       <div class="name-en">Brickford</div>
       <div class="wordrule"></div>
@@ -133,19 +135,19 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20260729a"></script>
-<script defer src="js/figures.js?v=20260729a"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20260729a"></script>
-<script defer src="data/summaries-math110.js?v=20260729a"></script>
-<script defer src="data/workshop.js?v=20260729a"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20260729a"></script>
-<script defer src="data/quiz-calculus.js?v=20260729a"></script>
-<script defer src="data/quiz-probability.js?v=20260729a"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20260729a"></script>
-<script defer src="data/quiz-dsa.js?v=20260729a"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20260729a"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20260729a"></script>
-<script defer src="js/quiz-engine.js?v=20260729a"></script>
-<script defer src="js/app.js?v=20260729a"></script>
+<script defer src="data/curriculum.js?v=20260729b"></script>
+<script defer src="js/figures.js?v=20260729b"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20260729b"></script>
+<script defer src="data/summaries-math110.js?v=20260729b"></script>
+<script defer src="data/workshop.js?v=20260729b"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20260729b"></script>
+<script defer src="data/quiz-calculus.js?v=20260729b"></script>
+<script defer src="data/quiz-probability.js?v=20260729b"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20260729b"></script>
+<script defer src="data/quiz-dsa.js?v=20260729b"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20260729b"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20260729b"></script>
+<script defer src="js/quiz-engine.js?v=20260729b"></script>
+<script defer src="js/app.js?v=20260729b"></script>
 </body>
 </html>

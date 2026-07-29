@@ -61,9 +61,18 @@
   --radius: 6px; --radius-lg: 10px;
   --ease: cubic-bezier(0.25, 0.6, 0.3, 1);
   --t-micro: 120ms; --t-hover: 180ms; --t-enter: 260ms;
+
+  /* Faculty identity. Restrained enough for the editorial surface, distinct
+     enough that a subject is recognisable before you read its name. */
+  --fac-math: #3f6ea8;
+  --fac-ai: #a8763e;
+  --fac-sys: #2f7f77;
+  --fac-phys: #a84b3a;
+  --fac-res: #6c5091;
 }
 
 [data-theme="dark"] {
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9;
   --bg: #191209;
   --bg-2: #140e07;
   --surface: #221910;
@@ -112,6 +121,7 @@
 }
 
 [data-theme="midnight"] {
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9;
   --bg: #0f1420;
   --bg-2: #0b0f19;
   --surface: #151c2b;
@@ -136,6 +146,7 @@
 }
 
 [data-theme="latte"] {
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9;
   /* Inverse of Parchment: milk-white panel, coffee-brown content */
   --bg: #241a12;
   --bg-2: #1d140d;
@@ -409,9 +420,7 @@ tr:last-child td { border-bottom: none; }
 .course-card .code { font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0.1em; color: var(--accent); font-weight: 500; }
 .course-card h3 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; margin: 4px 0 6px; }
 .course-card .desc { font-size: var(--fs-small); color: var(--ink-2); }
-.course-card .edge { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
-.course-card.teal .edge { background: var(--accent-2); }
-.course-card.crimson .edge { background: var(--bad); }
+.course-card .edge { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--fac, var(--accent)); }
 .course-card.locked { opacity: 0.55; }
 
 .lesson-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); text-decoration: none; color: var(--ink-2); font-size: var(--fs-small); transition: background-color var(--t-micro) ease; }
@@ -649,6 +658,37 @@ tr:last-child td { border-bottom: none; }
 /* A feature card in a 2-column grid must not stretch to the tall column. */
 .grid.top > * { align-self: start; }
 
+
+/* ---------- Crest ---------- */
+.crest svg { width: 52px; height: 62px; display: block; margin: 0 auto; }
+.crest .cr-field { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
+.crest .cr-edge { fill: none; stroke: var(--accent); stroke-width: 3.5; stroke-linejoin: round; }
+.crest .cr-mark { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: square; }
+.crest .cr-rays { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; opacity: 0.9; }
+.crest .cr-star { fill: var(--accent); }
+
+/* ---------- Faculty colour, applied where a subject is identified ---------- */
+.fac-math { --fac: var(--fac-math); }
+.fac-ai { --fac: var(--fac-ai); }
+.fac-sys { --fac: var(--fac-sys); }
+.fac-phys { --fac: var(--fac-phys); }
+.fac-res { --fac: var(--fac-res); }
+.atlas-node .an-code { color: var(--fac, var(--accent)); }
+/* The course you are on should be findable without reading. */
+.atlas-node.now { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fac, var(--accent)) 45%, transparent); }
+.atlas-node.now .an-when { color: var(--fac, var(--accent)); }
+@media (prefers-reduced-motion: no-preference) {
+  .atlas-node.now::after {
+    content: ""; position: absolute; top: 10px; right: 10px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--fac, var(--accent));
+    animation: livePulse 2.4s var(--ease) infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.72); }
+  }
+}
+
 /* ---------- Utilities ----------
    Every repeated inline style is a place the design can drift, so the recurring
    ones live here instead. */
@@ -706,7 +746,9 @@ tr:last-child td { border-bottom: none; }
 .ab-head .ab-gate { font-size: var(--fs-tiny); color: var(--ink-3); margin-left: auto; }
 .atlas-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: var(--sp-2); }
 .atlas-node {
-  display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius);
+  display: block; position: relative; padding: 10px 12px;
+  border: 1px solid var(--line); border-left: 3px solid var(--fac, var(--line-strong));
+  border-radius: var(--radius);
   background: var(--surface-2); text-decoration: none; color: inherit;
   transition: border-color var(--t-hover) ease, transform var(--t-hover) var(--ease);
 }

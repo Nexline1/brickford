@@ -1054,7 +1054,7 @@
       const ls = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
       const locked = c.phase > phase;
       const cov = courseCoverage(c);
-      return '<a href="#/course/' + c.id + '" class="card hoverable course-card ' + c.color + (locked ? " locked" : "") + '" style="text-decoration:none;"><div class="edge"></div>' +
+      return '<a href="#/course/' + c.id + '" class="card hoverable course-card ' + facClass(c) + (locked ? " locked" : "") + '" style="text-decoration:none;"><div class="edge"></div>' +
         '<div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="code">' + esc(c.code) + "</span>" +
         (locked ? '<span class="pill">Unlocks in Phase ' + c.phase + "</span>" : '<span class="pill gold">' + m + "% mastery</span>") + "</div>" +
         "<h3>" + esc(c.title) + "</h3>" +
@@ -1788,6 +1788,21 @@
       "</div></div></div>";
   };
 
+  // Faculty drives colour, so a subject is recognisable before it is read.
+  const FACULTY_CLASS = {
+    "Mathematics": "fac-math", "Artificial Intelligence": "fac-ai",
+    "Systems": "fac-sys", "Physics": "fac-phys", "Research": "fac-res",
+  };
+  function facClass(c) {
+    if (FACULTY_CLASS[c.faculty]) return FACULTY_CLASS[c.faculty];
+    const f = (c.faculty || "").toLowerCase();
+    if (f.indexOf("math") >= 0) return "fac-math";
+    if (f.indexOf("system") >= 0 || f.indexOf("comput") >= 0 || f.indexOf("algorith") >= 0) return "fac-sys";
+    if (f.indexOf("phys") >= 0) return "fac-phys";
+    if (f.indexOf("research") >= 0) return "fac-res";
+    return "fac-ai";
+  }
+
   // When does each course actually begin? Derived from the schedule itself
   // rather than a hand-maintained phase field, because those drifted apart:
   // AI 200 is scheduled from day one while being labelled a 2027 course.
@@ -1821,7 +1836,7 @@
         : start == null ? "unscheduled"
         : running ? "running now"
         : "opens week " + (Math.floor(start / 7) + 1);
-      return '<a class="atlas-node' + (locked ? " locked" : "") + '" href="#/course/' + c.id + '">' +
+      return '<a class="atlas-node ' + facClass(c) + (locked ? " locked" : "") + (running ? " now" : "") + '" href="#/course/' + c.id + '">' +
         '<div class="an-code">' + esc(c.code) + "</div>" +
         '<div class="an-title">' + esc(c.title) + "</div>" +
         '<div class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u><i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></div>' +

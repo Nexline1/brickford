@@ -1106,6 +1106,9 @@
         '<div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="code">' + esc(c.code) + "</span>" +
         (locked ? '<span class="pill">Unlocks in Phase ' + c.phase + "</span>" : '<span class="pill gold">' + m + "% mastery</span>") + "</div>" +
         "<h3>" + esc(c.title) + "</h3>" +
+        // Who taught it, above the blurb — the institution is the fastest read
+        // of what a course is, and it costs one line.
+        (c.instructor ? '<div class="cc-org">' + esc(c.instructor.org) + "</div>" : "") +
         '<div class="desc">' + esc(c.desc) + "</div>" +
         '<div style="margin-top:14px;"><div class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u><i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></div>' +
         '<div style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:5px;">' +
@@ -1119,7 +1122,10 @@
       PHASES.map(ph => {
         const cs = D.COURSES.filter(c => c.phase === ph[0]);
         if (!cs.length) return "";
-        return '<h2 style="margin:26px 0 2px;">' + ph[1] + '</h2><p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:0 0 12px;">' + ph[2] + '</p><div class="grid cols-2">' + cs.map(card).join("") + "</div>";
+        const done = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).verified), 0);
+        const tot = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).total), 0);
+        return '<div class="sect"><h2>' + ph[1] + '</h2><span class="sect-meta">' + done + " / " + tot + " proven</span></div>" +
+          '<p class="note" style="margin:-8px 0 12px;">' + ph[2] + '</p><div class="grid cols-2">' + cs.map(card).join("") + "</div>";
       }).join("") + "</div>";
   };
 
@@ -1294,7 +1300,7 @@
     const objectives = l.obj || (l.v
       ? ["Watch actively — pause and predict before he types", "Close the video; rebuild the code/derivation from memory", "Compare against the original; note every divergence"]
       : ["Read actively — recreate each derivation or claim before scrolling past it", "Close the source; write the core argument from memory", "Compare against the original; note every divergence"]);
-    return '<div class="view-enter"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
       (src
         ? '<div class="video-frame"><iframe src="' + src + '" title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
@@ -1309,12 +1315,28 @@
           (l.read ? '<a class="btn ' + (l.paper ? "ghost" : "") + '" href="' + l.read + '" target="_blank" rel="noopener">' + (l.paper ? "Companion reading" : "Open the reading") + ' ↗</a>' : "") +
           "</div>"
         : "") +
+
+      // ---- the two actions that belong beside the video, not below the gates ----
+      '<div class="row-actions">' +
+      '<button class="btn' + (st.done ? " ghost" : "") + '" data-act="toggleDone">' + (st.done ? "Unmark watched" : "Mark watched") + "</button>" +
+      (st.done
+        ? '<a class="btn' + (hasSummary ? "" : " ghost") + '" href="#/summary/' + cid + "/" + ui + "/" + li + '">Summary ▸</a>'
+        : '<button class="btn ghost" disabled title="Mark it watched first">Summary — locked</button>') +
+      "</div>" +
+
+      // ---- where this lecture stands, as numbers instead of a paragraph ----
+      factsHTML([
+        { k: "runtime", v: l.min ? l.min + "m" : l.paper ? "paper" : "reading" },
+        { k: "gates", v: gatesOk + "/4", lead: gatesOk > 0 },
+        { k: "watched", v: st.done ? "yes" : "—" },
+        { k: "proven", v: st.verified ? "yes" : "—" },
+        rv ? { k: "next recall", v: rv.due <= todayISO() ? "due" : rv.due.slice(5) } : null,
+      ]) +
+
       // ---- the four gates: watching is not learning ----
-      '<div class="grid cols-2 top" style="margin-top:16px;">' +
-      '<div class="card"><div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
-      "<h2>Prove it</h2>" +
-      '<span class="mono" style="font-size:var(--fs-small); color:var(--ink-3);">' + gatesOk + " of 4</span></div>" +
-      '<div class="bar grow" style="margin-top:10px;"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
+      '<div class="sect"><h2>Prove it</h2><span class="sect-meta">' + gatesOk + ' of 4 gates · only proven counts</span></div>' +
+      '<div class="card">' +
+      '<div class="bar grow"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
       '<div class="gates" style="margin-top:12px;">' +
       gates.map(g => '<div class="gate-row' + (g.ok ? " ok" : "") + '"><span class="gmark">' + (g.ok ? "✓" : "") + "</span>" +
         '<span class="gtext">' + esc(g.label) + (g.ok ? "" : ' <span style="color:var(--ink-3);">— ' + esc(g.hint) + "</span>") + "</span></div>").join("") +
@@ -1357,29 +1379,16 @@
         : '<button class="btn" data-act="verify"' + (canVerify ? "" : ' disabled title="Finish the four gates first"') + ">Verify mastery</button>") +
       "</div></div>" +
 
-      // ---- watched vs proven, stated plainly ----
-      '<div class="card"><h2>Where this lecture stands</h2>' +
-      '<div class="tl" style="margin-top:8px;">' +
-      '<div class="tl-row"><span class="tl-what">Watched</span><span class="pill' + (st.done ? " teal" : "") + '">' + (st.done ? "yes" : "not yet") + "</span></div>" +
-      '<div class="tl-row"><span class="tl-what">Proven</span><span class="pill' + (st.verified ? " good" : "") + '">' + (st.verified ? "yes" : "not yet") + "</span></div>" +
-      (rv ? '<div class="tl-row"><span class="tl-what">Next recall</span><span class="mono" style="font-size:var(--fs-small); color:' + (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></div>" : "") +
-      "</div>" +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:12px;">Only <strong>proven</strong> counts toward mastery. Watching moves coverage.</p>' +
+      // ---- what this lecture buys, in the concepts' own words ----
       (lessonWhy.length
-        ? '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line);">' +
-          '<div class="field">Why this matters</div>' +
-          lessonWhy.map(x => '<div style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">' +
-            esc(x.applies) + ' <a href="#/concept/' + x.id + '" style="white-space:nowrap;">' + esc(x.title) + " \u203a</a></div>").join("") +
+        ? '<div class="sect"><h2>Why this matters</h2><span class="sect-meta">' + lessonWhy.length + " concept" + (lessonWhy.length === 1 ? "" : "s") + "</span></div>" +
+          '<div class="tasks">' +
+          lessonWhy.map(x => '<a class="task ' + facClass(c) + '" href="#/concept/' + x.id + '">' +
+            '<span class="tk-main"><span class="tk-code">' + esc(x.title) + "</span>" +
+            '<span class="tk-t tk-plain">' + esc(x.applies) + "</span></span>" +
+            '<span class="tk-go">Open \u25b8</span></a>').join("") +
           "</div>"
         : "") +
-      '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
-      '<button class="btn ghost" data-act="toggleDone">' + (st.done ? "Unmark watched" : "Mark watched") + "</button>" +
-      (st.done
-        ? '<a class="btn" href="#/summary/' + cid + "/" + ui + "/" + li + '">Summary ' + (hasSummary ? "▸" : "") + "</a>"
-        : '<button class="btn" disabled title="Mark it watched first">Summary — locked</button>') +
-      "</div>" +
-      (l.paper || l.read ? "" : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">Pause the video before each result and predict it. Prediction first, explanation second — that is what makes it stick.</p>') +
-      "</div></div>" +
 
       '<div style="display:flex; justify-content:space-between; margin-top:16px;">' +
       (prev ? '<a class="btn ghost" href="' + prev + '">← Previous</a>' : "<span></span>") +
@@ -1390,7 +1399,7 @@
   V.exams = function () {
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exam Hall</h1>' +
       '<div class="sub">Diagnostics set Phase 1’s shape (≥70%). Concept exams are auto-graded, drawn fresh each sitting.</div></div>' +
-      "<h2 style='margin:6px 0 12px;'>Official diagnostics</h2><div class='grid cols-2'>" +
+      '<div class="sect"><h2>Official diagnostics</h2><span class="sect-meta">' + D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length + ' of ' + D.DIAGNOSTICS.length + ' sat</span></div>' + "<div class='grid cols-2'>" +
       D.DIAGNOSTICS.map(d => {
         const r = S.diag[d.id] || {};
         const verdict = r.score == null ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap";
@@ -1402,7 +1411,7 @@
           '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + esc(d.note) + "</p>" +
           '<div style="margin-top:12px;"><a class="btn" href="#/diag/' + d.id + '">Enter examination room</a></div></div>';
       }).join("") + "</div>" +
-      "<h2 style='margin:26px 0 12px;'>Concept examinations</h2><div class='grid cols-2'>" +
+      '<div class="sect"><h2>Concept examinations</h2><span class="sect-meta">' + Object.keys(D.QUIZZES).filter(id => bestQuiz(id) != null).length + ' of ' + Object.keys(D.QUIZZES).length + ' attempted</span></div>' + "<div class='grid cols-2'>" +
       Object.keys(D.QUIZZES).map(id => {
         const b = D.QUIZZES[id];
         const at = S.quizAttempts[id] || [];
@@ -2342,16 +2351,19 @@
               .map((s, i) => '<div class="plan-row"><span class="block">Move ' + (i + 1) + '</span><span class="what">' + s + "</span></div>").join("") +
             "</div></div>";
         }
-        return '<div class="card"><h2>Choose your niche — one industry, one buyer, one offer</h2>' +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Generalists chase; specialists get referred. Lock one niche and stay locked for at least 10 pitches before judging it.</p>' +
-          '<div class="grid cols-2" style="margin-top:14px;">' +
+        // Six choice cards inside an outer card was a card in a card: the inner
+        // borders read as a second, meaningless level of hierarchy. The heading
+        // carries the framing instead.
+        return '<div class="sect"><h2>Choose your niche</h2><span class="sect-meta">one industry · one buyer · one offer</span></div>' +
+          '<p class="note" style="margin:-8px 0 12px;">Generalists chase; specialists get referred. Stay locked for at least 10 pitches before judging it.</p>' +
+          '<div class="grid cols-2">' +
           D.NICHES.map(n =>
             '<div class="card" style="' + (n.pick ? "border-color:var(--accent);" : "") + '">' +
             '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;"><h3>' + esc(n.name) + "</h3>" + (n.pick ? '<span class="pill gold">recommended</span>' : "") + "</div>" +
             '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:2px;">' + esc(n.market) + " · " + esc(n.pricing) + "</p>" +
             '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">' + esc(n.verdict) + "</p>" +
             '<div style="margin-top:10px;"><button class="btn ' + (n.pick ? "" : "ghost") + '" data-niche="' + n.id + '">Lock this niche</button></div></div>'
-          ).join("") + "</div></div>";
+          ).join("") + "</div>";
       })() +
 
       '<div class="grid cols-3">' +
@@ -2363,13 +2375,18 @@
       '<div class="grid cols-2">' +
       '<div class="card"><h2>Clients</h2>' +
       (t.clients.length ? '<div class="table-wrap"><table><thead><tr><th>Client</th><th>Project</th><th>Price</th><th></th></tr></thead><tbody>' +
-        t.clients.map((c, i) => "<tr><td>" + esc(c.name) + "</td><td>" + esc(c.project) + "</td><td>" + fmtBHD(+c.price || 0) + '</td><td><button class="btn danger" data-delclient="' + i + '" style="padding:4px 10px;">×</button></td></tr>').join("") + "</tbody></table></div>" : '<p style="color:var(--ink-3); font-size:var(--fs-small);">No clients yet — send the 10 messages.</p>') +
-      '<div class="grid cols-3" style="margin-top:12px; gap:8px;"><input type="text" id="clName" placeholder="Name"><input type="text" id="clProject" placeholder="Project"><input type="number" id="clPrice" placeholder="BHD"></div>' +
+        t.clients.map((c, i) => "<tr><td>" + esc(c.name) + "</td><td>" + esc(c.project) + "</td><td>" + fmtBHD(+c.price || 0) + '</td><td><button class="btn danger tiny" data-delclient="' + i + '" aria-label="Remove client">×</button></td></tr>').join("") + "</tbody></table></div>" : '<p style="color:var(--ink-3); font-size:var(--fs-small);">No clients yet — send the 10 messages.</p>') +
+      '<div class="grid cols-3" style="margin-top:12px; gap:8px;">' +
+      '<div><label class="field" for="clName">Client</label><input type="text" id="clName" placeholder="Name"></div>' +
+      '<div><label class="field" for="clProject">Project</label><input type="text" id="clProject" placeholder="Scope"></div>' +
+      '<div><label class="field" for="clPrice">Price</label><input type="number" id="clPrice" placeholder="BHD"></div></div>' +
       '<div style="margin-top:8px;"><button class="btn" data-act="addClient">Add client</button></div></div>' +
       '<div class="card"><h2>Revenue ledger</h2>' +
       (t.entries.length ? '<div class="table-wrap"><table><thead><tr><th>Date</th><th>Amount</th><th>Note</th></tr></thead><tbody>' +
         t.entries.slice().reverse().map(e => "<tr><td>" + e.date + "</td><td><strong style='color:var(--accent);'>" + fmtBHD(+e.amount) + "</strong></td><td>" + esc(e.note || "") + "</td></tr>").join("") + "</tbody></table></div>" : '<p style="color:var(--ink-3); font-size:var(--fs-small);">Empty ledger. It will not stay empty.</p>') +
-      '<div class="grid cols-2" style="margin-top:12px; gap:8px;"><input type="number" id="enAmount" placeholder="Amount (BHD)" step="0.01"><input type="text" id="enNote" placeholder="Note (client / deliverable)"></div>' +
+      '<div class="grid cols-2" style="margin-top:12px; gap:8px;">' +
+      '<div><label class="field" for="enAmount">Amount</label><input type="number" id="enAmount" placeholder="BHD" step="0.01"></div>' +
+      '<div><label class="field" for="enNote">Note</label><input type="text" id="enNote" placeholder="Client / deliverable"></div></div>' +
       '<div style="margin-top:8px;"><button class="btn" data-act="addEntry">Record payment</button></div></div>' +
       "</div></div>";
   };
@@ -2413,7 +2430,7 @@
 
       '<h2 style="margin:26px 0 12px;">Problem sets — pen and paper</h2><div class="grid cols-2">' +
       D.PSETS.map(g =>
-        '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;"><h3>' + esc(g.title) + '</h3><a class="btn ghost" style="padding:4px 10px; flex-shrink:0;" href="' + g.url + '" target="_blank" rel="noopener">Open ↗</a></div>' +
+        '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;"><h3>' + esc(g.title) + '</h3><a class="btn ghost tiny" style="flex-shrink:0;" href="' + g.url + '" target="_blank" rel="noopener">Open ↗</a></div>' +
         g.items.map(i =>
           '<label class="check-row"><input type="checkbox" data-pset="' + i.id + '" ' + (S.psets[i.id] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG + '</span><span class="check-label">' + esc(i.label) + "</span></label>"
         ).join("") + "</div>"
@@ -2471,8 +2488,8 @@
         const st = S.electives[e.id];
         return "<tr><td style='white-space:nowrap;'>" + esc(e.provider) + "</td><td><strong style='color:var(--ink);'>" + esc(e.what) + "</strong></td>" +
           "<td style='white-space:nowrap;'>" + (phases[e.phase] || "Any") + "</td><td>" + esc(e.cost) + "</td><td>" + esc(e.verdict) + "</td>" +
-          '<td><a class="btn ghost" style="padding:4px 10px;" href="' + e.url + '" target="_blank" rel="noopener">↗</a></td>' +
-          '<td><button class="btn ghost" style="padding:2px 6px; border:none;" data-elective="' + e.id + '">' +
+          '<td><a class="btn ghost tiny" href="' + e.url + '" target="_blank" rel="noopener" aria-label="Open source">↗</a></td>' +
+          '<td><button class="btn ghost tiny bare" data-elective="' + e.id + '" aria-label="Cycle status">' +
           (st === "done" ? '<span class="pill good">done</span>' : st === "planned" ? '<span class="pill teal">planned</span>' : '<span class="pill">—</span>') +
           "</button></td></tr>";
       }).join("") + "</tbody></table></div></div></div>";
@@ -2522,7 +2539,7 @@
       law("7 · Back up weekly", "Export every Sunday. Restore anywhere.") +
       "</div>" +
 
-      '<h2 style="margin:26px 0 12px;">The map — what each room is for</h2><div class="grid cols-2">' +
+      '<div class="sect"><h2>The map</h2><span class="sect-meta">what each room is for</span></div><div class="grid cols-2">' +
       mod("Dashboard", "daily", "Your generated day plan, streak, pace vs the 3-year baseline, and the resume button.", "#/") +
       mod("Courses", "daily", "12 courses in 4 phases. Follow the plan’s pick — don’t browse; the sequencing is the curriculum.", "#/courses") +
       mod("Workshop", "daily", "Labs (portfolio with proofs), problem sets (pen and paper), and the Daily Drill.", "#/workshop") +
@@ -2552,6 +2569,7 @@
       '<div class="sub">The founding documents, and every external resource.</div>' +
       '<div class="row-actions"><a class="btn ghost" href="#/guide">The handbook</a>' +
       '<a class="btn ghost" href="#/method">How it works</a></div></div>' +
+      '<div class="sect"><h2>Founding documents</h2><span class="sect-meta">' + DOCS.length + ' documents</span></div>' +
       '<div class="grid cols-2">' +
       DOCS.map(d => '<a class="card hoverable" href="#/doc/' + d.id + '" style="text-decoration:none;"><h3>' + esc(d.title) + '</h3><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + esc(d.sub) + "</p></a>").join("") +
       '</div><div class="card" style="margin-top:16px;"><h2>External halls</h2><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +

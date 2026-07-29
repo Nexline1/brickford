@@ -58,7 +58,7 @@
         } else {
           body =
             '<div style="display:flex; gap:10px; max-width:340px;">' +
-            '<input type="text" id="numAns" inputmode="decimal" placeholder="Your answer (a number)" autocomplete="off">' +
+            '<input type="text" id="numAns" inputmode="decimal" placeholder="Your answer (a number)" aria-label="Your numeric answer" autocomplete="off">' +
             '<button class="btn" id="numGo">Submit</button></div>';
         }
         return (

@@ -60,6 +60,8 @@
   --sp-1: 6px; --sp-2: 10px; --sp-3: 16px; --sp-4: 24px; --sp-5: 40px; --sp-6: 64px;
   --radius: 6px; --radius-lg: 10px;
   --ease: cubic-bezier(0.25, 0.6, 0.3, 1);
+  /* Stacking, named once. Ad-hoc numbers turn into an arms race. */
+  --z-tabbar: 39; --z-drawer: 40; --z-drawer-btn: 41; --z-tip: 50; --z-toast: 60;
   --t-micro: 120ms; --t-hover: 180ms; --t-enter: 260ms;
 
   /* Faculty identity. Restrained enough for the editorial surface, distinct
@@ -204,7 +206,9 @@ body {
   line-height: 1.7;
   color: var(--ink);
   background: var(--bg);
+  /* dvh follows the mobile toolbar; the vh line stays as the fallback. */
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -219,7 +223,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 /* ---------- Shell ---------- */
-.shell { display: flex; min-height: 100vh; }
+.shell { display: flex; min-height: 100vh; min-height: 100dvh; }
 
 .sidebar {
   /* Panel: re-scope the ink/line tokens so every child recolors per theme */
@@ -231,7 +235,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   --bg-2: color-mix(in srgb, var(--panel-ink) 9%, transparent);
   --surface: color-mix(in srgb, var(--panel-ink) 6%, transparent);
   --accent: var(--panel-accent);
-  width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
   background: var(--panel);
   padding: var(--sp-4) var(--sp-3);
   display: flex; flex-direction: column; gap: var(--sp-2);
@@ -344,6 +348,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
 .btn.ghost:hover { opacity: 1; background: var(--bg-2); }
 .btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); }
+/* Compact buttons in table rows. Small type, but a real 44px target — the
+   inline padding:4px versions of these were unhittable on a phone. */
+.btn.tiny { padding: 6px 10px; font-size: var(--fs-tiny); min-width: 44px; min-height: 44px; justify-content: center; }
+.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); }
+.btn.tiny.bare:hover { background: var(--bg-2); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .pill {
@@ -484,7 +493,7 @@ tr:last-child td { border-bottom: none; }
 .gate.next .medal { border-color: var(--ink); color: var(--ink); }
 
 /* ---------- Charts (hand-rolled SVG) ---------- */
-.chart-tip { position: fixed; z-index: 50; pointer-events: none; background: var(--float); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 6px 10px; font-size: var(--fs-tiny); color: var(--ink); box-shadow: var(--shadow-float); opacity: 0; transition: opacity var(--t-micro) ease; }
+.chart-tip { position: fixed; z-index: var(--z-tip); pointer-events: none; background: var(--float); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 6px 10px; font-size: var(--fs-tiny); color: var(--ink); box-shadow: var(--shadow-float); opacity: 0; transition: opacity var(--t-micro) ease; }
 .chart-tip.show { opacity: 1; }
 .chart svg { display: block; width: 100%; height: auto; }
 .chart .grid-line { stroke: var(--line); stroke-width: 1; }
@@ -492,7 +501,7 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- Toast ---------- */
 .toast {
-  position: fixed; bottom: 24px; left: 50%; z-index: 100;
+  position: fixed; bottom: 24px; left: 50%; z-index: var(--z-toast);
   background: var(--btn-bg); color: var(--btn-ink);
   border-radius: var(--radius); padding: 11px 20px; font-size: var(--fs-small);
   box-shadow: var(--shadow-float);
@@ -709,12 +718,22 @@ tr:last-child td { border-bottom: none; }
 
 /* Exam banks read as their course. */
 .card.course-card .code { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--fac, var(--accent)); letter-spacing: 0.06em; }
+/* The institution, on the catalogue card. One line, and it says a great deal. */
+.card.course-card .cc-org { font-size: var(--fs-tiny); color: var(--ink-3); font-weight: 600; letter-spacing: 0.04em; margin-top: 3px; }
 
 /* ---------- Entrance: content settles rather than snapping in ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .view-enter > .card,
   .view-enter > .grid > .card,
-  .view-enter > .tiles > .card { animation: settleIn 320ms var(--ease) both; }
+  .view-enter > .tiles > .card,
+  .view-enter > .dash-hero,
+  .view-enter > .facts { animation: settleIn 320ms var(--ease) both; }
+  .view-enter > .facts { animation-delay: 60ms; }
+  /* The day's lectures arrive in order, so the eye lands on the first one. */
+  .tasks > .task { animation: settleIn 300ms var(--ease) both; }
+  .tasks > .task:nth-child(2) { animation-delay: 60ms; }
+  .tasks > .task:nth-child(3) { animation-delay: 100ms; }
+  .tasks > .task:nth-child(n+4) { animation-delay: 140ms; }
   .view-enter > .card:nth-child(2) { animation-delay: 40ms; }
   .view-enter > .card:nth-child(3) { animation-delay: 80ms; }
   .view-enter > .card:nth-child(n+4) { animation-delay: 110ms; }
@@ -811,6 +830,8 @@ tr:last-child td { border-bottom: none; }
 }
 .task .tk-main { flex: 1; min-width: 0; }
 .task .tk-code, .task .tk-t, .task .tk-meta { display: block; }
+/* A task row also carries a concept: the title leads, the sentence follows. */
+.task .tk-t.tk-plain { font-weight: 500; font-size: var(--fs-small); color: var(--ink-2); }
 .task .tk-code { font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0.06em; font-weight: 600; color: var(--fac, var(--accent)); }
 .task .tk-t { font-size: var(--fs-body); font-weight: 600; color: var(--ink); line-height: 1.35; margin-top: 2px; }
 .task .tk-meta { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 4px; }
@@ -957,7 +978,7 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- Method: curves, steps, spacing ---------- */
 .curve { width: 100%; height: auto; display: block; }
-.curve .ctick { font-family: var(--font-mono); font-size: 8px; fill: var(--ink-3); }
+.curve .ctick { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink-3); }
 /* Draw the good curve on rather than snapping it in. */
 .curve-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: drawLine 1400ms var(--ease) 120ms forwards; }
 @keyframes drawLine { to { stroke-dashoffset: 0; } }
@@ -1057,10 +1078,10 @@ tr:last-child td { border-bottom: none; }
 .tabbar { display: none; }
 @media (max-width: 860px) {
   .shell { flex-direction: column; }
-  .sidebar { position: fixed; z-index: 40; height: 100vh; transform: translateX(-100%); transition: transform var(--t-hover) var(--ease); width: 264px; box-shadow: var(--shadow-float); }
+  .sidebar { position: fixed; z-index: var(--z-drawer); height: 100vh; height: 100dvh; transform: translateX(-100%); transition: transform var(--t-hover) var(--ease); width: 264px; box-shadow: var(--shadow-float); }
   .sidebar.open { transform: none; }
   .menu-btn {
-    display: inline-flex; position: fixed; top: 14px; left: 14px; z-index: 41;
+    display: inline-flex; position: fixed; top: 14px; left: 14px; z-index: var(--z-drawer-btn);
     background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong);
     border-radius: var(--radius); width: 42px; height: 42px; align-items: center; justify-content: center; cursor: pointer;
   }
@@ -1068,7 +1089,7 @@ tr:last-child td { border-bottom: none; }
 
   /* Bottom tab bar — thumb-reach navigation for phones */
   .tabbar {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 39;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: var(--z-tabbar);
     display: flex;
     background: color-mix(in srgb, var(--panel) 96%, transparent);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -1097,6 +1118,8 @@ tr:last-child td { border-bottom: none; }
 /* Print: transcript */
 @media print {
   .sidebar, .menu-btn, .tabbar, .btn { display: none !important; }
-  body { background: #fff; color: #111; }
-  .card { border-color: #ccc; }
+  /* A printed transcript should be in the institution's own ink, not a
+     generic grey — these are literal values because print ignores themes. */
+  body { background: #fff; color: #2b2118; }
+  .card { border-color: #d0c0a5; }
 }

@@ -939,83 +939,112 @@
     // failure. Point at the one next action instead.
     const started = !!firstActivityISO();
     const firstUp = real[0];
+
+    // ---- One primary action, decided here so the hero has exactly one button ----
+    // A dashboard that offers eight equal choices is a dashboard you stand in
+    // front of instead of using. Everything else on the page is reference.
+    const nextUp = real.find(it => !schedDone(it));
+    // Karpathy's lecture titles run to 60 characters; a button is not a place
+    // for a sentence.
+    const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).replace(/[\s—·-]+$/, "") + "…" : s);
+    let cta;
+    if (nextUp) {
+      cta = {
+        href: "#/lesson/" + nextUp.cid + "/" + nextUp.ui + "/" + nextUp.li,
+        label: nextUp.code + " — " + clip(nextUp.l.t, 38),
+        hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
+              (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
+      };
+    } else if (due.length) {
+      cta = { href: "#/recall", label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"), hint: "due before new material" };
+    } else if (S.settings.lastLesson) {
+      cta = {
+        href: "#/lesson/" + S.settings.lastLesson.cid + "/" + S.settings.lastLesson.ui + "/" + S.settings.lastLesson.li,
+        label: "Resume " + clip(S.settings.lastLesson.label, 40), hint: "picking up where you stopped",
+      };
+    } else {
+      cta = { href: "#/atlas", label: "Open the Atlas", hint: "nothing scheduled today" };
+    }
+
+    // A scheduled lecture, as the largest thing under the hero.
+    const taskHTML = (it, i) => {
+      const fc = D.COURSES.find(x => x.id === it.cid);
+      const dn = schedDone(it);
+      const meta = (it.l.min ? it.l.min + "m video" : it.l.paper ? "paper" : "reading") +
+        (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + " · " + it.track;
+      return '<a class="task ' + (fc ? facClass(fc) : "") + (dn ? " done" : "") +
+        '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+        '<span class="tk-n">' + (dn ? "✓" : i + 1) + "</span>" +
+        '<span class="tk-main"><span class="tk-code">' + esc(it.code) + "</span>" +
+        '<span class="tk-t">' + esc(it.l.t) + "</span>" +
+        '<span class="tk-meta">' + esc(meta) + "</span></span>" +
+        '<span class="tk-go">' + (dn ? "Review" : "Open ▸") + "</span></a>";
+    };
+    const sect = (title, meta) => '<div class="sect"><h2>' + title + "</h2>" +
+      (meta ? '<span class="sect-meta">' + meta + "</span>" : "") + "</div>";
+    const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
+
     return '<div class="view-enter">' +
-      // ---- Hero: identity, day, one short line of context, today's ring ----
-      '<div class="page-head hero">' +
-      '<div class="hero-text"><div class="kicker">' + esc(D.IDENTITY.est) + "</div>" +
-      "<h1>" + greet + ' — <span class="mono" style="color:var(--accent);">Day ' + String(day).padStart(3, "0") + "</span></h1>" +
-      '<div class="meta"><span>Week ' + f.week + '</span><span class="dot"></span><span>Phase ' + f.phase + '</span><span class="dot"></span>' +
-      '<span class="pill gold">' + esc(f.tag) + "</span>" +
-      (studiedToday ? '<span class="pill good">✓ today marked</span>' : "") + "</div></div>" +
-      ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 92) +
-      "</div>" +
+      // ---- Hero: the day, the ring, and one button ----
+      '<div class="dash-hero"><div class="dh-grid"><div class="dh-main">' +
+      '<div class="kicker">' + esc(D.IDENTITY.est) + " · Week " + f.week + " · Phase " + f.phase + "</div>" +
+      '<h1>Day <span class="dh-n">' + String(day).padStart(3, "0") + "</span></h1>" +
+      '<div class="dh-sub">' + greet + " — " + esc(f.tag) + "</div>" +
+      '<div class="dh-cta"><a class="btn lg" href="' + cta.href + '">' + esc(cta.label) + " ▸</a>" +
+      '<span class="dh-hint">' + esc(cta.hint) + "</span></div></div>" +
+      ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 96) +
+      "</div></div>" +
 
-      (!started && firstUp
-        ? '<div class="card feature"><div style="display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;">' +
-          '<div style="flex:1 1 220px; min-width:0;"><div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">Start here</div>' +
-          '<div style="color:var(--ink); font-weight:600; font-size:1.05rem; margin-top:2px;">' + esc(firstUp.code) + " — " + esc(firstUp.l.t) + "</div>" +
-          '<div style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">One lecture. Everything else fills in behind you.</div></div>' +
-          '<a class="btn" href="#/lesson/' + firstUp.cid + "/" + firstUp.ui + "/" + firstUp.li + '">Open ▸</a></div></div>'
-        : "") +
+      // ---- At a glance: five numbers, no sentences ----
+      factsHTML([
+        { k: "streak", v: st + "d", lead: st > 0 },
+        { k: "proven", v: proven },
+        { k: "solved", v: dsa + "/150" },
+        g ? { k: "to gate " + g.n, v: gateLeft + "d" } : { k: "gates", v: "all" },
+        backlog > 0 ? { k: "behind", v: backlog > 20 ? "20+" : backlog } : { k: "behind", v: "0" },
+      ]) +
 
-      (S.settings.lastLesson
-        ? '<div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
-          '<div><div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">Continue</div>' +
-          '<div style="color:var(--ink); font-weight:600; margin-top:2px;">' + esc(S.settings.lastLesson.label) + "</div></div>" +
-          '<a class="btn" href="#/lesson/' + S.settings.lastLesson.cid + "/" + S.settings.lastLesson.ui + "/" + S.settings.lastLesson.li + '">Resume ▸</a></div>'
-        : "") +
+      // ---- The day's own work, as the largest object on the page ----
+      sect("Today", real.length ? doneToday + " of " + real.length + " done · " + totalMin + "m" : "") +
+      (real.length
+        ? '<div class="tasks">' + real.map(taskHTML).join("") + "</div>"
+        : '<div class="card"><p class="muted">Nothing scheduled today. ' +
+          (todaySched.length ? "Problem sets and review only." : "Calibration and setup — see the Handbook.") +
+          '</p><div class="row-actions"><a class="btn ghost" href="#/calendar">Calendar</a><a class="btn ghost" href="#/guide">Handbook</a></div></div>') +
 
-      (backupAge === null || backupAge > 14
-        ? '<div class="card" style="border-color:var(--line-strong); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;"><span style="font-size:var(--fs-small); color:var(--ink-2);">' +
-          (backupAge === null ? "This browser is the only copy." : "Last backup " + backupAge + " days ago.") +
-          '</span><button class="btn" data-act="backup">Export backup</button></div>'
-        : "") +
-
-      // ---- Four metrics, two across on phones ----
-      '<div class="tiles stagger" style="margin-top:16px;">' +
-      tile("Streak", num(st) + ' <span class="unit">days</span>', Math.min(100, st / 30 * 100)) +
-      tile("DSA", num(dsa) + ' <span class="unit">/ 150</span>', dsa / 150 * 100) +
-      tile("Proven", num(proven), null) +
-      tile("Treasury", num(rev) + ' <span class="unit">BHD</span>', null) +
-      "</div>" +
-
-      '<div class="grid cols-2 top" style="margin-top:16px;">' +
-      // ---- Today ----
-      '<div class="card"><div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
-      "<h2>Today</h2>" +
-      (real.length ? '<span class="mono" style="font-size:var(--fs-small); color:var(--ink-3);">' + doneToday + " of " + real.length + " done</span>" : "") +
-      "</div>" +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:4px;">' +
-      'Theory · the maths under every layer &nbsp;·&nbsp; Build · the network itself &nbsp;·&nbsp; Practice · a separate track</p>' +
-      (real.length ? '<div class="bar grow" style="margin-top:10px;"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div>' : "") +
-      dayLoadHTML(real) +
       (backlog > 0
-        ? '<div class="plan-row" style="border-left:2px solid var(--bad); padding-left:10px;"><span class="block" style="color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent);">Owed</span><span class="what"><strong>' + (backlog > 20 ? "20+" : backlog) + "</strong> lesson" + (backlog === 1 ? "" : "s") + " behind</span><a class=\"btn ghost go\" href=\"#/calendar\">Calendar</a></div>"
+        ? '<a class="task owed" href="#/calendar" style="margin-top:10px;"><span class="tk-n">!</span>' +
+          '<span class="tk-main"><span class="tk-code">BEHIND</span>' +
+          '<span class="tk-t">' + (backlog > 20 ? "20+" : backlog) + " lecture" + (backlog === 1 ? "" : "s") + " owed from earlier days</span>" +
+          '<span class="tk-meta">catching up late still turns the day green</span></span>' +
+          '<span class="tk-go">Calendar ▸</span></a>'
         : "") +
-      '<div style="margin-top:6px;">' +
-      (due.length
-        ? '<div class="plan-row"><span class="block" style="color:var(--accent-2); background:color-mix(in srgb, var(--accent-2) 12%, transparent);">Recall</span>' +
-          '<span class="what"><strong>' + due.length + "</strong> lecture" + (due.length === 1 ? "" : "s") + " due before new material</span>" +
-          '<a class="btn ghost go" href="#/recall">Recall</a></div>'
-        : "") +
-      todaySched.map(schedRowHTML).join("") +
-      (todaySched.length ? "" : '<div class="plan-row"><span class="block">Study</span><span class="what">Before Day 1 — calibration and setup</span><a class="btn ghost go" href="#/guide">Handbook</a></div>') +
+
+      '<div class="row-actions">' + (studiedToday
+        ? '<span class="pill good">✓ Deep Track marked for today</span>'
+        : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div>" +
+
+      // ---- Everything that runs every day, folded away until wanted ----
+      '<details class="unit" style="margin-top:16px;"' + (due.length ? " open" : "") + ">" +
+      '<summary><span class="u-name">Also every day</span>' +
+      '<span class="pill' + (due.length ? "" : " good") + '">' + (due.length ? due.length + " due" : "clear") + "</span>" +
+      '<span class="u-prog" style="width:' + (due.length ? 0 : 100) + '%;"></span></summary><div class="u-body">' +
+      '<div class="plan-row"><span class="block">Recall</span><span class="what">' +
+      (due.length ? "<strong>" + due.length + "</strong> lecture" + (due.length === 1 ? "" : "s") + " due before new material" : "Nothing due") +
+      '</span><a class="btn ghost go" href="#/recall">Recall</a></div>' +
       '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
       (probs.length
-        ? (probsCat ? esc(probsCat) + " · " : "") + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") +
-          ' <span style="color:var(--ink-3);">— separate track from the maths</span>'
+        ? (probsCat ? esc(probsCat) + " · " : "") + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ")
         : "All 150 done.") +
       '</span><a class="btn ghost go" href="#/course/cs150">Tracker</a></div>' +
       '<div class="plan-row"><span class="block">Drill</span><span class="what">' +
       (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting" : "Pool clear") +
       '</span><a class="btn ghost go" href="#/drill">Drill</a></div>' +
       '<div class="plan-row"><span class="block">Publish</span><span class="what">Notes → post</span><a class="btn ghost go" href="#/review">Review</a></div>' +
-      "</div>" +
-      '<div style="margin-top:14px;">' + (studiedToday
-        ? '<span class="pill good">✓ Deep Track marked for today</span>'
-        : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div></div>" +
+      "</div></details>" +
 
-      // ---- Next gate: countdown + how far through its window ----
+      // ---- Standing: the gate you are climbing towards ----
+      sect("Standing", g ? "gate " + g.n + " of 6" : "all gates passed") +
       '<div class="card feature">' +
       '<div style="display:flex; align-items:center; gap:var(--sp-4); flex-wrap:wrap;">' +
       '<div style="flex:1 1 180px; min-width:0;">' +
@@ -1034,19 +1063,29 @@
             : " · on baseline") +
           ' · <a href="#/transcript">All gates</a></p>'
         : "") +
-      "</div></div>" +
+      "</div>" +
+
+      '<div class="tiles stagger" style="margin-top:12px;">' +
+      tile("Streak", num(st) + ' <span class="unit">days</span>', Math.min(100, st / 30 * 100)) +
+      tile("DSA", num(dsa) + ' <span class="unit">/ 150</span>', dsa / 150 * 100) +
+      tile("Proven", num(proven), null) +
+      tile("Treasury", num(rev) + ' <span class="unit">BHD</span>', null) +
+      "</div>" +
 
       // ---- Charts only once there is something to plot ----
       (charted
-        ? '<div class="grid cols-2" style="margin-top:16px;">' +
+        ? '<div class="grid cols-2" style="margin-top:12px;">' +
           '<div class="card"><h2>DSA over time</h2>' + lineChart(weeksArr.map(w => +w.dsa || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           "</div>"
-        : started
-          ? '<div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">' +
-            '<span style="font-size:var(--fs-small); color:var(--ink-2);">Seal a week to start the charts.</span>' +
-            '<a class="btn ghost" href="#/review">Weekly Review</a></div>'
-          : "") +
+        : "") +
+
+      // ---- Housekeeping, at the bottom where a nag belongs ----
+      (backupAge === null || backupAge > 14
+        ? '<div class="card" style="margin-top:12px;"><div class="row-split"><span class="muted">' +
+          (backupAge === null ? "This browser is the only copy." : "Last backup " + backupAge + " days ago.") +
+          '</span><button class="btn ghost" data-act="backup">Export backup</button></div></div>'
+        : "") +
       "</div>";
   };
 

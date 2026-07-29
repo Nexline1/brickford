@@ -65,6 +65,168 @@
   S.concepts = S.concepts || {};
   S.anchors = S.anchors || [];
 
+  // ---------- cross-device sync ----------
+  // localStorage is per-browser by definition, so the phone and the laptop are
+  // separate universes. The repo is already yours and already versioned, so it
+  // makes the natural backend: every sync is a commit, which doubles as a
+  // third-party timestamp for the record.
+  S.settings.deviceId = S.settings.deviceId ||
+    (Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4));
+  S.foreignLedgers = S.foreignLedgers || {};
+
+  const SYNC_REPO = "Nexline1/brickford";
+  const SYNC_PATH = "progress/brickford-state.json";
+  const ghToken = () => { try { return localStorage.getItem("brickford_gh_token") || ""; } catch (e) { return ""; } };
+
+  function ghFetch(method, body) {
+    const url = "https://api.github.com/repos/" + SYNC_REPO + "/contents/" + SYNC_PATH;
+    return fetch(method === "GET" ? url + "?ref=main" : url, {
+      method: method,
+      headers: {
+        Authorization: "Bearer " + ghToken(),
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  // Field-level merge. Working on both devices in the same day must never cost
+  // you work, so nothing here is last-writer-wins except plain settings.
+  function mergeState(remote) {
+    if (!remote || typeof remote !== "object") return { changed: 0 };
+    let changed = 0;
+    const r = remote.state || {};
+
+    // lessons: keep the further-along version of each
+    Object.keys(r.lessons || {}).forEach(k => {
+      const mine = S.lessons[k], theirs = r.lessons[k];
+      if (!theirs) return;
+      if (!mine) { S.lessons[k] = theirs; changed++; return; }
+      const score = x => (x.verified ? 4 : 0) + (x.done ? 2 : 0) + ((x.notes || "").length + (x.recall || "").length > 0 ? 1 : 0);
+      if (score(theirs) > score(mine)) { S.lessons[k] = theirs; changed++; }
+      else if (score(theirs) === score(mine)) {
+        // same standing: keep the richer text and the higher problem count
+        if ((theirs.notes || "").length > (mine.notes || "").length) { mine.notes = theirs.notes; changed++; }
+        if ((theirs.recall || "").length > (mine.recall || "").length) { mine.recall = theirs.recall; changed++; }
+        if ((theirs.solved || 0) > (mine.solved || 0)) { mine.solved = theirs.solved; changed++; }
+      }
+    });
+    // sets: union
+    (r.studyDays || []).forEach(d => { if (S.studyDays.indexOf(d) < 0) { S.studyDays.push(d); changed++; } });
+    S.studyDays.sort();
+    ["problems", "psets", "electives", "labs", "diag", "gates"].forEach(key => {
+      Object.keys(r[key] || {}).forEach(k => {
+        if (!S[key][k] && r[key][k]) { S[key][k] = r[key][k]; changed++; }
+      });
+    });
+    // attempts: concat, dedupe
+    Object.keys(r.quizAttempts || {}).forEach(b => {
+      S.quizAttempts[b] = S.quizAttempts[b] || [];
+      const seen = new Set(S.quizAttempts[b].map(a2 => a2.date + "|" + a2.pct + "|" + a2.score));
+      (r.quizAttempts[b] || []).forEach(a2 => {
+        const k = a2.date + "|" + a2.pct + "|" + a2.score;
+        if (!seen.has(k)) { S.quizAttempts[b].push(a2); seen.add(k); changed++; }
+      });
+    });
+    // weeks: by week number, later entry wins
+    (r.weeks || []).forEach(w => {
+      const i = S.weeks.findIndex(x => +x.week === +w.week);
+      if (i < 0) { S.weeks.push(w); changed++; }
+      else if ((w.date || "") > (S.weeks[i].date || "")) { S.weeks[i] = w; changed++; }
+    });
+    // review: the later due date wins, so a recall done elsewhere is respected
+    Object.keys(r.review || {}).forEach(k => {
+      const mine = S.review[k], theirs = r.review[k];
+      if (!mine || (theirs.last || "") > (mine.last || "")) { S.review[k] = theirs; changed++; }
+    });
+    // concepts: proven wins; sketches keep the newest two across devices
+    Object.keys(r.concepts || {}).forEach(k => {
+      const mine = S.concepts[k], theirs = r.concepts[k];
+      if (!mine) { S.concepts[k] = theirs; changed++; return; }
+      if (theirs.proven && !mine.proven) { mine.proven = true; mine.provenAt = theirs.provenAt; changed++; }
+      const all = (mine.sketches || []).concat(theirs.sketches || [])
+        .filter((v, i, arr) => arr.findIndex(x => x.png === v.png) === i)
+        .sort((x, y) => (x.date < y.date ? -1 : 1));
+      if (all.length !== (mine.sketches || []).length) { mine.sketches = all.slice(-2); changed++; }
+    });
+    (r.anchors || []).forEach(a2 => {
+      if (!S.anchors.some(x => x.head === a2.head && x.date === a2.date)) { S.anchors.push(a2); changed++; }
+    });
+
+    // Ledgers stay per device and are never re-hashed: rewriting a chain would
+    // orphan any head hash already published as an anchor.
+    const ledgers = remote.ledgers || {};
+    Object.keys(ledgers).forEach(dev => {
+      if (dev === S.settings.deviceId) return;
+      const theirs = ledgers[dev] || [];
+      const mineForeign = S.foreignLedgers[dev] || [];
+      if (theirs.length > mineForeign.length) { S.foreignLedgers[dev] = theirs; changed++; }
+    });
+    return { changed: changed };
+  }
+
+  // One code path for both directions so the manual buttons and the automatic
+  // pull-on-open cannot drift apart.
+  let syncBusy = false;
+  function runSync(dir, say) {
+    say = say || function () {};
+    if (!ghToken() || syncBusy) return Promise.resolve(false);
+    syncBusy = true;
+    say("Contacting GitHub\u2026");
+    return ghFetch("GET").then(res => {
+      if (res.status === 404) return { missing: true };
+      if (res.status === 401 || res.status === 403) throw new Error("Token rejected \u2014 it needs Contents: Read and write on " + SYNC_REPO + ".");
+      if (!res.ok) throw new Error("GitHub returned " + res.status + ".");
+      return res.json();
+    }).then(file => {
+      const remote = file.missing ? null
+        : JSON.parse(decodeURIComponent(escape(atob((file.content || "").replace(/\n/g, "")))));
+      if (dir === "pull") {
+        if (!remote) { say("Nothing stored yet \u2014 push from the device that has your progress."); return false; }
+        const r = mergeState(remote);
+        S.settings.lastSync = todayISO(); save();
+        say("");
+        if (r.changed) { render(); toast("Pulled \u2014 " + r.changed + " change" + (r.changed === 1 ? "" : "s") + " merged."); }
+        return true;
+      }
+      const body = {
+        message: "progress: " + todayISO() + " from " + S.settings.deviceId,
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(syncPayload(), null, 1)))),
+      };
+      if (!file.missing && file.sha) body.sha = file.sha;
+      return ghFetch("PUT", body).then(res2 => {
+        if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
+        if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
+        S.settings.lastSync = todayISO(); save(); say("");
+        toast("Pushed.");
+        return true;
+      });
+    }).catch(err => {
+      say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
+      return false;
+    }).then(v => { syncBusy = false; return v; });
+  }
+
+  // Push shortly after progress changes, so sync is not a chore to remember.
+  let pushTimer = null;
+  function syncSoon() {
+    if (!ghToken()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => runSync("push"), 4000);
+  }
+
+  function syncPayload() {
+    const state = {};
+    ["lessons", "problems", "quizAttempts", "quizMisses", "diag", "gates", "studyDays",
+     "weeks", "labs", "psets", "electives", "treasury", "review", "concepts", "anchors"]
+      .forEach(k => state[k] = S[k]);
+    state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart };
+    const ledgers = Object.assign({}, S.foreignLedgers);
+    ledgers[S.settings.deviceId] = S.ledger;
+    return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
+  }
+
   // ---------- SHA-256, synchronous, no dependencies ----------
   // The record's hash chain needs hashing inside the existing save paths.
   // crypto.subtle is async and would turn every checkbox handler into a
@@ -141,6 +303,7 @@
     e.hash = sha256(canon(e));
     S.ledger.push(e);
     save();
+    syncSoon();
     return e;
   }
   function verifyChain(list) {
@@ -903,7 +1066,8 @@
         "</div></div></a>";
     };
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Registrar</div><h1>Course Catalog</h1>' +
-      '<div class="sub">' + D.COURSES.length + ' courses · four phases · free and permanent.</div></div>' +
+      '<div class="sub">' + D.COURSES.length + ' courses · four phases · free and permanent.</div>' +
+      '<div class="row-actions"><a class="btn ghost" href="#/electives">Outside courses</a></div></div>' +
       PHASES.map(ph => {
         const cs = D.COURSES.filter(c => c.phase === ph[0]);
         if (!cs.length) return "";
@@ -1585,6 +1749,45 @@
       '<div style="margin-top:16px;"><a class="btn ghost" href="' + back + '">Back to the lecture</a></div></div>';
   };
 
+  V.sync = function () {
+    const tok = ghToken();
+    const last = S.settings.lastSync;
+    const devs = Object.keys(S.foreignLedgers).length;
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">Devices</div><h1>Sync</h1>' +
+      '<div class="sub">One record on every device, kept in your own repo.</div></div>' +
+
+      '<div class="card"><div class="vseal">' +
+      '<div class="vico ' + (tok ? "ok" : "bad") + '">' + (tok ? "\u2713" : "!") + "</div>" +
+      '<div class="vtext"><div class="vhead">' + (tok ? "Connected" : "Not connected") + "</div>" +
+      '<div class="muted">' +
+      (last ? "Last sync " + esc(last) : "This device has never synced.") +
+      (devs ? " \u00b7 " + devs + " other device" + (devs === 1 ? "" : "s") : "") + "</div></div></div>" +
+      (tok
+        ? '<div class="row-actions">' +
+          '<button class="btn" data-act="syncPull">Pull</button>' +
+          '<button class="btn" data-act="syncPush">Push</button>' +
+          '<button class="btn ghost" data-act="syncForget">Forget token</button></div>' +
+          '<div id="syncMsg" class="muted" style="margin-top:10px;"></div>'
+        : "") + "</div>" +
+
+      (tok ? "" :
+        '<div class="card" style="margin-top:16px;"><h2>Connect</h2>' +
+        '<div class="tl" style="margin-top:6px;">' +
+        '<div class="tl-row"><span class="tl-date">1</span><span class="tl-what">GitHub \u2192 Settings \u2192 Developer settings \u2192 <strong>Fine-grained tokens</strong> \u2192 Generate.</span></div>' +
+        '<div class="tl-row"><span class="tl-date">2</span><span class="tl-what">Repository access: <strong>only</strong> ' + SYNC_REPO + ". Permissions: <strong>Contents \u2192 Read and write</strong>. Nothing else.</span></div>" +
+        '<div class="tl-row"><span class="tl-date">3</span><span class="tl-what">Paste it below. It stays in this browser and is sent only to github.com.</span></div>' +
+        "</div>" +
+        '<div style="margin-top:12px;"><label class="field" for="ghTok">Token</label>' +
+        '<input id="ghTok" type="password" placeholder="github_pat_\u2026" autocomplete="off"></div>' +
+        '<div style="margin-top:10px;"><button class="btn" data-act="syncConnect">Connect</button></div>' +
+        '<p class="note">Anyone with this device can read the token. Scope it to the one repo; Forget it before lending the device.</p></div>') +
+
+      '<div class="card" style="margin-top:16px;"><h2>How merging works</h2><div class="tl" style="margin-top:6px;">' +
+      '<div class="tl-row"><span class="tl-date">safe</span><span class="tl-what">Pull merges field by field \u2014 the further-along version of each lecture wins, days and problems union. Working on both devices never costs you work.</span></div>' +
+      '<div class="tl-row"><span class="tl-date">record</span><span class="tl-what">Each device keeps its own hash chain. Syncing never re-hashes history, so a head you have already published stays valid.</span></div>' +
+      "</div></div></div>";
+  };
+
   V.atlas = function () {
     const PH = [[0, "Foundations"], [1, "The Spine"], [2, "Depth"], [3, "Frontier"]];
     const here = currentPhase();
@@ -1785,7 +1988,9 @@
       '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + value + "</div></div>";
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>The Record</h1>' +
-      '<div class="sub">Every step, hash-chained in order. Edit one and the rest stop matching.</div></div>' +
+      '<div class="sub">Every step, hash-chained in order. Edit one and the rest stop matching.</div>' +
+      '<div class="row-actions"><a class="btn ghost" href="#/transcript">Transcript &amp; gates</a>' +
+      '<a class="btn ghost" href="#/method">How it works</a></div></div>' +
 
       // ---- verdict ----
       '<div class="card"><div class="vseal">' +
@@ -2018,7 +2223,9 @@
     const pool = missPool();
     const phases = [[0, "Phase 0 — Calibration"], [1, "Phase 1 — Foundations"], [2, "Phase 2 — Depth"], [3, "Phase 3 — Frontier"]];
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The forge</div><h1>Workshop</h1>' +
-      '<div class="sub">Labs, problem sets on paper, and a drill built from your own mistakes.</div></div>' +
+      '<div class="sub">Labs, problem sets, and a drill built from your own mistakes.</div>' +
+      '<div class="row-actions"><a class="btn" href="#/recall">Recall due</a>' +
+      '<a class="btn ghost" href="#/drill">Daily drill</a></div></div>' +
 
       '<div class="grid cols-3">' +
       '<div class="card stat"><div class="stat-label">Labs shipped</div><div class="stat-value">' + labsDone + ' <span class="unit">/ ' + D.LABS.length + "</span></div></div>" +
@@ -2184,7 +2391,9 @@
   ];
   V.library = function () {
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Knowledge base</div><h1>Library</h1>' +
-      '<div class="sub">The founding documents, and every external resource.</div></div>' +
+      '<div class="sub">The founding documents, and every external resource.</div>' +
+      '<div class="row-actions"><a class="btn ghost" href="#/guide">The handbook</a>' +
+      '<a class="btn ghost" href="#/method">How it works</a></div></div>' +
       '<div class="grid cols-2">' +
       DOCS.map(d => '<a class="card hoverable" href="#/doc/' + d.id + '" style="text-decoration:none;"><h3>' + esc(d.title) + '</h3><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + esc(d.sub) + "</p></a>").join("") +
       '</div><div class="card" style="margin-top:16px;"><h2>External halls</h2><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
@@ -2274,6 +2483,16 @@
             },
             onExit() { render(); },
           });
+        } else if (act === "syncConnect") {
+          const v = $("#ghTok") ? $("#ghTok").value.trim() : "";
+          if (!v) { toast("Paste the token first."); return; }
+          try { localStorage.setItem("brickford_gh_token", v); } catch (e) { toast("Could not store the token."); return; }
+          render(); toast("Connected. Pull to bring this device up to date.");
+        } else if (act === "syncForget") {
+          try { localStorage.removeItem("brickford_gh_token"); } catch (e) {}
+          render(); toast("Token forgotten.");
+        } else if (act === "syncPull" || act === "syncPush") {
+          runSync(act === "syncPull" ? "pull" : "push", t => { const m = $("#syncMsg"); if (m) m.innerHTML = t; });
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));
@@ -2723,6 +2942,7 @@
     else if (r === "/recall") html = V.recall();
     else if (r === "/method") html = V.method();
     else if (r === "/atlas") html = V.atlas();
+    else if (r === "/sync") html = V.sync();
     else if (seg[0] === "concept") html = V.concept(seg[1]);
     else if (seg[0] === "summary") html = V.summary(seg[1], +seg[2], +seg[3]);
     else if (r === "/review") html = V.review();
@@ -2776,6 +2996,10 @@
     $("#menuBtn").onclick = () => $("#sidebar").classList.toggle("open");
     window.addEventListener("hashchange", render);
     render();
+    // Pull once on open so a device that has been away is current before the
+    // first tap, and push anything still pending when the tab goes away.
+    if (ghToken()) runSync("pull");
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") runSync("push"); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

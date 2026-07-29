@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260728b">
+<link rel="stylesheet" href="css/style.css?v=20260728c">
 </head>
 <body>
 
@@ -43,10 +43,6 @@
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 5 L7 3 L13 5.5 L17.5 3.5 V15 L13 17 L7 14.5 L2.5 16.5 Z M7 3 V14.5 M13 5.5 V17"/></svg>
         The Atlas
       </a>
-      <a href="#/method" data-route="/method">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 15 C6 15 6.5 5 10 5 C13.5 5 14 15 17.5 15"/><circle cx="10" cy="5" r="1.4"/></svg>
-        Method
-      </a>
       <div class="nav-group-label">Academics</div>
       <a href="#/courses" data-route="/courses">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4 Q7 2.5 10 4.5 Q13 2.5 17 4 V15 Q13 13.5 10 15.5 Q7 13.5 3 15 Z M10 4.5 V15.5"/></svg>
@@ -54,29 +50,17 @@
       </a>
       <a href="#/workshop" data-route="/workshop">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
-        Workshop
+        Practice
       </a>
       <a href="#/exams" data-route="/exams">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2.5 H15 V17.5 H5 Z M7.5 6 H12.5 M7.5 9 H12.5 M7.5 12 H10.5"/></svg>
         Exam Hall
       </a>
-      <a href="#/electives" data-route="/electives">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 4 H4 V16 H16 V11.5 M12 3 H17 V8 M17 3 L9.5 10.5"/></svg>
-        Outside Courses
-      </a>
       <a href="#/record" data-route="/record">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3.5 H13 L16 6.5 V16.5 H4 Z M12.5 3.5 V7 H16 M6.5 10.5 H13.5 M6.5 13 H11"/></svg>
         The Record
       </a>
-      <a href="#/transcript" data-route="/transcript">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="4.5"/><path d="M7.5 10.5 L6 17.5 L10 15.5 L14 17.5 L12.5 10.5"/></svg>
-        Transcript &amp; Gates
-      </a>
-      <div class="nav-group-label">Discipline</div>
-      <a href="#/recall" data-route="/recall">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3.5 A6.5 6.5 0 1 1 3.6 11.4 M10 3.5 V1.8 M6.2 2.6 L3.4 5.4 M3.4 5.4 L6.4 5.6 M3.4 5.4 L3.2 2.4 M10 7 V10.5 L12.6 12"/></svg>
-        Recall
-      </a>
+      <div class="nav-group-label">Rhythm</div>
       <a href="#/review" data-route="/review">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M7 2.5 V5.5 M13 2.5 V5.5"/></svg>
         Weekly Review
@@ -92,10 +76,6 @@
       <a href="#/library" data-route="/library">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3 H8 V17 H4 Z M8 3 H12 V17 H8 Z M12.5 3.5 L16.5 4.5 L13.5 17 L10 16"/></svg>
         Library
-      </a>
-      <a href="#/guide" data-route="/guide">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6 V10.5 L13 12"/></svg>
-        The Handbook
       </a>
     </nav>
 
@@ -113,6 +93,7 @@
         <button class="btn ghost" id="exportBtn" style="flex:1;">Backup</button>
       </div>
       <button class="btn ghost" id="importBtn" style="width:100%;">Restore backup</button>
+      <a class="btn ghost" href="#/sync" style="width:100%; text-align:center;">Sync devices</a>
       <input type="file" id="importFile" accept=".json" style="display:none;">
       <div class="motto">From imitation to invention</div>
     </div>
@@ -136,7 +117,7 @@
   </a>
   <a href="#/workshop" data-route="/workshop">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"/></svg>
-    Workshop
+    Practice
   </a>
   <a href="#/review" data-route="/review">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M7 2.5 V5.5 M13 2.5 V5.5"/></svg>
@@ -149,19 +130,19 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20260728b"></script>
-<script defer src="js/figures.js?v=20260728b"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20260728b"></script>
-<script defer src="data/summaries-math110.js?v=20260728b"></script>
-<script defer src="data/workshop.js?v=20260728b"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20260728b"></script>
-<script defer src="data/quiz-calculus.js?v=20260728b"></script>
-<script defer src="data/quiz-probability.js?v=20260728b"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20260728b"></script>
-<script defer src="data/quiz-dsa.js?v=20260728b"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20260728b"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20260728b"></script>
-<script defer src="js/quiz-engine.js?v=20260728b"></script>
-<script defer src="js/app.js?v=20260728b"></script>
+<script defer src="data/curriculum.js?v=20260728c"></script>
+<script defer src="js/figures.js?v=20260728c"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20260728c"></script>
+<script defer src="data/summaries-math110.js?v=20260728c"></script>
+<script defer src="data/workshop.js?v=20260728c"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20260728c"></script>
+<script defer src="data/quiz-calculus.js?v=20260728c"></script>
+<script defer src="data/quiz-probability.js?v=20260728c"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20260728c"></script>
+<script defer src="data/quiz-dsa.js?v=20260728c"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20260728c"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20260728c"></script>
+<script defer src="js/quiz-engine.js?v=20260728c"></script>
+<script defer src="js/app.js?v=20260728c"></script>
 </body>
 </html>

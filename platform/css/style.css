@@ -643,6 +643,14 @@ tr:last-child td { border-bottom: none; }
 /* A feature card in a 2-column grid must not stretch to the tall column. */
 .grid.top > * { align-self: start; }
 
+/* ---------- Utilities ----------
+   Every repeated inline style is a place the design can drift, so the recurring
+   ones live here instead. */
+.muted { font-size: var(--fs-small); color: var(--ink-2); }
+.note { font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 12px; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.row-split { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
 /* ---------- Lecture summaries ---------- */
 .beats { display: flex; flex-direction: column; gap: 2px; }
 .beat { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }

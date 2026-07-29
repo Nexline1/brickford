@@ -659,13 +659,14 @@ tr:last-child td { border-bottom: none; }
 .grid.top > * { align-self: start; }
 
 
-/* ---------- Crest ---------- */
-.crest svg { width: 52px; height: 62px; display: block; margin: 0 auto; }
-.crest .cr-field { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
-.crest .cr-edge { fill: none; stroke: var(--accent); stroke-width: 3.5; stroke-linejoin: round; }
-.crest .cr-mark { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: square; }
-.crest .cr-rays { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; opacity: 0.9; }
-.crest .cr-star { fill: var(--accent); }
+/* ---------- Crest ----------
+   A filled field with the device cut out of it, which is what makes a seal read
+   as a seal. Outlines would go spindly the moment it is scaled down. */
+.crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
+.crest .cr-field { fill: var(--accent); }
+.crest .cr-key { fill: none; stroke: var(--panel); stroke-width: 3; opacity: 0.55; }
+.crest .cr-cut { fill: var(--panel); }
+.crest .cr-stem { fill: none; stroke: var(--panel); stroke-width: 3.4; stroke-linecap: round; }
 
 /* ---------- Faculty colour, applied where a subject is identified ---------- */
 .fac-math { --fac: var(--fac-math); }

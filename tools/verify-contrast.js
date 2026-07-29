@@ -159,7 +159,20 @@ function lintPanelUse() {
   let measured = 0;
 
   for (const w of WIDTHS) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
+    // reducedMotion matters for correctness here, not for politeness.
+    //
+    // page.goto() with only the hash changing is a same-document navigation, so
+    // data-theme survives the loop below and every theme switch is a real CSS
+    // transition. `.plan-row .what strong` carries `transition: color 180ms`, so
+    // measuring 90ms later read the blend between two themes' --ink and reported
+    // a perfectly good near-black as a mid-grey at 4.17:1. (dark #e8ebef →
+    // forest #17201a has a midpoint of rgb(127,133,132); it measured
+    // rgb(134,140,139).) The stylesheet's reduced-motion kill-switch collapses
+    // every transition to 0.01ms, so measurements land on declared values.
+    //
+    // Nothing is lost: the entrance animations use `both` fill, so their final
+    // state — the one worth checking — is what gets measured.
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, reducedMotion: "reduce" });
     await ctx.addInitScript(seed);
     const page = await ctx.newPage();
     for (const theme of THEMES) {

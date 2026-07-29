@@ -1058,7 +1058,11 @@
       '<h1>Day <span class="dh-n">' + String(day).padStart(3, "0") + "</span></h1>" +
       '<div class="dh-sub">' + greet + " — " + esc(f.tag) + "</div>" +
       '<div class="dh-cta"><a class="btn lg" href="' + cta.href + '">' + esc(cta.label) + " ▸</a>" +
-      '<span class="dh-hint">' + esc(cta.hint) + "</span></div></div>" +
+      '<span class="dh-hint">' + esc(cta.hint) + "</span></div>" +
+      // Desktop only: the rail owns the button there, and without it the band
+      // sat mostly empty. The day's own progress fills it — a bar, not a sentence.
+      '<div class="dh-bar"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>' +
+      "</div>" +
       ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 96) +
       "</div></div>" +
 

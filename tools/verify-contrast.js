@@ -19,7 +19,7 @@ const PW = "/opt/node22/lib/node_modules/playwright";
 const { chromium } = require(PW);
 
 const URL = "file://" + path.join(ROOT, "platform/index.html");
-const THEMES = ["light", "dark", "forest", "midnight", "latte", "slate"];
+const THEMES = ["light", "parchment", "dark", "forest", "midnight", "latte", "slate"];
 const WIDTHS = [390, 1280];
 const ROUTES = [
   "/", "/atlas", "/courses", "/course/math110", "/course/cs150", "/course/phys100",

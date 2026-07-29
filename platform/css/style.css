@@ -77,6 +77,35 @@
   --fac-res: #63498a;
 }
 
+/* Brickford's original identity, kept as a theme rather than thrown away: brown
+   sidebar, warm cream page, caramel highlights. Every ink here was re-solved to
+   clear 4.5:1 — the old version's alpha inks measured 2.83:1, which is the whole
+   reason the palette was rebuilt in the first place. */
+[data-theme="parchment"] {
+  --fac-math: #35608f; --fac-ai: #8a5f2e; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a;
+  --bg: #f8f4ec;
+  --bg-2: #f0e9db;
+  --surface: #ffffff;
+  --surface-2: #faf7f0;
+  --float: #ffffff;
+  --line: #e6dcc9;
+  --line-strong: #d0c0a5;
+  --ink: #2b2118;
+  --ink-2: #534b40;
+  --ink-3: #71685c;
+  --accent: #5d3f26;
+  --accent-2: #8a5f2e;
+  --good: #3d6b47;
+  --bad: #a8331f;
+  --btn-bg: #2b2118;
+  --btn-ink: #f8f4ec;
+  --shadow-float: 0 8px 30px rgba(43, 33, 24, 0.14);
+  --panel: #2b2118;
+  --panel-ink: #f4ead9;
+  --panel-accent: #c99a63;
+  --feature: var(--accent);
+}
+
 [data-theme="dark"] {
   /* Cool neutral dark. Was a warm roast; the institutional identity is cool now,
      and the ink values are solved against --float, the lightest surface here. */
@@ -758,10 +787,28 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- Faculty colour carried through the daily pages ---------- */
 /* A plan row should say which subject it belongs to before it is read. */
-.plan-row { border-left: 3px solid transparent; padding-left: 10px; margin-left: -10px; transition: border-color var(--t-hover) ease, background-color var(--t-hover) ease; }
-.plan-row[class*="fac-"] { border-left-color: color-mix(in srgb, var(--fac) 55%, transparent); }
+/* The subject bar used to be `border-left` plus `margin-left: -10px`, and that
+   was wrong twice over.
+   The negative margin pulled every row 10px outside its own container, so inside
+   a card the bar and its chip sat past the border — the rows looked like they had
+   fallen out of the box.
+   And a full-height border on consecutive rows of the same subject butts against
+   its neighbour, so five MATH 110 rows read as one continuous blue line running
+   down the group: five separate lectures looking like a single item.
+   An inset pseudo-element fixes both — it stays inside the row, and the vertical
+   inset leaves a visible gap between one row's bar and the next. */
+.plan-row { position: relative; transition: background-color var(--t-hover) ease; }
+/* The indent has to live on the attribute selector: the base `.plan-row` rule
+   further down sets `padding: 11px 0`, which — equal specificity, later in the
+   file — would win and put the bar under the chip. Only rows that carry a bar
+   need the room. */
+.plan-row[class*="fac-"] { padding-left: 14px; }
+.plan-row[class*="fac-"]::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 2px; background: var(--fac);
+}
 @media (hover: hover) {
-  .plan-row:hover { background: color-mix(in srgb, var(--fac, var(--accent)) 5%, transparent); border-left-color: var(--fac, var(--accent)); }
+  .plan-row:hover { background: color-mix(in srgb, var(--fac, var(--accent)) 6%, transparent); }
 }
 .plan-row .block { color: var(--fac, var(--accent)); background: color-mix(in srgb, var(--fac, var(--accent)) 10%, transparent); }
 
@@ -980,7 +1027,9 @@ tr:last-child td { border-bottom: none; }
   position: absolute; left: 0; bottom: 0; height: 2px;
   background: var(--fac, var(--accent)); transition: width 500ms var(--ease);
 }
-.unit .u-body { padding: 4px 8px 10px; }
+/* 8px was not enough to hold a row that carries a coloured edge and a chip; the
+   contents read as touching the card border. */
+.unit .u-body { padding: 4px 15px 12px; }
 @media (prefers-reduced-motion: no-preference) {
   .unit[open] .u-body { animation: settleIn 260ms var(--ease) both; }
 }

@@ -17,7 +17,90 @@
   };
   const fmtBHD = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString();
   function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
-  function weekNumber() { return Math.max(1, Math.floor(daysBetween(D.START_DATE, todayISO()) / 7) + 1); }
+
+  // ---------- six days a week ----------
+  // The plan runs six days, not seven. One day off is the difference between a
+  // schedule someone keeps for three years and one they abandon in month two, so
+  // the rest day is part of the curriculum rather than a lapse in it.
+  //
+  // The consequence, which is the whole reason this is a real change and not a
+  // display tweak: everything downstream indexes by STUDY day, not calendar day.
+  // A rest day has no index at all. It is not a day you fell behind on — it is a
+  // day with nothing scheduled, so it cannot break a streak and cannot owe you
+  // lessons. Skipping it stretches the calendar rather than compressing the work,
+  // because the load per day was the thing that was too heavy.
+  const REST_DOW = 6;                                  // 0 = Sunday … 6 = Saturday
+  const ICS_DOW = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  // Derived, never written twice: the exported calendar cannot drift from the
+  // schedule it is supposed to describe.
+  const ICS_STUDY_DAYS = ICS_DOW.filter((_, i) => i !== REST_DOW).join(",");
+  const REST_NAME = "Saturday";
+  const dowOf = iso => new Date(iso + "T00:00:00").getDay();
+  const isRestDay = iso => dowOf(iso) === REST_DOW;
+  // Calendar offset from the start to the first rest day.
+  let _restK = null;
+  function restOffset() {
+    if (_restK == null) _restK = (REST_DOW - dowOf(D.START_DATE) + 7) % 7;
+    return _restK;
+  }
+  // How many rest days fall in the first `n` calendar days from the start.
+  function restsWithin(n) {
+    const k = restOffset();
+    return n > k ? Math.floor((n - k - 1) / 7) + 1 : 0;
+  }
+  // 0-based index of `iso` among study days. -1 before the start, or on a rest
+  // day — callers must treat -1 as "no work belongs to this date".
+  function studyIndex(iso) {
+    if (iso < D.START_DATE || isRestDay(iso)) return -1;
+    const n = daysBetween(D.START_DATE, iso);
+    return n - restsWithin(n);
+  }
+  // The inverse: the calendar date carrying study day `i`. Exact rather than
+  // approximate, because the gate dates are computed from it and a rounded
+  // countdown that drifts by a day a month would be worse than none.
+  function dateForStudy(i) {
+    const k = restOffset();
+    if (i < k) return addDaysISO(D.START_DATE, i);
+    const j = i - k;
+    return addDaysISO(D.START_DATE, k + 1 + Math.floor(j / 6) * 7 + (j % 6));
+  }
+  function addStudyDays(iso, n) {
+    const base = studyIndex(iso);
+    // From a rest day or before the start, count from the next study day.
+    if (base < 0) {
+      let cur = iso < D.START_DATE ? D.START_DATE : addDaysISO(iso, 1);
+      while (isRestDay(cur)) cur = addDaysISO(cur, 1);
+      return dateForStudy(studyIndex(cur) + n);
+    }
+    return dateForStudy(base + n);
+  }
+  const studyToday = () => studyIndex(todayISO());
+  function nextStudyDay(iso) {
+    let cur = addDaysISO(iso, 1);
+    for (let guard = 0; guard < 14 && isRestDay(cur); guard++) cur = addDaysISO(cur, 1);
+    return cur;
+  }
+  const nextStudyHref = () => "#/calendar";
+  function nextStudyLabel() {
+    const n = nextStudyDay(todayISO());
+    return new Date(n + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + "’s plan";
+  }
+  // The plan's week is six study days, not seven calendar ones.
+  const STUDY_WEEK = 6;
+  function weekNumber() {
+    const i = studyToday();
+    // On a rest day, you are still in the week you just worked.
+    const eff = i >= 0 ? i : Math.max(0, studyIndex(prevStudyDay(todayISO())));
+    return Math.max(1, Math.floor(eff / STUDY_WEEK) + 1);
+  }
+  function prevStudyDay(iso) {
+    let cur = addDaysISO(iso, -1);
+    for (let guard = 0; guard < 14 && (isRestDay(cur) || cur < D.START_DATE); guard++) {
+      if (cur < D.START_DATE) return D.START_DATE;
+      cur = addDaysISO(cur, -1);
+    }
+    return cur;
+  }
   function toast(msg) {
     const t = $("#toast");
     t.textContent = msg;
@@ -325,9 +408,17 @@
   function streak() {
     const set = new Set(S.studyDays);
     let n = 0;
-    let d = new Date();
-    if (!set.has(todayISO())) d.setDate(d.getDate() - 1); // streak survives until today ends
-    while (set.has(d.toISOString().slice(0, 10))) { n++; d.setDate(d.getDate() - 1); }
+    let cur = todayISO();
+    // The streak survives until today ends, and a rest day is scheduled time
+    // off — stepping over it must not end the run, or the platform punishes you
+    // for keeping to its own plan. Rest days are skipped, never counted.
+    if (!set.has(cur)) cur = addDaysISO(cur, -1);
+    for (let guard = 0; guard < 4000; guard++) {
+      if (isRestDay(cur)) { cur = addDaysISO(cur, -1); continue; }
+      if (!set.has(cur)) break;
+      n++;
+      cur = addDaysISO(cur, -1);
+    }
     return n;
   }
   function bestQuiz(bankId) {
@@ -443,12 +534,6 @@
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { week: w, focus: row.focus, tag: row.tag, phase: row.phase };
   }
-  function addMonths(iso, m) {
-    // Local-date arithmetic; toISOString would shift the day in non-UTC zones.
-    const p = iso.split("-").map(Number);
-    const d = new Date(p[0], p[1] - 1 + m, p[2]);
-    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  }
   // Adaptive schedule: a gate's target = the previous gate's completion date
   // (its target while still open) + this gate's duration. Passing early pulls
   // every later target earlier. S.gates[n] stores the completion date
@@ -458,7 +543,7 @@
     return D.GATES.map(g => {
       const raw = S.gates[g.n];
       const doneDate = raw === true ? todayISO() : (raw || null);
-      const target = addMonths(base, g.months);
+      const target = addStudyDays(base, Math.round(g.months * 30.4));
       base = doneDate || target;
       return Object.assign({}, g, { target, doneDate });
     });
@@ -471,7 +556,7 @@
   function planDrift() {
     const plan = gatePlan();
     const last = plan[plan.length - 1];
-    const baseline = addMonths(D.START_DATE, D.GATES.reduce((a, g) => a + g.months, 0));
+    const baseline = addStudyDays(D.START_DATE, Math.round(D.GATES.reduce((a, g) => a + g.months, 0) * 30.4));
     const projected = last.doneDate || last.target;
     return { projected, aheadDays: daysBetween(projected, baseline) };
   }
@@ -520,11 +605,16 @@
     const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     const esc = s => String(s).replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
     const events = [];
+    // Day 1 is never a rest day by construction, but anchor explicitly so this
+    // survives a future change to REST_DOW.
+    let icsFrom = D.START_DATE;
+    while (isRestDay(icsFrom)) icsFrom = addDaysISO(icsFrom, 1);
     events.push([
       "BEGIN:VEVENT", "UID:brickford-daily@brickford.local", "DTSTAMP:" + stamp,
-      "DTSTART:" + ymd(D.START_DATE) + "T" + t(sh * 60 + sm),
-      "DTEND:" + ymd(D.START_DATE) + "T" + t(endMin),
-      "RRULE:FREQ=DAILY",
+      "DTSTART:" + ymd(icsFrom) + "T" + t(sh * 60 + sm),
+      "DTEND:" + ymd(icsFrom) + "T" + t(endMin),
+      // Six days, not seven. BYDAY lists every day except the rest day.
+      "RRULE:FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS,
       "SUMMARY:Brickford — Deep Track",
       "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
       "END:VEVENT",
@@ -562,7 +652,7 @@
   }
   // The week-plan row that governs a given calendar date.
   function weekRowFor(iso) {
-    const w = Math.max(1, Math.floor(daysBetween(D.START_DATE, iso) / 7) + 1);
+    const w = Math.max(1, Math.floor(Math.max(0, studyIndex(iso)) / STUDY_WEEK) + 1);
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { w, row };
   }
@@ -658,8 +748,8 @@
   // scratch); papers at 3 weeks each put 8+ reimplementations before Gate 3
   // (month 12) and all 16 before Gate 4 (month 18).
   function scheduledFor(iso) {
-    const d = daysBetween(D.START_DATE, iso);
-    if (d < 0) return [];
+    const d = studyIndex(iso);
+    if (d < 0) return [];          // before the start, or a rest day
     const items = [];
 
     // ---- Theory ----
@@ -667,7 +757,7 @@
     // packed from REAL video minutes to fill the ~2h block — ~5 short 3B1B
     // chapters, or one 50-minute MIT lecture. Future days re-anchor if you
     // work ahead (see windowFor).
-    const dT = daysBetween(D.START_DATE, todayISO());
+    const dT = studyToday();
     const rotIdx = d % 3, rot = THEORY_ROT[rotIdx];
     const rotFlat = flatLessons(rot);
     const turn = Math.floor(d / 3);
@@ -790,8 +880,10 @@
     const from = firstActivityISO();
     if (!from) return 0;                       // nothing started, nothing owed
     const owed = new Set();
-    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1))
+    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
+      if (isRestDay(iso)) continue;                 // a day off owes nothing
       realSched(iso).forEach(it => { if (!schedDone(it)) owed.add(lessonKey(it.cid, it.ui, it.li)); });
+    }
     return owed.size;
   }
   // Status of a calendar day: judged against ITS OWN scheduled lessons —
@@ -799,6 +891,7 @@
   // for days beyond the scheduled syllabus.
   function dayStatus(iso) {
     const today = todayISO();
+    if (isRestDay(iso) && iso >= D.START_DATE) return "rest";
     if (iso > today) return "upcoming";
     if (iso === today) return "today";
     const sched = realSched(iso);
@@ -937,6 +1030,12 @@
         hint: "picking up where you stopped", verb: "Resume",
       };
     }
+    if (isRestDay(todayISO()) && todayISO() >= D.START_DATE) return {
+      href: "#/calendar", kind: "rest", code: "REST",
+      title: REST_NAME + " is off",
+      label: "Rest day — nothing due", hint: "six days a week; your streak is safe",
+      verb: "Calendar",
+    };
     return {
       href: "#/atlas", kind: "none", code: "TODAY", title: "Nothing scheduled",
       label: "Open the Atlas", hint: "nothing scheduled today", verb: "Atlas",
@@ -988,7 +1087,8 @@
   }
 
   V.dashboard = function () {
-    const day = Math.max(1, daysBetween(D.START_DATE, todayISO()) + 1);
+    const resting = isRestDay(todayISO()) && todayISO() >= D.START_DATE;
+    const day = Math.max(1, (resting ? studyIndex(prevStudyDay(todayISO())) : studyToday()) + 1);
     const f = currentFocus();
     const g = nextGate();
     const st = streak();
@@ -1040,7 +1140,7 @@
       const meta = (it.l.min ? it.l.min + "m video" : it.l.paper ? "paper" : "reading") +
         (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + " · " + it.track;
       return '<a class="task ' + (fc ? facClass(fc) : "") + (dn ? " done" : "") +
-        '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+        '" style="--i:' + i + ';" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
         '<span class="tk-n">' + (dn ? "✓" : i + 1) + "</span>" +
         '<span class="tk-main"><span class="tk-code">' + esc(it.code) + "</span>" +
         '<span class="tk-t">' + esc(it.l.t) + "</span>" +
@@ -1074,12 +1174,22 @@
       ]) +
 
       // ---- The day's own work, as the largest object on the page ----
-      sect("Today", real.length ? doneToday + " of " + real.length + " done · " + totalMin + "m" : "") +
-      (real.length
-        ? '<div class="tasks">' + real.map(taskHTML).join("") + "</div>"
-        : '<div class="card"><p class="muted">Nothing scheduled today. ' +
-          (todaySched.length ? "Problem sets and review only." : "Calibration and setup — see the Handbook.") +
-          '</p><div class="row-actions"><a class="btn ghost" href="#/calendar">Calendar</a><a class="btn ghost" href="#/guide">Handbook</a></div></div>') +
+      (resting
+        ? sect("Rest day", REST_NAME.toLowerCase()) +
+          // A rest day has to look deliberate. An empty Today with no explanation
+          // reads as a broken schedule, and the whole point is that this day is
+          // part of the plan rather than a hole in it.
+          '<div class="card feature"><h2>Nothing is scheduled today.</h2>' +
+          '<p class="muted" style="margin-top:6px;">' + REST_NAME + " is off. The plan runs six days a week — " +
+          "taking the seventh is following it, not breaking it. Your streak is safe.</p>" +
+          '<div class="row-actions"><a class="btn" href="' + nextStudyHref() + '">See ' + esc(nextStudyLabel()) + " ▸</a>" +
+          '<a class="btn ghost" href="#/recall">Recall, if you want to</a></div></div>'
+        : sect("Today", real.length ? doneToday + " of " + real.length + " done · " + totalMin + "m" : "") +
+          (real.length
+            ? '<div class="tasks">' + real.map(taskHTML).join("") + "</div>"
+            : '<div class="card"><p class="muted">Nothing scheduled today. ' +
+              (todaySched.length ? "Problem sets and review only." : "Calibration and setup — see the Handbook.") +
+              '</p><div class="row-actions"><a class="btn ghost" href="#/calendar">Calendar</a><a class="btn ghost" href="#/guide">Handbook</a></div></div>')) +
 
       (backlog > 0
         ? '<a class="task owed" href="#/calendar" style="margin-top:10px;"><span class="tk-n">!</span>' +
@@ -1089,9 +1199,13 @@
           '<span class="tk-go">Calendar ▸</span></a>'
         : "") +
 
-      '<div class="row-actions">' + (studiedToday
-        ? '<span class="pill good">✓ Deep Track marked for today</span>'
-        : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div>" +
+      // No Deep Track to mark on a rest day. Offering the button would both
+      // contradict the card above it and let a rest day be logged as a study day,
+      // which would inflate the streak — the one number that has to stay honest.
+      (resting ? "" :
+        '<div class="row-actions">' + (studiedToday
+          ? '<span class="pill good">✓ Deep Track marked for today</span>'
+          : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div>") +
 
       // ---- Everything that runs every day, folded away until wanted ----
       '<details class="unit" style="margin-top:16px;"' + (due.length ? " open" : "") + ">" +
@@ -1202,8 +1316,8 @@
   // Facts a person actually decides on: length, effort, who taught it, when it
   // starts, where they stand. Each is a number with a label, never a sentence.
   function factsHTML(cells) {
-    return '<div class="facts">' + cells.filter(Boolean).map(f =>
-      '<div class="fact' + (f.lead ? " lead" : "") + '"><b>' + f.v + "</b><span>" + esc(f.k) + "</span></div>"
+    return '<div class="facts">' + cells.filter(Boolean).map((f, i) =>
+      '<div class="fact' + (f.lead ? " lead" : "") + '" style="--i:' + i + ';"><b>' + f.v + "</b><span>" + esc(f.k) + "</span></div>"
     ).join("") + "</div>";
   }
   function courseHours(c) {
@@ -1233,10 +1347,10 @@
   function courseFacts(c) {
     const starts = courseStartDays();
     const start = starts[c.id];
-    const dToday = daysBetween(D.START_DATE, todayISO());
+    const dToday = studyToday();
     const when = c.tracker ? "every day"
       : start == null ? "—"
-      : start <= dToday ? "running" : "week " + (Math.floor(start / 7) + 1);
+      : start <= dToday ? "running" : "week " + (Math.floor(start / STUDY_WEEK) + 1);
     if (c.tracker) {
       return factsHTML([
         { k: "problems", v: 150 },
@@ -1554,21 +1668,24 @@
       const iso = cy + "-" + pad2(cm) + "-" + pad2(d);
       const before = iso < D.START_DATE;
       const status = before ? null : dayStatus(iso);
+      const resting = status === "rest";
       const cls = ["cal-cell"];
       if (iso === today) cls.push("today");
       if (iso === calSel) cls.push("sel");
-      if (before) cls.push("rest");
+      if (before || resting) cls.push("rest");
       if (status === "completed") cls.push("cdone");
       else if (status === "missed") cls.push("cmiss");
       else if (status === "partial") cls.push("cpart");
       let inner = '<span class="dnum">';
-      if (!before) { const { row } = weekRowFor(iso); inner += '<span class="pdot" style="background:' + PHASE_COLOR[row.phase] + '"></span>'; }
+      if (!before && !resting) { const { row } = weekRowFor(iso); inner += '<span class="pdot" style="background:' + PHASE_COLOR[row.phase] + '"></span>'; }
       inner += d + "</span>";
       if (status === "completed") inner += '<span class="cmark" style="color:var(--good);">✓</span>';
       else if (status === "missed") inner += '<span class="cmark" style="color:var(--bad);">!</span>';
       else if (status === "partial") inner += '<span class="cmark" style="color:var(--accent-2);">◐</span>';
       if (before) {
         inner += '<span class="ctag" style="color:var(--ink-3);">Before start</span>';
+      } else if (resting) {
+        inner += '<span class="ctag" style="color:var(--ink-3);">Rest day</span>';
       } else {
         const { w, row } = weekRowFor(iso);
         const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
@@ -1595,7 +1712,8 @@
       '<span><span class="pdot" style="background:var(--accent-2)"></span>Phase 2</span>' +
       '<span><span class="pdot" style="background:var(--bad)"></span>Phase 3</span>' +
       '<span style="color:var(--accent);">◆ Gate</span>' +
-      '<span style="color:var(--good);">✓ Done</span><span style="color:var(--bad);">! Missed</span></div></div>';
+      '<span style="color:var(--good);">✓ Done</span><span style="color:var(--bad);">! Missed</span>' +
+      '<span style="color:var(--ink-3);">' + REST_NAME + " · rest</span></div></div>";
   }
 
   function dayDetailHTML() {
@@ -1605,7 +1723,7 @@
     }
     const dObj = new Date(iso + "T00:00:00");
     const nice = dObj.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric" });
-    const day = Math.max(1, daysBetween(D.START_DATE, iso) + 1);
+    const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
     const isSunday = dObj.getDay() === 0;
     const isToday = iso === todayISO();
@@ -1631,6 +1749,7 @@
       completed: '<span class="pill good">✓ Completed</span>',
       partial: '<span class="pill" style="color:var(--accent-2); border-color:var(--accent-2);">Partly done</span>',
       missed: '<span class="pill crimson">Missed — catch up</span>',
+      rest: '<span class="pill">Rest day</span>',
     }[status];
 
     // Per-day progress line: this day's scheduled lessons, done vs owed.
@@ -1664,7 +1783,10 @@
 
     return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
       "<h2>" + nice + "</h2>" +
-      '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill + '<span class="pill teal">Day ' + day + " · Week " + w + "</span></div></div>" +
+      '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill +
+      (status === "rest"
+        ? '<span class="pill">Week ' + w + "</span>"
+        : '<span class="pill teal">Day ' + day + " · Week " + w + "</span>") + "</div></div>" +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
       progressLine +
       catchUp +
@@ -1723,6 +1845,7 @@
       for (let d = 0; d < 7; d++) {
         const iso = addDaysISO(wk, d);
         if (iso < D.START_DATE || iso > today) { col += '<i class="hc void"></i>'; continue; }
+        if (isRestDay(iso)) { col += '<i class="hc rest" title="' + iso + ' · rest day"></i>'; continue; }
         const a = dayActivity(iso);
         const lvl = Math.min(4, a.lessons + a.problems + (a.sealed ? 1 : 0));
         col += '<button class="hc l' + lvl + (iso === today ? " now" : "") + '" data-hday="' + iso +
@@ -2008,9 +2131,10 @@
   function courseStartDays() {
     if (_startCache) return _startCache;
     const out = {};
+    // Walk study days, not calendar days: `d` is the index the schedule itself
+    // uses, so "opens week N" divides by the six-day study week.
     for (let d = 0; d <= 400; d++) {
-      const iso = addDaysISO(D.START_DATE, d);
-      scheduledFor(iso).forEach(it => {
+      scheduledFor(dateForStudy(d)).forEach(it => {
         if (it.cid && out[it.cid] == null) out[it.cid] = d;
       });
       if (Object.keys(out).length >= D.COURSES.length) break;
@@ -2030,7 +2154,7 @@
   // were actually verified. Nothing about it can flatter you.
   function questHTML() {
     const starts = courseStartDays();
-    const dToday = daysBetween(D.START_DATE, todayISO());
+    const dToday = studyToday();
     const gates = gatePlan();
 
     const items = D.COURSES.map(c => {
@@ -2040,7 +2164,7 @@
       const at = c.tracker ? 0 : (start == null ? 9999 : start);
       return { kind: "course", c, at, start };
     }).concat(gates.map(g => ({
-      kind: "gate", g, at: Math.max(0, daysBetween(D.START_DATE, g.target)),
+      kind: "gate", g, at: Math.max(0, studyIndex(g.target)),
     })));
     // Ties: a course opening on the same day a gate falls is reached first.
     // The `a.kind === b.kind ? 0` arm matters — returning -1 for two courses on
@@ -2067,7 +2191,7 @@
       const when = c.tracker ? "every day"
         : it.start == null ? "unscheduled"
         : running ? "running now"
-        : "opens week " + (Math.floor(it.start / 7) + 1);
+        : "opens week " + (Math.floor(it.start / STUDY_WEEK) + 1);
       const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
       return '<li class="q-item ' + facClass(c) + (locked ? " locked" : "") + (running ? " now" : "") + (done ? " done" : "") +
         '" style="--i:' + i + ';">' +
@@ -2090,7 +2214,7 @@
   V.atlas = function () {
     const gates = gatePlan();
     const starts = courseStartDays();
-    const dToday = daysBetween(D.START_DATE, todayISO());
+    const dToday = studyToday();
     const proven = D.COURSES.filter(c => !c.tracker && courseMastery(c) >= 85).length;
     const openNow = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday)).length;
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The whole climb</h1>' +
@@ -2427,7 +2551,7 @@
     const openGates = gatePlan().filter(g => !g.doneDate);
     const dailyLink = gcalUrl("Brickford — Deep Track",
       "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan.",
-      { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=DAILY" });
+      { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS });
     const nextSunday = addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7);
     const reviewLink = gcalUrl("Brickford — Weekly Review (seal the week)",
       "No shipped artifact = a failed week. Fill the row before the day ends.",
@@ -2737,6 +2861,13 @@
       b.onclick = () => {
         const act = b.dataset.act;
         if (act === "studied") {
+          // Guard the action, not just the button. Hiding the control is the UI;
+          // refusing the write is what keeps the ledger true if it is ever
+          // reachable another way.
+          if (isRestDay(todayISO()) && todayISO() >= D.START_DATE) {
+            toast(REST_NAME + " is a rest day — nothing to mark.");
+            return;
+          }
           if (!S.studyDays.includes(todayISO())) { S.studyDays.push(todayISO()); logEvent("day", todayISO(), {}); }
           save(); render();
           toast("Counted. The chain grows.");

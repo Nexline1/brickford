@@ -24,7 +24,7 @@
   --ink-3: #696f78;
   --accent: #2b6cb0;      /* actions and links ONLY — under 5% of pixels */
   --accent-2: #26665f;
-  --good: #2f7d4f;
+  --good: #2a7047;
   --bad: #b32d1f;
   --btn-bg: #1a1c1f;
   --btn-ink: #ffffff;
@@ -95,7 +95,7 @@
   --ink-3: #71685c;
   --accent: #5d3f26;
   --accent-2: #8a5f2e;
-  --good: #3d6b47;
+  --good: #3b6845;
   --bad: #a8331f;
   --btn-bg: #2b2118;
   --btn-ink: #f8f4ec;
@@ -146,7 +146,7 @@
   --ink-3: #626b63;
   --accent: #2f6b43;
   --accent-2: #26665f;
-  --good: #2f7d4f;
+  --good: #286a43;
   --bad: #b32d1f;
   --btn-bg: #17201a;
   --btn-ink: #ffffff;
@@ -221,7 +221,7 @@
   --ink-3: #6c6c69;
   --accent: #3d4c60;
   --accent-2: #26665f;
-  --good: #2f7d4f;
+  --good: #296d45;
   --bad: #b32d1f;
   --btn-bg: #1a1a19;
   --btn-ink: #ffffff;
@@ -831,11 +831,15 @@ tr:last-child td { border-bottom: none; }
   .view-enter > .dash-hero,
   .view-enter > .facts { animation: settleIn 320ms var(--ease) both; }
   .view-enter > .facts { animation-delay: 60ms; }
-  /* The day's lectures arrive in order, so the eye lands on the first one. */
-  .tasks > .task { animation: settleIn 300ms var(--ease) both; }
-  .tasks > .task:nth-child(2) { animation-delay: 60ms; }
-  .tasks > .task:nth-child(3) { animation-delay: 100ms; }
-  .tasks > .task:nth-child(n+4) { animation-delay: 140ms; }
+  /* The dashboard arrives the way the quest line does: the hero, then the facts
+     counting across, then the day's lectures walking down. Same curve, same
+     per-index delay, so the two pages feel like one product rather than two.
+     --i is the item's index, set in the markup. */
+  .tasks > .task { animation: questIn 380ms var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+  .facts > .fact { animation: factIn 300ms var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms + 60ms); }
+  @keyframes factIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  /* Section headings settle just before the block they title. */
+  .view-enter > .sect { animation: factIn 320ms var(--ease) both; }
   .view-enter > .card:nth-child(2) { animation-delay: 40ms; }
   .view-enter > .card:nth-child(3) { animation-delay: 80ms; }
   .view-enter > .card:nth-child(n+4) { animation-delay: 110ms; }
@@ -1298,6 +1302,9 @@ tr:last-child td { border-bottom: none; }
 .hcol { display: flex; flex-direction: column; gap: 3px; }
 .hc { width: 13px; height: 13px; border-radius: 2px; background: var(--bg-2); display: block; border: 0; padding: 0; }
 .hc.void { background: transparent; }
+/* A rest day is neither work nor a gap. Hollow, so three years of rest days
+   do not read as three years of misses. */
+.hc.rest { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
 .hc.l0 { background: var(--bg-2); }
 .hc.l1 { background: color-mix(in srgb, var(--accent) 28%, var(--bg-2)); }
 .hc.l2 { background: color-mix(in srgb, var(--accent) 52%, var(--bg-2)); }

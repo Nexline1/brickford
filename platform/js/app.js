@@ -1047,8 +1047,6 @@
         '<span class="tk-meta">' + esc(meta) + "</span></span>" +
         '<span class="tk-go">' + (dn ? "Review" : "Open ▸") + "</span></a>";
     };
-    const sect = (title, meta) => '<div class="sect"><h2>' + title + "</h2>" +
-      (meta ? '<span class="sect-meta">' + meta + "</span>" : "") + "</div>";
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
     return '<div class="view-enter">' +
@@ -1227,6 +1225,11 @@
       '<span class="tn">' + esc(c.instructor.name) + "</span>" +
       '<span class="to">' + esc(c.instructor.org) + "</span></span></div>";
   }
+  // A section heading that states its own count, shared by every page that has
+  // sections. It lived inside V.dashboard until the Atlas needed it too.
+  const sect = (title, meta) => '<div class="sect"><h2>' + title + "</h2>" +
+    (meta ? '<span class="sect-meta">' + meta + "</span>" : "") + "</div>";
+
   function courseFacts(c) {
     const starts = courseStartDays();
     const start = starts[c.id];
@@ -2015,47 +2018,96 @@
     return (_startCache = out);
   }
 
-  V.atlas = function () {
-    const PH = [[0, "Foundations"], [1, "The Spine"], [2, "Depth"], [3, "Frontier"]];
-    const here = currentPhase();
+  // ---------- the quest line ----------
+  // One spine, in the order the courses actually open, with the gates sitting on
+  // it where they fall. It replaced the four phase bands rather than joining
+  // them: two pictures of the same climb on one page is one picture too many,
+  // and the bands could not show sequence — which is the only thing a person
+  // wants from a map of three years.
+  //
+  // Every state here is derived, never stored: a node is locked because the
+  // schedule has not reached it, running because it has, proven because lectures
+  // were actually verified. Nothing about it can flatter you.
+  function questHTML() {
     const starts = courseStartDays();
     const dToday = daysBetween(D.START_DATE, todayISO());
-    const courseNode = c => {
-      const m = courseMastery(c), cov = courseCoverage(c);
-      const start = starts[c.id];
-      const running = start != null && start <= dToday;
-      const locked = c.tracker ? false : start == null ? true : !running;
-      // A tracker course never appears in the lesson schedule because it has no
-      // lessons — it is practised every day through the problem list instead.
-      const when = c.tracker ? "daily practice"
-        : start == null ? "unscheduled"
-        : running ? "running now"
-        : "opens week " + (Math.floor(start / 7) + 1);
-      return '<a class="atlas-node ' + facClass(c) + (locked ? " locked" : "") + (running ? " now" : "") + '" href="#/course/' + c.id + '">' +
-        '<div class="an-code">' + esc(c.code) + "</div>" +
-        '<div class="an-title">' + esc(c.title) + "</div>" +
-        '<div class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u><i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></div>' +
-        '<div class="row-split"><span class="an-num mono">' + m + '%</span>' +
-        '<span class="an-when' + (running ? " now" : "") + '">' + when + "</span></div></a>";
-    };
     const gates = gatePlan();
+
+    const items = D.COURSES.map(c => {
+      const start = starts[c.id];
+      // A tracker course has no lessons to schedule; it runs every day from day
+      // one, so it belongs at the head of the line rather than nowhere.
+      const at = c.tracker ? 0 : (start == null ? 9999 : start);
+      return { kind: "course", c, at, start };
+    }).concat(gates.map(g => ({
+      kind: "gate", g, at: Math.max(0, daysBetween(D.START_DATE, g.target)),
+    })));
+    // Ties: a course opening on the same day a gate falls is reached first.
+    // The `a.kind === b.kind ? 0` arm matters — returning -1 for two courses on
+    // the same day claims a < b and b < a at once, which is not a valid
+    // comparator and costs the sort its stability. Five courses open on day one;
+    // without this they came out in arbitrary order instead of curriculum order.
+    items.sort((a, b) => a.at - b.at || (a.kind === b.kind ? 0 : a.kind === "gate" ? 1 : -1));
+
+    const rows = items.map((it, i) => {
+      if (it.kind === "gate") {
+        const g = it.g, passed = !!g.doneDate;
+        const left = daysBetween(todayISO(), g.target);
+        return '<li class="q-item q-gate' + (passed ? " passed" : left < 0 ? " overdue" : "") + '" style="--i:' + i + ';">' +
+          '<span class="q-rail"><span class="q-node q-gnode">' + (passed ? "✓" : g.n) + "</span></span>" +
+          '<a class="q-card" href="#/transcript">' +
+          '<span class="q-kicker">Gate ' + g.n + (passed ? " · passed " + esc(g.doneDate) : left >= 0 ? " · " + left + "d left" : " · " + (-left) + "d over") + "</span>" +
+          '<span class="q-title">' + esc(g.label) + "</span>" +
+          '<span class="q-meta">' + esc(g.req) + "</span></a></li>";
+      }
+      const c = it.c, m = courseMastery(c), cov = courseCoverage(c);
+      const running = c.tracker || (it.start != null && it.start <= dToday);
+      const locked = !running;
+      const done = m >= 85;
+      const when = c.tracker ? "every day"
+        : it.start == null ? "unscheduled"
+        : running ? "running now"
+        : "opens week " + (Math.floor(it.start / 7) + 1);
+      const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
+      return '<li class="q-item ' + facClass(c) + (locked ? " locked" : "") + (running ? " now" : "") + (done ? " done" : "") +
+        '" style="--i:' + i + ';">' +
+        '<span class="q-rail"><span class="q-node">' + (done ? "✓" : locked ? lockSVG() : "") + "</span></span>" +
+        '<a class="q-card" href="#/course/' + c.id + '">' +
+        '<span class="q-kicker">' + esc(c.code) + '<span class="q-when">' + when + "</span></span>" +
+        '<span class="q-title">' + esc(c.title) + "</span>" +
+        '<span class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u>' +
+        '<i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></span>' +
+        '<span class="q-meta"><b>' + m + "%</b> proven · " +
+        (c.tracker ? st.done + " / " + st.total + " problems" : st.verified + " of " + st.total + " lectures") +
+        "</span></a></li>";
+    }).join("");
+
+    return '<ol class="quest">' + rows + "</ol>";
+  }
+  const lockSVG = () => '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">' +
+    '<rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4.2 5.5V4.2a1.8 1.8 0 013.6 0v1.3"/></svg>';
+
+  V.atlas = function () {
+    const gates = gatePlan();
+    const starts = courseStartDays();
+    const dToday = daysBetween(D.START_DATE, todayISO());
+    const proven = D.COURSES.filter(c => !c.tracker && courseMastery(c) >= 85).length;
+    const openNow = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday)).length;
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The whole climb</h1>' +
-      '<div class="sub">Pale is watched · solid is proven. Tracks run in parallel — the maths and the neural networks both start on day one.</div></div>' +
-      PH.map(([n, name]) => {
-        const cs = D.COURSES.filter(c => c.phase === n);
-        if (!cs.length) return "";
-        const g = gates[n];
-        return '<div class="atlas-band' + (n === here ? " now" : "") + '">' +
-          '<div class="ab-head"><span class="ab-n mono">' + n + "</span>" +
-          '<span class="ab-name">' + name + "</span>" +
-          (n === here ? '<span class="pill gold">current phase</span>' : "") +
-          (g ? '<span class="ab-gate mono">gate ' + g.n + " · " + esc(g.target) + "</span>" : "") + "</div>" +
-          '<div class="atlas-row">' + cs.map(courseNode).join("") + "</div></div>";
-      }).join("") +
+      '<div class="sub">In the order it opens. Pale is watched · solid is proven.</div>' +
+      factsHTML([
+        { k: "courses", v: D.COURSES.length },
+        { k: "open now", v: openNow, lead: true },
+        { k: "proven", v: proven },
+        { k: "gates left", v: gates.filter(g => !g.doneDate).length },
+        { k: "day", v: Math.max(1, dToday + 1) },
+      ]) + "</div>" +
+
+      questHTML() +
+
       (CONCEPTS().length
-        ? '<div class="card" style="margin-top:16px;"><h2>Linear algebra, as ideas</h2>' +
-          '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">Left depends on nothing · each column needs the one before</p>' +
-          conceptGraph("math110") + "</div>"
+        ? sect("Linear algebra, as ideas", "left depends on nothing") +
+          '<div class="card">' + conceptGraph("math110") + "</div>"
         : "") +
       "</div>";
   };
@@ -2098,6 +2150,19 @@
           '<div class="tl-row"><span class="tl-date">trap</span><span class="tl-what">' + esc(c.miss) + "</span></div>" +
           '<div class="tl-row"><span class="tl-date">in AI</span><span class="tl-what">' + esc(c.applies) + "</span></div>" +
           "</div></div>"
+        : "") +
+
+      // ---- the interactive figure, where one exists ----
+      // Not gated behind the reveal: this one is not an answer to be spoiled, it
+      // is an instrument. Playing with it before you can draw it is fine — the
+      // point is to watch the number move when the picture moves.
+      (c.lab && D.LAB && D.LAB[c.lab]
+        ? '<div class="card" style="margin-top:16px;"><div class="row-split"><h2>Try it</h2>' +
+          '<span class="pill">interactive</span></div>' +
+          '<p class="note" style="margin:2px 0 0;">' + esc(D.LAB[c.lab].title) + "</p>" +
+          '<div class="lab" id="labMount" data-lab="' + esc(c.lab) + '"></div>' +
+          '<div class="tl" style="margin-top:12px;"><div class="tl-row"><span class="tl-date">ask</span>' +
+          '<span class="tl-what">' + esc(D.LAB[c.lab].ask) + "</span></div></div></div>"
         : "") +
 
       // ---- probes ----
@@ -2933,6 +2998,12 @@
         save(); render();
       };
     });
+    // Interactive figure, if this concept has one.
+    const labEl = $("#labMount", root);
+    if (labEl && D.LAB && D.LAB[labEl.dataset.lab]) {
+      labEl.innerHTML = "";
+      D.LAB[labEl.dataset.lab].mount(labEl);
+    }
     // Sketch pad: pointer drawing, restored nothing — the point is a blank page.
     if ($("#sketchPad", root)) {
       const cv = $("#sketchPad", root), g = cv.getContext("2d");

@@ -1034,6 +1034,166 @@ tr:last-child td { border-bottom: none; }
   .unit[open] .u-body { animation: settleIn 260ms var(--ease) both; }
 }
 
+/* ---------- The quest line ----------
+   Three years as one spine, in the order it opens, with the gates sitting on it
+   where they fall. It replaced four phase bands of course cards: those could
+   show grouping but not sequence, and sequence is the only thing a person wants
+   from a map of three years.
+   Vertical by construction, so it needs no horizontal scrolling at 320px and no
+   fixed intrinsic width. */
+.quest { list-style: none; margin: var(--sp-4) 0 0; padding: 0; }
+.q-item { position: relative; display: flex; gap: var(--sp-3); padding-bottom: var(--sp-3); }
+/* The rail is the line: a node, and the segment running down to the next one.
+   The last item draws no segment, so the spine ends rather than trailing off. */
+.q-rail { position: relative; width: 26px; flex-shrink: 0; display: flex; justify-content: center; }
+.q-item:not(:last-child) .q-rail::after {
+  content: ""; position: absolute; top: 26px; bottom: calc(-1 * var(--sp-3)); left: 50%;
+  width: 2px; margin-left: -1px; background: var(--line-strong);
+}
+.q-item.done .q-rail::after { background: color-mix(in srgb, var(--good) 55%, var(--line-strong)); }
+.q-node {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; z-index: 1;
+  display: grid; place-items: center;
+  background: var(--surface); border: 2px solid var(--line-strong);
+  color: var(--ink-3);
+  font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+}
+.q-node svg { width: 12px; height: 12px; }
+.q-item.now .q-node { border-color: var(--fac, var(--accent)); background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)); color: var(--fac, var(--accent)); }
+.q-item.done .q-node { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--surface)); color: var(--good); }
+
+.q-card {
+  flex: 1; min-width: 0; display: block; text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: var(--surface); padding: 12px 14px;
+  border-left: 3px solid var(--fac, var(--line-strong));
+  transition: border-color var(--t-hover) ease, transform var(--t-hover) var(--ease), box-shadow var(--t-hover) ease;
+}
+@media (hover: hover) {
+  .q-card:hover { text-decoration: none; transform: translateX(2px); box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 7%, transparent); }
+}
+.q-kicker {
+  display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600;
+  letter-spacing: 0.05em; color: var(--fac, var(--accent));
+}
+.q-kicker .q-when { color: var(--ink-3); font-weight: 500; letter-spacing: 0.02em; }
+.q-item.now .q-kicker .q-when { color: var(--fac, var(--accent)); }
+.q-title { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.015em; line-height: 1.3; margin: 3px 0 8px; }
+.q-card .bar { display: block; margin-bottom: 7px; }
+.q-meta { display: block; font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+.q-meta b { color: var(--ink-2); font-weight: 500; }
+/* Locked is dimmed, not hidden: seeing what is coming is the point of a map. */
+.q-item.locked .q-card { background: var(--surface-2); border-left-color: var(--line-strong); }
+.q-item.locked .q-title { color: var(--ink-2); font-weight: 600; }
+.q-item.locked .q-kicker { color: var(--ink-3); }
+
+/* A gate is a crossing, not a course — a full-width rule rather than a card. */
+.q-gate .q-card {
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  border-left-color: var(--accent); border-style: dashed;
+}
+.q-gate .q-gnode { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.q-gate .q-kicker { color: var(--accent); }
+.q-gate.passed .q-gnode { border-color: var(--good); color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
+.q-gate.passed .q-card { border-left-color: var(--good); border-style: solid; }
+.q-gate.overdue .q-gnode { border-color: var(--bad); color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
+.q-gate.overdue .q-kicker { color: var(--bad); }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The line arrives as a line: each rung fades up in turn, so the eye is walked
+     down the sequence once instead of shown a finished list. --i is the index. */
+  .q-item { animation: questIn 380ms var(--ease) both; animation-delay: calc(var(--i) * 55ms); }
+  @keyframes questIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .q-item:not(:last-child) .q-rail::after {
+    animation: questDraw 420ms var(--ease) both; animation-delay: calc(var(--i) * 55ms + 180ms);
+    transform-origin: top;
+  }
+  @keyframes questDraw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  /* Where you are now, breathing — the one moving thing on the page. */
+  .q-item.now .q-node::after {
+    content: ""; position: absolute; width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--fac, var(--accent));
+    animation: questPulse 2.4s var(--ease) infinite;
+  }
+  @keyframes questPulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    70%, 100% { transform: scale(1.75); opacity: 0; }
+  }
+}
+.q-item.now .q-node { position: relative; }
+
+@media (max-width: 420px) {
+  .q-item { gap: 10px; }
+  .q-rail { width: 22px; }
+  .q-node { width: 22px; height: 22px; font-size: 0.62rem; }
+  .q-item:not(:last-child) .q-rail::after { top: 22px; }
+  .q-title { font-size: 0.98rem; }
+}
+
+/* ---------- Interactive figures ----------
+   A still picture of a determinant says it is an area. Dragging a column until
+   the area passes through zero and the number flips sign says what it *is*.
+   Colours come from the theme tokens, so all seven themes work with no second
+   palette. */
+.lab { margin-top: var(--sp-3); }
+.lab-svg {
+  display: block; width: 100%; max-width: 340px; margin: 0 auto;
+  touch-action: none;                 /* or a drag scrolls the page instead */
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: var(--radius);
+  /* The frame is the world. Belt and braces with the bounded guide lines in
+     lab.js: nothing a figure draws may escape onto the page. */
+  overflow: hidden;
+}
+.lab-grid line { stroke: var(--line); stroke-width: 0.7; }
+.lab-axes line { stroke: var(--line-strong); stroke-width: 1; }
+
+.lab-vec .lv-line { stroke-width: 2.4; stroke-linecap: round; }
+.lab-vec.v-a .lv-line, .lab-vec.v-a .lv-head, .lab-vec.v-a .lv-knob { stroke: var(--accent); fill: var(--accent); }
+.lab-vec.v-b .lv-line, .lab-vec.v-b .lv-head, .lab-vec.v-b .lv-knob { stroke: var(--fac-sys); fill: var(--fac-sys); }
+.lab-vec.v-p .lv-line, .lab-vec.v-p .lv-head, .lab-vec.v-p .lv-knob { stroke: var(--good); fill: var(--good); }
+.lab-vec .lv-head { stroke: none; }
+.lab-vec .lv-knob { stroke: var(--surface); stroke-width: 1.5; }
+/* The visible knob is 5.5px; the target is 18. A 5px handle is not draggable
+   with a thumb, and an invisible larger one costs nothing. */
+.lab-vec .lv-hit { fill: transparent; cursor: grab; touch-action: none; }
+.lab-vec .lv-hit:focus-visible { outline: none; fill: color-mix(in srgb, var(--accent) 18%, transparent); }
+.lab-vec .lv-hit.dragging { cursor: grabbing; }
+@media (hover: hover) {
+  .lab-vec .lv-hit:hover { fill: color-mix(in srgb, var(--ink) 7%, transparent); }
+}
+
+.lab-fill { fill: color-mix(in srgb, var(--accent) 16%, transparent); stroke: color-mix(in srgb, var(--accent) 40%, transparent); stroke-width: 1; transition: fill var(--t-micro) linear; }
+/* Orientation is not decoration: a negative determinant is a reflection. */
+.lab-fill.flipped { fill: color-mix(in srgb, var(--fac-phys) 18%, transparent); stroke: color-mix(in srgb, var(--fac-phys) 45%, transparent); }
+.lab-fill.collapsed { fill: color-mix(in srgb, var(--bad) 26%, transparent); stroke: var(--bad); }
+.lab-span { stroke: var(--line-strong); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.lab-span.hot { stroke: var(--good); stroke-dasharray: none; stroke-width: 2; }
+.lab-resid { stroke: var(--bad); stroke-width: 1.8; stroke-dasharray: 4 3; }
+.lab-right { fill: none; stroke: var(--bad); stroke-width: 1.2; transition: opacity var(--t-micro) linear; }
+
+.lab-read {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
+  margin-top: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-small);
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+}
+.lab-read b { color: var(--ink); font-weight: 500; }
+.lab-read .lr-lead b { color: var(--accent); font-size: 1.05rem; }
+.lab-read .lr-verdict {
+  flex: 1 1 100%; font-family: var(--font-body); font-size: var(--fs-tiny);
+  color: var(--ink-3);
+}
+.lab-read .lr-verdict.ok { color: var(--ink-2); }
+.lab-read .lr-verdict.flip { color: var(--fac-phys); font-weight: 600; }
+.lab-read .lr-verdict.bad { color: var(--bad); font-weight: 600; }
+.lab-read .lr-verdict.hit { color: var(--good); font-weight: 600; }
+.lab-hint { font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 8px; }
+@media (prefers-reduced-motion: no-preference) {
+  .lab-svg.locked-on .lv-knob { animation: labLock 900ms var(--ease) infinite; }
+  @keyframes labLock { 0%, 100% { r: 5.5; } 50% { r: 7.5; } }
+}
+
 /* ---------- Lecture summaries ---------- */
 .beats { display: flex; flex-direction: column; gap: 2px; }
 .beat { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }

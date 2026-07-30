@@ -93,7 +93,7 @@ DAR.CONCEPTS = (DAR.CONCEPTS || []).concat([
     ],
   },
   {
-    id: "la-determinant", course: "math110", title: "The determinant is a volume factor",
+    lab: "det2", id: "la-determinant", course: "math110", title: "The determinant is a volume factor",
     one: "The determinant says how much a map multiplies area or volume, and its sign says whether space was flipped — zero means space was flattened and information was destroyed.",
     fig: "figDeterminant", prereq: ["la-linear-map"], lectures: ["math110.0.5", "math110.1.17"],
     miss: "Thinking the determinant measures how big a matrix is. It measures how much the map stretches volume.",
@@ -119,7 +119,7 @@ DAR.CONCEPTS = (DAR.CONCEPTS || []).concat([
     ],
   },
   {
-    id: "la-eigen", course: "math110", title: "Eigenvectors are the directions that survive",
+    lab: "eigen", id: "la-eigen", course: "math110", title: "Eigenvectors are the directions that survive",
     one: "An eigenvector is a direction the map only stretches and never turns, and its eigenvalue is the stretch factor.",
     fig: "figEigen", prereq: ["la-linear-map", "la-determinant"], lectures: ["math110.0.13", "math110.1.20", "math110.1.21"],
     miss: "Assuming every matrix has a full set of eigenvectors. A shear has only one direction, and no eigenbasis at all.",
@@ -134,7 +134,7 @@ DAR.CONCEPTS = (DAR.CONCEPTS || []).concat([
     ],
   },
   {
-    id: "la-projection", course: "math110", title: "Projection finds the closest point",
+    lab: "proj", id: "la-projection", course: "math110", title: "Projection finds the closest point",
     one: "Projecting onto a subspace lands on the nearest point in it, and you know it is nearest because the error comes out perpendicular.",
     fig: "figProjection", prereq: ["la-basis"], lectures: ["math110.1.14", "math110.1.15"],
     miss: "Expecting least squares to solve $Ax=b$ exactly. It solves the closest thing available when no solution exists.",

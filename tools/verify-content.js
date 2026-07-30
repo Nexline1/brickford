@@ -9,7 +9,7 @@ const fs = require("fs"), vm = require("vm"), path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
-["platform/data/curriculum.js", "platform/data/workshop.js", "platform/js/figures.js",
+["platform/data/curriculum.js", "platform/data/workshop.js", "platform/js/figures.js", "platform/js/lab.js",
  "platform/data/concepts-linear-algebra.js",
  "platform/data/quiz-linear-algebra.js","platform/data/quiz-calculus.js","platform/data/quiz-probability.js",
  "platform/data/quiz-dsa.js","platform/data/quiz-zero-to-hero.js","platform/data/quiz-math-for-ml.js",
@@ -38,6 +38,23 @@ D.CONCEPTS.forEach(c => {
   (c.lectures || []).forEach(l => ok(lessonKeys.has(l), c.id + ": lecture '" + l + "' exists"));
   ok((c.lectures || []).length > 0, c.id + ": points at least one lecture");
 });
+
+// Interactive figures. A `lab:` key pointing at nothing fails silently — the
+// panel simply does not render — so the link is asserted here rather than
+// discovered by noticing an absence.
+const LAB = D.LAB || {};
+D.CONCEPTS.forEach(c => {
+  if (!c.lab) return;
+  ok(!!LAB[c.lab], c.id + ": lab '" + c.lab + "' exists in DAR.LAB");
+  const l = LAB[c.lab];
+  if (!l) return;
+  ok(!!l.title, c.lab + ": states what to do with it");
+  ok(!!l.ask, c.lab + ": asks something the dragging answers");
+  ok(typeof l.mount === "function", c.lab + ": has a mount function");
+});
+// An unreferenced lab is dead weight: it can never be reached from a concept.
+Object.keys(LAB).forEach(k =>
+  ok(D.CONCEPTS.some(c => c.lab === k), "lab " + k + ": is referenced by a concept"));
 
 // The graph must be a DAG or the Atlas cannot be laid out and prerequisites lie.
 (function acyclic() {
@@ -172,6 +189,7 @@ D.COURSES.forEach(c => {
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + numChecked + " numeric answers recomputed, "
     + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
+    + Object.keys(LAB).length + " interactive, "
     + tagged + " questions gated (" + untagged + " untagged)"
   : fail + " of " + checks + " checks FAILED"));
 process.exit(fail === 0 ? 0 : 1);

@@ -142,7 +142,16 @@
   catch (e) { S = JSON.parse(JSON.stringify(DEFAULT)); }
   S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
-  function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+  // Every persisted change schedules a push. This hangs off save() rather than
+  // off logEvent() because only 16 of 42 mutation sites logged an event, so
+  // notes, gates and treasury edits were silently never syncing.
+  // syncQuiet guards the obvious trap: runSync itself calls save(), which would
+  // otherwise schedule the next push forever.
+  let syncQuiet = 0;
+  function save() {
+    localStorage.setItem(KEY, JSON.stringify(S));
+    if (!syncQuiet) syncSoon();
+  }
   S.ledger = S.ledger || [];
   S.review = S.review || {};
   S.concepts = S.concepts || {};
@@ -267,22 +276,44 @@
         : JSON.parse(decodeURIComponent(escape(atob((file.content || "").replace(/\n/g, "")))));
       if (dir === "pull") {
         if (!remote) { say("Nothing stored yet \u2014 push from the device that has your progress."); return false; }
+        syncQuiet++;
         const r = mergeState(remote);
         S.settings.lastSync = todayISO(); save();
+        syncQuiet--;
         say("");
         if (r.changed) { render(); toast("Pulled \u2014 " + r.changed + " change" + (r.changed === 1 ? "" : "s") + " merged."); }
         return true;
       }
+      // A push MUST merge before it writes. This fetched the file only for its
+      // sha and then wrote local state straight over the top, which made every
+      // push whole-file last-writer-wins and defeated the entire point of the
+      // field-level merge below it.
+      //
+      // The failure it caused: the laptop pushes a day's work, then the phone —
+      // still holding yesterday's state — backgrounds and pushes, and the laptop's
+      // day is gone from the remote. Both devices then look like they "don't
+      // sync", because each keeps seeing its own stale copy come back.
+      //
+      // Merging first makes a push safe from any device in any order.
+      let mergedIn = 0;
+      if (remote) {
+        syncQuiet++;
+        mergedIn = mergeState(remote).changed;
+        syncQuiet--;
+      }
       const body = {
-        message: "progress: " + todayISO() + " from " + S.settings.deviceId,
+        message: "progress: " + todayISO() + " from " + S.settings.deviceId +
+          (mergedIn ? " (merged " + mergedIn + ")" : ""),
         content: btoa(unescape(encodeURIComponent(JSON.stringify(syncPayload(), null, 1)))),
       };
       if (!file.missing && file.sha) body.sha = file.sha;
       return ghFetch("PUT", body).then(res2 => {
         if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
-        S.settings.lastSync = todayISO(); save(); say("");
-        toast("Pushed.");
+        syncQuiet++; S.settings.lastSync = todayISO(); save(); syncQuiet--; say("");
+        // If the push pulled work in on its way past, the screen is out of date.
+        if (mergedIn) { render(); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
+        else toast("Pushed.");
         return true;
       });
     }).catch(err => {
@@ -294,7 +325,7 @@
   // Push shortly after progress changes, so sync is not a chore to remember.
   let pushTimer = null;
   function syncSoon() {
-    if (!ghToken()) return;
+    if (!ghToken() || syncQuiet) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(() => runSync("push"), 4000);
   }
@@ -1171,7 +1202,26 @@
         { k: "solved", v: dsa + "/150" },
         g ? { k: "to gate " + g.n, v: gateLeft + "d" } : { k: "gates", v: "all" },
         backlog > 0 ? { k: "behind", v: backlog > 20 ? "20+" : backlog } : { k: "behind", v: "0" },
+        // Only when connected: a device that has not synced for days should show it.
+        ghToken() ? { k: "synced", v: (function () {
+          const l = S.settings.lastSync;
+          if (!l) return "never";
+          const n = daysBetween(l, todayISO());
+          return n <= 0 ? "today" : n === 1 ? "1d ago" : n + "d ago";
+        })() } : null,
       ]) +
+
+      // ---- Is this device actually syncing? ----
+      // Say it on the page someone opens every day, not on a settings screen two
+      // taps into a drawer. Silence here is what made "it does not sync" look
+      // like a bug rather than an unconnected device.
+      (ghToken()
+        ? ""
+        : '<a class="task owed" href="#/sync" style="margin-top:16px;"><span class="tk-n">!</span>' +
+          '<span class="tk-main"><span class="tk-code">NOT SYNCING</span>' +
+          '<span class="tk-t">This device only — progress stays here</span>' +
+          '<span class="tk-meta">connect it and every device shares one record</span></span>' +
+          '<span class="tk-go">Connect ▸</span></a>') +
 
       // ---- The day's own work, as the largest object on the page ----
       (resting
@@ -2102,6 +2152,16 @@
         '<input id="ghTok" type="password" placeholder="github_pat_\u2026" autocomplete="off"></div>' +
         '<div style="margin-top:10px;"><button class="btn" data-act="syncConnect">Connect</button></div>' +
         '<p class="note">Anyone with this device can read the token. Scope it to the one repo; Forget it before lending the device.</p></div>') +
+
+      // The commonest failure is not a bug: the token lives in this browser's
+      // storage, so a device where it was never entered syncs nothing at all.
+      '<div class="card" style="margin-top:16px;"><h2>Do this on every device</h2>' +
+      '<p class="muted" style="margin-top:6px;">The token is stored in <strong>this browser only</strong>. Paste the same token on the laptop and on the phone — a device you have not connected keeps its own private copy of your progress and never tells you.</p>' +
+      '<div class="tl" style="margin-top:10px;">' +
+      '<div class="tl-row"><span class="tl-date">phone</span><span class="tl-what">If you added Brickford to the Home Screen, connect it <strong>inside that app</strong> as well — a home-screen app can hold its own storage separate from Safari.</span></div>' +
+      '<div class="tl-row"><span class="tl-date">check</span><span class="tl-what">The dashboard says <strong>NOT SYNCING</strong> on any device that is not connected, and shows how long ago it last synced on any device that is.</span></div>' +
+      '<div class="tl-row"><span class="tl-date">order</span><span class="tl-what">It no longer matters which device pushes first. A push merges what is already stored before it writes, so neither device can overwrite the other.</span></div>' +
+      "</div></div>" +
 
       '<div class="card" style="margin-top:16px;"><h2>How merging works</h2><div class="tl" style="margin-top:6px;">' +
       '<div class="tl-row"><span class="tl-date">safe</span><span class="tl-what">Pull merges field by field \u2014 the further-along version of each lecture wins, days and problems union. Working on both devices never costs you work.</span></div>' +
@@ -3454,7 +3514,23 @@
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.
     if (ghToken()) runSync("pull");
-    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") runSync("push"); });
+    // Pull again whenever the page comes back to the foreground. Pulling only on
+    // load meant a phone with the tab already open — the normal case, since iOS
+    // resumes rather than reloads — never saw progress made on the laptop.
+    let lastPull = Date.now();
+    document.addEventListener("visibilitychange", () => {
+      if (!ghToken()) return;
+      if (document.visibilityState === "visible") {
+        if (Date.now() - lastPull < 20000) return;   // do not hammer the API
+        lastPull = Date.now();
+        runSync("pull");
+      } else {
+        runSync("push");
+      }
+    });
+    // iOS kills in-flight fetches as it backgrounds a page, so the push above is
+    // best-effort. pagehide fires earlier and more reliably; both are cheap.
+    window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

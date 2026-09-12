@@ -647,6 +647,31 @@ tr:last-child td { border-bottom: none; }
 .cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .cal-legend .pdot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* The streak, with the one control that can zero it. Sits under the heatmap
+   because the heatmap is what the streak is counting. */
+.streakbox {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4);
+  margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--line);
+}
+/* min-width:0 on both, or a long label pushes the pair past the card at 320px
+   instead of wrapping — flex items refuse to shrink below their content. */
+.streakbox .sb-nums { display: flex; flex-wrap: wrap; gap: var(--sp-4); min-width: 0; }
+.streakbox .sb-n { min-width: 0; }
+.streakbox .sb-n b {
+  display: block; font-family: var(--font-mono); font-size: 1.5rem; font-weight: 500;
+  color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.streakbox .sb-n span {
+  display: block; font-size: var(--fs-tiny); letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-3); margin-top: 4px; font-weight: 600;
+}
+.streakbox .sb-side {
+  flex: 1 1 260px; min-width: 0; display: flex; flex-wrap: wrap;
+  align-items: center; gap: var(--sp-3);
+}
+.streakbox .sb-side p { flex: 1 1 200px; min-width: 0; margin: 0; font-size: var(--fs-small); }
+.streakbox .sb-side .btn { flex-shrink: 0; }
 /* Phones: restack table rows as labelled blocks. A desktop table on a narrow
    card clips its trailing columns past the card edge — including interactive
    ones — so below 640px each row becomes a self-contained block instead. */

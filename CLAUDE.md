@@ -63,6 +63,31 @@ Consequences that must hold, because each one is a way the platform could quietl
 If the rest day ever changes, change `REST_DOW` and nothing else — every other behaviour is
 derived from it.
 
+## The streak, and what resetting it may touch
+
+The streak is **derived**, never stored. `streak()` walks back from today over `S.studyDays`,
+stepping over Saturdays without counting them, and stops at `S.settings.streakFrom`.
+
+`streakFrom` is the whole of the reset mechanism, and it is deliberately the smallest one that
+works: it moves the line the counter starts from and **deletes nothing**. Sealed days, the
+heatmap, the "Days sealed" tile, the calendar and the hash chain are all untouched by a reset,
+because none of them stopped being true. A reset appends a `streak` event to the chain recording
+the run that ended, so the record says a reset happened rather than quietly showing a smaller
+number.
+
+Two things that must hold:
+
+- **`streakFrom` merges by taking the later date.** `studyDays` union on every pull, so a reset
+  stored only as a deletion would be undone the moment another device pushed those days back.
+  Taking the later date also means an older device that has not heard about the reset cannot
+  un-do it.
+- **`bestStreak()` ignores `streakFrom` entirely.** Zeroing the counter must not erase the fact
+  that a 27-day run once happened; the Record page shows both numbers side by side.
+
+If a "wipe the sealed days as well" reset is ever wanted, that is a different and much more
+destructive operation — it takes the heatmap and the day count with it — and needs its own
+confirmation, not a quiet widening of this one.
+
 ## Verify before every deploy
 
 ```

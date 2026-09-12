@@ -135,7 +135,11 @@
     psets: {},          // psetItemId -> true
     electives: {},      // electiveId -> "planned" | "done"
     treasury: { offer: "", clients: [], entries: [], niche: "" },
-    settings: { theme: "light", lastBackup: null, dailyStart: "08:00" },
+    // streakFrom: the streak counts sealed days on or after this date. Null
+    // means "since the beginning". Resetting the streak sets it to today, which
+    // zeroes the number without deleting a single sealed day — the heatmap, the
+    // day count and the chain stay exactly as true as they were.
+    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null },
   };
   let S;
   try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || "{}")); }
@@ -246,6 +250,13 @@
       if (!S.anchors.some(x => x.head === a2.head && x.date === a2.date)) { S.anchors.push(a2); changed++; }
     });
 
+    // The streak floor takes the later of the two. Days union, so without this a
+    // reset on the phone would be silently undone by the next pull from the
+    // laptop — and taking the later date also means a reset can never be
+    // un-done by an older device that has not heard about it yet.
+    const rf = (r.settings || {}).streakFrom;
+    if (rf && rf > (S.settings.streakFrom || "")) { S.settings.streakFrom = rf; changed++; }
+
     // Ledgers stay per device and are never re-hashed: rewriting a chain would
     // orphan any head hash already published as an anchor.
     const ledgers = remote.ledgers || {};
@@ -335,7 +346,7 @@
     ["lessons", "problems", "quizAttempts", "quizMisses", "diag", "gates", "studyDays",
      "weeks", "labs", "psets", "electives", "treasury", "review", "concepts", "anchors"]
       .forEach(k => state[k] = S[k]);
-    state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart };
+    state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart, streakFrom: S.settings.streakFrom };
     const ledgers = Object.assign({}, S.foreignLedgers);
     ledgers[S.settings.deviceId] = S.ledger;
     return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
@@ -438,6 +449,7 @@
   const revenueTotal = () => S.treasury.entries.reduce((a, e) => a + (+e.amount || 0), 0);
   function streak() {
     const set = new Set(S.studyDays);
+    const floor = S.settings.streakFrom || "";
     let n = 0;
     let cur = todayISO();
     // The streak survives until today ends, and a rest day is scheduled time
@@ -445,12 +457,33 @@
     // for keeping to its own plan. Rest days are skipped, never counted.
     if (!set.has(cur)) cur = addDaysISO(cur, -1);
     for (let guard = 0; guard < 4000; guard++) {
+      // A reset draws a line: days before it are still sealed and still in the
+      // record, they just belong to the previous run.
+      if (cur < floor) break;
       if (isRestDay(cur)) { cur = addDaysISO(cur, -1); continue; }
       if (!set.has(cur)) break;
       n++;
       cur = addDaysISO(cur, -1);
     }
     return n;
+  }
+  // The longest run ever recorded, ignoring resets — so zeroing the counter
+  // cannot erase the fact that you once went 21 days. Same rules: rest days are
+  // stepped over, never counted.
+  function bestStreak() {
+    const days = S.studyDays.slice().sort();
+    let best = 0, run = 0, prev = null;
+    days.forEach(d => {
+      if (prev) {
+        let gap = addDaysISO(prev, 1);
+        while (gap < d && isRestDay(gap)) gap = addDaysISO(gap, 1);
+        run = gap === d ? run : 0;
+      }
+      run++;
+      if (run > best) best = run;
+      prev = d;
+    });
+    return best;
   }
   function bestQuiz(bankId) {
     const at = S.quizAttempts[bankId] || [];
@@ -1929,7 +1962,7 @@
       entries: S.ledger.map(e => Object.assign({}, e, { preimage: preimage(e) })),
     };
   }
-  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed" };
+  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed", streak: "Streak" };
   function eventLine(e) {
     const d = e.data || {};
     if (e.type === "exam") return "Examination · " + e.ref + " · " + d.pct + "% (" + d.score + "/" + d.total + ")";
@@ -1940,6 +1973,8 @@
     if (e.type === "lesson") return (d.done ? "Lecture completed · " : "Lecture un-marked · ") + e.ref;
     if (e.type === "problem") return (d.solved ? "Problem solved · " : "Problem un-marked · ") + e.ref;
     if (e.type === "day") return "Deep Track day sealed";
+    if (e.type === "streak") return "Streak reset to zero · previous run " + (d.was || 0) + "d" +
+      (d.best ? " · longest ever " + d.best + "d" : "");
     return (EV_LABEL[e.type] || e.type) + " · " + e.ref;
   }
 
@@ -2464,12 +2499,13 @@
   V.record = function () {
     const v = verifyChain();
     const led = S.ledger;
-    const milestones = led.filter(e => ["exam", "diagnostic", "gate", "week", "lab"].indexOf(e.type) >= 0).slice(-14).reverse();
+    const milestones = led.filter(e => ["exam", "diagnostic", "gate", "week", "lab", "streak"].indexOf(e.type) >= 0).slice(-14).reverse();
     const counts = {};
     led.forEach(e => { counts[e.type] = (counts[e.type] || 0) + 1; });
     const first = led.length ? led[0].ts.slice(0, 10) : "—";
     const last = led.length ? led[led.length - 1].ts.slice(0, 10) : "—";
     const sealedDays = S.studyDays.length;
+    const cur = streak() + "d", best = bestStreak() + "d";
 
     const tile = (label, value) =>
       '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + value + "</div></div>";
@@ -2509,7 +2545,23 @@
       heatmapHTML(26) +
       '<div class="cal-legend"><span>Quiet</span>' +
       [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
-      "<span>Busy</span></div></div>" +
+      "<span>Busy</span></div>" +
+
+      // ---- the streak, and the one control that can zero it ----
+      '<div class="streakbox">' +
+      '<div class="sb-nums">' +
+      '<div class="sb-n"><b>' + cur + "</b><span>current</span></div>" +
+      '<div class="sb-n"><b>' + best + "</b><span>longest</span></div>" +
+      "</div>" +
+      '<div class="sb-side">' +
+      '<p class="muted">' +
+      (S.settings.streakFrom
+        ? "Counting from " + esc(S.settings.streakFrom) + ", where you last reset it. The " +
+          sealedDays + " sealed day" + (sealedDays === 1 ? "" : "s") + " before it are still in the record."
+        : "Counting every sealed day since the first one. Saturdays are stepped over, not counted against you.") +
+      "</p>" +
+      '<button class="btn ghost" data-act="resetStreak">Reset streak</button></div>' +
+      "</div></div>" +
 
       // ---- anchors: the part that makes dates mean something ----
       '<div class="card" style="margin-top:16px;"><h2>Public anchors</h2>' +
@@ -2931,6 +2983,17 @@
           if (!S.studyDays.includes(todayISO())) { S.studyDays.push(todayISO()); logEvent("day", todayISO(), {}); }
           save(); render();
           toast("Counted. The chain grows.");
+        } else if (act === "resetStreak") {
+          // Deliberately the smallest possible reset: it moves the line the
+          // counter starts from and touches nothing else. Deleting the sealed
+          // days would take the heatmap, the day count and the calendar with
+          // them, and none of that stopped being true.
+          const was = streak();
+          if (!confirm("Reset the streak to zero?\n\nThe counter starts again from today. Every sealed day stays in the record — the heatmap, the day count and the chain are untouched.")) return;
+          S.settings.streakFrom = todayISO();
+          logEvent("streak", todayISO(), { was: was, best: bestStreak() });
+          save(); render();
+          toast("Streak reset. It starts again when you seal a day.");
         } else if (act === "revealFig" || act === "hideFig") {
           const st = conceptState(b.dataset.cid);
           st.revealed = act === "revealFig";

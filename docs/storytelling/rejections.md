@@ -29,6 +29,29 @@ another video from the *same channel* (`YyWZmdkPfDM`) transcribed cleanly and
 was accepted. Channel-level credibility does not transfer to the individual
 video.
 
+## Searched for, nothing found (14 Sep)
+
+Four more `WebSearch` passes aimed at the two biggest remaining gaps returned
+**no YouTube video at all** — only blogs, SEO listicles, PDFs and paid courses:
+
+| target | module | what came back |
+|---|---|---|
+| joke structure / setup-punchline / misdirection, twice | **A5** | MasterClass, Udemy, comedy blogs |
+| short-form hooks / first three seconds | **B1** | opus.pro, virvid.ai, faceless.so |
+| Jenny Hoyos on Shorts retention | **B1** | LinkedIn, Medium, podcast summaries |
+
+This is not a content gap, it is a **discovery** gap, and it is the clearest
+demonstration yet of why the local harvest is still the critical path.
+`WebSearch` is a web search engine: it surfaces pages *about* a topic, and the
+pages that rank for "how to write a joke" are the ones written for search, not
+the videos that teach it. `yt-dlp "ytsearch40:joke writing structure comedy
+class"` searches YouTube itself and would return forty actual videos.
+
+**A5 (humour construction) and B1 (short-form structure) therefore still have no
+source.** A5 is the more serious of the two — the taxonomy puts humour
+construction *before* humour in real time, and the course currently has the
+second without the first.
+
 ## Not yet scored
 
 Three videos passed the read and are installed as the seed. They have **not**

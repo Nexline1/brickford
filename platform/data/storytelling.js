@@ -1,6 +1,6 @@
 // Brickford — SPCH 100, the storytelling seed.
 //
-// THIS IS A SEED, NOT THE CURRICULUM. Three lessons, not thirty. It exists so
+// THIS IS A SEED, NOT THE CURRICULUM. Five lessons, not thirty. It exists so
 // the Publish block has something in it while the full harvest is blocked (see
 // docs/storytelling/00-harvest-blocker.md — youtube.com is 403 from the build
 // environment, so the 80-query search that would build the real 30-hour core
@@ -34,6 +34,19 @@ DAR.COURSES.push({
         { t: "Homework for Life — finding the story in an ordinary day", v: "x7p329Z8MD0", min: 18 },
         { t: "Five ways to improve your professional voice", v: "YyWZmdkPfDM", min: 11 },
         { t: "Think faster, talk smarter — structure under pressure", v: "jw_-OSxk36U", min: 39 },
+      ],
+    },
+    {
+      // APPENDED as a second unit, not inserted into Unit I. Lesson keys are
+      // positional, so putting the story spine at index 0 where the dependency
+      // order wants it would have silently re-pointed any progress already made
+      // on the first three. Order inside the seed is worth less than a record
+      // that stays true; the full harvest rebuild sequences the whole course at
+      // once, and that is the moment to move things.
+      name: "Unit II — Seed: the spine, and humour you can prepare",
+      lessons: [
+        { t: "The Pixar story spine — six prompts that hold a story up", v: "nLpoqD7LHOU", min: 4 },
+        { t: "How to easily be funnier in conversations", v: "6G7pNhZA0LU", min: 5 },
       ],
     },
   ],
@@ -89,5 +102,35 @@ DAR.DRILLS = Object.assign(DAR.DRILLS || {}, {
     drill: { minutes: 10, artifact: "spoken",
       do: "Have someone ask you “so what do you actually do?” Answer it twice out loud: once as Problem-Solution-Benefit, once as A-D-D. Time both." },
     check: "Both come in under 45 seconds and neither contains the word “basically”. If you rambled, you reached for a list instead of a shape.",
+  },
+
+  "spch100.1.0": {
+    module: "A1",
+    mechanic: "A story is six sentences: a normal, a rupture, a chain of consequences each caused by the last, and a changed normal — and if the chain does not hold, you have a list of events rather than a story.",
+    rules: [
+      "The six prompts, in order: <em>Once upon a time… Every day… One day… Because of that… Because of that… Until finally…</em>",
+      "“Because of that” is the load-bearing one. It forces causation — if “and then” would work just as well, the story has gone slack there.",
+      "Build the wireframe before the detail. His words: a gesture if you're an artist, an outline if you're a writer. Details come after, and they are chosen to support the ending.",
+      "Write the ending first in practice, because the ending tells you what the opening “every day” has to be — the beginning is the opposite of the end.",
+      "It is scale-free. The video runs the same six prompts over <em>Up</em>, <em>Dead Poets Society</em> and Martin Luther, and then tells you to try it on going to the grocery store.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take one entry from your story bank and force it through all six prompts. If either “because of that” only works as “and then”, the entry is an anecdote, not a story yet — write which one broke." },
+    check: "Both “because of that” links survive being read aloud as causation. If one is really “and then”, you have found the exact gap the story is missing.",
+  },
+
+  "spch100.1.1": {
+    module: "A6",
+    mechanic: "Most conversational humour is not improvised — it is prepared answers to the three questions you are always asked, plus one cheap reliable move when you have nothing.",
+    rules: [
+      "List the <strong>three questions you get asked most</strong>. For you that is what you do, what Brickford is, and what the community is. Write a true answer <em>and</em> a playful one for each. He split-tested his in person until they landed.",
+      "<strong>Say the opposite.</strong> Hot day, everyone complaining: “man, it's cold out here.” Humour is largely just the unexpected arriving, and this is the cheapest form of it.",
+      "<strong>Prime yourself.</strong> Watch ten minutes of a comedian you actually enjoy before a social occasion — you carry the demeanour in, not the lines. He calls it using recency bias on yourself.",
+      "The bar is lower than you think: “you could say the opposite and you'll be the funniest person in most groups.” This is a reason to start, not a reason to stop.",
+      "The deep path is an improv class, not more watching. Noted here so the ceiling is honest — this video is the floor.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write the three questions you are asked most in audits and at the community. For each, one true answer and one playful answer. Ten words each, no more." },
+    check: "You can say all six out loud without reading them. A playful answer you have to look up is not prepared, it is written down.",
   },
 });

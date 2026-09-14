@@ -174,7 +174,11 @@
     // means "since the beginning". Resetting the streak sets it to today, which
     // zeroes the number without deleting a single sealed day — the heatmap, the
     // day count and the chain stay exactly as true as they were.
-    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null },
+    // lastSyncAt / syncError are per-device facts about THIS browser's link to
+    // GitHub, so they are deliberately not in syncPayload - pushing them would
+    // tell the phone about the laptop's broken token.
+    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null,
+                lastSyncAt: null, syncError: null },
   };
   let S;
   try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || "{}")); }
@@ -324,6 +328,32 @@
   // One code path for both directions so the manual buttons and the automatic
   // pull-on-open cannot drift apart.
   let syncBusy = false;
+  // A sync that fails silently is worse than one that never ran: the device goes
+  // on looking connected while its record quietly diverges. `say` only ever
+  // reaches the /sync page, and four of the five callers pass nothing - the boot
+  // pull, the pull on resume, the pagehide push and the debounced push after
+  // every save were all discarding their errors. These two record the outcome
+  // where the rest of the UI can see it.
+  function syncOk() {
+    // A first successful sync, or one that clears a failure, changes what the
+    // status indicator should say even when the merge moved nothing. Without
+    // this the dashboard sat on "never" while lastSyncAt was already recorded -
+    // the same class of lie as the silent failure, pointing the other way.
+    const transition = !S.settings.lastSyncAt || !!S.settings.syncError;
+    syncQuiet++;
+    S.settings.lastSync = todayISO();
+    S.settings.lastSyncAt = new Date().toISOString();
+    S.settings.syncError = null;
+    save();
+    syncQuiet--;
+    if (transition && !rendering) render();
+  }
+  function syncFailed(msg) {
+    syncQuiet++;
+    S.settings.syncError = { msg: String(msg || "Sync failed"), at: new Date().toISOString() };
+    save();
+    syncQuiet--;
+  }
   function runSync(dir, say) {
     say = say || function () {};
     if (!ghToken() || syncBusy) return Promise.resolve(false);
@@ -341,8 +371,8 @@
         if (!remote) { say("Nothing stored yet \u2014 push from the device that has your progress."); return false; }
         syncQuiet++;
         const r = mergeState(remote);
-        S.settings.lastSync = todayISO(); save();
         syncQuiet--;
+        syncOk();
         say("");
         if (r.changed) { render(); toast("Pulled \u2014 " + r.changed + " change" + (r.changed === 1 ? "" : "s") + " merged."); }
         return true;
@@ -373,14 +403,18 @@
       return ghFetch("PUT", body).then(res2 => {
         if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
-        syncQuiet++; S.settings.lastSync = todayISO(); save(); syncQuiet--; say("");
+        syncOk(); say("");
         // If the push pulled work in on its way past, the screen is out of date.
         if (mergedIn) { render(); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
         else toast("Pushed.");
         return true;
       });
     }).catch(err => {
+      syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
+      // Re-render so the banner appears on whatever page is open, not just on
+      // /sync where `say` lands. Guarded: a failure during a render would recurse.
+      if (!rendering) render();
       return false;
     }).then(v => { syncBusy = false; return v; });
   }
@@ -1235,6 +1269,32 @@
       '<span class="rb-t">' + esc(a.code) + " · " + esc(a.title) + "</span></span>" +
       '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>";
     measureFurniture();
+    watchHeroCta();
+  }
+
+  // On a phone the dashboard shows the next lecture twice at once: the hero's
+  // own big button, and the sticky bar pinned over it. Two buttons for one
+  // action, both on screen, is a choice the reader has to make and shouldn't.
+  // The sticky bar exists for when the hero has scrolled away, so let it mean
+  // that: hidden while the hero button is visible, back the moment it isn't.
+  // Falls open (bar always shown) wherever IntersectionObserver is missing.
+  let ctaObs = null;
+  function watchHeroCta() {
+    const bar = $("#railbar");
+    if (ctaObs) { ctaObs.disconnect(); ctaObs = null; }
+    if (!bar) return;
+    const cta = $(".dash-hero .dh-cta .btn");
+    // No hero button on this route, or no observer: the bar is the only handle.
+    if (!cta || typeof IntersectionObserver === "undefined") {
+      bar.classList.remove("stowed"); measureFurniture(); return;
+    }
+    ctaObs = new IntersectionObserver(es => {
+      // Deliberately NOT re-measuring here. The bar keeps its reserved space
+      // while stowed, so the page's bottom padding is constant and nothing
+      // shifts under the reader's thumb as it slides in and out.
+      bar.classList.toggle("stowed", es.some(e => e.isIntersecting));
+    }, { threshold: 0.6 });
+    ctaObs.observe(cta);
   }
 
   // The tab bar is 58px on paper and 66px in fact — its padding carries
@@ -1336,25 +1396,35 @@
         g ? { k: "to gate " + g.n, v: gateLeft + "d" } : { k: "gates", v: "all" },
         backlog > 0 ? { k: "behind", v: backlog > 20 ? "20+" : backlog } : { k: "behind", v: "0" },
         // Only when connected: a device that has not synced for days should show it.
-        ghToken() ? { k: "synced", v: (function () {
-          const l = S.settings.lastSync;
-          if (!l) return "never";
-          const n = daysBetween(l, todayISO());
-          return n <= 0 ? "today" : n === 1 ? "1d ago" : n + "d ago";
-        })() } : null,
+        // Was daysBetween() on a date-only field, so a link that broke this
+        // morning still read "today" until midnight.
+        ghToken() ? { k: "synced", v: S.settings.syncError ? "failing"
+          : agoLabel(S.settings.lastSyncAt || S.settings.lastSync) } : null,
       ]) +
 
       // ---- Is this device actually syncing? ----
       // Say it on the page someone opens every day, not on a settings screen two
       // taps into a drawer. Silence here is what made "it does not sync" look
       // like a bug rather than an unconnected device.
-      (ghToken()
-        ? ""
-        : '<a class="task owed" href="#/sync" style="margin-top:16px;"><span class="tk-n">!</span>' +
-          '<span class="tk-main"><span class="tk-code">NOT SYNCING</span>' +
-          '<span class="tk-t">This device only — progress stays here</span>' +
-          '<span class="tk-meta">connect it and every device shares one record</span></span>' +
-          '<span class="tk-go">Connect ▸</span></a>') +
+      // Two different failures, and they need different words. No token is a
+      // device nobody connected. A token that errors is worse - it looked
+      // connected the whole time it was diverging - so it says what GitHub said.
+      (function () {
+        const e = S.settings.syncError;
+        if (!ghToken())
+          return '<a class="task owed" href="#/sync" style="margin-top:16px;"><span class="tk-n">!</span>' +
+            '<span class="tk-main"><span class="tk-code">NOT SYNCING</span>' +
+            '<span class="tk-t">This device only — progress stays here</span>' +
+            '<span class="tk-meta">connect it and every device shares one record</span></span>' +
+            '<span class="tk-go">Connect ▸</span></a>';
+        if (e)
+          return '<a class="task owed" href="#/sync" style="margin-top:16px;"><span class="tk-n">!</span>' +
+            '<span class="tk-main"><span class="tk-code">SYNC FAILING</span>' +
+            '<span class="tk-t">' + esc(e.msg) + "</span>" +
+            '<span class="tk-meta">since ' + esc(agoLabel(e.at)) + ' · this device is diverging from the others</span></span>' +
+            '<span class="tk-go">Fix it ▸</span></a>';
+        return "";
+      })() +
 
       // ---- The day's own work, as the largest object on the page ----
       (resting
@@ -1508,6 +1578,21 @@
   // ---------- course listing furniture ----------
   // Facts a person actually decides on: length, effort, who taught it, when it
   // starts, where they stand. Each is a number with a label, never a sentence.
+  // Relative time, coarse on purpose: the question is "is this stale", and a
+  // minute-accurate answer invites staring at it. Accepts a full ISO timestamp
+  // or a bare date (older records stored only the date).
+  function agoLabel(iso) {
+    if (!iso) return "never";
+    const t = Date.parse(iso.length === 10 ? iso + "T12:00:00" : iso);
+    if (isNaN(t)) return "never";
+    const m = Math.floor((Date.now() - t) / 60000);
+    if (m < 2) return "just now";
+    if (m < 60) return m + "m ago";
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + "h ago";
+    const d = Math.floor(h / 24);
+    return d === 1 ? "1d ago" : d + "d ago";
+  }
   function factsHTML(cells) {
     return '<div class="facts">' + cells.filter(Boolean).map((f, i) =>
       '<div class="fact' + (f.lead ? " lead" : "") + '" style="--i:' + i + ';"><b>' + f.v + "</b><span>" + esc(f.k) + "</span></div>"
@@ -2279,23 +2364,45 @@
 
   V.sync = function () {
     const tok = ghToken();
-    const last = S.settings.lastSync;
+    const last = S.settings.lastSyncAt || S.settings.lastSync;
+    const err = S.settings.syncError;
     const devs = Object.keys(S.foreignLedgers).length;
+    // Three states, not two. "Connected but every call is failing" was showing
+    // as plain "Connected", which is the state this page most needs to name.
+    const state = !tok ? "none" : err ? "broken" : "ok";
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Devices</div><h1>Sync</h1>' +
       '<div class="sub">One record on every device, kept in your own repo.</div></div>' +
 
       '<div class="card"><div class="vseal">' +
-      '<div class="vico ' + (tok ? "ok" : "bad") + '">' + (tok ? "\u2713" : "!") + "</div>" +
-      '<div class="vtext"><div class="vhead">' + (tok ? "Connected" : "Not connected") + "</div>" +
+      '<div class="vico ' + (state === "ok" ? "ok" : "bad") + '">' + (state === "ok" ? "\u2713" : "!") + "</div>" +
+      '<div class="vtext"><div class="vhead">' +
+      (state === "ok" ? "Connected" : state === "broken" ? "Connected, but failing" : "Not connected") + "</div>" +
       '<div class="muted">' +
-      (last ? "Last sync " + esc(last) : "This device has never synced.") +
+      (last ? "Last successful sync " + esc(agoLabel(last)) : "This device has never synced.") +
       (devs ? " \u00b7 " + devs + " other device" + (devs === 1 ? "" : "s") : "") + "</div></div></div>" +
+      (err
+        ? '<p class="note" style="border-color:var(--bad); color:var(--ink);"><strong>GitHub said:</strong> ' +
+          esc(err.msg) + ' <span class="muted">(' + esc(agoLabel(err.at)) +
+          ')</span><br>Until this clears, work on this device stays on this device.</p>'
+        : "") +
       (tok
         ? '<div class="row-actions">' +
           '<button class="btn" data-act="syncPull">Pull</button>' +
           '<button class="btn" data-act="syncPush">Push</button>' +
+          '<button class="btn ghost" data-act="syncShowTok">Show token</button>' +
           '<button class="btn ghost" data-act="syncForget">Forget token</button></div>' +
-          '<div id="syncMsg" class="muted" style="margin-top:10px;"></div>'
+          '<div id="syncMsg" class="muted" style="margin-top:10px;"></div>' +
+          // Setting up a second device used to mean minting a second token on
+          // GitHub, which is the friction that left devices unconnected. The
+          // token is already in this browser; let it be copied to the next one.
+          '<div id="tokBox" hidden style="margin-top:12px;">' +
+          '<label class="field" for="tokOut">This device\u2019s token — paste it into your other device</label>' +
+          '<input id="tokOut" type="text" readonly value="' + esc(tok) + '">' +
+          '<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">' +
+          '<button class="btn" data-act="syncCopyTok">Copy</button>' +
+          '<button class="btn ghost" data-act="syncHideTok">Hide</button></div>' +
+          '<p class="note">Anyone who reads this can write to ' + SYNC_REPO +
+          '. Show it only on your own screen.</p></div>'
         : "") + "</div>" +
 
       (tok ? "" :
@@ -3222,6 +3329,19 @@
           if (!S.studyDays.includes(todayISO())) { S.studyDays.push(todayISO()); logEvent("day", todayISO(), {}); }
           save(); render();
           toast("Counted. The chain grows.");
+        } else if (act === "syncShowTok" || act === "syncHideTok") {
+          const box = $("#tokBox");
+          if (box) box.hidden = act === "syncHideTok";
+        } else if (act === "syncCopyTok") {
+          const el = $("#tokOut");
+          if (!el) return;
+          el.select();
+          // navigator.clipboard needs a secure context and is absent in some
+          // in-app browsers; execCommand still works where it is not.
+          const done = () => toast("Copied. Paste it on the other device and press Connect.");
+          if (navigator.clipboard && navigator.clipboard.writeText)
+            navigator.clipboard.writeText(el.value).then(done, () => { document.execCommand("copy"); done(); });
+          else { document.execCommand("copy"); done(); }
         } else if (act === "repBank" || act === "repStory" || act === "repHumor" || act === "repReview") {
           // Guard the write, not just the control: a rep must carry a payload or
           // it does not exist. This is the same discipline as verified-vs-done on
@@ -3775,7 +3895,15 @@
     });
   }
 
+  // Re-entrancy guard: a failed sync re-renders so its banner reaches whatever
+  // page is open, and a sync that fails DURING a render would otherwise recurse.
+  let rendering = false;
   function render() {
+    if (rendering) return;
+    rendering = true;
+    try { renderInner(); } finally { rendering = false; }
+  }
+  function renderInner() {
     clearInterval(timerH);
     const r = route();
     const view = $("#view");

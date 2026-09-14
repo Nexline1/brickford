@@ -1479,7 +1479,15 @@ tr:last-child td { border-bottom: none; }
   .main { padding-bottom: calc(var(--sp-5) + var(--railbar-h) + var(--tabbar-h)); }
   /* The rail, collapsed: one line, the next lecture, one tap. Sits directly on
      top of the tab bar — never over it. */
+  /* Stowed while the hero's own button is on screen. Not display:none - it
+     slides, so the bar arriving as you scroll reads as a response to scrolling
+     rather than a flicker. measureFurniture() re-reads the height either way,
+     so the page's bottom padding stays correct in both states. */
+  .railbar.stowed {
+    transform: translateY(120%); pointer-events: none; opacity: 0;
+  }
   .railbar {
+    transition: transform var(--t-hover) ease, opacity var(--t-hover) ease;
     display: flex; align-items: center; gap: 10px;
     position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: var(--z-tabbar);
     min-height: var(--railbar-h);

@@ -86,3 +86,42 @@ exactly the failure the brief was written to prevent — so it is not on the tab
    This is the fastest unblock and needs nothing from anyone else.
 3. **Deliver the unblocked parts now** — Phase 0, Phase 1, and the whole of Phase 7,
    which is the part that actually changes how well he tells a story — and hold 2–6.
+
+---
+
+## Update, 14 Sep 2026: transcripts are back, search is not
+
+The `Yt T` MCP server reconnected mid-session and works again — verified by
+pulling a second full transcript end to end (*How To Think Faster And Talk
+Smarter | With Stanford Lecturer*, `jw_-OSxk36U`, 39:15, 22,592 words), now
+stored alongside the first.
+
+This changes the split, but **it does not unblock Phase 2**:
+
+| capability | state |
+|---|---|
+| `yt-dlp` search + channel enumeration | ⛔ still 403 by egress policy |
+| YouTube metadata (subs, views, upload date) | ⛔ still unreachable |
+| **Transcript fetch, one video at a time** | ✅ **working again** |
+| `WebSearch` for discovery | ✅ working |
+
+So the hard rule — *never install a video without reading its transcript* — is
+satisfiable again, for any video whose id is already known. What is still
+missing is **discovery at scale**: `WebSearch` surfaces maybe 20–40% of what 80
+`ytsearch40:` queries would, and cannot enumerate a channel's catalogue at all.
+
+Two consequences worth stating plainly:
+
+1. **The local harvest is still the right path.** It is the only route to the
+   400+ pool the brief asks for, and to the redundancy penalty meaning anything
+   — you cannot drop a video for teaching a mechanic already covered if you only
+   ever found three videos on that mechanic.
+2. **Stage 4 may now be redundant.** If the MCP holds, transcripts can be pulled
+   here from the ids the harvest finds, so the local run could stop after stage
+   3. Worth deciding before a multi-hour stage 4 — but the MCP has already
+   disconnected once this session, so the local copy is the durable one.
+
+Note the MCP transcripts arrive as rolling auto-captions with each phrase
+repeated up to three times. Both stored files are de-duplicated on the way in;
+the raw form is roughly 50% padding and would wreck any scoring that counts
+minutes-per-mechanic.

@@ -87,9 +87,17 @@ def fetch_listing(kind, key, target, n):
             continue
 
     if not rows:
-        miss("search" if kind == "q" else "channel", target,
-             err.strip() or "returned no results")
-        log("    MISS  %s" % (err.strip().splitlines()[-1][:110] if err.strip() else "no results"))
+        why = err.strip() or "returned no results"
+        miss("search" if kind == "q" else "channel", target, why)
+        log("    MISS  %s" % (why.splitlines()[-1][:110]))
+        # Cache an empty result ONLY when yt-dlp actually succeeded and the query
+        # genuinely has no hits. A network error, a 403 or a rate-limit must NOT
+        # be cached, or the next run skips it as "done" and the query is lost for
+        # good. Found by running this against a blocked proxy: all 80 queries
+        # cached empty and the re-run reported every one of them as cached.
+        if not ok:
+            time.sleep(SLEEP)
+            return []
 
     tmp = path + ".part"
     with open(tmp, "w", encoding="utf-8") as f:
@@ -206,9 +214,15 @@ def stage_transcripts(rows, limit=None):
         if got:
             log("[%3d/%d] ok    %s  %s" % (i, len(todo), c["id"], c["title"][:52]))
         else:
-            open(marker, "w").close()
             miss("transcript", c["url"], err.strip() or "no caption track")
-            log("[%3d/%d] NONE  %s  %s" % (i, len(todo), c["id"], c["title"][:52]))
+            # Same rule as the search cache: only remember "this video has no
+            # captions" when yt-dlp succeeded. Otherwise a blip would blacklist
+            # a perfectly good video from every future run.
+            if ok:
+                open(marker, "w").close()
+                log("[%3d/%d] NONE  %s  %s" % (i, len(todo), c["id"], c["title"][:52]))
+            else:
+                log("[%3d/%d] FAIL  %s  (will retry next run)" % (i, len(todo), c["id"]))
         time.sleep(SLEEP)
 
     # Record what we learned, so Phase 3 can filter on it.

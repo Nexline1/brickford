@@ -1208,7 +1208,7 @@
         href: "#/lesson/" + nextUp.cid + "/" + nextUp.ui + "/" + nextUp.li,
         kind: "lecture", code: nextUp.code, title: nextUp.l.t,
         fac: c ? facClass(c) : "",
-        label: nextUp.code + " — " + clipTitle(nextUp.l.t, 38),
+        label: clipTitle(nextUp.l.t, 34),
         hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
               (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
         verb: "Open",
@@ -1357,19 +1357,47 @@
 
     const cta = nextAction();
 
-    // A scheduled lecture, as the largest thing under the hero.
-    const taskHTML = (it, i) => {
-      const fc = D.COURSES.find(x => x.id === it.cid);
-      const dn = schedDone(it);
-      const meta = (it.l.min ? it.l.min + "m video" : it.l.paper ? "paper" : "reading") +
-        (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + " · " + it.track;
-      return '<a class="task ' + (fc ? facClass(fc) : "") + (dn ? " done" : "") +
-        '" style="--i:' + i + ';" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
-        '<span class="tk-n">' + (dn ? "✓" : i + 1) + "</span>" +
-        '<span class="tk-main"><span class="tk-code">' + esc(it.code) + "</span>" +
-        '<span class="tk-t">' + esc(it.l.t) + "</span>" +
-        '<span class="tk-meta">' + esc(meta) + "</span></span>" +
-        '<span class="tk-go">' + (dn ? "Review" : "Open ▸") + "</span></a>";
+    // The day, grouped by course.
+    //
+    // Nine separate cards meant nine borders, nine "Open" buttons and six rows
+    // each announcing "MATH 110" - 987px of scrolling for one day, repeated
+    // every day for three years. The information was never nine things; it was
+    // three courses with a few lectures each.
+    //
+    // So: one card per run of the same course, its code stated once in the
+    // header with the run's totals, and the lectures as rows inside it. The row
+    // itself is the link, which retires nine button labels. Same content, about
+    // half the height, and the shape of the day is visible at a glance.
+    const dayGroupsHTML = items => {
+      const runs = [];
+      items.forEach(it => {
+        const last = runs[runs.length - 1];
+        if (last && last.cid === it.cid) last.items.push(it);
+        else runs.push({ cid: it.cid, code: it.code, track: it.track, items: [it] });
+      });
+      let n = 0;
+      return runs.map((run, ri) => {
+        const fc = D.COURSES.find(x => x.id === run.cid);
+        const mins = run.items.reduce((a, it) => a + (it.l.min || 0), 0);
+        const doneN = run.items.filter(schedDone).length;
+        return '<div class="daygroup ' + (fc ? facClass(fc) : "") + '" style="--i:' + ri + ';">' +
+          '<div class="dg-head"><span class="dg-code">' + esc(run.code) + "</span>" +
+          '<span class="dg-meta">' + run.items.length + " lecture" + (run.items.length === 1 ? "" : "s") +
+          (mins ? " · " + (mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? pad2(mins % 60) : "") : mins + "m") : "") +
+          " · " + esc(run.track) +
+          (doneN ? ' <span class="dg-done">' + doneN + " done</span>" : "") + "</span></div>" +
+          run.items.map(it => {
+            const dn = schedDone(it);
+            n++;
+            const dur = it.l.min ? it.l.min + "m" : it.l.paper ? "paper" : "reading";
+            return '<a class="dg-row' + (dn ? " done" : "") + '" href="#/lesson/' +
+              it.cid + "/" + it.ui + "/" + it.li + '">' +
+              '<span class="dg-n">' + (dn ? "\u2713" : n) + "</span>" +
+              '<span class="dg-t">' + esc(it.l.t) + "</span>" +
+              '<span class="dg-dur">' + esc(dur) +
+              (it.spanN > 1 ? " · " + it.dayN + "/" + it.spanN : "") + "</span></a>";
+          }).join("") + "</div>";
+      }).join("");
     };
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
@@ -1383,7 +1411,12 @@
       '<span class="dh-hint">' + esc(cta.hint) + "</span></div>" +
       // Desktop only: the rail owns the button there, and without it the band
       // sat mostly empty. The day's own progress fills it — a bar, not a sentence.
-      '<div class="dh-bar"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>' +
+      // At 0/9 this was a 4px grey line with nothing in it, which reads as an
+      // unfinished element rather than "no progress yet". It appears once there
+      // is progress to draw.
+      (dayPct > 0
+        ? '<div class="dh-bar"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
+        : "") +
       "</div>" +
       ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 96) +
       "</div></div>" +
@@ -1439,7 +1472,7 @@
           '<a class="btn ghost" href="#/recall">Recall, if you want to</a></div></div>'
         : sect("Today", real.length ? doneToday + " of " + real.length + " done · " + totalMin + "m" : "") +
           (real.length
-            ? '<div class="tasks">' + real.map(taskHTML).join("") + "</div>"
+            ? '<div class="daygroups">' + dayGroupsHTML(real) + "</div>"
             : '<div class="card"><p class="muted">Nothing scheduled today. ' +
               (todaySched.length ? "Problem sets and review only." : "Calibration and setup — see the Handbook.") +
               '</p><div class="row-actions"><a class="btn ghost" href="#/calendar">Calendar</a><a class="btn ghost" href="#/guide">Handbook</a></div></div>')) +

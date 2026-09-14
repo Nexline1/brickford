@@ -1,0 +1,2 @@
+{"query":"ytsearch40:* (all yt-dlp searches)","result":"BLOCKED","reason":"yt-dlp cannot reach youtube.com - egress policy 403 on CONNECT. 0 of the brief's 60+ planned queries could run.","at":"2026-09-12"}
+{"query":"https://www.youtube.com/@ThinkFastTalkSmart/videos","result":"BLOCKED","reason":"WebFetch EGRESS_BLOCKED - channel catalogue enumeration impossible.","at":"2026-09-12"}

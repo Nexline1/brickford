@@ -164,6 +164,12 @@
     psets: {},          // psetItemId -> true
     electives: {},      // electiveId -> "planned" | "done"
     treasury: { offer: "", clients: [], entries: [], niche: "" },
+    // The practice layer. Four append-only logs: a daily two-line story bank,
+    // the weekly recorded story rep, the weekly five-attempt humour rep, and the
+    // monthly review. Append-only because a rep you did happened, and because
+    // that is the only shape the sync merge can union without losing a rep
+    // written on the other device.
+    reps: { bank: [], story: [], humor: [], review: [] },
     // streakFrom: the streak counts sealed days on or after this date. Null
     // means "since the beginning". Resetting the streak sets it to today, which
     // zeroes the number without deleting a single sealed day — the heatmap, the
@@ -174,6 +180,7 @@
   try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || "{}")); }
   catch (e) { S = JSON.parse(JSON.stringify(DEFAULT)); }
   S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
+  S.reps = Object.assign({ bank: [], story: [], humor: [], review: [] }, S.reps);
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
   // Every persisted change schedules a push. This hangs off save() rather than
   // off logEvent() because only 16 of 42 mutation sites logged an event, so
@@ -279,6 +286,22 @@
       if (!S.anchors.some(x => x.head === a2.head && x.date === a2.date)) { S.anchors.push(a2); changed++; }
     });
 
+    // Reps union like anchors: a rep is a thing that happened, so two devices
+    // can only ever have MORE of them between them, never fewer. Identity is
+    // the date plus the payload, so the same rep synced twice stays one rep
+    // while two genuinely different entries on one day both survive.
+    const repKey = { bank: e => e.date + "|" + (e.what || ""), story: e => e.date + "|" + (e.seconds || 0),
+                     humor: e => e.date + "|" + ((e.attempts || [])[0] || ""), review: e => e.date };
+    ["bank", "story", "humor", "review"].forEach(k => {
+      const mine = S.reps[k] || (S.reps[k] = []);
+      const seen = new Set(mine.map(repKey[k]));
+      ((r.reps || {})[k] || []).forEach(e => {
+        const id = repKey[k](e);
+        if (!seen.has(id)) { mine.push(e); seen.add(id); changed++; }
+      });
+      mine.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    });
+
     // The streak floor takes the later of the two. Days union, so without this a
     // reset on the phone would be silently undone by the next pull from the
     // laptop — and taking the later date also means a reset can never be
@@ -373,7 +396,7 @@
   function syncPayload() {
     const state = {};
     ["lessons", "problems", "quizAttempts", "quizMisses", "diag", "gates", "studyDays",
-     "weeks", "labs", "psets", "electives", "treasury", "review", "concepts", "anchors"]
+     "weeks", "labs", "psets", "electives", "treasury", "review", "concepts", "anchors", "reps"]
       .forEach(k => state[k] = S[k]);
     state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart, streakFrom: S.settings.streakFrom };
     const ledgers = Object.assign({}, S.foreignLedgers);
@@ -930,10 +953,13 @@
     const speechFlat = SPEECH_COURSES
       .filter(cid => D.COURSES.some(c => c.id === cid))
       .reduce((a, cid) => a.concat(flatLessons(cid)), []);
-    if (speechFlat.length && sd >= 0) {
-      const sw = windowFor("s:speech", speechFlat, SPEECH_BUDGET, sd, speechSlot(todayISO()));
-      if (sw) sw.idxs.forEach(k =>
-        items.push(Object.assign({ track: "Publish", dayN: sw.dayN, spanN: sw.spanN }, speechFlat[k])));
+    if (speechFlat.length) {
+      if (sd >= 0) {
+        const sToday = speechSlot(todayISO());
+        const sw = windowFor("s:speech", speechFlat, SPEECH_BUDGET, sd, sToday);
+        if (sw) sw.idxs.forEach(k =>
+          items.push(Object.assign({ track: "Publish", dayN: sw.dayN, spanN: sw.spanN }, speechFlat[k])));
+      }
     }
     return items;
   }
@@ -1104,6 +1130,31 @@
 
   // ---------- views ----------
   const V = {};
+
+  // ---------- the practice layer ----------
+  // What is owed today, derived — never a stored "pending" flag, which would go
+  // stale the moment the clock moved.
+  function repsDue(iso) {
+    iso = iso || todayISO();
+    if (isRestDay(iso) || iso < D.START_DATE) return [];      // Saturday owes nothing
+    const out = [];
+    if (!(S.reps.bank || []).some(e => e.date === iso))
+      out.push({ kind: "bank", label: "Story bank", hint: "one real thing, two lines" });
+    if (dowOf(iso) === SPEECH_OFF_DOW) {
+      const wk = weekOf(iso);
+      if (!(S.reps.story || []).some(e => weekOf(e.date) === wk))
+        out.push({ kind: "story", label: "Story rep", hint: "one from the bank, recorded, under 90s" });
+      if (!(S.reps.humor || []).some(e => weekOf(e.date) === wk))
+        out.push({ kind: "humor", label: "Humour rep", hint: "five attempts, most will be bad" });
+    }
+    return out;
+  }
+  // Which plan week a date belongs to, so "one a week" means one per plan week
+  // rather than one per rolling seven days.
+  function weekOf(iso) {
+    const d = studyIndex(iso);
+    return d < 0 ? -1 : Math.floor(d / STUDY_WEEK);
+  }
 
   // ---------- the one next action ----------
   // A dashboard that offers eight equal choices is one you stand in front of
@@ -1355,7 +1406,17 @@
       '<div class="plan-row"><span class="block">Drill</span><span class="what">' +
       (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting" : "Pool clear") +
       '</span><a class="btn ghost go" href="#/drill">Drill</a></div>' +
-      '<div class="plan-row"><span class="block">Publish</span><span class="what">Notes → post</span><a class="btn ghost go" href="#/review">Review</a></div>' +
+      // Was a static "Notes → post" with nothing behind it. Now it says what the
+      // practice layer actually owes today, because a rep on a page you visit
+      // weekly is a rep you skip.
+      '<div class="plan-row"><span class="block">Publish</span><span class="what">' +
+      (function () {
+        const rd = repsDue();
+        if (isRestDay(todayISO()) && todayISO() >= D.START_DATE) return "Rest day — nothing owed";
+        if (!rd.length) return "<strong>Clear</strong> — every rep owed today is logged";
+        return rd.map(x => "<strong>" + esc(x.label) + "</strong>").join(" · ") + " — " + esc(rd[0].hint);
+      })() +
+      '</span><a class="btn ghost go" href="#/practice">Practice</a></div>' +
       "</div></details>" +
 
       // ---- Standing: the gate you are climbing towards ----
@@ -2011,7 +2072,7 @@
       entries: S.ledger.map(e => Object.assign({}, e, { preimage: preimage(e) })),
     };
   }
-  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed", streak: "Streak" };
+  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed", streak: "Streak", rep: "Practice" };
   function eventLine(e) {
     const d = e.data || {};
     if (e.type === "exam") return "Examination · " + e.ref + " · " + d.pct + "% (" + d.score + "/" + d.total + ")";
@@ -2022,6 +2083,11 @@
     if (e.type === "lesson") return (d.done ? "Lecture completed · " : "Lecture un-marked · ") + e.ref;
     if (e.type === "problem") return (d.solved ? "Problem solved · " : "Problem un-marked · ") + e.ref;
     if (e.type === "day") return "Deep Track day sealed";
+    if (e.type === "rep") return ({
+      bank: "Story bank entry", story: "Story rep recorded" + (d.seconds ? " \u00b7 " + d.seconds + "s" : ""),
+      humor: "Humour rep \u00b7 five attempts" + (d.keeper ? " \u00b7 kept #" + d.keeper : " \u00b7 none kept"),
+      review: "Monthly review written",
+    })[e.ref] || "Practice rep";
     if (e.type === "streak") return "Streak reset to zero · previous run " + (d.was || 0) + "d" +
       (d.best ? " · longest ever " + d.best + "d" : "");
     return (EV_LABEL[e.type] || e.type) + " · " + e.ref;
@@ -2755,6 +2821,102 @@
       "</tbody></table></div></div></div>";
   };
 
+  V.practice = function () {
+    const R = S.reps, today = todayISO(), due = repsDue();
+    const bank = (R.bank || []).slice().reverse();
+    const wk = weekOf(today);
+    const thisWeekStory = (R.story || []).filter(e => weekOf(e.date) === wk).length;
+    const thisWeekHumor = (R.humor || []).filter(e => weekOf(e.date) === wk).length;
+    const resting = isRestDay(today) && today >= D.START_DATE;
+
+    const box = (title, sub, body) =>
+      '<div class="card" style="margin-top:16px;"><h2>' + title + "</h2>" +
+      '<p class="muted" style="margin-top:2px; font-size:var(--fs-small);">' + sub + "</p>" + body + "</div>";
+
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The reps</div><h1>Practice</h1>' +
+      '<div class="sub">Watching does not make anyone funnier. This is the part that does.</div></div>' +
+
+      factsHTML([
+        { k: "bank", v: (R.bank || []).length, lead: (R.bank || []).length > 0 },
+        { k: "story reps", v: (R.story || []).length },
+        { k: "humour reps", v: (R.humor || []).length },
+        { k: "reviews", v: (R.review || []).length },
+      ]) +
+
+      (resting
+        ? '<div class="card" style="margin-top:16px;"><h2>' + REST_NAME + " — nothing owed</h2>" +
+          '<p class="muted" style="margin-top:4px;">The rest day owes no reps. Missing it breaks nothing.</p></div>'
+        : due.length
+          ? '<div class="card" style="margin-top:16px;"><h2>Owed today</h2><div class="tl" style="margin-top:8px;">' +
+            due.map(d => '<div class="tl-row"><span class="tl-date">' + esc(d.label) + "</span>" +
+              '<span class="tl-what">' + esc(d.hint) + "</span></div>").join("") + "</div></div>"
+          : '<div class="card" style="margin-top:16px;"><h2>Clear for today</h2>' +
+            '<p class="muted" style="margin-top:4px;">Every rep owed today is logged.</p></div>') +
+
+      // ---- the bank ----
+      box("Story bank", "One real thing from today. Two lines: what happened, then why it stuck. Same day — a bank filled from memory on Sunday is a bank of the four things you would have told anyway.",
+        '<div class="grid cols-2" style="margin-top:12px;">' +
+        '<div><label class="field" for="bankWhat">What happened</label>' +
+        '<input id="bankWhat" type="text" placeholder="The client asked what an embedding was and I drew it on a napkin."></div>' +
+        '<div><label class="field" for="bankWhy">Why it stuck</label>' +
+        '<input id="bankWhy" type="text" placeholder="He got it in 20 seconds. Four years of study, one napkin."></div></div>' +
+        '<div style="margin-top:10px;"><button class="btn" data-act="repBank">Log today\u2019s entry</button></div>' +
+        (bank.length
+          ? '<div class="tl" style="margin-top:14px;">' + bank.slice(0, 12).map(e =>
+              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
+              '<span class="tl-what">' + esc(e.what) + (e.why ? '<br><span style="color:var(--ink-3);">' + esc(e.why) + "</span>" : "") +
+              "</span></div>").join("") + "</div>" +
+            (bank.length > 12 ? '<p class="muted" style="margin-top:8px; font-size:var(--fs-tiny);">' + (bank.length - 12) + " older entries kept.</p>" : "")
+          : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:10px;">Empty. Tonight\u2019s entry is the first.</p>')) +
+
+      // ---- weekly reps ----
+      box("Story rep &mdash; weekly, recorded, under 90 seconds",
+        "One entry from this week\u2019s bank, told out loud and recorded. No script. Second takes are fine; log how many, because take count over time is the signal." +
+        (thisWeekStory ? " <strong>Done this week.</strong>" : ""),
+        '<div class="grid cols-2" style="margin-top:12px;">' +
+        '<div><label class="field" for="repSecs">Length (seconds)</label><input id="repSecs" type="number" min="1" max="600" placeholder="84"></div>' +
+        '<div><label class="field" for="repTakes">Takes</label><input id="repTakes" type="number" min="1" max="50" placeholder="2"></div></div>' +
+        '<div style="margin-top:8px;"><label class="field" for="repWhich">Which bank entry</label>' +
+        '<input id="repWhich" type="text" placeholder="the napkin one, 2026-09-14"></div>' +
+        '<div style="margin-top:10px;"><button class="btn" data-act="repStory">Log the rep</button></div>' +
+        ((R.story || []).length
+          ? '<div class="tl" style="margin-top:14px;">' + (R.story || []).slice(-6).reverse().map(e =>
+              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
+              '<span class="tl-what">' + e.seconds + "s \u00b7 " + e.takes + " take" + (e.takes === 1 ? "" : "s") +
+              (e.from ? " \u00b7 " + esc(e.from) : "") + "</span></div>").join("") + "</div>"
+          : "")) +
+
+      box("Humour rep &mdash; weekly, five attempts",
+        "Five attempts at a joke about something from your week. Most will be bad; that is the format, not a failure of it. Mark the one you would actually say out loud, or mark none." +
+        (thisWeekHumor ? " <strong>Done this week.</strong>" : ""),
+        '<div style="margin-top:12px;">' +
+        [0, 1, 2, 3, 4].map(i =>
+          '<input id="joke' + i + '" type="text" style="margin-top:6px;" placeholder="Attempt ' + (i + 1) + '">').join("") +
+        "</div>" +
+        '<div style="margin-top:8px;"><label class="field" for="jokeKeep">Keeper (1\u20135, or blank for none)</label>' +
+        '<input id="jokeKeep" type="number" min="1" max="5" placeholder=""></div>' +
+        '<div style="margin-top:10px;"><button class="btn" data-act="repHumor">Log five attempts</button></div>' +
+        ((R.humor || []).length
+          ? '<div class="tl" style="margin-top:14px;">' + (R.humor || []).slice(-4).reverse().map(e =>
+              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
+              '<span class="tl-what">' + (e.attempts || []).filter(Boolean).length + " attempts" +
+              (e.keeper ? " \u00b7 kept #" + e.keeper : " \u00b7 none kept") + "</span></div>").join("") + "</div>"
+          : "")) +
+
+      box("Monthly review",
+        "Rewatch your recordings from four weeks ago against the mechanics you had covered <em>by then</em> \u2014 not against what you know now. Long enough that you have forgotten your own delivery; short enough that the mechanics are still the ones you were working on.",
+        '<div style="margin-top:12px;"><label class="field" for="revNotes">What the four-week-old recording shows</label>' +
+        '<textarea id="revNotes" rows="4" placeholder="Which mechanic did I not use that I now can? What did I do without noticing? Is it tighter, or just shorter?"></textarea></div>' +
+        '<div style="margin-top:10px;"><button class="btn" data-act="repReview">Log the review</button></div>' +
+        ((R.review || []).length
+          ? '<div class="tl" style="margin-top:14px;">' + (R.review || []).slice(-4).reverse().map(e =>
+              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
+              '<span class="tl-what">' + esc((e.notes || "").slice(0, 140)) + "</span></div>").join("") + "</div>"
+          : "")) +
+
+      "</div>";
+  };
+
   V.treasury = function () {
     const t = S.treasury;
     const total = revenueTotal();
@@ -3032,6 +3194,46 @@
           if (!S.studyDays.includes(todayISO())) { S.studyDays.push(todayISO()); logEvent("day", todayISO(), {}); }
           save(); render();
           toast("Counted. The chain grows.");
+        } else if (act === "repBank" || act === "repStory" || act === "repHumor" || act === "repReview") {
+          // Guard the write, not just the control: a rep must carry a payload or
+          // it does not exist. This is the same discipline as verified-vs-done on
+          // a lecture, and it is the only reason the rest of the record is worth
+          // anything - a "mark as done" with nothing behind it is a lie you told
+          // yourself in a form you will later read as evidence.
+          const iso = todayISO();
+          if (isRestDay(iso) && iso >= D.START_DATE) {
+            toast(REST_NAME + " is a rest day \u2014 nothing owed.");
+            return;
+          }
+          const val = id => { const el = $("#" + id); return el ? el.value.trim() : ""; };
+          if (act === "repBank") {
+            const what = val("bankWhat");
+            if (!what) { toast("Write what happened first \u2014 an empty entry is not an entry."); return; }
+            S.reps.bank.push({ date: iso, what: what, why: val("bankWhy") });
+            logEvent("rep", "bank", { date: iso });
+            toast("Logged. The bank is the input to every other rep.");
+          } else if (act === "repStory") {
+            const secs = +val("repSecs") || 0;
+            if (!secs) { toast("How long was it? The 90-second cap is the teacher."); return; }
+            S.reps.story.push({ date: iso, seconds: secs, takes: +val("repTakes") || 1, from: val("repWhich") });
+            logEvent("rep", "story", { date: iso, seconds: secs });
+            toast(secs <= 90 ? "Logged, and inside 90s." : "Logged \u2014 " + secs + "s. The cap is 90.");
+          } else if (act === "repHumor") {
+            const attempts = [0, 1, 2, 3, 4].map(i => val("joke" + i));
+            const n = attempts.filter(Boolean).length;
+            if (n < 5) { toast("Five attempts, not " + n + ". Volume is the mechanic."); return; }
+            const k = +val("jokeKeep") || 0;
+            S.reps.humor.push({ date: iso, attempts: attempts, keeper: k >= 1 && k <= 5 ? k : 0 });
+            logEvent("rep", "humor", { date: iso, keeper: k });
+            toast(k ? "Logged, one keeper." : "Logged. No keeper this week \u2014 that is a normal week.");
+          } else {
+            const notes = val("revNotes");
+            if (!notes) { toast("A review with no writing is a rewatch."); return; }
+            S.reps.review.push({ date: iso, notes: notes });
+            logEvent("rep", "review", { date: iso });
+            toast("Review logged.");
+          }
+          save(); render();
         } else if (act === "resetStreak") {
           // Deliberately the smallest possible reset: it moves the line the
           // counter starts from and touches nothing else. Deleting the sealed
@@ -3568,6 +3770,7 @@
     else if (seg[0] === "summary") html = V.summary(seg[1], +seg[2], +seg[3]);
     else if (r === "/review") html = V.review();
     else if (r === "/treasury") html = V.treasury();
+    else if (r === "/practice") html = V.practice();
     else if (r === "/workshop") html = V.workshop();
     else if (r === "/drill") html = V.drill();
     else if (r === "/electives") html = V.electives();

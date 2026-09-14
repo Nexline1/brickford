@@ -26,7 +26,7 @@ const ROUTES = [
   "/lesson/math110/0/13", "/summary/math110.0.0", "/concept/la-eigen",
   "/workshop", "/electives", "/exams", "/quiz/linear-algebra", "/recall",
   "/method", "/record", "/transcript", "/review", "/calendar", "/library",
-  "/treasury", "/sync", "/settings", "/drill", "/guide",
+  "/treasury", "/sync", "/settings", "/drill", "/guide", "/practice",
 ];
 
 // Seeded so states that only appear with progress are covered too: a proven

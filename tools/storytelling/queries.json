@@ -1,0 +1,108 @@
+{
+  "_comment": "Phase 2 seed queries. module = the primary module a hit is provisionally filed under; Phase 3 re-files on the transcript. Expanded from the brief's seeds. lang drives which sub tracks are requested.",
+  "queries": [
+    {"q": "storytelling structure personal story workshop", "module": "A1", "lang": "en"},
+    {"q": "how to structure a personal story five second moment", "module": "A1", "lang": "en"},
+    {"q": "Matthew Dicks storytelling structure homework for life", "module": "A1", "lang": "en"},
+    {"q": "Moth storytelling workshop technique", "module": "A1", "lang": "en"},
+    {"q": "Moth GrandSLAM winning story breakdown analysis", "module": "A1", "lang": "en"},
+    {"q": "Pixar in a Box storytelling structure Khan Academy", "module": "A1", "lang": "en"},
+    {"q": "story spine once upon a time every day until one day", "module": "A1", "lang": "en"},
+    {"q": "anecdote structure conversation not screenplay", "module": "A1", "lang": "en"},
+    {"q": "how to tell a story better conversation", "module": "A1", "lang": "en"},
+
+    {"q": "homework for life story collecting daily practice", "module": "A2", "lang": "en"},
+    {"q": "how to find stories in everyday life storyteller", "module": "A2", "lang": "en"},
+    {"q": "story bank keeping notes storyteller method", "module": "A2", "lang": "en"},
+    {"q": "noticing small moments storytelling exercise", "module": "A2", "lang": "en"},
+
+    {"q": "vocal delivery pacing pauses speaking coach", "module": "A3", "lang": "en"},
+    {"q": "Vinh Giang voice training speaking exercises", "module": "A3", "lang": "en"},
+    {"q": "how to use pauses when speaking technique", "module": "A3", "lang": "en"},
+    {"q": "stage presence eye contact public speaking drill", "module": "A3", "lang": "en"},
+    {"q": "vocal variety pitch pace volume exercise", "module": "A3", "lang": "en"},
+    {"q": "TED speaker coach delivery technique", "module": "A3", "lang": "en"},
+
+    {"q": "conversation skills listening asking better questions", "module": "A4", "lang": "en"},
+    {"q": "Charisma on Command conversation technique breakdown", "module": "A4", "lang": "en"},
+    {"q": "how to hold the floor without dominating conversation", "module": "A4", "lang": "en"},
+    {"q": "follow up questions conversation technique", "module": "A4", "lang": "en"},
+    {"q": "small talk to real conversation method", "module": "A4", "lang": "en"},
+
+    {"q": "joke writing structure comedy class", "module": "A5", "lang": "en"},
+    {"q": "standup comedy joke construction breakdown", "module": "A5", "lang": "en"},
+    {"q": "setup punchline misdirection joke anatomy", "module": "A5", "lang": "en"},
+    {"q": "comedy writing tag act out callback technique", "module": "A5", "lang": "en"},
+    {"q": "rule of the specific comedy writing", "module": "A5", "lang": "en"},
+    {"q": "how to write a joke comedian teaches", "module": "A5", "lang": "en"},
+    {"q": "comedy premise writing workshop", "module": "A5", "lang": "en"},
+
+    {"q": "improv fundamentals yes and exercise", "module": "A6", "lang": "en"},
+    {"q": "how to be funnier in conversation technique", "module": "A6", "lang": "en"},
+    {"q": "riffing callback self deprecation status comedy", "module": "A6", "lang": "en"},
+    {"q": "improv game exercises beginners class", "module": "A6", "lang": "en"},
+    {"q": "witty comebacks technique conversation humor", "module": "A6", "lang": "en"},
+
+    {"q": "executive communication under pressure", "module": "A7", "lang": "en"},
+    {"q": "Think Fast Talk Smart Matt Abrahams speaking", "module": "A7", "lang": "en"},
+    {"q": "explaining technical work to non technical clients", "module": "A7", "lang": "en"},
+    {"q": "handling objections live sales conversation technique", "module": "A7", "lang": "en"},
+    {"q": "pitch structure founder investor clarity", "module": "A7", "lang": "en"},
+    {"q": "answering hard questions on the spot technique", "module": "A7", "lang": "en"},
+    {"q": "explain complex idea simply analogy technique", "module": "A7", "lang": "en"},
+
+    {"q": "speaking English as a second language clarity rhythm", "module": "A8", "lang": "en"},
+    {"q": "accent confidence non native speaker public speaking", "module": "A8", "lang": "en"},
+    {"q": "English stress timing rhythm speaking clearly", "module": "A8", "lang": "en"},
+    {"q": "non native speaker presenting in English technique", "module": "A8", "lang": "en"},
+
+    {"q": "short form video hook writing breakdown", "module": "B1", "lang": "en"},
+    {"q": "shorts scripting structure retention", "module": "B1", "lang": "en"},
+    {"q": "Jenny Hoyos shorts hook retention breakdown", "module": "B1", "lang": "en"},
+    {"q": "first three seconds hook short form video", "module": "B1", "lang": "en"},
+    {"q": "open loop payoff short video script", "module": "B1", "lang": "en"},
+    {"q": "tiktok reels script structure teaching", "module": "B1", "lang": "en"},
+
+    {"q": "youtube retention analytics audience graph explained", "module": "B2", "lang": "en"},
+    {"q": "Paddy Galloway youtube strategy retention breakdown", "module": "B2", "lang": "en"},
+    {"q": "how to read your youtube analytics retention curve", "module": "B2", "lang": "en"},
+    {"q": "average view duration diagnose video problem", "module": "B2", "lang": "en"},
+
+    {"q": "which stories to tell content creator selection", "module": "B3", "lang": "en"},
+    {"q": "turning your experience into content ideas method", "module": "B3", "lang": "en"},
+    {"q": "content idea generation from personal experience", "module": "B3", "lang": "en"},
+
+    {"q": "building in public content strategy founder", "module": "B4", "lang": "en"},
+    {"q": "documenting the build not vlogging creator", "module": "B4", "lang": "en"},
+    {"q": "build in public developer audience growth", "module": "B4", "lang": "en"},
+
+    {"q": "youtube video structure long form storytelling", "module": "B5", "lang": "en"},
+    {"q": "Colin and Samir youtube creator strategy breakdown", "module": "B5", "lang": "en"},
+    {"q": "Film Booth youtube video structure retention", "module": "B5", "lang": "en"},
+
+    {"q": "on camera delivery energy presenting to lens", "module": "B6", "lang": "en"},
+    {"q": "self tape practice camera presence technique", "module": "B6", "lang": "en"},
+    {"q": "talking to camera naturally technique creator", "module": "B6", "lang": "en"},
+
+    {"q": "personal brand content pillars positioning", "module": "B7", "lang": "en"},
+    {"q": "Justin Welsh personal brand system content", "module": "B7", "lang": "en"},
+    {"q": "Dan Koe personal brand positioning creator", "module": "B7", "lang": "en"},
+
+    {"q": "فن الحكي والسرد", "module": "B8", "lang": "ar"},
+    {"q": "مهارات التحدث والإقناع", "module": "B8", "lang": "ar"},
+    {"q": "كتابة سكربت ريلز هوك", "module": "B8", "lang": "ar"},
+    {"q": "كوميديا ستاند اب كتابة النكتة", "module": "B8", "lang": "ar"},
+    {"q": "فن الإلقاء والتحدث أمام الجمهور", "module": "B8", "lang": "ar"},
+    {"q": "صناعة المحتوى القصير استراتيجية", "module": "B8", "lang": "ar"},
+    {"q": "مهارات العرض والتقديم للمهندسين", "module": "B8", "lang": "ar"},
+    {"q": "التسويق بالقصة سرد قصصي", "module": "B8", "lang": "ar"}
+  ],
+  "channels": [
+    {"url": "https://www.youtube.com/@ThinkFastTalkSmart/videos", "module": "A7", "lang": "en"},
+    {"url": "https://www.youtube.com/@CharismaOnCommand/videos", "module": "A4", "lang": "en"},
+    {"url": "https://www.youtube.com/@themoth/videos", "module": "A1", "lang": "en"},
+    {"url": "https://www.youtube.com/@ColinandSamir/videos", "module": "B5", "lang": "en"},
+    {"url": "https://www.youtube.com/@PaddyGalloway/videos", "module": "B2", "lang": "en"},
+    {"url": "https://www.youtube.com/@jennyhoyos/videos", "module": "B1", "lang": "en"}
+  ]
+}

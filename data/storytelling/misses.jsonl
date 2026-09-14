@@ -1,2 +1,3 @@
-{"query":"ytsearch40:* (all yt-dlp searches)","result":"BLOCKED","reason":"yt-dlp cannot reach youtube.com - egress policy 403 on CONNECT. 0 of the brief's 60+ planned queries could run.","at":"2026-09-12"}
-{"query":"https://www.youtube.com/@ThinkFastTalkSmart/videos","result":"BLOCKED","reason":"WebFetch EGRESS_BLOCKED - channel catalogue enumeration impossible.","at":"2026-09-12"}
+{"kind":"search","target":"ALL 80 seed queries","reason":"yt-dlp cannot reach youtube.com from the build environment - egress policy answered 403 to CONNECT. 0 of 80 queries could run here.","at":"2026-09-12 16:40"}
+{"kind":"channel","target":"ALL 6 channel catalogues","reason":"WebFetch EGRESS_BLOCKED on www.youtube.com - catalogue enumeration impossible from the build environment.","at":"2026-09-12 16:44"}
+{"kind":"transcript","target":"ALL candidates","reason":"Both transcript MCP servers (Yt_T, Youtube_Transcribt) were removed from the session configuration mid-run. No replacement exists.","at":"2026-09-14 07:05"}

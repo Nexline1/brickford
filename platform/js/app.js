@@ -64,6 +64,35 @@
     const j = i - k;
     return addDaysISO(D.START_DATE, k + 1 + Math.floor(j / 6) * 7 + (j % 6));
   }
+  // ---- the speech calendar ----
+  // Storytelling runs FIVE days a week, not six: it rests on Saturday with
+  // everything else, and again on Friday, which carries the weekly recorded rep
+  // instead of a lecture. Friday is not a second day off — the rep is that day's
+  // work. Derived from SPEECH_OFF_DOW alone, the same way every other cadence
+  // here derives from REST_DOW, so the two can never drift apart.
+  const SPEECH_OFF_DOW = 5;                  // Friday
+  let _friK = null;
+  function speechOffset() {                  // study index of the first Friday
+    if (_friK == null) {
+      let i = 0;
+      while (i < 7 && dowOf(dateForStudy(i)) !== SPEECH_OFF_DOW) i++;
+      _friK = i;
+    }
+    return _friK;
+  }
+  // Fridays land every STUDY_WEEK study days from the first one; this counts
+  // those strictly before study index `d`.
+  function speechOffsWithin(d) {
+    const k = speechOffset();
+    return d > k ? Math.floor((d - k - 1) / STUDY_WEEK) + 1 : 0;
+  }
+  // 0-based index of `iso` among speech days. -1 on a Friday, a Saturday, or
+  // before the start — callers treat -1 as "no lecture belongs to this date".
+  function speechSlot(iso) {
+    const d = studyIndex(iso);
+    if (d < 0 || dowOf(iso) === SPEECH_OFF_DOW) return -1;
+    return d - speechOffsWithin(d);
+  }
   function addStudyDays(iso, n) {
     const base = studyIndex(iso);
     // From a rest day or before the start, count from the next study day.
@@ -753,6 +782,10 @@
   // to a day; a lesson whose effort exceeds its block spans days ("day 2 of 4").
   const EFFORT = m => m * 1.8 + 4;
   const THEORY_BUDGET = 120, BUILD_BUDGET = 90;
+  // The Publish block DAR.SCHEDULE has always declared at ~30 min and nothing
+  // ever filled. 40 effort-minutes is the owner's call: EFFORT(20) = 40, so it
+  // is twenty minutes of video a day, and the day does not grow.
+  const SPEECH_BUDGET = 40;
   function packWindows(flat, from, budget) {
     const out = [];
     let i = from;
@@ -805,7 +838,11 @@
     return dyn[slot - todaySlot - 1] || null;
   }
   const THEORY_ROT = ["math110", "math120", "math130"];
-  const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research" };
+  // Storytelling. Listed before the data exists on purpose: until a course with
+  // one of these ids is present the Publish block simply emits nothing, so this
+  // ships dark and lights up when the curriculum lands. No release coupling.
+  const SPEECH_COURSES = ["spch100", "spch110"];
+  const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research", spch100: "Storytelling", spch110: "Content" };
   const P2_DAY = 182; // day index where Phase 2 opens (week 27)
   // Pacing is calibrated to the gates: spine content done ~week 13 with
   // weeks 14-26 for the original-project block (Gate 2, month 6 = GPT from
@@ -885,6 +922,18 @@
         if (pi < papers.length) items.push(Object.assign({ track: "Build", dayN: ((d - P2_DAY) % 21) + 1, spanN: 21 }, papers[pi]));
         else items.push({ track: "Build", pseudo: true, short: "Frontier", t: "Frontier build — ship on your fork: labs, open source, product", href: "#/workshop" });
       }
+    }
+
+    // ---- Publish ----
+    // The fourth subject. Five days a week; Friday carries the weekly rep.
+    const sd = speechSlot(iso);
+    const speechFlat = SPEECH_COURSES
+      .filter(cid => D.COURSES.some(c => c.id === cid))
+      .reduce((a, cid) => a.concat(flatLessons(cid)), []);
+    if (speechFlat.length && sd >= 0) {
+      const sw = windowFor("s:speech", speechFlat, SPEECH_BUDGET, sd, speechSlot(todayISO()));
+      if (sw) sw.idxs.forEach(k =>
+        items.push(Object.assign({ track: "Publish", dayN: sw.dayN, spanN: sw.spanN }, speechFlat[k])));
     }
     return items;
   }

@@ -1714,6 +1714,13 @@
         rv ? { k: "next recall", v: rv.due <= todayISO() ? "due" : rv.due.slice(5) } : null,
       ]) +
 
+      // ---- the drill, if this lecture has one ----
+      // Sits ABOVE the four gates on purpose: it is same-day work and the gates
+      // are the week's. Not locked behind "watched" the way a summary is - the
+      // drill is what turns watching into something, so hiding it until after
+      // would be backwards.
+      drillHTML(k) +
+
       // ---- the four gates: watching is not learning ----
       '<div class="sect"><h2>Prove it</h2><span class="sect-meta">' + gatesOk + ' of 4 gates · only proven counts</span></div>' +
       '<div class="card">' +
@@ -2322,7 +2329,7 @@
   // Faculty drives colour, so a subject is recognisable before it is read.
   const FACULTY_CLASS = {
     "Mathematics": "fac-math", "Artificial Intelligence": "fac-ai",
-    "Systems": "fac-sys", "Physics": "fac-phys", "Research": "fac-res",
+    "Systems": "fac-sys", "Physics": "fac-phys", "Research": "fac-res", "Speech": "fac-speech",
   };
   function facClass(c) {
     if (FACULTY_CLASS[c.faculty]) return FACULTY_CLASS[c.faculty];
@@ -2331,6 +2338,7 @@
     if (f.indexOf("system") >= 0 || f.indexOf("comput") >= 0 || f.indexOf("algorith") >= 0) return "fac-sys";
     if (f.indexOf("phys") >= 0) return "fac-phys";
     if (f.indexOf("research") >= 0) return "fac-res";
+    if (f.indexOf("speech") >= 0 || f.indexOf("story") >= 0) return "fac-speech";
     return "fac-ai";
   }
 
@@ -2820,6 +2828,26 @@
       D.SCHEDULE.map(s => "<tr><td><strong style='color:var(--ink);'>" + esc(s.block) + "</strong></td><td>" + esc(s.time) + "</td><td>" + esc(s.note) + "</td></tr>").join("") +
       "</tbody></table></div></div></div>";
   };
+
+  // The brief: the mechanic in one sentence, three to five rules, one drill of
+  // ten minutes or less that leaves an artifact, and one check. Nothing longer
+  // than the drill - reading about storytelling is not the subject.
+  function drillHTML(key) {
+    const d = (D.DRILLS || {})[key];
+    if (!d) return "";
+    const ICON = { written: "✎", recorded: "●", spoken: "❝" };
+    return '<div class="sect"><h2>The mechanic</h2><span class="sect-meta">module ' + esc(d.module || "") +
+      ' · drill ' + d.drill.minutes + 'm · same day</span></div>' +
+      '<div class="card drill">' +
+      '<p class="dr-mech">' + esc(d.mechanic) + "</p>" +
+      '<ol class="dr-rules">' + d.rules.map(r => "<li>" + r + "</li>").join("") + "</ol>" +
+      '<div class="dr-do"><div class="dr-tag">' + (ICON[d.drill.artifact] || "•") + " " +
+      esc(d.drill.artifact) + " · " + d.drill.minutes + "m</div>" +
+      "<p><strong>Do this today.</strong> " + esc(d.drill.do) + "</p>" +
+      '<p class="dr-check"><strong>It worked if:</strong> ' + esc(d.check) + "</p></div>" +
+      '<div class="row-actions"><a class="btn ghost" href="#/practice">Log it on the Practice page ▸</a></div>' +
+      "</div>";
+  }
 
   V.practice = function () {
     const R = S.reps, today = todayISO(), due = repsDue();

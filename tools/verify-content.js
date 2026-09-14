@@ -13,7 +13,8 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/concepts-linear-algebra.js",
  "platform/data/quiz-linear-algebra.js","platform/data/quiz-calculus.js","platform/data/quiz-probability.js",
  "platform/data/quiz-dsa.js","platform/data/quiz-zero-to-hero.js","platform/data/quiz-math-for-ml.js",
- "platform/data/quiz-llm-engineering.js","platform/data/summaries-math110.js"]
+ "platform/data/quiz-llm-engineering.js","platform/data/summaries-math110.js",
+ "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
 const D = ctx.DAR;
@@ -181,6 +182,25 @@ if (process.argv.indexOf("--tags") >= 0) {
 }
 
 // ---------- practice sources ----------
+// ---------- the drill layer ----------
+// A drill keyed to a lesson that does not exist renders nothing and says nothing,
+// so the failure is invisible in the browser and has to be caught here.
+Object.keys(D.DRILLS || {}).forEach(k => {
+  const d = D.DRILLS[k];
+  ok(lessonKeys.has(k), "drill " + k + ": keys a lecture that exists");
+  ok(!!d.mechanic && d.mechanic.length > 40, "drill " + k + ": states a mechanic in a real sentence");
+  ok(Array.isArray(d.rules) && d.rules.length >= 3 && d.rules.length <= 5,
+     "drill " + k + ": has 3-5 extractable rules (has " + (d.rules || []).length + ")");
+  ok(!!d.drill && !!d.drill.do, "drill " + k + ": says what to actually do");
+  ok(!!d.drill && d.drill.minutes > 0 && d.drill.minutes <= 10,
+     "drill " + k + ": the drill is 10 minutes or less");
+  ok(!!d.drill && ["written", "recorded", "spoken"].indexOf(d.drill.artifact) >= 0,
+     "drill " + k + ": produces a written, recorded or spoken artifact");
+  ok(!!d.check && d.check.length > 20, "drill " + k + ": says how you know it worked");
+  // The brief: "No summaries longer than the drill."
+  ok(d.mechanic.length < d.rules.join(" ").length, "drill " + k + ": mechanic is a sentence, not a summary");
+});
+
 D.COURSES.forEach(c => {
   ok(!!c.practice && /^https:\/\//.test(c.practice.url), c.code + ": has an https practice source");
   ok(!!c.practice && c.practice.label && c.practice.label.length > 8, c.code + ": practice source says what to do");
@@ -188,7 +208,7 @@ D.COURSES.forEach(c => {
 
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + numChecked + " numeric answers recomputed, "
-    + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
+    + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
     + Object.keys(LAB).length + " interactive, "
     + tagged + " questions gated (" + untagged + " untagged)"
   : fail + " of " + checks + " checks FAILED"));

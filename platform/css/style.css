@@ -71,10 +71,11 @@
      a subject be recognised before its name is read. Each is darkened exactly as
      far as 4.5:1 against the band colour demands, hue held. */
   --fac-math: #35608f;
-  --fac-ai: #8a5f2e;
+  --fac-ai: #88592b;
   --fac-sys: #26665f;
   --fac-phys: #9c4534;
   --fac-res: #63498a;
+  --fac-speech: #8a4a63;
 }
 
 /* Brickford's original identity, kept as a theme rather than thrown away: brown
@@ -82,7 +83,7 @@
    clear 4.5:1 — the old version's alpha inks measured 2.83:1, which is the whole
    reason the palette was rebuilt in the first place. */
 [data-theme="parchment"] {
-  --fac-math: #35608f; --fac-ai: #8a5f2e; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a;
+  --fac-math: #35608f; --fac-ai: #88592b; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a; --fac-speech: #8a4a63;
   --bg: #f8f4ec;
   --bg-2: #f0e9db;
   --surface: #ffffff;
@@ -109,7 +110,7 @@
 [data-theme="dark"] {
   /* Cool neutral dark. Was a warm roast; the institutional identity is cool now,
      and the ink values are solved against --float, the lightest surface here. */
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9;
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
   --bg: #0f1216;
   --bg-2: #0b0e11;
   --surface: #171b21;
@@ -158,7 +159,7 @@
 }
 
 [data-theme="midnight"] {
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9;
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
   --bg: #0f1420;
   --bg-2: #0b0f19;
   --surface: #151c2b;
@@ -183,7 +184,7 @@
 }
 
 [data-theme="latte"] {
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9;
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
   /* The one theme that keeps Brickford's coffee: dark roast content, milk panel. */
   --bg: #241a12;
   --bg-2: #1d140d;
@@ -615,7 +616,10 @@ tr:last-child td { border-bottom: none; }
 .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 2px 0; }
 
 /* ---------- Month calendar grid ---------- */
-.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: var(--sp-3); }
+/* At 320px the month label and the nav buttons together need ~273px in a 230px
+   row, so without wrapping the controls sit outside the card. Pre-existing;
+   found by the sweep for the storytelling routes. */
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: var(--sp-3); flex-wrap: wrap; }
 .cal-head h2 { font-size: 1.3rem; }
 .cal-nav { display: flex; gap: 6px; }
 .cal-nav button { height: 34px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
@@ -647,6 +651,30 @@ tr:last-child td { border-bottom: none; }
 .cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .cal-legend .pdot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* The drill: the mechanic, the rules, and the ten minutes that leave an artifact.
+   Deliberately denser than a summary card - this is meant to be acted on today,
+   not read. */
+.drill .dr-mech {
+  font-size: 1.02rem; line-height: 1.5; color: var(--ink); margin: 0 0 var(--sp-3);
+  font-weight: 500;
+}
+.drill .dr-rules { margin: 0; padding-left: 1.15em; display: grid; gap: 7px; }
+.drill .dr-rules li { font-size: var(--fs-small); color: var(--ink-2); line-height: 1.55; }
+.drill .dr-rules li strong, .drill .dr-rules li em { color: var(--ink); }
+.drill .dr-do {
+  margin-top: var(--sp-4); padding: var(--sp-3); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.drill .dr-tag {
+  font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink); font-weight: 600;
+  margin-bottom: 6px;
+}
+.drill .dr-do p { margin: 0; font-size: var(--fs-small); color: var(--ink); line-height: 1.55; }
+.drill .dr-do p strong { color: var(--ink); }
+.drill .dr-check { margin-top: 8px !important; color: var(--ink-2) !important; }
 
 /* The streak, with the one control that can zero it. Sits under the heatmap
    because the heatmap is what the streak is counting. */
@@ -794,6 +822,7 @@ tr:last-child td { border-bottom: none; }
 .fac-sys { --fac: var(--fac-sys); }
 .fac-phys { --fac: var(--fac-phys); }
 .fac-res { --fac: var(--fac-res); }
+.fac-speech { --fac: var(--fac-speech); }
 .atlas-node .an-code { color: var(--fac, var(--accent)); }
 /* The course you are on should be findable without reading. */
 .atlas-node.now { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fac, var(--accent)) 45%, transparent); }
@@ -968,7 +997,11 @@ tr:last-child td { border-bottom: none; }
   background: color-mix(in srgb, var(--fac, var(--accent)) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--fac, var(--accent)) 26%, transparent);
 }
-.task .tk-main { flex: 1; min-width: 0; }
+/* Lecture titles are not chosen for width - "Three-dimensional linear
+   transformations" and "Homework for Life - finding the story in an ordinary
+   day" both exceed a 132px column at 320px. min-width:0 lets the column shrink;
+   overflow-wrap is what stops a single long word spilling out of it. */
+.task .tk-main { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .task .tk-code, .task .tk-t, .task .tk-meta { display: block; }
 /* A task row also carries a concept: the title leads, the sentence follows. */
 .task .tk-t.tk-plain { font-weight: 500; font-size: var(--fs-small); color: var(--ink-2); }

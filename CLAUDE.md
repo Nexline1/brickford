@@ -2,8 +2,9 @@
 
 ## The start date
 
-`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-08-12**. Day 1 is Wednesday
-12 August 2026; Day 2 is Thursday 13 August.
+`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-09-14**. Day 1 is Monday
+14 September 2026. The first rest day is Saturday 19 September; day 1094 lands on
+2030-03-12.
 
 ### The standing rule, and how it has been used
 
@@ -25,9 +26,21 @@ reaffirmed with a reason: they had watched day one and part of day two and wante
 begin from a day they were actually on. The rule is theirs to release; that is what an override
 is. It was carried out and the date above is the result.
 
+**On 14 September 2026 they overrode it a second time.** The refusal was given with the numbers
+(28 study days discarded, finish slipping 33 days from 2030-02-07 to 2030-03-12) and the
+observation that the dashboard read `never SYNCED`, so the `20+ behind` and `3 proven` on that
+screen were one browser's local state and not necessarily the owner's real progress. They
+reaffirmed. It was carried out.
+
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past
 version of themselves.
+
+**Count, for whoever reads this next: this is reset number four** (27 Jul → 30 Jul → 12 Aug →
+14 Sep). That is not an argument for refusing twice, and it is not a reason to editorialise at
+the owner. It is a fact the next session should have, because the honest thing to check first is
+whether a reset is being asked for in place of a fix — twice now the screen that prompted one
+was a device that had never synced.
 
 The one thing that needs no permission: a genuine bug in the date arithmetic, where the code
 disagrees with the date above being day one. Fix the arithmetic, never the date.

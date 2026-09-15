@@ -1086,6 +1086,12 @@ tr:last-child td { border-bottom: none; }
 .course-card.locked .bar { display: none; }
 @media (hover: hover) { .course-card.locked:hover { opacity: 0.75; } }
 
+/* A bank you cannot sit yet is not an action. It recedes, like a locked course. */
+.ex-shut { opacity: 0.55; }
+.ex-shut .dg-dur { font-style: italic; }
+@media (hover: hover) { .ex-shut:hover { opacity: 0.8; } }
+.ex-note { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
+
 /* ---------- Library ---------- */
 .lib-list .dg-row { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
 .lib-sub {

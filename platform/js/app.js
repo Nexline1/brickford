@@ -999,26 +999,6 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
-  // The day's quota per subject, with live progress against it:
-  // "2/4 lectures · Lin Algebra · 41m video" — fills in as lessons are ticked.
-  function dayLoadHTML(real) {
-    if (!real.length) return "";
-    const load = {};
-    real.forEach(it => {
-      const L = load[it.code] = load[it.code] || { n: 0, done: 0, min: 0, cid: it.cid };
-      L.n++; if (schedDone(it)) L.done++; L.min += it.l.min || 0;
-    });
-    const chips = Object.entries(load).map(([code, v]) => {
-      const full = v.done === v.n;
-      // `.pill` is nowrap, which is right for a status word and wrong for a
-      // sentence: at 320px "0/1 lecture · Zero to Hero · 146m video" ran 19px
-      // past the viewport. `.wrapping` is the variant that exists for this.
-      return '<span class="pill wrapping ' + (full ? "good" : "teal") + '">' +
-        (full ? "✓ " : "") + v.done + "/" + v.n + " lecture" + (v.n === 1 ? "" : "s") + " · " + esc(COURSE_SHORT[v.cid] || code) +
-        (v.min ? " · " + v.min + "m video" : "") + "</span>";
-    }).join(" ");
-    return '<div style="display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 10px;">' + chips + "</div>";
-  }
   // One shared renderer for a scheduled item (dashboard + calendar detail).
   function schedRowHTML(it) {
     if (it.pseudo) {
@@ -1919,38 +1899,70 @@
   };
 
   V.exams = function () {
+    const diagSat = D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length;
+    const qIds = Object.keys(D.QUIZZES);
+    const qDone = qIds.filter(id => bestQuiz(id) != null).length;
+    const open = qIds.filter(id => unlockedIdx(id).length);
+    const shut = qIds.filter(id => !unlockedIdx(id).length);
+
+    // A concept exam as one row. Seven of these rendered as seven ~200px cards,
+    // and on a fresh account all seven were byte-identical - same pill, same
+    // "0 of 40 unlocked", same greyed Locked button. That is one fact repeated
+    // seven times, not seven facts. Rows, and the shut ones recede.
+    const qRow = id => {
+      const b = D.QUIZZES[id];
+      const at = S.quizAttempts[id] || [];
+      const best = bestQuiz(id);
+      const n = unlockedIdx(id).length;
+      const live = n > 0;
+      return '<a class="dg-row' + (live ? "" : " ex-shut") + '" href="' + (live ? "#/quiz/" + id : "#/courses") + '">' +
+        '<span class="dg-t">' + esc(b.title) +
+        '<span class="lib-sub">' + esc(b.course) + " \u00b7 " + n + " of " + b.questions.length + " unlocked" +
+        (at.length ? " \u00b7 " + at.length + " attempt" + (at.length === 1 ? "" : "s") : "") + "</span></span>" +
+        (best != null
+          ? '<span class="pill ' + (best >= 70 ? "good" : "") + '">' + best + "%</span>"
+          : live ? '<span class="dg-dur">Sit it \u203a</span>'
+                 : '<span class="dg-dur">Watch first</span>') + "</a>";
+    };
+
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exams</h1>' +
       '<div class="sub">Sit a question bank. Auto-graded, drawn fresh each time, and a bank only opens once you have watched what it tests.</div></div>' +
-      '<div class="sect"><h2>Official diagnostics</h2><span class="sect-meta">' + D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length + ' of ' + D.DIAGNOSTICS.length + ' sat</span></div>' + "<div class='grid cols-2'>" +
+
+      '<div class="sect"><h2>Official diagnostics</h2><span class="sect-meta">' + diagSat + " of " + D.DIAGNOSTICS.length + " sat</span></div>" +
+      // The four cards each repeated their own variant of the same rule. Said
+      // once, here, so the cards can just be the four exams.
+      '<p class="note" style="margin:-4px 0 12px;">Timed, closed-book, no AI. Grade yourself honestly against the official solutions afterwards.</p>' +
+      "<div class='grid cols-2'>" +
       D.DIAGNOSTICS.map(d => {
         const r = S.diag[d.id] || {};
         const verdict = r.score == null ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap";
-        return '<div class="card hoverable"><div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="pill teal">' + esc(d.subject) + "</span>" +
-          (verdict === "pass" ? '<span class="pill good">✓ ' + r.score + "% — verified</span>" :
-           verdict === "gap" ? '<span class="pill crimson">' + r.score + "% — gap block activates</span>" :
-           verdict === "logged" ? '<span class="pill good">✓ done</span>' : '<span class="pill">not sat</span>') + "</div>" +
+        // Two nowrap pills need 238px in a 230px card at 320px; without wrap the
+        // status pill hangs outside the card.
+        return '<div class="card hoverable"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;"><span class="pill teal">' + esc(d.subject) + "</span>" +
+          (verdict === "pass" ? '<span class="pill good">\u2713 ' + r.score + "% \u2014 verified</span>" :
+           verdict === "gap" ? '<span class="pill crimson">' + r.score + "% \u2014 gap block activates</span>" :
+           verdict === "logged" ? '<span class="pill good">\u2713 done</span>' : '<span class="pill">not sat</span>') + "</div>" +
           "<h3 style='margin-top:6px;'>" + esc(d.title) + "</h3>" +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + esc(d.note) + "</p>" +
-          '<div style="margin-top:12px;"><a class="btn" href="#/diag/' + d.id + '">Enter examination room</a></div></div>';
+          '<p class="ex-note">' + esc(d.note) + "</p>" +
+          // "Enter examination room" four times down one page is four long
+          // labels saying the same short thing.
+          '<div style="margin-top:12px;"><a class="btn" href="#/diag/' + d.id + '">' +
+          (r.score == null ? "Sit it" : "Re-sit") + "</a></div></div>";
       }).join("") + "</div>" +
-      '<div class="sect"><h2>Concept examinations</h2><span class="sect-meta">' + Object.keys(D.QUIZZES).filter(id => bestQuiz(id) != null).length + ' of ' + Object.keys(D.QUIZZES).length + ' attempted</span></div>' + "<div class='grid cols-2'>" +
-      Object.keys(D.QUIZZES).map(id => {
-        const b = D.QUIZZES[id];
-        const at = S.quizAttempts[id] || [];
-        const best = bestQuiz(id);
-        const bc = D.COURSES.find(x => x.quiz === id);
-        return '<div class="card hoverable course-card ' + (bc ? facClass(bc) : "") + '"><div class="edge"></div>' +
-          '<div style="display:flex; justify-content:space-between; align-items:baseline;"><span class="code">' + esc(b.course) + "</span>" +
-          (best != null ? '<span class="pill ' + (best >= 70 ? "good" : "") + '">best ' + best + "%</span>" : '<span class="pill">unattempted</span>') + "</div>" +
-          "<h3 style='margin-top:6px;'>" + esc(b.title) + "</h3>" +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2);"><strong>' + unlockedIdx(id).length + "</strong> of " + b.questions.length + " unlocked by what you have watched · " + at.length + " attempt" + (at.length === 1 ? "" : "s") + "</p>" +
-          '<div style="margin-top:12px;">' +
-          (unlockedIdx(id).length
-            ? '<a class="btn" href="#/quiz/' + id + '">Begin sitting</a>'
-            : '<button class="btn" disabled title="Watch a lecture from this course first">Locked</button>') +
-          "</div></div>";
-      }).join("") + "</div></div>";
+
+      '<div class="sect"><h2>Concept examinations</h2><span class="sect-meta">' + qDone + " of " + qIds.length + " attempted</span></div>" +
+      (open.length
+        ? '<div class="daygroup"><div class="lib-list">' + open.map(qRow).join("") + "</div></div>"
+        : '<p class="note">None open yet \u2014 a bank unlocks as you watch the lectures it tests.</p>') +
+      (shut.length
+        ? '<details class="unit" style="margin-top:12px;"><summary>' +
+          '<span class="u-name">Not open yet</span><span class="pill">' + shut.length + "</span>" +
+          '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
+          '<div class="lib-list">' + shut.map(qRow).join("") + "</div></div></details>"
+        : "") +
+      "</div>";
   };
+
 
   V.quiz = function (bankId) {
     const bank = D.QUIZZES[bankId];
@@ -2097,11 +2109,14 @@
     const progressLine =
       '<div style="margin-top:12px;">' +
       '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
-      '<span style="letter-spacing:0.14em; text-transform:uppercase; font-weight:600;">Progress this day</span>' +
+      '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600;">Progress</span>' +
       '<span class="mono">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
       " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
       '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
-      (courseStand ? '<div style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:6px;">' + courseStand + "</div>" : "") +
+      // courseStand ("Lin Algebra 6/51 lectures done") said the same thing as the
+      // bar above it and the rows below it. The day detail was stating its
+      // contents four separate ways - bar, this line, the chips, then the
+      // lessons themselves. Three of the four were restatements.
       "</div>";
 
     const catchUp = (status === "missed" || status === "partial")
@@ -2110,10 +2125,12 @@
         '</strong><div style="font-size:var(--fs-small); margin-top:2px;">This day’s content never moves. Clear the unticked lessons below and the day turns green — even late. That’s getting back on track.</div></div>'
       : "";
 
-    const briefLabel = status === "missed" ? "This day’s lessons — finish what’s owed"
-      : status === "partial" ? "This day’s lessons — finish the rest"
-      : status === "upcoming" ? "This day’s lessons · ~5h (theory 2h · build 1.5h · practice 45m · drill 10m · publish 30m)"
-      : "Today’s lessons · ~5h (theory 2h · build 1.5h · practice 45m · drill 10m · publish 30m)";
+    // Was a full sentence set in tracked caps, including a five-clause block
+    // breakdown that is the same every day. A label names a section; it is not
+    // the place for the day's spec.
+    const briefLabel = status === "missed" ? "Still owed"
+      : status === "partial" ? "Finish the rest"
+      : "The lessons";
 
     return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
       "<h2>" + nice + "</h2>" +
@@ -2126,8 +2143,7 @@
       catchUp +
       (gate ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + '</strong><div style="font-size:var(--fs-small); margin-top:2px;">' + esc(gate.req) + "</div></div>" : "") +
       '<div style="margin-top:12px;">' +
-      '<div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:2px;">' + briefLabel + "</div>" +
-      dayLoadHTML(real) +
+      '<div style="font-size:var(--fs-tiny); letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:6px;">' + briefLabel + "</div>" +
       (schedRows || brief("Study", "Beyond the scheduled syllabus — project work per the week focus above", "", "#/workshop", "Workshop")) +
       brief("Practice",
         probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done",
@@ -2136,7 +2152,6 @@
       brief("Publish", "Turn today’s notes into a public post", "30m", "#/review", "Review") +
       (isSunday ? brief("Sunday", "Seal the week — no shipped artifact = a failed week", "30m", "#/review", "Seal") : "") +
       "</div>" +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">This calendar is a fixed syllabus: each date owns these exact lessons, forever. Theory rotates Linear Algebra → Calculus → Probability so all three advance together; Build walks the AI spine in order. Click any past or future day to see precisely its material.</p>' +
       "</div>";
   }
 
@@ -2954,35 +2969,34 @@
       monthGridHTML() +
       dayDetailHTML() +
 
-      '<div class="card"><h2>Daily start time</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">When the Deep Track block begins — used for every link below.</p>' +
-      '<div style="display:flex; gap:10px; align-items:flex-end; margin-top:10px; max-width:260px;">' +
-      '<div style="flex:1;"><label class="field">Start time</label><input type="text" id="calStart" value="' + esc(start) + '" placeholder="08:00" inputmode="numeric"></div>' +
-      '<button class="btn ghost" data-act="saveCalStart">Save</button></div></div>' +
+      // Five stacked cards of settings and export sat under the calendar - a
+      // start-time field, two Google Calendar links, the gate deadlines, an ICS
+      // download, and a static block table. None of them answer "what is on
+      // which day", which is the page's job; you touch them once and never
+      // again. apple-design 6: the common path first, the rest one level deeper.
+      '<details class="unit" style="margin-top:16px;"><summary>' +
+      '<span class="u-name">Sync to your calendar app</span>' +
+      '<span class="pill">' + (openGates.length ? openGates.length + " gates open" : "all gates passed") + "</span>" +
+      '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
 
-      '<div class="card feature"><h2>Add the recurring rituals</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">One click each — opens Google Calendar with the event ready to save.</p>' +
+      '<div style="display:flex; gap:10px; align-items:flex-end; max-width:280px;">' +
+      '<div style="flex:1;"><label class="field" for="calStart">Deep Track start time</label>' +
+      '<input type="text" id="calStart" value="' + esc(start) + '" placeholder="08:00" inputmode="numeric"></div>' +
+      '<button class="btn ghost" data-act="saveCalStart">Save</button></div>' +
+
       '<div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">' +
-      '<a class="btn" href="' + dailyLink + '" target="_blank" rel="noopener">Add Deep Track — daily, ' + esc(start) + "–" + esc(addMinutesClock(start, 300)) + ' ↗</a>' +
-      '<a class="btn ghost" href="' + reviewLink + '" target="_blank" rel="noopener">Add Weekly Review — Sundays 18:00 ↗</a>' +
-      "</div></div>" +
+      '<a class="btn" href="' + dailyLink + '" target="_blank" rel="noopener">Deep Track \u2014 daily, ' + esc(start) + "\u2013" + esc(addMinutesClock(start, 300)) + ' \u2197</a>' +
+      '<a class="btn ghost" href="' + reviewLink + '" target="_blank" rel="noopener">Weekly review \u2014 Sundays 18:00 \u2197</a>' +
+      '<button class="btn ghost" data-act="downloadIcs">Download .ics</button></div>' +
 
-      '<div class="card"><h2>Add your open gate deadlines</h2>' +
       (openGates.length
-        ? '<div style="margin-top:6px;">' + openGates.map(g =>
-            '<div class="plan-row"><span class="block">Gate ' + g.n + '</span><span class="what"><strong>' + esc(g.label) + "</strong> — target " + g.target + "</span>" +
-            '<a class="btn ghost go" href="' + gcalUrl("Brickford Gate " + g.n + " — " + g.label, g.req, { allDay: true, startDate: g.target }) + '" target="_blank" rel="noopener">Add ↗</a></div>'
+        ? '<div class="tl" style="margin-top:14px;">' + openGates.map(g =>
+            '<div class="tl-row"><span class="tl-date">Gate ' + g.n + "</span>" +
+            '<span class="tl-what"><strong>' + esc(g.label) + "</strong> \u2014 " + g.target + "</span>" +
+            '<a class="btn ghost" href="' + gcalUrl("Brickford Gate " + g.n + " \u2014 " + g.label, g.req, { allDay: true, startDate: g.target }) + '" target="_blank" rel="noopener">Add \u2197</a></div>'
           ).join("") + "</div>"
-        : '<p style="color:var(--good); margin-top:6px;">All five gates passed — nothing left to schedule.</p>') +
-      "</div>" +
-
-      '<div class="card"><h2>Export everything</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Daily block, weekly review, and every open gate. Import into Google, Apple, or Outlook.</p>' +
-      '<div style="margin-top:12px;"><button class="btn" data-act="downloadIcs">Download brickford.ics</button></div></div>' +
-
-      '<div class="card"><h2>This week at a glance</h2><div class="table-wrap"><table><thead><tr><th>Block</th><th>Time</th><th>What</th></tr></thead><tbody>' +
-      D.SCHEDULE.map(s => "<tr><td><strong style='color:var(--ink);'>" + esc(s.block) + "</strong></td><td>" + esc(s.time) + "</td><td>" + esc(s.note) + "</td></tr>").join("") +
-      "</tbody></table></div></div></div>";
+        : '<p class="note" style="margin-top:12px; color:var(--good);">All five gates passed \u2014 nothing left to schedule.</p>') +
+      "</div></details></div>";
   };
 
   // The brief: the mechanic in one sentence, three to five rules, one drill of

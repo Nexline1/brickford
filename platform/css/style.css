@@ -389,6 +389,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
     align-self: flex-start; position: sticky; top: var(--sp-4);
     padding: var(--sp-5) clamp(16px, 2vw, 28px) var(--sp-4) 0;
   }
+  /* Stowed on the dashboard, where the hero IS the next lecture. */
+  .rail.stowed { display: none; }
 }
 .rail-card {
   background: var(--surface); border: 1px solid var(--line);
@@ -1003,10 +1005,10 @@ tr:last-child td { border-bottom: none; }
   font-size: clamp(1.5rem, 5.2vw, 2.1rem); line-height: 1.12; letter-spacing: -0.02em;
 }
 .dash-hero .dh-cta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-3); }
-/* Once the rail is on screen it carries the primary action, and two buttons
-   saying the same thing is two focal points, which means none. The hint stays —
-   it is the only place the runtime is written. */
-@media (min-width: 1040px) { .dash-hero .dh-cta .btn { display: none; } }
+/* The hero keeps its button at every width. This used to hide it above 1040px
+   because the rail carried the action there — but the rail now stows on the one
+   route the hero exists on, so hiding it left the desktop dashboard with no
+   button at all. */
 .dash-hero .dh-hint { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
 
 @media (max-width: 700px) {
@@ -1172,6 +1174,9 @@ tr:last-child td { border-bottom: none; }
   transition: background-color var(--t-hover) ease;
 }
 .onecounts > :first-child, .rp-c:first-child { border-left: 0; margin-left: 0; }
+/* At 320px three cells leave 75px of content, and "CATEGORY" in tracked caps
+   needs 77. Six pixels of side padding buys the two it was short of. */
+@media (max-width: 360px) { .onecounts > *, .rp-c { padding: 9px 6px; } }
 .onecounts > a:hover, .rp-c:hover { text-decoration: none; background: var(--bg-2); }
 .onecounts > * b, .rp-c b {
   display: block; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 500;
@@ -1239,6 +1244,12 @@ tr:last-child td { border-bottom: none; }
   flex-shrink: 0; font-family: var(--font-mono); font-size: var(--fs-tiny);
   color: var(--ink-3); font-variant-numeric: tabular-nums;
 }
+/* A row that carries a control as well as text has to be allowed to wrap. At
+   320px a "Mark passed — honestly" button beside a title squeezed the title's
+   content box to zero and clipped it entirely. */
+.dg-row.has-ctl { flex-wrap: wrap; }
+.dg-row.has-ctl .dg-t { min-width: 140px; }
+.dg-row.has-ctl .btn { margin-left: auto; }
 .dg-row.done .dg-t { color: var(--ink-3); font-weight: 500; }
 .dg-row.done .dg-n { color: var(--good); }
 
@@ -1758,4 +1769,15 @@ tr:last-child td { border-bottom: none; }
      generic grey — these are literal values because print ignores themes. */
   body { background: #fff; color: #2b2118; }
   .card { border-color: #d0c0a5; }
+}
+
+/* ---------- Lesson: one action under the video ----------
+   Unwatched, this row is the whole page below the frame: one button and the
+   runtime. The four gates arrive when the lecture is marked watched, which is
+   when they are the next thing to do rather than a wall in front of the video. */
+.lsn-act { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-4); }
+.lsn-run { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+@media (max-width: 700px) {
+  .lsn-act .btn.lg { width: 100%; justify-content: center; }
+  .lsn-run { margin-top: -4px; }
 }

@@ -531,7 +531,6 @@
 
   // ---------- computed ----------
   const dsaCount = () => Object.values(S.problems).filter(Boolean).length;
-  const postsTotal = () => S.weeks.reduce((a, w) => a + (+w.posts || 0), 0);
   const revenueTotal = () => S.treasury.entries.reduce((a, e) => a + (+e.amount || 0), 0);
   function streak() {
     const set = new Set(S.studyDays);

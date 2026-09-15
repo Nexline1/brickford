@@ -806,7 +806,6 @@
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { w, row };
   }
-  const PHASE_COLOR = ["var(--ink-3)", "var(--accent)", "var(--accent-2)", "var(--bad)"];
   // What was actually done on a given date — the per-day progress line.
   function dayActivity(iso) {
     let lessons = 0;
@@ -999,23 +998,56 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
-  // One shared renderer for a scheduled item (dashboard + calendar detail).
-  function schedRowHTML(it) {
-    if (it.pseudo) {
-    return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) + '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
-    }
-    const dn = schedDone(it);
-    const dur = it.l.min
-      ? (it.l.min >= 60 ? Math.floor(it.l.min / 60) + "h" + (it.l.min % 60 ? pad2(it.l.min % 60) : "") : it.l.min + "m") + " video"
-      : (it.l.paper ? "paper" : "reading");
-    const meta = ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny); white-space:nowrap;">' + dur +
-      (it.spanN > 1 ? " · day " + it.dayN + " of " + it.spanN : "") + "</span>";
-    const fc = D.COURSES.find(x => x.id === it.cid);
-    return '<div class="plan-row' + (fc ? " " + facClass(fc) : "") + '"><span class="block">' + it.track + '</span><span class="what">' +
-      (dn ? '<span style="color:var(--good); font-weight:700;">✓</span> ' : "") +
-      "<strong>" + esc(it.code) + "</strong> — " + esc(it.l.t) + meta + "</span>" +
-      '<a class="btn ghost go" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' + (dn ? "Review" : "Open") + "</a></div>";
+  // A scheduled block that is not a lecture — the later weeks where a course has
+  // run out of lessons and the day is project or frontier work. Real lectures go
+  // through dayGroupsHTML below, on both pages that show a day.
+  function pseudoRowHTML(it) {
+    return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) +
+      '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
   }
+  // The day, grouped by course.
+  //
+  // Nine separate cards meant nine borders, nine "Open" buttons and six rows
+  // each announcing "MATH 110" - 987px of scrolling for one day, repeated
+  // every day for three years. The information was never nine things; it was
+  // three courses with a few lectures each.
+  //
+  // So: one card per run of the same course, its code stated once in the
+  // header with the run's totals, and the lectures as rows inside it. The row
+  // itself is the link, which retires nine button labels. Same content, about
+  // half the height, and the shape of the day is visible at a glance.
+  function dayGroupsHTML(items) {
+    const runs = [];
+    items.forEach(it => {
+      const last = runs[runs.length - 1];
+      if (last && last.cid === it.cid) last.items.push(it);
+      else runs.push({ cid: it.cid, code: it.code, track: it.track, items: [it] });
+    });
+    let n = 0;
+    return runs.map((run, ri) => {
+      const fc = D.COURSES.find(x => x.id === run.cid);
+      const mins = run.items.reduce((a, it) => a + (it.l.min || 0), 0);
+      const doneN = run.items.filter(schedDone).length;
+      return '<div class="daygroup ' + (fc ? facClass(fc) : "") + '" style="--i:' + ri + ';">' +
+        '<div class="dg-head"><span class="dg-code">' + esc(run.code) + "</span>" +
+        '<span class="dg-meta">' + run.items.length + " lecture" + (run.items.length === 1 ? "" : "s") +
+        (mins ? " · " + (mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? pad2(mins % 60) : "") : mins + "m") : "") +
+        " · " + esc(run.track) +
+        (doneN ? ' <span class="dg-done">' + doneN + " done</span>" : "") + "</span></div>" +
+        run.items.map(it => {
+          const dn = schedDone(it);
+          n++;
+          const dur = it.l.min ? it.l.min + "m" : it.l.paper ? "paper" : "reading";
+          return '<a class="dg-row' + (dn ? " done" : "") + '" href="#/lesson/' +
+            it.cid + "/" + it.ui + "/" + it.li + '">' +
+            '<span class="dg-n">' + (dn ? "\u2713" : n) + "</span>" +
+            '<span class="dg-t">' + esc(it.l.t) + "</span>" +
+            '<span class="dg-dur">' + esc(dur) +
+            (it.spanN > 1 ? " · " + it.dayN + "/" + it.spanN : "") + "</span></a>";
+        }).join("") + "</div>";
+    }).join("");
+  }
+
   // Unfinished scheduled lessons from days already past (multi-day lessons
   // count once — via a set of lesson keys).
   // The first day you actually did something. Before that there is no debt:
@@ -1306,8 +1338,6 @@
     const g = nextGate();
     const st = streak();
     const studiedToday = S.studyDays.includes(todayISO());
-    const hour = new Date().getHours();
-    const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
     const weeksArr = S.weeks.slice(-12);
     const backupAge = S.settings.lastBackup ? daysBetween(S.settings.lastBackup, todayISO()) : null;
     const todaySched = scheduledFor(todayISO());
@@ -1318,7 +1348,6 @@
     const trackerC = D.COURSES.find(x => x.tracker);
     const probsCat = trackerC ? Object.keys(trackerC.problems).find(cat => trackerC.problems[cat].some(p => !S.problems[cat + "|" + p])) : null;
     const drift = planDrift();
-    const dsa = dsaCount(), posts = postsTotal(), rev = Math.round(revenueTotal());
     const due = reviewsDue();
     const proven = Object.values(S.lessons).filter(l => l && l.verified).length;
     const dayPct = real.length ? (doneToday / real.length) * 100 : (studiedToday ? 100 : 0);
@@ -1333,103 +1362,48 @@
       gatePct = Math.max(0, Math.min(100, ((span - gateLeft) / span) * 100));
     }
 
-    const tile = (label, valueHTML, barPct, tone) =>
-      '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + valueHTML + "</div>" +
-      (barPct == null ? "" : '<div class="bar grow' + (tone ? " " + tone : "") + '"><i style="--w:' + (barPct / 100) + '; transform:scaleX(' + (barPct / 100) + ');"></i></div>') +
-      "</div>";
     const num = (v, dec) => '<span data-count="' + v + '"' + (dec ? ' data-dec="' + dec + '"' : "") + ">" + (dec ? v.toFixed(dec) : v) + "</span>";
-
-    // Before anything has been done, six zero tiles and an empty chart read as
-    // failure. Point at the one next action instead.
-    const started = !!firstActivityISO();
-    const firstUp = real[0];
 
     const cta = nextAction();
 
-    // The day, grouped by course.
-    //
-    // Nine separate cards meant nine borders, nine "Open" buttons and six rows
-    // each announcing "MATH 110" - 987px of scrolling for one day, repeated
-    // every day for three years. The information was never nine things; it was
-    // three courses with a few lectures each.
-    //
-    // So: one card per run of the same course, its code stated once in the
-    // header with the run's totals, and the lectures as rows inside it. The row
-    // itself is the link, which retires nine button labels. Same content, about
-    // half the height, and the shape of the day is visible at a glance.
-    const dayGroupsHTML = items => {
-      const runs = [];
-      items.forEach(it => {
-        const last = runs[runs.length - 1];
-        if (last && last.cid === it.cid) last.items.push(it);
-        else runs.push({ cid: it.cid, code: it.code, track: it.track, items: [it] });
-      });
-      let n = 0;
-      return runs.map((run, ri) => {
-        const fc = D.COURSES.find(x => x.id === run.cid);
-        const mins = run.items.reduce((a, it) => a + (it.l.min || 0), 0);
-        const doneN = run.items.filter(schedDone).length;
-        return '<div class="daygroup ' + (fc ? facClass(fc) : "") + '" style="--i:' + ri + ';">' +
-          '<div class="dg-head"><span class="dg-code">' + esc(run.code) + "</span>" +
-          '<span class="dg-meta">' + run.items.length + " lecture" + (run.items.length === 1 ? "" : "s") +
-          (mins ? " · " + (mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? pad2(mins % 60) : "") : mins + "m") : "") +
-          " · " + esc(run.track) +
-          (doneN ? ' <span class="dg-done">' + doneN + " done</span>" : "") + "</span></div>" +
-          run.items.map(it => {
-            const dn = schedDone(it);
-            n++;
-            const dur = it.l.min ? it.l.min + "m" : it.l.paper ? "paper" : "reading";
-            return '<a class="dg-row' + (dn ? " done" : "") + '" href="#/lesson/' +
-              it.cid + "/" + it.ui + "/" + it.li + '">' +
-              '<span class="dg-n">' + (dn ? "\u2713" : n) + "</span>" +
-              '<span class="dg-t">' + esc(it.l.t) + "</span>" +
-              '<span class="dg-dur">' + esc(dur) +
-              (it.spanN > 1 ? " · " + it.dayN + "/" + it.spanN : "") + "</span></a>";
-          }).join("") + "</div>";
-      }).join("");
-    };
+    // The status row: the four numbers worth carrying, each a link into the page
+    // that owns it. This replaces BOTH the five-cell facts strip and the four
+    // tiles at the bottom - between them they stated the streak twice and the
+    // DSA count twice, on a page whose job is to say one thing.
+    const cell = (href, v, lbl) => '<a href="' + href + '"><b>' + v + "</b><span>" + lbl + "</span></a>";
+
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
     return '<div class="view-enter">' +
-      // ---- Hero: the day, the ring, and one button ----
-      '<div class="dash-hero"><div class="dh-grid"><div class="dh-main">' +
-      '<div class="kicker">' + esc(D.IDENTITY.est) + " · Week " + f.week + " · Phase " + f.phase + "</div>" +
-      '<h1>Day <span class="dh-n">' + String(day).padStart(3, "0") + "</span></h1>" +
-      '<div class="dh-sub">' + greet + " — " + esc(f.tag) + "</div>" +
-      '<div class="dh-cta"><a class="btn lg" href="' + cta.href + '">' + esc(cta.label) + " ▸</a>" +
-      '<span class="dh-hint">' + esc(cta.hint) + "</span></div>" +
-      // Desktop only: the rail owns the button there, and without it the band
-      // sat mostly empty. The day's own progress fills it — a bar, not a sentence.
-      // At 0/9 this was a 4px grey line with nothing in it, which reads as an
-      // unfinished element rather than "no progress yet". It appears once there
-      // is progress to draw.
+      // ---- Hero: the next lecture ----
+      //
+      // It used to be the day number, three storeys tall, with a ring beside it
+      // and the actual lecture reduced to a button label. But nobody opens this
+      // to find out what day it is - the day number is a fact, not a thing to do.
+      // So the hero states the ONE action (apple-design 16: the most important
+      // thing should be the most obvious), and the day, the week and the phase
+      // shrink to the quiet line above it, where a timestamp belongs.
+      //
+      // The ring is gone rather than moved. It drew the same doneToday/real.length
+      // the line beneath it now says in words, and the rail already carries one on
+      // desktop - two rings, 400px apart, reading the same number.
+      '<div class="dash-hero ' + (cta.fac || "") + '">' +
+      '<div class="dh-line"><span class="dh-day">Day ' + String(day).padStart(3, "0") + "</span>" +
+      '<span class="dh-ctx">Week ' + f.week + " · Phase " + f.phase + "</span>" +
+      (real.length
+        ? '<span class="dh-prog">' + doneToday + " / " + real.length + " today</span>"
+        : studiedToday ? '<span class="dh-prog">day sealed ✓</span>' : "") +
+      "</div>" +
+      // The bar is the ring's job done in 4px. Only once there is progress to
+      // draw: an empty track reads as an unfinished element, not as "none yet".
       (dayPct > 0
         ? '<div class="dh-bar"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
         : "") +
+      '<div class="dh-kicker">' + esc(cta.code) + (cta.kind === "lecture" ? " · next lecture" : "") + "</div>" +
+      '<h1 class="dh-title">' + esc(cta.title) + "</h1>" +
+      '<div class="dh-cta"><a class="btn lg" href="' + cta.href + '">' + esc(cta.verb) + " ▸</a>" +
+      '<span class="dh-hint">' + esc(cta.hint) + "</span></div>" +
       "</div>" +
-      ringHTML(dayPct, real.length ? doneToday + "/" + real.length : (studiedToday ? "✓" : "—"), "today", dayPct >= 100 ? "good" : "", 96) +
-      "</div></div>" +
-
-      // ---- At a glance: five numbers, no sentences ----
-      factsHTML([
-        // A counter at zero is not a measurement, it is an absence - and on a
-        // fresh start this strip read five zeros stacked against the day and the
-        // next action. apple-design 16: "use hierarchy so the most important
-        // thing is the most obvious"; five zeros compete with it for nothing.
-        // Each of these earns its cell once it has something to say.
-        st > 0 ? { k: "streak", v: st + "d", lead: true } : null,
-        proven > 0 ? { k: "proven", v: proven } : null,
-        dsa > 0 ? { k: "solved", v: dsa + "/150" } : null,
-        // These two always show: a countdown and a debt are both meaningful at
-        // zero - "0 behind" is the thing you want to see.
-        g ? { k: "to gate " + g.n, v: gateLeft + "d" } : { k: "gates", v: "all" },
-        backlog > 0 ? { k: "behind", v: backlog > 20 ? "20+" : backlog } : { k: "behind", v: "0" },
-        // Only when connected: a device that has not synced for days should show it.
-        // Was daysBetween() on a date-only field, so a link that broke this
-        // morning still read "today" until midnight.
-        ghToken() ? { k: "synced", v: S.settings.syncError ? "failing"
-          : agoLabel(S.settings.lastSyncAt || S.settings.lastSync) } : null,
-      ]) +
 
       // ---- Is this device actually syncing? ----
       // Say it on the page someone opens every day, not on a settings screen two
@@ -1489,6 +1463,26 @@
           ? '<span class="pill good">✓ Deep Track marked for today</span>'
           : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div>") +
 
+      // ---- Where you stand, as four numbers ----
+      // Below the day's work, not above it: these are reference, and reference
+      // that sits between the reader and the thing they came for is in the way.
+      '<div class="onecounts">' +
+      [
+        // A counter at zero is an absence, not a measurement - a fresh account
+        // showed five of them stacked above the first lecture.
+        st > 0 ? cell("#/record", st + "d", "Streak") : null,
+        proven > 0 ? cell("#/atlas", proven, "Proven") : null,
+        // "0 behind" is worth saying - it is the thing you want to see. Once it
+        // is NOT zero the banner a few lines up already says so, in words, with
+        // a button; repeating the same number underneath it is just noise.
+        backlog > 0 ? null : cell("#/calendar", "0", "Behind"),
+        g ? cell("#/transcript", gateLeft + "d", "Gate " + g.n) : cell("#/transcript", "all", "Gates"),
+        // Only when connected. Was daysBetween() on a date-only field, so a link
+        // that broke this morning still read "today" until midnight.
+        ghToken() ? cell("#/sync", S.settings.syncError ? "failing"
+          : agoLabel(S.settings.lastSyncAt || S.settings.lastSync), "Synced") : null,
+      ].filter(Boolean).join("") + "</div>" +
+
       // ---- Everything that runs every day, folded away until wanted ----
       '<details class="unit" style="margin-top:16px;"' + (due.length ? " open" : "") + ">" +
       '<summary><span class="u-name">Also every day</span>' +
@@ -1519,40 +1513,38 @@
       "</div></details>" +
 
       // ---- Standing: the gate you are climbing towards ----
-      sect("Standing", g ? "gate " + g.n + " of 6" : "all gates passed") +
-      '<div class="card feature">' +
-      '<div style="display:flex; align-items:center; gap:var(--sp-4); flex-wrap:wrap;">' +
-      '<div style="flex:1 1 180px; min-width:0;">' +
+      // One card, one number. The ring here drew "% of this gate's window
+      // elapsed" - a second ring on the page, measuring time passing rather than
+      // work done, which is the one thing on a dashboard nobody needs a dial for.
+      // A 4px bar says it and leaves the countdown as the only large number.
+      // "of 6" was hard-coded against a list of five gates.
+      sect("Standing", g ? "gate " + g.n + " of " + D.GATES.length : "all gates passed") +
+      '<div class="card">' +
       "<h2>" + (g ? "Gate " + g.n + " — " + esc(g.label) : "All gates passed") + "</h2>" +
       (g
         ? '<div class="mono" style="margin:6px 0 2px; font-size:1.9rem; color:var(--accent);">' + num(gateLeft) + ' <span style="font-size:0.8rem; color:var(--ink-2); font-family:var(--font-body);">days left</span></div>' +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(g.req) + "</p>"
-        : '<p style="color:var(--good);">You are what you set out to become.</p>') +
-      "</div>" +
-      (g ? ringHTML(gatePct, Math.round(gatePct) + "%", "elapsed", "", 92) : "") +
-      "</div>" +
-      (g
-        ? '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:12px;">Target ' + g.target + " · finish " + drift.projected +
+          '<div class="bar grow" style="margin:10px 0 10px; max-width:420px;"><i style="--w:' + (gatePct / 100) + '; transform:scaleX(' + (gatePct / 100) + ');"></i></div>' +
+          '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(g.req) + "</p>" +
+          '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:10px;">Target ' + g.target + " · finish " + drift.projected +
           (drift.aheadDays > 0 ? ' · <span style="color:var(--good);">' + drift.aheadDays + " days ahead</span>"
             : drift.aheadDays < 0 ? ' · <span style="color:var(--bad);">' + (-drift.aheadDays) + " days behind</span>"
             : " · on baseline") +
           ' · <a href="#/transcript">All gates</a></p>'
-        : "") +
+        : '<p style="color:var(--good);">You are what you set out to become.</p>') +
       "</div>" +
 
-      '<div class="tiles stagger" style="margin-top:12px;">' +
-      tile("Streak", num(st) + ' <span class="unit">days</span>', Math.min(100, st / 30 * 100)) +
-      tile("DSA", num(dsa) + ' <span class="unit">/ 150</span>', dsa / 150 * 100) +
-      tile("Proven", num(proven), null) +
-      tile("Treasury", num(rev) + ' <span class="unit">BHD</span>', null) +
-      "</div>" +
-
-      // ---- Charts only once there is something to plot ----
+      // ---- Charts: folded, and only once there is something to plot ----
+      // Four tiles used to sit here restating the streak and the DSA count that
+      // the status row above already carries, with two charts under them. The
+      // tiles are gone; the charts are a thing you go and look at, so they fold.
       (charted
-        ? '<div class="grid cols-2" style="margin-top:12px;">' +
+        ? '<details class="unit" style="margin-top:16px;"><summary>' +
+          '<span class="u-name">Weekly numbers</span><span class="pill">' + weeksArr.length + " weeks</span>" +
+          '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
+          '<div class="grid cols-2">' +
           '<div class="card"><h2>DSA over time</h2>' + lineChart(weeksArr.map(w => +w.dsa || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
           '<div class="card"><h2>Revenue by week</h2>' + barChart(weeksArr.map(w => +w.revenue || 0), weeksArr.map(w => "Week " + w.week)) + "</div>" +
-          "</div>"
+          "</div></div></details>"
         : "") +
 
       // ---- Housekeeping, at the bottom where a nag belongs ----
@@ -1754,7 +1746,9 @@
       '<div class="tl-row"><span class="tl-date">each</span><span class="tl-what">Read the problem, write it yourself, run it. Stuck past 25 minutes: read the editorial, close it, then write it again from memory. Tick it only when it ran.</span></div>' +
       "</div>" +
       (thisCat
-        ? '<div style="margin-top:12px;"><span class="pill gold">this week · ' + esc(thisCat) + "</span></div>"
+        // A NeetCode category name can be long ("Arrays & Hashing"), and this
+        // pill sits inside a 230px column at 320px — nowrap pushed it 41px out.
+        ? '<div style="margin-top:12px;"><span class="pill gold wrapping">this week · ' + esc(thisCat) + "</span></div>"
         : "") +
       "</div>" +
 
@@ -1905,6 +1899,52 @@
     const open = qIds.filter(id => unlockedIdx(id).length);
     const shut = qIds.filter(id => !unlockedIdx(id).length);
 
+    // ---- Which one to sit next ----
+    //
+    // The page used to weigh eleven exams identically and leave the choosing to
+    // the reader, which is the one job a page like this should do for them.
+    // Nothing new is stored to answer it — the ordering falls out of data that
+    // already exists:
+    //
+    //   a diagnostic that has not been sat is the most urgent thing here,
+    //   because Gate 1 will not open until all four are done, so its deadline IS
+    //   the gate's target date (gatePlan() computes that, and pulls it earlier
+    //   whenever an earlier gate is passed early);
+    //
+    //   with the diagnostics behind you, the concept bank that is most unlocked
+    //   is the one you have watched the most of and are least likely to sit cold
+    //   — unlockedIdx(id).length over the bank's own length.
+    const gate1 = gatePlan()[0];
+    const gateLeft = gate1 && !gate1.doneDate ? daysBetween(todayISO(), gate1.target) : null;
+    const nextDiag = D.DIAGNOSTICS.find(d => (S.diag[d.id] || {}).score == null);
+    let hero = null;
+    if (nextDiag) {
+      const others = D.DIAGNOSTICS.length - diagSat - 1;
+      hero = {
+        href: "#/diag/" + nextDiag.id,
+        kind: nextDiag.title,
+        more: others > 0 ? others : 0,
+        hint: nextDiag.subject + " · " + nextDiag.minutes + " min, closed book, no AI" +
+          (gateLeft == null ? "" : " · Gate " + gate1.n + " in " + gateLeft + "d"),
+        verb: "Sit it",
+        // Attention, not error: a gate inside a fortnight, or already behind you.
+        urgent: gateLeft != null && gateLeft <= 14,
+      };
+    } else {
+      const ranked = open.filter(id => bestQuiz(id) == null)
+        .map(id => ({ id, r: unlockedIdx(id).length / D.QUIZZES[id].questions.length }))
+        .sort((a, b) => b.r - a.r)[0];
+      if (ranked) {
+        const b = D.QUIZZES[ranked.id], n = unlockedIdx(ranked.id).length;
+        hero = {
+          href: "#/quiz/" + ranked.id, kind: b.title,
+          more: open.filter(id => bestQuiz(id) == null).length - 1,
+          hint: b.course + " · " + n + " of " + b.questions.length + " questions unlocked",
+          verb: "Sit it", urgent: false,
+        };
+      }
+    }
+
     // A concept exam as one row. Seven of these rendered as seven ~200px cards,
     // and on a fresh account all seven were byte-identical - same pill, same
     // "0 of 40 unlocked", same greyed Locked button. That is one fact repeated
@@ -1925,30 +1965,51 @@
                  : '<span class="dg-dur">Watch first</span>') + "</a>";
     };
 
+    // A diagnostic as one row, the same shape as a concept bank. Four cards with
+    // a subject pill, a status pill, a title, a two-line note and a button came
+    // to ~800px of page saying "four exams, none sat".
+    const dRow = d => {
+      const r = S.diag[d.id] || {};
+      const verdict = r.score == null ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap";
+      return '<a class="dg-row" href="#/diag/' + d.id + '">' +
+        '<span class="dg-t">' + esc(d.title) +
+        '<span class="lib-sub">' + esc(d.subject) + " \u00b7 " + d.minutes + " min" +
+        (d.gate ? " \u00b7 pass at " + d.gate + "%" : "") + "</span></span>" +
+        (verdict === "pass" ? '<span class="pill good">\u2713 ' + r.score + "%</span>" :
+         verdict === "gap" ? '<span class="pill crimson">' + r.score + "% \u2014 gap</span>" :
+         verdict === "logged" ? '<span class="pill good">\u2713 done</span>' :
+         '<span class="dg-dur">Sit it \u203a</span>') + "</a>";
+    };
+
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exams</h1>' +
-      '<div class="sub">Sit a question bank. Auto-graded, drawn fresh each time, and a bank only opens once you have watched what it tests.</div></div>' +
+      '<div class="sub">Timed, closed-book, no AI. A concept bank only opens once you have watched what it tests.</div></div>' +
+
+      // ---- The one to sit next ----
+      (hero
+        ? '<div class="card one' + (hero.urgent ? " urgent" : "") + '">' +
+          '<div class="one-kind">' + esc(hero.kind) +
+          (hero.more > 0 ? ' <span class="one-more">+' + hero.more + " more</span>" : "") + "</div>" +
+          '<p class="one-hint">' + esc(hero.hint) + "</p>" +
+          '<a class="btn lg one-go" href="' + hero.href + '">' + hero.verb + " \u25b8</a></div>"
+        : '<div class="card one one-clear"><div class="one-kind">Everything open has been sat</div>' +
+          '<p class="one-hint">Re-sit any of them below \u2014 each draws a fresh set of questions.</p></div>') +
+
+      // A counts row needs at least two things to compare; one cell stretched
+      // across the page is a fact wearing a table's clothes. On a fresh account
+      // the section headings below already say "0 of 4 sat".
+      (function () {
+        const cells = [
+          "<div><b>" + diagSat + " / " + D.DIAGNOSTICS.length + "</b><span>Diagnostics</span></div>",
+          // Both of these are absences until they are not, and the sections
+          // below say so in words: "None open yet — a bank unlocks as you…".
+          open.length ? "<div><b>" + open.length + "</b><span>Banks open</span></div>" : "",
+          qDone > 0 ? "<div><b>" + qDone + "</b><span>Attempted</span></div>" : "",
+        ].filter(Boolean);
+        return cells.length > 1 ? '<div class="onecounts">' + cells.join("") + "</div>" : "";
+      })() +
 
       '<div class="sect"><h2>Official diagnostics</h2><span class="sect-meta">' + diagSat + " of " + D.DIAGNOSTICS.length + " sat</span></div>" +
-      // The four cards each repeated their own variant of the same rule. Said
-      // once, here, so the cards can just be the four exams.
-      '<p class="note" style="margin:-4px 0 12px;">Timed, closed-book, no AI. Grade yourself honestly against the official solutions afterwards.</p>' +
-      "<div class='grid cols-2'>" +
-      D.DIAGNOSTICS.map(d => {
-        const r = S.diag[d.id] || {};
-        const verdict = r.score == null ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap";
-        // Two nowrap pills need 238px in a 230px card at 320px; without wrap the
-        // status pill hangs outside the card.
-        return '<div class="card hoverable"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;"><span class="pill teal">' + esc(d.subject) + "</span>" +
-          (verdict === "pass" ? '<span class="pill good">\u2713 ' + r.score + "% \u2014 verified</span>" :
-           verdict === "gap" ? '<span class="pill crimson">' + r.score + "% \u2014 gap block activates</span>" :
-           verdict === "logged" ? '<span class="pill good">\u2713 done</span>' : '<span class="pill">not sat</span>') + "</div>" +
-          "<h3 style='margin-top:6px;'>" + esc(d.title) + "</h3>" +
-          '<p class="ex-note">' + esc(d.note) + "</p>" +
-          // "Enter examination room" four times down one page is four long
-          // labels saying the same short thing.
-          '<div style="margin-top:12px;"><a class="btn" href="#/diag/' + d.id + '">' +
-          (r.score == null ? "Sit it" : "Re-sit") + "</a></div></div>";
-      }).join("") + "</div>" +
+      '<div class="daygroup"><div class="lib-list">' + D.DIAGNOSTICS.map(dRow).join("") + "</div></div>" +
 
       '<div class="sect"><h2>Concept examinations</h2><span class="sect-meta">' + qDone + " of " + qIds.length + " attempted</span></div>" +
       (open.length
@@ -2022,29 +2083,31 @@
       if (status === "completed") cls.push("cdone");
       else if (status === "missed") cls.push("cmiss");
       else if (status === "partial") cls.push("cpart");
-      let inner = '<span class="dnum">';
-      if (!before && !resting) { const { row } = weekRowFor(iso); inner += '<span class="pdot" style="background:' + PHASE_COLOR[row.phase] + '"></span>'; }
-      inner += d + "</span>";
+      // A phase dot used to sit here, in one of four colours, needing three of
+      // the legend's seven entries to decode — and the legend never listed the
+      // grey one, which is the phase this month is actually in. The phase is on
+      // the dashboard and in the day brief; the grid's job is the pattern.
+      let inner = '<span class="dnum">' + d + "</span>";
       if (status === "completed") inner += '<span class="cmark" style="color:var(--good);">✓</span>';
       else if (status === "missed") inner += '<span class="cmark" style="color:var(--bad);">!</span>';
       else if (status === "partial") inner += '<span class="cmark" style="color:var(--accent-2);">◐</span>';
-      if (before) {
-        inner += '<span class="ctag" style="color:var(--ink-3);">Before start</span>';
-      } else if (resting) {
-        inner += '<span class="ctag" style="color:var(--ink-3);">Rest day</span>';
-      } else {
-        const { w, row } = weekRowFor(iso);
+      // A month view can say one useful thing: the PATTERN — done, missed, rest,
+      // still ahead — plus the two dates that are not like the others, a gate and
+      // a review Sunday. It used to try to say four things per cell, in three
+      // lines of 0.64rem type:
+      //
+      //   the day's course names   "Zero to… + Linear…", the same three strings
+      //                            repeating twenty times a month, truncated by
+      //                            -webkit-line-clamp to where they stop being
+      //                            names at all
+      //   a week-and-hours line    "W1 · ~5h", identical on every single day
+      //
+      // Both are gone. Neither was a fact about *that day*, and dayDetailHTML()
+      // below already carries the real content for whichever day is selected.
+      if (!before && !resting) {
         const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
-        const sched = scheduledFor(iso);
-        const real = sched.filter(it => !it.pseudo);
-        const dn = real.filter(schedDone).length;
         if (gateByDate[iso]) inner += '<span class="cflag">◆ Gate ' + gateByDate[iso].n + "</span>";
         else if (isSunday) inner += '<span class="cflag" style="color:var(--accent-2);">Review</span>';
-        // The day's own courses, so the structure reads straight off the grid
-        const names = [];
-        sched.forEach(it => { const n = it.pseudo ? it.short : (COURSE_SHORT[it.cid] || it.code); if (n && !names.includes(n)) names.push(n); });
-        inner += '<span class="ctag">' + (names.length ? esc(names.join(" + ")) : esc(row.tag)) + "</span>";
-        inner += '<span class="chrs">' + (real.length && iso <= today ? dn + "/" + real.length + " done" : "W" + w + " · ~5h") + "</span>";
       }
       cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
     }
@@ -2053,12 +2116,13 @@
       '<button class="btn ghost" data-cal-nav="today">Today</button>' +
       '<button class="btn ghost" data-cal-nav="next" aria-label="Next month"><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5 L6 6.5 L1.5 11.5"/></svg></button></div></div>' +
       '<div class="cal-grid">' + dow + cells + "</div>" +
+      // Five marks, each one visible in the grid above. Was seven, three of which
+      // explained a dot that no longer exists.
       '<div class="cal-legend">' +
-      '<span><span class="pdot" style="background:var(--accent)"></span>Phase 1</span>' +
-      '<span><span class="pdot" style="background:var(--accent-2)"></span>Phase 2</span>' +
-      '<span><span class="pdot" style="background:var(--bad)"></span>Phase 3</span>' +
+      '<span style="color:var(--good);">✓ Done</span>' +
+      '<span style="color:var(--accent-2);">◐ Part</span>' +
+      '<span style="color:var(--bad);">! Missed</span>' +
       '<span style="color:var(--accent);">◆ Gate</span>' +
-      '<span style="color:var(--good);">✓ Done</span><span style="color:var(--bad);">! Missed</span>' +
       '<span style="color:var(--ink-3);">' + REST_NAME + " · rest</span></div></div>";
   }
 
@@ -2087,7 +2151,10 @@
       (href ? '<a class="btn ghost go" href="' + href + '">' + btn + "</a>" : "") + "</div>";
 
     // This day's own lessons — fixed forever, done state shown per lesson.
-    const schedRows = sched.map(schedRowHTML).join("");
+    // Same renderer as the dashboard: grouped by course, the row is the link.
+    const schedRows =
+      (real.length ? '<div class="daygroups" style="margin-bottom:10px;">' + dayGroupsHTML(real) + "</div>" : "") +
+      sched.filter(it => it.pseudo).map(pseudoRowHTML).join("");
 
     const statusPill = {
       today: '<span class="pill teal">Today</span>',
@@ -2562,40 +2629,77 @@
     // without this they came out in arbitrary order instead of curriculum order.
     items.sort((a, b) => a.at - b.at || (a.kind === b.kind ? 0 : a.kind === "gate" ? 1 : -1));
 
-    const rows = items.map((it, i) => {
+    // Seventeen cards, all the same size, is a map with no foreground. Twelve of
+    // them were courses that have not opened yet, and on a fresh account every
+    // one of those carried the identical line "0% proven · 0 of N lectures" over
+    // an empty bar — one fact, restated twelve times, in the loudest form the
+    // page has.
+    //
+    // So the spine now carries only what is TRUE NOW: the courses that are
+    // running, and the gates ahead of them as thin markers rather than cards.
+    // What has not opened is still on the page, in order, folded into one
+    // disclosure — seeing what is coming is the point of a map, but it is not
+    // what you came here to read.
+    const live = items.filter(it => it.kind === "gate" ||
+      it.c.tracker || (it.start != null && it.start <= dToday));
+    const later = items.filter(it => live.indexOf(it) < 0);
+
+    const rows = live.map((it, i) => {
       if (it.kind === "gate") {
         const g = it.g, passed = !!g.doneDate;
         const left = daysBetween(todayISO(), g.target);
-        return '<li class="q-item q-gate' + (passed ? " passed" : left < 0 ? " overdue" : "") + '" style="--i:' + i + ';">' +
+        // A gate is a crossing, not a place you spend time. One line on the
+        // spine, the same height as the node that marks it.
+        return '<li class="q-item q-mark q-gate' + (passed ? " passed" : left < 0 ? " overdue" : "") + '" style="--i:' + i + ';">' +
           '<span class="q-rail"><span class="q-node q-gnode">' + (passed ? "✓" : g.n) + "</span></span>" +
-          '<a class="q-card" href="#/transcript">' +
-          '<span class="q-kicker">Gate ' + g.n + (passed ? " · passed " + esc(g.doneDate) : left >= 0 ? " · " + left + "d left" : " · " + (-left) + "d over") + "</span>" +
-          '<span class="q-title">' + esc(g.label) + "</span>" +
-          '<span class="q-meta">' + esc(g.req) + "</span></a></li>";
+          '<a class="q-line" href="#/transcript">' +
+          '<span class="q-lt">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
+          '<span class="q-ld">' + (passed ? "passed " + esc(g.doneDate) : left >= 0 ? left + "d left" : (-left) + "d over") +
+          "</span></a></li>";
       }
       const c = it.c, m = courseMastery(c), cov = courseCoverage(c);
-      const running = c.tracker || (it.start != null && it.start <= dToday);
-      const locked = !running;
       const done = m >= 85;
-      const when = c.tracker ? "every day"
-        : it.start == null ? "unscheduled"
-        : running ? "running now"
-        : "opens week " + (Math.floor(it.start / STUDY_WEEK) + 1);
       const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
-      return '<li class="q-item ' + facClass(c) + (locked ? " locked" : "") + (running ? " now" : "") + (done ? " done" : "") +
+      const total = c.tracker ? st.total : st.total;
+      const doneN = c.tracker ? st.done : st.verified;
+      // Nothing proven yet is an absence, not a measurement. Say how big the
+      // course is instead, and let the bar appear when it has something to draw.
+      const bare = m === 0 && cov === 0;
+      return '<li class="q-item ' + facClass(c) + " now" + (done ? " done" : "") +
         '" style="--i:' + i + ';">' +
-        '<span class="q-rail"><span class="q-node">' + (done ? "✓" : locked ? lockSVG() : "") + "</span></span>" +
+        '<span class="q-rail"><span class="q-node">' + (done ? "✓" : "") + "</span></span>" +
         '<a class="q-card" href="#/course/' + c.id + '">' +
-        '<span class="q-kicker">' + esc(c.code) + '<span class="q-when">' + when + "</span></span>" +
+        '<span class="q-kicker">' + esc(c.code) + '<span class="q-when">' + (c.tracker ? "every day" : "running now") + "</span></span>" +
         '<span class="q-title">' + esc(c.title) + "</span>" +
-        '<span class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u>' +
-        '<i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></span>' +
-        '<span class="q-meta"><b>' + m + "%</b> proven · " +
-        (c.tracker ? st.done + " / " + st.total + " problems" : st.verified + " of " + st.total + " lectures") +
+        (bare ? "" :
+          '<span class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u>' +
+          '<i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></span>') +
+        '<span class="q-meta">' + (bare ? "" : "<b>" + m + "%</b> proven · ") +
+        (c.tracker ? (bare ? total + " problems" : doneN + " / " + total + " problems")
+                   : (bare ? total + " lecture" + (total === 1 ? "" : "s") : doneN + " of " + total + " lectures")) +
         "</span></a></li>";
     }).join("");
 
-    return '<ol class="quest">' + rows + "</ol>";
+    // The rest of the climb: one row each, in the order it opens.
+    const laterRows = later.map(it => {
+      const c = it.c;
+      const st = c.tracker ? { total: 150 } : courseLessonStats(c);
+      return '<a class="dg-row" href="#/course/' + c.id + '">' +
+        '<span class="dg-n">' + lockSVG() + "</span>" +
+        '<span class="dg-t">' + esc(c.title) +
+        '<span class="lib-sub">' + esc(c.code) + " · " + st.total + " lecture" + (st.total === 1 ? "" : "s") + "</span></span>" +
+        '<span class="dg-dur">' +
+        (it.start == null ? "unscheduled" : "week " + (Math.floor(it.start / STUDY_WEEK) + 1)) +
+        "</span></a>";
+    }).join("");
+
+    return '<ol class="quest">' + rows + "</ol>" +
+      (later.length
+        ? '<details class="unit" style="margin-top:4px;"><summary>' +
+          '<span class="u-name">Opening later</span><span class="pill">' + later.length + "</span>" +
+          '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
+          '<div class="lib-list">' + laterRows + "</div></div></details>"
+        : "");
   }
   const lockSVG = () => '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">' +
     '<rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4.2 5.5V4.2a1.8 1.8 0 013.6 0v1.3"/></svg>';
@@ -2606,21 +2710,26 @@
     const dToday = studyToday();
     const proven = D.COURSES.filter(c => !c.tracker && courseMastery(c) >= 85).length;
     const openNow = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday)).length;
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The whole climb</h1>' +
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>What is running</h1>' +
       '<div class="sub">In the order it opens. Pale is watched · solid is proven.</div>' +
+      // Was five cells: "courses 12" never changes, and "proven 0" is an absence.
       factsHTML([
-        { k: "courses", v: D.COURSES.length },
         { k: "open now", v: openNow, lead: true },
-        { k: "proven", v: proven },
+        proven > 0 ? { k: "proven", v: proven } : null,
         { k: "gates left", v: gates.filter(g => !g.doneDate).length },
         { k: "day", v: Math.max(1, dToday + 1) },
       ]) + "</div>" +
 
       questHTML() +
 
+      // A different subject from "what is running", and a wide diagram that was
+      // reading as 400px of empty card on a phone. One level deeper.
       (CONCEPTS().length
-        ? sect("Linear algebra, as ideas", "left depends on nothing") +
-          '<div class="card">' + conceptGraph("math110") + "</div>"
+        ? '<details class="unit" style="margin-top:16px;"><summary>' +
+          '<span class="u-name">Linear algebra, as ideas</span><span class="pill">' + CONCEPTS().length + "</span>" +
+          '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
+          '<p class="note" style="margin:0 0 10px;">Left depends on nothing.</p>' +
+          conceptGraph("math110") + "</div></details>"
         : "") +
       "</div>";
   };
@@ -2801,45 +2910,54 @@
     const sealedDays = S.studyDays.length;
     const cur = streak() + "d", best = bestStreak() + "d";
 
-    const tile = (label, value) =>
-      '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + value + "</div></div>";
-
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>Proof</h1>' +
-      '<div class="sub">The log of everything you have actually done, hash-chained in order. Edit one entry and the rest stop matching — which is what makes it proof.</div>' +
-      '<div class="row-actions"><a class="btn ghost" href="#/transcript">Transcript &amp; gates</a>' +
-      '<a class="btn ghost" href="#/method">How it works</a></div></div>' +
+      '<div class="sub">Everything you have actually done, hash-chained in order. Edit one entry and the rest stop matching — which is what makes it proof.</div></div>' +
 
-      // ---- verdict ----
-      '<div class="card"><div class="vseal">' +
-      '<div class="vico ' + (v.ok ? "ok" : "bad") + '">' + (v.ok ? "✓" : "!") + "</div>" +
-      '<div class="vtext"><div class="vhead">' +
-      (v.ok ? "Chain intact — " + v.count + " entr" + (v.count === 1 ? "y" : "ies") : "Chain broken at entry " + v.brokenAt) +
+      // ---- The one thing: the verdict, and the file ----
+      // The page's whole claim is "this record has not been tampered with", and
+      // the one action worth taking on it is taking a copy away. Copy-head-hash
+      // is for anchoring, which now lives with the anchors.
+      '<div class="card one' + (!led.length ? "" : v.ok ? " one-clear" : " urgent") + '">' +
+      '<div class="one-kind">' +
+      // "Chain intact — 0 entries" is true of an empty chain and says nothing.
+      (!led.length ? "Nothing recorded yet"
+        : v.ok ? "Chain intact" : "Chain broken at entry " + v.brokenAt) +
+      (led.length && v.ok ? ' <span class="one-more">' + v.count + " entr" + (v.count === 1 ? "y" : "ies") + "</span>" : "") +
       "</div>" +
-      '<div style="font-size:var(--fs-small); color:var(--ink-2);">' +
-      (led.length ? first + " → " + last : "Nothing recorded yet — the first completed lecture starts the chain.") +
-      "</div></div>" +
-      '<div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">' +
-      '<button class="btn ghost" data-act="copyHead">Copy head hash</button>' +
-      '<button class="btn" data-act="exportRecord">Download record</button></div>' +
-      "</div>" +
-      (led.length ? '<div class="hash" style="margin-top:12px;"><span style="color:var(--ink-3);">head</span> ' + esc(chainHead()) + "</div>" : "") +
+      '<p class="one-hint">' +
+      (led.length ? first + " → " + last : "The first lecture you prove starts the chain.") +
+      "</p>" +
+      (led.length ? '<button class="btn lg one-go" data-act="exportRecord">Download record</button>' : "") +
       "</div>" +
 
       // ---- shape of the record ----
-      '<div class="tiles stagger" style="margin-top:16px;">' +
-      tile("Entries", '<span data-count="' + led.length + '">' + led.length + "</span>") +
-      tile("Days sealed", '<span data-count="' + sealedDays + '">' + sealedDays + "</span>") +
-      tile("Examinations", '<span data-count="' + (counts.exam || 0) + '">' + (counts.exam || 0) + "</span>") +
-      tile("Lectures", '<span data-count="' + (counts.lesson || 0) + '">' + (counts.lesson || 0) + "</span>") +
-      "</div>" +
+      // Four cards with a label and a number each, 16px apart, stacked down a
+      // phone. The same four numbers, in the row this app now uses for numbers.
+      // On an empty chain all four of these read 0, under a card that has just
+      // said "nothing recorded yet" in a sentence. They appear as they earn it.
+      (function () {
+        const cells = [
+          led.length ? '<a href="#/transcript"><b>' + led.length + "</b><span>Entries</span></a>" : "",
+          sealedDays ? '<a href="#/calendar"><b>' + sealedDays + "</b><span>Days sealed</span></a>" : "",
+          counts.lesson ? '<a href="#/courses"><b>' + counts.lesson + "</b><span>Lectures</span></a>" : "",
+          counts.exam ? '<a href="#/exams"><b>' + counts.exam + "</b><span>Exams</span></a>" : "",
+        ].filter(Boolean);
+        return cells.length > 1 ? '<div class="onecounts">' + cells.join("") + "</div>" : "";
+      })() +
 
       // ---- heatmap ----
+      // It draws whole weeks, so in the first fortnight it is one column with two
+      // live squares in it, floating in a 90px-tall card above a five-step
+      // legend — which reads as a broken chart rather than as a new plan. It
+      // arrives once it has something to show.
       '<div class="card" style="margin-top:16px;"><h2>Consistency</h2>' +
-      '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">One square per day · tap for that day</p>' +
-      heatmapHTML(26) +
-      '<div class="cal-legend"><span>Quiet</span>' +
-      [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
-      "<span>Busy</span></div>" +
+      (daysBetween(D.START_DATE, todayISO()) >= 14
+        ? '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">One square per day · tap for that day</p>' +
+          heatmapHTML(26) +
+          '<div class="cal-legend"><span>Quiet</span>' +
+          [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
+          "<span>Busy</span></div>"
+        : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 0;">The day-by-day chart starts after the first fortnight.</p>') +
 
       // ---- the streak, and the one control that can zero it ----
       '<div class="streakbox">' +
@@ -2856,6 +2974,32 @@
       "</p>" +
       '<button class="btn ghost" data-act="resetStreak">Reset streak</button></div>' +
       "</div></div>" +
+
+      // ---- milestones: the record's own content, so it stays on the page ----
+      (milestones.length
+        ? '<div class="card" style="margin-top:16px;"><h2>Milestones</h2><div class="tl stagger" style="margin-top:8px;">' +
+          milestones.map(e => '<div class="tl-row"><span class="tl-date">' + e.ts.slice(0, 10) + "</span>" +
+            '<span class="tl-what">' + esc(eventLine(e)) + "</span></div>").join("") +
+          "</div></div>"
+        : "") +
+
+      // ---- Advanced: the two tools nobody uses weekly ----
+      // Anchoring is a few-times-a-year act and verifying someone else's export
+      // is something you do when challenged. Between them they carried three
+      // inputs, a file picker and four buttons, and took the bottom half of a
+      // page whose subject is a single yes/no answer. One level deeper.
+      '<details class="unit" style="margin-top:16px;"><summary>' +
+      // The name says what is inside, so the pill only carries a count when
+      // there is one. "anchor · verify" as a pill was 155px of the 231px a
+      // summary row has at 320px, and clipped the name it was explaining.
+      '<span class="u-name">Anchor &amp; verify</span>' +
+      (S.anchors.length ? '<span class="pill">' + S.anchors.length + " anchored</span>" : "") +
+      '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
+
+      (led.length
+        ? '<div class="hash">head ' + esc(chainHead()) + "</div>" +
+          '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button></div>'
+        : "") +
 
       // ---- anchors: the part that makes dates mean something ----
       '<div class="card" style="margin-top:16px;"><h2>Public anchors</h2>' +
@@ -2875,14 +3019,6 @@
       "</div>" +
       '<div style="margin-top:10px;"><button class="btn" data-act="addAnchor">Anchor today\u2019s head</button></div></div>' +
 
-      // ---- milestones ----
-      (milestones.length
-        ? '<div class="card" style="margin-top:16px;"><h2>Milestones</h2><div class="tl stagger" style="margin-top:8px;">' +
-          milestones.map(e => '<div class="tl-row"><span class="tl-date">' + e.ts.slice(0, 10) + "</span>" +
-            '<span class="tl-what">' + esc(eventLine(e)) + "</span></div>").join("") +
-          "</div></div>"
-        : "") +
-
       // ---- verify someone else's file ----
       '<div class="card" style="margin-top:16px;"><h2>Verify a record file</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Anyone can check an exported record here, or re-run the hashes themselves — the file ships the exact bytes that were hashed.</p>' +
@@ -2890,6 +3026,13 @@
       '<button class="btn ghost" data-act="pickRecord">Choose file…</button>' +
       '<input type="file" id="recFile" accept=".json" style="display:none;">' +
       '<span id="recResult" style="font-size:var(--fs-small); color:var(--ink-2);"></span></div></div>' +
+
+      "</div></details>" +
+
+      // The two routes that used to sit as ghost buttons under the page title,
+      // competing with the verdict for the first thing you see.
+      '<div class="row-actions" style="margin-top:16px;"><a class="btn ghost" href="#/transcript">Transcript &amp; gates</a>' +
+      '<a class="btn ghost" href="#/method">How it works</a></div>' +
 
       "</div>";
   };
@@ -2976,7 +3119,9 @@
       // again. apple-design 6: the common path first, the rest one level deeper.
       '<details class="unit" style="margin-top:16px;"><summary>' +
       '<span class="u-name">Sync to your calendar app</span>' +
-      '<span class="pill">' + (openGates.length ? openGates.length + " gates open" : "all gates passed") + "</span>" +
+      // Was "5 gates open", which is true but has nothing to do with exporting
+      // an .ics — the pill names what is behind the fold, not a number it found.
+      '<span class="pill">.ics</span>' +
       '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
 
       '<div style="display:flex; gap:10px; align-items:flex-end; max-width:280px;">' +
@@ -3058,24 +3203,61 @@
     const n = k => (R[k] || []).length;
     const bank = (R.bank || []).slice().reverse();
 
-    // The counts row: four numbers, each a way in to that history. This is the
-    // whole of the old four-tile facts strip plus the four card headers.
-    const counts = '<div class="rp-counts">' +
-      [["bank", "Bank"], ["story", "Story"], ["humor", "Humour"], ["review", "Reviews"]]
-        .map(([k, lbl]) => '<a class="rp-c" href="#/practice"><b>' + n(k) + "</b><span>" + lbl + "</span></a>")
-        .join("") + "</div>";
+    // ---- The week, as six dots ----
+    //
+    // The page could tell you what was owed today and nothing else, so on a good
+    // week and a bad week it looked identical. This is the smallest honest piece
+    // of feedback: one dot per study day of the current plan week, filled where a
+    // bank entry was logged on that date. No sentence, no percentage, no chart —
+    // you read it in the time it takes to glance at it, which is the only time
+    // this page gets.
+    const wk = weekOf(today);
+    const dots = wk < 0 ? "" : '<div class="weekdots" role="img" aria-label="' + (function () {
+      let n = 0;
+      for (let i = 0; i < STUDY_WEEK; i++)
+        if ((R.bank || []).some(e => e.date === dateForStudy(wk * STUDY_WEEK + i))) n++;
+      return n + " of " + STUDY_WEEK + " days logged this week";
+    })() + '">' +
+      (function () {
+        let out = "";
+        for (let i = 0; i < STUDY_WEEK; i++) {
+          const iso = dateForStudy(wk * STUDY_WEEK + i);
+          const logged = (R.bank || []).some(e => e.date === iso);
+          // Today counts as ahead until it is over. Drawing it as a gap the
+          // moment the page loads would mark a day you still have hours of.
+          const ahead = iso >= today;
+          out += '<span class="wd' + (logged ? " on" : ahead ? " ahead" : "") +
+            (iso === today ? " now" : "") + '" title="' + iso + (logged ? " · logged" : "") + '"></span>';
+        }
+        return out;
+      })() +
+      '<span class="wd-lbl">this week</span></div>';
+
+    // The counts row: what has actually been logged, per kind. This is the whole
+    // of the old four-tile facts strip plus the four card headers.
+    //
+    // Two changes from that version. A kind you have never done shows nothing
+    // rather than a zero — on a new account this row was "1 / 0 / 0 / 0", three
+    // absences dressed as measurements. And the cells are no longer links: they
+    // pointed at #/practice, the page they were already on.
+    const counts = (function () {
+      const cells = [["bank", "Bank"], ["story", "Story"], ["humor", "Humour"], ["review", "Reviews"]]
+        .filter(([k]) => n(k) > 0)
+        .map(([k, lbl]) => "<div><b>" + n(k) + "</b><span>" + lbl + "</span></div>");
+      return cells.length > 1 ? '<div class="onecounts">' + cells.join("") + "</div>" : "";
+    })();
 
     const head = '<div class="view-enter"><div class="page-head"><div class="kicker">The reps</div><h1>Practice</h1>' +
       '<div class="sub">Watching does not make anyone funnier. This does.</div></div>';
 
     if (resting)
       return head + '<div class="card rp-one"><h2>' + REST_NAME + "</h2>" +
-        '<p class="muted">Nothing owed today.</p></div>' + counts + "</div>";
+        '<p class="muted">Nothing owed today.</p></div>' + dots + counts + "</div>";
 
     if (!due.length)
       return head + '<div class="card rp-one rp-clear"><h2>Clear for today</h2>' +
         '<p class="muted">Every rep owed today is logged. Streak ' + streak() + "d.</p></div>" +
-        counts + repHistoryHTML(bank, R) + "</div>";
+        dots + counts + repHistoryHTML(bank, R) + "</div>";
 
     // ONE rep. The next one appears here the moment this is logged.
     const d = due[0];
@@ -3086,7 +3268,7 @@
       '<div class="rp-form">' + REP_FORM[d.kind]() + "</div>" +
       '<button class="btn lg rp-go" data-act="' + REP_ACT[d.kind] + '">' + REP_VERB[d.kind] + "</button>" +
       "</div>" +
-      counts + repHistoryHTML(bank, R) + "</div>";
+      dots + counts + repHistoryHTML(bank, R) + "</div>";
   };
 
   // Everything that is not today's rep, folded away. It is a record, not a task.

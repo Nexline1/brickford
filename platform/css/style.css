@@ -27,6 +27,9 @@
   --accent-2: #26665f;
   --good: #2a7047;
   --bad: #b32d1f;
+  /* The one thing that is due. Derived from --bad's hue but pulled back, so it
+     reads as attention rather than as something having gone wrong. */
+  --urgent: #9a5a16;
   --btn-bg: #1a1c1f;
   --btn-ink: #ffffff;
   /* Elevation, as a three-step scale instead of three unrelated ad-hoc values.
@@ -97,6 +100,7 @@
    clear 4.5:1 — the old version's alpha inks measured 2.83:1, which is the whole
    reason the palette was rebuilt in the first place. */
 [data-theme="parchment"] {
+  --urgent: #8a4f14;
   --shade: #2b2118;
   --fac-math: #35608f; --fac-ai: #88592b; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a; --fac-speech: #8a4a63;
   --bg: #f8f4ec;
@@ -122,6 +126,7 @@
 }
 
 [data-theme="dark"] {
+  --urgent: #d99a4e;
   --shade: #000308;
   /* Cool neutral dark. Was a warm roast; the institutional identity is cool now,
      and the ink values are solved against --float, the lightest surface here. */
@@ -149,6 +154,7 @@
 }
 
 [data-theme="forest"] {
+  --urgent: #8a5312;
   --shade: #17201a;
   --bg: #f2f5f1;
   --bg-2: #e6ece3;
@@ -173,6 +179,7 @@
 }
 
 [data-theme="midnight"] {
+  --urgent: #e0a35c;
   --shade: #00030a;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
   --bg: #0f1420;
@@ -198,6 +205,7 @@
 }
 
 [data-theme="latte"] {
+  --urgent: #dda05a;
   --shade: #000204;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
   /* The one theme that keeps Brickford's coffee: dark roast content, milk panel. */
@@ -224,6 +232,7 @@
 }
 
 [data-theme="slate"] {
+  --urgent: #8f5518;
   --shade: #1a1a19;
   --bg: #f7f7f5;
   --bg-2: #eeeeea;
@@ -663,7 +672,10 @@ tr:last-child td { border-bottom: none; }
 .cal-nav [data-cal-nav="today"] { padding: 0 16px; font-size: var(--fs-small); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .cal-dow { background: var(--surface-2); text-align: center; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 8px 0; font-weight: 600; }
-.cal-cell { background: var(--surface); min-height: 92px; padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; position: relative; transition: background-color var(--t-micro) ease; }
+/* 92px tall because it held three lines of text. It holds a date, a mark and
+   sometimes a flag now, so it is a square you read as a pattern rather than a
+   paragraph you read twenty times. */
+.cal-cell { background: var(--surface); min-height: 58px; padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; position: relative; transition: background-color var(--t-micro) ease; }
 .cal-cell:hover { background: var(--bg-2); }
 /* Tapping a day should feel like a selection, not a page reload. */
 .cal-cell:active { transform: scale(0.97); }
@@ -679,14 +691,10 @@ tr:last-child td { border-bottom: none; }
 .cal-cell .cmark { position: absolute; top: 5px; right: 7px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; line-height: 1; }
 .cal-cell .dnum { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--ink-2); display: flex; align-items: center; gap: 5px; }
 .cal-cell.today .dnum { color: var(--accent); font-weight: 600; }
-.cal-cell .pdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.cal-cell .ctag { font-size: 0.64rem; line-height: 1.3; color: var(--ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.cal-cell .chrs { margin-top: auto; font-family: var(--font-mono); font-size: 0.66rem; color: var(--ink-2); }
 .cal-cell .cflag { font-size: 0.56rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
 .cal-cell.rest { background: var(--bg-2); }
 .cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
-.cal-legend .pdot { width: 7px; height: 7px; border-radius: 50%; }
 
 /* The drill: the mechanic, the rules, and the ten minutes that leave an artifact.
    Deliberately denser than a summary card - this is meant to be acted on today,
@@ -779,9 +787,10 @@ tr:last-child td { border-bottom: none; }
    status dot; the full brief is one tap away below the grid. */
 @media (max-width: 640px) {
   .cal-cell { min-height: 46px; padding: 3px 2px; align-items: center; gap: 2px; }
-  .cal-cell .ctag, .cal-cell .chrs, .cal-cell .cflag { display: none; }
+  /* Seven columns of ~50px: the flag has nowhere to go. The tint and the
+     mark still carry the pattern. */
+  .cal-cell .cflag { display: none; }
   .cal-cell .dnum { font-size: 0.72rem; gap: 0; flex-direction: column; }
-  .cal-cell .pdot { width: 5px; height: 5px; }
   .cal-cell .cmark { position: static; font-size: 0.6rem; }
   .cal-dow { font-size: 0.5rem; letter-spacing: 0.02em; padding: 5px 0; }
 }
@@ -955,64 +964,55 @@ tr:last-child td { border-bottom: none; }
 .row-split { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 
 /* ---------- Dashboard hero ----------
-   The page opens on one band that answers "what am I doing right now" before
-   anything else is read: which day it is, how much of it is done, and a single
-   button that opens the next thing. It is deliberately the loudest object on
-   the page — everything below it is reference. */
-/* No fill, no inverted tokens — the same rule-and-space emphasis as a feature
-   card, at the scale the top of the page deserves. */
+   The page opens on the ONE thing to do: the next lecture, named in full, with a
+   single button. The day number, the week and the phase are a timestamp — true,
+   but not a thing you can act on — so they run as one quiet line above it rather
+   than as 3rem of headline. Everything below the hero is reference.
+
+   What used to be here: "Day 029" at clamp(2.1rem, 9vw, 3.2rem), a progress ring
+   beside it, a greeting, and the lecture itself squeezed into a button label
+   clipped at 34 characters. */
 .dash-hero {
   position: relative; overflow: hidden; color: var(--ink);
-  border: 1px solid var(--line); border-top: 3px solid var(--accent);
+  border: 1px solid var(--line); border-top: 3px solid var(--fac, var(--accent));
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--e1);
   padding: var(--sp-4) var(--sp-4) calc(var(--sp-4) + 2px);
 }
-.dash-hero .dh-grid { display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap; }
-.dash-hero .dh-main { flex: 1 1 260px; min-width: 0; }
-.dash-hero .kicker {
+/* Day · week · phase · today's count, on one line, in the mono face this app
+   uses for every fact. Wraps rather than clips at 320px. */
+.dash-hero .dh-line {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0;
+}
+.dash-hero .dh-day { color: var(--accent); font-weight: 500; }
+.dash-hero .dh-ctx { color: var(--ink-3); }
+.dash-hero .dh-prog { color: var(--ink-3); margin-left: auto; }
+/* The ring's job, done in 4px and without a second dial on the page. */
+.dash-hero .dh-bar { max-width: 420px; margin-top: 10px; }
+.dash-hero .dh-kicker {
+  margin-top: var(--sp-3);
   font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--ink-3); font-weight: 600;
 }
-.dash-hero h1 {
-  margin: 8px 0 0; line-height: 1; color: var(--ink);
-  font-size: clamp(2.1rem, 9vw, 3.2rem); letter-spacing: -0.03em;
+/* The lecture title, at the size the day number used to take. Karpathy's titles
+   run past 60 characters; here they wrap instead of being truncated. */
+.dash-hero .dh-title {
+  margin: 6px 0 0; color: var(--ink);
+  font-size: clamp(1.5rem, 5.2vw, 2.1rem); line-height: 1.12; letter-spacing: -0.02em;
 }
-.dash-hero h1 .dh-n { font-family: var(--font-mono); font-weight: 500; color: var(--accent); }
-.dash-hero .dh-sub { font-size: var(--fs-small); color: var(--ink-2); margin-top: 10px; }
 .dash-hero .dh-cta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-3); }
 /* Once the rail is on screen it carries the primary action, and two buttons
-   saying the same thing is two focal points, which means none. Below 1040px the
-   collapsed bar is a thin one-liner, so the hero keeps the real button. */
-@media (min-width: 1040px) { .dash-hero .dh-cta { display: none; } }
-/* Without the button the band was mostly empty, so the day's own progress fills
-   it — a bar, not a sentence. */
-.dash-hero .dh-bar { display: none; max-width: 420px; margin-top: var(--sp-3); }
-@media (min-width: 1040px) { .dash-hero .dh-bar { display: block; } }
-/* Same reason the hero drops its button at this width: the rail owns the ring
-   too, and the page had it twice, 400px apart, reading the same 0/9. */
-@media (min-width: 1040px) { .dash-hero .ring-wrap { display: none; } }
+   saying the same thing is two focal points, which means none. The hint stays —
+   it is the only place the runtime is written. */
+@media (min-width: 1040px) { .dash-hero .dh-cta .btn { display: none; } }
+.dash-hero .dh-hint { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
 
-/* Phones: the ring wrapped onto a line of its own and sat marooned in the
-   bottom-right corner with a hole beside it. Pinned to the top corner instead,
-   with the text kept clear of it, so the button can have the full width. */
-/* Phones: the hero was running ~790px - a whole screen of chrome before the
-   first lecture. The ring is smaller and tucked in, the greeting and the day
-   share a line's worth of space instead of three, and the button carries the
-   lecture title alone (the course code is on the line under it). */
 @media (max-width: 700px) {
   .dash-hero { padding: var(--sp-3) var(--sp-3) var(--sp-4); }
-  .dash-hero .ring-wrap { position: absolute; top: var(--sp-2); right: var(--sp-2); margin-left: 0; }
-  .dash-hero .ring-wrap svg { width: 74px; height: 74px; }
-  .dash-hero .kicker, .dash-hero h1, .dash-hero .dh-sub { padding-right: 84px; }
-  .dash-hero h1 { font-size: clamp(1.9rem, 8vw, 2.4rem); margin-top: 4px; }
-  .dash-hero .dh-sub { margin-top: 4px; }
-  .dash-hero .dh-cta { margin-top: var(--sp-3); }
   .dash-hero .dh-cta .btn.lg { width: 100%; justify-content: center; text-align: center; }
 }
-.dash-hero .dh-hint { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
-.dash-hero .ring-wrap { margin-left: auto; }
 /* The one button that matters. Long lecture titles wrap rather than shove the
    ring off the band. */
 .btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: 8px; white-space: normal; text-align: left; line-height: 1.3; }
@@ -1090,7 +1090,6 @@ tr:last-child td { border-bottom: none; }
 .ex-shut { opacity: 0.55; }
 .ex-shut .dg-dur { font-style: italic; }
 @media (hover: hover) { .ex-shut:hover { opacity: 0.8; } }
-.ex-note { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
 
 /* ---------- Library ---------- */
 .lib-list .dg-row { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
@@ -1108,48 +1107,77 @@ tr:last-child td { border-bottom: none; }
 }
 .hall-links { display: flex; gap: 8px; flex-wrap: wrap; }
 
-/* ---------- Practice: one rep, one button ----------
-   The page's whole job is the single thing owed right now. Sized like the
-   dashboard hero because it IS the hero of this page. */
-.rp-one { margin-top: var(--sp-4); box-shadow: var(--e1); border-top: 3px solid var(--fac, var(--accent)); }
-.rp-kind {
+/* ---------- "The one thing" ----------
+   Every page opens with a single card carrying the action you would take right
+   now, a quiet row of numbers under it, and everything else folded away. Built
+   for the Practice page first; promoted here because repeating the shape is the
+   point - apple-design 16, "things that look the same must behave the same".
+   .rp-* aliases kept so the Practice markup did not have to churn. */
+.one, .rp-one { margin-top: var(--sp-4); box-shadow: var(--e1); border-top: 3px solid var(--fac, var(--accent)); }
+/* When the one thing is overdue rather than merely next. */
+.one.urgent { border-top-color: var(--urgent); }
+.one.urgent .one-kind { color: var(--urgent); }
+.one-kind, .rp-kind {
   font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h2);
   letter-spacing: -0.02em; line-height: 1.15; color: var(--ink);
 }
-.rp-more {
+.one-more, .rp-more {
   font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
   color: var(--ink-3); letter-spacing: 0; vertical-align: 0.35em;
 }
-.rp-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
-.rp-form { margin-top: var(--sp-4); }
-.rp-go { margin-top: var(--sp-4); width: 100%; justify-content: center; }
-@media (min-width: 700px) { .rp-go { width: auto; min-width: 200px; } }
-.rp-clear { border-top-color: var(--good); }
+.one-hint, .rp-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
+.one-body, .rp-form { margin-top: var(--sp-4); }
+.one-go, .rp-go { margin-top: var(--sp-4); width: 100%; justify-content: center; }
+@media (min-width: 700px) { .one-go, .rp-go { width: auto; min-width: 200px; } }
+.one-clear, .rp-clear { border-top-color: var(--good); }
+
+/* ---------- The week, as six dots ----------
+   Status with no prose. Six study days, filled where a rep was logged, hollow
+   where it was not, outlined where the day has not happened yet. */
+.weekdots { display: flex; align-items: center; gap: 7px; margin-top: var(--sp-3); padding: 0 2px; }
+.wd {
+  width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
+  background: var(--fac, var(--accent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+/* Not logged, and the day has gone. Hollow, not red — a missed rep is a gap in
+   the run, not an error state. */
+.wd:not(.on):not(.ahead) { background: transparent; box-shadow: inset 0 0 0 2px var(--line-strong); }
+/* Still ahead: the faintest mark that says "a day is reserved here". */
+.wd.ahead { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+.wd.now { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wd-lbl {
+  margin-left: 4px; font-family: var(--font-mono); font-size: var(--fs-tiny);
+  color: var(--ink-3); letter-spacing: 0;
+}
 
 /* The four histories, as four numbers. This replaces a four-tile facts strip
    AND four card headers - the counts are the wayfinding, the fold is the rest. */
-.rp-counts {
+.onecounts, .rp-counts {
   /* Four across needs ~316px of content in a 278px box at 320px. auto-fit wraps
      it to 2x2 there and keeps one row everywhere it fits. */
   display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); margin-top: var(--sp-3);
   border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
   background: var(--surface);
 }
-.rp-c {
+/* A cell is an <a> where there is somewhere to go and a <div> where there is
+   not — a cell that links to the page you are already on is a lie the cursor
+   tells before the tap does nothing. */
+.onecounts > *, .rp-c {
   /* 12px of side padding left 63px for a label that needs 66 - "Reviews" in
      tracked caps was clipped by three pixels at 390px. */
   padding: 9px 9px; text-decoration: none; color: var(--ink);
   border-left: 1px solid var(--line); margin-left: -1px;
+  border-top: 1px solid var(--line); margin-top: -1px;
   transition: background-color var(--t-hover) ease;
 }
-.rp-c:first-child { border-left: 0; margin-left: 0; }
-.rp-c { border-top: 1px solid var(--line); margin-top: -1px; }
-.rp-c:hover { text-decoration: none; background: var(--bg-2); }
-.rp-c b {
+.onecounts > :first-child, .rp-c:first-child { border-left: 0; margin-left: 0; }
+.onecounts > a:hover, .rp-c:hover { text-decoration: none; background: var(--bg-2); }
+.onecounts > * b, .rp-c b {
   display: block; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 500;
   color: var(--ink-2); font-variant-numeric: tabular-nums; line-height: 1.25;
 }
-.rp-c span {
+.onecounts > * span, .rp-c span {
   display: block; font-size: var(--fs-tiny); letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--ink-3); margin-top: 3px; font-weight: 600;
 }
@@ -1157,7 +1185,7 @@ tr:last-child td { border-bottom: none; }
 /* apple-design 1: "respond on pointer-down, not on release... waiting for
    touch-up to show feedback feels dead." Every pressable surface now answers
    the finger the instant it lands. */
-.btn:active, .task:active, .dg-row:active, .rp-c:active, .card.hoverable:active {
+.btn:active, .task:active, .dg-row:active, .rp-c:active, .onecounts > a:active, .card.hoverable:active {
   transform: scale(0.985);
   transition: transform 100ms ease-out;
 }
@@ -1353,17 +1381,26 @@ tr:last-child td { border-bottom: none; }
 .q-item.locked .q-title { color: var(--ink-2); font-weight: 600; }
 .q-item.locked .q-kicker { color: var(--ink-3); }
 
-/* A gate is a crossing, not a course — a full-width rule rather than a card. */
-.q-gate .q-card {
-  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
-  border-left-color: var(--accent); border-style: dashed;
+/* A gate is a crossing, not a place you spend time — so it is a marker on the
+   spine, one line tall, not a card the same size as a three-month course. Six of
+   them as cards was six interruptions in a list of five real things. */
+.q-mark { align-items: center; padding-bottom: var(--sp-3); }
+.q-line {
+  flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  text-decoration: none; padding: 2px 0;
 }
+.q-line:hover { text-decoration: none; }
+.q-lt {
+  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600;
+  letter-spacing: 0.04em; color: var(--accent); min-width: 0;
+}
+.q-ld { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); margin-left: auto; }
+@media (hover: hover) { .q-line:hover .q-lt { text-decoration: underline; } }
 .q-gate .q-gnode { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
-.q-gate .q-kicker { color: var(--accent); }
 .q-gate.passed .q-gnode { border-color: var(--good); color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
-.q-gate.passed .q-card { border-left-color: var(--good); border-style: solid; }
+.q-gate.passed .q-lt { color: var(--good); }
 .q-gate.overdue .q-gnode { border-color: var(--bad); color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
-.q-gate.overdue .q-kicker { color: var(--bad); }
+.q-gate.overdue .q-lt { color: var(--bad); }
 
 @media (prefers-reduced-motion: no-preference) {
   /* The line arrives as a line: each rung fades up in turn, so the eye is walked
@@ -1375,16 +1412,10 @@ tr:last-child td { border-bottom: none; }
     transform-origin: top;
   }
   @keyframes questDraw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-  /* Where you are now, breathing — the one moving thing on the page. */
-  .q-item.now .q-node::after {
-    content: ""; position: absolute; width: 26px; height: 26px; border-radius: 50%;
-    border: 2px solid var(--fac, var(--accent));
-    animation: questPulse 2.4s var(--ease) infinite;
-  }
-  @keyframes questPulse {
-    0% { transform: scale(1); opacity: 0.7; }
-    70%, 100% { transform: scale(1.75); opacity: 0; }
-  }
+  /* There was a pulse on every .now node here. It meant "you are here" back when
+     one course was running and eleven were dimmed below it; now that the spine
+     carries only what is running, five nodes pulsed at once — which marks
+     nothing and moves five things on a page meant to be still. */
 }
 .q-item.now .q-node { position: relative; }
 

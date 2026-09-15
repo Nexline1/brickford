@@ -4,33 +4,48 @@
    caramel highlights. Editorial restraint: hairline borders,
    flat surfaces, serif display, quiet motion.
    Light is the default mode; dark is the roast.
+
+   That description is the original intent, and for a long time it
+   was not what the file did: the neutrals had drifted to a cool
+   grey (#fcfcfd paper, #14181f panel, #7fb0e6 crest) and the
+   display face was a grotesque, not a serif. The result was a
+   competent modern dashboard with a university's crest on it —
+   and the app icon shipped gold-on-brown while the crest inside
+   the app was light blue, so the home screen and the app did not
+   even agree with each other.
+
+   The neutrals are warm again (cream paper, espresso ink), the
+   panel is the icon's own #2b2118, the crest is the icon's own
+   gold, and the display face is Libre Caslon Text — the face
+   English university presses set their books in. Every value
+   still clears 4.5:1; that is checked, not asserted.
    ============================================================ */
 
 :root {
-  --shade: #1a1c1f;
+  --shade: #2b2118;
   /* Semantic — light theme: white cards on near-white, one institutional blue.
      Every ink is a SOLID value, never an alpha. Alpha inks are how a contrast
      failure hides: the same token passes on one surface and fails on the next,
      so nobody can check it by reading the stylesheet. Each value below was
      solved against the worst surface it can land on and clears 4.5:1 there. */
-  --bg: #fcfcfd;
-  --bg-2: #f2f3f5;        /* section bands — how sections separate */
+  --bg: #faf9f6;
+  --bg-2: #f2f0ea;        /* section bands — how sections separate */
   --surface: #ffffff;     /* cards */
-  --surface-2: #f7f8fa;
+  --surface-2: #f7f5f0;
   --float: #ffffff;
-  --line: #e3e6ea;
-  --line-strong: #c5cbd4;
-  --ink: #1a1c1f;
-  --ink-2: #4c535c;
-  --ink-3: #696f78;
-  --accent: #2b6cb0;      /* actions and links ONLY — under 5% of pixels */
+  --line: #e4e0d8;
+  --line-strong: #c7c0b3;
+  --ink: #1c1a17;
+  --ink-2: #4f4941;
+  --ink-3: #6b645a;
+  --accent: #1f4e79;      /* actions and links ONLY — under 5% of pixels */
   --accent-2: #26665f;
   --good: #2a7047;
   --bad: #b32d1f;
   /* The one thing that is due. Derived from --bad's hue but pulled back, so it
      reads as attention rather than as something having gone wrong. */
   --urgent: #9a5a16;
-  --btn-bg: #1a1c1f;
+  --btn-bg: #241f1a;
   --btn-ink: #ffffff;
   /* Elevation, as a three-step scale instead of three unrelated ad-hoc values.
      Derived from --shade so all seven themes get it without restating it, and
@@ -51,21 +66,27 @@
      the whole interface, which is what makes it read as structure rather than
      decoration — and confining it to two components is what stops its dark
      value from landing under dark text somewhere else. */
-  --panel: #14181f;
-  --panel-ink: #eef1f5;
-  --panel-accent: #7fb0e6;
+  --panel: #2b2118;
+  --panel-ink: #f2ece2;
+  --panel-accent: #d3a874;
   /* Emphasis is a rule, not a fill: --feature is the colour of the line along
      the top of a feature card. It used to be a dark background that re-scoped
      eight ink tokens, and every child that assumed light-theme values broke
      inside it. */
   --feature: var(--accent);
 
-  /* Type. Libre Franklin is Franklin Gothic — the face of American newspapers
-     and universities. Institutional, heavy, and not Inter, which belongs in the
-     interface and not in the headings. Scale is 1.25 from a 16px base. */
-  --font-display: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  /* Type. Display is Libre Caslon Text — Caslon is the face English university
+     presses set their books in, and it is what gives this thing an age rather
+     than a theme. Body is the platform's own face (SF on his phone), which
+     ships optical sizing and tracking tables no webfont here can match, and
+     which is also how the interface stops looking like every other generated
+     dashboard on the web. Scale is 1.25 from a 16px base.
+     Georgia is the fallback on purpose, not as filler: it is the one serif on
+     every machine with the same bones as Caslon, so a failed webfont degrades
+     to the right shape rather than to Times. */
+  --font-display: "Libre Caslon Text", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
-  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --fs-h1: clamp(1.94rem, 4vw, 2.44rem);
   --fs-h2: 1.5625rem;
   --fs-h3: 1.25rem;
@@ -282,17 +303,21 @@ body {
    display and loose on body. And hierarchy comes from weight, size and leading
    AS A SET rather than from weight 800 everywhere, which flattened h1 against
    h2 and made both shout.
-   Franklin Gothic still wants weight and tight tracking - that judgement was
-   right, it was just applied at one size. */
+   The face has changed since that was written, and the tracking changed with it:
+   a grotesque at 800 needed pulling in, a Caslon at 700 does not. */
 h1, h2, .display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
 }
-h1, .display { font-size: var(--fs-h1); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
-h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+/* Tracking is face-specific as well as size-specific. A grotesque at weight 800
+   needs -0.03em to stop looking gappy; a Caslon at 700 already has the fit its
+   punchcutter gave it, and pulling it -0.03em closes the counters and turns the
+   serifs into a smear. Tighten it barely, and only at display size. */
+h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.008em; line-height: 1.1; }
+h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.004em; line-height: 1.2; }
 h3 {
-  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 600;
-  letter-spacing: -0.01em; line-height: 1.25; font-optical-sizing: auto;
+  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 700;
+  letter-spacing: 0; line-height: 1.3; font-optical-sizing: auto;
 }
 /* Small text wants slightly POSITIVE tracking - the mirror of the rule above.
    Applied at the token so every label inherits it rather than each block
@@ -327,8 +352,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
 .crest svg { width: 46px; height: 46px; color: var(--accent); }
 .crest .name-en {
-  font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; color: var(--ink);
-  margin-top: 6px; letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--ink);
+  /* A seal is letterspaced wider than a logotype. Caslon caps have room for it. */
+  margin-top: 8px; letter-spacing: 0.14em; text-transform: uppercase;
 }
 /* A hairline between name and descriptor — the lockup device every institutional
    identity in the references uses to say "this is a seal, not a logotype". */
@@ -368,7 +394,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .theme-menu button.on { color: var(--ink); font-weight: 600; }
 .theme-menu button.on::after { content: "✓"; margin-left: auto; color: var(--accent); }
 .theme-menu .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(128, 118, 100, 0.5); }
-.motto { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; line-height: 1.7; }
+.motto { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; line-height: 1.7; }
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
 .view-enter { animation: viewIn var(--t-enter) var(--ease) both; }
@@ -381,8 +407,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    place you have to navigate back to.
    Below 1040px it is hidden and .railbar takes over. */
 .rail { display: none; }
-.railbar { display: none;     box-shadow: var(--e3);
-  }
+.railbar {
+  display: none;
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--ink) 7%, transparent),
+              0 -6px 20px color-mix(in srgb, var(--shade) 10%, transparent);
+}
 @media (min-width: 1040px) {
   .rail {
     display: block; width: 300px; flex-shrink: 0;
@@ -405,7 +434,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color: var(--ink-3); font-weight: 600;
 }
 .rail-card .rl-code { font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
-.rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: -0.015em; line-height: 1.3; color: var(--ink); margin-top: 2px; }
+.rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: 0; line-height: 1.3; color: var(--ink); margin-top: 2px; }
 .rail-card .rl-meta { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
 .rail-card .btn { width: 100%; justify-content: center; margin-top: var(--sp-3); }
 .rail-card .rl-foot {
@@ -417,7 +446,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .rail-card .rl-foot b { font-family: var(--font-mono); color: var(--ink); font-weight: 500; }
 
 /* ---------- Common blocks ---------- */
-.page-head { margin-bottom: var(--sp-4); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); }
+/* A double rule under the title, which is how a printed title page divides
+   itself from the matter below. It is one property, it costs nothing, and it
+   is the difference between a page and a panel. */
+.page-head { margin-bottom: var(--sp-4); padding-bottom: var(--sp-3); border-bottom: 3px double var(--line-strong); }
 .page-head .kicker { font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
 .page-head .kicker a { color: inherit; }
 .page-head h1 { margin-top: 6px; }
@@ -559,7 +591,7 @@ tr:last-child td { border-bottom: none; }
    the whole thing. Two lines here is enough to choose by. */
 .course-card .desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .course-card .code { font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0.06em; color: var(--accent); font-weight: 500; }
-.course-card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; letter-spacing: -0.018em; margin: 4px 0 4px; }
+.course-card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; letter-spacing: 0; margin: 4px 0 4px; }
 .course-card .desc { font-size: var(--fs-small); color: var(--ink-2); }
 .course-card .edge { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--fac, var(--accent)); }
 .course-card.locked { opacity: 0.55; }
@@ -1001,8 +1033,9 @@ tr:last-child td { border-bottom: none; }
 /* The lecture title, at the size the day number used to take. Karpathy's titles
    run past 60 characters; here they wrap instead of being truncated. */
 .dash-hero .dh-title {
+  font-family: var(--font-display); font-weight: 700;
   margin: 6px 0 0; color: var(--ink);
-  font-size: clamp(1.5rem, 5.2vw, 2.1rem); line-height: 1.12; letter-spacing: -0.02em;
+  font-size: clamp(1.5rem, 5.2vw, 2.1rem); line-height: 1.16; letter-spacing: -0.006em;
 }
 .dash-hero .dh-cta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-3); }
 /* The hero keeps its button at every width. This used to hide it above 1040px
@@ -1095,8 +1128,10 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- Library ---------- */
 .lib-list .dg-row { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
+/* The entry line under a catalogue title: system face, so it reads as apparatus
+   rather than as more of the title. */
 .lib-sub {
-  display: block; font-size: var(--fs-small); font-weight: 400;
+  display: block; font-family: var(--font-body); font-size: var(--fs-small); font-weight: 400;
   color: var(--ink-2); margin-top: 2px; letter-spacing: 0.004em;
 }
 .lib-list .dg-dur { font-size: 1.1rem; color: var(--ink-3); align-self: center; }
@@ -1121,7 +1156,7 @@ tr:last-child td { border-bottom: none; }
 .one.urgent .one-kind { color: var(--urgent); }
 .one-kind, .rp-kind {
   font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h2);
-  letter-spacing: -0.02em; line-height: 1.15; color: var(--ink);
+  letter-spacing: -0.004em; line-height: 1.2; color: var(--ink);
 }
 .one-more, .rp-more {
   font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
@@ -1158,7 +1193,11 @@ tr:last-child td { border-bottom: none; }
 .onecounts, .rp-counts {
   /* Four across needs ~316px of content in a 278px box at 320px. auto-fit wraps
      it to 2x2 there and keeps one row everywhere it fits. */
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); margin-top: var(--sp-3);
+  /* Capped, because these rows carry two to five cells and an auto-fit grid
+     stretched two of them across a 1170px column — a ledger line reading as an
+     empty table. It fills the width it needs and stops. */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  max-width: 560px; margin-top: var(--sp-3);
   border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
   background: var(--surface);
 }
@@ -1239,7 +1278,11 @@ tr:last-child td { border-bottom: none; }
   font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600;
   color: var(--ink-3); font-variant-numeric: tabular-nums;
 }
-.dg-t { flex: 1; min-width: 0; font-size: var(--fs-body); font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+/* The thing being named — a lecture, a course, a bank — is set in the display
+   serif, because that is what a catalogue does. The metadata under it stays in
+   the system face, so the two read as title and entry rather than one blob. */
+.dg-t { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 1.02rem;
+  font-weight: 700; line-height: 1.32; overflow-wrap: anywhere; }
 .dg-dur {
   flex-shrink: 0; font-family: var(--font-mono); font-size: var(--fs-tiny);
   color: var(--ink-3); font-variant-numeric: tabular-nums;
@@ -1383,7 +1426,7 @@ tr:last-child td { border-bottom: none; }
 }
 .q-kicker .q-when { color: var(--ink-3); font-weight: 500; letter-spacing: 0.02em; }
 .q-item.now .q-kicker .q-when { color: var(--fac, var(--accent)); }
-.q-title { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.015em; line-height: 1.3; margin: 3px 0 8px; }
+.q-title { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.06rem; letter-spacing: 0; line-height: 1.3; margin: 3px 0 8px; }
 .q-card .bar { display: block; margin-bottom: 7px; }
 .q-meta { display: block; font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
 .q-meta b { color: var(--ink-2); font-weight: 500; }
@@ -1546,7 +1589,7 @@ tr:last-child td { border-bottom: none; }
 .atlas-band.now { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 .ab-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: var(--sp-2); }
 .ab-head .ab-n { width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); display: grid; place-items: center; font-size: 0.7rem; flex-shrink: 0; }
-.ab-head .ab-name { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.015em; }
+.ab-head .ab-name { font-family: var(--font-display); font-weight: 700; letter-spacing: 0; }
 .ab-head .ab-gate { font-size: var(--fs-tiny); color: var(--ink-3); margin-left: auto; }
 .atlas-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: var(--sp-2); }
 .atlas-node {
@@ -1671,8 +1714,15 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- Responsive ---------- */
 .menu-btn { display: none; }
-.tabbar { display: none;     box-shadow: var(--e3);
-  }
+/* apple-design 12: "scroll edge effects, not hard dividers". The bar is a
+   translucent material with content moving under it, so it needs a bright top
+   edge and a soft lift — an --e3 slab under glass reads as a drawer, not a
+   material. */
+.tabbar {
+  display: none;
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--panel-ink) 12%, transparent),
+              0 -8px 24px color-mix(in srgb, var(--shade) 18%, transparent);
+}
 @media (max-width: 860px) {
   :root { --tabbar-h: 58px; }
   .shell { flex-direction: column; }
@@ -1741,7 +1791,6 @@ tr:last-child td { border-bottom: none; }
     background: color-mix(in srgb, var(--surface) 94%, transparent);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--line);
-    box-shadow: 0 -4px 16px color-mix(in srgb, var(--ink) 7%, transparent);
   }
   .railbar:empty { display: none; }
   .railbar .rb-main { flex: 1; min-width: 0; }
@@ -1780,4 +1829,23 @@ tr:last-child td { border-bottom: none; }
 @media (max-width: 700px) {
   .lsn-act .btn.lg { width: 100%; justify-content: center; }
   .lsn-run { margin-top: -4px; }
+}
+
+/* ---------- Reduced transparency and increased contrast ----------
+   apple-design 14: reduced motion is not the only signal, and it is the only one
+   this file had ever answered. Someone who has asked their OS for less
+   translucency or more contrast is asking for legibility, not for decoration —
+   so the materials go solid and the borders get defined, rather than anything
+   being taken away. */
+@media (prefers-reduced-transparency: reduce) {
+  .tabbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --line: var(--line-strong); }
+  .card, .dg-row, .unit, .onecounts { border-color: var(--line-strong); }
+  .tabbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  /* A hairline is a suggestion; at this setting the separation has to be stated. */
+  .dg-row { border-top-color: var(--line-strong); }
 }

@@ -3138,7 +3138,9 @@
       // The seal. It is the page's whole claim, so it stays — at the size a
       // statement needs rather than the 36px-padded block it was.
       '<div class="card feature" style="text-align:center;">' +
-      '<div style="font-family:var(--font-display); font-weight:600; font-size:1.4rem; color:var(--ink);">Brickford</div>' +
+            // Caslon ships 400 and 700; 600 makes the browser synthesise a weight by
+      // smearing the outlines, which is exactly the wrong thing to do to a seal.
+      '<div style="font-family:var(--font-display); font-weight:700; font-size:1.35rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink);">Brickford</div>' +
       '<div style="font-size:var(--fs-tiny); letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-3); margin-top:2px;">Academic record</div>' +
       '<div class="mono" style="font-size:2.4rem; font-weight:600; color:var(--ink); margin-top:10px;">' + overall + "%</div>" +
       '<div class="pill gold" style="margin-top:6px;">' + stEn + (stGrade !== "—" ? " · Grade " + stGrade : "") + "</div></div>" +

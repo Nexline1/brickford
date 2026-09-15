@@ -1181,6 +1181,15 @@
       if (!(S.reps.humor || []).some(e => weekOf(e.date) === wk))
         out.push({ kind: "humor", label: "Humour rep", hint: "five attempts, most will be bad" });
     }
+    // The monthly review was reachable only by scrolling to a form that was
+    // always on screen. Now that the page shows what is owed, it has to be able
+    // to BE owed - otherwise it can never be done at all. It comes due once
+    // there is a recording four weeks old and no review since.
+    const old4 = addDaysISO(iso, -28);
+    const hasOld = (S.reps.story || []).some(e => e.date <= old4);
+    const lastRev = (S.reps.review || []).reduce((a, e) => (e.date > a ? e.date : a), "");
+    if (hasOld && (!lastRev || lastRev <= old4))
+      out.push({ kind: "review", label: "Monthly review", hint: "rewatch the recording from four weeks ago" });
     return out;
   }
   // Which plan week a date belongs to, so "one a week" means one per plan week
@@ -1423,9 +1432,16 @@
 
       // ---- At a glance: five numbers, no sentences ----
       factsHTML([
-        { k: "streak", v: st + "d", lead: st > 0 },
-        { k: "proven", v: proven },
-        { k: "solved", v: dsa + "/150" },
+        // A counter at zero is not a measurement, it is an absence - and on a
+        // fresh start this strip read five zeros stacked against the day and the
+        // next action. apple-design 16: "use hierarchy so the most important
+        // thing is the most obvious"; five zeros compete with it for nothing.
+        // Each of these earns its cell once it has something to say.
+        st > 0 ? { k: "streak", v: st + "d", lead: true } : null,
+        proven > 0 ? { k: "proven", v: proven } : null,
+        dsa > 0 ? { k: "solved", v: dsa + "/150" } : null,
+        // These two always show: a countdown and a debt are both meaningful at
+        // zero - "0 behind" is the thing you want to see.
         g ? { k: "to gate " + g.n, v: gateLeft + "d" } : { k: "gates", v: "all" },
         backlog > 0 ? { k: "behind", v: backlog > 20 ? "20+" : backlog } : { k: "behind", v: "0" },
         // Only when connected: a device that has not synced for days should show it.
@@ -1903,8 +1919,8 @@
   };
 
   V.exams = function () {
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exam Hall</h1>' +
-      '<div class="sub">Diagnostics set Phase 1’s shape (≥70%). Concept exams are auto-graded, drawn fresh each sitting.</div></div>' +
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exams</h1>' +
+      '<div class="sub">Sit a question bank. Auto-graded, drawn fresh each time, and a bank only opens once you have watched what it tests.</div></div>' +
       '<div class="sect"><h2>Official diagnostics</h2><span class="sect-meta">' + D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length + ' of ' + D.DIAGNOSTICS.length + ' sat</span></div>' + "<div class='grid cols-2'>" +
       D.DIAGNOSTICS.map(d => {
         const r = S.diag[d.id] || {};
@@ -2773,8 +2789,8 @@
     const tile = (label, value) =>
       '<div class="card tile"><div class="t-label">' + label + '</div><div class="t-value">' + value + "</div></div>";
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>The Record</h1>' +
-      '<div class="sub">Every step, hash-chained in order. Edit one and the rest stop matching.</div>' +
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>Proof</h1>' +
+      '<div class="sub">The log of everything you have actually done, hash-chained in order. Edit one entry and the rest stop matching — which is what makes it proof.</div>' +
       '<div class="row-actions"><a class="btn ghost" href="#/transcript">Transcript &amp; gates</a>' +
       '<a class="btn ghost" href="#/method">How it works</a></div></div>' +
 
@@ -2901,8 +2917,8 @@
   V.review = function () {
     const w = weekNumber();
     const logged = S.weeks.some(x => +x.week === w);
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Sunday ritual</div><h1>Weekly Review</h1>' +
-      '<div class="sub">One row per week. No shipped artifact = a failed week.</div></div>' +
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Sunday ritual</div><h1>Week</h1>' +
+      '<div class="sub">Seal the week: what shipped, what did not. No shipped artifact is a failed week.</div></div>' +
       '<div class="card"><h2>Week ' + w + (logged ? " — already logged" : "") + "</h2>" +
       '<div class="grid cols-2" style="margin-top:10px;">' +
       '<div><label class="field">Shipped this week (repo, post, PR, delivery — or empty if none)</label><input type="text" id="rvShipped" placeholder="e.g. flashcards-cli on GitHub + blog post #1"></div>' +
@@ -2989,101 +3005,93 @@
       "</div>";
   }
 
+  // The page you land on to DO a rep, not to read about one.
+  //
+  // It was four stacked cards, 241 words of instruction and twelve input fields
+  // all on screen at once - you had to read four paragraphs before you could do
+  // a two-minute entry. apple-design 6: "strip the unnecessary so the core
+  // purpose shines... show the common path first, advanced options one level
+  // deeper." The common path is the single rep owed right now. Everything else
+  // is one level deeper, behind the counts row or the history fold.
+  const REP_FORM = {
+    bank: () =>
+      '<label class="field" for="bankWhat">What happened</label>' +
+      '<input id="bankWhat" type="text" autocomplete="off" placeholder="a client asked what an embedding was">' +
+      '<label class="field" for="bankWhy" style="margin-top:10px;">Why it stuck</label>' +
+      '<input id="bankWhy" type="text" autocomplete="off" placeholder="he got it in 20 seconds">',
+    story: () =>
+      '<div class="grid cols-2">' +
+      '<div><label class="field" for="repSecs">Seconds</label><input id="repSecs" type="number" min="1" max="600" inputmode="numeric"></div>' +
+      '<div><label class="field" for="repTakes">Takes</label><input id="repTakes" type="number" min="1" max="50" inputmode="numeric"></div></div>' +
+      '<label class="field" for="repWhich" style="margin-top:10px;">Which entry</label>' +
+      '<input id="repWhich" type="text" autocomplete="off" placeholder="the napkin one">',
+    humor: () =>
+      [0, 1, 2, 3, 4].map(k =>
+        '<input id="joke' + k + '" type="text" autocomplete="off" style="margin-top:' + (k ? "8px" : "0") +
+        ';" aria-label="Attempt ' + (k + 1) + '" placeholder="' + (k + 1) + '"></input>').join("") +
+      '<label class="field" for="jokeKeep" style="margin-top:10px;">Keeper (1\u20135, blank for none)</label>' +
+      '<input id="jokeKeep" type="number" min="1" max="5" inputmode="numeric">',
+    review: () =>
+      '<label class="field" for="revNotes">What the four-week-old recording shows</label>' +
+      '<textarea id="revNotes" rows="4"></textarea>',
+  };
+  const REP_ACT = { bank: "repBank", story: "repStory", humor: "repHumor", review: "repReview" };
+  const REP_VERB = { bank: "Log it", story: "Log the rep", humor: "Log five", review: "Log the review" };
+
   V.practice = function () {
     const R = S.reps, today = todayISO(), due = repsDue();
-    const bank = (R.bank || []).slice().reverse();
-    const wk = weekOf(today);
-    const thisWeekStory = (R.story || []).filter(e => weekOf(e.date) === wk).length;
-    const thisWeekHumor = (R.humor || []).filter(e => weekOf(e.date) === wk).length;
     const resting = isRestDay(today) && today >= D.START_DATE;
+    const n = k => (R[k] || []).length;
+    const bank = (R.bank || []).slice().reverse();
 
-    const box = (title, sub, body) =>
-      '<div class="card" style="margin-top:16px;"><h2>' + title + "</h2>" +
-      '<p class="muted" style="margin-top:2px; font-size:var(--fs-small);">' + sub + "</p>" + body + "</div>";
+    // The counts row: four numbers, each a way in to that history. This is the
+    // whole of the old four-tile facts strip plus the four card headers.
+    const counts = '<div class="rp-counts">' +
+      [["bank", "Bank"], ["story", "Story"], ["humor", "Humour"], ["review", "Reviews"]]
+        .map(([k, lbl]) => '<a class="rp-c" href="#/practice"><b>' + n(k) + "</b><span>" + lbl + "</span></a>")
+        .join("") + "</div>";
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The reps</div><h1>Practice</h1>' +
-      '<div class="sub">Watching does not make anyone funnier. This is the part that does.</div></div>' +
+    const head = '<div class="view-enter"><div class="page-head"><div class="kicker">The reps</div><h1>Practice</h1>' +
+      '<div class="sub">Watching does not make anyone funnier. This does.</div></div>';
 
-      factsHTML([
-        { k: "bank", v: (R.bank || []).length, lead: (R.bank || []).length > 0 },
-        { k: "story reps", v: (R.story || []).length },
-        { k: "humour reps", v: (R.humor || []).length },
-        { k: "reviews", v: (R.review || []).length },
-      ]) +
+    if (resting)
+      return head + '<div class="card rp-one"><h2>' + REST_NAME + "</h2>" +
+        '<p class="muted">Nothing owed today.</p></div>' + counts + "</div>";
 
-      (resting
-        ? '<div class="card" style="margin-top:16px;"><h2>' + REST_NAME + " — nothing owed</h2>" +
-          '<p class="muted" style="margin-top:4px;">The rest day owes no reps. Missing it breaks nothing.</p></div>'
-        : due.length
-          ? '<div class="card" style="margin-top:16px;"><h2>Owed today</h2><div class="tl" style="margin-top:8px;">' +
-            due.map(d => '<div class="tl-row"><span class="tl-date">' + esc(d.label) + "</span>" +
-              '<span class="tl-what">' + esc(d.hint) + "</span></div>").join("") + "</div></div>"
-          : '<div class="card" style="margin-top:16px;"><h2>Clear for today</h2>' +
-            '<p class="muted" style="margin-top:4px;">Every rep owed today is logged.</p></div>') +
+    if (!due.length)
+      return head + '<div class="card rp-one rp-clear"><h2>Clear for today</h2>' +
+        '<p class="muted">Every rep owed today is logged. Streak ' + streak() + "d.</p></div>" +
+        counts + repHistoryHTML(bank, R) + "</div>";
 
-      // ---- the bank ----
-      box("Story bank", "One real thing from today. Two lines: what happened, then why it stuck. Same day — a bank filled from memory on Sunday is a bank of the four things you would have told anyway.",
-        '<div class="grid cols-2" style="margin-top:12px;">' +
-        '<div><label class="field" for="bankWhat">What happened</label>' +
-        '<input id="bankWhat" type="text" placeholder="The client asked what an embedding was and I drew it on a napkin."></div>' +
-        '<div><label class="field" for="bankWhy">Why it stuck</label>' +
-        '<input id="bankWhy" type="text" placeholder="He got it in 20 seconds. Four years of study, one napkin."></div></div>' +
-        '<div style="margin-top:10px;"><button class="btn" data-act="repBank">Log today\u2019s entry</button></div>' +
-        (bank.length
-          ? '<div class="tl" style="margin-top:14px;">' + bank.slice(0, 12).map(e =>
-              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
-              '<span class="tl-what">' + esc(e.what) + (e.why ? '<br><span style="color:var(--ink-3);">' + esc(e.why) + "</span>" : "") +
-              "</span></div>").join("") + "</div>" +
-            (bank.length > 12 ? '<p class="muted" style="margin-top:8px; font-size:var(--fs-tiny);">' + (bank.length - 12) + " older entries kept.</p>" : "")
-          : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:10px;">Empty. Tonight\u2019s entry is the first.</p>')) +
-
-      // ---- weekly reps ----
-      box("Story rep &mdash; weekly, recorded, under 90 seconds",
-        "One entry from this week\u2019s bank, told out loud and recorded. No script. Second takes are fine; log how many, because take count over time is the signal." +
-        (thisWeekStory ? " <strong>Done this week.</strong>" : ""),
-        '<div class="grid cols-2" style="margin-top:12px;">' +
-        '<div><label class="field" for="repSecs">Length (seconds)</label><input id="repSecs" type="number" min="1" max="600" placeholder="84"></div>' +
-        '<div><label class="field" for="repTakes">Takes</label><input id="repTakes" type="number" min="1" max="50" placeholder="2"></div></div>' +
-        '<div style="margin-top:8px;"><label class="field" for="repWhich">Which bank entry</label>' +
-        '<input id="repWhich" type="text" placeholder="the napkin one, 2026-09-14"></div>' +
-        '<div style="margin-top:10px;"><button class="btn" data-act="repStory">Log the rep</button></div>' +
-        ((R.story || []).length
-          ? '<div class="tl" style="margin-top:14px;">' + (R.story || []).slice(-6).reverse().map(e =>
-              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
-              '<span class="tl-what">' + e.seconds + "s \u00b7 " + e.takes + " take" + (e.takes === 1 ? "" : "s") +
-              (e.from ? " \u00b7 " + esc(e.from) : "") + "</span></div>").join("") + "</div>"
-          : "")) +
-
-      box("Humour rep &mdash; weekly, five attempts",
-        "Five attempts at a joke about something from your week. Most will be bad; that is the format, not a failure of it. Mark the one you would actually say out loud, or mark none." +
-        (thisWeekHumor ? " <strong>Done this week.</strong>" : ""),
-        '<div style="margin-top:12px;">' +
-        [0, 1, 2, 3, 4].map(i =>
-          '<input id="joke' + i + '" type="text" style="margin-top:6px;" placeholder="Attempt ' + (i + 1) + '">').join("") +
-        "</div>" +
-        '<div style="margin-top:8px;"><label class="field" for="jokeKeep">Keeper (1\u20135, or blank for none)</label>' +
-        '<input id="jokeKeep" type="number" min="1" max="5" placeholder=""></div>' +
-        '<div style="margin-top:10px;"><button class="btn" data-act="repHumor">Log five attempts</button></div>' +
-        ((R.humor || []).length
-          ? '<div class="tl" style="margin-top:14px;">' + (R.humor || []).slice(-4).reverse().map(e =>
-              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
-              '<span class="tl-what">' + (e.attempts || []).filter(Boolean).length + " attempts" +
-              (e.keeper ? " \u00b7 kept #" + e.keeper : " \u00b7 none kept") + "</span></div>").join("") + "</div>"
-          : "")) +
-
-      box("Monthly review",
-        "Rewatch your recordings from four weeks ago against the mechanics you had covered <em>by then</em> \u2014 not against what you know now. Long enough that you have forgotten your own delivery; short enough that the mechanics are still the ones you were working on.",
-        '<div style="margin-top:12px;"><label class="field" for="revNotes">What the four-week-old recording shows</label>' +
-        '<textarea id="revNotes" rows="4" placeholder="Which mechanic did I not use that I now can? What did I do without noticing? Is it tighter, or just shorter?"></textarea></div>' +
-        '<div style="margin-top:10px;"><button class="btn" data-act="repReview">Log the review</button></div>' +
-        ((R.review || []).length
-          ? '<div class="tl" style="margin-top:14px;">' + (R.review || []).slice(-4).reverse().map(e =>
-              '<div class="tl-row"><span class="tl-date">' + esc(e.date) + "</span>" +
-              '<span class="tl-what">' + esc((e.notes || "").slice(0, 140)) + "</span></div>").join("") + "</div>"
-          : "")) +
-
-      "</div>";
+    // ONE rep. The next one appears here the moment this is logged.
+    const d = due[0];
+    return head +
+      '<div class="card rp-one">' +
+      '<div class="rp-kind">' + esc(d.label) + (due.length > 1 ? ' <span class="rp-more">+' + (due.length - 1) + " more</span>" : "") + "</div>" +
+      '<p class="rp-hint">' + esc(d.hint) + "</p>" +
+      '<div class="rp-form">' + REP_FORM[d.kind]() + "</div>" +
+      '<button class="btn lg rp-go" data-act="' + REP_ACT[d.kind] + '">' + REP_VERB[d.kind] + "</button>" +
+      "</div>" +
+      counts + repHistoryHTML(bank, R) + "</div>";
   };
+
+  // Everything that is not today's rep, folded away. It is a record, not a task.
+  function repHistoryHTML(bank, R) {
+    if (!bank.length && !(R.story || []).length && !(R.humor || []).length && !(R.review || []).length) return "";
+    const row = (date, what, sub) =>
+      '<div class="tl-row"><span class="tl-date">' + esc(date) + "</span>" +
+      '<span class="tl-what">' + esc(what) + (sub ? '<br><span style="color:var(--ink-3);">' + esc(sub) + "</span>" : "") + "</span></div>";
+    return '<details class="unit" style="margin-top:16px;"><summary>' +
+      '<span class="u-name">History</span><span class="pill">' +
+      (bank.length + (R.story || []).length + (R.humor || []).length + (R.review || []).length) + " logged</span>" +
+      '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
+      '<div class="tl">' +
+      bank.slice(0, 10).map(e => row(e.date, e.what, e.why)).join("") +
+      (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep \u00b7 " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
+      (R.humor || []).slice(-4).reverse().map(e => row(e.date, (e.attempts || []).filter(Boolean).length + " jokes written", e.keeper ? "kept #" + e.keeper : "none kept")).join("") +
+      (R.review || []).slice(-3).reverse().map(e => row(e.date, "Monthly review", (e.notes || "").slice(0, 90))).join("") +
+      "</div></div></details>";
+  }
 
   V.treasury = function () {
     const t = S.treasury;
@@ -3148,8 +3156,8 @@
     const psetDone = D.PSETS.reduce((a, g) => a + g.items.filter(i => S.psets[i.id]).length, 0);
     const pool = missPool();
     const phases = [[0, "Phase 0 — Calibration"], [1, "Phase 1 — Foundations"], [2, "Phase 2 — Depth"], [3, "Phase 3 — Frontier"]];
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The forge</div><h1>Workshop</h1>' +
-      '<div class="sub">Labs, problem sets, and a drill built from your own mistakes.</div>' +
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The forge</div><h1>Problems</h1>' +
+      '<div class="sub">Build something, work problem sets, or drill the questions you personally got wrong.</div>' +
       '<div class="row-actions"><a class="btn" href="#/recall">Recall due</a>' +
       '<a class="btn ghost" href="#/drill">Daily drill</a></div></div>' +
 
@@ -3315,19 +3323,61 @@
     { id: "offers", file: "../earning-offers.md", title: "Earning Offers", sub: "Three productized offers, Arabic pitch included" },
     { id: "log", file: "../progress-log.md", title: "Progress Log (file)", sub: "The original markdown log — the Weekly Review here supersedes it" },
   ];
+  // The Library is a list of things to open. It was rendering five one-line
+  // documents as five ~150px hero cards in a 2-col grid, with two more
+  // documents stranded as buttons in the page head - and then ten external
+  // links as a ragged pile of pills of ten different widths.
+  //
+  // apple-design 16, grouping and mapping: "proximity implies relationship."
+  // A pile in one row says these ten things are alike; they are not. So the
+  // documents become one compact list and the external links are grouped by
+  // what they actually are.
+  const HALLS = [
+    ["Video courses", [
+      ["Karpathy \u2014 Zero to Hero", "https://karpathy.ai/zero-to-hero.html"],
+      ["3Blue1Brown", "https://www.3blue1brown.com/"],
+      ["fast.ai", "https://course.fast.ai/"],
+      ["ARENA curriculum", "https://www.arena.education/"],
+    ]],
+    ["Books", [
+      ["Mathematics for ML", "https://mml-book.github.io/"],
+      ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
+    ]],
+    ["Problems & lectures", [
+      ["NeetCode", "https://neetcode.io/roadmap"],
+      ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
+      ["Stat 110", "https://stat110.hsites.harvard.edu/"],
+    ]],
+    ["Source", [
+      ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
+    ]],
+  ];
   V.library = function () {
+    // The handbook and How it works are documents too - they were in the page
+    // head only because they are not in DOCS. They belong in the list.
+    const rows = [{ href: "#/guide", title: "The Handbook", sub: "How Brickford works, end to end" },
+                  { href: "#/method", title: "The Method", sub: "Why it is built this way \u2014 coverage vs. mastery" }]
+      .concat(DOCS.map(d => ({ href: "#/doc/" + d.id, title: d.title, sub: d.sub })));
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Knowledge base</div><h1>Library</h1>' +
-      '<div class="sub">The founding documents, and every external resource.</div>' +
-      '<div class="row-actions"><a class="btn ghost" href="#/guide">The handbook</a>' +
-      '<a class="btn ghost" href="#/method">How it works</a></div></div>' +
-      '<div class="sect"><h2>Founding documents</h2><span class="sect-meta">' + DOCS.length + ' documents</span></div>' +
-      '<div class="grid cols-2">' +
-      DOCS.map(d => '<a class="card hoverable" href="#/doc/' + d.id + '" style="text-decoration:none;"><h3>' + esc(d.title) + '</h3><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">' + esc(d.sub) + "</p></a>").join("") +
-      '</div><div class="card" style="margin-top:16px;"><h2>External halls</h2><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
-      [["Karpathy — Zero to Hero", "https://karpathy.ai/zero-to-hero.html"], ["nanoGPT", "https://github.com/karpathy/nanoGPT"], ["fast.ai", "https://course.fast.ai/"], ["NeetCode", "https://neetcode.io/roadmap"], ["MIT OpenCourseWare", "https://ocw.mit.edu/"], ["Stat 110", "https://stat110.hsites.harvard.edu/"], ["Mathematics for ML (book)", "https://mml-book.github.io/"], ["Understanding Deep Learning (book)", "https://udlbook.github.io/udlbook/"], ["ARENA curriculum", "https://www.arena.education/"], ["3Blue1Brown", "https://www.3blue1brown.com/"]]
-        .map(r => '<a class="btn ghost" href="' + r[1] + '" target="_blank" rel="noopener">' + r[0] + " ↗</a>").join("") +
-      "</div></div></div>";
+      '<div class="sub">Everything written down: the founding documents, and the outside resources the courses draw on.</div></div>' +
+
+      '<div class="sect"><h2>Documents</h2><span class="sect-meta">' + rows.length + " to read</span></div>" +
+      '<div class="daygroup"><div class="lib-list">' +
+      rows.map(r => '<a class="dg-row" href="' + r.href + '">' +
+        '<span class="dg-t">' + esc(r.title) + '<span class="lib-sub">' + esc(r.sub) + "</span></span>" +
+        '<span class="dg-dur">\u203a</span></a>').join("") +
+      "</div></div>" +
+
+      '<div class="sect" style="margin-top:22px;"><h2>External halls</h2><span class="sect-meta">' +
+      HALLS.reduce((a, h) => a + h[1].length, 0) + " links</span></div>" +
+      HALLS.map(([label, links]) =>
+        '<div class="hall"><div class="hall-h">' + esc(label) + "</div>" +
+        '<div class="hall-links">' + links.map(r =>
+          '<a class="btn ghost" href="' + r[1] + '" target="_blank" rel="noopener">' + esc(r[0]) + " \u2197</a>").join("") +
+        "</div></div>").join("") +
+      "</div>";
   };
+
 
   V.doc = function (id) {
     const d = DOCS.find(x => x.id === id);

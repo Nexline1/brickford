@@ -253,7 +253,10 @@ html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-body);
   font-size: var(--fs-body);
-  line-height: 1.7;
+  /* 1.7 is essay leading. This is a dense, information-heavy interface and it
+     read loose and sprawling - apple-design 15: "tighten it for dense,
+     information-heavy UI". */
+  line-height: 1.55;
   color: var(--ink);
   background: var(--bg);
   /* dvh follows the mobile toolbar; the vh line stays as the fallback. */
@@ -262,12 +265,30 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Franklin Gothic wants weight and tight tracking; at 600 with loose spacing it
-   just looks like a heavier Inter. */
-h1, h2, .display { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.022em; line-height: 1.12; }
-h1 { font-size: var(--fs-h1); line-height: 1.05; }
-h2 { font-size: var(--fs-h2); }
-h3 { font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 700; letter-spacing: -0.015em; line-height: 1.25; }
+/* Type scale. One tracking value and one leading value used to serve every
+   heading size here - apple-design 15 is blunt about why that cannot be right:
+   "tracking is size-specific, never one value for all sizes. A fixed
+   letter-spacing is wrong somewhere." Letters read too far apart as they grow,
+   so tracking tightens with size; leading moves the opposite way, tight on
+   display and loose on body. And hierarchy comes from weight, size and leading
+   AS A SET rather than from weight 800 everywhere, which flattened h1 against
+   h2 and made both shout.
+   Franklin Gothic still wants weight and tight tracking - that judgement was
+   right, it was just applied at one size. */
+h1, h2, .display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+h1, .display { font-size: var(--fs-h1); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+h3 {
+  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 600;
+  letter-spacing: -0.01em; line-height: 1.25; font-optical-sizing: auto;
+}
+/* Small text wants slightly POSITIVE tracking - the mirror of the rule above.
+   Applied at the token so every label inherits it rather than each block
+   re-deciding. */
+.sub, .muted, .note { letter-spacing: 0.004em; line-height: 1.5; }
 .mono { font-family: var(--font-mono); }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -798,7 +819,11 @@ tr:last-child td { border-bottom: none; }
 .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-3); }
 @media (max-width: 860px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tile { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); }
-.tile .t-label { font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+/* "Examinations" is 112px of tracked caps in a 105px tile - it was being cut at
+   every width, not just narrow ones. Pre-existing; found by widening the
+   clipping sweep to cover /record. Wraps now rather than truncating, since a
+   half-word label tells you nothing. */
+.tile .t-label { font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; overflow-wrap: anywhere; hyphens: auto; }
 .tile .t-value { font-family: var(--font-mono); font-size: 1.55rem; font-weight: 500; line-height: 1.2; color: var(--ink); font-variant-numeric: tabular-nums; }
 .tile .t-value .unit { font-family: var(--font-body); font-size: 0.72rem; color: var(--ink-3); }
 /* auto keeps every tile's bar on the same baseline, so a tile without one
@@ -904,7 +929,11 @@ tr:last-child td { border-bottom: none; }
      counting across, then the day's lectures walking down. Same curve, same
      per-index delay, so the two pages feel like one product rather than two.
      --i is the item's index, set in the markup. */
-  .tasks > .task { animation: questIn 380ms var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+  /* .daygroups is the day list since it was regrouped by course; .tasks is still
+     the concept "where it applies" list. Both stagger on --i, which each
+     renderer already sets. Missing the first selector silently cost the
+     dashboard its entrance - the rule kept matching nothing. */
+  .tasks > .task, .daygroups > .daygroup { animation: questIn 380ms var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
   .facts > .fact { animation: factIn 300ms var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms + 60ms); }
   @keyframes factIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   /* Section headings settle just before the block they title. */
@@ -1050,6 +1079,83 @@ tr:last-child td { border-bottom: none; }
 .task.owed::before { background: var(--bad); }
 .task.owed .tk-code, .task.owed .tk-n { color: var(--bad); }
 .task.owed .tk-n { background: color-mix(in srgb, var(--bad) 12%, transparent); border-color: color-mix(in srgb, var(--bad) 30%, transparent); }
+
+/* A locked course is not a thing you can act on. The opacity above already
+   dims it; hiding the progress bar too removes the last thing suggesting it is
+   in play, since a locked course's bar is always empty anyway. */
+.course-card.locked .bar { display: none; }
+@media (hover: hover) { .course-card.locked:hover { opacity: 0.75; } }
+
+/* ---------- Library ---------- */
+.lib-list .dg-row { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
+.lib-sub {
+  display: block; font-size: var(--fs-small); font-weight: 400;
+  color: var(--ink-2); margin-top: 2px; letter-spacing: 0.004em;
+}
+.lib-list .dg-dur { font-size: 1.1rem; color: var(--ink-3); align-self: center; }
+/* Grouped, so proximity says something true: these four are video courses,
+   those two are books. A single flex pile said all ten were alike. */
+.hall + .hall { margin-top: var(--sp-3); }
+.hall-h {
+  font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600; margin-bottom: 8px;
+}
+.hall-links { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- Practice: one rep, one button ----------
+   The page's whole job is the single thing owed right now. Sized like the
+   dashboard hero because it IS the hero of this page. */
+.rp-one { margin-top: var(--sp-4); box-shadow: var(--e1); border-top: 3px solid var(--fac, var(--accent)); }
+.rp-kind {
+  font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h2);
+  letter-spacing: -0.02em; line-height: 1.15; color: var(--ink);
+}
+.rp-more {
+  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+  color: var(--ink-3); letter-spacing: 0; vertical-align: 0.35em;
+}
+.rp-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
+.rp-form { margin-top: var(--sp-4); }
+.rp-go { margin-top: var(--sp-4); width: 100%; justify-content: center; }
+@media (min-width: 700px) { .rp-go { width: auto; min-width: 200px; } }
+.rp-clear { border-top-color: var(--good); }
+
+/* The four histories, as four numbers. This replaces a four-tile facts strip
+   AND four card headers - the counts are the wayfinding, the fold is the rest. */
+.rp-counts {
+  /* Four across needs ~316px of content in a 278px box at 320px. auto-fit wraps
+     it to 2x2 there and keeps one row everywhere it fits. */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); margin-top: var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  background: var(--surface);
+}
+.rp-c {
+  /* 12px of side padding left 63px for a label that needs 66 - "Reviews" in
+     tracked caps was clipped by three pixels at 390px. */
+  padding: 9px 9px; text-decoration: none; color: var(--ink);
+  border-left: 1px solid var(--line); margin-left: -1px;
+  transition: background-color var(--t-hover) ease;
+}
+.rp-c:first-child { border-left: 0; margin-left: 0; }
+.rp-c { border-top: 1px solid var(--line); margin-top: -1px; }
+.rp-c:hover { text-decoration: none; background: var(--bg-2); }
+.rp-c b {
+  display: block; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 500;
+  color: var(--ink-2); font-variant-numeric: tabular-nums; line-height: 1.25;
+}
+.rp-c span {
+  display: block; font-size: var(--fs-tiny); letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-3); margin-top: 3px; font-weight: 600;
+}
+
+/* apple-design 1: "respond on pointer-down, not on release... waiting for
+   touch-up to show feedback feels dead." Every pressable surface now answers
+   the finger the instant it lands. */
+.btn:active, .task:active, .dg-row:active, .rp-c:active, .card.hoverable:active {
+  transform: scale(0.985);
+  transition: transform 100ms ease-out;
+}
+.dg-row:active { background: color-mix(in srgb, var(--fac, var(--accent)) 10%, var(--surface)); }
 
 /* ---------- The day, grouped by course ----------
    One card per run of the same course. The header states the code once with the
@@ -1223,7 +1329,7 @@ tr:last-child td { border-bottom: none; }
   transition: border-color var(--t-hover) ease, transform var(--t-hover) var(--ease), box-shadow var(--t-hover) ease;
 }
 @media (hover: hover) {
-  .q-card:hover { text-decoration: none; transform: translateX(2px); box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 7%, transparent); }
+  .q-card:hover { text-decoration: none; transform: translateX(2px); box-shadow: var(--e2); }
 }
 .q-kicker {
   display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;

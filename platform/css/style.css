@@ -38,8 +38,17 @@
   --ink: #1c1a17;
   --ink-2: #4f4941;
   --ink-3: #6b645a;
-  --accent: #1f4e79;      /* actions and links ONLY — under 5% of pixels */
-  --accent-2: #26665f;
+  /* An ink navy, not a link blue. #1f4e79 was a mid-saturation web blue and on
+     cream paper beside a gold crest it read as a hyperlink colour; this reads as
+     ink. Navy and gold is also the oldest university pairing there is. */
+  --accent: #23405f;      /* actions and links ONLY — under 5% of pixels */
+  /* SECONDARY ACTION, not a second success colour. This was #26665f — the
+     identical hex to --fac-sys, and 26 away from --good — so "Partly done"
+     rendered in a green that sat next to a green "✓ Completed". It is the
+     accent's own family now: partial and scheduled read as ACTIVE, and green
+     means finished and nothing else. The same collision was in five of the
+     seven themes and is fixed in each below. */
+  --accent-2: #3f6ea0;
   --good: #2a7047;
   --bad: #b32d1f;
   /* The one thing that is due. Derived from --bad's hue but pulled back, so it
@@ -163,7 +172,7 @@
   --ink-2: #a4acb7;
   --ink-3: #818993;
   --accent: #7fb0e6;
-  --accent-2: #5ec2b1;
+  --accent-2: #9ec2e8;
   --good: #62b881;
   --bad: #e8705c;
   --btn-bg: #e8ebef;
@@ -188,7 +197,7 @@
   --ink-2: #474f48;
   --ink-3: #626b63;
   --accent: #2f6b43;
-  --accent-2: #26665f;
+  --accent-2: #2b5a86;
   --good: #286a43;
   --bad: #b32d1f;
   --btn-bg: #17201a;
@@ -214,7 +223,7 @@
   --ink-2: #a3aebf;
   --ink-3: #808a9a;
   --accent: #7fa3d1;
-  --accent-2: #5ec2b1;
+  --accent-2: #9db8dd;
   --good: #62b881;
   --bad: #e8705c;
   --btn-bg: #e7ecf4;
@@ -266,7 +275,7 @@
   --ink-2: #4f4f4c;
   --ink-3: #6c6c69;
   --accent: #3d4c60;
-  --accent-2: #26665f;
+  --accent-2: #456a94;
   --good: #296d45;
   --bad: #b32d1f;
   --btn-bg: #1a1a19;

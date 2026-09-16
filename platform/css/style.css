@@ -744,25 +744,36 @@ tr:last-child td { border-bottom: none; }
 /* 92px tall because it held three lines of text. It holds a date, a mark and
    sometimes a flag now, so it is a square you read as a pattern rather than a
    paragraph you read twenty times. */
-.cal-cell { background: var(--surface); min-height: 58px; padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; position: relative; transition: background-color var(--t-micro) ease; }
+.cal-cell {
+  background: var(--surface); min-height: 46px; padding: 6px 2px 5px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  position: relative; transition: background-color var(--t-micro) ease;
+}
 .cal-cell:hover { background: var(--bg-2); }
-/* Tapping a day should feel like a selection, not a page reload. */
 .cal-cell:active { transform: scale(0.97); }
 .cal-cell.sel { animation: cellPick 260ms var(--ease) both; }
-@keyframes cellPick { from { transform: scale(0.94); } to { transform: none; } }
 .cal-cell.blank { background: var(--bg-2); cursor: default; }
-.cal-cell.today { box-shadow: inset 0 0 0 2px var(--accent); }
-.cal-cell.sel { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
-.cal-cell.cdone { background: color-mix(in srgb, var(--good) 9%, var(--surface)); }
-.cal-cell.cmiss { background: color-mix(in srgb, var(--bad) 8%, var(--surface)); }
-.cal-cell.cpart { background: color-mix(in srgb, var(--accent-2) 8%, var(--surface)); }
-.cal-cell.sel.cdone, .cal-cell.sel.cmiss, .cal-cell.sel.cpart { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
-.cal-cell .cmark { position: absolute; top: 5px; right: 7px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; line-height: 1; }
-.cal-cell .dnum { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--ink-2); display: flex; align-items: center; gap: 5px; }
-.cal-cell.today .dnum { color: var(--accent); font-weight: 600; }
-.cal-cell .cflag { font-size: 0.56rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
+.cal-cell.today .dnum { color: var(--accent); font-weight: 700; }
+.cal-cell.sel { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .cal-cell.rest { background: var(--bg-2); }
-.cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
+.cal-cell .dnum {
+  font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+/* The day itself. Solid is a day completed, half is one started, an open ring
+   is a day still ahead, a red ring is one missed, and a rest day draws nothing
+   at all — a Saturday is not a hole in the record. */
+.cal-cell .cmark, i.cmark {
+  width: 14px; height: 14px; border-radius: 50%; display: block;
+  font-size: 0.5rem; line-height: 14px; text-align: center; color: var(--accent);
+}
+i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
+.cmark.dfull { background: var(--good); }
+.cmark.dhalf { background: linear-gradient(90deg, var(--accent-2) 50%, transparent 50%); box-shadow: inset 0 0 0 1.5px var(--accent-2); }
+.cmark.dmiss { box-shadow: inset 0 0 0 1.5px var(--bad); }
+.cmark.dopen { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.cmark.dnone { background: none; box-shadow: none; }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--sp-3); font-size: var(--fs-tiny); color: var(--ink-3); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
 
 /* The drill: the mechanic, the rules, and the ten minutes that leave an artifact.
@@ -856,9 +867,8 @@ tr:last-child td { border-bottom: none; }
    status dot; the full brief is one tap away below the grid. */
 @media (max-width: 640px) {
   .cal-cell { min-height: 46px; padding: 3px 2px; align-items: center; gap: 2px; }
-  /* Seven columns of ~50px: the flag has nowhere to go. The tint and the
-     mark still carry the pattern. */
-  .cal-cell .cflag { display: none; }
+  /* The dot IS the cell now, so it needs no narrow-width special case. */
+  .cal-cell { min-height: 40px; padding: 5px 1px 4px; }
   .cal-cell .dnum { font-size: 0.72rem; gap: 0; flex-direction: column; }
   .cal-cell .cmark { position: static; font-size: 0.6rem; }
   .cal-dow { font-size: 0.5rem; letter-spacing: 0.02em; padding: 5px 0; }
@@ -1884,3 +1894,86 @@ tr:last-child td { border-bottom: none; }
   /* A hairline is a suggestion; at this setting the separation has to be stated. */
   .dg-row { border-top-color: var(--line-strong); }
 }
+
+/* ============================================================
+   The grouped list
+   ------------------------------------------------------------
+   Every page in this app was the same shape — a page head and
+   then a column of cards — and each page had invented its own
+   row on top of that. The Atlas alone carried four: a card on a
+   rail with a node, a gate micro-row, a disclosure, a facts
+   strip. Four languages, one screen, and the owner's word for it
+   was "confusing".
+
+   This is the one language. It is the iOS grouped list, and it
+   is here because it answers exactly what he asked for: a
+   section header naming what follows, one inset group, rows that
+   are all the same shape, a value on the right, and a chevron
+   where there is somewhere to go. No per-row card, no rail, no
+   second border. Everything that is not the one action on a page
+   is a row in one of these.
+   ============================================================ */
+.ghead {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  margin: var(--sp-5) 4px 8px; font-size: var(--fs-tiny); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+.ghead .gh-meta {
+  font-family: var(--font-mono); letter-spacing: 0; text-transform: none;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.glist {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.glist + .glist { margin-top: var(--sp-3); }
+.grow {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 12px 15px; min-height: 54px; color: var(--ink); text-decoration: none;
+  /* A <button> brings a UA border on all four sides; the row wants exactly one,
+     along its top, like every other row in the group. */
+  border: 0; border-top: 1px solid var(--line); background: none; text-align: left;
+  font: inherit; cursor: pointer;
+  transition: background-color var(--t-hover) ease;
+}
+.grow:first-child { border-top: 0; }
+@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--bg-2); text-decoration: none; } }
+.grow:active { background: var(--bg-2); }
+/* The leading slot: a number, a tick, a lock, a status dot. One width for all
+   of them so every row's text starts on the same vertical line. */
+.grow .g-lead {
+  width: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-3);
+}
+.grow .g-main { flex: 1; min-width: 0; }
+.grow .g-t {
+  display: block; font-family: var(--font-display); font-weight: 700;
+  font-size: 1.02rem; line-height: 1.3; overflow-wrap: anywhere;
+}
+.grow .g-s {
+  display: block; font-family: var(--font-body); font-size: var(--fs-small);
+  color: var(--ink-3); margin-top: 1px; line-height: 1.35;
+}
+.grow .g-v {
+  flex-shrink: 0; font-family: var(--font-mono); font-size: var(--fs-small);
+  color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums;
+}
+/* Only rows that go somewhere get the chevron — apple-design 16, a control's
+   look has to predict what it does. */
+a.grow::after, button.grow.nav::after {
+  content: ""; flex-shrink: 0; width: 6px; height: 6px; margin-left: -2px;
+  border-right: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong);
+  transform: rotate(-45deg);
+}
+/* A row that is not yet available recedes; it is still readable, still there. */
+.grow.muted-row .g-t { color: var(--ink-2); font-weight: 400; }
+.grow.muted-row .g-v { color: var(--ink-3); }
+.grow.done-row .g-lead { color: var(--good); }
+.grow.done-row .g-t { color: var(--ink-2); font-weight: 400; }
+
+/* A status dot, for when a row's state is the whole point (a day, a course). */
+.gdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+.gdot.on { background: var(--good); }
+.gdot.part { background: var(--accent-2); }
+.gdot.miss { background: var(--bad); }
+.gdot.now { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }

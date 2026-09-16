@@ -1360,22 +1360,12 @@
 
     // Gate progress: how far through this gate's own window we are, so the
     // ring reads as "time spent" against the countdown beside it.
-    let gatePct = 0, gateLeft = 0;
-    if (g) {
-      gateLeft = Math.max(0, daysBetween(todayISO(), g.target));
-      const span = g.months * 30.4;
-      gatePct = Math.max(0, Math.min(100, ((span - gateLeft) / span) * 100));
-    }
-
-    const num = (v, dec) => '<span data-count="' + v + '"' + (dec ? ' data-dec="' + dec + '"' : "") + ">" + (dec ? v.toFixed(dec) : v) + "</span>";
+    // gatePct went with the Standing card's second progress ring — the countdown
+    // is the number that matters and it is now a row.
+    const gateLeft = g ? Math.max(0, daysBetween(todayISO(), g.target)) : 0;
 
     const cta = nextAction();
 
-    // The status row: the four numbers worth carrying, each a link into the page
-    // that owns it. This replaces BOTH the five-cell facts strip and the four
-    // tiles at the bottom - between them they stated the streak twice and the
-    // DSA count twice, on a page whose job is to say one thing.
-    const cell = (href, v, lbl) => '<a href="' + href + '"><b>' + v + "</b><span>" + lbl + "</span></a>";
 
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
@@ -1468,74 +1458,67 @@
           ? '<span class="pill good">✓ Deep Track marked for today</span>'
           : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div>") +
 
-      // ---- Where you stand, as four numbers ----
-      // Below the day's work, not above it: these are reference, and reference
-      // that sits between the reader and the thing they came for is in the way.
-      '<div class="onecounts">' +
-      [
-        // A counter at zero is an absence, not a measurement - a fresh account
-        // showed five of them stacked above the first lecture.
-        st > 0 ? cell("#/record", st + "d", "Streak") : null,
-        proven > 0 ? cell("#/atlas", proven, "Proven") : null,
-        // "0 behind" is worth saying - it is the thing you want to see. Once it
-        // is NOT zero the banner a few lines up already says so, in words, with
-        // a button; repeating the same number underneath it is just noise.
-        backlog > 0 ? null : cell("#/calendar", "0", "Behind"),
-        g ? cell("#/transcript", gateLeft + "d", "Gate " + g.n) : cell("#/transcript", "all", "Gates"),
-        // Only when connected. Was daysBetween() on a date-only field, so a link
-        // that broke this morning still read "today" until midnight.
-        ghToken() ? cell("#/sync", S.settings.syncError ? "failing"
-          : agoLabel(S.settings.lastSyncAt || S.settings.lastSync), "Synced") : null,
-      ].filter(Boolean).join("") + "</div>" +
-
-      // ---- Everything that runs every day, folded away until wanted ----
-      '<details class="unit" style="margin-top:16px;"' + (due.length ? " open" : "") + ">" +
-      '<summary><span class="u-name">Also every day</span>' +
-      '<span class="pill' + (due.length ? "" : " good") + '">' + (due.length ? due.length + " due" : "clear") + "</span>" +
-      '<span class="u-prog" style="width:' + (due.length ? 0 : 100) + '%;"></span></summary><div class="u-body">' +
-      '<div class="plan-row"><span class="block">Recall</span><span class="what">' +
-      (due.length ? "<strong>" + due.length + "</strong> lecture" + (due.length === 1 ? "" : "s") + " due before new material" : "Nothing due") +
-      '</span><a class="btn ghost go" href="#/recall">Recall</a></div>' +
-      '<div class="plan-row"><span class="block">Practice</span><span class="what">' +
+      // ---- Where you stand, and everything that runs every day ----
+      //
+      // This was a counts grid, then a disclosure holding four plan-rows, then a
+      // Standing card with a countdown and a bar, then a backup card. Four
+      // shapes below the day's work, on the page whose whole job is the day's
+      // work. They are rows in one group now, in the order you would ask for
+      // them, and each one goes where it is about.
+      '<div class="ghead">Where you stand</div>' +
+      '<div class="glist">' +
+      (g
+        ? '<a class="grow" href="#/transcript"><span class="g-lead">◆</span>' +
+          '<span class="g-main"><span class="g-t">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
+          '<span class="g-s">' + esc(drift.projected) + " finish" +
+          (drift.aheadDays > 0 ? " · " + drift.aheadDays + " days ahead"
+            : drift.aheadDays < 0 ? " · " + (-drift.aheadDays) + " days behind" : " · on baseline") +
+          "</span></span><span class=\"g-v\">" + gateLeft + "d</span></a>"
+        : '<a class="grow done-row" href="#/transcript"><span class="g-lead">✓</span>' +
+          '<span class="g-main"><span class="g-t">All gates passed</span></span></a>') +
+      (st > 0
+        ? '<a class="grow" href="#/record"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Streak</span></span>' +
+          '<span class="g-v">' + st + "d</span></a>"
+        : "") +
+      (proven > 0
+        ? '<a class="grow" href="#/atlas"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Lectures proven</span></span>' +
+          '<span class="g-v">' + proven + "</span></a>"
+        : "") +
+      (due.length
+        ? '<a class="grow" href="#/recall"><span class="g-lead">!</span>' +
+          '<span class="g-main"><span class="g-t">Recall due</span>' +
+          '<span class="g-s">before new material</span></span>' +
+          '<span class="g-v">' + due.length + "</span></a>"
+        : "") +
+      (missPool().length
+        ? '<a class="grow" href="#/drill"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Missed questions waiting</span></span>' +
+          '<span class="g-v">' + missPool().length + "</span></a>"
+        : "") +
       (probs.length
-        ? (probsCat ? esc(probsCat) + " · " : "") + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ")
-        : "All 150 done.") +
-      '</span><a class="btn ghost go" href="#/course/cs150">Tracker</a></div>' +
-      '<div class="plan-row"><span class="block">Drill</span><span class="what">' +
-      (missPool().length ? "<strong>" + missPool().length + "</strong> missed questions waiting" : "Pool clear") +
-      '</span><a class="btn ghost go" href="#/drill">Drill</a></div>' +
-      // Was a static "Notes → post" with nothing behind it. Now it says what the
-      // practice layer actually owes today, because a rep on a page you visit
-      // weekly is a rep you skip.
-      '<div class="plan-row"><span class="block">Publish</span><span class="what">' +
+        ? '<a class="grow" href="#/course/cs150"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Problems today</span>' +
+          '<span class="g-s">' + (probsCat ? esc(probsCat) + " · " : "") + probs.map(esc).join(", ") + "</span></span></a>"
+        : "") +
       (function () {
         const rd = repsDue();
-        if (isRestDay(todayISO()) && todayISO() >= D.START_DATE) return "Rest day — nothing owed";
-        if (!rd.length) return "<strong>Clear</strong> — every rep owed today is logged";
-        return rd.map(x => "<strong>" + esc(x.label) + "</strong>").join(" · ") + " — " + esc(rd[0].hint);
+        if (resting || !rd.length) return "";
+        return '<a class="grow" href="#/practice"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">' + esc(rd[0].label) + "</span>" +
+          '<span class="g-s">' + esc(rd[0].hint) + "</span></span></a>";
       })() +
-      '</span><a class="btn ghost go" href="#/practice">Practice</a></div>' +
-      "</div></details>" +
-
-      // ---- Standing: the gate you are climbing towards ----
-      // One card, one number. The ring here drew "% of this gate's window
-      // elapsed" - a second ring on the page, measuring time passing rather than
-      // work done, which is the one thing on a dashboard nobody needs a dial for.
-      // A 4px bar says it and leaves the countdown as the only large number.
-      // "of 6" was hard-coded against a list of five gates.
-      sect("Standing", g ? "gate " + g.n + " of " + D.GATES.length : "all gates passed") +
-      '<div class="card">' +
-      "<h2>" + (g ? "Gate " + g.n + " — " + esc(g.label) : "All gates passed") + "</h2>" +
-      (g
-        ? '<div class="mono" style="margin:6px 0 2px; font-size:1.9rem; color:var(--accent);">' + num(gateLeft) + ' <span style="font-size:0.8rem; color:var(--ink-2); font-family:var(--font-body);">days left</span></div>' +
-          '<div class="bar grow" style="margin:10px 0 10px; max-width:420px;"><i style="--w:' + (gatePct / 100) + '; transform:scaleX(' + (gatePct / 100) + ');"></i></div>' +
-          '<p style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(g.req) + "</p>" +
-          '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:10px;">Target ' + g.target + " · finish " + drift.projected +
-          (drift.aheadDays > 0 ? ' · <span style="color:var(--good);">' + drift.aheadDays + " days ahead</span>"
-            : drift.aheadDays < 0 ? ' · <span style="color:var(--bad);">' + (-drift.aheadDays) + " days behind</span>"
-            : " · on baseline") +
-          ' · <a href="#/transcript">All gates</a></p>'
-        : '<p style="color:var(--good);">You are what you set out to become.</p>') +
+      (ghToken()
+        ? '<a class="grow" href="#/sync"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Synced</span></span>' +
+          '<span class="g-v">' + esc(S.settings.syncError ? "failing" : agoLabel(S.settings.lastSyncAt || S.settings.lastSync)) + "</span></a>"
+        : "") +
+      (backupAge === null || backupAge > 14
+        ? '<button class="grow" data-act="backup"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Export a backup</span>' +
+          '<span class="g-s">' + (backupAge === null ? "this browser is the only copy" : "last one " + backupAge + " days ago") + "</span></span></button>"
+        : "") +
       "</div>" +
 
       // ---- Charts: folded, and only once there is something to plot ----
@@ -1552,12 +1535,8 @@
           "</div></div></details>"
         : "") +
 
-      // ---- Housekeeping, at the bottom where a nag belongs ----
-      (backupAge === null || backupAge > 14
-        ? '<div class="card" style="margin-top:12px;"><div class="row-split"><span class="muted">' +
-          (backupAge === null ? "This browser is the only copy." : "Last backup " + backupAge + " days ago.") +
-          '</span><button class="btn ghost" data-act="backup">Export backup</button></div></div>'
-        : "") +
+      // The backup nag used to be a card here AND is now a row in the group
+      // above, which put "Export a backup" on the page twice.
       "</div>";
   };
 
@@ -1963,134 +1942,97 @@
     const diagSat = D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length;
     const qIds = Object.keys(D.QUIZZES);
     const qDone = qIds.filter(id => bestQuiz(id) != null).length;
-    const open = qIds.filter(id => unlockedIdx(id).length);
-    const shut = qIds.filter(id => !unlockedIdx(id).length);
-
-    // ---- Which one to sit next ----
-    //
-    // The page used to weigh eleven exams identically and leave the choosing to
-    // the reader, which is the one job a page like this should do for them.
-    // Nothing new is stored to answer it — the ordering falls out of data that
-    // already exists:
-    //
-    //   a diagnostic that has not been sat is the most urgent thing here,
-    //   because Gate 1 will not open until all four are done, so its deadline IS
-    //   the gate's target date (gatePlan() computes that, and pulls it earlier
-    //   whenever an earlier gate is passed early);
-    //
-    //   with the diagnostics behind you, the concept bank that is most unlocked
-    //   is the one you have watched the most of and are least likely to sit cold
-    //   — unlockedIdx(id).length over the bank's own length.
     const gate1 = gatePlan()[0];
     const gateLeft = gate1 && !gate1.doneDate ? daysBetween(todayISO(), gate1.target) : null;
-    const nextDiag = D.DIAGNOSTICS.find(d => (S.diag[d.id] || {}).score == null);
-    let hero = null;
-    if (nextDiag) {
-      const others = D.DIAGNOSTICS.length - diagSat - 1;
-      hero = {
-        href: "#/diag/" + nextDiag.id,
-        kind: nextDiag.title,
-        more: others > 0 ? others : 0,
-        hint: nextDiag.subject + " · " + nextDiag.minutes + " min, closed book, no AI" +
-          (gateLeft == null ? "" : " · Gate " + gate1.n + " in " + gateLeft + "d"),
-        verb: "Sit it",
-        // Attention, not error: a gate inside a fortnight, or already behind you.
-        urgent: gateLeft != null && gateLeft <= 14,
-      };
-    } else {
-      const ranked = open.filter(id => bestQuiz(id) == null)
-        .map(id => ({ id, r: unlockedIdx(id).length / D.QUIZZES[id].questions.length }))
-        .sort((a, b) => b.r - a.r)[0];
-      if (ranked) {
-        const b = D.QUIZZES[ranked.id], n = unlockedIdx(ranked.id).length;
-        hero = {
-          href: "#/quiz/" + ranked.id, kind: b.title,
-          more: open.filter(id => bestQuiz(id) == null).length - 1,
-          hint: b.course + " · " + n + " of " + b.questions.length + " questions unlocked",
-          verb: "Sit it", urgent: false,
-        };
-      }
-    }
 
-    // A concept exam as one row. Seven of these rendered as seven ~200px cards,
-    // and on a fresh account all seven were byte-identical - same pill, same
-    // "0 of 40 unlocked", same greyed Locked button. That is one fact repeated
-    // seven times, not seven facts. Rows, and the shut ones recede.
-    const qRow = id => {
-      const b = D.QUIZZES[id];
-      const at = S.quizAttempts[id] || [];
-      const best = bestQuiz(id);
-      const n = unlockedIdx(id).length;
-      const live = n > 0;
-      return '<a class="dg-row' + (live ? "" : " ex-shut") + '" href="' + (live ? "#/quiz/" + id : "#/courses") + '">' +
-        '<span class="dg-t">' + esc(b.title) +
-        '<span class="lib-sub">' + esc(b.course) + " \u00b7 " + n + " of " + b.questions.length + " unlocked" +
-        (at.length ? " \u00b7 " + at.length + " attempt" + (at.length === 1 ? "" : "s") : "") + "</span></span>" +
-        (best != null
-          ? '<span class="pill ' + (best >= 70 ? "good" : "") + '">' + best + "%</span>"
-          : live ? '<span class="dg-dur">Sit it \u203a</span>'
-                 : '<span class="dg-dur">Watch first</span>') + "</a>";
-    };
-
-    // A diagnostic as one row, the same shape as a concept bank. Four cards with
-    // a subject pill, a status pill, a title, a two-line note and a button came
-    // to ~800px of page saying "four exams, none sat".
-    const dRow = d => {
+    // ---- One list, ranked, with size carrying the priority ----
+    //
+    // Every exam here used to weigh the same, and the owner's instruction was
+    // explicit: the urgent one should be a big button, the rest secondary. So
+    // each exam gets a score, and the top of the list becomes the card while
+    // everything below it becomes a row. Nothing new is stored — the ranking
+    // falls out of gatePlan() and unlockedIdx(), which already exist.
+    //
+    //   a diagnostic not yet sat is the most urgent thing on the page, because
+    //   Gate 1 does not open until all four are done — so its deadline IS the
+    //   gate's target date;
+    //   a concept bank ranks by how much of it you have unlocked, which is how
+    //   much of it you have actually watched.
+    const items = [];
+    D.DIAGNOSTICS.forEach(d => {
       const r = S.diag[d.id] || {};
-      const verdict = r.score == null ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap";
-      return '<a class="dg-row" href="#/diag/' + d.id + '">' +
-        '<span class="dg-t">' + esc(d.title) +
-        '<span class="lib-sub">' + esc(d.subject) + " \u00b7 " + d.minutes + " min" +
-        (d.gate ? " \u00b7 pass at " + d.gate + "%" : "") + "</span></span>" +
-        (verdict === "pass" ? '<span class="pill good">\u2713 ' + r.score + "%</span>" :
-         verdict === "gap" ? '<span class="pill crimson">' + r.score + "% \u2014 gap</span>" :
-         verdict === "logged" ? '<span class="pill good">\u2713 done</span>' :
-         '<span class="dg-dur">Sit it \u203a</span>') + "</a>";
-    };
+      const sat = r.score != null;
+      items.push({
+        kind: "diag", href: "#/diag/" + d.id, title: d.title,
+        sub: d.subject + " · " + d.minutes + " min" + (d.gate ? " · pass at " + d.gate + "%" : ""),
+        due: gateLeft, sat, score: r.score,
+        verdict: !sat ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap",
+        // Unsat diagnostics outrank everything; the sooner the gate, the higher.
+        rank: sat ? 100 : (gateLeft == null ? 50 : Math.max(0, gateLeft) / 1000),
+      });
+    });
+    qIds.forEach(id => {
+      const bank = D.QUIZZES[id], n = unlockedIdx(id).length, best = bestQuiz(id);
+      items.push({
+        kind: "bank", href: n ? "#/quiz/" + id : "#/courses", title: bank.title,
+        sub: bank.course + " · " + (n ? n + " of " + bank.questions.length + " unlocked" : "watch the lectures first"),
+        locked: !n, sat: best != null, score: best,
+        verdict: best == null ? null : best >= 70 ? "pass" : "gap",
+        // +1 so that an unsat diagnostic ALWAYS outranks a bank: a diagnostic
+        // has a real deadline (Gate 1 does not open without it) and a bank has
+        // none, and a fully-unlocked bank scored 0 — beating the diagnostic it
+        // was supposed to sit behind. Then: open and unsat, most-unlocked first.
+        rank: 1 + (best != null ? 200 : 0) + (n ? 10 - (n / bank.questions.length) * 10 : 300),
+      });
+    });
+    items.sort((a, b) => a.rank - b.rank);
+    const lead = items[0];
+    const rest = items.slice(1);
+
+    const scoreTag = it =>
+      it.verdict === "pass" ? '<span class="pill good">' + it.score + "%</span>" :
+      it.verdict === "gap" ? '<span class="pill crimson">' + it.score + "%</span>" :
+      it.verdict === "logged" ? '<span class="pill good">done</span>' : "";
+
+    const row = it => '<a class="grow' + (it.locked ? " muted-row" : "") + '" href="' + it.href + '">' +
+      '<span class="g-lead">' + (it.sat ? "✓" : it.locked ? lockSVG() : "") + "</span>" +
+      '<span class="g-main"><span class="g-t">' + esc(it.title) + "</span>" +
+      '<span class="g-s">' + esc(it.sub) + "</span></span>" +
+      (scoreTag(it) || "") + "</a>";
+
+    const open = rest.filter(it => !it.locked);
+    const shut = rest.filter(it => it.locked);
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exams</h1>' +
-      '<div class="sub">Timed, closed-book, no AI. A concept bank only opens once you have watched what it tests.</div></div>' +
+      '<div class="sub">Timed, closed-book, no AI.</div></div>' +
 
-      // ---- The one to sit next ----
-      (hero
-        ? '<div class="card one' + (hero.urgent ? " urgent" : "") + '">' +
-          '<div class="one-kind">' + esc(hero.kind) +
-          (hero.more > 0 ? ' <span class="one-more">+' + hero.more + " more</span>" : "") + "</div>" +
-          '<p class="one-hint">' + esc(hero.hint) + "</p>" +
-          '<a class="btn lg one-go" href="' + hero.href + '">' + hero.verb + " \u25b8</a></div>"
-        : '<div class="card one one-clear"><div class="one-kind">Everything open has been sat</div>' +
-          '<p class="one-hint">Re-sit any of them below \u2014 each draws a fresh set of questions.</p></div>') +
-
-      // A counts row needs at least two things to compare; one cell stretched
-      // across the page is a fact wearing a table's clothes. On a fresh account
-      // the section headings below already say "0 of 4 sat".
-      (function () {
-        const cells = [
-          "<div><b>" + diagSat + " / " + D.DIAGNOSTICS.length + "</b><span>Diagnostics</span></div>",
-          // Both of these are absences until they are not, and the sections
-          // below say so in words: "None open yet — a bank unlocks as you…".
-          open.length ? "<div><b>" + open.length + "</b><span>Banks open</span></div>" : "",
-          qDone > 0 ? "<div><b>" + qDone + "</b><span>Attempted</span></div>" : "",
-        ].filter(Boolean);
-        return cells.length > 1 ? '<div class="onecounts">' + cells.join("") + "</div>" : "";
-      })() +
-
-      '<div class="sect"><h2>Official diagnostics</h2><span class="sect-meta">' + diagSat + " of " + D.DIAGNOSTICS.length + " sat</span></div>" +
-      '<div class="daygroup"><div class="lib-list">' + D.DIAGNOSTICS.map(dRow).join("") + "</div></div>" +
-
-      '<div class="sect"><h2>Concept examinations</h2><span class="sect-meta">' + qDone + " of " + qIds.length + " attempted</span></div>" +
-      (open.length
-        ? '<div class="daygroup"><div class="lib-list">' + open.map(qRow).join("") + "</div></div>"
-        : '<p class="note">None open yet \u2014 a bank unlocks as you watch the lectures it tests.</p>') +
-      (shut.length
-        ? '<details class="unit" style="margin-top:12px;"><summary>' +
-          '<span class="u-name">Not open yet</span><span class="pill">' + shut.length + "</span>" +
-          '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
-          '<div class="lib-list">' + shut.map(qRow).join("") + "</div></div></details>"
+      // ---- The one to sit next, at the size that says so ----
+      (lead
+        ? '<div class="card one' + (lead.due != null && lead.due <= 14 ? " urgent" : "") + '">' +
+          '<div class="one-kind">' + esc(lead.title) + "</div>" +
+          '<p class="one-hint">' + esc(lead.sub) +
+          (lead.due != null ? " · Gate " + gate1.n + " in " + lead.due + " days" : "") + "</p>" +
+          '<a class="btn lg one-go" href="' + lead.href + '">Sit it ▸</a></div>'
         : "") +
-      "</div>";
-  };
 
+      (open.length
+        ? '<div class="ghead">Also open<span class="gh-meta">' + open.length + "</span></div>" +
+          '<div class="glist">' + open.map(row).join("") + "</div>"
+        : "") +
+
+      (shut.length
+        ? '<div class="ghead">Not open yet<span class="gh-meta">' + shut.length + "</span></div>" +
+          '<div class="glist">' + shut.map(row).join("") + "</div>"
+        : "") +
+
+      '<div class="ghead">Record</div>' +
+      '<div class="glist">' +
+      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Diagnostics sat</span></span>' +
+      '<span class="g-v">' + diagSat + " / " + D.DIAGNOSTICS.length + "</span></div>" +
+      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Concept banks attempted</span></span>' +
+      '<span class="g-v">' + qDone + " / " + qIds.length + "</span></div>" +
+      "</div></div>";
+  };
 
   V.quiz = function (bankId) {
     const bank = D.QUIZZES[bankId];
@@ -2130,12 +2072,25 @@
     const [cy, cm] = calCursor.split("-").map(Number);
     const first = new Date(cy, cm - 1, 1);
     const monthName = first.toLocaleString("en-US", { month: "long", year: "numeric" });
-    const startPad = first.getDay(); // 0=Sun
+    const startPad = first.getDay();
     const daysInMonth = new Date(cy, cm, 0).getDate();
     const gateByDate = {};
     gatePlan().forEach(g => { if (!g.doneDate) gateByDate[g.target] = g; });
-    const dow = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-      .map(d => '<div class="cal-dow">' + d + "</div>").join("");
+
+    // ---- The month as a pattern of marks, not a grid of boxes ----
+    //
+    // This was "improved" twice by taking text out of the cells, and the owner's
+    // verdict both times was that the calendar itself had not changed — which
+    // was fair: it was still a table of numbered boxes with a tint, and you
+    // cannot read a three-year habit off a tint.
+    //
+    // A day is now a DOT, the way a ring is a day in Apple's Fitness app: solid
+    // where the day was completed, half where it was started, hollow-red where
+    // it was missed, bare where it has not happened, nothing at all on a rest
+    // day. The number sits under the dot at label size. The eye gets the shape
+    // of the month in one pass and the date only when it looks for one.
+    const dow = ["S", "M", "T", "W", "T", "F", "S"]
+      .map((d, i) => '<div class="cal-dow"' + (i === REST_DOW ? ' style="opacity:.45"' : "") + ">" + d + "</div>").join("");
     let cells = "";
     for (let i = 0; i < startPad; i++) cells += '<div class="cal-cell blank"></div>';
     for (let d = 1; d <= daysInMonth; d++) {
@@ -2147,50 +2102,30 @@
       if (iso === today) cls.push("today");
       if (iso === calSel) cls.push("sel");
       if (before || resting) cls.push("rest");
-      if (status === "completed") cls.push("cdone");
-      else if (status === "missed") cls.push("cmiss");
-      else if (status === "partial") cls.push("cpart");
-      // A phase dot used to sit here, in one of four colours, needing three of
-      // the legend's seven entries to decode — and the legend never listed the
-      // grey one, which is the phase this month is actually in. The phase is on
-      // the dashboard and in the day brief; the grid's job is the pattern.
-      let inner = '<span class="dnum">' + d + "</span>";
-      if (status === "completed") inner += '<span class="cmark" style="color:var(--good);">✓</span>';
-      else if (status === "missed") inner += '<span class="cmark" style="color:var(--bad);">!</span>';
-      else if (status === "partial") inner += '<span class="cmark" style="color:var(--accent-2);">◐</span>';
-      // A month view can say one useful thing: the PATTERN — done, missed, rest,
-      // still ahead — plus the two dates that are not like the others, a gate and
-      // a review Sunday. It used to try to say four things per cell, in three
-      // lines of 0.64rem type:
-      //
-      //   the day's course names   "Zero to… + Linear…", the same three strings
-      //                            repeating twenty times a month, truncated by
-      //                            -webkit-line-clamp to where they stop being
-      //                            names at all
-      //   a week-and-hours line    "W1 · ~5h", identical on every single day
-      //
-      // Both are gone. Neither was a fact about *that day*, and dayDetailHTML()
-      // below already carries the real content for whichever day is selected.
+      let mark = "dnone";
       if (!before && !resting) {
-        const isSunday = new Date(cy, cm - 1, d).getDay() === 0;
-        if (gateByDate[iso]) inner += '<span class="cflag">◆ Gate ' + gateByDate[iso].n + "</span>";
-        else if (isSunday) inner += '<span class="cflag" style="color:var(--accent-2);">Review</span>';
+        mark = status === "completed" ? "dfull"
+          : status === "partial" ? "dhalf"
+          : status === "missed" ? "dmiss"
+          : "dopen";
       }
-      cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '">' + inner + "</div>";
+      const gate = gateByDate[iso];
+      cells += '<div class="' + cls.join(" ") + '" data-cal-day="' + iso + '"' +
+        ' aria-label="' + iso + (status ? " · " + status : "") + '">' +
+        '<span class="cmark ' + mark + '">' + (gate ? "◆" : "") + "</span>" +
+        '<span class="dnum">' + d + "</span></div>";
     }
     return '<div class="card"><div class="cal-head"><h2>' + monthName + "</h2>" +
       '<div class="cal-nav"><button class="btn ghost" data-cal-nav="prev" aria-label="Previous month"><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 1.5 L2 6.5 L6.5 11.5"/></svg></button>' +
       '<button class="btn ghost" data-cal-nav="today">Today</button>' +
       '<button class="btn ghost" data-cal-nav="next" aria-label="Next month"><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5 L6 6.5 L1.5 11.5"/></svg></button></div></div>' +
       '<div class="cal-grid">' + dow + cells + "</div>" +
-      // Five marks, each one visible in the grid above. Was seven, three of which
-      // explained a dot that no longer exists.
       '<div class="cal-legend">' +
-      '<span style="color:var(--good);">✓ Done</span>' +
-      '<span style="color:var(--accent-2);">◐ Part</span>' +
-      '<span style="color:var(--bad);">! Missed</span>' +
-      '<span style="color:var(--accent);">◆ Gate</span>' +
-      '<span style="color:var(--ink-3);">' + REST_NAME + " · rest</span></div></div>";
+      '<span><i class="cmark dfull"></i>Done</span>' +
+      '<span><i class="cmark dhalf"></i>Part</span>' +
+      '<span><i class="cmark dmiss"></i>Missed</span>' +
+      '<span><i class="cmark dopen"></i>Ahead</span>' +
+      '<span style="color:var(--accent);">◆ Gate</span></div></div>';
   }
 
   function dayDetailHTML() {
@@ -2681,99 +2616,6 @@
   // Every state here is derived, never stored: a node is locked because the
   // schedule has not reached it, running because it has, proven because lectures
   // were actually verified. Nothing about it can flatter you.
-  function questHTML() {
-    const starts = courseStartDays();
-    const dToday = studyToday();
-    const gates = gatePlan();
-
-    const items = D.COURSES.map(c => {
-      const start = starts[c.id];
-      // A tracker course has no lessons to schedule; it runs every day from day
-      // one, so it belongs at the head of the line rather than nowhere.
-      const at = c.tracker ? 0 : (start == null ? 9999 : start);
-      return { kind: "course", c, at, start };
-    }).concat(gates.map(g => ({
-      kind: "gate", g, at: Math.max(0, studyIndex(g.target)),
-    })));
-    // Ties: a course opening on the same day a gate falls is reached first.
-    // The `a.kind === b.kind ? 0` arm matters — returning -1 for two courses on
-    // the same day claims a < b and b < a at once, which is not a valid
-    // comparator and costs the sort its stability. Five courses open on day one;
-    // without this they came out in arbitrary order instead of curriculum order.
-    items.sort((a, b) => a.at - b.at || (a.kind === b.kind ? 0 : a.kind === "gate" ? 1 : -1));
-
-    // Seventeen cards, all the same size, is a map with no foreground. Twelve of
-    // them were courses that have not opened yet, and on a fresh account every
-    // one of those carried the identical line "0% proven · 0 of N lectures" over
-    // an empty bar — one fact, restated twelve times, in the loudest form the
-    // page has.
-    //
-    // So the spine now carries only what is TRUE NOW: the courses that are
-    // running, and the gates ahead of them as thin markers rather than cards.
-    // What has not opened is still on the page, in order, folded into one
-    // disclosure — seeing what is coming is the point of a map, but it is not
-    // what you came here to read.
-    const live = items.filter(it => it.kind === "gate" ||
-      it.c.tracker || (it.start != null && it.start <= dToday));
-    const later = items.filter(it => live.indexOf(it) < 0);
-
-    const rows = live.map((it, i) => {
-      if (it.kind === "gate") {
-        const g = it.g, passed = !!g.doneDate;
-        const left = daysBetween(todayISO(), g.target);
-        // A gate is a crossing, not a place you spend time. One line on the
-        // spine, the same height as the node that marks it.
-        return '<li class="q-item q-mark q-gate' + (passed ? " passed" : left < 0 ? " overdue" : "") + '" style="--i:' + i + ';">' +
-          '<span class="q-rail"><span class="q-node q-gnode">' + (passed ? "✓" : g.n) + "</span></span>" +
-          '<a class="q-line" href="#/transcript">' +
-          '<span class="q-lt">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
-          '<span class="q-ld">' + (passed ? "passed " + esc(g.doneDate) : left >= 0 ? left + "d left" : (-left) + "d over") +
-          "</span></a></li>";
-      }
-      const c = it.c, m = courseMastery(c), cov = courseCoverage(c);
-      const done = m >= 85;
-      const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
-      const total = c.tracker ? st.total : st.total;
-      const doneN = c.tracker ? st.done : st.verified;
-      // Nothing proven yet is an absence, not a measurement. Say how big the
-      // course is instead, and let the bar appear when it has something to draw.
-      const bare = m === 0 && cov === 0;
-      return '<li class="q-item ' + facClass(c) + " now" + (done ? " done" : "") +
-        '" style="--i:' + i + ';">' +
-        '<span class="q-rail"><span class="q-node">' + (done ? "✓" : "") + "</span></span>" +
-        '<a class="q-card" href="#/course/' + c.id + '">' +
-        '<span class="q-kicker">' + esc(c.code) + '<span class="q-when">' + (c.tracker ? "every day" : "running now") + "</span></span>" +
-        '<span class="q-title">' + esc(c.title) + "</span>" +
-        (bare ? "" :
-          '<span class="bar grow"><u style="transform:scaleX(' + (cov / 100) + ');"></u>' +
-          '<i style="--w:' + (m / 100) + '; transform:scaleX(' + (m / 100) + ');"></i></span>') +
-        '<span class="q-meta">' + (bare ? "" : "<b>" + m + "%</b> proven · ") +
-        (c.tracker ? (bare ? total + " problems" : doneN + " / " + total + " problems")
-                   : (bare ? total + " lecture" + (total === 1 ? "" : "s") : doneN + " of " + total + " lectures")) +
-        "</span></a></li>";
-    }).join("");
-
-    // The rest of the climb: one row each, in the order it opens.
-    const laterRows = later.map(it => {
-      const c = it.c;
-      const st = c.tracker ? { total: 150 } : courseLessonStats(c);
-      return '<a class="dg-row" href="#/course/' + c.id + '">' +
-        '<span class="dg-n">' + lockSVG() + "</span>" +
-        '<span class="dg-t">' + esc(c.title) +
-        '<span class="lib-sub">' + esc(c.code) + " · " + st.total + " lecture" + (st.total === 1 ? "" : "s") + "</span></span>" +
-        '<span class="dg-dur">' +
-        (it.start == null ? "unscheduled" : "week " + (Math.floor(it.start / STUDY_WEEK) + 1)) +
-        "</span></a>";
-    }).join("");
-
-    return '<ol class="quest">' + rows + "</ol>" +
-      (later.length
-        ? '<details class="unit" style="margin-top:4px;"><summary>' +
-          '<span class="u-name">Opening later</span><span class="pill">' + later.length + "</span>" +
-          '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
-          '<div class="lib-list">' + laterRows + "</div></div></details>"
-        : "");
-  }
   const lockSVG = () => '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">' +
     '<rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4.2 5.5V4.2a1.8 1.8 0 013.6 0v1.3"/></svg>';
 
@@ -2781,30 +2623,74 @@
     const gates = gatePlan();
     const starts = courseStartDays();
     const dToday = studyToday();
-    const proven = D.COURSES.filter(c => !c.tracker && courseMastery(c) >= 85).length;
-    const openNow = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday)).length;
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>What is running</h1>' +
-      '<div class="sub">In the order it opens. Pale is watched · solid is proven.</div>' +
-      // Was five cells: "courses 12" never changes, and "proven 0" is an absence.
-      factsHTML([
-        { k: "open now", v: openNow, lead: true },
-        proven > 0 ? { k: "proven", v: proven } : null,
-        { k: "gates left", v: gates.filter(g => !g.doneDate).length },
-        { k: "day", v: Math.max(1, dToday + 1) },
-      ]) + "</div>" +
+    const ng = nextGate();
 
-      questHTML() +
+    const running = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday));
+    const later = D.COURSES.filter(c => running.indexOf(c) < 0)
+      .sort((a, b) => (starts[a.id] == null ? 1e9 : starts[a.id]) - (starts[b.id] == null ? 1e9 : starts[b.id]));
+    const passed = gates.filter(g => g.doneDate);
+    const ahead = gates.filter(g => !g.doneDate && (!ng || g.n !== ng.n));
 
-      // A different subject from "what is running", and a wide diagram that was
-      // reading as 400px of empty card on a phone. One level deeper.
-      (CONCEPTS().length
-        ? '<details class="unit" style="margin-top:16px;"><summary>' +
-          '<span class="u-name">Linear algebra, as ideas</span><span class="pill">' + CONCEPTS().length + "</span>" +
-          '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
-          '<p class="note" style="margin:0 0 10px;">Left depends on nothing.</p>' +
-          conceptGraph("math110") + "</div></details>"
+    // A course as one row. It used to be a card sitting on a rail with a node
+    // beside it, a coloured left edge, a progress bar four pixels wide at 4%,
+    // and the words "running now" repeated down the right of all five of them.
+    // That is five devices saying one thing. The row says it once.
+    const courseRow = c => {
+      const m = courseMastery(c);
+      const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
+      const doneN = c.tracker ? st.done : st.verified;
+      return '<a class="grow ' + facClass(c) + '" href="#/course/' + c.id + '">' +
+        '<span class="g-lead"><span class="gdot' + (m >= 85 ? " on" : m > 0 ? " part" : "") + '"></span></span>' +
+        '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
+        '<span class="g-s">' + esc(c.code) + " · " +
+        (c.tracker ? doneN + " of " + st.total + " problems" : doneN + " of " + st.total + " proven") + "</span></span>" +
+        (m > 0 ? '<span class="g-v">' + m + "%</span>" : "") + "</a>";
+    };
+
+    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The climb</h1>' +
+      '<div class="sub">Everything running now, and the crossing you are walking towards.</div></div>' +
+
+      // The one thing: the gate you are actually walking towards.
+      (ng
+        ? '<a class="card one" href="#/transcript" style="text-decoration:none; display:block;">' +
+          '<div class="one-kind">Gate ' + ng.n + " — " + esc(ng.label) +
+          ' <span class="one-more">' + Math.max(0, daysBetween(todayISO(), ng.target)) + " days</span></div>" +
+          '<p class="one-hint">' + esc(ng.req) + "</p></a>"
+        : '<div class="card one one-clear"><div class="one-kind">All gates passed</div>' +
+          '<p class="one-hint">You are what you set out to become.</p></div>') +
+
+      '<div class="ghead">Running now<span class="gh-meta">' + running.length + "</span></div>" +
+      '<div class="glist">' + running.map(courseRow).join("") + "</div>" +
+
+      // Everything else on this page is now the same row, in one group: the
+      // crossings still ahead, the courses that have not opened, and the ideas.
+      '<div class="ghead">The rest of it</div>' +
+      '<div class="glist">' +
+      (ahead.length
+        ? '<a class="grow" href="#/transcript"><span class="g-lead">◆</span>' +
+          '<span class="g-main"><span class="g-t">Later gates</span>' +
+          '<span class="g-s">' + esc(ahead[0].label) + " next, " + Math.max(0, daysBetween(todayISO(), ahead[0].target)) + " days out</span></span>" +
+          '<span class="g-v">' + ahead.length + "</span></a>"
         : "") +
-      "</div>";
+      (passed.length
+        ? '<a class="grow done-row" href="#/transcript"><span class="g-lead">✓</span>' +
+          '<span class="g-main"><span class="g-t">Gates passed</span></span>' +
+          '<span class="g-v">' + passed.length + "</span></a>"
+        : "") +
+      (later.length
+        ? '<a class="grow" href="#/courses"><span class="g-lead">' + lockSVG() + "</span>" +
+          '<span class="g-main"><span class="g-t">Opening later</span>' +
+          '<span class="g-s">' + esc(later[0].title) + " opens week " +
+          (starts[later[0].id] == null ? "—" : Math.floor(starts[later[0].id] / STUDY_WEEK) + 1) + "</span></span>" +
+          '<span class="g-v">' + later.length + "</span></a>"
+        : "") +
+      (CONCEPTS().length
+        ? '<a class="grow" href="#/concept/' + CONCEPTS()[0].id + '"><span class="g-lead">◇</span>' +
+          '<span class="g-main"><span class="g-t">Linear algebra, as ideas</span>' +
+          '<span class="g-s">Left depends on nothing</span></span>' +
+          '<span class="g-v">' + CONCEPTS().length + "</span></a>"
+        : "") +
+      "</div></div>";
   };
 
   V.concept = function (id) {
@@ -2981,133 +2867,106 @@
     const first = led.length ? led[0].ts.slice(0, 10) : "—";
     const last = led.length ? led[led.length - 1].ts.slice(0, 10) : "—";
     const sealedDays = S.studyDays.length;
-    const cur = streak() + "d", best = bestStreak() + "d";
+    const cur = streak(), best = bestStreak();
+    const enoughHeat = daysBetween(D.START_DATE, todayISO()) >= 14;
 
+    // ---- The page is one answer and a set of rows ----
+    //
+    // It was a verdict card, a counts row, a heatmap card, a streak box with its
+    // own two-number layout, a milestones card and a disclosure — six shapes.
+    // The answer this page exists to give is yes-or-no, so that is the card; the
+    // numbers behind it are rows in one group, the way Health puts a ring at the
+    // top and everything that feeds it underneath.
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>Proof</h1>' +
-      '<div class="sub">Everything you have actually done, hash-chained in order. Edit one entry and the rest stop matching — which is what makes it proof.</div></div>' +
+      '<div class="sub">Everything you have actually done, hash-chained in order.</div></div>' +
 
-      // ---- The one thing: the verdict, and the file ----
-      // The page's whole claim is "this record has not been tampered with", and
-      // the one action worth taking on it is taking a copy away. Copy-head-hash
-      // is for anchoring, which now lives with the anchors.
       '<div class="card one' + (!led.length ? "" : v.ok ? " one-clear" : " urgent") + '">' +
       '<div class="one-kind">' +
-      // "Chain intact — 0 entries" is true of an empty chain and says nothing.
-      (!led.length ? "Nothing recorded yet"
-        : v.ok ? "Chain intact" : "Chain broken at entry " + v.brokenAt) +
+      (!led.length ? "Nothing recorded yet" : v.ok ? "Chain intact" : "Chain broken at entry " + v.brokenAt) +
       (led.length && v.ok ? ' <span class="one-more">' + v.count + " entr" + (v.count === 1 ? "y" : "ies") + "</span>" : "") +
       "</div>" +
-      '<p class="one-hint">' +
-      (led.length ? first + " → " + last : "The first lecture you prove starts the chain.") +
-      "</p>" +
+      '<p class="one-hint">' + (led.length ? first + " → " + last : "The first lecture you prove starts the chain.") + "</p>" +
       (led.length ? '<button class="btn lg one-go" data-act="exportRecord">Download record</button>' : "") +
       "</div>" +
 
-      // ---- shape of the record ----
-      // Four cards with a label and a number each, 16px apart, stacked down a
-      // phone. The same four numbers, in the row this app now uses for numbers.
-      // On an empty chain all four of these read 0, under a card that has just
-      // said "nothing recorded yet" in a sentence. They appear as they earn it.
-      (function () {
-        const cells = [
-          led.length ? '<a href="#/transcript"><b>' + led.length + "</b><span>Entries</span></a>" : "",
-          sealedDays ? '<a href="#/calendar"><b>' + sealedDays + "</b><span>Days sealed</span></a>" : "",
-          counts.lesson ? '<a href="#/courses"><b>' + counts.lesson + "</b><span>Lectures</span></a>" : "",
-          counts.exam ? '<a href="#/exams"><b>' + counts.exam + "</b><span>Exams</span></a>" : "",
-        ].filter(Boolean);
-        return cells.length > 1 ? '<div class="onecounts">' + cells.join("") + "</div>" : "";
-      })() +
+      // The streak, as two rows rather than a bespoke box.
+      '<div class="ghead">The run</div>' +
+      '<div class="glist">' +
+      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Current streak</span>' +
+      '<span class="g-s">' +
+      (S.settings.streakFrom ? "counting from " + esc(S.settings.streakFrom) : "every sealed day · Saturdays stepped over") +
+      "</span></span>" +
+      '<span class="g-v">' + cur + "d</span></div>" +
+      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Longest ever</span>' +
+      '<span class="g-s">a reset never touches this</span></span>' +
+      '<span class="g-v">' + best + "d</span></div>" +
+      (sealedDays ? '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Days sealed</span></span>' +
+        '<span class="g-v">' + sealedDays + "</span></div>" : "") +
+      (counts.lesson ? '<a class="grow" href="#/courses"><span class="g-lead"></span><span class="g-main"><span class="g-t">Lectures proven</span></span>' +
+        '<span class="g-v">' + counts.lesson + "</span></a>" : "") +
+      (counts.exam ? '<a class="grow" href="#/exams"><span class="g-lead"></span><span class="g-main"><span class="g-t">Examinations</span></span>' +
+        '<span class="g-v">' + counts.exam + "</span></a>" : "") +
+      "</div>" +
 
-      // ---- heatmap ----
-      // It draws whole weeks, so in the first fortnight it is one column with two
-      // live squares in it, floating in a 90px-tall card above a five-step
-      // legend — which reads as a broken chart rather than as a new plan. It
-      // arrives once it has something to show.
-      '<div class="card" style="margin-top:16px;"><h2>Consistency</h2>' +
-      (daysBetween(D.START_DATE, todayISO()) >= 14
-        ? '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">One square per day · tap for that day</p>' +
-          heatmapHTML(26) +
+      // The chart earns its card only once it has weeks to draw.
+      (enoughHeat
+        ? '<div class="ghead">Consistency<span class="gh-meta">one square per day</span></div>' +
+          '<div class="card">' + heatmapHTML(26) +
           '<div class="cal-legend"><span>Quiet</span>' +
           [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
-          "<span>Busy</span></div>"
-        : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 0;">The day-by-day chart starts after the first fortnight.</p>') +
+          "<span>Busy</span></div></div>"
+        : "") +
 
-      // ---- the streak, and the one control that can zero it ----
-      '<div class="streakbox">' +
-      '<div class="sb-nums">' +
-      '<div class="sb-n"><b>' + cur + "</b><span>current</span></div>" +
-      '<div class="sb-n"><b>' + best + "</b><span>longest</span></div>" +
-      "</div>" +
-      '<div class="sb-side">' +
-      '<p class="muted">' +
-      (S.settings.streakFrom
-        ? "Counting from " + esc(S.settings.streakFrom) + ", where you last reset it. The " +
-          sealedDays + " sealed day" + (sealedDays === 1 ? "" : "s") + " before it are still in the record."
-        : "Counting every sealed day since the first one. Saturdays are stepped over, not counted against you.") +
-      "</p>" +
-      '<button class="btn ghost" data-act="resetStreak">Reset streak</button></div>' +
-      "</div></div>" +
-
-      // ---- milestones: the record's own content, so it stays on the page ----
       (milestones.length
-        ? '<div class="card" style="margin-top:16px;"><h2>Milestones</h2><div class="tl stagger" style="margin-top:8px;">' +
-          milestones.map(e => '<div class="tl-row"><span class="tl-date">' + e.ts.slice(0, 10) + "</span>" +
-            '<span class="tl-what">' + esc(eventLine(e)) + "</span></div>").join("") +
-          "</div></div>"
+        ? '<div class="ghead">Milestones<span class="gh-meta">' + milestones.length + "</span></div>" +
+          '<div class="glist">' +
+          milestones.slice(0, 6).map(e =>
+            '<div class="grow"><span class="g-lead"></span><span class="g-main">' +
+            '<span class="g-t">' + esc(eventLine(e)) + "</span></span>" +
+            '<span class="g-v">' + e.ts.slice(5, 10) + "</span></div>").join("") +
+          "</div>"
         : "") +
 
-      // ---- Advanced: the two tools nobody uses weekly ----
-      // Anchoring is a few-times-a-year act and verifying someone else's export
-      // is something you do when challenged. Between them they carried three
-      // inputs, a file picker and four buttons, and took the bottom half of a
-      // page whose subject is a single yes/no answer. One level deeper.
-      '<details class="unit" style="margin-top:16px;"><summary>' +
-      // The name says what is inside, so the pill only carries a count when
-      // there is one. "anchor · verify" as a pill was 155px of the 231px a
-      // summary row has at 320px, and clipped the name it was explaining.
-      '<span class="u-name">Anchor &amp; verify</span>' +
-      (S.anchors.length ? '<span class="pill">' + S.anchors.length + " anchored</span>" : "") +
-      '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
+      // Everything you touch a few times a year, behind one row each.
+      '<div class="ghead">More</div>' +
+      '<div class="glist">' +
+      '<a class="grow" href="#/transcript"><span class="g-lead"></span><span class="g-main">' +
+      '<span class="g-t">Transcript &amp; gates</span><span class="g-s">mastery per course, the five crossings</span></span></a>' +
+      '<a class="grow" href="#/method"><span class="g-lead"></span><span class="g-main">' +
+      '<span class="g-t">How the record works</span><span class="g-s">what a hash chain proves, and what it does not</span></span></a>' +
+      '<button class="grow nav" data-act="toggleAdv"><span class="g-lead"></span><span class="g-main">' +
+      '<span class="g-t">Anchor &amp; verify</span><span class="g-s">' +
+      (S.anchors.length ? S.anchors.length + " anchored" : "publish the head hash, or check an exported file") + "</span></span></button>" +
+      '<button class="grow" data-act="resetStreak"><span class="g-lead"></span><span class="g-main">' +
+      '<span class="g-t" style="color:var(--bad);">Reset the streak counter</span>' +
+      '<span class="g-s">the sealed days and the chain are untouched</span></span></button>' +
+      "</div>" +
 
-      (led.length
-        ? '<div class="hash">head ' + esc(chainHead()) + "</div>" +
-          '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button></div>'
-        : "") +
-
-      // ---- anchors: the part that makes dates mean something ----
-      '<div class="card" style="margin-top:16px;"><h2>Public anchors</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Timestamps inside this app are self-reported. Publish the head hash somewhere public — a commit, a post — and its date becomes third-party evidence that the record existed then.</p>' +
+      '<div id="advBox" hidden style="margin-top:var(--sp-3);">' +
+      (led.length ? '<div class="hash">head ' + esc(chainHead()) + "</div>" +
+        '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button></div>' : "") +
+      '<div class="card" style="margin-top:12px;"><h2>Public anchors</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Timestamps inside this app are self-reported. Publish the head hash somewhere public and its date becomes third-party evidence.</p>' +
       (S.anchors.length
-        ? '<div class="tl" style="margin-top:10px;">' + S.anchors.slice().reverse().map((a, ri) => {
+        ? '<div class="tl" style="margin-top:10px;">' + S.anchors.slice().reverse().map((an, ri) => {
             const i = S.anchors.length - 1 - ri;
-            return '<div class="tl-row"><span class="tl-date">' + esc(a.date) + "</span>" +
-              '<span class="tl-what">' + (a.url ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.where || a.url) + "</a>" : esc(a.where || "—")) +
-              '<div class="hash" style="margin-top:4px;">' + esc(a.head) + "</div></span>" +
+            return '<div class="tl-row"><span class="tl-date">' + esc(an.date) + "</span>" +
+              '<span class="tl-what">' + (an.url ? '<a href="' + esc(an.url) + '" target="_blank" rel="noopener">' + esc(an.where || an.url) + "</a>" : esc(an.where || "—")) +
+              '<div class="hash" style="margin-top:4px;">' + esc(an.head) + "</div></span>" +
               '<button class="btn ghost" data-delanchor="' + i + '">Remove</button></div>';
           }).join("") + "</div>"
-        : '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:8px;">No anchors yet.</p>') +
+        : '<p class="note">No anchors yet.</p>') +
       '<div class="grid cols-2" style="margin-top:12px;">' +
-      '<div><label class="field" for="anWhere">Where published</label><input id="anWhere" type="text" placeholder="e.g. commit in nexline1/brickford, or an X post"></div>' +
-      '<div><label class="field" for="anUrl">Link (optional)</label><input id="anUrl" type="text" placeholder="https://…"></div>' +
-      "</div>" +
-      '<div style="margin-top:10px;"><button class="btn" data-act="addAnchor">Anchor today\u2019s head</button></div></div>' +
-
-      // ---- verify someone else's file ----
-      '<div class="card" style="margin-top:16px;"><h2>Verify a record file</h2>' +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Anyone can check an exported record here, or re-run the hashes themselves — the file ships the exact bytes that were hashed.</p>' +
+      '<div><label class="field" for="anWhere">Where published</label><input id="anWhere" type="text" placeholder="a commit, or an X post"></div>' +
+      '<div><label class="field" for="anUrl">Link (optional)</label><input id="anUrl" type="text" placeholder="https://…"></div></div>' +
+      '<div style="margin-top:10px;"><button class="btn" data-act="addAnchor">Anchor today’s head</button></div></div>' +
+      '<div class="card" style="margin-top:12px;"><h2>Verify a record file</h2>' +
+      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Anyone can check an exported record here — the file ships the exact bytes that were hashed.</p>' +
       '<div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
       '<button class="btn ghost" data-act="pickRecord">Choose file…</button>' +
       '<input type="file" id="recFile" accept=".json" style="display:none;">' +
       '<span id="recResult" style="font-size:var(--fs-small); color:var(--ink-2);"></span></div></div>' +
-
-      "</div></details>" +
-
-      // The two routes that used to sit as ghost buttons under the page title,
-      // competing with the verdict for the first thing you see.
-      '<div class="row-actions" style="margin-top:16px;"><a class="btn ghost" href="#/transcript">Transcript &amp; gates</a>' +
-      '<a class="btn ghost" href="#/method">How it works</a></div>' +
-
-      "</div>";
+      "</div></div>";
   };
 
   V.transcript = function () {
@@ -3323,73 +3182,71 @@
     const resting = isRestDay(today) && today >= D.START_DATE;
     const n = k => (R[k] || []).length;
     const bank = (R.bank || []).slice().reverse();
+    const wk = weekOf(today);
 
     // ---- The week, as six dots ----
-    //
-    // The page could tell you what was owed today and nothing else, so on a good
-    // week and a bad week it looked identical. This is the smallest honest piece
-    // of feedback: one dot per study day of the current plan week, filled where a
-    // bank entry was logged on that date. No sentence, no percentage, no chart —
-    // you read it in the time it takes to glance at it, which is the only time
-    // this page gets.
-    const wk = weekOf(today);
-    const dots = wk < 0 ? "" : '<div class="weekdots" role="img" aria-label="' + (function () {
-      let n = 0;
-      for (let i = 0; i < STUDY_WEEK; i++)
-        if ((R.bank || []).some(e => e.date === dateForStudy(wk * STUDY_WEEK + i))) n++;
-      return n + " of " + STUDY_WEEK + " days logged this week";
-    })() + '">' +
-      (function () {
-        let out = "";
-        for (let i = 0; i < STUDY_WEEK; i++) {
-          const iso = dateForStudy(wk * STUDY_WEEK + i);
-          const logged = (R.bank || []).some(e => e.date === iso);
-          // Today counts as ahead until it is over. Drawing it as a gap the
-          // moment the page loads would mark a day you still have hours of.
-          const ahead = iso >= today;
-          out += '<span class="wd' + (logged ? " on" : ahead ? " ahead" : "") +
-            (iso === today ? " now" : "") + '" title="' + iso + (logged ? " · logged" : "") + '"></span>';
-        }
-        return out;
-      })() +
-      '<span class="wd-lbl">this week</span></div>';
-
-    // The counts row: what has actually been logged, per kind. This is the whole
-    // of the old four-tile facts strip plus the four card headers.
-    //
-    // Two changes from that version. A kind you have never done shows nothing
-    // rather than a zero — on a new account this row was "1 / 0 / 0 / 0", three
-    // absences dressed as measurements. And the cells are no longer links: they
-    // pointed at #/practice, the page they were already on.
-    const counts = (function () {
-      const cells = [["bank", "Bank"], ["story", "Story"], ["humor", "Humour"], ["review", "Reviews"]]
-        .filter(([k]) => n(k) > 0)
-        .map(([k, lbl]) => "<div><b>" + n(k) + "</b><span>" + lbl + "</span></div>");
-      return cells.length > 1 ? '<div class="onecounts">' + cells.join("") + "</div>" : "";
+    // The only feedback on this page. Without it a good week and a bad week
+    // look identical, because all the page otherwise shows is today's rep.
+    let logged = 0;
+    const dots = wk < 0 ? "" : (function () {
+      let out = "";
+      for (let i = 0; i < STUDY_WEEK; i++) {
+        const iso = dateForStudy(wk * STUDY_WEEK + i);
+        const on = (R.bank || []).some(e => e.date === iso);
+        if (on) logged++;
+        // Today counts as ahead until it is over — drawing it as a gap the
+        // moment the page loads would mark a day you still have hours of.
+        const ahead = iso >= today;
+        out += '<span class="wd' + (on ? " on" : ahead ? " ahead" : "") +
+          (iso === today ? " now" : "") + '" title="' + iso + (on ? " · logged" : "") + '"></span>';
+      }
+      return out;
     })();
 
     const head = '<div class="view-enter"><div class="page-head"><div class="kicker">The reps</div><h1>Practice</h1>' +
       '<div class="sub">Watching does not make anyone funnier. This does.</div></div>';
 
+    // The dots sit in a labelled row rather than floating under the card with a
+    // two-word caption — so the thing they count is stated, not guessed.
+    const weekRow = wk < 0 ? "" :
+      '<div class="glist" style="margin-top:var(--sp-3);"><div class="grow">' +
+      '<span class="g-main"><span class="g-t">This week</span>' +
+      '<span class="g-s">' + logged + " of " + STUDY_WEEK + " days logged</span></span>" +
+      '<span class="weekdots" role="img" aria-label="' + logged + " of " + STUDY_WEEK + ' days logged this week">' + dots + "</span></div></div>";
+
+    // Four numbers that were a grid are four rows in the group every other page
+    // now uses — and a kind you have never done is not a zero on the screen.
+    const counts = (function () {
+      const rows = [["bank", "Story bank", "one real thing, two lines"],
+                    ["story", "Story reps", "recorded, under 90 seconds"],
+                    ["humor", "Humour reps", "five attempts, most will be bad"],
+                    ["review", "Monthly reviews", "rewatch what you recorded"]]
+        .filter(([k]) => n(k) > 0)
+        .map(([k, t, sub]) => '<div class="grow"><span class="g-main"><span class="g-t">' + t + "</span>" +
+          '<span class="g-s">' + sub + '</span></span><span class="g-v">' + n(k) + "</span></div>");
+      if (!rows.length) return "";
+      return '<div class="ghead">Logged so far</div><div class="glist">' + rows.join("") + "</div>";
+    })();
+
     if (resting)
-      return head + '<div class="card rp-one"><h2>' + REST_NAME + "</h2>" +
-        '<p class="muted">Nothing owed today.</p></div>' + dots + counts + "</div>";
+      return head + '<div class="card one"><div class="one-kind">' + REST_NAME + "</div>" +
+        '<p class="one-hint">Nothing owed today.</p></div>' + weekRow + counts + "</div>";
 
     if (!due.length)
-      return head + '<div class="card rp-one rp-clear"><h2>Clear for today</h2>' +
-        '<p class="muted">Every rep owed today is logged. Streak ' + streak() + "d.</p></div>" +
-        dots + counts + repHistoryHTML(bank, R) + "</div>";
+      return head + '<div class="card one one-clear"><div class="one-kind">Clear for today</div>' +
+        '<p class="one-hint">Every rep owed today is logged. Streak ' + streak() + "d.</p></div>" +
+        weekRow + counts + repHistoryHTML(bank, R) + "</div>";
 
     // ONE rep. The next one appears here the moment this is logged.
     const d = due[0];
     return head +
-      '<div class="card rp-one">' +
-      '<div class="rp-kind">' + esc(d.label) + (due.length > 1 ? ' <span class="rp-more">+' + (due.length - 1) + " more</span>" : "") + "</div>" +
-      '<p class="rp-hint">' + esc(d.hint) + "</p>" +
-      '<div class="rp-form">' + REP_FORM[d.kind]() + "</div>" +
-      '<button class="btn lg rp-go" data-act="' + REP_ACT[d.kind] + '">' + REP_VERB[d.kind] + "</button>" +
+      '<div class="card one">' +
+      '<div class="one-kind">' + esc(d.label) + (due.length > 1 ? ' <span class="one-more">+' + (due.length - 1) + " more</span>" : "") + "</div>" +
+      '<p class="one-hint">' + esc(d.hint) + "</p>" +
+      '<div class="one-body">' + REP_FORM[d.kind]() + "</div>" +
+      '<button class="btn lg one-go" data-act="' + REP_ACT[d.kind] + '">' + REP_VERB[d.kind] + "</button>" +
       "</div>" +
-      dots + counts + repHistoryHTML(bank, R) + "</div>";
+      weekRow + counts + repHistoryHTML(bank, R) + "</div>";
   };
 
   // Everything that is not today's rep, folded away. It is a record, not a task.
@@ -3984,6 +3841,13 @@
           render(); toast("Token forgotten.");
         } else if (act === "syncPull" || act === "syncPush") {
           runSync(act === "syncPull" ? "pull" : "push", t => { const m = $("#syncMsg"); if (m) m.innerHTML = t; });
+        } else if (act === "toggleAdv") {
+          // The rare tools live in a box the page already rendered; the row just
+          // reveals it. No re-render, so the scroll position does not move under
+          // the thumb (apple-design 1: nothing on the input path that is not
+          // essential).
+          const box = $("#advBox");
+          if (box) { box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));

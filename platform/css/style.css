@@ -1780,8 +1780,16 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 @media (max-width: 860px) {
   :root { --tabbar-h: 58px; }
   .shell { flex-direction: column; }
-  .sidebar { position: fixed; z-index: var(--z-drawer); height: 100vh; height: 100dvh; transform: translateX(-100%); transition: transform var(--t-hover) var(--ease); width: 264px; box-shadow: var(--shadow-float); }
-  .sidebar.open { transform: none; }
+  /* No transition: the spring in app.js owns this transform frame by frame, and
+     a CSS transition on the same property would fight it — the element would
+     chase the spring's output instead of tracking the finger. touch-action
+     keeps vertical scrolling inside the drawer while the horizontal axis is
+     ours to interpret. */
+  .sidebar {
+    position: fixed; z-index: var(--z-drawer); height: 100vh; height: 100dvh;
+    transform: translateX(-100%); width: 264px; box-shadow: var(--shadow-float);
+    touch-action: pan-y;
+  }
   .menu-btn {
     display: inline-flex; position: fixed; top: 14px; left: 14px; z-index: var(--z-drawer-btn);
     background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong);
@@ -1986,3 +1994,46 @@ a.grow::after, button.grow.nav::after {
 .gdot.part { background: var(--accent-2); }
 .gdot.miss { background: var(--bad); }
 .gdot.now { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+
+
+/* ---------- Drawer scrim and edge grab ----------
+   apple-design 12: "dim to focus". The drawer used to slide over a page that
+   stayed at full brightness, so nothing said which layer had your attention.
+   The scrim's opacity is driven frame by frame from the drag itself, not
+   toggled — it IS the progress of the gesture, which is what makes the dimming
+   feel attached to the finger rather than triggered by it. */
+.scrim {
+  position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1);
+  background: color-mix(in srgb, var(--shade) 55%, transparent);
+  opacity: 0; pointer-events: none;
+  -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px);
+}
+@media (min-width: 861px) { .scrim, .edge-grab { display: none; } }
+/* The strip you pull from. 20px is Apple's own edge-swipe target: wide enough
+   to catch a thumb, narrow enough not to eat taps on real content. */
+.edge-grab {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 20px;
+  z-index: calc(var(--z-drawer) - 2); background: transparent;
+  /* none, not pan-y: inside this strip the horizontal drag is entirely ours,
+     and leaving the browser a gesture to claim is what lets it cancel the
+     pointer mid-drag. */
+  touch-action: none;
+}
+/* While the drawer is open the page behind it does not scroll. */
+html.drawer-open, html.drawer-open body { overflow: hidden; }
+@media (prefers-reduced-transparency: reduce) { .scrim { backdrop-filter: none; -webkit-backdrop-filter: none; } }
+
+/* The two surfaces the drawer gesture lives on must not also be text to select
+   or images to drag — either one hands the pointer to the browser mid-gesture. */
+.edge-grab, .sidebar { -webkit-user-select: none; user-select: none; }
+.sidebar img, .sidebar svg, .edge-grab { -webkit-user-drag: none; }
+
+/* ---------- Route transitions ----------
+   A short cross-fade, not a slide: the pages here are siblings in a list, not a
+   stack you push and pop, so a directional move would claim a relationship that
+   is not there (apple-design 7). Reduced motion never reaches this — render()
+   skips the transition entirely rather than styling it away. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: 180ms; animation-timing-function: var(--ease);
+}

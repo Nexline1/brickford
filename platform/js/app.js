@@ -1260,6 +1260,189 @@
     };
   }
 
+  // ---------- a spring ----------
+  //
+  // apple-design 4: a fixed-duration animation cannot respond to new input; a
+  // spring can, because new input only changes the target. No library — this is
+  // a no-build static app — so this is the whole thing in fifteen lines, in
+  // Apple's own two parameters rather than mass/stiffness/damping:
+  //
+  //   response  how quickly it reaches the target, in seconds
+  //   damping   1.0 is critically damped (no overshoot); below 1 bounces
+  //
+  // It returns its live value so an interrupt can start from the PRESENTATION
+  // value rather than the logical one, which is the difference between grabbing
+  // a moving drawer and watching it jump (apple-design 3).
+  function spring(from, to, opts, onFrame, onDone) {
+    const resp = (opts && opts.response) || 0.4;
+    const damp = (opts && opts.damping) || 1.0;
+    let x = from, v = (opts && opts.velocity) || 0;
+    const w = (2 * Math.PI) / resp;
+    let raf = null, last = performance.now(), dead = false;
+    function step(now) {
+      const dt = Math.min((now - last) / 1000, 1 / 30);   // clamp: a backgrounded tab must not teleport
+      last = now;
+      const a = -w * w * (x - to) - 2 * damp * w * v;
+      v += a * dt; x += v * dt;
+      if (Math.abs(x - to) < 0.5 && Math.abs(v) < 25) { x = to; v = 0; onFrame(x, v); dead = true; if (onDone) onDone(); return; }
+      onFrame(x, v);
+      raf = requestAnimationFrame(step);
+    }
+    raf = requestAnimationFrame(step);
+    return {
+      cancel() { if (raf) cancelAnimationFrame(raf); dead = true; },
+      get value() { return x; },
+      get velocity() { return v; },
+      get done() { return dead; },
+    };
+  }
+
+  // apple-design 6: land where the gesture is GOING, not where the finger left.
+  // This is Apple's own projection from the Designing Fluid Interfaces sample —
+  // exponential decay, not the textbook v²/2a.
+  function projectMomentum(velocity, decel) {
+    const d = decel || 0.998;
+    return (velocity / 1000) * d / (1 - d);
+  }
+
+  // ---------- the drawer ----------
+  //
+  // It was classList.toggle("open") against a CSS transition: no drag, no
+  // velocity, no scrim, and impossible to grab once it was moving. Now it
+  // tracks the finger 1:1, projects the throw, hands the release velocity to
+  // the spring so there is no seam between dragging and settling, and can be
+  // caught and reversed at any frame.
+  let drawer = null;
+  function mountDrawer() {
+    const el = $("#sidebar"), btn = $("#menuBtn");
+    if (!el || !btn) return;
+    let scrim = $("#scrim");
+    if (!scrim) {
+      scrim = document.createElement("div");
+      scrim.id = "scrim"; scrim.className = "scrim";
+      document.body.appendChild(scrim);
+    }
+    const width = () => Math.round(el.getBoundingClientRect().width) || 264;
+    const phone = () => window.matchMedia("(max-width: 860px)").matches;
+    const reduce = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let x = -width(), anim = null, drag = null;
+    const swallow = e => e.preventDefault();
+
+    function paint(px) {
+      x = px;
+      const w = width();
+      const p = Math.max(0, Math.min(1, 1 + px / w));      // 0 shut … 1 open
+      el.style.transform = "translateX(" + px + "px)";
+      scrim.style.opacity = String(p);
+      // Deliberately NOT touched while a drag is live. Making the scrim
+      // hit-testable partway through a gesture changes the element under the
+      // pointer, and Chromium answers that by cancelling the pointer outright:
+      // the window saw one pointermove and then a pointercancel, which end()
+      // read as a release and sprang the drawer shut after 35px of travel. The
+      // scrim only starts taking taps once the gesture is over.
+      if (!drag) scrim.style.pointerEvents = p > 0.02 ? "auto" : "none";
+      el.classList.toggle("open", p > 0.5);
+      document.documentElement.classList.toggle("drawer-open", p > 0.5);
+    }
+    function settle(to, vel) {
+      if (anim) anim.cancel();
+      // Reduced motion still gets the state change, just without the travel.
+      if (reduce()) { paint(to); return; }
+      anim = spring(x, to, { response: 0.34, damping: 1, velocity: vel || 0 }, paint);
+    }
+    const open = () => settle(0, 0);
+    const shut = () => settle(-width(), 0);
+
+    // ---- the gesture ----
+    function begin(e, fromEdge) {
+      if (!phone()) return;
+      if (anim) { anim.cancel(); anim = null; }        // grab it mid-flight
+      drag = { id: e.pointerId, x0: e.clientX, base: x, hist: [], moved: false, fromEdge };
+      // The moves are tracked on WINDOW, not via setPointerCapture on the
+      // element that took the pointerdown. Two reasons, both found by watching
+      // the events rather than reasoning about them: the edge strip is 20px
+      // wide, so a committed drag has long left it; and the scrim this gesture
+      // fades in becomes hit-testable partway through and takes the capture off
+      // the element that owned it — the log showed lostpointercapture one move
+      // after pointerdown. Window listeners cannot be stolen from.
+      window.addEventListener("pointermove", move, { passive: false });
+      window.addEventListener("pointerup", end);
+      window.addEventListener("pointercancel", end);
+      // Deny the browser its own gesture. Logging every event on the window
+      // showed the real cause of the dead drag: pointerdown, one pointermove,
+      // then `dragstart` — Chromium beginning a native drag-and-drop — and
+      // immediately `pointercancel`, which killed the stream. Suppressing
+      // selection and the drag at the source is what keeps the pointer ours.
+      window.addEventListener("dragstart", swallow);
+      window.addEventListener("selectstart", swallow);
+      el.style.transition = "none";
+    }
+    function move(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0;
+      if (!drag.moved) {
+        if (Math.abs(dx) < 8) return;                  // hysteresis before committing
+        drag.moved = true;
+      }
+      drag.hist.push({ x: e.clientX, t: performance.now() });
+      if (drag.hist.length > 5) drag.hist.shift();
+      let next = drag.base + dx;
+      // apple-design 9: resist past the edge rather than stopping dead.
+      if (next > 0) next = (next * 0.35);
+      paint(Math.max(-width() * 1.2, Math.min(next, 24)));
+      e.preventDefault();
+    }
+    function end(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      window.removeEventListener("dragstart", swallow);
+      window.removeEventListener("selectstart", swallow);
+      scrim.style.pointerEvents = x > -width() * 0.98 ? "auto" : "none";
+      if (!d.moved) return;
+      // Velocity from the last few samples, not the final one — a single frame
+      // at the end of a gesture is noise.
+      let vel = 0;
+      if (d.hist.length > 1) {
+        const a = d.hist[0], b = d.hist[d.hist.length - 1];
+        const dt = (b.t - a.t) / 1000;
+        if (dt > 0) vel = (b.x - a.x) / dt;
+      }
+      const w = width();
+      const projected = x + projectMomentum(vel);
+      settle(projected > -w / 2 ? 0 : -w, vel);
+    }
+
+    // Any part of it showing is enough to grab — the test for this used the
+    // "open" class, which only flips past halfway, so a drawer caught at 36% of
+    // its travel ignored the finger and carried on closing. apple-design 3: a
+    // moving element has to be catchable at ANY frame, not only a majority one.
+    el.addEventListener("pointerdown", e => { if (x > -width() + 2) begin(e, false); });
+
+    // A left-edge strip so the drawer can be pulled in from a closed state —
+    // the gesture people already expect from every app on the phone.
+    const edge = document.createElement("div");
+    edge.className = "edge-grab";
+    document.body.appendChild(edge);
+    edge.addEventListener("pointerdown", e => begin(e, true));
+
+    btn.onclick = () => (el.classList.contains("open") ? shut() : open());
+    scrim.onclick = shut;
+    // Tapping through to a page closes the drawer behind you.
+    el.addEventListener("click", e => { if (e.target.closest("a[href^='#/']")) shut(); });
+    window.addEventListener("keydown", e => { if (e.key === "Escape" && el.classList.contains("open")) shut(); });
+    // A rotate or a resize past the breakpoint must not strand it mid-travel.
+    window.addEventListener("resize", () => {
+      if (!phone()) { if (anim) anim.cancel(); el.style.transform = ""; scrim.style.opacity = "0"; scrim.style.pointerEvents = "none"; el.classList.remove("open"); document.documentElement.classList.remove("drawer-open"); x = -width(); }
+      else paint(el.classList.contains("open") ? 0 : -width());
+    });
+
+    paint(-width());
+    drawer = { open, shut };
+  }
+
   // The rail, and its collapsed one-line form for phones. Same data, both
   // rendered outside #view so they survive every route change.
   function mountRail() {
@@ -4316,7 +4499,16 @@
   function render() {
     if (rendering) return;
     rendering = true;
-    try { renderInner(); } finally { rendering = false; }
+    try {
+      // apple-design 7: a route change is a spatial move, and a hard swap gives
+      // the eye nothing to follow. The View Transition API cross-fades the old
+      // page into the new one at the compositor, so it costs nothing on the
+      // input path — and where it is missing, or where reduced motion is asked
+      // for, the swap simply happens as before. Nothing depends on it.
+      const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (document.startViewTransition && !reduce) document.startViewTransition(() => renderInner());
+      else renderInner();
+    } finally { rendering = false; }
   }
   function renderInner() {
     clearInterval(timerH);
@@ -4396,7 +4588,7 @@
     $("#exportBtn").onclick = exportBackup;
     $("#importBtn").onclick = () => $("#importFile").click();
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
-    $("#menuBtn").onclick = () => $("#sidebar").classList.toggle("open");
+    mountDrawer();
     window.addEventListener("hashchange", render);
     // Rotating the phone changes which furniture exists and how tall it is.
     let rt = null;

@@ -406,6 +406,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .motto { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; line-height: 1.7; }
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
+
 .view-enter { animation: viewIn var(--t-enter) var(--ease) both; }
 @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
@@ -427,8 +428,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
     align-self: flex-start; position: sticky; top: var(--sp-4);
     padding: var(--sp-5) clamp(16px, 2vw, 28px) var(--sp-4) 0;
   }
-  /* Stowed on the dashboard, where the hero IS the next lecture. */
-  .rail.stowed { display: none; }
+  /* Stowed on the dashboard, where the hero IS the next lecture.
+     visibility, not display: .main is flex:1, so removing the rail from the
+     layout handed its 300px to the reading column. The dashboard's rows came
+     out 984px wide against 684px everywhere else — the same grouped list with
+     300px of nothing between a lecture and its length — and the whole column
+     slid sideways every time you left the page. The track stays reserved and
+     simply holds nothing. */
+  .rail.stowed { visibility: hidden; }
 }
 .rail-card {
   background: var(--surface); border: 1px solid var(--line);

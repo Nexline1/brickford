@@ -106,15 +106,28 @@ confirmation, not a quiet widening of this one.
 ```
 node tools/verify-content.js       # structure, numerics recomputed, registries
 node tools/verify-contrast.js      # 4.5:1 on every route × 7 themes × 2 widths
+node tools/verify-shell.js         # the frame: sidebar, drawer, reading column
 ```
 
-Plus the clipping sweep (all routes at 320/390/768/1280 — no overflow, nothing clipped inside
-an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning, including the bug that
-made the contrast gate necessary.
+Plus the clipping sweep (all routes at 320/390/768/1024/1100/1280/1440 — no overflow, nothing
+clipped inside an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning,
+including the bug that made the contrast gate necessary.
 
-Two habits that have each caught real defects here:
+`verify-shell.js` exists because on 17 Sep 2026 the **desktop sidebar was missing entirely** and
+all three other gates were green. They each measure inside `.main`: content, contrast, overflow.
+None of them had ever asked whether the navigation was on screen. It asserts the sidebar is
+visible and carries no inline style at eight desktop widths on twelve routes, that it survives
+being *clicked* through (not just `goto`-ed — the second half of that defect only fired on a nav
+click), that the hamburger and the drawer take over below 860px, and that the reading column is
+the same box on every route.
+
+Three habits that have each caught real defects here:
 
 - **Check computed style, not screenshots**, for anything visual. Three separate times a change
   was styled onto nothing and looked applied.
 - **Read the rendered page anyway.** Numbers said the calendar was fine while it was cut in
   half, and said the dashboard was fine while three of its blocks were invisible.
+- **Look at the whole window, not just the view.** Every harness here renders `.main`, so for
+  one release the app shipped with no navigation at all on desktop and nothing said a word.
+  When a gate is added, first put the bug back and watch it fail — a gate that has never failed
+  has not been tested.

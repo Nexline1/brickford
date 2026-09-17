@@ -1349,8 +1349,13 @@
       if (reduce()) { paint(to); return; }
       anim = spring(x, to, { response: 0.34, damping: 1, velocity: vel || 0 }, paint);
     }
-    const open = () => settle(0, 0);
-    const shut = () => settle(-width(), 0);
+    // Guarded at the source, not at each of the four call sites. Above the
+    // breakpoint there is no drawer to open or shut — the sidebar is just a
+    // column — and any of these springing it would write the inline transform
+    // that hides it. Tapping a nav link is the one that did: it calls shut(),
+    // which is how a route change on DESKTOP was pushing the sidebar away.
+    const open = () => { if (phone()) settle(0, 0); };
+    const shut = () => { if (phone()) settle(-width(), 0); };
 
     // ---- the gesture ----
     function begin(e, fromEdge) {
@@ -1432,13 +1437,30 @@
     // Tapping through to a page closes the drawer behind you.
     el.addEventListener("click", e => { if (e.target.closest("a[href^='#/']")) shut(); });
     window.addEventListener("keydown", e => { if (e.key === "Escape" && el.classList.contains("open")) shut(); });
+    // Above the breakpoint the sidebar is an ordinary flex child of .shell, so
+    // it must carry NO inline transform — one would shove it out of a column
+    // whose 250px of layout space stays reserved, which is a sidebar that is
+    // gone and a stripe of empty page where it was.
+    //
+    // This used to exist only as the resize handler. The initial paint below it
+    // ran unguarded, so a desktop FIRST LOAD hid the sidebar and only a window
+    // resize brought it back — the one case nobody resizes into. Both paths go
+    // through the same function now, which is the only way they cannot drift.
+    function syncToViewport() {
+      if (phone()) { paint(el.classList.contains("open") ? 0 : -width()); return; }
+      if (anim) { anim.cancel(); anim = null; }
+      el.style.transform = "";
+      el.style.transition = "";
+      scrim.style.opacity = "0";
+      scrim.style.pointerEvents = "none";
+      el.classList.remove("open");
+      document.documentElement.classList.remove("drawer-open");
+      x = -width();
+    }
     // A rotate or a resize past the breakpoint must not strand it mid-travel.
-    window.addEventListener("resize", () => {
-      if (!phone()) { if (anim) anim.cancel(); el.style.transform = ""; scrim.style.opacity = "0"; scrim.style.pointerEvents = "none"; el.classList.remove("open"); document.documentElement.classList.remove("drawer-open"); x = -width(); }
-      else paint(el.classList.contains("open") ? 0 : -width());
-    });
+    window.addEventListener("resize", syncToViewport);
 
-    paint(-width());
+    syncToViewport();
     drawer = { open, shut };
   }
 

@@ -897,7 +897,6 @@
   // one of these ids is present the Publish block simply emits nothing, so this
   // ships dark and lights up when the curriculum lands. No release coupling.
   const SPEECH_COURSES = ["spch100", "spch110"];
-  const COURSE_SHORT = { math110: "Lin Algebra", math120: "Calculus", math130: "Probability", ai200: "Zero to Hero", ai210: "fast.ai", math210: "Math for ML", ai300: "Paper Room", sys250: "GPU & Systems", ai310: "LLM Eng", res400: "Research", spch100: "Storytelling", spch110: "Content" };
   const P2_DAY = 182; // day index where Phase 2 opens (week 27)
   // Pacing is calibrated to the gates: spine content done ~week 13 with
   // weeks 14-26 for the original-project block (Gate 2, month 6 = GPT from
@@ -1001,8 +1000,9 @@
   // run out of lessons and the day is project or frontier work. Real lectures go
   // through dayGroupsHTML below, on both pages that show a day.
   function pseudoRowHTML(it) {
-    return '<div class="plan-row"><span class="block">' + it.track + '</span><span class="what">' + esc(it.t) +
-      '</span><a class="btn ghost go" href="' + it.href + '">Go</a></div>';
+    return '<a class="grow" href="' + it.href + '"><span class="g-lead">\u00b7</span>' +
+      '<span class="g-main"><span class="g-t">' + esc(it.t) + '</span>' +
+      '<span class="g-s">' + esc(it.track) + '</span></span></a>';
   }
   // The day, grouped by course.
   //
@@ -1023,26 +1023,25 @@
       else runs.push({ cid: it.cid, code: it.code, track: it.track, items: [it] });
     });
     let n = 0;
-    return runs.map((run, ri) => {
+    return runs.map(run => {
       const fc = D.COURSES.find(x => x.id === run.cid);
       const mins = run.items.reduce((a, it) => a + (it.l.min || 0), 0);
       const doneN = run.items.filter(schedDone).length;
-      return '<div class="daygroup ' + (fc ? facClass(fc) : "") + '" style="--i:' + ri + ';">' +
-        '<div class="dg-head"><span class="dg-code">' + esc(run.code) + "</span>" +
-        '<span class="dg-meta">' + run.items.length + " lecture" + (run.items.length === 1 ? "" : "s") +
-        (mins ? " · " + (mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? pad2(mins % 60) : "") : mins + "m") : "") +
-        " · " + esc(run.track) +
-        (doneN ? ' <span class="dg-done">' + doneN + " done</span>" : "") + "</span></div>" +
-        run.items.map(it => {
+      return '<div class="ghead">' + esc(run.code) + " \u00b7 " + esc(run.track) +
+        '<span class="gh-meta">' +
+        (doneN ? doneN + " / " + run.items.length + " done" : run.items.length + " lecture" + (run.items.length === 1 ? "" : "s")) +
+        (mins ? " \u00b7 " + (mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? pad2(mins % 60) : "") : mins + "m") : "") +
+        "</span></div>" +
+        '<div class="glist">' + run.items.map(it => {
           const dn = schedDone(it);
           n++;
           const dur = it.l.min ? it.l.min + "m" : it.l.paper ? "paper" : "reading";
-          return '<a class="dg-row' + (dn ? " done" : "") + '" href="#/lesson/' +
+          return '<a class="grow ' + (fc ? facClass(fc) : "") + (dn ? " done-row" : "") + '" href="#/lesson/' +
             it.cid + "/" + it.ui + "/" + it.li + '">' +
-            '<span class="dg-n">' + (dn ? "\u2713" : n) + "</span>" +
-            '<span class="dg-t">' + esc(it.l.t) + "</span>" +
-            '<span class="dg-dur">' + esc(dur) +
-            (it.spanN > 1 ? " · " + it.dayN + "/" + it.spanN : "") + "</span></a>";
+            '<span class="g-lead">' + (dn ? "\u2713" : n) + "</span>" +
+            '<span class="g-main"><span class="g-t">' + esc(it.l.t) + "</span></span>" +
+            '<span class="g-v">' + esc(dur) +
+            (it.spanN > 1 ? " \u00b7 " + it.dayN + "/" + it.spanN : "") + "</span></a>";
         }).join("") + "</div>";
     }).join("");
   }
@@ -1492,7 +1491,10 @@
     const bar = $("#railbar");
     if (ctaObs) { ctaObs.disconnect(); ctaObs = null; }
     if (!bar) return;
-    const cta = $(".dash-hero .dh-cta .btn");
+    // .one.lead is the dashboard's action card and only the dashboard's: the bar
+    // stows because it would sit on top of the SAME action, and on every other
+    // page the .one-go is a different one (sit the exam, mark a gate passed).
+    const cta = $(".one.lead .one-go");
     // No hero button on this route, or no observer: the bar is the only handle.
     if (!cta || typeof IntersectionObserver === "undefined") {
       bar.classList.remove("stowed"); measureFurniture(); return;
@@ -1553,93 +1555,114 @@
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
     return '<div class="view-enter">' +
-      // ---- Hero: the next lecture ----
+      // ---- The one thing: the next lecture ----
       //
-      // It used to be the day number, three storeys tall, with a ring beside it
-      // and the actual lecture reduced to a button label. But nobody opens this
-      // to find out what day it is - the day number is a fact, not a thing to do.
-      // So the hero states the ONE action (apple-design 16: the most important
-      // thing should be the most obvious), and the day, the week and the phase
-      // shrink to the quiet line above it, where a timestamp belongs.
-      //
-      // The ring is gone rather than moved. It drew the same doneToday/real.length
-      // the line beneath it now says in words, and the rail already carries one on
-      // desktop - two rings, 400px apart, reading the same number.
-      '<div class="dash-hero ' + (cta.fac || "") + '">' +
-      '<div class="dh-line"><span class="dh-day">Day ' + String(day).padStart(3, "0") + "</span>" +
-      '<span class="dh-ctx">Week ' + f.week + " · Phase " + f.phase + "</span>" +
-      (real.length
-        ? '<span class="dh-prog">' + doneToday + " / " + real.length + " today</span>"
-        : studiedToday ? '<span class="dh-prog">day sealed ✓</span>' : "") +
+      // This was a .dash-hero: its own card component, with its own context
+      // line, its own kicker and its own button slot, styled in forty lines of
+      // CSS nobody else could use. Every other page opens with .one — the same
+      // idea, the same faculty edge, the same full-width button. Two components
+      // were answering one question, which is the whole complaint this round is
+      // about, so the hero is now a .one like the rest and the day/week/phase
+      // line is a .ghead, the header shape this page already uses twice below.
+      '<div class="card one lead ' + (cta.fac || "") + '">' +
+      '<div class="ghead oh">Day ' + String(day).padStart(3, "0") + " \u00b7 Week " + f.week +
+      '<span class="gh-meta">Phase ' + f.phase +
+      (real.length ? " \u00b7 " + doneToday + " / " + real.length + " today"
+        : studiedToday ? " \u00b7 day sealed \u2713" : "") + "</span>" +
       "</div>" +
-      // The bar is the ring's job done in 4px. Only once there is progress to
-      // draw: an empty track reads as an unfinished element, not as "none yet".
+      '<div class="one-kind">' + esc(cta.title) + "</div>" +
+      '<p class="one-hint">' + esc(cta.code) + " \u00b7 " + esc(cta.hint) + "</p>" +
+      // The bar is a progress ring's job done in 4px. Only once there is
+      // progress to draw: an empty track reads as an unfinished element rather
+      // than as "none yet".
       (dayPct > 0
-        ? '<div class="dh-bar"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
+        ? '<div style="max-width:420px; margin-top:10px;"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
         : "") +
-      '<div class="dh-kicker">' + esc(cta.code) + (cta.kind === "lecture" ? " · next lecture" : "") + "</div>" +
-      '<h1 class="dh-title">' + esc(cta.title) + "</h1>" +
-      '<div class="dh-cta"><a class="btn lg" href="' + cta.href + '">' + esc(cta.verb) + " ▸</a>" +
-      '<span class="dh-hint">' + esc(cta.hint) + "</span></div>" +
+      '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + " \u25b8</a>" +
       "</div>" +
 
-      // ---- Is this device actually syncing? ----
-      // Say it on the page someone opens every day, not on a settings screen two
-      // taps into a drawer. Silence here is what made "it does not sync" look
-      // like a bug rather than an unconnected device.
-      // Two different failures, and they need different words. No token is a
-      // device nobody connected. A token that errors is worse - it looked
-      // connected the whole time it was diverging - so it says what GitHub said.
+      // ---- Anything wrong, in one place ----
+      //
+      // Two alert banners in a component of their own (.task.owed, with its own
+      // number bubble, its own three-line body and its own go label) used to sit
+      // in two different places on this page — one above the day, one below it.
+      // They are rows now, in one group, above everything, because "something is
+      // wrong" is the only thing that outranks the day's work.
       (function () {
+        const rows = [];
         const e = S.settings.syncError;
+        // Two different failures needing different words. No token is a device
+        // nobody connected. A token that errors is worse — it looked connected
+        // the whole time it was diverging — so it says what GitHub said.
         if (!ghToken())
-          return '<a class="task owed" href="#/sync" style="margin-top:16px;"><span class="tk-n">!</span>' +
-            '<span class="tk-main"><span class="tk-code">NOT SYNCING</span>' +
-            '<span class="tk-t">This device only — progress stays here</span>' +
-            '<span class="tk-meta">connect it and every device shares one record</span></span>' +
-            '<span class="tk-go">Connect ▸</span></a>';
-        if (e)
-          return '<a class="task owed" href="#/sync" style="margin-top:16px;"><span class="tk-n">!</span>' +
-            '<span class="tk-main"><span class="tk-code">SYNC FAILING</span>' +
-            '<span class="tk-t">' + esc(e.msg) + "</span>" +
-            '<span class="tk-meta">since ' + esc(agoLabel(e.at)) + ' · this device is diverging from the others</span></span>' +
-            '<span class="tk-go">Fix it ▸</span></a>';
-        return "";
+          rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">!</span>' +
+            '<span class="g-main"><span class="g-t">This device is not syncing</span>' +
+            '<span class="g-s">progress stays in this browser only</span></span></a>');
+        else if (e)
+          rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">!</span>' +
+            '<span class="g-main"><span class="g-t">Sync is failing</span>' +
+            '<span class="g-s">' + esc(e.msg) + " \u00b7 since " + esc(agoLabel(e.at)) + "</span></span></a>");
+        if (backlog > 0)
+          rows.push('<a class="grow" href="#/calendar"><span class="g-lead bad-lead">!</span>' +
+            '<span class="g-main"><span class="g-t">' + (backlog > 20 ? "20+" : backlog) +
+            " lecture" + (backlog === 1 ? "" : "s") + " owed from earlier days</span>" +
+            '<span class="g-s">catching up late still turns the day green</span></span></a>');
+        if (!rows.length) return "";
+        return '<div class="ghead">Needs attention<span class="gh-meta">' + rows.length + "</span></div>" +
+          '<div class="glist">' + rows.join("") + "</div>";
       })() +
 
-      // ---- The day's own work, as the largest object on the page ----
+      // ---- The day's own work ----
+      //
+      // A "TODAY" section heading used to sit here, above per-course headers
+      // that say the same thing more precisely. The hero directly above already
+      // states the day and the count; the groups name their own course. So the
+      // day is its lectures, and nothing announces them twice.
       (resting
-        ? sect("Rest day", REST_NAME.toLowerCase()) +
-          // A rest day has to look deliberate. An empty Today with no explanation
-          // reads as a broken schedule, and the whole point is that this day is
-          // part of the plan rather than a hole in it.
-          '<div class="card feature"><h2>Nothing is scheduled today.</h2>' +
-          '<p class="muted" style="margin-top:6px;">' + REST_NAME + " is off. The plan runs six days a week — " +
-          "taking the seventh is following it, not breaking it. Your streak is safe.</p>" +
-          '<div class="row-actions"><a class="btn" href="' + nextStudyHref() + '">See ' + esc(nextStudyLabel()) + " ▸</a>" +
-          '<a class="btn ghost" href="#/recall">Recall, if you want to</a></div></div>'
-        : sect("Today", real.length ? doneToday + " of " + real.length + " done · " + totalMin + "m" : "") +
-          (real.length
-            ? '<div class="daygroups">' + dayGroupsHTML(real) + "</div>"
-            : '<div class="card"><p class="muted">Nothing scheduled today. ' +
-              (todaySched.length ? "Problem sets and review only." : "Calibration and setup — see the Handbook.") +
-              '</p><div class="row-actions"><a class="btn ghost" href="#/calendar">Calendar</a><a class="btn ghost" href="#/guide">Handbook</a></div></div>')) +
-
-      (backlog > 0
-        ? '<a class="task owed" href="#/calendar" style="margin-top:10px;"><span class="tk-n">!</span>' +
-          '<span class="tk-main"><span class="tk-code">BEHIND</span>' +
-          '<span class="tk-t">' + (backlog > 20 ? "20+" : backlog) + " lecture" + (backlog === 1 ? "" : "s") + " owed from earlier days</span>" +
-          '<span class="tk-meta">catching up late still turns the day green</span></span>' +
-          '<span class="tk-go">Calendar ▸</span></a>'
-        : "") +
-
-      // No Deep Track to mark on a rest day. Offering the button would both
-      // contradict the card above it and let a rest day be logged as a study day,
-      // which would inflate the streak — the one number that has to stay honest.
-      (resting ? "" :
-        '<div class="row-actions">' + (studiedToday
-          ? '<span class="pill good">✓ Deep Track marked for today</span>'
-          : '<button class="btn" data-act="studied">Mark today’s Deep Track done</button>') + "</div>") +
+        // A rest day has to look deliberate. An empty day with no explanation
+        // reads as a broken schedule, and the whole point is that this day is
+        // part of the plan rather than a hole in it.
+        ? '<div class="ghead">' + esc(REST_NAME) + '<span class="gh-meta">rest day</span></div>' +
+          '<div class="glist">' +
+          '<div class="grow"><span class="g-lead">\u2014</span>' +
+          '<span class="g-main"><span class="g-t">Nothing is scheduled</span>' +
+          '<span class="g-s">the plan runs six days a week \u2014 taking the seventh is following it. Your streak is safe.</span></span></div>' +
+          '<a class="grow" href="' + nextStudyHref() + '"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">' + esc(nextStudyLabel()) + "</span>" +
+          '<span class="g-s">the next study day</span></span></a>' +
+          '<a class="grow" href="#/recall"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Recall, if you want to</span></span></a>' +
+          "</div>"
+        : real.length
+          ? dayGroupsHTML(real) +
+            '<div class="glist" style="margin-top:var(--sp-3);">' +
+            (studiedToday
+              ? '<div class="grow done-row"><span class="g-lead">\u2713</span>' +
+                '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>'
+              // No Deep Track to mark on a rest day, and none offered: letting a
+              // rest day be logged as a study day would inflate the streak, the
+              // one number that has to stay honest.
+              : '<button class="grow" data-act="studied"><span class="g-lead">\u25cb</span>' +
+                '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
+                '<span class="g-s">seals the day</span></span></button>') +
+            "</div>"
+          : '<div class="ghead">Today<span class="gh-meta">nothing scheduled</span></div>' +
+            '<div class="glist">' +
+            '<div class="grow"><span class="g-lead">\u2014</span>' +
+            '<span class="g-main"><span class="g-t">' +
+            (todaySched.length ? "Problem sets and review only" : "Calibration and setup") + "</span>" +
+            '<span class="g-s">' + (todaySched.length ? "no lectures on this day" : "see the Handbook") + "</span></span></div>" +
+            '<a class="grow" href="#/calendar"><span class="g-lead"></span>' +
+            '<span class="g-main"><span class="g-t">Calendar</span></span></a>' +
+            '<a class="grow" href="#/guide"><span class="g-lead"></span>' +
+            '<span class="g-main"><span class="g-t">Handbook</span></span></a>' +
+            (studiedToday
+              ? '<div class="grow done-row"><span class="g-lead">\u2713</span>' +
+                '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>'
+              : '<button class="grow" data-act="studied"><span class="g-lead">\u25cb</span>' +
+                '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
+                '<span class="g-s">seals the day</span></span></button>') +
+            "</div>") +
 
       // ---- Where you stand, and everything that runs every day ----
       //
@@ -1651,13 +1674,13 @@
       '<div class="ghead">Where you stand</div>' +
       '<div class="glist">' +
       (g
-        ? '<a class="grow" href="#/transcript"><span class="g-lead">◆</span>' +
-          '<span class="g-main"><span class="g-t">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
+        ? '<a class="grow" href="#/transcript"><span class="g-lead">\u25c6</span>' +
+          '<span class="g-main"><span class="g-t">Gate ' + g.n + " \u2014 " + esc(g.label) + "</span>" +
           '<span class="g-s">' + esc(drift.projected) + " finish" +
-          (drift.aheadDays > 0 ? " · " + drift.aheadDays + " days ahead"
-            : drift.aheadDays < 0 ? " · " + (-drift.aheadDays) + " days behind" : " · on baseline") +
+          (drift.aheadDays > 0 ? " \u00b7 " + drift.aheadDays + " days ahead"
+            : drift.aheadDays < 0 ? " \u00b7 " + (-drift.aheadDays) + " days behind" : " \u00b7 on baseline") +
           "</span></span><span class=\"g-v\">" + gateLeft + "d</span></a>"
-        : '<a class="grow done-row" href="#/transcript"><span class="g-lead">✓</span>' +
+        : '<a class="grow done-row" href="#/transcript"><span class="g-lead">\u2713</span>' +
           '<span class="g-main"><span class="g-t">All gates passed</span></span></a>') +
       (st > 0
         ? '<a class="grow" href="#/record"><span class="g-lead"></span>' +
@@ -1683,7 +1706,7 @@
       (probs.length
         ? '<a class="grow" href="#/course/cs150"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Problems today</span>' +
-          '<span class="g-s">' + (probsCat ? esc(probsCat) + " · " : "") + probs.map(esc).join(", ") + "</span></span></a>"
+          '<span class="g-s">' + (probsCat ? esc(probsCat) + " \u00b7 " : "") + probs.map(esc).join(", ") + "</span></span></a>"
         : "") +
       (function () {
         const rd = repsDue();
@@ -1746,18 +1769,21 @@
       const ls = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
       const locked = c.phase > phase;
       const size = c.tracker ? ls.total + " problems" : ls.total + " lecture" + (ls.total === 1 ? "" : "s");
-      return '<a class="dg-row' + (locked ? " ex-shut" : "") + " " + facClass(c) + '" href="#/course/' + c.id + '">' +
-        '<span class="dg-t">' + esc(c.title) +
-        '<span class="lib-sub">' + esc(c.code) + " · " + size +
+      return '<a class="grow ' + facClass(c) + (locked ? " muted-row" : "") + '" href="#/course/' + c.id + '">' +
+        '<span class="g-lead">' +
+        (locked ? lockSVG() : '<span class="gdot' + (m >= 85 ? " on" : m > 0 ? " part" : "") + '"></span>') +
+        "</span>" +
+        '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
+        '<span class="g-s">' + esc(c.code) + " · " + size +
         (c.instructor ? " · " + esc(c.instructor.org) : "") + "</span></span>" +
-        // A mastery pill reading 0% on every row is twelve absences, not twelve
-        // measurements. It arrives when there is something to report.
-        // "Phase 2" here would restate the section heading it sits under. The
-        // week it opens is the fact that heading does not carry.
-        (m > 0 ? '<span class="pill gold">' + m + "%</span>"
-               : locked ? '<span class="dg-dur">' + (starts[c.id] == null ? "later"
-                   : "week " + (Math.floor(starts[c.id] / STUDY_WEEK) + 1)) + "</span>"
-                        : '<span class="dg-dur">›</span>') + "</a>";
+        // A mastery figure reading 0% on every row is twelve absences, not
+        // twelve measurements. It arrives when there is something to report.
+        // "Phase 2" here would restate the group header it sits under. The week
+        // it opens is the fact that header does not carry.
+        (m > 0 ? '<span class="g-v">' + m + "%</span>"
+               : locked ? '<span class="g-v">' + (starts[c.id] == null ? "later"
+                   : "wk " + (Math.floor(starts[c.id] / STUDY_WEEK) + 1)) + "</span>"
+                        : "") + "</a>";
     };
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Registrar</div><h1>Course Catalog</h1>' +
@@ -1768,9 +1794,9 @@
         if (!cs.length) return "";
         const done = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).verified), 0);
         const tot = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).total), 0);
-        return '<div class="sect"><h2>' + ph[1] + '</h2><span class="sect-meta">' +
+        return '<div class="ghead">' + ph[1] + '<span class="gh-meta">' +
           (done ? done + " / " + tot + " proven" : tot + " lectures") + "</span></div>" +
-          '<div class="daygroup"><div class="lib-list">' + cs.map(row).join("") + "</div></div>";
+          '<div class="glist">' + cs.map(row).join("") + "</div>";
       }).join("") + "</div>";
   };
 
@@ -1793,8 +1819,8 @@
     return d === 1 ? "1d ago" : d + "d ago";
   }
   function factsHTML(cells) {
-    return '<div class="facts">' + cells.filter(Boolean).map((f, i) =>
-      '<div class="fact' + (f.lead ? " lead" : "") + '" style="--i:' + i + ';"><b>' + f.v + "</b><span>" + esc(f.k) + "</span></div>"
+    return '<div class="onecounts">' + cells.filter(Boolean).map(f =>
+      "<div><b>" + f.v + "</b><span>" + esc(f.k) + "</span></div>"
     ).join("") + "</div>";
   }
   function courseHours(c) {
@@ -1816,11 +1842,6 @@
       '<span class="tn">' + esc(c.instructor.name) + "</span>" +
       '<span class="to">' + esc(c.instructor.org) + "</span></span></div>";
   }
-  // A section heading that states its own count, shared by every page that has
-  // sections. It lived inside V.dashboard until the Atlas needed it too.
-  const sect = (title, meta) => '<div class="sect"><h2>' + title + "</h2>" +
-    (meta ? '<span class="sect-meta">' + meta + "</span>" : "") + "</div>";
-
   function courseFacts(c) {
     const starts = courseStartDays();
     const start = starts[c.id];
@@ -1837,8 +1858,8 @@
       { k: "lectures", v: cst.total },
       { k: "video", v: hoursLabel(courseHours(c)) },
       cst.done ? { k: "watched", v: cst.done } : null,
-      cst.verified ? { k: "proven", v: cst.verified, lead: true } : null,
-      { k: "begins", v: when },
+      cst.verified ? { k: "proven", v: cst.verified } : null,
+      when === "running" ? null : { k: "begins", v: when },
     ]);
   }
 
@@ -1847,55 +1868,83 @@
     if (!c) return "<p>Unknown course.</p>";
     if (c.tracker) return trackerCourse(c);
     const cbest = c.quiz ? bestQuiz(c.quiz) : null;
-    // The "Course checkpoint" card that used to close this page restated the
-    // courseFacts strip at the top of it: the same done/total, the same mastery
-    // percentage, a second progress bar, and a standing label derived from the
-    // same number. One card, one fact, said twice on one screen. What only it
-    // carried is the way IN to the examination, so that is what it keeps.
-    const checkpoint =
-      '<div class="card one" style="margin-top:16px;">' +
-      '<div class="one-kind">' + (c.quiz ? "Prove it" : "Prove it by building") +
-      (cbest != null ? ' <span class="one-more">best ' + cbest + "%</span>" : "") + "</div>" +
-      '<p class="one-hint">' +
-      (c.quiz
-        ? "15 questions on " + esc(c.code) + ", drawn fresh, graded instantly. \u226585% is Mastered."
-        : "This course is proven by building, not multiple choice \u2014 reimplement the papers, ship the systems.") +
-      "</p>" +
-      (c.quiz
-        ? '<a class="btn lg one-go" href="#/quiz/' + c.quiz + '">Sit the examination \u25b8</a>'
-        : '<a class="btn lg one-go" href="#/workshop">Open the labs \u25b8</a>') +
-      "</div>";
+    const unitDone = ui => c.units[ui].lessons.filter((_, i) => (S.lessons[lessonKey(c.id, ui, i)] || {}).done).length;
+
+    // The one thing on a course page is the next lecture in it — the page used
+    // to open on a facts strip and close, 36 lectures later, on a "Prove it"
+    // card nobody scrolled to. The action comes first here like it does
+    // everywhere else, and the examination is what it becomes once the course
+    // has been watched through.
+    let nx = null;
+    c.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+      if (!nx && !(S.lessons[lessonKey(c.id, ui, li)] || {}).done) nx = { l, ui, li };
+    }));
+    const started = c.units.some((u, ui) => unitDone(ui) > 0);
+    const one = nx
+      ? '<div class="card one">' +
+        '<div class="one-kind">' + esc(nx.l.t) + "</div>" +
+        '<p class="one-hint">' + (started ? "Next up" : "Lecture 1") +
+        (nx.l.min ? " \u00b7 " + nx.l.min + "m" : "") + " \u00b7 " + esc(c.units[nx.ui].name) + "</p>" +
+        '<a class="btn lg one-go" href="#/lesson/' + c.id + "/" + nx.ui + "/" + nx.li + '">' +
+        (started ? "Continue" : "Start the course") + " \u25b8</a></div>"
+      : '<div class="card one one-clear">' +
+        '<div class="one-kind">' + (c.quiz ? "Prove it" : "Prove it by building") +
+        (cbest != null ? ' <span class="one-more">best ' + cbest + "%</span>" : "") + "</div>" +
+        '<p class="one-hint">' +
+        (c.quiz
+          ? "Every lecture watched. 15 questions on " + esc(c.code) + ", drawn fresh, graded instantly. \u226585% is Mastered."
+          : "Every lecture watched. This course is proven by building, not multiple choice \u2014 reimplement the papers, ship the systems.") +
+        "</p>" +
+        (c.quiz
+          ? '<a class="btn lg one-go" href="#/quiz/' + c.quiz + '">Sit the examination \u25b8</a>'
+          : '<a class="btn lg one-go" href="#/workshop">Open the labs \u25b8</a>') +
+        "</div>";
 
     // Open the unit you are actually in — the first with anything left — and
     // leave the rest shut. Nobody scrolls a fully-expanded 36-lecture syllabus.
-    const unitDone = ui => c.units[ui].lessons.filter((_, i) => (S.lessons[lessonKey(c.id, ui, i)] || {}).done).length;
     let openUi = c.units.findIndex((u, ui) => unitDone(ui) < u.lessons.length);
     if (openUi < 0) openUi = 0;
-    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker">' + esc(c.code) + " · " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
-      '<div class="sub">' + esc(c.desc) + "</div>" +
-      courseFacts(c) + taughtHTML(c) +
-      '<div class="row-actions">' +
-      (c.quiz ? '<a class="btn" href="#/quiz/' + c.quiz + '">Sit the examination</a>' : "") +
-      c.external.map(e => '<a class="btn ghost" href="' + e.url + '" target="_blank" rel="noopener">' + esc(e.label) + " ↗</a>").join("") +
-      "</div></div>" +
+
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker">' + esc(c.code) + " \u00b7 " + esc(c.faculty) + "</div><h1>" + esc(c.title) + "</h1>" +
+      '<div class="sub">' + esc(c.desc) + "</div>" + taughtHTML(c) + "</div>" +
+
+      one +
+      courseFacts(c) +
+
       c.units.map((u, ui) => {
         const dn = unitDone(ui), tot = u.lessons.length;
         return '<details class="unit"' + (ui === openUi ? " open" : "") + '>' +
           '<summary><span class="u-name">' + esc(u.name) + "</span>" +
           '<span class="pill' + (dn === tot ? " good" : "") + '">' + dn + "/" + tot + "</span>" +
           '<span class="u-prog" style="width:' + (tot ? (dn / tot) * 100 : 0) + '%;"></span></summary>' +
-          '<div class="u-body">' +
+          // .lesson-row was a fifth row shape doing the grouped list's job with
+          // its own number column, its own title and its own tick. Same row,
+          // one spelling: the tick is the leading mark, the duration is the
+          // value on the right.
+          '<div class="u-body"><div class="glist">' +
           u.lessons.map((l, i) => {
-            const k = lessonKey(c.id, ui, i);
-            const st = S.lessons[k] || {};
-            return '<a class="lesson-row ' + (st.done ? "done" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
-              '<span class="n">' + (i + 1) + '</span><span class="t">' + esc(l.t) + "</span>" +
-              (l.min ? '<span class="dur">' + l.min + "m</span>" : "") +
-              // The tick column is always present so the durations stay aligned;
-              // one tick is watched, two is proven.
-              '<span class="tick">' + (st.verified ? "✓✓" : st.done ? "✓" : "") + "</span></a>";
-          }).join("") + "</div></details>";
-      }).join("") + checkpoint + "</div>";
+            const st = S.lessons[lessonKey(c.id, ui, i)] || {};
+            return '<a class="grow' + (st.done ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
+              '<span class="g-lead">' + (st.verified ? "\u2713\u2713" : st.done ? "\u2713" : i + 1) + "</span>" +
+              '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span></span>" +
+              '<span class="g-v">' + (l.min ? l.min + "m" : l.paper ? "paper" : "reading") + "</span></a>";
+          }).join("") + "</div></div></details>";
+      }).join("") +
+
+      // Where the course lives outside Brickford, and the way in to its
+      // examination once there is one. Rows, not a strip of ghost buttons.
+      '<div class="ghead">This course elsewhere</div>' +
+      '<div class="glist">' +
+      (c.quiz
+        ? '<a class="grow" href="#/quiz/' + c.quiz + '"><span class="g-lead">\u25c6</span>' +
+          '<span class="g-main"><span class="g-t">Sit the examination</span>' +
+          '<span class="g-s">15 questions, drawn fresh, graded instantly</span></span>' +
+          (cbest != null ? '<span class="g-v">best ' + cbest + "%</span>" : "") + "</a>"
+        : "") +
+      c.external.map(e => '<a class="grow" href="' + e.url + '" target="_blank" rel="noopener">' +
+        '<span class="g-lead">\u2197</span>' +
+        '<span class="g-main"><span class="g-t">' + esc(e.label) + "</span></span></a>").join("") +
+      "</div></div>";
   };
 
   function trackerCourse(c) {
@@ -1969,10 +2018,17 @@
       // Read once, not daily — so it sits with the things you look up.
       '<details class="unit" style="margin-top:16px;"><summary><span class="u-name">How this track works</span>' +
       '<span class="pill">' + esc(c.code) + '</span><span class="u-prog" style="width:100%;"></span></summary>' +
-      '<div class="u-body"><div class="tl">' +
-      '<div class="tl-row"><span class="tl-date">why</span><span class="tl-what">Interviews are still solved on a whiteboard, and reading a paper into working code needs a language you do not have to fight. That is what this buys.</span></div>' +
-      '<div class="tl-row"><span class="tl-date">apart</span><span class="tl-what">This runs <strong>parallel</strong> to the mathematics and does not depend on it. Nothing here builds on linear algebra, and nothing in linear algebra needs this. They are two tracks on the same day.</span></div>' +
-      '<div class="tl-row"><span class="tl-date">order</span><span class="tl-what">Top to bottom, category by category. The list is the NeetCode roadmap order — do not shop around in it.</span></div>' +
+      '<div class="u-body"><div class="glist">' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">Why it is here</span>' +
+      '<span class="g-s">Interviews are still solved on a whiteboard, and reading a paper into working code needs a language you do not have to fight. That is what this buys.</span></span></div>' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">It runs apart from the mathematics</span>' +
+      '<span class="g-s">Nothing here builds on linear algebra, and nothing in linear algebra needs this. They are two tracks on the same day.</span></span></div>' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">In order, top to bottom</span>' +
+      '<span class="g-s">The list is the NeetCode roadmap order — do not shop around in it.</span></span></div>' +
+
       "</div>" +
       '<div class="row-actions"><a class="btn ghost" href="#/quiz/' + c.quiz + '">Concept examination</a>' +
       c.external.map(e => '<a class="btn ghost" href="' + e.url + '" target="_blank" rel="noopener">' + esc(e.label) + " ↗</a>").join("") +
@@ -2019,7 +2075,7 @@
     // / st.notes keep whatever was typed even while the card is not on screen,
     // because unmarking watched never clears them.
     const proveHTML = () =>
-      '<div class="sect"><h2>Prove it</h2><span class="sect-meta">' + gatesOk + ' of 4 gates · only proven counts</span></div>' +
+      '<div class="ghead">Prove it<span class="gh-meta">' + gatesOk + ' of 4 gates</span></div>' +
       '<div class="card one' + (canVerify ? " one-clear" : "") + '">' +
       '<div class="bar grow"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
       '<div class="gates" style="margin-top:12px;">' +
@@ -2074,12 +2130,12 @@
 
       // ---- what this lecture buys, in the concepts' own words ----
       (lessonWhy.length
-        ? '<div class="sect"><h2>Why this matters</h2><span class="sect-meta">' + lessonWhy.length + " concept" + (lessonWhy.length === 1 ? "" : "s") + "</span></div>" +
-          '<div class="tasks">' +
-          lessonWhy.map(x => '<a class="task ' + facClass(c) + '" href="#/concept/' + x.id + '">' +
-            '<span class="tk-main"><span class="tk-code">' + esc(x.title) + "</span>" +
-            '<span class="tk-t tk-plain">' + esc(x.applies) + "</span></span>" +
-            '<span class="tk-go">Open ▸</span></a>').join("") +
+        ? '<div class="ghead">Why this matters<span class="gh-meta">' + lessonWhy.length + " concept" + (lessonWhy.length === 1 ? "" : "s") + "</span></div>" +
+          '<div class="glist">' +
+          lessonWhy.map(x => '<a class="grow ' + facClass(c) + '" href="#/concept/' + x.id + '">' +
+            '<span class="g-lead"></span>' +
+            '<span class="g-main"><span class="g-t">' + esc(x.title) + "</span>" +
+            '<span class="g-s">' + esc(x.applies) + "</span></span></a>").join("") +
           "</div>"
         : "");
 
@@ -2330,16 +2386,31 @@
     const schedDoneN = real.filter(schedDone).length;
     const probs = nextProblems(2);
 
-    const brief = (block, time, what, href, btn) =>
-      '<div class="plan-row"><span class="block">' + block + '</span><span class="what">' + what +
-      (time ? ' <span class="mono" style="color:var(--ink-3); font-size:var(--fs-tiny);">' + time + "</span>" : "") + "</span>" +
-      (href ? '<a class="btn ghost go" href="' + href + '">' + btn + "</a>" : "") + "</div>";
-
     // This day's own lessons — fixed forever, done state shown per lesson.
     // Same renderer as the dashboard: grouped by course, the row is the link.
-    const schedRows =
-      (real.length ? '<div class="daygroups" style="margin-bottom:10px;">' + dayGroupsHTML(real) + "</div>" : "") +
-      sched.filter(it => it.pseudo).map(pseudoRowHTML).join("");
+    // The "The lessons" label that used to head them is gone: each group names
+    // its own course, and the status pill above already says whether the day is
+    // owed, part-done or clear.
+    const schedRows = real.length || sched.some(it => it.pseudo)
+      ? dayGroupsHTML(real) +
+        (sched.some(it => it.pseudo)
+          ? '<div class="glist" style="margin-top:var(--sp-3);">' +
+            sched.filter(it => it.pseudo).map(pseudoRowHTML).join("") + "</div>"
+          : "")
+      : '<div class="ghead">No lectures on this day</div>' +
+        '<div class="glist"><a class="grow" href="#/workshop"><span class="g-lead">·</span>' +
+        '<span class="g-main"><span class="g-t">Project work</span>' +
+        '<span class="g-s">beyond the scheduled syllabus — per the week focus above</span></span></a></div>';
+
+    // The five things that run on every study day. They were .plan-row — a block
+    // label, a sentence and a "Go" button each — which is a fourth shape on a
+    // page that already had three. One group, one row apiece, the row is the
+    // link, and the five "Go" buttons are gone.
+    const routine = (name, time, what, href) =>
+      '<a class="grow" href="' + href + '"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">' + name + "</span>" +
+      '<span class="g-s">' + what + "</span></span>" +
+      '<span class="g-v">' + time + "</span></a>";
 
     const statusPill = {
       today: '<span class="pill teal">Today</span>',
@@ -2352,12 +2423,6 @@
 
     // Per-day progress line: this day's scheduled lessons, done vs owed.
     const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
-    // Where you stand in each course featured today: "Lin Algebra 6/51".
-    const courseStand = [...new Set(real.map(it => it.cid))].map(cid => {
-      const c = D.COURSES.find(x => x.id === cid);
-      const cs = courseLessonStats(c);
-      return "<strong>" + esc(COURSE_SHORT[cid] || c.code) + "</strong> " + cs.done + "/" + cs.total + " lectures done";
-    }).join(" · ");
     const progressLine =
       '<div style="margin-top:12px;">' +
       '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
@@ -2372,19 +2437,17 @@
       "</div>";
 
     const catchUp = (status === "missed" || status === "partial")
-      ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>' +
+      ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--ink);">' +
         (status === "missed" ? "You missed this day — its lessons are still here." : "You started this day but didn’t finish it.") +
-        '</strong><div style="font-size:var(--fs-small); margin-top:2px;">This day’s content never moves. Clear the unticked lessons below and the day turns green — even late. That’s getting back on track.</div></div>'
+        "</strong> This day’s content never moves. Clear the unticked lessons and the day turns green — even late.</p>"
       : "";
 
-    // Was a full sentence set in tracked caps, including a five-clause block
-    // breakdown that is the same every day. A label names a section; it is not
-    // the place for the day's spec.
-    const briefLabel = status === "missed" ? "Still owed"
-      : status === "partial" ? "Finish the rest"
-      : "The lessons";
-
-    return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
+    // The summary is a card because it is one object: a date, a state and a bar.
+    // Everything under it is rows, so the lists are NOT nested inside the card —
+    // a bordered group inside a bordered card is the second border this design
+    // spent three rounds getting rid of.
+    return '<div class="card" style="margin-top:12px;">' +
+      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
       "<h2>" + nice + "</h2>" +
       '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill +
       (status === "rest"
@@ -2393,17 +2456,20 @@
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
       progressLine +
       catchUp +
-      (gate ? '<div class="card feature" style="margin-top:12px; padding:14px 16px;"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + '</strong><div style="font-size:var(--fs-small); margin-top:2px;">' + esc(gate.req) + "</div></div>" : "") +
-      '<div style="margin-top:12px;">' +
-      '<div style="font-size:var(--fs-tiny); letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:6px;">' + briefLabel + "</div>" +
-      (schedRows || brief("Study", "Beyond the scheduled syllabus — project work per the week focus above", "", "#/workshop", "Workshop")) +
-      brief("Practice",
-        probs.length ? "NeetCode: " + probs.map(p => "<strong>" + esc(p) + "</strong>").join(", ") : "All 150 problems done",
-        "45m", "#/course/cs150", "Tracker") +
-      brief("Drill", missPool().length ? "<strong>" + missPool().length + "</strong> missed questions in the pool" : "Pool clear — a random drill", "10m", "#/drill", "Drill") +
-      brief("Publish", "Turn today’s notes into a public post", "30m", "#/review", "Review") +
-      (isSunday ? brief("Sunday", "Seal the week — no shipped artifact = a failed week", "30m", "#/review", "Seal") : "") +
+      (gate ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--accent);">◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
       "</div>" +
+
+      schedRows +
+
+      '<div class="ghead">Every study day<span class="gh-meta">' + (isSunday ? "5" : "4") + "</span></div>" +
+      '<div class="glist">' +
+      routine("Practice", "45m",
+        probs.length ? "NeetCode: " + probs.map(esc).join(", ") : "All 150 problems done", "#/course/cs150") +
+      routine("Drill", "10m",
+        missPool().length ? missPool().length + " missed questions in the pool" : "pool clear — a random drill", "#/drill") +
+      routine("Publish", "30m", "turn today’s notes into a public post", "#/review") +
+      routine("Workshop", "", "the build that the week’s focus is for", "#/workshop") +
+      (isSunday ? routine("Seal the week", "30m", "no shipped artifact = a failed week", "#/review") : "") +
       "</div>";
   }
 
@@ -2723,10 +2789,13 @@
 
       (tok ? "" :
         '<div class="card" style="margin-top:16px;"><h2>Connect</h2>' +
-        '<div class="tl" style="margin-top:6px;">' +
-        '<div class="tl-row"><span class="tl-date">1</span><span class="tl-what">GitHub \u2192 Settings \u2192 Developer settings \u2192 <strong>Fine-grained tokens</strong> \u2192 Generate.</span></div>' +
-        '<div class="tl-row"><span class="tl-date">2</span><span class="tl-what">Repository access: <strong>only</strong> ' + SYNC_REPO + ". Permissions: <strong>Contents \u2192 Read and write</strong>. Nothing else.</span></div>" +
-        '<div class="tl-row"><span class="tl-date">3</span><span class="tl-what">Paste it below. It stays in this browser and is sent only to github.com.</span></div>' +
+        '<div class="glist" style="margin-top:10px;">' +
+        '<div class="grow"><span class="g-lead">1</span><span class="g-main"><span class="g-t">Generate a token</span>' +
+        '<span class="g-s">GitHub \u2192 Settings \u2192 Developer settings \u2192 <strong>Fine-grained tokens</strong> \u2192 Generate.</span></span></div>' +
+        '<div class="grow"><span class="g-lead">2</span><span class="g-main"><span class="g-t">Scope it to one repository</span>' +
+        '<span class="g-s">Repository access: <strong>only</strong> ' + SYNC_REPO + ". Permissions: <strong>Contents \u2192 Read and write</strong>. Nothing else.</span></span></div>" +
+        '<div class="grow"><span class="g-lead">3</span><span class="g-main"><span class="g-t">Paste it below</span>' +
+        '<span class="g-s">It stays in this browser and is sent only to github.com.</span></span></div>' +
         "</div>" +
         '<div style="margin-top:12px;"><label class="field" for="ghTok">Token</label>' +
         '<input id="ghTok" type="password" placeholder="github_pat_\u2026" autocomplete="off"></div>' +
@@ -2741,17 +2810,29 @@
       '<details class="unit"><summary><span class="u-name">Do this on every device</span>' +
       '<span class="pill">3</span><span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
       '<p class="muted">The token is stored in <strong>this browser only</strong>. Paste the same token on the laptop and on the phone — a device you have not connected keeps its own private copy of your progress and never tells you.</p>' +
-      '<div class="tl" style="margin-top:10px;">' +
-      '<div class="tl-row"><span class="tl-date">phone</span><span class="tl-what">If you added Brickford to the Home Screen, connect it <strong>inside that app</strong> as well — a home-screen app can hold its own storage separate from Safari.</span></div>' +
-      '<div class="tl-row"><span class="tl-date">check</span><span class="tl-what">The dashboard says <strong>NOT SYNCING</strong> on any device that is not connected, and shows how long ago it last synced on any device that is.</span></div>' +
-      '<div class="tl-row"><span class="tl-date">order</span><span class="tl-what">It no longer matters which device pushes first. A push merges what is already stored before it writes, so neither device can overwrite the other.</span></div>' +
+      '<div class="glist" style="margin-top:10px;">' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">On a phone, connect the installed app too</span>' +
+      '<span class="g-s">If you added Brickford to the Home Screen, connect it <strong>inside that app</strong> as well — a home-screen app can hold its own storage separate from Safari.</span></span></div>' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">How to check a device</span>' +
+      '<span class="g-s">The dashboard names any device that is not connected, and shows how long ago it last synced on any device that is.</span></span></div>' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">Order does not matter</span>' +
+      '<span class="g-s">A push merges what is already stored before it writes, so neither device can overwrite the other.</span></span></div>' +
+
       "</div></div></details>" +
 
       '<details class="unit"><summary><span class="u-name">How merging works</span>' +
       '<span class="pill">2</span><span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
-      '<div class="tl">' +
-      '<div class="tl-row"><span class="tl-date">safe</span><span class="tl-what">Pull merges field by field \u2014 the further-along version of each lecture wins, days and problems union. Working on both devices never costs you work.</span></div>' +
-      '<div class="tl-row"><span class="tl-date">record</span><span class="tl-what">Each device keeps its own hash chain. Syncing never re-hashes history, so a head you have already published stays valid.</span></div>' +
+      '<div class="glist">' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">Working on two devices is safe</span>' +
+      '<span class="g-s">Pull merges field by field \\u2014 the further-along version of each lecture wins, days and problems union.</span></span></div>' +
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">The record survives a sync</span>' +
+      '<span class="g-s">Each device keeps its own hash chain. Syncing never re-hashes history, so a head you have already published stays valid.</span></span></div>' +
+
       "</div></div></details></div>";
   };
 
@@ -2910,9 +2991,13 @@
       // ---- the reference figure ----
       (revealed && D.FIG && D.FIG[c.fig]
         ? '<div class="card" style="margin-top:16px;"><h2>The figure</h2>' + D.FIG[c.fig]({}) +
-          '<div class="tl" style="margin-top:10px;">' +
-          '<div class="tl-row"><span class="tl-date">trap</span><span class="tl-what">' + esc(c.miss) + "</span></div>" +
-          '<div class="tl-row"><span class="tl-date">in AI</span><span class="tl-what">' + esc(c.applies) + "</span></div>" +
+          '<div class="glist" style="margin-top:10px;">' +
+          '<div class="grow"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">Where people go wrong</span>' +
+          '<span class="g-s">' + esc(c.miss) + "</span></span></div>" +
+          '<div class="grow"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">What it is for, in AI</span>' +
+          '<span class="g-s">' + esc(c.applies) + "</span></span></div>" +
           "</div></div>"
         : "") +
 
@@ -2925,8 +3010,8 @@
           '<span class="pill">interactive</span></div>' +
           '<p class="note" style="margin:2px 0 0;">' + esc(D.LAB[c.lab].title) + "</p>" +
           '<div class="lab" id="labMount" data-lab="' + esc(c.lab) + '"></div>' +
-          '<div class="tl" style="margin-top:12px;"><div class="tl-row"><span class="tl-date">ask</span>' +
-          '<span class="tl-what">' + esc(D.LAB[c.lab].ask) + "</span></div></div></div>"
+          '<p class="note" style="margin-top:12px;"><strong style="color:var(--ink);">Ask yourself:</strong> ' +
+          esc(D.LAB[c.lab].ask) + "</p></div>"
         : "") +
 
       // ---- probes ----
@@ -2935,21 +3020,25 @@
       '<div id="probeMount"><button class="btn" data-act="startProbe" data-cid="' + esc(id) + '">Begin ' + c.probes.length + " question" + (c.probes.length === 1 ? "" : "s") + "</button></div></div>" +
 
       // ---- where it sits ----
-      '<div class="grid cols-2 top" style="margin-top:16px;">' +
-      '<div class="card"><h2>Stands on</h2>' +
+      '<div class="card" style="margin-top:16px;"><h2>Stands on</h2>' +
       ((c.prereq || []).length
         ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">' +
           c.prereq.map(p => { const q = conceptById(p); return q ? '<a class="pill wrapping" href="#/concept/' + p + '">' + esc(q.title) + "</a>" : ""; }).join("") + "</div>"
         : '<p style="font-size:var(--fs-small); color:var(--ink-2);">Nothing — this is bedrock.</p>') +
-      (rv ? '<div class="tl" style="margin-top:12px;"><div class="tl-row"><span class="tl-what">Next recall</span>' +
-        '<span class="mono" style="font-size:var(--fs-small); color:' + (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></div></div>" : "") +
+      (rv ? '<p class="note" style="margin-top:12px;">Next recall <span class="mono" style="color:' +
+        (rv.due <= todayISO() ? "var(--accent)" : "var(--ink-3)") + ';">' + esc(rv.due) + "</span></p>" : "") +
       "</div>" +
-      '<div class="card"><h2>Taught in</h2><div class="tl" style="margin-top:8px;">' +
+      "</div>" +
+      '<div class="ghead">Taught in<span class="gh-meta">' + (c.lectures || []).length + "</span></div>" +
+      '<div class="glist">' +
       (c.lectures || []).map(k => {
         const L = lessonLabel(k);
         if (typeof L === "string") return "";
-        return '<div class="tl-row"><span class="tl-what"><a href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">' + esc(L.title) + "</a></span></div>";
-      }).join("") + "</div></div></div></div>";
+        return '<a class="grow" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">' +
+          '<span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
+          '<span class="g-s">' + esc(L.code) + "</span></span></a>";
+      }).join("") + "</div></div>";
   };
 
   V.method = function () {
@@ -3020,9 +3109,9 @@
       '<div class="sub">Proven lectures come back before you forget them.</div></div>' +
 
       (due.length
-        ? '<div class="tiles stagger" style="margin-bottom:16px;">' +
-          '<div class="card tile"><div class="t-label">Due now</div><div class="t-value"><span data-count="' + due.length + '">' + due.length + "</span></div></div>" +
-          '<div class="card tile"><div class="t-label">Scheduled</div><div class="t-value"><span data-count="' + all.length + '">' + all.length + "</span></div></div>" +
+        ? '<div class="onecounts" style="margin-bottom:16px;">' +
+          "<div><b>" + due.length + "</b><span>due now</span></div>" +
+          "<div><b>" + all.length + "</b><span>scheduled</span></div>" +
           "</div>" + due.slice(0, 8).map(card).join("")
         : '<div class="card"><div class="vseal"><div class="vico ok">✓</div><div class="vtext"><div class="vhead">Nothing due</div>' +
           '<div style="font-size:var(--fs-small); color:var(--ink-2);">' +
@@ -3030,13 +3119,16 @@
           "</div></div></div></div>") +
 
       (next.length
-        ? '<div class="card" style="margin-top:16px;"><h2>Coming up</h2><div class="tl" style="margin-top:8px;">' +
+        ? '<div class="ghead">Coming up<span class="gh-meta">' + next.length + "</span></div>" +
+          '<div class="glist">' +
           next.map(k => {
             const L = lessonLabel(k);
             if (typeof L === "string") return "";
-            return '<div class="tl-row"><span class="tl-date">' + esc(S.review[k].due) + "</span>" +
-              '<span class="tl-what">' + esc(L.code) + " · " + esc(L.title) + "</span></div>";
-          }).join("") + "</div></div>"
+            return '<div class="grow"><span class="g-lead"></span>' +
+              '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
+              '<span class="g-s">' + esc(L.code) + "</span></span>" +
+              '<span class="g-v">' + esc(S.review[k].due.slice(5)) + "</span></div>";
+          }).join("") + "</div>"
         : "") +
       "</div>";
   };
@@ -3131,12 +3223,12 @@
       '<div class="card" style="margin-top:12px;"><h2>Public anchors</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Timestamps inside this app are self-reported. Publish the head hash somewhere public and its date becomes third-party evidence.</p>' +
       (S.anchors.length
-        ? '<div class="tl" style="margin-top:10px;">' + S.anchors.slice().reverse().map((an, ri) => {
+        ? '<div class="glist" style="margin-top:10px;">' + S.anchors.slice().reverse().map((an, ri) => {
             const i = S.anchors.length - 1 - ri;
-            return '<div class="tl-row"><span class="tl-date">' + esc(an.date) + "</span>" +
-              '<span class="tl-what">' + (an.url ? '<a href="' + esc(an.url) + '" target="_blank" rel="noopener">' + esc(an.where || an.url) + "</a>" : esc(an.where || "—")) +
-              '<div class="hash" style="margin-top:4px;">' + esc(an.head) + "</div></span>" +
-              '<button class="btn ghost" data-delanchor="' + i + '">Remove</button></div>';
+            return '<div class="grow"><span class="g-lead">◆</span>' +
+              '<span class="g-main"><span class="g-t">' + (an.url ? '<a href="' + esc(an.url) + '" target="_blank" rel="noopener">' + esc(an.where || an.url) + "</a>" : esc(an.where || "—")) + "</span>" +
+              '<span class="g-s">' + esc(an.date) + '</span><div class="hash" style="margin-top:4px;">' + esc(an.head) + "</div></span>" +
+              '<button class="btn tiny" data-delanchor="' + i + '">Remove</button></div>';
           }).join("") + "</div>"
         : '<p class="note">No anchors yet.</p>') +
       '<div class="grid cols-2" style="margin-top:12px;">' +
@@ -3162,17 +3254,21 @@
     const gateBtn = g => '<button class="btn' + (g.doneDate ? " ghost" : "") + '" data-gate="' + g.n + '">' +
       (g.doneDate ? "Unmark" : "Mark passed — honestly") + "</button>";
 
-    // A gate as one line on a spine, the same drawing the Atlas uses. Five of
-    // them as full blocks, each with a medal, a requirement and its own button,
-    // was five paragraphs about crossings you are not at yet.
+
+    // A gate as one row. This was a spine — an <ol class="quest"> with its own
+    // rail, its own nodes and its own two-line body, drawn nowhere else in the
+    // app since the Atlas stopped using it. Same five facts, the shape every
+    // other list on every other page already has.
     const gateLine = g => {
       const passed = !!g.doneDate;
       const left = daysBetween(todayISO(), g.target);
-      return '<li class="q-item q-mark q-gate' + (passed ? " passed" : left < 0 ? " overdue" : "") + '">' +
-        '<span class="q-rail"><span class="q-node q-gnode">' + (passed ? "✓" : g.n) + "</span></span>" +
-        '<span class="q-line"><span class="q-lt">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
-        '<span class="q-ld">' + (passed ? "passed " + esc(g.doneDate) : left >= 0 ? left + "d left" : (-left) + "d over") +
-        "</span></span></li>";
+      return '<div class="grow' + (passed ? " done-row" : "") + '">' +
+        '<span class="g-lead">' + (passed ? "✓" : g.n) + "</span>" +
+        '<span class="g-main"><span class="g-t">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
+        '<span class="g-s">' + esc(g.req) + "</span></span>" +
+        '<span class="g-v"' + (!passed && left < 0 ? ' style="color:var(--bad);"' : "") + ">" +
+        (passed ? esc(g.doneDate) : left >= 0 ? left + "d" : (-left) + "d over") +
+        "</span></div>";
     };
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Official record</div><h1>Transcript &amp; gates</h1></div>' +
@@ -3209,15 +3305,18 @@
         return '<div class="onecounts">' + cells.join("") + "</div>";
       })() +
 
-      '<div class="sect"><h2>The five gates</h2><span class="sect-meta">each target counts from the last one passed</span></div>' +
-      '<ol class="quest">' + plan.map(gateLine).join("") + "</ol>" +
+      '<div class="ghead">The five gates<span class="gh-meta">each from the last one passed</span></div>' +
+      '<div class="glist">' + plan.map(gateLine).join("") + "</div>" +
+
+      // The buttons used to be a second copy of the same five gates, in a
+      // different row shape, behind a fold. One list is enough: the fold now
+      // holds only the controls, one per gate, named by number.
       '<details class="unit"><summary><span class="u-name">Mark a gate passed</span>' +
       '<span class="pill">honestly</span><span class="u-prog" style="width:100%;"></span></summary>' +
       '<div class="u-body"><p class="note" style="margin:0 0 10px;">Adaptive: pass one early and every later target moves earlier with it.</p>' +
-      '<div class="lib-list">' + plan.map(g =>
-        '<div class="dg-row has-ctl"><span class="dg-n">' + (g.doneDate ? "✓" : g.n) + "</span>" +
-        '<span class="dg-t">' + esc(g.label) + '<span class="lib-sub">' + esc(g.req) + "</span></span>" +
-        gateBtn(g) + "</div>").join("") +
+      '<div class="row-actions" style="margin-top:0;">' + plan.map(g =>
+        '<button class="btn' + (g.doneDate ? " ghost" : "") + '" data-gate="' + g.n + '">' +
+        (g.doneDate ? "Unmark " : "Pass ") + g.n + "</button>").join("") +
       "</div></div></details>" +
 
       '<details class="unit"><summary><span class="u-name">Mastery, course by course</span>' +
@@ -3298,10 +3397,11 @@
       '<button class="btn ghost" data-act="downloadIcs">Download .ics</button></div>' +
 
       (openGates.length
-        ? '<div class="tl" style="margin-top:14px;">' + openGates.map(g =>
-            '<div class="tl-row"><span class="tl-date">Gate ' + g.n + "</span>" +
-            '<span class="tl-what"><strong>' + esc(g.label) + "</strong> \u2014 " + g.target + "</span>" +
-            '<a class="btn ghost" href="' + gcalUrl("Brickford Gate " + g.n + " \u2014 " + g.label, g.req, { allDay: true, startDate: g.target }) + '" target="_blank" rel="noopener">Add \u2197</a></div>'
+        ? '<div class="glist" style="margin-top:14px;">' + openGates.map(g =>
+            '<div class="grow"><span class="g-lead">' + g.n + "</span>" +
+            '<span class="g-main"><span class="g-t">' + esc(g.label) + "</span>" +
+            '<span class="g-s">' + g.target + "</span></span>" +
+            '<a class="btn tiny" href="' + gcalUrl("Brickford Gate " + g.n + " \u2014 " + g.label, g.req, { allDay: true, startDate: g.target }) + '" target="_blank" rel="noopener">Add \u2197</a></div>'
           ).join("") + "</div>"
         : '<p class="note" style="margin-top:12px; color:var(--good);">All five gates passed \u2014 nothing left to schedule.</p>') +
       "</div></details></div>";
@@ -3314,8 +3414,8 @@
     const d = (D.DRILLS || {})[key];
     if (!d) return "";
     const ICON = { written: "✎", recorded: "●", spoken: "❝" };
-    return '<div class="sect"><h2>The mechanic</h2><span class="sect-meta">module ' + esc(d.module || "") +
-      ' · drill ' + d.drill.minutes + 'm · same day</span></div>' +
+    return '<div class="ghead">The mechanic<span class="gh-meta">module ' + esc(d.module || "") +
+      " · drill " + d.drill.minutes + "m · same day</span></div>" +
       '<div class="card drill">' +
       '<p class="dr-mech">' + esc(d.mechanic) + "</p>" +
       '<ol class="dr-rules">' + d.rules.map(r => "<li>" + r + "</li>").join("") + "</ol>" +
@@ -3436,13 +3536,15 @@
   function repHistoryHTML(bank, R) {
     if (!bank.length && !(R.story || []).length && !(R.humor || []).length && !(R.review || []).length) return "";
     const row = (date, what, sub) =>
-      '<div class="tl-row"><span class="tl-date">' + esc(date) + "</span>" +
-      '<span class="tl-what">' + esc(what) + (sub ? '<br><span style="color:var(--ink-3);">' + esc(sub) + "</span>" : "") + "</span></div>";
+      '<div class="grow"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">' + esc(what) + "</span>" +
+      (sub ? '<span class="g-s">' + esc(sub) + "</span>" : "") + "</span>" +
+      '<span class="g-v">' + esc(date.slice(5)) + "</span></div>";
     return '<details class="unit" style="margin-top:16px;"><summary>' +
       '<span class="u-name">History</span><span class="pill">' +
       (bank.length + (R.story || []).length + (R.humor || []).length + (R.review || []).length) + " logged</span>" +
       '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
-      '<div class="tl">' +
+      '<div class="glist">' +
       bank.slice(0, 10).map(e => row(e.date, e.what, e.why)).join("") +
       (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep \u00b7 " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
       (R.humor || []).slice(-4).reverse().map(e => row(e.date, (e.attempts || []).filter(Boolean).length + " jokes written", e.keeper ? "kept #" + e.keeper : "none kept")).join("") +
@@ -3462,19 +3564,23 @@
             '<h2>Your niche — ' + esc(locked.name) + '</h2><button class="btn ghost" data-niche="">Change niche</button></div>' +
             '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;"><strong style="color:var(--ink);">The offer:</strong> ' + esc(locked.offer) + " <span class='mono' style='color:var(--accent);'>" + esc(locked.pricing) + "</span></p>" +
             '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Why they buy:</strong> ' + esc(locked.pain) + "</p>" +
-            '<div style="margin-top:12px;"><div style="font-size:var(--fs-tiny); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">The first five moves</div>' +
+            "</div>" +
+            '<div class="ghead">The first five moves</div>' +
+            '<div class="glist">' +
             ["List 30 targets from Google Maps + Instagram — name, owner, number", "Record a 60-second Arabic demo of the agent answering on YOUR number", "Send 10 DMs a day for 3 days (script: Library → Earning Offers)", "Close ONE pilot at 50% price with a testimonial + referral clause", "Deliver in ≤2 weeks, publish the case study, raise the price"]
-              .map((s, i) => '<div class="plan-row"><span class="block">Move ' + (i + 1) + '</span><span class="what">' + s + "</span></div>").join("") +
-            "</div></div>";
+              .map((s, i) => '<div class="grow"><span class="g-lead">' + (i + 1) + "</span>" +
+                '<span class="g-main"><span class="g-t">' + esc(s) + "</span></span></div>").join("") +
+            "</div>";
         }
         // Six cards, each with a name, a market line, a verdict and its own
         // button, for a choice made once and then locked for at least ten
         // pitches. The recommended one is the page; the other five are a fold.
         const pick = D.NICHES.find(n => n.pick) || D.NICHES[0];
         const rest = D.NICHES.filter(n => n !== pick);
-        const nicheRow = n => '<div class="dg-row"><span class="dg-t">' + esc(n.name) +
-          '<span class="lib-sub">' + esc(n.market) + " · " + esc(n.pricing) + " — " + esc(n.verdict) + "</span></span>" +
-          '<button class="btn ghost" data-niche="' + n.id + '">Lock</button></div>';
+        const nicheRow = n => '<div class="grow"><span class="g-lead"></span>' +
+          '<span class="g-main"><span class="g-t">' + esc(n.name) + "</span>" +
+          '<span class="g-s">' + esc(n.market) + " · " + esc(n.pricing) + " — " + esc(n.verdict) + "</span></span>" +
+          '<button class="btn tiny" data-niche="' + n.id + '">Lock</button></div>';
         return '<div class="card one">' +
           '<div class="one-kind">' + esc(pick.name) + ' <span class="one-more">recommended</span></div>' +
           '<p class="one-hint">' + esc(pick.market) + " · " + esc(pick.pricing) + " — " + esc(pick.verdict) + "</p>" +
@@ -3483,7 +3589,7 @@
           '<details class="unit"><summary><span class="u-name">The other five</span>' +
           '<span class="pill">' + rest.length + "</span>" +
           '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
-          '<div class="lib-list">' + rest.map(nicheRow).join("") + "</div></div></details>";
+          '<div class="glist">' + rest.map(nicheRow).join("") + "</div></div></details>";
       })() +
 
       // Three cards for three numbers, in the row this app uses for numbers.
@@ -3686,25 +3792,26 @@
     // eleven buttons on a page you read rather than operate. The row is the link
     // where there is somewhere to go, and plain text where there is not — the
     // same rule the day list, the library and the exam list already follow.
-    const row = (n, title, body, href, btn) => {
-      const inner = '<span class="dg-n">' + n + "</span>" +
-        '<span class="dg-t">' + title + '<span class="lib-sub">' + body + "</span></span>" +
-        // Just the chevron: .lib-list sets .dg-dur at 1.1rem for exactly this,
-        // and a word beside it took a fixed column that squeezed the body text
-        // into four wrapped lines at 390px. The row's own title names where it
-        // goes ("Open Today", "Week", "Transcript & gates").
-        (href ? '<span class="dg-dur">\u203a</span>' : "");
-      return href ? '<a class="dg-row" href="' + href + '">' + inner + "</a>"
-                  : '<div class="dg-row">' + inner + "</div>";
+    const row = (n, title, body, href) => {
+      // The chevron comes from a.grow::after, so a row that goes nowhere does
+      // not grow one — a control's look has to predict what it does.
+      const inner = '<span class="g-lead">' + n + "</span>" +
+        '<span class="g-main"><span class="g-t">' + title + "</span>" +
+        '<span class="g-s">' + body + "</span></span>";
+      return href ? '<a class="grow" href="' + href + '">' + inner + "</a>"
+                  : '<div class="grow">' + inner + "</div>";
     };
-    const law = (title, body) =>
-      '<div style="padding:10px 0; border-bottom:1px solid var(--line);"><strong style="color:var(--ink);">' + title + "</strong><div style=\'font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;\'>" + body + "</div></div>";
+    const law = (n, title, body) =>
+      '<div class="grow"><span class="g-lead">' + n + "</span>" +
+      '<span class="g-main"><span class="g-t">' + title + "</span>" +
+      '<span class="g-s">' + body + "</span></span></div>";
     // A room is a row, not a card. Nine cards with a title, a pill and a blurb
     // came to 14 cards on a page whose job is to be read once and referred to.
     const mod = (name, when, what, href) =>
-      '<a class="dg-row" href="' + href + '">' +
-      '<span class="dg-t">' + name + '<span class="lib-sub">' + what + "</span></span>" +
-      '<span class="dg-dur">' + when + "</span></a>";
+      '<a class="grow" href="' + href + '"><span class="g-lead"></span>' +
+      '<span class="g-main"><span class="g-t">' + name + "</span>" +
+      '<span class="g-s">' + what + "</span></span>" +
+      '<span class="g-v">' + when + "</span></a>";
 
     return '<div class="view-enter"><div class="page-head"><div class="kicker">The Handbook</div><h1>How to run Brickford</h1>' +
       '<div class="sub">Three loops, seven laws, one map. It works only if you run it.</div></div>' +
@@ -3713,16 +3820,19 @@
       // "7 days" — the one number the whole schedule is built to contradict.
       // Six days is not a concession here, it is the design: seven was not
       // survivable, and a plan nobody keeps teaches nothing.
-      '<div class="card one"><div class="one-kind">The daily loop</div>' +
-      '<p class="one-hint">4 to 5 hours, six days a week — ' + REST_NAME + " is off, and taking it is following the plan, not breaking it. Same order every day.</p>" +
-      '<div class="lib-list" style="margin-top:var(--sp-3);">' +
-      row("1", "Open Today", "the day’s lectures, plus anything owed from earlier days", "#/", "Open") +
-      row("2", "Theory · ~2h", "the math rotation — Linear Algebra → Calculus → Probability", null, "") +
-      row("3", "Build · ~1.5h", "today’s spine lecture + the two named NeetCode problems", "#/course/cs150", "Tracker") +
-      row("4", "Drill · ~10 min", "the questions you missed, served back until they stick", "#/drill", "Drill") +
-      row("5", "Publish · ~30 min", "the day’s rep — one real thing, two lines", "#/practice", "Practice") +
-      row("6", "Seal the day", "the streak counts pressed days", "#/", "Mark") +
-      "</div></div>" +
+      '<div class="card one"><div class="one-kind">The daily loop' +
+      ' <span class="one-more">4\u20135h</span></div>' +
+      '<p class="one-hint">Six days a week — ' + REST_NAME + " is off, and taking it is following the plan, not breaking it. Same order every day.</p>" +
+      '<a class="btn lg one-go" href="#/">Open Today \u25b8</a></div>' +
+      '<div class="ghead">In this order<span class="gh-meta">6 steps</span></div>' +
+      '<div class="glist">' +
+      row("1", "Open Today", "the day’s lectures, plus anything owed from earlier days", "#/") +
+      row("2", "Theory · ~2h", "the math rotation — Linear Algebra → Calculus → Probability", null) +
+      row("3", "Build · ~1.5h", "today’s spine lecture + the two named NeetCode problems", "#/course/cs150") +
+      row("4", "Drill · ~10 min", "the questions you missed, served back until they stick", "#/drill") +
+      row("5", "Publish · ~30 min", "the day’s rep — one real thing, two lines", "#/practice") +
+      row("6", "Seal the day", "the streak counts pressed days", "#/") +
+      "</div>" +
 
       // The daily loop is what you need when you open this page. The weekly and
       // monthly ones are things you look up on a Sunday or a gate day, so they
@@ -3731,18 +3841,18 @@
       '<span class="pill">2</span><span class="u-prog" style="width:100%;"></span></summary>' +
       '<div class="u-body">' +
 
-      '<div class="card"><h2>The weekly loop</h2>' +
-      '<p class="muted">Sunday, 30 minutes.</p><div class="lib-list" style="margin-top:10px;">' +
-      row("1", "Week", "what shipped, DSA, posts, revenue. No artifact = a failed week", "#/review", "Week") +
-      row("2", "Sit one examination", "one concept exam \u00b7 \u226585% is Mastered \u00b7 40% of course mastery", "#/exams", "Exams") +
-      row("3", "Export a backup", "sidebar \u2192 Backup. This browser is the only copy", null, "") +
-      "</div></div>" +
+      '<div class="ghead">The weekly loop<span class="gh-meta">Sunday · 30 min</span></div>' +
+      '<div class="glist">' +
+      row("1", "Week", "what shipped, DSA, posts, revenue. No artifact = a failed week", "#/review") +
+      row("2", "Sit one examination", "one concept exam \u00b7 \u226585% is Mastered \u00b7 40% of course mastery", "#/exams") +
+      row("3", "Export a backup", "sidebar \u2192 Backup. This browser is the only copy", null) +
+      "</div>" +
 
-      '<div class="card" style="margin-top:16px;"><h2>The monthly loop</h2>' +
-      '<p class="muted">Gate day.</p><div class="lib-list" style="margin-top:10px;">' +
-      row("1", "Transcript & gates", "pass a gate the day it is true \u2014 every later target moves earlier", "#/transcript", "Gates") +
-      row("2", "Lab audit", "every done lab needs a proof URL \u2014 the list is your CV", "#/workshop", "Labs") +
-      "</div></div>" +
+      '<div class="ghead">The monthly loop<span class="gh-meta">gate day</span></div>' +
+      '<div class="glist">' +
+      row("1", "Transcript & gates", "pass a gate the day it is true \u2014 every later target moves earlier", "#/transcript") +
+      row("2", "Lab audit", "every done lab needs a proof URL \u2014 the list is your CV", "#/workshop") +
+      "</div>" +
 
       "</div></details>" +
 
@@ -3750,14 +3860,14 @@
       // up. Neither is a thing you scroll past every time you open the Handbook.
       '<details class="unit"><summary><span class="u-name">The seven laws</span>' +
       '<span class="pill">7</span><span class="u-prog" style="width:100%;"></span></summary>' +
-      '<div class="u-body"><div class="card">' +
-      law("1 · Never just watch", "Close the video, rebuild from memory, compare.") +
-      law("2 · The gates are honest or they are nothing", "You grade yourself. Cheat and you cheat only yourself.") +
-      law("3 · Ship every week", "A repo, a post, or a delivery. Or the week is failed.") +
-      law("4 · The drill is daily", "Ten minutes. The miss pool maps what you don’t know.") +
-      law("5 · One niche, capped hours", "≤2h/day, max 2 clients, one niche. It funds the mission.") +
-      law("6 · Proof or it didn’t happen", "No proof URL, no credit. Links are the only currency.") +
-      law("7 · Back up weekly", "Export every Sunday. Restore anywhere.") +
+      '<div class="u-body"><div class="glist">' +
+      law(1, "Never just watch", "Close the video, rebuild from memory, compare.") +
+      law(2, "The gates are honest or they are nothing", "You grade yourself. Cheat and you cheat only yourself.") +
+      law(3, "Ship every week", "A repo, a post, or a delivery. Or the week is failed.") +
+      law(4, "The drill is daily", "Ten minutes. The miss pool maps what you don’t know.") +
+      law(5, "One niche, capped hours", "≤2h/day, max 2 clients, one niche. It funds the mission.") +
+      law(6, "Proof or it didn’t happen", "No proof URL, no credit. Links are the only currency.") +
+      law(7, "Back up weekly", "Export every Sunday. Restore anywhere.") +
       "</div></div></details>" +
 
       // This list named four rooms that no longer exist under those names —
@@ -3766,7 +3876,7 @@
       // and the Calendar entirely. Every entry below matches a nav label.
       '<details class="unit"><summary><span class="u-name">The map</span>' +
       '<span class="pill">11 rooms</span><span class="u-prog" style="width:100%;"></span></summary>' +
-      '<div class="u-body"><div class="lib-list">' +
+      '<div class="u-body"><div class="glist">' +
       mod("Dashboard", "daily", "The next lecture, the rest of today, and where you stand.", "#/") +
       mod("The Atlas", "weekly", "What is running now, the gates ahead, and what opens later.", "#/atlas") +
       mod("Courses", "reference", "Every course, in four phases. Follow the plan’s pick — the sequencing is the curriculum.", "#/courses") +
@@ -3831,20 +3941,32 @@
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Knowledge base</div><h1>Library</h1>' +
       '<div class="sub">Everything written down: the founding documents, and the outside resources the courses draw on.</div></div>' +
 
-      '<div class="sect"><h2>Documents</h2><span class="sect-meta">' + rows.length + " to read</span></div>" +
-      '<div class="daygroup"><div class="lib-list">' +
-      rows.map(r => '<a class="dg-row" href="' + r.href + '">' +
-        '<span class="dg-t">' + esc(r.title) + '<span class="lib-sub">' + esc(r.sub) + "</span></span>" +
-        '<span class="dg-dur">\u203a</span></a>').join("") +
-      "</div></div>" +
+      '<div class="ghead">Documents<span class="gh-meta">' + rows.length + " to read</span></div>" +
+      '<div class="glist">' +
+      rows.map(r => '<a class="grow" href="' + r.href + '">' +
+        '<span class="g-lead"></span>' +
+        '<span class="g-main"><span class="g-t">' + esc(r.title) + "</span>" +
+        '<span class="g-s">' + esc(r.sub) + "</span></span></a>").join("") +
+      "</div>" +
 
-      '<div class="sect" style="margin-top:22px;"><h2>External halls</h2><span class="sect-meta">' +
-      HALLS.reduce((a, h) => a + h[1].length, 0) + " links</span></div>" +
+      // Ten outside links used to sit here as ten ghost buttons in four
+      // labelled strips — a chip rail, which is a shape this app uses nowhere
+      // else. They are rows in groups like everything else now, and the whole
+      // block folds, because you come to the Library for its own documents and
+      // leave for someone else's about twice a term.
+      '<details class="unit" style="margin-top:16px;"><summary>' +
+      '<span class="u-name">External halls</span><span class="pill">' +
+      HALLS.reduce((a, h) => a + h[1].length, 0) + " links</span>" +
+      '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
       HALLS.map(([label, links]) =>
-        '<div class="hall"><div class="hall-h">' + esc(label) + "</div>" +
-        '<div class="hall-links">' + links.map(r =>
-          '<a class="btn ghost" href="' + r[1] + '" target="_blank" rel="noopener">' + esc(r[0]) + " \u2197</a>").join("") +
-        "</div></div>").join("") +
+        '<div class="ghead">' + esc(label) + "</div>" +
+        '<div class="glist">' + links.map(r =>
+          '<a class="grow" href="' + r[1] + '" target="_blank" rel="noopener">' +
+          '<span class="g-lead">\u2197</span>' +
+          '<span class="g-main"><span class="g-t">' + esc(r[0]) + "</span>" +
+          '<span class="g-s">' + esc(r[1].replace(/^https?:\/\//, "").replace(/\/.*$/, "")) + "</span></span></a>").join("") +
+        "</div>").join("") +
+      "</div></details>" +
       "</div>";
   };
 

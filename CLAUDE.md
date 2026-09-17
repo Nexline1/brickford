@@ -107,11 +107,28 @@ confirmation, not a quiet widening of this one.
 node tools/verify-content.js       # structure, numerics recomputed, registries
 node tools/verify-contrast.js      # 4.5:1 on every route × 7 themes × 2 widths
 node tools/verify-shell.js         # the frame: sidebar, drawer, reading column
+node tools/verify-sync-loop.js     # sync must never repaint a page being read
 ```
 
 Plus the clipping sweep (all routes at 320/390/768/1024/1100/1280/1440 — no overflow, nothing
 clipped inside an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning,
 including the bug that made the contrast gate necessary.
+
+`verify-sync-loop.js` exists because on 17 Sep 2026 **the lesson page reloaded itself every four
+seconds** and a lecture could not be watched. `V.lesson` wrote `settings.lastLesson` during its own
+render; `save()` armed a push 4s out; the push failed on a read-only token; and the failure handler
+re-rendered "so the banner reaches whatever page is open" — which ran `V.lesson`, which saved,
+which armed another push. Two rules came out of it, and the gate holds both:
+
+- **A render is a read.** Anything a view must persist while rendering goes through `syncQuiet`,
+  or it arms a network write that can re-enter the render that armed it.
+- **A repaint nobody asked for must not destroy what is on screen.** Re-attaching an `<iframe>`
+  discards its browsing context *by specification*, so a video cannot survive an `innerHTML` swap —
+  the only fix is not to swap. Background callers pass `render({ background: true })` and are
+  deferred while a video is on screen; foreground renders (the reader acted) always run.
+
+Related: a rejected token is latched so it stops re-arming automatic pushes, but manual pull and
+push always run and a success lifts the latch — a lockout would be worse than the loop.
 
 `verify-shell.js` exists because on 17 Sep 2026 the **desktop sidebar was missing entirely** and
 all three other gates were green. They each measure inside `.main`: content, contrast, overflow.

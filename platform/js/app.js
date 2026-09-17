@@ -346,11 +346,17 @@
     S.settings.syncError = null;
     save();
     syncQuiet--;
-    if (transition && !rendering) render();
+    if (transition && !rendering) render({ background: true });
   }
+  // A rejected token is not a bad moment on the network, it is a configuration
+  // that will fail identically every time. Marking it lets syncSoon stop
+  // arming pushes that cannot succeed — otherwise every save pokes a dead
+  // endpoint forever, two API calls at a time.
+  const FATAL_SYNC = /not accessible|token rejected|bad credentials|requires authentication|401|403/i;
   function syncFailed(msg) {
     syncQuiet++;
-    S.settings.syncError = { msg: String(msg || "Sync failed"), at: new Date().toISOString() };
+    const text = String(msg || "Sync failed");
+    S.settings.syncError = { msg: text, at: new Date().toISOString(), fatal: FATAL_SYNC.test(text) };
     save();
     syncQuiet--;
   }
@@ -374,7 +380,7 @@
         syncQuiet--;
         syncOk();
         say("");
-        if (r.changed) { render(); toast("Pulled \u2014 " + r.changed + " change" + (r.changed === 1 ? "" : "s") + " merged."); }
+        if (r.changed) { render({ background: true }); toast("Pulled \u2014 " + r.changed + " change" + (r.changed === 1 ? "" : "s") + " merged."); }
         return true;
       }
       // A push MUST merge before it writes. This fetched the file only for its
@@ -405,16 +411,20 @@
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
         syncOk(); say("");
         // If the push pulled work in on its way past, the screen is out of date.
-        if (mergedIn) { render(); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
+        if (mergedIn) { render({ background: true }); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
         else toast("Pushed.");
         return true;
       });
     }).catch(err => {
+      const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
       // Re-render so the banner appears on whatever page is open, not just on
-      // /sync where `say` lands. Guarded: a failure during a render would recurse.
-      if (!rendering) render();
+      // /sync where `say` lands — but only when the banner would actually
+      // CHANGE. Repainting on every repeat of a failure the screen is already
+      // showing is how a broken token turned into a render loop; the hundredth
+      // identical error says nothing the first one did not.
+      if (!rendering && before !== err.message) render({ background: true });
       return false;
     }).then(v => { syncBusy = false; return v; });
   }
@@ -423,6 +433,10 @@
   let pushTimer = null;
   function syncSoon() {
     if (!ghToken() || syncQuiet) return;
+    // Latched off after a rejection. syncOk() clears syncError, and connecting
+    // or forgetting a token clears it too, so a fixed token lifts this on the
+    // next manual pull or push — which is exactly when you would try again.
+    if (S.settings.syncError && S.settings.syncError.fatal) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(() => runSync("push"), 4000);
   }
@@ -2073,8 +2087,16 @@
     // The concepts this lecture teaches already carry a sentence on where the
     // idea shows up in AI. Reuse it rather than writing new prose.
     const lessonWhy = (D.CONCEPTS || []).filter(x => (x.lectures || []).indexOf(k) >= 0).slice(0, 3);
+    // Quiet, and that is the whole first half of the reload bug. lastLesson is
+    // UI convenience for the Resume card — syncPayload() does not even carry
+    // it — but writing it LOUDLY armed a GitHub push four seconds after every
+    // lesson you opened, and when that push failed the failure handler
+    // re-rendered, which ran this line again, which armed another push. A
+    // render is a read; anything it has to persist is persisted quietly.
+    syncQuiet++;
     S.settings.lastLesson = { cid, ui: +ui, li: +li, label: c.code + " · " + l.t };
     save();
+    syncQuiet--;
     const src = l.v
       ? "https://www.youtube.com/embed/" + l.v + (u.playlist ? "?list=" + u.playlist : "")
       : u.playlist ? "https://www.youtube.com/embed/videoseries?list=" + u.playlist : null;
@@ -4162,9 +4184,13 @@
           const v = $("#ghTok") ? $("#ghTok").value.trim() : "";
           if (!v) { toast("Paste the token first."); return; }
           try { localStorage.setItem("brickford_gh_token", v); } catch (e) { toast("Could not store the token."); return; }
+          // A new token deserves a fresh verdict — the old one's rejection must
+          // not keep this device latched off.
+          syncQuiet++; S.settings.syncError = null; save(); syncQuiet--;
           render(); toast("Connected. Pull to bring this device up to date.");
         } else if (act === "syncForget") {
           try { localStorage.removeItem("brickford_gh_token"); } catch (e) {}
+          syncQuiet++; S.settings.syncError = null; save(); syncQuiet--;
           render(); toast("Token forgotten.");
         } else if (act === "syncPull" || act === "syncPush") {
           runSync(act === "syncPull" ? "pull" : "push", t => { const m = $("#syncMsg"); if (m) m.innerHTML = t; });
@@ -4640,19 +4666,43 @@
   // Re-entrancy guard: a failed sync re-renders so its banner reaches whatever
   // page is open, and a sync that fails DURING a render would otherwise recurse.
   let rendering = false;
-  function render() {
+  // Is there a video on screen right now? Re-attaching an <iframe> discards its
+  // browsing context and reloads it — that is the specification, not a quirk —
+  // so there is no way to carry a playing lecture across an innerHTML swap. The
+  // only honest fix is not to swap. Presence on the page is the right test:
+  // the frame is cross-origin, so whether it is actually playing is unknowable,
+  // and being cautious here costs nothing.
+  const videoOnScreen = () => !!document.querySelector("#view .video-frame iframe");
+  // render({ background: true }) — a repaint nobody asked for.
+  //
+  // Every caller of this kind is a sync that has just finished: a banner to
+  // show, a merge to reflect. None of them is worth restarting a lecture ten
+  // minutes in. The paint is deferred, not lost — leaving the page renders it,
+  // and so does any action taken on the page, because those callers are in the
+  // foreground and pass nothing.
+  function render(opts) {
     if (rendering) return;
+    if (opts && opts.background && videoOnScreen()) return;
     rendering = true;
-    try {
-      // apple-design 7: a route change is a spatial move, and a hard swap gives
-      // the eye nothing to follow. The View Transition API cross-fades the old
-      // page into the new one at the compositor, so it costs nothing on the
-      // input path — and where it is missing, or where reduced motion is asked
-      // for, the swap simply happens as before. Nothing depends on it.
-      const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (document.startViewTransition && !reduce) document.startViewTransition(() => renderInner());
-      else renderInner();
-    } finally { rendering = false; }
+    const done = () => { rendering = false; };
+    // apple-design 7: a route change is a spatial move, and a hard swap gives
+    // the eye nothing to follow. The View Transition API cross-fades the old
+    // page into the new one at the compositor, so it costs nothing on the
+    // input path — and where it is missing, or where reduced motion is asked
+    // for, the swap simply happens as before. Nothing depends on it.
+    const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (document.startViewTransition && !reduce) {
+      // The re-entrancy guard used to live in a `finally` around this call, and
+      // it did nothing: startViewTransition returns immediately and runs the
+      // callback later, so `rendering` was already back to false before the
+      // view was rebuilt. updateCallbackDone is the hook that settles when the
+      // callback has actually run, whether or not the animation plays.
+      const t = document.startViewTransition(() => { renderInner(); });
+      if (t && t.updateCallbackDone) t.updateCallbackDone.then(done, done);
+      else done();
+    } else {
+      try { renderInner(); } finally { done(); }
+    }
   }
   function renderInner() {
     clearInterval(timerH);

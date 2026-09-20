@@ -1273,6 +1273,23 @@
     };
   }
 
+  // ---------- the folio ----------
+  // A section page's running head: the section, and where you are in the three
+  // years. Day and week is the page number of a 1094-day plan, and it is the
+  // one fact worth carrying on every screen — which is more than the kicker,
+  // the headline and the strapline it replaces ever carried between them.
+  function folioMeta() {
+    const t = todayISO();
+    if (t < D.START_DATE) return "Begins " + D.START_DATE;
+    const f = currentFocus();
+    if (isRestDay(t)) return REST_NAME + " \u00b7 Week " + f.week;
+    return "Day " + String(studyToday() + 1).padStart(3, "0") + " \u00b7 Week " + f.week;
+  }
+  function folio(title, meta) {
+    return '<h1 class="folio">' + title +
+      '<span class="fo-meta">' + esc(meta || folioMeta()) + "</span></h1>";
+  }
+
   // ---------- a spring ----------
   //
   // apple-design 4: a fixed-duration animation cannot respond to new input; a
@@ -1822,9 +1839,7 @@
                         : "") + "</a>";
     };
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Registrar</div><h1>Course Catalog</h1>' +
-      '<div class="sub">' + D.COURSES.length + ' courses · four phases · free and permanent. <a href="#/atlas">The Atlas</a> shows which are running now.</div>' +
-      '<div class="row-actions"><a class="btn ghost" href="#/electives">Outside courses</a></div></div>' +
+    return '<div class="view-enter">' + folio("Courses", D.COURSES.length + " courses \u00b7 four phases") +
       PHASES.map(ph => {
         const cs = D.COURSES.filter(c => c.phase === ph[0]);
         if (!cs.length) return "";
@@ -2286,8 +2301,7 @@
     const open = rest.filter(it => !it.locked);
     const shut = rest.filter(it => it.locked);
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Examinations</div><h1>Exams</h1>' +
-      '<div class="sub">Timed, closed-book, no AI.</div></div>' +
+    return '<div class="view-enter">' + folio("Exams", "timed \u00b7 closed book \u00b7 no AI") +
 
       // ---- The one to sit next, at the size that says so ----
       (lead
@@ -2796,7 +2810,7 @@
     // Three states, not two. "Connected but every call is failing" was showing
     // as plain "Connected", which is the state this page most needs to name.
     const state = !tok ? "none" : err ? "broken" : "ok";
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Devices</div><h1>Sync</h1>' +
+    return '<div class="view-enter">' + folio("Sync") + '<div class="page-head">' +
       '<div class="sub">One record on every device, kept in your own repo.</div></div>' +
 
       '<div class="card"><div class="vseal">' +
@@ -2955,8 +2969,7 @@
         (m > 0 ? '<span class="g-v">' + m + "%</span>" : "") + "</a>";
     };
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Atlas</div><h1>The climb</h1>' +
-      '<div class="sub">Everything running now, and the crossing you are walking towards.</div></div>' +
+    return '<div class="view-enter">' + folio("The Atlas") +
 
       // The one thing: the gate you are actually walking towards.
       (ng
@@ -3089,7 +3102,7 @@
     const step = (n, title, body) =>
       '<div class="mstep"><span class="mnum">' + n + '</span><div><strong style="color:var(--ink);">' + title + "</strong>" +
       '<div style="font-size:var(--fs-small); color:var(--ink-2);">' + body + "</div></div></div>";
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Method</div><h1>How to actually learn here</h1>' +
+    return '<div class="view-enter">' + folio("The Method") + '<div class="page-head">' +
       '<div class="sub">Watching is the cheapest part. These loops are the rest.</div></div>' +
 
       // ---- the curve does the arguing ----
@@ -3149,8 +3162,7 @@
         '<button class="btn" data-recall="solid" data-k="' + esc(k) + '">Solid</button>' +
         '<a class="btn ghost" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">Open lecture</a></div></div>';
     };
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Revision</div><h1>Recall</h1>' +
-      '<div class="sub">Proven lectures come back before you forget them.</div></div>' +
+    return '<div class="view-enter">' + folio("Recall") +
 
       (due.length
         ? '<div class="onecounts" style="margin-bottom:16px;">' +
@@ -3196,8 +3208,7 @@
     // The answer this page exists to give is yes-or-no, so that is the card; the
     // numbers behind it are rows in one group, the way Health puts a ring at the
     // top and everything that feeds it underneath.
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Provenance</div><h1>Proof</h1>' +
-      '<div class="sub">Everything you have actually done, hash-chained in order.</div></div>' +
+    return '<div class="view-enter">' + folio("Proof") +
 
       '<div class="card one' + (!led.length ? "" : v.ok ? " one-clear" : " urgent") + '">' +
       '<div class="one-kind">' +
@@ -3315,7 +3326,7 @@
         "</span></div>";
     };
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Official record</div><h1>Transcript &amp; gates</h1></div>' +
+    return '<div class="view-enter">' + folio("Transcript") +
 
       // The seal. It is the page's whole claim, so it stays — at the size a
       // statement needs rather than the 36px-padded block it was.
@@ -3381,7 +3392,7 @@
   V.review = function () {
     const w = weekNumber();
     const logged = S.weeks.some(x => +x.week === w);
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Sunday ritual</div><h1>Week</h1>' +
+    return '<div class="view-enter">' + folio("Week") + '<div class="page-head">' +
       '<div class="sub">Seal the week: what shipped, what did not. No shipped artifact is a failed week.</div></div>' +
       '<div class="card"><h2>Week ' + w + (logged ? " — already logged" : "") + "</h2>" +
       '<div class="grid cols-2" style="margin-top:10px;">' +
@@ -3412,8 +3423,7 @@
       "No shipped artifact = a failed week. Fill the row before the day ends.",
       { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The rhythm</div><h1>Calendar</h1>' +
-      '<div class="sub">Tap any day for its brief.</div></div>' +
+    return '<div class="view-enter">' + folio("Calendar") +
 
       monthGridHTML() +
       dayDetailHTML() +
@@ -3530,7 +3540,7 @@
       return out;
     })();
 
-    const head = '<div class="view-enter"><div class="page-head"><div class="kicker">The reps</div><h1>Practice</h1>' +
+    const head = '<div class="view-enter">' + folio("Practice") + '<div class="page-head">' +
       '<div class="sub">Watching does not make anyone funnier. This does.</div></div>';
 
     // The dots sit in a labelled row rather than floating under the card with a
@@ -3599,8 +3609,7 @@
   V.treasury = function () {
     const t = S.treasury;
     const total = revenueTotal();
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Earning Track</div><h1>Treasury</h1>' +
-      '<div class="sub">≤2h/day · max 2 clients · fixed scope and price · +20% after every 2 projects.</div></div>' +
+    return '<div class="view-enter">' + folio("Treasury", "\u22642h/day \u00b7 max 2 clients") +
       (function () {
         const locked = D.NICHES.find(x => x.id === t.niche);
         if (locked) {
@@ -3702,8 +3711,7 @@
     const later = [0, 1, 2, 3].filter(ph => ph !== phase && labsIn(ph).length);
     const laterCount = later.reduce((a, ph) => a + labsIn(ph).length, 0);
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The forge</div><h1>Problems</h1>' +
-      '<div class="sub">Build something, work problem sets, or drill the questions you personally got wrong.</div></div>' +
+    return '<div class="view-enter">' + folio("Problems") +
 
       // The drill is the daily thing on this page — the labs are the month's and
       // the problem sets are the term's. It goes first and it is the only card
@@ -3788,7 +3796,7 @@
         onExit() { location.hash = "#/workshop"; },
       });
     }, 0);
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Workshop</div><h1>Daily Drill</h1>' +
+    return '<div class="view-enter">' + folio("Daily Drill") + '<div class="page-head">' +
       '<div class="sub">Drawn from questions you have personally missed, across every examination bank. Wrong answers stay in the pool; right answers leave it.</div></div><div id="drillMount"></div></div>';
   };
 
@@ -3817,7 +3825,7 @@
     // The whole catalogue in one table stacks into fourteen labelled blocks on a
     // phone — 6356px of courses most of which do not fit the phase you are in.
     // The ones that fit now are the table; the rest wait where they belong.
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The outside world</div><h1>Outside Courses</h1>' +
+    return '<div class="view-enter">' + folio("Electives") + '<div class="page-head">' +
       '<div class="sub">Audit free. Pay only when a credential opens a door. Tap a status to cycle.</div></div>' +
       (open.length
         ? '<div class="card"><div class="table-wrap"><table>' + head + body(open) + "</table></div></div>"
@@ -3857,8 +3865,7 @@
       '<span class="g-s">' + what + "</span></span>" +
       '<span class="g-v">' + when + "</span></a>";
 
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">The Handbook</div><h1>How to run Brickford</h1>' +
-      '<div class="sub">Three loops, seven laws, one map. It works only if you run it.</div></div>' +
+    return '<div class="view-enter">' + folio("The Handbook") +
 
       // REST_DOW is the source of truth for the week, and this page used to say
       // "7 days" — the one number the whole schedule is built to contradict.
@@ -3982,8 +3989,7 @@
     const rows = [{ href: "#/guide", title: "The Handbook", sub: "How Brickford works, end to end" },
                   { href: "#/method", title: "The Method", sub: "Why it is built this way \u2014 coverage vs. mastery" }]
       .concat(DOCS.map(d => ({ href: "#/doc/" + d.id, title: d.title, sub: d.sub })));
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Knowledge base</div><h1>Library</h1>' +
-      '<div class="sub">Everything written down: the founding documents, and the outside resources the courses draw on.</div></div>' +
+    return '<div class="view-enter">' + folio("Library") +
 
       '<div class="ghead">Documents<span class="gh-meta">' + rows.length + " to read</span></div>" +
       '<div class="glist">' +
@@ -4018,8 +4024,7 @@
   // Not a fallback to Today: an answer. Says what was asked for, and offers the
   // two places worth going from a dead link.
   V.notFound = function (r) {
-    return '<div class="view-enter"><div class="page-head"><div class="kicker">Not found</div>' +
-      "<h1>There is no page here</h1>" +
+    return '<div class="view-enter">' + folio("Not found") + '<div class="page-head">' +
       '<div class="sub">Nothing in Brickford answers to <code>#' + esc(r) + "</code>. It may have been renamed, or the link may be old.</div></div>" +
       '<div class="card one"><div class="one-kind">Back to today</div>' +
       '<p class="one-hint">The day\u2019s lectures, and the next one to open.</p>' +

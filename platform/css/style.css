@@ -1,9 +1,18 @@
 /* ============================================================
    Brickford — Design System
-   Brown and white: espresso ink on cream paper, white cards,
-   caramel highlights. Editorial restraint: hairline borders,
-   flat surfaces, serif display, quiet motion.
+   Espresso ink on cream paper. A register, not an app: the
+   content is ruled, not carded — head rules, hairlines between
+   entries, numbers in a right-aligned column, square corners,
+   nothing floating. Serif display, quiet motion.
    Light is the default mode; dark is the roast.
+
+   The cards went on 20 Sep 2026. Rounded white slabs with a
+   shadow are an iOS grouped list, which is a good structure
+   wearing the wrong clothes for a university — and cream plus a
+   high-contrast serif plus a warm accent is, by 2026, the single
+   most over-produced generated look there is. The structure did
+   not change; the box did. A ruled run is a table, a boxed item
+   is a figure, and those are the only two surfaces left.
 
    That description is the original intent, and for a long time it
    was not what the file did: the neutrals had drifted to a cool
@@ -105,7 +114,11 @@
 
   /* Spacing + motion */
   --sp-1: 6px; --sp-2: 10px; --sp-3: 16px; --sp-4: 24px; --sp-5: 40px; --sp-6: 64px;
-  --radius: 6px; --radius-lg: 10px;
+  /* Square, near enough. A printed register has no rounded corners, and the
+     6/10px pair was the single loudest "this is an iOS app" signal in the file.
+     Kept at 2px rather than 0 so a focus ring and a button still read as
+     drawn objects rather than as torn edges. */
+  --radius: 2px; --radius-lg: 2px;
   --ease: cubic-bezier(0.25, 0.6, 0.3, 1);
   /* Stacking, named once. Ad-hoc numbers turn into an arms race. */
   --z-tabbar: 39; --z-drawer: 40; --z-drawer-btn: 41; --z-tip: 50; --z-toast: 60;
@@ -438,11 +451,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .rail.stowed { visibility: hidden; }
 }
 .rail-card {
-  background: var(--surface); border: 1px solid var(--line);
+  background: none; border: 0;
   border-top: 3px solid var(--accent);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  box-shadow: 0 2px 14px color-mix(in srgb, var(--ink) 6%, transparent);
-  padding: var(--sp-3);
+  border-bottom: 1px solid var(--line-strong);
+  border-radius: 0;
+  padding: var(--sp-3) 0;
 }
 .rail-card .rl-ring { display: grid; place-items: center; padding: 4px 0 12px; }
 .rail-card .rl-label {
@@ -465,15 +478,45 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* A double rule under the title, which is how a printed title page divides
    itself from the matter below. It is one property, it costs nothing, and it
    is the difference between a page and a panel. */
-.page-head { margin-bottom: var(--sp-4); padding-bottom: var(--sp-3); border-bottom: 3px double var(--line-strong); }
+/* ---------- The folio ----------
+   A running head, the way a printed book names the section you are in: the
+   section, a rule, and the one fact worth carrying on every page — where you
+   are in the three years.
+
+   What was here: a kicker naming the section, an <h1> naming the same section
+   again, and a sentence explaining what the section is for — 199px of an 844px
+   phone screen, on 15 routes, AFTER you tapped that section in the nav. It was
+   the largest and loudest thing on every page and it carried nothing. The
+   dashboard was the only route without one, and the only one never complained
+   about.
+
+   Still an <h1>: small is a styling decision, not a heading level. */
+.folio {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  margin: 0 0 var(--sp-4); padding-bottom: 7px;
+  border-bottom: 1.5px solid var(--ink);
+  font-family: var(--font-display); font-size: var(--fs-small); font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.3;
+  color: var(--ink);
+}
+.folio .fo-meta {
+  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+  letter-spacing: 0.04em; text-transform: none; color: var(--ink-3);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+/* A detail page — one course, one lecture, one document — is the case where the
+   title IS the information, so it keeps a real heading. The folio above it
+   becomes the breadcrumb it already was. */
+.page-head { margin-bottom: var(--sp-4); }
+.page-head h1 { margin-top: 2px; }
 .page-head .kicker { font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
 .page-head .kicker a { color: inherit; }
-.page-head h1 { margin-top: 6px; }
-.page-head .sub { color: var(--ink-2); font-size: var(--fs-small); max-width: 64ch; margin-top: 8px; }
+.page-head .sub { color: var(--ink-2); font-size: var(--fs-small); max-width: 64ch; margin-top: 6px; }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: none;
+  border: 1px solid var(--line-strong); border-radius: 0;
   padding: var(--sp-4);
 }
 .card + .card { margin-top: var(--sp-3); }
@@ -492,8 +535,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    can go invisible inside it. */
 .card.feature {
   position: relative;
-  border-color: var(--line-strong);
-  box-shadow: var(--e1);
+  border-color: var(--ink-3);
   padding-top: calc(var(--sp-4) + 3px);
 }
 .card.feature::before {
@@ -934,7 +976,15 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    now, a quiet row of numbers under it, and everything else folded away. Built
    for the Practice page first; promoted here because repeating the shape is the
    point - apple-design 16, "things that look the same must behave the same". */
-.one { margin-top: var(--sp-4); box-shadow: var(--e1); border-top: 3px solid var(--fac, var(--accent)); }
+/* A printed notice, not a floating card: rules above and below, square, and it
+   sits on the page rather than over it. The shadow went with the radius — an
+   announcement pinned to a board does not hover above the board. */
+.one {
+  margin-top: var(--sp-4); background: none; box-shadow: none;
+  border: 0; border-top: 3px solid var(--fac, var(--accent));
+  border-bottom: 1px solid var(--line-strong);
+  border-radius: 0; padding-left: 0; padding-right: 0;
+}
 /* The one .one that is also the top of its page. The dashboard's next lecture
    was set at this size when it had a component of its own; keeping it is the
    difference between "the thing to do" and "an item". Titles run past sixty
@@ -1048,12 +1098,14 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 .taught .to { display: block; font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 1px; }
 
 .unit {
-  border: 1px solid var(--line); border-radius: var(--radius);
-  background: var(--surface); margin-top: 12px; overflow: hidden;
+  border: 0; border-top: 1px solid var(--line-strong);
+  border-radius: 0; background: none; margin-top: 12px;
 }
+.unit + .unit { margin-top: 0; }
+.unit:last-of-type { border-bottom: 1px solid var(--line-strong); }
 .unit > summary {
   position: relative; list-style: none; cursor: pointer;
-  padding: 13px 15px 14px; display: flex; align-items: center; gap: 10px;
+  padding: 13px 2px 14px; display: flex; align-items: center; gap: 10px;
   transition: background-color var(--t-micro) ease;
 }
 .unit > summary::-webkit-details-marker { display: none; }
@@ -1076,7 +1128,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 }
 /* 8px was not enough to hold a row that carries a coloured edge and a chip; the
    contents read as touching the card border. */
-.unit .u-body { padding: 4px 15px 12px; }
+.unit .u-body { padding: 4px 0 14px; }
 @media (prefers-reduced-motion: no-preference) {
   .unit[open] .u-body { animation: settleIn 260ms var(--ease) both; }
 }
@@ -1287,7 +1339,15 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
     background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong);
     border-radius: var(--radius); width: 42px; height: 42px; align-items: center; justify-content: center; cursor: pointer;
   }
-  .main { padding-top: 72px; }
+  /* 72px of every phone screen was reserved to clear the fixed menu button,
+     and then the folio started below it — so a one-line running head cost
+     98px. The head sits BESIDE the button now: the page starts at the top, the
+     first line is indented past the button, and the folio's rule runs the full
+     width underneath both. Detail pages indent only their breadcrumb, so a long
+     lecture title still starts at the margin. */
+  .main { padding-top: 12px; }
+  .main > .view-enter > .folio:first-child { padding-left: 52px; min-height: 42px; }
+  .main > .view-enter > .page-head:first-child > .kicker { padding-left: 52px; min-height: 40px; display: flex; align-items: center; }
 
 
   /* Bottom tab bar — thumb-reach navigation for phones.
@@ -1422,20 +1482,34 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    second border. Everything that is not the one action on a page
    is a row in one of these.
    ============================================================ */
+/* The head of the register: a column label with a real rule under it, the way
+   a ledger or a class list is headed. It used to be a floating caption above a
+   card with nothing tying it to the rows it named. */
 .ghead {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
-  margin: var(--sp-5) 4px 8px; font-size: var(--fs-tiny); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+  margin: var(--sp-5) 0 0; padding-bottom: 6px;
+  border-bottom: 1.5px solid var(--ink);
+  font-size: var(--fs-tiny); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
 }
+/* A head rule immediately followed by a row's own top rule draws two lines 1px
+   apart. The head carries the rule; the first row under it does not. */
+.ghead + .glist > .grow:first-child { border-top: 0; }
 .ghead .gh-meta {
   font-family: var(--font-mono); letter-spacing: 0; text-transform: none;
   font-variant-numeric: lining-nums tabular-nums;
 }
+/* A register, not a card.
+   The rows used to sit on a white slab with a 1px border and a 10px radius —
+   an iOS grouped list, which is a fine structure wearing the wrong clothes for
+   a university. The structure is unchanged; the box is gone. What is left is
+   what a printed register actually is: a head rule, hairlines between entries,
+   a closing rule, and the page itself showing through. */
 .glist {
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius-lg); overflow: hidden;
+  border-bottom: 1px solid var(--line-strong);
+  background: none;
 }
-.glist + .glist { margin-top: var(--sp-3); }
+.glist + .glist { margin-top: var(--sp-4); }
 .grow {
   display: flex; align-items: center; gap: 12px; width: 100%;
   padding: 12px 15px; min-height: 54px; color: var(--ink); text-decoration: none;
@@ -1445,7 +1519,6 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   font: inherit; cursor: pointer;
   transition: background-color var(--t-hover) ease;
 }
-.grow:first-child { border-top: 0; }
 @media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--bg-2); text-decoration: none; } }
 .grow:active { background: var(--bg-2); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
@@ -1464,8 +1537,15 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   color: var(--ink-3); margin-top: 1px; line-height: 1.35;
   overflow-wrap: anywhere;
 }
+/* The ledger column. This was flex-shrink:0 and nothing else, so every value
+   ended wherever its own width put it and no two lined up — a list of numbers
+   that never became a column. A fixed measure, right-aligned and tabular, is
+   the whole difference between a list and a register: 6%, 3/51, 12m and 65d
+   now stack into one edge you can read straight down.
+   min-width, not width, so "20+ lectures" is not clipped to fit the column. */
 .grow .g-v {
-  flex-shrink: 0; font-family: var(--font-mono); font-size: var(--fs-small);
+  flex-shrink: 0; min-width: 5.5ch; text-align: right;
+  font-family: var(--font-mono); font-size: var(--fs-small);
   color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums;
 }
 /* Only rows that go somewhere get the chevron — apple-design 16, a control's
@@ -1487,18 +1567,10 @@ a.grow::after, button.grow.nav::after {
 .grow:has(> .btn) { flex-wrap: wrap; }
 .grow:has(> .btn) .g-main { min-width: 150px; }
 
-/* A group inside a fold or a card is already inside a bordered box on the same
-   surface, so drawing its own border puts a second one 15px inside the first —
-   the exact thing this language was built to stop. Nested, it keeps the rows
-   and drops the box, spreading to the container's own padding edge so the rows
-   read as that container's contents. */
-.unit > .u-body > .glist, .card > .glist {
-  border: 0; border-radius: 0; background: none;
-  margin-left: calc(-1 * var(--sp-4)); margin-right: calc(-1 * var(--sp-4));
-}
-.unit > .u-body > .glist { margin-left: -15px; margin-right: -15px; }
-.unit > .u-body > .glist > .grow:first-child,
-.card > .glist > .grow:first-child { border-top: 1px solid var(--line); }
+/* The exception that used to live here — a nested .glist dropping its border so
+   a card would not draw a second frame around it — deleted itself when the
+   register stopped being a box. There is no frame to double any more, so a
+   group reads the same wherever it sits. */
 
 /* A status dot, for when a row's state is the whole point (a day, a course). */
 .gdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }

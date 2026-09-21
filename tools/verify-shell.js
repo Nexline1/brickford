@@ -27,6 +27,17 @@ const FRAME_ROUTES = ROUTES.concat([
   "/drill", "/review", "/no-such-page",
 ]);
 
+// Some controls only exist once there is progress — the Prove-it card, the
+// unverify button, a due recall. Seeded so they are measured too.
+function seedProgress() {
+  const iso = d => new Date(Date.now() - d * 86400000).toISOString().slice(0, 10);
+  const s = { lessons: {}, problems: {}, studyDays: [], review: {} };
+  for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
+  s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n",
+    checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
+  localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+}
+
 let fails = 0;
 const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); } };
 
@@ -180,7 +191,9 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
       const at = w + "px " + r;
       check(m.shown, at + ": no running head on a phone");
       check(m.stuck === "sticky", at + ": running head is " + m.stuck + ", not sticky");
-      check(m.h <= 54, at + ": running head is " + m.h + "px");
+      // 52: a 44px hamburger, 3px of bar either side, and the rule under it.
+      // The ceiling is here so the bar cannot quietly grow into a header.
+      check(m.h <= 52, at + ": running head is " + m.h + "px");
       check(!!m.name, at + ": running head has no page name");
       check(m.lines <= 1, at + ": running head wraps to " + m.lines + " lines");
       check(m.below, at + ": content starts underneath the running head");
@@ -190,9 +203,58 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
     await ctx.close();
   }
 
+  // ---- 44x44, which is the size of a fingertip ----
+  //
+  // Added 2026-09-21. .btn.tiny had carried this rule and a comment about
+  // physical constants for rounds; nothing else in the file ever got it, and
+  // nothing measured it. At 390px almost every control in the app was under
+  // Apple's minimum — sidebar links 39px, the theme menu 32px, the footer rows
+  // 34px, ordinary buttons 38px, concept links 27px, and the hamburger 34x34.
+  // None of that shows up in a screenshot, in a contrast ratio or in an
+  // overflow sweep. It is the difference between a control you hit and a
+  // control you aim at.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+    await ctx.addInitScript(seedProgress);
+    const page = await ctx.newPage();
+    let checked = 0;
+    for (const r of FRAME_ROUTES) {
+      await page.goto(URL + r, { waitUntil: "load" });
+      await page.waitForTimeout(220);
+      const small = await page.evaluate(() => {
+        const out = [];
+        document.querySelectorAll("a,button,summary,label,input[type=checkbox],[role=button]").forEach(el => {
+          // checkVisibility walks closed <details> and content-visibility, which
+          // a bounding box alone does not: half this app's controls live inside
+          // a fold and are not on screen to be hit.
+          if (!el.checkVisibility()) return;
+          const b = el.getBoundingClientRect();
+          if (b.width < 1 || b.height < 1) return;
+          // A link inside a sentence is text being read, not a target.
+          if (el.tagName === "A" && el.closest("p,.beat-d,.g-s,.sub")) return;
+          // A <label class="field"> is a caption over a textarea. Clicking it
+          // focuses the field, but nobody aims at it, and making every form
+          // caption 44px tall would wreck the forms to satisfy a number.
+          if (el.tagName === "LABEL" && el.classList.contains("field")) return;
+          // The heatmap and the month grid are dense date matrices by design,
+          // the way a native calendar's is.
+          if (el.closest(".hc-wrap, .cal-grid")) return;
+          if (b.height < 44 || b.width < 44)
+            out.push(el.tagName.toLowerCase() + "." + String(el.className).replace(/\s+/g, ".").slice(0, 24) +
+                     " " + Math.round(b.width) + "x" + Math.round(b.height));
+        });
+        return [...new Set(out)];
+      });
+      checked++;
+      check(!small.length, "390px " + r + ": " + small.length + " control(s) under 44x44 — " + small.slice(0, 4).join(", "));
+    }
+    console.log("  " + String(390).padStart(5) + "px  every control reaches 44x44 on " + checked + " routes");
+    await ctx.close();
+  }
+
   await browser.close();
   const n = DESKTOP.length * ROUTES.length + PHONE.length + 10 +
-            PHONE.length * FRAME_ROUTES.length * 7;
+            PHONE.length * FRAME_ROUTES.length * 7 + FRAME_ROUTES.length;
   console.log(fails
     ? "\nFAIL — " + fails + " shell assertion" + (fails === 1 ? "" : "s") + " broken"
     : "\nPASS — shell intact across " + DESKTOP.length + " desktop widths x " + ROUTES.length +

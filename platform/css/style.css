@@ -1402,6 +1402,9 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .unit .u-name {
   flex: 1; min-width: 0; font-size: var(--fs-small); font-weight: 600;
   color: var(--ink); line-height: 1.35;
+  /* min-width:0 lets the BOX shrink; it does not let "(3Blue1Brown)" break.
+     At 320px with 150% text that one token was 11px wider than the column. */
+  overflow-wrap: anywhere;
 }
 /* The unit's progress is a line along its own edge — no number to read. */
 .unit .u-prog {
@@ -1625,6 +1628,24 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
               0 -8px 24px color-mix(in srgb, var(--shade) 18%, transparent);
 }
 @media (max-width: 860px) {
+  /* ---- The phone's own type step ----
+     There wasn't one. Measured on a 390px screen, the scale was byte-for-byte
+     the desktop's: 25px Caslon headings, 20px sub-headings, and the text a
+     reader actually READS — a row's second line, a card's prose — at 14px,
+     under what any phone platform calls body. /workshop stacked four 25px
+     "Phase N" headings down one 390px column.
+     So the display comes down and the reading comes up. The gap closes from
+     1.8x to about 1.3x, which is the difference between a page and a poster.
+     .one-kind is deliberately NOT in here: it is the one thing on the page, it
+     keeps the weight it had, and everything under it stops competing with it. */
+  :root {
+    --fs-h1: 1.625rem;      /* 31px -> 26px */
+    --fs-h3: 1.0625rem;     /* 20px -> 17px */
+    --fs-small: 0.9375rem;  /* 14px -> 15px */
+  }
+  /* h2 alone rather than --fs-h2, because .one-kind reads that token too. */
+  h2 { font-size: 1.25rem; }            /* 25px -> 20px */
+
   :root { --tabbar-h: 58px; }
   .shell { flex-direction: column; }
   /* No transition: the spring in app.js owns this transform frame by frame, and
@@ -1659,8 +1680,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar {
     display: flex; align-items: center; gap: 10px;
     position: sticky; top: 0; z-index: var(--z-tabbar);
-    min-height: 46px;
-    padding: 5px max(14px, env(safe-area-inset-left)) 5px max(14px, env(safe-area-inset-right));
+    /* The bar is as tall as the control inside it: a 44px hamburger plus 3px
+       of breathing room either side. It was 46px with a 34px button, which is
+       a button nobody can reliably hit — 8px of bar is the price of that. */
+    min-height: 50px;
+    padding: 3px max(14px, env(safe-area-inset-left)) 3px max(14px, env(safe-area-inset-right));
     background: color-mix(in srgb, var(--bg) 92%, transparent);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-bottom: 1.5px solid var(--ink);
@@ -1678,7 +1702,14 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     /* One line, always. A running head that wraps is a head that moves. */
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .topbar .tb-title a { color: var(--accent); text-decoration: none; }
+  /* The course code is a link and the only way back to the course from a
+     lecture on a phone — so it is a control, and it was 68x14 of hit area.
+     Padded to fill the bar's height; the negative margin keeps the text where
+     the eye expects it. */
+  .topbar .tb-title a {
+    color: var(--accent); text-decoration: none;
+    display: inline-block; padding: 15px 6px; margin: -15px -6px;
+  }
   .topbar .tb-meta {
     flex: 0 1 auto; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -1740,6 +1771,35 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
   /* 16px inputs stop mobile browsers from zooming the page on focus */
   input[type="text"], input[type="number"], input[type="date"], textarea, select { font-size: 16px; }
+
+  /* ---- 44px, which is the size of a fingertip ----
+     .btn.tiny has carried this rule and a comment about physical constants
+     since the round that introduced it; nothing else in the file ever got it.
+     Measured across 22 routes at 390px, almost every control in the app came in
+     under Apple's minimum: sidebar links 39px, the theme menu 32px, the footer
+     rows 34px, ordinary buttons 38px, concept links 27px — and the hamburger at
+     34x34, which was mine, from moving it into the bar last round.
+     None of this is visible in a screenshot. It is the difference between a
+     control you hit and a control you aim at, and it is the most consequential
+     single rule there is for whether a page feels like a phone app.
+     Desktop keeps its own sizes: a pointer is not a thumb, and a 44px nav row
+     x15 would stretch the sidebar for no one's benefit. */
+  .btn { min-height: 44px; }
+  .nav a, .navrow { min-height: 44px; }
+  .theme-menu button { min-height: 44px; }
+  .menu-btn { width: 44px; height: 44px; margin-left: -11px; }
+  /* A tag carrying a concept title is a link to a page, so it is a control. The
+     short status pills are not links and keep their size. */
+  a.pill { min-height: 44px; padding-top: 8px; padding-bottom: 8px; }
+  /* 44 in BOTH directions. The calendar's month arrows were 44 tall and 34
+     wide, which is a target you aim at with the side of a thumb. */
+  .btn, .cal-nav button { min-width: 44px; }
+
+  /* .btn.lg stopped being large. Its 0.92rem was set against a 14px --fs-small
+     and now sits BELOW it, so the one primary action on a page had the same
+     label size as a ghost button in a table row. 17px is what a phone platform
+     sets a primary button in. */
+  .btn.lg { font-size: 1.0625rem; min-height: 50px; }
 }
 
 @media (max-width: 1039px) {
@@ -1782,7 +1842,9 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     display: block; font-size: var(--fs-small); font-weight: 600; color: var(--ink);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
   }
-  .railbar .btn { flex-shrink: 0; min-height: 40px; }
+  /* 40px here used to beat the 44px rule for .btn, because this block comes
+     after it. The bar is 54px; the button in it can be 44. */
+  .railbar .btn { flex-shrink: 0; min-height: 44px; }
 }
 
 /* ---------- Reduced motion: global kill-switch ---------- */

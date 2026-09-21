@@ -2307,7 +2307,10 @@
 
       (st.done ? proveHTML() : "") +
 
-      '<div style="display:flex; justify-content:space-between; margin-top:16px;">' +
+      // wrap + gap: at 320px with 150% text the two buttons together are wider
+      // than the column, and "Previous" has nowhere to break. They stack there
+      // instead of pushing the page sideways.
+      '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:16px;">' +
       (prev ? '<a class="btn ghost" href="' + prev + '">← Previous</a>' : "<span></span>") +
       (next ? '<a class="btn" href="' + next + '">Next lecture →</a>' : '<a class="btn" href="#/course/' + cid + '">Course complete view</a>') +
       "</div></div>";
@@ -2565,7 +2568,9 @@
       // lessons". space-between only separates what fits on one line.
       '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
       '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600; flex-shrink:0;">Progress</span>' +
-      '<span class="mono">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
+      // Right-aligned so a wrapped second line stacks under the first rather
+      // than floating in the middle of the row.
+      '<span class="mono" style="text-align:right;">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
       " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
       '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
       // courseStand ("Lin Algebra 6/51 lectures done") said the same thing as the

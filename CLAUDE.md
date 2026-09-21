@@ -154,6 +154,25 @@ The gate takes the box of every fixed control and asks whether any TEXT is under
 23 routes x 5 phone widths. Putting the old frame back makes it fail on every route, which is
 how it was tested.
 
+And a third half, the same day: **44x44, which is the size of a fingertip.** `.btn.tiny` had
+carried that rule and a comment about physical constants for several rounds, and nothing else in
+the file ever got it — because nothing measured it. At 390px almost every control in the app came
+in under Apple's minimum: sidebar links 39px, the theme menu 32px, the footer rows 34px, ordinary
+buttons 38px, concept links 27px, and the hamburger at 34x34. None of that shows up in a
+screenshot, a contrast ratio or an overflow sweep, which is exactly why it survived six design
+rounds. It is the difference between a control you hit and one you aim at.
+
+Two things the measurement needs, and both were got wrong first:
+
+- **`checkVisibility()`, not a bounding box.** Half this app's controls live inside a closed
+  `<details>`; they still have a non-zero rect. Counting those said /workshop put 61 tap targets
+  on one phone screen when the real number is 5, and nearly sent a whole round after a density
+  problem that does not exist.
+- **Not everything clickable is a control.** A link inside a sentence is text being read; a
+  `<label class="field">` is a caption over a textarea; the heatmap and the month grid are dense
+  date matrices, the way a native calendar's is. Padding those to 44px would wreck them to
+  satisfy a number.
+
 `verify-contrast.js` was rewritten on 21 Sep 2026 because it was **flaky**, which is worse than
 absent: it returned 0, then 1, then 0 failures across identical runs, each time a different
 element, each time a light theme's ink measured against a dark theme's page. Three rounds of

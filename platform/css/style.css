@@ -786,7 +786,11 @@ input:focus, textarea:focus, select:focus {
   box-shadow: var(--sink), 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
-label.field { display: block; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 4px; font-weight: 600; }
+/* Scoped to `label` for as long as it had only form fields to label, which
+   quietly left every `<div class="field">` on the lesson page — "2 · Rebuild
+   from memory", "3 · Solve N problems unaided" — rendering as plain body text
+   where a small caps label was intended. It is a label class, not a form one. */
+.field { display: block; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 4px; font-weight: 600; }
 
 /* Checkboxes */
 .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: var(--radius); cursor: pointer; transition: background-color var(--t-micro) ease; }
@@ -811,16 +815,26 @@ label.field { display: block; font-size: var(--fs-tiny); text-transform: upperca
 .check-label { font-size: var(--fs-small); color: var(--ink-2); }
 
 /* Progress bars */
-.bar { height: 4px; background: var(--bg-2); border-radius: 999px; overflow: hidden; position: relative; box-shadow: var(--sink); }
+/* Square like everything else. 999px was a pill from before this file decided
+   a printed register has no rounded corners; on the dashboard hero it was the
+   roundest thing on the page. */
+.bar { height: 4px; background: var(--bg-2); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: var(--sink); }
 /* Two truths in one bar: the pale fill is what you have watched, the solid
    fill is what you have actually proven. The gap between them is the point. */
-.bar > u { position: absolute; inset: 0; display: block; border-radius: 999px; transform-origin: left; background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.bar > u { position: absolute; inset: 0; display: block; border-radius: var(--radius); transform-origin: left; background: color-mix(in srgb, var(--accent) 24%, transparent); }
 .bar > i { position: relative; }
-.bar > i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transform-origin: left; transition: transform 600ms var(--ease); }
+.bar > i { display: block; width: 100%; height: 100%; border-radius: var(--radius); background: var(--accent); transform-origin: left; transition: transform 600ms var(--ease); }
 .bar.teal > i { background: var(--accent-2); }
-/* .bar.grow sweeps from empty on first paint; --w carries the target scale.
-   The inline transform stays as the reduced-motion / no-JS resting state. */
-.bar.grow > i { animation: barGrow 760ms var(--ease) 100ms both; }
+/* .bar.sweep animates from empty on first paint; --w carries the target scale.
+   The inline transform stays as the reduced-motion / no-JS resting state.
+   It was `.bar.grow` until `.grow` became the register's ROW class — min-height
+   54px, flex, its own padding and a rule along the top. Every bar carrying the
+   modifier silently became an empty 54px box: on the dashboard hero, a tall
+   rounded outline with nothing in it above the Open button, because a flex item
+   with no width set shrinks to its content and the fill was 0px wide before
+   scaleX ever touched it. Two rules claiming one class name, which is the same
+   trap this file already carries a warning about for `transform`. */
+.bar.sweep > i { animation: barGrow 760ms var(--ease) 100ms both; }
 @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(var(--w, 1)); } }
 
 /* ---------- Tables ---------- */
@@ -1164,7 +1178,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 
 /* The one button that matters. Long lecture titles wrap rather than shove the
    ring off the band. */
-.btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: 8px; white-space: normal; text-align: left; line-height: 1.3; }
+.btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: var(--radius); white-space: normal; text-align: left; line-height: 1.3; }
 
 /* ---------- Section rhythm ----------
    Each block of the page announces itself and states its own number, so the
@@ -1478,6 +1492,26 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .beat-t { font-weight: 600; color: var(--ink); font-size: var(--fs-small); }
 .beat-d { font-size: var(--fs-small); color: var(--ink-2); margin-top: 2px; overflow-wrap: anywhere; }
 .beat-fig { margin-top: 10px; max-width: 420px; }
+/* The lecture's one-sentence takeaway, at the head of its summary. It is the
+   only thing in the block set larger than the body: read it and you have the
+   lecture's claim, which is the whole point of a summary on a phone. */
+.sum-lead {
+  font-size: var(--fs-body); color: var(--ink); line-height: 1.5;
+  margin: 0 0 var(--sp-3); padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  text-wrap: pretty;
+}
+/* Two short pieces of prose that belong side by side where there is room and
+   stacked where there is not. No media query: the column count follows the
+   space, which is the one thing a phone and a desktop genuinely disagree on. */
+.sum-split {
+  display: grid; gap: var(--sp-3) var(--sp-4); margin-top: var(--sp-3);
+  /* min(240px, 100%), not 240px: a bare minimum is a FLOOR, so on a 320px
+     screen the track refused to go under 240 and pushed the card sideways —
+     measured at both text sizes, so it was the grid and not the reader. */
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  padding-top: var(--sp-3); border-top: 1px solid var(--line);
+}
 @media (max-width: 640px) { .beat { gap: 9px; } .beat-fig { max-width: 100%; } }
 
 /* ---------- Figures, concept graph, sketch pad ---------- */
@@ -1579,6 +1613,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 }
 
 /* ---------- Responsive ---------- */
+.topbar { display: none; }
 .menu-btn { display: none; }
 /* apple-design 12: "scroll edge effects, not hard dividers". The bar is a
    translucent material with content moving under it, so it needs a bright top
@@ -1602,32 +1637,80 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     transform: translateX(-100%); width: 264px; box-shadow: var(--shadow-float);
     touch-action: pan-y;
   }
-  /* The one control that is not a .btn, and the one that most needs depth: it
-     is fixed, it floats over whatever is scrolling underneath it, and
-     apple-design 12 wants a heavier shadow exactly where a control overlaps
-     content it has to stay separate from. --lift-edge carries the light in the
-     dark themes, where .menu-btn's own surface is dark. */
+  /* ---- The running head ----
+     The menu button used to be position:fixed with nothing behind it, and the
+     page was expected to get out of its way: the folio and the breadcrumb each
+     carried `padding-left: 52px` so their first line cleared the button.
+     Two things were wrong with that. It only ever indented the FIRST line, so
+     anything that wrapped ran back under the button. And the breadcrumb's rule
+     used `display: flex`, which makes the course-code link and the unit name
+     two flex ITEMS side by side rather than one run of text — on MATH 110's
+     Unit I that printed
+
+         [x]  MATH · UNIT I - ESSENCE OF LINEAR
+              110   ALGEBRA (3BLUE1BROWN)
+
+     with the code split down the middle. A control that floats over the page
+     will always be arguing with the page. This one has a bar to sit in.
+
+     It costs nothing in height: the folio it replaces was ~58px in flow with
+     its rule and margin, and this is 46px, pinned, so the reader keeps the
+     running head while scrolling instead of losing it after one screen. */
+  .topbar {
+    display: flex; align-items: center; gap: 10px;
+    position: sticky; top: 0; z-index: var(--z-tabbar);
+    min-height: 46px;
+    padding: 5px max(14px, env(safe-area-inset-left)) 5px max(14px, env(safe-area-inset-right));
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  /* Both halves shrink, and both clip rather than push.
+     The meta was flex-shrink:0, which is fine until the reader turns text size
+     up: at 150% on a 320px screen "Day 007 · Week 2" alone is wider than the
+     room left beside the title, and a bar that cannot shrink makes the whole
+     PAGE scroll sideways — measured at /exams, 373px of bar in 320px of screen.
+     The priority when it is tight is hamburger, then name, then the day. */
+  .topbar .tb-title {
+    flex: 1 1 auto; min-width: 0;
+    font-family: var(--font-display); font-size: var(--fs-tiny); font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+    /* One line, always. A running head that wraps is a head that moves. */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .topbar .tb-title a { color: var(--accent); text-decoration: none; }
+  .topbar .tb-meta {
+    flex: 0 1 auto; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+    letter-spacing: 0.04em; color: var(--ink-3);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  /* Whatever the bar took, the page no longer prints. */
+  .tb-taken { display: none !important; }
+  /* A detail page's h1 is its first line now, so it needs the folio's air. */
+  .page-head .kicker.tb-taken + h1 { margin-top: 0; }
+
   .menu-btn {
-    display: inline-flex; position: fixed; top: 14px; left: 14px; z-index: var(--z-drawer-btn);
-    background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong);
-    border-radius: var(--radius); width: 42px; height: 42px; align-items: center; justify-content: center; cursor: pointer;
-    box-shadow: var(--lift-edge), var(--lift);
-    transition: transform var(--t-micro) ease, box-shadow var(--t-micro) ease;
+    display: inline-flex; flex-shrink: 0;
+    background: none; color: var(--ink); border: 0;
+    width: 34px; height: 34px; margin-left: -7px;
+    align-items: center; justify-content: center; cursor: pointer;
+    border-radius: var(--radius);
+    transition: background-color var(--t-micro) ease, transform var(--t-micro) ease;
   }
+  /* In a bar, not on the page: it needs no shadow to separate it from what is
+     behind it, because nothing is behind it any more. */
   .menu-btn:active {
-    transform: translateY(1px) scale(0.99);
-    box-shadow: var(--lift-press);
-    transition: transform 100ms ease-out, box-shadow 100ms ease-out;
+    background: var(--bg-2); transform: scale(0.94);
+    transition: transform 100ms ease-out, background-color 100ms ease-out;
   }
-  /* 72px of every phone screen was reserved to clear the fixed menu button,
-     and then the folio started below it — so a one-line running head cost
-     98px. The head sits BESIDE the button now: the page starts at the top, the
-     first line is indented past the button, and the folio's rule runs the full
-     width underneath both. Detail pages indent only their breadcrumb, so a long
-     lecture title still starts at the margin. */
-  .main { padding-top: 12px; }
-  .main > .view-enter > .folio:first-child { padding-left: 52px; min-height: 42px; }
-  .main > .view-enter > .page-head:first-child > .kicker { padding-left: 52px; min-height: 40px; display: flex; align-items: center; }
+
+  .main { padding-top: var(--sp-3); }
+  /* The first block in a view has the bar above it and the page's own padding
+     between; its top margin is a third gap nobody asked for, and 24px is a lot
+     of a 390px screen's first impression. */
+  .main > .view-enter > :first-child { margin-top: 0; }
 
 
   /* Bottom tab bar — thumb-reach navigation for phones.
@@ -1687,6 +1770,9 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     border-top: 1px solid var(--line);
   }
   .railbar:empty { display: none; }
+  /* Not stowed — absent. .stowed slides and keeps its reserved height, which is
+     right when it is coming back; on a lesson page it never is. */
+  .railbar.off { display: none; }
   .railbar .rb-main { flex: 1; min-width: 0; }
   .railbar .rb-label {
     font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase;

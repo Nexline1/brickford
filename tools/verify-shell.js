@@ -19,6 +19,13 @@ const ROUTES = ["/", "/atlas", "/courses", "/exams", "/record", "/calendar",
                 "/library", "/guide", "/practice", "/transcript", "/workshop", "/treasury"];
 const DESKTOP = [1536, 1440, 1370, 1280, 1100, 1040, 900, 861];
 const PHONE = [320, 390, 430, 768, 860];
+// Wider than ROUTES: the frame check needs the DETAIL pages too, because the
+// breadcrumb is what the old frame broke and only a detail page has one.
+const FRAME_ROUTES = ROUTES.concat([
+  "/course/math110", "/lesson/math110/0/0", "/concept/la-eigen",
+  "/quiz/linear-algebra", "/sync", "/method", "/recall", "/electives",
+  "/drill", "/review", "/no-such-page",
+]);
 
 let fails = 0;
 const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); } };
@@ -123,11 +130,73 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
     await ctx.close();
   }
 
+  // ---- the phone's frame does not sit on the page ----
+  //
+  // Added 2026-09-21, after the owner opened a lecture on his phone and found
+  // the breadcrumb broken in half. The menu button was position:fixed with
+  // nothing behind it, and the page was asked to indent its first line past it;
+  // anything that wrapped ran back underneath, and the rule doing the indenting
+  // used display:flex, which turned "MATH 110 · Unit I — ..." into two columns:
+  //
+  //     [x]  MATH · UNIT I - ESSENCE OF LINEAR
+  //          110   ALGEBRA (3BLUE1BROWN)
+  //
+  // Nothing caught it. Every gate above measures inside .main or asks whether
+  // the navigation EXISTS; none asked whether the furniture was standing on the
+  // content. This does, by the only test that settles it: take the box of every
+  // fixed control and see whether any text is underneath it.
+  for (const w of PHONE) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: 860 }, hasTouch: true, reducedMotion: "reduce" });
+    const page = await ctx.newPage();
+    for (const r of FRAME_ROUTES) {
+      await page.goto(URL + r, { waitUntil: "load" });
+      await page.waitForTimeout(220);
+      const m = await page.evaluate(() => {
+        const bar = document.querySelector("#topbar");
+        const title = document.querySelector("#tbTitle");
+        const btn = document.querySelector(".menu-btn").getBoundingClientRect();
+        let on = null;
+        document.querySelectorAll("#view *").forEach(el => {
+          if (on) return;
+          // Only elements that paint their own text: a wrapper's box reaching
+          // under the button is fine, a word sitting under it is not.
+          if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length)) return;
+          const b = el.getBoundingClientRect();
+          if (b.width < 1 || b.height < 1) return;
+          if (b.top < btn.bottom && b.bottom > btn.top && b.left < btn.right && b.right > btn.left)
+            on = el.tagName.toLowerCase() + " \"" + el.textContent.trim().slice(0, 30) + "\"";
+        });
+        const first = document.querySelector("#view *:not(.tb-taken)");
+        return {
+          shown: getComputedStyle(bar).display !== "none",
+          stuck: getComputedStyle(bar).position,
+          h: Math.round(bar.getBoundingClientRect().height),
+          name: title.textContent.trim(),
+          lines: title.getClientRects().length,
+          below: first ? first.getBoundingClientRect().top >= bar.getBoundingClientRect().bottom - 1 : true,
+          on,
+        };
+      });
+      const at = w + "px " + r;
+      check(m.shown, at + ": no running head on a phone");
+      check(m.stuck === "sticky", at + ": running head is " + m.stuck + ", not sticky");
+      check(m.h <= 54, at + ": running head is " + m.h + "px");
+      check(!!m.name, at + ": running head has no page name");
+      check(m.lines <= 1, at + ": running head wraps to " + m.lines + " lines");
+      check(m.below, at + ": content starts underneath the running head");
+      check(!m.on, at + ": the menu button is sitting on text — " + m.on);
+    }
+    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes");
+    await ctx.close();
+  }
+
   await browser.close();
-  const n = DESKTOP.length * ROUTES.length + PHONE.length + 10;
+  const n = DESKTOP.length * ROUTES.length + PHONE.length + 10 +
+            PHONE.length * FRAME_ROUTES.length * 7;
   console.log(fails
     ? "\nFAIL — " + fails + " shell assertion" + (fails === 1 ? "" : "s") + " broken"
     : "\nPASS — shell intact across " + DESKTOP.length + " desktop widths x " + ROUTES.length +
-      " routes and " + PHONE.length + " phone widths (" + n + " checks)");
+      " routes and " + PHONE.length + " phone widths, frame clear on " +
+      FRAME_ROUTES.length + " routes (" + n + " checks)");
   process.exit(fails ? 1 : 0);
 })();

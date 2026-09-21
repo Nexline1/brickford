@@ -138,6 +138,22 @@ being *clicked* through (not just `goto`-ed — the second half of that defect o
 click), that the hamburger and the drawer take over below 860px, and that the reading column is
 the same box on every route.
 
+It grew a second half on 21 Sep 2026, when the owner opened a lecture on his phone. The menu
+button was `position: fixed` with nothing behind it, and the page was asked to get out of its
+way: the folio and the breadcrumb each carried `padding-left: 52px` so their first line cleared
+it. That only ever indented the FIRST line, and the breadcrumb's rule used `display: flex`,
+which makes a course-code link and the unit name after it two flex ITEMS rather than one run of
+text — so Unit I of MATH 110 printed as
+
+    [x]  MATH - UNIT I - ESSENCE OF LINEAR
+         110   ALGEBRA (3BLUE1BROWN)
+
+with the code split down the middle. **A control that floats over the page will always be
+arguing with the page**; the phone has a real running head now, and the button lives in it.
+The gate takes the box of every fixed control and asks whether any TEXT is underneath it, across
+23 routes x 5 phone widths. Putting the old frame back makes it fail on every route, which is
+how it was tested.
+
 `verify-contrast.js` was rewritten on 21 Sep 2026 because it was **flaky**, which is worse than
 absent: it returned 0, then 1, then 0 failures across identical runs, each time a different
 element, each time a light theme's ink measured against a dark theme's page. Three rounds of

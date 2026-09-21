@@ -23,7 +23,11 @@ const THEMES = ["light", "parchment", "dark", "forest", "midnight", "latte", "sl
 const WIDTHS = [390, 1280];
 const ROUTES = [
   "/", "/atlas", "/courses", "/course/math110", "/course/cs150", "/course/phys100",
-  "/lesson/math110/0/13", "/summary/math110.0.0", "/concept/la-eigen",
+  // "/summary/math110.0.0" used to sit here and never parsed: the router splits
+  // on "/", so seg[1] was the whole dotted key and every render of it was the
+  // "Unknown lecture" card. The summary is part of the lesson page now, and
+  // /lesson/math110/0/0 below is the lecture that actually has one written.
+  "/lesson/math110/0/13", "/concept/la-eigen",
   "/workshop", "/electives", "/exams", "/quiz/linear-algebra", "/recall",
   "/method", "/record", "/transcript", "/review", "/calendar", "/library",
   "/treasury", "/sync", "/drill", "/guide", "/practice",

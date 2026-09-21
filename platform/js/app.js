@@ -1497,6 +1497,65 @@
 
   // The rail, and its collapsed one-line form for phones. Same data, both
   // rendered outside #view so they survive every route change.
+  // The phone's running head, filled from whatever the view actually rendered.
+  //
+  // Deliberately derived rather than tabulated: a route table would be a second
+  // list of page names to keep in step with the first, and the first is already
+  // on screen. Three sources, in the order a page prefers them:
+  //
+  //   .folio            18 routes — an index page names itself and the day
+  //   .page-head .kicker 4 routes — a detail page's breadcrumb, links and all
+  //   the active nav link   the 2 with neither, the dashboard among them
+  //
+  // Whichever it takes, that element is hidden on the phone (`.tb-taken`), so
+  // the head moves into the bar instead of being printed twice.
+  function mountTopbar() {
+    const t = $("#tbTitle"), m = $("#tbMeta");
+    if (!t || !m) return;
+    const view = $("#view");
+    if (!view) return;
+    $$(".tb-taken", view).forEach(el => el.classList.remove("tb-taken"));
+
+    const folio = $(".folio", view), head = $(".page-head", view);
+    const kicker = head ? $(".kicker", head) : null;
+    // The day and week, always — never the folio's own meta. Three folios pass
+    // an editorial line instead of the default ("timed · closed book · no AI",
+    // "13 courses · four phases", "≤2h/day · max 2 clients"), and those are
+    // subtitles for a page, not running heads: at 27 characters of mono, the
+    // Exams one was clipped in the bar at 320px with the text size UNTOUCHED.
+    // They describe the page; the day and week describe where the reader is,
+    // which is what a running head is for. Dropping them on the phone is a
+    // deliberate loss of three flavour lines, on a device whose whole complaint
+    // is that there is too much on the screen.
+    let meta = folioMeta();
+    if (folio) {
+      const fm = $(".fo-meta", folio);
+      const title = [...folio.childNodes]
+        .filter(n => n !== fm).map(n => n.textContent).join("").trim();
+      t.textContent = title;
+      folio.classList.add("tb-taken");
+    } else if (kicker) {
+      // innerHTML, not textContent: a breadcrumb's course code is a link, and
+      // it is the only way back to the course from a lecture on a phone.
+      t.innerHTML = kicker.innerHTML;
+      kicker.classList.add("tb-taken");
+      // The day and week belong to a page about the plan. On a page about one
+      // lecture they were taking 40% of the bar from the breadcrumb, which is
+      // the only thing up there the reader can act on.
+      meta = "";
+    } else {
+      const act = $(".nav a.active");
+      t.textContent = act ? act.textContent.trim() : "Brickford";
+    }
+    m.textContent = meta;
+    // The dashboard prints the same day and week at the head of its hero. With
+    // the bar carrying it, that half of the line is a duplicate; the other half
+    // (the phase and the day's count) is not, so only the first half goes.
+    const day = $(".one.lead .ghead.oh .gh-day", view);
+    if (day) day.classList.add("tb-taken");
+    measureFurniture();
+  }
+
   function mountRail() {
     const a = nextAction();
     const real = realSched(todayISO());
@@ -1530,25 +1589,38 @@
       '<span class="rb-t">' + esc(a.code) + " · " + esc(a.title) + "</span></span>" +
       '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>";
     measureFurniture();
-    watchHeroCta();
+    watchHeroCta(a.href);
   }
 
-  // On a phone the dashboard shows the next lecture twice at once: the hero's
+  // On a phone the dashboard showed the next lecture twice at once: the hero's
   // own big button, and the sticky bar pinned over it. Two buttons for one
   // action, both on screen, is a choice the reader has to make and shouldn't.
-  // The sticky bar exists for when the hero has scrolled away, so let it mean
-  // that: hidden while the hero button is visible, back the moment it isn't.
+  // The sticky bar exists for when the action has scrolled away, so let it mean
+  // that: hidden while the button is visible, back the moment it isn't.
   // Falls open (bar always shown) wherever IntersectionObserver is missing.
   let ctaObs = null;
-  function watchHeroCta() {
+  function watchHeroCta(href) {
     const bar = $("#railbar");
     if (ctaObs) { ctaObs.disconnect(); ctaObs = null; }
     if (!bar) return;
-    // .one.lead is the dashboard's action card and only the dashboard's: the bar
-    // stows because it would sit on top of the SAME action, and on every other
-    // page the .one-go is a different one (sit the exam, mark a gate passed).
-    const cta = $(".one.lead .one-go");
-    // No hero button on this route, or no observer: the bar is the only handle.
+    bar.classList.remove("off");
+    // A lesson page is the one place the reader is already doing the thing. A
+    // bar pinned across the bottom of a video, naming a DIFFERENT lecture and
+    // offering to open it, is the extra button in front of them that this app
+    // is supposed to be short of — and it costs 54px of a 390x844 screen while
+    // it does it. Gone entirely here, not slid away, so the page gets the
+    // height back too.
+    if (route().indexOf("/lesson/") === 0) {
+      bar.classList.add("off"); measureFurniture(); return;
+    }
+    // Whether the action is already on screen is a question about the HREF, not
+    // about which page this is. It used to ask for `.one.lead .one-go`, which is
+    // the dashboard's hero and only the dashboard's — so the course page went on
+    // showing "Continue ▸" with a bar repeating that same lecture 400px below
+    // it. Matching the target catches both, and anything else that ever leads
+    // with the day's next action.
+    const cta = href ? $$("#view a.btn").filter(x => x.getAttribute("href") === href)[0] : null;
+    // No such button on this route, or no observer: the bar is the only handle.
     if (!cta || typeof IntersectionObserver === "undefined") {
       bar.classList.remove("stowed"); measureFurniture(); return;
     }
@@ -1572,6 +1644,7 @@
     };
     set("--tabbar-h", $(".tabbar"));
     set("--railbar-h", $("#railbar"));
+    set("--topbar-h", $("#topbar"));
   }
 
   V.dashboard = function () {
@@ -1618,7 +1691,10 @@
       // about, so the hero is now a .one like the rest and the day/week/phase
       // line is a .ghead, the header shape this page already uses twice below.
       '<div class="card one lead ' + (cta.fac || "") + '">' +
-      '<div class="ghead oh">Day ' + String(day).padStart(3, "0") + " \u00b7 Week " + f.week +
+      // The day and week are wrapped so the phone can drop them: its running
+      // head carries the same two facts, twenty pixels above this line.
+      '<div class="ghead oh"><span class="gh-day">Day ' + String(day).padStart(3, "0") +
+      " \u00b7 Week " + f.week + "</span>" +
       '<span class="gh-meta">Phase ' + f.phase +
       (real.length ? " \u00b7 " + doneToday + " / " + real.length + " today"
         : studiedToday ? " \u00b7 day sealed \u2713" : "") + "</span>" +
@@ -1629,7 +1705,7 @@
       // progress to draw: an empty track reads as an unfinished element rather
       // than as "none yet".
       (dayPct > 0
-        ? '<div style="max-width:420px; margin-top:10px;"><div class="bar grow"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
+        ? '<div style="max-width:420px; margin-top:10px;"><div class="bar sweep"><i style="--w:' + (dayPct / 100) + '; transform:scaleX(' + (dayPct / 100) + ');"></i></div></div>'
         : "") +
       '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + " \u25b8</a>" +
       "</div>" +
@@ -2098,7 +2174,6 @@
     const canVerify = gatesOk === 4;
     const need = practiceTarget(l);
     const rv = S.review[k];
-    const hasSummary = !!(D.SUMMARIES || {})[k];
     // The concepts this lecture teaches already carry a sentence on where the
     // idea shows up in AI. Reuse it rather than writing new prose.
     const lessonWhy = (D.CONCEPTS || []).filter(x => (x.lectures || []).indexOf(k) >= 0).slice(0, 3);
@@ -2136,7 +2211,7 @@
     const proveHTML = () =>
       '<div class="ghead">Prove it<span class="gh-meta">' + gatesOk + ' of 4 gates</span></div>' +
       '<div class="card one' + (canVerify ? " one-clear" : "") + '">' +
-      '<div class="bar grow"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
+      '<div class="bar sweep"><i style="--w:' + (gatesOk / 4) + '; transform:scaleX(' + (gatesOk / 4) + ');"></i></div>' +
       '<div class="gates" style="margin-top:12px;">' +
       gates.map(g => '<div class="gate-row' + (g.ok ? " ok" : "") + '"><span class="gmark">' + (g.ok ? "✓" : "") + "</span>" +
         '<span class="gtext">' + esc(g.label) + (g.ok ? "" : ' <span style="color:var(--ink-3);">— ' + esc(g.hint) + "</span>") + "</span></div>").join("") +
@@ -2216,13 +2291,15 @@
 
       // ---- one button, beside the runtime ----
       // Unwatched, this is the whole page below the video. Watched, it hands over
-      // to the summary and the Prove-it card that follows.
+      // to the Prove-it card at the foot of the page.
       '<div class="lsn-act">' +
-      (st.done
-        ? '<a class="btn' + (hasSummary ? "" : " ghost") + '" href="#/summary/' + cid + "/" + ui + "/" + li + '">Summary ▸</a>' +
-          '<button class="btn ghost" data-act="toggleDone">Unmark watched</button>'
-        : '<button class="btn lg" data-act="toggleDone">Mark watched</button>') +
+      '<button class="btn' + (st.done ? " ghost" : " lg") + '" data-act="toggleDone">' +
+      (st.done ? "Unmark watched" : "Mark watched") + "</button>" +
       '<span class="lsn-run">' + esc(runtime) + "</span></div>" +
+
+      // The summary, on the page the lecture is on. It sits under the video and
+      // the one action, not behind a button on a page of its own.
+      summaryHTML(k) +
 
       // The drill is same-day work and deliberately NOT behind "watched": it is
       // what turns watching into something, so it tells you what to listen for.
@@ -2483,8 +2560,11 @@
     const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
     const progressLine =
       '<div style="margin-top:12px;">' +
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
-      '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600;">Progress</span>' +
+      // space-between with no gap: the moment the right-hand span wraps — which
+      // it does on a phone — the two halves meet and it reads "PROGRESS1 of 5
+      // lessons". space-between only separates what fits on one line.
+      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
+      '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600; flex-shrink:0;">Progress</span>' +
       '<span class="mono">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
       " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
       '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
@@ -2757,50 +2837,57 @@
     return '<div class="cg-wrap"><svg class="cg" viewBox="0 0 ' + W + " " + H + '" style="width:' + W + 'px;">' + edges + nodes + "</svg></div>";
   }
 
-  V.summary = function (cid, ui, li) {
-    const k = lessonKey(cid, ui, li);
+  // The lecture's summary, rendered where the lecture is.
+  //
+  // It used to be a separate page behind a "Summary ▸" button that only
+  // appeared AFTER you marked the lecture watched — so on an unwatched lecture
+  // there was no sign it existed at all, and the owner reasonably read that as
+  // the summaries having been removed. They had not; they were two taps and a
+  // precondition away, which for this reader is the same thing as gone.
+  //
+  // The watched-gate is gone with it. It was there on the theory that a summary
+  // could become a substitute for the lecture; the owner chose otherwise, and
+  // it is his curriculum. The four gates still decide what counts as proven,
+  // and reading a summary does not move any of them.
+  //
+  // Six of MATH 110's fifty-one lectures have one written. The rest render
+  // nothing here rather than a dead control.
+  function summaryHTML(k) {
     const sm = (D.SUMMARIES || {})[k];
-    const c = D.COURSES.find(x => x.id === cid);
-    const l = c && c.units[ui] ? c.units[ui].lessons[li] : null;
-    const st = S.lessons[k] || {};
-    if (!l) return '<div class="card">Unknown lecture.</div>';
-    const back = "#/lesson/" + cid + "/" + ui + "/" + li;
-    // The gate: a summary must never become a substitute for the lecture.
-    if (!st.done)
-      return '<div class="view-enter"><div class="card"><h2>Locked</h2>' +
-        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">Watch the lecture and mark it watched. A summary is for review, not for skipping.</p>' +
-        '<div style="margin-top:12px;"><a class="btn" href="' + back + '">Back to the lecture</a></div></div></div>';
-    if (!sm)
-      return '<div class="view-enter"><div class="page-head"><div class="kicker">' + esc(c.code) + '</div><h1>' + esc(l.t) + "</h1></div>" +
-        '<div class="card"><h2>Not written yet</h2>' +
-        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:6px;">Summaries are authored lecture by lecture. This one is still to come — the ones that exist are marked in the course view.</p>' +
-        '<div style="margin-top:12px;"><a class="btn ghost" href="' + back + '">Back to the lecture</a></div></div></div>';
-    return '<div class="view-enter"><div class="page-head"><div class="kicker"><a href="' + back + '">' + esc(c.code) + " · " + esc(l.t) + "</a></div>" +
-      "<h1>Summary</h1>" +
-      '<div class="sub">' + esc(sm.takeaway) + "</div></div>" +
-
-      '<div class="card"><h2>How it builds</h2><div class="beats stagger">' +
+    if (!sm) return "";
+    return '<div class="ghead">Summary<span class="gh-meta">' +
+      sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</span></div>" +
+      '<div class="card">' +
+      '<p class="sum-lead">' + sm.takeaway + "</p>" +
+      '<div class="beats">' +
       sm.beats.map((b, i) =>
         '<div class="beat"><div class="beat-n mono">' + (i + 1) + "</div>" +
         '<div class="beat-body"><div class="beat-t">' + b.t + "</div>" +
         '<div class="beat-d">' + b.d + "</div>" +
         (b.fig && D.FIG && D.FIG[b.fig] ? '<div class="beat-fig">' + D.FIG[b.fig]({}) + "</div>" : "") +
-        "</div></div>").join("") + "</div></div>" +
+        "</div></div>").join("") +
+      "</div>" +
 
-      '<div class="grid cols-2 top" style="margin-top:16px;">' +
-      '<div class="card"><h2>The worked pattern</h2><div class="beat-d" style="margin-top:6px;">' + sm.worked + "</div></div>" +
-      '<div class="card"><h2>Where people slip</h2><div class="beat-d" style="margin-top:6px;">' + sm.watch + "</div>" +
+      '<div class="sum-split">' +
+      '<div><div class="field">The worked pattern</div>' +
+      '<div class="beat-d">' + sm.worked + "</div></div>" +
+      '<div><div class="field">Where people slip</div>' +
+      '<div class="beat-d">' + sm.watch + "</div>" +
       ((sm.concepts || []).length
-        ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:12px;">' +
-          sm.concepts.map(id => { const q = (D.CONCEPTS || []).find(x => x.id === id); return q ? '<a class="pill wrapping" href="#/concept/' + id + '">' + esc(q.title) + "</a>" : ""; }).join("") + "</div>"
+        ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">' +
+          sm.concepts.map(id => {
+            const q = (D.CONCEPTS || []).find(x => x.id === id);
+            return q ? '<a class="pill wrapping" href="#/concept/' + id + '">' + esc(q.title) + "</a>" : "";
+          }).join("") + "</div>"
         : "") + "</div></div>" +
 
       (sm.checks && sm.checks.length
-        ? '<div class="card" style="margin-top:16px;"><h2>Did it stick?</h2>' +
-          '<div id="sumCheck"><button class="btn" data-act="startSummaryCheck" data-k="' + esc(k) + '">Check yourself · ' + sm.checks.length + " question" + (sm.checks.length === 1 ? "" : "s") + "</button></div></div>"
+        ? '<div id="sumCheck" style="margin-top:var(--sp-3);">' +
+          '<button class="btn ghost" data-act="startSummaryCheck" data-k="' + esc(k) + '">Check yourself · ' +
+          sm.checks.length + " question" + (sm.checks.length === 1 ? "" : "s") + "</button></div>"
         : "") +
-      '<div style="margin-top:16px;"><a class="btn ghost" href="' + back + '">Back to the lecture</a></div></div>';
-  };
+      "</div>";
+  }
 
   V.sync = function () {
     const tok = ghToken();
@@ -4729,7 +4816,10 @@
     else if (r === "/atlas") html = V.atlas();
     else if (r === "/sync") html = V.sync();
     else if (seg[0] === "concept") html = V.concept(seg[1]);
-    else if (seg[0] === "summary") html = V.summary(seg[1], +seg[2], +seg[3]);
+    // The summary is part of the lecture now, so this route is a bookmark from
+    // before that. Send it to the one page that holds the content, rather than
+    // keeping a second copy of it alive.
+    else if (seg[0] === "summary") html = V.lesson(seg[1], +seg[2], +seg[3]);
     else if (r === "/review") html = V.review();
     else if (r === "/treasury") html = V.treasury();
     else if (r === "/practice") html = V.practice();
@@ -4764,6 +4854,11 @@
         (rt === "/library" && seg[0] === "doc");
       a.classList.toggle("active", !!active);
     });
+    // Last, because it reads what the view drew AND, for the two routes with no
+    // head of their own, which nav link is active — and that is set six lines
+    // up. Called before it, the dashboard's bar showed the name of the page the
+    // reader had just left.
+    mountTopbar();
     $("#sidebar").classList.remove("open");
     window.scrollTo({ top: 0 });
   }

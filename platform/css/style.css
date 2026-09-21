@@ -31,6 +31,11 @@
    ============================================================ */
 
 :root {
+  /* The one property only the browser can act on: it makes the caret,
+     the scrollbars and native form chrome follow the page instead of the
+     operating system. Every theme read `normal`, so the three with a
+     near-black page were drawing light scrollbars on black. */
+  color-scheme: light;
   --shade: #2b2118;
   /* Semantic — light theme: white cards on near-white, one institutional blue.
      Every ink is a SOLID value, never an alpha. Alpha inks are how a contrast
@@ -146,7 +151,22 @@
   --fs-tiny: 0.75rem;
 
   /* Spacing + motion */
-  --sp-1: 6px; --sp-2: 10px; --sp-3: 16px; --sp-4: 24px; --sp-5: 40px; --sp-6: 64px;
+  /* rem, not px, so the layout grows with the reader's text-size setting
+     (apple-design 15). The type scale here was already rem while this one was
+     px, which meant that at 150% the type grew by half and the space around it
+     did not — nothing clipped, but the proportion fell apart and a button's
+     target stopped matching its label. Identical values at the 16px default,
+     so this is a no-op until someone actually turns text size up.
+
+     Clamped, and the ceiling is the whole lesson. Plain rem made the app WORSE
+     for exactly the people it was meant to help: measured at a 24px root on a
+     390px screen, the calendar began overflowing where it had been clean, and
+     three already-tight pages got tighter as their containers shrank from
+     230px to 206px. Text size is unbounded; horizontal space is not. So
+     spacing follows the text up to about a third again and then stops. */
+  --sp-1: clamp(6px,  0.375rem, 9px);  --sp-2: clamp(10px, 0.625rem, 15px);
+  --sp-3: clamp(16px, 1rem,     22px);  --sp-4: clamp(24px, 1.5rem,   32px);
+  --sp-5: clamp(40px, 2.5rem,   52px);  --sp-6: clamp(64px, 4rem,     80px);
   /* Square, near enough. A printed register has no rounded corners, and the
      6/10px pair was the single loudest "this is an iOS app" signal in the file.
      Kept at 2px rather than 0 so a focus ring and a button still read as
@@ -176,6 +196,7 @@
    clear 4.5:1 — the old version's alpha inks measured 2.83:1, which is the whole
    reason the palette was rebuilt in the first place. */
 [data-theme="parchment"] {
+  color-scheme: light;
   --urgent: #8a4f14;
   --shade: #2b2118;
   --fac-math: #35608f; --fac-ai: #88592b; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a; --fac-speech: #8a4a63;
@@ -202,6 +223,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --urgent: #d99a4e;
   --shade: #000308;
   /* Cool neutral dark. Was a warm roast; the institutional identity is cool now,
@@ -242,6 +264,7 @@
 }
 
 [data-theme="forest"] {
+  color-scheme: light;
   --urgent: #8a5312;
   --shade: #17201a;
   --bg: #f2f5f1;
@@ -267,6 +290,7 @@
 }
 
 [data-theme="midnight"] {
+  color-scheme: dark;
   --urgent: #e0a35c;
   --shade: #00030a;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
@@ -305,6 +329,7 @@
 }
 
 [data-theme="latte"] {
+  color-scheme: dark;
   --urgent: #dda05a;
   --shade: #000204;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
@@ -344,6 +369,7 @@
 }
 
 [data-theme="slate"] {
+  color-scheme: light;
   --urgent: #8f5518;
   --shade: #1a1a19;
   --bg: #f7f7f5;
@@ -404,8 +430,11 @@ h1, h2, .display {
    needs -0.03em to stop looking gappy; a Caslon at 700 already has the fit its
    punchcutter gave it, and pulling it -0.03em closes the counters and turns the
    serifs into a smear. Tighten it barely, and only at display size. */
-h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.008em; line-height: 1.1; }
-h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.004em; line-height: 1.2; }
+/* A two-line lecture title that drops one word onto the second line reads as
+   a mistake. balance evens the lines of a heading; pretty keeps orphans out of
+   running text. Both degrade to normal wrapping where unsupported. */
+h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.008em; line-height: 1.1; text-wrap: balance; }
+h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.004em; line-height: 1.2; text-wrap: balance; }
 h3 {
   font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 700;
   letter-spacing: 0; line-height: 1.3; font-optical-sizing: auto;
@@ -470,7 +499,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    than copying it, so the two halves cannot drift apart. */
 .nav a, .navrow {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: 8px var(--sp-2); border-radius: var(--radius);
+  padding: clamp(8px, 0.5rem, 11px) var(--sp-2); border-radius: var(--radius);
   color: var(--ink-2); font-size: var(--fs-small); font-weight: 500; text-decoration: none;
   position: relative;
   transition: background-color var(--t-hover) ease;
@@ -493,8 +522,48 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .sidebar-foot .motto { margin-top: var(--sp-3); }
 
 /* Theme picker */
-.theme-menu { display: none; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow-float); }
-.theme-menu.open { display: flex; }
+/* apple-design 7: a menu should originate from the element that triggered it,
+   so the relationship between the button and what it opened is obvious. And
+   12: "materialize, don't just fade" — scale and opacity together, so it reads
+   as a surface arriving rather than a rectangle switching on.
+   It used to be display:none -> display:flex, which is a snap with no origin
+   and no motion at all.
+   The origin is the BOTTOM edge, because the menu is the last-but-four child
+   of a footer pinned to the bottom of the sidebar: measured, it ends at 929px
+   and the Theme button starts at 940px, so it opens UPWARDS out of its trigger.
+   An origin of `top` would have grown it away from the thing that opened it —
+   which is the one relationship this property exists to express. */
+.theme-menu {
+  display: flex; flex-direction: column; gap: 2px;
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 4px;
+  box-shadow: var(--shadow-float);
+  transform-origin: bottom center;
+  opacity: 0; transform: scale(0.96) translateY(-4px);
+  visibility: hidden; pointer-events: none;
+  /* Collapse the space too, or a closed menu holds open a gap in the footer.
+     The border goes with it: height:0 still leaves 1px top and 1px bottom, and
+     a 2px rule floating in the footer above the Theme button is exactly the
+     kind of thing that reads as a rendering fault rather than a design. */
+  height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 0;
+  border-width: 0; overflow: hidden;
+  transition: opacity 160ms var(--ease), transform 180ms var(--ease),
+              visibility 0s linear 180ms, height 180ms var(--ease),
+              padding 180ms var(--ease), margin 180ms var(--ease),
+              border-width 180ms var(--ease);
+}
+.theme-menu.open {
+  opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+  height: auto; padding-top: 4px; padding-bottom: 4px; margin-bottom: var(--sp-2);
+  border-width: 1px;
+  transition: opacity 160ms var(--ease), transform 180ms var(--ease),
+              visibility 0s, height 180ms var(--ease),
+              padding 180ms var(--ease), margin 180ms var(--ease),
+              border-width 180ms var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-menu { transition: opacity 120ms ease, visibility 0s linear 120ms; transform: none; }
+  .theme-menu.open { transition: opacity 120ms ease, visibility 0s; }
+}
 .theme-menu button {
   display: flex; align-items: center; gap: 10px;
   background: transparent; border: none; cursor: pointer;
@@ -645,7 +714,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   font-family: var(--font-body); font-size: var(--fs-small); font-weight: 600;
   color: var(--btn-ink); background: var(--btn-bg);
   border: 1px solid var(--btn-bg); border-radius: var(--radius);
-  padding: 9px 18px; cursor: pointer;
+  padding: clamp(9px, 0.5625rem, 12px) clamp(18px, 1.125rem, 24px); cursor: pointer;
   box-shadow: var(--btn-gloss), var(--lift);
   transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
               box-shadow var(--t-micro) ease;
@@ -662,7 +731,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: var(--lift-edge), var(--lift); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
    inline padding:4px versions of these were unhittable on a phone. */
-.btn.tiny { padding: 6px 10px; font-size: var(--fs-tiny); min-width: 44px; min-height: 44px; justify-content: center; }
+/* 44px stays px on purpose: it is the size of a fingertip, a physical
+   constant, not a typographic one. Scaling it with the text would be treating
+   two different kinds of measurement as one. */
+.btn.tiny { padding: clamp(6px, 0.375rem, 9px) clamp(10px, 0.625rem, 14px); font-size: var(--fs-tiny); min-width: 44px; min-height: 44px; justify-content: center; }
 /* Bare: a text button sitting inside a register row. Standing it off the page
    would make every row it appears in lumpy, so it is the one .btn with no
    depth at all — at rest or pressed. */
@@ -767,8 +839,6 @@ td {
   font-variant-numeric: lining-nums tabular-nums;
 }
 tr:last-child td { border-bottom: none; }
-
-
 
 .video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; background: #0a0b0d; border: 1px solid var(--line-strong); box-shadow: var(--sink); }
 .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -1071,6 +1141,19 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   @keyframes settleIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
 
+/* ---------- Native surfaces ----------
+   Everything the BROWSER draws rather than this stylesheet: the caret, the
+   selection, scrollbars, and the chrome on native form controls. All of it sat
+   at the defaults — browser blue on cream paper, and in the three dark themes a
+   light caret and light scrollbars on a near-black page. color-scheme (set per
+   theme above) fixes the chrome; these name the rest, so nothing the browser
+   paints is a stranger to the page it is painted on. */
+:root { accent-color: var(--accent); caret-color: var(--accent); }
+::selection { background: color-mix(in srgb, var(--accent) 24%, transparent); color: var(--ink); }
+/* Thin, and in the page's own colours rather than the platform's. */
+html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.sidebar { scrollbar-color: color-mix(in srgb, var(--panel-ink) 26%, transparent) transparent; }
+
 /* ---------- Utilities ----------
    Every repeated inline style is a place the design can drift, so the recurring
    ones live here instead. */
@@ -1086,8 +1169,6 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 /* ---------- Section rhythm ----------
    Each block of the page announces itself and states its own number, so the
    page can be skimmed by heading alone. */
-
-
 
 
 
@@ -1122,6 +1203,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 .one.urgent { border-top-color: var(--urgent); }
 .one.urgent .one-kind { color: var(--urgent); }
 .one-kind {
+  text-wrap: balance;
   font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h2);
   letter-spacing: -0.004em; line-height: 1.2; color: var(--ink);
 }
@@ -1223,8 +1305,30 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 }
 
 /* apple-design 1: "respond on pointer-down, not on release... waiting for
-   touch-up to show feedback feels dead." Every pressable surface now answers
-   the finger the instant it lands. */
+   touch-up to show feedback feels dead."
+   That was written when this rule covered the rows and the buttons. Seven
+   tappable things had no :active state at all — the whole sidebar nav, the
+   footer rows, the theme menu, check rows, disclosure summaries, heatmap days,
+   and the TAB BAR, which is the primary navigation on a phone. They were
+   living on the browser's generic grey flash.
+   They answer the finger now, which is also what makes it safe to take the
+   flash away below: removing it first would have made every tap feel dead. */
+.nav a:active, .navrow:active, .theme-menu button:active, .check-row:active {
+  background: var(--bg-2);
+  transform: scale(0.985);
+  transition: transform 100ms ease-out, background-color 100ms ease-out;
+}
+.unit > summary:active { background: var(--bg-2); }
+/* A day on the heatmap is 13px; scaling it would be invisible, so it brightens
+   its own edge instead. */
+.hc:active { box-shadow: inset 0 0 0 2px var(--accent); }
+.tabbar a:active { transform: scale(0.92); transition: transform 100ms ease-out; }
+/* The browser's tap flash is a grey rectangle with no relationship to the
+   thing it lands on. Every surface above now has feedback of its own, designed
+   to the element, so the generic one is noise — and on an app installed to the
+   Home Screen it is the loudest "this is a web page" tell there is. */
+a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transparent; }
+
 .grow:active, .onecounts > a:active {
   transform: scale(0.985);
   transition: transform 100ms ease-out;
@@ -1695,7 +1799,8 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 .glist + .glist { margin-top: var(--sp-4); }
 .grow {
   display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 12px 15px; min-height: 54px; color: var(--ink); text-decoration: none;
+  padding: clamp(12px, 0.75rem, 16px) clamp(15px, 0.9375rem, 19px);
+  min-height: clamp(54px, 3.375rem, 68px); color: var(--ink); text-decoration: none;
   /* A <button> brings a UA border on all four sides; the row wants exactly one,
      along its top, like every other row in the group. */
   border: 0; border-top: 1px solid var(--line); background: none; text-align: left;
@@ -1803,4 +1908,36 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) {
   animation-duration: 180ms; animation-timing-function: var(--ease);
+}
+
+
+/* ---------- The phone's spacing ceiling ----------
+   Last in the file on purpose. Two of the three element rules it caps — .grow
+   and .btn — are declared further up, and a rule of equal specificity declared
+   later wins: sitting where it used to sit, the .grow line in here was dead the
+   moment it was written, capping nothing while reading as though it did. */
+/* A phone has less width to give away, so on a phone the spacing scale splits
+   along the axis it is spent on.
+   Text size is unbounded; horizontal space is not. Below 460px the four small
+   steps — the ones that become left and right padding on almost every surface —
+   stop growing, and only --sp-5 and --sp-6, which are section rhythm and
+   therefore vertical, keep following the text. A reader at 150% still gets the
+   air between blocks that the type needs; they do not pay for it out of the
+   column width, which is the one thing a 320px screen cannot spare.
+   This is the second pass at this ceiling, and the first one was measured
+   wrong. Capping --sp-3 and up looked sufficient; at 320px with a 24px root,
+   four pages that already overflowed on the previous release overflowed
+   further — /workshop +11px -> +23px, /electives +13 -> +17, /transcript
+   +3 -> +7, the calendar's page scroll +22 -> +24. Taking /workshop apart said
+   where it came from: 4px because --sp-4 was still growing the container's
+   padding, and 8px because .btn.tiny's inline padding was growing the content
+   inside it. Not a new break — all five of these overflow on the release
+   before this one too — but a change sold as help for large text was making
+   large text worse, which is the same mistake in a smaller size. */
+@media (max-width: 460px) {
+  :root { --sp-1: 6px; --sp-2: 10px; --sp-3: 16px; --sp-4: 24px; }
+  /* The element-level clamps are horizontal padding for the same reason. */
+  .grow { padding: clamp(12px, 0.75rem, 16px) 15px; }
+  .btn { padding: clamp(9px, 0.5625rem, 12px) 18px; }
+  .btn.tiny { padding: clamp(6px, 0.375rem, 9px) 10px; }
 }

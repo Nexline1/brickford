@@ -138,6 +138,27 @@ being *clicked* through (not just `goto`-ed — the second half of that defect o
 click), that the hamburger and the drawer take over below 860px, and that the reading column is
 the same box on every route.
 
+`verify-contrast.js` was rewritten on 21 Sep 2026 because it was **flaky**, which is worse than
+absent: it returned 0, then 1, then 0 failures across identical runs, each time a different
+element, each time a light theme's ink measured against a dark theme's page. Three rounds of
+tuning the waits did not fix it. What did was measuring instead of guessing: when `data-theme`
+changes in the **same frame as a route render**, the whole document's computed style stays on the
+previous theme for hundreds of milliseconds while the attribute itself already reads the new one
+— every reproduction was exactly one theme behind. That is also why a stability check *alone*
+made it worse (12 failures): during the lag the stale values are perfectly stable, so "nothing is
+moving" is true and says nothing.
+
+Three things came out of it, and they are the shape to copy in any harness here:
+
+- **A settle condition has to be that something CHANGED, then stopped** — not that nothing is
+  moving. The theme is set once per theme now, never while a route is rendering.
+- **Wait on proof, not on a duration.** The per-route wait marks the current view's first child
+  and waits for the marker to be gone, because `renderInner()` replaces those children wholesale.
+  A fixed wait would have measured the *previous* page whenever a render ran long — a silent
+  coverage hole, not a failure. It is also six times faster: 14s instead of ~90s.
+- **A finding has to survive a re-measure.** What this gate looks for is a declared colour pair,
+  identical on every measurement; a reading that does not reproduce is by definition not that.
+
 Three habits that have each caught real defects here:
 
 - **Check computed style, not screenshots**, for anything visual. Three separate times a change
@@ -148,3 +169,10 @@ Three habits that have each caught real defects here:
   one release the app shipped with no navigation at all on desktop and nothing said a word.
   When a gate is added, first put the bug back and watch it fail — a gate that has never failed
   has not been tested.
+- **Press it, do not read the rule.** Four "findings" in the press-feedback round were the
+  harness's own fault — it read `document.styleSheets` on a `file://` page (which throws, so
+  every selector looked missing), it pressed a row that was below the fold, it compared a press
+  against the *hovered* state on a platform that has no hover, and it clicked a button that an
+  earlier case had already toggled. Meanwhile a `.grow` override really was dead, because an
+  equal-specificity rule further down the file beat it. The rule being present proves nothing;
+  the pixel moving proves it.

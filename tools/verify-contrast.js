@@ -49,6 +49,26 @@ function seed() {
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
 
+// ---------- the theme fingerprint ----------
+// What the theme settle waits on: a few computed colours from parts of the page
+// that do not move with the route, plus one from inside the view. It has to be
+// a value that CHANGES when the palette does — see the loop below for why
+// "nothing is moving" was not a usable condition.
+function installFP() {
+  window.__fp = function () {
+    const b = getComputedStyle(document.body);
+    const side = document.querySelector(".sidebar");
+    const inView = document.querySelector("#view *");
+    return [
+      b.backgroundColor,
+      b.color,
+      side ? getComputedStyle(side).backgroundColor : "",
+      inView ? getComputedStyle(inView).color : "",
+    ].join("|");
+  };
+}
+const FP = () => window.__fp();
+
 // ---------- the measurement, run inside the page ----------
 // Kept as one string so the browser side stays self-contained and readable.
 const PROBE = function () {
@@ -162,7 +182,7 @@ function lintPanelUse() {
   const panelMisuse = lintPanelUse();
   const browser = await chromium.launch();
   const failures = [];
-  let measured = 0;
+  let measured = 0, drift = 0;
 
   for (const w of WIDTHS) {
     // reducedMotion matters for correctness here, not for politeness.
@@ -176,17 +196,97 @@ function lintPanelUse() {
     // rgb(134,140,139).) The stylesheet's reduced-motion kill-switch collapses
     // every transition to 0.01ms, so measurements land on declared values.
     //
+    // It also decides the shape of the loop: under reduced motion render() skips
+    // startViewTransition, so a hashchange rebuilds the view synchronously.
+    //
     // Nothing is lost: the entrance animations use `both` fill, so their final
     // state — the one worth checking — is what gets measured.
     const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, reducedMotion: "reduce" });
     await ctx.addInitScript(seed);
+    await ctx.addInitScript(installFP);
     const page = await ctx.newPage();
+    // One real document load per width. Every navigation after this one is
+    // hash-only, so it is same-document: boot() runs exactly once and cannot
+    // undo a theme set below. The hash is deliberately NOT a route in the list —
+    // the first entry is "/", and page.goto() to a URL whose hash has not
+    // changed fires no hashchange, so the render proof would wait for a render
+    // that was never going to happen.
+    await page.goto(URL + "#/__boot", { waitUntil: "load" });
+
+    // Prime onto a theme that is not the first one measured, so the settle
+    // below always has a change to wait for. The list has no duplicates, so
+    // its last entry is never its first.
+    await page.evaluate(t => { document.documentElement.dataset.theme = t; }, THEMES[THEMES.length - 1]);
+    await page.waitForTimeout(400);
+
     for (const theme of THEMES) {
+      // The theme is set ONCE per theme, and never again while routes are being
+      // navigated. It used to be set after every navigation — redundant, since
+      // the attribute was already right for every route after the first, and
+      // the cause of this gate's flakiness.
+      //
+      // What the flake actually was, measured rather than guessed: when the
+      // attribute changed in the same frame as a route render, the whole
+      // document's COMPUTED style stayed on the previous theme for hundreds of
+      // milliseconds, while `data-theme` itself already read the new one. Every
+      // reproduction landed on the loop's first route, the only iteration where
+      // the theme really changed, and every stale reading was exactly one theme
+      // behind — asking for forest and measuring dark, asking for midnight and
+      // measuring forest. That is why the failures looked like a light theme's
+      // ink on a dark theme's page.
+      //
+      // It is also why a stability check ALONE made this worse (12 failures):
+      // during the lag the stale values are perfectly stable, so "nothing is
+      // moving" is true and says nothing. The condition has to be that the page
+      // has CHANGED, and then stopped.
+      const before = await page.evaluate(FP);
+      await page.evaluate(t => {
+        window.__fpLast = null;
+        document.documentElement.dataset.theme = t;
+      }, theme);
+      await page.waitForFunction(prev => {
+        const now = window.__fp();
+        const settled = now !== prev && window.__fpLast === now;
+        window.__fpLast = now;
+        return settled;
+      }, before, { timeout: 8000, polling: "raf" });
+
       for (const route of ROUTES) {
+        // Proof that the view was rebuilt, instead of a guess at how long it
+        // takes. renderInner() replaces #view's children wholesale, so a marker
+        // put on the current first child cannot survive the next render — and
+        // once it is gone, this route's DOM is the one on screen. A fixed wait
+        // would have measured the PREVIOUS page on any render slower than the
+        // timeout: a silent coverage hole rather than a failure.
+        await page.evaluate(() => {
+          const c = document.querySelector("#view > *");
+          if (c) c.setAttribute("data-probe-stale", "1");
+        });
         await page.goto(URL + "#" + route, { waitUntil: "load" });
-        await page.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);
-        await page.waitForTimeout(90);
-        const hits = await page.evaluate(PROBE);
+        await page.waitForFunction(
+          () => !document.querySelector("#view [data-probe-stale]"),
+          null, { timeout: 8000, polling: "raf" });
+
+        let hits = await page.evaluate(PROBE);
+        // A finding has to survive a second look. What this gate exists to find
+        // is a DECLARED colour pair that cannot be read — a property of the
+        // stylesheet, identical on every measurement. A reading that does not
+        // reproduce is, by definition, not that. It costs nothing in the
+        // ordinary case, because it only runs when something has failed.
+        if (hits.length) {
+          await page.waitForTimeout(250);
+          const again = await page.evaluate(PROBE);
+          const keep = new Set(again.map(h => h.sel + "|" + h.fg + "|" + h.bg));
+          hits = hits.filter(h => keep.has(h.sel + "|" + h.fg + "|" + h.bg));
+        }
+        // Nothing else writes this attribute, so it can only differ if that
+        // stops being true. Better a loud failure than thirty pages quietly
+        // measured in the wrong palette.
+        const attr = await page.evaluate(() => document.documentElement.dataset.theme);
+        if (attr !== theme) {
+          console.log("THEME DRIFT — asked for " + theme + ", page is " + attr + " (" + route + ")");
+          drift++;
+        }
         measured++;
         hits.forEach(h => failures.push(Object.assign({ theme, route, w }, h)));
       }
@@ -228,7 +328,7 @@ function lintPanelUse() {
     console.log("  (--panel is the dark sidebar block. On a light page its own --ink text is invisible.)");
   }
 
-  const fail = rows.length + panelMisuse.length;
+  const fail = rows.length + panelMisuse.length + drift;
   console.log("\n" + (fail === 0
     ? "PASS — " + measured + " page-renders across " + ROUTES.length + " routes × " + THEMES.length +
       " themes × " + WIDTHS.length + " widths, every text/background pair at or above threshold"

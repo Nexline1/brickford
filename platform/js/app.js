@@ -4772,6 +4772,13 @@
   function boot() {
     const applyTheme = () => {
       document.documentElement.dataset.theme = S.settings.theme || "light";
+      // The Home Screen app's status bar is painted from this meta, and it was
+      // hard-coded to the brown panel — so picking Dark or Latte left a brown
+      // bar above a near-black page. It follows the theme now. Read AFTER the
+      // dataset is set, so it is this theme's panel and not the last one's.
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content",
+        getComputedStyle(document.documentElement).getPropertyValue("--panel").trim() || "#2b2118");
       $$("#themeMenu [data-theme-pick]").forEach(b =>
         b.classList.toggle("on", b.dataset.themePick === (S.settings.theme || "light")));
     };

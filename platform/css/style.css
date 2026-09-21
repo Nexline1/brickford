@@ -79,6 +79,31 @@
   --e3: 0 4px 10px color-mix(in srgb, var(--shade) 10%, transparent),
         0 16px 36px color-mix(in srgb, var(--shade) 12%, transparent);
   --shadow-float: var(--e3);
+  /* ---------- Control depth ----------
+     Surfaces are paper; controls are objects sitting on it. The --e* scale
+     above was built for surfaces and went dead when the app flattened — this
+     is the same idea aimed at the only things that should still have depth,
+     the ones you press.
+
+     Two layers, and they do different jobs: a hard 1px edge, which is the
+     button's own thickness, and a soft ambient shadow, which is the light in
+     the room. Losing the hard edge is what makes a press read as a press —
+     without it a shadow is just a sticker. */
+  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 34%, transparent),
+          0 2px 5px color-mix(in srgb, var(--shade) 15%, transparent);
+  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 13%, transparent);
+  /* Light catching the top edge of a filled button (apple-design 12). The fill
+     is dark in this theme, so a white inset reads as a bevel. Themes whose
+     button is LIGHT on a dark page override this with an underside line
+     instead — a white gloss on a near-white key is invisible. */
+  --btn-gloss: inset 0 1px 0 color-mix(in srgb, #ffffff 17%, transparent);
+  /* An OUTLINED control has no fill to catch light, so on light paper a
+     highlight would light nothing and this is deliberately empty — the shadow
+     alone stands it off the page. On a dark page the opposite is true: a dark
+     shadow around a transparent button on a dark ground is invisible by
+     definition, so the dark themes give this a bright top edge and let light
+     do the work instead. */
+  --lift-edge: 0 0 0 transparent;
 
   /* The panel is the sidebar and the tabbar. It is the ONE filled surface in
      the whole interface, which is what makes it read as structure rather than
@@ -190,6 +215,14 @@
   --bad: #e8705c;
   --btn-bg: #e8ebef;
   --btn-ink: #0f1216;
+  /* Light key on a dark page: the gloss becomes an underside line — the shadow
+     the key casts on itself — and the ambient goes deeper so it reads against a
+     ground that is already dark. */
+  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
+  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
+  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
+          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
+  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
   --panel: #0a0d10;
   --panel-ink: #e8ebef;
   --panel-accent: #7fb0e6;
@@ -241,6 +274,14 @@
   --bad: #e8705c;
   --btn-bg: #e7ecf4;
   --btn-ink: #10151f;
+  /* Light key on a dark page: the gloss becomes an underside line — the shadow
+     the key casts on itself — and the ambient goes deeper so it reads against a
+     ground that is already dark. */
+  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
+  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
+  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
+          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
+  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
   --panel: #080b12;
   --panel-ink: #e7ecf4;
   --panel-accent: #7fa3d1;
@@ -268,6 +309,14 @@
   --bad: #f08a78;
   --btn-bg: #f0e7d8;
   --btn-ink: #2b2118;
+  /* Light key on a dark page: the gloss becomes an underside line — the shadow
+     the key casts on itself — and the ambient goes deeper so it reads against a
+     ground that is already dark. */
+  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
+  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
+  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
+          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
+  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
   --panel: #faf7f0;
   --panel-ink: #2b2118;
   --panel-accent: #5d3f26;
@@ -556,28 +605,38 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color: var(--btn-ink); background: var(--btn-bg);
   border: 1px solid var(--btn-bg); border-radius: var(--radius);
   padding: 9px 18px; cursor: pointer;
-  transition: opacity var(--t-micro) ease, transform var(--t-micro) ease;
+  box-shadow: var(--btn-gloss), var(--lift);
+  transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
+              box-shadow var(--t-micro) ease;
 }
 .btn:hover { opacity: 0.88; }
 /* No :active transform here. There is a shared pointer-down rule further down
    that scales every pressable surface, and this one used to translateY(1px)
    against it — two conflicting transforms on the same element, the later one
    silently winning. */
-.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+/* No gloss: a ghost button is the colour of the paper, so a white inset on top
+   of it lights nothing. The lift alone is what stands it off the page. */
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); box-shadow: var(--lift-edge), var(--lift); }
 .btn.ghost:hover { opacity: 1; background: var(--bg-2); }
-.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); }
+.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: var(--lift-edge), var(--lift); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
    inline padding:4px versions of these were unhittable on a phone. */
 .btn.tiny { padding: 6px 10px; font-size: var(--fs-tiny); min-width: 44px; min-height: 44px; justify-content: center; }
-.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); }
+/* Bare: a text button sitting inside a register row. Standing it off the page
+   would make every row it appears in lumpy, so it is the one .btn with no
+   depth at all — at rest or pressed. */
+.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); box-shadow: none; }
+.btn.tiny.bare:active { box-shadow: none; }
 .btn.tiny.bare:hover { background: var(--bg-2); }
 /* opacity:0.4 on a FILLED button leaves a solid grey slab, and in the specimen
    that slab read as heavier than the live ghost button beside it — a dead
    control shouting louder than the ones you can press. A disabled button loses
    its fill entirely and recedes to a hairline. */
+/* A dead control must not look pressable, so it loses the depth with the fill. */
 .btn:disabled {
   background: transparent; color: var(--ink-3);
   border-color: var(--line); opacity: 1; cursor: not-allowed; transform: none;
+  box-shadow: none;
 }
 .btn:disabled:hover { opacity: 1; background: transparent; }
 
@@ -1072,9 +1131,20 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 /* apple-design 1: "respond on pointer-down, not on release... waiting for
    touch-up to show feedback feels dead." Every pressable surface now answers
    the finger the instant it lands. */
-.btn:active, .grow:active, .onecounts > a:active {
+.grow:active, .onecounts > a:active {
   transform: scale(0.985);
   transition: transform 100ms ease-out;
+}
+/* A button depresses as well as scaling, and .btn therefore leaves the shared
+   rule above: two rules setting transform on the same element is the exact bug
+   this file already carries a comment about further up, where the later one
+   silently won. Both moves live in one declaration.
+   The hard edge collapses and the ambient shrinks, so the key goes down into
+   the page instead of shrinking on top of it. */
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: var(--lift-press);
+  transition: transform 100ms ease-out, box-shadow 100ms ease-out;
 }
 
 
@@ -1334,10 +1404,22 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
     transform: translateX(-100%); width: 264px; box-shadow: var(--shadow-float);
     touch-action: pan-y;
   }
+  /* The one control that is not a .btn, and the one that most needs depth: it
+     is fixed, it floats over whatever is scrolling underneath it, and
+     apple-design 12 wants a heavier shadow exactly where a control overlaps
+     content it has to stay separate from. --lift-edge carries the light in the
+     dark themes, where .menu-btn's own surface is dark. */
   .menu-btn {
     display: inline-flex; position: fixed; top: 14px; left: 14px; z-index: var(--z-drawer-btn);
     background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong);
     border-radius: var(--radius); width: 42px; height: 42px; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: var(--lift-edge), var(--lift);
+    transition: transform var(--t-micro) ease, box-shadow var(--t-micro) ease;
+  }
+  .menu-btn:active {
+    transform: translateY(1px) scale(0.99);
+    box-shadow: var(--lift-press);
+    transition: transform 100ms ease-out, box-shadow 100ms ease-out;
   }
   /* 72px of every phone screen was reserved to clear the fixed menu button,
      and then the folio started below it — so a one-line running head cost
@@ -1462,6 +1544,11 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
   /* A hairline is a suggestion; at this setting the separation has to be stated. */
   .grow { border-top-color: var(--line-strong); }
+  /* apple-design 14: at this setting depth is replaced by a stated border. A
+     shadow is a soft cue and soft cues are the first thing to go. */
+  .btn, .menu-btn { box-shadow: none; }
+  .btn.ghost, .btn.danger, .menu-btn { border-color: var(--ink); }
+  .btn:active:not(:disabled), .menu-btn:active { box-shadow: none; }
 }
 
 /* ============================================================

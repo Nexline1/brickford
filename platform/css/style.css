@@ -1100,8 +1100,18 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
      empty table. It fills the width it needs and stops. */
   display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
   max-width: 560px; margin-top: var(--sp-3);
-  border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
-  background: var(--surface);
+  /* A boxed figure, like .card: the frame and the hairlines, no fill. This was
+     the last white slab left after the app flattened to a register — every
+     other surface lost its background two commits ago and this one was missed.
+
+     The frame and overflow:hidden are load-bearing, not decoration. Each cell
+     draws its own left and top border and is pulled -1px so those edges
+     collapse into each other and into the frame; :first-child drops the left
+     border only on the FIRST cell, so where the grid wraps to 2x2 at 320px the
+     cell starting row two still draws one and tucks it under the frame. Remove
+     the frame and that becomes a 1px stub in the margin. */
+  border: 1px solid var(--line-strong); border-radius: 0; overflow: hidden;
+  background: none;
 }
 /* A cell is an <a> where there is somewhere to go and a <div> where there is
    not — a cell that links to the page you are already on is a lie the cursor
@@ -1110,11 +1120,30 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   /* 12px of side padding left 63px for a label that needs 66 - "Reviews" in
      tracked caps was clipped by three pixels at 390px. */
   padding: 9px 9px; text-decoration: none; color: var(--ink);
-  border-left: 1px solid var(--line); margin-left: -1px;
-  border-top: 1px solid var(--line); margin-top: -1px;
+  border-left: 1px solid var(--line-strong); margin-left: -1px;
+  border-top: 1px solid var(--line-strong); margin-top: -1px;
   transition: background-color var(--t-hover) ease;
 }
 .onecounts > :first-child { border-left: 0; margin-left: 0; }
+/* Two things the white fill was hiding, both visible the moment it went.
+
+   The cell borders were --line, pulled -1px onto a --line-strong frame, so
+   they painted a lighter notch down its left edge wherever a row began. One
+   colour for the frame and the rules and the overlap has nothing to show.
+
+   The other was raggedness. These strips carry 2 to 5 cells, and auto-fit
+   wrapped a 4-cell one to 3 + 1 at 320px — a framed box with two empty tracks
+   in its last row, which reads as a broken table. There is no CSS for "fill
+   the rest of the row", because nothing can ask whether it wrapped. So the
+   wrap is made even instead of being patched afterwards: below 520px, exactly
+   two columns, and an odd count gives its last cell the whole final row. 520
+   is where a six-cell strip (6 x 84px) stops fitting on one line — the app
+   renders at most four today, but the note above says two to five, and a
+   breakpoint that only holds for today's content is a trap. */
+@media (max-width: 520px) {
+  .onecounts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .onecounts:has(> :nth-child(odd):last-child) > :last-child { grid-column: 1 / -1; }
+}
 /* At 320px three cells leave 75px of content, and "CATEGORY" in tracked caps
    needs 77. Six pixels of side padding buys the two it was short of. */
 @media (max-width: 360px) { .onecounts > * { padding: 9px 6px; } }

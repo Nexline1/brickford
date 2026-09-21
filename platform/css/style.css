@@ -434,6 +434,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   --bg-2: color-mix(in srgb, var(--panel-ink) 9%, transparent);
   --surface: color-mix(in srgb, var(--panel-ink) 6%, transparent);
   --accent: var(--panel-accent);
+  /* The panel re-scopes its INK, and for a long time that was the whole list.
+     It also has to re-scope its SHADOWS, for the same reason and in the same
+     direction: --shadow-float is solved from --shade against the page, and the
+     one floating thing in here — the theme menu — drops it onto a panel that
+     is dark in six themes out of seven. A dark shadow on dark brown is not a
+     shadow. Solved against the panel instead, so the menu lifts off it. */
+  --shadow-float:
+    0 4px 10px color-mix(in srgb, var(--shade) 55%, transparent),
+    0 14px 34px color-mix(in srgb, var(--shade) 42%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--panel-ink) 12%, transparent);
   width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
   background: var(--panel);
   padding: var(--sp-4) var(--sp-3);
@@ -453,15 +463,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
-.nav a {
-  display: flex; align-items: center; gap: 10px;
+/* The sidebar is one column of rows under a crest. The footer used to hold
+   four bordered buttons — 181px of Theme / Backup / Restore / Sync, shouting
+   louder than the eleven nav items above them, for the controls touched least
+   often in the whole app. They are rows now, and they share this rule rather
+   than copying it, so the two halves cannot drift apart. */
+.nav a, .navrow {
+  display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px var(--sp-2); border-radius: var(--radius);
   color: var(--ink-2); font-size: var(--fs-small); font-weight: 500; text-decoration: none;
   position: relative;
   transition: background-color var(--t-hover) ease;
+  /* a <button> brings its own chrome; the row wants none of it */
+  background: none; border: 0; font-family: var(--font-body); text-align: left;
+  cursor: pointer;
 }
-.nav a .glyph { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
-.nav a:hover { background: var(--bg-2); color: var(--ink); text-decoration: none; }
+/* 0.7 over --ink-2 on a dark panel is a smudge, not a mark. The glyph comes up
+   and colour carries the state instead of opacity doing both jobs. */
+.nav a .glyph, .navrow .glyph { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.85; }
+.nav a:hover, .navrow:hover { background: var(--bg-2); color: var(--ink); text-decoration: none; }
 .nav a.active { background: var(--bg-2); color: var(--ink); font-weight: 600; }
 .nav a.active::before {
   content: ""; position: absolute; left: -1px; top: 24%; bottom: 24%; width: 2px;
@@ -469,7 +489,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .nav a.active .glyph { opacity: 1; color: var(--accent); }
 
-.sidebar-foot { margin-top: auto; padding-top: var(--sp-3); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--sp-2); }
+.sidebar-foot { margin-top: auto; padding-top: var(--sp-2); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 1px; }
+.sidebar-foot .motto { margin-top: var(--sp-3); }
 
 /* Theme picker */
 .theme-menu { display: none; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow-float); }

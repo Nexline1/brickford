@@ -9,7 +9,7 @@
 <!-- One colour, both schemes: the browser chrome should read as Brickford's
      panel, which is what the sidebar and the app icon already are. -->
 <meta name="theme-color" content="#2b2118">
-<link rel="manifest" href="manifest.json?v=20260921c">
+<link rel="manifest" href="manifest.json?v=20260921d">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -20,17 +20,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260921c">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260921c">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260921d">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260921d">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260921c">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260921c">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260921c">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260921d">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260921d">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260921d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Libre Caslon Text for display, the system face for body, JetBrains Mono for
@@ -42,7 +42,7 @@
      tracking tables no webfont here can match (apple-design 15). -->
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260921c">
+<link rel="stylesheet" href="css/style.css?v=20260921d">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
         Practice
       </a>
       <a href="#/review" data-route="/review">
-        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M7 2.5 V5.5 M13 2.5 V5.5"/></svg>
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/><path d="M7 10.2 L9.2 12.4 L13.2 8.4"/></svg>
         Week
       </a>
       <a href="#/calendar" data-route="/calendar">
@@ -118,12 +118,22 @@
         <button data-theme-pick="midnight"><span class="swatch" style="background:#151c2b;"></span>Midnight</button>
         <button data-theme-pick="slate"><span class="swatch" style="background:#ffffff;"></span>Slate</button>
       </div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn ghost" id="themeBtn" style="flex:1;">Theme</button>
-        <button class="btn ghost" id="exportBtn" style="flex:1;">Backup</button>
-      </div>
-      <button class="btn ghost" id="importBtn" style="width:100%;">Restore backup</button>
-      <a class="btn ghost" href="#/sync" style="width:100%; text-align:center;">Sync devices</a>
+      <button class="navrow" id="themeBtn">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 3 A7 7 0 0 1 10 17 Z" fill="currentColor" stroke="none"/></svg>
+        Theme
+      </button>
+      <button class="navrow" id="exportBtn">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 V12 M6.5 8.5 L10 12 L13.5 8.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg>
+        Backup
+      </button>
+      <button class="navrow" id="importBtn">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12 V3 M6.5 6.5 L10 3 L13.5 6.5 M3.5 13.5 V16 A1 1 0 0 0 4.5 17 H15.5 A1 1 0 0 0 16.5 16 V13.5"/></svg>
+        Restore backup
+      </button>
+      <a class="navrow" href="#/sync">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8 A6.5 6.5 0 0 1 15 4.8 M16.5 12 A6.5 6.5 0 0 1 5 15.2 M3.5 4.5 V8 H7 M16.5 15.5 V12 H13"/></svg>
+        Sync devices
+      </a>
       <input type="file" id="importFile" accept=".json" style="display:none;">
       <div class="motto">From imitation to invention</div>
     </div>
@@ -156,7 +166,7 @@
     Problems
   </a>
   <a href="#/review" data-route="/review">
-    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8 H17 M7 2.5 V5.5 M13 2.5 V5.5"/></svg>
+    <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/><path d="M7 10.2 L9.2 12.4 L13.2 8.4"/></svg>
     Review
   </a>
 </nav>
@@ -166,21 +176,21 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20260921c"></script>
-<script defer src="js/figures.js?v=20260921c"></script>
-<script defer src="js/lab.js?v=20260921c"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20260921c"></script>
-<script defer src="data/summaries-math110.js?v=20260921c"></script>
-<script defer src="data/workshop.js?v=20260921c"></script>
-<script defer src="data/storytelling.js?v=20260921c"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20260921c"></script>
-<script defer src="data/quiz-calculus.js?v=20260921c"></script>
-<script defer src="data/quiz-probability.js?v=20260921c"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20260921c"></script>
-<script defer src="data/quiz-dsa.js?v=20260921c"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20260921c"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20260921c"></script>
-<script defer src="js/quiz-engine.js?v=20260921c"></script>
-<script defer src="js/app.js?v=20260921c"></script>
+<script defer src="data/curriculum.js?v=20260921d"></script>
+<script defer src="js/figures.js?v=20260921d"></script>
+<script defer src="js/lab.js?v=20260921d"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20260921d"></script>
+<script defer src="data/summaries-math110.js?v=20260921d"></script>
+<script defer src="data/workshop.js?v=20260921d"></script>
+<script defer src="data/storytelling.js?v=20260921d"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20260921d"></script>
+<script defer src="data/quiz-calculus.js?v=20260921d"></script>
+<script defer src="data/quiz-probability.js?v=20260921d"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20260921d"></script>
+<script defer src="data/quiz-dsa.js?v=20260921d"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20260921d"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20260921d"></script>
+<script defer src="js/quiz-engine.js?v=20260921d"></script>
+<script defer src="js/app.js?v=20260921d"></script>
 </body>
 </html>

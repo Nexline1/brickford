@@ -201,6 +201,102 @@ Object.keys(D.DRILLS || {}).forEach(k => {
   ok(d.mechanic.length < d.rules.join(" ").length, "drill " + k + ": mechanic is a sentence, not a summary");
 });
 
+// ---------- the lecture summaries ----------
+// This layer had NO checks at all until 22 Sep 2026, which was survivable while
+// it was six entries written in one sitting. It is on its way to fifty-one.
+//
+// Every way a summary can be wrong fails SILENTLY in the browser. app.js's
+// summaryHTML() returns "" for a key that matches no lecture; the figure lookup
+// is guarded by `b.fig && D.FIG[b.fig]`; the concept lookup is a .find() whose
+// miss renders an empty string. So a typo in any of the three produces a page
+// that is merely missing something, which is indistinguishable from a lecture
+// that has no summary yet. And a wrong `num` is worse than missing: the spaced
+// scheduler rehearses it for months. That is the failure CONTENT-STANDARD.md
+// exists to prevent, so the numbers are recomputed here rather than trusted.
+const expectedSummary = {
+  "math110.0.0":  [{ i: 1, v: (function () { return 1 + 3; })() }],            // first component of (1,2)+(3,-1)
+  "math110.0.1":  [{ i: 1, v: rank([[1, 0, 0], [0, 1, 0], [0, 0, 1]]) }],      // size of a basis of R^3
+  "math110.0.2":  [{ i: 1, v: (function () {   // 90 deg CCW, second component of column 1
+                        const t = Math.PI / 2;
+                        const R = [[Math.cos(t), -Math.sin(t)], [Math.sin(t), Math.cos(t)]];
+                        return Math.round(R[1][0]); })() }],
+  "math110.0.4":  [{ i: 1, v: (function () {   // 90 deg about y, third component of column 1
+                        const t = Math.PI / 2;
+                        const Ry = [[Math.cos(t), 0, Math.sin(t)], [0, 1, 0], [-Math.sin(t), 0, Math.cos(t)]];
+                        return Math.round(Ry[2][0]); })() }],
+  "math110.0.5":  [{ i: 1, v: det2([[3, 0], [0, 2]]) }],
+  "math110.0.6":  [{ i: 1, v: (function () {   // nullity of a 7-column, rank-3 matrix
+                        const M = [[1, 0, 0, 2, 1, 0, 3], [0, 1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 2, 0, 5]];
+                        return M[0].length - rank(M); })() }],
+  "math110.0.7":  [{ i: 1, v: (function () {   // columns of a matrix taking R^4 to R^2
+                        const A = [[1, 0, 0, 0], [0, 1, 0, 0]];
+                        return A[0].length; })() }],
+  "math110.0.8":  [{ i: 1, v: (function () {   // (1,2) . (3,4)
+                        const v = [1, 2], w = [3, 4];
+                        return v.reduce((s, x, i) => s + x * w[i], 0); })() }],
+  "math110.0.9":  [{ i: 1, v: det2([[-3, 2], [1, 1]]) }],                   // 2D cross product IS the determinant
+  "math110.0.10": [{ i: 1, v: (function () {   // area spanned by two perpendicular vectors of length 2
+                        return Math.abs(det2([[2, 0], [0, 2]])); })() }],
+  "math110.0.11": [{ i: 1, v: (function () {   // Cramer: swap v into column one, divide by det A
+                        const A = [[3, 1], [1, 2]], v = [9, 8];
+                        const A1 = [[v[0], A[0][1]], [v[1], A[1][1]]];
+                        return det2(A1) / det2(A); })() }],
+  "math110.0.12": [{ i: 1, v: (function () {   // her (-1,2) read into our coordinates, first component
+                        const B = [[2, -1], [1, 1]];          // her basis vectors as columns
+                        const c = [-1, 2];
+                        return B[0][0] * c[0] + B[0][1] * c[1]; })() }],
+  "math110.0.13": [{ i: 1, v: Math.max.apply(null, eig2([[3, 1], [0, 2]])) }],
+  "math110.0.14": [{ i: 1, v: Math.max.apply(null, eig2([[2, 7], [1, 8]])) }],
+  "math110.0.15": [{ i: 1, v: (function () {   // d/dx of x^3+5x^2+4x+5, coefficient of x
+                        const c = [5, 4, 5, 1];              // constant term first
+                        const d = c.slice(1).map((v, i) => (i + 1) * v);
+                        return d[1]; })() }],
+};
+
+let sumNums = 0;
+const summaryKeys = Object.keys(D.SUMMARIES || {});
+summaryKeys.forEach(k => {
+  const s = D.SUMMARIES[k];
+  ok(lessonKeys.has(k), "summary " + k + ": keys a lecture that exists");
+  ok(!!s.takeaway && s.takeaway.length > 30, "summary " + k + ": takeaway is a real claim");
+  ok(!!s.worked && s.worked.length > 30, "summary " + k + ": has a worked pattern");
+  ok(!!s.watch && s.watch.length > 20, "summary " + k + ": names the error people make");
+  ok(Array.isArray(s.beats) && s.beats.length >= 3,
+     "summary " + k + ": has at least 3 beats (has " + ((s.beats || []).length) + ")");
+  (s.beats || []).forEach((b, i) => {
+    ok(!!b.t && !!b.d, "summary " + k + " beat " + i + ": has a title and a body");
+    ok(!b.fig || typeof D.FIG[b.fig] === "function",
+       "summary " + k + " beat " + i + ": figure '" + b.fig + "' exists in DAR.FIG");
+  });
+  (s.concepts || []).forEach(id => ok(ids.has(id), "summary " + k + ": concept '" + id + "' resolves"));
+  ok(Array.isArray(s.checks) && s.checks.length >= 1, "summary " + k + ": has at least one check");
+  (s.checks || []).forEach((c, i) => {
+    const isNum = c.num !== undefined;
+    ok(isNum || (Array.isArray(c.opts) && c.opts.length >= 3 && c.a !== undefined),
+       "summary " + k + " check " + i + ": is numeric or multiple choice");
+    ok(!isNum || c.a === undefined, "summary " + k + " check " + i + ": is not numeric AND multiple choice");
+    ok(!!c.expl, "summary " + k + " check " + i + ": has an explanation");
+    if (!isNum && Array.isArray(c.opts)) ok(c.a >= 0 && c.a < c.opts.length,
+       "summary " + k + " check " + i + ": answer index " + c.a + " is inside opts");
+    if (isNum) {
+      const want = (expectedSummary[k] || []).find(e => e.i === i);
+      ok(!!want, "summary " + k + " check " + i + ": numeric answer is independently checked");
+      if (want) {
+        sumNums++;
+        ok(Math.abs(want.v - c.num) < 1e-9,
+           "summary " + k + " check " + i + ": stated " + c.num + ", recomputed " + want.v);
+      }
+    }
+  });
+  // Every prose field is injected as raw HTML so KaTeX can see the $...$ — which
+  // means a bare "<" before a letter or a slash is parsed as a tag and eats the
+  // rest of the sentence. In mathematics write \lt, or leave a space after it.
+  [["takeaway", s.takeaway], ["worked", s.worked], ["watch", s.watch]]
+    .concat((s.beats || []).map((b, i) => ["beat " + i, b.d]))
+    .forEach(([where, text]) => ok(!/<[a-zA-Z/]/.test(text || ""),
+       "summary " + k + " " + where + ": no raw '<' — it is injected unescaped"));
+});
+
 D.COURSES.forEach(c => {
   ok(!!c.practice && /^https:\/\//.test(c.practice.url), c.code + ": has an https practice source");
   ok(!!c.practice && c.practice.label && c.practice.label.length > 8, c.code + ": practice source says what to do");
@@ -210,6 +306,7 @@ console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + numChecked + " numeric answers recomputed, "
     + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
     + Object.keys(LAB).length + " interactive, "
+    + summaryKeys.length + " lecture summaries (" + sumNums + " numerics recomputed), "
     + tagged + " questions gated (" + untagged + " untagged)"
   : fail + " of " + checks + " checks FAILED"));
 process.exit(fail === 0 ? 0 : 1);

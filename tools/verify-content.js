@@ -310,6 +310,25 @@ const expectedSummary = {
                         const dot = (u, v) => u.reduce((s, x, i) => s + x * v[i], 0);
                         const k = dot(a, b) / dot(a, a);
                         return b.map((x, i) => x - k * a[i])[1]; })() }],
+  "math110.1.17": [{ i: 1, v: (function () {   // det(2A) is 2^n det A; compute the doubled matrix directly
+                        const A = [[1, 2], [3, 4]];
+                        return det2(A.map(r => r.map(x => 2 * x))); })() }],
+  "math110.1.18": [{ i: 1, v: (function () {   // 4x4 tridiagonal of ones, by elimination not by the recursion
+                        const M = [[1, 1, 0, 0], [1, 1, 1, 0], [0, 1, 1, 1], [0, 0, 1, 1]];
+                        const A = M.map(r => r.slice()); let d = 1;
+                        for (let c = 0; c < 4; c++) {
+                          let p = c; for (let i = c; i < 4; i++) if (Math.abs(A[i][c]) > Math.abs(A[p][c])) p = i;
+                          if (Math.abs(A[p][c]) < 1e-12) return 0;
+                          if (p !== c) { [A[c], A[p]] = [A[p], A[c]]; d = -d; }
+                          d *= A[c][c];
+                          for (let i = c + 1; i < 4; i++) {
+                            const f = A[i][c] / A[c][c];
+                            for (let j = c; j < 4; j++) A[i][j] -= f * A[c][j];
+                          }
+                        }
+                        return Math.round(d); })() }],
+  "math110.1.19": [{ i: 1, v: (function () {   // triangle area from two edge vectors
+                        return Math.abs(det2([[3, 1], [1, 2]])) / 2; })() }],
 };
 
 let sumNums = 0;

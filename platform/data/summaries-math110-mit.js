@@ -354,4 +354,67 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
     ],
   },
 
+  "math110.1.17": {
+    takeaway: "Three properties define the determinant completely, and everything else — including the formula and the test for invertibility — is deduced from them.",
+    beats: [
+      { t: "The three that define it", d: "$\\det I = 1$; exchanging two rows reverses the sign; and the determinant is linear in each row SEPARATELY, meaning one row may be scaled or split while the others are held fixed. A big formula up front would hide where all this comes from." },
+      { t: "Not linear in the matrix", d: "$\\det(A+B) \\neq \\det A + \\det B$. The linearity is one row at a time. That is also why $\\det(2A) = 2^{n}\\det A$ for an $n\\times n$ matrix: a factor of 2 comes out of each of the $n$ rows." },
+      { t: "Equal rows force zero, by an argument with no arithmetic in it", d: "Exchange the two identical rows. The matrix is unchanged, so the determinant is unchanged; but property two says the sign flipped. A number equal to its own negative is zero." },
+      { t: "Which is why elimination does not change it", d: "Subtracting $\\ell$ times one row from another splits, by linearity, into the original determinant plus $-\\ell$ times a determinant with two equal rows — and that second piece is zero. So $\\det A = \\det U$." },
+      { t: "A triangular determinant is the product of the pivots", d: "Clear the entries above the diagonal by elimination, factor each $d_i$ out of its row, and what remains is $\\det I = 1$. That is how software actually computes a determinant: eliminate, then multiply the pivots, watching the sign for row exchanges." },
+      { t: "Multiplicative, and blind to transposing", d: "$\\det(AB) = \\det A \\det B$, so $\\det(A^{-1}) = 1/\\det A$ and $\\det(A^{2}) = (\\det A)^{2}$. And $\\det A^{T} = \\det A$, which quietly converts every row property in the list into a column property." },
+    ],
+    worked: "So $\\det A = 0$ exactly when $A$ is singular. Elimination either reaches a full set of pivots, whose product is non-zero, or produces a row of zeros, which by linearity with factor 0 makes the determinant zero. Nothing else can happen.",
+    watch: "Extending linearity to the whole matrix. One row may be split or scaled with the others fixed; doubling every row multiplies the determinant by $2^{n}$, not by 2.",
+    concepts: ["la-determinant"],
+    checks: [
+      { q: "A matrix with two identical rows has determinant zero because:", opts: ["Its rows are unit vectors", "Exchanging them leaves the matrix alone but must flip the sign, and only 0 equals its own negative", "The identity has determinant 1", "Elimination always fails"], a: 1,
+        expl: "It uses property two and nothing else. The same argument covers any size of matrix, which is why the three properties are stated before any formula." },
+      { q: "If $A = \\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}$, then $\\det(2A)$ is:", num: -8,
+        expl: "$\\det A = 4-6 = -2$, and a factor of 2 comes out of each of the two rows: $2^{2}\\cdot(-2) = -8$. Directly, $\\det\\begin{pmatrix}2&4\\\\6&8\\end{pmatrix} = 16-24 = -8$." },
+    ],
+  },
+
+  "math110.1.18": {
+    takeaway: "Splitting every row into its coordinates turns the three properties into a formula with $n!$ terms, and grouping those terms by the first row gives cofactors.",
+    beats: [
+      { t: "Split each row, then discard almost everything", d: "Write each row as a sum of $n$ vectors with one non-zero entry. Linearity turns the determinant into $n^{n}$ pieces, and every piece that repeats a column has a column of zeros — dead. Only the pieces using each column once survive." },
+      { t: "So the survivors are the permutations, and there are $n!$", d: "Pick the first row's column $n$ ways, the second row's $n-1$ ways, and so on. Each survivor factors out to a product $a_{1\\alpha}a_{2\\beta}\\cdots a_{n\\omega}$ with $\\alpha,\\beta,\\dots,\\omega$ a permutation of $1..n$." },
+      { t: "The sign is the parity of that permutation", d: "Plus if an even number of row exchanges returns it to order, minus if odd. Half the terms carry each sign. The $3\\times3$ trick of diagonals going one way and the other is genuinely $3\\times3$ only: the anti-diagonal of a $4\\times4$ takes two exchanges, so it is plus." },
+      { t: "Collect the terms containing $a_{1j}$ and a smaller determinant appears", d: "Once row 1 and column $j$ are used, what is left is every way of choosing one entry from each remaining row and column — which is exactly the determinant of the $(n-1)\\times(n-1)$ matrix with that row and column struck out." },
+      { t: "A cofactor is that minor with its sign built in", d: "$C_{ij} = \\pm\\det(\\text{matrix with row } i, \\text{ column } j \\text{ deleted})$, plus when $i+j$ is even. The signs alternate like a checkerboard, so a cofactor expansion along row 2 starts with a minus." },
+      { t: "Three formulas, three temperaments", d: "The pivots have all the work already done by elimination. The big formula has it spread across $n!$ terms. Cofactors sit between: easy factors times smaller determinants, which is what makes recursion possible." },
+    ],
+    worked: "The tridiagonal matrix of ones. Expanding along the first row twice gives $D_n = D_{n-1} - D_{n-2}$, so from $D_1=1$ and $D_2=0$ the sequence runs $1, 0, -1, -1, 0, 1$ — and then repeats. These determinants have period 6, so $D_{61} = D_1 = 1$.",
+    watch: "Learning the $3\\times3$ picture of down-right diagonals as plus and down-left as minus. It is a coincidence of size three; at $4\\times4$ the anti-diagonal is plus, and only the parity rule survives.",
+    concepts: ["la-determinant"],
+    checks: [
+      { q: "The big formula has $n!$ terms because:", opts: ["Each term is a pivot", "Each surviving term uses one entry from every row and every column, which is a permutation", "Half the terms are negative", "The matrix has $n^{2}$ entries"], a: 1,
+        expl: "A term repeating a column has a column of zeros and vanishes. What remains is one choice per row with all columns distinct — a permutation of $1..n$, and there are $n!$ of those." },
+      { q: "The $4\\times4$ tridiagonal matrix of ones (ones on the diagonal and on both neighbouring diagonals, zeros elsewhere) has determinant:", num: -1,
+        expl: "$D_4 = D_3 - D_2 = (-1) - 0 = -1$. Elimination on the matrix itself gives the same answer, which is the check that the recursion was set up correctly." },
+    ],
+  },
+
+  "math110.1.19": {
+    takeaway: "The determinant turns three algorithms into formulas — the inverse, the solution, and the volume — and only the last of the three is worth computing that way.",
+    beats: [
+      { t: "$A^{-1} = \\dfrac{1}{\\det A}C^{T}$", d: "$C$ is the matrix of cofactors, and it is TRANSPOSED. For $2\\times2$ this reproduces the familiar $\\frac{1}{ad-bc}\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}$: the $d$ is the 1,1 cofactor and the $-b$ is the cofactor of $c$, moved by the transpose." },
+      { t: "The diagonal of $AC^{T}$ is the cofactor formula, $n$ times over", d: "Row $i$ of $A$ against column $i$ of $C^{T}$ is $a_{i1}C_{i1}+\\cdots+a_{in}C_{in}$, which is last lecture's expansion along row $i$. Every diagonal entry comes out $\\det A$." },
+      { t: "And the off-diagonal entries vanish for a reason", d: "Row 1 of $A$ against the cofactors of row 2 is the cofactor expansion of a matrix whose rows 1 and 2 are identical. Two equal rows means determinant zero. So $AC^{T} = (\\det A)I$." },
+      { t: "Cramer's rule follows, and is a trap", d: "$x_j = \\dfrac{\\det B_j}{\\det A}$ where $B_j$ is $A$ with column $j$ replaced by $\\vec{b}$ — because expanding $\\det B_j$ down that column produces exactly the entries of $C^{T}\\vec{b}$. Computing $n+1$ determinants takes approximately forever; elimination does not." },
+      { t: "The determinant IS the volume of the box the rows span", d: "Rows as edges from the origin, completed into a parallelepiped. Negative determinant means a left-handed box, so take the absolute value for volume. In two dimensions it is the area of a parallelogram.", fig: "figDeterminant" },
+      { t: "Which holds because volume obeys the same three properties", d: "The unit cube has volume 1. Swapping edges does not change it. Doubling one edge doubles it — that is property 3A. Anything satisfying the three defining properties IS the determinant, so no separate proof is needed." },
+    ],
+    worked: "The area of the triangle with corners $(0,0)$, $(a,b)$, $(c,d)$ is $\\tfrac12|ad-bc|$ — no base, no height, no square roots, only the coordinates you were given. For corners away from the origin, take $\\tfrac12$ of the $3\\times3$ determinant whose rows are $(x_i, y_i, 1)$.",
+    watch: "Forgetting the transpose in $\\dfrac{1}{\\det A}C^{T}$. The entry in position $i,j$ of the inverse is the cofactor $C_{ji}$, not $C_{ij}$, and for a non-symmetric matrix the two differ.",
+    concepts: ["la-determinant"],
+    checks: [
+      { q: "In $AC^{T}$, the off-diagonal entries are zero because:", opts: ["The cofactors are zero", "Row $i$ against row $j$'s cofactors expands the determinant of a matrix with two identical rows", "$C$ is symmetric", "$\\det A = 0$"], a: 1,
+        expl: "The product is the cofactor expansion of $A$ with row $j$ replaced by a copy of row $i$. That matrix has two equal rows, so its determinant — and therefore the entry — is zero." },
+      { q: "The triangle with corners $(0,0)$, $(3,1)$ and $(1,2)$ has area:", num: 2.5,
+        expl: "$\\tfrac12|ad-bc| = \\tfrac12|3\\cdot2 - 1\\cdot1| = \\tfrac52$. The parallelogram on the same two edges has area 5." },
+    ],
+  },
+
 });

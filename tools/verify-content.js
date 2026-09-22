@@ -271,6 +271,26 @@ const expectedSummary = {
                         const R = [[1, 3], [2, 3], [4, 1]];
                         const Rt = R[0].map((_, j) => R.map(r => r[j]));
                         return matmul(R, Rt)[0][2]; })() }],
+  "math110.1.5":  [{ i: 1, v: rank([[1, 1, 2], [2, 1, 3], [3, 1, 4], [4, 1, 5]]) }],
+  "math110.1.6":  [{ i: 1, v: (function () {   // free variables = n - r
+                        const A = [[1, 2, 2, 2], [2, 4, 6, 8], [3, 6, 8, 10]];
+                        return A[0].length - rank(A); })() }],
+  "math110.1.7":  [{ i: 1, v: (function () {   // x_p with the free variables at zero
+                        const x3 = 3 / 2;                    // 2*x3 = 3 from row two
+                        return 1 - 2 * x3; })() }],          // x1 + 2*x3 = 1 from row one
+  "math110.1.8":  [{ i: 1, v: (function () {   // dim N(A) = n - r
+                        const A = [[1, 2, 3, 1], [1, 1, 2, 1], [1, 2, 3, 1]];
+                        return A[0].length - rank(A); })() }],
+  "math110.1.9":  [{ i: 1, v: (function () {   // dim N(A^T) = m - r
+                        const A = [[1, 2, 3, 1], [1, 1, 2, 1], [1, 2, 3, 1]];
+                        return A.length - rank(A); })() }],
+  "math110.1.10": [{ i: 1, v: (function () {   // components summing to zero: null space of a row of ones
+                        const A = [[1, 1, 1, 1]];
+                        return A[0].length - rank(A); })() }],
+  "math110.1.11": [{ i: 1, v: (function () {   // independent loops = m - r for the incidence matrix
+                        const A = [[-1, 1, 0, 0], [0, -1, 1, 0], [-1, 0, 1, 0],
+                                   [-1, 0, 0, 1], [0, 0, -1, 1]];
+                        return A.length - rank(A); })() }],
 };
 
 let sumNums = 0;

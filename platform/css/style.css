@@ -1492,7 +1492,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   display: grid; place-items: center; font-size: 0.68rem; font-weight: 600;
 }
 .beat-body { min-width: 0; flex: 1; }
-.beat-t { font-weight: 600; color: var(--ink); font-size: var(--fs-small); }
+.beat-t { font-weight: 600; color: var(--ink); font-size: var(--fs-small); overflow-wrap: anywhere; }
 .beat-d { font-size: var(--fs-small); color: var(--ink-2); margin-top: 2px; overflow-wrap: anywhere; }
 .beat-fig { margin-top: 10px; max-width: 420px; }
 /* The lecture's one-sentence takeaway, at the head of its summary. It is the
@@ -1502,7 +1502,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   font-size: var(--fs-body); color: var(--ink); line-height: 1.5;
   margin: 0 0 var(--sp-3); padding-bottom: var(--sp-3);
   border-bottom: 1px solid var(--line);
-  text-wrap: pretty;
+  text-wrap: pretty; overflow-wrap: anywhere;
 }
 /* Two short pieces of prose that belong side by side where there is room and
    stacked where there is not. No media query: the column count follows the

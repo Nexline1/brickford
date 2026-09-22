@@ -114,6 +114,29 @@ Plus the clipping sweep (all routes at 320/390/768/1024/1100/1280/1440 — no ov
 clipped inside an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning,
 including the bug that made the contrast gate necessary.
 
+`verify-content.js` grew a summaries block on 22 Sep 2026, when MATH 110 went from 6 lecture
+summaries to 51. Before that it loaded `summaries-math110.js` into its VM and never looked at it,
+so a bogus lesson key, a `fig` that does not exist, a concept id that does not exist, a missing
+`worked`, or a **wrong numeric answer** all passed — and then failed *silently in the browser*,
+because `summaryHTML()` returns `""` for an unknown key and both the figure and concept lookups
+are guarded. A typo produced a page that was merely missing something, which is
+indistinguishable from a lecture nobody has written up yet. And `docs/CONTENT-STANDARD.md` is
+explicit about the worst case: a wrong item does not just fail to teach, the spaced scheduler
+rehearses it for months.
+
+So the block asserts the shape — key resolves, required fields present, at least three beats,
+every `fig` real, every concept id real, each check numeric-or-MCQ with an answer inside its
+options — and **recomputes every numeric answer from the mathematics**, via an `expectedSummary`
+table keyed by lesson. Derived independently, never copied from the data file: where a summary
+quotes a recursion, the table uses elimination instead; where it quotes $2^n \det A$, the table
+doubles the matrix and takes the determinant. Plus one the raw-HTML injection needs: no bare `<`
+before a letter, because the five prose fields are written into the page unescaped so KaTeX can
+see the `$...$`.
+
+Six bug classes were put back one at a time and it caught each. It then rejected all ten Unit I
+entries and all five of the last batch on their first run, for numeric answers that had been
+stated but not derived — which is the gate doing exactly its job.
+
 `verify-sync-loop.js` exists because on 17 Sep 2026 **the lesson page reloaded itself every four
 seconds** and a lecture could not be watched. `V.lesson` wrote `settings.lastLesson` during its own
 render; `save()` armed a push 4s out; the push failed on a read-only token; and the failure handler

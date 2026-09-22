@@ -501,4 +501,151 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
     ],
   },
 
+  "math110.1.25": {
+    takeaway: "Symmetry buys two things nothing else does: the eigenvalues are real and the eigenvectors can be chosen perpendicular, so $A = Q\\Lambda Q^{T}$.",
+    beats: [
+      { t: "Real eigenvalues, perpendicular eigenvectors", d: "\"Can be chosen\" perpendicular, because a repeated eigenvalue gives a whole plane of eigenvectors and you pick an orthogonal pair inside it. With distinct eigenvalues there is no choice to make — the lines are already at right angles.", fig: "figSpectral" },
+      { t: "So $S$ becomes $Q$ and $S^{-1}$ becomes $Q^{T}$", d: "Normalise the perpendicular eigenvectors and the eigenvector matrix is orthogonal, whose inverse IS its transpose. $A = Q\\Lambda Q^{T}$ — the spectral theorem, and visibly symmetric, since transposing it returns the same product." },
+      { t: "Why the eigenvalues must be real", d: "Conjugate $A\\vec{x}=\\lambda\\vec{x}$, transpose it, use $A^{T}=A$, and compare: $\\lambda\\,\\bar{\\vec{x}}^{T}\\vec{x} = \\bar\\lambda\\,\\bar{\\vec{x}}^{T}\\vec{x}$. That factor is $|x_1|^{2}+\\cdots+|x_n|^{2}$, strictly positive, so it cancels and $\\lambda = \\bar\\lambda$." },
+      { t: "For complex matrices the right condition is $\\bar{A}^{T}=A$", d: "The proof needed to conjugate AND transpose. Over the reals conjugation does nothing, so it reduces to symmetry; over the complex numbers it is Hermitian, and those are the matrices with real eigenvalues and perpendicular eigenvectors." },
+      { t: "Every symmetric matrix is a sum of projections", d: "Multiply $Q\\Lambda Q^{T}$ out column times row: $A = \\lambda_1\\vec{q}_1\\vec{q}_1^{T} + \\cdots + \\lambda_n\\vec{q}_n\\vec{q}_n^{T}$. Each $\\vec{q}\\vec{q}^{T}$ is a projection matrix onto one eigenvector line, and they are mutually perpendicular." },
+      { t: "The pivots' signs match the eigenvalues' signs", d: "Not their values — their SIGNS, and the counts agree exactly. Pivots are cheap and eigenvalues of a $50\\times50$ are not, so this is how you learn how many are positive without computing any of them." },
+    ],
+    worked: "Positive definite means symmetric with all eigenvalues positive — equivalently all pivots positive, equivalently every leading sub-determinant positive. $\\begin{pmatrix}5&2\\\\2&3\\end{pmatrix}$: pivots 5 and $\\tfrac{11}{5}$, sub-determinants 5 and 11. All positive, so it passes.",
+    watch: "Testing only the full determinant. $\\begin{pmatrix}-1&0\\\\0&-3\\end{pmatrix}$ has determinant 3, positive, and both eigenvalues negative. Every leading sub-determinant has to be positive, not just the last.",
+    concepts: ["la-spectral", "la-eigen"],
+    checks: [
+      { q: "For a symmetric matrix, the pivots tell you:", opts: ["The eigenvalues exactly", "How many eigenvalues are positive and how many negative", "The eigenvectors", "Nothing"], a: 1,
+        expl: "The pivots are not the eigenvalues, but their signs match one for one. Since pivots come from elimination and are cheap, this is a practical way to count positive eigenvalues for a large matrix." },
+      { q: "The second pivot of $\\begin{pmatrix}5&2\\\\2&3\\end{pmatrix}$ is:", num: 2.2,
+        expl: "The pivots multiply to the determinant, $15-4=11$, so the second is $\\tfrac{11}{5}=2.2$. Both positive, so the matrix is positive definite." },
+    ],
+  },
+
+  "math110.1.26": {
+    takeaway: "Every inner product gains a conjugate when the numbers go complex, and the Fourier matrix — the most important complex matrix — factors so well that its transform runs in $n\\log n$.",
+    beats: [
+      { t: "Transposing now means conjugate-and-transpose", d: "$\\vec{z}^{T}\\vec{z}$ for $\\vec{z}=(1,i)$ gives $1+i^{2}=0$, which is nonsense for a non-zero vector. $\\bar{\\vec{z}}^{T}\\vec{z} = 1+1 = 2$ is the length squared. Write it $\\vec{z}^{H}\\vec{z}$, after Hermite." },
+      { t: "Three words change, one idea does not", d: "Symmetric becomes Hermitian, $A^{H}=A$ — real down the diagonal, conjugate pairs across it. Orthogonal becomes unitary, $Q^{H}Q=I$. Real eigenvalues and perpendicular eigenvectors carry over unchanged." },
+      { t: "The Fourier matrix is built from one number", d: "$F_{jk} = W^{jk}$ with $W = e^{2\\pi i/n}$, the first $n$-th root of 1 — one $n$-th of the way round the unit circle, and rows and columns indexed from 0. For $n=4$, $W=i$ and the matrix is entries $1, i, -1, -i$." },
+      { t: "Its columns are orthogonal, but only with the conjugate", d: "Columns 1 and 3 of $F_4$ look like they dot to 4. Conjugating the first flips the signs of the imaginary entries and the sum is 0. Each column has length 2, so $\\tfrac12 F_4$ is unitary and its inverse is its conjugate transpose." },
+      { t: "$F_{64}$ contains two copies of $F_{32}$", d: "Because squaring $W_{64}$ gives $W_{32}$. So $F_{64} = \\begin{pmatrix}I&D\\\\I&-D\\end{pmatrix}\\begin{pmatrix}F_{32}&0\\\\0&F_{32}\\end{pmatrix}P$, where $P$ sorts even-indexed entries before odd and $D$ is diagonal — both nearly free." },
+      { t: "Recur, and $n^{2}$ becomes $\\tfrac{n}{2}\\log_2 n$", d: "Split the 32s into 16s, and on down. The middle cost vanishes; what is left is one diagonal fix-up per halving, and there are $\\log_2 n$ halvings. That factorisation is the fast Fourier transform." },
+    ],
+    worked: "At $n=1024$: the direct product costs $1024^{2}$, more than a million multiplications. The FFT costs $\\tfrac{1024}{2}\\times 10 = 5120$. That is a factor of about 200, from nothing but writing one matrix as a product of sparse ones.",
+    watch: "Taking the dot product of complex columns without conjugating. Two Fourier columns that appear to have inner product 4 are in fact orthogonal — the conjugate flips the sign of every imaginary term.",
+    concepts: ["la-spectral"],
+    checks: [
+      { q: "For complex vectors, the length squared is $\\bar{\\vec{z}}^{T}\\vec{z}$ rather than $\\vec{z}^{T}\\vec{z}$ because:", opts: ["It is shorter to write", "Each term becomes $|z_k|^{2}$, so the total is positive instead of possibly zero or negative", "Complex vectors have no length", "It makes the matrix square"], a: 1,
+        expl: "$\\bar{z}_k z_k = a^{2}+b^{2}$, never negative. Without the conjugate, $(1,i)$ would have length zero despite being a non-zero vector." },
+      { q: "The fast Fourier transform on $n = 1024$ points costs about $\\tfrac{n}{2}\\log_2 n$ multiplications, which is:", num: 5120,
+        expl: "$\\tfrac{1024}{2}\\times\\log_2 1024 = 512\\times10 = 5120$, against $1024^{2} = 1048576$ for the direct product — about 200 times fewer." },
+    ],
+  },
+
+  "math110.1.27": {
+    takeaway: "Positive definite means $\\vec{x}^{T}A\\vec{x} \\gt 0$ for every non-zero $\\vec{x}$, which is the matrix version of a positive second derivative — the test for a minimum.",
+    beats: [
+      { t: "Four tests, one property", d: "All eigenvalues positive; all pivots positive; every leading sub-determinant positive; and $\\vec{x}^{T}A\\vec{x} \\gt 0$ for all $\\vec{x}\\neq\\vec{0}$. The last is the definition and the first three are how you check it." },
+      { t: "$\\vec{x}^{T}A\\vec{x}$ is a quadratic form", d: "For a $2\\times2$ it multiplies out to $ax^{2} + 2bxy + cy^{2}$: pure degree two, no linear or constant part. The diagonal supplies the squares and the off-diagonal the cross term, which is the only part that can turn the whole thing negative." },
+      { t: "Which makes the graph a bowl or a saddle", d: "$\\begin{pmatrix}2&6\\\\6&20\\end{pmatrix}$ gives a bowl with its minimum at the origin. Change the 20 to a 7 and $(1,-1)$ makes the form negative: up in some directions, down in others — a saddle point, and not a minimum." },
+      { t: "Completing the square IS elimination", d: "$2x^{2}+12xy+20y^{2} = 2(x+3y)^{2} + 2y^{2}$. The numbers outside the squares are the PIVOTS and the number inside is the multiplier. Positive pivots means a sum of positive squares, which is why the pivot test works." },
+      { t: "And it is calculus's second-derivative test", d: "First derivatives zero is not enough; in one variable the second derivative must be positive. In $n$ variables the matrix of second derivatives must be positive definite — and it is symmetric because $f_{xy}=f_{yx}$." },
+      { t: "Slicing the bowl gives an ellipsoid", d: "Set $\\vec{x}^{T}A\\vec{x}=1$ and you cut out an ellipse, or in three variables a lopsided football. $A = Q\\Lambda Q^{T}$ says the eigenvectors point along the principal axes and the eigenvalues set their lengths." },
+    ],
+    worked: "$\\begin{pmatrix}2&6\\\\6&c\\end{pmatrix}$: at $c=20$ the determinant is 4 and both tests pass. At $c=18$ the determinant is 0, one eigenvalue is 0, there is no second pivot — positive SEMI-definite, the borderline. At $c=7$ the determinant is $-22$ and it is a saddle.",
+    watch: "Reading $\\vec{x}^{T}A\\vec{x} \\gt 0$ off the diagonal. Both diagonal entries can be positive while the cross term dominates; the whole point of the tests is that the squares must OVERWHELM the cross term.",
+    concepts: ["la-spectral", "la-determinant"],
+    checks: [
+      { q: "When $\\vec{x}^{T}A\\vec{x}$ is written as a sum of squares, the numbers multiplying those squares are:", opts: ["The eigenvalues", "The pivots", "The determinants", "The entries of $A$"], a: 1,
+        expl: "Completing the square is elimination in another notation: the pivots land outside the squares and the multipliers inside. Positive pivots therefore give a sum of positive squares." },
+      { q: "For $\\begin{pmatrix}2&6\\\\6&c\\end{pmatrix}$, the value of $c$ on the borderline between positive definite and indefinite is:", num: 18,
+        expl: "The determinant $2c-36$ is zero at $c=18$, so one eigenvalue is 0 and the other is 20 from the trace. Positive semi-definite: never negative, but not strictly positive." },
+    ],
+  },
+
+  "math110.1.28": {
+    takeaway: "Two matrices are similar when $B = M^{-1}AM$, and similarity preserves the eigenvalues exactly while scrambling the eigenvectors.",
+    beats: [
+      { t: "First, where positive definite matrices come from", d: "$A^{T}A$, for any rectangular $A$. Group the product as $\\vec{x}^{T}A^{T}A\\vec{x} = \\|A\\vec{x}\\|^{2} \\ge 0$, and it is strictly positive once $A$ has independent columns, since then $A\\vec{x}=\\vec{0}$ forces $\\vec{x}=\\vec{0}$." },
+      { t: "And why the definition is worth having", d: "$A^{-1}$ is positive definite because its eigenvalues are $1/\\lambda$. $A+B$ is, because $\\vec{x}^{T}(A+B)\\vec{x}$ is a sum of two positive numbers — which neither the eigenvalues nor the pivots of $A+B$ would have told you." },
+      { t: "Similarity is a family, and diagonal is the best member", d: "$S^{-1}AS = \\Lambda$ says $A$ is similar to $\\Lambda$. Any other invertible $M$ gives some other $B$ in the same family. All of them share one thing." },
+      { t: "The eigenvalues, and the proof is three lines", d: "From $A\\vec{x}=\\lambda\\vec{x}$, insert $MM^{-1}$ and multiply by $M^{-1}$: $B(M^{-1}\\vec{x}) = \\lambda(M^{-1}\\vec{x})$. Same $\\lambda$, and the eigenvector is $M^{-1}\\vec{x}$ — which is why diagonalising makes the eigenvectors into $(1,0),(0,1)$." },
+      { t: "A repeated eigenvalue splits the family in two", d: "$4I$ is similar only to itself: $M^{-1}(4I)M = 4I$ whatever $M$ is. Every OTHER matrix with eigenvalues 4 and 4 belongs to a second family, whose best member is $\\begin{pmatrix}4&1\\\\0&4\\end{pmatrix}$ — one eigenvector, not diagonalisable." },
+      { t: "Jordan form, and why counting eigenvectors is not enough", d: "Blocks with $\\lambda$ on the diagonal and 1s above, one eigenvector per block. Two $4\\times4$ matrices can both have eigenvalue 0 four times, rank 2, and two eigenvectors, and still not be similar — because one splits $3+1$ and the other $2+2$." },
+    ],
+    worked: "$A=\\begin{pmatrix}2&1\\\\1&2\\end{pmatrix}$ has eigenvalues 3 and 1. Take $M=\\begin{pmatrix}1&4\\\\0&1\\end{pmatrix}$ and $M^{-1}AM = \\begin{pmatrix}-2&-15\\\\1&6\\end{pmatrix}$ — unrecognisable, but the trace is still 4 and the determinant still 3, so the eigenvalues are still 3 and 1.",
+    watch: "Concluding that matching eigenvalues and matching eigenvector counts make two matrices similar. The SIZES of the Jordan blocks must match too, and those are not visible in either count.",
+    concepts: ["la-eigen"],
+    checks: [
+      { q: "$4I$ is similar to no other matrix because:", opts: ["It has no eigenvalues", "$M^{-1}(4I)M = 4M^{-1}M = 4I$ for every invertible $M$", "It is not invertible", "It has four eigenvectors"], a: 1,
+        expl: "A scalar multiple of $I$ commutes with everything, so the conjugation does nothing. Every other matrix with eigenvalues 4 and 4 sits in a different, larger family." },
+      { q: "With $A=\\begin{pmatrix}2&1\\\\1&2\\end{pmatrix}$ and $M=\\begin{pmatrix}1&4\\\\0&1\\end{pmatrix}$, the determinant of $M^{-1}AM$ is:", num: 3,
+        expl: "$\\det(M^{-1}AM) = \\det(M^{-1})\\det A\\det M = \\det A = 3$, and directly $\\begin{pmatrix}-2&-15\\\\1&6\\end{pmatrix}$ gives $-12+15 = 3$." },
+    ],
+  },
+
+  "math110.1.29": {
+    takeaway: "The SVD finds an orthonormal basis of the row space that $A$ carries to an orthonormal basis of the column space, which no single set of eigenvectors can do.",
+    beats: [
+      { t: "Two orthogonal matrices, not one", d: "$A = U\\Sigma V^{T}$ for ANY matrix — rectangular, singular, whatever. A symmetric positive definite matrix is the special case where $U$ and $V$ coincide, because its eigenvectors are already orthogonal.", fig: "figSVD" },
+      { t: "The goal, stated in the four-subspaces picture", d: "Gram-Schmidt gives an orthonormal basis for the row space easily, but $A$ would scatter it. The SVD asks for the basis $\\vec{v}_1,\\dots,\\vec{v}_r$ whose images $A\\vec{v}_i = \\sigma_i\\vec{u}_i$ stay orthogonal." },
+      { t: "$A^{T}A$ makes the $U$s disappear", d: "$A^{T}A = V\\Sigma^{T}U^{T}U\\Sigma V^{T} = V\\Sigma^{2}V^{T}$, because $U^{T}U=I$. That is exactly $Q\\Lambda Q^{T}$ for a symmetric positive semi-definite matrix, so the $\\vec{v}$s are its eigenvectors and the $\\sigma^{2}$ its eigenvalues." },
+      { t: "$AA^{T}$ does the same for the $U$s", d: "Multiply the other way and $V^{T}V=I$ cancels instead. The eigenvalues match, because $AB$ and $BA$ always share eigenvalues — so the same $\\sigma^{2}$ come out both times, which is a free check on the arithmetic." },
+      { t: "Singular values are square roots, and they are positive", d: "$\\sigma_i = \\sqrt{\\lambda_i(A^{T}A)}$, and $A^{T}A$ is positive semi-definite, so no imaginary numbers and no sign ambiguity. Zero singular values are the null space directions and give the zero columns of $\\Sigma$." },
+      { t: "It is the right basis for all four subspaces at once", d: "$\\vec{v}_1..\\vec{v}_r$ span the row space, $\\vec{v}_{r+1}..\\vec{v}_n$ the null space, $\\vec{u}_1..\\vec{u}_r$ the column space, $\\vec{u}_{r+1}..\\vec{u}_m$ the left null space — all orthonormal, and $A$ diagonal between them." },
+    ],
+    worked: "$A=\\begin{pmatrix}4&3\\\\8&6\\end{pmatrix}$ has rank 1. $A^{T}A = \\begin{pmatrix}80&60\\\\60&45\\end{pmatrix}$, also rank 1, so its eigenvalues are 125 and 0 and $\\sigma_1 = \\sqrt{125}$. Then $\\vec{v}_1 = (0.8, 0.6)$ spans the row space and $\\vec{u}_1 = \\tfrac{1}{\\sqrt5}(1,2)$ the column space.",
+    watch: "Picking each eigenvector's sign independently. $\\vec{v}_i$ and $\\vec{u}_i$ are paired by $A\\vec{v}_i = \\sigma_i\\vec{u}_i$ with $\\sigma_i \\gt 0$; choose one freely and the other is then determined. Strang hit exactly this in the lecture.",
+    concepts: ["la-svd", "la-spectral"],
+    checks: [
+      { q: "The vectors $\\vec{v}_i$ in $A = U\\Sigma V^{T}$ are:", opts: ["The eigenvectors of $A$", "The eigenvectors of $A^{T}A$", "Any orthonormal basis of the row space", "The columns of $A$"], a: 1,
+        expl: "$A^{T}A = V\\Sigma^{2}V^{T}$ because $U^{T}U=I$ removes $U$ entirely. $A$ itself may have no orthogonal eigenvectors, or none at all if it is rectangular." },
+      { q: "For $A=\\begin{pmatrix}4&3\\\\8&6\\end{pmatrix}$, the non-zero eigenvalue of $A^{T}A$ is:", num: 125,
+        expl: "$A^{T}A = \\begin{pmatrix}80&60\\\\60&45\\end{pmatrix}$ has rank 1, so one eigenvalue is 0 and the other is the trace, $80+45=125$. Hence $\\sigma_1 = \\sqrt{125}$." },
+    ],
+  },
+
+  "math110.1.30": {
+    takeaway: "A linear transformation exists without coordinates; choosing a basis for the inputs and one for the outputs is what turns it into a matrix.",
+    beats: [
+      { t: "Two rules, and nothing else", d: "$T(\\vec{v}+\\vec{w}) = T(\\vec{v})+T(\\vec{w})$ and $T(c\\vec{v}) = cT(\\vec{v})$ — or in one statement, $T$ must preserve every linear combination. Projection and rotation satisfy this with no matrix in sight.", fig: "figGridTransform" },
+      { t: "Which rules a lot of things out", d: "Shifting the plane by a fixed $\\vec{v}_0$ fails: doubling the input does not double the output. Taking a vector's length fails: multiplying by $-2$ doubles the length rather than negating it. And $T(\\vec{0})=\\vec{0}$ always, so anything that moves the origin is out." },
+      { t: "Knowing $T$ on a basis is knowing $T$", d: "Every input is $c_1\\vec{v}_1+\\cdots+c_n\\vec{v}_n$, so linearity forces $T(\\vec{v}) = c_1T(\\vec{v}_1)+\\cdots+c_nT(\\vec{v}_n)$. That is the entire information content of the transformation: $n$ outputs." },
+      { t: "Coordinates ARE the choice of basis", d: "Writing $\\vec{v}=(3,2,4)$ silently assumes the standard basis. The numbers are how much of each basis vector is present; change the basis and the same vector gets different coordinates." },
+      { t: "The construction rule, column by column", d: "Apply $T$ to $\\vec{v}_1$, write the result in the output basis, and those coefficients are column 1 of $A$. Repeat for each $\\vec{v}_j$. Then $A$ times the input coordinates gives the output coordinates, by construction." },
+      { t: "A good basis makes the matrix diagonal", d: "Projection onto a line in the standard basis is $\\begin{pmatrix}0.5&0.5\\\\0.5&0.5\\end{pmatrix}$. In the basis along the line and perpendicular to it — the eigenvectors — the same transformation is $\\begin{pmatrix}1&0\\\\0&0\\end{pmatrix}$. Same transformation, better coordinates." },
+    ],
+    worked: "The derivative is linear, which is why a short table of derivatives covers everything. From the basis $1, x, x^{2}$ to the basis $1, x$, it takes $c_1+c_2x+c_3x^{2}$ to $c_2+2c_3x$, so its matrix is $\\begin{pmatrix}0&1&0\\\\0&0&2\\end{pmatrix}$ — three columns in, two rows out.",
+    watch: "Calling a shift linear because it looks simple. A linear transformation must fix the origin: $T(\\vec{0}) = T(0\\cdot\\vec{v}) = 0\\cdot T(\\vec{v}) = \\vec{0}$, and adding $\\vec{v}_0$ breaks that immediately.",
+    concepts: ["la-linear-map", "la-basis"],
+    checks: [
+      { q: "Shifting every vector by a fixed $\\vec{v}_0 \\neq \\vec{0}$ is not linear because:", opts: ["It is not continuous", "It moves the origin, and a linear transformation must send $\\vec{0}$ to $\\vec{0}$", "It changes lengths", "It is not invertible"], a: 1,
+        expl: "$T(c\\vec{v}) = cT(\\vec{v})$ with $c=0$ forces $T(\\vec{0})=\\vec{0}$. Doubling the input also fails to double the output, since only one copy of $\\vec{v}_0$ is ever added." },
+      { q: "For the derivative from basis $1, x, x^{2}$ to basis $1, x$, the matrix entry in row 2, column 3 is:", num: 2,
+        expl: "The third basis input is $x^{2}$, whose derivative is $2x$ — that is $0$ of the output basis vector $1$ and $2$ of the output basis vector $x$. So column 3 is $(0,2)$." },
+    ],
+  },
+
+  "math110.1.31": {
+    takeaway: "Compression is a change of basis: rewrite the image in a basis where most coefficients are tiny, then throw those away.",
+    beats: [
+      { t: "The standard basis is the worst possible one", d: "A $512\\times512$ image is a vector with $512^{2}$ components, one gray level per pixel. Neighbouring pixels are almost equal, and the standard basis exploits none of that — a blank blackboard still costs every pixel." },
+      { t: "So put the constant vector in the basis", d: "$(1,1,\\dots,1)$ alone carries a solid image. At the other extreme $(1,-1,1,-1,\\dots)$ carries the fastest alternation. A real image is mostly the first and barely any of the last, which is exactly the redundancy compression lives on." },
+      { t: "JPEG changes basis, then thresholds", d: "Break the image into $8\\times8$ blocks, change to the Fourier basis inside each — 64 pixels in, 64 coefficients out, and nothing lost. Only the NEXT step loses: set small coefficients to zero. Sixty-four down to three is 21-to-1." },
+      { t: "A good basis has to be fast and has to compress", d: "Fast means multiplying by $W$ and $W^{-1}$ is cheap — the FFT for Fourier, a fast transform for wavelets. Compressing means a few coefficients nearly reproduce the signal. Leaving the basis alone is the fastest of all and compresses nothing." },
+      { t: "Wavelets: same idea, different basis", d: "$(1,1,1,1,1,1,1,1)$, then $(1,1,1,1,-1,-1,-1,-1)$, then halves of that, down to $(1,-1,0,0,0,0,0,0)$ and its shifts. They are mutually orthogonal, so once normalised $W^{-1}=W^{T}$ and the inverse transform costs the same as the forward one." },
+      { t: "Change the basis and the matrix becomes similar", d: "$\\vec{x} = W\\vec{c}$ converts coordinates. One transformation computed in two bases gives two matrices $A$ and $B=M^{-1}AM$ — similar, same eigenvalues. In the eigenvector basis the matrix is diagonal, which is the best basis there is and the most expensive to find." },
+    ],
+    worked: "The alternating vector $(1,-1,1,-1,1,-1,1,-1)$ is not a wavelet, but it is the sum of the last four: $(1,-1,0,0,0,0,0,0)$ and its three shifts. A vector cheap in one basis can be expensive in another, which is the whole reason the choice of basis is worth arguing about.",
+    watch: "Calling the change of basis itself compression. It is lossless and changes nothing about the size; the loss happens afterwards, when small coefficients are set to zero.",
+    concepts: ["la-basis", "la-linear-map"],
+    checks: [
+      { q: "The wavelet matrix $W$ is cheap to invert because:", opts: ["It is triangular", "Its columns are orthogonal, so once normalised $W^{-1} = W^{T}$", "It is diagonal", "It has rank one"], a: 1,
+        expl: "Any two of those basis vectors have equal numbers of $+1$ and $-1$ overlapping, so their dot product is zero. Normalise the lengths and the inverse transform is just the transpose." },
+      { q: "In $\\mathbb{R}^{8}$, the alternating vector $(1,-1,1,-1,1,-1,1,-1)$ is a sum of how many of the finest Haar wavelets?", num: 4,
+        expl: "The four finest wavelets are $(1,-1,0,\\dots)$ and its shifts by 2, 4 and 6 positions. Added together they give exactly the alternating vector, so the answer is 4." },
+    ],
+  },
+
 });

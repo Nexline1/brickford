@@ -335,6 +335,31 @@ const expectedSummary = {
                         return Math.max.apply(null, eig2(matmul(matmul(A, A), A))); })() }],
   "math110.1.22": [{ i: 1, v: Math.min.apply(null, eig2([[-1, 2], [1, -2]])) }],
   "math110.1.23": [{ i: 1, v: Math.min.apply(null, eig2([[0.9, 0.2], [0.1, 0.8]])) }],
+  "math110.1.25": [{ i: 1, v: (function () {   // second pivot = det / first pivot
+                        const A = [[5, 2], [2, 3]];
+                        return det2(A) / A[0][0]; })() }],
+  "math110.1.26": [{ i: 1, v: (function () {   // (n/2) log2 n at n = 1024
+                        const n = 1024;
+                        return (n / 2) * Math.log2(n); })() }],
+  "math110.1.27": [{ i: 1, v: (function () {   // c making [[2,6],[6,c]] singular
+                        return 6 * 6 / 2; })() }],
+  "math110.1.28": [{ i: 1, v: (function () {   // det of M^-1 A M, from the product itself
+                        const A = [[2, 1], [1, 2]], M = [[1, 4], [0, 1]], Mi = [[1, -4], [0, 1]];
+                        return det2(matmul(Mi, matmul(A, M))); })() }],
+  "math110.1.29": [{ i: 1, v: (function () {   // non-zero eigenvalue of A^T A
+                        const A = [[4, 3], [8, 6]];
+                        const At = A[0].map((_, c) => A.map(r => r[c]));
+                        return Math.max.apply(null, eig2(matmul(At, A))); })() }],
+  "math110.1.30": [{ i: 1, v: (function () {   // derivative matrix, row 2 column 3
+                        const c = [0, 0, 1];                 // the basis input x^2
+                        const d = c.slice(1).map((v, i) => (i + 1) * v);   // coefficients of the derivative
+                        return d[1]; })() }],
+  "math110.1.31": [{ i: 1, v: (function () {   // how many finest Haar wavelets sum to (1,-1,...)
+                        const fine = [0, 2, 4, 6].map(k => {
+                          const w = [0, 0, 0, 0, 0, 0, 0, 0]; w[k] = 1; w[k + 1] = -1; return w; });
+                        const sum = fine.reduce((a, w) => a.map((x, i) => x + w[i]));
+                        const alt = [1, -1, 1, -1, 1, -1, 1, -1];
+                        return sum.every((x, i) => x === alt[i]) ? fine.length : -1; })() }],
 };
 
 let sumNums = 0;

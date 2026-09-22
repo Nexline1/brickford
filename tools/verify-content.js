@@ -448,6 +448,42 @@ const expectedSummary = {
   "math120.1.4":  [{ i: 1, v: (function () {   // d/dx arctan x at x = 2, numerically
                         const x = 2, e = 1e-6;
                         return Math.round(((Math.atan(x + e) - Math.atan(x - e)) / (2 * e)) * 1e6) / 1e6; })() }],
+  "math120.1.5":  [{ i: 1, v: (function () {   // d/dx x^x at x = 1, numerically from the definition
+                        const f = x => Math.pow(x, x), x = 1, e = 1e-6;
+                        return Math.round((f(x + e) - f(x - e)) / (2 * e)); })() }],
+  "math120.1.6":  [{ i: 1, v: (function () {   // d/dx e^(x arctan x) at x = 1, by central difference
+                        const f = x => Math.exp(x * Math.atan(x)), x = 1, e = 1e-5;
+                        return Math.round(((f(x + e) - f(x - e)) / (2 * e)) * 1000) / 1000; })() }],
+  "math120.1.7":  [{ i: 1, v: (function () {   // f'(0) for e^(-3x)/sqrt(1+x), numerically, not by the product
+                        const f = x => Math.exp(-3 * x) / Math.sqrt(1 + x), e = 1e-6;
+                        return Math.round(((f(e) - f(-e)) / (2 * e)) * 1e6) / 1e6; })(),
+                    },
+                    { i: 2, v: (function () {   // ln(1.1) to 3dp, from the true logarithm
+                        return Math.round(Math.log(1.1) * 1000) / 1000; })() }],
+  "math120.1.8":  [{ i: 1, v: (function () {   // f''(0)/2 for the same function, by second difference
+                        const f = x => Math.exp(-3 * x) / Math.sqrt(1 + x), h = 1e-4;
+                        const d2 = (f(h) - 2 * f(0) + f(-h)) / (h * h);
+                        return Math.round((d2 / 2) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // critical value of 3x - x^3, found by scanning
+                        const f = x => 3 * x - x * x * x; let best = -Infinity;
+                        for (let i = 0; i <= 200000; i++) { const x = i / 100000; if (f(x) > best) best = f(x); }
+                        return Math.round(best); })() }],
+  "math120.1.9":  [{ i: 2, v: (function () {   // min of x/ln x for x > 1, by scanning
+                        const f = x => x / Math.log(x); let best = Infinity;
+                        for (let i = 1; i <= 400000; i++) { const x = 1 + i / 10000; const y = f(x); if (y < best) best = y; }
+                        return Math.round(best * 1000) / 1000; })() }],
+  "math120.1.10": [{ i: 1, v: (function () {   // x:y for the least-surface open box, by scanning with V = 1
+                        const V = 1, A = x => x * x + 4 * V / x;
+                        let bx = 0, best = Infinity;
+                        for (let i = 1; i <= 2000000; i++) { const x = i / 100000; const a = A(x); if (a < best) { best = a; bx = x; } }
+                        return Math.round(bx / (V / (bx * bx))); })(),
+                    },
+                    { i: 2, v: (function () {   // least area of the two squares, by scanning the cut
+                        const a = x => (x / 4) * (x / 4) + ((1 - x) / 4) * ((1 - x) / 4);
+                        let best = Infinity;
+                        for (let i = 0; i <= 100000; i++) { const v = a(i / 100000); if (v < best) best = v; }
+                        return Math.round(best * 1e5) / 1e5; })() }],
 };
 
 let sumNums = 0;

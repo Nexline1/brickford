@@ -648,4 +648,109 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
     ],
   },
 
+  "math110.1.12": {
+    takeaway: "A revision hour for chapters 1 to 3, and the questions are mostly worked backwards: from a stated answer to the matrix that produced it.",
+    beats: [
+      { t: "What it covers", d: "Elimination and $A=LU$, the four subspaces, rank, and the complete solution $\\vec{x}_p + \\vec{x}_n$. The weight sits on chapter 3 — the rectangular case, where everything that is automatic for a square invertible matrix has to be argued." },
+      { t: "The dimension count does most of the work", d: "$\\dim C(A) = \\dim C(A^{T}) = r$, $\\dim N(A) = n-r$, $\\dim N(A^{T}) = m-r$. Given the SHAPE of a matrix and its rank, every one of those is a subtraction. Most of the marks in this part of the course are that subtraction." },
+      { t: "Reading a matrix off its solution set", d: "Given the complete solution to $A\\vec{x}=\\vec{b}$: the number of null space vectors gives $n-r$, hence $r$; $\\vec{x}_p$ and $\\vec{b}$ pin down a column; and each null space vector is one linear relation among the columns. Often the whole matrix comes out." },
+      { t: "Blocks behave like entries", d: "For $\\begin{pmatrix}U\\\\2U\\end{pmatrix}$ elimination clears the lower block and the rank is unchanged. For $\\begin{pmatrix}U&U\\\\U&0\\end{pmatrix}$ it does not, and the rank doubles. Run the row operations on blocks rather than on individual rows." },
+      { t: "The true-false items test definitions, not calculation", d: "Invertible matrices are not a subspace — no zero matrix, and sums escape. $B^{2}=0$ does not force $B=0$; $\\begin{pmatrix}0&1\\\\0&0\\end{pmatrix}$ squares to zero. Two matrices with the same four subspaces need not be multiples: any two invertible $6\\times6$ matrices share all four." },
+      { t: "The question that points forward", d: "$(1,2,3)$ cannot be both a row of $A$ and in $N(A)$, because $A\\vec{v}$ would have $1+4+9=14$ in that position, not 0. The row space and the null space meet only at $\\vec{0}$ — and that is orthogonality, which the next chapter is about." },
+    ],
+    worked: "Multiplying on the left by an invertible matrix never changes the null space: if $C$ is invertible then $N(CD)=N(D)$, since $CD\\vec{x}=\\vec{0}$ gives $D\\vec{x}=\\vec{0}$ and back again. So a factored matrix can be attacked one factor at a time.",
+    watch: "Answering \"the row space stays the same\" and \"the column space stays the same\" together. A row exchange preserves the row space and the null space; the column space changes.",
+    concepts: ["la-rank-nullity"],
+    checks: [
+      { q: "The invertible $5\\times5$ matrices, inside the space of all $5\\times5$ matrices, form:", opts: ["A subspace of dimension 25", "Not a subspace, since the zero matrix is missing and sums need not be invertible", "A subspace of dimension 5", "A subspace with the identity as basis"], a: 1,
+        expl: "Scaling by 0 must stay inside, and the zero matrix is singular. Adding two invertible matrices can also give a singular one, so closure fails twice over." },
+      { q: "If $U$ is $5\\times3$ with rank 3, the matrix $C=\\begin{pmatrix}U&U\\\\U&0\\end{pmatrix}$ has $\\dim N(C^{T})$ equal to:", num: 4,
+        expl: "Subtracting the lower block from the upper turns $C$ into $\\begin{pmatrix}0&U\\\\U&0\\end{pmatrix}$, of rank 6. $C$ is $10\\times6$, so $\\dim N(C^{T}) = m-r = 10-6 = 4$." },
+    ],
+  },
+
+  "math110.1.24": {
+    takeaway: "A revision hour for orthogonality, determinants and the start of eigenvalues, where most questions are quick if you notice which structure applies.",
+    beats: [
+      { t: "What it covers", d: "Chapter 4 — $Q^{T}Q=I$, projections onto lines and subspaces, least squares, Gram-Schmidt. Chapter 5 — the three defining properties, the $n!$ formula, cofactors, and the cofactor formula for the inverse. Chapter 6 through section 6.2 — eigenvalues and powers. Differential equations are NOT on it." },
+      { t: "Projections make eigenvalue questions trivial", d: "$P = \\dfrac{\\vec{a}\\vec{a}^{T}}{\\vec{a}^{T}\\vec{a}}$ has rank 1, so its eigenvalues are 1 (eigenvector $\\vec{a}$, because $P\\vec{a}=\\vec{a}$) and 0 repeated. And $P^{k}=P$, so $\\vec{u}_{k+1}=P\\vec{u}_k$ stops moving after one step — no diagonalisation needed." },
+      { t: "Least squares has two pictures and you need both", d: "One is the data plot with the fitted line and the vertical errors. The other is the vector picture: $\\vec{b}$ projected onto the column space of $A$. The line does not appear in the second picture and $\\vec{b}$ does not appear in the first." },
+      { t: "Eigenvalue facts you use without computing anything", d: "Invertible means no eigenvalue is 0. $\\det(A^{-1}) = \\prod 1/\\lambda_i$. Adding $I$ adds 1 to every eigenvalue, so the trace of $A+I$ is the trace of $A$ plus $n$." },
+      { t: "A tridiagonal determinant is a recurrence", d: "Expanding along the first row and then down the first column gives $D_n = D_{n-1} - D_{n-2}$ for the tridiagonal matrix of ones. Written as a $2\\times2$ system its eigenvalues are $\\tfrac{1\\pm i\\sqrt3}{2}$, both on the unit circle at $\\pm60°$ — so $A^{6}=I$ and the determinants have period 6." },
+      { t: "Ask whether the matrix is singular before doing any work", d: "\"Find the projection matrix onto the column space of $A_4$\" looks hard until you check that $A_4$ is invertible. Then the column space is all of $\\mathbb{R}^4$ and the projection matrix is $I$." },
+    ],
+    worked: "Check the trace before writing eigenvalues down. For $A_3=\\begin{pmatrix}0&1&0\\\\1&0&2\\\\0&2&0\\end{pmatrix}$ the characteristic polynomial gives $0, \\sqrt5, -\\sqrt5$, and they sum to 0 — which is the trace. It costs a second and catches sign errors.",
+    watch: "Writing the cofactor expansion without its signs. Expanding along row 1, the second term carries a minus because $1+2$ is odd, and forgetting it flips the whole recurrence.",
+    concepts: ["la-projection", "la-determinant", "la-eigen"],
+    checks: [
+      { q: "If $P$ is a projection matrix and $\\vec{u}_{k+1}=P\\vec{u}_k$, then $\\vec{u}_{2}$ is:", opts: ["$P^{2}\\vec{u}_0$, which needs the eigenvalues", "The same as $\\vec{u}_1$, because $P^{2}=P$", "The zero vector", "$\\vec{u}_0$ again"], a: 1,
+        expl: "After one projection the vector is already in the subspace, and projecting again leaves it alone. The sequence is constant from step one onward, no diagonalisation required." },
+      { q: "The determinant of $\\begin{pmatrix}0&1&0&0\\\\1&0&2&0\\\\0&2&0&3\\\\0&0&3&0\\end{pmatrix}$ is:", num: 9,
+        expl: "Expand along row 1: the only non-zero entry is the 1 in column 2, carrying a minus sign. Its cofactor expands again down the first column, leaving $3\\times3=9$ — and the two minus signs cancel." },
+    ],
+  },
+
+  "math110.1.33": {
+    takeaway: "Restricted to the row space, every matrix is invertible onto its column space — and the pseudoinverse is that inverse, extended by zero on the null spaces.",
+    beats: [
+      { t: "Four cases, set by how $r$ compares with $m$ and $n$", d: "$r=m=n$ gives a two-sided inverse. $r=n \\lt m$ gives a left inverse. $r=m \\lt n$ gives a right inverse. And $r$ below both leaves neither — which is where the pseudoinverse is needed." },
+      { t: "Full column rank: a left inverse from $A^{T}A$", d: "Independent columns make $A^{T}A$ invertible, and $(A^{T}A)^{-1}A^{T}\\cdot A = I$. This is the least-squares matrix, and it is why least squares works exactly when the columns are independent." },
+      { t: "Full row rank: a right inverse from $AA^{T}$", d: "The mirror image. $A\\cdot A^{T}(AA^{T})^{-1} = I$, there is no left null space, and $A\\vec{x}=\\vec{b}$ is always solvable with $n-m$ free variables — so infinitely many solutions rather than none." },
+      { t: "Multiply a one-sided inverse the wrong way round and you get a projection", d: "$A(A^{T}A)^{-1}A^{T}$ is the projection onto the column space. A projection is a matrix trying to be $I$ and being allowed to succeed only where it can." },
+      { t: "$A$ is one-to-one from row space to column space", d: "If $\\vec{x}$ and $\\vec{y}$ are both in the row space and $A\\vec{x}=A\\vec{y}$, then $\\vec{x}-\\vec{y}$ lies in the null space AND the row space — so it is $\\vec{0}$. Two $r$-dimensional spaces, joined perfectly." },
+      { t: "The SVD builds $A^{+}$ by inverting what can be inverted", d: "$A = U\\Sigma V^{T}$ gives $A^{+} = V\\Sigma^{+}U^{T}$, where $\\Sigma^{+}$ replaces each $\\sigma_i$ by $1/\\sigma_i$ and leaves every zero alone. Then $\\Sigma\\Sigma^{+}$ and $\\Sigma^{+}\\Sigma$ are projections with $r$ ones." },
+    ],
+    worked: "Statisticians reach for this when a repeated experiment makes the columns dependent, $A^{T}A$ turns singular, and ordinary least squares breaks. The pseudoinverse still returns the answer in the row space, which is the smallest solution among all the ones that fit.",
+    watch: "Expecting $A^{+}A = I$. Neither order gives the identity for a general matrix: one order projects onto the row space, the other onto the column space, and the null spaces are wiped out rather than restored.",
+    concepts: ["la-svd", "la-projection", "la-rank-nullity"],
+    checks: [
+      { q: "Two different vectors of the row space always have different images under $A$ because:", opts: ["$A$ is invertible", "Their difference would lie in the null space and the row space at once, so it must be $\\vec{0}$", "The row space is bigger than the column space", "$A$ is symmetric"], a: 1,
+        expl: "The row space and the null space meet only at $\\vec{0}$. So $A\\vec{x}=A\\vec{y}$ with both in the row space forces $\\vec{x}=\\vec{y}$, and $A$ is invertible between those two $r$-dimensional spaces." },
+      { q: "For $A=\\begin{pmatrix}1&1\\\\1&2\\\\1&5\\end{pmatrix}$, the trace of the projection $A(A^{T}A)^{-1}A^{T}$ is:", num: 2,
+        expl: "A projection's trace is the dimension of the space it projects onto, and the column space here is two-dimensional. Any projection matrix of rank $r$ has trace $r$, since its eigenvalues are $r$ ones and the rest zeros." },
+    ],
+  },
+
+  "math110.1.32": {
+    takeaway: "A revision hour for chapter 6, where nearly every question is answered by naming the family a matrix belongs to and quoting what that family does to its eigenvalues.",
+    beats: [
+      { t: "What it covers", d: "Eigenvalues and eigenvectors, differential equations and $e^{At}$, symmetric matrices and $A=Q\\Lambda Q^{T}$, positive definiteness, similarity, and the SVD. Chapter 7 on linear transformations is on the final, not this quiz." },
+      { t: "Each family fixes its eigenvalues", d: "Symmetric: real. Skew-symmetric ($A^{T}=-A$): pure imaginary, so solutions circle rather than grow or decay. Orthogonal: $|\\lambda|=1$, because $\\|Q\\vec{x}\\| = \\|\\vec{x}\\|$. Markov: one of them is 1. Projection: $P^{2}=P$ forces $\\lambda^{2}=\\lambda$, so 0 or 1." },
+      { t: "Orthogonal eigenvectors have an exact condition", d: "$AA^{T} = A^{T}A$ — and symmetric, skew-symmetric and orthogonal matrices all satisfy it, each for a one-line reason. Most matrices do not, and then the eigenvectors are merely independent." },
+      { t: "Given eigenvalues and eigenvectors, answer by elimination", d: "Orthogonal eigenvectors make diagonalisable true for every $c$ and symmetric true for every real $c$. An eigenvalue of 0 rules out positive definite. An eigenvalue of 2 rules out Markov. And $\\tfrac{A}{2}$ is a projection only if $c$ is 0 or 2." },
+      { t: "The SVD sign, corrected", d: "$V$ comes from $A^{T}A$ and $U$ from $AA^{T}$, but the eigenvector signs are not determined by either. Fix the $\\vec{v}$s, then get each $\\vec{u}$ from $A\\vec{v}_i = \\sigma_i\\vec{u}_i$ — the relation that pairs them." },
+      { t: "Reading a matrix from its SVD pieces", d: "A zero on the diagonal of $\\Sigma$ makes the matrix singular, gives the rank, and puts the corresponding $\\vec{v}$ in the null space. Negative entries in $\\Sigma$ mean it is not an SVD at all — singular values are never negative." },
+    ],
+    worked: "Symmetric AND orthogonal means $A = A^{T} = A^{-1}$, so $A^{2}=I$ and the eigenvalues are $\\pm1$. Then $\\tfrac12(A+I)$ is symmetric and squares to itself, and its eigenvalues are 0 and 1 — a projection matrix, proved two ways.",
+    watch: "Answering \"not diagonalisable\" because the eigenvalues repeat. A symmetric or orthogonal $50\\times50$ matrix with eigenvalues only $\\pm1$ repeats them heavily and still diagonalises, with orthogonal eigenvectors.",
+    concepts: ["la-eigen", "la-spectral", "la-svd"],
+    checks: [
+      { q: "A matrix has orthogonal eigenvectors exactly when:", opts: ["It is invertible", "$AA^{T} = A^{T}A$", "Its eigenvalues are distinct", "It is triangular"], a: 1,
+        expl: "Symmetric matrices satisfy it because both sides are $A^{2}$; skew-symmetric because both sides are $-A^{2}$; orthogonal because both sides are $I$. Distinct eigenvalues give independence, not orthogonality." },
+      { q: "If $A$ is a $3\\times3$ matrix that is both symmetric and orthogonal, the trace of $A^{2}$ is:", num: 3,
+        expl: "$A = A^{T} = A^{-1}$, so $A^{2} = AA^{-1} = I$ and its trace is 3. Equivalently the eigenvalues are $\\pm1$, and squaring makes every one of them 1." },
+    ],
+  },
+
+  "math110.1.34": {
+    takeaway: "The last hour is the whole course read backwards: given an answer, name the fact about $m$, $n$ and $r$ — or about the family of matrix — that produces it.",
+    beats: [
+      { t: "Two sentences about solutions fix all three numbers", d: "\"$A\\vec{x}=\\vec{b}$ has no solution for some $\\vec{b}$\" means $r \\lt m$. \"When it has a solution there is exactly one\" means $N(A)=\\{\\vec{0}\\}$, so $r=n$. Between them, the shape of the matrix is settled before any arithmetic." },
+      { t: "$A^{T}A$ and $AA^{T}$ are not interchangeable", d: "With independent columns $A^{T}A$ is invertible and positive definite, while $AA^{T}$ is only positive SEMI-definite and can easily be singular. And $\\det(A^{T}A) = \\det(AA^{T})$ only when $A$ is square." },
+      { t: "$A\\vec{x}$ is a combination of columns, still", d: "If the columns are $\\vec{v}_1,\\vec{v}_2,\\vec{v}_3$ then $\\vec{x}=(1,-1,1)$ solves $A\\vec{x} = \\vec{v}_1-\\vec{v}_2+\\vec{v}_3$ by inspection. And if that combination is $\\vec{0}$, that same $\\vec{x}$ is in the null space, so no solution is ever unique." },
+      { t: "Name the family, get the eigenvalues", d: "Singular gives $\\lambda=0$; Markov gives $\\lambda=1$; the trace supplies the last one. Then only the $\\lambda=1$ term survives, and for a Markov chain the total population fixes its coefficient without solving anything." },
+      { t: "Small constructions, from the formulas", d: "Projection onto a line: $\\dfrac{\\vec{a}\\vec{a}^{T}}{\\vec{a}^{T}\\vec{a}}$. A matrix from its eigenvalues and eigenvectors: $S\\Lambda S^{-1}$. Never $B^{T}B$: anything not symmetric. Orthogonal eigenvectors without symmetry: skew-symmetric, or orthogonal." },
+      { t: "Least squares, and what makes its answer zero", d: "$\\hat{x}$ is the combination of columns closest to $\\vec{b}$, so $\\vec{p} = \\hat{c}\\,(\\text{col }1) + \\hat{d}\\,(\\text{col }2)$. And $\\hat{x}=\\vec{0}$ exactly when $\\vec{b}$ is orthogonal to the column space — nothing of it is reachable." },
+    ],
+    worked: "Fitting a line to $(0,3)$, $(1,4)$, $(2,1)$: $A=\\begin{pmatrix}1&0\\\\1&1\\\\1&2\\end{pmatrix}$, $\\vec{b}=(3,4,1)$, and the normal equations give $\\hat{c}=\\tfrac{11}{3}$ with $\\hat{d}=-1$. The line starts at $\\tfrac{11}{3}$ and falls with slope $-1$.",
+    watch: "Carrying $\\det(BA)=\\det(AB)$ over to rectangular matrices. It holds for square ones; for $A^{T}A$ against $AA^{T}$ the two sides usually have different sizes, and one can be zero while the other is not.",
+    concepts: ["la-rank-nullity", "la-projection", "la-eigen"],
+    checks: [
+      { q: "The least-squares solution of $A\\vec{x}=\\vec{b}$ is $\\vec{0}$ exactly when:", opts: ["$\\vec{b}=\\vec{0}$", "$\\vec{b}$ is orthogonal to the column space of $A$", "$A$ is singular", "$\\vec{b}$ is in the column space"], a: 1,
+        expl: "The best combination of the columns is the projection of $\\vec{b}$ onto their span. If $\\vec{b}$ is perpendicular to that span, the projection is $\\vec{0}$ and the zero combination is best — and $\\vec{b}$ itself need not be zero." },
+      { q: "Fitting a line to $(0,3)$, $(1,4)$, $(2,1)$ by least squares, the slope is:", num: -1,
+        expl: "$A^{T}A = \\begin{pmatrix}3&3\\\\3&5\\end{pmatrix}$ and $A^{T}\\vec{b} = (8,6)$. Cramer gives the slope as $\\dfrac{18-24}{15-9} = \\dfrac{-6}{6} = -1$, with intercept $\\tfrac{11}{3}$." },
+    ],
+  },
+
 });

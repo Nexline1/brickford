@@ -291,6 +291,11 @@ const expectedSummary = {
                         const A = [[-1, 1, 0, 0], [0, -1, 1, 0], [-1, 0, 1, 0],
                                    [-1, 0, 0, 1], [0, 0, -1, 1]];
                         return A.length - rank(A); })() }],
+  "math110.1.12": [{ i: 1, v: (function () {   // dim N(C^T) for C = [[U,U],[U,0]] with U 5x3 of rank 3
+                        const U = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [0, 1, 1]];
+                        const Z = [0, 0, 0];
+                        const C = U.map(r => r.concat(r)).concat(U.map(r => r.concat(Z)));
+                        return C.length - rank(C); })() }],
   "math110.1.13": [{ i: 1, v: (function () {   // (A^T A)[1][1] for the lecture's tall matrix
                         const A = [[1, 1], [1, 2], [1, 5]];
                         const At = A[0].map((_, c) => A.map(r => r[c]));
@@ -335,6 +340,20 @@ const expectedSummary = {
                         return Math.max.apply(null, eig2(matmul(matmul(A, A), A))); })() }],
   "math110.1.22": [{ i: 1, v: Math.min.apply(null, eig2([[-1, 2], [1, -2]])) }],
   "math110.1.23": [{ i: 1, v: Math.min.apply(null, eig2([[0.9, 0.2], [0.1, 0.8]])) }],
+  "math110.1.24": [{ i: 1, v: (function () {   // determinant of the 4x4 tridiagonal 1,2,3 matrix
+                        const M = [[0, 1, 0, 0], [1, 0, 2, 0], [0, 2, 0, 3], [0, 0, 3, 0]];
+                        const A = M.map(r => r.slice()); let d = 1;
+                        for (let c = 0; c < 4; c++) {
+                          let p = c; for (let i = c; i < 4; i++) if (Math.abs(A[i][c]) > Math.abs(A[p][c])) p = i;
+                          if (Math.abs(A[p][c]) < 1e-12) return 0;
+                          if (p !== c) { [A[c], A[p]] = [A[p], A[c]]; d = -d; }
+                          d *= A[c][c];
+                          for (let i = c + 1; i < 4; i++) {
+                            const f = A[i][c] / A[c][c];
+                            for (let j = c; j < 4; j++) A[i][j] -= f * A[c][j];
+                          }
+                        }
+                        return Math.round(d); })() }],
   "math110.1.25": [{ i: 1, v: (function () {   // second pivot = det / first pivot
                         const A = [[5, 2], [2, 3]];
                         return det2(A) / A[0][0]; })() }],
@@ -360,6 +379,21 @@ const expectedSummary = {
                         const sum = fine.reduce((a, w) => a.map((x, i) => x + w[i]));
                         const alt = [1, -1, 1, -1, 1, -1, 1, -1];
                         return sum.every((x, i) => x === alt[i]) ? fine.length : -1; })() }],
+  "math110.1.32": [{ i: 1, v: (function () {   // trace of A^2 for a symmetric orthogonal 3x3
+                        const A = [[0, 1, 0], [1, 0, 0], [0, 0, 1]];   // symmetric and orthogonal
+                        return trace(matmul(A, A)); })() }],
+  "math110.1.33": [{ i: 1, v: (function () {   // trace of the projection onto a 2-dimensional column space
+                        const A = [[1, 1], [1, 2], [1, 5]];
+                        const At = A[0].map((_, c) => A.map(r => r[c]));
+                        const N = matmul(At, A), d = det2(N);
+                        const Ni = [[N[1][1] / d, -N[0][1] / d], [-N[1][0] / d, N[0][0] / d]];
+                        return trace(matmul(A, matmul(Ni, At))); })() }],
+  "math110.1.34": [{ i: 1, v: (function () {   // least-squares slope, by Cramer on the normal equations
+                        const A = [[1, 0], [1, 1], [1, 2]], b = [[3], [4], [1]];
+                        const At = A[0].map((_, c) => A.map(r => r[c]));
+                        const N = matmul(At, A), f = matmul(At, b);
+                        const ND = [[N[0][0], f[0][0]], [N[1][0], f[1][0]]];
+                        return det2(ND) / det2(N); })() }],
 };
 
 let sumNums = 0;

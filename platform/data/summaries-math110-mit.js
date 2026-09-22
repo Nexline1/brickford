@@ -417,4 +417,88 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
     ],
   },
 
+  "math110.1.20": {
+    takeaway: "An eigenvector is a direction the matrix does not turn, and finding one starts by making $A-\\lambda I$ singular.",
+    beats: [
+      { t: "Most vectors change direction; eigenvectors do not", d: "$A\\vec{x} = \\lambda\\vec{x}$ says the output is parallel to the input, with $\\lambda$ allowed to be negative, zero or complex. Eigenvalue zero is nothing special: those eigenvectors are the null space, so a singular matrix simply has $0$ among its eigenvalues.", fig: "figEigen" },
+      { t: "Some matrices you can read without any algebra", d: "A projection has eigenvalue 1 for every vector in the plane and 0 for every vector perpendicular to it. The swap $\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}$ has $(1,1)$ with $\\lambda=1$ and $(-1,1)$ with $\\lambda=-1$ — and those two eigenvectors are perpendicular, which is what symmetry buys." },
+      { t: "The characteristic equation removes $\\vec{x}$", d: "Rewrite as $(A-\\lambda I)\\vec{x}=\\vec{0}$. A non-zero solution exists only if $A-\\lambda I$ is singular, so $\\det(A-\\lambda I)=0$. Solve that for $\\lambda$ first; then each eigenvector is a null space you find by elimination." },
+      { t: "Trace and determinant are free checks", d: "The eigenvalues sum to the trace and multiply to the determinant. In the $2\\times2$ case the characteristic equation is literally $\\lambda^{2} - (\\text{trace})\\lambda + \\det = 0$, so one eigenvalue hands you the other." },
+      { t: "Eigenvalues do not add", d: "$\\lambda(A)+\\lambda(B)$ is not $\\lambda(A+B)$, because $A$'s eigenvector is generally not $B$'s. The one safe case is $B = cI$: adding $3I$ leaves every eigenvector alone and adds 3 to every eigenvalue." },
+      { t: "Two ways it goes wrong", d: "A $90°$ rotation turns every vector, so no real eigenvector exists — its eigenvalues are $i$ and $-i$, a conjugate pair from a perfectly real matrix. And $\\begin{pmatrix}3&1\\\\0&3\\end{pmatrix}$ has $\\lambda=3$ twice but only ONE line of eigenvectors. A repeated eigenvalue is where the shortage starts." },
+    ],
+    worked: "$A=\\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$. Trace 6, determinant 8, so $\\lambda^{2}-6\\lambda+8=0$ and the eigenvalues are 4 and 2. Subtract $4I$ and the null space is $(1,1)$; subtract $2I$ and it is $(-1,1)$ — the same eigenvectors as the swap matrix, since $A$ is that matrix plus $3I$.",
+    watch: "Treating a triangular matrix's easy eigenvalues as the end of the story. They do sit on the diagonal, but a repeated one may come with too few independent eigenvectors, and that is the case that breaks everything downstream.",
+    concepts: ["la-eigen"],
+    checks: [
+      { q: "If $A$ has eigenvalue $\\lambda$ and $B$ has eigenvalue $\\alpha$, then $A+B$:", opts: ["Has eigenvalue $\\lambda+\\alpha$", "Generally does not, because $A$ and $B$ usually have different eigenvectors", "Has eigenvalue $\\lambda\\alpha$", "Has no eigenvalues"], a: 1,
+        expl: "The argument would need one vector to be an eigenvector of both. It works when $B$ is a multiple of $I$, since then every vector is an eigenvector of $B$; otherwise you must solve the new problem." },
+      { q: "The larger eigenvalue of $\\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$ is:", num: 4,
+        expl: "$\\lambda^{2}-6\\lambda+8 = (\\lambda-4)(\\lambda-2)$. The 6 is the trace and the 8 is the determinant, so both coefficients can be read off the matrix." },
+    ],
+  },
+
+  "math110.1.21": {
+    takeaway: "Put the eigenvectors in the columns of $S$ and $A$ becomes diagonal, which turns the hundredth power of a matrix into the hundredth power of $n$ numbers.",
+    beats: [
+      { t: "$AS = S\\Lambda$ is just matrix multiplication", d: "Column $j$ of $AS$ is $A\\vec{x}_j = \\lambda_j\\vec{x}_j$. Pulling those $\\lambda$s out on the RIGHT rebuilds $S$ with a diagonal $\\Lambda$ beside it. If $S$ is invertible, $S^{-1}AS = \\Lambda$ and $A = S\\Lambda S^{-1}$." },
+      { t: "Powers collapse because the inside cancels", d: "$A^{2} = S\\Lambda S^{-1}S\\Lambda S^{-1} = S\\Lambda^{2}S^{-1}$, and $A^{k} = S\\Lambda^{k}S^{-1}$. Same eigenvectors, eigenvalues raised to the power. Multiplying $LU$ by itself a hundred times tells you nothing; this tells you everything." },
+      { t: "So stability is a statement about $|\\lambda|$", d: "$A^{k}\\to 0$ exactly when every $|\\lambda_i| \\lt 1$. $S$ and $S^{-1}$ do not move, so only $\\Lambda^{k}$ decides. That information is in the eigenvalues and is nowhere in the pivots." },
+      { t: "Distinct eigenvalues guarantee enough eigenvectors", d: "The whole construction needs $S^{-1}$ to exist. $n$ different eigenvalues always give $n$ independent eigenvectors. A repeated eigenvalue MAY still be fine — the identity repeats $1$ $n$ times and every vector is an eigenvector — or may not." },
+      { t: "Where it fails, and the two multiplicities", d: "$\\begin{pmatrix}2&1\\\\0&2\\end{pmatrix}$ has $\\lambda=2$ with algebraic multiplicity 2 but a one-dimensional null space for $A-2I$: geometric multiplicity 1. No $S$, no diagonalisation." },
+      { t: "To solve $\\vec{u}_{k+1}=A\\vec{u}_k$, split $\\vec{u}_0$ into eigenvectors", d: "$\\vec{u}_0 = c_1\\vec{x}_1+\\cdots+c_n\\vec{x}_n$; then $\\vec{u}_k = c_1\\lambda_1^{k}\\vec{x}_1+\\cdots+c_n\\lambda_n^{k}\\vec{x}_n$. Each piece goes its own way, and the largest $|\\lambda|$ eventually dominates everything." },
+    ],
+    worked: "Fibonacci. Write $\\vec{u}_k = (F_{k+1}, F_k)$ and the second-order rule becomes $\\vec{u}_{k+1} = \\begin{pmatrix}1&1\\\\1&0\\end{pmatrix}\\vec{u}_k$. Trace 1 and determinant $-1$ give $\\lambda = \\tfrac{1\\pm\\sqrt5}{2}$, so $F_k$ grows like $1.618^{k}$ — the other eigenvalue, about $-0.618$, dies away.",
+    watch: "Concluding that a repeated eigenvalue means no diagonalisation. Count the eigenvectors: the identity repeats its eigenvalue $n$ times and diagonalises perfectly. Only a shortage of independent eigenvectors stops it.",
+    concepts: ["la-eigen"],
+    checks: [
+      { q: "$A^{k}\\to 0$ as $k$ grows exactly when:", opts: ["$\\det A = 0$", "Every eigenvalue satisfies $|\\lambda| \\lt 1$", "$A$ is symmetric", "The pivots are small"], a: 1,
+        expl: "$A^{k} = S\\Lambda^{k}S^{-1}$ and only $\\Lambda^{k}$ changes with $k$, so each $\\lambda_i^{k}$ must go to zero. The pivots say nothing about this." },
+      { q: "If $A = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$, the largest eigenvalue of $A^{3}$ is:", num: 64,
+        expl: "$A$ has eigenvalues 4 and 2, and cubing the matrix cubes them: $4^{3}=64$ and $2^{3}=8$. The eigenvectors are unchanged." },
+    ],
+  },
+
+  "math110.1.22": {
+    takeaway: "Exponentials do for differential equations exactly what powers did for difference equations, and the eigenvalues decide the fate of the solution before you compute anything.",
+    beats: [
+      { t: "Each eigenvector gives one pure exponential solution", d: "$\\vec{u} = e^{\\lambda t}\\vec{x}$ satisfies $d\\vec{u}/dt = A\\vec{u}$, since differentiating brings down $\\lambda$ and $A\\vec{x}=\\lambda\\vec{x}$ matches it. The general solution is $c_1e^{\\lambda_1 t}\\vec{x}_1 + \\cdots + c_ne^{\\lambda_n t}\\vec{x}_n$." },
+      { t: "The constants come from the starting point", d: "At $t=0$ every exponential is 1, so $S\\vec{c} = \\vec{u}(0)$ — the eigenvector matrix again. Split the initial vector into eigenvectors once, and each piece then travels on its own." },
+      { t: "Stability is the REAL part, not the magnitude", d: "$|e^{(-3+6i)t}| = e^{-3t}$: the imaginary part only rotates. So $\\vec{u}(t)\\to\\vec{0}$ when every eigenvalue has negative real part — the left half plane, where powers needed the unit circle." },
+      { t: "A zero eigenvalue is a steady state", d: "$e^{0t}=1$ never moves. If one eigenvalue is 0 and the rest have negative real part, the solution settles onto a multiple of that eigenvector. For $2\\times2$, stability reads off the matrix: negative trace and positive determinant." },
+      { t: "Substituting $\\vec{u}=S\\vec{v}$ uncouples the system", d: "It becomes $d\\vec{v}/dt = \\Lambda\\vec{v}$, $n$ separate scalar equations with no coupling. Solve each, transform back, and the answer is $\\vec{u}(t) = Se^{\\Lambda t}S^{-1}\\vec{u}(0)$." },
+      { t: "Which is what $e^{At}$ means", d: "Define it by the series $I + At + \\tfrac{(At)^{2}}{2} + \\cdots$, and substituting $A=S\\Lambda S^{-1}$ makes every interior $S^{-1}S$ cancel, leaving $Se^{\\Lambda t}S^{-1}$. The series always converges; the $S$ form needs $A$ to be diagonalisable." },
+    ],
+    worked: "$A=\\begin{pmatrix}-1&2\\\\1&-2\\end{pmatrix}$ is singular, so $\\lambda_1=0$, and the trace $-3$ forces $\\lambda_2=-3$. Eigenvectors $(2,1)$ and $(1,-1)$. From $\\vec{u}(0)=(1,0)$, both constants are $\\tfrac13$, and the $e^{-3t}$ term dies: the steady state is $\\tfrac13(2,1)$.",
+    watch: "Using $|\\lambda| \\lt 1$ as the stability test for a differential equation. That is the test for POWERS. Exponentials need the real part negative, and an eigenvalue of $-5$ is stable while $\\tfrac12$ is not.",
+    concepts: ["la-eigen"],
+    checks: [
+      { q: "$\\vec{u}(t)\\to\\vec{0}$ for every starting vector exactly when every eigenvalue has:", opts: ["Absolute value less than 1", "Negative real part", "Absolute value greater than 1", "Zero imaginary part"], a: 1,
+        expl: "$|e^{\\lambda t}| = e^{(\\mathrm{Re}\\,\\lambda)t}$, because the imaginary part only contributes a rotation of modulus 1. The unit-circle test belongs to $A^{k}$, not to $e^{At}$." },
+      { q: "The non-zero eigenvalue of $\\begin{pmatrix}-1&2\\\\1&-2\\end{pmatrix}$ is:", num: -3,
+        expl: "The second column is $-2$ times the first, so the determinant is 0 and one eigenvalue is 0. The trace is $-3$, so the other must be $-3$." },
+    ],
+  },
+
+  "math110.1.23": {
+    takeaway: "A Markov matrix always has $\\lambda=1$, and the eigenvector that goes with it is the population the system settles into.",
+    beats: [
+      { t: "Two properties, both from probability", d: "Every entry is at least 0, and every column sums to 1. The entries are the chance of moving from one state to another, and the columns sum to 1 because nobody is lost. Powers of a Markov matrix are Markov." },
+      { t: "Why $\\lambda=1$ is guaranteed", d: "Subtract $I$ and every column of $A-I$ sums to 0 — which means the ROWS add up to the zero row. Dependent rows make the matrix singular, so 1 is an eigenvalue. The vector $(1,1,\\dots,1)$ sits in $N((A-I)^{T})$." },
+      { t: "And $A$ and $A^{T}$ share eigenvalues", d: "$\\det(A-\\lambda I) = \\det(A^{T}-\\lambda I)$, since transposing does not change a determinant and $\\lambda I$ transposes to itself. The eigenVECTORS differ — one lives in the null space, the other in the left null space." },
+      { t: "Every other eigenvalue is no larger in magnitude", d: "So in $\\vec{u}_k = c_1 1^{k}\\vec{x}_1 + c_2\\lambda_2^{k}\\vec{x}_2 + \\cdots$, every term but the first decays. The steady state is $c_1\\vec{x}_1$ — and $\\vec{x}_1$ has no negative components, so it is a population and not just a vector." },
+      { t: "Orthonormal bases make coefficients free", d: "To expand $\\vec{v} = x_1\\vec{q}_1+\\cdots+x_n\\vec{q}_n$, take the inner product with $\\vec{q}_1$: every other term dies and $x_1 = \\vec{q}_1^{T}\\vec{v}$. In matrix form, $Q\\vec{x}=\\vec{v}$ with $Q^{-1}=Q^{T}$." },
+      { t: "Fourier series is that idea in infinite dimensions", d: "The basis is $1, \\cos x, \\sin x, \\cos 2x, \\dots$, the inner product is $\\int_0^{2\\pi} f(x)g(x)\\,dx$ — a sum became an integral — and the functions are orthogonal. So $a_1 = \\frac{1}{\\pi}\\int_0^{2\\pi} f(x)\\cos x\\,dx$, by the same one-line argument." },
+    ],
+    worked: "Two states, with $A = \\begin{pmatrix}0.9&0.2\\\\0.1&0.8\\end{pmatrix}$. Trace 1.7, so the eigenvalues are 1 and 0.7. The eigenvector for 1 is $(2,1)$, so a thousand people starting anywhere end up split $\\tfrac23$ and $\\tfrac13$ — regardless of who started where.",
+    watch: "Looking for eigenvalue 0 because that was the steady state for differential equations. Under repeated multiplication a zero eigenvalue dies immediately; it is $\\lambda=1$ that stands still.",
+    concepts: ["la-eigen", "la-projection"],
+    checks: [
+      { q: "Every Markov matrix has $\\lambda=1$ because:", opts: ["Its entries are positive", "The columns of $A-I$ sum to zero, so its rows are dependent and it is singular", "It is symmetric", "Its determinant is 1"], a: 1,
+        expl: "Columns of $A$ summing to 1 means columns of $A-I$ sum to 0, so adding all the rows of $A-I$ gives the zero row. Dependent rows mean singular, and singular at the shift $\\lambda=1$ means 1 is an eigenvalue." },
+      { q: "The second eigenvalue of $\\begin{pmatrix}0.9&0.2\\\\0.1&0.8\\end{pmatrix}$ is:", num: 0.7,
+        expl: "One eigenvalue is 1, and the trace is $0.9+0.8=1.7$, so the other is $0.7$. The determinant confirms it: $0.72-0.02 = 0.7 = 1\\times0.7$." },
+    ],
+  },
+
 });

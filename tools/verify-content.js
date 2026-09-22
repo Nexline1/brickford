@@ -329,6 +329,12 @@ const expectedSummary = {
                         return Math.round(d); })() }],
   "math110.1.19": [{ i: 1, v: (function () {   // triangle area from two edge vectors
                         return Math.abs(det2([[3, 1], [1, 2]])) / 2; })() }],
+  "math110.1.20": [{ i: 1, v: Math.max.apply(null, eig2([[3, 1], [1, 3]])) }],
+  "math110.1.21": [{ i: 1, v: (function () {   // largest eigenvalue of A^3, from A^3 itself
+                        const A = [[3, 1], [1, 3]];
+                        return Math.max.apply(null, eig2(matmul(matmul(A, A), A))); })() }],
+  "math110.1.22": [{ i: 1, v: Math.min.apply(null, eig2([[-1, 2], [1, -2]])) }],
+  "math110.1.23": [{ i: 1, v: Math.min.apply(null, eig2([[0.9, 0.2], [0.1, 0.8]])) }],
 };
 
 let sumNums = 0;

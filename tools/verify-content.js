@@ -291,6 +291,25 @@ const expectedSummary = {
                         const A = [[-1, 1, 0, 0], [0, -1, 1, 0], [-1, 0, 1, 0],
                                    [-1, 0, 0, 1], [0, 0, -1, 1]];
                         return A.length - rank(A); })() }],
+  "math110.1.13": [{ i: 1, v: (function () {   // (A^T A)[1][1] for the lecture's tall matrix
+                        const A = [[1, 1], [1, 2], [1, 5]];
+                        const At = A[0].map((_, c) => A.map(r => r[c]));
+                        return matmul(At, A)[1][1]; })() }],
+  "math110.1.14": [{ i: 1, v: (function () {   // projection multiplier onto a line
+                        const a = [1, 1, 1], b = [1, 2, 3];
+                        const dot = (u, v) => u.reduce((s, x, i) => s + x * v[i], 0);
+                        return dot(a, b) / dot(a, a); })() }],
+  "math110.1.15": [{ i: 1, v: (function () {   // least-squares slope, from the normal equations
+                        const A = [[1, 1], [1, 2], [1, 3]], b = [[1], [2], [2]];
+                        const At = A[0].map((_, c) => A.map(r => r[c]));
+                        const N = matmul(At, A), f = matmul(At, b);
+                        const ND = [[N[0][0], f[0][0]], [N[1][0], f[1][0]]];
+                        return det2(ND) / det2(N); })() }],
+  "math110.1.16": [{ i: 1, v: (function () {   // Gram-Schmidt second vector, component two
+                        const a = [1, 1, 1], b = [1, 0, 2];
+                        const dot = (u, v) => u.reduce((s, x, i) => s + x * v[i], 0);
+                        const k = dot(a, b) / dot(a, a);
+                        return b.map((x, i) => x - k * a[i])[1]; })() }],
 };
 
 let sumNums = 0;

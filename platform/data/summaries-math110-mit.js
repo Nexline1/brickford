@@ -270,4 +270,88 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
     ],
   },
 
+  "math110.1.13": {
+    takeaway: "The row space and the null space are not merely different subspaces: they meet at right angles and between them account for the whole of $\\mathbb{R}^n$.",
+    beats: [
+      { t: "The dot product is the test, and Pythagoras is the reason", d: "$\\vec{x}$ and $\\vec{y}$ are orthogonal when $\\vec{x}^{T}\\vec{y}=0$. Expand $\\|\\vec{x}\\|^2+\\|\\vec{y}\\|^2 = \\|\\vec{x}+\\vec{y}\\|^2$ and everything cancels except $2\\vec{x}^{T}\\vec{y}$, so the right triangle and the vanishing dot product are the same condition." },
+      { t: "Orthogonal subspaces need EVERY pair to be orthogonal", d: "The blackboard and the floor are not orthogonal: they share a line along their crack, and a non-zero vector is never orthogonal to itself. Two subspaces that are orthogonal meet only at $\\vec{0}$ — though meeting only at $\\vec{0}$ is not by itself enough." },
+      { t: "$A\\vec{x}=\\vec{0}$ already says the null space is orthogonal to the rows", d: "Written out, that equation is row one dotted with $\\vec{x}$ gives 0, row two dotted with $\\vec{x}$ gives 0, and so on down. Scaling and adding those statements extends it from the rows to every combination of them — the whole row space." },
+      { t: "Complement, not merely orthogonal", d: "The dimensions add to $n$: $r$ and $n-r$. Two perpendicular lines in $\\mathbb{R}^3$ cannot be a row space and a null space, because $1+1\\neq3$. The null space contains ALL vectors perpendicular to the row space, not just some." },
+      { t: "Which is why $A\\vec{x}=\\vec{b}$ with no solution is the next problem", d: "A thousand measurements of a satellite's position against six parameters: $\\vec{b}$ carries noise and will not sit in the column space. Throwing away equations until the system is square discards information; the point is to use all of it." },
+      { t: "$A^{T}A$ is the matrix that answers it", d: "Square, symmetric — $(A^{T}A)^{T} = A^{T}A$ — and the equation to solve becomes $A^{T}A\\hat{x} = A^{T}\\vec{b}$. It is invertible exactly when $A$ has independent columns, because $N(A^{T}A) = N(A)$." },
+    ],
+    worked: "$A=\\begin{pmatrix}1&1\\\\1&2\\\\1&5\\end{pmatrix}$ gives $A^{T}A = \\begin{pmatrix}3&8\\\\8&30\\end{pmatrix}$, invertible. Replace the second column with $(1,2,5)$ doubled and the columns become dependent — then $A^{T}A$ has rank 1 and no inverse.",
+    watch: "Reading \"the subspaces do not intersect\" as \"the subspaces are orthogonal\". Sharing only $\\vec{0}$ is necessary and not sufficient; every vector in one must be perpendicular to every vector in the other.",
+    concepts: ["la-rank-nullity"],
+    checks: [
+      { q: "$A^{T}A$ is invertible exactly when:", opts: ["$A$ is square", "The columns of $A$ are independent", "$A$ is symmetric", "$A$ has more rows than columns"], a: 1,
+        expl: "$N(A^{T}A) = N(A)$, so $A^{T}A$ has only $\\vec{0}$ in its null space precisely when $A$ does — which is what independent columns means. $A$ itself need not be square or invertible." },
+      { q: "For $A=\\begin{pmatrix}1&1\\\\1&2\\\\1&5\\end{pmatrix}$, the entry of $A^{T}A$ in row 2, column 2 is:", num: 30,
+        expl: "It is the second column dotted with itself: $1+4+25 = 30$. Every diagonal entry of $A^{T}A$ is a squared length, which is why they are never negative." },
+    ],
+  },
+
+  "math110.1.14": {
+    takeaway: "Projection is what you do when $A\\vec{x}=\\vec{b}$ has no solution: replace $\\vec{b}$ by the nearest point of the column space and solve that instead.",
+    beats: [
+      { t: "One line first, and the right angle does all the work", d: "The projection of $\\vec{b}$ onto the line through $\\vec{a}$ is $\\vec{p}=\\hat{x}\\vec{a}$, and the error $\\vec{b}-\\hat{x}\\vec{a}$ must be perpendicular to $\\vec{a}$. That single condition gives $\\hat{x}=\\dfrac{\\vec{a}^{T}\\vec{b}}{\\vec{a}^{T}\\vec{a}}$ — no angles, no cosines.", fig: "figProjection" },
+      { t: "Put the parentheses elsewhere and a matrix appears", d: "$\\vec{p} = \\vec{a}\\dfrac{\\vec{a}^{T}\\vec{b}}{\\vec{a}^{T}\\vec{a}} = \\left(\\dfrac{\\vec{a}\\vec{a}^{T}}{\\vec{a}^{T}\\vec{a}}\\right)\\vec{b}$. The top is a column times a row, so $P$ is a rank-one matrix whose column space is that line. Doubling $\\vec{b}$ doubles $\\vec{p}$; doubling $\\vec{a}$ changes nothing, since the line is the same." },
+      { t: "Two properties identify every projection matrix", d: "$P^{T}=P$ and $P^{2}=P$. The second is geometry, not algebra: project once and you are on the subspace; project again and you do not move. Anything already in the subspace is its own projection." },
+      { t: "In higher dimensions the subspace is a column space", d: "Give a basis $\\vec{a}_1,\\vec{a}_2$ and make them the columns of $A$. The projection is $A\\hat{x}$, and the error must be perpendicular to both columns — which is exactly $A^{T}(\\vec{b}-A\\hat{x}) = \\vec{0}$." },
+      { t: "Which places the error in the left null space", d: "$A^{T}\\vec{e}=\\vec{0}$ says $\\vec{e}\\in N(A^{T})$, and the previous lecture showed $N(A^{T})$ is orthogonal to $C(A)$. The equation derived from geometry and the four-subspace picture agree, which is the check that it is right." },
+      { t: "So $P = A(A^{T}A)^{-1}A^{T}$, and you may not simplify it", d: "Splitting $(A^{T}A)^{-1}$ into $A^{-1}(A^{T})^{-1}$ collapses $P$ to $I$ — which is correct only when $A$ is square and invertible, where the column space IS the whole space. A rectangular $A$ has no inverse to split." },
+    ],
+    worked: "Fitting a line to $(1,1)$, $(2,2)$, $(3,2)$. The equations $C+D=1$, $C+2D=2$, $C+3D=2$ have no solution, so $A=\\begin{pmatrix}1&1\\\\1&2\\\\1&3\\end{pmatrix}$, $\\vec{b}=(1,2,2)$, and you solve $A^{T}A\\hat{x}=A^{T}\\vec{b}$ instead.",
+    watch: "Cancelling $(A^{T}A)^{-1}$ into $A^{-1}(A^{T})^{-1}$. It gives $P=I$ — projection onto everything — and it is only legal when $A$ is square, which is the one case you never needed a projection for.",
+    concepts: ["la-projection"],
+    checks: [
+      { q: "A projection matrix satisfies $P^{2}=P$ because:", opts: ["$P$ is always the identity", "A point already on the subspace is its own projection, so the second projection moves nothing", "$P$ has rank one", "$P$ is invertible"], a: 1,
+        expl: "The first projection lands in the subspace; projecting a point of the subspace returns it unchanged. Together with $P^{T}=P$, this pair identifies projection matrices." },
+      { q: "Projecting $\\vec{b}=(1,2,3)$ onto the line through $\\vec{a}=(1,1,1)$, the multiplier $\\hat{x}$ is:", num: 2,
+        expl: "$\\hat{x} = \\dfrac{\\vec{a}^{T}\\vec{b}}{\\vec{a}^{T}\\vec{a}} = \\dfrac{1+2+3}{1+1+1} = \\dfrac{6}{3} = 2$, so the projection is $(2,2,2)$ and the error $(-1,0,1)$ is perpendicular to $\\vec{a}$." },
+    ],
+  },
+
+  "math110.1.15": {
+    takeaway: "Least squares is a projection: the best line is the one whose predicted values are the projection of the data onto the column space.",
+    beats: [
+      { t: "The two extremes check the formula", d: "If $\\vec{b}$ is already in $C(A)$ it is $A\\vec{x}$, and $A(A^{T}A)^{-1}A^{T}A\\vec{x}$ collapses to $A\\vec{x}=\\vec{b}$. If $\\vec{b}\\perp C(A)$ it is in $N(A^{T})$, so the trailing $A^{T}\\vec{b}$ is $\\vec{0}$. Projection keeps one part and kills the other." },
+      { t: "$I-P$ projects onto the perpendicular space", d: "It is symmetric and squares to itself for the same reasons $P$ does. $\\vec{b}$ splits as $\\vec{p}+\\vec{e}$: the piece in the column space and the piece in the left null space." },
+      { t: "Two pictures of one problem", d: "In the data plot, $e_1,e_2,e_3$ are the vertical gaps between the points and the line. In the vector picture, they are the components of one error vector perpendicular to $C(A)$. Minimising $\\|\\vec{e}\\|^{2}$ is the same act in both." },
+      { t: "Calculus and linear algebra give the same equations", d: "Set $\\partial/\\partial C$ and $\\partial/\\partial D$ of the summed squared error to zero, and the two linear equations you get are $A^{T}A\\hat{x}=A^{T}\\vec{b}$ written out. They are called the normal equations." },
+      { t: "Squaring is a choice, and it has a cost", d: "One wild measurement contributes its error squared, so a single outlier can drag the whole line. Least squares is the most used criterion and not the only one; statisticians identify outliers rather than let them dominate." },
+      { t: "Why $A^{T}A$ is invertible when the columns are independent", d: "Suppose $A^{T}A\\vec{x}=\\vec{0}$. Multiply by $\\vec{x}^{T}$: $(A\\vec{x})^{T}(A\\vec{x}) = 0$, a squared length, so $A\\vec{x}=\\vec{0}$. Independent columns then force $\\vec{x}=\\vec{0}$, so the null space is trivial." },
+    ],
+    worked: "The points $(1,1)$, $(2,2)$, $(3,2)$ give $\\begin{pmatrix}3&6\\\\6&14\\end{pmatrix}\\hat{x} = \\begin{pmatrix}5\\\\11\\end{pmatrix}$, so $C=\\tfrac{2}{3}$ and $D=\\tfrac{1}{2}$. The fitted values are $\\tfrac{7}{6},\\tfrac{5}{3},\\tfrac{13}{6}$ and the errors $-\\tfrac16,\\tfrac26,-\\tfrac16$ — perpendicular to both columns.",
+    watch: "Checking only that $\\vec{e}$ is perpendicular to $\\vec{p}$. It is perpendicular to the whole column space, so it must also be orthogonal to $(1,1,1)$ and to $(1,2,3)$ separately.",
+    concepts: ["la-projection"],
+    checks: [
+      { q: "$A^{T}A\\vec{x}=\\vec{0}$ forces $\\vec{x}=\\vec{0}$ when the columns of $A$ are independent because:", opts: ["$A^{T}A$ is symmetric", "$\\vec{x}^{T}A^{T}A\\vec{x} = \\|A\\vec{x}\\|^{2}$, so $A\\vec{x}=\\vec{0}$, and independence finishes it", "$A$ is square", "$A^{T}A$ is the identity"], a: 1,
+        expl: "Multiplying through by $\\vec{x}^{T}$ turns the equation into a squared length equal to zero, which forces $A\\vec{x}=\\vec{0}$. Independent columns mean $N(A)=\\{\\vec{0}\\}$, so $\\vec{x}$ is zero." },
+      { q: "For the points $(1,1)$, $(2,2)$, $(3,2)$, the slope $D$ of the least-squares line is:", num: 0.5,
+        expl: "The normal equations $3C+6D=5$ and $6C+14D=11$ give $2D=1$ after eliminating $C$, so $D=\\tfrac12$ and then $C=\\tfrac23$." },
+    ],
+  },
+
+  "math110.1.16": {
+    takeaway: "With an orthonormal basis every formula in this chapter collapses, and Gram-Schmidt is the procedure that manufactures one from any independent set.",
+    beats: [
+      { t: "$Q^{T}Q=I$ is the whole definition, written as a matrix", d: "Row $i$ of $Q^{T}$ times column $j$ of $Q$ is $\\vec{q}_i^{T}\\vec{q}_j$ — one on the diagonal, zero off it. $Q$ need not be square for this; when it IS square the identity also says $Q^{T}=Q^{-1}$, and only then is it called an orthogonal matrix." },
+      { t: "The projection matrix loses its inverse", d: "$P = Q(Q^{T}Q)^{-1}Q^{T}$ becomes simply $QQ^{T}$. It is still symmetric, and $QQ^{T}QQ^{T} = QQ^{T}$ because $Q^{T}Q=I$ sits in the middle. If $Q$ is square the column space is everything and $P=I$." },
+      { t: "The normal equations become a list of dot products", d: "$Q^{T}Q\\hat{x}=Q^{T}\\vec{b}$ is just $\\hat{x} = Q^{T}\\vec{b}$: the $i$-th coordinate is $\\vec{q}_i^{T}\\vec{b}$. Nothing to invert, nothing to solve — the component along a basis vector is a dot product with it." },
+      { t: "Gram-Schmidt: keep the first, correct the second", d: "$\\vec{A}=\\vec{a}$. Then $\\vec{B} = \\vec{b} - \\dfrac{\\vec{A}^{T}\\vec{b}}{\\vec{A}^{T}\\vec{A}}\\vec{A}$ — the original vector minus its projection, which is the error vector from the projection lecture. Check it: $\\vec{A}^{T}\\vec{B}$ cancels to zero." },
+      { t: "The third subtracts two projections, and so on", d: "$\\vec{C} = \\vec{c} - \\dfrac{\\vec{A}^{T}\\vec{c}}{\\vec{A}^{T}\\vec{A}}\\vec{A} - \\dfrac{\\vec{B}^{T}\\vec{c}}{\\vec{B}^{T}\\vec{B}}\\vec{B}$. Divide each result by its length at the end; that division is where the square roots come from." },
+      { t: "In matrix form it is $A=QR$, and $R$ is triangular", d: "The same column space, a better basis for it. $R$ is upper triangular because each new $\\vec{q}$ was built to be orthogonal to every EARLIER $\\vec{a}$, so the entries below the diagonal are $\\vec{a}_1^{T}\\vec{q}_2$ and their kind — all zero." },
+    ],
+    worked: "$\\vec{a}=(1,1,1)$ and $\\vec{b}=(1,0,2)$. Here $\\vec{a}^{T}\\vec{b}=3$ and $\\vec{a}^{T}\\vec{a}=3$, so subtract one copy: $\\vec{B}=(1,0,2)-(1,1,1)=(0,-1,1)$. Divide by $\\sqrt{3}$ and $\\sqrt{2}$ and the columns of $Q$ are done.",
+    watch: "Orthogonalising against the ORIGINAL vectors instead of the ones already produced. Each subtraction must use $\\vec{A}$ and $\\vec{B}$ as corrected, or the result is not perpendicular to anything.",
+    concepts: ["la-projection", "la-basis"],
+    checks: [
+      { q: "In $A=QR$, the matrix $R$ is upper triangular because:", opts: ["$Q$ is square", "Each $\\vec{q}_j$ was constructed orthogonal to every earlier $\\vec{a}_i$, so those entries vanish", "$R$ is a permutation", "Gram-Schmidt reverses the column order"], a: 1,
+        expl: "The entry below the diagonal in column one is $\\vec{a}_1^{T}\\vec{q}_2$, and $\\vec{q}_2$ was built by subtracting off exactly the $\\vec{a}_1$ direction. Every such entry is zero, leaving a triangle." },
+      { q: "Gram-Schmidt on $\\vec{a}=(1,1,1)$ and $\\vec{b}=(1,0,2)$ gives $\\vec{B}$ whose second component is:", num: -1,
+        expl: "$\\dfrac{\\vec{a}^{T}\\vec{b}}{\\vec{a}^{T}\\vec{a}} = \\dfrac{3}{3} = 1$, so $\\vec{B} = (1,0,2)-(1,1,1) = (0,-1,1)$, and $\\vec{a}^{T}\\vec{B} = 0-1+1 = 0$ as required." },
+    ],
+  },
+
 });

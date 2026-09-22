@@ -272,4 +272,109 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
     ],
   },
 
+  "math120.1.0": {
+    takeaway: "The derivative is the slope of the tangent line, defined as the limit of secant slopes — and the difference quotient is the formula that makes it computable.",
+    beats: [
+      { t: "Drawing a tangent by eye is not a definition", d: "You can see the right line; a machine cannot. What distinguishes it is not that it touches once — a wiggly curve can be crossed repeatedly. The honest statement is a limit of SECANT lines $PQ$ as $Q$ slides towards $P$." },
+      { t: "Two notations, and then one formula", d: "$\\Delta x$ is the horizontal step, $\\Delta f$ the resulting rise, and $\\Delta f/\\Delta x$ is the secant's slope. Then $f'(x_0) = \\lim_{\\Delta x\\to0}\\dfrac{f(x_0+\\Delta x)-f(x_0)}{\\Delta x}$ — the difference quotient, and everything else follows from it." },
+      { t: "Worked on $1/x$, and the cancellation is the point", d: "Over a common denominator the $x_0$ terms cancel and one $\\Delta x$ divides out. Only THEN can you set $\\Delta x = 0$ — before the cancellation you have $0/0$. The answer is $-1/x_0^{2}$: negative, and flattening as $x_0$ grows, both of which the graph confirms." },
+      { t: "The binomial theorem gives the power rule", d: "$(x+\\Delta x)^{n} = x^{n} + nx^{n-1}\\Delta x + O(\\Delta x^{2})$. The $x^{n}$ cancels, one $\\Delta x$ divides out, and the $O(\\Delta x^{2})$ junk still carries a $\\Delta x$ and vanishes. So $\\frac{d}{dx}x^{n} = nx^{n-1}$, and polynomials follow term by term." },
+      { t: "Calculus gets a bad name because of the context around it", d: "The calculus step in a word problem is usually one line. Everything else — intercepts, substitution, algebra — is what you already knew, and it is where the difficulty actually lives." },
+      { t: "And the deliberate sloppiness with letters", d: "In the tangent-line problem $y$ means the curve's height in one line and the equation $y=0$ of a horizontal line two lines later. Mathematicians reuse letters rather than invent eight; you have to track which role each one is playing." },
+    ],
+    worked: "Tangent to $y=1/x$ at $(x_0,y_0)$, with the axes, encloses a triangle. Setting $y=0$ gives the $x$-intercept $2x_0$; by the symmetry $x \\leftrightarrow y$ of $xy=1$, the $y$-intercept is $2y_0$. Area $= \\tfrac12(2x_0)(2y_0) = 2x_0y_0 = 2$ — the same for every point.",
+    watch: "Setting $\\Delta x = 0$ before simplifying. The quotient is $0/0$ until the cancellation is done; the algebra is what makes the limit exist, not a formality before it.",
+    concepts: [],
+    checks: [
+      { q: "The tangent line is defined as a limit of secants rather than as \"the line touching once\" because:", opts: ["Secants are easier to draw", "A curve can meet a line more than once and still be tangent there, so touching count does not characterise it", "Tangent lines never cross the curve", "Limits are required by convention"], a: 1,
+        expl: "A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches." },
+      { q: "The triangle cut off by the axes and a tangent to $y=1/x$ has area:", num: 2,
+        expl: "The intercepts are $2x_0$ and $2y_0$, so the area is $\\tfrac12(2x_0)(2y_0) = 2x_0y_0$. On this curve $x_0y_0=1$, so the area is 2 regardless of where the tangent touches." },
+    ],
+  },
+
+  "math120.1.1": {
+    takeaway: "A derivative is a rate of change, and making that rigorous means separating left and right limits — which is also what makes continuity definable.",
+    beats: [
+      { t: "The same ratio, read as a rate", d: "$\\Delta y/\\Delta x$ is the AVERAGE rate of change over the interval; $dy/dx$ is the instantaneous one. Charge gives current, distance gives speed, temperature gives the gradient that drives weather." },
+      { t: "The pumpkin drop makes the difference visceral", d: "From 80 m, $h = 80-5t^{2}$ reaches the ground at $t=4$. Average speed is $-20$ m/s. But $h' = -10t$, so at impact it is $-40$ m/s — twice the average, about 90 mph. Nobody at the event cares about the average." },
+      { t: "Sensitivity of measurement is the third use", d: "GPS measures a distance $h$ with some error $\\Delta h$ and deduces a horizontal distance $L$. How bad the error in $L$ is comes from $\\Delta L/\\Delta h \\approx dL/dh$. That is why derivatives matter for landing aircraft." },
+      { t: "Easy limits versus the limits derivatives need", d: "$\\lim_{x\\to4}\\frac{x+3}{x^{2}+1}$ is done by substituting. A derivative NEVER is: plugging in gives $0/0$ every single time, so some cancellation is always required first." },
+      { t: "Left and right limits, and the zoo of discontinuities", d: "A jump has both one-sided limits existing but unequal. A removable one has them equal with a hole — $\\frac{\\sin x}{x}$ at 0 is the important case. An infinite one splits: $1/x$ goes to $+\\infty$ from the right and $-\\infty$ from the left, so writing a single limit there is simply wrong." },
+      { t: "Differentiable implies continuous, in one line", d: "$\\lim(f(x)-f(x_0)) = \\lim\\frac{f(x)-f(x_0)}{x-x_0}\\cdot(x-x_0) = f'(x_0)\\cdot 0 = 0$. Multiplying and dividing by $x-x_0$ is legal precisely because the limit never evaluates AT $x_0$, so that factor is small but never zero." },
+    ],
+    worked: "The derivative graph looks nothing like the function's. $1/x$ has two branches, one rising and one falling; $-1/x^{2}$ is negative everywhere and dives to $-\\infty$ on both sides. What it plots is the SLOPE, and slope has its own shape.",
+    watch: "Writing $\\lim_{x\\to0}\\frac1x = \\infty$. The two sides disagree: $+\\infty$ from the right and $-\\infty$ from the left. Specify the side, or say the limit does not exist.",
+    concepts: [],
+    checks: [
+      { q: "Multiplying and dividing by $(x-x_0)$ inside a limit is legal because:", opts: ["Zero times anything is zero", "The limit never evaluates at $x = x_0$, so that factor is always non-zero", "Limits ignore algebra", "$x_0$ is always positive"], a: 1,
+        expl: "A limit as $x\\to x_0$ deliberately excludes $x=x_0$ itself. The factor is arbitrarily small but never zero, so the division is valid at every point the limit actually looks at." },
+      { q: "For $h = 80 - 5t^{2}$, the speed at impact ($t=4$) in metres per second is:", num: -40,
+        expl: "$h'(t) = -10t$, so $h'(4) = -40$. The average speed over the fall was only $-20$, since the pumpkin started at rest." },
+    ],
+  },
+
+  "math120.1.2": {
+    takeaway: "Both trig derivatives come from two limits at zero, and those two limits come from one geometric fact: short pieces of curve are nearly straight.",
+    beats: [
+      { t: "Two kinds of formula, and you need both", d: "SPECIFIC ones give a named function's derivative — $x^{n}$, $1/x$, $\\sin x$. GENERAL ones combine what you have — sums, constant multiples, and soon products and quotients. A handful of each generates everything." },
+      { t: "Expand with the sum formula, then group to keep $0/0$ together", d: "$\\sin(x+\\Delta x) = \\sin x\\cos\\Delta x + \\cos x\\sin\\Delta x$. Subtracting $\\sin x$ and grouping gives $\\sin x\\cdot\\frac{\\cos\\Delta x-1}{\\Delta x} + \\cos x\\cdot\\frac{\\sin\\Delta x}{\\Delta x}$. The grouping is the whole trick: a term that is not over a zero becomes meaningless." },
+      { t: "Two limits do all the work", d: "(A) $\\frac{\\cos\\Delta x - 1}{\\Delta x}\\to0$ and (B) $\\frac{\\sin\\Delta x}{\\Delta x}\\to1$. So $\\frac{d}{dx}\\sin x = \\cos x$, and the same expansion for cosine gives $\\frac{d}{dx}\\cos x = -\\sin x$." },
+      { t: "Those two limits ARE the derivatives at zero", d: "(B) is $\\frac{d}{dx}\\sin x$ at $x=0$; (A) is $\\frac{d}{dx}\\cos x$ at $x=0$. So knowing the rate of change at one single place delivers it at every place — that is the structure of the proof." },
+      { t: "Why (B) is 1: the bow and the bowstring", d: "On the unit circle, $2\\sin\\theta$ is the chord and $2\\theta$ is the arc. As $\\theta$ closes, the curve and the straight segment merge in length, so their ratio goes to 1. Short curves are nearly straight." },
+      { t: "Why (A) is 0: the gap closes faster", d: "$1-\\cos\\theta$ is the tiny gap between the bowstring and the bow, and $\\theta$ is the arc. Both go to zero, but the gap goes far faster — so the ratio goes to 0, not to 1." },
+    ],
+    worked: "A second proof, for all $\\theta$ at once: move a point round the unit circle by $\\Delta\\theta$. The chord has length about $\\Delta\\theta$ and is nearly perpendicular to the radius, so the angle in the little triangle is again $\\theta$. Hence $\\Delta y \\approx \\Delta\\theta\\cos\\theta$.",
+    watch: "Using degrees. Every one of these arguments compares an ARC LENGTH with a vertical distance, so the angle must be measured as length along the unit circle. In degrees the formulas are simply wrong.",
+    concepts: [],
+    checks: [
+      { q: "$\\frac{d}{dx}\\sin x = \\cos x$ holds only when $x$ is in radians because:", opts: ["Radians are more modern", "The proof compares the arc length $\\theta$ with a chord, so the angle must be measured as length on the unit circle", "Degrees make sine negative", "Cosine is undefined in degrees"], a: 1,
+        expl: "The limit $\\frac{\\sin\\theta}{\\theta}\\to1$ says a chord and an arc have the same length in the limit. That is a statement about two lengths, and it fails if $\\theta$ is counted in 360ths of a turn." },
+      { q: "The derivative of $\\sin x$ at $x = \\pi/3$ is:", num: 0.5,
+        expl: "It is $\\cos(\\pi/3) = \\tfrac12$. The sine graph is still rising there, but less steeply than at 0, where the derivative is 1." },
+    ],
+  },
+
+  "math120.1.3": {
+    takeaway: "Product, quotient and chain rules are proved the same way — write the change, add and subtract a middle term, divide by $\\Delta x$ — and the chain rule is the one that sets you free.",
+    beats: [
+      { t: "The product rule comes from changing one factor at a time", d: "Write $\\Delta(uv)$, then add and subtract $u(x)v(x+\\Delta x)$. The middle terms cancel and what is left is $\\Delta u\\cdot v(x+\\Delta x) + u(x)\\cdot\\Delta v$. Divide by $\\Delta x$ and let it go: $(uv)' = u'v + uv'$." },
+      { t: "Continuity does the last step", d: "In the limit, $v(x+\\Delta x)\\to v(x)$ — and that is exactly the theorem that differentiable implies continuous. It is where that earlier result gets used." },
+      { t: "The quotient rule, by the same method", d: "Put the difference over a common denominator, watch $uv$ cancel twice, and $\\left(\\frac uv\\right)' = \\dfrac{u'v - uv'}{v^{2}}$. Ugly, and it has to be memorised in the right order, because the numerator is not symmetric." },
+      { t: "Which quietly extends the power rule", d: "Take $u=1$ and $v=x^{n}$: the quotient rule gives $-nx^{-n-1}$. That is the SAME formula $\\frac{d}{dx}x^{m} = mx^{m-1}$, now with $m$ negative. One rule, one proof, twice the range." },
+      { t: "The chain rule is almost algebra", d: "$\\dfrac{\\Delta y}{\\Delta t} = \\dfrac{\\Delta y}{\\Delta x}\\cdot\\dfrac{\\Delta x}{\\Delta t}$ — the middle change genuinely cancels. In the limit, $\\dfrac{dy}{dt} = \\dfrac{dy}{dx}\\cdot\\dfrac{dx}{dt}$. Naming the inner value $x$ makes it obvious; with practice you skip the name." },
+      { t: "Higher derivatives, and $D^{n}x^{n} = n!$", d: "Differentiating $x^{n}$ repeatedly brings the exponent down each time: $n$, then $n-1$, down to 1. After $n$ passes the product of those is $n!$ and no $x$ remains — so the next derivative is 0." },
+    ],
+    worked: "$\\frac{d}{dt}(\\sin t)^{10}$. Outside is the tenth power, inside is $\\sin t$. Differentiate the outside at the inside value: $10(\\sin t)^{9}$. Multiply by the inside's derivative: $\\cos t$. Answer $10\\sin^{9}t\\cos t$.",
+    watch: "Reversing the quotient rule's numerator. It is $u'v - uv'$, and $uv' - u'v$ is its negative — a sign error that survives every later step. The product rule is symmetric; this one is not.",
+    concepts: [],
+    checks: [
+      { q: "The power rule holds for negative exponents because:", opts: ["It was assumed from the start", "Applying the quotient rule to $1/x^{n}$ produces exactly $mx^{m-1}$ with $m=-n$", "Negative powers are undefined", "The chain rule covers it"], a: 1,
+        expl: "With $u=1$, the quotient rule gives $-v'/v^{2} = -nx^{n-1}/x^{2n} = -nx^{-n-1}$ — the same formula with the exponent negative in both places. Nothing new had to be assumed." },
+      { q: "The fifth derivative of $x^{5}$ is the constant:", num: 120,
+        expl: "Each pass drops the exponent in front: $5\\cdot4\\cdot3\\cdot2\\cdot1 = 5! = 120$. The sixth derivative is 0, since a constant differentiates to nothing." },
+    ],
+  },
+
+  "math120.1.4": {
+    takeaway: "Differentiate the equation you were given instead of solving it first, and both fractional powers and every inverse function fall out.",
+    beats: [
+      { t: "Fractional powers, via an integer equation", d: "$y = x^{m/n}$ is not yet differentiable by anything you know. But $y^{n} = x^{m}$ is. Differentiate that with the chain rule, solve for $y'$, substitute $y$ back — and the exponent arithmetic collapses to $\\frac{m}{n}x^{m/n-1}$. The power rule now covers every rational exponent." },
+      { t: "The method in one line", d: "Apply $\\frac{d}{dx}$ to BOTH sides of the equation, treating $y$ as a function of $x$ so every $y$ term picks up a $y'$. Then solve for $y'$ algebraically." },
+      { t: "On the circle it beats the explicit route", d: "$x^{2}+y^{2}=1$ differentiates to $2x+2yy'=0$, so $y' = -x/y$ — three symbols. Solving for $y$ first forces a square root, a chain rule, and a choice of branch, and the answers agree." },
+      { t: "And it handles both branches at once", d: "$-x/y$ is correct above and below the axis without comment: on the lower half $y$ is negative, so the slope comes out positive, exactly as the picture shows." },
+      { t: "The gain grows with the mess", d: "$y^{4}+xy^{2}-2=0$ has a quartic solution with nested radicals and up to four branches. Implicitly it is two lines. You still need a point — at $(1,1)$ the slope is $-\\tfrac16$ — but you never have to DIFFERENTIATE the monstrous formula." },
+      { t: "Every inverse function, for free", d: "$y=\\arctan x$ means $\\tan y = x$. Differentiate: $\\frac{y'}{\\cos^{2}y} = 1$, so $y' = \\cos^{2}y$. Draw the right triangle with legs $x$ and 1, read $\\cos y = 1/\\sqrt{1+x^{2}}$, and the answer is $\\dfrac{1}{1+x^{2}}$." },
+    ],
+    worked: "The same three steps give $\\frac{d}{dx}\\arcsin x$. From $\\sin y = x$: $(\\cos y)y' = 1$, so $y' = 1/\\cos y$, and the triangle gives $\\cos y = \\sqrt{1-x^{2}}$. Answer $\\dfrac{1}{\\sqrt{1-x^{2}}}$.",
+    watch: "Leaving the answer in terms of $y$. $\\cos^{2}(\\arctan x)$ is correct and useless; the triangle is what converts it into a formula in $x$ alone, and for trig functions it always simplifies.",
+    concepts: [],
+    checks: [
+      { q: "Implicit differentiation is preferred for $y^{4}+xy^{2}-2=0$ because:", opts: ["The explicit solution does not exist", "You never have to differentiate the quartic formula — two lines give $y'$ in terms of $x$ and $y$", "It avoids the chain rule", "It gives a simpler curve"], a: 1,
+        expl: "The explicit solution exists but is a nest of radicals with several branches. Implicit differentiation needs a point on the curve, but the differentiation itself stays trivial." },
+      { q: "The derivative of $\\arctan x$ at $x = 2$ is:", num: 0.2,
+        expl: "$\\frac{d}{dx}\\arctan x = \\dfrac{1}{1+x^{2}}$, so at $x=2$ it is $\\tfrac15 = 0.2$. The arctangent is flattening towards its horizontal asymptote at $\\pi/2$." },
+    ],
+  },
+
 });

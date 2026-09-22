@@ -433,6 +433,21 @@ const expectedSummary = {
   "math120.0.11": [{ i: 1, v: (function () {   // local stretch factor of x^2 at 3 = its derivative
                         const f = x => x * x, x = 3, h = 1e-6;
                         return Math.round((f(x + h) - f(x - h)) / (2 * h)); })() }],
+  "math120.1.0":  [{ i: 1, v: (function () {   // triangle under a tangent to y = 1/x
+                        const x0 = 3, y0 = 1 / x0;
+                        return 0.5 * (2 * x0) * (2 * y0); })() }],
+  "math120.1.1":  [{ i: 1, v: (function () {   // h = 80 - 5t^2, speed at t = 4
+                        const h = t => 80 - 5 * t * t, t = 4, e = 1e-6;
+                        return Math.round((h(t + e) - h(t - e)) / (2 * e)); })() }],
+  "math120.1.2":  [{ i: 1, v: (function () {   // d/dx sin x at pi/3, from the difference quotient
+                        const x = Math.PI / 3, e = 1e-6;
+                        const d = (Math.sin(x + e) - Math.sin(x - e)) / (2 * e);
+                        return Math.round(d * 1e6) / 1e6; })() }],
+  "math120.1.3":  [{ i: 1, v: (function () {   // n-th derivative of x^n is n!
+                        let f = 1; for (let k = 2; k <= 5; k++) f *= k; return f; })() }],
+  "math120.1.4":  [{ i: 1, v: (function () {   // d/dx arctan x at x = 2, numerically
+                        const x = 2, e = 1e-6;
+                        return Math.round(((Math.atan(x + e) - Math.atan(x - e)) / (2 * e)) * 1e6) / 1e6; })() }],
 };
 
 let sumNums = 0;

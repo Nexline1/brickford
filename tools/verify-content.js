@@ -14,6 +14,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/quiz-linear-algebra.js","platform/data/quiz-calculus.js","platform/data/quiz-probability.js",
  "platform/data/quiz-dsa.js","platform/data/quiz-zero-to-hero.js","platform/data/quiz-math-for-ml.js",
  "platform/data/quiz-llm-engineering.js","platform/data/summaries-math110.js",
+ "platform/data/summaries-math110-mit.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -251,6 +252,25 @@ const expectedSummary = {
                         const c = [5, 4, 5, 1];              // constant term first
                         const d = c.slice(1).map((v, i) => (i + 1) * v);
                         return d[1]; })() }],
+  "math110.1.0":  [{ i: 1, v: (function () {   // x*(2,-1) + y*(-1,2) at x=1,y=2, second component
+                        const c1 = [2, -1], c2 = [-1, 2], x = 1, y = 2;
+                        return x * c1[1] + y * c2[1]; })() }],
+  "math110.1.1":  [{ i: 1, v: (function () {   // det of the lecture's matrix, by cofactor expansion
+                        const A = [[1, 2, 1], [3, 8, 1], [0, 4, 1]];
+                        return A[0][0] * det2([[A[1][1], A[1][2]], [A[2][1], A[2][2]]])
+                             - A[0][1] * det2([[A[1][0], A[1][2]], [A[2][0], A[2][2]]])
+                             + A[0][2] * det2([[A[1][0], A[1][1]], [A[2][0], A[2][1]]]); })() }],
+  "math110.1.2":  [{ i: 1, v: (function () {   // inverse of [[1,3],[2,7]], entry 1,2
+                        const A = [[1, 3], [2, 7]], d = det2(A);
+                        return -A[0][1] / d; })() }],
+  "math110.1.3":  [{ i: 1, v: (function () {   // the spurious 10 in E32 E21
+                        const E21 = [[1, 0, 0], [-2, 1, 0], [0, 0, 1]];
+                        const E32 = [[1, 0, 0], [0, 1, 0], [0, -5, 1]];
+                        return matmul(E32, E21)[2][0]; })() }],
+  "math110.1.4":  [{ i: 1, v: (function () {   // R R^T is symmetric; entry 1,3
+                        const R = [[1, 3], [2, 3], [4, 1]];
+                        const Rt = R[0].map((_, j) => R.map(r => r[j]));
+                        return matmul(R, Rt)[0][2]; })() }],
 };
 
 let sumNums = 0;

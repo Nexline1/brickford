@@ -75,7 +75,7 @@ DAR.COURSES = [
           { t: "Diagonalization and Powers of A", v: "13r9QY6cmjc", min: 52 },
           { t: "Differential Equations and exp(At)", v: "IZqwi0wJovM", min: 51 },
           { t: "Markov Matrices; Fourier Series", v: "lGGDIGizcQ0", min: 51 },
-          { t: "24b. Quiz 2 Review", v: "QuZL5IKpO_U", min: 48 },
+          { t: "Quiz 2 Review", v: "QuZL5IKpO_U", min: 48 },
           { t: "Symmetric Matrices and Positive Definiteness", v: "UCc9q_cAhho", min: 44 },
           { t: "Complex Matrices; Fast Fourier Transform", v: "M0Sa8fLOajA", min: 48 },
           { t: "Positive Definite Matrices and Minima", v: "vF7eyJ2g3kU", min: 51 },

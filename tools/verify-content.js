@@ -484,6 +484,48 @@ const expectedSummary = {
                         let best = Infinity;
                         for (let i = 0; i <= 100000; i++) { const v = a(i / 100000); if (v < best) best = v; }
                         return Math.round(best * 1e5) / 1e5; })() }],
+  "math120.1.11": [{ i: 1, v: (function () {   // dx/dt from x(d) = sqrt(d^2 - 900), by the chain rule numerically
+                        const x = d => Math.sqrt(d * d - 900), d = 50, e = 1e-6;
+                        const dxdd = (x(d + e) - x(d - e)) / (2 * e);
+                        return Math.round(Math.abs(dxdd * -80)); })(),
+                    },
+                    { i: 2, v: (function () {   // dh/dt = 2 / (dV/dh) at h = 5, dV/dh by difference
+                        const V = h => (1 / 3) * Math.PI * Math.pow(2 * h / 5, 2) * h, h = 5, e = 1e-6;
+                        const dVdh = (V(h + e) - V(h - e)) / (2 * e);
+                        return Math.round((2 / dVdh) * 1000) / 1000; })() }],
+  "math120.1.12": [{ i: 1, v: (function () {   // the MVT c for x^2 on [1,3], found by scanning for f'(c) = secant slope
+                        const f = x => x * x, a = 1, b = 3, e = 1e-6;
+                        const sec = (f(b) - f(a)) / (b - a);
+                        let bc = 0, gap = Infinity;
+                        for (let i = 1; i < 200000; i++) {
+                          const c = a + (b - a) * i / 200000;
+                          const g = Math.abs((f(c + e) - f(c - e)) / (2 * e) - sec);
+                          if (g < gap) { gap = g; bc = c; } }
+                        return Math.round(bc); })() }],
+  "math120.1.13": [{ i: 1, v: (function () {   // the true cube root, not the tangent-line estimate
+                        return Math.round(Math.cbrt(64.1) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the gap between the two antiderivatives, sampled
+                        const d = x => 0.5 * Math.sin(x) * Math.sin(x) - (-0.5 * Math.cos(x) * Math.cos(x));
+                        const a = d(0.3), b = d(1.7), c = d(2.9);
+                        if (Math.abs(a - b) > 1e-12 || Math.abs(b - c) > 1e-12) return NaN;
+                        return Math.round(a * 1000) / 1000; })() }],
+  "math120.1.14": [{ i: 1, v: (function () {   // y' = -x y from y(0) = 3, integrated by RK4 rather than solved
+                        const f = (x, y) => -x * y; let y = 3, x = 0; const h = 1e-4;
+                        for (let i = 0; i < 10000; i++) {
+                          const k1 = f(x, y), k2 = f(x + h / 2, y + h * k1 / 2);
+                          const k3 = f(x + h / 2, y + h * k2 / 2), k4 = f(x + h, y + h * k3);
+                          y += h * (k1 + 2 * k2 + 2 * k3 + k4) / 6; x += h; }
+                        return Math.round(y * 1000) / 1000; })() }],
+  "math120.1.15": [{ i: 1, v: (function () {   // area under x^2 on [0,3] by midpoint Riemann sum, not by b^3/3
+                        const f = x => x * x, a = 0, b = 3, n = 4000000, h = (b - a) / n;
+                        let s = 0; for (let i = 0; i < n; i++) s += f(a + (i + 0.5) * h) * h;
+                        return Math.round(s); })(),
+                    },
+                    { i: 2, v: (function () {   // sum of squares over n^3, evaluated directly at large n
+                        const n = 4000000; let s = 0;
+                        for (let i = 1; i <= n; i++) s += (i / n) * (i / n) * (1 / n);
+                        return Math.round(s * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;
@@ -528,6 +570,22 @@ summaryKeys.forEach(k => {
     .concat((s.beats || []).map((b, i) => ["beat " + i, b.d]))
     .forEach(([where, text]) => ok(!/<[a-zA-Z/]/.test(text || ""),
        "summary " + k + " " + where + ": no raw '<' — it is injected unescaped"));
+});
+
+// The other direction. A recomputation that names a lesson which does not exist,
+// or a check index that is not numeric, is dead code that looks like coverage —
+// and it stays green, because the loop above only ever reads expectedSummary by
+// the keys it already has. This caught a math120.1.14 entry written before the
+// summary it checked.
+Object.keys(expectedSummary).forEach(k => {
+  const s = (D.SUMMARIES || {})[k];
+  ok(!!s, "expectedSummary " + k + ": names a summary that exists");
+  if (!s) return;
+  expectedSummary[k].forEach(e => {
+    const c = (s.checks || [])[e.i];
+    ok(!!c && c.num !== undefined,
+       "expectedSummary " + k + " check " + e.i + ": is a numeric check on that summary");
+  });
 });
 
 D.COURSES.forEach(c => {

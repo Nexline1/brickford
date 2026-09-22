@@ -15,6 +15,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/quiz-dsa.js","platform/data/quiz-zero-to-hero.js","platform/data/quiz-math-for-ml.js",
  "platform/data/quiz-llm-engineering.js","platform/data/summaries-math110.js",
  "platform/data/summaries-math110-mit.js",
+ "platform/data/summaries-math120.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -394,6 +395,44 @@ const expectedSummary = {
                         const N = matmul(At, A), f = matmul(At, b);
                         const ND = [[N[0][0], f[0][0]], [N[1][0], f[1][0]]];
                         return det2(ND) / det2(N); })() }],
+
+  // ---- MATH 120, Single-Variable Calculus ----
+  "math120.0.0":  [{ i: 1, v: (function () {   // dA/dx for the area under y = x^2, at x = 3
+                        const f = x => x * x;
+                        return f(3); })() }],
+  "math120.0.1":  [{ i: 1, v: (function () {   // d/dt of t^3 at t = 2, from the difference quotient
+                        const s = t => t * t * t, t = 2, h = 1e-6;
+                        return Math.round((s(t + h) - s(t - h)) / (2 * h)); })() }],
+  "math120.0.2":  [{ i: 1, v: (function () {   // power rule on x^5 at x = 2, by difference quotient
+                        const f = x => Math.pow(x, 5), x = 2, h = 1e-5;
+                        return Math.round((f(x + h) - f(x - h)) / (2 * h)); })() }],
+  "math120.0.3":  [{ i: 1, v: (function () {   // chain rule on (x^2)^3 at x = 1, numerically
+                        const g = x => Math.pow(x * x, 3), x = 1, h = 1e-5;
+                        return Math.round((g(x + h) - g(x - h)) / (2 * h)); })() }],
+  "math120.0.4":  [{ i: 1, v: Math.round(Math.log(8) / Math.log(2)) }],
+  "math120.0.5":  [{ i: 1, v: (function () {   // dy/dx = -x/y on the circle, at (3,4)
+                        const x = 3, y = 4;
+                        return -x / y; })() }],
+  "math120.0.6":  [{ i: 1, v: (function () {   // L'Hopital on (x^2-4)/(x-2) at x = 2, numerically
+                        const f = x => (x * x - 4) / (x - 2);
+                        return Math.round(f(2 + 1e-7)); })() }],
+  "math120.0.7":  [{ i: 1, v: (function () {   // integral of t(8-t) from 0 to 6, by Riemann sum
+                        const v = t => t * (8 - t); let s = 0, n = 2000000, a = 0, b = 6, h = (b - a) / n;
+                        for (let i = 0; i < n; i++) s += v(a + (i + 0.5) * h) * h;
+                        return Math.round(s); })() }],
+  "math120.0.8":  [{ i: 1, v: (function () {   // integral of sin from 0 to pi
+                        let s = 0, n = 2000000, h = Math.PI / n;
+                        for (let i = 0; i < n; i++) s += Math.sin((i + 0.5) * h) * h;
+                        return Math.round(s); })() }],
+  "math120.0.9":  [{ i: 1, v: (function () {   // second derivative of x^3 at x = 3
+                        const f = x => x * x * x, x = 3, h = 1e-4;
+                        return Math.round((f(x + h) - 2 * f(x) + f(x - h)) / (h * h)); })() }],
+  "math120.0.10": [{ i: 1, v: (function () {   // 1 - x^2/2 at x = 0.1
+                        const x = 0.1;
+                        return 1 - x * x / 2; })() }],
+  "math120.0.11": [{ i: 1, v: (function () {   // local stretch factor of x^2 at 3 = its derivative
+                        const f = x => x * x, x = 3, h = 1e-6;
+                        return Math.round((f(x + h) - f(x - h)) / (2 * h)); })() }],
 };
 
 let sumNums = 0;

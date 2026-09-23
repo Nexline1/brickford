@@ -1004,6 +1004,79 @@ const expectedSummary = {
                         let s = f(a) + f(b);
                         for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
                         return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  // Batch three. Joint distributions invite 2-D Simpson and enumeration; the
+  // summaries reach their numbers through series, symmetry, stories and closed
+  // forms, so each check below is reached some other way.
+  "math130.0.17": [{ i: 1, v: (function () {   // integrate z^6 against the density, not the MGF series
+                        const f = z => Math.pow(z, 6) * Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI), a = -15, b = 15, n = 6000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // integrate y^3 against the Expo(2) density, not n!/lambda^n
+                        const f = y => y * y * y * 2 * Math.exp(-2 * y), a = 0, b = 40, n = 20000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+
+  "math130.0.18": [{ i: 1, v: (function () {   // 2-D Simpson of |x - y| over the whole square, no splitting and no symmetry
+                        const n = 400, h = 1 / n, w = i => (i === 0 || i === n) ? 1 : (i % 2 ? 4 : 2);
+                        let s = 0;
+                        for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) s += w(i) * w(j) * Math.abs(i - j) * h;
+                        return Math.round((s * h * h / 9) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // area of the strip by plane geometry — the disc minus two circular segments
+                        const d = 0.5, segment = Math.acos(d) - d * Math.sqrt(1 - d * d);
+                        return Math.round(((Math.PI - 2 * segment) / Math.PI) * 1000) / 1000; })() }],
+
+  "math130.0.19": [{ i: 1, v: (function () {   // walk all 3^4 = 81 category sequences, never the multinomial coefficient
+                        const p = [0.5, 0.3, 0.2];
+                        let s = 0;
+                        for (let m = 0; m < 81; m++) {
+                          const c = [0, 0, 0]; let x = m, pr = 1;
+                          for (let k = 0; k < 4; k++) { const r = x % 3; x = (x - r) / 3; c[r]++; pr *= p[r]; }
+                          if (c[0] === 2 && c[1] === 1 && c[2] === 1) s += pr; }
+                        return Math.round(s * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // P(X <= 2|Y|) by nested quadrature over two normals — never the Cauchy density
+                        const phi = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const Phi = x => simp(phi, -12, x, 800);
+                        return Math.round(simp(y => phi(y) * Phi(2 * Math.abs(y)), -10, 10, 800) * 10000) / 10000; })() }],
+
+  "math130.0.20": [{ i: 1, v: (function () {   // E(X1 X2) - E(X1)E(X2) summed over the whole trinomial table, not by lumping
+                        const n = 10, p1 = 0.2, p2 = 0.3, p3 = 0.5;
+                        const fact = k => { let r = 1; for (let i = 2; i <= k; i++) r *= i; return r; };
+                        let e1 = 0, e2 = 0, e12 = 0;
+                        for (let a = 0; a <= n; a++) for (let b = 0; a + b <= n; b++) {
+                          const c = n - a - b;
+                          const pr = fact(n) / (fact(a) * fact(b) * fact(c)) * Math.pow(p1, a) * Math.pow(p2, b) * Math.pow(p3, c);
+                          e1 += a * pr; e2 += b * pr; e12 += a * b * pr; }
+                        return Math.round((e12 - e1 * e2) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // sequential draw, carrying the distribution of the white count ball by ball
+                        let cur = [1];
+                        for (let i = 0; i < 5; i++) {
+                          const nx = new Array(i + 2).fill(0);
+                          for (let j = 0; j <= i; j++) {
+                            if (!cur[j]) continue;
+                            const white = 5 - j, left = 20 - i;
+                            nx[j + 1] += cur[j] * white / left;
+                            nx[j] += cur[j] * (left - white) / left; }
+                          cur = nx; }
+                        let m1 = 0, m2 = 0; cur.forEach((p, j) => { m1 += j * p; m2 += j * j * p; });
+                        return Math.round((m2 - m1 * m1) * 1000) / 1000; })() }],
+
+  "math130.0.21": [{ i: 1, v: (function () {   // build a concrete assignment and average the overlap over all 105 pairs
+                        const C = []; for (let c = 0; c < 15; c++) C.push(new Set());
+                        for (let i = 0; i < 100; i++) for (let k = 0; k < 3; k++) C[(3 * i + k) % 15].add(i);
+                        let total = 0, pairs = 0;
+                        for (let a = 0; a < 15; a++) for (let b = a + 1; b < 15; b++) {
+                          C[a].forEach(x => { if (C[b].has(x)) total++; }); pairs++; }
+                        return Math.round((total / pairs) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // integrate the log-normal density itself from 0 to 2, not Phi(ln 2)
+                        const f = y => Math.exp(-(Math.log(y) * Math.log(y)) / 2) / (y * Math.sqrt(2 * Math.PI)), a = 1e-12, b = 2, n = 20000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
 };
 
 let sumNums = 0;

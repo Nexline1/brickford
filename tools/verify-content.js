@@ -1395,6 +1395,61 @@ const expectedSummary = {
                           const n = s.map((x, i) => x + dt / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
                           if (t > 100 && s[1] < 0 && n[1] >= 0) return Math.round((t + dt * -s[1] / (n[1] - s[1])) / 60);
                           s = n; t += dt; } })() }],
+
+  // Collisions recompute in the other frame (CM-frame internal energy against the
+  // lab-frame difference, and back), elastic outcomes by stepping a stiff spring
+  // between the carts, the centre of mass by bisecting on the mass moment, the
+  // ballistic pendulum with the exact geometry instead of x^2/2L, the rocket by
+  // stepping the ejection, and moments of inertia by quadrature over the disk.
+  "phys100.0.15": [{ i: 0, v: (function () {   // K after = K before minus the CM-frame (internal) energy
+                        const m1 = 1, v1 = 5, m2 = 2, v2 = -3, mu = m1 * m2 / (m1 + m2);
+                        return Math.round((0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2 - 0.5 * mu * (v1 - v2) * (v1 - v2)) * 100) / 100; })() },
+                   { i: 1, v: (function () {   // bisect for the x where the mass moments balance
+                        const P = [[0, 1], [1, 2], [0.5, 1]]; let lo = 0, hi = 1;
+                        for (let i = 0; i < 200; i++) { const x = (lo + hi) / 2; if (P.reduce((a, p) => a + p[1] * (p[0] - x), 0) > 0) lo = x; else hi = x; }
+                        return Math.round(lo * 1000) / 1000; })() }],
+
+  "phys100.0.16": [{ i: 0, v: (function () {   // a stiff spring between the carts, stepped through the whole contact
+                        const m1 = 1, m2 = 2, k = 1e5, L = 0.1, dt = 1e-6; let x1 = -1, x2 = 0, v1 = 6, v2 = 0;
+                        for (let i = 0; i < 2e6; i++) { const c = L - (x2 - x1), F = c > 0 ? k * c : 0;
+                          v1 -= F / m1 * dt; v2 += F / m2 * dt; x1 += v1 * dt; x2 += v2 * dt; }
+                        return Math.round(v2 * 10) / 10; })() },
+                   { i: 1, v: (function () {   // lab frame: kinetic energy before minus after the sticking
+                        const m1 = 1, m2 = 2, v = 6, vp = m1 * v / (m1 + m2);
+                        return Math.round((0.5 * m1 * v * v - 0.5 * (m1 + m2) * vp * vp) * 100) / 100; })() }],
+
+  "phys100.0.17": [{ i: 0, v: (function () {   // exact geometry: sin(theta) = x/L, h = L(1 - cos theta)
+                        const m = 0.002, M = 3.2, L = 1.13, x = 0.052, g = 9.8, th = Math.asin(x / L);
+                        return Math.round((m + M) / m * Math.sqrt(2 * g * L * (1 - Math.cos(th)))); })() },
+                   { i: 1, v: (function () {   // step the burn: a = u (dm/dt) / m - g, mass falling linearly
+                        const u = 1000, g = 10, T = 100, mdot = 0.9 / T, dt = 1e-3; let m = 1, v = 0;
+                        for (let i = 0; i < T / dt; i++) { v += (u * mdot / (m - mdot * dt / 2) - g) * dt; m -= mdot * dt; }
+                        return Math.round(v / 100) / 10; })() }],
+
+  "phys100.0.18": [{ i: 0, v: (function () {   // step the slide at constant acceleration, finish the last step exactly
+                        const g = 9.8, th = Math.PI / 6, mu = 0.2, l = 2, a = g * (Math.sin(th) - mu * Math.cos(th)), dt = 1e-4;
+                        let s = 0, v = 0;
+                        for (;;) { if (s + v * dt + 0.5 * a * dt * dt >= l) { v = Math.sqrt(v * v + 2 * a * (l - s)); break; }
+                          s += v * dt + 0.5 * a * dt * dt; v += a * dt; }
+                        return Math.round(v * 100) / 100; })() },
+                   { i: 1, v: (function () {   // step the full pendulum until it stops rising
+                        const g = 9.8, l = 1, dt = 1e-5, f = (x, w) => [w, -g / l * Math.sin(x)];
+                        let th = 5 * Math.PI / 180, om = 0.3 / l;
+                        while (om > 0) { const a = f(th, om), b = f(th + a[0] * dt / 2, om + a[1] * dt / 2), c = f(th + b[0] * dt / 2, om + b[1] * dt / 2), d = f(th + c[0] * dt, om + c[1] * dt);
+                          th += dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]); om += dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]); }
+                        return Math.round(th * 180 / Math.PI * 10) / 10; })() }],
+
+  "phys100.0.19": [{ i: 0, v: (function () {   // I by Simpson over rings, then omega from the energy
+                        const M = 200, R = 0.5, sig = M / (Math.PI * R * R), N = 1000, h = R / N; let s = 0;
+                        for (let i = 0; i <= N; i++) s += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * sig * 2 * Math.PI * Math.pow(i * h, 3);
+                        return Math.round(Math.sqrt(2 * 5e6 / (s * h / 3))); })() },
+                   { i: 1, v: (function () {   // 2-D Simpson over the disk of the squared distance to a rim point
+                        const M = 2, R = 0.5, sig = M / (Math.PI * R * R), N = 200, hr = R / N, hp = 2 * Math.PI / N;
+                        const w = (i) => (i === 0 || i === N ? 1 : i % 2 ? 4 : 2); let tot = 0;
+                        for (let i = 0; i <= N; i++) { const r = i * hr; let inner = 0;
+                          for (let j = 0; j <= N; j++) { const p = j * hp, x = r * Math.cos(p) - R, y = r * Math.sin(p); inner += w(j) * (x * x + y * y); }
+                          tot += w(i) * inner * hp / 3 * sig * r; }
+                        return Math.round(tot * hr / 3 * 100) / 100; })() }],
 };
 
 let sumNums = 0;

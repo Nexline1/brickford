@@ -579,6 +579,72 @@ const expectedSummary = {
                         const top = simp(y => (100 - 30 * y) * Math.PI * y, 0, 1, 200000);
                         const bot = simp(y => Math.PI * y, 0, 1, 200000);
                         return Math.round(top / bot); })() }],
+  "math120.1.21": [{ i: 1, v: (function () {   // the annulus probability from the SHELL integral, not from powers of 1/2
+                        const simp = (f, lo, hi, n) => { const h = (hi - lo) / n; let s = f(lo) + f(hi);
+                          for (let i = 1; i < n; i++) s += f(lo + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const a = Math.sqrt(Math.log(2));          // from e^(-a^2) = 1/2
+                        const w = r => 2 * Math.PI * r * Math.exp(-r * r);
+                        return Math.round((simp(w, 2 * a, 3 * a, 200000) / simp(w, 0, 40, 400000)) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // two hours of twelve of that same integral
+                        const simp = (f, lo, hi, n) => { const h = (hi - lo) / n; let s = f(lo) + f(hi);
+                          for (let i = 1; i < n; i++) s += f(lo + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const a = Math.sqrt(Math.log(2));
+                        const w = r => 2 * Math.PI * r * Math.exp(-r * r);
+                        const band = simp(w, 2 * a, 3 * a, 200000) / simp(w, 0, 40, 400000);
+                        return Math.round((band * 2 / 12) * 1000) / 1000; })() }],
+  "math120.1.22": [{ i: 1, v: (function () {   // the trapezoid as the MEAN of the two Riemann sums, not from the y0/2 pattern
+                        const y = x => 1 / x, dx = 0.5;
+                        const L = dx * (y(1) + y(1.5)), R = dx * (y(1.5) + y(2));
+                        return Math.round(((L + R) / 2) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // Simpson by fitting the parabola through the three points and integrating it exactly
+                        const pts = [[1, 1], [1.5, 2 / 3], [2, 0.5]];
+                        // Lagrange -> coefficients of a x^2 + b x + c
+                        let A = 0, B = 0, C = 0;
+                        for (let i = 0; i < 3; i++) {
+                          const [xi, yi] = pts[i];
+                          const [xj] = pts[(i + 1) % 3], [xk] = pts[(i + 2) % 3];
+                          const d = (xi - xj) * (xi - xk);
+                          A += yi / d; B += yi * (-(xj + xk)) / d; C += yi * (xj * xk) / d; }
+                        const F = x => A * x * x * x / 3 + B * x * x / 2 + C * x;
+                        return Math.round((F(2) - F(1)) * 1000) / 1000; })() }],
+  "math120.1.23": [{ i: 1, v: (function () {   // sin^2 cos^2 over a quarter period, by quadrature on the raw integrand
+                        const f = x => Math.pow(Math.sin(x), 2) * Math.pow(Math.cos(x), 2);
+                        const a = 0, b = Math.PI / 2, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the tab's area straight from sqrt(25 - y^2), no trig substitution
+                        const f = y => Math.sqrt(25 - y * y), a = 0, b = 3, n = 400000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.24": [{ i: 1, v: (function () {   // sec^4 by quadrature on 1/cos^4, not via tan + tan^3/3
+                        const f = t => 1 / Math.pow(Math.cos(t), 4);
+                        const a = 0, b = Math.PI / 4, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the same integral straight in x, no trig substitution at all
+                        const f = x => 1 / (x * x * Math.sqrt(1 + x * x));
+                        const a = 1, b = 2, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.25": [{ i: 1, v: (function () {   // the cover-up coefficient as a numerical limit of (x+2)f(x)
+                        const f = x => (x * x + 2) / ((x - 1) * (x - 1) * (x + 2));
+                        const e = 1e-7, x = -2 + e;
+                        return Math.round(((x + 2) * f(x)) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the definite integral by quadrature on the undecomposed fraction
+                        const f = x => (4 * x - 1) / (x * x + x - 2);
+                        const a = 2, b = 3, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;

@@ -1292,6 +1292,55 @@ const expectedSummary = {
                           if (y2 < 0 && vy < 0) { const a = -0.5 * g; x += vx * (-vy - Math.sqrt(vy * vy - 4 * a * y)) / (2 * a); break; }
                           x += vx * dt; y = y2; vy -= g * dt; }
                         return Math.round(x * 100) / 100; })() }],
+
+  // Circular motion recomputes by differencing the velocity vector over a tiny time
+  // step — measuring how fast it turns — never by v^2/r. Statics by the vector
+  // triangle and the law of sines (Lewin's second method), dynamics by energy or by
+  // stepping, friction thresholds by bisection on the net force.
+  "phys100.0.5": [{ i: 1, v: (function () {   // |dv|/dt for the rotating velocity vector
+                        const r = 0.1, w = 2 * Math.PI / 0.1, dt = 1e-6;
+                        const v = t => [-r * w * Math.sin(w * t), r * w * Math.cos(w * t)];
+                        const a = v(0), b = v(dt);
+                        return Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / dt * 10) / 10; })() },
+                   { i: 2, v: (function () {   // bisect on the period until the differenced acceleration at 100 m is 10
+                        const acc = T => { const w = 2 * Math.PI / T, dt = 1e-6;
+                          const v = t => [-100 * w * Math.sin(w * t), 100 * w * Math.cos(w * t)];
+                          const a = v(0), b = v(dt); return Math.hypot(b[0] - a[0], b[1] - a[1]) / dt; };
+                        let lo = 1, hi = 100;
+                        for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (acc(m) > 10) lo = m; else hi = m; }
+                        return Math.round(lo * 100) / 100; })() }],
+
+  "phys100.0.6": [{ i: 1, v: Math.round(40 * Math.sin(Math.PI / 4) / Math.sin(105 * Math.PI / 180) * 100) / 100 },   // law of sines on the force triangle
+                   { i: 2, v: Math.round(40 * Math.sin(Math.PI / 6) / Math.sin(105 * Math.PI / 180) * 100) / 100 }],
+
+  "phys100.0.7": [{ i: 1, v: (function () {   // energy: drop 1 m, v^2 from lost potential energy, then a = v^2 / 2h
+                        const m1 = 1.1, m2 = 1.25, g = 10, h = 1;
+                        return Math.round((2 * (m2 - m1) * g * h / (m1 + m2)) / (2 * h) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // tension from the lighter mass's own equation, with a found by energy
+                        const m1 = 1.1, m2 = 1.25, g = 10, a = (m2 - m1) * g / (m1 + m2);
+                        return Math.round(m1 * (a + g) * 100) / 100; })() }],
+
+  "phys100.0.8": [{ i: 1, v: (function () {   // step the sliding system for one second and read the speed gained
+                        const m1 = 1, m2 = 2, g = 10, al = Math.PI / 6, mk = 0.4, dt = 1e-5;
+                        let v = 0;
+                        for (let i = 0; i < 100000; i++) v += (m2 * g - m1 * g * Math.sin(al) - mk * m1 * g * Math.cos(al)) / (m1 + m2) * dt;
+                        return Math.round(v * 100) / 100; })() },
+                   { i: 2, v: (function () {   // bisect on mu until the uphill net force is exactly zero
+                        const m1 = 0.361, m2 = 0.27, al = 20 * Math.PI / 180;
+                        let lo = 0, hi = 2;
+                        for (let i = 0; i < 200; i++) { const mu = (lo + hi) / 2;
+                          if (m2 - m1 * Math.sin(al) - mu * m1 * Math.cos(al) > 0) lo = mu; else hi = mu; }
+                        return Math.round(lo * 1000) / 1000; })() }],
+
+  "phys100.0.9": [{ i: 1, v: (function () {   // step the climb until vertical velocity reaches zero and record the height
+                        let y = 0, v = 133, top = 0; const g = 10, dt = 1e-5;
+                        while (v > 0) { y += v * dt - 0.5 * g * dt * dt; v -= g * dt; if (y > top) top = y; }
+                        return Math.round(top); })() },
+                   { i: 2, v: (function () {   // difference the velocity vector on the 15 m arm
+                        const r = 15, w = 2 * Math.PI / 2.5, dt = 1e-6;
+                        const v = t => [-r * w * Math.sin(w * t), r * w * Math.cos(w * t)];
+                        const a = v(0), b = v(dt);
+                        return Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / dt * 10) / 10; })() }],
 };
 
 let sumNums = 0;

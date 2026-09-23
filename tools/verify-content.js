@@ -16,6 +16,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/quiz-llm-engineering.js","platform/data/summaries-math110.js",
  "platform/data/summaries-math110-mit.js",
  "platform/data/summaries-math120.js",
+ "platform/data/summaries-math130.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -741,6 +742,87 @@ const expectedSummary = {
                         let s = f(a) + f(b);
                         for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
                         return Math.round((2 / Math.sqrt(Math.PI)) * (s * h / 3) * 1000) / 1000; })() }],
+
+  // MATH 130 — probability. These recompute by ENUMERATION or simulation, never
+  // by re-evaluating the combinatorial formula the summary derives.
+  "math130.0.0": [{ i: 1, v: (function () {   // full house by walking all 2,598,960 five-card hands
+                        const rank = c => (c / 4) | 0;
+                        let full = 0, total = 0;
+                        for (let a = 0; a < 52; a++) for (let b = a + 1; b < 52; b++)
+                        for (let c = b + 1; c < 52; c++) for (let d = c + 1; d < 52; d++)
+                        for (let e = d + 1; e < 52; e++) {
+                          total++;
+                          const n = {};
+                          for (const x of [a, b, c, d, e]) { const r = rank(x); n[r] = (n[r] || 0) + 1; }
+                          const counts = Object.values(n).sort();
+                          if (counts.length === 2 && counts[0] === 2 && counts[1] === 3) full++; }
+                        return Math.round((full / total) * 1e5) / 1e5; })(),
+                    },
+                    { i: 2, v: (function () {   // multisets of size 3 from 10, counted by listing them
+                        let n = 0;
+                        for (let a = 0; a < 10; a++) for (let b = a; b < 10; b++) for (let c = b; c < 10; c++) n++;
+                        return n; })() }],
+  "math130.0.1": [{ i: 1, v: (function () {   // enumerate 10-bit masks, count the splits, halve the double count
+                        let half = 0;
+                        for (let m = 0; m < 1024; m++) {
+                          let bits = 0; for (let i = 0; i < 10; i++) if (m & (1 << i)) bits++;
+                          if (bits === 5) half++; }
+                        return half / 2; })(),
+                    },
+                    { i: 2, v: (function () {   // 5-subsets of 8 listed directly, not via the Vandermonde sum
+                        let n = 0;
+                        for (let a = 0; a < 8; a++) for (let b = a + 1; b < 8; b++) for (let c = b + 1; c < 8; c++)
+                        for (let d = c + 1; d < 8; d++) for (let e = d + 1; e < 8; e++) n++;
+                        return n; })() }],
+  // A simulation was tried here first and rejected: the true value 0.50730 sits
+  // about 1.8 standard errors from the 0.5075 rounding boundary even at twenty
+  // million trials, so the gate would have failed a few runs in a hundred. A
+  // gate that is flaky is worse than one that is absent. This counts exactly
+  // instead, by a different decomposition than the summary's: choose WHICH 23
+  // days are used, then assign the people to them, in exact integer arithmetic.
+  "math130.0.2": [{ i: 1, v: (function () {
+                        const C = (n, k) => { let r = 1n; for (let i = 0n; i < BigInt(k); i++)
+                          r = r * (BigInt(n) - i) / (i + 1n); return r; };
+                        let ways = C(365, 23);                      // which days are occupied
+                        for (let i = 1n; i <= 23n; i++) ways *= i;   // assign the 23 people to them
+                        let total = 1n; for (let i = 0; i < 23; i++) total *= 365n;
+                        const noMatch = Number(ways * 1000000n / total) / 1000000;
+                        return Math.round((1 - noMatch) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // 1 - D_n/n! by the derangement RECURRENCE, not the inclusion-exclusion sum
+                        let a = 1, b = 0;                           // d_n = D_n/n!, d_0 = 1, d_1 = 0
+                        for (let n = 2; n <= 52; n++) { const d = (n - 1) / n * b + a / n; a = b; b = d; }
+                        return Math.round((1 - b) * 1000) / 1000; })() }],
+  "math130.0.3": [{ i: 1, v: (function () {   // all 6^6 outcomes walked, rather than 1 - (5/6)^6
+                        let hits = 0, total = 0;
+                        for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) for (let c = 1; c <= 6; c++)
+                        for (let d = 1; d <= 6; d++) for (let e = 1; e <= 6; e++) for (let f = 1; f <= 6; f++) {
+                          total++;
+                          if (a === 6 || b === 6 || c === 6 || d === 6 || e === 6 || f === 6) hits++; }
+                        return Math.round((hits / total) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the count of sixes built up die by die, never using the binomial formula
+                        let dist = [1];
+                        for (let i = 0; i < 18; i++) {
+                          const next = new Array(dist.length + 1).fill(0);
+                          for (let k = 0; k < dist.length; k++) {
+                            next[k] += dist[k] * 5 / 6;             // this die is not a six
+                            next[k + 1] += dist[k] * 1 / 6; }       // this die is a six
+                          dist = next; }
+                        return Math.round((1 - (dist[0] + dist[1] + dist[2])) * 1000) / 1000; })() }],
+  "math130.0.4": [{ i: 1, v: (function () {   // count a synthetic population in integers, the lecture's own intuition, not Bayes' rule
+                        const N = 100000000, ill = N / 100, well = N - ill;
+                        const truePos = ill * 95 / 100, falsePos = well * 5 / 100;
+                        return Math.round((truePos / (truePos + falsePos)) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // every two-card hand enumerated; no symmetry argument used
+                        const AS = 0;                               // cards 0..51, ranks are card/4, ace of spades is 0
+                        let withAS = 0, bothAces = 0;
+                        for (let a = 0; a < 52; a++) for (let b = a + 1; b < 52; b++) {
+                          if (a !== AS && b !== AS) continue;
+                          withAS++;
+                          if (((a / 4) | 0) === 0 && ((b / 4) | 0) === 0) bothAces++; }
+                        return Math.round((bothAces / withAS) * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;

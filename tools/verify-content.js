@@ -942,6 +942,68 @@ const expectedSummary = {
                         let s = f(0) + f(1);
                         for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2);
                         return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  // Batch two. Simpson on densities throughout, as for 0.11 — but each quantity is
+  // reached by the route the summary does NOT use: brute quadrature where the
+  // lecture squares an integral into polar coordinates, enumeration where it
+  // expands indicators, inclusion–exclusion where it sums a harmonic series.
+  "math130.0.12": [{ i: 1, v: (function () {   // integrate e^{-z^2/2} on the line directly, never via polar coordinates
+                        const f = z => Math.exp(-z * z / 2), a = -12, b = 12, n = 4000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // Phi(1) as area under the density from -12 up to 1
+                        const f = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI), a = -12, b = 1, n = 4000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  "math130.0.13": [{ i: 1, v: (function () {   // area of the standard normal density over [-2, 2]
+                        const f = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI), a = -2, b = 2, n = 2000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // walk all 1024 outcome strings of ten trials, not npq and not the indicator expansion
+                        let m1 = 0, m2 = 0;
+                        for (let m = 0; m < 1024; m++) {
+                          let k = 0, pr = 1;
+                          for (let b = 0; b < 10; b++) { if (m & (1 << b)) { k++; pr *= 0.3; } else pr *= 0.7; }
+                          m1 += k * pr; m2 += k * k * pr; }
+                        return Math.round((m2 - m1 * m1) * 1000) / 1000; })() }],
+
+  "math130.0.14": [{ i: 1, v: (function () {   // E(T) = sum of P(T > t), with P(T > t) by inclusion–exclusion over missing types
+                        const n = 6, C = (a, b) => { let r = 1; for (let i = 0; i < b; i++) r = r * (a - i) / (i + 1); return r; };
+                        let e = 0;
+                        for (let t = 0; t < 3000; t++) {
+                          let p = 0;
+                          for (let j = 1; j <= n; j++) p += (j % 2 ? 1 : -1) * C(n, j) * Math.pow(1 - j / n, t);
+                          e += p; }
+                        return Math.round(e * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // integrate e^{u^2} term by term: sum of 1 / (n! (2n+1))
+                        let s = 0, fact = 1;
+                        for (let n = 0; n < 30; n++) { if (n > 0) fact *= n; s += 1 / (fact * (2 * n + 1)); }
+                        return Math.round(s * 10000) / 10000; })() }],
+
+  "math130.0.15": [{ i: 1, v: (function () {   // a ratio of two areas under the density, not the memoryless shortcut
+                        const f = x => 0.5 * Math.exp(-0.5 * x);
+                        const area = (a, b) => { const n = 20000, h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        return Math.round((area(3, 120) / area(1, 120)) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // integrate (x - 1/2)^2 against the Expo(2) density, not 1/lambda^2
+                        const f = x => (x - 0.5) * (x - 0.5) * 2 * Math.exp(-2 * x), a = 0, b = 40, n = 20000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+
+  "math130.0.16": [{ i: 1, v: (function () {   // Bayes by quadrature: integral of p * p^100 over integral of p^100
+                        const area = g => { const n = 4000, h = 1 / n; let s = g(0) + g(1);
+                          for (let i = 1; i < n; i++) s += g(i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        return Math.round((area(p => Math.pow(p, 101)) / area(p => Math.pow(p, 100))) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // E(e^Z) by integrating e^z against the density, never by completing the square
+                        const f = z => Math.exp(z - z * z / 2) / Math.sqrt(2 * Math.PI), a = -15, b = 15, n = 6000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
 };
 
 let sumNums = 0;

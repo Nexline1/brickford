@@ -645,6 +645,58 @@ const expectedSummary = {
                         let s = f(a) + f(b);
                         for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
                         return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.26": [{ i: 1, v: (function () {   // (ln y)^2 by quadrature, not via the reduction formula
+                        const f = y => Math.pow(Math.log(y), 2);
+                        const a = 1, b = Math.E, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // x e^x by quadrature, not via G1
+                        const f = x => x * Math.exp(x), a = 0, b = 1, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round(s * h / 3); })() }],
+  "math120.1.27": [{ i: 1, v: (function () {   // arc length by quadrature on sqrt(1 + 4x^2), not via the log formula
+                        const f = x => Math.sqrt(1 + 4 * x * x);
+                        const a = 0, b = 1, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // sphere area from the ANGLE parametrisation, where ds = a dtheta
+                        const a = 2, f = t => 2 * Math.PI * (a * Math.sin(t)) * a;
+                        const lo = 0, hi = Math.PI, n = 200000, h = (hi - lo) / n;
+                        let s = f(lo) + f(hi);
+                        for (let i = 1; i < n; i++) s += f(lo + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.28": [{ i: 1, v: (function () {   // ellipse perimeter from the RECTANGULAR arc-length element, not the parametrisation
+                        // y = sqrt(1 - x^2/4) on a quarter arc, ds = sqrt(1 + y'^2) dx, times 4
+                        const yp = x => -x / (4 * Math.sqrt(1 - x * x / 4));
+                        const f = x => Math.sqrt(1 + yp(x) * yp(x));
+                        const lo = 0, hi = 2 - 1e-9, n = 4000000, h = (hi - lo) / n;
+                        let s = 0;                                   // midpoint, to dodge the endpoint singularity
+                        for (let i = 0; i < n; i++) s += f(lo + (i + 0.5) * h) * h;
+                        return Math.round(4 * s * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // ellipsoid area by midpoint sum on the parametric integrand
+                        const g = t => 2 * Math.PI * 2 * Math.sin(t) *
+                                       Math.sqrt(4 * Math.cos(t) * Math.cos(t) + Math.sin(t) * Math.sin(t));
+                        const n = 4000000, h = Math.PI / n; let s = 0;
+                        for (let i = 0; i < n; i++) s += g((i + 0.5) * h) * h;
+                        return Math.round(s * 1000) / 1000; })() }],
+  "math120.1.29": [{ i: 1, v: (function () {   // one rose petal by quadrature on (1/2) r^2, not via pi/8
+                        const f = t => 0.5 * Math.pow(Math.sin(2 * t), 2);
+                        const a = 0, b = Math.PI / 2, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // x arctan x by quadrature, not by parts
+                        const f = x => x * Math.atan(x), a = 0, b = 1, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;

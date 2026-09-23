@@ -2,9 +2,17 @@
 
 ## The start date
 
-`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-09-14**. Day 1 is Monday
-14 September 2026. The first rest day is Saturday 19 September; day 1094 lands on
-2030-03-12.
+`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-09-21**. Day 1 is Monday
+21 September 2026. The first rest day is Saturday 26 September; day 1094 lands on
+2030-03-19.
+
+Two finish dates exist and they differ by one day, which is not a bug in the date arithmetic
+and must not be "fixed" as one. **Day 1094 is `dateForStudy(1093)`** — the 1094th study day,
+counting day 1 as the first — and that is 2030-03-19. The **gate baseline** the dashboard
+prints is `addStudyDays(START_DATE, 1094)`, which advances 1094 study days *from* the start and
+therefore lands on the 1095th, 2030-03-20. The same one-day gap was there before this reset
+(2030-03-12 against 2030-03-13) and before the one before it. If it is ever closed, close it by
+deciding which reading the gates should use, not by editing a date to match the other surface.
 
 ### The standing rule, and how it has been used
 
@@ -32,15 +40,28 @@ observation that the dashboard read `never SYNCED`, so the `20+ behind` and `3 p
 screen were one browser's local state and not necessarily the owner's real progress. They
 reaffirmed. It was carried out.
 
+**On 22–23 September 2026 they overrode it a third time.** The request was "restart the streak
+to have today as day 2 (22nd of sep 2026)". The refusal was given with the numbers — 6 study
+days discarded, finish slipping 7 calendar days from 2030-03-12 to 2030-03-19 — and the reply
+the next day was "do the reset". Note the shape of this one: it is the smallest of the four
+overrides by a wide margin, a single week rather than the four and the five that came before.
+
+Two details worth having. First, the owner pinned the DATE in parentheses rather than saying
+"today", so the reset was anchored to 22 September being day 2 — which is why the start is the
+21st and not the 22nd, even though the instruction arrived on the 23rd. Under the new start,
+23 September is day 3. That was stated plainly rather than quietly resolved. Second, the numbers
+above were not estimated: they were computed by replicating `studyIndex`/`dateForStudy` from
+`platform/js/app.js` exactly, because a reset costed by hand is a reset costed wrongly.
+
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past
 version of themselves.
 
-**Count, for whoever reads this next: this is reset number four** (27 Jul → 30 Jul → 12 Aug →
-14 Sep). That is not an argument for refusing twice, and it is not a reason to editorialise at
-the owner. It is a fact the next session should have, because the honest thing to check first is
-whether a reset is being asked for in place of a fix — twice now the screen that prompted one
-was a device that had never synced.
+**Count, for whoever reads this next: this is reset number five** (27 Jul → 30 Jul → 12 Aug →
+14 Sep → 23 Sep). That is not an argument for refusing twice, and it is not a reason to
+editorialise at the owner. It is a fact the next session should have, because the honest thing
+to check first is whether a reset is being asked for in place of a fix — twice now the screen
+that prompted one was a device that had never synced.
 
 The one thing that needs no permission: a genuine bug in the date arithmetic, where the code
 disagrees with the date above being day one. Fix the arithmetic, never the date.

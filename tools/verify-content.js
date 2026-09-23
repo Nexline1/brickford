@@ -1125,6 +1125,62 @@ const expectedSummary = {
                         const pm = (k, l) => { let r = Math.exp(-l); for (let i = 1; i <= k; i++) r *= l / i; return r; };
                         let d = 0; for (let k = 0; k <= 10; k++) d += pm(k, 3) * pm(10 - k, 3);
                         return Math.round((pm(4, 3) * pm(6, 3) / d) * 10000) / 10000; })() }],
+
+  // Batch five. Conditional expectation and limit theorems invite shortcuts —
+  // Adam, Eve, independence, Phi tables — so each check is reached the long way:
+  // nested quadrature over the joint set-up, exact convolution, or an integral
+  // over the region the event describes.
+  "math130.0.26": [{ i: 1, v: (function () {   // integrate y over the joint density 1/x on 0 < y < x < 1, never Adam's law
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        return Math.round(simp(x => simp(y => y / x, 0, x, 200), 1e-9, 1, 400) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // build the beta-binomial PMF by quadrature and take its variance, never Eve's law
+                        const simp = (f, n) => { const h = 1 / n; let s = f(0) + f(1);
+                          for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const C = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1); return r; };
+                        let m1 = 0, m2 = 0;
+                        for (let k = 0; k <= 10; k++) {
+                          const p = C(10, k) * simp(q => Math.pow(q, k) * Math.pow(1 - q, 10 - k) * 12 * q * (1 - q) * (1 - q), 2000);
+                          m1 += k * p; m2 += k * k * p; }
+                        return Math.round((m2 - m1 * m1) * 1000) / 1000; })() }],
+
+  "math130.0.27": [{ i: 1, v: (function () {   // P(X <= 7) as P(T_8 > 4) for a Gamma(8,1) arrival time, not a PMF sum
+                        const f = t => Math.pow(t, 7) * Math.exp(-t) / 5040, a = 4, b = 80, n = 20000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((Math.exp(-4) + 1 - s * h / 3) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // integrate (1/x) against the Unif(1,3) density
+                        const f = x => 0.5 / x, a = 1, b = 3, n = 2000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  "math130.0.28": [{ i: 1, v: (function () {   // exact Bin(100, 1/2) by convolving 100 fair Bernoullis
+                        let d = [1];
+                        for (let i = 0; i < 100; i++) {
+                          const nx = new Array(i + 2).fill(0);
+                          for (let j = 0; j <= i; j++) { nx[j + 1] += d[j] * 0.5; nx[j] += d[j] * 0.5; }
+                          d = nx; }
+                        let s = 0; for (let k = 60; k <= 100; k++) s += d[k];
+                        return Math.round(s * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // area under the standard normal density beyond 1.9
+                        const f = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI), a = 1.9, b = 12, n = 4000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  "math130.0.29": [{ i: 1, v: (function () {   // integrate the bivariate normal over the disc of radius sqrt 2, never the chi-square
+                        const phi = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const r = Math.SQRT2;   // x = r sin(theta) removes the square-root endpoints
+                        return Math.round(simp(t => phi(r * Math.sin(t)) * 2 * simp(phi, 0, r * Math.cos(t), 200) * r * Math.cos(t),
+                          -Math.PI / 2, Math.PI / 2, 400) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // integrate the joint density over the wedge |y| < x, not by independence
+                        const phi = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        return Math.round(simp(x => phi(x) * simp(phi, -x, x, 200), 0, 10, 400) * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;

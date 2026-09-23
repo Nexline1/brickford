@@ -1341,6 +1341,60 @@ const expectedSummary = {
                         const v = t => [-r * w * Math.sin(w * t), r * w * Math.cos(w * t)];
                         const a = v(0), b = v(dt);
                         return Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / dt * 10) / 10; })() }],
+
+  // Oscillations by stepping the equation of motion with RK4 and timing zero
+  // crossings; the loop by bisection on the energy condition; g by differencing the
+  // potential; terminal speed by stepping the drag equation to steady state; escape
+  // by quadrature of the force out to (effectively) infinity; the orbit by stepping
+  // it in two dimensions and timing one revolution.
+  "phys100.0.10": [{ i: 0, v: (function () {   // step x'' = -(k/m) x, time between alternate zero crossings
+                        const w2 = 10 / 0.1, dt = 1e-5; let x = 0, v = -3, t = 0; const cr = [];
+                        const f = (x, v) => [v, -w2 * x];
+                        while (cr.length < 3) {
+                          const a = f(x, v), b = f(x + a[0] * dt / 2, v + a[1] * dt / 2), c = f(x + b[0] * dt / 2, v + b[1] * dt / 2), d = f(x + c[0] * dt, v + c[1] * dt);
+                          const nx = x + dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]), nv = v + dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]);
+                          if (x > 0 && nx <= 0) cr.push(t + dt * x / (x - nx));
+                          x = nx; v = nv; t += dt; }
+                        return Math.round((cr[2] - cr[1]) * 1000) / 1000; })() }],
+
+  "phys100.0.11": [{ i: 0, v: (function () {   // bisect on release height until the speed at the top just meets v^2 = gR
+                        const g = 9.8, R = 1; let lo = 2, hi = 4;
+                        for (let i = 0; i < 200; i++) { const h = (lo + hi) / 2; if (2 * g * (h - 2 * R) >= g * R) hi = h; else lo = h; }
+                        return Math.round(hi * 10) / 10; })() },
+                   { i: 1, v: (function () {   // g = -dU/dr, differenced across one metre of height
+                        const G = 6.67e-11, M = 5.97e24, R = 6.37e6, U = r => -G * M / r;
+                        return Math.round((U(R + 1) - U(R - 1)) / 2 * 100) / 100; })() }],
+
+  "phys100.0.12": [{ i: 0, v: (function () {   // step m v' = mg - C2 r^2 v^2 for 30 s from rest
+                        const m = 0.034, r = 0.35, C2 = 0.85, g = 9.8, dt = 1e-3, f = v => g - C2 * r * r * v * v / m;
+                        let v = 0;
+                        for (let i = 0; i < 30000; i++) { const a = f(v), b = f(v + a * dt / 2), c = f(v + b * dt / 2), d = f(v + c * dt); v += dt / 6 * (a + 2 * b + 2 * c + d); }
+                        return Math.round(v * 100) / 100; })() }],
+
+  "phys100.0.13": [{ i: 0, v: (function () {   // step the full theta'' = -(g/R) sin(theta) from 1.2 degrees
+                        const w2 = 9.8 / 115, dt = 1e-3; let th = 1.2 * Math.PI / 180, om = 0, t = 0; const cr = [];
+                        const f = (x, v) => [v, -w2 * Math.sin(x)];
+                        while (cr.length < 3) {
+                          const a = f(th, om), b = f(th + a[0] * dt / 2, om + a[1] * dt / 2), c = f(th + b[0] * dt / 2, om + b[1] * dt / 2), d = f(th + c[0] * dt, om + c[1] * dt);
+                          const n = th + dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]), nv = om + dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]);
+                          if (th > 0 && n <= 0) cr.push(t + dt * th / (th - n));
+                          th = n; om = nv; t += dt; }
+                        return Math.round((cr[2] - cr[1]) * 10) / 10; })() }],
+
+  "phys100.0.14": [{ i: 0, v: (function () {   // Simpson on the work against GM/r^2 from R outward, r = R e^s, s to 40
+                        const G = 6.67e-11, M = 5.97e24, R = 6.37e6, N = 4000, S = 40, h = S / N;
+                        const f = s => G * M / (R * Math.exp(s));   // (GM/r^2) dr/ds
+                        let sum = 0;
+                        for (let i = 0; i <= N; i++) sum += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * f(i * h);
+                        return Math.round(Math.sqrt(2 * sum * h / 3) / 100) / 10; })() },
+                   { i: 1, v: (function () {   // step the orbit in two dimensions and time one revolution
+                        const GM = 6.67e-11 * 5.97e24, r0 = 6.8e6, dt = 0.5; let s = [r0, 0, 0, Math.sqrt(GM / r0)], t = 0;
+                        const f = s => { const r3 = Math.pow(s[0] * s[0] + s[1] * s[1], 1.5); return [s[2], s[3], -GM * s[0] / r3, -GM * s[1] / r3]; };
+                        for (;;) {
+                          const k1 = f(s), k2 = f(s.map((x, i) => x + k1[i] * dt / 2)), k3 = f(s.map((x, i) => x + k2[i] * dt / 2)), k4 = f(s.map((x, i) => x + k3[i] * dt));
+                          const n = s.map((x, i) => x + dt / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+                          if (t > 100 && s[1] < 0 && n[1] >= 0) return Math.round((t + dt * -s[1] / (n[1] - s[1])) / 60);
+                          s = n; t += dt; } })() }],
 };
 
 let sumNums = 0;

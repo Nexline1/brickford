@@ -823,6 +823,34 @@ const expectedSummary = {
                           withAS++;
                           if (((a / 4) | 0) === 0 && ((b / 4) | 0) === 0) bothAces++; }
                         return Math.round((bothAces / withAS) * 1000) / 1000; })() }],
+  "math130.0.5": [{ i: 1, v: (function () {   // switching wins iff the first guess was wrong: count the 9 (car, guess) pairs
+                        let wins = 0, total = 0;                    // no tree, no law of total probability
+                        for (let car = 1; car <= 3; car++) for (let guess = 1; guess <= 3; guess++) {
+                          total++; if (car !== guess) wins++; }
+                        return Math.round((wins / total) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // Dr Nick's rate as a weighted average of his two conditionals, not by summing cells
+                        const pHeart = 10 / 100, pBand = 90 / 100;
+                        return Math.round((pHeart * (2 / 10) + pBand * (81 / 90)) * 100) / 100; })() }],
+  "math130.0.6": [{ i: 1, v: (function () {   // solve the tridiagonal RECURSION by elimination, never the closed form
+                        const p = 0.49, q = 0.51, N = 100;
+                        // p_i - p*p_{i+1} - q*p_{i-1} = 0 for 1..N-1, with p_0 = 0 and p_N = 1.
+                        // Forward sweep: write p_i = c_i * p_{i+1} + d_i, then back-substitute.
+                        const c = new Array(N).fill(0), d = new Array(N).fill(0);
+                        for (let i = 1; i < N; i++) {
+                          const denom = 1 - q * c[i - 1];
+                          c[i] = p / denom;
+                          d[i] = q * d[i - 1] / denom; }
+                        const a = new Array(N + 1).fill(0); a[N] = 1;
+                        for (let i = N - 1; i >= 1; i--) a[i] = c[i] * a[i + 1] + d[i];
+                        return Math.round(a[50] * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // Bin(7, 1/2) at k = 3 by enumerating all 128 outcome strings
+                        let hits = 0, total = 0;
+                        for (let m = 0; m < 128; m++) {
+                          let ones = 0; for (let b = 0; b < 7; b++) if (m & (1 << b)) ones++;
+                          total++; if (ones === 3) hits++; }
+                        return Math.round((hits / total) * 10000) / 10000; })() }],
 };
 
 let sumNums = 0;

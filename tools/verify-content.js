@@ -1522,6 +1522,74 @@ const expectedSummary = {
                         const mu = 0.2, dt = 1e-4; let T = 1;
                         for (let i = 0; i < Math.round(6 * Math.PI / dt); i++) { const a = mu * T, b = mu * (T + a * dt / 2), c = mu * (T + b * dt / 2), d = mu * (T + c * dt); T += dt / 6 * (a + 2 * b + 2 * c + d); }
                         return Math.round(T); })() }],
+
+  // Elasticity, fluids and oscillators: stretches and column heights by bisection on
+  // the balance, frequencies and periods by stepping the equation of motion and
+  // timing zero crossings (the rod with I by quadrature), the siphon as a stepped
+  // free fall, the crown by bisection on density, the Atwood machine by energy with
+  // the pulley's spin, the rolling limit with the sphere's I built from disk slices,
+  // and the driven amplitude by stepping a lightly damped oscillator to steady state.
+  "phys100.0.26": (function () {
+    const per = (w2, dt) => { let x = 1e-4, v = 0, t = 0; const cr = [], f = (x, v) => [v, -w2 * x];
+      while (cr.length < 3) { const a = f(x, v), b = f(x + a[0] * dt / 2, v + a[1] * dt / 2), c = f(x + b[0] * dt / 2, v + b[1] * dt / 2), d = f(x + c[0] * dt, v + c[1] * dt);
+        const nx = x + dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]), nv = v + dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]);
+        if (x > 0 && nx <= 0) cr.push(t + dt * x / (x - nx)); x = nx; v = nv; t += dt; }
+      return cr[2] - cr[1]; };
+    const Y = 20e10, A = Math.PI * 0.005 * 0.005; let lo = 0, hi = 0.01;   // bisect until the rod's spring force carries 5000 N
+    for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (Y * A * m / 1 < 5000) lo = m; else hi = m; }
+    return [{ i: 0, v: Math.round(lo * 1e5) / 100 }, { i: 1, v: Math.round(1 / per(11e10 * 2e-7 / 0.36, 1e-5)) }];
+  })(),
+
+  "phys100.0.27": (function () {
+    const P = 13.6e3 * 9.8 * 0.76; let lo = 0, hi = 20;   // bisect for the water column that matches the mercury's pressure
+    for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (1000 * 9.8 * m < P) lo = m; else hi = m; }
+    return [{ i: 0, v: Math.round(P / 1e3) / 100 }, { i: 1, v: Math.round(lo * 10) / 10 }];
+  })(),
+
+  "phys100.0.28": [{ i: 0, v: (function () {   // bisect on density until the submerged weight comes out at 9.48 N
+                        let lo = 1, hi = 50;
+                        for (let i = 0; i < 200; i++) { const r = (lo + hi) / 2, V = 10 / (r * 1000 * 9.8); if (10 - V * 1000 * 9.8 < 9.48) lo = r; else hi = r; }
+                        return Math.round(lo * 10) / 10; })() },
+                   { i: 1, v: (function () {   // a pebble stepped through a 0.8 m free fall
+                        const g = 9.8, dt = 1e-5; let y = 0.8, v = 0;
+                        for (;;) { if (y - v * dt - 0.5 * g * dt * dt <= 0) { v = Math.sqrt(v * v + 2 * g * y); break; } y -= v * dt + 0.5 * g * dt * dt; v += g * dt; }
+                        return Math.round(v * 100) / 100; })() }],
+
+  "phys100.0.29": (function () {
+    const rk = (f, s, dt) => { const k1 = f(s), k2 = f(s.map((x, i) => x + k1[i] * dt / 2)), k3 = f(s.map((x, i) => x + k2[i] * dt / 2)), k4 = f(s.map((x, i) => x + k3[i] * dt));
+      return s.map((x, i) => x + dt / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])); };
+    // Atwood by energy: drop 1 m, share (m2 - m1) g h among both masses and the disk's spin, then a = v^2 / 2h
+    const m1 = 1, m2 = 2, M = 2, g = 9.8, v2 = 2 * (m2 - m1) * g * 1 / (m1 + m2 + M / 2);
+    // rod: I about the end by Simpson, then step the full pendulum
+    const L = 0.372, N = 1000, h = L / N; let s = 0;
+    for (let i = 0; i <= N; i++) s += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * Math.pow(i * h, 2) / L;
+    const Ip = s * h / 3, f = st => [st[1], -g * L / 2 / Ip * Math.sin(st[0])]; let st = [0.05, 0], t = 0; const cr = [];
+    while (cr.length < 3) { const n = rk(f, st, 1e-4); if (st[0] > 0 && n[0] <= 0) cr.push(t + 1e-4 * st[0] / (st[0] - n[0])); st = n; t += 1e-4; }
+    // sphere: I/MR^2 from disk slices, then bisect on mu until friction needed equals mu N
+    let S = 0; for (let i = 0; i <= N; i++) { const z = -1 + 2 * i / N; S += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * 0.5 * (1 - z * z) * 0.75 * (1 - z * z); }
+    const k = S * (2 / N) / 3, b = 20 * Math.PI / 180, a = g * Math.sin(b) / (1 + k); let lo = 0, hi = 1;
+    for (let i = 0; i < 200; i++) { const mu = (lo + hi) / 2; if (k * a > mu * g * Math.cos(b)) lo = mu; else hi = mu; }
+    return [{ i: 0, v: Math.round(v2 / 2 * 100) / 100 }, { i: 1, v: Math.round((cr[2] - cr[1]) * 100) / 100 }, { i: 2, v: Math.round(hi * 1000) / 1000 }];
+  })(),
+
+  "phys100.0.30": (function () {
+    const per = (w2, x0, dt) => { let x = x0, v = 0, t = 0; const cr = [], f = (x, v) => [v, -w2 * x];
+      while (cr.length < 3) { const a = f(x, v), b = f(x + a[0] * dt / 2, v + a[1] * dt / 2), c = f(x + b[0] * dt / 2, v + b[1] * dt / 2), d = f(x + c[0] * dt, v + c[1] * dt);
+        const nx = x + dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]), nv = v + dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]);
+        if (x > 0 && nx <= 0) cr.push(t + dt * x / (x - nx)); x = nx; v = nv; t += dt; }
+      return cr[2] - cr[1]; };
+    return [{ i: 0, v: Math.round(per(2 * 9.8 / 0.72, 0.05, 1e-4) * 100) / 100 }, { i: 1, v: Math.round(per(4e-4 / 0.036, 1, 1e-3)) }];
+  })(),
+
+  "phys100.0.31": [{ i: 0, v: (function () {   // step a lightly damped driven oscillator 700 s and read the late amplitude
+                        const k = 10, m = 0.1, F0 = 0.5, w = 5, gm = 0.05, dt = 1e-3;
+                        const f = (x, v, t) => [v, -k / m * x - gm * v + F0 / m * Math.cos(w * t)];
+                        let x = 0, v = 0, t = 0, mx = 0;
+                        for (let i = 0; i < 700000; i++) {
+                          const a = f(x, v, t), b = f(x + a[0] * dt / 2, v + a[1] * dt / 2, t + dt / 2), c = f(x + b[0] * dt / 2, v + b[1] * dt / 2, t + dt / 2), d = f(x + c[0] * dt, v + c[1] * dt, t + dt);
+                          x += dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]); v += dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]); t += dt;
+                          if (t > 680) mx = Math.max(mx, Math.abs(x)); }
+                        return Math.round(mx * 1e4) / 100; })() }],
 };
 
 let sumNums = 0;

@@ -13,10 +13,13 @@
 // enforces the shape and RECOMPUTES every numeric answer — see the summaries
 // block there before adding an entry.
 //
-// Probability numerics recompute well by SIMULATION, which is a genuinely
-// different method from the combinatorics a summary teaches: count the favourable
-// outcomes by enumeration or by running the experiment, never by re-evaluating
-// the formula the beat derived. Seeded, so the gate stays deterministic.
+// Probability numerics recompute by EXACT ENUMERATION, which is a genuinely
+// different method from the combinatorics a summary teaches: walk every outcome,
+// or run a convolution or a sequential DP over the distribution, never re-evaluate
+// the formula the beat derived. NOT by simulation — two recomputations here were
+// written as Monte Carlo and thrown away, because the birthday answer sits about
+// 1.8 standard errors from a rounding boundary even at twenty million trials.
+// A gate that is flaky is worse than one that is absent.
 //
 // No concepts and no figures: DAR.CONCEPTS and DAR.FIG are still entirely linear
 // algebra, so `concepts: []` is the correct value here.
@@ -236,6 +239,166 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "$\\frac{1-(q/p)^{50}}{1-(q/p)^{100}} = 0.1192$. A one-point disadvantage per round becomes an 88% chance of ruin." },
       { q: "For $X\\sim\\mathrm{Bin}(7, 0.5)$, $P(X=3)$, to four decimal places, is:", num: 0.2734,
         expl: "$\\binom73(0.5)^{3}(0.5)^{4} = 35/128 = 0.2734$ — choose which three of the seven trials succeeded, then fix every trial." },
+    ],
+  },
+
+  "math130.0.7": {
+    takeaway: "A random variable and its DISTRIBUTION are different objects — the house and the blueprint — and the distribution is carried either by the PMF, which says what each value weighs, or by the CDF, which says how much weight is at or below each point.",
+    beats: [
+      { t: "Three ways to see the binomial, and you need all three", d: "The STORY — successes in $n$ independent Bernoulli($p$) trials. The SUM — $X = X_1 + \\cdots + X_n$ of IID indicators. The PMF — $P(X=k) = \\binom{n}{k}p^{k}q^{n-k}$. Each one makes some questions trivial and others impossible, so the skill is switching between them." },
+      { t: "IID", d: "Independent and identically distributed. Two separate claims: identically distributed says the blueprints match, independent says knowing one tells you nothing about another. Either can hold without the other." },
+      { t: "The distribution is not the random variable", d: "Many different random variables can share one distribution, the way many houses can be built from one blueprint. $X$ and $Y$ can both be Bin($n,p$) and still never be equal. Confusing the two is the single most common mistake in the course." },
+      { t: "The CDF", d: "$F(x) = P(X \\le x)$, defined for every real $x$ even when $X$ only takes integer values. It works for any random variable, discrete or not, which is why the theory does not have to be split in two." },
+      { t: "What the PMF has to satisfy", d: "Exactly two conditions: $p_j \\ge 0$, and $\\sum_j p_j = 1$. Nothing else. Any list of numbers meeting those two is somebody's PMF." },
+      { t: "And the binomial does satisfy them", d: "$\\sum_{k=0}^{n}\\binom{n}{k}p^{k}q^{n-k} = (p+q)^{n} = 1$ by the binomial theorem. The validity check is the binomial theorem itself, which is a good sign that the PMF was not invented arbitrarily." },
+      { t: "Bin$(n,p)$ + Bin$(m,p)$ = Bin$(n+m,p)$, proved three ways", d: "By STORY: $n$ trials then $m$ more trials is $n+m$ trials, done in one line. By INDICATORS: a sum of $n$ Bernoullis plus a sum of $m$ Bernoullis is a sum of $n+m$ Bernoullis. By ALGEBRA: condition on $X$ and sum, which reduces to Vandermonde's identity. The story proof is the one to keep." },
+      { t: "Five cards is NOT binomial", d: "Count the aces in a five-card hand and the trials are not independent — if the first four cards are aces the fifth cannot be. Sampling WITHOUT replacement breaks the binomial's only real assumption." },
+      { t: "The hypergeometric", d: "$P(X=k) = \\dfrac{\\binom{w}{k}\\binom{b}{n-k}}{\\binom{w+b}{n}}$: choose which of the tagged items you got, which of the untagged, over all ways to choose $n$ from the pooled population." },
+      { t: "One distribution, three stories", d: "Tagged and untagged elk recaptured; white and black marbles drawn without replacement; aces and non-aces in a hand. Recognising that these are the SAME problem is most of what naming a distribution buys you." },
+      { t: "Vandermonde again", d: "The hypergeometric PMF sums to 1 because $\\sum_k \\binom{w}{k}\\binom{b}{n-k} = \\binom{w+b}{n}$ — the same identity that appeared in the algebraic proof for the binomial, now doing the validity check." },
+      { t: "When the population is huge, it is binomial anyway", d: "Drawing 5 cards from 52 changes the composition noticeably; drawing 5 items from ten million does not. With replacement and without replacement converge, which is why the binomial gets used for sampling problems it does not strictly fit." },
+      { t: "What the two CDF pictures look like", d: "Continuous: a smooth curve, increasing, running from 0 up to 1. Discrete: a staircase with a jump at each possible value, closed circle on top and open circle below, and the height of each jump IS the PMF at that value." },
+    ],
+    worked: "Before computing anything, decide which of the three views of the distribution the question is asking about — the story, the sum, or the formula. Most of the difficulty in a distribution problem is having picked the wrong one of the three.",
+    watch: "Treating a count drawn without replacement as binomial. The formula will produce a number; it will be the wrong number, and nothing in the arithmetic will complain.",
+    concepts: [],
+    checks: [
+      { q: "Why is the number of aces in a five-card hand not binomial?", opts: ["Because there are only four aces", "Because the trials are dependent — what the earlier cards were changes the odds for the later ones", "Because five is too small a sample", "Because the probability of an ace is not $1/13$"], a: 1,
+        expl: "Binomial needs independent trials with a fixed success probability. Dealing without replacement gives neither, which is exactly what the hypergeometric is for." },
+      { q: "The probability that a five-card hand contains exactly two aces, to four decimal places, is:", num: 0.0399,
+        expl: "$\\binom42\\binom{48}{3}/\\binom{52}{5} = 103{,}776/2{,}598{,}960 = 0.0399$ — the hypergeometric with $w=4$, $b=48$, $n=5$." },
+      { q: "If you wrongly modelled that same count as Bin$(5, 1/13)$, the probability of exactly two aces, to four decimal places, would be:", num: 0.0465,
+        expl: "$\\binom52(1/13)^{2}(12/13)^{3} = 0.0465$. Seventeen per cent too high, because pretending the cards are replaced makes a second ace easier than it is." },
+    ],
+  },
+
+  "math130.0.8": {
+    takeaway: "The expected value is a weighted average of values by their probabilities — and LINEARITY, $E(X+Y) = E(X) + E(Y)$ whether or not $X$ and $Y$ are independent, is the single most useful fact about it.",
+    beats: [
+      { t: "First, what a CDF is for", d: "Knowing $F$ is knowing the whole distribution: any interval probability comes out of it, since $P(a \\lt X \\le b) = F(b) - F(a)$ by splitting $\\{X \\le b\\}$ into two disjoint cases." },
+      { t: "Three properties, all visible in the picture", d: "A CDF is increasing (not strictly — flat stretches are allowed), right-continuous (the jumps close on top), and runs to 0 as $x \\to -\\infty$ and to 1 as $x \\to \\infty$. And the converse holds: any function with those three is somebody's CDF." },
+      { t: "Independence of random variables", d: "$X$ and $Y$ are independent if the joint CDF factors, $P(X \\le x, Y \\le y) = P(X\\le x)P(Y\\le y)$, for ALL $x$ and $y$. In the discrete case the equivalent and far friendlier statement is that the joint PMF factors." },
+      { t: "Average, mean, expected value", d: "Three words for the same thing. Say 'average' with no qualifier and you mean the mean." },
+      { t: "Grouped and ungrouped", d: "To average five 1s, two 3s and one 5, either add all eight and divide by 8, or take the weighted average $1\\cdot\\tfrac58 + 3\\cdot\\tfrac28 + 5\\cdot\\tfrac18$. Identical. That trivial observation is the whole idea behind the definition that follows — and it is also the proof of linearity." },
+      { t: "The definition", d: "$E(X) = \\sum_{x} x\\,P(X=x)$, summed over the values $X$ actually takes. Values weighted by probabilities: likely values count for more." },
+      { t: "Bernoulli", d: "$E(X) = 1\\cdot p + 0\\cdot q = p$. One line, and it is about to carry a great deal of weight." },
+      { t: "The fundamental bridge", d: "Let $I_A = 1$ if $A$ occurs and 0 otherwise — an INDICATOR random variable. Then $E(I_A) = P(A)$. A grandiose name for a one-line identity, but it connects every probability question to an expectation question and lets you cross in either direction." },
+      { t: "The binomial mean, the hard way", d: "$\\sum_k k\\binom{n}{k}p^kq^{n-k}$, rescued by $k\\binom{n}{k} = n\\binom{n-1}{k-1}$ — the committee-with-a-president story — then a change of variable, then the binomial theorem. It works. It is unpleasant." },
+      { t: "Linearity", d: "$E(X+Y) = E(X)+E(Y)$, and $E(cX) = cE(X)$. The second is obvious. The first is obvious when $X$ and $Y$ are independent and surprising when they are not — and it is true anyway." },
+      { t: "The binomial mean, the easy way", d: "Bin($n,p$) is a sum of $n$ Bernoulli($p$)s, each with mean $p$, so the mean is $np$. That is a calculation you do in your head, and it never touches the PMF." },
+      { t: "The hypergeometric mean, same trick", d: "Let $X_j$ indicate that the $j$th card is an ace. Then $X = \\sum_{j=1}^{5} X_j$, so $E(X) = 5\\,P(\\text{first card is an ace}) = 5/13$ — by linearity, then symmetry, then the bridge. The $X_j$ are DEPENDENT and it does not matter." },
+      { t: "Which is the real lesson", d: "Indicators, linearity, symmetry, and the fundamental bridge used together solve problems whose direct PMF sums are hopeless. For the mean, a hypergeometric behaves exactly as if it were binomial." },
+      { t: "The geometric distribution", d: "Independent Bernoulli($p$) trials; $X$ counts the FAILURES before the first success. $P(X=k) = q^{k}p$, because that is the probability of one specific sequence, and only one sequence gives $X=k$. Some books count the success; be careful which convention you are reading." },
+      { t: "It is valid because it is a geometric series", d: "$\\sum_{k\\ge0} pq^{k} = p/(1-q) = p/p = 1$. That is where the name comes from — as with the binomial, the PMF's validity check is the series it is named after." },
+      { t: "Its mean, by calculus", d: "$\\sum k q^{k}$ has an inconvenient $k$ in front. Start from the geometric series, differentiate both sides with respect to $q$ to pull a $k$ down, multiply back by $q$, and get $E(X) = q/p$." },
+      { t: "Its mean, by story", d: "Let $c = E(X)$. With probability $p$ the first trial succeeds and $X=0$; with probability $q$ it fails and the problem RESTARTS, so $X = 1 + $ the same thing. Hence $c = q(1+c)$, giving $c = q/p$ with no calculus at all." },
+    ],
+    worked: "When a count is a sum of yes-or-no events, write it as a sum of indicators before doing anything else. Linearity then applies whether or not those events are independent, and the fundamental bridge turns each term into a probability you already know.",
+    watch: "Believing linearity needs independence. It does not — and the problems where that matters, like counting aces without replacement, are precisely the ones where it saves you.",
+    concepts: [],
+    checks: [
+      { q: "$E(X+Y) = E(X)+E(Y)$ requires:", opts: ["$X$ and $Y$ independent", "$X$ and $Y$ identically distributed", "Nothing beyond the two expectations existing", "$X$ and $Y$ non-negative"], a: 2,
+        expl: "Linearity holds for dependent random variables too. The proof sums over the sample space rather than over values, which never asks how $X$ and $Y$ relate." },
+      { q: "The expected number of aces in a five-card hand, to three decimal places, is:", num: 0.385,
+        expl: "$5/13 = 0.3846$. Five indicators, each with probability $4/52$, added by linearity — the dependence between them changes nothing." },
+      { q: "For a geometric distribution counting failures before the first success with $p = 0.2$, the mean, to three decimal places, is:", num: 4,
+        expl: "$q/p = 0.8/0.2 = 4$. With a one-in-five chance each trial you expect four failures before the first success, and five trials including it." },
+    ],
+  },
+
+  "math130.0.9": {
+    takeaway: "Linearity is proved by summing over the SAMPLE SPACE rather than over values — and once you have it, indicators plus symmetry crack problems that defeat the direct approach entirely.",
+    beats: [
+      { t: "Why the direct proof gets stuck", d: "Write $E(X+Y)$ from the definition and you are summing over values of the sum; write $E(X)+E(Y)$ and you are summing over values of $X$ and of $Y$ separately. There is no obvious way to turn one into the other, and conditioning on $X$ leaves you with a term you cannot simplify unless $X$ and $Y$ are independent." },
+      { t: "Sum over pebbles instead", d: "$E(X) = \\sum_{s \\in S} X(s)P(\\{s\\})$ — average over the individual outcomes, ungrouped, rather than over the distinct values. This is the same ungrouped-versus-grouped observation as before, and it is the same number." },
+      { t: "And then the proof is two lines", d: "$E(X+Y) = \\sum_s (X(s)+Y(s))P(s) = \\sum_s X(s)P(s) + \\sum_s Y(s)P(s) = E(X)+E(Y)$. Everything is summed over the SAME index, so the sum just splits. Nothing anywhere asked whether $X$ and $Y$ are related." },
+      { t: "Check it at the extremes", d: "If $X = Y$ — maximal dependence — then $E(X+Y) = E(2X) = 2E(X) = E(X)+E(Y)$. If they are independent it is intuitive. The proof covers everything in between." },
+      { t: "The negative binomial", d: "Not a negated binomial. It generalises the geometric: independent Bernoulli($p$) trials, count the failures before the $r$th success. $P(X=n) = \\binom{n+r-1}{r-1}p^{r}q^{n}$ — the last trial must be a success, and the earlier $n+r-1$ trials are any arrangement of $r-1$ successes among them." },
+      { t: "Its mean, in your head", d: "Wait for the first success, then the additional wait for the second, and so on: $X = X_1 + \\cdots + X_r$ with each $X_j$ geometric($p$). By linearity $E(X) = rq/p$. Summing $n$ against that PMF gets the same answer and takes a page." },
+      { t: "The first success distribution", d: "$\\mathrm{FS}(p)$ counts the trials INCLUDING the success, so $Y = X+1$ with $X$ geometric. Then $E(Y) = q/p + 1 = 1/p$ — if you succeed one time in ten, it takes about ten tries. Conventions differ between textbooks, so convert deliberately rather than copying a formula." },
+      { t: "A Putnam problem", d: "Permute $1,\\dots,n$ at random. A LOCAL MAXIMUM is an entry larger than its neighbours — for the two endpoints, larger than its single neighbour. Find the expected number of them. Competitors that year rated it among the hardest on the exam." },
+      { t: "Indicators, then two cases", d: "Let $I_j$ indicate a local maximum at position $j$, so the count is $\\sum_j I_j$. Interior: among the three entries at $j-1,j,j+1$, the largest is equally likely to be in any of the three positions, so $P = 1/3$. Endpoint: only one neighbour, so $P = 1/2$." },
+      { t: "Which makes it a one-line answer", d: "$\\dfrac{n-2}{3} + 2\\cdot\\dfrac12 = \\dfrac{n+1}{3}$. Check $n=2$: the answer is 1, and indeed both $12$ and $21$ have exactly one local maximum." },
+      { t: "And the tempting wrong answer", d: "Saying $1/4$ for an interior position — a half for beating the left neighbour times a half for beating the right. Those two events are not independent, exactly as 'A older than B' and 'A older than C' are not." },
+      { t: "The St Petersburg paradox", d: "Flip a fair coin until heads; you are paid $2^{X}$ where $X$ counts flips including the head. $E(2^{X}) = \\sum_{k\\ge1} 2^{k}\\cdot 2^{-k} = 1+1+1+\\cdots = \\infty$. So the fair price to play is unbounded, and almost nobody will offer more than a few tens of dollars." },
+      { t: "The resolution is that nobody has infinite money", d: "Cap the payout at $2^{40}$, over a trillion dollars, and the sum has forty terms: the game is worth \\$40, or \\$41 if the house pays the cap rather than defaulting. An astronomically generous cap still leaves a very cheap game, which is not paradoxical at all." },
+      { t: "And the warning it contains", d: "$E(2^{X}) \\ne 2^{E(X)}$ — here $\\infty$ against $2^{2} = 4$. Expectation moves through sums and constants, and through nothing else. Sliding an $E$ past a nonlinear function is the most expensive habit in the subject." },
+    ],
+    worked: "For 'expected number of things with a property', define one indicator per candidate, add them, and use linearity. Then compute a single one of those probabilities by symmetry — and check whether the boundary cases need their own count.",
+    watch: "Moving the expectation inside a nonlinear function. $E(g(X))$ and $g(E(X))$ are different numbers, and St Petersburg shows how far apart they can be.",
+    concepts: [],
+    checks: [
+      { q: "The expected number of local maxima in a random permutation of $1,\\dots,7$, to three decimal places, is:", num: 2.667,
+        expl: "$(n+1)/3 = 8/3 = 2.667$. Five interior positions at $1/3$ each plus two endpoints at $1/2$ each." },
+      { q: "The mean of a negative binomial with $r = 3$ and $p = 0.4$, counting failures before the third success, to three decimal places, is:", num: 4.5,
+        expl: "$rq/p = 3(0.6)/0.4 = 4.5$. Three independent waits, each a geometric with mean $q/p = 1.5$." },
+      { q: "In the St Petersburg game the expected payout is infinite, yet capping it at $2^{40}$ dollars makes the game worth about forty dollars. What does this show?", opts: ["The expectation was computed wrongly", "That an infinite expectation can be extremely sensitive to a bound that is itself astronomically large", "That expectation is the wrong concept for gambling", "That the coin cannot really be fair"], a: 1,
+        expl: "Each of the forty surviving terms contributes exactly one dollar, and everything beyond a trillion dollars contributes at most one more. The infinity was carried entirely by outcomes nobody could ever be paid for." },
+    ],
+  },
+
+  "math130.0.10": {
+    takeaway: "The Poisson is what you get when a LARGE number of unlikely, weakly dependent things could each happen — and the only number you need is $\\lambda$, the expected count.",
+    beats: [
+      { t: "First, the mistake this whole course keeps catching", d: "Confusing a random variable with its distribution — call it sympathetic magic. Adding random variables is not adding PMFs; cubing a random variable is not cubing its PMF. The map is not the territory; the blueprint is not the house." },
+      { t: "Why that analogy is the better one", d: "One blueprint builds many houses. So many different random variables can share a distribution — independent or dependent, it makes no difference to the blueprint. The distribution specifies the probabilities; the random variable is one actual outcome-to-number function." },
+      { t: "The PMF", d: "$P(X=k) = \\dfrac{e^{-\\lambda}\\lambda^{k}}{k!}$ for $k = 0,1,2,\\dots$, with $\\lambda \\gt 0$ a rate parameter. Unlike the binomial there is no upper bound on $k$." },
+      { t: "It is valid because of the Taylor series", d: "$\\sum_k \\lambda^{k}/k! = e^{\\lambda}$, so the terms sum to $e^{-\\lambda}e^{\\lambda} = 1$. The PMF is literally one term of the series for $e^{\\lambda}$, normalised — which is all the distribution is, structurally." },
+      { t: "And the mean is $\\lambda$", d: "$\\sum_k k e^{-\\lambda}\\lambda^{k}/k!$: the $k$ cancels one factor of $k!$, pull out a $\\lambda$, and what is left is the same Taylor series again. Almost nothing needs memorising in this course, but this one does and it is easy." },
+      { t: "What it is for", d: "Counting. Emails in an hour, chips in a cookie, earthquakes in a year in some region. In each case there are very many opportunities and each one is individually unlikely — many people who COULD email you, each unlikely to in this particular hour." },
+      { t: "None of those is exactly Poisson", d: "Most have an obvious upper bound and the Poisson has none, and independence is usually only approximate. It is a first model to check against data, not a claim about the world. That it is nonetheless the most-used discrete distribution in practice is the point." },
+      { t: "The Poisson paradigm", d: "Given events $A_1,\\dots,A_n$ with $P(A_j) = p_j$, $n$ large, all $p_j$ small, and the events independent OR WEAKLY DEPENDENT, the number that occur is approximately Poisson with $\\lambda = \\sum_j p_j$. That $\\lambda$ is exact by linearity even when the approximation itself is not." },
+      { t: "Which is much more than the binomial case", d: "The binomial needs independent trials with one common $p$. The paradigm allows different $p_j$ and some dependence — knowing about $A_1$ and $A_2$ may shift $A_3$ slightly. Weak dependence has no clean definition, which is honest: independence comes in degrees." },
+      { t: "Binomial converges to Poisson", d: "Hold $\\lambda = np$ fixed, let $n \\to \\infty$ and $p \\to 0$. Write $\\binom{n}{k}$ as $n(n-1)\\cdots(n-k+1)/k!$; the $k$ factors of $n$ cancel term by term, $(1-\\lambda/n)^{-k} \\to 1$, and $(1-\\lambda/n)^{n} \\to e^{-\\lambda}$ by the compound-interest limit. What is left is exactly the Poisson PMF." },
+      { t: "Raindrops", d: "Divide a sheet of paper into millions of tiny squares. Each is very unlikely to be hit in a given minute, and there are enormously many of them. Binomial would need independence and at most one drop per square; Poisson needs neither, and a binomial with $n$ in the trillions is unusable on a computer anyway." },
+      { t: "Triple birthday matches", d: "Among $n$ people, what is the chance three share a birthday? Exactly, this is horrible. There are $\\binom{n}{3}$ triplets; each matches with probability $1/365^{2}$; so $\\lambda = \\binom{n}{3}/365^{2}$ by linearity, exactly." },
+      { t: "And the approximation finishes it", d: "The triplet indicators are dependent — $I_{123}$ and $I_{124}$ share two people — but only weakly, since even a head start still needs the fourth person to match. So $P(\\text{at least one}) \\approx 1 - e^{-\\lambda}$, which is a calculator keystroke instead of a page of binomial coefficients." },
+      { t: "Why $n$ need not be huge", d: "As with the ordinary birthday problem, what matters is not $n$ but $\\binom{n}{3}$. Twenty people give 1140 triplets. The number of TRIALS is large even when the number of people is not." },
+    ],
+    worked: "When you are counting rare events among many chances, do not fight for the exact answer. Compute $\\lambda$ exactly by linearity, then read the probability of no events off $e^{-\\lambda}$ and complement it.",
+    watch: "Demanding independence before invoking the Poisson. The paradigm is built to tolerate different probabilities and mild dependence; insisting on the binomial's assumptions throws away most of its usefulness.",
+    concepts: [],
+    checks: [
+      { q: "The approximate probability that some three of 100 people share a birthday, to three decimal places, is:", num: 0.703,
+        expl: "$\\lambda = \\binom{100}{3}/365^{2} = 161{,}700/133{,}225 = 1.2137$, so $1 - e^{-\\lambda} = 0.703$. A triple match among a hundred people is more likely than not." },
+      { q: "For $X \\sim \\mathrm{Bin}(1000, 0.002)$, the exact value of $P(X=3)$, to four decimal places, is:", num: 0.1806,
+        expl: "The Poisson approximation with $\\lambda = np = 2$ gives $e^{-2}2^{3}/3! = 0.1804$ — wrong in the fourth decimal place, from a distribution far easier to compute with." },
+      { q: "The Poisson paradigm requires that:", opts: ["The events be independent and equally likely", "There be many events, each unlikely, at most weakly dependent", "The number of events be bounded", "Each event have probability exactly $\\lambda/n$"], a: 1,
+        expl: "Different $p_j$ are allowed and mild dependence is allowed. That tolerance is why the Poisson fits real counting data that no binomial describes." },
+    ],
+  },
+
+  "math130.0.11": {
+    takeaway: "In the continuous world the PMF becomes a probability DENSITY, which is not a probability — you integrate it to get one — and every discrete idea has an exact counterpart with a sum replaced by an integral.",
+    beats: [
+      { t: "The dictionary", d: "Discrete: PMF, $\\sum$. Continuous: PDF, $\\int$. The CDF $F(x) = P(X \\le x)$ appears in both columns unchanged, which is the point of defining it — it needs no separate theory." },
+      { t: "Why a PMF will not do", d: "For a continuous random variable $P(X=x) = 0$ at every single $x$. Writing down the PMF would give the constant zero function, which tells you nothing, so the weight has to be described some other way." },
+      { t: "Pebbles and mud", d: "Discrete probability is pebbles with masses adding to 1. Continuous probability is a mass of mud with total mass 1 smeared over the line. Density is mass per unit length — and mass per unit length is not mass." },
+      { t: "The definition", d: "$f$ is the PDF of $X$ if $P(a \\le X \\le b) = \\int_a^b f(x)\\,dx$ for every $a$ and $b$. Setting $a = b$ gives 0, which agrees with $P(X=x) = 0$ and is why an interval of positive length is needed." },
+      { t: "A density can exceed 1", d: "Nothing forbids $f(x_0) = 5$, as long as the total area is still 1. If you find that disturbing you are still reading $f$ as a probability." },
+      { t: "What it does mean", d: "$f(x_0)\\,\\varepsilon \\approx P(x_0 - \\varepsilon/2 \\le X \\le x_0 + \\varepsilon/2)$ for tiny $\\varepsilon$ — over a small enough interval $f$ is nearly constant, and the integral of a constant is the constant times the length. Multiplying by $\\varepsilon$ is what converts density back to probability." },
+      { t: "Validity", d: "$f(x) \\ge 0$ and $\\int_{-\\infty}^{\\infty} f = 1$. Exactly the PMF's two conditions with the sum replaced." },
+      { t: "Both directions between PDF and CDF", d: "$F(x) = \\int_{-\\infty}^{x} f(t)\\,dt$ and $f(x) = F'(x)$ — the two halves of the fundamental theorem of calculus, one for each direction. 'Continuous random variable' here means the CDF is differentiable, not merely continuous." },
+      { t: "Variance", d: "$\\mathrm{Var}(X) = E\\big((X - EX)^{2}\\big)$. Without the square it is always 0 by linearity. Absolute value would work but is not differentiable at the corner; squares bring the Pythagorean geometry with them, and that is worth keeping." },
+      { t: "The computing form", d: "Expand and use linearity: $\\mathrm{Var}(X) = E(X^{2}) - (EX)^{2}$. Which also settles which order to square in: $E(X^{2}) \\ge (EX)^{2}$ always, with equality only when $X$ is a constant." },
+      { t: "Standard deviation", d: "$\\mathrm{SD}(X) = \\sqrt{\\mathrm{Var}(X)}$, because squaring changed the units — miles became square miles. Variance is nicer to do algebra with, standard deviation is what you interpret." },
+      { t: "The uniform", d: "'Completely random' on $(a,b)$ has to mean probability proportional to LENGTH: equal intervals, equal probability. So the density is constant, and normalising forces $f(x) = 1/(b-a)$ on the interval." },
+      { t: "Its CDF and mean", d: "$F(x) = (x-a)/(b-a)$ on the interval — linear, as accumulating at a constant rate should be — and $E(X) = (a+b)/2$, the midpoint, which would be alarming if it came out any other way." },
+      { t: "LOTUS", d: "To get $E(g(X))$ you do NOT need the distribution of $g(X)$: $E(g(X)) = \\int g(x)f(x)\\,dx$, or $\\sum g(x)P(X=x)$ in the discrete case. The Law of the Unconscious Statistician, named for looking like what you would write while half asleep. It is true, and it is what makes variance computable." },
+      { t: "And so the uniform's variance", d: "For $U$ uniform on $(0,1)$: $E(U^{2}) = \\int_0^1 u^{2}\\,du = 1/3$ by LOTUS, and $E(U) = 1/2$, so $\\mathrm{Var}(U) = 1/3 - 1/4 = 1/12$." },
+      { t: "Universality of the uniform", d: "Let $F$ be any continuous strictly increasing CDF and $U$ uniform on $(0,1)$. Then $X = F^{-1}(U)$ has CDF $F$ — because $P(F^{-1}(U) \\le x) = P(U \\le F(x)) = F(x)$, the last step because for a standard uniform the probability of an interval IS its length." },
+      { t: "Which is why it matters in practice", d: "A computer can produce uniform random numbers and nothing else. Universality says that is enough: any distribution you want is one inverse CDF away, at least in principle." },
+    ],
+    worked: "In the continuous case, write down the PDF, integrate it for probabilities, differentiate the CDF to recover it, and reach for LOTUS the moment you need the expectation of a function rather than of $X$ itself.",
+    watch: "Reading the PDF's value as a probability. It is a rate; it can be bigger than 1; only its integral over an interval is a probability.",
+    concepts: [],
+    checks: [
+      { q: "A PDF takes the value 2.5 at some point. This means:", opts: ["The PDF is invalid, since probabilities cannot exceed 1", "Nothing is wrong — a density is probability per unit length, and only its integral must equal 1", "The random variable is discrete", "The CDF exceeds 1 there"], a: 1,
+        expl: "A density of 2.5 over an interval of length $0.01$ contributes about $0.025$ of probability. Height is not area." },
+      { q: "The variance of a uniform random variable on $(0,1)$, to four decimal places, is:", num: 0.0833,
+        expl: "$E(U^{2}) - (EU)^{2} = 1/3 - 1/4 = 1/12 = 0.0833$, with $E(U^{2})$ obtained from LOTUS without ever finding the distribution of $U^{2}$." },
+      { q: "Set $X = -\\ln(1-U)$ with $U$ uniform on $(0,1)$, so that $X$ has CDF $F(x) = 1 - e^{-x}$. Then $P(X \\le 1)$, to four decimal places, is:", num: 0.6321,
+        expl: "$1 - e^{-1} = 0.6321$. Universality of the uniform: inverting that CDF and feeding it a uniform draw manufactures an exponential random variable out of nothing but a random number generator." },
     ],
   },
 

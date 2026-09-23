@@ -851,6 +851,97 @@ const expectedSummary = {
                           let ones = 0; for (let b = 0; b < 7; b++) if (m & (1 << b)) ones++;
                           total++; if (ones === 3) hits++; }
                         return Math.round((hits / total) * 10000) / 10000; })() }],
+
+  // The hypergeometric, recomputed as a SEQUENTIAL draw: deal five cards one at a
+  // time and carry the distribution of the ace count forward with the conditional
+  // probabilities of the moment. Never the binomial-coefficient PMF the summary derives.
+  "math130.0.7": [{ i: 1, v: (function () {
+                        let cur = [1];
+                        for (let i = 0; i < 5; i++) {
+                          const nx = new Array(i + 2).fill(0);
+                          for (let j = 0; j <= i; j++) {
+                            if (!cur[j]) continue;
+                            const aces = 4 - j, left = 52 - i;
+                            nx[j + 1] += cur[j] * aces / left;
+                            nx[j] += cur[j] * (left - aces) / left; }
+                          cur = nx; }
+                        return Math.round(cur[2] * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // the same count WITH replacement, by convolving five Bernoullis
+                        let b = [1];
+                        for (let i = 0; i < 5; i++) {
+                          const nx = new Array(i + 2).fill(0);
+                          for (let j = 0; j <= i; j++) {
+                            nx[j + 1] += b[j] * (1 / 13);
+                            nx[j] += b[j] * (12 / 13); }
+                          b = nx; }
+                        return Math.round(b[2] * 10000) / 10000; })() }],
+
+  "math130.0.8": [{ i: 1, v: (function () {   // the same sequential deal, now averaged — not indicators and symmetry
+                        let cur = [1];
+                        for (let i = 0; i < 5; i++) {
+                          const nx = new Array(i + 2).fill(0);
+                          for (let j = 0; j <= i; j++) {
+                            if (!cur[j]) continue;
+                            const aces = 4 - j, left = 52 - i;
+                            nx[j + 1] += cur[j] * aces / left;
+                            nx[j] += cur[j] * (left - aces) / left; }
+                          cur = nx; }
+                        let e = 0; for (let j = 0; j < cur.length; j++) e += j * cur[j];
+                        return Math.round(e * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // E(X) = sum of the tail probabilities P(X >= k), not q/p and not the derivative trick
+                        let e = 0;
+                        for (let k = 1; k <= 2000; k++) e += Math.pow(0.8, k);
+                        return Math.round(e * 1000) / 1000; })() }],
+
+  "math130.0.9": [{ i: 0, v: (function () {   // walk all 5040 permutations of 1..7 and count the local maxima
+                        const out = [];
+                        (function rec(rest, acc) {
+                          if (!rest.length) { out.push(acc); return; }
+                          for (let i = 0; i < rest.length; i++) {
+                            const r = rest.slice(); const x = r.splice(i, 1)[0];
+                            rec(r, acc.concat([x])); } })([1, 2, 3, 4, 5, 6, 7], []);
+                        let total = 0;
+                        out.forEach(perm => {
+                          for (let i = 0; i < 7; i++) {
+                            const l = i > 0 ? perm[i - 1] : -1, r = i < 6 ? perm[i + 1] : -1;
+                            if (perm[i] > l && perm[i] > r) total++; } });
+                        return Math.round((total / out.length) * 1000) / 1000; })() },
+                   { i: 1, v: (function () {   // sum n against the negative binomial PMF directly — the route the lecture avoids
+                        const r = 3, p = 0.4, q = 0.6;
+                        let pmf = Math.pow(p, r), e = 0;
+                        for (let n = 0; n <= 5000; n++) { e += n * pmf; pmf = pmf * q * (n + r) / (n + 1); }
+                        return Math.round(e * 1000) / 1000; })() }],
+
+  "math130.0.10": [{ i: 0, v: (function () {   // count the triplets one by one, and take the exponential from its series
+                        let triples = 0;
+                        for (let i = 1; i <= 100; i++) for (let j = i + 1; j <= 100; j++) triples += 100 - j;
+                        const lam = triples / (365 * 365);
+                        let e = 0, term = 1;
+                        for (let n = 0; n < 200; n++) { e += term; term = term * (-lam) / (n + 1); }
+                        return Math.round((1 - e) * 1000) / 1000; })() },
+                   { i: 1, v: (function () {   // the EXACT binomial, by convolving 1000 Bernoullis — never the Poisson limit
+                        let d = [1];
+                        for (let i = 0; i < 1000; i++) {
+                          const nx = new Array(Math.min(i + 2, 8)).fill(0);
+                          for (let j = 0; j < d.length && j < 7; j++) {
+                            nx[j + 1] += d[j] * 0.002;
+                            nx[j] += d[j] * 0.998; }
+                          d = nx; }
+                        return Math.round(d[3] * 10000) / 10000; })() }],
+
+  // Continuous distributions recompute by Simpson quadrature on the density, which
+  // is the pattern already used across MATH 120: exact to far more places than the
+  // check states, and a different route from the closed forms the summary derives.
+  "math130.0.11": [{ i: 1, v: (function () {   // integrate (x - 1/2)^2 — the definition of variance, not E(X^2) - (EX)^2
+                        const f = x => (x - 0.5) * (x - 0.5), n = 2000, h = 1 / n;
+                        let s = f(0) + f(1);
+                        for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // integrate the exponential DENSITY over [0,1], never 1 - e^{-1}
+                        const f = x => Math.exp(-x), n = 2000, h = 1 / n;
+                        let s = f(0) + f(1);
+                        for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
 };
 
 let sumNums = 0;

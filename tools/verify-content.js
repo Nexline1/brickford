@@ -1590,6 +1590,42 @@ const expectedSummary = {
                           x += dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]); v += dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]); t += dt;
                           if (t > 680) mx = Math.max(mx, Math.abs(x)); }
                         return Math.round(mx * 1e4) / 100; })() }],
+
+  // Thermal expansion, gases and quanta: the rail by stepping dL/dT = alpha L, the
+  // thermometer, molar volume, gauge pressure, wavelength and Gamow's ball by
+  // bisection on the defining relation, the atmosphere by stepping dP/dy with RK4,
+  // and the last lecture's pendulum by stepping the full equation from 5 degrees.
+  "phys100.0.32": (function () {
+    let L = 1000; for (let i = 0; i < 50000; i++) L += 12e-6 * L * 1e-3;   // step dL/dT = alpha L over 50 degrees
+    const dV = 18e-5 * 1 * 10; let lo = 0, hi = 100;   // bisect for the column holding the extra volume
+    for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (Math.PI * 0.01 * 0.01 * m < dV) lo = m; else hi = m; }
+    return [{ i: 0, v: Math.round((L - 1000) * 100) }, { i: 1, v: Math.round(lo * 10) / 10 }];
+  })(),
+
+  "phys100.0.33": (function () {
+    const bis = (ok, lo, hi) => { for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (ok(m)) lo = m; else hi = m; } return lo; };
+    const V = bis(m => 1.03e5 * m < 8.3 * 293, 0, 1), P2 = bis(m => m / 373 < 1 / 273, 0, 5);
+    const k = 1.38e-23, T = 273, m = 29 * 1.66e-27, g = 9.8, f = P => -P * m * g / (k * T); let P = 1;
+    for (let i = 0; i < 8900; i++) { const a = f(P), b = f(P + a / 2), c = f(P + b / 2), d = f(P + c); P += (a + 2 * b + 2 * c + d) / 6; }   // RK4 in 1 m steps
+    return [{ i: 0, v: Math.round(V * 1e4) / 10 }, { i: 1, v: Math.round((P2 - 1) * 15 * 10) / 10 }, { i: 2, v: Math.round(P * 100) / 100 }];
+  })(),
+
+  "phys100.0.34": (function () {
+    let lo = 1e-9, hi = 1e-5;   // bisect for the wavelength whose momentum h / lambda equals m v
+    for (let i = 0; i < 300; i++) { const l = (lo + hi) / 2; if (6.6e-34 / l > 9.11e-31 * 1000) lo = l; else hi = l; }
+    let a = 0, b = 100;   // bisect for the smallest dv with m dv dx = hbar, hbar = 1
+    for (let i = 0; i < 200; i++) { const v = (a + b) / 2; if (1 * v * 0.3 < 1) a = v; else b = v; }
+    return [{ i: 0, v: Math.round(lo * 1e9) }, { i: 1, v: Math.round(b * 100) / 100 }];
+  })(),
+
+  "phys100.0.36": [{ i: 0, v: (function () {   // step the full pendulum from 5 degrees and time a swing
+                        const w2 = 9.8 / 5.21, dt = 1e-4; let th = 5 * Math.PI / 180, om = 0, t = 0; const cr = [];
+                        const f = (x, v) => [v, -w2 * Math.sin(x)];
+                        while (cr.length < 3) {
+                          const a = f(th, om), b = f(th + a[0] * dt / 2, om + a[1] * dt / 2), c = f(th + b[0] * dt / 2, om + b[1] * dt / 2), d = f(th + c[0] * dt, om + c[1] * dt);
+                          const n = th + dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]), nv = om + dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]);
+                          if (th > 0 && n <= 0) cr.push(t + dt * th / (th - n)); th = n; om = nv; t += dt; }
+                        return Math.round((cr[2] - cr[1]) * 100) / 100; })() }],
 };
 
 let sumNums = 0;

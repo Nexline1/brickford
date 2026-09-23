@@ -1077,6 +1077,54 @@ const expectedSummary = {
                         let s = f(a) + f(b);
                         for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
                         return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  // Batch four. Beta and Gamma quantities by quadrature, never via the Gamma-function
+  // identities the lectures derive; waiting times by propagating the distribution
+  // of a small Markov chain, never by first-step equations.
+  "math130.0.22": [{ i: 1, v: (function () {   // Bayes by quadrature: integral of p * likelihood * prior over the same without p
+                        const simp = (f, n) => { const h = 1 / n; let s = f(0) + f(1);
+                          for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const post = p => Math.pow(p, 7) * Math.pow(1 - p, 3) * p * (1 - p);   // Bin likelihood x Beta(2,2) kernel
+                        return Math.round((simp(p => p * post(p), 2000) / simp(post, 2000)) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // integrate the polynomial numerically, not by billiard balls
+                        const f = x => 10 * x * x * Math.pow(1 - x, 3), n = 2000, h = 1 / n;
+                        let s = f(0) + f(1);
+                        for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  "math130.0.23": [{ i: 1, v: (function () {   // Gamma(1/2) as 2 * integral of e^{-u^2} on [0, 12], by Simpson
+                        const f = u => Math.exp(-u * u), a = 0, b = 12, n = 4000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((2 * s * h / 3) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // integrate the Gamma(3, 2) density over [0, 1], not the Poisson count
+                        const f = t => 8 * t * t * Math.exp(-2 * t) / 2, n = 2000, h = 1 / n;
+                        let s = f(0) + f(1);
+                        for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() }],
+
+  "math130.0.24": [{ i: 1, v: (function () {   // integrate the Beta(3,3) density to 0.4, not the binomial tail
+                        const f = x => 30 * x * x * (1 - x) * (1 - x), a = 0, b = 0.4, n = 2000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 10000) / 10000; })() },
+                   { i: 2, v: (function () {   // one over the numerical integral of x^2 (1-x)^3, not the Gamma ratio
+                        const f = x => x * x * Math.pow(1 - x, 3), n = 2000, h = 1 / n;
+                        let s = f(0) + f(1);
+                        for (let i = 1; i < n; i++) s += f(i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((1 / (s * h / 3)) * 1000) / 1000; })() }],
+
+  "math130.0.25": [{ i: 1, v: (function () {   // push probability mass through the HH chain flip by flip, sum t * P(done at t)
+                        let none = 1, lastH = 0, e = 0;
+                        for (let t = 1; t <= 400; t++) {
+                          const done = 0.5 * lastH;
+                          e += t * done;
+                          [none, lastH] = [0.5 * none + 0.5 * lastH, 0.5 * none]; }
+                        return Math.round(e * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // ratio of Poisson products, P(X=4)P(Y=6) over the sum across all splits
+                        const pm = (k, l) => { let r = Math.exp(-l); for (let i = 1; i <= k; i++) r *= l / i; return r; };
+                        let d = 0; for (let k = 0; k <= 10; k++) d += pm(k, 3) * pm(10 - k, 3);
+                        return Math.round((pm(4, 3) * pm(6, 3) / d) * 10000) / 10000; })() }],
 };
 
 let sumNums = 0;

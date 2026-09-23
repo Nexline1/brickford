@@ -697,6 +697,50 @@ const expectedSummary = {
                         let s = f(a) + f(b);
                         for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
                         return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.30": [{ i: 1, v: (function () {   // the limit by direct numerical evaluation, not by differentiating twice
+                        const f = x => (Math.cos(x) - 1) / (x * x);
+                        const a = f(1e-4), b = f(1e-5);
+                        if (Math.abs(a - b) > 1e-6) return NaN;      // must have settled
+                        return Math.round(b * 10) / 10; })(),
+                    },
+                    { i: 2, v: (function () {   // likewise, straight from the quotient at small x
+                        const f = x => Math.sin(5 * x) / Math.sin(2 * x);
+                        const a = f(1e-5), b = f(1e-6);
+                        if (Math.abs(a - b) > 1e-6) return NaN;
+                        return Math.round(b * 10) / 10; })() }],
+  "math120.1.31": [{ i: 1, v: (function () {   // substitute x = 1/t to pull the infinite tail onto [0,1], then sum it
+                        // integral 1..inf of x^(-3/2) dx becomes integral 0..1 of t^(-1/2) dt
+                        const f = t => 1 / Math.sqrt(t), n = 8000000, h = 1 / n;
+                        let s = 0; for (let i = 0; i < n; i++) s += f((i + 0.5) * h) * h;
+                        return Math.round(s * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // e^(-4x) by quadrature out to where it is under 1e-50
+                        const f = x => Math.exp(-4 * x), a = 0, b = 30, n = 300000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.32": [{ i: 1, v: (function () {   // the Basel sum added up directly, not quoted as pi^2/6
+                        let s = 0; for (let n = 20000000; n >= 1; n--) s += 1 / (n * n);
+                        return Math.round(s * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the geometric sum added up term by term, not via 1/(1-a)
+                        let s = 0, t = 1; for (let n = 0; n < 200; n++) { s += t; t /= 3; }
+                        return Math.round(s * 1000) / 1000; })() }],
+  "math120.1.33": [{ i: 1, v: (function () {   // e from the LIMIT definition (1 + 1/n)^n, not from the factorial series
+                        const n = 1e9;
+                        return Math.round(Math.pow(1 + 1 / n, n) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the first N whose harmonic sum reaches 4, by summing
+                        let s = 0; for (let n = 1; n <= 1000; n++) { s += 1 / n; if (s >= 4) return n; }
+                        return NaN; })() }],
+  "math120.1.34": [{ i: 1, v: (function () {   // ln 1.5 from the logarithm itself, not from the alternating series
+                        return Math.round(Math.log(1.5) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // erf(1) by quadrature on e^(-t^2), not by the series
+                        const f = t => Math.exp(-t * t), a = 0, b = 1, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((2 / Math.sqrt(Math.PI)) * (s * h / 3) * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;

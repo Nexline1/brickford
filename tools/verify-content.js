@@ -1181,6 +1181,71 @@ const expectedSummary = {
                         const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
                           for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
                         return Math.round(simp(x => phi(x) * simp(phi, -x, x, 200), 0, 10, 400) * 1000) / 1000; })() }],
+
+  // Batch six. Markov chain quantities by iteration where the summary solves an
+  // equation, and by elimination where the summary iterates; the survey's slope by
+  // gradient descent on squared error rather than the covariance formula.
+  "math130.0.30": [{ i: 1, v: (function () {   // walk every two-step path 1 -> k -> 3 explicitly
+                        const Q = [[1/3, 2/3, 0, 0], [1/2, 0, 1/2, 0], [0, 0, 0, 1], [1/2, 0, 1/4, 1/4]];
+                        let p = 0; for (let k = 0; k < 4; k++) p += Q[0][k] * Q[k][2];
+                        return Math.round(p * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // run the chain from state 1 until it settles, never solve sQ = s
+                        const Q = [[1/3, 2/3, 0, 0], [1/2, 0, 1/2, 0], [0, 0, 0, 1], [1/2, 0, 1/4, 1/4]];
+                        let s = [1, 0, 0, 0];
+                        for (let t = 0; t < 5000; t++) {
+                          const n = [0, 0, 0, 0];
+                          for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) n[j] += s[i] * Q[i][j];
+                          s = n; }
+                        return Math.round(s[0] * 1000) / 1000; })() }],
+
+  "math130.0.31": [{ i: 1, v: (function () {   // run the walk until it settles, never the degree formula
+                        const A = [[1, 2], [0, 2], [0, 1, 3], [2]];
+                        let s = [1, 0, 0, 0];
+                        for (let t = 0; t < 5000; t++) {
+                          const n = [0, 0, 0, 0];
+                          for (let i = 0; i < 4; i++) A[i].forEach(j => { n[j] += s[i] / A[i].length; });
+                          s = n; }
+                        return Math.round(s[2] * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // first-step hitting times to node 4 by value iteration, then one step out and back
+                        const A = [[1, 2], [0, 2], [0, 1, 3], [2]];
+                        let h = [0, 0, 0, 0];
+                        for (let it = 0; it < 20000; it++) {
+                          const n = [0, 0, 0, 0];
+                          for (let i = 0; i < 3; i++) n[i] = 1 + A[i].reduce((acc, j) => acc + h[j], 0) / A[i].length;
+                          h = n; }
+                        return Math.round((1 + h[2]) * 1000) / 1000; })() }],
+
+  "math130.0.32": [{ i: 1, v: (function () {   // run the weighted walk until it settles, never the weighted-degree formula
+                        const W = [[0, 1, 2], [1, 0, 3], [2, 3, 0]];
+                        let s = [1, 0, 0];
+                        for (let t = 0; t < 5000; t++) {
+                          const n = [0, 0, 0];
+                          for (let i = 0; i < 3; i++) {
+                            const tot = W[i][0] + W[i][1] + W[i][2];
+                            for (let j = 0; j < 3; j++) n[j] += s[i] * W[i][j] / tot; }
+                          s = n; }
+                        return Math.round(s[2] * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // Gaussian elimination on s(G - I) = 0 with sum 1 — the method the lecture avoids
+                        const Q = [[0, 0.5, 0.5, 0], [0.5, 0, 0.5, 0], [0, 0, 0, 1], [0.25, 0.25, 0.25, 0.25]];
+                        const G = Q.map(r => r.map(x => 0.85 * x + 0.15 / 4));
+                        const M = [];
+                        for (let j = 0; j < 4; j++) { M.push([]); for (let i = 0; i < 4; i++) M[j].push(G[i][j] - (i === j ? 1 : 0)); M[j].push(0); }
+                        M[3] = [1, 1, 1, 1, 1];
+                        for (let c = 0; c < 4; c++) {
+                          let p = c; for (let r = c + 1; r < 4; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+                          [M[c], M[p]] = [M[p], M[c]];
+                          for (let r = 0; r < 4; r++) { if (r === c) continue;
+                            const f = M[r][c] / M[c][c]; for (let k = c; k < 5; k++) M[r][k] -= f * M[c][k]; } }
+                        return Math.round((M[3][4] / M[3][3]) * 10000) / 10000; })() }],
+
+  "math130.0.33": [{ i: 2, v: (function () {   // minimise squared error by gradient descent, never Cov / Var
+                        const X = [1, 2, 3, 4], Y = [2, 3, 5, 6];
+                        let a = 0, b = 0;
+                        for (let it = 0; it < 200000; it++) {
+                          let ga = 0, gb = 0;
+                          for (let i = 0; i < 4; i++) { const e = Y[i] - a - b * X[i]; ga += -2 * e; gb += -2 * e * X[i]; }
+                          a -= 0.01 * ga; b -= 0.01 * gb; }
+                        return Math.round(b * 1000) / 1000; })() }],
 };
 
 let sumNums = 0;

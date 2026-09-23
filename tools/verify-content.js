@@ -17,6 +17,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-math110-mit.js",
  "platform/data/summaries-math120.js",
  "platform/data/summaries-math130.js",
+ "platform/data/summaries-phys100.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -1246,6 +1247,51 @@ const expectedSummary = {
                           for (let i = 0; i < 4; i++) { const e = Y[i] - a - b * X[i]; ga += -2 * e; gb += -2 * e * X[i]; }
                           a -= 0.01 * ga; b -= 0.01 * gb; }
                         return Math.round(b * 1000) / 1000; })() }],
+
+  // PHYS 100. Every kinematics answer below comes from STEPPING the motion —
+  // advancing position and velocity in small time steps under constant g and
+  // reading the answer off the trajectory — never from the closed form the
+  // summary derives. Each step uses the exact constant-acceleration update, and
+  // the final partial step is solved within the step, so the result is exact
+  // up to rounding rather than approximate to O(dt).
+  "phys100.0.1": [{ i: 1, v: (function () {   // step two falls, from 3 m and from 1.5 m, and divide the times
+                        const g = 9.8, fall = h => { let y = h, v = 0, t = 0; const dt = 1e-5;
+                          for (;;) { const y2 = y + v * dt - 0.5 * g * dt * dt;
+                            if (y2 <= 0) { const a = -0.5 * g; return t + (-v - Math.sqrt(v * v - 4 * a * y)) / (2 * a); }
+                            v -= g * dt; y = y2; t += dt; } };
+                        return Math.round((fall(3) / fall(1.5)) * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // step a single fall from 3 m
+                        const g = 9.8; let y = 3, v = 0, t = 0; const dt = 1e-5;
+                        for (;;) { const y2 = y + v * dt - 0.5 * g * dt * dt;
+                          if (y2 <= 0) { const a = -0.5 * g; t += (-v - Math.sqrt(v * v - 4 * a * y)) / (2 * a); break; }
+                          v -= g * dt; y = y2; t += dt; }
+                        return Math.round(t * 1000) / 1000; })() }],
+
+  "phys100.0.2": [{ i: 1, v: (function () {   // step x'' = 2 from x = 8, v = -6 and record the lowest position reached
+                        let x = 8, v = -6, lo = Infinity; const a = 2, dt = 1e-4;
+                        for (let i = 0; i <= 60000; i++) { if (x < lo) lo = x; x += v * dt + 0.5 * a * dt * dt; v += a * dt; }
+                        return Math.round(lo * 1000) / 1000; })() },
+                   { i: 2, v: (function () {   // change in velocity over impact time, with the reversal counted
+                        const vIn = -5, vOut = 5, dt = 0.01;
+                        return Math.round(Math.abs(vOut - vIn) / dt * 1000) / 1000; })() }],
+
+  "phys100.0.3": [{ i: 1, v: Math.round(Math.hypot(Math.hypot(3, -5), 6) * 1000) / 1000 },   // two perpendicular Pythagoras steps
+                   { i: 2, v: Math.round(Math.atan2(Math.hypot(3, -5), 6) * 180 / Math.PI * 100) / 100 }],   // atan2 of the perpendicular part, not arccos
+
+  "phys100.0.4": [{ i: 1, v: (function () {   // fly the ball at 45 degrees step by step and find where it lands
+                        const g = 9.8, v0 = Math.sqrt(60.172), al = Math.PI / 4;
+                        let x = 0, y = 0, vx = v0 * Math.cos(al), vy = v0 * Math.sin(al); const dt = 1e-5;
+                        for (;;) { const y2 = y + vy * dt - 0.5 * g * dt * dt;
+                          if (y2 < 0 && vy < 0) { const a = -0.5 * g; x += vx * (-vy - Math.sqrt(vy * vy - 4 * a * y)) / (2 * a); break; }
+                          x += vx * dt; y = y2; vy -= g * dt; }
+                        return Math.round(x * 100) / 100; })() },
+                   { i: 2, v: (function () {   // the same at 30 degrees
+                        const g = 9.8, v0 = Math.sqrt(60.172), al = Math.PI / 6;
+                        let x = 0, y = 0, vx = v0 * Math.cos(al), vy = v0 * Math.sin(al); const dt = 1e-5;
+                        for (;;) { const y2 = y + vy * dt - 0.5 * g * dt * dt;
+                          if (y2 < 0 && vy < 0) { const a = -0.5 * g; x += vx * (-vy - Math.sqrt(vy * vy - 4 * a * y)) / (2 * a); break; }
+                          x += vx * dt; y = y2; vy -= g * dt; }
+                        return Math.round(x * 100) / 100; })() }],
 };
 
 let sumNums = 0;

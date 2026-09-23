@@ -1450,6 +1450,78 @@ const expectedSummary = {
                           for (let j = 0; j <= N; j++) { const p = j * hp, x = r * Math.cos(p) - R, y = r * Math.sin(p); inner += w(j) * (x * x + y * y); }
                           tot += w(i) * inner * hp / 3 * sig * r; }
                         return Math.round(tot * hr / 3 * 100) / 100; })() }],
+
+  // Angular momentum, torque and orbits: moments of inertia by quadrature, periods
+  // by stepping the full nonlinear equation about the pivot, orbits by stepping in
+  // two dimensions from the initial conditions (the sandwich throw by bisecting on
+  // the stepped return time), escape and infall by Simpson on the work, the horizon
+  // by bisection, precession by stepping the L vector under its torque, the ladder
+  // by bisection on the friction needed, and the capstan by stepping dT/dtheta.
+  "phys100.0.20": [{ i: 0, v: (function () {   // body I by Simpson over rings, then the ratio of the two moments
+                        const M = 75, R = 0.2, N = 1000, h = R / N, sig = M / (Math.PI * R * R); let s = 0;
+                        for (let i = 0; i <= N; i++) s += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * sig * 2 * Math.PI * Math.pow(i * h, 3);
+                        const Ib = s * h / 3; return Math.round((Ib + 2 * 1.8 * 0.81) / Ib * 100) / 100; })() }],
+
+  "phys100.0.21": (function () {
+    const rk = (f, s, dt) => { const k1 = f(s), k2 = f(s.map((x, i) => x + k1[i] * dt / 2)), k3 = f(s.map((x, i) => x + k2[i] * dt / 2)), k4 = f(s.map((x, i) => x + k3[i] * dt));
+      return s.map((x, i) => x + dt / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])); };
+    const per = (Ip, Mgb) => { const dt = 1e-4, f = s => [s[1], -Mgb / Ip * Math.sin(s[0])]; let s = [0.05, 0], t = 0; const cr = [];
+      while (cr.length < 3) { const n = rk(f, s, dt); if (s[0] > 0 && n[0] <= 0) cr.push(t + dt * s[0] / (s[0] - n[0])); s = n; t += dt; }
+      return cr[2] - cr[1]; };
+    let s = 0; const N = 1000, h = 1 / N;   // unit-mass metre stick from -0.1 to 0.9 m about the pin
+    for (let i = 0; i <= N; i++) { const x = -0.1 + i * h; s += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * x * x; }
+    let hoop = 0; const R = 0.4, K = 2000;   // unit-mass hoop, squared distances to a rim point
+    for (let j = 0; j < K; j++) { const p = 2 * Math.PI * j / K, x = R * Math.cos(p), y = R * Math.sin(p) - R; hoop += (x * x + y * y) / K; }
+    return [{ i: 0, v: Math.round(per(s * h / 3, 9.8 * 0.4) * 100) / 100 }, { i: 1, v: Math.round(per(hoop, 9.8 * R) * 100) / 100 }];
+  })(),
+
+  "phys100.0.22": (function () {
+    const GM = 6.67e-11 * 6e24;
+    const f = s => { const r3 = Math.pow(s[0] * s[0] + s[1] * s[1], 1.5); return [s[2], s[3], -GM * s[0] / r3, -GM * s[1] / r3]; };
+    const rk = (s, dt) => { const k1 = f(s), k2 = f(s.map((x, i) => x + k1[i] * dt / 2)), k3 = f(s.map((x, i) => x + k2[i] * dt / 2)), k4 = f(s.map((x, i) => x + k3[i] * dt));
+      return s.map((x, i) => x + dt / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])); };
+    const round = (s, dt) => { let t = 0, ang = 0, pa = Math.atan2(s[1], s[0]);   // time to sweep one full turn
+      for (;;) { const n = rk(s, dt), a = Math.atan2(n[1], n[0]); let d = a - pa; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI;
+        if (ang + d >= 2 * Math.PI) return t + dt * (2 * Math.PI - ang) / d; ang += d; pa = a; s = n; t += dt; } };
+    const ph = 120 * Math.PI / 180, T = round([9e6, 0, 9000 * Math.cos(ph), 9000 * Math.sin(ph)], 0.5);
+    const R = 7e6, va = Math.sqrt(GM / R), target = 0.95 * 2 * Math.PI * R / va;
+    let lo = 0.9 * va, hi = va;   // bisect on the throw until the stepped orbit returns in 95% of the circular period
+    for (let i = 0; i < 50; i++) { const m = (lo + hi) / 2; if (round([R, 0, 0, m], 1) > target) hi = m; else lo = m; }
+    return [{ i: 0, v: Math.round(T / 3600) }, { i: 1, v: Math.round(lo - va) }];
+  })(),
+
+  "phys100.0.23": [{ i: 0, v: (function () {   // Simpson on the work done falling in from far away, r = R e^s
+                        const G = 6.67e-11, M = 3e30, R = 1e4, N = 4000, S = 40, h = S / N; let s = 0;
+                        for (let i = 0; i <= N; i++) s += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * G * M / (R * Math.exp(i * h));
+                        return Math.round(Math.sqrt(2 * s * h / 3) / 3e8 * 100) / 100; })() },
+                   { i: 1, v: (function () {   // bisect on the radius where the escape speed reaches c
+                        const G = 6.67e-11, M = 2e30, c = 3e8; let lo = 1, hi = 1e5;
+                        for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (Math.sqrt(2 * G * M / m) > c) lo = m; else hi = m; }
+                        return Math.round(lo / 10) / 100; })() }],
+
+  "phys100.0.24": [{ i: 0, v: (function () {   // I/MR^2 of a disk by Simpson, then step the roll down 1 m
+                        const N = 1000, h = 1 / N; let s = 0;
+                        for (let i = 0; i <= N; i++) s += (i === 0 || i === N ? 1 : i % 2 ? 4 : 2) * 2 * Math.pow(i * h, 3);
+                        const a = 9.8 * Math.sin(10 * Math.PI / 180) / (1 + s * h / 3), dt = 1e-4; let x = 0, v = 0, t = 0;
+                        for (;;) { if (x + v * dt + 0.5 * a * dt * dt >= 1) { t += (-v + Math.sqrt(v * v + 2 * a * (1 - x))) / a; break; }
+                          x += v * dt + 0.5 * a * dt * dt; v += a * dt; t += dt; }
+                        return Math.round(t * 100) / 100; })() },
+                   { i: 1, v: (function () {   // step the horizontal L vector under a torque always perpendicular to it
+                        const r = 0.17, Rw = 0.29, g = 9.8, ws = 2 * Math.PI * 5, L = Rw * Rw * ws, tq = r * g, dt = 1e-4;
+                        let Lx = L, Ly = 0, ang = 0, t = 0, pa = 0;
+                        for (;;) { const n = Math.hypot(Lx, Ly); Lx += -Ly / n * tq * dt; Ly += Lx / n * tq * dt;
+                          const k = L / Math.hypot(Lx, Ly); Lx *= k; Ly *= k; t += dt;
+                          const a = Math.atan2(Ly, Lx); let d = a - pa; if (d < -Math.PI) d += 2 * Math.PI; ang += d; pa = a; if (ang >= 2 * Math.PI) break; }
+                        return Math.round(t * 10) / 10; })() }],
+
+  "phys100.0.25": [{ i: 0, v: (function () {   // bisect on the angle until the wall's push equals the floor's maximum friction
+                        const mu = 0.25; let lo = 1e-3, hi = Math.PI / 2 - 1e-3;
+                        for (let i = 0; i < 200; i++) { const al = (lo + hi) / 2; if (0.5 * Math.cos(al) / Math.sin(al) > mu) lo = al; else hi = al; }
+                        return Math.round(hi * 180 / Math.PI * 10) / 10; })() },
+                   { i: 1, v: (function () {   // step dT/dtheta = mu T around three turns
+                        const mu = 0.2, dt = 1e-4; let T = 1;
+                        for (let i = 0; i < Math.round(6 * Math.PI / dt); i++) { const a = mu * T, b = mu * (T + a * dt / 2), c = mu * (T + b * dt / 2), d = mu * (T + c * dt); T += dt / 6 * (a + 2 * b + 2 * c + d); }
+                        return Math.round(T); })() }],
 };
 
 let sumNums = 0;

@@ -526,6 +526,59 @@ const expectedSummary = {
                         const n = 4000000; let s = 0;
                         for (let i = 1; i <= n; i++) s += (i / n) * (i / n) * (1 / n);
                         return Math.round(s * 1000) / 1000; })() }],
+  "math120.1.16": [{ i: 1, v: (function () {   // one hump of sine, by Simpson rather than by -cos
+                        const f = Math.sin, a = 0, b = Math.PI, n = 100000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round(s * h / 3); })(),
+                    },
+                    { i: 2, v: (function () {   // the substitution example, integrated in x directly
+                        const f = x => Math.pow(x * x * x + 2, 5) * x * x;
+                        const a = 1, b = 2, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.17": [{ i: 1, v: (function () {   // integral of 1/(1+x) on [0,4] by Simpson, not as ln 5
+                        const f = x => 1 / (1 + x), a = 0, b = 4, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.18": [{ i: 1, v: (function () {   // the area by VERTICAL slices, the decomposition the summary calls the hard way
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const left = simp(x => 2 * Math.sqrt(x), 0, 1, 200000);
+                        const right = simp(x => Math.sqrt(x) - (x - 2), 1, 4, 200000);
+                        return Math.round((left + right) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the Gaussian tail, by Simpson out to where it is negligible
+                        const f = t => Math.exp(-t * t), a = 0, b = 10, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.19": [{ i: 1, v: (function () {   // ball of radius 3 by the disk integral, not by 4/3 pi a^3
+                        const a = 3, f = x => Math.PI * (2 * a * x - x * x);
+                        const lo = 0, hi = 2 * a, n = 200000, h = (hi - lo) / n;
+                        let s = f(lo) + f(hi);
+                        for (let i = 1; i < n; i++) s += f(lo + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the cauldron by HORIZONTAL disks in y, where the summary used shells in x
+                        const f = y => Math.PI * y, lo = 0, hi = 1, n = 200000, h = (hi - lo) / n;
+                        let s = f(lo) + f(hi);
+                        for (let i = 1; i < n; i++) s += f(lo + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round((s * h / 3) * 1000) / 1000; })() }],
+  "math120.1.20": [{ i: 1, v: (function () {   // mean of sin over [0,pi] by Simpson, not as 2/pi
+                        const f = Math.sin, a = 0, b = Math.PI, n = 200000, h = (b - a) / n;
+                        let s = f(a) + f(b);
+                        for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+                        return Math.round(((s * h / 3) / Math.PI) * 1000) / 1000; })(),
+                    },
+                    { i: 2, v: (function () {   // the weighted mean temperature, both integrals done numerically
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                          for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; };
+                        const top = simp(y => (100 - 30 * y) * Math.PI * y, 0, 1, 200000);
+                        const bot = simp(y => Math.PI * y, 0, 1, 200000);
+                        return Math.round(top / bot); })() }],
 };
 
 let sumNums = 0;

@@ -12,7 +12,10 @@
 // exception: the three Unit II readings (Distill's "Why momentum really works",
 // Ruder's overview of gradient descent, Boyd & Vandenberghe ch. 2–3) could not be
 // fetched from this environment — the network policy blocks those sites — so they
-// are written from the standard content of those texts, and say so.
+// are written from the standard content of those texts, and say so. A second
+// exception: MacKay's lecture 10 (2.9) has no captions anywhere, so its entry is
+// built from the neighbouring lectures' own account of it and from chapter 3 of
+// his book, and its first beat tells the reader that.
 //
 // tools/verify-content.js enforces the shape and RECOMPUTES every numeric answer.
 // For this subject that means: a closed-form derivative is checked by central
@@ -786,6 +789,146 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "By the chain rule, $\\tfrac{27}8 - 2 = \\tfrac{11}8 = 1.375$, less than $H(X) = 1.75$." },
       { q: "For the same ensemble, the mutual information $I(X; Y)$ is (bits):", num: 0.375,
         expl: "$H(X) - H(X \\mid Y) = \\tfrac74 - \\tfrac{11}8 = \\tfrac38$. Summing $P(x, y)\\log_2\\frac{P(x, y)}{P(x)P(y)}$ over the table gives the same." },
+    ],
+  },
+
+  "math210.2.6": {
+    takeaway: "A channel is a set of conditional distributions $Q_{j|i} = P(y = b_j \\mid x = a_i)$. Choose an input distribution and you have a joint ensemble: Bayes' theorem gives the posterior on the input, and $I(X; Y)$ measures what the output conveys. The capacity is the maximum of $I(X; Y)$ over input distributions. For the binary symmetric channel it is $1 - H_2(f)$, reached with a uniform input.",
+    beats: [
+      { t: "Inference, recapped", d: "Three doors. The prior on the prize is $\\tfrac13$ each. You chose door 1, and the host opens door 3; the likelihood of that is $\\tfrac12$, 1 or 0 depending on where the prize is. The normalizing constant is $\\tfrac12$: how well you could predict his move. The posterior is $\\tfrac13, \\tfrac23, 0$, so switch. The universal rule: write down the joint probability of everything, then condition on what you know." },
+      { t: "A gallery of channels", d: "The binary symmetric channel flips with probability $f$. The binary erasure channel sometimes outputs '?', so the receiver knows the bit was lost but not what it was. The Z channel always delivers a 0 correctly but sometimes turns a 1 into a 0. The noisy typewriter has 27 keys arranged in a circle, and each key prints itself or one of its two neighbours, each with probability $\\tfrac13$." },
+      { t: "Inference through the channel", d: "Take a binary symmetric channel with $f = 0.1$ and $P(x = 1) = 0.1$. If you see $y = 1$: $P(x = 1 \\mid y = 1) = \\frac{0.9 \\times 0.1}{0.9 \\times 0.1 + 0.1 \\times 0.9} = \\tfrac12$, and $P(y = 1) = 0.18$. If you see $y = 0$: $P(x = 1 \\mid y = 0) = \\frac{0.01}{0.82} = \\tfrac1{82}$. A sanity check: $P(y = 0) + P(y = 1) = 1$." },
+      { t: "Mutual information, two ways", d: "$I(X; Y) = H(Y) - H(Y \\mid X) = H_2(0.18) - H_2(0.1) \\approx 0.21$ bits. The same number comes from $H(X) - H(X \\mid Y) = H_2(0.1) - [0.18\\,H_2(\\tfrac12) + 0.82\\,H_2(\\tfrac1{82})]$, but that needs three binary entropies and two Bayes computations. The output-side route is usually less work." },
+      { t: "Capacity", d: "Plot $I$ against $P(x = 1)$. It is zero at both ends, symmetric, and peaks at $\\tfrac12$. Define the capacity $C(Q) = \\max_{P_X} I(X; Y)$; the maximizing input is the optimal input distribution. For the binary symmetric channel, $I = H_2\\big(p_1(1 - f) + (1 - p_1)f\\big) - H_2(f)$. Since $H_2 \\le 1$, with equality at $\\tfrac12$, the capacity is $C = 1 - H_2(f)$, which is 0.53 for $f = 0.1$." },
+      { t: "Where this is going", d: "Next lecture proves that the capacity is exactly the rate at which virtually error-free communication is possible: two lousy disk drives can emulate one perfect drive. Easy cases first." },
+      { t: "A noiseless four-ary channel", d: "Four inputs map to four distinct outputs. With a uniform input, $H(Y) = 2$ bits and $H(Y \\mid X) = 0$, so $C = 2$. Reliable communication is trivial: send two source bits per use." },
+      { t: "The ternary confusion channel", d: "Input A always gives M, C always gives N, and B gives M or N with equal probability: the three cards again. With a uniform input, seeing M gives the posterior $\\tfrac23, \\tfrac13, 0$, and $I = \\log_2 3 - H_2(\\tfrac13) = 1 - \\tfrac13 = \\tfrac23$ bits. Both routes agree, which is not obvious. The optimal input throws away the useless B: use A and C half the time each, and $C = 1$ bit." },
+    ],
+    worked: "To find a channel's capacity: pick an input distribution and compute $I(X; Y) = H(Y) - H(Y \\mid X)$ (usually the easier way round). Then maximize over the input distribution, using symmetry to guess the optimum. Inputs that only add noise may be dropped entirely.",
+    watch: "Assuming the capacity-achieving input must use every symbol. For the ternary confusion channel the optimum puts zero probability on B. An input that only adds confusion is worth nothing.",
+    concepts: [],
+    checks: [
+      { q: "Binary symmetric channel, $f = 0.1$, with $P(x = 1) = 0.1$. You observe $y = 0$. The posterior $P(x = 1 \\mid y = 0)$ is 1 in how many?", num: 82,
+        expl: "$\\frac{0.1 \\times 0.1}{0.1 \\times 0.1 + 0.9 \\times 0.9} = \\frac{0.01}{0.82} = \\tfrac1{82}$." },
+      { q: "For the same channel and input distribution, the mutual information $I(X; Y)$ is (two decimals):", num: 0.21,
+        expl: "$H(Y) - H(Y \\mid X) = H_2(0.18) - H_2(0.1) \\approx 0.680 - 0.469 = 0.21$ bits, well below the capacity of 0.53, because the input is not uniform." },
+      { q: "The capacity of the ternary confusion channel (A→M, C→N, B→M or N at random) is (bits):", num: 1,
+        expl: "Use only A and C, each half the time: the output then identifies the input exactly, giving 1 bit per use. Adding B can only reduce $I$." },
+      { q: "When computing $I(X; Y)$ for a channel, the route $H(Y) - H(Y \\mid X)$ is often easier because:", opts: ["it is a different quantity", "$H(Y \\mid X)$ comes straight from the channel's rows, while $H(X \\mid Y)$ needs a Bayes computation for every output", "it avoids logarithms", "it only works for symmetric channels"], a: 1,
+        expl: "The two expressions are equal. One needs only the output distribution and the channel; the other needs every posterior." },
+    ],
+  },
+
+  "math210.2.7": {
+    takeaway: "The capacity is the rate of virtually error-free communication. N uses of any channel look like a noisy typewriter: each input's typical outputs form a blob of about $2^{NH(Y|X)}$ strings inside $2^{NH(Y)}$, so about $2^{NI(X;Y)}$ inputs can be kept apart. For the binary symmetric channel, averaging the error of a syndrome decoder over all random parity-check matrices shows it vanishes whenever $K/N \\lt 1 - H_2(f)$. Almost every code is good, though the proof names none.",
+    beats: [
+      { t: "The noisy typewriter", d: "$H(Y \\mid X) = \\log_2 3$ whatever the input distribution, and $H(Y) \\le \\log_2 27$, so $C = \\log_2 9 \\approx 3.17$ bits. A uniform input achieves it. So does putting $\\tfrac19$ on every third letter (B, E, H, …), and that also shows how to communicate: use only those nine letters, whose output sets never overlap, and there are no errors at all." },
+      { t: "What the theorem claims", d: "Every point with rate below $C$ is achievable, right down to arbitrarily small error. That is the exciting part, proved today for the binary symmetric channel. That points with rate above $C$ are unachievable is proved in the book." },
+      { t: "The extended channel", d: "Use the channel $N$ times, so there are $2^{N}$ input strings. Each input has a typical set of outputs (about $Nf$ flips, give or take $\\sqrt N$), and neighbouring inputs' sets overlap. With inputs drawn from $P_X$, all the typical outputs number about $2^{NH(Y)}$ and each blob about $2^{NH(Y|X)}$. So about $2^{N[H(Y) - H(Y|X)]} = 2^{NI}$ inputs are nearly non-confusable, $2^{NC}$ with the optimal input: $NC$ bits per $N$ uses. A plausibility argument, not a proof." },
+      { t: "The precise statement", d: "For the binary symmetric channel: for any $\\varepsilon \\gt 0$ and any $R \\lt C$, for large enough $N$ there is a code of rate at least $R$ with a decoder whose block error probability is below $\\varepsilon$." },
+      { t: "Linear codes", d: "Write the Hamming code's circles as a parity-check matrix $H$: valid transmissions satisfy $Ht = 0 \\pmod 2$. The syndrome $z = Hr = H(t + n) = Hn$ depends only on the noise. Flip bit 2 and $z$ is column 2 of $H$. Decoding means finding the lowest-weight $n$ with $Hn = z$, which is NP-complete in general. Any $M \\times N$ matrix defines a code of rate about $K/N$, where $K = N - M$." },
+      { t: "A non-constructive proof", d: "To show some child in a country is under 1 kg, weigh all the children at once: if the average is below 1 kg, many must be. Likewise, rather than build a good $H$, average the error over ALL parity-check matrices, drawing each entry by a fair coin toss." },
+      { t: "The decoder: the lottery bag again", d: "Take the bent-coin lottery bag: about $2^{NH_2(f)}$ typical noise vectors. On the back of each ticket, write its syndrome $Hn$. To decode, find the ticket whose syndrome matches. It fails if the true noise is not in the bag ($P_1$, small for large $N$ and independent of $H$), or if another ticket shares the syndrome ($P_2$)." },
+      { t: "Averaging $P_2$", d: "Bound 'is there a clash?' by the number of clashes. For a fixed nonzero $x = n - \\tilde n$, a random row satisfies $h \\cdot x = 0$ half the time (the parity of fair coins), so all $M$ rows do with probability $2^{-M}$. The average $P_2$ is at most (tickets) × $2^{-M} \\approx 2^{NH_2(f) - M}$, which vanishes if $M \\gt NH_2(f)$, that is, if $R = 1 - M/N \\lt 1 - H_2(f) = C$. So good codes exist, and almost all random codes are good. Finding practical ones is the whole field of coding theory." },
+    ],
+    worked: "To see why a rate is achievable, count. The inputs you might send produce about $2^{NH(Y)}$ typical outputs, and each input's noise spreads over about $2^{NH(Y|X)}$ of them. So about $2^{NI}$ inputs can be distinguished, and $NI$ bits get through in $N$ uses.",
+    watch: "Thinking the proof needs a clever code. It averages over codes chosen by coin toss and shows the AVERAGE error is small. No particular code is exhibited, yet almost all of them work.",
+    concepts: [],
+    checks: [
+      { q: "The capacity of the noisy typewriter (27 keys, each printing itself or a neighbour with probability $\\tfrac13$) is (bits, two decimals):", num: 3.17,
+        expl: "$\\max H(Y) - H(Y \\mid X) = \\log_2 27 - \\log_2 3 = \\log_2 9 \\approx 3.17$ bits." },
+      { q: "A random parity-check matrix has $M = 10$ rows, each entry a fair coin. For a fixed nonzero vector $x$, the chance that $Hx = 0$ is 1 in how many?", num: 1024,
+        expl: "Each row gives an even parity with probability $\\tfrac12$, independently, so the chance is $2^{-10} = 1/1024$." },
+      { q: "Why does the syndrome $Hr$ not depend on which codeword was sent?", opts: ["the decoder ignores it", "valid codewords satisfy $Ht = 0$, so $H(t + n) = Hn$", "the channel is symmetric", "because $H$ is random"], a: 1,
+        expl: "Linearity: the codeword's contribution vanishes, leaving a function of the noise alone." },
+      { q: "The random-coding argument shows the average block error over all parity-check matrices is small when:", opts: ["$M \\lt NH_2(f)$", "$M \\gt NH_2(f)$, i.e. the rate $1 - M/N$ is below $1 - H_2(f)$", "$N$ is small", "$f \\gt \\tfrac12$"], a: 1,
+        expl: "About $2^{NH_2(f)}$ typical noise vectors each clash with probability $2^{-M}$, so their product must shrink." },
+    ],
+  },
+
+  "math210.2.8": {
+    takeaway: "The binary erasure channel has capacity $1 - f$. A sender who hears every erasure and simply retransmits achieves exactly the same $1 - f$: feedback makes coding easy, but not faster. Then inference. To learn $\\mu$ and $\\sigma$ of a Gaussian, weigh every hypothesis in the $(\\mu, \\sigma)$ plane by the density it gave to the data actually seen. The calculator's $\\bar x$ and $\\sigma_N$ buttons find the peak of that likelihood, and $\\sigma_{N-1}$ finds the peak of the marginal likelihood once $\\mu$ is integrated out.",
+    beats: [
+      { t: "The erasure channel's capacity", d: "Compute $H(X) - H(X \\mid Y)$. A received 0 or 1 leaves no uncertainty; only a '?' (probability $f$) leaves the input's full entropy. So $I = (1 - f)H_2(p)$, maximized at $p = \\tfrac12$: $C = 1 - f$. The other route needs $H(Y)$, which the decomposability of entropy makes easy: first learn whether the output was '?', then which bit it was, giving $H(Y) = H_2(f) + (1 - f)H_2(p)$." },
+      { t: "The gem: feedback does not help", d: "Now let the sender see everything the receiver gets, and retransmit each erased bit until it arrives. Every use that is not an erasure delivers a new bit, so the rate is $1 - f$, exactly the capacity without feedback. Shannon: there is no need to redo information theory with feedback; just use a good random code. Fountain codes (chapter 50) nearly achieve this in practice." },
+      { t: "Why infer", d: "Cosmological parameters produce microwave-background fluctuations and supernovae; we measure these and want the parameters back. An email's hidden 'is spam' variable produces its text. Recognition of speech or characters works the same way. Each time, reverse the arrow from causes to data." },
+      { t: "Two spaces", d: "Take a Gaussian with unknown $\\mu$ and $\\sigma$, and data $x_1, \\ldots, x_N$. Keep hypothesis space (the $(\\mu, \\sigma)$ plane) separate from data space (the $x$ axis). Each point in the plane makes its own prediction: a bell curve over $x$." },
+      { t: "Bayes, and assumptions", d: "$P(\\mu, \\sigma \\mid D) = P(D \\mid \\mu, \\sigma)P(\\mu, \\sigma)/P(D)$, and every term is conditioned on assumptions $\\mathcal H$: Gaussian data, and a prior. A well-posed question has one right answer, and assumptions are unavoidable. Only the densities at the data actually observed matter: no tail areas, no data that did not happen." },
+      { t: "The likelihood surface", d: "With one data point, the likelihood grows without bound as $\\sigma \\to 0$ at $\\mu = x$. With five points it is a single hump: multiplying Gaussians in $\\mu$ gives a Gaussian. Its peak, the maximum-likelihood point, is $\\mu = \\bar x$ and $\\sigma = \\sigma_N$ (the calculator's $\\sigma_n$ button), derived rather than guessed. The contours lean upward: if $\\mu$ is not $\\bar x$, the data look more spread out." },
+      { t: "Integrating out μ", d: "If you care only about $\\sigma$, put a broad flat prior on $\\mu$ and integrate it out. The normalizing constant of the first inference, $P(D \\mid \\sigma) = \\int P(D \\mid \\mu, \\sigma)P(\\mu)\\,d\\mu$, is exactly the likelihood for the second. It peaks at $\\sigma_{N-1}$. That is what the other button is for, and it is the 'lost degree of freedom', found without being told about it." },
+      { t: "Words, and next time", d: "The likelihood of $\\theta$ is $P(D \\mid \\theta)$, not a synonym for probability. $P(D \\mid \\sigma)$ is a marginal likelihood, and $P(D \\mid \\mathcal H)$ is the evidence for the model, the key to comparing models. Homework: particles decay at exponentially distributed distances with length $\\lambda$, seen only between 1 and 20 cm. What is $\\lambda$?" },
+    ],
+    worked: "For any parameter inference: write the likelihood as a function of the parameters, using the data you actually saw. Multiply by the prior, and look at the whole posterior. For parameters you do not care about, integrate them out. The normalizing constant you get is the likelihood for the next level up.",
+    watch: "Treating the maximum-likelihood point as the answer. With one Gaussian data point, the likelihood is unbounded as $\\sigma \\to 0$. The answer is the posterior, and summaries of it, such as $\\sigma_{N-1}$ from the marginal likelihood, can differ from the joint peak.",
+    concepts: [],
+    checks: [
+      { q: "The capacity of a binary erasure channel that erases 20% of symbols is (bits per use):", num: 0.8,
+        expl: "$C = 1 - f = 0.8$, the same rate as a retransmit-on-erasure scheme that uses feedback." },
+      { q: "Data $2, 4, 6, 8$ from a Gaussian. The maximum-likelihood $\\sigma$ (the $\\sigma_N$ button) is (two decimals):", num: 2.24,
+        expl: "$\\bar x = 5$ and $\\sum(x - \\bar x)^{2} = 20$, so $\\sigma_N = \\sqrt{20/4} = \\sqrt5 \\approx 2.24$." },
+      { q: "Same data, with $\\mu$ integrated out under a flat prior. The peak of $P(D \\mid \\sigma)$ is at (two decimals):", num: 2.58,
+        expl: "$\\sigma_{N-1} = \\sqrt{20/3} \\approx 2.58$. Integrating out $\\mu$ leaves $N - 1$ effective measurements of the noise." },
+      { q: "On the binary erasure channel, instant feedback plus retransmission achieves a rate of:", opts: ["more than the capacity", "exactly the capacity, $1 - f$", "half the capacity", "1 bit per use"], a: 1,
+        expl: "It gets a bit through on every non-erased use, a fraction $1 - f$ of the time. A good code without feedback does as well." },
+    ],
+  },
+
+  // No captions exist for this lecture's video (checked with two transcript tools).
+  // This entry is built from what the neighbouring lectures say about it (the
+  // problem set at the end of lecture 9, the recap at the start of lecture 11) and
+  // from chapter 3 of MacKay's book, which the lectures follow. The first beat tells
+  // the reader so.
+  "math210.2.9": {
+    takeaway: "Inferring parameters and comparing models are the same move at two levels. For decays seen only between 1 and 20 cm, the likelihood of a decay length $\\lambda$ is $\\prod_n e^{-x_n/\\lambda}/(\\lambda Z(\\lambda))$, with $Z(\\lambda) = e^{-1/\\lambda} - e^{-20/\\lambda}$. Write it down, multiply by a prior, and the posterior is the complete answer. To compare models, use the normalizing constant, the evidence $P(D \\mid \\mathcal H)$, which automatically penalizes models that spread their predictions thin: Occam's razor.",
+    beats: [
+      { t: "About this summary", d: "This lecture's video has no captions. This summary follows the problem MacKay set at the end of lecture 9, his recap of this lecture at the start of lecture 11, and chapter 3 of his book, which the lectures track." },
+      { t: "The decay problem", d: "Unstable particles decay at distances that are exponentially distributed with length $\\lambda$, but only decays between 1 and 20 cm can be seen. Given $N$ observed locations $x_1, \\ldots, x_N$, what is $\\lambda$? Without Bayes you would reach for an estimator, but the sample mean is biased by the window and every fix is ad hoc." },
+      { t: "Write down the likelihood", d: "For $1 \\lt x \\lt 20$: $P(x \\mid \\lambda) = \\frac{1}{\\lambda}e^{-x/\\lambda}/Z(\\lambda)$, where $Z(\\lambda) = \\int_1^{20}\\frac1\\lambda e^{-x/\\lambda}\\,dx = e^{-1/\\lambda} - e^{-20/\\lambda}$ is the probability that a decay lands in the window. Multiply over the data and plot the result against $\\lambda$. The window is handled exactly, through $Z(\\lambda)$, with no fudge." },
+      { t: "The posterior is the answer", d: "$P(\\lambda \\mid D) \\propto P(D \\mid \\lambda)P(\\lambda)$. For the book's six decays (1.5, 2, 3, 4, 5, 12 cm), the likelihood peaks near $\\lambda \\approx 3.7$ cm, falls away quickly toward small $\\lambda$, and has a long, slowly decaying tail toward large $\\lambda$. A decay length far bigger than the window predicts data spread almost evenly across it. The posterior's asymmetric shape is part of the answer; a single point estimate hides it." },
+      { t: "Two exponentials", d: "Suppose instead that the decays come from a mixture of two sources, with lengths $\\lambda_1$ and $\\lambda_2$. Each data point then needs an assignment to a source. With few points you can enumerate everything: a stack of 'pancakes', one for each way of assigning points to sources, each a likelihood surface over $(\\lambda_1, \\lambda_2)$. Adding up the pancakes gives the posterior. (Lecture 11 corrects the record: that demo actually used no window.)" },
+      { t: "Comparing models", d: "The evidence is $P(D \\mid \\mathcal H) = \\int P(D \\mid \\theta, \\mathcal H)P(\\theta \\mid \\mathcal H)\\,d\\theta$: the normalizing constant of parameter inference, measuring how well model $\\mathcal H$ predicted the data. The posterior odds between two models are the prior odds times the ratio of their evidences." },
+      { t: "Occam's razor for free", d: "A flexible model spreads its predictions over many possible datasets, so it predicts any particular one less well. Roughly, the evidence is the best-fit likelihood times an Occam factor (posterior width over prior width) that penalizes wasted flexibility. The book's example: is a sequence of a's and b's from a bent coin with unknown $p_a$ (uniform prior), or from a die with one face marked a, so $p_a = \\tfrac16$ exactly? The coin's evidence is $\\frac{F_a!\\,F_b!}{(F_a + F_b + 1)!}$; the die's is $(\\tfrac16)^{F_a}(\\tfrac56)^{F_b}$." },
+      { t: "Where this leads", d: "'How many clusters?' and 'which model?' are the same kind of question as 'what is $\\lambda$?'. Exhaustive enumeration only works for tiny problems. That is why lecture 11 turns to clustering and lectures 12 and 13 to Monte Carlo methods." },
+    ],
+    worked: "To compare two models, compute each one's evidence: integrate likelihood × prior over its parameters (a model with no free parameters simply has its likelihood). Multiply the ratio by your prior odds. A model with more parameters wins only if the extra flexibility buys enough likelihood to pay its Occam factor.",
+    watch: "Comparing models by their best-fit likelihood. The more flexible model always fits at least as well, so that comparison always prefers it. The evidence averages over the parameters instead, which is what charges for the flexibility.",
+    concepts: [],
+    checks: [
+      { q: "Decays observed at 1.5, 2, 3, 4, 5 and 12 cm through a window from 1 to 20 cm. The likelihood of the decay length $\\lambda$ peaks at (cm, one decimal):", num: 3.7,
+        expl: "Maximize $\\sum_n\\left[-x_n/\\lambda - \\ln\\lambda - \\ln(e^{-1/\\lambda} - e^{-20/\\lambda})\\right]$: the peak is near 3.7 cm. The raw mean, 4.6, ignores that the window hides both short and long decays." },
+      { q: "A sequence has one a and five b's. How many times more probable is it under 'a die with one face a' ($p_a = \\tfrac16$) than under 'a bent coin with uniform prior on $p_a$' (two decimals)?", num: 2.81,
+        expl: "Die: $\\tfrac16(\\tfrac56)^{5} \\approx 0.0670$. Coin: $\\frac{1!\\,5!}{7!} = \\tfrac1{42} \\approx 0.0238$. The ratio is about 2.81: the simpler model, which predicted this data sharply, wins." },
+      { q: "In the decay problem, $Z(\\lambda) = e^{-1/\\lambda} - e^{-20/\\lambda}$ is:", opts: ["a prior on $\\lambda$", "the probability that a decay with length $\\lambda$ lands inside the window, which renormalizes the density", "the evidence", "a correction for measurement error"], a: 1,
+        expl: "Only in-window decays are seen, so each density is divided by the in-window probability. This is how Bayes handles the selection effect exactly." },
+      { q: "The evidence $P(D \\mid \\mathcal H)$ penalizes a model with many parameters because:", opts: ["it subtracts the number of parameters", "a flexible model spreads its prior predictions over many datasets, so it assigns less probability to the one observed", "the prior forbids large models", "it uses the maximum likelihood"], a: 1,
+        expl: "Probability sums to 1 over all possible datasets. Predicting everything means predicting nothing strongly." },
+    ],
+  },
+
+  "math210.2.10": {
+    takeaway: "Clustering is inference in disguise. A channel whose output is Gaussian around one of two means gives a posterior that is a sigmoid of a linear function of $y$. K-means assigns each point to its nearest mean and moves each mean to the average of its points: a hard fit of K equal, spherical, equally weighted Gaussians, so it fails exactly where those assumptions fail. Soft k-means replaces the hard assignment with responsibilities $\\propto e^{-\\beta d}$. Version 2 also learns each cluster's variances and weight: the EM algorithm for a mixture of Gaussians.",
+    beats: [
+      { t: "Where we are", d: "Last lecture inferred an exponential's decay length (a one-parameter Bayesian problem), and a mixture of two exponentials by enumerating every assignment of points to sources, a 'stack of pancakes'. Lectures 12 and 13 are Monte Carlo methods, and clustering is the motivation." },
+      { t: "A Gaussian channel", d: "The input is $x \\in \\{1, 2\\}$ with priors $\\pi_1$ and $\\pi_2$, and the output is $y \\sim \\mathcal N(\\mu_x, \\sigma^{2})$. Bayes gives $P(x = 1 \\mid y) = 1/(1 + e^{-a(y)})$. The normalizers cancel, and the difference of squares leaves $a(y) = \\frac{\\mu_1 - \\mu_2}{\\sigma^{2}}\\left(y - \\frac{\\mu_1 + \\mu_2}{2}\\right) + \\ln\\frac{\\pi_1}{\\pi_2}$: linear in $y$. Unequal priors shift the 50/50 point away from the midpoint. The output as a whole is a mixture of Gaussians." },
+      { t: "Why clusters", d: "A spectrogram of speech is a picture, and a baby learning language discovers that some pictures recur: clusters. Or picture a vegetable sorter measuring reflectance at 600 nm and ellipticity, discovering carrots and potatoes without being told." },
+      { t: "K-means", d: "Initialize K means. ASSIGN each point to its nearest mean: responsibility $r_k^{(n)} = 1$ for the closest, under the distance $\\tfrac12\\|m_k - x_n\\|^{2}$, and 0 otherwise. UPDATE each mean to the average of its points, $m_k = \\sum_n r_k^{(n)}x_n / \\sum_n r_k^{(n)}$. Repeat until nothing changes." },
+      { t: "Where it breaks", d: "The stable end state depends on the random start. On two elongated 'lozenge' clusters it cuts across them. Ask for seven clusters and it finds seven. A small cluster near a big one gets swallowed. Rescaling the axes does not fix this. Understanding the assumptions does." },
+      { t: "What it assumes", d: "K-means is roughly a maximum a posteriori fit, with hard assignments, of K spherical Gaussians, all with the same variance and the same prior weight. Even when that model is true, hard assignment misplaces the means: each cluster loses its tail beyond the boundary and gains its neighbour's, so the means are pushed apart." },
+      { t: "Soft k-means", d: "Assign softly: $r_k^{(n)} = e^{-\\beta d(m_k, x_n)}/\\sum_{k'}e^{-\\beta d(m_{k'}, x_n)}$, with the stiffness $\\beta = 1/\\sigma^{2}$. This is the sigmoid from the channel above. $\\beta \\to \\infty$ recovers hard k-means. Means are weighted by responsibility. Annealing from a large $\\sigma$ (small $\\beta$), all the means start together in one cluster and split as $\\sigma$ shrinks: one, two, then four clusters. For a known $\\sigma$, it puts the means in the right places." },
+      { t: "Version 2 is EM", d: "Also update each cluster's per-dimension variances $\\sigma^{2}_{k,i}$ and weight $\\pi_k$ from the responsibilities. Now the clusters are axis-aligned Gaussians of different shapes and sizes, and the lozenges work. It optimizes a variational free energy (explained in a later lecture). The pathology is a mean that captures a single point, whose variance collapses to zero and whose likelihood goes to infinity. AutoClass, built on this, made real astronomical discoveries. It still cannot choose K for you." },
+    ],
+    worked: "To derive a clustering algorithm, state the generative model first: K Gaussians with these shapes, weights and priors. The E-step is Bayes' theorem for which cluster generated each point (the responsibilities). The M-step sets each cluster's parameters to their responsibility-weighted estimates. Change the assumptions and the algorithm follows.",
+    watch: "Reading k-means clusters as the structure of the data. They are the best fit of a model with equal, spherical, equally weighted clusters and hard assignments. On data that model does not describe, it confidently finds the wrong structure.",
+    concepts: [],
+    checks: [
+      { q: "A Gaussian channel with means 1 and 2, $\\sigma = 0.5$ and equal priors. You receive $y = 1.2$. The posterior $P(x = 1 \\mid y)$ is (two decimals):", num: 0.77,
+        expl: "$a = \\frac{1 - 2}{0.25}(1.2 - 1.5) = 1.2$, so $P = 1/(1 + e^{-1.2}) \\approx 0.77$." },
+      { q: "One-dimensional data $1, 2, 4, 7, 8$, with k-means started from means 0 and 5. When it stops, the upper mean is (two decimals):", num: 6.33,
+        expl: "The first assignment is $\\{1, 2\\}$ and $\\{4, 7, 8\\}$, giving means 1.5 and 6.33. Point 4 stays with the upper mean (2.33 away, against 2.5), so it is stable at $19/3 \\approx 6.33$." },
+      { q: "Soft k-means with $\\beta = 1$ and $d = \\tfrac12(m - x)^{2}$. The point $x = 0$ with means at 1 and 3. The responsibility of the mean at 1 is (two decimals):", num: 0.98,
+        expl: "$e^{-0.5}/(e^{-0.5} + e^{-4.5}) = 1/(1 + e^{-4}) \\approx 0.98$: soft, but nearly decided." },
+      { q: "Plain k-means implicitly assumes clusters that are:", opts: ["of any shape", "spherical Gaussians with a common variance and equal weights, assigned hard", "uniformly distributed boxes", "heavy-tailed"], a: 1,
+        expl: "That is why it cuts elongated clusters in half and absorbs small clusters into large ones. Soft k-means version 2 relaxes all of these assumptions." },
     ],
   },
 

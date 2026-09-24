@@ -1887,6 +1887,57 @@ const expectedSummary = {
     return [{ i: 0, v: Math.round(both / seen * 100) / 100 }, { i: 1, v: Math.round(ones / bits * 1000) / 1000 },
             { i: 2, v: Math.round((hxy - hy) * 1000) / 1000 }, { i: 3, v: Math.round(mi * 1000) / 1000 }];
   })(),
+
+  "math210.2.6": (function () {
+    const mi = (px, Q) => { const py = Q[0].map((_, y) => px.reduce((a, p, x) => a + p * Q[x][y], 0)); let s = 0;
+                            px.forEach((p, x) => Q[x].forEach((q, y) => { if (p * q > 0) s += p * q * Math.log2(p * q / (p * py[y])); })); return s; };
+    const joint10 = 0.1 * 0.1, joint00 = 0.9 * 0.9;                          // P(x = 1, y = 0) and P(x = 0, y = 0)
+    const T = [[1, 0], [0.5, 0.5], [0, 1]]; let best = 0;                     // grid over the input simplex
+    for (let a = 0; a <= 200; a++) for (let b = 0; a + b <= 200; b++) best = Math.max(best, mi([a / 200, b / 200, 1 - (a + b) / 200], T));
+    return [{ i: 0, v: Math.round((joint10 + joint00) / joint10) }, { i: 1, v: Math.round(mi([0.9, 0.1], [[0.9, 0.1], [0.1, 0.9]]) * 100) / 100 },
+            { i: 2, v: Math.round(best * 100) / 100 }];
+  })(),
+
+  "math210.2.7": (function () {
+    const Q = [...Array(27)].map((_, i) => [...Array(27)].map((_, j) => ((j - i + 27) % 27 <= 1 || (i - j + 27) % 27 === 1) ? 1 / 3 : 0));
+    const px = Array(27).fill(1 / 27), py = Q[0].map((_, y) => px.reduce((a, p, x) => a + p * Q[x][y], 0)); let mi = 0;   // sum the 27 x 27 table
+    for (let x = 0; x < 27; x++) for (let y = 0; y < 27; y++) if (Q[x][y] > 0) mi += px[x] * Q[x][y] * Math.log2(Q[x][y] / py[y]);
+    let even = 0; for (let h = 0; h < 16; h++) { const d = ((h >> 1) & 1) + ((h >> 2) & 1) + ((h >> 3) & 1); if (d % 2 === 0) even++; }   // every row against x = 0111
+    return [{ i: 0, v: Math.round(mi * 100) / 100 }, { i: 1, v: Math.round(1 / Math.pow(even / 16, 10)) }];
+  })(),
+
+  "math210.2.8": (function () {
+    const f = 0.2, I = p => { const px = [1 - p, p], Q = [[1 - f, f, 0], [0, f, 1 - f]], py = [0, 1, 2].map(y => px[0] * Q[0][y] + px[1] * Q[1][y]); let s = 0;
+      for (let x = 0; x < 2; x++) for (let y = 0; y < 3; y++) if (px[x] * Q[x][y] > 0) s += px[x] * Q[x][y] * Math.log2(Q[x][y] / py[y]); return s; };
+    let lo = 0, hi = 1; const gr = (Math.sqrt(5) - 1) / 2;
+    for (let k = 0; k < 200; k++) { const c = hi - gr * (hi - lo), d = lo + gr * (hi - lo); if (I(c) > I(d)) hi = d; else lo = c; }
+    const X = [2, 4, 6, 8], ll = (m, s) => X.reduce((a, x) => a - Math.log(s) - (x - m) * (x - m) / (2 * s * s), 0);
+    const gs = (g, a, b) => { for (let k = 0; k < 200; k++) { const c = b - gr * (b - a), d = a + gr * (b - a); if (g(c) > g(d)) b = d; else a = c; } return (a + b) / 2; };
+    const sML = gs(s => ll(gs(m => ll(m, s), 0, 10), s), 0.1, 10);          // maximize the joint likelihood numerically
+    const simp = (g, a, b, n) => { const d = (b - a) / n; let t = g(a) + g(b); for (let k = 1; k < n; k++) t += (k % 2 ? 4 : 2) * g(a + k * d); return t * d / 3; };
+    const sMarg = gs(s => simp(m => Math.exp(ll(m, s)), -40, 50, 4000), 0.5, 10);   // integrate mu out by Simpson, then maximize
+    return [{ i: 0, v: Math.round(I((lo + hi) / 2) * 100) / 100 }, { i: 1, v: Math.round(sML * 100) / 100 }, { i: 2, v: Math.round(sMarg * 100) / 100 }];
+  })(),
+
+  "math210.2.9": (function () {
+    const simp = (g, a, b, n) => { const d = (b - a) / n; let t = g(a) + g(b); for (let k = 1; k < n; k++) t += (k % 2 ? 4 : 2) * g(a + k * d); return t * d / 3; };
+    const D = [1.5, 2, 3, 4, 5, 12];                                           // Z(lambda) by quadrature over the window
+    const ll = l => { const Z = simp(x => Math.exp(-x / l) / l, 1, 20, 2000); return D.reduce((a, x) => a - x / l - Math.log(l) - Math.log(Z), 0); };
+    let lo = 0.5, hi = 50; const gr = (Math.sqrt(5) - 1) / 2;
+    for (let k = 0; k < 200; k++) { const c = hi - gr * (hi - lo), d = lo + gr * (hi - lo); if (ll(c) > ll(d)) hi = d; else lo = c; }
+    const coin = simp(p => p * Math.pow(1 - p, 5), 0, 1, 2000), die = (1 / 6) * Math.pow(5 / 6, 5);   // coin's evidence by integrating over p_a
+    return [{ i: 0, v: Math.round((lo + hi) / 2 * 10) / 10 }, { i: 1, v: Math.round(die / coin * 100) / 100 }];
+  })(),
+
+  "math210.2.10": (function () {
+    const npdf = (y, m, s) => Math.exp(-(y - m) * (y - m) / (2 * s * s)) / (s * Math.sqrt(2 * Math.PI));   // Bayes with the densities themselves
+    const post = npdf(1.2, 1, 0.5) / (npdf(1.2, 1, 0.5) + npdf(1.2, 2, 0.5));
+    let m = [0, 5]; const X = [1, 2, 4, 7, 8];                                 // run k-means to a fixed point
+    for (let it = 0; it < 20; it++) { const r = X.map(x => Math.abs(x - m[0]) <= Math.abs(x - m[1]) ? 0 : 1);
+      m = [0, 1].map(k => { const s = X.filter((_, i) => r[i] === k); return s.reduce((a, b) => a + b, 0) / s.length; }); }
+    const resp = npdf(0, 1, 1) / (npdf(0, 1, 1) + npdf(0, 3, 1));             // beta = 1 is sigma = 1
+    return [{ i: 0, v: Math.round(post * 100) / 100 }, { i: 1, v: Math.round(m[1] * 100) / 100 }, { i: 2, v: Math.round(resp * 100) / 100 }];
+  })(),
 };
 
 let sumNums = 0;

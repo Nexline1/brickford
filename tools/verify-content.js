@@ -1817,6 +1817,76 @@ const expectedSummary = {
     return [{ i: 0, v: Math.round(jensen * 100) / 100 },
             { i: 1, v: Math.round(f((lo + hi) / 2) * 100) / 100 }];
   })(),
+
+  // Unit III, information theory: entropies and capacities by enumerating joint
+  // tables or maximizing over the input distribution; codes by running their
+  // decoders over every noise pattern; optimal codes by brute force over lengths.
+  "math210.2.0": (function () {
+    const f = 0.1; let r3 = 0;                                                // majority vote over all 8 noise patterns
+    for (let n = 0; n < 8; n++) { const k = (n & 1) + ((n >> 1) & 1) + ((n >> 2) & 1); if (k >= 2) r3 += Math.pow(f, k) * Math.pow(1 - f, 3 - k); }
+    const I = q => { const pj = [[(1 - q) * (1 - f), (1 - q) * f], [q * f, q * (1 - f)]], px = [1 - q, q], py = [pj[0][0] + pj[1][0], pj[0][1] + pj[1][1]];
+                     let s = 0; for (let x = 0; x < 2; x++) for (let y = 0; y < 2; y++) if (pj[x][y] > 0) s += pj[x][y] * Math.log2(pj[x][y] / (px[x] * py[y])); return s; };
+    let lo = 0, hi = 1; const gr = (Math.sqrt(5) - 1) / 2;                   // capacity: golden-section over P(x = 1)
+    for (let k = 0; k < 200; k++) { const c = hi - gr * (hi - lo), d = lo + gr * (hi - lo); if (I(c) > I(d)) hi = d; else lo = c; }
+    const enc = s => [s[0], s[1], s[2], s[3], (s[0] + s[1] + s[2]) % 2, (s[1] + s[2] + s[3]) % 2, (s[0] + s[2] + s[3]) % 2];
+    const book = []; for (let m = 0; m < 16; m++) { const s = [m & 1, (m >> 1) & 1, (m >> 2) & 1, (m >> 3) & 1]; book.push([s.join(''), enc(s)]); }
+    const t0 = enc([1, 0, 0, 0]); let blk = 0;                                  // nearest-codeword decoding of all 128 noise patterns
+    for (let n = 0; n < 128; n++) { const r = t0.map((v, i) => v ^ ((n >> i) & 1)); let best = '', bd = 9;
+      for (const [s, t] of book) { const d = t.reduce((a, v, i) => a + (v !== r[i] ? 1 : 0), 0); if (d < bd) { bd = d; best = s; } }
+      const k = r.reduce((a, v, i) => a + (v !== t0[i] ? 1 : 0), 0); if (best !== '1000') blk += Math.pow(f, k) * Math.pow(1 - f, 7 - k); }
+    return [{ i: 0, v: Math.round(r3 * 1000) / 1000 }, { i: 1, v: Math.round(I((lo + hi) / 2) * 100) / 100 }, { i: 2, v: Math.round(blk * 100) / 100 }];
+  })(),
+
+  "math210.2.1": (function () {
+    let lo = 0, hi = 10; for (let k = 0; k < 100; k++) { const m = (lo + hi) / 2; if (Math.pow(2, m) < 10) lo = m; else hi = m; }   // solve 2^h = 10
+    const Hn = ps => ps.reduce((a, p) => a + (p > 0 ? -p * Math.log(p) : 0), 0) / Math.LN2;
+    const c = [0, 0, 0];                                                       // 24 hypotheses through a 4 v 4 weighing
+    for (let b = 0; b < 12; b++) for (const w of [1, -1]) { const s = (b < 4 ? w : 0) - (b >= 4 && b < 8 ? w : 0); c[s > 0 ? 0 : s < 0 ? 2 : 1]++; }
+    return [{ i: 0, v: Math.round(lo * 100) / 100 }, { i: 1, v: Math.round(Hn([0.9, 0.1]) * 100) / 100 },
+            { i: 2, v: Math.round(Hn(c.map(v => v / 24)) * 1000) / 1000 }];
+  })(),
+
+  "math210.2.2": (function () {
+    let s = 0; for (let k = 0; k < 32; k++) s += Math.log2((64 - k) / (63 - k));   // add up the 32 misses one by one
+    const N = 1000, f = 0.1; let p = Math.pow(1 - f, N), m = 0, m2 = 0;          // moments summed over the whole binomial pmf
+    for (let k = 0; k <= N; k++) { m += k * p; m2 += k * k * p; p = p * (N - k) / (k + 1) * f / (1 - f); }
+    let n = 1000, q = 0; while (n > 1) { n = Math.ceil(n / 2); q++; }            // halve the candidates until one is left
+    return [{ i: 0, v: Math.round(s) }, { i: 1, v: Math.round(Math.sqrt(m2 - m * m) * 100) / 100 }, { i: 2, v: q }];
+  })(),
+
+  "math210.2.3": (function () {
+    let hits = 0; for (let s = 0; s < 8; s++) {                                // fraction of 3-bit strings each codeword claims
+      const str = s.toString(2).padStart(3, '0'); for (const w of ['0', '10', '110', '11']) if (str.startsWith(w)) hits++; }
+    const p = [0.5, 0.25, 0.125, 0.125]; let kl = 0; for (const v of p) kl += v * Math.log2(v / 0.25);
+    const q = [0.25, 0.25, 0.2, 0.15, 0.15]; let best = Infinity;              // brute force over every length assignment within Kraft
+    const rec = (i, ls) => { if (i === 5) { if (ls.reduce((a, l) => a + Math.pow(2, -l), 0) <= 1) best = Math.min(best, ls.reduce((a, l, j) => a + l * q[j], 0)); return; }
+                             for (let l = 1; l <= 6; l++) rec(i + 1, ls.concat(l)); };
+    rec(0, []);
+    return [{ i: 0, v: hits / 8 }, { i: 1, v: Math.round(kl * 100) / 100 }, { i: 2, v: Math.round(best * 100) / 100 }];
+  })(),
+
+  "math210.2.4": (function () {
+    const h = -(0.99 * Math.log(0.99) + 0.01 * Math.log(0.01)) / Math.LN2;
+    let w = 1; for (let k = 0; k < 10; k++) w *= 0.01; for (let k = 0; k < 990; k++) w *= 0.99;   // subdivide the interval
+    const simp = (g, a, b, n) => { const d = (b - a) / n; let t = g(a) + g(b); for (let k = 1; k < n; k++) t += (k % 2 ? 4 : 2) * g(a + k * d); return t * d / 3; };
+    return [{ i: 0, v: Math.round(1 / h * 100) / 100 }, { i: 1, v: Math.round(-Math.log2(w) * 100) / 100 },
+            { i: 2, v: Math.round(simp(x => Math.pow(x, 5) * (1 - x), 0, 1, 2000) / simp(x => Math.pow(x, 4) * (1 - x), 0, 1, 2000) * 100) / 100 }];
+  })(),
+
+  "math210.2.5": (function () {
+    const cards = [['w', 'w'], ['b', 'b'], ['w', 'b']]; let seen = 0, both = 0;   // enumerate card and side
+    for (const c of cards) for (const s of [0, 1]) if (c[s] === 'w') { seen++; if (c[1 - s] === 'w') both++; }
+    const code = { a: '0', b: '10', c: '110', d: '111' }, pr = { a: 0.5, b: 0.25, c: 0.125, d: 0.125 }; let ones = 0, bits = 0;
+    const rec = (k, w, s) => { if (k === 0) { ones += w * s.split('1').length - w; bits += w * s.length; return; } for (const x in code) rec(k - 1, w * pr[x], s + code[x]); };
+    rec(6, 1, '');                                                             // every 6-symbol source string, weighted
+    const P = [[1 / 8, 1 / 16, 1 / 32, 1 / 32], [1 / 16, 1 / 8, 1 / 32, 1 / 32], [1 / 16, 1 / 16, 1 / 16, 1 / 16], [1 / 4, 0, 0, 0]];
+    const px = [0, 1, 2, 3].map(x => P.reduce((a, r) => a + r[x], 0)), py = P.map(r => r.reduce((a, b) => a + b, 0));
+    let hxy = 0, hy = 0, mi = 0;
+    for (let y = 0; y < 4; y++) { hy -= py[y] * Math.log2(py[y]);
+      for (let x = 0; x < 4; x++) if (P[y][x] > 0) { hxy -= P[y][x] * Math.log2(P[y][x]); mi += P[y][x] * Math.log2(P[y][x] / (px[x] * py[y])); } }
+    return [{ i: 0, v: Math.round(both / seen * 100) / 100 }, { i: 1, v: Math.round(ones / bits * 1000) / 1000 },
+            { i: 2, v: Math.round((hxy - hy) * 1000) / 1000 }, { i: 3, v: Math.round(mi * 1000) / 1000 }];
+  })(),
 };
 
 let sumNums = 0;

@@ -18,6 +18,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-math120.js",
  "platform/data/summaries-math130.js",
  "platform/data/summaries-phys100.js",
+ "platform/data/summaries-math210.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -1626,6 +1627,49 @@ const expectedSummary = {
                           const n = th + dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]), nv = om + dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]);
                           if (th > 0 && n <= 0) cr.push(t + dt * th / (th - n)); th = n; om = nv; t += dt; }
                         return Math.round((cr[2] - cr[1]) * 100) / 100; })() }],
+
+  // MATH 210. Matrix calculus recomputes by central (or forward) finite differences
+  // at a concrete point — the method lecture 0.5 teaches — never by the closed form
+  // the summary derives. Kronecker determinants by building the Kronecker product
+  // explicitly and eliminating; machine epsilon by halving until 1 + e == 1.
+  "math210.0.0": [{ i: 0, v: (function () {   // the true change f(x + dx) - f(x), rounded
+                        const f = x => x[0] * x[0] + x[1] * x[1];
+                        return Math.round((f([3.001, 4.002]) - f([3, 4])) * 1000) / 1000; })() }],
+
+  "math210.0.1": [{ i: 0, v: (function () {   // central difference in x2 of x^T A x at (1, 1)
+                        const A = [[1, 2], [0, 3]], h = 1e-5;
+                        const f = x => { let s = 0; for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) s += x[i] * A[i][j] * x[j]; return s; };
+                        return Math.round((f([1, 1 + h]) - f([1, 1 - h])) / (2 * h) * 1000) / 1000; })() }],
+
+  "math210.0.2": [{ i: 0, v: (function () {   // finite-difference Jacobian columns, then the 2x2 determinant
+                        const F = x => [x[0] * x[0] * x[1], x[0] + Math.pow(x[1], 3)], h = 1e-6, x = [1, 2];
+                        const col = j => { const p = x.slice(), m = x.slice(); p[j] += h; m[j] -= h; const a = F(p), b = F(m); return [(a[0] - b[0]) / (2 * h), (a[1] - b[1]) / (2 * h)]; };
+                        const c0 = col(0), c1 = col(1);
+                        return Math.round((c0[0] * c1[1] - c1[0] * c0[1]) * 1000) / 1000; })() }],
+
+  "math210.0.3": [{ i: 0, v: (function () {   // central difference of the explicit 2x2 inverse along dA
+                        const inv = M => { const d = M[0][0] * M[1][1] - M[0][1] * M[1][0]; return [[M[1][1] / d, -M[0][1] / d], [-M[1][0] / d, M[0][0] / d]]; };
+                        const h = 1e-6, P = inv([[2, 1], [h, 1]]), Q = inv([[2, 1], [-h, 1]]);
+                        return Math.round((P[0][0] - Q[0][0]) / (2 * h) * 1000) / 1000; })() }],
+
+  "math210.0.4": [{ i: 0, v: (function () {   // build the 6x6 Kronecker product and eliminate
+                        const A = [[2, 1], [1, 2]], B = [[1, 1, 0], [0, 2, 1], [1, 0, 1]], K = [];
+                        for (let i = 0; i < 2; i++) for (let k = 0; k < 3; k++) { const row = []; for (let j = 0; j < 2; j++) for (let l = 0; l < 3; l++) row.push(A[i][j] * B[k][l]); K.push(row); }
+                        let d = 1; const n = 6;
+                        for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(K[r][c]) > Math.abs(K[p][c])) p = r;
+                          if (p !== c) { const t = K[p]; K[p] = K[c]; K[c] = t; d = -d; } d *= K[c][c];
+                          for (let r = c + 1; r < n; r++) { const f = K[r][c] / K[c][c]; for (let k = c; k < n; k++) K[r][k] -= f * K[c][k]; } }
+                        return Math.round(d); })() },
+                   { i: 1, v: (function () {   // central difference of the norm in x1 at (3, 4)
+                        const f = x => Math.hypot(x[0], x[1]), h = 1e-6;
+                        return Math.round((f([3 + h, 4]) - f([3 - h, 4])) / (2 * h) * 1000) / 1000; })() }],
+
+  "math210.0.5": [{ i: 0, v: (function () {   // halve until 1 + e/2 rounds to 1, then take the square root
+                        let e = 1; while (1 + e / 2 > 1) e /= 2;
+                        return Math.round(Math.sqrt(e) * 1e8 * 100) / 100; })() },
+                   { i: 1, v: (function () {   // measure the forward-difference error for sin at 1 with h = 1e-5
+                        const h = 1e-5, fd = (Math.sin(1 + h) - Math.sin(1)) / h;
+                        return Math.round(Math.abs(fd - Math.cos(1)) / Math.cos(1) / h * 100) / 100; })() }],
 };
 
 let sumNums = 0;

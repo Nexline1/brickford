@@ -1670,6 +1670,47 @@ const expectedSummary = {
                    { i: 1, v: (function () {   // measure the forward-difference error for sin at 1 with h = 1e-5
                         const h = 1e-5, fd = (Math.sin(1 + h) - Math.sin(1)) / h;
                         return Math.round(Math.abs(fd - Math.cos(1)) / Math.cos(1) / h * 100) / 100; })() }],
+
+  "math210.0.6": [{ i: 0, v: (function () {   // central difference of x^T A y in the entry a21
+                        const x = [1, 2], y = [3, 1, 2], h = 1e-6;
+                        const f = A => { let s = 0; for (let i = 0; i < 2; i++) for (let j = 0; j < 3; j++) s += x[i] * A[i][j] * y[j]; return s; };
+                        const P = [[1, 0, 2], [h, 1, 1]], M = [[1, 0, 2], [-h, 1, 1]];
+                        return Math.round((f(P) - f(M)) / (2 * h) * 1000) / 1000; })() },
+                   { i: 1, v: (function () {   // entrywise products summed, not the trace
+                        const A = [[1, 2], [3, 4]], B = [[0, 1], [1, 0]]; let s = 0;
+                        for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) s += A[i][j] * B[i][j];
+                        return s; })() }],
+
+  "math210.0.7": [{ i: 0, v: (function () {   // two Newton steps with a finite-difference slope
+                        const f = x => x * x - 2, h = 1e-6; let x = 1;
+                        for (let k = 0; k < 2; k++) x -= f(x) / ((f(x + h) - f(x - h)) / (2 * h));
+                        return Math.round(x * 1e4) / 1e4; })() },
+                   { i: 1, v: (function () {   // solve A(p) x = b by Cramer at p = +-h and difference x1
+                        const h = 1e-6, x1 = p => { const a = 2 + p, d = a * 3 - 1; return (1 * 3 - 1 * 0) / d; };
+                        return Math.round((x1(h) - x1(-h)) / (2 * h) * 100) / 100; })() }],
+
+  "math210.0.8": [{ i: 0, v: (function () {   // central difference of log det in a11
+                        const h = 1e-6, ld = a => Math.log(a * 3 - 1);
+                        return Math.round((ld(2 + h) - ld(2 - h)) / (2 * h) * 1000) / 1000; })() }],
+
+  "math210.0.9": [{ i: 0, v: (function () {   // central difference of the Babylonian iteration itself
+                        const bab = x => { let t = (1 + x) / 2; for (let i = 1; i < 10; i++) t = (t + x / t) / 2; return t; }, h = 1e-6;
+                        return Math.round((bab(49 + h) - bab(49 - h)) / (2 * h) * 1e4) / 1e4; })() },
+                   { i: 1, v: (function () {   // central difference of x^5 at 1
+                        const h = 1e-6; return Math.round((Math.pow(1 + h, 5) - Math.pow(1 - h, 5)) / (2 * h) * 1000) / 1000; })() }],
+
+  "math210.0.10": (function () {
+    const z = (x, y) => Math.sin(x) / y + x, h = 1e-6;   // difference the whole program, not the graph
+    return [{ i: 0, v: Math.round((z(h, 2) - z(-h, 2)) / (2 * h) * 1000) / 1000 },
+            { i: 1, v: Math.round((z(Math.PI / 2, 2 + h) - z(Math.PI / 2, 2 - h)) / (2 * h) * 1000) / 1000 }];
+  })(),
+
+  "math210.0.11": [{ i: 0, v: (function () {   // RK4-solve the falling ball at g +- h and difference the final height
+                        const sol = g => { let z = 10, v = 0; const dt = 1e-3, f = (z, v) => [v, -g];
+                          for (let i = 0; i < 2000; i++) { const a = f(z, v), b = f(z + a[0] * dt / 2, v + a[1] * dt / 2), c = f(z + b[0] * dt / 2, v + b[1] * dt / 2), d = f(z + c[0] * dt, v + c[1] * dt);
+                            z += dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]); v += dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]); }
+                          return z; };
+                        return Math.round((sol(9.8 + 1e-4) - sol(9.8 - 1e-4)) / 2e-4 * 100) / 100; })() }],
 };
 
 let sumNums = 0;

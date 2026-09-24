@@ -1938,6 +1938,45 @@ const expectedSummary = {
     const resp = npdf(0, 1, 1) / (npdf(0, 1, 1) + npdf(0, 3, 1));             // beta = 1 is sigma = 1
     return [{ i: 0, v: Math.round(post * 100) / 100 }, { i: 1, v: Math.round(m[1] * 100) / 100 }, { i: 2, v: Math.round(resp * 100) / 100 }];
   })(),
+
+  "math210.2.11": (function () {
+    let c = 1; for (let k = 0; k < 1000; k++) c *= 1.01;                     // multiply out the envelope ratio
+    const pdf = x => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);            // with its normalizer, which must cancel
+    let T = 0, v = 0; while (v < 100) { v += 1; T++; }                          // grow the walk's variance (step 1) to L^2 = 100
+    return [{ i: 0, v: Math.round(c / 1000) * 1000 }, { i: 1, v: Math.round(Math.min(1, pdf(1) / pdf(0)) * 100) / 100 }, { i: 2, v: T }];
+  })(),
+
+  "math210.2.12": (function () {
+    const wUp = Math.exp(0.5 * 2), wDown = Math.exp(-0.5 * 2);                 // Boltzmann weights of the two states
+    let lo = 0, hi = 5; for (let k = 0; k < 100; k++) { const m = (lo + hi) / 2; if (Math.exp(-m * m / 2) > 0.5) lo = m; else hi = m; }
+    let tl = 1, th = 4; for (let k = 0; k < 100; k++) { const t = (tl + th) / 2; if (Math.sinh(2 / t) > 1) tl = t; else th = t; }   // Onsager's condition
+    return [{ i: 0, v: Math.round(wUp / (wUp + wDown) * 100) / 100 }, { i: 1, v: Math.round(2 * lo * 100) / 100 }, { i: 2, v: Math.round(tl * 100) / 100 }];
+  })(),
+
+  "math210.2.13": (function () {
+    let kl = 0; for (const p of [1 / 3, 1 / 3, 1 / 3]) kl += p * Math.log2(p / 0.25);
+    let x = 0.5; for (let k = 0; k < 10000; k++) x = Math.tanh(2 * x);           // iterate the mean-field equation
+    const He = q => (q <= 0 || q >= 1) ? 0 : -(q * Math.log(q) + (1 - q) * Math.log(1 - q));
+    let best = Infinity;                                                        // grid-minimize F over (q1, q2) directly
+    for (let i = 1; i < 2000; i++) for (let j = 1; j < 2000; j++) { const q1 = i / 2000, q2 = j / 2000;
+      best = Math.min(best, -2 * (2 * q1 - 1) * (2 * q2 - 1) - He(q1) - He(q2)); }
+    return [{ i: 0, v: Math.round(kl * 1000) / 1000 }, { i: 1, v: Math.round(x * 100) / 100 }, { i: 2, v: Math.round(best * 100) / 100 }];
+  })(),
+
+  "math210.2.14": (function () {
+    const out = w => 1 / (1 + Math.exp(-(w[0] + w[1] * 3 + w[2] * 1)));
+    const G = w => -Math.log(1 - out(w)), h = 1e-6;                            // difference the objective, not (t - y)x
+    let n = 0; for (let u = 0; u < 25; u++) n += 3; n += 1;                    // count weights and biases unit by unit
+    return [{ i: 0, v: Math.round(out([-5, 2, 1]) * 100) / 100 }, { i: 1, v: Math.round((G([-5, 2 + h, 1]) - G([-5, 2 - h, 1])) / (2 * h) * 100) / 100 },
+            { i: 2, v: n }];
+  })(),
+
+  "math210.2.15": (function () {
+    const xi = [1, 1, 1, 1, -1], xj = [1, 1, 1, 1, 1]; let w = 0;             // five patterns: four agreements, one disagreement
+    for (let n = 0; n < 5; n++) w += xi[n] * xj[n];
+    let pairs = 0; for (let i = 0; i < 25; i++) for (let j = i + 1; j < 25; j++) pairs++;
+    return [{ i: 0, v: w }, { i: 1, v: pairs }];
+  })(),
 };
 
 let sumNums = 0;

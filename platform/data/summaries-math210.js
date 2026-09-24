@@ -13,9 +13,10 @@
 // Ruder's overview of gradient descent, Boyd & Vandenberghe ch. 2–3) could not be
 // fetched from this environment — the network policy blocks those sites — so they
 // are written from the standard content of those texts, and say so. A second
-// exception: MacKay's lecture 10 (2.9) has no captions anywhere, so its entry is
-// built from the neighbouring lectures' own account of it and from chapter 3 of
-// his book, and its first beat tells the reader that.
+// exception: MacKay's lectures 10, 12 and 13 (2.9, 2.11, 2.12) have no captions
+// anywhere, so their entries are built from the neighbouring lectures' own account
+// of them and from the book chapters they are named for, and each one's first beat
+// tells the reader that.
 //
 // tools/verify-content.js enforces the shape and RECOMPUTES every numeric answer.
 // For this subject that means: a closed-form derivative is checked by central
@@ -929,6 +930,149 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "$e^{-0.5}/(e^{-0.5} + e^{-4.5}) = 1/(1 + e^{-4}) \\approx 0.98$: soft, but nearly decided." },
       { q: "Plain k-means implicitly assumes clusters that are:", opts: ["of any shape", "spherical Gaussians with a common variance and equal weights, assigned hard", "uniformly distributed boxes", "heavy-tailed"], a: 1,
         expl: "That is why it cuts elongated clusters in half and absorbs small clusters into large ones. Soft k-means version 2 relaxes all of these assumptions." },
+    ],
+  },
+
+  // No captions exist for this lecture's video (checked with two transcript tools).
+  // Built from chapter 29 of MacKay's book, the chapter this lecture is named for,
+  // and from what lectures 11 and 14 say about the Monte Carlo lectures. The first
+  // beat tells the reader so.
+  "math210.2.11": {
+    takeaway: "Monte Carlo methods answer questions about a distribution you can evaluate only up to a constant, $P(x) = P^*(x)/Z$, by drawing samples. The estimate $\\hat\\Phi = \\frac1R\\sum_r \\phi(x^{(r)})$ has an error that falls like $\\sigma/\\sqrt R$, whatever the dimension. The hard part is getting the samples. Uniform, importance and rejection sampling all break down in high dimensions. Metropolis and Gibbs sampling, which wander by local moves, work, but they move like random walks, slowly.",
+    beats: [
+      { t: "About this summary", d: "This lecture's video has no captions. This summary follows chapter 29 of MacKay's book, which the lecture is named for, and what lectures 11 and 14 say about the Monte Carlo lectures." },
+      { t: "Two problems", d: "Problem 1: generate samples $x^{(r)}$ from $P(x)$. Problem 2: estimate expectations $\\Phi = \\langle\\phi(x)\\rangle_P$. Solving the first solves the second: the average of $\\phi$ over $R$ samples has variance $\\sigma^{2}/R$, independent of the dimension of $x$, so a dozen good samples can be enough." },
+      { t: "Why sampling is hard", d: "Typically you can compute $P^*(x) = e^{-E(x)}$ but not $Z$. And even knowing $Z$ does not tell you where the probability lives. In high dimensions it is concentrated in a typical set that occupies a tiny fraction of the space, so evaluating $P^*$ on a grid, or at uniformly random points, almost never lands anywhere that matters." },
+      { t: "Importance sampling", d: "Sample from a simpler $Q$ instead, and weight each sample by $w_r = P^*(x^{(r)})/Q^*(x^{(r)})$: $\\hat\\Phi = \\sum_r w_r\\phi(x^{(r)})/\\sum_r w_r$. In high dimensions a few enormous weights dominate unless $Q$ is very close to $P$, and the estimate can look confident while being badly wrong." },
+      { t: "Rejection sampling", d: "Find $c$ with $cQ^*(x) \\ge P^*(x)$ everywhere. Propose $x$ from $Q$, draw $u$ uniformly from $[0, cQ^*(x)]$, and accept if $u \\le P^*(x)$. The accepted points are exact samples, but the acceptance rate is $Z_P/(cZ_Q)$. For $N = 1000$ dimensions and a Gaussian $Q$ just 1% wider than $P$, $c = 1.01^{1000} \\approx 20{,}000$: almost every proposal is wasted." },
+      { t: "Metropolis–Hastings", d: "Make a local proposal $x' \\sim Q(x'; x)$ around the current state. Accept it with probability $\\min\\left(1, \\frac{P^*(x')Q(x; x')}{P^*(x)Q(x'; x)}\\right)$, which is just $\\min(1, P^*(x')/P^*(x))$ for a symmetric proposal. On rejection, the current state is recorded again. $Z$ cancels. The samples are correlated, and the chain converges to $P$." },
+      { t: "The random-walk problem", d: "The step size $\\epsilon$ must suit the narrowest direction of $P$, or almost everything is rejected. Along the longest direction, of length $L$, the chain then diffuses: it needs about $(L/\\epsilon)^{2}$ steps to produce an effectively independent sample." },
+      { t: "Gibbs sampling", d: "Update one variable at a time from its conditional distribution given all the others. It is a Metropolis method whose proposals are always accepted, and it is natural when the conditionals are easy (spin systems, hierarchical models). With strongly correlated variables it too crawls. Suppressing that random walk is the next lecture's theme." },
+    ],
+    worked: "To use a Metropolis sampler: choose a proposal width about the size of $P$'s narrowest scale, and run the chain. Keep rejected moves as repeated states, discard an initial burn-in, and remember that $(L/\\epsilon)^{2}$ steps buy roughly one independent sample. Average $\\phi$ over the kept states.",
+    watch: "Dropping rejected Metropolis proposals instead of repeating the current state. The repeats are what make the chain spend the right amount of time in high-probability regions. Without them the samples come from the wrong distribution.",
+    concepts: [],
+    checks: [
+      { q: "Rejection sampling in $N = 1000$ dimensions, with a Gaussian proposal whose width is 1.01 times the target's. About how many proposals does each accepted sample cost (nearest thousand)?", num: 21000,
+        expl: "$c = (\\sigma_Q/\\sigma_P)^{N} = 1.01^{1000} = e^{1000\\ln 1.01} \\approx 21{,}000$, so the acceptance rate is about $1/21{,}000$." },
+      { q: "Metropolis on a standard Gaussian target with a symmetric proposal. From $x = 0$, the proposal $x' = 1$ is accepted with probability (two decimals):", num: 0.61,
+        expl: "$\\min(1, P^*(1)/P^*(0)) = e^{-1/2} \\approx 0.61$. The normalizing constant cancels." },
+      { q: "A random-walk Metropolis sampler with step size $\\epsilon = 1$ explores a direction of length $L = 10$. About how many steps does one independent sample take?", num: 100,
+        expl: "A random walk covers distance $\\epsilon\\sqrt T$ in $T$ steps, so $T \\approx (L/\\epsilon)^{2} = 100$." },
+      { q: "Importance sampling fails in high dimensions mainly because:", opts: ["it needs $Z$", "the weights $P^*/Q^*$ vary enormously, so a few samples dominate the estimate", "it rejects too many samples", "it only works for Gaussians"], a: 1,
+        expl: "Unless $Q$ matches $P$ closely, almost all the weight lands on a handful of samples. The effective sample size collapses, and there may be no warning." },
+    ],
+  },
+
+  // No captions exist for this lecture's video (checked with two transcript tools).
+  // Built from sections 29.7, 30 and 31 of MacKay's book (slice sampling, efficient
+  // Monte Carlo, Ising models) and from lecture 14's reference back to the Ising
+  // model's phase transition. The first beat tells the reader so.
+  "math210.2.12": {
+    takeaway: "Slice sampling is a Markov chain method with no step size to tune. Draw a height $u$ uniformly under $P^*(x)$, then draw $x$ uniformly from the 'slice' where $P^*(x) \\gt u$, found by stepping an interval out and shrinking it on rejections. The theme is suppressing random-walk behaviour, which Hamiltonian Monte Carlo and overrelaxation do too. Ising models show sampling at work: their Gibbs update is a coin toss with a sigmoid bias, and in two dimensions they have a genuine phase transition.",
+    beats: [
+      { t: "About this summary", d: "This lecture's video has no captions. This summary follows the book's treatment of slice sampling (section 29.7), efficient Monte Carlo (chapter 30) and Ising models (chapter 31). Lecture 14 refers back to the Ising model's phase transition as seen 'last time'." },
+      { t: "Sampling under the curve", d: "Points $(x, u)$ drawn uniformly from the region $0 \\lt u \\lt P^*(x)$ have $x$-marginal exactly $P$. Slice sampling alternates two uniform draws: a height $u \\sim U(0, P^*(x))$ at the current $x$, then a new $x$ uniformly from the slice $\\{x : P^*(x) \\gt u\\}$." },
+      { t: "Finding the slice", d: "Place an interval of width $w$ around $x$ at random. Step out by $w$ until both ends lie outside the slice. Then draw $x'$ uniformly from the interval. If $x'$ is outside the slice, shrink the interval to exclude it and draw again. The procedure satisfies detailed balance, so the chain has the right stationary distribution." },
+      { t: "Why it is robust", d: "Stepping out grows a too-small interval linearly, and shrinking cuts a too-large one geometrically. A badly chosen $w$ costs a few extra evaluations of $P^*$, not a random walk or a stream of rejections. It works in one dimension, and in many dimensions one coordinate or one random direction at a time." },
+      { t: "Beating the random walk", d: "Metropolis with step $\\epsilon$ needs about $(L/\\epsilon)^{2}$ steps. Hamiltonian Monte Carlo adds a momentum $p$ and the energy $H(x, p) = E(x) + \\tfrac12p^{2}$. It follows the dynamics for many leapfrog steps using the gradient, then accepts or rejects: one proposal can travel the length of the distribution. Overrelaxation does something similar for Gibbs sampling, jumping to the far side of each conditional instead of sampling it afresh." },
+      { t: "Ising models", d: "Spins $x_n = \\pm1$ on a lattice, with energy $E(x) = -\\tfrac12\\sum_{m,n}J_{mn}x_mx_n - \\sum_n Hx_n$ and $P(x) \\propto e^{-\\beta E(x)}$. The Gibbs update for one spin is $P(x_n = +1 \\mid \\text{rest}) = 1/(1 + e^{-2\\beta b_n})$, where $b_n = \\sum_m J_{mn}x_m + H$ is its local field: a neuron's sigmoid." },
+      { t: "A real phase transition", d: "For the two-dimensional ferromagnet ($J = 1$), the spins form large aligned domains at low temperature and are disordered at high temperature. At the critical temperature, $T_c = 2/\\ln(1 + \\sqrt2) \\approx 2.27$ (where $\\sinh(2/T_c) = 1$), fluctuations grow without bound and the heat capacity peaks. Sampling shows it; lecture 14 contrasts it with a transition that exists only in an approximation." },
+      { t: "Simulated annealing", d: "Sample at a sequence of falling temperatures and the chain settles into low-energy states: Monte Carlo used for optimization. Whatever the method, the samples are correlated. The number of effectively independent samples is what counts." },
+    ],
+    worked: "To slice-sample a one-dimensional density: evaluate $P^*(x)$ and draw $u \\sim U(0, P^*(x))$. Step an interval of width $w$ out until both ends fall below $u$. Draw points uniformly inside it, shrinking the interval toward $x$ after each miss, and take the first point that lands in the slice. Repeat from there.",
+    watch: "Tuning slice sampling's width as carefully as a Metropolis step. A poor $w$ costs only extra function evaluations, because stepping out and shrinking correct it automatically. That is the method's main advantage.",
+    concepts: [],
+    checks: [
+      { q: "Gibbs sampling an Ising spin whose local field is $b = 2$, at $\\beta = 0.5$. The probability it is set to $+1$ is (two decimals):", num: 0.88,
+        expl: "$\\frac{e^{\\beta b}}{e^{\\beta b} + e^{-\\beta b}} = 1/(1 + e^{-2}) \\approx 0.88$." },
+      { q: "Slice sampling $P^*(x) = e^{-x^{2}/2}$ from $x = 0$, with the height drawn as $u = 0.5$. The slice $\\{x : P^*(x) \\gt 0.5\\}$ has width (two decimals):", num: 2.35,
+        expl: "$e^{-x^{2}/2} \\gt \\tfrac12$ means $|x| \\lt \\sqrt{2\\ln 2} \\approx 1.177$, so the width is about 2.35." },
+      { q: "The critical temperature of the two-dimensional Ising ferromagnet with $J = 1$, from $\\sinh(2/T_c) = 1$, is (two decimals):", num: 2.27,
+        expl: "$2/T_c = \\sinh^{-1}1 = \\ln(1 + \\sqrt2)$, so $T_c = 2/\\ln(1 + \\sqrt2) \\approx 2.27$." },
+      { q: "Slice sampling needs no finely tuned step size because:", opts: ["it uses gradients", "stepping out and shrinking adapt the interval automatically, so a poor width costs only extra evaluations", "it accepts every proposal from $P$ directly", "it works only in one dimension"], a: 1,
+        expl: "The interval grows linearly and shrinks geometrically. Metropolis, by contrast, pays for a poor step size with either rejections or a slow random walk." },
+    ],
+  },
+
+  "math210.2.13": {
+    takeaway: "Variational methods replace sampling with optimization. Choose a simple, adjustable $Q(x; \\theta)$ and minimize the variational free energy $\\tilde F(\\theta) = \\langle E(x)\\rangle_Q - H_Q$. That equals $D_{KL}(Q\\,\\|\\,P) - \\ln Z$, so minimizing it pulls $Q$ toward $P$ and gives the bound $\\tilde F \\ge -\\ln Z$. $D_{KL}(Q\\,\\|\\,P)$ is the computable direction, and it makes $Q$ avoid places where $P$ is small. For a spin system with separable $Q$, the optimum obeys the mean-field equations $a_m = \\beta(\\sum_n J_{mn}\\bar x_n + h_m)$, $\\bar x_m = \\tanh a_m$.",
+    beats: [
+      { t: "The idea", d: "$P(x) = e^{-E(x)}/Z$ is nasty, but $E(x)$ can be computed. Monte Carlo brings in random numbers, which seems inelegant for an inference problem. Instead, introduce a simpler $Q(x; \\theta)$ whose expectations are easy, adjust $\\theta$ until $Q$ is as close as possible to $P$, and approximate $\\langle\\phi\\rangle_P$ by $\\langle\\phi\\rangle_Q$. Everything hinges on what 'close' means." },
+      { t: "Two KL divergences", d: "Take $P$ as a third each on three of four points and almost nothing on the fourth, and $Q$ uniform. Then $D_{KL}(P\\,\\|\\,Q) \\approx \\log\\tfrac43$, small. But $D_{KL}(Q\\,\\|\\,P)$ contains $\\tfrac14\\log\\frac{1/4}{\\epsilon}$, which is huge: $Q$ put mass where $P$ has none. Minimizing $D(Q\\,\\|\\,P)$ makes $Q$ hide inside $P$; minimizing $D(P\\,\\|\\,Q)$ makes $Q$ broad enough to cover all of $P$." },
+      { t: "Which one can we compute?", d: "$\\sum P\\log\\frac PQ$ needs averages under $P$, which is the very thing we cannot do. But $D_{KL}(Q\\,\\|\\,P) = \\langle E\\rangle_Q + \\ln Z - H_Q$. Here $\\ln Z$ is a constant, unknown but irrelevant to the optimization, and the other two terms involve only $Q$." },
+      { t: "The variational free energy", d: "$\\tilde F(\\theta) = \\langle E(x)\\rangle_{Q} - H_Q \\ge -\\ln Z$. Minimizing $\\tilde F$ minimizes the KL divergence, and as a bonus the minimum gives a bound on $\\ln Z$." },
+      { t: "Example: a Gaussian's μ and σ", d: "Approximate the posterior over $(\\mu, \\sigma^{2})$ by a separable $Q(\\mu)Q(\\sigma^{2})$ and update the two factors alternately. $Q(\\mu)$ becomes a Gaussian and $Q(\\sigma^{2})$ a gamma distribution. At convergence $Q(\\mu)$ is centred on $\\bar x$ but wider than any single slice of the posterior, and $Q(\\sigma)$ peaks at $\\sigma_{N-1}$, not $\\sigma_N$. The true marginal of $\\mu$ is a Student-t; $Q$ gets its location and width right." },
+      { t: "Example: a spin system", d: "$E(x) = -\\tfrac12\\sum J_{mn}x_mx_n - \\sum h_nx_n$ with $x_n = \\pm1$; the couplings are what make it hard. Take a separable $Q(x) \\propto \\exp(\\sum_n a_nx_n)$. Its entropy is easy, and because $Q$ factorizes, $\\langle x_mx_n\\rangle_Q = \\bar x_m\\bar x_n$, so $\\langle E\\rangle_Q$ needs only the means. At the optimum each spin sums its neighbours' average field and responds with $\\bar x_m = \\tanh a_m$; iterate." },
+      { t: "Two spins and a false transition", d: "Take two spins with $E = -x_1x_2$ and plot $\\tilde F$ over $(q_1, q_2)$. For small $\\beta$ (high temperature) there is one minimum, at $q = \\tfrac12$. At $\\beta = 1$ it bifurcates into two: both spins up, or both down. But the true distribution changes smoothly with temperature and has no phase transition. The bifurcation belongs to the approximation, so be sceptical when a variational method 'finds' a phase transition." },
+      { t: "It is mean-field theory", d: "Physicists know these equations as mean-field theory (Curie–Weiss, or the Feynman–Bogoliubov bound), often derived as a string of approximations. The variational view gives a clear objective, generalizes to richer $Q$, and proves you get a bound on $Z$. Also worth reading: Laplace's method, which approximates $P$ by a Gaussian." },
+    ],
+    worked: "To build a variational approximation: pick a family $Q(x; \\theta)$ whose entropy and $\\langle E\\rangle_Q$ you can compute (separable is the usual start). Write $\\tilde F(\\theta) = \\langle E\\rangle_Q - H_Q$, then minimize it, often by updating one factor at a time. Read off $\\langle\\phi\\rangle_Q$, and use $-\\tilde F$ as a lower bound on $\\ln Z$.",
+    watch: "Taking a variational approximation's structure for the system's. $D_{KL}(Q\\,\\|\\,P)$ makes $Q$ lock onto one mode and understate uncertainty, and its bifurcations need not be phase transitions of $P$.",
+    concepts: [],
+    checks: [
+      { q: "$P$ puts $\\tfrac13$ on each of three points and 0 on a fourth, and $Q$ is uniform on all four. $D_{KL}(P\\,\\|\\,Q)$ in bits is (three decimals):", num: 0.415,
+        expl: "$3 \\times \\tfrac13\\log_2\\frac{1/3}{1/4} = \\log_2\\tfrac43 \\approx 0.415$. The other direction is infinite: $Q$ puts mass where $P$ has none." },
+      { q: "Mean-field for two coupled spins ($J = 1$) at $\\beta = 2$: solve $\\bar x = \\tanh(2\\bar x)$ for the nonzero root (two decimals):", num: 0.96,
+        expl: "Iterating $\\bar x \\leftarrow \\tanh(2\\bar x)$ from 0.5 converges to about 0.96. Below $\\beta = 1$, the only solution is $\\bar x = 0$." },
+      { q: "For the same two spins at $\\beta = 2$, the minimum of $\\tilde F = \\beta\\langle E\\rangle_Q - H_Q$ (nats) over separable $Q$ is (two decimals):", num: -2.04,
+        expl: "With $\\bar x \\approx \\pm0.96$, $\\tilde F \\approx -2(0.917) - 0.206 \\approx -2.04$. That is above $-\\ln Z = -\\ln(2e^{2} + 2e^{-2}) \\approx -2.71$, as the bound requires." },
+      { q: "Variational methods minimize $D_{KL}(Q\\,\\|\\,P)$ rather than $D_{KL}(P\\,\\|\\,Q)$ because:", opts: ["it is always smaller", "it needs only averages under the simple $Q$, with the unknown $\\ln Z$ entering as a constant", "it is symmetric", "it makes $Q$ broader"], a: 1,
+        expl: "$D(P\\,\\|\\,Q)$ needs expectations under $P$, which is the thing we cannot compute. $D(Q\\,\\|\\,P) = \\langle E\\rangle_Q - H_Q + \\ln Z$ is computable up to that constant." },
+    ],
+  },
+
+  "math210.2.14": {
+    takeaway: "Brains do things computers still struggle with: content-addressable memory, and pigeons memorizing arbitrary labels on 725 images for a year. They manage it with raw throughput comparable to a supercomputer, but in a different style: parallel, highly connected, distributed and robust. A neuron computes $a = \\sum_k w_kx_k + w_0$ and outputs $f(a)$. Learning means minimizing an objective, here the information content of the labels, whose gradient $-\\sum_n(t_n - y_n)x_n$ is all 'backpropagation' means. Weight decay stops the weights blowing up, and a neuron with $K$ inputs can store about $2K$ random labels: 2 bits per weight.",
+    beats: [
+      { t: "Content-addressable memory", d: "Given 'an Oscar-nominated actress who played a senator in a George Lucas film', you think of Natalie Portman, even though one clue is wrong. Two letters of a book's title and a cover with the author's eyes blacked out yield A Brief History of Time. You recall memories by their CONTENT, from fragments, where a computer retrieves them by address." },
+      { t: "Pigeons versus supercomputers", d: "Pigeons learned arbitrary +/− labels on 725 similar images and still recalled them twelve months later. A pigeon brain has about $10^{11}$ neurons and $10^{14}$ synapses running at about 100 Hz: $10^{13}$ to $10^{16}$ operations a second, at 2–4 bits each. That is roughly a supercomputer's $10^{16}$ flops. The difference is style: about a thousand connections per neuron, memories distributed through the same hardware, and robustness to damage (every drink kills some neurons)." },
+      { t: "The neuron", d: "Inputs $x_k$ are weighted by $w_k$, plus a bias $w_0$: the activation is $a = \\sum w_kx_k + w_0$, and the output is $y = 1/(1 + e^{-a})$, $\\tanh a$, or a step. We have met it twice already: the mean-field spin responding to its neighbours, and the posterior class probability for two Gaussians with equal covariance." },
+      { t: "Playing with one neuron", d: "With two inputs, the output is a sigmoid ramp over the plane. The bias slides it, each weight swivels it, and the weight vector is normal to the contours. Doubling every weight steepens the ramp but leaves the 0.5 contour, where $a = 0$, where it was." },
+      { t: "Learning is minimization", d: "Given input–target pairs, minimize $G(w) = -\\sum_n[t_n\\ln y_n + (1 - t_n)\\ln(1 - y_n)]$: the information content, or description length, of the targets under the neuron's predictions. Its gradient is $-\\sum_n(t_n - y_n)x_n$, error times input. 'Backpropagation' is the network community's name for this differentiation. Gradient descent steps against the gradient with a learning rate $\\eta$; MacKay calls it a crime against covariance, though a popular one." },
+      { t: "Weight decay", d: "Five raisins and five pebbles in the $(x_1, x_2)$ plane are separable, so gradient descent grows the weights forever. After 40,000 iterations it has an absurdly confident cliff. Add $\\alpha E_W$ with $E_W = \\tfrac12\\sum w^{2}$, whose gradient adds $\\alpha w$. The weights settle, and a point near the boundary gets about 90%, not 99.9999%." },
+      { t: "A real neuron, and its capacity", d: "With 256 pixel inputs and 257 weights, one neuron separates handwritten 2s from 3s with about 10% error. Viewed as a channel, a neuron with $K$ inputs, given points in general position, can almost surely learn ANY labelling of up to $N = 2K$ of them: a capacity of 2 bits per weight. It is a useful rule of thumb for networks in general." },
+      { t: "Multilayer networks", d: "One hidden layer of $H$ tanh units, with random weights, gives random functions: weighted sums of tanhs, like French curves. The input-weight scale sets how fast they wiggle, the bias scale how many wiggles there are, and the output scale their height. Fit five noisy points with $E = \\tfrac12\\sum(t_n - y_n)^{2}$ for 9,000 iterations and the curve threads every point, noise included. The remedy is regularization, perhaps with a separate $\\alpha$ for each class of weights." },
+    ],
+    worked: "To train a neuron (logistic regression): compute $y_n = \\sigma(w \\cdot x_n)$ for every example, form the gradient $\\sum_n(y_n - t_n)x_n + \\alpha w$, and step downhill. Stop at the minimum of $G + \\alpha E_W$. Without the $\\alpha w$ term, separable data sends the weights, and the model's confidence, to infinity.",
+    watch: "Reading perfect training-set accuracy as success. On separable data an unregularized neuron always reaches it, by growing its weights until every prediction is 0 or 1. What that shows is overconfidence.",
+    concepts: [],
+    checks: [
+      { q: "A logistic neuron with bias $-5$ and weights $(2, 1)$. Its output at $x = (3, 1)$ is (two decimals):", num: 0.88,
+        expl: "$a = -5 + 6 + 1 = 2$, so $y = 1/(1 + e^{-2}) \\approx 0.88$." },
+      { q: "The same neuron and input, with target $t = 0$. The gradient $\\partial G/\\partial w_1$ is (two decimals):", num: 2.64,
+        expl: "$-(t - y)x_1 = -(0 - 0.881) \\times 3 \\approx 2.64$: error times input. The step reduces $w_1$." },
+      { q: "A one-input network with $H = 25$ tanh hidden units, each with a weight and a bias, feeding one output unit with its own bias. The number of parameters is:", num: 76,
+        expl: "25 input weights, 25 hidden biases, 25 output weights and 1 output bias: $3H + 1 = 76$." },
+      { q: "A single neuron with $K$ inputs, given points in general position, can reliably learn arbitrary binary labels for about:", opts: ["$K$ points", "$2K$ points", "$K^{2}$ points", "$2^{K}$ points"], a: 1,
+        expl: "Up to $N = 2K$, almost every labelling is linearly separable. That is 2 bits per weight." },
+    ],
+  },
+
+  "math210.2.15": {
+    takeaway: "Hopfield's answer to the content-addressable memory challenge is a feedback network with symmetric weights: $a_i = \\sum_j w_{ij}x_j + \\theta_i$, $x_i = \\mathrm{sign}(a_i)$ or $\\tanh(a_i)$, trained by Hebb's rule $w_{ij} = \\sum_n x_i^{(n)}x_j^{(n)}$. The stored patterns become attracting fixed points: they clean up noise, survive the deletion of half the weights, and a new memory is added by nudging every weight by ±1, until capacity runs out. Spurious states come free. And recall by nearest memory is exactly decoding an error-correcting code.",
+    beats: [
+      { t: "The challenge", d: "Build a dynamical system on 25 binary variables whose attracting fixed points are given memories, the letters D, J and C drawn on 5×5 grids. A noisy D should return to D. Adding a memory should need only small changes to the parameters. And the system should still work after half its parameters are destroyed." },
+      { t: "The orthodox answer", d: "Store the memories, compare the state with each one, take the argmin, and overwrite the state with the winner. It works, but adding a memory means new hardware, and damaging one stored bit corrupts that recall. It is also exactly a brute-force decoder for an error-correcting code whose codewords are the memories: recall and decoding are the same problem." },
+      { t: "The Hopfield network", d: "Every neuron feeds every other, the weights are symmetric ($w_{ij} = w_{ji}$), and there are no self-connections. Each neuron computes $a_i = \\sum_j w_{ij}x_j + \\theta_i$ and sets $x_i = \\tanh(a_i)$, or the step $\\mathrm{sign}(a_i)$ in the binary network. The demo updates the neurons one at a time, in sequence." },
+      { t: "Hebb's rule", d: "$w_{ij} = \\sum_n x_i^{(n)}x_j^{(n)}$ with $x = \\pm1$: neurons that fire together wire together. (See yellow, smell banana; the McGurk effect shows how strong such associations are.) Neurons 1 and 2 agree in two of the three letters, so $w_{12} = 1 + 1 - 1 = 1$; neurons 2 and 3 agree in all three, so $w_{23} = 3$. There are $25 \\times 24/2 = 300$ weights, and learning a new pattern changes each by ±1." },
+      { t: "Recall", d: "D, J and C are fixed points. With 1, 2, 3 and up to 7 bits flipped (about 29% noise), they are restored. The first failure came at 8 flips, from a state nine flips from J and eight from C: close to a tie." },
+      { t: "Spurious states", d: "Some random starts settle elsewhere: a D/J hybrid the audience named Q, and an 'aleph'. Others reach anti-D, anti-J or anti-C. Hebb's rule and the dynamics are unchanged when every spin is flipped, so every stored pattern's negative is a fixed point too." },
+      { t: "Damage and capacity", d: "Zero 79 of the 300 weights at random and recall still works. Zero 158, more than half, and recall is within one bit. At 237 it fails. Add M, and every weight moves by ±1: all four patterns are still fixed points, but the basins shrink. With five patterns the basins are small. With six, the stored patterns stop being fixed points." },
+      { t: "Beyond Hebb", d: "Hebb's rule is just the simplest. Treat each neuron as the single-neuron classifier of lecture 15, told whether to be up or down in each pattern, and train all the weights together, keeping them symmetric. That stores all six patterns. As promised at the start, the lecture then connects this back to the state-of-the-art error-correcting codes of the late 1990s." },
+    ],
+    worked: "To store patterns in a Hopfield network: set $w_{ij} = \\sum_n x_i^{(n)}x_j^{(n)}$ for $i \\ne j$. To recall, start from the cue and repeatedly set each $x_i = \\mathrm{sign}(\\sum_j w_{ij}x_j)$, one neuron at a time, until nothing changes. Expect the negatives of the patterns, and some mixtures, to be stable too.",
+    watch: "Thinking a new memory needs new hardware. In a Hopfield network it is a ±1 change to every existing weight. Memory is distributed, which is why it survives damage and why capacity runs out gradually rather than all at once.",
+    concepts: [],
+    checks: [
+      { q: "Five ±1 patterns are stored by Hebb's rule. Neurons $i$ and $j$ agree in four of them and disagree in one. Then $w_{ij}$ is:", num: 3,
+        expl: "Each agreement contributes $+1$ and each disagreement $-1$: $4 - 1 = 3$." },
+      { q: "A Hopfield network of 25 neurons with symmetric weights and no self-connections has how many independent weights?", num: 300,
+        expl: "One per unordered pair: $25 \\times 24/2 = 300$." },
+      { q: "Why is anti-D a fixed point when only D was stored?", opts: ["the network stores the complement separately", "Hebb's rule and the update rule are unchanged when every spin is negated, so the negative of any fixed point is also fixed", "it is a coincidence of these letters", "the biases favour it"], a: 1,
+        expl: "$x_ix_j = (-x_i)(-x_j)$, and $\\mathrm{sign}(\\sum w(-x)) = -\\mathrm{sign}(\\sum wx)$." },
+      { q: "The orthodox 'compare with every memory and copy the closest' recall is equivalent to:", opts: ["gradient descent", "brute-force maximum-likelihood decoding of an error-correcting code whose codewords are the memories", "Hebbian learning", "k-means clustering"], a: 1,
+        expl: "With Hamming distance as the measure, picking the closest memory is the optimal decoder for a binary symmetric channel, which ties the course's ending back to its beginning." },
     ],
   },
 

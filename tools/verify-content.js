@@ -1759,6 +1759,64 @@ const expectedSummary = {
             { i: 1, v: Math.round(-Math.log(e[0] / Z) * 100) / 100 },
             { i: 2, v: Math.round(-Math.log(Math.exp(0) / Z0) * 100) / 100 }];
   })(),
+
+  "math210.1.1": (function () {
+    const sg = x => 1 / (1 + Math.exp(-x)), h = 1e-5;   // difference the sigmoid, not sigma(1 - sigma)
+    const simp = (f, a, b, n) => { const k = (b - a) / n; let s = f(a) + f(b);
+                                   for (let j = 1; j < n; j++) s += (j % 2 ? 4 : 2) * f(a + j * k); return s * k / 3; };
+    const er = simp(z => z * z * Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI), 0, 12, 6000);   // E[relu(z)^2] for unit z
+    const b = [1, 2, 3, 6], m = (1 + 2 + 3 + 6) / 4, v = b.reduce((a, c) => a + c * c, 0) / 4 - m * m;   // E[x^2] - E[x]^2
+    return [{ i: 0, v: Math.round((sg(h) - sg(-h)) / (2 * h) * 100) / 100 },
+            { i: 1, v: Math.round(1 / Math.sqrt(500 * er) * 1000) / 1000 },   // weight std that keeps the variance at 1
+            { i: 2, v: Math.round((6 - m) / Math.sqrt(v) * 100) / 100 }];
+  })(),
+
+  "math210.1.2": (function () {
+    let vel = 0; for (let t = 0; t < 2000; t++) vel = 0.9 * vel + 1;           // iterate momentum under a constant gradient
+    const g = 2; let m = 0, s = 0; m = 0.9 * m + 0.1 * g; s = 0.999 * s + 0.001 * g * g;   // one raw Adam step
+    let e = 0; for (const [k1, k2] of [[0, 0], [0, 1], [1, 0], [1, 1]]) e += (k1 * 2 * 3 + k2 * 1 * 4) / 4;   // all four masks
+    return [{ i: 0, v: Math.round(vel * 100) / 100 },
+            { i: 1, v: Math.round(m / Math.sqrt(s) / Math.sign(g) * 100) / 100 },
+            { i: 2, v: e }];
+  })(),
+
+  "math210.1.3": (function () {
+    // gradient descent: golden-section over alpha on the measured worst-case contraction of both eigen-directions
+    const rate = a => { let x = 1, y = 1; for (let k = 0; k < 40; k++) { x *= 1 - a; y *= 1 - 100 * a; }
+                        return Math.max(Math.pow(Math.abs(x), 1 / 40), Math.pow(Math.abs(y), 1 / 40)); };
+    let lo = 0, hi = 0.02; const gr = (Math.sqrt(5) - 1) / 2;
+    for (let k = 0; k < 200; k++) { const c = hi - gr * (hi - lo), d = lo + gr * (hi - lo); if (rate(c) < rate(d)) hi = d; else lo = c; }
+    // momentum: grid-search (alpha, beta) for the smallest spectral radius of the 2x2 recurrence, both eigenvalues
+    const rad = (a, b, l) => { const T = b + 1 - a * l, disc = T * T - 4 * b;
+                               return disc < 0 ? Math.sqrt(b) : Math.max(Math.abs((T + Math.sqrt(disc)) / 2), Math.abs((T - Math.sqrt(disc)) / 2)); };
+    let best = Infinity;
+    for (let bi = 0; bi < 2000; bi++) for (let ai = 1; ai <= 2000; ai++) {
+      const a = ai * 0.00002, b = bi * 0.0005, r = Math.max(rad(a, b, 1), rad(a, b, 100)); if (r < best) best = r; }
+    // largest stable step: bisect on whether the steep component grows over 5000 iterations
+    let slo = 0, shi = 1;
+    for (let k = 0; k < 60; k++) { const a = (slo + shi) / 2; let y = 1; for (let j = 0; j < 5000; j++) y *= 1 - 100 * a;
+                                   if (Math.abs(y) < 1) slo = a; else shi = a; }
+    return [{ i: 0, v: Math.round(rate((lo + hi) / 2) * 100) / 100 },
+            { i: 1, v: Math.round(best * 100) / 100 },
+            { i: 2, v: Math.round(slo * 100) / 100 }];
+  })(),
+
+  "math210.1.4": (function () {
+    let G = 0, first = 0, at100 = 0;                                            // run Adagrad on a constant unit gradient
+    for (let t = 1; t <= 100; t++) { G += 1; const step = 1 / Math.sqrt(G); if (t === 1) first = step; if (t === 100) at100 = step; }
+    let E = 0; for (let t = 0; t < 10; t++) E = 0.9 * E + 0.1 * 1;               // iterate the decaying average
+    return [{ i: 0, v: Math.round(at100 / first * 100) / 100 },
+            { i: 1, v: Math.round(E * 100) / 100 }];
+  })(),
+
+  "math210.1.5": (function () {
+    const jensen = (Math.exp(0) + Math.exp(2)) / 2 - Math.exp((0 + 2) / 2);    // enumerate the two outcomes
+    const f = x => -2 * x + Math.log(x);                                       // golden-section the sup, not -1 - log(-y)
+    let lo = 1e-6, hi = 10; const gr = (Math.sqrt(5) - 1) / 2;
+    for (let k = 0; k < 300; k++) { const c = hi - gr * (hi - lo), d = lo + gr * (hi - lo); if (f(c) > f(d)) hi = d; else lo = c; }
+    return [{ i: 0, v: Math.round(jensen * 100) / 100 },
+            { i: 1, v: Math.round(f((lo + hi) / 2) * 100) / 100 }];
+  })(),
 };
 
 let sumNums = 0;

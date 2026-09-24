@@ -1711,6 +1711,54 @@ const expectedSummary = {
                             z += dt / 6 * (a[0] + 2 * b[0] + 2 * c[0] + d[0]); v += dt / 6 * (a[1] + 2 * b[1] + 2 * c[1] + d[1]); }
                           return z; };
                         return Math.round((sol(9.8 + 1e-4) - sol(9.8 - 1e-4)) / 2e-4 * 100) / 100; })() }],
+
+  "math210.0.12": (function () {
+    const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                                   for (let k = 1; k < n; k++) s += (k % 2 ? 4 : 2) * f(a + k * h); return s * h / 3; };
+    const F = e => simp(x => Math.sin(x + e), 0, 1, 2000), h = 1e-5;   // the functional itself, differenced along du = 1
+    return [{ i: 0, v: Math.round((F(h) - F(-h)) / (2 * h) * 100) / 100 },
+            { i: 1, v: Math.round(simp(x => Math.sqrt(1 + 4 * x * x), 0, 1, 2000) * 100) / 100 }];   // length by quadrature, not by asinh
+  })(),
+
+  "math210.0.13": [{ i: 0, v: (function () {   // E[X^2] by Simpson over t = -log(1 - w), then a central difference in p
+                        const simp = (f, a, b, n) => { const h = (b - a) / n; let s = f(a) + f(b);
+                                                       for (let k = 1; k < n; k++) s += (k % 2 ? 4 : 2) * f(a + k * h); return s * h / 3; };
+                        const E = p => simp(t => p * p * t * t * Math.exp(-t), 0, 80, 40000), h = 1e-4;
+                        return Math.round((E(3 + h) - E(3 - h)) / (2 * h) * 100) / 100; })() }],
+
+  "math210.0.14": [{ i: 0, v: (function () {   // second central difference of det(I + tE), det by the 2x2 formula
+                        const f = t => (1 + t) * (1 + 4 * t) - (2 * t) * (3 * t), h = 1e-3;
+                        return Math.round((f(h) - 2 * f(0) + f(-h)) / (h * h) * 100) / 100; })() },
+                   { i: 1, v: (function () {   // gradient and Hessian of x^2 y by finite differences, then the model
+                        const f = (x, y) => x * x * y, h = 1e-4, d = 0.1;
+                        const gx = (f(1 + h, 1) - f(1 - h, 1)) / (2 * h), gy = (f(1, 1 + h) - f(1, 1 - h)) / (2 * h);
+                        const hxx = (f(1 + h, 1) - 2 * f(1, 1) + f(1 - h, 1)) / (h * h), hyy = (f(1, 1 + h) - 2 * f(1, 1) + f(1, 1 - h)) / (h * h);
+                        const hxy = (f(1 + h, 1 + h) - f(1 + h, 1 - h) - f(1 - h, 1 + h) + f(1 - h, 1 - h)) / (4 * h * h);
+                        return Math.round((f(1, 1) + (gx + gy) * d + 0.5 * (hxx + 2 * hxy + hyy) * d * d) * 100) / 100; })() }],
+
+  "math210.0.15": [{ i: 0, v: (function () {   // central difference of the closed-form 2x2 eigenvalue in s11
+                        const lam = (a, b, c) => (a + c) / 2 + Math.sqrt(((a - c) / 2) * ((a - c) / 2) + b * b), h = 1e-6;
+                        return Math.round((lam(3 + h, 1, 1) - lam(3 - h, 1, 1)) / (2 * h) * 100) / 100; })() },
+                   { i: 1, v: (function () {   // count the free entries of an antisymmetric 4x4 Q^T dQ
+                        let n = 0; for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if (r < c) n++; return n; })() }],
+
+  "math210.0.16": (function () {
+    const z = (x, y) => 2 * x * y + (x - 1) * (x - 1), h = 1e-6;   // difference the program, not the tape
+    let m = 1; for (let k = 0; k < 10; k++) m++;                     // cd once, then one multiply per source
+    return [{ i: 0, v: Math.round((z(3 + h, 5) - z(3 - h, 5)) / (2 * h) * 100) / 100 },
+            { i: 1, v: Math.round((z(3, 5 + h) - z(3, 5 - h)) / (2 * h) * 100) / 100 },
+            { i: 2, v: m }];
+  })(),
+
+  "math210.1.0": (function () {   // enumerate every hinge term; softmax by the naive exp / sum / log
+    const S = [[3.2, 5.1, -1.7], [1.3, 4.9, 2.0], [2.2, 2.5, -3.1]], y = [0, 1, 2];
+    let L = 0; for (let r = 0; r < 3; r++) for (let j = 0; j < 3; j++) if (j !== y[r]) L += Math.max(0, S[r][j] - S[r][y[r]] + 1);
+    const e = S[0].map(Math.exp), Z = e[0] + e[1] + e[2];
+    let Z0 = 0; for (let k = 0; k < 10; k++) Z0 += Math.exp(0);
+    return [{ i: 0, v: Math.round(L / 3 * 100) / 100 },
+            { i: 1, v: Math.round(-Math.log(e[0] / Z) * 100) / 100 },
+            { i: 2, v: Math.round(-Math.log(Math.exp(0) / Z0) * 100) / 100 }];
+  })(),
 };
 
 let sumNums = 0;

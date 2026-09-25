@@ -1,0 +1,23 @@
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+    320px  frame clears the page on 23 routes
+    390px  frame clears the page on 23 routes
+    430px  frame clears the page on 23 routes
+    768px  frame clears the page on 23 routes
+    860px  frame clears the page on 23 routes
+    390px  every control reaches 44x44 on 23 routes
+
+PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (939 checks)

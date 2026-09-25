@@ -129,10 +129,13 @@ node tools/verify-content.js       # structure, numerics recomputed, registries
 node tools/verify-contrast.js      # 4.5:1 on every route × 7 themes × 2 widths
 node tools/verify-shell.js         # the frame: sidebar, drawer, reading column
 node tools/verify-sync-loop.js     # sync must never repaint a page being read
+node tools/verify-logic.js         # the date/streak invariants above, asserted with a fixed clock
+node tools/verify-flows.js         # open today's lecture, answer a question, mark watched
+node tools/verify-clip.js          # the clipping sweep (below); known clips in verify-clip.baseline.json
 ```
 
-Plus the clipping sweep (all routes at 320/390/768/1024/1100/1280/1440 — no overflow, nothing
-clipped inside an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning,
+Plus the clipping sweep, which is `tools/verify-clip.js` (all routes at
+320/390/768/1024/1100/1280/1440 — no overflow, nothing clipped inside an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning,
 including the bug that made the contrast gate necessary.
 
 `verify-content.js` grew a summaries block on 22 Sep 2026, when MATH 110 went from 6 lecture

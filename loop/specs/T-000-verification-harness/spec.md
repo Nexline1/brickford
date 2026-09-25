@@ -47,9 +47,22 @@ A green gate set means the daily flow still works.
 2. The logic gate catches a planted bug: with REST_DOW temporarily changed to 5, or dateForStudy off by one, `verify-logic.js` exits non-zero naming the invariant. Evidence: output in verification/.
 3. `node tools/verify-flows.js` exits 0, with a screenshot per flow saved to verification/.
 4. The flows gate catches a planted bug: breaking the watched-count update makes verify-flows exit non-zero.
-5. `node tools/verify-clip.js` exits 0 on the clean tree, and non-zero with a planted `width: 2000px` on a card.
+5. (Replaced 2026-09-25, see the owner decision below.)
+   - 5a. `verify-clip` exits 0 on the clean tree when checked against `tools/verify-clip.baseline.json`.
+   - 5b. It exits non-zero on the planted `.card { width: 2000px }`.
+   - 5c. It exits non-zero on a NEW clip not in the baseline: plant something that clips at root 16px (e.g. an over-wide tab-bar label or padding at 390px) and show it is reported as NEW.
+   - 5d. It exits non-zero when a baseline entry no longer occurs (stale): plant one fake baseline entry, show "stale", then remove it.
 6. No test touches real data: every Playwright context is fresh, and no network sync happens (no token in the test context).
 7. The four existing gates are still green and unchanged.
+
+### Owner decision 2026-09-25
+The first build found 453 of 896 clip-sweep renders failing on the clean tree: real, pre-existing
+clipping that the old sweep never measured (it looked only inside `.main`, on six routes). The
+owner chose to ship the gate with a committed baseline of today's known failures rather than hold
+it back. Each baseline entry is owned by a fix item: T-001 (tab bar at a 24px root, 320/390),
+T-002 (sidebar brand `div.crest` / `div.name-en` at a 24px root, 768 px and wider), T-003 (every
+other finding). Keys carry no pixel numbers. The baseline is hand-edited only and may only shrink;
+only NEW findings and stale entries fail. Criterion 5 was replaced by 5a to 5d accordingly.
 
 ## Verification checklist
 - [ ] typecheck (`node --check`) green

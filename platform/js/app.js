@@ -4921,6 +4921,7 @@
     // best-effort. pagehide fires earlier and more reliably; both are cheap.
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
   }
+  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount }); // read-only hook for tools/verify-logic.js (spec T-000)
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

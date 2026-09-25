@@ -2012,6 +2012,63 @@ const expectedSummary = {
     const v4 = v1 => { const v2 = Math.exp(v1), v3 = v2 + 1; return v2 * v3; }, e = 1e-6;
     return [{ i: 0, v: v4(0) }, { i: 1, v: Math.round((v4(e) - v4(-e)) / (2 * e) * 100) / 100 }];
   })(),
+
+  // Kaiming by the second-moment integral, not by quoting 2/n: integrate E[relu(z)^2]
+  // for z ~ N(0,1) by the trapezoid rule, then solve n * var * E = 1.
+  "sys250.0.6": (function () {
+    let I = 0; const h = 1e-4, g = a => a * a * Math.exp(-a * a / 2) / Math.sqrt(2 * Math.PI);
+    for (let z = 0; z < 12; z += h) I += (g(z) + g(z + h)) / 2 * h;
+    const beta = 0.9, f = x => 2 * x * x, e = 1e-6;
+    let th = 1; for (let k = 0; k < 2; k++) th -= 0.1 * (f(th + e) - f(th - e)) / (2 * e);   // finite-difference gradient
+    return [{ i: 0, v: Math.round(Math.sqrt(1 / (50 * I)) * 100) / 100 },
+            { i: 1, v: Math.round((1 - Math.pow(beta, 2)) * 100) / 100 },                   // closed form of the EMA of a constant
+            { i: 2, v: Math.round(th * 100) / 100 }];
+  })(),
+
+  // Parameter count by looping over every weight tensor's entries.
+  "sys250.0.7": (function () {
+    const shapes = [];
+    for (let b = 0; b < 3; b++) shapes.push([100, 100], [100, 100]);
+    shapes.push([100, 10]);
+    let n = 0; shapes.forEach(([r, c]) => { for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) n++; });
+    return [{ i: 0, v: n }];
+  })(),
+
+  // Loss and gradient by central differences of the forward function; softmax via logsumexp.
+  "sys250.0.8": (function () {
+    const L = (s0, s1) => { const out = 2 * s0 + 0 + 2 * s1 + 0; return (out - 2) * (out - 2); }, e = 1e-6;
+    const x = [100, 100, 101], m = Math.max(...x), lse = m + Math.log(x.reduce((a, v) => a + Math.exp(v - m), 0));
+    return [{ i: 0, v: L(1, 1) }, { i: 1, v: Math.round((L(1 + e, 1) - L(1 - e, 1)) / (2 * e) * 100) / 100 },
+            { i: 2, v: Math.round(Math.exp(101 - lse) * 100) / 100 }];
+  })(),
+
+  // Variance as E[x^2] - E[x]^2 (the summary uses squared deviations); weight decay as a
+  // finite-difference step on the regularised loss w + (lambda/2) w^2.
+  "sys250.0.9": (function () {
+    const x = [1, 2, 3, 6], m = x.reduce((a, b) => a + b) / 4, v = x.reduce((a, b) => a + b * b, 0) / 4 - m * m;
+    const R = w => 1 * w + 0.25 * w * w, e = 1e-6;
+    const p = 0.2; let s = 0; for (const [prob, val] of [[p, 0], [1 - p, 1]]) s += prob * val;   // keep-probability
+    return [{ i: 0, v: Math.round((6 - m) / Math.sqrt(v) * 100) / 100 },
+            { i: 1, v: Math.round((2 - 0.1 * (R(2 + e) - R(2 - e)) / (2 * e)) * 100) / 100 },
+            { i: 2, v: Math.round(3 / s * 100) / 100 }];
+  })(),
+
+  // Count weights by nested loops; count output rows by sliding the window.
+  "sys250.0.10": (function () {
+    let p = 0; for (let o = 0; o < 64; o++) for (let c = 0; c < 3; c++) for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) p++;
+    let rows = 0; for (let i = 0; i + 3 <= 7; i += 2) rows++;
+    return [{ i: 0, v: p }, { i: 1, v: rows }];
+  })(),
+
+  // Offset by walking the index tuples in column-major order; loads and registers by
+  // simulating the register-tiled loop nest.
+  "sys250.0.11": (function () {
+    let off = -1, k = 0; for (let j = 0; j < 4; j++) for (let i = 0; i < 3; i++) { if (i === 2 && j === 1) off = k; k++; }
+    const n = 64, v1 = 4, v2 = 4, v3 = 1; let loads = 0;
+    for (let i = 0; i < n / v1; i++) for (let j = 0; j < n / v2; j++) for (let kk = 0; kk < n / v3; kk++) loads += v1 * v3 + v2 * v3;
+    const regs = new Set(); for (let a = 0; a < v1 * v3; a++) regs.add("a" + a); for (let b = 0; b < v2 * v3; b++) regs.add("b" + b); for (let c = 0; c < v1 * v2; c++) regs.add("c" + c);
+    return [{ i: 0, v: off }, { i: 1, v: loads }, { i: 2, v: regs.size }];
+  })(),
 };
 
 let sumNums = 0;

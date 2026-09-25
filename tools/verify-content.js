@@ -19,6 +19,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-math130.js",
  "platform/data/summaries-phys100.js",
  "platform/data/summaries-math210.js",
+ "platform/data/summaries-sys250.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -1976,6 +1977,40 @@ const expectedSummary = {
     for (let n = 0; n < 5; n++) w += xi[n] * xj[n];
     let pairs = 0; for (let i = 0; i < 25; i++) for (let j = i + 1; j < 25; j++) pairs++;
     return [{ i: 0, v: w }, { i: 1, v: pairs }];
+  })(),
+
+  // SYS 250. Gradients recompute by central finite differences of the forward
+  // function (never the backprop or adjoint formula the summary derives); counts
+  // by walking the loops or index space.
+  "sys250.0.1": (function () {
+    const ce = h => -h[0] + Math.log(h.reduce((a, v) => a + Math.exp(v), 0)), e = 1e-6;
+    let n = 0; for (let r = 0; r < 28 * 28; r++) for (let c = 0; c < 10; c++) n++;    // every entry of theta
+    return [{ i: 0, v: Math.round(ce([2, 1, 0]) * 100) / 100 }, { i: 1, v: Math.round((ce([2 + e, 1, 0]) - ce([2 - e, 1, 0])) / (2 * e) * 100) / 100 },
+            { i: 2, v: n }];
+  })(),
+
+  "sys250.0.2": [{ i: 0, v: (function () {   // count W1 then W2 entry by entry
+                    let n = 0; for (let a = 0; a < 784; a++) for (let b = 0; b < 100; b++) n++;
+                    for (let a = 0; a < 100; a++) for (let b = 0; b < 10; b++) n++; return n; })() }],
+
+  "sys250.0.3": (function () {
+    const L = (a, b, p, q, r, s) => { const h = [Math.max(0, a), Math.max(0, b)], z = [h[0] * p + h[1] * r, h[0] * q + h[1] * s];
+                                      return -z[1] + Math.log(Math.exp(z[0]) + Math.exp(z[1])); }, e = 1e-6;
+    return [{ i: 0, v: Math.round((L(1 + e, -1, 2, 0, 0, 1) - L(1 - e, -1, 2, 0, 0, 1)) / (2 * e) * 100) / 100 },
+            { i: 1, v: Math.round((L(1, -1, 2 + e, 0, 0, 1) - L(1, -1, 2 - e, 0, 0, 1)) / (2 * e) * 100) / 100 }];
+  })(),
+
+  "sys250.0.4": (function () {
+    const f = (a, b) => Math.log(a) + a * b - Math.sin(b), e = 1e-6;
+    let m = 0; for (let k = 0; k < 10; k++) for (let j = 0; j < 10; j++) if (j !== k) m++;   // factors in each product...
+    m -= 10;                                                                                // ...minus one multiply per product
+    return [{ i: 0, v: Math.round((f(2 + e, 5) - f(2 - e, 5)) / (2 * e) * 100) / 100 }, { i: 1, v: Math.round((f(2, 5 + e) - f(2, 5 - e)) / (2 * e) * 100) / 100 },
+            { i: 2, v: m }];
+  })(),
+
+  "sys250.0.5": (function () {
+    const v4 = v1 => { const v2 = Math.exp(v1), v3 = v2 + 1; return v2 * v3; }, e = 1e-6;
+    return [{ i: 0, v: v4(0) }, { i: 1, v: Math.round((v4(e) - v4(-e)) / (2 * e) * 100) / 100 }];
   })(),
 };
 

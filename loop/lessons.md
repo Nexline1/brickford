@@ -24,3 +24,5 @@
 - Look at the whole window, not just .main (the sidebar once vanished with all gates green).
 - KaTeX loads from a CDN that headless Chromium in the cloud may not reach, so raw `$…$` in screenshots can be the harness.
 - The transcript tool truncates at 120k chars. Auto-captions come back tripled; dedupe first.
+- Every harness context pins the clock and timezone (setFixedTime + timezoneId UTC); a gate that reads the real date passes only on the day it was written.
+- A check's name must claim only what its fixture can violate: plant the exact bug the name promises to catch (a random draw can hide a whole layout, e.g. numeric answers).

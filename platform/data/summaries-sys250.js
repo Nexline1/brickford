@@ -23,6 +23,17 @@
 // 0.21 notebook (transformer_implementation.ipynb): the block, the causal mask,
 // multi-head attention and the closing note on "efficient" Transformers.
 //
+// Unit II (GPU MODE) has only auto-generated captions, which the transcript tool
+// returns tripled and cuts off at a fixed length. Coverage, and what fills the rest:
+//   1.0 profiling            first 41 of 56 min; nothing past that is described.
+//   1.1 PMPP ch. 1-3         first 48 of 52 min; only exercise Q&A is missing.
+//   1.2 CUDA for Python      first 53 of 78 min; the rest follows lecture_003/pmpp.ipynb.
+//   1.4 going further        first 54 of 78 min; the rest follows lecture_005/matmul_l5.ipynb.
+//   1.5 performance checklist first 41 of 68 min; the rest follows his own opening
+//                            list of checklist items and the lecture_008 kernels.
+// The notebooks are in github.com/gpu-mode/lectures and are the code each lecturer
+// runs on screen. Each affected entry says so in its first beat.
+//
 // tools/verify-content.js enforces the shape and RECOMPUTES every numeric answer
 // by a different route from the one the summary teaches: a gradient by central
 // finite differences of the forward function, a count by walking the loops or
@@ -681,6 +692,168 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "The order changes, not the mathematics." },
       { q: "Why did parallel not speed up the Colab run?", opts: ["the loop was already vectorized", "the Colab VM had a single virtual CPU", "TVM does not support parallel", "matmul cannot be parallelized"], a: 1,
         expl: "There were no extra cores to use." },
+    ],
+  },
+
+  "sys250.1.0": {
+    takeaway: "GPU MODE's first lecture (Mark Saroufim): how to get a custom kernel into PyTorch and how to tell whether it is any good. CUDA is asynchronous, so time with CUDA events after a warm-up and a synchronize. The autograd and PyTorch profilers show which kernels actually run. torch.utils.cpp_extension.load_inline compiles CUDA from a string. Triton is a Python alternative with an interpreter mode for debugging. torch.compile with TORCH_LOGS=output_code writes kernels you can learn from. ncu gives the hard numbers, and its hints say what to fix.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 41 of the lecture's 56 minutes, up to the Nsight Compute (ncu) section. Nothing after that is described here." },
+      { t: "Why, and for whom", d: "Andreas Köpf (whose Lua Torch bindings became part of PyTorch's foundations) and Mark Saroufim (PyTorch performance) started the group for PyTorch users stuck in 'CUDA tutorial hell'. Textbook sessions follow PMPP (read each chapter and do every exercise), alongside applied sessions like this one. Custom kernels were part of the secret sauce in gpt-fast and sam-fast." },
+      { t: "CUDA is async", d: "Python's time module only measures the launch. Record torch.cuda.Event start and end, warm up first (the first call initializes the CUDA context), then torch.cuda.synchronize() before reading the time." },
+      { t: "Profilers", d: "The autograd profiler lists kernels with their CPU and GPU times. Comparing torch.square, a * a and a ** 2 showed that square calls aten::pow and that multiplication is slightly faster. The PyTorch profiler exports a Chrome trace: a memcpy host-to-device, then a launch into vectorized_elementwise_kernel. It names the kernels but not how good they are." },
+      { t: "load_inline", d: "Pass a C++ or CUDA source string and a list of function names, and get back a Python module. It writes main.cpp with pybind11 bindings and a build.ninja file to a build directory, which is the easiest way to learn both. A CUDA extension is three pieces: the __global__ kernel, a wrapper that takes torch tensors and launches it, and the exposed signature." },
+      { t: "Numba and Triton", d: "Numba's CUDA JIT reads almost like CUDA in Python. Triton is a block-based Python DSL that compiles to PTX, not CUDA. His first Triton square kernel was slower than torch.square; the fix was the launch parameter, a block size of 1024. TRITON_INTERPRET=1 lets you put a Python breakpoint inside a kernel, where print statements are otherwise impossible." },
+      { t: "Read the generated code", d: "Triton's cache keeps every IR, including PTX. For the square kernel the PTX shows 8 registers of input multiplied into 8 registers of output at a time. Setting TORCH_LOGS=output_code prints the Triton kernel torch.compile generates, a starting point you can edit. Two squares in a row fused into one kernel show up as tmp1 and then tmp2 = tmp1 * tmp1." },
+      { t: "ncu", d: "ncu python train.py profiles every kernel: L1 and L2 throughput and utilization against peak. Most cloud vendors block it. Its most actionable hint for the square kernel was that the grid was too small to fill the device, only 0.4 of a full wave across the SMs, so make the work bigger or pad the inputs." },
+    ],
+    worked: "To time a CUDA op honestly: create start and end = torch.cuda.Event(enable_timing=True), run it once to warm up, then start.record(), run it, end.record(), torch.cuda.synchronize(), and read start.elapsed_time(end). Then profile it to see which kernel actually ran.",
+    watch: "Timing GPU code with time.time() around the call. The launch returns immediately, so you measure launch overhead rather than the kernel, unless you synchronize.",
+    concepts: [],
+    checks: [
+      { q: "A kernel launches 32 blocks, each needing a whole SM, on a GPU with 82 SMs. What fraction of one full wave is that (2 decimals)?", num: 0.39,
+        expl: "$32/82 = 0.39$. This is ncu's 'grid too small' warning: most SMs sit idle." },
+      { q: "Why is time.time() around a CUDA call misleading?", opts: ["Python is slow", "the launch is asynchronous, so it measures the launch, not the kernel", "CUDA has no clock", "it includes compilation"], a: 1,
+        expl: "Use CUDA events and synchronize." },
+      { q: "torch.utils.cpp_extension.load_inline:", opts: ["runs Python on the GPU", "compiles C++/CUDA source strings into an importable module, generating the bindings and build script", "profiles kernels", "converts PyTorch to Triton"], a: 1,
+        expl: "It writes main.cpp and build.ninja for you." },
+      { q: "How can you see the Triton kernel that torch.compile generates?", opts: ["ncu", "TORCH_LOGS=output_code", "TRITON_INTERPRET=1", "load_inline"], a: 1,
+        expl: "Interpret mode is for debugging your own Triton kernels." },
+    ],
+  },
+
+  "sys250.1.1": {
+    takeaway: "Andreas Köpf's recap of PMPP chapters 1–3. Clock speeds stalled, so speed now comes from parallelism, and GPUs are built for throughput. CUDA programs are heterogeneous: the host allocates, copies and launches, and the device runs kernels asynchronously. A kernel is one program run by a grid of blocks of threads (at most 1,024 per block), each finding its data from blockIdx, blockDim and threadIdx, guarded against running past the end. Multi-dimensional grids map naturally onto images and matrices stored row-major.",
+    beats: [
+      { t: "About this summary", d: "The available captions stop 4 minutes before the end, during the discussion of the chapter exercises. Everything else is covered." },
+      { t: "Why parallel", d: "Growth in clock rate stopped with power and heat limits, so CPUs went multi-core and programmers had to deal with deadlocks and races. GPUs push much further for throughput. The difficulties are that parallel algorithms (prefix sum) can be non-intuitive, that speed is often limited by memory bandwidth (batch-1 LLM inference), that performance depends on the data, and that dependencies need synchronization." },
+      { t: "Heterogeneous computing", d: "Host means CPU, device means GPU. The chapter 2 examples: vector addition, and RGB to grayscale, where every output pixel is an independent weighted sum. Kernels launch asynchronously, so the CPU can keep working and queue more. Threads are cheap: millions is normal, and one thread per output element is the standard pattern." },
+      { t: "The naive round trip", d: "cudaMalloc (passed a pointer to your device pointer, size in bytes), cudaMemcpy host to device, launch, copy back, cudaFree. Every call returns a cudaError_t worth checking. A real program keeps data on the device across many kernels, because copies dwarf a single add." },
+      { t: "Indexing a thread", d: "i = blockIdx.x × blockDim.x + threadIdx.x, like an area code plus a local number. Launch with kernel&lt;&lt;&lt;blocks, threads>>>, using ceiling division for the blocks, and guard with if (i \\lt n), since the last block overshoots. __global__ marks a kernel launched from the host, __device__ a function called from the GPU, and __host__ __device__ compiles both versions." },
+      { t: "Compilation", d: "nvcc compiles kernels to PTX, a virtual instruction set, which is stored in the binary and JIT-compiled by the driver for the actual GPU." },
+      { t: "Multi-dimensional grids", d: "Grids and blocks can be up to 3-D (for example 32 × 1 × 1 blocks of 128 × 1 × 1 threads). Blocks run in any order, with no guarantees without synchronization. Memory is flat and row-major, so element (r, c) is at r × width + c; strides describe other layouts." },
+      { t: "Blur and matmul", d: "Mean filter: each thread averages the pixels within a radius, counting only those inside the image, so a corner averages fewer than an interior pixel (he extended the book's kernel to colour channels and showed it on Grace Hopper's photo). Matmul: one thread per output does the dot product of a row of M with a column of N. The exercises drill index arithmetic; do them until indexing is automatic." },
+    ],
+    worked: "To size a launch: for $n$ = 8,000 elements with 1,024 threads per block, launch $\\lceil 8000/1024 \\rceil = 8$ blocks, which is 8,192 threads, and guard the extra 192 with if (i \\lt n). To allocate $v$ ints, cudaMalloc((void**)&A_d, v * sizeof(int)).",
+    watch: "Dividing a blur sum by the full window size at the image border. Count how many pixels were actually inside the image and divide by that.",
+    concepts: [],
+    checks: [
+      { q: "A vector of 8,000 elements with 1,024 threads per block. How many blocks?", num: 8,
+        expl: "$\\lceil 8000/1024\\rceil = 8$, which is 8,192 threads." },
+      { q: "A radius-1 (3 × 3) mean filter on a 10 × 10 image. How many pixels does the corner pixel average?", num: 4,
+        expl: "Only the 2 × 2 block inside the image." },
+      { q: "…and a non-corner pixel on the top edge?", num: 6,
+        expl: "A 2 × 3 block." },
+      { q: "Why does almost every kernel start with if (i \\lt n)?", opts: ["to synchronize threads", "the grid is rounded up to whole blocks, so some threads fall past the end", "to avoid divergence", "PTX requires it"], a: 1,
+        expl: "The guard." },
+    ],
+  },
+
+  "sys250.1.2": {
+    takeaway: "Jeremy Howard's route into CUDA for Python programmers. Write the kernel first as a Python function called by a Python 'kernel runner' that loops over blocks and threads. Debug it there, have ChatGPT translate it to CUDA C, and compile it inline from a notebook. RGB to grayscale falls from about 1.5 s in Python to about 1 ms on the GPU. Matmul uses a 2-D grid of 16 × 16 blocks with one thread per output.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 53 of 78 minutes, up to the 2-D grid for matrix multiplication. The rest (the 2-D kernel, the CUDA matmul, and the 2-D grayscale kernel) follows his notebook, lecture_003/pmpp.ipynb, which is what he runs." },
+      { t: "Grayscale in Python", d: "The image is a (3, H, W) uint8 tensor, resized to 150 × 225 = 33,750 pixels. Flatten it: channel $c$ of pixel $i$ is at $i + cn$. Output $i$ is $0.21R + 0.72G + 0.07B$ (the notebook uses 0.2989, 0.5870, 0.1140). The pure-Python loop takes about 1.5 s." },
+      { t: "Why GPUs are fast", d: "An RTX 3090 has 82 streaming multiprocessors with 128 CUDA cores each, about 10,500 in all. CUDA's model: write the body of the loop (the kernel), say how many times to run it, and accept that the calls run in any order and can only write to memory." },
+      { t: "Blocks and threads, in Python", d: "The runner is two nested loops, blocks then threads, calling f(blockidx, threadidx, blockdim, …). Inside, i = blockidx × blockdim + threadidx, and a guard if i \\lt n. Use 256 threads and cdiv(n, 256) blocks. Blocks exist because a block's threads share fast shared memory (about 128 KB on a 3090, like a cache you manage yourself) and can synchronize." },
+      { t: "Compiling from a notebook", d: "Set CUDA_LAUNCH_BLOCKING=1 while developing, install ninja and wurlitzer (so printf appears in the notebook), and use load_inline behind a small load_cuda helper. The shared prefix includes the torch headers, CHECK_CUDA and CHECK_CONTIGUOUS macros, and cdiv." },
+      { t: "Python to CUDA C", d: "Paste the Python kernel into ChatGPT for a C translation, then fix the types (unsigned char) and use blockIdx.x, blockDim.x and threadIdx.x. Mark it __global__ and launch with kernel&lt;&lt;&lt;cdiv(n, 256), 256>>>(x.data_ptr&lt;unsigned char>(), …). Allocate with torch::empty({h, w}, input.options()) and call C10_CUDA_KERNEL_LAUNCH_CHECK(). On 1.7 million pixels it takes about 1 ms, with .cpu() inside the timing to force a sync." },
+      { t: "Matmul, and 2-D grids", d: "Pure Python for 5 × 784 by 784 × 10 is 39,200 multiply-adds and takes about a second. As a kernel, each output (r, c) is one thread. Blocks and threads can be 2-D: r = blockIdx.y × blockDim.y + threadIdx.y and c = blockIdx.x × blockDim.x + threadIdx.x, guarded by r \\lt h and c \\lt w." },
+      { t: "CUDA matmul and 2-D grayscale", d: "dim3 tpb(16, 16); dim3 blocks(cdiv(w, 16), cdiv(h, 16)). Each thread sums m[r·k + i] · n[i·w + c]. The result matches PyTorch (isclose), though cuBLAS's m1c @ m2c is far faster. Grayscale is redone with a 2-D grid, i = r·w + c." },
+    ],
+    worked: "To launch a 2-D kernel over an $h \\times w$ output: tpb = dim3(16, 16), blocks = dim3(cdiv(w, 16), cdiv(h, 16)). The $x$ dimension goes with columns. For MNIST's 50,000 × 784 matrix times 784 × 10, that is 1 × 3,125 blocks.",
+    watch: "Timing a kernel without forcing it to finish. Copying the result back with .cpu() (or synchronizing) inside the timed region is what makes the 1 ms real.",
+    concepts: [],
+    checks: [
+      { q: "An RTX 3090 has 82 SMs with 128 CUDA cores each. Total cores:", num: 10496,
+        expl: "$82 \\times 128$." },
+      { q: "A 150 × 225 image. How many pixels does the grayscale kernel process?", num: 33750,
+        expl: "One thread each." },
+      { q: "Matmul of 50,000 × 784 by 784 × 10 with 16 × 16 thread blocks, blocks = (cdiv(w,16), cdiv(h,16)). Blocks in the y direction:", num: 3125,
+        expl: "$\\lceil 50000/16 \\rceil = 3{,}125$; the x direction needs only $\\lceil 10/16\\rceil = 1$." },
+      { q: "Jeremy's recommended way to write a CUDA kernel:", opts: ["write C directly", "write and debug it as a Python function under a Python block/thread runner, then translate to C", "use Triton only", "start from cuBLAS"], a: 1,
+        expl: "It makes debugging easy." },
+    ],
+  },
+
+  "sys250.1.3": {
+    takeaway: "Thomas Viehmann on PMPP chapters 4–5. An SM runs warps of 32 threads that share instruction fetch. Blocks are placed on SMs in no fixed order, and good occupancy means balancing threads, registers and shared memory while avoiding divergence and FP64. Most kernels are memory-bound, so fuse operations, estimate the 'speed of light' from bytes over bandwidth, and use the roofline to tell memory-bound from compute-bound. Tiling a matmul through shared memory cuts global reads by the tile size.",
+    beats: [
+      { t: "The SM", d: "Unlike a CPU core with one ALU, an SM has many arithmetic units sharing fetch and decode. An RTX 3090 has 82 SMs and a shared L2. Each SM has four quarters with 32 FP32 lanes (16 of them also doing INT32) and tensor cores, a 64K-entry register file, and 128 KB split between L1 and shared memory. FP64 runs at 1/64 speed on consumer cards, so a stray double constant is slow." },
+      { t: "Blocks, warps, divergence", d: "Each block goes to one SM, and up to 1,536 threads can be resident per SM, so blocks of 256 or 512 fit better than 1,024. Blocks are split into warps of 32, and threadIdx.x varies fastest when threads are linearized (checked with a shuffle kernel). An if that splits a warp runs both paths with lanes masked off. Volta and later have per-thread program counters and __syncwarp." },
+      { t: "Occupancy", d: "Keep all the units busy: many blocks for 82 SMs, power-of-two block sizes of 512 or less, no warp divergence, no 64-bit maths (including int64 indices, which once cost him days on PyTorch's batchnorm). Heavy shared-memory or register use cuts the resident threads, and spills to local memory are slow. torch.cuda.get_device_properties gives the counts." },
+      { t: "Where time goes", d: "In a PyTorch program: Python, bookkeeping, data acquisition (check this first if GPU utilization is low) and GPU work. GPU work splits into launch overhead (an empty kernel costs about 3 µs), memory access and compute. Moving Python to C++ alone gains single-digit percentages." },
+      { t: "Fusion", d: "Eager PyTorch reads and writes memory for every op. The tanh-approximate GELU written as PyTorch ops launched a string of elementwise kernels and ran 7–8 times slower than the native op. A single hand-written kernel matched it. PyTorch's fusers, nvFuser, Inductor and Triton, and Flash Attention all come from this idea. Floating-point addition is not associative, so results match only to within numerical accuracy." },
+      { t: "Speed of light", d: "RGB to grey on a 2048 × 2048 image moves 4 bytes per pixel (3 in, 1 out), about 16.8 MB. At 900 GB/s that is about 18.6 µs, and compute adds about 2 µs on paper. Measured: about 26 µs, roughly three-quarters of the bound. Arithmetic intensity is 5 FLOPs over 4 bytes = 1.25, low." },
+      { t: "The roofline", d: "Plot attainable FLOP/s against arithmetic intensity. Below the ridge point, bandwidth caps you (memory-bound); above it, peak compute does. Since other warps overlap memory and compute, time is the max of the two, not the sum. The memory spaces are registers, local memory, shared memory (__shared__), global memory, and constant memory (used for kernel arguments)." },
+      { t: "Tiled matmul", d: "Each input is read $n$ times by the naive kernel. With TILE × TILE thread blocks (TILE = 16), each block loads one tile of M and one of N into shared memory, calls __syncthreads(), accumulates the tile product, and syncs again before loading the next tile. Global reads fall by a factor of TILE. Pad out-of-range loads with zeros for general sizes. Measured: 0.9 ms down to 0.7 ms." },
+    ],
+    worked: "To bound a memory-bound kernel: count the bytes each element moves, multiply by the elements, divide by the bandwidth. For 2048 × 2048 RGB to grey: $4 \\times 2048^2 = 16.8$ MB at 900 GB/s gives 18.6 µs. That is the target; compare the measured time with it.",
+    watch: "Optimizing arithmetic in a memory-bound kernel. With intensity around 1 FLOP per byte, compute is nearly free; the time is the bytes moved, so fuse and reuse instead.",
+    concepts: [],
+    checks: [
+      { q: "RGB to grey on a 2048 × 2048 image moves 4 bytes per pixel. At 900 GB/s, the speed-of-light time in microseconds (1 decimal):", num: 18.6,
+        expl: "$4 \\times 2048^2 / 9 \\times 10^{11}$ s $= 18.6$ µs." },
+      { q: "Its arithmetic intensity at 5 FLOPs per pixel over those 4 bytes:", num: 1.25,
+        expl: "$5/4$, firmly memory-bound." },
+      { q: "An SM holds at most 1,536 threads. With blocks of 1,024 threads, what fraction can be resident (2 decimals)?", num: 0.67,
+        expl: "Only one block fits: $1024/1536$. With 512-thread blocks, three fit and the SM is full." },
+      { q: "In a tiled matmul, the second __syncthreads() (after the tile product) is needed because:", opts: ["the output must be written", "otherwise fast threads would overwrite the shared tiles while others still read them", "warps diverge", "it flushes L2"], a: 1,
+        expl: "The first sync waits for the loads; the second protects them from the next tile's loads." },
+    ],
+  },
+
+  "sys250.1.4": {
+    takeaway: "Jeremy Howard's second lecture: using shared memory, which is about 10 times faster than global memory. A shared-memory tiled matmul is built first in Python: a runner with a shared buffer, then real threads with a threading.Barrier standing in for __syncthreads. Then it is translated to CUDA. Dynamic shared memory was mysteriously slower until the tile width was made a compile-time template parameter. The same kernel is shown in Numba too.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 54 of 78 minutes, up to the fix of making the tile width a template parameter. The rest (the template kernel and the Numba version) follows his notebook, lecture_005/matmul_l5.ipynb." },
+      { t: "Why shared memory", d: "So far everything used global memory. Each block has a small, fast shared memory, visible only to its threads, about ten times faster. Using it well matters as much as using thousands of threads. The baseline: a 5120 × 256 by 256 × 5120 matmul, one thread per output, about 6 ms, almost all of it the kernel (overhead about 0.05 ms)." },
+      { t: "Tiling", d: "The dot product for (r, c) can be done a tile at a time: the first 16 of the row times the first 16 of the column, then the next, and so on. All outputs in a 16 × 16 tile reuse the same row-strip and column-strip tiles. So load both tiles into shared memory once, form every partial dot product from there, and move on. Each input is read from global memory once per tile rather than once per use." },
+      { t: "In Python first", d: "A runner allocates one shared tensor per block and slices views ms and ns from it (views are writable, like the pointers CUDA gives you). Per phase ph: idx = ph × TW; fill ms and ns (padding with 0 past the edge), then accumulate the tile dot products. Drawing the indices on paper (idx, tr, tc) is what finally made it work." },
+      { t: "Real threads and barriers", d: "To match CUDA's model, each (y, x) thread is a Python thread, with a threading.Barrier sized to the block's thread count. Loop over phases: fill shared, barrier.wait(), dot product, barrier.wait(). The second wait stops threads overwriting a tile others are still reading. The Python GIL means no speed-up, but the semantics are identical." },
+      { t: "To CUDA", d: "ChatGPT translates it with a prompt: drop the barrier argument, replace barrier.wait() with __syncthreads(). Declare extern __shared__ float ms[]; with float *ns = &ms[TW*TW];. The third launch argument is the dynamic shared memory size, 2 × TW × TW × sizeof(float). cudaGetDeviceProperties gives the limits for choosing TW. It is correct, but slower than naive: 6.5 ms." },
+      { t: "Static versus dynamic", d: "Declaring __shared__ float ms[TW][TW] with a compile-time TW brought it to about 5 ms, or 4 ms at TW = 16. The reason, found later: with a runtime tile width the compiler cannot unroll or optimize the inner loop. The fix keeps dynamic memory: template&lt;int tw>, dispatching with a switch on 8, 16 or 32 to a compiled instantiation." },
+      { t: "Numba", d: "@cuda.jit writes the same kernel in Python: cuda.shared.array(0, float32) for dynamic shared memory, cuda.syncthreads(), and a launch of kernel[blocks, tpb, 0, shared_bytes]. It needs no C++ compile step, which is handy for iterating. It also has a CUDA simulator for debugging." },
+    ],
+    worked: "To size dynamic shared memory for a tiled matmul: two tiles of TW × TW floats, so 2 × TW × TW × 4 bytes, which is 2,048 bytes at TW = 16. Pass it as the third launch argument, and point ns at ms + TW × TW.",
+    watch: "Making the tile width a runtime value in the hot loop. The compiler cannot specialize it, and the tiled kernel ends up slower than the naive one. Make it a compile-time constant or a template parameter.",
+    concepts: [],
+    checks: [
+      { q: "Dynamic shared memory for a tiled matmul with TW = 16 floats: bytes needed for both tiles:", num: 2048,
+        expl: "$2 \\times 16 \\times 16 \\times 4$." },
+      { q: "With inner dimension $k = 256$ and TW = 16, how many tile phases does each block loop over?", num: 16,
+        expl: "$\\lceil 256/16\\rceil$." },
+      { q: "In the Python simulation, threading.Barrier plays the role of:", opts: ["cudaDeviceSynchronize", "__syncthreads", "cudaMemcpy", "a warp shuffle"], a: 1,
+        expl: "Every thread in the block waits until all reach it." },
+      { q: "Why was the dynamic-shared-memory version slower until tw became a template parameter?", opts: ["dynamic memory is slower hardware", "with a runtime tile width the compiler could not optimize the inner loop", "a missing __syncthreads", "bank conflicts"], a: 1,
+        expl: "Compile-time constants let it unroll and specialize." },
+    ],
+  },
+
+  "sys250.1.5": {
+    takeaway: "Mark Saroufim's CUDA performance checklist, profiled with ncu. Coalesce global memory accesses. Maximize occupancy (cudaOccupancyMaxPotentialBlockSize instead of guessing). Know whether a kernel is memory- or compute-bound from its arithmetic intensity. Minimize warp divergence. Tile reused data. Privatize. Coarsen threads. Use better maths. Latency cannot be bought, only hidden, so almost every trick is about moving fewer bytes.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 41 of 68 minutes, through arithmetic intensity. The remaining checklist items are summarized from his own opening list and the lecture's example kernels in lecture_008 (divergence.cu, coarsening.cu, privatization.cu)." },
+      { t: "SRAM versus DRAM", d: "Shared memory (SRAM) is kilobytes; DRAM is tens of gigabytes. SRAM takes about six transistors per bit against DRAM's one plus a capacitor: bigger, hotter, dearer. Micro-benchmark papers (for example on Ampere) put global memory near 290 cycles and L2 near 200, while L1 and shared memory are about 10× faster. The Bill Dally talks explain why." },
+      { t: "It's the latency", d: "From 'It's the Latency, Stupid': throughput can be bought with more lines in parallel; latency cannot. GPUs hide latency with many warps and coalesced accesses. Quantization reduces the bytes moved, at some cost in quality." },
+      { t: "Coalescing", d: "copyDataCoalesced (out[i] = in[i]) against a strided variant (in[(2i) % n]): ncu showed DRAM throughput about 89% against about 81%, L1 hit rate 30% against 37%, and 764 µs against 558 µs. Neighbouring threads should touch neighbouring addresses." },
+      { t: "Occupancy", d: "Block size 128 gave 77% achieved occupancy; 1,024 gave 86%. Tile quantization (matrix dimensions not divisible by the tile) and wave quantization (tile count not divisible by the SM count) waste work: in cuBLAS, $K$ = 4,096 ran about four times faster than a nearby odd size. NVIDIA's guidance is dimensions that are multiples of 8 or 16 for fp16. cudaOccupancyMaxPotentialBlockSize suggested 1,024 × 40 on a T4 and 768 × 160 on an A10G." },
+      { t: "Arithmetic intensity", d: "Intensity is FLOPs per byte moved. ReLU in fp32 is 1 comparison over a 4-byte read and a 4-byte write, 1/8. In fp16 it is 1/4, which is why quantization helps memory-bound kernels. An $M \\times N$ by $N \\times K$ matmul is $2MNK/(MN + NK + MK)$, compute-bound except for tiny sizes. Memory-bound kernels want fusion, coarsening, quantization and compilation. Compute-bound ones need a better algorithm." },
+      { t: "Divergence, privatization, coarsening", d: "Divergence: an even/odd if splits a warp; computing both results and selecting arithmetically (isEven × a + (1 − isEven) × b) keeps lanes together. Privatization: load into registers or shared memory and work on the private copy rather than repeatedly touching global memory. Coarsening: each thread handles 2 (or more) elements, halving the blocks, which pays when the kernel is memory-bound." },
+      { t: "Better maths", d: "The last item, missing from PMPP: rewrite the algorithm so it needs less data movement at the same numerics. Compilers cannot do this, and it is where kernel writers like Tri Dao make their gains (online softmax in Flash Attention is the standard example). The rest (tiling, as in the matmul lectures) was covered earlier." },
+    ],
+    worked: "To decide what to optimize: compute the arithmetic intensity. For square $n = 1024$ matmul it is $2n^3/3n^2 = 682.7$ FLOPs per element, compute-bound, so look for a better algorithm or tensor cores. For fp32 ReLU it is 1/8, memory-bound, so fuse it into the op that produced its input.",
+    watch: "Guessing block sizes. Ask cudaOccupancyMaxPotentialBlockSize for the GPU you are on, since the best choice differs between cards, and confirm the occupancy in ncu.",
+    concepts: [],
+    checks: [
+      { q: "The arithmetic intensity of fp32 ReLU (1 op, one 4-byte read, one 4-byte write):", num: 0.125,
+        expl: "$1/8$." },
+      { q: "For square $n = 1024$ matmul, $2n^3/(3n^2)$ (2 decimals):", num: 682.67,
+        expl: "$2 \\times 1024/3$." },
+      { q: "Moving ReLU from fp32 to fp16 changes its arithmetic intensity by a factor of:", num: 2,
+        expl: "Half the bytes for the same operation: 1/8 becomes 1/4." },
+      { q: "Replacing if (x % 2 == 0) a else b with isEven × a + (1 − isEven) × b avoids:", opts: ["uncoalesced loads", "warp divergence", "bank conflicts", "register spills"], a: 1,
+        expl: "All 32 lanes follow one path." },
     ],
   },
 

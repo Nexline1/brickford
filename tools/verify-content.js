@@ -2156,6 +2156,46 @@ const expectedSummary = {
     let tiles = 0; for (let yo = 0; yo < 1024; yo += 32) for (let xo = 0; xo < 1024; xo += 32) tiles++;
     return [{ i: 0, v: tiles }, { i: 1, v: Math.round(3.71 / 0.37) }];
   })(),
+
+  // Waves by summing each block's share of the SMs.
+  "sys250.1.0": (function () {
+    let w = 0; for (let b = 0; b < 32; b++) w += 1 / 82;
+    return [{ i: 0, v: Math.round(w * 100) / 100 }];
+  })(),
+
+  // Blocks by stepping; boundary counts by testing every window cell against the image.
+  "sys250.1.1": (function () {
+    let b = 0; for (let s = 0; s < 8000; s += 1024) b++;
+    const cnt = (r, c) => { let n = 0; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const y = r + dr, x = c + dc; if (y >= 0 && y < 10 && x >= 0 && x < 10) n++; } return n; };
+    return [{ i: 0, v: b }, { i: 1, v: cnt(0, 0) }, { i: 2, v: cnt(0, 5) }];
+  })(),
+
+  "sys250.1.2": (function () {
+    let cores = 0; for (let sm = 0; sm < 82; sm++) cores += 128;
+    let px = 0; for (let i = 0; i < 150; i++) for (let j = 0; j < 225; j++) px++;
+    let by = 0; for (let s = 0; s < 50000; s += 16) by++;
+    return [{ i: 0, v: cores }, { i: 1, v: px }, { i: 2, v: by }];
+  })(),
+
+  // Speed of light by summing bytes per pixel; occupancy by packing blocks into the SM.
+  "sys250.1.3": (function () {
+    let bytes = 0; for (let p = 0; p < 2048; p++) bytes += 2048 * (3 + 1);
+    let resident = 0; while (resident + 1024 <= 1536) resident += 1024;
+    return [{ i: 0, v: Math.round(bytes / 900e9 * 1e6 * 10) / 10 }, { i: 1, v: 5 / 4 }, { i: 2, v: Math.round(resident / 1536 * 100) / 100 }];
+  })(),
+
+  "sys250.1.4": (function () {
+    let floats = 0; for (let t = 0; t < 2; t++) for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) floats++;
+    let ph = 0; for (let s = 0; s < 256; s += 16) ph++;
+    return [{ i: 0, v: floats * 4 }, { i: 1, v: ph }];
+  })(),
+
+  // FLOPs by summing 2k per output over the output grid; intensity ratio from the two byte counts.
+  "sys250.1.5": (function () {
+    let f = 0; for (let i = 0; i < 1024; i++) for (let j = 0; j < 1024; j++) f += 2 * 1024;
+    const relu = b => 1 / (2 * b);
+    return [{ i: 0, v: relu(4) }, { i: 1, v: Math.round(f / (3 * 1024 * 1024) * 100) / 100 }, { i: 2, v: relu(2) / relu(4) }];
+  })(),
 };
 
 let sumNums = 0;

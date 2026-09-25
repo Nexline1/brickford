@@ -1,0 +1,264 @@
+<!doctype html>
+<!-- Brickford design specimen (loop/design/brief.md). Static, links nothing from
+     the app. Open with #today or #course, and ?dark for the dark pair. It shows
+     the target tokens on real Brickford content so the owner can approve the
+     look before T-005..T-007 touch the app. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brickford specimen</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f2f1ee; --surface: #ffffff; --surface-2: #f7f6f3; --line: #dcdad5;
+  --ink: #111111; --ink-2: #5c5a55; --ink-3: #6e6b65;
+  --accent: #1e4f8f; --accent-fill: #1e4f8f; --accent-soft: #e6edf6; --gold: #8a5f12;
+  --good: #2a7047; --bad: #b32d1f; --urgent: #9a5a16;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+  --float: 0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .08);
+  --font: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --rounded: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+:root.dark {
+  color-scheme: dark;
+  --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e; --line: #38383a;
+  --ink: #ffffff; --ink-2: #a1a1a6; --ink-3: #8e8e93;
+  --accent: #78aef0; --accent-fill: #2f6bbd; --accent-soft: #1a2a3f; --gold: #e0b35a;
+  --good: #62b881; --bad: #e8705c; --urgent: #d99a4e;
+  --float: 0 0 0 1px var(--line);
+}
+* { box-sizing: border-box; margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.45 var(--font); font-variant-numeric: tabular-nums; }
+.screen { display: none; padding-bottom: calc(49px + 34px + 24px); min-height: 100vh; }
+.screen.on { display: block; }
+
+/* nav bar: material, inline title hidden until the large title scrolls under */
+.nav { position: sticky; top: 0; z-index: 5; height: 44px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 8px; background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+.nav .inline { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; opacity: 0; }
+.icon-btn { width: 44px; height: 44px; display: grid; place-items: center; color: var(--accent); background: none; border: 0; }
+.chip { height: 30px; padding: 0 12px; border-radius: 999px; background: var(--surface); color: var(--ink-2);
+  font: 500 0.8125rem/30px var(--font); display: inline-flex; gap: 6px; align-items: center; margin-right: 8px; }
+.chip b { color: var(--gold); font-weight: 600; }
+.large { font: 700 2.125rem/1.2 var(--font); letter-spacing: -0.022em; padding: 4px 16px 0; }
+.sub { color: var(--ink-2); font-size: 0.9375rem; padding: 2px 16px 0; }
+
+/* hero */
+.hero { margin: 16px 16px 0; background: var(--surface); border-radius: var(--r-xl); padding: 20px; box-shadow: var(--float); }
+.hero-top { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+.eyebrow { font: 600 0.8125rem/1.35 var(--font); color: var(--accent); letter-spacing: 0.005em; }
+.hero h2 { font: 700 1.375rem/1.25 var(--font); letter-spacing: -0.015em; margin-top: 4px; }
+.meta { color: var(--ink-2); font-size: 0.9375rem; margin-top: 4px; }
+.ring { flex: none; position: relative; width: 64px; height: 64px; }
+.ring svg { transform: rotate(-90deg); }
+.ring span { position: absolute; inset: 0; display: grid; place-items: center; font: 600 0.9375rem/1 var(--rounded); }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 20px; border-radius: var(--r-md);
+  border: 0; font: 600 1.0625rem/1 var(--font); width: 100%; cursor: pointer; transition: transform 100ms ease-out, filter 100ms ease-out; }
+.btn:active { transform: scale(.97); }
+.btn.filled { background: var(--accent-fill); color: #fff; margin-top: 20px; }
+.btn.tinted { background: var(--accent-soft); color: var(--accent); }
+.btn.gray { background: var(--surface-2); color: var(--ink); }
+.btn.plain { background: none; color: var(--accent); width: auto; }
+
+/* week strip */
+.week { margin: 12px 16px 0; background: var(--surface); border-radius: var(--r-lg); padding: 14px 16px; display: flex; justify-content: space-between; }
+.day { display: grid; justify-items: center; gap: 6px; font: 500 0.75rem/1.3 var(--font); color: var(--ink-2); min-width: 32px; }
+.dot { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 600 0.8125rem/1 var(--rounded); color: var(--ink-2); background: var(--surface-2); }
+.dot.done { background: var(--accent-fill); color: #fff; }
+.dot.today { background: none; box-shadow: inset 0 0 0 2px var(--accent); color: var(--accent); }
+.dot.rest { background: none; color: var(--ink-3); }
+
+/* inset grouped list */
+.sec { margin-top: 32px; }
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 20px 8px; }
+.sec-h h3 { font: 600 1.25rem/1.25 var(--font); letter-spacing: -0.01em; }
+.sec-h span { color: var(--ink-2); font-size: 0.9375rem; }
+.list { margin: 0 16px; background: var(--surface); border-radius: var(--r-md); overflow: hidden; }
+.row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 16px; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); border-top: 0.5px solid var(--line); }
+.row.lead { --inset: 60px; }
+.lead-ic { flex: none; width: 32px; height: 32px; border-radius: var(--r-sm); display: grid; place-items: center; color: #fff; }
+.row .t { flex: 1; min-width: 0; }
+.row .t b { display: block; font-weight: 600; font-size: 1.0625rem; line-height: 1.3; }
+.row .t small { display: block; color: var(--ink-2); font-size: 0.9375rem; line-height: 1.35; }
+.row .v { color: var(--ink-2); font-size: 0.9375rem; flex: none; }
+.chev { flex: none; color: var(--ink-3); }
+.num { flex: none; width: 28px; color: var(--ink-2); font: 500 0.9375rem/1 var(--rounded); text-align: center; }
+
+/* stat tiles */
+.tiles { margin: 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { background: var(--surface); border-radius: var(--r-md); padding: 14px 16px; }
+.tile b { display: block; font: 600 1.75rem/1.1 var(--rounded); letter-spacing: -0.01em; }
+.tile small { color: var(--ink-2); font: 500 0.8125rem/1.3 var(--font); }
+.bar { height: 6px; border-radius: 999px; background: var(--surface-2); margin-top: 16px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 12.5%; background: var(--accent); border-radius: inherit; }
+
+/* segmented + buttons specimen */
+.seg { margin: 0 16px; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-2); border-radius: 10px; padding: 3px; }
+.seg button { min-height: 44px; border: 0; background: none; border-radius: 8px; font: 500 0.9375rem/1 var(--font); color: var(--ink); }
+.seg button.on { background: var(--surface); font-weight: 600; box-shadow: 0 1px 3px rgb(0 0 0 / .12); }
+:root.dark .seg button.on { background: #636366; color: #fff; }
+.stack { margin: 0 16px; display: grid; gap: 10px; }
+
+/* course header card */
+.author { display: flex; gap: 12px; align-items: center; margin: 16px 16px 0; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font: 600 0.9375rem/1 var(--rounded); }
+.author b { display: block; font-weight: 600; font-size: 0.9375rem; }
+.author small { color: var(--ink-2); font-size: 0.8125rem; }
+.desc { padding: 12px 16px 0; color: var(--ink-2); font-size: 1rem; line-height: 1.45; }
+
+/* tab bar: material */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 0 0 34px; background: color-mix(in srgb, var(--surface) 78%, transparent); backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%); border-top: 0.5px solid var(--line); }
+.tabbar a { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 49px; color: var(--ink-3);
+  font: 500 0.625rem/1.2 var(--font); text-decoration: none; }
+.tabbar a.on { color: var(--accent); }
+@media (prefers-reduced-transparency: reduce) { .nav, .tabbar { background: var(--surface); backdrop-filter: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="menu" viewBox="0 0 22 16"><path d="M1 1h20M1 8h20M1 15h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="play" viewBox="0 0 12 14"><path d="M1 1.5v11a.8.8 0 0 0 1.2.7l9-5.5a.8.8 0 0 0 0-1.4l-9-5.5A.8.8 0 0 0 1 1.5z" fill="currentColor"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5zm0 0v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM9 11h7M9 15h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8 12 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="sync" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="flame" viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-4-1-6 1-9.5z" fill="currentColor"/></symbol>
+</svg>
+
+<!-- ================= TODAY ================= -->
+<section class="screen" id="today">
+  <nav class="nav">
+    <button class="icon-btn" aria-label="Menu"><svg width="22" height="16"><use href="#menu"/></svg></button>
+    <span class="inline">Today</span>
+    <span class="chip"><svg width="14" height="14" style="color:var(--gold)"><use href="#flame"/></svg><b>4</b> Day 14 · Wk 3</span>
+  </nav>
+  <h1 class="large">Today</h1>
+  <p class="sub">Tuesday 6 October · Phase 1</p>
+
+  <article class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">Up next · MATH 120</div>
+        <h2>Rate of Change</h2>
+        <p class="meta">52 min video · 1 of 2 today</p>
+      </div>
+      <div class="ring" aria-label="0 of 2 lectures done today">
+        <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="var(--surface-2)" stroke-width="7"/>
+          <circle cx="32" cy="32" r="27" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="150"/></svg>
+        <span>0/2</span>
+      </div>
+    </div>
+    <button class="btn filled"><svg width="12" height="14"><use href="#play"/></svg>Open lecture</button>
+  </article>
+
+  <div class="week" aria-label="This study week">
+    <div class="day"><span class="dot done">✓</span>Sun</div>
+    <div class="day"><span class="dot done">✓</span>Mon</div>
+    <div class="day"><span class="dot today">6</span>Tue</div>
+    <div class="day"><span class="dot">7</span>Wed</div>
+    <div class="day"><span class="dot">8</span>Thu</div>
+    <div class="day"><span class="dot">9</span>Fri</div>
+    <div class="day"><span class="dot rest">–</span>Sat</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h3>Needs attention</h3><span>2</span></div>
+    <div class="list">
+      <a class="row lead"><span class="lead-ic" style="background:var(--bad)"><svg width="18" height="18"><use href="#sync"/></svg></span>
+        <span class="t"><b>This device isn't syncing</b><small>Progress stays in this browser only</small></span>
+        <svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+      <a class="row lead"><span class="lead-ic" style="background:var(--urgent)"><svg width="18" height="18"><use href="#clock"/></svg></span>
+        <span class="t"><b>3 lectures owed</b><small>Catching up late still turns the day green</small></span>
+        <svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h3>Today's lectures</h3><span>2 · 2h 47m</span></div>
+    <div class="list">
+      <a class="row"><span class="num">1</span><span class="t"><b>Rate of Change</b><small>MATH 120 · Theory</small></span><span class="v">52m</span>
+        <svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+      <a class="row"><span class="num">2</span><span class="t"><b>Makemore 4 — becoming a backprop ninja</b><small>AI 200 · Build · part 1 of 3</small></span><span class="v">1h 55m</span>
+        <svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COURSE ================= -->
+<section class="screen" id="course">
+  <nav class="nav">
+    <button class="icon-btn" aria-label="Back"><svg width="10" height="16" style="transform:scaleX(-1)"><use href="#chev"/></svg></button>
+    <span class="inline">Linear Algebra</span>
+    <span class="chip">MATH 110</span>
+  </nav>
+  <h1 class="large">Linear Algebra</h1>
+  <p class="desc">The language of machine learning. Intuition first with 3Blue1Brown, then Gilbert Strang's MIT 18.06.</p>
+  <div class="author"><span class="avatar">GS</span><span><b>Gilbert Strang · Grant Sanderson</b><small>MIT · 3Blue1Brown</small></span></div>
+
+  <article class="hero">
+    <div class="eyebrow">Next up · Unit I</div>
+    <h2>Linear combinations, span, and basis vectors</h2>
+    <p class="meta">10 min · Essence of Linear Algebra</p>
+    <div class="bar" aria-label="2 of 16 in this unit"><i></i></div>
+    <button class="btn filled"><svg width="12" height="14"><use href="#play"/></svg>Continue</button>
+  </article>
+
+  <div class="sec">
+    <div class="tiles">
+      <div class="tile"><b>51</b><small>Lectures</small></div>
+      <div class="tile"><b>30h 50m</b><small>Video</small></div>
+      <div class="tile"><b>2</b><small>Watched</small></div>
+      <div class="tile"><b>1</b><small>Proven</small></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="seg" role="tablist"><button class="on">Lectures</button><button>Exams</button><button>Notes</button></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h3>Unit I · Essence of LA</h3><span>2 of 16</span></div>
+    <div class="list">
+      <a class="row"><span class="num" style="color:var(--good)">✓</span><span class="t"><b>Vectors, what even are they?</b><small>10 min</small></span><svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+      <a class="row"><span class="num" style="color:var(--good)">✓</span><span class="t"><b>Linear combinations, span, and basis</b><small>10 min · proven</small></span><svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+      <a class="row"><span class="num">3</span><span class="t"><b>Linear transformations and matrices</b><small>11 min</small></span><svg class="chev" width="8" height="14"><use href="#chev"/></svg></a>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h3>Buttons</h3><span>hierarchy</span></div>
+    <div class="stack">
+      <button class="btn tinted">Mark watched</button>
+      <button class="btn gray">Take notes</button>
+      <button class="btn plain">Skip for today</button>
+    </div>
+  </div>
+</section>
+
+<nav class="tabbar">
+  <a class="on" data-for="today"><svg width="24" height="24"><use href="#home"/></svg>Today</a>
+  <a data-for="course"><svg width="24" height="24"><use href="#book"/></svg>Courses</a>
+  <a><svg width="24" height="24"><use href="#doc"/></svg>Exams</a>
+  <a><svg width="24" height="24"><use href="#flask"/></svg>Problems</a>
+  <a><svg width="24" height="24"><use href="#check"/></svg>Review</a>
+</nav>
+<script>
+  const which = (location.hash || "#today").slice(1);
+  document.getElementById(which).classList.add("on");
+  document.querySelectorAll(".tabbar a").forEach(a => a.classList.toggle("on", a.dataset.for === which));
+  if (/dark/.test(location.search)) document.documentElement.classList.add("dark");
+  // The inline title appears once the large title has scrolled under the bar.
+  const large = document.querySelector(".screen.on .large"), inline = document.querySelector(".screen.on .inline");
+  new IntersectionObserver(([e]) => { inline.style.opacity = e.isIntersecting ? 0 : 1; }, { rootMargin: "-44px 0px 0px 0px" }).observe(large);
+</script>
+</body>
+</html>

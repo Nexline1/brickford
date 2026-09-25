@@ -26,3 +26,5 @@
 - The transcript tool truncates at 120k chars. Auto-captions come back tripled; dedupe first.
 - Every harness context pins the clock and timezone (setFixedTime + timezoneId UTC); a gate that reads the real date passes only on the day it was written.
 - A check's name must claim only what its fixture can violate: plant the exact bug the name promises to catch (a random draw can hide a whole layout, e.g. numeric answers).
+- A layout fix is measured on the label box as well as the tab box: a rule that fits the boxes can push text out of them at a width next door.
+- A gate's summary line counts one unit on pass and fail, and prints a pass only when its own fail count is zero.

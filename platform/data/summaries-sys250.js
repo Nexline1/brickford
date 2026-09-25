@@ -11,6 +11,13 @@
 // the lecturer's own argument in his own order, keeping his examples. If a video
 // has no captions, its entry says so in its first beat and is listed here.
 //
+// Exceptions so far: sys250.0.14 (Implementing Convolutions). The transcript
+// tool cut the caption text off halfway, just as the lecture reaches
+// as_strided. The rest of that entry follows the lecture's own notebook,
+// dlsyscourse/public_notebooks convolution_implementation.ipynb, which is the
+// code he is typing, and its first beat says so. The 0.17 example data (A and mu)
+// is taken from that lecture's notebook too.
+//
 // tools/verify-content.js enforces the shape and RECOMPUTES every numeric answer
 // by a different route from the one the summary teaches: a gradient by central
 // finite differences of the forward function, a count by walking the loops or
@@ -345,6 +352,168 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "$v_1v_3 + v_2v_3 + v_1v_2 = 4 + 4 + 16$." },
       { q: "Transposing a strided array without copying it means:", opts: ["copying the data in the new order", "swapping the strides (and the shape)", "setting a stride to 0", "calling compact"], a: 1,
         expl: "A stride of 0 is how broadcasting works; compact is what you call when you need contiguity." },
+    ],
+  },
+
+  "sys250.0.12": {
+    takeaway: "A CPU spends its area on control; a GPU spends it on arithmetic, with a few commanders directing a huge number of soldiers doing the same thing. CUDA expresses that as single instruction, multiple threads: threads grouped into blocks, and blocks into a grid. Blocks map onto streaming multiprocessors with shared memory. Keep data on the GPU, have a block's threads fetch shared data into shared memory together, and tile twice (shared memory, then registers) for matrix multiplication.",
+    beats: [
+      { t: "Why a GPU", d: "CPU cores each have strong control, so each can run a different task. Graphics does the same operation on every pixel, so a GPU uses a few control units driving many compute units. Chen's first deep model took about a week on CPUs and several hours on a GPU; 10–100× speed-ups are typical." },
+      { t: "SIMT: threads, blocks, grid", d: "You write the code for one thread, and every thread runs it. What differs is each thread's context: threadIdx within its block and blockIdx within the grid. Blocks share some resources (shared memory). A kernel launch is a grid of blocks. OpenCL, SYCL and Metal have near one-to-one equivalents." },
+      { t: "Vector add", d: "$i$ = blockIdx.x × blockDim.x + threadIdx.x gives each thread a global index. If $i \\lt n$, it computes $C[i] = A[i] + B[i]$. Launch enough blocks to cover $n$: $\\lceil n/512 \\rceil$ blocks of 512 threads. This works because every element is independent. A dependent loop, like a running maximum, needs a different algorithm (a parallel scan)." },
+      { t: "The host side, and Chen's mistake", d: "cudaMalloc allocates on the GPU, cudaMemcpy moves data across the PCIe bus, the host launches the kernel, and the result is copied back. His first CUDA convolution was only 1.3× faster than the CPU code, because the copies dominated. Real frameworks keep data on the GPU from one op to the next, which is why calling .numpy() often is slow." },
+      { t: "Memory hierarchy", d: "Each block runs on one streaming multiprocessor (SM), and each thread on one of its cores. Global memory is the GPU RAM; each SM has fast shared memory visible to all threads in the block; each thread has its own registers." },
+      { t: "Shared memory: a window sum", d: "Output $i$ is the sum of inputs $i..i+4$. Naively each thread loads 5 values. A block of 4 threads only touches 8 distinct inputs, so the threads load those into shared memory together (2 each), call __syncthreads(), then sum from shared memory. Loads fall to 2/5." },
+      { t: "Matmul: two levels of tiling", d: "Each thread register-tiles a $V \\times V$ block of C, cutting its loads by $V$. Each block computes an $L \\times L$ tile using $(L/V)^2$ threads. The threads first fetch the needed strips of A and B into shared memory together, then each works from there. Global-to-shared memory reuse is $L$; shared memory to registers is $V$." },
+      { t: "Choosing L and V", d: "Registers and shared memory per SM are fixed. More registers per thread means fewer threads; more shared memory per block means fewer blocks per SM. Fewer threads leave less work to switch to while a load is waiting. So values are usually picked by autotuning. Also relevant: coalesced loads, bank conflicts, software pipelining, warp-level operations, tensor cores." },
+    ],
+    worked: "To launch a 1-D kernel over $n$ elements: pick a block size (say 256) and launch $\\lceil n/256 \\rceil$ blocks. In the kernel, compute $i$ = blockIdx.x × blockDim.x + threadIdx.x and guard with if ($i \\lt n$). For $n = 1000$ that is 4 blocks, 1,024 threads, and the last 24 do nothing.",
+    watch: "Copying to the GPU and back around every operation. The PCIe transfers cost more than the kernel saves. Keep arrays on the device and only bring results back at the end.",
+    concepts: [],
+    checks: [
+      { q: "A kernel over $n = 1000$ elements uses 256 threads per block. How many blocks does it launch?", num: 4,
+        expl: "$\\lceil 1000/256 \\rceil = 4$, which is 1,024 threads. The guard $i \\lt n$ idles the last 24." },
+      { q: "Window sum of width 5 computed by a block of 256 threads. How many distinct input elements must the block load into shared memory?", num: 260,
+        expl: "Outputs $0..255$ need inputs $0..259$: $256 + 5 - 1 = 260$, against $256 \\times 5 = 1{,}280$ loads if each thread fetched its own window." },
+      { q: "A block computes a $64 \\times 64$ tile of C, and each thread a $8 \\times 8$ register tile. Threads per block:", num: 64,
+        expl: "$(L/V)^2 = (64/8)^2 = 64$." },
+      { q: "Why was Chen's first GPU convolution only 1.3× faster?", opts: ["the kernel was wrong", "copying data between CPU and GPU over PCIe dominated", "the GPU had too little memory", "he used too many threads"], a: 1,
+        expl: "Keep data resident on the GPU across operations." },
+    ],
+  },
+
+  "sys250.0.13": {
+    takeaway: "Needle's NDArray replaces numpy. It is a flat one-dimensional handle (an aligned CPU buffer or a cudaMalloc'd GPU buffer) plus Python-side shape, strides, offset and device. Construction and arithmetic dispatch to a backend module (numpy, CPU or CUDA) that allocates an output and runs a kernel. Reshape, slice, transpose and broadcast only change shape, strides and offset. Kernels assume compact memory, so they call compact() first.",
+    beats: [
+      { t: "The setup", d: "A Colab GPU runtime (a T4), a clone of needle, pybind11, and a CMake build of the CPU and CUDA backends. The new pieces are src/ (the C++ and CUDA backends) and python/needle/backend_ndarray, which replaces numpy as the array API." },
+      { t: "The NDArray fields", d: "shape, strides, offset (Python tuples and an integer), device (a BackendDevice), and _handle, which points at a flat one-dimensional array in the backend. Everything multi-dimensional is bookkeeping over that flat memory." },
+      { t: "Following NDArray([1,2,3], device=cuda)", d: "__init__ calls make, which calls device.array(size) to allocate: numpy.empty, an AlignedArray in C++, or cudaMalloc. Then from_numpy copies the data in: a plain copy on CPU, cudaMemcpy host-to-device on GPU. .numpy() goes the other way." },
+      { t: "Following x + 1", d: "__add__ checks whether the other operand is an NDArray: if so it calls ewise_add, otherwise scalar_add. Either way it first makes an empty output array, then calls the backend with (compact input handle, value, output handle). The CUDA version computes a grid size and launches a kernel where each thread adds one element." },
+      { t: "Views by strides", d: "Reshaping [0..5] to 2 × 3 is the same handle with strides (3, 1). Slicing out a 2 × 2 block keeps the strides and moves the offset. Taking the second row is shape (1, 3) at offset 3. Transposing swaps the shape and the strides. Broadcasting 2 × 3 to 2 × 3 × 4 adds a stride of 0. None of these copy anything." },
+      { t: "Why compact exists", d: "An elementwise kernel just walks the flat array. For a transposed view it would read in the wrong order, and for a slice it would touch elements outside the view. compact() returns the array unchanged if it is already row-major with offset 0; otherwise it copies into a fresh compact array. Needle calls it before every kernel for simplicity, as PyTorch's contiguous() does before matmul." },
+      { t: "Adding an operator", d: "Live: add EwiseDiv and ScalarDiv by copying the multiply kernels and changing the operator, rebuild, and test. A running notebook keeps the old module imported, so test in a fresh python test.py process. His first attempt printed products: the copied kernel still multiplied." },
+      { t: "Plugging it into needle", d: "autograd.py and ops.py now import backend_ndarray as array_api instead of numpy, so Tensor.cached_data is an NDArray. The layering lets you test the array library on its own before autodiff runs on top of it." },
+    ],
+    worked: "To read element $(i, j)$ of any view: offset + $i \\cdot$ strides[0] + $j \\cdot$ strides[1] into the flat handle. For [0..5] reshaped to 2 × 3 and transposed (shape 3 × 2, strides (1, 3)), element (2, 1) is at $2 \\times 1 + 1 \\times 3 = 5$, which holds 5, matching $M^T[2][1] = M[1][2]$.",
+    watch: "Passing a non-compact view's handle straight into an elementwise kernel. It works on the whole underlying buffer in storage order, so a slice gets its neighbours modified and a transpose gets scrambled.",
+    concepts: [],
+    checks: [
+      { q: "[0,1,2,3,4,5] is viewed as 2 × 3 with strides (3,1), then transposed to 3 × 2 with strides (1,3). The value at (2, 1) is:", num: 5,
+        expl: "Flat index $2 \\times 1 + 1 \\times 3 = 5$. Check: the original $M[1][2] = 5$." },
+      { q: "A compact 4 × 4 array is sliced to rows 1–2 and columns 1–2. The offset of the view is:", num: 5,
+        expl: "Its first element is (1, 1), at $1 \\times 4 + 1 = 5$. The strides stay (4, 1)." },
+      { q: "Broadcasting a 2 × 3 array to 2 × 3 × 4 without copying uses:", opts: ["strides (12, 4, 1)", "a stride of 0 on the new axis", "offset 4", "compact()"], a: 1,
+        expl: "Moving along the new axis must not move in memory." },
+      { q: "A Jupyter session does not see a newly compiled backend function because:", opts: ["CUDA caches kernels", "the old module stays imported, so run the test in a fresh Python process", "Colab blocks recompiling", "pybind11 needs a reboot"], a: 1,
+        expl: "Hence the fresh python test.py loop." },
+    ],
+  },
+
+  "sys250.0.14": {
+    takeaway: "Three implementations of the same convolution, checked against PyTorch: a seven-deep loop (about 2,000 times slower), $K^2$ batched matrix multiplies over shifted slices (close to PyTorch), and im2col, one matrix multiply after an as_strided view unfolds every $K \\times K$ window. Store images NHWC and weights $K \\times K \\times C_{in} \\times C_{out}$, so the channel axis is last and each filter tap is a matrix.",
+    beats: [
+      { t: "About this summary", d: "The captions for this lecture were cut off about halfway, just as Kolter introduces as_strided. Everything from the matrix-tiling example on follows the lecture's own notebook (convolution_implementation.ipynb in dlsyscourse's public_notebooks), the code he types live." },
+      { t: "Storage order", d: "Images are $N \\times H \\times W \\times C$ (NHWC). Weights are $K \\times K \\times C_{in} \\times C_{out}$. PyTorch uses NCHW and $C_{out} \\times C_{in} \\times K \\times K$. Kolter thinks that is the wrong choice for convolutions, which become matmuls over the channel axis; NCHW does suit batch norm." },
+      { t: "A reference first", d: "Before writing your own, get a trusted answer: permute to PyTorch's layout, call conv2d, and permute back. No padding here: pad explicitly if needed, so a $K = 3$ convolution takes 32 × 32 to 30 × 30. Every later version is checked by the norm of its difference from the reference." },
+      { t: "Version 1: loops", d: "Loop over batch, $c_{in}$, $c_{out}$, $y$, $x$, $i$, $j$: out[n, y, x, c_out] += Z[n, y+i, x+j, c_in] · W[i, j, c_in, c_out]. It is correct and about 2,000 times slower than PyTorch." },
+      { t: "Version 2: $K^2$ matmuls", d: "A 1 × 1 convolution is just Z @ W[0,0], since numpy treats all leading axes as rows. So loop only over the kernel positions: out += Z[:, i:i+H−K+1, j:j+W−K+1, :] @ W[i, j]. Nine matmuls for $K = 3$, and roughly 2–3× PyTorch's time." },
+      { t: "as_strided", d: "np.lib.stride_tricks.as_strided builds a new view from shape and strides without copying. A 6 × 6 row-major matrix becomes 3 × 3 tiles of 2 × 2 with strides (12, 2, 6, 1), in elements. Making that contiguous is the tiled layout from the hardware lecture." },
+      { t: "Version 3: im2col", d: "For 6 × 6 and $K = 3$, shape (4, 4, 3, 3) with strides (6, 1, 6, 1): the window axes reuse the row and column strides. Reshape to 16 × 9, multiply by the 9 weights, reshape to 4 × 4. With batch and channels it is a 6-D view $N \\times (H-K+1) \\times (W-K+1) \\times K \\times K \\times C$ with strides (Ns, Hs, Ws, Hs, Ws, Cs), flattened, times the weights reshaped to $K^2C_{in} \\times C_{out}$." },
+      { t: "The memory catch", d: "The strided view is free, but reshaping it to 2-D forces a real copy about $K^2$ times the size of the input. Needle accepts that, since the matrix is freed right after and autodiff never sees it. The best libraries avoid building it at all." },
+    ],
+    worked: "To size im2col: rows are $N(H-K+1)(W-K+1)$ and columns are $K^2C_{in}$. For $N = 10$, 32 × 32 × 8 inputs and $K = 3$: $10 \\times 30 \\times 30 = 9{,}000$ rows and $3 \\times 3 \\times 8 = 72$ columns, multiplied by a $72 \\times C_{out}$ weight matrix.",
+    watch: "Implementing a new kernel without a reference to test it against. Check every version against a trusted implementation, or against the previous version, by the norm of the difference.",
+    concepts: [],
+    checks: [
+      { q: "$A$ = arange(36) as 6 × 6 and $W$ = arange(9) as 3 × 3. The top-left output of their (unflipped, unpadded) convolution is:", num: 366,
+        expl: "Row by row: $0\\cdot0 + 1\\cdot1 + 2\\cdot2 = 5$, $6\\cdot3 + 7\\cdot4 + 8\\cdot5 = 86$, $12\\cdot6 + 13\\cdot7 + 14\\cdot8 = 275$. Total 366." },
+      { q: "im2col for a batch of 10 images of 32 × 32 × 8 with $K = 3$ and no padding. Number of rows:", num: 9000,
+        expl: "$10 \\times 30 \\times 30$." },
+      { q: "…and number of columns:", num: 72,
+        expl: "$K \\cdot K \\cdot C_{in} = 3 \\times 3 \\times 8$." },
+      { q: "In the im2col view of a 6 × 6 array, the strides for the two window axes are (6, 1) because:", opts: ["the window is 6 wide", "stepping within a window moves exactly as stepping between window positions does: one row or one column", "the array is transposed", "numpy requires it"], a: 1,
+        expl: "That repetition of strides is the whole trick." },
+    ],
+  },
+
+  "sys250.0.15": {
+    takeaway: "Large models are limited by GPU memory, and in training the activations dominate. The backward pass needs forward values, so the memory grows with depth. Activation checkpointing keeps only every $k$-th activation and recomputes the rest one segment at a time: with $k = \\sqrt n$ memory is $O(\\sqrt n)$ for about one extra forward pass. To use many GPUs, model parallelism splits the graph (with pipelining to keep workers busy) and data parallelism splits the batch and sums gradients with allreduce or a parameter server, overlapping communication with computation.",
+    beats: [
+      { t: "Memory is the ceiling", d: "Global memory is what the card's label shows: 8–10 GB on consumer GPUs, 40–80 GB on an A100. When Chen was a student, ResNet-200 was the largest ImageNet model that fit in 8 GB. Memory goes to weights, optimizer state (momentum), activations and data." },
+      { t: "Inference needs two buffers", d: "For a plain $n$-layer chain, write layer 1's output to buffer A, layer 2's to B, layer 3's back into A, and so on. Activation memory stays constant however deep the network is. Skip connections complicate it, but dependencies are local." },
+      { t: "Training cannot do that", d: "Backprop is a ladder: each gradient step needs the matching forward value. Nothing can be freed until the backward pass reaches it, so activation memory is $O(n)$. That is why training costs far more memory than inference." },
+      { t: "Checkpointing", d: "In the forward pass, keep only every $k$-th activation (the checkpoints) and free the rest. For the backward pass, take the last segment, rerun its small forward from the checkpoint, backprop through it to get the adjoint at the checkpoint, free it, and move to the previous segment." },
+      { t: "The sublinear cost", d: "Memory is $n/k$ checkpoints plus $O(k)$ for one live segment. Setting $k = \\sqrt n$ gives $O(\\sqrt n)$. The price is one extra forward pass in total, which Chen puts at 20–25% more time. Variants recompute only the cheap layers (ReLU rather than conv or matmul), saving less memory but less time too. It is also called rematerialization." },
+      { t: "Model parallelism", d: "Partition the graph across workers and insert send/receive pairs at the cuts. On its own this is sequential: worker 1 waits for worker 0. Pipeline parallelism splits the batch into micro-batches, so worker 0 starts micro-batch 2 while worker 1 handles micro-batch 1. Large-model frameworks now build this in." },
+      { t: "Data parallelism", d: "Every worker holds the full model and gets a slice of the minibatch. Gradients are summed with allreduce: each worker passes its array and receives the elementwise sum across workers ([1,2,3] + [1,0,1] = [2,2,4]). Each worker then applies the same update. NCCL and Horovod implement it. The model code itself does not change." },
+      { t: "Parameter servers and overlap", d: "Alternatively, workers push gradients to a server that sums them, updates the weights, and sends them back. That tolerates stragglers (update after 99 of 100) and restarts (pull the weights). Either way, start communicating a layer's gradient as soon as it exists, while backprop continues. Prioritize early layers' weights, since the next forward pass needs them first. ZeRO shards state further." },
+    ],
+    worked: "To plan checkpointing for an $n$-layer network: memory is about $n/k + k$ activations, minimized at $k = \\sqrt n$. For $n = 100$, checkpoint every 10 layers: 10 checkpoints plus a 10-layer segment is 20 activations instead of 100, for one extra forward pass.",
+    watch: "Running all of backprop and then calling allreduce. Communication is then pure waiting; sending each layer's gradient as it is produced hides most of it behind computation.",
+    concepts: [],
+    checks: [
+      { q: "A 100-layer chain with checkpoints every $k$ layers (with $k$ dividing 100) needs about $100/k + k$ stored activations. The minimum is:", num: 20,
+        expl: "At $k = 10$: $10 + 10 = 20$, against 100 without checkpointing." },
+      { q: "Inference on a plain 1,000-layer chain needs how many activation buffers?", opts: ["1,000", "about 32", "2, used alternately", "$\\sqrt{1000}$"], a: 2,
+        expl: "Once layer $i+1$ is computed, layer $i$'s output is dead." },
+      { q: "Why does training need $O(n)$ activation memory without checkpointing?", opts: ["the weights grow", "the backward pass reuses each forward activation, so none can be freed until backprop reaches it", "Adam stores activations", "gradients are bigger than activations"], a: 1,
+        expl: "The ladder of dependencies." },
+      { q: "An advantage of a parameter server over allreduce:", opts: ["no communication", "it can update without waiting for a straggler, and a restarted worker just pulls the weights", "workers need no model copy", "it avoids gradients"], a: 1,
+        expl: "It is a small change from allreduce with different robustness." },
+    ],
+  },
+
+  "sys250.0.16": {
+    takeaway: "Generative modelling maps random vectors to samples, and the hard part is a loss that says whether a set of samples looks like the data and can be differentiated. A GAN learns that loss: a discriminator is trained to tell real from fake, while the generator is trained to fool it, alternating in a minimax game. Treated as a loss module, it composes with anything, as CycleGAN shows with two GAN losses and a cycle-consistency loss for unpaired image translation.",
+    beats: [
+      { t: "From classification to generation", d: "Supervised learning scores each prediction on its own. A generator takes random $z$ and outputs, say, an image, and success is about the whole set: do the generated samples look like the target distribution? There are no labels, so this is unsupervised learning." },
+      { t: "What loss?", d: "You could match means and variances, or cluster pixels and compare the centres. Many distances exist, but the loss must also be differentiable back to the generator's weights, and simple moment matching does not make images look real." },
+      { t: "Suppose an oracle", d: "Imagine a differentiable classifier $D$ that says whether an input is real. Then train $G$ to fool it: make $D(G(z))$ look real, meaning minimize the likelihood the oracle assigns to the correct answer ('fake')." },
+      { t: "Learn the oracle too", d: "There is no oracle, so make $D$ a neural network and train it with real samples labelled 1 and generated samples labelled 0, minimizing $-\\log D(x) - \\log(1 - D(G(z)))$. The two form a minimax game." },
+      { t: "The alternating updates", d: "Discriminator step: sample real and fake minibatches and update $D$ to classify them correctly. Generator step: sample fakes and update $G$. In practice the generator minimizes $-\\log D(G(z))$ (feed label 1) rather than maximizing $D$'s loss: the labels of the fakes flip between the two steps." },
+      { t: "Why it works, and why it is hard", d: "Anything that makes a fake distinguishable is a feature $D$ can find, including cues humans miss, so $D$ keeps pointing $G$ at its remaining flaws: first the shape of the cat, then the ears. But a minimax game is hard to converge, and GANs need a lot of tuning. Diffusion models later overtook them." },
+      { t: "A GAN as a module", d: "Deep learning's strength is composition: swap the loss, keep the backbone. A GAN can be packaged as a loss that compares a set of generated samples with a set of real ones and quietly updates its own discriminator. DCGAN's generator upsamples $z$ with Conv2dTranspose (transposed convolution, implementable as dilation plus convolution)." },
+      { t: "CycleGAN", d: "For horse to zebra with no paired images, learn $G: X \\to Y$ with a GAN loss that makes $G(x)$ look like real $Y$, and $F: Y \\to X$ with another. Add cycle consistency, an L1 loss making $F(G(x)) \\approx x$ (and $G(F(y)) \\approx y$): four objectives, easy to write because each GAN is a module." },
+    ],
+    worked: "To compute the two losses for one real sample and one fake: with $D(x) = 0.9$ and $D(G(z)) = 0.2$, the discriminator loss is $-\\ln 0.9 - \\ln(1 - 0.2) = 0.105 + 0.223 = 0.33$. The generator's loss is $-\\ln 0.2 = 1.61$, which is large because $D$ is not yet fooled.",
+    watch: "Letting the discriminator step's gradients flow into the generator. When updating $D$, generate the fakes with the generator detached.",
+    concepts: [],
+    checks: [
+      { q: "The discriminator gives $D(G(z)) = 0.2$. The generator's (non-saturating) loss $-\\ln D(G(z))$ is (2 decimals):", num: 1.61,
+        expl: "$-\\ln 0.2 = \\ln 5 = 1.609$." },
+      { q: "With $D(x) = 0.9$ on a real sample and $D(G(z)) = 0.2$ on a fake, the discriminator loss $-\\ln D(x) - \\ln(1 - D(G(z)))$ is (2 decimals):", num: 0.33,
+        expl: "$0.105 + 0.223 = 0.329$." },
+      { q: "In the generator step, the generated samples are fed to the loss with label:", opts: ["0 (fake)", "1 (real)", "0.5", "no label"], a: 1,
+        expl: "The labels of the fakes flip between the D step and the G step." },
+      { q: "CycleGAN's cycle-consistency loss requires:", opts: ["paired images", "$F(G(x)) \\approx x$ and $G(F(y)) \\approx y$", "the two GANs to share a discriminator", "labels for each domain"], a: 1,
+        expl: "It is what makes unpaired translation keep the content." },
+    ],
+  },
+
+  "sys250.0.17": {
+    takeaway: "A GAN in needle, on data you can see: real points are $zA + \\mu$ with $A = [[1, 2], [-0.2, 0.5]]$ and $\\mu = (2, 1)$. The generator is one Linear(2, 2); the discriminator is a three-layer MLP with softmax loss. Alternating update_D and update_G moves the fake cloud onto the real one. Then the same thing is refactored into a GANLoss module, so the training loop reads like supervised learning.",
+    beats: [
+      { t: "The data", d: "Sample $z \\sim N(0, I)$ in 2-D and set $x = zA + \\mu$, with $A = [[1, 2], [-0.2, 0.5]]$ and $\\mu = [2, 1]$: a Gaussian with covariance $A^TA$. That gives 3,200 points to scatter-plot in blue." },
+      { t: "The generator", d: "model_G = nn.Sequential(nn.Linear(2, 2)): a 2 × 2 matrix plus a bias, 6 parameters. sample_G draws normal $z$, runs the model and returns numpy. Its initial samples plainly miss the real cloud." },
+      { t: "The discriminator", d: "model_D = Linear(2, 20), ReLU, Linear(20, 10), ReLU, Linear(10, 2), with nn.SoftmaxLoss. Two-class softmax is binary classification; homework 2 only has softmax, so it is used." },
+      { t: "update_G", d: "fake = model_G(Z); y = model_D(fake); loss = loss_D(y, ones). Backward, then opt_G.step(). The label 1 means 'make D call these real'." },
+      { t: "update_D", d: "fake = model_G(Z).detach(), so no gradient flows into G. loss = loss_D(model_D(fake), zeros) + loss_D(model_D(X), ones). Backward, then opt_D.step()." },
+      { t: "The loop and the check", d: "train_gan cycles through the data in batches of 32 for 2,000 steps, calling update_G then update_D. The fake points land on the real cloud. $G$'s learned matrix is not $A$, but its $A_G^TA_G$ is close to $A^TA$, and its bias is close to $\\mu$. Many matrices give the same covariance, so only the covariance can be identified." },
+      { t: "GANLoss as a module", d: "GANLoss holds model_D, a softmax loss and opt_D. Its forward(X_fake, X_real) first runs the discriminator update on X_fake.detach() and X_real, then returns loss_D(model_D(X_fake), ones) for the generator. The D step is hidden inside the forward." },
+      { t: "Training like supervised learning", d: "With the module, each step is reset_grad, sample a batch and $z$, fake = model_G(z), loss = gan_loss(fake, batch), backward, opt_G.step(). It gives the same result, and it is the shape CycleGAN needs." },
+    ],
+    worked: "To check what the generator should learn: the target covariance is $A^TA$. With $A = [[1, 2], [-0.2, 0.5]]$ that is $[[1.04, 1.9], [1.9, 4.25]]$, so the second coordinate has variance $2^2 + 0.5^2 = 4.25$. Compare it with $A_G^TA_G$ from the trained Linear layer, not $A_G$ with $A$.",
+    watch: "Comparing the learned matrix with $A$ and concluding the GAN failed. Any $A_G$ with $A_G^TA_G = A^TA$ generates the same distribution.",
+    concepts: [],
+    checks: [
+      { q: "The real data is $zA + \\mu$ with $A = [[1, 2], [-0.2, 0.5]]$. The variance of the second coordinate is:", num: 4.25,
+        expl: "It is the (2,2) entry of $A^TA$: $2^2 + 0.5^2 = 4.25$." },
+      { q: "The discriminator Linear(2,20), ReLU, Linear(20,10), ReLU, Linear(10,2), with biases, has how many parameters?", num: 292,
+        expl: "$(40 + 20) + (200 + 10) + (20 + 2) = 60 + 210 + 22 = 292$." },
+      { q: "In update_D, the fakes are computed with .detach() because:", opts: ["it saves memory only", "the discriminator step must not change the generator", "detach converts to numpy", "softmax needs it"], a: 1,
+        expl: "The gradient of D's loss would otherwise flow into G." },
+      { q: "After training, the learned 2 × 2 matrix differs from $A$ though the samples match. Why?", opts: ["training failed", "the distribution depends only on $A^TA$ (and $\\mu$), which many matrices share", "the bias absorbed it", "softmax loss is not symmetric"], a: 1,
+        expl: "For instance, any rotation $QA$ gives the same covariance." },
     ],
   },
 

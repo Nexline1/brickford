@@ -2069,6 +2069,52 @@ const expectedSummary = {
     const regs = new Set(); for (let a = 0; a < v1 * v3; a++) regs.add("a" + a); for (let b = 0; b < v2 * v3; b++) regs.add("b" + b); for (let c = 0; c < v1 * v2; c++) regs.add("c" + c);
     return [{ i: 0, v: off }, { i: 1, v: loads }, { i: 2, v: regs.size }];
   })(),
+
+  // Blocks by stepping block starts across n; shared loads as the union of every
+  // thread's window; threads by stepping register tiles across the block tile.
+  "sys250.0.12": (function () {
+    let blocks = 0; for (let s = 0; s < 1000; s += 256) blocks++;
+    const need = new Set(); for (let t = 0; t < 256; t++) for (let k = 0; k < 5; k++) need.add(t + k);
+    let th = 0; for (let a = 0; a < 64; a += 8) for (let c = 0; c < 64; c += 8) th++;
+    return [{ i: 0, v: blocks }, { i: 1, v: need.size }, { i: 2, v: th }];
+  })(),
+
+  // Build the matrices and read the element, instead of using stride arithmetic.
+  "sys250.0.13": (function () {
+    const M = [[0, 1, 2], [3, 4, 5]], T = [0, 1, 2].map(i => [0, 1].map(j => M[j][i]));
+    const flat = []; for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) flat.push([i, j]);
+    return [{ i: 0, v: T[2][1] }, { i: 1, v: flat.findIndex(([i, j]) => i === 1 && j === 1) }];
+  })(),
+
+  // Direct 2-D correlation (not im2col) for the output; rows by sliding every window.
+  "sys250.0.14": (function () {
+    let s = 0; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) s += (6 * i + j) * (3 * i + j);
+    let rows = 0; for (let n = 0; n < 10; n++) for (let y = 0; y + 3 <= 32; y++) for (let x = 0; x + 3 <= 32; x++) rows++;
+    let cols = 0; for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) for (let c = 0; c < 8; c++) cols++;
+    return [{ i: 0, v: s }, { i: 1, v: rows }, { i: 2, v: cols }];
+  })(),
+
+  // Search every divisor k rather than quoting sqrt(n).
+  "sys250.0.15": (function () {
+    let best = Infinity; for (let k = 1; k <= 100; k++) if (100 % k === 0) best = Math.min(best, 100 / k + k);
+    return [{ i: 0, v: best }];
+  })(),
+
+  // Logarithms by integrating 1/x with the trapezoid rule, not Math.log.
+  "sys250.0.16": (function () {
+    const ln = x => { let I = 0; const N = 200000, h = (x - 1) / N; for (let i = 0; i < N; i++) { const a = 1 + i * h; I += (1 / a + 1 / (a + h)) / 2 * h; } return I; };
+    return [{ i: 0, v: Math.round(ln(5) * 100) / 100 },
+            { i: 1, v: Math.round((ln(1 / 0.9) + ln(1 / 0.8)) * 100) / 100 }];
+  })(),
+
+  // Variance by 2-D quadrature of x2^2 against the Gaussian density on a grid,
+  // not by forming A^T A; parameters by looping over weight and bias entries.
+  "sys250.0.17": (function () {
+    const A = [[1, 2], [-0.2, 0.5]], h = 0.02, phi = t => Math.exp(-t * t / 2) / Math.sqrt(2 * Math.PI);
+    let v = 0; for (let a = -8; a <= 8; a += h) for (let b = -8; b <= 8; b += h) { const x2 = a * A[0][1] + b * A[1][1]; v += x2 * x2 * phi(a) * phi(b) * h * h; }
+    let p = 0; [[2, 20], [20, 10], [10, 2]].forEach(([i, o]) => { for (let r = 0; r < i; r++) for (let c = 0; c < o; c++) p++; for (let c = 0; c < o; c++) p++; });
+    return [{ i: 0, v: Math.round(v * 100) / 100 }, { i: 1, v: p }];
+  })(),
 };
 
 let sumNums = 0;

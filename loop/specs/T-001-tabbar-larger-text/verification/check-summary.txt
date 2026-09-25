@@ -1,0 +1,10 @@
+CHECK round 3 (orchestrator), 2026-09-25
+typecheck: exit 0, fails=0
+content: PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+sync-loop: PASS — sync never restarts the video, and a rejected token latches only the automatic push
+shell: PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)
+contrast: PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold
+logic: PASS — 24 invariants hold
+flows: PASS — 23 checks, 3 flows x 2 widths, each in a fresh context
+clip: PASS — 0 new, 0 stale, 821 known (T-002 660, T-003 161); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (133200 element measurements)
+clip-tz-la: PASS — 0 new, 0 stale, 821 known (T-002 660, T-003 161); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (133200 element measurements)

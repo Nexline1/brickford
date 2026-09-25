@@ -1764,6 +1764,16 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     padding: 6px 2px; border-radius: var(--radius);
     color: var(--ink-3); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
     text-decoration: none;
+    /* T-001: the labels are rem, so at a 24px root the bar was 397px and
+       "Review" fell off a 390px screen. The label is capped at 3.5vw.
+       Measured on "/": at 320 and 390px, roots 16-32px, all five tabs are on
+       screen, each label inside its own tab, every tab at least 52x50px; at a
+       16px root the bar is pixel-identical to before (0.62rem is smaller).
+       Below 300px some tabs are under 44px wide (16px root, 250px: Home 35.5px,
+       was 39.7px with Review off screen). At 28px/250px and 32px/250-260px the
+       page content is wider than the screen and Review sits past it; before, two
+       or three tabs did. */
+    font-size: min(0.62rem, 3.5vw);
   }
   .tabbar a:hover { text-decoration: none; }
   .tabbar a .glyph { width: 20px; height: 20px; }

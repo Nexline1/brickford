@@ -2196,6 +2196,42 @@ const expectedSummary = {
     const relu = b => 1 / (2 * b);
     return [{ i: 0, v: relu(4) }, { i: 1, v: Math.round(f / (3 * 1024 * 1024) * 100) / 100 }, { i: 2, v: relu(2) / relu(4) }];
   })(),
+
+  // Run the tree, halving until one element is left.
+  "sys250.1.6": (function () {
+    let n = 2048, steps = 0; while (n > 1) { n = Math.ceil(n / 2); steps++; }
+    return [{ i: 0, v: steps }];
+  })(),
+
+  // Direct max-then-sum, not the streamed update the summary teaches.
+  "sys250.1.7": (function () {
+    const x = [1, 3, 2], m = Math.max(...x); const l = x.reduce((a, v) => a + Math.exp(v - m), 0);
+    return [{ i: 0, v: Math.round(l * 100) / 100 }, { i: 1, v: m }];
+  })(),
+
+  // Enumerate the A and B tiles each output set touches.
+  "sys250.1.8": (function () {
+    const need = outs => { const A = new Set(), B = new Set(); outs.forEach(([i, j]) => { for (let k = 0; k < 9; k++) { A.add(i + "," + k); B.add(k + "," + j); } }); return A.size + B.size; };
+    const sq = []; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) sq.push([i, j]);
+    let progs = 0; for (let s = 0; s < 6; s += 4) progs++;
+    return [{ i: 0, v: need(sq) }, { i: 1, v: progs }];
+  })(),
+
+  "sys250.1.9": (function () {
+    let t = 0, tok = 0; for (let step = 0; step < 100; step++) { t += 40; tok += 2.5; }
+    return [{ i: 0, v: t / tok }, { i: 1, v: Math.round(2.5 / 3 * 100) / 100 }];
+  })(),
+
+  "sys250.1.10": (function () {
+    let steps = 0; for (let k = 0; k < 4096; k += 16) steps++;
+    let loads = 0, outs = 0; for (let a = 0; a < 3; a++) { loads++; for (let b = 0; b < 3; b++) outs++; } loads += 3;
+    return [{ i: 0, v: steps }, { i: 1, v: Math.round(loads / outs * 100) / 100 }];
+  })(),
+
+  "sys250.1.11": (function () {
+    let g = 0; for (let a = 0; a < 1024; a += 128) for (let b = 0; b < 1024; b += 128) g++;
+    return [{ i: 0, v: g }];
+  })(),
 };
 
 let sumNums = 0;

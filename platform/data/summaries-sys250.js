@@ -31,6 +31,15 @@
 //   1.4 going further        first 54 of 78 min; the rest follows lecture_005/matmul_l5.ipynb.
 //   1.5 performance checklist first 41 of 68 min; the rest follows his own opening
 //                            list of checklist items and the lecture_008 kernels.
+//   1.6 reductions           first 43 of 47 min; the rest (torch.compile reduction
+//                            heuristics) is not described.
+//   1.7 Flash Attention      first 62 of 72 min; only Q&A is missing.
+//   1.8 Triton               complete.
+//   1.9 speculative decoding first 44 of 69 min; nothing past that is described.
+//   1.10 int8 tensor cores   first 46 of 77 min (through register tiling); nothing
+//                            past that is described.
+//   1.11 Mosaic GPU          first 38 of 86 min (Pallas basics and BlockSpec
+//                            pipelining); nothing past that is described.
 // The notebooks are in github.com/gpu-mode/lectures and are the code each lecturer
 // runs on screen. Each affected entry says so in its first beat.
 //
@@ -854,6 +863,168 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "Half the bytes for the same operation: 1/8 becomes 1/4." },
       { q: "Replacing if (x % 2 == 0) a else b with isEven × a + (1 − isEven) × b avoids:", opts: ["uncoalesced loads", "warp divergence", "bank conflicts", "register spills"], a: 1,
         expl: "All 32 lanes follow one path." },
+    ],
+  },
+
+  "sys250.1.6": {
+    takeaway: "Mark Saroufim on reductions (PMPP chapter 10): operations that shrink a vector to a scalar (sum, max, mean, argmax, norms) with an identity and an associative op. On a GPU they become a tree: pair up elements, halve the active threads each step, finish in $\\log_2 n$ steps. Then the kernel is improved one checklist item at a time: contiguous strides for less divergence, shared memory, multiple blocks joined by atomicAdd, thread coarsening. Floating-point order makes the result nondeterministic.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 43 of the lecture's 47 minutes. The closing minutes, on how torch.compile's reduction heuristics pick block sizes, are not described here." },
+      { t: "What a reduction is", d: "Start from an identity (0 for sum, 1 for product, −inf for max) and fold an operation over the elements. They are everywhere: max and mean pooling, argmax in classification, losses, softmax's normalizing sum. PyTorch has one generic Reduce.cuh parameterized by identity and op, not one kernel each for min and max." },
+      { t: "Order matters", d: "Floating-point addition is not associative, so summing [1e-20 × 10, 1e20, −1e20] left to right gives 0 but right to left gives about 1e-19. GPUs do not fix the order, so results vary between runs; torch.use_deterministic_algorithms trades speed for repeatability. Accumulate in higher precision (fp32 accumulators in Triton's matmul, or bf16's range) so small terms are not lost." },
+      { t: "The reduction tree", d: "Serially, max of [5, 2, 8, 1] is one pass. In parallel, one thread per pair keeps the larger, halving the vector each step, so $n$ elements take $\\log_2 n$ steps. Launch $n/2$ threads. The naive kernel lets thread $i$ own element $2i$ and doubles the stride each step. On 2,048 ones it gives the correct 2,048, but ncu shows branch efficiency around 74%: most threads are idle, and whole warps sit out." },
+      { t: "Fix divergence: shrink the stride", d: "Instead, thread $i$ owns element $i$ and adds element $i$ + stride, starting with stride = blockDim and halving it. Active threads are then always contiguous (0..stride−1), so whole warps retire together and accesses coalesce. Branch efficiency rose to 99%." },
+      { t: "Shared memory", d: "Do the first addition from global memory into a shared array, then run the rest of the tree in shared memory. The L1 hit rate improved, though at 2,048 elements the time barely changed. Raising the input to 10,000 returned 0: one block's shared memory cannot hold it." },
+      { t: "Many blocks, then coarsening", d: "Segmented reduction: each block reduces its own segment in shared memory, then atomicAdd puts each block's partial sum into the output (atomic, because blocks race on one address). Thread coarsening: each thread first sums several elements serially, then the block tree runs, then the atomics. That gives three levels: thread, block, grid." },
+      { t: "In real frameworks", d: "A production reduction also has to choose a strategy by size, handle multi-dimensional inputs and dtypes (never accumulate in fp16), and avoid compiling a kernel for every combination. PyTorch's Reduce.cuh uses templates, a ReduceConfig heuristic (block width and height, values per thread) and streams. torch.compile instead generates Triton reductions, for example a mean as a sum then a divide." },
+    ],
+    worked: "To reduce $n$ elements with a tree: launch $n/2$ threads, each starting at element $i$ with stride = blockDim; each step adds element $i$ + stride into element $i$, calls __syncthreads(), and halves the stride. After $\\log_2 n$ steps element 0 holds the result. For inputs larger than one block, add per-block partial sums with atomicAdd.",
+    watch: "Expecting bit-identical sums across runs or devices. A parallel reduction adds in a different order, so floating-point results drift unless you pay for deterministic algorithms.",
+    concepts: [],
+    checks: [
+      { q: "A tree reduction over 2,048 elements, halving each step. How many steps?", num: 11,
+        expl: "$2^{11} = 2048$." },
+      { q: "In the naive tree kernel (thread $i$ owns element $2i$, stride doubling), why is branch efficiency low?", opts: ["too many atomics", "active threads become sparse, so most warps are partly idle", "no shared memory", "it uses fp16"], a: 1,
+        expl: "Contiguous active threads with a halving stride fix it." },
+      { q: "Why does the multi-block version finish with atomicAdd?", opts: ["it is faster than shared memory", "several blocks write their partial sums to the same address", "to sort the results", "to avoid synchronization inside a block"], a: 1,
+        expl: "Without atomics, updates would be lost." },
+      { q: "Summing the same floats in a different order can change the result because:", opts: ["GPUs are faulty", "floating-point addition is not associative", "atomics round up", "threads skip elements"], a: 1,
+        expl: "Big and tiny terms in different orders round differently." },
+    ],
+  },
+
+  "sys250.1.7": {
+    takeaway: "Thomas Viehmann's introduction to Flash Attention: tiling applied to softmax($QK^T$)$V$ so that the $n \\times n$ probability matrix is never written to memory. Each block computes one attention head. It tiles over the query rows, loops over key/value tiles, and uses the online softmax (a running maximum and running sum, rescaled when the maximum changes) to fold each tile into the output. The hard parts are keeping the output accumulators in registers and fitting within shared memory.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 62 of the lecture's 72 minutes; the missing part is audience Q&A." },
+      { t: "Attention as classification", d: "A classifier's last layer is class embeddings ($K$) dotted with an activation, then softmax. Attention is the same thing inside the network: each query classifies over the key positions to pick a weighted mix of the value rows, with $1/\\sqrt d$ as a temperature. Multi-head attention runs many small independent classifications; the heads and batch are an embarrassingly parallel outer dimension. It is like a two-layer network with a tiny hidden size and a huge batch." },
+      { t: "Mapping to the GPU", d: "One head goes to one block, so enough heads × batch fill the SMs. Within a block the constraint is the head dimension $d$ (64–256): the tiles must span all of it, which is what limits register and shared-memory use. $P = \\mathrm{softmax}(QK^T/\\sqrt d)$ and $O = PV$. The goal is never to materialize $P$, just as numerical linear algebra avoids forming large intermediates." },
+      { t: "The tiling", d: "One output element needs, for its query row $t$, the softmax over all $s$ and the values over all $s$. Luckily the softmax axis and the contraction axis of $PV$ are the same $s$. So tile over query rows $t$: load a $Q$ tile (all of $d$), initialize $O$, then loop over key/value tiles in $s$: load $K$ and $V$ tiles to shared memory, compute logits $QK^T$, turn them into weights, and accumulate $PV$ into $O$." },
+      { t: "The stable softmax", d: "Subtract the maximum $m$ before exponentiating so the terms lie in (0, 1], or $e^{x}$ overflows even in fp32. Flash Attention cannot know the global maximum up front, so it keeps a running maximum $m$ and running sum $\\ell$. When a new tile raises the maximum to $m'$, multiply the old $\\ell$ and the partial output $O$ by $e^{m - m'}$, then add the new terms. At the end divide $O$ by $\\ell$, and save the log-sum-exp for the backward pass." },
+      { t: "It is delicate", d: "Even the difference between fused and unfused multiply-add rounding matters to this softmax (a recent PyTorch forum post). The real kernel adds masking (with non-rectangular block layouts), different forward and backward strategies, tensor cores through CUTLASS, and tiles of 64–128. The Flash Attention 2 source is big enough that compiling it takes more than 40 GB of RAM." },
+      { t: "His implementation", d: "First, the paper's pseudocode as plain PyTorch, checked against scaled_dot_product_attention. Then Numba (@cuda.jit, shared arrays, fast turnaround), where fp32 tiles quickly exhausted about 48 KB of shared memory. Then CUDA C++, keeping $O$ in registers (fixed-size local arrays with constant indices) and compiled through NVIDIA's cuda-python NVRTC bindings. Moving $O$ from shared memory to registers gave about 10×, but it is still slower than PyTorch's kernel. Register spills are checked in Godbolt or ncu." },
+      { t: "Plugging it in", d: "Lightning's Thunder, a source-to-source compiler for PyTorch, can register the kernel as an operator with a meta function for shapes and a checker (no mask, no dropout, one head). It then swaps it in for scaled_dot_product_attention whenever the checker passes, which is convenient for comparing kernels." },
+    ],
+    worked: "To stream a softmax over [1, 3, 2]: start $m = -\\infty$, $\\ell = 0$. At 1: $m = 1$, $\\ell = 1$. At 3: rescale $\\ell$ by $e^{1-3}$ to 0.135, add $e^0$, so $\\ell = 1.135$, $m = 3$. At 2: add $e^{-1}$, so $\\ell = 1.503$. That equals $\\sum e^{x - 3}$ computed directly.",
+    watch: "Forgetting to rescale the partial output when the running maximum changes. The sum $\\ell$ gets corrected but $O$ keeps weights computed against the old maximum, and the attention output comes out wrong by a factor of $e^{m - m'}$ per tile.",
+    concepts: [],
+    checks: [
+      { q: "Online softmax over [1, 3, 2]: the final running sum $\\ell = \\sum_i e^{x_i - m}$ with $m$ the final maximum (2 decimals):", num: 1.5,
+        expl: "$e^{-2} + e^0 + e^{-1} = 0.135 + 1 + 0.368 = 1.503$." },
+      { q: "…and the final running maximum:", num: 3,
+        expl: "It rose from 1 to 3 and stayed." },
+      { q: "Why can Flash Attention fuse the softmax with the $PV$ product tile by tile?", opts: ["softmax is linear", "the softmax axis is the same as the contraction axis of $PV$, and the online softmax corrects earlier tiles by rescaling", "tensor cores compute softmax", "the heads are independent"], a: 1,
+        expl: "Both run over key positions $s$." },
+      { q: "In Flash Attention, one thread block usually computes:", opts: ["one output element", "one head (for a tile of query rows)", "the whole batch", "one key tile"], a: 1,
+        expl: "The heads × batch dimension fills the SMs." },
+    ],
+  },
+
+  "sys250.1.8": {
+    takeaway: "Umer Adil's practitioner's guide to Triton: Python kernels compiled to PTX, operating on blocks of values rather than single threads, with shared memory managed for you. The order of reaching for tools is torch.compile, then code that compiles well, then Triton for the slow parts, then CUDA. Debug in the CPU interpreter (TRITON_INTERPRET=1). The worked examples: copy, grayscale in 2-D, naive matmul, then grouped ('super-grouped') ordering for L2 reuse, then benchmarking and autotuning.",
+    beats: [
+      { t: "Why and when", d: "CUDA is a high-end camera with a thousand knobs; Triton is a very good phone camera. Triton gives good performance easily and is easier to write and debug, and it compiles to the same PTX. torch.compile optimizes how your code uses kernels (and emits simple Triton kernels itself). The order: torch.compile, then remove graph breaks so one CUDA graph forms, then Triton for the hot spots, then CUDA only if still needed. It has rough edges." },
+      { t: "The programming model", d: "CUDA splits work into blocks and then threads, each on a scalar. Triton stops at blocks, called programs: each program works on vectors (loads, masks, arithmetic and stores all vectorized), and shared memory is not yours to manage. To add two length-6 vectors with block size 4: 2 programs, each with offsets = pid × 4 + arange(0, 4) and a mask offsets \\lt n." },
+      { t: "Debugging", d: "With os.environ['TRITON_INTERPRET'] = '1', kernels run on the CPU simulator, so breakpoints and prints work. Test on tiny inputs first. His helper functions print only for chosen program ids and check that tensors are contiguous and on the GPU." },
+      { t: "Example 1: copy, with a planted bug", d: "Launch copy_k[grid](x, z, n, bs), with grid = (cdiv(n, bs),) and bs a tl.constexpr. In the kernel: offs = tl.arange(0, bs) and mask = offs \\lt n, then tl.load and tl.store. Every program copied the same first block. Adding pid × n still missed; the offset must be pid × bs. The interpreter prints made this obvious." },
+      { t: "Example 2: grayscale, 2-D", d: "Build 1-D row and column offsets, then broadcast to 2-D: rows[:, None] × width + cols[None, :], with mask = (rows \\lt h)[:, None] & (cols \\lt w)[None, :]. Load R, G and B at offsets plus 0, 1 and 2 channel sizes, combine them, and store with the 2-D mask. The grid can be a function of the meta-parameters." },
+      { t: "Example 3: matmul", d: "Two grid axes pick the output tile; the third split, over $k$, is a loop inside the program, since the phases depend on each other through the accumulator. Each step loads an A tile and a B tile, calls tl.dot, and accumulates. The helper functions for 1-D and 2-D offsets and masks are themselves @triton.jit, so kernels can call them. It was tested on ones (3 × 4 by 4 × 5 gives 4s) and against torch." },
+      { t: "Faster: grouped ordering", d: "Within a program Triton handles memory, but program order decides L2 reuse. Computing a row of 9 output tiles needs 9 A tiles and 81 B tiles (90); a 3 × 3 group of outputs needs 27 + 27 = 54. tl.swizzle2d remaps program ids to process GROUP_SIZE rows together, and a unit test on a 5 × 4 grid shows the remapping." },
+      { t: "Benchmark and autotune", d: "triton.testing.perf_report plots the kernels against torch.matmul over sizes. His kernels won at small sizes and lost at large ones until the block size was raised, which then reversed the result. ncu gives hints. @triton.autotune(configs=[…], key=['m', 'n', 'k']) searches block sizes and re-tunes when the problem size changes. Oddly, the autotuned version benchmarked slower, which he could not explain." },
+    ],
+    worked: "To write a 1-D Triton kernel: pid = tl.program_id(0), offs = pid × bs + tl.arange(0, bs), mask = offs \\lt n, x = tl.load(x_ptr + offs, mask=mask), compute, tl.store(out_ptr + offs, y, mask=mask). Launch with grid = (triton.cdiv(n, bs),). Run it under TRITON_INTERPRET=1 on a tiny input first.",
+    watch: "Offsetting each program by the wrong amount (pid × n instead of pid × block size), so that every program processes the same or overlapping blocks. Print the offsets per program in the interpreter to catch it.",
+    concepts: [],
+    checks: [
+      { q: "Computing a row of 9 output tiles of a 9 × 9 tiled matmul needs 9 A tiles and 81 B tiles. How many tiles does a 3 × 3 group of outputs need?", num: 54,
+        expl: "3 rows of A (27 tiles) plus 3 columns of B (27 tiles)." },
+      { q: "Adding two vectors of length 6 with BLOCK_SIZE 4. How many programs does the grid launch?", num: 2,
+        expl: "$\\lceil 6/4 \\rceil$, with a mask disabling the last 2 lanes." },
+      { q: "In Triton, a 'program' operates on:", opts: ["one scalar, like a CUDA thread", "a block of values as vectors", "a whole tensor", "one warp"], a: 1,
+        expl: "There is no thread level to program." },
+      { q: "Why is the $k$ loop of a Triton matmul not a third grid axis?", opts: ["grids are at most 2-D", "the phases accumulate into the same output tile, so they are not independent", "tl.dot needs it", "for L2 reuse"], a: 1,
+        expl: "Independent work goes on the grid; dependent work loops inside the program." },
+    ],
+  },
+
+  "sys250.1.9": {
+    takeaway: "Cade Daniel on speculative decoding in vLLM. When decoding is memory-bound, a cheap proposer (a draft model, n-grams, Medusa or Eagle heads) guesses several tokens, the large model scores them all in one pass, and rejection sampling accepts a prefix. The output distribution matches the target model's exactly, and the cost of loading the weights is spread over several tokens. vLLM structures this as a spec-decode worker with proposer, scorer and verifier stages.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 44 of the lecture's 69 minutes, up to top-1 versus tree (top-k) speculation. The later framework details and contribution ideas are not described here." },
+      { t: "vLLM's principles", d: "Ease of use (Python APIs, simple install), performance (paged attention, tensor parallelism, multi-LoRA, chunked prefill, prefix caching, guided decoding, quantization), and hardware agnosticism (NVIDIA and AMD are good; Inferentia and TPU are partial). It was built for throughput, and speculative decoding is part of making it low-latency too." },
+      { t: "Why it works", d: "At small batch sizes an LLM is memory-bound: most of each step is spent loading weights from HBM (TB/s) into SRAM (tens of MB). And many tokens ('the', whitespace, 'return') do not need 70B parameters to predict. So propose cheaply, verify in one big pass, and spend the weight loading on several accepted tokens. It does not help compute-bound, large-batch serving." },
+      { t: "Measuring the speed-up", d: "Inter-token latency is step time divided by tokens per step. Without speculation: 30 ms per token. With it, a step might take 40 ms but yield 2.5 tokens on average, so 16 ms per token. The trade-offs are proposal cost against accuracy against scoring cost. vLLM reports a draft acceptance rate, and system efficiency is accepted tokens over the maximum possible (2.5 of 3 is 0.83)." },
+      { t: "Lossless by rejection sampling", d: "Accept or reject each proposed token using the target's and the draft's probabilities; the output then has exactly the target model's distribution (DeepMind's proof), up to low-precision numerics. Temperature and penalties must be applied to both distributions the same way. The proposer must share the target's tokenizer. Lossy options (Medusa's typical acceptance) trade quality for more accepted tokens." },
+      { t: "Status", d: "The framework is complete, with correctness tests, but the speed-ups from Anyscale's internal fork (inter-token latency roughly halved at small batch, temperature 1, about 3 speculative tokens, Llama 2 7B from 26 to 12 ms) are not yet upstream. The draft model and n-gram proposers work; Medusa and IBM's MLP speculator are coming." },
+      { t: "The architecture", d: "SpecDecodeWorker has the same interface as a normal worker. It proposes (prefix in, speculative tokens and their draft probabilities out), scores (the target's probabilities for them), and verifies (accepted tokens out). Proposers: MultiStepWorker runs the draft model $k$ times autoregressively; NGramWorker matches n-grams in the prompt and output. The verifier is a RejectionSampler module that also emits a bonus token when all $k$ are accepted." },
+      { t: "Top-1 versus tree", d: "Classic speculation proposes one continuation. Tree attention (popularized by Medusa) proposes several candidates per position with a special attention mask, so the draft's second choice can still be accepted. Other proposer ideas: staged or cascaded drafts, lookahead or Jacobi decoding, retrieval-grounded speculation." },
+    ],
+    worked: "To estimate the gain: per-token latency = step time ÷ expected tokens per step. Plain decoding at 30 ms per step gives 30 ms per token. Speculating costs 40 ms per step, but with 2.5 tokens accepted on average that is 16 ms per token, about 47% lower.",
+    watch: "Turning on speculative decoding for large-batch, compute-bound serving. The extra proposal and scoring FLOPs then cost real time, and there is no idle memory bandwidth to buy back.",
+    concepts: [],
+    checks: [
+      { q: "A speculative step takes 40 ms and yields 2.5 tokens on average. Milliseconds per token:", num: 16,
+        expl: "$40/2.5$, against 30 ms without speculation." },
+      { q: "With a maximum of 3 tokens per step but 2.5 achieved, the system efficiency (2 decimals):", num: 0.83,
+        expl: "$2.5/3$." },
+      { q: "With rejection sampling, the output distribution:", opts: ["is the draft model's", "matches the target model's exactly (up to numerics)", "is a mixture of both", "depends on the acceptance rate"], a: 1,
+        expl: "That is the lossless guarantee." },
+      { q: "Speculative decoding helps most when inference is:", opts: ["compute-bound at large batch", "memory-bound at small batch", "CPU-bound", "network-bound"], a: 1,
+        expl: "The spare FLOPs pay for the proposals." },
+    ],
+  },
+
+  "sys250.1.10": {
+    takeaway: "Erik Schultheis builds an educational int8 tensor-core matmul for Turing with only CUDA C++'s WMMA API: fragments, load_matrix_sync, mma_sync and store_matrix_sync. Integer matmul is exact, which makes testing easy. The naive 16 × 16-fragment kernel is orders of magnitude from peak. Then the standard recipe, guided by ncu's memory chart and warp-stall reasons: transpose B to column-major for coalesced loads, then register-tile 3 × 3 fragments per warp.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 46 of the lecture's 77 minutes, through register tiling. The later steps (shared memory and beyond) are not described here." },
+      { t: "Why int8", d: "On CPUs, int8 times int8 widens to int16, so registers do not line up (AVX-512 VNNI has a 4-way dot product; CUDA has dp4a). Tensor cores do int8 from Turing onwards. Integer maths is exact, so results do not depend on the order of operations and there are no tolerances to choose. The target is a Quadro RTX 4000 (TU104), the GPU behind the course's online submission system." },
+      { t: "Testing well", d: "Random matrices tell you that something is wrong, not where. Better: identity matrices, or block-constant 4 × 4 structures so the first wrong output shows the broken tile boundary. For a cheap reference without a fast library, use Freivalds' trick: check $x(AB)$ against $(xA)B$ with a random vector, $O(n^2)$ rather than $O(n^3)$, or compare with cuBLAS." },
+      { t: "Matmul in fragments", d: "Assume dimensions divisible by 16 and view each matrix as 16 × 16 blocks. Then it is the naive algorithm over blocks, with $k/16$ inner steps. WMMA needs only fill_fragment, load_matrix_sync, mma_sync and store_matrix_sync, and the fragment's internal layout is officially unspecified. (Newer Hopper instructions like wgmma have no C++ API, only inline PTX, which CUTLASS wraps.)" },
+      { t: "Naive and slow", d: "One warp per 16 × 16 output fragment. On a large matrix it ran at about 4 TOPS, far below the int8 peak. The rule: 'where's my data?' ncu showed about 630 GB moving between L2 and L1 and 206 GB from DRAM, many times the GPU's memory. The top warp stalls were LG throttle (too many loads in flight) and long scoreboard (waiting on a load)." },
+      { t: "Coalesce: B column-major", d: "Loading B's fragments along $k$ from a row-major B is strided. Transpose B once (about 6 ms, $O(n^2)$, against the $O(n^3)$ matmul) and load it column-major. Time went from about 1.5 s to under 1 s, with 60% fewer memory requests. The stall ratios looked worse, because they are normalized by issued instructions, and the instruction count fell 45% as index arithmetic disappeared." },
+      { t: "Register tiling", d: "Each warp computes a 3 × 3 block of fragments: preload 3 B fragments, then for each A fragment do 3 mma_syncs. That is 6 fragment loads for 9 outputs instead of 2 per output, three times the reuse (PMPP's thread coarsening, here per warp). Memory requests fell another 60–70%, LG-throttle stalls halved, and register indexing removed more address arithmetic." },
+      { t: "The limit", d: "More accumulators per warp means more registers per thread, so fewer resident warps and less latency hiding. Going to 4 × 4 risks spilling. Tile shapes need not be square (3 × 4), and benchmarking decides; shared memory is the next level of the hierarchy to use." },
+    ],
+    worked: "To count fragment reuse: a warp computing a $p \\times q$ block of 16 × 16 output fragments loads $p + q$ input fragments per $k$-step for $pq$ outputs. For 1 × 1 that is 2 loads per output; for 3 × 3 it is $6/9 = 0.67$, three times better, paid for in accumulator registers.",
+    watch: "Reading a worse warp-stall ratio after an optimization as a regression. The stalls are normalized per issued instruction; if the instruction count fell a lot, the ratio can rise while the kernel gets much faster. Check the duration.",
+    concepts: [],
+    checks: [
+      { q: "With 16 × 16 fragments and $k$ = 4,096, how many mma_sync steps does each output fragment take?", num: 256,
+        expl: "$4096/16$." },
+      { q: "A warp register-tiles 3 × 3 output fragments. Input fragments loaded per output fragment per $k$-step (2 decimals):", num: 0.67,
+        expl: "$(3+3)/9$, against 2 for a 1 × 1 tile." },
+      { q: "Freivalds' check compares $x(AB)$ with $(xA)B$ for a random vector $x$. Its advantage:", opts: ["it is exact for floats", "it costs $O(n^2)$ instead of recomputing an $O(n^3)$ product", "it needs cuBLAS", "it finds the wrong index"], a: 1,
+        expl: "It is probabilistic, but cheap and simple enough to trust." },
+      { q: "Why transpose B before the int8 WMMA matmul?", opts: ["tensor cores need it", "so that loading B's fragments along $k$ reads contiguous memory", "to save memory", "for accuracy"], a: 1,
+        expl: "The $O(n^2)$ transpose is cheap next to the $O(n^3)$ matmul." },
+    ],
+  },
+
+  "sys250.1.11": {
+    takeaway: "Adam Paszke (PyTorch, JAX, Dex) on why Google builds Mosaic GPU and Pallas. Transformers made peak performance on a narrow class of programs the priority, and new GPUs look more and more like TPUs: huge tensor-core instructions, asynchronous copies, pipelining. So he wants a Python DSL that is tracing-based (Python control flow becomes metaprogramming) and exposes every hardware trick while removing only boilerplate. Pallas kernels take shaped, mutable refs, and BlockSpecs declare each program's tiles so copies can be pipelined automatically.",
+    beats: [
+      { t: "About this summary", d: "The available captions cover the first 38 of the lecture's 86 minutes: the motivation, Pallas's basics, and BlockSpecs. The later Mosaic GPU material (async copies, warpgroup MMA, pipelining details) is not described here." },
+      { t: "Why now", d: "Early PyTorch prioritized generality and speed of development, accepting a 20–30% performance cost. Now Transformers dominate, are simple (matmuls plus a few ops) and are co-designed with accelerators, and at scale every percent is money. So peak performance comes first, made as pleasant as possible. Prebuilt libraries fall off a cliff when you change something; compilers take generations to catch up with Ampere, Hopper and Blackwell." },
+      { t: "Why Python and tracing", d: "C++ templates can encode anything, but the errors are awful. String-pasting code generation (as in FlashInfer and Inductor) has scoping hazards. Triton parses the AST and adds constexpr. Pallas, like JAX, traces: Python if picks one branch and for fully unrolls, which is exactly the metaprogramming kernels need. The aim is 'LLM-proof' kernels: short, dense in the decisions that matter, free of boilerplate." },
+      { t: "Mosaic GPU", d: "It is open source in the JAX repository, about 6,000 lines, with early PyTorch bindings. Two DSLs: the original MLIR-builder one, and Pallas's Mosaic GPU backend, which is the recommended one. In Mosaic a 'thread' means a warpgroup (128 threads), which he sees as the right granularity for dense linear algebra. Pallas also targets Triton and Mosaic TPU." },
+      { t: "Pallas basics", d: "Kernel arguments are refs: shaped and mutable. x_ref[...] loads a value (think registers) and z_ref[...] = x + y stores. The body is ordinary jax.numpy. pl.pallas_call(kernel, out_shape=…) turns it into a function on JAX arrays, with outputs passed in as extra refs. A grid=(n,) plus pl.program_id(0) and pl.ds(pid × bs, bs) slicing splits the work, using structured slices rather than pointer arithmetic." },
+      { t: "GPUs are becoming TPUs", d: "The classic GPU hides global-memory latency with many resident blocks. TPUs cannot, and must be scheduled carefully at compile time. Modern GPUs using big warpgroup MMAs have so much shared memory and so many registers per block that only one fits per SM, so they too need explicit asynchronous copies and pipelining. Other convergences: larger matmul units (two-CTA instructions on Blackwell), a growing gap between matmul and vector FLOPs, and uniform/scalar registers." },
+      { t: "BlockSpecs", d: "A matmul kernel body is just o_ref[...] = x_ref[...] @ y_ref[...]. The parallelism comes from grid=(m/bm, n/bn) and a BlockSpec per operand: a block shape ((bm, K) for $x$, (K, bn) for $y$, (bm, bn) for the output) and an index map from grid indices to block indices (lambda i, j: (i, 0), (0, j), (i, j))." },
+      { t: "Why declare access patterns", d: "Because the index maps say, independently of the body, which tile each program reads and writes, Pallas knows the next tiles in advance. It can issue the asynchronous copies itself and overlap memory transfer with compute. The restriction (no data-dependent access in the specs) is what makes the automatic pipelining possible." },
+    ],
+    worked: "To tile a matmul in Pallas: choose bm and bn and set grid = (m // bm, n // bn). Give $x$ BlockSpec((bm, K), lambda i, j: (i, 0)), $y$ BlockSpec((K, bn), lambda i, j: (0, j)), and the output BlockSpec((bm, bn), lambda i, j: (i, j)). The body is one dot. For $m = n = 1024$ with 128 × 128 tiles, the grid is 8 × 8 = 64 programs.",
+    watch: "Writing Python loops or ifs in a Pallas kernel expecting them to run on the device. Tracing unrolls the for and specializes the if at trace time; use the control-flow combinators when a runtime branch is really needed.",
+    concepts: [],
+    checks: [
+      { q: "A Pallas matmul with $m = n = 1024$ and 128 × 128 output blocks. How many programs does the grid launch?", num: 64,
+        expl: "$(1024/128)^2 = 8 \\times 8$." },
+      { q: "In Pallas, x_ref[...] inside a kernel:", opts: ["returns the pointer", "loads the current value from the mutable ref as an array", "copies to the host", "is a no-op"], a: 1,
+        expl: "Refs are mutable; the slice reads them at that moment." },
+      { q: "Why can Pallas pipeline copies automatically with BlockSpecs?", opts: ["it inspects the kernel body at runtime", "each program's tiles are declared by index maps independent of the data, so the next tiles are known in advance", "GPUs prefetch everything", "tensor cores require it"], a: 1,
+        expl: "Declared access patterns allow the async copies to be issued early." },
+      { q: "In a tracing-based DSL like Pallas, a Python for loop in a kernel:", opts: ["becomes a device loop", "is unrolled at trace time", "raises an error", "runs on the CPU at runtime"], a: 1,
+        expl: "Unrolling is the metaprogramming Paszke wants." },
     ],
   },
 

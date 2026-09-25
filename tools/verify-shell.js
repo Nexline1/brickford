@@ -252,9 +252,60 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
     await ctx.close();
   }
 
+  // ---- every tab in the bottom bar, at the owner's text size ----
+  //
+  // Added 2026-09-25 (T-001). The owner reads with a larger text size. At a
+  // 24px root the letterspaced rem labels pushed the bar to 397px, so at 390px
+  // "Review" was cut off and at 320px it was off the screen. The 44x44 sweep
+  // above only ran at a 16px root, where the bar fits, so it never saw it.
+  // The root is set the way verify-clip sets it, before any view renders.
+  const TAB_ROOTS = [16, 24], TAB_WIDTHS = [320, 390];
+  let tabBlockChecks = 0;
+  {
+    const failsBefore = fails;
+    for (const root of TAB_ROOTS) {
+      for (const w of TAB_WIDTHS) {
+        const ctx = await browser.newContext({ viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+        await ctx.addInitScript(rt => {
+          document.addEventListener("DOMContentLoaded", () => { document.documentElement.style.fontSize = rt + "px"; });
+        }, root);
+        const page = await ctx.newPage();
+        await page.goto(URL + "/", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        const m = await page.evaluate(() => ({
+          root: getComputedStyle(document.documentElement).fontSize,
+          vw: document.documentElement.clientWidth,
+          vh: window.innerHeight,
+          tabs: [...document.querySelectorAll("#tabbar a")].map(a => {
+            const b = a.getBoundingClientRect();
+            return { name: a.textContent.trim(), shown: a.checkVisibility(),
+                     x: b.left, r: b.right, t: b.top, btm: b.bottom, w: b.width, h: b.height };
+          }),
+        }));
+        const at = w + "px root " + root + "px";
+        check(m.root === root + "px", at + ": root font is " + m.root);
+        check(m.tabs.length === 5, at + ": tab bar has " + m.tabs.length + " tabs, not 5");
+        tabBlockChecks += 2;
+        for (const t of m.tabs) {
+          tabBlockChecks += 2;
+          const inside = t.x >= 0 && t.r <= m.vw + 0.5 && t.t >= 0 && t.btm <= m.vh + 0.5;
+          check(t.shown && inside, at + ": tab " + t.name + " is not fully on screen (" +
+                t.x.toFixed(1) + ".." + t.r.toFixed(1) + " of " + m.vw + ")");
+          check(t.w >= 44 && t.h >= 44, at + ": tab " + t.name + " is " +
+                t.w.toFixed(1) + "x" + t.h.toFixed(1) + ", under 44x44");
+        }
+        await ctx.close();
+      }
+    }
+    const tabFails = fails - failsBefore;
+    console.log(tabFails
+      ? "  320/390px  roots 16/24  " + tabFails + " of " + tabBlockChecks + " tab checks failed"
+      : "  320/390px  roots 16/24  all " + tabBlockChecks + " tab checks passed");
+  }
+
   await browser.close();
   const n = DESKTOP.length * ROUTES.length + PHONE.length + 10 +
-            PHONE.length * FRAME_ROUTES.length * 7 + FRAME_ROUTES.length;
+            PHONE.length * FRAME_ROUTES.length * 7 + FRAME_ROUTES.length + tabBlockChecks;
   console.log(fails
     ? "\nFAIL — " + fails + " shell assertion" + (fails === 1 ? "" : "s") + " broken"
     : "\nPASS — shell intact across " + DESKTOP.length + " desktop widths x " + ROUTES.length +

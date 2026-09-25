@@ -1,0 +1,67 @@
+# SUPERSEDED by tabbar-measure-round3.txt: the below-320px min-width rule measured here was removed in round 3.
+# T-001 round 2: tab bar measured on route "/" (Playwright Chromium, isMobile+hasTouch, height 844, root font set on <html> at DOMContentLoaded as verify-clip does).
+# Measured with a Playwright script (getBoundingClientRect + getComputedStyle) on 2026-09-25T17:35:25Z. 'page w w/o bar' = documentElement.scrollWidth with #tabbar/#railbar/#scrim display:none.
+# Where the bar is wider than the screen (28px@250, 32px@250/260) the page is equally wide with the bar removed: page content
+# (.grow on / at 28px; .gh-meta / .g-v / .btn at 32px) widens the layout viewport and the fixed bar spans it. The tabs are inside the bar at every point.
+
+## AFTER (this worktree: font-size min(0.62rem, 3.5vw); min-width: 0 below 320px)
+root  width | label fs | tab min-width | bar w  bar scrollW | layout vp (innerWidth) | page w w/o bar | tabs inside bar | bar <= screen | tab widths H/C/E/P/R        | min tab WxH  | 44x44
+16px  250  | 8.75px   | 0px           |   250          250 |                    250 |            250 | yes             | yes           | 47.6/47.6/47.6/47.6/47.6    | 47.6x48.6    | yes
+16px  260  | 9.1px    | 0px           |   260          260 |                    260 |            260 | yes             | yes           | 49.6/49.6/49.6/49.6/49.6    | 49.6x49.1    | yes
+16px  280  | 9.8px    | 0px           |   280          280 |                    280 |            280 | yes             | yes           | 53.6/53.6/53.6/53.6/53.6    | 53.6x50.2    | yes
+16px  283  | 9.905px  | 0px           |   283          283 |                    283 |            283 | yes             | yes           | 54.2/54.2/54.2/54.2/54.2    | 54.2x50.3    | yes
+16px  300  | 9.92px   | 0px           |   300          300 |                    300 |            300 | yes             | yes           | 57.6/57.6/57.6/57.6/57.6    | 57.6x50.4    | yes
+16px  320  | 9.92px   | auto          |   320          320 |                    320 |            320 | yes             | yes           | 59.2/60.6/59.2/69.7/59.2    | 59.2x50.4    | yes
+16px  390  | 9.92px   | auto          |   390          390 |                    390 |            390 | yes             | yes           | 75.6/75.6/75.6/75.6/75.6    | 75.6x50.4    | yes
+24px  250  | 8.75px   | 0px           |   250          250 |                    250 |            250 | yes             | yes           | 47.6/47.6/47.6/47.6/47.6    | 47.6x48.6    | yes
+24px  260  | 9.1px    | 0px           |   260          260 |                    260 |            260 | yes             | yes           | 49.6/49.6/49.6/49.6/49.6    | 49.6x49.1    | yes
+24px  280  | 9.8px    | 0px           |   280          280 |                    280 |            280 | yes             | yes           | 53.6/53.6/53.6/53.6/53.6    | 53.6x50.2    | yes
+24px  283  | 9.905px  | 0px           |   283          283 |                    283 |            283 | yes             | yes           | 54.2/54.2/54.2/54.2/54.2    | 54.2x50.3    | yes
+24px  300  | 10.5px   | 0px           |   300          300 |                    300 |            300 | yes             | yes           | 57.6/57.6/57.6/57.6/57.6    | 57.6x51.3    | yes
+24px  320  | 11.2px   | auto          |   320          320 |                    320 |            320 | yes             | yes           | 52.4/67.9/52.4/78.2/57.1    | 52.4x52.4    | yes
+24px  390  | 13.65px  | auto          |   390          390 |                    390 |            390 | yes             | yes           | 66.5/81.9/66.5/94.5/68.7    | 66.5x56.2    | yes
+28px  250  | 8.75px   | 0px           |   259          259 |                    259 |            259 | yes             | NO (259>250)  | 49.4/49.4/49.4/49.4/49.4    | 49.4x48.6    | yes
+28px  260  | 9.1px    | 0px           |   260          260 |                    260 |            260 | yes             | yes           | 49.6/49.6/49.6/49.6/49.6    | 49.6x49.1    | yes
+28px  280  | 9.8px    | 0px           |   280          280 |                    280 |            280 | yes             | yes           | 53.6/53.6/53.6/53.6/53.6    | 53.6x50.2    | yes
+28px  283  | 9.905px  | 0px           |   283          283 |                    283 |            283 | yes             | yes           | 54.2/54.2/54.2/54.2/54.2    | 54.2x50.3    | yes
+28px  300  | 10.5px   | 0px           |   300          300 |                    300 |            300 | yes             | yes           | 57.6/57.6/57.6/57.6/57.6    | 57.6x51.3    | yes
+28px  320  | 11.2px   | auto          |   320          320 |                    320 |            320 | yes             | yes           | 52.4/67.9/52.4/78.2/57.1    | 52.4x52.4    | yes
+28px  390  | 13.65px  | auto          |   390          390 |                    390 |            390 | yes             | yes           | 66.5/81.9/66.5/94.5/68.7    | 66.5x56.2    | yes
+32px  250  | 8.75px   | 0px           |   280          280 |                    280 |            280 | yes             | NO (280>250)  | 53.6/53.6/53.6/53.6/53.6    | 53.6x48.6    | yes
+32px  260  | 9.1px    | 0px           |   280          280 |                    280 |            280 | yes             | NO (280>260)  | 53.6/53.6/53.6/53.6/53.6    | 53.6x49.1    | yes
+32px  280  | 9.8px    | 0px           |   280          280 |                    280 |            280 | yes             | yes           | 53.6/53.6/53.6/53.6/53.6    | 53.6x50.2    | yes
+32px  283  | 9.905px  | 0px           |   283          283 |                    283 |            283 | yes             | yes           | 54.2/54.2/54.2/54.2/54.2    | 54.2x50.3    | yes
+32px  300  | 10.5px   | 0px           |   300          300 |                    300 |            300 | yes             | yes           | 57.6/57.6/57.6/57.6/57.6    | 57.6x51.3    | yes
+32px  320  | 11.2px   | auto          |   320          320 |                    320 |            320 | yes             | yes           | 52.4/67.9/52.4/78.2/57.1    | 52.4x52.4    | yes
+32px  390  | 13.65px  | auto          |   390          390 |                    390 |            390 | yes             | yes           | 66.5/81.9/66.5/94.5/68.7    | 66.5x56.2    | yes
+
+## BEFORE (base HEAD platform/, no T-001 change)
+root  width | label fs | tab min-width | bar w  bar scrollW | layout vp (innerWidth) | page w w/o bar | tabs inside bar | bar <= screen | tab widths H/C/E/P/R        | min tab WxH  | 44x44
+16px  250  | 9.92px   | auto          |   250          273 |                    250 |            250 | NO              | yes           | 39.7/60.6/46.0/69.7/51.0    | 39.7x50.4    | NO
+16px  260  | 9.92px   | auto          |   260          273 |                    260 |            260 | NO              | yes           | 39.7/60.6/46.0/69.7/51.0    | 39.7x50.4    | NO
+16px  280  | 9.92px   | auto          |   280          280 |                    280 |            280 | yes             | yes           | 40.7/60.6/46.0/69.7/51.0    | 40.7x50.4    | NO
+16px  283  | 9.92px   | auto          |   283          283 |                    283 |            283 | yes             | yes           | 43.7/60.6/46.0/69.7/51.0    | 43.7x50.4    | NO
+16px  300  | 9.92px   | auto          |   300          300 |                    300 |            300 | yes             | yes           | 52.6/60.6/52.6/69.7/52.6    | 52.6x50.4    | yes
+16px  320  | 9.92px   | auto          |   320          320 |                    320 |            320 | yes             | yes           | 59.2/60.6/59.2/69.7/59.2    | 59.2x50.4    | yes
+16px  390  | 9.92px   | auto          |   390          390 |                    390 |            390 | yes             | yes           | 75.6/75.6/75.6/75.6/75.6    | 75.6x50.4    | yes
+24px  250  | 14.88px  | auto          |   250          397 |                    250 |            250 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+24px  260  | 14.88px  | auto          |   260          397 |                    260 |            260 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+24px  280  | 14.88px  | auto          |   280          397 |                    280 |            280 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+24px  283  | 14.88px  | auto          |   283          397 |                    283 |            283 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+24px  300  | 14.88px  | auto          |   300          397 |                    300 |            300 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+24px  320  | 14.88px  | auto          |   320          397 |                    320 |            320 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+24px  390  | 14.88px  | auto          |   390          397 |                    390 |            390 | NO              | yes           | 57.6/88.9/67.1/102.6/74.6   | 57.6x58.0    | yes
+28px  250  | 17.36px  | auto          |   259          459 |                    259 |            259 | NO              | NO (259>250)  | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+28px  260  | 17.36px  | auto          |   260          459 |                    260 |            260 | NO              | yes           | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+28px  280  | 17.36px  | auto          |   280          459 |                    280 |            280 | NO              | yes           | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+28px  283  | 17.36px  | auto          |   283          459 |                    283 |            283 | NO              | yes           | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+28px  300  | 17.36px  | auto          |   300          459 |                    300 |            300 | NO              | yes           | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+28px  320  | 17.36px  | auto          |   320          459 |                    320 |            320 | NO              | yes           | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+28px  390  | 17.36px  | auto          |   390          459 |                    390 |            390 | NO              | yes           | 66.6/103.1/77.7/119.1/86.4  | 66.6x61.9    | yes
+32px  250  | 19.84px  | auto          |   280          520 |                    280 |            280 | NO              | NO (280>250)  | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes
+32px  260  | 19.84px  | auto          |   280          520 |                    280 |            280 | NO              | NO (280>260)  | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes
+32px  280  | 19.84px  | auto          |   280          520 |                    280 |            280 | NO              | yes           | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes
+32px  283  | 19.84px  | auto          |   283          520 |                    283 |            283 | NO              | yes           | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes
+32px  300  | 19.84px  | auto          |   300          520 |                    300 |            300 | NO              | yes           | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes
+32px  320  | 19.84px  | auto          |   320          520 |                    320 |            320 | NO              | yes           | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes
+32px  390  | 19.84px  | auto          |   390          520 |                    390 |            390 | NO              | yes           | 75.5/117.2/88.2/135.5/98.1  | 75.5x65.8    | yes

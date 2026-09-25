@@ -1,0 +1,64 @@
+# Plant: appended '.tabbar a { padding: 0 !important; }' to platform/css/style.css (tabs shrink below 44px tall), ran node tools/verify-shell.js, then restored the file. 2026-09-25T17:57:40Z
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+    320px  frame clears the page on 23 routes
+    390px  frame clears the page on 23 routes
+    430px  frame clears the page on 23 routes
+    768px  frame clears the page on 23 routes
+    860px  frame clears the page on 23 routes
+  FAIL  390px /: 2 control(s) under 44x44 — a.active 76x38, a. 76x38
+  FAIL  390px /atlas: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /courses: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /exams: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /record: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /calendar: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /library: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /guide: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /practice: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /transcript: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /workshop: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /treasury: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /course/math110: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /lesson/math110/0/0: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /concept/la-eigen: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /quiz/linear-algebra: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /sync: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /method: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /recall: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /electives: 1 control(s) under 44x44 — a. 76x38
+  FAIL  390px /drill: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /review: 2 control(s) under 44x44 — a. 76x38, a.active 76x38
+  FAIL  390px /no-such-page: 1 control(s) under 44x44 — a. 76x38
+    390px  every control reaches 44x44 on 23 routes
+  FAIL  320px root 16px: tab Home is 60.6x38.4, under 44x44
+  FAIL  320px root 16px: tab Courses is 60.6x38.4, under 44x44
+  FAIL  320px root 16px: tab Exams is 60.6x38.4, under 44x44
+  FAIL  320px root 16px: tab Problems is 65.7x38.4, under 44x44
+  FAIL  320px root 16px: tab Review is 60.6x38.4, under 44x44
+  FAIL  390px root 16px: tab Home is 75.6x38.4, under 44x44
+  FAIL  390px root 16px: tab Courses is 75.6x38.4, under 44x44
+  FAIL  390px root 16px: tab Exams is 75.6x38.4, under 44x44
+  FAIL  390px root 16px: tab Problems is 75.6x38.4, under 44x44
+  FAIL  390px root 16px: tab Review is 75.6x38.4, under 44x44
+  FAIL  320px root 24px: tab Home is 56.6x40.4, under 44x44
+  FAIL  320px root 24px: tab Courses is 63.9x40.4, under 44x44
+  FAIL  320px root 24px: tab Exams is 56.6x40.4, under 44x44
+  FAIL  320px root 24px: tab Problems is 74.2x40.4, under 44x44
+  FAIL  320px root 24px: tab Review is 56.6x40.4, under 44x44
+  320/390px  roots 16/24  15 of 48 tab checks failed
+
+FAIL — 38 shell assertions broken
+exit=1

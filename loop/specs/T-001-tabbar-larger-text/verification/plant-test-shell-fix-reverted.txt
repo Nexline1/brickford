@@ -1,0 +1,29 @@
+# Plant: platform/css/style.css replaced with the base (HEAD) version, i.e. the T-001 fix reverted; ran node tools/verify-shell.js, then restored the file. 2026-09-25T17:59:05Z
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+    320px  frame clears the page on 23 routes
+    390px  frame clears the page on 23 routes
+    430px  frame clears the page on 23 routes
+    768px  frame clears the page on 23 routes
+    860px  frame clears the page on 23 routes
+    390px  every control reaches 44x44 on 23 routes
+  FAIL  320px root 24px: tab Problems is not fully on screen (219.7..322.3 of 320)
+  FAIL  320px root 24px: tab Review is not fully on screen (322.3..396.9 of 320)
+  FAIL  390px root 24px: tab Review is not fully on screen (322.3..396.9 of 390)
+  320/390px  roots 16/24  3 of 48 tab checks failed
+
+FAIL — 3 shell assertions broken
+exit=1

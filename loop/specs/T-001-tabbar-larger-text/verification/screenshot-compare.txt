@@ -1,0 +1,5 @@
+# Tab bar element screenshots on "/", base (HEAD) vs this worktree (round 3), pixel compare via canvas getImageData. 2026-09-25T18:00:36.319Z
+320-root16 identical (320x65)
+390-root16 identical (390x65)
+320-root24 size differs 320x73 vs 320x67
+390-root24 size differs 390x73 vs 390x71

@@ -1,0 +1,60 @@
+after 390px root 16 {
+ "bar": [
+  0,
+  390,
+  64,
+  390
+ ],
+ "tabs": [
+  "Home x=6.0 r=81.6 75.6x50.4 fs=9.92px ls=0.5952px",
+  "Courses x=81.6 r=157.2 75.6x50.4 fs=9.92px ls=0.5952px",
+  "Exams x=157.2 r=232.8 75.6x50.4 fs=9.92px ls=0.5952px",
+  "Problems x=232.8 r=308.4 75.6x50.4 fs=9.92px ls=0.5952px",
+  "Review x=308.4 r=384.0 75.6x50.4 fs=9.92px ls=0.5952px"
+ ]
+}
+after 320px root 16 {
+ "bar": [
+  0,
+  320,
+  64,
+  320
+ ],
+ "tabs": [
+  "Home x=6.0 r=65.2 59.2x50.4 fs=9.92px ls=0.5952px",
+  "Courses x=65.2 r=125.8 60.6x50.4 fs=9.92px ls=0.5952px",
+  "Exams x=125.8 r=185.0 59.2x50.4 fs=9.92px ls=0.5952px",
+  "Problems x=185.0 r=254.8 69.7x50.4 fs=9.92px ls=0.5952px",
+  "Review x=254.8 r=314.0 59.2x50.4 fs=9.92px ls=0.5952px"
+ ]
+}
+after 320px root 24 {
+ "bar": [
+  0,
+  320,
+  66,
+  320
+ ],
+ "tabs": [
+  "Home x=6.0 r=58.4 52.4x52.4 fs=11.2px ls=0.672px",
+  "Courses x=58.4 r=126.3 67.9x52.4 fs=11.2px ls=0.672px",
+  "Exams x=126.3 r=178.7 52.4x52.4 fs=11.2px ls=0.672px",
+  "Problems x=178.7 r=256.9 78.2x52.4 fs=11.2px ls=0.672px",
+  "Review x=256.9 r=314.0 57.1x52.4 fs=11.2px ls=0.672px"
+ ]
+}
+after 390px root 24 {
+ "bar": [
+  0,
+  390,
+  70,
+  390
+ ],
+ "tabs": [
+  "Home x=6.0 r=72.5 66.5x56.2 fs=13.65px ls=0.819px",
+  "Courses x=72.5 r=154.3 81.9x56.2 fs=13.65px ls=0.819px",
+  "Exams x=154.3 r=220.8 66.5x56.2 fs=13.65px ls=0.819px",
+  "Problems x=220.8 r=315.3 94.5x56.2 fs=13.65px ls=0.819px",
+  "Review x=315.3 r=384.0 68.7x56.2 fs=13.65px ls=0.819px"
+ ]
+}

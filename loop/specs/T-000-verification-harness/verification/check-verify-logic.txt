@@ -16,9 +16,9 @@
   ok    streak stops at streakFrom — streakFrom 5 Oct: expected 2, got 2
   ok    bestStreak ignores streakFrom — streakFrom 5 Oct: expected 8, got 8
   ok    no page errors (streakFrom scenario)
-  ok    backlogCount skips rest days (a lone Saturday owes nothing) — expected 0, got 0
+  ok    a rest day owes no lessons (backlogCount) — expected 0, got 0
   ok    no page errors (backlog scenario 1)
-  ok    backlogCount = lectures owed on study days only — 7 study days 2026-09-28 .. 2026-10-05: expected 18, got 18
+  ok    backlogCount = the unwatched lectures scheduled since the first activity — 7 study days 2026-09-28 .. 2026-10-05: expected 18, got 18
   ok    no page errors (backlog scenario 2)
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)

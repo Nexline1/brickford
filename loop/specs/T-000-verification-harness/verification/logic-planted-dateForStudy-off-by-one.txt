@@ -8,18 +8,20 @@
   ok    scheduledFor(Saturday) = [] — every Saturday empty; day 1 schedules 9 (not vacuous)
   ok    dayStatus(Saturday) = "rest" — every Saturday rest; an untouched past Tuesday is "missed" (not vacuous)
   ok    no page errors (date scenario)
-  ok    streak steps over Saturdays without counting them — run Mon 28 Sep – Tue 6 Oct across Sat 3 Oct: expected 8, got 8
-  ok    bestStreak steps over Saturdays too — expected 8, got 8
+  ok    streak steps over an unsealed Saturday — run Mon 28 Sep – Tue 6 Oct across unsealed Sat 3 Oct: expected 8, got 8
+  ok    bestStreak steps over unsealed rest-day gaps — expected 8, got 8
   ok    no page errors (streak scenario)
+  ok    streak does not count a sealed Saturday — run Mon 28 Sep – Tue 6 Oct with Sat 3 Oct sealed: expected 8, got 8
+  ok    no page errors (sealed-Saturday scenario)
   ok    streak stops at streakFrom — streakFrom 5 Oct: expected 2, got 2
   ok    bestStreak ignores streakFrom — streakFrom 5 Oct: expected 8, got 8
   ok    no page errors (streakFrom scenario)
-  ok    backlogCount skips rest days (a lone Saturday owes nothing) — expected 0, got 0
+  ok    a rest day owes no lessons (backlogCount) — expected 0, got 0
   ok    no page errors (backlog scenario 1)
-  ok    backlogCount = lectures owed on study days only — 7 study days 2026-09-28 .. 2026-10-05: expected 18, got 18
+  ok    backlogCount = the unwatched lectures scheduled since the first activity — 7 study days 2026-09-28 .. 2026-10-05: expected 18, got 18
   ok    no page errors (backlog scenario 2)
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-3 of 22 invariant(s) FAILED
+3 of 24 invariant(s) FAILED
 exit 1

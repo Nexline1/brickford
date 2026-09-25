@@ -65,7 +65,7 @@ const ROUTES = [
   "/diag/diag-la", "/doc/readme",
 ];
 
-// Two states, because each hides things the other shows: an empty browser
+// Two main states, because each hides things the other shows: an empty browser
 // has the empty states ("Nothing unlocked yet", no streak), and progress
 // brings the Prove-it card, a streak, a due recall, a solved problem.
 // Same seed as verify-contrast.js.
@@ -84,7 +84,43 @@ function seed(nowMs) {
   s.weeks = [{ week: 1, date: iso(2), shipped: "repo", dsa: 4, posts: 1, revenue: 120, notes: "" }];
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
-const STATES = [["empty", null], ["seeded", seed]];
+// The quiz and the drill open on a question drawn at random, and a numeric
+// question (#numAns + #numGo) lays out differently from a multiple-choice one.
+// Both layouts must be swept, so each draw is pinned: the PRNG is reseeded to a
+// fixed value right before the route is opened, and the kind of the first
+// question is ASSERTED — if content or the draw ever changes so that the
+// pinned seed no longer opens the expected kind, the gate fails rather than
+// silently sweeping a different layout.
+//
+// The seeded state above has only three linear-algebra questions unlocked and
+// all three are multiple choice, so no seed can draw a numeric one there. The
+// numeric variants therefore run in a third state, "seeded-num": the same seed
+// plus the first sixteen MATH 110 unit-0 lectures watched (the set
+// verify-flows.js uses). Their keys carry "~num" on the route.
+function seedNum(nowMs) {
+  if (window.top !== window) return;
+  const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
+  const s = { lessons: {}, problems: {}, studyDays: [], review: {} };
+  for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
+  s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n", checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
+  for (let i = 0; i < 16; i++) if (!s.lessons["math110.0." + i]) s.lessons["math110.0." + i] = { done: true, doneAt: iso(2), notes: "", checks: [] };
+  s.review["math110.0.13"] = { due: iso(1), box: 1 };
+  s.problems["Arrays & Hashing|Contains Duplicate"] = iso(3);
+  s.weeks = [{ week: 1, date: iso(2), shipped: "repo", dsa: 4, posts: 1, revenue: 120, notes: "" }];
+  localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+}
+const DRAW_SEED = { "/quiz/linear-algebra": 1, "/drill": 1 };      // opens multiple choice (seeded)
+const plain = ROUTES.map(r => ({ route: r, key: r, seed: DRAW_SEED[r] }));
+const NUM_ROUTES = [
+  { route: "/quiz/linear-algebra", key: "/quiz/linear-algebra~num", seed: 3 },
+  { route: "/drill", key: "/drill~num", seed: 6 },
+];
+// [name, seed function, routes, what the first drawn question must be]
+const STATES = [
+  ["empty", null, plain, "none"],          // nothing watched: no question to draw
+  ["seeded", seed, plain, "mcq"],
+  ["seeded-num", seedNum, NUM_ROUTES, "num"],
+];
 
 // ---------- the measurement, run inside the page ----------
 const PROBE = function () {
@@ -124,7 +160,7 @@ const PROBE = function () {
   const failures = [];
   let renders = 0, elements = 0, githubHits = 0;
 
-  for (const [stateName, stateFn] of STATES) {
+  for (const [stateName, stateFn, routes, drawKind] of STATES) {
     for (const root of ROOTS) {
       for (const w of WIDTHS) {
         const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, reducedMotion: "reduce", hasTouch: w < 860, timezoneId: "UTC" });
@@ -144,6 +180,7 @@ const PROBE = function () {
         // makes every run draw the same questions, so a finding reproduces.
         await ctx.addInitScript(() => {
           let a = 0x2f6b1c3d;
+          window.__clipReseed = v => { a = v; };
           Math.random = () => {
             a |= 0; a = a + 0x6D2B79F5 | 0;
             let t = Math.imul(a ^ a >>> 15, 1 | a);
@@ -165,7 +202,7 @@ const PROBE = function () {
         await page.goto(URL + "/__boot", { waitUntil: "load" });
         await page.waitForSelector("#view > *");
 
-        for (const route of ROUTES) {
+        for (const { route, key, seed: drawSeed } of routes) {
           // Proof the view was rebuilt: renderInner() replaces #view's children
           // wholesale, so a marker on the current first child cannot survive
           // the next render. A fixed wait would measure the PREVIOUS page
@@ -175,6 +212,7 @@ const PROBE = function () {
             if (c) c.setAttribute("data-clip-stale", "1");
           });
           errors = [];
+          if (drawSeed != null) await page.evaluate(v => window.__clipReseed(v), drawSeed);
           await page.goto(URL + route, { waitUntil: "load" });
           await page.waitForFunction(
             () => document.querySelector("#view > *") && !document.querySelector("#view [data-clip-stale]"),
@@ -187,6 +225,13 @@ const PROBE = function () {
             const q = document.querySelector("#quizMount"), d = document.querySelector("#docHost");
             return (!q || q.children.length > 0) && (!d || d.textContent.trim() !== "Loading…");
           }, null, { timeout: 8000 });
+          let drawWrong = "";
+          if (drawSeed != null) {
+            // The drill mounts its body a tick after the render, like the quiz.
+            await page.waitForFunction(() => { const m = document.querySelector("#drillMount, #quizMount"); return m && m.children.length > 0; }, null, { timeout: 8000 });
+            const kind = await page.evaluate(() => document.querySelector("#numAns") ? "num" : document.querySelector("#view .opt") ? "mcq" : "none");
+            if (kind !== drawKind) drawWrong = "pinned draw (seed " + drawSeed + ") opened " + kind + ", expected " + drawKind + " — content or the draw changed; re-pin the seed";
+          }
           await page.evaluate(() => Promise.all(document.getAnimations()
             .filter(a => !a.effect || a.effect.getComputedTiming().iterations !== Infinity)
             .map(a => a.finished.catch(() => {}))));
@@ -203,8 +248,9 @@ const PROBE = function () {
             if (!again.sideways) r.sideways = "";
           }
           const rootOk = r.root === root + "px";
+          if (drawWrong) errors.push(drawWrong);
           if (r.clipped.length || r.sideways || errors.length || !rootOk) {
-            failures.push({ stateName, root, w, route, r, errors: errors.slice(), rootOk });
+            failures.push({ stateName, root, w, route: key, r, errors: errors.slice(), rootOk });
           }
         }
         await ctx.close();
@@ -231,7 +277,7 @@ const PROBE = function () {
     if (!f.rootOk) hard.push(pre + "root font is " + f.r.root + ", asked for " + f.root + "px");
   });
   if (githubHits) hard.push(githubHits + " request(s) to GitHub from a context with no token");
-  const total = ROUTES.length * WIDTHS.length * ROOTS.length * STATES.length;
+  const total = STATES.reduce((n, st) => n + st[2].length, 0) * WIDTHS.length * ROOTS.length;
   if (renders !== total) hard.push("only " + renders + " of " + total + " renders ran");
 
   const known = new Map(), fresh = [];
@@ -282,8 +328,8 @@ const PROBE = function () {
   const tally = fresh.length + " new, " + stale.length + " stale, " + known.size + " known" +
     (items.length ? " (" + items.map(t => t + " " + perItem[t]).join(", ") + ")" : "");
   console.log("\n" + (bad === 0 ? "PASS — " : "FAIL — ") + tally + "; " + renders + " renders: " +
-    ROUTES.length + " routes × " + WIDTHS.length + " widths × roots " + ROOTS.join("/") + "px × " +
-    STATES.length + " states (" + elements + " element measurements)" +
+    ROUTES.length + " routes × 2 states + " + NUM_ROUTES.length + " numeric draws, × " + WIDTHS.length +
+    " widths × roots " + ROOTS.join("/") + "px (" + elements + " element measurements)" +
     (hard.length ? "; " + hard.length + " unbaselinable failure(s)" : ""));
   process.exit(bad === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

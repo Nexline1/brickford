@@ -1,4 +1,4 @@
-NEW — 3383 finding(s) not in tools/verify-clip.baseline.json
+NEW — 3473 finding(s) not in tools/verify-clip.baseline.json
   NEW    empty|16|320|/|sideways-scroll   page scrolls sideways (2020>320)
   NEW    empty|16|320|/|div.shell   clipped div.shell (2020>320, overflow-x visible)
   NEW    empty|16|320|/|main#view.main   clipped main#view.main (2020>320, overflow-x visible)
@@ -3382,8 +3382,98 @@ NEW — 3383 finding(s) not in tools/verify-clip.baseline.json
   NEW    seeded|24|1440|/diag/diag-la|div.grid.cols-2   clipped div.grid.cols-2 (2384>746, overflow-x visible)
   NEW    seeded|24|1440|/doc/readme|main#view.main   clipped main#view.main (1171>890, overflow-x visible)
   NEW    seeded|24|1440|/doc/readme|div.view-enter   clipped div.view-enter (1099>746, overflow-x visible)
+  NEW    seeded-num|16|320|/quiz/linear-algebra~num|sideways-scroll   page scrolls sideways (800>320)
+  NEW    seeded-num|16|320|/quiz/linear-algebra~num|div.shell   clipped div.shell (800>320, overflow-x visible)
+  NEW    seeded-num|16|320|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (800>320, overflow-x visible)
+  NEW    seeded-num|16|320|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>280, overflow-x visible)
+  NEW    seeded-num|16|320|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>280, overflow-x visible)
+  NEW    seeded-num|16|320|/drill~num|sideways-scroll   page scrolls sideways (800>320)
+  NEW    seeded-num|16|320|/drill~num|div.shell   clipped div.shell (800>320, overflow-x visible)
+  NEW    seeded-num|16|320|/drill~num|main#view.main   clipped main#view.main (800>320, overflow-x visible)
+  NEW    seeded-num|16|390|/quiz/linear-algebra~num|sideways-scroll   page scrolls sideways (800>390)
+  NEW    seeded-num|16|390|/quiz/linear-algebra~num|div.shell   clipped div.shell (800>390, overflow-x visible)
+  NEW    seeded-num|16|390|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (800>390, overflow-x visible)
+  NEW    seeded-num|16|390|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>350, overflow-x visible)
+  NEW    seeded-num|16|390|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>350, overflow-x visible)
+  NEW    seeded-num|16|390|/drill~num|sideways-scroll   page scrolls sideways (800>390)
+  NEW    seeded-num|16|390|/drill~num|div.shell   clipped div.shell (800>390, overflow-x visible)
+  NEW    seeded-num|16|390|/drill~num|main#view.main   clipped main#view.main (800>390, overflow-x visible)
+  NEW    seeded-num|16|390|/drill~num|div.view-enter   clipped div.view-enter (780>350, overflow-x visible)
+  NEW    seeded-num|16|390|/drill~num|div#drillMount   clipped div#drillMount (780>350, overflow-x visible)
+  NEW    seeded-num|16|768|/quiz/linear-algebra~num|sideways-scroll   page scrolls sideways (818>768)
+  NEW    seeded-num|16|768|/quiz/linear-algebra~num|div.shell   clipped div.shell (818>768, overflow-x visible)
+  NEW    seeded-num|16|768|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (818>768, overflow-x visible)
+  NEW    seeded-num|16|768|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>691, overflow-x visible)
+  NEW    seeded-num|16|768|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>691, overflow-x visible)
+  NEW    seeded-num|16|768|/drill~num|sideways-scroll   page scrolls sideways (818>768)
+  NEW    seeded-num|16|768|/drill~num|div.shell   clipped div.shell (818>768, overflow-x visible)
+  NEW    seeded-num|16|768|/drill~num|main#view.main   clipped main#view.main (818>768, overflow-x visible)
+  NEW    seeded-num|16|768|/drill~num|div.view-enter   clipped div.view-enter (780>691, overflow-x visible)
+  NEW    seeded-num|16|768|/drill~num|div#drillMount   clipped div#drillMount (780>691, overflow-x visible)
+  NEW    seeded-num|16|1024|/quiz/linear-algebra~num|sideways-scroll   page scrolls sideways (1081>1024)
+  NEW    seeded-num|16|1024|/quiz/linear-algebra~num|div.shell   clipped div.shell (1081>1024, overflow-x visible)
+  NEW    seeded-num|16|1024|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (831>774, overflow-x visible)
+  NEW    seeded-num|16|1024|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>672, overflow-x visible)
+  NEW    seeded-num|16|1024|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>672, overflow-x visible)
+  NEW    seeded-num|16|1024|/drill~num|sideways-scroll   page scrolls sideways (1081>1024)
+  NEW    seeded-num|16|1024|/drill~num|div.shell   clipped div.shell (1081>1024, overflow-x visible)
+  NEW    seeded-num|16|1024|/drill~num|main#view.main   clipped main#view.main (831>774, overflow-x visible)
+  NEW    seeded-num|16|1024|/drill~num|div.view-enter   clipped div.view-enter (780>672, overflow-x visible)
+  NEW    seeded-num|16|1024|/drill~num|div#drillMount   clipped div#drillMount (780>672, overflow-x visible)
+  NEW    seeded-num|16|1100|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (835>550, overflow-x visible)
+  NEW    seeded-num|16|1100|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>440, overflow-x visible)
+  NEW    seeded-num|16|1100|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>440, overflow-x visible)
+  NEW    seeded-num|16|1100|/drill~num|main#view.main   clipped main#view.main (835>550, overflow-x visible)
+  NEW    seeded-num|16|1100|/drill~num|div.view-enter   clipped div.view-enter (780>440, overflow-x visible)
+  NEW    seeded-num|16|1100|/drill~num|div#drillMount   clipped div#drillMount (780>440, overflow-x visible)
+  NEW    seeded-num|16|1280|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (844>730, overflow-x visible)
+  NEW    seeded-num|16|1280|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>602, overflow-x visible)
+  NEW    seeded-num|16|1280|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>602, overflow-x visible)
+  NEW    seeded-num|16|1280|/drill~num|main#view.main   clipped main#view.main (844>730, overflow-x visible)
+  NEW    seeded-num|16|1280|/drill~num|div.view-enter   clipped div.view-enter (780>602, overflow-x visible)
+  NEW    seeded-num|16|1280|/drill~num|div#drillMount   clipped div#drillMount (780>602, overflow-x visible)
+  NEW    seeded-num|16|1440|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>746, overflow-x visible)
+  NEW    seeded-num|16|1440|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>746, overflow-x visible)
+  NEW    seeded-num|16|1440|/drill~num|div.view-enter   clipped div.view-enter (780>746, overflow-x visible)
+  NEW    seeded-num|16|1440|/drill~num|div#drillMount   clipped div#drillMount (780>746, overflow-x visible)
+  NEW    seeded-num|24|768|/quiz/linear-algebra~num|sideways-scroll   page scrolls sideways (818>768)
+  NEW    seeded-num|24|768|/quiz/linear-algebra~num|div.shell   clipped div.shell (818>768, overflow-x visible)
+  NEW    seeded-num|24|768|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (818>768, overflow-x visible)
+  NEW    seeded-num|24|768|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>691, overflow-x visible)
+  NEW    seeded-num|24|768|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>691, overflow-x visible)
+  NEW    seeded-num|24|768|/drill~num|sideways-scroll   page scrolls sideways (818>768)
+  NEW    seeded-num|24|768|/drill~num|div.shell   clipped div.shell (818>768, overflow-x visible)
+  NEW    seeded-num|24|768|/drill~num|main#view.main   clipped main#view.main (818>768, overflow-x visible)
+  NEW    seeded-num|24|768|/drill~num|div.view-enter   clipped div.view-enter (780>691, overflow-x visible)
+  NEW    seeded-num|24|768|/drill~num|div#drillMount   clipped div#drillMount (780>691, overflow-x visible)
+  NEW    seeded-num|24|1024|/quiz/linear-algebra~num|sideways-scroll   page scrolls sideways (1081>1024)
+  NEW    seeded-num|24|1024|/quiz/linear-algebra~num|div.shell   clipped div.shell (1081>1024, overflow-x visible)
+  NEW    seeded-num|24|1024|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (831>774, overflow-x visible)
+  NEW    seeded-num|24|1024|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>672, overflow-x visible)
+  NEW    seeded-num|24|1024|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>672, overflow-x visible)
+  NEW    seeded-num|24|1024|/drill~num|sideways-scroll   page scrolls sideways (1081>1024)
+  NEW    seeded-num|24|1024|/drill~num|div.shell   clipped div.shell (1081>1024, overflow-x visible)
+  NEW    seeded-num|24|1024|/drill~num|main#view.main   clipped main#view.main (831>774, overflow-x visible)
+  NEW    seeded-num|24|1024|/drill~num|div.view-enter   clipped div.view-enter (780>672, overflow-x visible)
+  NEW    seeded-num|24|1024|/drill~num|div#drillMount   clipped div#drillMount (780>672, overflow-x visible)
+  NEW    seeded-num|24|1100|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (835>550, overflow-x visible)
+  NEW    seeded-num|24|1100|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>440, overflow-x visible)
+  NEW    seeded-num|24|1100|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>440, overflow-x visible)
+  NEW    seeded-num|24|1100|/drill~num|main#view.main   clipped main#view.main (835>550, overflow-x visible)
+  NEW    seeded-num|24|1100|/drill~num|div.view-enter   clipped div.view-enter (780>440, overflow-x visible)
+  NEW    seeded-num|24|1100|/drill~num|div#drillMount   clipped div#drillMount (780>440, overflow-x visible)
+  NEW    seeded-num|24|1280|/quiz/linear-algebra~num|main#view.main   clipped main#view.main (844>730, overflow-x visible)
+  NEW    seeded-num|24|1280|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>602, overflow-x visible)
+  NEW    seeded-num|24|1280|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>602, overflow-x visible)
+  NEW    seeded-num|24|1280|/drill~num|main#view.main   clipped main#view.main (844>730, overflow-x visible)
+  NEW    seeded-num|24|1280|/drill~num|div.view-enter   clipped div.view-enter (780>602, overflow-x visible)
+  NEW    seeded-num|24|1280|/drill~num|div#drillMount   clipped div#drillMount (780>602, overflow-x visible)
+  NEW    seeded-num|24|1440|/quiz/linear-algebra~num|div.view-enter   clipped div.view-enter (780>746, overflow-x visible)
+  NEW    seeded-num|24|1440|/quiz/linear-algebra~num|div#quizMount   clipped div#quizMount (780>746, overflow-x visible)
+  NEW    seeded-num|24|1440|/drill~num|div.view-enter   clipped div.view-enter (780>746, overflow-x visible)
+  NEW    seeded-num|24|1440|/drill~num|div#drillMount   clipped div#drillMount (780>746, overflow-x visible)
 
-STALE — 55 baseline entries no longer found; remove them from the baseline
+STALE — 70 baseline entries no longer found; remove them from the baseline
   STALE  empty|16|320|/diag/diag-la|button.btn   (T-003)
   STALE  empty|16|320|/diag/diag-la|div   (T-003)
   STALE  empty|16|768|/diag/diag-la|button.btn   (T-003)
@@ -3404,6 +3494,21 @@ STALE — 55 baseline entries no longer found; remove them from the baseline
   STALE  empty|24|390|/diag/diag-la|button#timerStop.btn.ghost   (T-003)
   STALE  empty|24|768|/diag/diag-la|button#timerStop.btn.ghost   (T-003)
   STALE  empty|24|768|/diag/diag-la|div#diagTimer.timer   (T-003)
+  STALE  seeded-num|16|320|/drill~num|button#numGo.btn   (T-003)
+  STALE  seeded-num|16|320|/drill~num|div   (T-003)
+  STALE  seeded-num|16|320|/drill~num|div.card.q-card.view-enter   (T-003)
+  STALE  seeded-num|16|320|/quiz/linear-algebra~num|button#numGo.btn   (T-003)
+  STALE  seeded-num|16|320|/quiz/linear-algebra~num|div   (T-003)
+  STALE  seeded-num|24|320|/drill~num|button#nextBtn.btn   (T-003)
+  STALE  seeded-num|24|320|/drill~num|button#quitBtn.btn.ghost   (T-003)
+  STALE  seeded-num|24|320|/drill~num|div.card.q-card.view-enter   (T-003)
+  STALE  seeded-num|24|320|/quiz/linear-algebra~num|button#nextBtn.btn   (T-003)
+  STALE  seeded-num|24|320|/quiz/linear-algebra~num|button#quitBtn.btn.ghost   (T-003)
+  STALE  seeded-num|24|320|/quiz/linear-algebra~num|div.card.q-card.view-enter   (T-003)
+  STALE  seeded-num|24|390|/drill~num|button#quitBtn.btn.ghost   (T-003)
+  STALE  seeded-num|24|390|/drill~num|div.card.q-card.view-enter   (T-003)
+  STALE  seeded-num|24|390|/quiz/linear-algebra~num|button#quitBtn.btn.ghost   (T-003)
+  STALE  seeded-num|24|390|/quiz/linear-algebra~num|div.card.q-card.view-enter   (T-003)
   STALE  seeded|16|320|/diag/diag-la|button.btn   (T-003)
   STALE  seeded|16|320|/diag/diag-la|div   (T-003)
   STALE  seeded|16|320|/drill|div.card.q-card.view-enter   (T-003)
@@ -3441,20 +3546,21 @@ STALE — 55 baseline entries no longer found; remove them from the baseline
   STALE  seeded|24|768|/diag/diag-la|div#diagTimer.timer   (T-003)
 
 KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
-  T-001  nav#tabbar.tabbar                    24px@320 24px@390; 32 routes
-  T-002  div.crest                            24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 32 routes
-  T-002  div.name-en                          24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 32 routes
+  T-001  nav#tabbar.tabbar                    24px@320 24px@390; 34 routes
+  T-002  div.crest                            24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 34 routes
+  T-002  div.name-en                          24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 34 routes
+  T-003  button#numGo.btn                     24px@320 24px@390 24px@768; /quiz/linear-algebra~num /drill~num
   T-003  button.btn                           24px@320 24px@390 24px@768; /diag/diag-la
-  T-003  div#drillMount                       16px@320 24px@320 24px@390; /drill
-  T-003  div#quizMount                        24px@320 24px@390; /quiz/linear-algebra
-  T-003  div                                  24px@320 24px@390 24px@768 24px@1100; /diag/diag-la /course/math110
+  T-003  div#drillMount                       16px@320 24px@320 24px@390; /drill /drill~num
+  T-003  div#quizMount                        24px@320 24px@390; /quiz/linear-algebra /quiz/linear-algebra~num
+  T-003  div                                  24px@320 24px@390 24px@768 24px@1100; /diag/diag-la /course/math110 /quiz/linear-algebra~num /drill~num
   T-003  div.grid.cols-2                      24px@320; /diag/diag-la
-  T-003  div.shell                            24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
-  T-003  div.view-enter                       24px@320 16px@320 24px@390; /calendar /diag/diag-la /drill /quiz/linear-algebra
+  T-003  div.shell                            24px@320 24px@390; 6 routes
+  T-003  div.view-enter                       24px@320 16px@320 24px@390; 6 routes
   T-003  div.view-enter.fac-math              24px@320; /lesson/math110/0/13
-  T-003  main#view.main                       24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
-  T-003  sideways-scroll                      24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  T-003  main#view.main                       24px@320 24px@390; 6 routes
+  T-003  sideways-scroll                      24px@320 24px@390; 6 routes
   T-003  span                                 24px@320 24px@1100; /recall /course/math110 /lesson/math110/0/13
 
-FAIL — 3383 new, 55 stale, 825 known (T-001 128, T-002 640, T-003 57); 896 renders: 32 routes × 7 widths × roots 16/24px × 2 states (130264 element measurements)
+FAIL — 3473 new, 70 stale, 883 known (T-001 132, T-002 660, T-003 91); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (133200 element measurements)
 exit 1

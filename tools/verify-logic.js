@@ -181,18 +181,24 @@ async function scenario(browser, now, state) {
   }
 
   // ---- the backlog ----
+  // What these two checks do NOT test: backlogCount's own rest-day skip
+  // (app.js, `if (isRestDay(iso)) continue;`) is redundant with scheduledFor's
+  // -1 index — scheduledFor already returns [] on a Saturday — so removing the
+  // skip changes no result and nothing here can catch it. The skip is not
+  // independently tested; the check names below claim only the outcome.
+  //
   // (1) The only day between the first activity and today is a Saturday, so
   //     nothing can be owed.
   {
     const { ctx, page, errors } = await scenario(browser, "2026-10-04", { studyDays: ["2026-10-03"] });
     const n = await page.evaluate(() => window.__brickfordTest.backlogCount());
-    check("backlogCount skips rest days (a lone Saturday owes nothing)", n === 0, "expected 0, got " + n);
+    check("a rest day owes no lessons (backlogCount)", n === 0, "expected 0, got " + n);
     check("no page errors (backlog scenario 1)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
   // (2) Mon 28 Sep to Mon 5 Oct, nothing watched: the backlog is exactly the
-  //     lectures scheduled on the seven non-Saturdays, with Saturday skipped by
-  //     the calendar here rather than by the app.
+  //     lectures scheduled on the seven non-Saturdays (Saturday is left out by
+  //     the calendar here, not by the app; see the note above on the skip).
   {
     const from = "2026-09-28", today = "2026-10-06";
     const owedDays = range(from, addDays(today, -1)).filter(d => !isSat(d));
@@ -204,7 +210,7 @@ async function scenario(browser, now, state) {
         .forEach(it => keys.add(it.cid + "." + it.ui + "." + it.li)));
       return { n: T.backlogCount(), expect: keys.size };
     }, owedDays);
-    check("backlogCount = lectures owed on study days only", r.n === r.expect && r.expect > 0,
+    check("backlogCount = the unwatched lectures scheduled since the first activity", r.n === r.expect && r.expect > 0,
       owedDays.length + " study days " + from + " .. " + addDays(today, -1) + ": expected " + r.expect + ", got " + r.n);
     check("no page errors (backlog scenario 2)", errors.length === 0, errors.join(" | "));
     await ctx.close();

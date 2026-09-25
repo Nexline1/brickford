@@ -17,6 +17,11 @@
 // dlsyscourse/public_notebooks convolution_implementation.ipynb, which is the
 // code he is typing, and its first beat says so. The 0.17 example data (A and mu)
 // is taken from that lecture's notebook too.
+// sys250.0.20 and 0.21 (Transformers, and their implementation) were cut off
+// the same way: 0.20 just as the Transformer block is introduced, 0.21 just after
+// it. Both entries say so in their first beat. Their remaining parts follow the
+// 0.21 notebook (transformer_implementation.ipynb): the block, the causal mask,
+// multi-head attention and the closing note on "efficient" Transformers.
 //
 // tools/verify-content.js enforces the shape and RECOMPUTES every numeric answer
 // by a different route from the one the summary teaches: a gradient by central
@@ -514,6 +519,168 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
         expl: "The gradient of D's loss would otherwise flow into G." },
       { q: "After training, the learned 2 × 2 matrix differs from $A$ though the samples match. Why?", opts: ["training failed", "the distribution depends only on $A^TA$ (and $\\mu$), which many matrices share", "the bias absorbed it", "softmax loss is not symmetric"], a: 1,
         expl: "For instance, any rotation $QA$ gives the same covariance." },
+    ],
+  },
+
+  "sys250.0.18": {
+    takeaway: "Sequence data breaks the i.i.d. assumption: the order carries information (part-of-speech tags, speech, next-word prediction). An RNN carries a hidden state, $h_t = f(W_{hh}h_{t-1} + W_{hx}x_t + b_h)$, that can summarize everything seen so far. Autodiff trains it with backpropagation through time. In practice the state explodes or vanishes over long sequences. The LSTM's additive cell update, $c_t = c_{t-1} \\odot f_t + i_t \\odot g_t$, keeps information alive much longer. RNNs are also modules: stack them, run them both ways, or chain an encoder into a decoder.",
+    beats: [
+      { t: "Sequences are not i.i.d.", d: "So far examples were independent, which is why minibatches can be shuffled. In a sequence, $x_1 \\to y_1$ also shapes $x_2 \\to y_2$. The notation changes too: subscripts now index time, and each $x_t$ is a vector. Examples: tagging 'well' needs the words before it; 'recognize speech' and 'wreck a nice beach' sound alike; autoregressive prediction guesses the next token, which is the basis of language models." },
+      { t: "The RNN", d: "$h_t = f(W_{hh}h_{t-1} + W_{hx}x_t + b_h)$ and $y_t = g(W_{yh}h_t + b_y)$, with $W_{hh}$ $d \\times d$, $W_{hx}$ $d \\times n$ and $W_{yh}$ $k \\times d$. Because $h_3$ depends on $h_2$, which depends on $h_1$, the state can in principle summarize all of $x_1..x_t$." },
+      { t: "Training is BPTT", d: "Set $h_0 = 0$, run the recurrence, and add up loss($y_t$, $y_t^*$) over the sequence. Then loss.backward() and opt.step(). Deriving these long chain-rule gradients by hand was once part of the job; autodiff makes it one call. RNNs also stack: layer 1's outputs are layer 2's inputs, with causality preserved." },
+      { t: "Exploding and vanishing", d: "Unrolled over 200 steps, an RNN is a 200-layer network, so the initialization lessons return. With ReLU and $W_{hh}$ variance $3/n$, the hidden norm grows to $10^6$ and then NaN. With $1.5/n$ it shrinks, and $x_1$'s influence on later steps disappears. Even a correct $2/n$ drifts once training starts." },
+      { t: "Bounded activations are not enough", d: "sigmoid or tanh stop the explosion, but each value either sits near the centre (small activation) or saturates (near-zero gradient). Either way the influence of early inputs still vanishes." },
+      { t: "The LSTM", d: "Split the state into $h_t$ and a cell $c_t$, both part of the hidden state. One matrix multiply gives $[i; f; g; o] = W_{hh}h_{t-1} + W_{hx}x_t + b$ ($W_{hh}$ is $4d \\times d$). Apply sigmoid, sigmoid, tanh and sigmoid. Then $c_t = c_{t-1} \\odot f + i \\odot g$ and $h_t = \\tanh(c_t) \\odot o$. Kolter finds the gate names unhelpful: what matters is the cell update." },
+      { t: "Why it helps", d: "$f \\in (0,1)^d$ scales the old cell down or keeps it; $i \\odot g \\in (-1,1)^d$ adds a bounded new term. With $f$ near 1, the past is carried forward almost untouched rather than squeezed through a nonlinearity each step. The history: Hochreiter and Schmidhuber (1997), then Karpathy's 2015 blog post, whose character-level LSTMs wrote fake Linux kernel code and fake algebraic geometry, and interest took off." },
+      { t: "Beyond one-to-one", d: "Sequence-to-sequence translation uses an encoder RNN whose last state summarizes the sentence, feeding a decoder RNN that generates words autoregressively until it produces 'stop'. Bidirectional RNNs stack a forward and a backward RNN so each output sees the whole sequence, which is fine for tagging and translation but not for next-token prediction." },
+    ],
+    worked: "To see vanishing, run $h_t = 0.9h_{t-1}$ (a linear RNN with no new input) for 10 steps. $\\partial h_{10}/\\partial h_0 = 0.9^{10} \\approx 0.35$, and after 100 steps it is $2.7 \\times 10^{-5}$. An LSTM cell with $f = 1$ passes $c$ through unchanged, so the same derivative stays at 1.",
+    watch: "Expecting tanh or sigmoid to cure vanishing gradients. Bounding the activations stops the explosion, but saturation makes the gradients vanish anyway. The fix is architectural, like the LSTM's additive cell.",
+    concepts: [],
+    checks: [
+      { q: "A linear RNN $h_t = 0.9h_{t-1} + x_t$. The derivative $\\partial h_{10}/\\partial h_0$ is (2 decimals):", num: 0.35,
+        expl: "Each step multiplies by 0.9: $0.9^{10} = 0.349$." },
+      { q: "An LSTM cell has $c_{t-1} = 2$, $f = 0.5$, $i = 1$, $g = 0.5$ and $o = 1$. The new $h_t = o \\odot \\tanh(c_t)$ is (2 decimals):", num: 0.91,
+        expl: "$c_t = 2 \\times 0.5 + 1 \\times 0.5 = 1.5$, and $\\tanh 1.5 = 0.905$." },
+      { q: "The LSTM's $W_{hh}$ for hidden size $d$ has shape:", opts: ["$d \\times d$", "$4d \\times d$", "$d \\times 4d$", "$2d \\times d$"], a: 1,
+        expl: "One matrix produces all four gates, and the result is split." },
+      { q: "A bidirectional RNN is inappropriate for:", opts: ["part-of-speech tagging", "translation", "autoregressive next-token prediction", "sentiment classification"], a: 2,
+        expl: "Seeing the future would make next-token prediction trivial." },
+    ],
+  },
+
+  "sys250.0.19": {
+    takeaway: "An LSTM in about a dozen lines of NumPy, matched to PyTorch to numerical precision. The cell is one matrix multiply split into four gates. The layer loops the cell over time. Batching puts time first, $(T, B, n)$, so each step's slice is contiguous. Training long sequences uses truncated BPTT with hidden-state repackaging: carry the last $h$ and $c$ into the next chunk, detached.",
+    beats: [
+      { t: "What PyTorch stores", d: "nn.LSTMCell(20, 100) has weight_hh of shape 400 × 100 and weight_ih of shape 400 × 20: the four gate matrices stacked into one, as in the lecture's equations (transposed). It also has two bias vectors, which only ever appear summed. Kolter adds them and has no idea why there are two." },
+      { t: "lstm_cell", d: "$[i, f, g, o]$ = np.split(W_hh @ h + W_ih @ x + b, 4). Apply sigmoid, sigmoid, tanh and sigmoid. Then c_out = f·c + i·g and h_out = o·tanh(c_out). Checked against PyTorch's cell with the same weights: the difference is at machine precision." },
+      { t: "lstm over a sequence", d: "Loop $t$ over $X$'s rows, call the cell, store $h_t$. Following PyTorch's convention, return all hidden states but only the last cell state, which matters for training later. nn.LSTM names its weights weight_hh_l0 and so on, by layer." },
+      { t: "Why time comes first", d: "The recurrence forces one step at a time, and each step is a matrix-vector product unless there is a batch. With $B$ sequences each step becomes matrix × matrix. Stored $(B, T, n)$, the slice X[:, t] is strided; stored $(T, B, n)$, X[t] is a contiguous $B \\times n$ block ready for matmul. So PyTorch's default is $(L, N, H_{in})$, and batch_first=True is the less efficient option." },
+      { t: "The batched cell", d: "Post-multiply, h @ W_hh + x @ W_ih (the weights transposed from PyTorch's), and split along axis 1. The elementwise lines are unchanged. The layer allocates H of shape $(T, B, d)$. Tested with $T = 50$ and $B = 128$, it matches nn.LSTM." },
+      { t: "Training, conceptually", d: "In needle (which needs split and tanh ops), training is: run lstm, compute a loss between the hidden states and the targets, loss.backward(), opt.step(). A deep LSTM runs layer by layer over the whole sequence, with each layer's output sequence feeding the next." },
+      { t: "Truncated BPTT", d: "Backprop through 10,000 steps would keep every intermediate value alive and run out of memory. So cut the sequence into blocks of, say, 100 and train each block separately. It sounds lossy, and works acceptably." },
+      { t: "Hidden-unit repackaging", d: "Rather than restarting each block from $h_0 = 0$, start it from the previous block's final $h$ and $c$, detached and copied. The value carries over; the graph does not, so no gradient flows between blocks (a stop-gradient). That is why nn.LSTM returns the last $h$ and $c$." },
+    ],
+    worked: "To lay out a batch for an LSTM: store it as $(T, B, n)$. With $T = 50$, $B = 128$, $n = 20$, moving one step in time jumps $128 \\times 20 = 2{,}560$ elements, and X[t] is a contiguous $128 \\times 20$ matrix to multiply by $W_{ih}$ in one call.",
+    watch: "Carrying the hidden state between truncated blocks without detaching it. The graph then spans the whole sequence again, and memory grows exactly as if nothing had been truncated.",
+    concepts: [],
+    checks: [
+      { q: "nn.LSTMCell(20, 100) with both of PyTorch's bias vectors. Total parameters:", num: 48800,
+        expl: "$400 \\times 100 + 400 \\times 20 + 400 + 400 = 48{,}800$." },
+      { q: "A batch stored $(T, B, n) = (50, 128, 20)$ in row-major order. How many elements apart are X[t] and X[t+1]?", num: 2560,
+        expl: "One time step skips a whole $B \\times n$ slice: $128 \\times 20$." },
+      { q: "In hidden-unit repackaging, the next block starts from:", opts: ["zeros", "the previous block's final $h$, $c$ with the graph attached", "the previous block's final $h$, $c$, detached", "a learned initial state"], a: 2,
+        expl: "The value carries over; gradients do not." },
+      { q: "Why does PyTorch's LSTM default to time-first input?", opts: ["tradition", "so each time step's batch slice is contiguous for the matrix multiply", "to save memory", "for bidirectional support"], a: 1,
+        expl: "Batch-first makes every per-step slice strided." },
+    ],
+  },
+
+  "sys250.0.20": {
+    takeaway: "There are two ways to model a time series. RNNs summarize the past in a latent state: in principle unlimited history, in practice a long, fragile path. Direct prediction maps $x_{1..t}$ straight to $y_t$. Causal convolutions do that but see only a limited window. Self-attention, $\\mathrm{softmax}(KQ^T/\\sqrt d)V$, mixes every position with every other in one layer with no parameters of its own, at $O(T^2d)$ cost. It is permutation-equivariant, and causality has to be imposed with a mask.",
+    beats: [
+      { t: "About this summary", d: "The captions for this lecture were cut off just as the Transformer block is introduced. The block, the causal mask and multi-head attention follow the next lecture's notebook, which implements exactly them. Kolter's third part, applications beyond time series, is only named here, as he names it in his outline." },
+      { t: "Two approaches", d: "The task: predict $y_{1..T}$ from $x_{1..T}$ with $y_t$ depending only on $x_{1..t}$. Latent state (RNN): $h_t$ summarizes everything, so the history is unbounded and adding $x_{t+1}$ is cheap, but $x_1$ reaches $y_T$ through a long path with vanishing gradients. Direct prediction: some $f$ maps the prefix to $y_t$, which can keep paths short but has no state, so each prediction takes the whole prefix." },
+      { t: "Temporal convolutional networks", d: "Causal convolutions only take inputs from the current and earlier times, so they satisfy the constraint (WaveNet is one). But the receptive field grows only with depth and kernel size: with one-step kernels, $y_6$ cannot see $x_1$. Bigger kernels add parameters, pooling suits dense prediction badly, and dilation skips inputs." },
+      { t: "Attention, the original", d: "In a sentiment-classifying RNN, the last state favours late words. Instead, take a weighted combination $\\bar h = \\sum_t w_th_t$ with $w = \\mathrm{softmax}(z)$ and $z_t = \\theta^Th_t$. Any mechanism that weights states and combines them is 'attention'. It helps, but as an add-on to an RNN." },
+      { t: "Self-attention", d: "$K = XW_K$, $Q = XW_Q$, $V = XW_V$, each $T \\times d$ and each row depending only on its own time step. Then $\\mathrm{SelfAttention}(K, Q, V) = \\mathrm{softmax}(KQ^T/\\sqrt d)V$. Entry $(i, j)$ of $KQ^T$ is $k_i^Tq_j$, a similarity. The softmax runs along each row, so each output row is a weighted average of the rows of $V$. Kolter finds the names keys, queries and values unhelpful: it is just matrix algebra." },
+      { t: "Its properties", d: "Permute the rows of $K$, $Q$ and $V$ together and the output rows are permuted the same way (equivariance), so on its own it ignores order. It mixes all times in one layer with no parameters beyond the projections. The cost is the $T \\times T$ matrix: $O(T^2)$ memory and $O(T^2d)$ compute, which the nonlinearity makes hard to avoid." },
+      { t: "The Transformer block", d: "Self-attention, plus the input (a residual), then layer norm. Then a two-layer ReLU network, plus a residual, then layer norm again. Stacked, this maps a $T \\times d$ sequence to a $T \\times d$ sequence." },
+      { t: "Making it causal", d: "Unmasked, every output sees every input. For time series, add a mask before the softmax: $-\\infty$ above the diagonal and 0 on and below it. Row $i$ then gives zero weight to later positions, so $y_t$ depends only on $x_{1..t}$." },
+    ],
+    worked: "To compute one row of attention by hand: $d = 2$, $k_1 = (1, 0)$, $q_1 = (2, 0)$, $q_2 = (0, 2)$. The scores are $[k_1 \\cdot q_1, k_1 \\cdot q_2]/\\sqrt 2 = [1.414, 0]$. The softmax gives weights [0.80, 0.20], and with value rows 1 and 3 the output is $0.80 \\times 1 + 0.20 \\times 3 = 1.39$.",
+    watch: "Using self-attention on a time series without the causal mask. Each position can then read the future, so training looks excellent and the model is useless for prediction.",
+    concepts: [],
+    checks: [
+      { q: "$d = 2$, $k_1 = (1,0)$, $q_1 = (2,0)$, $q_2 = (0,2)$. The attention weight of row 1 on position 1, $\\mathrm{softmax}$ of $[k_1 \\cdot q_1, k_1 \\cdot q_2]/\\sqrt d$ (2 decimals):", num: 0.8,
+        expl: "Scores $[\\sqrt2, 0]$. The weight is $e^{\\sqrt2}/(e^{\\sqrt2} + 1) = 0.804$." },
+      { q: "With value rows $v_1 = 1$ and $v_2 = 3$, the output for row 1 is (2 decimals):", num: 1.39,
+        expl: "$0.804 \\times 1 + 0.196 \\times 3 = 1.391$." },
+      { q: "A causal mask for $T = 4$ sets how many entries of the attention score matrix to $-\\infty$?", num: 6,
+        expl: "The strictly upper triangle: $3 + 2 + 1$." },
+      { q: "Permuting the input rows of self-attention (without a mask):", opts: ["leaves the output unchanged", "permutes the output rows the same way", "changes the output unpredictably", "is not allowed"], a: 1,
+        expl: "Equivariance, so the order must come from elsewhere." },
+    ],
+  },
+
+  "sys250.0.21": {
+    takeaway: "Self-attention, multi-head attention and a Transformer block in NumPy, each matched to PyTorch. Attention is one matmul to $[K\\,Q\\,V]$, a row-wise softmax with the mask added, times $V$, times $W_{out}$. Batching needs true batch matrix multiplication, so batch comes first. Multi-head attention reshapes $d$ into $h$ heads of $d/h$. The block adds two residuals, two layer norms and a ReLU feed-forward network.",
+    beats: [
+      { t: "About this summary", d: "The captions for this lecture were cut off just after the Transformer block is built. The PyTorch comparison of the block and the closing note on 'efficient' Transformers follow the lecture's own notebook, transformer_implementation.ipynb." },
+      { t: "self_attention(X, mask, W_KQV, W_out)", d: "K, Q, V = np.split(X @ W_KQV, 3, axis=-1): one matmul, as PyTorch stores in_proj_weight ($3d \\times d$). A = softmax(K @ Q.T / √d + mask). Return A @ V @ W_out, plus A. The mask is added: 0 below the diagonal and $-\\infty$ above. The softmax subtracts the row maximum for stability. It matches nn.MultiheadAttention(d, 1, bias=False, batch_first=True)." },
+      { t: "Batch matrix multiply", d: "An $(5, 4, 10, 3)$ array @ a $3 \\times 6$ matrix is just one big matmul after a reshape to $200 \\times 3$. But $K_bQ_b^T$ for each $b$ needs a different right-hand matrix per batch: a genuine batched matmul, which needle needs as a new op. Batch goes first, $(B, T, d)$, so the last two axes are contiguous; PyTorch defaults otherwise only so Transformers can swap in for RNNs." },
+      { t: "Batched self-attention", d: "Split along the last axis, use X.shape[-1] for $d$, and replace .T with swapaxes(-1, -2). The same function now handles both batched and single inputs. Checked with $B = 50$, $T = 100$, $d = 64$." },
+      { t: "Why several heads", d: "One head spends a whole $d$-dimensional inner product to produce each weight, and applies the softmax nonlinearity only once. Splitting the columns into $h$ groups gives $h$ separate attention patterns, $Y_i = \\mathrm{softmax}(K_iQ_i^T/\\sqrt{d/h})V_i$, concatenated and multiplied by $W_{out}$. That is more nonlinearity for the same parameters." },
+      { t: "multihead_attention", d: "Reshape K, Q and V from $(B, T, d)$ to $(B, T, h, d/h)$, swap axes to $(B, h, T, d/h)$, do batched attention with the scale $\\sqrt{d/h}$, swap back and reshape to $(B, T, d)$, then multiply by W_out. PyTorch's returned attention averages over the heads; the NumPy version returns each head's." },
+      { t: "The Transformer block", d: "Z = layer_norm(X + multihead_attention(X)); return layer_norm(Z + relu(Z @ W_ff1) @ W_ff2). With dropout 0 and the feed-forward biases zeroed it matches nn.TransformerEncoderLayer(d, heads, dim_feedforward=128). The 'encoder' name is left over from the original translation model." },
+      { t: "'Efficient' Transformers", d: "The cost is the $T \\times T$ matrix, $O(T^2d)$. There are two families: sparse attention (compute only some entries) and low-rank attention. Without the softmax, $K(Q^TV)$ would cost $O(Td^2)$. The notebook's verdict: explicit sparsity sometimes helps for very long histories, but most low-rank or inferred-sparsity schemes gain little once real speed at equal quality is measured." },
+    ],
+    worked: "To count a single-block Transformer's weights (no biases, layer norm ignored) with $d = 64$, 4 heads and a feed-forward width of 128: $W_{KQV}$ is $64 \\times 192$ = 12,288, $W_{out}$ is $64 \\times 64$ = 4,096, and the feed-forward layers are $64 \\times 128 + 128 \\times 64$ = 16,384. Heads do not change the count; each works in $64/4 = 16$ dimensions.",
+    watch: "Scaling multi-head scores by $\\sqrt d$ instead of $\\sqrt{d/h}$. Each head's inner product is over $d/h$ dimensions, and the wrong scale makes every head's softmax too flat.",
+    concepts: [],
+    checks: [
+      { q: "Multi-head attention with $d = 64$ and no biases: parameters in $W_{KQV}$ and $W_{out}$ together:", num: 16384,
+        expl: "$64 \\times 192 + 64 \\times 64 = 12{,}288 + 4{,}096$. The number of heads does not change it." },
+      { q: "With $T = 1000$ and $d = 64$, dropping the softmax lets $(KQ^T)V$ become $K(Q^TV)$. By what factor do the multiplications fall?", num: 15.625,
+        expl: "$T^2d / Td^2 = T/d = 1000/64$." },
+      { q: "$(B, T, d) = (50, 100, 64)$ with 4 heads. Before batched attention, $K$ is reshaped to:", opts: ["(50, 100, 4, 16)", "(50, 4, 100, 16)", "(200, 100, 16)", "(50, 4, 16, 100)"], a: 1,
+        expl: "Reshape to (B, T, h, d/h), then swap the T and h axes." },
+      { q: "Why does self-attention need a true batched matmul when convolution did not?", opts: ["it uses softmax", "each batch element multiplies by its own $Q_b^T$, not one shared weight matrix", "it is larger", "numpy lacks im2col"], a: 1,
+        expl: "A shared right-hand matrix can be handled by flattening the batch." },
+    ],
+  },
+
+  "sys250.0.22": {
+    takeaway: "Deployment brings a trained model to phones, embedded boards and other GPUs, often without Python and with tight memory and binary size. Inference engines (TensorRT, TFLite, Core ML) interpret an exported graph (ONNX and similar) with memory reuse, fusion and lower precision, but each is a hand-built library per platform. ML compilation instead transforms an IR (fusion at the graph level, loop transformations at the kernel level) and uses automated search with a learned cost model to generate the code.",
+    beats: [
+      { t: "The deployment problem", d: "A model trained in needle or PyTorch has to run on servers, phones (Apple's Metal GPU, ARM CPUs, neural processing units), Raspberry Pis, and NVIDIA, AMD or Apple GPUs. The constraints are no Python interpreter, little memory, small application size, local accelerators, and pre- and post-processing to integrate with the app." },
+      { t: "Inference engines", d: "TensorRT (NVIDIA), TensorFlow Lite and the ARM Compute Library (embedded), Core ML (Apple, including its neural engine). They load an exchange format (ONNX, Core ML, TFLite's flatbuffer) that lists the operators in order with their weights attached." },
+      { t: "Getting a graph out", d: "Define-by-run makes export hard: stochastic depth or mixture-of-experts routing depends on runtime values. Most deployed models are static graphs anyway. Frameworks trace a run to record the graph and then translate it. Exporting needle to ONNX Runtime or TensorRT is suggested as a project." },
+      { t: "Inside an engine", d: "It interprets the graph in topological order. Inference needs no stored activations, so buffers are pre-allocated and shared (ReLU and softmax can reuse the same memory). Other standard tricks are operator fusion and lower precision (fp16). The limits are a fixed operator set, little support for dynamic control flow, and sometimes shapes that must be known ahead of time." },
+      { t: "Why compile", d: "Each engine is a library hand-tuned by a big team for one vendor's hardware. ML compilation (Chen's research area, including TVM) asks whether code can instead be generated for each target, with libraries still used where they win." },
+      { t: "The IR and graph passes", d: "A model imports as an IR module: functions over multi-dimensional arrays. For a one-layer softmax classifier: matmul, add bias, softmax. Graph-level passes rewrite it: fuse matmul + add into one kernel (saving a round trip to memory), fold normalization into a scale and shift, change data layout, or combine parallel branches." },
+      { t: "Lowering to loops", d: "The fused op becomes a loop nest, which can be transformed. Folding the bias into $Y$'s initialization is one example. split turns loop $x$ into $x_o \\times 4 + x_i$, reorder swaps loops, and bind maps loops to blockIdx and threadIdx, which turns a CPU loop into a CUDA kernel. These are valid because the elements are independent." },
+      { t: "Automated optimization", d: "Each choice of transformations is a program variant. A search proposes configurations, generates code, and measures it on the real device (say, a Raspberry Pi). The measurements train a cost model that predicts which untried variants are fast, so most need not be run. It is fully automatic, often matches experts, and is retargeted by searching again. Search spaces and cost models remain open research (see mlc.ai)." },
+    ],
+    worked: "To reason about a loop split: splitting a 128-iteration loop by 4 gives an outer loop of 32 and an inner loop of 4, with $i = 4i_0 + i_1$. For example $(i_0, i_1) = (5, 3)$ is $i = 23$. Reordering the pair, or binding $i_0$ to blocks and $i_1$ to threads, changes the schedule, not the result.",
+    watch: "Assuming a model that runs in PyTorch can simply be exported. Data-dependent Python control flow cannot be captured by tracing and has to be rewritten into graph form, or the export silently freezes one path.",
+    concepts: [],
+    checks: [
+      { q: "A 128-iteration loop is split by factor 4 into $(i_0, i_1)$ with $i = 4i_0 + i_1$. Which original iteration is $(5, 3)$?", num: 23,
+        expl: "$4 \\times 5 + 3 = 23$. The outer loop runs 32 times." },
+      { q: "Why can an inference engine get by with a few shared buffers?", opts: ["it uses fp16", "no backward pass needs the activations, so each dead buffer can be reused", "weights are compressed", "the graph is fused into one op"], a: 1,
+        expl: "The same reason inference needs two ping-pong buffers." },
+      { q: "Fusing matmul and bias-add into one kernel mainly saves:", opts: ["multiplications", "writing the intermediate to memory and reading it back", "parameters", "compile time"], a: 1,
+        expl: "Memory traffic, not arithmetic." },
+      { q: "In automated ML compilation, the learned cost model is used to:", opts: ["replace hardware measurement entirely from the start", "predict which untried program variants are likely fast, so fewer need measuring", "choose the model architecture", "quantize weights"], a: 1,
+        expl: "It is trained on real measurements as the search proceeds." },
+    ],
+  },
+
+  "sys250.0.23": {
+    takeaway: "ML compilation hands-on with TVM in Colab. Write a loop program (vector add, then a 1024 × 1024 matmul) in TensorIR, build it with LLVM, call it on NDArrays, and transform it with schedule primitives (split, reorder, parallel) without rewriting the code. Tiling the matmul took it from 3.71 s to 0.37 s, and different tile sizes give different speeds, which is what automated search explores. Finally a PyTorch ResNet-18 is compiled end to end with Relay and correctly calls a cat a tabby cat.",
+    beats: [
+      { t: "Setup", d: "The material is adapted from Apache TVM's tutorials and mlc.ai. Install the nightly TVM package in Colab." },
+      { t: "A loop program", d: "Describe $C = A + B$ over 128 elements, and TVM shows it as TVMScript: a Python-like function over buffers A, B, C with a loop and a block computing C[i] = A[i] + B[i]. tvm.build(mod, target='llvm') compiles it; rt_mod['main'] returns a packed function that runs on NDArrays. C holds garbage until it is called." },
+      { t: "Schedules", d: "tir.Schedule(mod) wraps the program. get_block('C') and get_loops find the loops. split(i, factors=[None, 4]) gives 32 × 4, with i = i0 × 4 + i1; changing 4 to 8 changes the nest. reorder swaps loops; parallel marks the outer one. Each call rewrites the loop nest with no manual refactoring." },
+      { t: "Matmul in TensorIR", d: "$C[m, n] = \\sum_k A[m, k]B[k, n]$ for 1024 × 1024. The loops are remapped as spatial (m, n) and reduction (k), with an init block that zeroes C on the first k. It is verified against numpy, and time_evaluator (3 runs) gives about 3.71 s." },
+      { t: "Tiling pays", d: "Split $y$ and $x$ into outer and inner parts and reorder to $(y_o, x_o, k, y_i, x_i)$, much like register blocking. That brings it to about 0.37 s, ten times faster, with the same arithmetic in a different order." },
+      { t: "Trying variants", d: "A helper transform(mod, tile_y, tile_x) makes experiments one call each. 32 × 32 without the reorder showed no gain (the reorder matters), while 4 × 4 and 4 × 32 each gave different times. parallel did not help, because Colab provides one virtual CPU. Enumerating variants, benchmarking them and learning a cost model is exactly what automated search does." },
+      { t: "End to end with Relay", d: "Trace torchvision's ResNet-18 with TorchScript and import it with relay.frontend.from_pytorch and the input shape. The Relay module shows conv2d, batch_norm, add and relu with their parameters. relay.build lowers operators to loop programs or libraries and produces a graph module." },
+      { t: "Running it", d: "graph_executor: set_input(the preprocessed image), run(), get_output(0). The argmax over 1,000 ImageNet classes maps to 'tabby cat', which is correct. The rest (ingestion, graph transformations, lowering, auto-tuning) is in the mlc.ai course." },
+    ],
+    worked: "To tile a loop nest with a schedule: find the block, get its loops, then split(y, [None, ty]) and split(x, [None, tx]) and reorder(yo, xo, k, yi, xi). Rebuild and time it. Try several (ty, tx) and keep the fastest; the arithmetic never changes, only the order.",
+    watch: "Splitting loops without reordering them and expecting a speed-up. A split alone keeps the original iteration order; the gain comes from the reorder that makes the inner loops reuse a tile.",
+    concepts: [],
+    checks: [
+      { q: "A 1024 × 1024 matmul has its $y$ and $x$ loops each split by 32. How many $(y_o, x_o)$ outer tiles are there?", num: 1024,
+        expl: "$(1024/32)^2 = 32 \\times 32$." },
+      { q: "The untransformed matmul took 3.71 s and the tiled one 0.37 s. The speed-up, to the nearest whole number:", num: 10,
+        expl: "$3.71/0.37 = 10.03$." },
+      { q: "A schedule primitive like split or reorder:", opts: ["changes what the program computes", "rewrites the loop nest while keeping the result the same", "only adds comments", "requires rewriting TVMScript by hand"], a: 1,
+        expl: "The order changes, not the mathematics." },
+      { q: "Why did parallel not speed up the Colab run?", opts: ["the loop was already vectorized", "the Colab VM had a single virtual CPU", "TVM does not support parallel", "matmul cannot be parallelized"], a: 1,
+        expl: "There were no extra cores to use." },
     ],
   },
 

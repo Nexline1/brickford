@@ -2115,6 +2115,47 @@ const expectedSummary = {
     let p = 0; [[2, 20], [20, 10], [10, 2]].forEach(([i, o]) => { for (let r = 0; r < i; r++) for (let c = 0; c < o; c++) p++; for (let c = 0; c < o; c++) p++; });
     return [{ i: 0, v: Math.round(v * 100) / 100 }, { i: 1, v: p }];
   })(),
+
+  // Derivative by central differences of the simulated recurrence; tanh from exponentials.
+  "sys250.0.18": (function () {
+    const sim = h0 => { let h = h0; for (let t = 0; t < 10; t++) h = 0.9 * h + 0; return h; }, e = 1e-6;
+    let c = 2; c = c * 0.5 + 1 * 0.5; const th = (Math.exp(2 * c) - 1) / (Math.exp(2 * c) + 1);
+    return [{ i: 0, v: Math.round((sim(1 + e) - sim(1 - e)) / (2 * e) * 100) / 100 }, { i: 1, v: Math.round(1 * th * 100) / 100 }];
+  })(),
+
+  // Parameters by looping over each tensor; the time stride by walking index tuples.
+  "sys250.0.19": (function () {
+    let p = 0; [[400, 100], [400, 20], [400, 1], [400, 1]].forEach(([r, c]) => { for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) p++; });
+    let k = 0, a = -1, b = -1;
+    for (let t = 0; t < 2; t++) for (let bb = 0; bb < 128; bb++) for (let n = 0; n < 20; n++) { if (bb === 0 && n === 0) { if (t === 0) a = k; else b = k; } k++; }
+    return [{ i: 0, v: p }, { i: 1, v: b - a }];
+  })(),
+
+  // Softmax weight as a logistic of the score difference; mask by counting j > i.
+  "sys250.0.20": (function () {
+    const s1 = (1 * 2 + 0 * 0) / Math.sqrt(2), s2 = (1 * 0 + 0 * 2) / Math.sqrt(2), w = 1 / (1 + Math.exp(s2 - s1));
+    let m = 0; for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) if (j > i) m++;
+    return [{ i: 0, v: Math.round(w * 100) / 100 }, { i: 1, v: Math.round((w * 1 + (1 - w) * 3) * 100) / 100 }, { i: 2, v: m }];
+  })(),
+
+  // Parameters by looping; multiply counts by summing each product's inner loops.
+  "sys250.0.21": (function () {
+    let p = 0; [[64, 192], [64, 64]].forEach(([r, c]) => { for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) p++; });
+    const mm = (m, k, n) => { let c = 0; for (let i = 0; i < m; i++) c += k * n; return c; };   // rows of an m×k by k×n product
+    const T = 1000, d = 64, naive = mm(T, d, T) + mm(T, T, d), lowrank = mm(d, T, d) + mm(T, d, d);
+    return [{ i: 0, v: p }, { i: 1, v: Math.round(naive / lowrank * 1000) / 1000 }];
+  })(),
+
+  // Enumerate the split loop nest in order and find the position of (5, 3).
+  "sys250.0.22": (function () {
+    let k = 0, at = -1; for (let i0 = 0; i0 < 32; i0++) for (let i1 = 0; i1 < 4; i1++) { if (i0 === 5 && i1 === 3) at = k; k++; }
+    return [{ i: 0, v: at }];
+  })(),
+
+  "sys250.0.23": (function () {
+    let tiles = 0; for (let yo = 0; yo < 1024; yo += 32) for (let xo = 0; xo < 1024; xo += 32) tiles++;
+    return [{ i: 0, v: tiles }, { i: 1, v: Math.round(3.71 / 0.37) }];
+  })(),
 };
 
 let sumNums = 0;

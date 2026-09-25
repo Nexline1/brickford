@@ -1,0 +1,30 @@
+
+KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
+  T-001  nav#tabbar.tabbar                    24px@320 24px@390; 32 routes
+  T-002  div.crest                            24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 32 routes
+  T-002  div.name-en                          24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 32 routes
+  T-003  button#nextBtn.btn                   24px@320; /quiz/linear-algebra /drill
+  T-003  button#quitBtn.btn.ghost             24px@320 24px@390; /quiz/linear-algebra /drill
+  T-003  button#timerStop.btn.ghost           24px@320 24px@390 24px@768; /diag/diag-la
+  T-003  button.btn                           16px@320 16px@768 24px@320 24px@390 24px@768; /diag/diag-la
+  T-003  div#diagTimer.timer                  24px@320 24px@768 24px@1024; /diag/diag-la
+  T-003  div#drillMount                       16px@320 24px@320 24px@390; /drill
+  T-003  div#quizMount                        24px@320 24px@390; /quiz/linear-algebra
+  T-003  div                                  16px@320 24px@320 24px@390 24px@768 24px@1024 24px@1100; 7 routes
+  T-003  div.card                             24px@320; /calendar /diag/diag-la
+  T-003  div.card.one                         24px@320; /lesson/math110/0/13
+  T-003  div.card.q-card.view-enter           16px@320 24px@320 24px@390; /drill /quiz/linear-algebra
+  T-003  div.grid.cols-2                      24px@320; /diag/diag-la
+  T-003  div.shell                            24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  T-003  div.table-wrap                       24px@320; /electives
+  T-003  div.view-enter                       24px@320 16px@320 24px@390; /calendar /diag/diag-la /drill /quiz/linear-algebra
+  T-003  div.view-enter.fac-math              24px@320; /lesson/math110/0/13
+  T-003  main#view.main                       24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  T-003  sideways-scroll                      24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  T-003  span                                 24px@320 24px@1100; /recall /course/math110 /lesson/math110/0/13
+  T-003  table.stack-table                    24px@320; /electives
+  T-003  tbody                                24px@320; /electives
+  T-003  td                                   24px@320; /electives
+  T-003  tr                                   24px@320; /electives
+
+PASS — 0 new, 0 stale, 880 known (T-001 128, T-002 640, T-003 112); 896 renders: 32 routes × 7 widths × roots 16/24px × 2 states (130264 element measurements)

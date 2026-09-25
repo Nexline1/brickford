@@ -22,5 +22,6 @@
 - A settle condition is "changed, then stopped", not "nothing moving".
 - A finding must survive a re-measure. A gate that has never failed is untested: plant the bug, watch it fail.
 - Look at the whole window, not just .main (the sidebar once vanished with all gates green).
+- After T-000 the clip baseline may only shrink; adding an entry is loosening a test — automatic CHANGES REQUIRED unless the spec names it and the owner approved.
 - KaTeX loads from a CDN that headless Chromium in the cloud may not reach, so raw `$…$` in screenshots can be the harness.
 - The transcript tool truncates at 120k chars. Auto-captions come back tripled; dedupe first.

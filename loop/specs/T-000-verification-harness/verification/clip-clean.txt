@@ -1,0 +1,1358 @@
+  FAIL  empty  root 16px   320px  /diag/diag-la
+          clipped: div (235>230, overflow-x visible)
+          clipped: button.btn (77>71, overflow-x visible)
+  FAIL  empty  root 16px   768px  /diag/diag-la
+          clipped: button.btn (77>75, overflow-x visible)
+  FAIL  empty  root 24px   320px  /
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /atlas
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /courses
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /course/math110
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /course/cs150
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /course/phys100
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /lesson/math110/0/13
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /concept/la-eigen
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /workshop
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /electives
+          clipped: div.table-wrap (243>230, overflow-x visible)
+          clipped: table.stack-table (243>230, overflow-x visible)
+          clipped: tbody (243>230, overflow-x visible)
+          clipped: tr (242>228, overflow-x visible)
+          clipped: td (230>204, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /exams
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /quiz/linear-algebra
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /recall
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /method
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /record
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /transcript
+          clipped: div (233>230, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /review
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /calendar
+          page scrolls sideways (342>320)
+          clipped: div.shell (342>320, overflow-x visible)
+          clipped: main#view.main (342>320, overflow-x visible)
+          clipped: div.view-enter (322>280, overflow-x visible)
+          clipped: div.card (321>278, overflow-x visible)
+          clipped: div (297>230, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /library
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /treasury
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /sync
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /drill
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /guide
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /practice
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /lesson/math110/0/0
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /no-such-page
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /course/spch100
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /lesson/spch100/0/0
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /lesson/spch100/1/0
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /course/ai200
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   320px  /diag/diag-la
+          page scrolls sideways (336>320)
+          clipped: div.shell (336>320, overflow-x visible)
+          clipped: main#view.main (336>320, overflow-x visible)
+          clipped: div.view-enter (316>280, overflow-x visible)
+          clipped: div.grid.cols-2 (316>280, overflow-x visible)
+          clipped: div.card (315>278, overflow-x visible)
+          clipped: div#diagTimer.timer (291>230, overflow-x visible)
+          … 5 more
+  FAIL  empty  root 24px   320px  /doc/readme
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  empty  root 24px   390px  /
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /atlas
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /courses
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /course/math110
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /course/cs150
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /course/phys100
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /lesson/math110/0/13
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /concept/la-eigen
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /workshop
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /electives
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /exams
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /quiz/linear-algebra
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /recall
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /method
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /record
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /transcript
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /review
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /calendar
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /library
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /treasury
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /sync
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /drill
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /guide
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /practice
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /lesson/math110/0/0
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /no-such-page
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /course/spch100
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /lesson/spch100/0/0
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /lesson/spch100/1/0
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /course/ai200
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /diag/diag-la
+          clipped: div (306>300, overflow-x visible)
+          clipped: button#timerStop.btn.ghost (77>70, overflow-x visible)
+          clipped: div (314>300, overflow-x visible)
+          clipped: button.btn (107>91, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   390px  /doc/readme
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  empty  root 24px   768px  /
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /atlas
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /courses
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /course/math110
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /course/cs150
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /course/phys100
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /lesson/math110/0/13
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /concept/la-eigen
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /workshop
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /electives
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /exams
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /quiz/linear-algebra
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /recall
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /method
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /record
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /transcript
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /review
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /calendar
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /library
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /treasury
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /sync
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /drill
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /guide
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /practice
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /lesson/math110/0/0
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /no-such-page
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /course/spch100
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /lesson/spch100/0/0
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /lesson/spch100/1/0
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /course/ai200
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px   768px  /diag/diag-la
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+          clipped: div#diagTimer.timer (291>269, overflow-x visible)
+          clipped: div (277>269, overflow-x visible)
+          clipped: button#timerStop.btn.ghost (83>73, overflow-x visible)
+          clipped: div (283>269, overflow-x visible)
+          … 1 more
+  FAIL  empty  root 24px   768px  /doc/readme
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+          clipped: div#diagTimer.timer (291>259, overflow-x visible)
+          clipped: div (272>259, overflow-x visible)
+  FAIL  empty  root 24px  1024px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1100px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1280px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  empty  root 24px  1440px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 16px   320px  /drill
+          clipped: div.view-enter (289>280, overflow-x visible)
+          clipped: div#drillMount (289>280, overflow-x visible)
+          clipped: div.card.q-card.view-enter (288>278, overflow-x visible)
+  FAIL  seeded root 16px   320px  /diag/diag-la
+          clipped: div (235>230, overflow-x visible)
+          clipped: button.btn (77>71, overflow-x visible)
+  FAIL  seeded root 16px   768px  /diag/diag-la
+          clipped: button.btn (77>75, overflow-x visible)
+  FAIL  seeded root 24px   320px  /
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /atlas
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /courses
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /course/math110
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /course/cs150
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /course/phys100
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /lesson/math110/0/13
+          clipped: div.view-enter.fac-math (286>280, overflow-x visible)
+          clipped: div.card.one (286>280, overflow-x visible)
+          clipped: div (286>280, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /concept/la-eigen
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /workshop
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /electives
+          clipped: div.table-wrap (243>230, overflow-x visible)
+          clipped: table.stack-table (243>230, overflow-x visible)
+          clipped: tbody (243>230, overflow-x visible)
+          clipped: tr (242>228, overflow-x visible)
+          clipped: td (230>204, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /exams
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /quiz/linear-algebra
+          page scrolls sideways (399>320)
+          clipped: div.shell (399>320, overflow-x visible)
+          clipped: main#view.main (399>320, overflow-x visible)
+          clipped: div.view-enter (379>280, overflow-x visible)
+          clipped: div#quizMount (379>280, overflow-x visible)
+          clipped: div.card.q-card.view-enter (378>278, overflow-x visible)
+          clipped: div (256>230, overflow-x visible)
+          … 3 more
+  FAIL  seeded root 24px   320px  /recall
+          clipped: span (132>127, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /method
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /record
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /transcript
+          clipped: div (233>230, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /review
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /calendar
+          page scrolls sideways (342>320)
+          clipped: div.shell (342>320, overflow-x visible)
+          clipped: main#view.main (342>320, overflow-x visible)
+          clipped: div.view-enter (322>280, overflow-x visible)
+          clipped: div.card (321>278, overflow-x visible)
+          clipped: div (297>230, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /library
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /treasury
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /sync
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /drill
+          page scrolls sideways (431>320)
+          clipped: div.shell (431>320, overflow-x visible)
+          clipped: main#view.main (431>320, overflow-x visible)
+          clipped: div.view-enter (411>280, overflow-x visible)
+          clipped: div#drillMount (411>280, overflow-x visible)
+          clipped: div.card.q-card.view-enter (410>278, overflow-x visible)
+          clipped: div (256>230, overflow-x visible)
+          … 3 more
+  FAIL  seeded root 24px   320px  /guide
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /practice
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /lesson/math110/0/0
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /no-such-page
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /course/spch100
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /lesson/spch100/0/0
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /lesson/spch100/1/0
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /course/ai200
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   320px  /diag/diag-la
+          page scrolls sideways (336>320)
+          clipped: div.shell (336>320, overflow-x visible)
+          clipped: main#view.main (336>320, overflow-x visible)
+          clipped: div.view-enter (316>280, overflow-x visible)
+          clipped: div.grid.cols-2 (316>280, overflow-x visible)
+          clipped: div.card (315>278, overflow-x visible)
+          clipped: div#diagTimer.timer (291>230, overflow-x visible)
+          … 5 more
+  FAIL  seeded root 24px   320px  /doc/readme
+          clipped: nav#tabbar.tabbar (397>320, overflow-x visible)
+  FAIL  seeded root 24px   390px  /
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /atlas
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /courses
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /course/math110
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /course/cs150
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /course/phys100
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /lesson/math110/0/13
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /concept/la-eigen
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /workshop
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /electives
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /exams
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /quiz/linear-algebra
+          page scrolls sideways (399>390)
+          clipped: div.shell (399>390, overflow-x visible)
+          clipped: main#view.main (399>390, overflow-x visible)
+          clipped: div.view-enter (379>350, overflow-x visible)
+          clipped: div#quizMount (379>350, overflow-x visible)
+          clipped: div.card.q-card.view-enter (378>348, overflow-x visible)
+          clipped: button#quitBtn.btn.ghost (175>165, overflow-x visible)
+          … 1 more
+  FAIL  seeded root 24px   390px  /recall
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /method
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /record
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /transcript
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /review
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /calendar
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /library
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /treasury
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /sync
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /drill
+          page scrolls sideways (431>390)
+          clipped: div.shell (431>390, overflow-x visible)
+          clipped: main#view.main (431>390, overflow-x visible)
+          clipped: div.view-enter (411>350, overflow-x visible)
+          clipped: div#drillMount (411>350, overflow-x visible)
+          clipped: div.card.q-card.view-enter (410>348, overflow-x visible)
+          clipped: button#quitBtn.btn.ghost (175>165, overflow-x visible)
+          … 1 more
+  FAIL  seeded root 24px   390px  /guide
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /practice
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /lesson/math110/0/0
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /no-such-page
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /course/spch100
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /lesson/spch100/0/0
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /lesson/spch100/1/0
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /course/ai200
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /diag/diag-la
+          clipped: div (306>300, overflow-x visible)
+          clipped: button#timerStop.btn.ghost (77>70, overflow-x visible)
+          clipped: div (314>300, overflow-x visible)
+          clipped: button.btn (107>91, overflow-x visible)
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   390px  /doc/readme
+          clipped: nav#tabbar.tabbar (397>390, overflow-x visible)
+  FAIL  seeded root 24px   768px  /
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /atlas
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /courses
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /course/math110
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /course/cs150
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /course/phys100
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /lesson/math110/0/13
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /concept/la-eigen
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /workshop
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /electives
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /exams
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /quiz/linear-algebra
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /recall
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /method
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /record
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /transcript
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /review
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /calendar
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /library
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /treasury
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /sync
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /drill
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /guide
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /practice
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /lesson/math110/0/0
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /no-such-page
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /course/spch100
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /lesson/spch100/0/0
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /lesson/spch100/1/0
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /course/ai200
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px   768px  /diag/diag-la
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+          clipped: div#diagTimer.timer (291>269, overflow-x visible)
+          clipped: div (277>269, overflow-x visible)
+          clipped: button#timerStop.btn.ghost (83>73, overflow-x visible)
+          clipped: div (283>269, overflow-x visible)
+          … 1 more
+  FAIL  seeded root 24px   768px  /doc/readme
+          clipped: div.crest (230>220, overflow-x visible)
+          clipped: div.name-en (230>220, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+          clipped: div#diagTimer.timer (291>259, overflow-x visible)
+          clipped: div (272>259, overflow-x visible)
+  FAIL  seeded root 24px  1024px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+          clipped: div (121>110, overflow-x visible)
+          clipped: span (112>92, overflow-x visible)
+          clipped: div (116>110, overflow-x visible)
+          clipped: span (107>92, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+          clipped: span (100>92, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1100px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1280px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /atlas
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /courses
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /course/math110
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /course/cs150
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /course/phys100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /lesson/math110/0/13
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /concept/la-eigen
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /workshop
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /electives
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /exams
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /quiz/linear-algebra
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /recall
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /method
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /record
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /transcript
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /review
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /calendar
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /library
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /treasury
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /sync
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /drill
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /guide
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /practice
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /lesson/math110/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /no-such-page
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /course/spch100
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /lesson/spch100/0/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /lesson/spch100/1/0
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /course/ai200
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /diag/diag-la
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+  FAIL  seeded root 24px  1440px  /doc/readme
+          clipped: div.crest (230>206, overflow-x visible)
+          clipped: div.name-en (230>206, overflow-x visible)
+
+BY ELEMENT (root@width combinations; routes)
+  clipped nav#tabbar.tabbar                           24px@320 24px@390; 32 routes
+  clipped div.crest                                   24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 32 routes
+  clipped div.name-en                                 24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 32 routes
+  clipped div                                         16px@320 24px@320 24px@390 24px@768 24px@1024 24px@1100; 7 routes
+  page scrolls sideways                               24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  clipped div.shell                                   24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  clipped main#view.main                              24px@320 24px@390; /calendar /diag/diag-la /quiz/linear-algebra /drill
+  clipped div.view-enter                              24px@320 16px@320 24px@390; /calendar /diag/diag-la /drill /quiz/linear-algebra
+  clipped span                                        24px@320 24px@1100; /recall /course/math110 /lesson/math110/0/13
+  clipped div.card                                    24px@320; /calendar /diag/diag-la
+  clipped div.card.q-card.view-enter                  16px@320 24px@320 24px@390; /drill /quiz/linear-algebra
+  clipped button#quitBtn.btn.ghost                    24px@320 24px@390; /quiz/linear-algebra /drill
+  clipped button#nextBtn.btn                          24px@320; /quiz/linear-algebra /drill
+  clipped button.btn                                  16px@320 16px@768 24px@320 24px@390 24px@768; /diag/diag-la
+  clipped div.table-wrap                              24px@320; /electives
+  clipped table.stack-table                           24px@320; /electives
+  clipped tbody                                       24px@320; /electives
+  clipped tr                                          24px@320; /electives
+  clipped td                                          24px@320; /electives
+  clipped div.grid.cols-2                             24px@320; /diag/diag-la
+  clipped div#diagTimer.timer                         24px@320 24px@768 24px@1024; /diag/diag-la
+  clipped button#timerStop.btn.ghost                  24px@320 24px@390 24px@768; /diag/diag-la
+  clipped div#drillMount                              16px@320 24px@320 24px@390; /drill
+  clipped div.view-enter.fac-math                     24px@320; /lesson/math110/0/13
+  clipped div.card.one                                24px@320; /lesson/math110/0/13
+  clipped div#quizMount                               24px@320 24px@390; /quiz/linear-algebra
+
+453 of 896 renders FAILED
+exit 1

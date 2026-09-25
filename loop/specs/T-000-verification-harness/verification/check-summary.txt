@@ -1,0 +1,10 @@
+typecheck fails=0
+verify-content exit=0
+verify-sync-loop exit=0
+verify-shell exit=0
+verify-contrast exit=0
+verify-logic exit=0
+verify-flows exit=0
+verify-clip exit=0
+verify-clip (TZ=LA) exit=0
+done

@@ -1,0 +1,27 @@
+  ok    day 1 = START_DATE — DAR.START_DATE 2026-09-21, studyIndex(START) 0, dateForStudy(0) 2026-09-21
+  ok    day 1094 = dateForStudy(1093) = 2030-03-19 — got 2030-03-19
+  ok    gate baseline addStudyDays(START, 1094) = 2030-03-20 — got 2030-03-20
+  ok    studyIndex is -1 on a Saturday — 184 Saturdays from 2026-09-21 to 2030-03-31
+  ok    studyIndex is -1 before the start — 264 days before 2026-09-21
+  ok    studyIndex counts every non-Saturday once, in order — 1104 study days, the last index 1103
+  ok    dateForStudy(studyIndex(d)) = d for study days — 1104 study days round-tripped
+  ok    scheduledFor(Saturday) = [] — every Saturday empty; day 1 schedules 9 (not vacuous)
+  ok    dayStatus(Saturday) = "rest" — every Saturday rest; an untouched past Tuesday is "missed" (not vacuous)
+  ok    no page errors (date scenario)
+  ok    streak steps over an unsealed Saturday — run Mon 28 Sep – Tue 6 Oct across unsealed Sat 3 Oct: expected 8, got 8
+  ok    bestStreak steps over unsealed rest-day gaps — expected 8, got 8
+  ok    no page errors (streak scenario)
+  ok    streak does not count a sealed Saturday — run Mon 28 Sep – Tue 6 Oct with Sat 3 Oct sealed: expected 8, got 8
+  ok    no page errors (sealed-Saturday scenario)
+  ok    streak stops at streakFrom — streakFrom 5 Oct: expected 2, got 2
+  ok    bestStreak ignores streakFrom — streakFrom 5 Oct: expected 8, got 8
+  ok    no page errors (streakFrom scenario)
+  ok    backlogCount skips rest days (a lone Saturday owes nothing) — expected 0, got 0
+  ok    no page errors (backlog scenario 1)
+  ok    backlogCount = lectures owed on study days only — 7 study days 2026-09-28 .. 2026-10-05: expected 18, got 18
+  ok    no page errors (backlog scenario 2)
+  ok    the test hook exists only under #__test — absent on #/
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+PASS — 24 invariants hold
+exit 0

@@ -13,3 +13,5 @@ Dump notes here after a study session. The loop turns new ones into proposed spe
 ## 2026-09-25
 [friction] Tab bar below 300px wide: at a 16px root Home is 35.5px wide (under 44), and at 28/32px roots some tabs drop under 44 at 250-280px. From the T-001 reviewer; outside T-001's 320/390 scope.
 [want] Premium iOS-native redesign, phone first and desktop too (owner, 2026-09-25). Direction, tokens and roadmap in loop/design/brief.md. → T-005, T-006, T-007 (T-008..T-015 on the brief's roadmap)
+[bug] Auto theme can flip light↔dark mid-session; the sketch pad reads --ink once when the page opens (app.js ~4529), so strokes stay #111 on the dark surface after a flip. From the T-005 reviewer.
+[friction] Check on the phone after T-005 ships: with apple-mobile-web-app-status-bar-style black-translucent, iOS may draw white status-bar glyphs over the light theme's cream header strip. Chromium can't emulate it. From the T-005 reviewer.

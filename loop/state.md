@@ -2,6 +2,7 @@
 
 | date | item | rounds | result | blocker |
 |---|---|---|---|---|
+| 2026-09-26 | T-005 | 2 | pr-open: PR #4. Round 1: the new light --bg matched --bg-2, so empty tracks vanished; a crest comment over-claimed. Round 2 fixed those plus nine fills of the same class; reviewer APPROVED. Owner: next build T-006+T-007 together. | none (a round-2 builder hit a usage limit at start and was relaunched) |
 | 2026-09-26 | merges | 0 | Owner's merges of #1-#3 had not landed (all open, main unchanged, re-checked twice); on the owner's explicit one-time permission I merged #1, #2, #3 (main dd86693). Owner reported the live app is not premium (the redesign was not yet built) and a status-bar overlap; the fix was folded into T-005. Owner chose item-by-item pace. | none |
 | 2026-09-25 | design DISCOVER | 0 | Owner asked for a premium iOS-native redesign. Wrote loop/design/brief.md, before census (24 shots), specimen (Today + Course, light/dark; contrast worst 5.2:1, no target under 44). Proposed T-005 foundations, T-006 chrome, T-007 lists. | reference sites blocked by the network policy (403 at the proxy, retried) |
 | 2026-09-25 | T-001 | 3 | pr-open: PR #3. Round 1: log line claimed a pass after failing, comment over-claimed. Round 2: a sub-320 min-width rule spilled labels out of their tabs; removed in round 3. Reviewer APPROVED. | none (stacked on PRs #2 and #1, still unmerged) |

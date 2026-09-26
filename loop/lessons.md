@@ -29,3 +29,5 @@
 - A check's name must claim only what its fixture can violate: plant the exact bug the name promises to catch (a random draw can hide a whole layout, e.g. numeric answers).
 - A layout fix is measured on the label box as well as the tab box: a rule that fits the boxes can push text out of them at a width next door.
 - A gate's summary line counts one unit on pass and fail, and prints a pass only when its own fail count is zero.
+- A new background token is measured against every fill near its old value, by first opaque ancestor, not by token name: T-005's --bg landed on top of --bg-2 and empty tracks vanished with every gate green.
+- When a builder reports 'other places of the same bug class I left alone', fix them in the same round before review: the next review may be the last.

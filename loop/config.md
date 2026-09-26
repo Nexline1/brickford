@@ -21,10 +21,11 @@ hosted on GitHub Pages from `main`. There is no package.json, bundler or framewo
 | unit / content | `node tools/verify-content.js` · `node tools/verify-sync-loop.js` |
 | e2e / visual | `node tools/verify-shell.js` · `node tools/verify-contrast.js` |
 | added by T-000 | `node tools/verify-logic.js` · `node tools/verify-flows.js` · `node tools/verify-clip.js` |
+| added by T-005 | `node tools/verify-design.js` |
 
 CHECK = typecheck, then every command in the unit and e2e rows, then T-000's rows once
-T-000 is merged. All must exit 0. Run long gates in the background and wait for them to
-finish (foreground `sleep` is blocked in cloud sessions).
+T-000 is merged, then T-005's row (verify-design). All must exit 0. Run long gates in the
+background and wait for them to finish (foreground `sleep` is blocked in cloud sessions).
 
 ## PROTECTED (never touch without a spec naming the path AND owner approval)
 - `progress/brickford-state.json` (synced study progress, written to `main` by the app)

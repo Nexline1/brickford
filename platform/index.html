@@ -9,7 +9,7 @@
 <!-- One colour, both schemes: the browser chrome should read as Brickford's
      panel, which is what the sidebar and the app icon already are. -->
 <meta name="theme-color" content="#2b2118">
-<link rel="manifest" href="manifest.json?v=20260925h">
+<link rel="manifest" href="manifest.json?v=20260925i">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -20,29 +20,26 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260925h">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260925h">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260925i">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260925i">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260925h">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260925h">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260925h">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260925i">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260925i">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260925i">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Libre Caslon Text for display, the system face for body, JetBrains Mono for
-     figures. Caslon is the face English university presses set their books in,
-     and it is what gives this thing an age; the body was Inter, which is the
-     default of every generated interface on the web and reads as exactly that.
-     Two web fonts instead of three, and the one that carries the most text is
-     now the platform’s own — SF on his phone — which ships optical sizing and
-     tracking tables no webfont here can match (apple-design 15). -->
-<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Every heading, label and number is the platform's own face (SF on his
+     phone), so the only web font left is JetBrains Mono, and it is for code
+     only (library documents and the record's hashes). Libre Caslon Text went
+     with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260925h">
+<link rel="stylesheet" href="css/style.css?v=20260925i">
 </head>
 <body>
 
@@ -122,9 +119,13 @@
 
     <div class="sidebar-foot">
       <div class="theme-menu" id="themeMenu">
-        <button data-theme-pick="light"><span class="swatch" style="background:#fcfcfd;"></span>Paper</button>
+        <!-- Auto follows the phone's light/dark setting, live. It is stored as
+             the string "auto"; a device from before it existed reads that as
+             an unknown theme and falls back to light. -->
+        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #1c1c1e 50%);"></span>Auto</button>
+        <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Paper</button>
         <button data-theme-pick="parchment"><span class="swatch" style="background:linear-gradient(90deg, #2b2118 34%, #f8f4ec 34%);"></span>Parchment</button>
-        <button data-theme-pick="dark"><span class="swatch" style="background:#171b21;"></span>Dark</button>
+        <button data-theme-pick="dark"><span class="swatch" style="background:#1c1c1e;"></span>Dark</button>
         <button data-theme-pick="latte"><span class="swatch" style="background:linear-gradient(90deg, #faf7f0 50%, #2c2115 50%);"></span>Latte</button>
         <button data-theme-pick="forest"><span class="swatch" style="background:#2f6b43;"></span>Forest</button>
         <button data-theme-pick="midnight"><span class="swatch" style="background:#151c2b;"></span>Midnight</button>
@@ -188,27 +189,27 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20260925h"></script>
-<script defer src="js/figures.js?v=20260925h"></script>
-<script defer src="js/lab.js?v=20260925h"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20260925h"></script>
-<script defer src="data/summaries-math110.js?v=20260925h"></script>
-<script defer src="data/summaries-math110-mit.js?v=20260925h"></script>
-<script defer src="data/summaries-math120.js?v=20260925h"></script>
-<script defer src="data/summaries-math130.js?v=20260925h"></script>
-<script defer src="data/summaries-phys100.js?v=20260925h"></script>
-<script defer src="data/summaries-math210.js?v=20260925h"></script>
-<script defer src="data/summaries-sys250.js?v=20260925h"></script>
-<script defer src="data/workshop.js?v=20260925h"></script>
-<script defer src="data/storytelling.js?v=20260925h"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20260925h"></script>
-<script defer src="data/quiz-calculus.js?v=20260925h"></script>
-<script defer src="data/quiz-probability.js?v=20260925h"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20260925h"></script>
-<script defer src="data/quiz-dsa.js?v=20260925h"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20260925h"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20260925h"></script>
-<script defer src="js/quiz-engine.js?v=20260925h"></script>
-<script defer src="js/app.js?v=20260925h"></script>
+<script defer src="data/curriculum.js?v=20260925i"></script>
+<script defer src="js/figures.js?v=20260925i"></script>
+<script defer src="js/lab.js?v=20260925i"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20260925i"></script>
+<script defer src="data/summaries-math110.js?v=20260925i"></script>
+<script defer src="data/summaries-math110-mit.js?v=20260925i"></script>
+<script defer src="data/summaries-math120.js?v=20260925i"></script>
+<script defer src="data/summaries-math130.js?v=20260925i"></script>
+<script defer src="data/summaries-phys100.js?v=20260925i"></script>
+<script defer src="data/summaries-math210.js?v=20260925i"></script>
+<script defer src="data/summaries-sys250.js?v=20260925i"></script>
+<script defer src="data/workshop.js?v=20260925i"></script>
+<script defer src="data/storytelling.js?v=20260925i"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20260925i"></script>
+<script defer src="data/quiz-calculus.js?v=20260925i"></script>
+<script defer src="data/quiz-probability.js?v=20260925i"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20260925i"></script>
+<script defer src="data/quiz-dsa.js?v=20260925i"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20260925i"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20260925i"></script>
+<script defer src="js/quiz-engine.js?v=20260925i"></script>
+<script defer src="js/app.js?v=20260925i"></script>
 </body>
 </html>

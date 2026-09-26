@@ -1,0 +1,18 @@
+# Every --bg-2 fill on the coordinator's list, in the state that paints it, against its first opaque ancestor.
+# HEAD (git archive of HEAD). Format: ratio fill/backdrop backdrop-element; nb = against a plain calendar day.
+.cal-cell.rest                    light@390 1.155 #f2f0ea/#e4e0d8 div.cal-grid nb 1.140 | light@1280 1.155 #f2f0ea/#e4e0d8 div.cal-grid nb 1.140 | dark@390 1.454 #0b0e11/#2a3038 div.cal-grid nb 1.120 | dark@1280 1.454 #0b0e11/#2a3038 div.cal-grid nb 1.120
+.cal-cell.blank                   light@390 1.155 #f2f0ea/#e4e0d8 div.cal-grid nb 1.140 | light@1280 1.155 #f2f0ea/#e4e0d8 div.cal-grid nb 1.140 | dark@390 1.454 #0b0e11/#2a3038 div.cal-grid nb 1.120 | dark@1280 1.454 #0b0e11/#2a3038 div.cal-grid nb 1.120
+.cal-cell:hover                   light@390 1.155 #f2f0ea/#e4e0d8 div.cal-grid nb 1.140 | light@1280 1.155 #f2f0ea/#e4e0d8 div.cal-grid nb 1.140 | dark@390 1.454 #0b0e11/#2a3038 div.cal-grid nb 1.120 | dark@1280 1.454 #0b0e11/#2a3038 div.cal-grid nb 1.120
+.unit > summary:hover             light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.unit > summary:active            light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.opt:hover                        light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.check-row:hover                  light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.check-row:active                 light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.onecounts > a:hover              light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.btn.tiny.bare:hover              light@390 1.000 #f2f0ea/#f2f0ea tr | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.000 #0b0e11/#0b0e11 tr | dark@1280 1.031 #0b0e11/#0f1216 body
+.prose code                       light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.stack-table tr (:1063)           light@390 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body
+.hash (:1648)                     light@390 1.082 #f2f0ea/#faf9f6 body | light@1280 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body | dark@1280 1.031 #0b0e11/#0f1216 body
+.menu-btn:active (:1771)          light@390 1.082 #f2f0ea/#faf9f6 body | dark@390 1.031 #0b0e11/#0f1216 body
+(extra) .theme-menu button:hover  light@1280 1.000 #2b2118/#2b2118 aside.sidebar (NOT HOVERED) | dark@1280 1.194 #1e2024/#0a0d10 aside.sidebar
+(extra) .navrow:hover             light@1280 1.278 #3d3329/#2b2118 aside.sidebar | dark@1280 1.194 #1e2024/#0a0d10 aside.sidebar

@@ -51,7 +51,8 @@ The smallest change that lands the brief's §3 tokens globally, without restylin
 
      It prints one summary line in one unit and exits 1 on any failure.
    - Add it to config's CHECK line.
-7. Bump every `?v=` token.
+7. **The header sits under the iPhone status bar.** In the owner's home-screen screenshot of 2026-09-26, the clock and signal overlap "DASHBOARD". `platform/index.html:5` sets `viewport-fit=cover`, and `:19` sets `apple-mobile-web-app-status-bar-style: black-translucent`, so the page draws under the status bar. But no rule in `style.css` uses `env(safe-area-inset-top)`. The fix: the sticky phone `.topbar` gets `padding-top: env(safe-area-inset-top)`, its min-height grows by the same amount, and its background covers the inset. Anything else pinned to the top (the drawer's top edge, `.edge-grab`, the theme menu) is offset by the same amount. The desktop layout is unchanged.
+8. Bump every `?v=` token.
 
 ## Out of scope
 - **Screen layouts:** nav bar, tab bar and sidebar (T-006), lists (T-007), and the dashboard, lesson and quiz screens (T-009 onward).
@@ -72,7 +73,8 @@ The smallest change that lands the brief's §3 tokens globally, without restylin
 5. `verify-clip.js` reports 0 new findings. Baseline entries that the font change resolved are removed, and none are added. If the new face creates a clipping finding, the builder fixes it in this item.
 6. `verify-content`, `verify-sync-loop`, `verify-logic` and `verify-flows` all pass. Typecheck is clean.
 7. No request to `fonts.googleapis.com` for Libre Caslon appears in the page. Evidence: a network log in `verification/`.
-8. Screenshots of home, course and lesson at 390 (light and dark) and 1280 (light), saved beside `loop/design/before/`.
+8. **Status bar.** `verify-design.js` reads `platform/css/style.css` from disk. It must not use `document.styleSheets`, which throws on `file://`. It asserts that the phone `.topbar` rule contains `env(safe-area-inset-top)` in its padding-top. Chromium cannot emulate a notch, so this is a source assertion. Planted bug (e): remove it, and the gate exits 1.
+9. Screenshots of home, course and lesson at 390 (light and dark) and 1280 (light), saved beside `loop/design/before/`.
 
 ## Verification checklist
 - [ ] typecheck and all gates, with verify-design added to the CHECK line

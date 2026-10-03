@@ -6,6 +6,12 @@ At a 24px root on 768–1440px widths, the sidebar crest's wordmark `div.name-en
 - Cause: `.crest .name-en` in `platform/css/style.css:484-488` is `1.3rem` with
   `letter-spacing: 0.14em`, so it scales with the root while the sidebar width doesn't.
 - Evidence: `verify-clip` baseline entries tagged T-002.
+- Note (T-005, 2026-09-26): T-005 moved `--font-display` from Libre Caslon to the system
+  face, and at a 24px root that made this 13px worse. Measured in headless Chromium: the
+  wordmark text went from 230px to 243px, in a 220px column at 768 (overflow 10 → 23px)
+  and a 206px column at 1024 and 1280 (24 → 37px). At a 16px root it is 162px (was 153)
+  and fits. The same baseline keys cover it, so no entry was added. The phone drawer
+  (≤ 460px) is capped at 29px by T-005 and is not part of this.
 
 ## Learner outcome
 The sidebar reads cleanly on a laptop with enlarged text. The brand no longer runs into

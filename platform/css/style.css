@@ -1,33 +1,32 @@
 /* ============================================================
    Brickford — Design System
-   Espresso ink on cream paper. A register, not an app: the
-   content is ruled, not carded — head rules, hairlines between
-   entries, numbers in a right-aligned column, square corners,
-   nothing floating. Serif display, quiet motion.
-   Light is the default mode; dark is the roast.
+   A premium, iOS-native app, phone first and desktop too. The
+   owner chose this on 25 Sep 2026; the full intent, the target
+   tokens and the screen roadmap are in loop/design/brief.md, and
+   where this file and the brief disagree, the brief wins.
 
-   The cards went on 20 Sep 2026. Rounded white slabs with a
-   shadow are an iOS grouped list, which is a good structure
-   wearing the wrong clothes for a university — and cream plus a
-   high-contrast serif plus a warm accent is, by 2026, the single
-   most over-produced generated look there is. The structure did
-   not change; the box did. A ruled run is a table, a boxed item
-   is a figure, and those are the only two surfaces left.
+   What that means here: the phone's own font, headings sized and
+   tracked the way iOS text styles are (a rem ramp, so a larger
+   text setting scales the whole layout), rounded corners from one
+   radius scale, flat control fills with no key-cap gloss, one soft
+   shadow kept for the things that truly float, and light and dark
+   that can follow the phone (the Auto theme).
 
-   That description is the original intent, and for a long time it
-   was not what the file did: the neutrals had drifted to a cool
-   grey (#fcfcfd paper, #14181f panel, #7fb0e6 crest) and the
-   display face was a grotesque, not a serif. The result was a
-   competent modern dashboard with a university's crest on it —
-   and the app icon shipped gold-on-brown while the crest inside
-   the app was light blue, so the home screen and the app did not
-   even agree with each other.
+   It replaces an earlier stance, "a register, not an app": ruled
+   content, square corners and a Libre Caslon serif display face.
+   The STRUCTURE that stance produced stays — one primary action
+   per screen, a list for anything that repeats, numbers in a
+   right-hand column — and so does the brand: navy and gold, and
+   the crest. Only the clothes change, and they change screen by
+   screen (T-006 onward); this file's foundations change first.
 
-   The neutrals are warm again (cream paper, espresso ink), the
-   panel is the icon's own #2b2118, the crest is the icon's own
-   gold, and the display face is Libre Caslon Text — the face
-   English university presses set their books in. Every value
-   still clears 4.5:1; that is checked, not asserted.
+   What does not change, ever: every ink is a SOLID colour, never
+   an alpha; every text pair clears 4.5:1 in all seven themes, and
+   that is checked by tools/verify-contrast.js, not asserted; the
+   dark --panel is confined to the sidebar and the tab bar
+   (docs/CONTENT-STANDARD.md). tools/verify-design.js asserts the
+   tokens below on real elements, so a later change cannot quietly
+   put the serif or the square corner back.
    ============================================================ */
 
 :root {
@@ -42,20 +41,34 @@
      failure hides: the same token passes on one surface and fails on the next,
      so nobody can check it by reading the stylesheet. Each value below was
      solved against the worst surface it can land on and clears 4.5:1 there. */
-  --bg: #faf9f6;
+  /* The lead pair, light half: loop/design/brief.md §3. A warm grouped
+     background rather than iOS's cool #f2f2f7, white cells on it. */
+  --bg: #f2f1ee;          /* grouped page background */
   --bg-2: #f2f0ea;        /* section bands — how sections separate */
-  --surface: #ffffff;     /* cards */
-  --surface-2: #f7f5f0;
-  --float: #ffffff;
-  --line: #e4e0d8;
+  --surface: #ffffff;     /* cells, cards */
+  --surface-2: #f7f6f3;   /* gray fills, pressed cells */
+  /* The lightest surface, for the few things drawn over the page (the chart
+     tooltip). It was called --float until --float became the shadow below. */
+  --surface-float: #ffffff;
+  --line: #dcdad5;        /* hairline separators; not text */
   --line-strong: #c7c0b3;
-  --ink: #1c1a17;
-  --ink-2: #4f4941;
-  --ink-3: #6b645a;
-  /* An ink navy, not a link blue. #1f4e79 was a mid-saturation web blue and on
-     cream paper beside a gold crest it read as a hyperlink colour; this reads as
-     ink. Navy and gold is also the oldest university pairing there is. */
-  --accent: #23405f;      /* actions and links ONLY — under 5% of pixels */
+  --ink: #111111;         /* primary label */
+  --ink-2: #5c5a55;       /* secondary label */
+  --ink-3: #6e6b65;       /* tertiary — still text, so still 4.5:1 */
+  /* Navy and gold is the oldest university pairing there is, and the brand
+     keeps it: the tint stays in the navy family. */
+  --accent: #1e4f8f;      /* tint: links, the active tab, tinted-button labels */
+  /* The filled button and the done-day fill. Its label is always white, which
+     clears 8.2:1 here and 5.3:1 on the dark half's fill. */
+  --accent-fill: #1e4f8f;
+  /* The tinted-button fill; its label is --accent (6.9:1). */
+  --accent-soft: #e6edf6;
+  /* The crest, the streak and achievement moments. Never an action. */
+  --gold: #8a5f12;
+  /* --accent-fill, --accent-soft and --gold are set for the lead pair only.
+     The other five themes inherit these light values until the first spec
+     that paints with them (T-008) solves them per theme — nothing reads them
+     yet, so nothing in those themes changes today. */
   /* SECONDARY ACTION, not a second success colour. This was #26665f — the
      identical hex to --fac-sys, and 26 away from --good — so "Partly done"
      rendered in a green that sat next to a green "✓ Completed". It is the
@@ -84,38 +97,26 @@
   --e3: 0 4px 10px color-mix(in srgb, var(--shade) 10%, transparent),
         0 16px 36px color-mix(in srgb, var(--shade) 12%, transparent);
   --shadow-float: var(--e3);
-  /* ---------- Control depth ----------
-     Surfaces are paper; controls are objects sitting on it. The --e* scale
-     above was built for surfaces and went dead when the app flattened — this
-     is the same idea aimed at the only things that should still have depth,
-     the ones you press.
-
-     Two layers, and they do different jobs: a hard 1px edge, which is the
-     button's own thickness, and a soft ambient shadow, which is the light in
-     the room. Losing the hard edge is what makes a press read as a press —
-     without it a shadow is just a sticker. */
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 34%, transparent),
-          0 2px 5px color-mix(in srgb, var(--shade) 15%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 13%, transparent);
-  /* Light catching the top edge of a filled button (apple-design 12). The fill
-     is dark in this theme, so a white inset reads as a bevel. Themes whose
-     button is LIGHT on a dark page override this with an underside line
-     instead — a white gloss on a near-white key is invisible. */
-  --btn-gloss: inset 0 1px 0 color-mix(in srgb, #ffffff 17%, transparent);
-  /* A well: the inverse of --lift, and that inversion is the whole trick. A
-     raised thing is dark underneath and light on top; a sunken one is dark
-     along its TOP inside edge, where the wall casts into the recess, and light
-     along the bottom where the floor catches the light. Same two layers, read
-     upside down, so a field reads as something you drop text into rather than
-     a rectangle with a border round it. */
-  --sink: inset 0 1px 2px color-mix(in srgb, var(--shade) 15%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 65%, transparent);
-  /* An OUTLINED control has no fill to catch light, so on light paper a
-     highlight would light nothing and this is deliberately empty — the shadow
-     alone stands it off the page. On a dark page the opposite is true: a dark
-     shadow around a transparent button on a dark ground is invisible by
-     definition, so the dark themes give this a bright top edge and let light
-     do the work instead. */
+  /* The one soft shadow (brief §3), for the things that truly float: sheets,
+     menus, the hero card on desktop. Cards sit on --bg by contrast of fill,
+     not by shadow. The dark themes swap it for a 1px --line ring, because a
+     dark shadow on a black page is not a shadow. */
+  --float: 0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .08);
+  /* ---------- Control depth: flat ----------
+     These were a key-cap: a hard 1px edge and an ambient shadow under every
+     button (--lift, pressed to --lift-press), a white bevel on its top edge
+     (--btn-gloss), a recessed well in every field (--sink), and a bright top
+     edge on outlined buttons in the dark themes (--lift-edge). iOS controls
+     are flat fills, so each is now an empty shadow.
+     The tokens are kept, not deleted, so that every rule that reads them keeps
+     its shape: `box-shadow: var(--btn-gloss), var(--lift)` is still a valid
+     two-layer list, just an invisible one. Each value has to be a real
+     <shadow> for that reason — `none` inside a comma list is invalid and
+     would drop the whole declaration. No theme restates them. */
+  --lift: 0 0 0 transparent;
+  --lift-press: 0 0 0 transparent;
+  --btn-gloss: 0 0 0 transparent;
+  --sink: 0 0 0 transparent;
   --lift-edge: 0 0 0 transparent;
 
   /* The panel is the sidebar and the tabbar. It is the ONE filled surface in
@@ -131,24 +132,38 @@
      inside it. */
   --feature: var(--accent);
 
-  /* Type. Display is Libre Caslon Text — Caslon is the face English university
-     presses set their books in, and it is what gives this thing an age rather
-     than a theme. Body is the platform's own face (SF on his phone), which
-     ships optical sizing and tracking tables no webfont here can match, and
-     which is also how the interface stops looking like every other generated
-     dashboard on the web. Scale is 1.25 from a 16px base.
-     Georgia is the fallback on purpose, not as filler: it is the one serif on
-     every machine with the same bones as Caslon, so a failed webfont degrades
-     to the right shape rather than to Times. */
-  --font-display: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  /* ---------- Type ----------
+     One face: the phone's own (SF on an iPhone), which ships optical sizing
+     and tracking tables no webfont can match, and costs no request. Display
+     and body are the same stack; hierarchy comes from the text styles below.
+     --font-rounded is for big stat numbers (SF Pro Rounded on Apple, the
+     system face elsewhere). --font-mono is for CODE only — numbers that used
+     to be mono for alignment are the body face with tabular-nums. */
+  --font-body: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-body);
+  --font-rounded: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
-  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --fs-h1: clamp(1.94rem, 4vw, 2.44rem);
-  --fs-h2: 1.5625rem;
-  --fs-h3: 1.25rem;
-  --fs-body: 1rem;
-  --fs-small: 0.875rem;
-  --fs-tiny: 0.75rem;
+  /* The iOS text styles (brief §3), in rem so a larger text setting scales the
+     whole layout. Size, leading and tracking move together: large sizes are
+     tight, body is 0, small text opens up slightly. On desktop (>= 861px) the
+     large title steps up to 2.5rem; every other style is the same everywhere,
+     which is why the separate phone type step is gone. */
+  --fs-large: 2.125rem;    --lh-large: 1.2;     --tr-large: -0.022em;    /* 34, 700 */
+  --fs-title1: 1.75rem;    --lh-title1: 1.2;    --tr-title1: -0.02em;    /* 28, 700 */
+  --fs-title2: 1.375rem;   --lh-title2: 1.25;   --tr-title2: -0.015em;   /* 22, 700 */
+  --fs-title3: 1.25rem;    --lh-title3: 1.25;   --tr-title3: -0.01em;    /* 20, 600 */
+  --fs-headline: 1.0625rem; --lh-headline: 1.3; --tr-headline: -0.005em; /* 17, 600 */
+  --fs-body: 1.0625rem;    --lh-body: 1.45;     --tr-body: 0;            /* 17, 400 */
+  --fs-callout: 1rem;      --lh-callout: 1.4;   --tr-callout: 0;         /* 16, 400 */
+  --fs-subhead: 0.9375rem; --lh-subhead: 1.35;  --tr-subhead: 0;         /* 15, 400 */
+  --fs-footnote: 0.8125rem; --lh-footnote: 1.35; --tr-footnote: 0.005em; /* 13, 400 */
+  --fs-caption: 0.75rem;   --lh-caption: 1.3;   --tr-caption: 0.01em;    /* 12, 500 */
+  /* The names the rest of the file already reads, mapped onto the ramp. */
+  --fs-h1: var(--fs-large);
+  --fs-h2: var(--fs-title2);
+  --fs-h3: var(--fs-title3);
+  --fs-small: var(--fs-subhead);
+  --fs-tiny: var(--fs-caption);
 
   /* Spacing + motion */
   /* rem, not px, so the layout grows with the reader's text-size setting
@@ -167,11 +182,12 @@
   --sp-1: clamp(6px,  0.375rem, 9px);  --sp-2: clamp(10px, 0.625rem, 15px);
   --sp-3: clamp(16px, 1rem,     22px);  --sp-4: clamp(24px, 1.5rem,   32px);
   --sp-5: clamp(40px, 2.5rem,   52px);  --sp-6: clamp(64px, 4rem,     80px);
-  /* Square, near enough. A printed register has no rounded corners, and the
-     6/10px pair was the single loudest "this is an iOS app" signal in the file.
-     Kept at 2px rather than 0 so a focus ring and a button still read as
-     drawn objects rather than as torn edges. */
-  --radius: 2px; --radius-lg: 2px;
+  /* One radius scale (brief §3): chips and small tiles, then list sections,
+     inputs and buttons, then cards, then the hero card and sheets. Capsules
+     use 999px. The two older names map onto it, so every rule that reads them
+     moves with the scale. */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+  --radius: var(--r-md); --radius-lg: var(--r-lg);
   --ease: cubic-bezier(0.25, 0.6, 0.3, 1);
   /* Stacking, named once. Ad-hoc numbers turn into an arms race. */
   --z-tabbar: 39; --z-drawer: 40; --z-drawer-btn: 41; --z-tip: 50; --z-toast: 60;
@@ -204,7 +220,7 @@
   --bg-2: #f0e9db;
   --surface: #ffffff;
   --surface-2: #faf7f0;
-  --float: #ffffff;
+  --surface-float: #ffffff;
   --line: #e6dcc9;
   --line-strong: #d0c0a5;
   --ink: #2b2118;
@@ -226,37 +242,31 @@
   color-scheme: dark;
   --urgent: #d99a4e;
   --shade: #000308;
-  /* Cool neutral dark. Was a warm roast; the institutional identity is cool now,
-     and the ink values are solved against --float, the lightest surface here. */
+  /* The lead pair, dark half: loop/design/brief.md §3. iOS's own dark system
+     neutrals (a true black page, #1c1c1e cells) with Brickford's navy lifted
+     to a tint that reads on black. */
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  --bg: #0f1216;
+  --bg: #000000;
   --bg-2: #0b0e11;
-  --surface: #171b21;
-  --surface-2: #1c2128;
-  --float: #22272f;
-  --line: #2a3038;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-float: #22272f;
+  --line: #38383a;
   --line-strong: #3d454f;
-  --ink: #e8ebef;
-  --ink-2: #a4acb7;
-  --ink-3: #818993;
-  --accent: #7fb0e6;
+  --ink: #ffffff;
+  --ink-2: #a1a1a6;
+  --ink-3: #8e8e93;
+  --accent: #78aef0;
+  --accent-fill: #2f6bbd;
+  --accent-soft: #1a2a3f;
+  --gold: #e0b35a;
   --accent-2: #9ec2e8;
   --good: #62b881;
   --bad: #e8705c;
   --btn-bg: #e8ebef;
   --btn-ink: #0f1216;
-  /* Light key on a dark page: the gloss becomes an underside line — the shadow
-     the key casts on itself — and the ambient goes deeper so it reads against a
-     ground that is already dark. */
-  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
-  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
-  /* A dark inset on an already-dark field is invisible, so here the recess is
-     read from the light along its floor rather than the shadow under its lip. */
-  --sink: inset 0 1px 3px color-mix(in srgb, var(--shade) 55%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 9%, transparent);
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
-          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
+  /* A dark shadow on a black page is not a shadow: what floats gets a ring. */
+  --float: 0 0 0 1px var(--line);
   --panel: #0a0d10;
   --panel-ink: #e8ebef;
   --panel-accent: #7fb0e6;
@@ -271,7 +281,7 @@
   --bg-2: #e6ece3;
   --surface: #ffffff;
   --surface-2: #f7faf5;
-  --float: #ffffff;
+  --surface-float: #ffffff;
   --line: #dbe4d5;
   --line-strong: #b8ccb0;
   --ink: #17201a;
@@ -298,7 +308,7 @@
   --bg-2: #0b0f19;
   --surface: #151c2b;
   --surface-2: #1a2333;
-  --float: #1e2839;
+  --surface-float: #1e2839;
   --line: #263349;
   --line-strong: #3a4d6b;
   --ink: #e7ecf4;
@@ -310,18 +320,7 @@
   --bad: #e8705c;
   --btn-bg: #e7ecf4;
   --btn-ink: #10151f;
-  /* Light key on a dark page: the gloss becomes an underside line — the shadow
-     the key casts on itself — and the ambient goes deeper so it reads against a
-     ground that is already dark. */
-  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
-  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
-  /* A dark inset on an already-dark field is invisible, so here the recess is
-     read from the light along its floor rather than the shadow under its lip. */
-  --sink: inset 0 1px 3px color-mix(in srgb, var(--shade) 55%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 9%, transparent);
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
-          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
+  --float: 0 0 0 1px var(--line);
   --panel: #080b12;
   --panel-ink: #e7ecf4;
   --panel-accent: #7fa3d1;
@@ -338,7 +337,7 @@
   --bg-2: #1d140d;
   --surface: #2c2115;
   --surface-2: #33271a;
-  --float: #392d1d;
+  --surface-float: #392d1d;
   --line: #42331f;
   --line-strong: #5e4a2e;
   --ink: #f0e7d8;
@@ -350,18 +349,7 @@
   --bad: #f08a78;
   --btn-bg: #f0e7d8;
   --btn-ink: #2b2118;
-  /* Light key on a dark page: the gloss becomes an underside line — the shadow
-     the key casts on itself — and the ambient goes deeper so it reads against a
-     ground that is already dark. */
-  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
-  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
-  /* A dark inset on an already-dark field is invisible, so here the recess is
-     read from the light along its floor rather than the shadow under its lip. */
-  --sink: inset 0 1px 3px color-mix(in srgb, var(--shade) 55%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 9%, transparent);
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
-          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
+  --float: 0 0 0 1px var(--line);
   --panel: #faf7f0;
   --panel-ink: #2b2118;
   --panel-accent: #5d3f26;
@@ -376,7 +364,7 @@
   --bg-2: #eeeeea;
   --surface: #ffffff;
   --surface-2: #fafaf8;
-  --float: #ffffff;
+  --surface-float: #ffffff;
   --line: #e4e4df;
   --line-strong: #c8c9c0;
   --ink: #1a1a19;
@@ -399,11 +387,10 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-body);
+  /* Body is iOS body: 17px at 1.45. It was 16px at 1.55, which was already
+     tightened from essay leading for a dense interface (apple-design 15). */
   font-size: var(--fs-body);
-  /* 1.7 is essay leading. This is a dense, information-heavy interface and it
-     read loose and sprawling - apple-design 15: "tighten it for dense,
-     information-heavy UI". */
-  line-height: 1.55;
+  line-height: var(--lh-body);
   color: var(--ink);
   background: var(--bg);
   /* dvh follows the mobile toolbar; the vh line stays as the fallback. */
@@ -420,30 +407,34 @@ body {
    display and loose on body. And hierarchy comes from weight, size and leading
    AS A SET rather than from weight 800 everywhere, which flattened h1 against
    h2 and made both shout.
-   The face has changed since that was written, and the tracking changed with it:
-   a grotesque at 800 needed pulling in, a Caslon at 700 does not. */
+   The three heading levels are three iOS text styles now: h1 the large title,
+   h2 title 2, h3 title 3, each with its own size, leading and tracking from
+   the ramp in :root. */
 h1, h2, .display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
 }
-/* Tracking is face-specific as well as size-specific. A grotesque at weight 800
-   needs -0.03em to stop looking gappy; a Caslon at 700 already has the fit its
-   punchcutter gave it, and pulling it -0.03em closes the counters and turns the
-   serifs into a smear. Tighten it barely, and only at display size. */
 /* A two-line lecture title that drops one word onto the second line reads as
    a mistake. balance evens the lines of a heading; pretty keeps orphans out of
    running text. Both degrade to normal wrapping where unsupported. */
-h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.008em; line-height: 1.1; text-wrap: balance; }
-h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.004em; line-height: 1.2; text-wrap: balance; }
+/* overflow-wrap: at a 24px root the large title is 51px, and one long word
+   ("Eigenvectors", 359px in the fallback sans) is wider than a 320px or 390px
+   screen's column. It breaks only when a word cannot fit a line on its own,
+   so at the default size nothing changes. */
+h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: var(--tr-large); line-height: var(--lh-large); text-wrap: balance; overflow-wrap: anywhere; }
+h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: var(--tr-title2); line-height: var(--lh-title2); text-wrap: balance; }
 h3 {
-  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 700;
-  letter-spacing: 0; line-height: 1.3; font-optical-sizing: auto;
+  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 600;
+  letter-spacing: var(--tr-title3); line-height: var(--lh-title3); font-optical-sizing: auto;
 }
+/* The one step in the ramp that is not the same everywhere: on desktop the
+   large title is 40px (brief §3). */
+@media (min-width: 861px) { :root { --fs-large: 2.5rem; } }
 /* Small text wants slightly POSITIVE tracking - the mirror of the rule above.
    Applied at the token so every label inherits it rather than each block
    re-deciding. */
 .sub, .muted, .note { letter-spacing: 0.004em; line-height: 1.5; }
-.mono { font-family: var(--font-mono); }
+.mono { font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
@@ -483,7 +474,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .crest svg { width: 46px; height: 46px; color: var(--accent); }
 .crest .name-en {
   font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--ink);
-  /* A seal is letterspaced wider than a logotype. Caslon caps have room for it. */
+  /* A seal is letterspaced wider than a logotype. */
   margin-top: 8px; letter-spacing: 0.14em; text-transform: uppercase;
 }
 /* A hairline between name and descriptor — the lockup device every institutional
@@ -621,9 +612,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   font-size: var(--fs-tiny); letter-spacing: 0.07em; text-transform: uppercase;
   color: var(--ink-3); font-weight: 600;
 }
-.rail-card .rl-code { font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
+.rail-card .rl-code { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
 .rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: 0; line-height: 1.3; color: var(--ink); margin-top: 2px; }
-.rail-card .rl-meta { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
+.rail-card .rl-meta { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
 .rail-card .btn { width: 100%; justify-content: center; margin-top: var(--sp-3); }
 .rail-card .rl-foot {
   display: flex; justify-content: space-between; gap: 8px;
@@ -631,7 +622,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   border-top: 1px solid var(--line);
   font-size: var(--fs-tiny); color: var(--ink-3);
 }
-.rail-card .rl-foot b { font-family: var(--font-mono); color: var(--ink); font-weight: 500; }
+.rail-card .rl-foot b { font-family: var(--font-body); font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; }
 
 /* ---------- Common blocks ---------- */
 /* A double rule under the title, which is how a printed title page divides
@@ -660,7 +651,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color: var(--ink);
 }
 .folio .fo-meta {
-  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+  font-family: var(--font-body); font-size: var(--fs-tiny); font-weight: 500;
   letter-spacing: 0.04em; text-transform: none; color: var(--ink-3);
   font-variant-numeric: lining-nums tabular-nums;
 }
@@ -727,7 +718,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* No gloss: a ghost button is the colour of the paper, so a white inset on top
    of it lights nothing. The lift alone is what stands it off the page. */
 .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); box-shadow: var(--lift-edge), var(--lift); }
-.btn.ghost:hover { opacity: 1; background: var(--bg-2); }
+/* The hover is a gray fill, and --line is the one fill that stands off both
+   --bg (>= 1.19:1) and --surface (>= 1.28:1) in all seven themes. It was
+   --bg-2, which is 1.009:1 on the light --bg — a hover nobody could see. The
+   label is --ink, >= 9.9:1 on --line everywhere. */
+.btn.ghost:hover { opacity: 1; background: var(--line); }
 .btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: var(--lift-edge), var(--lift); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
    inline padding:4px versions of these were unhittable on a phone. */
@@ -740,7 +735,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    depth at all — at rest or pressed. */
 .btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); box-shadow: none; }
 .btn.tiny.bare:active { box-shadow: none; }
-.btn.tiny.bare:hover { background: var(--bg-2); }
+/* --surface, not the ghost's --line: this one carries status pills, whose
+   --good and --accent-2 inks fall under 4.5:1 on --line (4.29 and 3.81 in
+   light). --bg-2 was 1.009:1 on the light --bg. */
+.btn.tiny.bare:hover { background: var(--surface); }
 /* opacity:0.4 on a FILLED button leaves a solid grey slab, and in the specimen
    that slab read as heavier than the live ghost button beside it — a dead
    control shouting louder than the ones you can press. A disabled button loses
@@ -794,7 +792,9 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 
 /* Checkboxes */
 .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: var(--radius); cursor: pointer; transition: background-color var(--t-micro) ease; }
-.check-row:hover { background: var(--bg-2); }
+/* Hover and press lift the row to --surface, for the reason .grow's do (see
+   there): --bg-2 was 1.009:1 on the light --bg, and the label is text. */
+.check-row:hover { background: var(--surface); }
 .check-row input { display: none; }
 .checkbox {
   width: 16px; height: 16px; flex-shrink: 0; margin-top: 4px; border-radius: 2px;
@@ -815,10 +815,13 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 .check-label { font-size: var(--fs-small); color: var(--ink-2); }
 
 /* Progress bars */
-/* Square like everything else. 999px was a pill from before this file decided
-   a printed register has no rounded corners; on the dashboard hero it was the
-   roundest thing on the page. */
-.bar { height: 4px; background: var(--bg-2); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: var(--sink); }
+/* The corners are --radius, 12px since T-005, so a 4px bar draws as a
+   capsule — the shape of an iOS progress bar. (It was square while this file
+   held that a printed register has no rounded corners.)
+   The empty track is --line: a non-text fill that stands off --bg (>= 1.19:1)
+   and --surface (>= 1.28:1) in every theme. It was --bg-2, which vanished
+   once the light --bg moved to #f2f1ee (1.009:1). */
+.bar { height: 4px; background: var(--line); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: var(--sink); }
 /* Two truths in one bar: the pale fill is what you have watched, the solid
    fill is what you have actually proven. The gap between them is the point. */
 .bar > u { position: absolute; inset: 0; display: block; border-radius: var(--radius); transform-origin: left; background: color-mix(in srgb, var(--accent) 24%, transparent); }
@@ -860,7 +863,9 @@ tr:last-child td { border-bottom: none; }
 /* ---------- Quiz ---------- */
 .q-card { max-width: 780px; }
 .q-progress { display: flex; gap: 4px; margin-bottom: var(--sp-3); }
-.q-progress i { flex: 1; height: 3px; border-radius: 2px; background: var(--bg-2); box-shadow: var(--sink); }
+/* An unanswered segment is --line, like every empty track (see .bar);
+   --bg-2 measured 1.009:1 on the light --bg and the row read as one dash. */
+.q-progress i { flex: 1; height: 3px; border-radius: 2px; background: var(--line); box-shadow: var(--sink); }
 .q-progress i.done { background: var(--accent); box-shadow: none; }
 .q-progress i.now { background: var(--ink); box-shadow: none; }
 /* Inline KaTeX (a pmatrix, say) cannot wrap, so let a wide question scroll
@@ -886,12 +891,24 @@ tr:last-child td { border-bottom: none; }
    unbreakable token. Break it instead of letting it push the page sideways. */
 .opt, .opt > * { min-width: 0; }
 .opt { overflow-wrap: anywhere; }
-.opt:hover { border-color: var(--line-strong); background: var(--bg-2); }
-.opt .key { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+/* A hovered option keeps its --surface cell and says so with its edge. Its
+   hover fill was --bg-2, which on the light --bg (1.009:1) made the option
+   melt into the page under the pointer; --surface-2 is 1.045:1 there, and a
+   darker gray would take the --ink-3 key letter under 4.5:1. */
+.opt:hover { border-color: var(--line-strong); background: var(--surface); }
+/* flex-shrink: 0 — `.opt > *` lets every child shrink so a long answer wraps,
+   and in the body face the key letter was the child that gave way (9px of a
+   12px "A" at 320px with a 24px root). The answer text absorbs it instead. */
+.opt .key { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); flex-shrink: 0; }
 .opt.sel { border-color: var(--ink); color: var(--ink); }
 .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--surface)); color: var(--ink); }
 .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, var(--surface)); }
-.expl { border-left: 2px solid var(--accent); padding: var(--sp-2) var(--sp-3); background: var(--bg-2); border-radius: 0 var(--radius) var(--radius) 0; font-size: var(--fs-small); color: var(--ink-2); margin-top: var(--sp-2); }
+/* The explanation box carries text (--ink-2, --ink-3, --good, --bad), so its
+   fill must separate from the page AND keep every one of those at 4.5:1:
+   --surface does both in all seven themes (>= 1.07:1 off --bg; --ink-3 is
+   >= 4.88:1 on it). A darker fill cannot — the light --ink-3 is 4.70:1 on
+   --bg, so any gray visibly darker than --bg takes it under 4.5. */
+.expl { border-left: 2px solid var(--accent); padding: var(--sp-2) var(--sp-3); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; font-size: var(--fs-small); color: var(--ink-2); margin-top: var(--sp-2); }
 
 .score-seal {
   width: 140px; height: 140px; border-radius: 50%; margin: 0 auto var(--sp-3);
@@ -899,21 +916,21 @@ tr:last-child td { border-bottom: none; }
   border: 2px solid var(--accent);
   animation: sealIn 320ms var(--ease) both;
 }
-.score-seal .pct { font-family: var(--font-mono); font-size: 2rem; font-weight: 500; color: var(--ink); line-height: 1; }
+.score-seal .pct { font-family: var(--font-rounded); font-variant-numeric: tabular-nums; font-size: 2rem; font-weight: 500; color: var(--ink); line-height: 1; }
 .score-seal .of { font-size: var(--fs-tiny); color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 5px; }
 @keyframes sealIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
 
 /* Exam timer */
-.timer { font-family: var(--font-mono); font-weight: 500; font-size: 2.4rem; letter-spacing: 0.03em; color: var(--ink); text-align: center; font-variant-numeric: tabular-nums; }
+.timer { font-family: var(--font-rounded); font-weight: 500; font-size: 2.4rem; letter-spacing: 0.03em; color: var(--ink); text-align: center; font-variant-numeric: tabular-nums; }
 .timer.low { color: var(--bad); }
 
 
 /* ---------- Charts (hand-rolled SVG) ---------- */
-.chart-tip { position: fixed; z-index: var(--z-tip); pointer-events: none; background: var(--float); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 6px 10px; font-size: var(--fs-tiny); color: var(--ink); box-shadow: var(--shadow-float); opacity: 0; transition: opacity var(--t-micro) ease; }
+.chart-tip { position: fixed; z-index: var(--z-tip); pointer-events: none; background: var(--surface-float); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 6px 10px; font-size: var(--fs-tiny); color: var(--ink); box-shadow: var(--shadow-float); opacity: 0; transition: opacity var(--t-micro) ease; }
 .chart-tip.show { opacity: 1; }
 .chart svg { display: block; width: 100%; height: auto; }
 .chart .grid-line { stroke: var(--line); stroke-width: 1; }
-.chart .axis-label { fill: var(--ink-3); font-size: 12px; font-family: var(--font-mono); }
+.chart .axis-label { fill: var(--ink-3); font-size: 12px; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 
 /* ---------- Toast ---------- */
 .toast {
@@ -934,7 +951,9 @@ tr:last-child td { border-bottom: none; }
 .prose p, .prose li { color: var(--ink-2); font-size: var(--fs-small); }
 .prose ul, .prose ol { padding-left: 1.4em; margin: 0.5em 0 1em; }
 .prose li { margin: 0.3em 0; }
-.prose code { font-family: var(--font-mono); background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 0.82em; color: var(--ink); }
+/* A --surface chip with its --line hairline: --bg-2 was 1.009:1 on the light
+   --bg, so inline code was a border and nothing inside it. */
+.prose code { font-family: var(--font-mono); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 0.82em; color: var(--ink); }
 .prose blockquote { border-left: 2px solid var(--accent); padding-left: var(--sp-3); color: var(--ink-2); margin: 0.8em 0; }
 .prose hr { border: none; border-top: 1px solid var(--line); margin: var(--sp-4) 0; }
 .prose table { margin: 1em 0; }
@@ -957,7 +976,9 @@ tr:last-child td { border-bottom: none; }
 .cal-nav [data-cal-nav="prev"], .cal-nav [data-cal-nav="next"] { width: 34px; padding: 0; }
 .cal-nav [data-cal-nav="today"] { padding: 0 16px; font-size: var(--fs-small); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.cal-dow { background: var(--surface-2); text-align: center; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 8px 0; font-weight: 600; }
+/* --ink-2, not --ink-3: the brief's dark pair solves --ink-3 against --bg and
+   --surface, and on --surface-2 (#2c2c2e) #8e8e93 is 4.27:1. */
+.cal-dow { background: var(--surface-2); text-align: center; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); padding: 8px 0; font-weight: 600; }
 /* 92px tall because it held three lines of text. It holds a date, a mark and
    sometimes a flag now, so it is a square you read as a pattern rather than a
    paragraph you read twenty times. */
@@ -976,13 +997,29 @@ tr:last-child td { border-bottom: none; }
 .cal-cell:active { transform: scale(0.97); box-shadow: var(--sink); }
 /* Not days: an empty pad and a rest day are not things you press. */
 .cal-cell.blank, .cal-cell.rest { box-shadow: none; }
-.cal-cell.sel { animation: cellPick 260ms var(--ease) both; }
+/* The picked day settles into place: a scale from 0.92 to 1 on a critically
+   damped spring (damping 1, response 0.3s — brief §2), so it arrives without
+   overshoot. The spring is sampled into linear(): x(t) = 1 - (1 + wt)e^-wt,
+   w = 2pi/0.3, over 320ms, where it is within 1% of rest. A browser without
+   linear() drops that one declaration and keeps the --ease curve before it.
+   This rule named cellPick for a long time while no @keyframes cellPick
+   existed, so the selected day never moved at all; tools/verify-design.js now
+   asserts the animation actually runs. Motion only: under reduced motion the
+   rule does not apply, and the day is simply selected. */
+@keyframes cellPick { from { transform: scale(0.92); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .cal-cell.sel {
+    animation: cellPick 320ms var(--ease) both;
+    animation-timing-function: linear(0, 0.045 5%, 0.146 10%, 0.266 15%, 0.387 20%, 0.499 25%,
+      0.597 30%, 0.748 40%, 0.848 50%, 0.91 60%, 0.948 70%, 0.978 85%, 1);
+  }
+}
 .cal-cell.blank { background: var(--bg-2); cursor: default; }
 .cal-cell.today .dnum { color: var(--accent); font-weight: 700; }
 .cal-cell.sel { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .cal-cell.rest { background: var(--bg-2); }
 .cal-cell .dnum {
-  font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
+  font-family: var(--font-body); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
   font-variant-numeric: lining-nums tabular-nums;
 }
 /* The day itself. Solid is a day completed, half is one started, an open ring
@@ -1017,7 +1054,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
 }
 .drill .dr-tag {
-  font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0.08em;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--ink); font-weight: 600;
   margin-bottom: 6px;
 }
@@ -1032,9 +1069,12 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   .table-wrap { overflow-x: visible; }
   .stack-table, .stack-table tbody, .stack-table tr, .stack-table td { display: block; width: auto; }
   .stack-table thead { display: none; }
+  /* Each restacked row is a --surface cell. It was --bg-2, 1.009:1 on the
+     light --bg; the row is all text, so the fill has to keep --ink-3 at
+     4.5:1 as well as separate, and --surface does both in every theme. */
   .stack-table tr {
     border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 6px 12px; margin-bottom: 10px; background: var(--bg-2);
+    padding: 6px 12px; margin-bottom: 10px; background: var(--surface);
   }
   .stack-table tr:last-child { margin-bottom: 0; }
   .stack-table td {
@@ -1089,7 +1129,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 @keyframes ringDraw { to { stroke-dashoffset: var(--to, 100); } }
 .ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
 .ring-wrap .ring-label {
-  position: absolute; text-align: center; font-family: var(--font-mono);
+  position: absolute; text-align: center; font-family: var(--font-rounded); font-variant-numeric: tabular-nums;
   font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
 }
 .ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
@@ -1222,7 +1262,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   letter-spacing: -0.004em; line-height: 1.2; color: var(--ink);
 }
 .one-more {
-  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 500;
   color: var(--ink-3); letter-spacing: 0; vertical-align: 0.35em;
 }
 .one-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
@@ -1304,13 +1344,14 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 /* At 320px three cells leave 75px of content, and "CATEGORY" in tracked caps
    needs 77. Six pixels of side padding buys the two it was short of. */
 @media (max-width: 360px) { .onecounts > * { padding: 9px 6px; } }
-.onecounts > a:hover { text-decoration: none; background: var(--bg-2); }
+/* --surface: --bg-2 was 1.009:1 on the light --bg, and the cell is text. */
+.onecounts > a:hover { text-decoration: none; background: var(--surface); }
 /* A cell that links is a control. It is inside a framed table whose rules are
    drawn by the cells themselves, so it raises with the hard edge only — an
    ambient shadow here would smear the rules either side of it. */
 .onecounts > a { box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 40%, transparent); }
 .onecounts > * b {
-  display: block; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 500;
+  display: block; font-family: var(--font-body); font-size: 0.95rem; font-weight: 500;
   color: var(--ink-2); font-variant-numeric: tabular-nums; line-height: 1.25;
 }
 .onecounts > * span {
@@ -1327,12 +1368,22 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    living on the browser's generic grey flash.
    They answer the finger now, which is also what makes it safe to take the
    flash away below: removing it first would have made every tap feel dead. */
-.nav a:active, .navrow:active, .theme-menu button:active, .check-row:active {
+/* The nav, its footer rows and the theme menu sit on the panel, which
+   re-scopes --bg-2 to its own tint, so --bg-2 still reads there. A check row
+   and a disclosure summary sit on the page, where --bg-2 is 1.009:1 against
+   the light --bg; they press to --surface instead (they carry text, so a
+   darker gray would take --ink-3 under 4.5:1). */
+.nav a:active, .navrow:active, .theme-menu button:active {
   background: var(--bg-2);
   transform: scale(0.985);
   transition: transform 100ms ease-out, background-color 100ms ease-out;
 }
-.unit > summary:active { background: var(--bg-2); }
+.check-row:active {
+  background: var(--surface);
+  transform: scale(0.985);
+  transition: transform 100ms ease-out, background-color 100ms ease-out;
+}
+.unit > summary:active { background: var(--surface); }
 /* A day on the heatmap is 13px; scaling it would be invisible, so it brightens
    its own edge instead. */
 .hc:active { box-shadow: inset 0 0 0 2px var(--accent); }
@@ -1371,7 +1422,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .taught .av {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
   display: grid; place-items: center;
-  font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 0.78rem; font-weight: 600;
   color: var(--fac, var(--accent));
   background: color-mix(in srgb, var(--fac, var(--accent)) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--fac, var(--accent)) 30%, transparent);
@@ -1391,7 +1442,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   transition: background-color var(--t-micro) ease;
 }
 .unit > summary::-webkit-details-marker { display: none; }
-.unit > summary:hover { background: var(--bg-2); }
+.unit > summary:hover { background: var(--surface); }   /* see :active */
 .unit > summary::after {
   content: ""; flex-shrink: 0; width: 7px; height: 7px;
   border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
@@ -1463,7 +1514,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 .lab-read {
   display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
-  margin-top: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-small);
+  margin-top: var(--sp-3); font-family: var(--font-body); font-size: var(--fs-small);
   color: var(--ink-2); font-variant-numeric: tabular-nums;
 }
 .lab-read b { color: var(--ink); font-weight: 500; }
@@ -1546,7 +1597,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 /* ---------- Method: curves, steps, spacing ---------- */
 .curve { width: 100%; height: auto; display: block; }
-.curve .ctick { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-3); }
+.curve .ctick { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 12px; fill: var(--ink-3); }
 /* Draw the good curve on rather than snapping it in. */
 .curve-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: drawLine 1400ms var(--ease) 120ms forwards; }
 @keyframes drawLine { to { stroke-dashoffset: 0; } }
@@ -1556,13 +1607,13 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .mstep .mnum {
   width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
   background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
-  display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+  display: grid; place-items: center; font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 0.7rem; font-weight: 600;
 }
 
 .spacing { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
 .spacing .sp-node { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
 .spacing .sp-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
-.spacing .sp-lab { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+.spacing .sp-lab { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); }
 .spacing .sp-line { flex: 1; min-width: 14px; height: 1px; background: var(--line-strong); margin-bottom: 16px; }
 
 /* ---------- Lecture gates: the four proofs ---------- */
@@ -1582,15 +1633,24 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 /* Consistency at a glance: one square per day, columns are weeks. */
 .heat { display: flex; gap: 3px; overflow-x: auto; padding: 2px 0 6px; }
 .hcol { display: flex; flex-direction: column; gap: 3px; }
-.hc { width: 13px; height: 13px; border-radius: 2px; background: var(--bg-2); display: block; border: 0; padding: 0; }
+/* An empty day is --line, a fill that stands off the page in every theme
+   (>= 1.19:1 on --bg). It was --bg-2 with a --sink inset for its edge; once
+   the light --bg moved to #f2f1ee (1.009:1 against --bg-2) and --sink went
+   flat, every empty day and the "Quiet" swatch vanished. The levels are the
+   accent mixed into the EMPTY colour, so they moved with it: mixed into
+   --bg-2, level 1 is 1.02:1 against an empty --line day in dark — a quiet
+   day and a light one the same lightness (1.64:1 mixed into --line).
+   tools/verify-design.js
+   measures the empty day and the swatch against their backdrop. */
+.hc { width: 13px; height: 13px; border-radius: 2px; background: var(--line); display: block; border: 0; padding: 0; }
 .hc.void { background: transparent; }
 /* A rest day is neither work nor a gap. Hollow, so three years of rest days
    do not read as three years of misses. */
 .hc.rest { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
-.hc.l0 { background: var(--bg-2); box-shadow: var(--sink); }
-.hc.l1 { background: color-mix(in srgb, var(--accent) 28%, var(--bg-2)); }
-.hc.l2 { background: color-mix(in srgb, var(--accent) 52%, var(--bg-2)); }
-.hc.l3 { background: color-mix(in srgb, var(--accent) 76%, var(--bg-2)); }
+.hc.l0 { background: var(--line); box-shadow: var(--sink); }
+.hc.l1 { background: color-mix(in srgb, var(--accent) 28%, var(--line)); }
+.hc.l2 { background: color-mix(in srgb, var(--accent) 52%, var(--line)); }
+.hc.l3 { background: color-mix(in srgb, var(--accent) 76%, var(--line)); }
 .hc.l4 { background: var(--accent); }
 .hc.now { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
 .hc[data-hday] { cursor: pointer; transition: transform var(--t-micro) var(--ease); }
@@ -1609,9 +1669,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .vseal .vtext { min-width: 0; }
 .vseal .vhead { font-weight: 600; color: var(--ink); }
 
+/* A --surface well for the hash: --bg-2 was 1.009:1 on the light --bg, and
+   the hash is --ink-2 text, which needs 4.5:1 on whatever holds it. */
 .hash {
   font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-2);
-  overflow-wrap: anywhere; background: var(--bg-2); border-radius: var(--radius);
+  overflow-wrap: anywhere; background: var(--surface); border-radius: var(--radius);
   padding: 8px 10px; line-height: 1.5;
 }
 
@@ -1628,24 +1690,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
               0 -8px 24px color-mix(in srgb, var(--shade) 18%, transparent);
 }
 @media (max-width: 860px) {
-  /* ---- The phone's own type step ----
-     There wasn't one. Measured on a 390px screen, the scale was byte-for-byte
-     the desktop's: 25px Caslon headings, 20px sub-headings, and the text a
-     reader actually READS — a row's second line, a card's prose — at 14px,
-     under what any phone platform calls body. /workshop stacked four 25px
-     "Phase N" headings down one 390px column.
-     So the display comes down and the reading comes up. The gap closes from
-     1.8x to about 1.3x, which is the difference between a page and a poster.
-     .one-kind is deliberately NOT in here: it is the one thing on the page, it
-     keeps the weight it had, and everything under it stops competing with it. */
-  :root {
-    --fs-h1: 1.625rem;      /* 31px -> 26px */
-    --fs-h3: 1.0625rem;     /* 20px -> 17px */
-    --fs-small: 0.9375rem;  /* 14px -> 15px */
-  }
-  /* h2 alone rather than --fs-h2, because .one-kind reads that token too. */
-  h2 { font-size: 1.25rem; }            /* 25px -> 20px */
-
+  /* There used to be a separate phone type step here: smaller headings and a
+     15px --fs-small. The iOS ramp in :root replaced it. The phone and the
+     desktop now share every text style except the large title, and
+     --fs-small is the 15px subhead everywhere. */
   :root { --tabbar-h: 58px; }
   .shell { flex-direction: column; }
   /* No transition: the spring in app.js owns this transform frame by frame, and
@@ -1657,6 +1705,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     position: fixed; z-index: var(--z-drawer); height: 100vh; height: 100dvh;
     transform: translateX(-100%); width: 264px; box-shadow: var(--shadow-float);
     touch-action: pan-y;
+    /* The drawer runs from the very top of the screen, under the status bar
+       (see .topbar below). Its panel colour fills that strip; its content —
+       the crest, and the theme menu in its footer when the drawer scrolls —
+       starts below it. */
+    padding-top: calc(var(--sp-4) + env(safe-area-inset-top, 0px));
   }
   /* ---- The running head ----
      The menu button used to be position:fixed with nothing behind it, and the
@@ -1685,6 +1738,16 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
        a button nobody can reliably hit — 8px of bar is the price of that. */
     min-height: 50px;
     padding: 3px max(14px, env(safe-area-inset-left)) 3px max(14px, env(safe-area-inset-right));
+    /* Under the status bar. index.html sets viewport-fit=cover and the
+       black-translucent status bar, so an installed app draws from the very
+       top of the screen — and on 26 Sep 2026 the clock and the signal sat on
+       top of "DASHBOARD". The bar grows by the inset and pads its content
+       below it; its own background fills the strip, so the status bar reads
+       over the bar and never over the page. 0 wherever there is no notch,
+       which is every desktop and every browser tab. Chromium cannot emulate
+       a notch, so tools/verify-design.js asserts this in the source. */
+    padding-top: calc(3px + env(safe-area-inset-top, 0px));
+    min-height: calc(50px + env(safe-area-inset-top, 0px));
     background: color-mix(in srgb, var(--bg) 92%, transparent);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-bottom: 1.5px solid var(--ink);
@@ -1713,7 +1776,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar .tb-meta {
     flex: 0 1 auto; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+    font-family: var(--font-body); font-size: var(--fs-tiny); font-weight: 500;
     letter-spacing: 0.04em; color: var(--ink-3);
     font-variant-numeric: lining-nums tabular-nums;
   }
@@ -1731,9 +1794,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     transition: background-color var(--t-micro) ease, transform var(--t-micro) ease;
   }
   /* In a bar, not on the page: it needs no shadow to separate it from what is
-     behind it, because nothing is behind it any more. */
+     behind it, because nothing is behind it any more. The press is a --line
+     fill (a glyph, not text, and --ink on it is >= 9.9:1): --bg-2 was
+     1.009:1 against the light --bg the bar shows through. */
   .menu-btn:active {
-    background: var(--bg-2); transform: scale(0.94);
+    background: var(--line); transform: scale(0.94);
     transition: transform 100ms ease-out, background-color 100ms ease-out;
   }
 
@@ -1877,7 +1942,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    runtime. The four gates arrive when the lecture is marked watched, which is
    when they are the next thing to do rather than a wall in front of the video. */
 .lsn-act { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-4); }
-.lsn-run { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+.lsn-run { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); }
 @media (max-width: 700px) {
   .lsn-act .btn.lg { width: 100%; justify-content: center; }
   .lsn-run { margin-top: -4px; }
@@ -1941,15 +2006,14 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    apart. The head carries the rule; the first row under it does not. */
 .ghead + .glist > .grow:first-child { border-top: 0; }
 .ghead .gh-meta {
-  font-family: var(--font-mono); letter-spacing: 0; text-transform: none;
+  font-family: var(--font-body); letter-spacing: 0; text-transform: none;
   font-variant-numeric: lining-nums tabular-nums;
 }
-/* A register, not a card.
-   The rows used to sit on a white slab with a 1px border and a 10px radius —
-   an iOS grouped list, which is a fine structure wearing the wrong clothes for
-   a university. The structure is unchanged; the box is gone. What is left is
-   what a printed register actually is: a head rule, hairlines between entries,
-   a closing rule, and the page itself showing through. */
+/* Still the ruled list of the earlier "register" stance — a head rule,
+   hairlines between entries, a closing rule, the page showing through — and
+   not yet what the brief asks for. T-007 restyles it as an iOS inset grouped
+   section (a --surface fill with --r-md corners); T-005 changes only the
+   tokens it reads. */
 .glist {
   border-bottom: 1px solid var(--line-strong);
   background: none;
@@ -1965,13 +2029,22 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   font: inherit; cursor: pointer;
   transition: background-color var(--t-hover) ease;
 }
-@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--bg-2); text-decoration: none; } }
-.grow:active { background: var(--bg-2); }
+/* Hover and press lift the row to --surface. These rows sit on --bg, and
+   --bg-2 was 1.009:1 on the light one — a press that drew nothing. A darker
+   gray cannot work here: a muted row's --ink-3 is 4.70:1 on the light --bg,
+   so any fill visibly darker takes it under 4.5. --surface separates from
+   --bg in all seven themes (>= 1.07:1) with --ink-3 >= 4.88:1 on it. When
+   T-007 puts rows on a --surface cell, the press becomes --surface-2. */
+@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--surface); text-decoration: none; } }
+.grow:active { background: var(--surface); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
-   of them so every row's text starts on the same vertical line. */
+   of them so every row's text starts on the same vertical line.
+   In rem, because it holds text: 22px at the default size, as before. It was
+   a fixed 22px, which a two-digit number in mono just fitted at a 24px root;
+   in the body face with tabular numerals "14" is 24px there. */
 .grow .g-lead {
-  width: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-3);
+  width: 1.375rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-3);
 }
 .grow .g-main { flex: 1; min-width: 0; }
 .grow .g-t {
@@ -1991,7 +2064,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    min-width, not width, so "20+ lectures" is not clipped to fit the column. */
 .grow .g-v {
   flex-shrink: 0; min-width: 5.5ch; text-align: right;
-  font-family: var(--font-mono); font-size: var(--fs-small);
+  font-family: var(--font-body); font-size: var(--fs-small);
   color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums;
 }
 /* Only rows that go somewhere get the chevron — apple-design 16, a control's
@@ -2041,8 +2114,10 @@ a.grow::after, button.grow.nav::after {
 @media (min-width: 861px) { .scrim, .edge-grab { display: none; } }
 /* The strip you pull from. 20px is Apple's own edge-swipe target: wide enough
    to catch a thumb, narrow enough not to eat taps on real content. */
+/* It starts below the status bar, like the running head: the strip under the
+   clock is the system's (a tap there scrolls to the top), not ours. */
 .edge-grab {
-  position: fixed; left: 0; top: 0; bottom: 0; width: 20px;
+  position: fixed; left: 0; top: env(safe-area-inset-top, 0px); bottom: 0; width: 20px;
   z-index: calc(var(--z-drawer) - 2); background: transparent;
   /* none, not pan-y: inside this strip the horizontal drag is entirely ours,
      and leaving the browser a gesture to claim is what lets it cancel the
@@ -2098,4 +2173,14 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
   .grow { padding: clamp(12px, 0.75rem, 16px) 15px; }
   .btn { padding: clamp(9px, 0.5625rem, 12px) 18px; }
   .btn.tiny { padding: clamp(6px, 0.375rem, 9px) 10px; }
+  /* The drawer's column is 232px here. "BRICKFORD" at 1.3rem with 0.14em
+     tracking fitted it exactly in the serif (232px at a 24px root) and is
+     243px in the system face's fallback, so on a phone the wordmark stops
+     growing at 29px (226px). At the default size it is 20.8px, unchanged.
+     The same wordmark at 768px and up is T-002's and is NOT fixed here — and
+     the face change made it 13px worse at a 24px root. Measured in the gates'
+     headless Chromium: the text was 230px and is 243px, in a 220px column at
+     768 (overflow 10 -> 23px) and a 206px column at 1024 and 1280 (24 ->
+     37px). At a 16px root it is 162px (was 153) and fits every column. */
+  .crest .name-en { font-size: min(1.3rem, 29px); }
 }

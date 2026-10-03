@@ -3423,8 +3423,9 @@
       // The seal. It is the page's whole claim, so it stays — at the size a
       // statement needs rather than the 36px-padded block it was.
       '<div class="card feature" style="text-align:center;">' +
-            // Caslon ships 400 and 700; 600 makes the browser synthesise a weight by
-      // smearing the outlines, which is exactly the wrong thing to do to a seal.
+      // The wordmark is --font-display, the system face since T-005 (it was
+      // Libre Caslon, which shipped only 400 and 700). 700 is the title weight of
+      // the iOS ramp (loop/design/brief.md §3), so the seal matches the headings.
       '<div style="font-family:var(--font-display); font-weight:700; font-size:1.35rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink);">Brickford</div>' +
       '<div style="font-size:var(--fs-tiny); letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-3); margin-top:2px;">Academic record</div>' +
       '<div class="mono" style="font-size:2.4rem; font-weight:600; color:var(--ink); margin-top:10px;">' + overall + "%</div>" +
@@ -4870,8 +4871,16 @@
 
   // ---------- boot ----------
   function boot() {
+    // "auto" follows the phone's light/dark setting. It is stored as that
+    // string and resolved here, never written back as "light" or "dark", so
+    // the phone stays in charge. A device from before Auto existed puts
+    // "auto" straight into data-theme, which no theme block matches, so it
+    // shows light — the same `|| "light"` outcome as an unset theme.
+    const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
     const applyTheme = () => {
-      document.documentElement.dataset.theme = S.settings.theme || "light";
+      const pick = S.settings.theme || "light";
+      document.documentElement.dataset.theme =
+        pick === "auto" ? (darkQ && darkQ.matches ? "dark" : "light") : pick;
       // The Home Screen app's status bar is painted from this meta, and it was
       // hard-coded to the brown panel — so picking Dark or Latte left a brown
       // bar above a near-black page. It follows the theme now. Read AFTER the
@@ -4880,9 +4889,18 @@
       if (meta) meta.setAttribute("content",
         getComputedStyle(document.documentElement).getPropertyValue("--panel").trim() || "#2b2118");
       $$("#themeMenu [data-theme-pick]").forEach(b =>
-        b.classList.toggle("on", b.dataset.themePick === (S.settings.theme || "light")));
+        b.classList.toggle("on", b.dataset.themePick === pick));
     };
     applyTheme();
+    // The phone switching light/dark while the app is open. This is a read:
+    // it re-applies the theme and nothing else — no save(), which would arm a
+    // sync push, and no render(), since every colour is a token and follows
+    // data-theme on its own.
+    if (darkQ) {
+      const follow = () => { if (S.settings.theme === "auto") applyTheme(); };
+      if (darkQ.addEventListener) darkQ.addEventListener("change", follow);
+      else if (darkQ.addListener) darkQ.addListener(follow);   // Safari before 14
+    }
     $("#themeBtn").onclick = () => $("#themeMenu").classList.toggle("open");
     $$("#themeMenu [data-theme-pick]").forEach(b => {
       b.onclick = () => {

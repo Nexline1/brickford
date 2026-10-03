@@ -23,10 +23,12 @@
    What does not change, ever: every ink is a SOLID colour, never
    an alpha; every text pair clears 4.5:1 in all seven themes, and
    that is checked by tools/verify-contrast.js, not asserted; the
-   dark --panel is confined to the sidebar and the tab bar
-   (docs/CONTENT-STANDARD.md). tools/verify-design.js asserts the
-   tokens below on real elements, so a later change cannot quietly
-   put the serif or the square corner back.
+   dark --panel may be painted by the sidebar and the tab bar and
+   nothing else (docs/CONTENT-STANDARD.md) — and since T-006 it is
+   painted by neither: both are materials in the page's own scheme.
+   tools/verify-design.js asserts the tokens below on real
+   elements, so a later change cannot quietly put the serif, the
+   square corner or the dark slab back.
    ============================================================ */
 
 :root {
@@ -65,10 +67,12 @@
   --accent-soft: #e6edf6;
   /* The crest, the streak and achievement moments. Never an action. */
   --gold: #8a5f12;
-  /* --accent-fill, --accent-soft and --gold are set for the lead pair only.
-     The other five themes inherit these light values until the first spec
-     that paints with them (T-008) solves them per theme — nothing reads them
-     yet, so nothing in those themes changes today. */
+  /* --accent-fill is set for the lead pair only; the other five themes
+     inherit the light value until T-008 paints with it. --accent-soft is the
+     sidebar's selection pill since T-006, so every theme sets its own (its
+     accent at 10-12% into its --surface, label >= 5.3:1). --gold is the crest
+     since T-006: the three light themes read this value (5.6:1 on white), and
+     the three dark ones set their own. */
   /* SECONDARY ACTION, not a second success colour. This was #26665f — the
      identical hex to --fac-sys, and 26 away from --good — so "Partly done"
      rendered in a green that sat next to a green "✓ Completed". It is the
@@ -119,10 +123,13 @@
   --sink: 0 0 0 transparent;
   --lift-edge: 0 0 0 transparent;
 
-  /* The panel is the sidebar and the tabbar. It is the ONE filled surface in
-     the whole interface, which is what makes it read as structure rather than
-     decoration — and confining it to two components is what stops its dark
-     value from landing under dark text somewhere else. */
+  /* The panel was the sidebar and the tab bar: a dark slab beside a light
+     page. Since T-006 both are translucent materials in the page's own scheme
+     (brief §2.4), so no rule paints --panel any more. It stays defined because
+     the Home Screen status bar is coloured from it (meta theme-color, in
+     app.js), and CONTENT-STANDARD's rule stands: if anything ever paints it
+     again, it is the sidebar or the tab bar, and it re-scopes the ink with it.
+     --panel-ink and --panel-accent are that ink, kept with it. */
   --panel: #2b2118;
   --panel-ink: #f2ece2;
   --panel-accent: #d3a874;
@@ -207,10 +214,12 @@
   --fac-speech: #8a4a63;
 }
 
-/* Brickford's original identity, kept as a theme rather than thrown away: brown
-   sidebar, warm cream page, caramel highlights. Every ink here was re-solved to
-   clear 4.5:1 — the old version's alpha inks measured 2.83:1, which is the whole
-   reason the palette was rebuilt in the first place. */
+/* Brickford's original identity, kept as a theme rather than thrown away: warm
+   cream page, espresso ink, caramel highlights. (Its sidebar was the brown
+   --panel slab until T-006 made every sidebar a material in its own page's
+   scheme.) Every ink here was re-solved to clear 4.5:1 — the old version's
+   alpha inks measured 2.83:1, which is the whole reason the palette was
+   rebuilt in the first place. */
 [data-theme="parchment"] {
   color-scheme: light;
   --urgent: #8a4f14;
@@ -227,6 +236,7 @@
   --ink-2: #534b40;
   --ink-3: #71685c;
   --accent: #5d3f26;
+  --accent-soft: #ece8e5;
   --accent-2: #8a5f2e;
   --good: #3b6845;
   --bad: #a8331f;
@@ -288,6 +298,7 @@
   --ink-2: #474f48;
   --ink-3: #626b63;
   --accent: #2f6b43;
+  --accent-soft: #e6ede8;
   --accent-2: #2b5a86;
   --good: #286a43;
   --bad: #b32d1f;
@@ -315,6 +326,8 @@
   --ink-2: #a3aebf;
   --ink-3: #808a9a;
   --accent: #7fa3d1;
+  --accent-soft: #222c3f;
+  --gold: #e0b35a;
   --accent-2: #9db8dd;
   --good: #62b881;
   --bad: #e8705c;
@@ -332,7 +345,9 @@
   --urgent: #dda05a;
   --shade: #000204;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  /* The one theme that keeps Brickford's coffee: dark roast content, milk panel. */
+  /* The one theme that keeps Brickford's coffee: dark roast throughout. (Its
+     --panel is milk, #faf7f0, but since T-006 nothing paints the panel — the
+     sidebar and the tab bar are roast materials like the page.) */
   --bg: #241a12;
   --bg-2: #1d140d;
   --surface: #2c2115;
@@ -344,6 +359,8 @@
   --ink-2: #beb3a4;
   --ink-3: #9a8f81;
   --accent: #d9b382;
+  --accent-soft: #3d3020;
+  --gold: #e0b35a;
   --accent-2: #cfa06a;
   --good: #8cb394;
   --bad: #f08a78;
@@ -363,7 +380,10 @@
   --bg: #f7f7f5;
   --bg-2: #eeeeea;
   --surface: #ffffff;
-  --surface-2: #fafaf8;
+  /* The pressed-row fill. It was #fafaf8, 1.045:1 on the white --surface the
+     rows sit on — a press nobody could see. 1.063:1 now, with --ink-3 still
+     4.95:1 on it. */
+  --surface-2: #f8f8f6;
   --surface-float: #ffffff;
   --line: #e4e4df;
   --line-strong: #c8c9c0;
@@ -371,6 +391,7 @@
   --ink-2: #4f4f4c;
   --ink-3: #6c6c69;
   --accent: #3d4c60;
+  --accent-soft: #e8eaec;
   --accent-2: #456a94;
   --good: #296d45;
   --bad: #b32d1f;
@@ -444,28 +465,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* ---------- Shell ---------- */
 .shell { display: flex; min-height: 100vh; min-height: 100dvh; }
 
+/* The sidebar is a material in the page's own scheme (brief §2.4, T-006): the
+   page's --surface at 85% under a blur, with a hairline trailing edge. It was
+   the dark --panel slab beside a light page, re-scoping eight ink tokens to
+   alpha mixes of --panel-ink so its text would read on it — and alpha inks are
+   exactly what docs/CONTENT-STANDARD.md forbids. On a material in the page's
+   own colours the page's solid inks simply apply, so nothing is re-scoped.
+   Every ink measures >= 4.9:1 on it in all seven themes (the material sits
+   between --surface and --bg, and each ink is solved against both). */
 .sidebar {
-  /* Panel: re-scope the ink/line tokens so every child recolors per theme */
-  --ink: var(--panel-ink);
-  --ink-2: color-mix(in srgb, var(--panel-ink) 82%, transparent);
-  --ink-3: color-mix(in srgb, var(--panel-ink) 68%, transparent);
-  --line: color-mix(in srgb, var(--panel-ink) 14%, transparent);
-  --line-strong: color-mix(in srgb, var(--panel-ink) 32%, transparent);
-  --bg-2: color-mix(in srgb, var(--panel-ink) 9%, transparent);
-  --surface: color-mix(in srgb, var(--panel-ink) 6%, transparent);
-  --accent: var(--panel-accent);
-  /* The panel re-scopes its INK, and for a long time that was the whole list.
-     It also has to re-scope its SHADOWS, for the same reason and in the same
-     direction: --shadow-float is solved from --shade against the page, and the
-     one floating thing in here — the theme menu — drops it onto a panel that
-     is dark in six themes out of seven. A dark shadow on dark brown is not a
-     shadow. Solved against the panel instead, so the menu lifts off it. */
-  --shadow-float:
-    0 4px 10px color-mix(in srgb, var(--shade) 55%, transparent),
-    0 14px 34px color-mix(in srgb, var(--shade) 42%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--panel-ink) 12%, transparent);
   width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
-  background: var(--panel);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  border-right: 0.5px solid var(--line);
   padding: var(--sp-4) var(--sp-3);
   display: flex; flex-direction: column; gap: var(--sp-2);
 }
@@ -479,7 +491,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 /* A hairline between name and descriptor — the lockup device every institutional
    identity in the references uses to say "this is a seal, not a logotype". */
-.crest .wordrule { width: 34px; height: 1px; background: var(--accent); margin: 7px auto 6px; opacity: 0.85; }
+.crest .wordrule { width: 34px; height: 1px; background: var(--gold); margin: 7px auto 6px; opacity: 0.85; }
 .crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
@@ -490,7 +502,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    than copying it, so the two halves cannot drift apart. */
 .nav a, .navrow {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: clamp(8px, 0.5rem, 11px) var(--sp-2); border-radius: var(--radius);
+  padding: clamp(8px, 0.5rem, 11px) var(--sp-2); border-radius: var(--r-sm);
   color: var(--ink-2); font-size: var(--fs-small); font-weight: 500; text-decoration: none;
   position: relative;
   transition: background-color var(--t-hover) ease;
@@ -498,14 +510,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   background: none; border: 0; font-family: var(--font-body); text-align: left;
   cursor: pointer;
 }
-/* 0.7 over --ink-2 on a dark panel is a smudge, not a mark. The glyph comes up
-   and colour carries the state instead of opacity doing both jobs. */
+/* 0.7 over --ink-2 is a smudge, not a mark. The glyph comes up and colour
+   carries the state instead of opacity doing both jobs. */
 .nav a .glyph, .navrow .glyph { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.85; }
+/* Hover and press are --bg-2, the page's section-band grey: on the sidebar
+   material it measures >= 1.09:1 in every theme (>= 1.12:1 on the drawer's
+   solid --surface), with --ink and --ink-2 >= 6.0:1 on it. */
 .nav a:hover, .navrow:hover { background: var(--bg-2); color: var(--ink); text-decoration: none; }
-.nav a.active { background: var(--bg-2); color: var(--ink); font-weight: 600; }
-.nav a.active::before {
-  content: ""; position: absolute; left: -1px; top: 24%; bottom: 24%; width: 2px;
-  background: var(--accent);
+/* The current page is a tinted pill: --accent-soft with an --accent label
+   (>= 5.3:1 in all seven themes), on --r-sm corners. It was a --bg-2 fill and
+   a 2px accent bar down the left edge, which on a light material reads as a
+   hover that got stuck. The pill keeps its tint while pressed or hovered —
+   the press is the scale below, not a second fill. */
+.sidebar .nav a.active, .sidebar .nav a.active:hover, .sidebar .nav a.active:active {
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
 }
 .nav a.active .glyph { opacity: 1; color: var(--accent); }
 
@@ -570,7 +588,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
 
-.view-enter { animation: viewIn var(--t-enter) var(--ease) both; }
+/* color is declared, not inherited from wherever the view happens to sit: a
+   view rebuilt while the theme was changing inherited the previous theme's
+   --ink through the shell for a frame, which verify-contrast caught as a
+   light ink on a dark page that never reproduced. */
+.view-enter { animation: viewIn var(--t-enter) var(--ease) both; color: var(--ink); }
 @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Action rail ----------
@@ -655,6 +677,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   letter-spacing: 0.04em; text-transform: none; color: var(--ink-3);
   font-variant-numeric: lining-nums tabular-nums;
 }
+/* The dashboard's large title. On a phone every page opens on one (T-006);
+   the dashboard had no head of its own, so it carries this one, which the
+   desktop does not show — there the hero is the top of the page. */
+.folio.dash-title { display: none; }
 /* A detail page — one course, one lecture, one document — is the case where the
    title IS the information, so it keeps a real heading. The folio above it
    becomes the breadcrumb it already was. */
@@ -1153,12 +1179,16 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 
 /* ---------- Crest ----------
    A filled field with the device cut out of it, which is what makes a seal read
-   as a seal. Outlines would go spindly the moment it is scaled down. */
+   as a seal. Outlines would go spindly the moment it is scaled down.
+   The field is --gold, the brand's crest colour (brief §1), and the cut-outs
+   are the --surface the sidebar material is made of, so the device reads as
+   holes in the seal. Both were --panel-coloured when the sidebar was the
+   panel: caramel on espresso. */
 .crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
-.crest .cr-field { fill: var(--accent); }
-.crest .cr-key { fill: none; stroke: var(--panel); stroke-width: 3; opacity: 0.55; }
-.crest .cr-cut { fill: var(--panel); }
-.crest .cr-stem { fill: none; stroke: var(--panel); stroke-width: 3.4; stroke-linecap: round; }
+.crest .cr-field { fill: var(--gold); }
+.crest .cr-key { fill: none; stroke: var(--surface); stroke-width: 3; opacity: 0.55; }
+.crest .cr-cut { fill: var(--surface); }
+.crest .cr-stem { fill: none; stroke: var(--surface); stroke-width: 3.4; stroke-linecap: round; }
 
 /* ---------- Faculty colour, applied where a subject is identified ---------- */
 .fac-math { --fac: var(--fac-math); }
@@ -1204,9 +1234,9 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    paints is a stranger to the page it is painted on. */
 :root { accent-color: var(--accent); caret-color: var(--accent); }
 ::selection { background: color-mix(in srgb, var(--accent) 24%, transparent); color: var(--ink); }
-/* Thin, and in the page's own colours rather than the platform's. */
+/* Thin, and in the page's own colours rather than the platform's. The sidebar
+   inherits it: it is the page's material now, not the dark panel. */
 html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
-.sidebar { scrollbar-color: color-mix(in srgb, var(--panel-ink) 26%, transparent) transparent; }
 
 /* ---------- Utilities ----------
    Every repeated inline style is a place the design can drift, so the recurring
@@ -1247,9 +1277,6 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .one.lead .one-kind {
   font-size: clamp(1.5rem, 5.2vw, 2.1rem); line-height: 1.16; letter-spacing: -0.006em;
 }
-/* A group header used as a card's own context line: no top margin, and it is
-   inside a card rather than between two of them. */
-.ghead.oh { margin: 0 0 10px; }
 /* The leading mark on a row that is a warning. The alert banners this replaced
    carried a red rule, a red code line and a red bubble; one red mark says it. */
 .grow .g-lead.bad-lead { color: var(--bad); font-size: 0.95rem; }
@@ -1368,11 +1395,12 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    living on the browser's generic grey flash.
    They answer the finger now, which is also what makes it safe to take the
    flash away below: removing it first would have made every tap feel dead. */
-/* The nav, its footer rows and the theme menu sit on the panel, which
-   re-scopes --bg-2 to its own tint, so --bg-2 still reads there. A check row
-   and a disclosure summary sit on the page, where --bg-2 is 1.009:1 against
-   the light --bg; they press to --surface instead (they carry text, so a
-   darker gray would take --ink-3 under 4.5:1). */
+/* The nav, its footer rows and the theme menu sit on the sidebar material
+   (or the drawer's solid --surface), where --bg-2 measures >= 1.09:1 in every
+   theme, so --bg-2 reads there; their labels (--ink-2, --ink on hover) are
+   >= 6.0:1 on it. A check row and a disclosure summary sit on the page, where
+   --bg-2 is 1.009:1 against the light --bg; they press to --surface instead
+   (they carry text, so a darker gray would take --ink-3 under 4.5:1). */
 .nav a:active, .navrow:active, .theme-menu button:active {
   background: var(--bg-2);
   transform: scale(0.985);
@@ -1680,21 +1708,18 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 /* ---------- Responsive ---------- */
 .topbar { display: none; }
 .menu-btn { display: none; }
-/* apple-design 12: "scroll edge effects, not hard dividers". The bar is a
-   translucent material with content moving under it, so it needs a bright top
-   edge and a soft lift — an --e3 slab under glass reads as a drawer, not a
-   material. */
-.tabbar {
-  display: none;
-  box-shadow: 0 -1px 0 color-mix(in srgb, var(--panel-ink) 12%, transparent),
-              0 -8px 24px color-mix(in srgb, var(--shade) 18%, transparent);
-}
+/* apple-design 12: "scroll edge effects, not hard dividers". The tab bar is a
+   material with content scrolling under it (brief §4): --surface at 78% under
+   a blur, a 0.5px --line along its top, and no slab or lift of its own. It was
+   the dark --panel with a bright top edge and an --e3 shadow, which is a
+   drawer, not a material. */
+.tabbar { display: none; }
 @media (max-width: 860px) {
   /* There used to be a separate phone type step here: smaller headings and a
      15px --fs-small. The iOS ramp in :root replaced it. The phone and the
      desktop now share every text style except the large title, and
      --fs-small is the 15px subhead everywhere. */
-  :root { --tabbar-h: 58px; }
+  :root { --tabbar-h: 49px; }
   .shell { flex-direction: column; }
   /* No transition: the spring in app.js owns this transform frame by frame, and
      a CSS transition on the same property would fight it — the element would
@@ -1706,97 +1731,119 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     transform: translateX(-100%); width: 264px; box-shadow: var(--shadow-float);
     touch-action: pan-y;
     /* The drawer runs from the very top of the screen, under the status bar
-       (see .topbar below). Its panel colour fills that strip; its content —
-       the crest, and the theme menu in its footer when the drawer scrolls —
+       (see .topbar below). Its fill covers that strip; its content — the
+       crest, and the theme menu in its footer when the drawer scrolls —
        starts below it. */
     padding-top: calc(var(--sp-4) + env(safe-area-inset-top, 0px));
+    /* Solid, not the material: the drawer slides over the scrim, and a
+       translucent drawer shows the dimmed page through it — measured, that
+       took its labels under 4.5:1. */
+    background: var(--surface);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
   }
-  /* ---- The running head ----
-     The menu button used to be position:fixed with nothing behind it, and the
-     page was expected to get out of its way: the folio and the breadcrumb each
-     carried `padding-left: 52px` so their first line cleared the button.
-     Two things were wrong with that. It only ever indented the FIRST line, so
-     anything that wrapped ran back under the button. And the breadcrumb's rule
-     used `display: flex`, which makes the course-code link and the unit name
-     two flex ITEMS side by side rather than one run of text — on MATH 110's
-     Unit I that printed
+  /* ---- The nav bar ----
+     iOS's, in three columns (brief §4): the menu button leading, the page's
+     name in the middle, and a capsule carrying the day and week trailing. The
+     page's own h1 is the large title, in the flow under the bar; the name in
+     the middle stays transparent until that title has scrolled under the bar,
+     and the hairline under the bar appears only once content is beneath it.
+     watchTopbar() in app.js decides both with one IntersectionObserver and
+     only toggles .lt-on and .edge-on here — it never saves and never renders.
+
+     History, because both earlier shapes were bugs. The menu button was once
+     position:fixed with nothing behind it, and the page indented its first
+     line past it: anything that wrapped ran back underneath, and on MATH 110's
+     Unit I the breadcrumb printed
 
          [x]  MATH · UNIT I - ESSENCE OF LINEAR
               110   ALGEBRA (3BLUE1BROWN)
 
-     with the code split down the middle. A control that floats over the page
-     will always be arguing with the page. This one has a bar to sit in.
-
-     It costs nothing in height: the folio it replaces was ~58px in flow with
-     its rule and margin, and this is 46px, pinned, so the reader keeps the
-     running head while scrolling instead of losing it after one screen. */
+     A control that floats over the page will always be arguing with the page.
+     Then the bar became a register's running head — a small-caps page name
+     MOVED out of the page into the bar, a mono day line and a 1.5px ink rule —
+     with the page's own h1 below it as a second title. Nothing is moved into
+     the bar now: it reads the title, and the page keeps it. */
   .topbar {
-    display: flex; align-items: center; gap: 10px;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: 8px;
     position: sticky; top: 0; z-index: var(--z-tabbar);
-    /* The bar is as tall as the control inside it: a 44px hamburger plus 3px
-       of breathing room either side. It was 46px with a 34px button, which is
-       a button nobody can reliably hit — 8px of bar is the price of that. */
-    min-height: 50px;
-    padding: 3px max(14px, env(safe-area-inset-left)) 3px max(14px, env(safe-area-inset-right));
+    /* 44px is the bar and the button inside it: a fingertip, not a guess. */
+    padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
     /* Under the status bar. index.html sets viewport-fit=cover and the
        black-translucent status bar, so an installed app draws from the very
        top of the screen — and on 26 Sep 2026 the clock and the signal sat on
        top of "DASHBOARD". The bar grows by the inset and pads its content
-       below it; its own background fills the strip, so the status bar reads
+       below it; its own material fills the strip, so the status bar reads
        over the bar and never over the page. 0 wherever there is no notch,
        which is every desktop and every browser tab. Chromium cannot emulate
        a notch, so tools/verify-design.js asserts this in the source. */
-    padding-top: calc(3px + env(safe-area-inset-top, 0px));
-    min-height: calc(50px + env(safe-area-inset-top, 0px));
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1.5px solid var(--ink);
+    padding-top: env(safe-area-inset-top, 0px);
+    min-height: calc(44px + env(safe-area-inset-top, 0px));
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
   }
-  /* Both halves shrink, and both clip rather than push.
-     The meta was flex-shrink:0, which is fine until the reader turns text size
-     up: at 150% on a 320px screen "Day 007 · Week 2" alone is wider than the
-     room left beside the title, and a bar that cannot shrink makes the whole
-     PAGE scroll sideways — measured at /exams, 373px of bar in 320px of screen.
-     The priority when it is tight is hamburger, then name, then the day. */
+  /* The scroll edge: a 0.5px --line along the bottom of the bar, there only
+     while content is under it. Drawn inside the bar so it moves nothing. */
+  .topbar::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+    border-bottom: 0.5px solid var(--line);
+    opacity: 0; transition: opacity var(--t-hover) ease;
+  }
+  .topbar.edge-on::after { opacity: 1; }
+  /* The inline title: 17px/600, centred while it fits and ellipsised when it
+     does not. One line, always — a bar that wraps is a bar that moves. */
   .topbar .tb-title {
-    flex: 1 1 auto; min-width: 0;
-    font-family: var(--font-display); font-size: var(--fs-tiny); font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
-    /* One line, always. A running head that wraps is a head that moves. */
+    grid-column: 2; min-width: 0; text-align: center;
+    font-family: var(--font-body); font-size: var(--fs-headline); font-weight: 600;
+    letter-spacing: var(--tr-headline); line-height: var(--lh-headline); color: var(--ink);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0; transition: opacity var(--t-hover) ease;
   }
-  /* The course code is a link and the only way back to the course from a
-     lecture on a phone — so it is a control, and it was 68x14 of hit area.
-     Padded to fill the bar's height; the negative margin keeps the text where
-     the eye expects it. */
-  .topbar .tb-title a {
-    color: var(--accent); text-decoration: none;
-    display: inline-block; padding: 15px 6px; margin: -15px -6px;
-  }
+  .topbar.lt-on .tb-title { opacity: 1; }
+  /* The day and the week, as a capsule. --ink-2 on --surface is >= 6.6:1 in
+     every theme. It never wraps: at a 24px root on a 320px screen it is
+     ~185px beside a 44px button, and the title gives way first. */
   .topbar .tb-meta {
-    flex: 0 1 auto; min-width: 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    font-family: var(--font-body); font-size: var(--fs-tiny); font-weight: 500;
-    letter-spacing: 0.04em; color: var(--ink-3);
-    font-variant-numeric: lining-nums tabular-nums;
+    grid-column: 3; justify-self: end;
+    display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px;
+    border-radius: 999px; background: var(--surface); color: var(--ink-2);
+    font-family: var(--font-body); font-size: var(--fs-footnote); font-weight: 500;
+    line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums;
   }
-  /* Whatever the bar took, the page no longer prints. */
+  .topbar .tb-meta:empty { display: none; }
+  /* The one thing the page still hides on a phone: the hero's "Day 014 · Week
+     3", which the capsule above already says. */
   .tb-taken { display: none !important; }
-  /* A detail page's h1 is its first line now, so it needs the folio's air. */
-  .page-head .kicker.tb-taken + h1 { margin-top: 0; }
+
+  /* ---- The large title ----
+     Every page opens on one, 34px/700 (brief §3): a detail page's h1 already
+     is, and the folio — an index page's small-caps running head — becomes one
+     here, without the day meta the capsule carries. */
+  .folio {
+    display: block; margin: 0 0 var(--sp-3); padding: 0; border: 0;
+    font-size: var(--fs-large); font-weight: 700; letter-spacing: var(--tr-large);
+    line-height: var(--lh-large); text-transform: none; color: var(--ink);
+  }
+  .folio .fo-meta { display: none; }
+  .folio.dash-title { display: block; }
+  /* A detail page's breadcrumb stays on the page now, and its course code is
+     the way back to the course — a control, so a 44px target. The negative
+     margin keeps the text where the eye expects it. */
+  .page-head .kicker a { display: inline-block; padding: 15px 6px; margin: -15px -6px; }
 
   .menu-btn {
+    grid-column: 1; justify-self: start;
     display: inline-flex; flex-shrink: 0;
-    background: none; color: var(--ink); border: 0;
-    width: 34px; height: 34px; margin-left: -7px;
+    background: none; color: var(--accent); border: 0;
+    width: 44px; height: 44px;
     align-items: center; justify-content: center; cursor: pointer;
     border-radius: var(--radius);
     transition: background-color var(--t-micro) ease, transform var(--t-micro) ease;
   }
   /* In a bar, not on the page: it needs no shadow to separate it from what is
-     behind it, because nothing is behind it any more. The press is a --line
-     fill (a glyph, not text, and --ink on it is >= 9.9:1): --bg-2 was
-     1.009:1 against the light --bg the bar shows through. */
+     behind it, because nothing is behind it any more. The glyph is --accent,
+     the tint (brief §4); its press is a --line fill, on which the glyph — not
+     text — measures >= 4.8:1 in every theme. --bg-2 was 1.009:1 against the
+     light --bg the bar shows through. */
   .menu-btn:active {
     background: var(--line); transform: scale(0.94);
     transition: transform 100ms ease-out, background-color 100ms ease-out;
@@ -1809,40 +1856,37 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .main > .view-enter > :first-child { margin-top: 0; }
 
 
-  /* Bottom tab bar — thumb-reach navigation for phones.
-     It carries the dark panel fill but never re-scoped its ink the way .sidebar
-     does, so its labels used the page's --ink-3 — dark grey on a dark bar, 2.6:1.
-     Any component that paints the panel has to re-scope the ink with it. */
+  /* ---- The tab bar ----
+     Thumb-reach navigation for phones. It painted the dark panel for a long
+     time, and any component that paints the panel has to re-scope the ink
+     with it — this one did not, once, and its labels were 2.6:1. It is the
+     page's own material now, so the page's solid inks apply as they are:
+     --ink-3 labels and the --accent active tab are >= 4.9:1 on it in all seven
+     themes. Sentence-case 10px/500 labels under 24px glyphs (brief §4). */
   .tabbar {
-    --ink: var(--panel-ink);
-    --ink-2: color-mix(in srgb, var(--panel-ink) 82%, transparent);
-    --ink-3: color-mix(in srgb, var(--panel-ink) 68%, transparent);
-    --accent: var(--panel-accent);
     position: fixed; bottom: 0; left: 0; right: 0; z-index: var(--z-tabbar);
     display: flex;
-    background: color-mix(in srgb, var(--panel) 96%, transparent);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    padding: 6px max(6px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-right));
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    border-top: 0.5px solid var(--line);
+    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
   .tabbar a {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 6px 2px; border-radius: var(--radius);
-    color: var(--ink-3); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 49px; padding: 4px 2px; border-radius: var(--radius);
+    color: var(--ink-3); font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.2;
     text-decoration: none;
     /* T-001: the labels are rem, so at a 24px root the bar was 397px and
-       "Review" fell off a 390px screen. The label is capped at 3.5vw.
-       Measured on "/": at 320 and 390px, roots 16-32px, all five tabs are on
-       screen, each label inside its own tab, every tab at least 52x50px; at a
-       16px root the bar is pixel-identical to before (0.62rem is smaller).
-       Below 300px some tabs are under 44px wide (16px root, 250px: Home 35.5px,
-       was 39.7px with Review off screen). At 28px/250px and 32px/250-260px the
-       page content is wider than the screen and Review sits past it; before, two
-       or three tabs did. */
-    font-size: min(0.62rem, 3.5vw);
+       "Review" fell off a 390px screen. The label is capped at 3.5vw, and the
+       cap stays: at a 16px root 0.625rem (10px) is under it at every phone
+       width, so it only bites at larger text. Measured by verify-shell on "/"
+       at 320 and 390px, roots 16 and 24px: all five tabs on screen, each at
+       least 44x44. */
+    font-size: min(0.625rem, 3.5vw);
   }
   .tabbar a:hover { text-decoration: none; }
-  .tabbar a .glyph { width: 20px; height: 20px; }
-  .tabbar a.active { color: var(--panel-accent); }
+  .tabbar a .glyph { width: 24px; height: 24px; }
+  .tabbar a.active { color: var(--accent); }
 
   /* 16px inputs stop mobile browsers from zooming the page on focus */
   input[type="text"], input[type="number"], input[type="date"], textarea, select { font-size: 16px; }
@@ -1900,8 +1944,9 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: var(--z-tabbar);
     min-height: var(--railbar-h);
     padding: 7px max(10px, env(safe-area-inset-left)) 7px max(10px, env(safe-area-inset-right));
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    /* The tab bar's material, since it sits directly on top of it (T-006). */
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
     border-top: 1px solid var(--line);
   }
   .railbar:empty { display: none; }
@@ -1926,6 +1971,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
+  /* The nav bar's title and scroll edge swap in the frame the title goes
+     under the bar, with no fade at all. A 0.01ms transition is still a
+     transition — one frame of the old value — so this one is removed. */
+  .topbar .tb-title, .topbar::after { transition: none; }
 }
 
 /* Print: transcript */
@@ -1954,17 +2003,27 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    translucency or more contrast is asking for legibility, not for decoration —
    so the materials go solid and the borders get defined, rather than anything
    being taken away. */
+/* Every material in the chrome goes solid: the nav bar to the page's --bg it
+   was mixed from, the tab bar, the action bar and the sidebar to --surface. */
 @media (prefers-reduced-transparency: reduce) {
-  .tabbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .tabbar, .railbar, .sidebar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
   :root { --line: var(--line-strong); }
-  .card, .glist, .unit, .onecounts { border-color: var(--line-strong); }
-  .tabbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .card, .unit, .onecounts { border-color: var(--line-strong); }
+  /* The same solid chrome, and its edges stated: a 1px --line-strong edge on
+     each, the nav bar's shown whether or not anything is under it. */
+  .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .topbar::after { opacity: 1; border-bottom: 1px solid var(--line-strong); }
+  .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top: 1px solid var(--line-strong); }
+  .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top-color: var(--line-strong); }
+  .sidebar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-right: 1px solid var(--line-strong); }
+  /* A list section is a fill on a fill, 1.07:1 in the faintest theme; here it
+     is outlined as well. */
+  .glist { border: 1px solid var(--line-strong); }
   /* A hairline is a suggestion; at this setting the separation has to be stated. */
-  .grow { border-top-color: var(--line-strong); }
+  .grow::before { border-top: 1px solid var(--line-strong); }
   /* apple-design 14: at this setting depth is replaced by a stated border. A
      shadow is a soft cue and soft cues are the first thing to go. */
   .btn, .menu-btn, .opt, .cal-cell, .onecounts > a { box-shadow: none; }
@@ -1984,99 +2043,130 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    strip. Four languages, one screen, and the owner's word for it
    was "confusing".
 
-   This is the one language. It is the iOS grouped list, and it
-   is here because it answers exactly what he asked for: a
-   section header naming what follows, one inset group, rows that
-   are all the same shape, a value on the right, and a chevron
-   where there is somewhere to go. No per-row card, no rail, no
-   second border. Everything that is not the one action on a page
-   is a row in one of these.
+   This is the one language. It is the iOS inset grouped list
+   (brief §4, T-007), and it is here because it answers exactly
+   what he asked for: a section header naming what follows, one
+   rounded --surface section, rows that are all the same shape, a
+   value on the right, and a chevron where there is somewhere to
+   go. No per-row card, no rail, no second border. Everything that
+   is not the one action on a page is a row in one of these.
+
+   Until T-007 it was dressed as a ruled register — an uppercase
+   tracked header over a 1.5px ink rule, full-width hairlines, no
+   fill, serif titles and mono values — which on a phone read as a
+   printed table, not an app. The structure did not change; the
+   clothes did.
    ============================================================ */
-/* The head of the register: a column label with a real rule under it, the way
-   a ledger or a class list is headed. It used to be a floating caption above a
-   card with nothing tying it to the rows it named. */
+/* The section header: Title 3 (20px/600) in sentence case, its count or
+   total on the right in subhead --ink-2. No rule under it — the section's own
+   fill says where the rows begin. The 4px side padding is all it needs: the
+   page gutter (.main) already insets the header and the section together, so
+   the header's text lines up a few pixels in from the section's edge. */
 .ghead {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
-  margin: var(--sp-5) 0 0; padding-bottom: 6px;
-  border-bottom: 1.5px solid var(--ink);
-  font-size: var(--fs-tiny); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+  margin: 2rem 0 0; padding: 0 4px 8px;
+  font-size: var(--fs-title3); font-weight: 600; line-height: var(--lh-title3);
+  letter-spacing: var(--tr-title3); text-transform: none; color: var(--ink);
 }
-/* A head rule immediately followed by a row's own top rule draws two lines 1px
-   apart. The head carries the rule; the first row under it does not. */
-.ghead + .glist > .grow:first-child { border-top: 0; }
 .ghead .gh-meta {
-  font-family: var(--font-body); letter-spacing: 0; text-transform: none;
+  font-family: var(--font-body); font-size: var(--fs-subhead); font-weight: 400;
+  letter-spacing: 0; text-transform: none; color: var(--ink-2);
   font-variant-numeric: lining-nums tabular-nums;
 }
-/* Still the ruled list of the earlier "register" stance — a head rule,
-   hairlines between entries, a closing rule, the page showing through — and
-   not yet what the brief asks for. T-007 restyles it as an iOS inset grouped
-   section (a --surface fill with --r-md corners); T-005 changes only the
-   tokens it reads. */
-.glist {
-  border-bottom: 1px solid var(--line-strong);
-  background: none;
+/* The hero's context line ("Phase 1 · 0 / 2 today") is a .ghead too, and it
+   keeps the caption it has always had until T-009 restyles the hero: small,
+   tracked capitals over a rule, inside the card rather than between two. */
+.ghead.oh {
+  margin: 0 0 10px; padding: 0 0 6px;
+  border-bottom: 1.5px solid var(--ink);
+  font-size: var(--fs-tiny); font-weight: 600; line-height: var(--lh-body);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
 }
-.glist + .glist { margin-top: var(--sp-4); }
+.ghead.oh .gh-meta { font-size: inherit; font-weight: inherit; color: inherit; }
+/* The section: a --surface fill on --bg with --r-md corners. overflow:hidden
+   is what rounds the rows' press fill into the corners with it. */
+.glist {
+  background: var(--surface); border-radius: var(--r-md); overflow: hidden;
+}
+.glist + .glist { margin-top: 2rem; }
 .grow {
+  position: relative;
   display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: clamp(12px, 0.75rem, 16px) clamp(15px, 0.9375rem, 19px);
-  min-height: clamp(54px, 3.375rem, 68px); color: var(--ink); text-decoration: none;
-  /* A <button> brings a UA border on all four sides; the row wants exactly one,
-     along its top, like every other row in the group. */
-  border: 0; border-top: 1px solid var(--line); background: none; text-align: left;
+  padding: 10px 16px; min-height: 44px;
+  color: var(--ink); text-decoration: none;
+  /* A <button> brings a UA border on all four sides; the row wants none. */
+  border: 0; background: none; text-align: left;
   font: inherit; cursor: pointer;
   transition: background-color var(--t-hover) ease;
 }
-/* Hover and press lift the row to --surface. These rows sit on --bg, and
-   --bg-2 was 1.009:1 on the light one — a press that drew nothing. A darker
-   gray cannot work here: a muted row's --ink-3 is 4.70:1 on the light --bg,
-   so any fill visibly darker takes it under 4.5. --surface separates from
-   --bg in all seven themes (>= 1.07:1) with --ink-3 >= 4.88:1 on it. When
-   T-007 puts rows on a --surface cell, the press becomes --surface-2. */
-@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--surface); text-decoration: none; } }
-.grow:active { background: var(--surface); }
+/* Two lines, two sizes: a row with a subtitle is 56px at least. */
+.grow:has(.g-s) { min-height: 56px; }
+/* The separator: a 0.5px --line along the top of every row but the first,
+   inset to where the row's text starts — past the leading slot where there is
+   one (16px of padding, the slot, and the 12px gap). A full-width rule under
+   the lead column is what made the old list read as a table. */
+.grow::before {
+  content: none; position: absolute; top: 0; right: 0; left: 16px;
+  border-top: 0.5px solid var(--line); pointer-events: none;
+}
+.grow + .grow::before { content: ""; }
+.grow:has(> .g-lead)::before { left: calc(16px + 1.375rem + 12px); }
+/* Hover and press fill the row with --surface-2, the brief's pressed-cell
+   grey. It stands off the section's --surface by >= 1.05:1 in every theme
+   (slate's was 1.045:1 and was re-solved), and everything a row can carry
+   stays >= 4.5:1 on it — which is why the leading slot and a muted value are
+   --ink-2 below: --ink-3 is 4.27:1 on the dark --surface-2.
+   The press is instant: .grow:active (further up, with the shared pointer-down
+   rule) narrows the transition to the transform, so the fill lands on
+   pointer-down and only fades on release. */
+@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--surface-2); text-decoration: none; } }
+.grow:active { background: var(--surface-2); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
-   of them so every row's text starts on the same vertical line.
+   of them so every row's text starts on the same vertical line — and the
+   separator inset above is computed from it.
    In rem, because it holds text: 22px at the default size, as before. It was
    a fixed 22px, which a two-digit number in mono just fitted at a 24px root;
    in the body face with tabular numerals "14" is 24px there. */
 .grow .g-lead {
   width: 1.375rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-3);
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-2);
 }
 .grow .g-main { flex: 1; min-width: 0; }
+/* Headline: 17px/600 in the body face. */
 .grow .g-t {
-  display: block; font-family: var(--font-display); font-weight: 700;
-  font-size: 1.02rem; line-height: 1.3; overflow-wrap: anywhere;
-}
-.grow .g-s {
-  display: block; font-family: var(--font-body); font-size: var(--fs-small);
-  color: var(--ink-3); margin-top: 1px; line-height: 1.35;
+  display: block; font-family: var(--font-body); font-weight: 600;
+  font-size: var(--fs-headline); line-height: var(--lh-headline); letter-spacing: var(--tr-headline);
   overflow-wrap: anywhere;
 }
-/* The ledger column. This was flex-shrink:0 and nothing else, so every value
+/* Subhead: 15px --ink-2. */
+.grow .g-s {
+  display: block; font-family: var(--font-body); font-size: var(--fs-subhead);
+  color: var(--ink-2); margin-top: 1px; line-height: var(--lh-subhead);
+  overflow-wrap: anywhere;
+}
+/* The value column. This was flex-shrink:0 and nothing else, so every value
    ended wherever its own width put it and no two lined up — a list of numbers
    that never became a column. A fixed measure, right-aligned and tabular, is
-   the whole difference between a list and a register: 6%, 3/51, 12m and 65d
-   now stack into one edge you can read straight down.
+   what makes it one: 6%, 3/51, 12m and 65d stack into one edge you can read
+   straight down. Tabular numerals in the body face do that job now; it was
+   mono until T-005.
    min-width, not width, so "20+ lectures" is not clipped to fit the column. */
 .grow .g-v {
   flex-shrink: 0; min-width: 5.5ch; text-align: right;
-  font-family: var(--font-body); font-size: var(--fs-small);
+  font-family: var(--font-body); font-size: var(--fs-subhead);
   color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums;
 }
 /* Only rows that go somewhere get the chevron — apple-design 16, a control's
-   look has to predict what it does. */
+   look has to predict what it does. --ink-3, the tertiary label colour. */
 a.grow::after, button.grow.nav::after {
-  content: ""; flex-shrink: 0; width: 6px; height: 6px; margin-left: -2px;
-  border-right: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong);
+  content: ""; flex-shrink: 0; width: 7px; height: 7px; margin-left: -2px;
+  border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3);
   transform: rotate(-45deg);
 }
-/* A row that is not yet available recedes; it is still readable, still there. */
+/* A row that is not yet available recedes; it is still readable, still there.
+   Its value is --ink-2, not --ink-3, for the press fill's sake (see above). */
 .grow.muted-row .g-t { color: var(--ink-2); font-weight: 400; }
-.grow.muted-row .g-v { color: var(--ink-3); }
+.grow.muted-row .g-v { color: var(--ink-2); }
 .grow.done-row .g-lead { color: var(--good); }
 .grow.done-row .g-t { color: var(--ink-2); font-weight: 400; }
 /* A row that carries a control as well as text has to wrap. At 320px a button
@@ -2086,10 +2176,9 @@ a.grow::after, button.grow.nav::after {
 .grow:has(> .btn) { flex-wrap: wrap; }
 .grow:has(> .btn) .g-main { min-width: 150px; }
 
-/* The exception that used to live here — a nested .glist dropping its border so
-   a card would not draw a second frame around it — deleted itself when the
-   register stopped being a box. There is no frame to double any more, so a
-   group reads the same wherever it sits. */
+/* A .glist inside a card or a unit reads the same as one on the page: a
+   rounded --surface section. There is no frame to double — the section's fill
+   is its edge — so nothing is special-cased by where it sits. */
 
 /* A status dot, for when a row's state is the whole point (a day, a course). */
 .gdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
@@ -2145,10 +2234,12 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 
 
 /* ---------- The phone's spacing ceiling ----------
-   Last in the file on purpose. Two of the three element rules it caps — .grow
-   and .btn — are declared further up, and a rule of equal specificity declared
-   later wins: sitting where it used to sit, the .grow line in here was dead the
-   moment it was written, capping nothing while reading as though it did. */
+   Last in the file on purpose. The element rules it caps — .btn and .btn.tiny
+   — are declared further up, and a rule of equal specificity declared later
+   wins: sitting where it used to sit, a .grow line in here was dead the moment
+   it was written, capping nothing while reading as though it did. (.grow is no
+   longer capped here at all: since T-007 its padding is a fixed 10px 16px,
+   which has nothing to grow.) */
 /* A phone has less width to give away, so on a phone the spacing scale splits
    along the axis it is spent on.
    Text size is unbounded; horizontal space is not. Below 460px the four small
@@ -2170,7 +2261,6 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 @media (max-width: 460px) {
   :root { --sp-1: 6px; --sp-2: 10px; --sp-3: 16px; --sp-4: 24px; }
   /* The element-level clamps are horizontal padding for the same reason. */
-  .grow { padding: clamp(12px, 0.75rem, 16px) 15px; }
   .btn { padding: clamp(9px, 0.5625rem, 12px) 18px; }
   .btn.tiny { padding: clamp(6px, 0.375rem, 9px) 10px; }
   /* The drawer's column is 232px here. "BRICKFORD" at 1.3rem with 0.14em

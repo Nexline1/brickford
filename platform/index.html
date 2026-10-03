@@ -9,7 +9,7 @@
 <!-- One colour, both schemes: the browser chrome should read as Brickford's
      panel, which is what the sidebar and the app icon already are. -->
 <meta name="theme-color" content="#2b2118">
-<link rel="manifest" href="manifest.json?v=20260925i">
+<link rel="manifest" href="manifest.json?v=20260925j">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -20,17 +20,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260925i">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260925i">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260925j">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260925j">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260925i">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260925i">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260925i">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260925j">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260925j">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260925j">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -39,18 +39,20 @@
      with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260925i">
+<link rel="stylesheet" href="css/style.css?v=20260925j">
 </head>
 <body>
 
-<!-- The phone's running head. Desktop hides it outright: there the sidebar is
-     the frame and the page carries its own folio.
+<!-- The phone's nav bar (T-006). Desktop hides it outright: there the sidebar
+     is the frame and the page carries its own folio.
+     Three columns, the way iOS draws one: the menu button, the page's name, and
+     a capsule with the day and week. The page's own h1 is the large title in
+     the flow below; the name here stays transparent until that title has
+     scrolled under the bar. mountTopbar() fills it from the rendered view and
+     watchTopbar() decides when the name and the bottom hairline show.
      It exists because the menu button used to be position:fixed with nothing
      behind it, floating over whatever happened to be underneath — on a lecture
-     it landed in the breadcrumb and broke "MATH 110" in half. The bar gives it
-     somewhere to live, and carries the running head that the folio was showing
-     anyway, so it costs no height. mountTopbar() fills it from the rendered
-     view. -->
+     it landed in the breadcrumb and broke "MATH 110" in half. -->
 <header class="topbar" id="topbar">
   <button class="menu-btn" id="menuBtn" aria-label="Open navigation">
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h14M2 9h14M2 14h14"/></svg>
@@ -58,6 +60,9 @@
   <span class="tb-title" id="tbTitle"></span>
   <span class="tb-meta" id="tbMeta"></span>
 </header>
+<!-- Empty, and directly under the bar in the flow: when it has scrolled under
+     the bar, content is under the bar, and the bar shows its scroll edge. -->
+<div id="tbSentinel" aria-hidden="true"></div>
 
 <div class="shell">
   <aside class="sidebar" id="sidebar">
@@ -189,27 +194,27 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20260925i"></script>
-<script defer src="js/figures.js?v=20260925i"></script>
-<script defer src="js/lab.js?v=20260925i"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20260925i"></script>
-<script defer src="data/summaries-math110.js?v=20260925i"></script>
-<script defer src="data/summaries-math110-mit.js?v=20260925i"></script>
-<script defer src="data/summaries-math120.js?v=20260925i"></script>
-<script defer src="data/summaries-math130.js?v=20260925i"></script>
-<script defer src="data/summaries-phys100.js?v=20260925i"></script>
-<script defer src="data/summaries-math210.js?v=20260925i"></script>
-<script defer src="data/summaries-sys250.js?v=20260925i"></script>
-<script defer src="data/workshop.js?v=20260925i"></script>
-<script defer src="data/storytelling.js?v=20260925i"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20260925i"></script>
-<script defer src="data/quiz-calculus.js?v=20260925i"></script>
-<script defer src="data/quiz-probability.js?v=20260925i"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20260925i"></script>
-<script defer src="data/quiz-dsa.js?v=20260925i"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20260925i"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20260925i"></script>
-<script defer src="js/quiz-engine.js?v=20260925i"></script>
-<script defer src="js/app.js?v=20260925i"></script>
+<script defer src="data/curriculum.js?v=20260925j"></script>
+<script defer src="js/figures.js?v=20260925j"></script>
+<script defer src="js/lab.js?v=20260925j"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20260925j"></script>
+<script defer src="data/summaries-math110.js?v=20260925j"></script>
+<script defer src="data/summaries-math110-mit.js?v=20260925j"></script>
+<script defer src="data/summaries-math120.js?v=20260925j"></script>
+<script defer src="data/summaries-math130.js?v=20260925j"></script>
+<script defer src="data/summaries-phys100.js?v=20260925j"></script>
+<script defer src="data/summaries-math210.js?v=20260925j"></script>
+<script defer src="data/summaries-sys250.js?v=20260925j"></script>
+<script defer src="data/workshop.js?v=20260925j"></script>
+<script defer src="data/storytelling.js?v=20260925j"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20260925j"></script>
+<script defer src="data/quiz-calculus.js?v=20260925j"></script>
+<script defer src="data/quiz-probability.js?v=20260925j"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20260925j"></script>
+<script defer src="data/quiz-dsa.js?v=20260925j"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20260925j"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20260925j"></script>
+<script defer src="js/quiz-engine.js?v=20260925j"></script>
+<script defer src="js/app.js?v=20260925j"></script>
 </body>
 </html>

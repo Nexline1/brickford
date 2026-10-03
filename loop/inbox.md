@@ -17,3 +17,6 @@ Dump notes here after a study session. The loop turns new ones into proposed spe
 [friction] Check on the phone after T-005 ships: with apple-mobile-web-app-status-bar-style black-translucent, iOS may draw white status-bar glyphs over the light theme's cream header strip. Chromium can't emulate it. From the T-005 reviewer.
 [friction] After T-005: verify-design never measures the dashboard's empty .bar track (only /record and /quiz); .opt.correct/.wrong fills are 1.013:1 on the light page (borders still carry the state); hard-coded .opt edge (style.css ~883), .onecounts > a inset (~1352) and .card radius 0 (~669) are left for the screen items. From the T-005 round-2 reviewer.
 [friction] From the T-006/T-007 reviewer: the phone names one page three ways (large title "Dashboard", tab "Home", specimen "Today") — reconcile in T-009; once a lesson page is scrolled the course link is no longer reachable from the bar; meta theme-color is still --panel (espresso) above the light nav bar (predates T-006; T-005's gate asserts it, so change both together).
+
+## 2026-10-03
+[want] The whole app as one seamless long-form watching experience, phone and desktop, modelled on YouTube/Netflix continuity; keep Saturday rest, add a switch-off break nudge; keep the iOS look (owner). → T-016, T-017, T-018 (T-019 mini-player and T-020 session continuity on the brief's roadmap)

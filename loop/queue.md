@@ -13,4 +13,7 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-005 | Design foundations: iOS type ramp, system font, tokens, Auto theme, verify-design gate | pr-open | 2 | https://github.com/Nexline1/brickford/pull/4 | from inbox 2026-09-25 (premium iOS redesign; loop/design/brief.md). Scope adds the status-bar overlap fix (owner screenshot 2026-09-26). |
 | T-006 | iOS chrome: collapsing large title, material nav and tab bar, sidebar material | review | 2 | | from inbox 2026-09-25. Owner 2026-09-26: build together with T-007 in one branch, stacked on T-005 (PR #4). |
 | T-007 | Lists become iOS inset grouped sections | review | 2 | | Built together with T-006 (owner, 2026-09-26). |
+| T-016 | Thumbnails and resume points for every lecture | proposed | 0 | | from owner 2026-10-03 (long-form continuity, brief §8) |
+| T-017 | Home becomes a feed: Continue watching, Up next, a shelf per course | proposed | 0 | | brief §8; supersedes T-009; depends on T-016 |
+| T-018 | Watch page with Up next and an autoplay countdown | proposed | 0 | | brief §8; supersedes T-010; depends on T-016 |
 

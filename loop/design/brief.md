@@ -150,13 +150,18 @@ Every ink is solid, and every pair is checked by `verify-contrast`.
 | **T-006** | Chrome | Collapsing large title, material nav and tab bar, scroll-edge hairline; desktop sidebar as material |
 | **T-007** | Lists | Inset grouped sections everywhere `.glist` is used |
 | T-008 | Controls | Button hierarchy, segmented control, switch, inputs |
-| T-009 | Today (dashboard) | Hero card, ring, week strip, streak chip; "Needs attention" as a compact list |
-| T-010 | Lesson | Full-bleed video on phone, sticky primary action, summary beats as cards, knowledge checks inline (the Imprint pattern) |
+| ~~T-009~~ | Today (dashboard) | Superseded by T-017 (Home feed), which keeps the ring, the week strip and the streak chip |
+| ~~T-010~~ | Lesson | Superseded by T-018 (Watch page) |
 | T-011 | Quiz, drill, review | Large answer cards, spring correct/wrong states, progress bar across the top |
 | T-012 | Calendar, record | iOS Calendar month grid; the streak opens its calendar (the Duolingo pattern); refined heatmap |
 | T-013 | Sheets | Theme, backup, settings as bottom sheets |
 | T-014 | Motion polish | No opacity-0 first frame under reduced motion; `riseIn` and `viewIn` gated |
 | T-015 | Desktop | Content column, hover states, rail material |
+| **T-016** | Thumbnails + media model | §8: a thumbnail for every lecture, a progress bar on it, resume points |
+| **T-017** | Home becomes a feed | §8: Continue watching hero, Up Next rail, one shelf per running course |
+| **T-018** | Watch page | §8: full-bleed player, desktop Up Next column, autoplay countdown |
+| **T-019** | Mini-player | §8: the player survives navigation, docked above the tab bar |
+| **T-020** | Session continuity | §8: the break nudge, the end-of-day card |
 
 T-002 and T-003 (clipping) stay in the queue, and T-003 should land before T-009 and T-011.
 
@@ -179,3 +184,62 @@ The owner named appshots.design, screensdesign.com, refero.design, pageflows.com
 The rest comes from the `/apple-design` skill (Apple's WWDC design talks). Screenshots the owner drops into `loop/inbox.md` get folded into this brief.
 
 Before census (this environment, 2026-09-25, T-001 branch): `loop/design/before/<screen>-<390-light|390-dark|1280-light>.png`, covering home, lesson, courses, course, calendar, quiz, workshop and record. Note that the cloud browser cannot reach Google Fonts, so the serif and mono in these shots are fallbacks, not Libre Caslon or JetBrains Mono.
+
+## 8. Long-form continuity (owner decision, 2026-10-03)
+
+**The ask.** Brickford should feel like one seamless app, on phone and desktop, built the way long-form video platforms are built to hold viewers for hours. The owner's three decisions:
+- **Continuity, with a break nudge.** Take the continuity patterns, keep Saturday as rest, and add a break reminder that can be switched off.
+- **Keep the iOS look.** The system font and true black stay, even though `/stitch-design-taste` would replace them.
+- **Order.** Ship T-006 and T-007 first, then these items.
+
+### Why those platforms hold attention, and which parts we take
+YouTube and Netflix keep people watching mainly by removing the moment of decision between one video and the next. Brickford already has the queue: the plan says what comes next every day for three years. What it lacks is the hand-off. Each lecture currently ends at a page with buttons on it.
+
+| Platform pattern | Brickford object | Taken? |
+|---|---|---|
+| Continue watching, with a progress bar on the thumbnail | the lecture in progress, with its resume point | yes (T-016, T-017) |
+| Up Next queue | today's scheduled lectures, then the backlog, from `scheduledFor` and `backlogCount` | yes (T-017, T-018) |
+| Autoplay countdown on the end card | the next lecture in the plan, crossing unit boundaries (today `li+1` stops at the end of a unit, `app.js` ~2223) | yes, cancellable, about 8s (T-018) |
+| Shelves (rows of thumbnails) | one shelf per running course, plus the current unit | yes (T-017) |
+| Watch page with a side column of what's next | the lesson page, with the video, then the summary and checks | yes (T-018) |
+| Mini-player that survives navigation | the player docked above the tab bar, so you can check the summary or calendar without stopping | yes (T-019) |
+| Thumbnails everywhere | `https://i.ytimg.com/vi/<v>/hqdefault.jpg`, derived from the `v` id in `platform/data/curriculum.js` (296 of 324 lessons). The 28 readings and papers get a typeset cover in their course colour. | yes (T-016) |
+| Infinite recommendation feed of things outside the plan | — | **no.** The plan is the feed. Watching ahead stays possible from the course page. |
+| Streak-loss alarms, red badges, notifications at night | — | **no.** Saturday stays rest (`REST_DOW`), and the copy never threatens a streak. |
+| Variable rewards (random badges or XP) | — | **no.** Progress is shown as real progress: rings, sealed days, the record. |
+
+### Guardrails, which each spec must test
+- **A rest day stays a rest day.** It schedules nothing (`studyIndex` −1), and autoplay never starts on a Saturday.
+- **Autoplay never skips proof.** If a lecture has a "prove it" check, the end card offers it before the countdown starts.
+- **The break nudge.** After N minutes of continuous watching (default 90, set in settings, can be switched off), a toast offers a 10-minute break. It never pauses the video and never blocks anything.
+- **A render is a read, more than ever.** The resume point is written on pause, on leaving and on `ended`, through the existing save path. It is never written from a render or a timer tick. The mini-player means the iframe must never be re-attached (see CLAUDE.md, "a repaint nobody asked for…").
+- **No new script.** Resume, `ended` and autoplay use `enablejsapi=1` and the YouTube iframe's `postMessage` protocol. That is what the IFrame API does underneath, so `iframe_api` is not loaded. Thumbnails load straight from `i.ytimg.com`: the app has no CSP and no service worker, so nothing blocks it.
+- **`platform/data/` is not edited.** Everything is derived from the existing `v`, `min` and `playlist` fields.
+
+### Look (the taste rules applied on top of §3)
+- **Kept from `/stitch-design-taste`:**
+  - one accent;
+  - no neon or gradients;
+  - skeleton loaders that match the layout, not spinners;
+  - horizontal-scroll shelves instead of three equal cards;
+  - no filler text such as "scroll to explore".
+- **Dropped:**
+  - "perpetual micro-interactions", because `docs/CONTENT-STANDARD.md` (PROTECTED) allows motion only where it shows change;
+  - the font and pure-black bans, because the owner chose to keep the iOS look.
+- **Thumbnails:**
+  - 16:9 frames with `--r-md` corners;
+  - the duration on a dark chip at bottom-right;
+  - a 3px accent progress bar along the bottom edge;
+  - a `--surface-2` skeleton while loading.
+- **Phone shelves:** 72% card width so the next card peeks in, with scroll-snap.
+- **Desktop:**
+  - the feed is a responsive grid;
+  - the watch page is the video plus a 360px Up Next column (YouTube's layout);
+  - the mini-player sits at the bottom right.
+- **Motion:**
+  - the countdown is a ring that fills;
+  - the mini-player docks and expands on the drawer spring (§2.2), along the same path both ways (§2.3);
+  - reduced motion turns both into cross-fades.
+
+Specimen: `loop/design/specimen-feed.html` and its `specimen-feed-*.png` renders.
+

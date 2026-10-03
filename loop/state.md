@@ -2,6 +2,7 @@
 
 | date | item | rounds | result | blocker |
 |---|---|---|---|---|
+| 2026-10-03 | T-006+T-007 | 2 | Review round 2: CHANGES REQUIRED: focus ring clipped by .glist overflow:hidden (regression), menu button 3px off-screen at 390, one stale index.html comment. Round-1 findings all verified fixed. Owner: merge PR #4 (merged b89a0dd), set T-016 ready. Round 3 (final) runs before T-016, which builds on these lists. | none |
 | 2026-10-03 | T-006+T-007 | 2 | Work lost: the container was reset while the round-2 builder was stopped on a usage limit; the worktree branch had never been pushed, so round 1 (reviewed) and partial round 2 vanished. Rebuilding from origin/loop/T-005 with the round-1 rulings and findings built in; the branch is now pushed after every build. | none |
 | 2026-09-26 | T-005 | 2 | pr-open: PR #4. Round 1: the new light --bg matched --bg-2, so empty tracks vanished; a crest comment over-claimed. Round 2 fixed those plus nine fills of the same class; reviewer APPROVED. Owner: next build T-006+T-007 together. | none (a round-2 builder hit a usage limit at start and was relaunched) |
 | 2026-09-26 | merges | 0 | Owner's merges of #1-#3 had not landed (all open, main unchanged, re-checked twice); on the owner's explicit one-time permission I merged #1, #2, #3 (main dd86693). Owner reported the live app is not premium (the redesign was not yet built) and a status-bar overlap; the fix was folded into T-005. Owner chose item-by-item pace. | none |

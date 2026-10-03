@@ -31,3 +31,4 @@
 - A gate's summary line counts one unit on pass and fail, and prints a pass only when its own fail count is zero.
 - A new background token is measured against every fill near its old value, by first opaque ancestor, not by token name: T-005's --bg landed on top of --bg-2 and empty tracks vanished with every gate green.
 - When a builder reports 'other places of the same bug class I left alone', fix them in the same round before review: the next review may be the last.
+- Push the item branch after every build round (and checkpoint mid-build): a container reset deletes uncommitted worktrees, and T-006+T-007's reviewed round 1 was lost that way.

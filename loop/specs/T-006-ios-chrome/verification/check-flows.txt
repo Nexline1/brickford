@@ -28,4 +28,3 @@
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
 PASS — 23 checks, 3 flows x 2 widths, each in a fresh context
-exit 0

@@ -22,4 +22,3 @@
   320/390px  roots 16/24  all 48 tab checks passed
 
 PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)
-exit 0

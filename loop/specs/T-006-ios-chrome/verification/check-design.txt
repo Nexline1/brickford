@@ -620,4 +620,3 @@ press, slate
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
 PASS — 554 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the press on 1071 rows (2310 texts) in 7 themes
-exit 0

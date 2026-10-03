@@ -1,0 +1,634 @@
+# plant (c): --ink-3 put back on .grow .g-lead (round-1 finding 1: 4.27:1 on the pressed --surface-2 in dark)
+# run 2026-10-03 on branch loop/T-006-007-chrome-and-lists; the mutation, then the gate's full output
+# --- a/platform/css/style.css
+# +++ b/platform/css/style.css
+# @@ -2138,3 +2138,3 @@
+#    width: 1.375rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+# -  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-2);
+# +  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-3);
+#  }
+
+status bar (read from platform/css/style.css)
+  ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: env(safe-area-inset-top, 0px)
+  ok    status bar: the phone .topbar grows by the inset (min-height) — min-height: calc(44px + env(safe-area-inset-top, 0px))
+  ok    status bar: the drawer's content starts below the inset — padding-top: calc(var(--sp-4) + env(safe-area-inset-top, 0px))
+  ok    status bar: the edge-grab strip starts below the inset — top: env(safe-area-inset-top, 0px)
+
+hairlines (read from platform/css/style.css)
+  ok    hairline: the nav bar's scroll edge is declared 0.5px solid var(--line) (.topbar::after border-bottom) — border-bottom: 0.5px solid var(--line)
+  ok    hairline: the tab bar's top edge is declared 0.5px solid var(--line) (.tabbar border-top) — border-top: 0.5px solid var(--line)
+  ok    hairline: the sidebar's trailing edge is declared 0.5px solid var(--line) (.sidebar border-right) — border-right: 0.5px solid var(--line)
+  ok    hairline: a row's separator is declared 0.5px solid var(--line) (.grow::before border-top) — border-top: 0.5px solid var(--line)
+
+390px light
+  ok    390px light /: no element is set in Caslon
+  ok    390px light /: every visible .btn has 12px corners — 2 buttons
+  ok    390px light /: no control carries a key-cap gloss, lift or well
+  ok    390px light: the theme tokens resolve to the brief's values — data-theme light; 11 tokens
+  ok    390px light: the radius scale is 8/12/16/22
+  ok    390px light: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    390px light: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    390px light /course/math110: no element is set in Caslon
+  ok    390px light /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "Linear Algebra"
+  ok    390px light /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    390px light /course/math110: no control carries a key-cap gloss, lift or well
+  ok    390px light /lesson/math110/0/13: no element is set in Caslon
+  ok    390px light /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    390px light /lesson/math110/0/13: every visible .btn has 12px corners — 11 buttons
+  ok    390px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  ok    390px light /calendar: no element is set in Caslon
+  ok    390px light /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    390px light /calendar: no control carries a key-cap gloss, lift or well
+  ok    390px light /workshop: no element is set in Caslon
+  ok    390px light /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    390px light /workshop: no control carries a key-cap gloss, lift or well
+  ok    390px light: no page errors
+
+390px dark
+  ok    390px dark /: no element is set in Caslon
+  ok    390px dark /: every visible .btn has 12px corners — 2 buttons
+  ok    390px dark /: no control carries a key-cap gloss, lift or well
+  ok    390px dark: the theme tokens resolve to the brief's values — data-theme dark; 11 tokens
+  ok    390px dark: the radius scale is 8/12/16/22
+  ok    390px dark: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    390px dark: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    390px dark /course/math110: no element is set in Caslon
+  ok    390px dark /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "Linear Algebra"
+  ok    390px dark /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    390px dark /course/math110: no control carries a key-cap gloss, lift or well
+  ok    390px dark /lesson/math110/0/13: no element is set in Caslon
+  ok    390px dark /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    390px dark /lesson/math110/0/13: every visible .btn has 12px corners — 11 buttons
+  ok    390px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  ok    390px dark /calendar: no element is set in Caslon
+  ok    390px dark /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    390px dark /calendar: no control carries a key-cap gloss, lift or well
+  ok    390px dark /workshop: no element is set in Caslon
+  ok    390px dark /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    390px dark /workshop: no control carries a key-cap gloss, lift or well
+  ok    390px dark: no page errors
+
+1280px light
+  ok    1280px light /: no element is set in Caslon
+  ok    1280px light /: every visible .btn has 12px corners — 2 buttons
+  ok    1280px light /: no control carries a key-cap gloss, lift or well
+  ok    1280px light: the theme tokens resolve to the brief's values — data-theme light; 11 tokens
+  ok    1280px light: the radius scale is 8/12/16/22
+  ok    1280px light: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    1280px light: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    1280px light /course/math110: no element is set in Caslon
+  ok    1280px light /course/math110: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "Linear Algebra"
+  ok    1280px light /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    1280px light /course/math110: no control carries a key-cap gloss, lift or well
+  ok    1280px light /lesson/math110/0/13: no element is set in Caslon
+  ok    1280px light /lesson/math110/0/13: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    1280px light /lesson/math110/0/13: every visible .btn has 12px corners — 12 buttons
+  ok    1280px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  ok    1280px light /calendar: no element is set in Caslon
+  ok    1280px light /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    1280px light /calendar: no control carries a key-cap gloss, lift or well
+  ok    1280px light /workshop: no element is set in Caslon
+  ok    1280px light /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    1280px light /workshop: no control carries a key-cap gloss, lift or well
+  ok    1280px light: no page errors
+
+1280px dark
+  ok    1280px dark /: no element is set in Caslon
+  ok    1280px dark /: every visible .btn has 12px corners — 2 buttons
+  ok    1280px dark /: no control carries a key-cap gloss, lift or well
+  ok    1280px dark: the theme tokens resolve to the brief's values — data-theme dark; 11 tokens
+  ok    1280px dark: the radius scale is 8/12/16/22
+  ok    1280px dark: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    1280px dark: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    1280px dark /course/math110: no element is set in Caslon
+  ok    1280px dark /course/math110: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "Linear Algebra"
+  ok    1280px dark /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    1280px dark /course/math110: no control carries a key-cap gloss, lift or well
+  ok    1280px dark /lesson/math110/0/13: no element is set in Caslon
+  ok    1280px dark /lesson/math110/0/13: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    1280px dark /lesson/math110/0/13: every visible .btn has 12px corners — 12 buttons
+  ok    1280px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  ok    1280px dark /calendar: no element is set in Caslon
+  ok    1280px dark /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    1280px dark /calendar: no control carries a key-cap gloss, lift or well
+  ok    1280px dark /workshop: no element is set in Caslon
+  ok    1280px dark /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    1280px dark /workshop: no control carries a key-cap gloss, lift or well
+  ok    1280px dark: no page errors
+
+empty tracks, 390px light
+  ok    390px light /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.237:1, #dcdad5 on #f2f1ee (body); swatch 1.237:1, #dcdad5 on #f2f1ee (body)
+  ok    390px light /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.237:1, #dcdad5 on #f2f1ee (body)
+  ok    390px light /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.226:1, #f2f0ea on #dcdad5 (div.cal-grid); 1.140:1 against a plain day #ffffff
+  ok    390px light empty tracks: no page errors
+
+empty tracks, 390px dark
+  ok    390px dark /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.795:1, #38383a on #000000 (body); swatch 1.795:1, #38383a on #000000 (body)
+  ok    390px dark /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.795:1, #38383a on #000000 (body)
+  ok    390px dark /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.654:1, #0b0e11 on #38383a (div.cal-grid); 1.137:1 against a plain day #1c1c1e
+  ok    390px dark empty tracks: no page errors
+
+Auto theme
+  ok    auto, phone dark: resolves to dark, --bg #000000 — data-theme dark, --bg rgb(0, 0, 0)
+  ok    auto, phone dark: the status-bar colour follows (#0a0d10) — meta theme-color #0a0d10
+  ok    auto, phone dark: "Auto" is listed first and marked as the pick — auto "Auto" on=true
+  ok    auto, phone flips to light while open: follows live, --bg #f2f1ee — data-theme light, --bg rgb(242, 241, 238), meta #2b2118
+  ok    auto, phone flips to light: a read — no save, no repaint, still stored as "auto" — state writes 0 -> 0, view kept true, stored "auto"
+  ok    auto, phone dark: no page errors
+  ok    auto, phone light: resolves to light, --bg #f2f1ee — data-theme light, --bg rgb(242, 241, 238)
+  ok    auto, phone light: the status-bar colour follows (#2b2118) — meta theme-color #2b2118
+  ok    auto, phone light: "Auto" is listed first and marked as the pick — auto "Auto" on=true
+  ok    auto, phone flips to dark while open: follows live, --bg #000000 — data-theme dark, --bg rgb(0, 0, 0), meta #0a0d10
+  ok    auto, phone flips to dark: a read — no save, no repaint, still stored as "auto" — state writes 0 -> 0, view kept true, stored "auto"
+  ok    auto, phone light: no page errors
+  ok    auto, picked from the menu on a dark phone: stored as "auto", shows dark — stored "auto", data-theme dark, --bg rgb(0, 0, 0)
+  ok    an older device reading "auto" falls back to light — --bg rgb(242, 241, 238)
+  ok    auto, picked from the menu: no page errors
+
+calendar cellPick
+  ok    the picked day runs cellPick — 1 cellPick animation(s) ["running"] on 2026-10-04
+  ok    cellPick starts from scale(0.92) — first keyframe scale(0.92)
+  ok    calendar (no-preference): no page errors
+  ok    under reduced motion the picked day does not animate — 0 cellPick animation(s) []
+  ok    calendar (reduce): no page errors
+
+nav bar, 390px light
+  ok    390px light /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
+  ok    390px light /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
+  ok    390px light /: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #1e4f8f
+  ok    390px light /: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
+  ok    390px light /: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Dashboard" 34px/700 none
+  ok    390px light /: the inline title is 17px/600 and reads the h1 — 17px/600 "Dashboard"
+  ok    390px light /: at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge — title opacity 0, edge opacity 0 (topbar)
+  ok    390px light /: with the h1 scrolled 200px under the bar the inline title shows (opacity 1) — scrolled to 216 (wanted 216); title opacity 1 (topbar lt-on edge-on)
+  ok    390px light /: and the scroll edge shows: a 0.5px --line — opacity 1, 1px #dcdad5 (--line #dcdad5)
+  ok    390px light /: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
+  ok    390px light /course/math110: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
+  ok    390px light /course/math110: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
+  ok    390px light /course/math110: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #1e4f8f
+  ok    390px light /course/math110: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
+  ok    390px light /course/math110: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Linear Algebra" 34px/700 none
+  ok    390px light /course/math110: the inline title is 17px/600 and reads the h1 — 17px/600 "Linear Algebra"
+  ok    390px light /course/math110: at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge — title opacity 0, edge opacity 0 (topbar)
+  ok    390px light /course/math110: with the h1 scrolled 200px under the bar the inline title shows (opacity 1) — scrolled to 235 (wanted 235); title opacity 1 (topbar lt-on edge-on)
+  ok    390px light /course/math110: and the scroll edge shows: a 0.5px --line — opacity 1, 1px #dcdad5 (--line #dcdad5)
+  ok    390px light /course/math110: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
+  ok    390px light /calendar: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
+  ok    390px light /calendar: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
+  ok    390px light /calendar: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #1e4f8f
+  ok    390px light /calendar: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
+  ok    390px light /calendar: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Calendar" 34px/700 none, meta none
+  ok    390px light /calendar: the inline title is 17px/600 and reads the h1 — 17px/600 "Calendar"
+  ok    390px light /calendar: at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge — title opacity 0, edge opacity 0 (topbar)
+  ok    390px light /calendar: with the h1 scrolled 200px under the bar the inline title shows (opacity 1) — scrolled to 216 (wanted 216); title opacity 1 (topbar lt-on edge-on)
+  ok    390px light /calendar: and the scroll edge shows: a 0.5px --line — opacity 1, 1px #dcdad5 (--line #dcdad5)
+  ok    390px light /calendar: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
+  ok    390px light nav bar: no page errors
+
+nav bar, 390px dark
+  ok    390px dark /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
+  ok    390px dark /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
+  ok    390px dark /: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #78aef0
+  ok    390px dark /: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
+  ok    390px dark /: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Dashboard" 34px/700 none
+  ok    390px dark /: the inline title is 17px/600 and reads the h1 — 17px/600 "Dashboard"
+  ok    390px dark /: at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge — title opacity 0, edge opacity 0 (topbar)
+  ok    390px dark /: with the h1 scrolled 200px under the bar the inline title shows (opacity 1) — scrolled to 216 (wanted 216); title opacity 1 (topbar lt-on edge-on)
+  ok    390px dark /: and the scroll edge shows: a 0.5px --line — opacity 1, 1px #38383a (--line #38383a)
+  ok    390px dark /: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
+  ok    390px dark /course/math110: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
+  ok    390px dark /course/math110: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
+  ok    390px dark /course/math110: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #78aef0
+  ok    390px dark /course/math110: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
+  ok    390px dark /course/math110: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Linear Algebra" 34px/700 none
+  ok    390px dark /course/math110: the inline title is 17px/600 and reads the h1 — 17px/600 "Linear Algebra"
+  ok    390px dark /course/math110: at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge — title opacity 0, edge opacity 0 (topbar)
+  ok    390px dark /course/math110: with the h1 scrolled 200px under the bar the inline title shows (opacity 1) — scrolled to 235 (wanted 235); title opacity 1 (topbar lt-on edge-on)
+  ok    390px dark /course/math110: and the scroll edge shows: a 0.5px --line — opacity 1, 1px #38383a (--line #38383a)
+  ok    390px dark /course/math110: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
+  ok    390px dark /calendar: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
+  ok    390px dark /calendar: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
+  ok    390px dark /calendar: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #78aef0
+  ok    390px dark /calendar: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
+  ok    390px dark /calendar: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Calendar" 34px/700 none, meta none
+  ok    390px dark /calendar: the inline title is 17px/600 and reads the h1 — 17px/600 "Calendar"
+  ok    390px dark /calendar: at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge — title opacity 0, edge opacity 0 (topbar)
+  ok    390px dark /calendar: with the h1 scrolled 200px under the bar the inline title shows (opacity 1) — scrolled to 216 (wanted 216); title opacity 1 (topbar lt-on edge-on)
+  ok    390px dark /calendar: and the scroll edge shows: a 0.5px --line — opacity 1, 1px #38383a (--line #38383a)
+  ok    390px dark /calendar: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
+  ok    390px dark nav bar: no page errors
+
+tab bar and sidebar, light
+  ok    390px light tab bar: a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab — backdrop-filter blur(20px) saturate(1.8); background #ffffff at 78% (--surface #ffffff, --panel #2b2118)
+  ok    390px light tab bar: a 0.5px --line top edge — 1px #dcdad5
+  ok    390px light tab bar: the labels are sentence case (text-transform none), 10px/500, no letter-spacing — Home, Courses, Exams, Problems, Review
+  ok    390px light tab bar: 24px glyphs on 49px tabs — 5 tabs
+  ok    390px light tab bar: the active tab is --accent — Home #1e4f8f (--accent #1e4f8f)
+  ok    390px light tab bar: the other tabs are --ink-3 — Courses #6e6b65, Exams #6e6b65, Problems #6e6b65, Review #6e6b65
+  ok    390px light drawer: solid --surface, no material over the scrim — #ffffff, backdrop-filter none
+  ok    390px light tab bar and drawer: no page errors
+  ok    1280px light sidebar: not the espresso --panel (#2b2118) — background #ffffff at 85%
+  ok    1280px light sidebar: a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #ffffff at 85% (--surface #ffffff)
+  ok    1280px light sidebar: a 0.5px --line trailing edge — 1px #dcdad5
+  ok    1280px light sidebar: the current item is an --accent-soft pill, --accent label, 8px corners — "Dashboard" #e6edf6 (--accent-soft #e6edf6), label #1e4f8f, 8px
+  ok    1280px light sidebar: the crest is --gold with --surface cut-outs — field #8a5f12 (--gold #8a5f12), cut #ffffff
+  ok    1280px light sidebar: no page errors
+
+tab bar and sidebar, dark
+  ok    390px dark tab bar: a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab — backdrop-filter blur(20px) saturate(1.8); background #1c1c1d at 78% (--surface #1c1c1e, --panel #0a0d10)
+  ok    390px dark tab bar: a 0.5px --line top edge — 1px #38383a
+  ok    390px dark tab bar: the labels are sentence case (text-transform none), 10px/500, no letter-spacing — Home, Courses, Exams, Problems, Review
+  ok    390px dark tab bar: 24px glyphs on 49px tabs — 5 tabs
+  ok    390px dark tab bar: the active tab is --accent — Home #78aef0 (--accent #78aef0)
+  ok    390px dark tab bar: the other tabs are --ink-3 — Courses #8e8e93, Exams #8e8e93, Problems #8e8e93, Review #8e8e93
+  ok    390px dark drawer: solid --surface, no material over the scrim — #1c1c1e, backdrop-filter none
+  ok    390px dark tab bar and drawer: no page errors
+  ok    1280px dark sidebar: not the espresso --panel (#2b2118) — background #1c1c1f at 85%
+  ok    1280px dark sidebar: a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #1c1c1f at 85% (--surface #1c1c1e)
+  ok    1280px dark sidebar: a 0.5px --line trailing edge — 1px #38383a
+  ok    1280px dark sidebar: the current item is an --accent-soft pill, --accent label, 8px corners — "Dashboard" #1a2a3f (--accent-soft #1a2a3f), label #78aef0, 8px
+  ok    1280px dark sidebar: the crest is --gold with --surface cut-outs — field #e0b35a (--gold #e0b35a), cut #1c1c1e
+  ok    1280px dark sidebar: no page errors
+
+reduced transparency, light
+  ok    390px light reduced transparency: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-reduced-transparency: reduce) = true
+  ok    390px light reduced transparency: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #f2f1ee none; tab #ffffff none; action #ffffff none
+  ok    390px light reduced transparency: no page errors
+  ok    1280px light reduced transparency: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-reduced-transparency: reduce) = true
+  ok    1280px light reduced transparency: the sidebar is solid --surface, not blurred — #ffffff none
+  ok    1280px light reduced transparency: no page errors
+
+reduced transparency, dark
+  ok    390px dark reduced transparency: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-reduced-transparency: reduce) = true
+  ok    390px dark reduced transparency: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #000000 none; tab #1c1c1e none; action #1c1c1e none
+  ok    390px dark reduced transparency: no page errors
+  ok    1280px dark reduced transparency: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-reduced-transparency: reduce) = true
+  ok    1280px dark reduced transparency: the sidebar is solid --surface, not blurred — #1c1c1e none
+  ok    1280px dark reduced transparency: no page errors
+
+more contrast, light
+  ok    390px light more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
+  ok    390px light more contrast: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #f2f1ee none; tab #ffffff none; action #ffffff none
+  ok    390px light more contrast: the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong — nav edge opacity 1 1px #c7c0b3; tab top 1px #c7c0b3 (--line-strong #c7c0b3)
+  ok    390px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3
+  ok    390px light more contrast: no page errors
+  ok    1280px light more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
+  ok    1280px light more contrast: the sidebar is solid --surface, not blurred — #ffffff none
+  ok    1280px light more contrast: the sidebar's trailing edge is 1px --line-strong — 1px #c7c0b3
+  ok    1280px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3
+  ok    1280px light more contrast: no page errors
+
+more contrast, dark
+  ok    390px dark more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
+  ok    390px dark more contrast: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #000000 none; tab #1c1c1e none; action #1c1c1e none
+  ok    390px dark more contrast: the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong — nav edge opacity 1 1px #3d454f; tab top 1px #3d454f (--line-strong #3d454f)
+  ok    390px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #3d454f, 1px #3d454f, 1px #3d454f, 1px #3d454f
+  ok    390px dark more contrast: no page errors
+  ok    1280px dark more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
+  ok    1280px dark more contrast: the sidebar is solid --surface, not blurred — #1c1c1e none
+  ok    1280px dark more contrast: the sidebar's trailing edge is 1px --line-strong — 1px #3d454f
+  ok    1280px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #3d454f, 1px #3d454f, 1px #3d454f, 1px #3d454f
+  ok    1280px dark more contrast: no page errors
+
+the inline title under reduced motion
+  ok    reduced motion: the inline title is opaque the moment it is shown, with no fade on the title or the edge — opacity 1 in the same task; running: none
+  ok    reduced motion (reduce): no page errors
+  ok    motion allowed: the same measurement sees the title fade in (so the check above is not blind) — opacity 0; running: opacity on ::after, opacity on tbTitle
+  ok    reduced motion (no-preference): no page errors
+
+scrolling a lesson page
+  ok    lesson page: there is a video frame to protect — iframe present
+  ok    lesson page: scrolling ran the nav bar through its states (the observer was live) — classes seen: edge-on lt-on topbar
+  ok    lesson page: scrolling is a read — no state write, no view rebuilt, the same <iframe> node — state writes 1 -> 1, view rebuilds 0, iframe original
+  ok    lesson page: no page errors
+
+lists, 390px light
+  ok    390px light /: every visible .glist is an opaque --surface section — 5 measured
+  ok    390px light /: every visible .glist has 12px corners and clips its rows (overflow hidden) — 5 measured
+  ok    390px light /: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    390px light /: every .gh-meta is 15px --ink-2 with tabular numerals — 3 measured
+  ok    390px light /: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    390px light /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    390px light /: .g-v has tabular numerals and no mono face — 6 measured
+  ok    390px light /: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 7 measured
+  FAIL  390px light /: the leading slot is --ink-2 and the chevron --ink-3 — 9 — lead "1" #6e6b65; lead "2" #6e6b65; lead "◆" #6e6b65
+  ok    390px light /course/math110: every visible .glist is an opaque --surface section — 2 measured
+  ok    390px light /course/math110: every visible .glist has 12px corners and clips its rows (overflow hidden) — 2 measured
+  ok    390px light /course/math110: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 1 measured
+  ok    390px light /course/math110: every .grow is at least 44px tall (56 with a subtitle) — 18 measured
+  ok    390px light /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    390px light /course/math110: .g-v has tabular numerals and no mono face — 16 measured
+  ok    390px light /course/math110: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 16 measured
+  FAIL  390px light /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 16 — lead "2" #6e6b65; lead "3" #6e6b65; lead "4" #6e6b65
+  ok    390px light /exams: every visible .glist is an opaque --surface section — 3 measured
+  ok    390px light /exams: every visible .glist has 12px corners and clips its rows (overflow hidden) — 3 measured
+  ok    390px light /exams: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 3 measured
+  ok    390px light /exams: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  ok    390px light /exams: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    390px light /exams: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
+  ok    390px light /exams: .g-v has tabular numerals and no mono face — 2 measured
+  ok    390px light /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  390px light /exams: the leading slot is --ink-2 and the chevron --ink-3 — 12 — lead "" #6e6b65; lead "" #6e6b65; lead "" #6e6b65
+  ok    390px light /courses: every visible .glist is an opaque --surface section — 4 measured
+  ok    390px light /courses: every visible .glist has 12px corners and clips its rows (overflow hidden) — 4 measured
+  ok    390px light /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    390px light /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 4 measured
+  ok    390px light /courses: every .grow is at least 44px tall (56 with a subtitle) — 13 measured
+  ok    390px light /courses: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 26 measured
+  ok    390px light /courses: .g-v has tabular numerals and no mono face — 8 measured
+  ok    390px light /courses: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  390px light /courses: the leading slot is --ink-2 and the chevron --ink-3 — 13 — lead "" #6e6b65; lead "" #6e6b65; lead "" #6e6b65
+  n/a   390px light /workshop: no .glist on this route
+  ok    390px light lists: no page errors
+
+lists, 390px dark
+  ok    390px dark /: every visible .glist is an opaque --surface section — 5 measured
+  ok    390px dark /: every visible .glist has 12px corners and clips its rows (overflow hidden) — 5 measured
+  ok    390px dark /: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    390px dark /: every .gh-meta is 15px --ink-2 with tabular numerals — 3 measured
+  ok    390px dark /: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    390px dark /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    390px dark /: .g-v has tabular numerals and no mono face — 6 measured
+  ok    390px dark /: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 7 measured
+  FAIL  390px dark /: the leading slot is --ink-2 and the chevron --ink-3 — 9 — lead "1" #8e8e93; lead "2" #8e8e93; lead "◆" #8e8e93
+  ok    390px dark /course/math110: every visible .glist is an opaque --surface section — 2 measured
+  ok    390px dark /course/math110: every visible .glist has 12px corners and clips its rows (overflow hidden) — 2 measured
+  ok    390px dark /course/math110: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 1 measured
+  ok    390px dark /course/math110: every .grow is at least 44px tall (56 with a subtitle) — 18 measured
+  ok    390px dark /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    390px dark /course/math110: .g-v has tabular numerals and no mono face — 16 measured
+  ok    390px dark /course/math110: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 16 measured
+  FAIL  390px dark /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 16 — lead "2" #8e8e93; lead "3" #8e8e93; lead "4" #8e8e93
+  ok    390px dark /exams: every visible .glist is an opaque --surface section — 3 measured
+  ok    390px dark /exams: every visible .glist has 12px corners and clips its rows (overflow hidden) — 3 measured
+  ok    390px dark /exams: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 3 measured
+  ok    390px dark /exams: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  ok    390px dark /exams: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    390px dark /exams: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
+  ok    390px dark /exams: .g-v has tabular numerals and no mono face — 2 measured
+  ok    390px dark /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  390px dark /exams: the leading slot is --ink-2 and the chevron --ink-3 — 12 — lead "" #8e8e93; lead "" #8e8e93; lead "" #8e8e93
+  ok    390px dark /courses: every visible .glist is an opaque --surface section — 4 measured
+  ok    390px dark /courses: every visible .glist has 12px corners and clips its rows (overflow hidden) — 4 measured
+  ok    390px dark /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    390px dark /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 4 measured
+  ok    390px dark /courses: every .grow is at least 44px tall (56 with a subtitle) — 13 measured
+  ok    390px dark /courses: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 26 measured
+  ok    390px dark /courses: .g-v has tabular numerals and no mono face — 8 measured
+  ok    390px dark /courses: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  390px dark /courses: the leading slot is --ink-2 and the chevron --ink-3 — 13 — lead "" #8e8e93; lead "" #8e8e93; lead "" #8e8e93
+  n/a   390px dark /workshop: no .glist on this route
+  ok    390px dark lists: no page errors
+
+lists, 1280px light
+  ok    1280px light /: every visible .glist is an opaque --surface section — 5 measured
+  ok    1280px light /: every visible .glist has 12px corners and clips its rows (overflow hidden) — 5 measured
+  ok    1280px light /: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    1280px light /: every .gh-meta is 15px --ink-2 with tabular numerals — 3 measured
+  ok    1280px light /: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    1280px light /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    1280px light /: .g-v has tabular numerals and no mono face — 6 measured
+  ok    1280px light /: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 7 measured
+  FAIL  1280px light /: the leading slot is --ink-2 and the chevron --ink-3 — 9 — lead "1" #6e6b65; lead "2" #6e6b65; lead "◆" #6e6b65
+  ok    1280px light /course/math110: every visible .glist is an opaque --surface section — 2 measured
+  ok    1280px light /course/math110: every visible .glist has 12px corners and clips its rows (overflow hidden) — 2 measured
+  ok    1280px light /course/math110: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 1 measured
+  ok    1280px light /course/math110: every .grow is at least 44px tall (56 with a subtitle) — 18 measured
+  ok    1280px light /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    1280px light /course/math110: .g-v has tabular numerals and no mono face — 16 measured
+  ok    1280px light /course/math110: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 16 measured
+  FAIL  1280px light /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 16 — lead "2" #6e6b65; lead "3" #6e6b65; lead "4" #6e6b65
+  ok    1280px light /exams: every visible .glist is an opaque --surface section — 3 measured
+  ok    1280px light /exams: every visible .glist has 12px corners and clips its rows (overflow hidden) — 3 measured
+  ok    1280px light /exams: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 3 measured
+  ok    1280px light /exams: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  ok    1280px light /exams: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    1280px light /exams: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
+  ok    1280px light /exams: .g-v has tabular numerals and no mono face — 2 measured
+  ok    1280px light /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  1280px light /exams: the leading slot is --ink-2 and the chevron --ink-3 — 12 — lead "" #6e6b65; lead "" #6e6b65; lead "" #6e6b65
+  ok    1280px light /courses: every visible .glist is an opaque --surface section — 4 measured
+  ok    1280px light /courses: every visible .glist has 12px corners and clips its rows (overflow hidden) — 4 measured
+  ok    1280px light /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    1280px light /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 4 measured
+  ok    1280px light /courses: every .grow is at least 44px tall (56 with a subtitle) — 13 measured
+  ok    1280px light /courses: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 26 measured
+  ok    1280px light /courses: .g-v has tabular numerals and no mono face — 8 measured
+  ok    1280px light /courses: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  1280px light /courses: the leading slot is --ink-2 and the chevron --ink-3 — 13 — lead "" #6e6b65; lead "" #6e6b65; lead "" #6e6b65
+  n/a   1280px light /workshop: no .glist on this route
+  ok    1280px light lists: no page errors
+
+lists, 1280px dark
+  ok    1280px dark /: every visible .glist is an opaque --surface section — 5 measured
+  ok    1280px dark /: every visible .glist has 12px corners and clips its rows (overflow hidden) — 5 measured
+  ok    1280px dark /: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    1280px dark /: every .gh-meta is 15px --ink-2 with tabular numerals — 3 measured
+  ok    1280px dark /: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    1280px dark /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    1280px dark /: .g-v has tabular numerals and no mono face — 6 measured
+  ok    1280px dark /: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 7 measured
+  FAIL  1280px dark /: the leading slot is --ink-2 and the chevron --ink-3 — 9 — lead "1" #8e8e93; lead "2" #8e8e93; lead "◆" #8e8e93
+  ok    1280px dark /course/math110: every visible .glist is an opaque --surface section — 2 measured
+  ok    1280px dark /course/math110: every visible .glist has 12px corners and clips its rows (overflow hidden) — 2 measured
+  ok    1280px dark /course/math110: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 1 measured
+  ok    1280px dark /course/math110: every .grow is at least 44px tall (56 with a subtitle) — 18 measured
+  ok    1280px dark /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 19 measured
+  ok    1280px dark /course/math110: .g-v has tabular numerals and no mono face — 16 measured
+  ok    1280px dark /course/math110: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 16 measured
+  FAIL  1280px dark /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 16 — lead "2" #8e8e93; lead "3" #8e8e93; lead "4" #8e8e93
+  ok    1280px dark /exams: every visible .glist is an opaque --surface section — 3 measured
+  ok    1280px dark /exams: every visible .glist has 12px corners and clips its rows (overflow hidden) — 3 measured
+  ok    1280px dark /exams: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 3 measured
+  ok    1280px dark /exams: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  ok    1280px dark /exams: every .grow is at least 44px tall (56 with a subtitle) — 12 measured
+  ok    1280px dark /exams: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
+  ok    1280px dark /exams: .g-v has tabular numerals and no mono face — 2 measured
+  ok    1280px dark /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  1280px dark /exams: the leading slot is --ink-2 and the chevron --ink-3 — 12 — lead "" #8e8e93; lead "" #8e8e93; lead "" #8e8e93
+  ok    1280px dark /courses: every visible .glist is an opaque --surface section — 4 measured
+  ok    1280px dark /courses: every visible .glist has 12px corners and clips its rows (overflow hidden) — 4 measured
+  ok    1280px dark /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 4 measured
+  ok    1280px dark /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 4 measured
+  ok    1280px dark /courses: every .grow is at least 44px tall (56 with a subtitle) — 13 measured
+  ok    1280px dark /courses: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 26 measured
+  ok    1280px dark /courses: .g-v has tabular numerals and no mono face — 8 measured
+  ok    1280px dark /courses: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
+  FAIL  1280px dark /courses: the leading slot is --ink-2 and the chevron --ink-3 — 13 — lead "" #8e8e93; lead "" #8e8e93; lead "" #8e8e93
+  n/a   1280px dark /workshop: no .glist on this route
+  ok    1280px dark lists: no page errors
+
+press, light
+  ok    390px light / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
+  ok    390px light / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 4.91:1 (span.g-lead "1" #6e6b65 on #f7f6f3)
+  ok    390px light /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #f7f6f3 on #ffffff)
+  ok    390px light /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.91:1 (span.g-lead "2" #6e6b65 on #f7f6f3)
+  ok    390px light /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
+  ok    390px light /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 4.91:1 (span.g-lead "✓" #6e6b65 on #f7f6f3)
+  ok    390px light /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #f7f6f3 on #ffffff)
+  ok    390px light /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 6.37:1 (span.g-s "MATH 110 · 51 lectur" #5c5a55 on #f7f6f3)
+  ok    390px light sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.140:1 (a #f2f0ea on #ffffff)
+  ok    390px light sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 6.04:1 (a "The Atlas" #5c5a55 on #f2f0ea)
+  ok    390px light press: no page errors
+  ok    1280px light / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
+  ok    1280px light / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 4.91:1 (span.g-lead "1" #6e6b65 on #f7f6f3)
+  ok    1280px light /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #f7f6f3 on #ffffff)
+  ok    1280px light /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.91:1 (span.g-lead "2" #6e6b65 on #f7f6f3)
+  ok    1280px light /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
+  ok    1280px light /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 4.91:1 (span.g-lead "✓" #6e6b65 on #f7f6f3)
+  ok    1280px light /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #f7f6f3 on #ffffff)
+  ok    1280px light /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 6.37:1 (span.g-s "MATH 110 · 51 lectur" #5c5a55 on #f7f6f3)
+  ok    1280px light sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.120:1 (a #f2f0ea on #fdfdfc)
+  ok    1280px light sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 6.93:1 (a.active "Dashboard" #1e4f8f on #e6edf6)
+  ok    1280px light press: no page errors
+
+press, parchment
+  ok    390px parchment / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
+  ok    390px parchment / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.12:1 (span.g-lead "1" #71685c on #faf7f0)
+  ok    390px parchment /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.070:1 (a.grow.done-row #faf7f0 on #ffffff)
+  ok    390px parchment /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 5.12:1 (span.g-lead "2" #71685c on #faf7f0)
+  ok    390px parchment /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
+  ok    390px parchment /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 5.12:1 (span.g-lead "✓" #71685c on #faf7f0)
+  ok    390px parchment /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.070:1 (a.grow.fac-math #faf7f0 on #ffffff)
+  ok    390px parchment /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 8.02:1 (span.g-s "MATH 110 · 51 lectur" #534b40 on #faf7f0)
+  ok    390px parchment sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.208:1 (a #f0e9db on #ffffff)
+  ok    390px parchment sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 7.10:1 (a "The Atlas" #534b40 on #f0e9db)
+  ok    390px parchment press: no page errors
+  ok    1280px parchment / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
+  ok    1280px parchment / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 5.12:1 (span.g-lead "1" #71685c on #faf7f0)
+  ok    1280px parchment /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.070:1 (a.grow.done-row #faf7f0 on #ffffff)
+  ok    1280px parchment /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 5.12:1 (span.g-lead "2" #71685c on #faf7f0)
+  ok    1280px parchment /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
+  ok    1280px parchment /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 5.12:1 (span.g-lead "✓" #71685c on #faf7f0)
+  ok    1280px parchment /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.070:1 (a.grow.fac-math #faf7f0 on #ffffff)
+  ok    1280px parchment /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 8.02:1 (span.g-s "MATH 110 · 51 lectur" #534b40 on #faf7f0)
+  ok    1280px parchment sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.192:1 (a #f0e9db on #fefdfc)
+  ok    1280px parchment sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 7.82:1 (a.active "Dashboard" #5d3f26 on #ece8e5)
+  ok    1280px parchment press: no page errors
+
+press, dark
+  ok    390px dark / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
+  FAIL  390px dark / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 4 — span.g-lead "1" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "2" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "◆" 4.27:1 (#8e8e93 on #2c2c2e)
+  ok    390px dark /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.221:1 (a.grow.done-row #2c2c2e on #1c1c1e)
+  FAIL  390px dark /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 16 — span.g-lead "2" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "3" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "4" 4.27:1 (#8e8e93 on #2c2c2e)
+  ok    390px dark /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
+  FAIL  390px dark /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 2 — span.g-lead "✓" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "✓" 4.27:1 (#8e8e93 on #2c2c2e)
+  ok    390px dark /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.221:1 (a.grow.fac-math #2c2c2e on #1c1c1e)
+  ok    390px dark /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 5.42:1 (span.g-s "MATH 110 · 51 lectur" #a1a1a6 on #2c2c2e)
+  ok    390px dark sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.137:1 (a #0b0e11 on #1c1c1e)
+  ok    390px dark sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 6.30:1 (a.active "Dashboard" #78aef0 on #1a2a3f)
+  ok    390px dark press: no page errors
+  ok    1280px dark / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
+  FAIL  1280px dark / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 4 — span.g-lead "1" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "2" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "◆" 4.27:1 (#8e8e93 on #2c2c2e)
+  ok    1280px dark /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.221:1 (a.grow.done-row #2c2c2e on #1c1c1e)
+  FAIL  1280px dark /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 16 — span.g-lead "2" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "3" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "4" 4.27:1 (#8e8e93 on #2c2c2e)
+  ok    1280px dark /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
+  FAIL  1280px dark /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 2 — span.g-lead "✓" 4.27:1 (#8e8e93 on #2c2c2e); span.g-lead "✓" 4.27:1 (#8e8e93 on #2c2c2e)
+  ok    1280px dark /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.221:1 (a.grow.fac-math #2c2c2e on #1c1c1e)
+  ok    1280px dark /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 5.42:1 (span.g-s "MATH 110 · 51 lectur" #a1a1a6 on #2c2c2e)
+  ok    1280px dark sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.090:1 (a #0b0e11 on #18181a)
+  ok    1280px dark sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 6.30:1 (a.active "Dashboard" #78aef0 on #1a2a3f)
+  ok    1280px dark press: no page errors
+
+press, forest
+  ok    390px forest / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
+  ok    390px forest / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.25:1 (span.g-lead "1" #626b63 on #f7faf5)
+  ok    390px forest /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.053:1 (a.grow.done-row #f7faf5 on #ffffff)
+  ok    390px forest /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 5.25:1 (span.g-lead "2" #626b63 on #f7faf5)
+  ok    390px forest /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
+  ok    390px forest /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 5.25:1 (span.g-lead "✓" #626b63 on #f7faf5)
+  ok    390px forest /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.053:1 (a.grow.fac-math #f7faf5 on #ffffff)
+  ok    390px forest /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 8.04:1 (span.g-s "MATH 110 · 51 lectur" #474f48 on #f7faf5)
+  ok    390px forest sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.190:1 (a.active #e6ede8 on #ffffff)
+  ok    390px forest sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 5.34:1 (a.active "Dashboard" #2f6b43 on #e6ede8)
+  ok    390px forest press: no page errors
+  ok    1280px forest / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
+  ok    1280px forest / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 5.25:1 (span.g-lead "1" #626b63 on #f7faf5)
+  ok    1280px forest /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.053:1 (a.grow.done-row #f7faf5 on #ffffff)
+  ok    1280px forest /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 5.25:1 (span.g-lead "2" #626b63 on #f7faf5)
+  ok    1280px forest /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
+  ok    1280px forest /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 5.25:1 (span.g-lead "✓" #626b63 on #f7faf5)
+  ok    1280px forest /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.053:1 (a.grow.fac-math #f7faf5 on #ffffff)
+  ok    1280px forest /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 8.04:1 (span.g-s "MATH 110 · 51 lectur" #474f48 on #f7faf5)
+  ok    1280px forest sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.174:1 (a.active #e6ede8 on #fdfefd)
+  ok    1280px forest sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 5.34:1 (a.active "Dashboard" #2f6b43 on #e6ede8)
+  ok    1280px forest press: no page errors
+
+press, midnight
+  ok    390px midnight / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
+  ok    390px midnight / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 4.52:1 (span.g-lead "1" #808a9a on #1a2333)
+  ok    390px midnight /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #1a2333 on #151c2b)
+  ok    390px midnight /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.52:1 (span.g-lead "2" #808a9a on #1a2333)
+  ok    390px midnight /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
+  ok    390px midnight /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 4.52:1 (span.g-lead "✓" #808a9a on #1a2333)
+  ok    390px midnight /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #1a2333 on #151c2b)
+  ok    390px midnight /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 7.03:1 (span.g-s "MATH 110 · 51 lectur" #a3aebf on #1a2333)
+  ok    390px midnight sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.124:1 (a #0b0f19 on #151c2b)
+  ok    390px midnight sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 5.37:1 (a.active "Dashboard" #7fa3d1 on #222c3f)
+  ok    390px midnight press: no page errors
+  ok    1280px midnight / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
+  ok    1280px midnight / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 4.52:1 (span.g-lead "1" #808a9a on #1a2333)
+  ok    1280px midnight /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #1a2333 on #151c2b)
+  ok    1280px midnight /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.52:1 (span.g-lead "2" #808a9a on #1a2333)
+  ok    1280px midnight /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
+  ok    1280px midnight /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 4.52:1 (span.g-lead "✓" #808a9a on #1a2333)
+  ok    1280px midnight /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #1a2333 on #151c2b)
+  ok    1280px midnight /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 7.03:1 (span.g-s "MATH 110 · 51 lectur" #a3aebf on #1a2333)
+  ok    1280px midnight sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.110:1 (a #0b0f19 on #141b29)
+  ok    1280px midnight sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 5.37:1 (a.active "Dashboard" #7fa3d1 on #222c3f)
+  ok    1280px midnight press: no page errors
+
+press, latte
+  ok    390px latte / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.083:1 (a.grow #33271a on #2c2115)
+  ok    390px latte / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 4.58:1 (span.g-lead "1" #9a8f81 on #33271a)
+  ok    390px latte /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.083:1 (a.grow.done-row #33271a on #2c2115)
+  ok    390px latte /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.58:1 (span.g-lead "2" #9a8f81 on #33271a)
+  ok    390px latte /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.083:1 (a.grow #33271a on #2c2115)
+  ok    390px latte /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 4.58:1 (span.g-lead "✓" #9a8f81 on #33271a)
+  ok    390px latte /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.083:1 (a.grow.fac-math #33271a on #2c2115)
+  ok    390px latte /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 7.04:1 (span.g-s "MATH 110 · 51 lectur" #beb3a4 on #33271a)
+  ok    390px latte sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.153:1 (a #1d140d on #2c2115)
+  ok    390px latte sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 6.53:1 (a.active "Dashboard" #d9b382 on #3d3020)
+  ok    390px latte press: no page errors
+  ok    1280px latte / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.083:1 (a.grow #33271a on #2c2115)
+  ok    1280px latte / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 4.58:1 (span.g-lead "1" #9a8f81 on #33271a)
+  ok    1280px latte /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.083:1 (a.grow.done-row #33271a on #2c2115)
+  ok    1280px latte /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.58:1 (span.g-lead "2" #9a8f81 on #33271a)
+  ok    1280px latte /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.083:1 (a.grow #33271a on #2c2115)
+  ok    1280px latte /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 4.58:1 (span.g-lead "✓" #9a8f81 on #33271a)
+  ok    1280px latte /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.083:1 (a.grow.fac-math #33271a on #2c2115)
+  ok    1280px latte /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 7.04:1 (span.g-s "MATH 110 · 51 lectur" #beb3a4 on #33271a)
+  ok    1280px latte sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.135:1 (a #1d140d on #2a2015)
+  ok    1280px latte sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 6.53:1 (a.active "Dashboard" #d9b382 on #3d3020)
+  ok    1280px latte press: no page errors
+
+press, slate
+  ok    390px slate / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
+  ok    390px slate / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 4.95:1 (span.g-lead "1" #6c6c69 on #f8f8f6)
+  ok    390px slate /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.063:1 (a.grow.done-row #f8f8f6 on #ffffff)
+  ok    390px slate /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.95:1 (span.g-lead "2" #6c6c69 on #f8f8f6)
+  ok    390px slate /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
+  ok    390px slate /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 4.95:1 (span.g-lead "✓" #6c6c69 on #f8f8f6)
+  ok    390px slate /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.063:1 (a.grow.fac-math #f8f8f6 on #ffffff)
+  ok    390px slate /courses rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 7.73:1 (span.g-s "MATH 110 · 51 lectur" #4f4f4c on #f8f8f6)
+  ok    390px slate sidebar rows :active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.163:1 (a #eeeeea on #ffffff)
+  ok    390px slate sidebar rows :active: every label on a pressed row is >= 4.5:1 — 15 texts, least 7.07:1 (a "The Atlas" #4f4f4c on #eeeeea)
+  ok    390px slate press: no page errors
+  ok    1280px slate / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
+  ok    1280px slate / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 4.95:1 (span.g-lead "1" #6c6c69 on #f8f8f6)
+  ok    1280px slate /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.063:1 (a.grow.done-row #f8f8f6 on #ffffff)
+  ok    1280px slate /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 54 texts, least 4.95:1 (span.g-lead "2" #6c6c69 on #f8f8f6)
+  ok    1280px slate /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
+  ok    1280px slate /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 4.95:1 (span.g-lead "✓" #6c6c69 on #f8f8f6)
+  ok    1280px slate /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.063:1 (a.grow.fac-math #f8f8f6 on #ffffff)
+  ok    1280px slate /courses rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 35 texts, least 7.73:1 (span.g-s "MATH 110 · 51 lectur" #4f4f4c on #f8f8f6)
+  ok    1280px slate sidebar rows :hover:active: the pressed fill stands off the sidebar (>= 1.05:1) — 23 rows, least 1.151:1 (a #eeeeea on #fefefe)
+  ok    1280px slate sidebar rows :hover:active: every label on a pressed row is >= 4.5:1 — 23 texts, least 7.25:1 (a.active "Dashboard" #3d4c60 on #e8eaec)
+  ok    1280px slate press: no page errors
+
+  ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+FAIL — 22 of 554 design checks failed
+exit 1
+# restored: cmp platform/css/style.css against the pre-plant copy -> identical

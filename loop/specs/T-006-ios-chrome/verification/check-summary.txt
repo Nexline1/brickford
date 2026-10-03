@@ -1,0 +1,19 @@
+CHECK on the final bytes (platform/ and tools/ as committed in bc5a74a), 2026-10-03, branch loop/T-006-007-chrome-and-lists
+typecheck files=30 fails=0
+content: PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)  [exit 0]
+sync-loop: PASS — sync never restarts the video, and a rejected token latches only the automatic push  [exit 0]
+shell: PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)  [exit 0]
+contrast: PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold  [exit 0]
+logic: PASS — 24 invariants hold  [exit 0]
+flows: PASS — 23 checks, 3 flows x 2 widths, each in a fresh context  [exit 0]
+clip: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (136368 element measurements)  [exit 0]
+clip-tz-la: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (136368 element measurements)  [exit 0]
+design: PASS — 554 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the press on 1071 rows (2310 texts) in 7 themes  [exit 0]
+
+plants (each restored; cmp identical):
+loop/specs/T-006-ios-chrome/verification/plant-a.txt: FAIL — 15 of 554 design checks failed [exit 1] restored: cmp platform/js/app.js against the pre-plant copy -> identical
+loop/specs/T-006-ios-chrome/verification/plant-b.txt: FAIL — 2 of 554 design checks failed [exit 1] restored: cmp platform/css/style.css against the pre-plant copy -> identical
+loop/specs/T-007-inset-grouped-lists/verification/plant-a.txt: FAIL — 16 of 554 design checks failed [exit 1] restored: cmp platform/css/style.css against the pre-plant copy -> identical
+loop/specs/T-007-inset-grouped-lists/verification/plant-b.txt: FAIL — 16 of 554 design checks failed [exit 1] restored: cmp platform/css/style.css against the pre-plant copy -> identical
+loop/specs/T-007-inset-grouped-lists/verification/plant-c.txt: FAIL — 22 of 554 design checks failed [exit 1] restored: cmp platform/css/style.css against the pre-plant copy -> identical
+loop/specs/T-007-inset-grouped-lists/verification/plant-d.txt: FAIL — 4 of 554 design checks failed [exit 1] restored: cmp platform/css/style.css against the pre-plant copy -> identical

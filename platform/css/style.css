@@ -71,8 +71,8 @@
      inherit the light value until T-008 paints with it. --accent-soft is the
      sidebar's selection pill since T-006, so every theme sets its own (its
      accent at 10-12% into its --surface, label >= 5.3:1). --gold is the crest
-     since T-006: the three light themes read this value (5.6:1 on white), and
-     the three dark ones set their own. */
+     since T-006: the four light themes read this value (5.6:1 on white), and
+     the three dark ones set their own (8.1:1 and up on their --surface). */
   /* SECONDARY ACTION, not a second success colour. This was #26665f — the
      identical hex to --fac-sys, and 26 away from --good — so "Partly done"
      rendered in a green that sat next to a green "✓ Completed". It is the
@@ -588,10 +588,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
 
-/* color is declared, not inherited from wherever the view happens to sit: a
-   view rebuilt while the theme was changing inherited the previous theme's
-   --ink through the shell for a frame, which verify-contrast caught as a
-   light ink on a dark page that never reproduced. */
+/* The view declares its own ink rather than inheriting one through the shell.
+   In T-006's first round verify-contrast flaked once on a view whose text
+   measured a theme behind its page; with the colour declared here, the view's
+   text follows the current theme's --ink directly. */
 .view-enter { animation: viewIn var(--t-enter) var(--ease) both; color: var(--ink); }
 @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
@@ -662,7 +662,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    dashboard was the only route without one, and the only one never complained
    about.
 
-   Still an <h1>: small is a styling decision, not a heading level. */
+   Still an <h1>: small is a styling decision, not a heading level. That is
+   this desktop shape; on a phone (T-006) the folio is the page's large title
+   instead, and the dashboard carries one too — see "The large title" in the
+   phone block below. */
 .folio {
   display: flex; align-items: baseline; justify-content: space-between;
   gap: 12px; flex-wrap: wrap;
@@ -1766,7 +1769,6 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar {
     display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: 8px;
     position: sticky; top: 0; z-index: var(--z-tabbar);
-    /* 44px is the bar and the button inside it: a fingertip, not a guess. */
     padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
     /* Under the status bar. index.html sets viewport-fit=cover and the
        black-translucent status bar, so an installed app draws from the very
@@ -1777,6 +1779,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
        which is every desktop and every browser tab. Chromium cannot emulate
        a notch, so tools/verify-design.js asserts this in the source. */
     padding-top: env(safe-area-inset-top, 0px);
+    /* 44px: the bar is exactly the menu button it holds, a fingertip. */
     min-height: calc(44px + env(safe-area-inset-top, 0px));
     background: color-mix(in srgb, var(--bg) 78%, transparent);
     -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
@@ -1801,7 +1804,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar.lt-on .tb-title { opacity: 1; }
   /* The day and the week, as a capsule. --ink-2 on --surface is >= 6.6:1 in
      every theme. It never wraps: at a 24px root on a 320px screen it is
-     ~185px beside a 44px button, and the title gives way first. */
+     197px beside the 44px button, and the title gives way first (58px). */
   .topbar .tb-meta {
     grid-column: 3; justify-self: end;
     display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px;
@@ -2019,8 +2022,8 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top: 1px solid var(--line-strong); }
   .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top-color: var(--line-strong); }
   .sidebar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-right: 1px solid var(--line-strong); }
-  /* A list section is a fill on a fill, 1.07:1 in the faintest theme; here it
-     is outlined as well. */
+  /* A list section is a fill on a fill — --surface on --bg, 1.073:1 in
+     slate, the faintest theme — so here it is outlined as well. */
   .glist { border: 1px solid var(--line-strong); }
   /* A hairline is a suggestion; at this setting the separation has to be stated. */
   .grow::before { border-top: 1px solid var(--line-strong); }
@@ -2061,14 +2064,18 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    total on the right in subhead --ink-2. No rule under it — the section's own
    fill says where the rows begin. The 4px side padding is all it needs: the
    page gutter (.main) already insets the header and the section together, so
-   the header's text lines up a few pixels in from the section's edge. */
+   the header's text lines up a few pixels in from the section's edge.
+   It wraps: at a 24px root the title is 30px, and on a 320px screen
+   "Consistency" beside "one square per day" is wider than the column — the
+   meta drops to its own line and keeps to the right edge. */
 .ghead {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px;
   margin: 2rem 0 0; padding: 0 4px 8px;
   font-size: var(--fs-title3); font-weight: 600; line-height: var(--lh-title3);
   letter-spacing: var(--tr-title3); text-transform: none; color: var(--ink);
 }
 .ghead .gh-meta {
+  margin-left: auto;
   font-family: var(--font-body); font-size: var(--fs-subhead); font-weight: 400;
   letter-spacing: 0; text-transform: none; color: var(--ink-2);
   font-variant-numeric: lining-nums tabular-nums;
@@ -2203,7 +2210,7 @@ a.grow::after, button.grow.nav::after {
 @media (min-width: 861px) { .scrim, .edge-grab { display: none; } }
 /* The strip you pull from. 20px is Apple's own edge-swipe target: wide enough
    to catch a thumb, narrow enough not to eat taps on real content. */
-/* It starts below the status bar, like the running head: the strip under the
+/* It starts below the status bar, like the nav bar: the strip under the
    clock is the system's (a tap there scrolls to the top), not ours. */
 .edge-grab {
   position: fixed; left: 0; top: env(safe-area-inset-top, 0px); bottom: 0; width: 20px;

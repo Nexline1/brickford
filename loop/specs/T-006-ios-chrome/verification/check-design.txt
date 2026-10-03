@@ -145,7 +145,7 @@ calendar cellPick
 nav bar, 390px light
   ok    390px light /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px light /: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #1e4f8f
+  ok    390px light /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
   ok    390px light /: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
   ok    390px light /: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Dashboard" 34px/700 none
   ok    390px light /: the inline title is 17px/600 and reads the h1 — 17px/600 "Dashboard"
@@ -155,7 +155,7 @@ nav bar, 390px light
   ok    390px light /: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px light /course/math110: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /course/math110: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px light /course/math110: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #1e4f8f
+  ok    390px light /course/math110: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
   ok    390px light /course/math110: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
   ok    390px light /course/math110: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Linear Algebra" 34px/700 none
   ok    390px light /course/math110: the inline title is 17px/600 and reads the h1 — 17px/600 "Linear Algebra"
@@ -165,7 +165,7 @@ nav bar, 390px light
   ok    390px light /course/math110: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px light /calendar: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /calendar: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px light /calendar: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #1e4f8f
+  ok    390px light /calendar: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
   ok    390px light /calendar: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
   ok    390px light /calendar: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Calendar" 34px/700 none, meta none
   ok    390px light /calendar: the inline title is 17px/600 and reads the h1 — 17px/600 "Calendar"
@@ -178,7 +178,7 @@ nav bar, 390px light
 nav bar, 390px dark
   ok    390px dark /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
   ok    390px dark /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px dark /: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #78aef0
+  ok    390px dark /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #78aef0
   ok    390px dark /: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
   ok    390px dark /: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Dashboard" 34px/700 none
   ok    390px dark /: the inline title is 17px/600 and reads the h1 — 17px/600 "Dashboard"
@@ -188,7 +188,7 @@ nav bar, 390px dark
   ok    390px dark /: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px dark /course/math110: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
   ok    390px dark /course/math110: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px dark /course/math110: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #78aef0
+  ok    390px dark /course/math110: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #78aef0
   ok    390px dark /course/math110: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
   ok    390px dark /course/math110: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Linear Algebra" 34px/700 none
   ok    390px dark /course/math110: the inline title is 17px/600 and reads the h1 — 17px/600 "Linear Algebra"
@@ -198,7 +198,7 @@ nav bar, 390px dark
   ok    390px dark /course/math110: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px dark /calendar: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
   ok    390px dark /calendar: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px dark /calendar: the menu button leads, 44x44, in --accent — 44x44 at x=-3, #78aef0
+  ok    390px dark /calendar: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #78aef0
   ok    390px dark /calendar: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
   ok    390px dark /calendar: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Calendar" 34px/700 none, meta none
   ok    390px dark /calendar: the inline title is 17px/600 and reads the h1 — 17px/600 "Calendar"
@@ -448,6 +448,42 @@ lists, 1280px dark
   n/a   1280px dark /workshop: no .glist on this route
   ok    1280px dark lists: no page errors
 
+the keyboard ring, 390px light
+  ok    390px light / keyboard ring: Tab reaches the row of a one-row section — "1Rate of Change52m" after 20 Tab presses
+  ok    390px light / keyboard ring: the row is :focus-visible with a solid, opaque, non-zero --accent outline — a.grow.fac-math :focus-visible true, outline solid 2px #1e4f8f (--accent #1e4f8f), offset -3px
+  ok    390px light / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 21,400.9,369,442.9 in section 20,399.9,370,443.9
+  ok    390px light / keyboard ring: nothing covers the section while its pixels are read — clear
+  ok    390px light / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 1.01
+  ok    390px light / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 1.01, top-right 1.00, bottom-right 0.89, bottom-left 0.91
+  ok    390px light / keyboard ring: no page errors
+
+the keyboard ring, 390px dark
+  ok    390px dark / keyboard ring: Tab reaches the row of a one-row section — "1Rate of Change52m" after 20 Tab presses
+  ok    390px dark / keyboard ring: the row is :focus-visible with a solid, opaque, non-zero --accent outline — a.grow.fac-math :focus-visible true, outline solid 2px #78aef0 (--accent #78aef0), offset -3px
+  ok    390px dark / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 21,400.9,369,442.9 in section 20,399.9,370,443.9
+  ok    390px dark / keyboard ring: nothing covers the section while its pixels are read — clear
+  ok    390px dark / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 0.98
+  ok    390px dark / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 0.99, top-right 1.00, bottom-right 0.88, bottom-left 0.88
+  ok    390px dark / keyboard ring: no page errors
+
+the keyboard ring, 1280px light
+  ok    1280px light / keyboard ring: Tab reaches the row of a one-row section — "1Rate of Change52m" after 19 Tab presses
+  ok    1280px light / keyboard ring: the row is :focus-visible with a solid, opaque, non-zero --accent outline — a.grow.fac-math :focus-visible true, outline solid 2px #1e4f8f (--accent #1e4f8f), offset -3px
+  ok    1280px light / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 315,378.9,915,420.9 in section 314,377.9,916,421.9
+  ok    1280px light / keyboard ring: nothing covers the section while its pixels are read — clear
+  ok    1280px light / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 1.00
+  ok    1280px light / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 1.00, top-right 1.00, bottom-right 0.89, bottom-left 0.90
+  ok    1280px light / keyboard ring: no page errors
+
+the keyboard ring, 1280px dark
+  ok    1280px dark / keyboard ring: Tab reaches the row of a one-row section — "1Rate of Change52m" after 19 Tab presses
+  ok    1280px dark / keyboard ring: the row is :focus-visible with a solid, opaque, non-zero --accent outline — a.grow.fac-math :focus-visible true, outline solid 2px #78aef0 (--accent #78aef0), offset -3px
+  ok    1280px dark / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 315,378.9,915,420.9 in section 314,377.9,916,421.9
+  ok    1280px dark / keyboard ring: nothing covers the section while its pixels are read — clear
+  ok    1280px dark / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 1.00
+  ok    1280px dark / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 1.00, top-right 1.00, bottom-right 0.88, bottom-left 0.89
+  ok    1280px dark / keyboard ring: no page errors
+
 press, light
   ok    390px light / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
   ok    390px light / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.54:1 (span.g-lead "✓" #2a7047 on #f7f6f3)
@@ -619,4 +655,4 @@ press, slate
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 554 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the press on 1071 rows (2310 texts) in 7 themes
+PASS — 582 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2310 texts) in 7 themes

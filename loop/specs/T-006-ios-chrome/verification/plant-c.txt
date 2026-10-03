@@ -1,11 +1,12 @@
-# plant (d): the prefers-contrast: more .glist border removed (round-1 finding 3)
+# plant (c): the menu button's margin-left put back to -11px (round-2 finding 2: with the bar's 8px padding the 44px button spanned -3..41, off the left edge)
 # run 2026-10-03 on branch loop/T-006-007-chrome-and-lists; the mutation, then the gate's full output
 # --- a/platform/css/style.css
 # +++ b/platform/css/style.css
-# @@ -2029,3 +2029,2 @@
-#       slate, the faintest theme — so here it is outlined as well. */
-# -  .glist { border: 1px solid var(--line-strong); }
-#    /* A hairline is a suggestion; at this setting the separation has to be stated. */
+# @@ -1914,3 +1914,3 @@
+#       was set against a 14px padding hung the box 3px off the left edge. */
+# -  .menu-btn { width: 44px; height: 44px; margin-left: -3px; }
+# +  .menu-btn { width: 44px; height: 44px; margin-left: -11px; }
+#    /* A tag carrying a concept title is a link to a page, so it is a control. The
 
 status bar (read from platform/css/style.css)
   ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: env(safe-area-inset-top, 0px)
@@ -154,7 +155,7 @@ calendar cellPick
 nav bar, 390px light
   ok    390px light /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px light /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
+  FAIL  390px light /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=-3, #1e4f8f
   ok    390px light /: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
   ok    390px light /: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Dashboard" 34px/700 none
   ok    390px light /: the inline title is 17px/600 and reads the h1 — 17px/600 "Dashboard"
@@ -164,7 +165,7 @@ nav bar, 390px light
   ok    390px light /: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px light /course/math110: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /course/math110: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px light /course/math110: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
+  FAIL  390px light /course/math110: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=-3, #1e4f8f
   ok    390px light /course/math110: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
   ok    390px light /course/math110: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Linear Algebra" 34px/700 none
   ok    390px light /course/math110: the inline title is 17px/600 and reads the h1 — 17px/600 "Linear Algebra"
@@ -174,7 +175,7 @@ nav bar, 390px light
   ok    390px light /course/math110: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px light /calendar: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /calendar: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px light /calendar: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
+  FAIL  390px light /calendar: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=-3, #1e4f8f
   ok    390px light /calendar: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #ffffff, tabular-nums, right edge 382 of 390
   ok    390px light /calendar: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Calendar" 34px/700 none, meta none
   ok    390px light /calendar: the inline title is 17px/600 and reads the h1 — 17px/600 "Calendar"
@@ -187,7 +188,7 @@ nav bar, 390px light
 nav bar, 390px dark
   ok    390px dark /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
   ok    390px dark /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px dark /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #78aef0
+  FAIL  390px dark /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=-3, #78aef0
   ok    390px dark /: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
   ok    390px dark /: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Dashboard" 34px/700 none
   ok    390px dark /: the inline title is 17px/600 and reads the h1 — 17px/600 "Dashboard"
@@ -197,7 +198,7 @@ nav bar, 390px dark
   ok    390px dark /: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px dark /course/math110: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
   ok    390px dark /course/math110: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px dark /course/math110: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #78aef0
+  FAIL  390px dark /course/math110: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=-3, #78aef0
   ok    390px dark /course/math110: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
   ok    390px dark /course/math110: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Linear Algebra" 34px/700 none
   ok    390px dark /course/math110: the inline title is 17px/600 and reads the h1 — 17px/600 "Linear Algebra"
@@ -207,7 +208,7 @@ nav bar, 390px dark
   ok    390px dark /course/math110: back at the top the inline title and the edge go again — title opacity 0, edge opacity 0
   ok    390px dark /calendar: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #000000 at 78% (--bg #000000)
   ok    390px dark /calendar: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
-  ok    390px dark /calendar: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #78aef0
+  FAIL  390px dark /calendar: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=-3, #78aef0
   ok    390px dark /calendar: the day/week capsule trails, on --surface, in tabular numerals — "Day 014 · Week 3" on #1c1c1e, tabular-nums, right edge 382 of 390
   ok    390px dark /calendar: the page h1 is the large title (34px/700, sentence case, no day meta in it) — "Calendar" 34px/700 none, meta none
   ok    390px dark /calendar: the inline title is 17px/600 and reads the h1 — 17px/600 "Calendar"
@@ -269,24 +270,24 @@ more contrast, light
   ok    390px light more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    390px light more contrast: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #f2f1ee none; tab #ffffff none; action #ffffff none
   ok    390px light more contrast: the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong — nav edge opacity 1 1px #c7c0b3; tab top 1px #c7c0b3 (--line-strong #c7c0b3)
-  FAIL  390px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #111111, 0px #111111, 0px #111111, 0px #111111
+  ok    390px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3
   ok    390px light more contrast: no page errors
   ok    1280px light more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    1280px light more contrast: the sidebar is solid --surface, not blurred — #ffffff none
   ok    1280px light more contrast: the sidebar's trailing edge is 1px --line-strong — 1px #c7c0b3
-  FAIL  1280px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #111111, 0px #111111, 0px #111111, 0px #111111
+  ok    1280px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3
   ok    1280px light more contrast: no page errors
 
 more contrast, dark
   ok    390px dark more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    390px dark more contrast: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #000000 none; tab #1c1c1e none; action #1c1c1e none
   ok    390px dark more contrast: the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong — nav edge opacity 1 1px #3d454f; tab top 1px #3d454f (--line-strong #3d454f)
-  FAIL  390px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #ffffff, 0px #ffffff, 0px #ffffff, 0px #ffffff
+  ok    390px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #3d454f, 1px #3d454f, 1px #3d454f, 1px #3d454f
   ok    390px dark more contrast: no page errors
   ok    1280px dark more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    1280px dark more contrast: the sidebar is solid --surface, not blurred — #1c1c1e none
   ok    1280px dark more contrast: the sidebar's trailing edge is 1px --line-strong — 1px #3d454f
-  FAIL  1280px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #ffffff, 0px #ffffff, 0px #ffffff, 0px #ffffff
+  ok    1280px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #3d454f, 1px #3d454f, 1px #3d454f, 1px #3d454f
   ok    1280px dark more contrast: no page errors
 
 the inline title under reduced motion
@@ -664,6 +665,6 @@ press, slate
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-FAIL — 4 of 582 design checks failed
+FAIL — 6 of 582 design checks failed
 exit 1
 # restored: cmp platform/css/style.css against the pre-plant copy -> identical

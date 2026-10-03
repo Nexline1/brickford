@@ -45,8 +45,9 @@
 // T-006, the chrome (loop/specs/T-006-ios-chrome/spec.md):
 //   - the phone nav bar, at 390 in light and dark on /, /course/math110 and
 //     /calendar: a 44px material (--bg at 78%, blur(20px) saturate(180%)), the
-//     menu button leading and a day/week capsule trailing, the page h1 as the
-//     34px large title, and an inline title that is transparent at scroll 0,
+//     menu button leading (its left edge on the screen, >= 0) and a day/week
+//     capsule trailing, the page h1 as the 34px large title, and an inline
+//     title that is transparent at scroll 0,
 //     opaque once the h1 is 200px under the bar, and transparent again back at
 //     the top — with the 0.5px --line scroll edge absent, present, absent;
 //   - the tab bar: a --surface material with a 0.5px --line top edge, 24px
@@ -78,6 +79,12 @@
 //     .g-v tabular and not mono; no separator above a first row and each later
 //     one a 0.5px --line starting at or right of the text above it; the
 //     leading slot --ink-2 and the chevron --ink-3;
+//   - the keyboard ring, at 390 and 1280 in light and dark: Tab (the real key,
+//     not .focus()) onto the row of a one-row section on /, and its 2px --accent
+//     outline must lie inside the section's box — the section clips its rows,
+//     and the global ring is drawn OUTSIDE an element's box — and be PAINTED:
+//     the section screenshotted focused and not, and the ring's colour found
+//     at all four sides and round all four corners;
 // and the press, in all SEVEN themes: every visible row forced :active at 390
 // and :hover at 1280 (CDP CSS.forcePseudoState) must fill >= 1.05:1 against
 // its section and keep every text node on it >= 4.5:1 (3:1 large); the same
@@ -670,6 +677,88 @@ function pressState(sel) {
   });
   return out;
 }
+// The keyboard ring. The section is the box that clips: .glist is overflow
+// hidden, so an outline drawn outside a row is simply not painted. Marks the
+// first visible section whose only visible child is a row that goes somewhere
+// (a link or a button) — a one-row section, where a ring outside the row has
+// no neighbour to land on and so vanishes completely.
+function markOneRow() {
+  const g = [...document.querySelectorAll("#view .glist")].filter(n => n.checkVisibility()).find(n => {
+    const k = [...n.children].filter(c => c.checkVisibility());
+    return k.length === 1 && k[0].matches("a.grow, button.grow");
+  });
+  if (!g) return null;
+  g.dataset.ringList = "1";
+  return g.textContent.trim().replace(/\s+/g, " ").slice(0, 40);
+}
+// Where the focused row's outline is drawn, against the section's padding box
+// (the clip). An outline's outer edge is the border box grown by
+// outline-offset + outline-width on every side.
+function ringState() {
+  const z = window.__dz;
+  const g = document.querySelector("[data-ring-list]");
+  const row = g && [...g.children].find(c => c.checkVisibility());
+  const a = document.activeElement;
+  if (!row || a !== row) return { err: "focus is on " + (a ? z.name(a) : "nothing") + ", not the row" };
+  row.scrollIntoView({ block: "center", behavior: "instant" });
+  const cs = getComputedStyle(row), gs = getComputedStyle(g);
+  const r = row.getBoundingClientRect(), gr = g.getBoundingClientRect();
+  const w = parseFloat(cs.outlineWidth) || 0, off = parseFloat(cs.outlineOffset) || 0, e = w + off;
+  const px = k => parseFloat(gs["border" + k + "Width"]) || 0;
+  const clip = { l: gr.left + px("Left"), t: gr.top + px("Top"), r: gr.right - px("Right"), b: gr.bottom - px("Bottom") };
+  const ring = { l: r.left - e, t: r.top - e, r: r.right + e, b: r.bottom + e };
+  // Nothing of the page's own may sit over the section (the bars are fixed
+  // and sticky), or the pixels below would be measuring them.
+  const mx = (clip.l + clip.r) / 2, my = (clip.t + clip.b) / 2;
+  const covered = [[mx, clip.t + 1], [clip.r - 1, my], [mx, clip.b - 1], [clip.l + 1, my]]
+    .map(([x, y]) => document.elementFromPoint(x, y)).filter(n => !n || !g.contains(n)).map(n => n ? z.name(n) : "nothing");
+  return {
+    fv: row.matches(":focus-visible"), name: z.name(row), style: cs.outlineStyle, w, off,
+    col: z.bytes(cs.outlineColor), accent: z.tok("--accent"), clip, ring, covered,
+  };
+}
+// The section as painted with the row focused (`on`) and not (`off`), two PNGs
+// decoded through a canvas. For a pixel, `gain` is how far it moved from its
+// unfocused colour toward --accent: 0 unchanged, 1 the ring's colour. Each
+// probe walks inward from the section's edge — 8px at the middle of each side,
+// 14px along the diagonal at each corner, where the rounded clip is — and keeps
+// the best gain it meets.
+async function ringPixels([on, off]) {
+  const z = window.__dz;
+  const load = async b64 => {
+    const im = new Image();
+    im.src = "data:image/png;base64," + b64;
+    await im.decode();
+    const cv = document.createElement("canvas"); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+    const k = cv.getContext("2d", { willReadFrequently: true });
+    k.drawImage(im, 0, 0);
+    return { w: cv.width, h: cv.height, d: k.getImageData(0, 0, cv.width, cv.height).data };
+  };
+  const A = await load(on), B = await load(off), acc = z.tok("--accent");
+  if (A.w !== B.w || A.h !== B.h) return { err: "the two shots differ in size: " + A.w + "x" + A.h + " and " + B.w + "x" + B.h };
+  const s = A.w / document.querySelector("[data-ring-list]").getBoundingClientRect().width;
+  const gain = (x, y) => {
+    const i = (y * A.w + x) * 4;
+    let num = 0, den = 0;
+    for (let c = 0; c < 3; c++) { const d = acc[c] - B.d[i + c]; num += (A.d[i + c] - B.d[i + c]) * d; den += d * d; }
+    return den ? num / den : 0;
+  };
+  const walk = (x0, y0, dx, dy, n) => {
+    let best = -Infinity;
+    for (let k = 0; k < n; k++) {
+      const x = x0 + dx * k, y = y0 + dy * k;
+      if (x >= 0 && y >= 0 && x < A.w && y < A.h) best = Math.max(best, gain(x, y));
+    }
+    return best;
+  };
+  const W = A.w - 1, H = A.h - 1, mx = Math.round(W / 2), my = Math.round(H / 2);
+  const side = Math.ceil(8 * s), diag = Math.ceil(14 * s);
+  return {
+    sides: { top: walk(mx, 0, 0, 1, side), right: walk(W, my, -1, 0, side), bottom: walk(mx, H, 0, -1, side), left: walk(0, my, 1, 0, side) },
+    corners: { "top-left": walk(0, 0, 1, 1, diag), "top-right": walk(W, 0, -1, 1, diag),
+               "bottom-right": walk(W, H, -1, -1, diag), "bottom-left": walk(0, H, 1, -1, diag) },
+  };
+}
 // The press needs rows that carry every variant, so its contexts add two quiz
 // scores to the seed: a pass and a gap, which put a --good and a --bad status
 // pill on /exams rows.
@@ -933,8 +1022,8 @@ function hairlineSource() {
         blurOk(a.bf) && material(a.bg, a.bgTok, 0.78), "backdrop-filter " + a.bf + "; background " + hx(a.bg) + " (--bg " + hx(a.bgTok) + ")");
       check(where + ": the nav bar is 44px tall (±1) with no rule under it",
         near(a.h, 44, 1) && a.rule === 0, a.h + "px, border-bottom " + a.rule + "px");
-      check(where + ": the menu button leads, 44x44, in --accent",
-        a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
+      check(where + ": the menu button leads, on screen (left edge >= 0), 44x44, in --accent",
+        a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left >= 0 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
         Math.round(a.menu.w) + "x" + Math.round(a.menu.h) + " at x=" + Math.round(a.menu.left) + ", " + hx(a.menu.color));
       check(where + ": the day/week capsule trails, on --surface, in tabular numerals",
         /^Day \d{3} · Week \d+$/.test(a.chip.text) && a.chip.bg[3] === 255 && __same(a.chip.bg, a.chip.surface) &&
@@ -1196,6 +1285,65 @@ function hairlineSource() {
     }
   }
 
+  // ---- the keyboard ring, inside the section that clips it ----
+  // Reached with the Tab key from a fresh page, so :focus-visible is the
+  // browser's own decision and not a forced state.
+  const RING_MIN = 0.6;              // the ring's colour, at least 60% of the way there
+  let ringsSeen = 0;
+  for (const { w, h, mobile } of WIDTHS) {
+    for (const theme of THEMES) {
+      const at = w + "px " + theme + " / keyboard ring";
+      console.log("\nthe keyboard ring, " + w + "px " + theme);
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/");
+      const label = await page.evaluate(markOneRow);
+      let tabs = 0, reached = false;
+      if (label) {
+        for (; tabs < 200 && !reached; tabs++) {
+          await page.keyboard.press("Tab");
+          reached = await page.evaluate(() => {
+            const g = document.querySelector("[data-ring-list]"), a = document.activeElement;
+            return !!a && a.parentElement === g;
+          });
+        }
+      }
+      check(at + ": Tab reaches the row of a one-row section", !!label && reached,
+        !label ? "no one-row .glist on /" : reached ? "\"" + label + "\" after " + tabs + " Tab presses" : "not reached in " + tabs + " presses");
+      if (!reached) { await ctx.close(); continue; }
+      await frames(page);
+      const r = await page.evaluate(ringState);
+      if (r.err) { check(at + ": the focused row can be measured", false, r.err); await ctx.close(); continue; }
+      ringsSeen++;
+      const box = b => [b.l, b.t, b.r, b.b].map(v => +v.toFixed(1)).join(",");
+      check(at + ": the row is :focus-visible with a solid, opaque, non-zero --accent outline",
+        r.fv && r.style !== "none" && r.w >= 2 && r.col[3] === 255 && __same(r.col, r.accent),
+        r.name + " :focus-visible " + r.fv + ", outline " + r.style + " " + r.w + "px " + hx(r.col) + " (--accent " + hx(r.accent) + "), offset " + r.off + "px");
+      const inside = r.ring.l >= r.clip.l - 0.01 && r.ring.t >= r.clip.t - 0.01 && r.ring.r <= r.clip.r + 0.01 && r.ring.b <= r.clip.b + 0.01;
+      check(at + ": the outline's outer box lies inside the section's box (the box that clips it)", inside,
+        "outline " + box(r.ring) + " in section " + box(r.clip));
+      check(at + ": nothing covers the section while its pixels are read", r.covered.length === 0,
+        r.covered.length ? "covered by " + r.covered.join(", ") : "clear");
+      // Painted, not just declared: the section with the row focused, then
+      // blurred, the second shot the baseline the first is measured against.
+      const sec = page.locator("[data-ring-list]");
+      const shotOn = (await sec.screenshot()).toString("base64");
+      await page.evaluate(() => document.activeElement.blur());
+      await frames(page);
+      const shotOff = (await sec.screenshot()).toString("base64");
+      const p = await page.evaluate(ringPixels, [shotOn, shotOff]);
+      const fmt = o => Object.entries(o).map(([k, v]) => k + " " + v.toFixed(2)).join(", ");
+      check(at + ": the ring is painted at the middle of all four sides (>= " + RING_MIN + " of the way to --accent)",
+        !p.err && Object.values(p.sides).every(v => v >= RING_MIN), p.err || fmt(p.sides));
+      check(at + ": and round all four rounded corners, not cut by the clip",
+        !p.err && Object.values(p.corners).every(v => v >= RING_MIN), p.err || fmt(p.corners));
+      check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   // ---- the press, in all seven themes ----
   // Rows forced :active on a phone and :hover on a desktop; the sidebar's rows
   // forced :active in the drawer and :hover + :active beside the page, with
@@ -1268,7 +1416,8 @@ function hairlineSource() {
       "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the sidebar, " +
       "reduced transparency, more contrast, reduced motion and a scroll that is a read; " +
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
-      WIDTHS.length + " widths x " + THEMES.length + " themes; the press on " + pressRows + " rows (" + pressTexts +
+      WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +
+      " contexts; the press on " + pressRows + " rows (" + pressTexts +
       " texts) in " + ALL_THEMES.length + " themes"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);

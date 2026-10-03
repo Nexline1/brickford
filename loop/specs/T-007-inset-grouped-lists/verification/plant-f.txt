@@ -1,11 +1,12 @@
-# plant (d): the prefers-contrast: more .glist border removed (round-1 finding 3)
+# plant (f): the ring kept inside the row but its radius dropped (the global 3px) — the ring the corner check names: inside the box, cut at the section's 12px corners
 # run 2026-10-03 on branch loop/T-006-007-chrome-and-lists; the mutation, then the gate's full output
 # --- a/platform/css/style.css
 # +++ b/platform/css/style.css
-# @@ -2029,3 +2029,2 @@
-#       slate, the faintest theme — so here it is outlined as well. */
-# -  .glist { border: 1px solid var(--line-strong); }
-#    /* A hairline is a suggestion; at this setting the separation has to be stated. */
+# @@ -2139,3 +2139,3 @@
+#     concentric with the rounded corner rather than cut by it. */
+# -.glist .grow:focus-visible { outline-offset: -3px; border-radius: var(--r-md); }
+# +.glist .grow:focus-visible { outline-offset: -3px; }
+#  /* The leading slot: a number, a tick, a lock, a status dot. One width for all
 
 status bar (read from platform/css/style.css)
   ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: env(safe-area-inset-top, 0px)
@@ -269,24 +270,24 @@ more contrast, light
   ok    390px light more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    390px light more contrast: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #f2f1ee none; tab #ffffff none; action #ffffff none
   ok    390px light more contrast: the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong — nav edge opacity 1 1px #c7c0b3; tab top 1px #c7c0b3 (--line-strong #c7c0b3)
-  FAIL  390px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #111111, 0px #111111, 0px #111111, 0px #111111
+  ok    390px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3
   ok    390px light more contrast: no page errors
   ok    1280px light more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    1280px light more contrast: the sidebar is solid --surface, not blurred — #ffffff none
   ok    1280px light more contrast: the sidebar's trailing edge is 1px --line-strong — 1px #c7c0b3
-  FAIL  1280px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #111111, 0px #111111, 0px #111111, 0px #111111
+  ok    1280px light more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3, 1px #c7c0b3
   ok    1280px light more contrast: no page errors
 
 more contrast, dark
   ok    390px dark more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    390px dark more contrast: the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred — nav #000000 none; tab #1c1c1e none; action #1c1c1e none
   ok    390px dark more contrast: the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong — nav edge opacity 1 1px #3d454f; tab top 1px #3d454f (--line-strong #3d454f)
-  FAIL  390px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #ffffff, 0px #ffffff, 0px #ffffff, 0px #ffffff
+  ok    390px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #3d454f, 1px #3d454f, 1px #3d454f, 1px #3d454f
   ok    390px dark more contrast: no page errors
   ok    1280px dark more contrast: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-contrast: more) = true
   ok    1280px dark more contrast: the sidebar is solid --surface, not blurred — #1c1c1e none
   ok    1280px dark more contrast: the sidebar's trailing edge is 1px --line-strong — 1px #3d454f
-  FAIL  1280px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 0px #ffffff, 0px #ffffff, 0px #ffffff, 0px #ffffff
+  ok    1280px dark more contrast: a .glist is outlined, 1px --line-strong on all four sides — 1px #3d454f, 1px #3d454f, 1px #3d454f, 1px #3d454f
   ok    1280px dark more contrast: no page errors
 
 the inline title under reduced motion
@@ -463,7 +464,7 @@ the keyboard ring, 390px light
   ok    390px light / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 21,400.9,369,442.9 in section 20,399.9,370,443.9
   ok    390px light / keyboard ring: nothing covers the section while its pixels are read — clear
   ok    390px light / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 1.01
-  ok    390px light / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 1.01, top-right 1.00, bottom-right 0.89, bottom-left 0.91
+  FAIL  390px light / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 0.00, top-right 0.00, bottom-right 0.00, bottom-left 0.00
   ok    390px light / keyboard ring: no page errors
 
 the keyboard ring, 390px dark
@@ -472,7 +473,7 @@ the keyboard ring, 390px dark
   ok    390px dark / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 21,400.9,369,442.9 in section 20,399.9,370,443.9
   ok    390px dark / keyboard ring: nothing covers the section while its pixels are read — clear
   ok    390px dark / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 0.98
-  ok    390px dark / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 0.99, top-right 1.00, bottom-right 0.88, bottom-left 0.88
+  FAIL  390px dark / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 0.00, top-right 0.00, bottom-right 0.00, bottom-left 0.00
   ok    390px dark / keyboard ring: no page errors
 
 the keyboard ring, 1280px light
@@ -481,7 +482,7 @@ the keyboard ring, 1280px light
   ok    1280px light / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 315,378.9,915,420.9 in section 314,377.9,916,421.9
   ok    1280px light / keyboard ring: nothing covers the section while its pixels are read — clear
   ok    1280px light / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 1.00
-  ok    1280px light / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 1.00, top-right 1.00, bottom-right 0.89, bottom-left 0.90
+  FAIL  1280px light / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 0.00, top-right 0.00, bottom-right 0.00, bottom-left 0.00
   ok    1280px light / keyboard ring: no page errors
 
 the keyboard ring, 1280px dark
@@ -490,7 +491,7 @@ the keyboard ring, 1280px dark
   ok    1280px dark / keyboard ring: the outline's outer box lies inside the section's box (the box that clips it) — outline 315,378.9,915,420.9 in section 314,377.9,916,421.9
   ok    1280px dark / keyboard ring: nothing covers the section while its pixels are read — clear
   ok    1280px dark / keyboard ring: the ring is painted at the middle of all four sides (>= 0.6 of the way to --accent) — top 1.00, right 1.00, bottom 1.00, left 1.00
-  ok    1280px dark / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 1.00, top-right 1.00, bottom-right 0.88, bottom-left 0.89
+  FAIL  1280px dark / keyboard ring: and round all four rounded corners, not cut by the clip — top-left 0.00, top-right 0.00, bottom-right 0.00, bottom-left 0.00
   ok    1280px dark / keyboard ring: no page errors
 
 press, light

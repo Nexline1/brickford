@@ -1804,7 +1804,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar.lt-on .tb-title { opacity: 1; }
   /* The day and the week, as a capsule. --ink-2 on --surface is >= 6.6:1 in
      every theme. It never wraps: at a 24px root on a 320px screen it is
-     197px beside the 44px button, and the title gives way first (58px). */
+     197px beside the 44px button, and the title gives way first (50px). */
   .topbar .tb-meta {
     grid-column: 3; justify-self: end;
     display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px;
@@ -1909,7 +1909,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .btn { min-height: 44px; }
   .nav a, .navrow { min-height: 44px; }
   .theme-menu button { min-height: 44px; }
-  .menu-btn { width: 44px; height: 44px; margin-left: -11px; }
+  /* -3px against the bar's 8px padding: the button's box starts 5px in, on the
+     screen, and its glyph 19px in, where the specimen's is. The -11px this
+     was set against a 14px padding hung the box 3px off the left edge. */
+  .menu-btn { width: 44px; height: 44px; margin-left: -3px; }
   /* A tag carrying a concept title is a link to a page, so it is a control. The
      short status pills are not links and keep their size. */
   a.pill { min-height: 44px; padding-top: 8px; padding-bottom: 8px; }
@@ -1946,7 +1949,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     display: flex; align-items: center; gap: 10px;
     position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: var(--z-tabbar);
     min-height: var(--railbar-h);
-    padding: 7px max(10px, env(safe-area-inset-left)) 7px max(10px, env(safe-area-inset-right));
+    padding: 7px max(10px, env(safe-area-inset-right)) 7px max(10px, env(safe-area-inset-left));
     /* The tab bar's material, since it sits directly on top of it (T-006). */
     background: color-mix(in srgb, var(--surface) 78%, transparent);
     -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
@@ -2128,6 +2131,13 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    pointer-down and only fades on release. */
 @media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--surface-2); text-decoration: none; } }
 .grow:active { background: var(--surface-2); }
+/* The keyboard ring goes INSIDE the row. The global ring is drawn 2px outside
+   an element's box, and the section clips its rows (overflow: hidden, above),
+   so a focused row kept only the edges it shared with a neighbour and a
+   one-row section showed no ring at all. -3px puts the 2px ring 1px inside
+   the row; the row takes the section's radius while focused, so the ring is
+   concentric with the rounded corner rather than cut by it. */
+.glist .grow:focus-visible { outline-offset: -3px; border-radius: var(--r-md); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
    of them so every row's text starts on the same vertical line — and the
    separator inset above is computed from it.

@@ -1,11 +1,23 @@
-CHECK round 2 (orchestrator), 2026-10-03
-typecheck fails=0
-content: PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
-sync-loop: PASS — sync never restarts the video, and a rejected token latches only the automatic push
-shell: PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)
-contrast: PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold
-logic: PASS — 24 invariants hold
-flows: PASS — 23 checks, 3 flows x 2 widths, each in a fresh context
-clip: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (136368 element measurements)
-clip-tz-la: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (136368 element measurements)
-design: PASS — 554 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the press on 1071 rows (2310 texts) in 7 themes
+CHECK, BUILD round 3 (builder), 2026-10-03, on the final bytes of loop/T-006-007-chrome-and-lists
+sources: 2c74e9370229  platform/css/style.css;9915232b51e2  platform/index.html;89622ede9826  platform/js/app.js;45cc94a8aa22  tools/verify-design.js;
+typecheck fails=0 (exit 0)
+content: exit 0 (3s) — PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+sync-loop: exit 0 (63s) — PASS — sync never restarts the video, and a rejected token latches only the automatic push
+shell: exit 0 (74s) — PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)
+contrast: exit 0 (13s) — PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold
+logic: exit 0 (3s) — PASS — 24 invariants hold
+flows: exit 0 (3s) — PASS — 23 checks, 3 flows x 2 widths, each in a fresh context
+clip: exit 0 (177s) — PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (136368 element measurements)
+clip-tz-la: exit 0 (175s) — PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (136368 element measurements)
+design: exit 0 (40s) — PASS — 582 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2310 texts) in 7 themes
+baseline: tools/verify-clip.baseline.json untouched against origin/main (b89a0dd, T-005 merged)
+plants, re-run against this gate (verify-design.js 45cc94a8aa22), each restored byte-for-byte (cmp identical):
+  T-006 plant-a: exit 1, FAIL — 15 of 582 design checks failed; restored identical
+  T-006 plant-b: exit 1, FAIL — 2 of 582 design checks failed; restored identical
+  T-006 plant-c: exit 1, FAIL — 6 of 582 design checks failed; restored identical
+  T-007 plant-a: exit 1, FAIL — 16 of 582 design checks failed; restored identical
+  T-007 plant-b: exit 1, FAIL — 16 of 582 design checks failed; restored identical
+  T-007 plant-c: exit 1, FAIL — 22 of 582 design checks failed; restored identical
+  T-007 plant-d: exit 1, FAIL — 4 of 582 design checks failed; restored identical
+  T-007 plant-e: exit 1, FAIL — 12 of 582 design checks failed; restored identical
+  T-007 plant-f: exit 1, FAIL — 4 of 582 design checks failed; restored identical

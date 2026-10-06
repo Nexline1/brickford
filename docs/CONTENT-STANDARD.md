@@ -76,6 +76,11 @@ will rehearse the error for months.
 - Figures and state carry the meaning; text labels it.
 - Motion only where it shows change: a curve drawing, a bar filling, a ring sweeping.
   No decorative animation, nothing page-wide.
+- **The exception (owner-approved 2026-10-06, T-024).** Decorative motion is allowed on the
+  opening screen only (built in T-022), and Reduce Motion still makes it still. Static
+  decorative glows are allowed behind page heads in the dark theme, as long as text never
+  sits on one without a measured solid fallback: the glow and the box the text is measured
+  against both declare a solid `background-color` no darker than the glow's brightest pixel.
 - Every page must survive 320px with no horizontal overflow **and no clipped content** —
   the calendar bug hid two days a week behind `overflow: hidden` and produced no
   document overflow at all, so the audit checks both.

@@ -1,6 +1,6 @@
-# plant (b2): theme: "light" put back in DEFAULT.settings (the old default, written on first save) (on 6a36183)
+# plant (b3): theme: "dark" put in DEFAULT.settings (resolves right, but writes a pick nobody made on the first save) (on 6a36183)
 diff --git a/platform/js/app.js b/platform/js/app.js
-index 64ff873..ac38251 100644
+index 64ff873..a6ea3f2 100644
 --- a/platform/js/app.js
 +++ b/platform/js/app.js
 @@ -180,7 +180,7 @@
@@ -8,7 +8,7 @@ index 64ff873..ac38251 100644
      // stored pick. With "light" in this object every device wrote "light" on
      // its first save, and the default could never change again (T-024).
 -    settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null,
-+    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null,
++    settings: { theme: "dark", lastBackup: null, dailyStart: "08:00", streakFrom: null,
                  lastSyncAt: null, syncError: null },
    };
    let S;
@@ -188,17 +188,17 @@ Auto theme
   ok    auto, picked from the menu: no page errors
 
 T-024: the default theme
-  FAIL  default (nothing stored, phone light): resolves to data-theme="dark", the navy --bg #0c1330 — data-theme light, --bg rgb(242, 241, 238)
-  FAIL  default (nothing stored): meta theme-color #0c1330 — meta #2b2118
-  FAIL  default (nothing stored): the menu lists "Navy" (dark) second, after Auto, and marks it — auto:Auto dark:Navy light:Paper* parchment:Parchment latte:Latte forest:Forest midnight:Midnight slate:Slate
-  ok    default (nothing stored): marking a lecture watched really saved (state writes went up, the state is stored) — state writes 1 -> 3, stored {"raw":true,"has":true,"theme":"light"}
-  FAIL  default (nothing stored): and the saved state carries no theme key (unset stays unset) — {"raw":true,"has":true,"theme":"light"}
+  ok    default (nothing stored, phone light): resolves to data-theme="dark", the navy --bg #0c1330 — data-theme dark, --bg rgb(12, 19, 48)
+  ok    default (nothing stored): meta theme-color #0c1330 — meta #0c1330
+  ok    default (nothing stored): the menu lists "Navy" (dark) second, after Auto, and marks it — auto:Auto dark:Navy* light:Paper parchment:Parchment latte:Latte forest:Forest midnight:Midnight slate:Slate
+  ok    default (nothing stored): marking a lecture watched really saved (state writes went up, the state is stored) — state writes 1 -> 3, stored {"raw":true,"has":true,"theme":"dark"}
+  FAIL  default (nothing stored): and the saved state carries no theme key (unset stays unset) — {"raw":true,"has":true,"theme":"dark"}
   ok    default (nothing stored): no page errors
-  FAIL  default (progress stored, no theme, phone light): resolves to data-theme="dark", the navy --bg #0c1330 — data-theme light, --bg rgb(242, 241, 238)
-  FAIL  default (progress stored, no theme): meta theme-color #0c1330 — meta #2b2118
-  FAIL  default (progress stored, no theme): the menu lists "Navy" (dark) second, after Auto, and marks it — auto:Auto dark:Navy light:Paper* parchment:Parchment latte:Latte forest:Forest midnight:Midnight slate:Slate
-  ok    default (progress stored, no theme): marking a lecture watched really saved (state writes went up, the state is stored) — state writes 1 -> 3, stored {"raw":true,"has":true,"theme":"light"}
-  FAIL  default (progress stored, no theme): and the saved state carries no theme key (unset stays unset) — {"raw":true,"has":true,"theme":"light"}
+  ok    default (progress stored, no theme, phone light): resolves to data-theme="dark", the navy --bg #0c1330 — data-theme dark, --bg rgb(12, 19, 48)
+  ok    default (progress stored, no theme): meta theme-color #0c1330 — meta #0c1330
+  ok    default (progress stored, no theme): the menu lists "Navy" (dark) second, after Auto, and marks it — auto:Auto dark:Navy* light:Paper parchment:Parchment latte:Latte forest:Forest midnight:Midnight slate:Slate
+  ok    default (progress stored, no theme): marking a lecture watched really saved (state writes went up, the state is stored) — state writes 1 -> 3, stored {"raw":true,"has":true,"theme":"dark"}
+  FAIL  default (progress stored, no theme): and the saved state carries no theme key (unset stays unset) — {"raw":true,"has":true,"theme":"dark"}
   ok    default (progress stored, no theme): no page errors
   ok    stored "light" on a dark phone: stays light (--bg #f2f1ee, meta #2b2118) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118
   ok    stored "light": after a real save (marking a lecture watched), still stored as "light", Paper marked — state writes 1 -> 3, stored {"raw":true,"has":true,"theme":"light"}
@@ -207,16 +207,16 @@ T-024: the default theme
 T-024: the theme before the first paint
   ok    first paint: index.html's PANEL map is every theme's --panel in style.css — 7 themes
   ok    first paint (stored "light", phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light", phone dark): every frame, held and after app.js ran, is light — never the other theme — 10 frames
+  ok    first paint (stored "light", phone dark): every frame, held and after app.js ran, is light — never the other theme — 11 frames
   ok    first paint (stored "light", phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0c1330, meta #0c1330 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #0c1330
-  FAIL  first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 of 15 frames, e.g. rgb(242, 241, 238) (light)
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0c1330, meta #0c1330 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #0c1330
   ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 9 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 11 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 8 frames
   ok    first paint (stored "auto", phone light): no page errors
 
 T-024: the glow
@@ -907,5 +907,5 @@ thumbnail contrast, slate
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-FAIL — 9 of 788 design checks failed
+FAIL — 2 of 788 design checks failed
 exit 1

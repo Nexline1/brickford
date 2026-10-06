@@ -14,18 +14,35 @@
 // lecture was left off:
 //
 //   (d) resume: the player's time is kept when it is paused, when the route is
-//       left and when the page goes away; reopening the lecture asks the
-//       player to start there; the end of the video clears it;
-//   (e) a render is a read: opening the lecture, rendering it 20 times and
-//       hearing 50 playing ticks from the player write nothing at all — and a
-//       pause after them writes exactly once, so the zero is not blindness;
+//       left, when the page goes away and when it is hidden (how a phone
+//       mostly leaves); reopening the lecture asks the player to start there;
+//       the end of the video clears it;
+//   (e) a render is a read: opening the lecture and hearing 50 playing ticks
+//       spread across it, with a render after each of the first 20 — every
+//       render made while the player holds a time nobody has saved — write
+//       nothing at all; and a pause after them writes exactly once, so the
+//       zero is not blindness;
 //   (f) the resume point syncs: a pull takes the later posAt per lecture,
-//       whichever side wins the lecture's standing, and a push carries pos.
+//       whichever side wins the lecture's standing, and a push carries pos;
+//   (g) under a second is not a position: opened at start=754, a buffering
+//       report at 0:00 and an immediate leave keep 754 — and the one real 0,
+//       a lecture that began at 0 taken back to its start, is kept;
+//   (h) the player's own frame, end to end: a stub of YouTube's embed is
+//       served INTO the lecture's frame, and speaks postMessage the way the
+//       player does — the handshake, then a pause that saves; while a pause
+//       from the top window, from a second YouTube frame, and from the
+//       player's frame once it is on another origin each write nothing;
+//   (i) a slow phone (once): that stub answers only after 60 hails, the old
+//       cap — the page must still be asking, and resume must still work.
 //
-// The frame here cannot reach YouTube, so (d) and (e) speak for the player
-// through the read-only test hook (window.__brickfordTest.playerMessage,
-// present only when the page is booted on a #/__test hash): a message exactly
-// as the embed would post it, handed to the same handler.
+// For (d), (e) and (g) the frame cannot reach YouTube, so they speak for the
+// player through the test-only hook (window.__brickfordTest.playerMessage,
+// present only when the page is booted on a #/__test hash), whose
+// playerMessage writes through the same path a real player message does: a
+// message exactly as the embed would post it, handed to the same handler
+// (playerEvent). Only the origin/source filter in front of that handler is
+// skipped — which is what (h) and (i) are for: no hook, real postMessage
+// from a real cross-origin frame.
 //
 // Each flow runs in its own FRESH browser context, at a phone width and a
 // desktop width, with a fixed clock (Tuesday 20 Oct 2026, a study day) and a
@@ -33,7 +50,8 @@
 // sync, and the YouTube/KaTeX CDNs are not needed for any of this — and any
 // request to GitHub fails the run. The one exception is (f), which needs a
 // sync to happen: it gives its own context a stub token and answers GitHub
-// itself, and nothing in it leaves the machine.
+// itself, and nothing in it leaves the machine. (h) and (i) answer the
+// embed's URL with a stub page the same way; nothing reaches YouTube.
 //
 //   node tools/verify-flows.js                 # gate
 //   node tools/verify-flows.js --shots <dir>   # also write a screenshot per flow
@@ -106,16 +124,91 @@ const setState = (page, s) => page.evaluate(s => window.__brickfordTest.playerMe
 const LECTURE = { cid: "math110", ui: 0, li: 13 };
 const LK = LECTURE.cid + "." + LECTURE.ui + "." + LECTURE.li;
 const LROUTE = "/lesson/" + LECTURE.cid + "/" + LECTURE.ui + "/" + LECTURE.li;
-const CUR = (() => {
+const lessonOf = (() => {
   const vm = require("vm");
   const sandbox = { window: {} };
   sandbox.window.DAR = sandbox.DAR = {};
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/curriculum.js"), "utf8"), sandbox);
-  const c = sandbox.window.DAR.COURSES.find(x => x.id === LECTURE.cid);
-  const l = c.units[LECTURE.ui].lessons[LECTURE.li];
-  return { v: l.v, min: l.min, label: c.code + " · " + l.t };
+  return (cid, ui, li) => {
+    const c = sandbox.window.DAR.COURSES.find(x => x.id === cid);
+    const l = c.units[ui].lessons[li];
+    return { v: l.v, min: l.min, label: c.code + " · " + l.t };
+  };
 })();
+const CUR = lessonOf(LECTURE.cid, LECTURE.ui, LECTURE.li);
+
+// The page going to the background, as the page sees it: visibilityState,
+// and the visibilitychange event (a headless page cannot be backgrounded).
+const setVisibility = (page, state) => page.evaluate(s => {
+  Object.defineProperty(document, "visibilityState", { configurable: true, get: () => s });
+  Object.defineProperty(document, "hidden", { configurable: true, get: () => s === "hidden" });
+  document.dispatchEvent(new Event("visibilitychange"));
+}, state);
+
+// ---- a stand-in for YouTube's embed, for (h) and (i) ----
+// Served by a route into the lecture's own frame (the real player is never
+// reached), on YouTube's origin, so what the page receives is a real
+// cross-origin postMessage. It behaves the way the player does on the wire:
+// it says nothing until the page hails it ("listening"), then answers with
+// initialDelivery and onReady, and from then on posts what the harness hands
+// it (__say) — JSON strings, in YouTube's shapes. It records every hail and
+// every command the page sends it. `quiet` hails are ignored before it
+// answers: a phone whose player is slow to start listening. __post sends
+// whatever the handshake, for frames that are not the player.
+const stubPage = quiet => `<!doctype html><meta charset="utf-8"><title>player stub</title><script>
+var quiet = ${quiet}, heard = 0, answered = false, commands = [];
+function post(s) { parent.postMessage(s, "*"); }
+function wire(o) { o.id = 1; o.channel = "widget"; return JSON.stringify(o); }
+addEventListener("message", function (e) {
+  var m; try { m = JSON.parse(e.data); } catch (x) { return; }
+  if (m.event === "listening") {
+    heard++;
+    if (!answered && heard > quiet) {
+      answered = true;
+      post(wire({ event: "initialDelivery", info: { playerState: -1, currentTime: 0, videoData: { video_id: location.pathname.split("/").pop() } } }));
+      post(wire({ event: "onReady", info: null }));
+    }
+  } else if (m.event === "command") commands.push(m.func + (m.args ? " " + m.args.join(",") : ""));
+});
+window.__stub = function () { return { heard: heard, answered: answered, commands: commands }; };
+window.__say = function (s) { if (!answered) return false; post(s); return true; };
+window.__post = function (s) { post(s); return true; };
+</script>`;
+// Somewhere that is not YouTube, though its name starts like it: the player's
+// frame is sent here in (h), and the page it gets posts a pause on arrival.
+const ELSEWHERE = "https://www.youtube.com.example.net";
+const wireMsg = o => JSON.stringify(Object.assign({}, o, { id: 1, channel: "widget" }));
+const PAUSE_MSG = wireMsg({ event: "onStateChange", info: 2 });
+const playingMsg = (t, v) => wireMsg({ event: "infoDelivery", info: { playerState: 1, currentTime: t, videoData: { video_id: v } } });
+async function stubPlayer(ctx, quiet) {
+  await ctx.route(/^https:\/\/www\.youtube\.com\/embed\//, r => r.fulfill({ status: 200, contentType: "text/html", body: stubPage(quiet) }));
+  await ctx.route(new RegExp("^" + ELSEWHERE.replace(/\./g, "\\.") + "/"), r => r.fulfill({ status: 200, contentType: "text/html",
+    body: "<!doctype html><title>elsewhere</title><script>parent.postMessage(" + JSON.stringify(PAUSE_MSG) + ", \"*\");</script>" }));
+}
+// The lecture's frame, once the stub is running in it.
+async function playerFrame(page) {
+  const fr = await (await page.waitForSelector("#view .video-frame iframe[data-k]", { state: "attached" })).contentFrame();
+  await fr.waitForFunction(() => typeof window.__stub === "function", null, { timeout: 8000 });
+  return fr;
+}
+// Every message the top page receives, counted by a listener registered AFTER
+// the app's — listeners run in the order they were added, so once this one has
+// counted a message the app has finished handling it: proof, not a wait.
+async function listenAfterApp(page) {
+  await page.evaluate(() => {
+    window.__heard = [];
+    window.addEventListener("message", e => window.__heard.push({ origin: e.origin, data: typeof e.data === "string" ? e.data : "" }));
+  });
+}
+// Send one message (exactly `s`) and wait until the page has handled it.
+async function delivered(page, s, send) {
+  const n = await page.evaluate(s => window.__heard.filter(h => h.data === s).length, s);
+  if ((await send()) === false) return false;
+  return page.waitForFunction(([s, n]) => window.__heard.filter(h => h.data === s).length > n, [s, n], { timeout: 5000 })
+    .then(() => true, () => false);
+}
+const fromPlayer = (page, fr, s) => delivered(page, s, () => fr.evaluate(s => window.__say(s), s));
 
 // Proof the view was rebuilt, not a guess at how long it takes: renderInner()
 // replaces #view's children wholesale, so a marker on the current first child
@@ -294,6 +387,21 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
       const hid = await stored(page, LK);
       check("(d) the page going away (pagehide) keeps it (pos 900)", !!hid && hid.pos === 900, "pos " + (hid && hid.pos));
 
+      // And so does the page being hidden — how a phone mostly leaves (another
+      // app, the lock button), often with no pagehide at all.
+      await tick(page, 930.6, CUR.v);
+      const wh = await writes(page);
+      await setVisibility(page, "hidden");
+      const hidden = { w: await writes(page) - wh, st: await stored(page, LK) };
+      await setVisibility(page, "visible");
+      check("(d) the page being hidden (visibilitychange) keeps it (pos 930), in one save",
+        hidden.w === 1 && !!hidden.st && hidden.st.pos === 930, hidden.w + " save(s), pos " + (hidden.st && hidden.st.pos));
+      await tick(page, 960.2, CUR.v);
+      await setState(page, PAUSED);
+      const back = await stored(page, LK);
+      check("(d) back on the page, the player is still heard: a tick and a pause keep pos 960", !!back && back.pos === 960,
+        "pos " + (back && back.pos));
+
       // The end clears it — stamped, so the clear outlives an older point
       // another device is still holding.
       await tick(page, CUR.min * 60 - 1, CUR.v);
@@ -313,6 +421,11 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     // ---- (e) a render is a read ----
     // lastLesson is seeded as this lecture, so opening it has nothing to
     // record either: every write counted below is one the page chose to make.
+    // 50 playing ticks spread across the lecture, 19s apart (0:30.4 to
+    // 16:01.4, so a write keyed to any clock position has one to fire on),
+    // and a render after each of the first 20: every render is made while the
+    // player holds a time nobody has saved. The frame each render builds
+    // starts at the time just heard — the proof a time WAS held at that render.
     {
       const seeded = { settings: { lastLesson: { cid: LECTURE.cid, ui: LECTURE.ui, li: LECTURE.li, label: CUR.label } } };
       const { ctx, page, errors } = await fresh(browser, w, seeded, "/__test");
@@ -323,22 +436,161 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
         new MutationObserver(ms => { for (const m of ms) if (m.addedNodes.length) window.__rebuilds++; })
           .observe(document.querySelector("#view"), { childList: true });
       });
-      for (let i = 0; i < 20; i++) await page.evaluate(() => window.__brickfordTest.render());
-      for (let i = 0; i < 50; i++) await tick(page, 100 + i * 0.25, CUR.v);
+      const at = i => 30.4 + i * 19;
+      const starts = [];
+      for (let i = 0; i < 50; i++) {
+        await tick(page, at(i), CUR.v);
+        if (i < 20) {
+          await page.evaluate(() => window.__brickfordTest.render());
+          starts.push(+(/[?&]start=(\d+)/.exec(await frameSrc(page)) || [])[1]);
+        }
+      }
       const r = await page.evaluate(() => ({ rebuilds: window.__rebuilds, writes: window.__stateWrites,
         frame: !!document.querySelector("#view .video-frame iframe[data-k]") }));
-      check("(e) the lecture was rendered 20 more times, each one a rebuilt view with its frame", r.rebuilds === 20 && r.frame,
-        r.rebuilds + " rebuild(s), frame " + r.frame);
-      check("(e) opening it, 20 renders and 50 playing infoDelivery ticks: zero save() calls", r.writes - w0 === 0,
-        (r.writes - w0) + " save(s)");
+      const offStart = starts.map((s, i) => ({ s, want: Math.floor(at(i)) })).filter(x => x.s !== x.want);
+      check("(e) the lecture was rendered 20 more times, each between two playing ticks, a rebuilt view whose frame starts at the time just heard (held, unsaved)",
+        r.rebuilds === 20 && r.frame && starts.length === 20 && offStart.length === 0,
+        r.rebuilds + " rebuild(s), frame " + r.frame + (offStart.length ? "; start= " + offStart.slice(0, 3).map(x => x.s + " (want " + x.want + ")").join(", ")
+          : "; start= " + starts[0] + " … " + starts[19]));
+      check("(e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls",
+        r.writes - w0 === 0, (r.writes - w0) + " save(s)");
       await setState(page, PAUSED);
       const after = await writes(page), st = await stored(page, LK);
-      const last = Math.floor(100 + 49 * 0.25);
+      const last = Math.floor(at(49));
       check("(e) and the pause after them is exactly one save, at the last tick's time (so the ticks were heard)",
         after - r.writes === 1 && !!st && st.pos === last, (after - r.writes) + " save(s), pos " + (st && st.pos) + " (want " + last + ")");
       check("(e) no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
+
+    // ---- (g) under a second is not a position ----
+    // A player opened at start= reports 0 while it buffers, before it has
+    // seeked there (iOS, on an ordinary open). Left at that moment, the
+    // lecture must keep the point it was opened at.
+    {
+      const T10 = "2026-10-20T10:00:00.000Z";
+      const seeded = { lessons: { [LK]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 } } };
+      const { ctx, page, errors } = await fresh(browser, w, seeded, "/__test");
+      await go(page, LROUTE);
+      const src = await frameSrc(page);
+      await page.evaluate(v => window.__brickfordTest.playerMessage(JSON.stringify(
+        { event: "infoDelivery", info: { playerState: 3, currentTime: 0, videoData: { video_id: v } } })), CUR.v);
+      await go(page, "/course/" + LECTURE.cid);
+      const kept = await stored(page, LK);
+      check("(g) opened at start=754, a buffering report at 0:00 and an immediate leave keep pos 754 (and its posAt)",
+        /[?&]start=754(&|$)/.test(src) && !!kept && kept.pos === 754 && kept.posAt === T10, src.replace(/^.*\?/, "?") + "; stored " + JSON.stringify(kept));
+
+      // The one real 0: a lecture that began at 0 (no start=), played to 5:00
+      // and paused there, then taken back to its start and paused again.
+      const B = { cid: LECTURE.cid, ui: LECTURE.ui, li: LECTURE.li - 1 };
+      const BK = B.cid + "." + B.ui + "." + B.li, BL = lessonOf(B.cid, B.ui, B.li);
+      await go(page, "/lesson/" + B.cid + "/" + B.ui + "/" + B.li);
+      const srcB = await frameSrc(page);
+      await tick(page, 300.2, BL.v);
+      await setState(page, PAUSED);
+      const at5 = await stored(page, BK);
+      await tick(page, 0.4, BL.v);
+      await setState(page, PAUSED);
+      const at0 = await stored(page, BK);
+      check("(g) the one real 0 is kept: opened from the beginning, paused at 5:00, taken back to the start and paused — pos 300, then 0",
+        !/[?&]start=/.test(srcB) && !!at5 && at5.pos === 300 && !!at0 && at0.pos === 0,
+        "start= " + (/[?&]start=/.test(srcB) ? "present" : "absent") + ", pos " + (at5 && at5.pos) + " then " + (at0 && at0.pos));
+      check("(g) no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+
+    // ---- (h) the player's own frame, end to end ----
+    // No test hook: the stub is served into the lecture's frame, on YouTube's
+    // origin, and everything below is a real postMessage between windows.
+    {
+      const { ctx, page, errors } = await fresh(browser, w, null, "/");
+      await stubPlayer(ctx, 0);
+      await listenAfterApp(page);
+      await go(page, LROUTE);
+      const fr = await playerFrame(page);
+      const shook = await fr.waitForFunction(() => window.__stub().answered && window.__stub().commands.length > 0, null, { timeout: 8000 })
+        .then(() => true, () => false);
+      const hs = await fr.evaluate(() => window.__stub());
+      // The handshake's own two messages, handled, before anything is counted.
+      await page.waitForFunction(() => window.__heard.filter(h => /"event":"(initialDelivery|onReady)"/.test(h.data)).length >= 2, null, { timeout: 5000 }).catch(() => {});
+      check("(h) the handshake, through a stub of YouTube's embed in the lecture's frame: the page hails it, it answers, the page subscribes to onStateChange",
+        shook && hs.heard >= 1 && hs.commands.indexOf("addEventListener onStateChange") >= 0,
+        hs.heard + " hail(s) heard, answered " + hs.answered + ", commands [" + hs.commands.join("; ") + "]");
+
+      const w0 = await writes(page);
+      const d1 = await fromPlayer(page, fr, playingMsg(754.3, CUR.v));
+      const d2 = await fromPlayer(page, fr, PAUSE_MSG);
+      const a = { w: await writes(page) - w0, st: await stored(page, LK) };
+      check("(h) from the frame: a playing infoDelivery then onStateChange 2 (paused) save pos 754, in one save",
+        d1 && d2 && a.w === 1 && !!a.st && a.st.pos === 754, (d1 && d2 ? "" : "not delivered; ") + a.w + " save(s), stored " + JSON.stringify(a.st));
+
+      // Nobody else's messages. Each foreign one is a pause, sent while the
+      // player holds a time nobody has saved, so a filter that let it through
+      // would write.
+      await fromPlayer(page, fr, playingMsg(800.2, CUR.v));
+      let wb = await writes(page);
+      const t1 = await delivered(page, PAUSE_MSG, () => page.evaluate(s => window.postMessage(s, "*"), PAUSE_MSG));
+      const fromTop = await writes(page) - wb;
+      check("(h) a pause posted by the top window itself writes nothing", t1 && fromTop === 0,
+        (t1 ? "" : "not delivered; ") + fromTop + " save(s), stored pos " + ((await stored(page, LK)) || {}).pos);
+
+      await page.evaluate(() => {
+        const x = document.createElement("iframe");
+        x.id = "otherPlayer"; x.src = "https://www.youtube.com/embed/aaaaaaaaaaa?enablejsapi=1";
+        document.body.appendChild(x);
+      });
+      const other = await (await page.waitForSelector("#otherPlayer", { state: "attached" })).contentFrame();
+      await other.waitForFunction(() => typeof window.__post === "function", null, { timeout: 8000 });
+      await fromPlayer(page, fr, playingMsg(820.2, CUR.v));
+      wb = await writes(page);
+      const t2 = await delivered(page, PAUSE_MSG, () => other.evaluate(s => window.__post(s), PAUSE_MSG));
+      const fromOther = await writes(page) - wb;
+      check("(h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing", t2 && fromOther === 0,
+        (t2 ? "" : "not delivered; ") + fromOther + " save(s), stored pos " + ((await stored(page, LK)) || {}).pos);
+      const t3 = await fromPlayer(page, fr, PAUSE_MSG);
+      const own = { w: await writes(page) - wb, st: await stored(page, LK) };
+      check("(h) and the player's own pause after them saves the time it held (pos 820), once — so those zeros were not deafness",
+        t3 && own.w === 1 && !!own.st && own.st.pos === 820, own.w + " save(s), pos " + (own.st && own.st.pos));
+
+      // The player's window itself, once it is on another origin: the frame
+      // navigates away (the source still matches; only the origin does not).
+      await fromPlayer(page, fr, playingMsg(840.2, CUR.v));
+      wb = await writes(page);
+      await fr.evaluate(u => { setTimeout(() => { location.href = u; }, 0); }, ELSEWHERE + "/elsewhere");
+      const t4 = await page.waitForFunction(o => window.__heard.some(h => h.origin === o), ELSEWHERE, { timeout: 8000 }).then(() => true, () => false);
+      const fromElsewhere = await writes(page) - wb;
+      check("(h) a pause posted from the player's own frame once it is on " + ELSEWHERE.replace("https://", "") + " writes nothing",
+        t4 && fromElsewhere === 0, (t4 ? "" : "not delivered; ") + fromElsewhere + " save(s), stored pos " + ((await stored(page, LK)) || {}).pos);
+      check("(h) no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
+  // ---- (i) a slow phone: the player starts listening after the old cap ----
+  // Once, at the phone width. The stub ignores the first 60 hails it hears —
+  // 60 was where the page used to stop asking — so it answers only if the
+  // page is still asking after that (about 16s in). Then resume has to work.
+  console.log("\na slow phone (once, 390px)");
+  {
+    const { ctx, page, errors } = await fresh(browser, 390, null, "/");
+    await stubPlayer(ctx, 60);
+    await listenAfterApp(page);
+    await go(page, LROUTE);
+    const fr = await playerFrame(page);
+    const shook = await fr.waitForFunction(() => window.__stub().answered && window.__stub().commands.length > 0, null, { timeout: 40000, polling: 250 })
+      .then(() => true, () => false);
+    const hs = await fr.evaluate(() => window.__stub());
+    await page.waitForFunction(() => window.__heard.filter(h => /"event":"(initialDelivery|onReady)"/.test(h.data)).length >= 2, null, { timeout: 5000 }).catch(() => {});
+    check("(i) a player that answers only after 60 hails (the old cap) is still being asked, and the handshake completes",
+      shook && hs.heard > 60, hs.heard + " hail(s) heard, answered " + hs.answered + ", commands [" + hs.commands.join("; ") + "]");
+    const w0 = await writes(page);
+    const d1 = await fromPlayer(page, fr, playingMsg(754.3, CUR.v));
+    const d2 = await fromPlayer(page, fr, PAUSE_MSG);
+    const a = { w: await writes(page) - w0, st: await stored(page, LK) };
+    check("(i) and resume works: a playing infoDelivery and a pause from the frame save pos 754, in one save",
+      d1 && d2 && a.w === 1 && !!a.st && a.st.pos === 754, (d1 && d2 ? "" : "not delivered; ") + a.w + " save(s), stored " + JSON.stringify(a.st));
+    check("(i) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
   }
 
   // ---- (f) the resume point syncs: the later posAt wins, per lecture ----
@@ -408,8 +660,8 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
-    ? "PASS — " + checks + " checks: 5 flows (open, answer, mark watched, resume, render-is-a-read) x " + WIDTHS.length +
-      " widths, each in a fresh context, and the resume point's sync merge once"
+    ? "PASS — " + checks + " checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x " +
+      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge and a slow phone's late player once"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

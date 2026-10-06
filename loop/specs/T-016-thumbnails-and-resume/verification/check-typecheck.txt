@@ -1,0 +1,2 @@
+for f in platform/js/*.js platform/data/*.js tools/*.js; do node --check "$f"; done
+typecheck fails=0

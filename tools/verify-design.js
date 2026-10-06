@@ -144,9 +144,13 @@
 //     control in its box (it is painted behind them), and as shipped every
 //     control there takes its own hit (nothing interactive under it); it
 //     declares a solid background-color, .main declares the same one (so
-//     verify-contrast measures the page's text against it), and no pixel of
-//     the glow, photographed with the page hidden, is lighter than that
-//     colour; in light there is no layer and .main paints nothing.
+//     verify-contrast measures the page's text against it), and that colour
+//     is no darker than the glow's brightest possible pixel — every
+//     translucent stop of its computed gradients stacked at its own alpha on
+//     --bg, an upper bound worked out here, not read from the stylesheet; in
+//     light there is no layer and .main paints nothing;
+//   - on every route in the foundations loop, meta theme-color is the
+//     theme's --panel (#0c1330 in dark).
 //
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
@@ -210,6 +214,13 @@ const PANEL = { light: "#2b2118", dark: "#0c1330" };
 const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "22px", "--r-card": "20px" };
 // T-024: the glow is measured on the spec's four routes.
 const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
+// T-024: the primary action's pair, from the spec: a gold capsule with a navy
+// label in dark; in light the label stays white on the fill.
+const PRIMARY = {
+  light: { bg: "#241f1a", ink: "#ffffff", what: "a white label on the fill" },
+  dark:  { bg: "#e0b35a", ink: "#121a38", what: "a gold fill (#e0b35a) with a navy label (#121a38)" },
+};
+const hexBytes = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).concat(255);
 
 let checks = 0, fails = 0;
 function check(name, ok, detail) {
@@ -595,6 +606,61 @@ function installHelpers() {
   window.__dz = { bytes, resolve, tok, ratio, over, backdrop, same, hex, name };
 }
 
+// T-024: the glow layer on .main, as it is right now. `forced` says whether
+// the harness has made it hit-testable (pointer-events: auto), to prove it
+// is painted behind what it sits under rather than merely ignoring pointers.
+function glowState() {
+  const z = window.__dz;
+  const main = document.querySelector(".main"), ms = getComputedStyle(main), gs = getComputedStyle(main, "::before");
+  const mr = main.getBoundingClientRect();
+  const present = gs.content !== "none" && gs.display !== "none";
+  // Each gradient's stops, read off the computed value: the most opaque stop
+  // of every radial layer is that layer's peak.
+  const img = gs.backgroundImage;
+  const radials = (img.match(/radial-gradient\(/g) || []).length;
+  const stops = [...img.matchAll(/rgba?\(([^)]*)\)/g)].map(m => m[1].split(/[ ,\/]+/).filter(Boolean).map(Number))
+    .map(a => [a[0], a[1], a[2], a.length > 3 ? a[3] : 1]);
+  const bgTok = z.tok("--bg");
+  // The brightest the glow can paint: every translucent stop at its own
+  // alpha, stacked over --bg (each one lifts every channel, so the stack of
+  // peaks is an upper bound on any pixel).
+  let peak = bgTok.slice(0, 3);
+  for (const st of stops.filter(st => st[3] > 0 && st[3] < 1).reverse())
+    peak = peak.map((c, i) => st[i] * st[3] + c * (1 - st[3]));
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const L = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]);
+  const decl = z.bytes(gs.backgroundColor), mainBg = z.bytes(ms.backgroundColor);
+  // Behind the content: at the centre of every visible control and every
+  // element carrying its own text inside the glow's band (the top 360px of
+  // .main, where its gradients paint), the hit goes to that element (or into
+  // it), never to .main — which is where a hit on its ::before lands.
+  const band = Math.min(mr.bottom, mr.top + 360);
+  const ctl = "a[href], button, input, select, textarea, summary, [tabindex]:not(main), [role=button]";
+  const lost = [], seen = { ctl: 0, text: 0 };
+  [...main.querySelectorAll("*")].forEach(el => {
+    if (!el.checkVisibility()) return;
+    const isCtl = el.matches(ctl);
+    const hasText = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+    if (!isCtl && !hasText) return;
+    if (getComputedStyle(el).pointerEvents === "none") return;
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2;
+    if (r.width < 1 || r.height < 1 || y < mr.top || y > band || y < 0 || y > innerHeight || x < 0 || x > innerWidth) return;
+    const hit = document.elementFromPoint(x, y);
+    if (!hit || !main.contains(hit) && hit !== main) return;   // under the bar or the tab bar: not the glow's
+    seen[isCtl ? "ctl" : "text"]++;
+    if (hit === main || !(hit === el || el.contains(hit) || hit.contains(el)))
+      lost.push(z.name(el) + " \"" + (el.textContent || "").trim().slice(0, 20) + "\" -> " + z.name(hit));
+  });
+  return {
+    present, content: gs.content, pe: gs.pointerEvents, position: gs.position, z: gs.zIndex, radials,
+    anim: gs.animationName, trans: gs.transitionProperty + " " + gs.transitionDuration, iso: ms.isolation,
+    box: { w: Math.round(parseFloat(gs.width)), mainW: Math.round(mr.width), top: gs.top, left: gs.left },
+    decl, mainBg, peak: peak.map(Math.round), lDecl: L(decl), lPeak: L(peak), bgImgMain: ms.backgroundImage,
+    lost, seen,
+  };
+}
+
 // The phone nav bar, as it is right now.
 function barState() {
   const z = window.__dz;
@@ -704,7 +770,7 @@ function listState() {
     cnt("glist");
     if (!(bg[3] === 255 && z.same(bg, T.surface))) note("fill", "list " + gi + " is " + z.hex(bg));
     const radii = [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
-    if (radii.some(r => r !== "12px") || s.overflowX !== "hidden" || s.overflowY !== "hidden")
+    if (radii.some(r => r !== "20px") || s.overflowX !== "hidden" || s.overflowY !== "hidden")
       note("shape", "list " + gi + " corners " + radii.join(" ") + ", overflow " + s.overflowX + "/" + s.overflowY);
     const rows = [...g.children].filter(r => r.classList.contains("grow") && r.checkVisibility());
     rows.forEach((r, ri) => {
@@ -1062,6 +1128,9 @@ function hairlineSource() {
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       let tokensChecked = false;
+      // T-024: the primary action, gathered over the routes (a .btn.lg is on
+      // some routes and not others), then judged once per context.
+      const prim = { filled: 0, lg: 0, bad: [], lgBad: [], toast: null, cards: 0, cardBad: [], pills: 0, pillBad: [] };
       for (const route of ROUTES) {
         await go(page, route);
         const m = await page.evaluate(probe, NAMES);
@@ -1074,9 +1143,37 @@ function hairlineSource() {
             !!m.h1 && m.h1.size === large && m.h1.weight === "700" && Math.abs(em - -0.022) <= 0.002,
             m.h1 ? m.h1.size + "px, weight " + m.h1.weight + ", " + em.toFixed(4) + "em, \"" + m.h1.text + "\"" : "no visible title h1 in the view");
         }
-        const off = m.corners.filter(c => c.some(r => r !== "12px"));
-        check(where + ": every visible .btn has 12px corners", m.btns > 0 && off.length === 0,
-          m.btns === 0 ? "no visible .btn on this route" : off.length ? off.length + " of " + m.btns + ", e.g. " + off[0].join(" ") : m.btns + " buttons");
+        // T-005's corner check, with T-024's shapes (the owner's decision of
+        // 2026-10-06): a filled .btn is a 999px capsule; the outlined kinds —
+        // ghost, danger and bare — keep 12px. Same check, new expected values.
+        const shapeOff = m.kinds.filter(k => k.corners.some(r => r !== (k.filled ? "999px" : "12px")));
+        check(where + ": every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners",
+          m.btns > 0 && shapeOff.length === 0,
+          m.btns === 0 ? "no visible .btn on this route" : shapeOff.length ? shapeOff.length + " of " + m.btns + ", e.g. " +
+            shapeOff[0].name + " \"" + shapeOff[0].text + "\" (" + (shapeOff[0].filled ? "filled" : "outlined") + ") " + shapeOff[0].corners.join(" ")
+            : m.btns + " buttons (" + m.kinds.filter(k => k.filled).length + " filled)");
+        // T-024: every filled, enabled .btn is the gold-or-light fill with the
+        // --accent-fill-ink label, at 4.5:1 or better.
+        const z2 = { ratio: (a, b) => { const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+          const L = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]); const x = L(a), y = L(b);
+          return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); } };
+        const hx = p => "#" + p.slice(0, 3).map(v => v.toString(16).padStart(2, "0")).join("");
+        for (const k of m.kinds.filter(k => k.filled && !k.disabled)) {
+          prim.filled++;
+          if (k.lg) prim.lg++;
+          const r = z2.ratio(k.color, k.bg);
+          const ok = k.bg[3] === 255 && __same(k.bg, m.fillTok.bg) && __same(k.color, m.fillTok.ink) && r >= 4.5 &&
+            __same(k.bg, hexBytes(PRIMARY[theme].bg)) && __same(k.color, hexBytes(PRIMARY[theme].ink)) && k.corners.every(c => c === "999px");
+          if (!ok) (k.lg ? prim.lgBad : prim.bad).push(route + " " + k.name + " \"" + k.text + "\" " + hx(k.color) + " on " + hx(k.bg) +
+            "/" + k.bg[3] + " " + r.toFixed(2) + ":1 " + k.corners[0]);
+        }
+        prim.toast = m.toast;
+        prim.fillTok = m.fillTok;
+        prim.cards += m.cards.length;
+        m.cards.filter(c => c.corners.some(r => r !== "20px")).forEach(c => prim.cardBad.push(route + " " + c.name + " " + c.corners.join(" ")));
+        prim.pills += m.pills.length;
+        m.pills.filter(c => c.corners.some(r => r !== "999px")).forEach(c => prim.pillBad.push(route + " " + c.name + " \"" + c.text + "\" " + c.corners.join(" ")));
+        check(where + ": meta theme-color is this theme's --panel (" + PANEL[theme] + ")", m.meta === PANEL[theme], "meta " + m.meta);
         check(where + ": no control carries a key-cap gloss, lift or well", m.deep.length === 0,
           m.deep.slice(0, 2).join(" | "));
         if (!tokensChecked) {
@@ -1086,12 +1183,27 @@ function hairlineSource() {
           check(at + ": the theme tokens resolve to the brief's values", m.theme === theme && bad.length === 0,
             "data-theme " + m.theme + (bad.length ? "; " + bad.map(k => k + " " + m.tokens[k] + " (want " + want[k] + ")").join(", ") : "; " + Object.keys(want).length + " tokens"));
           const rbad = Object.keys(RADII).filter(k => m.radii[k] !== RADII[k]);
-          check(at + ": the radius scale is 8/12/16/22", rbad.length === 0, rbad.map(k => k + " " + m.radii[k]).join(", "));
+          check(at + ": the radius scale is 8/12/16/22, cards 20 (--r-card)", rbad.length === 0, rbad.map(k => k + " " + m.radii[k]).join(", "));
           check(at + ": body is the system face at 17px", m.body.size === "17px" && /^-apple-system\b/.test(m.body.family),
             m.body.size + " " + m.body.family);
           check(at + ": --font-rounded asks for ui-rounded first", /^ui-rounded\b/.test(m.rounded), m.rounded);
         }
       }
+      // ---- T-024: the primary action, the toast, cards and chips ----
+      const want = PRIMARY[theme];
+      check(at + ": the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, " + want.what +
+        ", label --accent-fill-ink, >= 4.5:1",
+        prim.lg > 0 && prim.lgBad.length === 0 && prim.bad.length === 0,
+        (prim.lg === 0 ? "no .btn.lg on " + ROUTES.join(" ") + "; " : "") + (prim.lgBad.length + prim.bad.length
+          ? prim.lgBad.concat(prim.bad).slice(0, 3).join("; ") : prim.filled + " filled buttons (" + prim.lg + " .btn.lg)"));
+      const tr = prim.toast;
+      check(at + ": the toast is the same pair (--btn-bg under an --accent-fill-ink label)",
+        !!tr && __same(tr.bg, prim.fillTok.bg) && __same(tr.color, prim.fillTok.ink) && __same(tr.color, hexBytes(want.ink)),
+        tr ? "toast " + tr.color.slice(0, 3).join(",") + " on " + tr.bg.slice(0, 3).join(",") : "no toast");
+      check(at + ": every visible card (bar the hero's ruled .one) has 20px corners", prim.cards > 0 && prim.cardBad.length === 0,
+        prim.cardBad.length ? prim.cardBad.slice(0, 3).join("; ") : prim.cards + " cards");
+      check(at + ": every visible chip (.pill) is a capsule (999px)", prim.pills > 0 && prim.pillBad.length === 0,
+        prim.pillBad.length ? prim.pillBad.slice(0, 3).join("; ") : prim.pills + " chips");
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -1206,6 +1318,110 @@ function hairlineSource() {
     check("an older device reading \"auto\" falls back to light", old === rgb(BRIEF.light["--bg"]), "--bg " + old);
     check("auto, picked from the menu: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
+  }
+
+  // ---- T-024: the default is navy ----
+  // On a LIGHT phone, so a dark page is the default speaking and not the
+  // phone. Twice: with nothing stored at all, and with progress stored but
+  // no theme in it (the shape a device has once anything is saved).
+  console.log("\nT-024: the default theme");
+  const readTheme = () => ({
+    theme: document.documentElement.dataset.theme,
+    bg: (() => { const el = document.createElement("div"); document.body.appendChild(el);
+                 el.style.color = "var(--bg)"; const v = getComputedStyle(el).color; el.remove(); return v; })(),
+    meta: (document.querySelector('meta[name="theme-color"]') || {}).content || "",
+    picks: [...document.querySelectorAll("#themeMenu [data-theme-pick]")].map(b => ({ pick: b.dataset.themePick, label: b.textContent.trim(), on: b.classList.contains("on") })),
+    stored: (() => { const raw = localStorage.getItem("darhikmah_v1"); if (!raw) return { raw: false };
+                     const st = JSON.parse(raw); return { raw: true, has: !!st.settings && "theme" in st.settings, theme: (st.settings || {}).theme }; })(),
+  });
+  for (const [label, seedTheme] of [["nothing stored", undefined], ["progress stored, no theme", null]]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light" }, seedTheme);
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    // Something that saves, so "no theme written" is asked of a device that
+    // has written its state, not of one that never saved.
+    await page.evaluate(() => { window.location.hash = "#/calendar"; });
+    await page.waitForSelector("#view .cal-grid");
+    const r = await page.evaluate(readTheme);
+    check("default (" + label + ", phone light): resolves to data-theme=\"dark\", the navy --bg " + BRIEF.dark["--bg"],
+      r.theme === "dark" && r.bg === rgb(BRIEF.dark["--bg"]), "data-theme " + r.theme + ", --bg " + r.bg);
+    check("default (" + label + "): meta theme-color " + PANEL.dark, r.meta === PANEL.dark, "meta " + r.meta);
+    const second = r.picks[1];
+    check("default (" + label + "): the menu lists \"Navy\" (dark) second, after Auto, and marks it",
+      r.picks[0] && r.picks[0].pick === "auto" && !!second && second.pick === "dark" && second.label === "Navy" && second.on &&
+        r.picks.filter(p => p.on).length === 1,
+      r.picks.map(p => p.pick + ":" + p.label + (p.on ? "*" : "")).join(" "));
+    check("default (" + label + "): no theme is written to storage (unset stays unset)",
+      !r.stored.raw || !r.stored.has, JSON.stringify(r.stored));
+    check("default (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    // A stored pick is never rewritten: "light" on a DARK phone stays light.
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "dark" }, "light");
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await page.evaluate(() => { window.location.hash = "#/calendar"; });
+    await page.waitForSelector("#view .cal-grid");
+    const r = await page.evaluate(readTheme);
+    check("stored \"light\" on a dark phone: stays light (--bg " + BRIEF.light["--bg"] + ", meta " + PANEL.light + ")",
+      r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.meta === PANEL.light,
+      "data-theme " + r.theme + ", --bg " + r.bg + ", meta " + r.meta);
+    check("stored \"light\": still stored as \"light\", Paper marked", r.stored.theme === "light" &&
+      r.picks.some(p => p.pick === "light" && p.on), JSON.stringify(r.stored));
+    check("stored \"light\": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- T-024: the glow ----
+  console.log("\nT-024: the glow");
+  for (const { w, h, mobile } of WIDTHS) {
+    for (const theme of THEMES) {
+      const at = w + "px " + theme;
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await themePainted(page, theme, at + " glow");
+      for (const route of GLOW_ROUTES) {
+        await go(page, route);
+        const where = at + " " + route;
+        const g = await page.evaluate(glowState);
+        if (theme === "light") {
+          check(where + ": no glow in light (.main::before generates nothing, .main paints nothing)",
+            !g.present && g.mainBg[3] === 0 && g.bgImgMain === "none",
+            "::before content " + g.content + ", .main background " + g.mainBg.join(",") + " " + g.bgImgMain);
+          continue;
+        }
+        check(where + ": the glow is a static layer of two radial gradients over .main's top, as wide as .main",
+          g.present && g.radials === 2 && g.position === "absolute" && g.box.top === "0px" && g.box.left === "0px" &&
+            Math.abs(g.box.w - g.box.mainW) <= 1 && g.anim === "none",
+          "content " + g.content + ", " + g.radials + " radial, " + g.position + " top " + g.box.top + " left " + g.box.left +
+            ", " + g.box.w + "px of .main's " + g.box.mainW + ", animation " + g.anim);
+        check(where + ": the glow takes no pointer (pointer-events: none)", g.pe === "none", "pointer-events " + g.pe);
+        check(where + ": the glow is behind the content (z-index -1 inside an isolated .main)", g.z === "-1" && g.iso === "isolate",
+          "z-index " + g.z + ", .main isolation " + g.iso);
+        check(where + ": the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel",
+          g.decl[3] === 255 && __same(g.decl, g.mainBg, 0) && g.lDecl >= g.lPeak - 1e-4,
+          "declared " + g.decl.join(",") + ", .main " + g.mainBg.join(",") + ", peak " + g.peak.join(",") +
+            " (L " + g.lDecl.toFixed(4) + " vs " + g.lPeak.toFixed(4) + ")");
+        check(where + ": every text and control over the glow takes its own hit, as shipped",
+          g.lost.length === 0 && g.seen.ctl + g.seen.text > 0,
+          g.lost.length ? g.lost.length + " — " + g.lost.slice(0, 3).join("; ") : g.seen.ctl + " controls, " + g.seen.text + " texts");
+        // Made hit-testable, it must still lose every one of those hits:
+        // painted behind them, not merely ignoring pointers.
+        await page.addStyleTag({ content: ".main::before { pointer-events: auto !important; }" }).then(h => h.evaluate(n => n.id = "glow-force"));
+        const f = await page.evaluate(glowState);
+        await page.evaluate(() => document.getElementById("glow-force").remove());
+        check(where + ": forced hit-testable, the glow still loses the hit at every text and control (painted behind them)",
+          f.pe === "auto" && f.lost.length === 0 && f.seen.ctl + f.seen.text > 0,
+          "pointer-events " + f.pe + "; " + (f.lost.length ? f.lost.length + " — " + f.lost.slice(0, 3).join("; ") : f.seen.ctl + " controls, " + f.seen.text + " texts"));
+      }
+      check(at + " glow: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
   }
 
   // ---- the picked calendar day ----
@@ -1492,7 +1708,8 @@ function hairlineSource() {
   // =================== T-007: the lists ===================
   const LIST_NAMES = {
     fill: "every visible .glist is an opaque --surface section",
-    shape: "every visible .glist has 12px corners and clips its rows (overflow hidden)",
+    // 12px under T-007; 20px (--r-card) since T-024, the owner's decision.
+    shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
     head: "every .ghead is sentence case (text-transform none), 20px, 600, with no rule",
     meta: "every .gh-meta is 15px --ink-2 with tabular numerals",
     height: "every .grow is at least 44px tall (56 with a subtitle)",
@@ -1860,7 +2077,9 @@ function hairlineSource() {
       " contexts; the press on " + pressRows + " rows (" + pressTexts +
       " texts) in " + ALL_THEMES.length + " themes; thumbnails: " + thumbRows + " lecture rows measured across " + WIDTHS.length + " widths x " +
       THEMES.length + " themes (" + coverRows + " error fallbacks, " + thumbTexts + " texts on them), a frame that loads with and " +
-      "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts)"
+      "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts); " +
+      "T-024: the navy default (nothing stored, no stored theme, a stored Light kept), the gold primary action, cards, chips, " +
+      "and the glow on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

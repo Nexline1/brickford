@@ -269,9 +269,10 @@
      white: white on #e0b35a is 1.95:1, navy #121a38 is 8.75:1.
      --bad, --fac-math/-sys/-phys/-res/-speech were re-solved for the navy
      surfaces (hue held, lifted toward white until every one clears 4.5:1 on
-     --surface-2, on --accent-soft and on the glow's declared worst case below);
+     --surface-2, on --accent-soft, on the glow's declared worst case below,
+     and on its own 12% tint over that — the course page's teacher avatar);
      --good, --urgent and --fac-ai already did and are unchanged. */
-  --fac-math: #7faadb; --fac-ai: #d9ab6d; --fac-sys: #65b4ab; --fac-phys: #df9386; --fac-res: #b39cd1; --fac-speech: #cd97b2;
+  --fac-math: #8cb3df; --fac-ai: #d9ab6d; --fac-sys: #74bcb3; --fac-phys: #e29e92; --fac-res: #bba7d6; --fac-speech: #d2a1ba;
   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
   --bg: #0c1330;
   --bg-2: #101839;
@@ -625,11 +626,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    gradients can paint — so verify-contrast, which measures text against the
    first opaque ancestor, measures every ink on the page against the
    brightest point of the glow rather than against a plain navy that is not
-   what is under it. Never shown: the opaque image stack covers it. */
-[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #303149; }
+   what is under it (each channel rounded UP, so it is never darker than
+   the real peak). Never shown: the opaque image stack covers it. */
+[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #313149; }
 [data-theme="dark"] .main::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-color: #303149;
+  background-color: #313149;
   background-image:
     radial-gradient(70% 70% at 78% 8%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
     radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .20) 0%, rgb(70 84 170 / 0) 70%),
@@ -2192,7 +2194,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    one-row section showed no ring at all. -3px puts the 2px ring 1px inside
    the row; the row takes the section's radius while focused, so the ring is
    concentric with the rounded corner rather than cut by it. */
-.glist .grow:focus-visible { outline-offset: -3px; border-radius: var(--r-md); }
+.glist .grow:focus-visible { outline-offset: -3px; border-radius: var(--r-card); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
    of them so every row's text starts on the same vertical line — and the
    separator inset above is computed from it.

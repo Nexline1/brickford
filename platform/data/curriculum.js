@@ -4,7 +4,7 @@
 
 window.DAR = window.DAR || {};
 
-DAR.START_DATE = "2026-09-21";
+DAR.START_DATE = "2026-10-05";
 
 DAR.IDENTITY = {
   name: "Brickford",

@@ -2053,10 +2053,14 @@
   // once the frame fails, it is the cover. The cover's text is always in the
   // markup and only shown in that state, so the fallback is a class, not a
   // rebuild. Empty alt and aria-hidden: the title is already beside it.
+  // The cover's code is the course's, then which one this is ("MATH 110 · 3"):
+  // one run on a full-size cover, two lines on a row's 96px one, where the
+  // run would otherwise break wherever it ran out ("MATH 110 ·" / "10").
   function thumbBox(c, o) {
     return '<span class="thumb ' + facClass(c) + (o.src ? "" : " cover") + (o.state ? " " + o.state : "") + '">' +
       (o.src ? '<img src="' + o.src + '" alt="" loading="lazy" decoding="async" width="480" height="270">' : "") +
-      '<span class="th-cover" aria-hidden="true"><span class="th-code">' + esc(o.code) + "</span>" +
+      '<span class="th-cover" aria-hidden="true"><span class="th-code">' + esc(c.code) +
+      (o.no != null ? '<span class="th-no"><span class="th-dot"> · </span>' + esc(o.no) + "</span>" : "") + "</span>" +
       '<span class="th-ttl">' + esc(o.title) + "</span></span>" +
       (o.dur ? '<span class="th-dur">' + esc(o.dur) + "</span>" : "") +
       (o.frac > 0 ? '<span class="th-prog"><i style="width:' + Math.round(Math.min(1, o.frac) * 1000) / 10 + '%"></i></span>' : "") +
@@ -2070,7 +2074,7 @@
     const len = (l.min || 0) * 60;
     return thumbBox(c, {
       src: thumbFor(c.id, ui, li),
-      code: c.code + " · " + (l.v ? li + 1 : l.paper ? "Paper" : "Reading"),
+      no: l.v ? li + 1 : l.paper ? "Paper" : "Reading",
       title: l.t,
       dur: l.min ? clockLabel(len) : l.paper ? "Paper" : "Reading",
       frac: st.done || st.verified ? 1 : st.pos && len ? st.pos / len : 0,
@@ -2447,7 +2451,7 @@
         ? '<a class="grow" href="' + next + '">' + thumbHTML(c, ui, +li + 1) +
           '<span class="g-main"><span class="g-t">' + esc(u.lessons[+li + 1].t) + "</span>" +
           '<span class="g-s">Next · ' + lessonLine(u.lessons[+li + 1], +li + 1, S.lessons[lessonKey(cid, ui, +li + 1)] || {}) + "</span></span></a>"
-        : '<a class="grow" href="#/course/' + cid + '">' + thumbBox(c, { code: c.code, title: c.title }) +
+        : '<a class="grow" href="#/course/' + cid + '">' + thumbBox(c, { title: c.title }) +
           '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
           '<span class="g-s">End of this unit · back to the course</span></span></a>') +
       (prev
@@ -4933,7 +4937,7 @@
   const YT = "https://www.youtube.com";
   const YT_ORIGIN = /^https:\/\/www\.youtube(-nocookie)?\.com$/;
   const PS = { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 };
-  let player = null;        // { k, v, t, state, dirty } for the lecture on screen
+  let player = null;        // { k, own, v, t, state, dirty } for the lecture on screen
   let hailH = null, heardFrom = null;
   const ytFrame = () => document.querySelector("#view .video-frame iframe[data-k]");
   // Say "listening" until the player answers, the way the IFrame API does
@@ -4965,7 +4969,7 @@
       try { f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"], id: 1, channel: "widget" }), YT); } catch (e) {}
     }
     const k = f.dataset.k;
-    if (!player || player.k !== k) player = { k, v: f.dataset.v, t: null, state: null, dirty: false };
+    if (!player || player.k !== k) player = { k, own: f.dataset.v, v: f.dataset.v, t: null, state: null, dirty: false };
     let state = null;
     if (m.event === "onStateChange") state = +m.info;
     else if (m.event === "infoDelivery" || m.event === "initialDelivery") {
@@ -5002,7 +5006,9 @@
       if (st.pos == null && !played) return;
       delete st.pos;
     } else {
-      if (!player.dirty || player.t == null) return;
+      // Not once a playlist embed has moved on to another video: the time it
+      // is holding is that video's, not this lecture's.
+      if (!player.dirty || player.t == null || player.v !== player.own) return;
       player.dirty = false;
       const p = Math.floor(player.t);
       if (st.pos === p) return;

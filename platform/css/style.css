@@ -2200,6 +2200,96 @@ a.grow::after, button.grow.nav::after {
    rounded --surface section. There is no frame to double — the section's fill
    is its edge — so nothing is special-cased by where it sits. */
 
+/* A row's state, said in words in its subtitle ("Lecture 3 · Watched"). The
+   one coloured run in an otherwise --ink-2 line: --good, 600. */
+.grow .g-s .g-good { color: var(--good); font-weight: 600; }
+
+/* ============================================================
+   The thumbnail (T-016)
+   ------------------------------------------------------------
+   A lecture's own video frame, from YouTube's public image host
+   (app.js thumbFor), in one component wherever a lecture is
+   listed: a 16:9 frame with --r-md corners, the length on a dark
+   chip at the bottom right, and how far you have watched as a
+   3px edge along the bottom (loop/design/brief.md §8, the look
+   in specimen-feed.html).
+
+   Three states, all classes on the one box, so falling back is
+   a class and never a rebuild:
+   - waiting: the --surface-2 skeleton, the frame invisible over
+     it until its load event lands (.loaded), then a 120ms fade;
+   - the frame: .loaded;
+   - the cover: .cover — a reading has no frame, and a frame that
+     fails (error, or YouTube's 120x90 grey "no such video") is
+     removed. The course colour, its code and the title, set in
+     type. Its text is in the markup from the start and only shown
+     here.
+   Everything drawn ON the picture is a fixed colour, not a theme
+   ink: it sits on a photograph (or on the cover, which is dark in
+   every theme), not on the page. White on the chip's 78% black is
+   >= 11:1 whatever is under it. */
+.thumb {
+  position: relative; display: block; flex-shrink: 0;
+  aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden;
+  background: var(--surface-2);
+  color: #fff;
+}
+.thumb img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  /* hqdefault is 4:3 with the 16:9 frame letterboxed inside it; cover crops
+     the bars off. */
+  opacity: 0; transition: opacity var(--t-micro) ease;
+}
+.thumb.loaded img { opacity: 1; }
+/* Reduced motion: the frame is simply there. `none`, not the kill-switch's
+   0.01ms — that is still a transition, one frame of the skeleton. */
+@media (prefers-reduced-motion: reduce) { .thumb img { transition: none; } }
+/* The cover. The light themes' --fac colours already carry white text
+   (>= 5.9:1); the dark themes' are tints made to read ON black, so there the
+   cover is the tint taken --cover-k of the way to black (>= 8:1). */
+.thumb.cover { background: color-mix(in srgb, var(--fac, var(--fac-math)), #000 var(--cover-k, 0%)); }
+.thumb .th-cover { display: none; }
+.thumb.cover .th-cover { display: block; position: absolute; inset: 0; padding: 10px 12px; }
+.thumb .th-code {
+  display: block; font-family: var(--font-body); font-size: var(--fs-caption); font-weight: 600;
+  line-height: 1.2; letter-spacing: 0.02em; overflow-wrap: anywhere;
+}
+.thumb .th-ttl {
+  position: absolute; left: 12px; right: 12px; bottom: 16px;
+  font-family: var(--font-body); font-size: 1.125rem; font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.01em; overflow-wrap: anywhere;
+}
+/* The length: m:ss, or h:mm:ss from an hour; "Reading" or "Paper" where
+   there is no video. */
+.thumb .th-dur {
+  position: absolute; right: 8px; bottom: 8px; padding: 2px 6px; border-radius: 6px;
+  background: rgb(0 0 0 / .78); color: #fff;
+  font-family: var(--font-body); font-size: var(--fs-caption); font-weight: 600; line-height: 1.3;
+  font-variant-numeric: tabular-nums; letter-spacing: 0; white-space: nowrap;
+}
+/* How far you have got: the resume point over the runtime, full once the
+   lecture is watched. White on a darkened track, so it reads on a white slide
+   and a black one alike. Proven is the achievement gold — the dark themes'
+   --gold, fixed, because it is drawn on the picture. */
+.thumb .th-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgb(0 0 0 / .45); }
+.thumb .th-prog i { display: block; height: 100%; background: #fff; }
+.thumb.proven .th-prog i { background: #e0b35a; }
+
+/* As a list row's leading image: 96px wide, the course code only (the title
+   is the row's own, beside it), the chip and the cover tighter to the edge. */
+.grow > .thumb { width: 96px; }
+.grow > .thumb .th-ttl { display: none; }
+.grow > .thumb.cover .th-cover { padding: 6px 8px; }
+.grow > .thumb .th-code { font-size: clamp(10px, 0.625rem, 12px); }
+.grow > .thumb .th-no { display: block; }
+.grow > .thumb .th-dot { display: none; }
+/* The frame is a fixed 96px picture, so what is printed on it is capped the
+   way a picture's own text would be: at a 24px root an uncapped 18px chip
+   covered half the frame and the cover's second line with it. */
+.grow > .thumb .th-dur { right: 4px; bottom: 6px; padding: 0 4px; border-radius: 4px; font-size: min(var(--fs-caption), 13px); }
+/* The separator starts where the text does: past the 96px frame and the gap. */
+.grow:has(> .thumb)::before { left: calc(16px + 96px + 12px); }
+
 /* A status dot, for when a row's state is the whole point (a day, a course). */
 .gdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
 .gdot.on { background: var(--good); }

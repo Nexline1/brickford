@@ -98,7 +98,8 @@
 //   - each is loading=lazy, decoding=async, alt="", in a 16:9 box (±0.01);
 //   - until it loads, the frame is invisible over a --surface-2 skeleton;
 //   - the duration chip reads the lesson's `min` as m:ss or h:mm:ss, worked
-//     out here from whole minutes (h = min / 60), not by the app's formatter;
+//     out here from whole minutes (h = min / 60), not by the app's formatter,
+//     and is aria-hidden (the title is beside it);
 //   - the state is on the frame: a watched lecture's edge is full and white, a
 //     proven one's full and gold, and the row's subtitle says which;
 //   - the error fallback: this harness refuses the network, so every frame
@@ -151,6 +152,9 @@
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
 // network, and the log is how "no request for Libre Caslon" is checked.
+// Where a block reads colours right after a boot (the 1280 sidebar, and the
+// thumbnail blocks), it first waits for the theme it asked for to be PAINTED
+// (themePainted below) — the theme lag verify-contrast.js was rewritten for.
 //
 //   node tools/verify-design.js
 "use strict";
@@ -274,6 +278,34 @@ async function fresh(browser, opts, theme, extra) {
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   return { ctx, page, errors };
+}
+// The theme a block asked for, painted — not just declared. When data-theme
+// is set in the same frame as a route render, the document's computed style
+// can stay on the previous theme for hundreds of milliseconds while the
+// attribute already reads the new one (CLAUDE.md, verify-contrast.js): four
+// 1280 dark-sidebar checks here once read light values that way, under load.
+// So after a boot, wait for proof: the body's computed background is the --bg
+// that style.css on disk declares for that theme (:root for light,
+// [data-theme="X"] for the rest), and it is still that three frames running.
+// The first half is the change, the second that it stopped — not a duration.
+const THEME_BG = (() => {
+  const css = fs.readFileSync(CSS_FILE, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const out = {};
+  for (const m of css.matchAll(/^(:root|\[data-theme="([\w-]+)"\])\s*\{([^}]*)\}/gm)) {
+    const bg = /--bg:\s*(#[0-9a-fA-F]{6})\b/.exec(m[3]);
+    if (bg) out[m[2] || "light"] = bg[1].toLowerCase();
+  }
+  return out;
+})();
+async function themePainted(page, theme, at) {
+  const want = THEME_BG[theme] ? rgb(THEME_BG[theme]) : null;
+  const ok = !!want && await page.waitForFunction(want => {
+    if (getComputedStyle(document.body).backgroundColor !== want) { window.__themeRun = 0; return false; }
+    return (window.__themeRun = (window.__themeRun || 0) + 1) >= 3;
+  }, want, { polling: "raf", timeout: 8000 }).then(() => true, () => false);
+  const now = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  return check(at + ": painted in the theme asked for before anything is read (body = its --bg in style.css)", ok,
+    want ? "body " + now + ", --bg " + THEME_BG[theme] + " (" + want + ")" : "no --bg declared for \"" + theme + "\" in style.css");
 }
 // Proof the view was rebuilt, not a guess at how long it takes: renderInner()
 // replaces #view's children wholesale, so a marker on the current first child
@@ -811,6 +843,7 @@ function thumbState() {
       fac: getComputedStyle(t).getPropertyValue("--fac").trim(),
       facHue: hue(z.bytes(getComputedStyle(t).getPropertyValue("--fac").trim() || "transparent")),
       chip: ((t.querySelector(".th-dur") || {}).textContent || "").trim(),
+      chipAria: t.querySelector(".th-dur") ? t.querySelector(".th-dur").getAttribute("aria-hidden") : null,
       edge: edge ? edge.style.width : "", edgeCol: edge ? z.hex(z.bytes(getComputedStyle(edge).backgroundColor)) : "",
       sub: ((a.querySelector(".g-s") || {}).textContent || "").trim(),
       code: ((t.querySelector(".th-code") || {}).textContent || "").replace(/\s+/g, " ").trim(),
@@ -1315,8 +1348,9 @@ function hairlineSource() {
       const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: theme }, theme);
       await page.goto(URL + "/", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      const s = await page.evaluate(sideState);
       const at = "1280px " + theme + " sidebar";
+      await themePainted(page, theme, at);
+      const s = await page.evaluate(sideState);
       check(at + ": not the espresso --panel (#2b2118)", !__same(s.bg, [0x2b, 0x21, 0x18, 255], 0), "background " + hx(s.bg));
       check(at + ": a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%)",
         blurOk(s.bf) && material(s.bg, s.surface, 0.85), "backdrop-filter " + s.bf + "; background " + hx(s.bg) + " (--surface " + hx(s.surface) + ")");
@@ -1639,6 +1673,7 @@ function hairlineSource() {
       await page.route(/^https:\/\/i\.ytimg\.com\//, r => { if (mode === "hold") held.push(r); else r.abort(); });
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
+      await themePainted(page, theme, at + " thumbnails");
       await go(page, "/course/math110");
       // Every unit open, so every row is on the page to measure.
       await page.evaluate(() => document.querySelectorAll("#view details.unit").forEach(d => { d.open = true; }));
@@ -1659,9 +1694,9 @@ function hairlineSource() {
       const badSkel = vids.filter(r => !r.bgOpaque || !r.skeleton || r.imgOpacity !== "0" || /\b(loaded|cover)\b/.test(r.cls));
       check(where + ": before load, each frame is invisible over a --surface-2 skeleton", vids.length > 0 && badSkel.length === 0,
         badSkel.length ? show(badSkel, r => r.at + " bg " + r.bg + ", img opacity " + r.imgOpacity + ", " + r.cls) : vids.length + " skeletons, " + vids[0].bg);
-      const badChip = pre.filter(r => r.chip !== r.want);
-      check(where + ": the duration chip reads the lesson's min as m:ss or h:mm:ss", pre.length > 0 && badChip.length === 0,
-        badChip.length ? show(badChip, r => r.at + " \"" + r.chip + "\", want \"" + r.want + "\"") : pre.length + " chips, e.g. \"" + pre[0].chip + "\"");
+      const badChip = pre.filter(r => r.chip !== r.want || r.chipAria !== "true");
+      check(where + ": the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it)", pre.length > 0 && badChip.length === 0,
+        badChip.length ? show(badChip, r => r.at + " \"" + r.chip + "\", want \"" + r.want + "\", aria-hidden " + r.chipAria) : pre.length + " chips, e.g. \"" + pre[0].chip + "\", aria-hidden");
       // The seeded state: lecture 1 watched, lecture 14 proven.
       const wr = pre.find(r => r.at === "math110/0/0"), pr = pre.find(r => r.at === "math110/0/13");
       const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /· Watched$/.test(wr.sub) &&
@@ -1781,6 +1816,7 @@ function hairlineSource() {
     const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, theme);
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
+    await themePainted(page, theme, theme + " thumbnail contrast");
     const low = [], lowChip = [];
     let least = null, worstChip = Infinity, covers = 0, unsettled = [];
     for (const cid of FAC_COURSES) {

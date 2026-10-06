@@ -1,3 +1,16 @@
+# plant (e): reviewer P3 — a write from a render: V.lesson calls keepPosition("render") when this tab holds an unsaved time for the lecture on screen
+# run 2026-10-06 on branch loop/T-016-thumbnails-and-resume (e8bdb96); the mutation, then each gate's full output
+# restored: cmp platform/js/app.js against the pre-plant copy -> identical (git diff clean)
+# diff --git a/platform/js/app.js b/platform/js/app.js
+# index debab8e..e0e5cdc 100644
+# --- a/platform/js/app.js
+# +++ b/platform/js/app.js
+# @@ -2318,2 +2318,3 @@
+#      // does with them.
+# +    if (player && player.k === k && player.dirty) keepPosition("render");
+#      const resumeAt = player && player.k === k && player.t != null ? player.t : st.pos;
+
+### node tools/verify-flows.js
 
 390px
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
@@ -25,7 +38,7 @@
   ok    (d) and the next open starts from the beginning (no start=) — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
   ok    (d) no page errors
   ok    (e) the lecture was rendered 20 more times, each between two playing ticks, a rebuilt view whose frame starts at the time just heard (held, unsaved) — 20 rebuild(s), frame true; start= 30 … 391
-  ok    (e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls — 0 save(s)
+  FAIL  (e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls — 20 save(s)
   ok    (e) and the pause after them is exactly one save, at the last tick's time (so the ticks were heard) — 1 save(s), pos 961 (want 961)
   ok    (e) no page errors
   ok    (g) opened at start=754, a buffering report at 0:00 and an immediate leave keep pos 754 (and its posAt) — ?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754; stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T10:00:00.000Z"}
@@ -65,7 +78,7 @@
   ok    (d) and the next open starts from the beginning (no start=) — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
   ok    (d) no page errors
   ok    (e) the lecture was rendered 20 more times, each between two playing ticks, a rebuilt view whose frame starts at the time just heard (held, unsaved) — 20 rebuild(s), frame true; start= 30 … 391
-  ok    (e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls — 0 save(s)
+  FAIL  (e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls — 20 save(s)
   ok    (e) and the pause after them is exactly one save, at the last tick's time (so the ticks were heard) — 1 save(s), pos 961 (want 961)
   ok    (e) no page errors
   ok    (g) opened at start=754, a buffering report at 0:00 and an immediate leave keep pos 754 (and its posAt) — ?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754; stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T10:00:00.000Z"}
@@ -94,5 +107,32 @@ sync (once)
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 86 checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x 2 widths, each in a fresh context; the resume point's sync merge and a slow phone's late player once
+2 of 86 flow check(s) FAILED
+exit 1
+
+### node tools/verify-sync-loop.js
+A failing token — the state the bug needed:
+  ok    lesson page renders a video frame
+  ok    video frame still present after 15s
+  ok    iframe is the same element after 15s (was: original)
+  ok    iframe src unchanged
+  ok    the view was not rebuilt while sitting on the page (rebuilds: 0)
+A working token — the normal path must still work:
+  ok    video frame present
+  ok    iframe survives a successful push too
+  ok    a successful push does not repaint either (rebuilds: 0)
+The page still responds to being used:
+  ok    the watched control is on the lesson page (Mark watched)
+  ok    marking watched is recorded
+  ok    and the page repaints to show it — foreground render still runs (Unmark watched)
+A rejected token latches the automatic push, and only that:
+  ok    a rejected token is recorded as fatal
+  ok    the first automatic push was attempted (1)
+  ok    latched — further saves armed no push (still 1)
+  ok    a manual push still runs while latched — it is not a lockout
+  ok    a success clears the error, lifting the latch
+  ok    automatic push resumes once sync works again
+
+PASS — sync never restarts the video, and a rejected token latches only the automatic push
 exit 0
+# restored: cmp platform/js/app.js against the pre-plant copy -> identical (git diff clean)

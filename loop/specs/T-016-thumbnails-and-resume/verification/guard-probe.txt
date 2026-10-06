@@ -1,16 +1,6 @@
-# plant (c): the error fallback removed — the capture-phase error listener that turns a failed frame into the typeset cover is gone
-# run 2026-10-06 on branch loop/T-016-thumbnails-and-resume (e8bdb96); the mutation, then each gate's full output
-# restored: cmp platform/js/app.js against the pre-plant copy -> identical (git diff clean)
-# diff --git a/platform/js/app.js b/platform/js/app.js
-# index debab8e..8b77968 100644
-# --- a/platform/js/app.js
-# +++ b/platform/js/app.js
-# @@ -2104,3 +2104,2 @@
-#    document.addEventListener("load", thumbSettled, true);
-# -  document.addEventListener("error", thumbSettled, true);
-#  
-
-### node tools/verify-design.js
+# theme-lag guard (themePainted) put to fail: a scratch copy of tools/verify-design.js whose 1280 sidebar block asks themePainted for "light" while the page is booted dark
+# mutation: sed 's/await themePainted(page, theme, at);/await themePainted(page, theme === "dark" ? "light" : theme, at);/' tools/verify-design.js > tools/_guardprobe.js (deleted after)
+# run 2026-10-06 on abc9c34; exit 1
 status bar (read from platform/css/style.css)
   ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: env(safe-area-inset-top, 0px)
   ok    status bar: the phone .topbar grows by the inset (min-height) — min-height: calc(44px + env(safe-area-inset-top, 0px))
@@ -247,7 +237,7 @@ tab bar and sidebar, dark
   ok    390px dark tab bar: the other tabs are --ink-3 — Courses #8e8e93, Exams #8e8e93, Problems #8e8e93, Review #8e8e93
   ok    390px dark drawer: solid --surface, no material over the scrim — #1c1c1e, backdrop-filter none
   ok    390px dark tab bar and drawer: no page errors
-  ok    1280px dark sidebar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
+  FAIL  1280px dark sidebar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #f2f1ee (rgb(242, 241, 238))
   ok    1280px dark sidebar: not the espresso --panel (#2b2118) — background #1c1c1f at 85%
   ok    1280px dark sidebar: a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #1c1c1f at 85% (--surface #1c1c1e)
   ok    1280px dark sidebar: a 0.5px --line trailing edge — 1px #38383a
@@ -499,7 +489,7 @@ press, light
   ok    390px light / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
   ok    390px light / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.54:1 (span.g-lead "✓" #2a7047 on #f7f6f3)
   ok    390px light /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #f7f6f3 on #ffffff)
-  ok    390px light /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 5.54:1 (span.g-good "Watched" #2a7047 on #f7f6f3)
+  ok    390px light /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 5.54:1 (span.g-good "Watched" #2a7047 on #f7f6f3)
   ok    390px light /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
   ok    390px light /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 5.54:1 (span.pill.good "90%" #2a7047 on #f7f6f3)
   ok    390px light /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #f7f6f3 on #ffffff)
@@ -510,7 +500,7 @@ press, light
   ok    1280px light / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
   ok    1280px light / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 5.87:1 (span.g-lead.bad-lead "!" #b32d1f on #f7f6f3)
   ok    1280px light /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #f7f6f3 on #ffffff)
-  ok    1280px light /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 5.54:1 (span.g-good "Watched" #2a7047 on #f7f6f3)
+  ok    1280px light /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 5.54:1 (span.g-good "Watched" #2a7047 on #f7f6f3)
   ok    1280px light /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.081:1 (a.grow #f7f6f3 on #ffffff)
   ok    1280px light /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 5.54:1 (span.pill.good "90%" #2a7047 on #f7f6f3)
   ok    1280px light /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #f7f6f3 on #ffffff)
@@ -523,7 +513,7 @@ press, parchment
   ok    390px parchment / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
   ok    390px parchment / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 6.04:1 (span.g-lead "✓" #3b6845 on #faf7f0)
   ok    390px parchment /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.070:1 (a.grow.done-row #faf7f0 on #ffffff)
-  ok    390px parchment /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.04:1 (span.g-good "Watched" #3b6845 on #faf7f0)
+  ok    390px parchment /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.04:1 (span.g-good "Watched" #3b6845 on #faf7f0)
   ok    390px parchment /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
   ok    390px parchment /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 6.04:1 (span.pill.good "90%" #3b6845 on #faf7f0)
   ok    390px parchment /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.070:1 (a.grow.fac-math #faf7f0 on #ffffff)
@@ -534,7 +524,7 @@ press, parchment
   ok    1280px parchment / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
   ok    1280px parchment / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 6.21:1 (span.g-lead.bad-lead "!" #a8331f on #faf7f0)
   ok    1280px parchment /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.070:1 (a.grow.done-row #faf7f0 on #ffffff)
-  ok    1280px parchment /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.04:1 (span.g-good "Watched" #3b6845 on #faf7f0)
+  ok    1280px parchment /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.04:1 (span.g-good "Watched" #3b6845 on #faf7f0)
   ok    1280px parchment /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.070:1 (a.grow #faf7f0 on #ffffff)
   ok    1280px parchment /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 6.04:1 (span.pill.good "90%" #3b6845 on #faf7f0)
   ok    1280px parchment /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.070:1 (a.grow.fac-math #faf7f0 on #ffffff)
@@ -547,7 +537,7 @@ press, dark
   ok    390px dark / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
   ok    390px dark / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 4.58:1 (span.g-lead.bad-lead "!" #e8705c on #2c2c2e)
   ok    390px dark /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.221:1 (a.grow.done-row #2c2c2e on #1c1c1e)
-  ok    390px dark /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 5.42:1 (span.g-t "Vectors" #a1a1a6 on #2c2c2e)
+  ok    390px dark /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 5.42:1 (span.g-t "Vectors" #a1a1a6 on #2c2c2e)
   ok    390px dark /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
   ok    390px dark /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 4.58:1 (span.pill.crimson "40%" #e8705c on #2c2c2e)
   ok    390px dark /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.221:1 (a.grow.fac-math #2c2c2e on #1c1c1e)
@@ -558,7 +548,7 @@ press, dark
   ok    1280px dark / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
   ok    1280px dark / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 4.58:1 (span.g-lead.bad-lead "!" #e8705c on #2c2c2e)
   ok    1280px dark /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.221:1 (a.grow.done-row #2c2c2e on #1c1c1e)
-  ok    1280px dark /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 5.42:1 (span.g-t "Vectors" #a1a1a6 on #2c2c2e)
+  ok    1280px dark /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 5.42:1 (span.g-t "Vectors" #a1a1a6 on #2c2c2e)
   ok    1280px dark /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.221:1 (a.grow #2c2c2e on #1c1c1e)
   ok    1280px dark /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 4.58:1 (span.pill.crimson "40%" #e8705c on #2c2c2e)
   ok    1280px dark /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.221:1 (a.grow.fac-math #2c2c2e on #1c1c1e)
@@ -571,7 +561,7 @@ press, forest
   ok    390px forest / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
   ok    390px forest / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 6.02:1 (span.g-lead.bad-lead "!" #b32d1f on #f7faf5)
   ok    390px forest /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.053:1 (a.grow.done-row #f7faf5 on #ffffff)
-  ok    390px forest /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.17:1 (span.g-good "Watched" #286a43 on #f7faf5)
+  ok    390px forest /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.17:1 (span.g-good "Watched" #286a43 on #f7faf5)
   ok    390px forest /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
   ok    390px forest /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 6.02:1 (span.pill.crimson "40%" #b32d1f on #f7faf5)
   ok    390px forest /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.053:1 (a.grow.fac-math #f7faf5 on #ffffff)
@@ -582,7 +572,7 @@ press, forest
   ok    1280px forest / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
   ok    1280px forest / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 6.02:1 (span.g-lead.bad-lead "!" #b32d1f on #f7faf5)
   ok    1280px forest /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.053:1 (a.grow.done-row #f7faf5 on #ffffff)
-  ok    1280px forest /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.17:1 (span.g-good "Watched" #286a43 on #f7faf5)
+  ok    1280px forest /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.17:1 (span.g-good "Watched" #286a43 on #f7faf5)
   ok    1280px forest /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.053:1 (a.grow #f7faf5 on #ffffff)
   ok    1280px forest /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 6.02:1 (span.pill.crimson "40%" #b32d1f on #f7faf5)
   ok    1280px forest /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.053:1 (a.grow.fac-math #f7faf5 on #ffffff)
@@ -595,7 +585,7 @@ press, midnight
   ok    390px midnight / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
   ok    390px midnight / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.18:1 (span.g-lead.bad-lead "!" #e8705c on #1a2333)
   ok    390px midnight /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #1a2333 on #151c2b)
-  ok    390px midnight /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.53:1 (span.g-good "Watched" #62b881 on #1a2333)
+  ok    390px midnight /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.53:1 (span.g-good "Watched" #62b881 on #1a2333)
   ok    390px midnight /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
   ok    390px midnight /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 5.18:1 (span.pill.crimson "40%" #e8705c on #1a2333)
   ok    390px midnight /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #1a2333 on #151c2b)
@@ -606,7 +596,7 @@ press, midnight
   ok    1280px midnight / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
   ok    1280px midnight / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 5.18:1 (span.g-lead.bad-lead "!" #e8705c on #1a2333)
   ok    1280px midnight /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.081:1 (a.grow.done-row #1a2333 on #151c2b)
-  ok    1280px midnight /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.53:1 (span.g-good "Watched" #62b881 on #1a2333)
+  ok    1280px midnight /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.53:1 (span.g-good "Watched" #62b881 on #1a2333)
   ok    1280px midnight /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.081:1 (a.grow #1a2333 on #151c2b)
   ok    1280px midnight /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 5.18:1 (span.pill.crimson "40%" #e8705c on #1a2333)
   ok    1280px midnight /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.081:1 (a.grow.fac-math #1a2333 on #151c2b)
@@ -619,7 +609,7 @@ press, latte
   ok    390px latte / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.083:1 (a.grow #33271a on #2c2115)
   ok    390px latte / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.96:1 (span.g-lead.bad-lead "!" #f08a78 on #33271a)
   ok    390px latte /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.083:1 (a.grow.done-row #33271a on #2c2115)
-  ok    390px latte /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.22:1 (span.g-good "Watched" #8cb394 on #33271a)
+  ok    390px latte /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.22:1 (span.g-good "Watched" #8cb394 on #33271a)
   ok    390px latte /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.083:1 (a.grow #33271a on #2c2115)
   ok    390px latte /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 5.96:1 (span.pill.crimson "40%" #f08a78 on #33271a)
   ok    390px latte /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.083:1 (a.grow.fac-math #33271a on #2c2115)
@@ -630,7 +620,7 @@ press, latte
   ok    1280px latte / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.083:1 (a.grow #33271a on #2c2115)
   ok    1280px latte / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 5.96:1 (span.g-lead.bad-lead "!" #f08a78 on #33271a)
   ok    1280px latte /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.083:1 (a.grow.done-row #33271a on #2c2115)
-  ok    1280px latte /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 6.22:1 (span.g-good "Watched" #8cb394 on #33271a)
+  ok    1280px latte /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 6.22:1 (span.g-good "Watched" #8cb394 on #33271a)
   ok    1280px latte /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.083:1 (a.grow #33271a on #2c2115)
   ok    1280px latte /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 5.96:1 (span.pill.crimson "40%" #f08a78 on #33271a)
   ok    1280px latte /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.083:1 (a.grow.fac-math #33271a on #2c2115)
@@ -643,7 +633,7 @@ press, slate
   ok    390px slate / rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
   ok    390px slate / rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 32 texts, least 5.86:1 (span.g-lead "✓" #296d45 on #f8f8f6)
   ok    390px slate /course/math110 rows :active: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.063:1 (a.grow.done-row #f8f8f6 on #ffffff)
-  ok    390px slate /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 5.86:1 (span.g-good "Watched" #296d45 on #f8f8f6)
+  ok    390px slate /course/math110 rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 5.86:1 (span.g-good "Watched" #296d45 on #f8f8f6)
   ok    390px slate /exams rows :active: the pressed fill stands off the section (>= 1.05:1) — 12 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
   ok    390px slate /exams rows :active: every text node on a pressed row is >= 4.5:1 (3:1 large) — 28 texts, least 5.86:1 (span.pill.good "90%" #296d45 on #f8f8f6)
   ok    390px slate /courses rows :active: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.063:1 (a.grow.fac-math #f8f8f6 on #ffffff)
@@ -654,7 +644,7 @@ press, slate
   ok    1280px slate / rows :hover: the pressed fill stands off the section (>= 1.05:1) — 11 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
   ok    1280px slate / rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 30 texts, least 5.96:1 (span.g-lead.bad-lead "!" #b32d1f on #f8f8f6)
   ok    1280px slate /course/math110 rows :hover: the pressed fill stands off the section (>= 1.05:1) — 18 rows, least 1.063:1 (a.grow.done-row #f8f8f6 on #ffffff)
-  ok    1280px slate /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 56 texts, least 5.86:1 (span.g-good "Watched" #296d45 on #f8f8f6)
+  ok    1280px slate /course/math110 rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 88 texts, least 5.86:1 (span.g-good "Watched" #296d45 on #f8f8f6)
   ok    1280px slate /exams rows :hover: the pressed fill stands off the section (>= 1.05:1) — 10 rows, least 1.063:1 (a.grow #f8f8f6 on #ffffff)
   ok    1280px slate /exams rows :hover: every text node on a pressed row is >= 4.5:1 (3:1 large) — 24 texts, least 5.86:1 (span.pill.good "90%" #296d45 on #f8f8f6)
   ok    1280px slate /courses rows :hover: the pressed fill stands off the section (>= 1.05:1) — 13 rows, least 1.063:1 (a.grow.fac-math #f8f8f6 on #ffffff)
@@ -670,8 +660,8 @@ thumbnails, 390px light
   ok    390px light /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #f7f6f3
   ok    390px light /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    390px light /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
-  FAIL  390px light /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — not every frame settled within 6s: 51 still waiting
-  ok    390px light /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 12.08:1 (th-dur "10:00", #ffffff on #363635)
+  ok    390px light /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #35608f (--fac #35608f), "MATH 110 · 1"
+  ok    390px light /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 6.52:1 (th-code "MATH 110 · 1", #ffffff on #35608f)
   ok    390px light /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip "Paper" or "Reading"; every video row's frame is its own v — 12 readings (2 on screen), 4 video rows with their frames
   ok    390px light thumbnails: no page errors
 
@@ -682,8 +672,8 @@ thumbnails, 390px dark
   ok    390px dark /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #2c2c2e
   ok    390px dark /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    390px dark /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
-  FAIL  390px dark /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — not every frame settled within 6s: 51 still waiting
-  ok    390px dark /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 19.83:1 (th-dur "10:00", #ffffff on #0a0a0a)
+  ok    390px dark /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #374b62 (--fac #7aa6da), "MATH 110 · 1"
+  ok    390px dark /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 8.95:1 (th-code "MATH 110 · 1", #ffffff on #374b62)
   ok    390px dark /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip "Paper" or "Reading"; every video row's frame is its own v — 12 readings (2 on screen), 4 video rows with their frames
   ok    390px dark thumbnails: no page errors
 
@@ -694,8 +684,8 @@ thumbnails, 1280px light
   ok    1280px light /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #f7f6f3
   ok    1280px light /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    1280px light /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
-  FAIL  1280px light /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — not every frame settled within 6s: 51 still waiting
-  ok    1280px light /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 12.08:1 (th-dur "10:00", #ffffff on #363635)
+  ok    1280px light /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #35608f (--fac #35608f), "MATH 110 · 1"
+  ok    1280px light /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 6.52:1 (th-code "MATH 110 · 1", #ffffff on #35608f)
   ok    1280px light /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip "Paper" or "Reading"; every video row's frame is its own v — 12 readings (2 on screen), 4 video rows with their frames
   ok    1280px light thumbnails: no page errors
 
@@ -706,8 +696,8 @@ thumbnails, 1280px dark
   ok    1280px dark /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #2c2c2e
   ok    1280px dark /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    1280px dark /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
-  FAIL  1280px dark /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — not every frame settled within 6s: 51 still waiting
-  ok    1280px dark /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 19.83:1 (th-dur "10:00", #ffffff on #0a0a0a)
+  ok    1280px dark /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #374b62 (--fac #7aa6da), "MATH 110 · 1"
+  ok    1280px dark /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 8.95:1 (th-code "MATH 110 · 1", #ffffff on #374b62)
   ok    1280px dark /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip "Paper" or "Reading"; every video row's frame is its own v — 12 readings (2 on screen), 4 video rows with their frames
   ok    1280px dark thumbnails: no page errors
 
@@ -723,49 +713,47 @@ thumbnails that load, 390px light
 
 thumbnail contrast, light
   ok    light thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
-  FAIL  light: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    light: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    light: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    light thumbnail contrast: no page errors
 
 thumbnail contrast, parchment
   ok    parchment thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(248, 244, 236), --bg #f8f4ec (rgb(248, 244, 236))
-  FAIL  parchment: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    parchment: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    parchment: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    parchment thumbnail contrast: no page errors
 
 thumbnail contrast, dark
   ok    dark thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
-  FAIL  dark: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    dark: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 8.00:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #624d31)
   ok    dark: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    dark thumbnail contrast: no page errors
 
 thumbnail contrast, forest
   ok    forest thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 245, 241), --bg #f2f5f1 (rgb(242, 245, 241))
-  FAIL  forest: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    forest: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    forest: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    forest thumbnail contrast: no page errors
 
 thumbnail contrast, midnight
   ok    midnight thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(15, 20, 32), --bg #0f1420 (rgb(15, 20, 32))
-  FAIL  midnight: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    midnight: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 8.00:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #624d31)
   ok    midnight: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    midnight thumbnail contrast: no page errors
 
 thumbnail contrast, latte
   ok    latte thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(36, 26, 18), --bg #241a12 (rgb(36, 26, 18))
-  FAIL  latte: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    latte: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 8.00:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #624d31)
   ok    latte: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    latte thumbnail contrast: no page errors
 
 thumbnail contrast, slate
   ok    slate thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(247, 247, 245), --bg #f7f7f5 (rgb(247, 247, 245))
-  FAIL  slate: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — frames still waiting on math110, ai300, phys100, sys250, res400
+  ok    slate: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    slate: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    slate thumbnail contrast: no page errors
 
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-FAIL — 11 of 656 design checks failed
-exit 1
-# restored: cmp platform/js/app.js against the pre-plant copy -> identical (git diff clean)
+FAIL — 1 of 656 design checks failed

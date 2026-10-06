@@ -217,6 +217,7 @@ tab bar and sidebar, light
   ok    390px light tab bar: the other tabs are --ink-3 — Courses #6e6b65, Exams #6e6b65, Problems #6e6b65, Review #6e6b65
   ok    390px light drawer: solid --surface, no material over the scrim — #ffffff, backdrop-filter none
   ok    390px light tab bar and drawer: no page errors
+  ok    1280px light sidebar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
   ok    1280px light sidebar: not the espresso --panel (#2b2118) — background #ffffff at 85%
   ok    1280px light sidebar: a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #ffffff at 85% (--surface #ffffff)
   ok    1280px light sidebar: a 0.5px --line trailing edge — 1px #dcdad5
@@ -233,6 +234,7 @@ tab bar and sidebar, dark
   ok    390px dark tab bar: the other tabs are --ink-3 — Courses #8e8e93, Exams #8e8e93, Problems #8e8e93, Review #8e8e93
   ok    390px dark drawer: solid --surface, no material over the scrim — #1c1c1e, backdrop-filter none
   ok    390px dark tab bar and drawer: no page errors
+  ok    1280px dark sidebar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
   ok    1280px dark sidebar: not the espresso --panel (#2b2118) — background #1c1c1f at 85%
   ok    1280px dark sidebar: a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #1c1c1f at 85% (--surface #1c1c1e)
   ok    1280px dark sidebar: a 0.5px --line trailing edge — 1px #38383a
@@ -649,10 +651,11 @@ press, slate
   ok    1280px slate press: no page errors
 
 thumbnails, 390px light
+  ok    390px light thumbnails: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
   ok    390px light /course/math110: every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg — 51 of 51 rows (51 lectures in the course)
   ok    390px light /course/math110: each image is loading=lazy, decoding=async, alt="", and 16:9 (±0.01) — 51 images, box 96px at 1.7778
   ok    390px light /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #f7f6f3
-  ok    390px light /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss — 51 chips, e.g. "10:00"
+  ok    390px light /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    390px light /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
   ok    390px light /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #35608f (--fac #35608f), "MATH 110 · 1"
   ok    390px light /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 6.52:1 (th-code "MATH 110 · 1", #ffffff on #35608f)
@@ -660,10 +663,11 @@ thumbnails, 390px light
   ok    390px light thumbnails: no page errors
 
 thumbnails, 390px dark
+  ok    390px dark thumbnails: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
   ok    390px dark /course/math110: every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg — 51 of 51 rows (51 lectures in the course)
   ok    390px dark /course/math110: each image is loading=lazy, decoding=async, alt="", and 16:9 (±0.01) — 51 images, box 96px at 1.7778
   ok    390px dark /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #2c2c2e
-  ok    390px dark /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss — 51 chips, e.g. "10:00"
+  ok    390px dark /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    390px dark /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
   ok    390px dark /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #374b62 (--fac #7aa6da), "MATH 110 · 1"
   ok    390px dark /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 8.95:1 (th-code "MATH 110 · 1", #ffffff on #374b62)
@@ -671,10 +675,11 @@ thumbnails, 390px dark
   ok    390px dark thumbnails: no page errors
 
 thumbnails, 1280px light
+  ok    1280px light thumbnails: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
   ok    1280px light /course/math110: every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg — 51 of 51 rows (51 lectures in the course)
   ok    1280px light /course/math110: each image is loading=lazy, decoding=async, alt="", and 16:9 (±0.01) — 51 images, box 96px at 1.7778
   ok    1280px light /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #f7f6f3
-  ok    1280px light /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss — 51 chips, e.g. "10:00"
+  ok    1280px light /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    1280px light /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
   ok    1280px light /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #35608f (--fac #35608f), "MATH 110 · 1"
   ok    1280px light /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 6.52:1 (th-code "MATH 110 · 1", #ffffff on #35608f)
@@ -682,10 +687,11 @@ thumbnails, 1280px light
   ok    1280px light thumbnails: no page errors
 
 thumbnails, 1280px dark
+  ok    1280px dark thumbnails: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
   ok    1280px dark /course/math110: every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg — 51 of 51 rows (51 lectures in the course)
   ok    1280px dark /course/math110: each image is loading=lazy, decoding=async, alt="", and 16:9 (±0.01) — 51 images, box 96px at 1.7778
   ok    1280px dark /course/math110: before load, each frame is invisible over a --surface-2 skeleton — 51 skeletons, #2c2c2e
-  ok    1280px dark /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss — 51 chips, e.g. "10:00"
+  ok    1280px dark /course/math110: the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it) — 51 chips, e.g. "10:00", aria-hidden
   ok    1280px dark /course/math110: a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which — math110/0/0 fac-math watched edge 100% #ffffff "Lecture 1 · Watched"; math110/0/13 fac-math proven edge 100% #e0b35a "Lecture 14 · Proven"
   ok    1280px dark /course/math110: a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup — 51 covers, #374b62 (--fac #7aa6da), "MATH 110 · 1"
   ok    1280px dark /course/math110: on the cover, its code and the chip are >= 4.5:1 — least 8.95:1 (th-code "MATH 110 · 1", #ffffff on #374b62)
@@ -703,36 +709,43 @@ thumbnails that load, 390px light
   ok    390px light, motion no-preference: no page errors
 
 thumbnail contrast, light
+  ok    light thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
   ok    light: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    light: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    light thumbnail contrast: no page errors
 
 thumbnail contrast, parchment
+  ok    parchment thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(248, 244, 236), --bg #f8f4ec (rgb(248, 244, 236))
   ok    parchment: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    parchment: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    parchment thumbnail contrast: no page errors
 
 thumbnail contrast, dark
+  ok    dark thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
   ok    dark: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 8.00:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #624d31)
   ok    dark: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    dark thumbnail contrast: no page errors
 
 thumbnail contrast, forest
+  ok    forest thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 245, 241), --bg #f2f5f1 (rgb(242, 245, 241))
   ok    forest: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    forest: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    forest thumbnail contrast: no page errors
 
 thumbnail contrast, midnight
+  ok    midnight thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(15, 20, 32), --bg #0f1420 (rgb(15, 20, 32))
   ok    midnight: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 8.00:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #624d31)
   ok    midnight: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    midnight thumbnail contrast: no page errors
 
 thumbnail contrast, latte
+  ok    latte thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(36, 26, 18), --bg #241a12 (rgb(36, 26, 18))
   ok    latte: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 8.00:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #624d31)
   ok    latte: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    latte thumbnail contrast: no page errors
 
 thumbnail contrast, slate
+  ok    slate thumbnail contrast: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(247, 247, 245), --bg #f7f7f5 (rgb(247, 247, 245))
   ok    slate: every cover's text and every chip is >= 4.5:1, on 5 courses (one per faculty) — 91 covers, least 5.98:1 (ai300/0/0 th-code "AI 300 · 1", #ffffff on #88592b)
   ok    slate: the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black) — worst 11.73:1
   ok    slate thumbnail contrast: no page errors
@@ -740,4 +753,5 @@ thumbnail contrast, slate
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 643 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2786 texts) in 7 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 7 themes (1911 texts)
+PASS — 656 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2786 texts) in 7 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 7 themes (1911 texts)
+exit 0

@@ -115,6 +115,38 @@
 // every chip is >= 4.5:1 on what is behind it — and the chip stays >= 4.5:1
 // over ANY picture: its fill composited over pure white and pure black.
 //
+// T-024, the navy theme (loop/specs/T-024-navy-theme/spec.md; the owner's
+// decision of 2026-10-06, loop/design/brief.md §9). The dark half of the lead
+// pair is the navy palette now, so three expectations above moved with it —
+// the same checks, new expected values: the dark token table is navy rather
+// than T-005's true black (and --bg-2, --btn-bg, --btn-ink and the new
+// --accent-fill-ink are in both tables), dark's --panel is #0c1330, a FILLED
+// .btn is a 999px capsule (ghost, danger and bare keep 12px), and a .glist is
+// a 20px (--r-card) section; --r-card joins the radius scale. Added:
+//   - the default: with nothing stored, and with progress stored but no theme,
+//     the page resolves to dark (navy) on a phone set to LIGHT — so it is the
+//     default speaking and not the phone — with meta theme-color #0c1330, Navy
+//     listed second after Auto and marked, and no theme written to storage; a
+//     stored "light" stays light on a dark phone and is not rewritten (Auto's
+//     dark->dark and light->light are the Auto checks above);
+//   - the primary action, at 390 and 1280 in light and dark on the five
+//     routes: every visible filled .btn, and at least one .btn.lg, is a 999px
+//     capsule on --btn-bg with an --accent-fill-ink label at >= 4.5:1 — a gold
+//     fill and a navy label in dark, a white label in light — and the toast,
+//     the other text on --btn-bg, reads the same pair;
+//   - cards (.card, bar the hero's ruled .one) have 20px corners and a chip
+//     (.pill) is a capsule;
+//   - the glow, at 390 and 1280 on /, /course/math110, /calendar and /record:
+//     in dark .main::before is a static layer of two radial gradients with
+//     pointer-events none, as wide as .main and over its top; forced
+//     hit-testable, it still loses the hit at the centre of every text and
+//     control in its box (it is painted behind them), and as shipped every
+//     control there takes its own hit (nothing interactive under it); it
+//     declares a solid background-color, .main declares the same one (so
+//     verify-contrast measures the page's text against it), and no pixel of
+//     the glow, photographed with the page hidden, is lighter than that
+//     colour; in light there is no layer and .main paints nothing.
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
@@ -150,19 +182,30 @@ const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
 const LIST_NA = new Set(["/workshop"]);
 const PRESS_ROUTES = ["/", "/course/math110", "/exams", "/courses"];
-// loop/design/brief.md §3, the lead pair.
+// The lead pair: light from loop/design/brief.md §3; dark from §9, the navy
+// palette (T-024, the owner's decision of 2026-10-06 — it replaced T-005's
+// true black, #000000 / #1c1c1e / a blue accent).
+// "Gold at about 16% on the surface, as a solid colour" (spec T-024), worked
+// out here from the two hexes rather than copied from the stylesheet.
+const mixHex = (a, b, p) => "#" + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * p +
+  parseInt(b.slice(i, i + 2), 16) * (1 - p)).toString(16).padStart(2, "0")).join("");
 const BRIEF = {
-  light: { "--bg": "#f2f1ee", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--line": "#dcdad5",
+  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f0ea", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--line": "#dcdad5",
            "--ink": "#111111", "--ink-2": "#5c5a55", "--ink-3": "#6e6b65", "--accent": "#1e4f8f",
-           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12" },
-  dark:  { "--bg": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--line": "#38383a",
-           "--ink": "#ffffff", "--ink-2": "#a1a1a6", "--ink-3": "#8e8e93", "--accent": "#78aef0",
-           "--accent-fill": "#2f6bbd", "--accent-soft": "#1a2a3f", "--gold": "#e0b35a" },
+           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12",
+           "--btn-bg": "#241f1a", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff" },
+  dark:  { "--bg": "#0c1330", "--bg-2": "#101839", "--surface": "#1a2248", "--surface-2": "#232c58", "--line": "#2e3866",
+           "--ink": "#ffffff", "--ink-2": "#c3c8de", "--ink-3": "#9aa2c4", "--accent": "#e0b35a",
+           "--accent-fill": "#e0b35a", "--accent-soft": mixHex("#e0b35a", "#1a2248", 0.16), "--gold": "#e0b35a",
+           "--btn-bg": "#e0b35a", "--btn-ink": "#121a38", "--accent-fill-ink": "#121a38" },
 };
 // Each theme's --panel, which is what the Home Screen status bar is painted
-// from (meta theme-color).
-const PANEL = { light: "#2b2118", dark: "#0a0d10" };
-const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "22px" };
+// from (meta theme-color). Dark's is the navy page (T-024).
+const PANEL = { light: "#2b2118", dark: "#0c1330" };
+// --r-card is T-024's: cards and grouped sections.
+const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "22px", "--r-card": "20px" };
+// T-024: the glow is measured on the spec's four routes.
+const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
 
 let checks = 0, fails = 0;
 function check(name, ok, detail) {
@@ -284,6 +327,25 @@ function probe(names) {
     const s = getComputedStyle(b);
     return [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
   });
+  // T-024: what kind each button is, by its CLASS (not by what it computes,
+  // which is the thing under test): a filled .btn is any .btn that is not a
+  // ghost, a danger or a bare one. A disabled filled button keeps its shape
+  // but drops its fill, so it is in the shape check and not the fill check.
+  const z = window.__dz;
+  const kinds = btns.map((b, i) => {
+    const s = getComputedStyle(b);
+    return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 24),
+             filled: !b.matches(".ghost, .danger, .bare"), lg: b.matches(".lg"), disabled: b.matches(":disabled"),
+             corners: corners[i], bg: z.bytes(s.backgroundColor), color: z.bytes(s.color) };
+  });
+  const four = s => [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
+  const cards = [...document.querySelectorAll(".card:not(.one)")].filter(n => n.checkVisibility())
+    .map(n => ({ name: z.name(n), corners: four(getComputedStyle(n)) }));
+  const pills = [...document.querySelectorAll(".pill:not(.wrapping)")].filter(n => n.checkVisibility())
+    .map(n => ({ name: z.name(n), text: n.textContent.trim().slice(0, 20), corners: four(getComputedStyle(n)) }));
+  const ts = getComputedStyle(document.querySelector("#toast"));
+  const fillTok = { bg: z.tok("--btn-bg"), ink: z.tok("--accent-fill-ink") };
+  const toast = { bg: z.bytes(ts.backgroundColor), color: z.bytes(ts.color) };
   // A shadow layer is visible when its colour has any alpha and it has any
   // extent. Layers are split on top-level commas (colours carry their own).
   const layers = v => {
@@ -316,7 +378,7 @@ function probe(names) {
     theme: document.documentElement.dataset.theme,
     tokens, radii, rounded, caslon: [...new Set(caslon)],
     h1: h ? { text: h1.textContent.trim().slice(0, 40), size: parseFloat(h.fontSize), weight: h.fontWeight, ls: parseFloat(h.letterSpacing) } : null,
-    btns: btns.length, corners, deep,
+    btns: btns.length, corners, deep, kinds, cards, pills, fillTok, toast,
     body: { size: b.fontSize, family: b.fontFamily },
     meta: (document.querySelector('meta[name="theme-color"]') || {}).content || "",
   };

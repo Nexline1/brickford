@@ -27,4 +27,5 @@ KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
   T-003  td                                   24px@320; /electives
   T-003  tr                                   24px@320; /electives
 
-PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143910 element measurements)
+PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143952 element measurements)
+exit 0

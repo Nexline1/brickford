@@ -1,10 +1,24 @@
+# plant (f): reviewer P4 — the message filter reduced to "is there a lecture frame": onPlayerMessage no longer checks ev.source or ev.origin
+# run 2026-10-06 on branch loop/T-016-thumbnails-and-resume (e8bdb96); the mutation, then each gate's full output
+# restored: cmp platform/js/app.js against the pre-plant copy -> identical (git diff clean)
+# diff --git a/platform/js/app.js b/platform/js/app.js
+# index debab8e..e042c1a 100644
+# --- a/platform/js/app.js
+# +++ b/platform/js/app.js
+# @@ -4966,3 +4966,3 @@
+#      const f = ytFrame();
+# -    if (!f || ev.source !== f.contentWindow || !YT_ORIGIN.test(ev.origin)) return;
+# +    if (!f) return;
+#      playerEvent(f, ev.data);
+
+### node tools/verify-flows.js
 
 390px
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
-  ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) a question is on screen — numeric
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 7.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today
@@ -33,10 +47,10 @@
   ok    (g) no page errors
   ok    (h) the handshake, through a stub of YouTube's embed in the lecture's frame: the page hails it, it answers, the page subscribes to onStateChange — 1 hail(s) heard, answered true, commands [addEventListener onStateChange]
   ok    (h) from the frame: a playing infoDelivery then onStateChange 2 (paused) save pos 754, in one save — 1 save(s), stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
-  ok    (h) a pause posted by the top window itself writes nothing — 0 save(s), stored pos 754
-  ok    (h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing — 0 save(s), stored pos 754
+  FAIL  (h) a pause posted by the top window itself writes nothing — 1 save(s), stored pos 800
+  FAIL  (h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing — 1 save(s), stored pos 820
   ok    (h) and the player's own pause after them saves the time it held (pos 820), once — so those zeros were not deafness — 1 save(s), pos 820
-  ok    (h) a pause posted from the player's own frame once it is on www.youtube.com.example.net writes nothing — 0 save(s), stored pos 820
+  FAIL  (h) a pause posted from the player's own frame once it is on www.youtube.com.example.net writes nothing — 1 save(s), stored pos 840
   ok    (h) no page errors
 
 1280px
@@ -44,7 +58,7 @@
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
   ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today
@@ -73,10 +87,10 @@
   ok    (g) no page errors
   ok    (h) the handshake, through a stub of YouTube's embed in the lecture's frame: the page hails it, it answers, the page subscribes to onStateChange — 1 hail(s) heard, answered true, commands [addEventListener onStateChange]
   ok    (h) from the frame: a playing infoDelivery then onStateChange 2 (paused) save pos 754, in one save — 1 save(s), stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
-  ok    (h) a pause posted by the top window itself writes nothing — 0 save(s), stored pos 754
-  ok    (h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing — 0 save(s), stored pos 754
+  FAIL  (h) a pause posted by the top window itself writes nothing — 1 save(s), stored pos 800
+  FAIL  (h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing — 1 save(s), stored pos 820
   ok    (h) and the player's own pause after them saves the time it held (pos 820), once — so those zeros were not deafness — 1 save(s), pos 820
-  ok    (h) a pause posted from the player's own frame once it is on www.youtube.com.example.net writes nothing — 0 save(s), stored pos 820
+  FAIL  (h) a pause posted from the player's own frame once it is on www.youtube.com.example.net writes nothing — 1 save(s), stored pos 840
   ok    (h) no page errors
 
 a slow phone (once, 390px)
@@ -94,5 +108,6 @@ sync (once)
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 86 checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x 2 widths, each in a fresh context; the resume point's sync merge and a slow phone's late player once
-exit 0
+6 of 86 flow check(s) FAILED
+exit 1
+# restored: cmp platform/js/app.js against the pre-plant copy -> identical (git diff clean)

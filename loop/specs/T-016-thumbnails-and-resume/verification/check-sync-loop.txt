@@ -21,3 +21,4 @@ A rejected token latches the automatic push, and only that:
   ok    automatic push resumes once sync works again
 
 PASS — sync never restarts the video, and a rejected token latches only the automatic push
+exit 0

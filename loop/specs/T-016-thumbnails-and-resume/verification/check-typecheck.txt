@@ -1,1 +1,2 @@
-typecheck fails=0
+typecheck: 30 files
+exit 0

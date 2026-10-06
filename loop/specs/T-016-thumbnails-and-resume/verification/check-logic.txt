@@ -24,3 +24,4 @@
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
 PASS — 24 invariants hold
+exit 0

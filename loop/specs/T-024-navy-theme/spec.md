@@ -36,6 +36,7 @@ Source: `loop/design/brief.md` §9. The look the owner approved on 2026-10-06 is
 2. **The default theme is `dark`.**
    - An unset `S.settings.theme` resolves to `dark`, and Auto with a dark phone resolves to `dark`, which is already the case.
    - A stored choice is never rewritten. No migration touches saved settings, so an owner who picked Light keeps Light until they choose again.
+   - **Amended, owner decision 2026-10-06** (see "Amendment" below): one exception, the navy switch. A stored `"light"` without the per-device marker `settings.themeNavyOnce` is the old default and switches to navy once.
    - The theme menu labels `dark` as "Navy" and lists it second, after Auto.
 3. **Glow.**
    - A decorative layer at the top of `.main`, in dark only: a faint gold radial glow top-right and an indigo glow top-left.
@@ -50,6 +51,30 @@ Source: `loop/design/brief.md` §9. The look the owner approved on 2026-10-06 is
 6. **The protected exception.** `docs/CONTENT-STANDARD.md` (PROTECTED; named here and approved by the owner on 2026-10-06) gains one short paragraph:
    - decorative motion is allowed for the opening screen only (built in T-022), and is still under Reduce Motion;
    - static decorative glows are allowed behind page heads in the dark theme, as long as text never sits on them without a measured solid fallback.
+
+## Amendment: owner decision 2026-10-06, the navy switch
+
+The owner's words, relayed by the loop coordinator in round 3: "switch existing devices to navy automatically, then ship it". This approves one rewrite of stored settings, for T-024 only. It replaces "a stored choice is never rewritten" for this one case; every other stored setting and theme is untouched.
+
+Why it is needed: before T-024, `DEFAULT.settings` carried `theme: "light"`, so every device stored "light" on its first save whether or not anyone chose it. A stored "light" cannot be told apart from a real pick, so without this rule no existing device would ever open in navy.
+
+- **The marker.** `settings.themeNavyOnce`, per device. It means "this device's theme is past the navy switch". `syncPayload` does not carry it, and `mergeState` never reads a remote theme or marker, so a pull cannot import another device's.
+- **The switch.** At load in `app.js` (state normalisation, not a render): if `settings.theme === "light"` and the marker is absent, `settings.theme` is deleted (so it resolves to the navy default) and the marker is set, in memory only.
+  - No `save()` at boot; it persists with the next ordinary save.
+  - The inline `<head>` script in `index.html` applies the same rule, read-only, so the first paint is already navy.
+- **What stays as it is.** A stored "light" with the marker is untouched, and so is every other stored theme (auto, dark, parchment, forest, midnight, latte, slate).
+- **An explicit pick from the Theme menu sets the marker**, so Light chosen afterwards is kept, including on a device that had no stored theme.
+- **Restoring a pre-T-024 backup** brings back "light" with no marker, and it switches again. Accepted.
+- **Gate.** verify-design checks:
+  - (a) "light" with no marker paints navy at first paint and settles navy, with no write at boot, then a real save stores no theme and the marker;
+  - (b) "light" with the marker stays light;
+  - (c) an explicit Light pick survives a reload;
+  - (d) "parchment" and "auto" are unaffected.
+- **Plants**, each exiting 1:
+  - the migration removed from `app.js`;
+  - the migration removed from the inline script;
+  - the marker ignored;
+  - `save()` at boot.
 
 ## Out of scope
 - **Later items:** the floating tab bar (T-023), the opening screen and its animation (T-022), the Home layout with the greeting, sheet, stat wells, tiles and course card (T-017).

@@ -1,4 +1,4 @@
-# node tools/verify-clip.js (at 6b22b63)
+# node tools/verify-clip.js (at 5a595a9)
 
 KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
   T-002  div.crest                            24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 34 routes
@@ -28,5 +28,5 @@ KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
   T-003  td                                   24px@320; /electives
   T-003  tr                                   24px@320; /electives
 
-PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143960 element measurements)
+PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143964 element measurements)
 exit 0

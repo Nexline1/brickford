@@ -1,4 +1,4 @@
-# node tools/verify-shell.js (at 6b22b63)
+# node tools/verify-shell.js (at 5a595a9)
    1536px  sidebar shown, column 322-1164
    1440px  sidebar shown, column 322-1068
    1370px  sidebar shown, column 319-1002

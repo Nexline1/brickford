@@ -1755,7 +1755,7 @@ function hairlineSource() {
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
       WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +
       " contexts; the press on " + pressRows + " rows (" + pressTexts +
-      " texts) in " + ALL_THEMES.length + " themes; thumbnails on " + thumbRows + " rows x " + WIDTHS.length + " widths x " +
+      " texts) in " + ALL_THEMES.length + " themes; thumbnails: " + thumbRows + " lecture rows measured across " + WIDTHS.length + " widths x " +
       THEMES.length + " themes (" + coverRows + " error fallbacks, " + thumbTexts + " texts on them), a frame that loads with and " +
       "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));

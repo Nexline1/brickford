@@ -13,7 +13,7 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-005 | Design foundations: iOS type ramp, system font, tokens, Auto theme, verify-design gate | merged | 2 | https://github.com/Nexline1/brickford/pull/4 | from inbox 2026-09-25 (premium iOS redesign; loop/design/brief.md). Scope adds the status-bar overlap fix (owner screenshot 2026-09-26). |
 | T-006 | iOS chrome: collapsing large title, material nav and tab bar, sidebar material | pr-open | 3 | https://github.com/Nexline1/brickford/pull/5 | from inbox 2026-09-25. Owner 2026-09-26: build together with T-007 in one branch, stacked on T-005 (PR #4). |
 | T-007 | Lists become iOS inset grouped sections | pr-open | 3 | https://github.com/Nexline1/brickford/pull/5 | Built together with T-006 (owner, 2026-09-26). |
-| T-016 | Thumbnails and resume points for every lecture | building | 1 | | from owner 2026-10-03 (long-form continuity, brief §8) |
+| T-016 | Thumbnails and resume points for every lecture | building | 2 | | from owner 2026-10-03 (long-form continuity, brief §8) |
 | T-017 | Home becomes a feed: Continue watching, Up next, a shelf per course | ready | 0 | | brief §8; supersedes T-009; depends on T-016 |
 | T-018 | Watch page with Up next and an autoplay countdown | proposed | 0 | | brief §8; supersedes T-010; depends on T-016 |
 | T-021 | verify-shell pins its clock and exempts the real heatmap | review | 1 | | owner decision 2026-10-06 (gate went red on main by date) |

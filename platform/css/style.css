@@ -256,6 +256,7 @@
      neutrals (a true black page, #1c1c1e cells) with Brickford's navy lifted
      to a tint that reads on black. */
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
+  --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
   --bg: #000000;
   --bg-2: #0b0e11;
   --surface: #1c1c1e;
@@ -315,6 +316,7 @@
   --urgent: #e0a35c;
   --shade: #00030a;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
+  --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
   --bg: #0f1420;
   --bg-2: #0b0f19;
   --surface: #151c2b;
@@ -345,6 +347,7 @@
   --urgent: #dda05a;
   --shade: #000204;
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
+  --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
   /* The one theme that keeps Brickford's coffee: dark roast throughout. (Its
      --panel is milk, #faf7f0, but since T-006 nothing paints the panel — the
      sidebar and the tab bar are roast materials like the page.) */

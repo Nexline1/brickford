@@ -619,6 +619,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    it never takes a pointer, never moves, and is painted BEHIND the content:
    .main is its own stacking context (isolation) and the layer sits at
    z-index -1 inside it, under every child and over nothing.
+   Each light reaches nothing before the layer's edge (the gold one is 38%
+   wide at 72%, so its 70% stop lands inside the right edge): on a desktop
+   .main stops short of the window, and a glow running to that edge drew a
+   hard vertical seam against the plain page beside it.
    The layer covers the whole of .main and its last image is an opaque --bg,
    so below the glow the page is the plain navy it always was. Both it and
    .main declare a solid background-color that is the glow's WORST case for
@@ -633,7 +637,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background-color: #313149;
   background-image:
-    radial-gradient(70% 70% at 78% 8%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
+    radial-gradient(38% 70% at 72% 6%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
     radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .20) 0%, rgb(70 84 170 / 0) 70%),
     linear-gradient(var(--bg), var(--bg));
   background-size: 100% 360px, 100% 360px, 100% 100%;

@@ -1477,6 +1477,7 @@ function hairlineSource() {
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
+    await themePainted(page, theme, at);
     for (const route of NAV_ROUTES) {
       await go(page, route);
       // Two frames: the observer's first report is delivered after a render,
@@ -1535,6 +1536,7 @@ function hairlineSource() {
         { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
       await page.goto(URL + "/", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
+      await themePainted(page, theme, "390px " + theme + " tab bar");
       const t = await page.evaluate(tabState);
       const at = "390px " + theme + " tab bar";
       check(at + ": a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab",

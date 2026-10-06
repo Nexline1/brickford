@@ -28,7 +28,7 @@
 // as the embed would post it, handed to the same handler.
 //
 // Each flow runs in its own FRESH browser context, at a phone width and a
-// desktop width, with a fixed clock (Tuesday 6 Oct 2026, a study day) and a
+// desktop width, with a fixed clock (Tuesday 20 Oct 2026, a study day) and a
 // seeded state. Every http(s) request is refused — there is no token, so no
 // sync, and the YouTube/KaTeX CDNs are not needed for any of this — and any
 // request to GitHub fails the run. The one exception is (f), which needs a
@@ -42,7 +42,8 @@ const fs = require("fs"), path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
-const TODAY = "2026-10-06";               // a Tuesday: a study day with lectures scheduled
+// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
+const TODAY = "2026-10-20";               // a Tuesday: a study day with lectures scheduled
 const WIDTHS = [390, 1280];
 const shotsAt = process.argv.indexOf("--shots");
 const SHOTS = shotsAt > 0 ? path.resolve(process.argv[shotsAt + 1]) : null;
@@ -148,7 +149,7 @@ async function shot(page, name) {
 
 // Watched lectures unlock quiz questions, so flow (b) starts with some watched.
 const WATCHED = {};
-for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "2026-10-01", notes: "", checks: [] };
+for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "2026-10-15", notes: "", checks: [] };
 
 (async () => {
   const browser = await chromium.launch();
@@ -345,7 +346,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   // a stub GitHub, both inside this context; the pull is the one boot() makes.
   console.log("\nsync (once)");
   {
-    const T9 = "2026-10-06T09:00:00.000Z", T10 = "2026-10-06T10:00:00.000Z", T11 = "2026-10-06T11:00:00.000Z";
+    const T9 = "2026-10-20T09:00:00.000Z", T10 = "2026-10-20T10:00:00.000Z", T11 = "2026-10-20T11:00:00.000Z";
     const A = "math110.0.13", B = "math110.0.14", C = "math110.0.15";
     const local = { lessons: {
       [A]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 },   // theirs is newer, and further along

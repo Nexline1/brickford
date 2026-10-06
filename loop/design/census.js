@@ -4,7 +4,7 @@ const path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const ROOT = process.argv[2], OUT = process.argv[3];
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
-const NOW = new Date("2026-10-06T12:00:00Z");
+const NOW = new Date("2026-10-20T12:00:00Z");   // plan day 14 (moved with reset six)
 const ROUTES = [["home","/"],["lesson","/lesson/math110/0/13"],["courses","/courses"],["course","/course/math110"],
   ["calendar","/calendar"],["quiz","/quiz/linear-algebra"],["workshop","/workshop"],["record","/record"]];
 function seed([nowMs, theme]) {

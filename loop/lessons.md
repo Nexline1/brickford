@@ -2,7 +2,7 @@
 
 ## Invariants from CLAUDE.md
 - START_DATE (curriculum.js) is fixed. A date bug means fixing the arithmetic, never the date.
-- Day 1094 = dateForStudy(1093) = 2030-03-19. The gate baseline addStudyDays(START,1094) = 2030-03-20. The one-day gap is intentional.
+- Day 1094 = dateForStudy(1093) = 2030-04-02. The gate baseline addStudyDays(START,1094) = 2030-04-03. The one-day gap is intentional.
 - REST_DOW = 6 (Saturday). If it changes, change nothing else; everything derives from it.
 - Rest day: scheduledFor → [], streak steps over it, backlogCount skips it, dayStatus → "rest".
 - The streak is derived, never stored. streakFrom merges by taking the LATER date. bestStreak ignores streakFrom.
@@ -17,6 +17,7 @@
 - Tap targets 44x44 on phone widths. Measure with checkVisibility(), not the bounding box (closed <details>).
 
 ## Verification habits
+- After a plan reset, move each pinned clock to the same plan day. Keeping the weekday preserves plan-day and weekday content but not the month grid, which gains or loses pre-start cells: re-plant the bug for every fixture that picks a calendar cell by position or first match (reset six silently turned verify-design's Saturday check into a pre-start-day check). An unchanged clip baseline is a measurement, not a consequence.
 - Check computed style, not screenshots. Then look at the rendered page anyway.
 - Wait on proof (a marker gone, a value changed), never on a fixed duration.
 - A settle condition is "changed, then stopped", not "nothing moving".

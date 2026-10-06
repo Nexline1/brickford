@@ -41,14 +41,15 @@ function seedProgress() {
 let fails = 0;
 const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); } };
 
-// Every context runs on a pinned clock and timezone: Tuesday 6 Oct 2026, noon
+// Every context runs on a pinned clock and timezone: Tuesday 20 Oct 2026, noon
 // UTC — the study day verify-flows and verify-clip use. This gate read the real
 // date until 2026-10-06, and went red on the day /record's heatmap first had
 // anything to draw (14 study days after START_DATE), with no code change at all.
 // A gate whose answer depends on the day it runs only passes on the day it was
 // written (loop/lessons.md). Pinned AFTER that day on purpose, so the heatmap is
 // always on screen and always measured.
-const FIXED_NOW = new Date("2026-10-06T12:00:00Z");
+// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
+const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
 async function freshContext(browser, opts) {
   const ctx = await browser.newContext(Object.assign({ timezoneId: "UTC" }, opts));
   await ctx.clock.setFixedTime(FIXED_NOW);

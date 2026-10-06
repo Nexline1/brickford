@@ -16,4 +16,6 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-016 | Thumbnails and resume points for every lecture | building | 1 | | from owner 2026-10-03 (long-form continuity, brief §8) |
 | T-017 | Home becomes a feed: Continue watching, Up next, a shelf per course | proposed | 0 | | brief §8; supersedes T-009; depends on T-016 |
 | T-018 | Watch page with Up next and an autoplay countdown | proposed | 0 | | brief §8; supersedes T-010; depends on T-016 |
+| T-021 | verify-shell pins its clock and exempts the real heatmap | review | 1 | | owner decision 2026-10-06 (gate went red on main by date) |
+| T-024 | Navy theme: dark navy into gold, the default look | ready | 0 | | owner approved the specimen 2026-10-06; stacks on T-016 |
 

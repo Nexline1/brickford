@@ -189,6 +189,26 @@
   S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
   S.reps = Object.assign({ bank: [], story: [], humor: [], review: [] }, S.reps);
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
+  // The navy switch (T-024; owner decision 2026-10-06, "switch existing
+  // devices to navy automatically", relayed by the loop coordinator and
+  // recorded in loop/specs/T-024-navy-theme/spec.md). Before T-024 the
+  // DEFAULT above carried theme "light", and every device wrote it on its
+  // first save whether or not anyone chose it. So a stored "light" without
+  // the marker is treated as that old default, ONCE per device: the theme
+  // goes back to unset (the navy default) and the marker is set.
+  // `themeNavyOnce` means "this device's theme is past the navy switch". It
+  // is per device: syncPayload does not carry it and mergeState never reads
+  // a remote theme or marker. An explicit pick from the Theme menu sets it
+  // too, so Light chosen after this is kept.
+  // This is load-time normalisation, not a render, and it does NOT save():
+  // opening the app arms no push. The result persists with the next ordinary
+  // save; until then every load re-applies it, which changes nothing.
+  // The inline script in index.html's <head> applies the same rule before the
+  // first paint.
+  if (S.settings.theme === "light" && !S.settings.themeNavyOnce) {
+    delete S.settings.theme;
+    S.settings.themeNavyOnce = true;
+  }
   // Every persisted change schedules a push. This hangs off save() rather than
   // off logEvent() because only 16 of 42 mutation sites logged an event, so
   // notes, gates and treasury edits were silently never syncing.
@@ -5186,6 +5206,7 @@
     $$("#themeMenu [data-theme-pick]").forEach(b => {
       b.onclick = () => {
         S.settings.theme = b.dataset.themePick;
+        S.settings.themeNavyOnce = true;   // an explicit pick is kept (see load)
         save(); applyTheme();
         $("#themeMenu").classList.remove("open");
       };

@@ -18,9 +18,7 @@
     430px  frame clears the page on 23 routes
     768px  frame clears the page on 23 routes
     860px  frame clears the page on 23 routes
-  FAIL  390px /record: 4 control(s) under 44x44 — button.hc.l0 10x10, button.hc.l1 10x10, button.hc.l2 10x10, button.hc.l1.now 10x10
     390px  every control reaches 44x44 on 23 routes
   320/390px  roots 16/24  all 48 tab checks passed
 
-FAIL — 1 shell assertion broken
-exit 1
+PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)

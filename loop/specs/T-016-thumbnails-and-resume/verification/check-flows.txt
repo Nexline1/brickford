@@ -66,4 +66,3 @@ sync (once)
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
 PASS — 59 checks: 5 flows (open, answer, mark watched, resume, render-is-a-read) x 2 widths, each in a fresh context, and the resume point's sync merge once
-exit 0

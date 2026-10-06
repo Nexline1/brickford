@@ -1,23 +1,13 @@
-CHECK, BUILD round 1 (builder, resumed), 2026-10-06, on the final bytes of loop/T-016-thumbnails-and-resume (fd14f18)
-sources: 493b417b2ef2  platform/css/style.css;a122740b0e3a  platform/index.html;09413b6e4f27  platform/js/app.js;5e0e051edc9a  tools/verify-design.js;cbde49981f81  tools/verify-flows.js;
-every gate below ran on these platform/ bytes and these tools; the full sweep ran at 28f8cb9, and the one later commit (fd14f18) only rewords
-verify-design's summary line, so design and plants b/c were re-run on it.
-typecheck fails=0 (exit 0)
-content: exit 0 (2s) — PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
-sync-loop: exit 0 (63s) — PASS — sync never restarts the video, and a rejected token latches only the automatic push
-shell: exit 1 (79s) — FAIL — 1 shell assertion broken
-contrast: exit 0 (15s) — PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold
-logic: exit 0 (4s) — PASS — 24 invariants hold
-flows: exit 0 (5s) — PASS — 59 checks: 5 flows (open, answer, mark watched, resume, render-is-a-read) x 2 widths, each in a fresh context, and the resume point's sync merge once
-clip: exit 0 (179s) — PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143964 element measurements)
-clip-tz-la: exit 0 (180s) — PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143928 element measurements)
-design: exit 0 (643 ok) — PASS — 643 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2786 texts) in 7 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 7 themes (1911 texts)
-shell: the one failure is pre-existing and date-triggered (390px /record heatmap, from 2026-10-05; same on base cb1fdd0) — see shell-record-heatmap-date.txt
-baseline: tools/verify-clip.baseline.json vs cb1fdd0 (base): untouched; vs origin/main: untouched
-plants, each against the final gate, each restored byte-for-byte (cmp identical, git diff clean):
-  plant-a: exit 1, 6 of 59 flow check(s) FAILED; restored identical
-  plant-b: exit 1, FAIL — 12 of 643 design checks failed; restored identical
-  plant-c: exit 1, FAIL — 11 of 643 design checks failed; restored identical
-  plant-extra-merge: exit 1, 3 of 59 flow check(s) FAILED; restored identical
-screenshots: verification/after/ — /course/math110 and /lesson/math110/0/3 at 390 light, 390 dark, 1280 light (full page + the rows);
-  the network is refused there, so every frame shows its error fallback, the typeset cover.
+CHECK round 1 (orchestrator, after merging T-021), 2026-10-06
+typecheck fails=0
+content: PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+sync-loop: PASS — sync never restarts the video, and a rejected token latches only the automatic push
+shell: PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (987 checks)
+contrast: PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold
+logic: PASS — 24 invariants hold
+flows: PASS — 59 checks: 5 flows (open, answer, mark watched, resume, render-is-a-read) x 2 widths, each in a fresh context, and the resume point's sync merge once
+clip: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143898 element measurements)
+clip-tz-la: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (143964 element measurements)
+design: PASS 643/643 on 3 sequential reruns (first parallel run flaked 4 dark-sidebar checks; see note)
+
+Note (orchestrator): the first run of verify-design under parallel load failed 4 checks on the 1280 dark sidebar, reading light-theme values (the theme-lag pattern CLAUDE.md describes for verify-contrast). Three sequential reruns passed 643/643 (rerun-1..3).

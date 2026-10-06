@@ -16,12 +16,13 @@
 ## Scope
 - **`tools/verify-logic.js`:**
   - The stated facts: START, day 1094 = 2030-04-02, baseline 2030-04-03.
+  - WALK_TO moves 2030-03-31 → 2030-04-15, still past the finish.
   - Every dated fixture moves +14 days, keeping weekdays and plan days.
   - Expected values are unchanged.
-- **Pinned clocks:** `tools/verify-design.js`, `tools/verify-clip.js`, `tools/verify-flows.js` and `loop/design/census.js` move from 2026-10-06 to 2026-10-20, the same plan day (14). The clip baseline is not edited.
+- **Pinned clocks:** `tools/verify-design.js`, `tools/verify-clip.js`, `tools/verify-flows.js` and `loop/design/census.js` move from 2026-10-06 to 2026-10-20, the same plan day (14). `verify-flows`' `WATCHED` `doneAt` fixture moves 2026-10-01 → 2026-10-15, the same study index. The clip baseline is not edited.
 - **`CLAUDE.md`:** the start-date section, the fourth override and sixth reset, and the related prose corrections.
-- **`loop/lessons.md`:** day 1094 and the baseline.
-- **`README.md`:** the start date.
+- **`loop/lessons.md`:** day 1094 and the baseline, plus one new verification-habits lesson on moving pinned clocks after a reset.
+- **`README.md`:** the start date and a note on the six-day week.
 - **`platform/index.html`:** the `curriculum.js` cache token.
 
 ## Acceptance

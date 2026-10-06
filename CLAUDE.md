@@ -47,7 +47,7 @@ reaffirmed. It was carried out.
 to have today as day 2 (22nd of sep 2026)". The refusal was given with the numbers — 6 study
 days discarded, finish slipping 7 calendar days from 2030-03-12 to 2030-03-19 — and the reply
 the next day was "do the reset". Note the shape of this one: it is the smallest of the four
-overrides by a wide margin, a single week rather than the four and the five that came before.
+overrides by a wide margin, a single week rather than the two and the five weeks that came before.
 
 Two details worth having. First, the owner pinned the DATE in parentheses rather than saying
 "today", so the reset was anchored to 22 September being day 2 — which is why the start is the
@@ -79,9 +79,9 @@ version of themselves.
 **Count, for whoever reads this next: this is reset number six** (27 Jul → 30 Jul → 12 Aug →
 14 Sep → 23 Sep → 6 Oct). That is not an argument for refusing twice, and it is not a reason to
 editorialise at the owner. It is a fact the next session should have, because the honest thing
-to check first is whether a reset is being asked for in place of a fix — three times now the screen
-that prompted one was a device that was not syncing (14 Sep `never SYNCED`; 6 Oct "This device
-is not syncing").
+to check first is whether a reset is being asked for in place of a fix — at least twice on record the
+screen around one was a device that was not syncing: 14 Sep's `never SYNCED`, and the week of
+6 Oct, when the owner's phone read "This device is not syncing".
 
 The one thing that needs no permission: a genuine bug in the date arithmetic, where the code
 disagrees with the date above being day one. Fix the arithmetic, never the date.

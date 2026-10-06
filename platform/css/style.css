@@ -2233,6 +2233,11 @@ a.grow::after, button.grow.nav::after {
   aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden;
   background: var(--surface-2);
   color: #fff;
+  /* A change of state is a swap, never a blend. Under reduced motion the
+     kill-switch gives every property a 0.01ms transition, and that was enough
+     for the cover's white code to land a frame before its colour did — white
+     on the skeleton, which verify-contrast caught as a frame failed on screen. */
+  transition: none;
 }
 .thumb img {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;

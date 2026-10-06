@@ -2,6 +2,7 @@
 
 | date | item | rounds | result | blocker |
 |---|---|---|---|---|
+| 2026-10-06 | T-006+T-007 | 3 | pr-open: PR #5 (owner go). Contains only T-006+T-007 (T-005 already merged). | none |
 | 2026-10-06 | T-016 | 1 | Builder stopped on a usage limit before its first checkpoint; the worktree survived, so the partial work (app.js/style.css +317) was committed and pushed as 50a2e4f before resuming the build. | none |
 | 2026-10-04 | T-006+T-007 | 3 | APPROVED round 3 (branch cb1fdd0): inset focus ring, menu button on screen, true theme-color comment, railbar safe-area fix. Awaiting owner go to open the PR. T-016 build started on top, per the owner. | none |
 | 2026-10-03 | T-006+T-007 | 2 | Review round 2: CHANGES REQUIRED: focus ring clipped by .glist overflow:hidden (regression), menu button 3px off-screen at 390, one stale index.html comment. Round-1 findings all verified fixed. Owner: merge PR #4 (merged b89a0dd), set T-016 ready. Round 3 (final) runs before T-016, which builds on these lists. | none |

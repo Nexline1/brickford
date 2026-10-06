@@ -10,7 +10,7 @@ const ROUTES = [["home","/"],["lesson","/lesson/math110/0/13"],["courses","/cour
 function seed([nowMs, theme]) {
   if (window.top !== window) return;
   const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
-  const s = { lessons: {}, problems: {}, studyDays: [], review: {}, settings: { theme } };
+  const s = { lessons: {}, problems: {}, studyDays: [], review: {}, settings: { theme, themeNavyOnce: true } };   // a seeded theme is a menu pick (T-024 navy switch)
   for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
   s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n", checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
   s.lessons["math110.0.0"] = { done: true, verified: false, doneAt: iso(2), notes: "", checks: [] };

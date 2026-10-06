@@ -129,14 +129,20 @@
 //     default speaking and not the phone — with meta theme-color #0c1330, Navy
 //     listed second after Auto and marked, and — after a REAL save (today's
 //     lecture opened from the dashboard and marked watched, the state writes
-//     counted) — no theme key in the stored state; a stored "light" stays
-//     light on a dark phone and is still "light" after the same save (Auto's
-//     dark->dark and light->light are the Auto checks above);
+//     counted) — no theme key in the stored state (Auto's dark->dark and
+//     light->light are the Auto checks above);
+//   - the navy switch (round 3, owner decision 2026-10-06): a stored "light"
+//     with no themeNavyOnce marker opens navy with Navy marked and NO state
+//     write at boot, and after a real save stores no theme and the marker;
+//     Light then picked from the menu survives a reload, and so does Light
+//     picked on a device that had stored nothing; "light" with the marker
+//     stays light through a save; "parchment" and "auto" are untouched;
 //   - the first paint (round 2): index.html's inline <head> script sets the
 //     theme from storage before app.js runs. With app.js HELD (the KaTeX
 //     script before it never answers), every frame sampled from the first
-//     styled one is the expected --bg — stored "light" on a dark phone is
-//     light, nothing stored is navy, "auto" follows the phone — and still
+//     styled one is the expected --bg — stored "light" without the marker
+//     is navy, with it light, nothing stored is navy, "auto" follows the
+//     phone — and still
 //     after app.js runs; the script's PANEL map equals style.css's --panel;
 //   - the primary action, at 390 and 1280 in light and dark on the five
 //     routes: every visible filled .btn, and at least one .btn.lg, is a 999px
@@ -257,7 +263,11 @@ function seed([nowMs, theme]) {
   if (window.top !== window) return;
   const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
   const s = { lessons: {}, problems: {}, studyDays: [], review: {} };
-  if (theme) s.settings = { theme };
+  // A seeded theme is a pick made in the Theme menu, so it carries the
+  // per-device marker an explicit pick sets (T-024's navy switch would
+  // otherwise turn a seeded "light" into navy). The switch itself is tested
+  // with stored states written by bareSettings below, which have no marker.
+  if (theme) s.settings = { theme, themeNavyOnce: true };
   for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
   s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n", checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
   s.lessons["math110.0.0"] = { done: true, verified: false, doneAt: iso(2), notes: "", checks: [] };
@@ -276,6 +286,14 @@ function countWrites() {
     return set.call(this, k, v);
   };
 }
+
+// T-024: a stored state that is ONLY these settings — no marker unless given
+// — written before the app loads. `once` writes it on the first load of the
+// tab only (sessionStorage remembers), so a reload sees what the app saved.
+const bareSettings = (settings, once) => new Function("args",
+  "if (window.top !== window) return;" +
+  (once ? "if (sessionStorage.getItem('__bare')) return; sessionStorage.setItem('__bare', '1');" : "") +
+  "localStorage.setItem('darhikmah_v1', JSON.stringify({ settings: " + JSON.stringify(settings) + " }));");
 
 const requests = [];
 let githubHits = 0;
@@ -1340,7 +1358,9 @@ function hairlineSource() {
     meta: (document.querySelector('meta[name="theme-color"]') || {}).content || "",
     picks: [...document.querySelectorAll("#themeMenu [data-theme-pick]")].map(b => ({ pick: b.dataset.themePick, label: b.textContent.trim(), on: b.classList.contains("on") })),
     stored: (() => { const raw = localStorage.getItem("darhikmah_v1"); if (!raw) return { raw: false };
-                     const st = JSON.parse(raw); return { raw: true, has: !!st.settings && "theme" in st.settings, theme: (st.settings || {}).theme }; })(),
+                     const st = JSON.parse(raw); return { raw: true, has: !!st.settings && "theme" in st.settings, theme: (st.settings || {}).theme,
+                       mark: (st.settings || {}).themeNavyOnce }; })(),
+    writes: window.__stateWrites,
   });
   // A real save, through the UI: open today's lecture from the dashboard and
   // mark it watched (verify-flows' flow c). The state writes are counted
@@ -1379,21 +1399,95 @@ function hairlineSource() {
     check("default (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
+  // ---- T-024 round 3: the navy switch (owner decision 2026-10-06) ----
+  // A stored "light" without the per-device marker themeNavyOnce is the old
+  // default (pre-T-024 every device wrote "light" on its first save): it
+  // switches to navy once. With the marker, or any other theme, nothing moves.
+  console.log("\nT-024: the navy switch");
+  const pickTheme = async (page, t) => {
+    await page.click("#themeBtn");
+    await page.click("#themeMenu [data-theme-pick='" + t + "']");
+  };
   {
-    // A stored pick is never rewritten: "light" on a DARK phone stays light.
+    // (a) "light", no marker, on a LIGHT phone (so navy is the switch, not the
+    // phone); desktop, where the Theme menu is on screen for (c).
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 1280, height: 800 }, colorScheme: "light" }, undefined, bareSettings({ theme: "light" }, true));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await frames(page);
+    const a = await page.evaluate(readTheme);
+    check("switch (a) stored \"light\", no marker: opens navy (--bg " + BRIEF.dark["--bg"] + ", meta " + PANEL.dark + "), Navy marked",
+      a.theme === "dark" && a.bg === rgb(BRIEF.dark["--bg"]) && a.meta === PANEL.dark &&
+        a.picks.some(p => p.pick === "dark" && p.on) && a.picks.filter(p => p.on).length === 1,
+      "data-theme " + a.theme + ", --bg " + a.bg + ", meta " + a.meta + ", " + a.picks.filter(p => p.on).map(p => p.label).join(","));
+    check("switch (a): opening the app writes nothing (no save at boot, so no push is armed)",
+      a.writes === 0 && a.stored.theme === "light" && a.stored.mark === undefined,
+      "state writes " + a.writes + ", stored " + JSON.stringify(a.stored));
+    const w0 = await reallySave(page);
+    const a2 = await page.evaluate(readTheme);
+    check("switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still navy",
+      w0.after > w0.before && a2.stored.raw && a2.stored.has === false && a2.stored.mark === true && a2.theme === "dark",
+      "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(a2.stored) + ", data-theme " + a2.theme);
+    // (c) the explicit pick: Light from the menu, then a reload.
+    await pickTheme(page, "light");
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await frames(page);
+    const c = await page.evaluate(readTheme);
+    check("switch (c): Light picked from the menu after the switch survives a reload (light, stored \"light\" + marker)",
+      c.theme === "light" && c.bg === rgb(BRIEF.light["--bg"]) && c.meta === PANEL.light && c.stored.theme === "light" && c.stored.mark === true &&
+        c.picks.some(p => p.pick === "light" && p.on),
+      "data-theme " + c.theme + ", --bg " + c.bg + ", meta " + c.meta + ", stored " + JSON.stringify(c.stored));
+    check("switch (a)/(c): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    // (c2) a device with nothing stored picks Light, then reloads: the pick
+    // carries the marker, so it is not mistaken for the old default.
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: "dark" }, undefined);
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await pickTheme(page, "light");
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await frames(page);
+    const r = await page.evaluate(readTheme);
+    check("switch (c2): nothing stored, Light picked, reload: stays light (stored \"light\" + marker)",
+      r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.stored.theme === "light" && r.stored.mark === true,
+      "data-theme " + r.theme + ", --bg " + r.bg + ", stored " + JSON.stringify(r.stored));
+    check("switch (c2): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    // (b) "light" WITH the marker on a DARK phone: a pick, kept.
     const { ctx, page, errors } = await fresh(browser,
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "dark" }, "light");
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     const w0 = await reallySave(page);
     const r = await page.evaluate(readTheme);
-    check("stored \"light\" on a dark phone: stays light (--bg " + BRIEF.light["--bg"] + ", meta " + PANEL.light + ")",
+    check("switch (b) stored \"light\" + marker on a dark phone: stays light (--bg " + BRIEF.light["--bg"] + ", meta " + PANEL.light + ")",
       r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.meta === PANEL.light,
       "data-theme " + r.theme + ", --bg " + r.bg + ", meta " + r.meta);
-    check("stored \"light\": after a real save (marking a lecture watched), still stored as \"light\", Paper marked",
-      w0.after > w0.before && r.stored.theme === "light" && r.picks.some(p => p.pick === "light" && p.on),
+    check("switch (b): after a real save, still stored as \"light\" with the marker, Paper marked",
+      w0.after > w0.before && r.stored.theme === "light" && r.stored.mark === true && r.picks.some(p => p.pick === "light" && p.on),
       "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
-    check("stored \"light\": no page errors", errors.length === 0, errors.join(" | "));
+    check("switch (b): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  // (d) other stored themes, with no marker, are not touched.
+  for (const [t, scheme, want] of [["parchment", "light", "parchment"], ["auto", "dark", "dark"], ["auto", "light", "light"]]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, undefined, bareSettings({ theme: t }));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const w0 = await reallySave(page);
+    const r = await page.evaluate(readTheme);
+    check("switch (d) stored \"" + t + "\", no marker, phone " + scheme + ": unaffected (data-theme " + want + ", still stored \"" + t + "\" after a save)",
+      r.theme === want && w0.after > w0.before && r.stored.theme === t && r.picks.some(p => p.pick === t && p.on),
+      "data-theme " + r.theme + ", stored " + JSON.stringify(r.stored));
+    check("switch (d) " + t + "/" + scheme + ": no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 
@@ -1439,14 +1533,17 @@ function hairlineSource() {
     };
     requestAnimationFrame(tick);
   }
-  for (const [label, seedTheme, scheme, want] of [
-    ["stored \"light\", phone dark", "light", "dark", "light"],
+  for (const [label, seedTheme, scheme, want, extra] of [
+    // The navy switch (round 3): "light" with no marker paints navy from the
+    // first frame, on a light phone so it is not the phone speaking.
+    ["stored \"light\", no marker, phone light", undefined, "light", "dark", bareSettings({ theme: "light" })],
+    ["stored \"light\" + marker, phone dark", "light", "dark", "light"],
     ["nothing stored, phone light", undefined, "light", "dark"],
     ["stored \"auto\", phone dark", "auto", "dark", "dark"],
     ["stored \"auto\", phone light", "auto", "light", "light"],
   ]) {
     const { ctx, page, errors } = await fresh(browser,
-      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, seedTheme);
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, seedTheme, extra);
     await ctx.addInitScript(samplePaints);
     let release; const held = new Promise(r => { release = r; });
     let heldHits = 0;

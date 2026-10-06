@@ -1,0 +1,2 @@
+typecheck: 30 files
+exit 0

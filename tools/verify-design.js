@@ -90,10 +90,39 @@
 // its section and keep every text node on it >= 4.5:1 (3:1 large); the same
 // for the sidebar's rows, whose hover and press fill is the page's --bg-2.
 //
+// T-016, the thumbnails (loop/specs/T-016-thumbnails-and-resume/spec.md), at
+// 390 and 1280 in light and dark on /course/math110 with every unit opened:
+//   - every video lecture row leads with an <img> whose src is
+//     i.ytimg.com/vi/<its own v>/hqdefault.jpg — v read from the curriculum
+//     by the row's own href, not from the page's markup;
+//   - each is loading=lazy, decoding=async, alt="", in a 16:9 box (±0.01);
+//   - until it loads, the frame is invisible over a --surface-2 skeleton;
+//   - the duration chip reads the lesson's `min` as m:ss or h:mm:ss, worked
+//     out here from whole minutes (h = min / 60), not by the app's formatter,
+//     and is aria-hidden (the title is beside it);
+//   - the state is on the frame: a watched lecture's edge is full and white, a
+//     proven one's full and gold, and the row's subtitle says which;
+//   - the error fallback: this harness refuses the network, so every frame
+//     fails — each must become the typeset cover, with no <img> left, in the
+//     course's own colour (its --fac hue), its code shown, its title in the
+//     markup, and the cover's text and the chip >= 4.5:1 on it. Frames are
+//     scrolled into view one by one so every lazy request is actually made;
+// and on /course/ai300 a reading or a paper is a cover with no <img> from its
+// first paint, its chip "Paper" or "Reading";
+// once, at 390 light: a frame that loads is shown (.loaded, opacity 1), with
+// a 120ms opacity fade when motion is allowed and none under reduced motion,
+// and YouTube's 120x90 grey "no such video" image counts as a miss (cover);
+// and in all SEVEN themes, on one course per faculty, every cover's text and
+// every chip is >= 4.5:1 on what is behind it — and the chip stays >= 4.5:1
+// over ANY picture: its fill composited over pure white and pure black.
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
 // network, and the log is how "no request for Libre Caslon" is checked.
+// Where a block reads colours right after a boot (the 1280 sidebar, and the
+// thumbnail blocks), it first waits for the theme it asked for to be PAINTED
+// (themePainted below) — the theme lag verify-contrast.js was rewritten for.
 //
 //   node tools/verify-design.js
 "use strict";
@@ -206,6 +235,34 @@ async function fresh(browser, opts, theme, extra) {
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   return { ctx, page, errors };
+}
+// The theme a block asked for, painted — not just declared. When data-theme
+// is set in the same frame as a route render, the document's computed style
+// can stay on the previous theme for hundreds of milliseconds while the
+// attribute already reads the new one (CLAUDE.md, verify-contrast.js): four
+// 1280 dark-sidebar checks here once read light values that way, under load.
+// So after a boot, wait for proof: the body's computed background is the --bg
+// that style.css on disk declares for that theme (:root for light,
+// [data-theme="X"] for the rest), and it is still that three frames running.
+// The first half is the change, the second that it stopped — not a duration.
+const THEME_BG = (() => {
+  const css = fs.readFileSync(CSS_FILE, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const out = {};
+  for (const m of css.matchAll(/^(:root|\[data-theme="([\w-]+)"\])\s*\{([^}]*)\}/gm)) {
+    const bg = /--bg:\s*(#[0-9a-fA-F]{6})\b/.exec(m[3]);
+    if (bg) out[m[2] || "light"] = bg[1].toLowerCase();
+  }
+  return out;
+})();
+async function themePainted(page, theme, at) {
+  const want = THEME_BG[theme] ? rgb(THEME_BG[theme]) : null;
+  const ok = !!want && await page.waitForFunction(want => {
+    if (getComputedStyle(document.body).backgroundColor !== want) { window.__themeRun = 0; return false; }
+    return (window.__themeRun = (window.__themeRun || 0) + 1) >= 3;
+  }, want, { polling: "raf", timeout: 8000 }).then(() => true, () => false);
+  const now = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  return check(at + ": painted in the theme asked for before anything is read (body = its --bg in style.css)", ok,
+    want ? "body " + now + ", --bg " + THEME_BG[theme] + " (" + want + ")" : "no --bg declared for \"" + theme + "\" in style.css");
 }
 // Proof the view was rebuilt, not a guess at how long it takes: renderInner()
 // replaces #view's children wholesale, so a marker on the current first child
@@ -678,6 +735,132 @@ function pressState(sel) {
   });
   return out;
 }
+
+// ---------- T-016: the thumbnails, measured inside the page ----------
+// Every lecture row on the page and its thumbnail, against the curriculum
+// (window.DAR, the data file the page loaded) by the row's own href. `fmt` is
+// the harness's own reading of a whole-minute length.
+function thumbState() {
+  const z = window.__dz;
+  const T = { s2: z.tok("--surface-2") };
+  const fmt = min => {
+    if (min !== Math.floor(min)) return "?" + min;            // every `min` is whole minutes; say so if one is not
+    const h = Math.floor(min / 60), m = min % 60;
+    return h ? h + ":" + String(m).padStart(2, "0") + ":00" : m + ":00";
+  };
+  const hue = p => {
+    const [r, g, b] = p.slice(0, 3).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    if (!d) return null;
+    const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return (h * 60 + 360) % 360;
+  };
+  const textOn = el => {
+    const cs = getComputedStyle(el), bg = z.backdrop(el), fg = z.over(z.bytes(cs.color), bg);
+    return { r: z.ratio(fg, bg), fg: z.hex(fg), bg: z.hex(bg) };
+  };
+  const rows = [];
+  document.querySelectorAll('#view a.grow[href^="#/lesson/"]').forEach(a => {
+    const [, , cid, ui, li] = a.getAttribute("href").slice(1).split("/");
+    const c = window.DAR.COURSES.find(x => x.id === cid);
+    const l = c && c.units[+ui] && c.units[+ui].lessons[+li];
+    const t = a.querySelector(":scope > .thumb");
+    const out = { at: cid + "/" + ui + "/" + li, v: l ? l.v || null : undefined, title: l ? l.t : "",
+                  want: l ? (l.min ? fmt(l.min) : l.paper ? "Paper" : "Reading") : "", thumb: !!t, vis: a.checkVisibility() };
+    if (!t) { rows.push(out); return; }
+    const img = t.querySelector("img");
+    const tb = t.getBoundingClientRect(), bg = z.bytes(getComputedStyle(t).backgroundColor);
+    const edge = t.querySelector(".th-prog i");
+    Object.assign(out, {
+      cls: t.className, imgs: t.querySelectorAll("img").length,
+      src: img ? img.getAttribute("src") : null, loading: img ? img.getAttribute("loading") : null,
+      decoding: img ? img.getAttribute("decoding") : null, alt: img ? img.getAttribute("alt") : null,
+      ratio: (r => r.height ? r.width / r.height : 0)((img || t).getBoundingClientRect()),
+      boxRatio: tb.height ? tb.width / tb.height : 0, boxW: tb.width,
+      imgOpacity: img ? getComputedStyle(img).opacity : null,
+      bg: z.hex(bg), bgOpaque: bg[3] === 255, skeleton: z.same(bg, T.s2), bgHue: hue(bg),
+      fac: getComputedStyle(t).getPropertyValue("--fac").trim(),
+      facHue: hue(z.bytes(getComputedStyle(t).getPropertyValue("--fac").trim() || "transparent")),
+      chip: ((t.querySelector(".th-dur") || {}).textContent || "").trim(),
+      chipAria: t.querySelector(".th-dur") ? t.querySelector(".th-dur").getAttribute("aria-hidden") : null,
+      edge: edge ? edge.style.width : "", edgeCol: edge ? z.hex(z.bytes(getComputedStyle(edge).backgroundColor)) : "",
+      sub: ((a.querySelector(".g-s") || {}).textContent || "").trim(),
+      code: ((t.querySelector(".th-code") || {}).textContent || "").replace(/\s+/g, " ").trim(),
+      codeShown: !!t.querySelector(".th-code") && t.querySelector(".th-code").checkVisibility(),
+      ttl: ((t.querySelector(".th-ttl") || {}).textContent || "").trim(),
+      course: c ? c.code : "",
+    });
+    // Text drawn on the frame, where it is showing: the cover's code and its
+    // number, and the chip.
+    out.texts = [...t.querySelectorAll(".th-code, .th-no, .th-dur")]
+      .filter(el => el.checkVisibility() && [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()))
+      .map(el => Object.assign({ what: el.className + " \"" + el.textContent.trim().slice(0, 16) + "\"" }, textOn(el)));
+    // The chip over any picture at all: its fill over pure white and pure black.
+    const d = t.querySelector(".th-dur");
+    if (d) {
+      const cs = getComputedStyle(d), fill = z.bytes(cs.backgroundColor), ink = z.bytes(cs.color);
+      out.chipWorst = Math.min(...[[255, 255, 255, 255], [0, 0, 0, 255]].map(under => {
+        const b = z.over(fill, under);
+        return z.ratio(z.over(ink, b), b);
+      }));
+    }
+    rows.push(out);
+  });
+  return rows;
+}
+// Scroll every visible frame still waiting into view (a closed unit's never
+// asks for its image), two frames each, so its lazy request is really made;
+// then wait for every one to settle — proof, with a ceiling, so a fallback
+// that never comes is a failure and not a hang.
+async function visitThumbs(page) {
+  await page.evaluate(async () => {
+    const two = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    for (const t of document.querySelectorAll("#view .thumb")) {
+      if (!t.querySelector("img") || !t.checkVisibility()) continue;
+      t.scrollIntoView({ block: "center", behavior: "instant" });
+      await two();
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+  });
+  // Measured the moment the last one settles, deliberately with no wait for
+  // animations: the state change has to be a swap. The first run of this
+  // check found the last 8 to 12 frames visited half-way through the
+  // kill-switch's 0.01ms transition — the cover's white code on the
+  // skeleton's grey — which is the frame a reader sees too.
+  return page.waitForFunction(() => [...document.querySelectorAll("#view .thumb")].filter(t => t.checkVisibility())
+    .every(t => t.classList.contains("cover") || t.classList.contains("loaded")), null, { timeout: 6000, polling: 100 })
+    .then(() => true, () => false);
+}
+// A solid-colour PNG, for the frames this harness does let load.
+function png(w, h, rgb) {
+  const zlib = require("zlib");
+  const crcT = [];
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; crcT[n] = c >>> 0; }
+  const crc = buf => { let c = 0xffffffff; for (const b of buf) c = crcT[(c ^ b) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, data) => {
+    const td = Buffer.concat([Buffer.from(type, "ascii"), data]);
+    const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+    const sum = Buffer.alloc(4); sum.writeUInt32BE(crc(td));
+    return Buffer.concat([len, td, sum]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 2;
+  const row = Buffer.alloc(1 + w * 3);
+  for (let x = 0; x < w; x++) { row[1 + x * 3] = rgb[0]; row[2 + x * 3] = rgb[1]; row[3 + x * 3] = rgb[2]; }
+  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr),
+    chunk("IDAT", zlib.deflateSync(Buffer.concat(Array(h).fill(row)))), chunk("IEND", Buffer.alloc(0))]);
+}
+// The curriculum, read here from the data file itself, for what the harness
+// has to know before the page does (which frames to let load).
+const CURRICULUM = (() => {
+  const vm = require("vm");
+  const sandbox = { window: {} };
+  sandbox.window.DAR = sandbox.DAR = {};
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, "platform/data/curriculum.js"), "utf8"), sandbox);
+  return sandbox.window.DAR;
+})();
+const ytimg = v => "https://i.ytimg.com/vi/" + v + "/hqdefault.jpg";
+
 // The keyboard ring. The section is the box that clips: .glist is overflow
 // hidden, so an outline drawn outside a row is simply not painted. Marks the
 // first visible section whose only visible child is a row that goes somewhere
@@ -1016,6 +1199,7 @@ function hairlineSource() {
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
+    await themePainted(page, theme, at);
     for (const route of NAV_ROUTES) {
       await go(page, route);
       // Two frames: the observer's first report is delivered after a render,
@@ -1074,6 +1258,7 @@ function hairlineSource() {
         { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
       await page.goto(URL + "/", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
+      await themePainted(page, theme, "390px " + theme + " tab bar");
       const t = await page.evaluate(tabState);
       const at = "390px " + theme + " tab bar";
       check(at + ": a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab",
@@ -1103,8 +1288,9 @@ function hairlineSource() {
       const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: theme }, theme);
       await page.goto(URL + "/", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      const s = await page.evaluate(sideState);
       const at = "1280px " + theme + " sidebar";
+      await themePainted(page, theme, at);
+      const s = await page.evaluate(sideState);
       check(at + ": not the espresso --panel (#2b2118)", !__same(s.bg, [0x2b, 0x21, 0x18, 255], 0), "background " + hx(s.bg));
       check(at + ": a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%)",
         blurOk(s.bf) && material(s.bg, s.surface, 0.85), "backdrop-filter " + s.bf + "; background " + hx(s.bg) + " (--surface " + hx(s.surface) + ")");
@@ -1407,6 +1593,195 @@ function hairlineSource() {
     }
   }
 
+  // =================== T-016: the thumbnails ===================
+  const show = (list, f) => list.length + " — " + list.slice(0, 3).map(f).join("; ");
+  const hueOff = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); };
+  const lessonsOf = cid => CURRICULUM.COURSES.find(c => c.id === cid).units.reduce((n, u) => n + u.lessons.length, 0);
+  const readingsOf = cid => CURRICULUM.COURSES.find(c => c.id === cid).units.reduce((n, u) => n + u.lessons.filter(l => !l.v).length, 0);
+  let thumbRows = 0, coverRows = 0, thumbTexts = 0;
+  for (const { w, h, mobile } of WIDTHS) {
+    for (const theme of THEMES) {
+      const at = w + "px " + theme;
+      console.log("\nthumbnails, " + at);
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      // The frames are held, unanswered, while the skeleton is measured, and
+      // refused after: the network is never reached, so what is asserted is
+      // the waiting state and the fallback, not the pixels of a frame.
+      let mode = "hold";
+      const held = [];
+      await page.route(/^https:\/\/i\.ytimg\.com\//, r => { if (mode === "hold") held.push(r); else r.abort(); });
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await themePainted(page, theme, at + " thumbnails");
+      await go(page, "/course/math110");
+      // Every unit open, so every row is on the page to measure.
+      await page.evaluate(() => document.querySelectorAll("#view details.unit").forEach(d => { d.open = true; }));
+      await frames(page);
+      const where = at + " /course/math110";
+      const pre = await page.evaluate(thumbState);
+      const vids = pre.filter(r => r.v);
+      thumbRows += pre.length;
+      const badSrc = pre.filter(r => !r.thumb || (r.v ? r.imgs !== 1 || r.src !== ytimg(r.v) : r.imgs !== 0));
+      check(where + ": every video lecture row leads with an <img> of i.ytimg.com/vi/<its v>/hqdefault.jpg",
+        pre.length === lessonsOf("math110") && vids.length > 0 && badSrc.length === 0,
+        badSrc.length ? show(badSrc, r => r.at + " src " + r.src + " (v " + r.v + ")") : vids.length + " of " + pre.length + " rows (" + lessonsOf("math110") + " lectures in the course)");
+      const badAttr = vids.filter(r => r.loading !== "lazy" || r.decoding !== "async" || r.alt !== "" ||
+        !(Math.abs(r.ratio - 16 / 9) <= 0.01) || !(Math.abs(r.boxRatio - 16 / 9) <= 0.01));
+      check(where + ": each image is loading=lazy, decoding=async, alt=\"\", and 16:9 (±0.01)", vids.length > 0 && badAttr.length === 0,
+        badAttr.length ? show(badAttr, r => r.at + " " + r.loading + "/" + r.decoding + " alt " + JSON.stringify(r.alt) + " " + r.ratio.toFixed(3) + " box " + r.boxRatio.toFixed(3))
+          : vids.length + " images, box " + vids[0].boxW.toFixed(0) + "px at " + vids[0].ratio.toFixed(4));
+      const badSkel = vids.filter(r => !r.bgOpaque || !r.skeleton || r.imgOpacity !== "0" || /\b(loaded|cover)\b/.test(r.cls));
+      check(where + ": before load, each frame is invisible over a --surface-2 skeleton", vids.length > 0 && badSkel.length === 0,
+        badSkel.length ? show(badSkel, r => r.at + " bg " + r.bg + ", img opacity " + r.imgOpacity + ", " + r.cls) : vids.length + " skeletons, " + vids[0].bg);
+      const badChip = pre.filter(r => r.chip !== r.want || r.chipAria !== "true");
+      check(where + ": the duration chip reads the lesson's min as m:ss or h:mm:ss, and is aria-hidden (the title is beside it)", pre.length > 0 && badChip.length === 0,
+        badChip.length ? show(badChip, r => r.at + " \"" + r.chip + "\", want \"" + r.want + "\", aria-hidden " + r.chipAria) : pre.length + " chips, e.g. \"" + pre[0].chip + "\", aria-hidden");
+      // The seeded state: lecture 1 watched, lecture 14 proven.
+      const wr = pre.find(r => r.at === "math110/0/0"), pr = pre.find(r => r.at === "math110/0/13");
+      const stateOk = !!wr && !!pr && /\bwatched\b/.test(wr.cls) && wr.edge === "100%" && wr.edgeCol === "#ffffff" && /· Watched$/.test(wr.sub) &&
+        /\bproven\b/.test(pr.cls) && pr.edge === "100%" && pr.edgeCol !== wr.edgeCol && /· Proven$/.test(pr.sub);
+      check(where + ": a watched lecture's frame has a full white edge, a proven one's a full gold edge, and each row says which", stateOk,
+        [wr, pr].map(r => r ? r.at + " " + r.cls.replace(/^thumb /, "") + " edge " + r.edge + " " + r.edgeCol + " \"" + r.sub + "\"" : "missing").join("; "));
+
+      // Now refuse them: every frame fails, and must fall back.
+      mode = "abort";
+      held.splice(0).forEach(r => r.abort().catch(() => {}));
+      const settled = await visitThumbs(page);
+      const post = await page.evaluate(thumbState);
+      const pv = post.filter(r => r.v);
+      coverRows += pv.length;
+      const badCover = pv.filter(r => !/\bcover\b/.test(r.cls) || r.imgs !== 0 || !r.bgOpaque || r.skeleton ||
+        r.bgHue == null || r.facHue == null || hueOff(r.bgHue, r.facHue) > 4 || !r.codeShown ||
+        r.code !== r.course + " · " + (+r.at.split("/")[2] + 1) || r.ttl !== r.title);
+      check(where + ": a frame that fails falls back to the typeset cover — no <img>, the course's colour, its code shown, its title in the markup",
+        settled && pv.length === vids.length && badCover.length === 0,
+        !settled ? "not every frame settled within 6s: " + post.filter(r => r.v && !/\bcover\b/.test(r.cls)).length + " still waiting" :
+        badCover.length ? show(badCover, r => r.at + " " + r.cls + " imgs " + r.imgs + " bg " + r.bg + " (hue " + (r.bgHue == null ? "-" : r.bgHue.toFixed(1)) + " vs --fac " + r.fac + ") code \"" + r.code + "\" shown " + r.codeShown)
+          : pv.length + " covers, " + pv[0].bg + " (--fac " + pv[0].fac + "), \"" + pv[0].code + "\"");
+      const low = [];
+      post.forEach(r => (r.texts || []).forEach(t => { thumbTexts++; if (t.r < 4.5 - 0.005) low.push(r.at + " " + t.what + " " + t.r.toFixed(2) + ":1 (" + t.fg + " on " + t.bg + ")"); }));
+      const least = post.flatMap(r => (r.texts || []).map(t => Object.assign({ at: r.at }, t))).sort((a, b) => a.r - b.r)[0];
+      check(where + ": on the cover, its code and the chip are >= 4.5:1", !!least && low.length === 0,
+        low.length ? low.length + " — " + low.slice(0, 3).join("; ") : least ? "least " + least.r.toFixed(2) + ":1 (" + least.what + ", " + least.fg + " on " + least.bg + ")" : "no text measured");
+
+      // Readings and papers: a cover from the first paint, nothing to load.
+      mode = "hold";
+      await go(page, "/course/ai300");
+      const ai = await page.evaluate(thumbState);
+      const reads = ai.filter(r => !r.v), aiv = ai.filter(r => r.v);
+      const badRead = reads.filter(r => !r.thumb || !/\bcover\b/.test(r.cls) || r.imgs !== 0 || r.chip !== r.want || (r.vis && !r.codeShown));
+      const badAiv = aiv.filter(r => r.src !== ytimg(r.v));
+      check(at + " /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"; every video row's frame is its own v",
+        reads.length === readingsOf("ai300") && reads.length > 0 && badRead.length === 0 && badAiv.length === 0,
+        badRead.length || badAiv.length ? show(badRead.concat(badAiv), r => r.at + " " + r.cls + " imgs " + r.imgs + " chip \"" + r.chip + "\" src " + r.src)
+          : reads.length + " readings (" + reads.filter(r => r.vis).length + " on screen), " + aiv.length + " video rows with their frames");
+      check(at + " thumbnails: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
+  // ---- a frame that does load ----
+  // Two frames answered with real images: lecture 2's a 480x360 PNG (the
+  // size hqdefault is), lecture 3's a 120x90 one — the size of YouTube's grey
+  // "no such video" placeholder, which it serves instead of an error. The
+  // moment .loaded lands, the frame's running animations are read in that
+  // same task: a fade is a CSSTransition on opacity, or it is not there.
+  console.log("\nthumbnails that load, 390px light");
+  const u0 = CURRICULUM.COURSES.find(c => c.id === "math110").units[0].lessons;
+  const BIG = ytimg(u0[1].v), GREY = ytimg(u0[2].v);
+  const bigPng = png(480, 360, [38, 84, 140]), greyPng = png(120, 90, [204, 204, 204]);
+  let fadesSeen = 0;
+  for (const motion of ["reduce", "no-preference"]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light", reducedMotion: motion }, "light",
+      () => {
+        if (window.top !== window) return;
+        window.__fade = [];
+        new MutationObserver(ms => ms.forEach(m => {
+          const t = m.target;
+          if (!t.classList || !t.classList.contains("thumb") || !t.classList.contains("loaded") || t.dataset.fadeSeen) return;
+          t.dataset.fadeSeen = "1";
+          const img = t.querySelector("img");
+          window.__fade.push(img ? img.getAnimations().map(a => (a.transitionProperty || a.animationName || "?") + " " +
+            a.effect.getComputedTiming().duration) : ["no img"]);
+        })).observe(document, { subtree: true, attributes: true, attributeFilter: ["class"] });
+      });
+    await page.route(/^https:\/\/i\.ytimg\.com\//, r => {
+      const u = r.request().url();
+      if (u === BIG) return r.fulfill({ status: 200, contentType: "image/png", body: bigPng });
+      if (u === GREY) return r.fulfill({ status: 200, contentType: "image/png", body: greyPng });
+      return r.abort();
+    });
+    await page.goto(URL + "/__boot", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await go(page, "/course/math110");
+    const sel = li => '#view a.grow[href="#/lesson/math110/0/' + li + '"] > .thumb';
+    const landed = await page.waitForFunction(([a, b]) => {
+      const x = document.querySelector(a), y = document.querySelector(b);
+      return !!x && !!y && x.classList.contains("loaded") && y.classList.contains("cover");
+    }, [sel(1), sel(2)], { timeout: 6000, polling: 100 }).then(() => true, () => false);
+    await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => {}))));
+    const r = await page.evaluate(([a, b]) => {
+      const x = document.querySelector(a), y = document.querySelector(b), img = x && x.querySelector("img");
+      const cs = img ? getComputedStyle(img) : null;
+      return { cls: x ? x.className : "", img: !!img, op: cs ? cs.opacity : null, prop: cs ? cs.transitionProperty : null,
+               dur: cs ? cs.transitionDuration : null, grey: y ? y.className : "", greyImgs: y ? y.querySelectorAll("img").length : -1,
+               fade: window.__fade };
+    }, [sel(1), sel(2)]);
+    const at = "390px light, motion " + motion;
+    check(at + ": a frame that loads is shown — .loaded, opacity 1", landed && /\bloaded\b/.test(r.cls) && r.img && r.op === "1",
+      (landed ? "" : "did not settle; ") + r.cls + ", img " + r.img + ", opacity " + r.op);
+    const fade = (r.fade || [])[0] || [];
+    if (motion === "reduce") {
+      check(at + ": under reduced motion it is not faded — no transition declared, none running as it lands",
+        r.prop === "none" && fade.length === 0, "transition-property " + r.prop + "; running at load: " + (fade.join(", ") || "none"));
+    } else {
+      fadesSeen += fade.length;
+      check(at + ": with motion allowed it fades in over 120ms (a running opacity transition as it lands)",
+        r.prop === "opacity" && r.dur === "0.12s" && fade.length === 1 && /^opacity 120$/.test(fade[0]),
+        "transition " + r.prop + " " + r.dur + "; running at load: " + (fade.join(", ") || "none"));
+    }
+    check(at + ": YouTube's 120x90 placeholder counts as a miss — the cover, no <img>", /\bcover\b/.test(r.grey) && r.greyImgs === 0,
+      r.grey + ", imgs " + r.greyImgs);
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- covers and chips in all seven themes, one course per faculty ----
+  const FAC_COURSES = ["math110", "ai300", "phys100", "sys250", "res400"];
+  let facTexts = 0;
+  for (const theme of ALL_THEMES) {
+    console.log("\nthumbnail contrast, " + theme);
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, theme);
+    await page.goto(URL + "/__boot", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await themePainted(page, theme, theme + " thumbnail contrast");
+    const low = [], lowChip = [];
+    let least = null, worstChip = Infinity, covers = 0, unsettled = [];
+    for (const cid of FAC_COURSES) {
+      await go(page, "/course/" + cid);
+      if (!(await visitThumbs(page))) unsettled.push(cid);
+      (await page.evaluate(thumbState)).filter(r => r.vis).forEach(r => {
+        if (/\bcover\b/.test(r.cls)) covers++;
+        (r.texts || []).forEach(t => {
+          facTexts++;
+          if (!least || t.r < least.r) least = Object.assign({ at: r.at }, t);
+          if (t.r < 4.5 - 0.005) low.push(r.at + " " + t.what + " " + t.r.toFixed(2) + ":1 (" + t.fg + " on " + t.bg + ")");
+        });
+        if (r.chipWorst != null) { worstChip = Math.min(worstChip, r.chipWorst); if (r.chipWorst < 4.5) lowChip.push(r.at + " " + r.chipWorst.toFixed(2)); }
+      });
+    }
+    check(theme + ": every cover's text and every chip is >= 4.5:1, on " + FAC_COURSES.length + " courses (one per faculty)",
+      unsettled.length === 0 && covers > 0 && !!least && low.length === 0,
+      unsettled.length ? "frames still waiting on " + unsettled.join(", ") : low.length ? low.length + " — " + low.slice(0, 3).join("; ")
+        : covers + " covers, least " + least.r.toFixed(2) + ":1 (" + least.at + " " + least.what + ", " + least.fg + " on " + least.bg + ")");
+    check(theme + ": the chip stays >= 4.5:1 over any picture (its fill over pure white and over pure black)",
+      worstChip !== Infinity && lowChip.length === 0, lowChip.length ? lowChip.slice(0, 3).join("; ") : "worst " + worstChip.toFixed(2) + ":1");
+    check(theme + " thumbnail contrast: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   await browser.close();
 
   console.log("");
@@ -1423,7 +1798,9 @@ function hairlineSource() {
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
       WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +
       " contexts; the press on " + pressRows + " rows (" + pressTexts +
-      " texts) in " + ALL_THEMES.length + " themes"
+      " texts) in " + ALL_THEMES.length + " themes; thumbnails: " + thumbRows + " lecture rows measured across " + WIDTHS.length + " widths x " +
+      THEMES.length + " themes (" + coverRows + " error fallbacks, " + thumbTexts + " texts on them), a frame that loads with and " +
+      "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

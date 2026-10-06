@@ -239,6 +239,12 @@
       const mine = S.lessons[k], theirs = r.lessons[k];
       if (!theirs) return;
       if (!mine) { S.lessons[k] = theirs; changed++; return; }
+      // The resume point is not part of a lesson's standing: it goes with
+      // whichever side stamped it last (T-016), whoever wins below — so a
+      // pause on the phone survives the laptop's further-along copy, and an
+      // `ended` (pos cleared, posAt stamped) beats an older point elsewhere.
+      const pos = (theirs.posAt || "") > (mine.posAt || "") ? theirs : mine;
+      const keep = { pos: pos.pos, posAt: pos.posAt };
       const score = x => (x.verified ? 4 : 0) + (x.done ? 2 : 0) + ((x.notes || "").length + (x.recall || "").length > 0 ? 1 : 0);
       if (score(theirs) > score(mine)) { S.lessons[k] = theirs; changed++; }
       else if (score(theirs) === score(mine)) {
@@ -246,6 +252,12 @@
         if ((theirs.notes || "").length > (mine.notes || "").length) { mine.notes = theirs.notes; changed++; }
         if ((theirs.recall || "").length > (mine.recall || "").length) { mine.recall = theirs.recall; changed++; }
         if ((theirs.solved || 0) > (mine.solved || 0)) { mine.solved = theirs.solved; changed++; }
+      }
+      const now = S.lessons[k];
+      if (now.pos !== keep.pos || now.posAt !== keep.posAt) {
+        if (keep.pos == null) delete now.pos; else now.pos = keep.pos;
+        if (keep.posAt == null) delete now.posAt; else now.posAt = keep.posAt;
+        if (now === mine) changed++;
       }
     });
     // sets: union
@@ -2019,6 +2031,79 @@
     ]);
   }
 
+  // ---------- thumbnails ----------
+  // Every lecture already carries its YouTube id in `v` (296 of 324 lessons),
+  // and YouTube serves each video's frame from a public image host, so a
+  // thumbnail is derived, never stored — platform/data/ is not touched. The 28
+  // readings and papers have no `v`: null here, and the caller draws a typeset
+  // cover instead (the course colour, the code and the title).
+  function thumbFor(cid, u, i) {
+    const c = D.COURSES.find(x => x.id === cid);
+    const l = c && c.units && c.units[u] ? c.units[u].lessons[i] : null;
+    return l && l.v ? "https://i.ytimg.com/vi/" + l.v + "/hqdefault.jpg" : null;
+  }
+  // m:ss under an hour, h:mm:ss from one — the way a video's length is spelled.
+  function clockLabel(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0");
+  }
+  // One .thumb, whatever it shows. With a `src` it is a --surface-2 skeleton
+  // until the frame's load event lands (thumbSettled below); without one, or
+  // once the frame fails, it is the cover. The cover's text is always in the
+  // markup and only shown in that state, so the fallback is a class, not a
+  // rebuild. Empty alt and aria-hidden, on the cover and on the chip: the
+  // title is already beside it, and a bare "17:00" read out ahead of it is
+  // noise in the link's name.
+  // The cover's code is the course's, then which one this is ("MATH 110 · 3"):
+  // one run on a full-size cover, two lines on a row's 96px one, where the
+  // run would otherwise break wherever it ran out ("MATH 110 ·" / "10").
+  function thumbBox(c, o) {
+    return '<span class="thumb ' + facClass(c) + (o.src ? "" : " cover") + (o.state ? " " + o.state : "") + '">' +
+      (o.src ? '<img src="' + o.src + '" alt="" loading="lazy" decoding="async" width="480" height="270">' : "") +
+      '<span class="th-cover" aria-hidden="true"><span class="th-code">' + esc(c.code) +
+      (o.no != null ? '<span class="th-no"><span class="th-dot"> · </span>' + esc(o.no) + "</span>" : "") + "</span>" +
+      '<span class="th-ttl">' + esc(o.title) + "</span></span>" +
+      (o.dur ? '<span class="th-dur" aria-hidden="true">' + esc(o.dur) + "</span>" : "") +
+      (o.frac > 0 ? '<span class="th-prog"><i style="width:' + Math.round(Math.min(1, o.frac) * 1000) / 10 + '%"></i></span>' : "") +
+      "</span>";
+  }
+  // A lecture's thumbnail: its frame, its length, and how far you have got —
+  // the resume point as a fraction of the runtime, full once it is watched.
+  function thumbHTML(c, ui, li) {
+    const l = c.units[ui].lessons[li];
+    const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+    const len = (l.min || 0) * 60;
+    return thumbBox(c, {
+      src: thumbFor(c.id, ui, li),
+      no: l.v ? li + 1 : l.paper ? "Paper" : "Reading",
+      title: l.t,
+      dur: l.min ? clockLabel(len) : l.paper ? "Paper" : "Reading",
+      frac: st.done || st.verified ? 1 : st.pos && len ? st.pos / len : 0,
+      state: st.verified ? "proven" : st.done ? "watched" : "",
+    });
+  }
+  // The line under a lecture's title: what it is, then where you stand with it.
+  function lessonLine(l, i, st) {
+    const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (i + 1);
+    return what + (st.verified ? ' · <span class="g-good">Proven</span>'
+      : st.done ? ' · <span class="g-good">Watched</span>'
+      : st.pos ? " · Resume at " + clockLabel(st.pos) : "");
+  }
+  // The frame either lands or it does not. Delegated, and in the capture
+  // phase because load and error do not bubble — so it is in place before any
+  // view inserts an image, and no render has to wire anything. YouTube answers
+  // an id it has no frame for with a 120x90 grey placeholder rather than an
+  // error, so that counts as a miss too.
+  function thumbSettled(ev) {
+    const img = ev.target, t = img && img.parentElement;
+    if (!(img instanceof HTMLImageElement) || !t || !t.classList.contains("thumb")) return;
+    if (ev.type === "error" || img.naturalWidth <= 120) { t.classList.add("cover"); img.remove(); }
+    else t.classList.add("loaded");
+  }
+  document.addEventListener("load", thumbSettled, true);
+  document.addEventListener("error", thumbSettled, true);
+
   V.course = function (cid) {
     const c = D.COURSES.find(x => x.id === cid);
     if (!c) return "<p>Unknown course.</p>";
@@ -2075,15 +2160,17 @@
           '<span class="u-prog" style="width:' + (tot ? (dn / tot) * 100 : 0) + '%;"></span></summary>' +
           // .lesson-row was a fifth row shape doing the grouped list's job with
           // its own number column, its own title and its own tick. Same row,
-          // one spelling: the tick is the leading mark, the duration is the
-          // value on the right.
+          // one spelling. The lecture's frame leads it now (T-016): the
+          // duration is the chip on the frame, the watched share is its
+          // bottom edge, and the number and the state are the line under the
+          // title.
           '<div class="u-body"><div class="glist">' +
           u.lessons.map((l, i) => {
             const st = S.lessons[lessonKey(c.id, ui, i)] || {};
             return '<a class="grow' + (st.done ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
-              '<span class="g-lead">' + (st.verified ? "\u2713\u2713" : st.done ? "\u2713" : i + 1) + "</span>" +
-              '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span></span>" +
-              '<span class="g-v">' + (l.min ? l.min + "m" : l.paper ? "paper" : "reading") + "</span></a>";
+              thumbHTML(c, ui, i) +
+              '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span>" +
+              '<span class="g-s">' + lessonLine(l, i, st) + "</span></span></a>";
           }).join("") + "</div></div></details>";
       }).join("") +
 
@@ -2211,13 +2298,32 @@
     // it — but writing it LOUDLY armed a GitHub push four seconds after every
     // lesson you opened, and when that push failed the failure handler
     // re-rendered, which ran this line again, which armed another push. A
-    // render is a read; anything it has to persist is persisted quietly.
-    syncQuiet++;
-    S.settings.lastLesson = { cid, ui: +ui, li: +li, label: c.code + " · " + l.t };
-    save();
-    syncQuiet--;
+    // render is a read; anything it has to persist is persisted quietly —
+    // and only when it changed, so rendering the same lecture again (a
+    // foreground repaint, a press on the page) writes nothing at all (T-016).
+    const was = S.settings.lastLesson || {};
+    const label = c.code + " · " + l.t;
+    if (was.cid !== cid || was.ui !== +ui || was.li !== +li || was.label !== label) {
+      syncQuiet++;
+      S.settings.lastLesson = { cid, ui: +ui, li: +li, label };
+      save();
+      syncQuiet--;
+    }
+    // Resume (T-016). enablejsapi lets the page hear the player through
+    // postMessage (see playerEvent); origin is where its messages are
+    // addressed, so it is only sent where the page has a real one (a file://
+    // page's origin is the string "null"); start is the resume point — the
+    // time this tab is holding for this lecture if it has one, which is newer
+    // than the stored one, else the stored one. Reading both is all a render
+    // does with them.
+    const resumeAt = player && player.k === k && player.t != null ? player.t : st.pos;
     const src = l.v
-      ? "https://www.youtube.com/embed/" + l.v + (u.playlist ? "?list=" + u.playlist : "")
+      ? "https://www.youtube.com/embed/" + l.v + "?" + [
+          u.playlist ? "list=" + u.playlist : "",
+          "enablejsapi=1",
+          /^https?:/.test(location.origin) ? "origin=" + encodeURIComponent(location.origin) : "",
+          resumeAt >= 1 ? "start=" + Math.floor(resumeAt) : "",
+        ].filter(Boolean).join("&")
       : u.playlist ? "https://www.youtube.com/embed/videoseries?list=" + u.playlist : null;
     const prev = li > 0 ? "#/lesson/" + cid + "/" + ui + "/" + (li - 1) : null;
     const next = li < u.lessons.length - 1 ? "#/lesson/" + cid + "/" + ui + "/" + (+li + 1) : null;
@@ -2305,7 +2411,7 @@
     return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
       (src
-        ? '<div class="video-frame"><iframe src="' + src + '" title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
+        ? '<div class="video-frame"><iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
         : l.paper
           ? '<div class="card">This lesson is a paper — the reading is the lecture.</div>'
           : l.read
@@ -2336,12 +2442,25 @@
 
       (st.done ? proveHTML() : "") +
 
-      // wrap + gap: at 320px with 150% text the two buttons together are wider
-      // than the column, and "Previous" has nowhere to break. They stack there
-      // instead of pushing the page sideways.
-      '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:16px;">' +
-      (prev ? '<a class="btn ghost" href="' + prev + '">← Previous</a>' : "<span></span>") +
-      (next ? '<a class="btn" href="' + next + '">Next lecture →</a>' : '<a class="btn" href="#/course/' + cid + '">Course complete view</a>') +
+      // Previous and next were two buttons, one of them filled — a second
+      // primary action under the page's one. They are the unit's neighbours
+      // now, as rows with their frames (T-016): next first, because that is
+      // where the evening goes. At the end of a unit the forward row is the
+      // course, with its cover.
+      '<div class="ghead">In this unit<span class="gh-meta">' + (+li + 1) + " of " + u.lessons.length + "</span></div>" +
+      '<div class="glist lsn-nav">' +
+      (next
+        ? '<a class="grow" href="' + next + '">' + thumbHTML(c, ui, +li + 1) +
+          '<span class="g-main"><span class="g-t">' + esc(u.lessons[+li + 1].t) + "</span>" +
+          '<span class="g-s">Next · ' + lessonLine(u.lessons[+li + 1], +li + 1, S.lessons[lessonKey(cid, ui, +li + 1)] || {}) + "</span></span></a>"
+        : '<a class="grow" href="#/course/' + cid + '">' + thumbBox(c, { title: c.title }) +
+          '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
+          '<span class="g-s">End of this unit · back to the course</span></span></a>') +
+      (prev
+        ? '<a class="grow" href="' + prev + '">' + thumbHTML(c, ui, li - 1) +
+          '<span class="g-main"><span class="g-t">' + esc(u.lessons[li - 1].t) + "</span>" +
+          '<span class="g-s">Previous · ' + lessonLine(u.lessons[li - 1], li - 1, S.lessons[lessonKey(cid, ui, li - 1)] || {}) + "</span></span></a>"
+        : "") +
       "</div></div>";
   };
 
@@ -4173,6 +4292,11 @@
 
   // ---------- actions ----------
   function wire(root, route) {
+    // A lecture's player, if one was just drawn: start the handshake.
+    // And again the moment the frame has loaded: whatever was said before
+    // that went to a page that was not the player yet.
+    const yt = $(".video-frame iframe[data-k]", root);
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
     // generic data-act buttons
     $$("[data-act]", root).forEach(b => {
       b.onclick = () => {
@@ -4800,6 +4924,128 @@
   // the frame is cross-origin, so whether it is actually playing is unknowable,
   // and being cautious here costs nothing.
   const videoOnScreen = () => !!document.querySelector("#view .video-frame iframe");
+
+  // ---------- resume points (T-016) ----------
+  // The embed is asked for enablejsapi=1, and the player then talks to the
+  // page over postMessage — the protocol YouTube's IFrame API speaks
+  // underneath, so iframe_api is not loaded. The page says it is listening;
+  // the player answers with infoDelivery (currentTime, playerState) a few
+  // times a second, and onStateChange.
+  //
+  // The time lives in memory (`player`), and is written as
+  // S.lessons[k].pos (+ posAt, for the merge) at three moments only: a pause,
+  // leaving — the route or the page (pagehide, or hidden, which is how a
+  // phone mostly leaves) — and the end, which clears it. Never
+  // from a tick and never from a render: a write per tick is a sync push
+  // armed four times a second, and a write from a render is the reload loop
+  // CLAUDE.md describes.
+  const YT = "https://www.youtube.com";
+  const YT_ORIGIN = /^https:\/\/www\.youtube(-nocookie)?\.com$/;
+  const PS = { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 };
+  let player = null;        // { k, own, v, t, state, dirty, moved } for the lecture on screen
+  let hailH = null, heardFrom = null;
+  const ytFrame = () => document.querySelector("#view .video-frame iframe[data-k]");
+  // Say "listening" until the player answers, the way the IFrame API does
+  // (every 250ms; the browser drops it until the frame is on YouTube's
+  // origin). Messages out only — nothing here writes. No cap: this used to
+  // stop after 60 tries (15s), and a phone on a slow connection can take
+  // longer than that to put a player in the frame — which then waits to be
+  // asked, says nothing, and resume silently never starts. After the first
+  // 60 it asks once a second, for as long as the frame is on the page and
+  // has not answered; wire() also starts it again on the frame's own load.
+  function hailPlayer(f) {
+    clearInterval(hailH);
+    let n = 0;
+    const hail = () => {
+      if (!f.isConnected || heardFrom === f) { clearInterval(hailH); return; }
+      try { f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), YT); } catch (e) {}
+      if (++n === 60) { clearInterval(hailH); hailH = setInterval(hail, 1000); }
+    };
+    hail();
+    hailH = setInterval(hail, 250);
+  }
+  function onPlayerMessage(ev) {
+    const f = ytFrame();
+    if (!f || ev.source !== f.contentWindow || !YT_ORIGIN.test(ev.origin)) return;
+    playerEvent(f, ev.data);
+  }
+  function playerEvent(f, raw) {
+    let m = raw;
+    if (typeof m === "string") { try { m = JSON.parse(m); } catch (e) { return; } }
+    if (!m || typeof m !== "object") return;
+    if (heardFrom !== f) {
+      heardFrom = f;
+      // State changes arrive in infoDelivery as well; asking for the event
+      // too is what the IFrame API does when a page subscribes to it.
+      try { f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"], id: 1, channel: "widget" }), YT); } catch (e) {}
+    }
+    const k = f.dataset.k;
+    if (!player || player.k !== k) player = { k, own: f.dataset.v, v: f.dataset.v, t: null, state: null, dirty: false, moved: false };
+    let state = null;
+    if (m.event === "onStateChange") state = +m.info;
+    else if (m.event === "infoDelivery" || m.event === "initialDelivery") {
+      const info = m.info || {};
+      // A playlist embed moves on to the next video by itself; that time is
+      // not this lecture's.
+      if (info.videoData && info.videoData.video_id) player.v = info.videoData.video_id;
+      if (typeof info.playerState === "number") state = info.playerState;
+      const live = state != null ? state : player.state;
+      // A cued or unstarted player reports 0, and an ended one its length:
+      // neither is where the reader is. Nor, as a rule, is anything under a
+      // second: a player opened at start= reports 0 while it buffers, before
+      // it has seeked there (iOS does it on an ordinary open), and taking
+      // that would send a resume point back to the beginning. The one real
+      // 0 is a reader who went back to the start of a lecture that began
+      // there — playing or paused, after it had really played.
+      const t = info.currentTime;
+      if (typeof t === "number" && player.v === f.dataset.v &&
+          live !== PS.UNSTARTED && live !== PS.CUED && live !== PS.ENDED &&
+          (t >= 1 || (player.moved && !/[?&]start=/.test(f.getAttribute("src") || "") &&
+                      (live === PS.PLAYING || live === PS.PAUSED)))) {
+        player.t = t;
+        player.dirty = true;
+        if (t >= 1 && live === PS.PLAYING) player.moved = true;
+      }
+    }
+    if (state == null || isNaN(state) || state === player.state) return;
+    player.state = state;
+    if (player.v !== f.dataset.v) return;
+    if (state === PS.PAUSED) keepPosition("pause");
+    else if (state === PS.ENDED) keepPosition("ended");
+  }
+  // The only writer of pos, through the ordinary save path.
+  function keepPosition(why) {
+    if (!player) return;
+    const k = player.k;
+    const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+    if (why === "ended") {
+      // Stamped even when nothing was stored here, if it played: the clear
+      // has to be newer than a resume point another device is still holding.
+      const played = player.t != null;
+      player.t = null; player.dirty = false;
+      if (st.pos == null && !played) return;
+      delete st.pos;
+    } else {
+      // Not once a playlist embed has moved on to another video: the time it
+      // is holding is that video's, not this lecture's.
+      if (!player.dirty || player.t == null || player.v !== player.own) return;
+      player.dirty = false;
+      const p = Math.floor(player.t);
+      if (st.pos === p) return;
+      st.pos = p;
+    }
+    st.posAt = new Date().toISOString();
+    S.lessons[k] = st;
+    save();
+  }
+  // Leaving the lecture: the route changes (registered ahead of the render
+  // that replaces the frame) or the page goes away (ahead of the push).
+  function leaveLecture() {
+    clearInterval(hailH);
+    if (!player) return;
+    keepPosition("leave");
+    player = null;
+  }
   // render({ background: true }) — a repaint nobody asked for.
   //
   // Every caller of this kind is a sync that has just finished: a banner to
@@ -4941,7 +5187,10 @@
     $("#importBtn").onclick = () => $("#importFile").click();
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
     mountDrawer();
+    // Before render: the frame is still the old lecture's when this runs.
+    window.addEventListener("hashchange", leaveLecture);
     window.addEventListener("hashchange", render);
+    window.addEventListener("message", onPlayerMessage);
     // Rotating the phone changes which furniture exists and how tall it is —
     // including the nav bar, whose height is the observer's rootMargin.
     let rt = null;
@@ -4958,6 +5207,11 @@
     // resumes rather than reloads — never saw progress made on the laptop.
     let lastPull = Date.now();
     document.addEventListener("visibilitychange", () => {
+      // Hidden: keep the lecture's place first, so the push below carries
+      // it. A phone backgrounds a page — another app, the lock button —
+      // far more often than it fires pagehide. The player is not let go:
+      // the page may well come back to it.
+      if (document.visibilityState === "hidden") keepPosition("hide");
       if (!ghToken()) return;
       if (document.visibilityState === "visible") {
         if (Date.now() - lastPull < 20000) return;   // do not hammer the API
@@ -4969,9 +5223,17 @@
     });
     // iOS kills in-flight fetches as it backgrounds a page, so the push above is
     // best-effort. pagehide fires earlier and more reliably; both are cheap.
+    // The resume point is kept first, so the push carries it.
+    window.addEventListener("pagehide", leaveLecture);
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
   }
-  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount }); // read-only hook for tools/verify-logic.js (spec T-000)
+  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
+    // T-016, for tools/verify-flows.js: a message as the lecture's player would
+    // send it, handed to playerEvent — so it WRITES through the same path a
+    // real player message does (a pause or an end saves); only the
+    // origin/source filter in front of it is skipped. And a foreground render.
+    playerMessage: data => { const f = ytFrame(); if (f) playerEvent(f, data); return !!f; },
+    render: () => render() });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

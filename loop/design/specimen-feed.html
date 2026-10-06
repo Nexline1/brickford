@@ -1,0 +1,369 @@
+<!doctype html>
+<!-- Brickford long-form specimen (loop/design/brief.md §8). Static; links nothing
+     from the app. Open with #home, #watch, #watch-end or #mini, and ?dark for the dark
+     pair. Thumbnails are drawn as course-coloured covers because this cloud browser
+     cannot reach i.ytimg.com; in the app they are the lectures' real YouTube frames. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brickford feed specimen</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f2f1ee; --surface: #ffffff; --surface-2: #f7f6f3; --line: #dcdad5;
+  --ink: #111111; --ink-2: #5c5a55; --ink-3: #6e6b65;
+  --accent: #1e4f8f; --accent-fill: #1e4f8f; --accent-soft: #e6edf6; --gold: #8a5f12;
+  --good: #2a7047; --bad: #b32d1f; --urgent: #9a5a16;
+  --math: #2f5d8f; --ai: #8a5a1c; --sys: #22665f; --phys: #9b3f30;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+  --float: 0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .08);
+  --font: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --rounded: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+:root.dark {
+  color-scheme: dark;
+  --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e; --line: #38383a;
+  --ink: #ffffff; --ink-2: #a1a1a6; --ink-3: #8e8e93;
+  --accent: #78aef0; --accent-fill: #2f6bbd; --accent-soft: #1a2a3f; --gold: #e0b35a;
+  --good: #62b881; --bad: #e8705c; --urgent: #d99a4e;
+  --math: #2b4f7a; --ai: #7a4f19; --sys: #1d5a54; --phys: #87382b;
+  --float: 0 0 0 1px var(--line);
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.45 var(--font); font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+.screen { display: none; }
+.screen.on { display: block; }
+.app { padding-bottom: calc(49px + 34px + 24px); }
+
+/* chrome */
+.nav { position: sticky; top: 0; z-index: 6; height: 44px; display: grid; grid-template-columns: 52px 1fr auto; align-items: center;
+  padding: 0 8px; background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(20px) saturate(180%); }
+.icon-btn { width: 44px; height: 44px; display: grid; place-items: center; color: var(--accent); }
+.chip { height: 30px; padding: 0 12px; border-radius: 999px; background: var(--surface); color: var(--ink-2);
+  font: 500 0.8125rem/30px var(--font); display: inline-flex; gap: 6px; align-items: center; }
+.chip b { color: var(--gold); font-weight: 600; }
+.large { font: 700 2.125rem/1.2 var(--font); letter-spacing: -0.022em; padding: 4px 16px 0; }
+.sub { color: var(--ink-2); font-size: 0.9375rem; padding: 2px 16px 0; }
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 0 0 34px; background: color-mix(in srgb, var(--surface) 78%, transparent); backdrop-filter: blur(20px) saturate(180%);
+  border-top: 0.5px solid var(--line); }
+.tabbar a { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 49px; color: var(--ink-3); font: 500 0.625rem/1.2 var(--font); }
+.tabbar a.on { color: var(--accent); }
+
+/* thumbnails: 16:9 cover, duration chip, progress edge */
+.thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--c, var(--math)); color: #fff; }
+.thumb .code { position: absolute; left: 12px; top: 10px; font: 600 0.75rem/1 var(--font); letter-spacing: 0.02em; opacity: .9; }
+.thumb .ttl { position: absolute; left: 12px; right: 12px; bottom: 16px; font: 700 1.125rem/1.15 var(--font); letter-spacing: -0.01em; }
+.thumb.small .ttl { display: none; }
+.thumb.small .code { font-size: 0.625rem; left: 8px; top: 7px; }
+.thumb .dur { position: absolute; right: 8px; bottom: 8px; padding: 2px 6px; border-radius: 6px; background: rgb(0 0 0 / .78); font: 600 0.75rem/1.3 var(--font); color: #fff; }
+.thumb .prog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgb(255 255 255 / .35); }
+.thumb .prog i { display: block; height: 100%; background: #fff; }
+.thumb .play { position: absolute; inset: 0; margin: auto; width: 56px; height: 56px; border-radius: 50%; background: rgb(0 0 0 / .55);
+  display: grid; place-items: center; backdrop-filter: blur(8px); }
+.thumb.skel { background: var(--surface-2); }
+
+/* hero: continue watching */
+.hero { margin: 16px 16px 0; background: var(--surface); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--float); }
+.hero .thumb { border-radius: 0; }
+.hero .thumb .ttl { font-size: 1.5rem; bottom: 22px; }
+.hero-body { padding: 14px 18px 18px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; }
+.eyebrow { font: 600 0.8125rem/1.35 var(--font); color: var(--accent); }
+.hero h2 { font: 700 1.25rem/1.25 var(--font); letter-spacing: -0.01em; margin-top: 2px; }
+.meta { color: var(--ink-2); font-size: 0.9375rem; margin-top: 2px; }
+.ring { position: relative; width: 52px; height: 52px; }
+.ring svg { transform: rotate(-90deg); }
+.ring span { position: absolute; inset: 0; display: grid; place-items: center; font: 600 0.8125rem/1 var(--rounded); }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 20px; border-radius: var(--r-md);
+  font: 600 1.0625rem/1 var(--font); }
+.btn.filled { background: var(--accent-fill); color: #fff; }
+.btn.tinted { background: var(--accent-soft); color: var(--accent); }
+.btn.gray { background: var(--surface-2); color: var(--ink); }
+:root:not(.dark) .btn.gray { background: #ebe9e4; }
+.hero .btn { grid-column: 1 / -1; }
+
+/* week strip */
+.week { margin: 12px 16px 0; background: var(--surface); border-radius: var(--r-lg); padding: 12px 14px; display: flex; justify-content: space-between; }
+.day { display: grid; justify-items: center; gap: 4px; font: 500 0.75rem/1.3 var(--font); color: var(--ink-2); min-width: 32px; }
+.dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 600 0.75rem/1 var(--rounded); background: var(--surface-2); color: var(--ink-2); }
+.dot.done { background: var(--accent-fill); color: #fff; }
+.dot.today { background: none; box-shadow: inset 0 0 0 2px var(--accent); color: var(--accent); }
+.dot.rest { background: none; color: var(--ink-3); }
+
+/* shelves */
+.sec { margin-top: 28px; }
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 16px 10px; }
+.sec-h h3 { font: 600 1.25rem/1.25 var(--font); letter-spacing: -0.01em; }
+.sec-h a { color: var(--accent); font-size: 0.9375rem; }
+.shelf { display: grid; grid-auto-flow: column; grid-auto-columns: 72%; gap: 12px; overflow-x: auto; padding: 0 16px 4px; scroll-snap-type: x mandatory;
+  scroll-padding: 16px; scrollbar-width: none; }
+.card { scroll-snap-align: start; }
+.card h4 { font: 600 0.9375rem/1.3 var(--font); margin-top: 8px; }
+.card p { color: var(--ink-2); font-size: 0.8125rem; margin-top: 2px; }
+.card .done { color: var(--good); font-weight: 600; }
+
+/* watch page */
+.player { position: relative; aspect-ratio: 16 / 9; background: #000; }
+.player .thumb { position: absolute; inset: 0; border-radius: 0; }
+.scrub { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgb(255 255 255 / .3); }
+.scrub i { display: block; height: 100%; width: 41%; background: #fff; }
+.w-body { padding: 14px 16px 0; }
+.w-body h1 { font: 700 1.375rem/1.25 var(--font); letter-spacing: -0.015em; }
+.w-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; color: var(--ink-2); font-size: 0.9375rem; margin-top: 6px; }
+.pill { height: 28px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 600 0.8125rem/28px var(--font); }
+.w-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.w-actions .filled { grid-column: 1 / -1; }
+.qlist { margin: 0 16px; background: var(--surface); border-radius: var(--r-md); overflow: hidden; }
+.qrow { display: grid; grid-template-columns: 128px 1fr; gap: 12px; align-items: center; padding: 10px 12px; min-height: 92px; position: relative; }
+.qrow + .qrow::before { content: ""; position: absolute; top: 0; left: 152px; right: 0; border-top: 0.5px solid var(--line); }
+.qrow h4 { font: 600 0.9375rem/1.3 var(--font); }
+.qrow p { color: var(--ink-2); font-size: 0.8125rem; margin-top: 2px; }
+.qrow.now { background: var(--accent-soft); }
+.qrow.now p { color: var(--accent); font-weight: 600; }
+.beat { margin: 0 16px 10px; background: var(--surface); border-radius: var(--r-md); padding: 14px 16px; }
+.beat b { display: block; font: 600 0.8125rem/1.3 var(--font); color: var(--accent); }
+.beat p { margin-top: 4px; font-size: 1rem; }
+
+/* end card with autoplay countdown */
+.endcard { position: absolute; inset: 0; background: rgb(0 0 0 / .78); color: #fff; display: grid; grid-template-columns: 96px 1fr; gap: 14px;
+  align-items: center; padding: 16px 18px; }
+.endcard .cd { position: relative; width: 84px; height: 84px; }
+.endcard .cd svg { transform: rotate(-90deg); }
+.endcard .cd span { position: absolute; inset: 0; display: grid; place-items: center; font: 600 1.5rem/1 var(--rounded); }
+.endcard small { font: 600 0.75rem/1.3 var(--font); opacity: .85; }
+.endcard h4 { font: 700 1.0625rem/1.25 var(--font); margin-top: 2px; }
+.endcard .row { display: flex; gap: 8px; margin-top: 10px; }
+.endcard .row button { min-height: 44px; padding: 0 16px; border-radius: 10px; font-weight: 600; font-size: 0.9375rem; }
+.endcard .row .go { background: #fff; color: #000; }
+.endcard .row .no { background: rgb(255 255 255 / .18); color: #fff; }
+
+/* break nudge */
+.toast { margin: 12px 16px 0; background: var(--surface); border-radius: var(--r-lg); padding: 12px 14px; display: grid; grid-template-columns: 1fr auto auto;
+  gap: 8px; align-items: center; box-shadow: var(--float); }
+.toast p { font-size: 0.9375rem; }
+.toast p b { display: block; font-weight: 600; }
+.toast button { min-height: 44px; padding: 0 12px; border-radius: 10px; font-weight: 600; font-size: 0.9375rem; color: var(--accent); }
+.toast button.alt { color: var(--ink-2); }
+
+/* mini-player docked above the tab bar */
+.mini { position: fixed; left: 8px; right: 8px; bottom: calc(49px + 34px + 8px); z-index: 7; display: grid; grid-template-columns: 96px minmax(0, 1fr) 44px 44px;
+  gap: 10px; align-items: center; padding: 8px; border-radius: var(--r-lg); background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 4px 24px rgb(0 0 0 / .18); }
+.mini .thumb { border-radius: 8px; }
+.mini[hidden] { display: none; }
+.mini h4 { font: 600 0.875rem/1.25 var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini p { font-size: 0.75rem; color: var(--ink-2); }
+.mini .bar { position: absolute; left: 14px; right: 14px; bottom: 3px; height: 2px; border-radius: 2px; background: var(--line); }
+.mini .bar i { display: block; height: 100%; width: 41%; background: var(--accent); border-radius: inherit; }
+.mini button { width: 44px; height: 44px; display: grid; place-items: center; color: var(--ink); }
+
+/* desktop */
+.side { display: none; }
+@media (min-width: 900px) {
+  .app { padding-bottom: 48px; display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+  .side { display: block; position: sticky; top: 0; height: 100vh; padding: 20px 12px; background: color-mix(in srgb, var(--surface) 85%, transparent);
+    border-right: 0.5px solid var(--line); }
+  .side .brand { font: 700 1.0625rem/1 var(--font); letter-spacing: -0.01em; padding: 8px 12px 20px; color: var(--ink); }
+  .side .brand b { color: var(--gold); }
+  .side a { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; border-radius: var(--r-sm); color: var(--ink); font-size: 0.9375rem; }
+  .side a.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .side h5 { font: 600 0.75rem/1 var(--font); color: var(--ink-2); padding: 18px 12px 8px; }
+  .tabbar, .nav { display: none; }
+  .main { padding: 28px 40px 0; max-width: 1180px; }
+  .large { font-size: 2.5rem; padding: 0; }
+  .sub { padding: 4px 0 0; }
+  .hero { margin: 20px 0 0; display: grid; grid-template-columns: 1.55fr 1fr; }
+  .hero .thumb { height: 100%; }
+  .hero-body { padding: 24px; align-content: center; }
+  .hero h2 { font-size: 1.75rem; letter-spacing: -0.02em; }
+  .week { margin: 12px 0 0; max-width: 520px; }
+  .sec-h { padding: 0 0 12px; }
+  .shelf { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-auto-columns: auto; overflow: visible; padding: 0; }
+  .watch { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
+  .player { border-radius: var(--r-lg); overflow: hidden; }
+  .w-body { padding: 16px 0 0; }
+  .w-body h1 { font-size: 1.75rem; }
+  .w-actions { grid-template-columns: auto auto auto; justify-content: start; }
+  .w-actions .filled { grid-column: auto; }
+  .qcol .sec { margin-top: 0; }
+  .qlist, .beat, .toast { margin-left: 0; margin-right: 0; }
+  .qrow { grid-template-columns: 140px 1fr; }
+  .qrow + .qrow::before { left: 164px; }
+  .mini { left: auto; right: 24px; bottom: 24px; width: 380px; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="menu" viewBox="0 0 22 16"><path d="M1 1h20M1 8h20M1 15h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="play" viewBox="0 0 12 14"><path d="M1 1.5v11a.8.8 0 0 0 1.2.7l9-5.5a.8.8 0 0 0 0-1.4l-9-5.5A.8.8 0 0 0 1 1.5z" fill="currentColor"/></symbol>
+  <symbol id="pause" viewBox="0 0 12 14"><path d="M2 1h2.5v12H2zM7.5 1H10v12H7.5z" fill="currentColor"/></symbol>
+  <symbol id="x" viewBox="0 0 14 14"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5zm0 0v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM9 11h7M9 15h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8 12 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="flame" viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-4-1-6 1-9.5z" fill="currentColor"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><b>■</b> Brickford</div>
+    <a class="on" data-for="home"><svg width="18" height="18"><use href="#home"/></svg>Today</a>
+    <a data-for="watch"><svg width="18" height="18"><use href="#book"/></svg>Courses</a>
+    <a><svg width="18" height="18"><use href="#doc"/></svg>Exams</a>
+    <a><svg width="18" height="18"><use href="#flask"/></svg>Problems</a>
+    <a><svg width="18" height="18"><use href="#check"/></svg>Review</a>
+    <h5>Running courses</h5>
+    <a>MATH 110 · Linear Algebra</a>
+    <a>MATH 120 · Calculus</a>
+    <a>AI 200 · Build</a>
+  </aside>
+
+  <div class="main">
+  <!-- ================= HOME FEED ================= -->
+  <section class="screen" id="s-home">
+    <nav class="nav">
+      <button class="icon-btn" aria-label="Menu"><svg width="22" height="16"><use href="#menu"/></svg></button><span></span>
+      <span class="chip"><svg width="14" height="14" style="color:var(--gold)"><use href="#flame"/></svg><b>4</b> Day 14 · Wk 3</span>
+    </nav>
+    <h1 class="large">Today</h1>
+    <p class="sub">Tuesday 6 October · 2 lectures · 2h 47m</p>
+
+    <article class="hero">
+      <div class="thumb" style="--c:var(--math)"><span class="code">MATH 120 · Lecture 1</span><span class="ttl">Rate of Change</span>
+        <span class="play"><svg width="18" height="20"><use href="#play"/></svg></span><span class="dur">31 min left</span><span class="prog"><i style="width:41%"></i></span></div>
+      <div class="hero-body">
+        <div><div class="eyebrow">Continue watching</div><h2>Rate of Change</h2><p class="meta">MATH 120 · 52 min · 1 of 2 today</p></div>
+        <div class="ring" aria-label="0 of 2 lectures done today"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--surface-2)" stroke-width="6"/>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="110"/></svg><span>0/2</span></div>
+        <button class="btn filled"><svg width="12" height="14"><use href="#play"/></svg>Resume at 21:14</button>
+      </div>
+    </article>
+
+    <div class="week" aria-label="This study week">
+      <div class="day"><span class="dot done">✓</span>Sun</div><div class="day"><span class="dot done">✓</span>Mon</div>
+      <div class="day"><span class="dot today">6</span>Tue</div><div class="day"><span class="dot">7</span>Wed</div>
+      <div class="day"><span class="dot">8</span>Thu</div><div class="day"><span class="dot">9</span>Fri</div><div class="day"><span class="dot rest">–</span>Sat</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Up next</h3><a>Today's plan</a></div>
+      <div class="shelf">
+        <div class="card"><div class="thumb" style="--c:var(--ai)"><span class="code">AI 200 · Build</span><span class="ttl">Makemore 4 — becoming a backprop ninja</span><span class="dur">1:55:00</span></div>
+          <h4>Makemore 4 — becoming a backprop ninja</h4><p>AI 200 · part 1 of 3 today</p></div>
+        <div class="card"><div class="thumb" style="--c:var(--math)"><span class="code">MATH 110 · owed</span><span class="ttl">Linear transformations and matrices</span><span class="dur">11:00</span></div>
+          <h4>Linear transformations and matrices</h4><p>MATH 110 · owed from Monday</p></div>
+        <div class="card"><div class="thumb skel"></div><h4>&nbsp;</h4><p>&nbsp;</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Linear Algebra</h3><a>Unit I · 2 of 16</a></div>
+      <div class="shelf">
+        <div class="card"><div class="thumb" style="--c:var(--math)"><span class="code">MATH 110 · 1</span><span class="ttl">Vectors, what even are they?</span><span class="dur">10:00</span><span class="prog"><i style="width:100%"></i></span></div>
+          <h4>Vectors, what even are they?</h4><p><span class="done">Watched</span> · 10 min</p></div>
+        <div class="card"><div class="thumb" style="--c:var(--math)"><span class="code">MATH 110 · 2</span><span class="ttl">Linear combinations, span, and basis</span><span class="dur">10:00</span><span class="prog"><i style="width:100%"></i></span></div>
+          <h4>Linear combinations, span, and basis</h4><p><span class="done">Proven</span> · 10 min</p></div>
+        <div class="card"><div class="thumb" style="--c:var(--math)"><span class="code">MATH 110 · 3</span><span class="ttl">Linear transformations and matrices</span><span class="dur">11:00</span></div>
+          <h4>Linear transformations and matrices</h4><p>11 min</p></div>
+        <div class="card"><div class="thumb" style="--c:var(--math)"><span class="code">MATH 110 · 4</span><span class="ttl">Matrix multiplication as composition</span><span class="dur">10:00</span></div>
+          <h4>Matrix multiplication as composition</h4><p>10 min</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Paper of the week</h3><a>AI 300</a></div>
+      <div class="shelf">
+        <div class="card"><div class="thumb" style="--c:var(--sys)"><span class="code">AI 300 · Reading</span><span class="ttl">An Image is Worth 16×16 Words</span><span class="dur">Paper</span></div>
+          <h4>ViT — An Image is Worth 16×16 Words</h4><p>Reading · AI 300</p></div>
+        <div class="card"><div class="thumb" style="--c:var(--phys)"><span class="code">PHYS 100 · 1</span><span class="ttl">Introduction to motion</span><span class="dur">48:00</span></div>
+          <h4>Introduction to motion</h4><p>Starts week 6</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WATCH PAGE ================= -->
+  <section class="screen" id="s-watch">
+    <nav class="nav">
+      <button class="icon-btn" aria-label="Menu"><svg width="22" height="16"><use href="#menu"/></svg></button><span></span>
+      <span class="chip">MATH 110 · Unit I</span>
+    </nav>
+    <div class="watch">
+      <div>
+        <div class="player">
+          <div class="thumb" style="--c:var(--math)"><span class="code">MATH 110 · Lecture 3</span><span class="ttl">Linear transformations and matrices</span></div>
+          <div class="scrub"><i></i></div>
+          <div class="endcard">
+            <div class="cd"><svg width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="rgb(255 255 255 / .25)" stroke-width="6"/>
+              <circle cx="42" cy="42" r="36" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="85"/></svg><span>5</span></div>
+            <div><small>Up next in 5</small><h4>Matrix multiplication as composition</h4>
+              <div class="row"><button class="go">Play now</button><button class="no">Cancel</button></div></div>
+          </div>
+        </div>
+        <div class="w-body">
+          <h1>Linear transformations and matrices</h1>
+          <div class="w-meta"><span class="pill">MATH 110</span><span>Lecture 3 of 16</span><span>· 11 min</span><span>· 3Blue1Brown</span></div>
+          <div class="w-actions">
+            <button class="btn filled"><svg width="12" height="14"><use href="#play"/></svg>Mark watched</button>
+            <button class="btn tinted">Prove it</button><button class="btn gray">Notes</button>
+          </div>
+        </div>
+        <div class="toast" role="status"><p><b>90 minutes in</b>A 10-minute break helps it stick.</p><button class="alt">Later</button><button>Take 10</button></div>
+        <div class="sec">
+          <div class="sec-h"><h3>Summary</h3><a>3 beats</a></div>
+          <div class="beat"><b>The idea</b><p>A linear transformation is fully described by where it sends the basis vectors î and ĵ.</p></div>
+          <div class="beat"><b>Worked</b><p>If î ↦ (1, −2) and ĵ ↦ (3, 0), then (−1, 2) ↦ −1·(1, −2) + 2·(3, 0) = (5, 2).</p></div>
+        </div>
+      </div>
+      <div class="qcol">
+        <div class="sec">
+          <div class="sec-h"><h3>Up next</h3><a>Unit I</a></div>
+          <div class="qlist">
+            <div class="qrow now"><div class="thumb small" style="--c:var(--math)"><span class="code">MATH 110 · 3</span><span class="ttl">Linear transformations</span><span class="dur">11:00</span><span class="prog"><i style="width:100%"></i></span></div>
+              <div><h4>Linear transformations and matrices</h4><p>Now playing</p></div></div>
+            <div class="qrow"><div class="thumb small" style="--c:var(--math)"><span class="code">MATH 110 · 4</span><span class="ttl">Matrix multiplication</span><span class="dur">10:00</span></div>
+              <div><h4>Matrix multiplication as composition</h4><p>MATH 110 · 10 min</p></div></div>
+            <div class="qrow"><div class="thumb small" style="--c:var(--math)"><span class="code">MATH 110 · 5</span><span class="ttl">3D transformations</span><span class="dur">4:00</span></div>
+              <div><h4>Three-dimensional linear transformations</h4><p>MATH 110 · 4 min</p></div></div>
+            <div class="qrow"><div class="thumb small" style="--c:var(--ai)"><span class="code">AI 200 · Build</span><span class="ttl">Makemore 4</span><span class="dur">1:55:00</span></div>
+              <div><h4>Makemore 4 — becoming a backprop ninja</h4><p>Today's Build block</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <!-- mini-player (shown with #mini) -->
+  <div class="mini" id="mini" hidden>
+    <div class="thumb small" style="--c:var(--math)"><span class="code">MATH 110 · 3</span></div>
+    <div><h4>Linear transformations and matrices</h4><p>MATH 110 · 4:31 left</p></div>
+    <button aria-label="Pause"><svg width="14" height="16"><use href="#pause"/></svg></button>
+    <button aria-label="Close"><svg width="14" height="14"><use href="#x"/></svg></button>
+    <span class="bar"><i></i></span>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <a class="on" data-for="home"><svg width="24" height="24"><use href="#home"/></svg>Today</a>
+  <a data-for="watch"><svg width="24" height="24"><use href="#book"/></svg>Courses</a>
+  <a><svg width="24" height="24"><use href="#doc"/></svg>Exams</a>
+  <a><svg width="24" height="24"><use href="#flask"/></svg>Problems</a>
+  <a><svg width="24" height="24"><use href="#check"/></svg>Review</a>
+</nav>
+<script>
+  const h = (location.hash || "#home").slice(1);
+  const screen = h === "mini" ? "home" : (h === "watch-end" ? "watch" : h);
+  document.getElementById("s-" + screen).classList.add("on");
+  document.querySelectorAll("[data-for]").forEach(a => a.classList.toggle("on", a.dataset.for === screen));
+  if (h === "mini") document.getElementById("mini").hidden = false;
+  if (h === "watch") document.querySelector(".endcard").remove();       // mid-lecture: no end card
+  if (h === "watch-end") document.querySelector(".toast").remove();     // end of lecture: countdown, no nudge
+  if (/dark/.test(location.search)) document.documentElement.classList.add("dark");
+</script>
+</body>
+</html>

@@ -67,9 +67,13 @@ the plan. The refusal also pointed out that the owner's own phone screenshot tha
 out: `START_DATE` 2026-10-05, so 6 October is day 2 and 7 October is day 3. As before, the
 numbers were computed by replicating `studyIndex`/`dateForStudy` exactly. The gates' pinned
 clocks moved with it (verify-design, verify-clip and verify-flows from 2026-10-06 to 2026-10-20,
-verify-logic's fixtures two weeks forward), so every gate with a pinned clock still measures
-the same plan days as before — day 14 everywhere, except verify-logic's rest-day backlog
-scenario, which stays on day 12 — and the clip baseline did not change. (verify-shell,
+verify-logic's fixtures two weeks forward), so every pinned clock keeps its plan day and weekday —
+day 14 everywhere, except verify-logic's rest-day backlog scenario, which stays on day 12. The
+month grid did change: 1–4 October were plan days 9–12 and are now days before the start, so
+verify-design's rest-day check had silently stopped measuring a Saturday. Its selector now names
+the "· rest" status rather than the first `.rest` cell, and its cellPick click skips `.rest`
+cells; a planted bug (Saturdays without `.rest`) fails it again. The clip baseline was
+re-measured and did not change. (verify-shell,
 verify-contrast and verify-sync-loop pin no clock and measure whatever day they run on.)
 
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not

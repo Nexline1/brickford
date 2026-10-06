@@ -103,13 +103,13 @@ status bar (read from platform/css/style.css)
 empty tracks, 390px light
   ok    390px light /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.237:1, #dcdad5 on #f2f1ee (body); swatch 1.237:1, #dcdad5 on #f2f1ee (body)
   ok    390px light /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.237:1, #dcdad5 on #f2f1ee (body)
-  ok    390px light /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.226:1, #f2f0ea on #dcdad5 (div.cal-grid); 1.140:1 against a plain day #ffffff
+  FAIL  390px light /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — no visible .cal-grid .cal-cell.rest[aria-label$='· rest']
   ok    390px light empty tracks: no page errors
 
 empty tracks, 390px dark
   ok    390px dark /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.795:1, #38383a on #000000 (body); swatch 1.795:1, #38383a on #000000 (body)
   ok    390px dark /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.795:1, #38383a on #000000 (body)
-  ok    390px dark /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.654:1, #0b0e11 on #38383a (div.cal-grid); 1.137:1 against a plain day #1c1c1e
+  FAIL  390px dark /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — no visible .cal-grid .cal-cell.rest[aria-label$='· rest']
   ok    390px dark empty tracks: no page errors
 
 Auto theme
@@ -139,4 +139,5 @@ calendar cellPick
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 122 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick and the status-bar inset
+FAIL — 2 of 122 design checks failed
+exit 1

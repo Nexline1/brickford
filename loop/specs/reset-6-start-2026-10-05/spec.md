@@ -20,6 +20,7 @@
   - Every dated fixture moves +14 days, keeping weekdays and plan days.
   - Expected values are unchanged.
 - **Pinned clocks:** `tools/verify-design.js`, `tools/verify-clip.js`, `tools/verify-flows.js` and `loop/design/census.js` move from 2026-10-06 to 2026-10-20, the same plan day (14). `verify-flows`' `WATCHED` `doneAt` fixture moves 2026-10-01 → 2026-10-15, the same study index. The clip baseline is not edited.
+- **`tools/verify-design.js` selectors:** the rest-day check names a real Saturday (`.cal-cell.rest[aria-label$='· rest']`), because pre-start days also carry `.rest`. The cellPick click skips `.rest` cells. Planted bug: Saturdays without `.rest` → exit 1 (`verification/plant-saturday-not-rest.txt`).
 - **`CLAUDE.md`:** the start-date section, the fourth override and sixth reset, and the related prose corrections.
 - **`loop/lessons.md`:** day 1094 and the baseline, plus one new verification-habits lesson on moving pinned clocks after a reset.
 - **`README.md`:** the start date and a note on the six-day week.

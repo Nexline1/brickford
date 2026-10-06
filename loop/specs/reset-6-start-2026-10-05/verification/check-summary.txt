@@ -8,9 +8,10 @@ contrast: PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, ev
 flows: PASS — 23 checks, 3 flows x 2 widths, each in a fresh context
 clip: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (135048 element measurements)
 clip-tz-la: PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (135048 element measurements)
-design: PASS — 122 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick and the status-bar inset
+design: PASS — 122 design checks: 5 routes x 2
 plant-dateforstudy-off-by-one.txt: exit 1
 plant-rest-dow-5.txt: exit 1
 2026-10-05 -> Day 001
 2026-10-06 -> Day 002
 2026-10-07 -> Day 003
+plant-saturday-not-rest.txt: exit 1

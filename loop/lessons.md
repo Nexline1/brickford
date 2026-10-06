@@ -17,7 +17,7 @@
 - Tap targets 44x44 on phone widths. Measure with checkVisibility(), not the bounding box (closed <details>).
 
 ## Verification habits
-- After a plan reset, move each pinned clock to the date carrying the same plan day under the new start. If the start keeps its weekday (reset six: +14 days, 2026-10-06 → 2026-10-20) the clip baseline is unchanged; otherwise weekday-bound content (Friday speech-off, Sunday seal) moves and the baseline must be re-measured under a spec, never assumed.
+- After a plan reset, move each pinned clock to the same plan day. Keeping the weekday preserves plan-day and weekday content but not the month grid, which gains or loses pre-start cells: re-plant the bug for every fixture that picks a calendar cell by position or first match (reset six silently turned verify-design's Saturday check into a pre-start-day check). An unchanged clip baseline is a measurement, not a consequence.
 - Check computed style, not screenshots. Then look at the rendered page anyway.
 - Wait on proof (a marker gone, a value changed), never on a fixed duration.
 - A settle condition is "changed, then stopped", not "nothing moving".

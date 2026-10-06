@@ -69,8 +69,10 @@ numbers were computed by replicating `studyIndex`/`dateForStudy` exactly. The ga
 clocks moved with it (verify-design, verify-clip and verify-flows from 2026-10-06 to 2026-10-20,
 verify-logic's fixtures two weeks forward), so every pinned clock keeps its plan day and weekday —
 day 14 everywhere, except verify-logic's rest-day backlog scenario, which stays on day 12. The
-month grid did change: 1–4 October were plan days 9–12 and are now days before the start, so
-verify-design's rest-day check had silently stopped measuring a Saturday. Its selector now names
+month grid did change: 1, 2 and 4 October were plan days 10–12 and Saturday 3 October was the
+rest day the check measured. All four are now days before the start, which also carry `.rest`,
+so the first `.rest` cell became Thu 1 Oct and verify-design's rest-day check had silently
+stopped measuring a Saturday. Its selector now names
 the "· rest" status rather than the first `.rest` cell, and its cellPick click skips `.rest`
 cells; a planted bug (Saturdays without `.rest`) fails it again. The clip baseline was
 re-measured and did not change. (verify-shell,

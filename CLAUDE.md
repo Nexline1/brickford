@@ -53,7 +53,7 @@ Two details worth having. First, the owner pinned the DATE in parentheses rather
 above were not estimated: they were computed by replicating `studyIndex`/`dateForStudy` from
 `platform/js/app.js` exactly, because a reset costed by hand is a reset costed wrongly.
 
-**On 6 October 2026 they overrode it a sixth time.** The request was "reset the streak for the
+**On 6 October 2026 they overrode it a fourth time** (the sixth reset in all). The request was "reset the streak for the
 7th of OCT to be day 3" — the same shape as the third override, a DATE pinned to a day number,
 so it was read as a plan reset (moving `START_DATE`), not a streak-counter reset. The refusal was
 given with the numbers — 12 study days discarded, day 1094 slipping 14 calendar days from
@@ -64,8 +64,9 @@ the plan. The refusal also pointed out that the owner's own phone screenshot tha
 out: `START_DATE` 2026-10-05, so 6 October is day 2 and 7 October is day 3. As before, the
 numbers were computed by replicating `studyIndex`/`dateForStudy` exactly. The gates' pinned
 clocks moved with it (verify-design, verify-clip and verify-flows from 2026-10-06 to 2026-10-20,
-verify-logic's fixtures two weeks forward), so every gate still measures the same day of the
-plan — day 14 — and the clip baseline did not change.
+verify-logic's fixtures two weeks forward), so every gate with a pinned clock still measures
+the same day of the plan — day 14 — and the clip baseline did not change. (verify-shell,
+verify-contrast and verify-sync-loop pin no clock and measure whatever day they run on.)
 
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past
@@ -104,7 +105,7 @@ Consequences that must hold, because each one is a way the platform could quietl
   cannot drift apart.
 - Gates are measured in months of **work** (~30.4 study days each) and their calendar targets
   are walked through `addStudyDays`, so the countdown stays honest. Six days a week is why the
-  finish is Feb 2030 rather than mid-2029. That was the accepted trade: the load per day was the
+  finish is spring 2030 (2 April, after reset six) rather than mid-2029. That was the accepted trade: the load per day was the
   thing that was too heavy, so compressing seven days of work into six would have defeated the
   point.
 

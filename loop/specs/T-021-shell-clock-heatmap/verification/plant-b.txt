@@ -1,0 +1,43 @@
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+    320px  frame clears the page on 23 routes
+    390px  frame clears the page on 23 routes
+    430px  frame clears the page on 23 routes
+    768px  frame clears the page on 23 routes
+    860px  frame clears the page on 23 routes
+  FAIL  390px /: 1 control(s) under 44x44 — a.btn.lg.one-go 350x30
+  FAIL  390px /exams: 1 control(s) under 44x44 — a.btn.lg.one-go 350x30
+  FAIL  390px /calendar: 2 control(s) under 44x44 — button.btn.ghost 44x30, button.btn.ghost 83x30
+  FAIL  390px /guide: 2 control(s) under 44x44 — a.btn.lg.one-go 350x30, a.btn 196x30
+  FAIL  390px /practice: 1 control(s) under 44x44 — button.btn.lg.one-go 350x30
+  FAIL  390px /transcript: 1 control(s) under 44x44 — button.btn 244x30
+  FAIL  390px /workshop: 1 control(s) under 44x44 — a.btn.lg.one-go 350x30
+  FAIL  390px /treasury: 4 control(s) under 44x44 — button.btn.lg.one-go 350x30, button.btn.ghost 124x30, button.btn 124x30, button.btn 176x30
+  FAIL  390px /course/math110: 1 control(s) under 44x44 — a.btn.lg.one-go 350x30
+  FAIL  390px /lesson/math110/0/0: 3 control(s) under 44x44 — button.btn.lg 350x30, button.btn.ghost 277x30, a.btn 160x30
+  FAIL  390px /concept/la-eigen: 4 control(s) under 44x44 — button.btn.ghost 82x30, button.btn.ghost 140x30, button.btn 184x30, button.btn 190x30
+  FAIL  390px /quiz/linear-algebra: 2 control(s) under 44x44 — button.btn.ghost 167x30, button.btn 133x30
+  FAIL  390px /sync: 1 control(s) under 44x44 — button.btn 107x30
+  FAIL  390px /method: 1 control(s) under 44x44 — a.btn 139x30
+  FAIL  390px /electives: 2 control(s) under 44x44 — a.btn.ghost.tiny 44x30, button.btn.ghost.tiny.bare 55x30
+  FAIL  390px /drill: 2 control(s) under 44x44 — button.btn.ghost 167x30, button.btn 133x30
+  FAIL  390px /review: 1 control(s) under 44x44 — button.btn 157x30
+  FAIL  390px /no-such-page: 3 control(s) under 44x44 — a.btn.lg.one-go 350x30, a.btn.ghost 117x30, a.btn.ghost 123x30
+    390px  every control reaches 44x44 on 23 routes
+  320/390px  roots 16/24  all 48 tab checks passed
+
+FAIL — 18 shell assertions broken
+exit 1

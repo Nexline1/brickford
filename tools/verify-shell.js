@@ -41,12 +41,26 @@ function seedProgress() {
 let fails = 0;
 const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); } };
 
+// Every context runs on a pinned clock and timezone: Tuesday 6 Oct 2026, noon
+// UTC — the study day verify-flows and verify-clip use. This gate read the real
+// date until 2026-10-06, and went red on the day /record's heatmap first had
+// anything to draw (14 study days after START_DATE), with no code change at all.
+// A gate whose answer depends on the day it runs only passes on the day it was
+// written (loop/lessons.md). Pinned AFTER that day on purpose, so the heatmap is
+// always on screen and always measured.
+const FIXED_NOW = new Date("2026-10-06T12:00:00Z");
+async function freshContext(browser, opts) {
+  const ctx = await browser.newContext(Object.assign({ timezoneId: "UTC" }, opts));
+  await ctx.clock.setFixedTime(FIXED_NOW);
+  return ctx;
+}
+
 (async () => {
   const browser = await chromium.launch();
 
   // ---- the navigation is reachable, at every width, on every route ----
   for (const w of DESKTOP) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: 880 }, reducedMotion: "reduce" });
+    const ctx = await freshContext(browser, { viewport: { width: w, height: 880 }, reducedMotion: "reduce" });
     const page = await ctx.newPage();
     const columns = new Set();
     for (const r of ROUTES) {
@@ -85,7 +99,7 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
   // sidebar off-screen — so a gate that only ever called page.goto() sailed past
   // it. Click the links.
   for (const w of [1370, 1040]) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: 880 }, reducedMotion: "reduce" });
+    const ctx = await freshContext(browser, { viewport: { width: w, height: 880 }, reducedMotion: "reduce" });
     const page = await ctx.newPage();
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForTimeout(250);
@@ -105,7 +119,7 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
 
   // ---- below the breakpoint it is a drawer, and the drawer works ----
   for (const w of PHONE) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: 860 }, hasTouch: true });
+    const ctx = await freshContext(browser, { viewport: { width: w, height: 860 }, hasTouch: true });
     const page = await ctx.newPage();
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForTimeout(350);
@@ -157,7 +171,7 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
   // content. This does, by the only test that settles it: take the box of every
   // fixed control and see whether any text is underneath it.
   for (const w of PHONE) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: 860 }, hasTouch: true, reducedMotion: "reduce" });
+    const ctx = await freshContext(browser, { viewport: { width: w, height: 860 }, hasTouch: true, reducedMotion: "reduce" });
     const page = await ctx.newPage();
     for (const r of FRAME_ROUTES) {
       await page.goto(URL + r, { waitUntil: "load" });
@@ -214,7 +228,7 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
   // overflow sweep. It is the difference between a control you hit and a
   // control you aim at.
   {
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+    const ctx = await freshContext(browser, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
     await ctx.addInitScript(seedProgress);
     const page = await ctx.newPage();
     let checked = 0;
@@ -237,8 +251,10 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
           // caption 44px tall would wreck the forms to satisfy a number.
           if (el.tagName === "LABEL" && el.classList.contains("field")) return;
           // The heatmap and the month grid are dense date matrices by design,
-          // the way a native calendar's is.
-          if (el.closest(".hc-wrap, .cal-grid")) return;
+          // the way a native calendar's is. The heatmap's container is .heat
+          // (app.js heatmap()); this named ".hc-wrap", a class nothing carries,
+          // so the exemption never applied and only the real clock hid it.
+          if (el.closest(".heat, .cal-grid")) return;
           if (b.height < 44 || b.width < 44)
             out.push(el.tagName.toLowerCase() + "." + String(el.className).replace(/\s+/g, ".").slice(0, 24) +
                      " " + Math.round(b.width) + "x" + Math.round(b.height));
@@ -265,7 +281,7 @@ const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); 
     const failsBefore = fails;
     for (const root of TAB_ROOTS) {
       for (const w of TAB_WIDTHS) {
-        const ctx = await browser.newContext({ viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+        const ctx = await freshContext(browser, { viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
         await ctx.addInitScript(rt => {
           document.addEventListener("DOMContentLoaded", () => { document.documentElement.style.fontSize = rt + "px"; });
         }, root);

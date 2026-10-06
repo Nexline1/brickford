@@ -177,7 +177,10 @@
     // lastSyncAt / syncError are per-device facts about THIS browser's link to
     // GitHub, so they are deliberately not in syncPayload - pushing them would
     // tell the phone about the laptop's broken token.
-    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null,
+    // No theme here: an unset theme is the DEFAULT (navy, applyTheme), not a
+    // stored pick. With "light" in this object every device wrote "light" on
+    // its first save, and the default could never change again (T-024).
+    settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null,
                 lastSyncAt: null, syncError: null },
   };
   let S;
@@ -5147,10 +5150,14 @@
     // string and resolved here, never written back as "light" or "dark", so
     // the phone stays in charge. A device from before Auto existed puts
     // "auto" straight into data-theme, which no theme block matches, so it
-    // shows light — the same `|| "light"` outcome as an unset theme.
+    // shows light.
+    // Unset means the default, which is the navy "dark" theme since T-024 (the
+    // owner's decision of 2026-10-06). Only an unset theme moves: a stored
+    // pick, "light" included, is never rewritten, so whoever chose Light keeps
+    // it until they choose again.
     const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
     const applyTheme = () => {
-      const pick = S.settings.theme || "light";
+      const pick = S.settings.theme || "dark";
       document.documentElement.dataset.theme =
         pick === "auto" ? (darkQ && darkQ.matches ? "dark" : "light") : pick;
       // The Home Screen app's status bar is painted from this meta, and it was

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -8,10 +8,10 @@
      domain root and 404. -->
 <!-- theme-color follows --panel, for the status bar and the app icon only: the
      sidebar has been a material in the page's own scheme since T-006. This is
-     the light theme's --panel; applyTheme() in app.js swaps in the picked
-     theme's. -->
-<meta name="theme-color" content="#2b2118">
-<link rel="manifest" href="manifest.json?v=20261007b">
+     the default (navy) theme's --panel; applyTheme() in app.js swaps in the
+     picked theme's. -->
+<meta name="theme-color" content="#0c1330">
+<link rel="manifest" href="manifest.json?v=20261007c">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,17 +22,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261007b">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261007b">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261007c">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261007c">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261007b">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261007b">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261007b">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261007c">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261007c">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261007c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -41,7 +41,7 @@
      with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261007b">
+<link rel="stylesheet" href="css/style.css?v=20261007c">
 </head>
 <body>
 
@@ -129,10 +129,10 @@
         <!-- Auto follows the phone's light/dark setting, live. It is stored as
              the string "auto"; a device from before it existed reads that as
              an unknown theme and falls back to light. -->
-        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #1c1c1e 50%);"></span>Auto</button>
+        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #0c1330 50%);"></span>Auto</button>
+        <button data-theme-pick="dark"><span class="swatch" style="background:linear-gradient(90deg, #0c1330 60%, #e0b35a 60%);"></span>Navy</button>
         <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Paper</button>
         <button data-theme-pick="parchment"><span class="swatch" style="background:linear-gradient(90deg, #2b2118 34%, #f8f4ec 34%);"></span>Parchment</button>
-        <button data-theme-pick="dark"><span class="swatch" style="background:#1c1c1e;"></span>Dark</button>
         <button data-theme-pick="latte"><span class="swatch" style="background:linear-gradient(90deg, #faf7f0 50%, #2c2115 50%);"></span>Latte</button>
         <button data-theme-pick="forest"><span class="swatch" style="background:#2f6b43;"></span>Forest</button>
         <button data-theme-pick="midnight"><span class="swatch" style="background:#151c2b;"></span>Midnight</button>
@@ -196,27 +196,27 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261007b"></script>
-<script defer src="js/figures.js?v=20261007b"></script>
-<script defer src="js/lab.js?v=20261007b"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261007b"></script>
-<script defer src="data/summaries-math110.js?v=20261007b"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261007b"></script>
-<script defer src="data/summaries-math120.js?v=20261007b"></script>
-<script defer src="data/summaries-math130.js?v=20261007b"></script>
-<script defer src="data/summaries-phys100.js?v=20261007b"></script>
-<script defer src="data/summaries-math210.js?v=20261007b"></script>
-<script defer src="data/summaries-sys250.js?v=20261007b"></script>
-<script defer src="data/workshop.js?v=20261007b"></script>
-<script defer src="data/storytelling.js?v=20261007b"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261007b"></script>
-<script defer src="data/quiz-calculus.js?v=20261007b"></script>
-<script defer src="data/quiz-probability.js?v=20261007b"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261007b"></script>
-<script defer src="data/quiz-dsa.js?v=20261007b"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261007b"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261007b"></script>
-<script defer src="js/quiz-engine.js?v=20261007b"></script>
-<script defer src="js/app.js?v=20261007b"></script>
+<script defer src="data/curriculum.js?v=20261007c"></script>
+<script defer src="js/figures.js?v=20261007c"></script>
+<script defer src="js/lab.js?v=20261007c"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261007c"></script>
+<script defer src="data/summaries-math110.js?v=20261007c"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261007c"></script>
+<script defer src="data/summaries-math120.js?v=20261007c"></script>
+<script defer src="data/summaries-math130.js?v=20261007c"></script>
+<script defer src="data/summaries-phys100.js?v=20261007c"></script>
+<script defer src="data/summaries-math210.js?v=20261007c"></script>
+<script defer src="data/summaries-sys250.js?v=20261007c"></script>
+<script defer src="data/workshop.js?v=20261007c"></script>
+<script defer src="data/storytelling.js?v=20261007c"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261007c"></script>
+<script defer src="data/quiz-calculus.js?v=20261007c"></script>
+<script defer src="data/quiz-probability.js?v=20261007c"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261007c"></script>
+<script defer src="data/quiz-dsa.js?v=20261007c"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261007c"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261007c"></script>
+<script defer src="js/quiz-engine.js?v=20261007c"></script>
+<script defer src="js/app.js?v=20261007c"></script>
 </body>
 </html>

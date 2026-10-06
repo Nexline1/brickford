@@ -2,6 +2,16 @@
 
 Source: `loop/design/brief.md` §8. The approved look is `loop/design/specimen-feed-home-*.png`. It supersedes T-009, and keeps T-009's ring, week strip and streak chip. Depends on T-016's thumbnails.
 
+## Re-scope (owner, 2026-10-06, brief §9)
+The Home feed takes the approved navy layout in `loop/design/specimen-navy-home-*.png`:
+- **Greeting:** "Good evening, Ali", time-of-day aware, using a new *Your name* setting. With no name it reads "Welcome back". It sits over the glow, with day, week and streak on a small line above.
+- **Sheet:** a content sheet rising with 32px top corners.
+- **Continue card:** a thumbnail, three stat wells with big numbers (Today n/N, Planned, Due), and one gold "Resume" capsule.
+- **Below the card:** icon chips (Lectures / Problems / Review) with a week meter, then course tiles (an icon plus two short lines).
+- **Text:** less of it, with numbers and icons instead of sentences.
+
+The Up next and course shelves below stay as specified.
+
 ## Problem
 The dashboard (`V.dashboard`, `app.js` ~1676) is a hero card with a black "Open" button, a "Needs attention" list, and today's lectures as text rows (`dayGroupsHTML` ~1032). The plan already knows what comes next (`nextAction` ~1234, `scheduledFor` ~919, `backlogCount` ~1075), but nothing on the screen looks like something to watch. It reads as a to-do list.
 

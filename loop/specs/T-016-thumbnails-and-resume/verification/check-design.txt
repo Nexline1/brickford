@@ -136,7 +136,7 @@ Auto theme
   ok    auto, picked from the menu: no page errors
 
 calendar cellPick
-  ok    the picked day runs cellPick — 1 cellPick animation(s) ["running"] on 2026-10-04
+  ok    the picked day runs cellPick — 1 cellPick animation(s) ["running"] on 2026-10-08
   ok    cellPick starts from scale(0.92) — first keyframe scale(0.92)
   ok    calendar (no-preference): no page errors
   ok    under reduced motion the picked day does not animate — 0 cellPick animation(s) []

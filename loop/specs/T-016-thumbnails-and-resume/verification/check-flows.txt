@@ -4,7 +4,7 @@
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
   ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today
@@ -14,12 +14,12 @@
   ok    (d) the test hook is installed on a #/__test boot
   ok    (d) the embed asks for the player's messages (enablejsapi=1) and has no start point yet — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
   ok    (d) a playing tick is held in memory, not written — 0 write(s), stored null
-  ok    (d) the pause keeps it: S.lessons[k].pos === 754, with a posAt stamp — {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-06T12:00:00.000Z"}
+  ok    (d) the pause keeps it: S.lessons[k].pos === 754, with a posAt stamp — {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
   ok    (d) the course row shows it: "Resume at 12:34" and a 73.9% progress edge — "Lecture 14 · Resume at 12:34", edge 73.9%
   ok    (d) reopening the lecture builds an embed with start=754 — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754
   ok    (d) leaving the route mid-play keeps it (pos 800), and the next open starts there — pos 800, https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=800
   ok    (d) the page going away (pagehide) keeps it (pos 900) — pos 900
-  ok    (d) an ended event clears pos, and stamps posAt — {"done":false,"notes":"","checks":[],"posAt":"2026-10-06T12:00:00.000Z"}
+  ok    (d) an ended event clears pos, and stamps posAt — {"done":false,"notes":"","checks":[],"posAt":"2026-10-20T12:00:00.000Z"}
   ok    (d) and the next open starts from the beginning (no start=) — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
   ok    (d) no page errors
   ok    (e) the lecture was rendered 20 more times, each one a rebuilt view with its frame — 20 rebuild(s), frame true
@@ -42,12 +42,12 @@
   ok    (d) the test hook is installed on a #/__test boot
   ok    (d) the embed asks for the player's messages (enablejsapi=1) and has no start point yet — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
   ok    (d) a playing tick is held in memory, not written — 0 write(s), stored null
-  ok    (d) the pause keeps it: S.lessons[k].pos === 754, with a posAt stamp — {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-06T12:00:00.000Z"}
+  ok    (d) the pause keeps it: S.lessons[k].pos === 754, with a posAt stamp — {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
   ok    (d) the course row shows it: "Resume at 12:34" and a 73.9% progress edge — "Lecture 14 · Resume at 12:34", edge 73.9%
   ok    (d) reopening the lecture builds an embed with start=754 — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754
   ok    (d) leaving the route mid-play keeps it (pos 800), and the next open starts there — pos 800, https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=800
   ok    (d) the page going away (pagehide) keeps it (pos 900) — pos 900
-  ok    (d) an ended event clears pos, and stamps posAt — {"done":false,"notes":"","checks":[],"posAt":"2026-10-06T12:00:00.000Z"}
+  ok    (d) an ended event clears pos, and stamps posAt — {"done":false,"notes":"","checks":[],"posAt":"2026-10-20T12:00:00.000Z"}
   ok    (d) and the next open starts from the beginning (no start=) — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
   ok    (d) no page errors
   ok    (e) the lecture was rendered 20 more times, each one a rebuilt view with its frame — 20 rebuild(s), frame true
@@ -57,10 +57,10 @@
 
 sync (once)
   ok    (f) the boot pull ran against the stub
-  ok    (f) where theirs is newer it wins: pos 754 -> 300 (and their watched mark comes too) — {"done":true,"pos":300,"posAt":"2026-10-06T11:00:00.000Z"}
-  ok    (f) where mine is newer it stays (pos 500), though theirs wins the lecture's standing (watched) — {"done":true,"pos":500,"posAt":"2026-10-06T11:00:00.000Z"}
-  ok    (f) an end over there, stamped later, clears the point here — {"done":false,"posAt":"2026-10-06T11:00:00.000Z"}
-  ok    (f) a push carries pos and posAt in its payload (syncPayload) — A {"pos":300,"posAt":"2026-10-06T11:00:00.000Z"}, B pos 500, C pos undefined
+  ok    (f) where theirs is newer it wins: pos 754 -> 300 (and their watched mark comes too) — {"done":true,"pos":300,"posAt":"2026-10-20T11:00:00.000Z"}
+  ok    (f) where mine is newer it stays (pos 500), though theirs wins the lecture's standing (watched) — {"done":true,"pos":500,"posAt":"2026-10-20T11:00:00.000Z"}
+  ok    (f) an end over there, stamped later, clears the point here — {"done":false,"posAt":"2026-10-20T11:00:00.000Z"}
+  ok    (f) a push carries pos and posAt in its payload (syncPayload) — A {"pos":300,"posAt":"2026-10-20T11:00:00.000Z"}, B pos 500, C pos undefined
   ok    (f) no page errors
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)

@@ -2,6 +2,7 @@
 
 | date | item | rounds | result | blocker |
 |---|---|---|---|---|
+| 2026-10-06 | reset six | 5 | MERGED: PR #6 (main 2b6cda7), owner's 'merge it once the review passes'. START_DATE 2026-10-05; 7 Oct = day 3. Review rounds 1-3: docs wording; round 4 caught a silently weakened Saturday check in verify-design (fixed: selector names '· rest'); round 5 confirmed by measurement and supplied the last two text fixes, applied verbatim. Stacked branches (PR #5, T-016, T-021, T-024) must move their pins to 2026-10-20 when they merge main. | none |
 | 2026-10-06 | reset six | 0 | Owner asked for 7 Oct as day 3; refused with numbers (12 study days, finish 2030-03-19 -> 2030-04-02); owner reaffirmed. Branch reset/start-2026-10-05 (03adb87): START_DATE 2026-10-05, verify-logic facts + fixtures +14d, gate pins 2026-10-06 -> 2026-10-20 (same plan day), CLAUDE.md updated. All gates green, Day 003 on 7 Oct confirmed. In review. | T-024 builder hit a usage limit before saving anything; to relaunch after the reset |
 | 2026-10-06 | T-006+T-007 | 3 | pr-open: PR #5 (owner go). Contains only T-006+T-007 (T-005 already merged). | none |
 | 2026-10-06 | T-016 | 1 | Builder stopped on a usage limit before its first checkpoint; the worktree survived, so the partial work (app.js/style.css +317) was committed and pushed as 50a2e4f before resuming the build. | none |

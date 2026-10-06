@@ -1630,7 +1630,7 @@ function hairlineSource() {
       const reads = ai.filter(r => !r.v), aiv = ai.filter(r => r.v);
       const badRead = reads.filter(r => !r.thumb || !/\bcover\b/.test(r.cls) || r.imgs !== 0 || r.chip !== r.want || (r.vis && !r.codeShown));
       const badAiv = aiv.filter(r => r.src !== ytimg(r.v));
-      check(at + " /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"",
+      check(at + " /course/ai300: every reading and paper row is a typeset cover with no <img> from its first paint, its chip \"Paper\" or \"Reading\"; every video row's frame is its own v",
         reads.length === readingsOf("ai300") && reads.length > 0 && badRead.length === 0 && badAiv.length === 0,
         badRead.length || badAiv.length ? show(badRead.concat(badAiv), r => r.at + " " + r.cls + " imgs " + r.imgs + " chip \"" + r.chip + "\" src " + r.src)
           : reads.length + " readings (" + reads.filter(r => r.vis).length + " on screen), " + aiv.length + " video rows with their frames");

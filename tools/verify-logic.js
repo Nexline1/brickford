@@ -21,11 +21,13 @@ const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
 // The facts CLAUDE.md states. If the owner resets the plan, CLAUDE.md changes
-// and so does this block — on purpose, in the same commit.
-const START = "2026-09-21";
-const DAY_1094 = "2030-03-19";           // dateForStudy(1093)
-const BASELINE = "2030-03-20";           // addStudyDays(START, 1094)
-const WALK_TO = "2030-03-31";            // past the finish, so the whole plan is walked
+// and so does this block — on purpose, in the same commit. Reset six (2026-10-06)
+// moved the start to 2026-10-05, and every dated fixture below moved forward two
+// weeks with it, weekdays unchanged, so each still sits inside the plan.
+const START = "2026-10-05";
+const DAY_1094 = "2030-04-02";           // dateForStudy(1093)
+const BASELINE = "2030-04-03";           // addStudyDays(START, 1094)
+const WALK_TO = "2030-04-15";            // past the finish, so the whole plan is walked
 
 // ---------- calendar arithmetic, independent of the app ----------
 const addDays = (iso, n) => {
@@ -73,7 +75,7 @@ async function scenario(browser, now, state) {
 
   // ---- pure date functions: one scenario, empty state, a fixed Tuesday ----
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-06", null);
+    const { ctx, page, errors } = await scenario(browser, "2026-10-20", null);
     const r = await page.evaluate(({ days, saturdays }) => {
       const T = window.__brickfordTest;
       const idx = {};
@@ -89,7 +91,7 @@ async function scenario(browser, now, state) {
         base: T.addStudyDays(window.DAR.START_DATE, 1094),
         idx, back, satSched, satStatus,
         day1Sched: T.scheduledFor(window.DAR.START_DATE).length,
-        missedTue: T.dayStatus("2026-09-29"),     // a past study day, nothing done
+        missedTue: T.dayStatus("2026-10-13"),     // a past study day, nothing done
       };
     }, { days, saturdays });
 
@@ -136,17 +138,17 @@ async function scenario(browser, now, state) {
   }
 
   // ---- the streak ----
-  // Today is Tuesday 6 Oct. Sealed: Mon 21 – Wed 23 Sep (an old run of 3), then
-  // Mon 28 Sep – Fri 2 Oct and Sun 4 – Tue 6 Oct. Saturday 3 Oct is not sealed
+  // Today is Tuesday 20 Oct. Sealed: Mon 5 – Wed 7 Oct (an old run of 3), then
+  // Mon 12 – Fri 16 Oct and Sun 18 – Tue 20 Oct. Saturday 17 Oct is not sealed
   // and must be stepped over: the current run is 8, not 3.
-  const sealed = ["2026-09-21", "2026-09-22", "2026-09-23",
-    "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02",
-    "2026-10-04", "2026-10-05", "2026-10-06"];
+  const sealed = ["2026-10-05", "2026-10-06", "2026-10-07",
+    "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
+    "2026-10-18", "2026-10-19", "2026-10-20"];
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-06", { studyDays: sealed });
+    const { ctx, page, errors } = await scenario(browser, "2026-10-20", { studyDays: sealed });
     const r = await page.evaluate(() => ({ s: window.__brickfordTest.streak(), b: window.__brickfordTest.bestStreak() }));
     check("streak steps over an unsealed Saturday", r.s === 8,
-      "run Mon 28 Sep – Tue 6 Oct across unsealed Sat 3 Oct: expected 8, got " + r.s);
+      "run Mon 12 – Tue 20 Oct across unsealed Sat 17 Oct: expected 8, got " + r.s);
     // Known app bug: bestStreak counts a sealed Saturday (app.js:572-587). Owned
     // by a follow-up item; its fix must add the assertion bestStreak() === 8 for
     // the sealed-Saturday fixture below. Until then no check here claims that
@@ -155,27 +157,27 @@ async function scenario(browser, now, state) {
     check("no page errors (streak scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // The same run with Saturday 3 Oct SEALED as well: a rest day is never
+  // The same run with Saturday 17 Oct SEALED as well: a rest day is never
   // counted, even when there is a seal on it, so the run is still 8, not 9.
   // bestStreak is deliberately not asserted on this fixture (known app bug above).
   {
-    const withSat = sealed.concat(["2026-10-03"]).sort();
-    const { ctx, page, errors } = await scenario(browser, "2026-10-06", { studyDays: withSat });
+    const withSat = sealed.concat(["2026-10-17"]).sort();
+    const { ctx, page, errors } = await scenario(browser, "2026-10-20", { studyDays: withSat });
     const s = await page.evaluate(() => window.__brickfordTest.streak());
     check("streak does not count a sealed Saturday", s === 8,
-      "run Mon 28 Sep – Tue 6 Oct with Sat 3 Oct sealed: expected 8, got " + s);
+      "run Mon 12 – Tue 20 Oct with Sat 17 Oct sealed: expected 8, got " + s);
     check("no page errors (sealed-Saturday scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-06",
-      { studyDays: sealed, settings: { streakFrom: "2026-10-05" } });
+    const { ctx, page, errors } = await scenario(browser, "2026-10-20",
+      { studyDays: sealed, settings: { streakFrom: "2026-10-19" } });
     const r = await page.evaluate(() => ({ s: window.__brickfordTest.streak(), b: window.__brickfordTest.bestStreak() }));
-    check("streak stops at streakFrom", r.s === 2, "streakFrom 5 Oct: expected 2, got " + r.s);
+    check("streak stops at streakFrom", r.s === 2, "streakFrom 19 Oct: expected 2, got " + r.s);
     // Known app bug: bestStreak counts a sealed Saturday (app.js:572-587). Owned
     // by a follow-up item; its fix must add the assertion bestStreak() === 8 for
     // the sealed-Saturday fixture above.
-    check("bestStreak ignores streakFrom", r.b === 8, "streakFrom 5 Oct: expected 8, got " + r.b);
+    check("bestStreak ignores streakFrom", r.b === 8, "streakFrom 19 Oct: expected 8, got " + r.b);
     check("no page errors (streakFrom scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
@@ -190,17 +192,17 @@ async function scenario(browser, now, state) {
   // (1) The only day between the first activity and today is a Saturday, so
   //     nothing can be owed.
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-04", { studyDays: ["2026-10-03"] });
+    const { ctx, page, errors } = await scenario(browser, "2026-10-18", { studyDays: ["2026-10-17"] });
     const n = await page.evaluate(() => window.__brickfordTest.backlogCount());
     check("a rest day owes no lessons (backlogCount)", n === 0, "expected 0, got " + n);
     check("no page errors (backlog scenario 1)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // (2) Mon 28 Sep to Mon 5 Oct, nothing watched: the backlog is exactly the
+  // (2) Mon 12 to Mon 19 Oct, nothing watched: the backlog is exactly the
   //     lectures scheduled on the seven non-Saturdays (Saturday is left out by
   //     the calendar here, not by the app; see the note above on the skip).
   {
-    const from = "2026-09-28", today = "2026-10-06";
+    const from = "2026-10-12", today = "2026-10-20";
     const owedDays = range(from, addDays(today, -1)).filter(d => !isSat(d));
     const { ctx, page, errors } = await scenario(browser, today, { studyDays: [from] });
     const r = await page.evaluate(owedDays => {
@@ -219,7 +221,7 @@ async function scenario(browser, now, state) {
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
-    await ctx.clock.setFixedTime(new Date("2026-10-06T12:00:00Z"));
+    await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
     await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
     const page = await ctx.newPage();
     await page.goto(URL + "/", { waitUntil: "load" });

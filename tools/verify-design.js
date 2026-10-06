@@ -43,7 +43,7 @@
 //     so the rest days stay visibly rest.
 //
 // Setup, the way every harness here does it (loop/lessons.md): each context is
-// fresh, the clock is pinned (Tuesday 6 Oct 2026, noon UTC) and the timezone is
+// fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
 // network, and the log is how "no request for Libre Caslon" is checked.
 //
@@ -55,7 +55,8 @@ const ROOT = path.resolve(__dirname, "..");
 const CSS_FILE = path.join(ROOT, "platform/css/style.css");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 
-const FIXED_NOW = new Date("2026-10-06T12:00:00Z");
+// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
+const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
 const ROUTES = ["/", "/course/math110", "/lesson/math110/0/13", "/calendar", "/workshop"];
 // The routes whose view carries a page-title h1 (a detail page's title). The
 // other three head themselves with the folio, an h1 styled as a running head
@@ -433,7 +434,11 @@ function safeAreaSource() {
     // three years of rest days look like days with nothing on them.
     await go(page, "/calendar");
     const rest = await page.evaluate(trackContrast,
-      [".cal-grid .cal-cell.rest", ".cal-grid .cal-cell[data-cal-day]:not(.rest):not(.sel):not(.today):not(.blank)"]);
+      // Only a real Saturday: days before START_DATE also carry .rest, but their
+      // label has no "· rest" status. After reset six the first .rest cell in
+      // October became Thu 1 Oct (pre-start) and the check stopped measuring a
+      // Saturday at all, so the selector names the status, not the position.
+      [".cal-grid .cal-cell.rest[aria-label$='· rest']", ".cal-grid .cal-cell[data-cal-day]:not(.rest):not(.sel):not(.today):not(.blank)"]);
     check(at + " /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= " + MIN_TRACK + ":1)",
       trackOk(rest), trackText(rest));
     check(at + " empty tracks: no page errors", errors.length === 0, errors.join(" | "));
@@ -525,7 +530,7 @@ function safeAreaSource() {
     // view transition when motion is allowed), so it is a new element with a
     // fresh animation. Proof, not a duration.
     const r = await page.evaluate(() => new Promise(done => {
-      const cell = [...document.querySelectorAll(".cal-cell[data-cal-day]:not(.sel)")][3];
+      const cell = [...document.querySelectorAll(".cal-cell[data-cal-day]:not(.sel):not(.rest)")][3];   // a plan day, never a pre-start or rest cell
       if (!cell) return done({ err: "no unselected day in the month grid" });
       const day = cell.dataset.calDay;
       cell.click();

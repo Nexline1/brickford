@@ -47,9 +47,10 @@ const BASELINE = new Map();
 }
 
 // The page renders today's date (the calendar, the course's "today" counts),
-// so the sweep pins it: Tuesday 6 Oct 2026, noon UTC — verify-flows.js's fixed
+// so the sweep pins it: Tuesday 20 Oct 2026, noon UTC — verify-flows.js's fixed
 // study day. Without this the result depended on the day it was run.
-const FIXED_NOW = new Date("2026-10-06T12:00:00Z");
+// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
+const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
 const WIDTHS = [320, 390, 768, 1024, 1100, 1280, 1440];
 const ROOTS = [16, 24];
 // verify-contrast.js's route list (every view the router has), plus the two

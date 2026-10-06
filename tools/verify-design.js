@@ -43,7 +43,7 @@
 //     so the rest days stay visibly rest.
 //
 // Setup, the way every harness here does it (loop/lessons.md): each context is
-// fresh, the clock is pinned (Tuesday 6 Oct 2026, noon UTC) and the timezone is
+// fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
 // network, and the log is how "no request for Libre Caslon" is checked.
 //
@@ -55,7 +55,8 @@ const ROOT = path.resolve(__dirname, "..");
 const CSS_FILE = path.join(ROOT, "platform/css/style.css");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 
-const FIXED_NOW = new Date("2026-10-06T12:00:00Z");
+// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
+const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
 const ROUTES = ["/", "/course/math110", "/lesson/math110/0/13", "/calendar", "/workshop"];
 // The routes whose view carries a page-title h1 (a detail page's title). The
 // other three head themselves with the folio, an h1 styled as a running head

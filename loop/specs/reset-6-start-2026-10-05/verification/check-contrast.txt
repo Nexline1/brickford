@@ -1,0 +1,2 @@
+
+PASS — 420 page-renders across 30 routes × 7 themes × 2 widths, every text/background pair at or above threshold

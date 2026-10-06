@@ -1,4 +1,4 @@
-# TZ=America/Los_Angeles node tools/verify-clip.js (at c165b69)
+# TZ=America/Los_Angeles node tools/verify-clip.js (at 6b22b63)
 
 KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
   T-002  div.crest                            24px@768 24px@1024 24px@1100 24px@1280 24px@1440; 34 routes

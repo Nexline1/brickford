@@ -1,4 +1,4 @@
-# node tools/verify-design.js (at c165b69)
+# node tools/verify-design.js (at 6b22b63)
 status bar (read from platform/css/style.css)
   ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: env(safe-area-inset-top, 0px)
   ok    status bar: the phone .topbar grows by the inset (min-height) — min-height: calc(44px + env(safe-area-inset-top, 0px))
@@ -150,8 +150,8 @@ empty tracks, 390px light
   ok    390px light empty tracks: no page errors
 
 empty tracks, 390px dark
-  ok    390px dark /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.125:1, #2e3866 on #313149 (main#view.main); swatch 1.125:1, #2e3866 on #313149 (main#view.main)
-  ok    390px dark /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.125:1, #2e3866 on #313149 (main#view.main)
+  ok    390px dark /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.113:1, #2e3866 on #313249 (main#view.main); swatch 1.113:1, #2e3866 on #313249 (main#view.main)
+  ok    390px dark /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.113:1, #2e3866 on #313249 (main#view.main)
   ok    390px dark /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.546:1, #101839 on #2e3866 (div.cal-grid); 1.128:1 against a plain day #1a2248
   ok    390px dark empty tracks: no page errors
 
@@ -176,16 +176,33 @@ T-024: the default theme
   ok    default (nothing stored, phone light): resolves to data-theme="dark", the navy --bg #0c1330 — data-theme dark, --bg rgb(12, 19, 48)
   ok    default (nothing stored): meta theme-color #0c1330 — meta #0c1330
   ok    default (nothing stored): the menu lists "Navy" (dark) second, after Auto, and marks it — auto:Auto dark:Navy* light:Paper parchment:Parchment latte:Latte forest:Forest midnight:Midnight slate:Slate
-  ok    default (nothing stored): no theme is written to storage (unset stays unset) — {"raw":false}
+  ok    default (nothing stored): marking a lecture watched really saved (state writes went up, the state is stored) — state writes 1 -> 3, stored {"raw":true,"has":false}
+  ok    default (nothing stored): and the saved state carries no theme key (unset stays unset) — {"raw":true,"has":false}
   ok    default (nothing stored): no page errors
   ok    default (progress stored, no theme, phone light): resolves to data-theme="dark", the navy --bg #0c1330 — data-theme dark, --bg rgb(12, 19, 48)
   ok    default (progress stored, no theme): meta theme-color #0c1330 — meta #0c1330
   ok    default (progress stored, no theme): the menu lists "Navy" (dark) second, after Auto, and marks it — auto:Auto dark:Navy* light:Paper parchment:Parchment latte:Latte forest:Forest midnight:Midnight slate:Slate
-  ok    default (progress stored, no theme): no theme is written to storage (unset stays unset) — {"raw":true,"has":false}
+  ok    default (progress stored, no theme): marking a lecture watched really saved (state writes went up, the state is stored) — state writes 1 -> 3, stored {"raw":true,"has":false}
+  ok    default (progress stored, no theme): and the saved state carries no theme key (unset stays unset) — {"raw":true,"has":false}
   ok    default (progress stored, no theme): no page errors
   ok    stored "light" on a dark phone: stays light (--bg #f2f1ee, meta #2b2118) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118
-  ok    stored "light": still stored as "light", Paper marked — {"raw":true,"has":true,"theme":"light"}
+  ok    stored "light": after a real save (marking a lecture watched), still stored as "light", Paper marked — state writes 1 -> 3, stored {"raw":true,"has":true,"theme":"light"}
   ok    stored "light": no page errors
+
+T-024: the theme before the first paint
+  ok    first paint: index.html's PANEL map is every theme's --panel in style.css — 7 themes
+  ok    first paint (stored "light", phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
+  ok    first paint (stored "light", phone dark): every frame, held and after app.js ran, is light — never the other theme — 11 frames
+  ok    first paint (stored "light", phone dark): no page errors
+  ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0c1330, meta #0c1330 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #0c1330
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (nothing stored, phone light): no page errors
+  ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0c1330, meta #0c1330 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #0c1330
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "auto", phone dark): no page errors
+  ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 11 frames
+  ok    first paint (stored "auto", phone light): no page errors
 
 T-024: the glow
   ok    390px light glow: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
@@ -198,25 +215,25 @@ T-024: the glow
   ok    390px dark /: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 390px of .main's 390, animation none
   ok    390px dark /: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    390px dark /: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    390px dark /: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    390px dark /: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    390px dark /: every text and control over the glow takes its own hit, as shipped — 1 controls, 6 texts
   ok    390px dark /: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 1 controls, 6 texts
   ok    390px dark /course/math110: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 390px of .main's 390, animation none
   ok    390px dark /course/math110: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    390px dark /course/math110: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    390px dark /course/math110: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    390px dark /course/math110: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    390px dark /course/math110: every text and control over the glow takes its own hit, as shipped — 0 controls, 8 texts
   ok    390px dark /course/math110: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 0 controls, 8 texts
   ok    390px dark /calendar: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 390px of .main's 390, animation none
   ok    390px dark /calendar: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    390px dark /calendar: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    390px dark /calendar: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    390px dark /calendar: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    390px dark /calendar: every text and control over the glow takes its own hit, as shipped — 3 controls, 26 texts
   ok    390px dark /calendar: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 3 controls, 26 texts
   ok    390px dark /record: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 390px of .main's 390, animation none
   ok    390px dark /record: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    390px dark /record: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    390px dark /record: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    390px dark /record: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    390px dark /record: every text and control over the glow takes its own hit, as shipped — 0 controls, 8 texts
   ok    390px dark /record: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 0 controls, 8 texts
   ok    390px dark glow: no page errors
@@ -230,25 +247,25 @@ T-024: the glow
   ok    1280px dark /: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 730px of .main's 730, animation none
   ok    1280px dark /: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    1280px dark /: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    1280px dark /: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    1280px dark /: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    1280px dark /: every text and control over the glow takes its own hit, as shipped — 1 controls, 6 texts
   ok    1280px dark /: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 1 controls, 6 texts
   ok    1280px dark /course/math110: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 730px of .main's 730, animation none
   ok    1280px dark /course/math110: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    1280px dark /course/math110: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    1280px dark /course/math110: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    1280px dark /course/math110: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    1280px dark /course/math110: every text and control over the glow takes its own hit, as shipped — 0 controls, 8 texts
   ok    1280px dark /course/math110: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 0 controls, 8 texts
   ok    1280px dark /calendar: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 730px of .main's 730, animation none
   ok    1280px dark /calendar: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    1280px dark /calendar: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    1280px dark /calendar: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    1280px dark /calendar: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    1280px dark /calendar: every text and control over the glow takes its own hit, as shipped — 3 controls, 27 texts
   ok    1280px dark /calendar: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 3 controls, 27 texts
   ok    1280px dark /record: the glow is a static layer of two radial gradients over .main's top, as wide as .main — content "", 2 radial, absolute top 0px left 0px, 730px of .main's 730, animation none
   ok    1280px dark /record: the glow takes no pointer (pointer-events: none) — pointer-events none
   ok    1280px dark /record: the glow is behind the content (z-index -1 inside an isolated .main) — z-index -1, .main isolation isolate
-  ok    1280px dark /record: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel — declared 49,49,73,255, .main 49,49,73,255, peak 48,49,73 (L 0.0333 vs 0.0332)
+  ok    1280px dark /record: the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel — declared 49,50,73,255, .main 49,50,73,255, peak 48.44,49.08,72.62 (L 0.0342 vs 0.0332)
   ok    1280px dark /record: every text and control over the glow takes its own hit, as shipped — 0 controls, 10 texts
   ok    1280px dark /record: forced hit-testable, the glow still loses the hit at every text and control (painted behind them) — pointer-events auto; 0 controls, 10 texts
   ok    1280px dark glow: no page errors
@@ -261,6 +278,7 @@ calendar cellPick
   ok    calendar (reduce): no page errors
 
 nav bar, 390px light
+  ok    390px light: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
   ok    390px light /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #f2f1ee at 78% (--bg #f2f1ee)
   ok    390px light /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
   ok    390px light /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #1e4f8f
@@ -294,6 +312,7 @@ nav bar, 390px light
   ok    390px light nav bar: no page errors
 
 nav bar, 390px dark
+  ok    390px dark: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(12, 19, 48), --bg #0c1330 (rgb(12, 19, 48))
   ok    390px dark /: the nav bar is a material — --bg at 78%, blur(20px) saturate(180%) — backdrop-filter blur(20px) saturate(1.8); background #0c132f at 78% (--bg #0c1330)
   ok    390px dark /: the nav bar is 44px tall (±1) with no rule under it — 44px, border-bottom 0px
   ok    390px dark /: the menu button leads, on screen (left edge >= 0), 44x44, in --accent — 44x44 at x=5, #e0b35a
@@ -327,6 +346,7 @@ nav bar, 390px dark
   ok    390px dark nav bar: no page errors
 
 tab bar and sidebar, light
+  ok    390px light tab bar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 241, 238), --bg #f2f1ee (rgb(242, 241, 238))
   ok    390px light tab bar: a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab — backdrop-filter blur(20px) saturate(1.8); background #ffffff at 78% (--surface #ffffff, --panel #2b2118)
   ok    390px light tab bar: a 0.5px --line top edge — 1px #dcdad5
   ok    390px light tab bar: the labels are sentence case (text-transform none), 10px/500, no letter-spacing — Home, Courses, Exams, Problems, Review
@@ -344,6 +364,7 @@ tab bar and sidebar, light
   ok    1280px light sidebar: no page errors
 
 tab bar and sidebar, dark
+  ok    390px dark tab bar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(12, 19, 48), --bg #0c1330 (rgb(12, 19, 48))
   ok    390px dark tab bar: a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab — backdrop-filter blur(20px) saturate(1.8); background #1a2348 at 78% (--surface #1a2248, --panel #0c1330)
   ok    390px dark tab bar: a 0.5px --line top edge — 1px #2e3866
   ok    390px dark tab bar: the labels are sentence case (text-transform none), 10px/500, no letter-spacing — Home, Courses, Exams, Problems, Review
@@ -871,5 +892,5 @@ thumbnail contrast, slate
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 769 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2786 texts) in 7 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 7 themes (1911 texts); T-024: the navy default (nothing stored, no stored theme, a stored Light kept), the gold primary action, cards, chips, and the glow on 4 routes x 2 widths x 2 themes
+PASS — 788 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 1071 rows (2786 texts) in 7 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 7 themes (1911 texts); T-024: the navy default (nothing stored, no stored theme, a stored Light kept), the gold primary action, cards, chips, and the glow on 4 routes x 2 widths x 2 themes
 exit 0

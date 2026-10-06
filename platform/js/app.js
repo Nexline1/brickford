@@ -1495,67 +1495,92 @@
     drawer = { open, shut };
   }
 
-  // The rail, and its collapsed one-line form for phones. Same data, both
-  // rendered outside #view so they survive every route change.
-  // The phone's running head, filled from whatever the view actually rendered.
+  // The phone's nav bar (T-006), filled from whatever the view actually
+  // rendered.
+  //
+  // Every page opens on a large title — a detail page's h1, an index page's
+  // folio, the dashboard's own — and that title stays in the page. The bar
+  // takes a COPY of its text for the small inline title it shows once the
+  // large one has scrolled under it, and the day and week for the capsule on
+  // the right. It used to MOVE the folio or the breadcrumb into the bar and
+  // hide it on the page (`.tb-taken`); nothing is moved any more.
   //
   // Deliberately derived rather than tabulated: a route table would be a second
   // list of page names to keep in step with the first, and the first is already
-  // on screen. Three sources, in the order a page prefers them:
-  //
-  //   .folio            18 routes — an index page names itself and the day
-  //   .page-head .kicker 4 routes — a detail page's breadcrumb, links and all
-  //   the active nav link   the 2 with neither, the dashboard among them
-  //
-  // Whichever it takes, that element is hidden on the phone (`.tb-taken`), so
-  // the head moves into the bar instead of being printed twice.
+  // on screen. A route with no h1 at all falls back to the active nav link.
   function mountTopbar() {
-    const t = $("#tbTitle"), m = $("#tbMeta");
-    if (!t || !m) return;
+    const bar = $("#topbar"), t = $("#tbTitle"), m = $("#tbMeta");
+    if (!bar || !t || !m) return;
     const view = $("#view");
     if (!view) return;
     $$(".tb-taken", view).forEach(el => el.classList.remove("tb-taken"));
 
-    const folio = $(".folio", view), head = $(".page-head", view);
-    const kicker = head ? $(".kicker", head) : null;
-    // The day and week, always — never the folio's own meta. Three folios pass
-    // an editorial line instead of the default ("timed · closed book · no AI",
-    // "13 courses · four phases", "≤2h/day · max 2 clients"), and those are
-    // subtitles for a page, not running heads: at 27 characters of mono, the
-    // Exams one was clipped in the bar at 320px with the text size UNTOUCHED.
-    // They describe the page; the day and week describe where the reader is,
-    // which is what a running head is for. Dropping them on the phone is a
-    // deliberate loss of three flavour lines, on a device whose whole complaint
-    // is that there is too much on the screen.
-    let meta = folioMeta();
-    if (folio) {
-      const fm = $(".fo-meta", folio);
-      const title = [...folio.childNodes]
-        .filter(n => n !== fm).map(n => n.textContent).join("").trim();
-      t.textContent = title;
-      folio.classList.add("tb-taken");
-    } else if (kicker) {
-      // innerHTML, not textContent: a breadcrumb's course code is a link, and
-      // it is the only way back to the course from a lecture on a phone.
-      t.innerHTML = kicker.innerHTML;
-      kicker.classList.add("tb-taken");
-      // The day and week belong to a page about the plan. On a page about one
-      // lecture they were taking 40% of the bar from the breadcrumb, which is
-      // the only thing up there the reader can act on.
-      meta = "";
-    } else {
-      const act = $(".nav a.active");
-      t.textContent = act ? act.textContent.trim() : "Brickford";
+    // The first h1 is the page's title. A folio carries its day meta inside
+    // it, which the capsule says instead, so that span is left out.
+    const h1 = $("h1", view);
+    let title = "";
+    if (h1) {
+      const fm = $(".fo-meta", h1);
+      title = [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim();
     }
-    m.textContent = meta;
+    if (!title) {
+      const act = $(".nav a.active");
+      title = act ? act.textContent.trim() : "Brickford";
+    }
+    t.textContent = title;
+    // The day and week, always — never a folio's own editorial line ("timed ·
+    // closed book · no AI"): those describe the page, and the capsule says
+    // where the reader is in the three years, which is what it is for.
+    m.textContent = folioMeta();
     // The dashboard prints the same day and week at the head of its hero. With
-    // the bar carrying it, that half of the line is a duplicate; the other half
-    // (the phase and the day's count) is not, so only the first half goes.
+    // the capsule carrying it, that half of the line is a duplicate; the other
+    // half (the phase and the day's count) is not, so only the first half goes.
     const day = $(".one.lead .ghead.oh .gh-day", view);
     if (day) day.classList.add("tb-taken");
+    // A new page starts at the top (renderInner scrolls there next), where the
+    // large title is in view and nothing is under the bar. A page with no large
+    // title shows its name in the bar from the start.
+    bar.classList.remove("edge-on");
+    bar.classList.toggle("lt-on", !h1);
     measureFurniture();
+    watchTopbar(h1);
   }
 
+  // The inline title and the scroll edge, decided by ONE IntersectionObserver
+  // watching two things: the page's h1, and #tbSentinel, an empty div sitting
+  // directly under the bar in the document flow. The observer's root is the
+  // viewport with the bar cut off the top (a negative rootMargin of the bar's
+  // height), so "not intersecting, and above" means "scrolled under the bar":
+  //   the h1 under the bar      -> .lt-on   (the inline title shows)
+  //   the sentinel under the bar -> .edge-on (the hairline shows)
+  //
+  // A render is a read, and so is this: it toggles two classes on the bar and
+  // nothing else. No save() — which would arm a sync push from a scroll — and
+  // no render(), which would rebuild the view (and restart a video) because
+  // the reader moved their thumb. tools/verify-design.js scrolls a lesson page
+  // with a video on it and asserts both.
+  //
+  // Falls open: with no IntersectionObserver the bar simply always carries the
+  // name — a bar with no title is worse than one that shows it a little early.
+  let tbObs = null;
+  function watchTopbar(h1) {
+    const bar = $("#topbar"), mark = $("#tbSentinel");
+    if (tbObs) { tbObs.disconnect(); tbObs = null; }
+    if (!bar) return;
+    if (typeof IntersectionObserver === "undefined") { bar.classList.add("lt-on"); return; }
+    const h = Math.round(bar.getBoundingClientRect().height);
+    tbObs = new IntersectionObserver(es => {
+      es.forEach(e => {
+        const under = !e.isIntersecting && !!e.rootBounds && e.boundingClientRect.bottom <= e.rootBounds.top + 1;
+        bar.classList.toggle(e.target === mark ? "edge-on" : "lt-on", under);
+      });
+    }, { rootMargin: -h + "px 0px 0px 0px" });
+    if (h1) tbObs.observe(h1);
+    if (mark) tbObs.observe(mark);
+  }
+
+  // The rail, and its collapsed one-line form for phones. Same data, both
+  // rendered outside #view so they survive every route change.
   function mountRail() {
     const a = nextAction();
     const real = realSched(todayISO());
@@ -1633,10 +1658,11 @@
     ctaObs.observe(cta);
   }
 
-  // The tab bar is 58px on paper and 66px in fact — its padding carries
-  // env(safe-area-inset-bottom), which no stylesheet can predict. A hard-coded
-  // guess put the action bar 8px on top of it. So measure both and publish the
-  // real heights, which is also what reserves the right amount of scroll room.
+  // The tab bar is 49px on paper and more on a phone with a home indicator —
+  // its padding carries env(safe-area-inset-bottom), which no stylesheet can
+  // predict. A hard-coded guess once put the action bar 8px on top of it. So
+  // measure both and publish the real heights, which is also what reserves the
+  // right amount of scroll room.
   function measureFurniture() {
     const set = (name, el) => {
       const h = el && getComputedStyle(el).display !== "none" ? Math.ceil(el.getBoundingClientRect().height) : 0;
@@ -1681,6 +1707,9 @@
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
     return '<div class="view-enter">' +
+      // The phone's large title (T-006): every page opens on one, and the
+      // dashboard had no head of its own. Desktop does not show it.
+      '<h1 class="folio dash-title">Dashboard</h1>' +
       // ---- The one thing: the next lecture ----
       //
       // This was a .dash-hero: its own card component, with its own context
@@ -4860,10 +4889,9 @@
         (rt === "/library" && seg[0] === "doc");
       a.classList.toggle("active", !!active);
     });
-    // Last, because it reads what the view drew AND, for the two routes with no
-    // head of their own, which nav link is active — and that is set six lines
-    // up. Called before it, the dashboard's bar showed the name of the page the
-    // reader had just left.
+    // Last, because it reads what the view drew AND, for a route with no h1 of
+    // its own, which nav link is active — and that is set six lines up. Called
+    // before it, the bar showed the name of the page the reader had just left.
     mountTopbar();
     $("#sidebar").classList.remove("open");
     window.scrollTo({ top: 0 });
@@ -4914,9 +4942,13 @@
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
     mountDrawer();
     window.addEventListener("hashchange", render);
-    // Rotating the phone changes which furniture exists and how tall it is.
+    // Rotating the phone changes which furniture exists and how tall it is —
+    // including the nav bar, whose height is the observer's rootMargin.
     let rt = null;
-    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measureFurniture, 120); });
+    window.addEventListener("resize", () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => { measureFurniture(); watchTopbar($("#view h1")); }, 120);
+    });
     render();
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.

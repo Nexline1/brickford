@@ -42,6 +42,54 @@
 //     against its backdrop (the grid) AND against a plain day cell beside it,
 //     so the rest days stay visibly rest.
 //
+// T-006, the chrome (loop/specs/T-006-ios-chrome/spec.md):
+//   - the phone nav bar, at 390 in light and dark on /, /course/math110 and
+//     /calendar: a 44px material (--bg at 78%, blur(20px) saturate(180%)), the
+//     menu button leading (its left edge on the screen, >= 0) and a day/week
+//     capsule trailing, the page h1 as the 34px large title, and an inline
+//     title that is transparent at scroll 0,
+//     opaque once the h1 is 200px under the bar, and transparent again back at
+//     the top — with the 0.5px --line scroll edge absent, present, absent;
+//   - the tab bar: a --surface material with a 0.5px --line top edge, 24px
+//     glyphs, 10px/500 sentence-case labels with no tracking, the active tab
+//     --accent and the rest --ink-3;
+//   - the sidebar at 1280: not the espresso --panel, the page's --surface at
+//     85% under a blur, a 0.5px trailing edge, the current item an
+//     --accent-soft pill with an --accent label on 8px corners, a --gold crest;
+//     and at 390 the drawer is solid;
+//   - prefers-reduced-transparency and prefers-contrast: more, emulated over
+//     CDP (Emulation.setEmulatedMedia) and CONFIRMED with matchMedia, so the
+//     check cannot pass on a media query the browser ignored: every material
+//     goes solid with no blur, and under more contrast the edges are 1px
+//     --line-strong and every .glist is outlined;
+//   - reduced motion: the inline title is opaque in the same task the class
+//     that shows it lands, with no transition — and with motion allowed the
+//     same measurement does see a fade, so it is not blind;
+//   - a render is a read: scrolling /lesson/math110/0/13 (a video on the page)
+//     through the title and edge states writes no state, rebuilds no view and
+//     keeps the same <iframe> node.
+// T-007, the lists (loop/specs/T-007-inset-grouped-lists/spec.md), at 390 and
+// 1280 in light and dark on /, /course/math110, /exams and /courses (/workshop
+// is in the spec's list and has no .glist; it is reported n/a, and it would be
+// measured the moment it had one):
+//   - every visible .glist is an opaque --surface section with 12px corners
+//     that clips its rows; every .ghead (bar the hero's .oh) is 20px/600
+//     sentence case with no rule, its meta 15px --ink-2 tabular; every row is
+//     >= 44px (56 with a subtitle); .g-t 17px/600 body face, .g-s 15px --ink-2,
+//     .g-v tabular and not mono; no separator above a first row and each later
+//     one a 0.5px --line starting at or right of the text above it; the
+//     leading slot --ink-2 and the chevron --ink-3;
+//   - the keyboard ring, at 390 and 1280 in light and dark: Tab (the real key,
+//     not .focus()) onto the row of a one-row section on /, and its 2px --accent
+//     outline must lie inside the section's box — the section clips its rows,
+//     and the global ring is drawn OUTSIDE an element's box — and be PAINTED:
+//     the section screenshotted focused and not, and the ring's colour found
+//     at all four sides and round all four corners;
+// and the press, in all SEVEN themes: every visible row forced :active at 390
+// and :hover at 1280 (CDP CSS.forcePseudoState) must fill >= 1.05:1 against
+// its section and keep every text node on it >= 4.5:1 (3:1 large); the same
+// for the sidebar's rows, whose hover and press fill is the page's --bg-2.
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
@@ -70,6 +118,13 @@ const WIDTHS = [
   { w: 1280, h: 800, mobile: false, large: 40 },
 ];
 const THEMES = ["light", "dark"];
+// T-006: the nav bar is measured where the spec names it.
+const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
+// T-007: the spec's four routes plus /courses, the densest list in the app.
+// /workshop has no .glist today; it is reported n/a rather than passed.
+const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
+const LIST_NA = new Set(["/workshop"]);
+const PRESS_ROUTES = ["/", "/course/math110", "/exams", "/courses"];
 // loop/design/brief.md §3, the lead pair.
 const BRIEF = {
   light: { "--bg": "#f2f1ee", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--line": "#dcdad5",
@@ -92,6 +147,15 @@ function check(name, ok, detail) {
   return ok;
 }
 const rgb = hex => "rgb(" + [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(", ") + ")";
+// A hairline as Chromium computes it. The stylesheet declares 0.5px, which
+// WebKit — the owner's iPhone — paints as one device pixel; Chromium rounds
+// any border under 1px up to 1px, in its computed value AND its paint, at
+// every pixel ratio (measured: 1x, 2x and 3x all paint one CSS pixel). So
+// the live element can only be asked for a line no wider than 1px, and the
+// declared 0.5px is read from the stylesheet on disk (hairlineSource below).
+const hairline = w => w > 0 && w <= 1;
+// Two byte arrays [r, g, b, a?] the same colour within `tol` per channel.
+const __same = (a, b, tol) => !!a && !!b && [0, 1, 2].every(i => Math.abs(a[i] - b[i]) <= (tol === undefined ? 2 : tol));
 
 // Same seeded progress as verify-contrast / verify-clip, so states that only
 // appear with progress (a proven lecture, a streak, a due recall) are covered.
@@ -124,7 +188,8 @@ function countWrites() {
 
 const requests = [];
 let githubHits = 0;
-async function fresh(browser, opts, theme) {
+// `extra`, when given, runs after the seed and may add to the stored state.
+async function fresh(browser, opts, theme, extra) {
   const ctx = await browser.newContext(Object.assign({ timezoneId: "UTC", reducedMotion: "reduce" }, opts));
   await ctx.clock.setFixedTime(FIXED_NOW);
   await ctx.route(/^https?:/, r => {
@@ -134,7 +199,9 @@ async function fresh(browser, opts, theme) {
     return r.abort();
   });
   if (theme !== undefined) await ctx.addInitScript(seed, [FIXED_NOW.getTime(), theme]);
+  if (extra) await ctx.addInitScript(extra, [FIXED_NOW.getTime()]);
   await ctx.addInitScript(countWrites);
+  await ctx.addInitScript(installHelpers);
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
@@ -356,9 +423,387 @@ function safeAreaSource() {
     !!gt && ENV.test(gt), grab ? "top: " + gt : "no .edge-grab rule");
 }
 
+// ---------- T-006 / T-007: measured inside the page ----------
+// One set of colour tools for every probe below, installed as an init script.
+// Colours are read back through a 1x1 canvas, so any CSS syntax (rgb(), the
+// color(srgb … / a) a color-mix() serialises to) comes out as the same sRGB
+// bytes plus alpha. A token is resolved through a real property on a NEW
+// element each time (see probe() for why).
+function installHelpers() {
+  if (window.top !== window) return;
+  let c = null;
+  const ctx2d = () => {
+    if (!c) { const cv = document.createElement("canvas"); cv.width = cv.height = 1; c = cv.getContext("2d", { willReadFrequently: true }); }
+    return c;
+  };
+  const bytes = col => {
+    const k = ctx2d();
+    k.clearRect(0, 0, 1, 1); k.fillStyle = "#000"; k.fillStyle = col; k.fillRect(0, 0, 1, 1);
+    return [...k.getImageData(0, 0, 1, 1).data];
+  };
+  const resolve = (prop, value) => {
+    const el = document.createElement("div");
+    el.style[prop] = value;
+    document.body.appendChild(el);
+    const v = getComputedStyle(el)[prop];
+    el.remove();
+    return v;
+  };
+  const tok = n => bytes(resolve("color", "var(" + n + ")"));
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lum = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]);
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const over = (fg, bg) => { const a = fg[3] / 255; return [0, 1, 2].map(i => fg[i] * a + bg[i] * (1 - a)).concat(255); };
+  // What is actually painted behind an element: walk up to the first opaque
+  // background, compositing each translucent one on the way back down
+  // (verify-contrast.js's method).
+  const backdrop = el => {
+    const stack = [];
+    for (let n = el; n; n = n.parentElement) {
+      const b = bytes(getComputedStyle(n).backgroundColor);
+      if (b[3] === 0) continue;
+      stack.push(b);
+      if (b[3] === 255) break;
+    }
+    let base = [255, 255, 255, 255];
+    for (let i = stack.length - 1; i >= 0; i--) base = over(stack[i], base);
+    return base;
+  };
+  const same = (a, b, tol) => !!a && !!b && [0, 1, 2].every(i => Math.abs(a[i] - b[i]) <= (tol === undefined ? 2 : tol));
+  const hex = p => "#" + p.slice(0, 3).map(v => Math.round(v).toString(16).padStart(2, "0")).join("") + (p[3] !== undefined && p[3] !== 255 ? "/" + p[3] : "");
+  const name = n => n.tagName.toLowerCase() + (n.id ? "#" + n.id : "") +
+    (typeof n.className === "string" && n.className.trim() ? "." + n.className.trim().split(/\s+/).slice(0, 2).join(".") : "");
+  window.__dz = { bytes, resolve, tok, ratio, over, backdrop, same, hex, name };
+}
+
+// The phone nav bar, as it is right now.
+function barState() {
+  const z = window.__dz;
+  const bar = document.querySelector("#topbar"), cs = getComputedStyle(bar);
+  const after = getComputedStyle(bar, "::after");
+  const title = document.querySelector("#tbTitle"), ts = getComputedStyle(title);
+  const chip = document.querySelector("#tbMeta"), chs = getComputedStyle(chip);
+  const menuEl = document.querySelector("#menuBtn"), menu = menuEl.getBoundingClientRect();
+  const h1 = document.querySelector("#view h1"), hs = h1 && getComputedStyle(h1);
+  const fm = h1 && h1.querySelector(".fo-meta");
+  const cr = chip.getBoundingClientRect();
+  return {
+    cls: bar.className, scrollY: Math.round(scrollY), vw: document.documentElement.clientWidth,
+    bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), bgTok: z.tok("--bg"),
+    h: bar.getBoundingClientRect().height, rule: parseFloat(cs.borderBottomWidth) || 0,
+    edge: { op: after.opacity, w: parseFloat(after.borderBottomWidth) || 0, col: z.bytes(after.borderBottomColor),
+            line: z.tok("--line"), strong: z.tok("--line-strong") },
+    title: { op: ts.opacity, size: ts.fontSize, weight: ts.fontWeight, text: title.textContent.trim() },
+    chip: { text: chip.textContent.trim(), bg: z.bytes(chs.backgroundColor), surface: z.tok("--surface"),
+            fvn: chs.fontVariantNumeric, family: chs.fontFamily, radius: parseFloat(chs.borderTopLeftRadius), right: cr.right, h: cr.height },
+    menu: { w: menu.width, h: menu.height, left: menu.left, color: z.bytes(getComputedStyle(menuEl).color), accent: z.tok("--accent") },
+    h1: h1 ? { text: [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim(),
+               size: hs.fontSize, weight: hs.fontWeight, tt: hs.textTransform, meta: fm ? getComputedStyle(fm).display : null } : null,
+  };
+}
+// Scroll so the page h1's top edge is `under` px above the bar's bottom edge,
+// and say where it got to (a page too short to scroll that far must fail, not
+// pass on the scroll position it happened to reach).
+function scrollTitleUnder(under) {
+  const h1 = document.querySelector("#view h1"), bar = document.querySelector("#topbar");
+  if (!h1) return { err: "no h1 in the view" };
+  const want = Math.round(h1.getBoundingClientRect().top + scrollY - bar.getBoundingClientRect().bottom + under);
+  window.scrollTo({ top: want, behavior: "instant" });
+  return { want, got: Math.round(scrollY) };
+}
+const frames = page => page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+
+// The tab bar.
+function tabState() {
+  const z = window.__dz;
+  const bar = document.querySelector("#tabbar"), cs = getComputedStyle(bar);
+  return {
+    bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), surface: z.tok("--surface"), panel: z.tok("--panel"),
+    topW: parseFloat(cs.borderTopWidth) || 0, topCol: z.bytes(cs.borderTopColor), line: z.tok("--line"),
+    accent: z.tok("--accent"), ink3: z.tok("--ink-3"),
+    tabs: [...bar.querySelectorAll("a")].map(a => {
+      const t = getComputedStyle(a), g = a.querySelector(".glyph").getBoundingClientRect();
+      return { name: a.textContent.trim(), active: a.classList.contains("active"), tt: t.textTransform, size: t.fontSize,
+               weight: t.fontWeight, ls: t.letterSpacing, color: z.bytes(t.color), gw: g.width, gh: g.height, h: a.getBoundingClientRect().height };
+    }),
+  };
+}
+
+// The sidebar (or, below 861px, the drawer).
+function sideState() {
+  const z = window.__dz;
+  const s = document.querySelector("#sidebar"), cs = getComputedStyle(s);
+  const act = document.querySelector(".sidebar .nav a.active"), as = act && getComputedStyle(act);
+  const field = document.querySelector(".crest .cr-field"), cut = document.querySelector(".crest .cr-cut");
+  return {
+    bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), surface: z.tok("--surface"),
+    rightW: parseFloat(cs.borderRightWidth) || 0, rightCol: z.bytes(cs.borderRightColor), line: z.tok("--line"), strong: z.tok("--line-strong"),
+    act: act ? { text: act.textContent.trim(), bg: z.bytes(as.backgroundColor), color: z.bytes(as.color), radius: as.borderTopLeftRadius } : null,
+    soft: z.tok("--accent-soft"), accent: z.tok("--accent"), gold: z.tok("--gold"),
+    field: field ? z.bytes(getComputedStyle(field).fill) : null, cut: cut ? z.bytes(getComputedStyle(cut).fill) : null,
+  };
+}
+
+// Every material in the chrome, for the reduced-transparency and more-contrast
+// fallbacks.
+function chromeState() {
+  const z = window.__dz;
+  const one = sel => {
+    const el = document.querySelector(sel);
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    return { bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), shown: cs.display !== "none" };
+  };
+  const bar = document.querySelector("#topbar"), after = getComputedStyle(bar, "::after");
+  const tab = getComputedStyle(document.querySelector("#tabbar"));
+  const side = getComputedStyle(document.querySelector("#sidebar"));
+  const gl = [...document.querySelectorAll("#view .glist")].find(n => n.checkVisibility());
+  const gs = gl && getComputedStyle(gl);
+  return {
+    rt: matchMedia("(prefers-reduced-transparency: reduce)").matches, more: matchMedia("(prefers-contrast: more)").matches,
+    topbar: one("#topbar"), tabbar: one("#tabbar"), railbar: one("#railbar"), sidebar: one("#sidebar"),
+    bg: z.tok("--bg"), surface: z.tok("--surface"), strong: z.tok("--line-strong"),
+    edge: { op: after.opacity, w: parseFloat(after.borderBottomWidth) || 0, col: z.bytes(after.borderBottomColor) },
+    tabTop: { w: parseFloat(tab.borderTopWidth) || 0, col: z.bytes(tab.borderTopColor) },
+    sideRight: { w: parseFloat(side.borderRightWidth) || 0, col: z.bytes(side.borderRightColor) },
+    glist: gs ? ["Top", "Right", "Bottom", "Left"].map(k => ({ w: parseFloat(gs["border" + k + "Width"]) || 0, col: z.bytes(gs["border" + k + "Color"]) })) : null,
+  };
+}
+
+// The grouped lists on the current route: every visible section, header and
+// row, with what is wrong collected per rule.
+function listState() {
+  const z = window.__dz;
+  const T = { surface: z.tok("--surface"), ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"), line: z.tok("--line") };
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const bad = {}, n = {};
+  const note = (k, msg) => { (bad[k] = bad[k] || []).push(msg); };
+  const cnt = k => { n[k] = (n[k] || 0) + 1; };
+  const lists = vis("#view .glist");
+  lists.forEach((g, gi) => {
+    const s = getComputedStyle(g), bg = z.bytes(s.backgroundColor);
+    cnt("glist");
+    if (!(bg[3] === 255 && z.same(bg, T.surface))) note("fill", "list " + gi + " is " + z.hex(bg));
+    const radii = [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
+    if (radii.some(r => r !== "12px") || s.overflowX !== "hidden" || s.overflowY !== "hidden")
+      note("shape", "list " + gi + " corners " + radii.join(" ") + ", overflow " + s.overflowX + "/" + s.overflowY);
+    const rows = [...g.children].filter(r => r.classList.contains("grow") && r.checkVisibility());
+    rows.forEach((r, ri) => {
+      cnt("row");
+      const rr = r.getBoundingClientRect(), min = r.querySelector(".g-s") ? 56 : 44;
+      if (rr.height < min - 0.5) note("height", z.name(r) + " " + rr.height.toFixed(1) + "px (min " + min + ")");
+      const t = r.querySelector(".g-t");
+      if (t) {
+        cnt("gt");
+        // A muted or a done row recedes to 400 — that is the variant's meaning,
+        // which the spec keeps — so 600 is asked of every other row.
+        const ts = getComputedStyle(t), weight = r.matches(".muted-row, .done-row") ? "400" : "600";
+        if (ts.fontSize !== "17px" || ts.fontWeight !== weight || !/^-apple-system\b/.test(ts.fontFamily))
+          note("type", ".g-t " + ts.fontSize + "/" + ts.fontWeight + " (want " + weight + ") " + ts.fontFamily.slice(0, 24));
+      }
+      r.querySelectorAll(".g-s").forEach(x => {
+        cnt("gs");
+        const xs = getComputedStyle(x);
+        if (xs.fontSize !== "15px" || !z.same(z.bytes(xs.color), T.ink2)) note("type", ".g-s " + xs.fontSize + " " + z.hex(z.bytes(xs.color)));
+      });
+      r.querySelectorAll(".g-v").forEach(x => {
+        cnt("gv");
+        const xs = getComputedStyle(x);
+        if (!/tabular-nums/.test(xs.fontVariantNumeric) || /mono/i.test(xs.fontFamily))
+          note("value", ".g-v \"" + x.textContent.trim().slice(0, 12) + "\" " + xs.fontVariantNumeric + " / " + xs.fontFamily.slice(0, 30));
+      });
+      const lead = r.querySelector(":scope > .g-lead");
+      if (lead && !lead.classList.contains("bad-lead") && !r.classList.contains("done-row")) {
+        cnt("lead");
+        const c = z.bytes(getComputedStyle(lead).color);
+        if (!z.same(c, T.ink2)) note("lead", "lead \"" + lead.textContent.trim() + "\" " + z.hex(c));
+      }
+      if (r.matches("a.grow")) {
+        cnt("chev");
+        const c = z.bytes(getComputedStyle(r, "::after").borderRightColor);
+        if (!z.same(c, T.ink3)) note("lead", "chevron " + z.hex(c));
+      }
+      const b = getComputedStyle(r, "::before");
+      if (ri === 0) {
+        if (b.content !== "none" && b.content !== "normal") note("sep", "list " + gi + ": a separator above the first row");
+      } else {
+        cnt("sep");
+        const w = parseFloat(b.borderTopWidth) || 0, col = z.bytes(b.borderTopColor);
+        const prev = rows[ri - 1].querySelector(".g-t") || rows[ri - 1].querySelector(".g-main") || rows[ri - 1];
+        const start = rr.left + (parseFloat(b.left) || 0), text = prev.getBoundingClientRect().left;
+        if (b.content === "none" || b.content === "normal" || !(w > 0 && w <= 1) || !z.same(col, T.line) || start < text - 0.5)
+          note("sep", "list " + gi + " row " + ri + ": " + (b.content === "none" ? "no separator" :
+            w + "px " + z.hex(col) + " from x=" + start.toFixed(1) + ", text above at x=" + text.toFixed(1)));
+      }
+    });
+  });
+  vis("#view .ghead:not(.oh)").forEach(h => {
+    cnt("ghead");
+    const hs = getComputedStyle(h);
+    if (hs.textTransform !== "none" || hs.fontSize !== "20px" || hs.fontWeight !== "600" || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
+      note("head", "\"" + h.firstChild.textContent.trim().slice(0, 20) + "\" " + hs.textTransform + " " + hs.fontSize + "/" + hs.fontWeight + " rule " + hs.borderBottomWidth);
+    const m = h.querySelector(".gh-meta");
+    if (m) {
+      cnt("ghmeta");
+      const ms = getComputedStyle(m);
+      if (ms.fontSize !== "15px" || !z.same(z.bytes(ms.color), T.ink2) || !/tabular-nums/.test(ms.fontVariantNumeric))
+        note("meta", "\"" + m.textContent.trim() + "\" " + ms.fontSize + " " + z.hex(z.bytes(ms.color)) + " " + ms.fontVariantNumeric);
+    }
+  });
+  return { bad, n };
+}
+
+// Every visible element matching `sel` is in its pressed (forced) state: how
+// far its fill stands off what it sits on, and the worst text on it.
+function pressState(sel) {
+  const z = window.__dz;
+  const rows = [...document.querySelectorAll(sel)].filter(r => r.checkVisibility());
+  const out = { rows: rows.length, texts: 0, lowFill: [], lowText: [], fill: null, text: null };
+  rows.forEach(r => {
+    const fill = z.backdrop(r), under = z.backdrop(r.parentElement);
+    const fr = z.ratio(fill, under);
+    if (!out.fill || fr < out.fill.r) out.fill = { r: fr, at: z.name(r) + " " + z.hex(fill) + " on " + z.hex(under) };
+    if (fr < 1.05) out.lowFill.push(z.name(r) + " \"" + r.textContent.trim().slice(0, 24) + "\" " + fr.toFixed(3) + ":1 (" + z.hex(fill) + " on " + z.hex(under) + ")");
+    [r, ...r.querySelectorAll("*")].forEach(el => {
+      if (![...el.childNodes].some(t => t.nodeType === 3 && t.textContent.trim())) return;
+      if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return;
+      const cs = getComputedStyle(el), bg = z.backdrop(el), fg = z.over(z.bytes(cs.color), bg);
+      const ratio = z.ratio(fg, bg), px = parseFloat(cs.fontSize);
+      const need = px >= 24 || (px >= 18.66 && +cs.fontWeight >= 700) ? 3 : 4.5;
+      out.texts++;
+      if (!out.text || ratio / need < out.text.r / out.text.need)
+        out.text = { r: ratio, need, at: z.name(el) + " \"" + el.textContent.trim().slice(0, 20) + "\" " + z.hex(fg) + " on " + z.hex(bg) };
+      if (ratio < need - 0.005) out.lowText.push(z.name(el) + " \"" + el.textContent.trim().slice(0, 20) + "\" " + ratio.toFixed(2) + ":1 (" + z.hex(fg) + " on " + z.hex(bg) + ")");
+    });
+  });
+  return out;
+}
+// The keyboard ring. The section is the box that clips: .glist is overflow
+// hidden, so an outline drawn outside a row is simply not painted. Marks the
+// first visible section whose only visible child is a row that goes somewhere
+// (a link or a button) — a one-row section, where a ring outside the row has
+// no neighbour to land on and so vanishes completely.
+function markOneRow() {
+  const g = [...document.querySelectorAll("#view .glist")].filter(n => n.checkVisibility()).find(n => {
+    const k = [...n.children].filter(c => c.checkVisibility());
+    return k.length === 1 && k[0].matches("a.grow, button.grow");
+  });
+  if (!g) return null;
+  g.dataset.ringList = "1";
+  return g.textContent.trim().replace(/\s+/g, " ").slice(0, 40);
+}
+// Where the focused row's outline is drawn, against the section's padding box
+// (the clip). An outline's outer edge is the border box grown by
+// outline-offset + outline-width on every side.
+function ringState() {
+  const z = window.__dz;
+  const g = document.querySelector("[data-ring-list]");
+  const row = g && [...g.children].find(c => c.checkVisibility());
+  const a = document.activeElement;
+  if (!row || a !== row) return { err: "focus is on " + (a ? z.name(a) : "nothing") + ", not the row" };
+  row.scrollIntoView({ block: "center", behavior: "instant" });
+  const cs = getComputedStyle(row), gs = getComputedStyle(g);
+  const r = row.getBoundingClientRect(), gr = g.getBoundingClientRect();
+  const w = parseFloat(cs.outlineWidth) || 0, off = parseFloat(cs.outlineOffset) || 0, e = w + off;
+  const px = k => parseFloat(gs["border" + k + "Width"]) || 0;
+  const clip = { l: gr.left + px("Left"), t: gr.top + px("Top"), r: gr.right - px("Right"), b: gr.bottom - px("Bottom") };
+  const ring = { l: r.left - e, t: r.top - e, r: r.right + e, b: r.bottom + e };
+  // Nothing of the page's own may sit over the section (the bars are fixed
+  // and sticky), or the pixels below would be measuring them.
+  const mx = (clip.l + clip.r) / 2, my = (clip.t + clip.b) / 2;
+  const covered = [[mx, clip.t + 1], [clip.r - 1, my], [mx, clip.b - 1], [clip.l + 1, my]]
+    .map(([x, y]) => document.elementFromPoint(x, y)).filter(n => !n || !g.contains(n)).map(n => n ? z.name(n) : "nothing");
+  return {
+    fv: row.matches(":focus-visible"), name: z.name(row), style: cs.outlineStyle, w, off,
+    col: z.bytes(cs.outlineColor), accent: z.tok("--accent"), clip, ring, covered,
+  };
+}
+// The section as painted with the row focused (`on`) and not (`off`), two PNGs
+// decoded through a canvas. For a pixel, `gain` is how far it moved from its
+// unfocused colour toward --accent: 0 unchanged, 1 the ring's colour. Each
+// probe walks inward from the section's edge — 8px at the middle of each side,
+// 14px along the diagonal at each corner, where the rounded clip is — and keeps
+// the best gain it meets.
+async function ringPixels([on, off]) {
+  const z = window.__dz;
+  const load = async b64 => {
+    const im = new Image();
+    im.src = "data:image/png;base64," + b64;
+    await im.decode();
+    const cv = document.createElement("canvas"); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+    const k = cv.getContext("2d", { willReadFrequently: true });
+    k.drawImage(im, 0, 0);
+    return { w: cv.width, h: cv.height, d: k.getImageData(0, 0, cv.width, cv.height).data };
+  };
+  const A = await load(on), B = await load(off), acc = z.tok("--accent");
+  if (A.w !== B.w || A.h !== B.h) return { err: "the two shots differ in size: " + A.w + "x" + A.h + " and " + B.w + "x" + B.h };
+  const s = A.w / document.querySelector("[data-ring-list]").getBoundingClientRect().width;
+  const gain = (x, y) => {
+    const i = (y * A.w + x) * 4;
+    let num = 0, den = 0;
+    for (let c = 0; c < 3; c++) { const d = acc[c] - B.d[i + c]; num += (A.d[i + c] - B.d[i + c]) * d; den += d * d; }
+    return den ? num / den : 0;
+  };
+  const walk = (x0, y0, dx, dy, n) => {
+    let best = -Infinity;
+    for (let k = 0; k < n; k++) {
+      const x = x0 + dx * k, y = y0 + dy * k;
+      if (x >= 0 && y >= 0 && x < A.w && y < A.h) best = Math.max(best, gain(x, y));
+    }
+    return best;
+  };
+  const W = A.w - 1, H = A.h - 1, mx = Math.round(W / 2), my = Math.round(H / 2);
+  const side = Math.ceil(8 * s), diag = Math.ceil(14 * s);
+  return {
+    sides: { top: walk(mx, 0, 0, 1, side), right: walk(W, my, -1, 0, side), bottom: walk(mx, H, 0, -1, side), left: walk(0, my, 1, 0, side) },
+    corners: { "top-left": walk(0, 0, 1, 1, diag), "top-right": walk(W, 0, -1, 1, diag),
+               "bottom-right": walk(W, H, -1, -1, diag), "bottom-left": walk(0, H, 1, -1, diag) },
+  };
+}
+// The press needs rows that carry every variant, so its contexts add two quiz
+// scores to the seed: a pass and a gap, which put a --good and a --bad status
+// pill on /exams rows.
+function seedScores() {
+  if (window.top !== window) return;
+  const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  s.quizAttempts = { "linear-algebra": [{ date: "2026-10-05", score: 9, total: 10, pct: 90 }],
+                     "calculus": [{ date: "2026-10-05", score: 4, total: 10, pct: 40 }] };
+  localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+}
+// Force a pseudo-class on every node matching `selector`, over CDP: the state
+// the browser itself would compute under a finger or a pointer, without
+// moving either (a real tap would navigate away mid-measurement).
+async function force(cdp, selector, classes) {
+  const { root } = await cdp.send("DOM.getDocument", { depth: -1 });
+  const { nodeIds } = await cdp.send("DOM.querySelectorAll", { nodeId: root.nodeId, selector });
+  for (const nodeId of nodeIds) await cdp.send("CSS.forcePseudoState", { nodeId, forcedPseudoClasses: classes });
+  return nodeIds.length;
+}
+
+// The four hairlines T-006 and T-007 declare, read from the stylesheet: each
+// must be 0.5px of --line (see `hairline` for why the live value cannot say).
+function hairlineSource() {
+  const css = fs.readFileSync(CSS_FILE, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const top = readBlocks(css);
+  const phone = top.filter(b => /^@media\s*\(max-width:\s*860px\)$/.test(b.prelude)).flatMap(b => readBlocks(b.body));
+  const rule = (list, sel) => { const hits = list.filter(b => b.prelude === sel); return hits.length ? decls(hits.map(b => b.body).join(";")) : null; };
+  for (const [where, list, sel, prop] of [
+    ["the nav bar's scroll edge", phone, ".topbar::after", "border-bottom"],
+    ["the tab bar's top edge", phone, ".tabbar", "border-top"],
+    ["the sidebar's trailing edge", top, ".sidebar", "border-right"],
+    ["a row's separator", top, ".grow::before", "border-top"],
+  ]) {
+    const r = rule(list, sel), v = r && effective(r, prop);
+    check("hairline: " + where + " is declared 0.5px solid var(--line) (" + sel + " " + prop + ")",
+      !!v && /^0\.5px\s+solid\s+var\(--line\)$/.test(v), r ? prop + ": " + v : "no " + sel + " rule");
+  }
+}
+
 (async () => {
   console.log("status bar (read from platform/css/style.css)");
   safeAreaSource();
+  console.log("\nhairlines (read from platform/css/style.css)");
+  hairlineSource();
 
   const browser = await chromium.launch();
 
@@ -557,6 +1002,411 @@ function safeAreaSource() {
     await ctx.close();
   }
 
+  // =================== T-006: the chrome ===================
+  const near = (a, want, tol) => Math.abs(a - want) <= tol;
+  const material = (bg, tokBytes, pct) => bg[3] !== 255 && near(bg[3], Math.round(pct * 255), 3) && __same(bg, tokBytes);
+  const blurOk = bf => /blur\(20px\)/.test(bf) && /saturate\((180%|1\.8)\)/.test(bf);
+  const hx = p => "#" + p.slice(0, 3).map(v => v.toString(16).padStart(2, "0")).join("") + (p[3] !== 255 ? " at " + Math.round(p[3] / 2.55) + "%" : "");
+
+  // ---- the nav bar, at 390 ----
+  for (const theme of THEMES) {
+    const at = "390px " + theme;
+    console.log("\nnav bar, " + at);
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
+    await page.goto(URL + "/__boot", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    for (const route of NAV_ROUTES) {
+      await go(page, route);
+      // Two frames: the observer's first report is delivered after a render,
+      // and it is allowed to change nothing here.
+      await frames(page);
+      const a = await page.evaluate(barState);
+      const where = at + " " + route;
+      check(where + ": the nav bar is a material — --bg at 78%, blur(20px) saturate(180%)",
+        blurOk(a.bf) && material(a.bg, a.bgTok, 0.78), "backdrop-filter " + a.bf + "; background " + hx(a.bg) + " (--bg " + hx(a.bgTok) + ")");
+      check(where + ": the nav bar is 44px tall (±1) with no rule under it",
+        near(a.h, 44, 1) && a.rule === 0, a.h + "px, border-bottom " + a.rule + "px");
+      check(where + ": the menu button leads, on screen (left edge >= 0), 44x44, in --accent",
+        a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left >= 0 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
+        Math.round(a.menu.w) + "x" + Math.round(a.menu.h) + " at x=" + Math.round(a.menu.left) + ", " + hx(a.menu.color));
+      check(where + ": the day/week capsule trails, on --surface, in tabular numerals",
+        /^Day \d{3} · Week \d+$/.test(a.chip.text) && a.chip.bg[3] === 255 && __same(a.chip.bg, a.chip.surface) &&
+        /tabular-nums/.test(a.chip.fvn) && !/mono/i.test(a.chip.family) && a.chip.radius >= a.chip.h / 2 && a.chip.right >= a.vw - 16,
+        "\"" + a.chip.text + "\" on " + hx(a.chip.bg) + ", " + a.chip.fvn + ", right edge " + Math.round(a.chip.right) + " of " + a.vw);
+      check(where + ": the page h1 is the large title (34px/700, sentence case, no day meta in it)",
+        !!a.h1 && a.h1.size === "34px" && a.h1.weight === "700" && a.h1.tt === "none" && (a.h1.meta === null || a.h1.meta === "none"),
+        a.h1 ? "\"" + a.h1.text + "\" " + a.h1.size + "/" + a.h1.weight + " " + a.h1.tt + (a.h1.meta ? ", meta " + a.h1.meta : "") : "no h1");
+      check(where + ": the inline title is 17px/600 and reads the h1",
+        a.title.size === "17px" && a.title.weight === "600" && !!a.h1 && a.title.text === a.h1.text,
+        a.title.size + "/" + a.title.weight + " \"" + a.title.text + "\"");
+      check(where + ": at scroll 0 the inline title is hidden (opacity 0) and there is no scroll edge",
+        a.title.op === "0" && a.edge.op === "0", "title opacity " + a.title.op + ", edge opacity " + a.edge.op + " (" + a.cls + ")");
+      // Under the bar: the h1's top edge 200px above the bar's bottom edge.
+      const sc = await page.evaluate(scrollTitleUnder, 200);
+      await page.waitForFunction(() => /\blt-on\b/.test(document.querySelector("#topbar").className) &&
+        /\bedge-on\b/.test(document.querySelector("#topbar").className), null, { timeout: 2000, polling: "raf" }).catch(() => {});
+      await frames(page);
+      const b = await page.evaluate(barState);
+      check(where + ": with the h1 scrolled 200px under the bar the inline title shows (opacity 1)",
+        !sc.err && sc.got === sc.want && b.title.op === "1",
+        sc.err || "scrolled to " + sc.got + " (wanted " + sc.want + "); title opacity " + b.title.op + " (" + b.cls + ")");
+      check(where + ": and the scroll edge shows: a 0.5px --line",
+        b.edge.op === "1" && hairline(b.edge.w) && __same(b.edge.col, b.edge.line),
+        "opacity " + b.edge.op + ", " + b.edge.w + "px " + hx(b.edge.col) + " (--line " + hx(b.edge.line) + ")");
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      await page.waitForFunction(() => !/\b(lt-on|edge-on)\b/.test(document.querySelector("#topbar").className),
+        null, { timeout: 2000, polling: "raf" }).catch(() => {});
+      await frames(page);
+      const c = await page.evaluate(barState);
+      check(where + ": back at the top the inline title and the edge go again",
+        c.title.op === "0" && c.edge.op === "0", "title opacity " + c.title.op + ", edge opacity " + c.edge.op);
+    }
+    check(at + " nav bar: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- the tab bar, at 390; the sidebar at 1280 and the drawer at 390 ----
+  for (const theme of THEMES) {
+    console.log("\ntab bar and sidebar, " + theme);
+    {
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
+      await page.goto(URL + "/", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const t = await page.evaluate(tabState);
+      const at = "390px " + theme + " tab bar";
+      check(at + ": a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab",
+        blurOk(t.bf) && material(t.bg, t.surface, 0.78) && !__same(t.bg, t.panel, 0),
+        "backdrop-filter " + t.bf + "; background " + hx(t.bg) + " (--surface " + hx(t.surface) + ", --panel " + hx(t.panel) + ")");
+      check(at + ": a 0.5px --line top edge", hairline(t.topW) && __same(t.topCol, t.line),
+        t.topW + "px " + hx(t.topCol));
+      const lab = t.tabs.filter(x => x.tt !== "none" || x.size !== "10px" || x.weight !== "500" || !(x.ls === "normal" || parseFloat(x.ls) === 0));
+      check(at + ": the labels are sentence case (text-transform none), 10px/500, no letter-spacing",
+        t.tabs.length === 5 && lab.length === 0,
+        lab.length ? lab.map(x => x.name + " " + x.tt + " " + x.size + "/" + x.weight + " ls " + x.ls).join("; ") : t.tabs.map(x => x.name).join(", "));
+      const gl = t.tabs.filter(x => x.gw !== 24 || x.gh !== 24 || x.h < 48.5);
+      check(at + ": 24px glyphs on 49px tabs", gl.length === 0,
+        gl.length ? gl.map(x => x.name + " glyph " + x.gw + "x" + x.gh + ", tab " + x.h.toFixed(1)).join("; ") : "5 tabs");
+      const act = t.tabs.filter(x => x.active), rest = t.tabs.filter(x => !x.active);
+      check(at + ": the active tab is --accent", act.length === 1 && __same(act[0].color, t.accent),
+        act.map(x => x.name + " " + hx(x.color)).join(", ") + " (--accent " + hx(t.accent) + ")");
+      check(at + ": the other tabs are --ink-3", rest.length === 4 && rest.every(x => __same(x.color, t.ink3)),
+        rest.map(x => x.name + " " + hx(x.color)).join(", "));
+      const d = await page.evaluate(sideState);
+      check("390px " + theme + " drawer: solid --surface, no material over the scrim",
+        d.bg[3] === 255 && __same(d.bg, d.surface) && d.bf === "none", hx(d.bg) + ", backdrop-filter " + d.bf);
+      check("390px " + theme + " tab bar and drawer: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    {
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: theme }, theme);
+      await page.goto(URL + "/", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const s = await page.evaluate(sideState);
+      const at = "1280px " + theme + " sidebar";
+      check(at + ": not the espresso --panel (#2b2118)", !__same(s.bg, [0x2b, 0x21, 0x18, 255], 0), "background " + hx(s.bg));
+      check(at + ": a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%)",
+        blurOk(s.bf) && material(s.bg, s.surface, 0.85), "backdrop-filter " + s.bf + "; background " + hx(s.bg) + " (--surface " + hx(s.surface) + ")");
+      check(at + ": a 0.5px --line trailing edge", hairline(s.rightW) && __same(s.rightCol, s.line), s.rightW + "px " + hx(s.rightCol));
+      check(at + ": the current item is an --accent-soft pill, --accent label, 8px corners",
+        !!s.act && s.act.bg[3] === 255 && __same(s.act.bg, s.soft) && __same(s.act.color, s.accent) && s.act.radius === "8px",
+        s.act ? "\"" + s.act.text + "\" " + hx(s.act.bg) + " (--accent-soft " + hx(s.soft) + "), label " + hx(s.act.color) + ", " + s.act.radius : "no current nav item");
+      check(at + ": the crest is --gold with --surface cut-outs",
+        !!s.field && __same(s.field, s.gold) && !!s.cut && __same(s.cut, s.surface),
+        "field " + (s.field ? hx(s.field) : "?") + " (--gold " + hx(s.gold) + "), cut " + (s.cut ? hx(s.cut) : "?"));
+      check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
+  // ---- reduced transparency and more contrast, emulated and confirmed ----
+  for (const [mq, feature, value] of [["reduced transparency", "prefers-reduced-transparency", "reduce"], ["more contrast", "prefers-contrast", "more"]]) {
+    for (const theme of THEMES) {
+      console.log("\n" + mq + ", " + theme);
+      for (const w of [390, 1280]) {
+        const mobile = w === 390;
+        const { ctx, page, errors } = await fresh(browser,
+          { viewport: { width: w, height: mobile ? 844 : 800 }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+        const cdp = await ctx.newCDPSession(page);
+        await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: feature, value }] });
+        await page.goto(URL + "/", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        await frames(page);
+        const m = await page.evaluate(chromeState);
+        const at = w + "px " + theme + " " + mq;
+        const on = feature === "prefers-contrast" ? m.more : m.rt;
+        check(at + ": the media query is in effect (matchMedia confirms the emulation)", on,
+          "matchMedia(" + feature + ": " + value + ") = " + on);
+        const solid = (x, tokBytes) => !!x && x.bf === "none" && x.bg[3] === 255 && __same(x.bg, tokBytes);
+        if (mobile) {
+          check(at + ": the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred",
+            on && solid(m.topbar, m.bg) && solid(m.tabbar, m.surface) && solid(m.railbar, m.surface),
+            "nav " + hx(m.topbar.bg) + " " + m.topbar.bf + "; tab " + hx(m.tabbar.bg) + " " + m.tabbar.bf + "; action " + hx(m.railbar.bg) + " " + m.railbar.bf);
+          if (feature === "prefers-contrast")
+            check(at + ": the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong",
+              m.edge.op === "1" && m.edge.w === 1 && __same(m.edge.col, m.strong) && m.tabTop.w === 1 && __same(m.tabTop.col, m.strong),
+              "nav edge opacity " + m.edge.op + " " + m.edge.w + "px " + hx(m.edge.col) + "; tab top " + m.tabTop.w + "px " + hx(m.tabTop.col) + " (--line-strong " + hx(m.strong) + ")");
+        } else {
+          check(at + ": the sidebar is solid --surface, not blurred", on && solid(m.sidebar, m.surface),
+            hx(m.sidebar.bg) + " " + m.sidebar.bf);
+          if (feature === "prefers-contrast")
+            check(at + ": the sidebar's trailing edge is 1px --line-strong",
+              m.sideRight.w === 1 && __same(m.sideRight.col, m.strong), m.sideRight.w + "px " + hx(m.sideRight.col));
+        }
+        if (feature === "prefers-contrast")
+          check(at + ": a .glist is outlined, 1px --line-strong on all four sides",
+            !!m.glist && m.glist.every(b => b.w === 1 && __same(b.col, m.strong)),
+            m.glist ? m.glist.map(b => b.w + "px " + hx(b.col)).join(", ") : "no visible .glist on /");
+        check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+        await ctx.close();
+      }
+    }
+  }
+
+  // ---- reduced motion: the swap is instant ----
+  console.log("\nthe inline title under reduced motion");
+  for (const motion of ["reduce", "no-preference"]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: motion }, "light");
+    await page.goto(URL + "/calendar", { waitUntil: "load" });
+    await page.waitForSelector("#view .cal-grid");
+    await frames(page);
+    // Read the title in the same task the class that shows it lands: an
+    // instant swap is already opaque there; a fade is still at its start.
+    const r = await page.evaluate(() => new Promise(done => {
+      const bar = document.querySelector("#topbar"), title = document.querySelector("#tbTitle");
+      const h1 = document.querySelector("#view h1");
+      if (!h1) return done({ err: "no h1" });
+      const t = setTimeout(() => { mo.disconnect(); done({ err: "the inline title never came on" }); }, 3000);
+      const mo = new MutationObserver(() => {
+        if (!bar.classList.contains("lt-on")) return;
+        mo.disconnect(); clearTimeout(t);
+        done({
+          op: getComputedStyle(title).opacity,
+          fades: bar.getAnimations({ subtree: true }).filter(a => a.playState === "running")
+            .map(a => (a.transitionProperty || a.animationName || "?") + " on " + (a.effect && a.effect.pseudoElement ? "::" + a.effect.pseudoElement.replace(/^:+/, "") : a.effect && a.effect.target ? a.effect.target.id || a.effect.target.className : "?")),
+        });
+      });
+      mo.observe(bar, { attributes: true, attributeFilter: ["class"] });
+      const y = h1.getBoundingClientRect().top + scrollY - bar.getBoundingClientRect().bottom + 200;
+      window.scrollTo({ top: y, behavior: "instant" });
+    }));
+    if (motion === "reduce")
+      check("reduced motion: the inline title is opaque the moment it is shown, with no fade on the title or the edge",
+        !r.err && r.op === "1" && r.fades.length === 0, r.err || "opacity " + r.op + " in the same task; running: " + (r.fades.join(", ") || "none"));
+    else
+      check("motion allowed: the same measurement sees the title fade in (so the check above is not blind)",
+        !r.err && r.op !== "1" && r.fades.some(f => /opacity/.test(f)), r.err || "opacity " + r.op + "; running: " + (r.fades.join(", ") || "none"));
+    check("reduced motion (" + motion + "): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- a render is a read: scrolling a lesson with its video on screen ----
+  console.log("\nscrolling a lesson page");
+  {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light" }, "light");
+    await page.goto(URL + "/__boot", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await go(page, "/lesson/math110/0/13");
+    const before = await page.evaluate(() => {
+      const f = document.querySelector("#view .video-frame iframe");
+      if (f) f.dataset.designStamp = "original";
+      window.__viewRebuilds = 0;
+      new MutationObserver(ms => { for (const m of ms) if (m.addedNodes.length) window.__viewRebuilds++; })
+        .observe(document.querySelector("#view"), { childList: true });
+      window.__barSeen = new Set();
+      const bar = document.querySelector("#topbar");
+      new MutationObserver(() => bar.classList.forEach(c => window.__barSeen.add(c)))
+        .observe(bar, { attributes: true, attributeFilter: ["class"] });
+      return { frame: !!f, writes: window.__stateWrites };
+    });
+    for (const [y, want] of [[300, true], [900, true], [0, false]]) {
+      await page.evaluate(y => window.scrollTo({ top: y, behavior: "instant" }), y);
+      await page.waitForFunction(w => /\bedge-on\b/.test(document.querySelector("#topbar").className) === w,
+        want, { timeout: 2000, polling: "raf" }).catch(() => {});
+      await frames(page);
+    }
+    const after = await page.evaluate(() => {
+      const f = document.querySelector("#view .video-frame iframe");
+      return { stamp: f ? f.dataset.designStamp || "(rebuilt)" : "(gone)", writes: window.__stateWrites,
+               rebuilds: window.__viewRebuilds, seen: [...window.__barSeen].sort() };
+    });
+    check("lesson page: there is a video frame to protect", before.frame, before.frame ? "iframe present" : "no .video-frame iframe");
+    check("lesson page: scrolling ran the nav bar through its states (the observer was live)",
+      after.seen.includes("lt-on") && after.seen.includes("edge-on"), "classes seen: " + (after.seen.join(" ") || "none"));
+    check("lesson page: scrolling is a read — no state write, no view rebuilt, the same <iframe> node",
+      after.writes === before.writes && after.rebuilds === 0 && after.stamp === "original",
+      "state writes " + before.writes + " -> " + after.writes + ", view rebuilds " + after.rebuilds + ", iframe " + after.stamp);
+    check("lesson page: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // =================== T-007: the lists ===================
+  const LIST_NAMES = {
+    fill: "every visible .glist is an opaque --surface section",
+    shape: "every visible .glist has 12px corners and clips its rows (overflow hidden)",
+    head: "every .ghead is sentence case (text-transform none), 20px, 600, with no rule",
+    meta: "every .gh-meta is 15px --ink-2 with tabular numerals",
+    height: "every .grow is at least 44px tall (56 with a subtitle)",
+    type: ".g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2",
+    value: ".g-v has tabular numerals and no mono face",
+    sep: "no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it",
+    lead: "the leading slot is --ink-2 and the chevron --ink-3",
+  };
+  const listMeasured = new Set(), listNA = new Set();
+  for (const { w, h, mobile } of WIDTHS) {
+    for (const theme of THEMES) {
+      const at = w + "px " + theme;
+      console.log("\nlists, " + at);
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      for (const route of LIST_ROUTES) {
+        await go(page, route);
+        const m = await page.evaluate(listState);
+        const where = at + " " + route;
+        if (!m.n.glist) {
+          // A route the spec names that has no list is reported, not passed:
+          // only /workshop is allowed to be empty, and only while it is.
+          if (LIST_NA.has(route)) { listNA.add(route); console.log("  n/a   " + where + ": no .glist on this route"); continue; }
+          check(where + ": has a .glist to measure", false, "no visible .glist");
+          continue;
+        }
+        listMeasured.add(route);
+        const counts = { fill: m.n.glist, shape: m.n.glist, head: m.n.ghead, meta: m.n.ghmeta, height: m.n.row,
+                         type: (m.n.gt || 0) + (m.n.gs || 0), value: m.n.gv, sep: m.n.sep, lead: (m.n.lead || 0) + (m.n.chev || 0) };
+        for (const k of Object.keys(LIST_NAMES)) {
+          if (!counts[k] && !m.bad[k]) continue;          // nothing of that kind on this route
+          const b = m.bad[k] || [];
+          check(where + ": " + LIST_NAMES[k], b.length === 0,
+            b.length ? b.length + " — " + b.slice(0, 3).join("; ") : counts[k] + " measured");
+        }
+      }
+      check(at + " lists: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
+  // ---- the keyboard ring, inside the section that clips it ----
+  // Reached with the Tab key from a fresh page, so :focus-visible is the
+  // browser's own decision and not a forced state.
+  const RING_MIN = 0.6;              // the ring's colour, at least 60% of the way there
+  let ringsSeen = 0;
+  for (const { w, h, mobile } of WIDTHS) {
+    for (const theme of THEMES) {
+      const at = w + "px " + theme + " / keyboard ring";
+      console.log("\nthe keyboard ring, " + w + "px " + theme);
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/");
+      const label = await page.evaluate(markOneRow);
+      let tabs = 0, reached = false;
+      if (label) {
+        for (; tabs < 200 && !reached; tabs++) {
+          await page.keyboard.press("Tab");
+          reached = await page.evaluate(() => {
+            const g = document.querySelector("[data-ring-list]"), a = document.activeElement;
+            return !!a && a.parentElement === g;
+          });
+        }
+      }
+      check(at + ": Tab reaches the row of a one-row section", !!label && reached,
+        !label ? "no one-row .glist on /" : reached ? "\"" + label + "\" after " + tabs + " Tab presses" : "not reached in " + tabs + " presses");
+      if (!reached) { await ctx.close(); continue; }
+      await frames(page);
+      const r = await page.evaluate(ringState);
+      if (r.err) { check(at + ": the focused row can be measured", false, r.err); await ctx.close(); continue; }
+      ringsSeen++;
+      const box = b => [b.l, b.t, b.r, b.b].map(v => +v.toFixed(1)).join(",");
+      check(at + ": the row is :focus-visible with a solid, opaque, non-zero --accent outline",
+        r.fv && r.style !== "none" && r.w >= 2 && r.col[3] === 255 && __same(r.col, r.accent),
+        r.name + " :focus-visible " + r.fv + ", outline " + r.style + " " + r.w + "px " + hx(r.col) + " (--accent " + hx(r.accent) + "), offset " + r.off + "px");
+      const inside = r.ring.l >= r.clip.l - 0.01 && r.ring.t >= r.clip.t - 0.01 && r.ring.r <= r.clip.r + 0.01 && r.ring.b <= r.clip.b + 0.01;
+      check(at + ": the outline's outer box lies inside the section's box (the box that clips it)", inside,
+        "outline " + box(r.ring) + " in section " + box(r.clip));
+      check(at + ": nothing covers the section while its pixels are read", r.covered.length === 0,
+        r.covered.length ? "covered by " + r.covered.join(", ") : "clear");
+      // Painted, not just declared: the section with the row focused, then
+      // blurred, the second shot the baseline the first is measured against.
+      const sec = page.locator("[data-ring-list]");
+      const shotOn = (await sec.screenshot()).toString("base64");
+      await page.evaluate(() => document.activeElement.blur());
+      await frames(page);
+      const shotOff = (await sec.screenshot()).toString("base64");
+      const p = await page.evaluate(ringPixels, [shotOn, shotOff]);
+      const fmt = o => Object.entries(o).map(([k, v]) => k + " " + v.toFixed(2)).join(", ");
+      check(at + ": the ring is painted at the middle of all four sides (>= " + RING_MIN + " of the way to --accent)",
+        !p.err && Object.values(p.sides).every(v => v >= RING_MIN), p.err || fmt(p.sides));
+      check(at + ": and round all four rounded corners, not cut by the clip",
+        !p.err && Object.values(p.corners).every(v => v >= RING_MIN), p.err || fmt(p.corners));
+      check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
+  // ---- the press, in all seven themes ----
+  // Rows forced :active on a phone and :hover on a desktop; the sidebar's rows
+  // forced :active in the drawer and :hover + :active beside the page, with
+  // the theme menu open so its buttons are measured too.
+  const ALL_THEMES = ["light", "parchment", "dark", "forest", "midnight", "latte", "slate"];
+  let pressRows = 0, pressTexts = 0;
+  for (const theme of ALL_THEMES) {
+    console.log("\npress, " + theme);
+    for (const { w, h, mobile } of WIDTHS) {
+      const state = mobile ? ["active"] : ["hover"];
+      const sideState2 = mobile ? ["active"] : ["hover", "active"];
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile }, theme, seedScores);
+      const cdp = await ctx.newCDPSession(page);
+      await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const measure = async sel => {
+        await frames(page);
+        let r = await page.evaluate(pressState, sel);
+        // A finding has to survive a re-measure.
+        if (r.lowFill.length || r.lowText.length) { await page.waitForTimeout(250); r = await page.evaluate(pressState, sel); }
+        return r;
+      };
+      for (const route of PRESS_ROUTES) {
+        await go(page, route);
+        // Every row takes the press (.grow:active has no selector on the
+        // element); only a row that goes somewhere — a link or a button —
+        // takes the hover.
+        const sel = mobile ? "#view .glist > .grow" : "#view .glist > a.grow, #view .glist > button.grow";
+        const nForced = await force(cdp, sel, state);
+        const r = await measure(sel);
+        await force(cdp, sel, []);
+        const where = w + "px " + theme + " " + route + " rows :" + state.join(":");
+        pressRows += r.rows; pressTexts += r.texts;
+        check(where + ": the pressed fill stands off the section (>= 1.05:1)", r.rows > 0 && nForced > 0 && r.lowFill.length === 0,
+          r.rows === 0 ? "no visible row" : r.lowFill.length ? r.lowFill.slice(0, 3).join("; ") : r.rows + " rows, least " + r.fill.r.toFixed(3) + ":1 (" + r.fill.at + ")");
+        check(where + ": every text node on a pressed row is >= 4.5:1 (3:1 large)", r.texts > 0 && r.lowText.length === 0,
+          r.lowText.length ? r.lowText.length + " — " + r.lowText.slice(0, 3).join("; ") : r.texts + " texts, least " + r.text.r.toFixed(2) + ":1 (" + r.text.at + ")");
+      }
+      // The sidebar's own rows.
+      await go(page, "/");
+      if (!mobile) await page.evaluate(() => document.querySelector("#themeMenu").classList.add("open"));
+      const ssel = ".sidebar .nav a, .sidebar .navrow, .sidebar .theme-menu button";
+      await force(cdp, ssel, sideState2);
+      const r = await measure(ssel);
+      await force(cdp, ssel, []);
+      const where = w + "px " + theme + " sidebar rows :" + sideState2.join(":");
+      pressRows += r.rows; pressTexts += r.texts;
+      check(where + ": the pressed fill stands off the sidebar (>= 1.05:1)", r.rows > 0 && r.lowFill.length === 0,
+        r.rows === 0 ? "no visible row" : r.lowFill.length ? r.lowFill.slice(0, 3).join("; ") : r.rows + " rows, least " + r.fill.r.toFixed(3) + ":1 (" + r.fill.at + ")");
+      check(where + ": every label on a pressed row is >= 4.5:1", r.texts > 0 && r.lowText.length === 0,
+        r.lowText.length ? r.lowText.length + " — " + r.lowText.slice(0, 3).join("; ") : r.texts + " texts, least " + r.text.r.toFixed(2) + ":1 (" + r.text.at + ")");
+      check(w + "px " + theme + " press: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -564,9 +1414,16 @@ function safeAreaSource() {
   check("no request for Libre Caslon", caslonReq.length === 0, caslonReq[0] || [...new Set(requests.filter(u => /fonts\.googleapis/.test(u)))].join(" ; "));
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
 
+  const na = [...listNA].filter(r => !listMeasured.has(r));
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " design checks: " + ROUTES.length + " routes x " + WIDTHS.length + " widths x " +
-      THEMES.length + " themes, the empty tracks, the Auto theme, cellPick and the status-bar inset"
+      THEMES.length + " themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; " +
+      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the sidebar, " +
+      "reduced transparency, more contrast, reduced motion and a scroll that is a read; " +
+      "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
+      WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +
+      " contexts; the press on " + pressRows + " rows (" + pressTexts +
+      " texts) in " + ALL_THEMES.length + " themes"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

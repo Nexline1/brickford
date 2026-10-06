@@ -2,6 +2,7 @@
 
 | date | item | rounds | result | blocker |
 |---|---|---|---|---|
+| 2026-10-06 | reset six | 0 | Owner asked for 7 Oct as day 3; refused with numbers (12 study days, finish 2030-03-19 -> 2030-04-02); owner reaffirmed. Branch reset/start-2026-10-05 (03adb87): START_DATE 2026-10-05, verify-logic facts + fixtures +14d, gate pins 2026-10-06 -> 2026-10-20 (same plan day), CLAUDE.md updated. All gates green, Day 003 on 7 Oct confirmed. In review. | T-024 builder hit a usage limit before saving anything; to relaunch after the reset |
 | 2026-10-06 | T-006+T-007 | 3 | pr-open: PR #5 (owner go). Contains only T-006+T-007 (T-005 already merged). | none |
 | 2026-10-06 | T-016 | 1 | Builder stopped on a usage limit before its first checkpoint; the worktree survived, so the partial work (app.js/style.css +317) was committed and pushed as 50a2e4f before resuming the build. | none |
 | 2026-10-04 | T-006+T-007 | 3 | APPROVED round 3 (branch cb1fdd0): inset focus ring, menu button on screen, true theme-color comment, railbar safe-area fix. Awaiting owner go to open the PR. T-016 build started on top, per the owner. | none |

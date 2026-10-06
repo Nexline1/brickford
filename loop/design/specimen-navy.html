@@ -1,0 +1,251 @@
+<!doctype html>
+<!-- Brickford navy-into-gold specimen (loop/design/brief.md §9). Static; links nothing
+     from the app. Hash picks the screen: #splash-0 #splash-1 #splash-2 (the opening
+     screen's start, middle and end frames), #splash (the live animation), #home,
+     #home-slide (the tab bar mid-slide), #course. Owner-approved direction
+     (2026-10-06): Batelco-inspired layout, navy blending into Brickford gold,
+     dark navy by default, floating slide-to-switch tab bar. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brickford navy specimen</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0c1330; --bg-2: #101839; --surface: #1a2248; --surface-2: #232c58; --line: #2e3866;
+  --ink: #ffffff; --ink-2: #c3c8de; --ink-3: #9aa2c4;
+  --gold: #e0b35a; --gold-ink: #121a38; --gold-soft: rgb(224 179 90 / .16);
+  --good: #6cc394; --bad: #ef6f5e; --badge: #c4342a;
+  --r-chip: 999px; --r-card: 24px; --r-in: 16px;
+  --font: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --rounded: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.45 var(--font); font-variant-numeric: tabular-nums; min-height: 100vh; }
+button { font: inherit; color: inherit; border: 0; background: none; }
+.screen { display: none; min-height: 100vh; }
+.screen.on { display: block; }
+.screen.splash:not(.on) { display: none; }
+.screen.splash.on { display: grid; }
+
+/* ---------- the opening screen ---------- */
+.splash { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden;
+  background:
+    radial-gradient(130% 60% at 0% 100%, #d9a441 0%, #a8732a 18%, #5e3f2c 38%, rgb(40 32 62 / 0) 66%),
+    radial-gradient(90% 40% at 100% 100%, rgb(150 104 40 / .55) 0%, rgb(150 104 40 / 0) 70%),
+    linear-gradient(180deg, #0d1636 0%, #0f1838 55%, #1a1d3f 100%); }
+.lockup { display: flex; align-items: center; gap: 18px; }
+.lockup svg { width: 84px; height: 94px; transform-origin: 50% 55%; }
+.lockup .cr-field { fill: var(--gold); }
+.lockup .cr-key { fill: none; stroke: #0d1636; stroke-width: 3; opacity: .55; }
+.lockup .cr-cut { fill: #0d1636; }
+.lockup .cr-stem { fill: none; stroke: #0d1636; stroke-width: 3.4; stroke-linecap: round; }
+.word b { display: block; font: 700 2.5rem/1 var(--font); letter-spacing: -0.025em; }
+.word span { display: block; margin-top: 6px; text-align: right; font: 500 1.0625rem/1 var(--font); color: #f1dfb8; letter-spacing: .01em; }
+/* frames */
+#splash-0 .lockup svg { transform: scale(.86); } #splash-0 .word { opacity: 0; transform: translateY(6px); }
+#splash-1 .lockup svg { transform: scale(1.06); } #splash-1 .word { opacity: .55; transform: translateY(3px); }
+/* live animation: logo zooms out, in, settles; wordmark fades in under it */
+#splash .lockup svg { animation: crest 900ms cubic-bezier(.2,.7,.2,1) both; }
+#splash .word { animation: word 520ms 360ms ease-out both; }
+@keyframes crest { 0% { transform: scale(.86); opacity: 0; } 35% { opacity: 1; } 62% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes word { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { #splash .lockup svg, #splash .word { animation: none; } }
+
+/* ---------- app ---------- */
+.app { padding-bottom: 120px; position: relative; }
+.glow { position: absolute; inset: 0 0 auto 0; height: 360px; pointer-events: none;
+  background: radial-gradient(70% 70% at 78% 8%, rgb(201 154 74 / .30) 0%, rgb(201 154 74 / 0) 70%),
+              radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .35) 0%, rgb(70 84 170 / 0) 70%); }
+.top { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 0; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 700 1.25rem/1 var(--font); letter-spacing: -0.02em; }
+.brand svg { width: 28px; height: 31px; }
+.card svg .cr-field { fill: currentColor; } .card svg .cr-key { fill: none; stroke: #f5f1e8; stroke-width: 3; opacity: .6; } .card svg .cr-cut { fill: #f5f1e8; } .card svg .cr-stem { fill: none; stroke: #f5f1e8; stroke-width: 3.4; }
+.brand .cr-field { fill: var(--gold); } .brand .cr-key, .brand .cr-cut, .brand .cr-stem { display: none; }
+.acts { display: flex; gap: 4px; }
+.ib { width: 44px; height: 44px; display: grid; place-items: center; color: #fff; }
+.hello { position: relative; padding: 22px 20px 0; }
+.hello small { display: block; color: #f1dfb8; font: 500 0.9375rem/1.3 var(--font); }
+.hello h1 { font: 700 2rem/1.15 var(--font); letter-spacing: -0.025em; margin-top: 2px; }
+
+.sheet { position: relative; margin-top: 22px; background: var(--bg-2); border-radius: 32px 32px 0 0; padding: 20px 16px 8px; }
+.card { background: var(--surface); border-radius: var(--r-card); padding: 18px; }
+.card + .card { margin-top: 14px; }
+.cw { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: center; }
+.cover { position: relative; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden;
+  background: linear-gradient(135deg, #1f2c63 0%, #2a3a7a 55%, #8a5f1f 100%); }
+.cover i { position: absolute; left: 0; bottom: 0; height: 3px; width: 41%; background: var(--gold); }
+.cover .pl { position: absolute; inset: 0; margin: auto; width: 30px; height: 30px; border-radius: 50%; background: rgb(0 0 0 / .45); display: grid; place-items: center; }
+.cw h2 { font: 700 1.125rem/1.25 var(--font); }
+.cw p { color: var(--ink-2); font-size: 0.875rem; margin-top: 2px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
+.stat { background: var(--bg-2); border-radius: var(--r-in); padding: 12px; }
+.stat b { display: block; font: 700 1.5rem/1.1 var(--rounded); letter-spacing: -0.02em; }
+.stat span { color: var(--ink-3); font: 500 0.75rem/1.3 var(--font); }
+.go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; margin-top: 16px; border-radius: 999px;
+  background: var(--gold); color: var(--gold-ink); font: 700 1.0625rem/1 var(--font); }
+.chips { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 4px -16px 0; padding: 0 16px; }
+.chip { flex: none; display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: var(--r-chip);
+  border: 1px solid var(--line); color: #fff; font: 600 0.9375rem/1 var(--font); }
+.chip.on { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.meter { margin-top: 14px; background: var(--bg-2); border-radius: var(--r-in); padding: 16px; }
+.meter b { font: 700 1.75rem/1 var(--rounded); letter-spacing: -0.02em; }
+.meter span { color: var(--ink-2); font-size: 0.9375rem; }
+.bar { height: 8px; border-radius: 99px; background: #3a4475; margin-top: 12px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 47%; border-radius: inherit; background: linear-gradient(90deg, #c9973f, var(--gold)); }
+.h3 { font: 700 1.25rem/1.2 var(--font); letter-spacing: -0.015em; margin: 26px 4px 12px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile { background: var(--surface); border-radius: 20px; padding: 16px; min-height: 120px; display: grid; align-content: space-between; }
+.tile .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); }
+.tile b { font: 700 1rem/1.25 var(--font); }
+.tile span { color: var(--ink-3); font-size: 0.8125rem; }
+
+/* ---------- the floating tab bar ---------- */
+.tabs { position: fixed; left: 14px; right: 14px; bottom: 16px; z-index: 9; height: 70px; border-radius: 999px; display: grid; grid-template-columns: repeat(5, 1fr);
+  background: rgb(26 34 72 / .78); backdrop-filter: blur(22px) saturate(170%); -webkit-backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid rgb(255 255 255 / .10); box-shadow: 0 10px 30px rgb(0 0 0 / .45); padding: 6px; }
+.bubble { position: absolute; top: 6px; bottom: 6px; left: 6px; width: calc((100% - 12px) / 5); border-radius: 999px;
+  background: rgb(255 255 255 / .10); border: 1px solid rgb(255 255 255 / .10); transition: transform 380ms cubic-bezier(.2,.8,.2,1); }
+.tab { position: relative; display: grid; justify-items: center; align-content: center; gap: 3px; color: #d6dbee; font: 600 0.6875rem/1.1 var(--font); }
+.tab svg { width: 24px; height: 24px; }
+.tab.on { color: var(--gold); }
+.tab .badge { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--badge);
+  color: #fff; font: 700 0.75rem/20px var(--font); text-align: center; }
+.finger { position: absolute; width: 44px; height: 44px; border-radius: 50%; background: rgb(255 255 255 / .22); border: 2px solid rgb(255 255 255 / .55);
+  top: 13px; pointer-events: none; display: none; }
+#s-home-slide .finger, body.slide .finger { display: block; }
+
+/* ---------- desktop ---------- */
+.side { display: none; }
+@media (min-width: 900px) {
+  .app { display: grid; grid-template-columns: 260px 1fr; padding-bottom: 40px; }
+  .side { display: block; position: sticky; top: 0; height: 100vh; padding: 22px 14px; background: #0a1029; border-right: 1px solid var(--line); }
+  .side a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 14px; border-radius: 999px; color: #d6dbee; font: 600 0.9375rem/1 var(--font); }
+  .side a.on { background: var(--gold-soft); color: var(--gold); }
+  .side .brand { padding: 0 10px 26px; }
+  .tabs { display: none; }
+  .main { max-width: 1060px; padding: 0 36px; position: relative; }
+  .top { padding: 18px 0 0; } .top .brand { visibility: hidden; }
+  .hello { padding: 18px 0 0; } .hello h1 { font-size: 2.5rem; }
+  .sheet { background: none; padding: 20px 0 0; border-radius: 0; }
+  .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
+  .grid2 .card + .card { margin-top: 0; }
+  .tiles { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="crest" viewBox="0 0 200 224"><path class="cr-field" d="M18 16 H182 V118 C182 168 143 199 100 212 C57 199 18 168 18 118 Z"/><path class="cr-key" d="M30 28 H170 V118 C170 160 137 187 100 199 C63 187 30 160 30 118 Z"/><polygon class="cr-cut" points="54.2,99.7 40.3,98.4 44.3,81.8 57.3,87.0"/><polygon class="cr-cut" points="58.1,84.9 45.4,79.1 54.6,64.8 65.2,73.9"/><polygon class="cr-cut" points="66.7,72.3 56.6,62.6 69.9,52.1 77.0,64.2"/><polygon class="cr-cut" points="78.9,63.1 72.5,50.7 88.6,45.1 91.3,58.8"/><polygon class="cr-cut" points="93.5,58.5 91.5,44.6 108.5,44.6 106.5,58.5"/><polygon class="cr-cut" points="108.7,58.8 111.4,45.1 127.5,50.7 121.1,63.1"/><polygon class="cr-cut" points="123.0,64.2 130.1,52.1 143.4,62.6 133.3,72.3"/><polygon class="cr-cut" points="134.8,73.9 145.4,64.8 154.6,79.1 141.9,84.9"/><polygon class="cr-cut" points="142.7,87.0 155.7,81.8 159.7,98.4 145.8,99.7"/><polygon class="cr-cut" points="100,58 142,84 58,84"/><rect class="cr-cut" x="58" y="88" width="84" height="7" rx="1"/><rect class="cr-cut" x="63.0" y="99" width="9" height="47"/><rect class="cr-cut" x="84.5" y="99" width="9" height="47"/><rect class="cr-cut" x="106.0" y="99" width="9" height="47"/><rect class="cr-cut" x="127.5" y="99" width="9" height="47"/><rect class="cr-cut" x="52" y="150" width="96" height="7" rx="1"/><rect class="cr-cut" x="46" y="161" width="108" height="7" rx="1"/><path class="cr-stem" d="M60.0 178 C38.0 158 30.0 118 48.0 78"/><ellipse class="cr-cut" cx="51.0" cy="178.0" rx="10.5" ry="5.2" transform="rotate(58 51.0 178.0)"/><ellipse class="cr-cut" cx="41.2" cy="166.4" rx="10.0" ry="5.0" transform="rotate(52 41.2 166.4)"/><ellipse class="cr-cut" cx="34.1" cy="152.1" rx="9.4" ry="4.7" transform="rotate(47 34.1 152.1)"/><ellipse class="cr-cut" cx="30.0" cy="135.5" rx="8.9" ry="4.5" transform="rotate(41 30.0 135.5)"/><ellipse class="cr-cut" cx="29.2" cy="117.3" rx="8.4" ry="4.2" transform="rotate(35 29.2 117.3)"/><ellipse class="cr-cut" cx="32.1" cy="97.9" rx="7.8" ry="4.0" transform="rotate(30 32.1 97.9)"/><ellipse class="cr-cut" cx="39.0" cy="78.0" rx="7.3" ry="3.7" transform="rotate(24 39.0 78.0)"/><path class="cr-stem" d="M140.0 178 C162.0 158 170.0 118 152.0 78"/><ellipse class="cr-cut" cx="149.0" cy="178.0" rx="10.5" ry="5.2" transform="rotate(-58 149.0 178.0)"/><ellipse class="cr-cut" cx="158.8" cy="166.4" rx="10.0" ry="5.0" transform="rotate(-52 158.8 166.4)"/><ellipse class="cr-cut" cx="165.9" cy="152.1" rx="9.4" ry="4.7" transform="rotate(-47 165.9 152.1)"/><ellipse class="cr-cut" cx="170.0" cy="135.5" rx="8.9" ry="4.5" transform="rotate(-41 170.0 135.5)"/><ellipse class="cr-cut" cx="170.8" cy="117.3" rx="8.4" ry="4.2" transform="rotate(-35 170.8 117.3)"/><ellipse class="cr-cut" cx="167.9" cy="97.9" rx="7.8" ry="4.0" transform="rotate(-30 167.9 97.9)"/><ellipse class="cr-cut" cx="161.0" cy="78.0" rx="7.3" ry="3.7" transform="rotate(-24 161.0 78.0)"/><rect class="cr-cut" x="93" y="35" width="14" height="14" transform="rotate(45 100 42)"/><rect class="cr-cut" x="94" y="177" width="12" height="12" transform="rotate(45 100 183)"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5c3-.8 6-.5 9 1.5 3-2 6-2.3 9-1.5v13c-3-.8-6-.5-9 1.5-3-2-6-2.3-9-1.5z" fill="currentColor"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM9 12h8v2H9zm0 4h8v2H9z" fill="currentColor"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 2h6v2h-1v5l6 10a2 2 0 0 1-1.7 3H5.7A2 2 0 0 1 4 19l6-10V4H9z" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-1.2 13.6 6.4-6.4-1.4-1.4-5 5-2.3-2.3-1.4 1.4z" fill="currentColor"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm-2 6h18" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 2v4M16 2v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 12 14"><path d="M1 1.5v11a.8.8 0 0 0 1.2.7l9-5.5a.8.8 0 0 0 0-1.4l-9-5.5A.8.8 0 0 0 1 1.5z" fill="currentColor"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-4-1-6 1-9.5z" fill="currentColor"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="M3 6h12a2 2 0 0 1 2 2v1.5l4-2.5v10l-4-2.5V16a2 2 0 0 1-2 2H3z" fill="currentColor"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+</svg>
+
+<!-- ================= OPENING SCREEN (start / middle / end / live) ================= -->
+<section class="screen splash" id="s-splash"><div class="lockup"><svg><use href="#crest"/></svg><div class="word"><b>Brickford</b><span>Self-built university</span></div></div></section>
+
+<!-- ================= HOME ================= -->
+<div class="screen" id="s-home">
+ <div class="app">
+  <aside class="side">
+    <div class="brand"><svg><use href="#crest"/></svg>Brickford</div>
+    <a class="on"><svg width="20" height="20"><use href="#i-home"/></svg>Today</a>
+    <a><svg width="20" height="20"><use href="#i-book"/></svg>Courses</a>
+    <a><svg width="20" height="20"><use href="#i-doc"/></svg>Exams</a>
+    <a><svg width="20" height="20"><use href="#i-flask"/></svg>Problems</a>
+    <a><svg width="20" height="20"><use href="#i-check"/></svg>Review</a>
+  </aside>
+  <div class="main">
+   <div class="glow"></div>
+   <div class="top">
+     <div class="brand"><svg><use href="#crest"/></svg>Brickford</div>
+     <div class="acts"><button class="ib" aria-label="Search"><svg width="22" height="22"><use href="#i-search"/></svg></button>
+       <button class="ib" aria-label="Calendar"><svg width="22" height="22"><use href="#i-cal"/></svg></button></div>
+   </div>
+   <div class="hello"><small>Day 14 · Week 3 · <svg width="13" height="13" style="color:var(--gold);vertical-align:-1px"><use href="#i-flame"/></svg> 4</small><h1>Good evening, Ali</h1></div>
+   <div class="sheet">
+    <div class="grid2">
+     <div class="card">
+      <div class="cw"><div class="cover"><span class="pl"><svg width="11" height="13" style="color:#fff"><use href="#i-play"/></svg></span><i></i></div>
+        <div><h2>Rate of Change</h2><p>MATH 120 · 31 min left</p></div></div>
+      <div class="stats"><div class="stat"><b>0/2</b><span>Today</span></div><div class="stat"><b>2h 47</b><span>Planned</span></div><div class="stat"><b>3</b><span>Due</span></div></div>
+      <button class="go"><svg width="12" height="14"><use href="#i-play"/></svg>Resume at 21:14</button>
+     </div>
+     <div class="card">
+      <div class="chips"><span class="chip on"><svg width="18" height="18"><use href="#i-video"/></svg>Lectures</span><span class="chip"><svg width="18" height="18"><use href="#i-pen"/></svg>Problems</span><span class="chip"><svg width="18" height="18"><use href="#i-check"/></svg>Review</span></div>
+      <div class="meter"><b>7 h 12</b> <span>watched this week of 15 h</span><div class="bar"><i></i></div></div>
+     </div>
+    </div>
+    <div class="h3">Your courses</div>
+    <div class="tiles">
+      <div class="tile"><span class="ic"><svg width="20" height="20"><use href="#i-book"/></svg></span><div><b>Linear Algebra</b><br><span>2 of 16 · Unit I</span></div></div>
+      <div class="tile"><span class="ic"><svg width="20" height="20"><use href="#i-video"/></svg></span><div><b>Calculus</b><br><span>1 of 47 · Unit I</span></div></div>
+      <div class="tile"><span class="ic"><svg width="20" height="20"><use href="#i-pen"/></svg></span><div><b>AI 200 · Build</b><br><span>Makemore 4</span></div></div>
+      <div class="tile"><span class="ic"><svg width="20" height="20"><use href="#i-doc"/></svg></span><div><b>Exams</b><br><span>Next in 9 days</span></div></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- ================= COURSE ================= -->
+<div class="screen" id="s-course">
+ <div class="app"><div class="main" style="grid-column:1/-1">
+   <div class="glow"></div>
+   <div class="top"><div class="brand" style="font-size:1.375rem">Linear Algebra</div><div class="acts"><button class="ib" aria-label="Search"><svg width="22" height="22"><use href="#i-search"/></svg></button></div></div>
+   <div class="sheet" style="margin-top:14px">
+    <div class="card" style="background:linear-gradient(135deg,#ece6d8 0%,#f5f1e8 55%,#d9c49a 100%);color:#121a38;background-color:#ece6d8">
+      <svg width="34" height="38" style="color:#b0832f"><use href="#crest"/></svg>
+      <div style="font:700 2rem/1.1 var(--font);letter-spacing:-.025em;margin-top:18px">MATH 110</div>
+      <div style="display:flex;justify-content:space-between;margin-top:18px;font-size:.875rem;color:#4b4f63"><span>Watched<br><b style="font:700 1.375rem/1.2 var(--rounded);color:#121a38">2 / 51</b></span><span style="text-align:right">Proven<br><b style="font:700 1.375rem/1.2 var(--rounded);color:#121a38">1</b></span></div>
+    </div>
+    <div class="card">
+      <div class="chips"><span class="chip on">Unit I</span><span class="chip">Unit II</span><span class="chip">Exams</span></div>
+      <div class="meter"><b>2</b> <span>of 16 lectures in Unit I</span><div class="bar"><i style="width:12.5%"></i></div></div>
+      <button class="go"><svg width="12" height="14"><use href="#i-play"/></svg>Continue</button>
+    </div>
+   </div>
+ </div></div>
+</div>
+
+<nav class="tabs" aria-label="Tabs">
+  <span class="bubble"></span>
+  <a class="tab on"><svg><use href="#i-home"/></svg>Today</a>
+  <a class="tab"><svg><use href="#i-book"/></svg>Courses</a>
+  <a class="tab"><svg><use href="#i-doc"/></svg>Exams</a>
+  <a class="tab"><svg><use href="#i-flask"/></svg>Problems</a>
+  <a class="tab"><svg><use href="#i-check"/></svg>Review<span class="badge">3</span></a>
+  <span class="finger"></span>
+</nav>
+
+<script>
+  // <use> content can't be reached by page CSS, so the crest is inlined where it is used.
+  const crestSym = document.getElementById("crest");
+  document.querySelectorAll('use[href="#crest"]').forEach(u => { const svg = u.parentNode; svg.setAttribute("viewBox", "0 0 200 224"); svg.innerHTML = crestSym.innerHTML; });
+  const h = (location.hash || "#home").slice(1);
+  const frame = /^splash-(\d)$/.exec(h);
+  const scr = frame || h === "splash" ? "splash" : (h === "home-slide" ? "home" : h);
+  document.getElementById("s-" + scr).classList.add("on");
+  if (frame) document.getElementById("s-splash").id = "splash-" + frame[1];
+  if (h === "splash") document.getElementById("s-splash").id = "splash";
+  if (scr === "splash") document.querySelector(".tabs").style.display = "none";
+  if (scr === "course") { document.querySelectorAll(".tab").forEach((t, i) => t.classList.toggle("on", i === 1));
+    document.querySelector(".bubble").style.transform = "translateX(100%)"; }
+  if (h === "home-slide") { // finger mid-way between Today and Courses: the bubble follows it 1:1
+    document.body.classList.add("slide");
+    const bar = document.querySelector(".tabs"), w = (bar.clientWidth - 12) / 5;
+    document.querySelector(".bubble").style.cssText += ";transition:none;transform:translateX(" + (w * 0.62) + "px)";
+    document.querySelector(".finger").style.left = (6 + w * 1.12 - 22) + "px"; }
+</script>
+</body>
+</html>

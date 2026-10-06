@@ -60,8 +60,8 @@
   /* Navy and gold is the oldest university pairing there is, and the brand
      keeps it: the tint stays in the navy family. */
   --accent: #1e4f8f;      /* tint: links, the active tab, tinted-button labels */
-  /* The filled button and the done-day fill. Its label is always white, which
-     clears 8.2:1 here and 5.3:1 on the dark half's fill. */
+  /* The filled button and the done-day fill. Its label is --accent-fill-ink:
+     white here (8.2:1), navy on the navy theme's gold fill (8.75:1). */
   --accent-fill: #1e4f8f;
   /* The tinted-button fill; its label is --accent (6.9:1). */
   --accent-soft: #e6edf6;
@@ -87,6 +87,12 @@
   --urgent: #9a5a16;
   --btn-bg: #241f1a;
   --btn-ink: #ffffff;
+  /* The label on a FILLED accent: the primary .btn (on --btn-bg), the toast,
+     anything painted --accent-fill (T-024). White on the light half's fills;
+     the navy theme's fill is gold, so its label is navy. A theme whose button
+     is light (midnight, latte) or cream-on-espresso (parchment) restates it
+     as its own --btn-ink, so no theme's colours moved. */
+  --accent-fill-ink: #ffffff;
   /* Elevation, as a three-step scale instead of three unrelated ad-hoc values.
      Derived from --shade so all seven themes get it without restating it, and
      two-layer because a single blur reads as a smudge: a tight shadow gives the
@@ -194,6 +200,8 @@
      use 999px. The two older names map onto it, so every rule that reads them
      moves with the scale. */
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+  /* Cards and grouped sections (T-024, brief §9): 20px in every theme. */
+  --r-card: 20px;
   --radius: var(--r-md); --radius-lg: var(--r-lg);
   --ease: cubic-bezier(0.25, 0.6, 0.3, 1);
   /* Stacking, named once. Ad-hoc numbers turn into an arms race. */
@@ -242,6 +250,7 @@
   --bad: #a8331f;
   --btn-bg: #2b2118;
   --btn-ink: #f8f4ec;
+  --accent-fill-ink: #f8f4ec;
   --panel: #2b2118;
   --panel-ink: #f4ead9;
   --panel-accent: #c99a63;
@@ -252,33 +261,45 @@
   color-scheme: dark;
   --urgent: #d99a4e;
   --shade: #000308;
-  /* The lead pair, dark half: loop/design/brief.md §3. iOS's own dark system
-     neutrals (a true black page, #1c1c1e cells) with Brickford's navy lifted
-     to a tint that reads on black. */
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
+  /* Navy into gold (loop/design/brief.md §9, the owner's decision of
+     2026-10-06, T-024). It replaced T-005's iOS true black (#000000 page,
+     #1c1c1e cells, a blue tint): deep navy surfaces, white ink, and Brickford
+     gold as the single accent — the primary action, the active pill, the tint.
+     Gold is light, so what is written ON it is navy (--accent-fill-ink), never
+     white: white on #e0b35a is 1.95:1, navy #121a38 is 8.75:1.
+     --bad, --fac-math/-sys/-phys/-res/-speech were re-solved for the navy
+     surfaces (hue held, lifted toward white until every one clears 4.5:1 on
+     --surface-2, on --accent-soft and on the glow's declared worst case below);
+     --good, --urgent and --fac-ai already did and are unchanged. */
+  --fac-math: #7faadb; --fac-ai: #d9ab6d; --fac-sys: #65b4ab; --fac-phys: #df9386; --fac-res: #b39cd1; --fac-speech: #cd97b2;
   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
-  --bg: #000000;
-  --bg-2: #0b0e11;
-  --surface: #1c1c1e;
-  --surface-2: #2c2c2e;
-  --surface-float: #22272f;
-  --line: #38383a;
-  --line-strong: #3d454f;
+  --bg: #0c1330;
+  --bg-2: #101839;
+  --surface: #1a2248;
+  --surface-2: #232c58;
+  --surface-float: #232c58;
+  --line: #2e3866;
+  --line-strong: #434d80;
   --ink: #ffffff;
-  --ink-2: #a1a1a6;
-  --ink-3: #8e8e93;
-  --accent: #78aef0;
-  --accent-fill: #2f6bbd;
-  --accent-soft: #1a2a3f;
+  --ink-2: #c3c8de;
+  --ink-3: #9aa2c4;
+  --accent: #e0b35a;
+  --accent-fill: #e0b35a;
+  --accent-fill-ink: #121a38;
+  /* Gold at 16% on --surface, worked out as a solid colour (never an alpha):
+     the sidebar's selection pill and the tinted fill. Gold on it is 5.8:1. */
+  --accent-soft: #3a394b;
   --gold: #e0b35a;
   --accent-2: #9ec2e8;
   --good: #62b881;
-  --bad: #e8705c;
-  --btn-bg: #e8ebef;
-  --btn-ink: #0f1216;
-  /* A dark shadow on a black page is not a shadow: what floats gets a ring. */
+  --bad: #ed8d7d;
+  --btn-bg: #e0b35a;
+  --btn-ink: #121a38;
+  /* A dark shadow on a navy page is not a shadow: what floats gets a ring. */
   --float: 0 0 0 1px var(--line);
-  --panel: #0a0d10;
+  /* The status bar (meta theme-color) is the page itself, so the browser
+     chrome runs straight into the navy. */
+  --panel: #0c1330;
   --panel-ink: #e8ebef;
   --panel-accent: #7fb0e6;
   --feature: var(--accent);
@@ -335,6 +356,7 @@
   --bad: #e8705c;
   --btn-bg: #e7ecf4;
   --btn-ink: #10151f;
+  --accent-fill-ink: #10151f;
   --float: 0 0 0 1px var(--line);
   --panel: #080b12;
   --panel-ink: #e7ecf4;
@@ -369,6 +391,7 @@
   --bad: #f08a78;
   --btn-bg: #f0e7d8;
   --btn-ink: #2b2118;
+  --accent-fill-ink: #2b2118;
   --float: 0 0 0 1px var(--line);
   --panel: #faf7f0;
   --panel-ink: #2b2118;
@@ -590,6 +613,30 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .motto { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; line-height: 1.7; }
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
+/* The glow (T-024, brief §9): in the navy theme only, a faint gold light
+   top-right and an indigo one top-left behind the page head. Decorative, so
+   it never takes a pointer, never moves, and is painted BEHIND the content:
+   .main is its own stacking context (isolation) and the layer sits at
+   z-index -1 inside it, under every child and over nothing.
+   The layer covers the whole of .main and its last image is an opaque --bg,
+   so below the glow the page is the plain navy it always was. Both it and
+   .main declare a solid background-color that is the glow's WORST case for
+   light text — the two peaks stacked on --bg, lighter than any pixel the
+   gradients can paint — so verify-contrast, which measures text against the
+   first opaque ancestor, measures every ink on the page against the
+   brightest point of the glow rather than against a plain navy that is not
+   what is under it. Never shown: the opaque image stack covers it. */
+[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #303149; }
+[data-theme="dark"] .main::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-color: #303149;
+  background-image:
+    radial-gradient(70% 70% at 78% 8%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
+    radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .20) 0%, rgb(70 84 170 / 0) 70%),
+    linear-gradient(var(--bg), var(--bg));
+  background-size: 100% 360px, 100% 360px, 100% 100%;
+  background-repeat: no-repeat;
+}
 
 /* The view declares its own ink rather than inheriting one through the shell.
    In T-006's first round verify-contrast flaked once on a view whose text
@@ -698,7 +745,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .card {
   background: none;
-  border: 1px solid var(--line-strong); border-radius: 0;
+  border: 1px solid var(--line-strong); border-radius: var(--r-card);
   padding: var(--sp-4);
 }
 .card + .card { margin-top: var(--sp-3); }
@@ -723,7 +770,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .card.feature::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
   background: var(--feature);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--r-card) var(--r-card) 0 0;
 }
 
 .grid { display: grid; gap: var(--sp-3); }
@@ -735,8 +782,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--font-body); font-size: var(--fs-small); font-weight: 600;
-  color: var(--btn-ink); background: var(--btn-bg);
-  border: 1px solid var(--btn-bg); border-radius: var(--radius);
+  /* A filled button is a capsule with an --accent-fill-ink label (T-024):
+     navy on the navy theme's gold, white on light. The outlined kinds below
+     (ghost, danger, bare) keep --radius. */
+  color: var(--accent-fill-ink); background: var(--btn-bg);
+  border: 1px solid var(--btn-bg); border-radius: 999px;
   padding: clamp(9px, 0.5625rem, 12px) clamp(18px, 1.125rem, 24px); cursor: pointer;
   box-shadow: var(--btn-gloss), var(--lift);
   transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
@@ -749,13 +799,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    silently winning. */
 /* No gloss: a ghost button is the colour of the paper, so a white inset on top
    of it lights nothing. The lift alone is what stands it off the page. */
-.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); box-shadow: var(--lift-edge), var(--lift); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius); box-shadow: var(--lift-edge), var(--lift); }
 /* The hover is a gray fill, and --line is the one fill that stands off both
    --bg (>= 1.19:1) and --surface (>= 1.28:1) in all seven themes. It was
    --bg-2, which is 1.009:1 on the light --bg — a hover nobody could see. The
    label is --ink, >= 9.9:1 on --line everywhere. */
 .btn.ghost:hover { opacity: 1; background: var(--line); }
-.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: var(--lift-edge), var(--lift); }
+.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); border-radius: var(--radius); box-shadow: var(--lift-edge), var(--lift); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
    inline padding:4px versions of these were unhittable on a phone. */
 /* 44px stays px on purpose: it is the size of a fingertip, a physical
@@ -765,7 +815,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* Bare: a text button sitting inside a register row. Standing it off the page
    would make every row it appears in lumpy, so it is the one .btn with no
    depth at all — at rest or pressed. */
-.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); box-shadow: none; }
+.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); border-radius: var(--radius); box-shadow: none; }
 .btn.tiny.bare:active { box-shadow: none; }
 /* --surface, not the ghost's --line: this one carries status pills, whose
    --good and --accent-2 inks fall under 4.5:1 on --line (4.29 and 3.81 in
@@ -789,8 +839,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   /* A chip is a SaaS part; a tag is a catalogue part, and the difference is
      almost entirely the radius. 999px is the single most recognisable shape in
      a generated interface, and this element repeats on nearly every page here —
-     so it is the highest-leverage two-character change in the file. */
-  border-radius: 3px;
+     so it is the highest-leverage two-character change in the file.
+     The owner reversed that on 2026-10-06 (T-024, brief §9): chips are full
+     capsules in every theme, the iOS shape the rest of the app now speaks. */
+  border-radius: 999px;
   border: 1px solid var(--line-strong); color: var(--ink-2); text-transform: uppercase;
   white-space: nowrap; font-variant-numeric: lining-nums tabular-nums;
 }
@@ -967,7 +1019,7 @@ tr:last-child td { border-bottom: none; }
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; bottom: 24px; left: 50%; z-index: var(--z-toast);
-  background: var(--btn-bg); color: var(--btn-ink);
+  background: var(--btn-bg); color: var(--accent-fill-ink);
   border-radius: var(--radius); padding: 11px 20px; font-size: var(--fs-small);
   box-shadow: var(--shadow-float);
   opacity: 0; transform: translate(-50%, 8px); pointer-events: none;
@@ -1254,7 +1306,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 
 /* The one button that matters. Long lecture titles wrap rather than shove the
    ring off the band. */
-.btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: var(--radius); white-space: normal; text-align: left; line-height: 1.3; }
+.btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: 999px; white-space: normal; text-align: left; line-height: 1.3; }
 
 /* ---------- Section rhythm ----------
    Each block of the page announces itself and states its own number, so the
@@ -2096,10 +2148,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
 }
 .ghead.oh .gh-meta { font-size: inherit; font-weight: inherit; color: inherit; }
-/* The section: a --surface fill on --bg with --r-md corners. overflow:hidden
-   is what rounds the rows' press fill into the corners with it. */
+/* The section: a --surface fill on --bg with --r-card corners (20px, T-024).
+   overflow:hidden is what rounds the rows' press fill into the corners with it. */
 .glist {
-  background: var(--surface); border-radius: var(--r-md); overflow: hidden;
+  background: var(--surface); border-radius: var(--r-card); overflow: hidden;
 }
 .glist + .glist { margin-top: 2rem; }
 .grow {

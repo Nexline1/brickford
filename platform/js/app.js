@@ -4293,8 +4293,10 @@
   // ---------- actions ----------
   function wire(root, route) {
     // A lecture's player, if one was just drawn: start the handshake.
+    // And again the moment the frame has loaded: whatever was said before
+    // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
-    if (yt) hailPlayer(yt);
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
     // generic data-act buttons
     $$("[data-act]", root).forEach(b => {
       b.onclick = () => {
@@ -4950,7 +4952,7 @@
   // longer than that to put a player in the frame — which then waits to be
   // asked, says nothing, and resume silently never starts. After the first
   // 60 it asks once a second, for as long as the frame is on the page and
-  // has not answered.
+  // has not answered; wire() also starts it again on the frame's own load.
   function hailPlayer(f) {
     clearInterval(hailH);
     let n = 0;

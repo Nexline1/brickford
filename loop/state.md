@@ -19,3 +19,4 @@
 | 2026-09-25 | scaffold | 0 | Phase 0 audit + Phase 1 scaffold created; T-000 ready | none (gh absent: pr_tool set to github-mcp for cloud) |
 
 - 2026-10-06: T-016 round 2 CHANGES REQUIRED (2 findings: hail restart on frame load dropped by WIP 355eadf; themePainted missing in the 390 nav-bar and tab-bar blocks). Fixed in 29be1bf, token 20261007c; flows 86, design 660, sync-loop, logic, shell, content all PASS. Round 3 review launched. T-024 builder still running.
+- 2026-10-06: T-016 round 3 APPROVED. PR #7 opened and merged on the owner's instruction (merge commit a309b5a). T-021's shell fix rode along in it. Next: T-024 (builder running), then T-023, T-022, T-017.

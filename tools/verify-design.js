@@ -127,9 +127,17 @@
 //   - the default: with nothing stored, and with progress stored but no theme,
 //     the page resolves to dark (navy) on a phone set to LIGHT — so it is the
 //     default speaking and not the phone — with meta theme-color #0c1330, Navy
-//     listed second after Auto and marked, and no theme written to storage; a
-//     stored "light" stays light on a dark phone and is not rewritten (Auto's
+//     listed second after Auto and marked, and — after a REAL save (today's
+//     lecture opened from the dashboard and marked watched, the state writes
+//     counted) — no theme key in the stored state; a stored "light" stays
+//     light on a dark phone and is still "light" after the same save (Auto's
 //     dark->dark and light->light are the Auto checks above);
+//   - the first paint (round 2): index.html's inline <head> script sets the
+//     theme from storage before app.js runs. With app.js HELD (the KaTeX
+//     script before it never answers), every frame sampled from the first
+//     styled one is the expected --bg — stored "light" on a dark phone is
+//     light, nothing stored is navy, "auto" follows the phone — and still
+//     after app.js runs; the script's PANEL map equals style.css's --panel;
 //   - the primary action, at 390 and 1280 in light and dark on the five
 //     routes: every visible filled .btn, and at least one .btn.lg, is a 999px
 //     capsule on --btn-bg with an --accent-fill-ink label at >= 4.5:1 — a gold
@@ -656,7 +664,7 @@ function glowState() {
     present, content: gs.content, pe: gs.pointerEvents, position: gs.position, z: gs.zIndex, radials,
     anim: gs.animationName, trans: gs.transitionProperty + " " + gs.transitionDuration, iso: ms.isolation,
     box: { w: Math.round(parseFloat(gs.width)), mainW: Math.round(mr.width), top: gs.top, left: gs.left },
-    decl, mainBg, peak: peak.map(Math.round), lDecl: L(decl), lPeak: L(peak), bgImgMain: ms.backgroundImage,
+    decl, mainBg, peak: peak.map(v => Math.round(v * 100) / 100), lDecl: L(decl), lPeak: L(peak), bgImgMain: ms.backgroundImage,
     lost, seen,
   };
 }
@@ -1334,15 +1342,27 @@ function hairlineSource() {
     stored: (() => { const raw = localStorage.getItem("darhikmah_v1"); if (!raw) return { raw: false };
                      const st = JSON.parse(raw); return { raw: true, has: !!st.settings && "theme" in st.settings, theme: (st.settings || {}).theme }; })(),
   });
+  // A real save, through the UI: open today's lecture from the dashboard and
+  // mark it watched (verify-flows' flow c). The state writes are counted
+  // (countWrites) so the storage checks below are asked of a device that has
+  // provably written its state — a fixture that never saves cannot tell an
+  // unset theme from one save() would have written.
+  const reallySave = async page => {
+    await page.click(".card.one.lead a.one-go");
+    await page.waitForSelector("#view [data-act=toggleDone]");
+    const before = await page.evaluate(() => window.__stateWrites);
+    await page.click("#view [data-act=toggleDone]");
+    await page.waitForFunction(() => /^Unmark watched/.test((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || ""),
+      null, { timeout: 5000 }).catch(() => {});
+    const after = await page.evaluate(() => window.__stateWrites);
+    return { before, after };
+  };
   for (const [label, seedTheme] of [["nothing stored", undefined], ["progress stored, no theme", null]]) {
     const { ctx, page, errors } = await fresh(browser,
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light" }, seedTheme);
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    // Something that saves, so "no theme written" is asked of a device that
-    // has written its state, not of one that never saved.
-    await page.evaluate(() => { window.location.hash = "#/calendar"; });
-    await page.waitForSelector("#view .cal-grid");
+    const w0 = await reallySave(page);
     const r = await page.evaluate(readTheme);
     check("default (" + label + ", phone light): resolves to data-theme=\"dark\", the navy --bg " + BRIEF.dark["--bg"],
       r.theme === "dark" && r.bg === rgb(BRIEF.dark["--bg"]), "data-theme " + r.theme + ", --bg " + r.bg);
@@ -1352,8 +1372,10 @@ function hairlineSource() {
       r.picks[0] && r.picks[0].pick === "auto" && !!second && second.pick === "dark" && second.label === "Navy" && second.on &&
         r.picks.filter(p => p.on).length === 1,
       r.picks.map(p => p.pick + ":" + p.label + (p.on ? "*" : "")).join(" "));
-    check("default (" + label + "): no theme is written to storage (unset stays unset)",
-      !r.stored.raw || !r.stored.has, JSON.stringify(r.stored));
+    check("default (" + label + "): marking a lecture watched really saved (state writes went up, the state is stored)",
+      w0.after > w0.before && r.stored.raw === true, "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
+    check("default (" + label + "): and the saved state carries no theme key (unset stays unset)",
+      r.stored.raw === true && r.stored.has === false, JSON.stringify(r.stored));
     check("default (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
@@ -1363,15 +1385,90 @@ function hairlineSource() {
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "dark" }, "light");
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await page.evaluate(() => { window.location.hash = "#/calendar"; });
-    await page.waitForSelector("#view .cal-grid");
+    const w0 = await reallySave(page);
     const r = await page.evaluate(readTheme);
     check("stored \"light\" on a dark phone: stays light (--bg " + BRIEF.light["--bg"] + ", meta " + PANEL.light + ")",
       r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.meta === PANEL.light,
       "data-theme " + r.theme + ", --bg " + r.bg + ", meta " + r.meta);
-    check("stored \"light\": still stored as \"light\", Paper marked", r.stored.theme === "light" &&
-      r.picks.some(p => p.pick === "light" && p.on), JSON.stringify(r.stored));
+    check("stored \"light\": after a real save (marking a lecture watched), still stored as \"light\", Paper marked",
+      w0.after > w0.before && r.stored.theme === "light" && r.picks.some(p => p.pick === "light" && p.on),
+      "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
     check("stored \"light\": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- T-024: the theme before the first paint ----
+  // index.html sets data-theme and meta theme-color from the stored pick in a
+  // synchronous <head> script, because app.js is deferred behind the KaTeX
+  // CDN script and until it runs the static attribute is all there is. To
+  // prove the paint is the inline script's and not app.js's, app.js is HELD:
+  // deferred scripts run in order, so a KaTeX request that never answers
+  // keeps app.js from running. Every frame from the first one with a styled
+  // body is sampled (requestAnimationFrame, which runs before each paint),
+  // while held and after release, and every sample must be the expected
+  // --bg — the first paint included, and never the other theme in between.
+  console.log("\nT-024: the theme before the first paint");
+  {
+    // The inline script's panel map is the stylesheet's, theme by theme.
+    const html = fs.readFileSync(path.join(ROOT, "platform/index.html"), "utf8");
+    const mm = /var PANEL = \{([^}]*)\}/.exec(html);
+    const map = {};
+    if (mm) for (const p of mm[1].matchAll(/(\w+):\s*"(#[0-9a-fA-F]{6})"/g)) map[p[1]] = p[2].toLowerCase();
+    const css = fs.readFileSync(CSS_FILE, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    const cssPanel = {};
+    for (const m of css.matchAll(/^(:root|\[data-theme="([\w-]+)"\])\s*\{([^}]*)\}/gm)) {
+      const v = /--panel:\s*(#[0-9a-fA-F]{6})\b/.exec(m[3]);
+      if (v) cssPanel[m[2] || "light"] = v[1].toLowerCase();
+    }
+    const keys = [...new Set(Object.keys(map).concat(Object.keys(cssPanel)))];
+    const off = keys.filter(k => map[k] !== cssPanel[k]);
+    check("first paint: index.html's PANEL map is every theme's --panel in style.css",
+      !!mm && keys.length === 7 && off.length === 0,
+      !mm ? "no PANEL map in index.html" : off.length ? off.map(k => k + " " + map[k] + " vs css " + cssPanel[k]).join(", ") : keys.length + " themes");
+  }
+  function samplePaints() {
+    if (window.top !== window) return;
+    window.__paints = [];
+    const tick = () => {
+      if (document.body) {
+        const bg = getComputedStyle(document.body).backgroundColor;
+        if (bg !== "rgba(0, 0, 0, 0)") window.__paints.push({ bg, theme: document.documentElement.dataset.theme,
+          app: !!document.querySelector("#view > *") });
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  for (const [label, seedTheme, scheme, want] of [
+    ["stored \"light\", phone dark", "light", "dark", "light"],
+    ["nothing stored, phone light", undefined, "light", "dark"],
+    ["stored \"auto\", phone dark", "auto", "dark", "dark"],
+    ["stored \"auto\", phone light", "auto", "light", "light"],
+  ]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, seedTheme);
+    await ctx.addInitScript(samplePaints);
+    let release; const held = new Promise(r => { release = r; });
+    let heldHits = 0;
+    await ctx.route(/katex(\.min)?\.js/, async r => { heldHits++; await held; return r.abort(); });
+    await page.goto(URL + "/", { waitUntil: "commit" });
+    const first = await page.waitForFunction(() => window.__paints && window.__paints.length >= 3 ? window.__paints.slice() : null,
+      null, { polling: "raf", timeout: 8000 }).then(h => h.jsonValue(), () => null);
+    const meta = await page.evaluate(() => (document.querySelector('meta[name="theme-color"]') || {}).content || "");
+    const wantBg = rgb(BRIEF[want]["--bg"]);
+    check("first paint (" + label + "): with app.js held, the first painted body is the " + want + " --bg " + BRIEF[want]["--bg"] + ", meta " + PANEL[want],
+      !!first && heldHits > 0 && first.every(p => !p.app) && first[0].bg === wantBg && first[0].theme === want && meta === PANEL[want],
+      first ? "held " + heldHits + ", first paint " + first[0].bg + " (" + first[0].theme + "), app ran " + first.some(p => p.app) + ", meta " + meta
+        : "no styled frame while app.js was held");
+    release();
+    await page.waitForSelector("#view > *", { timeout: 10000 });
+    await frames(page);
+    const all = await page.evaluate(() => window.__paints);
+    const wrong = all.filter(p => p.bg !== wantBg);
+    check("first paint (" + label + "): every frame, held and after app.js ran, is " + want + " — never the other theme",
+      all.length > 3 && all.some(p => p.app) && wrong.length === 0,
+      wrong.length ? wrong.length + " of " + all.length + " frames, e.g. " + wrong[0].bg + " (" + wrong[0].theme + ")" : all.length + " frames");
+    check("first paint (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 
@@ -1403,8 +1500,8 @@ function hairlineSource() {
         check(where + ": the glow takes no pointer (pointer-events: none)", g.pe === "none", "pointer-events " + g.pe);
         check(where + ": the glow is behind the content (z-index -1 inside an isolated .main)", g.z === "-1" && g.iso === "isolate",
           "z-index " + g.z + ", .main isolation " + g.iso);
-        check(where + ": the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel",
-          g.decl[3] === 255 && __same(g.decl, g.mainBg, 0) && g.lDecl >= g.lPeak - 1e-4,
+        check(where + ": the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel",
+          g.decl[3] === 255 && __same(g.decl, g.mainBg, 0) && [0, 1, 2].every(i => g.decl[i] >= g.peak[i]) && g.lDecl >= g.lPeak,
           "declared " + g.decl.join(",") + ", .main " + g.mainBg.join(",") + ", peak " + g.peak.join(",") +
             " (L " + g.lDecl.toFixed(4) + " vs " + g.lPeak.toFixed(4) + ")");
         check(where + ": every text and control over the glow takes its own hit, as shipped",

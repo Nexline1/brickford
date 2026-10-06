@@ -8,10 +8,34 @@
      domain root and 404. -->
 <!-- theme-color follows --panel, for the status bar and the app icon only: the
      sidebar has been a material in the page's own scheme since T-006. This is
-     the default (navy) theme's --panel; applyTheme() in app.js swaps in the
-     picked theme's. -->
+     the default (navy) theme's --panel; the script below swaps in the stored
+     theme's before the first paint, and applyTheme() in app.js keeps it. -->
 <meta name="theme-color" content="#0c1330">
-<link rel="manifest" href="manifest.json?v=20261007d">
+<!-- The theme, before the first paint (T-024). app.js is deferred behind the
+     KaTeX CDN, so the static data-theme above would paint on its own until it
+     ran: every device with "light" stored would flash navy and then flip to
+     Paper. This reads the stored pick — READ ONLY, nothing is written — and
+     resolves it the way applyTheme() does: "auto" follows the phone, unset is
+     the navy default, any other string goes straight into data-theme.
+     PANEL is each theme's --panel in css/style.css (an unknown theme gets
+     :root's); tools/verify-design.js checks the map against the stylesheet,
+     so the two cannot drift apart. -->
+<script>
+(function () {
+  var PANEL = { light: "#2b2118", parchment: "#2b2118", dark: "#0c1330", forest: "#16241a",
+                midnight: "#080b12", latte: "#faf7f0", slate: "#1c1c1b" };
+  var pick;
+  try { pick = (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).theme; } catch (e) { pick = null; }
+  pick = pick || "dark";
+  var theme = pick === "auto"
+    ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : pick;
+  document.documentElement.setAttribute("data-theme", theme);
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", PANEL[theme] || PANEL.light);
+})();
+</script>
+<link rel="manifest" href="manifest.json?v=20261007e">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,17 +46,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261007d">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261007d">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261007e">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261007e">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261007d">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261007d">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261007d">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261007e">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261007e">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261007e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -41,7 +65,7 @@
      with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261007d">
+<link rel="stylesheet" href="css/style.css?v=20261007e">
 </head>
 <body>
 
@@ -196,27 +220,27 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261007d"></script>
-<script defer src="js/figures.js?v=20261007d"></script>
-<script defer src="js/lab.js?v=20261007d"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261007d"></script>
-<script defer src="data/summaries-math110.js?v=20261007d"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261007d"></script>
-<script defer src="data/summaries-math120.js?v=20261007d"></script>
-<script defer src="data/summaries-math130.js?v=20261007d"></script>
-<script defer src="data/summaries-phys100.js?v=20261007d"></script>
-<script defer src="data/summaries-math210.js?v=20261007d"></script>
-<script defer src="data/summaries-sys250.js?v=20261007d"></script>
-<script defer src="data/workshop.js?v=20261007d"></script>
-<script defer src="data/storytelling.js?v=20261007d"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261007d"></script>
-<script defer src="data/quiz-calculus.js?v=20261007d"></script>
-<script defer src="data/quiz-probability.js?v=20261007d"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261007d"></script>
-<script defer src="data/quiz-dsa.js?v=20261007d"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261007d"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261007d"></script>
-<script defer src="js/quiz-engine.js?v=20261007d"></script>
-<script defer src="js/app.js?v=20261007d"></script>
+<script defer src="data/curriculum.js?v=20261007e"></script>
+<script defer src="js/figures.js?v=20261007e"></script>
+<script defer src="js/lab.js?v=20261007e"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261007e"></script>
+<script defer src="data/summaries-math110.js?v=20261007e"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261007e"></script>
+<script defer src="data/summaries-math120.js?v=20261007e"></script>
+<script defer src="data/summaries-math130.js?v=20261007e"></script>
+<script defer src="data/summaries-phys100.js?v=20261007e"></script>
+<script defer src="data/summaries-math210.js?v=20261007e"></script>
+<script defer src="data/summaries-sys250.js?v=20261007e"></script>
+<script defer src="data/workshop.js?v=20261007e"></script>
+<script defer src="data/storytelling.js?v=20261007e"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261007e"></script>
+<script defer src="data/quiz-calculus.js?v=20261007e"></script>
+<script defer src="data/quiz-probability.js?v=20261007e"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261007e"></script>
+<script defer src="data/quiz-dsa.js?v=20261007e"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261007e"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261007e"></script>
+<script defer src="js/quiz-engine.js?v=20261007e"></script>
+<script defer src="js/app.js?v=20261007e"></script>
 </body>
 </html>

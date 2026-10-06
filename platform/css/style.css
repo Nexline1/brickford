@@ -632,10 +632,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    brightest point of the glow rather than against a plain navy that is not
    what is under it (each channel rounded UP, so it is never darker than
    the real peak). Never shown: the opaque image stack covers it. */
-[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #313149; }
+[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #313249; }
 [data-theme="dark"] .main::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-color: #313149;
+  background-color: #313249;
   background-image:
     radial-gradient(38% 70% at 72% 6%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
     radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .20) 0%, rgb(70 84 170 / 0) 70%),

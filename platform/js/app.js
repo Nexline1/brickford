@@ -2052,7 +2052,9 @@
   // until the frame's load event lands (thumbSettled below); without one, or
   // once the frame fails, it is the cover. The cover's text is always in the
   // markup and only shown in that state, so the fallback is a class, not a
-  // rebuild. Empty alt and aria-hidden: the title is already beside it.
+  // rebuild. Empty alt and aria-hidden, on the cover and on the chip: the
+  // title is already beside it, and a bare "17:00" read out ahead of it is
+  // noise in the link's name.
   // The cover's code is the course's, then which one this is ("MATH 110 · 3"):
   // one run on a full-size cover, two lines on a row's 96px one, where the
   // run would otherwise break wherever it ran out ("MATH 110 ·" / "10").
@@ -2062,7 +2064,7 @@
       '<span class="th-cover" aria-hidden="true"><span class="th-code">' + esc(c.code) +
       (o.no != null ? '<span class="th-no"><span class="th-dot"> · </span>' + esc(o.no) + "</span>" : "") + "</span>" +
       '<span class="th-ttl">' + esc(o.title) + "</span></span>" +
-      (o.dur ? '<span class="th-dur">' + esc(o.dur) + "</span>" : "") +
+      (o.dur ? '<span class="th-dur" aria-hidden="true">' + esc(o.dur) + "</span>" : "") +
       (o.frac > 0 ? '<span class="th-prog"><i style="width:' + Math.round(Math.min(1, o.frac) * 1000) / 10 + '%"></i></span>' : "") +
       "</span>";
   }
@@ -4291,8 +4293,10 @@
   // ---------- actions ----------
   function wire(root, route) {
     // A lecture's player, if one was just drawn: start the handshake.
+    // And again the moment the frame has loaded: whatever was said before
+    // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
-    if (yt) hailPlayer(yt);
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
     // generic data-act buttons
     $$("[data-act]", root).forEach(b => {
       b.onclick = () => {
@@ -4930,25 +4934,32 @@
   //
   // The time lives in memory (`player`), and is written as
   // S.lessons[k].pos (+ posAt, for the merge) at three moments only: a pause,
-  // leaving — the route or the page — and the end, which clears it. Never
+  // leaving — the route or the page (pagehide, or hidden, which is how a
+  // phone mostly leaves) — and the end, which clears it. Never
   // from a tick and never from a render: a write per tick is a sync push
   // armed four times a second, and a write from a render is the reload loop
   // CLAUDE.md describes.
   const YT = "https://www.youtube.com";
   const YT_ORIGIN = /^https:\/\/www\.youtube(-nocookie)?\.com$/;
   const PS = { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 };
-  let player = null;        // { k, own, v, t, state, dirty } for the lecture on screen
+  let player = null;        // { k, own, v, t, state, dirty, moved } for the lecture on screen
   let hailH = null, heardFrom = null;
   const ytFrame = () => document.querySelector("#view .video-frame iframe[data-k]");
   // Say "listening" until the player answers, the way the IFrame API does
   // (every 250ms; the browser drops it until the frame is on YouTube's
-  // origin). Messages out only — nothing here writes.
+  // origin). Messages out only — nothing here writes. No cap: this used to
+  // stop after 60 tries (15s), and a phone on a slow connection can take
+  // longer than that to put a player in the frame — which then waits to be
+  // asked, says nothing, and resume silently never starts. After the first
+  // 60 it asks once a second, for as long as the frame is on the page and
+  // has not answered; wire() also starts it again on the frame's own load.
   function hailPlayer(f) {
     clearInterval(hailH);
     let n = 0;
     const hail = () => {
-      if (!f.isConnected || heardFrom === f || ++n > 60) { clearInterval(hailH); return; }
+      if (!f.isConnected || heardFrom === f) { clearInterval(hailH); return; }
       try { f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), YT); } catch (e) {}
+      if (++n === 60) { clearInterval(hailH); hailH = setInterval(hail, 1000); }
     };
     hail();
     hailH = setInterval(hail, 250);
@@ -4969,7 +4980,7 @@
       try { f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"], id: 1, channel: "widget" }), YT); } catch (e) {}
     }
     const k = f.dataset.k;
-    if (!player || player.k !== k) player = { k, own: f.dataset.v, v: f.dataset.v, t: null, state: null, dirty: false };
+    if (!player || player.k !== k) player = { k, own: f.dataset.v, v: f.dataset.v, t: null, state: null, dirty: false, moved: false };
     let state = null;
     if (m.event === "onStateChange") state = +m.info;
     else if (m.event === "infoDelivery" || m.event === "initialDelivery") {
@@ -4980,11 +4991,20 @@
       if (typeof info.playerState === "number") state = info.playerState;
       const live = state != null ? state : player.state;
       // A cued or unstarted player reports 0, and an ended one its length:
-      // neither is where the reader is.
-      if (typeof info.currentTime === "number" && player.v === f.dataset.v &&
-          live !== PS.UNSTARTED && live !== PS.CUED && live !== PS.ENDED) {
-        player.t = info.currentTime;
+      // neither is where the reader is. Nor, as a rule, is anything under a
+      // second: a player opened at start= reports 0 while it buffers, before
+      // it has seeked there (iOS does it on an ordinary open), and taking
+      // that would send a resume point back to the beginning. The one real
+      // 0 is a reader who went back to the start of a lecture that began
+      // there — playing or paused, after it had really played.
+      const t = info.currentTime;
+      if (typeof t === "number" && player.v === f.dataset.v &&
+          live !== PS.UNSTARTED && live !== PS.CUED && live !== PS.ENDED &&
+          (t >= 1 || (player.moved && !/[?&]start=/.test(f.getAttribute("src") || "") &&
+                      (live === PS.PLAYING || live === PS.PAUSED)))) {
+        player.t = t;
         player.dirty = true;
+        if (t >= 1 && live === PS.PLAYING) player.moved = true;
       }
     }
     if (state == null || isNaN(state) || state === player.state) return;
@@ -5187,6 +5207,11 @@
     // resumes rather than reloads — never saw progress made on the laptop.
     let lastPull = Date.now();
     document.addEventListener("visibilitychange", () => {
+      // Hidden: keep the lecture's place first, so the push below carries
+      // it. A phone backgrounds a page — another app, the lock button —
+      // far more often than it fires pagehide. The player is not let go:
+      // the page may well come back to it.
+      if (document.visibilityState === "hidden") keepPosition("hide");
       if (!ghToken()) return;
       if (document.visibilityState === "visible") {
         if (Date.now() - lastPull < 20000) return;   // do not hammer the API
@@ -5202,9 +5227,11 @@
     window.addEventListener("pagehide", leaveLecture);
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
   }
-  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // read-only hook for tools/verify-logic.js (spec T-000)
+  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
     // T-016, for tools/verify-flows.js: a message as the lecture's player would
-    // send it (the frame here cannot reach YouTube), and a foreground render.
+    // send it, handed to playerEvent — so it WRITES through the same path a
+    // real player message does (a pause or an end saves); only the
+    // origin/source filter in front of it is skipped. And a foreground render.
     playerMessage: data => { const f = ytFrame(); if (f) playerEvent(f, data); return !!f; },
     render: () => render() });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

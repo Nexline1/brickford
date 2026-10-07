@@ -1,4 +1,4 @@
-# node tools/verify-flows.js on b9c4dfc
+# node tools/verify-flows.js on 6a8b4b6
 
 390px
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0

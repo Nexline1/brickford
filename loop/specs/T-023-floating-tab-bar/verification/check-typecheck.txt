@@ -1,2 +1,2 @@
-# typecheck on b9c4dfc
+# typecheck on 6a8b4b6
 30 files pass node --check

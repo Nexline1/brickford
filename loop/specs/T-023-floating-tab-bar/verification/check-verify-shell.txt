@@ -1,4 +1,4 @@
-# node tools/verify-shell.js on b9c4dfc
+# node tools/verify-shell.js on 6a8b4b6
    1536px  sidebar shown, column 322-1164
    1440px  sidebar shown, column 322-1068
    1370px  sidebar shown, column 319-1002
@@ -14,11 +14,11 @@
     430px  drawer opens and closes
     768px  drawer opens and closes
     860px  drawer opens and closes
-    320px  frame clears the page on 23 routes (menu button and tab bar)
-    390px  frame clears the page on 23 routes (menu button and tab bar)
-    430px  frame clears the page on 23 routes (menu button and tab bar)
-    768px  frame clears the page on 23 routes (menu button and tab bar)
-    860px  frame clears the page on 23 routes (menu button and tab bar)
+    320px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    390px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    430px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    768px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    860px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
     390px  every control reaches 44x44 on 23 routes
   320/390px  roots 16/24  all 56 tab checks passed
 

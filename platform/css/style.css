@@ -344,13 +344,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    --accent-soft): --ink 13.4:1 on the panel, --ink-2 8.9:1, --ink-3 6.5:1
    (4.7:1 on the pill), --accent 7.2:1 (5.2:1 on the pill). The pill is
    --panel-accent at 16% into the panel, the hover --panel-ink at 8%, the
-   rule --panel-ink at 16%, all worked out as solid hexes. The crest is
+   rules inside it --panel-ink at 16%, all worked out as solid hexes (the
+   sidebar's own trailing edge stays the page's --line). The crest is
    caramel on espresso, as it was when the sidebar was last the panel. */
 [data-theme="light"] .sidebar {
   --ink: var(--panel-ink); --ink-2: #cbc1b2; --ink-3: #b0a594;
   --accent: var(--panel-accent); --accent-soft: #463727; --bg-2: #3b3128;
-  --line: #4b4138; --gold: var(--panel-accent);
+  --gold: var(--panel-accent);
 }
+[data-theme="light"] .sidebar > * { --line: #4b4138; }
 
 .crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
 .crest svg { width: 46px; height: 46px; color: var(--accent); }

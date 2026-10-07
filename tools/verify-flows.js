@@ -35,6 +35,15 @@
 //   (i) a slow phone (once): that stub answers only after 60 hails, the old
 //       cap — the page must still be asking, and resume must still work.
 //
+// And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
+//
+//   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
+//       Courses has the bubble under it within 2px; release opens /courses and
+//       the bubble settles on it; past Review the bubble resists; a 40px
+//       vertical drag switches nothing; tapping the active tab at scrollY 800
+//       goes to 0 (and instantly under reduced motion); Today left at 600 is
+//       at 600 again after Courses; and all of it makes zero save() calls.
+//
 // For (d), (e) and (g) the frame cannot reach YouTube, so they speak for the
 // player through the test-only hook (window.__brickfordTest.playerMessage,
 // present only when the page is booted on a #/__test hash), whose
@@ -566,6 +575,148 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     }
   }
 
+  // ---- (j) the tab bar you slide along (T-023) ----
+  // Once, at 390x568, with motion ON (the spring is part of what is measured).
+  // 568 tall so Today scrolls past 800 (at 844 it scrolls 548).
+  // Touches are real CDP touch events; the vertical drag is also done with a
+  // mouse pointer, which no touch-action can intercept, so it is the page's
+  // own hysteresis that is tested. Pointer moves are delivered once a frame,
+  // so every reading waits two frames. Positions are the bubble's COMPUTED
+  // transform and its box, never a screenshot.
+  console.log("\nthe tab bar (once, 390px)");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 568 }, timezoneId: "UTC", hasTouch: true, isMobile: true });
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+    await ctx.addInitScript(countWrites);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const cdp = await ctx.newCDPSession(page);
+    const touch = (type, x, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y, id: 1 }] });
+    const twoFrames = () => page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const bub = () => page.evaluate(() => {
+      const e = document.querySelector("#tabbar .tab-bubble"), r = e.getBoundingClientRect();
+      return { tx: new DOMMatrix(getComputedStyle(e).transform).m41, c: r.left + r.width / 2 };
+    });
+    const hash = () => page.evaluate(() => location.hash);
+    // Rendered, not just routed: the view is rebuilt inside a view transition,
+    // after the hash has changed. The active tab is marked in the same task as
+    // the view and the scroll, so it is the proof.
+    // And the route's cross-fade over: while a view transition runs, Chromium
+    // hit-tests every press to <html>, so a tap sent then would land nowhere.
+    // Proof that it is over is the bar taking hits again.
+    const shown = rt => page.evaluate(rt => {
+      const a = document.querySelector("#tabbar a.active"), r = a && a.getBoundingClientRect();
+      return !!a && a.dataset.route === rt && location.hash === "#" + rt &&
+        !!document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2).closest("#tabbar");
+    }, rt);
+    const centres = await page.evaluate(() => [...document.querySelectorAll("#tabbar a")].map(a => {
+      const r = a.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, rt: a.dataset.route };
+    }));
+    // Wait for proof, with a deadline: a spring has no duration.
+    const until = async (fn, ms) => { const t0 = Date.now(); for (;;) { const v = await fn(); if (v || Date.now() - t0 > (ms || 3000)) return v; await page.waitForTimeout(30); } };
+    const w0 = await writes(page);
+    await until(() => shown("/"));
+
+    // Slide from Today 60% of the way to Courses: the bubble is under the finger.
+    const T = centres[0], C = centres[1];
+    const fx = T.x + 0.6 * (C.x - T.x);
+    const b0 = await bub();
+    await touch("touchStart", T.x, T.y);
+    for (let i = 1; i <= 8; i++) await touch("touchMove", T.x + (fx - T.x) * i / 8, T.y);
+    await twoFrames();
+    const b1 = await bub();
+    check("(j) sliding 60% toward Courses: the bubble's translateX follows the finger within 2px",
+      Math.abs((b1.tx - b0.tx) - (fx - T.x)) <= 2 && Math.abs(b1.c - fx) <= 2,
+      "finger moved " + (fx - T.x).toFixed(1) + "px, translateX moved " + (b1.tx - b0.tx).toFixed(1) + "px; bubble centre " + b1.c.toFixed(1) + " vs finger " + fx.toFixed(1));
+    await page.waitForTimeout(150);                       // the finger rests before lifting: no throw
+    await touch("touchEnd");
+    const onCourses = await until(async () => (await hash()) === "#/courses");
+    // Settled is AT the target: the spring snaps there exactly when it stops.
+    const settled = await until(async () => { const b = await bub(); return Math.abs(b.c - C.x) <= 0.5 ? b : null; });
+    check("(j) release: the route becomes /courses and the bubble settles centred on Courses",
+      onCourses && !!settled, (await hash()) + ", bubble centre " + (await bub()).c.toFixed(1) + " vs Courses " + C.x.toFixed(1));
+
+    // Past Review: it resists.
+    await until(() => shown("/courses"));
+    const P = centres[3], R = centres[4];
+    await touch("touchStart", P.x, P.y);
+    for (let i = 1; i <= 6; i++) await touch("touchMove", P.x + (R.x - P.x) * i / 6, P.y);
+    await twoFrames();
+    const atR = await bub();
+    for (let i = 1; i <= 6; i++) await touch("touchMove", R.x + 60 * i / 6, P.y);
+    await twoFrames();
+    const past = await bub();
+    check("(j) sliding 60px past Review: the bubble resists, moving less than the finger",
+      past.c - atR.c > 0 && past.c - atR.c < 60 * 0.6,
+      "finger +60px, bubble +" + (past.c - atR.c).toFixed(1) + "px");
+    await page.waitForTimeout(150);
+    await touch("touchEnd");
+    await until(() => shown("/review"));
+
+    // A vertical drag of 40px on another tab switches nothing: by touch, and by
+    // a mouse pointer (no touch-action applies, so only the hysteresis decides).
+    const E = centres[2];
+    const before = await hash();
+    await touch("touchStart", E.x, E.y);
+    for (let i = 1; i <= 8; i++) await touch("touchMove", E.x, E.y - 40 * i / 8);
+    await touch("touchEnd");
+    await page.waitForTimeout(500);
+    const afterTouch = await hash();
+    await page.mouse.move(E.x, E.y); await page.mouse.down();
+    await page.mouse.move(E.x, E.y - 40, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(500);
+    const afterMouse = await hash();
+    check("(j) a 40px vertical drag on Exams does not switch tabs (touch and pointer)",
+      afterTouch === before && afterMouse === before, before + " -> touch " + afterTouch + ", pointer " + afterMouse);
+
+    // Tap the active tab at scrollY 800: back to the top.
+    const H = centres[0];
+    await touch("touchStart", H.x, H.y); await touch("touchEnd");
+    await until(() => shown("/"));
+    await page.waitForTimeout(300);
+    await page.evaluate(() => window.scrollTo({ top: 800, behavior: "instant" }));
+    const at800 = await page.evaluate(() => Math.round(scrollY));
+    await touch("touchStart", H.x, H.y); await touch("touchEnd");
+    const top = await until(async () => (await page.evaluate(() => scrollY)) === 0, 4000);
+    check("(j) tapping the active tab at scrollY 800 scrolls to 0",
+      at800 === 800 && top, "from " + at800 + " to " + (await page.evaluate(() => Math.round(scrollY))));
+
+    // Scroll memory: Today at 600, go to Courses, come back.
+    await page.evaluate(() => window.scrollTo({ top: 600, behavior: "instant" }));
+    const at600 = await page.evaluate(() => Math.round(scrollY));
+    await touch("touchStart", C.x, C.y); await touch("touchEnd");
+    await until(() => shown("/courses"));
+    await page.waitForTimeout(200);
+    const onC = await page.evaluate(() => Math.round(scrollY));
+    await touch("touchStart", H.x, H.y); await touch("touchEnd");
+    await until(() => shown("/"));
+    const back = await until(async () => { const y = await page.evaluate(() => scrollY); return Math.abs(y - 600) <= 2 ? y : null; }, 2000);
+    check("(j) scroll memory: Today at 600, to Courses (" + onC + ") and back is 600 (+/-2)",
+      at600 === 600 && back !== null, "back at " + (await page.evaluate(() => Math.round(scrollY))));
+
+    const w1 = await writes(page);
+    check("(j) a render is a read: sliding, tapping and switching made zero save() calls", w1 - w0 === 0, (w1 - w0) + " write(s)");
+    check("(j) no page errors", errors.length === 0, errors.join(" | "));
+    await shot(page, "j-tabbar");
+    await ctx.close();
+  }
+  // Reduced motion: the tap to the top is instant.
+  {
+    const { ctx, page, errors } = await fresh(browser, 390, null, "/");
+    const H = await page.evaluate(() => { const r = document.querySelector("#tabbar a").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+    const from = await page.evaluate(() => { window.scrollTo({ top: 400, behavior: "instant" }); return Math.round(scrollY); });
+    await page.touchscreen.tap(H.x, H.y);
+    const y = await page.evaluate(() => new Promise(r => requestAnimationFrame(() => r(Math.round(scrollY)))));
+    check("(j) reduced motion: tapping the active tab is at the top within a frame", from === 400 && y === 0, "from " + from + " to " + y);
+    check("(j) reduced motion: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   // ---- (i) a slow phone: the player starts listening after the old cap ----
   // Once, at the phone width. The stub ignores the first 60 hails it hears —
   // 60 was where the page used to stop asking — so it answers only if the
@@ -661,7 +812,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x " +
-      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge and a slow phone's late player once"
+      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

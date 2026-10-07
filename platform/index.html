@@ -6,44 +6,46 @@
 <!-- Home-screen install. Every path here is RELATIVE: the site is served from a
      subpath (…/brickford/platform/), so a leading slash would resolve to the
      domain root and 404. -->
-<!-- theme-color follows --panel, for the status bar and the app icon only: the
-     sidebar has been a material in the page's own scheme since T-006. This is
-     the default (navy) theme's --panel; the script below swaps in the stored
-     theme's before the first paint, and applyTheme() in app.js keeps it. -->
-<meta name="theme-color" content="#0c1330">
+<!-- theme-color follows --panel, the sidebar's solid fill, for the status bar
+     and the app icon. This is the default (dark) theme's --panel; the script
+     below swaps in the stored theme's before the first paint, and
+     applyTheme() in app.js keeps it. -->
+<meta name="theme-color" content="#000000">
 <!-- The theme, before the first paint (T-024). app.js is deferred behind the
      KaTeX CDN, so the static data-theme above would paint on its own until it
-     ran: every device with "light" stored would flash navy and then flip to
-     Paper. This reads the stored pick — READ ONLY, nothing is written — and
+     ran: every device with "light" stored would flash dark and then flip to
+     light. This reads the stored pick — READ ONLY, nothing is written — and
      resolves it the way app.js does: a stored "light" without the
-     themeNavyOnce marker is the old default and paints navy (the navy
-     switch, see app.js load), "auto" follows the phone, unset is the navy
-     default, any other string goes straight into data-theme.
-     PANEL is each theme's --panel in css/style.css (an unknown theme gets
-     :root's); tools/verify-design.js checks the map against the stylesheet,
-     so the two cannot drift apart. -->
+     themeNavyOnce marker is the old default and paints dark (the T-024
+     switch, see app.js load), "auto" follows the phone, unset is the dark
+     default, and anything that is not a theme any more (parchment, forest,
+     midnight, latte, slate, or any unknown string; T-025) paints dark. The
+     stored value is left as it is until the next pick from the menu.
+     PANEL is each theme's --panel in css/style.css; tools/verify-design.js
+     checks the map against the stylesheet, so the two cannot drift apart. -->
 <script>
 (function () {
-  var PANEL = { light: "#2b2118", parchment: "#2b2118", dark: "#0c1330", forest: "#16241a",
-                midnight: "#080b12", latte: "#faf7f0", slate: "#1c1c1b" };
+  var PANEL = { light: "#2b2118", dark: "#000000" };
   var pick;
   try {
     var st = (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {});
     pick = st.theme;
-    // The navy switch, as app.js applies it at load: a stored "light"
-    // without the per-device marker is the old default, and paints navy.
+    // The T-024 switch, as app.js applies it at load: a stored "light"
+    // without the per-device marker is the old default, and paints dark.
     if (pick === "light" && !st.themeNavyOnce) pick = null;
   } catch (e) { pick = null; }
   pick = pick || "dark";
   var theme = pick === "auto"
     ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
     : pick;
+  // A removed theme or any unknown string is dark (T-025).
+  if (!Object.prototype.hasOwnProperty.call(PANEL, theme)) theme = "dark";
   document.documentElement.setAttribute("data-theme", theme);
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", Object.prototype.hasOwnProperty.call(PANEL, theme) ? PANEL[theme] : PANEL.light);
+  if (meta) meta.setAttribute("content", PANEL[theme]);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=20261007g">
+<link rel="manifest" href="manifest.json?v=20261007t">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -54,17 +56,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261007g">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261007g">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261007t">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261007t">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261007g">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261007g">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261007g">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261007t">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261007t">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261007t">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -73,7 +75,7 @@
      with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261007g">
+<link rel="stylesheet" href="css/style.css?v=20261007t">
 </head>
 <body>
 
@@ -158,17 +160,11 @@
 
     <div class="sidebar-foot">
       <div class="theme-menu" id="themeMenu">
-        <!-- Auto follows the phone's light/dark setting, live. It is stored as
-             the string "auto"; a device from before it existed reads that as
-             an unknown theme and falls back to light. -->
-        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #0c1330 50%);"></span>Auto</button>
-        <button data-theme-pick="dark"><span class="swatch" style="background:linear-gradient(90deg, #0c1330 60%, #e0b35a 60%);"></span>Navy</button>
-        <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Paper</button>
-        <button data-theme-pick="parchment"><span class="swatch" style="background:linear-gradient(90deg, #2b2118 34%, #f8f4ec 34%);"></span>Parchment</button>
-        <button data-theme-pick="latte"><span class="swatch" style="background:linear-gradient(90deg, #faf7f0 50%, #2c2115 50%);"></span>Latte</button>
-        <button data-theme-pick="forest"><span class="swatch" style="background:#2f6b43;"></span>Forest</button>
-        <button data-theme-pick="midnight"><span class="swatch" style="background:#151c2b;"></span>Midnight</button>
-        <button data-theme-pick="slate"><span class="swatch" style="background:#ffffff;"></span>Slate</button>
+        <!-- Three choices (T-025): Auto follows the phone's light/dark setting,
+             live, and is stored as the string "auto"; Dark is the default. -->
+        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #0e0e10 50%);"></span>Auto</button>
+        <button data-theme-pick="dark"><span class="swatch" style="background:#0e0e10;"></span>Dark</button>
+        <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Light</button>
       </div>
       <button class="navrow" id="themeBtn">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 3 A7 7 0 0 1 10 17 Z" fill="currentColor" stroke="none"/></svg>
@@ -228,27 +224,27 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261007g"></script>
-<script defer src="js/figures.js?v=20261007g"></script>
-<script defer src="js/lab.js?v=20261007g"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261007g"></script>
-<script defer src="data/summaries-math110.js?v=20261007g"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261007g"></script>
-<script defer src="data/summaries-math120.js?v=20261007g"></script>
-<script defer src="data/summaries-math130.js?v=20261007g"></script>
-<script defer src="data/summaries-phys100.js?v=20261007g"></script>
-<script defer src="data/summaries-math210.js?v=20261007g"></script>
-<script defer src="data/summaries-sys250.js?v=20261007g"></script>
-<script defer src="data/workshop.js?v=20261007g"></script>
-<script defer src="data/storytelling.js?v=20261007g"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261007g"></script>
-<script defer src="data/quiz-calculus.js?v=20261007g"></script>
-<script defer src="data/quiz-probability.js?v=20261007g"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261007g"></script>
-<script defer src="data/quiz-dsa.js?v=20261007g"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261007g"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261007g"></script>
-<script defer src="js/quiz-engine.js?v=20261007g"></script>
-<script defer src="js/app.js?v=20261007g"></script>
+<script defer src="data/curriculum.js?v=20261007t"></script>
+<script defer src="js/figures.js?v=20261007t"></script>
+<script defer src="js/lab.js?v=20261007t"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261007t"></script>
+<script defer src="data/summaries-math110.js?v=20261007t"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261007t"></script>
+<script defer src="data/summaries-math120.js?v=20261007t"></script>
+<script defer src="data/summaries-math130.js?v=20261007t"></script>
+<script defer src="data/summaries-phys100.js?v=20261007t"></script>
+<script defer src="data/summaries-math210.js?v=20261007t"></script>
+<script defer src="data/summaries-sys250.js?v=20261007t"></script>
+<script defer src="data/workshop.js?v=20261007t"></script>
+<script defer src="data/storytelling.js?v=20261007t"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261007t"></script>
+<script defer src="data/quiz-calculus.js?v=20261007t"></script>
+<script defer src="data/quiz-probability.js?v=20261007t"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261007t"></script>
+<script defer src="data/quiz-dsa.js?v=20261007t"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261007t"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261007t"></script>
+<script defer src="js/quiz-engine.js?v=20261007t"></script>
+<script defer src="js/app.js?v=20261007t"></script>
 </body>
 </html>

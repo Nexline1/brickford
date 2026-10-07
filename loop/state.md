@@ -25,3 +25,4 @@
 - 2026-10-06: OWNER DECISION: switch existing devices with stored theme "light" to navy automatically (one-time, marker in settings so a later explicit Light pick sticks; inline head script applies it too; no write at boot), then ship T-024 (PR + merge once review passes). Waiting for round-2 review before handing to builder.
 - 2026-10-07: T-024 merged as PR #8 (ddfd382) on the owner's instruction after 4 review rounds (r4 fix test-only, plant-h). Includes the owner-approved one-time light-to-navy switch. Next: T-023 floating slide-along tab bar.
 - 2026-10-07: T-023 building (owner: go). Worktree /home/user/bf-T-023, branch loop/T-023-floating-tab-bar from main ddfd382; tokens to 20261007h.
+- 2026-10-07: Owner rejected navy (too bright/fancy). Decisions: Dark+Light+Auto, sidebar darker, pages-first desktop redesign with mockups, Treasury = Notion-like business workspace, Practice gets audio recording. T-025 building (worktree /home/user/bf-T-025) alongside T-023.

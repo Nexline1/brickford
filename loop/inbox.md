@@ -21,3 +21,14 @@ Dump notes here after a study session. The loop turns new ones into proposed spe
 ## 2026-10-03
 [want] The whole app as one seamless long-form watching experience, phone and desktop, modelled on YouTube/Netflix continuity; keep Saturday rest, add a switch-off break nudge; keep the iOS look (owner). → T-016, T-017, T-018 (T-019 mini-player and T-020 session continuity on the brief's roadmap)
 [bug] From the T-006/T-007 round-3 reviewer: the .hash box on /record anchors is --surface on a --surface section, so its box vanishes (fix: .glist .hash { background: var(--surface-2) }); large titles split mid-word at 320px/24px root ('Dashboar|d', 'Handboo|k' — cap the size or use overflow-wrap: break-word); .ghead padding 0 4px 8px vs the spec's 0 20px 8px — settle in T-017; the menu button's focus ring top edge is off-screen at y=0; T-005's cellPick check failed once under parallel load (3000ms ceiling).
+
+## 2026-10-07 — owner feedback after navy shipped (verbatim points)
+- Navy "too fancy", "too bright", "not comfortable for my eyes to stay on the platform for long". "The dark one was good, but you removed it." Fewer themes: "just what actually is doable". Sidebar "slightly darker".
+  → decided: Dark + Light + Auto; sidebar darker than the page. T-025.
+- Apple-design asks still missing: removing things, removing text, the opening intro that fades in (T-022), the bottom bar (T-023).
+- Desktop pages are not self-explanatory and all share one template ("just a stack on top of each other"): Atlas, Courses, Problems ("what am I supposed to do here?"), Exams, Proof, Library all look alike.
+- Practice: unclear, too much text; wants an audio button to record himself.
+- Week: "what is all this about?"
+- Calendar: grid is one of the best; the lists beneath it (MATH 130, AI 200, SPCH 100) need a new layout.
+- Treasury: "a place where I can manage my business from. Imagine Notion ... every part of my business, my finance, all of that is being recorded in there."
+- Order decided: theme fix first, then pages one by one on desktop with a mockup before each; bottom bar finishes in parallel; opening screen after.

@@ -24,3 +24,4 @@
 - 2026-10-06: T-024 review round 1 CHANGES REQUIRED: vacuous no-theme-written check; navy flash on devices with stored light (fix: inline head theme script); owner note on stored light; glow worst-case colour #313249. Builder resumed for round 2.
 - 2026-10-06: OWNER DECISION: switch existing devices with stored theme "light" to navy automatically (one-time, marker in settings so a later explicit Light pick sticks; inline head script applies it too; no write at boot), then ship T-024 (PR + merge once review passes). Waiting for round-2 review before handing to builder.
 - 2026-10-07: T-024 merged as PR #8 (ddfd382) on the owner's instruction after 4 review rounds (r4 fix test-only, plant-h). Includes the owner-approved one-time light-to-navy switch. Next: T-023 floating slide-along tab bar.
+- 2026-10-07: T-023 building (owner: go). Worktree /home/user/bf-T-023, branch loop/T-023-floating-tab-bar from main ddfd382; tokens to 20261007h.

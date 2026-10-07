@@ -1836,7 +1836,16 @@
     const tb = $(".tabbar");
     const tbh = tb && getComputedStyle(tb).display !== "none" ? Math.ceil(window.innerHeight - tb.getBoundingClientRect().top) : 0;
     document.documentElement.style.setProperty("--tabbar-h", Math.max(0, tbh) + "px");
-    set("--railbar-h", $("#railbar"));
+    // The Next bar floats above the tab bar on a phone (T-023): what it takes
+    // is its height plus the gap under it, which is its computed bottom less
+    // the tab bar's reserve. On a wider screen that gap is 0.
+    const rb = $("#railbar");
+    let rbh = 0;
+    if (rb && getComputedStyle(rb).display !== "none") {
+      const gap = (parseFloat(getComputedStyle(rb).bottom) || 0) - Math.max(0, tbh);
+      rbh = Math.ceil(rb.getBoundingClientRect().height + Math.max(0, gap));
+    }
+    document.documentElement.style.setProperty("--railbar-h", rbh + "px");
     set("--topbar-h", $("#topbar"));
   }
 

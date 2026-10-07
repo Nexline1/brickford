@@ -1877,6 +1877,23 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      after it. The bar is 54px; the button in it can be 44. */
   .railbar .btn { flex-shrink: 0; min-height: 44px; }
 }
+/* T-023: on a phone the Next bar is a card floating 8px above the tab bar's
+   capsule — the mini-player over the tab bar — on the same 14px insets and in
+   the same glass. A full-width slab on top of a floating capsule was two bar
+   styles stacked, with the page showing through between them. Its reserved
+   height (measureFurniture) includes the 8px gap, so at the end of a scroll
+   nothing rests under either. Between 861 and 1039px there is no tab bar and
+   it stays the edge-to-edge bar above. */
+@media (max-width: 860px) {
+  .railbar {
+    left: 14px; right: 14px; bottom: calc(var(--tabbar-h) + 8px);
+    min-height: 60px; padding: 7px 8px 7px 16px; border-radius: 22px;
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-float);
+  }
+}
 
 /* ---------- Reduced motion: global kill-switch ---------- */
 @media (prefers-reduced-motion: reduce) {
@@ -1930,7 +1947,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .topbar::after { opacity: 1; border-bottom: 1px solid var(--line-strong); }
   .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--line-strong); }
-  .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top-color: var(--line-strong); }
+  .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: var(--line-strong); }
   .sidebar { border-right: 1px solid var(--line-strong); }
   /* A list section is a fill on a fill — --surface on --bg, 1.073:1 in
      slate, the faintest theme — so here it is outlined as well. */

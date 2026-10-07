@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="specimen-pages.css">
+<style>
+.seg{display:inline-flex;background:var(--surface);border-radius:10px;padding:3px;margin-top:20px}
+.seg span{height:32px;padding:0 16px;display:flex;align-items:center;border-radius:8px;font-size:14px;color:var(--ink-2)}
+.seg span.on{background:var(--surface-2);color:var(--ink);font-weight:600}
+.shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.book .cover{aspect-ratio:16/10;border-radius:16px;background:var(--surface);position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:14px}
+.book .cover:before{content:"";position:absolute;inset:0;background:var(--c);opacity:.18}
+.book .cover b{position:relative;font-size:22px;font-weight:700;letter-spacing:.02em;color:var(--c)}
+.book .bar{position:absolute;left:0;bottom:0;height:4px;width:var(--p);background:var(--c)}
+.book .t{font-weight:600;margin-top:10px}
+.book .m{font-size:13px;color:var(--ink-3);margin-top:2px}
+.lock .cover{opacity:.45}.lock .t,.lock .m{opacity:.6}
+</style></head><body>
+<aside class="side"><div class="brand"><span class="crest"></span><b>BRICKFORD</b></div>
+<nav class="nav"><a>Today</a><a>Atlas</a><div class="sec">Study</div><a class="on">Courses</a><a>Problems</a><a>Exams</a><a>Proof</a><div class="sec">Rhythm</div><a>Practice</a><a>Week</a><a>Calendar</a><div class="sec">Life</div><a>Treasury</a><a>Library</a></nav></aside>
+<main>
+<h1>Courses</h1>
+<div class="seg"><span class="on">Now · 6</span><span>Later · 7</span><span>Finished · 0</span><span>All</span></div>
+<div class="h2">Continue <small>where you left off</small></div>
+<div class="shelf">
+<div class="book" style="--c:var(--math);--p:4%"><div class="cover"><b>MATH 110</b><span class="bar"></span></div><div class="t">Linear Algebra</div><div class="m">Lecture 3 · resume at 5:00</div></div>
+<div class="book" style="--c:var(--ai);--p:7%"><div class="cover"><b>AI 200</b><span class="bar"></span></div><div class="t">Neural Networks: Zero to Hero</div><div class="m">Lecture 2 · 1 of 3 parts</div></div>
+<div class="book" style="--c:var(--speech);--p:0%"><div class="cover"><b>SPCH 100</b><span class="bar"></span></div><div class="t">Storytelling</div><div class="m">Lecture 1 · 39 min</div></div>
+<div class="book" style="--c:var(--math);--p:0%"><div class="cover"><b>MATH 130</b><span class="bar"></span></div><div class="t">Probability</div><div class="m">Lecture 1 · 46 min</div></div>
+</div>
+<div class="h2">Also running <small>2 more</small></div>
+<div class="shelf">
+<div class="book" style="--c:var(--math);--p:0%"><div class="cover"><b>MATH 120</b><span class="bar"></span></div><div class="t">Single-Variable Calculus</div><div class="m">47 lectures · 0 proven</div></div>
+<div class="book" style="--c:var(--cs);--p:0%"><div class="cover"><b>CS 150</b><span class="bar"></span></div><div class="t">Algorithms &amp; Data Structures</div><div class="m">150 problems · 0 solved</div></div>
+</div>
+</main>
+<aside class="rail"><div class="ring"><span>0/3</span></div><div class="k" style="text-align:center">Today</div><div class="k" style="margin-top:14px">Next up</div><div style="font-weight:600">Probability and Counting</div><div style="color:var(--ink-3);font-size:13px">MATH 130 · 46 min</div><span class="btn" style="margin-top:6px">Open</span></aside>
+</body></html>

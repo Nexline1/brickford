@@ -1530,6 +1530,133 @@
     drawer = { open, shut };
   }
 
+  // ---------- the tab bar (T-023) ----------
+  //
+  // A finger pressed on the bar and slid along it carries the glass bubble with
+  // it, 1:1 and centred on the finger; past the first or last tab it resists
+  // (apple-design rubber band). On release the bubble springs to the tab
+  // nearest where the slide was GOING (projectMomentum) and that tab opens. A
+  // press that moves under 10px is a tap; a press that moves vertically first
+  // is the page's scroll and is let go. Tapping the tab you are on scrolls to
+  // the top. None of this saves: it moves a transform and changes the hash.
+  const TAB_ROUTES = ["/", "/courses", "/exams", "/workshop", "/review"];
+  // Where each tab was left, in memory only. Never persisted: a scroll position
+  // is not progress, and writing it would make every tab switch a save().
+  const tabScroll = {};
+  let tabbar = null;
+  function rubberBand(offset, dim) {
+    const c = 0.55;
+    return (1 - 1 / ((Math.abs(offset) * c) / dim + 1)) * dim * Math.sign(offset);
+  }
+  function mountTabbar() {
+    const bar = $("#tabbar");
+    const bub = bar && bar.querySelector(".tab-bubble");
+    if (!bar || !bub) return;
+    const tabs = $$("#tabbar a");
+    const reduce = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let x = null, anim = null, drag = null, swallowUntil = 0, goal = null;
+    const paint = px => { x = px; bub.style.transform = "translateX(" + px + "px)"; };
+    // Both measured from the bar's padding edge, which is where the bubble's
+    // left: 0 is.
+    const spot = a => a.offsetLeft + a.offsetWidth / 2 - bub.offsetWidth / 2;
+    function settleTo(a, vel) {
+      const to = spot(a);
+      if (anim && goal === to) return;                 // already on its way there
+      if (anim) { anim.cancel(); anim = null; }
+      goal = to;
+      if (x === null || reduce() || !bar.classList.contains("has-active")) { paint(to); return; }
+      anim = spring(x, to, { response: 0.35, damping: 1, velocity: vel || 0 }, paint, () => { anim = null; });
+    }
+    // After every render and resize: the bubble goes to whichever tab the
+    // router marked active, and hides on a page no tab owns.
+    function sync() {
+      if (drag && drag.moved) return;
+      if (!bar.offsetWidth) return;                    // desktop: no bar
+      const a = tabs.find(t => t.classList.contains("active"));
+      if (a) settleTo(a, anim ? anim.velocity : 0);
+      bar.classList.toggle("has-active", !!a);
+    }
+    function activate(a) {
+      const rt = a.dataset.route;
+      if (route() === rt) {
+        window.scrollTo({ top: 0, behavior: reduce() ? "instant" : "smooth" });
+        return;
+      }
+      location.hash = "#" + rt;
+    }
+    function follow(cx) {
+      const left = bar.getBoundingClientRect().left + bar.clientLeft;
+      const lo = spot(tabs[0]), hi = spot(tabs[tabs.length - 1]), dim = tabs[0].offsetWidth / 3;
+      let px = cx - left - bub.offsetWidth / 2;
+      if (px < lo) px = lo + rubberBand(px - lo, dim);
+      else if (px > hi) px = hi + rubberBand(px - hi, dim);
+      paint(px);
+    }
+    function end(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      try { bar.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      bar.classList.remove("sliding");
+      if (d.dead) { swallowUntil = performance.now() + 400; return; }
+      if (!d.moved) {
+        if (!cancelled && d.a) { swallowUntil = performance.now() + 400; activate(d.a); }
+        return;
+      }
+      swallowUntil = performance.now() + 400;
+      if (cancelled) { sync(); return; }
+      // Velocity from the last 100ms of samples only: a finger that stopped
+      // before lifting has no throw left in it.
+      const now = performance.now(), hist = d.hist.filter(s => now - s.t < 100);
+      let vel = 0;
+      if (hist.length > 1) {
+        const a = hist[0], b = hist[hist.length - 1];
+        if (b.t > a.t) vel = (b.x - a.x) / ((b.t - a.t) / 1000);
+      }
+      const projected = x + projectMomentum(vel, 0.99);
+      let best = tabs[0];
+      tabs.forEach(t => { if (Math.abs(spot(t) - projected) < Math.abs(spot(best) - projected)) best = t; });
+      bar.classList.add("has-active");
+      settleTo(best, vel);
+      if (route() !== best.dataset.route) location.hash = "#" + best.dataset.route;
+    }
+    bar.addEventListener("pointerdown", e => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+      drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
+    });
+    bar.addEventListener("pointermove", e => {
+      if (!drag || e.pointerId !== drag.id || drag.dead) return;
+      const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+      if (!drag.moved) {
+        // Hysteresis: a press that goes vertical first is a scroll, not a slide.
+        if (Math.abs(dy) >= 10 && Math.abs(dy) >= Math.abs(dx)) { drag.dead = true; return; }
+        if (Math.abs(dx) < 10) return;
+        drag.moved = true;
+        if (anim) { anim.cancel(); anim = null; }
+        goal = null;
+        bar.classList.add("sliding", "has-active");
+      }
+      drag.hist.push({ x: e.clientX, t: performance.now() });
+      if (drag.hist.length > 6) drag.hist.shift();
+      follow(e.clientX);
+    });
+    bar.addEventListener("pointerup", e => end(e, false));
+    bar.addEventListener("pointercancel", e => end(e, true));
+    // Anchors are draggable; a native drag would cancel the pointer mid-slide.
+    bar.addEventListener("dragstart", e => e.preventDefault());
+    // Every activation goes through activate(): the pointer path above, and
+    // the click a keyboard (or a tap the pointer path already handled) sends.
+    bar.addEventListener("click", e => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      e.preventDefault();
+      if (performance.now() < swallowUntil) return;
+      activate(a);
+    });
+    window.addEventListener("resize", () => { goal = null; if (anim) { anim.cancel(); anim = null; } x = null; sync(); });
+    tabbar = { sync };
+  }
+
   // The phone's nav bar (T-006), filled from whatever the view actually
   // rendered.
   //
@@ -1703,7 +1830,11 @@
       const h = el && getComputedStyle(el).display !== "none" ? Math.ceil(el.getBoundingClientRect().height) : 0;
       document.documentElement.style.setProperty(name, h + "px");
     };
-    set("--tabbar-h", $(".tabbar"));
+    // The tab bar floats (T-023), so what it takes from the page is its height
+    // AND the gap under it: from its top edge to the bottom of the screen.
+    const tb = $(".tabbar");
+    const tbh = tb && getComputedStyle(tb).display !== "none" ? Math.ceil(window.innerHeight - tb.getBoundingClientRect().top) : 0;
+    document.documentElement.style.setProperty("--tabbar-h", Math.max(0, tbh) + "px");
     set("--railbar-h", $("#railbar"));
     set("--topbar-h", $("#topbar"));
   }
@@ -5100,9 +5231,14 @@
       try { renderInner(); } finally { done(); }
     }
   }
+  let lastRoute = null;
   function renderInner() {
     clearInterval(timerH);
     const r = route();
+    // T-023: leaving a tab keeps its scroll position, in memory only.
+    const prevRoute = lastRoute, moved = prevRoute !== r;
+    lastRoute = r;
+    if (moved && TAB_ROUTES.includes(prevRoute)) tabScroll[prevRoute] = window.scrollY;
     const view = $("#view");
     let html;
     const seg = r.split("/").filter(Boolean);
@@ -5158,12 +5294,24 @@
         (rt === "/library" && seg[0] === "doc");
       a.classList.toggle("active", !!active);
     });
+    // The Review tab's count of due reviews: a read of state, nothing more.
+    const badge = $("#tabBadge");
+    if (badge) {
+      const due = reviewsDue().length;
+      badge.textContent = due ? String(due) : "";
+      badge.hidden = !due;
+      badge.parentElement.setAttribute("aria-label", due ? "Review, " + due + " due" : "Review");
+    }
+    if (tabbar) tabbar.sync();
     // Last, because it reads what the view drew AND, for a route with no h1 of
     // its own, which nav link is active — and that is set six lines up. Called
     // before it, the bar showed the name of the page the reader had just left.
     mountTopbar();
     $("#sidebar").classList.remove("open");
-    window.scrollTo({ top: 0 });
+    // Back on a tab: where it was left. Anywhere else, and a re-render of the
+    // same page, start at the top as before.
+    if (moved && tabScroll[r] !== undefined) window.scrollTo({ top: tabScroll[r], behavior: "instant" });
+    else window.scrollTo({ top: 0 });
   }
 
   // ---------- boot ----------
@@ -5216,6 +5364,7 @@
     $("#importBtn").onclick = () => $("#importFile").click();
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
     mountDrawer();
+    mountTabbar();
     // Before render: the frame is still the old lecture's when this runs.
     window.addEventListener("hashchange", leaveLecture);
     window.addEventListener("hashchange", render);

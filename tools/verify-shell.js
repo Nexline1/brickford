@@ -174,6 +174,7 @@ async function freshContext(browser, opts) {
   for (const w of PHONE) {
     const ctx = await freshContext(browser, { viewport: { width: w, height: 860 }, hasTouch: true, reducedMotion: "reduce" });
     const page = await ctx.newPage();
+    let cardRoutes = 0;
     for (const r of FRAME_ROUTES) {
       await page.goto(URL + r, { waitUntil: "load" });
       await page.waitForTimeout(220);
@@ -221,22 +222,29 @@ async function freshContext(browser, opts) {
         window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
         const tb = document.querySelector("#tabbar");
         if (getComputedStyle(tb).display === "none") return { shown: false };
-        const bar = tb.getBoundingClientRect();
+        // Both fixed controls at the bottom: the capsule and, when it is on
+        // screen (not stowed, not off), the Next card floating above it.
+        const boxes = [["the tab bar", tb.getBoundingClientRect()]];
+        const rb = document.querySelector("#railbar");
+        if (rb && rb.checkVisibility({ opacityProperty: true }) && rb.getBoundingClientRect().height > 0)
+          boxes.push(["the Next card", rb.getBoundingClientRect()]);
         let on = null;
         document.querySelectorAll("#view *").forEach(el => {
           if (on || !el.checkVisibility()) return;
           if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length)) return;
           const b = el.getBoundingClientRect();
           if (b.width < 1 || b.height < 1) return;
-          if (b.top < bar.bottom && b.bottom > bar.top && b.left < bar.right && b.right > bar.left)
-            on = el.tagName.toLowerCase() + " \"" + el.textContent.trim().slice(0, 30) + "\" at " + Math.round(b.top) + "-" + Math.round(b.bottom) +
-                 " under the bar at " + Math.round(bar.top) + "-" + Math.round(bar.bottom);
+          for (const [what, bar] of boxes)
+            if (!on && b.top < bar.bottom && b.bottom > bar.top && b.left < bar.right && b.right > bar.left)
+              on = el.tagName.toLowerCase() + " \"" + el.textContent.trim().slice(0, 30) + "\" at " + Math.round(b.top) + "-" + Math.round(b.bottom) +
+                   " under " + what + " at " + Math.round(bar.top) + "-" + Math.round(bar.bottom);
         });
-        return { shown: true, on };
+        return { shown: true, on, card: boxes.length > 1 };
       });
-      check(under.shown && !under.on, at + ": at the end of the scroll the tab bar is sitting on text — " + (under.shown ? under.on : "no tab bar"));
+      if (under.card) cardRoutes++;
+      check(under.shown && !under.on, at + ": at the end of the scroll the tab bar or the Next card is sitting on text — " + (under.shown ? under.on : "no tab bar"));
     }
-    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes (menu button and tab bar)");
+    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes (menu button, tab bar, and the Next card on " + cardRoutes + ")");
     await ctx.close();
   }
 

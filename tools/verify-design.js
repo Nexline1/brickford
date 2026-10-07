@@ -59,7 +59,9 @@
 //     saturate(170%) with a 1px --line edge and a shadow; every tab >= 44x44;
 //     a translucent, blurred bubble centred (+/-1) behind the active tab; the
 //     due-review badge a solid fill with its count at >= 4.5:1; and under
-//     reduced transparency the bubble solid and unblurred too;
+//     reduced transparency the bubble solid and unblurred too; and on /review
+//     the Next card above it on the capsule's insets (+/-1), radius >= 20,
+//     8px (+/-1) above it, in the same glass, its Open >= 44x44;
 //   - the sidebar at 1280: not the espresso --panel, the page's --surface at
 //     85% under a blur, a 0.5px trailing edge, the current item an
 //     --accent-soft pill with an --accent label on 8px corners, a --gold crest;
@@ -1853,6 +1855,29 @@ function hairlineSource() {
       check(at + ": the Review tab's badge counts the due reviews in a solid fill at >= 4.5:1",
         !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,
         t.badge ? "\"" + t.badge.text + "\" " + hx(t.badge.bg) + " " + t.badge.ratio.toFixed(2) + ":1" : "no badge shown");
+      // The Next card over the capsule, on /review, where it is on screen (on
+      // Today it is stowed while the hero's own button shows).
+      await go(page, "/review");
+      const n = await page.evaluate(() => {
+        const z = window.__dz, rb = document.querySelector("#railbar"), tb = document.querySelector("#tabbar");
+        if (!rb || !rb.checkVisibility({ opacityProperty: true })) return null;
+        const cs = getComputedStyle(rb), b = rb.getBoundingClientRect(), t = tb.getBoundingClientRect();
+        const btn = rb.querySelector(".btn"), bb = btn && btn.getBoundingClientRect();
+        return { l: b.left - t.left, r: t.right - b.right, gap: t.top - b.bottom, radius: parseFloat(cs.borderTopLeftRadius),
+                 bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), surface: z.tok("--surface"), line: z.tok("--line"), shadow: cs.boxShadow,
+                 edges: ["Top", "Right", "Bottom", "Left"].map(k => ({ w: parseFloat(cs["border" + k + "Width"]) || 0, col: z.bytes(cs["border" + k + "Color"]) })),
+                 btn: bb ? { w: bb.width, h: bb.height } : null };
+      });
+      const card = at.replace("floating tab bar", "Next card");
+      check(card + ": on screen above the capsule on /review", !!n, n ? "" : "not visible");
+      if (n) {
+        check(card + ": the capsule's insets (+/-1)", Math.abs(n.l) <= 1 && Math.abs(n.r) <= 1, "left " + n.l.toFixed(1) + ", right " + n.r.toFixed(1) + " from the capsule's");
+        check(card + ": radius >= 20px and 8px (+/-1) above the capsule", n.radius >= 20 && Math.abs(n.gap - 8) <= 1, "radius " + n.radius + ", gap " + n.gap.toFixed(1));
+        check(card + ": the capsule's glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow",
+          tabBlurOk(n.bf) && material(n.bg, n.surface, 0.78) && n.edges.every(e => e.w === 1 && __same(e.col, n.line)) && n.shadow !== "none",
+          n.bf + "; " + hx(n.bg) + "; edges " + n.edges.map(e => e.w).join("/") + "; shadow " + (n.shadow === "none" ? "none" : "yes"));
+        check(card + ": Open is at least 44x44", !!n.btn && n.btn.w >= 44 && n.btn.h >= 44, n.btn ? n.btn.w.toFixed(1) + "x" + n.btn.h.toFixed(1) : "no button");
+      }
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -2351,7 +2376,7 @@ function hairlineSource() {
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " design checks: " + ROUTES.length + " routes x " + WIDTHS.length + " widths x " +
       THEMES.length + " themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; " +
-      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar at 390/320 (T-023), the sidebar, " +
+      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the sidebar, " +
       "reduced transparency, more contrast, reduced motion and a scroll that is a read; " +
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
       WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +

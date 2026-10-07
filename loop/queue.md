@@ -25,3 +25,4 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-027 | Treasury becomes a business workspace (Notion-like): clients, projects, money in/out, notes | proposed | 0 | | owner 2026-10-07; needs its own mockup |
 | T-028 | Practice: record yourself (audio), recordings on this device | proposed | 0 | | owner 2026-10-07 |
 | T-026a | Atlas as a route, Courses as a shelf (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-atlas/courses; after T-025 |
+| T-026b | Problems, Exams, Proof say what they are for (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-problems/exams/proof; after T-026a |

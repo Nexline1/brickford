@@ -1,0 +1,130 @@
+PLANT c: dark --panel lighter than --bg (#1c1c1e over #0e0e10)
+file: platform/css/style.css
+--- diff ---
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 81baebd..ac10f86 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -256,7 +256,7 @@
+   /* A dark shadow on a near-black page is not a shadow: what floats gets a ring. */
+   --float: 0 0 0 1px var(--line);
+   /* The sidebar (T-025), and the status bar (meta theme-color). */
+-  --panel: #000000;
++  --panel: #1c1c1e;
+   --panel-ink: #e8ebef;
+   --panel-accent: #7fb0e6;
+   --feature: var(--accent);
+--- node tools/verify-design.js ---
+status bar (read from platform/css/style.css)
+
+hairlines (read from platform/css/style.css)
+
+390px light
+
+390px dark
+  FAIL  390px dark /: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  390px dark: the theme tokens resolve to the brief's values — data-theme dark; --panel rgb(28, 28, 30) (want #000000)
+  FAIL  390px dark /course/math110: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  390px dark /lesson/math110/0/13: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  390px dark /calendar: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  390px dark /workshop: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+
+1280px light
+
+1280px dark
+  FAIL  1280px dark /: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  1280px dark: the theme tokens resolve to the brief's values — data-theme dark; --panel rgb(28, 28, 30) (want #000000)
+  FAIL  1280px dark /course/math110: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  1280px dark /lesson/math110/0/13: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  1280px dark /calendar: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+  FAIL  1280px dark /workshop: meta theme-color is this theme's --panel (#000000) — meta #1c1c1e
+
+empty tracks, 390px light
+
+empty tracks, 390px dark
+
+Auto theme
+  FAIL  auto, phone dark: the status-bar colour follows (#000000) — meta theme-color #1c1c1e
+  FAIL  auto, phone flips to dark while open: follows live, --bg #0e0e10 — data-theme dark, --bg rgb(14, 14, 16), meta #1c1c1e
+
+T-024: the default theme
+  FAIL  default (nothing stored): meta theme-color #000000 — meta #1c1c1e
+  FAIL  default (progress stored, no theme): meta theme-color #000000 — meta #1c1c1e
+
+T-024: the navy switch
+  FAIL  switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #1c1c1e, Dark
+
+T-024: the theme before the first paint
+  FAIL  first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025) — dark #000000 vs css #1c1c1e
+  FAIL  first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme dark, meta #1c1c1e, state writes 0, stored "forest"
+  FAIL  first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme dark, meta #1c1c1e, state writes 0, stored "slate"
+
+T-025: no glow, no decoration
+
+calendar cellPick
+
+nav bar, 390px light
+
+nav bar, 390px dark
+
+tab bar and sidebar, light
+
+tab bar and sidebar, dark
+  FAIL  1280px dark sidebar: a solid --panel (#000000), no backdrop-filter, no background-image — background #1c1c1e (--panel #1c1c1e), backdrop-filter none, image none
+  FAIL  1280px dark sidebar: darker than the page — its luminance below the page --bg's — sidebar #1c1c1e L 0.0117, page --bg #0e0e10 L 0.0044
+
+reduced transparency, light
+
+reduced transparency, dark
+
+more contrast, light
+
+more contrast, dark
+
+the inline title under reduced motion
+
+scrolling a lesson page
+
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+
+the keyboard ring, 390px light
+
+the keyboard ring, 390px dark
+
+the keyboard ring, 1280px light
+
+the keyboard ring, 1280px dark
+
+press, light
+
+press, dark
+
+thumbnails, 390px light
+
+thumbnails, 390px dark
+
+thumbnails, 1280px light
+
+thumbnails, 1280px dark
+
+thumbnails that load, 390px light
+
+thumbnail contrast, light
+
+thumbnail contrast, dark
+
+
+FAIL — 22 of 642 design checks failed
+exit code: 1
+restored byte-for-byte (cmp platform/css/style.css against the pre-plant copy: identical)
+git diff on platform/css/style.css after restore: empty

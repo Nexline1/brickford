@@ -1,0 +1,125 @@
+PLANT d: the T-024 glow layer (.main::before and its .main rule) put back in dark
+file: platform/css/style.css
+--- diff ---
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 81baebd..f140666 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -459,6 +459,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
+ .motto { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; line-height: 1.7; }
+ 
+ .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
++[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #313249; }
++[data-theme="dark"] .main::before {
++  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
++  background-color: #313249;
++  background-image:
++    radial-gradient(38% 70% at 72% 6%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
++    radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .20) 0%, rgb(70 84 170 / 0) 70%),
++    linear-gradient(var(--bg), var(--bg));
++  background-size: 100% 360px, 100% 360px, 100% 100%;
++  background-repeat: no-repeat;
++}
+ 
+ /* The view declares its own ink rather than inheriting one through the shell.
+    In T-006's first round verify-contrast flaked once on a view whose text
+--- node tools/verify-design.js ---
+status bar (read from platform/css/style.css)
+
+hairlines (read from platform/css/style.css)
+
+390px light
+
+390px dark
+
+1280px light
+
+1280px dark
+
+empty tracks, 390px light
+
+empty tracks, 390px dark
+
+Auto theme
+
+T-024: the default theme
+
+T-024: the navy switch
+
+T-024: the theme before the first paint
+
+T-025: no glow, no decoration
+  FAIL  390px dark /: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  390px dark /course/math110: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  390px dark /calendar: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  390px dark /record: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  1280px dark /: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  1280px dark /course/math110: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  1280px dark /calendar: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+  FAIL  1280px dark /record: no .main::before decoration, and no background-image on .main or the sidebar — ::before content "" image radial-gradient(38% 70% at 72% 6%, rgba(201, 154, 74, 0.14) ; .main image none bg rgb(49, 50, 73); sidebar image none
+
+calendar cellPick
+
+nav bar, 390px light
+
+nav bar, 390px dark
+
+tab bar and sidebar, light
+
+tab bar and sidebar, dark
+
+reduced transparency, light
+
+reduced transparency, dark
+
+more contrast, light
+
+more contrast, dark
+
+the inline title under reduced motion
+
+scrolling a lesson page
+
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+
+the keyboard ring, 390px light
+
+the keyboard ring, 390px dark
+
+the keyboard ring, 1280px light
+
+the keyboard ring, 1280px dark
+
+press, light
+
+press, dark
+
+thumbnails, 390px light
+
+thumbnails, 390px dark
+
+thumbnails, 1280px light
+
+thumbnails, 1280px dark
+
+thumbnails that load, 390px light
+
+thumbnail contrast, light
+
+thumbnail contrast, dark
+
+
+FAIL — 8 of 642 design checks failed
+exit code: 1
+restored byte-for-byte (cmp platform/css/style.css against the pre-plant copy: identical)
+git diff on platform/css/style.css after restore: empty

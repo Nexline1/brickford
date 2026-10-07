@@ -177,7 +177,7 @@
     // lastSyncAt / syncError are per-device facts about THIS browser's link to
     // GitHub, so they are deliberately not in syncPayload - pushing them would
     // tell the phone about the laptop's broken token.
-    // No theme here: an unset theme is the DEFAULT (navy, applyTheme), not a
+    // No theme here: an unset theme is the DEFAULT (dark, applyTheme), not a
     // stored pick. With "light" in this object every device wrote "light" on
     // its first save, and the default could never change again (T-024).
     settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null,
@@ -195,7 +195,8 @@
   // DEFAULT above carried theme "light", and every device wrote it on its
   // first save whether or not anyone chose it. So a stored "light" without
   // the marker is treated as that old default, ONCE per device: the theme
-  // goes back to unset (the navy default) and the marker is set.
+  // goes back to unset (the default: dark, which is no longer navy since
+  // T-025) and the marker is set.
   // `themeNavyOnce` means "this device's theme is past the navy switch". It
   // is per device: syncPayload does not carry it and mergeState never reads
   // a remote theme or marker. An explicit pick from the Theme menu sets it
@@ -5170,21 +5171,26 @@
   function boot() {
     // "auto" follows the phone's light/dark setting. It is stored as that
     // string and resolved here, never written back as "light" or "dark", so
-    // the phone stays in charge. A device from before Auto existed puts
-    // "auto" straight into data-theme, which no theme block matches, so it
-    // shows light.
-    // Unset means the default, which is the navy "dark" theme since T-024 (the
-    // owner's decision of 2026-10-06). Only an unset theme moves, plus the
-    // one-time navy switch at load (a stored "light" without themeNavyOnce; see
-    // the state block). A pick made from the Theme menu carries the marker and
-    // is never rewritten.
+    // the phone stays in charge.
+    // Unset means the default, which is "dark" (T-024; since T-025 the iOS
+    // near-black, not navy). Only an unset theme moves, plus the one-time
+    // switch at load (a stored "light" without themeNavyOnce; see the state
+    // block). A pick made from the Theme menu carries the marker and is never
+    // rewritten.
+    // Three choices since T-025 (the owner's decision of 2026-10-07): Auto,
+    // Dark, Light. A stored theme that no longer exists (parchment, forest,
+    // midnight, latte, slate) or any unknown string renders as dark — and is
+    // NOT rewritten: this is a read, and the stored value stays until the
+    // next pick from the menu. index.html's first-paint script does the same.
+    const THEMES = ["light", "dark"];
     const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
     const applyTheme = () => {
-      const pick = S.settings.theme || "dark";
+      let pick = S.settings.theme || "dark";
+      if (pick !== "auto" && !THEMES.includes(pick)) pick = "dark";
       document.documentElement.dataset.theme =
         pick === "auto" ? (darkQ && darkQ.matches ? "dark" : "light") : pick;
       // The Home Screen app's status bar is painted from this meta, and it was
-      // hard-coded to the brown panel — so picking Dark or Latte left a brown
+      // hard-coded to the brown panel — so picking a dark theme left a brown
       // bar above a near-black page. It follows the theme now. Read AFTER the
       // dataset is set, so it is this theme's panel and not the last one's.
       const meta = document.querySelector('meta[name="theme-color"]');

@@ -1,0 +1,109 @@
+PLANT b: a removed theme's menu button (Forest) put back
+file: platform/index.html
+--- diff ---
+diff --git a/platform/index.html b/platform/index.html
+index 87313dd..97e8f2b 100644
+--- a/platform/index.html
++++ b/platform/index.html
+@@ -165,6 +165,7 @@
+         <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #0e0e10 50%);"></span>Auto</button>
+         <button data-theme-pick="dark"><span class="swatch" style="background:#0e0e10;"></span>Dark</button>
+         <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Light</button>
++        <button data-theme-pick="forest"><span class="swatch" style="background:#2f6b43;"></span>Forest</button>
+       </div>
+       <button class="navrow" id="themeBtn">
+         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 3 A7 7 0 0 1 10 17 Z" fill="currentColor" stroke="none"/></svg>
+--- node tools/verify-design.js ---
+status bar (read from platform/css/style.css)
+
+hairlines (read from platform/css/style.css)
+
+390px light
+
+390px dark
+
+1280px light
+
+1280px dark
+
+empty tracks, 390px light
+
+empty tracks, 390px dark
+
+Auto theme
+
+T-024: the default theme
+  FAIL  default (nothing stored): the Theme menu is exactly Auto, Dark, Light, in that order, and marks Dark — auto:Auto dark:Dark* light:Light forest:Forest
+  FAIL  default (progress stored, no theme): the Theme menu is exactly Auto, Dark, Light, in that order, and marks Dark — auto:Auto dark:Dark* light:Light forest:Forest
+
+T-024: the navy switch
+
+T-024: the theme before the first paint
+
+T-025: no glow, no decoration
+
+calendar cellPick
+
+nav bar, 390px light
+
+nav bar, 390px dark
+
+tab bar and sidebar, light
+
+tab bar and sidebar, dark
+
+reduced transparency, light
+
+reduced transparency, dark
+
+more contrast, light
+
+more contrast, dark
+
+the inline title under reduced motion
+
+scrolling a lesson page
+
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+
+the keyboard ring, 390px light
+
+the keyboard ring, 390px dark
+
+the keyboard ring, 1280px light
+
+the keyboard ring, 1280px dark
+
+press, light
+
+press, dark
+
+thumbnails, 390px light
+
+thumbnails, 390px dark
+
+thumbnails, 1280px light
+
+thumbnails, 1280px dark
+
+thumbnails that load, 390px light
+
+thumbnail contrast, light
+
+thumbnail contrast, dark
+
+
+FAIL — 2 of 642 design checks failed
+exit code: 1
+restored byte-for-byte (cmp platform/index.html against the pre-plant copy: identical)
+git diff on platform/index.html after restore: empty

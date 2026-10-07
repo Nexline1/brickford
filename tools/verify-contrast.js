@@ -19,7 +19,10 @@ const PW = "/opt/node22/lib/node_modules/playwright";
 const { chromium } = require(PW);
 
 const URL = "file://" + path.join(ROOT, "platform/index.html");
-const THEMES = ["light", "parchment", "dark", "forest", "midnight", "latte", "slate"];
+// T-025 (owner, 2026-10-07): the app has two themes, Light and Dark (Auto
+// resolves to one of them). Parchment, Forest, Midnight, Latte and Slate were
+// removed, so there is nothing of theirs left to measure.
+const THEMES = ["light", "dark"];
 const WIDTHS = [390, 1280];
 const ROUTES = [
   "/", "/atlas", "/courses", "/course/math110", "/course/cs150", "/course/phys100",

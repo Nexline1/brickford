@@ -1,0 +1,24 @@
+# Plant b — 2026-10-07T16:48:49Z on 1e1feed
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 51934b6..04cfc70 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1630,7 +1630,6 @@
+       const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+       if (!drag.moved) {
+         // Hysteresis: a press that goes vertical first is a scroll, not a slide.
+-        if (Math.abs(dy) >= 10 && Math.abs(dy) >= Math.abs(dx)) { drag.dead = true; return; }
+         if (Math.abs(dx) < 10) return;
+         drag.moved = true;
+         if (anim) { anim.cancel(); anim = null; }
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) a 40px vertical drag on Exams does not switch tabs (touch and pointer) — #/review -> touch #/review, pointer #/exams
+a slow phone (once, 390px)
+sync (once)
+1 of 96 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean

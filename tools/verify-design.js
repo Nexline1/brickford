@@ -50,9 +50,16 @@
 //     title that is transparent at scroll 0,
 //     opaque once the h1 is 200px under the bar, and transparent again back at
 //     the top — with the 0.5px --line scroll edge absent, present, absent;
-//   - the tab bar: a --surface material with a 0.5px --line top edge, 24px
-//     glyphs, 10px/500 sentence-case labels with no tracking, the active tab
-//     --accent and the rest --ink-3;
+//   - the tab bar: a --surface material with a --line edge (1px since T-023),
+//     24px glyphs, 10px/500 sentence-case labels with no tracking, the active
+//     tab --accent and the rest --ink-3;
+//   - T-023, the floating tab bar (loop/specs/T-023-floating-tab-bar/spec.md),
+//     at 390 and 320 in light and dark: a 70px capsule 14px (+/-1) from both
+//     edges and 12px above the bottom, --surface at 78% under blur(22px)
+//     saturate(170%) with a 1px --line edge and a shadow; every tab >= 44x44;
+//     a translucent, blurred bubble centred (+/-1) behind the active tab; the
+//     due-review badge a solid fill with its count at >= 4.5:1; and under
+//     reduced transparency the bubble solid and unblurred too;
 //   - the sidebar at 1280: not the espresso --panel, the page's --surface at
 //     85% under a blur, a 0.5px trailing edge, the current item an
 //     --accent-soft pill with an --accent label on 8px corners, a --gold crest;
@@ -732,10 +739,28 @@ function tabState() {
     bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), surface: z.tok("--surface"), panel: z.tok("--panel"),
     topW: parseFloat(cs.borderTopWidth) || 0, topCol: z.bytes(cs.borderTopColor), line: z.tok("--line"),
     accent: z.tok("--accent"), ink3: z.tok("--ink-3"),
+    // T-023: the capsule, its bubble and the due-review badge.
+    box: (() => { const b = bar.getBoundingClientRect(); return { l: b.left, r: b.right, t: b.top, btm: b.bottom, h: b.height }; })(),
+    vw: document.documentElement.clientWidth, vh: window.innerHeight,
+    radius: parseFloat(cs.borderTopLeftRadius), shadow: cs.boxShadow,
+    edges: ["Top", "Right", "Bottom", "Left"].map(k => ({ w: parseFloat(cs["border" + k + "Width"]) || 0, col: z.bytes(cs["border" + k + "Color"]) })),
+    bubble: (() => {
+      const e = bar.querySelector(".tab-bubble"), bs = e && getComputedStyle(e), b = e && e.getBoundingClientRect();
+      const act = bar.querySelector("a.active"), ab = act && act.getBoundingClientRect();
+      return e ? { bf: bs.backdropFilter, bg: z.bytes(bs.backgroundColor), op: bs.opacity, c: b.left + b.width / 2,
+                   actC: ab ? ab.left + ab.width / 2 : null, behind: !!ab && b.top >= ab.top - 6 && b.bottom <= ab.bottom + 6 } : null;
+    })(),
+    badge: (() => {
+      const e = bar.querySelector(".tab-badge");
+      if (!e || !e.checkVisibility()) return null;
+      const bs = getComputedStyle(e), bg = z.bytes(bs.backgroundColor), fg = z.bytes(bs.color);
+      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/review']") };
+    })(),
     tabs: [...bar.querySelectorAll("a")].map(a => {
       const t = getComputedStyle(a), g = a.querySelector(".glyph").getBoundingClientRect();
       return { name: a.textContent.trim(), active: a.classList.contains("active"), tt: t.textTransform, size: t.fontSize,
-               weight: t.fontWeight, ls: t.letterSpacing, color: z.bytes(t.color), gw: g.width, gh: g.height, h: a.getBoundingClientRect().height };
+               weight: t.fontWeight, ls: t.letterSpacing, color: z.bytes(t.color), gw: g.width, gh: g.height, h: a.getBoundingClientRect().height,
+               w: a.getBoundingClientRect().width };
     }),
   };
 }
@@ -772,7 +797,7 @@ function chromeState() {
   const gs = gl && getComputedStyle(gl);
   return {
     rt: matchMedia("(prefers-reduced-transparency: reduce)").matches, more: matchMedia("(prefers-contrast: more)").matches,
-    topbar: one("#topbar"), tabbar: one("#tabbar"), railbar: one("#railbar"), sidebar: one("#sidebar"),
+    topbar: one("#topbar"), tabbar: one("#tabbar"), railbar: one("#railbar"), sidebar: one("#sidebar"), bubble: one("#tabbar .tab-bubble"),
     bg: z.tok("--bg"), surface: z.tok("--surface"), strong: z.tok("--line-strong"),
     edge: { op: after.opacity, w: parseFloat(after.borderBottomWidth) || 0, col: z.bytes(after.borderBottomColor) },
     tabTop: { w: parseFloat(tab.borderTopWidth) || 0, col: z.bytes(tab.borderTopColor) },
@@ -1124,15 +1149,18 @@ function hairlineSource() {
   const top = readBlocks(css);
   const phone = top.filter(b => /^@media\s*\(max-width:\s*860px\)$/.test(b.prelude)).flatMap(b => readBlocks(b.body));
   const rule = (list, sel) => { const hits = list.filter(b => b.prelude === sel); return hits.length ? decls(hits.map(b => b.body).join(";")) : null; };
-  for (const [where, list, sel, prop] of [
+  for (const [where, list, sel, prop, width] of [
     ["the nav bar's scroll edge", phone, ".topbar::after", "border-bottom"],
-    ["the tab bar's top edge", phone, ".tabbar", "border-top"],
+    // T-023 made this one a 1px edge all round the capsule (the spec's "1px
+    // hairline edge"); it was a 0.5px top edge on a full-width bar.
+    ["the tab bar's edge", phone, ".tabbar", "border", "1px"],
     ["the sidebar's trailing edge", top, ".sidebar", "border-right"],
     ["a row's separator", top, ".grow::before", "border-top"],
   ]) {
+    const px = width || "0.5px";
     const r = rule(list, sel), v = r && effective(r, prop);
-    check("hairline: " + where + " is declared 0.5px solid var(--line) (" + sel + " " + prop + ")",
-      !!v && /^0\.5px\s+solid\s+var\(--line\)$/.test(v), r ? prop + ": " + v : "no " + sel + " rule");
+    check("hairline: " + where + " is declared " + px + " solid var(--line) (" + sel + " " + prop + ")",
+      !!v && new RegExp("^" + px.replace(".", "\\.") + "\\s+solid\\s+var\\(--line\\)$").test(v), r ? prop + ": " + v : "no " + sel + " rule");
   }
 }
 
@@ -1661,6 +1689,7 @@ function hairlineSource() {
   const near = (a, want, tol) => Math.abs(a - want) <= tol;
   const material = (bg, tokBytes, pct) => bg[3] !== 255 && near(bg[3], Math.round(pct * 255), 3) && __same(bg, tokBytes);
   const blurOk = bf => /blur\(20px\)/.test(bf) && /saturate\((180%|1\.8)\)/.test(bf);
+  const tabBlurOk = bf => /blur\(22px\)/.test(bf) && /saturate\((170%|1\.7)\)/.test(bf);
   const hx = p => "#" + p.slice(0, 3).map(v => v.toString(16).padStart(2, "0")).join("") + (p[3] !== 255 ? " at " + Math.round(p[3] / 2.55) + "%" : "");
 
   // ---- the nav bar, at 390 ----
@@ -1733,11 +1762,14 @@ function hairlineSource() {
       await themePainted(page, theme, "390px " + theme + " tab bar");
       const t = await page.evaluate(tabState);
       const at = "390px " + theme + " tab bar";
-      check(at + ": a material — --surface at 78%, blur(20px) saturate(180%), not the --panel slab",
-        blurOk(t.bf) && material(t.bg, t.surface, 0.78) && !__same(t.bg, t.panel, 0),
+      // T-023 set the capsule's glass to blur(22px) saturate(170%); it was the
+      // nav bar's blur(20px) saturate(180%).
+      check(at + ": a material — --surface at 78%, blur(22px) saturate(170%), not the --panel slab",
+        tabBlurOk(t.bf) && material(t.bg, t.surface, 0.78) && !__same(t.bg, t.panel, 0),
         "backdrop-filter " + t.bf + "; background " + hx(t.bg) + " (--surface " + hx(t.surface) + ", --panel " + hx(t.panel) + ")");
-      check(at + ": a 0.5px --line top edge", hairline(t.topW) && __same(t.topCol, t.line),
-        t.topW + "px " + hx(t.topCol));
+      // T-023: a 1px --line edge (it was a 0.5px top edge).
+      check(at + ": a 1px --line edge all round", t.edges.every(e => e.w === 1 && __same(e.col, t.line)),
+        t.edges.map(e => e.w + "px " + hx(e.col)).join(", "));
       const lab = t.tabs.filter(x => x.tt !== "none" || x.size !== "10px" || x.weight !== "500" || !(x.ls === "normal" || parseFloat(x.ls) === 0));
       check(at + ": the labels are sentence case (text-transform none), 10px/500, no letter-spacing",
         t.tabs.length === 5 && lab.length === 0,
@@ -1778,6 +1810,44 @@ function hairlineSource() {
     }
   }
 
+  // ---- T-023: the floating tab bar, at 390 and 320 ----
+  for (const theme of THEMES) {
+    console.log("\nfloating tab bar, " + theme);
+    for (const w of [390, 320]) {
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: 844 }, isMobile: true, hasTouch: true, colorScheme: theme }, theme);
+      await page.goto(URL + "/", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const at = w + "px " + theme + " floating tab bar";
+      await themePainted(page, theme, at);
+      const t = await page.evaluate(tabState);
+      check(at + ": 14px (+/-1) in from both edges",
+        Math.abs(t.box.l - 14) <= 1 && Math.abs(t.vw - t.box.r - 14) <= 1, t.box.l.toFixed(1) + " and " + (t.vw - t.box.r).toFixed(1));
+      check(at + ": a 70px capsule (radius >= half its height), 12px above the bottom",
+        Math.abs(t.box.h - 70) <= 0.5 && t.radius >= t.box.h / 2 && Math.abs(t.vh - t.box.btm - 12) <= 1,
+        "h " + t.box.h.toFixed(1) + ", radius " + t.radius + ", gap " + (t.vh - t.box.btm).toFixed(1));
+      check(at + ": glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow",
+        tabBlurOk(t.bf) && material(t.bg, t.surface, 0.78) && t.edges.every(e => e.w === 1 && __same(e.col, t.line)) && t.shadow !== "none",
+        t.bf + "; " + hx(t.bg) + "; edges " + t.edges.map(e => e.w).join("/") + "; shadow " + (t.shadow === "none" ? "none" : "yes"));
+      const small = t.tabs.filter(x => x.w < 44 || x.h < 44);
+      check(at + ": every tab is at least 44x44", t.tabs.length === 5 && small.length === 0,
+        small.length ? small.map(x => x.name + " " + x.w.toFixed(1) + "x" + x.h.toFixed(1)).join("; ") : t.tabs.map(x => x.w.toFixed(0) + "x" + x.h.toFixed(0)).join(", "));
+      const bb = t.bubble;
+      check(at + ": a glass bubble (translucent, blurred) centred (+/-1) behind the active tab",
+        !!bb && bb.op === "1" && bb.bg[3] > 0 && bb.bg[3] < 255 && /blur\(/.test(bb.bf) && bb.actC !== null && Math.abs(bb.c - bb.actC) <= 1 && bb.behind,
+        bb ? "opacity " + bb.op + ", " + hx(bb.bg) + ", " + bb.bf + ", centre " + bb.c.toFixed(1) + " vs active " + (bb.actC === null ? "none" : bb.actC.toFixed(1)) : "no bubble");
+      const act = t.tabs.filter(x => x.active);
+      check(at + ": the active tab's icon and label are --accent", act.length === 1 && __same(act[0].color, t.accent),
+        act.map(x => x.name + " " + hx(x.color)).join(", "));
+      // The seed has one due review.
+      check(at + ": the Review tab's badge counts the due reviews in a solid fill at >= 4.5:1",
+        !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,
+        t.badge ? "\"" + t.badge.text + "\" " + hx(t.badge.bg) + " " + t.badge.ratio.toFixed(2) + ":1" : "no badge shown");
+      check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   // ---- reduced transparency and more contrast, emulated and confirmed ----
   for (const [mq, feature, value] of [["reduced transparency", "prefers-reduced-transparency", "reduce"], ["more contrast", "prefers-contrast", "more"]]) {
     for (const theme of THEMES) {
@@ -1801,6 +1871,9 @@ function hairlineSource() {
           check(at + ": the nav bar is solid --bg, the tab bar and the action bar solid --surface, none blurred",
             on && solid(m.topbar, m.bg) && solid(m.tabbar, m.surface) && solid(m.railbar, m.surface),
             "nav " + hx(m.topbar.bg) + " " + m.topbar.bf + "; tab " + hx(m.tabbar.bg) + " " + m.tabbar.bf + "; action " + hx(m.railbar.bg) + " " + m.railbar.bf);
+          if (feature === "prefers-reduced-transparency")
+            check(at + ": the tab bar's bubble is solid and unblurred (T-023)",
+              !!m.bubble && m.bubble.bf === "none" && m.bubble.bg[3] === 255, m.bubble ? hx(m.bubble.bg) + " " + m.bubble.bf : "no bubble");
           if (feature === "prefers-contrast")
             check(at + ": the edges are stated — the nav bar's at scroll 0 and the tab bar's, 1px --line-strong",
               m.edge.op === "1" && m.edge.w === 1 && __same(m.edge.col, m.strong) && m.tabTop.w === 1 && __same(m.tabTop.col, m.strong),
@@ -2266,7 +2339,7 @@ function hairlineSource() {
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " design checks: " + ROUTES.length + " routes x " + WIDTHS.length + " widths x " +
       THEMES.length + " themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; " +
-      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the sidebar, " +
+      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar at 390/320 (T-023), the sidebar, " +
       "reduced transparency, more contrast, reduced motion and a scroll that is a read; " +
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
       WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +

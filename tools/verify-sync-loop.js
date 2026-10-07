@@ -228,6 +228,39 @@ async function session(browser, { putOk }) {
     const dt = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
     check(dt === "dark", "after a reload the device is still navy (data-theme " + dt + ")");
     await ctx.close();
+
+    // And the other way round: an explicit pick (Light, with the marker) must
+    // survive a pull from a real remote, whose settings carry a theme and NO
+    // marker (syncPayload never sends it). A pull that copied the remote's
+    // marker would clear it here, and the next load would switch Light to navy.
+    const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", colorScheme: "light" });
+    await ctx2.addInitScript(() => {
+      localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+      if (!localStorage.getItem("darhikmah_v1"))
+        localStorage.setItem("darhikmah_v1", JSON.stringify({ settings: { theme: "light", themeNavyOnce: true } }));
+    });
+    const page2 = await ctx2.newPage();
+    const real = { v: 1, device: "other-device", state: { settings: { theme: "parchment", dailyStart: "08:00", streakFrom: null } }, ledgers: {} };
+    await page2.route("https://api.github.com/**", route => route.request().method() === "GET"
+      ? route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify(real)).toString("base64") }) })
+      : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) }));
+    await page2.goto(URL + "/sync", { waitUntil: "load" });
+    await page2.waitForTimeout(400);
+    await page2.click("[data-act='syncPull']");
+    await page2.waitForTimeout(1200);
+    await page2.goto(URL + "/lesson/math110/0/0", { waitUntil: "load" });
+    await page2.waitForTimeout(400);
+    await page2.click("[data-act='toggleDone']");
+    await page2.waitForTimeout(400);
+    await page2.reload({ waitUntil: "load" });
+    await page2.waitForTimeout(400);
+    const s2 = await page2.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings) || {});
+    const dt2 = await page2.evaluate(() => document.documentElement.getAttribute("data-theme"));
+    check(s2.theme === "light" && s2.themeNavyOnce === true && dt2 === "light",
+      "a picked Light survives a pull from a real remote, a save and a reload (" +
+      JSON.stringify({ theme: s2.theme, mark: s2.themeNavyOnce, dataTheme: dt2 }) + ")");
+    await ctx2.close();
   }
 
   await browser.close();

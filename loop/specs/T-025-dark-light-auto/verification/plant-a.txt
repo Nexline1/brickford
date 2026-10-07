@@ -1,0 +1,128 @@
+PLANT a: the navy --bg #0c1330 put back in dark
+file: platform/css/style.css
+--- diff ---
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 81baebd..f33577a 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -232,7 +232,7 @@
+      sidebar now), and the page is lifted just off it (--bg, --bg-2). */
+   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
+   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
+-  --bg: #0e0e10;
++  --bg: #0c1330;
+   --bg-2: #141416;
+   --surface: #1c1c1e;
+   --surface-2: #2c2c2e;
+--- node tools/verify-design.js ---
+status bar (read from platform/css/style.css)
+
+hairlines (read from platform/css/style.css)
+
+390px light
+
+390px dark
+  FAIL  390px dark: the theme tokens resolve to the brief's values — data-theme dark; --bg rgb(12, 19, 48) (want #0e0e10)
+
+1280px light
+
+1280px dark
+  FAIL  1280px dark: the theme tokens resolve to the brief's values — data-theme dark; --bg rgb(12, 19, 48) (want #0e0e10)
+
+empty tracks, 390px light
+
+empty tracks, 390px dark
+
+Auto theme
+  FAIL  auto, phone dark: resolves to dark, --bg #0e0e10 — data-theme dark, --bg rgb(12, 19, 48)
+  FAIL  auto, phone flips to dark while open: follows live, --bg #0e0e10 — data-theme dark, --bg rgb(12, 19, 48), meta #000000
+  FAIL  auto, picked from the menu on a dark phone: stored as "auto", shows dark — stored "auto", data-theme dark, --bg rgb(12, 19, 48)
+
+T-024: the default theme
+  FAIL  default (nothing stored, phone light): resolves to data-theme="dark", the dark --bg #0e0e10 — data-theme dark, --bg rgb(12, 19, 48)
+  FAIL  default (progress stored, no theme, phone light): resolves to data-theme="dark", the dark --bg #0e0e10 — data-theme dark, --bg rgb(12, 19, 48)
+
+T-024: the navy switch
+  FAIL  switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(12, 19, 48), meta #000000, Dark
+  FAIL  switch (d) stored "parchment", no marker, phone light: data-theme dark, dark marked, still stored "parchment" after a save — data-theme dark, stored {"raw":true,"has":true,"theme":"parchment"}
+  FAIL  switch (d) stored "auto", no marker, phone dark: data-theme dark, auto marked, still stored "auto" after a save — data-theme dark, stored {"raw":true,"has":true,"theme":"auto"}
+
+T-024: the theme before the first paint
+  FAIL  first paint (stored "light", no marker, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #000000
+  FAIL  first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 of 12 frames, e.g. rgb(12, 19, 48) (dark)
+  FAIL  first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #000000
+  FAIL  first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 16 of 16 frames, e.g. rgb(12, 19, 48) (dark)
+  FAIL  first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #000000
+  FAIL  first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 16 of 16 frames, e.g. rgb(12, 19, 48) (dark)
+  FAIL  first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #000000
+  FAIL  first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 15 of 15 frames, e.g. rgb(12, 19, 48) (dark)
+  FAIL  first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(12, 19, 48) (dark), app ran false, meta #000000
+  FAIL  first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 of 11 frames, e.g. rgb(12, 19, 48) (dark)
+
+T-025: no glow, no decoration
+
+calendar cellPick
+
+nav bar, 390px light
+
+nav bar, 390px dark
+
+tab bar and sidebar, light
+
+tab bar and sidebar, dark
+
+reduced transparency, light
+
+reduced transparency, dark
+
+more contrast, light
+
+more contrast, dark
+
+the inline title under reduced motion
+
+scrolling a lesson page
+
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+
+the keyboard ring, 390px light
+
+the keyboard ring, 390px dark
+
+the keyboard ring, 1280px light
+
+the keyboard ring, 1280px dark
+
+press, light
+
+press, dark
+
+thumbnails, 390px light
+
+thumbnails, 390px dark
+
+thumbnails, 1280px light
+
+thumbnails, 1280px dark
+
+thumbnails that load, 390px light
+
+thumbnail contrast, light
+
+thumbnail contrast, dark
+
+
+FAIL — 20 of 642 design checks failed
+exit code: 1
+restored byte-for-byte (cmp platform/css/style.css against the pre-plant copy: identical)
+git diff on platform/css/style.css after restore: empty

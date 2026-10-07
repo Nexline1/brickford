@@ -1,0 +1,112 @@
+PLANT f: extra: applyTheme in app.js lets a removed theme through (the inline script still fixes first paint)
+file: platform/js/app.js
+--- diff ---
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 8eca836..58a3f8d 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -5186,7 +5186,6 @@
+     const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+     const applyTheme = () => {
+       let pick = S.settings.theme || "dark";
+-      if (pick !== "auto" && !THEMES.includes(pick)) pick = "dark";
+       document.documentElement.dataset.theme =
+         pick === "auto" ? (darkQ && darkQ.matches ? "dark" : "light") : pick;
+       // The Home Screen app's status bar is painted from this meta, and it was
+--- node tools/verify-design.js ---
+status bar (read from platform/css/style.css)
+
+hairlines (read from platform/css/style.css)
+
+390px light
+
+390px dark
+
+1280px light
+
+1280px dark
+
+empty tracks, 390px light
+
+empty tracks, 390px dark
+
+Auto theme
+
+T-024: the default theme
+
+T-024: the navy switch
+  FAIL  switch (d) stored "parchment", no marker, phone light: data-theme dark, dark marked, still stored "parchment" after a save — data-theme parchment, stored {"raw":true,"has":true,"theme":"parchment"}
+
+T-024: the theme before the first paint
+  FAIL  first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 8 of 13 frames, e.g. rgb(242, 241, 238) (forest)
+  FAIL  first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme forest, meta #2b2118, state writes 0, stored "forest"
+  FAIL  first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 2 of 9 frames, e.g. rgb(242, 241, 238) (slate)
+  FAIL  first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme slate, meta #2b2118, state writes 0, stored "slate"
+
+T-025: no glow, no decoration
+
+calendar cellPick
+
+nav bar, 390px light
+
+nav bar, 390px dark
+
+tab bar and sidebar, light
+
+tab bar and sidebar, dark
+
+reduced transparency, light
+
+reduced transparency, dark
+
+more contrast, light
+
+more contrast, dark
+
+the inline title under reduced motion
+
+scrolling a lesson page
+
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+
+the keyboard ring, 390px light
+
+the keyboard ring, 390px dark
+
+the keyboard ring, 1280px light
+
+the keyboard ring, 1280px dark
+
+press, light
+
+press, dark
+
+thumbnails, 390px light
+
+thumbnails, 390px dark
+
+thumbnails, 1280px light
+
+thumbnails, 1280px dark
+
+thumbnails that load, 390px light
+
+thumbnail contrast, light
+
+thumbnail contrast, dark
+
+
+FAIL — 5 of 642 design checks failed
+exit code: 1
+restored byte-for-byte (cmp platform/js/app.js against the pre-plant copy: identical)
+git diff on platform/js/app.js after restore: empty

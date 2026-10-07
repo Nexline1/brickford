@@ -173,6 +173,38 @@
 //   - on every route in the foundations loop, meta theme-color is the
 //     theme's --panel (#0c1330 in dark).
 //
+// T-025, Dark, Light and Auto (loop/specs/T-025-dark-light-auto/spec.md; the
+// owner's decision of 2026-10-07 reverses T-024's colours). Same checks, new
+// expected values, and only where the spec says:
+//   - the dark token table is the pre-T-024 dark (commit a309b5a), restored
+//     exactly, plus the three exceptions — --panel #000000, --bg #0e0e10,
+//     --bg-2 #141416 — and --accent-fill-ink equal to --btn-ink; the table now
+//     also carries the rest of that block (--good, --bad, the --fac-* hues,
+//     --line-strong, --surface-float, --accent-2, --urgent and the --panel
+//     inks), so "restored exactly" is measured, not asserted. Light: :root.
+//   - dark's --panel (meta theme-color) is #000000; the primary action in dark
+//     is the light-grey fill #e8ebef with the #0f1216 label;
+//   - the theme lists: ALL_THEMES (the press, covers and chips) is light and
+//     dark — the five removed themes have nothing left to measure;
+//   - the glow checks are replaced: on the same four routes, both widths,
+//     both themes, .main generates no ::before layer and neither .main nor
+//     the sidebar paints a background-image;
+//   - the sidebar (spec item 4) is a solid --panel: at 1280 no backdrop-filter,
+//     no background-image, and its luminance below the page --bg, in both
+//     themes; the drawer at 390 and the reduced-transparency / more-contrast
+//     sidebar are the same solid --panel (they were solid --surface). Its pill,
+//     label and crest are read in the sidebar's own scope, because light's
+//     sidebar is espresso and re-scopes its inks; the crest's cut-outs are
+//     --panel. The 1280 "not the espresso --panel" and "a material" checks
+//     are what the spec reverses, and are replaced by the solid-panel one;
+//   - the Theme menu is exactly Auto, Dark, Light, in that order ("Navy" and
+//     "Paper" are gone); a stored "parchment" (no marker) renders dark with
+//     Dark marked and is still stored "parchment" after a save (never
+//     rewritten); stored "forest" and "slate" paint dark from the first frame
+//     with app.js held, and after it runs, with zero state writes at boot;
+//   - index.html's PANEL map is the stylesheet's --panel for exactly the two
+//     themes.
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
@@ -211,35 +243,46 @@ const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
 const LIST_NA = new Set(["/workshop"]);
 const PRESS_ROUTES = ["/", "/course/math110", "/exams", "/courses"];
-// The lead pair: light from loop/design/brief.md §3; dark from §9, the navy
-// palette (T-024, the owner's decision of 2026-10-06 — it replaced T-005's
-// true black, #000000 / #1c1c1e / a blue accent).
-// "Gold at about 16% on the surface, as a solid colour" (spec T-024), worked
-// out here from the two hexes rather than copied from the stylesheet.
-const mixHex = (a, b, p) => "#" + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * p +
-  parseInt(b.slice(i, i + 2), 16) * (1 - p)).toString(16).padStart(2, "0")).join("");
-const BRIEF = {
-  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f0ea", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--line": "#dcdad5",
-           "--ink": "#111111", "--ink-2": "#5c5a55", "--ink-3": "#6e6b65", "--accent": "#1e4f8f",
-           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12",
-           "--btn-bg": "#241f1a", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff" },
-  dark:  { "--bg": "#0c1330", "--bg-2": "#101839", "--surface": "#1a2248", "--surface-2": "#232c58", "--line": "#2e3866",
-           "--ink": "#ffffff", "--ink-2": "#c3c8de", "--ink-3": "#9aa2c4", "--accent": "#e0b35a",
-           "--accent-fill": "#e0b35a", "--accent-soft": mixHex("#e0b35a", "#1a2248", 0.16), "--gold": "#e0b35a",
-           "--btn-bg": "#e0b35a", "--btn-ink": "#121a38", "--accent-fill-ink": "#121a38" },
+// The lead pair: light from loop/design/brief.md §3 (:root, unchanged); dark
+// is T-025's: the [data-theme="dark"] block as it was at commit a309b5a,
+// before T-024's navy, copied here value by value — plus the spec's three
+// exceptions, so the sidebar is darker than the page, and the label token
+// T-024 introduced, which in dark is the button's own ink.
+const DARK_A309B5A = {
+  "--bg": "#000000", "--bg-2": "#0b0e11", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#22272f",
+  "--line": "#38383a", "--line-strong": "#3d454f", "--ink": "#ffffff", "--ink-2": "#a1a1a6", "--ink-3": "#8e8e93",
+  "--accent": "#78aef0", "--accent-fill": "#2f6bbd", "--accent-soft": "#1a2a3f", "--gold": "#e0b35a", "--accent-2": "#9ec2e8",
+  "--good": "#62b881", "--bad": "#e8705c", "--urgent": "#d99a4e", "--btn-bg": "#e8ebef", "--btn-ink": "#0f1216",
+  "--fac-math": "#7aa6da", "--fac-ai": "#d9ab6d", "--fac-sys": "#63b3aa", "--fac-phys": "#d98071", "--fac-res": "#a58ac9", "--fac-speech": "#c98fac",
+  "--panel": "#0a0d10", "--panel-ink": "#e8ebef", "--panel-accent": "#7fb0e6",
 };
-// Each theme's --panel, which is what the Home Screen status bar is painted
-// from (meta theme-color). Dark's is the navy page (T-024).
-const PANEL = { light: "#2b2118", dark: "#0c1330" };
+const BRIEF = {
+  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f0ea", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--surface-float": "#ffffff",
+           "--line": "#dcdad5", "--line-strong": "#c7c0b3",
+           "--ink": "#111111", "--ink-2": "#5c5a55", "--ink-3": "#6e6b65", "--accent": "#1e4f8f",
+           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12", "--accent-2": "#3f6ea0",
+           "--good": "#2a7047", "--bad": "#b32d1f", "--urgent": "#9a5a16",
+           "--btn-bg": "#241f1a", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
+           "--fac-math": "#35608f", "--fac-ai": "#88592b", "--fac-sys": "#26665f", "--fac-phys": "#9c4534", "--fac-res": "#63498a", "--fac-speech": "#8a4a63",
+           "--panel": "#2b2118", "--panel-ink": "#f2ece2", "--panel-accent": "#d3a874" },
+  dark: Object.assign({}, DARK_A309B5A, {
+    "--panel": "#000000", "--bg": "#0e0e10", "--bg-2": "#141416",     // the spec's three exceptions
+    "--accent-fill-ink": DARK_A309B5A["--btn-ink"],                    // = --btn-ink
+  }),
+};
+// Each theme's --panel: the sidebar's fill (T-025) and what the Home Screen
+// status bar is painted from (meta theme-color).
+const PANEL = { light: BRIEF.light["--panel"], dark: BRIEF.dark["--panel"] };
 // --r-card is T-024's: cards and grouped sections.
 const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "22px", "--r-card": "20px" };
-// T-024: the glow is measured on the spec's four routes.
+// T-024's four glow routes; since T-025 they are where "no decoration" is
+// measured.
 const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
-// T-024: the primary action's pair, from the spec: a gold capsule with a navy
-// label in dark; in light the label stays white on the fill.
+// The primary action's pair: in light a white label on the fill; in dark
+// (T-025) the restored light-grey fill with its dark label.
 const PRIMARY = {
   light: { bg: "#241f1a", ink: "#ffffff", what: "a white label on the fill" },
-  dark:  { bg: "#e0b35a", ink: "#121a38", what: "a gold fill (#e0b35a) with a navy label (#121a38)" },
+  dark:  { bg: "#e8ebef", ink: "#0f1216", what: "a light-grey fill (#e8ebef) with a dark label (#0f1216)" },
 };
 const hexBytes = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).concat(255);
 
@@ -639,59 +682,14 @@ function installHelpers() {
   window.__dz = { bytes, resolve, tok, ratio, over, backdrop, same, hex, name };
 }
 
-// T-024: the glow layer on .main, as it is right now. `forced` says whether
-// the harness has made it hit-testable (pointer-events: auto), to prove it
-// is painted behind what it sits under rather than merely ignoring pointers.
-function glowState() {
-  const z = window.__dz;
-  const main = document.querySelector(".main"), ms = getComputedStyle(main), gs = getComputedStyle(main, "::before");
-  const mr = main.getBoundingClientRect();
-  const present = gs.content !== "none" && gs.display !== "none";
-  // Each gradient's stops, read off the computed value: the most opaque stop
-  // of every radial layer is that layer's peak.
-  const img = gs.backgroundImage;
-  const radials = (img.match(/radial-gradient\(/g) || []).length;
-  const stops = [...img.matchAll(/rgba?\(([^)]*)\)/g)].map(m => m[1].split(/[ ,\/]+/).filter(Boolean).map(Number))
-    .map(a => [a[0], a[1], a[2], a.length > 3 ? a[3] : 1]);
-  const bgTok = z.tok("--bg");
-  // The brightest the glow can paint: every translucent stop at its own
-  // alpha, stacked over --bg (each one lifts every channel, so the stack of
-  // peaks is an upper bound on any pixel).
-  let peak = bgTok.slice(0, 3);
-  for (const st of stops.filter(st => st[3] > 0 && st[3] < 1).reverse())
-    peak = peak.map((c, i) => st[i] * st[3] + c * (1 - st[3]));
-  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
-  const L = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]);
-  const decl = z.bytes(gs.backgroundColor), mainBg = z.bytes(ms.backgroundColor);
-  // Behind the content: at the centre of every visible control and every
-  // element carrying its own text inside the glow's band (the top 360px of
-  // .main, where its gradients paint), the hit goes to that element (or into
-  // it), never to .main — which is where a hit on its ::before lands.
-  const band = Math.min(mr.bottom, mr.top + 360);
-  const ctl = "a[href], button, input, select, textarea, summary, [tabindex]:not(main), [role=button]";
-  const lost = [], seen = { ctl: 0, text: 0 };
-  [...main.querySelectorAll("*")].forEach(el => {
-    if (!el.checkVisibility()) return;
-    const isCtl = el.matches(ctl);
-    const hasText = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
-    if (!isCtl && !hasText) return;
-    if (getComputedStyle(el).pointerEvents === "none") return;
-    const r = el.getBoundingClientRect();
-    const x = r.left + r.width / 2, y = r.top + r.height / 2;
-    if (r.width < 1 || r.height < 1 || y < mr.top || y > band || y < 0 || y > innerHeight || x < 0 || x > innerWidth) return;
-    const hit = document.elementFromPoint(x, y);
-    if (!hit || !main.contains(hit) && hit !== main) return;   // under the bar or the tab bar: not the glow's
-    seen[isCtl ? "ctl" : "text"]++;
-    if (hit === main || !(hit === el || el.contains(hit) || hit.contains(el)))
-      lost.push(z.name(el) + " \"" + (el.textContent || "").trim().slice(0, 20) + "\" -> " + z.name(hit));
-  });
-  return {
-    present, content: gs.content, pe: gs.pointerEvents, position: gs.position, z: gs.zIndex, radials,
-    anim: gs.animationName, trans: gs.transitionProperty + " " + gs.transitionDuration, iso: ms.isolation,
-    box: { w: Math.round(parseFloat(gs.width)), mainW: Math.round(mr.width), top: gs.top, left: gs.left },
-    decl, mainBg, peak: peak.map(v => Math.round(v * 100) / 100), lDecl: L(decl), lPeak: L(peak), bgImgMain: ms.backgroundImage,
-    lost, seen,
-  };
+// T-025: decoration on .main and the sidebar, as it is right now. The spec
+// allows none: no .main::before layer, and no background-image on .main or
+// the sidebar.
+function decorState() {
+  const main = document.querySelector(".main"), side = document.querySelector("#sidebar");
+  const ms = getComputedStyle(main), gs = getComputedStyle(main, "::before"), ss = getComputedStyle(side);
+  return { content: gs.content, beforeImg: gs.backgroundImage, beforeBg: gs.backgroundColor,
+           mainImg: ms.backgroundImage, mainBg: ms.backgroundColor, sideImg: ss.backgroundImage };
 }
 
 // The phone nav bar, as it is right now.
@@ -771,11 +769,22 @@ function sideState() {
   const s = document.querySelector("#sidebar"), cs = getComputedStyle(s);
   const act = document.querySelector(".sidebar .nav a.active"), as = act && getComputedStyle(act);
   const field = document.querySelector(".crest .cr-field"), cut = document.querySelector(".crest .cr-cut");
+  // A token as the sidebar's contents see it (T-025: light's espresso sidebar
+  // re-scopes its inks), resolved on a probe inside the nav.
+  const sideTok = n => {
+    const el = document.createElement("div"); el.style.color = "var(" + n + ")";
+    document.querySelector("#nav").appendChild(el);
+    const v = z.bytes(getComputedStyle(el).color); el.remove(); return v;
+  };
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const L = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]);
+  const bg = z.bytes(cs.backgroundColor), page = z.tok("--bg");
   return {
-    bf: cs.backdropFilter, bg: z.bytes(cs.backgroundColor), surface: z.tok("--surface"),
+    bf: cs.backdropFilter, bg, surface: z.tok("--surface"), panel: z.tok("--panel"), img: cs.backgroundImage,
+    page, lSide: L(bg), lPage: L(page),
     rightW: parseFloat(cs.borderRightWidth) || 0, rightCol: z.bytes(cs.borderRightColor), line: z.tok("--line"), strong: z.tok("--line-strong"),
     act: act ? { text: act.textContent.trim(), bg: z.bytes(as.backgroundColor), color: z.bytes(as.color), radius: as.borderTopLeftRadius } : null,
-    soft: z.tok("--accent-soft"), accent: z.tok("--accent"), gold: z.tok("--gold"),
+    soft: sideTok("--accent-soft"), accent: sideTok("--accent"), gold: sideTok("--gold"),
     field: field ? z.bytes(getComputedStyle(field).fill) : null, cut: cut ? z.bytes(getComputedStyle(cut).fill) : null,
   };
 }
@@ -798,7 +807,7 @@ function chromeState() {
   return {
     rt: matchMedia("(prefers-reduced-transparency: reduce)").matches, more: matchMedia("(prefers-contrast: more)").matches,
     topbar: one("#topbar"), tabbar: one("#tabbar"), railbar: one("#railbar"), sidebar: one("#sidebar"), bubble: one("#tabbar .tab-bubble"),
-    bg: z.tok("--bg"), surface: z.tok("--surface"), strong: z.tok("--line-strong"),
+    bg: z.tok("--bg"), surface: z.tok("--surface"), panel: z.tok("--panel"), strong: z.tok("--line-strong"),
     edge: { op: after.opacity, w: parseFloat(after.borderBottomWidth) || 0, col: z.bytes(after.borderBottomColor) },
     tabTop: { w: parseFloat(tab.borderTopWidth) || 0, col: z.bytes(tab.borderTopColor) },
     sideRight: { w: parseFloat(side.borderRightWidth) || 0, col: z.bytes(side.borderRightColor) },
@@ -1374,7 +1383,7 @@ function hairlineSource() {
     await ctx.close();
   }
 
-  // ---- T-024: the default is navy ----
+  // ---- T-024: the default is dark (T-025: the restored dark, not navy) ----
   // On a LIGHT phone, so a dark page is the default speaking and not the
   // phone. Twice: with nothing stored at all, and with progress stored but
   // no theme in it (the shape a device has once anything is saved).
@@ -1412,13 +1421,14 @@ function hairlineSource() {
     await page.waitForSelector("#view > *");
     const w0 = await reallySave(page);
     const r = await page.evaluate(readTheme);
-    check("default (" + label + ", phone light): resolves to data-theme=\"dark\", the navy --bg " + BRIEF.dark["--bg"],
+    check("default (" + label + ", phone light): resolves to data-theme=\"dark\", the dark --bg " + BRIEF.dark["--bg"],
       r.theme === "dark" && r.bg === rgb(BRIEF.dark["--bg"]), "data-theme " + r.theme + ", --bg " + r.bg);
     check("default (" + label + "): meta theme-color " + PANEL.dark, r.meta === PANEL.dark, "meta " + r.meta);
-    const second = r.picks[1];
-    check("default (" + label + "): the menu lists \"Navy\" (dark) second, after Auto, and marks it",
-      r.picks[0] && r.picks[0].pick === "auto" && !!second && second.pick === "dark" && second.label === "Navy" && second.on &&
-        r.picks.filter(p => p.on).length === 1,
+    // T-025: the menu is exactly three options, Auto · Dark · Light, in that
+    // order, and the default marks Dark.
+    const menuIs = r.picks.map(p => p.pick + ":" + p.label).join(" ");
+    check("default (" + label + "): the Theme menu is exactly Auto, Dark, Light, in that order, and marks Dark",
+      menuIs === "auto:Auto dark:Dark light:Light" && r.picks[1].on && r.picks.filter(p => p.on).length === 1,
       r.picks.map(p => p.pick + ":" + p.label + (p.on ? "*" : "")).join(" "));
     check("default (" + label + "): marking a lecture watched really saved (state writes went up, the state is stored)",
       w0.after > w0.before && r.stored.raw === true, "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
@@ -1445,7 +1455,7 @@ function hairlineSource() {
     await page.waitForSelector("#view > *");
     await frames(page);
     const a = await page.evaluate(readTheme);
-    check("switch (a) stored \"light\", no marker: opens navy (--bg " + BRIEF.dark["--bg"] + ", meta " + PANEL.dark + "), Navy marked",
+    check("switch (a) stored \"light\", no marker: opens dark (--bg " + BRIEF.dark["--bg"] + ", meta " + PANEL.dark + "), Dark marked",
       a.theme === "dark" && a.bg === rgb(BRIEF.dark["--bg"]) && a.meta === PANEL.dark &&
         a.picks.some(p => p.pick === "dark" && p.on) && a.picks.filter(p => p.on).length === 1,
       "data-theme " + a.theme + ", --bg " + a.bg + ", meta " + a.meta + ", " + a.picks.filter(p => p.on).map(p => p.label).join(","));
@@ -1454,7 +1464,7 @@ function hairlineSource() {
       "state writes " + a.writes + ", stored " + JSON.stringify(a.stored));
     const w0 = await reallySave(page);
     const a2 = await page.evaluate(readTheme);
-    check("switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still navy",
+    check("switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark",
       w0.after > w0.before && a2.stored.raw && a2.stored.has === false && a2.stored.mark === true && a2.theme === "dark",
       "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(a2.stored) + ", data-theme " + a2.theme);
     // (c) the explicit pick: Light from the menu, then a reload.
@@ -1498,22 +1508,25 @@ function hairlineSource() {
     check("switch (b) stored \"light\" + marker on a dark phone: stays light (--bg " + BRIEF.light["--bg"] + ", meta " + PANEL.light + ")",
       r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.meta === PANEL.light,
       "data-theme " + r.theme + ", --bg " + r.bg + ", meta " + r.meta);
-    check("switch (b): after a real save, still stored as \"light\" with the marker, Paper marked",
+    check("switch (b): after a real save, still stored as \"light\" with the marker, Light marked",
       w0.after > w0.before && r.stored.theme === "light" && r.stored.mark === true && r.picks.some(p => p.pick === "light" && p.on),
       "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
     check("switch (b): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // (d) other stored themes, with no marker, are not touched.
-  for (const [t, scheme, want] of [["parchment", "light", "parchment"], ["auto", "dark", "dark"], ["auto", "light", "light"]]) {
+  // (d) other stored themes, with no marker, are not touched. T-025: a removed
+  // theme ("parchment") is not a theme any more, so it renders dark with Dark
+  // marked — and it is still stored "parchment" after a save: never rewritten.
+  for (const [t, scheme, want, mark] of [["parchment", "light", "dark", "dark"], ["auto", "dark", "dark", "auto"], ["auto", "light", "light", "auto"]]) {
     const { ctx, page, errors } = await fresh(browser,
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, undefined, bareSettings({ theme: t }));
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     const w0 = await reallySave(page);
     const r = await page.evaluate(readTheme);
-    check("switch (d) stored \"" + t + "\", no marker, phone " + scheme + ": unaffected (data-theme " + want + ", still stored \"" + t + "\" after a save)",
-      r.theme === want && w0.after > w0.before && r.stored.theme === t && r.picks.some(p => p.pick === t && p.on),
+    check("switch (d) stored \"" + t + "\", no marker, phone " + scheme + ": data-theme " + want + ", " + mark + " marked, still stored \"" + t + "\" after a save",
+      r.theme === want && r.bg === rgb(BRIEF[want]["--bg"]) && w0.after > w0.before && r.stored.theme === t &&
+        r.picks.some(p => p.pick === mark && p.on) && r.picks.filter(p => p.on).length === 1,
       "data-theme " + r.theme + ", stored " + JSON.stringify(r.stored));
     check("switch (d) " + t + "/" + scheme + ": no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
@@ -1544,8 +1557,8 @@ function hairlineSource() {
     }
     const keys = [...new Set(Object.keys(map).concat(Object.keys(cssPanel)))];
     const off = keys.filter(k => map[k] !== cssPanel[k]);
-    check("first paint: index.html's PANEL map is every theme's --panel in style.css",
-      !!mm && keys.length === 7 && off.length === 0,
+    check("first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025)",
+      !!mm && keys.length === 2 && off.length === 0,
       !mm ? "no PANEL map in index.html" : off.length ? off.map(k => k + " " + map[k] + " vs css " + cssPanel[k]).join(", ") : keys.length + " themes");
   }
   function samplePaints() {
@@ -1561,7 +1574,7 @@ function hairlineSource() {
     };
     requestAnimationFrame(tick);
   }
-  for (const [label, seedTheme, scheme, want, extra] of [
+  for (const [label, seedTheme, scheme, want, extra, removed] of [
     // The navy switch (round 3): "light" with no marker paints navy from the
     // first frame, on a light phone so it is not the phone speaking.
     ["stored \"light\", no marker, phone light", undefined, "light", "dark", bareSettings({ theme: "light" })],
@@ -1569,6 +1582,10 @@ function hairlineSource() {
     ["nothing stored, phone light", undefined, "light", "dark"],
     ["stored \"auto\", phone dark", "auto", "dark", "dark"],
     ["stored \"auto\", phone light", "auto", "light", "light"],
+    // T-025: removed themes, no marker, on a LIGHT phone so dark is not the
+    // phone speaking: dark from the first frame, nothing written at boot.
+    ["stored \"forest\" (removed), phone light", undefined, "light", "dark", bareSettings({ theme: "forest" }), "forest"],
+    ["stored \"slate\" (removed), phone light", undefined, "light", "dark", bareSettings({ theme: "slate" }), "slate"],
   ]) {
     const { ctx, page, errors } = await fresh(browser,
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, seedTheme, extra);
@@ -1593,12 +1610,20 @@ function hairlineSource() {
     check("first paint (" + label + "): every frame, held and after app.js ran, is " + want + " — never the other theme",
       all.length > 3 && all.some(p => p.app) && wrong.length === 0,
       wrong.length ? wrong.length + " of " + all.length + " frames, e.g. " + wrong[0].bg + " (" + wrong[0].theme + ")" : all.length + " frames");
+    if (removed) {
+      const after = await page.evaluate(() => ({ theme: document.documentElement.dataset.theme, writes: window.__stateWrites,
+        stored: (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).theme,
+        meta: (document.querySelector('meta[name="theme-color"]') || {}).content || "" }));
+      check("first paint (" + label + "): after app.js ran, data-theme=\"dark\", meta " + PANEL.dark + ", zero state writes at boot, still stored \"" + removed + "\"",
+        after.theme === "dark" && after.meta === PANEL.dark && after.writes === 0 && after.stored === removed,
+        "data-theme " + after.theme + ", meta " + after.meta + ", state writes " + after.writes + ", stored " + JSON.stringify(after.stored));
+    }
     check("first paint (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 
-  // ---- T-024: the glow ----
-  console.log("\nT-024: the glow");
+  // ---- T-025: no decoration (T-024's glow is gone) ----
+  console.log("\nT-025: no glow, no decoration");
   for (const { w, h, mobile } of WIDTHS) {
     for (const theme of THEMES) {
       const at = w + "px " + theme;
@@ -1606,42 +1631,16 @@ function hairlineSource() {
         { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      await themePainted(page, theme, at + " glow");
+      await themePainted(page, theme, at + " decoration");
       for (const route of GLOW_ROUTES) {
         await go(page, route);
-        const where = at + " " + route;
-        const g = await page.evaluate(glowState);
-        if (theme === "light") {
-          check(where + ": no glow in light (.main::before generates nothing, .main paints nothing)",
-            !g.present && g.mainBg[3] === 0 && g.bgImgMain === "none",
-            "::before content " + g.content + ", .main background " + g.mainBg.join(",") + " " + g.bgImgMain);
-          continue;
-        }
-        check(where + ": the glow is a static layer of two radial gradients over .main's top, as wide as .main",
-          g.present && g.radials === 2 && g.position === "absolute" && g.box.top === "0px" && g.box.left === "0px" &&
-            Math.abs(g.box.w - g.box.mainW) <= 1 && g.anim === "none",
-          "content " + g.content + ", " + g.radials + " radial, " + g.position + " top " + g.box.top + " left " + g.box.left +
-            ", " + g.box.w + "px of .main's " + g.box.mainW + ", animation " + g.anim);
-        check(where + ": the glow takes no pointer (pointer-events: none)", g.pe === "none", "pointer-events " + g.pe);
-        check(where + ": the glow is behind the content (z-index -1 inside an isolated .main)", g.z === "-1" && g.iso === "isolate",
-          "z-index " + g.z + ", .main isolation " + g.iso);
-        check(where + ": the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel",
-          g.decl[3] === 255 && __same(g.decl, g.mainBg, 0) && [0, 1, 2].every(i => g.decl[i] >= g.peak[i]) && g.lDecl >= g.lPeak,
-          "declared " + g.decl.join(",") + ", .main " + g.mainBg.join(",") + ", peak " + g.peak.join(",") +
-            " (L " + g.lDecl.toFixed(4) + " vs " + g.lPeak.toFixed(4) + ")");
-        check(where + ": every text and control over the glow takes its own hit, as shipped",
-          g.lost.length === 0 && g.seen.ctl + g.seen.text > 0,
-          g.lost.length ? g.lost.length + " — " + g.lost.slice(0, 3).join("; ") : g.seen.ctl + " controls, " + g.seen.text + " texts");
-        // Made hit-testable, it must still lose every one of those hits:
-        // painted behind them, not merely ignoring pointers.
-        await page.addStyleTag({ content: ".main::before { pointer-events: auto !important; }" }).then(h => h.evaluate(n => n.id = "glow-force"));
-        const f = await page.evaluate(glowState);
-        await page.evaluate(() => document.getElementById("glow-force").remove());
-        check(where + ": forced hit-testable, the glow still loses the hit at every text and control (painted behind them)",
-          f.pe === "auto" && f.lost.length === 0 && f.seen.ctl + f.seen.text > 0,
-          "pointer-events " + f.pe + "; " + (f.lost.length ? f.lost.length + " — " + f.lost.slice(0, 3).join("; ") : f.seen.ctl + " controls, " + f.seen.text + " texts"));
+        const g = await page.evaluate(decorState);
+        check(at + " " + route + ": no .main::before decoration, and no background-image on .main or the sidebar",
+          g.content === "none" && g.beforeImg === "none" && g.mainImg === "none" && g.sideImg === "none",
+          "::before content " + g.content + " image " + g.beforeImg.slice(0, 60) + "; .main image " + g.mainImg.slice(0, 60) +
+            " bg " + g.mainBg + "; sidebar image " + g.sideImg.slice(0, 60));
       }
-      check(at + " glow: no page errors", errors.length === 0, errors.join(" | "));
+      check(at + " decoration: no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
   }
@@ -1783,8 +1782,9 @@ function hairlineSource() {
       check(at + ": the other tabs are --ink-3", rest.length === 4 && rest.every(x => __same(x.color, t.ink3)),
         rest.map(x => x.name + " " + hx(x.color)).join(", "));
       const d = await page.evaluate(sideState);
-      check("390px " + theme + " drawer: solid --surface, no material over the scrim",
-        d.bg[3] === 255 && __same(d.bg, d.surface) && d.bf === "none", hx(d.bg) + ", backdrop-filter " + d.bf);
+      check("390px " + theme + " drawer: solid --panel (as the sidebar, T-025), no material over the scrim, no image",
+        d.bg[3] === 255 && __same(d.bg, d.panel, 0) && d.bf === "none" && d.img === "none",
+        hx(d.bg) + " (--panel " + hx(d.panel) + "), backdrop-filter " + d.bf + ", image " + d.img);
       check("390px " + theme + " tab bar and drawer: no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -1795,15 +1795,18 @@ function hairlineSource() {
       const at = "1280px " + theme + " sidebar";
       await themePainted(page, theme, at);
       const s = await page.evaluate(sideState);
-      check(at + ": not the espresso --panel (#2b2118)", !__same(s.bg, [0x2b, 0x21, 0x18, 255], 0), "background " + hx(s.bg));
-      check(at + ": a material in the page's scheme — --surface at 85%, blur(20px) saturate(180%)",
-        blurOk(s.bf) && material(s.bg, s.surface, 0.85), "backdrop-filter " + s.bf + "; background " + hx(s.bg) + " (--surface " + hx(s.surface) + ")");
+      // T-025 (spec item 4): a plain, solid --panel, darker than the page.
+      check(at + ": a solid --panel (" + PANEL[theme] + "), no backdrop-filter, no background-image",
+        s.bg[3] === 255 && __same(s.bg, s.panel, 0) && __same(s.bg, hexBytes(PANEL[theme]), 0) && s.bf === "none" && s.img === "none",
+        "background " + hx(s.bg) + " (--panel " + hx(s.panel) + "), backdrop-filter " + s.bf + ", image " + s.img);
+      check(at + ": darker than the page — its luminance below the page --bg's",
+        s.lSide < s.lPage, "sidebar " + hx(s.bg) + " L " + s.lSide.toFixed(4) + ", page --bg " + hx(s.page) + " L " + s.lPage.toFixed(4));
       check(at + ": a 0.5px --line trailing edge", hairline(s.rightW) && __same(s.rightCol, s.line), s.rightW + "px " + hx(s.rightCol));
       check(at + ": the current item is an --accent-soft pill, --accent label, 8px corners",
         !!s.act && s.act.bg[3] === 255 && __same(s.act.bg, s.soft) && __same(s.act.color, s.accent) && s.act.radius === "8px",
         s.act ? "\"" + s.act.text + "\" " + hx(s.act.bg) + " (--accent-soft " + hx(s.soft) + "), label " + hx(s.act.color) + ", " + s.act.radius : "no current nav item");
-      check(at + ": the crest is --gold with --surface cut-outs",
-        !!s.field && __same(s.field, s.gold) && !!s.cut && __same(s.cut, s.surface),
+      check(at + ": the crest is --gold with --panel cut-outs (holes in the seal, T-025)",
+        !!s.field && __same(s.field, s.gold) && !!s.cut && __same(s.cut, s.panel),
         "field " + (s.field ? hx(s.field) : "?") + " (--gold " + hx(s.gold) + "), cut " + (s.cut ? hx(s.cut) : "?"));
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
@@ -1879,7 +1882,7 @@ function hairlineSource() {
               m.edge.op === "1" && m.edge.w === 1 && __same(m.edge.col, m.strong) && m.tabTop.w === 1 && __same(m.tabTop.col, m.strong),
               "nav edge opacity " + m.edge.op + " " + m.edge.w + "px " + hx(m.edge.col) + "; tab top " + m.tabTop.w + "px " + hx(m.tabTop.col) + " (--line-strong " + hx(m.strong) + ")");
         } else {
-          check(at + ": the sidebar is solid --surface, not blurred", on && solid(m.sidebar, m.surface),
+          check(at + ": the sidebar is solid --panel, not blurred (T-025)", on && solid(m.sidebar, m.panel),
             hx(m.sidebar.bg) + " " + m.sidebar.bf);
           if (feature === "prefers-contrast")
             check(at + ": the sidebar's trailing edge is 1px --line-strong",
@@ -2081,11 +2084,13 @@ function hairlineSource() {
     }
   }
 
-  // ---- the press, in all seven themes ----
+  // ---- the press, in every theme ----
   // Rows forced :active on a phone and :hover on a desktop; the sidebar's rows
   // forced :active in the drawer and :hover + :active beside the page, with
   // the theme menu open so its buttons are measured too.
-  const ALL_THEMES = ["light", "parchment", "dark", "forest", "midnight", "latte", "slate"];
+  // T-025: the two themes there are. Parchment, Forest, Midnight, Latte and
+  // Slate were removed, so there is nothing of theirs to measure.
+  const ALL_THEMES = ["light", "dark"];
   let pressRows = 0, pressTexts = 0;
   for (const theme of ALL_THEMES) {
     console.log("\npress, " + theme);
@@ -2294,7 +2299,7 @@ function hairlineSource() {
     await ctx.close();
   }
 
-  // ---- covers and chips in all seven themes, one course per faculty ----
+  // ---- covers and chips in every theme, one course per faculty ----
   const FAC_COURSES = ["math110", "ai300", "phys100", "sys250", "res400"];
   let facTexts = 0;
   for (const theme of ALL_THEMES) {
@@ -2347,8 +2352,9 @@ function hairlineSource() {
       " texts) in " + ALL_THEMES.length + " themes; thumbnails: " + thumbRows + " lecture rows measured across " + WIDTHS.length + " widths x " +
       THEMES.length + " themes (" + coverRows + " error fallbacks, " + thumbTexts + " texts on them), a frame that loads with and " +
       "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts); " +
-      "T-024: the navy default (nothing stored, no stored theme, a stored Light kept), the gold primary action, cards, chips, " +
-      "and the glow on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes"
+      "T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; " +
+      "T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark " +
+      "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

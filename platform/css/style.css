@@ -21,11 +21,11 @@
    screen (T-006 onward); this file's foundations change first.
 
    What does not change, ever: every ink is a SOLID colour, never
-   an alpha; every text pair clears 4.5:1 in all seven themes, and
-   that is checked by tools/verify-contrast.js, not asserted; the
-   dark --panel may be painted by the sidebar and the tab bar and
-   nothing else (docs/CONTENT-STANDARD.md) — and since T-006 it is
-   painted by neither: both are materials in the page's own scheme.
+   an alpha; every text pair clears 4.5:1 in every theme (Light and
+   Dark since T-025), and that is checked by tools/verify-contrast.js,
+   not asserted; the dark --panel may be painted by the sidebar and
+   the tab bar and nothing else (docs/CONTENT-STANDARD.md) — and
+   since T-025 the sidebar paints it again, as a solid fill.
    tools/verify-design.js asserts the tokens below on real
    elements, so a later change cannot quietly put the serif, the
    square corner or the dark slab back.
@@ -61,7 +61,7 @@
      keeps it: the tint stays in the navy family. */
   --accent: #1e4f8f;      /* tint: links, the active tab, tinted-button labels */
   /* The filled button and the done-day fill. Its label is --accent-fill-ink:
-     white here (8.2:1), navy on the navy theme's gold fill (8.75:1). */
+     white here (8.2:1); dark's button is light, so its label is dark. */
   --accent-fill: #1e4f8f;
   /* The tinted-button fill; its label is --accent (6.9:1). */
   --accent-soft: #e6edf6;
@@ -88,10 +88,8 @@
   --btn-bg: #241f1a;
   --btn-ink: #ffffff;
   /* The label on a FILLED accent: the primary .btn (on --btn-bg), the toast,
-     anything painted --accent-fill (T-024). White on the light half's fills;
-     the navy theme's fill is gold, so its label is navy. A theme whose button
-     is light (midnight, latte) or cream-on-espresso (parchment) restates it
-     as its own --btn-ink, so no theme's colours moved. */
+     anything painted --accent-fill (T-024). White on light's fills; dark's
+     button is light grey, so dark restates it as its own --btn-ink (T-025). */
   --accent-fill-ink: #ffffff;
   /* Elevation, as a three-step scale instead of three unrelated ad-hoc values.
      Derived from --shade so all seven themes get it without restating it, and
@@ -129,12 +127,11 @@
   --sink: 0 0 0 transparent;
   --lift-edge: 0 0 0 transparent;
 
-  /* The panel was the sidebar and the tab bar: a dark slab beside a light
-     page. Since T-006 both are translucent materials in the page's own scheme
-     (brief §2.4), so no rule paints --panel any more. It stays defined because
-     the Home Screen status bar is coloured from it (meta theme-color, in
-     app.js), and CONTENT-STANDARD's rule stands: if anything ever paints it
-     again, it is the sidebar or the tab bar, and it re-scopes the ink with it.
+  /* The panel is the sidebar: a solid fill darker than the page in every
+     theme (T-025; from T-006 to T-024 the sidebar was a translucent material
+     and nothing painted this). The Home Screen status bar is coloured from it
+     too (meta theme-color, in app.js). CONTENT-STANDARD's rule stands: only
+     the sidebar or the tab bar paints it, and it re-scopes the ink with it —
      --panel-ink and --panel-accent are that ink, kept with it. */
   --panel: #2b2118;
   --panel-ink: #f2ece2;
@@ -222,211 +219,46 @@
   --fac-speech: #8a4a63;
 }
 
-/* Brickford's original identity, kept as a theme rather than thrown away: warm
-   cream page, espresso ink, caramel highlights. (Its sidebar was the brown
-   --panel slab until T-006 made every sidebar a material in its own page's
-   scheme.) Every ink here was re-solved to clear 4.5:1 — the old version's
-   alpha inks measured 2.83:1, which is the whole reason the palette was
-   rebuilt in the first place. */
-[data-theme="parchment"] {
-  color-scheme: light;
-  --urgent: #8a4f14;
-  --shade: #2b2118;
-  --fac-math: #35608f; --fac-ai: #88592b; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a; --fac-speech: #8a4a63;
-  --bg: #f8f4ec;
-  --bg-2: #f0e9db;
-  --surface: #ffffff;
-  --surface-2: #faf7f0;
-  --surface-float: #ffffff;
-  --line: #e6dcc9;
-  --line-strong: #d0c0a5;
-  --ink: #2b2118;
-  --ink-2: #534b40;
-  --ink-3: #71685c;
-  --accent: #5d3f26;
-  --accent-soft: #ece8e5;
-  --accent-2: #8a5f2e;
-  --good: #3b6845;
-  --bad: #a8331f;
-  --btn-bg: #2b2118;
-  --btn-ink: #f8f4ec;
-  --accent-fill-ink: #f8f4ec;
-  --panel: #2b2118;
-  --panel-ink: #f4ead9;
-  --panel-accent: #c99a63;
-  --feature: var(--accent);
-}
-
 [data-theme="dark"] {
   color-scheme: dark;
   --urgent: #d99a4e;
   --shade: #000308;
-  /* Navy into gold (loop/design/brief.md §9, the owner's decision of
-     2026-10-06, T-024). It replaced T-005's iOS true black (#000000 page,
-     #1c1c1e cells, a blue tint): deep navy surfaces, white ink, and Brickford
-     gold as the single accent — the primary action, the active pill, the tint.
-     Gold is light, so what is written ON it is navy (--accent-fill-ink), never
-     white: white on #e0b35a is 1.95:1, navy #121a38 is 8.75:1.
-     --bad, --fac-math/-sys/-phys/-res/-speech were re-solved for the navy
-     surfaces (hue held, lifted toward white until every one clears 4.5:1 on
-     --surface-2, on --accent-soft, on the glow's declared worst case below,
-     and on its own 12% tint over that — the course page's teacher avatar);
-     --good, --urgent and --fac-ai already did and are unchanged. */
-  --fac-math: #8cb3df; --fac-ai: #d9ab6d; --fac-sys: #74bcb3; --fac-phys: #e29e92; --fac-res: #bba7d6; --fac-speech: #d2a1ba;
+  /* The lead pair, dark half: loop/design/brief.md §3. iOS's own dark system
+     neutrals (#1c1c1e cells) with Brickford's navy lifted to a tint that
+     reads on them. T-024's navy and gold replaced it for a day; the owner
+     asked for this one back on 2026-10-07 (T-025) because it is the one that
+     is comfortable for hours. Restored exactly, with three exceptions so the
+     sidebar is the darkest thing on screen: --panel is true black (it is the
+     sidebar now), and the page is lifted just off it (--bg, --bg-2). */
+  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
-  --bg: #0c1330;
-  --bg-2: #101839;
-  --surface: #1a2248;
-  --surface-2: #232c58;
-  --surface-float: #232c58;
-  --line: #2e3866;
-  --line-strong: #434d80;
+  --bg: #0e0e10;
+  --bg-2: #141416;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-float: #22272f;
+  --line: #38383a;
+  --line-strong: #3d454f;
   --ink: #ffffff;
-  --ink-2: #c3c8de;
-  --ink-3: #9aa2c4;
-  --accent: #e0b35a;
-  --accent-fill: #e0b35a;
-  --accent-fill-ink: #121a38;
-  /* Gold at 16% on --surface, worked out as a solid colour (never an alpha):
-     the sidebar's selection pill and the tinted fill. Gold on it is 5.8:1. */
-  --accent-soft: #3a394b;
+  --ink-2: #a1a1a6;
+  --ink-3: #8e8e93;
+  --accent: #78aef0;
+  --accent-fill: #2f6bbd;
+  --accent-soft: #1a2a3f;
   --gold: #e0b35a;
   --accent-2: #9ec2e8;
   --good: #62b881;
-  --bad: #ed8d7d;
-  --btn-bg: #e0b35a;
-  --btn-ink: #121a38;
-  /* A dark shadow on a navy page is not a shadow: what floats gets a ring. */
+  --bad: #e8705c;
+  --btn-bg: #e8ebef;
+  --btn-ink: #0f1216;
+  /* The button is light, so its label is its own dark ink. */
+  --accent-fill-ink: #0f1216;
+  /* A dark shadow on a near-black page is not a shadow: what floats gets a ring. */
   --float: 0 0 0 1px var(--line);
-  /* The status bar (meta theme-color) is the page itself, so the browser
-     chrome runs straight into the navy. */
-  --panel: #0c1330;
+  /* The sidebar (T-025), and the status bar (meta theme-color). */
+  --panel: #000000;
   --panel-ink: #e8ebef;
   --panel-accent: #7fb0e6;
-  --feature: var(--accent);
-}
-
-[data-theme="forest"] {
-  color-scheme: light;
-  --urgent: #8a5312;
-  --shade: #17201a;
-  --bg: #f2f5f1;
-  --bg-2: #e6ece3;
-  --surface: #ffffff;
-  --surface-2: #f7faf5;
-  --surface-float: #ffffff;
-  --line: #dbe4d5;
-  --line-strong: #b8ccb0;
-  --ink: #17201a;
-  --ink-2: #474f48;
-  --ink-3: #626b63;
-  --accent: #2f6b43;
-  --accent-soft: #e6ede8;
-  --accent-2: #2b5a86;
-  --good: #286a43;
-  --bad: #b32d1f;
-  --btn-bg: #17201a;
-  --btn-ink: #ffffff;
-  --panel: #16241a;
-  --panel-ink: #e9f0e2;
-  --panel-accent: #9dc9a3;
-  --feature: var(--accent);
-}
-
-[data-theme="midnight"] {
-  color-scheme: dark;
-  --urgent: #e0a35c;
-  --shade: #00030a;
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
-  --bg: #0f1420;
-  --bg-2: #0b0f19;
-  --surface: #151c2b;
-  --surface-2: #1a2333;
-  --surface-float: #1e2839;
-  --line: #263349;
-  --line-strong: #3a4d6b;
-  --ink: #e7ecf4;
-  --ink-2: #a3aebf;
-  --ink-3: #808a9a;
-  --accent: #7fa3d1;
-  --accent-soft: #222c3f;
-  --gold: #e0b35a;
-  --accent-2: #9db8dd;
-  --good: #62b881;
-  --bad: #e8705c;
-  --btn-bg: #e7ecf4;
-  --btn-ink: #10151f;
-  --accent-fill-ink: #10151f;
-  --float: 0 0 0 1px var(--line);
-  --panel: #080b12;
-  --panel-ink: #e7ecf4;
-  --panel-accent: #7fa3d1;
-  --feature: var(--accent);
-}
-
-[data-theme="latte"] {
-  color-scheme: dark;
-  --urgent: #dda05a;
-  --shade: #000204;
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
-  /* The one theme that keeps Brickford's coffee: dark roast throughout. (Its
-     --panel is milk, #faf7f0, but since T-006 nothing paints the panel — the
-     sidebar and the tab bar are roast materials like the page.) */
-  --bg: #241a12;
-  --bg-2: #1d140d;
-  --surface: #2c2115;
-  --surface-2: #33271a;
-  --surface-float: #392d1d;
-  --line: #42331f;
-  --line-strong: #5e4a2e;
-  --ink: #f0e7d8;
-  --ink-2: #beb3a4;
-  --ink-3: #9a8f81;
-  --accent: #d9b382;
-  --accent-soft: #3d3020;
-  --gold: #e0b35a;
-  --accent-2: #cfa06a;
-  --good: #8cb394;
-  --bad: #f08a78;
-  --btn-bg: #f0e7d8;
-  --btn-ink: #2b2118;
-  --accent-fill-ink: #2b2118;
-  --float: 0 0 0 1px var(--line);
-  --panel: #faf7f0;
-  --panel-ink: #2b2118;
-  --panel-accent: #5d3f26;
-  --feature: var(--accent);
-}
-
-[data-theme="slate"] {
-  color-scheme: light;
-  --urgent: #8f5518;
-  --shade: #1a1a19;
-  --bg: #f7f7f5;
-  --bg-2: #eeeeea;
-  --surface: #ffffff;
-  /* The pressed-row fill. It was #fafaf8, 1.045:1 on the white --surface the
-     rows sit on — a press nobody could see. 1.063:1 now, with --ink-3 still
-     4.95:1 on it. */
-  --surface-2: #f8f8f6;
-  --surface-float: #ffffff;
-  --line: #e4e4df;
-  --line-strong: #c8c9c0;
-  --ink: #1a1a19;
-  --ink-2: #4f4f4c;
-  --ink-3: #6c6c69;
-  --accent: #3d4c60;
-  --accent-soft: #e8eaec;
-  --accent-2: #456a94;
-  --good: #296d45;
-  --bad: #b32d1f;
-  --btn-bg: #1a1a19;
-  --btn-ink: #ffffff;
-  --panel: #1c1c1b;
-  --panel-ink: #f2f2ee;
-  --panel-accent: #b9c4d4;
   --feature: var(--accent);
 }
 
@@ -492,22 +324,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* ---------- Shell ---------- */
 .shell { display: flex; min-height: 100vh; min-height: 100dvh; }
 
-/* The sidebar is a material in the page's own scheme (brief §2.4, T-006): the
-   page's --surface at 85% under a blur, with a hairline trailing edge. It was
-   the dark --panel slab beside a light page, re-scoping eight ink tokens to
-   alpha mixes of --panel-ink so its text would read on it — and alpha inks are
-   exactly what docs/CONTENT-STANDARD.md forbids. On a material in the page's
-   own colours the page's solid inks simply apply, so nothing is re-scoped.
-   Every ink measures >= 4.9:1 on it in all seven themes (the material sits
-   between --surface and --bg, and each ink is solved against both). */
+/* The sidebar is a plain, solid --panel in every theme (T-025, the owner's
+   "make it slightly darker"): darker than the page, so it recedes and the
+   reading column is the brightest thing on screen. No blur, no gradient, no
+   translucent material; a hairline --line is its trailing edge. In dark the
+   page's own inks clear 4.5:1 on its black with room to spare. Light's panel
+   is espresso, so there the sidebar re-scopes its inks below — to SOLID
+   colours, never alpha mixes (docs/CONTENT-STANDARD.md). */
 .sidebar {
   width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
-  background: color-mix(in srgb, var(--surface) 85%, transparent);
-  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  background: var(--panel);
   border-right: 0.5px solid var(--line);
   padding: var(--sp-4) var(--sp-3);
   display: flex; flex-direction: column; gap: var(--sp-2);
 }
+
+/* Light's sidebar inks, each solved on the espresso --panel #2b2118 and on the
+   two fills a row can carry there (hover --bg-2, the active pill
+   --accent-soft): --ink 13.4:1 on the panel, --ink-2 8.9:1, --ink-3 6.5:1
+   (4.7:1 on the pill), --accent 7.2:1 (5.2:1 on the pill). The pill is
+   --panel-accent at 16% into the panel, the hover --panel-ink at 8%, the
+   rules inside it --panel-ink at 16%, all worked out as solid hexes (the
+   sidebar's own trailing edge stays the page's --line). The crest is
+   caramel on espresso, as it was when the sidebar was last the panel. */
+[data-theme="light"] .sidebar {
+  --ink: var(--panel-ink); --ink-2: #cbc1b2; --ink-3: #b0a594;
+  --accent: var(--panel-accent); --accent-soft: #463727; --bg-2: #3b3128;
+  --gold: var(--panel-accent);
+}
+[data-theme="light"] .sidebar > * { --line: #4b4138; }
 
 .crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
 .crest svg { width: 46px; height: 46px; color: var(--accent); }
@@ -614,35 +459,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .motto { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); text-align: center; line-height: 1.7; }
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
-/* The glow (T-024, brief §9): in the navy theme only, a faint gold light
-   top-right and an indigo one top-left behind the page head. Decorative, so
-   it never takes a pointer, never moves, and is painted BEHIND the content:
-   .main is its own stacking context (isolation) and the layer sits at
-   z-index -1 inside it, under every child and over nothing.
-   Each light reaches nothing before the layer's edge (the gold one is 38%
-   wide at 72%, so its 70% stop lands inside the right edge): on a desktop
-   .main stops short of the window, and a glow running to that edge drew a
-   hard vertical seam against the plain page beside it.
-   The layer covers the whole of .main and its last image is an opaque --bg,
-   so below the glow the page is the plain navy it always was. Both it and
-   .main declare a solid background-color that is the glow's WORST case for
-   light text — the two peaks stacked on --bg, lighter than any pixel the
-   gradients can paint — so verify-contrast, which measures text against the
-   first opaque ancestor, measures every ink on the page against the
-   brightest point of the glow rather than against a plain navy that is not
-   what is under it (each channel rounded UP, so it is never darker than
-   the real peak). Never shown: the opaque image stack covers it. */
-[data-theme="dark"] .main { position: relative; isolation: isolate; background-color: #313249; }
-[data-theme="dark"] .main::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-color: #313249;
-  background-image:
-    radial-gradient(38% 70% at 72% 6%, rgb(201 154 74 / .14) 0%, rgb(201 154 74 / 0) 70%),
-    radial-gradient(60% 60% at 10% 0%, rgb(70 84 170 / .20) 0%, rgb(70 84 170 / 0) 70%),
-    linear-gradient(var(--bg), var(--bg));
-  background-size: 100% 360px, 100% 360px, 100% 100%;
-  background-repeat: no-repeat;
-}
 
 /* The view declares its own ink rather than inheriting one through the shell.
    In T-006's first round verify-contrast flaked once on a view whose text
@@ -789,7 +605,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--font-body); font-size: var(--fs-small); font-weight: 600;
   /* A filled button is a capsule with an --accent-fill-ink label (T-024):
-     navy on the navy theme's gold, white on light. The outlined kinds below
+     dark on dark's light-grey fill, white on light. The outlined kinds below
      (ghost, danger, bare) keep --radius. */
   color: var(--accent-fill-ink); background: var(--btn-bg);
   border: 1px solid var(--btn-bg); border-radius: 999px;
@@ -1245,14 +1061,13 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    A filled field with the device cut out of it, which is what makes a seal read
    as a seal. Outlines would go spindly the moment it is scaled down.
    The field is --gold, the brand's crest colour (brief §1), and the cut-outs
-   are the --surface the sidebar material is made of, so the device reads as
-   holes in the seal. Both were --panel-coloured when the sidebar was the
-   panel: caramel on espresso. */
+   are the --panel the sidebar is painted with, so the device reads as holes
+   in the seal (T-025: the sidebar is the panel again). */
 .crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
 .crest .cr-field { fill: var(--gold); }
-.crest .cr-key { fill: none; stroke: var(--surface); stroke-width: 3; opacity: 0.55; }
-.crest .cr-cut { fill: var(--surface); }
-.crest .cr-stem { fill: none; stroke: var(--surface); stroke-width: 3.4; stroke-linecap: round; }
+.crest .cr-key { fill: none; stroke: var(--panel); stroke-width: 3; opacity: 0.55; }
+.crest .cr-cut { fill: var(--panel); }
+.crest .cr-stem { fill: none; stroke: var(--panel); stroke-width: 3.4; stroke-linecap: round; }
 
 /* ---------- Faculty colour, applied where a subject is identified ---------- */
 .fac-math { --fac: var(--fac-math); }
@@ -1798,11 +1613,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
        crest, and the theme menu in its footer when the drawer scrolls —
        starts below it. */
     padding-top: calc(var(--sp-4) + env(safe-area-inset-top, 0px));
-    /* Solid, not the material: the drawer slides over the scrim, and a
-       translucent drawer shows the dimmed page through it — measured, that
-       took its labels under 4.5:1. */
-    background: var(--surface);
-    -webkit-backdrop-filter: none; backdrop-filter: none;
+    /* The same solid --panel as the desktop sidebar (T-025). Never
+       translucent: the drawer slides over the scrim, and a translucent drawer
+       shows the dimmed page through it — measured, that took its labels
+       under 4.5:1. */
+    background: var(--panel);
   }
   /* ---- The nav bar ----
      iOS's, in three columns (brief §4): the menu button leading, the page's
@@ -2100,10 +1915,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    so the materials go solid and the borders get defined, rather than anything
    being taken away. */
 /* Every material in the chrome goes solid: the nav bar to the page's --bg it
-   was mixed from, the tab bar, the action bar and the sidebar to --surface. */
+   was mixed from, the tab bar and the action bar to --surface. The sidebar is
+   already a solid --panel (T-025), so nothing here repaints it. */
 @media (prefers-reduced-transparency: reduce) {
   .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .tabbar, .railbar, .sidebar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .tabbar, .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .tabbar .tab-bubble { background: var(--accent-soft); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
@@ -2115,7 +1931,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .topbar::after { opacity: 1; border-bottom: 1px solid var(--line-strong); }
   .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--line-strong); }
   .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top-color: var(--line-strong); }
-  .sidebar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-right: 1px solid var(--line-strong); }
+  .sidebar { border-right: 1px solid var(--line-strong); }
   /* A list section is a fill on a fill — --surface on --bg, 1.073:1 in
      slate, the faintest theme — so here it is outlined as well. */
   .glist { border: 1px solid var(--line-strong); }

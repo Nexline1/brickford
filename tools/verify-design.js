@@ -745,7 +745,12 @@ function tabState() {
     bubble: (() => {
       const e = bar.querySelector(".tab-bubble"), bs = e && getComputedStyle(e), b = e && e.getBoundingClientRect();
       const act = bar.querySelector("a.active"), ab = act && act.getBoundingClientRect();
+      // The active label is painted over the bubble, which is over the bar:
+      // composite both translucent layers onto what is behind the bar.
+      const under = act ? z.over(z.bytes(bs.backgroundColor), z.backdrop(bar)) : null;
+      const lab = act ? z.bytes(getComputedStyle(act).color) : null;
       return e ? { bf: bs.backdropFilter, bg: z.bytes(bs.backgroundColor), op: bs.opacity, c: b.left + b.width / 2,
+                   labelRatio: under ? z.ratio(z.over(lab, under), under) : 0,
                    actC: ab ? ab.left + ab.width / 2 : null, behind: !!ab && b.top >= ab.top - 6 && b.bottom <= ab.bottom + 6 } : null;
     })(),
     badge: (() => {
@@ -1842,6 +1847,8 @@ function hairlineSource() {
       const act = t.tabs.filter(x => x.active);
       check(at + ": the active tab's icon and label are --accent", act.length === 1 && __same(act[0].color, t.accent),
         act.map(x => x.name + " " + hx(x.color)).join(", "));
+      check(at + ": the active label on the bubble is at least 4.5:1", !!bb && bb.labelRatio >= 4.5,
+        bb ? bb.labelRatio.toFixed(2) + ":1" : "no bubble");
       // The seed has one due review.
       check(at + ": the Review tab's badge counts the due reviews in a solid fill at >= 4.5:1",
         !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,

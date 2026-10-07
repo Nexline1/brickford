@@ -243,3 +243,66 @@ YouTube and Netflix keep people watching mainly by removing the moment of decisi
 
 Specimen: `loop/design/specimen-feed.html` and its `specimen-feed-*.png` renders.
 
+
+## 9. Navy into gold, Batelco-inspired (owner decision, 2026-10-06)
+
+**Source.** The owner sent five screenshots of Batelco's app and asked for its strongest parts, phone first:
+- the opening screen: gradient, a logo that zooms out and in, a wordmark that fades in;
+- the floating bottom bar you slide along;
+- the clean layout, with a gradient glow and a welcome message;
+- less text and more visuals;
+- smoother scrolling and tab switching.
+
+**The owner's choices:**
+- **Tab bar:** slide along the bar; a glass bubble follows the finger and switches tab on release.
+- **Gradient:** navy into Brickford gold, not Batelco's red.
+- **Default look:** dark navy, with light still available.
+- **Opening animation:** allowed as a recorded exception to the PROTECTED "motion only where it shows change" rule. Reduce Motion makes it still.
+
+Batelco's logo and brand are not copied; the opening screen uses the Brickford crest and wordmark.
+
+**Navy palette (the `dark` theme).**
+
+| Token | Value | Role |
+|---|---|---|
+| `--bg` | `#0c1330` | page |
+| `--bg-2` | `#101839` | the sheet that rises under the greeting |
+| `--surface` | `#1a2248` | cards |
+| `--surface-2` | `#232c58` | inner wells |
+| `--line` | `#2e3866` | lines |
+| `--ink` | `#ffffff` | primary text |
+| `--ink-2` | `#c3c8de` | secondary text |
+| `--ink-3` | `#9aa2c4` | tertiary text |
+| `--gold` | `#e0b35a` | the single accent: primary buttons, active chip, active tab, progress fill. Its label is navy `#121a38`. |
+| `--badge` | `#c4342a` | badges, with white text |
+
+- Corner radii: cards 24px, wells 16px, chips and buttons as full capsules.
+
+**Gradients:**
+- **Opening screen:** navy `#0d1636` top to bottom, with a gold radial glow from the bottom-left corner. The glow passes through bronze and plum, the way Batelco's passes through purple, so the blend never goes muddy.
+- **In the app:** a faint gold glow top-right and an indigo glow top-left behind the greeting. Cards are solid.
+- **Contrast rule:** every gradient element also declares a solid `background-color` that is the worst case for its text, so `verify-contrast` measures a real pair.
+
+**Components:**
+- **Greeting header:** day, week and streak in a small line, then "Good evening, Ali" at 32/700.
+- **Content sheet:** rises with 32px top corners.
+- **Continue card:** a thumbnail, three stat wells with big numbers, and a gold capsule "Resume" button.
+- **Icon chips** for switching, in the style of Data/Voice/Roaming.
+- **Meters:** a big number, a short label and a gold bar.
+- **Course tiles:** an icon tile plus two short lines.
+- **Course "membership card":** cream gradient, the crest and big numbers, in the style of Jawaher.
+- **Floating tab bar:**
+  - a capsule 14px from the screen edges, glass, 70px tall;
+  - a glass bubble behind the active tab, with the icon and label in gold;
+  - a red badge for counts.
+
+**Desktop:** a navy sidebar with gold pills, the greeting, then a two-column card grid and a four-column tile row.
+
+**Specimen:** `loop/design/specimen-navy.html`, with renders in `specimen-navy-*.png`. The opening screen has three frames plus a live `#splash` animation; there are also Home, Home with the bar mid-slide, Course, and Home at desktop width. Every text pair is at 5.4:1 or better, every control is at least 44×44, and nothing scrolls sideways.
+
+**Roadmap from here:**
+1. T-024, the navy theme;
+2. T-023, the floating slide-to-switch tab bar, with scroll memory per tab and tap-to-top;
+3. T-022, the opening screen and the iOS startup images;
+4. T-017, the Home feed, re-scoped to this layout;
+5. then T-018, T-019 and T-020.

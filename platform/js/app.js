@@ -177,7 +177,10 @@
     // lastSyncAt / syncError are per-device facts about THIS browser's link to
     // GitHub, so they are deliberately not in syncPayload - pushing them would
     // tell the phone about the laptop's broken token.
-    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null,
+    // No theme here: an unset theme is the DEFAULT (navy, applyTheme), not a
+    // stored pick. With "light" in this object every device wrote "light" on
+    // its first save, and the default could never change again (T-024).
+    settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null,
                 lastSyncAt: null, syncError: null },
   };
   let S;
@@ -186,6 +189,26 @@
   S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
   S.reps = Object.assign({ bank: [], story: [], humor: [], review: [] }, S.reps);
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
+  // The navy switch (T-024; owner decision 2026-10-06, "switch existing
+  // devices to navy automatically", relayed by the loop coordinator and
+  // recorded in loop/specs/T-024-navy-theme/spec.md). Before T-024 the
+  // DEFAULT above carried theme "light", and every device wrote it on its
+  // first save whether or not anyone chose it. So a stored "light" without
+  // the marker is treated as that old default, ONCE per device: the theme
+  // goes back to unset (the navy default) and the marker is set.
+  // `themeNavyOnce` means "this device's theme is past the navy switch". It
+  // is per device: syncPayload does not carry it and mergeState never reads
+  // a remote theme or marker. An explicit pick from the Theme menu sets it
+  // too, so Light chosen after this is kept.
+  // This is load-time normalisation, not a render, and it does NOT save():
+  // opening the app arms no push. The result persists with the next ordinary
+  // save; until then every load re-applies it, which changes nothing.
+  // The inline script in index.html's <head> applies the same rule before the
+  // first paint.
+  if (S.settings.theme === "light" && !S.settings.themeNavyOnce) {
+    delete S.settings.theme;
+    S.settings.themeNavyOnce = true;
+  }
   // Every persisted change schedules a push. This hangs off save() rather than
   // off logEvent() because only 16 of 42 mutation sites logged an event, so
   // notes, gates and treasury edits were silently never syncing.
@@ -5149,10 +5172,15 @@
     // string and resolved here, never written back as "light" or "dark", so
     // the phone stays in charge. A device from before Auto existed puts
     // "auto" straight into data-theme, which no theme block matches, so it
-    // shows light — the same `|| "light"` outcome as an unset theme.
+    // shows light.
+    // Unset means the default, which is the navy "dark" theme since T-024 (the
+    // owner's decision of 2026-10-06). Only an unset theme moves, plus the
+    // one-time navy switch at load (a stored "light" without themeNavyOnce; see
+    // the state block). A pick made from the Theme menu carries the marker and
+    // is never rewritten.
     const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
     const applyTheme = () => {
-      const pick = S.settings.theme || "light";
+      const pick = S.settings.theme || "dark";
       document.documentElement.dataset.theme =
         pick === "auto" ? (darkQ && darkQ.matches ? "dark" : "light") : pick;
       // The Home Screen app's status bar is painted from this meta, and it was
@@ -5179,6 +5207,7 @@
     $$("#themeMenu [data-theme-pick]").forEach(b => {
       b.onclick = () => {
         S.settings.theme = b.dataset.themePick;
+        S.settings.themeNavyOnce = true;   // an explicit pick is kept (see load)
         save(); applyTheme();
         $("#themeMenu").classList.remove("open");
       };

@@ -116,6 +116,56 @@
 // every chip is >= 4.5:1 on what is behind it — and the chip stays >= 4.5:1
 // over ANY picture: its fill composited over pure white and pure black.
 //
+// T-024, the navy theme (loop/specs/T-024-navy-theme/spec.md; the owner's
+// decision of 2026-10-06, loop/design/brief.md §9). The dark half of the lead
+// pair is the navy palette now, so three expectations above moved with it —
+// the same checks, new expected values: the dark token table is navy rather
+// than T-005's true black (and --bg-2, --btn-bg, --btn-ink and the new
+// --accent-fill-ink are in both tables), dark's --panel is #0c1330, a FILLED
+// .btn is a 999px capsule (ghost, danger and bare keep 12px), and a .glist is
+// a 20px (--r-card) section; --r-card joins the radius scale. Added:
+//   - the default: with nothing stored, and with progress stored but no theme,
+//     the page resolves to dark (navy) on a phone set to LIGHT — so it is the
+//     default speaking and not the phone — with meta theme-color #0c1330, Navy
+//     listed second after Auto and marked, and — after a REAL save (today's
+//     lecture opened from the dashboard and marked watched, the state writes
+//     counted) — no theme key in the stored state (Auto's dark->dark and
+//     light->light are the Auto checks above);
+//   - the navy switch (round 3, owner decision 2026-10-06): a stored "light"
+//     with no themeNavyOnce marker opens navy with Navy marked and NO state
+//     write at boot, and after a real save stores no theme and the marker;
+//     Light then picked from the menu survives a reload, and so does Light
+//     picked on a device that had stored nothing; "light" with the marker
+//     stays light through a save; "parchment" and "auto" are untouched;
+//   - the first paint (round 2): index.html's inline <head> script sets the
+//     theme from storage before app.js runs. With app.js HELD (the KaTeX
+//     script before it never answers), every frame sampled from the first
+//     styled one is the expected --bg — stored "light" without the marker
+//     is navy, with it light, nothing stored is navy, "auto" follows the
+//     phone — and still
+//     after app.js runs; the script's PANEL map equals style.css's --panel;
+//   - the primary action, at 390 and 1280 in light and dark on the five
+//     routes: every visible filled .btn, and at least one .btn.lg, is a 999px
+//     capsule on --btn-bg with an --accent-fill-ink label at >= 4.5:1 — a gold
+//     fill and a navy label in dark, a white label in light — and the toast,
+//     the other text on --btn-bg, reads the same pair;
+//   - cards (.card, bar the hero's ruled .one) have 20px corners and a chip
+//     (.pill) is a capsule;
+//   - the glow, at 390 and 1280 on /, /course/math110, /calendar and /record:
+//     in dark .main::before is a static layer of two radial gradients with
+//     pointer-events none, as wide as .main and over its top; forced
+//     hit-testable, it still loses the hit at the centre of every text and
+//     control in its box (it is painted behind them), and as shipped every
+//     control there takes its own hit (nothing interactive under it); it
+//     declares a solid background-color, .main declares the same one (so
+//     verify-contrast measures the page's text against it), and that colour
+//     is no darker than the glow's brightest possible pixel — every
+//     translucent stop of its computed gradients stacked at its own alpha on
+//     --bg, an upper bound worked out here, not read from the stylesheet; in
+//     light there is no layer and .main paints nothing;
+//   - on every route in the foundations loop, meta theme-color is the
+//     theme's --panel (#0c1330 in dark).
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
@@ -154,19 +204,37 @@ const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
 const LIST_NA = new Set(["/workshop"]);
 const PRESS_ROUTES = ["/", "/course/math110", "/exams", "/courses"];
-// loop/design/brief.md §3, the lead pair.
+// The lead pair: light from loop/design/brief.md §3; dark from §9, the navy
+// palette (T-024, the owner's decision of 2026-10-06 — it replaced T-005's
+// true black, #000000 / #1c1c1e / a blue accent).
+// "Gold at about 16% on the surface, as a solid colour" (spec T-024), worked
+// out here from the two hexes rather than copied from the stylesheet.
+const mixHex = (a, b, p) => "#" + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * p +
+  parseInt(b.slice(i, i + 2), 16) * (1 - p)).toString(16).padStart(2, "0")).join("");
 const BRIEF = {
-  light: { "--bg": "#f2f1ee", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--line": "#dcdad5",
+  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f0ea", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--line": "#dcdad5",
            "--ink": "#111111", "--ink-2": "#5c5a55", "--ink-3": "#6e6b65", "--accent": "#1e4f8f",
-           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12" },
-  dark:  { "--bg": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--line": "#38383a",
-           "--ink": "#ffffff", "--ink-2": "#a1a1a6", "--ink-3": "#8e8e93", "--accent": "#78aef0",
-           "--accent-fill": "#2f6bbd", "--accent-soft": "#1a2a3f", "--gold": "#e0b35a" },
+           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12",
+           "--btn-bg": "#241f1a", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff" },
+  dark:  { "--bg": "#0c1330", "--bg-2": "#101839", "--surface": "#1a2248", "--surface-2": "#232c58", "--line": "#2e3866",
+           "--ink": "#ffffff", "--ink-2": "#c3c8de", "--ink-3": "#9aa2c4", "--accent": "#e0b35a",
+           "--accent-fill": "#e0b35a", "--accent-soft": mixHex("#e0b35a", "#1a2248", 0.16), "--gold": "#e0b35a",
+           "--btn-bg": "#e0b35a", "--btn-ink": "#121a38", "--accent-fill-ink": "#121a38" },
 };
 // Each theme's --panel, which is what the Home Screen status bar is painted
-// from (meta theme-color).
-const PANEL = { light: "#2b2118", dark: "#0a0d10" };
-const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "22px" };
+// from (meta theme-color). Dark's is the navy page (T-024).
+const PANEL = { light: "#2b2118", dark: "#0c1330" };
+// --r-card is T-024's: cards and grouped sections.
+const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "22px", "--r-card": "20px" };
+// T-024: the glow is measured on the spec's four routes.
+const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
+// T-024: the primary action's pair, from the spec: a gold capsule with a navy
+// label in dark; in light the label stays white on the fill.
+const PRIMARY = {
+  light: { bg: "#241f1a", ink: "#ffffff", what: "a white label on the fill" },
+  dark:  { bg: "#e0b35a", ink: "#121a38", what: "a gold fill (#e0b35a) with a navy label (#121a38)" },
+};
+const hexBytes = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).concat(255);
 
 let checks = 0, fails = 0;
 function check(name, ok, detail) {
@@ -195,7 +263,11 @@ function seed([nowMs, theme]) {
   if (window.top !== window) return;
   const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
   const s = { lessons: {}, problems: {}, studyDays: [], review: {} };
-  if (theme) s.settings = { theme };
+  // A seeded theme is a pick made in the Theme menu, so it carries the
+  // per-device marker an explicit pick sets (T-024's navy switch would
+  // otherwise turn a seeded "light" into navy). The switch itself is tested
+  // with stored states written by bareSettings below, which have no marker.
+  if (theme) s.settings = { theme, themeNavyOnce: true };
   for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
   s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n", checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
   s.lessons["math110.0.0"] = { done: true, verified: false, doneAt: iso(2), notes: "", checks: [] };
@@ -214,6 +286,14 @@ function countWrites() {
     return set.call(this, k, v);
   };
 }
+
+// T-024: a stored state that is ONLY these settings — no marker unless given
+// — written before the app loads. `once` writes it on the first load of the
+// tab only (sessionStorage remembers), so a reload sees what the app saved.
+const bareSettings = (settings, once) => new Function("args",
+  "if (window.top !== window) return;" +
+  (once ? "if (sessionStorage.getItem('__bare')) return; sessionStorage.setItem('__bare', '1');" : "") +
+  "localStorage.setItem('darhikmah_v1', JSON.stringify({ settings: " + JSON.stringify(settings) + " }));");
 
 const requests = [];
 let githubHits = 0;
@@ -316,6 +396,25 @@ function probe(names) {
     const s = getComputedStyle(b);
     return [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
   });
+  // T-024: what kind each button is, by its CLASS (not by what it computes,
+  // which is the thing under test): a filled .btn is any .btn that is not a
+  // ghost, a danger or a bare one. A disabled filled button keeps its shape
+  // but drops its fill, so it is in the shape check and not the fill check.
+  const z = window.__dz;
+  const kinds = btns.map((b, i) => {
+    const s = getComputedStyle(b);
+    return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 24),
+             filled: !b.matches(".ghost, .danger, .bare"), lg: b.matches(".lg"), disabled: b.matches(":disabled"),
+             corners: corners[i], bg: z.bytes(s.backgroundColor), color: z.bytes(s.color) };
+  });
+  const four = s => [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
+  const cards = [...document.querySelectorAll(".card:not(.one)")].filter(n => n.checkVisibility())
+    .map(n => ({ name: z.name(n), corners: four(getComputedStyle(n)) }));
+  const pills = [...document.querySelectorAll(".pill:not(.wrapping)")].filter(n => n.checkVisibility())
+    .map(n => ({ name: z.name(n), text: n.textContent.trim().slice(0, 20), corners: four(getComputedStyle(n)) }));
+  const ts = getComputedStyle(document.querySelector("#toast"));
+  const fillTok = { bg: z.tok("--btn-bg"), ink: z.tok("--accent-fill-ink") };
+  const toast = { bg: z.bytes(ts.backgroundColor), color: z.bytes(ts.color) };
   // A shadow layer is visible when its colour has any alpha and it has any
   // extent. Layers are split on top-level commas (colours carry their own).
   const layers = v => {
@@ -348,7 +447,7 @@ function probe(names) {
     theme: document.documentElement.dataset.theme,
     tokens, radii, rounded, caslon: [...new Set(caslon)],
     h1: h ? { text: h1.textContent.trim().slice(0, 40), size: parseFloat(h.fontSize), weight: h.fontWeight, ls: parseFloat(h.letterSpacing) } : null,
-    btns: btns.length, corners, deep,
+    btns: btns.length, corners, deep, kinds, cards, pills, fillTok, toast,
     body: { size: b.fontSize, family: b.fontFamily },
     meta: (document.querySelector('meta[name="theme-color"]') || {}).content || "",
   };
@@ -533,6 +632,61 @@ function installHelpers() {
   window.__dz = { bytes, resolve, tok, ratio, over, backdrop, same, hex, name };
 }
 
+// T-024: the glow layer on .main, as it is right now. `forced` says whether
+// the harness has made it hit-testable (pointer-events: auto), to prove it
+// is painted behind what it sits under rather than merely ignoring pointers.
+function glowState() {
+  const z = window.__dz;
+  const main = document.querySelector(".main"), ms = getComputedStyle(main), gs = getComputedStyle(main, "::before");
+  const mr = main.getBoundingClientRect();
+  const present = gs.content !== "none" && gs.display !== "none";
+  // Each gradient's stops, read off the computed value: the most opaque stop
+  // of every radial layer is that layer's peak.
+  const img = gs.backgroundImage;
+  const radials = (img.match(/radial-gradient\(/g) || []).length;
+  const stops = [...img.matchAll(/rgba?\(([^)]*)\)/g)].map(m => m[1].split(/[ ,\/]+/).filter(Boolean).map(Number))
+    .map(a => [a[0], a[1], a[2], a.length > 3 ? a[3] : 1]);
+  const bgTok = z.tok("--bg");
+  // The brightest the glow can paint: every translucent stop at its own
+  // alpha, stacked over --bg (each one lifts every channel, so the stack of
+  // peaks is an upper bound on any pixel).
+  let peak = bgTok.slice(0, 3);
+  for (const st of stops.filter(st => st[3] > 0 && st[3] < 1).reverse())
+    peak = peak.map((c, i) => st[i] * st[3] + c * (1 - st[3]));
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const L = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]);
+  const decl = z.bytes(gs.backgroundColor), mainBg = z.bytes(ms.backgroundColor);
+  // Behind the content: at the centre of every visible control and every
+  // element carrying its own text inside the glow's band (the top 360px of
+  // .main, where its gradients paint), the hit goes to that element (or into
+  // it), never to .main — which is where a hit on its ::before lands.
+  const band = Math.min(mr.bottom, mr.top + 360);
+  const ctl = "a[href], button, input, select, textarea, summary, [tabindex]:not(main), [role=button]";
+  const lost = [], seen = { ctl: 0, text: 0 };
+  [...main.querySelectorAll("*")].forEach(el => {
+    if (!el.checkVisibility()) return;
+    const isCtl = el.matches(ctl);
+    const hasText = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+    if (!isCtl && !hasText) return;
+    if (getComputedStyle(el).pointerEvents === "none") return;
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2;
+    if (r.width < 1 || r.height < 1 || y < mr.top || y > band || y < 0 || y > innerHeight || x < 0 || x > innerWidth) return;
+    const hit = document.elementFromPoint(x, y);
+    if (!hit || !main.contains(hit) && hit !== main) return;   // under the bar or the tab bar: not the glow's
+    seen[isCtl ? "ctl" : "text"]++;
+    if (hit === main || !(hit === el || el.contains(hit) || hit.contains(el)))
+      lost.push(z.name(el) + " \"" + (el.textContent || "").trim().slice(0, 20) + "\" -> " + z.name(hit));
+  });
+  return {
+    present, content: gs.content, pe: gs.pointerEvents, position: gs.position, z: gs.zIndex, radials,
+    anim: gs.animationName, trans: gs.transitionProperty + " " + gs.transitionDuration, iso: ms.isolation,
+    box: { w: Math.round(parseFloat(gs.width)), mainW: Math.round(mr.width), top: gs.top, left: gs.left },
+    decl, mainBg, peak: peak.map(v => Math.round(v * 100) / 100), lDecl: L(decl), lPeak: L(peak), bgImgMain: ms.backgroundImage,
+    lost, seen,
+  };
+}
+
 // The phone nav bar, as it is right now.
 function barState() {
   const z = window.__dz;
@@ -642,7 +796,7 @@ function listState() {
     cnt("glist");
     if (!(bg[3] === 255 && z.same(bg, T.surface))) note("fill", "list " + gi + " is " + z.hex(bg));
     const radii = [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
-    if (radii.some(r => r !== "12px") || s.overflowX !== "hidden" || s.overflowY !== "hidden")
+    if (radii.some(r => r !== "20px") || s.overflowX !== "hidden" || s.overflowY !== "hidden")
       note("shape", "list " + gi + " corners " + radii.join(" ") + ", overflow " + s.overflowX + "/" + s.overflowY);
     const rows = [...g.children].filter(r => r.classList.contains("grow") && r.checkVisibility());
     rows.forEach((r, ri) => {
@@ -1000,6 +1154,9 @@ function hairlineSource() {
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
       let tokensChecked = false;
+      // T-024: the primary action, gathered over the routes (a .btn.lg is on
+      // some routes and not others), then judged once per context.
+      const prim = { filled: 0, lg: 0, bad: [], lgBad: [], toast: null, cards: 0, cardBad: [], pills: 0, pillBad: [] };
       for (const route of ROUTES) {
         await go(page, route);
         const m = await page.evaluate(probe, NAMES);
@@ -1012,9 +1169,37 @@ function hairlineSource() {
             !!m.h1 && m.h1.size === large && m.h1.weight === "700" && Math.abs(em - -0.022) <= 0.002,
             m.h1 ? m.h1.size + "px, weight " + m.h1.weight + ", " + em.toFixed(4) + "em, \"" + m.h1.text + "\"" : "no visible title h1 in the view");
         }
-        const off = m.corners.filter(c => c.some(r => r !== "12px"));
-        check(where + ": every visible .btn has 12px corners", m.btns > 0 && off.length === 0,
-          m.btns === 0 ? "no visible .btn on this route" : off.length ? off.length + " of " + m.btns + ", e.g. " + off[0].join(" ") : m.btns + " buttons");
+        // T-005's corner check, with T-024's shapes (the owner's decision of
+        // 2026-10-06): a filled .btn is a 999px capsule; the outlined kinds —
+        // ghost, danger and bare — keep 12px. Same check, new expected values.
+        const shapeOff = m.kinds.filter(k => k.corners.some(r => r !== (k.filled ? "999px" : "12px")));
+        check(where + ": every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners",
+          m.btns > 0 && shapeOff.length === 0,
+          m.btns === 0 ? "no visible .btn on this route" : shapeOff.length ? shapeOff.length + " of " + m.btns + ", e.g. " +
+            shapeOff[0].name + " \"" + shapeOff[0].text + "\" (" + (shapeOff[0].filled ? "filled" : "outlined") + ") " + shapeOff[0].corners.join(" ")
+            : m.btns + " buttons (" + m.kinds.filter(k => k.filled).length + " filled)");
+        // T-024: every filled, enabled .btn is the gold-or-light fill with the
+        // --accent-fill-ink label, at 4.5:1 or better.
+        const z2 = { ratio: (a, b) => { const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+          const L = p => 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]); const x = L(a), y = L(b);
+          return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); } };
+        const hx = p => "#" + p.slice(0, 3).map(v => v.toString(16).padStart(2, "0")).join("");
+        for (const k of m.kinds.filter(k => k.filled && !k.disabled)) {
+          prim.filled++;
+          if (k.lg) prim.lg++;
+          const r = z2.ratio(k.color, k.bg);
+          const ok = k.bg[3] === 255 && __same(k.bg, m.fillTok.bg) && __same(k.color, m.fillTok.ink) && r >= 4.5 &&
+            __same(k.bg, hexBytes(PRIMARY[theme].bg)) && __same(k.color, hexBytes(PRIMARY[theme].ink)) && k.corners.every(c => c === "999px");
+          if (!ok) (k.lg ? prim.lgBad : prim.bad).push(route + " " + k.name + " \"" + k.text + "\" " + hx(k.color) + " on " + hx(k.bg) +
+            "/" + k.bg[3] + " " + r.toFixed(2) + ":1 " + k.corners[0]);
+        }
+        prim.toast = m.toast;
+        prim.fillTok = m.fillTok;
+        prim.cards += m.cards.length;
+        m.cards.filter(c => c.corners.some(r => r !== "20px")).forEach(c => prim.cardBad.push(route + " " + c.name + " " + c.corners.join(" ")));
+        prim.pills += m.pills.length;
+        m.pills.filter(c => c.corners.some(r => r !== "999px")).forEach(c => prim.pillBad.push(route + " " + c.name + " \"" + c.text + "\" " + c.corners.join(" ")));
+        check(where + ": meta theme-color is this theme's --panel (" + PANEL[theme] + ")", m.meta === PANEL[theme], "meta " + m.meta);
         check(where + ": no control carries a key-cap gloss, lift or well", m.deep.length === 0,
           m.deep.slice(0, 2).join(" | "));
         if (!tokensChecked) {
@@ -1024,12 +1209,27 @@ function hairlineSource() {
           check(at + ": the theme tokens resolve to the brief's values", m.theme === theme && bad.length === 0,
             "data-theme " + m.theme + (bad.length ? "; " + bad.map(k => k + " " + m.tokens[k] + " (want " + want[k] + ")").join(", ") : "; " + Object.keys(want).length + " tokens"));
           const rbad = Object.keys(RADII).filter(k => m.radii[k] !== RADII[k]);
-          check(at + ": the radius scale is 8/12/16/22", rbad.length === 0, rbad.map(k => k + " " + m.radii[k]).join(", "));
+          check(at + ": the radius scale is 8/12/16/22, cards 20 (--r-card)", rbad.length === 0, rbad.map(k => k + " " + m.radii[k]).join(", "));
           check(at + ": body is the system face at 17px", m.body.size === "17px" && /^-apple-system\b/.test(m.body.family),
             m.body.size + " " + m.body.family);
           check(at + ": --font-rounded asks for ui-rounded first", /^ui-rounded\b/.test(m.rounded), m.rounded);
         }
       }
+      // ---- T-024: the primary action, the toast, cards and chips ----
+      const want = PRIMARY[theme];
+      check(at + ": the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, " + want.what +
+        ", label --accent-fill-ink, >= 4.5:1",
+        prim.lg > 0 && prim.lgBad.length === 0 && prim.bad.length === 0,
+        (prim.lg === 0 ? "no .btn.lg on " + ROUTES.join(" ") + "; " : "") + (prim.lgBad.length + prim.bad.length
+          ? prim.lgBad.concat(prim.bad).slice(0, 3).join("; ") : prim.filled + " filled buttons (" + prim.lg + " .btn.lg)"));
+      const tr = prim.toast;
+      check(at + ": the toast is the same pair (--btn-bg under an --accent-fill-ink label)",
+        !!tr && __same(tr.bg, prim.fillTok.bg) && __same(tr.color, prim.fillTok.ink) && __same(tr.color, hexBytes(want.ink)),
+        tr ? "toast " + tr.color.slice(0, 3).join(",") + " on " + tr.bg.slice(0, 3).join(",") : "no toast");
+      check(at + ": every visible card (bar the hero's ruled .one) has 20px corners", prim.cards > 0 && prim.cardBad.length === 0,
+        prim.cardBad.length ? prim.cardBad.slice(0, 3).join("; ") : prim.cards + " cards");
+      check(at + ": every visible chip (.pill) is a capsule (999px)", prim.pills > 0 && prim.pillBad.length === 0,
+        prim.pillBad.length ? prim.pillBad.slice(0, 3).join("; ") : prim.pills + " chips");
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -1144,6 +1344,278 @@ function hairlineSource() {
     check("an older device reading \"auto\" falls back to light", old === rgb(BRIEF.light["--bg"]), "--bg " + old);
     check("auto, picked from the menu: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
+  }
+
+  // ---- T-024: the default is navy ----
+  // On a LIGHT phone, so a dark page is the default speaking and not the
+  // phone. Twice: with nothing stored at all, and with progress stored but
+  // no theme in it (the shape a device has once anything is saved).
+  console.log("\nT-024: the default theme");
+  const readTheme = () => ({
+    theme: document.documentElement.dataset.theme,
+    bg: (() => { const el = document.createElement("div"); document.body.appendChild(el);
+                 el.style.color = "var(--bg)"; const v = getComputedStyle(el).color; el.remove(); return v; })(),
+    meta: (document.querySelector('meta[name="theme-color"]') || {}).content || "",
+    picks: [...document.querySelectorAll("#themeMenu [data-theme-pick]")].map(b => ({ pick: b.dataset.themePick, label: b.textContent.trim(), on: b.classList.contains("on") })),
+    stored: (() => { const raw = localStorage.getItem("darhikmah_v1"); if (!raw) return { raw: false };
+                     const st = JSON.parse(raw); return { raw: true, has: !!st.settings && "theme" in st.settings, theme: (st.settings || {}).theme,
+                       mark: (st.settings || {}).themeNavyOnce }; })(),
+    writes: window.__stateWrites,
+  });
+  // A real save, through the UI: open today's lecture from the dashboard and
+  // mark it watched (verify-flows' flow c). The state writes are counted
+  // (countWrites) so the storage checks below are asked of a device that has
+  // provably written its state — a fixture that never saves cannot tell an
+  // unset theme from one save() would have written.
+  const reallySave = async page => {
+    await page.click(".card.one.lead a.one-go");
+    await page.waitForSelector("#view [data-act=toggleDone]");
+    const before = await page.evaluate(() => window.__stateWrites);
+    await page.click("#view [data-act=toggleDone]");
+    await page.waitForFunction(() => /^Unmark watched/.test((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || ""),
+      null, { timeout: 5000 }).catch(() => {});
+    const after = await page.evaluate(() => window.__stateWrites);
+    return { before, after };
+  };
+  for (const [label, seedTheme] of [["nothing stored", undefined], ["progress stored, no theme", null]]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light" }, seedTheme);
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const w0 = await reallySave(page);
+    const r = await page.evaluate(readTheme);
+    check("default (" + label + ", phone light): resolves to data-theme=\"dark\", the navy --bg " + BRIEF.dark["--bg"],
+      r.theme === "dark" && r.bg === rgb(BRIEF.dark["--bg"]), "data-theme " + r.theme + ", --bg " + r.bg);
+    check("default (" + label + "): meta theme-color " + PANEL.dark, r.meta === PANEL.dark, "meta " + r.meta);
+    const second = r.picks[1];
+    check("default (" + label + "): the menu lists \"Navy\" (dark) second, after Auto, and marks it",
+      r.picks[0] && r.picks[0].pick === "auto" && !!second && second.pick === "dark" && second.label === "Navy" && second.on &&
+        r.picks.filter(p => p.on).length === 1,
+      r.picks.map(p => p.pick + ":" + p.label + (p.on ? "*" : "")).join(" "));
+    check("default (" + label + "): marking a lecture watched really saved (state writes went up, the state is stored)",
+      w0.after > w0.before && r.stored.raw === true, "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
+    check("default (" + label + "): and the saved state carries no theme key (unset stays unset)",
+      r.stored.raw === true && r.stored.has === false, JSON.stringify(r.stored));
+    check("default (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  // ---- T-024 round 3: the navy switch (owner decision 2026-10-06) ----
+  // A stored "light" without the per-device marker themeNavyOnce is the old
+  // default (pre-T-024 every device wrote "light" on its first save): it
+  // switches to navy once. With the marker, or any other theme, nothing moves.
+  console.log("\nT-024: the navy switch");
+  const pickTheme = async (page, t) => {
+    await page.click("#themeBtn");
+    await page.click("#themeMenu [data-theme-pick='" + t + "']");
+  };
+  {
+    // (a) "light", no marker, on a LIGHT phone (so navy is the switch, not the
+    // phone); desktop, where the Theme menu is on screen for (c).
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 1280, height: 800 }, colorScheme: "light" }, undefined, bareSettings({ theme: "light" }, true));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await frames(page);
+    const a = await page.evaluate(readTheme);
+    check("switch (a) stored \"light\", no marker: opens navy (--bg " + BRIEF.dark["--bg"] + ", meta " + PANEL.dark + "), Navy marked",
+      a.theme === "dark" && a.bg === rgb(BRIEF.dark["--bg"]) && a.meta === PANEL.dark &&
+        a.picks.some(p => p.pick === "dark" && p.on) && a.picks.filter(p => p.on).length === 1,
+      "data-theme " + a.theme + ", --bg " + a.bg + ", meta " + a.meta + ", " + a.picks.filter(p => p.on).map(p => p.label).join(","));
+    check("switch (a): opening the app writes nothing (no save at boot, so no push is armed)",
+      a.writes === 0 && a.stored.theme === "light" && a.stored.mark === undefined,
+      "state writes " + a.writes + ", stored " + JSON.stringify(a.stored));
+    const w0 = await reallySave(page);
+    const a2 = await page.evaluate(readTheme);
+    check("switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still navy",
+      w0.after > w0.before && a2.stored.raw && a2.stored.has === false && a2.stored.mark === true && a2.theme === "dark",
+      "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(a2.stored) + ", data-theme " + a2.theme);
+    // (c) the explicit pick: Light from the menu, then a reload.
+    await pickTheme(page, "light");
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await frames(page);
+    const c = await page.evaluate(readTheme);
+    check("switch (c): Light picked from the menu after the switch survives a reload (light, stored \"light\" + marker)",
+      c.theme === "light" && c.bg === rgb(BRIEF.light["--bg"]) && c.meta === PANEL.light && c.stored.theme === "light" && c.stored.mark === true &&
+        c.picks.some(p => p.pick === "light" && p.on),
+      "data-theme " + c.theme + ", --bg " + c.bg + ", meta " + c.meta + ", stored " + JSON.stringify(c.stored));
+    check("switch (a)/(c): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    // (c2) a device with nothing stored picks Light, then reloads: the pick
+    // carries the marker, so it is not mistaken for the old default.
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: "dark" }, undefined);
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await pickTheme(page, "light");
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await frames(page);
+    const r = await page.evaluate(readTheme);
+    check("switch (c2): nothing stored, Light picked, reload: stays light (stored \"light\" + marker)",
+      r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.stored.theme === "light" && r.stored.mark === true,
+      "data-theme " + r.theme + ", --bg " + r.bg + ", stored " + JSON.stringify(r.stored));
+    check("switch (c2): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    // (b) "light" WITH the marker on a DARK phone: a pick, kept.
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "dark" }, "light");
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const w0 = await reallySave(page);
+    const r = await page.evaluate(readTheme);
+    check("switch (b) stored \"light\" + marker on a dark phone: stays light (--bg " + BRIEF.light["--bg"] + ", meta " + PANEL.light + ")",
+      r.theme === "light" && r.bg === rgb(BRIEF.light["--bg"]) && r.meta === PANEL.light,
+      "data-theme " + r.theme + ", --bg " + r.bg + ", meta " + r.meta);
+    check("switch (b): after a real save, still stored as \"light\" with the marker, Paper marked",
+      w0.after > w0.before && r.stored.theme === "light" && r.stored.mark === true && r.picks.some(p => p.pick === "light" && p.on),
+      "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(r.stored));
+    check("switch (b): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  // (d) other stored themes, with no marker, are not touched.
+  for (const [t, scheme, want] of [["parchment", "light", "parchment"], ["auto", "dark", "dark"], ["auto", "light", "light"]]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, undefined, bareSettings({ theme: t }));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const w0 = await reallySave(page);
+    const r = await page.evaluate(readTheme);
+    check("switch (d) stored \"" + t + "\", no marker, phone " + scheme + ": unaffected (data-theme " + want + ", still stored \"" + t + "\" after a save)",
+      r.theme === want && w0.after > w0.before && r.stored.theme === t && r.picks.some(p => p.pick === t && p.on),
+      "data-theme " + r.theme + ", stored " + JSON.stringify(r.stored));
+    check("switch (d) " + t + "/" + scheme + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- T-024: the theme before the first paint ----
+  // index.html sets data-theme and meta theme-color from the stored pick in a
+  // synchronous <head> script, because app.js is deferred behind the KaTeX
+  // CDN script and until it runs the static attribute is all there is. To
+  // prove the paint is the inline script's and not app.js's, app.js is HELD:
+  // deferred scripts run in order, so a KaTeX request that never answers
+  // keeps app.js from running. Every frame from the first one with a styled
+  // body is sampled (requestAnimationFrame, which runs before each paint),
+  // while held and after release, and every sample must be the expected
+  // --bg — the first paint included, and never the other theme in between.
+  console.log("\nT-024: the theme before the first paint");
+  {
+    // The inline script's panel map is the stylesheet's, theme by theme.
+    const html = fs.readFileSync(path.join(ROOT, "platform/index.html"), "utf8");
+    const mm = /var PANEL = \{([^}]*)\}/.exec(html);
+    const map = {};
+    if (mm) for (const p of mm[1].matchAll(/(\w+):\s*"(#[0-9a-fA-F]{6})"/g)) map[p[1]] = p[2].toLowerCase();
+    const css = fs.readFileSync(CSS_FILE, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    const cssPanel = {};
+    for (const m of css.matchAll(/^(:root|\[data-theme="([\w-]+)"\])\s*\{([^}]*)\}/gm)) {
+      const v = /--panel:\s*(#[0-9a-fA-F]{6})\b/.exec(m[3]);
+      if (v) cssPanel[m[2] || "light"] = v[1].toLowerCase();
+    }
+    const keys = [...new Set(Object.keys(map).concat(Object.keys(cssPanel)))];
+    const off = keys.filter(k => map[k] !== cssPanel[k]);
+    check("first paint: index.html's PANEL map is every theme's --panel in style.css",
+      !!mm && keys.length === 7 && off.length === 0,
+      !mm ? "no PANEL map in index.html" : off.length ? off.map(k => k + " " + map[k] + " vs css " + cssPanel[k]).join(", ") : keys.length + " themes");
+  }
+  function samplePaints() {
+    if (window.top !== window) return;
+    window.__paints = [];
+    const tick = () => {
+      if (document.body) {
+        const bg = getComputedStyle(document.body).backgroundColor;
+        if (bg !== "rgba(0, 0, 0, 0)") window.__paints.push({ bg, theme: document.documentElement.dataset.theme,
+          app: !!document.querySelector("#view > *") });
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  for (const [label, seedTheme, scheme, want, extra] of [
+    // The navy switch (round 3): "light" with no marker paints navy from the
+    // first frame, on a light phone so it is not the phone speaking.
+    ["stored \"light\", no marker, phone light", undefined, "light", "dark", bareSettings({ theme: "light" })],
+    ["stored \"light\" + marker, phone dark", "light", "dark", "light"],
+    ["nothing stored, phone light", undefined, "light", "dark"],
+    ["stored \"auto\", phone dark", "auto", "dark", "dark"],
+    ["stored \"auto\", phone light", "auto", "light", "light"],
+  ]) {
+    const { ctx, page, errors } = await fresh(browser,
+      { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme }, seedTheme, extra);
+    await ctx.addInitScript(samplePaints);
+    let release; const held = new Promise(r => { release = r; });
+    let heldHits = 0;
+    await ctx.route(/katex(\.min)?\.js/, async r => { heldHits++; await held; return r.abort(); });
+    await page.goto(URL + "/", { waitUntil: "commit" });
+    const first = await page.waitForFunction(() => window.__paints && window.__paints.length >= 3 ? window.__paints.slice() : null,
+      null, { polling: "raf", timeout: 8000 }).then(h => h.jsonValue(), () => null);
+    const meta = await page.evaluate(() => (document.querySelector('meta[name="theme-color"]') || {}).content || "");
+    const wantBg = rgb(BRIEF[want]["--bg"]);
+    check("first paint (" + label + "): with app.js held, the first painted body is the " + want + " --bg " + BRIEF[want]["--bg"] + ", meta " + PANEL[want],
+      !!first && heldHits > 0 && first.every(p => !p.app) && first[0].bg === wantBg && first[0].theme === want && meta === PANEL[want],
+      first ? "held " + heldHits + ", first paint " + first[0].bg + " (" + first[0].theme + "), app ran " + first.some(p => p.app) + ", meta " + meta
+        : "no styled frame while app.js was held");
+    release();
+    await page.waitForSelector("#view > *", { timeout: 10000 });
+    await frames(page);
+    const all = await page.evaluate(() => window.__paints);
+    const wrong = all.filter(p => p.bg !== wantBg);
+    check("first paint (" + label + "): every frame, held and after app.js ran, is " + want + " — never the other theme",
+      all.length > 3 && all.some(p => p.app) && wrong.length === 0,
+      wrong.length ? wrong.length + " of " + all.length + " frames, e.g. " + wrong[0].bg + " (" + wrong[0].theme + ")" : all.length + " frames");
+    check("first paint (" + label + "): no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- T-024: the glow ----
+  console.log("\nT-024: the glow");
+  for (const { w, h, mobile } of WIDTHS) {
+    for (const theme of THEMES) {
+      const at = w + "px " + theme;
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await themePainted(page, theme, at + " glow");
+      for (const route of GLOW_ROUTES) {
+        await go(page, route);
+        const where = at + " " + route;
+        const g = await page.evaluate(glowState);
+        if (theme === "light") {
+          check(where + ": no glow in light (.main::before generates nothing, .main paints nothing)",
+            !g.present && g.mainBg[3] === 0 && g.bgImgMain === "none",
+            "::before content " + g.content + ", .main background " + g.mainBg.join(",") + " " + g.bgImgMain);
+          continue;
+        }
+        check(where + ": the glow is a static layer of two radial gradients over .main's top, as wide as .main",
+          g.present && g.radials === 2 && g.position === "absolute" && g.box.top === "0px" && g.box.left === "0px" &&
+            Math.abs(g.box.w - g.box.mainW) <= 1 && g.anim === "none",
+          "content " + g.content + ", " + g.radials + " radial, " + g.position + " top " + g.box.top + " left " + g.box.left +
+            ", " + g.box.w + "px of .main's " + g.box.mainW + ", animation " + g.anim);
+        check(where + ": the glow takes no pointer (pointer-events: none)", g.pe === "none", "pointer-events " + g.pe);
+        check(where + ": the glow is behind the content (z-index -1 inside an isolated .main)", g.z === "-1" && g.iso === "isolate",
+          "z-index " + g.z + ", .main isolation " + g.iso);
+        check(where + ": the glow and .main declare the same solid background-color, no darker than the glow's brightest pixel in any channel",
+          g.decl[3] === 255 && __same(g.decl, g.mainBg, 0) && [0, 1, 2].every(i => g.decl[i] >= g.peak[i]) && g.lDecl >= g.lPeak,
+          "declared " + g.decl.join(",") + ", .main " + g.mainBg.join(",") + ", peak " + g.peak.join(",") +
+            " (L " + g.lDecl.toFixed(4) + " vs " + g.lPeak.toFixed(4) + ")");
+        check(where + ": every text and control over the glow takes its own hit, as shipped",
+          g.lost.length === 0 && g.seen.ctl + g.seen.text > 0,
+          g.lost.length ? g.lost.length + " — " + g.lost.slice(0, 3).join("; ") : g.seen.ctl + " controls, " + g.seen.text + " texts");
+        // Made hit-testable, it must still lose every one of those hits:
+        // painted behind them, not merely ignoring pointers.
+        await page.addStyleTag({ content: ".main::before { pointer-events: auto !important; }" }).then(h => h.evaluate(n => n.id = "glow-force"));
+        const f = await page.evaluate(glowState);
+        await page.evaluate(() => document.getElementById("glow-force").remove());
+        check(where + ": forced hit-testable, the glow still loses the hit at every text and control (painted behind them)",
+          f.pe === "auto" && f.lost.length === 0 && f.seen.ctl + f.seen.text > 0,
+          "pointer-events " + f.pe + "; " + (f.lost.length ? f.lost.length + " — " + f.lost.slice(0, 3).join("; ") : f.seen.ctl + " controls, " + f.seen.text + " texts"));
+      }
+      check(at + " glow: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
   }
 
   // ---- the picked calendar day ----
@@ -1432,7 +1904,8 @@ function hairlineSource() {
   // =================== T-007: the lists ===================
   const LIST_NAMES = {
     fill: "every visible .glist is an opaque --surface section",
-    shape: "every visible .glist has 12px corners and clips its rows (overflow hidden)",
+    // 12px under T-007; 20px (--r-card) since T-024, the owner's decision.
+    shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
     head: "every .ghead is sentence case (text-transform none), 20px, 600, with no rule",
     meta: "every .gh-meta is 15px --ink-2 with tabular numerals",
     height: "every .grow is at least 44px tall (56 with a subtitle)",
@@ -1800,7 +2273,9 @@ function hairlineSource() {
       " contexts; the press on " + pressRows + " rows (" + pressTexts +
       " texts) in " + ALL_THEMES.length + " themes; thumbnails: " + thumbRows + " lecture rows measured across " + WIDTHS.length + " widths x " +
       THEMES.length + " themes (" + coverRows + " error fallbacks, " + thumbTexts + " texts on them), a frame that loads with and " +
-      "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts)"
+      "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts); " +
+      "T-024: the navy default (nothing stored, no stored theme, a stored Light kept), the gold primary action, cards, chips, " +
+      "and the glow on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

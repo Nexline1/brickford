@@ -213,8 +213,30 @@ async function freshContext(browser, opts) {
       check(m.lines <= 1, at + ": running head wraps to " + m.lines + " lines");
       check(m.below, at + ": content starts underneath the running head");
       check(!m.on, at + ": the menu button is sitting on text — " + m.on);
+      // T-023: the tab bar floats over the page, and content scrolls under it
+      // by design — but at the END of the scroll nothing may be left under it.
+      // That is what the page's bottom padding is for; take it away and the
+      // last lines of every page sit under the capsule.
+      const under = await page.evaluate(() => {
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+        const tb = document.querySelector("#tabbar");
+        if (getComputedStyle(tb).display === "none") return { shown: false };
+        const bar = tb.getBoundingClientRect();
+        let on = null;
+        document.querySelectorAll("#view *").forEach(el => {
+          if (on || !el.checkVisibility()) return;
+          if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length)) return;
+          const b = el.getBoundingClientRect();
+          if (b.width < 1 || b.height < 1) return;
+          if (b.top < bar.bottom && b.bottom > bar.top && b.left < bar.right && b.right > bar.left)
+            on = el.tagName.toLowerCase() + " \"" + el.textContent.trim().slice(0, 30) + "\" at " + Math.round(b.top) + "-" + Math.round(b.bottom) +
+                 " under the bar at " + Math.round(bar.top) + "-" + Math.round(bar.bottom);
+        });
+        return { shown: true, on };
+      });
+      check(under.shown && !under.on, at + ": at the end of the scroll the tab bar is sitting on text — " + (under.shown ? under.on : "no tab bar"));
     }
-    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes");
+    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes (menu button and tab bar)");
     await ctx.close();
   }
 
@@ -290,6 +312,8 @@ async function freshContext(browser, opts) {
         await page.goto(URL + "/", { waitUntil: "load" });
         await page.waitForSelector("#view > *");
         const m = await page.evaluate(() => ({
+          bar: (() => { const t = document.querySelector("#tabbar"), b = t.getBoundingClientRect();
+                        return { l: b.left, r: b.right, btm: b.bottom, h: b.height, rad: parseFloat(getComputedStyle(t).borderTopLeftRadius) }; })(),
           root: getComputedStyle(document.documentElement).fontSize,
           vw: document.documentElement.clientWidth,
           vh: window.innerHeight,
@@ -302,6 +326,15 @@ async function freshContext(browser, opts) {
         const at = w + "px root " + root + "px";
         check(m.root === root + "px", at + ": root font is " + m.root);
         check(m.tabs.length === 5, at + ": tab bar has " + m.tabs.length + " tabs, not 5");
+        tabBlockChecks += 2;
+        // T-023: a capsule 14px (+/-1) in from both edges, 70px tall, and
+        // 12px above the bottom (headless Chromium has no safe-area inset, so
+        // "above the safe area" is the 12px itself).
+        check(Math.abs(m.bar.l - 14) <= 1 && Math.abs(m.vw - m.bar.r - 14) <= 1,
+              at + ": the tab bar is not 14px from both edges (" + m.bar.l.toFixed(1) + " and " + (m.vw - m.bar.r).toFixed(1) + ")");
+        check(Math.abs(m.vh - m.bar.btm - 12) <= 1 && Math.abs(m.bar.h - 70) <= 0.5 && m.bar.rad >= m.bar.h / 2,
+              at + ": the tab bar is not a 70px capsule 12px above the bottom (h " + m.bar.h.toFixed(1) + ", gap " +
+              (m.vh - m.bar.btm).toFixed(1) + ", radius " + m.bar.rad + ")");
         tabBlockChecks += 2;
         for (const t of m.tabs) {
           tabBlockChecks += 2;
@@ -322,7 +355,7 @@ async function freshContext(browser, opts) {
 
   await browser.close();
   const n = DESKTOP.length * ROUTES.length + PHONE.length + 10 +
-            PHONE.length * FRAME_ROUTES.length * 7 + FRAME_ROUTES.length + tabBlockChecks;
+            PHONE.length * FRAME_ROUTES.length * 8 + FRAME_ROUTES.length + tabBlockChecks;
   console.log(fails
     ? "\nFAIL — " + fails + " shell assertion" + (fails === 1 ? "" : "s") + " broken"
     : "\nPASS — shell intact across " + DESKTOP.length + " desktop widths x " + ROUTES.length +

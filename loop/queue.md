@@ -22,7 +22,7 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-022 | Opening screen: navy into gold, crest zoom, wordmark fade, iOS startup images | ready | 0 | | owner 2026-10-06 (brief §9); after T-023 |
 | T-025 | Dark, Light and Auto only; the dark the owner liked back as default; sidebar darker | building | 0 | | owner 2026-10-07 (reverses T-024 colours) |
 | T-026 | Page redesigns, desktop first, one page per PR with a mockup first: Atlas, Courses, Problems, Exams, Proof, Practice, Week, Calendar lists, Library | proposed | 0 | | owner 2026-10-07 |
-| T-027 | Treasury becomes a business workspace (Notion-like): clients, projects, money in/out, notes | proposed | 0 | | owner 2026-10-07; needs its own mockup |
+| T-027 | Treasury becomes a business workspace (Notion-like): clients, projects, money in/out, notes; fixes treasury never merging on pull | ready | 0 | | owner 2026-10-07; needs its own mockup |
 | T-028 | Practice: record yourself (audio), recordings on this device | ready | 0 | | owner 2026-10-07 |
 | T-026a | Atlas as a route, Courses as a shelf (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-atlas/courses; after T-025 |
 | T-026b | Problems, Exams, Proof say what they are for (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-problems/exams/proof; after T-026a |

@@ -5174,9 +5174,10 @@
     // "auto" straight into data-theme, which no theme block matches, so it
     // shows light.
     // Unset means the default, which is the navy "dark" theme since T-024 (the
-    // owner's decision of 2026-10-06). Only an unset theme moves: a stored
-    // pick, "light" included, is never rewritten, so whoever chose Light keeps
-    // it until they choose again.
+    // owner's decision of 2026-10-06). Only an unset theme moves, plus the
+    // one-time navy switch at load (a stored "light" without themeNavyOnce; see
+    // the state block). A pick made from the Theme menu carries the marker and
+    // is never rewritten.
     const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
     const applyTheme = () => {
       const pick = S.settings.theme || "dark";

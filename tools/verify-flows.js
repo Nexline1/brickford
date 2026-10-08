@@ -44,8 +44,9 @@
 //       goes to 0 (and instantly under reduced motion); Today left at 600 is
 //       at 600 again after Courses; and all of it makes zero save() calls. A
 //       Ctrl-click on a tab (800x700, mouse), and a Ctrl- or Shift-tap with a
-//       finger (390), each open exactly one new page and leave this one where
-//       it was.
+//       finger (390) — held from the press, or only at the release — each
+//       open exactly one new page and leave this one where it was; a pen's
+//       barrel-button press switches nothing.
 //
 // For (d), (e) and (g) the frame cannot reach YouTube, so they speak for the
 // player through the test-only hook (window.__brickfordTest.playerMessage,
@@ -767,28 +768,43 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     await page.waitForSelector("#view > *");
     const cdp = await ctx.newCDPSession(page);
     const C = await page.evaluate(() => { const r = document.querySelector("#tabbar a[data-route='/courses']").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
-    const tap = mods => cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: C.x, y: C.y, id: 1 }], modifiers: mods })
-      .then(() => cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [], modifiers: mods }));
-    for (const [name, mods] of [["Ctrl", 2], ["Shift", 8]]) {
-      // Each case from #/, so one cannot inherit the other's navigation.
+    // The modifier bits on the press and on the release, separately: a touch
+    // that lands plain and lifts with Ctrl or Shift held (review 3) reached
+    // pointerup's activate() with the click it sends also let through.
+    const tap = (down, up) => cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: C.x, y: C.y, id: 1 }], modifiers: down })
+      .then(() => cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [], modifiers: up === undefined ? down : up }));
+    // Each case from #/, so one cannot inherit the other's navigation.
+    const home = async () => {
       if (await page.evaluate(() => location.hash) !== "#/") {
         await page.goto(URL + "/", { waitUntil: "load" });
         await page.waitForFunction(() => { const a = document.querySelector("#tabbar a.active"); return a && a.dataset.route === "/"; });
       }
+    };
+    for (const [name, down, up] of [["a Ctrl-tap", 2, 2], ["a Shift-tap", 8, 8],
+                                    ["a plain touch lifted with Ctrl", 0, 2], ["a plain touch lifted with Shift", 0, 8]]) {
+      await home();
       const opened = [];
       const onPage = p => opened.push(p);
       ctx.on("page", onPage);
-      await tap(mods);
+      await tap(down, up);
       const t0 = Date.now();
       while (!opened.length && Date.now() - t0 < 4000) await page.waitForTimeout(50);
       await page.waitForTimeout(500);                     // and no second one, and no late navigation here
       ctx.off("page", onPage);
       const stay = await page.evaluate(() => location.hash);
-      check("(j) a " + name + "-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/",
+      check("(j) " + name + " (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/",
         opened.length === 1 && stay === "#/", opened.length + " new page(s); this page at " + stay +
         (opened[0] ? "; new page " + opened[0].url().replace(/^.*#/, "#") : ""));
       for (const p of opened) await p.close();
     }
+    // A pen's barrel button is a right press (review 3): the bar switched tab
+    // on it and the context menu then opened over the new page.
+    await home();
+    await cdp.send("Input.dispatchMouseEvent", { type: "mousePressed", x: C.x, y: C.y, button: "right", buttons: 2, clickCount: 1, pointerType: "pen" });
+    await cdp.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: C.x, y: C.y, button: "right", buttons: 0, clickCount: 1, pointerType: "pen" });
+    await page.waitForTimeout(500);
+    const penStay = await page.evaluate(() => location.hash);
+    check("(j) a pen barrel-button (right) press on the Courses tab at 390 leaves this page on #/", penStay === "#/", "this page at " + penStay);
     await tap(0);
     const went = await page.waitForFunction(() => location.hash === "#/courses", null, { timeout: 4000 }).then(() => true, () => false);
     check("(j) a plain tap on the Courses tab at 390 still switches to it", went, await page.evaluate(() => location.hash));

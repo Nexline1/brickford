@@ -2719,8 +2719,11 @@ function routeOverlaps() {
   }
   // ---- no overflow and no overlap, every filter, phone to desktop, two text sizes ----
   // verify-clip sweeps /atlas and /courses (Now); the Later, Finished and All
-  // shelves only exist after a click, so they are swept here.
-  const T26_OW = [320, 390, 768, 1440];
+  // shelves only exist after a click, so they are swept here. 1100 is the
+  // narrowest column with three tiles and four covers across (the sidebar and
+  // the rail both showing), where the first build squeezed a tile's code into
+  // 29px at a 24px root.
+  const T26_OW = [320, 390, 768, 1100, 1440];
   for (const root of [16, 24]) {
     for (const w of T26_OW) {
       const mobile = w < 861;

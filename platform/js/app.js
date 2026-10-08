@@ -3492,11 +3492,11 @@
     const tile = c => {
       const m = courseMastery(c);
       const st = c.tracker ? null : courseLessonStats(c);
-      return '<a class="at-tile ' + facClass(c) + '" href="#/course/' + c.id + '">' +
+      return '<a class="at-tile ' + facClass(c) + '" href="#/course/' + c.id + '"><span class="tl-main">' +
         '<span class="tl-code">' + esc(c.code) + "</span>" +
-        '<span class="tl-ring">' + miniRing(m) + '<span class="tl-pct">' + m + "%</span></span>" +
         '<span class="tl-t">' + esc(c.title) + "</span>" +
-        '<span class="tl-m">' + (c.tracker ? dsaCount() + " of 150 problems" : st.verified + " of " + st.total + " proven") + "</span></a>";
+        '<span class="tl-m">' + (c.tracker ? dsaCount() + " of 150 problems" : st.verified + " of " + st.total + " proven") + "</span></span>" +
+        '<span class="tl-ring">' + miniRing(m) + '<span class="tl-pct">' + m + "%</span></span></a>";
     };
     // ---- opens later: five chips, then the rest on Courses ----
     const chip = c => {

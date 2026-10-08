@@ -2434,16 +2434,21 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .at-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 @media (min-width: 600px) { .at-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px) { .at-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* The text and the ring share a line while the tile has room for both; in
+   a narrow tile (1100px, where the sidebar and the rail both take their
+   share, or a larger text size) the ring drops under the text rather than
+   squeezing the code into a sliver beside it. */
 .at-tile {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
   min-height: 44px; padding: 14px 16px; border-radius: var(--r-card);
   background: var(--surface); color: var(--ink); text-decoration: none;
 }
 .at-tile:hover { text-decoration: none; }
-.tl-code { grid-column: 1; font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; color: var(--fac, var(--accent)); }
-.tl-t { grid-column: 1; font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
-.tl-m { grid-column: 1; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.tl-ring { grid-column: 2; grid-row: 1 / span 3; position: relative; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; }
+.tl-main { flex: 1 1 6rem; min-width: 0; display: flex; flex-direction: column; }
+.tl-code { font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
+.tl-t { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.tl-m { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tl-ring { flex: none; position: relative; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; }
 .tl-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tl-ring circle { fill: none; stroke-width: 4; }
 .tl-ring .tr-bg { stroke: var(--line); }

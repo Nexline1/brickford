@@ -2472,6 +2472,9 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
   border: 0; border-radius: 11px; background: none; color: var(--ink-2);
   font: inherit; font-size: var(--fs-subhead); white-space: nowrap; cursor: pointer;
 }
+/* Four labels in a 350px column (a 390 phone) with 12px either side; at 320,
+   or with larger text, the control wraps rather than clipping a label. */
+@media (max-width: 599px) { .seg button { padding: 0 12px; } }
 .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
 
 /* ---- Courses: the shelf ---- */

@@ -2091,56 +2091,107 @@
       "</div>";
   };
 
-  V.courses = function () {
-    const phase = currentPhase();
-    const starts = courseStartDays();
-    const PHASES = [
-      [0, "Phase 0 — Foundations"],
-      [1, "Phase 1 — The Spine"],
-      [2, "Phase 2 — Depth"],
-      [3, "Phase 3 — Frontier"],
-    ];
-
-    // Twelve hero cards, each with a code, a mastery pill, a title, an org line,
-    // a two-line blurb and a progress bar: 3794px and 701 words for the same
-    // twelve courses the Atlas draws in 1219px. Two pages were answering one
-    // question in two different shapes.
-    //
-    // So the Atlas stays the map of what is RUNNING, and this becomes what its
-    // own title already claims — a catalog. One row per course: what it is
-    // called, how big it is, and how far in you are, where you are in at all.
-    const row = c => {
-      const m = courseMastery(c);
-      const ls = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
-      const locked = c.phase > phase;
-      const size = c.tracker ? ls.total + " problems" : ls.total + " lecture" + (ls.total === 1 ? "" : "s");
-      return '<a class="grow ' + facClass(c) + (locked ? " muted-row" : "") + '" href="#/course/' + c.id + '">' +
-        '<span class="g-lead">' +
-        (locked ? lockSVG() : '<span class="gdot' + (m >= 85 ? " on" : m > 0 ? " part" : "") + '"></span>') +
-        "</span>" +
-        '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
-        '<span class="g-s">' + esc(c.code) + " · " + size +
-        (c.instructor ? " · " + esc(c.instructor.org) : "") + "</span></span>" +
-        // A mastery figure reading 0% on every row is twelve absences, not
-        // twelve measurements. It arrives when there is something to report.
-        // "Phase 2" here would restate the group header it sits under. The week
-        // it opens is the fact that header does not carry.
-        (m > 0 ? '<span class="g-v">' + m + "%</span>"
-               : locked ? '<span class="g-v">' + (starts[c.id] == null ? "later"
-                   : "wk " + (Math.floor(starts[c.id] / STUDY_WEEK) + 1)) + "</span>"
-                        : "") + "</a>";
+  // ---------- Courses: a shelf (T-026a) ----------
+  // The page you come to to pick a lecture back up. It was a catalog of rows,
+  // the same shape as the Atlas, so the two read as one page twice. Now it is
+  // covers: the courses you were watching first, at the lecture you left,
+  // then the rest of what is running.
+  //
+  // The filter is in memory only. It is never saved — a render is a read —
+  // and a click swaps the shelf in place (wire(), [data-shelf]) rather than
+  // re-rendering the page. It is set from the hash (#/courses?later, the
+  // Atlas's "+N" chip) only on arriving here; a background repaint keeps it.
+  let courseFilter = "now";
+  const SHELVES = ["now", "later", "finished", "all"];
+  // Where to pick a course back up, or null if nothing in it was started. A
+  // resume point (T-016's pos, on a lecture not yet watched) wins: it is
+  // literally where you left off. Otherwise the first lecture not yet
+  // watched, as the course page's own Continue does. `recent` orders the
+  // shelf: the newest posAt, doneAt or verifiedAt in the course.
+  function continuePoint(c) {
+    if (c.tracker || !c.units) return null;
+    let started = false, recent = "", resume = null, next = null;
+    c.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+      const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+      const live = st.pos != null && !st.done && !st.verified;
+      if (!next && !st.done) next = { ui, li };
+      if (!live && !st.done && !st.verified) return;
+      started = true;
+      [live && st.posAt, st.done && st.doneAt, st.verified && st.verifiedAt].forEach(t => { if (t && t > recent) recent = t; });
+      if (live && (!resume || (st.posAt || "") > resume.at)) resume = { ui, li, at: st.posAt || "", pos: st.pos };
+    }));
+    if (!started) return null;
+    const at = resume || next;
+    return { c, recent, ui: at ? at.ui : null, li: at ? at.li : null, pos: resume ? resume.pos : null };
+  }
+  // One cover: the faculty colour over --surface, the code large, a 4px bar
+  // for mastery. A course that has not opened is the same cover mixed into
+  // the page, its text in the muted inks (never under opacity).
+  function bookHTML(c, o) {
+    const m = courseMastery(c);
+    return '<a class="book ' + facClass(c) + (o.later ? " later" : "") + '" href="' + o.href + '">' +
+      '<span class="cover"><span class="cv-code">' + esc(c.code) + "</span>" +
+      (o.later || !m ? "" : '<span class="cv-bar" style="width:' + m + '%;"></span>') + "</span>" +
+      '<span class="bk-t">' + esc(c.title) + '</span><span class="bk-m">' + o.meta + "</span></a>";
+  }
+  function shelfHTML(f) {
+    const { starts, running, later } = courseSets();
+    const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+    const runMeta = c => {
+      if (c.tracker) return "150 problems · " + dsaCount() + " solved";
+      const st = courseLessonStats(c);
+      return plural(st.total, "lecture") + " · " + st.verified + " proven";
     };
+    const runBook = c => bookHTML(c, { href: "#/course/" + c.id, meta: runMeta(c) });
+    const laterBook = c => {
+      const wk = opensWeek(starts, c);
+      return bookHTML(c, { href: "#/course/" + c.id, meta: wk ? "Opens week " + wk : "Opens later", later: true });
+    };
+    const shelf = (head, meta, books) => '<div class="ghead">' + head +
+      (meta ? '<span class="gh-meta">' + meta + "</span>" : "") + "</div>" +
+      '<div class="shelf">' + books.join("") + "</div>";
+    const empty = t => '<p class="shelf-empty">' + t + "</p>";
 
-    return '<div class="view-enter">' + folio("Courses", D.COURSES.length + " courses \u00b7 four phases") +
-      PHASES.map(ph => {
-        const cs = D.COURSES.filter(c => c.phase === ph[0]);
-        if (!cs.length) return "";
-        const done = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).verified), 0);
-        const tot = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).total), 0);
-        return '<div class="ghead">' + ph[1] + '<span class="gh-meta">' +
-          (done ? done + " / " + tot + " proven" : tot + " lectures") + "</span></div>" +
-          '<div class="glist">' + cs.map(row).join("") + "</div>";
-      }).join("") + "</div>";
+    if (f === "later") return later.length ? shelf("Opens later", plural(later.length, "course"), later.map(laterBook)) : empty("Every course is open.");
+    if (f === "finished") {
+      const fin = D.COURSES.filter(c => courseMastery(c) >= 85);
+      return fin.length ? shelf("Finished", "85% or more", fin.map(runBook))
+        : empty("Nothing finished yet. A course moves here when its mastery reaches 85%.");
+    }
+    if (f === "all") {
+      const facs = [];
+      D.COURSES.forEach(c => { if (facs.indexOf(c.faculty) < 0) facs.push(c.faculty); });
+      return facs.map(fa => {
+        const cs = D.COURSES.filter(c => c.faculty === fa);
+        return shelf(esc(fa), plural(cs.length, "course"), cs.map(c => later.indexOf(c) >= 0 ? laterBook(c) : runBook(c)));
+      }).join("");
+    }
+    // Now: Continue, at most four, most recent first; then the rest running.
+    const cont = running.map(continuePoint).filter(Boolean)
+      .sort((a, b) => a.recent < b.recent ? 1 : a.recent > b.recent ? -1 : 0).slice(0, 4);
+    const rest = running.filter(c => !cont.some(p => p.c === c));
+    const contBook = p => {
+      if (p.ui == null) return bookHTML(p.c, { href: "#/course/" + p.c.id, meta: "Every lecture watched" });
+      const l = p.c.units[p.ui].lessons[p.li];
+      const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (p.li + 1);
+      return bookHTML(p.c, { href: "#/lesson/" + p.c.id + "/" + p.ui + "/" + p.li,
+        meta: what + (p.pos != null ? " · resume at " + clockLabel(p.pos) : l.min ? " · " + l.min + " min" : "") });
+    };
+    return (cont.length ? shelf("Continue", "where you left off", cont.map(contBook)) : "") +
+      (rest.length ? shelf(cont.length ? "Also running" : "Running now",
+        cont.length ? rest.length + " more" : plural(rest.length, "course"), rest.map(runBook)) : "") +
+      (cont.length || rest.length ? "" : empty("Nothing is running yet."));
+  }
+  V.courses = function (q, arrived) {
+    if (arrived) courseFilter = q === "later" ? "later" : "now";
+    const { running, later } = courseSets();
+    const fin = D.COURSES.filter(c => courseMastery(c) >= 85).length;
+    const label = { now: "Now · " + running.length, later: "Later · " + later.length, finished: "Finished · " + fin, all: "All" };
+    return '<div class="view-enter"><div class="page-head"><h1>Courses</h1>' +
+      '<div class="seg" role="group" aria-label="Which courses">' +
+      SHELVES.map(s => '<button type="button" data-shelf="' + s + '" aria-pressed="' + (s === courseFilter) + '">' + label[s] + "</button>").join("") +
+      "</div></div>" +
+      '<div id="shelf">' + shelfHTML(courseFilter) + "</div></div>";
   };
 
   // ---------- course listing furniture ----------
@@ -4514,6 +4565,17 @@
     // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
     if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
+    // T-026a: the Courses filter. In memory, and a swap of the shelf alone:
+    // no save() (a render is a read, and this is not even a render), and no
+    // render(), so the page keeps its scroll.
+    $$("[data-shelf]", root).forEach(b => {
+      b.onclick = () => {
+        courseFilter = b.dataset.shelf;
+        const shelf = $("#shelf", root);
+        if (shelf) shelf.innerHTML = shelfHTML(courseFilter);
+        $$("[data-shelf]", root).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      };
+    });
     // generic data-act buttons
     $$("[data-act]", root).forEach(b => {
       b.onclick = () => {
@@ -5306,7 +5368,9 @@
     let html;
     const seg = r.split("/").filter(Boolean);
     if (r === "/") html = V.dashboard();
-    else if (r === "/courses") html = V.courses();
+    // T-026a: #/courses?later is the Atlas's "+N" chip. The filter is taken
+    // from it only on arriving (moved); a repaint keeps the one picked.
+    else if (r === "/courses" || r.indexOf("/courses?") === 0) html = V.courses(r.slice("/courses?".length), moved);
     else if (seg[0] === "course") html = V.course(seg[1]);
     else if (seg[0] === "lesson") html = V.lesson(seg[1], +seg[2], +seg[3]);
     else if (r === "/exams") html = V.exams();

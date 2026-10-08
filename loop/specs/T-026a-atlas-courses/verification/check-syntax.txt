@@ -1,5 +1,5 @@
-T-026a final CHECK — syntax
-bytes: 1f51155
+T-026a final CHECK — syntax (review round 2)
+bytes: 48eccb6
 command: node --check on platform/js/*.js, platform/data/*.js and tools/*.js
 
 ok  platform/js/app.js

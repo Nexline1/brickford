@@ -1,5 +1,5 @@
 T-026a final CHECK — logic
-bytes: 1f51155 (platform/ and tools/ unchanged since 1f850ff; app.js 7aa950fb12f6, style.css 85a6397676ac)
+bytes: 48eccb6 (review round 2: platform/ as of 3fdbc9e, tools/ as of 1a2365a; app.js 6d7fb2c43c1e, style.css 6f39a024278e)
 command: node tools/verify-logic.js
 
   ok    day 1 = START_DATE — DAR.START_DATE 2026-10-05, studyIndex(START) 0, dateForStudy(0) 2026-10-05

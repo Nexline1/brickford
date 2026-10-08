@@ -1,5 +1,5 @@
 T-026a final CHECK — design
-bytes: 1f51155 (platform/ and tools/ unchanged since 1f850ff; app.js 7aa950fb12f6, style.css 85a6397676ac)
+bytes: 48eccb6 (review round 2: platform/ as of 3fdbc9e, tools/ as of 1a2365a; app.js 6d7fb2c43c1e, style.css 6f39a024278e)
 command: node tools/verify-design.js
 
 status bar (read from platform/css/style.css)
@@ -213,23 +213,23 @@ T-024: the theme before the first paint
   ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 14 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 11 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 15 frames
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 15 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 9 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme dark, meta #000000, state writes 0, stored "forest"
   ok    first paint (stored "forest" (removed), phone light): no page errors
   ok    first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme dark, meta #000000, state writes 0, stored "slate"
   ok    first paint (stored "slate" (removed), phone light): no page errors
 
@@ -568,8 +568,10 @@ lists, 390px light
   ok    390px light /exams: .g-v has tabular numerals and no mono face — 2 measured
   ok    390px light /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
   ok    390px light /exams: the leading slot is --ink-2 and the chevron --ink-3 — 22 measured
-  n/a   390px light /courses: no .glist on this route
-  n/a   390px light /workshop: no .glist on this route
+  n/a   390px light /courses: no .glist on this route (rows and sections); headers measured
+  ok    390px light /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 measured
+  ok    390px light /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  n/a   390px light /workshop: no .glist on this route (rows and sections); headers measured
   ok    390px light lists: no page errors
 
 lists, 390px dark
@@ -598,8 +600,10 @@ lists, 390px dark
   ok    390px dark /exams: .g-v has tabular numerals and no mono face — 2 measured
   ok    390px dark /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
   ok    390px dark /exams: the leading slot is --ink-2 and the chevron --ink-3 — 22 measured
-  n/a   390px dark /courses: no .glist on this route
-  n/a   390px dark /workshop: no .glist on this route
+  n/a   390px dark /courses: no .glist on this route (rows and sections); headers measured
+  ok    390px dark /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 measured
+  ok    390px dark /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  n/a   390px dark /workshop: no .glist on this route (rows and sections); headers measured
   ok    390px dark lists: no page errors
 
 lists, 1280px light
@@ -628,8 +632,10 @@ lists, 1280px light
   ok    1280px light /exams: .g-v has tabular numerals and no mono face — 2 measured
   ok    1280px light /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
   ok    1280px light /exams: the leading slot is --ink-2 and the chevron --ink-3 — 22 measured
-  n/a   1280px light /courses: no .glist on this route
-  n/a   1280px light /workshop: no .glist on this route
+  n/a   1280px light /courses: no .glist on this route (rows and sections); headers measured
+  ok    1280px light /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 measured
+  ok    1280px light /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  n/a   1280px light /workshop: no .glist on this route (rows and sections); headers measured
   ok    1280px light lists: no page errors
 
 lists, 1280px dark
@@ -658,8 +664,10 @@ lists, 1280px dark
   ok    1280px dark /exams: .g-v has tabular numerals and no mono face — 2 measured
   ok    1280px dark /exams: no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it — 9 measured
   ok    1280px dark /exams: the leading slot is --ink-2 and the chevron --ink-3 — 22 measured
-  n/a   1280px dark /courses: no .glist on this route
-  n/a   1280px dark /workshop: no .glist on this route
+  n/a   1280px dark /courses: no .glist on this route (rows and sections); headers measured
+  ok    1280px dark /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 measured
+  ok    1280px dark /courses: every .gh-meta is 15px --ink-2 with tabular numerals — 2 measured
+  n/a   1280px dark /workshop: no .glist on this route (rows and sections); headers measured
   ok    1280px dark lists: no page errors
 
 the keyboard ring, 390px light
@@ -939,20 +947,46 @@ T-026a Atlas and Courses, 390px light
   ok    390px light /courses: the filter is in memory — four clicks made no save() (state writes 0 -> 0)
   ok    390px light T-026a: nothing on /atlas or /courses wrote state (writes since /atlas 0 -> 0)
   ok    390px light T-026a: no page errors
-  ok    320px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    390px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    768px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    1100px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    1440px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    320px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    390px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    768px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    1100px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
-  ok    1440px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping — 5 views
+  ok    390px gates 1,2,3 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" 75,401.8,230.5,416.8 in card 20,155.3,370,602.3
+  ok    390px gates 1,2,3 passed: gate 4 is next, and the three before it are passed — done past | done past | done past | done past cur | next | 
+  ok    390px gates 1,2,3 passed: no page errors
+  ok    1100px gates 1,2,3 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" 360,389,515.5,404 in card 305,142.5,745,589.5
+  ok    1100px gates 1,2,3 passed: gate 4 is next, and the three before it are passed — done past | done past | done past | done past cur | next | 
+  ok    1100px gates 1,2,3 passed: no page errors
+  ok    1440px gates 1,2,3 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" 600.7,169.5,756.2,184.5 in card 322,142.5,1068,308.7
+  ok    1440px gates 1,2,3 passed: gate 4 is next, and the three before it are passed — done past | done past | done past | done past cur | next | 
+  ok    1440px gates 1,2,3 passed: no page errors
+  ok    390px gates 1,2,3,4,5 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" 75,542.2,230.5,557.2 in card 20,155.3,370,602.3
+  ok    390px gates 1,2,3,4,5 passed: no node is the next gate, every node is passed, and the card says "All gates passed" — done past | done past | done past | done past | done past | done past cur / All gates passed
+  ok    390px gates 1,2,3,4,5 passed: no page errors
+  ok    1100px gates 1,2,3,4,5 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" 360,529.4,515.5,544.4 in card 305,142.5,745,589.5
+  ok    1100px gates 1,2,3,4,5 passed: no node is the next gate, every node is passed, and the card says "All gates passed" — done past | done past | done past | done past | done past | done past cur / All gates passed
+  ok    1100px gates 1,2,3,4,5 passed: no page errors
+  ok    1440px gates 1,2,3,4,5 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" 829.5,169.5,985,184.5 in card 322,142.5,1068,308.7
+  ok    1440px gates 1,2,3,4,5 passed: no node is the next gate, every node is passed, and the card says "All gates passed" — done past | done past | done past | done past | done past | done past cur / All gates passed
+  ok    1440px gates 1,2,3,4,5 passed: no page errors
+  ok    1440px Asia/Bahrain 21 Oct 02:00: Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day) — Continue: AI 200 "Lecture 2 · resume at 5:00", MATH 110 "Lecture 2 · 10 min"
+  ok    1440px Asia/Bahrain 21 Oct 02:00: no page errors
+  ok    390px Asia/Bahrain 21 Oct 02:00: Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day) — Continue: AI 200 "Lecture 2 · resume at 5:00", MATH 110 "Lecture 2 · 10 min"
+  ok    390px Asia/Bahrain 21 Oct 02:00: no page errors
+  ok    320px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    390px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    640px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    768px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    1100px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    1280px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    1440px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    320px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    390px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    640px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    768px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    1100px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    1280px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    1440px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
 
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 842 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 3 routes (+ /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 234 rows (646 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 5 widths x 2 roots (134 checks)
+PASS — 876 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 3 routes (+ /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 234 rows (646 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 7 widths x 2 roots (160 checks)
 
 exit code: 0

@@ -1322,6 +1322,40 @@ function viewOverflow() {
   const side = document.documentElement.scrollWidth > window.innerWidth + 1 ? document.documentElement.scrollWidth + ">" + window.innerWidth : "";
   return { out: [...new Set(out)], side };
 }
+// No label word wider than the room its label has. A word is measured on
+// one line (nowrap) in the label's own font, against its node's content box:
+// on the horizontal track a sixth of it, on the vertical one the row beside
+// the dot. overflow-wrap:anywhere would otherwise break it mid-word
+// ("Calibratio/n") and nothing would overflow, so the sweep could not see it.
+function labelWords() {
+  const out = [];
+  document.querySelectorAll("#view .rt-lab").forEach(lab => {
+    const li = lab.parentElement, ls = getComputedStyle(li);
+    const room = li.clientWidth - parseFloat(ls.paddingLeft) - parseFloat(ls.paddingRight);
+    [...lab.children].forEach(part => {
+      part.textContent.trim().split(/\s+/).forEach(word => {
+        const m = document.createElement("span");
+        m.style.whiteSpace = "nowrap"; m.style.display = "inline-block"; m.textContent = word;
+        part.appendChild(m);
+        const w = m.getBoundingClientRect().width;
+        m.remove();
+        if (w > room + 0.5) out.push("\"" + word + "\" " + w.toFixed(1) + "px in " + room.toFixed(1) + "px");
+      });
+    });
+  });
+  return out;
+}
+// The pin, read against its card and the labels.
+function pinPlace() {
+  const card = document.querySelector("#view .at-route"), pin = document.querySelector("#view .rt-pin");
+  if (!card || !pin) return { err: "no " + (card ? "pin" : "route card") };
+  const rg = document.createRange(); rg.selectNodeContents(pin);
+  const p = rg.getBoundingClientRect(), c = card.getBoundingClientRect();
+  const inside = p.left >= c.left - 0.5 && p.right <= c.right + 0.5 && p.top >= c.top - 0.5 && p.bottom <= c.bottom + 0.5;
+  return { inside, text: pin.textContent.trim(), p: [p.left, p.top, p.right, p.bottom].map(v => +v.toFixed(1)), c: [c.left, c.top, c.right, c.bottom].map(v => +v.toFixed(1)),
+           nodes: [...document.querySelectorAll("#view .rt-node")].map(n => n.className.replace("rt-node", "").trim()),
+           gate: (document.querySelector("#view .at-next .at-gate") || {}).textContent || "" };
+}
 // Every pair of the route's text boxes — the six labels and the pin.
 function routeOverlaps() {
   const boxes = [...document.querySelectorAll("#view .rt-lab")].map(n => ["label " + (n.querySelector("b") || n).textContent, n.getBoundingClientRect()]);
@@ -2235,17 +2269,18 @@ function routeOverlaps() {
         await go(page, route);
         const m = await page.evaluate(listState);
         const where = at + " " + route;
-        if (!m.n.glist) {
-          // A route the spec names that has no list is reported, not passed:
-          // only /workshop is allowed to be empty, and only while it is.
-          if (LIST_NA.has(route)) { listNA.add(route); console.log("  n/a   " + where + ": no .glist on this route"); continue; }
-          check(where + ": has a .glist to measure", false, "no visible .glist");
-          continue;
-        }
-        listMeasured.add(route);
+        // A route the spec names that has no list is reported, not passed:
+        // only /workshop and /courses (T-026a) are allowed to be without one.
+        // Only the list's and the rows' checks are n/a there: a section
+        // header (.ghead, .gh-meta) still heads the shelf on /courses and is
+        // measured like any other (review round 1).
+        const na = !m.n.glist;
+        if (na && !LIST_NA.has(route)) { check(where + ": has a .glist to measure", false, "no visible .glist"); continue; }
+        if (na) { listNA.add(route); console.log("  n/a   " + where + ": no .glist on this route (rows and sections); headers measured"); }
+        else listMeasured.add(route);
         const counts = { fill: m.n.glist, shape: m.n.glist, head: m.n.ghead, meta: m.n.ghmeta, height: m.n.row,
                          type: (m.n.gt || 0) + (m.n.gs || 0), value: m.n.gv, sep: m.n.sep, lead: (m.n.lead || 0) + (m.n.chev || 0) };
-        for (const k of Object.keys(LIST_NAMES)) {
+        for (const k of (na ? ["head", "meta"] : Object.keys(LIST_NAMES))) {
           if (!counts[k] && !m.bad[k]) continue;          // nothing of that kind on this route
           const b = m.bad[k] || [];
           check(where + ": " + LIST_NAMES[k], b.length === 0,
@@ -2717,13 +2752,80 @@ function routeOverlaps() {
       await ctx.close();
     }
   }
+  // ---- gates passed: the pin past the middle, and the route complete ----
+  // Review round 1: with the fill past half the track the pin hangs left of
+  // its stick, and on the vertical route that hang (0,2,0) beat the reset
+  // and put the pin outside the card. With all five passed, Start was marked
+  // next. Gates 1-3 passed puts the fill at ~60%; all five puts it at 100%.
+  const gatesSeed = passed => new Function("args",
+    "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}');" +
+    "s.gates = " + JSON.stringify(Object.fromEntries(passed.map((n, i) => [n, "2026-10-1" + (2 + i)]))) + ";" +
+    "localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
+  for (const passed of [[1, 2, 3], [1, 2, 3, 4, 5]]) {
+    for (const w of [390, 1100, 1440]) {
+      const mobile = w < 861, at = w + "px gates " + passed.join(",") + " passed";
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: 900 }, isMobile: mobile, hasTouch: mobile }, "dark", gatesSeed(passed));
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/atlas");
+      const p = await page.evaluate(pinPlace), r = await page.evaluate(routeOverlaps);
+      c26(at + ": the pin's text is inside the route card and overlaps no label",
+        !p.err && p.inside && r.hit.length === 0 && r.n === 7,
+        p.err || ("\"" + p.text + "\" " + p.p.join(",") + " in card " + p.c.join(",") + (r.hit.length ? "; overlaps " + r.hit.join("; ") : "")));
+      if (passed.length === 5)
+        c26(at + ": no node is the next gate, every node is passed, and the card says \"All gates passed\"",
+          !p.err && p.nodes.length === 6 && p.nodes.every(c => !/\bnext\b/.test(c) && /\bdone\b/.test(c)) && p.gate === "All gates passed",
+          p.err || p.nodes.join(" | ") + " / " + p.gate);
+      else
+        c26(at + ": gate 4 is next, and the three before it are passed",
+          !p.err && /\bnext\b/.test(p.nodes[4]) && p.nodes.slice(0, 4).every(c => /\bdone\b/.test(c)) && p.nodes.filter(c => /\bnext\b/.test(c)).length === 1,
+          p.err || p.nodes.join(" | "));
+      c26(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // ---- Continue orders by the reader's own date, not UTC's ----
+  // Review round 1: posAt is a UTC timestamp and doneAt a local date. In
+  // Bahrain (UTC+3) at 02:00 on 21 Oct, a lecture watched that day and a
+  // lecture paused at 23:00Z on the 20th are the same day; compared raw,
+  // "2026-10-21" beat "2026-10-20T23:00:00.000Z" and MATH 110 led. On the
+  // same day the live resume point leads.
+  for (const w of [1440, 390]) {
+    const mobile = w < 861, at = w + "px Asia/Bahrain 21 Oct 02:00";
+    const ctx = await browser.newContext({ timezoneId: "Asia/Bahrain", reducedMotion: "reduce", viewport: { width: w, height: 900 }, isMobile: mobile, hasTouch: mobile });
+    await ctx.clock.setFixedTime(new Date("2026-10-20T23:00:00Z"));
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.addInitScript(() => {
+      if (window.top !== window) return;
+      localStorage.setItem("darhikmah_v1", JSON.stringify({ settings: { theme: "dark", themeNavyOnce: true }, studyDays: [], lessons: {
+        "math110.0.0": { done: true, doneAt: "2026-10-21", notes: "", checks: [] },
+        "ai200.0.1": { done: false, notes: "", checks: [], pos: 300, posAt: "2026-10-20T23:00:00.000Z" } } }));
+    });
+    await ctx.addInitScript(countWrites);
+    await ctx.addInitScript(installHelpers);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(URL + "/__boot", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await go(page, "/courses");
+    const s = await page.evaluate(coursesState);
+    const lead = s.shelves[0] && s.shelves[0].books[0];
+    c26(at + ": Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day)",
+      !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
+      s.shelves[0] ? s.shelves[0].head + ": " + s.shelves[0].books.map(b => b.code + " \"" + b.meta + "\"").join(", ") : "no shelf");
+    c26(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
   // ---- no overflow and no overlap, every filter, phone to desktop, two text sizes ----
   // verify-clip sweeps /atlas and /courses (Now); the Later, Finished and All
   // shelves only exist after a click, so they are swept here. 1100 is the
   // narrowest column with three tiles and four covers across (the sidebar and
   // the rail both showing), where the first build squeezed a tile's code into
   // 29px at a 24px root.
-  const T26_OW = [320, 390, 768, 1100, 1440];
+  // 640 and 1280 are where the first breakpoint (32rem) left a sixth of the
+  // horizontal track narrower than "Calibration" (review round 1).
+  const T26_OW = [320, 390, 640, 768, 1100, 1280, 1440];
   for (const root of [16, 24]) {
     for (const w of T26_OW) {
       const mobile = w < 861;
@@ -2738,6 +2840,8 @@ function routeOverlaps() {
       const o = await page.evaluate(viewOverflow), r = await page.evaluate(routeOverlaps);
       if (o.out.length || o.side) bad.push("/atlas " + o.out.concat(o.side ? ["page " + o.side] : []).join(", "));
       if (r.hit.length || r.n !== 7) bad.push("/atlas route text overlaps: " + (r.hit.join("; ") || r.n + " boxes"));
+      const lw = await page.evaluate(labelWords);
+      if (lw.length) bad.push("/atlas a label word is wider than its label's room: " + lw.join("; "));
       await go(page, "/courses");
       for (const k of ["now", "later", "finished", "all"]) {
         await page.click("#view .seg [data-shelf=" + k + "]");
@@ -2745,7 +2849,7 @@ function routeOverlaps() {
         const q = await page.evaluate(viewOverflow);
         if (q.out.length || q.side) bad.push("/courses " + k + " " + q.out.concat(q.side ? ["page " + q.side] : []).join(", "));
       }
-      c26(w + "px root " + root + "px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping",
+      c26(w + "px root " + root + "px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken",
         bad.length === 0 && errors.length === 0, bad.concat(errors).join(" | ") || "5 views");
       await ctx.close();
     }

@@ -1883,6 +1883,48 @@ function hairlineSource() {
     }
   }
 
+  // ---- T-023 review: a long count stays a badge, inside its tab ----
+  // 150 and 1200 due (the seed's one plus synthetic verified lectures due a
+  // day ago; there are not 1200 real ones). The badge read "150" and "1200",
+  // left-anchored and uncapped, and at 320 it ran past the capsule's edge.
+  console.log("\nthe Review badge with a long count");
+  let badgeCases = 0;
+  for (const due of [150, 1200]) {
+    for (const w of [320, 390]) {
+      for (const root of [16, 24]) {
+        const more = new Function("args",
+          "if (window.top !== window) return;" +
+          "const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}'); s.lessons = s.lessons || {}; s.review = s.review || {};" +
+          "const y = new Date(args[0] - 86400000).toISOString().slice(0, 10);" +
+          "for (let i = 0; i < " + (due - 1) + "; i++) { const k = 'zz' + i + '.0.0'; s.lessons[k] = { done: true, verified: true, doneAt: y, notes: '', checks: [] }; s.review[k] = { due: y, box: 1 }; }" +
+          "localStorage.setItem('darhikmah_v1', JSON.stringify(s));" +
+          "document.addEventListener('DOMContentLoaded', () => { document.documentElement.style.fontSize = '" + root + "px'; });");
+        const { ctx, page, errors } = await fresh(browser,
+          { viewport: { width: w, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "dark" }, "dark", more);
+        await page.goto(URL + "/", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        const m = await page.evaluate(() => {
+          const e = document.querySelector("#tabBadge"), a = e && e.closest("a"), bar = document.querySelector("#tabbar");
+          const r = x => { const b = x.getBoundingClientRect(); return { l: b.left, r: b.right, t: b.top, b: b.bottom }; };
+          return e ? { text: e.textContent.trim(), shown: e.checkVisibility(), label: a.getAttribute("aria-label"), badge: r(e), tab: r(a), bar: r(bar),
+                       root: getComputedStyle(document.documentElement).fontSize } : null;
+        });
+        const at = w + "px root " + root + "px, " + due + " due";
+        const inside = (x, box) => x.l >= box.l - 0.5 && x.r <= box.r + 0.5 && x.t >= box.t - 0.5 && x.b <= box.b + 0.5;
+        const f = n => n.toFixed(1);
+        check(at + ": the badge reads 99+ and the Review link's label keeps the full count",
+          !!m && m.root === root + "px" && m.shown && m.text === "99+" && m.label === "Review, " + due + " due",
+          m ? "root " + m.root + ", \"" + m.text + "\", aria-label \"" + m.label + "\"" : "no badge");
+        check(at + ": the badge sits inside the Review tab and the capsule",
+          !!m && inside(m.badge, m.tab) && inside(m.badge, m.bar),
+          m ? "badge " + f(m.badge.l) + ".." + f(m.badge.r) + ", tab " + f(m.tab.l) + ".." + f(m.tab.r) + ", capsule " + f(m.bar.l) + ".." + f(m.bar.r) : "no badge");
+        check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+        badgeCases++;
+        await ctx.close();
+      }
+    }
+  }
+
   // ---- reduced transparency and more contrast, emulated and confirmed ----
   for (const [mq, feature, value] of [["reduced transparency", "prefers-reduced-transparency", "reduce"], ["more contrast", "prefers-contrast", "more"]]) {
     for (const theme of THEMES) {
@@ -2376,7 +2418,7 @@ function hairlineSource() {
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " design checks: " + ROUTES.length + " routes x " + WIDTHS.length + " widths x " +
       THEMES.length + " themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; " +
-      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the sidebar, " +
+      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99+ in " + badgeCases + " cases, the sidebar, " +
       "reduced transparency, more contrast, reduced motion and a scroll that is a read; " +
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
       WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +

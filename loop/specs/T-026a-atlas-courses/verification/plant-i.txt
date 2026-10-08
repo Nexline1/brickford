@@ -1,0 +1,31 @@
+T-026a plant (i): with every gate passed Start is marked next — the old (i === k ? " next" : "")
+Planted on 34d9e89, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 54b4836..c8be1e0 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -3482,7 +3482,7 @@
+     const pin = '<li class="rt-pin' + (fill > 0.5 ? " end" : "") + '">' +
+       (today < D.START_DATE ? "Starts " + esc(monthLabel(D.START_DATE)) : "You are here · day " + (studyPos(today) + 1)) + "</li>";
+     const route = '<div class="card at-route"><ol class="rt" style="--fill:' + fill.toFixed(4) + "; --f:" + f.toFixed(4) + ';">' +
+-      nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (k && i === k ? " next" : "") +
++      nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (i === k ? " next" : "") +
+         (i <= last ? " past" : "") + (i === last ? " cur" : "") + '">' +
+         '<span class="rt-dot"></span><span class="rt-lab"><b>' + esc(n.label) + "</b><span>" + esc(monthLabel(n.when)) + "</span></span></li>" +
+         (i === last ? pin : "")).join("") + "</ol></div>";
+
+---- verify-design, planted ----
+  FAIL  390px gates 1,2,3,4,5 passed: no node is the next gate, every node is passed, and the card says "All gates passed" — done next past | done past | done past | done past | done past | done past cur / All gates passed
+  FAIL  1100px gates 1,2,3,4,5 passed: no node is the next gate, every node is passed, and the card says "All gates passed" — done next past | done past | done past | done past | done past | done past cur / All gates passed
+  FAIL  1440px gates 1,2,3,4,5 passed: no node is the next gate, every node is passed, and the card says "All gates passed" — done next past | done past | done past | done past | done past | done past cur / All gates passed
+
+FAIL — 3 of 876 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

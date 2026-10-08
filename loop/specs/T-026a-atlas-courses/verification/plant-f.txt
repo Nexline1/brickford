@@ -1,0 +1,30 @@
+T-026a plant (f): labels break mid-word on the horizontal track — the old breakpoint (@container atroute (max-width: 32rem)). Re-run after the word check was rewritten: the first run (on 34d9e89) exited 0, because comparing a nowrap copy of the word with its column read 'Calibration' as 80.6px in a 92px column while the label rendered it on two lines
+Planted on 1a2365a, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 3f524b6..d82b899 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2387,7 +2387,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+    A container query in rem, so it moves with the text size: below 38rem of
+    card (608px at the default size) a sixth of the track is narrower than the
+    longest label word ("Calibration"), which would break mid-word. */
+-@container atroute (max-width: 38rem) {
++@container atroute (max-width: 32rem) {
+   .rt { display: flex; flex-direction: column; padding-top: 0; }
+   .rt::before, .rt::after { content: none; }
+   .rt-node, .rt-pin {
+
+---- verify-design, planted ----
+  FAIL  640px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — /atlas a label breaks mid-word: "Calibration" breaks inside a word at "Calibratio/n"
+  FAIL  1280px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — /atlas a label breaks mid-word: "Calibration" breaks inside a word at "Calibratio/n"
+
+FAIL — 2 of 876 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

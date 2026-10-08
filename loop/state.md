@@ -28,3 +28,4 @@
 - 2026-10-07: Owner rejected navy (too bright/fancy). Decisions: Dark+Light+Auto, sidebar darker, pages-first desktop redesign with mockups, Treasury = Notion-like business workspace, Practice gets audio recording. T-025 building (worktree /home/user/bf-T-025) alongside T-023.
 - 2026-10-07: T-025 merged as PR #9 (6bd7a8b) after 2 review rounds. Dark (restored) default, Light, Auto; sidebar darker; navy and glow gone. Next: T-023 resumes on new main.
 - 2026-10-08: T-023 review r1 CHANGES REQUIRED (landscape safe-area insets; badge overflow at 100+; modifier-click). Builder hit the usage limit before any edit (worktree clean at 899e880); resumed for round-2 fixes, tokens 20261007w.
+- 2026-10-08: T-023 r2 built (f5c79ec); my CHECK green (shell 1125, flows 99, design 728, clip 0 new +LA); my plant (Next card without insets) failed verify-shell; review round 2 launched. Queued T-029 (landscape bars too tall).

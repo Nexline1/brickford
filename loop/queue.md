@@ -27,3 +27,4 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-026a | Atlas as a route, Courses as a shelf (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-atlas/courses; after T-025 |
 | T-026b | Problems, Exams, Proof say what they are for (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-problems/exams/proof; after T-026a |
 | T-026c | Week, Calendar day view, Library (mockups approved 2026-10-07) | ready | 0 | | after T-026b |
+| T-029 | Phone landscape: Next card + tab bar take ~44% of a 390px-tall screen; compact or hide the card when the viewport is short | proposed | 0 | | found in T-023 r2 CHECK 2026-10-08 |

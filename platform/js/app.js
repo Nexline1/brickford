@@ -3356,77 +3356,119 @@
   const lockSVG = () => '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">' +
     '<rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4.2 5.5V4.2a1.8 1.8 0 013.6 0v1.3"/></svg>';
 
-  V.atlas = function () {
-    const gates = gatePlan();
+  // ---------- T-026a: the route, and what is on the shelf ----------
+  // A plan date as the route prints it: "Dec 2026" under a node, "April 2030"
+  // in the header. Local midnight, so a timezone west of UTC cannot pull the
+  // first of a month back into the one before.
+  const monthLabel = (iso, long) => new Date(iso + "T00:00:00")
+    .toLocaleString("en-US", { month: long ? "long" : "short", year: "numeric" });
+  // Which study day a date belongs to, for measuring how far into a stretch of
+  // the plan you are. A rest day counts as the study day before it (you are
+  // still where you stopped), and anything up to the start is day 0.
+  function studyPos(iso) {
+    if (iso <= D.START_DATE) return 0;
+    let d = iso;
+    for (let g = 0; g < 14 && studyIndex(d) < 0; g++) d = addDaysISO(d, -1);
+    return Math.max(0, studyIndex(d));
+  }
+  // What is running and what opens later, the same way on both pages: a course
+  // is running once the schedule has reached its first lecture (a tracker runs
+  // every day). On a Saturday that is still true of everything that ran on
+  // Friday. Later courses come in the order they open.
+  function courseSets() {
     const starts = courseStartDays();
-    const dToday = studyToday();
-    const ng = nextGate();
-
-    const running = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday));
+    const t = todayISO();
+    const dNow = t < D.START_DATE ? -1 : studyPos(t);
+    const running = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dNow));
     const later = D.COURSES.filter(c => running.indexOf(c) < 0)
       .sort((a, b) => (starts[a.id] == null ? 1e9 : starts[a.id]) - (starts[b.id] == null ? 1e9 : starts[b.id]));
-    const passed = gates.filter(g => g.doneDate);
-    const ahead = gates.filter(g => !g.doneDate && (!ng || g.n !== ng.n));
+    return { starts, running, later };
+  }
+  const opensWeek = (starts, c) => starts[c.id] == null ? null : Math.floor(starts[c.id] / STUDY_WEEK) + 1;
+  const NUM_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
+  // A small ring for a tile: pathLength 100, so the dash is the percentage.
+  const miniRing = pct => '<svg viewBox="0 0 44 44" aria-hidden="true">' +
+    '<circle class="tr-bg" cx="22" cy="22" r="19"/>' +
+    '<circle class="tr-fg" cx="22" cy="22" r="19" pathLength="100" stroke-dasharray="' + pct + ' 100" transform="rotate(-90 22 22)"/></svg>';
 
-    // A course as one row. It used to be a card sitting on a rail with a node
-    // beside it, a coloured left edge, a progress bar four pixels wide at 4%,
-    // and the words "running now" repeated down the right of all five of them.
-    // That is five devices saying one thing. The row says it once.
-    const courseRow = c => {
+  // The Atlas is the whole route: where you are on it, what the next gate
+  // asks for and how long is left, then what you are studying and what opens
+  // later. It used to be the same folio-and-rows page as Courses, which is why
+  // the owner could not tell the two apart.
+  V.atlas = function () {
+    const gates = gatePlan();
+    const ng = nextGate();
+    const today = todayISO();
+    const { starts, running, later } = courseSets();
+
+    // ---- the route: Start and the five gates, evenly spaced ----
+    // k is the node of the next gate (1..5), 0 once every gate is passed. The
+    // fill runs through the passed segments and into the current one in
+    // proportion to the study days elapsed in it.
+    const k = ng ? gates.findIndex(g => !g.doneDate) + 1 : 0;
+    let f = 1, fill = 1;
+    if (k) {
+      const prev = k > 1 ? gates[k - 2] : null;
+      const a = studyPos(prev ? (prev.doneDate || prev.target) : D.START_DATE);
+      const b = studyPos(gates[k - 1].target);
+      f = b > a ? Math.min(1, Math.max(0, (studyPos(today) - a) / (b - a))) : 0;
+      fill = (k - 1 + f) / gates.length;
+    }
+    const nodes = [{ label: "Start", when: D.START_DATE, done: true }]
+      .concat(gates.map(g => ({ label: g.label, when: g.target, done: !!g.doneDate })));
+    const last = k ? k - 1 : nodes.length - 1;           // the node the pin follows
+    const pin = '<li class="rt-pin' + (fill > 0.5 ? " end" : "") + '">' +
+      (today < D.START_DATE ? "Starts " + esc(monthLabel(D.START_DATE)) : "You are here · day " + (studyPos(today) + 1)) + "</li>";
+    const route = '<div class="card at-route"><ol class="rt" style="--fill:' + fill.toFixed(4) + "; --f:" + f.toFixed(4) + ';">' +
+      nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (i === k ? " next" : "") +
+        (i <= last ? " past" : "") + (i === last ? " cur" : "") + '">' +
+        '<span class="rt-dot"></span><span class="rt-lab"><b>' + esc(n.label) + "</b><span>" + esc(monthLabel(n.when)) + "</span></span></li>" +
+        (i === last ? pin : "")).join("") + "</ol></div>";
+
+    // ---- the next gate: what it asks for, and the days left ----
+    const nextCard = ng
+      ? '<a class="card at-next" href="#/transcript"><div>' +
+        '<div class="at-k">Next gate · ' + k + " of " + gates.length + "</div>" +
+        '<div class="at-gate">' + esc(ng.label) + "</div>" +
+        // No requirement has a done-state yet, so every chip is hollow.
+        '<div class="at-reqs">' + ng.req.split(" · ").map(r => '<span class="at-req">' + esc(capFirst(r)) + "</span>").join("") + "</div></div>" +
+        '<div class="at-days"><b>' + Math.max(0, daysBetween(today, ng.target)) + "</b><span>days left</span></div></a>"
+      : '<div class="card at-next"><div><div class="at-gate">All gates passed</div>' +
+        '<div class="at-sub">You are what you set out to become.</div></div></div>';
+
+    // ---- studying now: one tile per running course ----
+    const tile = c => {
       const m = courseMastery(c);
-      const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
-      const doneN = c.tracker ? st.done : st.verified;
-      return '<a class="grow ' + facClass(c) + '" href="#/course/' + c.id + '">' +
-        '<span class="g-lead"><span class="gdot' + (m >= 85 ? " on" : m > 0 ? " part" : "") + '"></span></span>' +
-        '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
-        '<span class="g-s">' + esc(c.code) + " · " +
-        (c.tracker ? doneN + " of " + st.total + " problems" : doneN + " of " + st.total + " proven") + "</span></span>" +
-        (m > 0 ? '<span class="g-v">' + m + "%</span>" : "") + "</a>";
+      const st = c.tracker ? null : courseLessonStats(c);
+      return '<a class="at-tile ' + facClass(c) + '" href="#/course/' + c.id + '">' +
+        '<span class="tl-code">' + esc(c.code) + "</span>" +
+        '<span class="tl-ring">' + miniRing(m) + '<span class="tl-pct">' + m + "%</span></span>" +
+        '<span class="tl-t">' + esc(c.title) + "</span>" +
+        '<span class="tl-m">' + (c.tracker ? dsaCount() + " of 150 problems" : st.verified + " of " + st.total + " proven") + "</span></a>";
     };
+    // ---- opens later: five chips, then the rest on Courses ----
+    const chip = c => {
+      const wk = opensWeek(starts, c);
+      return '<a class="at-chip" href="#/course/' + c.id + '"><b>' + esc(c.code) + "</b>" + (wk ? " week " + wk : " later") + "</a>";
+    };
+    const more = later.length - 5;
 
-    return '<div class="view-enter">' + folio("The Atlas") +
-
-      // The one thing: the gate you are actually walking towards.
-      (ng
-        ? '<a class="card one" href="#/transcript" style="text-decoration:none; display:block;">' +
-          '<div class="one-kind">Gate ' + ng.n + " — " + esc(ng.label) +
-          ' <span class="one-more">' + Math.max(0, daysBetween(todayISO(), ng.target)) + " days</span></div>" +
-          '<p class="one-hint">' + esc(ng.req) + "</p></a>"
-        : '<div class="card one one-clear"><div class="one-kind">All gates passed</div>' +
-          '<p class="one-hint">You are what you set out to become.</p></div>') +
-
-      '<div class="ghead">Running now<span class="gh-meta">' + running.length + "</span></div>" +
-      '<div class="glist">' + running.map(courseRow).join("") + "</div>" +
-
-      // Everything else on this page is now the same row, in one group: the
-      // crossings still ahead, the courses that have not opened, and the ideas.
-      '<div class="ghead">The rest of it</div>' +
-      '<div class="glist">' +
-      (ahead.length
-        ? '<a class="grow" href="#/transcript"><span class="g-lead">◆</span>' +
-          '<span class="g-main"><span class="g-t">Later gates</span>' +
-          '<span class="g-s">' + esc(ahead[0].label) + " next, " + Math.max(0, daysBetween(todayISO(), ahead[0].target)) + " days out</span></span>" +
-          '<span class="g-v">' + ahead.length + "</span></a>"
-        : "") +
-      (passed.length
-        ? '<a class="grow done-row" href="#/transcript"><span class="g-lead">✓</span>' +
-          '<span class="g-main"><span class="g-t">Gates passed</span></span>' +
-          '<span class="g-v">' + passed.length + "</span></a>"
-        : "") +
+    return '<div class="view-enter"><div class="page-head"><h1>Atlas</h1>' +
+      '<div class="sub">Your route to ' + esc(monthLabel(gates[gates.length - 1].target, true)) + ", in " +
+      (NUM_WORDS[gates.length] || gates.length) + " gates.</div></div>" +
+      route + nextCard +
+      '<div class="ghead">Studying now<span class="gh-meta">' + running.length + " course" + (running.length === 1 ? "" : "s") + "</span></div>" +
+      '<div class="at-tiles">' + running.map(tile).join("") + "</div>" +
       (later.length
-        ? '<a class="grow" href="#/courses"><span class="g-lead">' + lockSVG() + "</span>" +
-          '<span class="g-main"><span class="g-t">Opening later</span>' +
-          '<span class="g-s">' + esc(later[0].title) + " opens week " +
-          (starts[later[0].id] == null ? "—" : Math.floor(starts[later[0].id] / STUDY_WEEK) + 1) + "</span></span>" +
-          '<span class="g-v">' + later.length + "</span></a>"
+        ? '<div class="ghead">Opens later<span class="gh-meta">' + later.length + " course" + (later.length === 1 ? "" : "s") + "</span></div>" +
+          '<div class="at-chips">' + later.slice(0, 5).map(chip).join("") +
+          (more > 0 ? '<a class="at-chip more" href="#/courses?later" aria-label="' + more + ' more opening later">+' + more + "</a>" : "") + "</div>"
         : "") +
-      (CONCEPTS().length
-        ? '<a class="grow" href="#/concept/' + CONCEPTS()[0].id + '"><span class="g-lead">◇</span>' +
-          '<span class="g-main"><span class="g-t">Linear algebra, as ideas</span>' +
-          '<span class="g-s">Left depends on nothing</span></span>' +
-          '<span class="g-v">' + CONCEPTS().length + "</span></a>"
-        : "") +
-      "</div></div>";
+      // The concept map used to be a row of its own in "The rest of it"; it is
+      // one link now, under the chips.
+      (CONCEPTS().length ? '<div><a class="at-concepts" href="#/concept/' + CONCEPTS()[0].id + '">Concept map →</a></div>' : "") +
+      "</div>";
   };
 
   V.concept = function (id) {

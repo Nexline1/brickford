@@ -2325,7 +2325,8 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
    the same page. The Atlas now draws the 3½-year route itself
    (Start and five gates on one track); Courses is a shelf of covers
    that takes you back into what you were watching.
-   Tokens only. The one tint is the faculty colour over --surface,
+   Tokens only (the tracks are --line, which --surface-2 is too faint
+   for on the light theme's white card: 1.08:1). The one tint is the faculty colour over --surface,
    at 14% rather than the mockup's 18%: at 18% the dark RES and PHYS
    codes measure 4.31 and 4.45:1 on their own cover, and every text
    here has to be >= 4.5:1. A course that has not opened is dimmed by
@@ -2348,7 +2349,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
   content: ""; position: absolute; left: calc(100% / 12);
   top: calc(var(--pin-h) + 7px); height: 4px; border-radius: 2px;
 }
-.rt::before { right: calc(100% / 12); background: var(--surface-2); }
+.rt::before { right: calc(100% / 12); background: var(--line); }
 .rt::after { width: calc(var(--fill, 0) * 100% * 10 / 12); background: var(--accent); }
 .rt-node {
   position: relative; z-index: 1; min-width: 0;
@@ -2399,7 +2400,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
   .rt-lab { align-items: flex-start; }
   .rt-node:not(:last-child)::after, .rt-pin:not(:last-child)::after {
     content: ""; position: absolute; z-index: 0; left: 7px; right: auto; width: 4px; height: auto;
-    top: var(--rt-o); bottom: calc(-1 * var(--rt-o)); background: var(--surface-2); border-radius: 0;
+    top: var(--rt-o); bottom: calc(-1 * var(--rt-o)); background: var(--line); border-radius: 0;
   }
   .rt-node.past:not(:last-child)::after { background: var(--accent); }
   .rt-pin:last-child::after { content: none; }
@@ -2417,6 +2418,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .at-next:hover { text-decoration: none; }
 .at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
 .at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }
+.at-sub { margin-top: 6px; font-size: var(--fs-subhead); color: var(--ink-2); }
 .at-reqs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .at-req {
   display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 14px;
@@ -2444,7 +2446,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .tl-ring { grid-column: 2; grid-row: 1 / span 3; position: relative; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; }
 .tl-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tl-ring circle { fill: none; stroke-width: 4; }
-.tl-ring .tr-bg { stroke: var(--surface-2); }
+.tl-ring .tr-bg { stroke: var(--line); }
 .tl-ring .tr-fg { stroke: var(--fac, var(--accent)); }
 .tl-pct { position: relative; font-size: 0.6875rem; line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
@@ -2489,6 +2491,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 }
 .cv-code { min-width: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
 .cv-bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--fac, var(--accent)); }
+.bk-t, .bk-m { display: block; }
 .bk-t { margin-top: 10px; font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
 .bk-m { margin-top: 2px; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .book.later .cover { background: color-mix(in srgb, color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)) 45%, var(--bg)); }

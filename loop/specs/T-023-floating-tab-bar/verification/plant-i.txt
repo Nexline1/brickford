@@ -1,0 +1,34 @@
+# Plant i — 2026-10-08T09:43:32Z on f017dee
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 609e72a..f3545e4 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1624,7 +1624,7 @@
+     // browser's to handle: no capture, no slide, no activate.
+     const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+     bar.addEventListener("pointerdown", e => {
+-      if (e.pointerType === "mouse" && (e.button !== 0 || modified(e))) return;
++      if (e.pointerType === "mouse" && e.button !== 0) return;
+       try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
+     });
+@@ -1652,7 +1652,7 @@
+     // the click a keyboard (or a tap the pointer path already handled) sends.
+     bar.addEventListener("click", e => {
+       const a = e.target.closest("a");
+-      if (!a || modified(e)) return;
++      if (!a) return;
+       e.preventDefault();
+       if (performance.now() < swallowUntil) return;
+       activate(a);
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) Control-click on the Courses tab at 800x700 opens exactly 1 new page and leaves this one on #/ — 0 new page(s); this page at #/courses
+a slow phone (once, 390px)
+sync (once)
+1 of 99 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean (platform/js/app.js)

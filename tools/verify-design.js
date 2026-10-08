@@ -1329,9 +1329,12 @@ function viewOverflow() {
 // nowrap copy of the word with its column was tried first and was blind:
 // it read "Calibration" as 80.6px while the label rendered it as 82.3 +
 // 10.7px on two lines.)
-function labelWords() {
+function labelWords(sel) {
   const out = [];
-  document.querySelectorAll("#view .rt-lab").forEach(lab => {
+  // The route's labels, and the next-gate card's title and requirement chips
+  // (review round 2: at a 24px root on a phone the card's grid squeezed
+  // "Calibratio/n" and "Diag/nostics done" while this read only .rt-lab).
+  document.querySelectorAll(sel || "#view .rt-lab, #view .at-gate, #view .at-req").forEach(lab => {
     const walk = document.createTreeWalker(lab, NodeFilter.SHOW_TEXT);
     for (let t = walk.nextNode(); t; t = walk.nextNode()) {
       const s = t.textContent, rg = document.createRange();
@@ -2843,15 +2846,19 @@ function routeOverlaps() {
       if (o.out.length || o.side) bad.push("/atlas " + o.out.concat(o.side ? ["page " + o.side] : []).join(", "));
       if (r.hit.length || r.n !== 7) bad.push("/atlas route text overlaps: " + (r.hit.join("; ") || r.n + " boxes"));
       const lw = await page.evaluate(labelWords);
-      if (lw.length) bad.push("/atlas a label breaks mid-word: " + lw.join("; "));
+      if (lw.length) bad.push("/atlas a route label or next-gate text breaks mid-word: " + lw.join("; "));
       await go(page, "/courses");
       for (const k of ["now", "later", "finished", "all"]) {
         await page.click("#view .seg [data-shelf=" + k + "]");
         await page.waitForFunction(k => !!document.querySelector("#view .seg [data-shelf=" + k + "][aria-pressed=true]"), k, { timeout: 4000, polling: "raf" }).catch(() => {});
         const q = await page.evaluate(viewOverflow);
         if (q.out.length || q.side) bad.push("/courses " + k + " " + q.out.concat(q.side ? ["page " + q.side] : []).join(", "));
+        // A cover's code and a book's title, the same question (review round 2:
+        // two columns at 320 and a 24px root broke "Probabilit/y").
+        const bw = await page.evaluate(labelWords, "#view .bk-t, #view .cv-code");
+        if (bw.length) bad.push("/courses " + k + " a book title or code breaks mid-word: " + bw.join("; "));
       }
-      c26(w + "px root " + root + "px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken",
+      c26(w + "px root " + root + "px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book",
         bad.length === 0 && errors.length === 0, bad.concat(errors).join(" | ") || "5 views");
       await ctx.close();
     }

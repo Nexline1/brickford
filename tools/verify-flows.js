@@ -839,6 +839,66 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     await ctx.close();
   }
 
+  // ---- (k) the answer is not where it was written (T-032) ----
+  // The banks put the answer in one slot almost every time (option B in every
+  // summary file, option A in two banks), so a reader learns the slot instead
+  // of the material. DAR.Quiz.mount presents each question with its options
+  // shuffled. Every multiple-choice question in every bank, summary and
+  // concept is mounted alone 8 times: the slot the answer lands in must be
+  // uniform over all of them, and grading must follow the option, not the slot.
+  console.log("\nmultiple choice (once)");
+  {
+    const { ctx, page, errors } = await fresh(browser, 1280);
+    const r = await page.evaluate(() => {
+      const D = window.DAR, pool = [];
+      Object.keys(D.QUIZZES || {}).forEach(k => D.QUIZZES[k].questions.forEach(q => pool.push(q)));
+      Object.keys(D.SUMMARIES || {}).forEach(k => (D.SUMMARIES[k].checks || []).forEach(q => pool.push(q)));
+      (D.CONCEPTS || []).forEach(c => (c.probes || []).forEach(q => pool.push(q)));
+      const norm = html => { const t = document.createElement("span"); t.innerHTML = html; return t.innerHTML; };
+      const mcq = pool.filter(q => q.opts && q.opts.length > 1 && new Set(q.opts.map(norm)).size === q.opts.length);
+      const host = document.createElement("div"); document.body.appendChild(host);
+      const at = {}, stored = {};
+      let mounts = 0, unfound = 0, gradedRight = 0, gradedWrong = 0;
+      mcq.forEach(q => {
+        const n = q.opts.length, want = norm(q.opts[q.a]);
+        at[n] = at[n] || Array(n).fill(0); stored[n] = stored[n] || Array(n).fill(0);
+        stored[n][q.a]++;
+        for (let k = 0; k < 8; k++) {
+          DAR.Quiz.mount(host, { title: "t", course: "t", perSitting: 1, questions: [q] }, {});
+          mounts++;
+          const btns = [...host.querySelectorAll(".opt")];
+          const pos = btns.findIndex(b => b.lastElementChild.innerHTML === want);
+          if (pos < 0) { unfound++; continue; }
+          at[n][pos]++;
+          if (k === 0) {            // the right option is graded right, wherever it was shuffled to
+            btns[pos].click();
+            if (/Correct\./.test(host.querySelector("#qFeedback").textContent) && btns[pos].classList.contains("correct")) gradedRight++;
+          } else if (k === 1) {     // a wrong option is graded wrong, and the right one is marked
+            btns[(pos + 1) % n].click();
+            if (/Not quite/.test(host.querySelector("#qFeedback").textContent) && btns[pos].classList.contains("correct")) gradedWrong++;
+          }
+        }
+      });
+      host.remove();
+      return { total: mcq.length, skipped: pool.filter(q => q.opts).length - mcq.length, mounts, unfound, at, stored, gradedRight, gradedWrong };
+    });
+    console.log("  info  as written in the data — " + Object.keys(r.stored).map(n => n + " options: " + r.stored[n].join("/")).join("; ") +
+      (r.skipped ? " (" + r.skipped + " with duplicate option texts left out)" : ""));
+    check("(k) every multiple-choice question was mounted and its answer found", r.total > 400 && r.unfound === 0,
+      r.total + " questions, " + r.mounts + " mounts, " + r.unfound + " unfound");
+    Object.keys(r.at).forEach(n => {
+      const c = r.at[n], sum = c.reduce((a, b) => a + b, 0);
+      if (sum < 200) return;      // too few mounts to judge that option count
+      const share = c.map(v => v / sum);
+      check("(k) " + n + "-option questions: the answer lands in every slot about equally (within 5 points of " + Math.round(100 / n) + "%)",
+        share.every(s => Math.abs(s - 1 / n) <= 0.05), c.map((v, i) => "ABCDE"[i] + " " + Math.round(share[i] * 100) + "%").join(", ") + " of " + sum);
+    });
+    check("(k) choosing the right option is graded right, wherever it was shuffled to", r.gradedRight === r.total, r.gradedRight + " of " + r.total);
+    check("(k) choosing a wrong option is graded wrong, and the right one is marked", r.gradedWrong === r.total, r.gradedWrong + " of " + r.total);
+    check("(k) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   // ---- (f) the resume point syncs: the later posAt wins, per lecture ----
   // Once, at the desktop width: nothing here is about layout. A stub token and
   // a stub GitHub, both inside this context; the pull is the one boot() makes.
@@ -907,7 +967,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x " +
-      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once"
+      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and every multiple-choice answer shuffled out of its written slot"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

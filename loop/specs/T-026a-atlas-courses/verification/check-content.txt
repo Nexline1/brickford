@@ -1,0 +1,8 @@
+T-026a final CHECK — content
+bytes: 1f51155 (platform/ and tools/ unchanged since 1f850ff; app.js 7aa950fb12f6, style.css 85a6397676ac)
+command: node tools/verify-content.js
+
+
+PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+
+exit code: 0

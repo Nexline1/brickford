@@ -32,3 +32,4 @@
 - 2026-10-08: T-023 review r2 CHANGES REQUIRED (modified touch tap double action; verify-shell landscape count 4→3; badge boundary 99/100 untested). Builder resumed; this is the last round before the stop rule. Filed T-030 (pre-existing Home overflow).
 - 2026-10-08: T-023 review r3 CHANGES REQUIRED (pen right-button press switches tab; modifier added at release double action). Stop rule reached; OWNER DECISION: fix both, quick round-4 review, then merge (owner's go on the screenshots = ship approval). Builder resumed, tokens 20261007y.
 - 2026-10-08: T-023 merged as PR #10 (3b1f7f5) after 4 review rounds (r4 owner-granted). Next: T-026a (Atlas route, Courses shelf).
+- 2026-10-08: T-026a building (worktree /home/user/bf-T-026a, from main 3b1f7f5, tokens 20261008a).

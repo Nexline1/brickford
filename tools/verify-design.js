@@ -1884,12 +1884,14 @@ function hairlineSource() {
   }
 
   // ---- T-023 review: a long count stays a badge, inside its tab ----
-  // 150 and 1200 due (the seed's one plus synthetic verified lectures due a
-  // day ago; there are not 1200 real ones). The badge read "150" and "1200",
-  // left-anchored and uncapped, and at 320 it ran past the capsule's edge.
+  // 99, 100, 150 and 1200 due (the seed's one plus synthetic verified lectures
+  // due a day ago; there are not 1200 real ones). The badge read "150" and
+  // "1200", left-anchored and uncapped, and at 320 it ran past the capsule's
+  // edge. 99 and 100 are the boundary: "99" is the widest badge that is still
+  // a number, and the one the right anchor has to keep inside the tab too.
   console.log("\nthe Review badge with a long count");
   let badgeCases = 0;
-  for (const due of [150, 1200]) {
+  for (const due of [99, 100, 150, 1200]) {
     for (const w of [320, 390]) {
       for (const root of [16, 24]) {
         const more = new Function("args",
@@ -1910,10 +1912,11 @@ function hairlineSource() {
                        root: getComputedStyle(document.documentElement).fontSize } : null;
         });
         const at = w + "px root " + root + "px, " + due + " due";
+        const want = due > 99 ? "99+" : String(due);
         const inside = (x, box) => x.l >= box.l - 0.5 && x.r <= box.r + 0.5 && x.t >= box.t - 0.5 && x.b <= box.b + 0.5;
         const f = n => n.toFixed(1);
-        check(at + ": the badge reads 99+ and the Review link's label keeps the full count",
-          !!m && m.root === root + "px" && m.shown && m.text === "99+" && m.label === "Review, " + due + " due",
+        check(at + ": the badge reads " + want + " and the Review link's label keeps the full count",
+          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "Review, " + due + " due",
           m ? "root " + m.root + ", \"" + m.text + "\", aria-label \"" + m.label + "\"" : "no badge");
         check(at + ": the badge sits inside the Review tab and the capsule",
           !!m && inside(m.badge, m.tab) && inside(m.badge, m.bar),
@@ -2418,7 +2421,7 @@ function hairlineSource() {
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " design checks: " + ROUTES.length + " routes x " + WIDTHS.length + " widths x " +
       THEMES.length + " themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; " +
-      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99+ in " + badgeCases + " cases, the sidebar, " +
+      "the nav bar on " + NAV_ROUTES.length + " routes x " + THEMES.length + " themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in " + badgeCases + " cases, the sidebar, " +
       "reduced transparency, more contrast, reduced motion and a scroll that is a read; " +
       "lists on " + listMeasured.size + " routes" + (na.length ? " (+ " + na.join(", ") + " n/a)" : "") + " x " +
       WIDTHS.length + " widths x " + THEMES.length + " themes; the keyboard ring inside its section in " + ringsSeen +

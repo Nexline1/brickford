@@ -1750,7 +1750,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      app.js); it has no transition, because the spring owns its transform. */
   :root { --tabbar-h: calc(82px + env(safe-area-inset-bottom, 0px)); }
   .tabbar {
-    position: fixed; left: 14px; right: 14px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    /* 14px in from each side, and from the notch in landscape: viewport-fit
+       is cover, so the side insets are the page's to keep clear. */
+    position: fixed; left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: var(--z-tabbar);
     display: flex; height: 70px; padding: 0 5px; border-radius: 999px;
     background: color-mix(in srgb, var(--surface) 78%, transparent);
@@ -1787,9 +1790,12 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .tabbar a:hover { text-decoration: none; }
   .tabbar a .glyph { width: 24px; height: 24px; }
   .tabbar a.active { color: var(--accent); }
-  /* Due reviews. A solid red with white text, 5.4:1, in every theme. */
+  /* Due reviews. A solid red with white text, 5.4:1, in every theme. Anchored
+     from the tab's right so it can never leave the tab: a one-digit badge
+     (18px) starts 3px right of the centre as before, and a wider one ("99+",
+     the most it says) grows toward the glyph instead of off the capsule. */
   .tabbar .tab-badge {
-    position: absolute; top: 4px; left: calc(50% + 3px);
+    position: absolute; top: 4px; right: max(2px, calc(50% - 21px));
     min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
     background: #c4342a; color: #fff;
     font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
@@ -1886,7 +1892,8 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    it stays the edge-to-edge bar above. */
 @media (max-width: 860px) {
   .railbar {
-    left: 14px; right: 14px; bottom: calc(var(--tabbar-h) + 8px);
+    left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--tabbar-h) + 8px);
     min-height: 60px; padding: 7px 8px 7px 16px; border-radius: 22px;
     background: color-mix(in srgb, var(--surface) 78%, transparent);
     -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);

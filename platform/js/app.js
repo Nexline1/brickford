@@ -1620,8 +1620,11 @@
       settleTo(best, vel);
       if (route() !== best.dataset.route) location.hash = "#" + best.dataset.route;
     }
+    // A modifier held on a mouse press (new tab, new window, download) is the
+    // browser's to handle: no capture, no slide, no activate.
+    const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
     bar.addEventListener("pointerdown", e => {
-      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (e.pointerType === "mouse" && (e.button !== 0 || modified(e))) return;
       try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
     });
@@ -1649,7 +1652,7 @@
     // the click a keyboard (or a tap the pointer path already handled) sends.
     bar.addEventListener("click", e => {
       const a = e.target.closest("a");
-      if (!a) return;
+      if (!a || modified(e)) return;
       e.preventDefault();
       if (performance.now() < swallowUntil) return;
       activate(a);
@@ -5308,7 +5311,7 @@
     const badge = $("#tabBadge");
     if (badge) {
       const due = reviewsDue().length;
-      badge.textContent = due ? String(due) : "";
+      badge.textContent = due > 99 ? "99+" : due ? String(due) : "";
       badge.hidden = !due;
       badge.parentElement.setAttribute("aria-label", due ? "Review, " + due + " due" : "Review");
     }

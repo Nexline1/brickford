@@ -1,4 +1,4 @@
-# node tools/verify-contrast.js on f5c79ec
+# node tools/verify-contrast.js on cfd85f2
 
 PASS — 120 page-renders across 30 routes × 2 themes × 2 widths, every text/background pair at or above threshold
 ## exit code: 0

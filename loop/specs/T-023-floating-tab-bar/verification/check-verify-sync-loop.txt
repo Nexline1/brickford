@@ -1,4 +1,4 @@
-# node tools/verify-sync-loop.js on f5c79ec
+# node tools/verify-sync-loop.js on cfd85f2
 A failing token — the state the bug needed:
   ok    lesson page renders a video frame
   ok    video frame still present after 15s

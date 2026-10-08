@@ -28,3 +28,4 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-026b | Problems, Exams, Proof say what they are for (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-problems/exams/proof; after T-026a |
 | T-026c | Week, Calendar day view, Library (mockups approved 2026-10-07) | ready | 0 | | after T-026b |
 | T-029 | Phone landscape: Next card + tab bar take ~44% of a 390px-tall screen; compact or hide the card when the viewport is short | proposed | 0 | | found in T-023 r2 CHECK 2026-10-08 |
+| T-030 | Dashboard: at 320px with a 24px root the next-lecture kicker (.one-kind) overflows (scrollWidth 340 vs 280) on long titles, which zooms the whole page out on isMobile | proposed | 0 | | pre-existing on main; found by T-023 r2 reviewer 2026-10-08 (probe rv023r2/ovf3.js) |

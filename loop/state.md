@@ -29,3 +29,4 @@
 - 2026-10-07: T-025 merged as PR #9 (6bd7a8b) after 2 review rounds. Dark (restored) default, Light, Auto; sidebar darker; navy and glow gone. Next: T-023 resumes on new main.
 - 2026-10-08: T-023 review r1 CHANGES REQUIRED (landscape safe-area insets; badge overflow at 100+; modifier-click). Builder hit the usage limit before any edit (worktree clean at 899e880); resumed for round-2 fixes, tokens 20261007w.
 - 2026-10-08: T-023 r2 built (f5c79ec); my CHECK green (shell 1125, flows 99, design 728, clip 0 new +LA); my plant (Next card without insets) failed verify-shell; review round 2 launched. Queued T-029 (landscape bars too tall).
+- 2026-10-08: T-023 review r2 CHANGES REQUIRED (modified touch tap double action; verify-shell landscape count 4→3; badge boundary 99/100 untested). Builder resumed; this is the last round before the stop rule. Filed T-030 (pre-existing Home overflow).

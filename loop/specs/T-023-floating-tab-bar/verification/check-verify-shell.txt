@@ -1,4 +1,4 @@
-# node tools/verify-shell.js on cfd85f2
+# node tools/verify-shell.js on 0f0aa42
    1536px  sidebar shown, column 322-1164
    1440px  sidebar shown, column 322-1068
    1370px  sidebar shown, column 319-1002

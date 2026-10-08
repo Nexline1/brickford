@@ -1,11 +1,11 @@
-# node tools/verify-flows.js on cfd85f2
+# node tools/verify-flows.js on 0f0aa42
 
 390px
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
   ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today
@@ -44,8 +44,8 @@
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
-  ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
+  ok    (b) a question is on screen — numeric
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 5.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today
@@ -96,6 +96,9 @@ the tab bar (once, 390px)
   ok    (j) modifier-click: no page errors
   ok    (j) a Ctrl-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
   ok    (j) a Shift-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a plain touch lifted with Ctrl (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a plain touch lifted with Shift (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a pen barrel-button (right) press on the Courses tab at 390 leaves this page on #/ — this page at #/
   ok    (j) a plain tap on the Courses tab at 390 still switches to it — #/courses
   ok    (j) modifier-tap: no page errors
 
@@ -114,5 +117,5 @@ sync (once)
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 103 checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x 2 widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once
+PASS — 106 checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x 2 widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once
 ## exit code: 0

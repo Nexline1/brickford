@@ -1,4 +1,4 @@
-# node tools/verify-design.js on 6a8b4b6
+# node tools/verify-design.js on f5c79ec
 status bar (read from platform/css/style.css)
   ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: env(safe-area-inset-top, 0px)
   ok    status bar: the phone .topbar grows by the inset (min-height) — min-height: calc(44px + env(safe-area-inset-top, 0px))
@@ -207,19 +207,19 @@ T-024: the navy switch
 T-024: the theme before the first paint
   ok    first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025) — 2 themes
   ok    first paint (stored "light", no marker, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 15 frames
+  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 15 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 13 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
   ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 11 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 14 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
   ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
@@ -434,6 +434,32 @@ floating tab bar, dark
   ok    320px dark Next card: the capsule's glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow — blur(22px) saturate(1.7); #1c1c1d at 78%; edges 1/1/1/1; shadow yes
   ok    320px dark Next card: Open is at least 44x44 — 95.1x44.0
   ok    320px dark floating tab bar: no page errors
+
+the Review badge with a long count
+  ok    320px root 16px, 150 due: the badge reads 99+ and the Review link's label keeps the full count — root 16px, "99+", aria-label "Review, 150 due"
+  ok    320px root 16px, 150 due: the badge sits inside the Review tab and the capsule — badge 258.5..293.0, tab 244.0..300.0, capsule 14.0..306.0
+  ok    320px root 16px, 150 due: no page errors
+  ok    320px root 24px, 150 due: the badge reads 99+ and the Review link's label keeps the full count — root 24px, "99+", aria-label "Review, 150 due"
+  ok    320px root 24px, 150 due: the badge sits inside the Review tab and the capsule — badge 258.5..293.0, tab 244.0..300.0, capsule 14.0..306.0
+  ok    320px root 24px, 150 due: no page errors
+  ok    390px root 16px, 150 due: the badge reads 99+ and the Review link's label keeps the full count — root 16px, "99+", aria-label "Review, 150 due"
+  ok    390px root 16px, 150 due: the badge sits inside the Review tab and the capsule — badge 321.5..356.0, tab 300.0..370.0, capsule 14.0..376.0
+  ok    390px root 16px, 150 due: no page errors
+  ok    390px root 24px, 150 due: the badge reads 99+ and the Review link's label keeps the full count — root 24px, "99+", aria-label "Review, 150 due"
+  ok    390px root 24px, 150 due: the badge sits inside the Review tab and the capsule — badge 321.5..356.0, tab 300.0..370.0, capsule 14.0..376.0
+  ok    390px root 24px, 150 due: no page errors
+  ok    320px root 16px, 1200 due: the badge reads 99+ and the Review link's label keeps the full count — root 16px, "99+", aria-label "Review, 1200 due"
+  ok    320px root 16px, 1200 due: the badge sits inside the Review tab and the capsule — badge 258.5..293.0, tab 244.0..300.0, capsule 14.0..306.0
+  ok    320px root 16px, 1200 due: no page errors
+  ok    320px root 24px, 1200 due: the badge reads 99+ and the Review link's label keeps the full count — root 24px, "99+", aria-label "Review, 1200 due"
+  ok    320px root 24px, 1200 due: the badge sits inside the Review tab and the capsule — badge 258.5..293.0, tab 244.0..300.0, capsule 14.0..306.0
+  ok    320px root 24px, 1200 due: no page errors
+  ok    390px root 16px, 1200 due: the badge reads 99+ and the Review link's label keeps the full count — root 16px, "99+", aria-label "Review, 1200 due"
+  ok    390px root 16px, 1200 due: the badge sits inside the Review tab and the capsule — badge 321.5..356.0, tab 300.0..370.0, capsule 14.0..376.0
+  ok    390px root 16px, 1200 due: no page errors
+  ok    390px root 24px, 1200 due: the badge reads 99+ and the Review link's label keeps the full count — root 24px, "99+", aria-label "Review, 1200 due"
+  ok    390px root 24px, 1200 due: the badge sits inside the Review tab and the capsule — badge 321.5..356.0, tab 300.0..370.0, capsule 14.0..376.0
+  ok    390px root 24px, 1200 due: no page errors
 
 reduced transparency, light
   ok    390px light reduced transparency: the media query is in effect (matchMedia confirms the emulation) — matchMedia(prefers-reduced-transparency: reduce) = true
@@ -798,5 +824,5 @@ thumbnail contrast, dark
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 704 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 286 rows (786 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes
+PASS — 728 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99+ in 8 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 4 routes (+ /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 286 rows (786 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes
 ## exit code: 0

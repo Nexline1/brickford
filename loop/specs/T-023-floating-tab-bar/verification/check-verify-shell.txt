@@ -1,4 +1,4 @@
-# node tools/verify-shell.js on 6a8b4b6
+# node tools/verify-shell.js on f5c79ec
    1536px  sidebar shown, column 322-1164
    1440px  sidebar shown, column 322-1068
    1370px  sidebar shown, column 319-1002
@@ -21,6 +21,7 @@
     860px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
     390px  every control reaches 44x44 on 23 routes
   320/390px  roots 16/24  all 56 tab checks passed
+  844x390  insets 47/47/21  all 15 landscape checks passed (capsule, tabs, Next card on 2 routes)
 
-PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes (1110 checks)
+PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 23 routes, phone landscape inside the safe-area insets on 3 routes (1125 checks)
 ## exit code: 0

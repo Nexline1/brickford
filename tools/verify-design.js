@@ -1322,26 +1322,28 @@ function viewOverflow() {
   const side = document.documentElement.scrollWidth > window.innerWidth + 1 ? document.documentElement.scrollWidth + ">" + window.innerWidth : "";
   return { out: [...new Set(out)], side };
 }
-// No label word wider than the room its label has. A word is measured on
-// one line (nowrap) in the label's own font, against its node's content box:
-// on the horizontal track a sixth of it, on the vertical one the row beside
-// the dot. overflow-wrap:anywhere would otherwise break it mid-word
-// ("Calibratio/n") and nothing would overflow, so the sweep could not see it.
+// No label word broken across two lines. Asked of the rendered text itself:
+// each pair of neighbouring letters in a word must sit on the same line.
+// (overflow-wrap:anywhere breaks a word that does not fit — "Calibratio/n" —
+// and nothing overflows, so the sweep above cannot see it. Comparing a
+// nowrap copy of the word with its column was tried first and was blind:
+// it read "Calibration" as 80.6px while the label rendered it as 82.3 +
+// 10.7px on two lines.)
 function labelWords() {
   const out = [];
   document.querySelectorAll("#view .rt-lab").forEach(lab => {
-    const li = lab.parentElement, ls = getComputedStyle(li);
-    const room = li.clientWidth - parseFloat(ls.paddingLeft) - parseFloat(ls.paddingRight);
-    [...lab.children].forEach(part => {
-      part.textContent.trim().split(/\s+/).forEach(word => {
-        const m = document.createElement("span");
-        m.style.whiteSpace = "nowrap"; m.style.display = "inline-block"; m.textContent = word;
-        part.appendChild(m);
-        const w = m.getBoundingClientRect().width;
-        m.remove();
-        if (w > room + 0.5) out.push("\"" + word + "\" " + w.toFixed(1) + "px in " + room.toFixed(1) + "px");
-      });
-    });
+    const walk = document.createTreeWalker(lab, NodeFilter.SHOW_TEXT);
+    for (let t = walk.nextNode(); t; t = walk.nextNode()) {
+      const s = t.textContent, rg = document.createRange();
+      let prev = null;
+      for (let i = 0; i < s.length; i++) {
+        if (/\s/.test(s[i])) { prev = null; continue; }
+        rg.setStart(t, i); rg.setEnd(t, i + 1);
+        const top = rg.getBoundingClientRect().top;
+        if (prev !== null && Math.abs(top - prev) > 1) { out.push("\"" + s.trim() + "\" breaks inside a word at \"" + s.slice(0, i) + "/" + s.slice(i) + "\""); break; }
+        prev = top;
+      }
+    }
   });
   return out;
 }
@@ -2841,7 +2843,7 @@ function routeOverlaps() {
       if (o.out.length || o.side) bad.push("/atlas " + o.out.concat(o.side ? ["page " + o.side] : []).join(", "));
       if (r.hit.length || r.n !== 7) bad.push("/atlas route text overlaps: " + (r.hit.join("; ") || r.n + " boxes"));
       const lw = await page.evaluate(labelWords);
-      if (lw.length) bad.push("/atlas a label word is wider than its label's room: " + lw.join("; "));
+      if (lw.length) bad.push("/atlas a label breaks mid-word: " + lw.join("; "));
       await go(page, "/courses");
       for (const k of ["now", "later", "finished", "all"]) {
         await page.click("#view .seg [data-shelf=" + k + "]");

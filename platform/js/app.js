@@ -1620,11 +1620,14 @@
       settleTo(best, vel);
       if (route() !== best.dataset.route) location.hash = "#" + best.dataset.route;
     }
-    // A modifier held on a mouse press (new tab, new window, download) is the
-    // browser's to handle: no capture, no slide, no activate.
+    // A modifier held on ANY press (new tab, new window, download) is the
+    // browser's to handle: no capture, no slide, no activate. Every pointer
+    // type, not only the mouse — an iPad with a keyboard Cmd-taps with a
+    // finger, and the click guard below lets that click through, so a touch
+    // press that still activate()d here was two actions from one tap.
     const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
     bar.addEventListener("pointerdown", e => {
-      if (e.pointerType === "mouse" && (e.button !== 0 || modified(e))) return;
+      if ((e.pointerType === "mouse" && e.button !== 0) || modified(e)) return;
       try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
     });

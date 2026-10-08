@@ -406,7 +406,7 @@ async function freshContext(browser, opts) {
             m.bar.l.toFixed(1) + ".." + m.bar.r.toFixed(1) + " of " + L + ".." + R + ", bottom " + m.bar.btm.toFixed(1) + ")");
       const out = m.tabs.filter(t => t.l < L - 0.5 || t.r > R + 0.5);
       check(!out.length, at + ": tab(s) under the side insets — " + out.map(t => t.name + " " + t.l.toFixed(1) + ".." + t.r.toFixed(1)).join(", "));
-      landChecks += 4;
+      landChecks += 3;                                    // the three check() calls above
       if (m.card) {
         cards++;
         const parts = [m.card.box].concat(m.card.parts).filter(b => b.l < L - 0.5 || b.r > R + 0.5);

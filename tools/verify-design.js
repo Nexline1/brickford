@@ -242,9 +242,13 @@ const THEMES = ["light", "dark"];
 const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 // T-007: the spec's four routes plus /courses, the densest list in the app.
 // /workshop has no .glist today; it is reported n/a rather than passed.
+// T-026a: /courses is a shelf of covers now (its spec removes the .glist
+// rows), so it joins /workshop as n/a — and is measured again the moment a
+// .glist comes back — and leaves the press routes, whose check needs rows.
+// Its covers, filter and tiles are measured in the T-026a block below.
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
-const LIST_NA = new Set(["/workshop"]);
-const PRESS_ROUTES = ["/", "/course/math110", "/exams", "/courses"];
+const LIST_NA = new Set(["/workshop", "/courses"]);
+const PRESS_ROUTES = ["/", "/course/math110", "/exams"];
 // The lead pair: light from loop/design/brief.md §3 (:root, unchanged); dark
 // is T-025's: the [data-theme="dark"] block as it was at commit a309b5a,
 // before T-024's navy, copied here value by value — plus the spec's three
@@ -1178,6 +1182,157 @@ function hairlineSource() {
     check("hairline: " + where + " is declared " + px + " solid var(--line) (" + sel + " " + prop + ")",
       !!v && new RegExp("^" + px.replace(".", "\\.") + "\\s+solid\\s+var\\(--line\\)$").test(v), r ? prop + ": " + v : "no " + sel + " rule");
   }
+}
+
+// ---------- T-026a: the Atlas route and the Courses shelf ----------
+// Everything this block expects is worked out here, not read from the view.
+// The gate dates walk the study calendar from curriculum.js one calendar day
+// at a time, skipping Saturdays (the rest day, CLAUDE.md) — a brute force,
+// where the app uses closed-form arithmetic, so the two can disagree. Which
+// courses are running and which open later comes from the schedule itself
+// (scheduledFor, through the test-only hook verify-logic uses), not from the
+// page that draws them.
+const T26_TODAY = FIXED_NOW.toISOString().slice(0, 10);
+const T26_STUDY = (() => {
+  const out = [];
+  const d = new Date(CURRICULUM.START_DATE + "T00:00:00Z");
+  while (out.length < 1400) {
+    if (d.getUTCDay() !== 6) out.push(d.toISOString().slice(0, 10));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return out;
+})();
+// A rest day counts as the study day before it; anything up to the start is 0.
+const t26Pos = iso => { let n = 0; for (let i = 0; i < T26_STUDY.length && T26_STUDY[i] <= iso; i++) n = i; return n; };
+const T26_GATES = (() => {
+  let base = CURRICULUM.START_DATE;
+  return CURRICULUM.GATES.map(g => {
+    const target = T26_STUDY[T26_STUDY.indexOf(base) + Math.round(g.months * 30.4)];
+    base = target;
+    return { n: g.n, label: g.label, req: g.req, target };
+  });
+})();
+const t26Month = (iso, long) => new Date(iso + "T00:00:00Z").toLocaleString("en-US", { month: long ? "long" : "short", year: "numeric", timeZone: "UTC" });
+const T26_DAYS = Math.round((Date.parse(T26_GATES[0].target) - Date.parse(T26_TODAY)) / 86400000);
+// The seed passes no gate, so the next gate is the first, and the fill is the
+// share of its segment (Start to its target) already walked.
+const T26_F = (t26Pos(T26_TODAY) - t26Pos(CURRICULUM.START_DATE)) / (t26Pos(T26_GATES[0].target) - t26Pos(CURRICULUM.START_DATE));
+const T26_FILL = (0 + T26_F) / T26_GATES.length;
+const T26_FAC = { "Mathematics": "--fac-math", "Computer Science": "--fac-sys", "Artificial Intelligence": "--fac-ai",
+                  "Physics": "--fac-phys", "Systems": "--fac-sys", "Research": "--fac-res", "Speech": "--fac-speech" };
+// A resume point, as T-016's checks seed one: lecture 2 of AI 200, paused at
+// 5:00 an hour before the pinned clock — the newest thing in the state.
+function seedResume([nowMs]) {
+  if (window.top !== window) return;
+  const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  s.lessons = s.lessons || {};
+  s.lessons["ai200.0.1"] = { done: false, notes: "", checks: [], pos: 300, posAt: new Date(nowMs - 3600000).toISOString() };
+  localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+}
+// Running and later, from the schedule: a course runs once a lecture of it
+// has been scheduled on or before today's study day (a tracker always runs).
+function t26Sets(today) {
+  const T = window.__brickfordTest, C = window.DAR.COURSES;
+  let d = T.studyIndex(today);
+  for (let back = today; d < 0 && back > window.DAR.START_DATE;) {
+    const dt = new Date(back + "T00:00:00Z"); dt.setUTCDate(dt.getUTCDate() - 1);
+    back = dt.toISOString().slice(0, 10); d = T.studyIndex(back);
+  }
+  const first = {};
+  for (let i = 0; i <= 400; i++) T.scheduledFor(T.dateForStudy(i)).forEach(it => { if (it.cid && first[it.cid] == null) first[it.cid] = i; });
+  const running = C.filter(c => c.tracker || (first[c.id] != null && first[c.id] <= d)).map(c => c.id);
+  const later = C.filter(c => running.indexOf(c.id) < 0)
+    .sort((a, b) => (first[a.id] == null ? 1e9 : first[a.id]) - (first[b.id] == null ? 1e9 : first[b.id])).map(c => c.id);
+  return { running, later, faculty: Object.fromEntries(C.map(c => [c.id, c.faculty])) };
+}
+function atlasState() {
+  const z = window.__dz;
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const box = r => ({ l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height });
+  const textBox = n => { const rg = document.createRange(); rg.selectNodeContents(n); return box(rg.getBoundingClientRect()); };
+  const rt = document.querySelector("#view .rt");
+  const nodes = vis("#view .rt-node").map(n => {
+    const dot = n.querySelector(".rt-dot"), ds = getComputedStyle(dot), lab = n.querySelector(".rt-lab");
+    const seg = getComputedStyle(n, "::after");
+    return { cls: n.className, dot: box(dot.getBoundingClientRect()), bg: z.bytes(ds.backgroundColor),
+             border: z.bytes(ds.borderTopColor), lab: box(lab.getBoundingClientRect()),
+             name: (lab.querySelector("b") || {}).textContent, when: (lab.querySelector("span") || {}).textContent,
+             seg: seg.content === "none" ? null : z.bytes(seg.backgroundColor) };
+  });
+  const pin = vis("#view .rt-pin")[0];
+  const tb = rt && getComputedStyle(rt, "::before"), fb = rt && getComputedStyle(rt, "::after");
+  const tiles = vis("#view .at-tile").map(a => {
+    const code = a.querySelector(".tl-code");
+    return { href: a.getAttribute("href"), box: box(a.getBoundingClientRect()), col: code ? z.bytes(getComputedStyle(code).color) : null,
+             ring: !!a.querySelector(".tl-ring svg .tr-fg"), pct: (a.querySelector(".tl-pct") || {}).textContent };
+  });
+  const chips = vis("#view .at-chip").map(a => ({ href: a.getAttribute("href"), text: a.textContent.trim().replace(/\s+/g, " "), box: box(a.getBoundingClientRect()) }));
+  const view = document.querySelector("#view");
+  const one = sel => { const n = document.querySelector(sel); return n ? n.textContent.trim().replace(/\s+/g, " ") : null; };
+  return {
+    h1: one("#view .page-head h1"), sub: one("#view .page-head .sub"),
+    nodes, pin: pin ? { text: pin.textContent.trim(), box: textBox(pin) } : null,
+    track: tb && tb.content !== "none" ? parseFloat(tb.width) : null, fill: fb && fb.content !== "none" ? parseFloat(fb.width) : null,
+    next: (() => { const a = document.querySelector("#view .at-next"); return a ? { tag: a.tagName, href: a.getAttribute("href") } : null; })(),
+    kicker: one("#view .at-next .at-k"), gate: one("#view .at-next .at-gate"),
+    reqs: vis("#view .at-req").map(n => n.textContent.trim()), days: one("#view .at-days b"),
+    tilesMeta: one("#view .at-tiles"), tiles, chips,
+    concept: (() => { const a = document.querySelector("#view .at-concepts"); return a ? { text: a.textContent.trim(), href: a.getAttribute("href"), h: a.getBoundingClientRect().height } : null; })(),
+    rest: /The rest of it/.test(view.textContent), glist: vis("#view .glist").length,
+    accent: z.tok("--accent"), fac: Object.fromEntries(["--fac-math", "--fac-ai", "--fac-sys", "--fac-phys", "--fac-res", "--fac-speech"].map(t => [t, z.tok(t)])),
+  };
+}
+function coursesState() {
+  const z = window.__dz;
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const surface = z.tok("--surface"), bg = z.tok("--bg");
+  const mix = (a, b, p) => [0, 1, 2].map(i => a[i] * p + b[i] * (1 - p));
+  return {
+    seg: vis("#view .seg [data-shelf]").map(b => ({ k: b.dataset.shelf, t: b.textContent.trim(), on: b.getAttribute("aria-pressed") === "true",
+      w: b.getBoundingClientRect().width, h: b.getBoundingClientRect().height })),
+    empty: vis("#view .shelf-empty").length,
+    shelves: vis("#view .shelf").map(s => {
+      const head = s.previousElementSibling && s.previousElementSibling.matches(".ghead") ? s.previousElementSibling.firstChild.textContent.trim() : "";
+      return { head, cols: getComputedStyle(s).gridTemplateColumns.split(" ").filter(Boolean).length,
+        books: [...s.querySelectorAll(".book")].map(b => {
+          const fac = [...b.classList].find(c => /^fac-/.test(c)), ft = fac ? z.tok("--" + fac) : null;
+          const cover = b.querySelector(".cover"), code = b.querySelector(".cv-code"), later = b.classList.contains("later");
+          const want = ft ? (later ? mix(mix(ft, surface, 0.14), bg, 0.45) : mix(ft, surface, 0.14)) : null;
+          const r = b.getBoundingClientRect();
+          return { href: b.getAttribute("href"), code: code ? code.textContent.trim() : "", meta: (b.querySelector(".bk-m") || {}).textContent || "",
+                   later, fac, w: r.width, h: r.height, left: Math.round(r.left),
+                   codeCol: code ? z.bytes(getComputedStyle(code).color) : null, facCol: ft,
+                   coverBg: cover ? z.bytes(getComputedStyle(cover).backgroundColor) : null, coverWant: want };
+        }) };
+    }),
+  };
+}
+// The clipping sweep's question (verify-clip.js), asked of #view alone: is
+// any element's content wider than its box, outside a deliberate scroller
+// or ellipsis? And does the page scroll sideways?
+function viewOverflow() {
+  const out = [];
+  document.querySelectorAll("#view *").forEach(el => {
+    if (el.ownerSVGElement || !el.checkVisibility()) return;
+    if (el.scrollWidth <= el.clientWidth + 1) return;
+    const cs = getComputedStyle(el);
+    if (cs.textOverflow === "ellipsis" || cs.overflowX === "auto" || cs.overflowX === "scroll") return;
+    out.push(el.tagName.toLowerCase() + "." + String(el.className).trim().split(/\s+/)[0] + " " + el.scrollWidth + ">" + el.clientWidth);
+  });
+  const side = document.documentElement.scrollWidth > window.innerWidth + 1 ? document.documentElement.scrollWidth + ">" + window.innerWidth : "";
+  return { out: [...new Set(out)], side };
+}
+// Every pair of the route's text boxes — the six labels and the pin.
+function routeOverlaps() {
+  const boxes = [...document.querySelectorAll("#view .rt-lab")].map(n => ["label " + (n.querySelector("b") || n).textContent, n.getBoundingClientRect()]);
+  const pin = document.querySelector("#view .rt-pin");
+  if (pin) { const rg = document.createRange(); rg.selectNodeContents(pin); boxes.push(["pin", rg.getBoundingClientRect()]); }
+  const hit = [];
+  for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+    const a = boxes[i][1], b = boxes[j][1];
+    if (a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5) hit.push(boxes[i][0] + " / " + boxes[j][0]);
+  }
+  return { n: boxes.length, hit };
 }
 
 (async () => {
@@ -2410,6 +2565,189 @@ function hairlineSource() {
     await ctx.close();
   }
 
+  // =================== T-026a: the Atlas route, the Courses shelf ===================
+  // loop/specs/T-026a-atlas-courses/spec.md, acceptance 1 and 2, at 1440 and
+  // 390 in dark and light, on the seeded state plus a resume point. The page
+  // boots on #/__test so the schedule can be asked who is running.
+  const T26_W = [{ w: 1440, h: 900, mobile: false, cols: 3, shelf: 4 }, { w: 390, h: 844, mobile: true, cols: 1, shelf: 2 }];
+  let t26Checks = 0;
+  const c26 = (name, ok, detail) => { t26Checks++; return check(name, ok, detail); };
+  const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
+  for (const theme of ["dark", "light"]) {
+    for (const { w, h, mobile, cols, shelf } of T26_W) {
+      const at = w + "px " + theme;
+      console.log("\nT-026a Atlas and Courses, " + at);
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme, seedResume);
+      await page.goto(URL + "/__test", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const sets = await page.evaluate(t26Sets, T26_TODAY);
+      const fac = id => T26_FAC[sets.faculty[id]];
+
+      // ---- the Atlas ----
+      await go(page, "/atlas");
+      const a = await page.evaluate(atlasState);
+      const w0 = await page.evaluate(() => window.__stateWrites);
+      c26(at + " /atlas: the header is h1 \"Atlas\" and \"Your route to " + t26Month(T26_GATES[4].target, true) + ", in five gates.\"",
+        a.h1 === "Atlas" && a.sub === "Your route to " + t26Month(T26_GATES[4].target, true) + ", in five gates.", a.h1 + " / " + a.sub);
+      const wantNames = ["Start"].concat(T26_GATES.map(g => g.label));
+      const wantWhen = [CURRICULUM.START_DATE].concat(T26_GATES.map(g => g.target)).map(d => t26Month(d));
+      c26(at + " /atlas: the route has 6 nodes, Start and the five gates, each with its target month (MMM YYYY)",
+        a.nodes.length === 6 && a.nodes.every((n, i) => n.name === wantNames[i] && n.when === wantWhen[i]),
+        a.nodes.map(n => n.name + " " + n.when).join(", ") + " (want " + wantNames.map((n, i) => n + " " + wantWhen[i]).join(", ") + ")");
+      const hx = p => p ? "#" + p.slice(0, 3).map(v => v.toString(16).padStart(2, "0")).join("") : "none";
+      const isNext = n => /\bnext\b/.test(n.cls), filled = n => __same(n.bg, a.accent);
+      c26(at + " /atlas: exactly one node is the next gate (gate 1, node 2), with an --accent ring and no fill",
+        a.nodes.filter(isNext).length === 1 && isNext(a.nodes[1]) && __same(a.nodes[1].border, a.accent) && !filled(a.nodes[1]),
+        a.nodes.map(n => n.cls.replace("rt-node", "").trim() + " bg " + hx(n.bg) + " ring " + hx(n.border)).join("; "));
+      c26(at + " /atlas: the nodes before it are filled --accent, the ones after it hollow",
+        a.nodes.length === 6 && filled(a.nodes[0]) && a.nodes.slice(2).every(n => !filled(n) && !__same(n.border, a.accent)),
+        a.nodes.map(n => hx(n.bg)).join(", ") + " (--accent " + hx(a.accent) + ")");
+      const ov = await page.evaluate(routeOverlaps);
+      c26(at + " /atlas: no two of the route's text boxes overlap (6 labels and the pin)", ov.n === 7 && ov.hit.length === 0,
+        ov.hit.length ? ov.hit.join("; ") : ov.n + " boxes");
+      const cx = a.nodes.map(n => n.dot.l + n.dot.w / 2), cy = a.nodes.map(n => n.dot.t + n.dot.h / 2);
+      if (!mobile) {
+        const gaps = cx.slice(1).map((x, i) => x - cx[i]);
+        c26(at + " /atlas: the track is horizontal and its six nodes are evenly spaced (centres within 1px)",
+          gaps.length === 5 && gaps.every(g => g > 0) && Math.max(...gaps) - Math.min(...gaps) <= 1 && Math.max(...cy) - Math.min(...cy) <= 1,
+          "gaps " + gaps.map(g => g.toFixed(1)).join(", "));
+        c26(at + " /atlas: the fill runs from Start to " + (T26_FILL * 100).toFixed(2) + "% of the track (study days walked in the current segment), within 1.5px",
+          a.track > 0 && a.fill != null && Math.abs(a.fill - T26_FILL * a.track) <= 1.5,
+          "fill " + a.fill + "px of " + a.track + "px, want " + (T26_FILL * a.track).toFixed(1) + "px");
+      } else {
+        c26(at + " /atlas: under 600px the track is vertical — the nodes stacked, one above the next, in one column",
+          Math.max(...cx) - Math.min(...cx) <= 1 && cy.slice(1).every((y, i) => y > cy[i]), "x " + cx.map(v => v.toFixed(0)).join(",") + "; y " + cy.map(v => v.toFixed(0)).join(","));
+        c26(at + " /atlas: the vertical fill: --accent from Start to the pin, the rest of the track not",
+          !!a.nodes[0].seg && __same(a.nodes[0].seg, a.accent) && a.nodes.slice(1, 5).every(n => n.seg && !__same(n.seg, a.accent)),
+          a.nodes.map(n => hx(n.seg)).join(", "));
+      }
+      const day = t26Pos(T26_TODAY) + 1;
+      c26(at + " /atlas: the pin reads \"You are here · day " + day + "\"" + (mobile ? "" : " and sits above the fill's end (its left edge within 2px)"),
+        !!a.pin && a.pin.text === "You are here · day " + day &&
+          (mobile || (a.pin.box.b < Math.min(...a.nodes.map(n => n.dot.t)) && Math.abs(a.pin.box.l - (cx[0] + T26_FILL * (cx[5] - cx[0]))) <= 2)),
+        a.pin ? "\"" + a.pin.text + "\" at x " + a.pin.box.l.toFixed(1) + ", want " + (cx[0] + T26_FILL * (cx[5] - cx[0])).toFixed(1) : "no pin");
+      const wantReq = T26_GATES[0].req.split(" · ").map(capFirst);
+      c26(at + " /atlas: the next-gate card links to #/transcript, \"Next gate · 1 of 5\", Calibration, its requirements as " + wantReq.length + " chips",
+        !!a.next && a.next.tag === "A" && a.next.href === "#/transcript" && a.kicker === "Next gate · 1 of 5" && a.gate === T26_GATES[0].label &&
+          JSON.stringify(a.reqs) === JSON.stringify(wantReq),
+        JSON.stringify({ next: a.next, kicker: a.kicker, gate: a.gate, reqs: a.reqs }));
+      c26(at + " /atlas: the days number is daysBetween(" + T26_TODAY + ", " + T26_GATES[0].target + ") = " + T26_DAYS + ", worked out here",
+        a.days === String(T26_DAYS), "shows " + a.days);
+      const tileHrefs = a.tiles.map(t => t.href), wantHrefs = sets.running.map(id => "#/course/" + id);
+      c26(at + " /atlas: one tile per running course (" + sets.running.length + ", from the schedule), each the link to its course",
+        a.tiles.length === sets.running.length && JSON.stringify(tileHrefs) === JSON.stringify(wantHrefs), tileHrefs.join(" "));
+      const tcols = new Set(a.tiles.map(t => Math.round(t.box.l))).size;
+      c26(at + " /atlas: the tiles are " + cols + " column" + (cols === 1 ? "" : "s") + " wide", tcols === cols, tcols + " distinct columns");
+      const tileBad = a.tiles.filter((t, i) => t.box.h < 44 || t.box.w < 44 || !t.ring || !/^\d+%$/.test(t.pct || "") ||
+        !__same(t.col, a.fac[fac(sets.running[i])]));
+      c26(at + " /atlas: every tile is >= 44x44, carries a mastery ring, and its code is in the faculty colour",
+        a.tiles.length > 0 && tileBad.length === 0, tileBad.map(t => t.href + " " + t.box.w.toFixed(0) + "x" + t.box.h.toFixed(0) + " ring " + t.ring + " " + hx(t.col)).join("; ") || a.tiles.length + " tiles");
+      const more = sets.later.length - 5;
+      const wantChips = sets.later.slice(0, 5).map(id => "#/course/" + id).concat(more > 0 ? ["#/courses?later"] : []);
+      c26(at + " /atlas: Opens later is capped at 5 chips in start order, then \"+" + more + "\" to #/courses?later",
+        JSON.stringify(a.chips.map(c => c.href)) === JSON.stringify(wantChips) && (more <= 0 || a.chips[a.chips.length - 1].text === "+" + more),
+        a.chips.map(c => c.text + " " + c.href).join(", "));
+      c26(at + " /atlas: every chip is >= 44x44 (a control)", a.chips.length > 0 && a.chips.every(c => c.box.h >= 44 && c.box.w >= 44),
+        a.chips.map(c => c.box.w.toFixed(0) + "x" + c.box.h.toFixed(0)).join(", "));
+      c26(at + " /atlas: \"The rest of it\" is gone (no such text, no .glist), and \"Concept map →\" is one link under the chips",
+        !a.rest && a.glist === 0 && !!a.concept && a.concept.text === "Concept map →" && /^#\/concept\//.test(a.concept.href) && a.concept.h >= 44,
+        JSON.stringify({ rest: a.rest, glist: a.glist, concept: a.concept }));
+      // The "+N" chip opens Courses on the Later filter.
+      if (more > 0) {
+        await page.click("#view .at-chip.more");
+        const landed = await page.waitForFunction(() => location.hash === "#/courses?later" &&
+          !!document.querySelector("#view .seg [data-shelf=later][aria-pressed=true]"), null, { timeout: 8000, polling: "raf" }).then(() => true, () => false);
+        const s = landed ? await page.evaluate(coursesState) : null;
+        const hrefs = s ? [].concat(...s.shelves.map(x => x.books.map(b => b.href))) : [];
+        c26(at + " /atlas: \"+" + more + "\" lands on #/courses?later with Later pressed and the " + sets.later.length + " later courses on the shelf",
+          landed && JSON.stringify(hrefs) === JSON.stringify(sets.later.map(id => "#/course/" + id)), landed ? hrefs.join(" ") : "did not land");
+      }
+
+      // ---- Courses ----
+      await go(page, "/courses");
+      let s = await page.evaluate(coursesState);
+      const wantSeg = ["Now · " + sets.running.length, "Later · " + sets.later.length, "Finished · 0", "All"];
+      c26(at + " /courses: the filter has 4 options — " + wantSeg.join(", ") + " — and Now is pressed",
+        JSON.stringify(s.seg.map(b => b.t)) === JSON.stringify(wantSeg) && s.seg.map(b => b.on).join() === "true,false,false,false",
+        s.seg.map(b => b.t + (b.on ? " (on)" : "")).join(", "));
+      c26(at + " /courses: every filter option is >= 44x44", s.seg.length === 4 && s.seg.every(b => b.w >= 44 && b.h >= 44),
+        s.seg.map(b => b.w.toFixed(0) + "x" + b.h.toFixed(0)).join(", "));
+      const lead = s.shelves[0] && s.shelves[0].books[0];
+      c26(at + " /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00",
+        !!lead && s.shelves[0].head === "Continue" && lead.href === "#/lesson/ai200/0/1" && /resume at 5:00$/.test(lead.meta),
+        lead ? s.shelves[0].head + ": " + lead.code + " " + lead.href + " \"" + lead.meta + "\"" : "no shelf");
+      const nowHrefs = [].concat(...s.shelves.map(x => x.books.map(b => b.href.replace(/^#\/lesson\/([^/]+)\/.*/, "#/course/$1"))));
+      c26(at + " /courses: Now holds every running course once (Continue, then Also running)",
+        nowHrefs.length === sets.running.length && sets.running.every(id => nowHrefs.indexOf("#/course/" + id) >= 0),
+        s.shelves.map(x => x.head + " " + x.books.map(b => b.code).join("/")).join("; "));
+      const allBooks = [].concat(...s.shelves.map(x => x.books));
+      const coverBad = allBooks.filter(b => !b.facCol || !__same(b.codeCol, b.facCol) || !__same(b.coverBg, b.coverWant, 2));
+      c26(at + " /courses: every cover carries its faculty colour — the code in it, and the cover --fac at 14% over --surface",
+        allBooks.length > 0 && coverBad.length === 0,
+        coverBad.length ? coverBad.map(b => b.code + " code " + hx(b.codeCol) + " vs " + hx(b.facCol) + ", cover " + hx(b.coverBg) + " vs " + hx(b.coverWant && b.coverWant.map(Math.round))).join("; ") : allBooks.length + " covers");
+      c26(at + " /courses: the shelves are " + shelf + " columns wide", s.shelves.length > 0 && s.shelves.every(x => x.cols === shelf),
+        s.shelves.map(x => x.head + " " + x.cols).join(", "));
+      c26(at + " /courses: every cover is a link >= 44x44", allBooks.every(b => b.w >= 44 && b.h >= 44),
+        allBooks.map(b => b.w.toFixed(0) + "x" + b.h.toFixed(0)).join(", "));
+      // The filter, clicked for real: the shelf changes and nothing is written.
+      const before = await page.evaluate(() => window.__stateWrites);
+      for (const [k, test] of [
+        ["later", x => x.shelves.length === 1 && x.shelves[0].books.length === sets.later.length && x.shelves[0].books.every(b => b.later) &&
+          JSON.stringify(x.shelves[0].books.map(b => b.href)) === JSON.stringify(sets.later.map(id => "#/course/" + id))],
+        ["finished", x => x.shelves.length === 0 && x.empty === 1],
+        // Every course the page has (curriculum.js plus SPCH 100 from storytelling.js),
+        // the later ones dimmed and the running ones not.
+        ["all", x => { const bs = [].concat(...x.shelves.map(y => y.books));
+          return bs.length === sets.running.length + sets.later.length && x.shelves.length > 1 &&
+            bs.every(b => b.later === (sets.later.indexOf(b.href.replace("#/course/", "")) >= 0)); }],
+        ["now", x => x.shelves[0] && x.shelves[0].head === "Continue"],
+      ]) {
+        await page.click("#view .seg [data-shelf=" + k + "]");
+        await page.waitForFunction(k => !!document.querySelector("#view .seg [data-shelf=" + k + "][aria-pressed=true]"), k, { timeout: 4000, polling: "raf" }).catch(() => {});
+        s = await page.evaluate(coursesState);
+        c26(at + " /courses: clicking " + capFirst(k) + " presses it alone and changes the shelf to " + k,
+          s.seg.filter(b => b.on).map(b => b.k).join() === k && test(s),
+          s.seg.filter(b => b.on).map(b => b.k).join() + "; " + (s.shelves.map(x => x.head + " " + x.books.length).join(", ") || s.empty + " empty"));
+      }
+      const after = await page.evaluate(() => window.__stateWrites);
+      c26(at + " /courses: the filter is in memory — four clicks made no save() (state writes " + before + " -> " + after + ")", after === before);
+      c26(at + " T-026a: nothing on /atlas or /courses wrote state (writes since /atlas " + w0 + " -> " + after + ")", after === w0);
+      c26(at + " T-026a: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // ---- no overflow and no overlap, every filter, phone to desktop, two text sizes ----
+  // verify-clip sweeps /atlas and /courses (Now); the Later, Finished and All
+  // shelves only exist after a click, so they are swept here.
+  const T26_OW = [320, 390, 768, 1440];
+  for (const root of [16, 24]) {
+    for (const w of T26_OW) {
+      const mobile = w < 861;
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: 900 }, isMobile: mobile, hasTouch: mobile }, "light", seedResume);
+      await ctx.addInitScript(rt => { document.addEventListener("DOMContentLoaded", () => { document.documentElement.style.fontSize = rt + "px"; }); }, root);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const bad = [];
+      await go(page, "/atlas");
+      const rootNow = await page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
+      if (rootNow !== root + "px") bad.push("root font is " + rootNow + ", asked for " + root + "px");
+      const o = await page.evaluate(viewOverflow), r = await page.evaluate(routeOverlaps);
+      if (o.out.length || o.side) bad.push("/atlas " + o.out.concat(o.side ? ["page " + o.side] : []).join(", "));
+      if (r.hit.length || r.n !== 7) bad.push("/atlas route text overlaps: " + (r.hit.join("; ") || r.n + " boxes"));
+      await go(page, "/courses");
+      for (const k of ["now", "later", "finished", "all"]) {
+        await page.click("#view .seg [data-shelf=" + k + "]");
+        await page.waitForFunction(k => !!document.querySelector("#view .seg [data-shelf=" + k + "][aria-pressed=true]"), k, { timeout: 4000, polling: "raf" }).catch(() => {});
+        const q = await page.evaluate(viewOverflow);
+        if (q.out.length || q.side) bad.push("/courses " + k + " " + q.out.concat(q.side ? ["page " + q.side] : []).join(", "));
+      }
+      c26(w + "px root " + root + "px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping",
+        bad.length === 0 && errors.length === 0, bad.concat(errors).join(" | ") || "5 views");
+      await ctx.close();
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -2431,7 +2769,8 @@ function hairlineSource() {
       "without motion, and cover/chip contrast on " + FAC_COURSES.length + " courses in " + ALL_THEMES.length + " themes (" + facTexts + " texts); " +
       "T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; " +
       "T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark " +
-      "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes"
+      "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes; " +
+      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots (" + t26Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

@@ -24,8 +24,9 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-026 | Page redesigns, desktop first, one page per PR with a mockup first: Atlas, Courses, Problems, Exams, Proof, Practice, Week, Calendar lists, Library | proposed | 0 | | owner 2026-10-07 |
 | T-027 | Treasury becomes a business workspace (Notion-like): clients, projects, money in/out, notes; fixes treasury never merging on pull | ready | 0 | | owner 2026-10-07; needs its own mockup |
 | T-028 | Practice: record yourself (audio), recordings on this device | ready | 0 | | owner 2026-10-07 |
-| T-026a | Atlas as a route, Courses as a shelf (mockups approved 2026-10-07) | building | 0 | | owner approved specimen-atlas/courses; after T-025 |
+| T-026a | Atlas as a route, Courses as a shelf (mockups approved 2026-10-07) | merged (PR #11) | 0 | | owner approved specimen-atlas/courses; after T-025 |
 | T-026b | Problems, Exams, Proof say what they are for (mockups approved 2026-10-07) | ready | 0 | | owner approved specimen-problems/exams/proof; after T-026a |
 | T-026c | Week, Calendar day view, Library (mockups approved 2026-10-07) | ready | 0 | | after T-026b |
 | T-029 | Phone landscape: Next card + tab bar take ~44% of a 390px-tall screen; compact or hide the card when the viewport is short | proposed | 0 | | found in T-023 r2 CHECK 2026-10-08 |
 | T-030 | Dashboard: at 320px with a 24px root the next-lecture kicker (.one-kind) overflows (scrollWidth 340 vs 280) on long titles, which zooms the whole page out on isMobile | proposed | 0 | | pre-existing on main; found by T-023 r2 reviewer 2026-10-08 (probe rv023r2/ovf3.js) |
+| T-031 | Atlas/Courses layout polish from T-026a review r3: shelf floor 7rem, sweep widths, card basis 12rem, plants, deviation note | ready | 0 | | owner chose merge-now-fix-later 2026-10-08 |

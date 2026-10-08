@@ -2493,13 +2493,14 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
 
 /* ---- Courses: the shelf ---- */
-/* 2, 3 and 4 columns, each no narrower than 6.25rem: at a larger text size
-   a title word ("Probability") would otherwise break mid-word, so the shelf
+/* 2, 3 and 4 columns, each no narrower than 6.75rem: a title word
+   ("Mathematics", "Probability") would otherwise break mid-word — at 1100px,
+   where the rail takes its share, or at a larger text size — so the shelf
    drops a column instead. The 0.5px keeps the count exact at the default
    size (auto-fill floors the number of tracks that fit). */
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.25rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
-@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.25rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
-@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.25rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
 .book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
 .book:hover { text-decoration: none; }
 /* clip-path, not overflow:hidden: the cover rounds its bar into the corner

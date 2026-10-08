@@ -43,8 +43,9 @@
 //       vertical drag switches nothing; tapping the active tab at scrollY 800
 //       goes to 0 (and instantly under reduced motion); Today left at 600 is
 //       at 600 again after Courses; and all of it makes zero save() calls. A
-//       Ctrl-click on a tab (800x700, mouse) opens exactly one new page and
-//       leaves this one where it was.
+//       Ctrl-click on a tab (800x700, mouse), and a Ctrl- or Shift-tap with a
+//       finger (390), each open exactly one new page and leave this one where
+//       it was.
 //
 // For (d), (e) and (g) the frame cannot reach YouTube, so they speak for the
 // player through the test-only hook (window.__brickfordTest.playerMessage,
@@ -748,6 +749,45 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     const went = await page.waitForFunction(() => location.hash === "#/courses", null, { timeout: 4000 }).then(() => true, () => false);
     check("(j) a plain click on the Courses tab at 800x700 still switches to it", went, await page.evaluate(() => location.hash));
     check("(j) modifier-click: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  // The same, for a finger (T-023 review 2): an iPad with a keyboard Cmd-taps
+  // with a touch pointer. The pointerdown guard covered only the mouse while
+  // the click guard covered every pointer, so a Ctrl- or Shift-tap navigated
+  // this page AND opened a new one. Real CDP touches, carrying the modifier
+  // bits (2 = Ctrl, 8 = Shift); reduced motion, so no cross-fade is in the way.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "UTC", hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const cdp = await ctx.newCDPSession(page);
+    const C = await page.evaluate(() => { const r = document.querySelector("#tabbar a[data-route='/courses']").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+    const tap = mods => cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: C.x, y: C.y, id: 1 }], modifiers: mods })
+      .then(() => cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [], modifiers: mods }));
+    for (const [name, mods] of [["Ctrl", 2], ["Shift", 8]]) {
+      const opened = [];
+      const onPage = p => opened.push(p);
+      ctx.on("page", onPage);
+      await tap(mods);
+      const t0 = Date.now();
+      while (!opened.length && Date.now() - t0 < 4000) await page.waitForTimeout(50);
+      await page.waitForTimeout(500);                     // and no second one, and no late navigation here
+      ctx.off("page", onPage);
+      const stay = await page.evaluate(() => location.hash);
+      check("(j) a " + name + "-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/",
+        opened.length === 1 && stay === "#/", opened.length + " new page(s); this page at " + stay +
+        (opened[0] ? "; new page " + opened[0].url().replace(/^.*#/, "#") : ""));
+      for (const p of opened) await p.close();
+    }
+    await tap(0);
+    const went = await page.waitForFunction(() => location.hash === "#/courses", null, { timeout: 4000 }).then(() => true, () => false);
+    check("(j) a plain tap on the Courses tab at 390 still switches to it", went, await page.evaluate(() => location.hash));
+    check("(j) modifier-tap: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 

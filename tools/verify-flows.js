@@ -770,6 +770,11 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     const tap = mods => cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: C.x, y: C.y, id: 1 }], modifiers: mods })
       .then(() => cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [], modifiers: mods }));
     for (const [name, mods] of [["Ctrl", 2], ["Shift", 8]]) {
+      // Each case from #/, so one cannot inherit the other's navigation.
+      if (await page.evaluate(() => location.hash) !== "#/") {
+        await page.goto(URL + "/", { waitUntil: "load" });
+        await page.waitForFunction(() => { const a = document.querySelector("#tabbar a.active"); return a && a.dataset.route === "/"; });
+      }
       const opened = [];
       const onPage = p => opened.push(p);
       ctx.on("page", onPage);

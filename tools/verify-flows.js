@@ -42,7 +42,9 @@
 //       the bubble settles on it; past Review the bubble resists; a 40px
 //       vertical drag switches nothing; tapping the active tab at scrollY 800
 //       goes to 0 (and instantly under reduced motion); Today left at 600 is
-//       at 600 again after Courses; and all of it makes zero save() calls.
+//       at 600 again after Courses; and all of it makes zero save() calls. A
+//       Ctrl-click on a tab (800x700, mouse) opens exactly one new page and
+//       leaves this one where it was.
 //
 // For (d), (e) and (g) the frame cannot reach YouTube, so they speak for the
 // player through the test-only hook (window.__brickfordTest.playerMessage,
@@ -714,6 +716,38 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     const y = await page.evaluate(() => new Promise(r => requestAnimationFrame(() => r(Math.round(scrollY)))));
     check("(j) reduced motion: tapping the active tab is at the top within a frame", from === 400 && y === 0, "from " + from + " to " + y);
     check("(j) reduced motion: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // Modifier-clicks are the browser's (T-023 review). At 800px the bar is on
+  // screen and a mouse is the pointer; the bar captured every press and
+  // activate()d it, so Ctrl-click on a tab navigated THIS page and opened
+  // nothing. A plain click afterwards must still switch tabs, so the guard is
+  // not just a bar that ignores the mouse.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 800, height: 700 }, timezoneId: "UTC", reducedMotion: "reduce" });
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(URL + "/", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    const opened = [];
+    ctx.on("page", p => opened.push(p));
+    const mod = process.platform === "darwin" ? "Meta" : "Control";
+    await page.click("#tabbar a[data-route='/courses']", { modifiers: [mod] });
+    const t0 = Date.now();
+    while (!opened.length && Date.now() - t0 < 4000) await page.waitForTimeout(50);
+    await page.waitForTimeout(400);                       // and no second one
+    const stay = await page.evaluate(() => location.hash);
+    check("(j) " + mod + "-click on the Courses tab at 800x700 opens exactly 1 new page and leaves this one on #/",
+      opened.length === 1 && stay === "#/", opened.length + " new page(s); this page at " + stay +
+      (opened[0] ? "; new page " + opened[0].url().replace(/^.*#/, "#") : ""));
+    await page.click("#tabbar a[data-route='/courses']");
+    const went = await page.waitForFunction(() => location.hash === "#/courses", null, { timeout: 4000 }).then(() => true, () => false);
+    check("(j) a plain click on the Courses tab at 800x700 still switches to it", went, await page.evaluate(() => location.hash));
+    check("(j) modifier-click: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 

@@ -27,3 +27,4 @@
 - 2026-10-07: T-023 building (owner: go). Worktree /home/user/bf-T-023, branch loop/T-023-floating-tab-bar from main ddfd382; tokens to 20261007h.
 - 2026-10-07: Owner rejected navy (too bright/fancy). Decisions: Dark+Light+Auto, sidebar darker, pages-first desktop redesign with mockups, Treasury = Notion-like business workspace, Practice gets audio recording. T-025 building (worktree /home/user/bf-T-025) alongside T-023.
 - 2026-10-07: T-025 merged as PR #9 (6bd7a8b) after 2 review rounds. Dark (restored) default, Light, Auto; sidebar darker; navy and glow gone. Next: T-023 resumes on new main.
+- 2026-10-08: T-023 review r1 CHANGES REQUIRED (landscape safe-area insets; badge overflow at 100+; modifier-click). Builder hit the usage limit before any edit (worktree clean at 899e880); resumed for round-2 fixes, tokens 20261007w.

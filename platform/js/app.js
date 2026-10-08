@@ -1600,7 +1600,10 @@
       bar.classList.remove("sliding");
       if (d.dead) { swallowUntil = performance.now() + 400; return; }
       if (!d.moved) {
-        if (!cancelled && d.a) { swallowUntil = performance.now() + 400; activate(d.a); }
+        // A modifier gained by the time of release is the browser's too: the
+        // click it sends is let through below, so activating here as well
+        // would be two actions from one tap.
+        if (!cancelled && d.a && !modified(e)) { swallowUntil = performance.now() + 400; activate(d.a); }
         return;
       }
       swallowUntil = performance.now() + 400;
@@ -1620,14 +1623,16 @@
       settleTo(best, vel);
       if (route() !== best.dataset.route) location.hash = "#" + best.dataset.route;
     }
-    // A modifier held on ANY press (new tab, new window, download) is the
-    // browser's to handle: no capture, no slide, no activate. Every pointer
-    // type, not only the mouse — an iPad with a keyboard Cmd-taps with a
-    // finger, and the click guard below lets that click through, so a touch
-    // press that still activate()d here was two actions from one tap.
+    // Only a plain primary press is the bar's. Any other button (a mouse's
+    // right or middle, a pen's barrel button) and any modifier (new tab, new
+    // window, download) is the browser's to handle: no capture, no slide, no
+    // activate — for every pointer type, since an iPad with a keyboard
+    // Cmd-taps with a finger and a pen's barrel press opens a context menu.
+    // Touch and a pen's tip report button 0. The click guard below lets those
+    // clicks through, so a press that still activate()d here was two actions.
     const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
     bar.addEventListener("pointerdown", e => {
-      if ((e.pointerType === "mouse" && e.button !== 0) || modified(e)) return;
+      if (e.button !== 0 || modified(e)) return;
       try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
     });

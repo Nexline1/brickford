@@ -1,5 +1,5 @@
 T-026a final CHECK — flows
-bytes: 48eccb6 (review round 2: platform/ as of 3fdbc9e, tools/ as of 1a2365a; app.js 6d7fb2c43c1e, style.css 6f39a024278e)
+bytes: 017bc78 (review round 3: platform/ as of 2f4c42e, tools/ as of c3451a4; app.js 1be67312f9de, style.css 6600e50cd120)
 command: node tools/verify-flows.js
 
 
@@ -7,8 +7,8 @@ command: node tools/verify-flows.js
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
-  ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 2.", options locked true, next button visible
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today
@@ -48,7 +48,7 @@ command: node tools/verify-flows.js
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
   ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 2 today

@@ -1,5 +1,5 @@
 T-026a final CHECK — contrast
-bytes: 48eccb6 (review round 2: platform/ as of 3fdbc9e, tools/ as of 1a2365a; app.js 6d7fb2c43c1e, style.css 6f39a024278e)
+bytes: 017bc78 (review round 3: platform/ as of 2f4c42e, tools/ as of c3451a4; app.js 1be67312f9de, style.css 6600e50cd120)
 command: node tools/verify-contrast.js
 
 

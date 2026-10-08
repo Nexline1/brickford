@@ -1,5 +1,5 @@
 T-026a final CHECK — design
-bytes: 48eccb6 (review round 2: platform/ as of 3fdbc9e, tools/ as of 1a2365a; app.js 6d7fb2c43c1e, style.css 6f39a024278e)
+bytes: 017bc78 (review round 3: platform/ as of 2f4c42e, tools/ as of c3451a4; app.js 1be67312f9de, style.css 6600e50cd120)
 command: node tools/verify-design.js
 
 status bar (read from platform/css/style.css)
@@ -210,26 +210,26 @@ T-024: the navy switch
 T-024: the theme before the first paint
   ok    first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025) — 2 themes
   ok    first paint (stored "light", no marker, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
+  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 11 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 13 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 9 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 10 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme dark, meta #000000, state writes 0, stored "forest"
   ok    first paint (stored "forest" (removed), phone light): no page errors
   ok    first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 8 frames
   ok    first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme dark, meta #000000, state writes 0, stored "slate"
   ok    first paint (stored "slate" (removed), phone light): no page errors
 
@@ -969,20 +969,20 @@ T-026a Atlas and Courses, 390px light
   ok    1440px Asia/Bahrain 21 Oct 02:00: no page errors
   ok    390px Asia/Bahrain 21 Oct 02:00: Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day) — Continue: AI 200 "Lecture 2 · resume at 5:00", MATH 110 "Lecture 2 · 10 min"
   ok    390px Asia/Bahrain 21 Oct 02:00: no page errors
-  ok    320px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    390px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    640px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    768px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    1100px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    1280px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    1440px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    320px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    390px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    640px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    768px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    1100px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    1280px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
-  ok    1440px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no label word broken — 5 views
+  ok    320px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    390px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    640px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    768px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    1100px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    1280px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    1440px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    320px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    390px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    640px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    768px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    1100px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    1280px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
+  ok    1440px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
 
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)

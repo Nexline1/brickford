@@ -2384,9 +2384,10 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
    so no two pieces of text can sit on each other. Each row draws its own
    piece of track down to the next dot; the pin is a row of its own, placed
    in its segment in proportion (--f) by the padding either side of it.
-   A container query in rem: 512px of card at the default text size (a
-   phone), and wider as text grows, before the labels run out of room. */
-@container atroute (max-width: 32rem) {
+   A container query in rem, so it moves with the text size: below 38rem of
+   card (608px at the default size) a sixth of the track is narrower than the
+   longest label word ("Calibration"), which would break mid-word. */
+@container atroute (max-width: 38rem) {
   .rt { display: flex; flex-direction: column; padding-top: 0; }
   .rt::before, .rt::after { content: none; }
   .rt-node, .rt-pin {
@@ -2396,6 +2397,10 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
   }
   .rt-node.cur { padding-bottom: calc(var(--rt-gap) + var(--f, 0) * 2rem); }
   .rt-pin { z-index: 1; padding-bottom: calc(var(--rt-gap) + (1 - var(--f, 0)) * 2rem); }
+  /* A pin past the middle hangs left of its stick on the horizontal track;
+     here it is a row like the others, so that has to be undone at the same
+     specificity (0,2,0) or it beats the reset above and leaves the card. */
+  .rt-pin.end { transform: none; }
   .rt-dot { position: absolute; left: 0; top: calc(var(--rt-o) - 9px); }
   .rt-lab { align-items: flex-start; }
   .rt-node:not(:last-child)::after, .rt-pin:not(:last-child)::after {

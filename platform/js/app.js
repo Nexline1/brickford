@@ -2107,7 +2107,16 @@
   // resume point (T-016's pos, on a lecture not yet watched) wins: it is
   // literally where you left off. Otherwise the first lecture not yet
   // watched, as the course page's own Continue does. `recent` orders the
-  // shelf: the newest posAt, doneAt or verifiedAt in the course.
+  // shelf: the newest local DATE of a posAt, doneAt or verifiedAt in the
+  // course. posAt is a UTC timestamp and doneAt a local date (todayISO), so
+  // the stamp is turned into the local date first — compared raw, an evening
+  // pause in Bahrain sorted a day behind that morning's watched lecture. On a
+  // same-day tie the course with a live resume point leads, then the later
+  // posAt.
+  const localDate = t => {
+    const d = new Date(t);
+    return isNaN(d) ? "" : d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
   function continuePoint(c) {
     if (c.tracker || !c.units) return null;
     let started = false, recent = "", resume = null, next = null;
@@ -2117,12 +2126,12 @@
       if (!next && !st.done) next = { ui, li };
       if (!live && !st.done && !st.verified) return;
       started = true;
-      [live && st.posAt, st.done && st.doneAt, st.verified && st.verifiedAt].forEach(t => { if (t && t > recent) recent = t; });
+      [live && st.posAt && localDate(st.posAt), st.done && st.doneAt, st.verified && st.verifiedAt].forEach(t => { if (t && t > recent) recent = t; });
       if (live && (!resume || (st.posAt || "") > resume.at)) resume = { ui, li, at: st.posAt || "", pos: st.pos };
     }));
     if (!started) return null;
     const at = resume || next;
-    return { c, recent, ui: at ? at.ui : null, li: at ? at.li : null, pos: resume ? resume.pos : null };
+    return { c, recent, resumeAt: resume ? resume.at : "", ui: at ? at.ui : null, li: at ? at.li : null, pos: resume ? resume.pos : null };
   }
   // One cover: the faculty colour over --surface, the code large, a 4px bar
   // for mastery. A course that has not opened is the same cover mixed into
@@ -2168,7 +2177,8 @@
     }
     // Now: Continue, at most four, most recent first; then the rest running.
     const cont = running.map(continuePoint).filter(Boolean)
-      .sort((a, b) => a.recent < b.recent ? 1 : a.recent > b.recent ? -1 : 0).slice(0, 4);
+      .sort((a, b) => a.recent !== b.recent ? (a.recent < b.recent ? 1 : -1)
+        : !!b.resumeAt - !!a.resumeAt || (a.resumeAt < b.resumeAt ? 1 : a.resumeAt > b.resumeAt ? -1 : 0)).slice(0, 4);
     const rest = running.filter(c => !cont.some(p => p.c === c));
     const contBook = p => {
       if (p.ui == null) return bookHTML(p.c, { href: "#/course/" + p.c.id, meta: "Every lecture watched" });
@@ -3472,7 +3482,7 @@
     const pin = '<li class="rt-pin' + (fill > 0.5 ? " end" : "") + '">' +
       (today < D.START_DATE ? "Starts " + esc(monthLabel(D.START_DATE)) : "You are here · day " + (studyPos(today) + 1)) + "</li>";
     const route = '<div class="card at-route"><ol class="rt" style="--fill:' + fill.toFixed(4) + "; --f:" + f.toFixed(4) + ';">' +
-      nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (i === k ? " next" : "") +
+      nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (k && i === k ? " next" : "") +
         (i <= last ? " past" : "") + (i === last ? " cur" : "") + '">' +
         '<span class="rt-dot"></span><span class="rt-lab"><b>' + esc(n.label) + "</b><span>" + esc(monthLabel(n.when)) + "</span></span></li>" +
         (i === last ? pin : "")).join("") + "</ol></div>";
@@ -4439,7 +4449,7 @@
       '<div class="u-body"><div class="glist">' +
       mod("Dashboard", "daily", "The next lecture, the rest of today, and where you stand.", "#/") +
       mod("The Atlas", "weekly", "What is running now, the gates ahead, and what opens later.", "#/atlas") +
-      mod("Courses", "reference", "Every course, in four phases. Follow the plan’s pick — the sequencing is the curriculum.", "#/courses") +
+      mod("Courses", "reference", "Pick a lecture back up: what is running, what opens later, what is finished.", "#/courses") +
       mod("Problems", "daily", "Labs with proof URLs, pen-and-paper problem sets, and the daily drill.", "#/workshop") +
       mod("Exams", "weekly", "The official MIT/Harvard diagnostics, plus the auto-graded concept banks.", "#/exams") +
       mod("Proof", "monthly", "The hash-chained record of everything done, the streak, and the export.", "#/record") +

@@ -1340,7 +1340,9 @@ function labelWords(sel) {
       const s = t.textContent, rg = document.createRange();
       let prev = null;
       for (let i = 0; i < s.length; i++) {
-        if (/\s/.test(s[i])) { prev = null; continue; }
+        // A word is a run of letters and digits: a line may break after a
+        // hyphen or a dash ("Single-/Variable"), which is not mid-word.
+        if (/[^A-Za-z0-9]/.test(s[i])) { prev = null; continue; }
         rg.setStart(t, i); rg.setEnd(t, i + 1);
         const top = rg.getBoundingClientRect().top;
         if (prev !== null && Math.abs(top - prev) > 1) { out.push("\"" + s.trim() + "\" breaks inside a word at \"" + s.slice(0, i) + "/" + s.slice(i) + "\""); break; }

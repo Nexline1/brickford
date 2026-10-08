@@ -3489,13 +3489,13 @@
 
     // ---- the next gate: what it asks for, and the days left ----
     const nextCard = ng
-      ? '<a class="card at-next" href="#/transcript"><div>' +
+      ? '<a class="card at-next" href="#/transcript"><div class="at-main">' +
         '<div class="at-k">Next gate · ' + k + " of " + gates.length + "</div>" +
         '<div class="at-gate">' + esc(ng.label) + "</div>" +
         // No requirement has a done-state yet, so every chip is hollow.
         '<div class="at-reqs">' + ng.req.split(" · ").map(r => '<span class="at-req">' + esc(capFirst(r)) + "</span>").join("") + "</div></div>" +
         '<div class="at-days"><b>' + Math.max(0, daysBetween(today, ng.target)) + "</b><span>days left</span></div></a>"
-      : '<div class="card at-next"><div><div class="at-gate">All gates passed</div>' +
+      : '<div class="card at-next"><div class="at-main"><div class="at-gate">All gates passed</div>' +
         '<div class="at-sub">You are what you set out to become.</div></div></div>';
 
     // ---- studying now: one tile per running course ----

@@ -2416,10 +2416,15 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 }
 
 /* ---- the next gate ---- */
+/* The text and the days share a line while the text has 14rem; below that
+   (a phone at a larger text size) the days drop under it, rather than the
+   title column being squeezed until "Calibration" breaks mid-word. In rem,
+   so it follows the root size, which a media query would not. */
 .at-next {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem 1.25rem; align-items: center;
+  display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
   background: var(--surface); color: var(--ink); text-decoration: none;
 }
+.at-main { flex: 1 1 14rem; min-width: 0; }
 .at-next:hover { text-decoration: none; }
 .at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
 .at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }
@@ -2431,7 +2436,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
   font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: anywhere; min-width: 0;
 }
 .at-req::before { content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
-.at-days { text-align: right; }
+.at-days { flex: none; margin-left: auto; text-align: right; }
 .at-days b { display: block; font-family: var(--font-rounded); font-size: 2.125rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .at-days span { font-size: var(--fs-footnote); color: var(--ink-3); }
 
@@ -2488,9 +2493,13 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
 
 /* ---- Courses: the shelf ---- */
-.shelf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
-@media (min-width: 600px) { .shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* 2, 3 and 4 columns, each no narrower than 6.25rem: at a larger text size
+   a title word ("Probability") would otherwise break mid-word, so the shelf
+   drops a column instead. The 0.5px keeps the count exact at the default
+   size (auto-fill floors the number of tracks that fit). */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.25rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.25rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.25rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
 .book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
 .book:hover { text-decoration: none; }
 /* clip-path, not overflow:hidden: the cover rounds its bar into the corner

@@ -1,0 +1,31 @@
+T-026a plant (e): the pin leaves the vertical route when the fill is past the middle — the container-query reset (.rt-pin.end { transform: none }) removed
+Planted on 34d9e89, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 3f524b6..16a9747 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2400,7 +2400,6 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+   /* A pin past the middle hangs left of its stick on the horizontal track;
+      here it is a row like the others, so that has to be undone at the same
+      specificity (0,2,0) or it beats the reset above and leaves the card. */
+-  .rt-pin.end { transform: none; }
+   .rt-dot { position: absolute; left: 0; top: calc(var(--rt-o) - 9px); }
+   .rt-lab { align-items: flex-start; }
+   .rt-node:not(:last-child)::after, .rt-pin:not(:last-child)::after {
+
+---- verify-design, planted ----
+  FAIL  390px gates 1,2,3 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" -225,401.8,-69.5,416.8 in card 20,155.3,370,602.3
+  FAIL  1100px gates 1,2,3 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" -30,389,125.5,404 in card 305,142.5,745,589.5
+  FAIL  390px gates 1,2,3,4,5 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" -225,542.2,-69.5,557.2 in card 20,155.3,370,602.3
+  FAIL  1100px gates 1,2,3,4,5 passed: the pin's text is inside the route card and overlaps no label — "You are here · day 14" -30,529.4,125.5,544.4 in card 305,142.5,745,589.5
+
+FAIL — 4 of 876 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

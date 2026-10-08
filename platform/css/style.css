@@ -2317,3 +2317,212 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
      37px). At a 16px root it is 162px (was 153) and fits every column. */
   .crest .name-en { font-size: min(1.3rem, 29px); }
 }
+
+/* ============================================================
+   T-026a: the Atlas as a route, Courses as a shelf
+   ------------------------------------------------------------
+   Both pages were a ruled folio over .glist rows, so they looked like
+   the same page. The Atlas now draws the 3½-year route itself
+   (Start and five gates on one track); Courses is a shelf of covers
+   that takes you back into what you were watching.
+   Tokens only (the tracks are --line, which --surface-2 is too faint
+   for on the light theme's white card: 1.08:1). The one tint is the faculty colour over --surface,
+   at 14% rather than the mockup's 18%: at 18% the dark RES and PHYS
+   codes measure 4.31 and 4.45:1 on their own cover, and every text
+   here has to be >= 4.5:1. A course that has not opened is dimmed by
+   mixing its COVER into the page (45%), never by putting its text
+   under opacity: verify-contrast cannot see ancestor opacity, so a
+   faded label would be unreadable and still pass.
+   ============================================================ */
+
+/* ---- the route card ---- */
+.at-route { background: var(--surface); container: atroute / inline-size; }
+.rt {
+  --pin-h: 2rem; --rt-o: 0.61rem; --rt-gap: 1.1rem;
+  position: relative; list-style: none;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding-top: var(--pin-h);
+}
+/* The track runs from the centre of the first column to the centre of the
+   last, so the six nodes are evenly spaced by construction. */
+.rt::before, .rt::after {
+  content: ""; position: absolute; left: calc(100% / 12);
+  top: calc(var(--pin-h) + 7px); height: 4px; border-radius: 2px;
+}
+.rt::before { right: calc(100% / 12); background: var(--line); }
+.rt::after { width: calc(var(--fill, 0) * 100% * 10 / 12); background: var(--accent); }
+.rt-node {
+  position: relative; z-index: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  text-align: center;
+}
+.rt-dot {
+  position: relative; z-index: 1; flex: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--ink-3);
+}
+.rt-node.done .rt-dot { background: var(--accent); border-color: var(--accent); }
+.rt-node.next .rt-dot { border: 4px solid var(--accent); }
+.rt-lab { display: flex; flex-direction: column; align-items: center; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.rt-lab b { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.22rem; color: var(--ink); }
+.rt-lab span { font-size: var(--fs-footnote); line-height: 1.35; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* You are here: above the fill's end, its stick down to the track. Past the
+   middle it hangs to the left of the stick, so it never runs off the card. */
+.rt-pin {
+  position: absolute; top: 0; z-index: 2;
+  left: calc(100% / 12 + var(--fill, 0) * 100% * 10 / 12);
+  font-size: var(--fs-footnote); font-weight: 600; line-height: 1.22rem;
+  color: var(--accent); white-space: nowrap;
+}
+.rt-pin.end { transform: translateX(-100%); }
+.rt-pin::after {
+  content: ""; position: absolute; left: -1px; top: 1.3rem;
+  height: calc(var(--pin-h) - 1.3rem + 7px); width: 2px; background: var(--accent);
+}
+.rt-pin.end::after { left: auto; right: -1px; }
+/* Narrow: the track turns vertical. Rows in the flow, labels to the right,
+   so no two pieces of text can sit on each other. Each row draws its own
+   piece of track down to the next dot; the pin is a row of its own, placed
+   in its segment in proportion (--f) by the padding either side of it.
+   A container query in rem, so it moves with the text size: below 38rem of
+   card (608px at the default size) a sixth of the track is narrower than the
+   longest label word ("Calibration"), which would break mid-word. */
+@container atroute (max-width: 38rem) {
+  .rt { display: flex; flex-direction: column; padding-top: 0; }
+  .rt::before, .rt::after { content: none; }
+  .rt-node, .rt-pin {
+    position: relative; left: auto; top: auto; transform: none;
+    flex-direction: row; align-items: flex-start; text-align: left; white-space: normal;
+    padding: 0 0 var(--rt-gap) calc(18px + 0.75rem);
+  }
+  .rt-node.cur { padding-bottom: calc(var(--rt-gap) + var(--f, 0) * 2rem); }
+  .rt-pin { z-index: 1; padding-bottom: calc(var(--rt-gap) + (1 - var(--f, 0)) * 2rem); }
+  /* A pin past the middle hangs left of its stick on the horizontal track;
+     here it is a row like the others, so that has to be undone at the same
+     specificity (0,2,0) or it beats the reset above and leaves the card. */
+  .rt-pin.end { transform: none; }
+  .rt-dot { position: absolute; left: 0; top: calc(var(--rt-o) - 9px); }
+  .rt-lab { align-items: flex-start; }
+  .rt-node:not(:last-child)::after, .rt-pin:not(:last-child)::after {
+    content: ""; position: absolute; z-index: 0; left: 7px; right: auto; width: 4px; height: auto;
+    top: var(--rt-o); bottom: calc(-1 * var(--rt-o)); background: var(--line); border-radius: 0;
+  }
+  .rt-node.past:not(:last-child)::after { background: var(--accent); }
+  .rt-pin:last-child::after { content: none; }
+  .rt-pin::before {
+    content: ""; position: absolute; z-index: 1; left: 3px; top: calc(var(--rt-o) - 6px);
+    width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
+  }
+}
+
+/* ---- the next gate ---- */
+/* The text and the days share a line while the text has 14rem; below that
+   (a phone at a larger text size) the days drop under it, rather than the
+   title column being squeezed until "Calibration" breaks mid-word. In rem,
+   so it follows the root size, which a media query would not. */
+.at-next {
+  display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.at-main { flex: 1 1 14rem; min-width: 0; }
+.at-next:hover { text-decoration: none; }
+.at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }
+.at-sub { margin-top: 6px; font-size: var(--fs-subhead); color: var(--ink-2); }
+.at-reqs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.at-req {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 14px;
+  border-radius: 999px; background: var(--surface-2); color: var(--ink-2);
+  font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: anywhere; min-width: 0;
+}
+.at-req::before { content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
+.at-days { flex: none; margin-left: auto; text-align: right; }
+.at-days b { display: block; font-family: var(--font-rounded); font-size: 2.125rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.at-days span { font-size: var(--fs-footnote); color: var(--ink-3); }
+
+/* ---- studying now: one tile per running course ---- */
+.at-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 600px) { .at-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .at-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* The text and the ring share a line while the tile has room for both; in
+   a narrow tile (1100px, where the sidebar and the rail both take their
+   share, or a larger text size) the ring drops under the text rather than
+   squeezing the code into a sliver beside it. */
+.at-tile {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  min-height: 44px; padding: 14px 16px; border-radius: var(--r-card);
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.at-tile:hover { text-decoration: none; }
+.tl-main { flex: 1 1 6rem; min-width: 0; display: flex; flex-direction: column; }
+.tl-code { font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
+.tl-t { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.tl-m { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tl-ring { flex: none; position: relative; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; }
+.tl-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tl-ring circle { fill: none; stroke-width: 4; }
+.tl-ring .tr-bg { stroke: var(--line); }
+.tl-ring .tr-fg { stroke: var(--fac, var(--accent)); }
+.tl-pct { position: relative; font-size: 0.6875rem; line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---- opens later ---- */
+.at-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.at-chip {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px;
+  background: var(--surface); color: var(--ink-2); text-decoration: none;
+  font-size: var(--fs-subhead); font-variant-numeric: tabular-nums;
+}
+.at-chip:hover { text-decoration: none; }
+.at-chip b { color: var(--ink); font-weight: 600; }
+.at-concepts { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font-size: var(--fs-subhead); color: var(--accent); }
+
+/* ---- Courses: the filter ---- */
+.seg {
+  display: flex; flex-wrap: wrap; gap: 2px; width: fit-content; max-width: 100%;
+  margin-top: var(--sp-3); padding: 3px; border-radius: 14px; background: var(--surface);
+}
+.seg button {
+  flex: 1 1 auto; min-height: 44px; min-width: 44px; padding: 0 16px;
+  border: 0; border-radius: 11px; background: none; color: var(--ink-2);
+  font: inherit; font-size: var(--fs-subhead); white-space: nowrap; cursor: pointer;
+}
+/* Four labels in a 350px column (a 390 phone) with 12px either side; at 320,
+   or with larger text, the control wraps rather than clipping a label. */
+@media (max-width: 599px) { .seg button { padding: 0 12px; } }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+
+/* ---- Courses: the shelf ---- */
+/* 2, 3 and 4 columns, each no narrower than 6.75rem: a title word
+   ("Mathematics", "Probability") would otherwise break mid-word — at 1100px,
+   where the rail takes its share, or at a larger text size — so the shelf
+   drops a column instead. The 0.5px keeps the count exact at the default
+   size (auto-fill floors the number of tracks that fit). */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
+.book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
+.book:hover { text-decoration: none; }
+/* clip-path, not overflow:hidden: the cover rounds its bar into the corner
+   without losing its automatic minimum height, so a large text size grows
+   the cover instead of cutting the code off. */
+.book .cover {
+  position: relative; display: flex; align-items: flex-end;
+  aspect-ratio: 16 / 10; padding: 12px 14px; border-radius: var(--r-lg);
+  clip-path: inset(0 round var(--r-lg));
+  background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface));
+}
+.cv-code { min-width: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
+.cv-bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--fac, var(--accent)); }
+.bk-t, .bk-m { display: block; }
+.bk-t { margin-top: 10px; font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.bk-m { margin-top: 2px; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.book.later .cover { background: color-mix(in srgb, color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)) 45%, var(--bg)); }
+.book.later .cv-code, .book.later .bk-t { color: var(--ink-2); }
+.book.later .bk-m { color: var(--ink-3); }
+.shelf-empty { font-size: var(--fs-subhead); color: var(--ink-2); padding: 0 4px; }
+
+/* The press: a scale only, so nothing a press shows changes colour. */
+.at-tile:active, .at-chip:active, .book:active, .seg button:active {
+  transform: scale(0.985); transition: transform 100ms ease-out;
+}

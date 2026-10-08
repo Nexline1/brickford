@@ -40,6 +40,10 @@ const ROUTES = [
   // measured like one.
   "/lesson/math110/0/0", "/no-such-page",
   "/course/spch100", "/lesson/spch100/0/0", "/lesson/spch100/1/0", "/course/ai200",
+  // T-026a: the Courses shelf on its Later filter — the dimmed covers, whose
+  // text is measured on what is actually behind it (the cover mixed into the
+  // page), not on a faded version of itself.
+  "/courses?later",
 ];
 
 // Seeded so states that only appear with progress are covered too: a proven

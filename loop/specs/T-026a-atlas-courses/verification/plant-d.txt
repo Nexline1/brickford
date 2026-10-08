@@ -1,0 +1,35 @@
+T-026a plant (d): the filter writes state (a save() on every filter click)
+Planted on 1f850ff, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 58d31ef..7c56452 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4571,6 +4571,7 @@
+     $$("[data-shelf]", root).forEach(b => {
+       b.onclick = () => {
+         courseFilter = b.dataset.shelf;
++        save();
+         const shelf = $("#shelf", root);
+         if (shelf) shelf.innerHTML = shelfHTML(courseFilter);
+         $$("[data-shelf]", root).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+
+---- verify-design, planted ----
+  FAIL  1440px dark /courses: the filter is in memory — four clicks made no save() (state writes 0 -> 4)
+  FAIL  1440px dark T-026a: nothing on /atlas or /courses wrote state (writes since /atlas 0 -> 4)
+  FAIL  390px dark /courses: the filter is in memory — four clicks made no save() (state writes 0 -> 4)
+  FAIL  390px dark T-026a: nothing on /atlas or /courses wrote state (writes since /atlas 0 -> 4)
+  FAIL  1440px light /courses: the filter is in memory — four clicks made no save() (state writes 0 -> 4)
+  FAIL  1440px light T-026a: nothing on /atlas or /courses wrote state (writes since /atlas 0 -> 4)
+  FAIL  390px light /courses: the filter is in memory — four clicks made no save() (state writes 0 -> 4)
+  FAIL  390px light T-026a: nothing on /atlas or /courses wrote state (writes since /atlas 0 -> 4)
+
+FAIL — 8 of 842 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

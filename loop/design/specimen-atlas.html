@@ -1,0 +1,56 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="specimen-pages.css">
+<style>
+.route{position:relative;padding:44px 74px 22px}
+.track{position:relative;height:4px;background:var(--surface-2);border-radius:2px;margin:26px 8px 0}
+.track .fill{position:absolute;left:0;top:0;height:4px;width:1%;background:var(--accent);border-radius:2px}
+.gate{position:absolute;top:-8px;width:20px;height:20px;border-radius:50%;background:var(--surface);border:2px solid #48484a;transform:translateX(-10px)}
+.gate.done{background:var(--accent);border-color:var(--accent)}.gate.next{border-color:var(--accent);box-shadow:0 0 0 5px rgba(120,174,240,.16)}
+.glabels{position:relative;height:56px;margin:18px 8px 0}
+.glabels div{position:absolute;transform:translateX(-50%);text-align:center;width:130px}
+.glabels b{display:block;font-size:14px;font-weight:600}
+.glabels span{font-size:12px;color:var(--ink-3)}
+.here{position:absolute;top:14px;left:34px;font-size:12px;color:var(--accent);font-weight:600}
+.here:after{content:"";position:absolute;left:4px;top:18px;width:1.5px;height:14px;background:var(--accent)}
+.nextcard{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;margin-top:16px}
+.reqs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.req{display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;background:var(--surface-2);font-size:14px;color:var(--ink-2)}
+.req:before{content:"";width:14px;height:14px;border-radius:50%;border:1.6px solid var(--ink-3)}
+.days{text-align:right}.days b{font-size:34px;font-weight:700;display:block;line-height:1}.days span{color:var(--ink-3);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tile{background:var(--surface);border-radius:18px;padding:16px 16px 14px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+.tile .code{font-size:12px;font-weight:700;letter-spacing:.06em}
+.tile .t{font-size:15px;font-weight:600;grid-column:1}
+.tile .m{font-size:13px;color:var(--ink-3);grid-column:1}
+.mini{grid-row:1/4;grid-column:2;width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--c) 0 var(--p),var(--surface-2) 0);display:grid;place-items:center}
+.mini span{width:34px;height:34px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:11px;color:var(--ink-2)}
+.later{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:36px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;border:1px solid var(--surface-2);color:var(--ink-2);font-size:14px}
+.chip b{color:var(--ink);font-weight:600}
+</style></head><body>
+<aside class="side"><div class="brand"><span class="crest"></span><b>BRICKFORD</b></div>
+<nav class="nav"><a>Today</a><a class="on">Atlas</a><div class="sec">Study</div><a>Courses</a><a>Problems</a><a>Exams</a><a>Proof</a><div class="sec">Rhythm</div><a>Practice</a><a>Week</a><a>Calendar</a><div class="sec">Life</div><a>Treasury</a><a>Library</a></nav></aside>
+<main>
+<h1>Atlas</h1><p class="sub">Your route to April 2030, in five gates.</p>
+<div class="card route" style="margin-top:22px">
+  <div class="here">You are here · day 3</div>
+  <div class="track"><div class="fill"></div>
+    <span class="gate done" style="left:0%"></span><span class="gate next" style="left:20%"></span><span class="gate" style="left:40%"></span><span class="gate" style="left:60%"></span><span class="gate" style="left:80%"></span><span class="gate" style="left:100%"></span></div>
+  <div class="glabels"><div style="left:0%"><b>Start</b><span>Oct 2026</span></div><div style="left:20%"><b>Calibration</b><span>Dec 2026</span></div><div style="left:40%"><b>Core skills</b><span>May 2027</span></div><div style="left:60%"><b>Research legs</b><span>Dec 2027</span></div><div style="left:80%"><b>The fork</b><span>Jul 2028</span></div><div style="left:100%"><b>Arrival</b><span>Apr 2030</span></div></div>
+</div>
+<div class="card nextcard"><div><div class="k">Next gate · 1 of 5</div><div style="font-size:22px;font-weight:650;margin-top:4px">Calibration</div>
+<div class="reqs"><span class="req">Diagnostics done</span><span class="req">Blog live</span><span class="req">First paid client</span></div></div>
+<div class="days"><b>69</b><span>days left</span></div></div>
+<div class="h2">Studying now <small>6 courses</small></div>
+<div class="grid">
+<div class="tile" style="--c:var(--math);--p:4%"><span class="code" style="color:var(--math)">MATH 110</span><span class="mini"><span>4%</span></span><span class="t">Linear Algebra</span><span class="m">2 of 51 proven</span></div>
+<div class="tile" style="--c:var(--math);--p:0%"><span class="code" style="color:var(--math)">MATH 120</span><span class="mini"><span>0%</span></span><span class="t">Calculus</span><span class="m">0 of 47</span></div>
+<div class="tile" style="--c:var(--math);--p:0%"><span class="code" style="color:var(--math)">MATH 130</span><span class="mini"><span>0%</span></span><span class="t">Probability</span><span class="m">0 of 34</span></div>
+<div class="tile" style="--c:var(--cs);--p:0%"><span class="code" style="color:var(--cs)">CS 150</span><span class="mini"><span>0</span></span><span class="t">Algorithms</span><span class="m">0 of 150 problems</span></div>
+<div class="tile" style="--c:var(--ai);--p:7%"><span class="code" style="color:var(--ai)">AI 200</span><span class="mini"><span>7%</span></span><span class="t">Zero to Hero</span><span class="m">1 of 15</span></div>
+<div class="tile" style="--c:var(--speech);--p:0%"><span class="code" style="color:var(--speech)">SPCH 100</span><span class="mini"><span>0%</span></span><span class="t">Storytelling</span><span class="m">0 of 5</span></div>
+</div>
+<div class="h2">Opens later <small>7 courses</small></div>
+<div class="later"><span class="chip"><b>AI 210</b> week 7</span><span class="chip"><b>PHYS 100</b> week 12</span><span class="chip"><b>MATH 210</b> week 20</span><span class="chip"><b>AI 300</b> week 26</span><span class="chip"><b>SYS 250</b> week 30</span><span class="chip">+2</span></div>
+</main>
+<aside class="rail"><div class="ring"><span>0/3</span></div><div class="k" style="text-align:center">Today</div><div class="k" style="margin-top:14px">Next up</div><div style="font-weight:600">Probability and Counting</div><div style="color:var(--ink-3);font-size:13px">MATH 130 · 46 min</div><span class="btn" style="margin-top:6px">Open</span></aside>
+</body></html>

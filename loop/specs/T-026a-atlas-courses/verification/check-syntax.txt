@@ -1,0 +1,36 @@
+T-026a final CHECK — syntax (review round 3)
+bytes: 017bc78
+command: node --check on platform/js/*.js, platform/data/*.js and tools/*.js
+
+ok  platform/js/app.js
+ok  platform/js/figures.js
+ok  platform/js/lab.js
+ok  platform/js/quiz-engine.js
+ok  platform/data/concepts-linear-algebra.js
+ok  platform/data/curriculum.js
+ok  platform/data/quiz-calculus.js
+ok  platform/data/quiz-dsa.js
+ok  platform/data/quiz-linear-algebra.js
+ok  platform/data/quiz-llm-engineering.js
+ok  platform/data/quiz-math-for-ml.js
+ok  platform/data/quiz-probability.js
+ok  platform/data/quiz-zero-to-hero.js
+ok  platform/data/storytelling.js
+ok  platform/data/summaries-math110-mit.js
+ok  platform/data/summaries-math110.js
+ok  platform/data/summaries-math120.js
+ok  platform/data/summaries-math130.js
+ok  platform/data/summaries-math210.js
+ok  platform/data/summaries-phys100.js
+ok  platform/data/summaries-sys250.js
+ok  platform/data/workshop.js
+ok  tools/verify-clip.js
+ok  tools/verify-content.js
+ok  tools/verify-contrast.js
+ok  tools/verify-design.js
+ok  tools/verify-flows.js
+ok  tools/verify-logic.js
+ok  tools/verify-shell.js
+ok  tools/verify-sync-loop.js
+
+exit code: 0

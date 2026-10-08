@@ -1,0 +1,23 @@
+:root{--bg:#0e0e10;--panel:#000;--surface:#1c1c1e;--surface-2:#2c2c2e;--line:#2c2c2e;--ink:#fff;--ink-2:#a1a1a6;--ink-3:#8e8e93;--accent:#78aef0;--btn-bg:#e8ebef;--btn-ink:#0f1216;--good:#62b881;
+--math:#7aa6da;--ai:#d9ab6d;--sys:#63b3aa;--phys:#d98071;--res:#a58ac9;--speech:#c98fac;--cs:#8fb7a0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;width:1440px;height:900px;overflow:hidden;display:grid;grid-template-columns:248px 1fr 320px}
+aside.side{background:var(--panel);border-right:1px solid #1c1c1e;padding:28px 16px;display:flex;flex-direction:column;gap:2px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 10px 22px}
+.crest{width:28px;height:32px;border-radius:6px;background:#e0b35a;opacity:.9}
+.brand b{letter-spacing:.18em;font-size:13px}
+.nav a{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:10px;color:var(--ink-2);text-decoration:none;font-size:15px}
+.nav a.on{background:#1c1c1e;color:var(--ink)}
+.nav a i{width:18px;height:18px;border-radius:5px;border:1.6px solid currentColor;opacity:.8}
+.nav .sec{font-size:11px;letter-spacing:.08em;color:var(--ink-3);padding:16px 12px 6px;text-transform:uppercase}
+main{padding:40px 48px;overflow:hidden}
+h1{font-size:34px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--ink-2);margin-top:4px}
+.rail{border-left:1px solid #1c1c1e;padding:40px 28px;display:flex;flex-direction:column;gap:14px}
+.ring{width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--accent) 0 0%,var(--surface-2) 0);display:grid;place-items:center;margin:0 auto}
+.ring>span{width:70px;height:70px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-weight:600}
+.k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 22px;border-radius:999px;background:var(--btn-bg);color:var(--btn-ink);font-weight:600;font-size:15px;border:0}
+.card{background:var(--surface);border-radius:20px;padding:22px 24px}
+.h2{font-size:20px;font-weight:650;margin:30px 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+.h2 small{font-size:13px;color:var(--ink-3);font-weight:400}

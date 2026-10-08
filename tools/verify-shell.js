@@ -25,6 +25,9 @@ const FRAME_ROUTES = ROUTES.concat([
   "/course/math110", "/lesson/math110/0/0", "/concept/la-eigen",
   "/quiz/linear-algebra", "/sync", "/method", "/recall", "/electives",
   "/drill", "/review", "/no-such-page",
+  // T-026a: the Courses shelf on its Later filter, so its covers are held to
+  // 44x44 and the frame too.
+  "/courses?later",
 ]);
 
 // Some controls only exist once there is progress — the Prove-it card, the

@@ -1,0 +1,8 @@
+T-026a final CHECK — contrast
+bytes: 017bc78 (review round 3: platform/ as of 2f4c42e, tools/ as of c3451a4; app.js 1be67312f9de, style.css 6600e50cd120)
+command: node tools/verify-contrast.js
+
+
+PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+
+exit code: 0

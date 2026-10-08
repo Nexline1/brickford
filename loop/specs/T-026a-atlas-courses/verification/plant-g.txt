@@ -1,0 +1,30 @@
+T-026a plant (g): Continue orders by the raw string compare — a UTC posAt against local doneAt dates
+Planted on 34d9e89, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 54b4836..5e8718f 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -2126,7 +2126,7 @@
+       if (!next && !st.done) next = { ui, li };
+       if (!live && !st.done && !st.verified) return;
+       started = true;
+-      [live && st.posAt && localDate(st.posAt), st.done && st.doneAt, st.verified && st.verifiedAt].forEach(t => { if (t && t > recent) recent = t; });
++      [live && st.posAt, st.done && st.doneAt, st.verified && st.verifiedAt].forEach(t => { if (t && t > recent) recent = t; });
+       if (live && (!resume || (st.posAt || "") > resume.at)) resume = { ui, li, at: st.posAt || "", pos: st.pos };
+     }));
+     if (!started) return null;
+
+---- verify-design, planted ----
+  FAIL  1440px Asia/Bahrain 21 Oct 02:00: Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day) — Continue: MATH 110 "Lecture 2 · 10 min", AI 200 "Lecture 2 · resume at 5:00"
+  FAIL  390px Asia/Bahrain 21 Oct 02:00: Continue leads with AI 200 (paused 02:00 local) over MATH 110 (watched the same local day) — Continue: MATH 110 "Lecture 2 · 10 min", AI 200 "Lecture 2 · resume at 5:00"
+
+FAIL — 2 of 876 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

@@ -174,6 +174,7 @@ async function freshContext(browser, opts) {
   for (const w of PHONE) {
     const ctx = await freshContext(browser, { viewport: { width: w, height: 860 }, hasTouch: true, reducedMotion: "reduce" });
     const page = await ctx.newPage();
+    let cardRoutes = 0;
     for (const r of FRAME_ROUTES) {
       await page.goto(URL + r, { waitUntil: "load" });
       await page.waitForTimeout(220);
@@ -213,8 +214,37 @@ async function freshContext(browser, opts) {
       check(m.lines <= 1, at + ": running head wraps to " + m.lines + " lines");
       check(m.below, at + ": content starts underneath the running head");
       check(!m.on, at + ": the menu button is sitting on text — " + m.on);
+      // T-023: the tab bar floats over the page, and content scrolls under it
+      // by design — but at the END of the scroll nothing may be left under it.
+      // That is what the page's bottom padding is for; take it away and the
+      // last lines of every page sit under the capsule.
+      const under = await page.evaluate(() => {
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+        const tb = document.querySelector("#tabbar");
+        if (getComputedStyle(tb).display === "none") return { shown: false };
+        // Both fixed controls at the bottom: the capsule and, when it is on
+        // screen (not stowed, not off), the Next card floating above it.
+        const boxes = [["the tab bar", tb.getBoundingClientRect()]];
+        const rb = document.querySelector("#railbar");
+        if (rb && rb.checkVisibility({ opacityProperty: true }) && rb.getBoundingClientRect().height > 0)
+          boxes.push(["the Next card", rb.getBoundingClientRect()]);
+        let on = null;
+        document.querySelectorAll("#view *").forEach(el => {
+          if (on || !el.checkVisibility()) return;
+          if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length)) return;
+          const b = el.getBoundingClientRect();
+          if (b.width < 1 || b.height < 1) return;
+          for (const [what, bar] of boxes)
+            if (!on && b.top < bar.bottom && b.bottom > bar.top && b.left < bar.right && b.right > bar.left)
+              on = el.tagName.toLowerCase() + " \"" + el.textContent.trim().slice(0, 30) + "\" at " + Math.round(b.top) + "-" + Math.round(b.bottom) +
+                   " under " + what + " at " + Math.round(bar.top) + "-" + Math.round(bar.bottom);
+        });
+        return { shown: true, on, card: boxes.length > 1 };
+      });
+      if (under.card) cardRoutes++;
+      check(under.shown && !under.on, at + ": at the end of the scroll the tab bar or the Next card is sitting on text — " + (under.shown ? under.on : "no tab bar"));
     }
-    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes");
+    console.log("  " + String(w).padStart(5) + "px  frame clears the page on " + FRAME_ROUTES.length + " routes (menu button, tab bar, and the Next card on " + cardRoutes + ")");
     await ctx.close();
   }
 
@@ -290,6 +320,8 @@ async function freshContext(browser, opts) {
         await page.goto(URL + "/", { waitUntil: "load" });
         await page.waitForSelector("#view > *");
         const m = await page.evaluate(() => ({
+          bar: (() => { const t = document.querySelector("#tabbar"), b = t.getBoundingClientRect();
+                        return { l: b.left, r: b.right, btm: b.bottom, h: b.height, rad: parseFloat(getComputedStyle(t).borderTopLeftRadius) }; })(),
           root: getComputedStyle(document.documentElement).fontSize,
           vw: document.documentElement.clientWidth,
           vh: window.innerHeight,
@@ -302,6 +334,15 @@ async function freshContext(browser, opts) {
         const at = w + "px root " + root + "px";
         check(m.root === root + "px", at + ": root font is " + m.root);
         check(m.tabs.length === 5, at + ": tab bar has " + m.tabs.length + " tabs, not 5");
+        tabBlockChecks += 2;
+        // T-023: a capsule 14px (+/-1) in from both edges, 70px tall, and
+        // 12px above the bottom (headless Chromium has no safe-area inset, so
+        // "above the safe area" is the 12px itself).
+        check(Math.abs(m.bar.l - 14) <= 1 && Math.abs(m.vw - m.bar.r - 14) <= 1,
+              at + ": the tab bar is not 14px from both edges (" + m.bar.l.toFixed(1) + " and " + (m.vw - m.bar.r).toFixed(1) + ")");
+        check(Math.abs(m.vh - m.bar.btm - 12) <= 1 && Math.abs(m.bar.h - 70) <= 0.5 && m.bar.rad >= m.bar.h / 2,
+              at + ": the tab bar is not a 70px capsule 12px above the bottom (h " + m.bar.h.toFixed(1) + ", gap " +
+              (m.vh - m.bar.btm).toFixed(1) + ", radius " + m.bar.rad + ")");
         tabBlockChecks += 2;
         for (const t of m.tabs) {
           tabBlockChecks += 2;
@@ -320,13 +361,77 @@ async function freshContext(browser, opts) {
       : "  320/390px  roots 16/24  all " + tabBlockChecks + " tab checks passed");
   }
 
+  // ---- phone landscape: the notch's side insets (T-023 review) ----
+  //
+  // viewport-fit=cover hands the whole screen to the page, so in landscape the
+  // notch and the rounded corners are the page's to keep clear. The capsule and
+  // the Next card were 14px from the screen edge, which put the first tab and
+  // the card's label under the notch. Chromium cannot draw a notch, but CDP
+  // can set the insets env() reads; the probe confirms they took, so this
+  // cannot pass on an override the browser ignored.
+  const INSETS = { left: 47, right: 47, bottom: 21 }, LAND_ROUTES = ["/review", "/courses", "/"];
+  let landChecks = 0;
+  {
+    const failsBefore = fails;
+    const ctx = await freshContext(browser, { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page);
+    await cdp.send("Emulation.setSafeAreaInsetsOverride", { insets: INSETS });
+    let cards = 0;
+    for (const r of LAND_ROUTES) {
+      await page.goto(URL + r, { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await page.waitForTimeout(250);
+      const m = await page.evaluate(() => {
+        const probe = document.createElement("div");
+        probe.style.cssText = "position:fixed;left:env(safe-area-inset-left,0px);top:0;width:calc(env(safe-area-inset-right,0px) + 1px);height:calc(env(safe-area-inset-bottom,0px) + 1px)";
+        document.body.appendChild(probe);
+        const pb = probe.getBoundingClientRect(); probe.remove();
+        const box = el => { const b = el.getBoundingClientRect(); return { l: b.left, r: b.right, btm: b.bottom }; };
+        const rb = document.querySelector("#railbar");
+        const card = rb && rb.checkVisibility({ opacityProperty: true }) && rb.getBoundingClientRect().height > 0;
+        return {
+          inset: { l: pb.left, r: pb.width - 1, b: pb.height - 1 }, vw: document.documentElement.clientWidth, vh: window.innerHeight,
+          bar: box(document.querySelector("#tabbar")),
+          tabs: [...document.querySelectorAll("#tabbar a")].map(a => Object.assign({ name: a.textContent.trim().split(/\s+/)[0] }, box(a))),
+          card: card ? { box: box(rb), parts: [...rb.querySelectorAll(".rb-main, .btn")].map(box) } : null,
+        };
+      });
+      const at = "844x390 insets 47/47/21 " + r;
+      const L = m.inset.l, R = m.vw - m.inset.r;
+      check(m.inset.l === INSETS.left && m.inset.r === INSETS.right && m.inset.b === INSETS.bottom,
+            at + ": the inset override did not take (env reads " + JSON.stringify(m.inset) + ")");
+      check(Math.abs(m.bar.l - (L + 14)) <= 1 && Math.abs(m.bar.r - (R - 14)) <= 1 && m.bar.btm <= m.vh - m.inset.b + 0.5,
+            at + ": the capsule is not 14px inside the side insets and above the bottom one (" +
+            m.bar.l.toFixed(1) + ".." + m.bar.r.toFixed(1) + " of " + L + ".." + R + ", bottom " + m.bar.btm.toFixed(1) + ")");
+      const out = m.tabs.filter(t => t.l < L - 0.5 || t.r > R + 0.5);
+      check(!out.length, at + ": tab(s) under the side insets — " + out.map(t => t.name + " " + t.l.toFixed(1) + ".." + t.r.toFixed(1)).join(", "));
+      landChecks += 3;                                    // the three check() calls above
+      if (m.card) {
+        cards++;
+        const parts = [m.card.box].concat(m.card.parts).filter(b => b.l < L - 0.5 || b.r > R + 0.5);
+        check(!parts.length && Math.abs(m.card.box.l - (L + 14)) <= 1 && Math.abs(m.card.box.r - (R - 14)) <= 1,
+              at + ": the Next card or its content is under the side insets (card " + m.card.box.l.toFixed(1) + ".." + m.card.box.r.toFixed(1) +
+              ", content " + m.card.parts.map(b => b.l.toFixed(1) + ".." + b.r.toFixed(1)).join(" / ") + ")");
+        landChecks++;
+      }
+    }
+    // The Next card has to have been measured somewhere, or its half is blind.
+    check(cards > 0, "844x390 landscape: the Next card was on screen on none of " + LAND_ROUTES.join(", "));
+    landChecks++;
+    await ctx.close();
+    const lf = fails - failsBefore;
+    console.log(lf ? "  844x390  insets 47/47/21  " + lf + " of " + landChecks + " landscape checks failed"
+                   : "  844x390  insets 47/47/21  all " + landChecks + " landscape checks passed (capsule, tabs, Next card on " + cards + " routes)");
+  }
+
   await browser.close();
   const n = DESKTOP.length * ROUTES.length + PHONE.length + 10 +
-            PHONE.length * FRAME_ROUTES.length * 7 + FRAME_ROUTES.length + tabBlockChecks;
+            PHONE.length * FRAME_ROUTES.length * 8 + FRAME_ROUTES.length + tabBlockChecks + landChecks;
   console.log(fails
     ? "\nFAIL — " + fails + " shell assertion" + (fails === 1 ? "" : "s") + " broken"
     : "\nPASS — shell intact across " + DESKTOP.length + " desktop widths x " + ROUTES.length +
       " routes and " + PHONE.length + " phone widths, frame clear on " +
-      FRAME_ROUTES.length + " routes (" + n + " checks)");
+      FRAME_ROUTES.length + " routes, phone landscape inside the safe-area insets on " + LAND_ROUTES.length + " routes (" + n + " checks)");
   process.exit(fails ? 1 : 0);
 })();

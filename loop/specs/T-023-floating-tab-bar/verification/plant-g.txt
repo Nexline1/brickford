@@ -1,0 +1,59 @@
+# Plant g — 2026-10-08T09:37:51Z on b32f893
+## diff
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 49476eb..1eba89a 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -1752,7 +1752,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
+   .tabbar {
+     /* 14px in from each side, and from the notch in landscape: viewport-fit
+        is cover, so the side insets are the page's to keep clear. */
+-    position: fixed; left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
++    position: fixed; left: 14px; right: 14px;
+     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+     z-index: var(--z-tabbar);
+     display: flex; height: 70px; padding: 0 5px; border-radius: 999px;
+@@ -1892,7 +1892,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
+    it stays the edge-to-edge bar above. */
+ @media (max-width: 860px) {
+   .railbar {
+-    left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
++    left: 14px; right: 14px;
+     bottom: calc(var(--tabbar-h) + 8px);
+     min-height: 60px; padding: 7px 8px 7px 16px; border-radius: 22px;
+     background: color-mix(in srgb, var(--surface) 78%, transparent);
+## node tools/verify-shell.js
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+    320px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    390px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    430px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    768px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    860px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    390px  every control reaches 44x44 on 23 routes
+  320/390px  roots 16/24  all 56 tab checks passed
+  FAIL  844x390 insets 47/47/21 /review: the capsule is not 14px inside the side insets and above the bottom one (14.0..830.0 of 47..797, bottom 357.0)
+  FAIL  844x390 insets 47/47/21 /review: tab(s) under the side insets — Home 20.0..180.8, Review 663.2..824.0
+  FAIL  844x390 insets 47/47/21 /review: the Next card or its content is under the side insets (card 14.0..830.0, content 31.0..715.9 / 725.9..821.0)
+  FAIL  844x390 insets 47/47/21 /courses: the capsule is not 14px inside the side insets and above the bottom one (14.0..830.0 of 47..797, bottom 357.0)
+  FAIL  844x390 insets 47/47/21 /courses: tab(s) under the side insets — Home 20.0..180.8, Review 663.2..824.0
+  FAIL  844x390 insets 47/47/21 /courses: the Next card or its content is under the side insets (card 14.0..830.0, content 31.0..715.9 / 725.9..821.0)
+  FAIL  844x390 insets 47/47/21 /: the capsule is not 14px inside the side insets and above the bottom one (14.0..830.0 of 47..797, bottom 357.0)
+  FAIL  844x390 insets 47/47/21 /: tab(s) under the side insets — Home 20.0..180.8, Review 663.2..824.0
+  844x390  insets 47/47/21  8 of 15 landscape checks failed
+FAIL — 8 shell assertions broken
+## exit code: 1
+## restored: cmp identical, git diff clean (platform/css/style.css)

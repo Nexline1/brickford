@@ -1598,7 +1598,6 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      15px --fs-small. The iOS ramp in :root replaced it. The phone and the
      desktop now share every text style except the large title, and
      --fs-small is the 15px subhead everywhere. */
-  :root { --tabbar-h: 49px; }
   .shell { flex-direction: column; }
   /* No transition: the spring in app.js owns this transform frame by frame, and
      a CSS transition on the same property would fight it — the element would
@@ -1739,22 +1738,47 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      Thumb-reach navigation for phones. It painted the dark panel for a long
      time, and any component that paints the panel has to re-scope the ink
      with it — this one did not, once, and its labels were 2.6:1. It is the
-     page's own material now, so the page's solid inks apply as they are:
-     --ink-3 labels and the --accent active tab are >= 4.9:1 on it in all seven
-     themes. Sentence-case 10px/500 labels under 24px glyphs (brief §4). */
+     page's own material, so the page's solid inks apply as they are: --ink-3
+     labels and the --accent active tab are >= 4.9:1 on it in all seven
+     themes. Sentence-case 10px/500 labels under 24px glyphs (brief §4).
+
+     T-023 (brief §9): a capsule floating 14px in from each side and 12px
+     above the safe area, not a slab pinned to the edge. The page reserves its
+     height plus that gap (measureFurniture reads innerHeight - top), so at the
+     end of a scroll no text is under it. A glass bubble sits behind the
+     active tab and follows a finger sliding along the bar (mountTabbar in
+     app.js); it has no transition, because the spring owns its transform. */
+  :root { --tabbar-h: calc(82px + env(safe-area-inset-bottom, 0px)); }
   .tabbar {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: var(--z-tabbar);
-    display: flex;
+    /* 14px in from each side, and from the notch in landscape: viewport-fit
+       is cover, so the side insets are the page's to keep clear. */
+    position: fixed; left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: var(--z-tabbar);
+    display: flex; height: 70px; padding: 0 5px; border-radius: 999px;
     background: color-mix(in srgb, var(--surface) 78%, transparent);
-    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-    border-top: 0.5px solid var(--line);
-    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-float);
+    /* Vertical drags stay the page's: the browser scrolls and the slide is
+       never started. The horizontal axis is the slide's. */
+    touch-action: pan-y; -webkit-user-select: none; user-select: none;
   }
+  .tabbar .tab-bubble {
+    position: absolute; left: 0; top: 5px; bottom: 5px; width: calc((100% - 10px) / 5);
+    border-radius: 999px; pointer-events: none;
+    background: color-mix(in srgb, var(--ink) 9%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    opacity: 0; transition: opacity var(--t-hover) ease;
+  }
+  .tabbar.has-active .tab-bubble { opacity: 1; }
   .tabbar a {
+    position: relative;
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-    min-height: 49px; padding: 4px 2px; border-radius: var(--radius);
+    min-height: 49px; min-width: 0; padding: 4px 2px; border-radius: 999px;
     color: var(--ink-3); font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.2;
-    text-decoration: none;
+    text-decoration: none; -webkit-user-drag: none;
     /* T-001: the labels are rem, so at a 24px root the bar was 397px and
        "Review" fell off a 390px screen. The label is capped at 3.5vw, and the
        cap stays: at a 16px root 0.625rem (10px) is under it at every phone
@@ -1766,6 +1790,17 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .tabbar a:hover { text-decoration: none; }
   .tabbar a .glyph { width: 24px; height: 24px; }
   .tabbar a.active { color: var(--accent); }
+  /* Due reviews. A solid red with white text, 5.4:1, in every theme. Anchored
+     from the tab's right so it can never leave the tab: a one-digit badge
+     (18px) starts 3px right of the centre as before, and a wider one ("99+",
+     the most it says) grows toward the glyph instead of off the capsule. */
+  .tabbar .tab-badge {
+    position: absolute; top: 4px; right: max(2px, calc(50% - 21px));
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+    background: #c4342a; color: #fff;
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .tabbar .tab-badge[hidden] { display: none; }
 
   /* 16px inputs stop mobile browsers from zooming the page on focus */
   input[type="text"], input[type="number"], input[type="date"], textarea, select { font-size: 16px; }
@@ -1848,6 +1883,24 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      after it. The bar is 54px; the button in it can be 44. */
   .railbar .btn { flex-shrink: 0; min-height: 44px; }
 }
+/* T-023: on a phone the Next bar is a card floating 8px above the tab bar's
+   capsule — the mini-player over the tab bar — on the same 14px insets and in
+   the same glass. A full-width slab on top of a floating capsule was two bar
+   styles stacked, with the page showing through between them. Its reserved
+   height (measureFurniture) includes the 8px gap, so at the end of a scroll
+   nothing rests under either. Between 861 and 1039px there is no tab bar and
+   it stays the edge-to-edge bar above. */
+@media (max-width: 860px) {
+  .railbar {
+    left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--tabbar-h) + 8px);
+    min-height: 60px; padding: 7px 8px 7px 16px; border-radius: 22px;
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-float);
+  }
+}
 
 /* ---------- Reduced motion: global kill-switch ---------- */
 @media (prefers-reduced-motion: reduce) {
@@ -1891,6 +1944,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 @media (prefers-reduced-transparency: reduce) {
   .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .tabbar, .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .tabbar .tab-bubble { background: var(--accent-soft); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
   :root { --line: var(--line-strong); }
@@ -1899,8 +1953,8 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      each, the nav bar's shown whether or not anything is under it. */
   .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .topbar::after { opacity: 1; border-bottom: 1px solid var(--line-strong); }
-  .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top: 1px solid var(--line-strong); }
-  .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-top-color: var(--line-strong); }
+  .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--line-strong); }
+  .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: var(--line-strong); }
   .sidebar { border-right: 1px solid var(--line-strong); }
   /* A list section is a fill on a fill — --surface on --bg, 1.073:1 in
      slate, the faintest theme — so here it is outlined as well. */

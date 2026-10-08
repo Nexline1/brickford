@@ -1,0 +1,26 @@
+# Plant j — 2026-10-08T10:29:30Z on e7e4aad
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 2b24f5d..9bc50a0 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1627,7 +1627,7 @@
+     // press that still activate()d here was two actions from one tap.
+     const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+     bar.addEventListener("pointerdown", e => {
+-      if ((e.pointerType === "mouse" && e.button !== 0) || modified(e)) return;
++      if (e.pointerType === "mouse" && (e.button !== 0 || modified(e))) return;
+       try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
+     });
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) a Ctrl-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/courses; new page #/courses
+  FAIL  (j) a Shift-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/courses; new page #/courses
+a slow phone (once, 390px)
+sync (once)
+2 of 103 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean (platform/js/app.js)

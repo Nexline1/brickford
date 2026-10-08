@@ -1,0 +1,26 @@
+# Plant a — 2026-10-07T16:48:00Z on 1e1feed
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 51934b6..ae63c97 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1639,7 +1639,6 @@
+       }
+       drag.hist.push({ x: e.clientX, t: performance.now() });
+       if (drag.hist.length > 6) drag.hist.shift();
+-      follow(e.clientX);
+     });
+     bar.addEventListener("pointerup", e => end(e, false));
+     bar.addEventListener("pointercancel", e => end(e, true));
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) sliding 60% toward Courses: the bubble's translateX follows the finger within 2px — finger moved 42.0px, translateX moved 0.0px; bubble centre 55.0 vs finger 97.0
+  FAIL  (j) release: the route becomes /courses and the bubble settles centred on Courses — #/, bubble centre 55.0 vs Courses 125.0
+  FAIL  (j) sliding 60px past Review: the bubble resists, moving less than the finger — finger +60px, bubble +0.0px
+a slow phone (once, 390px)
+sync (once)
+3 of 96 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean

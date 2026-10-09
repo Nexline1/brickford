@@ -96,6 +96,19 @@ DAR.COURSES.push({
         { t: "The taste gap — volume on a deadline", v: "X74yYfTZSWU", min: 5 },
       ],
     },
+    {
+      name: "Unit V — Delivery: voice, body, pauses, nerves",
+      lessons: [
+        { t: "The voice toolbox — register, prosody, pace, and a warm-up", v: "eIho2S0ZahI", min: 10 },
+        { t: "The five dials — rate, volume, melody, tone, pause", v: "6-shbSFc48E", min: 43 },
+        { t: "Melody, volume, and the descending scale", v: "f3bR84PnLGc", min: 36 },
+        { t: "The pause — tie it to a breath", v: "-3PORS6gWF0", min: 13 },
+        { t: "Five body-language habits that read as confidence", v: "U1O3UFeCEeU", min: 8 },
+        { t: "Rookie, pretty good, natural — using the whole range", v: "FsxorSNJBaA", min: 28 },
+        { t: "Nerves: treat the symptoms and the sources", v: "GRdm4Iweuz0", min: 38 },
+        { t: "How to speak — the promise, the star, the ending", v: "Unzc731iCUY", min: 63 },
+      ],
+    },
   ],
 });
 
@@ -918,6 +931,318 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Ideally with someone waiting for the work, even if they do not pay you." },
       { q: "What delivery fault does he point out in his own year-eight tape?", opts: ["Stressing every third word instead of talking the way people normally talk", "Speaking too fast", "Too many pauses", "Using notes"], a: 0,
         expl: "Underlining every third word for emphasis sounds unnatural." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit V — A3, delivery: voice, body, pauses, nerves (budget 5.0 h with
+// the seed's professional-voice lesson). Julian Treasure, Vinh Giang (two
+// lessons), Roger Love, Rebecca Martin, Alex Lyon, Matt Abrahams, and
+// Patrick Winston's MIT lecture. The coaches disagree in one place — how
+// a sentence should end in pitch — and the summaries say so rather than
+// picking a winner.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.4.0": {
+    module: "A3",
+    mechanic: "The voice is a toolbox most people never open — register, timbre, prosody, pace, pitch and volume — and what you say only lands if you stand on honesty, authenticity, integrity and love while you say it.",
+    rules: [
+      "Seven habits make people stop listening: gossip, judging, negativity, complaining, excuses, exaggeration that becomes lying, and dogmatism — opinions delivered as facts.",
+      "Speak from the chest when you want weight. Treasure says we hear depth as authority, and most people speak from the throat by default.",
+      "Prosody is the sing-song that carries meaning. One note is monotone; ending every statement as if it were a question is the other trap.",
+      "Use the extremes on purpose: go fast for excitement, slow to emphasise, and remember that silence is allowed. Get quiet to make people lean in.",
+      "Warm up before anything important. His routine: sigh out with arms up, lip buzz, tongue la-la, a rolled R, and the siren from high to low.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Do Treasure's warm-up once: sigh, lips, tongue, rolled R, siren. Then record one sentence from your story bank three ways: from the throat, from the chest, and with one deliberate two-second silence before the key word." },
+    check: "Play the three takes back to back. You can hear the chest take sit lower than the throat take, and the silence in the third take is a full two seconds, not a hesitation.",
+  },
+
+  "spch100.4.1": {
+    module: "A3",
+    mechanic: "Speaking is a set of behaviours, not a fixed voice, and five dials do most of the work: rate, volume, pitch as melody, tonality as the emotion under the words, and the pause.",
+    rules: [
+      "Vary the rate. Fast shows passion; slowing down makes even an ordinary line sound weighty. A steady rate is what bores people.",
+      "Most people speak at about a three out of ten for volume, and a five feels too loud to them. Giang says the missing two points cost them authority.",
+      "A song is about as long as a page of a book, yet you remember the song. Melody makes speech memorable, and most people use only two notes.",
+      "Your face sets your tone. A neutral face gives a neutral voice, so a monotone voice usually comes from a monotone body.",
+      "Fixes from his live coaching: do not start with <em>so</em>, end sentences lower in pitch, pause after the strong line, and hold eye contact with the lens.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Answer 'what do you do?' to camera in about sixty seconds. Record it again with one change per dial: one fast stretch and one slow one, volume up to a five, a wider pitch range, a face that matches the content, and a long pause after your best line." },
+    check: "In the second take you can point to each of the five changes by timestamp. If you cannot find one, that dial did not move.",
+  },
+
+  "spch100.4.2": {
+    module: "A3",
+    mechanic: "The voice you have is one you imitated as a child, not one you were born with, and you can rebuild it: add melody so volume does not sound like anger, stop dropping the pitch at every comma and full stop, and breathe through your nose.",
+    rules: [
+      "Love says over 85 per cent of people speak on one or two notes. Add enough melody that you sound as if you are singing to someone.",
+      "Volume on one note sounds angry. Volume with melody, going up and down, sounds happy.",
+      "School taught us to drop the pitch at every comma and full stop. Love calls this the descending scale and says it makes speakers sound sad, so try lifting instead.",
+      "Recording your voicemail shows you how you sound to other people, and most people settle on a bad take after twenty minutes. Record yourself until you are not settling.",
+      "Breathe in through the nose at commas and full stops. Love says mouth breathing dries the voice out, and nose breathing lets it last all day.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Record a twenty-second voicemail greeting three times: one note, then louder on one note, then louder with melody and with the ends of sentences lifting instead of falling. Close your lips and breathe through your nose at every full stop." },
+    check: "On playback, the second take sounds harder than the first and the third sounds warmer than both. If the third still drops at the full stops, record it again.",
+  },
+
+  "spch100.4.3": {
+    module: "A3",
+    mechanic: "A pause shows that you are secure enough to take up the room's time, and the reliable way to make one is to tie it to a breath: speak the point on the out-breath, and the in-breath is the pause.",
+    rules: [
+      "Rushing reads as junior status. A pause says that what you have to say is worth waiting for.",
+      "Do not just stop talking. Breathe in, speak at the top of the breath, finish the thought as the breath runs out, then take the next breath — that is the pause.",
+      "Pause at the very start: three breaths and eye contact with three people before the first word. In practice it will come out at about one and a half breaths.",
+      "Pause just before or just after your main message, and stay with the audience during it. Keep breathing and check silently whether it landed.",
+      "Build transition pauses into your outline. Moving, looking at your notes or taking a sip of water all count, and audiences forgive them.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Read a short article aloud using Martin's method: breathe in at every full stop, speak on the out-breath, and let the next breath be the pause. Then record your opening line with three breaths and three imagined faces before it." },
+    check: "The pauses fall at the full stops and not in the middle of sentences. Before the opening line there are at least two seconds of silence, and the line does not start with 'um'.",
+  },
+
+  "spch100.4.4": {
+    module: "A3",
+    mechanic: "You can look confident while feeling anxious by doing five things together: one thought per look, an occasional smile, a planted stance, gestures from a home base, and a pause with a nod after key ideas.",
+    rules: [
+      "Look at people about 90 per cent of the time, three to five seconds each: one thought, one look. Scanning the room, looking over heads and sticking to friendly faces all fail.",
+      "Smile now and then. A stone face looks anxious, and a smile makes eye contact feel warm instead of piercing.",
+      "Plant your feet: shoulder-width apart, weight on the balls of your feet, knees soft. Walking with a purpose is fine; pacing is not.",
+      "Rest your hands loosely together at waist height, as if holding a can, and gesture about once a sentence. No pockets, no pen, no crossed arms.",
+      "Pause for about a second after most sentences and two after key ideas. Lyon says a small nod in the long pauses gets the audience nodding with you.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Prop up your phone, stand in the ready position, and deliver ninety seconds of any story to three objects placed around the room, one thought per object, with your hands starting from home base each time." },
+    check: "Watch it with the sound off. Your feet do not move unless you are walking with a purpose, your eyes change target at sentence breaks, and your hands go back to home base between gestures.",
+  },
+
+  "spch100.4.5": {
+    module: "A3",
+    mechanic: "People hear you as a rookie, a pretty good or a natural communicator depending on how much of your range you use in voice, body and words — and what keeps most people at 'pretty good' is the fear of using the edges.",
+    rules: [
+      "Rookie signs: flat delivery, vocal fry at the end of the breath, a filler word in every sentence, a body that does nothing, and no structure in the words.",
+      "Build self-awareness first. Answer a question on camera for two minutes, get it transcribed, and look for circles, repetition and filler words.",
+      "Pretty good speakers have range but play it safe. Giang says the fear of judgment is mostly false, because people are thinking about themselves.",
+      "Only move with purpose. A repeated gesture that does not serve the message is non-functional behaviour and should go.",
+      "Natural speakers match face and voice, because the audience needs to see the emotion and hear it. They also make the same point with an analogy, a prop or a story.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Record a two-minute unscripted answer to 'why do you want to speak better?' Transcribe it (any free tool) and mark every filler word and every place you circle back. Then say the main point three ways: as an analogy, with a prop you have to hand, and as a thirty-second story." },
+    check: "You have a filler-word count, and the story version has a moment and a change — not just the point repeated with feeling.",
+  },
+
+  "spch100.4.6": {
+    module: "A3",
+    mechanic: "Speaking anxiety has symptoms (racing heart, shallow breath, dry mouth) and sources (fear of missing a future goal), and you need to treat both — a long out-breath for the symptoms, the present moment and a structure for the sources.",
+    rules: [
+      "To calm the symptoms, take slow belly breaths with an out-breath twice as long as the in-breath; two or three are enough. Holding something cold helps if you blush or sweat.",
+      "The main source is fear of a bad future outcome, so come back to the present: walk, move, play a song, or count backwards from 100 in sevens.",
+      "Remember that you are there to serve the audience. Moving the spotlight off yourself takes the pressure off.",
+      "The biggest fear is forgetting, and a map prevents it. Set a goal — what they should know, feel and do — and pick a structure such as what, so what, now what.",
+      "For spontaneous speaking, lower your standard to doing what is needed, work out why you were asked, then use the structure. Abrahams's mother's advice: tell the time, don't build the clock.",
+    ],
+    drill: { minutes: 8, artifact: "spoken",
+      do: "Before your next recording or meeting, do three breaths with the out-breath twice as long as the in-breath, then count back from 100 in sevens to 72. Then give a forty-five-second what / so what / now what on something from your week, out loud." },
+    check: "You reached 72 without losing count, and the answer has three parts you could label — the now-what is an action, not a summary.",
+  },
+
+  "spch100.4.7": {
+    module: "A3",
+    mechanic: "Speaking well is mostly knowledge and practice, not talent, and Winston's toolkit covers the whole arc: open with what they will know by the end, repeat the idea, fence it off and number the parts, and close by naming your contributions and saluting the audience instead of saying thank you.",
+    rules: [
+      "Do not open with a joke, because people are still settling in. Open with an empowerment promise: what they will know at the end that they do not know now.",
+      "Cycle on the idea, because about a fifth of the room is drifting at any moment. Fence it off from ideas it could be confused with, and use verbal punctuation — numbered parts — so people can get back on.",
+      "Slides are for exposing ideas, not teaching them. Too many slides and too many words make the audience read instead of listen, so do not read them aloud and do not hide behind a laser pointer.",
+      "To make work memorable, use Winston's star: a symbol, a slogan, a surprise, a salient idea that sticks out, and a story.",
+      "End on a contributions slide, and with a final line that is not 'thank you' — a joke, a benediction, or a salute to the audience.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take a talk or story you might give. Write its empowerment promise in one sentence, its five star elements (symbol, slogan, surprise, salient idea, story), and a final line that salutes the audience instead of thanking them." },
+    check: "The promise is about what the listener will be able to do, not what you will cover, and the final line could not be swapped for 'thank you' without losing something.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.4.0": {
+    takeaway: "Julian Treasure's TED talk in three parts: seven habits that make people stop listening, four foundations that spell HAIL, and a toolbox of register, timbre, prosody, pace, pitch and volume — warmed up before anything important.",
+    beats: [
+      { t: "Seven deadly sins", d: "Gossip, judging, negativity, complaining, excuses, exaggeration that turns into lying, and dogmatism." },
+      { t: "HAIL", d: "Honesty, authenticity, integrity, love. Love tempers honesty, and it is hard to judge someone while wishing them well." },
+      { t: "Register and timbre", d: "Nose, throat or chest: depth carries authority. Timbre — rich, smooth, warm — can be trained with breathing, posture and exercises." },
+      { t: "Prosody, pace, pitch, volume", d: "Avoid one note and avoid making every statement sound like a question. Use silence. Get quiet to draw people in." },
+      { t: "The warm-up", d: "Arms up and sigh, lip buzz, tongue la-la, rolled R, and the siren from high to low." },
+    ],
+    worked: "Before an interview, do the warm-up in the corridor (the siren if you only have time for one), then say your opening line once from the chest, slowly, with silence before the key word.",
+    watch: "Upspeak: making every sentence end like a question. It takes away a prosody tool you need for real questions and makes statements sound unsure.",
+    concepts: [],
+    checks: [
+      { q: "What does HAIL stand for?", opts: ["Humour, anecdote, insight, lesson", "Honesty, authenticity, integrity, love", "Hook, arc, image, landing", "Hear, acknowledge, inquire, lead"], a: 1,
+        expl: "Four foundations to stand on so that what you say is welcomed." },
+      { q: "Where does Treasure say to speak from when you want weight?", opts: ["The nose", "The throat", "The chest", "The head voice"], a: 2,
+        expl: "He links depth to perceived power and authority." },
+      { q: "Which warm-up does he say he would keep if he could only do one?", opts: ["The siren, from high 'we' to low 'aw'", "The lip buzz", "The rolled R", "The sigh"], a: 0,
+        expl: "He says the pros call it the siren." },
+    ],
+  },
+
+  "spch100.4.1": {
+    takeaway: "Vinh Giang's five foundations — rate, volume, pitch as melody, tonality, and the pause — coached live on a student, then applied to accents, interviews, imitation and nerves. The voice is behaviour, so it can change.",
+    beats: [
+      { t: "You are not trapped in your voice", d: "Changing your mouth movements and breath changes how you sound. The way you speak is a set of behaviours." },
+      { t: "The five dials", d: "Vary the rate. Speak at a five, not a three. Use melody, because a song sticks and a page does not. Let your face carry the emotion. Pause." },
+      { t: "Live coaching", d: "A student answers 3-2-1 style, then again with more volume, gestures and a lower pitch at the end of sentences, then with long pauses and no opening 'so'." },
+      { t: "Accent", d: "Record twenty improvised minutes, send it to a speech pathologist for pronunciation and to an ESL teacher for grammar, then fix one thing at a time." },
+      { t: "Interviews and imitation", d: "Spend 5–10 per cent of the time on connection: answer 'tell me about yourself' with a prepared story. Copy great speakers the way a chef copies recipes, then add your own lemon." },
+      { t: "Nerves and range", d: "Burn off adrenaline with a quick walk or push-ups, use breathing, and focus on the audience. When an unused part of your voice feels fake, tell yourself it is only unfamiliar." },
+    ],
+    worked: "His interview answer: a prepared story (selling MP3 players at 13, and what it taught him about selling the wrong way and the right way), linked to the job, takes about three minutes and builds rapport before the questions start.",
+    watch: "Calling an unfamiliar voice 'fake'. It is the same instrument — you have just never used those keys, and calling them fake stops you exploring.",
+    concepts: [],
+    checks: [
+      { q: "Why does Giang compare a song with a page of a book?", opts: ["Songs are shorter", "Both have about the same number of words, but melody makes the song memorable", "Books are harder to read aloud", "Songs repeat their chorus"], a: 1,
+        expl: "So speaking with more melody makes what you say stick." },
+      { q: "What does he say causes a monotone voice?", opts: ["A cold", "Speaking too fast", "A monotone body — including a neutral face", "Too much volume"], a: 2,
+        expl: "Your face controls the emotion under your words." },
+      { q: "What is his advice for someone worried about their accent?", opts: ["Record twenty improvised minutes and have a speech pathologist and an ESL teacher review it", "Avoid speaking in meetings", "Copy a native speaker's accent exactly", "Speak more slowly and nothing else"], a: 0,
+        expl: "Then work on one thing at a time, so you do not freeze up." },
+    ],
+  },
+
+  "spch100.4.2": {
+    takeaway: "Roger Love, interviewed on MarieTV: the voice you have is one you imitated, monotone and timid volume are learned, the falling pitch at every full stop makes people sound sad, and nose breathing saves the voice.",
+    beats: [
+      { t: "The voice you imitated", d: "We copied our parents to connect with them. That outdated voice may now be holding you back, and you can build a new one." },
+      { t: "Emotion first", d: "He argues that sounds carry the emotion that gets a message remembered, and that great songwriters are storytellers who move you from emotion to emotion in three minutes." },
+      { t: "Monotone and volume", d: "Most people use one or two notes. Loud on one note sounds angry; loud with melody sounds happy." },
+      { t: "The descending scale", d: "Dropping in pitch at every comma and full stop, as children are taught, sounds sad. He recommends lifting instead." },
+      { t: "Characters and breath", d: "You need different voices for work and home. Close your lips and breathe through your nose at the full stops so the voice lasts." },
+    ],
+    worked: "The voicemail test: record a greeting, listen back, and notice what you settle for. That settled-for voice is the one everyone hears. Keep recording until the melody goes up and down.",
+    watch: "The coaches in this unit disagree. Giang tells a student to end sentences lower for authority; Love says lift the ends for warmth; Treasure warns against making every statement sound like a question. Use all three: lift inside the sentence for warmth, land the key claim low, and never end every line on a question.",
+    concepts: [],
+    checks: [
+      { q: "According to Love, why does loud speech sometimes sound angry?", opts: ["Volume always sounds angry", "It is loud and stays on one note — with melody it sounds happy", "The microphone distorts it", "People expect quiet speakers"], a: 1,
+        expl: "Volume mixed with melody is heard as energy, not anger." },
+      { q: "What is the 'descending scale'?", opts: ["A singing exercise", "Speaking more and more quietly", "Dropping in pitch at every comma and full stop, which he says sounds sad", "Slowing down at the end of a talk"], a: 2,
+        expl: "He traces it back to how children are taught to read aloud." },
+      { q: "What does he say is the main reason speakers lose their voice?", opts: ["Breathing in through the mouth", "Speaking too loudly", "Not drinking enough tea", "Talking too fast"], a: 0,
+        expl: "The nose moistens the air; breathe through it at commas and full stops." },
+    ],
+  },
+
+  "spch100.4.3": {
+    takeaway: "Rebecca Martin on the pause: why it works (time to think, time to process, and a sign of status), how to make it natural (tie it to a breath), and the three places it pays off most (before you start, around your main message, and at transitions).",
+    beats: [
+      { t: "Why pause", d: "You get time to think, the audience gets time to process, and it shows you think your words are worth waiting for. Rushing comes across as junior." },
+      { t: "How", d: "Breathe in, speak at the top of the breath, finish the thought as the breath runs out, then breathe in again. That in-breath is the pause." },
+      { t: "Practice", d: "Read an article aloud and take a full breath at every full stop." },
+      { t: "Before you start", d: "Three breaths and eye contact with three people. It feels too long; in practice it becomes one and a half breaths, and the room's attention goes up." },
+      { t: "Message and transitions", d: "Pause around your key line and stay with the audience while you do. Plan pauses between sections, where moving or a sip of water is fine." },
+    ],
+    worked: "She delivers a line ('we are only scared of how powerful and beautiful we actually are') and holds the silence, breathing and checking in silently with the audience, before moving on.",
+    watch: "A pause in the wrong place — in the middle of a sentence, or after a weak point. A pause makes whatever comes just before it sound important.",
+    concepts: [],
+    checks: [
+      { q: "What does Martin say a natural pause must be tied to?", opts: ["A slide change", "A gesture", "A breath", "A sip of water"], a: 2,
+        expl: "When the thought runs out with the breath, the in-breath is the pause." },
+      { q: "What does she suggest before the first word of an important talk?", opts: ["Three breaths and eye contact with three people", "A joke", "Thanking the organisers", "Reading the agenda"], a: 0,
+        expl: "It settles your nerves and signals that something important is about to happen." },
+      { q: "What does rushing through your content tell the audience, according to her?", opts: ["That you are well prepared", "That you are of junior status and do not want to take up their time", "That the material is easy", "That you are excited"], a: 1,
+        expl: "Pausing shows you are secure in your role and in the value you bring." },
+    ],
+  },
+
+  "spch100.4.4": {
+    takeaway: "Alex Lyon's five habits that come across as confidence even when you are nervous: eye contact (one thought, one look), an occasional smile, a planted ready position, gestures from a home base, and pauses with a nod.",
+    beats: [
+      { t: "Eye contact", d: "About 90 per cent of the time, three to five seconds per person, everyone in the room several times. Glance at notes and come straight back." },
+      { t: "Smile", d: "A stone face looks like a deer in the headlights. Smiling relaxes you and warms up your eye contact." },
+      { t: "Posture", d: "Feet shoulder-width apart, weight forward, knees soft, no swaying. Walk with a purpose, then stop and plant again." },
+      { t: "Hands", d: "Home base: hands loosely together at the waist, or relaxed at your sides. A small gesture about once a sentence." },
+      { t: "Pause and nod", d: "One second after a sentence, two after a key idea, and a small nod. Audiences tend to nod back." },
+    ],
+    worked: "Practise 'one thought, one look' out loud: say half a sentence to one person, move your eyes as the next half starts, and repeat until it is automatic.",
+    watch: "The advice to look over people's heads. It may calm you, but nobody feels connected, so it does not look confident.",
+    concepts: [],
+    checks: [
+      { q: "How long does Lyon suggest looking at each person?", opts: ["Under a second", "About three to five seconds — one thought, one look", "As long as they look back", "Thirty seconds"], a: 1,
+        expl: "Long enough to finish a thought and for them to feel a connection." },
+      { q: "What is the 'ready position'?", opts: ["Hands in pockets, weight on heels", "Arms crossed, feet together", "Leaning on the lectern", "Feet shoulder-width apart, weight on the balls of the feet, knees soft"], a: 3,
+        expl: "Plant from the waist down; be animated from the waist up." },
+      { q: "What does he recommend adding to the longer pauses?", opts: ["A small nod", "A sip of water", "A glance at the slides", "A smile at the floor"], a: 0,
+        expl: "It looks confident and audiences tend to nod along." },
+    ],
+  },
+
+  "spch100.4.5": {
+    takeaway: "Vinh Giang's three levels — rookie, pretty good, natural — assessed on voice, body and words. You move up by first getting self-awareness, then using your full range, and finally having more than one way to make any point.",
+    beats: [
+      { t: "Rookie", d: "Flat delivery, vocal fry, filler words in every breath, a body that does nothing, no structure. Giang calls them habits, not who you are." },
+      { t: "The self-awareness exercise", d: "Two unscripted minutes on camera, transcribed, so you can see the filler words and the circling." },
+      { t: "Pretty good", d: "Range, but kept safe. A small set of gestures used over and over. Repeated, non-functional movement — he uses a speaker who keeps moving as the example." },
+      { t: "Frameworks", d: "Structures such as PREP and 3-2-1 filter your thinking so the listener does not have to sort it out." },
+      { t: "Natural", d: "All five vocal dials, purposeful body language, a face that matches the voice, and other ways to say the same thing: analogy, prop, story." },
+    ],
+    worked: "'Read more books' three ways: the analogy (reading is to the mind what exercise is to the body), the prop (a book holds years of someone's work), and the story (his father, after a half-million-dollar loss: every book you read is a soldier in your army).",
+    watch: "Moving without a reason. If a movement does not serve the message, it distracts — and small habits like touching your glasses add up.",
+    concepts: [],
+    checks: [
+      { q: "What does Giang say keeps 'pretty good' speakers stuck?", opts: ["They do not know any frameworks", "Fear of judgment stops them using the edges of their range", "Their accent", "Too much volume"], a: 1,
+        expl: "And he says the fear is mostly false — people are thinking about themselves." },
+      { q: "How does he define non-functional behaviour?", opts: ["Any behaviour that distracts from the message", "Any gesture with both hands", "Standing still", "Using a prop"], a: 0,
+        expl: "If it does not serve the message, it should go." },
+      { q: "Why does the face matter as much as the voice?", opts: ["Cameras show faces", "Smiling is polite", "If people see the emotion but do not hear it — or hear it but do not see it — they do not feel it", "The face controls volume"], a: 2,
+        expl: "Natural speakers match how they look to how they sound." },
+    ],
+  },
+
+  "spch100.4.6": {
+    takeaway: "Matt Abrahams of Stanford on nerves: anxiety has symptoms and sources, and you deal with both. Then the tools that reduce the fear of forgetting — a goal (know, feel, do), a structure (what, so what, now what), and a lower bar for speaking on the spot.",
+    beats: [
+      { t: "The biology", d: "Fight or flight: faster heart, shallow breath, a thinner voice, sweating, dry mouth. All normal, and all unhelpful when you speak." },
+      { t: "Symptoms", d: "Belly breaths with an out-breath twice as long as the in-breath ('the rule of lung'); something cold in your palm if you blush or sweat." },
+      { t: "Sources", d: "Fear of a bad future outcome. Get present: move, play music, count back in sevens. And remember you are there to serve the audience." },
+      { t: "Structure as a map", d: "It is hard to get lost with a map. Set a goal of what they should know, feel and do, then choose a structure — problem, solution, benefit, or what, so what, now what." },
+      { t: "Spontaneous speaking", d: "Reframe, lower your standard to doing what is needed, find out why you were asked, then structure. Feedback, apologies and Q&A all work this way." },
+      { t: "Interviews and memorability", d: "Two or three themes, each backed by an example, a figure, and a third-party endorsement. Be concrete, invite people in, and use time-travel language: imagine, picture this, remember when." },
+    ],
+    worked: "Feedback after a meeting in what / so what / now what: 'You went fast through the implementation plan' / 'so people may think it is not thought through' / 'next time, slow down and add detail.'",
+    watch: "Building the clock. When we are unsure, we keep adding to an answer that was already complete. Tell the time.",
+    concepts: [],
+    checks: [
+      { q: "What is Abrahams's 'rule of lung'?", opts: ["Breathe in for twice as long as you breathe out", "Hold your breath before the first line", "Breathe out for twice as long as you breathe in", "Breathe through the mouth"], a: 2,
+        expl: "The relaxation response happens on the out-breath." },
+      { q: "What does he say is the main source of speaking anxiety?", opts: ["Fear of not reaching a goal — a feared future outcome", "Bright lights", "Low blood sugar", "Large audiences"], a: 0,
+        expl: "So the antidote is getting present." },
+      { q: "What are the three parts of his communication goal?", opts: ["Hook, body, close", "What the audience should know, feel and do", "Symbol, slogan, surprise", "Who, what, why"], a: 1,
+        expl: "Information, emotion, action." },
+    ],
+  },
+
+  "spch100.4.7": {
+    takeaway: "Patrick Winston's MIT lecture: speaking skill is knowledge and practice far more than talent. Start with a promise, cycle and fence your ideas, choose tools by purpose, be remembered through the star, and finish on your contributions and a salute rather than 'thank you'.",
+    beats: [
+      { t: "Knowledge beats talent", d: "He was a better skier than an Olympic gymnast because he had the knowledge and the practice. Quality depends on knowledge, practice and, much less, talent." },
+      { t: "How to start", d: "Not with a joke. With an empowerment promise." },
+      { t: "Four heuristics", d: "Cycle three times, because a fifth of the room is drifting. Build a fence around your idea. Number the sections so people can get back on. Ask a question and wait — seven seconds is normal." },
+      { t: "Tools", d: "The board for teaching (its speed matches thinking, and it gives your hands a job); props for memory; slides for exposing ideas — few words, no reading aloud, no laser pointer." },
+      { t: "Winston's star", d: "Symbol, slogan, surprise, salient idea, story — what made his arch-learning work memorable by accident." },
+      { t: "How to stop", d: "Collaborators go on the first slide; contributions go on the last. End with a joke, a benediction, or a salute — not 'thank you for listening'." },
+    ],
+    worked: "His job-talk shape: within five minutes, a vision (a problem someone cares about plus a new approach) and evidence that you have done something (the steps needed); conclude by listing your contributions to mirror those steps.",
+    watch: "'Thank you for listening' as the last words. It implies the audience stayed only out of politeness. Mouth a thank you once the applause starts.",
+    concepts: [],
+    checks: [
+      { q: "Why does Winston advise against opening with a joke?", opts: ["Jokes are unprofessional", "People are still settling in and adjusting to your voice", "Jokes take too long", "MIT audiences do not laugh"], a: 1,
+        expl: "A joke works at the end, once people are used to you." },
+      { q: "What are the five points of Winston's star?", opts: ["Hook, setup, punch, tag, callback", "Problem, approach, steps, demo, contributions", "Symbol, slogan, surprise, salient idea, story", "Pace, pitch, pause, posture, presence"], a: 2,
+        expl: "Each starts with S; together they make work recognisable." },
+      { q: "What should the final slide be labelled?", opts: ["Contributions", "Questions?", "Thank you", "Conclusions"], a: 0,
+        expl: "It stays up while people ask questions and leave, so it should say what you did." },
     ],
   },
 });

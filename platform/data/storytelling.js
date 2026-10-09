@@ -83,6 +83,19 @@ DAR.COURSES.push({
         { t: "And, But, Yet, Therefore — structure in one breath", v: "_96OKURDlwc", min: 4 },
       ],
     },
+    {
+      name: "Unit IV — Finding stories: the lens, the bank, the volume",
+      lessons: [
+        { t: "Homework for Life, sharpened — and the pickle story", v: "x--U2X47pw8", min: 7 },
+        { t: "Seeing with storyteller eyes — notice the flag", v: "_gq60_clzk0", min: 3 },
+        { t: "A photo folder called Stories", v: "rwtoN6skzR0", min: 5 },
+        { t: "First, last, best, worst — mining the past", v: "VoaGniZSFGw", min: 7 },
+        { t: "Personal signature stories — make them, then bank them", v: "ojl2k8ylAMA", min: 13 },
+        { t: "Twelve lessons: zoom in, quote it, use 'how are you?'", v: "1Anw1adlP50", min: 12 },
+        { t: "Most of the work is finding — and killing", v: "VKXrZGs2kRQ", min: 4 },
+        { t: "The taste gap — volume on a deadline", v: "X74yYfTZSWU", min: 5 },
+      ],
+    },
   ],
 });
 
@@ -600,6 +613,311 @@ Object.assign(DAR.SUMMARIES, {
         expl: "It is the extra piece of information that persuades the audience the Therefore follows." },
       { q: "When is this structure most useful?", opts: ["Only for written reports", "When you must shape a message quickly, with no time for a full story", "When the audience already agrees with you", "For stories longer than ten minutes"], a: 1,
         expl: "She presents it as the fast way to apply story structure on the fly." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit IV — A2, finding stories in an ordinary week (budget 1.5 h with
+// the seed's Homework for Life). Matthew Dicks, Philipp Humm, Jennifer
+// Aaker, Ira Glass, and two short speaker-coach videos on noticing.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.3.0": {
+    module: "A2",
+    mechanic: "Homework for Life gets sharper with practice — from about one noticed moment a day to nearly eight — and the bank pays out when you match one of your own small moments to the message you need to land.",
+    rules: [
+      "The prompt that makes it unavoidable: <em>if my family would only be returned for a story from today, which moment would I tell?</em> Ask it even on days when nothing seemed to happen.",
+      "Two columns: the date, and a line or two. Never the whole story — he wants it small, repeatable and practicable.",
+      "The lens sharpens: in 2015 he caught 1.3 moments a day, mostly things he did; now 7.8, including things he heard, said or only thought.",
+      "Match by adjacency: a contract manager needs a story about being specific; Dicks has twenty — he never lets a restaurant put a pickle on his plate.",
+      "Tell your own story, not a borrowed one. A borrowed pickle lands the message but reveals nothing about you, and revealing yourself is what connects.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick a message you will need this month (for example 'details matter' or 'ask before you build'). Search your story bank for one small personal moment adjacent to it, and write the two-sentence bridge: the moment, then 'that is how I want us to be about X'." },
+    check: "The moment is yours, and it is about something unrelated to work. If it is a work example, it is an illustration, not an adjacent story.",
+  },
+
+  "spch100.3.1": {
+    module: "A2",
+    mechanic: "There are no boring lives, only boring storytellers: the observant notice the small flag the mind raises — frustration, surprise, a laugh — and treat it as a story arriving.",
+    rules: [
+      "<em>Boring life syndrome</em> is a seductive excuse: the belief that good speakers simply have more interesting lives.",
+      "A friend whose life was work, a baby, cafés and cycling had the best stories, because she noticed the queue, the barista, the ride home.",
+      "Believing you are a storyteller changes what you see — the shift comes before the stories do.",
+      "Watch for the flag: the moment you are frustrated, surprised, or find yourself laughing is your mind telling you to pay attention.",
+    ],
+    drill: { minutes: 5, artifact: "written",
+      do: "Tonight, list every moment today when you felt a flag — annoyed, surprised, amused — however small. Write a few words for each." },
+    check: "You have at least three entries from a day you would have called uneventful. If you have none, you were looking for events rather than flags.",
+  },
+
+  "spch100.3.2": {
+    module: "A2",
+    mechanic: "Capture the moment the instant it catches you — a photo into a phone folder called Stories — so that when a talk needs an illustration you scan a bank instead of searching a blank memory.",
+    rules: [
+      "A suggestion box with no paper, a rental tyre botched with glue, a cooking class on mole: each was a two-second photo of something curious, odd or frustrating.",
+      "Keep one folder named <em>Stories</em>. Capturing takes two seconds; deciding what it means can wait.",
+      "We are walking story banks who forget to record. 'I don't have a story' is almost never true.",
+      "You already tell stories at work — behind a product, a campaign, a personal brand in an interview — so the bank is a business tool.",
+    ],
+    drill: { minutes: 5, artifact: "written",
+      do: "Create a photo album called Stories now. Scroll back through the last two weeks of your camera roll and move every photo that has a story behind it into the album, with a three-word caption." },
+    check: "The album has at least five photos, and for each you can say in one sentence why it caught you. Photos you cannot explain are just photos.",
+  },
+
+  "spch100.3.3": {
+    module: "A2",
+    mechanic: "Mine the past with a grid — first, last, best, worst across the top, prompts like gift, car, teacher, holiday down the side — and note a few words per cell, deciding later which are stories.",
+    rules: [
+      "Homework for Life trains you to spot future moments; First-Last-Best-Worst digs out the ones already behind you.",
+      "Columns: first, last, best, worst. Rows: any category that can trigger a memory — gift, car, teacher, pet, holiday.",
+      "Write one or two words per memory, never the story. Getting it all down comes first.",
+      "Afterwards, scan the table for the cells that make you think <em>that could be a story</em>; roughly half are new ideas.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Draw a 4 x 5 grid: first, last, best, worst across; job, client, teacher, trip and money down. Fill as many cells as you can in eight minutes, two words each, then star the two you most want to tell." },
+    check: "At least twelve cells are filled and one starred cell is a memory you had not thought about this year. If every cell is a well-worn story, you were choosing rather than remembering.",
+  },
+
+  "spch100.3.4": {
+    module: "A2",
+    mechanic: "Signature stories can be made as well as found: carve out an area of cheerful incompetence, brand ordinary outings as special, seek the highs and lows, and bank what happens in six words.",
+    rules: [
+      "<strong>Carve out clear areas of incompetence.</strong> Her father cannot take a photo; her husband needs a protocol for the bins. The incompetence is a story generator — and saves work.",
+      "<strong>Be sneaky, then brand it.</strong> Her father renamed outings he wanted as <em>special days</em>; the branded days are the ones the children remember.",
+      "<strong>Seek highs and lows.</strong> Signature stories are not winning, winning, winning. The miserable Disneyland day became the best holiday-card story.",
+      "People remember the peak and the end, so design for the memory rather than the experience.",
+      "<strong>Bank them, even six words long.</strong> At dinner, ask 'what was the story of today?' rather than 'what did you do?'",
+    ],
+    drill: { minutes: 5, artifact: "written",
+      do: "Write six-word stories for three moments of the past month: one high, one low, one in an area you are cheerfully bad at." },
+    check: "Read each to someone; at least one gets a 'wait — what happened?' A six-word story that needs no follow-up is a summary.",
+  },
+
+  "spch100.3.5": {
+    module: "A2",
+    mechanic: "Most good stories are small, and you get them by living for them — saying yes to fear, banking them, and telling a tiny true one every time someone asks how you are — then telling them zoomed in, with real dialogue.",
+    rules: [
+      "Share the rock bottom: success impresses people, struggle changes them. And start as close to the challenge as you can.",
+      "Zoom in from the helicopter: picture the moment and ask where am I, what am I doing, thinking, feeling, hearing.",
+      "Quote people. 'My boss said I should prepare more' is a summary; his exact words start a film in the listener's head. Do the same with your inner voice.",
+      "Say yes to fear — the awkward call, the workshop in a language you have half forgotten. Every yes is a future story.",
+      "Make life the arena: when someone asks 'how are you?', answer with a ten-second true story instead of 'busy'. Keep a story bank with title, lesson and summary.",
+    ],
+    drill: { minutes: 10, artifact: "spoken",
+      do: "Prepare a ten-second true answer to 'how are you?' from today, with one quoted line in it. Use it on the next three people who ask." },
+    check: "At least one person asks a follow-up question. If all three just nod, the answer was a status report, not a story.",
+  },
+
+  "spch100.3.6": {
+    module: "A2",
+    mechanic: "Finding a decent story takes as much time as producing it, most of what you try should be killed, and the only way to get lucky is a schedule that puts enough material through your hands.",
+    rules: [
+      "The real work is not shooting and editing; finding the decent story often takes longer than making it.",
+      "His team spends more than half of every week just looking for stories and trying them, and kills between a third and a half of what it tries.",
+      "Kill without regret. If the feeling you had is not in the footage, killing it lets something better live.",
+      "Everything you record is trying to be bad — unstructured, pointless, boring — so be ruthless at every stage.",
+      "Get lucky on purpose: put yourself on a schedule so that once a month the great one turns up.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Go through the last two weeks of your story bank and mark each entry keep or kill, using one test: would I tell this to a stranger at dinner? Kill at least a third." },
+    check: "At least a third are marked kill and you feel slightly bad about one of them. If you kept everything, you were not choosing.",
+  },
+
+  "spch100.3.7": {
+    module: "A2",
+    mechanic: "For the first years your taste is better than your work, which is why most people quit; the only way through the gap is a large volume of work on a deadline.",
+    rules: [
+      "You got into this because you have good taste, so you can tell your early work disappoints you.",
+      "Nearly everyone who does interesting creative work went through years of that gap. It is normal.",
+      "Close it with volume: put yourself on a deadline — one finished story a week or a month — ideally with someone waiting for it.",
+      "Even eight years in, his own radio work was ill-conceived and over-emphasised. Talk the way people normally talk; do not underline every third word.",
+    ],
+    drill: { minutes: 5, artifact: "written",
+      do: "Set your deadline in writing: one recorded story every Friday for the next eight weeks, and name the person who will receive it. Send them the first message now." },
+    check: "Someone other than you knows the deadline exists. A deadline only you know about is a wish.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.3.0": {
+    takeaway: "Dicks revisits Homework for Life: the daily note gets sharper with practice, and the bank pays off when you need a story for a message — you match a small personal moment to it by adjacency instead of borrowing someone else's.",
+    beats: [
+      { t: "The person with the most stories wins", d: "The best storytellers have the most stories to choose from. He started Homework for Life because he was running out." },
+      { t: "The kidnapping prompt", d: "If his family would only be returned for a story about today, which moment would he tell? Two columns: the date, and a line or two." },
+      { t: "The lens sharpens", d: "In 2015 he noticed 1.3 moments a day, mostly things he did. Last year it was 7.8 — including things heard, said or only thought — because the lens got sharper, not his life." },
+      { t: "Why time flies", d: "Most people remember perhaps fifty days of a year with any clarity. A daily record turns a year back into 365 days." },
+      { t: "Matching by adjacency", d: "A contract manager wanted his team to be more specific. Dicks hates pickles and always tells servers not to put one on the plate — a story about being specific." },
+      { t: "Don't borrow", d: "The manager wanted to use the pickle story himself. It would land the message but reveal nothing about him, and revealing yourself is what makes people connect." },
+    ],
+    worked: "Write the message you need ('be specific', 'ask before you build'). Scan your bank for a small personal moment where you behaved that way about something unrelated. Tell the moment, then bridge: 'that is how I want us to be about X.'",
+    watch: "Borrowing a good story from someone else. It may land, but it costs you the thing a story is for: the audience learning something true about the person in front of them.",
+    concepts: [],
+    checks: [
+      { q: "How many moments a day was Dicks noticing in 2015, compared with recently?", opts: ["About 1.3 then, about 7.8 now", "About 5 then, about 5 now", "About 10 then, about 3 now", "One a week then, one a day now"], a: 0,
+        expl: "His life did not get more interesting; the lens got sharper, and he now counts things heard, said or thought." },
+      { q: "What does matching a story 'by adjacency' mean?", opts: ["Telling stories in the order they happened", "Choosing a story about the same industry", "Using a small personal moment that mirrors the message, like pickles for specificity", "Telling two stories side by side"], a: 2,
+        expl: "The pickle story is about restaurants, not contracts, but it carries exactly the behaviour he wants." },
+      { q: "Why shouldn't the manager simply use Dicks's pickle story?", opts: ["It is copyrighted", "It is too long", "It reveals nothing about the manager himself, which is where a story's power comes from", "His team would not find it funny"], a: 2,
+        expl: "The more we reveal about ourselves, the more connected the audience gets." },
+    ],
+  },
+
+  "spch100.3.1": {
+    takeaway: "No life is too boring for stories; the difference is noticing. The observant teller treats the mind's small flags — frustration, surprise, laughter — as stories arriving.",
+    beats: [
+      { t: "Boring life syndrome", d: "The comforting belief that great speakers simply have more interesting lives. It is an excuse." },
+      { t: "No boring stories, only boring storytellers", d: "A rough truth, and an important one." },
+      { t: "The friend with the ordinary life", d: "Work, a baby, cafés, the daycare, cycling home — and always a story about the coffee queue or the barista, because she was observant." },
+      { t: "Believe you are a storyteller", d: "Deciding that you are one is what changes what you see." },
+      { t: "The flag", d: "When you are frustrated, surprised or laughing, your mind raises a flag that says pay attention. Most of the time we let those moments fly past." },
+    ],
+    worked: "At the end of a day, list the moments your mind raised a flag — irritation, surprise, a laugh — however trivial. Those, not the day's events, are your raw material.",
+    watch: "Looking for events. The observant friend's days held no events at all; what she had was a habit of noticing.",
+    concepts: [],
+    checks: [
+      { q: "What is 'boring life syndrome'?", opts: ["Being bored at work", "The belief that good speakers just have more interesting lives", "A fear of public speaking", "Telling the same story twice"], a: 1,
+        expl: "It is seductive because it excuses us from noticing our own material." },
+      { q: "Which of these is the 'flag' the speaker describes?", opts: ["A sudden moment of frustration, surprise or laughter", "A notification on your phone", "A deadline", "A compliment from your boss"], a: 0,
+        expl: "Those reactions are the mind saying: pay attention, something happened here." },
+      { q: "Why did the friend with an ordinary life have so many stories?", opts: ["She travelled a lot", "She was a professional writer", "She was observant and saw the world as a storyteller", "She exaggerated"], a: 2,
+        expl: "Her life was not extraordinary; her noticing was." },
+    ],
+  },
+
+  "spch100.3.2": {
+    takeaway: "A speaker's simplest capture habit: when something strikes you as curious, odd or frustrating, take a photo into a folder called Stories. When a talk needs an illustration, scan the folder.",
+    beats: [
+      { t: "Three photos, no point", d: "A hotel suggestion box with no paper or pens, a rental car tyre botched with glue and four and a half hours stranded, a cooking class on mole with up to a hundred ingredients." },
+      { t: "The point is the habit", d: "Each was a moment that sparked curiosity or frustration, and each took two seconds to capture." },
+      { t: "The Stories folder", d: "When preparing a talk or a video and the point needs an illustration, scan the folder of hundreds of moments." },
+      { t: "Walking story banks", d: "We all have thousands of stories; we just forget to record them. 'I don't have a story' is not believable." },
+      { t: "Business runs on stories", d: "Presentations, interviews and pitches all tell a story about a product, a person or an idea." },
+    ],
+    worked: "Make the capture smaller than the decision: photograph first, decide later. When preparing anything, open the folder before you open a blank page.",
+    watch: "Trying to remember the moment instead of recording it. The flat tyre feels unforgettable for a week and is gone in a month.",
+    concepts: [],
+    checks: [
+      { q: "What should go into the Stories folder?", opts: ["Only photos of important events", "Anything that piques your curiosity, interest or frustration", "Photos of your audience", "Slides from talks you liked"], a: 1,
+        expl: "The test is that it caught your attention, not that it was important." },
+      { q: "When is the folder used?", opts: ["When preparing a talk or video and a point needs a story", "Only at the end of each year", "To post directly to social media", "Never; capturing is the point"], a: 0,
+        expl: "It replaces searching a blank memory under pressure." },
+      { q: "Why does the speaker not believe clients who say they have no stories?", opts: ["Everyone has been on holiday", "Clients exaggerate", "We all have thousands of stories and simply fail to record them", "Stories can be invented"], a: 2,
+        expl: "We are walking story banks that forget to keep a record." },
+    ],
+  },
+
+  "spch100.3.3": {
+    takeaway: "Two exercises for an empty story bank: Homework for Life to catch new moments as they happen, and First-Last-Best-Worst to dig old ones out of the past.",
+    beats: [
+      { t: "Homework for Life, briefly", d: "Every day ask which moment you would tell a story about; write the date, the moment, and optionally a lesson. Early entries feel trivial — that is normal." },
+      { t: "What it gives you", d: "A pool of stories, more mindfulness as you walk around, and patterns: you start to see what triggers you and how you react." },
+      { t: "The grid", d: "Across the top: first, last, best, worst. Down the side: prompts such as gift, car, teacher, pet, holiday." },
+      { t: "One or two words per cell", d: "Do not write stories yet; just get the memories down." },
+      { t: "Then choose", d: "Scan the table for the memories that make you think 'that could be a story' — roughly half will be new ideas." },
+    ],
+    worked: "Fill the grid fast, without judging, in one sitting. Then star two cells and run each through the five-second-moment test: what changed in me?",
+    watch: "Writing full stories into the grid. It slows you down, you fill four cells instead of twenty, and the best memories surface late.",
+    concepts: [],
+    checks: [
+      { q: "What are the four column headings of the grid?", opts: ["Who, what, where, when", "First, last, best, worst", "Past, present, future, never", "Happy, sad, angry, afraid"], a: 1,
+        expl: "Each prompt — gift, car, teacher — is asked four ways." },
+      { q: "How much should you write in each cell?", opts: ["A full paragraph", "Only a date", "One or two words to remember the memory", "Nothing until you have a lesson"], a: 2,
+        expl: "Speed matters; developing the story comes later." },
+      { q: "How do the two exercises differ?", opts: ["Homework for Life catches new moments; the grid digs out past ones", "They are the same exercise", "The grid is for business stories only", "Homework for Life is weekly"], a: 0,
+        expl: "One trains your eye forward, the other mines your memory." },
+    ],
+  },
+
+  "spch100.3.4": {
+    takeaway: "Aaker's family rules for creating signature stories, not just finding them: carve out areas of incompetence, be sneaky and brand ordinary days as special, seek highs and lows, and bank the results — six words is enough.",
+    beats: [
+      { t: "Carve out areas of incompetence", d: "Her father cannot take a photograph; her husband needs a full protocol before he can take the bins out. Cheerful incompetence generates stories — and spares you the job." },
+      { t: "Be sneaky, then brand it", d: "Her father took the children on outings he wanted and called them special days. Those are the ones they remember." },
+      { t: "Seek highs and lows", d: "Signature stories are not winning after winning. They need an arc — like James Bond or Jurassic Park." },
+      { t: "Disneyland, the worst day", d: "Long queues, a dead phone, an au pair with heatstroke. Written up honestly in the holiday card, it became the best story — and people remember the peak and the end." },
+      { t: "Bank them, briefly", d: "Six-word stories ('Married the wrong girl. Fixed it.'). Ask 'what was the story of today?' instead of 'what did you do today?'" },
+    ],
+    worked: "When a day goes badly, decide while it is happening that it will be a story: notice the details, take the photo of the unhappy moment, and write the six words that night.",
+    watch: "Only banking wins. A collection of successes has no arc, and nobody asks to hear it twice.",
+    concepts: [],
+    checks: [
+      { q: "Why carve out an area of incompetence?", opts: ["To avoid responsibility at work", "It generates stories and spares you a task", "To seem humble in interviews", "Because experts are boring"], a: 1,
+        expl: "Her father's photography and her husband's bins are both stories and both chores avoided." },
+      { q: "What did her father do with outings the children did not want?", opts: ["Cancelled them", "Paid them to come", "Branded them as special days, which made them memorable", "Went alone"], a: 2,
+        expl: "Anticipating something as special made it remembered as special." },
+      { q: "Why was the bad Disneyland day worth recording?", opts: ["A signature story needs highs and lows, and people remember the peak and the end", "It was free", "The tickets were expensive", "It made the children laugh at the time"], a: 0,
+        expl: "Designing for memories rather than experiences is what creates a life of stories." },
+    ],
+  },
+
+  "spch100.3.5": {
+    takeaway: "Philipp Humm's twelve lessons fall into two groups: how to get more stories (say yes to fear, find magic in the mundane, use 'how are you?' as practice, keep a bank) and how to tell them (start near the challenge, zoom in, quote the dialogue and your inner voice, give the why, show the change).",
+    beats: [
+      { t: "Share the rock bottom", d: "Dan Martell skipped his teenage years of drugs and crime because they made him emotional. Success impresses people; struggle changes them." },
+      { t: "Start at the challenge", d: "A workshop participant spent 93 seconds on job title and background before his story began, and lost the room." },
+      { t: "Zoom in", d: "Not the helicopter shot ('I faced a big challenge') but the trench: where am I, what am I doing, thinking, feeling, hearing?" },
+      { t: "Quote it", d: "Outer dialogue ('Phillip, what the hell was that?') and inner dialogue ('how am I going to turn this around?') make the story play like a film." },
+      { t: "The why and the change", d: "Beginners give events, amateurs give the goal, pros give the reason it mattered. Memorable stories show a moment of change." },
+      { t: "Get more stories", d: "Say yes to what scares you; find magic in the mundane with Homework for Life; answer 'how are you?' with a tiny true story; keep a story bank." },
+    ],
+    worked: "Before telling a moment, close your eyes and answer the five zoom questions aloud. Use one sensory detail, one quoted line, and one line of inner voice. Cut the background.",
+    watch: "Staying in the helicopter: 'it was a stressful period at work'. Nothing is visible, so nothing is felt.",
+    concepts: [],
+    checks: [
+      { q: "What does 'zooming in' mean in Humm's war-film image?", opts: ["Describing the whole battlefield", "Dropping into one specific scene with its sights, sounds and thoughts", "Using a camera", "Telling the story faster"], a: 1,
+        expl: "Ask where am I, what am I doing, thinking, feeling and hearing." },
+      { q: "According to Humm, what separates a pro storyteller from an amateur?", opts: ["Longer stories", "More jokes", "Sharing why the goal mattered, not just what the goal was", "Better slides"], a: 2,
+        expl: "The what gives information; the why gives emotion." },
+      { q: "What does he suggest doing when someone asks 'how are you?'", opts: ["Tell a tiny, true story from your day", "Say 'busy'", "Ask them first", "Change the subject"], a: 0,
+        expl: "Make your life the arena: every small exchange is practice." },
+    ],
+  },
+
+  "spch100.3.6": {
+    takeaway: "Ira Glass on the part nobody tells you: finding a decent story takes as long as producing it, a good team kills a third to a half of what it tries, and luck comes from putting enough material through your hands.",
+    beats: [
+      { t: "Finding is the work", d: "We imagine the real work is shooting and editing; often finding the decent story takes longer than making it." },
+      { t: "Half the week is looking", d: "His staff do nothing but look for stories and try them, and kill between a third and a half of everything they try." },
+      { t: "Enjoy the killing", d: "When the feeling you had is not in the tape, kill it. Killing it makes room for something better." },
+      { t: "Everything is trying to be crap", d: "Like entropy: anything you record drifts toward pointless, digressive and boring unless you prop it up aggressively at every stage." },
+      { t: "Get lucky on a schedule", d: "Do enough interviews every week that once a month you stumble on something so good it pays for the other weeks." },
+    ],
+    worked: "Treat your story bank as a pipeline, not a vault: try stories out loud on friends, keep the ones that land, and cut the rest without arguing with yourself.",
+    watch: "Keeping a story because you loved the moment, even though it falls flat every time you tell it. The feeling you had is not automatically in the telling.",
+    concepts: [],
+    checks: [
+      { q: "Roughly what share of the stories his team tries end up killed?", opts: ["Almost none", "Between a third and a half", "About 90 per cent", "Exactly one in ten"], a: 1,
+        expl: "And he describes the team as among the best at the job." },
+      { q: "What does he mean by 'all production is trying to be crap'?", opts: ["Equipment is unreliable", "Interviewees lie", "Material naturally drifts toward pointless and boring unless you fight it at every stage", "Audiences are hard to please"], a: 2,
+        expl: "He compares it to entropy." },
+      { q: "How do you put yourself in a position to get lucky?", opts: ["Do enough material on a schedule that a great story turns up every month or so", "Wait for inspiration", "Only tell big stories", "Copy successful stories"], a: 0,
+        expl: "Volume on a schedule is what produces the rare great one." },
+    ],
+  },
+
+  "spch100.3.7": {
+    takeaway: "Ira Glass's best-known advice: for years your taste will be better than your work, which is why most people quit — and the only way to close the gap is a large volume of work on a deadline.",
+    beats: [
+      { t: "Taste got you in", d: "You want to make things because you love them, so your taste is good from the start." },
+      { t: "The gap", d: "For the first couple of years what you make is not that good, and your taste is good enough to tell. Many people quit there." },
+      { t: "Everyone goes through it", d: "Nearly everyone he knows who does interesting creative work spent years in that phase. It is normal." },
+      { t: "Volume on a deadline", d: "Finish one story every week or month, ideally with someone expecting it. Only volume closes the gap." },
+      { t: "Year eight", d: "He plays a clip of himself eight years in: ill-conceived writing, every third word stressed. Talk the way people normally talk." },
+    ],
+    worked: "Set a weekly deadline with an external witness — someone who expects the recording on Friday — and keep it even when the piece disappoints you.",
+    watch: "Waiting until the work matches your taste before you put it out. The work only catches up through the volume you are postponing.",
+    concepts: [],
+    checks: [
+      { q: "What is 'the gap' Glass describes?", opts: ["The time between projects", "The distance between your good taste and your not-yet-good work", "A pause before a punchline", "The gap in a market"], a: 1,
+        expl: "You can see your work disappoints you precisely because your taste is good." },
+      { q: "What does he say closes the gap?", opts: ["A better microphone", "Waiting for inspiration", "Studying theory", "A large volume of work on a deadline"], a: 3,
+        expl: "Ideally with someone waiting for the work, even if they do not pay you." },
+      { q: "What delivery fault does he point out in his own year-eight tape?", opts: ["Stressing every third word instead of talking the way people normally talk", "Speaking too fast", "Too many pauses", "Using notes"], a: 0,
+        expl: "Underlining every third word for emphasis sounds unnatural." },
     ],
   },
 });

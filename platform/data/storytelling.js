@@ -186,6 +186,8 @@ DAR.COURSES.push({
         { t: "Talking to strangers — five ways in", v: "rFpDK2KhAgw", min: 12 },
         { t: "Feedback in four parts", v: "wtl5UrrgU8c", min: 5 },
         { t: "Disagreeing productively — common ground and better questions", v: "uyKCDessl2s", min: 22 },
+        { t: "Argue less, talk more — 'what did you hear?', and a well, not a waterfall", v: "bIjz7UkauBA", min: 32 },
+        { t: "Supercommunicators — match the conversation, loop for understanding", v: "dEq_PG3iof0", min: 46 },
       ],
     },
     {
@@ -5750,6 +5752,95 @@ Object.assign(DAR.SUMMARIES, {
         expl: "B is voiced; P is voiceless." },
       { q: "Which sentence correctly fixes 'I have pen red'?", opts: ["I have red pen", "I have the pen red", "I have a red pen", "I have pen a red"], a: 2,
         expl: "Indefinite article, then the adjective before the noun." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit IX, top-up (T-037, 2026-10-09) — A4 conversation, two lessons
+// appended after spch100.8.10: trial lawyer Jefferson Fisher at Talks at
+// Google, and a long interview with Charles Duhigg that goes past the
+// short lesson already installed (spch100.8.6) into looping, identities and
+// hard conversations. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.8.11": {
+    module: "A4",
+    mechanic: "In a hard conversation, aim to learn rather than to prove: check what was heard instead of insisting on what you said, ask how they came to their view, speak in perspectives, swap 'does that make sense?' for a real question, use silence on purpose, and say less.",
+    rules: [
+      "The biggest problem is assuming that what you said is what they heard. Instead of 'that's not what I said', ask 'what did you hear?'",
+      "Go in with something to learn, not something to prove. Facts rarely move a deeply held belief; open questions can — 'how long have you felt that way? what led to that?'",
+      "Perfection isn't relatable; struggle is. Swap 'I don't agree' for 'I see it differently' or 'I have a different take'.",
+      "Drop 'does that make sense?' — it suggests they're slow or you're unsure, and nobody answers no. Ask 'what's your take?' instead.",
+      "Use silence: a short pause shows you're thinking, and five to seven seconds after something rude lets it echo. Be a well, not a waterfall — about three sentences, then let them ask.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Recall a recent disagreement and write down the line you actually said. Rewrite it three ways: as a 'what did you hear?' check, as a perspective statement ('I see it differently because…'), and as a three-sentence answer with no 'does that make sense?' at the end." },
+    check: "None of the rewrites contains 'you're wrong', 'that's not what I said' or 'does that make sense?', and the short answer really is three sentences.",
+  },
+
+  "spch100.8.12": {
+    module: "A4",
+    mechanic: "Every discussion holds practical, emotional and social conversations, and you connect only when you are in the same one: find out which it is ('helped, heard or hugged?'), ask deep questions, prove you listened by looping for understanding, and in hard conversations control things together rather than each other.",
+    rules: [
+      "Match the conversation — practical (what is this really about?), emotional (how do we feel?), social (who are we?). If you're in different ones you can't hear each other; ask whether they want to be helped, heard or hugged.",
+      "Ask deep questions, about beliefs, values and experiences rather than facts: 'what made you go into law?', not 'what kind of law?'",
+      "Loop for understanding: ask, repeat the answer back in your own words, then ask whether you got it right. The third step is the one people forget.",
+      "Notice emotions and acknowledge them, and share something real back — authenticity is reciprocal, and people are quick to detect a fake.",
+      "In a hard conversation, name the awkwardness up front, ask what each of you wants from it, and control things together — the time, the boundaries of the argument — not each other.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "In your next real conversation, do one full loop: ask a deep question, repeat the answer back in your own words, and ask 'did I get that right?'. Afterwards write down the question, your paraphrase and their reply to the check." },
+    check: "All three steps happened, and their reply either confirmed your paraphrase or corrected something that you then repeated back again.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.8.11": {
+    takeaway: "Trial lawyer Jefferson Fisher at Talks at Google: assume what you said isn't what they heard, go in to learn rather than to prove, share struggle, speak in perspectives, replace 'does that make sense?' with a real question, use silence on purpose, and keep your answers short.",
+    beats: [
+      { t: "What did you hear?", d: "We judge our own words badly because we also interpret them for the listener. Ask what they heard instead of insisting on what you said." },
+      { t: "Learn, not prove", d: "Telling someone they're wrong can mean telling them their grandparents were wrong; walls go up and facts bounce off. Ask how long they've felt that way and what led to it." },
+      { t: "Struggle is relatable", d: "A newly promoted woman who didn't feel qualified could say: 'I know I have a way to go — and what excites me about that is…'" },
+      { t: "Perspective words", d: "'I see things differently' and 'I have a different take' keep a conversation open where 'I don't agree' closes it." },
+      { t: "'Does that make sense?'", d: "It implies the listener is slow or that you're unsure, and nobody says no. Ask for their thoughts or questions instead." },
+      { t: "Silence", d: "A considered pause signals thinking; five to seven seconds after a rude remark lets it echo. 'I'm not ignoring you, I'm thinking' says it plainly." },
+      { t: "A well, not a waterfall", d: "His company keeps emails to three sentences or fewer. On video calls especially, answer briefly and trust people to ask." },
+    ],
+    worked: "Someone says something belittling in a meeting. Instead of firing back, he lets five seconds of silence pass. Their words now sit out in the open; often they take them back or apologise, and if they double down you've lost nothing — 'silence can never be misquoted'.",
+    watch: "The first few minutes are host chat and the book's framing; the tools come thick from about the nine-minute mark. Using AI as a 'thought partner' is his personal habit, not part of the method.",
+    concepts: [],
+    checks: [
+      { q: "What does Fisher suggest asking instead of saying 'that's not what I said'?", opts: ["'Let me repeat myself'", "'What did you hear?'", "'You misunderstood me'", "'Calm down'"], a: 1,
+        expl: "It gives you their perspective instead of a fight about the record." },
+      { q: "Why does he want people to drop 'does that make sense?'", opts: ["It suggests the listener is slow or you're unsure, and nobody answers no", "It is too informal", "It takes too long", "It is a leading question about facts"], a: 0,
+        expl: "Ask a real question that invites them to respond." },
+      { q: "What does 'be a well, not a waterfall' mean?", opts: ["Speak more slowly", "Ask more questions", "Give a short answer and let people ask for more", "Repeat your point"], a: 2,
+        expl: "Limit it to about three sentences; they have the agency to ask." },
+    ],
+  },
+
+  "spch100.8.12": {
+    takeaway: "Charles Duhigg, author of Supercommunicators, in a long interview: anyone can learn it. Find out which of three conversations you're in and match it, ask deep questions, loop for understanding, share something real back, see people's many identities, and in hard conversations look for what you can control together.",
+    beats: [
+      { t: "Three conversations", d: "He came home venting about work (emotional) while his wife offered solutions (practical), and neither could hear the other. Now she asks: solve it together, or just vent?" },
+      { t: "Deep questions", d: "Supercommunicators ask ten to twenty times as many questions as average, about half of them deep — beliefs, values, experiences. Ask how someone feels about their life, not its facts." },
+      { t: "Looping for understanding", d: "Ask, repeat back in your own words, ask if you got it right. It proves you listened, and people become more willing to listen in return." },
+      { t: "The spy who listened", d: "CIA officer Jim Lawler spent months failing to recruit a source; when he finally admitted his own disappointment in himself, matching hers, she agreed — and was a prized asset for twenty years." },
+      { t: "Who are we?", d: "Reducing someone to one identity stereotypes them. Name their others — parent, neighbour, lawyer — and find the tribe you share." },
+      { t: "Hard conversations", d: "Don't try to control the other person. Control things together — the time, the place, the boundaries of the argument — say up front it may be awkward, and ask what each of you wants." },
+    ],
+    worked: "A performance review that opens: 'This might be a tough conversation, and I really want to help you. What are you hoping to get out of it?' 'A raise.' Now both people know what the conversation is about, even if the answer is 'not yet — here's the path to one'.",
+    watch: "The three conversations are also in this unit's short Duhigg lesson (spch100.8.6); this interview adds looping, identities and hard conversations. Figures like 'ten to twenty times as many questions' are his summaries of studies, with no papers shown.",
+    concepts: [],
+    checks: [
+      { q: "What are the three steps of looping for understanding?", opts: ["Ask, agree, advise", "Ask a question, repeat the answer back in your own words, ask if you got it right", "Listen, nod, summarise at the end", "Question, challenge, conclude"], a: 1,
+        expl: "The third step gives them the chance to say you heard them — or to correct you." },
+      { q: "Duhigg comes home venting and his wife offers solutions. What went wrong?", opts: ["He was in an emotional conversation and she in a practical one", "She wasn't listening", "They were both too tired", "He had asked for advice"], a: 0,
+        expl: "Different conversations, different parts of the brain." },
+      { q: "In a hard conversation, what does he say you should try to control?", opts: ["The other person's emotions", "The other person's conclusion", "Things you can control together, like the time and the boundaries", "Nothing — let it run"], a: 2,
+        expl: "Trying to control each other backfires; controlling things together builds cooperation." },
     ],
   },
 });

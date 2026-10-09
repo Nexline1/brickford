@@ -1,0 +1,27 @@
+Plant (f): a locked row's bar is drawn at 0 whatever is watched
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f73b70e..0a82775 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -2809,7 +2809,7 @@
+     const lockRow = (it, i) => '<a class="ex-lock" href="' + it.href + '"' + (i >= 6 ? " data-ex-more hidden" : "") + ">" +
+       '<span class="ex-lk" aria-hidden="true">' + lockSVG() + "</span>" +
+       '<span class="ex-ln">' + esc(short(it.title)) + "</span>" +
+-      '<span class="ex-lbar ' + (it.course ? facClass(it.course) : "") + '" role="img" aria-label="' + it.watched + " of " + it.of + did(it) + '"><i style="width:' + pct(it).toFixed(2) + '%;"></i></span></a>';
++      '<span class="ex-lbar ' + (it.course ? facClass(it.course) : "") + '" role="img" aria-label="' + it.watched + " of " + it.of + did(it) + '"><i style="width:' + (0).toFixed(2) + '%;"></i></span></a>';
+ 
+     return '<div class="view-enter"><div class="page-head"><h1>Exams</h1>' +
+       '<div class="sub">Timed, closed book, no AI. This is how a gate is passed.</div>' +
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+2 failing check(s):
+  FAIL  1440px dark, eight MATH 110 lectures watched, none a question's, so Linear Algebra is locked at 8 of 51 /exams: each locked row is a lock and the short name, and each shown one a bar of its course's lectures watched (within 1%), >= 44px tall — Linear Algebra qualifier 0.0% (want Linear Algebra qualifier 15.7%); Calculus qualifier 0.0% (want Calculus qualifier 0.0%); Probability qualifier 0.0% (want Probability qualifier 0.0%); Neural Networks concepts 0.0% (want Neural Networks concepts 0.0%); Algorithms concepts 0.0% (want Algorithms concepts 0.0%); Mathematics for ML concepts 0.0% (want Mathematics for ML concepts 0.0%); LLM Engineering concepts (hidden) (want LLM Engineering concepts 0.0%)
+  FAIL  390px dark, eight MATH 110 lectures watched, none a question's, so Linear Algebra is locked at 8 of 51 /exams: each locked row is a lock and the short name, and each shown one a bar of its course's lectures watched (within 1%), >= 44px tall — Linear Algebra qualifier 0.0% (want Linear Algebra qualifier 15.7%); Calculus qualifier 0.0% (want Calculus qualifier 0.0%); Probability qualifier 0.0% (want Probability qualifier 0.0%); Neural Networks concepts 0.0% (want Neural Networks concepts 0.0%); Algorithms concepts 0.0% (want Algorithms concepts 0.0%); Mathematics for ML concepts 0.0% (want Mathematics for ML concepts 0.0%); LLM Engineering concepts (hidden) (want LLM Engineering concepts 0.0%)
+FAIL — 2 of 1378 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

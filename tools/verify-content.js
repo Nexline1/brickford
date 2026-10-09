@@ -2294,6 +2294,78 @@ Object.keys(expectedSummary).forEach(k => {
   });
 });
 
+// ---------- SPCH 100, the storytelling course (T-037) ----------
+// Sixteen modules and about fifty hours of video, every one installed only after
+// its transcript was read. Four ways it can go wrong silently, each of which the
+// browser would render as something merely missing:
+//   * a lesson whose transcript was never stored — the hard rule says no video is
+//     installed unread, and the stored file is the only proof it was read;
+//   * a unit INSERTED rather than appended — keys are positional, so the owner's
+//     progress on spch100.0.0 would quietly re-point to a different video. The
+//     ledger pins every key to its video id and only ever grows;
+//   * a drill or summary that is missing or malformed — drillHTML/summaryHTML
+//     return "" for a key with nothing behind it;
+//   * a check whose answer index is outside its options — the quiz engine would
+//     mark every reply wrong.
+// The prose is injected raw (rules, summaries, checks), so no bare "<" and no
+// "$": a dollar sign is KaTeX's delimiter and would eat the sentence after it.
+const SPCH = D.COURSES.find(c => c.id === "spch100");
+const spchLedger = JSON.parse(fs.readFileSync(path.join(ROOT, "data/storytelling/ledger.json"), "utf8")).keys;
+const SPCH_MODULE = /^(A[1-8]|B[1-8])$/;
+let spchLessons = 0, spchMin = 0;
+const spchByModule = {};
+ok(!!SPCH, "spch100: the course exists");
+if (SPCH) {
+  Object.keys(spchLedger).forEach(k => {
+    const p = k.split("."), u = SPCH.units[+p[1]], l = u && u.lessons[+p[2]];
+    ok(!!l && l.v === spchLedger[k], "spch100 ledger: " + k + " still points at " + spchLedger[k] +
+      (l ? " (it now points at " + l.v + " — a unit or lesson was inserted or reordered)" : " (the key no longer exists)"));
+  });
+  SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+    const k = "spch100." + ui + "." + li;
+    spchLessons++;
+    spchMin += +l.min || 0;
+    ok(spchLedger[k] === l.v, k + ": is pinned in data/storytelling/ledger.json (append one line for a new lesson)");
+    ok(typeof l.t === "string" && l.t.length > 8, k + ": has a title");
+    ok(typeof l.min === "number" && l.min > 0, k + ": min is a positive number of minutes");
+    ok(/^[A-Za-z0-9_-]{11}$/.test(l.v || ""), k + ": v is an 11-character video id");
+    const tp = path.join(ROOT, "data/storytelling/transcripts", (l.v || "none") + ".txt");
+    const tx = fs.existsSync(tp) ? fs.readFileSync(tp, "utf8") : "";
+    ok(!!tx, k + ": transcript data/storytelling/transcripts/" + l.v + ".txt exists (no video is installed unread)");
+    ok(!tx || tx.indexOf("watch?v=" + l.v) >= 0, k + ": the stored transcript is for " + l.v);
+    ok(!tx || tx.length > 1500, k + ": the stored transcript is a transcript, not a stub");
+    const d = (D.DRILLS || {})[k];
+    ok(!!d, k + ": has a drill (mechanic, rules, drill, check)");
+    if (d) {
+      ok(SPCH_MODULE.test(d.module || ""), k + ": drill names its taxonomy module (A1-A8, B1-B8)");
+      ok(!!d.drill && !!d.drill.do && d.drill.minutes > 0, k + ": drill says what to do and for how long");
+      ok(!!d.check && d.check.length > 20, k + ": drill has its check");
+      spchByModule[d.module] = (spchByModule[d.module] || 0) + (+l.min || 0);
+      [d.mechanic, d.drill && d.drill.do, d.check].concat(d.rules || []).forEach((t, i) =>
+        ok(!/\$/.test(t || ""), k + " drill field " + i + ": no '$'"));
+      (d.rules || []).forEach((t, i) => ok(!/<(?![/]?(em|strong)>)/.test(t), k + " rule " + i + ": only <em>/<strong> markup, no bare '<'"));
+    }
+    const s = (D.SUMMARIES || {})[k];
+    ok(!!s, k + ": has a revision summary");
+    if (s) {
+      const cs = s.checks || [];
+      ok(cs.length >= 3, k + ": summary has at least 3 checks (has " + cs.length + ")");
+      cs.forEach((c, i) => {
+        ok(Array.isArray(c.opts) && c.opts.length >= 3 && Number.isInteger(c.a) && c.a >= 0 && c.a < c.opts.length,
+           k + " check " + i + ": multiple choice with its answer inside its options");
+        ok(Array.isArray(c.opts) && new Set(c.opts).size === c.opts.length, k + " check " + i + ": options are distinct");
+        [c.q, c.expl].concat(c.opts || []).forEach(t => ok(!/<[a-zA-Z/]/.test(t || "") && !/\$/.test(t || ""),
+           k + " check " + i + ": no raw '<' or '$' (injected unescaped)"));
+      });
+      ok(cs.length < 2 || new Set(cs.map(c => c.a)).size > 1, k + ": answers are not all in the same position");
+      [s.takeaway, s.worked, s.watch].concat((s.beats || []).map(b => b.t + " " + b.d))
+        .forEach((t, i) => ok(!/\$/.test(t || ""), k + " summary field " + i + ": no '$' (KaTeX delimiter)"));
+    }
+  }));
+  console.log("SPCH 100: " + spchLessons + " lessons, " + (spchMin / 60).toFixed(1) + " h of video — " +
+    Object.keys(spchByModule).sort().map(m => m + " " + (spchByModule[m] / 60).toFixed(2) + "h").join(", "));
+}
+
 D.COURSES.forEach(c => {
   ok(!!c.practice && /^https:\/\//.test(c.practice.url), c.code + ": has an https practice source");
   ok(!!c.practice && c.practice.label && c.practice.label.length > 8, c.code + ": practice source says what to do");

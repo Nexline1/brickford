@@ -1,0 +1,23 @@
+{
+ "_comment": [
+  "APPEND-ONLY ledger of SPCH 100 lesson keys (T-037).",
+  "Lesson keys are positional, so the key is what the owner's progress is stored under.",
+  "tools/verify-content.js fails if any key here stops resolving to the video it names,",
+  "and if any SPCH lesson has no line here. A new lesson appends a line; nothing is ever edited or removed."
+ ],
+ "keys": {
+  "spch100.0.0": "x7p329Z8MD0",
+  "spch100.0.1": "YyWZmdkPfDM",
+  "spch100.0.2": "jw_-OSxk36U",
+  "spch100.1.0": "nLpoqD7LHOU",
+  "spch100.1.1": "6G7pNhZA0LU",
+  "spch100.2.0": "enzuCJNA3Qg",
+  "spch100.2.1": "IPf0dfZXJG4",
+  "spch100.2.2": "yNgypfZ4Jc4",
+  "spch100.2.3": "nXoTR5l4Dks",
+  "spch100.2.4": "KxDwieKpawg",
+  "spch100.2.5": "oP3c1h8v2ZQ",
+  "spch100.2.6": "hCf3dHd8_i8",
+  "spch100.2.7": "_96OKURDlwc"
+ }
+}

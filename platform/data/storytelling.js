@@ -109,6 +109,23 @@ DAR.COURSES.push({
         { t: "How to speak — the promise, the star, the ending", v: "Unzc731iCUY", min: 63 },
       ],
     },
+    {
+      name: "Unit VI — Speaking as a non-native speaker: clear, not native",
+      lessons: [
+        { t: "Speak it like a video game, not a piano exam", v: "Ge7c7otG2mk", min: 15 },
+        { t: "Intelligibility, not accent — what the research says to fix", v: "8pdMn5wmkb8", min: 5 },
+        { t: "The other view: aim native-like, one perfect sentence at a time", v: "Ti_gFEe1XNY", min: 17 },
+        { t: "Keep speaking — the accent, the comments, and what 'normal' is", v: "B4a0NvLTebw", min: 11 },
+        { t: "The rhythm of English — content words carry the beat", v: "XTjT93yOv00", min: 4 },
+        { t: "Thought groups — chunk, link, and pause by meaning", v: "UD8v2G-zVlc", min: 10 },
+        { t: "Shadowing in ten steps — understand before you copy", v: "rn3pmHIJ7nA", min: 12 },
+        { t: "Stop translating: chunks, self-talk, keep it short", v: "qyF0MYeGb3w", min: 6 },
+        { t: "Four past tenses that move a story in English", v: "_CuYleYGlQE", min: 14 },
+        { t: "Presenting in your second language — seven mistakes", v: "c_VGjjuEH-s", min: 38 },
+        { t: "Share, don't present — bottom line first, less robotic", v: "lX_KmPQPjLI", min: 20 },
+        { t: "Being funny in another language", v: "SP8YSgUkCh0", min: 46 },
+      ],
+    },
   ],
 });
 
@@ -1243,6 +1260,466 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Each starts with S; together they make work recognisable." },
       { q: "What should the final slide be labelled?", opts: ["Contributions", "Questions?", "Thank you", "Conclusions"], a: 0,
         expl: "It stays up while people ask questions and leave, so it should say what you did." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VI — A8, speaking as a non-native speaker (budget 4.0 h). Mindset
+// (Marianna Pascal, Safwat Saleem), the research on what to fix (Tracey
+// Derwing), the native-like view argued against it (Marc Green), rhythm
+// and thought groups, shadowing, narrative tenses, presenting in a second
+// language (two coaches), and humour across languages. Two lessons
+// disagree on purpose — intelligible versus native-like — and the
+// summaries set them against each other rather than picking one.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.5.0": {
+    module: "A8",
+    mechanic: "How well you communicate in a second language depends far more on attitude than on level: speak as if you are playing a game, focused on the other person and the result, not as if you are taking a piano exam scored on mistakes.",
+    rules: [
+      "School taught English as an art to master, so many adults go into a conversation expecting to be marked on their mistakes. That expectation is what freezes them.",
+      "The gamer is terrible and his friends are watching, but he feels no shame because all his attention is on the target. Speak with that focus.",
+      "Pascal's pharmacy story: the fluent sales rep, worried about being judged, went round in circles; the counter girl with little English asked two questions and solved the problem.",
+      "When you try to be correct and get a result at once, three things go: your listening, your words, and your confidence. Listeners may read the third as doubt about your ability to do the job.",
+      "Pascal says 96 per cent of English conversations involve a non-native speaker. It is a tool to get a result, and it belongs to you.",
+    ],
+    drill: { minutes: 8, artifact: "spoken",
+      do: "Explain something from your work or week to someone (or to the camera) for two minutes with one rule: the moment you notice yourself checking your grammar, ask the listener a question instead — 'does that make sense?', 'have you seen this?' Afterwards, write down the result you were trying to get." },
+    check: "You asked at least two questions and can name the result in one line. If you cannot name the result, the talk was about getting it right, not about getting it done.",
+  },
+
+  "spch100.5.1": {
+    module: "A8",
+    mechanic: "Research separates intelligibility (how much the listener understands) and comprehensibility (how hard they have to work) from accent, and a heavy accent can still be easy to understand — so fix the features that cost understanding, not every difference.",
+    rules: [
+      "Intelligibility is how much of what you say the listener actually understands. Comprehensibility is how much effort it takes them.",
+      "Most materials take a scattergun approach, drilling every difference from a local accent. Many of those differences never affect understanding.",
+      "The 'th' sounds are noticeable but matter little. Derwing says listeners adapt to them almost immediately.",
+      "Some sound pairs separate many words (high functional load), like p and b. Mixing those up costs far more understanding than a 'th' substitution.",
+      "You want the listener to spend as little effort as possible, so they do not dread talking to you. Some people with strong accents are very easy to understand.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Record a sixty-second story. Play it to someone (or to a speech-to-text tool) and mark only the words they misheard or had to ask about. Ignore everything else. Sort the marked words into: a sound, a stress, or speed." },
+    check: "Your list contains only words that actually broke understanding, and each one has a category. If the list is full of 'th' you were marking accent, not intelligibility.",
+  },
+
+  "spch100.5.2": {
+    module: "A8",
+    mechanic: "Marc Green argues the opposite of the last lesson: past fluency, three things make native speakers treat you as one of them — minimal accent, the expressions locals actually use, and their cultural habits — and pronunciation is the one to start with.",
+    rules: [
+      "Fluency is when the language becomes subconscious. You do not need academic mastery to reach a native-like level; many native speakers do not have it either.",
+      "The perfect-sentence technique: read one sentence from a book to a native speaker, get rated (obvious accent, slight, none), hear it read back, repeat — until they cannot hear an accent.",
+      "Learn the words people use, not the textbook ones. In French, <em>boulot</em> for work and <em>fric</em> for money.",
+      "Adopt the small cultural habits — gestures, the sound you make when you get hurt, how you say 'mm-hmm'. They only come from listening actively.",
+      "Copy characters in TV shows and learn song lyrics. Songs tell stories, and their emotion fixes the expressions in your memory.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Pick one sentence from something you will actually say this week. Find a recording of a native speaker saying something similar, then record yourself saying your sentence ten times, comparing after each try. Keep the best and the first take." },
+    check: "Played side by side, the best take is clearly different from the first in at least one place you can name: a stress, a vowel, or a link between words.",
+  },
+
+  "spch100.5.3": {
+    module: "A8",
+    mechanic: "Comments about an accent are mostly about what the listener is used to, and 'normal' is only what people have been exposed to — so the way to change it is to keep using your voice.",
+    rules: [
+      "Saleem stuttered as a child and avoided speaking. He began using his own voice in his animations, edited heavily to sound 'normal'.",
+      "Comments about his Pakistani accent ('couldn't follow because of the Indian accent') made him stop using his voice in his work.",
+      "His reframe: ancient texts barely name blue, and the theory is that cultures saw a colour only once they could make it. Normal is what is visible around us.",
+      "Bias of this kind is mostly favouritism toward people we can relate to, more than a wish to harm.",
+      "Keep speaking. Every accent heard on a stage widens what the next audience treats as normal.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write down the worst thing anyone has said about how you speak — word for word. Under it, write two lines: what it says about what that listener was used to, and one place this month where you will speak anyway." },
+    check: "The second line names a real place and date. The first line is about the listener's experience, not your worth.",
+  },
+
+  "spch100.5.4": {
+    module: "A8",
+    mechanic: "English rhythm hangs on the content words — the nouns, main verbs and adjectives that carry information — while the function words in between are squeezed together, so a longer sentence can keep the same beat as a short one.",
+    rules: [
+      "Content words carry the information: the subject, the verb, the object. Function words — <em>the</em>, <em>a</em>, <em>in</em>, <em>will</em> — add a little meaning but not the main information.",
+      "Say 'MICE EAT CHEESE', then add function words without changing the beat: 'the MICE will have EATen the CHEESE'.",
+      "Push the function words together ('might have been' comes out as 'mitabin') and make the content words the loudest, clearest part.",
+      "Practise at home in front of a mirror, not on the bus.",
+    ],
+    drill: { minutes: 6, artifact: "recorded",
+      do: "Write three sentences from a story you tell. Underline the content words. Clap on each underlined word while you say the sentence, and squeeze everything else in between the claps. Record the third sentence without clapping." },
+    check: "In the recording, the underlined words are clearly louder and longer than the rest, and the function words sound reduced rather than fully pronounced.",
+  },
+
+  "spch100.5.5": {
+    module: "A8",
+    mechanic: "Speech comes in thought groups — short chunks of words that belong together by meaning, linked smoothly inside and separated by small pauses — and where you put the breaks can change what the sentence means.",
+    rules: [
+      "'Let's eat, Grandma' and 'Let's eat Grandma' differ only in one pause. Thought groups (also called speech units, tone units or chunks) are what the pauses mark.",
+      "Group by meaning: a subject and its verb, or a phrase like <em>in the middle of the night</em>, stay together. Do not split a phrase in the middle.",
+      "If a chunk feels too short, you have over-divided; if you run out of breath, you have not divided enough. Aim for one idea per chunk.",
+      "To emphasise a word, give it its own short chunk: 'It was — absolutely — incredible.'",
+      "Inside a chunk the words link together ('turn it off' sounds like one word). Linking happens within chunks, not across the breaks.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Take a five-sentence paragraph from your story bank and mark the thought-group breaks with a slash. Record it. Then pick the most important word and give it its own chunk in a second recording." },
+    check: "No slash splits a phrase, the words inside each chunk run together, and the key word in the second take is set off with a pause on both sides.",
+  },
+
+  "spch100.5.6": {
+    module: "A8",
+    mechanic: "Shadowing works when you understand and study a short clip before you copy it: meaning, dictation, analysis, repeat-after, record-and-compare, shadow with the transcript, shadow blind, read aloud from memory, then talk about the topic yourself.",
+    rules: [
+      "Choose 30–90 seconds of one clear speaker you would like to sound like. A monologue is easier to start with than a conversation.",
+      "Listen for the gist first, then try a dictation. What you cannot write down shows what your ear is missing — linking, reductions, whole phrases.",
+      "Study how the speaker says it, not just what it means: stress, tone, rhythm.",
+      "Repeat sentence by sentence for accuracy, not speed. Then record yourself and compare with the original — that is usually the first time you really hear yourself.",
+      "Shadow with the transcript, then without it, just behind the speaker. Then read it aloud from memory, and finish by speaking freely on the same topic.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Pick a 45-second clip of a speaker you admire. Do steps 2, 5, 6 and 7 today: gist, sentence-by-sentence repeat, one recording, and a written list of three differences between your take and theirs." },
+    check: "The three differences are specific — 'I stressed MEET, she stressed PEOPLE' — not 'my accent is worse'.",
+  },
+
+  "spch100.5.7": {
+    module: "A8",
+    mechanic: "Translating in your head slows you down and makes your speech sound like your first language, so build direct routes instead: learn whole phrases, think out loud in the language, and keep sentences short.",
+    rules: [
+      "Speak, and allow mistakes. It is better to say something wrong than to lose the moment translating; note the correction you get and learn it.",
+      "Learn chunks — whole natural phrases like 'my name is' — and imagine where you will use them.",
+      "Listen a lot, and listen for the big picture. Translating every word you hear gets you lost.",
+      "Talk to yourself in the language while you do chores, about your day or the news. It does not matter if it is wrong.",
+      "Keep it short and simple. Trying to build the same complex sentences you would in your first language is what forces translation.",
+    ],
+    drill: { minutes: 6, artifact: "spoken",
+      do: "For five minutes while doing something else (cooking, walking), narrate what you are doing and thinking out loud in English, in sentences of ten words or fewer. Then write down three phrases you wanted and did not have." },
+    check: "You kept talking for the full five minutes, and the three missing phrases are written as whole phrases, not single words.",
+  },
+
+  "spch100.5.8": {
+    module: "A8",
+    mechanic: "Good English storytellers move through tenses on purpose: the past perfect sets the background, 'would' sets up routines, the past simple carries the main events, and a switch to the present zooms in on the key moment.",
+    rules: [
+      "Past perfect (<em>had collapsed</em>) shows what was already true before the story's moment. Without it, listeners lose the order of events.",
+      "Past perfect continuous (<em>had been working for years</em>) adds how long something had been going on.",
+      "<em>Would</em> describes repeated past habits ('every morning I would…'), then the past simple breaks the routine ('one day the doorbell rang').",
+      "The historical present ('so he walks in, and she opens the door') pulls the listener into the scene, like a camera zooming in.",
+      "Listen for these switches in podcasts and in colleagues' stories before trying to use them all.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Retell a story-bank moment in about ninety seconds using all four: one past-perfect background line, two 'would' routine lines, the event in the past simple, and the five-second moment itself in the present tense." },
+    check: "You can point to the exact line where you switch into the present, and it is the moment of change — not the setup.",
+  },
+
+  "spch100.5.9": {
+    module: "A8",
+    mechanic: "Presenting well in your first language does not carry over automatically, so prepare differently: rebuild instead of translating the slides, time a full run, write bullet points as sentences you can say, memorise only the opening and closing lines, and work on your inner state.",
+    rules: [
+      "Do not translate your slides. Rebuild the structure for how this audience thinks, with fewer words, so they listen to you rather than read.",
+      "You only become spontaneous after enough rehearsal. Charisma you have in your first language is not automatic in the second.",
+      "Time a full run. Most people have no sense of how long an idea takes to explain in English and are surprised by the clock.",
+      "Do not memorise the whole talk. Memorise the first two and last two sentences, and write each bullet point as a full sentence you can actually say, like the first line of a paragraph.",
+      "Write down your one big idea as an answer, not a title: 'we have found a way to double sales next quarter', not 'how to increase sales'.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "For a talk or meeting update you could give, write: the two opening sentences, the two closing sentences, five bullet points as full speakable sentences, and the one big idea as a claim. Then time yourself saying it once." },
+    check: "Every bullet has a verb, the big idea is a statement and not a question, and you have a real time in minutes written down.",
+  },
+
+  "spch100.5.10": {
+    module: "A8",
+    mechanic: "Three shifts for presenting in a second language at work: think of it as sharing with specific people rather than presenting, give the bottom line first instead of over-explaining, and practise until you sound human rather than perfect.",
+    rules: [
+      "'Presenting' puts the focus on you; 'sharing' puts it on who is in the chairs and what they need. Preparation becomes less memorising and more connection.",
+      "Over-explaining often comes from a culture where the journey comes before the destination, or from trying to prove your English. American audiences, she says, want the point first.",
+      "If the whole thing could be an email, it does not need a meeting. Add what only you can add — what the numbers mean and what action follows.",
+      "Perfect pronunciation in a monotone puts people to sleep. Master the high-frequency words of your job, then work on rhythm and intonation.",
+      "Practise in the position you will present in, picture one person who needs what you have, record yourself, and work on one thing a week.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Take a recent update you gave or will give. Record it once as you would normally say it. Then record it again starting with the bottom line in one sentence, followed by at most three supporting points and the action you need." },
+    check: "The second take is shorter, its first sentence could be the subject line of an email, and it ends with a request, not a summary.",
+  },
+
+  "spch100.5.11": {
+    module: "A8",
+    mechanic: "Humour does not translate word for word — puns and local references stay behind — but jokes built on shared human experience can travel, and you build them in a new language by testing them in conversation with a tutor who corrects you.",
+    rules: [
+      "Puns rarely survive translation; the Spanish cow-and-holiday pun means nothing in English. Do not start with wordplay.",
+      "Much humour rests on shared cultural context. Local jokes get local laughs.",
+      "Gad Elmaleh had to rebuild his French act for American audiences. Eddie Izzard writes from universal material, starts in English, and adds the new language a few minutes at a time.",
+      "Izzard's method: sit with a conversation tutor for hours and go through the act you have been improvising, getting corrections and better words.",
+      "Delivery is part of the joke: stress, intonation and timing. Being funny by accident comes before being funny on purpose.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take a funny moment from your story bank. Write it in two versions: one that depends on a pun or a reference only your culture would get, and one that depends only on what happened and how people reacted. Tell the second version to someone from a different background." },
+    check: "The second version works with no explanation; if you had to explain anything, that part goes.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.5.0": {
+    takeaway: "Marianna Pascal, after twenty years training Southeast Asian professionals: how well someone communicates in English has little to do with their level and a lot to do with their attitude. Speak it like a computer game — focused on the target — not like a piano exam where you are marked on mistakes.",
+    beats: [
+      { t: "Faizal", d: "A factory supervisor with very low English who listened calmly and said exactly what he meant." },
+      { t: "The piano exam", d: "Her daughter dreaded piano because success meant few mistakes. Many learners bring the same dread to English." },
+      { t: "The gamer", d: "In a cybercafe, a bad player watched by friends shows no embarrassment — all his attention is on the bad guys." },
+      { t: "The pharmacy", d: "The fluent sales rep panics and talks in circles; the counter girl asks 'heart okay or not? brain okay or not?' and solves it." },
+      { t: "Whose English", d: "For every native speaker there are five non-native speakers. English is a tool to get a result, not an art to master." },
+      { t: "The shutdown", d: "Trying to be correct and effective at the same time costs you your listening, your words, and your apparent confidence." },
+    ],
+    worked: "The engineers' barbecue: 'the hot dog contains the cheese' fails three times; a Japanese engineer says 'cheese… integrator!' and everyone understands. That is real English working.",
+    watch: "Mistaking fluency for effectiveness. The sales rep had more English and got a worse result, because her attention was on herself.",
+    concepts: [],
+    checks: [
+      { q: "What does Pascal say how well people communicate in English mostly depends on?", opts: ["Their vocabulary size", "Their attitude towards English", "Their accent", "How long they studied"], a: 1,
+        expl: "Faizal had a very low level and communicated beautifully." },
+      { q: "What is the 'one thing' she recommends?", opts: ["Learn ten new words a day", "Avoid speaking until you are fluent", "Focus on the other person and the result you want, not on yourself", "Watch films without subtitles"], a: 2,
+        expl: "Like the gamer focused on the target." },
+      { q: "Which three things does she say shut down when you try to be correct under pressure?", opts: ["Listening, speaking, and confidence", "Memory, vision, and hearing", "Grammar, spelling, and accent", "Pace, pitch, and volume"], a: 0,
+        expl: "And listeners may mistake the third for a lack of ability." },
+    ],
+  },
+
+  "spch100.5.1": {
+    takeaway: "Tracey Derwing, co-author of a research book on pronunciation teaching: focus on intelligibility (how much is understood) and comprehensibility (how easy it is), not on removing every trace of accent — some very noticeable features hardly matter, and some quiet ones matter a lot.",
+    beats: [
+      { t: "Two measures", d: "Intelligibility is how much the listener understands; comprehensibility is how much effort it costs them." },
+      { t: "The scattergun", d: "Many materials drill every difference from the local accent, but many differences never affect understanding." },
+      { t: "The 'th' example", d: "Very noticeable, rarely important: listeners adjust to it almost immediately." },
+      { t: "Functional load", d: "Pairs like p and b separate many words, so mixing them up costs much more understanding." },
+      { t: "Heavy but clear", d: "Research shows some speakers with heavy accents are very easy to understand. It depends which features are involved." },
+    ],
+    worked: "Ask the listener, not the mirror. A word someone actually misheard is worth fixing; a sound that is merely 'not native' may not be worth your time.",
+    watch: "Spending months on the most noticeable sound in your accent because people comment on it, while a less noticeable stress or consonant problem keeps causing misunderstandings.",
+    concepts: [],
+    checks: [
+      { q: "What is comprehensibility?", opts: ["How native you sound", "How fast you speak", "How much effort the listener needs to understand you", "How many words you know"], a: 2,
+        expl: "Intelligibility is how much they understand; comprehensibility is how hard it is." },
+      { q: "Why does Derwing say the 'th' sounds deserve less attention than they get?", opts: ["Listeners adapt to them almost immediately, so they rarely block understanding", "They are rare in English", "They cannot be learned by adults", "Native speakers do not use them"], a: 0,
+        expl: "They are salient, not important." },
+      { q: "What does 'high functional load' mean for a pair like p and b?", opts: ["It is hard to pronounce", "It only matters in British English", "It is the most common accent feature", "Many words differ only by that pair, so confusing it costs understanding"], a: 3,
+        expl: "That is why it matters more than f versus th." },
+    ],
+  },
+
+  "spch100.5.2": {
+    takeaway: "Marc Green at TEDxHeidelberg argues for going beyond fluency to a native-like level — minimise your accent, learn the expressions locals actually use, and absorb cultural habits. This is the opposite view to the previous two lessons, and worth hearing in full.",
+    beats: [
+      { t: "Moscow, 1987", d: "He copied down the Russian word for 'exit' as the name of his station — the story that started him learning languages." },
+      { t: "The deck of cards", d: "About a quarter of the cards gets you basics; over half is fluency, when the language becomes subconscious. Mastery is slower and optional." },
+      { t: "Accent first", d: "He calls it the most overlooked part of learning a language. The perfect-sentence technique: rate, hear, repeat, until no accent is heard." },
+      { t: "Local words", d: "Textbook French says 'le travail'; friends say 'mon boulot'. You learn these one at a time, from people." },
+      { t: "Cultural traits", d: "Gestures, 'ouch' versus 'aïe', 'uh-huh' versus 'mm-hmm' — picked up through active listening." },
+    ],
+    worked: "His tools when you are not living among native speakers: copy characters from TV shows, write down any expression you do not know, and learn song lyrics, because the emotion helps the phrases stick.",
+    watch: "The tension with Derwing and Pascal is real. Their evidence says intelligibility is enough for being understood; Green's claim is about social belonging, which is a different goal. Decide which one you are working on before you spend the hours.",
+    concepts: [],
+    checks: [
+      { q: "What is Green's 'perfect-sentence technique'?", opts: ["Writing one perfect sentence a day", "Memorising famous quotes", "Reading one sentence to a native speaker and repeating it until they hear no accent", "Recording a full chapter of a book"], a: 2,
+        expl: "It can take a long time even for one sentence." },
+      { q: "Which three areas does he say take you to a native-like level?", opts: ["Accent, local expressions, cultural traits", "Grammar, vocabulary, spelling", "Reading, writing, listening", "Speed, volume, pitch"], a: 0,
+        expl: "All three need contact with native speakers." },
+      { q: "How does his goal differ from Derwing's?", opts: ["He wants to be understood; she wants belonging", "They have the same goal", "He is talking about writing", "He is aiming at being accepted as one of the group, not just being understood"], a: 3,
+        expl: "Being understood and being treated as a native speaker are different targets." },
+    ],
+  },
+
+  "spch100.5.3": {
+    takeaway: "Safwat Saleem, an animator who stuttered as a child, stopped using his own voice after comments mocked his Pakistani accent — then realised that 'normal' is just what people have been exposed to, and that the only way to widen it is to keep speaking.",
+    beats: [
+      { t: "The dream", d: "'Have you forgotten your name?' — what classmates said when he stuttered, and what people chant in his recurring dream." },
+      { t: "The comments", d: "Positive at first, then: 'his voice is annoying', 'can't follow because of the Indian accent'. He couldn't edit part two." },
+      { t: "Homer's colours", d: "Ancient texts barely mention blue. One theory is that cultures only see a colour once they can make it." },
+      { t: "Normal is exposure", d: "Studies on bias suggest favouritism toward people we relate to. Few children's books show children of colour, so the circle of normal stays small." },
+      { t: "Back to the voice", d: "He is using his voice in his work again, and says giving up is not an option." },
+    ],
+    worked: "The talk is itself a model of story structure: a recurring dream opens it, the comments are the turning point, Homer's colours are the reflection, and it ends back on the voice — with jokes all the way through ('I clearly have a Pakistani accent').",
+    watch: "Hearing a comment about your accent as a verdict on your competence. Saleem's first reaction was to take it personally; the reframe was that it described the commenter's experience.",
+    concepts: [],
+    checks: [
+      { q: "Why does Saleem tell the story of Homer and the colour blue?", opts: ["To show that ancient people were colour-blind", "To show that people only 'see' what they have been exposed to — and 'normal' works the same way", "To explain his career in animation", "To show that translation loses meaning"], a: 1,
+        expl: "An accented narrator is not 'normal' only because few are heard." },
+      { q: "What did the online comments first make him do?", opts: ["Stop using his own voice in his work", "Take accent classes", "Hire a narrator straight away", "Delete the video"], a: 0,
+        expl: "Until he understood what the comments were really about." },
+      { q: "Which comment does he correct on stage?", opts: ["That the video was too long", "That he spoke too fast", "That he used peanut butter", "That he had an Indian accent — it is Pakistani"], a: 3,
+        expl: "One of several jokes in the talk." },
+    ],
+  },
+
+  "spch100.5.4": {
+    takeaway: "A short drill on English rhythm: content words (the information) are stressed and clear, function words are squeezed in between, so 'MICE EAT CHEESE' and 'the MICE might have been EATing the CHEESE' keep the same three beats.",
+    beats: [
+      { t: "Two kinds of word", d: "Content words — subject, verb, object — carry the information. Function words like the, a, in, will help but are not the main information." },
+      { t: "The build", d: "MICE EAT CHEESE → THE MICE EAT THE CHEESE → … → THE MICE MIGHT HAVE BEEN EATING THE CHEESE." },
+      { t: "Same beat", d: "More words, same rhythm: the stressed words stay evenly spaced." },
+      { t: "Squeeze", d: "'Might have been' becomes 'mitabin'. The content words are the loudest and clearest part." },
+    ],
+    worked: "Clap on MICE, EAT and CHEESE and fit everything else between the claps. If a sentence gets slower as it gets longer, you are giving the function words full stress.",
+    watch: "Pronouncing every word clearly and equally. It sounds careful but makes the important words harder to pick out.",
+    concepts: [],
+    checks: [
+      { q: "Which of these is a content word?", opts: ["the", "cheese", "will", "in"], a: 1,
+        expl: "Nouns, main verbs and adjectives carry the information." },
+      { q: "What happens to the beat as function words are added?", opts: ["It stays roughly the same, with the function words squeezed between", "It slows down for each new word", "Every word gets its own beat", "The beat moves to the function words"], a: 0,
+        expl: "English is timed by its stressed words." },
+      { q: "What should be the loudest and clearest part of the sentence?", opts: ["The first word", "The last word", "The content words", "The articles"], a: 2,
+        expl: "That is what makes the rhythm English." },
+    ],
+  },
+
+  "spch100.5.5": {
+    takeaway: "Pronunciation with Emma on thought groups: we speak in short meaningful chunks with small breaks between them, link the words inside each chunk, and can change the meaning — or add emphasis — by moving the breaks.",
+    beats: [
+      { t: "Let's eat, Grandma", d: "One pause separates inviting Grandma from eating her. Thought groups are what the pauses mark." },
+      { t: "No fixed rules", d: "Breaks depend on meaning, emphasis and speed — but some splits sound natural and others make the listener work." },
+      { t: "Group by meaning", d: "Keep subject and verb, and set phrases like 'in the middle of the night', together." },
+      { t: "Size check", d: "Too short means over-divided; out of breath means not divided enough." },
+      { t: "Emphasis", d: "Give a word its own chunk to make it stand out: 'I told you — repeatedly — I don't want to discuss it.'" },
+      { t: "Linking", d: "Inside a chunk, words connect ('turn it off'). That is why native speech can be hard to follow, and why chunking yours helps others follow you." },
+    ],
+    worked: "'I told him naturally he'd have to pay.' With the break after 'him', naturally means of course he would pay. With the break after 'naturally', it describes how you told him.",
+    watch: "Pausing wherever you run out of words rather than where the meaning breaks. The listener then has to put the pieces together.",
+    concepts: [],
+    checks: [
+      { q: "What decides where a thought-group break goes?", opts: ["The number of syllables", "The meaning — words that belong to one idea stay together", "Commas only", "Wherever you need to breathe"], a: 1,
+        expl: "There are no fixed rules, but meaning is the guide." },
+      { q: "How can you emphasise a single word using thought groups?", opts: ["Say it faster", "Put it at the end of the sentence", "Give it its own short chunk", "Repeat it twice"], a: 2,
+        expl: "Isolating it draws the listener's attention." },
+      { q: "Where does linking between words happen?", opts: ["Inside a thought group, not across the breaks", "Only between sentences", "Only before a pause", "Nowhere in careful speech"], a: 0,
+        expl: "The chunk flows as one unit." },
+    ],
+  },
+
+  "spch100.5.6": {
+    takeaway: "A teacher's ten-step shadowing method, built on the view that most learners start shadowing too early: choose a short clip, understand it, take dictation, study it, repeat sentence by sentence, record and compare, shadow with and without the transcript, read aloud from memory — and then talk about it yourself.",
+    beats: [
+      { t: "Choose", d: "30–90 seconds, one speaker, someone you would like to sound like, speaking clearly." },
+      { t: "Understand", d: "Listen for the gist and the emotion, then do a dictation to find what your ear misses." },
+      { t: "Study", d: "Note phrases and collocations, and how they are said: stress, tone, rhythm. She calls this the most important stage." },
+      { t: "Repeat and compare", d: "One sentence at a time, for accuracy. Record it, compare it with the original, try again." },
+      { t: "Shadow", d: "With the transcript, just behind the speaker; then blind, while walking or cooking." },
+      { t: "Transfer", d: "Read it aloud from memory in the speaker's style, then speak about the same topic yourself." },
+    ],
+    worked: "A clip about friendship becomes: shadow it, then talk for two minutes about what friendship means to you, using the phrases you just practised.",
+    watch: "Shadowing a whole film scene on day one. Without understanding and analysis you copy the sound roughly and learn little.",
+    concepts: [],
+    checks: [
+      { q: "Why does she recommend an optional dictation step?", opts: ["It is easier than listening", "Teachers require it", "It shows what your ears are not picking up, such as linking and reductions", "It replaces shadowing"], a: 2,
+        expl: "The gaps in your dictation are your gaps in listening." },
+      { q: "What is 'blind shadowing'?", opts: ["Shadowing with your eyes closed", "Shadowing without the transcript, just behind the speaker", "Shadowing a speaker you cannot see", "Reading the transcript silently"], a: 1,
+        expl: "It builds fluency and processing speed." },
+      { q: "What is the bonus step after the ten?", opts: ["Speak about the clip's topic yourself", "Find a harder clip", "Write a summary", "Translate the clip"], a: 0,
+        expl: "Shadowing should end in your own speech." },
+    ],
+  },
+
+  "spch100.5.7": {
+    takeaway: "Six habits for thinking directly in the language instead of translating: speak and accept mistakes, learn in chunks, listen a lot (for the big picture), link words to images, think out loud, and keep sentences short and simple.",
+    beats: [
+      { t: "Why translating hurts", d: "It slows you down so you miss your turn, and your sentences follow your first language's patterns." },
+      { t: "Speak", d: "Better to say it wrong and be corrected than stay silent translating. Note the correction." },
+      { t: "Chunks", d: "Learn 'my name is…', not 'name'. A word-for-word version from Spanish or French ('I call myself…') sounds wrong." },
+      { t: "Listen and picture", d: "Listen for the gist, not every word; connect words to images rather than translations." },
+      { t: "Out loud, and simple", d: "Talk to yourself as you do chores. Keep it short and simple: the goal is communication, not poetry." },
+    ],
+    worked: "Label things at home with sticky notes in English, so the first word you think of when you see the plant is the English one.",
+    watch: "Building the long, layered sentences you would use in your first language. That is the moment you start translating.",
+    concepts: [],
+    checks: [
+      { q: "What are 'chunks'?", opts: ["Short pauses", "Whole natural phrases learned as a unit, like 'my name is'", "Groups of vocabulary flashcards", "Parts of a presentation"], a: 1,
+        expl: "They avoid word-for-word translation." },
+      { q: "What does KISS stand for here?", opts: ["Keep it short and simple", "Know idioms, speak slowly", "Keep in step with speakers", "Kind, interested, sincere, simple"], a: 0,
+        expl: "Communication, not poetry." },
+      { q: "Why does translating in your head make your English less natural?", opts: ["Because it is too fast", "Because it uses too many idioms", "Because it copies the structures of your first language", "Because it removes your accent"], a: 2,
+        expl: "Your English ends up sounding like a translation." },
+    ],
+  },
+
+  "spch100.5.8": {
+    takeaway: "How good storytellers in English move between tenses: past perfect for background, 'would' for routines, past simple for the main events, and the historical present to zoom in on the key moment. Notice it in what you listen to before forcing it into your own stories.",
+    beats: [
+      { t: "The textbook version", d: "Past simple once, past continuous in progress, used to for habits, present perfect for relevance now. Not wrong — but real storytellers move between tenses freely." },
+      { t: "Past perfect", d: "'By the time he recovered, the empire had already collapsed' — so the order of events is clear." },
+      { t: "Past perfect continuous", d: "'For thousands of years, people had been…' — adds duration to the background." },
+      { t: "Would for routines", d: "'Every morning I would wake at six…' Then the past simple breaks it: 'one day the doorbell rang'." },
+      { t: "Historical present", d: "'Two years later he catches sight of a young boy.' It brings the listener into the scene." },
+    ],
+    worked: "The full pattern in one story: past perfect sets the scene, 'would' gives the routine, past simple says what happened, the present zooms into the moment.",
+    watch: "Switching tenses at random. The historical present works because it marks the moment that matters; used everywhere, it just sounds confused.",
+    concepts: [],
+    checks: [
+      { q: "What does the past perfect do in a story?", opts: ["Marks the climax", "Describes habits", "Shows something was already true before the story's moment", "Shows the future"], a: 2,
+        expl: "It keeps the order of events clear." },
+      { q: "What is the historical present used for?", opts: ["Pulling the listener into a key moment, like zooming in", "Correcting grammar", "Describing background", "Ending a story"], a: 0,
+        expl: "'She opens the door. The crowd goes silent.'" },
+      { q: "How does 'would' work in a story?", opts: ["It always means a condition", "It describes repeated past habits, which the past simple then interrupts", "It shows uncertainty", "It replaces the past perfect"], a: 1,
+        expl: "'I would read the paper… one day there was a knock at the door.'" },
+    ],
+  },
+
+  "spch100.5.9": {
+    takeaway: "Natalia of Upskill Me, who teaches public speaking to non-native speakers, on seven mistakes in second-language presentations: translating the slides, under-preparing, never timing yourself, saving questions for the end, memorising every word, never writing anything down, and ignoring your inner state.",
+    beats: [
+      { t: "Don't translate", d: "Rebuild the talk for this audience; fewer words on slides, because reading replaces listening." },
+      { t: "Prepare more, not less", d: "Charismatic speakers in their first language often go silent in their second. Spontaneity comes after rehearsal." },
+      { t: "Time yourself", d: "You may think three minutes have passed when it has been fifteen. Do a full timed run." },
+      { t: "Questions throughout", d: "Invite questions as you go: a talk is a conversation, and questions show trust." },
+      { t: "Memorise the edges only", d: "Learn the first two and last two sentences. Write each bullet as a full sentence you can say — the first line of a paragraph." },
+      { t: "Write, and the inner state", d: "Write the one big idea as an answer, not a title. Then work on your state, because confidence comes from having done it many times." },
+    ],
+    worked: "Bullet point 'five thousand dollars' versus 'we have added five thousand dollars of value to the product.' The first reminds you of the topic; the second gives you correct English to start the paragraph with.",
+    watch: "Memorising every word. When one word goes, you are stuck looking for it instead of thinking about the audience.",
+    concepts: [],
+    checks: [
+      { q: "What does she say to memorise word for word?", opts: ["The whole talk", "Only the opening and closing two sentences", "Nothing at all", "Only the slide titles"], a: 1,
+        expl: "The body runs on bullet points written as sentences." },
+      { q: "Why write bullet points as full sentences?", opts: ["They look better on slides", "They are shorter", "They give you correct English to start each part, not just a reminder of the topic", "They are easier to translate"], a: 2,
+        expl: "Non-native speakers usually need help with how to say it, not what to say." },
+      { q: "Which of these is a 'one big idea' rather than a title?", opts: ["We have found a strategy to double sales next quarter", "How to increase sales", "Sales strategy review", "Our sales: an overview"], a: 0,
+        expl: "A big idea answers a question; a title asks one." },
+    ],
+  },
+
+  "spch100.5.10": {
+    takeaway: "A coach for non-native leaders in American companies on three shifts: treat a presentation as sharing with specific people, stop over-explaining and give the bottom line first, and practise until you sound human rather than perfect.",
+    beats: [
+      { t: "Share, don't present", d: "Presenting is about you; sharing is about the people in the chairs and what they need. It changes your preparation and your energy." },
+      { t: "Know your audience's level", d: "A specialist presenting to other directors has to translate the specialism, not show it off." },
+      { t: "Bottom line first", d: "Over-explaining comes from a culture that values the journey, or from trying to prove your English. Both are inefficient here." },
+      { t: "Add what only you can", d: "Not every number on the slide — what the numbers mean and what action follows." },
+      { t: "Less robotic", d: "Perfect pronunciation in a monotone puts people to sleep. Master your job's high-frequency words, then work on rhythm. Practise standing up if you will present standing up." },
+    ],
+    worked: "A CFO explaining quarterly numbers to non-finance colleagues: instead of reading the table, say whether it means growth, and what to do as a result — invest in training, slow down, change course.",
+    watch: "Scripting everything. When something goes wrong live, you have never practised carrying on through a mistake.",
+    concepts: [],
+    checks: [
+      { q: "Why does she suggest thinking of a presentation as 'sharing'?", opts: ["It sounds more modest", "It moves your focus from yourself to the people receiving it", "It means you need no slides", "It is shorter"], a: 1,
+        expl: "Preparation becomes connection rather than memorisation." },
+      { q: "What are two reasons she gives for over-explaining?", opts: ["Too many slides and too little time", "Nerves and caffeine", "A culture that puts the journey first, or wanting to prove your English", "Bad microphones and large rooms"], a: 2,
+        expl: "Identifying which one applies makes it faster to fix." },
+      { q: "Which pronunciation does she say to master first?", opts: ["The high-frequency words of your job", "Every vowel sound", "Idioms and slang", "The 'th' sounds"], a: 0,
+        expl: "Then let it go and work on rhythm and intonation." },
+    ],
+  },
+
+  "spch100.5.11": {
+    takeaway: "A Babbel podcast on whether humour travels: puns and cultural references mostly do not, comedians who move between languages have to rebuild their acts, and Eddie Izzard argues that universal material can travel if you add the new language a few minutes at a time and rehearse with a conversation tutor.",
+    beats: [
+      { t: "Puns don't travel", d: "Spanish puns told in English get blank looks; 'did you get a haircut?' makes no sense in French." },
+      { t: "Context matters", d: "Much humour depends on what people grew up watching. Seinfeld dubbed into German flopped." },
+      { t: "Rebuilding the act", d: "Gad Elmaleh's 90-minute French show, full of props and characters, had to be rebuilt for American stand-up." },
+      { t: "Izzard's method", d: "Universal material, performed in English with a few minutes of French at the end, slowly becoming all French — rehearsed for hours with a conversation tutor in a café." },
+      { t: "Delivery", d: "Stress and timing in a language you are learning are the hard part. Filler words and intonation help you sound natural before you are fully fluent." },
+    ],
+    worked: "'Local jokes get local laughs.' Jokes about shared human situations — a misunderstanding, a family moment — survive the move between languages far better than wordplay.",
+    watch: "Translating a joke that works in your first language word for word. Even when you explain it, it rarely lands. NOTE: the transcript tool stops at 41:30 of 45:42; the unread end is the hosts' closing discussion.",
+    concepts: [],
+    checks: [
+      { q: "Why did the Spanish jokes fall flat in English?", opts: ["They were too long", "They were rude", "They were puns that only work in Spanish", "The hosts did not understand Spanish"], a: 2,
+        expl: "Wordplay depends on the original words." },
+      { q: "How does Eddie Izzard build a show in a new language?", opts: ["He hires a translator for the whole script", "He starts with universal material and adds the new language bit by bit, rehearsing with a conversation tutor", "He performs only physical comedy", "He memorises local jokes"], a: 1,
+        expl: "He rehearses the act he has been improvising with his tutors." },
+      { q: "What does 'local jokes get local laughs' mean?", opts: ["References only one place understands only work in that place", "You should only perform locally", "Local audiences laugh more", "Jokes about places are always funny"], a: 0,
+        expl: "Material that relies on shared human experience travels further." },
     ],
   },
 });

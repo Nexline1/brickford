@@ -258,6 +258,8 @@ DAR.COURSES.push({
         { t: "Reading a retention graph — five shapes", v: "wZBLDOpimG0", min: 5 },
         { t: "Shorts metrics — viewed versus swiped, valued watch time", v: "_tWy-_otnUc", min: 44 },
         { t: "Where a strategist looks first", v: "WpghnKjBBG8", min: 4 },
+        { t: "Which intros keep viewers — 63 retention graphs compared", v: "s1jmSon6Z4w", min: 9 },
+        { t: "Why click-through rate misleads — and the comparisons that still mean something", v: "jlFDJ4sWIZM", min: 10 },
       ],
     },
     {
@@ -6990,6 +6992,94 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Who did what to whom — something the viewer can picture." },
       { q: "How does he open the Mormon video, and why?", opts: ["'Today I'll tell you the story of the Mormons' — to set the scope", "'It started with a murder' — to drop the viewer straight into action", "With the title read out loud — to confirm they clicked the right video", "With his own memories of the valley — to make it personal first"], a: 1,
         expl: "No 'tell them what you'll tell them': start inside the action." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XIII, top-up (T-037 review round 1, 2026-10-09) — B2 retention and
+// analytics, two lessons appended after spch100.12.3: one creator's
+// comparison of intro types by how many viewers remain at 30 seconds, and
+// why click-through rate is so often misread. Each read in full. Appended
+// at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+  "spch100.12.4": {
+    module: "B2",
+    mechanic: "Judge an intro by the share of viewers still watching at 30 seconds. In one creator's 63 graphs the intros that held best were barely intros at all — a few sentences that confirm the click and slide into the content within 20 seconds — while credentials, restating the title, 'why this matters' and early subscribe requests lost the most.",
+    rules: [
+      "Measure the intro by average percentage viewed at 30 seconds, video against video.",
+      "Don't open with who you are; put credentials in a lower-third title or at the end screen.",
+      "Don't restate the title or explain why the topic matters — they clicked because they already knew.",
+      "Reach the content within 20 seconds, in two to four sentences that run straight into it; never open on a logo bumper or a full-screen sponsor card.",
+      "Ask for the subscribe at the end screen or past the halfway point, never before you've given anything; and keep the title, thumbnail and intro in the language of the video.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take the first 30 seconds of one of your videos (or write them for a planned one) and transcribe them. Mark every sentence that is credentials, a restated title, 'why this matters' or a subscribe request. Cut them, and rewrite the intro so the first piece of content arrives within 20 seconds, in two to four sentences." },
+    check: "The rewrite has no self-introduction, no restated title and no subscribe request, and the first piece of actual content starts within four sentences.",
+  },
+
+  "spch100.12.5": {
+    module: "B2",
+    mechanic: "Click-through rate falls as a video is shown to wider, less interested audiences, so a high CTR can mean a video stalled and a low one that it spread. Compare CTR within the same video over time, with traffic sources, topic breadth, competition and the video's age in mind — not between videos.",
+    rules: [
+      "As a video is shown to bigger, less interested groups, its CTR drops: more views usually means a lower CTR.",
+      "Don't compare CTR between videos: their traffic sources differ, and impressions from external sites, end screens and some apps aren't counted at all.",
+      "On a small channel the samples are small: a few views swing the number.",
+      "Topic breadth and competition set the level. Broad topics click lower, and 5 percent is good or bad only against rivals whose numbers you can't see.",
+      "What CTR can still tell you: under about 2 percent with few views points at the title and thumbnail, and the first 24 hours shows how interested your existing audience is.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "For two of your videos (or, with no channel, the three-video example in the lesson) write down CTR, views, the top traffic source and its share, and the video's age. Then write two sentences: why comparing their CTRs would mislead, and the one comparison you would trust instead." },
+    check: "The sentences name at least two of traffic-source mix, uncounted impressions, sample size, topic breadth and age, and the comparison you trust stays within one video (or its first 24 hours).",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.12.4": {
+    takeaway: "A creator compared 63 of his own retention graphs by type of intro, measuring how many viewers were still there at 30 seconds. Credentials first did worst; restating the title or saying why it matters did badly; the intro that isn't really an intro — a few sentences that slide into the content within 20 seconds — held best, consistently above 70 percent.",
+    beats: [
+      { t: "The measure", d: "Average percentage viewed at 30 seconds: how much of the audience the intro keeps." },
+      { t: "Credentials first", d: "Saying who you are opened the steepest drops, down to 35 percent at 30 seconds, and was worst on quick tutorials, where people want one answer. Move it to a lower third or the end screen." },
+      { t: "Restating the title, 'why it matters'", d: "They already know — that's why they clicked. Nearly half the viewers can leave before the first piece of information." },
+      { t: "Relate, or an odd fact", d: "Recognising the viewer's frustration worked well; a strange fact works best when the first sentence ties it to the topic." },
+      { t: "The non-intro", d: "Two to four sentences and content within 10 to 20 seconds: consistently 70 percent or more at 30 seconds." },
+      { t: "Subscribe and language", d: "No subscribe request before any value; and no English title, thumbnail or intro on a video in another language." },
+      { t: "The MrBeast check", d: "His intros are one to three sentences, with 4 to 23 seconds to the content, mostly under 10." },
+    ],
+    worked: "Before: 'Hi, I'm a video editor with ten years' experience. In this video: how to colour-grade your footage — and why it matters for your channel. Before we start, hit subscribe!' After: 'Your footage looks flat because it was shot flat — on purpose. Three steps fix it. Here's the first.' The content starts in the third sentence.",
+    watch: "Nine minutes. All the numbers come from his own channels, so treat them as one creator's evidence, not a law; the auto-captions garble some figures, and the ranges are approximate.",
+    concepts: [],
+    checks: [
+      { q: "Which intro did worst in his comparison?", opts: ["Opening on a strange fact tied to the topic", "Opening on who you are and your years of experience", "Opening by relating to the viewer's problem", "Opening with two or three sentences that run into content"], a: 1,
+        expl: "The steepest drops of the study, worst on quick tutorials." },
+      { q: "Where does he suggest putting your credentials instead?", opts: ["In the first sentence, just before your hook", "In the video description, above the links", "In a lower-third title, or at the end screen", "In a pinned comment written after upload"], a: 2,
+        expl: "Viewers who came for one answer don't wait for a biography." },
+      { q: "Why does he advise against asking for a subscribe before the content?", opts: ["Subscribe requests are penalised by the algorithm", "Viewers haven't had anything yet to judge you by", "Viewers have usually subscribed already by then", "It interrupts the music bed under the intro"], a: 1,
+        expl: "Ask at the end screen, or past the halfway point, to people who stayed." },
+    ],
+  },
+
+  "spch100.12.5": {
+    takeaway: "A creator coach on why click-through rate is the most misread number in YouTube analytics: it falls as a video reaches wider audiences, it's computed on only some impressions, and it depends on topic, competition and age — so compare it within a video, not between videos.",
+    beats: [
+      { t: "Two videos", d: "A video with a 4 percent CTR had 300,000 views; one with 10 percent had 7,000." },
+      { t: "Why CTR falls as views rise", d: "A video goes to subscribers first, then to wider groups if they respond. Each wider group is less interested, so the CTR drops as reach grows." },
+      { t: "Uncounted impressions", d: "External sites, end screens, the mobile site, some apps, and thumbnails shown for under a second aren't counted; videos fed by those sources look low." },
+      { t: "Small samples", d: "On a small channel, two or three views swing the number." },
+      { t: "Topic, competition, age", d: "Broad topics click lower; your 5 percent is good or bad only against competitors you can't see; and CTR drifts as a video ages." },
+      { t: "Still useful", d: "Under about 2 percent with few views: look at the title and thumbnail. The first 24 hours shows your existing audience's interest." },
+    ],
+    worked: "Video A: 3.6 percent CTR, 1,618 views, 26 percent of them from end screens. Video B: 10.5 percent, 289 views, mostly from suggested. B 'wins' on CTR only because A's biggest source isn't counted in impressions; A reached more people. The fair question is how A's own CTR moved after launch.",
+    watch: "Ten minutes, with two plugs for the coach's own programme. The examples are from the coach's own channels; the specific numbers are illustrations, not benchmarks.",
+    concepts: [],
+    checks: [
+      { q: "Why does CTR usually fall as a video gets more views?", opts: ["YouTube shows it to wider groups who are less interested in it", "Viewers get tired of the same thumbnail after seeing it twice", "The algorithm lowers CTR deliberately to slow a viral video", "Subscribers stop clicking once a video passes its first day"], a: 0,
+        expl: "Each wider audience is a less interested one." },
+      { q: "Why can a video with a low CTR still have reached more people?", opts: ["Its title was longer, so it ranked higher in search results", "Its main source, end screens, doesn't count toward impressions", "Its thumbnail was tested more often in A/B tests than the other", "Its viewers watched for longer, which raises the CTR afterwards"], a: 1,
+        expl: "Impressions from end screens and external sites aren't in the CTR at all." },
+      { q: "When does CTR still tell you something, in this lesson?", opts: ["When two videos on different topics are compared side by side", "When it's under about 2 percent on a video with few views", "When it's measured a year after the video was published", "When it's above 10 percent, which proves the topic works"], a: 1,
+        expl: "Then look at the title and thumbnail; and watch the first 24 hours." },
     ],
   },
 });

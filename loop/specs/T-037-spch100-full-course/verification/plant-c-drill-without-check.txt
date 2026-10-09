@@ -1,0 +1,38 @@
+# Plant (c): a drill missing its check
+# 2026-10-09T18:07:43Z, commit 796ef6a. The check line of the drill for spch100.4.12 is deleted; mechanic, rules and drill stay.
+
+## The plant
+$ python3 -I /tmp/claude-0/-home-user-brickford/e8e314d5-7130-5570-8abd-d441eaf954df/scratchpad/plant/c.py
+$ git status --short (outside verification/)
+ M platform/data/storytelling.js
+$ git diff --stat; git diff
+ platform/data/storytelling.js | 1 -
+ 1 file changed, 1 deletion(-)
+diff --git a/platform/data/storytelling.js b/platform/data/storytelling.js
+index 444ea31..22e9670 100644
+--- a/platform/data/storytelling.js
++++ b/platform/data/storytelling.js
+@@ -6545,7 +6545,6 @@ Object.assign(DAR.DRILLS, {
+     ],
+     drill: { minutes: 8, artifact: "recorded",
+       do: "Take a talk or story with three moments at different ages or dates. Mark three spots on the floor from the audience's left to their right. Record yourself telling it, walking to the next spot only on a transition line, and finish by stepping back to the first spot for a callback." },
+-    check: "Each move happens on a transition line, you never cross a spot where you placed a person or place, and the closing callback is said from the spot where that moment was first told.",
+   },
+ });
+ Object.assign(DAR.SUMMARIES, {
+
+## The gates, on the planted bytes
+$ node tools/verify-content.js
+  FAIL drill spch100.4.12: says how you know it worked
+  FAIL spch100.4.12: drill has its check
+2 of 29589 checks FAILED
+2 of 29589 checks FAILED
+exit 1
+
+## Restore
+cmp platform/data/storytelling.js: identical to the saved copy
+git status outside verification/: clean
+git diff HEAD outside verification/: none
+$ node tools/verify-content.js   (restored)
+PASS — 29589 checks, 14 numeric answers recomputed, 159 drills, 12 concepts, 12 figures, 3 interactive, 403 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0

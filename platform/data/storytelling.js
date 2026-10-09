@@ -84,6 +84,7 @@ DAR.COURSES.push({
         { t: "Structure is what they know, and when — the Nemo flashbacks", v: "bKrCKg9ggVI", min: 4 },
         { t: "Write what you know — the feeling under the monster story", v: "1rMnzNZkIX0", min: 3 },
         { t: "Credibility before vulnerability — five tips for a story in a talk", v: "vrxIlFfqKEE", min: 7 },
+        { t: "Promise, progress, payoff — why a middle drags and an ending lands (start at 19:28)", v: "ihd76ijy9LU", min: 56 },
       ],
     },
     {
@@ -6367,6 +6368,55 @@ Object.assign(DAR.SUMMARIES, {
         expl: "The pair rolls like one word." },
       { q: "Where does the lesson suggest starting to practise linking?", opts: ["Long technical words", "Small common words that begin with a vowel — prepositions, articles, conjunctions", "The last word of each sentence", "Names and numbers"], a: 1,
         expl: "They are everywhere, so they give the most practice." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit III, third top-up (T-037, 2026-10-09) — A1 structure, one lesson
+// appended after spch100.2.10: Brandon Sanderson's 2025 plot lecture on
+// promise, progress and payoff (official upload, real captions, read in
+// full). Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.2.11": {
+    module: "A1",
+    mechanic: "A story runs on promise, progress and payoff: the opening promises what kind of story this is and how it will feel, the middle must visibly move toward that promise or listeners treat it as a detour and stop investing, and the ending fulfils the promise in a way that feels surprising yet inevitable.",
+    rules: [
+      "Make the right promise early. The opening tells people the tone — funny, dark, tense — and what the story is about. The shorter the story, the harder and sooner the promise has to land.",
+      "A cold open can be the story in miniature: a small version of the problem that shows what the big one will be.",
+      "Progress is most of the story. You control time completely, so the job is not to make things happen but to give a <strong>sense</strong> of progress, and to signpost it: closer, one more piece, almost there.",
+      "When an audience gets bored, it is usually a mismatch: you promised one thing and the progress is on a different axis. Fix the promise rather than the middle.",
+      "Payoff should be surprising yet inevitable: make them doubt they will get what you promised (obstacles, escalation), then deliver — or make them wish for something better than the promise, and give them that.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take one story from your bank and write four lines: (1) the promise your first two sentences make — the tone and the question the story raises; (2) three signposts of progress you will say aloud in the middle; (3) the moment the listener should doubt the outcome; (4) the payoff in one sentence. If the payoff does not answer the promise, rewrite the opening, not the ending." },
+    check: "The payoff sentence answers the exact question the opening raises, and each of the three signposts names a step toward that answer rather than a side trip.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.2.11": {
+    takeaway: "Brandon Sanderson reduces plot to promise, progress and payoff. The opening promises what kind of story it is; the middle must keep showing movement toward that promise; the ending fulfils it in a way that feels surprising yet inevitable. When an audience is bored, the progress is usually on a different axis from the promise.",
+    beats: [
+      { t: "Big P and little p", d: "The big plot is what you can say in a sentence; the little plot is the small problem-and-solution beats that keep people engaged moment to moment." },
+      { t: "The tone promise", d: "If it will be funny, there are jokes early; if it will be dark, the opening is dark. Names, descriptions and the first pages all make the promise." },
+      { t: "The story in miniature", d: "Raiders of the Lost Ark opens with a mini adventure that is the whole film in small: a clever hero, hard trials, and he loses anyway." },
+      { t: "You control progress", d: "You could end any story in one sentence or spend fifty pages on one second. The job is a satisfying sense of progress, signposted — 'we're getting closer, one more piece'." },
+      { t: "The side-quest problem", d: "Promise point B, then send the characters to point C, and readers stop investing. His fix in Oathbringer was a new promise: if one character does not reach C, someone he loves will die." },
+      { t: "Surprising yet inevitable", d: "Obstacles, escalation and red herrings make people doubt the promise. The toy-car-and-toy-plane twist makes them want something else, then gives it to them." },
+    ],
+    worked: "A story about nearly missing a job interview. Promise: 'I almost didn't make it to the interview that got me this job' — tense, a little comic, and the question is whether he makes it. Progress: the missed bus, the wrong building, the lift out of order, each told against the clock ('eleven minutes left'). Doubt: at the top of the stairs the receptionist says the panel has gone home. Payoff: one of them is stuck in that broken lift. A detour into what he had for breakfast would feel like a side quest — cut it, or tie it to the clock.",
+    watch: "Start at about 19:28; the first nineteen minutes are course logistics and questions about outlining (the big P / little p distinction at 2:48 and the overview at 9:09 are worth a minute each). The lecture is about novels and films. He says a short story must hit its promise harder, in the first paragraph; for a two-minute spoken story that means the first line or two. Contains spoilers for While You Were Sleeping and the Lord of the Rings films.",
+    concepts: [],
+    checks: [
+      { q: "According to Sanderson, what is usually wrong when an audience finds a section boring?", opts: ["The language is too plain", "The progress is on a different axis from what was promised", "There is no twist", "The section is too short"], a: 1,
+        expl: "His usual fix is to change the promise so it matches the progress." },
+      { q: "Why does Raiders of the Lost Ark open with a short adventure?", opts: ["To show the story in miniature and promise what the film will be", "To give the villain's backstory", "To fill time before the title", "To set up a twist that reverses the ending"], a: 0,
+        expl: "The rest of the film is the same shape at length." },
+      { q: "What makes a payoff feel surprising yet inevitable, in the lecture?", opts: ["Hiding the promise until the end", "Putting a twist in every story", "Making the audience doubt they will get what was promised, then delivering it", "Ending before the promise is fulfilled"], a: 2,
+        expl: "Obstacles, escalation and red herrings create the doubt." },
     ],
   },
 });

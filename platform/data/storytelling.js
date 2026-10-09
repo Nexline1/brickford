@@ -133,6 +133,8 @@ DAR.COURSES.push({
         { t: "Word stress — the syllable that is higher and longer", v: "pRXsIthxgH8", min: 4 },
         { t: "Intonation — the melody that carries attitude", v: "p8DJFNjZiIM", min: 5 },
         { t: "Arabic speakers' English — p and b, the r, and the missing 'a'", v: "spNrlty3tzk", min: 5 },
+        { t: "Stuck for a word — simplify, define, synonym, opposite, go general (stop at 6:20)", v: "R6JupGkbltY", min: 6 },
+        { t: "Linking — a consonant sound runs into the next vowel sound", v: "Nc2r_5XhkGk", min: 16 },
       ],
     },
     {
@@ -6280,6 +6282,91 @@ Object.assign(DAR.SUMMARIES, {
         expl: "If they struggle to hear you, they're gone." },
       { q: "By how much does he suggest slowing your delivery?", opts: ["By half", "Not at all", "About 10–15 per cent", "Speeding up instead"], a: 2,
         expl: "It feels slow while recording and sounds clearer back." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VI, second top-up (T-037, 2026-10-09) — A8 non-native speaker,
+// two lessons appended after spch100.5.14: what to do when the English
+// word will not come (Advanced English), and consonant-to-vowel linking
+// (mmmEnglish). Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.5.15": {
+    module: "A8",
+    mechanic: "When the exact English word will not come, do not go silent — the goal is to be understood, not to be perfect — so talk around the gap: simplify, define it, use a synonym, say its opposite, or go more general and let the listener ask for detail.",
+    rules: [
+      "'The enemy of the good is the perfect': holding an idea back because you cannot phrase it perfectly in English deprives the room of it. <strong>Intelligibility</strong> is the goal.",
+      "Simplify (KISS — keep it simple, silly): say it in plainer terms. A complicated phrasing is not more impressive.",
+      "Define: you know the meaning even without the word, so describe it in other words. It takes longer, but it gets across.",
+      "Synonym or opposite: reach for a similar word, or say the opposite of what you mean ('not eager at all' for 'reluctant').",
+      "Generalise: go to the bigger picture. If listeners want detail they will ask, and you cannot predict what they will want anyway.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Write down five words from your own work or story that you sometimes cannot find in English (in your first language if need be). For each, record one sentence that gets the meaning across without the word, using a different strategy each time: simplify, define, synonym, opposite, generalise." },
+    check: "Someone who hears the five recordings can name each missing word or idea, no recording stops or apologises mid-sentence, and each one uses a different strategy.",
+  },
+
+  "spch100.5.16": {
+    module: "A8",
+    mechanic: "In connected English speech a word ending in a consonant sound runs straight into a following word that begins with a vowel sound, with no gap — and the rule is about the sounds you hear, not the letters you see.",
+    rules: [
+      "Natural English is not spoken word by word: words reduce, contract and link. Saying each word separately is very clear but sounds robotic.",
+      "Listen for sounds, not letters: 'like' ends in the letter e, but the e is silent, so the word ends in a /k/ sound and links to 'it'.",
+      "Where a consonant sound meets a vowel sound, push them together — no space, no breath — so the pair rolls like one word.",
+      "Small unstressed words often reduce to a schwa first; in 'slice of', the /s/ of 'slice' joins the schwa of 'of'.",
+      "Start with the small, common words that begin with a vowel — prepositions, articles, conjunctions — and train by listening to native speakers and imitating them.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Write three sentences from one of your stories and mark every place where a consonant sound meets a vowel sound with a dash (like-it, slice-of), going by sound, not spelling. Record each sentence twice: once word by word, once linked." },
+    check: "Every dash sits where a consonant sound meets a vowel sound (a silent final e does not count as a vowel), and on the linked take there is no gap at any dash.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.5.15": {
+    takeaway: "Advanced English's lesson is about the moment a word will not come. Silence is the worst option — perfect is not the goal, being understood is — and five strategies get you round the gap: simplify, define, use a synonym, say the opposite, or generalise.",
+    beats: [
+      { t: "The enemy of the good", d: "Holding back an idea because you cannot phrase it perfectly in English deprives everyone of it." },
+      { t: "The long way round is fine", d: "Concise is the general rule, but when the exact word is missing, a longer, roundabout explanation is acceptable." },
+      { t: "Simplify and define", d: "Keep it simple (KISS). You know the meaning, so describe it in other words." },
+      { t: "Synonym and opposite", d: "Find a similar word — checking a thesaurus whenever you learn a new word builds the stock — or say the opposite of what is on your mind." },
+      { t: "Generalise", d: "Think bigger picture. If listeners want detail they will ask, and you cannot know in advance what they will latch on to." },
+    ],
+    worked: "Suppose 'reluctant' will not come. Simplify: 'he didn't want to.' Define: 'he agreed, but slowly, without wanting to.' Synonym: 'he was unwilling.' Opposite: 'he was not eager at all.' Generalise: 'he wasn't happy about it.' Any one of them gets the meaning across; silence gets nothing across.",
+    watch: "Stop at about 6:20; the rest is channel and podcast promotion. The lesson is about conversation, but the same five moves rescue a talk or a story when a word goes missing in front of people.",
+    concepts: [],
+    checks: [
+      { q: "What goal does the lesson set in place of perfection?", opts: ["Intelligibility — being understood", "A native accent", "Never pausing", "Always using the most precise word"], a: 0,
+        expl: "Perfect is not the goal; communicating is." },
+      { q: "The word 'reluctant' will not come, so you say 'he was not eager at all'. Which strategy is that?", opts: ["Simplify", "Generalise", "Say the opposite (contradict)", "Define"], a: 2,
+        expl: "You reached the meaning through its opposite." },
+      { q: "Why, according to the lesson, need you not give every detail when you generalise?", opts: ["Details confuse native speakers", "Listeners who want more will ask, and you cannot predict what they will want", "Short answers always sound more fluent", "Details need vocabulary you do not have"], a: 1,
+        expl: "Let the other person ask for the part they care about." },
+    ],
+  },
+
+  "spch100.5.16": {
+    takeaway: "Emma from mmmEnglish opens a series on connected speech with consonant-to-vowel linking: when one word ends in a consonant sound and the next starts with a vowel sound, the two are pushed together with no gap. It is a large part of why natural speech sounds quick and relaxed, and it works on sounds, not spelling.",
+    beats: [
+      { t: "Same sentence, twice", d: "Said naturally, then word by word — the second is very clear but sounds like a robot." },
+      { t: "Words bump into each other", d: "In natural English sounds change, get added or drop out. You cannot read it off the page; it is learned by listening and practising aloud." },
+      { t: "Sounds, not letters", d: "'Like' ends in the letter e but in the sound /k/, so it links to 'it'." },
+      { t: "No space, no breath", d: "The /k/ goes straight into the vowel. In 'slice of', the /s/ joins the schwa of an unstressed 'of'." },
+      { t: "Where to start", d: "Small common words that begin with a vowel — prepositions, articles, conjunctions — give the most chances to link." },
+    ],
+    worked: "'I picked it up at eight.' Mark the links by sound: picked-it (the -ed is a /t/ sound), it-up, up-at, at-eight. Said word by word it has five gaps; linked, everything after 'I' runs as one unbroken stream.",
+    watch: "About 1:30 to 3:05 is a sponsor message. Several practice sentences appear on screen and are not in the captions, so watch rather than listen in the background. This is part one: vowel-to-vowel and consonant-to-consonant linking are promised for later lessons and are not covered here. The video frames linking as reducing your accent; in this course the aim is ease and flow, not a native accent (see 'Intelligibility, not accent' earlier in this unit).",
+    concepts: [],
+    checks: [
+      { q: "Why does 'like it' link, even though 'like' ends in a vowel letter?", opts: ["Because both words are short", "Because 'it' is stressed", "Because the e is silent, so 'like' ends in a /k/ consonant sound", "It does not — a vowel letter never links"], a: 2,
+        expl: "Linking follows sounds, not spelling." },
+      { q: "What should happen at a consonant-to-vowel link?", opts: ["The two sounds are pushed together with no gap or breath", "A short pause separates them", "The consonant is dropped", "The vowel is stressed"], a: 0,
+        expl: "The pair rolls like one word." },
+      { q: "Where does the lesson suggest starting to practise linking?", opts: ["Long technical words", "Small common words that begin with a vowel — prepositions, articles, conjunctions", "The last word of each sentence", "Names and numbers"], a: 1,
+        expl: "They are everywhere, so they give the most practice." },
     ],
   },
 });

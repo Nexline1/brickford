@@ -1,0 +1,14 @@
+# T-037 date-map proof — before (base bfb68ef, 5 SPCH lessons) vs after (this branch, final content)
+# after generated 2026-10-09T18:04:37Z at commit 2059d21 with a fixed clock (2026-10-09T12:00Z) and an empty state
+# date-map-before.json was regenerated from a clean checkout of bfb68ef with this same script just before this run and matched the committed file byte-for-byte (cmp).
+# sha256 platform/data/storytelling.js a3170fe0991cf5f2…  platform/js/app.js fe14a004e44721e5…
+$ node date-map.js --diff date-map-before.json date-map-after.json
+same  start: 2026-10-05 -> 2026-10-05
+same  day1094: 2030-04-02 -> 2030-04-02
+same  baseline: 2030-04-03 -> 2030-04-03
+same  non-SPCH lesson: 324 keys, 0 differ
+same  pseudo block: 1689 keys, 0 differ
+same  SPCH seed lesson: 5 keys, 0 differ
+info  SPCH lessons: 5 -> 159; last SPCH date 2026-10-11@Publish -> 2027-06-01@Publish; SPCH speech days 5 -> 172
+RESULT: identical — no non-SPCH date, pseudo block, seed lesson, start, day 1094 or baseline moved
+exit 0

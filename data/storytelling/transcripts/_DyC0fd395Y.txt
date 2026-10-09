@@ -1,0 +1,152 @@
+# Transcript: Curse of Knowledge from Made to Stick
+
+Source video: https://www.youtube.com/watch?v=_DyC0fd395Y
+Language: en · Duration: 12:02 · Words: 1947
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript
+
+[0:12] >>The premise of this book is that sticky ideas share a set of common traits, and these
+traits, they've come up with a mnemonic device that you can remember them by, it's the word success,
+without the final S. Simple, unexpected, concrete, credible, emotional, and stories. So we all need
+to know what's going to resonate, what's going to connect with our audience. Well, if it is so
+simple, why aren't we inundated with sticky ideas?
+
+[0:43] It's not like there's a powerful constituency for overcomplicated lifeless prose. But there's
+a reason this is so difficult for most of us to do. Turns out there's a natural villain here, and
+it's a tendency that consistently confounds our ability to create ideas using these principles, and
+it's called the Curse of Knowledge. And Chip and Dan Heath believe it's so important that they
+capitalize this throughout the book. Curse, capital C, of Knowledge, capital K.
+
+[1:13] And so basically, that just means that once you've learned something, it's hard to unlearn
+it. It's hard to go back to being, to remembering what it was like to not know that. And they give
+an excellent story that illustrates this called the Tappers versus the Listeners, and I'm just gonna
+read from the book right now. I've put it into my notes, but I'm reading from the book. "In 1990,
+Elizabeth Newton earned a Ph.D. in psychology at Stanford by studying a simple game
+
+[1:43] in which she assigned people to one of two roles, tappers and listeners. Tappers received a
+list of 25 well-known songs, such as 'Happy Birthday to You' and 'The Star-Spangled Banner'. Each
+tapper was asked to pick a song and tap out the rhythm to a listener by knocking on a table. The
+listeners job was to guess the song, based on the rhythm being tapped. The listeners job is quite
+difficult. Over the course of Newton's experiment, 120 songs were tapped out.
+
+[2:13] Listeners guessed only 2.5 percent of the songs. That's three out of 120. But here's what
+made the result worthy of a dissertation in psychology. Before the listeners guessed the name of the
+song, Newton asked the tappers to predict the odds that the listeners would guess correctly. They
+predicted that the odds were 50 percent, so 1 in 2. The tappers got their message across one time in
+40, but they thought they were getting it across one time in 2. Why?
+
+[2:44] When a listener taps, she's hearing the song in her head." Meanwhile-- did I say listener?
+When the tapper taps, she's hearing the song in her head. "Meanwhile, the listeners can't hear that
+tune. To them, all they hear is a bunch of disconnected taps, like a kind of bizarre Morse code. And
+in the experiment, tappers are flabbergasted at how hard the listeners seem to be working to pick up
+the tune. Isn't the song obvious? The tappers' expressions when a listener guesses 'Happy Birthday
+to You' for 'The Star-Spangled Banner' are priceless.
+
+[3:16] How could you be so stupid?" OK, so 'Happy Birthday to You'. [tapping] And 'The Star-Spangled
+Banner' [tapping] You see? But when you hear it in your head, it's like, 'Oh come on, can't you get
+it? Star-Spangled Banner.' And yet, that's how we all are with our own messages. Because we know
+them so well, and we just assume that our audience knows it well as well. So the problem is that the
+tappers have been given knowledge that makes it impossible
+
+[3:46] for them to imagine what it's like to lack that knowledge. When they're tapping, they can't
+imagine what it's like for the listeners to hear isolated taps rather than a song. And I have a
+story from my own experience. When I was in my 20s, my younger brother Mark, it was one Christmas,
+he gave me and my parents the gift of ski lessons. He was gonna teach us how to ski. This was in
+Ohio, not a lot of ski slopes there, but nonetheless. And so he took us out, it was me and my
+parents, and gave me the basic pointers,
+
+[4:19] you know, bend your legs and lean forward, and here's what you do with your ski poles, and
+got on the chair lift and all. But he'd forgotten to tell me what you do when the chair lift gets to
+the top of the mountain. And I somehow thought that I was just gonna be-- chair lift would set me
+up, down, and I would just ski off. Well, I didn't realize you have to stand up and you have to ski
+off the lift. So I got up there, the chair lift was going up and around, I was like, 'Oh crap,' and
+I just leapt off, and wound up in a heap in the snow,
+
+[4:50] and it was a big disaster, they had to stop the lift, and [laughter] It was embarrassing and
+my brother was like, 'Oh wow! I forgot what it's like to not even know the basics of skiing.' And
+yet, that's what we're all like in our own areas of expertise. The French aviator and author Antoine
+de Saint-Exupery gave this definition of engineering elegance: "A designer knows he has achieved
+perfection, not when there is nothing left to add,
+
+[5:23] but when there is nothing left to take away." So there's always a tendency among us to
+gravitate towards complexity, and especially in our areas of expertise, and that is always at war
+with the need to prioritize. And the authors did this great experiment, or they cite a great
+experiment, about how uncertainty, even irrelevant uncertainty, can paralyze us. And this is why
+prioritization is so important.
+
+[5:53] So in the experiment, they gave students a choice of, do you want to go to a lecture by a
+real interesting person that you admire or study in the library? Well, obviously given this choice,
+the students said 'I'll go see the lecture.' Then they added another thing. Do you want to go see a
+lecture by someone you really admire, a movie -- actually, it was a foreign film -- or study in the
+library? Well, given that many choices, paradoxically, students chose to study.
+
+[6:27] And that was because uncertainty, they said, even irrelevant uncertainty causes us to be
+paralyzed. Like if you're standing in the supermarket in front of 60 different kinds of breakfast
+cereal. I know for me, that's difficult. So prioritization rescues people from the quicksand of
+decision angst. And that's why finding the core is so important. And really -- so what we're going
+for with our simple ideas that are core and compact, the model of that is a proverb.
+
+[6:57] Cervantes said 'Proverbs are short sentences drawn from long experience.' For example, 'A
+stitch in time saves nine', 'A leopard cannot change its spots', 'All that glitters is not gold'.
+And once you find the core, then you need to communicate that core. And again, when you communicate
+it, you're giving a little information, and then a little more, and then a little more. And it's
+kind of like flirting. Just giving the information out bit by bit, just as much as they need to
+know.
+
+[7:28] It turns out that naturally sticky ideas are full of concrete ideas. Our brains are wired to
+remember concrete ideas. And in proverbs, we see that also. Abstract truths are often encoded in
+concrete language. 'A bird in hand is worth two in the bush.' Another thing about concrete ideas is
+it's a way to ensure that our idea will mean the same thing to everyone in our audience.
+
+[7:58] They give, the authors give another great example of being concrete. And so this is the story
+of Jerry Kaplan. The year is 1987, it's in Silicon Valley, you have this bright young guy, 29-year-
+old Jerry Kaplan. He has an idea for a laptop computer. Revolutionary at the time. He's trying to
+get funding from some venture capitalists, and so he's going to a pitch session, and he realizes, he
+gets there, and he sees --
+
+[8:29] he's standing at the doorway watching the presentation of the previous guy, all dressed up in
+a pinstripe suit, got his PowerPoint going, and the venture capitalist guys are peppering him with
+questions. Jerry's going, 'Oh -- . I didn't dress appropriately, I don't even have a PowerPoint.'
+All he had -- all he had was a leather portfolio, like this. He's like, 'OK. I guess I've lost it
+all at this point.' So he goes in, takes his leather portfolio, pitches it on the table, sails down,
+and he says,
+
+[9:04] 'Gentlemen, you're looking at the future of computing.' At this point, I just have to read
+from the book. 'Alright, gentlemen, here is a model of the next step in the computer revolution.'
+For a moment, I thought this final act of drama might get me thrown out of the room. They were
+sitting in stunned silence, staring at my plain leather folder, which lay motionless on the table as
+though it were suddenly going to come to life. Brook Byers, the youthful-looking, but longtime
+partner in the firm, slowly reached out and touched the portfolio as if it were some sort of
+talisman.
+
+[9:35] He asked the first question. 'Just how much information could you put in something like
+that?' John Doerr, another partner answered before I could respond. 'Doesn't matter. Memory chips
+are getting smaller and cheaper each year, and the capacity will probably double for the same size
+and price annually.' Someone else chimed in. 'But bear in mind, John, that unless you translate the
+hand drawing efficiently, it's likely to take up a lot more room.' The speaker was Vinod Khosla, the
+founding CEO of Sun Microsystems, who helped the partnership evaluate technology deals.
+
+[10:05] Well, at that point, what ensued was an animated conversation back and forth, people picking
+up the leather portfolio, imagining it as a laptop computer, and Jerry wound up getting $4.5 million
+in funding for his project. And it was all because he was able to make his idea concrete.
+Concreteness is so powerful though, why do we so easily slip into abstraction? It's because the
+difference between an expert and a novice is the ability to think abstractly.
+
+[10:36] And because experts are capable of seeing a higher level of insight and complexity, they --
+that is we -- all want to talk on that higher level. We want to talk about chess strategies, and not
+about bishops moving diagonally. And so it's always a challenge for us to remember that, to not go
+for the abstract, but to think concretely. And concreteness, luckily enough, is one of the easiest
+of these traits to remember. How do we get people to care about our ideas?
+
+[11:06] We make them feel something. Research shows that people are more likely to make a charitable
+gift to a single needy individual than to an entire impoverished region. We're wired to feel things
+for people, not for abstractions. And finally, tell a story. People remember stories, they don't
+remember facts or logical explanations. If you want to get your point across, if you want to be
+remembered, tell a story.
+
+[11:37] And so, just to sum up again, sticky ideas share a set of common traits. These are traits
+that can be learned. We need to watch out for the Curse of Knowledge, which is when we know so much
+about our subject, and we assume that our audience does too. Be simple, be concrete, and be
+emotional, and finally, I highly recommend reading this book, 'Made to Stick'. It will change how
+you think about communication.

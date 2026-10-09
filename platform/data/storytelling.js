@@ -173,6 +173,28 @@ DAR.COURSES.push({
         { t: "Disagreeing productively — common ground and better questions", v: "uyKCDessl2s", min: 22 },
       ],
     },
+    {
+      name: "Unit X — High stakes: explaining, pitching, and the hard questions",
+      lessons: [
+        { t: "One idea, built in their heads", v: "-FOCpMAww28", min: 8 },
+        { t: "The curse of knowledge — find the core, make it concrete", v: "_DyC0fd395Y", min: 12 },
+        { t: "Talk nerdy to us — so what, no jargon, no bullets", v: "y66YKWz_sf0", min: 4 },
+        { t: "Before and after — putting words on numbers (stop at 24:00)", v: "7TiX-tTSRVU", min: 24 },
+        { t: "The shape of a persuasive talk — what is, what could be", v: "1nYFpuc2Umk", min: 18 },
+        { t: "How to start — a joke, a story or a question", v: "Bh3iM--2AW4", min: 20 },
+        { t: "Rhetoric — threes, repetition, balance, metaphor", v: "bGBamfWasNQ", min: 19 },
+        { t: "Describe what you do so anyone could build it", v: "17XZGUX_9iM", min: 27 },
+        { t: "The 30-second pitch and the 2-minute pitch", v: "Q-YBCehpgpc", min: 14 },
+        { t: "Value stories — normal, explosion, new normal", v: "vfLUGWEiMlk", min: 30 },
+        { t: "A true story for every point in the pitch", v: "boyKF4Z1WX0", min: 48 },
+        { t: "The accusation audit — say their objections first", v: "CnD7edz5LxQ", min: 2 },
+        { t: "Direct questions get direct answers", v: "b4kLTqbxVUU", min: 5 },
+        { t: "Answer the question asked — and say 'I don't know'", v: "tUyNKvRjQjs", min: 1 },
+        { t: "Delivering bad news", v: "_klzinNwoic", min: 3 },
+        { t: "Restarting a stalled deal — and earning 'that's right'", v: "L1W74fD77lo", min: 2 },
+        { t: "Fight with story — the wedding DJs who booked 100 of 100", v: "NZA1oeZmkSA", min: 9 },
+      ],
+    },
   ],
 });
 
@@ -2989,6 +3011,642 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Leading and closed questions provoke defensiveness." },
       { q: "Why does Dhar suggest collecting ideas anonymously?", opts: ["To separate ideas from the identity of the person who proposed them", "To save time", "To avoid credit disputes", "To make meetings shorter"], a: 0,
         expl: "Ideas are then judged on their merits." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit X — A7, high-stakes talking (budget 4.5 h with the seed's
+// structure-under-pressure lesson). Explaining technical work to people
+// outside it (Chris Anderson, Made to Stick, Melissa Marshall, Storytelling
+// with Data), the shape and opening of a persuasive talk (Nancy Duarte,
+// Simon Lancaster twice), pitching (Kevin Hale and Michael Seibel of Y
+// Combinator, Kindra Hall twice, Matthew Dicks), and the live part — objections, questions
+// and bad news (Chris Voss three times, Alex Lyon, Seibel). This is the
+// module nearest the owner's audits.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.9.0": {
+    module: "A7",
+    mechanic: "Chris Anderson, TED's curator, says the one thing great talks share is not a formula but a job: build a single idea in the listener's mind — one idea, a reason to care, made from concepts they already have, and worth sharing.",
+    rules: [
+      "Limit the talk to <strong>one major idea</strong> and make it the through-line: everything you say links back to it. Cut the rest so you have time to explain that one thing properly.",
+      "Get permission with <strong>curiosity</strong>: a question that shows why something doesn't make sense and needs explaining. A gap in their picture of the world makes them want it bridged.",
+      "Build the idea piece by piece from concepts the audience <em>already</em> understands — their language, not yours. The terms you live with every day are strangers to them.",
+      "Use a metaphor to show the shape of the idea — Jennifer Kahn called CRISPR 'a word processor to edit DNA' — and test the talk on trusted friends to find where they get lost.",
+      "Ask who the idea benefits. If it only serves you or your organisation, the audience will see through it.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Pick one finding you would give a business owner after an audit. Write it as one sentence (the idea), one question that exposes the gap ('why are you paying for three tools that do the same job?'), and one metaphor built from something the owner already knows. Read it to someone who doesn't know the business." },
+    check: "The listener can repeat your one idea back in their own words. If they repeat a detail instead, the through-line is not there yet.",
+  },
+
+  "spch100.9.1": {
+    module: "A7",
+    mechanic: "Once you know something you can't imagine not knowing it — the curse of knowledge — so experts drift into abstraction; the cure from Chip and Dan Heath's Made to Stick, as Miriam Rich presents it, is to find the core and make it concrete, emotional and a story.",
+    rules: [
+      "Sticky ideas share six traits, SUCCES: <strong>simple, unexpected, concrete, credible, emotional, stories</strong>.",
+      "The tapping study: people tapping out a song predicted listeners would name it half the time; listeners got 3 of 120. You hear the tune in your head — they hear knocking.",
+      "Find the core and make it compact, like a proverb — 'short sentences drawn from long experience'. Then give information a little at a time, only as much as they need.",
+      "Be concrete. Jerry Kaplan pitched a laptop computer by dropping a plain leather folder on the table; the investors picked it up, argued about it, and he left with 4.5 million dollars.",
+      "People give to one needy person more readily than to a whole region. Feeling attaches to individuals, so give the idea a face and a story.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take one technical thing you do (an automation, an audit check). Write how you would explain it to a peer. Then rewrite it for a shop owner, built around one concrete thing they could picture or hold, with no word they would need to ask about." },
+    check: "Read the second version to someone outside your field and ask them to explain it back in one sentence. If they can't, a term or an abstraction is still in there.",
+  },
+
+  "spch100.9.2": {
+    module: "A7",
+    mechanic: "Melissa Marshall, who taught communication to Penn State engineers, gives an equation for explaining technical work: take your science, subtract the bullet points and the jargon, divide by relevance to the listener, multiply by your passion.",
+    rules: [
+      "Answer <strong>so what?</strong> first. Not 'I study trabeculae' but 'I study the mesh-like structure of bones because it matters for treating osteoporosis'.",
+      "Beware jargon: why say 'spatial and temporal' when 'space and time' does the job? Accessible is not dumbed down — as simple as possible, but no simpler.",
+      "Use examples, stories and analogies to make people care about the content.",
+      "Drop the bullet points. Put one readable sentence on the slide that the audience can hold onto if they get lost, and a visual that does the rest.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Write the 'so what' sentence for one service you sell: 'I do X, which matters to you because Y.' Then list every jargon word in your current one-line description and swap each for a plain one." },
+    check: "Your sentence names a consequence the owner cares about (money, time, risk), not a feature — and contains no word a fourteen-year-old would need explained.",
+  },
+
+  "spch100.9.3": {
+    module: "A7",
+    mechanic: "Cole Nussbaumer Knaflic and her Storytelling with Data colleagues make over one cluttered business slide live: visualise (get data out of tables, cut clutter, separate actual from forecast) and verbalise (words that clarify, decide whether it is a success story or a call to action, pressure-test the assumptions).",
+    rules: [
+      "Don't let important data hide in tables. Tables are <em>read</em>, slowly; graphs are <em>seen</em>. Use common graphs your audience already knows how to read.",
+      "Find and remove clutter — borders, gridlines, diagonal labels, trailing zeros. Keep a few data labels as pointers to the comparison you want made.",
+      "Make actual and forecast look different: solid lines and filled markers for what was measured, dashed or lighter for what is projected.",
+      "Spell out abbreviations, define each acronym once, and call a metric the same thing everywhere. Then decide: is this a <strong>success story</strong> or a <strong>call to action</strong>?",
+      "Make your assumptions explicit and talk them through with someone who knows the context. In their example the forecast on the slide was already out of reach.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take one chart or table you would show a client. Write a takeaway title — a full sentence saying what to conclude. Mark which numbers are actual and which projected. Add one line: 'This is a success story / a call to action, and the action is ...'." },
+    check: "Someone glancing at it for five seconds can tell you the conclusion and what you want them to do. If they describe the chart instead, the words are not doing their job.",
+  },
+
+  "spch100.9.4": {
+    module: "A7",
+    mechanic: "Nancy Duarte found one shape under great talks from 'I Have a Dream' to the iPhone launch: open with what is, contrast it with what could be, move back and forth between the two, and end with a call to action and the new bliss — with the audience as the hero and the speaker as the mentor.",
+    rules: [
+      "The audience is the hero; you are the mentor. 'You're not Luke Skywalker, you're Yoda' — your job is to help them cross from their ordinary world into your idea.",
+      "Open with <strong>what is</strong>, the status quo, and contrast it with <strong>what could be</strong>. Make that gap as wide as you can.",
+      "In the middle, move back and forth between what is and what could be. People will resist; like a boat tacking into the wind, you use the resistance.",
+      "End with the call to action, then the <strong>new bliss</strong>: what the world looks like once your idea is adopted.",
+      "Create one moment they will always remember — Jobs switching the phone on — and use repetition, metaphor, and words the audience already holds dear.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Sketch a two-minute audit debrief as alternating lines: what is, what could be, what is, what could be — then the call to action and the new bliss, one sentence each. Six lines in total." },
+    check: "The gap is concrete on both sides — a number or a scene in every 'what is' and 'what could be' line. A line that is a slogan is not doing the contrast.",
+  },
+
+  "spch100.9.5": {
+    module: "A7",
+    mechanic: "Simon Lancaster, a speechwriter, says to open a speech by making the audience feel something, and offers three openings sorted by the feeling they create: a joke for pleasure, a story for connection, a question for alertness.",
+    rules: [
+      "Never open with 'delighted to be here'. Lift the room from the first line.",
+      "<strong>A joke</strong> for pleasure. Keep one go-to anecdote, plus a few lines for when something goes wrong at the start — a phone rings, the clicker dies. Self-deprecation signals confidence.",
+      "<strong>A story</strong> for connection. Don't 'tell them what you're going to tell them'; wrap the point in a story with a hero and a goal — metaphorical, historical, or best of all personal.",
+      "<strong>A question</strong> for alertness — emotional, factual, philosophical — or a dilemma you leave open and answer at the end, like Gandhi's sandal.",
+      "Whichever you choose, the aim is a feeling. People forget what you said; they don't forget how you made them feel.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Write three openings for the same three-minute talk about your work: one joke or self-deprecating line, one personal story under 45 seconds, one open dilemma you will answer at the end. Record all three." },
+    check: "Played back, each opening makes you feel something different — amused, moved, curious. If two feel the same, rewrite the weaker one.",
+  },
+
+  "spch100.9.6": {
+    module: "A7",
+    mechanic: "Simon Lancaster says the language of leadership is ancient rhetoric that schools stopped teaching, and shows six devices: threes, repetition, balance, metaphor, exaggeration and rhyme — worth knowing both to use and to notice being used on you.",
+    rules: [
+      "Put things in <strong>threes</strong>: 'government of the people, by the people, for the people'. Three sounds complete, compelling and credible.",
+      "<strong>Repeat</strong> the opening of successive sentences to carry emotion — Churchill's 'we shall fight on the beaches, we shall fight on the landing grounds'.",
+      "<strong>Balance</strong> a sentence: 'ask not what your country can do for you, ask what you can do for your country'. A balanced sentence sounds like balanced thinking, even when it isn't.",
+      "Choose <strong>metaphors</strong> on purpose. They draw people towards things or make them recoil, and they are rarely challenged — a 'financial storm' is something nobody caused.",
+      "Exaggeration and rhyme signal feeling and truth ('if it doesn't fit, you must acquit'). Rhymes are easy to swallow, which is exactly why they can hide a fallacy.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write the closing paragraph of an audit report three ways: once with a three-part list, once as a balanced sentence ('we are X, not Y'), once with a metaphor for the client's current situation. Read each aloud." },
+    check: "Each version could be said in a meeting without sounding like a politician — and for the metaphor you can say what it implies and whether that is fair.",
+  },
+
+  "spch100.9.7": {
+    module: "A7",
+    mechanic: "Kevin Hale of Y Combinator says your only job when describing what you do is to be clear — legible to someone who knows nothing about your business — by leading with what you make and naming three nouns: the product, the problem and the customer.",
+    rules: [
+      "Avoid the four enemies of clarity: ambiguity, complexity (several ideas braided together), mystery (jargon, vague pronouns) and the ignorable (marketing speak, MBA speak, buzzwords).",
+      "Be conversational — a description your mother would understand and be proud of. No jargon, no preamble.",
+      "Be reproducible: give nouns the listener can picture. 'Airbnb is the first online marketplace that lets travelers book rooms with locals instead of hotels.'",
+      "Use 'X for Y' only if X is a household success, Y clearly wants it, and Y is a big market. 'Buffer for Snapchat' fails on all three.",
+      "Be concise: strip down to the nouns, then add back only the words that make the listener more excited. Lead with <em>what</em>, not why or how.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write your one-sentence description of what you do. Circle the nouns. Cross out every adjective, adverb and buzzword, then add back only the ones that would make a shop owner more interested. Keep both versions." },
+    check: "A stranger reading only your sentence could say what you make, for whom, and what problem it solves. If ten readers would picture ten different things, it is still muddy.",
+  },
+
+  "spch100.9.8": {
+    module: "A7",
+    mechanic: "Michael Seibel of Y Combinator breaks a pitch into a 30-second version — what you do, how big the market is, your traction — and a 2-minute version that adds your insight, business model, team and the ask, with one rule over both: talk less.",
+    rules: [
+      "Thirty seconds is three sentences: what you do in words your mom would understand; how big the market is; your traction, or proof you are moving fast.",
+      "The two-minute pitch adds a unique insight in two sentences (you can see whether you got the 'aha'), the business model in one sentence without running away from it, the team, and the ask.",
+      "For the team: anything you did that made investors money; otherwise how many founders, how many technical, how long you have known each other, and that you are full-time. Skip the awards.",
+      "Know the ask cold — the instrument, the cap, how much you are raising, the minimum check. This is the one place jargon belongs.",
+      "Talk less: the more you say, the more chances to say something they don't like. Then stop and let them talk.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Record your 30-second pitch as exactly three sentences: what you do, how big the market is, your traction (or how fast you are moving). Then record a two-minute version that adds the insight, the business model, the team and the ask." },
+    check: "The 30-second take really is under 30 seconds, and someone hearing it once could tell a friend what you do.",
+  },
+
+  "spch100.9.9": {
+    module: "A7",
+    mechanic: "Kindra Hall says 'this is our story' followed by values or specifications is not a story; a business story needs an arc — normal, explosion, new normal — with an identifiable character, emotion, and a specific moment you zoom in on.",
+    rules: [
+      "The arc: <strong>normal</strong> (what was happening, what was at stake, how it felt), <strong>explosion</strong> (the change — something introduced, a decision made), <strong>new normal</strong> (what is possible now).",
+      "Name a character — Susan or Carlos, not 'we at XYZ'. A company is not a character.",
+      "Emotion doesn't need drama. Matter-of-fact frustration ('the information kept getting lost') is enough, because the listener has felt it too.",
+      "Don't tell it like a résumé. Cut the steps that don't matter, find the moment, and zoom in so the listener can see it.",
+      "Never fib. If something is missing, the true detail you need is there if you think harder — and a story that starts with a lie won't reach its potential.",
+    ],
+    drill: { minutes: 10, artifact: "spoken",
+      do: "Tell the story of one client you helped in 90 seconds: normal (their name, what was going wrong, how it felt), explosion (the moment something changed), new normal (what they can do now). No 'we believe', no feature list." },
+    check: "Your listener can tell you the client's name, the moment, and how it felt. If they can only tell you what you sell, you told a pitch.",
+  },
+
+  "spch100.9.10": {
+    module: "A7",
+    mechanic: "In a long interview, Kindra Hall argues that the stories that sell are small true moments rather than big triumphs, and describes how a sales team built a catalogue of real stories — one for each key point in their pitch.",
+    rules: [
+      "Small stories count. Waiting until your story is big enough is a disservice; everyday struggles are what people relate to.",
+      "A product's value lives in a moment — the holiday dress that didn't fit last year and fits this year — not in claims about the product.",
+      "Selling by 'shoulds' (you should buy this, you should lose weight) is the oldest, weakest form. A story lets people want it for themselves.",
+      "Build a catalogue: list your differentiators and the key points of your pitch, then find a true story from inside the organisation for each, so everyone knows which story goes where.",
+      "'Can I tell you a story?' moves a sceptic into curiosity. The stories must be true — and you know it's working when they tell you one back.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "List the five points you most need a client to understand in a sales or audit conversation. Next to each, write one true story — a client, a moment, an outcome — that shows it. Leave a blank where you don't have one yet." },
+    check: "Every filled row has a real name or a real moment in it. The blanks are your list of stories to go and find this week.",
+  },
+
+  "spch100.9.11": {
+    module: "A7",
+    mechanic: "Chris Voss's accusation audit: list every accusation the other side could make against you and, instead of denying them, say them first — 'you're probably going to think I'm greedy'.",
+    rules: [
+      "Start the list with what you would want to deny — what you don't want them to think about you.",
+      "Make the small shift from denial to observation: 'You're probably going to think...'",
+      "In any deal people eventually ask themselves 'am I wasting my time?' and 'are there better alternatives?' Say it for them.",
+      "Naming a negative that isn't there doesn't plant it, Voss says — it inoculates against it.",
+      "Do it up front, before they raise it. It gets people collaborative faster.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Before your next sales or audit call, write the five worst things the owner might be thinking about you ('another consultant who'll tell me to buy software'). Turn each into a 'you're probably thinking...' sentence and pick the two you will open with." },
+    check: "Read them aloud. If any sounds defensive or sarcastic, rewrite it as a plain observation until it doesn't.",
+  },
+
+  "spch100.9.12": {
+    module: "A7",
+    mechanic: "Alex Lyon, drawing on Alan Weiner's book So Smart But..., says most questions are direct — yes/no, multiple choice, fill in the blank — and a direct question gets a direct answer: the answer, about one sentence of detail, then a full stop.",
+    rules: [
+      "Listen for the type: yes/no ('can you have it done by Monday?'), multiple choice ('Monday or Wednesday?'), fill in the blank ('when can you have it done?'). Essay questions are a different job.",
+      "Give the answer first, then about one sentence of detail. Put a period on it in your mind and stop.",
+      "You can qualify without dodging: 'No; however, I can have it done by Tuesday.'",
+      "Don't overcorrect into one-word answers — it sounds like brushing people off, like a coach who hates the press.",
+      "After a talk, people want dialogue. Short answers make room for many turns, which is what makes Q&A satisfying.",
+    ],
+    drill: { minutes: 6, artifact: "recorded",
+      do: "Have someone ask you ten quick questions about your work, mixing the types. Answer each with the answer, one sentence of detail, and a stop. Record it." },
+    check: "Play it back: no answer runs past two sentences, and none starts with background before the answer.",
+  },
+
+  "spch100.9.13": {
+    module: "A7",
+    mechanic: "Michael Seibel on interviews: the founders who go furthest answer the question they were actually asked, briefly, and say 'I don't know' when they don't.",
+    rules: [
+      "Answer the question you were asked. Answering a different one hijacks the interviewer's line of thought — the path that was leading them to yes.",
+      "If you don't know, say you don't know.",
+      "Being given a few minutes doesn't mean you should fill them; your words carry more weight the fewer you use.",
+      "Straightforward, fast and concise, ideally with real numbers, makes it 'downhill' to yes.",
+    ],
+    drill: { minutes: 5, artifact: "spoken",
+      do: "Ask a friend for three hard questions about your business, including one you can't answer. Answer each in under 20 seconds. For the one you can't, say 'I don't know' and what you would do to find out." },
+    check: "You said 'I don't know' once without apologising or padding, and no answer went past 20 seconds.",
+  },
+
+  "spch100.9.14": {
+    module: "A7",
+    mechanic: "Chris Voss's way to deliver bad news: say 'I've got bad news', pause for a count of two, then say it — instead of opening with 'how are you?'",
+    rules: [
+      "Don't open with 'how are you?'. People learn that it means bad news is coming, and if they are already in a hard situation it sounds clueless.",
+      "Brace them first: 'I've got bad news.'",
+      "Pause for about a count of two, then deliver it. Waiting longer becomes excruciating.",
+      "Your job is to lessen the impact of a hard moment, not to avoid it.",
+    ],
+    drill: { minutes: 5, artifact: "spoken",
+      do: "Think of a finding a client won't want to hear (their ads are losing money; their booking form is losing leads). Say it aloud three times in the pattern: 'I've got bad news.' — a two-count pause — the finding in one sentence." },
+    check: "The finding is one sentence with no cushioning in front of it, and the pause is no more than about two seconds.",
+  },
+
+  "spch100.9.15": {
+    module: "A7",
+    mechanic: "Chris Voss on restarting a stalled negotiation and earning trust: ask 'have you given up on this project?', and when they reply, summarise the facts and how they feel about them until they say 'that's right'.",
+    rules: [
+      "'Have you given up on this project?' restarts conversations that have gone silent for weeks — nobody likes to give up, and nobody wants to say yes without knowing what that commits them to.",
+      "Assume you may have contributed to the silence.",
+      "When they respond, summarise their position: the facts, and how they feel about the facts. Aim for a 'that's right'.",
+      "For many people, being understood matters more than getting what they want — and once they feel understood, they may change their minds.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Pick a stalled thread — a prospect who went quiet. Write the one-line 'have you given up on...?' message, and a three-sentence summary of their situation and how they probably feel about it, ready for when they reply." },
+    check: "Your summary names at least one feeling, not just facts and constraints.",
+  },
+
+  "spch100.9.16": {
+    module: "A7",
+    mechanic: "Matthew Dicks tells how he and a friend launched a wedding-DJ business with no skill and no gear by competing on story instead of equipment — and booked 100 of the first 100 couples they met.",
+    rules: [
+      "If you can't win on features, don't fight there. They had a mixer, a couple of speakers and some CDs against booths full of lights and smoke machines — so they fought with story.",
+      "Be the people the client would want around: tell stories about yourselves and your relationship, not about your equipment.",
+      "Answer a client's worry with a story about a past client who had it: 'a year ago, Janet had the same problem — here is what she did, and here are your options.'",
+      "Let the conversation do the work. Their stand was one table and one deliberately plain flyer saying who they were, what they offered and the price.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write down the three worries business owners raise most often in your audits. For each, write a 60-second story about a past client (or yourself) who had the same worry — what they did and what happened — ending with the options open to this owner." },
+    check: "Each story names a person and a moment and ends with options, not a hard sell. If one is a feature list with a name attached, rewrite it.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.9.0": {
+    takeaway: "Chris Anderson: a speaker's number one task is to transfer an idea into the listener's mind. Not a formula — red rug, childhood story, call to action — but one idea, built carefully out of what the audience already has.",
+    beats: [
+      { t: "Not a formula", d: "Overused devices come across as clichéd or manipulative. What great talks share is an idea, recreated in every listener." },
+      { t: "What an idea is", d: "A pattern of information that helps you understand and navigate the world. A worldview is built from millions of them." },
+      { t: "One idea, a reason to care", d: "Cut to one through-line, then stir curiosity by showing a gap in how they see things." },
+      { t: "Their concepts, not yours", d: "Build from what the listener already knows; a metaphor shows the shape. Test it on friends." },
+      { t: "Worth sharing", d: "Ask who the idea benefits. One that only serves you will be seen through." },
+    ],
+    worked: "Jennifer Kahn explaining CRISPR: 'It's as if, for the first time, you had a word processor to edit DNA.' Cut and paste is a concept everyone already has, so the new idea snaps into place.",
+    watch: "Jargon you no longer notice. Anderson's warning is that terms you live with every day are completely unfamiliar to the audience — testing on a friend is how you find them.",
+    concepts: [],
+    checks: [
+      { q: "According to Anderson, what do all great TED talks have in common?", opts: ["A personal childhood story", "An inspiring call to action", "They build a single idea in the listener's mind", "A round red rug"], a: 2,
+        expl: "The devices are optional; the idea is not." },
+      { q: "What does he say is the main tool for earning the audience's permission?", opts: ["Curiosity — revealing a gap in their understanding", "Humour", "Credentials", "Statistics"], a: 0,
+        expl: "A disconnection in their worldview makes them want it bridged." },
+      { q: "Why does the 'word processor for DNA' line work?", opts: ["It is technically complete", "It builds the new idea from a concept the listener already has", "It uses scientific vocabulary", "It is funny"], a: 1,
+        expl: "Metaphor shows the shape of the pattern using something familiar." },
+    ],
+  },
+
+  "spch100.9.1": {
+    takeaway: "The villain of clear explanation is the curse of knowledge: once you know something, it is hard to remember not knowing it. Made to Stick's answer is to find the core, make it concrete, make people feel it, and tell a story.",
+    beats: [
+      { t: "SUCCES", d: "Sticky ideas are simple, unexpected, concrete, credible, emotional, and told as stories." },
+      { t: "Tappers and listeners", d: "Tappers expected to be understood half the time; listeners named 3 songs in 120. The tune was only in the tapper's head." },
+      { t: "The ski lift", d: "Rich's brother taught her to ski and forgot to mention getting off the lift. He had forgotten what not knowing feels like." },
+      { t: "Find the core", d: "Prioritise; the model is a proverb. Too many options, even irrelevant ones, paralyse people." },
+      { t: "Concrete, emotional, story", d: "Abstract truths travel in concrete language; people give to one person, not a region; stories are remembered." },
+    ],
+    worked: "Jerry Kaplan, 29, with no slide deck, dropped a plain leather folder on the table: 'here is a model of the next step in the computer revolution'. The partners picked it up, imagined it as a laptop and argued about memory chips — the concrete object did the explaining, and he raised 4.5 million.",
+    watch: "Thinking at the expert's altitude. Experts want to talk chess strategy; the listener needs to know how the bishop moves.",
+    concepts: [],
+    checks: [
+      { q: "In the tapping study, how often did listeners name the song?", opts: ["About half the time", "About one time in four", "About 3 times in 120", "Never"], a: 2,
+        expl: "The tappers predicted 50 per cent." },
+      { q: "What does SUCCES stand for?", opts: ["Simple, unexpected, concrete, credible, emotional, stories", "Short, useful, clear, correct, easy, sincere", "Structure, urgency, contrast, credibility, energy, story", "Simple, unique, catchy, credible, exciting, social"], a: 0,
+        expl: "The final S is dropped from 'success'." },
+      { q: "Why did Kaplan's leather folder work?", opts: ["It looked expensive", "It made an abstract idea concrete enough to handle and argue about", "It contained detailed specifications", "It surprised them with its colour"], a: 1,
+        expl: "Concreteness makes an idea mean the same thing to everyone." },
+    ],
+  },
+
+  "spch100.9.2": {
+    takeaway: "Melissa Marshall: scientists and engineers have to invite the rest of us in. Say why it matters, cut the jargon without dumbing it down, use examples and analogies, and replace bullet points with one sentence and a picture.",
+    beats: [
+      { t: "So what?", d: "Relevance first: the bone research matters because of osteoporosis." },
+      { t: "Jargon", d: "'Space and time', not 'spatial and temporal'. As simple as possible, but no simpler." },
+      { t: "Examples, stories, analogies", d: "The ways in for someone outside the field." },
+      { t: "Bullets kill", d: "Bulleted slides overload the language part of the brain. One readable sentence plus a visual." },
+      { t: "The equation", d: "Science minus bullets and jargon, divided by relevance, times passion." },
+    ],
+    worked: "Genevieve Brown's slide: one readable sentence — the structure of trabeculae is so strong it inspired the design of the Eiffel Tower — and an image, instead of a bulleted list about bone mesh.",
+    watch: "Confusing accessible with dumbed down. Marshall's point is that you can be clear without compromising the idea.",
+    concepts: [],
+    checks: [
+      { q: "What question does Marshall say a technical speaker must answer first?", opts: ["How does it work?", "So what — why is it relevant to us?", "Who funded it?", "What was the method?"], a: 1,
+        expl: "Relevance is the way in." },
+      { q: "What should replace a slide full of bullet points?", opts: ["A table", "Two slides of bullets", "One readable sentence plus a visual", "A video"], a: 2,
+        expl: "The sentence is something to key into if they get lost." },
+      { q: "In her equation, what do you divide by?", opts: ["Relevance to the audience", "Time", "Passion", "Jargon"], a: 0,
+        expl: "Then multiply by passion." },
+    ],
+  },
+
+  "spch100.9.3": {
+    takeaway: "A live before-and-after makeover of one business slide. Visualise — make it clear where to look — and verbalise — tell people what to see and what to do about it.",
+    beats: [
+      { t: "Tables hide data", d: "Tables are read, graphs are seen. A line graph showed the trend the table at the bottom of the slide buried." },
+      { t: "Clutter out", d: "Border, gridlines, the box around the data, diagonal labels, trailing zeros — each removal makes the data stand out." },
+      { t: "Actual versus forecast", d: "Solid for what was measured; dashed lines and hollow markers for projections, so nobody mistakes a target for a result." },
+      { t: "Words that clarify", d: "No ACCTS, MOS or undefined ASP; one name per metric; the title at the top left where the eye starts." },
+      { t: "Success or call to action", d: "The original read as good news. Asking the client showed the target was out of reach, so the slide became a decision." },
+    ],
+    worked: "Before: a red star, '77% achieved in nine months', 'great market and successful launch'. After: the title asks whether to reassess the target or change the salesforce strategy, and two graphs show accounts per manager flattening since the sales-team integration, so the forecast of 25 per manager will not happen.",
+    watch: "Watch the first 24 minutes. After that the session turns into a book launch (giveaways, a discount code, workshop dates) and audience questions; the transcript tool also stopped at 44:28 of 50:07, so the last minutes were not read.",
+    concepts: [],
+    checks: [
+      { q: "Why do graphs usually beat tables for making a point?", opts: ["They look more professional", "Tables engage the slower verbal system; graphs use the faster visual one", "Graphs hold more numbers", "Executives prefer colour"], a: 1,
+        expl: "Reading numbers means scanning and holding them in your head." },
+      { q: "How do they show forecast data beside actual data?", opts: ["The same solid line", "They hide the forecast", "A different format, such as dashed lines and unfilled markers", "On a separate slide"], a: 2,
+        expl: "The formatting itself carries the uncertainty." },
+      { q: "What turned the slide from a success story into a call to action?", opts: ["Pressure-testing the assumptions with the client", "A new colour scheme", "Adding more data", "Removing the title"], a: 0,
+        expl: "Make assumptions explicit and talk to people about them." },
+    ],
+  },
+
+  "spch100.9.4": {
+    takeaway: "Nancy Duarte studied cinema, literature and thousands of presentations and found a shape: what is, what could be, back and forth, then a call to action and the new bliss. The audience is the hero; the presenter is the mentor.",
+    beats: [
+      { t: "Story versus presentation", d: "We react physically to stories; presentations flatline. She set out to find why." },
+      { t: "Hero and mentor", d: "The presenter is not Luke Skywalker but Yoda, helping the audience cross into the new idea." },
+      { t: "The gap", d: "Contrast the status quo with what could be, and make the gap as wide as possible." },
+      { t: "Tacking", d: "Move back and forth between the two; resistance is used, the way a sailing boat uses the wind." },
+      { t: "The new bliss", d: "End with the call to action and a picture of the world with the idea adopted." },
+    ],
+    worked: "King's bad check: 'America has given the Negro people a bad check, a check which has come back marked insufficient funds' (what is), then 'we have come to cash this check' (what could be). The first great roar came at that contrast, carried by a metaphor everyone understood.",
+    watch: "Making yourself the hero. The idea goes nowhere unless the audience takes it up. A content note: the last two minutes are her own life story and mention childhood abuse.",
+    concepts: [],
+    checks: [
+      { q: "In Duarte's model, what role does the presenter play?", opts: ["The hero", "The villain", "The narrator", "The mentor who helps the audience cross over"], a: 3,
+        expl: "The audience is the hero of the idea." },
+      { q: "How does a Duarte-shaped talk begin?", opts: ["With a joke", "With what is — the status quo — set against what could be", "With the call to action", "With credentials"], a: 1,
+        expl: "The contrast is the inciting incident." },
+      { q: "What is the 'new bliss'?", opts: ["A picture of the world with your idea adopted, used as the ending", "The opening hook", "The question and answer session", "A product demo"], a: 0,
+        expl: "Jobs ended on Gretzky's puck; King on 'free at last'." },
+    ],
+  },
+
+  "spch100.9.5": {
+    takeaway: "Simon Lancaster: lift the audience from the first line rather than starting with a ritual thank-you. Choose the feeling you want — pleasure, connection or alertness — and open with a joke, a story or a question.",
+    beats: [
+      { t: "The problem", d: "Most openings are 'delighted to be here'; he claims students' brain activity in lectures is lower than in sleep." },
+      { t: "A joke", d: "His go-to is Einstein's driver, plus spare one-liners for when the tech fails. Self-deprecation lifts the audience." },
+      { t: "A story", d: "Telling them what you'll tell them is boring three times. Wrap the point in a story — his is the twins in the neonatal unit." },
+      { t: "A question", d: "Emotional, factual, philosophical, or a prolonged dilemma." },
+      { t: "Feelings", d: "Maya Angelou: people never forget how you made them feel." },
+    ],
+    worked: "The open dilemma: it's 1935, you are Gandhi, your sandal falls under the departing train — do you board or go back for it? Left open through a whole speech, answered at the end: he threw the other sandal down too, so whoever found them would have a pair.",
+    watch: "Treat the three 'drugs' — dopamine, oxytocin, cortisol — as a memorable framing, not settled neuroscience; the brain-chemistry claims are simplified. The opening drug jokes and the 'psychopaths' line are bits, not data.",
+    concepts: [],
+    checks: [
+      { q: "Which opening does Lancaster recommend for connection and empathy?", opts: ["A question", "A statistic", "A personal story", "A joke"], a: 2,
+        expl: "Stories let the audience see the world through your eyes." },
+      { q: "What is his objection to 'tell them what you're going to tell them'?", opts: ["It takes too long", "It amounts to announcing you'll be boring, being boring, then saying you were", "It is too emotional", "It confuses the audience"], a: 1,
+        expl: "You can't stamp a point into someone's head." },
+      { q: "How did the Gandhi question work in the speech he describes?", opts: ["It was asked, left open through the speech, and answered at the end", "It was answered immediately", "It was rhetorical, with no answer", "It was asked only at the end"], a: 0,
+        expl: "The image stayed wedged in the audience's minds." },
+    ],
+  },
+
+  "spch100.9.6": {
+    takeaway: "Simon Lancaster: rhetoric used to be taught to everyone; now it is the privilege of a few. Threes, repetition, balance, metaphor, exaggeration and rhyme make arguments compelling — which is why you should know them both to use and to resist.",
+    beats: [
+      { t: "Threes", d: "Tricolon: 'veni, vidi, vici'. Short, three-part phrases sound complete and credible." },
+      { t: "Repetition", d: "Repeating the opening clause is the sound of passion — and why market traders use it." },
+      { t: "Balance", d: "Antithesis makes thinking sound balanced, even when the balance is an illusion." },
+      { t: "Metaphor", d: "We use one roughly every 16 words, and they steer decisions on investment, crime and war." },
+      { t: "Exaggeration and rhyme", d: "Emotional people overstate; rhymes feel true because they are easy to process." },
+    ],
+    worked: "'Calais jungle' turns migrants into wild animals; 'financial storm' makes a crisis sound like weather that nobody caused, while Pope Francis's harsher image demands a clean-up. Same events, different conclusions, decided by the picture.",
+    watch: "Using the devices to dress up a weak argument. His own improvised demo shows they can make an absurd case sound plausible. A content note: there is strong language near the end.",
+    concepts: [],
+    checks: [
+      { q: "What is a tricolon?", opts: ["A rhyme", "A metaphor", "Putting points in threes", "A repeated question"], a: 2,
+        expl: "'Government of the people, by the people, for the people.'" },
+      { q: "Why, according to Lancaster, do balanced sentences persuade?", opts: ["They are shorter", "A balanced sentence suggests balanced thinking, even when that is an illusion", "They rhyme", "They contain metaphors"], a: 1,
+        expl: "Our brains like balance." },
+      { q: "What does the 'financial storm' metaphor imply, in his reading?", opts: ["That the crisis was natural and nobody was to blame", "That the bankers caused it", "That it will last forever", "That it was predicted"], a: 0,
+        expl: "A storm sweeps in and sweeps away with no need for action." },
+    ],
+  },
+
+  "spch100.9.7": {
+    takeaway: "Kevin Hale: investors and customers will do the selling in their own heads once they understand you — so your job is clarity. Lead with what you make, give them three nouns to picture, and cut everything that doesn't add excitement.",
+    beats: [
+      { t: "Clear, not sold", d: "YC reckons that for every company it interviews, another just as good was missed because its application did not express the idea clearly." },
+      { t: "Four enemies", d: "Ambiguity, complexity, mystery and the ignorable — buzzwords the listener filters out like banner ads." },
+      { t: "Reproducible", d: "Three nouns — product, problem, customer. 'Lumini is building X-ray vision for soldiers and first responders.'" },
+      { t: "X for Y", d: "X must be a household success, Y must want it, and Y must be a big market." },
+      { t: "Concise", d: "Concision tells the listener you have thought deeply and are efficient." },
+    ],
+    worked: "'Our company will make low-cost and low-power-consumption medical devices based on artificial intelligence and IoT suitable for sub-Saharan communities' becomes 'affordable medical devices for sub-Saharan Africa'. The AI and IoT were the how; 'low cost' was the word that earned its place.",
+    watch: "Padding to look bigger. Hale sees founders defending against imagined objections inside the description itself, and every inflating word moves the listener further away.",
+    concepts: [],
+    checks: [
+      { q: "Which three nouns should a listener be able to picture from your description?", opts: ["Team, market, revenue", "What you make, the problem, the customer", "Mission, vision, values", "Price, product, place"], a: 1,
+        expl: "Without them they can't ask the next questions." },
+      { q: "When does 'X for Y' fail, in Hale's terms?", opts: ["When X is a household name", "When Y is a big market", "When X is small or obscure, as in 'Buffer for Snapchat'", "When Y clearly wants X"], a: 2,
+        expl: "Buffer is smaller than Snapchat, so the comparison shrinks you." },
+      { q: "What does concision signal to an investor?", opts: ["That you have thought deeply and work efficiently", "That the business is small", "That you are nervous", "That you lack data"], a: 0,
+        expl: "Efficient with words suggests efficient with thoughts and actions." },
+    ],
+  },
+
+  "spch100.9.8": {
+    takeaway: "Michael Seibel: a pitch is a 30-second version you can give anyone and a 2-minute version for someone you must convince. Anything longer is mostly a chance to say something they don't like.",
+    beats: [
+      { t: "Thirty seconds", d: "What you do (the mom test), how big the market is, and traction or speed." },
+      { t: "Insight", d: "Two sentences of 'aha'. If they look as though they already knew it, you didn't nail it." },
+      { t: "Model and team", d: "One sentence on how you make money; then founders, technical mix, how long you've known each other, full-time." },
+      { t: "The ask", d: "Instrument, cap, amount, minimum check. This is where jargon belongs." },
+      { t: "Fundraising", d: "Flip the power: plan to need little money, get warm intros, and book every meeting in the same week." },
+    ],
+    worked: "'We're Airbnb and we allow you to rent out the extra room in your house' rather than 'we're a marketplace for space' — the first needs no prior knowledge, the second needs a follow-up question.",
+    watch: "Running from the business-model question. Listing advertising, maybe virtual goods, maybe something else tells the listener you don't know; say what your industry usually does and move on.",
+    concepts: [],
+    checks: [
+      { q: "What are the three sentences of Seibel's 30-second pitch?", opts: ["Team, product, ask", "What you do, how big the market is, your traction", "Problem, solution, vision", "Mission, history, goals"], a: 1,
+        expl: "From there a conversation can start." },
+      { q: "What does he advise if your business model is advertising?", opts: ["Avoid mentioning it", "List several options to look flexible", "Say it plainly in one sentence and move on", "Promise to decide later"], a: 2,
+        expl: "Facebook and Google are advertising businesses." },
+      { q: "How should investor meetings be scheduled?", opts: ["All in the same week, after warm introductions", "One a week to stay focused", "Cold emails to as many as possible", "Only after launch"], a: 0,
+        expl: "Fundraising is a sprint, not a marathon." },
+    ],
+  },
+
+  "spch100.9.9": {
+    takeaway: "Kindra Hall, in a customer-success podcast: calling something 'our story' doesn't make it one. Business stories need an arc — normal, explosion, new normal — with a named character, real emotion and a specific moment, and there are four kinds worth having: value, founder, purpose and customer.",
+    beats: [
+      { t: "Not a story", d: "'This is our story — we believe in excellence' or a list of gigabytes is just words with a label on." },
+      { t: "The arc", d: "Normal (the situation and what was at stake), explosion (the inflection point), new normal (what is possible now)." },
+      { t: "Components", d: "A character with a name, emotion that can be matter-of-fact, and a moment zoomed in so the listener sees it." },
+      { t: "Four stories", d: "Value, founder (including your own founding moment in a role), purpose, and customer — with low production value often more believable." },
+      { t: "Never fib", d: "The true detail you need is there if you think harder; a made-up one is hard to keep straight." },
+    ],
+    worked: "The host, Josh, tells his company's founding story unrehearsed and it comes out as a résumé — consulting, then meetings, then customer success managers. Hall's edit: add the matter-of-fact emotion (information slipping away), cut the steps that don't matter, find the moment he realised, and loop back to 'information slipping through your fingers like grains of sand'.",
+    watch: "Telling it chronologically. 'First we did this, then this' is a natural first draft and reads like a résumé; the story is in the moment, not the sequence.",
+    concepts: [],
+    checks: [
+      { q: "What are the three parts of Hall's story arc?", opts: ["Problem, solution, benefit", "Hook, body, close", "Setup, conflict, resolution", "Normal, explosion, new normal"], a: 3,
+        expl: "The explosion doesn't need fireworks — just the inflection point." },
+      { q: "What does Hall say about emotion in a business story?", opts: ["It must be dramatic", "Matter-of-fact frustration is enough if the audience has felt it", "It should be avoided", "Only customer stories need it"], a: 1,
+        expl: "'This isn't right' is an emotion." },
+      { q: "Which is NOT one of her four business story types?", opts: ["Value story", "Founder story", "Competitor story", "Customer story"], a: 2,
+        expl: "The fourth is the purpose story." },
+    ],
+  },
+
+  "spch100.9.10": {
+    takeaway: "Kindra Hall, interviewed at length: the stories that sell are small, true moments, and a sales team can systematically build one for every point of its pitch. 'Can I tell you a story?' moves a sceptic into curiosity, and it is working when they tell one back.",
+    beats: [
+      { t: "The cassette", d: "Her origin story: a family minivan, five people doing five things, united by a storytelling-festival tape." },
+      { t: "Small stories", d: "She used to think her life wasn't dramatic enough to tell. The small, everyday stories are the ones people relate to." },
+      { t: "Value in a moment", d: "Not product claims but the dress that didn't fit last year and does this year." },
+      { t: "Shoulds versus stories", d: "Telling people what they should do is the oldest form of selling; a story lets them want it themselves." },
+      { t: "The catalogue", d: "A client's team took four differentiators and ten pitch points and went into the company to find a real story for each, then put them in the sales manual." },
+    ],
+    worked: "A volunteer firefighter calmed a frightened woman who had been misled to get the door open by asking 'Can I tell you a story?' and telling her about a colleague who went in without backup and didn't come out. She calmed down, asked questions, and let them work.",
+    watch: "Skipping the first quarter-hour is tempting: it is the host's praise and Hall's own origin story, which is itself a demonstration. The teaching runs from about 15:00 to 42:00.",
+    concepts: [],
+    checks: [
+      { q: "How did the sales team Hall describes build its story catalogue?", opts: ["They hired actors", "They found a true story inside the organisation for each key pitch point", "They wrote composite customers", "They used competitors' stories"], a: 1,
+        expl: "It meant talking to customer service and breaking down silos." },
+      { q: "According to Hall and her mentor Donald Davis, how do you know a story is working?", opts: ["They tell a related story back to you", "They take notes", "They laugh", "They ask for a brochure"], a: 0,
+        expl: "Then you are two people sharing stories." },
+      { q: "What does Hall insist on about business stories?", opts: ["They must be dramatic", "They must be short", "They must be true", "They must be about the founder"], a: 2,
+        expl: "This is not an opportunity to falsify." },
+    ],
+  },
+
+  "spch100.9.11": {
+    takeaway: "Chris Voss's accusation audit: list every accusation the other side could make against you and say it first. Naming a negative doesn't plant it — it inoculates against it.",
+    beats: [
+      { t: "The list", d: "Start with what you would want to deny — 'I don't want them to think I'm greedy.'" },
+      { t: "The shift", d: "From denial to observation: 'You're probably going to think I'm greedy.'" },
+      { t: "Universal ones", d: "'Am I wasting my time?' and 'are there better alternatives?' come up in every deal." },
+      { t: "Why up front", d: "It deactivates the negative thinking so people get collaborative faster." },
+    ],
+    worked: "Opening an audit call: 'You're probably wondering whether this is another consultant about to tell you to buy more software, and whether this hour is a waste of your time.' Said first, the owner doesn't have to sit on it.",
+    watch: "Sarcasm. An accusation audit delivered with an edge sounds like a dare; it has to be a plain, calm observation.",
+    concepts: [],
+    checks: [
+      { q: "Where does Voss say to start your accusation list?", opts: ["With your strengths", "With what you would want to deny", "With their weaknesses", "With the price"], a: 1,
+        expl: "Then shift from denial to observation." },
+      { q: "What does he say happens when you name a negative that isn't there?", opts: ["It plants the idea", "It makes you look weak", "It confuses them", "It inoculates against it rather than planting it"], a: 3,
+        expl: "He admits he doesn't know why; he knows it works." },
+      { q: "When should you do the accusation audit?", opts: ["Up front, before they raise the objections", "Only if they object", "At the close", "In writing afterwards"], a: 0,
+        expl: "Don't wait for them to ask." },
+    ],
+  },
+
+  "spch100.9.12": {
+    takeaway: "Alex Lyon, from his mentor Alan Weiner's book: most questions are direct — yes/no, multiple choice, fill in the blank — and deserve a direct answer of about one sentence plus one sentence of detail, then silence.",
+    beats: [
+      { t: "Four question types", d: "True/false, multiple choice, fill in the blank, and essay. The first three are direct." },
+      { t: "Answer, detail, stop", d: "The headline answer, about a sentence of detail, then a mental full stop." },
+      { t: "Qualify, don't dodge", d: "'No; however, I can have it done by Tuesday.'" },
+      { t: "Not one word", d: "A clipped 'turnovers' sounds like a coach brushing off the press." },
+      { t: "Q&A is dialogue", d: "The talk was your monologue; short answers allow many turns." },
+    ],
+    worked: "'When can you have that project done?' is fill in the blank: 'Wednesday looks best — that leaves a day for testing.' 'Can you have it by Monday?' is yes/no: 'No; however, I can have it by Tuesday.'",
+    watch: "Burying the answer under background. The line from The Hunt for Red October is the rule: you're liable to be asked some direct questions — give them direct answers.",
+    concepts: [],
+    checks: [
+      { q: "Which kind of question is 'Does Monday or Wednesday work better?'", opts: ["Essay", "Fill in the blank", "Multiple choice", "True/false"], a: 2,
+        expl: "Pick one, add a sentence, stop." },
+      { q: "What should follow a direct answer?", opts: ["About one sentence of detail, then stop", "A full explanation of the background", "A question back", "Nothing at all"], a: 0,
+        expl: "One-word answers overcorrect." },
+      { q: "Why do concise answers suit Q&A?", opts: ["They hide weaknesses", "They allow back-and-forth dialogue, which audiences find satisfying", "They save the speaker effort", "They avoid follow-ups"], a: 1,
+        expl: "The monologue is over." },
+    ],
+  },
+
+  "spch100.9.13": {
+    takeaway: "Michael Seibel on Y Combinator interviews: the founders who go furthest answer the question asked, briefly, and say 'I don't know' when they don't. A different answer hijacks the path the interviewer was walking towards yes.",
+    beats: [
+      { t: "The compliment", d: "In high school he was praised for saying 'I don't know'. Years of interviews showed him why." },
+      { t: "Fewer words", d: "Having a few minutes doesn't mean filling them; impact rises as words fall." },
+      { t: "The thought path", d: "The interviewer is walking a path towards yes; dodging the question interrupts it." },
+      { t: "Downhill to yes", d: "Straight, fast, concise, ideally with real numbers." },
+    ],
+    worked: "Asked 'how many users came back last week?', the strong answer is the number, or 'I don't know — I can pull it tonight', not a tour of the roadmap.",
+    watch: "Answering the question you wish you'd been asked. It feels like steering; to the listener it reads as evasion.",
+    concepts: [],
+    checks: [
+      { q: "What did Seibel notice about the founders who do best in interviews?", opts: ["They talk the longest", "They answer the question asked and say 'I don't know' when they don't", "They bring slides", "They avoid numbers"], a: 1,
+        expl: "Straightforward beats impressive." },
+      { q: "Why is not answering the question costly?", opts: ["It is rude", "It wastes time only", "It takes over the interviewer's line of thought towards yes", "It shows nerves"], a: 2,
+        expl: "It makes it harder to get to yes." },
+      { q: "What does he say about the number of words you use?", opts: ["Their impact goes up the fewer you say", "More detail is always safer", "Use every minute you're given", "Words don't matter, only numbers"], a: 0,
+        expl: "Concise and on track." },
+    ],
+  },
+
+  "spch100.9.14": {
+    takeaway: "Chris Voss: deliver bad news by bracing people — 'I've got bad news' — pausing for a count of two, then saying it. Not 'how are you?', which they have learned to dread.",
+    beats: [
+      { t: "The call", d: "He was told of a hostage's death this way at 5am, and made the same call to others all day." },
+      { t: "Not 'how are you?'", d: "Well-meant, but people learn it means bad news, and in a crisis it sounds clueless." },
+      { t: "Brace, pause, deliver", d: "'I've got bad news', a count of two, then the news." },
+      { t: "No longer than two", d: "A longer pause becomes excruciating." },
+    ],
+    worked: "Telling a client their campaign lost money: 'I've got bad news.' (one, two) 'The ads you ran in September cost more than the bookings they brought in.' Then stop and let them respond.",
+    watch: "Cushioning. A paragraph of reassurance before the news is the 'how are you?' habit in another form.",
+    concepts: [],
+    checks: [
+      { q: "What does Voss say to do instead of opening with 'how are you?'", opts: ["Send an email first", "Say 'I've got bad news', pause briefly, then deliver it", "Start with good news", "Ask how their week was"], a: 1,
+        expl: "It braces them." },
+      { q: "How long should the pause be?", opts: ["About ten seconds", "As long as it takes", "No pause", "About a count of two"], a: 3,
+        expl: "Longer is excruciating." },
+      { q: "Why is 'how are you?' a poor opening for bad news?", opts: ["People associate it with bad news coming, and it can sound clueless", "It is too formal", "It takes too long", "It is impolite"], a: 0,
+        expl: "You often already know how they are." },
+    ],
+  },
+
+  "spch100.9.15": {
+    takeaway: "Chris Voss: 'Have you given up on this project?' restarts conversations that have gone silent. When they reply, summarise their facts and feelings until you get a 'that's right' — being understood matters more to many people than winning.",
+    beats: [
+      { t: "The email", d: "Nobody likes to give up, and nobody wants to say yes without knowing what it commits them to; replies often come within minutes." },
+      { t: "Your share", d: "There's a good chance you contributed to the silence." },
+      { t: "The summary", d: "The facts, and how they feel about the facts — including feelings driving them that they're blind to." },
+      { t: "That's right", d: "Once people feel understood they may change their minds about decisions already made." },
+    ],
+    worked: "A prospect who went quiet after a proposal gets one line: 'Have you given up on fixing the booking problem?' When they reply, the summary might be: 'It sounds like the cost was fine, but you're worried about the time it would take your staff to learn a new system during the busy season.'",
+    watch: "A summary of facts only. Voss's point is the feelings about the facts; leave those out and they won't feel understood.",
+    concepts: [],
+    checks: [
+      { q: "Why does 'have you given up on this project?' work?", opts: ["It threatens them", "It offers a discount", "Nobody likes to give up, and nobody wants to say yes to it", "It is very polite"], a: 2,
+        expl: "It restarts stalled negotiations." },
+      { q: "What should your summary include?", opts: ["The facts and how they feel about the facts", "Only the facts", "Your offer", "Your feelings"], a: 0,
+        expl: "That earns the 'that's right'." },
+      { q: "For whom, does Voss say, is being understood often more important than the deal?", opts: ["Nobody", "The assertive negotiator", "Only friends", "Only buyers"], a: 1,
+        expl: "Being understood can matter more than getting what they want." },
+    ],
+  },
+
+  "spch100.9.16": {
+    takeaway: "Matthew Dicks: in 1997 he and his friend Benji launched a wedding-DJ company knowing nothing about weddings or music. Unable to compete on equipment, they competed on story — 37 bookings from 37 couples at their first bridal show, and 100 of the first 100 they ever met.",
+    beats: [
+      { t: "The yes", d: "Benji asked if he wanted to be a wedding DJ. He says yes to everything, planning to turn a yes into a no later if he must." },
+      { t: "No advantage", d: "The practice party went terribly; their first wedding was free, and he ended up in the cake-cutting photos." },
+      { t: "Fight with story", d: "One table, one plain red flyer, and stories — about that first wedding, and about two friends who bonded over a cartoon theme song at McDonald's." },
+      { t: "Stories as answers", d: "A couple's worry got a story about an earlier couple with the same problem, and their options." },
+      { t: "The result", d: "37 weddings booked before they had done their second, and a company that ran for more than 25 years." },
+    ],
+    worked: "A bride says she doesn't much like her father but knows she has to dance with him. Instead of advice, Dicks answers with a story: a year ago Janet had the same problem; here is what Janet did, and here are some of your options.",
+    watch: "This is the opening of one of his courses, so the last minute is a pitch for his teaching. The method is in the middle: what they did at the bridal show and in client meetings.",
+    concepts: [],
+    checks: [
+      { q: "Why did Dicks and Benji decide to 'fight with story'?", opts: ["They had studied storytelling", "They couldn't compete on music, equipment or effects", "The bridal show required it", "Their flyer was too long"], a: 1,
+        expl: "Everyone else had lights and smoke machines." },
+      { q: "How did he answer a bride's worry about the father-daughter dance?", opts: ["With a story about an earlier bride who had the same problem, and her options", "With a discount", "By changing the subject", "With a playlist"], a: 0,
+        expl: "The story carried the advice." },
+      { q: "What was their goal at the bridal show?", opts: ["To have the best-looking booth", "To hand out the most flyers", "To book the most expensive weddings", "To become people the couple would want at their wedding"], a: 3,
+        expl: "Except that the couple would be paying them to come." },
     ],
   },
 });

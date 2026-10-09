@@ -1,0 +1,45 @@
+Plant (a): the Problems drill card loses its primary (Start is no longer a filled .btn)
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 5c07acc..eacbcbb 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4269,7 +4269,7 @@
+       '<div class="sub">Learning sticks when you solve, not when you watch.</div></div>' +
+       '<div class="at-tiles pb-modes">' +
+       mode("drill", G("M11 2.5 L4.5 11 H10 L9 17.5 L15.5 9 H10 Z"), "Daily drill", "Quick questions from everything you\u2019ve watched.",
+-        "10 min", '<a class="btn" href="#/drill">Start</a>') +
++        "10 min", '<a class="at-chip pb-open" href="#/drill">Start</a>') +
+       mode("sets", G("M13.5 3.5 L16.5 6.5 L7 16 H4 V13 Z M11.5 5.5 L14.5 8.5"), "Problem sets", "Pen and paper, one set per unit.",
+         psetDone + " of " + psetTotal + " done", open("pbSets", "Open the problem sets")) +
+       mode("labs", G("M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"), "Labs", "Real things you build and ship.",
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+20 failing check(s):
+  FAIL  1440px dark /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  1440px dark /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 0-900, scrollY 0
+  FAIL  390px dark /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  390px dark /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 44-694, scrollY 0
+  FAIL  1440px light /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  1440px light /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 0-900, scrollY 0
+  FAIL  390px light /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  390px light /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 44-694, scrollY 0
+  FAIL  1440px dark, labs and problem sets done /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  1440px dark, labs and problem sets done /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 0-900, scrollY 0
+  FAIL  390px dark, labs and problem sets done /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  390px dark, labs and problem sets done /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 44-694, scrollY 0
+  FAIL  1440px dark, day 1, nothing stored /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  1440px dark, day 1, nothing stored /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 0-900, scrollY 0
+  FAIL  390px dark, day 1, nothing stored /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  390px dark, day 1, nothing stored /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 44-694, scrollY 0
+  FAIL  1440px dark, a Saturday (the rest day) /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  1440px dark, a Saturday (the rest day) /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 0-900, scrollY 0
+  FAIL  390px dark, a Saturday (the rest day) /workshop: Daily drill holds the only filled primary — "Start" to #/drill — and reads "10 min" — no filled button in the view
+  FAIL  390px dark, a Saturday (the rest day) /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar) — none, room 44-694, scrollY 0
+FAIL — 20 of 1318 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

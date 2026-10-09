@@ -2726,7 +2726,6 @@
       const sat = r.score != null;
       items.push({
         kind: "diag", id: d.id, href: "#/diag/" + d.id, title: d.title,
-        sub: d.subject + " · " + d.minutes + " min" + (d.gate ? " · pass at " + d.gate + "%" : ""),
         due: gateLeft, sat, score: r.score,
         verdict: !sat ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap",
         // Unsat diagnostics outrank everything; the sooner the gate, the higher.
@@ -2737,7 +2736,6 @@
       const bank = D.QUIZZES[id], n = unlockedIdx(id).length, best = bestQuiz(id);
       items.push({
         kind: "bank", id, href: n ? "#/quiz/" + id : "#/courses", title: bank.title,
-        sub: bank.course + " · " + (n ? n + " of " + bank.questions.length + " unlocked" : "watch the lectures first"),
         locked: !n, sat: best != null, score: best,
         verdict: best == null ? null : best >= 70 ? "pass" : "gap",
         // +1 so that an unsat diagnostic ALWAYS outranks a bank: a diagnostic

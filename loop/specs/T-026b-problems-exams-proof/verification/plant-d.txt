@@ -1,0 +1,40 @@
+Plant (d): the heatmap paints rest days as missed (the rest-day branch is gone, so a Saturday gets a level like any day)
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 5c07acc..e64e54f 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -3071,7 +3071,6 @@
+       for (let d = 0; d < 7; d++) {
+         const iso = addDaysISO(wk, d);
+         if (iso < D.START_DATE || iso > today) { col += '<i class="hc void"></i>'; continue; }
+-        if (isRestDay(iso)) { col += '<i class="hc rest" title="' + iso + ' · rest day"></i>'; continue; }
+         const a = dayActivity(iso);
+         const lvl = Math.min(4, a.lessons + a.problems + (a.sealed ? 1 : 0));
+         col += '<button class="hc l' + lvl + (iso === today ? " now" : "") + '" data-hday="' + iso +
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+16 failing check(s):
+  FAIL  1440px dark /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l2@2026-10-17
+  FAIL  1440px dark /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 2 differ, e.g. rest drawn l0@2026-10-10; rest drawn l2@2026-10-17
+  FAIL  390px dark /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l2@2026-10-17
+  FAIL  390px dark /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 2 differ, e.g. rest drawn l0@2026-10-10; rest drawn l2@2026-10-17
+  FAIL  1440px light /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l2@2026-10-17
+  FAIL  1440px light /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 2 differ, e.g. rest drawn l0@2026-10-10; rest drawn l2@2026-10-17
+  FAIL  390px light /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l2@2026-10-17
+  FAIL  390px light /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 2 differ, e.g. rest drawn l0@2026-10-10; rest drawn l2@2026-10-17
+  FAIL  1440px dark, a two-entry chain (genesis reached) after a streak reset /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l2@2026-10-17
+  FAIL  1440px dark, a two-entry chain (genesis reached) after a streak reset /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 2 differ, e.g. rest drawn l0@2026-10-10; rest drawn l2@2026-10-17
+  FAIL  390px dark, a two-entry chain (genesis reached) after a streak reset /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l2@2026-10-17
+  FAIL  390px dark, a two-entry chain (genesis reached) after a streak reset /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 2 differ, e.g. rest drawn l0@2026-10-10; rest drawn l2@2026-10-17
+  FAIL  1440px dark, a Saturday (the rest day) /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l0@2026-10-17, l1@2026-10-24
+  FAIL  1440px dark, a Saturday (the rest day) /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 3 differ, e.g. rest drawn l0@2026-10-10; rest drawn l0@2026-10-17; rest drawn l1@2026-10-24
+  FAIL  390px dark, a Saturday (the rest day) /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level — 26 columns, 156 study-day cells; Saturdays painted l0@2026-10-10, l0@2026-10-17, l1@2026-10-24
+  FAIL  390px dark, a Saturday (the rest day) /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void — 3 differ, e.g. rest drawn l0@2026-10-10; rest drawn l0@2026-10-17; rest drawn l1@2026-10-24
+FAIL — 16 of 1318 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

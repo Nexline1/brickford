@@ -1,0 +1,33 @@
+Plant (c): Proof shows the best streak in the current-streak tile
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 5c07acc..ee7a0ee 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -3772,7 +3772,7 @@
+     return '<div class="view-enter"><div class="page-head"><h1>Proof</h1>' +
+       '<div class="sub">Every lecture you prove is sealed into a record nobody can quietly edit.</div></div>' +
+ 
+-      '<div class="at-tiles pf-tiles">' + tile(cur, "day streak") + tile(best, "longest streak") + tile(proven, "lectures proven") + "</div>" +
++      '<div class="at-tiles pf-tiles">' + tile(best, "day streak") + tile(best, "longest streak") + tile(proven, "lectures proven") + "</div>" +
+ 
+       '<div class="ghead">Sealed days<span class="gh-meta">last 6 months</span></div>' +
+       '<div class="card pf-heat">' + heatmapHTML(26) +
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+8 failing check(s):
+  FAIL  1440px dark /record: three tiles — streak() 3, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  390px dark /record: three tiles — streak() 3, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  1440px light /record: three tiles — streak() 3, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  390px light /record: three tiles — streak() 3, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  1440px dark, a two-entry chain (genesis reached) after a streak reset /record: three tiles — streak() 2, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  390px dark, a two-entry chain (genesis reached) after a streak reset /record: three tiles — streak() 2, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  1440px dark, a Saturday (the rest day) /record: three tiles — streak() 3, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+  FAIL  390px dark, a Saturday (the rest day) /record: three tiles — streak() 3, bestStreak() 4, lectures proven 1 — 4 day streak, 4 longest streak, 1 lectures proven
+FAIL — 8 of 1318 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

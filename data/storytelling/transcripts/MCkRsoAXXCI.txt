@@ -1,0 +1,693 @@
+# Transcript: What to Say to Get Your Way | Jonah Berger | Talks at Google
+
+Source video: https://www.youtube.com/watch?v=MCkRsoAXXCI
+Language: en · Duration: 47:34 · Words: 9623
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript
+
+[0:00] [MUSIC PLAYING] JASON LUNN: Greetings. And welcome to "Talks at Google." My name is Jason
+Lunn. And today, I'm delighted to introduce-- or should I say, reintroduce-- my fellow Montgomery
+Blair High School Class of '98 alumnus, Dr. Jonah Berger. Jonah is an Associate Professor of
+Marketing at the Wharton School and a best-selling author. He last visited "Talks at Google" 10
+years ago, just after publishing his first book, "Contagious: Why Things Catch On."
+
+[0:31] He's returned today to introduce us to his latest release, "Magic Words: What to Say to Get
+Your Way," which went on sale earlier this month. Welcome back, Jonah. JONAH BERGER: Thanks so much
+for having me back. JASON LUNN: Before Jonah begins, I'd love to remind everybody in our audience
+that we're going to be taking your questions at the conclusion of this presentation. So please add
+yours to the Live Chat on the right. And with that, Jonah, take it away. JONAH BERGER: Thanks so
+much. So everyone here today actually has something
+
+[1:01] very much in common. Regardless of what role you have within the organization, regardless of
+what your daily duties or jobs are, we all have something very much in common, which is that we all
+have something that we want to change. For the folks that are externally facing, it might be a
+customer or a prospect's mind. For the folks that are internal, it might be a boss or a colleague.
+You might have something you want to catch on. You might have something, someone, you want to
+influence. But the question is how we can do that more effectively. And today, I'm going to focus on
+the power of language,
+
+[1:31] the power of the words we use, to do exactly that. Now, I don't have to tell you that we use
+language all the time. We use language to write emails and put together PowerPoint presentations. We
+use language to give talks and send our thoughts via text. We talk to our friends, our colleagues,
+our bosses, our prospects. Even our own private thoughts rely on language. But while we spend a lot
+of time thinking about the ideas we want to communicate we spend a lot less time thinking about the
+specific words we want to use to communicate those ideas.
+
+[2:01] But unfortunately, that's a mistake because subtle shifts in the language we use can have a
+big effect on our own impact. As I'll talk about today, for example, adding just two simple letters
+to a request makes people about a third more likely to say, "Yes." When suggesting that we like
+something, saying we recommend that thing rather than we like that thing, makes people about a third
+more likely to take our suggestion. And when we look at the language used in an email to communicate
+with our colleagues at work, the language you might use in applying for a loan,
+
+[2:31] or a variety of other types of language, those words buy deep insight into who we are and how
+likely we are to behave certain ways in the future. How similar your language is to your colleagues,
+for example, predicts whether you're more likely to get promoted, or fired, or whether you're likely
+to leave an organization to find a better job somewhere else. And the language people use in their
+loan applications provides subtle but important hints about how likely they are to default or repay
+their loan in the future. And so one question, then, is what are these magic words? And how can we
+take advantage of their power?
+
+[3:03] And so that's a long-winded introduction to a title slide. But as nicely mentioned, I'm
+Professor Jonah Berger. I'm a Marketing Professor at the Wharton School at the University of
+Pennsylvania. And what I'm going to do today in the 30 or so minutes we have together is give you a
+brief tour of my recent "New York Times" and "Wall Street Journal" bestseller, "Magic Words: What to
+Say to Get Your Way." I'm going to talk about the science of language, and more importantly, how we
+can use that language. And I don't have to tell you that a lot has changed in the last few decades.
+More and more language data is available than ever before,
+
+[3:33] from the emails we write, from the content people post online. Even transcribing a
+conversation like this can give us easy access to language data. And new tools have allowed us to
+parse this data in exciting and insightful new ways-- everything from old tools like dictionaries
+and topic modeling to new approaches like word embeddings and even more sophisticated tools-- have
+allowed us to unlock understandings about language that we never had before. And so what I'm going
+to talk about today is some of what we can do with that language.
+
+[4:04] In the book, I talk about two things. I talk about how we can use language to impact others
+and ourselves. And we can gain insight from language to understand our customers, clients, and
+others. I'm going to focus today on that first bucket, how we can tactically use language in our
+daily lives and our roles within the organization. But if you're interested, I'm happy during the
+Q&A to talk more about what language reflects and how we can use language data for insight, whether
+for customers or otherwise. But in writing this book, I've studied an amazing set
+
+[4:34] of different types of language. We've looked at tens of thousands of pieces of online content
+to understand what holds attention. We've looked at thousands of conversations both between regular
+people and with companies, to see what increases customer satisfaction and what builds relationships
+between individuals. And in those studies and others, we found that there are six key types of magic
+words, six key types of language that we can use to increase our impact. And in "Magic Words," I put
+them in a framework, and that is the SPEACC framework. And that stands for the language of
+Similarity and difference.
+
+[5:06] The P is for the language of Posing questions. The E is for the language of Emotion. The A is
+for the language of Agency and identity. The C is for the language of Confidence, and the second C
+is the language of Concreteness. And for those of you who are paying attention, you probably are
+going, speak isn't spelled with two C's. You're exactly right. There should be a K. I was not clever
+enough to come up with SPEAK with a K. I've been told, though, that K is the most difficult letter
+in Scrabble, so I don't feel so bad about that. But hopefully, SPEACC with two C's will help
+
+[5:36] you remember the framework. And so each of these is a type of language we can use in a
+variety of aspects of our personal and professional lives, not only to influence others, but to
+increase our creativity and come up with better solutions to problems, to deepen social connection
+with our family members and peers, and have a host of other impacts across our daily lives. I won't
+have time today to talk about all six, unfortunately, but I'll dive into a little bit of the
+language of agency. I'll talk about the language of confidence
+
+[6:06] because I think that's a fun one, as well. I'll briefly touch on the language of posing
+questions, and then I'll wrap up. But as was nicely mentioned at the beginning, I would love to take
+any and all questions. So please feel free to ask questions, either along the way or at the end. If
+you don't get your questions in, you can find me at j1berger, which is down on the corner of your
+screen, on either LinkedIn or Twitter. And there are also a whole bunch of free resources about the
+book, about the framework, and how to apply these ideas at my website, which
+
+[6:37] is in the other corner of your screen at jonahberger.com. And so my goal today is very
+simple. I want us to better understand the language we use and how we can use it more effectively.
+And so let's dive in. And so I want to start with a common problem that many of us have. Often, we
+want to get somebody else to do something, whether that person is a colleague at work, whether that
+person is a prospect, whether that person is a friend, whether that person is a child. We want to
+encourage them to do something in particular, but often, it doesn't work.
+
+[7:07] Could we use language more effectively to d? That. And so a few years ago some scientists
+from Stanford University did a study to find out exactly that. They wondered if they could use
+language to increase persuasion. So they went to a local elementary school-- a preschool, actually--
+and they asked 4- and 5-year-old kids to help them clean up the classroom. It was a bit of a mess.
+There were blocks everywhere, and there were crayons, and books, and various things that needed to
+be cleaned up. And so for some of the kids, they asked, like someone might usually ask someone. They
+said, "Hey, can you help clean up," as a teacher
+
+[7:39] or a friend might often ask. But for the other set of individuals, rather than asking for
+help, they asked for something slightly different. They said, "Hey, can you be a helper?" Now, as
+you can see on the screen, the difference between "help" and "helper" is quite small. It's only two
+letters. Yet those two letters had a very big impact. They led to about a 30% increase in the
+proportion of students that ended up helping to clean up. Now, that's an interesting study, but you
+might be sitting there going, well, those are kids. Those are classrooms. How do I know that this
+would work with adults with real consequential behaviors?
+
+[8:11] And so more recently, some researchers looked at the similar idea in a much more important
+context, and that is with voting. Obviously, voting is a really important behavior. It's a
+consequential behavior for our democracy. But it also requires a lot of effort. Not everybody wants
+to do it and not everybody does. And so they wondered whether they could use language to increase
+the likelihood that people turned out to vote. So for some people, they sent a message saying, "Hey,
+can you please go vote?" And for other people, they said a slightly different thing. They said,
+"Hey, can you be a voter?" Now, here, the difference is even smaller.
+
+[8:42] It's just one letter. Yet this one letter led to about a 15% increase in people's likelihood
+of turning out to vote. And so what gives? Why was "helper" more effective than "help?" Why is
+"voter" more effective than "vote?" Well, it turns out the difference comes down to the difference
+between actions and identities. We know we should take certain actions-- help, vote, do a variety of
+different things. But we're busy. We don't always have enough time. But what we care about more than
+holding desired actions and having desired actions is holding desired identities.
+
+[9:14] We all want to see ourselves as competent, intelligent, smart, capable, and a variety of
+different things. And so we engage in actions that allow us to confirm those desired identities. If
+we want to see ourselves as athletic, for example, we need to go for a run once in a while. But so
+by turning actions into identities, by framing actions into identities, we can make people more
+likely to take desired action. Helping-- sure, I know I should help, but being a helper? Well,
+that's a desired identity. I want to take that identity and so of do that, I have to help.
+
+[9:44] Same thing with voting. I know I should vote, but I may not have the time. But being a voter?
+I definitely want to do that. And if voting is the way to show myself and others that I'm a voter,
+well, now, I'm much more likely to do it. But it's not just for positive things like voting or
+helping. It turns out the same thing holds for negative behaviors, but in the opposite direction.
+Some research, for example, looked at negative identities and negative actions. Losing is bad, but
+being a loser-- that would be even worse. Similarly, no one wants to cheat on a test-- certainly a
+bad thing.
+
+[10:14] But being labeled a cheater would be even worse. And research finds that when cheating would
+make you a cheater, how people are less likely to cheat on that test because they don't want to hold
+taking action that leads them to see themselves as holding that undesired identity. It's almost like
+that old slogan getting people not to litter. They said, "Don't be a litterbug." Littering-- I know
+I'm not supposed to litter. Well, hold on-- if littering would make me a litterbug, now I'm a lot
+less likely to do it. And so by turning actions into identities, we can make people more or less
+likely to take those actions.
+
+[10:47] And it turns out this idea goes even beyond that. It turns out the same thing can be used
+for describing people, including ourselves. Imagine I tell you about two friends of mine, one who
+runs and one who is a runner. If you had to guess, which of those two people would you say runs
+more-- the person who runs or the person who is a runner? You'd probably say, well, the person who
+is a runner. If they are a runner, it suggests something stable. It's not just transitory, here
+today, gone tomorrow. It's a more consistent part of their identity. If someone drinks coffee, yeah,
+once in a while
+
+[11:17] they have a cup of coffee. If they're a coffee drinker, that suggests it's part of who they
+are. And so by describing people in terms of identities rather than actions, we can encourage them
+to take desired actions. Talking about ourselves, for example as a runner, well, to hold that
+identity, we've got to run once in a while. Similarly, if we describe a colleague, rather than
+describing them as hard-working-- suggests, yeah, they're pretty hard working. Describe them as a
+hard worker suggests it's a more consistent part of who they are. Trying to motivate someone to take
+an action-- rather than telling them they should lead more often,
+
+[11:48] tell them to be a leader. Framing these things as identities makes them seem more consistent
+and more long lasting. I particularly love the term "creator," for example. Rather than telling,
+well, I create videos or I create content, which sounds a little bit like a side hustle, labeling
+that thing-- "I am a creator," "I am an influencer"-- now those things sound like full-time jobs.
+And because they sound like full-time jobs, they're a more stable aspect of who we are. And so these
+are just a couple of examples, but they're all examples of the same concept, which
+
+[12:19] is the language of agency and identity. Often, we think about words as something we use to
+request information from others. But words do much more than that. Words shaped what it means to
+engage in a particular action, and who's responsible or who's seen as blameworthy for doing
+something in particular. Let me give you just one more example of this bucket. And this one comes
+from some research on problem solving. Often, we're stuck in a difficult situation. We're trying to
+solve a problem. We're trying to come up with a creative solution, but we don't know how to do it.
+
+[12:49] We are sort of spinning our wheels. We're not really getting anywhere. We're often stuck.
+We're trying to figure out what to do. Well, often, in those situations, we ask ourselves, what
+should I do? What should I do? How should I solve this problem? But some researchers wondered if a
+slight shift in language could lead people to come up with better solutions. So they gave people a
+bunch of problems. And for some people, they asked them what should you do in this situation. But
+for a second set of people, they used a subtle linguistic shift. Rather than ask them what they
+should do, they asked them what they could do in that situation.
+
+[13:20] Now, again, the difference between "should" and "could" is pretty small. It's only a few
+letters, yet those few letters led to a big increase in how creative people were in solving those
+problems. People came up with better problems, better solutions to those problems, and rated as more
+creative the solutions when they were using coulds instead of shoulds. Because shoulds focus us on
+there's one particular answer. There's one right course of action, and if we can only get there, we
+will be successful. But "could" encourages us to widen our viewpoint a little bit more, realize
+there are multiple courses of action,
+
+[13:50] multiple places we could go or things we could think about. And all of them may not be good
+ideas. All of them may not be the best possible approach. But at least by considering that wider set
+of options before coming up with a final solution, we're much more likely to reach a positive
+outcome in the end. And so when stuck on a tough situation or trying to motivate others to come up
+with a better solution, don't just ask what we should do. Tell them and us to think about what we
+could do, instead. By focusing on coulds rather than shoulds, we can come up with better solutions,
+
+[14:21] and be more creative as a result. Those are just a couple of examples of the language of
+agency and identity. And in "Magic Words," I talk about five or six other sort of sub-buckets there
+of language we use. I talk about the power of you, for example, as a great word that grabs people's
+attention, increasing engagement on social media, increasing open rates of emails, but making help
+content on a customer service page, for example, less helpful because it suggests someone might be
+to blame for particular actions.
+
+[14:51] So I'll let you check out some of that stuff in the book. I want to switch, and spend a
+couple of minutes on the language of confidence before wrapping up. And so we all have someone in
+our lives who we think about as particularly charismatic. When they open their mouths, everybody
+listens. When they tell a story, everyone hangs on their every word. I know I certainly have people
+in my own life like that. I would love to be that person. I'm personally not like that. But one
+question I always wonder is, why? What makes those people so charismatic? Why are they so effective
+in communicating?
+
+[15:22] And so to help us answer this question I want to look at a communicator that many of us are
+familiar with, and that is none other than Donald Trump. Now, I don't want to get into politics
+today. You're entitled to whatever view you hold. If you like Donald Trump, that's just fine. If you
+hate Donald Trump, that's fine, also. I want to focus on his language in particular because whether
+you like him or hate him, and particularly if you hate him, you can't deny that he's been amazing at
+selling his ideas. He's done a great job. Particularly if you hate his policies and ideas,
+
+[15:52] you might wonder, how is it possible that he gets people to support them? But he has. And so
+one question is, what is he doing that makes him such an effective communicator even if we don't
+like it? Or if you like it, too, that's completely fine. So let's take a look at a speech he made
+when he originally started his presidential run, many, many years ago. So he said something like the
+following-- I will build a great wall. And nobody builds better walls than me, believe me. And I'll
+build them very inexpensively. Our country is in serious trouble. We don't have victories anymore.
+We used to have victories, but we don't have them.
+
+[16:23] When was the last time anybody saw us beating, let's say, China in a trade deal? I beat
+China all the time, all the time. Now, when he made this speech, it was widely panned in the media.
+People said it was overly simplistic and full of bluster. Yet less than a year later, he was elected
+President of the United States. And so regardless of whether you like him or not, something he's
+doing is working. What is it? Well, if you look, there's actually something that Trump does that
+he's not the only one that does. And what he does is something that he has in common with great
+salespeople, with transformational leaders,
+
+[16:54] and entrepreneurs-- folks like Steve Jobs or Elon Musk-- and also gurus, or others that are
+particularly charismatic. And that is that Trump speaks with a great deal of confidence. He speaks
+with a great deal of what psychologists would describe as certainty. And what do I mean by that?
+Well, he uses a lot of what some people might describe as definites. He says things are definitely
+true. This is clearly the right answer. It's obviously a good course of action, unambiguous,
+undeniable, guaranteed, precisely, essential.
+
+[17:24] These are all definites. He speaks like things are absolutely positively certain. He doesn't
+just say something might happen, he says something will happen. Take a look at that speech, for
+example. He doesn't say I'll just build a wall, I'll build a great wall and nobody builds walls
+better than me. And he'll build them very inexpensively. He also doesn't say, hey, our country
+doesn't have as many victories as we used to. We don't have victories anymore. Absolutes-- he speaks
+in absolutes. When is the last time you saw us beating China? I beat China all the time. He speaks
+like the answer is clear, and obvious, and absolutely true.
+
+[17:55] And it turns out that speaking with such certainty actually has an important impact on
+persuasion. Some research, for example, looks at the context of financial advisors. They ask people
+to choose between two advisors, one who spoke with more certainty and one who spoke with less
+certainty. And it turned out that people prefer the advisor who spoke with greater certainty, even
+though that advisor was no less likely to be correct in their predictions. In fact, even though that
+advisor is more likely to be overconfident-- when they got it wrong, they got it wrong by more--
+people still preferred the certain financial advisor.
+
+[18:26] Because when people speak with so much certainty-- whether a financial advisor, a guru, or
+Donald Trump-- it's hard to believe that they couldn't be right because they seem so certain about
+what they're saying. Now, contrast that with the way most of us speak most of the time. I don't know
+about you, but I tend to speak with a great deal of uncertainty. I often work with consulting
+clients, and they ask me, hey, what do you think of this strategy? Or do you think this is the right
+idea? I work with the OnHub team, for example,
+
+[18:56] at Google a number of years ago, and also with Project Aura and a variety of other groups,
+including Google Fiber. And I often say things, like, well this might work, or this seems like a
+good course of action, or I think this strategy is worth pursuing. What I'm doing there is what most
+people do most of the time. We hedge. Hedges are simple linguistic turns of phrase that allow us to
+sort of balance things a little bit. If we're not exactly sure, if we don't know what we want to
+say, hedging is an easy way to sort of protect ourselves.
+
+[19:26] But the problem is that by hedging, we are undermining our impact. We often use it as sort
+of an easy phrase just because it's convenient. But we found in our research that the more we hedge,
+the more hedges we use, the less persuaded other people are to do what we want them to do, in part
+because when we hedge, we seem less certain. People are sitting there going, well, if you're not
+even sure it's going to work, why should we take this course of action? And even further, if you're
+not sure, maybe we should hire someone else who knows the right course of action. When we hedge, we
+undermine our impact.
+
+[19:58] And so this has a few implications. First, we've got to ditch the hedges. There may be times
+where we want to express uncertainty and I'll get to that in a couple of minutes. But most of us
+just use hedges because they're convenient. Ditch the hedges. Unless we're trying to communicate
+uncertainty, don't hedge. Hedging undermines our impact, even when we're not intending to do so.
+Second, though, when we need to communicate uncertainty, we can name it. And let me show you what I
+mean by that. Imagine if I'm not sure a strategy will work. I'm not sure if a particular direction
+is a good idea. I could say something like, "I'm not sure this will work."
+
+[20:30] Or I could say something like the following, "Hey, I think this is a great idea, but for it
+to happen, these three things need to end up occurring." Notice the difference between these two
+things. In both of them, I'm expressing uncertainty. But in one, I'm saying I'm not sure it will
+work, and in the other, I'm making it very clear that I think it's a great idea, but these things
+need to happen for it to work. That second way, I'm calling out the uncertainty. I'm identifying
+where the speed bumps, or the roadblocks, or the hurdles are. I'm not just saying I don't know. I'm
+not just saying it's not clear.
+
+[21:00] I'm saying, here's what I think, but we need to make sure these things occur. And so by
+naming or calling out, identifying the uncertainty, we can seem more confident. And we can be more
+likely to persuade others. We can also take ownership of the statements we're making. And I did that
+even on the last example I gave you. Contrast the difference between "it seems" versus "it seems to
+me." In both cases, I'm expressing uncertainty. But in one of them, I'm owning that uncertainty. I'm
+taking ownership of it. I'm saying, "It seems to me like this is true."
+
+[21:30] I'm not just saying this might work, I'm saying, I think this might work. I'm using a first
+person singular pronoun like I or me. By taking ownership of that uncertainty, by associating it
+with ourselves, it makes us seem more confident and it makes other people more likely to listen to
+us, as a result. And also, even beyond hedges, we want to avoid hesitating. We want to avoid using
+filler words. Often we use words like "um," "uh," or "er." I do these things all the time. Some of
+us might use the word "like."
+
+[22:00] Why do we use these words? We often use it to buy time to think, particularly when we're
+speaking, particularly if someone asks a question. We don't know exactly what we want to say, so we
+might say, "um," or "uh," to buy ourselves time, to give ourselves time to think about what we want
+to say. But the problem is, while it may be a simple linguistic crutch that we use to buy ourselves
+time, it makes us seem less certain and makes other people less likely to listen to us. If you've
+ever listened to yourself speak-- recorded yourself and listened yourself-- it's painful, but it's a
+great way to help identify those ums, which
+
+[22:32] are called "filler words." Similarly, try to fill them in with pauses rather than fillers.
+Great speakers often pause. It's a nice way to draw the audience in and encourage them to pay
+attention to what we're saying. I have a bad tendency to speak quickly, particularly when I'm
+excited about something. But pausing is a great strategy that allows us to think, rather than just
+filling it in with words, and making us seem uncertain. And further, if you're not sure whether
+you're using filler words, practice speaking, recording it, and spit out a transcription. It's a
+great way to easily identify the ums, uhs, and ers,
+
+[23:03] and help ourselves become better communicators. And last but not least, the only other thing
+I would say is, I don't want you to walk away from this discussion going, well, wait a second--
+you're saying we should always communicate certainty. Because there are certainly times where
+uncertainty is more effective. If we don't know that something is true or we don't want to seem
+overconfident, communicating uncertainty can be a good thing to do. What I want us to understand is
+certainty is a tool. Linguistic certainty is a tool. There are times to be certain and there are
+times to be uncertain, just like there
+
+[23:33] are times we need a hammer and there are times we need a screwdriver. But once we understand
+what certainty is and how to communicate it, we can deploy it in the right situations. If we're a
+leader, for example, or a salesperson, and we're getting up and making a big presentation or pitch,
+that's probably a time we want to seem pretty confident. On the other hand, if we're having a small
+team meeting where we want to reveal that we're vulnerable or show that we're open to other people's
+opinions, well, then, that's a time to hedge and use other markers of uncertainty. Some very nice
+research for example, shows that the more we use hedging and other types
+
+[24:04] of uncertain language, the more open we seem to others' opinions, and the more willing they
+are to listen to what we have to say because we're making it clear that we don't know the right
+answer. And so there are times for uncertainty and there are times for certainty. Similarly, based
+on status within an organization, if we're a senior leader, sometimes we need to show a lot of
+certainty. On the other hand, if we're a junior member of a team and we've just joined, sometimes
+seeming overconfident can actually be detrimental. And so understanding how to communicate
+confidence and when to communicate it based on the context
+
+[24:34] is a really important skill. I give a couple more examples of the language of certainty and
+how to deploy it in that chapter on confidence. I want to give you one example of the language of
+posing questions, and then I'll wrap up and actually take some questions from you guys. And I find
+questions to be a really powerful rhetorical tool. Often, we think of questions as a way to collect
+information. And they do that, but they do a lot more than just that. Questions shape how other
+people see us.
+
+[25:05] They can act as spotlights, focusing attention on certain things rather than others. And
+they can be a great way to guide conversational flow and direct, whether it's conversation or
+attention, to certain things rather than others. So I think questions are a powerful tool in our
+communications arsenal that we don't always understand how to use. And so let me give you just one
+example of this. So often when we're stuck, trying to solve a tough problem in a difficult
+situation, we often think about asking someone else for advice. We have a friend or a colleague who
+knows more than we do.
+
+[25:37] And we want to ask them for advice, but we don't. And there are a few reasons why. First, we
+don't want to bother them. Second, we don't know whether they'll know the answer or not. But third,
+we're worried that they'll think less of us. If I ask my boss or a colleague for advice, for
+example, they might think that I don't know what I'm talking about, that I'm not very good at my
+job. And so we're worried that there'll be a negative effect on how we're perceived based on asking
+for advice. But it turns out that perception is actually a little bit misguided. Because some
+researchers from both Harvard and Wharton
+
+[26:07] did a very nice study a few years ago where they had a variety of people have conversations
+and different types of interactions. And in some of those interactions, they had people ask their
+partner for advice. And then at the end of the interaction, they asked those partners what you
+thought of the person you were communicating with. And they found something quite interesting. It
+wasn't that asking for advice made us seem less intelligent or less competent. And it wasn't that
+asking for advice had no effect. In fact, asking for advice had the exact opposite effect. It made
+people think we're more confident and more intelligent.
+
+[26:38] And so you might be thinking, well, how could that be? How could asking for advice make us
+seem more competent and more intelligent? And the reason has everything to do with the fact that
+most people are pretty egocentric. Think about ourselves. Most of us think we give great advice. Of
+course my advice is good advice. And so when someone comes along and asks us for our advice, we go,
+wow, they must be pretty sharp because of all the people they could ask for advice, they asked me.
+And so as a result, they must be a pretty smart person. And. So the moral here is really clear.
+
+[27:08] Very simply, ask for advice. Whether you are a leader of a group or a team, or whether
+you're just a member of that team, asking for advice not only allows you collect valuable, useful
+and important information, but it can lead you to be perceived more positively as a result. Now,
+there are a whole bunch of different lessons, and takeaways, and ideas in the chapter of posing
+questions, the how to ask better follow-up questions, when to ask certain types of questions versus
+others, how to use questions as deflection when people ask puts you in a difficult situation,
+
+[27:39] to use that to shape the course of the conversation. Lots of useful stuff there, and I will
+let you check it out in the Questions chapter. But given I'm basically out of time, I'm going to do
+two slides of wrap up. And then, I will take your questions. And so first, today, very briefly,
+we've talked about six key ways to speak more effectively, six types of magic words. In particular,
+we didn't get a chance to talk about the language of similarity and difference, but how similar our
+language is to others-- both within an organization as well as outside of it-- has an impact on our
+own effectiveness.
+
+[28:11] Even research we've done looking at movie scripts, for example, shows that how similar
+chunks of movies are to one another impacts how engaging that content is. And so lots of take-homes
+in this chapter about how to write presentations to put together content and to do other things to
+hold attention. We talked briefly about the language of posing questions and how to ask more
+effective questions. We didn't get to the language of emotion, but there's all sorts of interesting
+take-homes there about how to tell better stories, about how to pitch ourselves more effectively,
+
+[28:41] and how to hold an audience's attention. As I mentioned earlier, we did a big analysis of
+tens of thousands of pieces of online content-- everything from news articles and front-page news to
+things like lifestyle pieces, personal technology, blog posts-- and measured how far down in those
+pieces of content people read to look at what leads to longer reads or how we can more effectively
+hold attention. So I'll let you check it out there. We talked a bit about the language of agency and
+identity, how words shape how other people see us and how likely they
+
+[29:11] are to take particular actions. We talked about turning actions into identities, turning
+shoulds into coulds. There are also some interesting take-homes there about words like, "you," "I,"
+and "we," the power of talking to oneself to reduce anxiety and increased performance, and ways to
+motivate ourselves to achieve our goals by talking about having time, for example, and making time,
+or can't versus don't. We talked briefly about the language of confidence and some tips there. And
+we didn't get to the language of concreteness, but there are some important insights
+
+[29:41] in that bucket about how to show other people that we're listening. We all know that
+listening is important skill, but it's not just about doing the listening, it's about showing other
+people that we listened. And so concrete language can do exactly that. It can also help make our
+ideas more memorable and affect how likely we are as entrepreneurs to raise money or how good a
+leader we're seeing. And so I'll let you check it out in the Concreteness chapter. And so just to
+wrap up two key next steps from this very short introduction to "Magic Words." The first is we've
+got to understand
+
+[30:12] the power of language. We use words all the time. I've spent the last 25 minutes talking to
+you using words, both spoken as well as written. During this time, you may have taken notes using
+written words. You may have written emails or read other pieces of content that others produced. We
+use language all the time, but we don't necessarily know how to use it most effectively. By
+understanding the power of words, we can do that. And then, learn how to use them. By understanding
+these six types of words, we can be more effective. And as I mentioned, there's a resource tab on my
+site.
+
+[30:42] Check that out. It has lots of useful guides for putting together more impactful content,
+being more persuasive, and so on. Because whether we know it or not, we are all speakers. We may not
+get up on a podium as a politician might, and make a big speech, but we get up in meetings and speak
+to teams and colleagues. We make phone calls and speak to peers. And we talk to our friends. We're
+all writers. We may not write books or essays, but we write emails. We write presentations. We write
+text messages and all sorts of other content.
+
+[31:13] We may think that certain people are just born better speakers, better writers, better
+communicators, but it's actually not the case. It's a skill we can all learn. If we understand the
+six key types of magic words and how to use them, we can all increase our impact. So thank you so
+much, and I hope you enjoy these ideas. I hope it's a good first step into your journey of applying
+language more effectively. And now I would love to take any and all questions. So thank you guys
+very much. Appreciate it. JASON LUNN: Thank you so much, Jonah.
+
+[31:43] I'd love to ask you a few questions about your creative process of actually writing these
+books. So to start off, do you write the books because the themes for the books emerge from the
+research you conduct or the research that you read? Or do you set up research in order to flush out
+ideas that you want to write a book about? JONAH BERGER: That's a great question. I think it
+depends. So what I will say is that it's varied across books. So "Contagious" was a research that I
+had
+
+[32:14] done in a class I was teaching. And people were interested in the content, but it was only
+available in the class, and so I put it together as a book to sort of help people understand those
+ideas. The catalyst, actually, some of my own research, but a lot of stuff that I was doing with
+consulting clients, and I just realized, hey, these things might make for a good book. And "Magic
+Words" is the stuff I've been working on for the last 10 or so years, using natural language
+processing and automated text analysis, using everything from painfully basic tools like
+dictionaries--
+
+[32:45] some of you guys may be familiar with linguistic inquiry and word count, or some of those
+basic tools-- and more recently, more complex things like topic modeling and embeddings, and so on.
+I think there's a lot of powerful stuff there. I focused today on the really usable things--
+switching a word here and there. But I think some of the most insightful stuff is parsing language
+for behavioral insight. And that's really where large-scale automated text analysis becomes useful.
+JASON LUNN: You talked a little bit
+
+[33:15] about the computational tools for textual analysis. Are you writing those tools yourself?
+JONAH BERGER: (LAUGHING) No, definitely not. So Jason mentions this very briefly, but he and I went
+to high school together many, many, many years ago at a school in the Washington, DC area called
+Montgomery Blair. And it was a math, science, and computer science magnet school. So we took a lot
+of math, science, computer science courses. I'm embarrassed to note, I think we used Pascal, maybe,
+or maybe that was in middle school. And I used to have it on my resume. And I got to college and my
+roommates mercilessly teased me
+
+[33:47] for having Pascal on my resume. But I don't do-- I'm not building new tools. I've spent time
+working with computer scientists. I actually visited Cornell Tech in New York City a number of years
+ago, working with some folks there. I'm really a behavioral scientist at heart. I'm really somebody
+who looks to understand human behavior. But I've just seen the power of these tools to allow us to
+parse textual data-- and now image, and video data, and other sorts of things-- for insights. Just
+like the microscope revolutionized chemistry
+
+[34:17] and biology, and the telescope revolutionized astronomy, natural language and automated
+textual analysis tools are revolutionizing our understanding of human behavior. And so it's really
+opened up a lot of avenues for exciting research. JASON LUNN: Fantastic. When I learn a new word, I
+often experience this confirmation bias. I see that word everywhere. After you were done writing
+"Magic Words," did you find yourself noticing examples of the techniques you highlight in the book
+in your everyday life? JONAH BERGER: Some.
+
+[34:47] Yes. I actually start the book with a story about-- [INTERPOSING VOICES] JONAH BERGER: Our
+eldest son, yeah, so I'll tell the story very briefly. But so a few years ago, our oldest son was
+born. Like many kids, he started using language, so he had the word, "Yo," for yogurt. "Brow bear"
+was the way he described his brown bear. But one of the most interesting words he used was the word
+"peas." And he meant "please," but he didn't have his Ls yet, so he had to say, "Peas." But what
+was. Most interesting is the way he'd use this word. So he would say, "Yo," if he wanted yogurt.
+
+[35:19] And he'd look at you, and if you went to go get him yogurt, then that was it. But if you
+didn't get up and do immediately what he said, he tried again. He'd say, "Yo, peas." And then he'd
+stare at you again, like hey, you didn't do what I wanted. This word will get you to do what I want.
+I found this super neat because it was the first time he had realized that words had power, that it
+wasn't just something you said, but the specific words you use could change the actions in others.
+And I think it's a really simple point, but a really important one.
+
+[35:49] The words we use when we communicate, whether through spoken or written language, have a big
+impact on how we're perceived and what others do as a result of what we say. And so by understanding
+those words, we can have a big effect on our own impact. JASON LUNN: Fantastic. So you put the whole
+framework together as SPEACC with two Cs. How closely tied is SPEACC to English? Does it translate
+outside of English-speaking communities?
+
+[36:20] JONAH BERGER: Yeah, that's a great question. And so I was actually giving a presentation a
+few weeks ago to some journalists, and this very nice, polite, German journalist at the end of the
+presentation raised his hand and said, "I have a question. Are these things culturally dependent?
+Because I was talking with someone in the US and I thought they had agreed to do an interview with
+me, but then I found out that they had actually said no. But they had said it in such a polite,
+careful way that I didn't even realize they had said no. I thought they had said yes."
+
+[36:50] And he's used to German folks being very direct, and this is how it is. And Americans say,
+"Oh, thank you so much. I really appreciate it," and sort of hiding the "no" there. And so what I
+would say is this-- the words that express agency and identity are the same cross-culturally. The
+words that express confidence are-- and obviously, translated-- are similar cross-culturally. The
+question, though, is, do we always want to communicate certainty, for example? May vary based on
+cultural contexts. America is obviously-- United States is obviously a very big culture of
+independence, and certainty,
+
+[37:22] and all those sort of things, whereas East Asian cultural context may be a little bit more
+about being a good member of a group and fitting in with that right group. And so there, being too
+confident and too certain may be perceived more negatively, at least if you don't have status within
+the group. And so I certainly think some of the types of language are the same, but how we deploy
+them-- even within the US-- depends on the context we're in, and the subcultures or cultural groups
+that we're a part of and we're communicating with. JASON LUNN: Great. Well, we have some wonderful
+audience questions
+
+[37:54] to add to the mix here. So why don't we go to some of those. Tyler asks, "Any advice on how
+to navigate the balance between being confident and certain versus coming off as aggressive or a
+know-it-all? JONAH BERGER: Yeah, I think that is a key balance. And I hope you heard as I was sort
+of communicating confidence, I want to help us understand what communicates confidence. But then, we
+need to know how to deploy it. And so I really like those-- sort of what I describe as personal
+hedges.
+
+[38:24] I think it seems to me can be a nice way both to hedge, which indicates that there is some
+uncertainty, but also to own that uncertainty. Rather than saying, "This is the best strategy,"
+which can seem a little bit too much, saying, "I think this is the best strategy. This seems like
+the best strategy to me." It couches it a little bit, but it also shows that you're taking ownership
+of it. You're respecting the fact that there may be diversity of opinions. I think this is the best
+strategy. That may mean you feel something different,
+
+[38:56] but this is my opinion. And so I think situations like that, or owning that uncertainty by
+calling it out-- I think this is the best strategy, but this is what we need to do to make it
+successful-- those are ways to make it clear that you've thought about it. You're not just sort of
+speaking off the top of your head because it's easy. You've thought about it, but there is some
+uncertainty. And this is the right way to navigate. JASON LUNN: Thanks. All right, let's take
+another audience question. Another Jason asks, "In a future in which
+
+[39:26] our communications are polished by LLMs, how much difference will an individual's own words
+or style matter? JONAH BERGER: Yeah, this has been the great part, coming out with this book around
+this time. So I was actually-- it's funny, I was writing an article for a journal called "American
+Psychologist" with a colleague of mine, probably about 12 months ago, maybe 18 months ago. And one
+of the reviewers is, like, oh, what about LLMs? And this is before all the ChatGPT and other sorts
+of things. So we had a small section of the paper talking about that.
+
+[39:56] And now, obviously, everyone is wondering exactly this. I would say a few things. First,
+these systems have done an amazing job at producing language, of sort of creating language in ways
+we never thought possible, realistic ways that feel like a person actually created it. And they're
+certainly going to overhaul certain industries-- industries that rely on answering questions or
+creating content-- they will be amazingly helpful. What I think is less clear is how well
+
+[40:26] they've been tuned for things like persuasion, how well they've been tuned for things like
+impact, at least so far. Eventually, they may be. Eventually, someone may take enough of these and
+have outcomes where they can say, look, this is more effective in changing something, and so build
+that into or tune that into some of these systems. But I think at the moment, they're doing a better
+job of producing right answers or reasonable answers-- better than right answers is sort of
+reasonably seeming answers-- rather than producing the most persuasive answers.
+
+[40:57] And they don't necessarily understand human behavior. Eventually, to tune correctly, they
+may do a good job of creating outcomes. But I don't think there's no place for understanding why
+people do what they do. JASON LUNN: Great question, Jason. Thanks. All right, next audience question
+from Kat-- "Have you explored the language brands use in their ads to connect with people or to get
+them to take action, et cetera? JONAH BERGER: I have done a little bit of that, yeah.
+
+[41:28] I've done a more work. So a couple of years ago, I analyzed, for example, all of [INAUDIBLE]
+social media posts to understand what got more engagement and why, looking at linguistic features of
+those posts. As I suggested earlier, I did another project looking at all their customer support
+pages. So imagine you have a problem with your phone or your computer won't connect to something.
+You go to customer support. How does the way that page is written impact how helpful that content is
+perceived? I've done a little bit of work with advertising, as well.
+
+[41:58] And importantly, though, the language that works depends a little bit on the outcome. So the
+language that grabs attention is not necessarily the language that people find the most helpful.
+Let's take the word "you," for example. "You" does a great job of grabbing attention. When you're
+scrolling social media or deleting spam in your email, when something seems like it's self-relevant,
+it's focused on you, you're more likely to pay attention to it. And so compare "five tips to save
+money" with "five tips to save you money." You're more likely to at least give that second one
+
+[42:29] a second glance because it feels like it could be self-relevant. And so we find that content
+that uses second person pronouns, like "you," "your," "you'll," it's more likely to at least grab
+attention enough to increase engagement. That said, if you look at help content, for example,
+customer support page content, for example, you might think "you" is good there. But it actually has
+the exact opposite effect. First, because they don't need to grab your attention. You've already
+gone looking for that page. They don't need to grab your attention. But second, you can feel like
+it's making someone feel blamed
+
+[43:01] or like it's their responsibility. If you go to a customer support page, for example, it
+says, "If your phone is broken, you need to reboot the phone, and then you need to do these six
+steps," someone might feel, well, why is it my responsibility to do all these steps? It's your piece
+of hardware that's broken. I paid you all this money for it. Why is it my responsibility? And so in
+thinking on those situations, you need to avoid accusatory you's. If you ask your colleague at work,
+did you finish that report, they can feel like, well, why is it my job to finish that report? And so
+you can suggest responsibility or blame.
+
+[43:34] It can also suggest agency. And so we need to be careful about how we use those types of
+words. JASON LUNN: Wonderful. Thanks for that question, Kat. All right, Matilde asks, "Is there a
+fine line between persuasion and manipulation? JONAH BERGER: (LAUGHS) Matilde, I'm not sure you can
+still see the screen with all the titles of the books on it. But I've written a book called
+"Invisible Influence." I've written a book subtitled "How to Change Anyone's Mind."
+
+[44:04] What's tough about that question is, if I was going to tell you that we're going to use
+language and influence the science of change to get people to eat healthier, to save the
+environment, to make better decisions, you would say they're fantastic. On the other hand, if I told
+you we're going to use those tools to do bad things or hurt the environment, you'd say it's
+manipulation. It's negative. And the environment is shaping our decisions all the time. If we go to
+a buffet line, for example, and somebody puts the vegetables in the first slot rather than the last
+slot of that buffet line,
+
+[44:35] we're more likely to eat more vegetables. Now, did that person manipulate us? They may have
+just been putting the vegetables where they happened to put them down, but that choice had an impact
+on our behavior. And so I think it's important to understand the behavioral science behind why we do
+what we do. We should certainly use that behavioral science ethically. But whether it's manipulation
+or not-- I mean, we are being influenced all the time, even in unintentional ways. And so I think
+the more we understand how influence works, the more we can choose our influence and decide when to
+be influenced and when not to be.
+
+[45:09] JASON LUNN: Thanks for that question, Matilde. Time for one last question from the audience.
+Jenna asks, "How did you choose what to include in "Magic Words?" What was the most difficult or
+surprising thing about writing your book?" Two questions. JONAH BERGER: I think what's tough for me
+is part of the [INAUDIBLE] I find the most interesting here is not the most applicable. So I'll give
+you an example. We did a study of a quarter of a million songs over 60 years to measure misogyny in
+music. People say, oh, hip hop lyrics are misogynist,
+
+[45:39] or this type of music is misogynist. Is it? We measured the way songs talk about men and
+women over time to examine whether music is misogynist. Quick hint-- it's gotten less biased towards
+men over time, but it is still biased. And it's become less biased mainly because male artists have
+changed their lyrics. Female artists were not biased to begin with. I find work like that really
+fascinating. There's some research done by some great linguist and social psychologists at Stanford
+looking at the language of bias in a different context. They look at police language, and find
+
+[46:11] that police officers, even potentially unintentionally, speak differently to white versus
+African-American community members in traffic stops. It's important to understand how language is
+used. All of those are amazing insights. And we've looked at what makes movies successful or songs
+into hits based on language. I think all that stuff is amazing. It's not really things most of us
+can use in our daily lives. And so the first kind of two-thirds of the book is more kind of tactical
+stuff you can use in meetings and writing emails to persuade, to be more creative, and so on.
+
+[46:42] The back half of the book is a little more kind of big picture of what language reflects
+about people, how we can predict whether someone's going to default on a loan based on the language
+they use in their application, or how we can use language in some other exciting and innovative
+ways. And so I think the challenge is bridging those two things. Because not only does language
+impact others, it reflects things about the people that create it, the individuals or companies that
+create it. And so I think there's a lot of exciting things about language we can learn and
+understand. JASON LUNN: Well, my thanks, Jonah,
+
+[47:13] and to everyone in the audience today for tuning in and asking questions. Wherever you are
+in the world right now watching the stream, please take a moment to join me in thanking Dr. Berger
+for being our guest today on "Talks at Google." His book, "Magic Words," is in your favorite
+bookstores now and available digitally on Kindle and Audible. We'll see you again at the next "Talks
+at Google." [MUSIC PLAYING]

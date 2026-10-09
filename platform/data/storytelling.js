@@ -196,6 +196,12 @@ DAR.COURSES.push({
         { t: "Delivering bad news", v: "_klzinNwoic", min: 3 },
         { t: "Restarting a stalled deal — and earning 'that's right'", v: "L1W74fD77lo", min: 2 },
         { t: "Fight with story — the wedding DJs who booked 100 of 100", v: "NZA1oeZmkSA", min: 9 },
+        { t: "Death by PowerPoint — one message, six objects, you as the visual aid", v: "Iwpi1Lm6dFo", min: 20 },
+        { t: "Make numbers count — translate every number people must feel", v: "UYz9JSG6Qss", min: 17 },
+        { t: "Six pitches — Pixar, subject line, rhyme, question, tweet, one word", v: "XvxtC60V6kc", min: 5 },
+        { t: "Why you, now — the shift, the stakes, the promised land", v: "tP0oWTwmrpU", min: 21 },
+        { t: "Magic words — identities, could not should, hedges and advice", v: "MCkRsoAXXCI", min: 48 },
+        { t: "Reading the room in a pitch — five faces and what to say back", v: "0MtsXbTJdt8", min: 46 },
       ],
     },
     {
@@ -4998,6 +5004,247 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Practice is the way to a great instrument." },
       { q: "What is the 'big secret' she ends on?", opts: ["Know when to shut your mouth — take the in-breath with it closed", "Always speak from notes", "Smile before every sentence", "Project to the back wall"], a: 0,
         expl: "All speech is out-breath; the in-breath is where the thought arrives." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit X, top-up (T-037, 2026-10-09) — A7 high-stakes talking, six
+// lessons appended after spch100.9.16: slides (David JP Phillips), numbers
+// (Chip Heath on Think Fast, Talk Smart), six pitch formats (Dan Pink), the
+// 'why you, now' narrative (Andy Raskin), persuasive wording (Jonah Berger,
+// Talks at Google), and reading faces during a pitch (Vanessa Van Edwards,
+// Talks at Google). Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.9.17": {
+    module: "A7",
+    mechanic: "A slide competes with you for the audience's small working memory, so design it to be seen, not read: one message, no sentences you also say aloud, the important thing biggest, contrast to steer the eye, a dark background so you stay the brightest thing, and no more than six objects.",
+    rules: [
+      "One message per slide. With two, people attend to one and lose the other — like hearing your name across a noisy party.",
+      "The redundancy effect: sentences on screen while you talk leave close to nothing remembered. Move the sentences into the speaker notes; put a short phrase and an image on the slide.",
+      "The eye goes to what is big, moving, high-contrast or signal-coloured. Make the most important element the biggest — which is rarely the headline.",
+      "Contrast steers focus: reveal or highlight one item at a time, and use a dark background so you, not the screen, are the highest-contrast object. You are the presentation.",
+      "Six objects per slide at most. Counting takes about five times longer than seeing, so use more slides rather than fuller ones.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take one slide you have used, or would use, to explain your work. Rebuild it: one message as a short phrase, the most important element largest, a dark background, no more than six objects. Move every full sentence into the speaker notes." },
+    check: "Someone shown the new slide for three seconds can tell you its one message, and you can count its objects without going past six.",
+  },
+
+  "spch100.9.18": {
+    module: "A7",
+    mechanic: "A number nobody can feel is a number nobody acts on, so translate every important number into something people already have instincts about — a familiar comparison, a human-scale timeline, a frequency like 'two out of five' — and spend the last third of the effort on that translation, not on more analysis.",
+    rules: [
+      "Every number must be translated. People given a comparison alongside an area ('about the size of two Californias') remembered it far better weeks later.",
+      "Put time on a human scale: a bulb that lasts seven years is changed when your child learns to walk, again in second grade, and again for driver's ed.",
+      "Prefer frequencies to percentages: forty per cent becomes 'two of the last five people whose hands you shook'.",
+      "Make data emotional, because emotion is what drives action — Florence Nightingale's charts showed field hospitals killing far more soldiers than the enemy.",
+      "If you are not the numbers person in the room, pull the numbers onto your turf: 'if this table is the whole budget, how much of it is this line?'",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take three numbers from your own work — a price, a time saved, a percentage. For each, write one translation: a comparison to something familiar, a human-scale timeline, or 'x out of y people'." },
+    check: "Read the three translations to someone outside your field; without hearing the original numbers they can say whether each is big or small and why it matters.",
+  },
+
+  "spch100.9.19": {
+    module: "A7",
+    mechanic: "A pitch is an invitation to a conversation, not a throw, and Dan Pink gives six compact formats for making one: the Pixar pitch, the subject line, the rhyme, the question, the short post and the one word.",
+    rules: [
+      "The Pixar pitch: once upon a time, every day, one day, because of that, because of that, until finally.",
+      "Every email is a pitch. Subject lines work when they are clearly useful or genuinely intriguing; ones that try to be both do worse.",
+      "Rhyme raises processing fluency, so a rhyming line is absorbed and remembered — 'if it doesn't fit, you must acquit'.",
+      "A question makes listeners supply their own reasons. 'Are you better off than you were four years ago?' outperformed a statement about the economy.",
+      "Own one word, the way a campaign owned 'Forward'. Pitching works best when it is collaborative.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write the same offer — your service, or a project you want approved — in four of the six formats: a Pixar pitch, a subject line, a question pitch and a one-word pitch." },
+    check: "The question pitch can only be answered with the listener's own reasons, and the one word is one you would be glad to have people say when they think of you.",
+  },
+
+  "spch100.9.20": {
+    module: "A7",
+    mechanic: "Stop pitching 'why us' and tell a 'why you, now' story: name an undeniable shift in the customer's world, show that it creates winners and losers, tease the promised land, and only then present what you do as the way to get there.",
+    rules: [
+      "Most pitches list solutions and explain why we are better than rivals. When dozens of competitors all shout 'why us', that stops working.",
+      "Name the shift: what has changed that makes this more valuable now than a few years ago? Ask real customers exactly that question.",
+      "Show the stakes — a big opportunity and an existential threat, winners and losers. Reluctant buyers are mostly doing fine; they need to see what is changing.",
+      "Tease the promised land, the goal state that means 'happily ever after', then position each feature as a weapon against the monster blocking the way.",
+      "Follow the principles, not the template: pasting your logo into someone else's deck is how it fails.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "For your own service, write four lines: the shift ('now every...'), the winners and losers it creates, the promised land, and one monster that blocks it. Then one sentence on how what you do deals with that monster." },
+    check: "The first line never mentions you or your product, and a business owner reading it could say 'yes, that is happening to me'.",
+  },
+
+  "spch100.9.21": {
+    module: "A7",
+    mechanic: "Small changes in wording change what people do: turn actions into identities, ask what you could do rather than should, drop hedges you don't mean, state real uncertainty as named conditions you own, pause rather than fill, and ask for advice.",
+    rules: [
+      "Turn actions into identities: 'can you be a helper?' raised helping by about thirty per cent, and 'be a voter' raised turnout by about fifteen.",
+      "When you are stuck, ask what you <em>could</em> do rather than what you <em>should</em> do — 'could' widens the options and produced more creative solutions.",
+      "Hedges like 'this might work' make you sound less sure and less persuasive. Cut the ones you don't mean.",
+      "When you are genuinely unsure, name it and own it: 'this is a strong option, and for it to work these three things need to happen' — 'it seems to me', not 'it seems'. Pause instead of saying 'um'.",
+      "Asking for advice makes people rate you as more competent, not less. 'You' grabs attention, but can sound like blame ('did you finish the report?').",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take the last proposal or email in which you asked for something. Rewrite it: turn one action into an identity, delete every hedge you didn't mean, and replace one 'I'm not sure this will work' with the conditions it needs in order to work." },
+    check: "The rewrite has no 'might', 'maybe' or 'just' that you don't mean, and any uncertainty left in it is stated as named conditions, owned with 'I'.",
+  },
+
+  "spch100.9.22": {
+    module: "A7",
+    mechanic: "In a pitch or a hard conversation the face says what the words don't: learn a handful of expressions — fear, anger, suspicion, contempt, disgust — and answer each one (reassure, explain, find the source, check in) instead of pressing on; and pitch to the other person's personality, not your own.",
+    rules: [
+      "Hands are a second channel: in her lab's coding, the most-viewed TED talks used far more gestures than the least-viewed. Hiding behind a podium switches that channel off.",
+      "Fear (brows up, whites of the eyes) usually means confusion or threat: reassure, explain more, or show calm.",
+      "Anger shows as two vertical lines between the brows; tightened lower lids mean suspicion — you are not done explaining. Stay neutral and look for the source.",
+      "Contempt, a one-sided raise of the mouth, festers if ignored. Check in at once: 'Are we all good? Anything you'd like me to go back over?'",
+      "Use the platinum rule — treat people the way they want to be treated: details and agendas for the conscientious, the big idea for the rest, extra care with bad news for a worrier.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Watch five minutes of any recorded pitch or interview with the sound off. Note each time you see one of the five expressions, with a timestamp, and write what the speaker could have said next." },
+    check: "You logged at least three timestamped expressions, each paired with a specific next line — reassure, explain, ask about the source, or check in — rather than 'keep going'.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.9.17": {
+    takeaway: "David JP Phillips's five rules for slides that don't kill the room: one message, no sentences you also speak (the redundancy effect), the important thing biggest, contrast and a dark background to steer the eye, and six objects at most — which means more slides, not fewer.",
+    beats: [
+      { t: "Working memory is tiny", d: "Car five, seat 42: people check a train ticket about six times before they sit down. Slides draw on the same memory." },
+      { t: "One message", d: "Two messages split attention, like hearing your name across a party and nodding along to the person in front of you." },
+      { t: "The redundancy effect", d: "Text on the slide while you speak leaves close to nothing remembered. Sentences go in the notes; the slide gets short phrases and an image." },
+      { t: "Size and contrast", d: "Eyes go to moving, signal-coloured, high-contrast and big things. Shrink the headline so the eye falls to the content; reveal one item at a time." },
+      { t: "Dark background", d: "On a white slide the screen out-contrasts and out-sizes you. Darken it and you become the visual aid." },
+      { t: "Six objects", d: "A few balls are seen in about two-tenths of a second; more must be counted, about five times slower. Past six, the audience stops seeing." },
+    ],
+    worked: "One deck he worked on went from 95 crowded slides to 135 sparse ones, with an immediate result for the project. Rules that cap the number of slides just make people cram 36 slides' worth into four.",
+    watch: "These rules are for slides that sit behind a speaker. A deck that will be read alone — a leave-behind after an audit — needs its sentences. Make two versions rather than one that does both badly.",
+    concepts: [],
+    checks: [
+      { q: "What is the 'redundancy effect' he warns about?", opts: ["Repeating your key point three times", "Showing sentences on screen while you say them, so almost nothing is remembered", "Using one template for every deck", "Two slides carrying the same message"], a: 1,
+        expl: "Pull the text into the notes field and keep the slide for short phrases and an image." },
+      { q: "Why does he recommend a dark background?", opts: ["It prints better", "It saves battery", "So you, not the screen, are the biggest high-contrast object", "White is hard to read in sunlight"], a: 2,
+        expl: "You are the presentation; the slide is the support." },
+      { q: "What is his limit for objects on one slide?", opts: ["Six", "Three", "Ten", "Fifteen"], a: 0,
+        expl: "Beyond six, people count instead of see." },
+    ],
+  },
+
+  "spch100.9.18": {
+    takeaway: "Chip Heath on Stanford's Think Fast, Talk Smart: untranslated numbers are like shouting a phrase in a language half the room doesn't speak. Translate every important number into a comparison, a human-scale timeline or a frequency, and make it emotional — the curse of knowledge hides how much the audience needs this.",
+    beats: [
+      { t: "The curse of knowledge", d: "Experts can't imagine not knowing what they know — doctors, lawyers, an eleven-year-old explaining his favourite game. The cure is concrete language." },
+      { t: "Translate every number", d: "When a search result gave an area with a comparison ('about two Californias'), people remembered it much better a week and six weeks later." },
+      { t: "Human-scale time", d: "His students sold a seven-year bulb by tying each change to a child's milestones: learning to walk, second grade, driver's ed." },
+      { t: "Frequencies beat percentages", d: "Forty per cent skip handwashing becomes two of the last five people you shook hands with — and listeners reach for the sanitiser." },
+      { t: "Make data emotional", d: "Florence Nightingale's charts showed hospitals killing far more soldiers than the enemy did. Emotion is what moves people to act." },
+      { t: "The last third", d: "After the analysis you are tired and two-thirds done; the translation is the extra third most people skip." },
+    ],
+    worked: "In a budget meeting where you are not the numbers person: 'Let's imagine this table is the whole budget — how much of it does this line take up?' The analyst gets to calculate, and everyone else can now see whether it is trivial or huge.",
+    watch: "A translation has to keep the proportion honest. Dollar bills stacked to the moon are concrete, but nobody has a feel for that distance either — pick something from daily life.",
+    concepts: [],
+    checks: [
+      { q: "What does Heath mean by 'every number must be translated'?", opts: ["Convert it into another currency", "Round it to one decimal place", "Put it into terms people already have a feel for", "Show it in a chart"], a: 2,
+        expl: "Comparisons, human-scale timelines and frequencies." },
+      { q: "Which version of '40% don't wash their hands' did he find most powerful?", opts: ["Two of the last five people you shook hands with", "Four in ten adults", "Forty per cent of the population", "Nearly half of everyone"], a: 0,
+        expl: "We are bad at picturing probabilities and good at picturing people." },
+      { q: "Why, in his view, do analysts skip translating?", opts: ["They are not allowed to simplify", "After the analysis they are tired, and translating takes another third of the effort", "Audiences prefer raw numbers", "It makes the numbers less accurate"], a: 1,
+        expl: "Getting the answer feels like the finish line; communicating it is the rest of the job." },
+    ],
+  },
+
+  "spch100.9.19": {
+    takeaway: "Dan Pink's six pitches from To Sell Is Human — Pixar, subject line, rhyme, question, short post and one word — each a way to invite a conversation rather than throw a message at someone.",
+    beats: [
+      { t: "Pixar pitch", d: "Emma Coats's story spine used as a pitch: we see the world as episodes, not as logical propositions." },
+      { t: "Subject line", d: "Utility or curiosity, not a muddle of both. A campaign's most-opened email said only 'Hey'." },
+      { t: "Rhyming pitch", d: "Rhyme increases processing fluency. Johnnie Cochran's line from the O. J. Simpson trial is still remembered." },
+      { t: "Question pitch", d: "Questions are active and statements passive. Reagan asked instead of asserting, and voters supplied the reasons." },
+      { t: "Short post and one word", d: "Useful information and questions do well in short posts. Own one word, the way 'Forward' carried a campaign." },
+    ],
+    worked: "In 1980 Reagan could have said economic conditions had deteriorated over 48 months. He asked, 'Are you better off now than you were four years ago?' — and each listener did the persuading by thinking it through.",
+    watch: "A rhyme or one-word pitch that is clever but untrue is a slogan, not a pitch. Use the format to make a true point easier to hold.",
+    concepts: [],
+    checks: [
+      { q: "Which two kinds of subject line work, according to Pink?", opts: ["Long ones and short ones", "Useful ones and curiosity ones — not a mix", "Questions and commands", "Personal ones and formal ones"], a: 1,
+        expl: "Anything in between does poorly." },
+      { q: "Why is a question pitch more persuasive than a statement?", opts: ["Listeners start articulating their own reasons", "It sounds more polite", "It is shorter", "It hides the ask"], a: 0,
+        expl: "People believe the reasons they come up with themselves." },
+      { q: "What does Pink say a pitch really is?", opts: ["A performance", "A throw you either catch or miss", "An invitation to a conversation", "A list of features"], a: 2,
+        expl: "Pitching, done well, is collaborative." },
+    ],
+  },
+
+  "spch100.9.20": {
+    takeaway: "Andy Raskin, author of 'The Greatest Sales Deck I've Ever Seen': the story that cuts through a crowded market is not 'why us' but 'why you, now' — name the shift, show the winners and losers, tease the promised land, and make your product the weapon for getting there.",
+    beats: [
+      { t: "The restaurant sign", d: "A list of dishes, then reasons under 'why should I come in?' — the self-centred 'why us' most companies use." },
+      { t: "Zuora's story", d: "It opens with a change in the world — we have moved to a subscription economy — and celebrates those who adapt. It is not about Zuora at all." },
+      { t: "Luke, the reluctant buyer", d: "Obi-Wan's demo doesn't move Luke; a change in his world does, and then there are stakes. Most buyers aren't in pain — they assume life will stay okay." },
+      { t: "Ask customers what changed", d: "Logikcull asked customers why it was more valuable now and heard 'now everything is discoverable'. Prospects say 'that's me' at that slide." },
+      { t: "Features as weapons", d: "Zaius named the monster — marketing data and campaign tools in separate systems — and pointed every feature at it. The 'how are you different?' questions stopped." },
+      { t: "Belonging", d: "A promised-land story is an invitation to join people heading somewhere. Even a pizza place can tell one." },
+    ],
+    worked: "Logikcull, a legal-discovery platform: the shift was 'now everything is discoverable' — data from drones, cars, chats; deadlines haven't changed, so you either fail miserably or look like a star; the promised land is instant discovery. Raskin reports new reps' time to their first win fell from about sixty days to under thirty.",
+    watch: "A shift you can't evidence is a scare tactic. His teams interviewed real customers about what had changed before they wrote a slide.",
+    concepts: [],
+    checks: [
+      { q: "What is the first move in a 'why you, now' story?", opts: ["Show the product demo", "List your differences from competitors", "Name an undeniable shift in the customer's world", "Tell your founding story"], a: 2,
+        expl: "The shift creates the urgency that a feature list can't." },
+      { q: "Which question did his clients put to their customers?", opts: ["What has changed such that having this is more valuable now than a few years ago?", "What do you dislike about our competitors?", "How much would you pay?", "Which feature should we build next?"], a: 0,
+        expl: "The answers became the shift on the first slide." },
+      { q: "Why do people who copy the Zuora deck often fail, in his account?", opts: ["The deck is too long", "They paste their logo into a template instead of following the principles", "They pitch to the wrong buyer", "They leave out pricing"], a: 1,
+        expl: "Like a good film, a narrative has its own flow." },
+    ],
+  },
+
+  "spch100.9.21": {
+    takeaway: "Jonah Berger at Talks at Google on Magic Words: six kinds of language (similarity, questions, emotion, agency, confidence, concreteness), with depth on identity nouns, could versus should, hedges and how to state uncertainty without sounding unsure, and why asking for advice raises how competent you look.",
+    beats: [
+      { t: "Help versus helper", d: "Asking young children to 'be a helper' rather than to 'help' raised helping by about thirty per cent; 'be a voter' raised turnout by about fifteen. We want to hold desirable identities." },
+      { t: "Nouns sound stable", d: "A 'runner' runs more than someone who runs; a 'hard worker' sounds more consistent than 'hard-working'." },
+      { t: "Could, not should", d: "'Should' implies a single right answer; 'could' widens the options, and people produced more creative solutions." },
+      { t: "Certainty persuades", d: "People preferred a more certain financial advisor even when he was no more accurate. Habitual hedges undercut you." },
+      { t: "Name and own uncertainty", d: "'It's a great idea, but these three things need to happen' and 'it seems to me' keep you honest without sounding unsure. Pause instead of 'um'." },
+      { t: "Ask for advice", d: "People who asked their partner for advice were rated as more competent — everyone thinks their own advice is good." },
+      { t: "When to hedge", d: "Certainty is a tool. In a small team meeting, or as the newest member, hedging signals openness — and certainty lands differently across cultures." },
+    ],
+    worked: "Instead of telling a client 'I'm not sure this strategy will work', say 'I think this is a strong strategy — and for it to work, these three things need to happen.' Both admit uncertainty; only the second sounds like you have thought it through.",
+    watch: "One of his examples of confident speech is a politician; the point is the mechanism, not the politics. Certainty you don't have is overconfidence — name the conditions instead of faking it.",
+    concepts: [],
+    checks: [
+      { q: "Why did 'can you be a helper?' work better than 'can you help?'", opts: ["It is shorter", "It frames the action as an identity people want to hold", "It sounds more polite", "Children prefer nouns"], a: 1,
+        expl: "Turning actions into identities makes them more appealing to take on." },
+      { q: "How does Berger suggest expressing real uncertainty without undermining yourself?", opts: ["Don't mention it", "Add more hedges to be safe", "Name the conditions it depends on and own it with 'I'", "Speak more quickly"], a: 2,
+        expl: "Calling out the hurdles shows you have thought about them." },
+      { q: "What happened to people who asked their partner for advice?", opts: ["They were seen as more competent", "They were seen as less intelligent", "Nothing changed", "They were seen as lazy"], a: 0,
+        expl: "The person asked thinks: they must be smart, they asked me." },
+    ],
+  },
+
+  "spch100.9.22": {
+    takeaway: "Vanessa Van Edwards at Talks at Google: her lab's coding of TED talks, inaugural addresses and Shark Tank pitches, then a crash course in five facial expressions to watch for during a pitch and what to say when you see each — plus pitching to the other person's personality.",
+    beats: [
+      { t: "Hands as a second track", d: "The most-viewed TED talks averaged about 465 hand gestures in eighteen minutes, the least-viewed about 272. Gestures work like bold type." },
+      { t: "Shark Tank", d: "Mistakes with the numbers sank 64 per cent of failed pitches whatever the charisma. Past that, 45 per cent of successful entrepreneurs smiled walking in, against 21 per cent of unsuccessful ones." },
+      { t: "Fear, anger, suspicion", d: "Fear widens the eyes — reassure or explain. Anger draws two vertical lines; suspicion tightens the lower lids, a sign you are not done selling." },
+      { t: "Contempt and disgust", d: "Contempt, a one-sided smirk, festers and needs addressing now. Disgust often appears when someone is hunting for a polite way to say no — give them permission to say it." },
+      { t: "Personality", d: "High-conscientiousness people want agendas and details; low want the big idea. Worriers take longer to recover from even small bad news." },
+      { t: "Disraeli and Gladstone", d: "After dinner with Gladstone a journalist thought him the cleverest person in England; after Disraeli, she thought she was." },
+    ],
+    worked: "You see a flash of contempt when you mention the price. Instead of pushing on: 'Are we all good? Anything you'd like me to go back over?' Then go back over that part and watch whether the expression returns.",
+    watch: "These are her lab's findings and a popular reading of Paul Ekman's work; the claim that nonverbal signals carry about twelve times the weight of words is hers, and reading micro-expressions is contested by other researchers. Treat a face as a cue to check in, never as proof of what someone thinks.",
+    concepts: [],
+    checks: [
+      { q: "As you explain your price, someone's lower eyelids tighten. What does she say that signals?", opts: ["Boredom", "Suspicion — you are not done explaining", "Agreement", "Tiredness"], a: 1,
+        expl: "Keep explaining; the sale isn't made yet." },
+      { q: "Why does she say contempt has to be addressed straight away?", opts: ["It is the one emotion that doesn't fade by itself", "It means the deal is lost", "It is the most common expression", "It shows the person is lying"], a: 0,
+        expl: "Fear and anger burst and pass; contempt sits and grows." },
+      { q: "What is the 'platinum rule'?", opts: ["Always pitch to the most senior person", "Treat others the way you want to be treated", "Treat others the way they want to be treated", "Mirror the other person's posture exactly"], a: 2,
+        expl: "Meet people through the lens of their personality, not yours." },
     ],
   },
 });

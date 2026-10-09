@@ -241,6 +241,14 @@ DAR.COURSES.push({
         { t: "Explain the build to people who don't build", v: "q7tNk3EhDOg", min: 4 },
       ],
     },
+    {
+      name: "Unit XVI — Positioning and pillars: who it's for, what you're known for",
+      lessons: [
+        { t: "The smallest viable audience — specific up", v: "KC_CPpErxdY", min: 5 },
+        { t: "Positioning — context that makes your value obvious (talk ends 34:10)", v: "j7gYVXjDePw", min: 35 },
+        { t: "Five content pillars — knowledge, experience, need, you, values", v: "QtQjxqGuxTI", min: 14 },
+      ],
+    },
   ],
 });
 
@@ -4530,6 +4538,128 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Builders and non-builders alike." },
       { q: "Why make the work look good before filming?", opts: ["For awards", "Because each devlog acts as a mini-trailer and visuals come first", "To hide bugs", "To save editing time"], a: 1,
         expl: "Even the best video flops if the game looks bad." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XVI — B7, positioning and content pillars (budget 0.9 h). Small on
+// purpose; the taxonomy warned this module attracts padding. Seth Godin on
+// the smallest viable audience, April Dunford's positioning method (made for
+// products, and just as useful for positioning a service or a person), and
+// a strategist's five sources of content pillars.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.15.0": {
+    module: "B7",
+    mechanic: "Seth Godin says start with the smallest viable audience — the few people who share your taste and want to go where you're going — and get specific rather than generic, because being specific is how the person looking for what you do finds you.",
+    rules: [
+      "Don't spend your day persuading people who don't want to get the joke. Begin with the ones who do.",
+      "A tiny share of a big population is enough: Cory Doctorow is unknown to 99 per cent of English speakers and still a bestseller.",
+      "'Niche down' is two negatives; say 'specific up'. If you're generic you can't be the best, because everyone does it.",
+      "Ask what would be worth doing even if you knew it would fail — then ship it when it feels not quite ready.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Describe your smallest viable audience in one sentence: who they are, what they already believe, and what they want that you can give. Then write the generic version you have been using, for contrast." },
+    check: "Someone who fits your sentence would recognise themselves in it — and someone who doesn't would know it isn't for them.",
+  },
+
+  "spch100.15.1": {
+    module: "B7",
+    mechanic: "April Dunford says positioning is the context that makes your value obvious to the customers who care most — and you work it out deliberately, starting with the real competitive alternatives, then your unique capabilities, the value they create, who cares most about that value, and the market category that frames it.",
+    rules: [
+      "Positioning comes before messaging, taglines and branding. It works like the opening scene of a film: it tells people where they are, so they can follow the rest.",
+      "A market category triggers assumptions — competitors, features, buyer, price. Choose one whose assumptions are true of you, or you'll spend every meeting undoing them.",
+      "Start with competitive alternatives: what would the customer do if you didn't exist? Often it's a spreadsheet or an intern, not a company.",
+      "Then capabilities you have that the alternatives don't, the value they deliver, the customers who care most about that value, and the category that makes it obvious.",
+      "Narrow can be faster: 'CRM for investment banks' beat the market leader in its niche, then widened step by step.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Fill in Dunford's five components for your own service, in her order: what owners do instead of hiring you; what you can do that those alternatives can't; the value that creates; which owners care most about it; and the category that makes that value obvious." },
+    check: "Your 'alternative' is something owners really do today (a spreadsheet, a nephew, nothing), not another consultant — and your value line names a result, not a feature.",
+  },
+
+  "spch100.15.2": {
+    module: "B7",
+    mechanic: "A content strategist's five-part framework: content pillars are broad topics within your niche that you want to be known for — not 'education' or 'inspiration' — drawn from five sources: your knowledge, your experience, what your audience needs, your personal angle, and your values.",
+    rules: [
+      "Education, motivation and inspiration are what a post does, not what it's about. Pillars are topics people would look for you to cover.",
+      "Knowledge: what could you talk about for 30 minutes with no notes, that your audience doesn't know yet?",
+      "Experience: where you've been and how you got here — the path that makes you credible.",
+      "Audience need: what stands between your audience and the result you promise? Teach that.",
+      "Personal angle and values: the human angle that makes you different (it will polarise, and should) and what you stand for in your work.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Brain-dump answers to the five questions — knowledge, experience, audience need, personal angle, values — then name one pillar for each in two to four words." },
+    check: "Each pillar could generate ten post ideas, and none of them is 'education', 'tips' or 'motivation'.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.15.0": {
+    takeaway: "Seth Godin: begin with the smallest viable audience — the people who share your taste — and get specific. Generic can't be the best at anything; specific is how the right person finds you.",
+    beats: [
+      { t: "Show up and ship", d: "Develop taste, understand your genre, and ship even when it feels not quite ready." },
+      { t: "If you knew you'd fail", d: "A better question than 'if you couldn't fail': what is worth doing anyway?" },
+      { t: "Enough is enough", d: "One per cent of two billion English speakers is a lot of people." },
+      { t: "Specific up", d: "'Niche down' sounds like shrinking; being specific is how you become the best at something." },
+    ],
+    worked: "Cory Doctorow: 99 per cent of English speakers have never read a word he wrote — and the remaining one per cent is enough to make him a bestseller and a successful Kickstarter.",
+    watch: "Chasing the people who don't get it. You can spend your whole day persuading non-believers instead of serving the people who already want to go where you're going.",
+    concepts: [],
+    checks: [
+      { q: "What does Godin mean by the 'smallest viable audience'?", opts: ["The cheapest audience to buy ads for", "The smallest group who share your taste and want what you make — enough to sustain the work", "Your family and friends", "A test audience for surveys"], a: 1,
+        expl: "They become fuel to be singular rather than generic." },
+      { q: "Why does he prefer 'specific up' to 'niche down'?", opts: ["It's shorter", "Being specific is how you become the best at something and get found", "It sounds more technical", "It avoids competition entirely"], a: 1,
+        expl: "Generic can't be the best because everyone does it." },
+      { q: "What question does he suggest instead of 'what would you do if you couldn't fail?'", opts: ["What would make the most money?", "What would go viral?", "What would be worth doing even if you knew it would fail?", "What do your competitors do?"], a: 2,
+        expl: "Paradoxically, that leads to things that work." },
+    ],
+  },
+
+  "spch100.15.1": {
+    takeaway: "April Dunford: positioning is the foundation under all marketing — the context that makes your value obvious to the customers who care most. Choose it deliberately, starting from what customers would really do without you.",
+    beats: [
+      { t: "What it isn't", d: "Not messaging, a tagline, your 'why' or your brand. Those flow from it." },
+      { t: "Assumptions", d: "Say 'CRM' and people assume competitors, features, buyer and price before you've said anything else." },
+      { t: "Reposition, same product", d: "Email for lawyers became team collaboration for lawyers; robots became autonomous industrial vehicles." },
+      { t: "The order", d: "Alternatives, capabilities, value, best-fit customers, market category." },
+      { t: "Narrow to win", d: "CRM for investment banks went from about 1.5 million to nearly 80 million in revenue in around 18 months, and was acquired by the leader." },
+    ],
+    worked: "A startup sold 'email for lawyers' — with no calendar, and not replacing anyone's email. Its loved feature was secure, context-aware document sharing with clients. Repositioned as team collaboration for lawyers, the competitors became Slack and Teams, the expected features matched, and customers expected to pay.",
+    watch: "Leaving customers to work it out. They grab the first clue ('there's an inbox, so it's email') and get stuck; the Segway, launched as 'a revolution in human transportation', confused everyone. Watch to about 34:00; questions follow, and the transcript tool stopped at 40:46 of 47:46.",
+    concepts: [],
+    checks: [
+      { q: "Where does Dunford say positioning work should start?", opts: ["The tagline", "Competitive alternatives — what customers would do if you didn't exist", "The brand colours", "The founder's vision"], a: 1,
+        expl: "Otherwise it sounds good in the office and loses in the market." },
+      { q: "Why does the market category matter so much?", opts: ["It sets off assumptions about competitors, features, buyers and price", "It decides your logo", "Search engines require it", "It sets your tax rate"], a: 0,
+        expl: "True assumptions save work; false ones create it." },
+      { q: "What was the 'email for lawyers' product better positioned as?", opts: ["A calendar app", "A CRM", "Team collaboration for lawyers", "A law firm"], a: 2,
+        expl: "Same product, different context." },
+    ],
+  },
+
+  "spch100.15.2": {
+    takeaway: "Content pillars are broad topics within your niche that you want to be known for. A strategist draws hers from five sources — knowledge, experience, audience need, personal angle and values — so ideas never run dry and the content attracts the right people.",
+    beats: [
+      { t: "What pillars aren't", d: "'Education' or 'inspiration' describe an outcome; 'five hair tips' and 'dog grooming' both qualify." },
+      { t: "Knowledge", d: "Her own: content systems." },
+      { t: "Experience", d: "Her winding career from corporate marketing to agency to personal brand." },
+      { t: "Audience need", d: "'Content without the damage' — unlearning bad advice before her method can work." },
+      { t: "Angle and values", d: "'Against the status quo'; 'I have receipts' — no advice without proof." },
+    ],
+    worked: "A curly-hair stylist's pillars: curl patterns and textures (knowledge), transformations (experience), a home hair-care routine (what clients need between appointments), putting down the flat iron (personal angle) — each one a topic she could post about for months.",
+    watch: "Picking pillars by post type. 'Educational, motivational, promotional' gives you nothing to search your memory with; topics do. (Strong language, and a course plug at the end.)",
+    concepts: [],
+    checks: [
+      { q: "Why does she reject 'education' and 'inspiration' as pillars?", opts: ["They're outdated", "They describe what a post does, not what it's about, so they don't narrow your message", "They're too specific", "Platforms penalise them"], a: 1,
+        expl: "Pillars are topics you want to be known for." },
+      { q: "What does the 'audience need' pillar cover?", opts: ["What your audience likes to watch", "What stands between them and the result you promise", "Their demographics", "Their budget"], a: 1,
+        expl: "Teach what they must know before your offer can work." },
+      { q: "What is expected of the 'personal connections' pillar?", opts: ["To stay neutral", "To be strictly professional", "To be polarising — attracting the right people and repelling the wrong ones", "To avoid stories"], a: 2,
+        expl: "That's the point of it." },
     ],
   },
 });

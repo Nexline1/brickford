@@ -36,3 +36,4 @@
 - 2026-10-08: T-026a builder hit the usage limit while reading code (worktree clean at 9d803af); resumed after reset.
 - 2026-10-08: T-026a merged as PR #11 (13105f7) after 3 review rounds; owner chose merge now, fix later. T-031 queued (ready). Next: T-026b, then T-031.
 - 2026-10-08: Owner approved plan for Sunday exercises/PDF/council + MCQ fix. Order: T-032 (MCQ shuffle) → T-031 → queue (T-026b, T-026c, T-028, T-027, T-022, T-029, T-030) → T-033 → T-035 sample → T-034 → T-035 → T-036. Sunday review on top of the full Sunday (no schedule change).
+- 2026-10-09: T-032 merged as PR #12 (ebb4f38). T-026b building next (worktree /home/user/bf-T-026b), then T-031.

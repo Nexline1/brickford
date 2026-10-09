@@ -157,6 +157,22 @@ DAR.COURSES.push({
         { t: "Name the elephant in the room", v: "uRVwiN16NIg", min: 4 },
       ],
     },
+    {
+      name: "Unit IX — Conversation: listening, asking, holding the floor",
+      lessons: [
+        { t: "Ten rules for a better conversation", v: "R1vskiVDwl4", min: 11 },
+        { t: "Shift or support — the habits we don't see in ourselves", v: "bGYfTSHoyq4", min: 22 },
+        { t: "Five ways to listen better — and RASA", v: "cSohjlYQI2A", min: 8 },
+        { t: "The power of listening — what do you really want?", v: "saXfavo1OQo", min: 16 },
+        { t: "The mirror — an invitation to keep talking", v: "SJ2az4HxlTs", min: 2 },
+        { t: "TALK — topics, asking, levity, kindness", v: "LTrrd94QEdU", min: 43 },
+        { t: "Three kinds of conversation, and the deep question", v: "ybrihVuh43A", min: 10 },
+        { t: "Conversation starters that spark", v: "cef35Fk7YD8", min: 18 },
+        { t: "Talking to strangers — five ways in", v: "rFpDK2KhAgw", min: 12 },
+        { t: "Feedback in four parts", v: "wtl5UrrgU8c", min: 5 },
+        { t: "Disagreeing productively — common ground and better questions", v: "uyKCDessl2s", min: 22 },
+      ],
+    },
   ],
 });
 
@@ -2553,6 +2569,426 @@ Object.assign(DAR.SUMMARIES, {
         expl: "It is a throwaway, not a story." },
       { q: "What does the writer say about admitting nerves?", opts: ["Never do it", "Always do it", "Do it at the end", "Usually unnecessary — only when they are big enough to be noticed"], a: 3,
         expl: "Then a light line can relieve both sides." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit IX — A4, conversation mechanics (budget 3.0 h). Listening (Celeste
+// Headlee twice, Julian Treasure, William Ury, Chris Voss's mirror),
+// asking and topics (Alison Wood Brooks, Charles Duhigg, Vanessa Van
+// Edwards, Kio Stark), and the harder conversations — feedback (LeeAnn
+// Renninger) and disagreement (Julia Dhar). The audit skill is mostly
+// here: listening for what an owner actually wants, and asking questions
+// that do not lead.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.8.0": {
+    module: "A4",
+    mechanic: "Celeste Headlee, a radio interviewer, says the skills of a good interview make a good conversation, and pick one of ten rules to master: be present, assume you will learn something, ask open questions, let your own thoughts go by, admit what you don't know, don't equate your experience with theirs, don't repeat yourself, skip the details, listen, and be brief.",
+    rules: [
+      "Forget performed attention — eye contact, nodding, repeating back. If you are actually paying attention, you don't need to show it.",
+      "Don't pontificate. Enter every conversation assuming you have something to learn; everyone is an expert in something.",
+      "Ask open questions (who, what, when, where, why, how) and let them describe it: 'what was that like?' rather than 'were you terrified?'",
+      "Let thoughts come and go. The interviewer who asks an already-answered question stopped listening two minutes earlier to hold onto a clever one.",
+      "It is not about you: don't match their story with yours, don't repeat yourself, leave out the dates and names, and be brief.",
+    ],
+    drill: { minutes: 8, artifact: "spoken",
+      do: "In your next real conversation, practise only rule three. Turn every yes/no question you are about to ask into an open one ('Did you like it?' becomes 'What was it like?'). Afterwards, write down two answers you would not have heard otherwise." },
+    check: "You can quote at least one thing the other person said that surprised you. If you can only remember what you said, you were not listening.",
+  },
+
+  "spch100.8.1": {
+    module: "A4",
+    mechanic: "Most bad conversation habits are ones we cannot see in ourselves — especially conversational narcissism, the 'shift response' that pulls attention back to you instead of the 'support response' that keeps it on them — so find yours by asking the people closest to you.",
+    rules: [
+      "A shift response moves the topic to you ('my son does that too…'); a support response keeps it on them ('how does that work with twins?'). Conversational narcissism is shifting every time.",
+      "Write the five habits that annoy you most in others. Without showing the list, ask people close to you which of them you do. Usually it is most of them.",
+      "When someone is grieving, don't share your own loss. They need you to bear witness; your story feels good to you and does nothing for them.",
+      "If you cannot listen right now, say so and take a rain check rather than pretending.",
+      "To start a conversation, ask people questions they know the answer to about things they care about — their city, their team, their work.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write the five conversation habits that annoy you most in other people. Send the list (without saying it is about annoying habits) to two people who know you well and ask: 'Which of these do I do?' Record the answers." },
+    check: "You have answers from two people, and you have picked the one habit both mentioned to work on first.",
+  },
+
+  "spch100.8.2": {
+    module: "A4",
+    mechanic: "Julian Treasure says we are losing our listening, and gives five exercises to win it back — three minutes of silence a day, the mixer, savouring ordinary sounds, choosing a listening position — plus RASA for conversation: receive, appreciate, summarise, ask.",
+    rules: [
+      "Listening is making meaning from sound, through filters we are mostly unaware of — and those filters decide what we pay attention to.",
+      "Three minutes of silence (or quiet) a day resets your ears.",
+      "In noisy places, count how many separate channels of sound you can hear; savour mundane sounds.",
+      "Listening positions: you can choose how you listen — critical or empathetic, active or passive — to suit what you are hearing.",
+      "RASA: Receive (pay attention), Appreciate (small sounds like 'mm', 'oh'), Summarise ('so…'), Ask (questions afterwards).",
+    ],
+    drill: { minutes: 8, artifact: "spoken",
+      do: "In your next one-to-one conversation of five minutes or more, run RASA deliberately: say nothing but small appreciation sounds until they finish a point, then start your turn with 'So…' and a one-sentence summary, then ask one question." },
+    check: "The other person said 'yes, exactly' (or corrected you) after your summary. Either response means the summary did its job.",
+  },
+
+  "spch100.8.3": {
+    module: "A4",
+    mechanic: "William Ury, a negotiator for thirty years, says negotiation is mostly listening: it helps you understand the other side, connect, and get them to listen back — and real listening hears what is behind the words, which starts by quieting your own mind first.",
+    rules: [
+      "Listening may be the cheapest concession you can make: it costs nothing and buys a lot.",
+      "In ordinary listening the focus is on you (where do I agree, what will I say?). In genuine listening it moves to them — their frame of reference, their emotions and needs.",
+      "Ask what lies under the list of demands: 'What do you really want? What would these things give you?' The tycoon's answer was 'freedom'.",
+      "Before a hard conversation, take a moment of quiet to notice your own reactions, so you can let them go and listen.",
+      "Listening is contagious: someone who has been heard is more ready to hear you.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Think of a client, colleague or family member who keeps asking for specific things. Write their list of demands. Then write the question you would ask to get beneath it ('What would that give you?') and your best guess at the deeper need. Next time you talk, ask the question." },
+    check: "Your guessed need is a feeling or a value (security, recognition, freedom), not another demand.",
+  },
+
+  "spch100.8.4": {
+    module: "A4",
+    mechanic: "The mirror — repeating the last few words someone said — invites them to keep talking and expand, without the faint interrogation of 'what do you mean by that?'",
+    rules: [
+      "Voss says people who are both high-IQ and high-EQ love mirrors.",
+      "A mirror is a reflex tool that can bail you out in any moment.",
+      "It works as a substitute for 'please go on' or 'what do you mean by that?', which carry an element of interrogation however well meant.",
+      "The other person hears it as an invitation and feels encouraged, not cornered.",
+    ],
+    drill: { minutes: 6, artifact: "spoken",
+      do: "In three conversations today, when someone says something you want to hear more about, repeat their last two or three words with a slightly curious tone — and then stay silent. Count how many sentences they add." },
+    check: "At least once, the person expanded by two or more sentences without you asking a question.",
+  },
+
+  "spch100.8.5": {
+    module: "A4",
+    mechanic: "Alison Wood Brooks of Harvard teaches conversation as four maxims — TALK: topics, asking, levity, kindness — and her research on topics finds that we judge what others want to talk about badly, so preparing a few topics in advance makes conversations more enjoyable.",
+    rules: [
+      "Topics: how we prepare, select, shift and end them. Asking: asking and answering questions well. Levity: humour and play. Kindness: receptiveness to opposing views, responsive listening, and reflection afterwards.",
+      "We project our own interests onto others when guessing what they want to talk about — and underweight the good signals: they introduced the topic, they laughed, they called back to it.",
+      "We overweight the 'mirror question' ('how was your weekend?' back to you), which is often just politeness.",
+      "In her experiments, people asked to jot down five topics beforehand enjoyed the conversation more, felt less anxious, and landed on more interesting topics.",
+      "People resist preparing because it feels unnatural — but 91 per cent of her students named topic preparation as a top-three lesson.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Before your next coffee, call or client meeting, write five topics that might be fun or useful to discuss with that specific person. Keep them in your pocket. Afterwards, note which you used and which topic they introduced themselves." },
+    check: "At least one of your five topics was about them (their work, their interests), not about you or the weather.",
+  },
+
+  "spch100.8.6": {
+    module: "A4",
+    mechanic: "Charles Duhigg: every discussion contains three possible conversations — practical (solving problems), emotional (feelings, wanting empathy) and social (identity and relationships) — and communication works when both people are in the same one, which deep questions help you find.",
+    rules: [
+      "Problems start when two people are having different kinds of conversation — he wanted sympathy about work; his wife offered solutions.",
+      "The matching principle: recognise which conversation is happening and match it, or invite the other person to match you.",
+      "Teachers ask: do you want to be helped, hugged, or heard? In ordinary life, deep questions do the same job.",
+      "A deep question asks about values, beliefs or experiences: 'What do you love about your job?' rather than 'Where do you work?'",
+      "The surgeon started asking 'What does this diagnosis mean to you?', listened to an emotional answer, then asked permission to move to practical options.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Write down three factual questions you ask by habit ('Where do you work?', 'How was the trip?'). Rewrite each as a deep question about values or experience. Use one of them today." },
+    check: "Each rewritten question asks how the person feels about or makes sense of something, not just what happened.",
+  },
+
+  "spch100.8.7": {
+    module: "A4",
+    mechanic: "Vanessa Van Edwards argues we are contagious — non-verbally, verbally and emotionally — so open with visible hands and a real smile, and replace autopilot questions with ones that send the brain looking for something good.",
+    rules: [
+      "She says people look at hands first; hidden hands make an audience uneasy. Her team counted that the most-viewed TED speakers used far more gestures.",
+      "A real smile reaches the upper cheeks; she reports that people catch the real one and not the fake one — even on the phone, a happy 'hello' rated as more likeable.",
+      "'What do you do?', 'How are you?' and 'Where are you from?' scored worst in her speed-networking study.",
+      "Questions send the brain looking for matches: 'Been busy?' finds stress; 'Working on anything exciting?' finds excitement.",
+      "Before something nerve-racking, say 'I'm excited' instead of 'I'm nervous' — she cites a karaoke study where that reframe raised accuracy.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Write three conversation starters you could use at your next networking event or client meeting that ask for something good: an exciting project, something to look forward to, the best part of their week. Use one in your next conversation and note the reply." },
+    check: "None of your three can be answered with a single word, and none invites a complaint.",
+  },
+
+  "spch100.8.8": {
+    module: "A4",
+    mechanic: "Kio Stark on talking to strangers: brief exchanges can create 'fleeting intimacy', and there are reliable ways in — a smile, triangulation (comment on a third thing you both see), noticing (a compliment), the dogs-and-babies principle, and disclosure.",
+    rules: [
+      "Use perception rather than the category 'stranger' — it frees you, and it is how you see people as individuals.",
+      "People are often more open with strangers, partly because we spell everything out instead of expecting them to read our minds.",
+      "Know the local rules: civil inattention in the US, Danes who would rather miss their stop, Egyptian hospitality.",
+      "Ways in: a smile; triangulate on something you both see; notice something and compliment it (shoes are neutral); talk to their dog or baby.",
+      "Disclosure — telling something true about yourself — is usually met with disclosure.",
+    ],
+    drill: { minutes: 6, artifact: "spoken",
+      do: "Today, use one of Stark's openers with someone you do not know: a comment on something you can both see (triangulation) or a specific compliment (noticing). Write down what you said and how long the exchange lasted." },
+    check: "You started at least one exchange. Its length does not matter; a ten-second exchange counts.",
+  },
+
+  "spch100.8.9": {
+    module: "A4",
+    mechanic: "LeeAnn Renninger's four-part feedback formula, from studying people others name as great feedback-givers: a micro-yes question, a specific data point instead of blur words, an impact statement, and a question back.",
+    rules: [
+      "Most feedback is either too soft to register or too direct, which makes people defensive.",
+      "Start with a micro-yes: 'Do you have five minutes to talk about how that meeting went?' It signals feedback is coming and gives the other person a choice.",
+      "Give the data point: what you saw or heard. Replace blur words ('unreliable', 'proactive') with specifics ('you said 11, and I still don't have it').",
+      "State the impact: 'because I didn't get it, I was blocked.' Then ask: 'How do you see it?'",
+      "Ask for feedback regularly (pulling it) rather than waiting for it to be pushed.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write one piece of feedback you have been putting off — positive or negative — in the four parts: micro-yes question, data point, impact, question. Underline any blur word and replace it with what actually happened." },
+    check: "The data point contains something a camera could have recorded — no adjectives about the person.",
+  },
+
+  "spch100.8.10": {
+    module: "A4",
+    mechanic: "Julia Dhar, three-time world schools debating champion, says productive disagreement starts from common ground, separates ideas from the identity of the person holding them, and comes with the humility to be wrong; the TED Business host adds three kinds of question that keep it from turning defensive — probing, open and neutral.",
+    rules: [
+      "Find common ground first, however narrow — a shared reality to argue from.",
+      "Debate the idea, not the person. Debaters don't choose their sides, so attacking the person is pointless; teams can submit ideas anonymously on one template.",
+      "Embrace the humility of uncertainty. Ask: 'What have you changed your mind about, and why?' Pre-commit to what would change yours.",
+      "Probing questions seek specifics ('What qualities does John bring that we lack?') instead of 'Why do you want John?'",
+      "Ask open, not closed, questions, and neutral, not leading ones: 'How would you assess the project?' rather than 'Hasn't it been a great success?'",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Pick a current disagreement. Write: one thing you and the other person both agree on; the strongest version of their idea, with no reference to who they are; what would change your mind; and three questions — one probing, one open, one neutral — to ask them." },
+    check: "None of your three questions can be answered yes or no, and none contains your own opinion.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.8.0": {
+    takeaway: "Celeste Headlee, a public-radio interviewer, at TED: the skills that make a good interview make a good conversation. Forget performed attention; learn ten rules — and mastering just one will already help.",
+    beats: [
+      { t: "Why it matters", d: "She cites Pew findings on polarisation and a teacher who calls conversational competence the most overlooked skill we fail to teach." },
+      { t: "Forget the tips", d: "Eye contact, nodding, repeating back — if you are really paying attention, you don't need to show it." },
+      { t: "Rules 1–3", d: "Don't multitask; don't pontificate (assume you have something to learn); use open questions — 'what was that like?'" },
+      { t: "Rules 4–8", d: "Let your own thoughts go by; say when you don't know; don't equate your experience with theirs; don't repeat yourself; stay out of the weeds." },
+      { t: "Rules 9–10", d: "Listen — we talk at about 225 words a minute but can listen at 500, and the mind fills the gap. Be brief." },
+    ],
+    worked: "'Were you terrified?' gets 'yes'. 'What was that like?' makes them stop and think, and you get the real answer.",
+    watch: "Waiting with a clever question while they are still talking. By the time you ask it, it may already have been answered.",
+    concepts: [],
+    checks: [
+      { q: "Why does Headlee dismiss tips like nodding and repeating back?", opts: ["They are rude", "If you are really paying attention, you don't need to perform it", "They take too long", "They only work on radio"], a: 1,
+        expl: "There is no reason to learn to look attentive if you are attentive." },
+      { q: "Which is an open question in her sense?", opts: ["Were you angry?", "Did you enjoy it?", "What was that like?", "Is that right?"], a: 2,
+        expl: "Open questions start with who, what, when, where, why or how." },
+      { q: "What does she say about matching someone's story with your own experience?", opts: ["Don't — it is never the same, and it is not about you", "Always do it to show empathy", "Do it only with friends", "Do it at the end"], a: 0,
+        expl: "Conversations are not a promotional opportunity." },
+    ],
+  },
+
+  "spch100.8.1": {
+    takeaway: "Celeste Headlee on her book We Need to Talk: conversation is a skill we practise, not information we memorise. The habits that hurt it most — like shifting attention to ourselves — are the ones we can't see, so ask the people around you.",
+    beats: [
+      { t: "A skill, like the gym", d: "You don't go once. And being bad at listening is a human problem — babies arrive knowing how to scream, not listen." },
+      { t: "Shift versus support", d: "Shift responses move attention to you; support responses keep it on them. Conversational narcissism is always taking the ball." },
+      { t: "The five-habits audit", d: "List the five things that annoy you most; ask people close to you how many you do. Usually it is all five." },
+      { t: "Bearing witness", d: "When her friend's father died, Headlee shared her own loss. The friend snapped, 'You win.' She needed someone to listen, not a matching story." },
+      { t: "Disagreement and exits", d: "Listening to someone you disagree with gives them nothing and gives you a lot. If you can't listen right now, say so and come back." },
+    ],
+    worked: "Her advice to a scientist who couldn't start conversations: ask where he's from, then ask what it's like. Questions people know the answer to, about things they care about, take the pressure off both of you.",
+    watch: "Sharing a similar story to show empathy. It feels generous and is usually a shift response.",
+    concepts: [],
+    checks: [
+      { q: "What is a 'support response'?", opts: ["Agreeing with everything", "A reply that keeps attention on what the other person is talking about", "Offering practical help", "Changing the subject politely"], a: 1,
+        expl: "A shift response moves attention to yourself." },
+      { q: "How does Headlee suggest finding your own bad habits?", opts: ["Record every conversation", "Take an online test", "List the five habits that annoy you most in others and ask people close to you which ones you do", "Ask a stranger"], a: 2,
+        expl: "You'll usually find you do many of them." },
+      { q: "What did her grieving friend need, in hindsight?", opts: ["Someone to bear witness and listen", "Practical advice", "A similar story", "Distraction"], a: 0,
+        expl: "The matching story did nothing for her." },
+    ],
+  },
+
+  "spch100.8.2": {
+    takeaway: "Julian Treasure at TED: we are losing our listening in a noisy, recorded, headphone world. Five tools to get it back — silence, the mixer, savouring, listening positions — and RASA for conversation.",
+    beats: [
+      { t: "What listening is", d: "Making meaning from sound, using pattern recognition, differencing and filters most of us are unaware of." },
+      { t: "Why we're losing it", d: "Recording, noise, headphones creating 'personal sound bubbles', and media that has to shout." },
+      { t: "Three ear exercises", d: "Three minutes of silence a day; the mixer (count the channels in a noisy café); savouring mundane sounds." },
+      { t: "Listening positions", d: "The most important tool: consciously choose how you listen to suit what you are hearing." },
+      { t: "RASA", d: "Receive, appreciate, summarise, ask." },
+    ],
+    worked: "In a meeting, RASA sounds like: attention on the speaker, small 'mm' and 'right' sounds, then 'So what you're saying is…', then a question.",
+    watch: "Skipping 'summarise' because it feels slow. It is the step that proves you heard, and it often corrects a misunderstanding before it costs anything.",
+    concepts: [],
+    checks: [
+      { q: "What does RASA stand for?", opts: ["Repeat, ask, smile, agree", "Receive, appreciate, summarise, ask", "Respond, analyse, share, act", "Relax, attend, speak, answer"], a: 1,
+        expl: "It is also the Sanskrit word for juice or essence." },
+      { q: "Which exercise does Treasure call the most important?", opts: ["Listening positions — consciously choosing how you listen", "Three minutes of silence", "The mixer", "Savouring"], a: 0,
+        expl: "It turns your filters into levers." },
+      { q: "What is 'the mixer' exercise?", opts: ["Mixing music", "Talking over noise", "Counting how many separate sound channels you can hear in a noisy place", "Listening to two people at once"], a: 2,
+        expl: "It sharpens the quality of your listening." },
+    ],
+  },
+
+  "spch100.8.3": {
+    takeaway: "William Ury, co-author of Getting to Yes, at TEDxSanDiego: listening is the missing half of communication and the heart of negotiation. It helps you understand, connect, and get heard — and the hardest part is quieting yourself first.",
+    beats: [
+      { t: "Hugo Chávez at midnight", d: "Shouted at for half an hour, Ury just listened until the president asked, 'So, what should I do?' — then proposed a Christmas truce." },
+      { t: "Three reasons", d: "Listening helps you understand the other side, builds rapport and trust, and makes them more likely to listen to you." },
+      { t: "Genuine listening", d: "From inside their frame of reference: what is said and unsaid, the emotions and needs behind the words." },
+      { t: "'What do you really want?'", d: "A businessman's list of demands turned out to mean one thing: freedom. The dispute settled in four days." },
+      { t: "Listen to yourself first", d: "A moment of quiet before a hard conversation lets you notice and let go of your own reactions." },
+    ],
+    worked: "Ury's follow-up when the list came: 'You seem to have everything. What are these things really going to give you? What do you most want in your life?'",
+    watch: "Defending yourself when someone is shouting. It feels natural and starts an argument you cannot win.",
+    concepts: [],
+    checks: [
+      { q: "Why does Ury call listening 'the cheapest concession'?", opts: ["It is quick", "It costs nothing and brings large benefits", "It avoids paying money", "It ends negotiations sooner"], a: 1,
+        expl: "It helps you understand, connect, and get heard in return." },
+      { q: "What did the Brazilian businessman really want, under his list of demands?", opts: ["The company headquarters", "A higher share price", "Freedom", "An apology"], a: 2,
+        expl: "Once that was clear, the negotiation became much easier." },
+      { q: "What does Ury say helps you listen to others?", opts: ["Listening to yourself first, in a moment of quiet", "Taking notes", "Asking many questions", "Mirroring body language"], a: 0,
+        expl: "Noticing your own reactions lets you set them aside." },
+    ],
+  },
+
+  "spch100.8.4": {
+    takeaway: "Chris Voss, former FBI hostage negotiator, in a short clip on the mirror: repeating someone's last few words is a reflex tool that invites them to keep talking, without the hint of interrogation in 'what do you mean by that?'",
+    beats: [
+      { t: "IQ and EQ", d: "'IQ will get you hired, EQ will get you fired.' People skills keep you in the job." },
+      { t: "A reflex tool", d: "In any moment, a mirror can bail you out." },
+      { t: "Invitation, not interrogation", d: "'What do you mean by that?' has an edge of interrogation however well meant; a mirror feels like an invitation." },
+      { t: "What happens", d: "People expand, feel encouraged, and do not feel cornered." },
+    ],
+    worked: "Client: 'The last vendor just didn't get our business.' You: 'Didn't get your business?' — and silence. They will usually tell you exactly what was missing.",
+    watch: "Mirroring in a flat or sarcastic tone, or rapid-fire. Said with curiosity and followed by silence, it invites; said any other way, it mocks.",
+    concepts: [],
+    checks: [
+      { q: "What is a mirror in Voss's sense?", opts: ["Copying someone's posture", "Repeating the last few words someone said", "Agreeing with them", "Summarising their whole point"], a: 1,
+        expl: "It invites them to continue." },
+      { q: "Why does he prefer a mirror to 'what do you mean by that?'", opts: ["The question has an element of interrogation; the mirror feels like an invitation", "It is shorter", "It sounds smarter", "It ends the topic"], a: 0,
+        expl: "People feel encouraged rather than cornered." },
+      { q: "What does 'IQ will get you hired, EQ will get you fired' mean?", opts: ["Intelligence is all that matters", "Emotional skill gets you promoted", "You can get the job on credentials and lose it for lack of people skills", "Employers prefer EQ to IQ"], a: 2,
+        expl: "His point is that you need both." },
+    ],
+  },
+
+  "spch100.8.5": {
+    takeaway: "Alison Wood Brooks, who teaches 'How to Talk Gooder' at Harvard Business School, on the science of conversation: four maxims (TALK), a study showing we read others' topic preferences poorly, and a simple fix — prepare topics in advance.",
+    beats: [
+      { t: "Conversations are micro-decisions", d: "Every turn involves choices: stay on this topic or switch, ask or answer, joke or not." },
+      { t: "TALK", d: "Topics, Asking, Levity, Kindness — the last defined as receptiveness to opposing views, responsive listening, and reflection afterwards." },
+      { t: "Topic detection", d: "People guess their partner's topic preferences only a little better than chance, and a simple language algorithm does better." },
+      { t: "Good and bad cues", d: "Underweighted: they raised the topic, they laughed, they called back to it. Overweighted: mirror questions, often just politeness." },
+      { t: "Prepare topics", d: "Jotting five topics beforehand raised enjoyment, lowered anxiety, and led to more interesting conversations." },
+      { t: "Status", d: "In Q&A: power makes people think less about others' preferences, and low-status people laugh more out of deference." },
+    ],
+    worked: "Before meeting a client you know a little, five topics on a card: the project they mentioned last time, their move to a new office, a book you both like, what's changing in their industry, their weekend hobby. You may use none; having them is what lowers the anxiety.",
+    watch: "Assuming they enjoy the topic because you do. Brooks's data shows we heavily project our own preferences.",
+    concepts: [],
+    checks: [
+      { q: "What does TALK stand for?", opts: ["Tell, ask, listen, keep going", "Topics, asking, levity, kindness", "Timing, attention, laughter, knowledge", "Truth, accuracy, logic, kindness"], a: 1,
+        expl: "A play on Grice's conversational maxims." },
+      { q: "Which cue does Brooks say people overweight as a sign of interest?", opts: ["Laughter", "Who introduced the topic", "Callbacks to the topic", "Mirror questions like asking 'how was your weekend?' back"], a: 3,
+        expl: "Those are often just politeness." },
+      { q: "What did preparing five topics in advance do in her studies?", opts: ["Increased enjoyment and reduced anxiety", "Made conversations feel forced", "Made no difference", "Shortened conversations"], a: 0,
+        expl: "Prepared pairs also landed on more interesting topics." },
+    ],
+  },
+
+  "spch100.8.6": {
+    takeaway: "Charles Duhigg, in an animated talk: every discussion can hold three kinds of conversation — practical, emotional, social — and we connect when we match. Deep questions are the everyday way to find out which one you are in.",
+    beats: [
+      { t: "The trap", d: "He came home wanting sympathy; his wife gave advice. Both valid — but mismatched, so neither heard the other." },
+      { t: "Three conversations", d: "Practical (plans and problems), emotional (feelings; we want empathy, not solutions), social (identity and relationships)." },
+      { t: "Matching", d: "Recognise which conversation is happening, then match it or invite the other person to match you." },
+      { t: "Deep questions", d: "'What do you love about your job?' instead of 'Where do you work?' They invite values and experiences." },
+      { t: "The surgeon", d: "Patients ignored his advice until he began by asking 'What does this diagnosis mean to you?' — listened — and then asked to move on to options." },
+    ],
+    worked: "The experiment he recommends: ask someone 'When was the last time you cried in front of another person?' and then share your own answer. He cites research where people dread it beforehand and rate it as one of their best conversations afterwards.",
+    watch: "Answering an emotional conversation with practical advice. It is the commonest mismatch, and it makes good advice land as an attack.",
+    concepts: [],
+    checks: [
+      { q: "What are Duhigg's three kinds of conversation?", opts: ["Formal, informal, intimate", "Practical, emotional, social", "Business, personal, family", "Opening, middle, closing"], a: 1,
+        expl: "All three can happen in one discussion." },
+      { q: "What is the 'matching principle'?", opts: ["Recognising which conversation is happening and matching it, or inviting the other to match you", "Copying body language", "Matching the other person's volume", "Agreeing to keep the peace"], a: 0,
+        expl: "Mismatches are why people stop hearing each other." },
+      { q: "Which is a deep question?", opts: ["Where did you go to school?", "What time is the meeting?", "What was high school like, and how did it change you?", "How many people work there?"], a: 2,
+        expl: "It asks about experience and meaning, not just facts." },
+    ],
+  },
+
+  "spch100.8.7": {
+    takeaway: "Vanessa Van Edwards at TEDxLondon: we are contagious, non-verbally, verbally and emotionally. Show your hands, smile for real, swap autopilot small talk for questions that spark, and reframe nerves as excitement.",
+    beats: [
+      { t: "Hands", d: "She says we look at hands first; hidden hands unsettle people. Her analysis found the most-viewed TED speakers used many more gestures." },
+      { t: "Emotions spread", d: "Fear is caught (she cites a sweat study); so is happiness — but only a real smile, reaching the upper cheeks." },
+      { t: "The phone", d: "In her lab, listeners could hear a happy 'hello' and rated it as more likeable." },
+      { t: "Small talk that sparks", d: "In 500 speed-networking conversations, 'What do you do?' and 'How are you?' scored worst. 'Working on anything exciting?' sends the brain looking for good things." },
+      { t: "I'm excited", d: "She cites a study where people who said 'I'm excited' before singing scored higher than those who said 'I'm nervous'." },
+    ],
+    worked: "'Been busy lately?' makes people search for stress. 'Anything good happen today?' makes them search for something good — and she argues you become more memorable for asking.",
+    watch: "Treating the numbers as laws. These are her lab's findings and cited studies; the practical point — questions that invite good news work better than autopilot ones — holds either way.",
+    concepts: [],
+    checks: [
+      { q: "Why does she suggest 'Working on anything exciting?' instead of 'Been busy?'", opts: ["It is shorter", "It sends the other person's mind looking for exciting things instead of stress", "It is more professional", "It avoids talking about work"], a: 1,
+        expl: "The brain looks for hits that match the question." },
+      { q: "What distinguishes a real smile, in her talk?", opts: ["Showing teeth", "It lasts longer", "It reaches the upper cheek muscles, near the eyes", "It is symmetrical"], a: 2,
+        expl: "People catch the real one, not the fake." },
+      { q: "What reframe does she recommend before a nerve-racking task?", opts: ["Saying 'I'm excited' instead of 'I'm nervous'", "Saying 'I'm calm'", "Saying nothing", "Taking deep breaths"], a: 0,
+        expl: "Anxiety and excitement feel similar; the label changes the mindset." },
+    ],
+  },
+
+  "spch100.8.8": {
+    takeaway: "Kio Stark at TED: talking to strangers creates 'fleeting intimacy' and frees us from seeing people as categories. Know the local rules — and try the ways in: smile, triangulate, notice, dogs and babies, disclose.",
+    beats: [
+      { t: "'Don't stand there'", d: "An old man told her to step off the storm drain in case she disappeared — a small, warm exchange that made her feel noticed." },
+      { t: "Perception over categories", d: "'Stranger' is a shortcut that leads to bias. Most strangers aren't dangerous; we just have no context." },
+      { t: "Fleeting intimacy", d: "People are often more open with strangers — and with strangers we explain everything instead of expecting mind-reading." },
+      { t: "Local rules", d: "Civil inattention in the US; Danes avoiding 'excuse me'; Egyptian hospitality." },
+      { t: "Ways in", d: "Smile; triangulate on a shared sight; notice (compliment shoes); talk to the dog or baby; disclose something true." },
+    ],
+    worked: "Triangulation at a conference: standing by the same overloaded coffee station, 'Do you think they're testing which of us gives up first?' — a third thing you both see, and an easy start.",
+    watch: "Ignoring signals. Stark's first step is finding someone who is making eye contact; breaking the local rules a little is the point, ignoring someone's clear 'no' is not.",
+    concepts: [],
+    checks: [
+      { q: "What is 'triangulation' in Stark's sense?", opts: ["Talking to three people at once", "Commenting on a third thing you and the stranger can both see", "Introducing two strangers", "Asking three questions"], a: 1,
+        expl: "Public art, someone preaching, odd clothes." },
+      { q: "What is the 'dogs and babies principle'?", opts: ["Avoid people with dogs", "Talk to their dog or baby as a way of seeing whether the person is open to talking", "Compliment their pet", "Ask about their children"], a: 1,
+        expl: "The dog or baby is a social conduit." },
+      { q: "What tends to happen when you disclose something personal to a stranger?", opts: ["They leave", "They change the subject", "They tend to disclose in return", "They become suspicious"], a: 2,
+        expl: "We meet disclosure with disclosure." },
+    ],
+  },
+
+  "spch100.8.9": {
+    takeaway: "LeeAnn Renninger, from TED's The Way We Work: most feedback is either too soft to register or too direct to hear. Great feedback-givers use four parts — micro-yes, data point, impact, question — and ask for feedback regularly.",
+    beats: [
+      { t: "The problem", d: "She cites Gallup: only 26 per cent of employees strongly agree that the feedback they get improves their work." },
+      { t: "Micro-yes", d: "A short question that signals feedback is coming and gives a choice: 'Can I share some ideas about that meeting?'" },
+      { t: "Data point", d: "What you saw or heard. Convert blur words ('not reliable') into specifics ('you said 11; I still don't have it')." },
+      { t: "Impact and question", d: "'Because of that, I was blocked.' Then: 'How do you see it?' — turning compliance into commitment." },
+      { t: "Pull, don't wait", d: "Ask for feedback regularly rather than waiting for it." },
+    ],
+    worked: "Positive feedback needs specifics too: 'I liked how you added those stories, because it helped me grasp the concepts faster' tells the person exactly what to keep doing.",
+    watch: "Blur words in praise ('great job'). They feel kind and tell the person nothing about what to repeat.",
+    concepts: [],
+    checks: [
+      { q: "What is a 'micro-yes'?", opts: ["A small compliment", "A short yes/no question that signals feedback is coming and creates buy-in", "Agreeing quickly", "A one-word answer"], a: 1,
+        expl: "It paces the conversation and gives autonomy." },
+      { q: "What is a 'blur word'?", opts: ["A word that can mean different things to different people, like 'proactive'", "A filler word", "A long word", "A technical term"], a: 0,
+        expl: "Convert it into an actual data point." },
+      { q: "Why end feedback with a question?", opts: ["To be polite", "To end quickly", "To create commitment and joint problem-solving, not just compliance", "To check they were listening"], a: 2,
+        expl: "It stops being a monologue." },
+    ],
+  },
+
+  "spch100.8.10": {
+    takeaway: "Julia Dhar, three-time world schools debating champion, on disagreeing productively — find common ground, debate ideas not identities, hold the humility of uncertainty — with Modupe Akinola of Columbia adding the negotiation view: ask probing, open and neutral questions.",
+    beats: [
+      { t: "Debate done badly", d: "Her first debate at age ten made every cable-news mistake: attacking the person, then going to extremes." },
+      { t: "Common ground", d: "The best persuaders start with whatever everyone agrees on, however narrow — a shared reality." },
+      { t: "Ideas, not identity", d: "Debaters don't pick their sides. At work, collect ideas anonymously on one template; half the best ones in her government project came from people who'd rarely be heard." },
+      { t: "Humility", d: "Ask: what have you changed your mind about? Pre-commit to what would change yours. Mr Rogers moved a sceptical senator in 1969." },
+      { t: "Better questions", d: "Probing ('what qualities does John bring?'), open ('what would you need to know to use my approach?'), neutral ('how would you assess the project?')." },
+    ],
+    worked: "Instead of 'Hasn't the project been a great success?' (leading) ask 'How would you assess the project so far?' (neutral) — less confrontational, and you learn what they actually think.",
+    watch: "Arguing with the person rather than the idea. The moment you say 'that's such a finance view', you've made it about identity, and they will defend themselves, not the idea.",
+    concepts: [],
+    checks: [
+      { q: "Where does Dhar say productive disagreement starts?", opts: ["With your strongest argument", "With common ground, however narrow", "With the other side's weakest point", "With data"], a: 1,
+        expl: "It invites everyone into a shared reality." },
+      { q: "Which is a neutral question?", opts: ["Hasn't the project been a great success?", "Are we using my approach, yes or no?", "How would you assess the project so far?", "Why do you want John?"], a: 2,
+        expl: "Leading and closed questions provoke defensiveness." },
+      { q: "Why does Dhar suggest collecting ideas anonymously?", opts: ["To separate ideas from the identity of the person who proposed them", "To save time", "To avoid credit disputes", "To make meetings shorter"], a: 0,
+        expl: "Ideas are then judged on their merits." },
     ],
   },
 });

@@ -2295,8 +2295,8 @@ Object.keys(expectedSummary).forEach(k => {
 });
 
 // ---------- SPCH 100, the storytelling course (T-037) ----------
-// Sixteen modules and about fifty hours of video, every one installed only after
-// its transcript was read. Four ways it can go wrong silently, each of which the
+// Fifteen core modules (B8 is archived) and some forty-five hours of video, every
+// lesson installed only after its transcript was read. Four ways it can go wrong silently, each of which the
 // browser would render as something merely missing:
 //   * a lesson whose transcript was never stored — the hard rule says no video is
 //     installed unread, and the stored file is the only proof it was read;
@@ -2340,6 +2340,16 @@ if (SPCH) {
     ok(!!tx, k + ": transcript data/storytelling/transcripts/" + l.v + ".txt exists (no video is installed unread)");
     ok(!tx || tx.indexOf("watch?v=" + l.v) >= 0, k + ": the stored transcript is for " + l.v);
     ok(!tx || tx.length > 1500, k + ": the stored transcript is a transcript, not a stub");
+    // A stored transcript that the tool cut short carries a NOTE with the time it
+    // stops. That is only acceptable when the lesson itself stops earlier (the
+    // title says "stop at" or "talk ends" at or before that time) — otherwise the
+    // end of the video is installed unread and its minutes are counted anyway.
+    const cut = tx.match(/NOTE: the transcript tool truncates[^\n]*ends at about (\d+(?::\d\d){1,2})/);
+    const secs = t => t.split(":").reduce((a, x) => a * 60 + +x, 0);
+    const stop = (l.t || "").match(/\((?:stop at|talk ends) (\d+(?::\d\d){1,2})\)/);
+    ok(!cut || (!!stop && secs(stop[1]) <= secs(cut[1]) && l.min <= Math.ceil(secs(stop[1]) / 60)),
+       k + ": the stored transcript covers everything the lesson counts" +
+       (cut ? " (it stops at " + cut[1] + "; re-fetch it whole, or title the lesson '(stop at mm:ss)' and set min to the part read)" : ""));
     const d = (D.DRILLS || {})[k];
     ok(!!d, k + ": has a drill (mechanic, rules, drill, check)");
     if (d) {

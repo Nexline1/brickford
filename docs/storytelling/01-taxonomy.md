@@ -261,10 +261,18 @@ every key to its video, and `verify-content` fails if a pinned key moves.
   replaced by the redundancy rule applied per lesson: a video is installed only if it adds a
   mechanic no installed lesson already teaches. Where two installed teachers disagree (how
   to open a talk; whether to aim for a native accent) both are kept and the lessons say so.
-- **Truncation.** The transcript tool stops at about 120,000 characters. A video with more
-  than about 15% of its teaching unread is rejected, not installed half-read; 30 were
-  rejected for this alone. A long video is installed only when its transcript came back
-  whole (Sanderson's 76-minute lecture, Winston's 63-minute "How to Speak").
+- **Truncation.** During the harvest the transcript tool stopped at about 120,000
+  characters of raw captions. A candidate with more than about 15% of its teaching unread
+  was rejected rather than installed half-read; 30 were rejected for this alone. The rule
+  was not applied consistently, and the first draft of this file said it was: six videos
+  were installed at full length with their last 6–10% unread (hCf3dHd8_i8, 6-shbSFc48E,
+  SP8YSgUkCh0, ABw26imw4m4, 7eosJwqoDaY, LTrrd94QEdU). Review round 1 caught it. On
+  re-fetch the tool returned all six whole, and the three lessons that had been timed to
+  stop before the cut (7TiX-tTSRVU, j7gYVXjDePw, m8v3jf8RVBk) as well; all nine were
+  re-read and re-stored, and their candidate notes and lesson notes corrected. Every
+  installed transcript is now complete, so no `min` changed and the hours above stand.
+  `verify-content` now fails if a stored transcript is cut short and the lesson does not
+  stop (in its title, and in `min`) at or before the cut.
 - **Every lesson carries the full layer:** the mechanic in one sentence, 3–5 rules
   paraphrased from the transcript, a drill of 10 minutes or less that produces a written,
   recorded or spoken artifact, a check, and a revision summary with at least three

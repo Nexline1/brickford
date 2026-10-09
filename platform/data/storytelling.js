@@ -1884,7 +1884,7 @@ Object.assign(DAR.SUMMARIES, {
       { t: "Delivery", d: "Stress and timing in a language you are learning are the hard part. Filler words and intonation help you sound natural before you are fully fluent." },
     ],
     worked: "'Local jokes get local laughs.' Jokes about shared human situations — a misunderstanding, a family moment — survive the move between languages far better than wordplay.",
-    watch: "Translating a joke that works in your first language word for word. Even when you explain it, it rarely lands. NOTE: the transcript tool stops at 41:30 of 45:42; the unread end is the hosts' closing discussion.",
+    watch: "Translating a joke that works in your first language word for word. Even when you explain it, it rarely lands. The closing minutes are Izzard on why he does it: a deliberately political answer about learning languages rather than building walls.",
     concepts: [],
     checks: [
       { q: "Why did the Spanish jokes fall flat in English?", opts: ["They were too long", "They were rude", "They were puns that only work in Spanish", "The hosts did not understand Spanish"], a: 2,
@@ -2553,7 +2553,7 @@ Object.assign(DAR.SUMMARIES, {
       { t: "Notice and thank", d: "Eyes closed, describe the room — nobody can fully. Ask: where am I, what am I doing, what would improve this moment? Notice who made your day possible." },
     ],
     worked: "The audience's boxes held a peacock feather, two cans of corn, a live cat, someone's wife's left shoe — fifty people, fifty different things, without anyone trying to be original.",
-    watch: "Trying to be clever. Madson's whole method rests on the opposite: the obvious, honest response is usually the one that works. NOTE: the first thirteen minutes are a thank-you list to Google; the transcript tool stops at 53:01 of 57:19, where she moves to book signing.",
+    watch: "Trying to be clever. Madson's whole method rests on the opposite: the obvious, honest response is usually the one that works. NOTE: the first thirteen minutes are a thank-you list to Google. She closes with a parable about a water tank of unknown size: you do not know how much time you have, so do not let it drip away.",
     concepts: [],
     checks: [
       { q: "What does Madson mean by 'don't make jokes, make sense'?", opts: ["Avoid humour at work", "Improvised scenes work by making sense of what is really happening, not by being clever", "Explain your jokes", "Use logic puzzles"], a: 1,
@@ -3460,7 +3460,7 @@ Object.assign(DAR.SUMMARIES, {
       { t: "Success or call to action", d: "The original read as good news. Asking the client showed the target was out of reach, so the slide became a decision." },
     ],
     worked: "Before: a red star, '77% achieved in nine months', 'great market and successful launch'. After: the title asks whether to reassess the target or change the salesforce strategy, and two graphs show accounts per manager flattening since the sales-team integration, so the forecast of 25 per manager will not happen.",
-    watch: "Watch the first 24 minutes. After that the session turns into a book launch (giveaways, a discount code, workshop dates) and audience questions; the transcript tool also stopped at 44:28 of 50:07, so the last minutes were not read.",
+    watch: "Watch the first 24 minutes. After that the session turns into a book launch (giveaways, a discount code, workshop dates) and audience questions.",
     concepts: [],
     checks: [
       { q: "Why do graphs usually beat tables for making a point?", opts: ["They look more professional", "Tables engage the slower verbal system; graphs use the faster visual one", "Graphs hold more numbers", "Executives prefer colour"], a: 1,
@@ -4028,7 +4028,7 @@ Object.assign(DAR.SUMMARIES, {
       { t: "Analytics", d: "Viewed-versus-swiped tests the hook; a retention graph shows an early exit, a specific drop, or a slow slide from weak progression." },
     ],
     worked: "Pasta with her mother, told with 'but': we boil the water and add salt — but that's far too much salt, so I'll add more water. We take out the pasta — oh no, it's still raw — so I'll leave it in longer. Every beat is a small conflict, so the progression never runs in a straight line.",
-    watch: "Over-delivering. If the question is 'what's two plus two?', the last word is 'four'; anything after it is a reason to swipe. The transcript tool stopped at 37:53 of 40:51, during the analytics discussion.",
+    watch: "Over-delivering. If the question is 'what's two plus two?', the last word is 'four'; anything after it is a reason to swipe. Her analytics advice near the end: when the retention graph drops, look a few seconds before the drop, because what came before it is what made people leave.",
     concepts: [],
     checks: [
       { q: "What does Hoyos say to use instead of 'and then'?", opts: ["'But' and 'so'", "'Next'", "'Meanwhile'", "'Finally'"], a: 0,
@@ -4515,7 +4515,7 @@ Object.assign(DAR.SUMMARIES, {
       { t: "Teach and work in the open", d: "Teaching drawing made more people draw — and added to his own work rather than competing with it." },
     ],
     worked: "Steve Albini, asked by a former talent-show contestant to produce his record, answered that he had never had connections that weren't a natural outgrowth of doing the work — people waste energy making connections instead of getting good, and being good is the only thing that earns them.",
-    watch: "Watch to 37:30; the rest is audience questions, and the transcript tool stopped at 47:44 of 55:13. The pitfall he names: 'follow me back' — asking for attention instead of earning it.",
+    watch: "Watch to 37:30; the rest is audience questions. The pitfall he names: 'follow me back' — asking for attention instead of earning it.",
     concepts: [],
     checks: [
       { q: "What does Kleon mean by 'scenius'?", opts: ["A lone genius's studio", "Communal genius — good work emerging from a network of people sharing and supporting each other", "A type of art school", "A social network"], a: 1,
@@ -4679,7 +4679,7 @@ Object.assign(DAR.SUMMARIES, {
       { t: "Narrow to win", d: "CRM for investment banks went from about 1.5 million to nearly 80 million in revenue in around 18 months, and was acquired by the leader." },
     ],
     worked: "A startup sold 'email for lawyers' — with no calendar, and not replacing anyone's email. Its loved feature was secure, context-aware document sharing with clients. Repositioned as team collaboration for lawyers, the competitors became Slack and Teams, the expected features matched, and customers expected to pay.",
-    watch: "Leaving customers to work it out. They grab the first clue ('there's an inbox, so it's email') and get stuck; the Segway, launched as 'a revolution in human transportation', confused everyone. Watch to about 34:00; questions follow, and the transcript tool stopped at 40:46 of 47:46.",
+    watch: "Leaving customers to work it out. They grab the first clue ('there's an inbox, so it's email') and get stuck; the Segway, launched as 'a revolution in human transportation', confused everyone. Watch to about 34:00; questions follow.",
     concepts: [],
     checks: [
       { q: "Where does Dunford say positioning work should start?", opts: ["The tagline", "Competitive alternatives — what customers would do if you didn't exist", "The brand colours", "The founder's vision"], a: 1,

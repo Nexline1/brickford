@@ -1,0 +1,5 @@
+bytes: 08eaf95163e13d440476908fc63e2378a6e3372d
+$ node tools/verify-content.js
+
+PASS — 12847 checks, 14 numeric answers recomputed, 5 drills, 12 concepts, 12 figures, 3 interactive, 244 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0

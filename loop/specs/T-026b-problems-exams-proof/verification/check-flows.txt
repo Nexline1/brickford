@@ -1,0 +1,142 @@
+bytes: 08eaf95163e13d440476908fc63e2378a6e3372d
+$ node tools/verify-flows.js
+
+390px
+  ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
+  ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
+  ok    (a) no page errors
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
+  ok    (b) no page errors
+  ok    (c) the dashboard shows a count for today — 0 / 2 today
+  ok    (c) the lecture page records it — button now reads "Unmark watched"
+  ok    (c) the dashboard count goes up by one — 0 / 2 -> 1 / 2
+  ok    (c) no page errors
+  ok    (d) the test hook is installed on a #/__test boot
+  ok    (d) the embed asks for the player's messages (enablejsapi=1) and has no start point yet — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
+  ok    (d) a playing tick is held in memory, not written — 0 write(s), stored null
+  ok    (d) the pause keeps it: S.lessons[k].pos === 754, with a posAt stamp — {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (d) the course row shows it: "Resume at 12:34" and a 73.9% progress edge — "Lecture 14 · Resume at 12:34", edge 73.9%
+  ok    (d) reopening the lecture builds an embed with start=754 — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754
+  ok    (d) leaving the route mid-play keeps it (pos 800), and the next open starts there — pos 800, https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=800
+  ok    (d) the page going away (pagehide) keeps it (pos 900) — pos 900
+  ok    (d) the page being hidden (visibilitychange) keeps it (pos 930), in one save — 1 save(s), pos 930
+  ok    (d) back on the page, the player is still heard: a tick and a pause keep pos 960 — pos 960
+  ok    (d) an ended event clears pos, and stamps posAt — {"done":false,"notes":"","checks":[],"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (d) and the next open starts from the beginning (no start=) — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
+  ok    (d) no page errors
+  ok    (e) the lecture was rendered 20 more times, each between two playing ticks, a rebuilt view whose frame starts at the time just heard (held, unsaved) — 20 rebuild(s), frame true; start= 30 … 391
+  ok    (e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls — 0 save(s)
+  ok    (e) and the pause after them is exactly one save, at the last tick's time (so the ticks were heard) — 1 save(s), pos 961 (want 961)
+  ok    (e) no page errors
+  ok    (g) opened at start=754, a buffering report at 0:00 and an immediate leave keep pos 754 (and its posAt) — ?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754; stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T10:00:00.000Z"}
+  ok    (g) the one real 0 is kept: opened from the beginning, paused at 5:00, taken back to the start and paused — pos 300, then 0 — start= absent, pos 300 then 0
+  ok    (g) no page errors
+  ok    (h) the handshake, through a stub of YouTube's embed in the lecture's frame: the page hails it, it answers, the page subscribes to onStateChange — 1 hail(s) heard, answered true, commands [addEventListener onStateChange]
+  ok    (h) from the frame: a playing infoDelivery then onStateChange 2 (paused) save pos 754, in one save — 1 save(s), stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (h) a pause posted by the top window itself writes nothing — 0 save(s), stored pos 754
+  ok    (h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing — 0 save(s), stored pos 754
+  ok    (h) and the player's own pause after them saves the time it held (pos 820), once — so those zeros were not deafness — 1 save(s), pos 820
+  ok    (h) a pause posted from the player's own frame once it is on www.youtube.com.example.net writes nothing — 0 save(s), stored pos 820
+  ok    (h) no page errors
+  ok    (l) /workshop shows an unticked lab of the current phase — micrograd-blind
+  ok    (l) ticking it stores { done: true, proof: "" } in two saves (the tick and its chain event), and logs a lab event — 2 save(s), stored {"done":true,"proof":""}, last event {"type":"lab","ref":"micrograd-blind","data":{"done":true}}
+  ok    (l) the proof field appears under that row, focused, and the page was not re-rendered — {"under":true,"sameBox":true,"focused":true,"kept":true}
+  ok    (l) a proof typed into it is stored, in one save — 1 save(s), stored {"done":true,"proof":"https://github.com/example/flashcards"}
+  ok    (l) unticking it stores done: false in two saves, logs { done: false }, and takes the proof field away — 2 save(s), stored {"done":false,"proof":"https://github.com/example/flashcards"}, field gone
+  ok    (l) no page errors
+
+1280px
+  ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
+  ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
+  ok    (a) no page errors
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
+  ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
+  ok    (b) no page errors
+  ok    (c) the dashboard shows a count for today — 0 / 2 today
+  ok    (c) the lecture page records it — button now reads "Unmark watched"
+  ok    (c) the dashboard count goes up by one — 0 / 2 -> 1 / 2
+  ok    (c) no page errors
+  ok    (d) the test hook is installed on a #/__test boot
+  ok    (d) the embed asks for the player's messages (enablejsapi=1) and has no start point yet — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
+  ok    (d) a playing tick is held in memory, not written — 0 write(s), stored null
+  ok    (d) the pause keeps it: S.lessons[k].pos === 754, with a posAt stamp — {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (d) the course row shows it: "Resume at 12:34" and a 73.9% progress edge — "Lecture 14 · Resume at 12:34", edge 73.9%
+  ok    (d) reopening the lecture builds an embed with start=754 — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754
+  ok    (d) leaving the route mid-play keeps it (pos 800), and the next open starts there — pos 800, https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=800
+  ok    (d) the page going away (pagehide) keeps it (pos 900) — pos 900
+  ok    (d) the page being hidden (visibilitychange) keeps it (pos 930), in one save — 1 save(s), pos 930
+  ok    (d) back on the page, the player is still heard: a tick and a pause keep pos 960 — pos 960
+  ok    (d) an ended event clears pos, and stamps posAt — {"done":false,"notes":"","checks":[],"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (d) and the next open starts from the beginning (no start=) — https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1
+  ok    (d) no page errors
+  ok    (e) the lecture was rendered 20 more times, each between two playing ticks, a rebuilt view whose frame starts at the time just heard (held, unsaved) — 20 rebuild(s), frame true; start= 30 … 391
+  ok    (e) opening it, 50 playing infoDelivery ticks across the lecture (0:30-16:01) and 20 renders between them: zero save() calls — 0 save(s)
+  ok    (e) and the pause after them is exactly one save, at the last tick's time (so the ticks were heard) — 1 save(s), pos 961 (want 961)
+  ok    (e) no page errors
+  ok    (g) opened at start=754, a buffering report at 0:00 and an immediate leave keep pos 754 (and its posAt) — ?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&enablejsapi=1&start=754; stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T10:00:00.000Z"}
+  ok    (g) the one real 0 is kept: opened from the beginning, paused at 5:00, taken back to the start and paused — pos 300, then 0 — start= absent, pos 300 then 0
+  ok    (g) no page errors
+  ok    (h) the handshake, through a stub of YouTube's embed in the lecture's frame: the page hails it, it answers, the page subscribes to onStateChange — 1 hail(s) heard, answered true, commands [addEventListener onStateChange]
+  ok    (h) from the frame: a playing infoDelivery then onStateChange 2 (paused) save pos 754, in one save — 1 save(s), stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (h) a pause posted by the top window itself writes nothing — 0 save(s), stored pos 754
+  ok    (h) a pause posted by a second YouTube frame (YouTube's origin, not the player's window) writes nothing — 0 save(s), stored pos 754
+  ok    (h) and the player's own pause after them saves the time it held (pos 820), once — so those zeros were not deafness — 1 save(s), pos 820
+  ok    (h) a pause posted from the player's own frame once it is on www.youtube.com.example.net writes nothing — 0 save(s), stored pos 820
+  ok    (h) no page errors
+  ok    (l) /workshop shows an unticked lab of the current phase — micrograd-blind
+  ok    (l) ticking it stores { done: true, proof: "" } in two saves (the tick and its chain event), and logs a lab event — 2 save(s), stored {"done":true,"proof":""}, last event {"type":"lab","ref":"micrograd-blind","data":{"done":true}}
+  ok    (l) the proof field appears under that row, focused, and the page was not re-rendered — {"under":true,"sameBox":true,"focused":true,"kept":true}
+  ok    (l) a proof typed into it is stored, in one save — 1 save(s), stored {"done":true,"proof":"https://github.com/example/flashcards"}
+  ok    (l) unticking it stores done: false in two saves, logs { done: false }, and takes the proof field away — 2 save(s), stored {"done":false,"proof":"https://github.com/example/flashcards"}, field gone
+  ok    (l) no page errors
+
+the tab bar (once, 390px)
+  ok    (j) sliding 60% toward Courses: the bubble's translateX follows the finger within 2px — finger moved 42.0px, translateX moved 42.0px; bubble centre 97.0 vs finger 97.0
+  ok    (j) release: the route becomes /courses and the bubble settles centred on Courses — #/courses, bubble centre 125.0 vs Courses 125.0
+  ok    (j) sliding 60px past Review: the bubble resists, moving less than the finger — finger +60px, bubble +13.7px
+  ok    (j) a 40px vertical drag on Exams does not switch tabs (touch and pointer) — #/review -> touch #/review, pointer #/review
+  ok    (j) tapping the active tab at scrollY 800 scrolls to 0 — from 800 to 0
+  ok    (j) scroll memory: Today at 600, to Courses (0) and back is 600 (+/-2) — back at 600
+  ok    (j) a render is a read: sliding, tapping and switching made zero save() calls — 0 write(s)
+  ok    (j) no page errors
+  ok    (j) reduced motion: tapping the active tab is at the top within a frame — from 400 to 0
+  ok    (j) reduced motion: no page errors
+  ok    (j) Control-click on the Courses tab at 800x700 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a plain click on the Courses tab at 800x700 still switches to it — #/courses
+  ok    (j) modifier-click: no page errors
+  ok    (j) a Ctrl-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a Shift-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a plain touch lifted with Ctrl (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a plain touch lifted with Shift (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
+  ok    (j) a pen barrel-button (right) press on the Courses tab at 390 leaves this page on #/ — this page at #/
+  ok    (j) a plain tap on the Courses tab at 390 still switches to it — #/courses
+  ok    (j) modifier-tap: no page errors
+
+a slow phone (once, 390px)
+  ok    (i) a player that answers only after 60 hails (the old cap) is still being asked, and the handshake completes — 61 hail(s) heard, answered true, commands [addEventListener onStateChange]
+  ok    (i) and resume works: a playing infoDelivery and a pause from the frame save pos 754, in one save — 1 save(s), stored {"done":false,"notes":"","checks":[],"pos":754,"posAt":"2026-10-20T12:00:00.000Z"}
+  ok    (i) no page errors
+
+multiple choice (once)
+  info  as written in the data — 4 options: 103/393/34/1
+  ok    (k) every multiple-choice question was mounted and its answer found — 531 questions, 4248 mounts, 0 unfound
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 24%, C 25%, D 26% of 4248
+  ok    (k) choosing the right option is graded right, wherever it was shuffled to — 531 of 531
+  ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 531 of 531
+  ok    (k) no page errors
+
+sync (once)
+  ok    (f) the boot pull ran against the stub
+  ok    (f) where theirs is newer it wins: pos 754 -> 300 (and their watched mark comes too) — {"done":true,"pos":300,"posAt":"2026-10-20T11:00:00.000Z"}
+  ok    (f) where mine is newer it stays (pos 500), though theirs wins the lecture's standing (watched) — {"done":true,"pos":500,"posAt":"2026-10-20T11:00:00.000Z"}
+  ok    (f) an end over there, stamped later, clears the point here — {"done":false,"posAt":"2026-10-20T11:00:00.000Z"}
+  ok    (f) a push carries pos and posAt in its payload (syncPayload) — A {"pos":300,"posAt":"2026-10-20T11:00:00.000Z"}, B pos 500, C pos undefined
+  ok    (f) no page errors
+
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+PASS — 123 checks: 8 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems) x 2 widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot
+exit 0

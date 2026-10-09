@@ -1,0 +1,5 @@
+bytes: 08eaf95163e13d440476908fc63e2378a6e3372d
+$ node tools/verify-contrast.js
+
+PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+exit 0

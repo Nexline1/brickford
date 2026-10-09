@@ -1,0 +1,63 @@
+# Transcript: 3 Secrets to Creating a Successful Devlog on YouTube!
+
+Source video: https://www.youtube.com/watch?v=q7tNk3EhDOg
+Language: en (auto-generated) · Duration: 4:11 · Words: 2251
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (de-duplicated from rolling auto-captions)
+
+[0:02] so you're an indie developer and either want to create a YouTube channel or already have a
+YouTube channel and your goals are to share your passion for game development and of course also
+advertise the game you are making that's great but there are some things you need to know and
+understand if you truly wish to succeed in the YouTube gamee space hi I'm Floy and I have a gamee
+Channel with 10,000 subscribers and 700,000 views and I'll share three very important tips to
+properly grow your own Game Dev Channel time is precious so let's jump straight
+
+[0:33] to the first tip don't make videos for game developers I see a lot of game devs start their
+YouTube channel and explain their most complex system in details and use all these fancy Game Dev
+words like raycast quarians quartan whatever this is State machines and so on and as a Game Dev
+myself I do enjoy these videos the problem however is that by doing this you are limiting your reach
+to only other game developers and not the gamers that actually would play your game now you'd
+probably argue
+
+[1:05] that game devs play games too so they might become future customers and this is true but how
+many of these game devs actually like the game you're making because as a Game Dev myself I often
+find myself to click on a devlog not because the game interests me but because I'm interested in
+their creative process and relatability in actuality I would probably never play the game they're
+making simply because I don't particularly like that genre however this is a way how you can share
+your passion for game development and still
+
+[1:36] get noname Dev viewers and that's by explaining the things in a way that noname developers
+can understand so you made a system for your game that you're proud of and obviously you want to
+make a devlog about it but how can you ever make it interesting to non-game developers well I think
+the easiest way to explain this is by showing a small part of my own video where I do exactly that
+my next step was was designing a harvesting and Tool system I made it pretty simple I made a
+resource
+
+[2:07] component that I can slap on any object I want and this resource component does a few
+different things the first being that when a player hits the object it then checks if the player is
+using the right tool if it is the right tool it then checks what tier level that tool is and applies
+the right amount of damage to the object if the damage taken reaches a defined threshold it then
+spits out the correct rear source and finally it punishes the tool that hit it by applying damage to
+that tool as you saw I used visuals and funny scenes to
+
+[2:39] explain quite complex stuff in a very simplified understandable and fun way this obviously
+will need some practice and quite a bit of effort to find the right words and analogy but it really
+pays off because these parts of my videos are the parts that have the best retention meaning that
+almost everyone who watches my videos Gamers and game devs alike love the funny explan ation I give
+okay so you're almost ready to make your first or next devlog but there is one more thing that you
+need to
+
+[3:11] understand even the best video will flop if your game looks like this and that's my third
+point the visuals come first to be clear I am very aware that this is fundamentally wrong from The
+Game Dev side of things but it is necessary to retain your viewers you have to look at your devlog
+like they are mini trailers for your game and that's why it's crucial to make your game look good
+before making your first
+
+[3:41] video of said game I recommend to Simply grab a decent looking asset pack and use that for
+prototyping or you could use sloy sloy is a tool that makes making 3D assets for your games as easy
+as possible while still letting you customize each asset extensively so that it fits into your game
+we even have an AI that can make assets based B on text prompt check out sloy in the description or
+watch this video here to see how I use sloy to make this quite pretty looking game in less than 5
+
+[4:11] [Music] [Music] hours

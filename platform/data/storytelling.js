@@ -232,6 +232,15 @@ DAR.COURSES.push({
         { t: "Thirty days of recording yourself", v: "VXo4_ErkN_U", min: 8 },
       ],
     },
+    {
+      name: "Unit XV — Documenting the build: process, not a diary",
+      lessons: [
+        { t: "Show your work — share the process, not just the product (talk ends 37:30)", v: "m8v3jf8RVBk", min: 38 },
+        { t: "A vlog needs a story — goal, challenge, complications, payoff", v: "KdsWzPMCv7w", min: 16 },
+        { t: "Devlogs — technical or design, a straight line, the struggle left in", v: "laSmItPiId0", min: 17 },
+        { t: "Explain the build to people who don't build", v: "q7tNk3EhDOg", min: 4 },
+      ],
+    },
   ],
 });
 
@@ -4363,6 +4372,164 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Sounding perfect and not like a person." },
       { q: "What does 'imitate to enhance' mean?", opts: ["Copy another creator in your published videos", "Imitate a speaker you admire in practice, to stretch your range", "Use a voice changer", "Repeat your old videos"], a: 1,
         expl: "Practice only, not uploads." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XV — B4, documenting a build without it becoming a vlog (budget
+// 1.25 h). Austin Kleon's own SXSW talk on showing your work, a filmmaker on
+// giving any vlog a goal and complications, and two game developers on
+// devlogs — the nearest genre to documenting automation work for people who
+// don't build: record as you go, tell it as a straight line from goal to
+// result, keep the struggle, and explain for the audience you want.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.14.0": {
+    module: "B4",
+    mechanic: "Austin Kleon, in his SXSW keynote, says the way to be found is to become a good citizen of a 'scenius' rather than a lone genius: listen first, share what you love with credit, teach what you know, and work in the open — sharing your process, not just your product.",
+    rules: [
+      "Don't be a vampire (draining people) or 'human spam' (wanting attention you never give). If you want to be noticed, notice first; if you want to be interesting, be interested.",
+      "Share the work you love, always with credit — what it is, who made it, how, and where to find more. Sharing what you love is the first step to sharing your own.",
+      "Find your 'knuckleballers' — the few people working on the same odd thing — and treat them as collaborators, not competition.",
+      "Teach what you know as soon as you learn it. Learn in front of others: document your progress and share as you go, process and not just product.",
+      "Connections come from doing good work, not from networking. Build sharing into your routine, play the long game, and don't quit early. Never ask anyone to 'follow me back'.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write today's 'working in the open' post about what you are building: one thing you learned this week, one screenshot or sketch of the unfinished work, and one credit to someone whose work helped you." },
+    check: "The post would make sense to someone who has never heard of you, and it credits someone by name. If it only announces a finished product, it is a launch, not process.",
+  },
+
+  "spch100.14.1": {
+    module: "B4",
+    mechanic: "A filmmaker's five ways to make documenting your day into storytelling: tell more stories, build every video on setup, challenge, complications, payoff and change, consume stories rather than tutorials, map the beats of what you watch, and tell it visually.",
+    rules: [
+      "Tell more stories, everywhere. 'We hiked up a mountain and the view was great' is a report; the same hike with context, a time limit and a summit at sunset is a story.",
+      "Structure: setup (put them in the scene), challenge (the goal and what's against you — a time limit works), complications (what pushes you back), payoff (did you make it?), change (how it affected you).",
+      "Before you film, decide the goal and what stands in its way; complications will happen anyway, so film them when they do.",
+      "Watch stories more than tutorials, and write down the beats of the ones that hold you.",
+      "It's a visual medium: show rather than tell — wides, close-ups, a beginning and an end, even for a trip to the park.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Plan your next build session as a story before you start: the goal, the time limit or obstacle, two things that might go wrong, and the shot that will prove whether you made it." },
+    check: "The plan has a question a viewer would want answered ('can I automate this in an afternoon?'). If it reads like a to-do list, there is no challenge yet.",
+  },
+
+  "spch100.14.2": {
+    module: "B4",
+    mechanic: "A game developer who makes devlogs explains the two kinds — technical (how you built it) and design (why you decided) — and the rules that keep either from becoming a diary: record as you go, tell a straight line from goal to result, keep the struggle, script for confidence, and give each video a question worth searching for.",
+    rules: [
+      "Technical devlogs: run a screen recorder while you work, speed up the footage, and show results, not code. Talk about your method, the struggles and how you got past them.",
+      "Design devlogs: the decisions and why you made them — you may not even have a result to show yet.",
+      "Tell it as a straight line: what you set out to do, and whether you did. Making a devlog after a milestone gives you a conclusion.",
+      "Leave the struggle in; competence plus honesty about what failed reads better than polish. He scripts and rehearses so he sounds as confident as he wants to.",
+      "Use your own personality, turned up — don't force jokes if you aren't funny. Frame each video around a question people might search for, so it gives value.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick one thing you finished building recently. Write a five-line devlog outline: the goal, the first approach, what went wrong, what you changed, the result — plus a title phrased as a question someone might search." },
+    check: "Line three (what went wrong) is real and specific. If nothing went wrong, pick a different build or tell a design devlog instead.",
+  },
+
+  "spch100.14.3": {
+    module: "B4",
+    mechanic: "An indie game developer says devlogs fail when they're made for other developers: explain your systems with visuals and analogies for the people who'd use the thing, and make it look good before you show it.",
+    rules: [
+      "Don't make videos for people in your own trade by default. Jargon and deep-dives reach peers, not the customers you want.",
+      "Explain the system in plain language with visuals and a bit of fun; in his channel these explanations hold viewers best, builders and non-builders alike.",
+      "Treat each devlog as a mini-trailer — the visuals come first, so make it look decent before you film it.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Take one automation or system you built. Explain what it does in four sentences a shop owner would follow — no tool names — with one analogy, and list the one visual that would show it working." },
+    check: "A non-technical person reads it and can say what problem it solves. If they ask what a webhook is, rewrite.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.14.0": {
+    takeaway: "Austin Kleon's SXSW keynote on showing your work: forget being a genius; become part of a 'scenius' — a community of people sharing, crediting, teaching and learning in the open. Share your process, not just your product, and play the long game.",
+    beats: [
+      { t: "Vampires and human spam", d: "People who drain you, and people who want your attention but never give theirs. Use the vampire test." },
+      { t: "Scenius", d: "Brian Eno's word for communal genius: Florence for Da Vinci, Paris for Picasso." },
+      { t: "Shut up and listen", d: "He started by drawing panels at SXSW and posting them — sharing what he loved, with credit." },
+      { t: "Knuckleballers", d: "Like R.A. Dickey's fellow knuckleball pitchers, the few doing your odd thing share secrets rather than hoard them." },
+      { t: "Teach and work in the open", d: "Teaching drawing made more people draw — and added to his own work rather than competing with it." },
+    ],
+    worked: "Steve Albini, asked by a former talent-show contestant to produce his record, answered that he had never had connections that weren't a natural outgrowth of doing the work — people waste energy making connections instead of getting good, and being good is the only thing that earns them.",
+    watch: "Watch to 37:30; the rest is audience questions, and the transcript tool stopped at 47:44 of 55:13. The pitfall he names: 'follow me back' — asking for attention instead of earning it.",
+    concepts: [],
+    checks: [
+      { q: "What does Kleon mean by 'scenius'?", opts: ["A lone genius's studio", "Communal genius — good work emerging from a network of people sharing and supporting each other", "A type of art school", "A social network"], a: 1,
+        expl: "It makes room for the rest of us." },
+      { q: "What does he say good credit includes?", opts: ["Just the creator's name", "Context: what it is, who made it, how, why you're sharing it, and where to find more", "A link to buy it", "Nothing — sharing is enough"], a: 1,
+        expl: "Without it, your sharing makes no connection." },
+      { q: "According to Albini, where do real connections come from?", opts: ["Networking events", "Social media follows", "Doing good work — connections are a natural outgrowth of it", "Asking famous people for favours"], a: 2,
+        expl: "Being good at things is what earns clout." },
+    ],
+  },
+
+  "spch100.14.1": {
+    takeaway: "A filmmaker's case that even a vlog needs a story: give it setup, a challenge, complications, a payoff and a change — and decide the goal before you film, because the complications will turn up on their own.",
+    beats: [
+      { t: "Tell more stories", d: "Turn everyday reports into stories in conversation, and notice how people respond." },
+      { t: "Five beats", d: "Setup, challenge, complications, payoff, change." },
+      { t: "Time as a challenge", d: "A sunset, three days on the Pony Express trail, a 24-hour challenge — a clock gives you a through-line." },
+      { t: "Consume stories", d: "Watch stories, not just tutorials, and write down their beats." },
+      { t: "Visual storytelling", d: "Show it — wides, close-ups, a beginning and an end." },
+    ],
+    worked: "The hike, told twice. As a report: 'we went up this mountain and it had the best view.' As a story: five long studio days, a peak in the distance, one hour of daylight, 1,800 feet straight up, the summit just as the sun dips — and then doing a new trail every evening after that.",
+    watch: "Just filming whatever happens. Without a goal and an obstacle decided beforehand, a day of footage is a diary, not a video.",
+    concepts: [],
+    checks: [
+      { q: "Which is NOT one of his five story beats?", opts: ["Setup", "Challenge", "Sponsorship", "Payoff"], a: 2,
+        expl: "The others are complications and change." },
+      { q: "Why is a time limit useful in a vlog?", opts: ["It shortens the edit", "It creates a challenge and a through-line the viewer wants resolved", "It pleases the algorithm", "It saves battery"], a: 1,
+        expl: "Will they make it in time?" },
+      { q: "What does he recommend consuming more of?", opts: ["Gear reviews", "Tutorials", "Stories — and noting their beats", "Analytics"], a: 2,
+        expl: "Story matters more than cinematic B-roll." },
+    ],
+  },
+
+  "spch100.14.2": {
+    takeaway: "A game developer's guide to devlogs: choose technical (how) or design (why), record as you go, tell it as a straight line from goal to result, keep the struggle, script for confidence, and give every video a question worth searching for.",
+    beats: [
+      { t: "Technical devlogs", d: "Record your screen while you work; speed it up; show results and your thought process, not code." },
+      { t: "Design devlogs", d: "The decisions and why — a video on what makes a good twin-stick shooter before the game is finished." },
+      { t: "After a milestone", d: "Summarising lets you come in with a conclusion and what you learned." },
+      { t: "Scripted confidence", d: "Unscripted he says 'like' and 'probably'; scripted and rehearsed he sounds sure." },
+      { t: "Value", d: "Frame each video around something people might search for, like how to use playtest feedback." },
+    ],
+    worked: "His own titles: graphics, level design, sound and music, player feedback — and 'that time I cancelled my game'. Each devlog takes one topic and explores it through the game he is making, so a playlist becomes a timeline of the build.",
+    watch: "Forced personality. If you are not funny, don't try to be; turn up the personality you already have instead — a confident monotone that shows impressive results works too.",
+    concepts: [],
+    checks: [
+      { q: "What does a design devlog focus on?", opts: ["The code", "The editing software", "The decisions you made and why", "Sales figures"], a: 2,
+        expl: "Technical devlogs cover how." },
+      { q: "Why leave struggles in a devlog?", opts: ["They fill time", "Honest struggle plus what you learned shows competence and keeps you human", "Viewers like failure for its own sake", "It's required"], a: 1,
+        expl: "Nothing ever goes that smoothly, and everyone knows it." },
+      { q: "How does he recommend recording technical work?", opts: ["Run a screen recorder while you work, then speed it up and show the results", "Recreate everything afterwards", "Film the keyboard", "Only show the finished product"], a: 0,
+        expl: "Making it as you go is easier than assembling it backwards." },
+    ],
+  },
+
+  "spch100.14.3": {
+    takeaway: "An indie developer's warning: devlogs made for other developers reach only developers. Explain your systems simply, with visuals and a bit of fun, for the people who would actually use what you build — and make it look good first.",
+    beats: [
+      { t: "Not for your peers", d: "Raycasts and state machines attract developers who may never play your game." },
+      { t: "Explain simply", d: "A harvesting system explained with visuals and funny scenes became the best-retained part of his videos." },
+      { t: "Visuals first", d: "Each devlog is a mini-trailer; ugly placeholders lose viewers." },
+    ],
+    worked: "His harvesting system, explained without jargon: a component on any object checks whether you're using the right tool, how good the tool is, how much damage to apply, when to drop the resource — and then damages the tool that hit it. Complex logic, said as a little story of cause and effect.",
+    watch: "The sponsor segment at the end, and the jargon reflex. The video is short; the point is that the explanation, not the system, is what an outsider watches.",
+    concepts: [],
+    checks: [
+      { q: "Why does he warn against making devlogs for other developers?", opts: ["They don't watch YouTube", "It limits your reach to peers rather than the people who'd use what you make", "They are too critical", "It's against the rules"], a: 1,
+        expl: "Most of them won't play your genre." },
+      { q: "Which parts of his videos hold viewers best?", opts: ["The plain, visual, funny explanations of systems", "The code walkthroughs", "The sponsor reads", "The outros"], a: 0,
+        expl: "Builders and non-builders alike." },
+      { q: "Why make the work look good before filming?", opts: ["For awards", "Because each devlog acts as a mini-trailer and visuals come first", "To hide bugs", "To save editing time"], a: 1,
+        expl: "Even the best video flops if the game looks bad." },
     ],
   },
 });

@@ -261,6 +261,8 @@ DAR.COURSES.push({
         { t: "Coffee mode and presenter mode", v: "Y11SX2oHmw8", min: 10 },
         { t: "Dial it up, then bring it down", v: "CDLB03lQjdQ", min: 5 },
         { t: "Thirty days of recording yourself", v: "VXo4_ErkN_U", min: 8 },
+        { t: "Sounding natural from a script — conversational lines, one sentence at a time", v: "3nn4vZseLC8", min: 8 },
+        { t: "Talking-head basics — eyeline, one soft light, the mic close, slower, in sections", v: "jIG2TZwFwtE", min: 5 },
       ],
     },
     {
@@ -6191,6 +6193,93 @@ Object.assign(DAR.SUMMARIES, {
         expl: "It makes the audience ask what happened next." },
       { q: "What three stages does he suggest in place of beginning, middle and end?", opts: ["Hook, offer, call to action", "Setup, punchline, tag", "Struggle, conflict, resolution", "Past, present, future"], a: 2,
         expl: "Relate to the struggle, build suspense in the conflict, reveal the change." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XIV, top-up (T-037, 2026-10-09) — B6 delivery on camera, two short
+// lessons appended after spch100.13.5: reading a script without sounding
+// read, and the setup-and-pace checklist for a talking head. B6 stays the
+// delta over Unit V, as the taxonomy intends. Appended at the END of the
+// unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.13.6": {
+    module: "B6",
+    mechanic: "You sound natural on camera when the words are conversational and the delivery varies: write short, simple sentences in the second person, change pace and stress the key word, work from bullet points or record one scripted sentence at a time, and let your normal body language show.",
+    rules: [
+      "Make yourself comfortable — clothes, place, standing if it gives you energy — because comfort reads as natural.",
+      "Write the way you talk: short, simple sentences, not news-article language. Record yourself talking to a friend and listen to how you actually speak.",
+      "Say 'you', not 'hi everyone' or 'what's up, Instagram' — talk to one person.",
+      "Vary the pace and stress the key word; read a line a few times until it sounds like you talking.",
+      "For short videos, script in your notes app and record one sentence per take; for longer ones, work from bullet points. Show your hands and smile.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Write a five-sentence script for a short video, then rewrite it in conversational lines — short sentences, 'you'. Record it one sentence per take, repeating each line until its key word gets the stress." },
+    check: "On playback no sentence sounds read, each has one clearly stressed word, and the script never addresses 'everyone'.",
+  },
+
+  "spch100.13.7": {
+    module: "B6",
+    mechanic: "Most weak talking-head videos are fixed by habits, not gear: camera slightly above eye level, one soft light at about 45 degrees with your face the brightest thing in frame, the microphone closer than feels normal, delivery 10–15 per cent slower, and recording in short sections.",
+    rules: [
+      "Eyeline: put the camera slightly above eye level so you look straight into the lens — a few inches higher than feels normal.",
+      "Light: one soft light at about 45 degrees beats several harsh ones; your face should be the brightest thing in the frame.",
+      "Audio: move the microphone closer than feels normal. Viewers forgive poor light; they leave if they can't hear you.",
+      "Slow down by 10–15 per cent, pausing between thoughts; it feels too slow while recording and sounds clearer on playback.",
+      "Record in short sections rather than one perfect take, and redo only the section you flub.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Record the same 30-second clip twice: first with your current setup and pace; then with the camera raised, one light at 45 degrees, the microphone closer, and a slightly slower delivery, in two sections. Compare them." },
+    check: "In the second take your eyes meet the lens without looking down, your face is the brightest thing in frame, the audio has no room echo, and someone you show both prefers it.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.13.6": {
+    takeaway: "A former news reporter turned business coach on looking and sounding natural on video — comfort, conversational language, 'you' not 'everyone', walking and talking, natural body language — and how to read a script without sounding as if you're reading it.",
+    beats: [
+      { t: "The memorised script", d: "Her first business videos — memorised lines, dressed up in the living room — looked anything but genuine." },
+      { t: "Sound like yourself", d: "Record a real conversation and listen. Short, simple sentences and a varied pace, not news-article language." },
+      { t: "Talk to one person", d: "People are told to talk to the camera as to one person, then open with 'hi everyone'. Use you, yours, yourself." },
+      { t: "Move and show your hands", d: "Walking and talking, or doing a familiar task, relaxes you. Open palms and a smile; she often stands for energy." },
+      { t: "Script or not", d: "Long videos from bullet points; short ones scripted in a notes app and recorded a sentence at a time — nothing to memorise, easy to edit." },
+      { t: "Voiceovers", d: "Read a line several times until it has the rhythm of real speech, stressing the words the viewer cares about." },
+    ],
+    worked: "Her voiceover line 'I'm going to show you how I make my voiceover videos, like the one you're watching': read flat the first time; on the next take she stresses 'voiceover videos', the words her viewer cares about, and slows down for 'like the one you're watching'.",
+    watch: "A few claims (showing your thumbs looks more attractive) come without a source, and the ending is a gear promotion. The scripting method is the lesson.",
+    concepts: [],
+    checks: [
+      { q: "How does she record short scripted videos?", opts: ["She memorises the whole script", "One sentence per take, read from her notes app", "With a teleprompter", "She improvises everything"], a: 1,
+        expl: "Short clips she can put together in editing." },
+      { q: "What is wrong with opening 'Hi everyone'?", opts: ["It addresses a crowd instead of the one person watching", "It is too short", "It is too formal", "Platforms penalise it"], a: 0,
+        expl: "Talk to one person, so say 'you'." },
+      { q: "What does she do to make a read line sound natural?", opts: ["Speak faster", "Read it once only", "Repeat it until it has a natural rhythm, stressing the key word", "Whisper it"], a: 2,
+        expl: "Vary pace and emphasis the way you would in conversation." },
+    ],
+  },
+
+  "spch100.13.7": {
+    takeaway: "Five no-new-gear fixes for talking-head videos — eyeline, one soft light, the microphone close, a slower delivery, and recording in short sections — shown on an iPhone with a budget lavalier to make the point.",
+    beats: [
+      { t: "Eyeline", d: "Too low and you look down into the lens; too high and you look stiff. Slightly above eye level — a few inches more than feels normal." },
+      { t: "One soft light", d: "Softness, not brightness: one light at 45 degrees. If the background competes with your face, the lighting is working against you." },
+      { t: "Microphone closer", d: "Distance makes audio thin and echoey. Clean audio matters more than good video." },
+      { t: "Slower", d: "Nearly everyone speeds up on camera, which sounds less confident. Slow down 10–15 per cent and compare two test clips." },
+      { t: "Sections", d: "One perfect take is pressure that makes delivery worse. Finish a section, reset, move on; redo only what you flub." },
+    ],
+    worked: "His pace test: the same clip at normal speed and slightly slower. Recording the slower one felt too slow; played back, it sounded clearer and more confident — which is why he says to record both and compare.",
+    watch: "This is mostly setup, and its delivery points (pace, sections) overlap this unit's earlier lessons. Use it as the checklist you run before you press record.",
+    concepts: [],
+    checks: [
+      { q: "Where should the camera sit, according to him?", opts: ["Well below eye level", "Slightly above eye level", "Directly overhead", "At chest height"], a: 1,
+        expl: "You look straight into the lens, not down at it." },
+      { q: "What does he say matters more than good video?", opts: ["Clean audio", "A new camera", "The background", "Colourful lights"], a: 0,
+        expl: "If they struggle to hear you, they're gone." },
+      { q: "By how much does he suggest slowing your delivery?", opts: ["By half", "Not at all", "About 10–15 per cent", "Speeding up instead"], a: 2,
+        expl: "It feels slow while recording and sounds clearer back." },
     ],
   },
 });

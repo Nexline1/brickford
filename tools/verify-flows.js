@@ -967,7 +967,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x " +
-      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and every multiple-choice question's answer slot uniform across its options, graded by the option rather than the slot"
+      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

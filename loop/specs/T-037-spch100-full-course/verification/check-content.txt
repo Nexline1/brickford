@@ -1,0 +1,7 @@
+# T-037 final CHECK — content
+# commit 9cf42e7; everything outside verification/ identical to that commit: yes; 2026-10-09T18:21:53Z
+$ node tools/verify-content.js
+SPCH 100: 159 lessons, 43.3 h of video — A1 3.33h, A2 1.23h, A3 5.47h, A4 4.12h, A5 5.18h, A6 4.50h, A7 7.37h, A8 3.90h, B1 2.08h, B2 1.55h, B3 0.48h, B4 1.25h, B5 1.15h, B6 0.80h, B7 0.90h
+
+PASS — 29589 checks, 14 numeric answers recomputed, 159 drills, 12 concepts, 12 figures, 3 interactive, 403 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0  (5s)

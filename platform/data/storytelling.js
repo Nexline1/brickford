@@ -237,6 +237,7 @@ DAR.COURSES.push({
       lessons: [
         { t: "Your life story in five minutes", v: "iWDmnTKdbu8", min: 7 },
         { t: "A story bank — categories, prompts and tags", v: "Jb3V1bYX3sU", min: 22 },
+        { t: "Which story to tell — start from the objective, then look for a success, a failure or a moment of clarity (stop at 58:00)", v: "x3cCL9TcdUQ", min: 58 },
       ],
     },
     {
@@ -6591,6 +6592,58 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Remember where you put everybody and everything." },
       { q: "How does the timeline help the close of a talk?", opts: ["It shortens the ending", "You can step back to earlier spots to call back to earlier stories", "It hides your notes", "It keeps you at centre stage"], a: 1,
         expl: "The callback is visual as well as verbal." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XI, top-up (T-037 review round 1, 2026-10-09) — B3 story selection,
+// one lesson appended after spch100.10.1: Paul Smith on choosing a story
+// from the objective (a success, a failure or a moment of clarity), the
+// ten stories a leader keeps ready, and why failures belong in the set.
+// Re-fetched whole (an earlier fetch had stopped at the tool's limit) and
+// read in full. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+  "spch100.10.2": {
+    module: "B3",
+    mechanic: "Choose the story from the point, not the point from the story: decide what you want this audience to think, feel or do differently, then search your past — and other people's — for a success, a failure or a moment of clarity around exactly that.",
+    rules: [
+      "Start with the objective and the audience. Only then go looking for a story; structure and polish come last.",
+      "Look in three places: a time someone did the thing well (a success), a time someone did it badly and paid for it (a failure), and the moment you realised it mattered (a moment of clarity).",
+      "Most of your stories should not be about you. A story you saw, or heard someone else tell, counts — and a set that is all about you sounds arrogant.",
+      "Mix successes and failures. A case for change and a 'why I work the way I do' story usually land better as failures, and failures show you care more about the listener's growth than your ego.",
+      "To get stories out of other people, don't ask for stories. Ask 'tell me about a time when…' — a mistake, a surprise, a biggest success.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write one sentence: what you want a specific audience to think, feel or do after your next talk, post or meeting. Under it write three headings — Success, Failure, Moment of clarity — and put one real candidate under each in a line, at least one of them not about you. Circle the one you would tell and say why in one sentence." },
+    check: "The objective names an audience and a change in thinking, feeling or doing; each heading holds a specific moment (a time, a place, a person) rather than a topic; and at least one candidate happened to someone else.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.10.2": {
+    takeaway: "Paul Smith, interviewed about Lead with a Story and The 10 Stories Great Leaders Tell: start from what you want people to think, feel or do, then look for a success, a failure or a moment of clarity around it. Keep a small set of durable stories ready, and tell more failures than feels comfortable.",
+    beats: [
+      { t: "Ask for a time, not a story", d: "Leaders asked for advice give bumper stickers. 'Tell me about a time when you made a huge mistake' can only be answered with a story." },
+      { t: "Six parts before it is a story", d: "A time, a place, a main character with a goal, something in the way, and events that resolve. A relatable hero, a worthy challenge, emotion and a surprise make it a great one." },
+      { t: "Objective first", d: "Decide what this audience should think, feel or do; then look for a success, a failure or a moment of clarity around it. Most of your stories should not be about you." },
+      { t: "Ten stories", d: "Where we came from, why we can't stay, where we're going, how we'll get there; what we believe, who we serve, what we do for them, how we're different; why I lead the way I do, why you should want to work here." },
+      { t: "Failures for change", d: "A case for change is a story about a person who would benefit — or one who missed out — not a financial metric. Leadership-philosophy stories also land better as failures." },
+      { t: "Surprise by withholding", d: "Give the place and a first name but hold back the year and the surname until the end: the nine-year-old staring at the kettle turns out to be James Watt." },
+    ],
+    worked: "Objective: get a new team to ask for help early. Success: a colleague who flagged a blocked task on day one and shipped on time. Failure: the week you sat on a bug for four days and the release slipped. Moment of clarity: a mentor saying 'I'd rather hear bad news on Monday than on Friday'. Tell the failure — it costs you something, and it shows the team you would rather they skip the mistake than protect your image.",
+    watch: "An hour-long podcast conversation with auto-generated captions. The teaching starts after about five minutes of background and ends with reading recommendations near 58:00. His '10 to 15 percent of a meeting' figure is his own observation, and he says so; the eBay experiment he describes (cheap objects resold with invented stories) is told from memory, with the markup approximate.",
+    concepts: [],
+    checks: [
+      { q: "Where does Smith say the search for a story should start?", opts: ["With the structure you will tell it in, then a story to fill it", "With what you want this audience to think, feel or do differently", "With your most dramatic memory, then a point it could make", "With a story you have told before, adapted to the new audience"], a: 1,
+        expl: "Objective and audience first; then a success, a failure or a moment of clarity around it." },
+      { q: "Which kind of story does he say usually works better as a case for change?", opts: ["A failure: a person who missed out because nothing changed", "A success: the best quarter the whole team has ever had together", "A forecast: the return on investment the change will bring us", "A founding story: where the company first started out"], a: 0,
+        expl: "Find the people who would benefit — and tell the story of one who didn't." },
+      { q: "How did he make the kettle story end on a surprise?", opts: ["He told it in the present tense and gave the setting at the end", "He held back the boy's surname and the year until the very end", "He opened on the ending and then told the story backwards", "He left the mother out, so the boy seemed to be on his own there"], a: 1,
+        expl: "Withhold part of the who and the when — details listeners expect at the start." },
+      { q: "Why does he say most of the stories you tell shouldn't be about you?", opts: ["Other people's stories are always more dramatic than yours", "Listeners trust a story more when it is second-hand", "If every story is yours, you come across as arrogant", "You can't check your own memories well enough"], a: 2,
+        expl: "A story you saw, or heard someone tell, can carry the point just as well." },
     ],
   },
 });

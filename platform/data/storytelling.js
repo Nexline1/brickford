@@ -152,6 +152,10 @@ DAR.COURSES.push({
         { t: "The clown and the editor — a repeatable process for writing funny (stop at 33:20)", v: "57Bs9Ftq6FE", min: 33 },
         { t: "Anatomy of a cartoon — incongruity, context, and who the target is", v: "FKxaL8Iau8Q", min: 21 },
         { t: "Open mode and closed mode — Cleese on the conditions for ideas", v: "Pb5oIIPO62g", min: 37 },
+        { t: "Humour tailored to the room — Judy Carter's 'what's a bad day?'", v: "reb6VY9Wu8s", min: 35 },
+        { t: "The laugh generator — punch up a talk from its transcript", v: "qIxRZQd9gfg", min: 10 },
+        { t: "When a joke gets nothing — too little information, or too much", v: "5isx4lkVCZc", min: 3 },
+        { t: "Don't open with a joke — three low-risk ways to be light", v: "h6sm47j-Am4", min: 6 },
       ],
     },
     {
@@ -5841,6 +5845,167 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Different conversations, different parts of the brain." },
       { q: "In a hard conversation, what does he say you should try to control?", opts: ["The other person's emotions", "The other person's conclusion", "Things you can control together, like the time and the boundaries", "Nothing — let it run"], a: 2,
         expl: "Trying to control each other backfires; controlling things together builds cooperation." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VII, second top-up (T-037, 2026-10-09) — A5, four lessons on
+// humour for talks, appended after spch100.6.14: Judy Carter on building
+// material from the audience's bad days, the 'laugh generator' and joke
+// troubleshooting from A Funnier You, and Alex Lyon's case against opening
+// with your own joke (which disagrees with Simon Lancaster in Unit X — the
+// summary says so). Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.6.15": {
+    module: "A5",
+    mechanic: "Humour for a business audience is built from their life, not yours: call a few of them before the talk, ask what a bad day looks like, and turn their insider pain — acronyms, rituals, frustrations — into lists and lines; tell the truth about yourself, mock yourself lightly, and turn problems into punchlines.",
+    rules: [
+      "Before a corporate talk, call people in the audience and ask 'What's a bad day?' Their insider details become material that lands because it is about them.",
+      "Don't lecture ('you've got to follow your dream'); make the talk about them.",
+      "Comedy is the truth. The dullest officer in the navy got his first laugh by saying 'I know I'm boring' — light self-mockery reads as confidence.",
+      "Simple formulas help: the list of three, with the big obvious item last ('we stopped kissing, stopped eating together, he moved in with his new wife').",
+      "Turn problems into punchlines — the boss from hell is a heckler — and let a poignant story land without a laugh; it moves people in a different way.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick an audience you might speak to — a client's team, your trade. Write five answers they would give to 'What's a bad day?', from what you already know of their work. Turn two of them into a list of three in which the third item is the big, obvious one." },
+    check: "Each list is about their world rather than yours, and someone from that audience would recognise every item as true.",
+  },
+
+  "spch100.6.16": {
+    module: "A5",
+    mechanic: "To find the laughs you have been talking past, record the talk or story as you would actually say it, get a verbatim transcript, go through it line by line for clear assumptions and double meanings, twist them, then say it again, record, and repeat.",
+    rules: [
+      "Get your facts, then distort them: nearly every statement carries an assumption you can twist.",
+      "Record the thing — intro, bio, story, signature talk — ideally in front of an audience. Don't write it first; we don't speak the way we write.",
+      "Get a verbatim transcript: it shows the ums, and where the laughs actually happened.",
+      "Go line by line for double meanings and clear assumptions ('end up on the rocks'), and twist each one — often by finding the upside of a downside.",
+      "It is iterative: change, record, test, repeat. That is how stand-ups get good, too.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Record a two-minute story you often tell and transcribe it (your phone can). Mark every line that carries a clear assumption or a double meaning, then write one twist for the two best lines." },
+    check: "Each twist keeps the original line and adds a surprise that depends on its assumption, and you can say both versions aloud without reading.",
+  },
+
+  "spch100.6.17": {
+    module: "A5",
+    mechanic: "When a joke gets nothing, go to the recording and check the information: if the setup was unclear or used a reference they don't share, they are still catching up at the punchline; if they have heard it before or are too close to the subject, it can't surprise them — aim for the middle.",
+    rules: [
+      "Record every time you speak, so you can see what happened rather than what you remember.",
+      "Use references your audience knows; otherwise they can't put the pieces together.",
+      "A confusing lead-in leaves people behind at the punchline. The setup has to create one clear expectation and picture.",
+      "People who know too much won't laugh either: a cliché they have heard, or a target they are too close to or don't accept.",
+      "Aim for the middle — not too little information, not too much.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Take one line that got less of a laugh than you hoped. Write which side failed — too little (unclear setup, unfamiliar reference) or too much (cliché, too close to home) — and rewrite the setup to fix it." },
+    check: "The new setup creates a single clear expectation, and any reference in it is one this audience would know.",
+  },
+
+  "spch100.6.18": {
+    module: "A5",
+    mechanic: "A stand-up-style setup-and-punchline joke as your opener is high risk and low reward, so get lightness with less exposure: quote someone funny, tell a light story in which someone pursues a goal and hits obstacles, or show something visual you already know is funny.",
+    rules: [
+      "The common failure: the opening joke gets silence, the speaker chuckles nervously to cue a laugh, and the first moment of the talk is crickets.",
+      "Quote a comedian by name: the line is tested, the audience hears the comedian's voice, and if it flops it is on them, not on you.",
+      "A light story gets its smile from a goal and the obstacles in its way — the road-trip principle of Dumb and Dumber.",
+      "Show a funny picture or slide you have already seen make people laugh; you don't have to deliver it.",
+      "Lighthearted humour, yes; your own one-liner as the very first line, no.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write three alternative openings for your next talk: one built on a quote from a named comedian or humorist, one ten-second story with a goal and an obstacle, and one funny image you would show with a single line of setup." },
+    check: "None of the three depends on you delivering a punchline cold, and the story has a clear goal and at least one obstacle.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.6.15": {
+    takeaway: "Judy Carter, comic turned 'motivational humorist' and author of The Comedy Bible, interviewed on making business audiences laugh: research their bad days, make the talk about them, tell the truth about yourself, use simple formulas like the list of three, and let a poignant story do what a joke can't.",
+    beats: [
+      { t: "Make it about them", d: "For a thousand surgical technologists she called people beforehand and asked what a bad day was. 'Were there signs in childhood? Hey Tommy, get off that slide, I haven't sterilised it yet.'" },
+      { t: "Insider material", d: "Corporate people speak in acronyms; a 'top ten ways you know you're stressed' list in their language lands because it is theirs." },
+      { t: "Start before the start", d: "Warned that a rock crowd would hate her, she played the accordion badly to the queue outside; when she walked on carrying it, she already had them." },
+      { t: "Comedy is the truth", d: "Radio challenged her to make 'the least funny man in America' funny — a naval captain who bored his cadets. His first laugh: 'I know I'm boring.'" },
+      { t: "Formulas", d: "The list of three with the obvious item last. You don't need great talent to be funny for five minutes in a meeting — a few formulas will do." },
+      { t: "Mess into message", d: "Stories about growing up with her disabled sister didn't get laughs but moved the room, and people queued to share their own lives. You can't spell 'message' without 'mess'." },
+    ],
+    worked: "Starting a comedy tour on 12 September 2001, she opened with a moment of silence, then said the attackers could take buildings and lives but she'd be damned if they took her sense of humour. The room applauded, and the show could begin.",
+    watch: "This is a long, friendly interview with plenty of career story; the techniques sit in the middle. The lines quoted are hers, written for her rooms — borrow the method, not the jokes.",
+    concepts: [],
+    checks: [
+      { q: "What does Carter ask audience members before a corporate talk?", opts: ["What they want to learn", "What a bad day looks like for them", "What their favourite joke is", "Who their boss is"], a: 1,
+        expl: "Their insider details make the humour about them." },
+      { q: "How did 'the least funny man in America' get his first laugh?", opts: ["By admitting 'I know I'm boring'", "With a comedian's one-liner", "With a story about his dog", "By showing a cartoon"], a: 0,
+        expl: "Comedy is the truth — and light self-mockery signals confidence." },
+      { q: "In her list of three, where does the big, obvious item go?", opts: ["First", "In the middle", "Last", "It is left out"], a: 2,
+        expl: "Two subtle clues, then the glaring one." },
+    ],
+  },
+
+  "spch100.6.16": {
+    takeaway: "'A Funnier You' on the laugh generator: record your talk or story as you actually say it, get a verbatim transcript, comb it line by line for assumptions and double meanings, twist them, and iterate — the way stand-ups refine a set.",
+    beats: [
+      { t: "Distort the facts", d: "Twain's line: get your facts, then distort them. Surprise comes from twisting the expectation a statement carries." },
+      { t: "Naturally funny isn't enough", d: "Being funny with friends didn't survive a stand-up stage, and stand-up didn't survive a humorous-speech contest; he needed a process." },
+      { t: "Record, don't write", d: "Speech and writing differ, and a script is not a transcript. Tell it to the cat if you must, but record it." },
+      { t: "Verbatim transcript", d: "It shows filler words and, with an audience, where laughs landed — expected and unexpected." },
+      { t: "Twist", d: "Look for double meanings and clear assumptions, then twist them; the upside of a downside is a reliable turn." },
+    ],
+    worked: "A client sailing alone down the coast to Mexico: 'I didn't want my boat to end up on the rocks — so I did what any captain would do. I went to the liquor cabinet.' Another, pulled aside by airport security while her husband and children went on: 'He's freaking out. All I could think was: finally, some alone time.'",
+    watch: "He sells 'laughter audits' and names a paid transcription service; any free phone transcription will do. Not every line needs a joke — mark the candidates and keep the best two.",
+    concepts: [],
+    checks: [
+      { q: "Why does he insist on recording before writing?", opts: ["Recordings are easier to share", "We don't speak the way we write, so the transcript shows what you really say", "Audiences prefer recordings", "It is faster"], a: 1,
+        expl: "A script isn't a transcript." },
+      { q: "What does a verbatim transcript of a live run show you?", opts: ["Your fillers and where the laughs actually happened", "Your slide timings", "The audience's names", "Only grammar mistakes"], a: 0,
+        expl: "Expected laughs that didn't come, and unexpected ones you can build on." },
+      { q: "In the airport-security example, what kind of twist makes the laugh?", opts: ["A pun", "An exaggeration", "Finding the upside of an obviously bad event", "A callback"], a: 2,
+        expl: "The assumption is that being pulled aside is bad; the twist is that it's a break." },
+    ],
+  },
+
+  "spch100.6.17": {
+    takeaway: "A three-minute troubleshooting guide from 'A Funnier You': when a joke dies, check the recording for an information problem — too little (a confusing setup, an unknown reference) or too much (a cliché, or a subject the audience is too close to).",
+    beats: [
+      { t: "Go to the recording", d: "Record even on the phone in your pocket; you need to see what was actually said." },
+      { t: "References they know", d: "If the audience doesn't share the reference, they can't put the pieces together." },
+      { t: "Confused setups", d: "Words before the punchline that confuse leave people behind; the punchline lands on minds still catching up." },
+      { t: "Too much information", d: "'Why did the chicken cross the road?' gets nothing because everyone knows it. Some people are too close to the subject, or reject the target." },
+      { t: "The middle", d: "Aim for the big middle of the bell curve: not too much, not too little." },
+    ],
+    worked: "A joke that relies on an industry acronym kills at a trade conference and dies at a family dinner: same words, different information. The fix is in the setup — name the thing plainly for outsiders, or save the line for insiders.",
+    watch: "Short and general: use it as the checklist after the laugh generator, not as a technique of its own.",
+    concepts: [],
+    checks: [
+      { q: "What is the first step when a joke doesn't get a laugh?", opts: ["Drop it at once", "Go to the recording", "Tell it louder next time", "Ask the audience"], a: 1,
+        expl: "See what you actually said and how it landed." },
+      { q: "Why does 'why did the chicken cross the road?' get no laugh?", opts: ["Everyone has heard it, so nothing surprises", "It is too long", "It is offensive", "It needs a picture"], a: 0,
+        expl: "Too much information kills the surprise." },
+      { q: "What does aiming for the middle mean here?", opts: ["Three jokes per speech", "Jokes in the middle of the talk only", "Not too little information and not too much", "Telling jokes slowly"], a: 2,
+        expl: "Clear enough to follow, fresh enough to surprise." },
+    ],
+  },
+
+  "spch100.6.18": {
+    takeaway: "Communication coach Alex Lyon pushes back on 'open with a joke': a cold setup-and-punchline joke is high risk and low reward. He offers three low-risk ways to start light — quote someone funny, tell a goal-and-obstacles story, or show a funny visual.",
+    beats: [
+      { t: "The failure mode", d: "Nobody laughs, the speaker chuckles nervously, the audience chuckles nervously, and the first moment of the talk is gone." },
+      { t: "Quote the funny", d: "'As Jerry Seinfeld said, my parents didn't want to move to Florida, but they're 65 and that's the law.' Tested material, with attention on the line, not on you." },
+      { t: "Goal and obstacles", d: "A story turns lighthearted when someone is trying to get somewhere and everything goes wrong — the Dumb and Dumber road trip." },
+      { t: "Show it", d: "A picture or slide you already know is funny gets a smile with no punchline to deliver." },
+    ],
+    worked: "Instead of 'So a consultant walks into a bar…', open with: 'Jerry Seinfeld said his parents didn't want to move to Florida, but they're 65 and that's the law. Our industry has laws like that too.' The laugh is pre-tested, and you've bridged to your topic.",
+    watch: "Simon Lancaster (Unit X) treats a joke as one good way to open, for pleasure; Lyon says not your own one-liner. They agree on the goal — a feeling in the first seconds — and differ on how much risk to take for it.",
+    concepts: [],
+    checks: [
+      { q: "Why does Lyon advise against opening with your own setup-punchline joke?", opts: ["Jokes are unprofessional", "It is high risk and low reward — silence in the first moment is hard to recover from", "Audiences dislike humour", "It takes too long"], a: 1,
+        expl: "He is in favour of humour, just not that kind as the opener." },
+      { q: "What makes quoting a comedian lower-risk?", opts: ["It is tested material, and if it flops it is on them, not you", "Nobody knows the comedian", "It is shorter", "It avoids eye contact"], a: 0,
+        expl: "You and the audience look at the line together." },
+      { q: "What makes a story lighthearted, in his account?", opts: ["A twist ending", "A famous character", "A goal and the obstacles in its way", "A moral"], a: 2,
+        expl: "Everything that can go wrong on the way to the goal." },
     ],
   },
 });

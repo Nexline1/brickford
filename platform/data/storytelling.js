@@ -249,6 +249,16 @@ DAR.COURSES.push({
         { t: "Five content pillars — knowledge, experience, need, you, values", v: "QtQjxqGuxTI", min: 14 },
       ],
     },
+    {
+      name: "Unit XVII — Long-form: acts, scripts, packaging, tension",
+      lessons: [
+        { t: "Three acts — 24 hours to meet Yes Theory", v: "CbWCNxxP-RI", min: 9 },
+        { t: "Scripting a long video — packaging, outline, intro, body, outro", v: "7I50PECz7SU", min: 20 },
+        { t: "Packaging — legitbait, not a click trap", v: "S2xHZPH5Sng", min: 19 },
+        { t: "Editing for tension — moments, countdowns, questions", v: "Kt-mmNGKT88", min: 5 },
+        { t: "A story inside a review — and packaging before you film", v: "xNC8gPIMv6U", min: 16 },
+      ],
+    },
   ],
 });
 
@@ -4660,6 +4670,204 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Teach what they must know before your offer can work." },
       { q: "What is expected of the 'personal connections' pillar?", opts: ["To stay neutral", "To be strictly professional", "To be polarising — attracting the right people and repelling the wrong ones", "To avoid stories"], a: 2,
         expl: "That's the point of it." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XVII — B5, long-form and YouTube structure (budget 1.2 h; light on
+// purpose, as the taxonomy asked). Colin and Samir twice (three acts; how
+// they cut a documentary for tension), Kallaway's script order, Veritasium
+// on packaging, and a Waveform conversation on finding a story inside a
+// review and packaging before filming.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.16.0": {
+    module: "B5",
+    mechanic: "Colin and Samir build videos on three acts — setup, conflict, resolution — and show it on one video: act one sets the goal and a deadline, act two is stages of rising tension, act three is the release.",
+    rules: [
+      "Act one is the setup: give context and hook them to the end. A strong act one drives the rest.",
+      "Add a constraint to raise the stakes — they gave themselves 24 hours.",
+      "Act two is the conflict: stages (they used title cards) with tension rising, up to a low point where it looks as if you'll fail.",
+      "Signal the change of act with music, location and form — voice-over and B-roll in act one, a fast drumbeat and a new place in act two, something reflective in act three.",
+      "Brainstorm before you pick up a camera; choose ideas that fit three acts.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Outline a video about a real project as three acts: act one in one sentence with a deadline in it, act two as three stages each harder than the last, act three as the release and what it meant." },
+    check: "Somewhere in act two there's a moment where it looks as if you'll fail. If every stage goes well, there's no act two.",
+  },
+
+  "spch100.16.1": {
+    module: "B5",
+    mechanic: "Kallaway writes every script in the same order — packaging, outline, intro, body, outro — on one principle: when reality beats the viewer's expectations they stay, and when it doesn't they leave.",
+    rules: [
+      "Packaging first: the idea, then the title (the thumbnail can stay loose). The first lines must confirm the click, and ideally beat it.",
+      "Outline before you write: bullet the points and check they're genuinely new. If they're not, research more before you script.",
+      "Intro formula: the topic straight away, then the common belief, then your contrarian take, then proof and a plan.",
+      "Body: put your second-best point first and build up from there; explain each point with context, application and framing; re-hook between points.",
+      "End on a high note that reminds them the promise was kept. Calls to action work best embedded where they genuinely solve the problem being discussed.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Draft the intro of a long video using his order: one line confirming the title, one line of common belief, one contrarian line, one line of proof, one line of plan. Then bullet the body points and mark which is second-best, to go first." },
+    check: "Your first body point is something your audience probably hasn't heard. If it's the obvious tip, swap it.",
+  },
+
+  "spch100.16.2": {
+    module: "B5",
+    mechanic: "Derek Muller of Veritasium separates 'legitbait' — titles and thumbnails that are enticing and accurate — from the click trap, and argues packaging is at least half the job, because it decides how many people YouTube shows the video to at all.",
+    rules: [
+      "Picture two axes: how sensationalised it is, and how much it withholds. Too much of both is a click trap; too little is the dead zone; legitbait sits between.",
+      "There are hundreds of accurate titles for any video. Choose the one that tells the most people why they'd care.",
+      "Click-through drives impressions: better packaging gets you shown more, not just clicked more.",
+      "Test and swap. 'Asteroids: Earth's Biggest Threat' went from near-worst to his best after one change: 'These Are the Asteroids to Worry About'.",
+      "Package for outsiders: 'The Simplest Math Problem No One Can Solve' reaches people who've never heard of the Collatz conjecture. Keep the video uncompromised; adjust the packaging.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write five accurate titles for one video or post you've made. Mark each as dead zone, legitbait or click trap. Rewrite the dead-zone ones for someone who has never heard of the topic." },
+    check: "Your best title is one you'd be comfortable defending as accurate, and a stranger would know why to click.",
+  },
+
+  "spch100.16.3": {
+    module: "B5",
+    mechanic: "Colin and Samir break down how they cut a documentary from more than fifty hours of footage: capture moments rather than shots, show instead of announcing, count down instead of up, and build tension like a game of Jenga.",
+    rules: [
+      "Shots can be fetched later; moments can't. Know when to be rolling — the unguarded moment becomes the soul of the piece.",
+      "Show, don't say: they cut a two-minute car scene explaining the plan and moved the B-roll into a visual cold open.",
+      "Count down, not up. 'Day three of production' means nothing; days left until the deadline raises the stakes.",
+      "Jenga storytelling: each piece pulled out makes the tower shakier, so tension rises to the end.",
+      "One macro question for the whole film, with micro questions opening inside it — curiosity gaps between what they know and want to know.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Take a project you're filming or have filmed. Write its macro question, three micro questions, and the countdown you could put on screen." },
+    check: "The countdown ends at a moment the viewer cares about (launch, client meeting, deadline), not at the end of your filming schedule.",
+  },
+
+  "spch100.16.4": {
+    module: "B5",
+    mechanic: "In a Waveform podcast conversation, Colin and Samir argue that storytelling advice applies even to a product review — set up something the viewer waits for — and that if you're frantically changing titles after upload, the mistake came earlier: package the idea before you film.",
+    rules: [
+      "You can open a narrative inside a review: 'two things I really like about this, and one I really don't' gives the viewer something to wait for.",
+      "Use 'but' and 'therefore', not 'and then' — the South Park rule — even in a tech video.",
+      "Not all advice transfers: a niche audience may want depth that a retention-maximising six-minute cut would remove.",
+      "If you keep swapping titles and thumbnails after upload, the problem started earlier. Decide the packaging before you script or film.",
+      "When you can't package first (a review of something untested), build repeatable formats so the packaging is half-decided.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "For your next long piece, write the title and thumbnail idea before anything else. Then write the one line in the intro that sets up something viewers will wait for." },
+    check: "The packaging came first, and the intro's setup line is paid off later in the outline.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.16.0": {
+    takeaway: "Colin and Samir: the three-act structure is the most important thing to know before making a video. Set up the goal and the stakes, run rising tension through act two, and release it in act three — and spend the effort on act one.",
+    beats: [
+      { t: "Setup", d: "Context and a hook strong enough to carry the viewer to the end." },
+      { t: "Conflict", d: "The meat: the adventure and transformation, with tension rising." },
+      { t: "Resolution", d: "Everything ties together; the tension is released." },
+      { t: "Signals", d: "Music, location and style change to tell the viewer a new act has begun." },
+      { t: "Brainstorm first", d: "Think the idea through before picking up a camera." },
+    ],
+    worked: "'24 hours to meet Yes Theory': act one declares the goal on screen with a building crescendo; act two runs through attempts under title cards to night-time, music gone, when it looks as if they'll fail; then a phone call — 'have you checked your Twitter?' — opens act three, with reflective music.",
+    watch: "Skipping the constraint. Meeting Yes Theory was the goal; the 24-hour limit is what gave act two its tension.",
+    concepts: [],
+    checks: [
+      { q: "What is act two for, in their structure?", opts: ["The conflict — where tension rises", "The introduction", "The sponsor", "The credits"], a: 0,
+        expl: "Everything set up in act one plays out." },
+      { q: "How did they raise the stakes in act one?", opts: ["A bigger budget", "A 24-hour time limit", "A celebrity guest", "A giveaway"], a: 1,
+        expl: "A constraint makes the journey worth following." },
+      { q: "How did they signal the start of act two?", opts: ["A title card saying 'Act Two'", "Silence", "A fast drumbeat and a change of location", "A sponsor read"], a: 2,
+        expl: "Act one had been voice-over and B-roll." },
+    ],
+  },
+
+  "spch100.16.1": {
+    takeaway: "Kallaway's script order: packaging, outline, intro, body, outro — all driven by one principle, expectations against reality. When what they get beats what they expected, they stay.",
+    beats: [
+      { t: "Expectations versus reality", d: "Like the relief after a speech you expected to bomb." },
+      { t: "Click confirmation", d: "The title sets the expectation; the first lines confirm and ideally beat it." },
+      { t: "Outline for uniqueness", d: "If the points are common knowledge, research more before writing." },
+      { t: "Intro formula", d: "Topic, common belief, contrarian take, proof, plan." },
+      { t: "Body and outro", d: "Second-best point first, then build; re-hook between points; end on a high note." },
+    ],
+    worked: "The intro of the video itself: 'Today we're talking about writing killer scripts' (topic); 'this is an art, one of the hardest things to learn' (common belief); 'but there is a right answer — they all run the same process' (contrarian); then the five-step plan and his credentials (plan and proof).",
+    watch: "Leading with your best point. He argues a rising pattern — strong, stronger — keeps people watching, the way albums rarely open with the hit. Three of his own plugs are deliberately 'native embedded' in the video.",
+    concepts: [],
+    checks: [
+      { q: "What principle does Kallaway say drives every scripting decision?", opts: ["Length versus budget", "Expectations versus reality", "Topic versus trend", "Hook versus thumbnail"], a: 1,
+        expl: "Reality beating expectations keeps viewers." },
+      { q: "Which point does he put first in the body?", opts: ["The best", "The weakest", "The second-best", "A random one"], a: 2,
+        expl: "Then the best, so value seems to rise." },
+      { q: "What is 'click confirmation'?", opts: ["The first lines confirming what the title promised", "A pop-up asking viewers to subscribe", "A thumbnail test", "The end screen"], a: 0,
+        expl: "Ideally they beat the expectation too." },
+    ],
+  },
+
+  "spch100.16.2": {
+    takeaway: "Derek Muller of Veritasium: there's a difference between 'legitbait' — enticing and accurate — and the click trap. Packaging is at least half the job, because click-through decides how many people YouTube shows your video to at all.",
+    beats: [
+      { t: "The basketball", d: "'Strange Applications of the Magnus Effect' went nowhere on YouTube; a re-upload titled 'Basketball Dropped From Dam' got tens of millions." },
+      { t: "Why it changed", d: "YouTube moved from subscriptions to engagement, which raised the importance of packaging." },
+      { t: "Two kinds of clickbait", d: "Legitbait versus click trap, mapped on sensationalism and withholding." },
+      { t: "Swap and test", d: "Real-time metrics let you change a title and watch for a bump in views." },
+      { t: "Adjust the packaging", d: "Jack Conte's idea: keep the box uncompromised; change the wrapping." },
+    ],
+    worked: "'Are Negative Ions Good For You?' — a question nobody asked — became 'Do Salt Lamps Work?', and gained about one and a half million views. The new title was also clearer and more accurate.",
+    watch: "Treating all clickbait as the enemy. The dead zone ('Strange Applications of the Magnus Effect') fails too; the target is accurate and enticing. The last minute is a sponsor read.",
+    concepts: [],
+    checks: [
+      { q: "What is 'legitbait'?", opts: ["Packaging that is enticing and accurate", "Misleading titles that get clicks", "Titles with no curiosity", "Paid promotion"], a: 0,
+        expl: "As opposed to a click trap." },
+      { q: "Why does click-through matter beyond clicks?", opts: ["It sets ad rates", "It largely decides how many impressions YouTube gives the video", "It counts as watch time", "It sets your subscriber count"], a: 1,
+        expl: "Limited real estate goes to what gets clicked." },
+      { q: "Why title a video 'The Simplest Math Problem No One Can Solve' rather than 'The Collatz Conjecture'?", opts: ["It's shorter", "It hides the topic", "It tells far more people why they'd care, not just those who already know the term", "It's funnier"], a: 2,
+        expl: "More people learn something new." },
+    ],
+  },
+
+  "spch100.16.3": {
+    takeaway: "Colin and Samir cut a documentary from more than fifty hours of footage: capture moments, show instead of announcing, count down rather than up, and let tension rise like a Jenga tower.",
+    beats: [
+      { t: "Moments, not shots", d: "An unguarded 'do you think I'm evil?' exchange became the soul of the piece." },
+      { t: "Show, don't say", d: "A two-minute explanatory car scene became a visual cold open." },
+      { t: "Count down", d: "'Day one, day two' meant nothing; time running out did." },
+      { t: "Jenga storytelling", d: "Each piece removed makes the tower shakier until the end." },
+      { t: "Macro and micro questions", d: "How will two worlds come together? — with smaller curiosity gaps inside." },
+    ],
+    worked: "Their first title cards counted production days up — day one, two, three. They realised that raised no stakes, so they counted down instead, and showed unfinished sets to make the audience feel the time running out.",
+    watch: "Over-explaining. On YouTube you're used to saying everything aloud so nobody's lost; in a documentary the picture can do it, and it's stronger.",
+    concepts: [],
+    checks: [
+      { q: "What's the difference between a moment and a shot?", opts: ["Shots can be recaptured later; moments can't", "Moments are longer", "Shots need a crew", "There's no difference"], a: 0,
+        expl: "Either you get the moment or you don't." },
+      { q: "Why did they switch from counting days up to counting down?", opts: ["To shorten the film", "Counting up meant nothing; counting down raised the stakes", "For the sponsor", "It looked better"], a: 1,
+        expl: "Time running out builds tension." },
+      { q: "What is 'Jenga storytelling'?", opts: ["Stacking jokes", "Editing with blocks of colour", "Tension rising as the structure gets less stable", "Telling stories backwards"], a: 2,
+        expl: "By the end you're on the edge of your seat." },
+    ],
+  },
+
+  "spch100.16.4": {
+    takeaway: "Marques Brownlee asks Colin and Samir whether MrBeast's storytelling advice transfers to tech reviews. Their answer: storytelling does — set up something the viewer waits for — but not every retention tactic suits a niche, and packaging is best decided before you film.",
+    beats: [
+      { t: "Story in a review", d: "'Two things I really like, one I really don't' sets up a wait." },
+      { t: "But and therefore", d: "The South Park rule applies to a phone launch too." },
+      { t: "Tension and release", d: "A review is tension in itself: what does Marques think?" },
+      { t: "Niche depth", d: "Their audience wants long answers; cutting everything to six minutes would lose value." },
+      { t: "Package first", d: "If you're frantically changing titles, the mistake was earlier." },
+    ],
+    worked: "A phone review told with 'but, therefore': this line of phones has been incredible — but this one is different — therefore you should think about it differently. The same causal chain a story uses, inside a product review.",
+    watch: "About half of this clip is podcast conversation (a MrBeast-challenge tangent, creators' complaints about thumbnails and AdSense). The structure points are in the first seven minutes and from about 11:40 to 13:30.",
+    concepts: [],
+    checks: [
+      { q: "How can a review open a narrative, according to Samir?", opts: ["By setting up something the viewer waits for, like the one thing he doesn't like", "By telling a childhood story", "By hiding the product", "By using music"], a: 0,
+        expl: "That's a story element." },
+      { q: "What does frantic title-swapping suggest, in their view?", opts: ["Good testing", "A mistake earlier in the process — the idea wasn't packaged first", "A broken algorithm", "Too many uploads"], a: 1,
+        expl: "Good ideas make titles and thumbnails easy." },
+      { q: "Why don't they take every retention tip to the extreme?", opts: ["It's too expensive", "YouTube forbids it", "Their niche audience values depth that a very short cut would remove", "They don't track retention"], a: 2,
+        expl: "Know your audience." },
     ],
   },
 });

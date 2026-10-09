@@ -239,6 +239,7 @@ DAR.COURSES.push({
         { t: "Hook layering — what the first three seconds of viral shorts share", v: "sb3-tuDwhJ0", min: 20 },
         { t: "Hook point — attention, story, credibility", v: "-bpcK9qonPE", min: 27 },
         { t: "Shorts in depth — but/so, visible progress, the last word", v: "7eosJwqoDaY", min: 41 },
+        { t: "Three script mistakes — story flow, comprehension, speed to value", v: "0f6_pRAIJjI", min: 17 },
       ],
     },
     {
@@ -6093,6 +6094,54 @@ Object.assign(DAR.SUMMARIES, {
         expl: "A new leader joking about lacking leadership skills unsettled the team." },
       { q: "Which is a warning sign that self-deprecation has become a problem?", opts: ["People laugh", "You use it once a month", "You start believing the punchline", "You joke about your hobbies"], a: 2,
         expl: "Repeating negative thoughts about yourself is practising them." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XII, top-up (T-037, 2026-10-09) — B1 short-form structure, one
+// lesson appended after spch100.11.4: Kallaway on story flow,
+// comprehension and speed to value. Appended at the END of the unit; no
+// key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.11.5": {
+    module: "B1",
+    mechanic: "Scripts lose viewers in three ways — tangents that break the story's through line, wording that makes people work to understand, and value that arrives too late — so audit every line for necessity, write for a sixth-grade reader in short active sentences, and state the value in the first seconds, then re-hook.",
+    rules: [
+      "Story flow: keep one clear through line — this happened, but this, so this. After writing, read each line and ask whether it is necessary context or a logical step, or a distraction. Cut the distractions.",
+      "Comprehension: simpler words (about a sixth-grade level), shorter sentences, active voice; say a hard idea twice, the second time in the plainest words.",
+      "Name your concepts: a one- or two-word name is easier to remember than a definition.",
+      "Speed to value: in the first two or three seconds, set the context and tease the benefit or aggravate the pain.",
+      "Re-hook about 20–25 seconds into a short (two or three minutes into a long video) — signal that something better is still coming, then deliver it — and end by summarising or extending the value.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take a 60-second script, or write one about a problem you solve. Mark every line K (needed context or logical step) or C (tangent), and cut the Cs. Rewrite the first line so it sets the context and teases the value, and add one re-hook line around the 20-second mark." },
+    check: "Every remaining line is a K, the first line names both the topic and why it is worth watching, and the re-hook promises something not yet delivered.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.11.5": {
+    takeaway: "Kallaway on the three script mistakes that cost retention — broken story flow, low comprehension and slow speed to value — with a line-by-line audit, five comprehension tactics, and a hook, body, re-hook, body, outro architecture.",
+    beats: [
+      { t: "Story flow", d: "His prince walks into the forest; then a detour about the prince loving horses as a child breaks the thread, and some listeners never get back on. Good storytelling works like hypnosis." },
+      { t: "The line audit", d: "Is this line necessary context or an intentional step, or a distraction? Like a school word bank, you're not meant to use every word you were given." },
+      { t: "Comprehension", d: "People don't buy because you know words they don't. Simpler words, shorter sentences, active voice, say it twice, name your frameworks." },
+      { t: "Speed to value", d: "Books and films have a captive audience; a feed doesn't. Signal the value in the first seconds." },
+      { t: "The architecture", d: "Hook (context plus value), first body, re-hook at 20–25 seconds, second body, outro that summarises or extends the value." },
+    ],
+    worked: "A tax accountant's script that wanders into the politics behind a new tax bill loses the small-business owner it hooked. Cut the tangent, open with the topic and the saving, re-hook at twenty seconds with 'but the bigger saving is…', and keep the politics for another video.",
+    watch: "He promotes his free community and suggests using an AI tool to simplify wording; the line audit and the architecture are the lesson. The architecture is this course's long-form scripting lesson (spch100.16.1) in miniature.",
+    concepts: [],
+    checks: [
+      { q: "What is the 'story flow' problem?", opts: ["The video is too short", "Extra details and tangents break the through line, so viewers lose the thread", "There are too many cuts", "There is no music"], a: 1,
+        expl: "Every jump costs a share of the audience." },
+      { q: "When does he suggest a re-hook in a short-form video?", opts: ["About 20–25 seconds in", "In the first second", "Only at the end", "Every five seconds"], a: 0,
+        expl: "Two or three minutes in for a long YouTube video." },
+      { q: "Which of these is one of his comprehension tactics?", opts: ["Use longer words to sound expert", "Speak faster", "Restate a hard idea a second time in the simplest words", "Avoid naming your ideas"], a: 2,
+        expl: "He does it himself: 'rudimentary — or simple'." },
     ],
   },
 });

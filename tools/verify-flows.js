@@ -35,6 +35,13 @@
 //   (i) a slow phone (once): that stub answers only after 60 hails, the old
 //       cap — the page must still be asking, and resume must still work.
 //
+// And, since T-026b (loop/specs/T-026b-problems-exams-proof/spec.md):
+//
+//   (l) a lab ticked on Problems saves exactly as before the page changed
+//       shape: { done: true, proof: "" } and a lab event in two saves, the
+//       proof field under its row with the cursor in it and no re-render; a
+//       proof stored in one save; the untick stored, logged and the field gone.
+//
 // And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
 //
 //   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
@@ -577,6 +584,66 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
       check("(h) no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
+
+    // ---- (l) tick a lab on Problems (T-026b) ----
+    // The page around the checkbox changed shape; what a tick does must not.
+    // The first lab of the current phase, ticked by pressing its row: the lab
+    // is stored done with an empty proof, a lab event joins the chain, the
+    // proof field appears under that row with the cursor in it — all from
+    // the change handler, in exactly two saves (its own and the event's), with
+    // no re-render. A proof typed into the field is stored (one save); the
+    // untick stores done false, logs it, and takes the field away again.
+    {
+      const { ctx, page, errors } = await fresh(browser, w, null);
+      await go(page, "/workshop");
+      const lab = await page.evaluate(() => {
+        const cb = [...document.querySelectorAll("#view input[data-lab]")].find(i => i.closest("label").checkVisibility());
+        if (!cb) return null;
+        document.querySelector("#view > *").setAttribute("data-flow-keep", "1");
+        return { id: cb.dataset.lab, checked: cb.checked };
+      });
+      check("(l) /workshop shows an unticked lab of the current phase", !!lab && !lab.checked, lab ? lab.id : "no visible lab checkbox");
+      if (lab) {
+        const sel = '#view label:has(input[data-lab="' + lab.id + '"])';
+        const labs = () => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").labs || {});
+        const lastEvent = () => page.evaluate(() => { const l = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").ledger || []; return l[l.length - 1] || null; });
+        let w0 = await writes(page);
+        await page.click(sel);
+        const field = await page.waitForFunction(id => document.querySelector('#view input[data-proof="' + id + '"]'), lab.id, { timeout: 4000 }).then(() => true, () => false);
+        const ticked = { w: await writes(page) - w0, st: (await labs())[lab.id], ev: await lastEvent() };
+        const place = await page.evaluate(id => {
+          const inp = document.querySelector('#view input[data-proof="' + id + '"]'), row = document.querySelector('#view label:has(input[data-lab="' + id + '"])');
+          if (!inp || !row) return null;
+          return { under: inp.getBoundingClientRect().top >= row.getBoundingClientRect().bottom - 0.5, sameBox: inp.parentElement === row.parentElement,
+                   focused: document.activeElement === inp, kept: !!document.querySelector("#view [data-flow-keep]") };
+        }, lab.id);
+        check("(l) ticking it stores { done: true, proof: \"\" } in two saves (the tick and its chain event), and logs a lab event",
+          field && ticked.w === 2 && !!ticked.st && ticked.st.done === true && ticked.st.proof === "" &&
+            !!ticked.ev && ticked.ev.type === "lab" && ticked.ev.ref === lab.id && ticked.ev.data.done === true,
+          ticked.w + " save(s), stored " + JSON.stringify(ticked.st) + ", last event " + JSON.stringify(ticked.ev && { type: ticked.ev.type, ref: ticked.ev.ref, data: ticked.ev.data }));
+        check("(l) the proof field appears under that row, focused, and the page was not re-rendered",
+          !!place && place.under && place.sameBox && place.focused && place.kept, JSON.stringify(place));
+        w0 = await writes(page);
+        await page.fill('#view input[data-proof="' + lab.id + '"]', "https://github.com/example/flashcards");
+        // Leaving the field is what fires its change, as it does for a reader.
+        await page.$eval('#view input[data-proof="' + lab.id + '"]', el => el.blur());
+        const proofed = { w: await writes(page) - w0, st: (await labs())[lab.id] };
+        check("(l) a proof typed into it is stored, in one save",
+          proofed.w === 1 && !!proofed.st && proofed.st.done === true && proofed.st.proof === "https://github.com/example/flashcards",
+          proofed.w + " save(s), stored " + JSON.stringify(proofed.st));
+        w0 = await writes(page);
+        await page.click(sel);
+        const gone = await page.waitForFunction(id => !document.querySelector('#view input[data-proof="' + id + '"]'), lab.id, { timeout: 4000 }).then(() => true, () => false);
+        const unticked = { w: await writes(page) - w0, st: (await labs())[lab.id], ev: await lastEvent(),
+                           checked: await page.evaluate(id => document.querySelector('#view input[data-lab="' + id + '"]').checked, lab.id) };
+        check("(l) unticking it stores done: false in two saves, logs { done: false }, and takes the proof field away",
+          gone && !unticked.checked && unticked.w === 2 && !!unticked.st && unticked.st.done === false &&
+            !!unticked.ev && unticked.ev.type === "lab" && unticked.ev.ref === lab.id && unticked.ev.data.done === false,
+          unticked.w + " save(s), stored " + JSON.stringify(unticked.st) + ", field " + (gone ? "gone" : "still there"));
+      }
+      check("(l) no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
   }
 
   // ---- (j) the tab bar you slide along (T-023) ----
@@ -966,7 +1033,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
-    ? "PASS — " + checks + " checks: 7 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame) x " +
+    ? "PASS — " + checks + " checks: 8 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems) x " +
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);

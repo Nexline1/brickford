@@ -2725,8 +2725,7 @@
       const r = S.diag[d.id] || {};
       const sat = r.score != null;
       items.push({
-        kind: "diag", href: "#/diag/" + d.id, title: d.title,
-        sub: d.subject + " · " + d.minutes + " min" + (d.gate ? " · pass at " + d.gate + "%" : ""),
+        kind: "diag", id: d.id, href: "#/diag/" + d.id, title: d.title,
         due: gateLeft, sat, score: r.score,
         verdict: !sat ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap",
         // Unsat diagnostics outrank everything; the sooner the gate, the higher.
@@ -2736,8 +2735,7 @@
     qIds.forEach(id => {
       const bank = D.QUIZZES[id], n = unlockedIdx(id).length, best = bestQuiz(id);
       items.push({
-        kind: "bank", href: n ? "#/quiz/" + id : "#/courses", title: bank.title,
-        sub: bank.course + " · " + (n ? n + " of " + bank.questions.length + " unlocked" : "watch the lectures first"),
+        kind: "bank", id, href: n ? "#/quiz/" + id : "#/courses", title: bank.title,
         locked: !n, sat: best != null, score: best,
         verdict: best == null ? null : best >= 70 ? "pass" : "gap",
         // +1 so that an unsat diagnostic ALWAYS outranks a bank: a diagnostic
@@ -2756,43 +2754,81 @@
       it.verdict === "gap" ? '<span class="pill crimson">' + it.score + "%</span>" :
       it.verdict === "logged" ? '<span class="pill good">done</span>' : "";
 
-    const row = it => '<a class="grow' + (it.locked ? " muted-row" : "") + '" href="' + it.href + '">' +
-      '<span class="g-lead">' + (it.sat ? "✓" : it.locked ? lockSVG() : "") + "</span>" +
-      '<span class="g-main"><span class="g-t">' + esc(it.title) + "</span>" +
-      '<span class="g-s">' + esc(it.sub) + "</span></span>" +
-      (scoreTag(it) || "") + "</a>";
-
     const open = rest.filter(it => !it.locked);
     const shut = rest.filter(it => it.locked);
 
-    return '<div class="view-enter">' + folio("Exams", "timed \u00b7 closed book \u00b7 no AI") +
+    // ---- T-026b: the exam to sit next, what else is open, what watching unlocks ----
+    // Each exam carries its course — a diagnostic through the course that
+    // names it (course.diagnostic), a bank through the course whose quiz it
+    // is — for the tag's faculty colour and for readiness: the lectures of
+    // that course watched, over all of them. The one diagnostic no course
+    // names is the coding diagnostic (the NeetCode 10), which belongs to the
+    // tracker course, CS 150: its readiness is the problems solved of 150.
+    // A bank's size is what a sitting serves: perSitting, capped by the
+    // questions unlocked (unlockedBank's rule). Nothing new is stored.
+    items.forEach(it => {
+      const id = it.id;
+      const c = it.kind === "diag" ? D.COURSES.find(x => x.diagnostic === id) || D.COURSES.find(x => x.tracker) : D.COURSES.find(x => x.quiz === id);
+      const d = it.kind === "diag" ? D.DIAGNOSTICS.find(x => x.id === id) : null;
+      const bank = it.kind === "bank" ? D.QUIZZES[id] : null;
+      const st = c && !c.tracker ? courseLessonStats(c) : null;
+      it.course = c || null;
+      it.code = c ? c.code : d ? d.subject : bank ? bank.course : "";
+      it.size = d ? d.minutes + " min" : Math.min(bank.perSitting || 15, unlockedIdx(id).length) + " questions";
+      it.pass = d ? d.gate : 70;
+      it.watched = st ? st.done : c && c.tracker ? dsaCount() : 0;
+      it.of = st ? st.total : c && c.tracker ? 150 : 0;
+    });
+    const tag = (it, extra) => '<span class="tl-code ex-tag ' + (it.course ? facClass(it.course) : "") + '">' + esc(it.code) + (extra || "") + "</span>";
+    const pct = it => it.of ? Math.min(100, (it.watched / it.of) * 100) : 0;
+    const did = it => it.course && it.course.tracker ? " solved" : " watched";
+    // A short name for a locked bank: "Linear Algebra qualifier".
+    const short = t => {
+      const [a, b] = t.split(" \u2014 ");
+      return !b ? t : a + (/^Qualifying/.test(b) ? " qualifier" : /^Concept/.test(b) ? " concepts" : "");
+    };
+    const gateHere = lead && lead.due != null;
+    const hero = lead
+      ? '<div class="card at-next ex-hero' + (gateHere && lead.due <= 14 ? " urgent" : "") + '"><div class="at-main">' +
+        tag(lead, gateHere ? " \u00b7 Gate " + gate1.n : "") +
+        '<div class="at-gate">' + esc(lead.title) + "</div>" +
+        '<div class="ex-facts"><span>' + esc(lead.size) + "</span>" +
+        (lead.pass != null ? "<span>Pass at " + lead.pass + "%</span>" : "") +
+        (lead.of ? "<span>" + lead.watched + " of " + lead.of + (lead.course.tracker ? " problems solved" : " lectures watched") + "</span>" : "") +
+        "</div>" +
+        (lead.of ? '<div class="ex-bar ' + facClass(lead.course) + '" role="img" aria-label="' + lead.watched + " of " + lead.of + did(lead) + '"><i style="width:' + pct(lead).toFixed(2) + '%;"></i></div>' : "") +
+        "</div>" +
+        '<div class="ex-side">' +
+        (gateHere ? '<div class="at-days"><b>' + Math.max(0, lead.due) + "</b><span>days to the gate</span></div>" : "") +
+        '<a class="btn lg ex-sit" href="' + lead.href + '">Sit it</a></div></div>'
+      : "";
+    const card = it => '<a class="at-tile ex-card" href="' + it.href + '"><span class="tl-main">' + tag(it) +
+      '<span class="tl-t">' + esc(it.title) + "</span>" +
+      '<span class="tl-m">' + esc(it.size) + (it.pass != null ? " \u00b7 pass " + it.pass + "%" : "") + "</span></span>" +
+      (scoreTag(it) || "") + "</a>";
+    const lockRow = (it, i) => '<a class="ex-lock" href="' + it.href + '"' + (i >= 6 ? " data-ex-more hidden" : "") + ">" +
+      '<span class="ex-lk" aria-hidden="true">' + lockSVG() + "</span>" +
+      '<span class="ex-ln">' + esc(short(it.title)) + "</span>" +
+      '<span class="ex-lbar ' + (it.course ? facClass(it.course) : "") + '" role="img" aria-label="' + it.watched + " of " + it.of + did(it) + '"><i style="width:' + pct(it).toFixed(2) + '%;"></i></span></a>';
 
-      // ---- The one to sit next, at the size that says so ----
-      (lead
-        ? '<div class="card one' + (lead.due != null && lead.due <= 14 ? " urgent" : "") + '">' +
-          '<div class="one-kind">' + esc(lead.title) + "</div>" +
-          '<p class="one-hint">' + esc(lead.sub) +
-          (lead.due != null ? " · Gate " + gate1.n + " in " + lead.due + " days" : "") + "</p>" +
-          '<a class="btn lg one-go" href="' + lead.href + '">Sit it ▸</a></div>'
-        : "") +
+    return '<div class="view-enter"><div class="page-head"><h1>Exams</h1>' +
+      '<div class="sub">Timed, closed book, no AI. This is how a gate is passed.</div>' +
+      // The record, as one line where a group of two rows used to be.
+      '<div class="ex-rec">' + D.DIAGNOSTICS.length + " diagnostics \u00b7 " + qIds.length + " concept banks \u00b7 " + (diagSat + qDone) + " sat</div></div>" +
+
+      hero +
 
       (open.length
         ? '<div class="ghead">Also open<span class="gh-meta">' + open.length + "</span></div>" +
-          '<div class="glist">' + open.map(row).join("") + "</div>"
+          '<div class="at-tiles ex-open">' + open.map(card).join("") + "</div>"
         : "") +
 
       (shut.length
-        ? '<div class="ghead">Not open yet<span class="gh-meta">' + shut.length + "</span></div>" +
-          '<div class="glist">' + shut.map(row).join("") + "</div>"
+        ? '<div class="ghead">Unlock by watching<span class="gh-meta">' + shut.length + " locked</span></div>" +
+          '<div class="ex-locked">' + shut.map(lockRow).join("") + "</div>" +
+          (shut.length > 6 ? '<button type="button" class="at-chip ex-more" data-act="exMore">+' + (shut.length - 6) + " more</button>" : "")
         : "") +
-
-      '<div class="ghead">Record</div>' +
-      '<div class="glist">' +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Diagnostics sat</span></span>' +
-      '<span class="g-v">' + diagSat + " / " + D.DIAGNOSTICS.length + "</span></div>" +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Concept banks attempted</span></span>' +
-      '<span class="g-v">' + qDone + " / " + qIds.length + "</span></div>" +
-      "</div></div>";
+      "</div>";
   };
 
   V.quiz = function (bankId) {
@@ -3026,13 +3062,12 @@
       "</div></div></div>";
   };
 
-  // Consistency at a glance: one square per day, a column per week.
+  // Consistency at a glance: one square per day, a column per week. Always
+  // the last nWeeks (T-026b): days before the start and after today are void.
   function heatmapHTML(nWeeks) {
     const today = todayISO();
     const lastSunday = addDaysISO(today, -new Date(today + "T00:00:00").getDay());
-    const alignedStart = addDaysISO(D.START_DATE, -new Date(D.START_DATE + "T00:00:00").getDay());
-    let first = addDaysISO(lastSunday, -7 * ((nWeeks || 26) - 1));
-    if (first < alignedStart) first = alignedStart;
+    const first = addDaysISO(lastSunday, -7 * ((nWeeks || 26) - 1));
     const cols = [];
     for (let wk = first; wk <= lastSunday; wk = addDaysISO(wk, 7)) {
       let col = "";
@@ -3049,7 +3084,7 @@
       }
       cols.push('<div class="hcol">' + col + "</div>");
     }
-    return '<div class="heat">' + cols.join("") + "</div>";
+    return '<div class="heat" style="--wk:' + cols.length + ';">' + cols.join("") + "</div>";
   }
 
   // The exact bytes hashed for an entry. Published in the export so a third
@@ -3710,89 +3745,62 @@
   V.record = function () {
     const v = verifyChain();
     const led = S.ledger;
-    const milestones = led.filter(e => ["exam", "diagnostic", "gate", "week", "lab", "streak"].indexOf(e.type) >= 0).slice(-14).reverse();
-    const counts = {};
-    led.forEach(e => { counts[e.type] = (counts[e.type] || 0) + 1; });
-    const first = led.length ? led[0].ts.slice(0, 10) : "—";
-    const last = led.length ? led[led.length - 1].ts.slice(0, 10) : "—";
-    const sealedDays = S.studyDays.length;
     const cur = streak(), best = bestStreak();
-    const enoughHeat = daysBetween(D.START_DATE, todayISO()) >= 14;
+    const proven = Object.values(S.lessons).filter(l => l && l.verified).length;
 
-    // ---- The page is one answer and a set of rows ----
-    //
-    // It was a verdict card, a counts row, a heatmap card, a streak box with its
-    // own two-number layout, a milestones card and a disclosure — six shapes.
-    // The answer this page exists to give is yes-or-no, so that is the card; the
-    // numbers behind it are rows in one group, the way Health puts a ring at the
-    // top and everything that feeds it underneath.
-    return '<div class="view-enter">' + folio("Proof") +
+    // ---- T-026b: three numbers, the sealed days, the newest links ----
+    // It was a verdict card and a register of rows, the same shape as every
+    // other page. Now the run is three tiles (the streak and the longest ever
+    // side by side, CLAUDE.md), the sealed days are the heatmap, and the chain
+    // is drawn as what it is: each seal pointing back at the one before it.
+    const tile = (n, label) => '<div class="at-tile pf-tile"><span class="at-days"><b>' + n + "</b><span>" + label + "</span></span></div>";
+    // A seal's name: the lecture's code and its place in the course where the
+    // entry is about a lecture; otherwise what kind of entry it is.
+    const sealName = e => {
+      const L = lessonLabel(e.ref);
+      if (typeof L !== "string") {
+        const c = D.COURSES.find(x => x.id === L.cid);
+        let n = L.li + 1;
+        for (let u = 0; u < L.ui; u++) n += c.units[u].lessons.length;
+        return L.code + " \u00b7 L" + n;
+      }
+      return EV_LABEL[e.type] || capFirst(e.type);
+    };
+    const shortHash = h => "#" + String(h).slice(0, 4) + "\u2026" + String(h).slice(-4);
+    const seals = led.slice(-4).reverse();
+    const sealsHTML = seals.map(e => '<span class="seal"><b>' + esc(sealName(e)) + '</b><span class="seal-h">' + esc(shortHash(e.hash)) + "</span></span>")
+      .concat(seals.length && seals[seals.length - 1].i === 0 ? ['<span class="seal gen"><b>Genesis</b><span class="seal-h">the first link</span></span>'] : [])
+      .join('<span class="seal-arrow" aria-hidden="true">\u2190</span>');
 
-      '<div class="card one' + (!led.length ? "" : v.ok ? " one-clear" : " urgent") + '">' +
-      '<div class="one-kind">' +
-      (!led.length ? "Nothing recorded yet" : v.ok ? "Chain intact" : "Chain broken at entry " + v.brokenAt) +
-      (led.length && v.ok ? ' <span class="one-more">' + v.count + " entr" + (v.count === 1 ? "y" : "ies") + "</span>" : "") +
-      "</div>" +
-      '<p class="one-hint">' + (led.length ? first + " → " + last : "The first lecture you prove starts the chain.") + "</p>" +
-      (led.length ? '<button class="btn lg one-go" data-act="exportRecord">Download record</button>' : "") +
-      "</div>" +
+    return '<div class="view-enter"><div class="page-head"><h1>Proof</h1>' +
+      '<div class="sub">Every lecture you prove is sealed into a record nobody can quietly edit.</div></div>' +
 
-      // The streak, as two rows rather than a bespoke box.
-      '<div class="ghead">The run</div>' +
-      '<div class="glist">' +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Current streak</span>' +
-      '<span class="g-s">' +
-      (S.settings.streakFrom ? "counting from " + esc(S.settings.streakFrom) : "every sealed day · Saturdays stepped over") +
-      "</span></span>" +
-      '<span class="g-v">' + cur + "d</span></div>" +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Longest ever</span>' +
-      '<span class="g-s">a reset never touches this</span></span>' +
-      '<span class="g-v">' + best + "d</span></div>" +
-      (sealedDays ? '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Days sealed</span></span>' +
-        '<span class="g-v">' + sealedDays + "</span></div>" : "") +
-      (counts.lesson ? '<a class="grow" href="#/courses"><span class="g-lead"></span><span class="g-main"><span class="g-t">Lectures proven</span></span>' +
-        '<span class="g-v">' + counts.lesson + "</span></a>" : "") +
-      (counts.exam ? '<a class="grow" href="#/exams"><span class="g-lead"></span><span class="g-main"><span class="g-t">Examinations</span></span>' +
-        '<span class="g-v">' + counts.exam + "</span></a>" : "") +
-      "</div>" +
+      '<div class="at-tiles pf-tiles">' + tile(cur, "day streak") + tile(best, "longest streak") + tile(proven, "lectures proven") + "</div>" +
 
-      // The chart earns its card only once it has weeks to draw.
-      (enoughHeat
-        ? '<div class="ghead">Consistency<span class="gh-meta">one square per day</span></div>' +
-          '<div class="card">' + heatmapHTML(26) +
-          '<div class="cal-legend"><span>Quiet</span>' +
-          [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
-          "<span>Busy</span></div></div>"
-        : "") +
+      '<div class="ghead">Sealed days<span class="gh-meta">last 6 months</span></div>' +
+      '<div class="card pf-heat">' + heatmapHTML(26) +
+      '<div class="cal-legend"><span>Quiet</span>' +
+      [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
+      "<span>Busy</span></div></div>" +
 
-      (milestones.length
-        ? '<div class="ghead">Milestones<span class="gh-meta">' + milestones.length + "</span></div>" +
-          '<div class="glist">' +
-          milestones.slice(0, 6).map(e =>
-            '<div class="grow"><span class="g-lead"></span><span class="g-main">' +
-            '<span class="g-t">' + esc(eventLine(e)) + "</span></span>" +
-            '<span class="g-v">' + e.ts.slice(5, 10) + "</span></div>").join("") +
-          "</div>"
-        : "") +
+      '<div class="ghead">Latest seals<span class="gh-meta' + (led.length && !v.ok ? " pf-broken" : "") + '">' +
+      (!led.length ? "none yet" : v.ok ? "newest first" : "chain broken at entry " + v.brokenAt) + "</span></div>" +
+      (led.length ? '<div class="pf-seals">' + sealsHTML + "</div>"
+        : '<p class="shelf-empty">The first lecture you prove starts the chain.</p>') +
 
-      // Everything you touch a few times a year, behind one row each.
-      '<div class="ghead">More</div>' +
-      '<div class="glist">' +
-      '<a class="grow" href="#/transcript"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t">Transcript &amp; gates</span><span class="g-s">mastery per course, the five crossings</span></span></a>' +
-      '<a class="grow" href="#/method"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t">How the record works</span><span class="g-s">what a hash chain proves, and what it does not</span></span></a>' +
-      '<button class="grow nav" data-act="toggleAdv"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t">Anchor &amp; verify</span><span class="g-s">' +
-      (S.anchors.length ? S.anchors.length + " anchored" : "publish the head hash, or check an exported file") + "</span></span></button>" +
-      '<button class="grow" data-act="resetStreak"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t" style="color:var(--bad);">Reset the streak counter</span>' +
-      '<span class="g-s">the sealed days and the chain are untouched</span></span></button>' +
+      // Everything you touch a few times a year, as pills. The reset keeps its
+      // confirmation and sits last, in its danger colour; it is never filled.
+      '<div class="pf-pills">' +
+      '<a class="at-chip" href="#/transcript">Transcript &amp; gates</a>' +
+      '<button type="button" class="at-chip" data-act="toggleAdv">Verify a file</button>' +
+      '<a class="at-chip" href="#/method">How it works</a>' +
+      '<button type="button" class="at-chip pf-reset" data-act="resetStreak">Reset the streak counter</button>' +
       "</div>" +
 
       '<div id="advBox" hidden style="margin-top:var(--sp-3);">' +
       (led.length ? '<div class="hash">head ' + esc(chainHead()) + "</div>" +
-        '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button></div>' : "") +
+        '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button>' +
+        '<button class="btn ghost" data-act="exportRecord">Download record</button></div>' : "") +
       '<div class="card" style="margin-top:12px;"><h2>Public anchors</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Timestamps inside this app are self-reported. Publish the head hash somewhere public and its date becomes third-party evidence.</p>' +
       (S.anchors.length
@@ -4200,7 +4208,6 @@
     const labsDone = D.LABS.filter(l => (S.labs[l.id] || {}).done).length;
     const psetTotal = D.PSETS.reduce((a, g) => a + g.items.length, 0);
     const psetDone = D.PSETS.reduce((a, g) => a + g.items.filter(i => S.psets[i.id]).length, 0);
-    const pool = missPool();
     const phase = currentPhase();
     const PHASE_NAME = ["Phase 0 — Calibration", "Phase 1 — Foundations", "Phase 2 — Depth", "Phase 3 — Frontier"];
 
@@ -4230,30 +4237,53 @@
     const later = [0, 1, 2, 3].filter(ph => ph !== phase && labsIn(ph).length);
     const laterCount = later.reduce((a, ph) => a + labsIn(ph).length, 0);
 
-    return '<div class="view-enter">' + folio("Problems") +
+    // ---- T-026b: what the page is for, then the three ways in ----
+    // The drill is the daily thing — the labs are the month's and the problem
+    // sets are the term's — so it is the one card with a filled button. The
+    // other two cards say how far along you are and take you to their section
+    // below: an in-page jump, in memory (wire(), pbOpen) — never a save.
+    const mode = (k, glyph, title, desc, meta, act) =>
+      '<div class="at-tile pb-mode" data-mode="' + k + '"><span class="pb-glyph" aria-hidden="true">' + glyph + "</span>" +
+      '<span class="pb-t">' + title + '</span><span class="pb-d">' + desc + "</span>" +
+      '<span class="pb-foot"><span class="pb-m">' + meta + "</span>" + act + "</span></div>";
+    const G = d => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
+    // A lab's description cut to its first clause, and to about fifty
+    // characters on a word: never an ellipsis inside a word.
+    const firstClause = t => {
+      let c = String(t).split(/;|,| \u2014 |: |\. /)[0].replace(/[.\s]+$/, "");
+      if (c.length <= 50) return c;
+      c = c.slice(0, 51);
+      return c.slice(0, c.lastIndexOf(" ")).replace(/[\s,;:(\u2014-]+$/, "") + "\u2026";
+    };
+    const labRow = l => {
+      const st = S.labs[l.id] || { done: false, proof: "" };
+      return '<div class="pb-lab"><label class="check-row pb-row"><input type="checkbox" data-lab="' + l.id + '" ' + (st.done ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG + "</span>" +
+        '<span class="pb-lt"><span class="pb-lt-t">' + esc(l.title) + '</span><span class="pb-lt-d">' + esc(firstClause(l.req)) + "</span></span>" +
+        '<span class="pb-h">~' + l.hours + " h</span></label>" +
+        (st.done
+          ? '<input type="text" data-proof="' + l.id + '" placeholder="Proof URL — repo, post, or screenshot" value="' + esc(st.proof || "") + '" style="margin-top:8px;">' +
+            (st.proof ? "" : '<div class="note" style="margin-top:4px;">Law 6: no proof URL, no credit.</div>')
+          : "") +
+        "</div>";
+    };
+    const open = (to, label) => '<button type="button" class="at-chip pb-open" data-act="pbOpen" data-to="' + to + '" aria-label="' + label + '">Open</button>';
 
-      // The drill is the daily thing on this page — the labs are the month's and
-      // the problem sets are the term's. It goes first and it is the only card
-      // with a button.
-      '<div class="card one' + (pool.length ? " urgent" : " one-clear") + '">' +
-      '<div class="one-kind">Daily drill' +
-      (pool.length ? ' <span class="one-more">' + pool.length + " in the pool</span>" : "") + "</div>" +
-      '<p class="one-hint">' +
-      (pool.length
-        ? pool.length + " questions you have personally missed are waiting. Answer one correctly and it leaves the pool."
-        : "The pool is clear — the drill draws random questions to keep the blade sharp.") +
-      "</p>" +
-      '<a class="btn lg one-go" href="#/drill">' + (pool.length ? "Begin drill" : "Random drill") + " ▸</a></div>" +
-
-      '<div class="onecounts">' +
-      // "Recall due 0" is an absence; the Recall page says so in words.
-      (reviewsDue().length ? '<a href="#/recall"><b>' + reviewsDue().length + "</b><span>Recall due</span></a>" : "") +
-      "<div><b>" + labsDone + " / " + D.LABS.length + "</b><span>Labs shipped</span></div>" +
-      "<div><b>" + psetDone + " / " + psetTotal + "</b><span>Problem sets</span></div>" +
+    return '<div class="view-enter"><div class="page-head"><h1>Problems</h1>' +
+      '<div class="sub">Learning sticks when you solve, not when you watch.</div></div>' +
+      '<div class="at-tiles pb-modes">' +
+      mode("drill", G("M11 2.5 L4.5 11 H10 L9 17.5 L15.5 9 H10 Z"), "Daily drill", "Quick questions from everything you\u2019ve watched.",
+        "10 min", '<a class="btn" href="#/drill">Start</a>') +
+      mode("sets", G("M13.5 3.5 L16.5 6.5 L7 16 H4 V13 Z M11.5 5.5 L14.5 8.5"), "Problem sets", "Pen and paper, one set per unit.",
+        psetDone + " of " + psetTotal + " done", open("pbSets", "Open the problem sets")) +
+      mode("labs", G("M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"), "Labs", "Real things you build and ship.",
+        labsDone + " of " + D.LABS.length + " shipped", open("pbLabs", "Open the labs")) +
       "</div>" +
 
       // The phase you are in, at weight. Phase 3 is three years away.
-      phaseCard(phase) +
+      (labsIn(phase).length
+        ? '<div class="ghead">This phase\u2019s labs<span class="gh-meta">' + PHASE_NAME[phase].replace(" \u2014 ", " \u00b7 ") + "</span></div>" +
+          '<div class="pb-labs" id="pbLabs">' + labsIn(phase).map(labRow).join("") + "</div>"
+        : '<div id="pbLabs"></div>') +
 
       (later.length
         ? '<details class="unit"><summary><span class="u-name">Labs in the other phases</span>' +
@@ -4264,7 +4294,7 @@
 
       // Pen and paper, on a schedule of their own — you go to these, they do not
       // come to you.
-      '<details class="unit"><summary><span class="u-name">Problem sets — pen and paper</span>' +
+      '<details class="unit" id="pbSets"><summary><span class="u-name">Problem sets — pen and paper</span>' +
       '<span class="pill' + (psetDone === psetTotal ? " good" : "") + '">' + psetDone + " / " + psetTotal + "</span>" +
       '<span class="u-prog" style="width:' + (psetTotal ? (psetDone / psetTotal) * 100 : 0) + '%;"></span></summary>' +
       '<div class="u-body"><div class="grid cols-2">' +
@@ -4741,6 +4771,19 @@
           // essential).
           const box = $("#advBox");
           if (box) { box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+        } else if (act === "pbOpen") {
+          // T-026b: a mode card's Open is a jump to its section on this page,
+          // opening the problem sets' fold on the way. The DOM only — no save,
+          // no render, so nothing on the page moves but the scroll.
+          const t = $("#" + b.dataset.to);
+          if (t) {
+            if (t.tagName === "DETAILS") t.open = true;
+            t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+          }
+        } else if (act === "exMore") {
+          // T-026b: the locked exams past the sixth, shown in place. In memory.
+          $$("[data-ex-more]").forEach(el => { el.hidden = false; });
+          b.remove();
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));

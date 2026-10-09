@@ -1538,8 +1538,11 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 /* ---------- The Record: heatmap, verification seal, hashes ---------- */
 /* Consistency at a glance: one square per day, columns are weeks. */
-.heat { display: flex; gap: 3px; overflow-x: auto; padding: 2px 0 6px; }
-.hcol { display: flex; flex-direction: column; gap: 3px; }
+/* T-026b: always the last 26 weeks (--wk columns, set by heatmapHTML), so
+   the grid is fluid — each column a share of the card and each cell square —
+   rather than 13px cells that scrolled sideways on a phone. */
+.heat { display: grid; grid-template-columns: repeat(var(--wk, 26), minmax(0, 1fr)); gap: clamp(2px, 0.4vw, 5px); padding: 2px 0 6px; }
+.hcol { display: grid; gap: inherit; }
 /* An empty day is --line, a fill that stands off the page in every theme
    (>= 1.19:1 on --bg). It was --bg-2 with a --sink inset for its edge; once
    the light --bg moved to #f2f1ee (1.009:1 against --bg-2) and --sink went
@@ -1550,7 +1553,9 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    tools/verify-design.js
    measures the empty day and the swatch against their backdrop. */
 .hc { width: 13px; height: 13px; border-radius: 2px; background: var(--line); display: block; border: 0; padding: 0; }
-.hc.void { background: transparent; }
+/* Before the start or after today: not a day of the plan, so the faintest
+   cell, there only to keep the grid's shape (T-026b). */
+.hc.void { background: color-mix(in srgb, var(--line) 45%, transparent); }
 /* A rest day is neither work nor a gap. Hollow, so three years of rest days
    do not read as three years of misses. */
 .hc.rest { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
@@ -1563,6 +1568,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .hc[data-hday] { cursor: pointer; transition: transform var(--t-micro) var(--ease); }
 .hc[data-hday]:hover, .hc[data-hday]:focus-visible { transform: scale(1.35); }
 @media (max-width: 640px) { .hc { width: 10px; height: 10px; } }
+.heat .hc { width: 100%; height: auto; aspect-ratio: 1; border-radius: 22%; }
 
 /* Verification verdict — the first thing a sceptic should see. */
 .vseal { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
@@ -2526,3 +2532,113 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .at-tile:active, .at-chip:active, .book:active, .seg button:active {
   transform: scale(0.985); transition: transform 100ms ease-out;
 }
+
+/* ============================================================
+   T-026b: Problems, Exams and Proof say what they are for
+   ------------------------------------------------------------
+   Each page opens with an h1 and one line saying what it is for, then its
+   one primary action. Built from T-026a's pieces rather than beside them:
+   the .page-head header, .at-tiles/.at-tile for the mode cards, the
+   also-open cards and the stat tiles, the next-gate card (.at-next,
+   .at-main, .at-gate, .at-days) for the exam to sit next, .tl-code for the
+   course tags, and .at-chip for every pill (Open, "+N more", Proof's
+   links). Tokens only. No text here is set to break inside a word: the
+   blocks wrap (a footer, a fact, a bar drops to its own line) instead.
+   ============================================================ */
+
+/* ---- Problems: three ways in ---- */
+/* 3 across from 1024px and 1 under 600 (.at-tiles), but never narrower than
+   a card's longest word needs: at 1100, where the sidebar and the rail leave
+   the page 440px, or at a larger text size, the grid drops a column (the
+   T-026a shelf's rule) instead of pushing "Problem" out of its card. The
+   also-open cards on Exams take the same rule at their own width. */
+@media (min-width: 600px) {
+  .at-tiles.pb-modes { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+  .at-tiles.ex-open { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .at-tiles.pb-modes { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+  .at-tiles.ex-open { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+}
+.pb-mode { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0; padding: 18px 20px; }
+.pb-glyph {
+  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--r-sm);
+  background: var(--surface-2); color: var(--ink-2);
+}
+.pb-glyph svg { width: 1.125rem; height: 1.125rem; }
+.pb-t { margin-top: 12px; font-size: var(--fs-headline); font-weight: 700; line-height: 1.25; }
+.pb-d { margin-top: 4px; font-size: var(--fs-subhead); line-height: 1.35; color: var(--ink-2); }
+.pb-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-top: auto; padding-top: 14px; }
+.pb-m { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pb-foot .btn { min-height: 44px; min-width: 44px; justify-content: center; }
+/* The pills that are buttons lose the UA border and font. Open sits on a
+   card (--surface), so it takes --surface-2 with a --line edge: the edge is
+   what shows it on the light theme's white card. */
+button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
+.pb-open { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font-weight: 600; }
+/* The lab rows: one rounded list, its separators inset like .glist's. */
+.pb-labs { background: var(--surface); border-radius: var(--r-card); padding: 0 16px; scroll-margin-top: calc(var(--topbar-h, 0px) + 4rem); }
+.pb-lab { padding: 12px 0; }
+.pb-lab + .pb-lab { border-top: 0.5px solid var(--line); }
+.pb-row { flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 0; min-height: 44px; }
+.pb-row .checkbox { align-self: center; }
+.pb-lt { flex: 1 1 9rem; display: flex; flex-direction: column; }
+.pb-lt-t { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; color: var(--ink); }
+.pb-lt-d { font-size: var(--fs-footnote); line-height: 1.35; color: var(--ink-2); }
+.pb-h { flex: none; margin-left: auto; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#pbSets { scroll-margin-top: calc(var(--topbar-h, 0px) + 1rem); }
+
+/* ---- Exams: the next one, the open ones, the locked ones ---- */
+.ex-rec { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.ex-tag { display: inline-block; align-self: flex-start; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; overflow-wrap: normal; background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)); }
+.ex-hero .at-main { flex: 3 1 14rem; }
+.ex-hero .at-gate { margin-top: 10px; overflow-wrap: normal; }
+.ex-facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* A bar of the course's lectures watched, in its faculty colour. */
+.ex-bar, .ex-lbar { display: block; height: 6px; border-radius: 3px; background: var(--line); }
+.ex-bar { margin-top: 14px; }
+.ex-bar i, .ex-lbar i { display: block; height: 100%; border-radius: inherit; background: var(--fac, var(--accent)); }
+.ex-side { flex: 1 1 12rem; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.ex-hero.urgent .at-days b { color: var(--urgent); }
+.ex-sit { width: 100%; justify-content: center; text-align: center; }
+.ex-card .tl-t, .ex-card .tl-m, .pf-tile .at-days { overflow-wrap: normal; }
+.ex-card .tl-main { min-width: auto; }
+.ex-card .tl-t { margin-top: 8px; }
+.ex-locked { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media (min-width: 600px) { .ex-locked { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ex-lock {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 44px; padding: 10px 14px;
+  border: 1px solid var(--line); border-radius: var(--r-md); color: var(--ink-2); text-decoration: none;
+  font-size: var(--fs-subhead);
+}
+.ex-lock:hover { text-decoration: none; }
+.ex-lock[hidden] { display: none; }
+.ex-lk { flex: none; display: grid; width: 12px; height: 12px; color: var(--ink-3); }
+.ex-lk svg { width: 100%; height: 100%; }
+.ex-ln { flex: 1 1 7rem; }
+.ex-lbar { flex: 0 0 5rem; height: 4px; border-radius: 2px; margin-left: auto; }
+.ex-more { margin-top: 10px; }
+
+/* ---- Proof: the run, the sealed days, the chain ---- */
+/* Three across wherever a tile keeps 6.5rem, so a phone sees the run in one
+   row; at 320 or a larger text size the row drops a tile rather than
+   squeezing "longest" out of its box. */
+.at-tiles.pf-tiles { grid-template-columns: repeat(auto-fill, minmax(max(6.5rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+.pf-tile { padding: 14px 16px; }
+.pf-tile .at-days { flex: 1 1 auto; margin-left: 0; text-align: left; }
+.pf-tile .at-days span { display: block; margin-top: 6px; line-height: 1.3; }
+.pf-heat { background: var(--surface); }
+.pf-seals { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.seal { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: var(--r-md); background: var(--surface); }
+.seal b { font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+.seal-h { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-2); }
+/* Genesis, faded by its inks and a dashed edge — never by opacity, which
+   verify-contrast cannot see. */
+.seal.gen { background: none; box-shadow: inset 0 0 0 1px var(--line-strong); }
+.seal.gen b, .seal.gen .seal-h { color: var(--ink-3); }
+.seal-arrow { color: var(--ink-3); font-size: var(--fs-subhead); }
+.ghead .gh-meta.pf-broken { color: var(--bad); }
+.pf-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2rem; }
+.pf-reset { color: var(--bad); }
+
+.ex-lock:active { transform: scale(0.985); transition: transform 100ms ease-out; }

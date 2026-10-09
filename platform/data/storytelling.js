@@ -144,6 +144,9 @@ DAR.COURSES.push({
         { t: "The levity list — exaggeration, contrast, rule of three", v: "iC_2VBWTALg", min: 29 },
         { t: "Three ways to add humour to a speech", v: "dj6q7fuAkT0", min: 5 },
         { t: "Stand-up techniques for people who are not comedians", v: "oZmn7OTv6Go", min: 55 },
+        { t: "The clown and the editor — a repeatable process for writing funny (stop at 33:20)", v: "57Bs9Ftq6FE", min: 33 },
+        { t: "Anatomy of a cartoon — incongruity, context, and who the target is", v: "FKxaL8Iau8Q", min: 21 },
+        { t: "Open mode and closed mode — Cleese on the conditions for ideas", v: "Pb5oIIPO62g", min: 37 },
       ],
     },
     {
@@ -5245,6 +5248,132 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Fear and anger burst and pass; contempt sits and grows." },
       { q: "What is the 'platinum rule'?", opts: ["Always pitch to the most senior person", "Treat others the way you want to be treated", "Treat others the way they want to be treated", "Mirror the other person's posture exactly"], a: 2,
         expl: "Meet people through the lens of their personality, not yours." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VII, top-up (T-037, 2026-10-09) — A5 humour you can build, three
+// lessons appended after spch100.6.11: Scott Dikkers (The Onion) on a
+// repeatable writing process, Bob Mankoff (The New Yorker) on incongruity
+// and context, and John Cleese's 1991 talk on the open and closed modes.
+// Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.6.12": {
+    module: "A5",
+    mechanic: "Writing funny reliably is a process, not a mood: generate in 'clown' mode without judging, refine in 'editor' mode, get neutral feedback on the whole shape early, and in writing do the job a comedy club does for a comedian — announce the joke with a funny title and keep the beats escalating.",
+    rules: [
+      "The clown is pure creative energy and the editor is pure judgement. Most adults are stuck in editor; a professional dips into clown for the rough draft and into editor to refine and to weigh feedback.",
+      "Having fun matters, but fun doesn't make the work good. Skill grows when you meet neutral feedback — a paying or indifferent audience — and adjust until what you love meets what they like.",
+      "Get feedback on the whole shape early: a two-to-three-page treatment, or tell the story aloud. If listeners interrupt with questions instead of leaning in, the outline has a problem.",
+      "Ask readers specific questions: their overall impression, then five things that didn't work and a fix for each. Praise tells you little.",
+      "Written comedy has no room, no timing and no club, so the title must tell readers this will be funny, and the joke beats must escalate.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Clown pass, five minutes: write ten possible funny titles for one true, mildly annoying thing from your week, judging none of them. Editor pass, five minutes: pick the best and write three joke beats under it that get bigger in order." },
+    check: "All ten titles exist before any was crossed out, and the three beats escalate — the third would not work as the first.",
+  },
+
+  "spch100.6.13": {
+    module: "A5",
+    mechanic: "A joke fuses two things that don't belong together — the syntax of politeness with a rude message — and whether it is funny depends on context: the same violation is benign in one setting and malign in another, and the best target is often us rather than them.",
+    rules: [
+      "Incongruity is the engine: expectations defied, the narrative switched. 'How about never — is never good for you?' pairs a polite form with a rude message.",
+      "Nothing is funny in itself; it depends on context and expectation. A line that is a benign violation in a book of rejected cartoons is a malign one beside an article on cancer research.",
+      "Choose the target on purpose. Most humour is a friend mocking an enemy; The New Yorker aims at its own readers — our obsessions, narcissism and foibles.",
+      "Bring two frames of reference together fast: if they don't connect within about half a second, it isn't funny.",
+      "It is a numbers game: cartoonists bring ten to fifteen ideas a week and most are rejected, and seventy-five per cent satisfaction is about the best humour ever gets.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write the same complaint about your field twice: once aimed at outsiders (them), once aimed at yourself or people like you (us). Build each on one incongruity — a polite form carrying a rude message, or two frames that collide." },
+    check: "A colleague would laugh and wince at the 'us' version, and for both you can name the two things you collided.",
+  },
+
+  "spch100.6.14": {
+    module: "A5",
+    mechanic: "Creativity is a mode, not a talent: ideas come in the relaxed, playful 'open' mode and get carried out in the purposeful 'closed' one, and you can set up the open mode with space, a fixed time, longer pondering, the confidence that nothing is wrong, and humour.",
+    rules: [
+      "Open mode is relaxed, curious and playful; closed mode is purposeful and a little anxious. Ponder in open, act in closed, then return to open to review the result.",
+      "Make an oasis: somewhere you won't be interrupted, with a definite start and end. Allow about ninety minutes, because the mind races with urgent trivia before it quietens.",
+      "Tolerate the discomfort of an unsolved problem for longer. Ask when a decision really has to be made, and keep pondering until then instead of grabbing the first answer.",
+      "While you are playing nothing is a mistake; absurd 'intermediate impossibles' are stepping stones to ideas that work.",
+      "Humour moves you from closed to open faster than anything, and serious is not the same as solemn. A joke and a new idea are the same act: connecting two frames of reference in a way that makes new meaning.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Ten minutes, door closed, phone away. Take one stuck problem — a talk opening, a joke that isn't working. Pair your topic with five unrelated objects and write one line connecting each pair. Don't judge anything until the timer ends." },
+    check: "All five pairings have a line, at least one is something you would have rejected in the first minute, and you chose one to develop only after the timer rang.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.6.12": {
+    takeaway: "Scott Dikkers, founder of The Onion, interviewed on how to write funny reliably: switch on purpose between the clown (generate) and the editor (judge), get neutral feedback on the whole shape before polishing, and in writing give readers what a club gives a comedian — a funny title and escalating beats.",
+    beats: [
+      { t: "Stick with what works", d: "Brands build when something people like is produced consistently; a daily comic strip and a weekly print deadline kept him at it." },
+      { t: "Fun, then neutral feedback", d: "Eddie Murphy and Chris Farley looked like overnight talents but had been at it since childhood. The real development started when they met audiences who owed them nothing." },
+      { t: "Clown and editor", d: "Children are all clown; many adults are all editor, which is writer's block. Professionals move between the two with precision." },
+      { t: "Feedback on the shape", d: "He gets notes on a short treatment before drafting, and tells film outlines aloud — questions from the listener mean a broken outline." },
+      { t: "Beta readers", d: "Twenty to fifty readers, picked for variety, fill in a form: overall impression, five things that didn't work, a fix for each. Problems many of them mention get fixed." },
+      { t: "Writing is the hardest medium", d: "No room to read, no control of timing, no club announcing comedy. So the title announces the joke and the beats are paced to escalate." },
+    ],
+    worked: "His favourite character is the bumbling authority — Leslie Nielsen's doctors and detectives — and The Onion is that character: an important-sounding newspaper saying silly things. Casting a newsreader with a deep, perfect 'voice of authority' for its radio show made every line funnier.",
+    watch: "This is an interview, and after about 33:20 it turns to his views on satire and the state of the world rather than craft — stop there. The eleven filters themselves are in this unit's earlier lesson.",
+    concepts: [],
+    checks: [
+      { q: "What does Dikkers say writer's block usually is?", opts: ["A lack of talent", "Being stuck in editor mode, judging before anything is written", "Not reading enough", "Writing at the wrong time of day"], a: 1,
+        expl: "The editor cuts everything before it reaches the page." },
+      { q: "Why does a written funny piece need a funny title?", opts: ["The reader isn't in a comedy club, so the title has to announce that this will be funny", "Search engines prefer it", "Editors insist on it", "It replaces the first joke"], a: 0,
+        expl: "Most writers go from a dull title straight into a block of grey text and lose the reader." },
+      { q: "What does he ask beta readers for?", opts: ["A star rating", "What they liked best", "An overall impression, five things that didn't work, and a fix for each", "A line edit"], a: 2,
+        expl: "Praise isn't actionable; problems and proposed fixes are." },
+    ],
+  },
+
+  "spch100.6.13": {
+    takeaway: "Bob Mankoff, The New Yorker's cartoon editor, on designing humour: incongruity fuses things that don't belong; context decides whether a violation is benign or malign; the target can be us rather than them; and it is all a numbers game of many ideas and a lot of rejection.",
+    beats: [
+      { t: "Seventy-five per cent", d: "No humour pleases everyone. An angry letter about 'jokes on old white males' and an animal lover who rated a cartoon two show how wide the spread is without a laughing room around you." },
+      { t: "Danger with bars", d: "Entertainment needs a little danger with protection, like a zoo. Ask where the tiger is and how you will manage it." },
+      { t: "Idea drawings", d: "His contract said 'idea drawings', not cartoons: work that needs thinking from the cartoonist and from the reader." },
+      { t: "Incongruity", d: "'No, Thursday's out. How about never — is never good for you?' fuses the syntax of politeness with the message of rudeness." },
+      { t: "Context decides", d: "A crude line is perfect in a book of rejects and malign beside an article on the immune system. The week after 9/11 the magazine ran no cartoons at all." },
+      { t: "Target us", d: "'I started my vegetarianism for health reasons... now it's just to annoy people.' The humour reflects back on the reader." },
+    ],
+    worked: "After 9/11 the magazine waited a week, then ran: 'I thought I'd never laugh again. Then I saw your jacket.' The joke isn't about the attackers; it is about us choosing to go on living — and the context made it a benign violation.",
+    watch: "Self-directed humour works for The New Yorker because its readers share the target. In a pitch, 'us' should mean you or your shared trade — never the client sitting in front of you.",
+    concepts: [],
+    checks: [
+      { q: "Why does 'How about never — is never good for you?' work, by his analysis?", opts: ["It is short", "A polite form carries a rude message — two things that don't belong together", "It uses a famous name", "It rhymes"], a: 1,
+        expl: "Incongruity: we hold both readings at once." },
+      { q: "Why would a cartoon that is perfect in The Rejection Collection fail in The New Yorker?", opts: ["Context turns a benign violation into a malign one", "The drawing is worse", "The readers are older", "It is too long"], a: 0,
+        expl: "There is no such thing as funny in and of itself." },
+      { q: "Who is usually the target of New Yorker humour, as he describes it?", opts: ["Politicians", "Other magazines", "The readers themselves — our obsessions and foibles", "Foreigners"], a: 2,
+        expl: "Most humour is friends mocking enemies; theirs reflects back on us." },
+    ],
+  },
+
+  "spch100.6.14": {
+    takeaway: "John Cleese's 1991 talk on creativity: it is a way of operating, not a talent. You need the open mode to have ideas and the closed mode to carry them out, and you can set up the open mode with space, time, more time, confidence and humour.",
+    beats: [
+      { t: "Not a talent", d: "Donald MacKinnon's research found the most creative architects, scientists and writers no different in IQ; they could get themselves into a playful, almost childlike mood." },
+      { t: "Open and closed", d: "In the closed mode Fleming would have thrown away the dish where nothing grew; in the open mode he got curious about it. Hitchcock told stories when a writing session got tense." },
+      { t: "Space and time", d: "Seal yourself off for a defined period. The first minutes fill with urgent trivia; sit through it and the mind quietens. Ninety minutes, then stop." },
+      { t: "More time", d: "A Python colleague took the first solution and finished by five; Cleese sat with the discomfort for another hour and got something more original. Defer decisions until they are due." },
+      { t: "Confidence and humour", d: "While playing, nothing is a mistake. Humour gets you into the open mode fastest — serious subjects don't require solemnity." },
+      { t: "Connecting frameworks", d: "A joke and an idea both connect two frames of reference. Random juxtapositions can start it; intuition picks which ones mean something." },
+    ],
+    worked: "The airline pilot asked when he last had sex says '1958' — and, seeing the researcher's surprise, 'well, it's only 2110 now'. The laugh arrives the moment two frames, a year and the 24-hour clock, connect: the same click as a new idea.",
+    watch: "The talk was given to managers and ends with an ironic list of ways to stamp out creativity in your staff — it is satire, not advice. The light-bulb jokes in between are period filler, not models to copy.",
+    concepts: [],
+    checks: [
+      { q: "Why, in Cleese's telling, did Fleming notice what became penicillin?", opts: ["He was in the open mode, so a useless dish became a clue", "He was working under pressure", "He had a higher IQ than colleagues", "He followed a strict protocol"], a: 0,
+        expl: "In the closed mode an uncultured dish is an irrelevance; in the open mode it is a clue." },
+      { q: "What does he recommend when you face a decision?", opts: ["Decide at once to look decisive", "Ask when it has to be taken, and keep pondering until then", "Delegate it", "Put it to a vote"], a: 1,
+        expl: "The most creative people tolerate the discomfort of an unsolved problem for longer." },
+      { q: "What does he say a joke and a new idea have in common?", opts: ["Both need a punchline", "Both work best in groups", "Both connect two frames of reference in a new way", "Both should be short"], a: 2,
+        expl: "The laugh, and the idea, come at the moment of connection." },
     ],
   },
 });

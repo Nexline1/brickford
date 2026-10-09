@@ -114,6 +114,8 @@ DAR.COURSES.push({
         { t: "When all eyes are on you — rehearse to the stakes, connect, then review", v: "HYNXzKU92Qs", min: 24 },
         { t: "Skills, not talent — open body, functional hands, the pause over 'uh'", v: "K0pxo-dS9Hc", min: 16 },
         { t: "Breath is thought — the diaphragm, stillness, and the closed mouth", v: "YSfY7dO02nA", min: 19 },
+        { t: "Stage movement — give every place and person a spot, and go back to it", v: "vGkyNL9efNw", min: 15 },
+        { t: "Move with a purpose — the action in the story, and the stage as a timeline", v: "96AiJJnmys0", min: 4 },
       ],
     },
     {
@@ -6504,6 +6506,91 @@ Object.assign(DAR.SUMMARIES, {
         expl: "A level eye line would mean the officer is kneeling." },
       { q: "How should the punchline sound when it is acted out?", opts: ["Like an honest reaction from someone really in that moment", "Like a clearly delivered joke", "Louder than the rest", "Spoken to the audience, not the character"], a: 0,
         expl: "Believable reactions get the laugh; fake ones get judged." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit V, second top-up (T-037, 2026-10-09) — A3 delivery, two lessons
+// appended after spch100.4.10: stage movement for stories — a world
+// champion's blocking of his own speech, and the two reasons to move.
+// Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.4.11": {
+    module: "A3",
+    mechanic: "Movement on a stage should carry meaning: say something from one spot, move as you go to the next thing, give each place and person in the story a fixed position, and return to that exact spot whenever the story does — so the audience sees the story's map without being told it.",
+    rules: [
+      "Don't move for movement's sake. Make a statement from one place, move as you go to the next statement, and say it from the new place. Wandering tells the audience your movement means nothing.",
+      "Centre stage is the strongest position. Use it for the main point — the line that sums up everything.",
+      "Lay places out the way the audience would see them on a map: the speaker walks from Indiana, on the audience's right, to California, on their left.",
+      "Plant each character in one spot and keep them there. Use distance when the distance is the point — a 'thank you' sent clear across the stage.",
+      "When the story goes back to a place, walk back to the same spot. Rehearse the blocking until you no longer think about it, keep your eyes on the audience, and check it on video and with competent feedback.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Take a story with at least two places and one other person. Draw a stage plan from the audience's side: where each place is, where the person stands, and centre stage for your main line. Then record yourself telling it on your feet, moving only between the marked spots." },
+    check: "On the video every move starts and ends at a marked spot, you return to the same spot each time the story goes back there, and nothing is said while wandering.",
+  },
+
+  "spch100.4.12": {
+    module: "A3",
+    mechanic: "Move on stage for one of two reasons — because an action in the story moves you, or to step forward along a timeline — and remember where you have put every person and place, so you never walk through a scene you built.",
+    rules: [
+      "People remember what they see when you say something, so make the story visible — but pacing back and forth demolishes the scene you created.",
+      "Do what the story tells you to do: if you go to talk to someone, go to where they are; if the story is standing in a queue, you hardly need to move.",
+      "Give each location its own spot and remember where you put everyone, or you end up having lunch on the spot where you held the funeral.",
+      "Use the stage as a timeline that reads left to right, and move along it on a transition line such as 'fast-forward with me eight years'.",
+      "At the close, step back to the earlier spots to call back to earlier stories and points, visually and verbally.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Take a talk or story with three moments at different ages or dates. Mark three spots on the floor from the audience's left to their right. Record yourself telling it, walking to the next spot only on a transition line, and finish by stepping back to the first spot for a callback." },
+    check: "Each move happens on a transition line, you never cross a spot where you placed a person or place, and the closing callback is said from the spot where that moment was first told.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.4.11": {
+    takeaway: "The 2005 Toastmasters world champion walks through the stage movement of his winning speech. Every move had a reason: start from the back centre, put places where they sit on a map, plant the receptionist in one spot, use distance, and go back to the same spot whenever the story does.",
+    beats: [
+      { t: "Don't wander", d: "Say something from one spot, move as you go to the next statement, say it from there." },
+      { t: "Walk out at the whole room", d: "He started at the back of the stage and walked straight out to centre stage, the strongest position, instead of coming in at an angle from a corner." },
+      { t: "The map", d: "Small-town Indiana is told from one side; he crosses the stage as he heads for Los Angeles, because on a map Indiana is to the right of California." },
+      { t: "Planted characters and distance", d: "The receptionist stays in one place every time he looks at her. He walks away toward an imagined lift so his 'thank you' has to travel across the stage." },
+      { t: "Back to the same spot", d: "When he goes home to his roommates, he walks back to where California was. The audience already has it placed." },
+    ],
+    worked: "A story with three places: home, the office, the hospital. From the audience's side, put home on their left and the hospital on their right, and keep centre stage for the realisation the story leads to. Your mother stays where the hospital bed is; each time she speaks, you turn to that spot. When the story comes home at the end, walk back to exactly where home was.",
+    watch: "Most of the video is his speech, paused and explained. Stage left and stage right are named from the speaker's side, so stage left is the audience's right, and he corrects himself once mid-sentence. He calls placing scenes on the stage 'blocking' or 'holographing'.",
+    concepts: [],
+    checks: [
+      { q: "What does wandering around the stage communicate, according to the speaker?", opts: ["Energy and confidence", "That your movement has no meaning, so it becomes a distraction", "That you know the material", "Nothing, as long as you keep talking"], a: 1,
+        expl: "Move to a spot, speak from it, move again." },
+      { q: "Why did he cross the stage when his story went from Indiana to California?", opts: ["To match the map in the audience's mind", "To reach a second microphone", "To get closer to the judges", "To use up time"], a: 0,
+        expl: "On a map, Indiana is to the right of California." },
+      { q: "When the story returns to a place it has already been, what does he do?", opts: ["Stands at centre stage", "Stays where he is", "Walks back to the exact spot where that place was set up", "Points at the screen"], a: 2,
+        expl: "The audience has already placed it there." },
+    ],
+  },
+
+  "spch100.4.12": {
+    takeaway: "A short lesson from a speaking boot camp: most speakers either stand still or pace, and pacing walks all over the scene they built. Move for two reasons only — an action in the story, or a step along a timeline — and remember where you put everything.",
+    beats: [
+      { t: "Seen, not just said", d: "Paraphrasing Patricia Fripp: people remember what they see when you say it, so speeches should be visual." },
+      { t: "Action prompts movement", d: "'I've got to go talk to my wife about this' — walk to where she is, look her in the eyes, come back." },
+      { t: "Lunch on your uncle", d: "A speaker held his uncle's funeral on one spot, then later had lunch on the same spot. Placed scenes are holograms; don't step on them." },
+      { t: "The stage as a timeline", d: "Tell a story and make the point in one place; walk to the next on 'fast-forward with me eight years'." },
+      { t: "Callbacks", d: "At the close, step back: 'just like when I was ten years old…', visually and verbally." },
+    ],
+    worked: "A talk with three stories — age ten, eighteen and today. Stand at the audience's left for ten, walk to the centre on 'eight years later', and to their right for today. Close by stepping back to the left: 'just like when I was ten…'. The room sees the callback before it hears it.",
+    watch: "Under four minutes, with auto-generated captions that do not name the speaker. Left and right on the timeline are the audience's, which means walking from your right to your left as you face them.",
+    concepts: [],
+    checks: [
+      { q: "What are the two reasons for moving on stage, in this lesson?", opts: ["Energy and variety", "To reach both sides of the room", "An action in the story, and a step along a timeline", "To calm nerves and fill pauses"], a: 2,
+        expl: "Anything else is pacing." },
+      { q: "What went wrong in the 'lunch on your uncle' speech?", opts: ["The speaker reused a spot already given to another scene", "The story was too sad", "The speaker stood still too long", "The timeline ran backwards"], a: 0,
+        expl: "Remember where you put everybody and everything." },
+      { q: "How does the timeline help the close of a talk?", opts: ["It shortens the ending", "You can step back to earlier spots to call back to earlier stories", "It hides your notes", "It keeps you at centre stage"], a: 1,
+        expl: "The callback is visual as well as verbal." },
     ],
   },
 });

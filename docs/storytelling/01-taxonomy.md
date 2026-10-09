@@ -144,3 +144,126 @@ A module is covered when its core videos between them hand over:
 
 A module with three videos and no drillable mechanic is **not** covered, and gets
 recorded as a gap rather than quietly counted.
+
+---
+
+## Revision — 2026-10-09 (T-037): about 50 hours, and what was installed
+
+**Source:** owner, 2026-10-09 — "Storytelling course is only 5 lectures? I'm supposed to
+master it" — and the decision **"Bigger: about 50 hours"** (spec
+`loop/specs/T-037-spch100-full-course/spec.md`). This revision supersedes the 30-hour budget
+above. The module tree, the dependency order and B8's archive status do not change.
+
+### The revised budget, against what was installed
+
+The revised budget is the spec's instruction applied to the 30 h plan: the extra 20 h go
+to A5/A6 (humour, written and live), A3 (delivery), A7 (high-stakes talking and pitching to
+non-technical buyers) and A8 (non-native speaker), with 2 h to A4 because it is the audit
+skill and half an hour to A1; Track B keeps its original budget. It was **not** fitted to
+what the harvest found — where a module came in short, the table says so.
+
+| id | module | 30 h plan | **revised** | **installed** | lessons | vs revised | ±20% |
+|---|---|---|---|---|---|---|---|
+| A1 | Story structure for spoken stories | 3.0 | 3.5 | 3.33 | 13 | −5% | yes |
+| A2 | Finding stories in an ordinary week | 1.5 | 1.5 | 1.23 | 9 | −18% | yes |
+| A3 | Delivery | 2.5 | 6.0 | 5.47 | 14 | −9% | yes |
+| A4 | Conversation mechanics | 2.0 | 4.0 | 4.12 | 13 | +3% | yes |
+| A5 | Humour construction | 3.0 | 6.0 | 5.18 | 21 | −14% | yes |
+| A6 | Humour in real time | 2.0 | 5.5 | 4.50 | 16 | −18% | yes |
+| A7 | High-stakes talking | 2.5 | 7.0 | 7.37 | 24 | +5% | yes |
+| A8 | Speaking as a non-native speaker | 1.5 | 4.5 | 3.90 | 17 | −13% | yes |
+| | **Track A** | 18.0 | **38.0** | **35.10** | 127 | −8% | 8 of 8 |
+| B1 | Short-form structure | 2.5 | 2.5 | 2.08 | 6 | −17% | yes |
+| B2 | Retention and analytics | 2.0 | 2.0 | 1.55 | 4 | −23% | **no** |
+| B3 | Story selection | 1.5 | 1.5 | 0.48 | 2 | −68% | **no** |
+| B4 | Documenting a build | 2.0 | 2.0 | 1.25 | 4 | −38% | **no** |
+| B5 | Long-form and YouTube structure | 1.5 | 1.5 | 1.15 | 5 | −23% | **no** |
+| B6 | Delivery on camera | 1.5 | 1.5 | 0.80 | 8 | −47% | **no** |
+| B7 | Positioning and content pillars | 1.0 | 1.0 | 0.90 | 3 | −10% | yes |
+| | **Track B** | 12.0 | **12.0** | **8.21** | 32 | −32% | 2 of 7 |
+| B8 | Arabic and Gulf content | 0 | 0 (archive) | 0 | 0 | | |
+| | **Core path** | 30.0 | **50.0** | **43.32** | **159** | **−13%** | 10 of 15 |
+
+"Installed" is the sum of each lesson's `min` by module (`DAR.DRILLS[key].module`), the five
+seed lessons included under their modules. `min` is the part of the video to watch: where
+the teaching ends before the video does (a Q&A, a sponsor, plugs) the title says "stop at",
+and where it starts late, "start at" — so the hours are teaching time, not upload length.
+
+### Where it falls short, and why
+
+The harvest stopped at **43.3 h, not 50**. Good material ran out under the redundancy rule
+before the hours did, and the brief was explicit: stop and say so rather than pad. The
+last six search rounds considered 24 more candidates and installed 7; the rest repeated a
+mechanic already taught or were too thin (see `rejections.md`, which lists every rejection
+with its reason).
+
+- **Track A is inside ±20% on every module.** It is where the spec put the weight, and it
+  had the deepest teachers (Dicks, Winston, Abrahams, Vinh Giang, Treasure, Pixar in a Box,
+  Sanderson, Greg Dean, Dikkers, Aaker and Bagdonas, Duhigg, Duarte, Heath).
+- **B3 (0.48 h)** shares its spine with A2, as this file said it would. The obvious B3
+  sources — Homework for Life, the five-second moment, first/last/best/worst, signature
+  stories — were already installed in Units I, III and IV. Two A1 lessons (the five-second
+  moment and Dicks building a story live) were installed a second time in Unit XI by
+  mistake and removed (commit `6786908`, which also made `verify-content` fail on any video
+  installed twice). What remained was truncated by the transcript tool or thin.
+- **B6 (0.80 h)** was defined here as "the delta" over A3. A3 grew from 2.5 h to 5.5 h, so
+  most on-camera candidates repeated delivery mechanics already taught; the eight B6
+  lessons are short and specific to the lens.
+- **B2, B4 and B5** were searched again in the last round; every new candidate repeated an
+  installed lesson (retention shapes, Galloway's channel review, Kleon's Show Your Work,
+  the vlog story structure, Kallaway's script order).
+
+So the honest reading is: **Track A is the course the owner asked for, at 35 h; Track B is
+a thinner 8 h companion**, and the shortfall against 50 h is entirely there.
+
+### The schedule
+
+SPCH 100 runs only inside the `Publish` block, five days a week (it rests Saturday with
+the plan and Friday for the recorded rep). Measured with the app's own `scheduledFor()` on
+a fixed clock: **159 lessons over 172 Publish days, 2026-10-05 to 2027-06-01 — about 34
+weeks**, averaging 15 minutes of video a day (whole lessons are packed into the
+40-effort-minute block, so a day often carries less than the 20-minute ceiling). Every
+other course's lesson dates, the start date, day 1094 (2030-04-02) and the gate baseline
+(2030-04-03) are unchanged; the before/after date map is in
+`loop/specs/T-037-spch100-full-course/verification/`.
+
+### Install order (positional keys, append-only)
+
+Units III–XVII were appended after the seed Units I–II, never inserted, in the dependency
+order above. Top-up lessons were appended to the **end** of their unit, so no existing
+`spch100.U.L` key ever pointed at a different video. `data/storytelling/ledger.json` pins
+every key to its video, and `verify-content` fails if a pinned key moves.
+
+| unit | module | lessons | hours |
+|---|---|---|---|
+| I, II | seed (A2, A3, A7 / A1, A6) | 5 | 1.28 |
+| III | A1 structure | 12 | 3.27 |
+| IV | A2 finding stories | 8 | 0.93 |
+| V | A3 delivery | 13 | 5.28 |
+| VI | A8 non-native speaker | 17 | 3.90 |
+| VII | A5 humour construction | 21 | 5.18 |
+| VIII | A6 humour in real time | 15 | 4.42 |
+| IX | A4 conversation | 13 | 4.12 |
+| X | A7 high stakes | 23 | 6.72 |
+| XI | B3 story selection | 2 | 0.48 |
+| XII | B1 short-form structure | 6 | 2.08 |
+| XIII | B2 retention and analytics | 4 | 1.55 |
+| XIV | B6 on camera | 8 | 0.80 |
+| XV | B4 documenting the build | 4 | 1.25 |
+| XVI | B7 positioning and pillars | 3 | 0.90 |
+| XVII | B5 long-form | 5 | 1.15 |
+
+### Rules that changed with the size
+
+- **"No more than three core videos per module" is lifted.** At 50 h it cannot hold. It is
+  replaced by the redundancy rule applied per lesson: a video is installed only if it adds a
+  mechanic no installed lesson already teaches. Where two installed teachers disagree (how
+  to open a talk; whether to aim for a native accent) both are kept and the lessons say so.
+- **Truncation.** The transcript tool stops at about 120,000 characters. A video with more
+  than about 15% of its teaching unread is rejected, not installed half-read; 30 were
+  rejected for this alone. A long video is installed only when its transcript came back
+  whole (Sanderson's 76-minute lecture, Winston's 63-minute "How to Speak").
+- **Every lesson carries the full layer:** the mechanic in one sentence, 3–5 rules
+  paraphrased from the transcript, a drill of 10 minutes or less that produces a written,
+  recorded or spoken artifact, a check, and a revision summary with at least three
+  multiple-choice checks — all asserted by `verify-content`.

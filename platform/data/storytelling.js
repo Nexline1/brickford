@@ -143,6 +143,20 @@ DAR.COURSES.push({
         { t: "Stand-up techniques for people who are not comedians", v: "oZmn7OTv6Go", min: 55 },
       ],
     },
+    {
+      name: "Unit VIII — Humour in real time: noticing, yes-and, reading the room",
+      lessons: [
+        { t: "Finding laughter anywhere — notice your honest reactions", v: "sUv353ua7E8", min: 7 },
+        { t: "The way of improvisation — seven steps", v: "MUO-pWJ0riQ", min: 11 },
+        { t: "Improv wisdom — don't prepare, just show up", v: "ABw26imw4m4", min: 57 },
+        { t: "Humour is a skill — point of view, yes-and, staircase wit", v: "MdZAMSyn_As", min: 19 },
+        { t: "Humour at work — status, styles, and the lines not to cross", v: "Fi5MNuF30FQ", min: 60 },
+        { t: "Jokes that make people like you less", v: "j8hyXTbV1x0", min: 10 },
+        { t: "Rescuing a joke — explain it, flatten it, own the flub", v: "q0--oItSgUY", min: 11 },
+        { t: "Callbacks", v: "sjaNf7gB78k", min: 3 },
+        { t: "Name the elephant in the room", v: "uRVwiN16NIg", min: 4 },
+      ],
+    },
   ],
 });
 
@@ -2194,6 +2208,351 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Then stop and let them react." },
       { q: "Why take questions before your conclusion?", opts: ["So you control the ending even if nobody asks anything", "To save time", "Because audiences prefer it", "To avoid hard questions"], a: 0,
         expl: "Comedians never end on a flat note." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VIII — A6, humour in real time (budget 3.0 h with the seed's
+// conversation lesson). Noticing (Chris Duffy), improvisation (Dave
+// Morris, Patricia Ryan Madson), humour as a practised skill (Andrew
+// Tarvin), humour at work and its limits (Aaker and Bagdonas at Google),
+// reading discomfort and recovering a joke (two Charisma on Command
+// breakdowns), callbacks, and naming the elephant in the room.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.7.0": {
+    module: "A6",
+    mechanic: "People with a good sense of humour mostly notice and accept their honest, odd reactions instead of squeezing them into the 'right' answer — so the skill is switching off self-judgement and writing down what stands out.",
+    rules: [
+      "Children say their honest, unexpected thoughts whether you want them to or not. Adults learn to filter them out.",
+      "Duffy's improv drill: name seven weird kinds of something, fast. The tax lawyer started with brown shoes and black shoes and got to shoes covered in gold.",
+      "Every comedian he knows keeps a notebook of small odd things they notice. Once you keep one, there is no shortage of material.",
+      "Bring some mischief to self-serious places — but notice that his LinkedIn prank also cost him the account.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Set a timer for two minutes and list seven weird types of something from your work (meetings, emails, clients). Do not judge. Then circle the one you would actually say out loud to a colleague." },
+    check: "At least three items are things you would not have written if someone were reading over your shoulder.",
+  },
+
+  "spch100.7.1": {
+    module: "A6",
+    mechanic: "Improvisers make things up live with seven habits that also run conversation: play, let yourself fail, listen (be willing to change), say yes, say 'and', play by the rules of the game, and relax.",
+    rules: [
+      "Play: do something because it is fun, in the moment, instead of turning it into work in your head.",
+      "Let yourself fail. Failing does not make you a failure; an improviser just starts again.",
+      "Listening is the willingness to change. Most people listen only enough to reply.",
+      "Say yes — a string of yeses goes somewhere, one 'no' stops it — then say 'and', adding your own brick. 'Yes, but' contradicts.",
+      "Rules free you. Within the constraints of the game (the slides, the brief), you improvise.",
+    ],
+    drill: { minutes: 8, artifact: "spoken",
+      do: "With a friend (or alone, out loud), build a two-minute story where every sentence must start with 'Yes, and…' and add one new detail. Then repeat with 'Yes, but…' and notice the difference." },
+    check: "The 'yes, and' version went somewhere neither of you planned; the 'yes, but' version stalled or argued.",
+  },
+
+  "spch100.7.2": {
+    module: "A6",
+    mechanic: "Patricia Ryan Madson's improv wisdom: start anywhere, accept your first idea instead of hunting for a good one, make sense rather than jokes, treat mistakes as material, and pay attention to what is actually in front of you.",
+    rules: [
+      "Start anywhere. Waiting for the perfect starting point is what keeps people frozen.",
+      "The imaginary gift box: whatever you find in it is fine. Trying to come up with a good idea gets in the way of having an idea.",
+      "'Don't make jokes, make sense.' Improv is funny because it makes sense of what is really happening, not because people are being clever.",
+      "When you make a mistake, raise your arms and say 'ta-da' — the circus bow — so your attention moves to what comes next.",
+      "Wake up to the physical world. Close your eyes and try to describe the room; most people cannot.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Close your eyes where you are and write, without looking, five details of the room: the light, colours, what is on the walls, who is near. Then open your eyes, check, and write one thing you had never noticed that you could mention in a conversation." },
+    check: "You recorded at least one detail you got wrong. The point is the gap between what you assumed and what is there.",
+  },
+
+  "spch100.7.3": {
+    module: "A6",
+    mechanic: "Andrew Tarvin, an engineer turned humour trainer, treats humour as a skill learned by practice: take your point of view from stand-up, heighten it with yes-and from improv ('if this is true, what else is true?'), commit to it like sketch performers, and shorten your staircase wit with repetition.",
+    rules: [
+      "Stand-up teaches point of view: share how you see things, as a way to connect (mint chocolate is toothpaste) or to make a point.",
+      "Improv teaches heightening: 'if this is true, what else is true?' — and turns small talk about the weather into a real conversation.",
+      "Sketch teaches commitment. A half-hearted joke is worse than a committed one.",
+      "Staircase wit — thinking of the line hours later — is a sign of comic instinct. With practice the gap shrinks.",
+      "A bad joke has never got anyone fired; an inappropriate one might. Keep it positive and inclusive, and if no one laughs it is just a nice statement.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write one thing you genuinely believe that others might not (your point of view). Then write three 'if this is true, what else is true?' lines that push it further. Finally, recall a moment this week where you thought of the right line too late, and write it down." },
+    check: "Each heightened line follows logically from the one before. If one is random, it breaks the game.",
+  },
+
+  "spch100.7.4": {
+    module: "A6",
+    mechanic: "Aaker and Bagdonas on using humour at work: it is less about being funny than about small moments of levity — look for what is true, call out the odd moment — while managing status, knowing your humour style, never punching down, and checking your distance from the subject.",
+    rules: [
+      "'Don't look for what's funny, look for what's true.' Write down a few true, odd observations at the end of each day.",
+      "Status matters. Early in a career people feel they must prove credibility before using humour; leaders who stay serious miss the approachability humour gives them.",
+      "Self-deprecation can lower your status when you are junior and signal confidence when you are senior.",
+      "Before a joke, ask how it will make others feel, not how it will make you look. Never punch down, and check your distance — you can joke about your own mother, not someone else's.",
+      "When a joke gets crickets, name it ('well, that didn't work'). When you cross a line, acknowledge it and get curious about your blind spot.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Plan one small act of levity for a real meeting or email this week: a sign-off other than 'best', a true observation about the situation everyone is in, or humour hung on an existing ritual. Write it down and, next to it, answer: how will it make the others feel?" },
+    check: "The line is about a shared situation or yourself, not about someone lower in status than you — and you wrote the 'how will they feel' answer before deciding to use it.",
+  },
+
+  "spch100.7.5": {
+    module: "A6",
+    mechanic: "Three kinds of joke that cost you liking, shown with talk-show clips: pushing someone's sensitive information for a laugh after they show discomfort, guilt-trip jokes, and teasing people who are lower in status than you.",
+    rules: [
+      "Watch for discomfort: verbal hesitation (cutting off mid-sentence) and self-soothing body language (hugging themselves, touching face or neck). When you see it, pull back and change topic.",
+      "Rescue the moment by turning the joke on yourself, then move to something they do want to talk about.",
+      "Guilt jokes ('I guess my invitation got lost') make people want to spend less time with you.",
+      "Teasing works between people who are close, about things they are not sensitive about. The same joke aimed down the org chart reads as mockery.",
+      "A tease that starts with a real compliment lands far more safely.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Think of a teasing line you have used with someone recently. Write it down, then answer: are we close? Are they higher, equal or lower in status? Is this something they are sensitive about? Rewrite it as a compliment-then-tease if any answer is risky." },
+    check: "Your rewrite would still be fine if the person heard it repeated to their boss.",
+  },
+
+  "spch100.7.6": {
+    module: "A6",
+    mechanic: "Norm Macdonald's habits, broken down: smile so people expect to laugh, explain a joke that missed as if it were obviously brilliant, deliver a deliberately obvious punchline after a pause, and treat a flubbed delivery as the start of a new joke about your bad delivery.",
+    rules: [
+      "A mischievous smile tells people something worth laughing at is coming.",
+      "If a joke misses, explaining it with a big expectant smile can get the laugh the joke did not.",
+      "The anti-joke: build up with a pregnant pause, then say the least insightful thing possible. It only works if you commit fully.",
+      "When you flub a story or a punchline, that is not the end of the joke — it is a new joke about how bad you are at telling it.",
+      "Light playfulness lands hardest where it is least expected — the first minutes of an interview or a networking event — so keep it gentle there.",
+    ],
+    drill: { minutes: 6, artifact: "spoken",
+      do: "Tell a friend one deliberately weak pun. If it misses, explain it slowly with a straight, proud face. Note what happened. Then retell a story and, at the point where you usually stumble, comment on your own stumble instead of rushing past it." },
+    check: "You let the miss sit for at least a beat before rescuing it. Rushing on is the one move that kills both versions.",
+  },
+
+  "spch100.7.7": {
+    module: "A6",
+    mechanic: "A callback brings back something that got a laugh earlier, creating an inside joke with the room — and it only works if the original landed.",
+    rules: [
+      "A callback creates the feeling of an inside joke: nobody who missed the first part would get it.",
+      "Only call back to something that worked the first time. Recalling a joke that died reminds people it died.",
+      "A callback makes a good closer: it brings everything full circle.",
+      "If you are stuck for a final punchline, a callback to the opening often does the job.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Take a talk or story you give. Find one line near the start that gets a reaction. Write a callback to it for your final line — the same image or phrase in a new context." },
+    check: "The callback changes something about the original (new context, new twist) rather than simply repeating it.",
+  },
+
+  "spch100.7.8": {
+    module: "A6",
+    mechanic: "If something could distract the audience or you — a sling, a hungover 8 a.m. crowd, your own visible nerves — name it in a quick, light line at the start and move on; it shows you are present and takes the distraction away.",
+    rules: [
+      "The elephant in the room is anything that might distract your audience or you.",
+      "Name it in a throwaway line, not a five-minute story: 'Turns out once you're over 47 you shouldn't skateboard.'",
+      "For a tired audience, show that you feel their pain ('my mother always said the best cure for a hangover was a 45-minute lecture on gastroenterology').",
+      "For your own nerves, a light admission can take the pressure off both of you — but only when the nerves are big enough to be noticed.",
+      "Take about twelve seconds, then carry on with the talk.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "For your next talk, meeting or call, list what could distract the audience: time of day, the room, something about you, a recent event. Pick the biggest and write one light opening line that names it in under twelve seconds." },
+    check: "The line acknowledges the thing without apologising for it, and it leads straight into your real opening.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.7.0": {
+    takeaway: "Chris Duffy, a former elementary teacher and improv teacher, at TED: the difference between people with a great sense of humour and everyone else is often just whether they notice and accept their honest, odd reactions — and you can retrain that.",
+    beats: [
+      { t: "The fifth graders", d: "A worksheet on shapes comes back with friends' names; an anonymous question card reads 'What are balls for.' — with a full stop." },
+      { t: "The adult improvisers", d: "His weekend students had to unlearn the idea that there was a right answer." },
+      { t: "Seven weird shoes", d: "A tax lawyer started with brown, white and black shoes; with practice he got to shoes covered in gold." },
+      { t: "The notebook", d: "Every comedian he knows keeps a running list of odd things they notice." },
+      { t: "Mischief in serious places", d: "He made himself CEO of LinkedIn on LinkedIn; the site emailed everyone to congratulate him — until its trust team shut the account." },
+    ],
+    worked: "'Faith, you are taking a pretty disrespectful tone for someone who works for me.' The joke is just committing to the absurd premise he had already set up.",
+    watch: "Mistaking a filter for taste. Rejecting every odd thought before you look at it leaves you nothing to choose from.",
+    concepts: [],
+    checks: [
+      { q: "What does Duffy say often separates people with a great sense of humour from others?", opts: ["Their memory for jokes", "Whether they notice and accept their honest reactions instead of forcing them into a box", "Their accent", "How much comedy they watch"], a: 1,
+        expl: "Kids do it naturally; adults can relearn it." },
+      { q: "What was the 'seven weird types of shoes' exercise designed to do?", opts: ["Turn off self-judgement and let unexpected ideas through", "Teach vocabulary", "Test memory", "Find the best answer"], a: 0,
+        expl: "The tax lawyer's list changed once he stopped censoring himself." },
+      { q: "What habit does he say every comedian he knows shares?", opts: ["Writing at night", "Performing daily", "Keeping a notebook of odd things they notice", "Reading the news"], a: 2,
+        expl: "There turns out to be no shortage of material." },
+    ],
+  },
+
+  "spch100.7.1": {
+    takeaway: "Dave Morris, an improviser, at TEDxVictoria: life is improvised, and the seven skills he teaches on stage — play, let yourself fail, listen, say yes, say 'and', play the game, relax and have fun — are the ones that make conversation and collaboration work.",
+    beats: [
+      { t: "A process, not a thing", d: "Improvisation is a way of making something — theatre, jazz, hip-hop, MacGyver's gadgets." },
+      { t: "Play and fail", d: "Play happens in the moment; fear of failure drags you back into your head. Failing does not make you a failure." },
+      { t: "Listening", d: "'Listening is the willingness to change.' Collaboration means taking your ego out of it." },
+      { t: "Yes, and", d: "The audience says yes to every question and builds a story in seconds; saying no stops it cold. 'And' adds a brick; 'but' contradicts." },
+      { t: "Play the game, relax", d: "Rules — slides, a brief, a job application — free you to improvise within them." },
+    ],
+    worked: "His live demo: 'Do you want to tell a story with me?' 'Yes.' 'Is it about a knight?' 'Yes.' … a whole story in thirty seconds. Then the same questions answered 'no': nothing.",
+    watch: "Being a yes-man. Agreeing without adding anything keeps things pleasant but goes nowhere — the 'and' is the contribution.",
+    concepts: [],
+    checks: [
+      { q: "How does Morris define listening?", opts: ["Waiting for your turn", "Repeating what was said", "The willingness to change", "Taking notes"], a: 2,
+        expl: "If you are not willing to change, you are not really listening." },
+      { q: "What is the difference between 'yes, and' and 'yes, but'?", opts: ["'And' builds on the idea; 'but' contradicts it", "They mean the same", "'But' is more polite", "'And' is for comedy only"], a: 0,
+        expl: "Each person adds a brick." },
+      { q: "Why does he say rules help improvisers?", opts: ["They make it fair", "They prevent mistakes", "They impress audiences", "They channel creativity by giving it constraints"], a: 3,
+        expl: "Within the game's rules, you are free." },
+    ],
+  },
+
+  "spch100.7.2": {
+    takeaway: "Patricia Ryan Madson, who taught improvisation at Stanford for decades, at Google: improvising is a way of living — start anywhere, accept what is in the box, make sense rather than jokes, take a bow for your mistakes, and wake up to the world around you.",
+    beats: [
+      { t: "Start anywhere", d: "Improvisers do not wait for inspiration or the perfect beginning; the first step shows you the second." },
+      { t: "The gift box", d: "Everyone opens an imaginary box. Whatever is in it is fine — trying to have a good idea blocks having any idea, and you cannot help being original." },
+      { t: "Make sense", d: "'Don't make jokes, make sense.' Improv looks funny because it makes sense of what is happening." },
+      { t: "The circus bow", d: "When you make a mistake, raise your arms and say 'ta-da', which moves your attention to what comes next." },
+      { t: "Notice and thank", d: "Eyes closed, describe the room — nobody can fully. Ask: where am I, what am I doing, what would improve this moment? Notice who made your day possible." },
+    ],
+    worked: "The audience's boxes held a peacock feather, two cans of corn, a live cat, someone's wife's left shoe — fifty people, fifty different things, without anyone trying to be original.",
+    watch: "Trying to be clever. Madson's whole method rests on the opposite: the obvious, honest response is usually the one that works. NOTE: the first thirteen minutes are a thank-you list to Google; the transcript tool stops at 53:01 of 57:19, where she moves to book signing.",
+    concepts: [],
+    checks: [
+      { q: "What does Madson mean by 'don't make jokes, make sense'?", opts: ["Avoid humour at work", "Improvised scenes work by making sense of what is really happening, not by being clever", "Explain your jokes", "Use logic puzzles"], a: 1,
+        expl: "The humour follows from the sense." },
+      { q: "What is the 'circus bow' for?", opts: ["Ending a performance", "Greeting the audience", "Responding to a mistake so your attention moves to what comes next", "Asking for applause"], a: 2,
+        expl: "Ta-da, instead of curling up in embarrassment." },
+      { q: "What did the imaginary gift-box exercise show?", opts: ["That people cannot help being original when they accept their first idea", "That most people are not creative", "That gifts should be planned", "That improv needs props"], a: 0,
+        expl: "Trying to come up with a good idea gets in the way." },
+    ],
+  },
+
+  "spch100.7.3": {
+    takeaway: "Andrew Tarvin, an engineer who left Procter and Gamble to teach humour, at TEDxTAMU: humour is a skill you learn by practice. Borrow point of view from stand-up, heightening from improv, and commitment from sketch — and know the difference between a bad joke and an inappropriate one.",
+    beats: [
+      { t: "Grandma's WTF", d: "'Wow, that's fun' — his grandmother's reading of WTF, and his case for a more playful outlook." },
+      { t: "Not a natural", d: "Voted teacher's pet, an engineer — he learned comedy by running an improv group like a project: practice three times a week, review shows like game tape." },
+      { t: "Stand-up: point of view", d: "Share a perspective to connect or to make a point — humans should come with error messages." },
+      { t: "Improv: heighten", d: "'If this is true, what else is true?' — and use yes-and to turn small talk into conversation." },
+      { t: "Sketch: commit", d: "Confidence makes the performance; staircase wit shortens with practice." },
+      { t: "Bad versus inappropriate", d: "Nobody was ever fired for a bad joke. Keep it positive and inclusive, and a joke that misses is just a nice statement." },
+    ],
+    worked: "Small talk: 'How about this weather?' — 'Yes, and if you weren't here, what would you be doing in it?' The yes-and moves the exchange from filler to learning about the person.",
+    watch: "Waiting to feel funny before trying. Tarvin's argument is that the confidence comes from the practice, not the other way round.",
+    concepts: [],
+    checks: [
+      { q: "What does Tarvin say we learn from improv?", opts: ["How to memorise lines", "How to explore and heighten a point of view — if this is true, what else is true?", "How to dress for stage", "How to do impressions"], a: 1,
+        expl: "Accept and build." },
+      { q: "What is 'staircase wit', and what does he say about it?", opts: ["Thinking of the right line later; it is a sign of comic instinct that practice shortens", "A kind of pun", "Joking on stairs", "A stand-up technique"], a: 0,
+        expl: "From four hours later, to minutes, to the moment." },
+      { q: "How does he distinguish a bad joke from an inappropriate one?", opts: ["Bad jokes are longer", "Inappropriate jokes are funnier", "There is no difference", "A bad joke just doesn't land; an inappropriate one has the wrong subject, target or timing"], a: 3,
+        expl: "No one gets fired for a bad joke." },
+    ],
+  },
+
+  "spch100.7.4": {
+    takeaway: "Jennifer Aaker and Naomi Bagdonas, who teach a Stanford course on humour, at Talks at Google: humour at work is less about being funny than about small, intentional moments of levity — and doing it well means understanding status, humour styles, and where the lines are.",
+    beats: [
+      { t: "The double life", d: "Bagdonas did improv at night and was so serious at her consulting job that a client guessed she spent Fridays re-ironing blouses." },
+      { t: "A choice in small moments", d: "Madeleine Albright wore a huge bug brooch to meet the Russian minister after the State Department was bugged." },
+      { t: "Look for what's true", d: "Write down a few true, odd observations each day. A CEO 'accidentally' left his screen shared while searching 'things inspirational CEOs say during hard times'." },
+      { t: "Status", d: "Juniors feel they must prove credibility first; seniors who stay serious miss the approachability humour brings. Self-deprecation lowers status for juniors and signals confidence for seniors." },
+      { t: "The lines", d: "Ask how it will make others feel; never punch down; check your distance from the subject." },
+      { t: "Styles and crickets", d: "Four styles — stand-up, magnet, sniper, sweetheart. When a joke dies, name it; when you cross a line, own it and find the blind spot." },
+    ],
+    worked: "Bagdonas kept being goofier with a dry colleague and got nothing — like a tourist shouting louder in English. She switched to the colleague's style: a silent cat-headed bobblehead left on her desk, which became a running joke.",
+    watch: "Speaking louder in your own humour style. If someone is not responding, they may just have a different style, not no sense of humour.",
+    concepts: [],
+    checks: [
+      { q: "What is their biggest tip for having more humour in your life?", opts: ["Learn ten jokes", "Watch more comedy", "Don't look for what's funny, look for what's true", "Always go for the laugh"], a: 2,
+        expl: "Become an observer of your own life." },
+      { q: "How does self-deprecation work differently by status, according to them?", opts: ["It can lower perceived status for juniors but signal confidence for seniors", "It always helps", "It always hurts", "It only works for comedians"], a: 0,
+        expl: "Some people over-use it, which can cost them status." },
+      { q: "What do they recommend when a joke gets crickets?", opts: ["Repeat it louder", "Explain it in detail", "Apologise at length", "Name it lightly — 'well, that didn't work'"], a: 3,
+        expl: "Naming it often cuts the tension enough to get a laugh." },
+    ],
+  },
+
+  "spch100.7.5": {
+    takeaway: "A Charisma on Command breakdown of talk-show clips: three kinds of joke that make people like you less — exposing sensitive information after someone shows discomfort, guilt-trip jokes, and teasing people below you — and what to do instead.",
+    beats: [
+      { t: "Sensitive information", d: "A host keeps pushing a guest to name an ex while she clearly wants to stop." },
+      { t: "Discomfort signs", d: "Verbal hesitation, and self-soothing body language — self-hugging, touching the face or neck. Time to pivot." },
+      { t: "The better move", d: "Turn the joke on yourself ('you don't want a drink? great, more for me'), then invite them to talk about what they do want to discuss." },
+      { t: "Guilt jokes", d: "'I guess my invitation got lost' — the guest is visibly uncomfortable, or fires back." },
+      { t: "Status and closeness", d: "The same 'nerd' tease is mockery from a host to less famous guests and affection from a wife who compliments her husband first." },
+    ],
+    worked: "Sofia Vergara calls her husband a nerd — after calling him handsome — and it lands, because they are close, he is not sensitive about it, and the compliment comes first.",
+    watch: "Ploughing ahead because the room is laughing. Other people's laughter does not mean the person you are teasing is fine.",
+    concepts: [],
+    checks: [
+      { q: "Which two signs of discomfort does the video say to watch for?", opts: ["Laughing and clapping", "Verbal hesitation and self-soothing body language", "Silence and eye contact", "Yawning and leaning back"], a: 1,
+        expl: "When you see them, pull back and change topic." },
+      { q: "Why do guilt-trip jokes backfire?", opts: ["They make the person want to spend less time with you", "They are too subtle", "They are too long", "They only work on TV"], a: 0,
+        expl: "They are often hurt feelings disguised as humour." },
+      { q: "When does teasing tend to land well?", opts: ["With strangers", "With people below you at work", "When it is about something they care about deeply", "Between people who are close, about something they are not sensitive about"], a: 3,
+        expl: "A compliment first helps." },
+    ],
+  },
+
+  "spch100.7.6": {
+    takeaway: "A Charisma on Command breakdown of Norm Macdonald: how he made bad jokes kill — a mischievous smile, explaining jokes the audience already got, deliberately obvious punchlines after a pause, and turning his own fumbled delivery into the joke.",
+    beats: [
+      { t: "The smile", d: "It signals that something worth laughing at is coming." },
+      { t: "Explaining the joke", d: "'Like a flower — yeah, cauliflower. No offence, but your face looks like a cauliflower.' The explanation gets the bigger laugh." },
+      { t: "The anti-joke", d: "A build-up and a pause, then: kickboxing combines the grace of boxing with… kicking." },
+      { t: "The obvious fake", d: "Telling a joke in the first person while making it clear it never happened to him — the bad performance becomes the joke." },
+      { t: "Where it works", d: "His three-minute moth joke only works on a talk show. In life, use light playfulness where it is unexpected, like the start of an interview." },
+    ],
+    worked: "When you flub a story — skip a key detail, botch the punchline — the video suggests treating it as the start of a new joke about how bad you are at telling it.",
+    watch: "Half-committing. A mildly dull punchline is just boring; the anti-joke only works if it is as flat as possible, delivered with total confidence. The last two minutes of the video are an advert for the channel's course.",
+    concepts: [],
+    checks: [
+      { q: "What should you do, according to the video, when a joke doesn't land?", opts: ["Apologise", "Move on quickly", "Explain it with a big expectant smile, as if it were brilliant", "Repeat it louder"], a: 2,
+        expl: "The explanation becomes the joke." },
+      { q: "Why does a deliberately obvious punchline work?", opts: ["Audiences expect jokes to be non-obvious, so extreme obviousness surprises them", "It is easy to understand", "It is shorter", "It rhymes"], a: 0,
+        expl: "But you must commit completely." },
+      { q: "What does the video say a flubbed delivery can become?", opts: ["A reason to stop", "The beginning of a new joke about your bad delivery", "A lesson for next time", "A callback"], a: 1,
+        expl: "People love a joke about how bad you are at telling jokes." },
+    ],
+  },
+
+  "spch100.7.7": {
+    takeaway: "A short lesson on callbacks: bring back something that got a laugh earlier, and you create the feeling of an inside joke with the room — as long as the original worked.",
+    beats: [
+      { t: "What it is", d: "Tell a joke, let time pass, then refer back to it." },
+      { t: "Why it works", d: "It feels like an inside joke between friends — nobody who missed the first part would get it — plus a little nostalgia." },
+      { t: "The condition", d: "The original must have landed. Calling back a dud reminds people it died." },
+      { t: "As a closer", d: "A callback brings things full circle, and rescues you when you cannot find a final punchline." },
+    ],
+    worked: "In a meeting, an early laugh about the conference-room projector that never works becomes the closing line: 'and if all else fails, we'll present it on the projector.'",
+    watch: "Calling back too often. One or two callbacks feel clever; five feel like a private club the newcomers are not in.",
+    concepts: [],
+    checks: [
+      { q: "What is the one condition for a callback to work?", opts: ["It must be short", "The original joke must have landed", "It must be at the end", "It must be a pun"], a: 1,
+        expl: "Otherwise you remind people of the miss." },
+      { q: "Why do callbacks bond an audience?", opts: ["They create the feeling of an inside joke that only those present would get", "They are louder", "They explain the topic", "They are surprising every time"], a: 0,
+        expl: "Plus a little nostalgia." },
+      { q: "Where does the lesson suggest a callback works especially well?", opts: ["As the opening line", "In the middle of a story", "In written slides", "As the closer, to bring things full circle"], a: 3,
+        expl: "It makes the ending feel complete." },
+    ],
+  },
+
+  "spch100.7.8": {
+    takeaway: "An Emmy-winning comedy writer's safest way to open with humour: acknowledge the elephant in the room — anything that could distract the audience or you — in one light line, then get on with the talk.",
+    beats: [
+      { t: "The definition", d: "Anything that might distract your audience or distract you." },
+      { t: "The sling", d: "People will wonder what happened. 'Turns out once you're over 47 you shouldn't skateboard.' Then carry on." },
+      { t: "The hungover room", d: "An 8 a.m. Vegas conference: 'My mom always said the best cure for a hangover is a 45-minute lecture on gastroenterology.'" },
+      { t: "Your own nerves", d: "If you will visibly shake, a light admission ('if I pass out, drag me back to my seat and tell me I was great') can relieve both you and them." },
+      { t: "Keep it short", d: "About twelve seconds. Most of the time you need not mention nerves at all — only when the elephant is that big." },
+    ],
+    worked: "Naming the obvious shows you are present in the same moment as the audience, which is why it lands even when the line itself is mild.",
+    watch: "Spending five minutes on the elephant. A long apology or story turns a distraction into the topic.",
+    concepts: [],
+    checks: [
+      { q: "What counts as an 'elephant in the room' here?", opts: ["Anything that could distract the audience or you", "A controversial topic", "An important guest", "A joke about animals"], a: 0,
+        expl: "A sling, a hungover crowd, or your own visible nerves." },
+      { q: "How long should acknowledging it take?", opts: ["Five minutes", "As long as it takes", "A few seconds — about twelve — then carry on", "Until people laugh"], a: 2,
+        expl: "It is a throwaway, not a story." },
+      { q: "What does the writer say about admitting nerves?", opts: ["Never do it", "Always do it", "Do it at the end", "Usually unnecessary — only when they are big enough to be noticed"], a: 3,
+        expl: "Then a light line can relieve both sides." },
     ],
   },
 });

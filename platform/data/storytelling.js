@@ -161,6 +161,10 @@ DAR.COURSES.push({
         { t: "Rescuing a joke — explain it, flatten it, own the flub", v: "q0--oItSgUY", min: 11 },
         { t: "Callbacks", v: "sjaNf7gB78k", min: 3 },
         { t: "Name the elephant in the room", v: "uRVwiN16NIg", min: 4 },
+        { t: "Yes-and, then 'thank you because' — disagreeing without killing the idea", v: "KA447nZpVzs", min: 20 },
+        { t: "Crowd work — turning an ordinary answer into a joke", v: "ZqzPS1Ap-bA", min: 14 },
+        { t: "Prepared spontaneity — lines in your pocket for the questions everyone asks", v: "aCw3uiO0L_8", min: 3 },
+        { t: "Teasing and comebacks — British banter, and when to stop", v: "UA_bkg5SQ0k", min: 14 },
       ],
     },
     {
@@ -5374,6 +5378,167 @@ Object.assign(DAR.SUMMARIES, {
         expl: "The most creative people tolerate the discomfort of an unsolved problem for longer." },
       { q: "What does he say a joke and a new idea have in common?", opts: ["Both need a punchline", "Both work best in groups", "Both connect two frames of reference in a new way", "Both should be short"], a: 2,
         expl: "The laugh, and the idea, come at the moment of connection." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VIII, top-up (T-037, 2026-10-09) — A6 humour in real time, four
+// lessons appended after spch100.7.8: Second City's Anne Libera and Kelly
+// Leonard (yes-and, and 'thank you because'), Greg Dean on crowd work, a
+// comedy MC on prepared lines, and English with Lucy on teasing and
+// comebacks. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.7.9": {
+    module: "A6",
+    mechanic: "Improvisation is practice at being unpractised: say 'yes, and' at the front end of ideas to get abundance, and when you genuinely disagree, start with 'thank you because' and something you truly valued before you say what worries you.",
+    rules: [
+      "Pitch ideas to people told to negate every one, then to people told to yes-and every one: the first feels deflating, the second gets louder and the ideas get bigger.",
+      "Yes-and belongs at the front end — the first minutes of a brainstorm — to get an abundance of ideas. It is not a rule to agree with everything, and it can be used to manipulate.",
+      "When you genuinely disagree, say 'thank you because…', name something you valued in what they said, then give your concern. Genuine gratitude makes people readier to hear criticism.",
+      "Repeat the last word the other person said, in your head or aloud, before you reply — it makes you listen to the end instead of planning halfway through.",
+      "Break a rut with a 'slightly bad idea' day, and build an ensemble with one-word-at-a-time stories. An ensemble is as good as its ability to cover for whoever is weakest at the moment.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "With a friend or colleague, plan an imaginary event in three quick rounds: one of you blocks every idea; then you yes-and every idea; then real objections are allowed, but only after 'thank you because…'. Afterwards write one sentence on how each round felt." },
+    check: "You have a sentence for each round, and in the third round every objection followed something specific you genuinely valued — not a generic 'thanks'.",
+  },
+
+  "spch100.7.10": {
+    module: "A6",
+    mechanic: "Riffing with people live is joke-writing under pressure: hear what their answer is about, take a negative opinion of it (the premise), connect it to a second idea, then keep going — escalate the consequences, tag the laugh, and compare it to something it shouldn't resemble.",
+    rules: [
+      "Find the premise in their answer: a subject plus your negative opinion of it. Without one you stall and start thinking 'what's funny?' instead of listening.",
+      "A joke is two different ideas connected. Spot the assumption in what they said and reinterpret it.",
+      "Escalate the consequences — a bad day into a nuclear winter, a cough into a pandemic — so the tension builds like a balloon.",
+      "Tag: add another punchline to the same setup while the laugh is still going, then another.",
+      "Compare: 'an accountant who hates numbers — that's like a lifeguard who hates water.' Say your honest opinion; people respect a consistent point of view even when they disagree.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write three ordinary answers people give you — where they're from, what they do, how their week went. For each, write the premise (subject plus negative opinion), one comparison ('that's like…') and two tags." },
+    check: "Every line ties back to the premise you wrote, and at least one comparison joins two things that clearly don't belong together but share a real feature.",
+  },
+
+  "spch100.7.11": {
+    module: "A6",
+    mechanic: "Much of what looks improvised is prepared: the same few names, jobs and home towns come up again and again, so write a line for each in advance and drop it in when the moment comes.",
+    rules: [
+      "Good crowd work is as much giving the impression of improvising as actually improvising.",
+      "The questions are predictable — name, job, where you're from — and so are most of the answers.",
+      "Write a line for each common answer and keep it in your back pocket; it still works years later.",
+      "Expect the answers people invent to mess with you, like airline pilot, and have something for those too.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "List the five questions you are asked most at events — what do you do, where are you from, how's business. Write one short, true, lightly funny answer to each that you could use for a year." },
+    check: "Each line is under fifteen words, is true, and doesn't need the other person to have heard it before.",
+  },
+
+  "spch100.7.12": {
+    module: "A6",
+    mechanic: "Playful teasing is affectionate irony between people who trust each other: say the opposite of what you mean ('nice one, genius'), answer a jab on the same theme or turn it on yourself, and end the volley with a self-deprecating agreement before anyone gets hurt.",
+    rules: [
+      "Teasing becomes bullying the moment you mean to hurt. People can laugh on the outside and feel awful inside, so when unsure, err on the side of caution.",
+      "Irony and sarcasm carry the tease: calling someone 'genius' just after a wrong answer, or a doubtful 'oh yeah?' at their confidence.",
+      "A comeback stays on the same theme ('genius' answered with 'all right, Einstein') or turns on yourself ('you and me both, mate').",
+      "Cheeky lines like 'I bet that sounded funnier in your head' are for friends, not for people you've just met.",
+      "Know when to stop: a self-deprecating agreement ('me too') closes the back-and-forth before someone gets annoyed.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write a six-line back-and-forth between you and a friend about something small that went wrong — a missed train, a burnt dinner — with one ironic tease, one same-theme comeback, one self-deprecating line and a line that ends it." },
+    check: "No line touches something the other person can't change or is sensitive about, and the last line lowers the temperature rather than scoring one more point.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.7.9": {
+    takeaway: "Second City's Anne Libera and Kelly Leonard run their classic exercise on a live conference audience — ideas met first by people told to negate them, then by people told to yes-and them — and add a tool from their work with Chicago behavioural scientists: 'thank you because', genuine gratitude before a genuine disagreement.",
+    beats: [
+      { t: "Yoga for your social skills", d: "Improv is loud group mindfulness and practice at being unpractised. It began as Viola Spolin's games for immigrant children at Hull House, many of them silent or in gibberish." },
+      { t: "Negate, then yes-and", d: "Pitching to people who deny everything was 'challenging' — one participant said it felt like being a woman in a meeting. The yes-and round was exhilarating for everyone." },
+      { t: "Front end only", d: "The man in the suit who says he'd get no work done if he yes-anded everything misses the point: it is five minutes at the start of a brainstorm. And it can be used for evil." },
+      { t: "Thank you because", d: "Research shows gratitude makes people more open to negative feedback. It was the round people found hardest to stop talking in." },
+      { t: "The last word", d: "Stating the last word someone said before you answer forces you to listen to the end of the sentence." },
+      { t: "Taboo day and the ensemble", d: "Asked for ideas Second City would never stage, the cast produced scenes that mostly ended up in the show. An ensemble compensates for its weakest member — who could be anyone." },
+    ],
+    worked: "Demonstrated live: 'Let's build a dome on the moon for the reunion.' 'Thank you, because there's such poetry in that idea — but the budget worries me.' 'Thank you — I appreciate that you're grounding me while looking for a way to make it happen.'",
+    watch: "'Thank you because' works only if the 'because' is something you actually heard and valued; said by rote, it is the manipulation they warn about. The exercise rounds are crowd noise — follow along in the transcript.",
+    concepts: [],
+    checks: [
+      { q: "When is 'yes, and' meant to be used, according to Leonard?", opts: ["In every conversation, always", "At the front end of ideas — the first minutes of a brainstorm — to get abundance", "Only on stage", "When closing a deal"], a: 1,
+        expl: "It is rapid prototyping for ideas, not a vow never to say no." },
+      { q: "What is 'thank you because'?", opts: ["Naming something you genuinely valued in what someone said before stating your disagreement", "A polite way to end a meeting", "A way of avoiding disagreement", "A thank-you note after a pitch"], a: 0,
+        expl: "Gratitude first makes the disagreement easier to hear." },
+      { q: "Why repeat the last word someone said before you reply?", opts: ["To sound agreeable", "To buy time to think", "It forces you to listen to the end instead of planning your answer", "To mirror their accent"], a: 2,
+        expl: "Most of us start composing a reply halfway through." },
+    ],
+  },
+
+  "spch100.7.10": {
+    takeaway: "Greg Dean on why crowd work is so popular and what it really is: joke-writing done live. Find the premise in someone's answer, connect it to something else, build a story with more questions, escalate, tag, take other points of view, and compare.",
+    beats: [
+      { t: "Not luck or charisma", d: "Strong crowd work is applied joke writing under pressure; an unfunny answer is exactly where the skill shows." },
+      { t: "Premise first", d: "In his system a premise is a negative opinion about a subject. Hear the subject in their answer and pick your position, or you loop on 'what's funny?' and stop being present." },
+      { t: "Two ideas connected", d: "Identify the assumption in what was said and reinterpret it instantly." },
+      { t: "Escalate and tag", d: "Make the consequences worse with each line; follow a punchline with more punchlines and no new setup." },
+      { t: "Judgement and points of view", d: "Your honest opinions show your values; people may disagree but respect consistency. Speaking as the tree, the fire or the firefighter adds angles." },
+      { t: "Comparisons", d: "'I'm an accountant but I hate numbers' — 'that's like a lifeguard who hates water.' Or treat a relationship as an ice-hockey game: it starts with icing, fights break out, the counsellor is the referee." },
+    ],
+    worked: "His tag chain: 'For Father's Day I took my father out.' 'It only took three shots.' 'I could always drink him under the table.' 'Not sure why we drank under the table.' 'Maybe because he was my priest.' Every tag rides on the first setup.",
+    watch: "It is a promotional 'blogcast' for his paid class, and on stage the target volunteered for it. Off stage, aim the negative opinion at the situation or at yourself, not at the person who just answered you.",
+    concepts: [],
+    checks: [
+      { q: "In Dean's system, what is a premise?", opts: ["The first line of a joke", "A negative opinion about a subject", "A funny fact", "The audience's assumption"], a: 1,
+        expl: "It is the engine for the jokes that follow." },
+      { q: "What is a tag?", opts: ["A punchline that follows a punchline without a new setup", "A callback to an earlier joke", "A hashtag on a clip", "A question to the audience"], a: 0,
+        expl: "Tags keep the laughter rolling." },
+      { q: "'I'm an accountant who hates numbers.' Which reply uses his comparison technique?", opts: ["'Why did you become one?'", "'Numbers hate you too.'", "'That's like a lifeguard who hates water.'", "'Me too.'"], a: 2,
+        expl: "Find another pair that shares the same contradiction." },
+    ],
+  },
+
+  "spch100.7.11": {
+    takeaway: "A London comedy MC's safe crowd-work technique: because the same names, jobs and places come up night after night, he pre-writes jokes for them and drops them in, so it looks spontaneous.",
+    beats: [
+      { t: "The impression of improvising", d: "Being quick with a crowd is a skill worth building, but much good MC work leans on material written in advance." },
+      { t: "Predictable answers", d: "In London a handful of names — Dave, Rob, Phil, Helen, Sarah — and the same ten or twenty jobs and places keep coming up." },
+      { t: "Sixty jokes", d: "A line for each of those, kept for years, means he always seems quick when he meets Dave who works in IT." },
+      { t: "The liars", d: "People messing with you claim to be airline pilots or gynaecologists — expect them." },
+    ],
+    worked: "At a networking event, 'So what do you do?' is certain. A prepared, true line about your work — written once, tried a few times — means you never freeze, and the conversation can go somewhere unplanned after it.",
+    watch: "It is a short clip from a course promotion. A prepared line opens the door; after it, listen and riff — the previous lesson.",
+    concepts: [],
+    checks: [
+      { q: "What is the MC's 'safe' crowd-work technique?", opts: ["Never talking to the audience", "Pre-written jokes for the names, jobs and places that always come up", "Asking only yes-or-no questions", "Picking on latecomers"], a: 1,
+        expl: "It gives the impression of improvising." },
+      { q: "Why does it work?", opts: ["The same handful of answers come up again and again", "Audiences never listen closely", "Every crowd is different", "Comedians memorise names in advance"], a: 0,
+        expl: "Name, job and home town are predictable." },
+      { q: "Which job claims does he say often mean someone is messing with you?", opts: ["Teacher and nurse", "Accountant and lawyer", "Airline pilot and gynaecologist", "IT and sales"], a: 2,
+        expl: "Have a line ready for the liars too." },
+    ],
+  },
+
+  "spch100.7.12": {
+    takeaway: "English with Lucy on British banter: playful teasing and clever comebacks are a big part of the culture, built on irony, same-theme replies and self-deprecation — with a firm line between teasing and bullying, and a knack for ending it.",
+    beats: [
+      { t: "Don't give up your day job", d: "Said to a friend after off-key karaoke: irony to ease an awkward moment, with no intent to offend." },
+      { t: "Teasing versus bullying", d: "It crosses the line when you mean to hurt. Someone can laugh on the outside and feel uncomfortable inside." },
+      { t: "At the pub quiz", d: "'You're having a laugh, aren't you?', 'you and me both, mate', 'you and your trusty pal Google' — doubt, shared self-deprecation and a sarcastic jab." },
+      { t: "Cheeky comebacks", d: "'I bet that sounded funnier in your head' and 'you know you love it' work between friends; with someone you've just met, they probably won't." },
+      { t: "Same theme", d: "'Nice one, genius' after a wrong answer is met with 'all right, Einstein' — the volley stays on intelligence." },
+      { t: "Ending it", d: "'I highly doubt that.' 'Me too.' Agreeing with the jab closes the exchange before anyone gets annoyed." },
+    ],
+    worked: "Alex is sure the longest river in the UK is the Thames, bets the next two rounds on it, and it's the Severn. 'Nice one, genius.' 'All right, Einstein, let's see how you do.' 'Stick with me and you might learn a thing or two.' 'I highly doubt that.' 'Me too.'",
+    watch: "This is British friendship banter. In many workplaces and cultures — and in a first meeting with a client — the same lines read as rude. Listen to how a group teases each other before you join in. The lesson includes a sponsor segment and course plugs.",
+    concepts: [],
+    checks: [
+      { q: "When does teasing cross into bullying, according to Lucy?", opts: ["When it's in public", "When you are purposely trying to hurt someone", "When it's about work", "When the other person doesn't laugh at once"], a: 1,
+        expl: "Consider the other person's feelings; err on the side of caution." },
+      { q: "After 'nice one, genius', which comeback stays on the same theme?", opts: ["'All right, Einstein'", "'Whatever'", "'Your round'", "'That's not fair'"], a: 0,
+        expl: "Both lines are about intelligence." },
+      { q: "How does the exchange end?", opts: ["With a harsher joke", "By changing the subject", "By agreeing with the jab — 'me too'", "By walking away"], a: 2,
+        expl: "A self-deprecating agreement signals the teasing is done." },
     ],
   },
 });

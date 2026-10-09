@@ -1,4 +1,4 @@
-bytes: 08eaf95163e13d440476908fc63e2378a6e3372d
+bytes: f6c09bd494fee6a7aae3e187444d9f097ae9af14
 $ node tools/verify-logic.js
   ok    day 1 = START_DATE — DAR.START_DATE 2026-10-05, studyIndex(START) 0, dateForStudy(0) 2026-10-05
   ok    day 1094 = dateForStudy(1093) = 2030-04-02 — got 2030-04-02

@@ -1,4 +1,4 @@
-bytes: 08eaf95163e13d440476908fc63e2378a6e3372d
+bytes: f6c09bd494fee6a7aae3e187444d9f097ae9af14
 $ node tools/verify-sync-loop.js
 A failing token — the state the bug needed:
   ok    lesson page renders a video frame

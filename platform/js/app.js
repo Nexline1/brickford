@@ -2761,22 +2761,27 @@
     // Each exam carries its course — a diagnostic through the course that
     // names it (course.diagnostic), a bank through the course whose quiz it
     // is — for the tag's faculty colour and for readiness: the lectures of
-    // that course watched, over all of them. Nothing new is stored.
+    // that course watched, over all of them. The one diagnostic no course
+    // names is the coding diagnostic (the NeetCode 10), which belongs to the
+    // tracker course, CS 150: its readiness is the problems solved of 150.
+    // A bank's size is what a sitting serves: perSitting, capped by the
+    // questions unlocked (unlockedBank's rule). Nothing new is stored.
     items.forEach(it => {
       const id = it.id;
-      const c = it.kind === "diag" ? D.COURSES.find(x => x.diagnostic === id) : D.COURSES.find(x => x.quiz === id);
+      const c = it.kind === "diag" ? D.COURSES.find(x => x.diagnostic === id) || D.COURSES.find(x => x.tracker) : D.COURSES.find(x => x.quiz === id);
       const d = it.kind === "diag" ? D.DIAGNOSTICS.find(x => x.id === id) : null;
       const bank = it.kind === "bank" ? D.QUIZZES[id] : null;
       const st = c && !c.tracker ? courseLessonStats(c) : null;
       it.course = c || null;
       it.code = c ? c.code : d ? d.subject : bank ? bank.course : "";
-      it.size = d ? d.minutes + " min" : (bank.perSitting || 15) + " questions";
+      it.size = d ? d.minutes + " min" : Math.min(bank.perSitting || 15, unlockedIdx(id).length) + " questions";
       it.pass = d ? d.gate : 70;
       it.watched = st ? st.done : c && c.tracker ? dsaCount() : 0;
       it.of = st ? st.total : c && c.tracker ? 150 : 0;
     });
     const tag = (it, extra) => '<span class="tl-code ex-tag ' + (it.course ? facClass(it.course) : "") + '">' + esc(it.code) + (extra || "") + "</span>";
     const pct = it => it.of ? Math.min(100, (it.watched / it.of) * 100) : 0;
+    const did = it => it.course && it.course.tracker ? " solved" : " watched";
     // A short name for a locked bank: "Linear Algebra qualifier".
     const short = t => {
       const [a, b] = t.split(" \u2014 ");
@@ -2791,7 +2796,7 @@
         (lead.pass != null ? "<span>Pass at " + lead.pass + "%</span>" : "") +
         (lead.of ? "<span>" + lead.watched + " of " + lead.of + (lead.course.tracker ? " problems solved" : " lectures watched") + "</span>" : "") +
         "</div>" +
-        (lead.of ? '<div class="ex-bar ' + facClass(lead.course) + '" role="img" aria-label="' + lead.watched + " of " + lead.of + ' watched"><i style="width:' + pct(lead).toFixed(2) + '%;"></i></div>' : "") +
+        (lead.of ? '<div class="ex-bar ' + facClass(lead.course) + '" role="img" aria-label="' + lead.watched + " of " + lead.of + did(lead) + '"><i style="width:' + pct(lead).toFixed(2) + '%;"></i></div>' : "") +
         "</div>" +
         '<div class="ex-side">' +
         (gateHere ? '<div class="at-days"><b>' + Math.max(0, lead.due) + "</b><span>days to the gate</span></div>" : "") +
@@ -2804,7 +2809,7 @@
     const lockRow = (it, i) => '<a class="ex-lock" href="' + it.href + '"' + (i >= 6 ? " data-ex-more hidden" : "") + ">" +
       '<span class="ex-lk" aria-hidden="true">' + lockSVG() + "</span>" +
       '<span class="ex-ln">' + esc(short(it.title)) + "</span>" +
-      '<span class="ex-lbar ' + (it.course ? facClass(it.course) : "") + '" role="img" aria-label="' + it.watched + " of " + it.of + ' watched"><i style="width:' + pct(it).toFixed(2) + '%;"></i></span></a>';
+      '<span class="ex-lbar ' + (it.course ? facClass(it.course) : "") + '" role="img" aria-label="' + it.watched + " of " + it.of + did(it) + '"><i style="width:' + pct(it).toFixed(2) + '%;"></i></span></a>';
 
     return '<div class="view-enter"><div class="page-head"><h1>Exams</h1>' +
       '<div class="sub">Timed, closed book, no AI. This is how a gate is passed.</div>' +

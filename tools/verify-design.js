@@ -210,9 +210,10 @@
 //
 // T-026b, Problems, Exams and Proof (loop/specs/T-026b-problems-exams-proof/
 // spec.md), at 1440x900 and 390x844 in dark and light on the seed plus a
-// six-entry chain, then seven more states at both sizes (labs and problem sets
-// done; an exam passed; every bank open; Gate 1 passed, so a bank leads; a
-// two-entry chain after a streak reset; day 1 with nothing stored; a
+// six-entry chain, then nine more states at both sizes (labs and problem sets
+// done; an exam passed; every bank open; Gate 1 passed, so a bank leads;
+// lectures watched in a locked bank's course; the coding diagnostic leading;
+// a two-entry chain after a streak reset; day 1 with nothing stored; a
 // Saturday). Every expected value is worked out from the stored state and the
 // data files, never read from the view:
 //   - each page: its h1 and its one line, exactly; its one filled primary
@@ -230,7 +231,9 @@
 //     the course's lectures watched / all of them within 1% (in the faculty
 //     colour), the days to Gate 1, and "Sit it"; one also-open card per other
 //     open exam (unlocking from each question's `after` lecture or its
-//     course); at most 6 locked rows, "+N more" past that, which shows the
+//     course), its tag and meta exact (a bank's sitting is perSitting capped
+//     by the questions unlocked; an exam's course is found by code, not by
+//     the app's lookup); at most 6 locked rows, "+N more" past that, which shows the
 //     rest in memory; no .glist left;
 //   - /record: three tiles equal to streak(), bestStreak() and the proven
 //     lectures; the heatmap 26 weeks x 7 weekday rows — 156 study-day cells,
@@ -1466,6 +1469,9 @@ const T26B_LONG = t26bChain([
   { ts: "2026-10-20T09:00:00.000Z", type: "lesson", ref: "math110.1.2", data: { done: true } },
 ]);
 const T26B_SHORT = T26B_LONG.slice(0, 2);
+// The tracker's problems, as S.problems keys them ("category|name").
+const T26B_PROBLEMS = (() => { const c = CURRICULUM.COURSES.find(x => x.tracker);
+  return [].concat(...Object.keys(c.problems).map(cat => c.problems[cat].map(n => cat + "|" + n))); })();
 // A stored state on top of the seed: arrays and scalars replace, objects merge.
 const t26bPatch = patch => new Function("args",
   "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}'); const p = " + JSON.stringify(patch) + ";" +
@@ -1534,14 +1540,23 @@ function t26bExams() {
   const dsa = Object.values(st.problems || {}).filter(Boolean).length;
   const lectureKeys = c => [].concat(...(c.units || []).map((u, ui) => u.lessons.map((_, li) => c.id + "." + ui + "." + li)));
   const watch = c => !c ? { w: 0, of: 0 } : c.tracker ? { w: dsa, of: 150 } : { w: lectureKeys(c).filter(done).length, of: lectureKeys(c).length };
+  // An exam's course, found a different way from the app's: a bank by the
+  // course code it carries itself, a diagnostic by the approved mockups'
+  // tags (specimen-exams.png: MIT 18.06 is MATH 110, 18.01 MATH 120, Stat
+  // 110 MATH 130, the coding diagnostic CS 150).
+  const byCode = code => D.COURSES.find(x => x.code === code) || null;
+  const DIAG_CODE = { "diag-la": "MATH 110", "diag-calc": "MATH 120", "diag-prob": "MATH 130", "diag-code": "CS 150" };
   const banks = Object.keys(D.QUIZZES).map(id => {
-    const c = D.COURSES.find(x => x.quiz === id);
+    const c = byCode(D.QUIZZES[id].course);
     const anyDone = !!c && (lectureKeys(c).some(done) || (!!c.tracker && dsa > 0));
     const n = D.QUIZZES[id].questions.filter(q => q.after ? done(q.after) : anyDone).length;
     const at = (st.quizAttempts || {})[id] || [];
-    return { id, c, n, len: D.QUIZZES[id].questions.length, sat: at.length > 0, title: D.QUIZZES[id].title };
+    // What a sitting serves: perSitting questions, or every unlocked one if
+    // fewer are unlocked than that.
+    const size = Math.min(D.QUIZZES[id].perSitting, n) + " questions";
+    return { id, c, n, size, len: D.QUIZZES[id].questions.length, sat: at.length > 0, title: D.QUIZZES[id].title };
   });
-  const diags = D.DIAGNOSTICS.map(d => ({ d, c: D.COURSES.find(x => x.diagnostic === d.id) || null, sat: ((st.diag || {})[d.id] || {}).score != null }));
+  const diags = D.DIAGNOSTICS.map(d => ({ d, c: byCode(DIAG_CODE[d.id]), sat: ((st.diag || {})[d.id] || {}).score != null }));
   const gatePassed = !!(st.gates || {})[1];
   const unsatDiag = diags.find(x => !x.sat);
   // The one to sit next: an unsat diagnostic while Gate 1 is open, else the
@@ -1550,7 +1565,7 @@ function t26bExams() {
   const lead = !gatePassed && unsatDiag ? { kind: "diag", id: unsatDiag.d.id, c: unsatDiag.c, title: unsatDiag.d.title, href: "#/diag/" + unsatDiag.d.id,
       size: unsatDiag.d.minutes + " min", pass: unsatDiag.d.gate }
     : leadBank ? { kind: "bank", id: leadBank.id, c: leadBank.c, title: leadBank.title, href: "#/quiz/" + leadBank.id,
-      size: (D.QUIZZES[leadBank.id].perSitting || 15) + " questions", pass: 70 } : null;
+      size: leadBank.size, pass: 70 } : null;
   const locked = banks.filter(b => !b.n);
   const short = t => { const [a, b] = t.split(" — "); return !b ? t : a + (/^Qualifying/.test(b) ? " qualifier" : /^Concept/.test(b) ? " concepts" : ""); };
   const facTok = c => c ? "--fac-" + ({ "Mathematics": "math", "Computer Science": "sys", "Artificial Intelligence": "ai", "Physics": "phys", "Systems": "sys", "Research": "res", "Speech": "speech" })[c.faculty] : "--accent";
@@ -1568,6 +1583,10 @@ function t26bExams() {
         .concat(W.of ? [W.w + " of " + W.of + (lead.c.tracker ? " problems solved" : " lectures watched")] : []), pct: W.of ? W.w / W.of * 100 : null,
         fac: z.tok(facTok(lead.c)) },
       open: diags.filter(x => x.d.id !== (lead && lead.id)).map(x => "#/diag/" + x.d.id).concat(banks.filter(b => b.n && b.id !== (lead && lead.id)).map(b => "#/quiz/" + b.id)).sort(),
+      // Each card's tag and meta, exactly: a diagnostic's minutes and its pass
+      // mark if it has one; a bank's sitting size and the 70% pass.
+      cards: Object.fromEntries(diags.map(x => ["#/diag/" + x.d.id, (x.c ? x.c.code : "") + " | " + x.d.minutes + " min" + (x.d.gate != null ? " · pass " + x.d.gate + "%" : "")])
+        .concat(banks.map(b => ["#/quiz/" + b.id, b.c.code + " | " + b.size + " · pass 70%"]))),
       locked: locked.map(b => ({ name: short(b.title), pct: watch(b.c).of ? watch(b.c).w / watch(b.c).of * 100 : 0 })),
     },
     rec: txt(document, "#view .page-head .ex-rec"),
@@ -3231,7 +3250,7 @@ function t26bRecord() {
     c26b(at + " /exams: the hero is \"" + L.title + "\" with its facts — " + L.facts.join(", "),
       m.hero.title === L.title && JSON.stringify(m.hero.facts) === JSON.stringify(L.facts), "\"" + m.hero.title + "\": " + m.hero.facts.join(", "));
     const got = m.hero.bar && m.hero.bar.track ? m.hero.bar.fill / m.hero.bar.track * 100 : null;
-    c26b(at + " /exams: the readiness bar is the course's lectures watched over all of them (" + (L.pct == null ? "none" : L.pct.toFixed(2) + "%") + ") within 1%, in the faculty colour",
+    c26b(at + " /exams: the readiness bar is the course's lectures watched (on the tracker, problems solved) over all of them (" + (L.pct == null ? "none" : L.pct.toFixed(2) + "%") + ") within 1%, in the faculty colour",
       L.pct == null ? !m.hero.bar : got != null && Math.abs(got - L.pct) <= 1 && __same(m.hero.bar.col, L.fac),
       got == null ? "no bar" : got.toFixed(2) + "% of a " + m.hero.bar.track.toFixed(0) + "px track");
     const days = L.gate ? Math.max(0, Math.round((Date.parse(T26_GATES[0].target) - Date.parse(o.today)) / 86400000)) : null;
@@ -3243,9 +3262,11 @@ function t26bRecord() {
     c26b(at + " /exams: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar)", inView(p, f),
       where(f) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
     const hrefs = m.open.map(c => c.href).sort();
-    c26b(at + " /exams: \"Also open\" is one card per other open exam (" + m.want.open.length + "), each with a tag, a title, and its minutes or questions",
-      JSON.stringify(hrefs) === JSON.stringify(m.want.open) && m.open.every(c => !!c.tag && !!c.title && /^\d+ (min|questions)( · pass \d+%)?$/.test(c.meta || "")),
-      m.open.map(c => c.tag + " / " + c.title + " / " + c.meta).join("; ") + (JSON.stringify(hrefs) === JSON.stringify(m.want.open) ? "" : " (want " + m.want.open.join(" ") + ")"));
+    const cardBad = m.open.filter(c => !c.title || c.tag + " | " + c.meta !== m.want.cards[c.href]);
+    c26b(at + " /exams: \"Also open\" is one card per other open exam (" + m.want.open.length + "), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark",
+      JSON.stringify(hrefs) === JSON.stringify(m.want.open) && cardBad.length === 0,
+      (cardBad.length ? "wrong: " + cardBad.map(c => c.href + " \"" + c.tag + " | " + c.meta + "\" (want \"" + m.want.cards[c.href] + "\")").join("; ")
+        : m.open.map(c => c.tag + " / " + c.title + " / " + c.meta).join("; ")) + (JSON.stringify(hrefs) === JSON.stringify(m.want.open) ? "" : " (want " + m.want.open.join(" ") + ")"));
     if (o.cols && m.open.length) {
       const cols = new Set(m.open.map(c => c.left)).size, want = Math.min(o.cols, m.open.length);
       c26b(at + " /exams: the also-open cards are " + want + " column" + (want === 1 ? "" : "s") + " wide", cols === want, cols + " distinct columns");
@@ -3263,6 +3284,9 @@ function t26bRecord() {
       " (want " + (Lk[i] ? Lk[i].name + " " + Lk[i].pct.toFixed(1) : "-") + "%)").join("; ") || "no locked banks";
     c26b(at + " /exams: each locked row is a lock and the short name, and each shown one a bar of its course's lectures watched (within 1%), >= 44px tall",
       lockBad(m.lockRows, false).length === 0, lockText(m.lockRows));
+    if (o.lockedWatched)
+      c26b(at + " /exams: this state can fail the bar check — a shown locked bank's course has lectures watched (" + Lk.filter(l => l.pct > 1).map(l => l.name + " " + l.pct.toFixed(1) + "%").join(", ") + ")",
+        Lk.some((l, i) => l.pct > 1 && i < 6));
     if (o.cols === 3 && shown.length > 1) {
       const cols = new Set(shown.map(r => r.left)).size;
       c26b(at + " /exams: the locked rows are 2 columns wide", cols === 2, cols + " distinct columns");
@@ -3359,6 +3383,17 @@ function t26bRecord() {
     { name: "every bank open", routes: ["/exams"],
       patch: { lessons: Object.fromEntries(["math120.0.0", "math130.0.0", "ai200.0.0", "math210.0.0", "ai310.0.0"].map(k => [k, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
     { name: "Gate 1 passed, so a bank leads", routes: ["/exams"], patch: { gates: { 1: "2026-10-12" } } },
+    // Review round 1: every other state has nothing watched in a locked
+    // bank's course, so a bar drawn at 0 passed. Eight MATH 110 lectures that
+    // no Linear Algebra question waits on: the bank stays locked at 8/51.
+    { name: "eight MATH 110 lectures watched, none a question's, so Linear Algebra is locked at 8 of 51", routes: ["/exams"], empty: true, lockedWatched: true,
+      patch: { lessons: Object.fromEntries([0, 3, 4, 7, 9, 10, 11, 12].map(i => ["math110.0." + i, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
+    // Review round 1: with the three maths diagnostics sat the coding one
+    // leads, and the approved mockup tags it CS 150 — readiness is problems
+    // solved of 150 (30 here, so a bar drawn at 0 cannot pass).
+    { name: "the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved", routes: ["/exams"],
+      patch: { diag: { "diag-la": { score: 80, date: "2026-10-19" }, "diag-calc": { score: 75, date: "2026-10-19" }, "diag-prob": { score: 72, date: "2026-10-19" } },
+               problems: Object.fromEntries(T26B_PROBLEMS.slice(0, 30).map(k => [k, "2026-10-18"])) } },
     { name: "a two-entry chain (genesis reached) after a streak reset", routes: ["/record"],
       patch: { ledger: T26B_SHORT, settings: { streakFrom: "2026-10-19" } } },
     { name: "day 1, nothing stored", routes: ["/workshop", "/exams", "/record"], empty: true, now: T26B_DAY1, click: true },
@@ -3369,7 +3404,7 @@ function t26bRecord() {
       const at = o.w + "px dark, " + st.name;
       console.log("\nT-026b " + at);
       const { ctx, page, errors, dialogs, today } = await t26bFresh(Object.assign({ theme: "dark", patch: st.patch, empty: st.empty, now: st.now }, o));
-      const oo = Object.assign({ today, click: !!st.click }, o);
+      const oo = Object.assign({ today, click: !!st.click, lockedWatched: !!st.lockedWatched }, o);
       for (const r of st.routes) {
         if (r === "/workshop") await t26bProblems(page, at, oo);
         if (r === "/exams") await t26bExamsCheck(page, at, oo);

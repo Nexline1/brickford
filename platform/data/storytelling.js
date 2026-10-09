@@ -284,6 +284,8 @@ DAR.COURSES.push({
         { t: "A vlog needs a story — goal, challenge, complications, payoff", v: "KdsWzPMCv7w", min: 16 },
         { t: "Devlogs — technical or design, a straight line, the struggle left in", v: "laSmItPiId0", min: 17 },
         { t: "Explain the build to people who don't build", v: "q7tNk3EhDOg", min: 4 },
+        { t: "Building in public without giving the business away — a share / don't-share list (start at 1:30)", v: "iq_DetrM-DE", min: 15 },
+        { t: "Storytelling for engineers — announce a change so people understand it (talk ends 25:20)", v: "XXrV27B-A1I", min: 26 },
       ],
     },
     {
@@ -6811,6 +6813,93 @@ Object.assign(DAR.SUMMARIES, {
         expl: "The video is what lasts, so it gets most of the eye contact." },
       { q: "What should your hands do when you're not gesturing?", opts: ["Hold a pen or clicker so they have something natural to do", "Clasp them loosely in front of you at waist height, like a steeple", "Let them rest at your sides and bring them up only to gesture", "Keep them moving gently so you never look stiff or frozen"], a: 2,
         expl: "Distracting, repetitive gestures disappear when the default is stillness." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XV, top-up (T-037 review round 1, 2026-10-09) — B4 documenting a
+// build, two lessons appended after spch100.14.3: what to share and what
+// to keep back when building in public (Arvid Kahl), and an engineer's
+// conference talk on announcing a technical change as a story. Each read
+// in full. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+  "spch100.14.4": {
+    module: "B4",
+    mechanic: "Build in public from a share / don't-share list: share the how-much, not the secret — strategies, trends in hindsight, mistakes as lessons, habits, rough numbers — and never trade secrets, confidential details, exact financials, unverified claims, attacks on competitors or internal disputes.",
+    rules: [
+      "Separate business insight from trade secret. Share the strategy ('I messaged 50 prospects'), not the implementation (the screenshot of the pitch).",
+      "Share market trends in slight hindsight, so you don't expose a bet before it pays off.",
+      "Share mistakes, framed as lessons learned, in as much detail as you choose — and it's fine to wait until a setback has become a lesson.",
+      "Apply a time test: if someone could compete with you using it within six months, make it vaguer; if they could build something as good in under a month, don't share it.",
+      "Never share trade secrets, anything on screen that leaks credentials, emails or client details, detailed financials (use rough numbers), unverified or inflated figures, criticism of competitors, or internal disputes.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Make a two-column list for something you are building: Share and Don't share, at least five items in each. Then draft one post from the Share column about a recent mistake, written as a lesson, and check every screenshot and number in it against the Don't column." },
+    check: "Every Share item is a strategy, a habit or a lesson rather than an implementation detail; the post has no exact figures, private names, credentials or competitor criticism; and the mistake ends in what you would do differently.",
+  },
+
+  "spch100.14.5": {
+    module: "B4",
+    mechanic: "An engineering announcement is a story: know the audience, make the thing that changed the character, give its arc as 'X has changed in way Y due to Z', add only the context this audience lacks, turn data into a stated conclusion, and say explicitly whether anyone has to do anything.",
+    rules: [
+      "Audience first. The CEO and the tech lead need different stories about the same project.",
+      "Assume very few 'globals': most of what your team knows — acronyms, service names — is local state the rest of the organisation doesn't share.",
+      "The character is what changed — a system, a release, a team — and the arc is 'X has changed in way Y due to Z'. The usual gap is the 'due to Z'.",
+      "Don't hand people raw data; climb from data to a conclusion. Don't tiptoe up to the explanation — dive across it: X and Y, therefore Z.",
+      "If you want someone to act, ask; if no action is needed, say so. Formula of last resort: one-line TL;DR, an 'if you don't use this, skip it' filter, the X/Y/Z line, a labelled graph, details below.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take a change you made recently (code, process, tool) and write its announcement for people outside your team: subject line, one-line TL;DR, a filter line ('if you don't use X, you can ignore this'), the X-changed-in-way-Y-due-to-Z sentence, what the reader must do (or 'no action needed'), and a link for the details." },
+    check: "Someone outside your team can tell from the first two lines whether it affects them and whether they must act; there's no acronym they wouldn't know; and any data comes with its conclusion stated.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.14.4": {
+    takeaway: "Arvid Kahl on building in public safely: keep a share / don't-share list, share the strategy and the lesson rather than the implementation, and keep trade secrets, confidential details, detailed financials, unverified claims, attacks on competitors and internal drama out of it.",
+    beats: [
+      { t: "Insight versus secret", d: "Most insights are worth sharing; the ones that carry your competitive edge are not. The list changes as the business becomes stable." },
+      { t: "What to share", d: "Strategies, market trends in hindsight, mistakes as lessons, networking habits (ask before you share a private conversation), personal development, time management, how you funded it." },
+      { t: "The time test", d: "Usable against you within six months: be vaguer. Rebuildable in under a month: don't share it." },
+      { t: "What never to share", d: "Trade secrets; confidential information — one frame of an API key is enough; detailed financials; unverified or inflated numbers." },
+      { t: "Stay out of fights", d: "No public criticism of competitors and no internal disputes: the founder's behaviour stands for the business." },
+      { t: "It's fine to wait", d: "Turning a loss into a learning takes time. Share it when it is one." },
+    ],
+    worked: "Too much: 'Here's the exact cold email that got us twelve customers from our biggest competitor's users, and a screenshot of our payments dashboard.' Built in public: 'We found our first twelve customers by talking to people who had complained about the incumbent in forums. Our first message flopped — it was all features. The one that worked asked about their workflow. Revenue is now in the low four figures a month.'",
+    watch: "Starts with a sponsor read for a bookkeeping service; the topic begins at about 1:30. It is spoken from a solo founder's point of view, so the advice on financials and on being acquired assumes a small business.",
+    concepts: [],
+    checks: [
+      { q: "What is his test for how much of an insight to share?", opts: ["If it could be used against you within six months, say it vaguer", "If it took you more than six months to learn, keep it to yourself", "If competitors already know it, there's no point in sharing it", "If it got good engagement last time, share more of the same"], a: 0,
+        expl: "And if someone could rebuild it in under a month, don't share it at all." },
+      { q: "How does he suggest talking about money in public?", opts: ["Share exact monthly revenue, so followers can trust your numbers", "Share rough numbers and aggregates, never detailed financials", "Share nothing about money until the company has been sold", "Share only your costs, since revenue invites competition"], a: 1,
+        expl: "Detailed breakdowns invite competition from people who read your data better than you do." },
+      { q: "Why does he warn against criticising competitors in public?", opts: ["It shows customers which competitors to compare you with", "Platforms quietly limit the reach of posts that name other companies", "It sabotages partnerships, can put off acquirers, and looks petty", "Competitors can use your criticism to improve their own product"], a: 2,
+        expl: "The founder's conduct is read as the company's." },
+    ],
+  },
+
+  "spch100.14.5": {
+    takeaway: "A build-infrastructure engineer's conference talk on engineering email as storytelling: know your audience, make the system the character and the change its arc, give the context they lack, turn data into a conclusion, and be explicit about what anyone has to do.",
+    beats: [
+      { t: "Don't make me WTF", d: "Most email is long, unclear about whether action is needed, or a to-do in disguise." },
+      { t: "Audience", d: "The CEO hears strategy and the customer problem solved; the tech lead hears what's blocked and why. Their frames of reference are worlds apart." },
+      { t: "Globals and locals", d: "Very little is shared across an organisation; acronyms and service names are local state. Map your world onto theirs." },
+      { t: "Character and arc", d: "The character is what changed; the arc is 'X has changed in way Y due to Z'. The missing 'why' is the common gap." },
+      { t: "One line is fine for your team", d: "'Remote test execution has been launched' is perfect for the team that built it and useless to the whole organisation." },
+      { t: "Data to wisdom", d: "Raw results invite 'so what?'. State the conclusion, label the moment of change on the graph, and say whether anyone must act." },
+    ],
+    worked: "For the whole organisation, not 'Remote testing results attached' but: 'Subject: CI tests now run remotely — faster, nothing to do. TL;DR: test results come back minutes sooner. If you don't use this repository, ignore this. The test suite now runs on remote machines instead of yours, so it finishes faster; no action is needed — you'll see it on your next push. Details in the linked change; graph below, with the launch marked.'",
+    watch: "The talk runs to about 25 minutes, then audience questions (on chat tools, and on writing for several groups at once). His aside that stories release dopamine and oxytocin is passed over quickly; the method doesn't rest on it.",
+    concepts: [],
+    checks: [
+      { q: "When is the one-line 'remote testing has been launched' email a good email, in his example?", opts: ["When it goes to the whole engineering organisation at once", "When it goes to his own team, who share all the context", "When it includes the full set of test results as an attachment", "When it is sent before the launch rather than after it"], a: 1,
+        expl: "Whether a message works depends on who it is for." },
+      { q: "What is his sentence pattern for the arc of a change?", opts: ["System X has changed in way Y, due to change Z", "X is now live; ask Y if you have any questions", "X replaces Y for every team from date Z", "X was slow, Y fixed it, Z comes next"], a: 0,
+        expl: "The 'due to' is the part people leave out." },
+      { q: "What does he mean by 'very few globals'?", opts: ["Little of what your team takes for granted is shared by the org", "Most readers only skim the subject line, so the rest is wasted", "Most teams depend on shared services that few people understand", "Most emails should go to small lists, not to everyone at once"], a: 0,
+        expl: "Acronyms and service names are local state; don't assume everyone has them." },
     ],
   },
 });

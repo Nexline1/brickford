@@ -160,6 +160,8 @@ DAR.COURSES.push({
         { t: "The laugh generator — punch up a talk from its transcript", v: "qIxRZQd9gfg", min: 10 },
         { t: "When a joke gets nothing — too little information, or too much", v: "5isx4lkVCZc", min: 3 },
         { t: "Don't open with a joke — three low-risk ways to be light", v: "h6sm47j-Am4", min: 6 },
+        { t: "Act-outs, part one — show, don't tell: play what the character wants", v: "OxcxXAuQFws", min: 7 },
+        { t: "Act-outs, part two — stage the scene, play the honest reaction (stop at 8:20)", v: "4v398Tmu4rU", min: 8 },
       ],
     },
     {
@@ -6417,6 +6419,91 @@ Object.assign(DAR.SUMMARIES, {
         expl: "The rest of the film is the same shape at length." },
       { q: "What makes a payoff feel surprising yet inevitable, in the lecture?", opts: ["Hiding the promise until the end", "Putting a twist in every story", "Making the audience doubt they will get what was promised, then delivering it", "Ending before the promise is fulfilled"], a: 2,
         expl: "Obstacles, escalation and red herrings create the doubt." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VII, third top-up (T-037, 2026-10-09) — A5 the funny story, two
+// lessons appended after spch100.6.18: Greg Dean on act-outs — playing
+// the other people in a story from what they want, and staging the scene
+// so it reads as real. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.6.19": {
+    module: "A5",
+    mechanic: "In a funny story, playing the other people instead of narrating them puts the scene in the present in front of the audience — and a character becomes funny once you know what they want and what they value, because their point of view supplies the second interpretation a joke needs.",
+    rules: [
+      "Show, don't tell: 'my friend asked him…' is the narrator telling. Turning to play the friend lets the audience watch it happen now, which is more urgent and often funnier.",
+      "After writing a bit, mark every character in it. A character you have not thought about comes out as a blank mannequin — 'just some guy'.",
+      "Find each character's objective: why are they saying this, to this person? 'I want them to agree with me.' 'I want to put them down.'",
+      "A character with different values reads the same thing differently. That is two interpretations of one thing — the structure of a joke — so the character starts writing jokes for you.",
+      "Get to know the character by being them away from the stage, then put them in the story and stage them properly.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Take a funny story from your bank with at least one other person in it. Write one line on what that person wants in the key moment and what they value. Then record the moment twice: once narrated ('she said that…'), once acted out, turning to speak as her in the present." },
+    check: "In the acted-out take the other person speaks in their own voice and from their own want, and you can point to the line where their point of view, not yours, makes the joke.",
+  },
+
+  "spch100.6.20": {
+    module: "A5",
+    mechanic: "To act out the scene inside a joke, write it as a scene, give the other person a decided attitude, stage it so the space stays physically consistent, and play your line as an honest reaction in the present — the audience laughs at believable people reacting, and fixates on anything in the scene that is not real.",
+    rules: [
+      "Write the joke out as a scene: where the narration sets it up, who is in it, where it happens, and what each person says.",
+      "Give the other character a decided attitude — nice, bored, mean, hostile. Without one there is no point acting it out.",
+      "Stage it consistently: an officer at the driver's window means you sit, hold the wheel and look up and over your left shoulder. A wrong side or a level eye line breaks the reality, and the audience watches the mistake instead of the joke.",
+      "Play your line as an honest response happening now, not as a joke being delivered. Try different attitudes until the line sounds like something a real person would say.",
+      "Acted out, the scene shows both personalities and the relationship between them, which is where the extra laughs come from.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Pick a two-person exchange from one of your stories. Write it as a scene: where each person is, what each says, and each one's attitude. Then record it on video, acted out: the other person's line in their voice and position, your reply looking at where they stand." },
+    check: "On playback your eyes go to the same place every time the other person speaks, and your reply sounds like a real reaction rather than a punchline being delivered.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.6.19": {
+    takeaway: "Greg Dean, answering a student whose act is full of characters: play them. Acting a character out turns telling into showing and puts the scene in the present, and once you know what a character wants and values, their point of view starts writing the jokes for you.",
+    beats: [
+      { t: "Narrator or scene", d: "'My friend asked him why…' is the narrator telling. Acting the friend out lets the audience watch it happen as if it were happening now." },
+      { t: "No ghost mannequins", d: "An unexamined character comes out as 'some guy'. Decide who they are and what they value." },
+      { t: "The objective", d: "Why are they saying this to this person? Then track it back: why does it matter to them?" },
+      { t: "Two interpretations", d: "Your values and the character's values read the same thing differently — the structure of a joke, coming from character rather than wordplay." },
+      { t: "One line, a whole world", d: "Richard Pryor plays a prison inmate for a single line, and the answer is so reasonable to the man that the audience sees his whole world." },
+    ],
+    worked: "A story about a landlord who will not fix the heating. Narrated: 'He said it wasn't that cold.' With an objective — he wants to avoid spending money, and he values being right — you turn and play him: 'Cold? This is fresh air. People pay for this in Switzerland.' The line comes from his point of view, not yours, and that gap is the joke.",
+    watch: "A classroom question-and-answer clip. Dean refers to staging lessons taught elsewhere; the next lesson in this unit covers staging. His suggestion to walk around in public as the character is optional; the core is the objective and the values.",
+    concepts: [],
+    checks: [
+      { q: "Why does Dean say acting out a character helps a funny story?", opts: ["It turns telling into showing and brings the scene into the present", "It lets you skip the setup", "It hides weak punchlines", "It makes the story shorter"], a: 0,
+        expl: "The audience watches it happen instead of hearing about it." },
+      { q: "What is a 'ghost mannequin' in Dean's terms?", opts: ["A prop on stage", "A character played without knowing who they are — just 'some guy'", "An audience member who never laughs", "A joke without a setup"], a: 1,
+        expl: "Decide who the character is and what they value." },
+      { q: "How does knowing a character's values produce jokes?", opts: ["It tells you which words to rhyme", "It makes the audience trust you", "It gives a second interpretation of the same thing, from their point of view", "It lets you reuse old material"], a: 2,
+        expl: "Two interpretations of one thing is what a joke is." },
+    ],
+  },
+
+  "spch100.6.20": {
+    takeaway: "Greg Dean's tenth 'make funny jokes funnier' tip takes a Steven Wright one-liner about being pulled over and shows how to perform it as a scene: write it out, give the officer an attitude, stage the car and the window correctly, and play the reply as an honest reaction happening now.",
+    beats: [
+      { t: "A scene inside a one-liner", d: "'Didn't you see that stop sign?' 'Yes, but I don't believe everything I read.' Wright narrates it; there is a two-person scene inside." },
+      { t: "Write it as a scene", d: "Mark where the setup ends and the scene begins, who is in it, and what each person says." },
+      { t: "Portray the character", d: "Is the officer nice, mean, bored or hostile? Those choices decide how the scene plays." },
+      { t: "Staging", d: "The officer stands at the driver's window, so you bend your knees, hold the wheel and look up and to the left. Get it wrong and the audience fixates on the mistake." },
+      { t: "The honest reaction", d: "Why would anyone say that to someone who can give them a ticket? Find the state of mind that makes the line believable." },
+    ],
+    worked: "Narrated: 'My boss asked if I'd finished the report, and I said I'd been thinking about it very hard.' Acted out: you look up to where he stands by your desk, play him tired rather than angry, then answer him earnestly, as if thinking hard really were a kind of finishing. The earnest reaction gets the laugh, not the wording.",
+    watch: "A narrated version of a blog post, with auto-generated captions; a short plug for a free workbook sits around 5:15, and from about 8:20 it lists the other tips in the series. The staging assumes driving on the right; where people drive on the left the officer is on the other side, as Dean notes.",
+    concepts: [],
+    checks: [
+      { q: "Why does staging matter in an act-out, according to Dean?", opts: ["It makes the story longer", "If the audience notices something unreal in the scene, they fixate on it instead of the joke", "It lets you drop the setup", "It hides nerves"], a: 1,
+        expl: "Space work has to be right in rehearsal." },
+      { q: "In the police-stop example, where does the performer look when speaking to the officer?", opts: ["Straight ahead", "Down and to the right", "Directly sideways at head height", "Up and over the left shoulder"], a: 3,
+        expl: "A level eye line would mean the officer is kneeling." },
+      { q: "How should the punchline sound when it is acted out?", opts: ["Like an honest reaction from someone really in that moment", "Like a clearly delivered joke", "Louder than the rest", "Spoken to the audience, not the character"], a: 0,
+        expl: "Believable reactions get the laugh; fake ones get judged." },
     ],
   },
 });

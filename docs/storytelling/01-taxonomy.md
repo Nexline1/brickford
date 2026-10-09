@@ -174,55 +174,64 @@ what the harvest found — where a module came in short, the table says so.
 | A8 | Speaking as a non-native speaker | 1.5 | 4.5 | 3.90 | 17 | −13% | yes |
 | | **Track A** | 18.0 | **38.0** | **35.10** | 127 | −8% | 8 of 8 |
 | B1 | Short-form structure | 2.5 | 2.5 | 2.08 | 6 | −17% | yes |
-| B2 | Retention and analytics | 2.0 | 2.0 | 1.55 | 4 | −23% | **no** |
-| B3 | Story selection | 1.5 | 1.5 | 0.48 | 2 | −68% | **no** |
-| B4 | Documenting a build | 2.0 | 2.0 | 1.25 | 4 | −38% | **no** |
-| B5 | Long-form and YouTube structure | 1.5 | 1.5 | 1.15 | 5 | −23% | **no** |
-| B6 | Delivery on camera | 1.5 | 1.5 | 0.80 | 8 | −47% | **no** |
+| B2 | Retention and analytics | 2.0 | 2.0 | 1.87 | 6 | −7% | yes |
+| B3 | Story selection | 1.5 | 1.5 | 1.45 | 3 | −3% | yes |
+| B4 | Documenting a build | 2.0 | 2.0 | 1.93 | 6 | −3% | yes |
+| B5 | Long-form and YouTube structure | 1.5 | 1.5 | 1.68 | 7 | +12% | yes |
+| B6 | Delivery on camera | 1.5 | 1.5 | 1.42 | 12 | −6% | yes |
 | B7 | Positioning and content pillars | 1.0 | 1.0 | 0.90 | 3 | −10% | yes |
-| | **Track B** | 12.0 | **12.0** | **8.21** | 32 | −32% | 2 of 7 |
+| | **Track B** | 12.0 | **12.0** | **11.33** | 43 | −6% | 7 of 7 |
 | B8 | Arabic and Gulf content | 0 | 0 (archive) | 0 | 0 | | |
-| | **Core path** | 30.0 | **50.0** | **43.32** | **159** | **−13%** | 10 of 15 |
+| | **Core path** | 30.0 | **50.0** | **46.43** | **170** | **−7%** | 15 of 15 |
 
 "Installed" is the sum of each lesson's `min` by module (`DAR.DRILLS[key].module`), the five
 seed lessons included under their modules. `min` is the part of the video to watch: where
 the teaching ends before the video does (a Q&A, a sponsor, plugs) the title says "stop at",
 and where it starts late, "start at" — so the hours are teaching time, not upload length.
 
-### Where it falls short, and why
+### Where it fell short, and what review round 1 found
 
-The harvest stopped at **43.3 h, not 50**. Good material ran out under the redundancy rule
-before the hours did, and the brief was explicit: stop and say so rather than pad. The
-last six search rounds considered 24 more candidates and installed 7; the rest repeated a
-mechanic already taught or were too thin (see `rejections.md`, which lists every rejection
-with its reason).
+The first draft of this section said the harvest stopped at 43.3 h because good material
+ran out before the hours did. **For Track B that was not true: Track B had not been searched
+to the same depth.** Counting distinct queries in `candidates.jsonl`, Track A modules had
+8–28 each and B2–B7 had 3–6. Five Track B modules sat outside ±20% (B2 −23%, B3 −68%,
+B4 −38%, B5 −23%, B6 −47%), and the review sent it back.
 
-- **Track A is inside ±20% on every module.** It is where the spec put the weight, and it
-  had the deepest teachers (Dicks, Winston, Abrahams, Vinh Giang, Treasure, Pixar in a Box,
-  Sanderson, Greg Dean, Dikkers, Aaker and Bagdonas, Duhigg, Duarte, Heath).
-- **B3 (0.48 h)** shares its spine with A2, as this file said it would. The obvious B3
-  sources — Homework for Life, the five-second moment, first/last/best/worst, signature
-  stories — were already installed in Units I, III and IV. Two A1 lessons (the five-second
-  moment and Dicks building a story live) were installed a second time in Unit XI by
-  mistake and removed (commit `6786908`, which also made `verify-content` fail on any video
-  installed twice). What remained was truncated by the transcript tool or thin.
-- **B6 (0.80 h)** was defined here as "the delta" over A3. A3 grew from 2.5 h to 5.5 h, so
-  most on-camera candidates repeated delivery mechanics already taught; the eight B6
-  lessons are short and specific to the lens.
-- **B2, B4 and B5** were searched again in the last round; every new candidate repeated an
-  installed lesson (retention shapes, Galloway's channel review, Kleon's Show Your Work,
-  the vlog story structure, the script-order guide).
+Review round 1 searched each of B2–B6 to Track A depth: the runbook's queries for the
+module (`tools/storytelling/queries.json`) plus adapted variants, **eight queries per module,
+40 in all**, each logged with the ids it returned in `data/storytelling/searches.jsonl`.
+Every plausible result was logged in `candidates.jsonl` — installed, read and rejected, or
+not fetched — with its reason. It also found that two B3 rejections were stale: they had
+been rejected only because the transcript tool stopped at its 120,000-character limit, and
+the tool now returns whole transcripts. Both were re-fetched and read in full.
 
-So the honest reading is: **Track A is the course the owner asked for, at 35 h of its
-38 h budget; Track B is a thinner 8 h companion against its 12 h.** Of the 6.7 h shortfall
-against 50 h, 3.8 h is Track B and 2.9 h is spread across Track A modules that are each
-still inside ±20%.
+11 lessons and 3.1 h were installed, every transcript read in full first:
+
+| module | before | added | after | vs revised |
+|---|---|---|---|---|
+| B2 | 1.55 h | intros measured at 30 seconds; why CTR misleads | 1.87 h | −7% |
+| B3 | 0.48 h | Paul Smith: choose the story from the objective (a re-fetched stale rejection) | 1.45 h | −3% |
+| B4 | 1.25 h | Arvid Kahl's share / don't-share list; storytelling for engineers (LISA19) | 1.93 h | −3% |
+| B5 | 1.15 h | Derek Muller: start with the misconception; Johnny Harris on writing a long video | 1.68 h | +12% |
+| B6 | 0.80 h | teleprompter writing and rehearsal; why prompter reads sound fake; an anchor's habits; body language in the frame | 1.42 h | −6% |
+
+Six further results were read in full and rejected (density, overlap, or a claim the
+source does not support), and 46 were logged as not fetched. The Johnny Harris interview is
+strong throughout, but only 26 of its 87 minutes are counted, so B5 stays inside its band;
+Paul Smith's 63 minutes are counted to 58, where the teaching ends.
+
+So: **all fifteen modules are now inside ±20% of the revised budget, at 46.4 h of 50.**
+The 3.6 h still short is spread thinly — 2.9 h across Track A modules that are each inside
+their band, 0.7 h across Track B — rather than concentrated anywhere. The 28 Track A
+candidates rejected for truncation alone were not revisited this round, because no Track A
+module is outside its band; they are the first place to look if the course is ever taken
+to the full 50 h.
 
 ### The schedule
 
 SPCH 100 runs only inside the `Publish` block, five days a week (it rests Saturday with
 the plan and Friday for the recorded rep). Measured with the app's own `scheduledFor()` on
-a fixed clock: **159 lessons over 172 Publish days, 2026-10-05 to 2027-06-01 — about 34
+a fixed clock: **170 lessons over 186 Publish days, 2026-10-05 to 2027-06-21 — about 37
 weeks**, averaging 15 minutes of video a day (whole lessons are packed into the
 40-effort-minute block, so a day often carries less than the 20-minute ceiling). Every
 other course's lesson dates, the start date, day 1094 (2030-04-02) and the gate baseline
@@ -247,13 +256,13 @@ every key to its video, and `verify-content` fails if a pinned key moves.
 | VIII | A6 humour in real time | 15 | 4.42 |
 | IX | A4 conversation | 13 | 4.12 |
 | X | A7 high stakes | 23 | 6.72 |
-| XI | B3 story selection | 2 | 0.48 |
+| XI | B3 story selection | 3 | 1.45 |
 | XII | B1 short-form structure | 6 | 2.08 |
-| XIII | B2 retention and analytics | 4 | 1.55 |
-| XIV | B6 on camera | 8 | 0.80 |
-| XV | B4 documenting the build | 4 | 1.25 |
+| XIII | B2 retention and analytics | 6 | 1.87 |
+| XIV | B6 on camera | 12 | 1.42 |
+| XV | B4 documenting the build | 6 | 1.93 |
 | XVI | B7 positioning and pillars | 3 | 0.90 |
-| XVII | B5 long-form | 5 | 1.15 |
+| XVII | B5 long-form | 7 | 1.68 |
 
 ### Rules that changed with the size
 
@@ -263,7 +272,8 @@ every key to its video, and `verify-content` fails if a pinned key moves.
   to open a talk; whether to aim for a native accent) both are kept and the lessons say so.
 - **Truncation.** During the harvest the transcript tool stopped at about 120,000
   characters of raw captions. A candidate with more than about 15% of its teaching unread
-  was rejected rather than installed half-read; 30 were rejected for this alone. The rule
+  was rejected rather than installed half-read; 30 were rejected for this alone (two of
+  them, in B3, were re-fetched whole in review round 1: one installed, one rejected on density). The rule
   was not applied consistently, and the first draft of this file said it was: six videos
   were installed at full length with their last 6–10% unread (hCf3dHd8_i8, 6-shbSFc48E,
   SP8YSgUkCh0, ABw26imw4m4, 7eosJwqoDaY, LTrrd94QEdU). Review round 1 caught it. On

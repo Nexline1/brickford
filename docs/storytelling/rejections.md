@@ -8,7 +8,7 @@ only proof that anything was actually read.
 
 Generated from `data/storytelling/candidates.jsonl`, which is the source of truth: every
 candidate considered for SPCH 100 in T-037, installed or not, with its module, the query
-that found it and the note written when it was read. **310 candidates: 159 installed, 151 rejected.**
+that found it and the note written when it was read. **371 candidates: 170 installed, 201 rejected.**
 Every installed video's transcript is stored in `data/storytelling/transcripts/`.
 
 ### Rejections by reason
@@ -16,19 +16,22 @@ Every installed video's transcript is stored in `data/storytelling/transcripts/`
 | reason | count |
 |---|---|
 | Redundant: the mechanic is already installed | 55 |
-| Transcript truncated by the tool — too much of the video unread | 30 |
-| Thin: a performance, promo, fragment or low-density talk with no teachable mechanic | 27 |
+| Not fetched: redundant on its face (title, length or source) | 55 |
+| Thin: a performance, promo, fragment or low-density talk with no teachable mechanic | 33 |
+| Transcript truncated by the tool — too much of the video unread | 28 |
 | No readable transcript | 17 |
-| Not fetched: redundant on its face (title, length or source) | 9 |
 | Off the module's mechanic (title lies) | 7 |
 | Another upload of an installed talk, a paid-course re-upload, or the same lecture | 6 |
-| **total** | **151** |
+| **total** | **201** |
 
 Two policies drive most of these. **Redundancy:** a video is installed only if it adds a
 mechanic no installed lesson already teaches, so a good video that repeats a better one is
-rejected and the note names the lesson that covers it. **Truncation:** the transcript tool
-stops at about 120,000 characters; a video with more than about 15% of its teaching unread
-is rejected rather than installed half-read.
+rejected and the note names the lesson that covers it. **Truncation:** during the harvest
+the transcript tool stopped at about 120,000 characters, and a video with more than about 15%
+of its teaching unread was rejected rather than installed half-read. The tool now returns
+whole transcripts; review round 1 re-fetched the two B3 videos rejected for this alone (one
+installed, one rejected on density). The queries run in review round 1, including those that
+found nothing worth logging, are in `data/storytelling/searches.jsonl`.
 
 ### Every rejection
 
@@ -208,40 +211,75 @@ is rejected rather than installed half-read.
 | [`0QvgMJg1u7s`](https://www.youtube.com/watch?v=0QvgMJg1u7s) — *Zach King Reveals the Secret to Making a Viral TikTok* | Read in full: a talk-show interview; one sentence on a writers' room mining everyday annoyances, otherwise anecdotes. |
 | [`Q75eYZDg7gY`](https://www.youtube.com/watch?v=Q75eYZDg7gY) — *Everything You've Been Told About Short Form Content is a LIE.* | Read in full. Hook / build-up / result and the retention-graph shapes are taught already by Jenny Hoyos (spch100.11.4) and the B2 retention lesson (spch100.12.1); adds the 80/20 result placement and trial reels inside a long coaching pitch. |
 
-#### B2 — 3 rejected
+#### B2 — 11 rejected
 
 | video | reason |
 |---|---|
 | [`9v9yyWEmGD0`](https://www.youtube.com/watch?v=9v9yyWEmGD0) — *How To Read Audience Retention On YouTube (WHAT VIDEO DO I MAKE NEXT)* | Read in full (auto captions). A 48-minute live stream with low density and tool promotion; the retention shapes are taught by spch100.12.1 and 'make the next video from what held them' by spch100.12.3 (Galloway). Its one new point, don't telegraph the ending, is a sentence. |
 | [`zCO8QOrz0b4`](https://www.youtube.com/watch?v=zCO8QOrz0b4) — *How To Decode Your Video's Audience Retention Report in YouTube Analytics* | Read in full (YouTube's own Culture and Trends team, real captions). Drops, rewinds and absolute versus relative retention are taught more fully by spch100.12.1; the new part (geography and device splits) is about a minute. |
 | [`lV-X9yCkj1k`](https://www.youtube.com/watch?v=lV-X9yCkj1k) — *Retention Curves Have 4 Shapes. Here's What Each One Means.* | Not fetched: the same mechanic as spch100.12.1 (five retention shapes), already installed. |
+| [`jKRiib3Xzoo`](https://www.youtube.com/watch?v=jKRiib3Xzoo) — *A/B testing on YouTube* | Read in full (real captions; a feature walkthrough in YouTube's own voice). Eligibility, steps and result labels for title/thumbnail tests; the one transferable rule — the winner is chosen by watch-time share, not clicks — is a single line, and packaging is taught in spch100.16.2. |
+| [`V8f_VWMV8pY`](https://www.youtube.com/watch?v=V8f_VWMV8pY) — *YouTube Analytics Reports To Know: Audience Retention Graph!* | Not fetched: reading the retention graph is installed (spch100.12.1, 12.3); B2 reached its band with 12.4 and 12.5. |
+| [`g1JOdK8Oi0k`](https://www.youtube.com/watch?v=g1JOdK8Oi0k) — *YouTube Audience Retention Analytics. How to Read the Data? [Tutorial]* | Not fetched: reading the retention graph is installed (spch100.12.1, 12.3); B2 is within its band. |
+| [`dAR3d6xnG0o`](https://www.youtube.com/watch?v=dAR3d6xnG0o) — *The NEW Rules Of YouTube (From a 50 Billion View Strategist)* | Not fetched: by its search summary ideation and thumbnails rather than analytics; Paddy Galloway's own analytics breakdown is installed (spch100.12.3). |
+| [`EWXYRAMwFKM`](https://www.youtube.com/watch?v=EWXYRAMwFKM) — *Beginner's Guide to YouTube Analytics // watch time, CTR, and average view duration EXPLAINED* | Not fetched: the metrics are taught by YouTube's own staff in spch100.12.0 and by spch100.12.5; B2 is within its band. |
+| [`eHv_IB5Uvr4`](https://www.youtube.com/watch?v=eHv_IB5Uvr4) — *What Is a Good Average View Duration on YouTube?* | Not fetched: by its title a benchmark question; spch100.12.0 and 12.1 argue against fixed benchmarks, and B2 is within its band. |
+| [`2G4aQDd6yYQ`](https://www.youtube.com/watch?v=2G4aQDd6yYQ) — *Can’t Get 75% Audience Retention In First 30 Seconds Of Your YouTube Video? TRY THIS* | Not fetched: the first-30-seconds question is answered with data by spch100.12.4. |
+| [`2g6hbhclpKo`](https://www.youtube.com/watch?v=2g6hbhclpKo) — *YouTube Analytics Explained — 2026 Beginner’s Guide (What Really Matters)* | Not fetched: the metrics are covered by spch100.12.0-12.5; B2 is within its band. |
 
-#### B3 — 6 rejected
+#### B3 — 13 rejected
 
 | video | reason |
 |---|---|
-| [`J2AOhNEOhj8`](https://www.youtube.com/watch?v=J2AOhNEOhj8) — *How the Generosity of Scars Makes Your Story More Powerful with Scott Mann* | Transcript truncated by the tool at 38:02 of 1:03:58 (41% unread); rejected under the truncation rule. |
+| [`J2AOhNEOhj8`](https://www.youtube.com/watch?v=J2AOhNEOhj8) — *How the Generosity of Scars Makes Your Story More Powerful with Scott Mann* | Review round 1: re-fetched whole (1:03:58, 12,865 words; the earlier fetch had stopped at 38:02) and read in full. Rejected on density: mostly a biographical interview. The selection teaching (relatability first and vulnerability as its by-product, adjusting the level to the room, skipping a point that is too raw, no struggle no story) is about ten minutes scattered across the hour, and B3 is filled by x3cCL9TcdUQ. |
 | [`BvSp9VQdwVU`](https://www.youtube.com/watch?v=BvSp9VQdwVU) — *Speak From Your Scars, Not Your Open Wounds/* | Transcript unavailable through the MCP ('could not fetch this video'); not installed unread. |
 | [`pbYrhLiEIv0`](https://www.youtube.com/watch?v=pbYrhLiEIv0) — *The Moth: The art and craft of storytelling* | Read in full: a two-minute promotional piece about The Moth; no mechanic taught. |
 | [`PVzEtvc7iW0`](https://www.youtube.com/watch?v=PVzEtvc7iW0) — *Give Me 5 Mins, And I'll Improve Your Storytelling Skills By 182%* | Read in full: a podcast clip of Kallaway on speed to value and contrast; redundant with his own fuller hooks video 2byPP_9F0-Q. |
-| [`x3cCL9TcdUQ`](https://www.youtube.com/watch?v=x3cCL9TcdUQ) — *How to Lead with a Story and The Ten Stories Great Leaders Tell with Paul Smith* | Transcript truncated by the tool at 42:03 of 1:02:50 (33% unread); rejected under the truncation rule. |
 | [`fwQ575VQUsE`](https://www.youtube.com/watch?v=fwQ575VQUsE) — *Paul Smith Clip 2: Lead With A Story. Top Storytelling Coach On How To Use Stories To Lead and Sell* | Read in full: a 70-second clip retelling one study (story-described eBay items); an anecdote, no method. |
+| [`Fl3EACOpilE`](https://www.youtube.com/watch?v=Fl3EACOpilE) — *The Secret To Choosing Your Next Story!* | Not fetched: by its search summary it is for novelists choosing their next book project, not for choosing which true story to tell; B3 is filled by x3cCL9TcdUQ. |
+| [`Q8_TxVQKVpg`](https://www.youtube.com/watch?v=Q8_TxVQKVpg) — *5 storytelling tips for content creators* | Not fetched: by its search summary, general engagement tips rather than selection; selection is taught by x3cCL9TcdUQ. |
+| [`eng0Tb4vMps`](https://www.youtube.com/watch?v=eng0Tb4vMps) — *How to be a good storyteller and inspire anyone :Matthew Dicks* | Not fetched: Dicks's method for finding and choosing stories is already installed from his own uploads in six lessons; another interview would repeat it. |
+| [`oi1ucpRX5E0`](https://www.youtube.com/watch?v=oi1ucpRX5E0) — *What is Your Signature Story? - David Aaker* | Not fetched: by its search summary, brand signature stories for companies; the personal version is installed (ojl2k8ylAMA). |
+| [`AoKJwkITuI4`](https://www.youtube.com/watch?v=AoKJwkITuI4) — *Worlds Greatest Speaker Training - Signature Story* | Not fetched: by its search summary, one speaker performing a three-minute signature story, not teaching how to choose one. |
+| [`Ou8Db1LB4tQ`](https://www.youtube.com/watch?v=Ou8Db1LB4tQ) — *Show Your Scars, Not Your Wounds* | Not fetched: by its search summary, a pastor's talk on healing rather than a lesson on choosing what to tell. |
+| [`HVQhK3wF0PY`](https://www.youtube.com/watch?v=HVQhK3wF0PY) — *5 Storytelling Exercises For Beginners* | Not fetched: by its title, exercises for telling rather than choosing; the story-finding exercises are installed in A2 (VoaGniZSFGw). |
+| [`olTpXoKes_w`](https://www.youtube.com/watch?v=olTpXoKes_w) — *How to tell a GREAT Story - Storytelling Workshop for Keynotes and Speeches* | Not fetched: by its title, a keynote structure workshop (A1/A7, both within budget); B3 is filled by x3cCL9TcdUQ. |
 
-#### B4 — 3 rejected
+#### B4 — 13 rejected
 
 | video | reason |
 |---|---|
 | [`61QO5gG52HI`](https://www.youtube.com/watch?v=61QO5gG52HI) — *How to Show Your Work And Get Discovered - Austin Kleon* | Read: a third-party podcast summarising the book, not Kleon. His own SXSW talk (m8v3jf8RVBk) is installed instead. |
 | [`KmGFHsy1IGU`](https://www.youtube.com/watch?v=KmGFHsy1IGU) — *Show Your Work Book Summary - Authored by: Austin Kleon* | Read in full: a third-party summary whose anecdotes ('a writer named Shawn', 'a producer in Seattle') cannot be traced to the book; not installed. |
 | [`RVKofRN1dyI`](https://www.youtube.com/watch?v=RVKofRN1dyI) — *Document, Don't Create* | Read in full (real captions). A motivational montage; its mechanic (share the process rather than advice, don't wait for production values, just start) is taught in full by Kleon's Show Your Work (spch100.14.0). |
+| [`AKcAn8-s-cM`](https://www.youtube.com/watch?v=AKcAn8-s-cM) — *How to build in public: 10 examples to copy [B2B SaaS]* | Read in full. A list of post types (mistakes, wins, product updates, stats, polls, events); thin on how, and its last recommendation — public 'beef' with competitors because people love drama — is the opposite of spch100.14.4's reasoned advice. |
+| [`YsKugR5fuMU`](https://www.youtube.com/watch?v=YsKugR5fuMU) — *The mindset difference between documenting vs vlogging* | Read in full (real captions). A personal reflection: vlogging as performance led to burnout, documenting as-is is for reflection. One idea, no technique; spch100.14.0 and 14.2 teach documenting a build. |
+| [`8RMCwB3BUh0`](https://www.youtube.com/watch?v=8RMCwB3BUh0) — *How To Build In Public As A Founder Successfully?* | Not fetched: B4 reached its band with spch100.14.4 and 14.5; by its title the same ground as 14.4. |
+| [`WJlvQu3yeCY`](https://www.youtube.com/watch?v=WJlvQu3yeCY) — *If you're not building in public, watch this now.* | Not fetched: by its title a case for building in public rather than a method; B4 is within its band. |
+| [`ke6oxy8Z7C4`](https://www.youtube.com/watch?v=ke6oxy8Z7C4) — *My "BUILD IN PUBLIC" Strategy (Examples for Vibe-Coders)* | Not fetched: by its title one creator's posting strategy; spch100.14.4 covers what to share. |
+| [`jg_mIUnwfWo`](https://www.youtube.com/watch?v=jg_mIUnwfWo) — *How To Make A Viral Devlog Like Dani* | Not fetched: a third-party breakdown of another creator's devlogs; the first-hand devlog lessons spch100.14.2 and 14.3 are installed. |
+| [`hhpXfwuOLec`](https://www.youtube.com/watch?v=hhpXfwuOLec) — *5 Tips to Make a Successful Devlog* | Not fetched: by its title the ground of spch100.14.2 and 14.3. |
+| [`qRvA64shLG4`](https://www.youtube.com/watch?v=qRvA64shLG4) — *How to Make a Video DEVLOG - Full Guide* | Not fetched: by its title the ground of spch100.14.2 and 14.3. |
+| [`sg4Y4cVKLwA`](https://www.youtube.com/watch?v=sg4Y4cVKLwA) — *Indie Hacking, Bootstrapping, Building in Public, Social Media* | Not fetched: by its search summary a broad interview; the same author's focused episode on what to share (iq_DetrM-DE) is installed. |
+| [`7Xxb8jggf0w`](https://www.youtube.com/watch?v=7Xxb8jggf0w) — *An Example of using Storytelling in a Technical Presentation* | Not fetched: by its title a single example; the method is installed as spch100.14.5. |
 
-#### B5 — 1 rejected
+#### B5 — 11 rejected
 
 | video | reason |
 |---|---|
 | [`MC58rL52gl4`](https://www.youtube.com/watch?v=MC58rL52gl4) — *How to Tell A Story In Video - Step by Step Script Breakdown* | Read in full (real captions). Hook, backstory, experience, climax, takeaway, and letting the shoot rewrite the script: covered by spch100.14.1 (setup, challenge, complications, payoff, change; film the complications) and spch100.16.1 (script order). |
+| [`Eh1xTFUoJO8`](https://www.youtube.com/watch?v=Eh1xTFUoJO8) — *The Obvious Strategy That Separates Great YouTubers : Ed (Film Booth)* | Not fetched: B5 reached its band with spch100.16.5 and 16.6; by its title a channel-strategy interview rather than video structure. |
+| [`c6X-Ywy3yVU`](https://www.youtube.com/watch?v=c6X-Ywy3yVU) — *I Found 3 Retention Techniques that Make Videos BLOW UP* | Not fetched: by its title retention tactics (B2 ground); B5 is within its band. |
+| [`7Y3DvzFSc4o`](https://www.youtube.com/watch?v=7Y3DvzFSc4o) — *Documentary Storytelling: Master 3 Act Structure* | Not fetched: three-act structure for video is installed as spch100.16.0. |
+| [`ECOe1Qo99d0`](https://www.youtube.com/watch?v=ECOe1Qo99d0) — *How To Use Open Loops To Keep People Enaged* | Not fetched: open loops and rehooks are covered by spch100.16.1 and 16.4. |
+| [`TfGP15IKseI`](https://www.youtube.com/watch?v=TfGP15IKseI) — *How To Make A Video Essay: Writing* | Not fetched: B5 reached its band; the writing process for long explainers is now spch100.16.6. |
+| [`O50HPQ1eHYY`](https://www.youtube.com/watch?v=O50HPQ1eHYY) — *Colin & Samir Break Down What's Working on YouTube Today* | Not fetched: by its title platform trends rather than structure; Colin and Samir's structure lessons are installed (spch100.16.0, 16.3, 16.4). |
+| [`dIKsEhX-vyU`](https://www.youtube.com/watch?v=dIKsEhX-vyU) — *Why every Johnny Harris video goes viral* | Not fetched: a third-party breakdown; Harris's own account (zq4b96m1AvM) is installed. |
+| [`Ka9NMyqiXjU`](https://www.youtube.com/watch?v=Ka9NMyqiXjU) — *Derek Muller, Veritasium: 2016 Richtmyer Memorial Lecture Award* | Not fetched: by its search summary a physics-teaching lecture on productive confusion; its core finding is installed in six minutes as spch100.16.5. |
+| [`zV9iWjTdjpg`](https://www.youtube.com/watch?v=zV9iWjTdjpg) — *How to Structure a Script That Keeps Viewers Watching* | Not fetched: script structure is covered by spch100.16.1 and 16.6; B5 is within its band. |
+| [`Yv8lpauoBYo`](https://www.youtube.com/watch?v=Yv8lpauoBYo) — *How to Script a YouTube Video That Keep 'Em hooked* | Not fetched: script structure is covered by spch100.16.1 and 16.6; B5 is within its band. |
 
-#### B6 — 6 rejected
+#### B6 — 21 rejected
 
 | video | reason |
 |---|---|
@@ -251,14 +289,27 @@ is rejected rather than installed half-read.
 | [`D1JGg-aSzeA`](https://www.youtube.com/watch?v=D1JGg-aSzeA) — *Ali Abdaal's camera confidence course/* | Not fetched: an unofficial re-upload of a paid course. |
 | [`bvbMdVSyRHg`](https://www.youtube.com/watch?v=bvbMdVSyRHg) — *How to speak on camera NATURALLY - 7 Easy Tips* | Read in full. Talk to one person, look at the lens, watch yourself back and practise are already installed (spch100.13.0, 13.1, 13.5); scripting is covered by spch100.13.6. |
 | [`MU9-0UfK1jg`](https://www.youtube.com/watch?v=MU9-0UfK1jg) — *INSTANTLY Look Natural on Video (4 Simple Hacks)* | Read in full (real captions). Smile and blink, a photo of a friend by the lens, posture, notes as a safety net, film in sections — each already covered in Unit XIV. |
+| [`O3BqluVM_7c`](https://www.youtube.com/watch?v=O3BqluVM_7c) — *Anchoring and Teleprompters 101* | Read in full (an MSNBC anchor, by the transcript). A four-minute primer: breathe, review the script ahead, write conversationally, talk to a friend, spell guests' names phonetically, keep a paper backup. All but the phonetic spelling are taught more fully in spch100.13.8 and 13.10. |
+| [`-_VzPT8ZSYw`](https://www.youtube.com/watch?v=-_VzPT8ZSYw) — *Presenting skills to become a great 'on-screen' communicator* | Read in full. Part one of a presenter series: words, tone and face must agree; no 'cheesy presenter' smile; signpost a new section with a change of tone; 'camera fog' means exaggerating slightly. The last is taught in spch100.13.0 and 13.4, and the video leans on the 7/38/55 split as a general rule of communication, which the studies it comes from do not support. |
+| [`SyoVOn3gwuY`](https://www.youtube.com/watch?v=SyoVOn3gwuY) — *How to Speak Confidently ON CAMERA - 20 Pro Hacks* | Not fetched: B6 reached its band with spch100.13.8-13.11; by its title a list of confidence tips, the ground spch100.13.3 and 13.5 already cover. |
+| [`DcrWVdEABq8`](https://www.youtube.com/watch?v=DcrWVdEABq8) — *Give Me 5 Minutes and I'll Help You Sound More "Natural" on Camera* | Not fetched: by its title the same ground as spch100.13.6 and 13.9 (sounding natural to camera); B6 is within its band. |
+| [`WPSjZdldvoY`](https://www.youtube.com/watch?v=WPSjZdldvoY) — *How to Develop and Practice YouTube Camera Presence and Confidence* | Not fetched: by its title the record-and-practise protocol of spch100.13.5; B6 is within its band. |
+| [`FnOiVmAdbNY`](https://www.youtube.com/watch?v=FnOiVmAdbNY) — *TV Presenting Masterclass* | Not fetched: by its search summary a promotion for a paid online course. |
+| [`68JX_Abb4Ag`](https://www.youtube.com/watch?v=68JX_Abb4Ag) — *Autocue Presenter Basics - presenter tips for webinars, keynote speeches & training materials.* | Not fetched: autocue reading is now taught by spch100.13.8-13.10, each read in full. |
+| [`FTuLj83Fq90`](https://www.youtube.com/watch?v=FTuLj83Fq90) — *How to Use a Teleprompter* | Not fetched: teleprompter use is now taught by spch100.13.8-13.10, each read in full. |
+| [`FqLF5YBsk8E`](https://www.youtube.com/watch?v=FqLF5YBsk8E) — *TV Presenter Training Pt1* | Not fetched: part one of a series; the presenter basics are covered by spch100.13.0 and the new prompter lessons. |
+| [`yXo8WQx9kf8`](https://www.youtube.com/watch?v=yXo8WQx9kf8) — *Self Tape Technique: Framing, Shot Angle, Eyeline, Eye Light* | Not fetched: by its title, eyeline and framing for actors' audition tapes, where the actor usually must not look into the lens; the creator's case is spch100.13.1 and 13.7. |
+| [`t9YcRtQFHXU`](https://www.youtube.com/watch?v=t9YcRtQFHXU) — *How to Use a Teleprompter Without Looking Like You're Reading* | Not fetched: the same question as spch100.13.8 and 13.9, both read in full. |
+| [`0QE90OKqof8`](https://www.youtube.com/watch?v=0QE90OKqof8) — *How to Look Like You're NOT Reading from a Teleprompter* | Not fetched: the same question as spch100.13.8 and 13.9, both read in full. |
+| [`v_IquUJv2fg`](https://www.youtube.com/watch?v=v_IquUJv2fg) — *How to read from a Teleprompter without sounding awkward* | Not fetched: the same question as spch100.13.8 and 13.9, both read in full. |
+| [`Cc5cm1xuwzk`](https://www.youtube.com/watch?v=Cc5cm1xuwzk) — *CAMERA SHY? 10 tips to help you become more comfortable* | Not fetched: by its title the camera-confidence ground of spch100.13.3 and 13.5. |
+| [`8Ei6TN8vFv0`](https://www.youtube.com/watch?v=8Ei6TN8vFv0) — *6 Body Language Tips for Zoom Calls* | Not fetched: on-camera body language is taught by spch100.13.11, read in full. |
 
 #### B7 — 1 rejected
 
 | video | reason |
 |---|---|
 | [`4s2U_hTRWpg`](https://www.youtube.com/watch?v=4s2U_hTRWpg) — *The Shortcut to Building Your Personal Brand* | Read in full: mostly a demonstration of the author's custom GPT; the framework itself (values, statement, pillars, topics) takes a minute and is covered better by QtQjxqGuxTI. |
-
----
 
 ## Before T-037 (September 2026) — kept as history
 

@@ -221,6 +221,17 @@ DAR.COURSES.push({
         { t: "Where a strategist looks first", v: "WpghnKjBBG8", min: 4 },
       ],
     },
+    {
+      name: "Unit XIV — On camera: the lens, the energy, the reps",
+      lessons: [
+        { t: "Talk to one person — how TV presenters own the words", v: "rAIhsokIdJY", min: 8 },
+        { t: "When to look at the lens, and when to look away", v: "I06Ckbf6hc0", min: 2 },
+        { t: "What low energy and nervous movement look like", v: "ht09gU7ID5Y", min: 2 },
+        { t: "Coffee mode and presenter mode", v: "Y11SX2oHmw8", min: 10 },
+        { t: "Dial it up, then bring it down", v: "CDLB03lQjdQ", min: 5 },
+        { t: "Thirty days of recording yourself", v: "VXo4_ErkN_U", min: 8 },
+      ],
+    },
   ],
 });
 
@@ -4121,6 +4132,237 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Alongside repeating with a twist and adapting to a new format." },
       { q: "Why does he check the other channels your audience watches?", opts: ["To copy them exactly", "To report them", "To find the cluster of YouTube you are really in, and ideas your audience already likes", "To choose collaborators only"], a: 2,
         expl: "You may be in a different cluster than you thought." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XIV — B6, delivery on camera (budget 0.6 h). Small on purpose: Unit V
+// (A3) carries voice, body, pauses and nerves, and the taxonomy calls B6 the
+// delta. That delta is the lens: a TV director on owning the words and
+// talking to one person, two presenter trainers on eye line and energy, Ali
+// Abdaal's two modes, the over-the-top-then-down drill, and a 30-day
+// record-and-rate habit from a creator with an accent he worried about.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.13.0": {
+    module: "B6",
+    mechanic: "A television director who has filmed thousands of presenters says talking to camera is an ownership skill, not a performance skill: own every word, talk to one specific person, keep a natural rhythm of eye contact, and run two or three notches above your normal energy.",
+    rules: [
+      "Own the words. Even if AI or someone else helped write the script, read it aloud, change the words you'd never say, and mark it up — capitals for emphasis, line breaks, pauses.",
+      "Keep the language simple. Plain words are easy to say and easy to hear; that isn't dumbing down.",
+      "Talk to one specific person, not 'hey guys'. Imagine you are on a video call with them, and your phrasing, pauses and warmth change.",
+      "Don't lock onto the lens. Read a few words ahead, glance away as you would when thinking, and come back to the lens to land a key line.",
+      "Be the same person, two or three notches higher. Script first to build the pattern, go off script later — and take the pressure off: the reps matter, the single video doesn't.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Write a 45-second script about one thing you do. Read it aloud and change every word you wouldn't say; mark the emphasis and the pauses. Then record it to one named person as if on a video call, glancing away once and coming back to the lens for your key line." },
+    check: "Someone who knows you watches it and says it sounds like you. If they say it sounds like you reading, the words still aren't yours.",
+  },
+
+  "spch100.13.1": {
+    module: "B6",
+    mechanic: "A presenter trainer's rule for a piece to camera: keep your eyes on the lens even though it gives you no reaction, and only look away at something the audience can see.",
+    rules: [
+      "Looking into the lens reads as looking into the viewer's eyes; avoiding it looks insecure, even shifty.",
+      "Your instinct is to look for a reaction — a floor manager, a friend beside the camera. Resist it.",
+      "Assume that what you're saying is going down as well as it possibly could. Be a little presumptuous.",
+      "Look away only at something the viewer can see (the cup in your hand), never at something off-screen.",
+    ],
+    drill: { minutes: 5, artifact: "recorded",
+      do: "Record 30 seconds to camera with someone standing beside it. Keep your eyes on the lens through your best line, and look away only once, at an object in shot." },
+    check: "In playback your eyes never drift to the person beside the camera. If they do, put the person behind you and try again.",
+  },
+
+  "spch100.13.2": {
+    module: "B6",
+    mechanic: "A presenter trainer shows in ninety seconds what happens to a piece to camera when energy and expression drop and nerves come out as movement — rocking, wobbling, eyes sliding off the lens.",
+    rules: [
+      "A still body, a clear eye line and energy work together; lose any one and the viewer notices.",
+      "Flatten the peaks and troughs in your voice and face and you lose the viewer, even if everything else is right.",
+      "Nervous energy leaks out as movement: small wobbles, rocking as if you're on a boat.",
+      "Pick up the energy, sit or stand still, use your hands a little. An occasional move is fine; constant pacing helps you, not the viewer.",
+    ],
+    drill: { minutes: 5, artifact: "recorded",
+      do: "Record the same 20 seconds three ways: flat and still; energetic but rocking; energetic, still, with a few gestures. Watch them back to back." },
+    check: "You can see the difference between the second and third takes. If you can't, move the phone back so your whole upper body is in shot.",
+  },
+
+  "spch100.13.3": {
+    module: "B6",
+    mechanic: "Ali Abdaal, who went from shy to filming every week, separates two ways of talking to a lens — coffee mode (a friend across the table) and presenter mode (a small group, energy up) — because the camera takes about two points off your charisma.",
+    rules: [
+      "Coffee mode: the camera is a friend over coffee. Use it for calls, negotiations, sales and heartfelt videos.",
+      "Presenter mode: the camera takes about two points of charisma out of ten, so speak at 6.5–7 to come across at 5. He pictures three or four students in front of him.",
+      "Be yourself — your words, your jokes. A 1950s announcer voice sounds fake.",
+      "Speak through a smile; it changes your voice and your own energy. Use your hands, elbows relaxed, in the space in front of you.",
+      "Warm up before you film (he sings along to music), and get reps — even video messages to friends instead of texts.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Record the same 30 seconds twice: once in coffee mode to one friend, once in presenter mode to a small group. Then send one video message to a friend today instead of a text." },
+    check: "You can say which mode suits your next short and why — and the video message has been sent.",
+  },
+
+  "spch100.13.4": {
+    module: "B6",
+    mechanic: "A course-video coach's five tips for a talking-head shot — vary your gestures, find your comfortable position, dial it up, practise with retakes, stay yourself — and the drill that matters most: go over the top first, then bring it down.",
+    rules: [
+      "Vary your gestures. The same arm movement on every sentence becomes the thing people notice.",
+      "Find the position you are comfortable in — sitting, standing, leaning on a desk. Leaning forward reads as engaged.",
+      "Dial it up: what feels natural to you will probably look bored on camera. If it feels dramatic and over the top, it probably looks fine.",
+      "Go way over the top first, then review and tone it down. Bringing energy down a notch is easier than pushing it up bit by bit.",
+      "Practise, and don't fear retakes — but don't change your personality. The point is your best self, not someone else's.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Record 20 seconds at what feels like ridiculous, over-the-top energy. Then record the same 20 seconds at what feels normal. Watch both and choose the level between them that looks right." },
+    check: "The level you choose is closer to the over-the-top take than you expected. If you chose the 'normal' one, show both to someone else and let them choose.",
+  },
+
+  "spch100.13.5": {
+    module: "B6",
+    mechanic: "A creator who spent a year without posting broke the block by recording himself every day for 30 days and rating each take — pace, pronunciation, engagement, energy, charisma — aiming for one small improvement a day, not perfection.",
+    rules: [
+      "Perfectionism kept him at zero uploads for eleven months. Focus on the next recording, not the finished channel.",
+      "Record every day for 30 days — your day, a story, anything — unscripted.",
+      "After each take, note the weak and strong points and rate pace, pronunciation, engagement, energy and charisma.",
+      "In practice only, imitate a creator you admire to stretch your range ('imitate to enhance'). Use your hands; speak through a smile.",
+      "Avoid 'British Airways mode' — the over-polished announcer voice.",
+    ],
+    drill: { minutes: 5, artifact: "recorded",
+      do: "Start your own 30 days today: record two minutes telling one story from yesterday, unscripted. Rate it 1–5 on pace, pronunciation, engagement, energy and charisma, and write one thing to change tomorrow." },
+    check: "A dated rating sheet exists with today's five numbers and tomorrow's one change.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.13.0": {
+    takeaway: "A TV director who has filmed thousands of presenters: talking to camera is ownership, not performance. Own the words, talk to one person, keep a natural eye rhythm, and run two or three notches higher than you would in a room.",
+    beats: [
+      { t: "Ownership", d: "Coached, scripted executives at a launch in Berlin couldn't make sense of their own sentences; presenters who write their own mark up the prompter." },
+      { t: "One person", d: "'Hey guys' flattens everything. Picture a video call with one friend." },
+      { t: "Eye rhythm", d: "A phone has no prompter glass. Read ahead, glance away, come back for the key line." },
+      { t: "Two or three notches", d: "The camera strips texture out; a heightened version of yourself puts it back." },
+      { t: "Reps", d: "Script first, then off script; around video ten the lens starts to feel like a face." },
+    ],
+    worked: "Kirsty Young recording the closing link for the Queen's funeral: weeks spent on every word, so that in front of the prompter the emotion still came through. She owned every syllable before she said it.",
+    watch: "A locked stare. Looking into the lens the whole time feels as unnatural to the viewer as it does to you — and notes off to one side make the viewer wonder who you're talking to. The video includes a plug for his paid course.",
+    concepts: [],
+    checks: [
+      { q: "What does the director say talking to camera mostly is?", opts: ["A performance skill", "An ownership skill — knowing and owning every word", "A technical skill", "A natural talent"], a: 1,
+        expl: "He has never seen anyone fake their way through it." },
+      { q: "What is wrong with opening on 'hey guys'?", opts: ["It aims at everyone, so delivery goes vague and flat — pick one person", "It is too casual", "It is too long", "It is old-fashioned"], a: 0,
+        expl: "You phrase things differently for someone you know." },
+      { q: "How should you handle eye contact without a teleprompter?", opts: ["Stare at the lens throughout", "Read notes placed to one side", "Read ahead, glance away naturally, and return to the lens for key lines", "Close your eyes when thinking"], a: 2,
+        expl: "A direct look lands harder by contrast." },
+    ],
+  },
+
+  "spch100.13.1": {
+    takeaway: "Eye contact through the lens is the basic piece-to-camera technique. The camera gives no feedback, so you stay on the lens anyway, and look away only at things the viewer can see.",
+    beats: [
+      { t: "Lens as eyes", d: "Looking into the lens is looking into the viewer's eyes." },
+      { t: "No reaction", d: "We instinctively look for a face; the camera never gives one." },
+      { t: "Be presumptuous", d: "Assume it is landing as well as it possibly could." },
+      { t: "Visible looks only", d: "Look down at the cup in your hand, not at something out of shot." },
+    ],
+    worked: "Holding a cup, he looks down at it — fine, because the viewer can see what he is looking at. Look at something out of shot and the viewer is distracted; add the wrong movement and it all falls apart.",
+    watch: "Searching the room for approval. The TV director's glance away is a thinking beat inside a conversation; this trainer's rule is about where your attention goes. Neither lets you look for a reaction off-camera.",
+    concepts: [],
+    checks: [
+      { q: "Why keep your eyes on the lens?", opts: ["It reads as looking into the viewer's eyes; avoiding it looks insecure or shifty", "It hides notes", "The camera focuses better", "It is a broadcasting rule"], a: 0,
+        expl: "The same as eye contact in person." },
+      { q: "When is it fine to look away from the lens?", opts: ["To check the floor manager's reaction", "To read notes off to the side", "When the viewer can see what you are looking at", "Never"], a: 2,
+        expl: "Otherwise it is distracting." },
+      { q: "What does he suggest assuming about how your words are landing?", opts: ["That they are failing", "That they are going down as well as possible", "That nobody is listening", "Nothing at all"], a: 1,
+        expl: "Be a little presumptuous." },
+    ],
+  },
+
+  "spch100.13.2": {
+    takeaway: "A ninety-second demonstration: the same presenter and the same words, with energy drained and then nervous movement added — and how quickly the piece to camera stops working.",
+    beats: [
+      { t: "Baseline", d: "Still, on the lens, energetic: nothing distracting." },
+      { t: "Energy drained", d: "Flatter voice, less expression — still natural, but less engaging." },
+      { t: "Nerves as movement", d: "Small wobbles, then rocking." },
+      { t: "Eyes off", d: "Uncomfortable with the lens, the eyes start to slide away." },
+    ],
+    worked: "He keeps talking while his voice flattens, then begins to rock gently — 'like I'm on a boat' — and his eyes drift off the lens. Each change is small; together they make the piece hard to watch.",
+    watch: "Pacing that comforts you. Constant movement, like a caged animal, feels good to the presenter and does nothing for the person watching.",
+    concepts: [],
+    checks: [
+      { q: "Where does nervous energy go when you hold yourself rigid?", opts: ["Into your voice only", "Into small movements like wobbling and rocking", "Nowhere", "Into your hands only"], a: 1,
+        expl: "It comes out somewhere else." },
+      { q: "What is his fix?", opts: ["Move constantly", "Lower your energy", "Pick up the energy, stay still, use your hands a little", "Look away from the lens"], a: 2,
+        expl: "Occasional movement is fine." },
+      { q: "Why does constant movement fail?", opts: ["It feels good to the presenter but does nothing for the viewer", "It breaks broadcasting rules", "It blurs the picture", "It is too fast"], a: 0,
+        expl: "Like a caged lion." },
+    ],
+  },
+
+  "spch100.13.3": {
+    takeaway: "Ali Abdaal: camera confidence is a skill that spills into the rest of life. Pick a mode — coffee or presenter — lift your energy to make up for what the camera takes, smile, use your hands, warm up, and get reps.",
+    beats: [
+      { t: "Why it matters", d: "Remote interviews, sales, content — and it raised his confidence off camera too." },
+      { t: "Two modes", d: "Coffee with a friend; a talk to three or four students." },
+      { t: "Imperfection", d: "Your own words and jokes beat a put-on presenter voice." },
+      { t: "Smile and hands", d: "Speaking through a smile lifts voice and energy; relaxed gestures read as confident." },
+      { t: "Warm-up", d: "He sings along to music while setting up." },
+    ],
+    worked: "He says a line flat, then the same line through a smile. The words don't change, but the second take sounds more confident and more engaged — and he says it lifts his own energy as well.",
+    watch: "The course pitch. The first three minutes are mostly about his paid course; the five tips start after that.",
+    concepts: [],
+    checks: [
+      { q: "Why does Abdaal suggest presenter-mode energy of about 7 out of 10?", opts: ["To sound like a TV host", "To speak faster", "Because the camera takes roughly two points off your charisma", "To save time"], a: 2,
+        expl: "A 5 comes across as a 3." },
+      { q: "When does he use coffee mode?", opts: ["For calls, negotiations, sales and heartfelt videos", "For loud product launches", "Only on stage", "Never"], a: 0,
+        expl: "The camera is a friend over coffee." },
+      { q: "What easy daily rep does he suggest?", opts: ["Reading the news aloud", "Sending video messages to friends instead of texts", "Filming strangers", "Rewatching old videos"], a: 1,
+        expl: "Practice that costs nothing." },
+    ],
+  },
+
+  "spch100.13.4": {
+    takeaway: "Five practical tips from a course-video coach, and one drill worth keeping: record yourself way over the top first, then tone it down — because what feels natural reads as flat on camera.",
+    beats: [
+      { t: "Gesture variety", d: "Repetition becomes the distraction." },
+      { t: "Comfort", d: "Sit, stand or lean — whatever lets you act naturally." },
+      { t: "Dial it up", d: "If it feels over the top to you, it probably looks right." },
+      { t: "Retakes", d: "Saying a line again and again is normal." },
+      { t: "Authenticity", d: "Be your best self, not someone else." },
+    ],
+    worked: "Her rule of thumb: if it feels dramatic and over the top to you, it probably looks good on camera. So the first take is deliberately too much, and the review tells you how far to bring it back.",
+    watch: "Pop statistics. The '10,000 hours' and '37 times better in a year' lines are motivational figures, not research on camera skill.",
+    concepts: [],
+    checks: [
+      { q: "Why record an over-the-top take first?", opts: ["To use as a blooper", "Because toning down is easier than pushing energy up bit by bit", "Because it is funnier", "To test the microphone"], a: 1,
+        expl: "You've done the hard work already." },
+      { q: "What does she say about what feels natural to you?", opts: ["It will probably read as bored and unengaged on camera", "It always looks best", "It should never change", "It is only for experts"], a: 0,
+        expl: "You need to dial it up." },
+      { q: "What should the tips not do?", opts: ["Change your energy", "Change your gestures", "Turn you into someone else", "Change where you sit"], a: 2,
+        expl: "Audiences see through it." },
+    ],
+  },
+
+  "spch100.13.5": {
+    takeaway: "A creator who worried about his accent records himself every day for 30 days, rates every take, and goes from no uploads in eleven months to talking to the lens like a friend on a video call. The method is incremental, not heroic.",
+    beats: [
+      { t: "The block", d: "A journal entry predicted the worst case — zero uploads — and it came true." },
+      { t: "The protocol", d: "Record daily, note weak and strong points, rate five things." },
+      { t: "What changed", d: "Far fewer 'uh's and silences — not perfection." },
+      { t: "What he added", d: "Imitate to enhance, hands, smile, consistency, no announcer voice." },
+    ],
+    worked: "His 'British Airways mode' demonstration: a perfectly pleasant announcer voice cancelling your flight to Dubai and threatening to call security — polished, and completely fake. The fix is to sound like yourself, not like an announcement.",
+    watch: "Treating it as a course review. He credits a paid course for some tips; the part that worked first was free — thirty days of recording and rating himself.",
+    concepts: [],
+    checks: [
+      { q: "What did he rate after each recording?", opts: ["Views and likes", "Lighting and sound", "Script accuracy", "Pace, pronunciation, engagement, energy and charisma"], a: 3,
+        expl: "The goal was one small improvement a day." },
+      { q: "What is 'British Airways mode'?", opts: ["An over-polished, fake announcer voice", "Speaking too fast", "Travel vlogging", "Reading from a teleprompter"], a: 0,
+        expl: "Sounding perfect and not like a person." },
+      { q: "What does 'imitate to enhance' mean?", opts: ["Copy another creator in your published videos", "Imitate a speaker you admire in practice, to stretch your range", "Use a voice changer", "Repeat your old videos"], a: 1,
+        expl: "Practice only, not uploads." },
     ],
   },
 });

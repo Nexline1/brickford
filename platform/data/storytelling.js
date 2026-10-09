@@ -107,6 +107,9 @@ DAR.COURSES.push({
         { t: "Rookie, pretty good, natural — using the whole range", v: "FsxorSNJBaA", min: 28 },
         { t: "Nerves: treat the symptoms and the sources", v: "GRdm4Iweuz0", min: 38 },
         { t: "How to speak — the promise, the star, the ending", v: "Unzc731iCUY", min: 63 },
+        { t: "When all eyes are on you — rehearse to the stakes, connect, then review", v: "HYNXzKU92Qs", min: 24 },
+        { t: "Skills, not talent — open body, functional hands, the pause over 'uh'", v: "K0pxo-dS9Hc", min: 16 },
+        { t: "Breath is thought — the diaphragm, stillness, and the closed mouth", v: "YSfY7dO02nA", min: 19 },
       ],
     },
     {
@@ -4868,6 +4871,133 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Good ideas make titles and thumbnails easy." },
       { q: "Why don't they take every retention tip to the extreme?", opts: ["It's too expensive", "YouTube forbids it", "Their niche audience values depth that a very short cut would remove", "They don't track retention"], a: 2,
         expl: "Know your audience." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit V, top-up (T-037, 2026-10-09) — A3 delivery, three lessons
+// appended after spch100.4.7: Vinh Giang's before / during / after system,
+// David JP Phillips's catalogue of 110 skills, and Caroline Goyder on
+// breath. Appended at the END of the unit, so every existing key keeps its
+// video.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.4.8": {
+    module: "A3",
+    mechanic: "Most of what goes wrong when everyone is watching is fixed before the moment — by rehearsal scaled to the stakes and done out loud at full energy — and in the moment you open with connection rather than content; afterwards you record and review, because nobody else will tell you the truth.",
+    rules: [
+      "Rehearse in proportion to the stakes: one to three run-throughs for a weekly stand-up, about ten when leaders are in the room, a hundred for a pitch that could raise real money.",
+      "Table reads go out loud, with the same energy, volume and pace as the real thing. You present the way you rehearse, and more effort in rehearsal means better recall.",
+      "Improv rehearsal: speak without the notes, and when you blank, pause, breathe and try for at least ten seconds before looking. The strain fixes the words, and you are rehearsing a calm pause instead of panic.",
+      "Treat nerves on three levels: psychological (think about who you are helping, not about yourself), physiological (burn off the adrenaline backstage, then slow your breathing), emotional (call it excitement).",
+      "Open with connection, not content — a short origin story — and aim for roughly a third education, a third inspiration, a third entertainment, plus the one per cent that is yours.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Pick something you must say this week. Do one table read out loud at full performance energy. Then do one run without notes, recorded on your phone — when you blank, pause and try for ten seconds before you look." },
+    check: "The recording has at least one blank you recovered from with a pause rather than a scramble, and its energy matches how you would say it on the day, not how you would mumble it at a desk.",
+  },
+
+  "spch100.4.9": {
+    module: "A3",
+    mechanic: "Presentation skills are skills, not talent: of the 110 David JP Phillips catalogued from 5,000 speakers, the core few are keeping the body open, gesturing for a function, making the hands say what the words say, a calm pace, and a pause where you would have said 'uh'.",
+    rules: [
+      "Closed body language — the fig leaf, the 'double bunny', hands in pockets, the T-rex — reads as feeling threatened. Stay open, and don't retreat as you open.",
+      "Use gestures for their function: something getting better or worse, one-two-three. Don't park your hands in a locked position between points.",
+      "If your hands contradict your words, the audience follows the hands. Body and voice have to say the same thing.",
+      "A calm pace signals that what you are saying matters. Pause instead of filling with 'uh' — nothing in his list lowers credibility more, because it signals you don't know where you are going.",
+      "Small skills stack: look up (thinking), an audible in-breath (something is coming), a Duchenne smile that reaches the eyes, a brief laugh at yourself. Combine them the way a boxer combines punches.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Film a sixty-second welcome to a room twice: once with your hands wherever they usually go, once with an open stance and a functional gesture for each point (count it, show bigger or smaller, better or worse). In the second take, replace every 'uh' with a silent pause." },
+    check: "With the sound off, someone watching the second take could tell how many points you made and which way each one went — and the second take has no 'uh' in it.",
+  },
+
+  "spch100.4.10": {
+    module: "A3",
+    mechanic: "Confident speaking starts inside the body: the voice is an instrument you practise, a relaxed low breath is what power looks like, and because all speech rides on the out-breath, the in-breath — taken with the mouth closed — decides how the next sentence sounds.",
+    rules: [
+      "The voice is an instrument, and there is no such thing as a bad saxophone, only an unpractised one. The simplest daily practice is to sing: shower, car, anywhere.",
+      "The most powerful person in a room has the most relaxed breathing. Stillness reads as status — on stage, everyone moves around the king.",
+      "Find the diaphragm: thumb just below the breastbone, breathe in and push the thumb away, breathe out and feel it come back. Do this whenever nerves rise.",
+      "Breath is thought. All speech is out-breath, and the in-breath is where the thought and feeling arrive — breathe in the feeling you want the room to have, then speak on it.",
+      "Know when to shut your mouth: close it and take the in-breath before the next phrase.",
+    ],
+    drill: { minutes: 6, artifact: "recorded",
+      do: "Stand with your thumb below your breastbone and take five slow breaths, pushing the thumb away on each in-breath. Then record the first two sentences of something you must present, twice: once straight off, once after closing your mouth and breathing in the feeling you want the room to have." },
+    check: "On playback the second take is lower and slower, there is no gasp at the start of the phrase, and you can name the feeling you breathed in.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.4.8": {
+    takeaway: "Vinh Giang's system for the moments when everyone is watching, in three stages: before (rehearse to the stakes, out loud, at full energy, then without notes), during (nerves on three levels, connection before content, a balance of education, inspiration and entertainment), after (record and review, and build your own stage).",
+    beats: [
+      { t: "Rehearse to the stakes", d: "Theatre's rule is two hours of rehearsal per minute on stage. He scales it: one to three runs for a weekly stand-up, ten when leaders attend, a hundred for an investor pitch." },
+      { t: "Table reads", d: "Read the script aloud five to ten times with the energy, volume and pace of the real thing. Rehearse it mumbling while you pace, and you will pace on stage." },
+      { t: "Improv rehearsal", d: "Go without notes; when you forget, pause and try for ten seconds before checking. The strain fixes the words and trains a pause instead of panic." },
+      { t: "Nerves, three levels", d: "Think about who you are helping. Push-ups or star jumps backstage, then slow breathing. Call the feeling excitement — Mel Robbins told him the body cannot tell the two apart." },
+      { t: "Connection before content", d: "Open with a short origin story, not research or statistics. In an interview, answer 'tell me about yourself' with a story instead of adjectives." },
+      { t: "33 / 33 / 33 / 1", d: "Pure magic felt like a show; pure education put the room to sleep. Organisers wanted people to learn something useful, feel inspired and have fun — plus the one per cent that is yours." },
+      { t: "Record and review", d: "Film every talk and meeting you reasonably can and watch the whole thing back. With no gigs, he built a stage in his backyard, then got a busking permit and spoke to strangers." },
+    ],
+    worked: "At a dentists' conference in Sydney the organiser told him his talk was one of the best she had seen. An hour later he watched a flat, monotone speaker walk off and heard her say the same words to him. That is why he stopped trusting compliments and started filming: two GoPros taped together, one on him and one on the audience, so he could see what he was doing at the moment they reached for their phones.",
+    watch: "The seven-step rehearsal video he advertises is a sign-up for his own material, and a hundred rehearsals is his standard, not a rule. The first two steps — table reads at full energy and the ten-second recall — are the lesson.",
+    concepts: [],
+    checks: [
+      { q: "During an improv rehearsal you forget your next line. What does he tell you to do?", opts: ["Look at your notes straight away so you keep momentum", "Pause, breathe and try to remember for at least ten seconds before checking", "Skip to the next part you remember", "Start again from the top"], a: 1,
+        expl: "The strain fixes the material, and you are practising a calm pause instead of panic." },
+      { q: "Why does he insist table reads are done at full performance energy?", opts: ["Because you end up presenting the way you rehearsed", "Because it tires the voice so it sits lower on the day", "Because organisers expect it", "Because it makes the script shorter"], a: 0,
+        expl: "Higher effort in rehearsal also means better recall." },
+      { q: "What is the '33 / 33 / 33 / 1' formula?", opts: ["Thirty-three slides, minutes and questions, and one ask", "Pace, pitch and pause, plus one gesture", "A third education, a third inspiration, a third entertainment, plus your own X-factor", "A third story, a third data, a third questions, and a call to action"], a: 2,
+        expl: "He arrived at it by asking organisers what they wanted their audience to take away." },
+      { q: "Why does he distrust the feedback people give right after a talk?", opts: ["Audiences are usually hostile", "People say 'amazing' to everyone, so it tells you nothing", "Feedback forms are anonymous", "Only professional speakers can judge a talk"], a: 1,
+        expl: "They don't want to hurt you, and they wouldn't know what specific feedback to give anyway." },
+    ],
+  },
+
+  "spch100.4.9": {
+    takeaway: "David JP Phillips spent seven years analysing 5,000 speakers and found 110 learnable skills. His five favourites — open body language, no retreating, functional gestures, a calm pace, the pause instead of 'uh' — plus four tiny skills that change a room's state in five seconds.",
+    beats: [
+      { t: "Skills, not talent", d: "The more of the 110 you use, the better you are; nobody is born with a gene for the stage. Knowing what each move does is the difference between guessing and choosing." },
+      { t: "Open, not closed", d: "Closed positions signal threat. His catalogue: the fig leaf, the double bunny, the forklift, the peacock, the prayer, the beggar, the British horse rider, the T-rex." },
+      { t: "Functional gestures", d: "Hands are for showing better, worse, one-two-three. When they say the opposite of the words, the audience believes the hands." },
+      { t: "Pace and pause", d: "A slow pace reads as importance — his 'utterly boring' sentence held the room because he slowed down. 'Uh' is the cheap compromise for a pause, and the biggest single loss of credibility." },
+      { t: "Four small skills", d: "Look up, inhale audibly, smile with the eyes, laugh at yourself. He spent six months learning the eye-reaching smile after finding it missing from years of holiday photos." },
+    ],
+    worked: "His demonstration of contradiction: an upbeat paragraph about why everyone should learn public speaking, said warmly but with hands doing the opposite. Then he asks whether you were listening to what he said or watching what he did. The room had been watching.",
+    watch: "The list of 110 is his own taxonomy, and some claims (smiles and divorce rates) come without a source on screen. Trust the demonstrations, which you can test on your own recording, over the statistics.",
+    concepts: [],
+    checks: [
+      { q: "Of the 110 skills, which does Phillips say lowers your credibility most?", opts: ["Standing behind a lectern", "Filling pauses with 'uh'", "Speaking slowly", "Using too many slides"], a: 1,
+        expl: "It signals you don't know what you are saying or where you are going." },
+      { q: "When your gestures contradict your words, what does the audience do?", opts: ["Ignore the gestures", "Average the two messages", "Ask what you meant", "Follow the gestures"], a: 3,
+        expl: "Positive words with negative hands: the room watched the hands." },
+      { q: "What does a calm, slow pace signal, in his account?", opts: ["That what you are saying is important", "That you are nervous", "That you are unprepared", "That you want to finish"], a: 0,
+        expl: "A high pace suggests you don't really want to be there." },
+    ],
+  },
+
+  "spch100.4.10": {
+    takeaway: "Caroline Goyder's three lessons, from a voice coach who once bombed: practise the instrument by singing daily, breathe low from the diaphragm because relaxed breathing is what power looks like, and remember that we breathe our thoughts — the in-breath, taken with the mouth closed, decides how the next sentence sounds.",
+    beats: [
+      { t: "The hall of shame", d: "As a rookie she went too fast, lost her words, and when the microphone broke someone shouted 'speak up'. She concluded that confidence lives inside the body, not on the outside." },
+      { t: "An instrument, not a gift", d: "Demosthenes stammered and was jeered, then practised for months in a cellar and over the waves. Her version is easier: sing every day." },
+      { t: "Power breathes slowly", d: "The most powerful person in a room has the most relaxed breathing, and the king stays still while everyone moves around him." },
+      { t: "The diaphragm", d: "A yoga teacher put a gym weight on her stomach and said lift it with your breath. The thumb below the breastbone gives the same feeling standing up." },
+      { t: "Breath is thought", d: "Inspiration and respiration share a root. Breathe in someone you love and the out-breath carries it; breathe in excitement and the voice has excitement in it." },
+    ],
+    worked: "A client whose husband died on their honeymoon had to give the eulogy in the church where they had married. She wrote that the only way she got through it was what she had practised: breathing low and slow, taking her time, finding the control.",
+    watch: "Low breathing is for the moment before a phrase, not a reason to stop after every word. Pair it with thought groups from Unit VI so the breath lands at the end of a meaning.",
+    concepts: [],
+    checks: [
+      { q: "How do actors tell who is most powerful in a room, by her account?", opts: ["They speak first", "They have the most relaxed breathing and stay still", "They stand nearest the door", "They are the loudest"], a: 1,
+        expl: "Everyone moves around the king; the king stays still." },
+      { q: "What is her simplest daily practice for the voice?", opts: ["Reading the news aloud", "Humming scales at a piano", "Singing — in the shower, in the car, anywhere", "Recording voice notes"], a: 2,
+        expl: "Practice is the way to a great instrument." },
+      { q: "What is the 'big secret' she ends on?", opts: ["Know when to shut your mouth — take the in-breath with it closed", "Always speak from notes", "Smile before every sentence", "Project to the back wall"], a: 0,
+        expl: "All speech is out-breath; the in-breath is where the thought arrives." },
     ],
   },
 });

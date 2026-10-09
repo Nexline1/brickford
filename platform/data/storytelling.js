@@ -202,6 +202,16 @@ DAR.COURSES.push({
         { t: "A story bank — categories, prompts and tags", v: "Jb3V1bYX3sU", min: 22 },
       ],
     },
+    {
+      name: "Unit XII — Short-form structure: hooks, progression, payoff",
+      lessons: [
+        { t: "A story in under sixty seconds", v: "ZmNpeXTj2c4", min: 4 },
+        { t: "Four ways a hook fails — delay, confusion, irrelevance, disinterest", v: "2byPP_9F0-Q", min: 16 },
+        { t: "Hook layering — what the first three seconds of viral shorts share", v: "sb3-tuDwhJ0", min: 20 },
+        { t: "Hook point — attention, story, credibility", v: "-bpcK9qonPE", min: 27 },
+        { t: "Shorts in depth — but/so, visible progress, the last word", v: "7eosJwqoDaY", min: 41 },
+      ],
+    },
   ],
 });
 
@@ -3741,6 +3751,205 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Some stories sit untouched for six months." },
       { q: "What does the offer-connection tag do?", opts: ["Lets you find the stories that lead naturally to a particular product or service", "Sets a price", "Tracks views", "Hides private stories"], a: 0,
         expl: "This is where storytelling and selling meet." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XII — B1, short-form structure (budget 2.0 h). Hooks, lock-in,
+// progression and payoff: Jenny Hoyos twice (her TED framework and a long
+// interview), Kallaway on why hooks fail, a creator's catalogue of what the
+// first three seconds of viral shorts have in common, and Brendan Kane's
+// hook point. The taxonomy asked for recency weighting here; the platforms
+// change, so treat specific numbers in these lessons as of their recording.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.11.0": {
+    module: "B1",
+    mechanic: "Jenny Hoyos's 60-second story: open with a surprising question, make the audience feel constant progression towards the answer, add conflict through a B plot, keep the answer uncertain, then give it quickly.",
+    rules: [
+      "Start with a question — the more unexpected the better — because people stay to learn the answer. Is fast food really faster than cooking it yourself?",
+      "Make progression visible: say what's left (tomatoes, lettuce, cheese) so viewers feel how close the answer is.",
+      "Smooth sailing is boring. Add conflict — her mother in the car is the B plot ('You're going to burn that car').",
+      "Build tension by keeping the answer uncertain until the end.",
+      "Then answer quickly and concisely. If the story takes longer than making a burger, you're overcooking both.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Pick a question from your own week whose answer you genuinely don't know (can I fix this in ten minutes? which tool is faster?). Record a 60-second story: the question, three visible steps, one thing that goes wrong, and the answer in the last line." },
+    check: "It runs under 60 seconds and the answer is in the final sentence. If the answer arrives early, the seconds after it are dead.",
+  },
+
+  "spch100.11.1": {
+    module: "B1",
+    mechanic: "Kallaway says a hook has one job — get the viewer to opt in — and does it by delivering topic clarity and on-target curiosity; hooks fail in four ways: delay, confusion, irrelevance and disinterest.",
+    rules: [
+      "<strong>Delay</strong>: the topic arrives too late. Cut the fluff and put the topic in the first one or two seconds — speed to value. 'This is the craziest thing I've ever seen' tells the viewer nothing.",
+      "<strong>Confusion</strong>: fewer, simpler words (a sixth-grade reading level), active voice, and the misread test — could this sentence be understood two ways?",
+      "<strong>Irrelevance</strong>: say 'you' and 'your', not 'I' and 'me', and name a pain point they already have. 'If you struggle with acne, try these three things' beats 'three trends in skincare'.",
+      "<strong>Disinterest</strong>: open a curiosity loop with contrast — what they already believe (A) against your alternative (B), stated or implied.",
+      "Clarity usually takes the first sentence and the contrast the next one or two, so a hook is often two or three lines.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write the hook for a short about one thing you do for clients, as you would naturally say it. Then fix it in order: topic into the first line, simpler words, 'you' instead of 'I', and a contrast (most people do A; this does B)." },
+    check: "Read only the first sentence to someone. They can say what the video is about and who it is for; if not, the delay or the confusion is still there.",
+  },
+
+  "spch100.11.2": {
+    module: "B1",
+    mechanic: "A creator coach and her team catalogued hundreds of shorts with over a million views and found that the first three seconds almost always stack several hooks at once — on-screen text, movement, a cut, sound — rather than relying on one.",
+    rules: [
+      "Layer hooks: in her sample, 96 per cent of viral shorts used three or more hooks in the first three seconds; only one used a single hook.",
+      "Put text on screen — 81 per cent did, and those had higher engagement.",
+      "Start with movement in the very first frame (something entering the shot or coming towards the camera), not a still.",
+      "Cut at least once in the first three seconds; the average was twice.",
+      "Match the hook to the kind of value: educational shorts often open on a question or the end result; entertaining ones on movement and a 'what is happening?' moment; relatable ones on relatable text.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take one short you have posted or planned. Write down what happens in its first three seconds — words, on-screen text, movement, cuts, sound — and count the hooks. Redesign the opening so it has at least three." },
+    check: "The new opening lists at least three distinct hooks, all pointing at the same topic. Three hooks pointing three ways is noise.",
+  },
+
+  "spch100.11.3": {
+    module: "B1",
+    mechanic: "Brendan Kane, author of Hook Point, says winning attention takes three things in order — a hook that stops the scroll, a story that holds the attention, and credibility so people believe it — and the hook usually works by interrupting the pattern of everything else in the feed.",
+    rules: [
+      "You compete with everything in the feed, not just your competitors. Say what everyone says, the way they say it, and you get scrolled past.",
+      "Interrupt the pattern. Used sparingly, subvert the expectation: 'meditation is a scam' — then 'I thought so too, until...'",
+      "Express the viewer's problem better than they can express it themselves. That is where credibility comes from.",
+      "Don't cram purpose, mission and product into the first seconds. First get them to stop.",
+      "Make it interesting to an outsider who knows nothing about your field, then narrow. Views-to-reach measures the hook, retention measures the story, comments and actions measure credibility.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write the line everyone in your field uses ('automation saves you time'). Write an honest pattern-interrupt version, and the two sentences that follow it: the viewer's problem, said better than they would say it." },
+    check: "The follow-up delivers on the interrupt. If an 'X is a scam' hook is followed by a pitch for X with no turn, you have built clickbait.",
+  },
+
+  "spch100.11.4": {
+    module: "B1",
+    mechanic: "Jenny Hoyos breaks a short into a hook (a shock, what you're going to do, a reason to stay to the end), a build-up told with 'but' and 'so' rather than 'and then', and a payoff that is short, surprising and lands on the last word — with progress visible throughout.",
+    rules: [
+      "The hook is your thumbnail: open on the most shocking moment — often a cold open showing the finished result — then show how you got there.",
+      "Tell it with 'but' and 'so', not 'and then'. Small conflicts keep the progression from running in a straight line.",
+      "Give a mechanism of progress — an on-screen timer, a checklist of ingredients — so viewers know how close the end is. Never say 'finally' halfway through.",
+      "Pace it: a fast first ten seconds, a slightly slower middle so nobody gets lost, a concise end. Characters help — aspirational yet relatable, and opposites, like her and her mother.",
+      "Payoff: short, surprising, and the answer is the last word you say. Then read the analytics: viewed-versus-swiped judges the hook (she aims for 70–85 per cent); in the retention graph, look a few seconds before a drop.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Script a 45-second short as beats on sticky notes or lines: the hook, three 'but' or 'so' beats, the payoff. Mark where progress is visible on screen, and underline the last word." },
+    check: "No beat begins 'and then', and the final word of the script is the answer. Anything after the answer gets cut.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.11.0": {
+    takeaway: "Jenny Hoyos, whose shorts average millions of views, gives her framework in four minutes: a surprising question, constant progression, conflict, uncertainty — and a quick answer. She says it works for asking for a raise as well as for a feed.",
+    beats: [
+      { t: "The question", d: "People stay to find out the answer, so ask something surprising first." },
+      { t: "Progression", d: "Show how close you are — each ingredient added is a step towards the answer." },
+      { t: "Conflict", d: "Without it nobody is invested. Her mother is the B plot." },
+      { t: "Uncertainty", d: "Keep the outcome in doubt right up to the end." },
+      { t: "Quick payoff", d: "Give the answer concisely; she finishes her five-minute slot in four." },
+    ],
+    worked: "Can she cook a burger in the car faster than the drive-through queue moves? Each ingredient marks progress, her mother supplies the conflict ('You're doing all this for one subscriber?'), and the answer — faster, if basically raw — comes in the last seconds. Over 45 million views.",
+    watch: "Over-delivering at the end. Once the question is answered, stop.",
+    concepts: [],
+    checks: [
+      { q: "How does Hoyos recommend starting a short story?", opts: ["With your name and channel", "With a surprising question the audience wants answered", "With the ending", "With background"], a: 1,
+        expl: "The question holds them to the end." },
+      { q: "What role did her mother play in the burger video?", opts: ["The B plot that adds conflict", "The director", "The judge", "The narrator"], a: 0,
+        expl: "Viewers also wanted to see what would happen between them." },
+      { q: "Why say which ingredients are still to come?", opts: ["For the recipe", "To fill time", "To make progress visible, so viewers feel how close the answer is", "For search"], a: 2,
+        expl: "Constant progression keeps people from stopping." },
+    ],
+  },
+
+  "spch100.11.1": {
+    takeaway: "Kallaway: a hook has one job — to make the viewer opt in — and needs two things: topic clarity and on-target curiosity. When a hook fails, it is one of four mistakes: delay, confusion, irrelevance or disinterest.",
+    beats: [
+      { t: "Delay", d: "Short-form retention decays steeply from the first second; every second without the topic loses viewers." },
+      { t: "Confusion", d: "Fewer, simpler words, active voice, and no second way to read the sentence." },
+      { t: "Irrelevance", d: "'You' instead of 'I', and a need-to-have pain point instead of a nice-to-have topic." },
+      { t: "Disinterest", d: "Open a curiosity loop: each answer raises a new question." },
+      { t: "Contrast", d: "A versus B — stated ('most people use X, I have something faster') or implied." },
+    ],
+    worked: "Confusing: 'These guys built a 30 million dollar empire and the online money they made is most difficult to earn if you don't develop a journaling practice like they did.' Clear: 'These guys built a 30 million dollar empire, and their secret for earning money online was their insane journaling practice.' The same idea, reordered.",
+    watch: "Vague suspense. 'You won't believe this' has zero context; anyone who stays is staying for your face or the caption. The video also plugs his paid hooks course and an AI tool along the way.",
+    concepts: [],
+    checks: [
+      { q: "What two things must a hook deliver, according to Kallaway?", opts: ["Topic clarity and on-target curiosity", "Humour and urgency", "A face and music", "A question and a promise"], a: 0,
+        expl: "Then the viewer can decide to opt in." },
+      { q: "Which fix addresses 'irrelevance'?", opts: ["Cut the first two lines", "Use simpler words", "Frame it with 'you' and a pain point the viewer already has", "Add music"], a: 2,
+        expl: "The viewer needs to see it is for them." },
+      { q: "What is 'implied contrast'?", opts: ["Stating A and B explicitly", "Stating your alternative and letting the viewer supply the baseline they already know", "Contradicting yourself", "Using a split screen"], a: 1,
+        expl: "Your take against the field of options they already know." },
+    ],
+  },
+
+  "spch100.11.2": {
+    takeaway: "A creator coach's team catalogued hundreds of shorts with over a million views across more than 40 niches. The strongest pattern: the first three seconds stack several hooks — text, movement, a cut, sound — and the visuals carry most of the weight.",
+    beats: [
+      { t: "The sample", d: "Every short over a million views from the Shorts tab and 40-plus niche searches, logged in a spreadsheet." },
+      { t: "Most common hooks", d: "Movement into frame, loud music, a zoom, and the 'what is happening?' moment." },
+      { t: "Most engaging hooks", d: "Story openings, exclamations, questions, relatability and humour." },
+      { t: "Hashtags", d: "Only 8 per cent of the viral shorts used any." },
+      { t: "Value pillars", d: "Mostly entertainment; inspirational drew the most views, educational the most engagement." },
+    ],
+    worked: "A relatable short layering three hooks in three seconds: a person running towards the camera (movement), 'POV: that friend' on screen (relatable text), and a spoken question to the viewer.",
+    watch: "Survivorship. The sample contains only videos that already went viral, with no flops to compare, so treat the percentages as patterns worth testing, not causes. She also plugs a paid guide midway.",
+    concepts: [],
+    checks: [
+      { q: "What share of the viral shorts used three or more hooks in the first three seconds?", opts: ["About a quarter", "About half", "96 per cent", "All of them"], a: 2,
+        expl: "Only one used a single hook." },
+      { q: "What did the team find about hashtags?", opts: ["Only 8 per cent of the viral shorts used any", "Every viral short used five", "They doubled views", "They were required"], a: 0,
+        expl: "Her advice: stop stressing about them." },
+      { q: "Why be careful with conclusions from this sample?", opts: ["It is too small", "It only includes videos that already went viral, with no comparison group", "It covers one niche", "It was generated by AI"], a: 1,
+        expl: "Patterns among winners are not proof of what made them win." },
+    ],
+  },
+
+  "spch100.11.3": {
+    takeaway: "Brendan Kane, on a sales podcast: in a three-second world you compete with LeBron James and Netflix, not just your rivals. A hook point wins the first part of the conversation; then a story has to hold the attention, and credibility has to make people believe it.",
+    beats: [
+      { t: "Three pillars", d: "Attention, story, credibility — fail any one and the others are wasted." },
+      { t: "Pattern interruption", d: "'Meditation is the key to focus' has been seen a thousand times; 'meditation is a scam' stops the scroll." },
+      { t: "Say their problem better", d: "Copywriter Craig Clemens: express the problem better than the customer can, and you earn trust." },
+      { t: "Don't overwhelm", d: "Purpose, mission and product mean nothing until they have stopped." },
+      { t: "Measure each pillar", d: "Views to reach for the hook, retention for the story, comments and conversions for credibility." },
+    ],
+    worked: "A Mother's Day campaign for a photo-book company was aimed at mothers over 45. Tested broadly, it landed hardest with women aged 18 to 25 — who tagged their mothers, reaching the core audience better than narrow targeting would have.",
+    watch: "Subversion as a gimmick. Kane uses it sparingly, and the story must deliver; 'cold calling sucks' followed by a vanilla pitch burns the credibility you were after.",
+    concepts: [],
+    checks: [
+      { q: "What are Kane's three pillars, in order?", opts: ["Hook, story, credibility", "Story, hook, offer", "Credibility, hook, call to action", "Price, product, promotion"], a: 0,
+        expl: "If you can't grab attention you never get to the story." },
+      { q: "Which metric does he use to judge whether the hook works?", opts: ["Likes", "Comment length", "Views to reach — how many who saw it watched past three seconds", "Follower count"], a: 2,
+        expl: "A view is counted at three seconds." },
+      { q: "Why make a hook interesting to outsiders?", opts: ["Outsiders buy more", "It widens reach, and non-buyers can share it with people who are buyers", "Algorithms penalise niches", "It removes all jargon"], a: 1,
+        expl: "The daughters shared it with the mothers." },
+    ],
+  },
+
+  "spch100.11.4": {
+    takeaway: "Jenny Hoyos, in a long interview: a short is a moment, not a squeezed-down long video. Hook with a visual shock, build with 'but' and 'so', make progress visible, and land the answer on the last word — then let the analytics say which part failed.",
+    beats: [
+      { t: "A moment, not a guide", d: "A glucose monitor reacting to pasta is a short; a complete guide to diabetes is a long video." },
+      { t: "Hook as thumbnail", d: "Cold-open on the finished dish so the curiosity becomes 'how?'." },
+      { t: "Mechanism", d: "A timer or ingredient checklist shows how close the end is; 'finally' or 'sit back, this will take a while' make people leave." },
+      { t: "Characters", d: "Aspirational yet relatable, like Spider-Man and Peter Parker; she does the cool thing and her mother tells her off." },
+      { t: "Analytics", d: "Viewed-versus-swiped tests the hook; a retention graph shows an early exit, a specific drop, or a slow slide from weak progression." },
+    ],
+    worked: "Pasta with her mother, told with 'but': we boil the water and add salt — but that's far too much salt, so I'll add more water. We take out the pasta — oh no, it's still raw — so I'll leave it in longer. Every beat is a small conflict, so the progression never runs in a straight line.",
+    watch: "Over-delivering. If the question is 'what's two plus two?', the last word is 'four'; anything after it is a reason to swipe. The transcript tool stopped at 37:53 of 40:51, during the analytics discussion.",
+    concepts: [],
+    checks: [
+      { q: "What does Hoyos say to use instead of 'and then'?", opts: ["'But' and 'so'", "'Next'", "'Meanwhile'", "'Finally'"], a: 0,
+        expl: "Conflict keeps the progression non-linear." },
+      { q: "What is a 'mechanism' in her sense?", opts: ["A camera rig", "A visible sign of progress, like an on-screen timer or ingredient checklist", "An editing app", "A sponsor"], a: 1,
+        expl: "Without one, viewers feel there's no end in sight." },
+      { q: "Where should the answer to the hook's question come?", opts: ["In the first five seconds", "In the middle", "As the very last word", "In the description"], a: 2,
+        expl: "Once they have the answer, they leave." },
     ],
   },
 });

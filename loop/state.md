@@ -39,3 +39,4 @@
 - 2026-10-09: T-032 merged as PR #12 (ebb4f38). T-026b building next (worktree /home/user/bf-T-026b), then T-031.
 - 2026-10-09: Owner: SPCH 100 must be a real course — ~50 h, built right after T-026b (T-037). Transcript MCP verified working (nLpoqD7LHOU).
 - 2026-10-09: Owner's device had Gates 1-3 passed by accident (route to Feb 2029). Found: bare toggle, merge can't remove a pass, legacy true slides daily, Atlas labels. T-038 queued after T-037.
+- 2026-10-09: T-026b merged as PR #13 (bfb68ef) after 2 review rounds. T-037 (SPCH 100 full course) building next, by a general-purpose agent (needs WebSearch + Yt T MCP).

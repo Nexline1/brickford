@@ -1,0 +1,500 @@
+# Transcript: YouTube Algorithm 2026 - What Creators Need to Know
+
+Source video: https://www.youtube.com/watch?v=rHLjxrbXmmY
+Language: en (auto-generated) · Duration: 39:30 · Words: 20652
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (de-duplicated from rolling auto-captions)
+
+[0:01] this this worry that like oh well if my subscribers don't like it then YouTube's going to
+decide for everyone that it's not a good video. So first, it's not only your subscribers who will
+see it, and two, the algorithm really wants to um know what's best for each viewer, not just based
+on an overall aggregate opinion. The fact that someone else doesn't like something that I like
+shouldn't prevent me from seeing it. >> Yes. I'm Rene Ritchie, your creator liaison, and I am
+talking today to Todd
+
+[0:32] Bouprey, who is senior director of growth and discovery at YouTube. Todd, what does your team
+work on? >> So my team works on a variety of things, but most of it is about recommending content to
+viewers, uh whether that be on the homepage, on the watch experience, through notifications, and
+we're really just trying to get the right content to the right viewer at the right time. >> So I
+went my scour the internet, uh every nook and cranny, and I was trying to see the most common
+questions that creators had about like {quote} the
+
+[1:04] algorithm. And one that comes up a lot is sort of this idea that I as a creator make a video
+and then I upload it to YouTube and then the recommendation system, the algorithm, pushes that out
+to varying degrees of success. Um how does it actually work? >> Yeah, so I hear a lot of of the
+language that creators use does kind of involve this pushing, the algorithm pushing content to
+viewers. While we do push notifications to people's devices if they're opted in, most of the
+
+[1:35] recommendations are more pulled for each viewer. And so the way to think about it is when a
+viewer opens their app or turns on their TV, um um that's when the recommendation system is
+activated for that viewer. And the decisions that the recommendation system makes are generated at
+that moment, considering the what we understand about the viewer and what they've watched before,
+what the current context is. Like, what time of day is it? What Which
+
+[2:06] device are they watching from? And so, what the system does at that moment is it takes that
+information and understands and then brings in candidate videos that might be a good match for that
+viewer and then ranks them for that viewer. And so, each viewer gets a different ranking um for for
+each video. Um you're going to get a different ranking that I'm going to get. And so, I think the
+more that creators can think about the recommendation system as
+
+[2:37] optimizing for each viewer as opposed to very content-centric >> Yeah. >> you know, we're not
+really like looking at a video and saying, "Let's go figure out who the audience is going to be."
+It's looking at each viewer and saying, "What are the best videos and posts and other formats um for
+this viewer at this moment um giving everything we understand." >> So, to your point, there might be
+a video that has an absolute metrics that are very high, but you might love it and I might not, and
+you have to take that into account. >> That's right.
+
+[3:09] >> Yeah. So, another widely held belief is that as soon as a video is uploaded, you test it
+with our subscribers. And if our subscribers aren't as engaged, like the video is just cooked. >>
+Yeah, so when you think about uh ranking a video um and you know at any given time, there's, you
+know thousands, millions of people loading their home pages, loading loading watch pages that have
+recommendations on them. And if you think right after you upload a video
+
+[3:40] who are the viewers that are probably going to see it at the top and most prominently? Yeah,
+the more history that a viewer has with a channel and the topic probably it's going going rank
+higher for those viewers than the viewers who've never watched the channel before. But, when we look
+at the data, it's not, you know, it's not like, "Oh, you're only getting your very, you know, core
+users who've watched your channel, you know, every upload right at the beginning." We see
+
+[4:11] diverse audiences that actually end up getting your video uh visible, maybe because they're
+scrolling farther. And so, it's not just like it's your core audience in the first hour or even
+minutes. Um I've looked at channels and I see like that the majority of their audience can be non-
+subscribers. And even in the first hour um videos are reaching people who've never watched the
+channel before. So, it is a mix. And the other thing to remember, though,
+
+[4:43] is like it doesn't only matter like uh who saw this video in this hour in terms of like how
+the algorithm understands it. It's not just looking at the overall opinion of everybody in that hour
+as one, you know, performance metric. It's learning learning for different audiences. So, it can
+learn that for subscribers, this video is not, you know, [clears throat] performing well. And for
+people who haven't watched the
+
+[5:13] channel, it is. And so, you know, we're going to use the relevant data for each viewer. So,
+this worry that like, "Oh, well, if my subscribers don't like it, then YouTube's going to decide for
+everyone that it's not a good video." So, first, it's not only your subscribers who will see it. And
+two, the algorithm really wants to um know what's best for each viewer, not just based on an overall
+aggregate opinion. Like, um
+
+[5:43] I always like to think about how the fact that someone else doesn't like something that I
+like shouldn't prevent me from seeing it. >> Yes. Yeah. I've also stopped looking at my metrics for
+the first couple hours because I realized if someone is on their phone waiting for coffee and a
+notif- notification comes in, they might click it immediately especially if it's a shorter video.
+But if it's a long video, like an hour-long documentary or like very like challenge video, they
+might wait until they're at their TV at night or on the weekend to watch with
+
+[6:13] their family. And so, I think that whole idea of like instant results is is something of the
+past. >> Yeah, I think creators do tend to overfocus on, you know, the immediate data and know that
+from the recommendation system's perspective, we're not basing decisions just on those initial
+moments. Every day there's billions of new uh impressions that flow through the system that we're
+constantly learning from. And that's why you see that, you know, yes, a lot of videos have their
+
+[6:43] peak moments in the first day, but a lot of videos also get the majority of their views, you
+know, a month or or later if it's evergreen content. We're not going to stop you know, trying to see
+if there's viewers that um would be interested in it. >> All of my evergreen videos are my biggest
+videos and they took several months to become my biggest videos. But the other thing is I will see a
+thumbnail and I'll be like, "No, Todd." And I'll see it again and I'll be like, "No, Todd." But
+maybe like the sixth or seventh or 10th time I click on it and
+
+[7:13] then I really enjoy it. And I can't be alone in that. >> Yeah, we This is one of the things
+that we struggle with sometimes because we when we survey users about their experiences with
+recommendations, one of the things they tell us is that they often see the same video recommended
+too many times. And they're like, "Why do you keep showing this? I want something new." And so, we
+are sensitive to that and we've run all sorts of experiments where we say, "Well, what if we say uh
+you you wouldn't be recommended a
+
+[7:44] video more than eight times. We do see that people do engage sometimes, uh, you know, it
+takes a few tries, uh, but we're we're trying to get smarter about it so that, you know, if if it's
+truly likely that you tend to save your hour-long videos for watching on the TV in the evenings,
+then, you know, we will probably try to do a better job of making it front and center when you you
+have the right
+
+[8:14] context, and less so, um, when you're in a different context and it's just not really
+relevant to you, cuz we don't want to waste your time, uh, recommending things at the wrong time. >>
+YouTube nor creators want the wrong video recommended to the wrong person. >> That's right. I worked
+with one creator one time who's, uh, had had a viewer who was missing out on on recent uploads from
+that, and, uh, we worked with a viewer to get permission to go into the system and and see if we
+could find a
+
+[8:47] bug in in what the system was doing, and what we actually found is that that viewer had been
+recommended, uh, the recent uploads 19 times, and they didn't notice. If if you have a viewer that
+typically watches from 50 different channels regularly, like you were saying earlier, some days you
+just don't have enough time to consume everything you're interested in. Some days you may not scroll
+far enough. Maybe you only scrolled through your top 30. >> What happens to me is I have an
+idealized Renee who wants to watch every
+
+[9:17] video that I that has come out from every creator, every topic that I care about, but I have
+10 minutes to watch. All other things being equal, I would love to have watched that video, but in
+the moment I chose something else. >> Yeah, we had these same challenges even when it was just the
+subscriptions feed, because, as you mentioned earlier, there's often just more content that people
+want going than they're going to have time to browse through and and watch. >> So the best thing you
+can do is just tell that viewer to go to your channel and watch a bunch of videos. >> Yeah,
+
+[9:47] you could always go to the channel, you could always go to the subscriptions feed and catch
+up on the things you've asked for. >> So what then does really matter for the algorithm for the
+recommendation system? I know creators would love you to say like one magic number, um but is there
+something that you look for and does it depend on like phone versus TV and morning versus night and
+all those factors? >> starting at the broadest perspective, like what we really what matters is that
+we're delivering a a great valuable
+
+[10:17] experience that makes users feel like they want to come back to YouTube, not just today and
+you know, spend some time today, but that they're going to feel good the next time they have a
+moment, uh what app are they going to turn to? We'd like them to feel like YouTube delivers the most
+value and that that sustains over years. Um so that's what our North Star is, is long-term user
+value. Um in terms of how we incorporate that into um a
+
+[10:47] particular particular ranking decision, we have to look at at many different metrics because
+no metric on its own is a good indicator of value. You could look at like views, um click-through
+rate and that will only show you, you know, maybe how attractive the thumbnail and the idea were. >>
+a viral video, like click-through rate and average view duration will go down as the views go up. So
+it gets kind of confusing for me. >> Right, so we we do see that in in
+
+[11:17] click-through rate that the more impressions something gets, the broader the audience is
+reached and that tends to make those aggregates um look lower than if you're only targeting uh just
+the core fans. Um so click-through rate is one metric, you know, watch time is another metric, but
+you know, it's not always that the time you spent is valued, which is why we also bring in the
+surveys. And, you know, even with the time, we look at
+
+[11:48] both the absolute time you spend as well as the relative time because, um, you know, it may
+mean something different if you spent, um, 5 minutes watching a, you know, 2-hour-long video versus
+a 5-minute video. Um, and and maybe maybe there's a video that didn't deliver at the end of the that
+that you kind of hung on for a a long time hoping for a payoff at the end and it just didn't
+deliver. We don't want to
+
+[12:19] just assume that all time is valuable, which is why we bring in those surveys to ask people,
+um, not just about their behavior, but to understand what was satisfying to them. Um, we look at
+likes, we look at dislikes, we look at comments. All these things, none of them by themselves are
+good enough indicator to just only look at that metric because it only tells you part of the story.
+Um, and so we do look at, you know, many many metrics. >> Yeah.
+
+[12:49] >> And and one of the main things that's changed over the past few years is, you know, you
+might ask, well, which which of those is weighted the most? Which is the most important? And it, you
+know, the system doesn't even work that there's there's a a waiting for each of these that is the
+same for everyone. It actually doesn't even work such that it's the same for you at all times. The
+system now can learn that different different factors can have different, um, indicators of
+
+[13:19] value, um, on different platforms, for example. Maybe on television, uh, the time you spend
+it might be more or less important than what what you click on, uh, and the click through rate
+versus on mobile maybe it's it's a whether you like or dislike because that's easier to do on mobile
+than it is on on a TV maybe. And so now the answer is there isn't an answer a single answer but all
+of this I think is focusing on the wrong thing because because um um
+
+[13:50] if you're a creator and you're trying just as we are to understand value, I think that you
+need to look at a lot of different things yourself and those things should be coming from the
+audience. >> Yeah. >> And so you know, some of those are going to be your metrics that you look in
+in analytics. And I guess what I would say is look at things relative to each other. If something
+tends to have a lower, you know, percent watched or a lower absolute watch time relative to other
+videos that are similar length, then
+
+[14:21] that's probably something you can learn from. Look at your retention graphs on your videos
+to see where people are relatively dropping off. Look at your like rates and see which which ones
+are doing better or or not. But then don't just look at numbers. You know, listen to your audiences
+as well. >> One of the ways I think you're very thoughtful about this is you don't want to punish
+channels for things. So like you said the algorithm will look at
+
+[14:51] comments but creators can turn off comments. They can moderate comments. They don't have to
+worry that absolute number of comments or they can turn off ads and not have to worry about their
+video getting lower reaches cuz ads are off. That is something that you're very thoughtful about. >>
+Yeah, we're we're careful not to have the system kind of make a decision based on any one factor and
+we, you know, like when we started looking at integrating comments, it was very important to us that
+we didn't penalize people that for for whatever reasons they choose not to
+
+[15:23] have comments on, we don't want that the system to understand that to mean like people just
+aren't engaging with this content. So, we do look out for those considerations so that we can um
+represent the true value and not just some artifact. Creators seem to worry a lot about uh kind of
+what the algorithm thinks of their channel and has the algorithm decided that their channel is like
+in one category versus another.
+
+[15:54] >> going to punish me, Todd, if I make a mistake? >> Yeah, or like do I have the freedom to
+try something different from what my channel has shown before? And and this is where I'd go back to
+you know, the system isn't trying to find a single category for your content. Um and in fact, we are
+very video-centric. >> This might seem silly to you, but one of the biggest breakthroughs I had was
+realizing that puddles don't cause rain. Um because like you could look at a puddle and it's raining
+and think that
+
+[16:24] the puddles caused it to rain, but really the rain caused the puddles. And with a lot of
+these things, um for example, people think that YouTube is pushing longer videos now, but people are
+watching on television and they want longer videos. And so, YouTube is recommending those longer
+videos. YouTube isn't pushing them. They're as you're saying like pulling them. These are audience
+sort of decisions that the algorithm is following. >> Yeah, we aim to not have the algorithm like
+have a point of view on you know,
+
+[16:56] oh well, you know, right now we think that this is what audiences want. We want the data to
+tell us that answer. And so, my job is to listen to what viewers are are telling YouTube about their
+experiences at YouTube. And what we've heard over the past few years has been that viewers sometimes
+feel overwhelmed with all the choices that they have. And And this happens both on mobile, and I
+think
+
+[17:26] one of the reasons why short-form video has been successful, not just on YouTube, but across
+the market, has been it eases the burden of decision-making. You don't necessarily need Yes, you can
+search for content, and yes, you could look at thumbnails and decide on the home page which short
+form you want to watch, but you can also just say, "Just give me something different. Just give me
+something else." And and not have to put a lot of effort into choosing. When you're trying to be
+entertained, you
+
+[17:57] don't want it to feel like work. So, we've seen that on the short form end. On televisions,
+we hear similar things. Like, viewers don't want to be picking up the remote every 5 to 10 minutes
+to make a new video decision. This is why series tend to work on television because viewers can
+think about it and decide a series they want to try, and then they don't have to decide again maybe
+for hours. >> Yeah. >> And and so, this sort of decision fatigue does drive us to make sure that
+
+[18:27] we're we're delivering to those needs that that viewers have. And so, that can lead to more
+growth in longer videos and more growth in super short videos that are put in the the swipeable
+format. It's not like YouTube is saying, "Oh, well, we want long videos, so let's let's juice that."
+It's really being pulled from the audience. >> One of the questions we've been getting a lot
+recently as well is the redesign
+
+[18:57] of the home page on desktop and the much bigger thumbnails. And creators asking, "Has that
+affected recommendations?" >> Yeah, specifically, I've heard people were concerned that it might
+drive less viewership on uh, long-form because there's fewer uh, long-form, you know, thumbnails uh,
+on the page. Um, and actually the, you know, this this change is probably now
+
+[19:28] coming up on a couple years. Um, it actually drove more uh, attention and engagement around
+long-form. Um, and you know, one of the counterintuitive things that that we learned over the years
+is that often less is more. We used to have much smaller thumbnails on mobile. >> Yeah. >> Um, under
+the assumption that density and choice were, you know, we'd have the most success if we could show
+you as many things as possible so that you'll find one that that you like. But what
+
+[19:58] what ends up happening with viewers is like I was alluding to earlier, um, sometimes choice
+is overwhelming and they just don't choose anything. And so we ran lots of experiments before we
+rolled that out. And uh, we had the same concern about, you know, what it might do to to viewership
+and we wouldn't have launched that change if if it uh, reduced viewership. Um, and it helped um,
+grow long-form and short-form. And uh,
+
+[20:30] it it seems to be making it easier for people to decide what to watch. >> One of the things
+that interests me too is like I think people don't understand how much you test. Like maybe they
+assume you just decide something one day and implement it. Uh, but you see often on social media
+people say, "Oh, oh, the the homepage changed." And it's really just a very small experiment
+running. Uh, is that how you learn and how you figure out which changes make sense? >> Yeah, there's
+hundreds of experiments um, that are running at any given time. Think of it as like we're trying to
+climb a mountain >> Yeah.
+
+[21:01] >> to the peak of of potential of what YouTube can be. And often times when you climb a
+mountain, you can't just like look at the peak and go straight for it, although that would be nice.
+>> Yeah. >> Often what you're doing is you're you're going back and forth on switchbacks. And if
+you're paying too much attention to the direction that that maybe we're going as we climb this
+mountain back and forth, you might be just kind of thrown off. Like, "Oh, are they going this way?
+Oh, are they going this way?" Like, no, we're we're going to the peak and and that's
+
+[21:33] you know, our eyes are on maximum value for viewers. So, I encourage you as a creator to
+join us on that mission and kind of recognize that um you know, we have the same goals, which are to
+satisfy audiences. But, know that we are and have a long track record of growing the pie for
+everyone. And that's how we reach the peak. >> To go back to the idea about having different topics,
+I think one of the things that's hard for creators is
+
+[22:04] understanding that when you do switch topics, they could have very different audiences and
+very different view potentials. Uh because we see cases where a video blows up that's an outlier and
+gets way more views than average. And then the creator worries, "Oh, they're not going to know my
+audience anymore." Or a video just bombs and gets way fewer. >> I'm going to give like a personal
+example. When I did a big phone review, I could count on hundreds of thousands of views. If I did an
+accessibility video, I'd maybe get like a few thousand, 10,000 views because just the audience for
+that wasn't as big. Almost
+
+[22:34] like you do the big blockbuster movie, you get way more box office than if you do the little
+arthouse movie. And I think we just have to set our expectations as part of that. We can do anything
+we want, we just can't get a billion views for everything we want. >> Yeah, I think it's it's
+unhealthy for creators to always just aim for the high water mark of of their their channels because
+different view different content does have different appeal. And you know, if you're experimenting
+in a new area, it may take a while to
+
+[23:06] for both audiences to warm up to you in that area, for you to develop your skill in knowing
+how to be masterful in that content area. Um it's like starting if you're a restaurant and you're
+used to making sushi and then you want to branch out into pasta. >> Yeah. >> You know, you open the
+pasta restaurant, it may not be successful on day one. Just like your sushi restaurant wasn't
+necessarily successful on day one. I think it's important to have patience. Um Um
+
+[23:36] and and give it a chance and and see how it works and this kind of goes into another
+question I hear about is like, well, should I do it on the same channel or a different channel? The
+advice that we give around channels is really to align channels with audiences. So, if you think
+that, you know, this to use the sushi restaurant and the pasta restaurant, if you think there's a
+connection between them and it's going
+
+[24:07] to be the same diners in both, then, you know, the same viewers of both topics, then you can
+try it on the same channel. But if if you really suspect that, oh, well, the sushi is like an
+upscale, you know, omakase and the the pasta is going to be a quick quick, you know, grab and go
+type thing, then you probably want a different brand for that, right? Because you're really trying
+to give different value propositions and I encourage creators to
+
+[24:37] think about channels similar to brands and make it easy for audiences to know whether
+whether they should expect the same thing or not. But also recognize that it's okay if you don't
+make the right choice between those because the system doesn't only work if you make the right
+choice. So, for example, um there are uh tactics that we use in the recommendation system to
+recommend things across channels. Yeah. So, even if you do create a separate channel,
+
+[25:08] we can figure out that oh, people who watch this channel also watch this channel and direct
+them. Um Um and if you make a mistake and put them on the same channel and it isn't the consistent
+audience, we do try to even within a channel uh distinguish the videos. Yeah. So, if we can see that
+a particular viewer uh when they consume this channel, they tend to only consume the short content
+
+[25:40] versus the long content, then we will try to, you know, focus focus the recommendations on
+the things that they actually want to watch and not on the things they don't want to watch. Or if
+they like this particular topic, like maybe they like your accessibility content and they don't like
+iPhone reviews. Um we're going to try to recognize, oh, well, this is a good video for this viewer
+because they like the topic. Um so, we're going to be smart about that and not just like,
+
+[26:10] you know, well, there's only one way. I encourage uh creators not to have that kind of black
+and white thinking cuz that's not how it actually works. >> And that's similar, for example, doing
+long-form and shorts on the same channel, podcast, live streams. >> Yeah. To the extent that there's
+a viewer who's into all those things, we want to show all those things to that viewer. But as we get
+signals from a viewer that they only care about um one subset of that, it whether it's a format, a
+length, a topic, we're going
+
+[26:41] to try to to match to what the viewer uh is most interested in. >> I think one of the things
+that's challenging is that there's no one answer for everything for every creator. A lot of it
+really does depend also on what the creator's goals are. There are some creators who just want
+maximum views views and there are other creators who want maximum revenue. And there are a lot of
+creators who get way fewer views but a way more money. And there are other creators who just want to
+share their voice. They have a particular opinion on any like it could be on entertainment or on
+politics or on something and they
+
+[27:11] just want to get that in front of the world or in front of the audience that they care about
+regardless of absolute views or or money. And all of these things go into a a very personal decision
+for the creator about do I want to accrue everything on one channel even if it feels like some
+videos are getting less views than others or do I want to like will I manage multiple channels so I
+can feel like my podcasts are doing well on this channel versus my shorts on that channel. It all
+feels very personal. >> Yeah, and I encourage creators to be
+
+[27:41] thoughtful about what their goals are and and recognize that sometimes your goal with a
+video is not to maximize viewership. Sometimes it's to educate people about a product that you want
+to sell to a subset that are going to be really into that. And so this is why kind of going back to
+that high watermark recognize that people have varied interests. Your audience is not all the same.
+Um you have some core fans. You have
+
+[28:12] some casual fans. You have some people watching you for the first time ever. And uh plan
+your content such that you address all those different needs and set your expectations um according
+to you know, you're going to have more views from things that are more broadly appealing. >> And I
+think that also confuses creators sometimes. We'll look at videos suggesting my video and they'll be
+from a wide range of topics and we'll go like oh once again, the
+
+[28:42] algorithm doesn't understand my audience. >> Yeah, so people what you're talking about
+specifically is some people go into the traffic sources and suggested and then look at what videos
+are um driving views um the most. And assume that this represents kind of some understanding of the
+algorithm's targeting. And I think that yes, while while there there were impressions
+
+[29:12] on those videos, um I think the important thing to recognize is that the reason that a video
+can appear next to another video is not simply just because it's related. >> Yeah. >> And we see
+that as we've moved the recommendations on the watch page from only being related videos to videos
+that can be relevant for a number of reasons, you know, most of which is like the viewers interested
+in watching the video. And so a lot of those
+
+[29:42] results um you see are personalized results based on what the viewers interests are. In
+fact, we today still see um the number one place that people are watching videos from channels
+they're subscribed to is actually on the watch page in that suggested list. So, I know a lot of
+people think about the subscriptions feed as as one place people go uh to catch up on their
+subscriptions, but that's actually quite small relative to the people who just see something
+
+[30:12] from a channel they're interested in while they're watching a different channel. And it's
+super common for users to want to change the channel. Um and so that's why you might see things that
+are unrelated. They're not related because it's the same topic, but they're connected because there
+was a viewer that that both that watched both videos. And uh we want to reach that viewer uh for
+you, not just when they're uh happen to be on the same topic. And and you end up getting a lot more
+views that way. So, I
+
+[30:43] I wouldn't worry when you see that successful cross topic um traffic happening for you. >>
+One of the things you told me that was really impactful was think like a viewer. And I think like at
+a certain point my creator brain and my viewer brain separated because I would see that and wonder
+about it, but also as a viewer, I would go and watch a cooking video and then in the sidebar there
+might be a sports video and I would just click on that because I'm interested in that as well and
+then maybe from there I click on a tech video and to me it's like exactly that, changing the
+channel. But to the creator on the back end it's
+
+[31:13] like, "Why is a cooking video recommending my sports video?" >> Yeah, you got to remember
+that many viewers watch hundreds of channels and they're not all related. People have very diverse
+interests. >> Last time we talked you mentioned about trying to help newer videos that may not have
+an obvious audience yet by giving them some visibility on the homepage. I know I'm still getting
+videos that have, you know, tens, dozens, hundreds of views. And most of the time they're very like
+they're very key to my interest. I don't
+
+[31:43] watch all of them, but they are things that I would watch. Is that ongoing and how is that
+working? >> When a new channel publishes for the first time, there are zero viewers who have that
+channel in their history. Does that mean that they're not appealing to any viewer? No, and that's
+why we have parts of the system that don't depend on an individual viewer's history with that
+channel. And we're going to be using other signals that we have about the fit between that content
+and
+
+[32:14] that viewer that aren't dependent on that viewer having history with the channel. We're
+still trying to make those as relevant as possible, so we'll look at things like the user's topical
+preferences and what we understand about what this video is about to try to make those matches when
+when we don't have the history and then we hope that we'll find some viewers who are interested and
+then build from there. And if we don't, then maybe that video
+
+[32:45] just won't get more impressions. >> And you still and YouTube does care about creators
+making it. That's something that YouTube tracks. >> Yeah, we care about how many videos have a
+chance by being seen by viewers, and you know, we've talked before about how every day in
+recommendations, there's hundreds of millions of videos that get seen by someone. And we think that
+the recommendation system is better when it it understands
+
+[33:15] more videos. And so, we do care about how many videos have a chance, and then we also care
+about whether those videos led to success for creators. And so, we have things that we track about
+how creators are growing through the ecosystem, and are they making a certain amount of revenue to
+be sustainable as a creator. Those are all things that we track and set goals to improve on. >>
+Sometimes the metrics are really hard. For example, we have creators who will
+
+[33:45] turn off embeds or uncheck sub feed and notification because they worry that if retention is
+bad on an embed, it'll it'll hurt their video on the home page. Or if people like don't watch it in
+the sub feed, or if their subscribers don't like it, it'll hurt them on search, maybe. Can you
+explain a little bit about how you think about the traffic sources? >> Yeah, so for traffic sources,
+I think one of the main things to keep in mind is when we're ranking videos in the home page
+context,
+
+[34:17] what's most valuable for us to look at from a data perspective is how well videos perform in
+that home page context. So, if people have a very different behavior when they come in through an
+embed or through an ad or through a link from a friend, if that isn't predictive of what they're
+going to do when they're shown a video on the home page, it doesn't make sense for us to weight that
+information very much. In terms of like not notifying subscribers, um some creators
+
+[34:47] experiment with that, and some claim that it helps them, others not so much. I don't I
+wouldn't advise people to turn off uh notifying subscribers. Remember that we're not just using one
+audience's perspective to decide for all other audiences. We're trying to learn differently. How do
+subscribers react? How do non-subscribers react? How do people who've never watched this channel
+react? Those are those are different audiences with
+
+[35:17] different expectations and different behaviors, and so you're not going to be We're not
+going to decide just based on the first hour or first 1,000 people who see a video whether it's
+worthy for everyone to see. And so, if you uncheck that box, I feel like you're you're not allowing
+the system to connect with a subset of viewers who are going to be interested. And this
+
+[35:47] This whole subset thing I think is really important. If you go into your subs feed >> Mhm.
+>> traffic source under browse features, >> Cuz you can expand it and see each individual traffic
+source. >> I encourage you to spend time looking at that because it does give you one slice of
+metrics that is not uh primarily influenced by an algorithm. >> Yeah. >> And so, you can kind of see
+how one audience, your subscribers, is reacting to that to your upload, and you
+
+[36:19] can look relative to other videos um at the click-through rate and the watch time and things
+like that to get a better sense of you know, the audience isn't really that different from video to
+video in your subscribers feed. It's always your subscribers. And so look at that to kind of get a
+sense you know, if you see that people are clicking less, it's probably something to do with the
+content and not who the video was targeted to because the targeting isn't changing. So, yes,
+
+[36:50] you can learn can you can learn that's kind of a clean way to isolate the content from the
+algorithm. Now, one thing you'll notice while you're in there is probably all your videos have about
+maybe a 10% or less click-through rate. >> Yeah. >> That means that even your best videos 90% of the
+time your subscribed audience isn't deciding to watch. >> The people who press subscribe and then
+went deliberately to the subscriber feed to look.
+
+[37:20] >> Yeah. So, that says a few things. One is that the signal of subscribe isn't as strong as
+a lot of people think because it doesn't mean I'm going to watch it 100%. It might mean I'm going to
+watch it 10%. Um another thing it tells you is that that's normal. >> Yeah. >> It's normal for an
+audience that has been interested in your channel to not be interested in every upload. So, if you
+think that like your subscribers subscribers aren't aren't going to click on a video,
+
+[37:51] well, your subscribers aren't going to click on most of your videos. >> And so don't worry
+so much. We already know how to deal with the fact that 90% plus plus of even a loyal previously
+loyal audience isn't going to resonate with every video. And so, we've built the system to find the
+subset of subscribers and fans who who are going to be interested in each video. So, don't over
+index on
+
+[38:21] the aggregate stats. >> Yeah. I I love that we also have new casual and and regular viewers
+now because I think when you see, let's say 10,000 or 100,000 views per video, you just start to
+think it's the same 10,000 or the same 100,000 or the same million people watching every video, but
+when I looked at that stat, it turns out it was a lot of very different people watching each video.
+The number of people who actually did watch a high percentage of videos was very low. >> Yeah, I
+think creators also just underestimate how much other channels >> Yeah.
+
+[38:53] >> their fans watch and that the portion of their audience that watches every video is so
+tiny. >> Todd, I could literally talk to you for the next 8 hours, but I know we have to get you
+back to work hand serving every video to every recommendation on YouTube. >> also know that creators
+need to get back to work. They don't have all day to listen to me talk and, you know, we say focus
+on your audience, uh, not the algorithm. So, hopefully this helped you
+
+[39:23] get your algorithmic fix for now and, uh, you can go back to focusing on your audience. >>
+And you know the drill. Comments, questions, thoughts, drop them all below and keep it real.

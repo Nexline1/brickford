@@ -102,7 +102,11 @@
   "spch100.11.1": "2byPP_9F0-Q",
   "spch100.11.2": "sb3-tuDwhJ0",
   "spch100.11.3": "-bpcK9qonPE",
-  "spch100.11.4": "7eosJwqoDaY"
+  "spch100.11.4": "7eosJwqoDaY",
+  "spch100.12.0": "rHLjxrbXmmY",
+  "spch100.12.1": "wZBLDOpimG0",
+  "spch100.12.2": "_tWy-_otnUc",
+  "spch100.12.3": "WpghnKjBBG8"
  },
  "corrections": [
   "2026-10-09, before merge: spch100.10.1 and spch100.10.2 had been installed with IPf0dfZXJG4 and hCf3dHd8_i8, which were already installed at spch100.2.1 and spch100.2.6 (a duplicate would have counted 65 minutes twice). Unit XI never left the T-037 branch, so no progress can exist under those keys; spch100.10.1 now names Jb3V1bYX3sU (formerly 10.3) and 10.2/10.3 were removed. verify-content now also fails on any video installed twice. This is the only edit; every other line was appended."

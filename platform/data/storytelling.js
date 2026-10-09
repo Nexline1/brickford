@@ -212,6 +212,15 @@ DAR.COURSES.push({
         { t: "Shorts in depth — but/so, visible progress, the last word", v: "7eosJwqoDaY", min: 41 },
       ],
     },
+    {
+      name: "Unit XIII — Retention and analytics: reading what the audience did",
+      lessons: [
+        { t: "How recommendations work — pulled for each viewer, not pushed", v: "rHLjxrbXmmY", min: 40 },
+        { t: "Reading a retention graph — five shapes", v: "wZBLDOpimG0", min: 5 },
+        { t: "Shorts metrics — viewed versus swiped, valued watch time", v: "_tWy-_otnUc", min: 44 },
+        { t: "Where a strategist looks first", v: "WpghnKjBBG8", min: 4 },
+      ],
+    },
   ],
 });
 
@@ -3950,6 +3959,168 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Without one, viewers feel there's no end in sight." },
       { q: "Where should the answer to the hook's question come?", opts: ["In the first five seconds", "In the middle", "As the very last word", "In the description"], a: 2,
         expl: "Once they have the answer, they leave." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XIII — B2, retention and reading your analytics (budget 1.5 h).
+// Mostly from YouTube itself: its head of recommendations and its Shorts
+// product lead, both interviewed by the creator liaison, plus a short guide
+// to the shapes of a retention graph and a strategist's first look at a
+// channel. The point the module exists for: reading your own graph is a
+// skill, and the numbers are compared with your own videos, not anyone else's.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.12.0": {
+    module: "B2",
+    mechanic: "Todd Beaupré, who leads YouTube's recommendations, says the system pulls videos for each viewer at the moment they open the app rather than pushing a video out — so there is no single magic metric, and creators learn most by comparing their own videos with each other and listening to their audience.",
+    rules: [
+      "Recommendations are pulled per viewer and per moment — device, time of day, history. Each viewer gets a different ranking for the same video.",
+      "Early viewers aren't only subscribers, and a video isn't judged on its first hour. Evergreen videos often get most of their views a month or more later.",
+      "There is no single metric: click-through rate, absolute and relative watch time, likes, dislikes, comments and viewer surveys are combined, weighted differently on a TV than on a phone.",
+      "Read your analytics relatively: compare a video with your others of similar length, and look for where its retention drops against your norm. Then listen to the audience, not only the numbers.",
+      "The subscriptions-feed traffic source is a clean slice — the audience is the same every time, so a lower click-through there points at the content. Around 10 per cent is normal even for your best videos.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Open the analytics for your last five videos or posts. For each, write the average percentage viewed, the click-through rate, and where the biggest drop in retention is. Rank them against each other, not against anyone else's numbers." },
+    check: "You can name one thing your best-retained video did that your worst did not. If your notes only say 'the algorithm', look again.",
+  },
+
+  "spch100.12.1": {
+    module: "B2",
+    mechanic: "A creator coach walks through the five shapes in YouTube's retention report — flat line, gradual decline, spikes, dips and the typical-retention band — and what each tells you to change in the next video.",
+    rules: [
+      "Flat line: viewers stayed for the whole section. He suggests keeping value constant, with a change of some kind every 8–12 seconds.",
+      "A gradual decline is normal; a steep one is pacing. Cut filler so every section answers 'why should I keep watching?'",
+      "Spikes are rewinds and rewatches — study what happened there and do more of it.",
+      "Dips are exits and skips: tangents, slow explanations, weak transitions. Watch the section yourself at 1.5x; if it drags for you, it drags for them.",
+      "The grey band is your typical retention for your last ten videos of similar length. Aim to stay above your own band, and apply the lessons to the next video rather than re-editing old ones.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Take the retention graph of one video (or sketch one for a talk you gave). Mark its biggest dip and its best spike, and write one sentence on what was happening at each." },
+    check: "Each mark has a specific cause written beside it ('I explained the tool before showing the result'), not a guess like 'people got bored'.",
+  },
+
+  "spch100.12.2": {
+    module: "B2",
+    mechanic: "YouTube's Shorts product lead Todd Sherman and creator Jenny Hoyos agree on how to read a short: check viewed-versus-swiped first (that's the hook), then retention and rewatching — because the system estimates whether people valued their time, and allows for length.",
+    rules: [
+      "When a short underperforms, compare its viewed-versus-swiped-away with your last ten. Most of the time the hook lost them.",
+      "Hook in the first frame: a shock (ideally visual), then what the video is about, then what they will get by the end — and deliver it.",
+      "Watch time is a proxy for value, and YouTube adds surveys to estimate valued watch time, allowing for duration — so a great 15-second short can compete with a 60-second one. Rewatchability helps the short ones.",
+      "Correlate your own numbers. Hoyos's team found that on her channel views tracked viewed-versus-swiped, retention and rewatching — not likes, comments or shares.",
+      "Make each format on purpose; a short is not a cut-down long video. Trends are an easy start, and Hoyos makes hers evergreen by tying them to things every human does.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "List your last ten shorts or posts with one number each for the hook (viewed-versus-swiped, or how many stayed past the first seconds on other platforms). Take the lowest two and rewrite their openings: shock, what it's about, what they get at the end." },
+    check: "Your rewrites change the first second, not the ending. If you rewrote the payoff, you fixed the wrong end.",
+  },
+
+  "spch100.12.3": {
+    module: "B2",
+    mechanic: "Paddy Galloway, a YouTube strategist, starts every channel review with views over time and the top videos, brainstorms ways to repeat, 'staircase' or adapt what worked, and checks which other channels and videos the client's audience watches.",
+    rules: [
+      "Start simple: views over time and the most-viewed videos. What about that period, or that video, made it work?",
+      "Brainstorm 10–30 ideas that take what worked and repeat it with a twist, staircase it (take it up a level), or adapt it to a new format.",
+      "Don't fear repeating yourself. Average views per viewer shows that only a tiny share of your audience watches most of your videos.",
+      "Match time to impact. If the title and thumbnail drive something like 40 per cent of performance, spending 1 per cent of your time on them is a misallocation; he suggests 10–15 per cent.",
+      "Look at the other channels and videos your audience watches, and which videos send you suggested traffic. That shows the cluster you are really in.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "List your three best-performing posts or talks. For each, write one 'repeat with a twist', one 'staircase' and one 'new format' idea — nine ideas in all." },
+    check: "At least one of the nine is something you would have rejected as 'already done'. That is the point of the exercise.",
+  },
+});
+
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.12.0": {
+    takeaway: "YouTube's head of recommendations, Todd Beaupré, with creator liaison Rene Ritchie: the algorithm doesn't push your video out; it pulls the best videos for each viewer at the moment they open the app. Focus on audiences, compare your videos with each other, and stop reading the first hour.",
+    beats: [
+      { t: "Pull, not push", d: "Candidates are found and ranked for each viewer at that moment, using history and context." },
+      { t: "Not a subscriber test", d: "Even in the first hour, videos reach people who have never watched the channel; the system learns per audience." },
+      { t: "No magic number", d: "Click-through, absolute and relative watch time, surveys, likes, dislikes and comments — weighted differently by device." },
+      { t: "Puddles don't cause rain", d: "Longer videos rise because people watching on TV want them; the algorithm follows the audience." },
+      { t: "Channels as brands", d: "Same diners, same restaurant; a different value proposition deserves a different brand — and the system copes either way." },
+    ],
+    worked: "Ritchie's own channel: a big phone review could count on hundreds of thousands of views, an accessibility video a few thousand. Not a penalty — a smaller audience for the topic, like an arthouse film next to a blockbuster. Judge each against its own kind.",
+    watch: "Over-reading the first hours. Someone on a phone clicks a notification at once; someone saving an hour-long video for the TV watches it at night or at the weekend.",
+    concepts: [],
+    checks: [
+      { q: "How does Beaupré describe the way recommendations work?", opts: ["Each new video is pushed to subscribers first", "Candidate videos are pulled and ranked for each viewer when they open YouTube", "Videos are ranked once, globally", "The newest videos are shown first"], a: 1,
+        expl: "Each viewer gets a different ranking." },
+      { q: "What does he say about which metric matters most?", opts: ["Click-through rate", "Watch time", "No single metric; many are combined and weighted by context", "Likes"], a: 2,
+        expl: "No metric on its own is a good indicator of value." },
+      { q: "Why is the subscriptions-feed traffic source useful to a creator?", opts: ["Its audience is the same for every video, so differences point at the content", "It has the most views", "It ignores retention", "It shows revenue"], a: 0,
+        expl: "A clean way to separate the content from the algorithm." },
+    ],
+  },
+
+  "spch100.12.1": {
+    takeaway: "Five shapes in a retention graph, and what each one says: flat is good, gradual is normal, spikes are gold, dips are exits — and the typical-retention band shows whether you beat your own average.",
+    beats: [
+      { t: "Flat line", d: "Viewers locked in for that section." },
+      { t: "Gradual decline", d: "Normal — unless it's steep, which points at pacing." },
+      { t: "Spikes", d: "Rewinds, rewatches, shares. Find out what caused them." },
+      { t: "Dips", d: "Tangents, slow explanations, weak transitions." },
+      { t: "Typical band", d: "Your last ten videos of similar length; stay above it." },
+    ],
+    worked: "His forward-looking plan: open past videos, screenshot the graphs, note the biggest dips and best spikes, leave the old videos alone, and apply the lessons to the very next upload.",
+    watch: "Treating one number as the whole story. He calls retention YouTube's 'number one signal'; YouTube's own head of recommendations says no single metric decides. His 50 and 60 per cent benchmarks are his opinion, not YouTube's.",
+    concepts: [],
+    checks: [
+      { q: "What does a spike in the retention graph usually mean?", opts: ["People rewound, rewatched or shared that moment", "People left", "An ad played", "The video ended"], a: 0,
+        expl: "Study it and recreate it." },
+      { q: "What is the grey band in the typical-retention view?", opts: ["Your subscribers' retention", "YouTube's average for all videos", "Your typical retention for recent videos of similar length", "The ad breaks"], a: 2,
+        expl: "Your own baseline, not anyone else's." },
+      { q: "What is his fix for a dip?", opts: ["Add a longer intro", "Cut or speed up that kind of section in future videos", "Re-upload the video", "Add hashtags"], a: 1,
+        expl: "If it feels slow at 1.5x, it is slow." },
+    ],
+  },
+
+  "spch100.12.2": {
+    takeaway: "A Creator Insider conversation between YouTube's Shorts product lead, Todd Sherman, and Jenny Hoyos. Short form serves snackable moments; the system estimates whether people valued their time; and viewed-versus-swiped is the first number to check when a short underperforms.",
+    beats: [
+      { t: "Snackable", d: "A short competes with a quick game, an article, even one crossword clue — anything that fills a minute." },
+      { t: "An hour per second", d: "Hoyos's process: ideas from things every human does, five story cuts, the edit as a jigsaw." },
+      { t: "Valued watch time", d: "Surveys help estimate whether time was valued, allowing for length; rewatchability helps short shorts." },
+      { t: "Her correlation check", d: "On her channel, time-based metrics tracked views; likes, comments and shares did not." },
+      { t: "Thumbnails", d: "Feed viewers never see them; the channel page and sponsors do." },
+    ],
+    worked: "When a creator asks Sherman why a short flopped, he pulls up their last ten videos side by side. Almost always, the one in question had a much higher swiped-away share — the hook didn't land.",
+    watch: "Generalising from one channel. Hoyos's finding about likes and shares is a correlation on her own data; Sherman's point is that the system combines every signal, weighted by how well each predicts enjoyment.",
+    concepts: [],
+    checks: [
+      { q: "What is the first metric Sherman checks when a short underperforms?", opts: ["Likes", "Viewed versus swiped away", "Subscriber count", "Comments"], a: 1,
+        expl: "Usually the hook didn't get them." },
+      { q: "What is 'valued watch time'?", opts: ["An estimate, using surveys among other things, of whether viewers valued the time they spent", "Watch time on paid content", "Time spent choosing a thumbnail", "The average length of all shorts"], a: 0,
+        expl: "It goes beyond raw watch time." },
+      { q: "Why do Hoyos's shorts still get thumbnails?", opts: ["They drive most feed views", "The algorithm requires them", "For the channel page and for showing past work to brands", "To hide spoilers"], a: 2,
+        expl: "Feed viewers decide from the video itself." },
+    ],
+  },
+
+  "spch100.12.3": {
+    takeaway: "Paddy Galloway, interviewed by YouTube's creator liaison: the first thing he looks at is views over time and the top videos. What worked can be repeated, staircased or adapted — and almost nobody watches enough of your channel to notice.",
+    beats: [
+      { t: "Views over time", d: "Which periods performed, and what about them led to it." },
+      { t: "Top videos, new ideas", d: "Brainstorm 10–30 ideas from what made the winners work." },
+      { t: "Average views per viewer", d: "A tiny share of viewers watch any significant portion of your videos." },
+      { t: "Click versus delivery", d: "Roughly 40 per cent the packaging, 60 per cent whether the video delivered." },
+      { t: "Your real cluster", d: "Other channels your audience watches, and where suggested traffic comes from." },
+    ],
+    worked: "A client spends perhaps 1 per cent of their time on the title and thumbnail when those may account for around 40 per cent of a video's performance. His suggestion isn't 40 per cent of the time — it's 10 or 15.",
+    watch: "Ticking an idea off as done. Galloway asks whether a winning idea can be repeated with a twist, or taken up a level, before moving on.",
+    concepts: [],
+    checks: [
+      { q: "What does Galloway look at first on a new client's channel?", opts: ["Views over time and the most-viewed videos", "Comments", "Thumbnail colours", "Upload schedule"], a: 0,
+        expl: "Correlation spreadsheets come later." },
+      { q: "What does 'staircasing' an idea mean?", opts: ["Repeating it identically", "Taking a proven idea up another level", "Splitting it into parts", "Posting it at a different time"], a: 1,
+        expl: "Alongside repeating with a twist and adapting to a new format." },
+      { q: "Why does he check the other channels your audience watches?", opts: ["To copy them exactly", "To report them", "To find the cluster of YouTube you are really in, and ideas your audience already likes", "To choose collaborators only"], a: 2,
+        expl: "You may be in a different cluster than you thought." },
     ],
   },
 });

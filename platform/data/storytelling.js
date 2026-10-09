@@ -126,6 +126,23 @@ DAR.COURSES.push({
         { t: "Being funny in another language", v: "SP8YSgUkCh0", min: 46 },
       ],
     },
+    {
+      name: "Unit VII — Humour you can build: structure, filters, the funny story",
+      lessons: [
+        { t: "What makes things funny — the benign violation", v: "ysSgG5V-R3U", min: 12 },
+        { t: "Funny versus comedy — flawed people doing their best", v: "Qs5GHa4pG24", min: 7 },
+        { t: "Joke structure — the one thing with two meanings", v: "Lo4cGaknU40", min: 12 },
+        { t: "Three kinds of setup", v: "Qv1ACVimrfQ", min: 4 },
+        { t: "The late-night formula — two lists and a link", v: "_ODsLIMSBq0", min: 4 },
+        { t: "Eleven funny filters", v: "7kl9DWY9gPQ", min: 8 },
+        { t: "Making writing funnier — flaws, details, zig zig zag", v: "zNTxSBgDNp4", min: 5 },
+        { t: "How Seinfeld writes a bit", v: "itWxXyCfW5s", min: 5 },
+        { t: "A little story, how you feel about it, zoom out, tag", v: "mucrIfbz_b4", min: 5 },
+        { t: "The levity list — exaggeration, contrast, rule of three", v: "iC_2VBWTALg", min: 29 },
+        { t: "Three ways to add humour to a speech", v: "dj6q7fuAkT0", min: 5 },
+        { t: "Stand-up techniques for people who are not comedians", v: "oZmn7OTv6Go", min: 55 },
+      ],
+    },
   ],
 });
 
@@ -1720,6 +1737,463 @@ Object.assign(DAR.SUMMARIES, {
         expl: "He rehearses the act he has been improvising with his tutors." },
       { q: "What does 'local jokes get local laughs' mean?", opts: ["References only one place understands only work in that place", "You should only perform locally", "Local audiences laugh more", "Jokes about places are always funny"], a: 0,
         expl: "Material that relies on shared human experience travels further." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VII — A5, humour construction (budget 3.0 h). Theory first (Peter
+// McGraw, Steve Kaplan), then the joke itself (Greg Dean, the late-night
+// two-list formula, Scott Dikkers' filters, a TED-Ed lesson), then bits
+// and stories (Seinfeld, Birbiglia), then humour pointed at talks and
+// speeches (Aaker and Bagdonas, a speaking coach on best-man speeches,
+// David Nihill at Google). The weighting toward humour went mostly to A6:
+// the long A5 sources found were auto-captioned interviews over 45 minutes,
+// which the transcript tool cuts off, and none is installed unread.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.6.0": {
+    module: "A5",
+    mechanic: "Humour happens when something seems wrong (a violation) and at the same time seems OK (benign) — so a joke that is not landing usually needs either more wrongness or more safety.",
+    rules: [
+      "Three conditions, all at once: a violation of how things ought to be, a reason it is benign, and both appraisals together.",
+      "A violation becomes benign if the audience is not strongly committed to the broken norm, if it is psychologically distant, or if there is another reading that makes it OK — like play-fighting.",
+      "Purely benign is not funny (you cannot tickle yourself). A pure, malign violation is not funny either.",
+      "Distance works both ways: big violations get funnier with distance (tragedy plus time); small ones get funnier up close ('you had to be there').",
+      "Match your style. If you are brash, soften the violation (McGraw's Silverman strategy). If you are mild, sharpen it by pointing out what is wrong with everyday things (the Seinfeld strategy).",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take one mildly annoying moment from your week. Write it three ways: with the violation removed (just the facts), as a benign violation (the wrong thing plus why it is OK), and as a malign one (too close or too cruel). Underline what makes the middle one safe." },
+    check: "You can name the violation and the specific thing that makes it benign — distance, low commitment, or another reading. If you cannot name both, it is not a benign violation yet.",
+  },
+
+  "spch100.6.1": {
+    module: "A5",
+    mechanic: "Funny is whatever makes you laugh, but comedy is something bigger: telling the truth about flawed people — an unusual person in an ordinary situation, or an ordinary person in an unusual one — trying their best in a world that is too hard for them.",
+    rules: [
+      "Funny is personal. If you are not laughing, it is not funny to you, whatever the reviews say.",
+      "Comedy is a wider category than 'jokes'. It can hold sadness and even tragedy, as long as the people are flawed and trying.",
+      "Drama helps people dream about who they could be; Kaplan says comedy helps people live with who they are.",
+      "Kaplan's taste: he avoids comedy that punches down at less powerful people, and unmotivated slapstick without a human story behind it.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Pick a story where you were out of your depth. Write two sentences: your flaw or blind spot in that moment, and what you were trying, sincerely, to achieve. Then write the moment where the flaw and the effort collide." },
+    check: "The collision moment has you trying hard — not being stupid on purpose. If you are mocking your past self, you have a joke at your expense, not a comic story.",
+  },
+
+  "spch100.6.2": {
+    module: "A5",
+    mechanic: "A joke has two parts joined by a connector — one thing with two meanings: the setup leads the audience to an expected meaning (the target assumption), and the punch reveals the unexpected one, so identifying, fixing and writing jokes all start by finding that connector.",
+    rules: [
+      "To identify a joke, find the one thing with two meanings. A page of material may contain only one joke.",
+      "To fix a joke, strip out everything that does not serve it — Dean quotes Patton Oswalt — and cut the rationalisations (why you went on holiday, why you were there).",
+      "Do not repeat the expected meaning in the punch. The audience already supplied it.",
+      "To write jokes (Dean's 'joke mine'): take a setup, name the expected meaning, find the words that caused it, list unexpected meanings, and write a punch for each.",
+      "'For Father's Day I took my father out' — took out can mean dinner, kill, hit, remove, or date. Each meaning is a different punch.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Write one setup from your own life. Name the expected meaning and the exact word that causes it. List five other meanings of that word and write a one-line punch for three of them. Then cut the best one to the fewest words that still work." },
+    check: "Every punch reinterprets the same connector word, and the final version has no word you could delete without losing the joke.",
+  },
+
+  "spch100.6.3": {
+    module: "A5",
+    mechanic: "Setups come in three kinds: a performed setup that misdirects, shared knowledge the audience already has, and observation, where both halves are already in the audience's head and the comedian just puts them together.",
+    rules: [
+      "Performed setup (the one-liner): the comedian says it, and its job is to create a clear target assumption for the punch to shatter.",
+      "Shared knowledge: the setup lives in the audience's head — satire, parody, the news. If they do not have it, the joke means nothing.",
+      "Before using shared knowledge, check that this room actually has it.",
+      "Observation: both parts are already known, and the comedian's work is noticing them together — Carlin's dog hates you blowing in its face but sticks its head out of the car window.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Write one example of each kind from your own world: a one-liner with a performed setup, a line that relies on something your colleagues all know, and an observation of two things everyone has seen but nobody has connected." },
+    check: "For the shared-knowledge line, name the group that would not get it. For the observation, both halves are things your audience has really seen.",
+  },
+
+  "spch100.6.4": {
+    module: "A5",
+    mechanic: "Late-night writers mass-produce topical jokes with a method: take a story with two subjects, free-associate a list for each, find a pair of items with a surprising logical link, and then reach that link from the setup with a who/what/where/why/when/how question.",
+    rules: [
+      "Two laugh triggers drive it: surprise, and two very different things joined by a hidden similarity.",
+      "The setup can be any story that contains two subjects the audience cares about.",
+      "Write a list of associations for each subject, then look across the two lists for a link that fires as many laugh triggers as possible.",
+      "Get from the setup to the link by asking the W questions ('What did robot Trump do at Disney World?').",
+      "If your lists are long enough, you will find an angle other writers did not.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick a small piece of news from your industry that involves two subjects. Write ten associations for each in two columns. Draw lines between three surprising pairs and turn the best pair into a two-line joke using a W question." },
+    check: "The joke's punch uses one item from each column, and someone outside your industry could follow the setup.",
+  },
+
+  "spch100.6.5": {
+    module: "A5",
+    mechanic: "Scott Dikkers sorts the ways things get funny into filters — irony, character, shock, hyperbole, wordplay, reference, madcap, parody, analogy, misplaced focus and meta — so when an idea is flat you can run it through a different one.",
+    rules: [
+      "Irony: say the opposite of what you mean and commit to it straight.",
+      "Character: give someone two clear traits and show them acting on both at once.",
+      "Hyperbole works best when it is exaggerated past the possible (Rodney Dangerfield's urine test with an olive in it). Shock works, but use it sparingly.",
+      "Reference is just noticing a small shared moment nobody has pointed out. Analogy finds many connection points between two unrelated things.",
+      "Misplaced focus draws attention to what matters by obsessing over something trivial. Meta makes fun of humour itself.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take one plain opinion you hold ('I hate long meetings'). Rewrite it through four filters: irony, hyperbole, analogy and misplaced focus. Read them aloud and mark the one that sounds most like you." },
+    check: "Each version is clearly a different filter — the hyperbole is impossible, not just big, and the irony is played completely straight.",
+  },
+
+  "spch100.6.6": {
+    module: "A5",
+    mechanic: "A TED-Ed lesson on finding the funny: specific details answer who, what, when, where, why and how; comic characters come from finding a flaw and playing it up; and small tools — incongruity, 'what if', the rule of three and the punch word at the end — make the lines land.",
+    rules: [
+      "The more specific the details, the funnier the story. Vague details give the listener nothing to picture.",
+      "For a comic character, find the flaw and play it up — or play with opposites, like the genius doing the stupidest thing.",
+      "Find incongruities by mind-mapping from one word, then shift from what is to what if.",
+      "Zig, zig, zag: set up a pattern of two and break it on the third. Put the punch word at the end of the line.",
+      "Comedy is trial and error, and writing is rewriting.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write one paragraph about something that irritated you this week. Rewrite it with three specific details (brand names, numbers, exact words said), one list of three that breaks on the third item, and the funniest word moved to the end of its sentence." },
+    check: "Every vague noun in the first version has become a specific one, and the last word of the key sentence is the funny word.",
+  },
+
+  "spch100.6.7": {
+    module: "A5",
+    mechanic: "Seinfeld builds a bit like a song: a funny first line, words chosen because they are funny, tight connections between jokes, syllables counted, and the biggest laugh saved for the end.",
+    rules: [
+      "Start with something you think is funny and go from there. He likes the first line to be funny straight away.",
+      "Choose words for their sound and picture: in 'chimps in the dirt playing with sticks', four of seven words are funny.",
+      "Link jokes with connective tissue as tight as a jigsaw. If a transition is a split second too long, shave letters and count syllables.",
+      "In a long bit, the biggest laugh has to come at the end, not the middle — and the ending is the hardest part.",
+      "He writes longhand, and will spend years on one bit about nothing.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Take a funny story you tell. Write the first line so it is funny on its own. Go through the rest and circle the words that are funny to say; replace two dull words with funnier, more specific ones. Then reorder so the biggest laugh comes last." },
+    check: "Reading it aloud, there is nothing between the last laugh and the end — no explanation, no 'anyway'.",
+  },
+
+  "spch100.6.8": {
+    module: "A5",
+    mechanic: "Mike Birbiglia's structure for funny stories, from advice Ira Glass gave him: tell a little of the story, then say how you feel about it, then a bit more story — the jokes live in how you feel — and finish by zooming out to what it means before zooming back in for a final tag.",
+    rules: [
+      "Alternate story and feeling. Comedians' strength is how they feel about things.",
+      "Audiences want to know there is an ending, and that you are a little different after the story than before.",
+      "Know where it begins and where it ends, put in as many jokes as the audience will let you, and skip to the ending if you lose them.",
+      "Hook them, keep pulling them forward, then zoom out to what this says about life — and zoom back in for a tag that buttons it up.",
+      "Talk about what you actually care about. That is the only thing that is interesting.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Tell a two-minute story aloud using the rhythm: one beat of story, one line of how you felt about it, repeat three times. Then add one zoom-out line (what this says about you or people) and one tag that returns to a detail from the story." },
+    check: "At least three of your 'how I felt' lines are specific and honest, and the tag refers back to something concrete — not a moral.",
+  },
+
+  "spch100.6.9": {
+    module: "A5",
+    mechanic: "Jennifer Aaker and Naomi Bagdonas: humour rests on truth and misdirection, so start by noticing — a levity list of three odd things a day — then run any observation through exaggeration, contrast, or the rule of three.",
+    rules: [
+      "They describe a 'humour cliff': people laugh far less once they start work, partly because they believe they must be serious to be taken seriously.",
+      "Keep a levity list: for ten days, write down three funny, odd or interesting things at the end of each day.",
+      "Exaggeration: push an observation to an extreme ('I can't remember how we used to put on trousers').",
+      "Contrast: put the upside next to an absurd downside of the same thing.",
+      "Rule of three: two normal items, then the funny one ('hallway chats, eye contact in meetings, and trousers').",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write today's three entries for a levity list. Take the best one and write it three ways: as an exaggeration, as a contrast, and as a rule-of-three list with the odd item last." },
+    check: "Each version is true at its core. If you had to invent a fact to make it funny, go back to the observation.",
+  },
+
+  "spch100.6.10": {
+    module: "A5",
+    mechanic: "Three techniques anyone can put into a speech, shown in real best-man speeches: misdirection (lead one way, turn at the end), exaggeration (stretch a true trait past belief), and self-deprecation in small doses.",
+    rules: [
+      "Misdirection: 'such a wonderful, once-in-a-lifetime achievement… I've graduated law school.' The audience assumed the wedding.",
+      "Exaggeration: he had the wedding website up before he met her. The trait (planning) is true; the scale is not.",
+      "Self-deprecation by contrast: his friends tell stories about good deeds; mine are about the goat we stole.",
+      "Do not let self-deprecation become self-loathing. Too much of it makes the audience feel sorry for you instead of laughing.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write a three-line toast for a friend or colleague: one line of misdirection, one exaggeration of a real trait of theirs, and one self-deprecating contrast. Keep it under sixty seconds aloud." },
+    check: "The exaggerated trait is one everyone in the room would recognise, and the self-deprecating line makes you look human, not hopeless.",
+  },
+
+  "spch100.6.11": {
+    module: "A5",
+    mechanic: "David Nihill, who spent a year pretending to be a comedian to beat his fear of speaking: go for fun before funny by building talks on your own stories, then use comedians' techniques — a relatable setup, the funny word last, the rule of three as one-two-four — and plan your ending so it is not killed by silence.",
+    rules: [
+      "Keep a funny-story file. Prompts: most embarrassing moment, first date, teaching your parents video calls, the wrong word in a new language, first day at work, strangest customer.",
+      "Make the opening relatable to the whole room ('being somewhere new can be uncomfortable…') before the specific story.",
+      "Setup, punchline, tag — and move the funny word to the end of the sentence, then stop and let them laugh. 'The end of laughter is the height of listening.'",
+      "Rule of three as one, two, four: two items create a pattern, the third breaks it.",
+      "Take questions before your conclusion, so you control the ending. If a joke fails, acknowledge it and move on.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick one story from the prompts and write its opening line so it applies to everyone in the room. Then write the key funny sentence twice: once as you would normally say it, once with the funny word moved to the very end." },
+    check: "In the rewritten sentence, nothing comes after the funny word. If you keep talking after it, you are stepping on your own laugh.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.6.0": {
+    takeaway: "Peter McGraw's benign violation theory, from the Humor Research Lab at Boulder: something is funny when it seems wrong and OK at the same time. That explains what is funny, what is not, and how to adjust a joke that misses.",
+    beats: [
+      { t: "The trigger", d: "His talk about moral violations got laughs instead of disgust — a church raffling off a Hummer — and he set out to explain why." },
+      { t: "Three conditions", d: "A violation, a reason it is benign, and both at once." },
+      { t: "Making it benign", d: "Low commitment to the norm, psychological distance, or another reading (play-fighting, tickling)." },
+      { t: "Not funny, two ways", d: "Purely benign is dull; purely malign is upsetting. Falling down stairs unhurt is funny; badly hurt is not — unless it happens to someone else." },
+      { t: "Distance cuts both ways", d: "Big violations need distance; small ones get funnier closer up. The Silverman strategy softens; the Seinfeld strategy sharpens." },
+    ],
+    worked: "His opening — 'turn to a stranger and start tickling them' — was a violation (wrong to ask), made benign by the audience (open-minded), distance (in the future), and another reading (it is a talk about humour).",
+    watch: "Fixing a flat joke by adding more edge when the real problem is that nobody feels safe. Ask which side is missing: the wrong, or the OK.",
+    concepts: [],
+    checks: [
+      { q: "According to the benign violation theory, when does humour occur?", opts: ["Whenever something is surprising", "When a situation is a violation and benign at the same time", "When the audience feels superior", "When a joke has three parts"], a: 1,
+        expl: "Both appraisals have to happen together." },
+      { q: "Why can't you tickle yourself, in McGraw's terms?", opts: ["Your skin adapts", "It is a malign violation", "There is no violation — it is purely benign", "You laugh too early"], a: 2,
+        expl: "Without any threat there is nothing to be funny." },
+      { q: "Which of these is NOT one of the ways he lists to make a violation benign?", opts: ["Making it louder", "Low commitment to the violated norm", "Psychological distance", "An alternative interpretation that makes it OK"], a: 0,
+        expl: "Volume is not part of the theory." },
+    ],
+  },
+
+  "spch100.6.1": {
+    takeaway: "Steve Kaplan, who teaches comedy writing: funny is anything that makes you laugh, but comedy is the truth about flawed people trying to cope with a world that is too hard for them — which is why it can hold sadness.",
+    beats: [
+      { t: "A wider envelope", d: "The Apartment is sad, with an attempted suicide in it, and still a comedy, because its people are flawed and trying." },
+      { t: "Dream versus live", d: "Drama helps us dream about who we could be; comedy helps us live with who we are." },
+      { t: "Funny is personal", d: "If you are not laughing, it is not funny to you — like jangling keys for a baby." },
+      { t: "The definition", d: "Unusual characters in a typical situation, or typical characters in an unusual one, trying to deal with it." },
+      { t: "Taste", d: "He does not care for comedy that punches down, or for slapstick with no human story behind it." },
+    ],
+    worked: "Turn a story where you looked foolish into comedy by showing what you were sincerely trying to do. The laugh comes from the gap between the effort and the result, not from you calling yourself an idiot.",
+    watch: "Confusing 'getting a laugh' with comedy. Jangling keys gets a laugh; nobody would spend a year writing it.",
+    concepts: [],
+    checks: [
+      { q: "How does Kaplan distinguish 'funny' from 'comedy'?", opts: ["They are the same thing", "Comedy must have jokes; funny does not", "Funny is whatever makes you laugh; comedy is telling the truth about flawed people trying to cope", "Funny is for film; comedy is for stage"], a: 2,
+        expl: "His example is a baby laughing at keys — funny, not comedy." },
+      { q: "Why does he call The Apartment a comedy even though it is sad?", opts: ["Its people are flawed and doing their best in a world that is too hard for them", "It has a happy ending", "It was marketed as one", "It has slapstick scenes"], a: 0,
+        expl: "Comedy can hold sadness and even tragedy." },
+      { q: "What does he say comedy helps people do, compared with drama?", opts: ["Escape reality", "Learn facts", "Dream of who they could be", "Live with who they are"], a: 3,
+        expl: "Drama is about who we could be." },
+    ],
+  },
+
+  "spch100.6.2": {
+    takeaway: "Greg Dean, who has taught stand-up since 1982: a joke turns on one thing with two meanings. Find it to identify the joke, strip everything that does not serve it to fix the joke, and mine its other meanings to write new ones.",
+    beats: [
+      { t: "Identify", d: "People bring him whole pages that contain one joke. Find the connector — the one thing with an expected and an unexpected meaning." },
+      { t: "Fix", d: "A divorce joke shrinks from three sentences to one by cutting 'long and messy', the holiday, and every rationalisation: 'After my divorce I had a sex change — from very seldom to not at all.'" },
+      { t: "Don't explain", d: "Never restate the expected meaning in the punch." },
+      { t: "Write: the joke mine", d: "Setup, expected meaning, the words that cause it, a list of other meanings, a punch for each." },
+      { t: "Volume", d: "Once you know the mechanism, okay jokes are easy. The hard part is the great ones that reveal something true, and that takes a lot of writing." },
+    ],
+    worked: "'For Father's Day I took my father out' — expected: to dinner. Mine 'took out': kill (with a 45), hit (with a right cross), remove (out of an urn), date (the goodnight kiss was awkward). Each meaning is a new punch.",
+    watch: "Writing around the joke. If you cannot point to the single word or phrase with two meanings, you do not yet know where your joke is.",
+    concepts: [],
+    checks: [
+      { q: "What is the 'connector' in Dean's joke structure?", opts: ["The pause before the punch", "One thing in the joke that has two meanings", "The tag after the punch", "The audience's laugh"], a: 1,
+        expl: "The setup leads to one meaning, the punch reveals the other." },
+      { q: "What does he say to strip out when fixing a joke?", opts: ["Everything that does not serve the joke, including rationalisations", "Only swear words", "The punch", "Any mention of yourself"], a: 0,
+        expl: "He quotes Patton Oswalt." },
+      { q: "In the 'joke mine', what do you list after finding the words that cause the expected meaning?", opts: ["Other topics", "Possible tags", "Other comedians' jokes", "Unexpected meanings of those words"], a: 3,
+        expl: "Each unexpected meaning leads to a different punch." },
+    ],
+  },
+
+  "spch100.6.3": {
+    takeaway: "Greg Dean's three kinds of setup: the performed one-liner setup that misdirects, shared knowledge already in the audience's head, and observation, where both setup and punch are already known and the comedian just connects them.",
+    beats: [
+      { t: "Performed", d: "The comedian says the setup. Its job is clear misdirection toward a target assumption." },
+      { t: "Shared knowledge", d: "Satire and parody depend on what the audience already knows. Without it, the joke means nothing." },
+      { t: "Check the room", d: "That is why comedians use news, TV and common experiences — and why they must know whether this audience shares them." },
+      { t: "Observation", d: "Both halves are known: dogs hate air blown in their faces, but stick their heads out of car windows. The comedian notices and presents the pair." },
+    ],
+    worked: "At a team offsite, a joke about last quarter's planning tool relies on shared knowledge — it works with your team and dies with a client.",
+    watch: "Using a shared-knowledge joke with a mixed audience. The people who do not have the reference feel shut out, not amused.",
+    concepts: [],
+    checks: [
+      { q: "What makes a 'shared knowledge' setup different?", opts: ["The comedian sings it", "It is always a pun", "The setup is already in the audience's mind, so the comedian only gives the punch", "It needs a prop"], a: 2,
+        expl: "Satire and parody rely on it." },
+      { q: "In an observational joke, where are the setup and the punch?", opts: ["Both are already in the audience's mind; the comedian connects them", "Only in the comedian's notes", "In the news", "In the previous joke"], a: 0,
+        expl: "Carlin's dog joke is his example." },
+      { q: "What is the purpose of a performed one-liner setup?", opts: ["To explain the joke", "To introduce the comedian", "To get a small laugh", "To create misdirection toward a target assumption"], a: 3,
+        expl: "The punch then shatters that assumption." },
+    ],
+  },
+
+  "spch100.6.4": {
+    takeaway: "How late-night writers produce a hundred topical jokes a day: pick a story with two subjects, free-associate a list for each, find a surprising link between the lists, and reach it from the setup with a who/what/where/why/when/how question.",
+    beats: [
+      { t: "No waiting for inspiration", d: "The volume needs an algorithm." },
+      { t: "Two triggers", d: "Surprise (setup and punch) and two unlike things joined by a hidden similarity." },
+      { t: "Two lists", d: "For the Disney robot-Trump story: one list about Trump, one about Disney." },
+      { t: "The link", d: "Trump deporting Aladdin — surprising, recognisable, and it fires several laugh triggers for that audience." },
+      { t: "The bridge", d: "'What did robot Trump do at Disney?' gets you from setup to punch." },
+    ],
+    worked: "Long lists give each show its own angle on the same story — one used deportation, another sent Jeff Sessions to the Country Bear Jamboree.",
+    watch: "Stopping at short lists. The first few associations are the ones every other writer has too.",
+    concepts: [],
+    checks: [
+      { q: "What are the two lists in the late-night formula?", opts: ["Good jokes and bad jokes", "Free associations for each of the two subjects in the story", "Setups and punchlines", "Facts and opinions"], a: 1,
+        expl: "The joke comes from linking an item from each list." },
+      { q: "How do writers get from the setup to the link they found?", opts: ["By asking who/what/where/why/when/how questions about the setup", "By adding a pun", "By reading it faster", "By adding a tag"], a: 0,
+        expl: "'What did robot Trump do at Disney World?'" },
+      { q: "Why do longer lists help?", opts: ["They make jokes longer", "They impress the head writer", "They avoid swearing", "They lead to links other writers did not find"], a: 3,
+        expl: "That is how shows find different angles on the same story." },
+    ],
+  },
+
+  "spch100.6.5": {
+    takeaway: "Scott Dikkers, founding editor of The Onion, on eleven 'funny filters' — irony, character, shock, hyperbole, wordplay, reference, madcap, parody, analogy, misplaced focus and meta — shown with Onion headlines.",
+    beats: [
+      { t: "Irony", d: "Take the opposite of your literal meaning, buy into it, and play it straight." },
+      { t: "Character", d: "Two traits shown together: a philandering string theorist who 'can explain everything'." },
+      { t: "Shock and hyperbole", d: "Shock is a cheap laugh; use it sparingly. The best hyperbole defies physics." },
+      { t: "Wordplay and reference", d: "Wordplay can be done well. Reference just points out a small shared moment nobody else has noticed — Seinfeld built a career on it." },
+      { t: "Madcap, parody, analogy", d: "Silliness as garnish; every Onion story parodies a news article; an analogy with many connection points (Al Gore as Superman's father) is a rich seam." },
+      { t: "Misplaced focus and meta", d: "Obsess over the trivial to highlight what matters; make fun of humour itself." },
+    ],
+    worked: "'Secondhand smoke linked to secondhand coolness' — misplaced focus: the real danger is ignored in favour of something unimportant, which makes you notice the danger.",
+    watch: "Leaning on shock because it is easy. It works in mixed company, but it is the cheapest filter, and a little goes a long way.",
+    concepts: [],
+    checks: [
+      { q: "How does Dikkers say irony works?", opts: ["Take the opposite of your literal meaning and play it completely straight", "Make a pun on a word", "Exaggerate until it is impossible", "Refer to another joke"], a: 0,
+        expl: "'I love soup' written as a sincere celebration of soup." },
+      { q: "What makes the best hyperbole, in his view?", opts: ["Small exaggerations", "Swearing", "Exaggeration past the point of physical possibility", "Quoting statistics"], a: 2,
+        expl: "His example is Rodney Dangerfield's olive." },
+      { q: "What is 'misplaced focus'?", opts: ["Looking at the wrong person", "Focusing on something trivial so the audience thinks about what really matters", "A camera technique", "Forgetting the punchline"], a: 1,
+        expl: "Secondhand smoke linked to secondhand coolness." },
+    ],
+  },
+
+  "spch100.6.6": {
+    takeaway: "A TED-Ed lesson by comedy writer Cheri Steinkellner: funny comes from specific details, characters with a flaw played up, incongruity found by mind-mapping and 'what if', and small tools like zig-zig-zag and the punch word last.",
+    beats: [
+      { t: "Did you ever notice", d: "Much comedy is noticing the ordinary things nobody notices." },
+      { t: "Details", d: "Who, what, when, where, why, how — and the more specific, the funnier." },
+      { t: "Characters", d: "Commedia dell'arte types (the know-it-all, the lovable loser): find the flaw, play it up, or flip opposites." },
+      { t: "Incongruity", d: "Mind-map from a word ('pickle'), then go from what is to what if. Write the dumb ideas down too." },
+      { t: "Tools", d: "Rule of three (zig, zig, zag), punch at the end of the line, and the claim that k-sounds are funny." },
+    ],
+    worked: "'A rabbi, a priest and a coconut walk into a bar' breaks the pattern; changing 'bar' to 'disco' moves the funny word to the end.",
+    watch: "Treating rule-of-thumb claims as laws. 'K-words are funny' is a writer's habit, not a finding; test it on your own lines.",
+    concepts: [],
+    checks: [
+      { q: "What is the Commedia dell'arte rule for a comic character?", opts: ["Give them a catchphrase", "Make them always win", "Find the flaw, then play it up", "Make them speak in rhyme"], a: 2,
+        expl: "Or play with opposites." },
+      { q: "What does 'zig, zig, zag' describe?", opts: ["The rule of three: set up a pattern, then break it", "A dance move", "Three jokes in a row", "Changing topics"], a: 0,
+        expl: "A rabbi, a priest and a coconut." },
+      { q: "Why do specific details help?", opts: ["They make the story longer", "They prove it really happened", "They are easier to remember", "They give the listener something precise to picture, which is funnier"], a: 3,
+        expl: "The more specific the details, the funnier the story." },
+    ],
+  },
+
+  "spch100.6.7": {
+    takeaway: "Jerry Seinfeld shows The New York Times how he wrote his Pop-Tart bit over two years: funny first line, funny words, links as tight as a jigsaw, syllables counted, and the biggest laugh at the end.",
+    beats: [
+      { t: "Start anywhere funny", d: "'Pop-Tart' is fun to say; the first line should be funny right away." },
+      { t: "Funny words", d: "'Chimps in the dirt playing with sticks' — four of seven words are funny." },
+      { t: "Tell them it is a story", d: "'In the midst of that darkness and hopelessness, the Pop-Tart appears' gets a laugh because it signals a story." },
+      { t: "Connective tissue", d: "Links between jokes have to be smooth; if one is a split second too long he shaves letters and counts syllables, like songwriting." },
+      { t: "The ending", d: "In a long bit the biggest laugh must come last. His: 'They can't go stale, because they were never fresh.'" },
+    ],
+    worked: "He writes longhand on yellow legal pads with the same Bic pen he used for every Seinfeld episode, and spends years on something that 'means absolutely nothing'.",
+    watch: "Letting the biggest laugh sit in the middle of a story. Everything after it feels like a let-down, however good it is.",
+    concepts: [],
+    checks: [
+      { q: "Where does Seinfeld say the biggest laugh in a long bit must go?", opts: ["At the end", "At the start", "In the middle", "Wherever it fits"], a: 0,
+        expl: "That is why the ending is the hardest part." },
+      { q: "What does he compare tightening the links between jokes to?", opts: ["Cooking", "Songwriting — counting syllables", "Building a house", "Painting"], a: 1,
+        expl: "He shaves letters off words to get the timing." },
+      { q: "Why does he say 'chimps in the dirt playing with sticks' works?", opts: ["It rhymes", "It is true", "Four of its seven words are funny on their own", "It is short"], a: 2,
+        expl: "Word choice matters." },
+    ],
+  },
+
+  "spch100.6.8": {
+    takeaway: "Mike Birbiglia on the storytelling advice he uses constantly, from Ira Glass: tell a little story, say how you feel about it, repeat — the jokes are in how you feel — and end by zooming out, then back in for a tag.",
+    beats: [
+      { t: "Story, feeling, story", d: "Comics' strength is how they feel about things; that is where the jokes come from." },
+      { t: "Two things the audience wants", d: "To know the story has an ending, and to know that something is changing." },
+      { t: "Jokes inside the frame", d: "Know where it starts and ends, then see how many jokes the audience lets you get away with. If you lose them, skip to the end." },
+      { t: "Zoom out, zoom in", d: "Hook, pull forward, zoom out to the bigger meaning, then come back for a final tag." },
+      { t: "Care", d: "Talk about what you actually think about. Topical material you do not care about is not interesting." },
+    ],
+    worked: "His analysis of a friend's Russia story: the hook (in Russia, no Russian), the pull (the Russian mom, drinking, robbing a train), the zoom-out (I'd never thought about whether I would rob a train), and the tag.",
+    watch: "Stacking jokes with no feeling between them. Without the 'how I felt' beats, a story becomes a list of bits.",
+    concepts: [],
+    checks: [
+      { q: "What structure did Ira Glass give Birbiglia?", opts: ["Setup, punch, tag", "Tell a little story, say how you feel about it, then a little more story", "Beginning, middle, end", "Three jokes, then a story"], a: 1,
+        expl: "The feelings are where the comedy lives." },
+      { q: "What does he suggest if the audience is not with a story?", opts: ["Skip to the ending", "Tell it louder", "Start again", "Explain it"], a: 0,
+        expl: "Knowing the ending lets you bail out." },
+      { q: "What is the 'zoom out' at the end of a story?", opts: ["A camera move", "A list of thanks", "A recap of events", "A step back to what it means in a larger context, before a final tag"], a: 3,
+        expl: "Then you zoom back in for the tag." },
+    ],
+  },
+
+  "spch100.6.9": {
+    takeaway: "Jennifer Aaker and Naomi Bagdonas on the Future of Storytelling podcast: why humour works on the brain and at work, the 'humour cliff', and a starter kit — a levity list, then exaggeration, contrast and the rule of three, all built on truth and misdirection.",
+    beats: [
+      { t: "Why it matters", d: "They cite research that people remember more when they laugh — viewers of comic news shows recalled more current events, and students taught with humour scored higher." },
+      { t: "The humour cliff", d: "They report that a four-year-old laughs about 300 times a day; a 40-year-old takes over two months to laugh that much." },
+      { t: "Four myths", d: "One is the 'born with it' myth. Humour is a skill with a science to it." },
+      { t: "The levity list", d: "For ten days, write down three funny or odd things at the end of each day." },
+      { t: "Three techniques", d: "Exaggeration, contrast, and the rule of three — applied to any true observation." },
+      { t: "Truth and misdirection", d: "The two foundations: lead the brain one way, then turn it." },
+    ],
+    worked: "The remote-work observation (no one wears trousers on video calls) done three ways: exaggerated ('how did we put on trousers?'), contrasted (finding good lighting versus time saved on trousers), and as a list of three (hallway chats, eye contact, trousers).",
+    watch: "Trying to be funny before noticing anything. The techniques need raw material; the levity list is where it comes from.",
+    concepts: [],
+    checks: [
+      { q: "What is a 'levity list'?", opts: ["A list of jokes to memorise", "Three funny or odd things written down at the end of each day", "A list of comedians to watch", "A ranking of your colleagues' humour"], a: 1,
+        expl: "They suggest doing it for ten days." },
+      { q: "In the rule of three, where does the funny item go?", opts: ["Last, after two normal items", "First", "In the middle", "It is repeated three times"], a: 0,
+        expl: "Two items set the pattern; the third breaks it." },
+      { q: "What do they call the two foundations of humour?", opts: ["Timing and volume", "Wit and charm", "Truth and misdirection", "Surprise and repetition"], a: 2,
+        expl: "Lead the audience one way, then shift." },
+    ],
+  },
+
+  "spch100.6.10": {
+    takeaway: "A speaking coach breaks down three techniques from real best-man speeches that anyone can use in a work presentation: misdirection, exaggeration and self-deprecation — with a warning about overdoing the last one.",
+    beats: [
+      { t: "Misdirection", d: "'A once-in-a-lifetime achievement… I've graduated law school. There's also a wedding.' The audience assumed the wedding." },
+      { t: "Exaggeration", d: "'He had the wedding website up before he met Michelle.' Built on a true trait: he plans everything." },
+      { t: "Self-deprecation", d: "His brother's friends recall good deeds; his friends recall the goat they stole." },
+      { t: "The limit", d: "Self-deprecation repeated becomes self-loathing, and the audience starts to feel sorry for you." },
+    ],
+    worked: "For a work talk: 'This project took a huge amount of dedication — mostly from the coffee machine.' Misdirection toward the team, a turn at the end.",
+    watch: "Exaggerating a trait the person is sensitive about. The planner in the example was proud of planning; pick traits people would happily admit to.",
+    concepts: [],
+    checks: [
+      { q: "Why did the law-school line get a laugh?", opts: ["It was rude", "The audience expected the achievement to be the wedding", "It was a pun", "It was very long"], a: 1,
+        expl: "Misdirection: lead one way, turn at the end." },
+      { q: "What is the risk the coach mentions with self-deprecation?", opts: ["It becomes self-loathing and the audience feels sorry for you", "It is too easy", "Nobody understands it", "It insults the couple"], a: 0,
+        expl: "Use it, but not again and again." },
+      { q: "What makes the wedding-website exaggeration work?", opts: ["It is completely made up", "It is about the speaker", "It uses wordplay", "It stretches a real trait everyone recognises"], a: 3,
+        expl: "The trait is true; only the scale is exaggerated." },
+    ],
+  },
+
+  "spch100.6.11": {
+    takeaway: "David Nihill at Talks at Google: after a year posing as a stand-up to beat his fear of speaking, he argues presenters should go for fun before funny — build on your own stories, then use comedians' techniques for structure, timing and memory.",
+    beats: [
+      { t: "Why", d: "He says comedians are judged every 12 seconds, and business talks now compete with entertainment. He counted laughs in top TED talks and found they rival comedy films." },
+      { t: "Stories first", d: "Your own story carries no risk if it does not get a laugh — and nobody knows if you mess it up. Keep a funny-story file." },
+      { t: "Relatable setup", d: "Open with something the whole room shares before the specific story." },
+      { t: "Timing", d: "Setup, punch, tag. Move the funny word to the end and stop — Obama's salmon joke ends on 'smoked'." },
+      { t: "Rule of three as one-two-four", d: "Two items set a pattern; the third breaks it — on a book blurb, a sign, an email." },
+      { t: "Memory and endings", d: "A memory palace so you never go blank; speak 10–15 per cent louder to cut filler words; take questions before your conclusion." },
+    ],
+    worked: "Pitches too: 'we have a year-on-year growth rate of 80 per cent' puts the impact word last. It feels odd to say and sounds natural to the audience.",
+    watch: "Ending on Q&A. If nobody asks anything, the talk dies on silence. Take questions, then deliver a planned final slide and line.",
+    concepts: [],
+    checks: [
+      { q: "What does Nihill mean by 'fun before funny'?", opts: ["Play games before the talk", "Engage with your own stories first; a story that does not get a laugh still works", "Tell your best joke first", "Avoid humour at work"], a: 1,
+        expl: "Stories carry no risk of the silence a failed joke gets." },
+      { q: "Where should the funny word go in the sentence?", opts: ["At the start", "In the middle", "At the very end, followed by a pause", "Repeated twice"], a: 2,
+        expl: "Then stop and let them react." },
+      { q: "Why take questions before your conclusion?", opts: ["So you control the ending even if nobody asks anything", "To save time", "Because audiences prefer it", "To avoid hard questions"], a: 0,
+        expl: "Comedians never end on a flat note." },
     ],
   },
 });

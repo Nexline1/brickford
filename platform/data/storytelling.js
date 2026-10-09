@@ -83,6 +83,7 @@ DAR.COURSES.push({
         { t: "And, But, Yet, Therefore — structure in one breath", v: "_96OKURDlwc", min: 4 },
         { t: "Structure is what they know, and when — the Nemo flashbacks", v: "bKrCKg9ggVI", min: 4 },
         { t: "Write what you know — the feeling under the monster story", v: "1rMnzNZkIX0", min: 3 },
+        { t: "Credibility before vulnerability — five tips for a story in a talk", v: "vrxIlFfqKEE", min: 7 },
       ],
     },
     {
@@ -6142,6 +6143,54 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Two or three minutes in for a long YouTube video." },
       { q: "Which of these is one of his comprehension tactics?", opts: ["Use longer words to sound expert", "Speak faster", "Restate a hard idea a second time in the simplest words", "Avoid naming your ideas"], a: 2,
         expl: "He does it himself: 'rudimentary — or simple'." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit III, second top-up (T-037, 2026-10-09) — A1, one lesson appended
+// after spch100.2.9: Riaz Meghji's five tips, kept for its one distinctive
+// rule (credibility before vulnerability). Appended at the END of the
+// unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.2.10": {
+    module: "A1",
+    mechanic: "A story in a talk lands when you know its purpose and what the audience cares about, open on an unexpected truth, put them in the scene through the senses, move from struggle to conflict to resolution with a takeaway, and earn credibility before you show vulnerability.",
+    rules: [
+      "Decide the purpose first — inform, persuade, entertain — and frame a problem the audience cares about right now.",
+      "Open with an unexpected truth or a secret ('Last month I received an email I was never supposed to see') so they ask what happened next.",
+      "Speak to the senses — what you saw, heard, smelled — because listeners take in a story as if they were living it.",
+      "Structure it as struggle, conflict, resolution, and say what changed and what is in it for them.",
+      "Credibility before vulnerability: openness draws people closer only if they already see you as competent; otherwise a raw reveal can make you look like a mess.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Pick a story for your next talk or pitch. Write its purpose in one line, an opening line that reveals an unexpected truth, one sensory detail, and the sentence that establishes your credibility before the vulnerable part arrives." },
+    check: "The opening line makes a listener ask 'what happened?', and the vulnerable moment comes after at least one sentence that tells them why they should trust you.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.2.10": {
+    takeaway: "Broadcaster Riaz Meghji's five tips for telling a story to an audience: know its purpose, open on an unexpected truth, speak to the senses, move from struggle to conflict to resolution with a takeaway, and show credibility before vulnerability.",
+    beats: [
+      { t: "Purpose", d: "Inform, persuade, entertain? Frame a problem the audience cares about now. He borrows John Maxwell's four ingredients: hope, help, heart and humour." },
+      { t: "An unexpected truth", d: "'Last month I received an email I was never supposed to see.' A secret with a silver lining sets up a change." },
+      { t: "The senses", d: "What did you see, hear, smell, touch, taste? Detail draws the audience into the scene with you." },
+      { t: "Struggle, conflict, resolution", d: "People cheer for an underdog only after they relate to the struggle; the conflict builds suspense; the resolution says how you changed and what they can take from it." },
+      { t: "Credibility before vulnerability", d: "The pratfall effect: a reveal draws people closer only if they already see you as competent." },
+    ],
+    worked: "In a pitch: first one line of credibility ('I've rebuilt the books for forty firms like yours'), then the vulnerable story ('the first one, I nearly lost because I missed something obvious'), then what it taught you — and what that means for them.",
+    watch: "Short and general; several tips echo earlier lessons in this unit (the elephant, the five-second moment). Its distinctive contribution is the order: credibility first, then vulnerability.",
+    concepts: [],
+    checks: [
+      { q: "What does 'credibility before vulnerability' mean?", opts: ["Never be vulnerable", "Show you are competent before you share something raw, or the reveal can backfire", "Share flaws first to build trust", "Only experts should tell stories"], a: 1,
+        expl: "How a reveal lands depends on how they saw you beforehand." },
+      { q: "Which kind of opening does he recommend?", opts: ["An unexpected truth or a secret", "A dictionary definition", "A statistic", "Thanking the organisers"], a: 0,
+        expl: "It makes the audience ask what happened next." },
+      { q: "What three stages does he suggest in place of beginning, middle and end?", opts: ["Hook, offer, call to action", "Setup, punchline, tag", "Struggle, conflict, resolution", "Past, present, future"], a: 2,
+        expl: "Relate to the struggle, build suspense in the conflict, reveal the change." },
     ],
   },
 });

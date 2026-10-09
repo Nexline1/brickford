@@ -213,8 +213,10 @@ with its reason).
   installed lesson (retention shapes, Galloway's channel review, Kleon's Show Your Work,
   the vlog story structure, Kallaway's script order).
 
-So the honest reading is: **Track A is the course the owner asked for, at 35 h; Track B is
-a thinner 8 h companion**, and the shortfall against 50 h is entirely there.
+So the honest reading is: **Track A is the course the owner asked for, at 35 h of its
+38 h budget; Track B is a thinner 8 h companion against its 12 h.** Of the 6.7 h shortfall
+against 50 h, 3.8 h is Track B and 2.9 h is spread across Track A modules that are each
+still inside ±20%.
 
 ### The schedule
 

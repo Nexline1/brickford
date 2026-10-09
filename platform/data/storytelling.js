@@ -174,6 +174,8 @@ DAR.COURSES.push({
         { t: "Crowd work — turning an ordinary answer into a joke", v: "ZqzPS1Ap-bA", min: 14 },
         { t: "Prepared spontaneity — lines in your pocket for the questions everyone asks", v: "aCw3uiO0L_8", min: 3 },
         { t: "Teasing and comebacks — British banter, and when to stop", v: "UA_bkg5SQ0k", min: 14 },
+        { t: "Self-deprecation that raises you — whoever names the weakness owns it", v: "xiX85UzI86Y", min: 14 },
+        { t: "Where self-deprecation stops — never joke about the job you were hired for", v: "JLlwxZggsfg", min: 18 },
       ],
     },
     {
@@ -6006,6 +6008,91 @@ Object.assign(DAR.SUMMARIES, {
         expl: "You and the audience look at the line together." },
       { q: "What makes a story lighthearted, in his account?", opts: ["A twist ending", "A famous character", "A goal and the obstacles in its way", "A moral"], a: 2,
         expl: "Everything that can go wrong on the way to the goal." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VIII, second top-up (T-037, 2026-10-09) — A6, the taxonomy's
+// 'self-deprecation that doesn't cost status', two lessons appended after
+// spch100.7.12: Ric Keller's TEDx talk on why it works, and Jill Griffin on
+// where it stops. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.7.13": {
+    module: "A6",
+    mechanic: "Joking about your own flaws signals confidence — 'I know I'm flawed, and I still believe in myself' — and it relaxes people, defuses criticism and narrows the status gap; whoever raises a weakness first owns how it lands.",
+    rules: [
+      "Self-deprecation takes confidence: it says you know your flaws and believe in yourself anyway. That relaxes people, deflects criticism and builds rapport.",
+      "Raise the weakness yourself. People who saw a politician joke about his own weight rated him better than people who saw a talk-show host make the same jokes about him — same topic, different owner.",
+      "In a study of an executive introducing a new hire, a joke at his own expense beat no humour, and a joke at the new hire's expense did worst; self-deprecation narrows the gap between boss and team.",
+      "Turn an attack into a line: called an amateur, he agreed, then said amateurs built the Ark and professionals built the Titanic.",
+      "Be real rather than polished — 'don't fake it till you make it; be real to seal the deal'.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Write down the criticism a client is most likely to make of you — too young, too new, too small, an accent. Write two lines that raise it yourself with a light, true joke, each followed by one sentence that pivots to a real strength." },
+    check: "Each line names the weakness plainly, the joke is at your expense and nobody else's, and the pivot names a strength you can back up.",
+  },
+
+  "spch100.7.14": {
+    module: "A6",
+    mechanic: "Self-deprecation builds trust only when it targets something peripheral; a joke about the core skill people rely on you for — a surgeon's 'wobbly hand', a new manager's 'I'm no leader' — unsettles them and costs trust.",
+    rules: [
+      "Done well, self-deprecating humour makes you relatable and trustworthy; context decides whether it lands.",
+      "Never aim it at your core competence or the job you were hired for: a surgeon with a wobbly hand, a developer who can't code, a coach who can't listen.",
+      "A newly promoted manager who joked about lacking leadership skills got a gasp and eye-rolls, and left his team feeling rudderless.",
+      "Warning signs: the jokes fall flat and you replay them; you use them because celebrating wins feels like bragging; you start believing the punchline.",
+      "Give equal time to stating your strengths. Self-deprecation used to please people is inauthentic.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "List three things you could joke about yourself. Mark each as core (what clients pay you for) or peripheral (habits, tastes, history). Rewrite any core one as a peripheral one, or drop it." },
+    check: "Every joke left on the list is about something a client doesn't rely on you for, and you can name the one skill you will not joke about.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.7.13": {
+    takeaway: "Former congressman Ric Keller on the power of self-deprecating humour: it shows confidence, relaxes people, deflects criticism and narrows status gaps, and studies of politicians and executives back it up. Whoever raises a weakness first controls how it lands.",
+    beats: [
+      { t: "The seventh husband", d: "Last of sixteen candidates pitching to a group of CEOs after hours of waiting, he opened by saying he felt like Elizabeth Taylor's seventh husband on his wedding night: he knew what to do, but not how to make it interesting. They ranked him first." },
+      { t: "Fired from Wendy's", d: "'You think you can serve our country? You can't even serve french fries.' He tells it on himself." },
+      { t: "The Christie study", d: "Viewers who saw Chris Christie eat a doughnut on Letterman rated him better than those who saw Letterman's fat jokes about him. Same topic; who raised it made the difference." },
+      { t: "The executive study", d: "'I'm so glad Pat took this job despite knowing everything about me' beat no humour; the same joke aimed at Pat did worst." },
+      { t: "Turning attacks", d: "'Amateurs built the Ark; professionals built the Titanic.' Lincoln: 'If I had two faces, would I be wearing this one?' Reagan refused to exploit his opponent's 'youth and inexperience'." },
+    ],
+    worked: "Attacked for having no experience against a mayor and a state legislator, he agreed — 'I am an amateur' — then turned it: 'It was amateurs who built Noah's Ark and professionals who built the Titanic.' The issue stopped coming up.",
+    watch: "Not every example is self-deprecation: Reagan's and Lincoln's lines turn the attack back on the opponent. The next lesson draws the boundary — never joke about the core skill you are trusted for.",
+    concepts: [],
+    checks: [
+      { q: "What did the Christie study show?", opts: ["Weight jokes always backfire", "Jokes about a weakness worked in his favour when he raised them himself", "Politicians should avoid humour", "Talk-show audiences prefer comedians"], a: 1,
+        expl: "Same topic, same show; only the owner of the joke changed." },
+      { q: "In the executive study, which introduction did worst?", opts: ["Humour aimed at the new employee", "Self-deprecating humour", "No humour at all", "A formal speech"], a: 0,
+        expl: "Negative humour about others ranked below no humour." },
+      { q: "What does Keller say self-deprecation signals?", opts: ["Low self-esteem", "Desperation", "Confidence — you know your flaws and still believe in yourself", "Indifference"], a: 2,
+        expl: "It takes self-confidence to use it." },
+    ],
+  },
+
+  "spch100.7.14": {
+    takeaway: "Career coach Jill Griffin on when self-deprecating humour helps and when it hurts: it builds trust and relatability, but aimed at the core skill you are trusted for, it spends that trust — as a newly promoted manager found in a stand-up meeting.",
+    beats: [
+      { t: "Why it works", d: "It shows self-awareness and humility, puts people at ease, and keeps successful people relatable." },
+      { t: "Tyson's stand-up", d: "Promoted from within, he joked about his own leadership skills. Someone gasped, people sighed and rolled their eyes, and he stumbled to the end of the meeting." },
+      { t: "The core-skill rule", d: "Would you book a surgeon who joked about a wobbly hand, or a developer who joked he couldn't code? Don't joke about what you were hired to do." },
+      { t: "Warning signs", d: "Flat jokes you replay all day, using it because wins feel like bragging, joking about yourself when alone, and starting to believe the punchline." },
+      { t: "Strengths, too", d: "When did you last give equal time to saying what you're good at? Self-deprecation used to please people is inauthentic." },
+    ],
+    worked: "A new team lead wants to stay 'one of the crew'. Instead of 'Don't worry, I've no idea how to run a team either', he jokes about something peripheral — 'I promise these stand-ups will be shorter than my commute' — and keeps his competence off the table.",
+    watch: "About half the episode is coaching on thoughts and confidence, plus plugs; the humour rule sits roughly between minutes twelve and seventeen. It complements Keller rather than contradicting him.",
+    concepts: [],
+    checks: [
+      { q: "What is Griffin's main rule for self-deprecating humour at work?", opts: ["Never use it", "Don't aim it at your core skill or the job you were hired to do", "Use it only with senior people", "Use it in every meeting"], a: 1,
+        expl: "Peripheral flaws build trust; core ones undermine it." },
+      { q: "What happened when Tyson joked about his leadership skills?", opts: ["The team felt rudderless — gasps, sighs and eye-rolls", "Everyone laughed", "He was promoted again", "Nobody noticed"], a: 0,
+        expl: "A new leader joking about lacking leadership skills unsettled the team." },
+      { q: "Which is a warning sign that self-deprecation has become a problem?", opts: ["People laugh", "You use it once a month", "You start believing the punchline", "You joke about your hobbies"], a: 2,
+        expl: "Repeating negative thoughts about yourself is practising them." },
     ],
   },
 });

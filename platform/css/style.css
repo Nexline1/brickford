@@ -2547,6 +2547,19 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
    ============================================================ */
 
 /* ---- Problems: three ways in ---- */
+/* 3 across from 1024px and 1 under 600 (.at-tiles), but never narrower than
+   a card's longest word needs: at 1100, where the sidebar and the rail leave
+   the page 440px, or at a larger text size, the grid drops a column (the
+   T-026a shelf's rule) instead of pushing "Problem" out of its card. The
+   also-open cards on Exams take the same rule at their own width. */
+@media (min-width: 600px) {
+  .at-tiles.pb-modes { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+  .at-tiles.ex-open { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .at-tiles.pb-modes { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+  .at-tiles.ex-open { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+}
 .pb-mode { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0; padding: 18px 20px; }
 .pb-glyph {
   display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--r-sm);
@@ -2589,6 +2602,7 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .ex-hero.urgent .at-days b { color: var(--urgent); }
 .ex-sit { width: 100%; justify-content: center; text-align: center; }
 .ex-card .tl-t, .ex-card .tl-m, .pf-tile .at-days { overflow-wrap: normal; }
+.ex-card .tl-main { min-width: auto; }
 .ex-card .tl-t { margin-top: 8px; }
 .ex-locked { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 @media (min-width: 600px) { .ex-locked { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

@@ -80,7 +80,8 @@
 // T-007, the lists (loop/specs/T-007-inset-grouped-lists/spec.md), at 390 and
 // 1280 in light and dark on /, /course/math110, /exams and /courses (/workshop
 // is in the spec's list and has no .glist; it is reported n/a, and it would be
-// measured the moment it had one):
+// measured the moment it had one; /courses since T-026a and /exams since
+// T-026b are the same — their section headers are still measured):
 //   - every visible .glist is an opaque --surface section with 12px corners
 //     that clips its rows; every .ghead (bar the hero's .oh) is 20px/600
 //     sentence case with no rule, its meta 15px --ink-2 tabular; every row is
@@ -207,6 +208,42 @@
 //   - index.html's PANEL map is the stylesheet's --panel for exactly the two
 //     themes.
 //
+// T-026b, Problems, Exams and Proof (loop/specs/T-026b-problems-exams-proof/
+// spec.md), at 1440x900 and 390x844 in dark and light on the seed plus a
+// six-entry chain, then seven more states at both sizes (labs and problem sets
+// done; an exam passed; every bank open; Gate 1 passed, so a bank leads; a
+// two-entry chain after a streak reset; day 1 with nothing stored; a
+// Saturday). Every expected value is worked out from the stored state and the
+// data files, never read from the view:
+//   - each page: its h1 and its one line, exactly; its one filled primary
+//     inside the first viewport (under the phone bar, above the tab bar and
+//     the Next bar), or on Proof, none;
+//   - /workshop: three mode cards (glyph, title, line), 3 columns at 1440 and
+//     1 at 390; Daily drill holds the only filled button ("Start", #/drill,
+//     "10 min"); "x of 34 done" and "x of 20 shipped" from storage, each with
+//     an Open pill >= 44x44 that jumps to its section in memory; no stat box;
+//     one row per lab of the current phase (phase from the study index), in
+//     order, ticked as stored, its description the lab's first clause cut
+//     only at the end of a word; the folds still under the list;
+//   - /exams: the record line; the hero's tag (course code, "· Gate 1" while
+//     the gate is open) in the faculty colour, title, facts, a bar equal to
+//     the course's lectures watched / all of them within 1% (in the faculty
+//     colour), the days to Gate 1, and "Sit it"; one also-open card per other
+//     open exam (unlocking from each question's `after` lecture or its
+//     course); at most 6 locked rows, "+N more" past that, which shows the
+//     rest in memory; no .glist left;
+//   - /record: three tiles equal to streak(), bestStreak() and the proven
+//     lectures; the heatmap 26 weeks x 7 weekday rows — 156 study-day cells,
+//     every Saturday a rest cell (or void outside the plan), never a level —
+//     and every cell's class recomputed from that day's lessons, problems and
+//     seal; at most 4 seals, newest first, "CODE · Ln" and #xxxx…xxxx from a
+//     chain hashed here, joined by "←", genesis faded when reached; the pills
+//     in order, >= 44x44, none filled, the reset last in --bad, still asking
+//     first; and nothing on the three pages writes state;
+//   - at 320/360/390/640/768/1100/1280/1440 x roots 16/20/24: nothing wider
+//     than its box, no sideways scroll, and no word of the text this item
+//     added broken across two lines (labelWords, read from the rendered text).
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
@@ -246,9 +283,14 @@ const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 // rows), so it joins /workshop as n/a — and is measured again the moment a
 // .glist comes back — and leaves the press routes, whose check needs rows.
 // Its covers, filter and tiles are measured in the T-026a block below.
+// T-026b: /exams goes the same way. Its spec turns the rows into a hero, a
+// grid of cards and a grid of locked rows, and the Record group into one
+// line, so no .glist is left: it is n/a for the rows (its section headers are
+// still measured) and leaves the press routes. Its hero, cards and locked
+// rows are measured in the T-026b block below.
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
-const LIST_NA = new Set(["/workshop", "/courses"]);
-const PRESS_ROUTES = ["/", "/course/math110", "/exams"];
+const LIST_NA = new Set(["/workshop", "/courses", "/exams"]);
+const PRESS_ROUTES = ["/", "/course/math110"];
 // The lead pair: light from loop/design/brief.md §3 (:root, unchanged); dark
 // is T-025's: the [data-theme="dark"] block as it was at commit a309b5a,
 // before T-024's navy, copied here value by value — plus the spec's three
@@ -1376,6 +1418,211 @@ function routeOverlaps() {
   return { n: boxes.length, hit };
 }
 
+// ---------- T-026b: Problems, Exams and Proof say what they are for ----------
+// loop/specs/T-026b-problems-exams-proof/spec.md. What each page should show
+// is worked out here from the stored state and the data files (window.DAR),
+// never read back from the view: the phase from the study index (the test
+// hook), the counts from localStorage, the course of an exam from the
+// curriculum, unlocking from each question's own `after` lecture or its
+// course, the streaks from streak()/bestStreak(), the heatmap's level per day
+// from the lessons, problems and sealed days on that date, and the hash chain
+// for the seals is built here, hashed with Node's own sha256.
+const T26B_HEAD = {
+  "/workshop": ["Problems", "Learning sticks when you solve, not when you watch."],
+  "/exams": ["Exams", "Timed, closed book, no AI. This is how a gate is passed."],
+  "/record": ["Proof", "Every lecture you prove is sealed into a record nobody can quietly edit."],
+};
+const t26bCanon = v => v === null || typeof v !== "object" ? JSON.stringify(v === undefined ? null : v)
+  : Array.isArray(v) ? "[" + v.map(t26bCanon).join(",") + "]"
+  : "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + t26bCanon(v[k])).join(",") + "}";
+// The chain as logEvent() writes it: each entry hashes its own fields and the
+// previous hash; the first points at the genesis string (published in every
+// export as `genesis`).
+function t26bChain(events) {
+  const crypto = require("crypto");
+  let prev = "brickford-genesis";
+  return events.map((ev, i) => {
+    const e = { i, ts: ev.ts, type: ev.type, ref: ev.ref, data: ev.data, prev };
+    e.hash = crypto.createHash("sha256").update(t26bCanon(e), "utf8").digest("hex");
+    prev = e.hash;
+    return e;
+  });
+}
+// A lecture's name on a seal: its course code and its place in the course.
+const t26bLectureName = ref => {
+  const [cid, ui, li] = ref.split(".");
+  const c = CURRICULUM.COURSES.find(x => x.id === cid);
+  if (!c || !c.units || !c.units[ui] || !c.units[ui].lessons[li]) return null;
+  let n = +li + 1;
+  for (let u = 0; u < +ui; u++) n += c.units[u].lessons.length;
+  return c.code + " · L" + n;
+};
+const T26B_LONG = t26bChain([
+  { ts: "2026-10-15T09:00:00.000Z", type: "lesson", ref: "math110.0.0", data: { done: true } },
+  { ts: "2026-10-16T09:00:00.000Z", type: "lesson", ref: "math110.0.13", data: { done: true } },
+  { ts: "2026-10-16T10:00:00.000Z", type: "verified", ref: "math110.0.13", data: { solved: 3 } },
+  { ts: "2026-10-19T09:00:00.000Z", type: "day", ref: "2026-10-19", data: {} },
+  { ts: "2026-10-19T10:00:00.000Z", type: "lab", ref: "micrograd-blind", data: { done: true } },
+  { ts: "2026-10-20T09:00:00.000Z", type: "lesson", ref: "math110.1.2", data: { done: true } },
+]);
+const T26B_SHORT = T26B_LONG.slice(0, 2);
+// A stored state on top of the seed: arrays and scalars replace, objects merge.
+const t26bPatch = patch => new Function("args",
+  "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}'); const p = " + JSON.stringify(patch) + ";" +
+  "for (const k in p) { if (Array.isArray(p[k]) || typeof p[k] !== 'object' || p[k] === null) s[k] = p[k]; else s[k] = Object.assign(s[k] || {}, p[k]); }" +
+  "localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
+// The filled primary on the page, and the part of the window a reader sees:
+// under the phone's bar and above the floating tab bar and Next bar.
+function t26bPrimary() {
+  const z = window.__dz, fill = z.tok("--btn-bg");
+  const filled = [...document.querySelectorAll("#view a, #view button")].filter(n => n.checkVisibility() &&
+    (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor)));
+  const shown = sel => { const n = document.querySelector(sel); return n && n.checkVisibility() && n.getBoundingClientRect().height > 0 ? n.getBoundingClientRect() : null; };
+  const tb = shown("#topbar"), tab = shown("#tabbar"), rail = shown("#railbar");
+  return {
+    filled: filled.map(n => { const r = n.getBoundingClientRect(), m = n.closest("[data-mode]");
+      return { text: n.textContent.trim(), href: n.getAttribute("href"), mode: m ? m.dataset.mode : null, t: r.top, b: r.bottom, w: r.width, h: r.height }; }),
+    top: tb ? tb.bottom : 0, floor: Math.min(window.innerHeight, tab ? tab.top : Infinity, rail ? rail.top : Infinity), scrollY: window.scrollY,
+    head: (() => { const h = document.querySelector("#view .page-head h1"), s = document.querySelector("#view .page-head .sub");
+      return { h1: h ? h.textContent.trim() : null, sub: s ? s.textContent.trim() : null }; })(),
+  };
+}
+function t26bWorkshop() {
+  const D = window.DAR, T = window.__brickfordTest, st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  const today = (() => { const d = new Date(), p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); })();
+  // The plan week: six study days; a rest day belongs to the week just worked.
+  let iso = today, idx = T.studyIndex(iso);
+  for (let g = 0; g < 7 && idx < 0 && iso > D.START_DATE; g++) {
+    const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() - 1);
+    iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    idx = T.studyIndex(iso);
+  }
+  const week = Math.max(1, Math.floor(Math.max(0, idx) / 6) + 1);
+  const phase = week > 78 ? 3 : week > 26 ? 2 : week > 2 ? 1 : 0;
+  const labs = st.labs || {}, psets = st.psets || {};
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const z = window.__dz, fill = z.tok("--btn-bg");
+  const txt = (n, s) => { const x = n.querySelector(s); return x ? x.textContent.trim() : null; };
+  return {
+    phase,
+    want: {
+      rows: D.LABS.filter(l => l.phase === phase).map(l => ({ id: l.id, title: l.title, req: l.req, hours: l.hours, done: !!(labs[l.id] || {}).done })),
+      sets: D.PSETS.reduce((a, g) => a + g.items.filter(i => psets[i.id]).length, 0) + " of " + D.PSETS.reduce((a, g) => a + g.items.length, 0) + " done",
+      labs: D.LABS.filter(l => (labs[l.id] || {}).done).length + " of " + D.LABS.length + " shipped",
+    },
+    cards: vis("#view .pb-mode").map(c => {
+      const act = c.querySelector(".pb-foot a, .pb-foot button"), r = c.getBoundingClientRect(), ar = act ? act.getBoundingClientRect() : null;
+      return { mode: c.dataset.mode, title: txt(c, ".pb-t"), desc: txt(c, ".pb-d"), meta: txt(c, ".pb-m"), glyph: !!c.querySelector(".pb-glyph svg"),
+        left: Math.round(r.left), act: act ? { text: act.textContent.trim(), tag: act.tagName, href: act.getAttribute("href"), to: act.dataset.to || null,
+          w: ar.width, h: ar.height, filled: (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(act).backgroundColor)) } : null };
+    }),
+    rows: vis("#view .pb-labs .pb-lab").map(r => {
+      const cb = r.querySelector("input[data-lab]"), lb = r.querySelector("label");
+      return { id: cb ? cb.dataset.lab : null, checked: cb ? cb.checked : null, title: txt(r, ".pb-lt-t"), desc: txt(r, ".pb-lt-d"), hours: txt(r, ".pb-h"),
+        box: !!r.querySelector(".checkbox"), h: lb ? lb.getBoundingClientRect().height : 0 };
+    }),
+    head: (() => { const l = document.querySelector("#view #pbLabs"), g = l && l.previousElementSibling;
+      return g && g.matches(".ghead") ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null; })(),
+    phaseName: ["Phase 0 · Calibration", "Phase 1 · Foundations", "Phase 2 · Depth", "Phase 3 · Frontier"][phase],
+    statBox: document.querySelectorAll("#view .onecounts").length,
+    setsFold: !!document.querySelector("#view details#pbSets"), otherFold: [...document.querySelectorAll("#view details.unit .u-name")].map(n => n.textContent.trim()),
+  };
+}
+function t26bExams() {
+  const D = window.DAR, z = window.__dz, st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  const lessons = st.lessons || {}, done = k => !!(lessons[k] || {}).done;
+  const dsa = Object.values(st.problems || {}).filter(Boolean).length;
+  const lectureKeys = c => [].concat(...(c.units || []).map((u, ui) => u.lessons.map((_, li) => c.id + "." + ui + "." + li)));
+  const watch = c => !c ? { w: 0, of: 0 } : c.tracker ? { w: dsa, of: 150 } : { w: lectureKeys(c).filter(done).length, of: lectureKeys(c).length };
+  const banks = Object.keys(D.QUIZZES).map(id => {
+    const c = D.COURSES.find(x => x.quiz === id);
+    const anyDone = !!c && (lectureKeys(c).some(done) || (!!c.tracker && dsa > 0));
+    const n = D.QUIZZES[id].questions.filter(q => q.after ? done(q.after) : anyDone).length;
+    const at = (st.quizAttempts || {})[id] || [];
+    return { id, c, n, len: D.QUIZZES[id].questions.length, sat: at.length > 0, title: D.QUIZZES[id].title };
+  });
+  const diags = D.DIAGNOSTICS.map(d => ({ d, c: D.COURSES.find(x => x.diagnostic === d.id) || null, sat: ((st.diag || {})[d.id] || {}).score != null }));
+  const gatePassed = !!(st.gates || {})[1];
+  const unsatDiag = diags.find(x => !x.sat);
+  // The one to sit next: an unsat diagnostic while Gate 1 is open, else the
+  // open, unsat bank with the most of it unlocked.
+  const leadBank = banks.filter(b => b.n && !b.sat).sort((a, b) => b.n / b.len - a.n / a.len)[0];
+  const lead = !gatePassed && unsatDiag ? { kind: "diag", id: unsatDiag.d.id, c: unsatDiag.c, title: unsatDiag.d.title, href: "#/diag/" + unsatDiag.d.id,
+      size: unsatDiag.d.minutes + " min", pass: unsatDiag.d.gate }
+    : leadBank ? { kind: "bank", id: leadBank.id, c: leadBank.c, title: leadBank.title, href: "#/quiz/" + leadBank.id,
+      size: (D.QUIZZES[leadBank.id].perSitting || 15) + " questions", pass: 70 } : null;
+  const locked = banks.filter(b => !b.n);
+  const short = t => { const [a, b] = t.split(" — "); return !b ? t : a + (/^Qualifying/.test(b) ? " qualifier" : /^Concept/.test(b) ? " concepts" : ""); };
+  const facTok = c => c ? "--fac-" + ({ "Mathematics": "math", "Computer Science": "sys", "Artificial Intelligence": "ai", "Physics": "phys", "Systems": "sys", "Research": "res", "Speech": "speech" })[c.faculty] : "--accent";
+  const W = lead ? watch(lead.c) : null;
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const txt = (n, s) => { const x = n && n.querySelector(s); return x ? x.textContent.trim() : null; };
+  const hero = document.querySelector("#view .ex-hero");
+  const bar = n => { const t = n && n.querySelector(".ex-bar, .ex-lbar"), i = t && t.querySelector("i");
+    return t ? { track: t.getBoundingClientRect().width, fill: i ? i.getBoundingClientRect().width : 0, col: i ? z.bytes(getComputedStyle(i).backgroundColor) : null } : null; };
+  const sit = hero && hero.querySelector(".ex-sit"), fill = z.tok("--btn-bg");
+  return {
+    want: {
+      rec: D.DIAGNOSTICS.length + " diagnostics · " + banks.length + " concept banks · " + (diags.filter(x => x.sat).length + banks.filter(b => b.sat).length) + " sat",
+      lead: lead && { title: lead.title, href: lead.href, code: lead.c ? lead.c.code : null, gate: lead.kind === "diag" && !gatePassed, facts: [lead.size].concat(lead.pass != null ? ["Pass at " + lead.pass + "%"] : [])
+        .concat(W.of ? [W.w + " of " + W.of + (lead.c.tracker ? " problems solved" : " lectures watched")] : []), pct: W.of ? W.w / W.of * 100 : null,
+        fac: z.tok(facTok(lead.c)) },
+      open: diags.filter(x => x.d.id !== (lead && lead.id)).map(x => "#/diag/" + x.d.id).concat(banks.filter(b => b.n && b.id !== (lead && lead.id)).map(b => "#/quiz/" + b.id)).sort(),
+      locked: locked.map(b => ({ name: short(b.title), pct: watch(b.c).of ? watch(b.c).w / watch(b.c).of * 100 : 0 })),
+    },
+    rec: txt(document, "#view .page-head .ex-rec"),
+    hero: hero ? { tag: txt(hero, ".ex-tag"), tagCol: z.bytes(getComputedStyle(hero.querySelector(".ex-tag")).color), title: txt(hero, ".at-gate"),
+      facts: [...hero.querySelectorAll(".ex-facts > span")].map(n => n.textContent.trim()), bar: bar(hero), days: txt(hero, ".at-days b"),
+      daysLabel: txt(hero, ".at-days span"),
+      sit: sit ? { text: sit.textContent.trim(), href: sit.getAttribute("href"), filled: (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(sit).backgroundColor)) } : null } : null,
+    open: vis("#view .ex-open .ex-card").map(a => ({ href: a.getAttribute("href"), tag: txt(a, ".ex-tag"), title: txt(a, ".tl-t"), meta: txt(a, ".tl-m"), left: Math.round(a.getBoundingClientRect().left) })),
+    lockRows: [...document.querySelectorAll("#view .ex-locked .ex-lock")].map(a => ({ shown: a.checkVisibility(), name: txt(a, ".ex-ln"), lock: !!a.querySelector(".ex-lk svg"),
+      bar: bar(a), h: a.getBoundingClientRect().height, left: Math.round(a.getBoundingClientRect().left) })),
+    more: (() => { const b = document.querySelector("#view .ex-more"); return b && b.checkVisibility() ? { text: b.textContent.trim(), w: b.getBoundingClientRect().width, h: b.getBoundingClientRect().height } : null; })(),
+    glist: vis("#view .glist").length,
+  };
+}
+function t26bRecord() {
+  const D = window.DAR, T = window.__brickfordTest, z = window.__dz, st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  const pad = n => String(n).padStart(2, "0"), loc = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const today = loc(new Date());
+  const add = (iso, n) => { const p = iso.split("-").map(Number); return loc(new Date(p[0], p[1] - 1, p[2] + n)); };
+  const dow = iso => new Date(iso + "T00:00:00").getDay();
+  // The last 26 weeks, Sunday-first, ending with this week.
+  const first = add(add(today, -dow(today)), -7 * 25);
+  const lessons = Object.values(st.lessons || {}), probs = Object.values(st.problems || {}), sealed = new Set(st.studyDays || []);
+  const wantCell = iso => {
+    if (iso < D.START_DATE || iso > today) return "void";
+    if (dow(iso) === T.REST_DOW) return "rest";
+    const lvl = Math.min(4, lessons.filter(l => l && l.doneAt === iso).length + probs.filter(v => v === iso).length + (sealed.has(iso) ? 1 : 0));
+    return "l" + lvl;
+  };
+  const cols = [...document.querySelectorAll("#view .heat .hcol")].map(c => [...c.children].map(n =>
+    (n.classList.contains("void") ? "void" : n.classList.contains("rest") ? "rest" : ([...n.classList].find(k => /^l\d$/.test(k)) || "?")) +
+    (n.dataset.hday ? "@" + n.dataset.hday : "")));
+  const want = [];
+  for (let w = 0; w < 26; w++) { const col = []; for (let d = 0; d < 7; d++) { const iso = add(first, 7 * w + d), k = wantCell(iso); col.push(k + (/^l/.test(k) ? "@" + iso : "")); } want.push(col); }
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const fill = z.tok("--btn-bg");
+  const heat = document.querySelector("#view .heat");
+  return {
+    want: { streak: T.streak(), best: T.bestStreak(), proven: lessons.filter(l => l && l.verified).length, cells: want }, restDow: T.REST_DOW,
+    tiles: vis("#view .pf-tile").map(t => ({ n: (t.querySelector(".at-days b") || {}).textContent, label: (t.querySelector(".at-days span") || {}).textContent })),
+    cols, cellW: heat && heat.querySelector(".hc") ? heat.querySelector(".hc").getBoundingClientRect().width : 0,
+    heatOver: heat ? heat.scrollWidth > heat.clientWidth + 1 : null,
+    seals: vis("#view .pf-seals .seal:not(.gen)").map(s => ({ name: (s.querySelector("b") || {}).textContent, hash: (s.querySelector(".seal-h") || {}).textContent })),
+    gen: vis("#view .pf-seals .seal.gen").map(s => ({ ink: z.bytes(getComputedStyle(s.querySelector("b")).color) })),
+    arrows: vis("#view .pf-seals .seal-arrow").map(a => a.textContent),
+    order: vis("#view .pf-seals > *").map(n => n.classList.contains("seal-arrow") ? "<-" : n.classList.contains("gen") ? "G" : "S"),
+    ledger: (st.ledger || []).map(e => ({ i: e.i, type: e.type, ref: e.ref, hash: e.hash })),
+    pills: vis("#view .pf-pills > *").map(p => ({ text: p.textContent.trim(), tag: p.tagName, act: p.dataset.act || null, href: p.getAttribute("href"),
+      w: p.getBoundingClientRect().width, h: p.getBoundingClientRect().height, col: z.bytes(getComputedStyle(p).color),
+      filled: (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(p).backgroundColor)) })),
+    bad: z.tok("--bad"), ink3: z.tok("--ink-3"),
+    seen: vis("#view .ghead").map(g => g.firstChild.textContent.trim()),
+  };
+}
+
 (async () => {
   console.log("status bar (read from platform/css/style.css)");
   safeAreaSource();
@@ -2277,7 +2524,8 @@ function routeOverlaps() {
         const m = await page.evaluate(listState);
         const where = at + " " + route;
         // A route the spec names that has no list is reported, not passed:
-        // only /workshop and /courses (T-026a) are allowed to be without one.
+        // only /workshop, /courses (T-026a) and /exams (T-026b) are allowed
+        // to be without one.
         // Only the list's and the rows' checks are n/a there: a section
         // header (.ghead, .gh-meta) still heads the shelf on /courses and is
         // measured like any other (review round 1).
@@ -2866,6 +3114,304 @@ function routeOverlaps() {
     }
   }
 
+  // =================== T-026b: Problems, Exams and Proof ===================
+  // loop/specs/T-026b-problems-exams-proof/spec.md, acceptance 1 and 2: at
+  // 1440x900 and 390x844 in dark and light on the seed (plus a six-entry
+  // chain), then one state at a time for what the seed cannot show — labs
+  // and problem sets done, an exam passed, every bank open, Gate 1 passed (a
+  // bank leads), a short chain reaching genesis after a streak reset, day 1
+  // (nothing watched: every bank locked), and a Saturday. Each page boots on
+  // #/__test so streak(), bestStreak() and studyIndex() can be asked.
+  let t26bChecks = 0;
+  const c26b = (name, ok, detail) => { t26bChecks++; return check(name, ok, detail); };
+  const T26B_SAT = new Date("2026-10-24T12:00:00Z");                     // a Saturday: the rest day
+  const T26B_DAY1 = new Date(CURRICULUM.START_DATE + "T12:00:00Z");      // day 1, nothing stored
+  const isoOf = d => d.toISOString().slice(0, 10);                       // the contexts run in UTC
+  const PSET_IDS = (() => {
+    const vm = require("vm"), sb = { window: {} };
+    sb.window.DAR = sb.DAR = {};
+    vm.createContext(sb);
+    vm.runInContext(fs.readFileSync(path.join(ROOT, "platform/data/workshop.js"), "utf8"), sb);
+    return [].concat(...sb.window.DAR.PSETS.map(g => g.items.map(i => i.id)));
+  })();
+  async function t26bFresh(o) {
+    const now = o.now || FIXED_NOW;
+    const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce", viewport: { width: o.w, height: o.h },
+      isMobile: o.mobile, hasTouch: o.mobile, colorScheme: o.theme });
+    await ctx.clock.setFixedTime(now);
+    await ctx.route(/^https?:/, r => { const u = r.request().url(); requests.push(u); if (/api\.github\.com/.test(u)) githubHits++; return r.abort(); });
+    if (o.empty) await ctx.addInitScript(t => { if (window.top === window) localStorage.setItem("darhikmah_v1", JSON.stringify({ settings: { theme: t, themeNavyOnce: true } })); }, o.theme);
+    else await ctx.addInitScript(seed, [now.getTime(), o.theme]);
+    if (o.patch) await ctx.addInitScript(t26bPatch(o.patch), [now.getTime()]);
+    await ctx.addInitScript(countWrites);
+    await ctx.addInitScript(installHelpers);
+    if (o.root) await ctx.addInitScript(rt => { document.addEventListener("DOMContentLoaded", () => { document.documentElement.style.fontSize = rt + "px"; }); }, o.root);
+    const page = await ctx.newPage();
+    const errors = [], dialogs = [];
+    page.on("pageerror", e => errors.push(e.message));
+    page.on("dialog", d => { dialogs.push(d.message()); d.dismiss().catch(() => {}); });
+    await page.goto(URL + "/__test", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    return { ctx, page, errors, dialogs, today: isoOf(now) };
+  }
+  const writesNow = page => page.evaluate(() => window.__stateWrites);
+  const headOk = (p, route) => p.head.h1 === T26B_HEAD[route][0] && p.head.sub === T26B_HEAD[route][1];
+  const inView = (p, f) => p.scrollY === 0 && !!f && f.t >= p.top - 0.5 && f.b <= p.floor + 0.5;
+  const where = f => f ? f.text + " at " + f.t.toFixed(0) + "-" + f.b.toFixed(0) : "none";
+
+  async function t26bProblems(page, at, o) {
+    await go(page, "/workshop");
+    const p = await page.evaluate(t26bPrimary), m = await page.evaluate(t26bWorkshop);
+    c26b(at + " /workshop: the header is h1 \"Problems\" and \"" + T26B_HEAD["/workshop"][1] + "\"", headOk(p, "/workshop"), JSON.stringify(p.head));
+    c26b(at + " /workshop: three mode cards — Daily drill, Problem sets, Labs — each a glyph tile, a title and a one-line description",
+      m.cards.map(c => c.title).join("|") === "Daily drill|Problem sets|Labs" && m.cards.every(c => c.glyph && !!c.desc),
+      m.cards.map(c => c.title + (c.glyph ? "" : " (no glyph)")).join(", "));
+    if (o.cols) {
+      const cols = new Set(m.cards.map(c => c.left)).size;
+      c26b(at + " /workshop: the mode cards are " + o.cols + " column" + (o.cols === 1 ? "" : "s") + " wide", cols === o.cols, cols + " distinct columns");
+    }
+    const f = p.filled[0];
+    c26b(at + " /workshop: Daily drill holds the only filled primary — \"Start\" to #/drill — and reads \"10 min\"",
+      p.filled.length === 1 && f.mode === "drill" && f.href === "#/drill" && f.text === "Start" && m.cards[0] && m.cards[0].meta === "10 min",
+      p.filled.map(x => (x.mode || "?") + " \"" + x.text + "\" " + x.href).join("; ") || "no filled button in the view");
+    c26b(at + " /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar)", inView(p, f),
+      where(f) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0) + ", scrollY " + p.scrollY);
+    const opens = [1, 2].map(i => m.cards[i] && m.cards[i].act);
+    c26b(at + " /workshop: Problem sets reads \"" + m.want.sets + "\" and Labs \"" + m.want.labs + "\", each with an Open pill >= 44x44 that is not filled",
+      !!m.cards[2] && m.cards[1].meta === m.want.sets && m.cards[2].meta === m.want.labs &&
+        opens.every(a => a && a.text === "Open" && !a.filled && a.w >= 44 && a.h >= 44),
+      m.cards.slice(1).map(c => "\"" + c.meta + "\" " + (c.act ? c.act.text + " " + c.act.w.toFixed(0) + "x" + c.act.h.toFixed(0) + (c.act.filled ? " filled" : "") : "no action")).join("; "));
+    c26b(at + " /workshop: the stat box is gone (no .onecounts in the view)", m.statBox === 0, m.statBox + " found");
+    c26b(at + " /workshop: \"This phase’s labs\" heads the list, its meta the phase (" + m.phaseName + ")",
+      !!m.head && m.head.t === "This phase’s labs" && m.head.meta === m.phaseName, JSON.stringify(m.head));
+    const rowsOk = m.rows.length === m.want.rows.length && m.rows.every((r, i) => {
+      const w = m.want.rows[i];
+      return r.id === w.id && r.title === w.title && r.hours === "~" + w.hours + " h" && r.checked === w.done && r.box && r.h >= 44;
+    });
+    c26b(at + " /workshop: the list has one row per lab of phase " + m.phase + " (" + m.want.rows.length + "), in order — a checkbox, the title, ~N h, ticked as stored, >= 44px",
+      m.want.rows.length > 0 && rowsOk, m.rows.map(r => r.id + " \"" + r.title + "\" " + r.hours + (r.checked ? " [x]" : " [ ]") + " " + r.h.toFixed(0) + "px").join("; "));
+    const descBad = m.rows.filter((r, i) => {
+      const w = m.want.rows[i]; if (!w || !r.desc) return true;
+      const d = r.desc.replace(/…$/, ""), cut = d !== r.desc;
+      const next = w.req.charAt(d.length);
+      return r.desc.length > 51 || !d.length || w.req.indexOf(d) !== 0 || /[;,]/.test(d) || /[A-Za-z0-9]/.test(next) ||
+        (!cut && !/^([;,:.]|\s—|$)/.test(w.req.slice(d.length)));
+    });
+    c26b(at + " /workshop: each row's description is its lab's first clause, at most ~50 characters, cut only at the end of a word",
+      m.rows.length > 0 && descBad.length === 0, (descBad.length ? "bad: " : "") + (descBad.length ? descBad : m.rows).map(r => "\"" + r.desc + "\"").join("; "));
+    c26b(at + " /workshop: the problem sets" + (m.otherFold.length > 1 ? " and the other phases' labs" : "") + " stay behind their folds, under the list",
+      m.setsFold && m.otherFold.indexOf("Problem sets — pen and paper") >= 0 && (m.phase === 3 || m.otherFold.indexOf("Labs in the other phases") >= 0),
+      m.otherFold.join(" | "));
+    if (o.click) {
+      const w0 = await writesNow(page);
+      await page.click("#view .pb-mode[data-mode=sets] .pb-open");
+      const sets = await page.waitForFunction(() => { const d = document.querySelector("#view details#pbSets"); if (!d || !d.open) return false;
+        const t = document.querySelector("#topbar"), top = t && t.checkVisibility() ? t.getBoundingClientRect().bottom : 0, r = d.getBoundingClientRect();
+        return r.top >= top - 1 && r.top < window.innerHeight * 0.6; }, null, { timeout: 4000, polling: "raf" }).then(() => true, () => false);
+      c26b(at + " /workshop: Problem sets' Open opens the problem-set fold and brings it into view", sets);
+      await page.click("#view .pb-mode[data-mode=labs] .pb-open");
+      const labs = await page.waitForFunction(() => { const d = document.querySelector("#view #pbLabs");
+        const t = document.querySelector("#topbar"), top = t && t.checkVisibility() ? t.getBoundingClientRect().bottom : 0, r = d.getBoundingClientRect();
+        return r.top >= top - 1 && r.top < window.innerHeight * 0.6; }, null, { timeout: 4000, polling: "raf" }).then(() => true, () => false);
+      c26b(at + " /workshop: Labs' Open brings the labs list into view", labs);
+      const w1 = await writesNow(page);
+      c26b(at + " /workshop: both Opens are in memory — no save() (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
+    }
+  }
+
+  async function t26bExamsCheck(page, at, o) {
+    await go(page, "/exams");
+    const p = await page.evaluate(t26bPrimary), m = await page.evaluate(t26bExams), L = m.want.lead;
+    c26b(at + " /exams: the header is h1 \"Exams\" and \"" + T26B_HEAD["/exams"][1] + "\"", headOk(p, "/exams"), JSON.stringify(p.head));
+    c26b(at + " /exams: the record is one muted line under it: \"" + m.want.rec + "\"", m.rec === m.want.rec, "shows \"" + m.rec + "\"");
+    if (!L || !m.hero) { c26b(at + " /exams: the hero exists for the exam to sit next", !!L && !!m.hero, "lead " + JSON.stringify(L)); return; }
+    const wantTag = (L.code || "") + (L.gate ? " · Gate 1" : "");
+    c26b(at + " /exams: the hero's tag is \"" + wantTag + "\" in the course's faculty colour",
+      m.hero.tag === wantTag && __same(m.hero.tagCol, L.fac), "\"" + m.hero.tag + "\"");
+    c26b(at + " /exams: the hero is \"" + L.title + "\" with its facts — " + L.facts.join(", "),
+      m.hero.title === L.title && JSON.stringify(m.hero.facts) === JSON.stringify(L.facts), "\"" + m.hero.title + "\": " + m.hero.facts.join(", "));
+    const got = m.hero.bar && m.hero.bar.track ? m.hero.bar.fill / m.hero.bar.track * 100 : null;
+    c26b(at + " /exams: the readiness bar is the course's lectures watched over all of them (" + (L.pct == null ? "none" : L.pct.toFixed(2) + "%") + ") within 1%, in the faculty colour",
+      L.pct == null ? !m.hero.bar : got != null && Math.abs(got - L.pct) <= 1 && __same(m.hero.bar.col, L.fac),
+      got == null ? "no bar" : got.toFixed(2) + "% of a " + m.hero.bar.track.toFixed(0) + "px track");
+    const days = L.gate ? Math.max(0, Math.round((Date.parse(T26_GATES[0].target) - Date.parse(o.today)) / 86400000)) : null;
+    c26b(at + " /exams: " + (L.gate ? "the big number is the days to Gate 1 (" + days + ", from " + o.today + " to " + T26_GATES[0].target + ")" : "no gate applies, so no days number"),
+      L.gate ? m.hero.days === String(days) && m.hero.daysLabel === "days to the gate" : m.hero.days === null, "shows " + m.hero.days);
+    const f = p.filled[0];
+    c26b(at + " /exams: \"Sit it\" is the one filled primary, to " + L.href, p.filled.length === 1 && f.text === "Sit it" && f.href === L.href && !!m.hero.sit && m.hero.sit.filled,
+      p.filled.map(x => "\"" + x.text + "\" " + x.href).join("; ") || "no filled button");
+    c26b(at + " /exams: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar)", inView(p, f),
+      where(f) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
+    const hrefs = m.open.map(c => c.href).sort();
+    c26b(at + " /exams: \"Also open\" is one card per other open exam (" + m.want.open.length + "), each with a tag, a title, and its minutes or questions",
+      JSON.stringify(hrefs) === JSON.stringify(m.want.open) && m.open.every(c => !!c.tag && !!c.title && /^\d+ (min|questions)( · pass \d+%)?$/.test(c.meta || "")),
+      m.open.map(c => c.tag + " / " + c.title + " / " + c.meta).join("; ") + (JSON.stringify(hrefs) === JSON.stringify(m.want.open) ? "" : " (want " + m.want.open.join(" ") + ")"));
+    if (o.cols && m.open.length) {
+      const cols = new Set(m.open.map(c => c.left)).size, want = Math.min(o.cols, m.open.length);
+      c26b(at + " /exams: the also-open cards are " + want + " column" + (want === 1 ? "" : "s") + " wide", cols === want, cols + " distinct columns");
+    }
+    const Lk = m.want.locked, shown = m.lockRows.filter(r => r.shown);
+    c26b(at + " /exams: \"Unlock by watching\" shows " + Math.min(6, Lk.length) + " of the " + Lk.length + " locked banks" + (Lk.length > 6 ? ", then \"+" + (Lk.length - 6) + " more\"" : ", and no \"+N\""),
+      m.lockRows.length === Lk.length && shown.length === Math.min(6, Lk.length) && m.lockRows.every((r, i) => r.shown === i < 6) &&
+        (Lk.length > 6 ? !!m.more && m.more.text === "+" + (Lk.length - 6) + " more" && m.more.w >= 44 && m.more.h >= 44 : !m.more),
+      shown.length + " shown of " + m.lockRows.length + (m.more ? ", \"" + m.more.text + "\"" : ""));
+    // A row past the sixth is hidden until "+N more", so its bar is measured
+    // after the click below; every shown row is measured here.
+    const lockBad = (rows, wantAll) => rows.filter((r, i) => !Lk[i] || r.name !== Lk[i].name || !r.lock ||
+      ((r.shown || wantAll) && (!r.bar || !r.bar.track || Math.abs(r.bar.fill / r.bar.track * 100 - Lk[i].pct) > 1 || r.h < 44)));
+    const lockText = rows => rows.map((r, i) => r.name + " " + (r.bar && r.bar.track ? (r.bar.fill / r.bar.track * 100).toFixed(1) + "%" : "(hidden)") +
+      " (want " + (Lk[i] ? Lk[i].name + " " + Lk[i].pct.toFixed(1) : "-") + "%)").join("; ") || "no locked banks";
+    c26b(at + " /exams: each locked row is a lock and the short name, and each shown one a bar of its course's lectures watched (within 1%), >= 44px tall",
+      lockBad(m.lockRows, false).length === 0, lockText(m.lockRows));
+    if (o.cols === 3 && shown.length > 1) {
+      const cols = new Set(shown.map(r => r.left)).size;
+      c26b(at + " /exams: the locked rows are 2 columns wide", cols === 2, cols + " distinct columns");
+    }
+    c26b(at + " /exams: no .glist is left on the page (the Record rows are the line under the header)", m.glist === 0, m.glist + " found");
+    if (o.click && m.more) {
+      const w0 = await writesNow(page);
+      await page.click("#view .ex-more");
+      await page.waitForFunction(() => !document.querySelector("#view .ex-more"), null, { timeout: 4000, polling: "raf" }).catch(() => {});
+      const m2 = await page.evaluate(t26bExams), w1 = await writesNow(page);
+      c26b(at + " /exams: \"+" + (Lk.length - 6) + " more\" shows all " + Lk.length + " in place, each bar measured as above, in memory (state writes " + w0 + " -> " + w1 + ")",
+        m2.lockRows.length === Lk.length && m2.lockRows.every(r => r.shown) && !m2.more && w1 === w0 && lockBad(m2.lockRows, true).length === 0,
+        m2.lockRows.filter(r => r.shown).length + " shown; " + lockText(m2.lockRows));
+    }
+  }
+
+  async function t26bRecordCheck(page, at, o, dialogs) {
+    await go(page, "/record");
+    const p = await page.evaluate(t26bPrimary), m = await page.evaluate(t26bRecord);
+    c26b(at + " /record: the header is h1 \"Proof\" and \"" + T26B_HEAD["/record"][1] + "\"", headOk(p, "/record"), JSON.stringify(p.head));
+    const want = [String(m.want.streak), String(m.want.best), String(m.want.proven)];
+    c26b(at + " /record: three tiles — streak() " + want[0] + ", bestStreak() " + want[1] + ", lectures proven " + want[2],
+      JSON.stringify(m.tiles.map(t => t.n)) === JSON.stringify(want) &&
+        JSON.stringify(m.tiles.map(t => t.label)) === JSON.stringify(["day streak", "longest streak", "lectures proven"]),
+      m.tiles.map(t => t.n + " " + t.label).join(", "));
+    const rest = m.restDow;
+    const study = m.cols.reduce((a, c) => a + c.filter((_, d) => d !== rest).length, 0);
+    const satLevel = m.cols.map(c => c[rest]).filter(k => k && !/^(rest|void)/.test(k));
+    c26b(at + " /record: the heatmap is the last 26 weeks in weekday rows — 26x6 = 156 study-day cells — and every Saturday is drawn as today (rest, or void outside the plan), never a level",
+      m.cols.length === 26 && m.cols.every(c => c.length === 7) && study === 156 && satLevel.length === 0,
+      m.cols.length + " columns, " + study + " study-day cells" + (satLevel.length ? "; Saturdays painted " + satLevel.slice(0, 4).join(", ") : ""));
+    const diff = [];
+    m.want.cells.forEach((c, w) => c.forEach((k, d) => { if (!m.cols[w] || m.cols[w][d] !== k) diff.push(k + " drawn " + (m.cols[w] ? m.cols[w][d] : "-")); }));
+    c26b(at + " /record: every cell is what the existing logic says — the day's lessons, problems and seal as its level, a rest day hollow, outside the plan void",
+      diff.length === 0, diff.length ? diff.length + " differ, e.g. " + diff.slice(0, 3).join("; ") : "182 cells");
+    c26b(at + " /record: the heatmap fits its card (no sideways scroll), cells >= 6px", m.heatOver === false && m.cellW >= 6, "cell " + m.cellW.toFixed(1) + "px");
+    const led = m.ledger, top = led.slice(-4).reverse();
+    const wantSeals = top.map(e => ({ name: t26bLectureName(e.ref), hash: "#" + e.hash.slice(0, 4) + "…" + e.hash.slice(-4) }));
+    const genesis = led.length > 0 && led.length <= 4;
+    c26b(at + " /record: \"Latest seals\" is the newest " + top.length + " of " + led.length + " chain entries — the lecture's code, then #xxxx…xxxx — newest first",
+      m.seals.length === top.length && m.seals.length <= 4 && m.seals.every((s, i) => s.hash === wantSeals[i].hash &&
+        (wantSeals[i].name ? s.name === wantSeals[i].name : !!s.name && !/undefined/.test(s.name))),
+      m.seals.map(s => s.name + " " + s.hash).join(" | ") || "no seals");
+    const wantOrder = top.map(() => "S").concat(genesis ? ["G"] : []).join(",<-,");
+    c26b(at + " /record: each seal is joined to the next by \"←\"" + (genesis ? ", and genesis is reached, so it is shown last, faded (--ink-3)" : ", and genesis is not reached, so it is not shown"),
+      m.order.join(",") === wantOrder && m.arrows.every(a => a === "←") && (genesis ? m.gen.length === 1 && __same(m.gen[0].ink, m.ink3) : m.gen.length === 0),
+      m.order.join(" ") || "nothing");
+    const wantPills = ["Transcript & gates", "Verify a file", "How it works", "Reset the streak counter"];
+    const last = m.pills[m.pills.length - 1];
+    c26b(at + " /record: the pills are " + wantPills.join(", ") + " — each >= 44x44, none filled — and the reset is last, in --bad",
+      JSON.stringify(m.pills.map(x => x.text)) === JSON.stringify(wantPills) && m.pills.every(x => x.w >= 44 && x.h >= 44 && !x.filled) &&
+        last.act === "resetStreak" && __same(last.col, m.bad),
+      m.pills.map(x => x.text + " " + x.w.toFixed(0) + "x" + x.h.toFixed(0) + (x.filled ? " filled" : "")).join(", "));
+    c26b(at + " /record: there is no filled primary on the page, so the reset cannot be one", p.filled.length === 0, p.filled.map(x => x.text).join(", "));
+    if (o.click) {
+      const w0 = await writesNow(page);
+      await page.click("#view .pf-pills [data-act=toggleAdv]");
+      const adv = await page.waitForFunction(() => { const b = document.querySelector("#view #advBox"); return b && !b.hidden && b.checkVisibility(); }, null, { timeout: 4000, polling: "raf" }).then(() => true, () => false);
+      c26b(at + " /record: \"Verify a file\" opens the verify-and-anchor box", adv);
+      const n0 = dialogs.length, from0 = await page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).streakFrom || null);
+      await page.click("#view .pf-pills [data-act=resetStreak]");
+      for (let i = 0; i < 100 && dialogs.length === n0; i++) await new Promise(r => setTimeout(r, 20));   // proof: the dialog event, not a duration
+      const from1 = await page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).streakFrom || null), w1 = await writesNow(page);
+      c26b(at + " /record: the reset still asks first — a confirm, and dismissing it changes nothing (streakFrom " + from0 + ", state writes " + w0 + " -> " + w1 + ")",
+        dialogs.length === n0 + 1 && /^Reset the streak to zero\?/.test(dialogs[dialogs.length - 1] || "") && from1 === from0 && w1 === w0,
+        (dialogs.length - n0) + " dialog(s): " + JSON.stringify(dialogs.slice(n0)));
+    }
+  }
+
+  // ---- the seeded state (with a chain) at both sizes, both themes ----
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false, cols: 3 }, { w: 390, h: 844, mobile: true, cols: 1 }]) {
+      const at = o.w + "px " + theme;
+      console.log("\nT-026b Problems, Exams and Proof, " + at);
+      const { ctx, page, errors, dialogs, today } = await t26bFresh(Object.assign({ theme, patch: { ledger: T26B_LONG } }, o));
+      const w0 = await writesNow(page);
+      await t26bProblems(page, at, Object.assign({ click: true, today }, o));
+      await t26bExamsCheck(page, at, Object.assign({ today }, o));
+      await t26bRecordCheck(page, at, Object.assign({ click: true, today }, o), dialogs);
+      const w1 = await writesNow(page);
+      c26b(at + " T-026b: nothing on the three pages wrote state, Opens, \"Verify a file\" and a dismissed reset included (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
+      c26b(at + " T-026b: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // ---- one state at a time, for what the seed cannot show ----
+  const T26B_STATES = [
+    { name: "labs and problem sets done", routes: ["/workshop"],
+      patch: { labs: { "micrograd-blind": { done: true, proof: "" }, "flashcards-cli": { done: true, proof: "https://example.org/x" } },
+               psets: Object.fromEntries(PSET_IDS.slice(0, 3).map(id => [id, true])) } },
+    { name: "an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched", routes: ["/exams"],
+      patch: { diag: { "diag-la": { score: 80, date: "2026-10-19" } },
+               lessons: Object.fromEntries([0, 1, 2, 3, 4].map(i => ["math120.0." + i, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
+    { name: "every bank open", routes: ["/exams"],
+      patch: { lessons: Object.fromEntries(["math120.0.0", "math130.0.0", "ai200.0.0", "math210.0.0", "ai310.0.0"].map(k => [k, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
+    { name: "Gate 1 passed, so a bank leads", routes: ["/exams"], patch: { gates: { 1: "2026-10-12" } } },
+    { name: "a two-entry chain (genesis reached) after a streak reset", routes: ["/record"],
+      patch: { ledger: T26B_SHORT, settings: { streakFrom: "2026-10-19" } } },
+    { name: "day 1, nothing stored", routes: ["/workshop", "/exams", "/record"], empty: true, now: T26B_DAY1, click: true },
+    { name: "a Saturday (the rest day)", routes: ["/workshop", "/exams", "/record"], now: T26B_SAT, patch: { ledger: T26B_LONG } },
+  ];
+  for (const st of T26B_STATES) {
+    for (const o of [{ w: 1440, h: 900, mobile: false, cols: 3 }, { w: 390, h: 844, mobile: true, cols: 1 }]) {
+      const at = o.w + "px dark, " + st.name;
+      console.log("\nT-026b " + at);
+      const { ctx, page, errors, dialogs, today } = await t26bFresh(Object.assign({ theme: "dark", patch: st.patch, empty: st.empty, now: st.now }, o));
+      const oo = Object.assign({ today, click: !!st.click }, o);
+      for (const r of st.routes) {
+        if (r === "/workshop") await t26bProblems(page, at, oo);
+        if (r === "/exams") await t26bExamsCheck(page, at, oo);
+        if (r === "/record") await t26bRecordCheck(page, at, oo, dialogs);
+      }
+      c26b(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // ---- nothing wider than its box, no word broken mid-word ----
+  // Every text this item added, read as rendered (labelWords: no two letters
+  // of a word on different lines), at 8 widths x 3 root sizes, on a state that
+  // draws all of it: labs ticked, a passed exam (a score pill on a card), a
+  // chain; and day 1 for the locked rows, expanded past "+N more".
+  const T26B_TEXT = "#view .page-head, #view .pb-modes, #view .pb-labs, #view .ghead, #view .ex-hero, #view .ex-open, #view .ex-locked, " +
+    "#view .ex-more, #view .pf-tiles, #view .pf-seals, #view .pf-pills, #view .pf-heat, #view .shelf-empty";
+  const T26B_OW = [320, 360, 390, 640, 768, 1100, 1280, 1440];
+  for (const root of [16, 20, 24]) {
+    for (const w of T26B_OW) {
+      const mobile = w < 861, bad = [];
+      for (const st of [{ patch: { ledger: T26B_LONG, labs: T26B_STATES[0].patch.labs, psets: T26B_STATES[0].patch.psets, diag: T26B_STATES[1].patch.diag },
+                          routes: ["/workshop", "/exams", "/record"] },
+                        { empty: true, now: T26B_DAY1, routes: ["/exams"] }]) {
+        const { ctx, page, errors } = await t26bFresh({ w, h: 900, mobile, theme: "light", root, patch: st.patch, empty: st.empty, now: st.now });
+        for (const r of st.routes) {
+          await go(page, r);
+          if (await page.$("#view .ex-more")) { await page.click("#view .ex-more"); await page.waitForFunction(() => !document.querySelector("#view .ex-more"), null, { timeout: 4000 }).catch(() => {}); }
+          const rootNow = await page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
+          if (rootNow !== root + "px") bad.push("root font is " + rootNow);
+          const ov = await page.evaluate(viewOverflow), lw = await page.evaluate(labelWords, T26B_TEXT);
+          if (ov.out.length || ov.side) bad.push(r + (st.empty ? " (day 1)" : "") + " " + ov.out.concat(ov.side ? ["page " + ov.side] : []).join(", "));
+          if (lw.length) bad.push(r + (st.empty ? " (day 1)" : "") + " " + lw.join("; "));
+        }
+        bad.push(...errors);
+        await ctx.close();
+      }
+      c26b(w + "px root " + root + "px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word",
+        bad.length === 0, bad.join(" | ") || "4 views");
+    }
+  }
+
+
   await browser.close();
 
   console.log("");
@@ -2888,7 +3434,9 @@ function routeOverlaps() {
       "T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; " +
       "T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark " +
       "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes; " +
-      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots (" + t26Checks + " checks)"
+      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots (" + t26Checks + " checks); " +
+      "T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, " + T26B_STATES.length + " more states at 1440/390, and no overflow or mid-word break at " +
+      T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

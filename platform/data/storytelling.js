@@ -81,6 +81,8 @@ DAR.COURSES.push({
         { t: "The shapes of stories — fortune drawn over time", v: "oP3c1h8v2ZQ", min: 5 },
         { t: "Building a story live: know the end, start close to it", v: "hCf3dHd8_i8", min: 41 },
         { t: "And, But, Yet, Therefore — structure in one breath", v: "_96OKURDlwc", min: 4 },
+        { t: "Structure is what they know, and when — the Nemo flashbacks", v: "bKrCKg9ggVI", min: 4 },
+        { t: "Write what you know — the feeling under the monster story", v: "1rMnzNZkIX0", min: 3 },
       ],
     },
     {
@@ -5539,6 +5541,89 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Both lines are about intelligence." },
       { q: "How does the exchange end?", opts: ["With a harsher joke", "By changing the subject", "By agreeing with the jab — 'me too'", "By walking away"], a: 2,
         expl: "A self-deprecating agreement signals the teasing is done." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit III, top-up (T-037, 2026-10-09) — A1 structure, two short Pixar in
+// a Box lessons appended after spch100.2.7: Kristen Lester on structure as
+// 'what they know, and when', and Pete Docter on putting your own feeling
+// under the plot. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.2.8": {
+    module: "A1",
+    mechanic: "Structure is the answer to 'what do you want the audience to know, and when?' — the same events in a different order produce a different feeling, as Finding Nemo learned when it moved the barracuda scene to the start.",
+    rules: [
+      "A joke has a structure — opening, build-up, ending — and getting any part wrong or out of order kills it.",
+      "Without conflict there is no story: if every lady agrees to dance with the mushroom, the joke is over.",
+      "Decide what the audience must know first in order to feel what you want them to feel later.",
+      "Early cuts of Finding Nemo spread Marlin's backstory through the film as flashbacks, and audiences didn't like him until they learned, near the end, why he was so protective.",
+      "Moving the loss to the opening changed none of the events and all of how people felt about Marlin.",
+    ],
+    drill: { minutes: 8, artifact: "written",
+      do: "Take a story you tell in which you behave in a way that could look bad — over-cautious, angry, stubborn. Write it in two orders: with the reason revealed at the end, and with the reason up front. Note which order makes a listener side with you." },
+    check: "Both versions contain exactly the same events, and you can name the one fact whose position changes how the listener judges you.",
+  },
+
+  "spch100.2.9": {
+    module: "A1",
+    mechanic: "'Write what you know' means put something you have actually felt into whatever you are telling, because a story's power is making the audience feel what you felt — and it takes many retellings before it sparkles.",
+    rules: [
+      "'What happened?' is an invitation to tell a story; we answer it every day.",
+      "Tell stories about monsters and car chases if you like, but put something from your own life into them: feeling scared, alone, out of your depth.",
+      "Monsters, Inc. pitched as 'a monster who scares kids for a living' got smiles but bored audiences; it worked once Docter saw it was about a man becoming a father, which was what was happening to him.",
+      "The aim is to get the audience to have the same feeling you had.",
+      "Stories don't come out right the first time, or the thirtieth; keep retelling until they sparkle.",
+    ],
+    drill: { minutes: 6, artifact: "written",
+      do: "Pick a story you usually tell for laughs. Under it, write one sentence — 'This story is really about ___' — naming a feeling from your own life, such as being new, being out of your depth, or suddenly being responsible for someone." },
+    check: "The sentence names a feeling, not an event, and you can find one detail in the story that doesn't serve that feeling and could go.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.2.8": {
+    takeaway: "Pixar story artist Kristen Lester: structure is what you want the audience to know, and when. A mushroom joke told out of order dies, and Finding Nemo's audiences only warmed to Marlin once his loss moved from late flashbacks to the opening.",
+    beats: [
+      { t: "The mushroom joke", d: "Opening, build-up, punchline ('I'm a fungi'). Botch the opening or the middle, or let every lady say yes, and there's no joke." },
+      { t: "What, and when", d: "Structure decides what the audience knows at each moment, and so what they feel." },
+      { t: "Nemo's flashbacks", d: "Early versions wove Marlin and Coral's past through the film and revealed the barracuda attack near the end. Audiences didn't like Marlin." },
+      { t: "The fix", d: "Almost all the flashbacks went; the attack moved to the beginning. Knowing his loss from the start, audiences saw his protectiveness as love and his journey as brave." },
+    ],
+    worked: "Same events, new order: once the audience sees Coral and all but one of the eggs taken in the opening minutes, 'I promise I will never let anything happen to you' explains every over-cautious thing Marlin does afterwards.",
+    watch: "This is the short opening video of a longer Khan Academy lesson; the exercises are on Khan Academy's Pixar in a Box pages.",
+    concepts: [],
+    checks: [
+      { q: "How does Lester define structure?", opts: ["The number of acts", "What you want the audience to know, and when", "The length of each scene", "The order you wrote it in"], a: 1,
+        expl: "Get the order wrong and the effect changes, even with the same material." },
+      { q: "Why didn't early audiences like Marlin?", opts: ["They didn't learn why he was so protective until near the end", "His voice was wrong", "The film was too long", "Nemo was the hero"], a: 0,
+        expl: "The flashback structure hid his reason until it was too late." },
+      { q: "What breaks the mushroom joke in her last failed attempt?", opts: ["A wrong punchline", "Telling it too fast", "No conflict — everyone says yes", "A missing opening"], a: 2,
+        expl: "Without conflict, joke over." },
+    ],
+  },
+
+  "spch100.2.9": {
+    takeaway: "Pete Docter opens Pixar in a Box's storytelling season: stories connect on an emotional level, 'write what you know' means putting your own feelings into any plot, and stories only sparkle after many retellings.",
+    beats: [
+      { t: "'What happened?'", d: "When Val asks Pete what happened, she is asking for a story. People have told them for as long as they could speak." },
+      { t: "Write what you know", d: "As a kid he wanted explosions and car chases, not suburban Minnesota. You can have both — put how you felt into the explosions." },
+      { t: "Monsters, Inc.", d: "'A monster who scares kids for a living' got smiles in a pitch but left audiences restless. It was really about a man becoming a father — what was happening to Docter." },
+      { t: "Retell it", d: "Not even the greats get it right first time; Pixar's stories improve over retelling after retelling, up to the thirtieth and beyond." },
+    ],
+    worked: "Monsters, Inc.: the clock-in, eat-donuts, talk-about-union-dues joke was funny for a minute. The film found its spine when Docter recognised his own life in it — someone suddenly responsible for a small child.",
+    watch: "Under three minutes of introduction; the rest of the season is on Khan Academy. Its value here is one move: name the feeling under your plot.",
+    concepts: [],
+    checks: [
+      { q: "What does 'write what you know' mean in Docter's telling?", opts: ["Only write about your home town", "Put something you have felt into whatever you write", "Avoid fantasy", "Research every detail"], a: 1,
+        expl: "Something from your own life makes the story come alive." },
+      { q: "What did Docter realise Monsters, Inc. was really about?", opts: ["A man becoming a father", "Union politics", "Fear of the dark", "A friendship between monsters"], a: 0,
+        expl: "That was what was happening to him at the time." },
+      { q: "What does he say about getting a story right?", opts: ["Geniuses get it right first time", "Two drafts are enough", "It takes many retellings before it sparkles", "Test it only once"], a: 2,
+        expl: "Up to the thirtieth time, and on." },
     ],
   },
 });

@@ -129,6 +129,9 @@ DAR.COURSES.push({
         { t: "Presenting in your second language — seven mistakes", v: "c_VGjjuEH-s", min: 38 },
         { t: "Share, don't present — bottom line first, less robotic", v: "lX_KmPQPjLI", min: 20 },
         { t: "Being funny in another language", v: "SP8YSgUkCh0", min: 46 },
+        { t: "Word stress — the syllable that is higher and longer", v: "pRXsIthxgH8", min: 4 },
+        { t: "Intonation — the melody that carries attitude", v: "p8DJFNjZiIM", min: 5 },
+        { t: "Arabic speakers' English — p and b, the r, and the missing 'a'", v: "spNrlty3tzk", min: 5 },
       ],
     },
     {
@@ -5624,6 +5627,129 @@ Object.assign(DAR.SUMMARIES, {
         expl: "That was what was happening to him at the time." },
       { q: "What does he say about getting a story right?", opts: ["Geniuses get it right first time", "Two drafts are enough", "It takes many retellings before it sparkles", "Test it only once"], a: 2,
         expl: "Up to the thirtieth time, and on." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit VI, top-up (T-037, 2026-10-09) — A8 non-native speaker, three
+// short lessons appended after spch100.5.11: word stress and intonation
+// (Rachel's English), and the slips Arabic speakers most often make in
+// English. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+
+  "spch100.5.12": {
+    module: "A8",
+    mechanic: "Inside an English word one syllable is stressed — higher in pitch and longer — and in a sentence the important words are stressed while the small ones shrink; the listener's ear finds meaning by those stresses, so a word stressed on the wrong syllable can be hard to recognise.",
+    rules: [
+      "A stressed syllable is usually higher in pitch and longer: a-BOUT, not A-bout.",
+      "Long words can have a primary and a secondary stress: em-BAR-rass-ment has its main stress on the second syllable, a lighter one on the first, and the last two unstressed.",
+      "In a sentence the content words carry the stress: 'I SAW her at the MEET-ing.'",
+      "Unstressed words reduce — in 'I got it for you', 'for' is a short, low 'fr'.",
+      "Learn each new word's stress together with the word; dictionaries mark it, and free pitch-tracking software can show it.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Pick ten words of three or more syllables that you use at work. Look up each one's stressed syllable, write the word with that syllable in capitals, and record yourself saying each word alone and then in a short sentence." },
+    check: "On playback the capitalised syllable is audibly the highest and longest in every word, and each matches the dictionary.",
+  },
+
+  "spch100.5.13": {
+    module: "A8",
+    mechanic: "Intonation is the pitch pattern across a phrase: American statements start higher and end lowest, questions often rise, and the same words with a different melody carry a different attitude — so English spoken with another language's melody sounds foreign even when every sound is right.",
+    rules: [
+      "Stressed syllables are higher, longer and often louder; content words take the stress and function words don't.",
+      "Statements tend to start higher and reach their lowest pitch at the end; questions often rise at the end.",
+      "The melody carries attitude: a rising 'Are you serious?' sounds concerned and open; a falling one sounds like a judgement.",
+      "Correct sounds spoken with another language's melody still sound foreign.",
+      "Train the ear by looping a native phrase several times before you try to repeat it.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Record 'Are you serious?' twice — once rising, as concern, once falling, as judgement. Then record three statements about your own work and check that each ends at its lowest pitch." },
+    check: "A friend can tell which 'Are you serious?' was the concerned one without being told, and none of your three statements rises at the end.",
+  },
+
+  "spch100.5.14": {
+    module: "A8",
+    mechanic: "Your first language predicts your most likely slips in English; for Arabic speakers the common ones are p and b (Arabic has no p), a strongly rolled r, spelling that isn't phonetic, and dropping 'a/an' or putting the adjective after the noun — so check those first.",
+    rules: [
+      "P and B: Arabic has only B. Put a hand on your throat — B vibrates, P doesn't: paper, people, pen.",
+      "The R: a rolled r is still understood, but soften it — the tongue rises toward the roof of the mouth without touching it.",
+      "English spelling isn't phonetic: 'though' and 'through' share letters but not sounds, and an initial 'kn' drops the k (know, knife). Learn the sound with each new word.",
+      "Arabic has no indefinite article: 'I teacher' has to become 'I'm a teacher', and 'I have pen' becomes 'I have a pen'.",
+      "In English the adjective goes before the noun and doesn't change for gender: 'a red pen', not 'pen red'.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Record yourself reading this aloud, then listen back: 'I'm a project manager. People pay me to plan big projects, and I have a pretty busy week — a planning meeting, a new proposal, and a presentation on Thursday.'" },
+    check: "Every p in people, pay, plan, projects, pretty, planning, proposal and presentation is voiceless — a puff of air, no buzz — and every 'a' before a noun is there.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.5.12": {
+    takeaway: "Rachel's English introduces stress: in American English certain syllables in a word, and certain words in a sentence, are higher in pitch and longer. That contrast is what lets the ear pick out meaning — and much of what makes an accent.",
+    beats: [
+      { t: "About", d: "Two syllables, the second stressed: higher in pitch and longer." },
+      { t: "Primary and secondary", d: "Embarrassment: primary stress on the second syllable, a secondary on the first, the last two unstressed." },
+      { t: "In a sentence", d: "In 'I saw her at the meeting', 'saw' and the first half of 'meeting' stand out." },
+      { t: "Seeing it", d: "Pitch-tracking software shows each stressed syllable as a scoop up in the voice." },
+      { t: "Reduction", d: "'I got it for you' — 'for' becomes a short, low 'fr'. Stress and reduction together make up much of an accent." },
+    ],
+    worked: "Embarrassment: em (secondary) – BAR (primary) – rass – ment. Say it once with every syllable equal and once with this pattern; the second is the one a listener recognises at once.",
+    watch: "The model is American English. Stress as pitch plus length holds for British English too, but some words differ, so check a dictionary for the variety you want.",
+    concepts: [],
+    checks: [
+      { q: "What makes a syllable stressed, in Rachel's explanation?", opts: ["It is louder, nothing else", "It is usually higher in pitch and longer", "It is spoken faster", "It comes first in the word"], a: 1,
+        expl: "Pitch and length are what the ear picks up." },
+      { q: "In 'embarrassment', where is the primary stress?", opts: ["On the second syllable", "On the first syllable", "On the last syllable", "Spread evenly"], a: 0,
+        expl: "The first syllable has a secondary stress." },
+      { q: "What happens to 'for' in 'I got it for you'?", opts: ["It is stressed", "It disappears completely", "It is reduced to a short, low 'fr'", "It is lengthened"], a: 2,
+        expl: "Unstressed words reduce." },
+    ],
+  },
+
+  "spch100.5.13": {
+    takeaway: "Rachel's English defines intonation as the pitch pattern across a phrase. American statements fall to their lowest point at the end, questions rise, and the melody alone can turn the same words into concern or judgement.",
+    beats: [
+      { t: "From stress to melody", d: "Stressed syllables are higher; content words are stressed and function words not. Strung together, those pitches make a pattern." },
+      { t: "Statements fall", d: "'Today it's sunny.' 'I wish I'd been there.' Even long sentences with ups and downs reach their lowest point at the end." },
+      { t: "Questions rise", d: "'Me?' goes up; 'me.' goes down." },
+      { t: "Attitude", d: "'I'm dropping out of school.' 'Are you serious?' — rising sounds open and concerned; falling sounds like disapproval." },
+      { t: "Sounding foreign", d: "The right sounds in another language's melody still sound foreign. Loop native speech until the melody is in your ear." },
+    ],
+    worked: "'I'm dropping out of school.' Reply A, rising: 'Are you serious?' — what happened, are you okay? Reply B, falling: 'Are you serious.' — that's a bad idea. The same three words set up opposite conversations.",
+    watch: "Unit V's coaches disagree about how a sentence should end on stage; this lesson describes everyday American statements. In a talk, a falling ending still signals that you mean it.",
+    concepts: [],
+    checks: [
+      { q: "How do American English statements usually move in pitch?", opts: ["They start higher and end lowest", "They rise at the end", "They stay flat", "They start low and rise"], a: 0,
+        expl: "The lowest point is at the end." },
+      { q: "After 'I'm dropping out of school', what does a falling 'Are you serious?' convey?", opts: ["Concern", "Confusion about the words", "A judgement — disapproval", "Excitement"], a: 2,
+        expl: "Rising would sound open and concerned." },
+      { q: "Why can correct sounds still sound foreign?", opts: ["The vocabulary is wrong", "They are spoken with another language's melody", "They are too slow", "The grammar is wrong"], a: 1,
+        expl: "Intonation characterises a language as much as its sounds." },
+    ],
+  },
+
+  "spch100.5.14": {
+    takeaway: "A short lesson from an English teacher who also speaks Arabic, on the slips Arabic speakers most often make in English: p and b, a strongly rolled r, non-phonetic spelling and silent letters, capital letters, the missing 'a/an', and adjective order.",
+    beats: [
+      { t: "P and B", d: "Arabic has a B but no P, so 'people' can come out as 'bibble'. B vibrates in the throat; P is only air." },
+      { t: "The R", d: "A rolled r is still understood; soften it so the tongue lifts toward the roof of the mouth without touching." },
+      { t: "Spelling and sound", d: "Arabic is read as it is written; English is not. 'Though' and 'through'; an initial 'kn' drops the k." },
+      { t: "Capital letters", d: "Arabic has none. English capitalises sentence starts, names, cities, countries and nationalities." },
+      { t: "The missing 'a'", d: "'I teacher' and 'I have pen' carry Arabic patterns straight across; English needs 'I'm a teacher' and 'I have a pen'." },
+      { t: "Adjective order", d: "English puts the adjective first and doesn't change it for gender: 'I have a red pen'." },
+    ],
+    worked: "'I have pen red' carries two Arabic patterns at once — no indefinite article, and the adjective after the noun. Fixed: 'I have a red pen.'",
+    watch: "Two of the six points (spelling and capitals) are about writing. The speaking ones — p and b, and the dropped 'a' — are what a listener notices in a pitch.",
+    concepts: [],
+    checks: [
+      { q: "Why do many Arabic speakers mix up p and b?", opts: ["Arabic has a B but no P", "The letters look alike", "English spelling is confusing", "They are the same sound"], a: 0,
+        expl: "The p sound simply doesn't exist in Arabic." },
+      { q: "How can you feel the difference between B and P?", opts: ["B is longer", "Hand on the throat — B vibrates, P doesn't", "P is louder", "B uses the tongue"], a: 1,
+        expl: "B is voiced; P is voiceless." },
+      { q: "Which sentence correctly fixes 'I have pen red'?", opts: ["I have red pen", "I have the pen red", "I have a red pen", "I have pen a red"], a: 2,
+        expl: "Indefinite article, then the adjective before the noun." },
     ],
   },
 });

@@ -1,0 +1,86 @@
+# Transcript: Derek Muller: The key to effective educational science videos
+
+Source video: https://www.youtube.com/watch?v=RQaW2bFieo8
+Language: en (auto-generated) · Duration: 6:11 · Words: 1062
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (auto-generated captions, de-duplicated by the tool)
+
+[0:01] how do you make a film that teaches people about science I think it's an important question
+and I think it's a timely question given that while video is exploding everywhere on the internet
+and there are new initiatives popping up like Ted Ed now this question how do you make a film that
+effectively teaches someone something about science that was the topic of my PhD so I'd like to tell
+you what I found out I went to the University of Sydney and I
+
+[0:32] took all the firste physics students and I tried to teach them about the basic laws of motion
+Newton's first and second laws so I sent them away to their homes and I asked them to go online and
+sit a 26 question multiple choice uh test here's a sample question just so you get a feel for what I
+was asking them imagine a basketball player shooting from the free throw line after he releases the
+ball the forces on the ball are a a upwards and constant B upwards
+
+[1:03] and decreasing C downwards and constant D downwards and decreasing or E tangent to the path
+of the ball I want you to take a minute and think about think about what you would answer and think
+about think about what you think other people might answer okay so then we would get the students to
+rate their confidence in their answers how confident are you that this is correct I should mention
+that that is not the exact lyit scale that I gave them but
+
+[1:33] it's you know get the idea across okay and then I would randomly assign these students uh to
+watch one of several videos about Newton's first and second laws they lasted about 8 to 10 minutes
+so in a standard uh Exposition video I would say something like this to them well we would state
+Newton's laws and then we would apply it to a real world example like a juggler I can't juggle so
+I've got one ball anyway um so we would say something like while ball is in the air there's only one
+force acting on it
+
+[2:03] throughout its flight it's a force of gravity it's constant and it's downwards we'd actually
+animate a little arrow on the ball as it goes up and down in slow motion okay so obviously the
+answer was C whereas most people usually pick B to that question okay so after watching this video
+the students would sit the exact same 26 question test I wanted to see have they changed their minds
+about any of those questions and I also interviewed a couple students to see what did they think
+about the video did they like it did they think that they
+
+[2:33] learned something from it and here's what they told me well they said Derek that was a great
+video it was clear these are the most common things they said it was clear it was concise it was
+easy to understand that's good and then I looked at their confidence scores how did that change on
+average well on average it improved by about a point okay everything's looking good but how much did
+they learn well on the preest they scored scored six out of 26 and I can tell you there were
+
+[3:04] basically direct answers to at least 14 of those questions but how much did they pick up the
+average on the post test was 6.3 what happened they thought they learned but their scores didn't
+change well one of the students told me in the video it said the ball is slowly decreasing in force
+they thought there was some upward force in the ball and they thought that was presented to them
+they couldn't even
+
+[3:34] correctly remember what was presented five minutes earlier and I had sat in the room with
+them and they watched the video the thing is in science students don't know nothing about what we
+trying to teach them they actually know lots of things through their interaction with the world it
+just turns out that these things are wrong scientifically speaking so when you present something the
+student thinks they already know it and they don't really pay utmost attention they don't realize
+that what's
+
+[4:05] being presented differs from their prior knowledge and they just get more confident in those
+things that they were thinking beforehand so actually a clear expository summary is worse than no
+instruction at all I mean that very seriously so so how do you get students to engage well I tried a
+different approach I put two people in a video and I got one to voice the common misconceptions and
+then the the tutor would kind of indicate okay that's not quite right and they would work it out
+through a social
+
+[4:35] dialogue but I mean we would even animate the misconception on the ball without telling
+anyone it was a misconception they had to work that out through the social interaction okay so this
+was the the very same setting that every that the other students watched the exposition video what
+did the dialogue students say well no one told me that it was clear no one told me it was concise no
+one said it was easy to understand in fact most of the time they told me it was confusing man maybe
+this backfired so how' they go on the post
+
+[5:07] test well their scores nearly doubled to 11 out of 26 okay it's not 26 out of 26 but it's a
+start and what was the difference well after the video I asked students to rate their mental effort
+how much mental effort did you expend while watching that video and the students who watched the
+dialogue invested significantly more mental effort in engaging with that presentation than students
+who saw only an expository
+
+[5:39] summary so to me there's a really important message there depending on how you present you
+can change how your audience watches and thereby how much they learn and I'm now applying this I've
+got a YouTube channel it's called veritasium and I've made nearly a hundred films which have been
+seen over 4.5 million times throughout the world and you know you always have to start with the
+misconceptions thank you
+
+[6:11] [Music]

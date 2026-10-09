@@ -304,6 +304,8 @@ DAR.COURSES.push({
         { t: "Packaging — legitbait, not a click trap", v: "S2xHZPH5Sng", min: 19 },
         { t: "Editing for tension — moments, countdowns, questions", v: "Kt-mmNGKT88", min: 5 },
         { t: "A story inside a review — and packaging before you film", v: "xNC8gPIMv6U", min: 16 },
+        { t: "Start with the misconception — why a clear explainer can teach nothing", v: "RQaW2bFieo8", min: 6 },
+        { t: "How Johnny Harris writes a video — the promise, the cold open, words paired with pictures (start at 10:19, stop at 36:00)", v: "zq4b96m1AvM", min: 26 },
       ],
     },
   ],
@@ -6900,6 +6902,94 @@ Object.assign(DAR.SUMMARIES, {
         expl: "The 'due to' is the part people leave out." },
       { q: "What does he mean by 'very few globals'?", opts: ["Little of what your team takes for granted is shared by the org", "Most readers only skim the subject line, so the rest is wasted", "Most teams depend on shared services that few people understand", "Most emails should go to small lists, not to everyone at once"], a: 0,
         expl: "Acronyms and service names are local state; don't assume everyone has them." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XVII, top-up (T-037 review round 1, 2026-10-09) — B5 long-form
+// structure, two lessons appended after spch100.16.4: Derek Muller's
+// finding that a clear explainer can leave viewers more confident and no
+// more correct, and Johnny Harris on writing a long video (the promise,
+// the cold open, the two-column script, the conclusion). Each read in
+// full. Appended at the END of the unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+  "spch100.16.5": {
+    module: "B5",
+    mechanic: "A clear, concise explanation can leave viewers more confident and no more correct, because they map it onto what they already, wrongly, believe; an explainer teaches when it voices the common misconception first and makes the viewer work out why it fails.",
+    rules: [
+      "Viewers aren't empty: they arrive with ideas from everyday life, many of them wrong.",
+      "A clear summary can raise their confidence without changing their minds — they don't notice it differs from what they already thought.",
+      "Put the misconception on screen or in a voice — state it, show it, let someone argue it — before resolving it.",
+      "Don't fear confusion: in his study the dialogue video felt less clear but drew more mental effort and nearly doubled the scores.",
+      "So open with the misconception, not the answer.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick something you understand that most people get wrong. Write the three-line opening of an explainer for it: line one states the common wrong belief as if it were true, line two shows a case where it breaks, line three asks the viewer what is really going on. Try it on one person and note whether they saw the break coming." },
+    check: "The wrong belief is stated plainly enough that a newcomer would nod along, the breaking case is concrete, and the opening ends on a question rather than the answer.",
+  },
+
+  "spch100.16.6": {
+    module: "B5",
+    mechanic: "Write a long video from its promise: fix the title and thumbnail early, reinforce the promise in the first minute and pay it off by the end; open on action; write plain, active 'who did what to whom' sentences with a visual for every line; load each character with a motive; and close by zooming out to reflect.",
+    rules: [
+      "Decide the packaging early — two or three versions — because it is the promise. Reinforce it within the first minute; you needn't answer it until the end, but you must pay it off.",
+      "Open on action, not on 'today I'll tell you about…': 'It started with a murder.'",
+      "Write in classic style — agents doing visible things: 'they fled', not 'leading to the migration of'.",
+      "Script in two columns — the words, and the visual each line pairs with. Every sentence gets its picture.",
+      "Give each character, even an icon on a map, a motive so the viewer feels the tension; at the end, slow down, zoom out and complicate a one-sided verdict.",
+    ],
+    drill: { minutes: 10, artifact: "written",
+      do: "Pick a story you could explain in a video. Write a title that is a promise (start it with How or Why), a first line that drops into action, then six lines of script in two columns — words on the left in active 'who did what' sentences, the visual for each line on the right." },
+    check: "The first line has someone doing something; no line on the left uses an abstract noun where an action would do; every line on the left has its visual; and the title's question is one the script will answer.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.16.5": {
+    takeaway: "Derek Muller's PhD finding in six minutes: a clear, concise physics video left students more confident and no better on the test, while a confusing dialogue that voiced their misconceptions nearly doubled their scores. Start with the misconception.",
+    beats: [
+      { t: "The test", d: "First-year physics students took a 26-question test on Newton's laws, rated their confidence, watched an 8 to 10 minute video, and took the test again." },
+      { t: "The clear video", d: "Students called it clear, concise and easy; their confidence rose; their scores went from 6 to 6.3 out of 26 — and some misremembered what it had said." },
+      { t: "Why", d: "They arrive with ideas from everyday life. A clear summary gets mapped onto those ideas instead of challenging them." },
+      { t: "The dialogue video", d: "One person voiced the misconceptions and a tutor worked through them. Students called it confusing, invested more mental effort, and scored about 11." },
+      { t: "The rule", d: "How you present changes how people watch, and so how much they learn: start with the misconceptions." },
+    ],
+    worked: "An explainer on how planes stay up. The usual opening: 'Lift is generated because air moves faster over the curved top of the wing.' Opening with the misconception: 'You've probably heard the air over the top has further to go, so it has to go faster. Then how does a plane fly upside down?' The viewer's own idea is now on the table, and the video has to resolve it.",
+    watch: "Six minutes with auto-generated captions. The numbers come from his own PhD study with one group of first-year students, and he presents the dialogue result as a start, not a solution.",
+    concepts: [],
+    checks: [
+      { q: "What happened after students watched the clear, concise video?", opts: ["Their confidence rose but their test scores barely moved", "Their scores rose, but they all said the video was confusing", "Both their confidence and their scores roughly doubled", "They stopped watching before the end of the video"], a: 0,
+        expl: "6 out of 26 before, 6.3 after — while they rated it clear and felt surer." },
+      { q: "What was different about the video that worked better?", opts: ["It was shorter, and used much more animation than the first one", "It had one person voice the misconceptions for a tutor to resolve", "It stated Newton's laws up front, then worked several examples", "It gave students the test answers before they watched it"], a: 1,
+        expl: "The misconceptions were on screen, and viewers had to work out why they were wrong." },
+      { q: "Why does a clear summary fail to change minds, in his account?", opts: ["Clear videos are too short to cover every one of the questions", "Viewers think they already know it and miss how it differs", "Clear videos move too fast for anyone to take notes", "Viewers distrust a presenter who sounds too certain"], a: 1,
+        expl: "What they hear is mapped onto what they already believed." },
+    ],
+  },
+
+  "spch100.16.6": {
+    takeaway: "Johnny Harris, in a long interview about how he writes: the title and thumbnail are the promise, the first line drops you into action, every sentence is plain, active and paired with a visual, characters are loaded with motives, and the end zooms out to reflect.",
+    beats: [
+      { t: "The promise", d: "The packaging is decided early, in two or three versions, as the reason to click. Reinforce it in the first minute; answer it by the end — then 'fold in the vegetables', the curiosity viewers didn't know they had." },
+      { t: "Cold open", d: "'It started with the murder of their prophet.' Action, emotion and a picture — not 'I want to tell you the story of'." },
+      { t: "Empathise with the viewer", d: "Every word is weighed against who is watching: he kept 'husband to 40 wives' because most viewers would be hooked, though a minority would hear an old trope." },
+      { t: "Classic style", d: "From Steven Pinker: who did what to whom. 'They fled', not 'the migration of'; 'we send Coca-Cola to Thailand', not 'globalisation'." },
+      { t: "Two columns", d: "Prose on the left, visual direction on the right; every sentence or two gets its own row and its own picture." },
+      { t: "Icons with motives", d: "Two icons on a map — the Mormons and the federal government — loaded with fears and aims, so the slow approach of one creates tension." },
+      { t: "Conclusion energy", d: "At the end, zoom out and reflect in a softer tone, and complicate the verdict: a beautiful valley and a sugar-coated history in one sentence." },
+    ],
+    worked: "Abstract: 'Following the discovery of a crack, the bridge was subject to an emergency closure, leading to significant disruption.' In classic style, two columns: 'An inspector found a crack.' | close-up of the crack, circled in red. 'By noon, police had shut the bridge.' | barriers going up. 'Forty thousand drivers had to find another way.' | a map, traffic spilling onto side roads.",
+    watch: "The interview runs about 87 minutes; this lesson is 10:19 to 36:00, which covers the promise, the cold open, the two-column script and the conclusion, with a sponsor read from about 15:08 to 16:37. The rest — titles as promises, the 'let me show you' voice, finding fresh language — is worth watching too, but isn't counted here.",
+    concepts: [],
+    checks: [
+      { q: "Why does he decide the title and thumbnail before he knows the story?", opts: ["They are the promise — the reason someone will click at all", "His editors need them before they can start the animation", "YouTube requires them when a video is first scheduled", "They decide the order in which the research is done"], a: 0,
+        expl: "The promise has to be reinforced early and paid off by the end." },
+      { q: "What does 'classic style' mean in the way he writes?", opts: ["Formal sentences with no slang, as in an encyclopaedia", "Plain, active sentences in which someone does something", "A three-act structure borrowed from the classic films", "Long sentences with a rhythm that suits being read aloud"], a: 1,
+        expl: "Who did what to whom — something the viewer can picture." },
+      { q: "How does he open the Mormon video, and why?", opts: ["'Today I'll tell you the story of the Mormons' — to set the scope", "'It started with a murder' — to drop the viewer straight into action", "With the title read out loud — to confirm they clicked the right video", "With his own memories of the valley — to make it personal first"], a: 1,
+        expl: "No 'tell them what you'll tell them': start inside the action." },
     ],
   },
 });

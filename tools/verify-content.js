@@ -2306,7 +2306,9 @@ Object.keys(expectedSummary).forEach(k => {
 //   * a drill or summary that is missing or malformed — drillHTML/summaryHTML
 //     return "" for a key with nothing behind it;
 //   * a check whose answer index is outside its options — the quiz engine would
-//     mark every reply wrong.
+//     mark every reply wrong;
+//   * the same video installed under two keys — it renders twice, is scheduled
+//     twice and its minutes count twice towards the hour budget.
 // The prose is injected raw (rules, summaries, checks), so no bare "<" and no
 // "$": a dollar sign is KaTeX's delimiter and would eat the sentence after it.
 const SPCH = D.COURSES.find(c => c.id === "spch100");
@@ -2321,8 +2323,12 @@ if (SPCH) {
     ok(!!l && l.v === spchLedger[k], "spch100 ledger: " + k + " still points at " + spchLedger[k] +
       (l ? " (it now points at " + l.v + " — a unit or lesson was inserted or reordered)" : " (the key no longer exists)"));
   });
+  const spchSeen = {};
   SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
     const k = "spch100." + ui + "." + li;
+    ok(!spchSeen[l.v], k + ": " + l.v + " is not already installed" + (spchSeen[l.v] ? " at " + spchSeen[l.v] +
+      " (a video installed twice is watched twice and counted twice in the hours)" : ""));
+    spchSeen[l.v] = spchSeen[l.v] || k;
     spchLessons++;
     spchMin += +l.min || 0;
     ok(spchLedger[k] === l.v, k + ": is pinned in data/storytelling/ledger.json (append one line for a new lesson)");

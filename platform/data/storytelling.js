@@ -196,11 +196,9 @@ DAR.COURSES.push({
       ],
     },
     {
-      name: "Unit XI — Choosing your stories: the moment, the test, the bank",
+      name: "Unit XI — Choosing your stories: the five-minute test and the bank",
       lessons: [
         { t: "Your life story in five minutes", v: "iWDmnTKdbu8", min: 7 },
-        { t: "The five-second moment — choose change, not drama", v: "IPf0dfZXJG4", min: 24 },
-        { t: "Story or anecdote? A story built live (stop at 36:00)", v: "hCf3dHd8_i8", min: 41 },
         { t: "A story bank — categories, prompts and tags", v: "Jb3V1bYX3sU", min: 22 },
       ],
     },
@@ -3661,11 +3659,12 @@ Object.assign(DAR.SUMMARIES, {
 });
 
 // =====================================================================
-// Unit XI — B3, story selection (budget 1.75 h). The first Track B unit:
-// which of your own experiences are worth telling. A five-minute life-story
-// exercise, Matthew Dicks twice (the five-second moment; a story built live
-// from Homework for Life, with the anecdote-or-story test), and a creator's
-// story bank with categories and tags. It inherits A2's noticing.
+// Unit XI — B3, story selection (budget 0.5 h). The first Track B unit:
+// which of your own experiences are worth telling. Deliberately small: the
+// teaching that does this best — Matthew Dicks's five-second moment and his
+// anecdote-or-story test — is already installed in Unit III (A1) and Unit IV
+// (A2), so B3 adds only the creator's tools: a five-minute life-story
+// exercise and a story bank with categories and tags.
 // =====================================================================
 Object.assign(DAR.DRILLS, {
 
@@ -3684,36 +3683,6 @@ Object.assign(DAR.DRILLS, {
   },
 
   "spch100.10.1": {
-    module: "B3",
-    mechanic: "Matthew Dicks says every story worth telling turns on a five-second moment — an instant of realisation or transformation — so choose stories by the change inside you, not by how dramatic the events were.",
-    rules: [
-      "Big events are not the story. Nobody connects to going through a windshield; they connect to realising you are loved.",
-      "Every story is about change: a realisation (I used to think this, now I think that) or a transformation (I became someone different). The change itself is instant, like a coin flipping.",
-      "A little change is enough. Most of his stories are tiny moments an onlooker wouldn't notice, because they happen inside your head.",
-      "Be deeply curious about yourself — ask why you do the things you do.",
-      "When a moment feels important but isn't yet a story, keep it rolling around. His bench-and-fountain moment took three months to show what it meant.",
-    ],
-    drill: { minutes: 8, artifact: "written",
-      do: "Go back through the last week and list three moments after which you thought or felt a little differently, however small. For each, write: 'I used to think ___; now I think ___.'" },
-    check: "At least one of the three would look like nothing to an onlooker. If all three are dramatic events, you are selecting for plot, not change.",
-  },
-
-  "spch100.10.2": {
-    module: "B3",
-    mechanic: "Matthew Dicks picks a moment from the last 72 hours of his Homework for Life and builds a story from it live — showing the test for whether a moment is a story or only an anecdote: is there a change, and can you find its opposite to begin with?",
-    rules: [
-      "Start with the end — what changed in you? Then ask what the opposite of that is. That is where the story begins.",
-      "Start as close to the end as possible (Kurt Vonnegut's advice). He began in the last five minutes of the movie, not at the start.",
-      "No opposite usually means an anecdote — 'cotton candy', delicious but forgettable. Probe it for meaning: his son's dead-crabs anecdote became a story once the boy saw he has to learn things for himself.",
-      "Tell it beat by beat, then reflect: what worked, what was bloated. A B-minus story beats almost anything told at a dinner table.",
-      "Keep the record usable: he reviews each sheet of about 100 entries a few weeks later and adds detail where a memory is getting flimsy.",
-    ],
-    drill: { minutes: 10, artifact: "spoken",
-      do: "Pick one moment from your own Homework for Life (or the last three days). Say what changed (the end), its opposite (the beginning), and a starting point as close to the end as you can. Then tell it in under two minutes." },
-    check: "You can state the change in one sentence. If you can't, label it an anecdote, file it, and pick another moment.",
-  },
-
-  "spch100.10.3": {
     module: "B3",
     mechanic: "Michelle Knight, a brand-storytelling coach, builds a story bank in about 30 minutes: capture stories under five categories using prompts, then tag each with the emotion, the lesson and the offer it leads to, so the right story is findable when you need it.",
     rules: [
@@ -3754,50 +3723,6 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.10.1": {
-    takeaway: "Dicks has been pronounced dead in an ambulance, jailed for something he didn't do and had a gun held to his head — and insists the best stories are small. A story turns on a five-second moment of change; drama without that moment is just information.",
-    beats: [
-      { t: "The crash", d: "December 1988, a car full of surprise presents, a head-on collision. The story's moment is not the crash but his friends filling the waiting room." },
-      { t: "Nobody connects to the windshield", d: "Audiences cry when the friends arrive, not when he dies." },
-      { t: "Realisation or transformation", d: "Change happens in an instant, like a coin flip, after everything that leads up to it." },
-      { t: "A little is enough", d: "95 per cent of his stories are tiny moments an onlooker wouldn't notice." },
-      { t: "Let it roll around", d: "Keep a moment in mind until it tells you what it means." },
-    ],
-    worked: "His son promises to build fountains for his parents when they die. Dicks first sees a funny moment and a sad one — the childhood promises adults don't keep. Three months later the meaning arrives: he plays golf with his son, the thing no adult ever did for him, so he is keeping the one childhood promise that mattered.",
-    watch: "Selecting for drama. He worries people think something huge has to happen to have a story. A content note: the story includes a graphic car-crash description and strong language.",
-    concepts: [],
-    checks: [
-      { q: "According to Dicks, what does every story turn on?", opts: ["A dramatic event", "A five-second moment of realisation or transformation", "A villain", "A funny line"], a: 1,
-        expl: "Really a one-second moment, he says." },
-      { q: "When do his audiences get emotional in the crash story?", opts: ["When he dies in the ambulance", "When the cars collide", "When his friends show up at the hospital", "When the presents are lost"], a: 2,
-        expl: "The realisation that he is loved." },
-      { q: "What did he do with the bench-and-fountain moment?", opts: ["Kept it in mind until its meaning surfaced months later", "Told it the same day", "Discarded it as too small", "Turned it into a joke"], a: 0,
-        expl: "Curiosity about yourself finds the meaning." },
-    ],
-  },
-
-  "spch100.10.2": {
-    takeaway: "A live demonstration: Dicks scans three days of his Homework for Life, picks a moment, and builds a B-minus story from it — then shows how to tell a story from an anecdote. A story has a change, and the change has an opposite.",
-    beats: [
-      { t: "The pick", d: "At the climax of a car chase in a cinema, his 16-year-old daughter climbed over the armrest to cuddle him, and he pushed her away." },
-      { t: "End, then opposite", d: "The end: regret, because these moments are running out. Its opposite gives the beginning." },
-      { t: "Close to the end", d: "He started minutes before the end of the film, not at the box office." },
-      { t: "Found in the telling", d: "The real ending — alone in his car watching her walk into the house — surfaced while he was telling it." },
-      { t: "Anecdote or story", d: "Cotton candy is fine; but probe an anecdote for its meaning and it may become a story." },
-    ],
-    worked: "His son's anecdote: he smuggled dead crabs home against his mother's orders and had to sneak them out days later when his room started to smell. Asked what it meant, the boy said it showed he doesn't believe people and has to find things out for himself — and its opposite, that he used to hope adults were right, gave the story a beginning.",
-    watch: "Ending with a bow. He prefers to end on the wish for a hug rather than the hug, so the story stays alive in the audience. Watch to about 36:00: the rest is audience questions and an invitation to his paid community, and the transcript tool stopped at 36:15 of 41:11.",
-    concepts: [],
-    checks: [
-      { q: "How does Dicks find where a story should begin?", opts: ["At the chronological start", "With a joke", "By finding the opposite of the ending", "With the setting"], a: 2,
-        expl: "Know the end first." },
-      { q: "What does he call an anecdote with no change in it?", opts: ["Cotton candy — delicious but forgettable", "A failed story", "A hook", "A B-minus story"], a: 0,
-        expl: "It entertains but won't change hearts and minds." },
-      { q: "Where did he start the cinema story?", opts: ["When they bought the tickets", "As close to the end as possible, in the final car chase", "At his daughter's birth", "In the car home"], a: 1,
-        expl: "Vonnegut's advice, which he has adopted." },
-    ],
-  },
-
-  "spch100.10.3": {
     takeaway: "A story bank only works if you can find the right story later. Michelle Knight files hers in five categories and tags each with emotion, lesson and offer, so a launch, a post or a video can pull exactly the story it needs.",
     beats: [
       { t: "Why a bank", d: "Stress about what to share disappears when the stories are already collected." },

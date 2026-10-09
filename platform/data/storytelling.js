@@ -271,6 +271,10 @@ DAR.COURSES.push({
         { t: "Thirty days of recording yourself", v: "VXo4_ErkN_U", min: 8 },
         { t: "Sounding natural from a script — conversational lines, one sentence at a time", v: "3nn4vZseLC8", min: 8 },
         { t: "Talking-head basics — eyeline, one soft light, the mic close, slower, in sections", v: "jIG2TZwFwtE", min: 5 },
+        { t: "Reading from a prompter — write it to be said, break it into breaths, rehearse on the glass", v: "7BswSByjOXM", min: 7 },
+        { t: "Why a prompter read still sounds fake — the setup, the head space, and your own words", v: "JErF0FoAYvw", min: 7 },
+        { t: "Sounding natural on air — an anchor's prompter habits", v: "82ToIEdbf8Y", min: 4 },
+        { t: "Body language on camera — you fill the frame, so everything is bigger", v: "FzvN3Vxq6Cw", min: 19 },
       ],
     },
     {
@@ -6644,6 +6648,169 @@ Object.assign(DAR.SUMMARIES, {
         expl: "Withhold part of the who and the when — details listeners expect at the start." },
       { q: "Why does he say most of the stories you tell shouldn't be about you?", opts: ["Other people's stories are always more dramatic than yours", "Listeners trust a story more when it is second-hand", "If every story is yours, you come across as arrogant", "You can't check your own memories well enough"], a: 2,
         expl: "A story you saw, or heard someone tell, can carry the point just as well." },
+    ],
+  },
+});
+
+// =====================================================================
+// Unit XIV, second top-up (T-037 review round 1, 2026-10-09) — B6 delivery
+// on camera, four lessons appended after spch100.13.7: writing and
+// rehearsing for a teleprompter, why a prompter read still sounds fake,
+// a news anchor's habits for a conversational read, and body language
+// when you fill the frame. Each read in full. Appended at the END of the
+// unit; no key moves.
+// =====================================================================
+Object.assign(DAR.DRILLS, {
+  "spch100.13.8": {
+    module: "B6",
+    mechanic: "A prompter read sounds natural when the script was written to be spoken and rehearsed on the prompter itself: short paragraphs, everyday words, cues for inflection written into the text, eyes that never visibly scan, and a body that moves the way it does in conversation.",
+    rules: [
+      "Write like you speak: contractions, plain words, sentences you would say to a friend over dinner. Bullet points are a fair way to start before full scripts.",
+      "One or two sentences per paragraph: more breaths, and clean places to pick up again when you fluff a line.",
+      "The viewer must not see your eyes track the text. Trade your distance from the prompter against the size of the text until they stop moving.",
+      "Rehearse on the prompter, not on a laptop screen. Notice where you trip — for this presenter, small words like 'to', 'or' and 'of' at the end of a line — and move them.",
+      "Relax: use your hands, move your head with your eyes, look away where you naturally would, and mark the inflection in the script — an ellipsis to trail off, capitals to lift.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Rewrite 150 words of something you have written into spoken form: contractions, one or two sentences per paragraph, an ellipsis where your voice should trail off and capitals on the two words to hit. Put it in a prompter app or a large-font page just under the lens, record one take, fix the line ends that tripped you, and record again." },
+    check: "In the second take your eyes do not visibly sweep across the lines, your head moves at least a few times, and the marked words are audibly lifted.",
+  },
+
+  "spch100.13.9": {
+    module: "B6",
+    mechanic: "A teleprompter read sounds fake for three reasons — the setup lets your eyes travel, the performance is acted rather than meant, and the words were never yours — and each has its own fix: text inside the lens, the 'why' behind every line, a script in your own spoken voice, and permission to go off it.",
+    rules: [
+      "Set it up first: keep the text inside the edges of the lens and the cue marker centred on it. Eyes sweeping the glass are the tell no technique can hide.",
+      "Don't perform 'not reading' with scheduled glances and gestures. Make it real to yourself first: who you are talking to, and why this matters to them.",
+      "Fix the script before the delivery. Words that aren't yours — a generated script, an essay voice, a keynote voice — can't be made to sound natural.",
+      "You're not on live TV: pause, redo a line, say it differently, follow a tangent, and cut it together afterwards.",
+      "Practise deliberately: record, watch back, and change one thing next time.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Take a 60-second script you wrote. Above it, write two lines: who exactly is watching, and why this matters to them today. Record it from a prompter or a large-font page under the lens; then record it again, allowed to drift off the script once. Watch both back." },
+    check: "In the second take at least one line is said differently from the page, the eyes stay on the lens, and you can point to the moment where the 'why' you wrote changed how a line sounded.",
+  },
+
+  "spch100.13.10": {
+    module: "B6",
+    mechanic: "A broadcaster's habits for a conversational prompter read: know the story well enough to ad-lib, memorise your first line, let your eyes run a few words ahead of your voice, fix errors on sight, gesture a little, and vary pace, pitch and emphasis as if talking to a friend.",
+    rules: [
+      "Edit the script into your own speech beforehand, and know why the story matters, so the tone fits it and you can ad-lib if you must.",
+      "Memorise the opening line, so you can start it before you turn to the camera.",
+      "Let your eyes run four or five words ahead of your mouth. That buffer is what lets you sound conversational, and what lets you replace a wrong word without missing a beat.",
+      "Gesture naturally — you are telling a story, not conducting an orchestra.",
+      "Punch key words, pause where it feels right, don't end every sentence on the same pitch, and vary the pace: a trusted neighbour, not a tax auditor.",
+    ],
+    drill: { minutes: 8, artifact: "recorded",
+      do: "Take a 100-word news-style paragraph about something you know and plant one wrong word in it. Memorise the first line. Record it from a prompter app or a page under the lens: begin the first line looking off-camera, turn to the lens, and replace the wrong word on sight without stopping." },
+    check: "The planted error is replaced without a pause or a restart, the first line is said before the turn, and no two sentences in a row end on the same falling pitch.",
+  },
+
+  "spch100.13.11": {
+    module: "B6",
+    mechanic: "On camera you fill the frame, so small faults look large: look into the lens (at least 80 percent of the time when a live room is also watching), let your face show you're glad to be there, open and lengthen the body, keep your hands at rest unless a gesture means something, and stay grounded instead of rocking.",
+    rules: [
+      "If the video matters most, find the lens and look into it — all the time if you can, about 80/20 lens to room if you are also serving a live audience.",
+      "Your face is huge on screen: no stony expression, and no fake fixed grin either. Let it show you're glad to be there.",
+      "Open, not small: no crossed arms or hunched shoulders; lengthen the spine as if a string pulled the crown of your head up. Stand to record if you can.",
+      "Hands rest at your sides and come up only to gesture. For a talk you repeat, build a small gesture vocabulary: one-two-three, up and down, bigger and smaller.",
+      "No rocking, no small shuffling steps, no drifting out of frame: feel the floor under your feet and stay put unless the shot calls for movement. Then record yourself and watch it back.",
+    ],
+    drill: { minutes: 10, artifact: "recorded",
+      do: "Record one minute to camera sitting down, then the same minute standing, framed from the waist up. Watch both with the sound off and tally: seconds spent looking away from the lens, any crossed or hidden hands, any rocking or shifting of the feet." },
+    check: "In the better take the eyes are on the lens for most of the minute, every gesture goes with something you are saying, and the tally for rocking or shifting is zero.",
+  },
+});
+Object.assign(DAR.SUMMARIES, {
+
+  "spch100.13.8": {
+    takeaway: "Seven teleprompter habits from a presenter who has read scripts for their own videos for eighteen years: write in spoken English, break the script into short paragraphs, keep your eyes from scanning, rehearse on the prompter itself, fix what trips you, relax the body, and keep the inflection.",
+    beats: [
+      { t: "Bullets before scripts", d: "Prompting a full script takes practice; bullet points can feel more natural at first." },
+      { t: "Write like you speak", d: "Throw out English-class grammar: 'don't', not 'do not'; start sentences with 'and'; everyday words." },
+      { t: "Paragraph breaks", d: "One or two sentences per paragraph gives you breaths, and places to cut when you restart." },
+      { t: "Hide the eyes", d: "Eyes moving across the text break the viewer's trust. Distance and text size are traded against each other." },
+      { t: "Rehearse on the glass", d: "Your mouth and brain behave differently reading a prompter than a computer screen. An operator moved the presenter's trip-words from the ends of lines to the starts." },
+      { t: "Body and voice", d: "Relax the face, use the hands, look away where you naturally would, move your head; cue inflection with ellipses and capitals." },
+    ],
+    worked: "Before: 'It is important to note that the deployment process consists of three stages, each of which must be completed in order.' As a prompter script: 'Deploying takes three steps.' / 'And you can't skip one…' / 'Here's WHY.' Three short paragraphs, a contraction, an ellipsis to trail and a capital to lift.",
+    watch: "Under seven minutes. The middle carries a plug for the presenter's own live training, and the end recommends a prompter. The five-feet distance is a rule of thumb for that set-up, not a standard.",
+    concepts: [],
+    checks: [
+      { q: "What did the teleprompter operator change to stop the presenter stumbling?", opts: ["She moved short words like 'or' and 'of' off the ends of lines", "She made the text bigger, so fewer words fitted on a line", "She slowed the scroll so each line stayed on the glass for longer", "She split the longest sentences in two at the commas"], a: 0,
+        expl: "Small words at a line end caused the trips; at the start of the next line they didn't." },
+      { q: "Why only one or two sentences per paragraph?", opts: ["It keeps every line inside the lens, so the eyes don't wander", "It gives you breaths, and clean places to restart after a slip", "It speeds the read up, so the finished video comes out shorter", "It lets the operator scroll the whole script at one fixed speed"], a: 1,
+        expl: "More breaths feel natural, and each break is a place to pick up again." },
+      { q: "How does the lesson suggest getting inflection into a read?", opts: ["Mark it in the script: an ellipsis to trail off, capitals to lift", "Record each sentence separately and keep the liveliest take", "Read a little faster than normal, since speed sounds like energy", "Keep your face still so that your voice carries all the emotion"], a: 0,
+        expl: "The script itself carries the cues." },
+    ],
+  },
+
+  "spch100.13.9": {
+    takeaway: "A creator who bought a teleprompter on why prompter reads still feel fake even with all the tricks: set it up so your eyes can't travel, stop acting natural and make it real to yourself, write the script in your own spoken voice, and give yourself permission to go off it.",
+    beats: [
+      { t: "The viewer's radar", d: "In a video about teleprompters you hunt for the tells; in an ordinary video, set up properly, viewers aren't looking for them." },
+      { t: "Setup", d: "Keep the text within the lens: this creator uses a phone held upright, one to three words per line, the cue marker centred on the lens." },
+      { t: "Acting natural is still acting", d: "Scheduled glances and gestures look like a school play. A commercial director once gave this creator the head space behind the action, not the moves." },
+      { t: "The script is the problem", d: "Not a ChatGPT script, not an essay or keynote voice: it has to read the way you speak." },
+      { t: "Flexibility", d: "Pause, redo, ad-lib or follow a tangent, then edit. Feeling held hostage by the script shows." },
+    ],
+    worked: "On the page: 'Today we will be discussing three methods for improving sleep.' The head space: a friend who has been awake at 3 a.m. all week. Said to her: 'You've been waking up at three, right? Here are three things that actually helped me.' The same information, now spoken to someone.",
+    watch: "Seven minutes of one creator's practice and opinion; they say they are still learning, and call the very large text an experiment rather than a known best practice. It ends with a link to the prompter they use.",
+    concepts: [],
+    checks: [
+      { q: "What gives a prompter read away before anything else, in this lesson?", opts: ["Eyes moving across the glass when the text runs past the lens", "A voice that is too loud, because the prompter sits too far away", "Hands held still, because the speaker is gripping the remote", "A flat tone, because the scroll speed is set slightly too fast"], a: 0,
+        expl: "Fix the setup first, or nothing else is worth doing." },
+      { q: "What is the fix for a performance that feels like a school play?", opts: ["Add more glances away and bigger gestures, on a fixed schedule", "Get into the head space: who you're talking to, and why it matters", "Slow the prompter right down so that you can think between the lines", "Memorise the first and the last lines so they look unscripted"], a: 1,
+        expl: "Make it real to yourself first; let that guide where you look and how you say it." },
+      { q: "Why can't a generated script be rescued by delivery tips, in this lesson?", opts: ["The prompter can't display text from another program", "Words that aren't your own can't be made to sound like you", "Generated scripts are always too long for a single take", "Viewers can spot machine-written text from its rhythm alone"], a: 1,
+        expl: "The script has to read exactly the way you speak." },
+    ],
+  },
+
+  "spch100.13.10": {
+    takeaway: "A TV anchor's ten extra tips for sounding human on a prompter, plus his seven originals. The newest: your eyes run four or five words ahead of your voice, and that split second is what lets a read sound conversational.",
+    beats: [
+      { t: "First line from memory", d: "Memorise it, so you can begin while still looking at your co-anchor, then turn to the camera." },
+      { t: "Know the story", d: "If you know why it matters to your community, the tone follows and you can ad-lib." },
+      { t: "Gestures and sight editing", d: "Move your hands a little. When you see a mistake on the prompter, say the right word without missing a beat." },
+      { t: "Watch others, and yourself", d: "Study presenters who sound conversational; watch yourself back; practise on a free online prompter." },
+      { t: "Read ahead", d: "Peripheral vision works vertically too: scanning four to five words ahead lets the brain process them in time." },
+      { t: "The originals", d: "Edit it into your own speech, write conversationally, punch words, pause, vary pace and pitch, breathe, talk as to a friend." },
+    ],
+    worked: "'Police closed the bridge Tuesday after a crack was found in the deck.' Read flat, every word weighs the same. Read as to a friend: 'Police CLOSED the bridge on Tuesday… after someone found a crack in the deck.' One punched word, one short pause, and a sentence that doesn't end on the same falling note as the last one.",
+    watch: "About four minutes, cut quickly; the seven original tips go by in the last minute. The study on gestures he mentions is cited without detail.",
+    concepts: [],
+    checks: [
+      { q: "Why does he memorise his first line?", opts: ["So he can start it facing his co-anchor, then turn to the camera", "So the prompter operator has time to load the rest of the script", "So he has one line ready to repeat if the prompter fails", "So the director can frame the shot before he reads anything"], a: 0,
+        expl: "The read begins before the eyes reach the glass." },
+      { q: "What is 'sight editing'?", opts: ["Cutting lines from the script while rehearsing it out loud", "Saying the right word when you spot an error on the prompter", "Checking the shot on a monitor while reading the next line", "Marking the words to punch with capitals before going on air"], a: 1,
+        expl: "Proofreading still lets mistakes through; fix them live, without a pause." },
+      { q: "What does reading four or five words ahead do, in his account?", opts: ["It keeps your eyes centred, so the viewer can't see you reading", "It lets the operator scroll faster without you losing your place", "Your brain gets the words in time, so the read sounds conversational", "It gives you time to breathe before every new sentence starts"], a: 2,
+        expl: "A vocal coach pointed it out; he had been doing it without noticing." },
+    ],
+  },
+
+  "spch100.13.11": {
+    takeaway: "A media trainer on body language for video: on camera you fill the whole frame, so eye contact, facial expression, open posture, deliberate gestures and stillness matter more than on a stage — and the only accurate mirror is a recording of yourself.",
+    beats: [
+      { t: "Four stages", d: "From not knowing you're doing it wrong to doing it right without thinking. Camera delivery is a new skill, so expect to pass through all four." },
+      { t: "Larger than life", d: "On a stage you share the space; on a screen you are the whole frame." },
+      { t: "The lens", d: "Looking into it reads as looking into the viewer's eyes. In a hybrid talk, roughly 80 percent lens and 20 percent room; glancing down at a comfort monitor looks like disconnecting on video." },
+      { t: "Face", d: "No expression reads as cold or unhappy to be there; a fake grin is worse at that size." },
+      { t: "Open, long, grounded", d: "Open hands, no slouching, a lengthened spine; stand if you can; feel your feet on the floor." },
+      { t: "Hands and feet", d: "Hands at your sides until a gesture is needed; a planned gesture vocabulary; no rocking and no small back-and-forth steps." },
+    ],
+    worked: "A seated webinar: laptop raised so the lens is at eye level, the notes window dragged right under the lens, chair pushed back so the frame shows hands and shoulders. Hands rest on the desk and rise only on 'three things' and 'it got bigger'. Before going live, feet flat on the floor.",
+    watch: "About nineteen minutes, with a plug for the trainer's agency at the end. The claims about hormones — dopamine and oxytocin from a smile, serotonin from feeling the floor — are the trainer's own and unexplained; the practical advice doesn't depend on them.",
+    concepts: [],
+    checks: [
+      { q: "Why are body-language faults bigger on camera than on a stage, in this lesson?", opts: ["Viewers watch videos more critically than live audiences do", "On screen you fill the frame, so every movement is magnified", "Cameras exaggerate fast movement because of their frame rate", "There is no audience reaction to cover a nervous habit"], a: 1,
+        expl: "On a stage you are one thing among many in the room." },
+      { q: "In a hybrid talk, with a live room and a recording, where should your eyes be?", opts: ["Mostly on the room, glancing at the lens at the end of each point", "On the lens about 80 percent of the time and the room about 20", "On the comfort monitor, so you never lose your place in the slides", "Evenly split between the lens, the room and the comfort monitor"], a: 1,
+        expl: "The video is what lasts, so it gets most of the eye contact." },
+      { q: "What should your hands do when you're not gesturing?", opts: ["Hold a pen or clicker so they have something natural to do", "Clasp them loosely in front of you at waist height, like a steeple", "Let them rest at your sides and bring them up only to gesture", "Keep them moving gently so you never look stiff or frozen"], a: 2,
+        expl: "Distracting, repetitive gestures disappear when the default is stillness." },
     ],
   },
 });

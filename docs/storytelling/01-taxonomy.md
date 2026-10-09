@@ -211,7 +211,7 @@ with its reason).
   lessons are short and specific to the lens.
 - **B2, B4 and B5** were searched again in the last round; every new candidate repeated an
   installed lesson (retention shapes, Galloway's channel review, Kleon's Show Your Work,
-  the vlog story structure, Kallaway's script order).
+  the vlog story structure, the script-order guide).
 
 So the honest reading is: **Track A is the course the owner asked for, at 35 h of its
 38 h budget; Track B is a thinner 8 h companion against its 12 h.** Of the 6.7 h shortfall

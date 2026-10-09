@@ -2380,6 +2380,106 @@ if (SPCH) {
   }));
   console.log("SPCH 100: " + spchLessons + " lessons, " + (spchMin / 60).toFixed(1) + " h of video — " +
     Object.keys(spchByModule).sort().map(m => m + " " + (spchByModule[m] / 60).toFixed(2) + "h").join(", "));
+
+  // ---- who the lessons say said it (T-037 review round 1) ----
+  // A lesson that names a teacher, a channel or a person has to be able to show
+  // where that name came from. data/storytelling/candidates.jsonl carries, for
+  // every installed video, `credits`: each name with the forms the lessons use
+  // (aka) and a source — the logged title, a quote from the stored transcript,
+  // a logged WebSearch (query plus the sentence of the result that says it), or
+  // another lesson whose video carries the name. The failure this exists for:
+  // a lesson credited to "Rachel's English" with nothing anywhere saying so.
+  //   * every credited name (any video) found in a lesson must be credited for
+  //     THAT lesson's video — a known name cannot drift onto the wrong video;
+  //   * "Firstname Surname" spans that match no credit at all fail too, so a
+  //     brand-new unlogged person cannot slip in (a bare unknown surname can;
+  //     the first-name list is the heuristic's whole reach);
+  //   * every credit's source is checked: quotes are looked up, references
+  //     resolved, WebSearch evidence must be present.
+  const candRows = fs.readFileSync(path.join(ROOT, "data/storytelling/candidates.jsonl"), "utf8")
+    .split("\n").filter(Boolean).map(l => JSON.parse(l));
+  const installedById = {};
+  candRows.forEach(c => { if (c.status === "installed") installedById[c.id] = c; });
+  const creditAliases = [];
+  Object.values(installedById).forEach(c => (c.credits || []).forEach(cr =>
+    [cr.name].concat(cr.aka || []).forEach(a => creditAliases.push({ a, name: cr.name }))));
+  const seenAlias = new Set();
+  const aliasList = creditAliases.filter(x => !seenAlias.has(x.a + "\u0000" + x.name) && seenAlias.add(x.a + "\u0000" + x.name))
+    .sort((x, y) => y.a.length - x.a.length);
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const aliasRe = aliasList.map(x => ({ name: x.name, a: x.a, re: new RegExp("(?<![\\w'’-])" + reEsc(x.a) + "(?![\\w-])", "g") }));
+  const FIRST_NAMES = new Set(("Aaron Abigail Adam Al Alan Alex Alexander Alexandra Alfred Ali Alice Alison Allen Allison Amanda Amy Andrea " +
+    "Andrew Andy Angela Ann Anna Anne April Ashley Austin Barack Barbara Ben Benjamin Beth Bill Bob Brad Brandon Brendan Brian " +
+    "Bruce Carl Carlos Carol Caroline Catherine Celeste Charles Charlie Cheri Chip Chris Christine Christopher Claire Cole Colin " +
+    "Craig Dan Daniel Danielle Dave David Deborah Derek Diana Donald Doug Edward Eddie Elizabeth Ellen Emily Emma Eric Florence " +
+    "Frank Gad Gary George Grace Greg Hannah Harry Heather Helen Henry Ira Jack Jackie James Jane Janet Jason Jeff Jefferson Jen " +
+    "Jennifer Jenny Jerry Jessica Jill Jim Joan Joe John Johnnie Johnny Jon Jonah Jonathan Jordan Joseph Josh Judy Julia Julian " +
+    "Justin Karen Kate Katherine Kathy Keith Kelly Ken Kevin Kim Kindra Kio Kirsty Kristen Kurt Larry Laura Lauren LeeAnn Leslie " +
+    "Linda Lisa Liz Lucy Madeleine Marc Marco Maria Marianna Marie Mark Marques Martin Mary Matt Matthew Maya Mel Melissa Michael " +
+    "Michelle Mike Miriam Modupe Monica Naomi Nancy Natalia Neil Nick Nicole Norm Oliver Paddy Pat Patricia Patrick Patton Paul " +
+    "Pete Peter Phil Philip Philipp Rachel Randy Rebecca Rene Riaz Ric Richard Rick Rob Robert Rodney Roger Ron Ronald Ryan Safwat " +
+    "Sam Samir Samuel Sandra Sarah Scott Sean Seth Simon Sofia Stephen Steve Steven Susan Tamsen Ted Thomas Tim Tina Todd Tom Tony " +
+    "Tracey Vanessa Viola Vinh William").split(/\s+/));
+  const firstRe = /(?<![\w'’-])([A-Z][a-z]+)\s+([A-Z][a-zA-Z'’-]+)/g;
+  const lower = s => (s || "").toLowerCase().replace(/\s+/g, " ");
+  let creditsChecked = 0, namesChecked = 0;
+  SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+    const k = "spch100." + ui + "." + li, c = installedById[l.v];
+    ok(!!c, k + ": " + l.v + " is logged as installed in data/storytelling/candidates.jsonl");
+    if (!c) return;
+    const credited = new Set((c.credits || []).map(x => x.name).concat(c.channel ? [c.channel] : []));
+    const d = (D.DRILLS || {})[k] || {}, s = (D.SUMMARIES || {})[k] || {};
+    const text = [l.t, d.mechanic, d.check, d.drill && d.drill.do, s.takeaway, s.worked, s.watch]
+      .concat(d.rules || [], (s.beats || []).map(b => b.t + ". " + b.d),
+        (s.checks || []).map(q => [q.q].concat(q.opts || [], [q.expl]).join(" | ")))
+      .filter(Boolean).join("\n").replace(/<\/?(em|strong)>/g, "");
+    const covered = new Uint8Array(text.length);
+    aliasRe.forEach(x => {
+      x.re.lastIndex = 0; let m;
+      while ((m = x.re.exec(text))) {
+        let hit = false; for (let i = m.index; i < m.index + m[0].length; i++) if (covered[i]) { hit = true; break; }
+        if (hit) continue;
+        covered.fill(1, m.index, m.index + m[0].length);
+        namesChecked++;
+        ok(credited.has(x.name), k + ": names '" + x.a + "' (" + x.name + "), which is not credited for " + l.v +
+          " in candidates.jsonl — log where the name comes from, or take it out of the lesson");
+      }
+    });
+    let m; firstRe.lastIndex = 0;
+    while ((m = firstRe.exec(text))) {
+      if (FIRST_NAMES.has(m[1])) {
+        let hit = false; for (let i = m.index; i < m.index + m[0].length; i++) if (covered[i]) { hit = true; break; }
+        ok(hit, k + ": names '" + m[0] + "', who is credited nowhere in candidates.jsonl — log the name with its source for " + l.v);
+      }
+      firstRe.lastIndex = m.index + m[1].length;
+    }
+    const tp = path.join(ROOT, "data/storytelling/transcripts", l.v + ".txt");
+    const tx = lower(fs.existsSync(tp) ? fs.readFileSync(tp, "utf8") : "");
+    (c.credits || []).forEach(cr => {
+      creditsChecked++;
+      const tag = k + " credit '" + cr.name + "'";
+      if (cr.src === "title") ok(!!cr.quote && lower(c.title).includes(lower(cr.quote)), tag + ": its quote is in the logged title");
+      else if (cr.src === "transcript") ok(!!cr.quote && tx.includes(lower(cr.quote)), tag + ": its quote is in the stored transcript");
+      else if (cr.src === "websearch") ok(!!cr.query && !!cr.evidence && cr.evidence.length > 20, tag + ": logs the WebSearch query and the sentence that supports it");
+      else if (cr.src === "lesson") {
+        const ref = (cr.ref || "").split("."), rl = SPCH.units[+ref[1]] && SPCH.units[+ref[1]].lessons[+ref[2]];
+        const rc = rl && installedById[rl.v];
+        ok(!!rc && (rc.credits || []).some(x => x.name === cr.name && x.src !== "lesson"),
+           tag + ": the lesson it refers to (" + cr.ref + ") carries the name with its own source");
+      } else ok(false, tag + ": has a source (title, transcript, websearch or lesson)");
+    });
+    // The uploading channel, where one is logged, carries its own source: the
+    // video naming itself in the stored transcript ("welcome back to English
+    // with Lucy"), or a logged WebSearch and the sentence of the result that
+    // names it. A row with no channel says why in channel_source.note.
+    const cs = c.channel_source || {};
+    ok(c.channel ? (cs.src === "transcript" ? !!cs.quote && tx.includes(lower(cs.quote))
+                    : cs.src === "websearch" && !!cs.query && !!cs.evidence && cs.evidence.length > 20)
+                 : !!cs.note,
+       k + ": the channel " + (c.channel ? "'" + c.channel + "' has the transcript quote or WebSearch evidence that names it"
+                                         : "is not logged, and channel_source.note says why"));
+  }));
+  console.log("SPCH attributions: " + namesChecked + " names in lessons, " + creditsChecked + " credits with sources checked");
 }
 
 D.COURSES.forEach(c => {

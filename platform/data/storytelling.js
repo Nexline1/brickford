@@ -1127,8 +1127,8 @@ Object.assign(DAR.SUMMARIES, {
 
 // =====================================================================
 // Unit V — A3, delivery: voice, body, pauses, nerves (budget 5.0 h with
-// the seed's professional-voice lesson). Julian Treasure, Vinh Giang (two
-// lessons), Roger Love, Rebecca Martin, Alex Lyon, Matt Abrahams, and
+// the seed's professional-voice lesson). Julian Treasure, Vinh Giang, a
+// coach on three levels of speaker, Roger Love, Rebecca Martin, Alex Lyon, Matt Abrahams, and
 // Patrick Winston's MIT lecture. The coaches disagree in one place — how
 // a sentence should end in pitch — and the summaries say so rather than
 // picking a winner.
@@ -1216,7 +1216,7 @@ Object.assign(DAR.DRILLS, {
     rules: [
       "Rookie signs: flat delivery, vocal fry at the end of the breath, a filler word in every sentence, a body that does nothing, and no structure in the words.",
       "Build self-awareness first. Answer a question on camera for two minutes, get it transcribed, and look for circles, repetition and filler words.",
-      "Pretty good speakers have range but play it safe. Giang says the fear of judgment is mostly false, because people are thinking about themselves.",
+      "Pretty good speakers have range but play it safe. The coach says the fear of judgment is mostly false, because people are thinking about themselves.",
       "Only move with purpose. A repeated gesture that does not serve the message is non-functional behaviour and should go.",
       "Natural speakers match face and voice, because the audience needs to see the emotion and hear it. They also make the same point with an analogy, a prop or a story.",
     ],
@@ -1369,9 +1369,9 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.4.5": {
-    takeaway: "Vinh Giang's three levels — rookie, pretty good, natural — assessed on voice, body and words. You move up by first getting self-awareness, then using your full range, and finally having more than one way to make any point.",
+    takeaway: "A communication coach's three levels — rookie, pretty good, natural — assessed on voice, body and words. You move up by first getting self-awareness, then using your full range, and finally having more than one way to make any point.",
     beats: [
-      { t: "Rookie", d: "Flat delivery, vocal fry, filler words in every breath, a body that does nothing, no structure. Giang calls them habits, not who you are." },
+      { t: "Rookie", d: "Flat delivery, vocal fry, filler words in every breath, a body that does nothing, no structure. He calls them habits, not who you are." },
       { t: "The self-awareness exercise", d: "Two unscripted minutes on camera, transcribed, so you can see the filler words and the circling." },
       { t: "Pretty good", d: "Range, but kept safe. A small set of gestures used over and over. Repeated, non-functional movement — he uses a speaker who keeps moving as the example." },
       { t: "Frameworks", d: "Structures such as PREP and 3-2-1 filter your thinking so the listener does not have to sort it out." },
@@ -1381,7 +1381,7 @@ Object.assign(DAR.SUMMARIES, {
     watch: "Moving without a reason. If a movement does not serve the message, it distracts — and small habits like touching your glasses add up.",
     concepts: [],
     checks: [
-      { q: "What does Giang say keeps 'pretty good' speakers stuck?", opts: ["They do not know any frameworks", "Fear of judgment stops them using the edges of their range", "Their accent", "Too much volume"], a: 1,
+      { q: "What does the coach say keeps 'pretty good' speakers stuck?", opts: ["They do not know any frameworks", "Fear of judgment stops them using the edges of their range", "Their accent", "Too much volume"], a: 1,
         expl: "And he says the fear is mostly false — people are thinking about themselves." },
       { q: "How does he define non-functional behaviour?", opts: ["Any behaviour that distracts from the message", "Any gesture with both hands", "Standing still", "Using a prop"], a: 0,
         expl: "If it does not serve the message, it should go." },
@@ -2359,8 +2359,8 @@ Object.assign(DAR.SUMMARIES, {
 // conversation lesson). Noticing (Chris Duffy), improvisation (Dave
 // Morris, Patricia Ryan Madson), humour as a practised skill (Andrew
 // Tarvin), humour at work and its limits (Aaker and Bagdonas at Google),
-// reading discomfort and recovering a joke (two Charisma on Command
-// breakdowns), callbacks, and naming the elephant in the room.
+// reading discomfort and recovering a joke (two breakdowns of talk-show
+// clips), callbacks, and naming the elephant in the room.
 // =====================================================================
 Object.assign(DAR.DRILLS, {
 
@@ -2612,7 +2612,7 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.7.5": {
-    takeaway: "A Charisma on Command breakdown of talk-show clips: three kinds of joke that make people like you less — exposing sensitive information after someone shows discomfort, guilt-trip jokes, and teasing people below you — and what to do instead.",
+    takeaway: "A conversation-skills channel's breakdown of talk-show clips: three kinds of joke that make people like you less — exposing sensitive information after someone shows discomfort, guilt-trip jokes, and teasing people below you — and what to do instead.",
     beats: [
       { t: "Sensitive information", d: "A host keeps pushing a guest to name an ex while she clearly wants to stop." },
       { t: "Discomfort signs", d: "Verbal hesitation, and self-soothing body language — self-hugging, touching the face or neck. Time to pivot." },
@@ -2634,7 +2634,7 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.7.6": {
-    takeaway: "A Charisma on Command breakdown of Norm Macdonald: how he made bad jokes kill — a mischievous smile, explaining jokes the audience already got, deliberately obvious punchlines after a pause, and turning his own fumbled delivery into the joke.",
+    takeaway: "A conversation-skills channel's breakdown of Norm Macdonald: how he made bad jokes kill — a mischievous smile, explaining jokes the audience already got, deliberately obvious punchlines after a pause, and turning his own fumbled delivery into the joke.",
     beats: [
       { t: "The smile", d: "It signals that something worth laughing at is coming." },
       { t: "Explaining the joke", d: "'Like a flower — yeah, cauliflower. No offence, but your face looks like a cauliflower.' The explanation gets the bigger laugh." },
@@ -3053,7 +3053,7 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.8.8": {
-    takeaway: "Kio Stark at TED: talking to strangers creates 'fleeting intimacy' and frees us from seeing people as categories. Know the local rules — and try the ways in: smile, triangulate, notice, dogs and babies, disclose.",
+    takeaway: "Kio Stark on talking to strangers: it creates 'fleeting intimacy' and frees us from seeing people as categories. Know the local rules — and try the ways in: smile, triangulate, notice, dogs and babies, disclose.",
     beats: [
       { t: "'Don't stand there'", d: "An old man told her to step off the storm drain in case she disappeared — a small, warm exchange that made her feel noticed." },
       { t: "Perception over categories", d: "'Stranger' is a shortcut that leads to bias. Most strangers aren't dangerous; we just have no context." },
@@ -3312,7 +3312,7 @@ Object.assign(DAR.DRILLS, {
 
   "spch100.9.12": {
     module: "A7",
-    mechanic: "Alex Lyon, drawing on Alan Weiner's book So Smart But..., says most questions are direct — yes/no, multiple choice, fill in the blank — and a direct question gets a direct answer: the answer, about one sentence of detail, then a full stop.",
+    mechanic: "Alex Lyon, drawing on Allen Weiner's book So Smart But..., says most questions are direct — yes/no, multiple choice, fill in the blank — and a direct question gets a direct answer: the answer, about one sentence of detail, then a full stop.",
     rules: [
       "Listen for the type: yes/no ('can you have it done by Monday?'), multiple choice ('Monday or Wednesday?'), fill in the blank ('when can you have it done?'). Essay questions are a different job.",
       "Give the answer first, then about one sentence of detail. Put a period on it in your mind and stop.",
@@ -3648,7 +3648,7 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.9.12": {
-    takeaway: "Alex Lyon, from his mentor Alan Weiner's book: most questions are direct — yes/no, multiple choice, fill in the blank — and deserve a direct answer of about one sentence plus one sentence of detail, then silence.",
+    takeaway: "Alex Lyon, from his mentor Allen Weiner's book: most questions are direct — yes/no, multiple choice, fill in the blank — and deserve a direct answer of about one sentence plus one sentence of detail, then silence.",
     beats: [
       { t: "Four question types", d: "True/false, multiple choice, fill in the blank, and essay. The first three are direct." },
       { t: "Answer, detail, stop", d: "The headline answer, about a sentence of detail, then a mental full stop." },
@@ -4159,7 +4159,7 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.12.2": {
-    takeaway: "A Creator Insider conversation between YouTube's Shorts product lead, Todd Sherman, and Jenny Hoyos. Short form serves snackable moments; the system estimates whether people valued their time; and viewed-versus-swiped is the first number to check when a short underperforms.",
+    takeaway: "A conversation between YouTube's Shorts product lead, Todd Sherman, and Jenny Hoyos. Short form serves snackable moments; the system estimates whether people valued their time; and viewed-versus-swiped is the first number to check when a short underperforms.",
     beats: [
       { t: "Snackable", d: "A short competes with a quick game, an article, even one crossword clue — anything that fills a minute." },
       { t: "An hour per second", d: "Hoyos's process: ideas from things every human does, five story cuts, the edit as a jigsaw." },
@@ -4717,7 +4717,7 @@ Object.assign(DAR.SUMMARIES, {
 // =====================================================================
 // Unit XVII — B5, long-form and YouTube structure (budget 1.2 h; light on
 // purpose, as the taxonomy asked). Colin and Samir twice (three acts; how
-// they cut a documentary for tension), Kallaway's script order, Veritasium
+// they cut a documentary for tension), a script-order guide, Veritasium
 // on packaging, and a Waveform conversation on finding a story inside a
 // review and packaging before filming.
 // =====================================================================
@@ -4740,7 +4740,7 @@ Object.assign(DAR.DRILLS, {
 
   "spch100.16.1": {
     module: "B5",
-    mechanic: "Kallaway writes every script in the same order — packaging, outline, intro, body, outro — on one principle: when reality beats the viewer's expectations they stay, and when it doesn't they leave.",
+    mechanic: "This scriptwriting guide writes every script in the same order — packaging, outline, intro, body, outro — on one principle: when reality beats the viewer's expectations they stay, and when it doesn't they leave.",
     rules: [
       "Packaging first: the idea, then the title (the thumbnail can stay loose). The first lines must confirm the click, and ideally beat it.",
       "Outline before you write: bullet the points and check they're genuinely new. If they're not, research more before you script.",
@@ -4824,7 +4824,7 @@ Object.assign(DAR.SUMMARIES, {
   },
 
   "spch100.16.1": {
-    takeaway: "Kallaway's script order: packaging, outline, intro, body, outro — all driven by one principle, expectations against reality. When what they get beats what they expected, they stay.",
+    takeaway: "One script order for long videos: packaging, outline, intro, body, outro — all driven by one principle, expectations against reality. When what they get beats what they expected, they stay.",
     beats: [
       { t: "Expectations versus reality", d: "Like the relief after a speech you expected to bomb." },
       { t: "Click confirmation", d: "The title sets the expectation; the first lines confirm and ideally beat it." },
@@ -4836,7 +4836,7 @@ Object.assign(DAR.SUMMARIES, {
     watch: "Leading with your best point. He argues a rising pattern — strong, stronger — keeps people watching, the way albums rarely open with the hit. Three of his own plugs are deliberately 'native embedded' in the video.",
     concepts: [],
     checks: [
-      { q: "What principle does Kallaway say drives every scripting decision?", opts: ["Length versus budget", "Expectations versus reality", "Topic versus trend", "Hook versus thumbnail"], a: 1,
+      { q: "What principle does the guide say drives every scripting decision?", opts: ["Length versus budget", "Expectations versus reality", "Topic versus trend", "Hook versus thumbnail"], a: 1,
         expl: "Reality beating expectations keeps viewers." },
       { q: "Which point does he put first in the body?", opts: ["The best", "The weakest", "The second-best", "A random one"], a: 2,
         expl: "Then the best, so value seems to rise." },
@@ -6110,7 +6110,7 @@ Object.assign(DAR.SUMMARIES, {
 
 // =====================================================================
 // Unit XII, top-up (T-037, 2026-10-09) — B1 short-form structure, one
-// lesson appended after spch100.11.4: Kallaway on story flow,
+// lesson appended after spch100.11.4: a scriptwriting guide on story flow,
 // comprehension and speed to value. Appended at the END of the unit; no
 // key moves.
 // =====================================================================
@@ -6134,7 +6134,7 @@ Object.assign(DAR.DRILLS, {
 Object.assign(DAR.SUMMARIES, {
 
   "spch100.11.5": {
-    takeaway: "Kallaway on the three script mistakes that cost retention — broken story flow, low comprehension and slow speed to value — with a line-by-line audit, five comprehension tactics, and a hook, body, re-hook, body, outro architecture.",
+    takeaway: "A short-form scriptwriting guide on the three mistakes that cost retention — broken story flow, low comprehension and slow speed to value — with a line-by-line audit, five comprehension tactics, and a hook, body, re-hook, body, outro architecture.",
     beats: [
       { t: "Story flow", d: "His prince walks into the forest; then a detour about the prince loving horses as a child breaks the thread, and some listeners never get back on. Good storytelling works like hypnosis." },
       { t: "The line audit", d: "Is this line necessary context or an intentional step, or a distraction? Like a school word bank, you're not meant to use every word you were given." },

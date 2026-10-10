@@ -1635,7 +1635,14 @@ function t26bExams() {
     return { id, c, n, size, len: D.QUIZZES[id].questions.length, sat: at.length > 0, title: D.QUIZZES[id].title };
   });
   const diags = D.DIAGNOSTICS.map(d => ({ d, c: byCode(DIAG_CODE[d.id]), sat: ((st.diag || {})[d.id] || {}).score != null }));
-  const gatePassed = !!(st.gates || {})[1];
+  // Gate 1 as the app reads a stored gate (gateRec, T-038): an object is
+  // passed only with passed === true and a date; a "YYYY-MM-DD" string or a
+  // legacy true is passed; anything else — false, nothing, an unmark object
+  // { date: null, at, passed: false } — is open. (This read !!gates[1], which
+  // counts an unmark object as passed.)
+  const g1 = (st.gates || {})[1];
+  const gatePassed = g1 && typeof g1 === "object" ? g1.passed === true && !!g1.date
+    : g1 === true || (typeof g1 === "string" && /^\d{4}-\d\d-\d\d$/.test(g1));
   const unsatDiag = diags.find(x => !x.sat);
   // The one to sit next: an unsat diagnostic while Gate 1 is open, else the
   // open, unsat bank with the most of it unlocked.
@@ -3562,6 +3569,12 @@ function t26bRecord() {
     { name: "every bank open", routes: ["/exams"],
       patch: { lessons: Object.fromEntries(["math120.0.0", "math130.0.0", "ai200.0.0", "math210.0.0", "ai310.0.0"].map(k => [k, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
     { name: "Gate 1 passed, so a bank leads", routes: ["/exams"], patch: { gates: { 1: "2026-10-12" } } },
+    // T-038 review round 1: an unmark is stored as an object, which is truthy.
+    // Gate 1 unmarked is open, so the next diagnostic still leads, tagged
+    // "· Gate 1" with the days to the gate — read off the page itself below,
+    // not only through the expectation above.
+    { name: "Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads", routes: ["/exams"], gate1Open: true,
+      patch: { gates: { 1: { date: null, at: "2026-10-19T09:00:00.000Z", passed: false } } } },
     // Review round 1: every other state has nothing watched in a locked
     // bank's course, so a bar drawn at 0 passed. Eight MATH 110 lectures that
     // no Linear Algebra question waits on: the bank stays locked at 8/51.
@@ -3587,6 +3600,12 @@ function t26bRecord() {
       for (const r of st.routes) {
         if (r === "/workshop") await t26bProblems(page, at, oo);
         if (r === "/exams") await t26bExamsCheck(page, at, oo);
+        if (r === "/exams" && st.gate1Open) {
+          const m = await page.evaluate(t26bExams);
+          c26b(at + " /exams: Gate 1 is open — the hero is a diagnostic tagged \"· Gate 1\", counting the days to the gate",
+            !!m.hero && /^#\/diag\//.test((m.hero.sit || {}).href || "") && / · Gate 1$/.test(m.hero.tag || "") && m.hero.daysLabel === "days to the gate",
+            m.hero ? "\"" + m.hero.tag + "\" " + ((m.hero.sit || {}).href || "no Sit it") + ", \"" + m.hero.daysLabel + "\"" : "no hero");
+        }
         if (r === "/record") await t26bRecordCheck(page, at, oo, dialogs);
       }
       c26b(at + ": no page errors", errors.length === 0, errors.join(" | "));

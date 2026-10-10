@@ -44,3 +44,4 @@
 - 2026-10-10: T-038 merged as PR #15 (74b0b8e) after 2 rounds; owner can now unmark Gates 3,2,1 and it sticks. T-031 building next.
 - 2026-10-10: T-031 built (ad92fb5), in review. Queued T-039 (flaky theme-switch check) and T-040 (req chip mid-word break with gates passed).
 - 2026-10-10: T-031 review r1 CHANGES REQUIRED (12rem basis breaks the Gate 3 chip at 373-374px/root 16; gate blind to Gate 2-5 states; comment). Builder resumed.
+- 2026-10-10: T-031 r1 fixes in (6382c6b, head 044143d): min-content floor on .at-main, chip words unbroken, per-gate mid-word check (Gates 1-5 x roots 16/24 x 15 widths). My CHECK all green incl. LA clip. Side effect: root 24, 320-329px, Gate 3 next, chip whole but up to 11px past the card edge (T-040 band). Review r2 sent.

@@ -21,7 +21,8 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
   - #13 T-026b (Problems, Exams, Proof)
   - #14 T-037 (SPCH 100, 170 lessons)
 - **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish).
-- **Building:** T-026c (Week, Calendar day view, Library), worktree `/home/user/bf-T-026c`.
+- **Built, waiting:** T-026c (Week, Calendar day view, Library), worktree `/home/user/bf-T-026c`, head 71c333e. All gates green except the T-039 flake. After T-039 merges: merge main into it, re-run verify-design, then review.
+- **Building:** T-039 (harness loses localStorage on reload; precondition proof + re-measure), worktree `/home/user/bf-T-039`.
 
 ## Next, in the owner's order
 1. ~~T-031~~ merged (#16).

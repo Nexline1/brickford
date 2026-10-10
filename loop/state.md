@@ -48,3 +48,4 @@
 - 2026-10-10: T-031 r2 APPROVED; merged as PR #16 (45fdf55). T-040 reworded (overflow at root 24/320-329 + containment clause + style.css comment). T-039 confirmed: failed 2 of ~12 design runs. T-026c building next.
 - 2026-10-10: T-026c builder launched in /home/user/bf-T-026c (branch loop/T-026c-week-calendar-library, from 45fdf55), tokens 20261010e.
 - 2026-10-10: T-026c built (3dcb96a/71c333e): all gates green except verify-design switch (c) flake (4 of 6 runs). Diagnosed T-039: on reload the harness browser sometimes starts with EMPTY localStorage (null at document start, 1 of 30), not an app bug. Spec written; building T-039 before T-026c review.
+- 2026-10-10: T-039 builder launched in /home/user/bf-T-039 (from 45fdf55).

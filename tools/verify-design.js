@@ -255,10 +255,23 @@
 // thumbnail blocks), it first waits for the theme it asked for to be PAINTED
 // (themePainted below) — the theme lag verify-contrast.js was rewritten for.
 //
+// T-039, a reload (loop/specs/T-039-reload-storage-flake/spec.md). "switch (c)"
+// failed at random with its code unchanged, because the BROWSER, not the app,
+// sometimes reloads this file:// page in an ephemeral context without the
+// localStorage the app had just saved: instrumented, the reloaded document read
+// the state key back as missing at document start, before any app script ran.
+// So the two reloads here (switch (c) and (c2)) go through tools/lib-reload.js,
+// which proves at document start — the one point the app cannot have written —
+// that the state stored before the reload arrived. If it did not, the block is
+// re-measured from a fresh context, up to 3 attempts, and if every attempt
+// loses it the gate fails with that reason. The checks themselves are as they
+// were; nothing else is ever retried.
+//
 //   node tools/verify-design.js
 "use strict";
 const fs = require("fs"), path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
+const { acrossReload } = require("./lib-reload");
 const ROOT = path.resolve(__dirname, "..");
 const CSS_FILE = path.join(ROOT, "platform/css/style.css");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
@@ -2008,7 +2021,7 @@ function t26bRecord() {
     await page.click("#themeBtn");
     await page.click("#themeMenu [data-theme-pick='" + t + "']");
   };
-  {
+  await acrossReload({ label: "switch (c)", check, fail: why => check(why, false) }, async (check, reload) => {
     // (a) "light", no marker, on a LIGHT phone (so navy is the switch, not the
     // phone); desktop, where the Theme menu is on screen for (c).
     const { ctx, page, errors } = await fresh(browser,
@@ -2031,7 +2044,7 @@ function t26bRecord() {
       "state writes " + w0.before + " -> " + w0.after + ", stored " + JSON.stringify(a2.stored) + ", data-theme " + a2.theme);
     // (c) the explicit pick: Light from the menu, then a reload.
     await pickTheme(page, "light");
-    await page.reload({ waitUntil: "load" });
+    await reload(page, { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await frames(page);
     const c = await page.evaluate(readTheme);
@@ -2041,15 +2054,15 @@ function t26bRecord() {
       "data-theme " + c.theme + ", --bg " + c.bg + ", meta " + c.meta + ", stored " + JSON.stringify(c.stored));
     check("switch (a)/(c): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
-  }
-  {
+  });
+  await acrossReload({ label: "switch (c2)", check, fail: why => check(why, false) }, async (check, reload) => {
     // (c2) a device with nothing stored picks Light, then reloads: the pick
     // carries the marker, so it is not mistaken for the old default.
     const { ctx, page, errors } = await fresh(browser, { viewport: { width: 1280, height: 800 }, colorScheme: "dark" }, undefined);
     await page.goto(URL + "/", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await pickTheme(page, "light");
-    await page.reload({ waitUntil: "load" });
+    await reload(page, { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await frames(page);
     const r = await page.evaluate(readTheme);
@@ -2058,7 +2071,7 @@ function t26bRecord() {
       "data-theme " + r.theme + ", --bg " + r.bg + ", stored " + JSON.stringify(r.stored));
     check("switch (c2): no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
-  }
+  });
   {
     // (b) "light" WITH the marker on a DARK phone: a pick, kept.
     const { ctx, page, errors } = await fresh(browser,

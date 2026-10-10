@@ -287,3 +287,13 @@ every key to its video, and `verify-content` fails if a pinned key moves.
   paraphrased from the transcript, a drill of 10 minutes or less that produces a written,
   recorded or spoken artifact, a check, and a revision summary with at least three
   multiple-choice checks — all asserted by `verify-content`.
+- **Checks must need the lesson** (review round 1). At review the answer was the unique
+  longest option in 436 of 479 checks, so picking the longest passed. Every distractor was
+  rewritten as a plausible misreading of the same video at the answer's length; now 91 of
+  513 (17.7%), and `verify-content` fails if more than about a third are (the unique
+  shortest is bounded the same way).
+- **Every name has a source** (review round 1). Each teacher, channel or person a lesson
+  names is logged in `candidates.jsonl` for that video with where the name comes from — the
+  title, a transcript quote, a logged WebSearch result, or another lesson's source — and
+  `verify-content` fails on a name that isn't. Attributions nothing supported were rewritten
+  (a lesson says "a communication coach" where neither title nor transcript names him).

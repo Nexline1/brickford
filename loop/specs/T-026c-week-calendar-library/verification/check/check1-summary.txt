@@ -1,0 +1,15 @@
+# CHECK on 3dcb96a (T-026c: screenshots of /review, /calendar and /library at 1440 and 390 in dark a), started 2026-10-10T23:25:24Z
+# platform/ and tools/ match HEAD (no uncommitted changes)
+typecheck | exit 0 | 1s | PASS — node --check on 30 files   [row corrected by hand: the runner's summary line read the wrong file because a loop variable shadowed it; check1-typecheck.txt is the record and says exit 0]
+verify-content | exit 0 | 3s | PASS — 32354 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 414 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+verify-sync-loop | exit 0 | 72s | PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme
+verify-shell | exit 0 | 76s | PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes (1163 checks)
+verify-contrast | exit 0 | 5s | PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+verify-logic | exit 0 | 12s | PASS — 45 invariants hold
+verify-flows | exit 0 | 38s | PASS — 172 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm she
+verify-clip | exit 0 | 172s | PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145384 element measurements)
+verify-clip-tz-la | exit 0 | 174s | PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145384 element measurements)
+verify-design | exit 1 | 113s | FAIL — 1 of 1787 design checks failed: only switch (c), the T-024 flake (T-039)
+# finished 2026-10-10T23:36:30Z
+DONE
+verify-design (re-run, check2-verify-design-rerun.txt) | exit 1 | FAIL — 1 of 1787 design checks failed: again only switch (c), the T-024 flake (T-039); see ../flake-t039/README.txt

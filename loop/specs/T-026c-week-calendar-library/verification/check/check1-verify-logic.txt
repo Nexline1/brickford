@@ -1,0 +1,50 @@
+# verify-logic on 3dcb96a, 2026-10-10T23:28:01Z
+# $ node tools/verify-logic.js
+  ok    day 1 = START_DATE — DAR.START_DATE 2026-10-05, studyIndex(START) 0, dateForStudy(0) 2026-10-05
+  ok    day 1094 = dateForStudy(1093) = 2030-04-02 — got 2030-04-02
+  ok    gate baseline addStudyDays(START, 1094) = 2030-04-03 — got 2030-04-03
+  ok    studyIndex is -1 on a Saturday — 184 Saturdays from 2026-10-05 to 2030-04-15
+  ok    studyIndex is -1 before the start — 278 days before 2026-10-05
+  ok    studyIndex counts every non-Saturday once, in order — 1105 study days, the last index 1104
+  ok    dateForStudy(studyIndex(d)) = d for study days — 1105 study days round-tripped
+  ok    scheduledFor(Saturday) = [] — every Saturday empty; day 1 schedules 9 (not vacuous)
+  ok    dayStatus(Saturday) = "rest" — every Saturday rest; an untouched past Tuesday is "missed" (not vacuous)
+  ok    no page errors (date scenario)
+  ok    streak steps over an unsealed Saturday — run Mon 12 – Tue 20 Oct across unsealed Sat 17 Oct: expected 8, got 8
+  ok    bestStreak steps over unsealed rest-day gaps — expected 8, got 8
+  ok    no page errors (streak scenario)
+  ok    streak does not count a sealed Saturday — run Mon 12 – Tue 20 Oct with Sat 17 Oct sealed: expected 8, got 8
+  ok    no page errors (sealed-Saturday scenario)
+  ok    streak stops at streakFrom — streakFrom 19 Oct: expected 2, got 2
+  ok    bestStreak ignores streakFrom — streakFrom 19 Oct: expected 8, got 8
+  ok    no page errors (streakFrom scenario)
+  ok    a rest day owes no lessons (backlogCount) — expected 0, got 0
+  ok    no page errors (backlog scenario 1)
+  ok    backlogCount = the unwatched lectures scheduled since the first activity — 7 study days 2026-10-12 .. 2026-10-19: expected 24, got 24
+  ok    no page errors (backlog scenario 2)
+  ok    storytelling runs only in the Publish block — 221 SPCH item-days, 0 outside Publish, 0 non-SPCH item(s) in Publish
+  ok    removing storytelling moves no other lesson or block — 1105 days of Theory and Build identical with and without the course
+  ok    no page errors (isolation scenario)
+  ok    a legacy true gives the same targets on two different days (no gate event: passed on START_DATE) — 2026-10-20: 1:passed 2026-10-05->2026-12-15 2:open->2027-02-24 3:open->2027-09-24 4:open->2028-04-24 5:open->2030-01-22 | 2026-11-03: 1:passed 2026-10-05->2026-12-15 2:open->2027-02-24 3:open->2027-09-24 4:open->2028-04-24 5:open->2030-01-22 | want 1:passed 2026-10-05->2026-12-15 2:open->2027-02-24 3:open->2027-09-24 4:open->2028-04-24 5:open->2030-01-22
+  ok    no page errors (legacy true scenarios) —  
+  ok    a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 7 Oct 22:30Z is 8 Oct; a later unmark event is not it), the same on two days — 2026-10-20: 1:passed 2026-10-08->2026-12-15 2:open->2027-02-28 3:open->2027-09-28 4:open->2028-04-27 5:open->2030-01-25 | 2026-11-03: 1:passed 2026-10-08->2026-12-15 2:open->2027-02-28 3:open->2027-09-28 4:open->2028-04-27 5:open->2030-01-25 | want 1:passed 2026-10-08->2026-12-15 2:open->2027-02-28 3:open->2027-09-28 4:open->2028-04-27 5:open->2030-01-25
+  ok    no page errors (legacy true with a gate event) —  
+  ok    old date strings read the same as before (passed on that date; a Saturday pass counts from the next study day), in UTC and America/Los_Angeles — UTC: 1:passed 2026-11-20->2026-12-15 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08 | America/Los_Angeles: 1:passed 2026-11-20->2026-12-15 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08 | want 1:passed 2026-11-20->2026-12-15 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08
+  ok    render is a read: loading and drawing /atlas, /transcript and / leaves the old shapes as stored — UTC true,true,true; America/Los_Angeles true,true,true
+  ok    the next ordinary save stores { date, at, passed } (at = the date's LOCAL midnight, UTC and Los Angeles), and the plan does not move — UTC {"1":{"date":"2026-11-20","at":"2026-11-20T00:00:00.000Z","passed":true},"2":{"date":"2027-03-13","at":"2027-03-13T00:00:00.000Z","passed":true},"3":{"date":null,"at":null,"passed":false}} | 1:passed 2026-11-20->2026-12-15 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08 || America/Los_Angeles {"1":{"date":"2026-11-20","at":"2026-11-20T08:00:00.000Z","passed":true},"2":{"date":"2027-03-13","at":"2027-03-13T08:00:00.000Z","passed":true},"3":{"date":null,"at":null,"passed":false}} | 1:passed 2026-11-20->2026-12-15 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08
+  ok    no page errors (old date strings) —  
+  ok    an out-of-order pass is impossible: Gate 3, 2 or 5 before Gate 1 is refused, stores nothing and logs nothing — returned false,false,false, stored {}, 0 gate event(s)
+  ok    the next gate can be passed: stored as { date: today (local: 21 Oct in Bahrain), at, passed: true }, and Gate 3 is still refused after it — pass 1 true {"date":"2026-10-21","at":"2026-10-20T22:30:00.000Z","passed":true}; pass 3 false; pass 2 true
+  ok    only the last passed gate can be unmarked (Gate 1 refused while Gate 2 is passed; Gate 2 then stored { passed: false }) — unmark 1 false, unmark 2 true, plan ["2026-10-21",null,null,null,null], events gate1:true,gate2:true,gate2:false
+  ok    no page errors (gate order)
+  ok    LWW merge: a pass at t1, then an unmark at t2 on another device, gives an unmark after a pull either way round — the device that passed (t1) pulls the unmark (t2): open -> open; the device that unmarked (t2) pulls the pass (t1): still open -> open
+  ok    LWW merge, mixed devices: an unmark beats an older legacy date string, either side — an unmark (t2) pulls a legacy date string for that day (00:00): still open -> open; a legacy date string here pulls a newer unmark: open -> open
+  ok    LWW merge is last-writer-wins, not unmark-wins: a later pass beats an earlier unmark, and a timed pass beats a legacy false — an unmark (t1) pulls a later pass (t2): passed -> passed 2026-10-19; a legacy false (no time) pulls a timed pass: passed -> passed 2026-10-19
+  ok    a remote legacy true is dated by its gate event in the remote's own ledger (7 Oct, not START_DATE) — nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day -> passed 2026-10-07
+  ok    a pull of the same gates changes nothing — 0 change(s)
+  ok    no page errors (gate merge) —        
+  ok    the test hook exists only under #__test — absent on #/
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+PASS — 45 invariants hold
+exit 0

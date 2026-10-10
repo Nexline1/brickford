@@ -1090,14 +1090,6 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
-  // A scheduled block that is not a lecture — the later weeks where a course has
-  // run out of lessons and the day is project or frontier work. Real lectures go
-  // through dayGroupsHTML below, on both pages that show a day.
-  function pseudoRowHTML(it) {
-    return '<a class="grow" href="' + it.href + '"><span class="g-lead">\u00b7</span>' +
-      '<span class="g-main"><span class="g-t">' + esc(it.t) + '</span>' +
-      '<span class="g-s">' + esc(it.track) + '</span></span></a>';
-  }
   // The day, grouped by course.
   //
   // Nine separate cards meant nine borders, nine "Open" buttons and six rows
@@ -2974,110 +2966,88 @@
     if (iso < D.START_DATE) {
       return '<div class="card"><h2>The climb hasn’t started yet</h2><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Day 1 is ' + D.START_DATE + '. Pick that day or later to see the brief.</p></div>';
     }
+    // T-026c: the selected day, below the month grid (which is untouched).
+    // It was a summary card, then one .ghead and .glist per course, then a
+    // list of routines: three shapes for one day. Now it is a header (the
+    // day, where it sits in the plan, a slim bar, ‹ Today ›), one block per
+    // scheduled item with its faculty's colour down its edge, and the habits
+    // as a row of tiles. Same facts; the order a day is actually worked in.
     const dObj = new Date(iso + "T00:00:00");
-    const nice = dObj.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    // "Wednesday 7 October", built from its parts: a locale's own order and
+    // comma are not the heading's.
+    const nice = dObj.toLocaleString("en-US", { weekday: "long" }) + " " + dObj.getDate() + " " +
+      dObj.toLocaleString("en-US", { month: "long" });
     const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
     const isSunday = dObj.getDay() === 0;
-    const isToday = iso === todayISO();
+    const first = todayISO() > D.START_DATE ? todayISO() : D.START_DATE;
     const status = dayStatus(iso);
-    const act = dayActivity(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
     const sched = scheduledFor(iso);
     const real = sched.filter(it => !it.pseudo);
     const schedDoneN = real.filter(schedDone).length;
-    const probs = nextProblems(2);
 
-    // This day's own lessons — fixed forever, done state shown per lesson.
-    // Same renderer as the dashboard: grouped by course, the row is the link.
-    // The "The lessons" label that used to head them is gone: each group names
-    // its own course, and the status pill above already says whether the day is
-    // owed, part-done or clear.
-    const schedRows = real.length || sched.some(it => it.pseudo)
-      ? dayGroupsHTML(real) +
-        (sched.some(it => it.pseudo)
-          ? '<div class="glist" style="margin-top:var(--sp-3);">' +
-            sched.filter(it => it.pseudo).map(pseudoRowHTML).join("") + "</div>"
-          : "")
-      : '<div class="ghead">No lectures on this day</div>' +
-        '<div class="glist"><a class="grow" href="#/workshop"><span class="g-lead">·</span>' +
-        '<span class="g-main"><span class="g-t">Project work</span>' +
-        '<span class="g-s">beyond the scheduled syllabus — per the week focus above</span></span></a></div>';
-
-    // The five things that run on every study day. They were .plan-row — a block
-    // label, a sentence and a "Go" button each — which is a fourth shape on a
-    // page that already had three. One group, one row apiece, the row is the
-    // link, and the five "Go" buttons are gone.
-    const routine = (name, time, what, href) =>
-      '<a class="grow" href="' + href + '"><span class="g-lead"></span>' +
-      '<span class="g-main"><span class="g-t">' + name + "</span>" +
-      '<span class="g-s">' + what + "</span></span>" +
-      '<span class="g-v">' + time + "</span></a>";
-
-    const statusPill = {
-      today: '<span class="pill teal">Today</span>',
-      upcoming: '<span class="pill">Upcoming</span>',
-      completed: '<span class="pill good">✓ Completed</span>',
-      partial: '<span class="pill" style="color:var(--accent-2); border-color:var(--accent-2);">Partly done</span>',
-      missed: '<span class="pill crimson">Missed — catch up</span>',
-      rest: '<span class="pill">Rest day</span>',
-    }[status];
-
-    // Per-day progress line: this day's scheduled lessons, done vs owed.
-    const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
-    const progressLine =
-      '<div style="margin-top:12px;">' +
-      // space-between with no gap: the moment the right-hand span wraps — which
-      // it does on a phone — the two halves meet and it reads "PROGRESS1 of 5
-      // lessons". space-between only separates what fits on one line.
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
-      '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600; flex-shrink:0;">Progress</span>' +
-      // Right-aligned so a wrapped second line stacks under the first rather
-      // than floating in the middle of the row.
-      '<span class="mono" style="text-align:right;">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
-      " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
-      '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
-      // courseStand ("Lin Algebra 6/51 lectures done") said the same thing as the
-      // bar above it and the rows below it. The day detail was stating its
-      // contents four separate ways - bar, this line, the chips, then the
-      // lessons themselves. Three of the four were restatements.
-      "</div>";
+    const sub = status === "rest" ? "Rest day · Week " + w
+      : "Day " + day + " · Week " + w + (real.length ? " · " + schedDoneN + " of " + real.length + " done" : "");
+    // ‹ and › step the selected day; Today is the grid's own Today.
+    const chev = d => '<svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+    const seg = '<div class="seg cd-seg" role="group" aria-label="Choose a day">' +
+      '<button type="button" data-cal-step="-1" aria-label="Previous day"' + (iso <= D.START_DATE ? " disabled" : "") + ">" + chev("M6.5 1.5 L2 6.5 L6.5 11.5") + "</button>" +
+      '<button type="button" data-cal-nav="today" aria-pressed="' + (iso === first) + '">Today</button>' +
+      '<button type="button" data-cal-step="1" aria-label="Next day">' + chev("M1.5 1.5 L6 6.5 L1.5 11.5") + "</button></div>";
 
     const catchUp = (status === "missed" || status === "partial")
-      ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--ink);">' +
+      ? '<p class="cd-note"><strong>' +
         (status === "missed" ? "You missed this day — its lessons are still here." : "You started this day but didn’t finish it.") +
         "</strong> This day’s content never moves. Clear the unticked lessons and the day turns green — even late.</p>"
       : "";
 
-    // The summary is a card because it is one object: a date, a state and a bar.
-    // Everything under it is rows, so the lists are NOT nested inside the card —
-    // a bordered group inside a bordered card is the second border this design
-    // spent three rounds getting rid of.
-    return '<div class="card" style="margin-top:12px;">' +
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
-      "<h2>" + nice + "</h2>" +
-      '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill +
-      (status === "rest"
-        ? '<span class="pill">Week ' + w + "</span>"
-        : '<span class="pill teal">Day ' + day + " · Week " + w + "</span>") + "</div></div>" +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
-      progressLine +
+    // A lecture: its course and block, its title, its length over its place in
+    // the course ("lecture n") or in a lecture that spans days ("part p of q").
+    const blk = it => {
+      const c = D.COURSES.find(x => x.id === it.cid);
+      const dn = schedDone(it);
+      const n = flatLessons(it.cid).findIndex(f => f.ui === it.ui && f.li === it.li) + 1;
+      const dur = it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading";
+      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+        '<span class="cd-bar" aria-hidden="true"></span>' +
+        '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") + esc(it.l.t) + "</span></span>" +
+        '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
+    };
+    // Not a lecture: the weeks where a course has run out and the block is
+    // problem sets, a project or frontier work. No faculty, so no colour.
+    const pblk = it => '<a class="cd-blk cd-pseudo" href="' + it.href + '"><span class="cd-bar" aria-hidden="true"></span>' +
+      '<span class="cd-main"><span class="cd-k">' + esc(it.track) + '</span><span class="cd-t">' + esc(it.t) + "</span></span></a>";
+    const blocks = sched.length
+      ? '<div class="cd-blocks">' + sched.map(it => it.pseudo ? pblk(it) : blk(it)).join("") + "</div>"
+      : status === "rest"
+        ? '<p class="cd-none">Nothing is scheduled and nothing is owed. The streak is safe.</p>'
+        : '<div class="cd-blocks">' + pblk({ track: "Project work", t: "Beyond the scheduled syllabus — per the week’s focus", href: "#/workshop" }) + "</div>";
+
+    // The things that run on every study day, and what they add up to.
+    const pool = missPool().length;
+    const habits = [
+      ["Practice", 45, nextProblems(1).length ? "NeetCode" : "all 150 done", "#/course/cs150"],
+      ["Drill", 10, pool ? pool + " missed" : "", "#/drill"],
+      ["Publish", 30, "one post", "#/review"],
+      ["Workshop", 0, "this week’s build", "#/workshop"],
+    ].concat(isSunday ? [["Seal the week", 30, "Week " + w, "#/review"]] : []);
+    const mins = habits.reduce((a, h) => a + h[1], 0);
+    const about = "about " + (mins >= 60 ? Math.floor(mins / 60) + " h" + (mins % 60 ? " " + pad2(mins % 60) : "") : mins + " min");
+    const habit = ([t, m, d, href]) => '<a class="at-tile cd-hb" href="' + href + '"><span class="tl-main">' +
+      '<span class="tl-t">' + t + '</span><span class="tl-m">' + [m ? m + " min" : "", d].filter(Boolean).join(" · ") + "</span></span></a>";
+
+    return '<div class="cd-day">' +
+      '<div class="cd-head"><div class="cd-title"><h2>' + nice + '</h2><p class="cd-sub">' + sub + "</p></div>" + seg + "</div>" +
+      (real.length ? '<div class="cd-prog' + (schedDoneN === real.length ? " full" : "") + '" role="img" aria-label="' + schedDoneN + " of " + real.length +
+        ' done"><i style="width:' + (schedDoneN / real.length * 100) + '%;"></i></div>' : "") +
+      '<p class="cd-note"><strong>Focus:</strong> ' + esc(row.focus) + "</p>" +
       catchUp +
-      (gate ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--accent);">◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
-      "</div>" +
-
-      schedRows +
-
-      '<div class="ghead">Every study day<span class="gh-meta">' + (isSunday ? "5" : "4") + "</span></div>" +
-      '<div class="glist">' +
-      routine("Practice", "45m",
-        probs.length ? "NeetCode: " + probs.map(esc).join(", ") : "All 150 problems done", "#/course/cs150") +
-      routine("Drill", "10m",
-        missPool().length ? missPool().length + " missed questions in the pool" : "pool clear — a random drill", "#/drill") +
-      routine("Publish", "30m", "turn today’s notes into a public post", "#/review") +
-      routine("Workshop", "", "the build that the week’s focus is for", "#/workshop") +
-      (isSunday ? routine("Seal the week", "30m", "no shipped artifact = a failed week", "#/review") : "") +
-      "</div>";
+      (gate ? '<p class="cd-note cd-gate"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
+      blocks +
+      '<div class="ghead">Every study day<span class="gh-meta">' + about + "</span></div>" +
+      '<div class="cd-habits">' + habits.map(habit).join("") + "</div></div>";
   }
 
   V.diag = function (id) {
@@ -5059,6 +5029,16 @@
           const nd = new Date(y, m - 1 + (nav === "next" ? 1 : -1), 1);
           calCursor = nd.getFullYear() + "-" + pad2(nd.getMonth() + 1);
         }
+        render();
+      };
+    });
+    // T-026c: the day view's ‹ and › step the selected day (never before day
+    // 1), and the grid follows it into the next month. In memory, no save.
+    $$("[data-cal-step]", root).forEach(b => {
+      b.onclick = () => {
+        let d = addDaysISO(calSel || todayISO(), +b.dataset.calStep);
+        if (d < D.START_DATE) d = D.START_DATE;
+        calSel = d; calCursor = d.slice(0, 7);
         render();
       };
     });

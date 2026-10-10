@@ -2761,3 +2761,51 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .wk-slot.later { background: none; border: 1px dashed var(--line-strong); color: var(--ink-3); }
 .wk-slot.later b { color: var(--ink-3); }
 .wk-card > summary:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---- Calendar: the selected day ---- */
+.cd-day { margin-top: 2rem; }
+.cd-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; }
+.cd-title { min-width: 0; }
+.cd-title h2 {
+  margin: 0; font-size: var(--fs-title1); font-weight: 700; line-height: var(--lh-title1);
+  letter-spacing: var(--tr-title1); color: var(--ink);
+}
+.cd-sub { margin-top: 2px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.seg.cd-seg { margin-top: 0; margin-left: auto; flex-wrap: nowrap; }
+.seg.cd-seg button { display: grid; place-items: center; }
+.seg.cd-seg button:disabled { color: var(--ink-3); cursor: default; }
+.cd-prog { height: 6px; margin-top: 12px; border-radius: 3px; background: var(--line); }
+.cd-prog i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.cd-prog.full i { background: var(--good); }
+.cd-note { margin-top: 10px; font-size: var(--fs-footnote); line-height: 1.45; color: var(--ink-2); }
+.cd-note strong { font-weight: 600; color: var(--ink); }
+.cd-note.cd-gate strong { color: var(--accent); }
+.cd-none { margin-top: 16px; font-size: var(--fs-subhead); color: var(--ink-2); }
+/* A block: a 6px bar in the faculty colour down the leading edge, the
+   course and block over the title, the length over the place on the right. */
+.cd-blocks { display: grid; gap: 10px; margin-top: 16px; }
+.cd-blk {
+  display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; align-items: center; gap: 4px 16px;
+  min-height: 44px; padding: 14px 18px 14px 0; border-radius: var(--r-lg);
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.cd-blk:hover { text-decoration: none; }
+.cd-bar { align-self: stretch; min-height: 2rem; border-radius: 0 3px 3px 0; background: var(--fac, var(--line-strong)); }
+.cd-main { display: flex; flex-direction: column; min-width: 0; }
+.cd-k { font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fac, var(--ink-3)); }
+.cd-t { margin-top: 2px; font-size: var(--fs-headline); font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
+.cd-r {
+  display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+  font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cd-ok { margin-right: 6px; color: var(--good); }
+.cd-blk.done .cd-t { color: var(--ink-2); }
+.cd-blk.done .cd-k { color: var(--ink-3); }
+.cd-pseudo .cd-k { color: var(--ink-3); }
+/* The habits: four across while a tile keeps 7rem, two on a phone. */
+.cd-habits { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 10px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .cd-habits { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
+}
+.cd-hb { padding: 14px; }
+.cd-blk:active { transform: scale(0.985); transition: transform 100ms ease-out; }

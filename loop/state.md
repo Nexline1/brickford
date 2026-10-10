@@ -46,3 +46,4 @@
 - 2026-10-10: T-031 review r1 CHANGES REQUIRED (12rem basis breaks the Gate 3 chip at 373-374px/root 16; gate blind to Gate 2-5 states; comment). Builder resumed.
 - 2026-10-10: T-031 r1 fixes in (6382c6b, head 044143d): min-content floor on .at-main, chip words unbroken, per-gate mid-word check (Gates 1-5 x roots 16/24 x 15 widths). My CHECK all green incl. LA clip. Side effect: root 24, 320-329px, Gate 3 next, chip whole but up to 11px past the card edge (T-040 band). Review r2 sent.
 - 2026-10-10: T-031 r2 APPROVED; merged as PR #16 (45fdf55). T-040 reworded (overflow at root 24/320-329 + containment clause + style.css comment). T-039 confirmed: failed 2 of ~12 design runs. T-026c building next.
+- 2026-10-10: T-026c builder launched in /home/user/bf-T-026c (branch loop/T-026c-week-calendar-library, from 45fdf55), tokens 20261010e.

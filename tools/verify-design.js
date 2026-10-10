@@ -3296,7 +3296,11 @@ function t26bRecord() {
   // 376, 1038, 1132, 1178 and 1372 are where a shelf track landed between a
   // 6.75rem column floor and "Mathematics" (6.81rem in .bk-t), so Later and
   // All broke it "Mathematic/s": 1132 at a 16px root, the rest at 24px (T-031;
-  // a 2px sweep, 320 to 1440 at roots 16, 20 and 24, found every one).
+  // a 2px sweep, 320 to 1440 at roots 16, 20 and 24). With the floor back at
+  // 6.75rem (plant a) this sweep fails at roots 16 and 24. The same floor
+  // also broke it at a 20px root (322, 1088 and 1252); this sweep has no 20px
+  // root, so those bands are not asked here (the 2px sweep found 0 after the
+  // fix).
   const T26_OW = [320, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440];
   for (const root of [16, 24]) {
     for (const w of T26_OW) {
@@ -3352,6 +3356,60 @@ function t26bRecord() {
       d ? "root " + d.root + ", \"" + d.n + "\" at " + d.b.join(",") + "; the text at " + d.m.join(",") : "no next-gate card");
     c26("390px root 16px, a 3-digit count: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
+  }
+  // ---- every next gate: no word on /atlas broken mid-word ----
+  // T-031 review round 1: the sweep above only ever has Gate 1 next. With
+  // Gates 1-2 passed, the 12rem basis put the days beside a 192px text column
+  // at 373-374px (root 16) and broke Gate 3's chip "6+ paper
+  // reimplementation/s" while every check stayed green. So each next gate in
+  // turn, at the sweep's widths plus 358 (where the days first sit beside the
+  // text with 2 digits) and 373 and 374 (3 digits). One context per gate,
+  // root and phone-or-desktop, resized width to width.
+  const T31_WIDTHS = T26_OW.concat([358, 373, 374]).sort((a, b) => a - b);
+  for (let k = 1; k <= T26_GATES.length; k++) {
+    const passed = {};
+    for (let g = 1; g < k; g++) passed[g] = "2026-10-1" + (1 + g);   // 12, 13, 14, 15 Oct
+    for (const root of [16, 24]) {
+      const bad = [], errs = [], seen = new Set();
+      for (const mobile of [true, false]) {
+        const ws = T31_WIDTHS.filter(w => (w < 861) === mobile);
+        const { ctx, page, errors } = await fresh(browser, { viewport: { width: ws[0], height: 900 }, isMobile: mobile, hasTouch: mobile }, "light");
+        await ctx.addInitScript(g => {
+          if (window.top !== window) return;
+          const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+          s.gates = g;
+          localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+        }, passed);
+        await ctx.addInitScript(rt => { document.addEventListener("DOMContentLoaded", () => { document.documentElement.style.fontSize = rt + "px"; }); }, root);
+        await page.goto(URL + "/__boot", { waitUntil: "load" });
+        await page.waitForSelector("#view > *");
+        await go(page, "/atlas");
+        for (const w of ws) {
+          await page.setViewportSize({ width: w, height: 900 });
+          await page.waitForFunction(w => window.innerWidth === w, w, { timeout: 4000, polling: "raf" });
+          // A resize starts transitions (.main's padding, as the rail comes and
+          // goes), and in their first frame the column is still the old width:
+          // read there, "Calibratio/n" broke at 768, 1372 and 1440, and never on
+          // a fresh load. So two frames for them to start, then until they end.
+          await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+            .then(() => Promise.all(document.getAnimations()
+              .filter(a => !a.effect || a.effect.getComputedTiming().iterations !== Infinity)
+              .map(a => a.finished.catch(() => {})))));
+          const s = await page.evaluate(() => ({ root: getComputedStyle(document.documentElement).fontSize,
+            gate: (document.querySelector("#view .at-next .at-gate") || {}).textContent || "" }));
+          seen.add(s.gate);
+          if (s.root !== root + "px") bad.push(w + "px: root font is " + s.root);
+          const lw = await page.evaluate(labelWords);
+          if (lw.length) bad.push(w + "px: " + lw.join("; "));
+        }
+        errs.push(...errors);
+        await ctx.close();
+      }
+      const want = T26_GATES[k - 1].label;
+      c26("/atlas, Gate " + k + " next (" + want + "), root " + root + "px: no route label, next-gate title or chip broken mid-word at " + T31_WIDTHS.join(", ") + "px",
+        bad.length === 0 && errs.length === 0 && seen.size === 1 && seen.has(want),
+        bad.concat(errs).join(" | ") || (seen.size === 1 && seen.has(want) ? T31_WIDTHS.length + " widths" : "the card names " + [...seen].join(", ")));
+    }
   }
 
   // =================== T-026b: Problems, Exams and Proof ===================

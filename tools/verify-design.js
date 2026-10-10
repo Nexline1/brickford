@@ -258,14 +258,17 @@
 // T-039, a reload (loop/specs/T-039-reload-storage-flake/spec.md). "switch (c)"
 // failed at random with its code unchanged, because the BROWSER, not the app,
 // sometimes reloads this file:// page in an ephemeral context without the
-// localStorage the app had just saved: instrumented, the reloaded document read
-// the state key back as missing at document start, before any app script ran.
-// So the two reloads here (switch (c) and (c2)) go through tools/lib-reload.js,
-// which proves at document start — the one point the app cannot have written —
-// that the state stored before the reload arrived. If it did not, the block is
-// re-measured from a fresh context, up to 3 attempts, and if every attempt
-// loses it the gate fails with that reason. The checks themselves are as they
-// were; nothing else is ever retried.
+// storage the page had. Measured at document start, before any app script ran:
+// either localStorage came back empty (the app's state gone), or
+// sessionStorage did — and then bareSettings' write-once seed, which keys
+// "once" off sessionStorage, fired again and wrote its fixture over the app's
+// state. So the two reloads here (switch (c) and (c2)) go through
+// tools/lib-reload.js, which proves at document start — the one point the app
+// cannot have written — that the state stored before the reload arrived, in
+// both storage areas. If it did not, the block is re-measured from a fresh
+// context, up to 3 attempts, and if every attempt loses it the gate fails with
+// that reason. The checks themselves are as they were; nothing else is ever
+// retried.
 //
 //   node tools/verify-design.js
 "use strict";

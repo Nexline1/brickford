@@ -1,0 +1,911 @@
+# Transcript: Promise, Progress, Payoff - Plot Theory: Brandon Sanderson's Writing Lecture #2 (2025)
+
+Source video: https://www.youtube.com/watch?v=ihd76ijy9LU
+Language: en · Duration: 1:15:44 · Words: 12678
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript
+
+[0:00] BRANDON: Hey! Welcome to Brandon Sanderson's 2025 Writing Science Fiction and Fantasy
+lectures. Today we're going to cover plot, specifically the ideas of promise, progress, and payoff.
+So I hope you enjoy the lecture. We'll be on plot next week as well. Hey, everybody! Welcome to
+class! It's Science Fiction and Fantasy Writing! Yay! CLASS: (cheering and applause) BRANDON:
+Because this is a year where we're recording it, I am on the ball and have outlined the rest of the
+semester
+
+[0:31] for you. So you can see what's coming up. And I guess if you're planning to, I don't know, go
+to Aruba one week, you can pick the week you're least engaged by. There will be two guest lectures.
+Usually I have two. First one's going to be on February 6th, and the second one will be on February
+27th. We aren't 100% sure who those people will be yet, but I think maybe we'll try to get indie
+publishing people the second one as we are a little closer
+
+[1:05] to the publishing lectures, and we'll see who we bring in for talking about character. So
+that's what we're going to be doing. Like I told you last time, we're going to go three weeks on
+each topic, and your questions that you write down in your--take your quiz by 8:45--we will save
+those for the Q&A lecture. And that's when I will try to dig into those. Usually I get to, like,
+three of them and then there's enough questions from the crowd and tangents that I don't answer
+
+[1:39] everything you write down. But it is the nice way that we keep role, and it does give me a
+starting point for going into the Q&A lectures. We're going to do plot first. I kind of go back and
+forth on where I start. I should say back and forth and further forth because there's--. Stories are
+built up generally of three things. They are built up of your plot, your setting, and your
+character. And the intersection of plot, setting, and character is conflict. What you're
+
+[2:13] looking for is how to create that conflict. And as far as stories go, setting, plot, and
+character all should exist to create some sort of conflict, or to facilitate some sort of conflict,
+because that's what your story's about. So I'm going to talk a little bit. I actually took notes
+this time. CLASS: (laughing) BRANDON: Yes, I know! Look at that. So what's the purpose of plot?
+Right? What do we talk
+
+[2:48] about when we mean plot? I often talk about plot in kind of two different categories, and I
+label them big P Plot and little p plot. A capital P Plot and a little p plot. Capital P Plot is
+when someone says, "What is your book about?" That's what you tell them. This is the "what you can
+boil it down to in a sentence or two" plot. What is The Lord of the Rings about? It's about a furry
+footed British dude taking a magic ring and trying to throw it in a pit. Right? That's the
+
+[3:23] funny way of putting it. But you know what I mean. Like, what is Lord of the Rings about?
+It's trying to destroy Sauron through destroying this ring that is the conflux of his power. Little
+p plot is what happens chapter by chapter in order to keep the reader engaged. So the Plot of Lord
+of the Rings might be destroy the ring. But the lower case p plot might be, all right, there's some
+orcs here and we can't get past them. What do we do? Well, we'll dress up like them.
+
+[3:57] Right? Like that sort of thing. It's the small, little problem, and then you resolve it.
+Small, little problem and resolve it. Building toward larger problems that you're hopefully
+resolving. Next week we're going to talk about plot frameworks. So today we're not going to talk
+about the Hero's Journey or plot archetypes or things like that. Instead, we're going to talk about
+the general idea of what plot is for. And in my mind, plot is for a couple of things. First
+
+[4:28] is facilitate conflict. It's going to be the primary way that you create conflict in your
+story. A thing needs to happen, and the characters need to do it, and something is standing in their
+way. Pretty obvious. The second thing though, a plot is there to give the reader some structure, to
+give the reader something to hang onto to give them a sense that a story is being told and is moving
+along. Plot tends to be the one, because of these reasons, that is the most difficult to
+
+[5:08] innovate upon. Of plot, setting, and character, I'd say setting is the easiest place to
+innovate, character second easiest. Plot is the most difficult. There are various--and we'll talk
+about them next week, various plot frameworks. But there's certain things people expect in a
+satisfying story. And yes, you can subvert those, and most of the ways you would subvert those just
+makes your story unsatisfying. Now, you may want to tell an unsatisfying story. There are reasons
+
+[5:43] to do that. But in general you're looking to tell a satisfying story, and there are certain
+things that work for that and certain things that don't. And because of that, you'll notice that if
+you go on and, you know, start googling plot and start researching it, people will be like, "There's
+only three plots." "There's only seven plots." "There's only one plot." Right? The Hero's Journey,
+he would be like, "Yep, there's one plot. It's been told in all these different ways." But he
+stretched a ton to make that count. I don't know how many plots there are. But I can tell
+
+[6:15] you that innovating here is not necessarily something that needs to be done. In general, if
+you are combining your plot with interesting characters in an interesting setting, and you have--you
+are kind of using what we're going to talk about today in this class, you're going to create
+something that is going to read and is going to feel fresh and unique. Right? It doesn't matter that
+Dune is Hamlet. Right? Is The Lion King. Right? Right down to the break in the
+
+[6:54] middle of Lion King and Dune, which I've always found interesting, that both of them are
+like, "We're going to skip all the growing up part." Right? Maybe it's because Hamlet, he was
+already grown, and Hamlet skipped the whole first half of the story and Hamlet's the second half.
+But there's something about that story. Son is wronged as father dies and uncle seizes the throne.
+Son goes away and comes back stronger, maybe crazier in Hamlet's case. And becomes a rival for the
+
+[7:25] uncle's throne, killing the uncle, and restoring order to the Pride Lands, or whatever they
+call them. Right? To Arrakis. You would not look at The Lion King and Dune and be like, "Wow, those
+are the exact same story," even though the general concept, the general structure, is the same
+structure. Right? You've probably, I would guess, never thought that Dune was Hamlet. Everyone talks
+about Lion King being Hamlet, so you probably already knew that one. But the fact that they
+
+[7:58] share these very similar plot structures, even to the point that it's like the uncle and
+things like this, doesn't make these stories feel unfresh or unoriginal. In fact, Dune is probably
+my favorite book of all time. And so because of that you can use plot as a tool. Plot should be, in
+my opinion, one of these places where the chef knows what works and can use it to their advantage,
+
+[8:31] with only taking pieces and parts. You'll even notice, like, as I said, when Shakespeare
+wrote this story, to tell the story he wanted to, he started with Hamlet arriving back. Right? Well,
+when Dune tells the story, it backs up and shows all of this and the wrongs being committed that
+need to be righted. The stories are trying to do different things. And so, you know, in The Lion
+King you need cute, plucky animal sidekicks. In Dune you need an animal that will eat you
+
+[9:09] if you walk without rhythm. And so the different needs are different for the different
+stories. Now, I think that plot breaks down to this idea of promise, progress, and payoff. In all
+the frameworks we'll talk about next week and the ways of constructing a plot, we'll kind of rely on
+this same concept. You might be saying to me, "Brandon, I am naturally more of
+
+[9:39] a pantser. I like to write by the seat of my pants. I don't like to have a structure." As I
+mentioned with Stephen King, he feels that if he makes an outline he's already told his story, and
+it makes it harder for him to then go tell his story because discovering the story is part of what
+drives him to write. Don't worry. You can do all of this while discovery writing. Right? Now the
+frameworks we'll talk about next week, some of those, if you're a discovery writer, you just
+
+[10:09] don't want to use. Right? You don't want to sit down and use 7-Point Story Structure. But
+the more you learn about the core concepts of what makes people read books and enjoy them, the more
+you can apply that as you're discovering your story. And one thing to be aware of is the difference
+between discovery writers and outliners, and again, everyone falls on the spectrum between, and
+indeed, most people are a little of both and it changes based on project, most people spend
+
+[10:39] about the same amount of time. The outliner spends it up front. The discovery writer spends
+it on the back end. Right? And these sorts of things we're talking about are often really handy
+tools for analyzing a story that's gone wrong. In fact, that's kind of a theme for this whole class.
+When you sit down to write, a lot times writers are not thinking, "Hmm, what is the progress here?"
+Right? I do because that's how I analyze story. But I think most people are writing by
+
+[11:14] instinct. And then if something doesn't work, writers back up and say, "All right, what's
+the disconnect here?" And they will often arrive at things that essentially mean, "I've made a
+promise, but my progress is something different. How do I fix that?" Well, I go back, generally, and
+make new promises, because the progress that I'm writing along is what I want to tell the story
+about. So don't worry and feel that you have to learn all of this up front and apply it to your
+outline before you start writing your book. Writing will teach you how to do this better than
+
+[11:46] any other activity will, as we talked about last week. So take all of these things, use them
+as analytical tools to help you begin understanding story. And if things are broken, then maybe you
+can analyze them according to some of the things we talk about. And if you're an outliner, they
+might be really handy in making your outlines. So questions on any of that before we talk about
+promises? Yes. STUDENT: How much of this is just North American culture? BRANDON: Yeah. So how much
+of this is--? I
+
+[12:19] would say Western storytelling traditions. Right? But really modern Western storytelling
+traditions. How much is it? This is a little bit hard for me to put a point on because definitely in
+Asia, Japan, Korea, China, you're going to see a different use of payoff most often. That's where
+they deviate the most. The payoff there, based on kind of subtle storytelling archetypes over time,
+
+[12:51] means something different, and what is satisfying to that audience can be different. That
+said, they are homogenizing. Whether for good or for ill, you are seeing more and more of ambiguous
+endings being more popular in the West, and you are seeing more payoff endings in the East. And both
+are kind of viable. It just depends on what kind of payoff that you want to have. You still
+generally use, in some of the Eastern styles of storytelling, even going back, if you're going
+
+[13:26] to read Journey to the West, right? You're going to see kind of the same progress and
+promise methodology. You see very different payoff methodology. Excellent question. Yeah, go ahead.
+STUDENT: Just out of curiosity, when you're writing something, like, when you've been writing
+something longer, like Stormlight or something, where would you put yourself on the scale between
+discovery and outliner. BRANDON: Discovery and outliner. Every author--. The question is, so it can
+be repeated for the camera, where like on Stormlight in particular,
+
+[13:59] would I put myself between outliner and pantser or whatever. Every author is a pantser, is
+discovery writing at the core as they're working. Right? Even if you have bullet points, you're
+still discovery writing. Like, nobody's outline is as long as their story. So you're always
+discovery writing something. I remember a famous story that I was told that I have not been able to
+confirm. I tried very hard, and I think it might just be apocryphal. But the story I was told when I
+was
+
+[14:31] young is that in the movie ET the screenplay just said, "Elliot and ET escape on the bikes."
+Right? CLASS: (laughing) BRANDON: At least in one of the drafts, and then that became the most
+iconic scene in the film. A lot of times your outline will say, "The characters escape." And then
+you have to discovery write that. Right? So the outliner, you know, it's a bit of a misnomer to call
+anyone truly an outliner, because it's just how much
+
+[15:01] pantsing you are comfortable with. I tend to fall much more on the outlining side for
+everything, and the longer the series, the more detailed my outlines are. That is because I'm kind
+of throwing myself footballs and then trying to catch them 15 years later. Right? CLASS: (laughing)
+BRANDON: And the better guess I have where I am, the easier it will be to catch those footballs.
+That said,
+
+[15:32] I knock out walls that I would have considered load bearing, and I change things around. And
+as you write, the story matures. And so even myself, who I consider myself one of the more hardcore
+outliners that I know, I would say that more discovery writer than outliner in general. Just
+compared to other people I outline more. And here's a fun thing for you. Anecdote time, and then
+I'll get to this question. I have been on many panels on writing, and I generally find
+
+[16:09] myself one of the few outliners. This has changed over time. I find that there are more
+outliners now than there used to be. But I still tend to be in the minority. And so I talk about
+myself as kind of being odd sometimes as such a strong outliner. I once sat on a panel in Germany,
+and I kid you not, I said this, like how I do it, and all the Germans looked at me and they're like,
+"No, that's how it's done." CLASS: (laughing) BRANDON: I'm like, "No, there's discovery writing."
+They're, like, horrified. They're like,
+
+[16:41] "People do that without a structure?" I thought it was funny. It's a little bit of a
+stereotype, but it literally happened that all the Germans are like, "It's insane to not have an
+outline." All right. Question here, and then we'll do this one, then we'll do--yeah. STUDENT: How do
+you come to terms with dropping plots or plans that you feel are core to your story? BRANDON: How do
+you come to terms with dropping plots or plans that you feel are core to your story? How do you come
+to terms with killing your darlings, which is a famous screenwriting terminology for this sort of
+thing. You tell
+
+[17:17] yourself a lie. OK? I'm going to tell you what the lie is. "I will find a much better place
+for this character, plot, or idea, where it can shine in its own story." And then 9 times out of 10
+you won't, because that idea actually wasn't that great. You just built the whole story upon it. The
+story did evolve because the process of building a story is where the real creativity takes off. And
+as you start writing it, you start applying all of your ideas, and that thing that
+
+[17:48] started you actually is not as good as the rest of it, and part of you realizes it. Once in
+a while, that 1 out of 10, that lets you have plausible deniability on your lie. Once in a while
+that 1 out of 10 becomes its own story, and it deserves that space and time. I will say this, just
+as a blanket. I almost always throw away my first chapters, often my first several chapters, of a
+given book, and write them over once I'm finished. This is how you can tell, even though I'm an
+outliner, discovery writing and really focusing on the progress side of this,
+
+[18:25] which is in many ways the most important but the least showy. Right? It's the one that
+people pay attention to the least but it's 90% of your book. Once you know what that progress is,
+you then know how to signpost it for people to enjoy it, and throwing away your early chapters is
+really common in the industry. So this is one of the reasons why it's best not to become--where's
+Nate? Not to become an eternal--hey, you were right there, and I just looked past you--to learn as
+Nate has done
+
+[18:56] to not keep revising your first chapters until you've finished your book. Because for most
+of us, you won't really be able to do that until you've gotten far enough along to know how to make
+those promises. So thank you for being, two years running, my really great example on this. CLASS:
+(laughing) BRANDON: All right. I'm going to go into promises. Then we will do more Q&A. OK? So,
+promises. Promises are the easy one. OK?
+
+[19:28] You should not stress promises at the beginning of your book because once you learn your
+progress, and once you've written an ending, and if you're a discovery writer it'll be a bad ending.
+Don't stress that either. Once you know what the core of your book is about, throwing away three
+chapters and rewriting it so that your promise nails what you want to do in your story is easy.
+Throwing away 40 chapters in the middle is hard. Right? If you just look at the weight of time. But
+promises,
+
+[20:04] in many ways, are the most important. They're the easiest, but most important. Why are they
+most important? Well, you might have heard people talk about how important your hook or your first
+line is and things like that. I find rarely do first lines actually matter. We like to talk about
+them. Usually, it's your first couple of pages that really matter. And yes, a zinger of a first line
+can be really great. Right? You know? What is the great ones? You can go look at some
+
+[20:40] of the great ones. What is that? STUDENT: "Call me Ishmael." BRANDON: "Call me Ishmael" is a
+really great first line. Snow Crash has a really great first line. You know. 1984 has a really great
+first line. Right? Like, there's a bunch of really great first lines. They're awesome. Having one of
+those is worth doing. But really, your first chapter, your first few pages, they are important
+because that's where someone's going to decide whether or not to put your book down. And that's
+dangerous. And it's also dangerous for you because most
+
+[21:16] of the books you read, the authors are actually relying on something before the first line
+to not make you put the book down, and that is the name on the title. Right? So when you pick up The
+Way of Kings, and you read The Way of Kings, I can get away with so much in that book because I'm
+trading on my name and popularity. Right? CLASS: (laughing) BRANDON: Like, how do I pitch Way of
+Kings? I say, "This is the book to read once you trust me."
+
+[21:52] CLASS: (laughing) BRANDON: You might trust me because your friend won't leave you alone and
+wants you to read it. You might trust me because you tried a different book. Once you trust me, you
+can read The Way of Kings. It has three prologues. That's a terrible idea. Don't do that. CLASS:
+(laughing) BRANDON: Right? Only one of them's named “Prologue.” But I cheated and named one
+“Prelude.” Right? CLASS: (laughing) BRANDON: And then the next chapter is a prologue also. It's just
+called “Chapter 1.” CLASS: (laughing) BRANDON: It really is. If you haven't seen it, it's the one
+from the eyes of the kid who's on the battlefield. It's not even,
+
+[22:23] you know, a main character. Right? So don't do that unless you are willing to get the--how
+shall I say? Unless you're willing for people to just put your book down. You got a question on
+this? STUDENT: I do with promises. BRANDON: Yeah. STUDENT: In larger series. BRANDON: Yes. STUDENT:
+How do you keep promises between books? BRANDON: How do you keep promises between books? STUDENT:
+You have to chain people between books and you can't do that by making a promise each book. BRANDON:
+Yes, you can. You can make the
+
+[22:53] promise each book. But a lot of times it depends on the structure of your story. All right?
+A lot of romance novels do this by saying, "Here is a whole family of unmarried, young, eligible
+people." CLASS: (laughing) BRANDON: Book One's about the eldest. Guess what Book Two is about?
+Right? Inherent structure. You can promise that in your first chapter if you do it right so that
+everyone knows, "Oh, it's going to be a seven-book series because there's seven girls." Right?
+CLASS: (laughing) BRANDON: Then there's cousins,
+
+[23:23] so we're going to keep going. CLASS: (laughing) BRANDON: That's how you know if a series
+made money, if the cousins start getting married. CLASS: (laughing) BRANDON: I'm joking, but it's
+real. CLASS: (laughing) BRANDON: But you can also do that. Like, if you are an established author,
+there is a promise that this is the first of a trilogy. People are picking it up. The actual
+packaging of the book can give you your promise of sort of structure. In The Wheel of Time, Robert
+Jordan promises, "At the end of this book series, the Dragon Reborn
+
+[23:57] will fight the Dark One." He said he'd get there in three books when he pitched it to Tom
+Doherty. CLASS: (laughing) BRANDON: I have that straight from Harriet, his wife. CLASS: (laughing)
+BRANDON: He thought he could do it in three books. And the first book was going to end with him
+taking the sword that was not a sword from the stone that's not a stone. Right? If you've read the
+series, that's Book three. And then it just got longer from there. Discovery writers, this is what
+happens when discovery writers get series. But he made that
+
+[24:29] promise. Right? Oftentimes if you have a big series, it can be really handy to make one of
+the kinds of promises. The kinds of promises can be, this is a large, continuing story and there's
+something cool at the end. It can be, here are seven sisters. It can be, these are the continuing
+adventures of said character. Then you just name your series something like The Blank and Blank
+Files, or The Blank and Blank--. You know, The Dresden Files are a great example of this, right?
+Then each one is going to be a self-contained adventure. That's your promise, right? You can
+
+[25:01] do all of these things. But may you be so lucky as to have to worry about this. Let's talk
+about the promises you should be worrying more about right now. Because you're going to be looking
+at making a couple of big promises in the beginning of your story, and they don't--they aren't all
+innately obvious. The first is, you often want to make a tone promise. OK? A tone promise is
+separate from the plot promises that you're otherwise making. What is a tone promise? Well, a tone
+promise is a
+
+[25:32] way to tell the reader "This is the kind of story you're getting into, and this is the sort
+of feel that it's going to have." If your story is going to involve a lot of humor, you want there
+to be jokes early on. If this is a story about tragedy and it being grimdark, well, you start your
+story with a viewpoint protagonist who gets beheaded by someone who doesn't want to kill him. Right?
+Game of Thrones. Right? Right? If you want--you give a tone promise through descriptions. Naming
+
+[26:07] your characters the Stark Family is a tone promise that George Martin made in those books.
+Whereupon, if you're going to name your wizard school Hogwarts, and your Gandalf is named
+Dumbledore, you are giving a promise of whimsy. Right? And things like this. The way that you're
+naming things, the way you're introducing your stories, the way you're using your prose in your
+opening, is going to give someone an important promise about what your story is about. This is why
+
+[26:40] the prologue became a really big thing in epic fantasy, because epic fantasy wanted to start
+its plot slow. Epic fantasy generally leans to the sort of progression fantasy that is, you know,
+like a lot of the lit RPGers do this very explicitly these days. If you don't know what that is,
+it's a very popular genre, particularly in indie publishing, where your characters have,
+
+[27:11] like, bars of experience bars and level and things like that, like they're in a video game.
+But most epic fantasy is the story of the young nobody who ends up saving the world. I wouldn't say
+most, but a large number of the very popular ones. It's the traditional hero's journey sort of
+thing. Those stories tend to start with a young person standing and looking up at the suns and
+imaging a
+
+[27:41] world beyond. Right? But, because of that, that's not the tone of the whole story. The tone
+of the whole story is we're getting chased by space wizards and things are exploding. So what do
+these stories do? They add a prologue that is basically there to give you a tone promise. We start
+with the door being blasted off and laser fire ad a dark Samuri coming through the smoke, and, you
+know, using magical powers. And then we cut to young, idealistic everyman
+
+[28:13] standing and being like, "Wow. What's beyond the stars?" The answer is space wizards and
+lasers. CLASS: (laughing) BRANDON: But you know that, and he doesn't yet. One of the most masterful
+uses of this is Robert Jordan's Wheel of Time, which is going to start with a young man on a farm,
+and things are going to feel creepy. Right? It does feel creepy. But the main story is the story of
+what happens if you get too much power, and you might kill everyone that you love but you need that
+power to save the world. That is the basic premise. So what does he
+
+[28:44] do? Prologue, hey, there's a person who has all this power but has gone crazy and killed
+everyone he loves. Right? You will see this very commonly as one of your ways to make a tone
+promise, to the point that it's almost a cliche now, so you need to be using it carefully. Don't do
+it just because it's done. Do it because your story really benefits from it. And be aware that if
+there are lots of people doing it, then it's harder to stand out doing it. That said, I did it in
+Stormlight.
+
+[29:15] I didn't in Mistborn. Right? I used that kind of tone promise prologue for different
+reasons. That's why Stormlight has two prologues. "Here's one tone for the whole series, melancholy
+about these people who have been immortal, and things are falling apart." Next tone promise, "Hey,
+assassinations and wars!" And then, you know, yeah. What's that? Yes. And then number three, oh, the
+poor kid on the battlefield. That's going to come back, isn't it? Hey! Yes. I
+
+[29:52] knew why I did each of those prologues but, yeah, it is a lot. It is a lot to swallow. Other
+reasons, things that, your promises that you're going to make. Some stories choose, and you don't
+need to do this, but some stories choose to do an opening, what we call a cold open, which is
+actually what Star Wars is too, starting in media res, right at the beginning. But they often will
+do this little mini story at the beginning. And the purpose of this is to say, "Here is our story in
+microcosm. We're going to do it in five or 15 pages, and then we're going to do
+
+[30:25] it in 150 pages." Indiana Jones loved to do this. Right? The first one is really excellent
+at this. Indiana Jones, cool adventurer, going to overcome trials. It's going to be really hard for
+him, but he's going to use his wits and his whip to overcome these, and at the end he's going to
+lose. Right? That is the opening to Indiana Jones and the Raiders of the Lost Ark. And then the rest
+of the movie is the exact same thing done a second time at length and in slightly different ways.
+You
+
+[31:01] will see this used pretty commonly as your sort of promise of "here's what my story is."
+Often when you have a cold open, that's what the cold open is for. "Here's our characters pulling a
+heist so you can know how good they are at pulling heists." And then we're going to use that either
+to replicate it, or something's going to go wrong with the next heist, so you knew how it was
+supposed to go. And then this whole story is about what happens when it goes wrong. Excellent ways
+to kind of introduce your characters and things like that. Sometimes your opening does that.
+
+[31:34] A lot of times, you want your opening to give you a promise of what the plot of the story is
+going to be, even if you don't do it in microcosm. You want to introduce some metaphor for the main
+conflict. And this is difficult sometimes, because sometimes your main conflict won't come until
+much later. Sometimes it will. For instance, Star Wars, hey, it's right up there. We need to get the
+Death Star plans. We're going to blow up the Death Star. Boom! In the cold open and in the tone
+promise
+
+[32:04] you've got it all. Sometimes though you don't. Right? Like, what is Lord of the Rings? Are
+we going to find out the plot of Lord of the Rings? Well, it kind of has the mini thing. You gather
+your group of friends. It's really hard. You get to this place. That's Rivendell. And then you do it
+again, and it takes three books that time. CLASS: (laughing) BRANDON: But a lot of times your
+character is, like, not going to discover what the big problem is until around the end of Act 3 if
+you're using the act structure. This is a problem for giving
+
+[32:37] a promise about the plot. What do you do? Well, sometimes you just let the tone promise
+handle it. Sometimes you spend those opening things saying, "Here's the tone of the book. Here's my
+character and why you should like them. Now we'll introduce a problem that is really hard to
+overcome." And that is fine. You don't have to promise all of these things. Sometimes you try to
+find a mini way to introduce what the character's conflict, or the main conflict might be in that
+opener. What am I talking about with these sorts of things? Well, sometimes you will read a book or
+see a
+
+[33:11] film where a character is trying to fix a broken down hunk of junk and then, you know, I
+mean, the Transformers movies do this. It's about "I need a car, Dad. Car, car, car. Oh, I found
+this car." Well, the movie's going to be about cars and getting cars, and you kind of have this
+little mini introduction to what the character wants and why they can't have it. And this is really
+kind of what you're introducing in this opener if you're trying to get to kind of your character
+promises,
+
+[33:41] is what do they want, what do they need, why can't they have it? And you can kind of start
+there and then through the capital P Plot at them at the end of Act 1, as long as your lower case p
+plot kind of either gives a promise of tone or is in microcosm some sort of picture, small snapshot
+of the larger picture that is going to become the book. This is why all of this can be done
+
+[34:11] pretty easily in retrospect. Right? Once you know where you're going, you can start making
+these promises a lot easier. So I'm going to go off of promises for a second. I'm going to let you
+ask me questions for a second, and I'm going to look and see what--yes. I think I got to it all.
+Yeah. STUDENT: What about just, like, skipping the entire first part of your story altogether?
+BRANDON: Yeah, it's done. It's done. Anything can be done, and it can be done well. I mean,
+
+[34:43] I just referenced Hamlet. Hamlet essentially skips of what most people would do, it skips
+Act 1 of this very classic story that I would be willing to bet during Shakespeare's time, because
+this is how Shakespeare worked, he had heard that story. I mean, it's a really common story to be
+telling, you know? The prince who has to reclaim his kingdom from the person who overthrew it. He'd
+heard that story. And then he chose to skip Act 1 and start with Act 2,
+
+[35:13] which is weird. I'm talking story structure act, not playwriting acts, which are different
+in that case. Right? Same terminology, but they mean different things. So this happens all the time.
+You will--you've probably seen many a story, Monkey Island 2 does this--oh, there's a deep cut,
+Monkey Island--where you have a character start with some interesting thing happening, and then--
+record scratch--you're probably wondering how I got here. Emperor's New
+
+[35:44] Groove, right? Right? CLASS: (laughing) BRANDON: And then they tell Act 1 in flashback,
+catching you up to oftentimes the middle of Act 2, or sometimes even the end of Act 2. And then they
+launch into, you know, that. You've probably seen that. But there are plenty of stories like Hamlet
+that just say, "Pick it up from context. We aren't doing Act 1. We're in the middle of a story." In
+fantasy, I would say that the Malazan Book of the Fallen loves to do this. It's just like, "Boom!
+We're going! Figure out where we are if
+
+[36:18] you can." So yeah, totally doable. Yeah. STUDENT: What if you switch between tones back and
+forth deliberately, like, for more of a thriller tone to kind of a travelogue, and then back into a
+thriller, as the story progresses? BRANDON: Yeah. Excellent question. What do you do if you are
+going to be switching between tones, your example being a pretty good one of travelogue, thriller,
+travelogue, thriller. So you can promise both of that at the beginning. And I would really suggest
+that you do. You can do anything. You don't have to give any promises.
+
+[36:54] Famously, the big breaker of all of these rules is Into the Woods. If you haven't seen Into
+the Woods, it, like, it starts off. It's like, "Here's all these people on their adventures." And
+then promises are stomped flat when you come back from the intermission. Goodbye, promises,
+sometimes literally stomped flat. And the thing about that is, he very cleverly does something we're
+going to talk about in twists, where he makes you want the tone to change. And so oftentimes there's
+
+[37:29] that. But with this sort of story, you could make promises at the beginning, something in
+microcosm that's like, you know, "this story is about these kinds of things." It's always more
+difficult. More difficult things make you grow. And if you do them right--when you break the
+rules--. Here's kind of a rule of thumb that you could therefore break. I don't know. Here's a rule
+of thumb. Things that break the rules have a harder, a bigger threshold to overcome to grab the
+reader's attention. But once they do, they tend to have a stronger and more dedicated following.
+Blandness tends to
+
+[38:06] get fewer dedicated followers. whereas something that is doing what it shouldn't but makes
+it work tends to, when it gets big, tends to be very big. And this is a reason why, for instance,
+there are within some genres--let's use romance. Within romance there are some very formulaic
+stories that people still read and love. Right? But they don't really capture people. You read them.
+You
+
+[38:41] dispose of them. You read the next and you dispose of them. The ones that break the rules a
+little bit--It Ends with Us is a great example of this. It's not really a romance novel, but kind of
+is, but kind of isn't. Suddenly, when those take off they can take off really big because they are
+standing out. They are breaking those rules. But they take more inertia. I always say--. I'll get to
+you, but I've got a question back there after this. I always say that books, all of them have, like,
+these certain red marks against them. Right? And every great book has a ton of these. Your job
+
+[39:15] is not to get rid of all of the red marks, a red mark being something that would make
+someone put the book down, make it harder to get into. Your job is to get rid of the ones that
+aren't integral to the piece of art you're making, and then you try to rely on the ones that are
+integral, you can't get rid of, to be things that also distinguish it. Way of Kings has three
+prologues. What does Way of Kings get from that? Well, it's really hard to get into. If you're going
+to put down The Way of Kings, like, most of my books, if you read the one-star reviews, they're very
+
+[39:45] different for The Way of Kings. The one-star reviews just could not get through the first 10
+chapters. Too much going on. Too many names. Too many characters. And Kaladin is way too depressed.
+CLASS: (laughing) BRANDON: Right? But because of that, I can start really low and go really high. I
+can then world build so much that when it all clicks it's so distinctive and interesting it's not
+like anything you've read. I'm able to do things with this red mark that you could not do with a
+book that didn't have it. So as long as you are using
+
+[40:20] them to their fullest, yes, they will break the rules. Right now, to sell in fantasy, they
+say, "We want 120,000 words," traditional published. The Way of Kings is 400,000. Right? Elantris
+was 250,000 when I submitted it, and I got it down to 200,000. As long as you're earning that
+200,000, then suddenly it becomes--. Does that make sense? So yeah. Let's go back here, and then up
+here, and then we'll see where we are. There was one back there in the corner, and I didn't want to
+ignore you because it's hard to see. So yeah. STUDENT: About promises, and like you said that
+
+[40:52] the first few chapters are easy to, you know, edit after the fact. Do you find you're also
+editing a lot in the middle, keeping up with your promises that you found you've made at the end?
+BRANDON: Well, that's more progress. We'll talk about progress next. So I'm glad you asked that. I'm
+not doing as much. Mostly, I'm trying to make the ending and the promise match what is the
+interesting parts of the middle, is really what I'm shooting for. But I'm a bad example on this
+because I generally know my ending. So my progress and my ending usually align pretty well. It's
+just
+
+[41:24] nailing the right promise at the beginning is much easier after I've actually written that
+ending. All right. Down here. STUDENT: How do you, like, how do promises scale in, like, the length
+of the story? Like, say you, like, have, like, a shorter story. BRANDON: Yeah. STUDENT: Like,
+installed in, like, a past mythology? BRANDON: Yeah. STUDENT: How does that scale? BRANDON: So how
+do promises scale with length of the story? The example being you've got a smaller piece, maybe part
+of mythology or a short story. So in a short story, and maybe we'll try to get Eric in during one of
+the weeks I'm gone to talk short stories, everything just has to be trimmed down, but it also has to
+be distilled.
+
+[41:59] It's not just a matter of writing shorter. It's writing in a more distilled way. So you
+still need to hit that promise. In some ways you need to hit it harder, because it does need to be,
+like, in your first paragraph in the short story. Rather than the fantasy book where you can spend a
+whole prologue giving us a tone promise and then switch characters. You just can't do that in a
+short story. Right? Or you could. You can do anything. But in most short stories I wouldn't
+recommend it. So therefore, what you're trying to do is you're hitting it just really hard. In a
+long story, you can do what I did and have three separate chapters doing three separate
+
+[42:33] promises. Right? Before you even start your book. Readers will look at the length of your
+book and they will determine how long they'll give you to start getting around to it based on that
+length. Yeah. STUDENT: Can you and should you make new promises as you progress through the story?
+BRANDON: Can you and should you make new promises as you progress through the story? The answer is
+yes and yes, asterisk. Right? It depends on how long your story is, and it depends on what kind of
+twists you're going for. Most stories will
+
+[43:03] be making new promises. You'll be introducing a new character, and you're going to make a
+promise about that character, usually. Every character's going to have some innate promises attached
+to them. Usually this is with their character arc. Right? And we'll talk about this in probably
+actually Sanderson's Second Law. But the idea is you're going to attach to them flaws, handicaps,
+and challenges. Right? And you're going to, like, you know, you're going to figure out--you're going
+to signpost which of those are going to be overcome, which of them are going to be expunged,
+
+[43:35] where the character's going to grow or fail to grow. Right? And so every character is--. But
+each little plot sequence will often have a promise. In fact, every chapter generally has one.
+Oftentimes chapters, just like, unfortunately, as frustrating as it is to go back to your high
+school classes, your teacher is like, "Thesis paragraph." A lot of the best chapters start with a
+stealth thesis paragraph that introduces what the chapter’s going to be about and what you're going
+to learn, and at the end will have a stinger of a line that indicates, you know, now you've learned
+
+[44:10] it. Right? But it depends on the type of plot that you have. We'll get to that in progress.
+All right. Where are we? I need to move to progress. We're going to move to progress. If there's
+time at the end, I'll take more questions. But we got progress, and progress is the most important
+of them. And so save your question, and when I do questions at the end after payoffs you can
+reference back. OK? But let's talk progress. All right. Hmm, my notes. Yes, yes, notes.
+
+[44:42] You absolutely control progress in your story to a greater extent than you think. It's
+pretty easy to explain this. Right? At any point in your story, let's say you're writing a romance,
+you could write, "He stopped being stupid, and so they got together and got married. The end." At
+any point you can just write that. At any point Tolkien could have written, "And Bilbo fell through
+a wormhole, appeared in Mordor, and dropped the ring into the thing, and everyone was
+
+[45:16] saved." Right? You've maybe read stories where at the ending a writer rushed this a little
+too much and you felt a little bit like Frodo had been dropped through the wormhole. Right? We call
+that a deus ex machina. Right? You control time and progress absolutely in your story. You as a
+writer, I could give you the challenge right now to say, all right, you need to spend 50 pages and
+only one second can pass. It would be really boring, but you could all do it. You just describe
+
+[45:50] everything in the room. Right? And then get into philosophy. It's in the character's head.
+And then, you know, do a flashback or whatever. You could do 50 pages, and one second has passed. I
+bet you've read books that feel like that before. CLASS: (laughing) BRANDON: Those of you who like
+manga, I hear there's lots of filler chapters sometimes. Yeah. So you can also be like, "And a
+thousand years passed." I've read books that use structures like
+
+[46:22] this. Right? You control time. You control progress. So your job as a writer is not to make
+things progress. It is to give a sense of satisfying progression through a story. And you do this by
+deciding a couple of things. First is how fast your progress is going to be. Your short story's
+going to go faster. You're also going to, if you're writing, say, a thriller, you're writing
+
+[46:53] a story where a lot of the opposition is external for obstacles to overcome. Character's got
+to fight this, grab this, get to this place. Right? I mean, Tenet is this. It's almost all external,
+and it's the next problem, and the next problem, and the next problem. Those stories are paced very
+differently from the story about a character wrestling with whether or not it's right to kill your
+uncle, you know, or how you would kill your uncle, and, you know, if you'd even make a good
+
+[47:25] king or, you know, how awful it is that you're driving your girlfriend insane. Like all of
+this stuff, you're wrestling with all of this. Right? That has a very different pacing. You're going
+to decide kind of how your pacing is, and it's nice to match it to your story and to your own
+natural writing style. So how fast do you want it to go? The most important thing you'll probably
+decide is what kinds of progress you're going to make and how you're going to signpost that to the
+reader.
+
+[48:02] This is a little bit of a hard one to explain, so give me some time on this. There are lots
+of different types of progress you can make in a story, and you want to generally match that to what
+your climax is going to be. For instance, if you are telling what is basically a mystery plot, which
+doesn't mean you're writing a mystery, but your plot is based around characters lacking information
+and needing to find this information, and your ending is going to
+
+[48:37] involve a big informational reveal. The mystery story is obviously the best example of this.
+Right? A whodunit. We have a murder. We know somebody did it. We don't know who it is. The detective
+is going to, over time, sort through and discover clues and at the end reveal who did it.
+Information style plot. Right? A lot of stories have mysteries built into them. In these cases,
+
+[49:08] your progress is measured by information. What clues have been given? What suspects have
+been discovered? And which ones have been eliminated? You therefore often want to find ways to
+signpost that progress is being made. You can do this in a lot of ways. If it's a mystery, the
+detective is saying, "I've almost got this. I feel like I'm so close." You will watch a lot of
+mystery stories do this. "We're getting closer. We're almost there. We need but one more piece,
+Watson." Right? And
+
+[49:44] there are these signposts that are saying you are getting there. And you are, at the same
+time, giving this information to the reader. A relationship plot, which buddy cop movies and
+romantic comedies follow the same structure for these. Right? It's just whether there's a fist bump
+or a kiss at the end. CLASS: (laughing) BRANDON: In these sorts of stories, what you're going to be
+doing is the relationship is going
+
+[50:16] to be making progress. You're going to start off with a very clear indication these people
+do not get along. And then you're going to show ways that they do. But then there's going to be
+backsteps occasionally. But then you're going to, through the course of the story, be like, "Wow.
+These two people work better together than they ever did apart. They are filling holes in each
+other's lives." And so when they finally get together, that's your climax. And the trick with this
+is stories often have multiples of these going on at the same time
+
+[50:50] that are different things and identifying which is the most important to your story, and
+therefore the key component to your ending, is actually really important. Guardians of the Galaxy is
+ostensibly an adventure story about get the McGuffin and prevent the world from ending. But the real
+story is can these people work together? And almost everything that is not an action scene, and even
+some of the action scenes, is a relationship plot. And so that movie really
+
+[51:22] cleverly has its climactic moment being where the main character, who has refused to take
+his mom's hand when she wanted to give him a hug when she was dying, takes the hands of his friends,
+and they all take each other's hands, and then together that, you know, with a dance battle. CLASS:
+(laughing) BRANDON: Is what beats the bad guy. Right? It is not necessarily that, you know, the
+McGuffin beats the bad guy. It is literally the power of friendship. CLASS: (laughing) BRANDON: That
+defeats the bad guy. And that when a plot really works, that's what happens. And to
+
+[51:58] do this, what gets really tricky is you sometimes have to identify the difference between
+kind of the trappings of your story and your A plot and your B plot and what people are going to
+think they are. Guardians is a great example. Like, ostensibly your big P Plot is actually get the
+McGuffin. Chase down the McGuffin. Get the McGuffin. Clear our names to prevent the world from being
+destroyed. But the actual little p plot is character, is can we get along? Can we become
+
+[52:32] friends? And so you're going to have multiples of these. And usually you want to pay them
+off all together. You just kind of have to decide what your soul of your story is. The longer your
+story, the more souls of your story that you can have. And often you can introduce things like this,
+have a whole arc about people, you know, becoming friends, and then go into Act 3, and solve the
+McGuffin problem. Guardians of the Galaxy doesn't do this, does it right on top of each other, but
+
+[53:02] you can do things like that. You've probably read stories where--. For instance, Moana.
+Moana has a, you know, a sub arc for Maui in the middle of it. It's handled--that's a really good
+movie, but it's handled kind of clunkily with Maui's return. But they're trying to do this. Right?
+They're trying to have, like, "We're not going to do this at the main climax, just right before it,"
+so Maui has his character climax and comes back and things like this. So figuring out and
+identifying what your various plots are and how you're going to make them all have a sense of
+progress is
+
+[53:38] really vital, I think, for making a story work. A page turner is usually a story that really
+understands progress and how to dole it out. A boring book, when people get--you know, when you
+don't write it on purpose like I did--. CLASS: (laughing) BRANDON: Those who aren't laughing, I
+literally released a book called The Most Boring Book Ever last year. It was a kids' book though. A
+book that people are like, "Boring," or "I got lost,"
+
+[54:10] usually the signposts of progress are not there. Now, a big reason the signposts of progress
+can not be there is that you gave someone a really interesting promise, and then you as a writer got
+really interested in something else, and you have a giant subplot going somewhere else that doesn't
+seem to advance the main story. The Last Jedi does this as a film. You know, Last Jedi does
+
+[54:43] this. And so what happens is Finn is a character whose been introduced to us in the first
+movie, then reintroduced to us in the second movie as a guy who cares about his friend Rey and
+really wants to go find her and help her. And then the plot says, "You know, I did promise that. But
+what if you let some horses go free?" CLASS: (laughing) BRANDON: "What if you really needed to learn
+that horses should be free?" CLASS: (laughing) BRANDON: And Finn's like, "Ah, my friend Rey,
+
+[55:16] the fate of the universe, Luke Skywalker. I want to go to my friend Rey." And the plot's
+like, "Ah, but those horses." CLASS: (laughing) BRANDON: And not everyone had this experience, but
+it was a lot of people, and it was the experience I had. I'm like, "Why are we here? What are we
+doing? I am not feeling that this is progressing the promises made to me by the story." And so
+whatever is interesting happening there, we don't invest in it. I had this problem in Oathbringer
+where I'll try to explain
+
+[55:52] it without giving too many spoilers. I had a plot. I'm going to draw on the board for you.
+CLASS: (laughing) BRANDON: A little harder to draw on the board in this one. All right. Oh, I'm
+supposed to use black because the camera can pick it up better. So you all know to take your quiz.
+It's already past. Right? No. LYNN: No. BRANDON: No. No. It's 7:45, not 8:45. Yeah. CLASS:
+(laughing) BRANDON: It's all past. You all fail. CLASS: (laughing) BRANDON: So sorry. Come back next
+year.
+
+[56:22] CLASS: (laughing) BRANDON: So I had a story where characters were right here. And I knew
+they needed to be right there. Right? Characters all are kind of set adrift. They don't know what
+they're doing. They're in a new environment. They land here and they all are like, "Well, if we can
+get to this place then we can get out of here." And so they all make a plan to go to this place. And
+then I have them going there. And then they get diverted
+
+[56:52] by something. And then they get diverted. And whoa! They end up where I knew they needed to
+be all along. Readers were so bored with this plot. CLASS: (laughing) BRANDON: Right? Which was
+shocking to me, because the new environment that I had put them in, I'd done a lot of worldbuilding.
+The sort of things that make my stories pop I had put in there. This is why we will talk about it.
+Worldbuilding is actually the least important of the three. It is. I'm sorry. CLASS: (laughing)
+BRANDON: Great worldbuilding with bad characters and bad plot is an encyclopedia.
+
+[57:26] CLASS: (laughing) BRANDON: Great characters and great plot with bad worldbuilding is still
+often an excellent book. You can probably name them. The fact that Time Turners break the entire
+universe of Harry Potter wide open does not prevent that from being the strongest book in the entire
+series. Right? CLASS: (laughing) BRANDON: Right? STUDENT: Amen! BRANDON: So worldbuilding's
+important. Don't get me wrong. You ideally want to do all three. But really great worldbuilding
+cannot save a sequence where you have said, "Hey, people need to go to
+
+[58:01] point B," and then you send them to point C, because the whole time the readers will be
+thinking, "This is a side quest, and we are being diverted from our story until we start heading
+toward point B where we'll be making progress again. Because we are making no progress, I will not
+invest in this plot cycle because it doesn't seem like it means anything." My solution was actually
+pretty easy. My solution was to have the primary viewpoint protagonist of this, right near
+
+[58:37] the beginning, be put in conflict with the rest of the group because he's been told by a
+source that he believes that if he doesn't get to point C, someone he loves will die. And he
+believes that so strongly, and he's the main character we're seeing through the eyes of right here,
+at least one of them, that's suddenly it's a conflict. It's like, "Oh, are we supposed to go to B or
+C? Oh! I think we need to get to C because the consequences of not getting to C, if this character
+is right, are really, really, really dire." So even though he's in conflict with them, it works. And
+suddenly
+
+[59:11] that little change, and suddenly the whole plot sequence worked. In the next group of
+readers, nobody had problems. Everybody was enjoying it. All the things that I wanted to have happen
+and wanted to be enjoyed were enjoyed. Such little changes in promises--you see, whoever asked do
+you want to make promises--I made another promise in the middle of the story. Promise is, if you
+don't get here, something bad will happen. And so he needs to get there. And so you can see how just
+a little divergence with really interesting things can end up not working if you don't
+
+[59:45] understand progress payoff. Most of the time, not all the time, but most of the time if a
+book is boring or if people aren't investing in a sequence that you thought they should invest in,
+you have made a misalignment of progress and promise. STUDENT: How consistent should we be with the
+pacing throughout the book? BRANDON: It depends on your own personal style. Question is how
+consistent should you be on pacing. It really, really depends. Right? Generally, if you want to use
+thriller pacing, which is you're going to write short chapters,
+
+[1:00:19] you're going to try to put a hook at the end of every one of them, or at least most of
+them. Dan Brown is pretty good at this. For all his faults, he's really good at this. And that's
+part of what made The DaVinci Code work, is that short chapters with a hook at the end of each one
+and a lot of external conflict can really propel a story. But they run out, in my experience, right
+around 70,000 words. And if you're not going right into the climax then, you start to lose people.
+So
+
+[1:00:50] it works really great for a story that's 90,000 to 100,000 words long. Really hard to keep
+that up for too long because you generally in a book want slowdowns in pacing for the reader to get
+a breather, for the characters to get a breather, and for you to kind of come to, you know, process
+what's been discovered, so that then you can ramp it back up. Because variation is noticeable,
+
+[1:01:20] and lack of variation creates sort of a sense that you're coasting along, and it starts to
+lose its impact. If every sentence is a one-sentence zinger, then none of them. Right? What's that
+Syndrome said? If everyone has superpowers, nobody does. Or something like that. Right? Yeah. If
+everyone's super, nobody is. Yeah. There you are. Sorry, Brad Bird. I'm misquoting you. So there is
+an example of why you would want to do both. Both if you can keep it up--. Like a lot of
+
+[1:01:54] things that people are like, "This is an absolute page turner," it's 80,000 to 100,000
+words of just relentless plotting that you're supposed to read in one sitting and not stop. I don't
+do that in Stormlight Archive. Right? I did it a little bit in Wind and Truth, which is why the
+pacing feels different in Wind and Truth than it does in other books. So it's really kind of up to
+you what you want to do with this. Generally, no, you don't want the same pacing through a book.
+Generally,
+
+[1:02:25] you want to change pacing and having breathers and things like this. It's up to you. Some
+books are just really slow the whole time. And that's just the author's writing style. Right? Yeah,
+excellent question. Go ahead. STUDENT: How do you deal with speeding up the progress when you want
+your characters to get to a destination, but you don't want to, like, take time with the travel?
+BRANDON: Right. How do you speed up progress when you want to not have to take time travelling? I
+would give
+
+[1:02:56] a mini promise early in your book that sometimes you're just going to time jump. And then
+just time jump. Just say, "And then they arrived." And you can do this pretty easily. Like, if
+you're having problems with people being like, "Oh, it feels like I missed too much," end part one
+and then start part two with them having arrived. Stuff like this. Like, actual structural
+physicality breaks. Like, if you break a chapter and then say, "Three weeks later," so much easier
+for a read4r
+
+[1:03:27] than if you try to in the middle of a chapter say, "and three weeks passed." That said, Jo
+Rowling does it all the time in Harry Potter. "And three weeks passed, and it was Christmastime
+now." And so I don't think you have to worry about this as much as you think you do. As long as
+you've kind of established early on that you're going to, you know, like if you even have one
+chapter that says--at the end of chapter 2 and then chapter 3 is like, "Three days later X," you've
+already established this is a pattern. And nobody should ever have a problem with, you know--
+sometimes
+
+[1:03:59] you even do it right at the end of a chapter. You're like, "Over the next three days she
+kept worrying that something was going to happen. But at last they crested the hill and saw--" boom.
+And you've done it in a paragraph. So yeah. Back here, and then we'll do some of you up here.
+STUDENT: So you said that proper pacing, proper progress, and signposting. BRANDON: Yeah. STUDENT:
+But you also warned against not making promises [unclear]. BRANDON: Yeah. STUDENT: I guess is the
+key to a good plot twist proper signposting?
+
+[1:04:34] BRANDON: So we'll talk about plot twists in payoff in a second. But yes, that's part of
+it. The real good thing--the secret to proper twists is generally to promise someone something, and
+then make them wish you'd promised something else. All right? So to explain this--we'll do some
+others, but to explain this since the question is here. I imagine twists working like you have
+promised someone a gift for Christmas, and you say, "Do you like toy cars? I'm going to get you a
+toy car."
+
+[1:05:10] And then you put a package under the Christmas tree. And the twist is what do they
+actually open. Yeah. Plenty of stories give you a toy car, and there is nothing wrong with that.
+Right? One of the greatest books of all time is Pride and Prejudice. What is the first line of Pride
+and Prejudice? STUDENTS: "It is a truth universally acknowledge that any single man in possession of
+a fortune must be in want of a wife." BRANDON: Yeah. CLASS: (laughing) BRANDON: First line is this
+is a book about someone getting married. Right? And then,
+
+[1:05:46] "Oh, twist!" Nope, there's no twist. They get married. Right? CLASS: (laughing) BRANDON:
+There's complications and escalations, which are different from twists and equally important, in
+fact even more important. You do not have to have a twist. However, if you want a twist, as was
+guessed earlier here, one of the things you can do is you can escalate. You can over-deliver. You
+promised a toy car. You give them a real car. Right? But one of the classic twists is you say,
+
+[1:06:16] "I'm going to get you a toy car." They're like, "Yay!" And then through the course of the
+story you show them how cool planes are. CLASS: (laughing) BRANDON: To the point that they're like,
+"I know I'm going to get a toy car, but boy, I wish I was getting a toy plane." And then you give
+them a toy plane. I usually use as an example the movie While You Were Sleeping. I'm going to spoil
+While You Were Sleeping. I'm sorry. CLASS: (laughing) BRANDON: OK? Yeah, it's a fantastic film that
+uses twists perfectly in this sort of style. It's a romance. Woman is, like, dreaming, seeing
+
+[1:06:49] this guy pass through her toll booth, because she works at, like, a toll booth on the
+freeway, and thinking, "That's the guy someday I'd like to marry." And she, "Blah, blah, blah, blah,
+blah." And then, like, he gets in a car wreck, and she's there, and she, like, helps him, and he
+wakes up, and she tells a lie because she's like, "Oh, I'm his girlfriend," but not really meaning
+to tell that lie. She just was, you know, dreaming it, or "I'm his fiancé. And then everyone's like,
+"He had a secret fiancé! Oh no!" She's like, "Oh no! Now everyone thinks I'm his fiancé. I don't
+want to let them down." Hijinks ensue. So this story is about "Oh, I'm pretending to be his fiancé,"
+
+[1:07:23] because he's lost his memory and things like this, or he's in a coma and he's like--
+whatever. Right? In the meantime, while he's in a coma/wakes up and has lost his memory, because
+there's your escalation. Right? Rather than a twist it's an escalation. What's going to happen when
+he wakes up and the lie becomes revealed? Oh, he doesn't remember. "I had a fiancé? Oh, wow, she's
+pretty. Oh, that's good." Right? CLASS: (laughing) BRANDON: "I'm glad my secret fiancé is Sandra
+Bullock." CLASS: (laughing) BRANDON: Right? In the meantime, through the
+
+[1:07:54] whole time, this is not uncommon, right? I think The Wedding Singer does the same thing.
+She's been hanging out with his brother and falling in love with his brother. That's the airplane.
+Right? You find out they match each other really well and she doesn't actually match this other guy
+at all. Even though you were promised a toy car in scene one you, through the course of the film,
+really come to want a toy plane. And then of course the ending is she ends up with the plane,
+
+[1:08:24] with the brother. Right? CLASS: (laughing) BRANDON: Right? The hijinks continue to ensue
+until they go to comical and ridiculous--. Well, they start at comical and ridiculous proportions.
+They go further than that. And then boom, the wrap up. And the twist is you get your plane. It's
+pretty well sign posted that you're getting your plane. But there are plenty of books that do this
+more subtly. Not that While You Were Sleeping is bad for not doing it subtly. It's a really
+excellent story. But you can do that more subtly so that the twist is, "Oh, wow. This is what I
+always wanted." And this is actually the secret to
+
+[1:08:58] why Into the Woods works. Because Into the Woods shows you idyllic fairytales in the
+beginning, and then starts to put cracks in them, so that you start to not necessarily want the
+fairytale ending. And then boom! Second act happens and everything gets smashed to splinterings, but
+then it's rebuilt as something better, so that it ends up working. It's a really gutsy move. And a
+lot of people really dislike Into the Woods for that reason. Like, my mom does not like Into the
+Woods.
+
+[1:09:30] She's just like, "Give me a fairytale. That's what you promised. You lied to me,
+Sondheim!" CLASS: (laughing) BRANDON: "I'm never watching any of your plays again! Mostly because
+they're about people eating other people or assassinating people." And then there's West Side Story.
+But-- CLASS: (laughing) BRANDON: She'll watch that one. Sorry. Does that make sense? How much time
+have we got? We've got five minutes. OK. All right. We've got to do promises. Write your questions
+in here. Let's just to payoffs for a little bit. I've already done the most important one, which is
+what do you do with
+
+[1:10:02] twists, right? But payoffs are really just giving people a surprising yet inevitable
+fulfilment of your promises. You make it surprising through a couple of ways. One is the twist. But
+usually what you do to make it surprising is you give them plausible deniability. You make them
+believe that it won't happen. And most stories get a lot of mileage out of this. Right? Like, a ton
+of mileage
+
+[1:10:36] out of making the story work so well that you worry, you wonder if the character--. You're
+like, "Oh, is the character actually going to succeed?" You know, we're pretty sure that Frodo is
+going to succeed and that the world is not going to end. But then when he gets stung by Shelob and
+dies, you're like, "Wait!" CLASS: (laughing) BRANDON: "Wait. Maybe Frodo won't. Maybe Sam will have
+to do this all by himself. That's
+
+[1:11:07] horrifying!" Right? Escalation. And then we get Frodo back. But then Frodo collapses. Then
+Sam has to carry him. Right? Like, things like this, like you keep getting these obstacles,
+escalations. And through obstacles, escalations, and the last one being red herrings, you manage to
+make people think that they aren't going to get what you promised them, then you do anyway. That is
+your basic. That's what you generally do. The twist works really well also. Sometimes your
+
+[1:11:38] surprising but inevitable is built around this idea that as you're going through your
+story you forget the promise. Right? My favorite of the Lord of the Rings films is the second film
+where the promise is right at the end, "Look for me on the morning of the fifth day." Right? And
+this is a beautiful sequence. And this will kind of be where I'll wrap up. I love the second movie,
+and I like the third movie. I like the Frodo/Sam part. But the Battle of Helm's Deep versus the
+
+[1:12:11] Minas Tirith battle, they work on very different axes and it's all about promises. Right?
+In the Minas Tirith battle in the third film, but it plays out slightly differently in the books, so
+I use the films because they make a better object lesson. And this is in the third film, Minas
+Tirith, they're up against all odds. They are going to be destroyed. And the promise is if they
+don't, you know, fight this off themselves, they will fail. This is their last resort. And
+
+[1:12:41] then they fight and they're really strong, and they can't do it, and then Aragorn shows up
+and saves them. In the second film, it's the same thing. They're in this bastion. It's their last
+resort. If they don't win this, they're all going to die. And then Gandalf shows up and saves them.
+The difference in these plot cycles is promises. In the second film Gandalf says, "Look for me on
+the morning of the fifth day." And Peter Jackson very expertly uses--what's it--it's what's his
+name. Is it Eomer? Yeah. No. Yeah, it's Eomer. Eomer. I was going to say Faramir. It's
+
+[1:13:22] not Faramir. It's Eomer. And I was going to say, "Oh, it's Bones." But it's not Bones,
+it's Eomer, because he's in a different movie. CLASS: (laughing) BRANDON: But he very expertly has
+them leave. It doesn't work this way in the books. But he expertly has them leave so you have
+hanging on the mantle there this idea of "Oh, there's an army out there that was faithful to the
+king until the king pushed them too far and left." And you have Gandalf saying, "Look for me on the
+morning of the fifth day." I still wish it were the third day,
+
+[1:13:52] for mythological reasons. Right? CLASS: (laughing) BRANDON: Right? Morning of the third
+day, the sunrise. Anyway. But it's the morning of the fifth day. I went and looked. I'm like, "Ah,
+you missed out. Could have been third." CLASS: (laughing) BRANDON: Anyway. Through the course of how
+awful that fighting is, awful in a good way, and how dark everything gets, you forget, like,
+Aragorn, and Gimli, and Legolas forget that Gandalf has promised
+
+[1:14:23] because it's so dark and they're at their last stand, and they're going out to die. And
+then Gandalf shows up. And it's just brilliant, and wonderful, and you love it. Because you
+remember, and they give a voice stinger, "Remember?" If you can do that you don't need a twist. You
+can just make us forget by making it so dark that when the light comes back and the sun shines, and
+orcs are like, "Oh, we can't see, because Gandalf might have magic. We're not sure." CLASS:
+(laughing) BRANDON: And they get ridden down,
+
+[1:14:55] and they're saved. You're like, cheering. Whereas when Aragorn shows up with the ghosts, I
+don't know if you guys had that, I'm like, "Oh, good. The ghosts are there. I'm glad they didn't
+die." But I'm not cheering. Right? Ghosts did all the work. They should have just--everyone should
+have hid and waited for the ghosts. And in the second one, you're like, "Ah!" They had to fight
+every inch of the ground they gave up so that they could last long for Gandalph to show up. And
+that's what promise, progress, and payoff mean, is making this work so that you have--when these
+work,
+
+[1:15:26] people cheer. People get chills. The story just is magical for a minute when this works.
+And when it doesn't, well, you have other things that can carry your story. But I really like this
+in plotting, and so that's why I talk about it. Next week, we'll talk about actual plot frameworks
+and strategies. Thank you guys so much. CLASS: (applause)

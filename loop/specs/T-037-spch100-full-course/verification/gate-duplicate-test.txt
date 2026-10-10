@@ -1,0 +1,8 @@
+# Gate test: put the duplicate back (spch100.10.2 = IPf0dfZXJG4, already spch100.2.1), drill/summary/ledger all present so only the new check can fail
+$ node tools/verify-content.js
+exit=1
+  FAIL spch100.10.2: IPf0dfZXJG4 is not already installed at spch100.2.1 (a video installed twice is watched twice and counted twice in the hours)
+1 of 22619 checks FAILED
+
+1 of 22619 checks FAILED
+restored: cmp identical (storytelling.js, ledger.json)

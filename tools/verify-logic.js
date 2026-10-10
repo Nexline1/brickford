@@ -218,6 +218,60 @@ async function scenario(browser, now, state) {
     await ctx.close();
   }
 
+  // ---- storytelling is isolated (T-037) ----
+  // SPCH 100 runs only in the Publish block, so lengthening it may lengthen
+  // only that track. Two loads, empty state, the same fixed clock: one as
+  // shipped, one with data/storytelling.js served empty. Every Theory and Build
+  // item — lessons and pseudo blocks, with their day-N-of-M spans — must land
+  // on the same date in both, across the whole plan. The second load is a fresh
+  // page, so nothing app.js caches can hide a dependency on the storytelling
+  // data. (The before/after date map in loop/specs/T-037-* is the one-off proof
+  // for that change; this is the standing version of its central claim.)
+  {
+    const walkPlan = async withoutSpch => {
+      const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
+      await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
+      if (withoutSpch) await ctx.route(/\/data\/storytelling\.js/, r => r.fulfill({ status: 200,
+        contentType: "application/javascript", body: "/* storytelling removed for the isolation check */" }));
+      await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+      const page = await ctx.newPage();
+      const errors = [];
+      page.on("pageerror", e => errors.push(e.message));
+      await page.goto(URL + "/__test", { waitUntil: "load" });
+      await page.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
+      const r = await page.evaluate(planDays => {
+        const T = window.__brickfordTest;
+        const other = {};
+        let spch = 0, spchOff = 0, pubOther = 0;
+        planDays.forEach(iso => {
+          const row = [];
+          T.scheduledFor(iso).forEach(it => {
+            const isSpch = !it.pseudo && /^spch/.test(it.cid);
+            if (isSpch) { spch++; if (it.track !== "Publish") spchOff++; }
+            if (it.track === "Publish") { if (!isSpch) pubOther++; return; }
+            row.push(it.track + ":" + (it.pseudo ? it.short : it.cid + "." + it.ui + "." + it.li) +
+              (it.spanN > 1 ? "#" + it.dayN + "/" + it.spanN : ""));
+          });
+          if (row.length) other[iso] = row.join(" | ");
+        });
+        return { other, spch, spchOff, pubOther };
+      }, planDays);
+      await ctx.close();
+      return { r, errors };
+    };
+    const a = await walkPlan(false), b = await walkPlan(true);
+    check("storytelling runs only in the Publish block", a.r.spch > 0 && a.r.spchOff === 0 && a.r.pubOther === 0,
+      a.r.spch + " SPCH item-days, " + a.r.spchOff + " outside Publish, " + a.r.pubOther + " non-SPCH item(s) in Publish");
+    const keys = [...new Set(Object.keys(a.r.other).concat(Object.keys(b.r.other)))].sort();
+    const moved = keys.filter(d => a.r.other[d] !== b.r.other[d]);
+    check("removing storytelling moves no other lesson or block", moved.length === 0 && b.r.spch === 0 && keys.length > 0,
+      moved.length ? moved.length + " day(s) differ, first " + moved[0] + ": " + (a.r.other[moved[0]] || "nothing") +
+                     "  vs without SPCH: " + (b.r.other[moved[0]] || "nothing")
+                   : keys.length + " days of Theory and Build identical with and without the course");
+    check("no page errors (isolation scenario)", a.errors.length === 0 && b.errors.length === 0,
+      a.errors.concat(b.errors).join(" | "));
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

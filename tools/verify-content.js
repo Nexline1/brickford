@@ -2294,6 +2294,222 @@ Object.keys(expectedSummary).forEach(k => {
   });
 });
 
+// ---------- SPCH 100, the storytelling course (T-037) ----------
+// Fifteen core modules (B8 is archived) and some forty-five hours of video, every
+// lesson installed only after its transcript was read. Four ways it can go wrong silently, each of which the
+// browser would render as something merely missing:
+//   * a lesson whose transcript was never stored — the hard rule says no video is
+//     installed unread, and the stored file is the only proof it was read;
+//   * a unit INSERTED rather than appended — keys are positional, so the owner's
+//     progress on spch100.0.0 would quietly re-point to a different video. The
+//     ledger pins every key to its video id and only ever grows;
+//   * a drill or summary that is missing or malformed — drillHTML/summaryHTML
+//     return "" for a key with nothing behind it;
+//   * a check whose answer index is outside its options — the quiz engine would
+//     mark every reply wrong;
+//   * the same video installed under two keys — it renders twice, is scheduled
+//     twice and its minutes count twice towards the hour budget.
+// The prose is injected raw (rules, summaries, checks), so no bare "<" and no
+// "$": a dollar sign is KaTeX's delimiter and would eat the sentence after it.
+const SPCH = D.COURSES.find(c => c.id === "spch100");
+const spchLedger = JSON.parse(fs.readFileSync(path.join(ROOT, "data/storytelling/ledger.json"), "utf8")).keys;
+const SPCH_MODULE = /^(A[1-8]|B[1-8])$/;
+let spchLessons = 0, spchMin = 0;
+const spchByModule = {};
+ok(!!SPCH, "spch100: the course exists");
+if (SPCH) {
+  Object.keys(spchLedger).forEach(k => {
+    const p = k.split("."), u = SPCH.units[+p[1]], l = u && u.lessons[+p[2]];
+    ok(!!l && l.v === spchLedger[k], "spch100 ledger: " + k + " still points at " + spchLedger[k] +
+      (l ? " (it now points at " + l.v + " — a unit or lesson was inserted or reordered)" : " (the key no longer exists)"));
+  });
+  const spchSeen = {};
+  SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+    const k = "spch100." + ui + "." + li;
+    ok(!spchSeen[l.v], k + ": " + l.v + " is not already installed" + (spchSeen[l.v] ? " at " + spchSeen[l.v] +
+      " (a video installed twice is watched twice and counted twice in the hours)" : ""));
+    spchSeen[l.v] = spchSeen[l.v] || k;
+    spchLessons++;
+    spchMin += +l.min || 0;
+    ok(spchLedger[k] === l.v, k + ": is pinned in data/storytelling/ledger.json (append one line for a new lesson)");
+    ok(typeof l.t === "string" && l.t.length > 8, k + ": has a title");
+    ok(typeof l.min === "number" && l.min > 0, k + ": min is a positive number of minutes");
+    ok(/^[A-Za-z0-9_-]{11}$/.test(l.v || ""), k + ": v is an 11-character video id");
+    const tp = path.join(ROOT, "data/storytelling/transcripts", (l.v || "none") + ".txt");
+    const tx = fs.existsSync(tp) ? fs.readFileSync(tp, "utf8") : "";
+    ok(!!tx, k + ": transcript data/storytelling/transcripts/" + l.v + ".txt exists (no video is installed unread)");
+    ok(!tx || tx.indexOf("watch?v=" + l.v) >= 0, k + ": the stored transcript is for " + l.v);
+    ok(!tx || tx.length > 1500, k + ": the stored transcript is a transcript, not a stub");
+    // A stored transcript that the tool cut short carries a NOTE with the time it
+    // stops. That is only acceptable when the lesson itself stops earlier (the
+    // title says "stop at" or "talk ends" at or before that time) — otherwise the
+    // end of the video is installed unread and its minutes are counted anyway.
+    const cut = tx.match(/NOTE: the transcript tool truncates[^\n]*ends at about (\d+(?::\d\d){1,2})/);
+    const secs = t => t.split(":").reduce((a, x) => a * 60 + +x, 0);
+    const stop = (l.t || "").match(/\((?:stop at|talk ends) (\d+(?::\d\d){1,2})\)/);
+    ok(!cut || (!!stop && secs(stop[1]) <= secs(cut[1]) && l.min <= Math.ceil(secs(stop[1]) / 60)),
+       k + ": the stored transcript covers everything the lesson counts" +
+       (cut ? " (it stops at " + cut[1] + "; re-fetch it whole, or title the lesson '(stop at mm:ss)' and set min to the part read)" : ""));
+    const d = (D.DRILLS || {})[k];
+    ok(!!d, k + ": has a drill (mechanic, rules, drill, check)");
+    if (d) {
+      ok(SPCH_MODULE.test(d.module || ""), k + ": drill names its taxonomy module (A1-A8, B1-B8)");
+      ok(!!d.drill && !!d.drill.do && d.drill.minutes > 0, k + ": drill says what to do and for how long");
+      ok(!!d.check && d.check.length > 20, k + ": drill has its check");
+      spchByModule[d.module] = (spchByModule[d.module] || 0) + (+l.min || 0);
+      [d.mechanic, d.drill && d.drill.do, d.check].concat(d.rules || []).forEach((t, i) =>
+        ok(!/\$/.test(t || ""), k + " drill field " + i + ": no '$'"));
+      (d.rules || []).forEach((t, i) => ok(!/<(?![/]?(em|strong)>)/.test(t), k + " rule " + i + ": only <em>/<strong> markup, no bare '<'"));
+    }
+    const s = (D.SUMMARIES || {})[k];
+    ok(!!s, k + ": has a revision summary");
+    if (s) {
+      const cs = s.checks || [];
+      ok(cs.length >= 3, k + ": summary has at least 3 checks (has " + cs.length + ")");
+      cs.forEach((c, i) => {
+        ok(Array.isArray(c.opts) && c.opts.length >= 3 && Number.isInteger(c.a) && c.a >= 0 && c.a < c.opts.length,
+           k + " check " + i + ": multiple choice with its answer inside its options");
+        ok(Array.isArray(c.opts) && new Set(c.opts).size === c.opts.length, k + " check " + i + ": options are distinct");
+        [c.q, c.expl].concat(c.opts || []).forEach(t => ok(!/<[a-zA-Z/]/.test(t || "") && !/\$/.test(t || ""),
+           k + " check " + i + ": no raw '<' or '$' (injected unescaped)"));
+      });
+      ok(cs.length < 2 || new Set(cs.map(c => c.a)).size > 1, k + ": answers are not all in the same position");
+      [s.takeaway, s.worked, s.watch].concat((s.beats || []).map(b => b.t + " " + b.d))
+        .forEach((t, i) => ok(!/\$/.test(t || ""), k + " summary field " + i + ": no '$' (KaTeX delimiter)"));
+    }
+  }));
+  console.log("SPCH 100: " + spchLessons + " lessons, " + (spchMin / 60).toFixed(1) + " h of video — " +
+    Object.keys(spchByModule).sort().map(m => m + " " + (spchByModule[m] / 60).toFixed(2) + "h").join(", "));
+
+  // ---- can the checks be answered without the lesson? (T-037 review round 1) ----
+  // At review, in 436 of 479 SPCH summary checks the answer was the unique
+  // longest option: pick the longest and you passed without watching anything.
+  // CONTENT-STANDARD: distractors must encode real errors, never filler — and a
+  // real misreading of a lesson is about as long as the right reading. With
+  // four options of honest, similar lengths the answer is the unique longest
+  // about a quarter of the time by chance, so the bound is about a third. The
+  // unique shortest is bounded the same way, so the fix cannot overshoot into
+  // the opposite tell. Scoped to spch100: other courses' checks are numeric.
+  let spchChecks = 0, longestN = 0, shortestN = 0;
+  Object.keys(D.SUMMARIES || {}).filter(k => k.startsWith("spch100.")).forEach(k =>
+    (D.SUMMARIES[k].checks || []).forEach(c => {
+      if (!Array.isArray(c.opts) || !Number.isInteger(c.a) || c.opts[c.a] === undefined) return;
+      const len = c.opts.map(o => String(o).length), mine = len[c.a];
+      const mx = Math.max(...len), mn = Math.min(...len);
+      spchChecks++;
+      if (mine === mx && len.filter(x => x === mx).length === 1) longestN++;
+      if (mine === mn && len.filter(x => x === mn).length === 1) shortestN++;
+    }));
+  const third = Math.ceil(spchChecks / 3);
+  ok(longestN <= third, "SPCH checks: the answer is the unique longest option in " + longestN + " of " + spchChecks +
+     " — at most about a third (" + third + ") may be, or the checks can be passed by picking the longest option");
+  ok(shortestN <= third, "SPCH checks: the answer is the unique shortest option in " + shortestN + " of " + spchChecks +
+     " — at most about a third (" + third + ") may be");
+  console.log("SPCH check options: answer unique longest in " + longestN + " of " + spchChecks + " (" +
+    (100 * longestN / Math.max(1, spchChecks)).toFixed(1) + "%), unique shortest in " + shortestN + " (" +
+    (100 * shortestN / Math.max(1, spchChecks)).toFixed(1) + "%); bound " + third);
+
+  // ---- who the lessons say said it (T-037 review round 1) ----
+  // A lesson that names a teacher, a channel or a person has to be able to show
+  // where that name came from. data/storytelling/candidates.jsonl carries, for
+  // every installed video, `credits`: each name with the forms the lessons use
+  // (aka) and a source — the logged title, a quote from the stored transcript,
+  // a logged WebSearch (query plus the sentence of the result that says it), or
+  // another lesson whose video carries the name. The failure this exists for:
+  // a lesson credited to "Rachel's English" with nothing anywhere saying so.
+  //   * every credited name (any video) found in a lesson must be credited for
+  //     THAT lesson's video — a known name cannot drift onto the wrong video;
+  //   * "Firstname Surname" spans that match no credit at all fail too, so a
+  //     brand-new unlogged person cannot slip in (a bare unknown surname can;
+  //     the first-name list is the heuristic's whole reach);
+  //   * every credit's source is checked: quotes are looked up, references
+  //     resolved, WebSearch evidence must be present.
+  const candRows = fs.readFileSync(path.join(ROOT, "data/storytelling/candidates.jsonl"), "utf8")
+    .split("\n").filter(Boolean).map(l => JSON.parse(l));
+  const installedById = {};
+  candRows.forEach(c => { if (c.status === "installed") installedById[c.id] = c; });
+  const creditAliases = [];
+  Object.values(installedById).forEach(c => (c.credits || []).forEach(cr =>
+    [cr.name].concat(cr.aka || []).forEach(a => creditAliases.push({ a, name: cr.name }))));
+  const seenAlias = new Set();
+  const aliasList = creditAliases.filter(x => !seenAlias.has(x.a + "\u0000" + x.name) && seenAlias.add(x.a + "\u0000" + x.name))
+    .sort((x, y) => y.a.length - x.a.length);
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const aliasRe = aliasList.map(x => ({ name: x.name, a: x.a, re: new RegExp("(?<![\\w'’-])" + reEsc(x.a) + "(?![\\w-])", "g") }));
+  const FIRST_NAMES = new Set(("Aaron Abigail Adam Al Alan Alex Alexander Alexandra Alfred Ali Alice Alison Allen Allison Amanda Amy Andrea " +
+    "Andrew Andy Angela Ann Anna Anne April Ashley Austin Barack Barbara Ben Benjamin Beth Bill Bob Brad Brandon Brendan Brian " +
+    "Bruce Carl Carlos Carol Caroline Catherine Celeste Charles Charlie Cheri Chip Chris Christine Christopher Claire Cole Colin " +
+    "Craig Dan Daniel Danielle Dave David Deborah Derek Diana Donald Doug Edward Eddie Elizabeth Ellen Emily Emma Eric Florence " +
+    "Frank Gad Gary George Grace Greg Hannah Harry Heather Helen Henry Ira Jack Jackie James Jane Janet Jason Jeff Jefferson Jen " +
+    "Jennifer Jenny Jerry Jessica Jill Jim Joan Joe John Johnnie Johnny Jon Jonah Jonathan Jordan Joseph Josh Judy Julia Julian " +
+    "Justin Karen Kate Katherine Kathy Keith Kelly Ken Kevin Kim Kindra Kio Kirsty Kristen Kurt Larry Laura Lauren LeeAnn Leslie " +
+    "Linda Lisa Liz Lucy Madeleine Marc Marco Maria Marianna Marie Mark Marques Martin Mary Matt Matthew Maya Mel Melissa Michael " +
+    "Michelle Mike Miriam Modupe Monica Naomi Nancy Natalia Neil Nick Nicole Norm Oliver Paddy Pat Patricia Patrick Patton Paul " +
+    "Pete Peter Phil Philip Philipp Rachel Randy Rebecca Rene Riaz Ric Richard Rick Rob Robert Rodney Roger Ron Ronald Ryan Safwat " +
+    "Sam Samir Samuel Sandra Sarah Scott Sean Seth Simon Sofia Stephen Steve Steven Susan Tamsen Ted Thomas Tim Tina Todd Tom Tony " +
+    "Tracey Vanessa Viola Vinh William").split(/\s+/));
+  const firstRe = /(?<![\w'’-])([A-Z][a-z]+)\s+([A-Z][a-zA-Z'’-]+)/g;
+  const lower = s => (s || "").toLowerCase().replace(/\s+/g, " ");
+  let creditsChecked = 0, namesChecked = 0;
+  SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+    const k = "spch100." + ui + "." + li, c = installedById[l.v];
+    ok(!!c, k + ": " + l.v + " is logged as installed in data/storytelling/candidates.jsonl");
+    if (!c) return;
+    const credited = new Set((c.credits || []).map(x => x.name).concat(c.channel ? [c.channel] : []));
+    const d = (D.DRILLS || {})[k] || {}, s = (D.SUMMARIES || {})[k] || {};
+    const text = [l.t, d.mechanic, d.check, d.drill && d.drill.do, s.takeaway, s.worked, s.watch]
+      .concat(d.rules || [], (s.beats || []).map(b => b.t + ". " + b.d),
+        (s.checks || []).map(q => [q.q].concat(q.opts || [], [q.expl]).join(" | ")))
+      .filter(Boolean).join("\n").replace(/<\/?(em|strong)>/g, "");
+    const covered = new Uint8Array(text.length);
+    aliasRe.forEach(x => {
+      x.re.lastIndex = 0; let m;
+      while ((m = x.re.exec(text))) {
+        let hit = false; for (let i = m.index; i < m.index + m[0].length; i++) if (covered[i]) { hit = true; break; }
+        if (hit) continue;
+        covered.fill(1, m.index, m.index + m[0].length);
+        namesChecked++;
+        ok(credited.has(x.name), k + ": names '" + x.a + "' (" + x.name + "), which is not credited for " + l.v +
+          " in candidates.jsonl — log where the name comes from, or take it out of the lesson");
+      }
+    });
+    let m; firstRe.lastIndex = 0;
+    while ((m = firstRe.exec(text))) {
+      if (FIRST_NAMES.has(m[1])) {
+        let hit = false; for (let i = m.index; i < m.index + m[0].length; i++) if (covered[i]) { hit = true; break; }
+        ok(hit, k + ": names '" + m[0] + "', who is credited nowhere in candidates.jsonl — log the name with its source for " + l.v);
+      }
+      firstRe.lastIndex = m.index + m[1].length;
+    }
+    const tp = path.join(ROOT, "data/storytelling/transcripts", l.v + ".txt");
+    const tx = lower(fs.existsSync(tp) ? fs.readFileSync(tp, "utf8") : "");
+    (c.credits || []).forEach(cr => {
+      creditsChecked++;
+      const tag = k + " credit '" + cr.name + "'";
+      if (cr.src === "title") ok(!!cr.quote && lower(c.title).includes(lower(cr.quote)), tag + ": its quote is in the logged title");
+      else if (cr.src === "transcript") ok(!!cr.quote && tx.includes(lower(cr.quote)), tag + ": its quote is in the stored transcript");
+      else if (cr.src === "websearch") ok(!!cr.query && !!cr.evidence && cr.evidence.length > 20, tag + ": logs the WebSearch query and the sentence that supports it");
+      else if (cr.src === "lesson") {
+        const ref = (cr.ref || "").split("."), rl = SPCH.units[+ref[1]] && SPCH.units[+ref[1]].lessons[+ref[2]];
+        const rc = rl && installedById[rl.v];
+        ok(!!rc && (rc.credits || []).some(x => x.name === cr.name && x.src !== "lesson"),
+           tag + ": the lesson it refers to (" + cr.ref + ") carries the name with its own source");
+      } else ok(false, tag + ": has a source (title, transcript, websearch or lesson)");
+    });
+    // The uploading channel, where one is logged, carries its own source: the
+    // video naming itself in the stored transcript ("welcome back to English
+    // with Lucy"), or a logged WebSearch and the sentence of the result that
+    // names it. A row with no channel says why in channel_source.note.
+    const cs = c.channel_source || {};
+    ok(c.channel ? (cs.src === "transcript" ? !!cs.quote && tx.includes(lower(cs.quote))
+                    : cs.src === "websearch" && !!cs.query && !!cs.evidence && cs.evidence.length > 20)
+                 : !!cs.note,
+       k + ": the channel " + (c.channel ? "'" + c.channel + "' has the transcript quote or WebSearch evidence that names it"
+                                         : "is not logged, and channel_source.note says why"));
+  }));
+  console.log("SPCH attributions: " + namesChecked + " names in lessons, " + creditsChecked + " credits with sources checked");
+}
+
 D.COURSES.forEach(c => {
   ok(!!c.practice && /^https:\/\//.test(c.practice.url), c.code + ": has an https practice source");
   ok(!!c.practice && c.practice.label && c.practice.label.length > 8, c.code + ": practice source says what to do");

@@ -1421,6 +1421,78 @@ function routeOverlaps() {
   return { n: boxes.length, hit };
 }
 
+// ---------- T-038: a passed gate says when, and the confirm sheet ----------
+// loop/specs/T-038-gates-honest/spec.md. Gate 1 passed on Fri 9 Oct (the
+// owner's day 5) in the new stored shape, Gate 2 on Wed 14 Oct as a legacy
+// date string. Everything expected is walked here from curriculum.js: the
+// targets on the study calendar (T26_STUDY, Saturdays skipped), the arrival,
+// the baseline (1094 study days from the start) and the gap between them.
+const T38_DONE = { 1: "2026-10-09", 2: "2026-10-14" };
+function seedT38() {
+  if (window.top !== window) return;
+  const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  s.gates = { 1: { date: "2026-10-09", at: "2026-10-09T08:00:00.000Z", passed: true }, 2: "2026-10-14" };
+  localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+}
+const T38_PLAN = (() => {
+  let base = CURRICULUM.START_DATE;
+  return CURRICULUM.GATES.map(g => {
+    const target = T26_STUDY[T26_STUDY.indexOf(base) + Math.round(g.months * 30.4)];
+    const done = T38_DONE[g.n] || null;
+    base = done || target;
+    return { n: g.n, label: g.label, target, done };
+  });
+})();
+const T38_ARRIVAL = T38_PLAN[4].target;
+const T38_BASELINE = T26_STUDY[T26_STUDY.indexOf(CURRICULUM.START_DATE) + 1094];
+const T38_AHEAD = Math.round((Date.parse(T38_BASELINE) - Date.parse(T38_ARRIVAL)) / 86400000);
+const t38Passed = iso => "Passed " + Number(iso.slice(8)) + " " + new Date(iso + "T00:00:00Z").toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+// The /atlas head and route labels, with the contrast of each date line
+// against what is actually painted behind it.
+function t38Atlas() {
+  const z = window.__dz;
+  const ratioOf = el => { const bg = z.backdrop(el); return z.ratio(z.over(z.bytes(getComputedStyle(el).color), bg), bg); };
+  const sub = document.querySelector("#view .page-head .sub"), base = document.querySelector("#view .page-head .at-base");
+  return {
+    sub: sub ? sub.textContent.trim().replace(/\s+/g, " ") : null,
+    base: base ? { text: base.textContent.trim().replace(/\s+/g, " "), vis: base.checkVisibility(), r: ratioOf(base) } : null,
+    labs: [...document.querySelectorAll("#view .rt-node .rt-lab")].map(l => {
+      const sp = l.querySelector("span");
+      return { name: (l.querySelector("b") || {}).textContent, when: sp ? sp.textContent : null, r: sp ? ratioOf(sp) : 0 };
+    }),
+  };
+}
+// The open sheet: where it sits, every text's contrast, every control's size,
+// and whether anything else on the screen is over its text or its controls
+// (each is hit-tested at its centre: the topmost element there must be in the
+// sheet, and for a control, inside that control).
+function t38Sheet() {
+  const z = window.__dz;
+  const d = document.querySelector("dialog.sheet[open]");
+  if (!d) return null;
+  const b = d.getBoundingClientRect();
+  const low = [], covered = [];
+  let texts = 0, least = Infinity;
+  const walk = document.createTreeWalker(d, NodeFilter.SHOW_TEXT);
+  for (let t = walk.nextNode(); t; t = walk.nextNode()) {
+    const el = t.parentElement;
+    if (!t.textContent.trim() || !el.checkVisibility()) continue;
+    const bg = z.backdrop(el), r = z.ratio(z.over(z.bytes(getComputedStyle(el).color), bg), bg);
+    texts++; least = Math.min(least, r);
+    if (r < 4.5) low.push("\"" + t.textContent.trim().slice(0, 30) + "\" " + r.toFixed(2) + ":1");
+    const rg = document.createRange(); rg.selectNodeContents(t);
+    const tr = rg.getBoundingClientRect(), hit = document.elementFromPoint(tr.left + tr.width / 2, tr.top + tr.height / 2);
+    if (!hit || !d.contains(hit)) covered.push("\"" + t.textContent.trim().slice(0, 30) + "\" under " + (hit ? z.name(hit) : "nothing"));
+  }
+  const controls = [...d.querySelectorAll("button, label")].filter(n => n.checkVisibility()).map(n => {
+    const r = n.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return { name: n.textContent.trim().slice(0, 30), w: r.width, h: r.height, hit: !!hit && n.contains(hit) };
+  });
+  return { box: [b.left, b.top, b.right, b.bottom].map(v => +v.toFixed(1)), vw: innerWidth, vh: innerHeight,
+           sideways: d.scrollWidth > d.clientWidth + 1, texts, least, low, covered, controls,
+           title: (d.querySelector("h2") || {}).textContent || "" };
+}
+
 // ---------- T-026b: Problems, Exams and Proof say what they are for ----------
 // loop/specs/T-026b-problems-exams-proof/spec.md. What each page should show
 // is worked out here from the stored state and the data files (window.DAR),
@@ -3058,6 +3130,68 @@ function t26bRecord() {
       await ctx.close();
     }
   }
+  // ---- T-038: a passed gate shows "Passed d Mon"; the head is the projection ----
+  // At 1440 and 390, dark and light. Then the confirm sheet on /transcript,
+  // the pass for Gate 3 and the unmark for Gate 2, measured open.
+  let t38Checks = 0;
+  const c38 = (name, ok, detail) => { t38Checks++; return check(name, ok, detail); };
+  for (const theme of ["dark", "light"]) {
+    for (const { w, h, mobile } of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      const at = w + "px " + theme + " T-038";
+      console.log("\n" + at);
+      const { ctx, page, errors } = await fresh(browser,
+        { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme, seedT38);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await themePainted(page, theme, at);
+      await go(page, "/atlas");
+      const w0 = await page.evaluate(() => window.__stateWrites);
+      const a = await page.evaluate(t38Atlas);
+      const want = T38_PLAN.map(g => g.done ? t38Passed(g.done) : t26Month(g.target));
+      const got = a.labs.slice(1).map(l => l.when);
+      c38(at + " /atlas: a passed gate shows \"Passed …\" (its date), an open one its target month: " + want.join(", "),
+        a.labs.length === 6 && JSON.stringify(got) === JSON.stringify(want), got.join(", "));
+      const lowLab = a.labs.filter(l => l.r < 4.5);
+      c38(at + " /atlas: every route date line is >= 4.5:1", a.labs.length === 6 && lowLab.length === 0,
+        a.labs.map(l => l.when + " " + l.r.toFixed(2)).join(", "));
+      const wantSub = "Your route to " + t26Month(T38_ARRIVAL, true) + ", in five gates.";
+      c38(at + " /atlas: the header is the projected arrival — \"" + wantSub + "\"", a.sub === wantSub, a.sub);
+      const months = Math.round(T38_AHEAD / 30.44);
+      const wantBase = "Plan baseline " + t26Month(T38_BASELINE, true) + " · " + months + " months ahead";
+      c38(at + " /atlas: a muted line reads \"" + wantBase + "\" (" + T38_AHEAD + " days), >= 4.5:1",
+        !!a.base && a.base.vis && a.base.text === wantBase && a.base.r >= 4.5, a.base ? "\"" + a.base.text + "\" " + a.base.r.toFixed(2) + ":1" : "no .at-base");
+      const ov = await page.evaluate(routeOverlaps), words = await page.evaluate(labelWords), of = await page.evaluate(viewOverflow);
+      c38(at + " /atlas: no route text overlaps, no label breaks mid-word, nothing overflows",
+        ov.n === 7 && ov.hit.length === 0 && words.length === 0 && of.out.length === 0 && !of.side,
+        [].concat(ov.hit, words, of.out, of.side ? ["page " + of.side] : []).join("; ") || ov.n + " boxes");
+
+      await go(page, "/transcript");
+      for (const [doWhat, n, title, goText] of [["pass", 3, "Pass Gate 3 — " + T38_PLAN[2].label, "Pass gate 3"],
+                                                ["unmark", 2, "Unmark Gate 2 — " + T38_PLAN[1].label, "Unmark gate 2"]]) {
+        await page.evaluate(() => document.querySelectorAll("#view details.unit").forEach(d => { d.open = true; }));
+        await page.click("#view [data-gate-do=" + doWhat + "][data-gate='" + n + "']");
+        const opened = await page.waitForSelector("dialog.sheet[open]", { timeout: 4000 }).then(() => true, () => false);
+        await page.evaluate(() => Promise.all(document.getAnimations().map(x => x.finished.catch(() => {}))));
+        const sh = opened ? await page.evaluate(t38Sheet) : null;
+        if (!c38(at + " /transcript: the " + doWhat + " sheet for Gate " + n + " opens (\"" + title + "\")", !!sh && sh.title === title, sh ? sh.title : "no sheet")) continue;
+        c38(at + " " + doWhat + " sheet: inside the screen, no sideways scroll" + (mobile ? ", on the bottom edge" : ""),
+          sh.box[0] >= -0.5 && sh.box[1] >= -0.5 && sh.box[2] <= sh.vw + 0.5 && sh.box[3] <= sh.vh + 0.5 && !sh.sideways && (!mobile || Math.abs(sh.box[3] - sh.vh) <= 0.5),
+          sh.box.join(",") + " in " + sh.vw + "x" + sh.vh + (sh.sideways ? ", scrolls sideways" : ""));
+        c38(at + " " + doWhat + " sheet: every text is >= 4.5:1 and nothing else on screen is over it",
+          sh.texts > 0 && sh.low.length === 0 && sh.covered.length === 0,
+          sh.low.concat(sh.covered).join("; ") || sh.texts + " texts, least " + sh.least.toFixed(2) + ":1");
+        const small = sh.controls.filter(c => c.w < 44 || c.h < 44 || !c.hit);
+        c38(at + " " + doWhat + " sheet: every control (" + (doWhat === "pass" ? "each requirement, " : "") + "Cancel, " + goText + ") is >= 44x44 and on top at its centre",
+          sh.controls.length >= 2 && small.length === 0, small.map(c => c.name + " " + c.w.toFixed(0) + "x" + c.h.toFixed(0) + (c.hit ? "" : " covered")).join("; ") || sh.controls.length + " controls");
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => !document.querySelector("dialog.sheet"), null, { timeout: 4000 }).catch(() => {});
+      }
+      const w1 = await page.evaluate(() => window.__stateWrites);
+      c38(at + ": drawing /atlas and /transcript and opening both sheets wrote nothing (writes " + w0 + " -> " + w1 + ")", w1 === w0);
+      c38(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
   // ---- Continue orders by the reader's own date, not UTC's ----
   // Review round 1: posAt is a UTC timestamp and doneAt a local date. In
   // Bahrain (UTC+3) at 02:00 on 21 Oct, a lecture watched that day and a
@@ -3470,6 +3604,7 @@ function t26bRecord() {
       "T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark " +
       "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes; " +
       "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots (" + t26Checks + " checks); " +
+      "T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (" + t38Checks + " checks); " +
       "T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, " + T26B_STATES.length + " more states at 1440/390, and no overflow or mid-word break at " +
       T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));

@@ -42,6 +42,16 @@
 //       proof field under its row with the cursor in it and no re-render; a
 //       proof stored in one save; the untick stored, logged and the field gone.
 //
+// And, since T-026c (loop/specs/T-026c-week-calendar-library/spec.md):
+//
+//   (o) Seal the week stores exactly what it stored before the page changed
+//       shape: { week, date, shipped, dsa, posts, revenue, notes }, those keys
+//       in that order and nothing else, in two saves, with the counted DSA and
+//       BHD equal to the fixture's (worked out here from the plan week's
+//       dates), the week sealed before untouched, and the chain's week event
+//       as before — at 1440 and 390 in dark and light, and once with no
+//       payment in the week, where BHD is typed and stored as typed.
+//
 // And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
 //
 //   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
@@ -301,6 +311,42 @@ const sheetGone = page => page.waitForFunction(() => !document.querySelector("di
 // Watched lectures unlock quiz questions, so flow (b) starts with some watched.
 const WATCHED = {};
 for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "2026-10-15", notes: "", checks: [] };
+
+
+// ---- T-026c: the plan week the pinned clock is in, walked here ----
+// Study days from START_DATE (curriculum.js), Saturdays skipped; week w is
+// study days (w-1)*6 .. w*6-1. The Seal flow's expected numbers are worked out
+// from its own fixture and these dates, never read from the page.
+const T26C_WEEK = (() => {
+  const vm = require("vm");
+  const sandbox = { window: {} };
+  sandbox.window.DAR = sandbox.DAR = {};
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/curriculum.js"), "utf8"), sandbox);
+  const study = [];
+  for (const d = new Date(sandbox.window.DAR.START_DATE + "T00:00:00Z"); study.length < 400; d.setUTCDate(d.getUTCDate() + 1))
+    if (d.getUTCDay() !== 6) study.push(d.toISOString().slice(0, 10));
+  let pos = 0;
+  for (let i = 0; i < study.length && study[i] <= TODAY; i++) pos = i;
+  const w = Math.floor(pos / 6) + 1;
+  return { w, from: study[(w - 1) * 6], to: study[w * 6 - 1] };
+})();
+// Two problems solved, a lecture proven this week, payments on the Sunday
+// that ends the week before (not this week's) and two this week, and a week
+// already sealed — which a seal must leave exactly as it was.
+const T26C_SEAL_STATE = (theme, entries) => ({
+  settings: { theme, themeNavyOnce: true },
+  problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-17", "Arrays & Hashing|Valid Anagram": "2026-10-19" },
+  lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", verifiedAt: "2026-10-19", notes: "", checks: [] } },
+  treasury: { offer: "", clients: [], niche: "", entries: entries || [
+    { date: "2026-10-18", amount: 999, note: "the last day of the week before" },
+    { date: "2026-10-19", amount: 120, note: "pilot" },
+    { date: "2026-10-20", amount: 30.5, note: "a referral" },
+  ] },
+  weeks: [{ week: 1, date: "2026-10-11", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
+});
+const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T26C_WEEK.from && e.date <= T26C_WEEK.to)
+  .reduce((a, e) => a + e.amount, 0) * 100) / 100;
 
 (async () => {
   const browser = await chromium.launch();
@@ -801,6 +847,59 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     }
   }
 
+  // ---- (o) seal the week (T-026c) ----
+  // The Week page changed shape; what Seal stores must not. At 1440 and 390,
+  // in dark and light: the two answers and a posts count typed, Seal pressed.
+  // The stored week must be exactly { week, date, shipped, dsa, posts,
+  // revenue, notes } — those keys in that order, nothing added — with the
+  // counted numbers equal to the fixture's (DSA every problem solved, BHD the
+  // payments dated in this plan week), in two saves (the week and its chain
+  // event), the week before untouched, and the chain's week event as before.
+  // Then once, with no payment this week: BHD is typed, and stored as typed.
+  console.log("\nsealing the week (T-026c)");
+  const sealFlow = async (theme, w, entries, typedRev) => {
+    const at = w + "px " + theme + (typedRev != null ? ", no payment this week" : "");
+    const state = T26C_SEAL_STATE(theme, entries);
+    const { ctx, page, errors } = await fresh(browser, w, state, "/review");
+    try {
+      await page.waitForSelector("#view .wk-tiles", { timeout: 8000 });
+      const typed = { shipped: "flashcards-cli v2 and a post", notes: "two late nights", posts: 2 };
+      await page.fill("#rvShipped", typed.shipped);
+      await page.fill("#rvNotes", typed.notes);
+      await page.fill("#rvPosts", String(typed.posts));
+      if (typedRev != null) await page.fill("#rvRev", String(typedRev));
+      const w0 = await writes(page);
+      await markView(page);
+      await page.click("#view [data-act=logWeek]");
+      await viewReplaced(page);
+      const after = await page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+      const sealed = (after.weeks || []).filter(x => x.week === T26C_WEEK.w);
+      const want = { week: T26C_WEEK.w, date: TODAY, shipped: typed.shipped, dsa: Object.keys(state.problems).length, posts: typed.posts,
+        revenue: typedRev != null ? typedRev : t26cEarned(state), notes: typed.notes };
+      const n = (await writes(page)) - w0;
+      check("(o) " + at + ": Seal stores Week " + T26C_WEEK.w + " in the shape it always had, " + JSON.stringify(want) + " (these keys, in this order, nothing else), in two saves",
+        sealed.length === 1 && JSON.stringify(sealed[0]) === JSON.stringify(want) && n === 2,
+        n + " save(s), stored " + JSON.stringify(sealed));
+      check("(o) " + at + ": the week sealed before it is stored exactly as it was",
+        (after.weeks || []).length === 2 && JSON.stringify(after.weeks.find(x => x.week === 1)) === JSON.stringify(state.weeks[0]), JSON.stringify(after.weeks));
+      const ev = (after.ledger || [])[(after.ledger || []).length - 1];
+      check("(o) " + at + ": the chain's last entry is the week event, as before: type week, ref week" + T26C_WEEK.w + ", { shipped, dsa, posts, revenue }",
+        !!ev && ev.type === "week" && ev.ref === "week" + T26C_WEEK.w &&
+          JSON.stringify(ev.data) === JSON.stringify({ shipped: want.shipped, dsa: want.dsa, posts: want.posts, revenue: want.revenue }),
+        JSON.stringify(ev && { type: ev.type, ref: ev.ref, data: ev.data }));
+      const shown = await page.evaluate(() => ({ state: ((document.querySelector("#view .wk-state") || {}).textContent || "").trim(),
+        first: ((document.querySelector("#view .wk-weeks > details .wk-h b") || {}).textContent || "").trim() }));
+      const day = Number(TODAY.slice(8)) + " " + new Date(TODAY + "T00:00:00Z").toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+      check("(o) " + at + ": the page then reads \"Sealed " + day + "\", and Week " + T26C_WEEK.w + " is the newest past week",
+        shown.state === "Sealed " + day && shown.first === "Week " + T26C_WEEK.w, JSON.stringify(shown));
+      if (typedRev == null) await shot(page, "flow-o-sealed-" + w + "-" + theme);
+    } catch (e) { check("(o) " + at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(o) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  };
+  for (const theme of ["dark", "light"]) for (const w of [1440, 390]) await sealFlow(theme, w);
+  await sealFlow("dark", 390, [{ date: "2026-10-18", amount: 999, note: "the last day of the week before" }], 75.5);
+
   // ---- (j) the tab bar you slide along (T-023) ----
   // Once, at 390x568, with motion ON (the spring is part of what is measured).
   // 568 tall so Today scrolls past 800 (at 844 it scrolls 548).
@@ -1291,7 +1390,8 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
-      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot"
+      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
+      "Seal the week at 1440/390 x 2 themes and once with BHD typed, the stored week the shape it always was (T-026c)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

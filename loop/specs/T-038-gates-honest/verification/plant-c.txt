@@ -1,0 +1,28 @@
+Plant (c): no order guard in setGate, so any gate can be passed or unmarked
+Gate: node tools/verify-logic.js
+Planted on: 3783455 + the diff below
+
+---- diff ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f6b09fa..7793f52 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -787,7 +787,6 @@
+   function setGate(n, pass) {
+     const plan = gatePlan();
+     const g = pass ? plan.find(x => !x.doneDate) : plan.filter(x => x.doneDate).pop();
+-    if (!g || g.n !== n) return false;
+     S.gates[n] = { date: pass ? todayISO() : null, at: new Date().toISOString(), passed: !!pass };
+     logEvent("gate", "gate" + n, { passed: !!pass });
+     return true;
+
+---- gate output (failing checks and summary) ----
+  FAIL  an out-of-order pass is impossible: Gate 3, 2 or 5 before Gate 1 is refused, stores nothing and logs nothing — returned true,true,true, stored {"2":{"date":"2026-10-21","at":"2026-10-20T22:30:00.000Z","passed":true},"3":{"date":"2026-10-21","at":"2026-10-20T22:30:00.000Z","passed":true},"5":{"date":"2026-10-21","at":"2026-10-20T22:30:00.000Z","passed":true}}, 3 gate event(s)
+  FAIL  the next gate can be passed: stored as { date: today (local: 21 Oct in Bahrain), at, passed: true }, and Gate 3 is still refused after it — pass 1 true {"date":"2026-10-21","at":"2026-10-20T22:30:00.000Z","passed":true}; pass 3 true; pass 2 true
+  FAIL  only the last passed gate can be unmarked (Gate 1 refused while Gate 2 is passed; Gate 2 then stored { passed: false }) — unmark 1 true, unmark 2 true, plan [null,null,"2026-10-21",null,"2026-10-21"], events gate3:true,gate2:true,gate5:true,gate1:true,gate3:true,gate2:true,gate1:false,gate2:false
+3 of 45 invariant(s) FAILED
+
+3 of 45 invariant(s) FAILED
+
+exit code: 1
+restored: cmp identical to the committed app.js (3783455); git diff empty

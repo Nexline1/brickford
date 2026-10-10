@@ -1,0 +1,36 @@
+Plant (d): passed gates labelled with their target month on the Atlas route
+Gate: node tools/verify-design.js
+Planted on: 3783455 + the diff below
+
+---- diff ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f6b09fa..a50161d 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -3567,7 +3567,7 @@
+       fill = (k - 1 + f) / gates.length;
+     }
+     const nodes = [{ label: "Start", when: monthLabel(D.START_DATE), done: true }]
+-      .concat(gates.map(g => ({ label: g.label, when: g.doneDate ? passedLabel(g.doneDate) : monthLabel(g.target), done: !!g.doneDate })));
++      .concat(gates.map(g => ({ label: g.label, when: monthLabel(g.target), done: !!g.doneDate })));
+     const last = k ? k - 1 : nodes.length - 1;           // the node the pin follows
+     const pin = '<li class="rt-pin' + (fill > 0.5 ? " end" : "") + '">' +
+       (today < D.START_DATE ? "Starts " + esc(monthLabel(D.START_DATE)) : "You are here · day " + (studyPos(today) + 1)) + "</li>";
+
+---- gate output (failing checks and summary) ----
+  FAIL  1440px dark T-038 /atlas: a passed gate shows "Passed …" (its date), an open one its target month: Passed 9 Oct, Passed 14 Oct, May 2027, Dec 2027, Sep 2029 — Dec 2026, Mar 2027, May 2027, Dec 2027, Sep 2029
+  FAIL  390px dark T-038 /atlas: a passed gate shows "Passed …" (its date), an open one its target month: Passed 9 Oct, Passed 14 Oct, May 2027, Dec 2027, Sep 2029 — Dec 2026, Mar 2027, May 2027, Dec 2027, Sep 2029
+  FAIL  1440px light T-038 /atlas: a passed gate shows "Passed …" (its date), an open one its target month: Passed 9 Oct, Passed 14 Oct, May 2027, Dec 2027, Sep 2029 — Dec 2026, Mar 2027, May 2027, Dec 2027, Sep 2029
+  FAIL  390px light T-038 /atlas: a passed gate shows "Passed …" (its date), an open one its target month: Passed 9 Oct, Passed 14 Oct, May 2027, Dec 2027, Sep 2029 — Dec 2026, Mar 2027, May 2027, Dec 2027, Sep 2029
+  FAIL  1440px dark T-038 all five passed: labels Passed 9 Oct, Passed 14 Oct, Passed 15 Oct, Passed 16 Oct, Passed 19 Oct; "Your route to October 2026, in five gates."; "Plan baseline April 2030 · 41 months ahead" (1262 days) — Dec 2026, Mar 2027, May 2027, May 2027, Jul 2028; Your route to October 2026, in five gates.; "Plan baseline April 2030 · 41 months ahead" 5.91:1
+  FAIL  390px light T-038 all five passed: labels Passed 9 Oct, Passed 14 Oct, Passed 15 Oct, Passed 16 Oct, Passed 19 Oct; "Your route to October 2026, in five gates."; "Plan baseline April 2030 · 41 months ahead" (1262 days) — Dec 2026, Mar 2027, May 2027, May 2027, Jul 2028; Your route to October 2026, in five gates.; "Plan baseline April 2030 · 41 months ahead" 4.70:1
+  FAIL  1440px dark T-038 Gate 1 passed late (15 Jan 2027): labels Passed 15 Jan, Jun 2027, Jan 2028, Aug 2028, May 2030; "Your route to May 2030, in five gates."; "Plan baseline April 2030 · 1 month behind" (-32 days) — Dec 2026, Jun 2027, Jan 2028, Aug 2028, May 2030; Your route to May 2030, in five gates.; "Plan baseline April 2030 · 1 month behind" 5.91:1
+  FAIL  390px light T-038 Gate 1 passed late (15 Jan 2027): labels Passed 15 Jan, Jun 2027, Jan 2028, Aug 2028, May 2030; "Your route to May 2030, in five gates."; "Plan baseline April 2030 · 1 month behind" (-32 days) — Dec 2026, Jun 2027, Jan 2028, Aug 2028, May 2030; Your route to May 2030, in five gates.; "Plan baseline April 2030 · 1 month behind" 4.70:1
+  FAIL  1440px dark T-038 Gates 1-2 passed, America/Los_Angeles: labels Passed 9 Oct, Passed 14 Oct, May 2027, Dec 2027, Sep 2029; "Your route to September 2029, in five gates."; "Plan baseline April 2030 · 7 months ahead" (204 days) — Dec 2026, Mar 2027, May 2027, Dec 2027, Sep 2029; Your route to September 2029, in five gates.; "Plan baseline April 2030 · 7 months ahead" 5.91:1
+  FAIL  390px light T-038 Gates 1-2 passed, America/Los_Angeles: labels Passed 9 Oct, Passed 14 Oct, May 2027, Dec 2027, Sep 2029; "Your route to September 2029, in five gates."; "Plan baseline April 2030 · 7 months ahead" (204 days) — Dec 2026, Mar 2027, May 2027, Dec 2027, Sep 2029; Your route to September 2029, in five gates.; "Plan baseline April 2030 · 7 months ahead" 4.70:1
+FAIL — 10 of 1462 design checks failed
+
+FAIL — 10 of 1462 design checks failed
+
+exit code: 1
+restored: cmp identical to the committed app.js (3783455); git diff empty

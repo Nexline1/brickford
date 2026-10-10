@@ -1,4 +1,4 @@
-CHECK shell on ad92fb5 (final bytes; 0 changed files outside verification/)
+CHECK shell on 6382c6b (final bytes; 0 changed files outside verification/)
 $ node tools/verify-shell.js
 
    1536px  sidebar shown, column 322-1164

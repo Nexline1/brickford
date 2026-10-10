@@ -1,4 +1,4 @@
-CHECK syntax on ad92fb5 (final bytes; 0 changed files outside verification/)
+CHECK syntax on 6382c6b (final bytes; 0 changed files outside verification/)
 $ for f in platform/js/*.js platform/data/*.js tools/*.js; do node --check "$f" || exit 1; done
 
 ok platform/js/app.js

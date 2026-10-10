@@ -1,4 +1,4 @@
-CHECK design on ad92fb5 (final bytes; 0 changed files outside verification/)
+CHECK design on 6382c6b (final bytes; 0 changed files outside verification/)
 $ node tools/verify-design.js
 
 status bar (read from platform/css/style.css)
@@ -216,23 +216,23 @@ T-024: the theme before the first paint
   ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 12 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 6 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 8 frames
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 9 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 10 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 7 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
+  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme dark, meta #000000, state writes 0, stored "forest"
   ok    first paint (stored "forest" (removed), phone light): no page errors
   ok    first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 9 frames
+  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme dark, meta #000000, state writes 0, stored "slate"
   ok    first paint (stored "slate" (removed), phone light): no page errors
 
@@ -1066,6 +1066,16 @@ T-026a Atlas and Courses, 390px light
   ok    1440px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — 5 views
   ok    390px root 16px: /atlas, a 3-digit count of days to the next gate shares the text's line (right of it, not under the chips) — root 16px, "134" at 274,747.3,345,805.9; the text at 45,666.2,254,887.1
   ok    390px root 16px, a 3-digit count: no page errors
+  ok    /atlas, Gate 1 next (Calibration), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 1 next (Calibration), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 2 next (Core skills), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 2 next (Core skills), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 3 next (Research legs), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 3 next (Research legs), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 4 next (The fork), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 4 next (The fork), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 5 next (Arrival), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 5 next (Arrival), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
 
 T-026b Problems, Exams and Proof, 1440px dark
   ok    1440px dark /workshop: the header is h1 "Problems" and "Learning sticks when you solve, not when you watch." — {"h1":"Problems","sub":"Learning sticks when you solve, not when you watch."}
@@ -1675,6 +1685,6 @@ T-026b 390px dark, a Saturday (the rest day)
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 1505 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 194 rows (554 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots, a 3-digit count beside the text at 390 (172 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (557 checks)
+PASS — 1515 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 194 rows (554 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of 5 gates next at 15 widths x 2 roots (182 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (557 checks)
 
 exit code: 0

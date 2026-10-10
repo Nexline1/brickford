@@ -1,4 +1,4 @@
-CHECK logic on ad92fb5 (final bytes; 0 changed files outside verification/)
+CHECK logic on 6382c6b (final bytes; 0 changed files outside verification/)
 $ node tools/verify-logic.js
 
   ok    day 1 = START_DATE — DAR.START_DATE 2026-10-05, studyIndex(START) 0, dateForStudy(0) 2026-10-05

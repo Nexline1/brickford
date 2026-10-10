@@ -1,0 +1,35 @@
+T-031 plant (a): the shelf column floor back at 6.75rem in all three rules — a track between the floor and "Mathematics" (6.81rem) breaks it mid-word
+Planted on e005151, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 512a918..7f8164f 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2506,9 +2506,9 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+    above it: at 6.75rem a track between the two split it "Mathematic/s"
+    (1132px at a 16px root, 376px at 24px). The 0.5px keeps the count exact
+    at the default size (auto-fill floors the number of tracks that fit). */
+-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+-@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+-@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
++.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
++@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
++@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
+ .book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
+ .book:hover { text-decoration: none; }
+ /* clip-path, not overflow:hidden: the cover rounds its bar into the corner
+
+---- verify-design, planted ----
+  FAIL  1132px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  376px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  1038px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  1178px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  1372px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+
+FAIL — 5 of 1503 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to HEAD

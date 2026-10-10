@@ -11,10 +11,8 @@
   const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   // Local calendar date — NOT toISOString() (that's UTC and shows the
   // wrong day for anyone ahead of UTC, e.g. Bahrain UTC+3 before 3 AM).
-  const todayISO = () => {
-    const d = new Date();
-    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  };
+  const localISO = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const todayISO = () => localISO(new Date());
   const fmtBHD = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString();
   function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
 
@@ -157,7 +155,7 @@
     quizAttempts: {},   // bankId -> [{date, score, total, pct}]
     quizMisses: {},     // bankId -> [bank question indices currently in the miss pool]
     diag: {},           // diagId -> {score, date}
-    gates: {},          // gateN -> completion date (ISO) when passed
+    gates: {},          // gateN -> { date, at, passed } (gateRec reads the older shapes)
     studyDays: [],      // ISO dates
     weeks: [],          // {week, date, shipped, dsa, posts, revenue, notes}
     labs: {},           // labId -> {done, proof}
@@ -233,6 +231,10 @@
   S.settings.deviceId = S.settings.deviceId ||
     (Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4));
   S.foreignLedgers = S.foreignLedgers || {};
+  // Gates in the shape that syncs (T-038). Load-time normalisation like the
+  // navy switch above: in memory only, no save(), so opening the app arms no
+  // push and rewrites nothing; the next ordinary save() stores the new shape.
+  Object.keys(S.gates || (S.gates = {})).forEach(k => { S.gates[k] = gateRec(S.gates[k], k); });
 
   const SYNC_REPO = "Nexline1/brickford";
   const SYNC_PATH = "progress/brickford-state.json";
@@ -287,7 +289,7 @@
     // sets: union
     (r.studyDays || []).forEach(d => { if (S.studyDays.indexOf(d) < 0) { S.studyDays.push(d); changed++; } });
     S.studyDays.sort();
-    ["problems", "psets", "electives", "labs", "diag", "gates"].forEach(key => {
+    ["problems", "psets", "electives", "labs", "diag"].forEach(key => {
       Object.keys(r[key] || {}).forEach(k => {
         if (!S[key][k] && r[key][k]) { S[key][k] = r[key][k]; changed++; }
       });
@@ -357,6 +359,14 @@
       const theirs = ledgers[dev] || [];
       const mineForeign = S.foreignLedgers[dev] || [];
       if (theirs.length > mineForeign.length) { S.foreignLedgers[dev] = theirs; changed++; }
+    });
+    // Gates: last writer wins on `at`, per gate (T-038). They used to merge as
+    // "a truthy remote fills a falsy local", so an unmark (false) was undone
+    // by the next pull and a push kept the pass on the remote for good. After
+    // the ledgers, so a remote legacy `true` can find its own gate event.
+    Object.keys(r.gates || {}).forEach(k => {
+      const theirs = gateRec(r.gates[k], k), mine = gateRec(S.gates[k], k);
+      if ((theirs.at || "") > (mine.at || "")) { S.gates[k] = theirs; changed++; }
     });
     return { changed: changed };
   }
@@ -733,21 +743,55 @@
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { week: w, focus: row.focus, tag: row.tag, phase: row.phase };
   }
+  // A gate as stored (T-038): { date, at, passed } — the local date it was
+  // passed, the instant this record was written (ISO, what the merge
+  // compares), and whether it is passed. The older shapes are read, never
+  // rewritten here:
+  //   "YYYY-MM-DD"  passed that date, at = that date's local midnight;
+  //   false/absent  not passed, no time (any timed record beats it);
+  //   true          (old backups) passed on the local date of its last passing
+  //                 `gate` ledger event, else on START_DATE. Never "today": a
+  //                 pass that moved with the clock slid every later target daily.
+  function gateRec(raw, n) {
+    if (raw && typeof raw === "object")
+      return { date: raw.date || null, at: raw.at || null, passed: raw.passed === true && !!raw.date };
+    const midnight = iso => { const p = iso.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]).toISOString(); };
+    if (typeof raw === "string" && /^\d{4}-\d\d-\d\d$/.test(raw)) return { date: raw, at: midnight(raw), passed: true };
+    if (raw === true) {
+      let ts = null;
+      [S.ledger || []].concat(Object.values(S.foreignLedgers || {})).forEach(L => (L || []).forEach(e => {
+        if (e && e.type === "gate" && e.ref === "gate" + n && e.data && e.data.passed && e.ts && (!ts || e.ts > ts)) ts = e.ts;
+      }));
+      return ts ? { date: localISO(new Date(ts)), at: ts, passed: true } : { date: D.START_DATE, at: midnight(D.START_DATE), passed: true };
+    }
+    return { date: null, at: null, passed: false };
+  }
   // Adaptive schedule: a gate's target = the previous gate's completion date
   // (its target while still open) + this gate's duration. Passing early pulls
-  // every later target earlier. S.gates[n] stores the completion date
-  // (legacy backups stored `true`; treated as passed today).
+  // every later target earlier.
   function gatePlan() {
     let base = D.START_DATE;
     return D.GATES.map(g => {
-      const raw = S.gates[g.n];
-      const doneDate = raw === true ? todayISO() : (raw || null);
+      const rec = gateRec(S.gates[g.n], g.n);
+      const doneDate = rec.passed ? rec.date : null;
       const target = addStudyDays(base, Math.round(g.months * 30.4));
       base = doneDate || target;
       return Object.assign({}, g, { target, doneDate });
     });
   }
   function nextGate() { return gatePlan().find(g => !g.doneDate); }
+  // The one way a gate changes (T-038), behind the Transcript's confirm
+  // sheet. Only the next open gate can be passed and only the last passed one
+  // unmarked; anything else is refused and changes nothing. One save(): the
+  // gate event's.
+  function setGate(n, pass) {
+    const plan = gatePlan();
+    const g = pass ? plan.find(x => !x.doneDate) : plan.filter(x => x.doneDate).pop();
+    if (!g || g.n !== n) return false;
+    S.gates[n] = { date: pass ? todayISO() : null, at: new Date().toISOString(), passed: !!pass };
+    logEvent("gate", "gate" + n, { passed: !!pass });
+    return true;
+  }
   function currentPhase() {
     const w = weekNumber();
     return w > 78 ? 3 : w > 26 ? 2 : w > 2 ? 1 : 0;
@@ -757,7 +801,7 @@
     const last = plan[plan.length - 1];
     const baseline = addStudyDays(D.START_DATE, Math.round(D.GATES.reduce((a, g) => a + g.months, 0) * 30.4));
     const projected = last.doneDate || last.target;
-    return { projected, aheadDays: daysBetween(projected, baseline) };
+    return { projected, baseline, aheadDays: daysBetween(projected, baseline) };
   }
 
   // ---------- calendar (Google-native, no OAuth, no API key) ----------
@@ -3492,8 +3536,19 @@
   // asks for and how long is left, then what you are studying and what opens
   // later. It used to be the same folio-and-rows page as Courses, which is why
   // the owner could not tell the two apart.
+  // A passed gate on the route says when it was passed (T-038): "Passed 9 Oct".
+  // Under its old target month it read as if it were still ahead.
+  const passedLabel = iso => { const d = new Date(iso + "T00:00:00");
+    return "Passed " + d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  // The projection against the baseline, in words: months once it is half a
+  // month or more (a calendar month is 30.44 days on average), days below that.
+  function driftWords(days) {
+    const a = Math.abs(days), m = Math.round(a / 30.44);
+    return (m >= 1 ? m + " month" + (m === 1 ? "" : "s") : a + " day" + (a === 1 ? "" : "s")) + (days > 0 ? " ahead" : " behind");
+  }
   V.atlas = function () {
     const gates = gatePlan();
+    const drift = planDrift();
     const ng = nextGate();
     const today = todayISO();
     const { starts, running, later } = courseSets();
@@ -3511,15 +3566,15 @@
       f = b > a ? Math.min(1, Math.max(0, (studyPos(today) - a) / (b - a))) : 0;
       fill = (k - 1 + f) / gates.length;
     }
-    const nodes = [{ label: "Start", when: D.START_DATE, done: true }]
-      .concat(gates.map(g => ({ label: g.label, when: g.target, done: !!g.doneDate })));
+    const nodes = [{ label: "Start", when: monthLabel(D.START_DATE), done: true }]
+      .concat(gates.map(g => ({ label: g.label, when: g.doneDate ? passedLabel(g.doneDate) : monthLabel(g.target), done: !!g.doneDate })));
     const last = k ? k - 1 : nodes.length - 1;           // the node the pin follows
     const pin = '<li class="rt-pin' + (fill > 0.5 ? " end" : "") + '">' +
       (today < D.START_DATE ? "Starts " + esc(monthLabel(D.START_DATE)) : "You are here · day " + (studyPos(today) + 1)) + "</li>";
     const route = '<div class="card at-route"><ol class="rt" style="--fill:' + fill.toFixed(4) + "; --f:" + f.toFixed(4) + ';">' +
       nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (k && i === k ? " next" : "") +
         (i <= last ? " past" : "") + (i === last ? " cur" : "") + '">' +
-        '<span class="rt-dot"></span><span class="rt-lab"><b>' + esc(n.label) + "</b><span>" + esc(monthLabel(n.when)) + "</span></span></li>" +
+        '<span class="rt-dot"></span><span class="rt-lab"><b>' + esc(n.label) + "</b><span>" + esc(n.when) + "</span></span></li>" +
         (i === last ? pin : "")).join("") + "</ol></div>";
 
     // ---- the next gate: what it asks for, and the days left ----
@@ -3551,8 +3606,10 @@
     const more = later.length - 5;
 
     return '<div class="view-enter"><div class="page-head"><h1>Atlas</h1>' +
-      '<div class="sub">Your route to ' + esc(monthLabel(gates[gates.length - 1].target, true)) + ", in " +
-      (NUM_WORDS[gates.length] || gates.length) + " gates.</div></div>" +
+      '<div class="sub">Your route to ' + esc(monthLabel(drift.projected, true)) + ", in " +
+      (NUM_WORDS[gates.length] || gates.length) + " gates.</div>" +
+      (drift.aheadDays ? '<p class="at-base">Plan baseline ' + esc(monthLabel(drift.baseline, true)) + " \u00b7 " + driftWords(drift.aheadDays) + "</p>" : "") +
+      "</div>" +
       route + nextCard +
       '<div class="ghead">Studying now<span class="gh-meta">' + running.length + " course" + (running.length === 1 ? "" : "s") + "</span></div>" +
       '<div class="at-tiles">' + running.map(tile).join("") + "</div>" +
@@ -3832,8 +3889,10 @@
     const plan = gatePlan();
     const ng = nextGate();
 
-    const gateBtn = g => '<button class="btn' + (g.doneDate ? " ghost" : "") + '" data-gate="' + g.n + '">' +
-      (g.doneDate ? "Unmark" : "Mark passed — honestly") + "</button>";
+    // Only the next gate can be passed and only the last passed one unmarked
+    // (T-038); each control opens the confirm sheet (gateSheet), never a toggle.
+    const lastPassed = plan.filter(g => g.doneDate).pop();
+    const gateBtn = g => '<button class="btn" data-gate="' + g.n + '" data-gate-do="pass">Mark passed — honestly</button>';
 
 
     // A gate as one row. This was a spine — an <ol class="quest"> with its own
@@ -3895,10 +3954,10 @@
       // holds only the controls, one per gate, named by number.
       '<details class="unit"><summary><span class="u-name">Mark a gate passed</span>' +
       '<span class="pill">honestly</span><span class="u-prog" style="width:100%;"></span></summary>' +
-      '<div class="u-body"><p class="note" style="margin:0 0 10px;">Adaptive: pass one early and every later target moves earlier with it.</p>' +
-      '<div class="row-actions" style="margin-top:0;">' + plan.map(g =>
-        '<button class="btn' + (g.doneDate ? " ghost" : "") + '" data-gate="' + g.n + '">' +
-        (g.doneDate ? "Unmark " : "Pass ") + g.n + "</button>").join("") +
+      '<div class="u-body"><p class="note" style="margin:0 0 10px;">Adaptive: pass one early and every later target moves earlier with it. Gates pass in order, and only the last one passed can be unmarked.</p>' +
+      '<div class="row-actions" style="margin-top:0;">' +
+      (ng ? '<button class="btn" data-gate="' + ng.n + '" data-gate-do="pass">Pass ' + ng.n + "</button>" : "") +
+      (lastPassed ? '<button class="btn ghost" data-gate="' + lastPassed.n + '" data-gate-do="unmark">Unmark ' + lastPassed.n + "</button>" : "") +
       "</div></div></details>" +
 
       '<details class="unit"><summary><span class="u-name">Mastery, course by course</span>' +
@@ -5128,13 +5187,7 @@
     }
     // gates
     $$("[data-gate]", root).forEach(b => {
-      b.onclick = () => {
-        const n = +b.dataset.gate;
-        S.gates[n] = S.gates[n] ? false : todayISO();
-        logEvent("gate", "gate" + n, { passed: !!S.gates[n] });
-        save(); render();
-        if (S.gates[n]) toast("Gate " + n + " passed — every later target just moved earlier.");
-      };
+      b.onclick = () => gateSheet(+b.dataset.gate, b.dataset.gateDo !== "unmark");
     });
     // client delete
     $$("[data-delclient]", root).forEach(b => {
@@ -5176,6 +5229,53 @@
     toast("Backup exported. Keep it somewhere safe.");
     render();
   }
+  // ---------- the gate confirm sheet (T-038) ----------
+  // A pass was a bare toggle behind a fold, and the owner's device ended up
+  // with Gates 1-3 passed by accident. Now each control opens this: a native
+  // modal <dialog> on <body>, outside #view, so a background render cannot
+  // take it away; the page behind is inert, Escape closes it, and focus starts
+  // inside it. A pass lists the gate's requirements, and "Pass gate n" is
+  // disabled until every one is ticked. Opening, ticking and cancelling write
+  // nothing; the button is setGate()'s one save().
+  function gateSheet(n, pass) {
+    const g = gatePlan().find(x => x.n === n);
+    if (!g) return;
+    const old = $("dialog.sheet");
+    if (old) old.remove();
+    const dlg = document.createElement("dialog");
+    dlg.className = "sheet";
+    dlg.setAttribute("aria-labelledby", "sheetTitle");
+    dlg.innerHTML = '<div class="sheet-in">' +
+      '<h2 id="sheetTitle">' + (pass ? "Pass" : "Unmark") + " Gate " + g.n + " \u2014 " + esc(g.label) + "</h2>" +
+      '<p class="sheet-lede">' + (pass
+        ? "Tick each requirement that is true today. Every later target will count from today."
+        : "Gate " + g.n + " goes back to open, and every later target counts from its target again.") + "</p>" +
+      (pass ? '<div class="sheet-reqs">' + g.req.split(" \u00b7 ").map(r =>
+        '<label class="check-row"><input type="checkbox" data-gate-req><span class="checkbox">' + CHECK_SVG +
+        '</span><span class="check-label">' + esc(capFirst(r)) + "</span></label>").join("") + "</div>" : "") +
+      '<div class="sheet-go"><button class="btn ghost" type="button" data-sheet-cancel>Cancel</button>' +
+      '<button class="btn" type="button" data-sheet-go>' + (pass ? "Pass" : "Unmark") + " gate " + g.n + "</button></div></div>";
+    document.body.appendChild(dlg);
+    const go = $("[data-sheet-go]", dlg), boxes = $$("[data-gate-req]", dlg);
+    const ready = () => { go.disabled = !boxes.every(b => b.checked); };
+    boxes.forEach(b => { b.onchange = ready; });
+    ready();
+    const close = () => { if (dlg.open) dlg.close(); };
+    dlg.addEventListener("close", () => { dlg.remove(); window.removeEventListener("hashchange", close); });
+    window.addEventListener("hashchange", close);
+    $("[data-sheet-cancel]", dlg).onclick = close;
+    // A press on the dimmed page around the sheet dismisses it.
+    dlg.onclick = e => { if (e.target === dlg) close(); };
+    go.onclick = () => {
+      if (go.disabled) return;
+      close();
+      if (!setGate(n, pass)) { toast(pass ? "Only the next gate can be passed." : "Only the last gate passed can be unmarked."); render(); return; }
+      render();
+      toast(pass ? "Gate " + n + " passed \u2014 every later target now counts from today." : "Gate " + n + " is open again.");
+    };
+    dlg.showModal();
+  }
+
   function importBackup(file) {
     const r = new FileReader();
     r.onload = () => {
@@ -5596,7 +5696,11 @@
     // real player message does (a pause or an end saves); only the
     // origin/source filter in front of it is skipped. And a foreground render.
     playerMessage: data => { const f = ytFrame(); if (f) playerEvent(f, data); return !!f; },
-    render: () => render() });
+    render: () => render(),
+    // T-038, for tools/verify-logic.js: the gate plan (a read), setGate (the
+    // one write the confirm sheet makes, order guard included) and the sync
+    // merge, handed a remote file's shape.
+    gatePlan, setGate, mergeState });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

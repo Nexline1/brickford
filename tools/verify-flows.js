@@ -55,6 +55,19 @@
 //       open exactly one new page and leave this one where it was; a pen's
 //       barrel-button press switches nothing.
 //
+// And, since T-038 (loop/specs/T-038-gates-honest/spec.md), a gate:
+//
+//   (m) passed on purpose: /transcript offers a pass for the next gate only;
+//       it opens a confirm sheet listing the gate's requirements, and "Pass
+//       gate 1" stays disabled — a press stores nothing — until every one is
+//       ticked (by tap at 390, by keyboard alone at 1280); Escape and Cancel
+//       store nothing; the pass is one save() of { date, at, passed: true };
+//       then the unmark, offered for the last passed gate only, asks the same
+//       way and is one save() of { passed: false };
+//   (n) the unmark sticks (once): after a pull from a stub remote that still
+//       holds the pass, the gate stays open here, the push carries the
+//       unmark, and the device that still held the pass pulls the unmark.
+//
 // For (d), (e) and (g) the frame cannot reach YouTube, so they speak for the
 // player through the test-only hook (window.__brickfordTest.playerMessage,
 // present only when the page is booted on a #/__test hash), whose
@@ -259,6 +272,31 @@ async function shot(page, name) {
     .filter(a => !a.effect || a.effect.getComputedTiming().iterations !== Infinity).map(a => a.finished)));
   await page.screenshot({ path: path.join(SHOTS, name + ".png"), fullPage: false });
 }
+
+// ---- T-038: the gates, and the confirm sheet ----
+const GATE1_REQ = (() => {
+  const vm = require("vm");
+  const sandbox = { window: {} };
+  sandbox.window.DAR = sandbox.DAR = {};
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/curriculum.js"), "utf8"), sandbox);
+  return sandbox.window.DAR.GATES[0].req.split(" \u00b7 ");
+})();
+const gatesStored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").gates || {});
+// What /transcript offers right now: every gate control, by what it does.
+const gateControls = page => page.evaluate(() => [...document.querySelectorAll("#view [data-gate]")]
+  .map(b => b.dataset.gateDo + " " + b.dataset.gate).filter((v, i, a) => a.indexOf(v) === i).sort().join(", "));
+// The open sheet, as the reader has it.
+const sheetState = page => page.evaluate(() => {
+  const d = document.querySelector("dialog.sheet");
+  if (!d) return null;
+  const go = d.querySelector("[data-sheet-go]");
+  return { open: d.open, modal: d.matches(":modal"), title: (d.querySelector("h2") || {}).textContent || "",
+           reqs: [...d.querySelectorAll("[data-gate-req]")].map(i => ({ text: i.closest("label").textContent.trim(), on: i.checked })),
+           go: go ? { text: go.textContent.trim(), disabled: go.disabled } : null,
+           focusIn: d.contains(document.activeElement), focus: document.activeElement ? document.activeElement.tagName + (document.activeElement.dataset.gateReq != null ? "[req]" : "") : "" };
+});
+const sheetGone = page => page.waitForFunction(() => !document.querySelector("dialog.sheet"), null, { timeout: 4000 }).then(() => true, () => false);
 
 // Watched lectures unlock quiz questions, so flow (b) starts with some watched.
 const WATCHED = {};
@@ -642,6 +680,123 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
           unticked.w + " save(s), stored " + JSON.stringify(unticked.st) + ", field " + (gone ? "gone" : "still there"));
       }
       check("(l) no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+
+    // ---- (m) a gate is passed on purpose, and unmarked the same way (T-038) ----
+    {
+      const { ctx, page, errors } = await fresh(browser, w, null, "/transcript");
+      // A harness error inside the flow is a FAIL line, never a crash that
+      // takes every later check with it.
+      try {
+        const keys = w >= 860;                       // 1280: the keyboard alone; 390: taps
+        const press = async sel => keys ? (await page.focus(sel), await page.keyboard.press("Enter")) : page.tap(sel);
+        check("(m) /transcript offers a pass for the next gate only (Gate 1), and no unmark", (await gateControls(page)) === "pass 1",
+          "controls: " + (await gateControls(page) || "none"));
+        let w0 = await writes(page);
+        await press("#view [data-gate-do=pass][data-gate='1']");
+        await page.waitForSelector("dialog.sheet[open]", { timeout: 4000 }).catch(() => {});
+        let sh = await sheetState(page);
+        check("(m) it opens a modal confirm sheet listing Gate 1's " + GATE1_REQ.length + " requirements, unticked, with \"Pass gate 1\" disabled",
+          !!sh && sh.open && sh.modal && JSON.stringify(sh.reqs.map(r => r.text)) === JSON.stringify(GATE1_REQ.map(t => t.charAt(0).toUpperCase() + t.slice(1))) &&
+            sh.reqs.every(r => !r.on) && !!sh.go && sh.go.text === "Pass gate 1" && sh.go.disabled,
+          JSON.stringify(sh));
+        if (keys) {
+          // Space on the focused requirement ticks it: the boxes take the keyboard.
+          await page.keyboard.press("Space");
+          const k = await sheetState(page);
+          check("(m) the keyboard lands inside the sheet, on the first requirement, and Space ticks it",
+            !!sh && sh.focusIn && sh.focus === "INPUT[req]" && !!k && k.reqs.length > 0 && k.reqs[0].on, (sh ? sh.focus : "no sheet") + ", first ticked " + (k && k.reqs[0] && k.reqs[0].on));
+        }
+        // Every requirement is needed: with each one in turn left unticked (the
+        // others ticked) the button is disabled, and pressing it anyway stores
+        // nothing. A rule that skipped any one requirement fails one of these.
+        // If the sheet is gone (a press went through and closed it), that hole
+        // is recorded as failed and the loop stops: the check below then prints
+        // FAIL instead of the harness crashing on a sheet that is not there.
+        const holes = [];
+        const closedHole = async hole => ({ hole, ticked: "sheet closed", disabled: false, w: await writes(page) - w0,
+                                            g: JSON.stringify(await gatesStored(page)), open: false });
+        for (let hole = 0; hole < GATE1_REQ.length; hole++) {
+          const before = await sheetState(page);
+          if (!before) { holes.push(await closedHole(hole)); break; }
+          for (let i = 0; i < before.reqs.length; i++) {
+            if (before.reqs[i].on !== (i !== hole)) {
+              const sel = "dialog.sheet label:has([data-gate-req]) >> nth=" + i;
+              if (keys) await page.click(sel); else await page.tap(sel);
+            }
+          }
+          const st = await sheetState(page);
+          if (!st) { holes.push(await closedHole(hole)); break; }
+          await page.evaluate(() => { const b = document.querySelector("dialog.sheet [data-sheet-go]"); if (b) b.click(); });
+          holes.push({ hole, ticked: st.reqs.map(r => r.on ? 1 : 0).join(""), disabled: !!st.go && st.go.disabled, w: await writes(page) - w0,
+                       g: JSON.stringify(await gatesStored(page)), open: !!(await sheetState(page)) });
+          if (!holes[holes.length - 1].open) break;
+        }
+        check("(m) with any one of the " + GATE1_REQ.length + " requirements unticked \"Pass gate 1\" is disabled, and pressing it stores nothing",
+          holes.length === GATE1_REQ.length && holes.every(h => h.disabled && h.w === 0 && h.g === "{}" && h.open &&
+            h.ticked === GATE1_REQ.map((_, i) => i === h.hole ? 0 : 1).join("")),
+          holes.map(h => h.ticked + (h.disabled ? " disabled" : " ENABLED") + ", " + h.w + " save(s), stored " + h.g).join("; "));
+        // The rest needs the sheet the holes left open; if a press closed it,
+        // the check above has already failed and the flow is not walked on a
+        // state it was not written for.
+        if (holes.some(h => !h.open)) console.log("  skip  (m) the rest of the gate flow at " + w + "px: the sheet closed during the check above");
+        else {
+          // Escape (or Cancel) closes it and stores nothing; reopened, it starts unticked.
+          if (keys) await page.keyboard.press("Escape"); else await page.tap("dialog.sheet [data-sheet-cancel]");
+          const closed = await sheetGone(page);
+          check("(m) " + (keys ? "Escape" : "Cancel") + " closes the sheet and stores nothing", closed && (await writes(page)) - w0 === 0 && JSON.stringify(await gatesStored(page)) === "{}",
+            "closed " + closed + ", " + ((await writes(page)) - w0) + " save(s)");
+          await press("#view [data-gate-do=pass][data-gate='1']");
+          await page.waitForSelector("dialog.sheet[open]", { timeout: 4000 }).catch(() => {});
+          const reopened = await sheetState(page);
+          for (let i = 0; i < GATE1_REQ.length; i++) {
+            if (keys) { await page.keyboard.press("Space"); if (i < GATE1_REQ.length - 1) await page.keyboard.press("Tab"); }
+            else await page.tap("dialog.sheet label:has([data-gate-req]) >> nth=" + i);
+          }
+          sh = await sheetState(page);
+          check("(m) reopened it starts unticked; with every requirement ticked \"Pass gate 1\" is enabled",
+            !!reopened && reopened.reqs.length === GATE1_REQ.length && reopened.reqs.every(r => !r.on) && reopened.go.disabled &&
+              !!sh && sh.reqs.every(r => r.on) && !sh.go.disabled,
+            "reopened " + JSON.stringify(reopened && reopened.reqs.map(r => r.on)) + ", then " + JSON.stringify(sh && { reqs: sh.reqs.map(r => r.on), go: sh.go }));
+          await markView(page);
+          w0 = await writes(page);
+          if (keys) {
+            for (let i = 0; i < 4 && !(await page.evaluate(() => document.activeElement && document.activeElement.matches("[data-sheet-go]"))); i++) await page.keyboard.press("Tab");
+            await page.keyboard.press("Enter");
+          } else await page.tap("dialog.sheet [data-sheet-go]");
+          await viewReplaced(page);
+          const passed = { w: await writes(page) - w0, g: await gatesStored(page), gone: await sheetGone(page), ctl: await gateControls(page),
+            row: await page.evaluate(() => ((document.querySelector("#view .glist .grow .g-lead") || {}).textContent || "").trim()) };
+          const p1 = passed.g[1] || {};
+          check("(m) passing is one save() of { date: today, at, passed: true }; the sheet closes, Gate 1 reads passed, and the controls move on (pass 2, unmark 1)",
+            passed.w === 1 && p1.passed === true && p1.date === TODAY && /^\d{4}-\d\d-\d\dT/.test(p1.at || "") && passed.gone && passed.row === "\u2713" && passed.ctl === "pass 2, unmark 1",
+            passed.w + " save(s), stored " + JSON.stringify(passed.g) + ", row lead \"" + passed.row + "\", controls " + passed.ctl);
+          // The unmark asks too.
+          await ctx.clock.setFixedTime(new Date(TODAY + "T12:05:00Z"));
+          w0 = await writes(page);
+          await page.evaluate(() => { const d = document.querySelector("#view details.unit"); if (d) d.open = true; });
+          await press("#view [data-gate-do=unmark][data-gate='1']");
+          await page.waitForSelector("dialog.sheet[open]", { timeout: 4000 }).catch(() => {});
+          sh = await sheetState(page);
+          const asked = { sh, w: await writes(page) - w0 };
+          check("(m) unmark opens a confirm sheet (\"Unmark gate 1\") and stores nothing until it is pressed",
+            !!sh && sh.open && sh.modal && !!sh.go && sh.go.text === "Unmark gate 1" && !sh.go.disabled && asked.w === 0, JSON.stringify(sh) + ", " + asked.w + " save(s)");
+          await markView(page);
+          if (keys) {
+            for (let i = 0; i < 4 && !(await page.evaluate(() => document.activeElement && document.activeElement.matches("[data-sheet-go]"))); i++) await page.keyboard.press("Tab");
+            await page.keyboard.press("Enter");
+          } else await page.tap("dialog.sheet [data-sheet-go]");
+          await viewReplaced(page);
+          const un = { w: await writes(page) - w0, g: await gatesStored(page), ctl: await gateControls(page) };
+          const u1 = un.g[1] || {};
+          check("(m) unmarking is one save() of { passed: false } stamped later than the pass, and Gate 1 is open again (pass 1, no unmark)",
+            un.w === 1 && u1.passed === false && (u1.at || "") > (p1.at || "") && un.ctl === "pass 1",
+            un.w + " save(s), stored " + JSON.stringify(un.g) + ", controls " + un.ctl);
+          await shot(page, "flow-m-gate-unmarked-" + w);
+        }
+      } catch (e) { check("(m) the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+      check("(m) no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
   }
@@ -1029,12 +1184,114 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     await ctx.close();
   }
 
+  // ---- (n) the unmark sticks: a pull from a remote that still holds the pass ----
+  // Once, at 390. Gate 1 is passed and then unmarked through the sheet with no
+  // token (nothing syncs); then a stub token, and a stub GitHub whose file
+  // still holds the pass exactly as this device stored it. A reload makes the
+  // boot pull. Then the other device: the pass here, the unmark over there.
+  console.log("\ngate sync (once)");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true });
+    await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+    let remote = null, put = null, gets = 0, gotPut = null;
+    await ctx.route(/^https?:/, r => {
+      const req = r.request();
+      if (!/api\.github\.com/.test(req.url())) return r.abort();
+      if (!remote) return r.abort();             // no token yet: nothing may reach here
+      if (req.method() === "GET") { gets++; return r.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify(remote), "utf8").toString("base64") }) }); }
+      put = JSON.parse(req.postData() || "{}");
+      if (gotPut) gotPut();
+      return r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    await ctx.addInitScript(countWrites);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(URL + "/transcript", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    // Declared out here: the other device below is seeded with them, and a
+    // harness error inside this try must not turn into a ReferenceError there.
+    let thePass = null, theUnmark = null;
+    try {
+      const passVia = async (doWhat) => {
+        await page.evaluate(() => { const d = document.querySelector("#view details.unit"); if (d) d.open = true; });
+        await page.tap("#view [data-gate-do=" + doWhat + "][data-gate='1']");
+        await page.waitForSelector("dialog.sheet[open]", { timeout: 4000 });
+        const n = await page.evaluate(() => document.querySelectorAll("dialog.sheet [data-gate-req]").length);
+        for (let i = 0; i < n; i++) await page.tap("dialog.sheet label:has([data-gate-req]) >> nth=" + i);
+        await markView(page);
+        await page.tap("dialog.sheet [data-sheet-go]");
+        await viewReplaced(page);
+      };
+      await passVia("pass");
+      thePass = (await gatesStored(page))[1];
+      await ctx.clock.setFixedTime(new Date(TODAY + "T12:05:00Z"));
+      await passVia("unmark");
+      theUnmark = (await gatesStored(page))[1];
+      remote = { v: 1, updatedAt: TODAY + "T12:00:30.000Z", device: "phone", ledgers: {}, state: { gates: { 1: thePass } } };
+      await page.evaluate(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
+      await page.reload({ waitUntil: "load" });
+      const pulled = await page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt,
+        null, { timeout: 8000 }).then(() => true, () => false);
+      await page.waitForSelector("#view [data-gate]");
+      const after = { g: (await gatesStored(page))[1], ctl: await gateControls(page) };
+      check("(n) after a pull from a stub remote that still holds the pass, the unmark sticks (Gate 1 open, pass 1 offered)",
+        !!thePass && thePass.passed === true && !!theUnmark && theUnmark.passed === false && pulled && gets > 0 &&
+          !!after.g && after.g.passed === false && after.g.at === theUnmark.at && after.ctl === "pass 1",
+        "pass " + JSON.stringify(thePass) + ", unmark " + JSON.stringify(theUnmark) + ", pulled " + pulled + " (" + gets + " GET), now " + JSON.stringify(after.g) + ", controls " + after.ctl);
+      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.waitForSelector("[data-act='syncPush']", { timeout: 8000 });
+      put = null;
+      const putSeen = new Promise(r => { gotPut = r; });
+      await page.tap("[data-act='syncPush']");
+      const pushed = await Promise.race([putSeen.then(() => true), new Promise(r => setTimeout(() => r(false), 8000))]);
+      let sent = null;
+      try { sent = JSON.parse(Buffer.from(put.content, "base64").toString("utf8")).state.gates; } catch (e) {}
+      check("(n) the push that follows carries the unmark, so the remote loses the pass", pushed && !!sent && !!sent[1] && sent[1].passed === false,
+        pushed ? JSON.stringify(sent) : "no PUT");
+    } catch (e) { check("(n) this device's flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(n) no page errors (this device)", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+
+    // The other device: it still holds the pass, and the remote has the unmark.
+    const ctx2 = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true });
+    await ctx2.clock.setFixedTime(new Date(TODAY + "T13:00:00Z"));
+    const remote2 = { v: 1, updatedAt: TODAY + "T12:05:30.000Z", device: "laptop", ledgers: {}, state: { gates: { 1: theUnmark } } };
+    await ctx2.route(/^https?:/, r => {
+      const req = r.request();
+      if (!/api\.github\.com/.test(req.url())) return r.abort();
+      if (req.method() === "GET") return r.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify(remote2), "utf8").toString("base64") }) });
+      return r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    await ctx2.addInitScript(s => {
+      if (window.top !== window) return;
+      localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+      if (!sessionStorage.getItem("__seeded")) { sessionStorage.setItem("__seeded", "1"); localStorage.setItem("darhikmah_v1", s); }
+    }, JSON.stringify({ gates: { 1: thePass } }));
+    const page2 = await ctx2.newPage();
+    const errors2 = [];
+    page2.on("pageerror", e => errors2.push(e.message));
+    try {
+      await page2.goto(URL + "/transcript", { waitUntil: "load" });
+      const pulled2 = await page2.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt,
+        null, { timeout: 8000 }).then(() => true, () => false);
+      await page2.waitForFunction(() => !!document.querySelector("#view [data-gate-do=pass][data-gate='1']"), null, { timeout: 8000 }).catch(() => {});
+      const g2 = (await gatesStored(page2))[1], ctl2 = await gateControls(page2);
+      check("(n) the device that still held the pass pulls the unmark: Gate 1 open there too",
+        pulled2 && !!g2 && g2.passed === false && ctl2 === "pass 1", "pulled " + pulled2 + ", now " + JSON.stringify(g2) + ", controls " + ctl2);
+    } catch (e) { check("(n) the other device's flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(n) no page errors (the other device)", errors2.length === 0, errors2.join(" | "));
+    await ctx2.close();
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
   console.log("\n" + (fails === 0
-    ? "PASS — " + checks + " checks: 8 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems) x " +
-      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot"
+    ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
+      WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

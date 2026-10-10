@@ -1,0 +1,7 @@
+CHECK contrast on 4ea12d5 (final bytes; git status clean except verification/)
+$ node tools/verify-contrast.js
+
+
+PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+
+exit code: 0 (6s)

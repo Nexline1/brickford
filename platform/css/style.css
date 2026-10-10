@@ -2642,3 +2642,36 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .pf-reset { color: var(--bad); }
 
 .ex-lock:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---------- T-038: the baseline line, and the gate confirm sheet ----------
+   The Atlas head states the projected arrival; when that is not the plan's
+   baseline, a muted line under it says so. --ink-3 is still text: 4.5:1. */
+.page-head .at-base { color: var(--ink-3); font-size: var(--fs-footnote); margin-top: 4px; font-variant-numeric: tabular-nums; }
+/* A native modal <dialog> (showModal): the top layer, so nothing of the page —
+   the tab bar, the rail, the nav bar — is ever over it, and the page behind is
+   inert. A phone gets a sheet that rises from the bottom edge with --r-xl top
+   corners (brief §3); a desktop the same card, centred. It scrolls as one
+   piece when it is taller than the screen: nothing in it is fixed. */
+.sheet {
+  position: fixed; inset: auto 0 0 0; margin: 0 auto;
+  width: 100%; max-width: 560px; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); overflow: auto;
+  padding: 0; border: 0; border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface); color: var(--ink); box-shadow: var(--float);
+}
+@media (min-width: 861px) { .sheet { inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 48px); border-radius: var(--r-xl); } }
+/* --shade with a fallback: a ::backdrop that does not inherit custom
+   properties (older WebKit) still dims. */
+.sheet::backdrop { background: color-mix(in srgb, var(--shade, #000) 55%, transparent); }
+.sheet-in { padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); }
+.sheet h2 { margin: 0; }
+.sheet-lede { color: var(--ink-2); font-size: var(--fs-small); margin-top: 6px; }
+.sheet-reqs { display: grid; gap: 2px; margin-top: 12px; }
+/* The requirement rows are the app's .check-row, but here the box must take
+   the keyboard: the input is kept (visually hidden, not display:none) and its
+   focus ring is drawn on the box beside it. A row is a 44px target. */
+.sheet .check-row { position: relative; align-items: center; min-height: 44px; }
+.sheet .check-row input { display: block; position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.sheet .checkbox { margin-top: 0; width: 20px; height: 20px; }
+.sheet .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.sheet-go .btn { min-height: 44px; min-width: 44px; justify-content: center; }

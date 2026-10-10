@@ -1,0 +1,28 @@
+Plant (b): a legacy true read as passed today, so every later target drifts daily
+Gate: node tools/verify-logic.js
+Planted on: 3783455 + the diff below
+
+---- diff ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f6b09fa..840b6c3 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -757,6 +757,7 @@
+       return { date: raw.date || null, at: raw.at || null, passed: raw.passed === true && !!raw.date };
+     const midnight = iso => { const p = iso.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]).toISOString(); };
+     if (typeof raw === "string" && /^\d{4}-\d\d-\d\d$/.test(raw)) return { date: raw, at: midnight(raw), passed: true };
++    if (raw === true) return { date: todayISO(), at: midnight(todayISO()), passed: true };
+     if (raw === true) {
+       let ts = null;
+       [S.ledger || []].concat(Object.values(S.foreignLedgers || {})).forEach(L => (L || []).forEach(e => {
+
+---- gate output (failing checks and summary) ----
+  FAIL  a legacy true gives the same targets on two different days (no gate event: passed on START_DATE) — 2026-10-20: 1:passed 2026-10-20->2026-12-15 2:open->2027-03-11 3:open->2027-10-10 4:open->2028-05-09 5:open->2030-02-06 | 2026-11-03: 1:passed 2026-11-03->2026-12-15 2:open->2027-03-25 3:open->2027-10-24 4:open->2028-05-23 5:open->2030-02-20 | want 1:passed 2026-10-05->2026-12-15 2:open->2027-02-24 3:open->2027-09-24 4:open->2028-04-24 5:open->2030-01-22
+  FAIL  a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 7 Oct 22:30Z is 8 Oct; a later unmark event is not it), the same on two days — 2026-10-20: 1:passed 2026-10-20->2026-12-15 2:open->2027-03-11 3:open->2027-10-10 4:open->2028-05-09 5:open->2030-02-06 | 2026-11-03: 1:passed 2026-11-03->2026-12-15 2:open->2027-03-25 3:open->2027-10-24 4:open->2028-05-23 5:open->2030-02-20 | want 1:passed 2026-10-08->2026-12-15 2:open->2027-02-28 3:open->2027-09-28 4:open->2028-04-27 5:open->2030-01-25
+  FAIL  a remote legacy true is dated by its gate event in the remote's own ledger (7 Oct, not START_DATE) — nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day -> passed 2026-10-20 (want passed 2026-10-07)
+3 of 45 invariant(s) FAILED
+
+3 of 45 invariant(s) FAILED
+
+exit code: 1
+restored: cmp identical to the committed app.js (3783455); git diff empty

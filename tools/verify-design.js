@@ -3760,7 +3760,7 @@ function t26bRecord() {
       "T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; " +
       "T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark " +
       "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes; " +
-      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots, a 3-digit count beside the text at 390 (" + t26Checks + " checks); " +
+      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of " + T26_GATES.length + " gates next at " + T31_WIDTHS.length + " widths x 2 roots (" + t26Checks + " checks); " +
       "T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (" + t38Checks + " checks); " +
       "T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, " + T26B_STATES.length + " more states at 1440/390, and no overflow or mid-word break at " +
       T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks)"

@@ -1,6 +1,6 @@
 Plant (e): the confirm sheet enables "Pass gate n" when ANY requirement is ticked (some, not every)
 Gate: node tools/verify-flows.js
-Planted on: 496d4de + the diff below
+Planted on: a6cb1e8 + the diff below
 
 ---- diff ----
 diff --git a/platform/js/app.js b/platform/js/app.js
@@ -21,8 +21,10 @@ index f6b09fa..2614df9 100644
   FAIL  (m) with any one of the 3 requirements unticked "Pass gate 1" is disabled, and pressing it stores nothing — 011 ENABLED, 1 save(s), stored {"1":{"date":"2026-10-20","at":"2026-10-20T12:00:00.000Z","passed":true}}
   FAIL  (m) with any one of the 3 requirements unticked "Pass gate 1" is disabled, and pressing it stores nothing — 011 ENABLED, 1 save(s), stored {"1":{"date":"2026-10-20","at":"2026-10-20T12:00:00.000Z","passed":true}}
   FAIL  (n) this device's flow ran to its end without a harness error — page.tap: Timeout 30000ms exceeded.
-ReferenceError: theUnmark is not defined
-    at /home/user/bf-T-038/tools/verify-flows.js:1257:118
+  FAIL  (n) the device that still held the pass pulls the unmark: Gate 1 open there too — pulled true, now {"date":"2026-10-20","at":"2026-10-20T12:00:00.000Z","passed":true}, controls pass 2, unmark 1
+4 of 136 flow check(s) FAILED
 
-exit code: 2
-restored: cmp identical to the committed app.js (496d4de); git diff empty
+4 of 136 flow check(s) FAILED
+
+exit code: 1
+restored: cmp identical to the committed app.js (a6cb1e8); git diff empty

@@ -33,3 +33,6 @@ exit code: 1
 ---- restored ----
 cmp platform/css/style.css: identical to the pre-plant bytes
 cmp platform/css/style.css: identical to HEAD
+
+---- note ----
+The "switch (c)" failure above is not the plant: it is T-024's theme check on "/" at 1280 (pickTheme clicks Light, then reloads at once), and it passed in every other run on these bytes. Plant b was re-run on its own; plant-b.txt is that run.

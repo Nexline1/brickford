@@ -29,11 +29,11 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-026c | Week, Calendar day view, Library (mockups approved 2026-10-07) | ready | 0 | | after T-026b |
 | T-029 | Phone landscape: Next card + tab bar take ~44% of a 390px-tall screen; compact or hide the card when the viewport is short | proposed | 0 | | found in T-023 r2 CHECK 2026-10-08 |
 | T-030 | Dashboard: at 320px with a 24px root the next-lecture kicker (.one-kind) overflows (scrollWidth 340 vs 280) on long titles, which zooms the whole page out on isMobile | proposed | 0 | | pre-existing on main; found by T-023 r2 reviewer 2026-10-08 (probe rv023r2/ovf3.js) |
-| T-031 | Atlas/Courses layout polish from T-026a review r3: shelf floor 7rem, sweep widths, card basis 12rem, plants, deviation note | ready | 0 | | owner chose merge-now-fix-later 2026-10-08 |
+| T-031 | Atlas/Courses layout polish from T-026a review r3: shelf floor 7rem, sweep widths, card basis 12rem, plants, deviation note | building | 0 | | owner chose merge-now-fix-later 2026-10-08 |
 | T-032 | Shuffle MCQ options at mount (answers are 95% option 2 in summaries, ~all option 1 in two banks) + uniform-position gate | merged (PR #12) | 0 | | owner 2026-10-08: fix first |
 | T-033 | Summaries for the 85 unsummarised lectures (AI 200, SPCH 100 now; AI 210 by week 7; AI 300/310, RES 400), from transcripts via Yt T MCP; tools/check-runway.js | ready | 0 | | owner 2026-10-08 |
 | T-035 | Sunday revision PDF: sample first, then #/revision/<week> print layout, Export only on Sunday | proposed | 0 | | owner 2026-10-08; sample to owner before build |
 | T-034 | Sunday review #/sunday: week at a glance, recall, mastery-loop exercises, week-understood seal; on top of the full Sunday | ready | 0 | | owner 2026-10-08 (no schedule change) |
 | T-036 | Review council: 5 advisor agents + llm-council skill + owner profile; monthly routine + on demand; proposals only | ready | 0 | | owner 2026-10-08 |
 | T-037 | SPCH 100 full course (~50 h, 16 modules, transcript-verified, drill per lesson), appended after the seed; no other dates move | merged (PR #14) | 0 | | owner 2026-10-09: bigger ~50 h; right after T-026b |
-| T-038 | Gates: pass only in order with a requirements confirm; LWW sync so an unmark sticks; legacy true never 'today'; Atlas shows 'Passed d Mon' | building | 0 | | owner 2026-10-09: accidental Gates 1-3; after T-037 |
+| T-038 | Gates: pass only in order with a requirements confirm; LWW sync so an unmark sticks; legacy true never 'today'; Atlas shows 'Passed d Mon' | merged (PR #15) | 0 | | owner 2026-10-09: accidental Gates 1-3; after T-037 |

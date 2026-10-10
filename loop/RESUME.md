@@ -20,10 +20,11 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
   - #12 T-032 (MCQ shuffle)
   - #13 T-026b (Problems, Exams, Proof)
   - #14 T-037 (SPCH 100, 170 lessons)
-- **Building:** T-038, honest gates. Worktree `/home/user/bf-T-038`, branch `loop/T-038-gates-honest`, spec in place.
+- **Merged since:** #15 T-038 (honest gates).
+- **Building:** T-031 (Atlas/Courses polish), worktree `/home/user/bf-T-031`.
 
 ## Next, in the owner's order
-1. **T-031:** Atlas/Courses polish.
+1. ~~T-031~~ building.
 2. **The page redesigns:** T-026c (Week, Calendar day, Library), T-028 (Practice recorder), T-027 (Treasury workspace plus the treasury merge fix).
 3. **T-022:** the opening screen. Rewrite its spec first: the calm Dark, the crest fading in on near-black. The navy specification is obsolete.
 4. **Smaller fixes:**

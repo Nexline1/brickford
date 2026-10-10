@@ -41,3 +41,4 @@
 - 2026-10-09: Owner's device had Gates 1-3 passed by accident (route to Feb 2029). Found: bare toggle, merge can't remove a pass, legacy true slides daily, Atlas labels. T-038 queued after T-037.
 - 2026-10-09: T-026b merged as PR #13 (bfb68ef) after 2 review rounds. T-037 (SPCH 100 full course) building next, by a general-purpose agent (needs WebSearch + Yt T MCP).
 - 2026-10-10: T-037 merged as PR #14 (f139f16): SPCH 100 = 170 lessons, 46.4 h, all modules within ±20%; 2 review rounds. T-038 (honest gates) building next.
+- 2026-10-10: T-038 merged as PR #15 (74b0b8e) after 2 rounds; owner can now unmark Gates 3,2,1 and it sticks. T-031 building next.

@@ -1274,6 +1274,14 @@ function seedResume([nowMs]) {
   s.lessons["ai200.0.1"] = { done: false, notes: "", checks: [], pos: 300, posAt: new Date(nowMs - 3600000).toISOString() };
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
+// Gate 1 passed on 12 Oct (T-031): the next gate is Core skills, four months
+// of study days on from that date, so the Atlas counts three digits to it.
+function seedGate1() {
+  if (window.top !== window) return;
+  const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  s.gates = { 1: "2026-10-12" };
+  localStorage.setItem("darhikmah_v1", JSON.stringify(s));
+}
 // Running and later, from the schedule: a course runs once a lecture of it
 // has been scheduled on or before today's study day (a tracker always runs).
 function t26Sets(today) {
@@ -3322,6 +3330,29 @@ function t26bRecord() {
       await ctx.close();
     }
   }
+  // ---- the days beside the text: a phone at the default size, 3 digits ----
+  // T-031: a 14rem basis on .at-main put a 3-digit count of days under the
+  // chips at 390 and a 16px root. Beside means right of the text column and
+  // starting above its foot, so on the same flex line; a wrapped count
+  // starts at or below it.
+  {
+    const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, "light", seedGate1);
+    await page.goto(URL + "/__boot", { waitUntil: "load" });
+    await page.waitForSelector("#view > *");
+    await go(page, "/atlas");
+    const d = await page.evaluate(() => {
+      const main = document.querySelector("#view .at-next .at-main"), days = document.querySelector("#view .at-next .at-days");
+      if (!main || !days) return null;
+      const m = main.getBoundingClientRect(), b = days.getBoundingClientRect();
+      return { n: days.querySelector("b").textContent, root: getComputedStyle(document.documentElement).fontSize,
+               m: [m.left, m.top, m.right, m.bottom].map(v => +v.toFixed(1)), b: [b.left, b.top, b.right, b.bottom].map(v => +v.toFixed(1)) };
+    });
+    c26("390px root 16px: /atlas, a 3-digit count of days to the next gate shares the text's line (right of it, not under the chips)",
+      !!d && d.root === "16px" && /^\d{3}$/.test(d.n) && d.b[0] >= d.m[2] - 0.5 && d.b[1] < d.m[3] - 0.5,
+      d ? "root " + d.root + ", \"" + d.n + "\" at " + d.b.join(",") + "; the text at " + d.m.join(",") : "no next-gate card");
+    c26("390px root 16px, a 3-digit count: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
 
   // =================== T-026b: Problems, Exams and Proof ===================
   // loop/specs/T-026b-problems-exams-proof/spec.md, acceptance 1 and 2: at
@@ -3671,7 +3702,7 @@ function t26bRecord() {
       "T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; " +
       "T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark " +
       "with no write, and no decoration on " + GLOW_ROUTES.length + " routes x " + WIDTHS.length + " widths x " + THEMES.length + " themes; " +
-      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots (" + t26Checks + " checks); " +
+      "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots, a 3-digit count beside the text at 390 (" + t26Checks + " checks); " +
       "T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (" + t38Checks + " checks); " +
       "T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, " + T26B_STATES.length + " more states at 1440/390, and no overflow or mid-word break at " +
       T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks)"

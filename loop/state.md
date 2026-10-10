@@ -43,3 +43,4 @@
 - 2026-10-10: T-037 merged as PR #14 (f139f16): SPCH 100 = 170 lessons, 46.4 h, all modules within ±20%; 2 review rounds. T-038 (honest gates) building next.
 - 2026-10-10: T-038 merged as PR #15 (74b0b8e) after 2 rounds; owner can now unmark Gates 3,2,1 and it sticks. T-031 building next.
 - 2026-10-10: T-031 built (ad92fb5), in review. Queued T-039 (flaky theme-switch check) and T-040 (req chip mid-word break with gates passed).
+- 2026-10-10: T-031 review r1 CHANGES REQUIRED (12rem basis breaks the Gate 3 chip at 373-374px/root 16; gate blind to Gate 2-5 states; comment). Builder resumed.

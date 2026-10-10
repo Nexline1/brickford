@@ -3975,27 +3975,91 @@
       "</div>";
   };
 
+  // ---- T-026c: the plan week as dates ----
+  // Week w is study days (w-1)*6 .. w*6-1. Its dates run from the first of
+  // them to the last, so the Saturday between Friday and Sunday is inside it
+  // (a payment logged on a rest day still belongs to the week it sits in).
+  function weekSpan(w) {
+    return { from: dateForStudy((w - 1) * STUDY_WEEK), to: dateForStudy(w * STUDY_WEEK - 1) };
+  }
+  const shortDay = iso => { const d = new Date(iso + "T00:00:00");
+    return d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  const numText = v => (Math.round(v * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+  // T-026c: four numbers, two questions, one Seal. It was a form of five
+  // captioned fields over a register table, so "what is all this about?" was
+  // a fair question. The numbers the app already knows are counted here, at
+  // render, and written nowhere (a render is a read). They reach storage only
+  // through the Seal handler, which is unchanged and reads the same input ids
+  // it always has, so a sealed week is the shape it always was:
+  // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
+  // total, as that field always was (the dashboard draws it "over time").
   V.review = function () {
-    const w = weekNumber();
-    const logged = S.weeks.some(x => +x.week === w);
-    return '<div class="view-enter">' + folio("Week") + '<div class="page-head">' +
-      '<div class="sub">Seal the week: what shipped, what did not. No shipped artifact is a failed week.</div></div>' +
-      '<div class="card"><h2>Week ' + w + (logged ? " — already logged" : "") + "</h2>" +
-      '<div class="grid cols-2" style="margin-top:10px;">' +
-      '<div><label class="field">Shipped this week (repo, post, PR, delivery — or empty if none)</label><input type="text" id="rvShipped" placeholder="e.g. flashcards-cli on GitHub + blog post #1"></div>' +
-      '<div><label class="field">Total DSA problems solved (cumulative — auto-filled from CS 150)</label><input type="number" id="rvDsa" value="' + dsaCount() + '"></div>' +
-      '<div><label class="field">Posts published this week</label><input type="number" id="rvPosts" value="0" min="0"></div>' +
-      '<div><label class="field">Revenue this week (BHD)</label><input type="number" id="rvRev" value="0" min="0" step="0.01"></div>' +
+    const w = weekNumber(), today = todayISO();
+    const { from, to } = weekSpan(w);
+    const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
+    const sealed = S.weeks.find(x => +x.week === w);
+    const dsa = dsaCount();
+    const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
+    const paid = S.treasury.entries.filter(e => e && inWeek(e.date));
+    const earned = Math.round(paid.reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
+
+    const tile = (n, label, em) => '<div class="at-tile pf-tile wk-tile"><span class="at-days"><b>' + n + "</b>" +
+      "<span>" + label + '</span><em class="wk-auto">' + em + "</em></span></div>";
+    // The one you type: the whole tile is the label, so a tap anywhere on it
+    // puts the cursor in the number.
+    const edit = (id, label, step) => '<label class="at-tile pf-tile wk-tile wk-edit"><span class="at-days">' +
+      '<input type="number" id="' + id + '" value="0" min="0" step="' + step + '" inputmode="decimal" aria-label="' + label + ' this week">' +
+      "<span>" + label + '</span><em class="wk-hand">tap to edit</em></span></label>';
+
+    const state = sealed ? "Sealed " + shortDay(sealed.date)
+      : today >= to ? "Ready to seal"
+      : (() => { const n = daysBetween(today, to);
+          return "Opens " + new Date(to + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(to) +
+            " · " + n + " day" + (n === 1 ? "" : "s"); })();
+
+    // Past weeks, newest first. A card opens to its notes: a <details>, so
+    // opening one is the browser's and stays in memory.
+    const past = S.weeks.slice().sort((a, b) => (+b.week || 0) - (+a.week || 0));
+    const card = x => {
+      const n = +x.posts || 0;
+      return '<details class="wk-card"><summary>' +
+        '<span class="wk-h"><b>Week ' + esc(String(x.week)) + "</b><span>" + (x.date ? esc(shortDay(x.date)) : "") + "</span></span>" +
+        (x.shipped ? '<span class="wk-s">' + esc(clipTitle(String(x.shipped), 60)) + "</span>"
+          : '<span class="wk-s wk-fail">nothing shipped</span>') +
+        // Each number keeps its unit on its line ("BHD" over "0" reads as two facts).
+        '<span class="wk-m">DSA\u00a0' + (+x.dsa || 0) + " · " + n + "\u00a0post" + (n === 1 ? "" : "s") + " · " +
+        esc(fmtBHD(+x.revenue || 0).replace(" ", "\u00a0")) + "</span>" +
+        '</summary><p class="wk-notes">' + (x.notes ? esc(x.notes) : "No notes.") + "</p></details>";
+    };
+    // Nothing sealed yet: this week and the three after it, as the places the
+    // cards will go. Faded by ink and a dashed edge, never by opacity.
+    const slots = [0, 1, 2, 3].map(k => '<div class="wk-card wk-slot' + (k ? " later" : "") + '"><b aria-hidden="true">—</b>' +
+      "<span>Week " + (w + k) + "</span></div>");
+
+    return '<div class="view-enter"><div class="page-head"><h1>Week ' + w + "</h1>" +
+      '<div class="sub">Every Sunday: what shipped, what didn’t. Seal it in two minutes.</div></div>' +
+
+      '<div class="at-tiles wk-tiles">' +
+      tile(dsa, "DSA solved", "counted for you") +
+      tile(proven, "lectures proven", "counted for you") +
+      edit("rvPosts", "posts", "1") +
+      (paid.length ? tile(numText(earned), "BHD earned", "from Treasury") : edit("rvRev", "BHD earned", "0.01")) +
       "</div>" +
-      '<div style="margin-top:12px;"><label class="field">Notes / blockers</label><textarea id="rvNotes" placeholder="What worked, what broke, what changes next week."></textarea></div>' +
-      '<div style="margin-top:12px;"><button class="btn" data-act="logWeek">Seal the week</button></div></div>' +
-      '<div class="card"><h2>The register</h2><div class="table-wrap"><table><thead><tr><th>Week</th><th>Shipped</th><th>DSA</th><th>Posts</th><th>Revenue</th><th>Notes</th></tr></thead><tbody>' +
-      (S.weeks.length ? S.weeks.slice().reverse().map(x =>
-        "<tr><td><strong style='color:" + (x.shipped ? "var(--ink)" : "var(--bad)") + ";'>W" + x.week + (x.shipped ? "" : " ✗") + "</strong><div style='font-size:var(--fs-tiny); color:var(--ink-3);'>" + x.date + "</div></td>" +
-        "<td>" + (x.shipped ? esc(x.shipped) : "<span style='color:var(--bad);'>nothing shipped — failed week</span>") + "</td>" +
-        "<td>" + (x.dsa || 0) + "</td><td>" + (x.posts || 0) + "</td><td>" + fmtBHD(+x.revenue || 0) + "</td><td>" + esc(x.notes || "") + "</td></tr>").join("")
-        : '<tr><td colspan="6" style="color:var(--ink-3);">No weeks sealed yet. The first Sunday is coming.</td></tr>') +
-      "</tbody></table></div></div></div>";
+      '<input type="hidden" id="rvDsa" value="' + dsa + '">' +
+      (paid.length ? '<input type="hidden" id="rvRev" value="' + earned + '">' : "") +
+
+      '<div class="card wk-q"><label class="field wk-ql" for="rvShipped">What did you ship?</label>' +
+      '<input type="text" id="rvShipped" autocomplete="off" placeholder="a repo, a post, a delivery… or leave it empty"></div>' +
+      '<div class="card wk-q"><label class="field wk-ql" for="rvNotes">What got in the way?</label>' +
+      '<input type="text" id="rvNotes" autocomplete="off" placeholder="one line is enough"></div>' +
+
+      '<div class="wk-foot"><span class="wk-state">' + esc(state) + "</span>" +
+      '<button class="btn" data-act="logWeek">Seal the week</button></div>' +
+
+      '<div class="ghead">Past weeks<span class="gh-meta">' + (past.length ? past.length + " sealed" : "none sealed yet") + "</span></div>" +
+      '<div class="wk-weeks">' + (past.length ? past.map(card).join("") : slots.join("")) + "</div>" +
+      "</div>";
   };
 
   V.calendar = function () {

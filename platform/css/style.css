@@ -2682,3 +2682,82 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .sheet .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .sheet-go .btn { min-height: 44px; min-width: 44px; justify-content: center; }
+
+/* ============================================================
+   T-026c: Week, the Calendar's day view, and Library
+   ------------------------------------------------------------
+   Built from T-026a/b's pieces: the .page-head header, .at-tiles /
+   .at-tile / .pf-tile for the numbers, the habits and the document
+   cards (.pb-glyph, .pb-t, .pb-d inside), .seg for the day controls,
+   .at-chip for the links and "+N", .tl-t / .tl-m for the habit text.
+   Tokens only. Nothing is faded by opacity (verify-contrast cannot see
+   it): a quieter thing takes a quieter ink, or a dashed edge.
+   ============================================================ */
+
+/* ---- Week: four numbers ---- */
+/* Four across while a tile keeps 7rem, two on a phone; at 1100 (the rail
+   takes its share) or a larger text size the row drops a tile instead of
+   squeezing "lectures" out of its box. */
+.at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); }
+}
+.wk-tile { align-items: flex-start; }
+.wk-tile .wk-auto, .wk-tile .wk-hand {
+  display: block; margin-top: 4px; font-size: var(--fs-caption); font-style: normal; line-height: 1.3;
+}
+.wk-auto { color: var(--good); }
+.wk-hand { color: var(--ink-3); }
+/* The typed number sits where the counted ones do, in the same face and
+   size; the field is 44px tall, pulled up by the difference so the four
+   numbers share a line (at a larger root the number is taller than 44px
+   and no pull is needed). */
+.wk-edit { cursor: text; }
+.wk-edit input[type="number"] {
+  display: block; width: 100%; min-height: 44px; margin: min(0px, calc((2.125rem - 44px) / 2)) 0;
+  padding: 0 2px; border: 0; border-radius: var(--r-sm); background: none; box-shadow: none;
+  color: var(--ink); font-family: var(--font-rounded); font-size: 2.125rem; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield;
+}
+.wk-edit input[type="number"]::-webkit-inner-spin-button,
+.wk-edit input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.wk-edit input[type="number"]:focus { box-shadow: 0 0 0 2px var(--accent); }
+
+/* ---- Week: the two questions, and Seal ---- */
+.card.wk-q { margin-top: var(--sp-3); padding: 16px 18px; border: 0; background: var(--surface); }
+.wk-ql.field {
+  margin: 0 0 8px; font-size: var(--fs-headline); font-weight: 600; letter-spacing: 0;
+  text-transform: none; color: var(--ink);
+}
+.wk-q input[type="text"] { min-height: 44px; background: var(--surface-2); }
+.wk-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; }
+.wk-state { font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.wk-foot .btn { margin-left: auto; min-height: 44px; min-width: 44px; justify-content: center; }
+
+/* ---- Week: past weeks ---- */
+.wk-weeks { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(max(8rem, calc((100% - 10px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .wk-weeks { grid-template-columns: repeat(auto-fill, minmax(max(8rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
+}
+.wk-card { min-width: 0; border-radius: var(--r-lg); background: var(--surface); color: var(--ink-2); font-size: var(--fs-footnote); }
+.wk-card > summary {
+  display: flex; flex-direction: column; gap: 4px; min-height: 44px; padding: 12px 14px;
+  list-style: none; cursor: pointer;
+}
+.wk-card > summary::-webkit-details-marker { display: none; }
+.wk-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; }
+.wk-h b { font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+.wk-h span { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* What was typed can be a URL: it may break anywhere rather than run out. */
+.wk-s { color: var(--ink); line-height: 1.35; overflow-wrap: anywhere; }
+.wk-s.wk-fail { color: var(--bad); }
+.wk-m { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.wk-notes { padding: 0 14px 12px; color: var(--ink-2); line-height: 1.4; overflow-wrap: anywhere; }
+.wk-slot {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 64px; padding: 12px; text-align: center;
+}
+.wk-slot b { font-size: var(--fs-subhead); color: var(--ink); }
+.wk-slot.later { background: none; border: 1px dashed var(--line-strong); color: var(--ink-3); }
+.wk-slot.later b { color: var(--ink-3); }
+.wk-card > summary:active { transform: scale(0.985); transition: transform 100ms ease-out; }

@@ -344,8 +344,8 @@ async function scenario(browser, now, state, tz) {
     }
 
     // (2) Old date strings read exactly as before — passed on that date, the
-    //     next target counted from it (a Saturday pass counts from the
-    //     Monday) — in UTC and eight hours west of it. A `false` is open.
+    //     next target counted from it (a Saturday pass counts from the next
+    //     study day, a Sunday) — in UTC and eight hours west of it. A `false` is open.
     //     Loading and drawing /atlas, /transcript and / rewrites none of it (a
     //     render is a read); the next ordinary save — a DSA problem ticked —
     //     stores every gate in the new shape, on the same dates.
@@ -374,7 +374,7 @@ async function scenario(browser, now, state, tz) {
         runs.push({ tz, plan, drawn, after, replan, errors });
         await ctx.close();
       }
-      check("old date strings read the same as before (passed on that date; a Saturday pass counts from the Monday), in UTC and America/Los_Angeles",
+      check("old date strings read the same as before (passed on that date; a Saturday pass counts from the next study day), in UTC and America/Los_Angeles",
         runs.every(r => same(r.plan, want)), runs.map(r => r.tz + ": " + show(r.plan)).join(" | ") + " | want " + show(want));
       check("render is a read: loading and drawing /atlas, /transcript and / leaves the old shapes as stored",
         runs.every(r => r.drawn.length === 3 && r.drawn.every(Boolean)), runs.map(r => r.tz + " " + r.drawn.join(",")).join("; "));

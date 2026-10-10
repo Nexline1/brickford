@@ -2499,14 +2499,16 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
 
 /* ---- Courses: the shelf ---- */
-/* 2, 3 and 4 columns, each no narrower than 6.75rem: a title word
-   ("Mathematics", "Probability") would otherwise break mid-word — at 1100px,
-   where the rail takes its share, or at a larger text size — so the shelf
-   drops a column instead. The 0.5px keeps the count exact at the default
-   size (auto-fill floors the number of tracks that fit). */
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
-@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
-@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
+/* 2, 3 and 4 columns, each no narrower than 7rem: a title word would
+   otherwise break mid-word — at 1100px, where the rail takes its share, or
+   at a larger text size — so the shelf drops a column instead. The widest,
+   "Mathematics" in .bk-t, is 6.81rem (109px at 15px), so the floor sits
+   above it: at 6.75rem a track between the two split it "Mathematic/s"
+   (1132px at a 16px root, 376px at 24px). The 0.5px keeps the count exact
+   at the default size (auto-fill floors the number of tracks that fit). */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
 .book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
 .book:hover { text-decoration: none; }
 /* clip-path, not overflow:hidden: the cover rounds its bar into the corner

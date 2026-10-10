@@ -895,7 +895,10 @@
   }
   // The week-plan row that governs a given calendar date.
   function weekRowFor(iso) {
-    const w = Math.max(1, Math.floor(Math.max(0, studyIndex(iso)) / STUDY_WEEK) + 1);
+    // A rest day belongs to the week just worked (weekNumber's rule). Its own
+    // index is -1, which read as Week 1, and Week 1's focus, every Saturday.
+    const i = studyIndex(iso) >= 0 ? studyIndex(iso) : studyIndex(prevStudyDay(iso));
+    const w = Math.max(1, Math.floor(Math.max(0, i) / STUDY_WEEK) + 1);
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { w, row };
   }

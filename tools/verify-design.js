@@ -1735,6 +1735,181 @@ function t26bRecord() {
   };
 }
 
+// ---------- T-026c: Week, the Calendar's day view, and Library ----------
+// loop/specs/T-026c-week-calendar-library/spec.md. As in T-026b, what each
+// page should show is worked out here from the stored state, the data files
+// and the study calendar walked in Node (T26_STUDY), never read from the view:
+// the plan week (six study days, the Saturday between them inside its dates),
+// the counted tiles from storage, the day's schedule through the test hook,
+// each course's faculty colour from its faculty in the data (T26_FAC, not the
+// app's own map), and the Library's documents from DOCS in app.js on disk.
+const T26C_SUB = {
+  "/review": "Every Sunday: what shipped, what didn’t. Seal it in two minutes.",
+  "/library": "The rules of Brickford, and the guides for each phase.",
+};
+// On top of the seed (which has one problem on 17 Oct and math110.0.13
+// proven on 19 Oct): a second problem this week, a lecture proven this week
+// and one proven the week before, today's MATH 120 lecture watched (a done
+// block), three payments — the Sunday that ENDS week 2 (18 Oct, so the lower
+// edge is tested), and two this week — and two sealed weeks, one of them a
+// failed week. Every counted tile is non-zero and each can be wrong.
+const T26C_PATCH = {
+  problems: { "Arrays & Hashing|Valid Anagram": "2026-10-19" },
+  lessons: {
+    "math110.0.2": { done: true, verified: true, doneAt: "2026-10-20", verifiedAt: "2026-10-20", notes: "", checks: [] },
+    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-16", verifiedAt: "2026-10-16", notes: "", checks: [] },
+    "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] },
+  },
+  treasury: { offer: "", clients: [], niche: "", entries: [
+    { date: "2026-10-18", amount: 999, note: "the last day of week 2" },
+    { date: "2026-10-19", amount: 120, note: "pilot" },
+    { date: "2026-10-20", amount: 30.5, note: "a referral" },
+  ] },
+  weeks: [
+    { week: 1, date: "2026-10-11", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
+    { week: 2, date: "2026-10-18", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "" },
+  ],
+};
+// The habits a study day carries, as the page had them before (four, and on
+// a Sunday the seal as a fifth), in minutes; Workshop has no fixed time.
+const T26C_HABITS = [["Practice", 45, "#/course/cs150"], ["Drill", 10, "#/drill"], ["Publish", 30, "#/review"], ["Workshop", 0, "#/workshop"]];
+const T26C_SEAL = ["Seal the week", 30, "#/review"];
+const t26cAbout = m => "about " + (m >= 60 ? Math.floor(m / 60) + " h" + (m % 60 ? " " + String(m % 60).padStart(2, "0") : "") : m + " min");
+const t26cUTC = (iso, o) => new Date(iso + "T00:00:00Z").toLocaleString("en-US", Object.assign({ timeZone: "UTC" }, o));
+const t26cShort = iso => Number(iso.slice(8)) + " " + t26cUTC(iso, { month: "short" });
+const t26cNice = iso => t26cUTC(iso, { weekday: "long" }) + " " + Number(iso.slice(8)) + " " + t26cUTC(iso, { month: "long" });
+const t26cDays = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+// The plan week a date belongs to (a rest day: the week just worked), and
+// its first and last study day, from the calendar walked here.
+function t26cWeekOf(iso) {
+  const w = Math.floor(t26Pos(iso) / 6) + 1;
+  return { w, from: T26_STUDY[(w - 1) * 6], to: T26_STUDY[w * 6 - 1] };
+}
+// What the Week page should say, from the stored state alone.
+function t26cWeekWant(st, today) {
+  const { w, from, to } = t26cWeekOf(today);
+  const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
+  const paid = ((st.treasury || {}).entries || []).filter(e => inWeek(e.date));
+  const earned = Math.round(paid.reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
+  const weeks = (st.weeks || []).slice().sort((a, b) => b.week - a.week);
+  const sealed = weeks.find(x => +x.week === w);
+  const n = t26cDays(today, to);
+  const bhd = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString("en-US");
+  return {
+    w, from, to, auto: paid.length > 0, earned,
+    dsa: Object.values(st.problems || {}).filter(Boolean).length,
+    proven: Object.values(st.lessons || {}).filter(l => l && l.verified && inWeek(l.verifiedAt)).length,
+    bhdText: earned.toLocaleString("en-US", { maximumFractionDigits: 2 }),
+    state: sealed ? "Sealed " + t26cShort(sealed.date) : today >= to ? "Ready to seal"
+      : "Opens " + t26cUTC(to, { weekday: "long" }) + " " + t26cShort(to) + " · " + n + " day" + (n === 1 ? "" : "s"),
+    cards: weeks.map(x => ({ h: "Week " + x.week, date: t26cShort(x.date), s: x.shipped || "nothing shipped", fail: !x.shipped,
+      m: "DSA " + (+x.dsa || 0) + " · " + (+x.posts || 0) + " post" + ((+x.posts || 0) === 1 ? "" : "s") + " · " + bhd(+x.revenue || 0),
+      notes: x.notes || "No notes." })),
+    meta: weeks.length ? weeks.length + " sealed" : "none sealed yet",
+    slots: weeks.length ? [] : [0, 1, 2, 3].map(k => "Week " + (w + k)),
+  };
+}
+// The Library's documents, read from DOCS in app.js on disk: every id, in
+// order. The Calibration Kit (readme) is in "Start here"; the rest are guides.
+const T26C_DOCS = (() => {
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const m = /const DOCS = \[([\s\S]*?)\n  \];/.exec(src);
+  return m ? [...m[1].matchAll(/\bid: "([\w-]+)"/g)].map(x => x[1]) : [];
+})();
+
+function t26cWeek() {
+  const z = window.__dz, fill = z.tok("--btn-bg");
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const txt = (n, s) => { const x = n && n.querySelector(s); return x ? x.textContent.replace(/ /g, " ").trim() : null; };
+  const tiles = vis("#view .wk-tiles > *").map(t => {
+    const inp = t.querySelector("input"), em = t.querySelector("em"), r = t.getBoundingClientRect();
+    return { tag: t.tagName, n: inp ? null : txt(t, ".at-days b"), label: txt(t, ".at-days > span"), em: em ? em.textContent.trim() : null,
+      emCol: em ? z.bytes(getComputedStyle(em).color) : null, left: Math.round(r.left), w: r.width, h: r.height,
+      input: inp ? { id: inp.id, type: inp.type, value: inp.value, h: inp.getBoundingClientRect().height } : null };
+  });
+  const hidden = id => { const n = document.querySelector("#view input#" + id); return n ? { type: n.type, value: n.value } : null; };
+  return {
+    head: { h1: txt(document, "#view .page-head h1"), sub: txt(document, "#view .page-head .sub") },
+    tiles, rvDsa: hidden("rvDsa"), rvRev: hidden("rvRev"),
+    filled: [...document.querySelectorAll("#view a, #view button")].filter(n => n.checkVisibility() &&
+      (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor))).map(n => ({ text: n.textContent.trim(), act: n.dataset.act || null })),
+    state: txt(document, "#view .wk-foot .wk-state"),
+    qs: vis("#view .wk-q").map(c => { const l = c.querySelector("label"), i = c.querySelector("input, textarea");
+      return { q: l ? l.textContent.trim() : null, forId: l ? l.htmlFor : null, input: i ? i.id : null, h: i ? i.getBoundingClientRect().height : 0 }; }),
+    cards: vis("#view .wk-weeks > *").map(c => ({ tag: c.tagName, slot: c.classList.contains("wk-slot"), h: c.classList.contains("wk-slot") ? txt(c, "span") : txt(c, ".wk-h b"),
+      date: txt(c, ".wk-h span"), s: txt(c, ".wk-s"), fail: !!c.querySelector(".wk-s.wk-fail"), m: txt(c, ".wk-m"),
+      notes: c.tagName === "DETAILS" && c.open ? txt(c, ".wk-notes") : null, open: !!c.open,
+      sh: c.querySelector("summary") ? c.querySelector("summary").getBoundingClientRect().height : 0 })),
+    past: (g => g ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null)(vis("#view .ghead").find(g => /^Past weeks/.test(g.textContent))),
+    good: z.tok("--good"), ink3: z.tok("--ink-3"),
+  };
+}
+// The selected day, measured; and what it should be, from the schedule (the
+// test hook) and the data — the faculty colour by the course's faculty
+// through `fac` (the harness's own map), the lecture's place counted through
+// the course's units.
+function t26cDay([iso, fac]) {
+  const D = window.DAR, T = window.__brickfordTest, z = window.__dz;
+  const st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"), lessons = st.lessons || {};
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const txt = (n, s) => { const x = n && n.querySelector(s); return x ? x.textContent.trim() : null; };
+  const col = (n, p) => n ? z.bytes(getComputedStyle(n)[p || "color"]) : null;
+  const want = T.scheduledFor(iso).map(it => {
+    if (it.pseudo) return { pseudo: true, href: it.href };
+    const c = D.COURSES.find(x => x.id === it.cid);
+    let n = it.li + 1;
+    for (let u = 0; u < it.ui; u++) n += c.units[u].lessons.length;
+    return { href: "#/lesson/" + it.cid + "/" + it.ui + "/" + it.li, k: c.code + " · " + it.track, t: it.l.t,
+      r: [it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading", it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n],
+      done: !!(lessons[it.cid + "." + it.ui + "." + it.li] || {}).done, fac: z.tok(fac[c.faculty] || "--accent"), faculty: c.faculty };
+  });
+  const blocks = vis("#view .cd-blk").map(b => {
+    const k = b.querySelector(".cd-k"), t = b.querySelector(".cd-t"), bar = b.querySelector(".cd-bar");
+    return { href: b.getAttribute("href"), pseudo: b.classList.contains("cd-pseudo"), done: b.classList.contains("done"),
+      k: k ? k.textContent.trim() : null, upper: k ? getComputedStyle(k).textTransform : null, kCol: col(k),
+      t: t ? [...t.childNodes].filter(x => !(x.classList && x.classList.contains("cd-ok"))).map(x => x.textContent).join("").trim() : null,
+      tCol: col(t), ok: !!b.querySelector(".cd-ok"), bar: bar ? { col: col(bar, "backgroundColor"), w: bar.getBoundingClientRect().width } : null,
+      r: [...b.querySelectorAll(".cd-r > span")].map(s => s.textContent.trim()), h: b.getBoundingClientRect().height };
+  });
+  const prog = document.querySelector("#view .cd-prog");
+  const head = vis("#view .ghead").find(g => /^Every study day/.test(g.textContent));
+  const order = [...document.querySelectorAll("#view .view-enter > *")].map(n => n.matches(".card") && n.querySelector(".cal-grid") ? "grid"
+    : n.matches(".cd-day") ? "day" : n.matches("details.unit") ? "ics" : null).filter(Boolean);
+  return {
+    want, blocks, order,
+    h2: txt(document, "#view .cd-head h2"), sub: txt(document, "#view .cd-head .cd-sub"),
+    seg: vis("#view .cd-seg button").map(b => ({ label: b.getAttribute("aria-label") || b.textContent.trim(), w: b.getBoundingClientRect().width,
+      h: b.getBoundingClientRect().height, pressed: b.getAttribute("aria-pressed"), disabled: b.disabled })),
+    prog: prog && prog.checkVisibility() ? { track: prog.getBoundingClientRect().width, fill: prog.querySelector("i") ? prog.querySelector("i").getBoundingClientRect().width : 0 } : null,
+    habits: vis("#view .cd-habits > *").map(a => ({ tag: a.tagName, t: txt(a, ".tl-t"), m: txt(a, ".tl-m"), href: a.getAttribute("href"),
+      left: Math.round(a.getBoundingClientRect().left), w: a.getBoundingClientRect().width, h: a.getBoundingClientRect().height })),
+    about: head ? txt(head, ".gh-meta") : null,
+    glist: vis("#view .glist").length, groupHeads: vis("#view .ghead").map(g => g.firstChild.textContent.trim()),
+    sel: (document.querySelector("#view .cal-cell.sel") || { dataset: {} }).dataset.calDay || null,
+    ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"),
+  };
+}
+function t26cLib() {
+  const z = window.__dz;
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const txt = (n, s) => { const x = n && n.querySelector(s); return x ? x.textContent.trim() : null; };
+  const before = n => { const g = n && n.previousElementSibling; return g && g.matches(".ghead") ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null; };
+  const card = a => { const bs = getComputedStyle(a).boxShadow, c = /rgba?\([^)]*\)/.exec(bs), r = a.getBoundingClientRect(), d = a.querySelector(".pb-d");
+    return { href: a.getAttribute("href"), t: txt(a, ".pb-t"), m: txt(a, ".pb-d"), mCol: d ? z.bytes(getComputedStyle(d).color) : null,
+      glyph: !!a.querySelector(".pb-glyph svg"), edge: /inset/.test(bs) && c ? z.bytes(c[0]) : null, left: Math.round(r.left), w: r.width, h: r.height }; };
+  const links = document.querySelector("#view .lb-links"), more = links && links.querySelector("button");
+  return {
+    head: { h1: txt(document, "#view .page-head h1"), sub: txt(document, "#view .page-head .sub") },
+    groups: vis("#view .lb-docs").map(g => ({ head: before(g), cards: [...g.children].filter(a => a.checkVisibility()).map(card) })),
+    linksHead: before(links),
+    links: links ? [...links.querySelectorAll("a")].map(a => ({ text: a.textContent.trim(), href: a.getAttribute("href"), target: a.getAttribute("target"),
+      rel: a.getAttribute("rel"), shown: a.checkVisibility(), w: a.getBoundingClientRect().width, h: a.getBoundingClientRect().height })) : [],
+    more: more && more.checkVisibility() ? { text: more.textContent.trim(), w: more.getBoundingClientRect().width, h: more.getBoundingClientRect().height } : null,
+    focus: document.activeElement && document.activeElement.closest(".lb-links") ? document.activeElement.textContent.trim() : null,
+    accent: z.tok("--accent"), ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"),
+  };
+}
+
 (async () => {
   console.log("status bar (read from platform/css/style.css)");
   safeAreaSource();
@@ -3737,6 +3912,229 @@ function t26bRecord() {
     }
   }
 
+  // =================== T-026c: Week, the Calendar's day view, Library ===================
+  // loop/specs/T-026c-week-calendar-library/spec.md, acceptance 1: at
+  // 1440x900 and 390x844 in dark and light on the seed plus T26C_PATCH, then
+  // the states the seed cannot show — no payment this week (the BHD tile is
+  // typed), the week already sealed, nothing sealed yet, and a Sunday. Each
+  // page boots on #/__test (t26bFresh), so the schedule can be asked.
+  let t26cChecks = 0;
+  const c26c = (name, ok, detail) => { t26cChecks++; return check(name, ok, detail); };
+  const t26cState = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+
+  async function t26cWeekCheck(page, at, o) {
+    const w0 = await writesNow(page);
+    await go(page, "/review");
+    const st = await t26cState(page), W = t26cWeekWant(st, o.today), m = await page.evaluate(t26cWeek);
+    c26c(at + " /review: the header is h1 \"Week " + W.w + "\" and \"" + T26C_SUB["/review"] + "\"",
+      m.head.h1 === "Week " + W.w && m.head.sub === T26C_SUB["/review"], JSON.stringify(m.head));
+    const wantLabels = ["DSA solved", "lectures proven", "posts", "BHD earned"];
+    c26c(at + " /review: four tiles — " + wantLabels.join(", ") + " — each >= 44x44", m.tiles.length === 4 &&
+      JSON.stringify(m.tiles.map(t => t.label)) === JSON.stringify(wantLabels) && m.tiles.every(t => t.w >= 44 && t.h >= 44),
+      m.tiles.map(t => t.label + " " + t.w.toFixed(0) + "x" + t.h.toFixed(0)).join(", "));
+    const [tD, tP, tPo, tB] = m.tiles;
+    c26c(at + " /review: DSA solved is counted, not typed — " + W.dsa + ", every problem stored as solved — \"counted for you\" in --good, and Seal reads it (rvDsa " + W.dsa + ")",
+      !!tD && !tD.input && tD.n === String(W.dsa) && tD.em === "counted for you" && __same(tD.emCol, m.good) && !!m.rvDsa && m.rvDsa.type === "hidden" && m.rvDsa.value === String(W.dsa),
+      tD ? tD.n + " \"" + tD.em + "\", rvDsa " + JSON.stringify(m.rvDsa) : "no tile");
+    c26c(at + " /review: lectures proven is the lectures proven between " + W.from + " and " + W.to + " (" + W.proven + "), counted, \"counted for you\"",
+      !!tP && !tP.input && tP.n === String(W.proven) && tP.em === "counted for you" && __same(tP.emCol, m.good), tP ? tP.n + " \"" + tP.em + "\"" : "no tile");
+    c26c(at + " /review: posts is typed — the tile holds the number field #rvPosts (0), >= 44px tall, \"tap to edit\"",
+      !!tPo && tPo.tag === "LABEL" && !!tPo.input && tPo.input.id === "rvPosts" && tPo.input.type === "number" && tPo.input.value === "0" && tPo.input.h >= 44 && tPo.em === "tap to edit",
+      tPo ? tPo.tag + " " + JSON.stringify(tPo.input) + " \"" + tPo.em + "\"" : "no tile");
+    c26c(at + " /review: " + (W.auto ? "BHD earned is the Treasury entries dated " + W.from + " to " + W.to + " (" + W.bhdText + "), counted, \"from Treasury\", and Seal reads it (rvRev " + W.earned + ")"
+        : "no Treasury entry is dated in this week, so BHD earned is typed — the field #rvRev, \"tap to edit\""),
+      !!tB && (W.auto ? !tB.input && tB.n === W.bhdText && tB.em === "from Treasury" && __same(tB.emCol, m.good) && !!m.rvRev && m.rvRev.type === "hidden" && m.rvRev.value === String(W.earned)
+        : tB.tag === "LABEL" && !!tB.input && tB.input.id === "rvRev" && tB.input.type === "number" && tB.input.h >= 44 && tB.em === "tap to edit"),
+      tB ? (tB.input ? "typed " + JSON.stringify(tB.input) : tB.n + " \"" + tB.em + "\"") + ", rvRev " + JSON.stringify(m.rvRev) : "no tile");
+    if (o.cols) {
+      const cols = new Set(m.tiles.map(t => t.left)).size;
+      c26c(at + " /review: the tiles are " + o.cols + " across", cols === o.cols, cols + " distinct columns");
+    }
+    c26c(at + " /review: \"Seal the week\" is the only filled primary (data-act logWeek, the existing handler)",
+      m.filled.length === 1 && m.filled[0].text === "Seal the week" && m.filled[0].act === "logWeek", m.filled.map(f => "\"" + f.text + "\" " + f.act).join("; ") || "no filled button");
+    c26c(at + " /review: beside it the state reads \"" + W.state + "\"", m.state === W.state, "\"" + m.state + "\"");
+    c26c(at + " /review: two questions — \"What did you ship?\" on #rvShipped and \"What got in the way?\" on #rvNotes, each field >= 44px",
+      JSON.stringify(m.qs.map(q => [q.q, q.forId, q.input])) === JSON.stringify([["What did you ship?", "rvShipped", "rvShipped"], ["What got in the way?", "rvNotes", "rvNotes"]]) && m.qs.every(q => q.h >= 44),
+      JSON.stringify(m.qs));
+    c26c(at + " /review: \"Past weeks\" reads \"" + W.meta + "\"" + (W.cards.length ? " and is one card per sealed week, newest first, each its shipped text (or \"nothing shipped\") and its numbers"
+        : " and holds the four places the cards will go (" + W.slots.join(", ") + ")"),
+      !!m.past && m.past.meta === W.meta && (W.cards.length
+        ? m.cards.length === W.cards.length && m.cards.every((c, i) => { const x = W.cards[i];
+            return c.tag === "DETAILS" && c.h === x.h && c.date === x.date && c.s === x.s && c.fail === x.fail && c.m === x.m && c.sh >= 44; })
+        : m.cards.length === 4 && m.cards.every((c, i) => c.slot && c.h === W.slots[i])),
+      (m.past ? "\"" + m.past.meta + "\": " : "no header: ") + m.cards.map(c => c.h + (c.date ? " " + c.date : "") + (c.s ? " / " + c.s : "") + (c.m ? " / " + c.m : "")).join(" | "));
+    if (o.click && W.cards.length) {
+      await page.click("#view .wk-weeks > details:first-child > summary");
+      await page.waitForFunction(() => { const d = document.querySelector("#view .wk-weeks > details"); return d && d.open; }, null, { timeout: 4000, polling: "raf" }).catch(() => {});
+      const m2 = await page.evaluate(t26cWeek);
+      c26c(at + " /review: a past week's card opens to its notes (\"" + W.cards[0].notes + "\")", !!m2.cards[0] && m2.cards[0].open && m2.cards[0].notes === W.cards[0].notes,
+        JSON.stringify(m2.cards[0] && { open: m2.cards[0].open, notes: m2.cards[0].notes }));
+    }
+    // A render is a read: the page, a second render of it, and the card
+    // opened — the counted tiles reach storage only through Seal.
+    await page.evaluate(() => window.__brickfordTest.render());
+    await page.waitForFunction(() => !!document.querySelector("#view .wk-tiles"), null, { timeout: 4000 });
+    const w1 = await writesNow(page);
+    c26c(at + " /review: a render is a read — the page, rendered twice" + (o.click ? " and a card opened" : "") + ", wrote nothing (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
+  }
+
+  async function t26cCalCheck(page, at, o) {
+    const w0 = await writesNow(page);
+    await go(page, "/calendar");
+    const pick = async iso => {
+      await page.click('#view .cal-grid .cal-cell[data-cal-day="' + iso + '"]');
+      await page.waitForFunction(t => { const h = document.querySelector("#view .cd-head h2"); return h && h.textContent.trim() === t; }, t26cNice(iso), { timeout: 4000, polling: "raf" }).catch(() => {});
+    };
+    const days = [o.today].concat(o.more || []);
+    for (const iso of days) {
+      if (iso !== o.today) await pick(iso);
+      const m = await page.evaluate(t26cDay, [iso, T26_FAC]);
+      const tag = at + " /calendar " + iso;
+      if (iso === o.today) c26c(tag + ": the month grid, then the day, then the .ics fold — the grid and the fold where they were", m.order.join(",") === "grid,day,ics", m.order.join(","));
+      const rest = new Date(iso + "T00:00:00Z").getUTCDay() === 6, idx = T26_STUDY.indexOf(iso), wk = Math.floor(t26Pos(iso) / 6) + 1;
+      const real = m.want.filter(x => !x.pseudo), doneN = real.filter(x => x.done).length;
+      const wantSub = rest ? "Rest day · Week " + wk : "Day " + (idx + 1) + " · Week " + wk + (real.length ? " · " + doneN + " of " + real.length + " done" : "");
+      c26c(tag + ": the day is the heading \"" + t26cNice(iso) + "\" over \"" + wantSub + "\"", m.h2 === t26cNice(iso) && m.sub === wantSub, "\"" + m.h2 + "\" / \"" + m.sub + "\"");
+      const segOk = m.seg.length === 3 && m.seg.map(s => s.label).join("|") === "Previous day|Today|Next day" && m.seg.every(s => s.w >= 44 && s.h >= 44) &&
+        m.seg[1].pressed === String(iso === o.today);
+      c26c(tag + ": ‹ Today › at the right, each >= 44x44, Today pressed " + (iso === o.today ? "(this is today)" : "off"), segOk,
+        m.seg.map(s => s.label + " " + s.w.toFixed(0) + "x" + s.h.toFixed(0) + (s.pressed === "true" ? " pressed" : "")).join(", "));
+      const pct = m.prog && m.prog.track ? m.prog.fill / m.prog.track * 100 : null, wantPct = real.length ? doneN / real.length * 100 : null;
+      c26c(tag + ": " + (real.length ? "the slim bar is " + doneN + " of " + real.length + " lectures done (" + wantPct.toFixed(1) + "%) within 1%" : "no lectures, so no bar"),
+        real.length ? pct != null && Math.abs(pct - wantPct) <= 1 : !m.prog, pct == null ? "no bar" : pct.toFixed(1) + "%");
+      const blockBad = [];
+      if (m.blocks.length !== m.want.length) blockBad.push(m.blocks.length + " blocks for " + m.want.length + " scheduled");
+      m.want.forEach((x, i) => {
+        const b = m.blocks[i];
+        if (!b) return;
+        if (x.pseudo) { if (!b.pseudo || b.href !== x.href) blockBad.push("#" + (i + 1) + " is not the " + x.href + " block"); return; }
+        const why = [];
+        if (b.pseudo || b.href !== x.href) why.push("href " + b.href);
+        if (b.k !== x.k || b.upper !== "uppercase") why.push("kicker \"" + b.k + "\" " + b.upper);
+        if (b.t !== x.t) why.push("title \"" + b.t + "\"");
+        if (JSON.stringify(b.r) !== JSON.stringify(x.r)) why.push("right " + JSON.stringify(b.r) + " (want " + JSON.stringify(x.r) + ")");
+        if (!b.bar || !__same(b.bar.col, x.fac) || Math.abs(b.bar.w - 6) > 0.5) why.push("bar " + (b.bar ? JSON.stringify(b.bar.col) + " " + b.bar.w + "px" : "none") + " (want " + x.faculty + " " + JSON.stringify(x.fac) + ")");
+        if (x.done ? !(b.done && b.ok && __same(b.tCol, m.ink2)) : (b.done || b.ok || !__same(b.kCol, x.fac))) why.push(x.done ? "not shown done (check, --ink-2)" : "shown done, or its kicker not in the faculty colour");
+        if (b.h < 44) why.push(b.h.toFixed(0) + "px tall");
+        if (why.length) blockBad.push(x.href + ": " + why.join(", "));
+      });
+      c26c(tag + ": one block per scheduled lecture (" + real.length + (m.want.length > real.length ? " + " + (m.want.length - real.length) + " other" : "") +
+          "), in order, linking to it — a 6px bar in its faculty's colour, \"CODE · BLOCK\", the title, minutes over its place" + (doneN ? "; a done one checked, in --ink-2" : ""),
+        (m.want.length > 0 || rest) && blockBad.length === 0,
+        blockBad.join("; ") || m.blocks.map(b => b.k + " " + (b.r || []).join("/") + (b.done ? " (done)" : "")).join(", ") || "none (a rest day)");
+      if (iso === o.today) c26c(tag + ": the old per-course group headers and .glist rows are gone (no visible .glist; the section headers are only \"Every study day\")",
+        m.glist === 0 && JSON.stringify(m.groupHeads) === JSON.stringify(["Every study day"]), m.glist + " .glist, headers " + JSON.stringify(m.groupHeads));
+      const H = T26C_HABITS.concat(new Date(iso + "T00:00:00Z").getUTCDay() === 0 ? [T26C_SEAL] : []);
+      const habitBad = m.habits.filter((h, i) => !H[i] || h.tag !== "A" || h.t !== H[i][0] || h.href !== H[i][2] || h.w < 44 || h.h < 44 ||
+        !(H[i][1] ? h.m.indexOf(H[i][1] + " min") === 0 : !/\bmin\b/.test(h.m)));
+      c26c(tag + ": \"Every study day\" is " + H.length + " habit tiles (" + H.map(h => h[0]).join(", ") + "), each a link with its minutes, and reads \"" + t26cAbout(H.reduce((a, h) => a + h[1], 0)) + "\"",
+        m.habits.length === H.length && habitBad.length === 0 && m.about === t26cAbout(H.reduce((a, h) => a + h[1], 0)),
+        m.habits.map(h => h.t + " \"" + h.m + "\"").join(", ") + "; \"" + m.about + "\"");
+      if (iso === o.today && o.cols) {
+        const cols = new Set(m.habits.map(h => h.left)).size;
+        c26c(tag + ": the habits are " + o.cols + " across", cols === o.cols, cols + " distinct columns");
+      }
+    }
+    // ‹ and › step the day in memory; Today comes back.
+    await pick(o.today);
+    const prev = (() => { const d = new Date(o.today + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); })();
+    await page.click("#view .cd-seg [data-cal-step='-1']");
+    await page.waitForFunction(t => { const h = document.querySelector("#view .cd-head h2"); return h && h.textContent.trim() === t; }, t26cNice(prev), { timeout: 4000, polling: "raf" }).catch(() => {});
+    const a = await page.evaluate(t26cDay, [prev, T26_FAC]);
+    await page.click("#view .cd-seg [data-cal-step='1']");
+    await page.waitForFunction(t => { const h = document.querySelector("#view .cd-head h2"); return h && h.textContent.trim() === t; }, t26cNice(o.today), { timeout: 4000, polling: "raf" }).catch(() => {});
+    const b = await page.evaluate(t26cDay, [o.today, T26_FAC]);
+    await page.click("#view .cd-seg [data-cal-step='1']");
+    await page.click("#view .cd-seg [data-cal-nav='today']");
+    await page.waitForFunction(t => { const h = document.querySelector("#view .cd-head h2"); return h && h.textContent.trim() === t; }, t26cNice(o.today), { timeout: 4000, polling: "raf" }).catch(() => {});
+    const c = await page.evaluate(t26cDay, [o.today, T26_FAC]);
+    const w1 = await writesNow(page);
+    c26c(at + " /calendar: ‹ selects " + prev + " (the grid follows), › comes back, and Today returns from tomorrow — all in memory (state writes " + w0 + " -> " + w1 + ")",
+      a.h2 === t26cNice(prev) && a.sel === prev && b.h2 === t26cNice(o.today) && b.sel === o.today && c.h2 === t26cNice(o.today) && c.sel === o.today && w1 === w0,
+      [a, b, c].map(x => x.h2 + " (" + x.sel + ")").join(" -> "));
+  }
+
+  async function t26cLibCheck(page, at, o) {
+    const w0 = await writesNow(page);
+    await go(page, "/library");
+    const m = await page.evaluate(t26cLib);
+    c26c(at + " /library: the header is h1 \"Library\" and \"" + T26C_SUB["/library"] + "\"", m.head.h1 === "Library" && m.head.sub === T26C_SUB["/library"], JSON.stringify(m.head));
+    const [start, guides] = m.groups;
+    const wantStart = ["#/guide", "#/method", "#/doc/readme"];
+    c26c(at + " /library: \"Start here\" is 3 document cards — the Handbook, the Method, the Calibration Kit — each a page glyph, a title and a line",
+      !!start && start.head && start.head.t === "Start here" && JSON.stringify(start.cards.map(c => c.href)) === JSON.stringify(wantStart) &&
+        start.cards.every(c => c.glyph && !!c.t && !!c.m && c.w >= 44 && c.h >= 44),
+      start ? start.cards.map(c => c.href + " \"" + c.t + "\"").join(", ") : "no group");
+    c26c(at + " /library: the Handbook card alone carries an --accent edge (the first read)",
+      !!start && !!start.cards[0] && !!start.cards[0].edge && __same(start.cards[0].edge, m.accent) && start.cards.slice(1).every(c => !c.edge || !__same(c.edge, m.accent)),
+      start ? start.cards.map(c => c.href + " " + (c.edge ? JSON.stringify(c.edge) : "none")).join(", ") : "no group");
+    const wantGuides = T26C_DOCS.filter(id => id !== "readme").map(id => "#/doc/" + id);
+    c26c(at + " /library: \"Guides\" is the remaining documents in DOCS (" + wantGuides.length + ": " + wantGuides.join(" ") + "), as the same cards",
+      wantGuides.length > 0 && !!guides && guides.head && guides.head.t === "Guides" && JSON.stringify(guides.cards.map(c => c.href)) === JSON.stringify(wantGuides) &&
+        guides.cards.every(c => c.glyph && !!c.t && !!c.m && !c.edge),
+      guides ? guides.cards.map(c => c.href).join(" ") : "no group");
+    const log = guides && guides.cards.find(c => c.href === "#/doc/log");
+    c26c(at + " /library: \"Progress Log (file)\" shows its superseded note in muted ink (--ink-3)",
+      !!log && log.t === "Progress Log (file)" && /supersedes/.test(log.m) && __same(log.mCol, m.ink3), log ? "\"" + log.m + "\" " + JSON.stringify(log.mCol) : "no card");
+    if (o.cols && guides) {
+      const cols = new Set(guides.cards.slice(0, 3).map(c => c.left)).size;
+      c26c(at + " /library: the cards are " + o.cols + " across", cols === o.cols, cols + " distinct columns in the first three guides");
+    }
+    const n = m.links.length, shown = m.links.filter(l => l.shown);
+    c26c(at + " /library: \"Outside links\" reads " + n + ", shows 5, then \"+" + (n - 5) + "\" (>= 44x44); every chip >= 44x44 with its ↗",
+      n > 5 && !!m.linksHead && m.linksHead.t === "Outside links" && m.linksHead.meta === String(n) && shown.length === 5 && m.links.every((l, i) => l.shown === i < 5) &&
+        !!m.more && m.more.text === "+" + (n - 5) && m.more.w >= 44 && m.more.h >= 44 && shown.every(l => l.w >= 44 && l.h >= 44 && /↗$/.test(l.text)),
+      shown.length + " shown of " + n + (m.more ? ", \"" + m.more.text + "\"" : ", no +N") + (m.linksHead ? ", meta " + m.linksHead.meta : ""));
+    const badLink = m.links.filter(l => l.target !== "_blank" || !/(^|\s)noopener(\s|$)/.test(l.rel || "") || !/^https:\/\//.test(l.href || ""));
+    c26c(at + " /library: every outside link (all " + n + ", the folded ones too) opens in a new tab with rel=\"noopener\"",
+      n > 0 && badLink.length === 0, badLink.map(l => l.text + " target=" + l.target + " rel=" + l.rel).join("; ") || n + " links");
+    if (o.click) {
+      await page.click("#view .lb-links button");
+      await page.waitForFunction(() => !document.querySelector("#view .lb-links button"), null, { timeout: 4000, polling: "raf" }).catch(() => {});
+      const m2 = await page.evaluate(t26cLib);
+      c26c(at + " /library: \"+" + (n - 5) + "\" shows all " + n + " in place and hands the focus to the first of them",
+        m2.links.length === n && m2.links.every(l => l.shown && l.w >= 44 && l.h >= 44) && !m2.more && m2.focus === m.links[5].text,
+        m2.links.filter(l => l.shown).length + " shown, focus " + JSON.stringify(m2.focus));
+    }
+    const w1 = await writesNow(page);
+    c26c(at + " /library: nothing on it wrote state" + (o.click ? ", \"+N\" included" : "") + " (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
+  }
+
+  // ---- the seeded state, at both sizes, both themes ----
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      const at = o.w + "px " + theme;
+      console.log("\nT-026c Week, the Calendar's day view and Library, " + at);
+      const { ctx, page, errors, today } = await t26bFresh(Object.assign({ theme, patch: T26C_PATCH }, o));
+      const w0 = await writesNow(page);
+      await t26cWeekCheck(page, at, { today, click: true, cols: o.mobile ? 2 : 4 });
+      await t26cCalCheck(page, at, { today, cols: o.mobile ? 2 : 4, more: ["2026-10-24", "2026-10-25"] });
+      await t26cLibCheck(page, at, { today, click: true, cols: o.mobile ? 1 : 3 });
+      const w1 = await writesNow(page);
+      c26c(at + " T-026c: nothing on the three pages wrote state (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
+      c26c(at + " T-026c: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // ---- one state at a time, for what the seed cannot show ----
+  const T26C_STATES = [
+    { name: "no payment dated in this week (only the Sunday that ends week 2)",
+      patch: Object.assign({}, T26C_PATCH, { treasury: { offer: "", clients: [], niche: "", entries: [T26C_PATCH.treasury.entries[0]] } }) },
+    { name: "this week already sealed",
+      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([{ week: 3, date: "2026-10-20", shipped: "a repo", dsa: 2, posts: 2, revenue: 150.5, notes: "" }]) }) },
+    { name: "nothing sealed yet", patch: Object.assign({}, T26C_PATCH, { weeks: [] }) },
+    { name: "a Sunday, the day the week is sealed", now: new Date("2026-10-25T12:00:00Z"), patch: T26C_PATCH },
+  ];
+  for (const st of T26C_STATES) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      const at = o.w + "px dark, " + st.name;
+      console.log("\nT-026c " + at);
+      const { ctx, page, errors, today } = await t26bFresh(Object.assign({ theme: "dark", patch: st.patch, now: st.now }, o));
+      await t26cWeekCheck(page, at, { today });
+      c26c(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
 
   await browser.close();
 

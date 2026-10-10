@@ -2422,15 +2422,16 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 }
 
 /* ---- the next gate ---- */
-/* The text and the days share a line while the text has 14rem; below that
-   (a phone at a larger text size) the days drop under it, rather than the
+/* The text and the days share a line while the text has 12rem (a 390 phone
+   at the default size, a 3-digit count; 360 with 2 digits); below that (a
+   phone at a larger text size) the days drop under it, rather than the
    title column being squeezed until "Calibration" breaks mid-word. In rem,
    so it follows the root size, which a media query would not. */
 .at-next {
   display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
   background: var(--surface); color: var(--ink); text-decoration: none;
 }
-.at-main { flex: 1 1 14rem; min-width: 0; }
+.at-main { flex: 1 1 12rem; min-width: 0; }
 .at-next:hover { text-decoration: none; }
 .at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
 .at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }

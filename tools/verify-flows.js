@@ -86,11 +86,23 @@
 // itself, and nothing in it leaves the machine. (h) and (i) answer the
 // embed's URL with a stub page the same way; nothing reaches YouTube.
 //
+// T-039 (loop/specs/T-039-reload-storage-flake/spec.md): the one reload here,
+// (n)'s boot pull, goes through tools/lib-reload.js. verify-design's "switch
+// (c)" showed that the browser, not the app, sometimes reloads this file://
+// page in an ephemeral context without the storage the page had — at document
+// start, before any app script ran, localStorage (or sessionStorage) came back
+// empty. So the reload is proven at document start, the one point the app
+// cannot have written yet: if the state stored before it did not arrive, (n)
+// is re-measured from fresh contexts, up to 3 attempts, and if all 3 lose it
+// the gate fails with that reason. The checks are as they were; nothing else
+// is ever retried.
+//
 //   node tools/verify-flows.js                 # gate
 //   node tools/verify-flows.js --shots <dir>   # also write a screenshot per flow
 "use strict";
 const fs = require("fs"), path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
+const { acrossReload } = require("./lib-reload");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
 // Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
@@ -1190,7 +1202,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
   // still holds the pass exactly as this device stored it. A reload makes the
   // boot pull. Then the other device: the pass here, the unmark over there.
   console.log("\ngate sync (once)");
-  {
+  await acrossReload({ label: "(n) gate sync", check, fail: why => check(why, false) }, async (check, reload) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true });
     await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
     let remote = null, put = null, gets = 0, gotPut = null;
@@ -1231,7 +1243,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
       theUnmark = (await gatesStored(page))[1];
       remote = { v: 1, updatedAt: TODAY + "T12:00:30.000Z", device: "phone", ledgers: {}, state: { gates: { 1: thePass } } };
       await page.evaluate(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
-      await page.reload({ waitUntil: "load" });
+      await reload(page, { waitUntil: "load" });
       const pulled = await page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt,
         null, { timeout: 8000 }).then(() => true, () => false);
       await page.waitForSelector("#view [data-gate]");
@@ -1284,7 +1296,7 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     } catch (e) { check("(n) the other device's flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
     check("(n) no page errors (the other device)", errors2.length === 0, errors2.join(" | "));
     await ctx2.close();
-  }
+  });
 
   await browser.close();
   console.log("");

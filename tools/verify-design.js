@@ -1434,18 +1434,24 @@ function seedT38() {
   s.gates = { 1: { date: "2026-10-09", at: "2026-10-09T08:00:00.000Z", passed: true }, 2: "2026-10-14" };
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
-const T38_PLAN = (() => {
+// Every done date used here is a study day, so it indexes T26_STUDY directly.
+const t38PlanOf = doneBy => {
   let base = CURRICULUM.START_DATE;
   return CURRICULUM.GATES.map(g => {
     const target = T26_STUDY[T26_STUDY.indexOf(base) + Math.round(g.months * 30.4)];
-    const done = T38_DONE[g.n] || null;
+    const done = doneBy[g.n] || null;
     base = done || target;
     return { n: g.n, label: g.label, target, done };
   });
-})();
+};
+const T38_PLAN = t38PlanOf(T38_DONE);
 const T38_ARRIVAL = T38_PLAN[4].target;
 const T38_BASELINE = T26_STUDY[T26_STUDY.indexOf(CURRICULUM.START_DATE) + 1094];
 const T38_AHEAD = Math.round((Date.parse(T38_BASELINE) - Date.parse(T38_ARRIVAL)) / 86400000);
+// The line under the head, as the spec words it: months from half a month up
+// (30.44 days, the mean calendar month), days below; ahead or behind.
+const t38Words = days => { const a = Math.abs(days), m = Math.round(a / 30.44);
+  return (m >= 1 ? m + " month" + (m === 1 ? "" : "s") : a + " day" + (a === 1 ? "" : "s")) + (days > 0 ? " ahead" : " behind"); };
 const t38Passed = iso => "Passed " + Number(iso.slice(8)) + " " + new Date(iso + "T00:00:00Z").toLocaleString("en-US", { month: "short", timeZone: "UTC" });
 // The /atlas head and route labels, with the contrast of each date line
 // against what is actually painted behind it.
@@ -3166,6 +3172,10 @@ function t26bRecord() {
         [].concat(ov.hit, words, of.out, of.side ? ["page " + of.side] : []).join("; ") || ov.n + " boxes");
 
       await go(page, "/transcript");
+      const ctl = await page.evaluate(() => [...document.querySelectorAll("#view [data-gate]")]
+        .map(b => b.dataset.gateDo + " " + b.dataset.gate).filter((v, i, a) => a.indexOf(v) === i).sort().join(", "));
+      c38(at + " /transcript: with Gates 1-2 passed the only gate controls are \"pass 3, unmark 2\" (the next gate, the last passed)",
+        ctl === "pass 3, unmark 2", ctl || "none");
       for (const [doWhat, n, title, goText] of [["pass", 3, "Pass Gate 3 — " + T38_PLAN[2].label, "Pass gate 3"],
                                                 ["unmark", 2, "Unmark Gate 2 — " + T38_PLAN[1].label, "Unmark gate 2"]]) {
         await page.evaluate(() => document.querySelectorAll("#view details.unit").forEach(d => { d.open = true; }));
@@ -3188,6 +3198,41 @@ function t26bRecord() {
       }
       const w1 = await page.evaluate(() => window.__stateWrites);
       c38(at + ": drawing /atlas and /transcript and opening both sheets wrote nothing (writes " + w0 + " -> " + w1 + ")", w1 === w0);
+      c38(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  // ---- T-038: the head when nothing is passed, when all five are, and when a
+  // gate was passed late; and the labels read eight hours west of UTC ----
+  // The arrival is the projection: with Gate 5 passed it is Gate 5's date, not
+  // its target. On the baseline there is no line; passed late it says behind.
+  const t38Seed = gates => new Function("args", "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}');" +
+    "s.gates = " + JSON.stringify(gates) + "; localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
+  const t38Obj = done => Object.fromEntries(Object.keys(done).map(n => [n, { date: done[n], at: done[n] + "T08:00:00.000Z", passed: true }]));
+  const T38_ALL = { 1: "2026-10-09", 2: "2026-10-14", 3: "2026-10-15", 4: "2026-10-16", 5: "2026-10-19" };
+  for (const fx of [
+    { name: "no gate passed", done: {}, seed: t38Seed({}) },
+    { name: "all five passed", done: T38_ALL, seed: t38Seed(t38Obj(T38_ALL)) },
+    { name: "Gate 1 passed late (15 Jan 2027)", done: { 1: "2027-01-15" }, seed: t38Seed(t38Obj({ 1: "2027-01-15" })) },
+    { name: "Gates 1-2 passed, America/Los_Angeles", done: T38_DONE, seed: seedT38, tz: "America/Los_Angeles" },
+  ]) {
+    for (const [w, theme] of [[1440, "dark"], [390, "light"]]) {
+      const mobile = w < 861, at = w + "px " + theme + " T-038 " + fx.name;
+      const { ctx, page, errors } = await fresh(browser, Object.assign({ viewport: { width: w, height: 900 }, isMobile: mobile, hasTouch: mobile, colorScheme: theme },
+        fx.tz ? { timezoneId: fx.tz } : {}), theme, fx.seed);
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/atlas");
+      const a = await page.evaluate(t38Atlas);
+      const plan = t38PlanOf(fx.done), arrival = plan[4].done || plan[4].target;
+      const days = Math.round((Date.parse(T38_BASELINE) - Date.parse(arrival)) / 86400000);
+      const wantLabs = plan.map(g => g.done ? t38Passed(g.done) : t26Month(g.target)), gotLabs = a.labs.slice(1).map(l => l.when);
+      const wantSub = "Your route to " + t26Month(arrival, true) + ", in five gates.";
+      const wantBase = days ? "Plan baseline " + t26Month(T38_BASELINE, true) + " \u00b7 " + t38Words(days) : null;
+      c38(at + ": labels " + wantLabs.join(", ") + "; \"" + wantSub + "\"; " + (wantBase ? "\"" + wantBase + "\" (" + days + " days)" : "no baseline line (on the baseline)"),
+        JSON.stringify(gotLabs) === JSON.stringify(wantLabs) && a.sub === wantSub &&
+          (wantBase ? !!a.base && a.base.vis && a.base.text === wantBase && a.base.r >= 4.5 : !a.base),
+        gotLabs.join(", ") + "; " + a.sub + "; " + (a.base ? "\"" + a.base.text + "\" " + a.base.r.toFixed(2) + ":1" : "no line"));
       c38(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }

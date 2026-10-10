@@ -57,7 +57,8 @@ async function scenario(browser, now, state, tz) {
   const ctx = await browser.newContext({ timezoneId: tz || "UTC", reducedMotion: "reduce" });
   await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
   // Noon, so no timezone edge can move the date the app computes as "today".
-  await ctx.clock.setFixedTime(new Date(now + "T12:00:00Z"));
+  // `now` is a date (noon UTC that day) or, for T-038's local-date checks, a full instant.
+  await ctx.clock.setFixedTime(new Date(/T/.test(now) ? now : now + "T12:00:00Z"));
   if (state) await ctx.addInitScript(s => { if (window.top === window) localStorage.setItem("darhikmah_v1", s); }, JSON.stringify(state));
   const page = await ctx.newPage();
   const errors = [];
@@ -326,10 +327,12 @@ async function scenario(browser, now, state, tz) {
     }
     {
       // In Bahrain (UTC+3) 22:30Z on 7 Oct is 01:30 on the 8th. The last
-      // passing event wins: passed on the 6th, un-marked on the 7th, passed
-      // again late on the 7th (UTC) — so 8 Oct, local.
-      const ledger = [gateEvent(0, "2026-10-06T10:00:00.000Z", 1, true), gateEvent(1, "2026-10-07T09:00:00.000Z", 1, false),
-                      gateEvent(2, "2026-10-07T22:30:00.000Z", 1, true)];
+      // PASSING event wins: passed on the 6th, passed again late on the 7th
+      // (UTC), then an unmark on the 9th that the old merge undid (which is
+      // how a `true` outlives its unmark) — so 8 Oct, local. The first event
+      // would say the 6th, the last of any kind the 9th, a UTC reading the 7th.
+      const ledger = [gateEvent(0, "2026-10-06T10:00:00.000Z", 1, true), gateEvent(1, "2026-10-07T22:30:00.000Z", 1, true),
+                      gateEvent(2, "2026-10-09T09:00:00.000Z", 1, false)];
       const plans = [];
       for (const day of [DAY_A, DAY_B]) {
         const { ctx, page, errors } = await scenario(browser, day, { gates: { 1: true }, ledger }, "Asia/Bahrain");
@@ -337,7 +340,7 @@ async function scenario(browser, now, state, tz) {
         await ctx.close();
       }
       const want = expectPlan({ 1: "2026-10-08" });
-      check("a legacy true takes the local date of its last passing gate event (Asia/Bahrain: 7 Oct 22:30Z is 8 Oct), the same on two days",
+      check("a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 7 Oct 22:30Z is 8 Oct; a later unmark event is not it), the same on two days",
         same(plans[0].plan, plans[1].plan) && same(plans[0].plan, want),
         DAY_A + ": " + show(plans[0].plan) + " | " + DAY_B + ": " + show(plans[1].plan) + " | want " + show(want));
       check("no page errors (legacy true with a gate event)", plans.every(p => p.errors.length === 0), plans.map(p => p.errors.join(" | ")).join(" "));
@@ -363,14 +366,11 @@ async function scenario(browser, now, state, tz) {
           await page.waitForFunction(() => document.querySelector("#view > *") && !document.querySelector("#view [data-logic-stale]"), null, { timeout: 8000 });
           drawn.push(same((await stored(page)).gates, old));
         }
-        let after = null, replan = null;
-        if (tz === "UTC") {
-          await page.evaluate(() => { location.hash = "#/course/cs150"; });
-          await page.waitForSelector("#view input[data-prob]", { state: "attached", timeout: 8000 });
-          await page.evaluate(() => { const cb = document.querySelector("#view input[data-prob]"); cb.checked = true; cb.dispatchEvent(new Event("change")); });
-          after = (await stored(page)).gates;
-          replan = await readPlan(page);
-        }
+        await page.evaluate(() => { location.hash = "#/course/cs150"; });
+        await page.waitForSelector("#view input[data-prob]", { state: "attached", timeout: 8000 });
+        await page.evaluate(() => { const cb = document.querySelector("#view input[data-prob]"); cb.checked = true; cb.dispatchEvent(new Event("change")); });
+        const after = (await stored(page)).gates;
+        const replan = await readPlan(page);
         runs.push({ tz, plan, drawn, after, replan, errors });
         await ctx.close();
       }
@@ -378,19 +378,25 @@ async function scenario(browser, now, state, tz) {
         runs.every(r => same(r.plan, want)), runs.map(r => r.tz + ": " + show(r.plan)).join(" | ") + " | want " + show(want));
       check("render is a read: loading and drawing /atlas, /transcript and / leaves the old shapes as stored",
         runs.every(r => r.drawn.length === 3 && r.drawn.every(Boolean)), runs.map(r => r.tz + " " + r.drawn.join(",")).join("; "));
-      const a = runs[0].after || {};
-      const shapeOk = !!a[1] && a[1].passed === true && a[1].date === "2026-11-20" && a[1].at === "2026-11-20T00:00:00.000Z" &&
-        !!a[2] && a[2].passed === true && a[2].date === "2027-03-13" && a[2].at === "2027-03-13T00:00:00.000Z" &&
-        !!a[3] && a[3].passed === false;
-      check("the next ordinary save stores { date, at, passed } (at = local midnight of the date), and the plan does not move",
-        shapeOk && same(runs[0].replan, want), JSON.stringify(a) + " | " + show(runs[0].replan || []));
+      // Local midnight: 00:00Z in UTC, 08:00Z in Los Angeles (both dates are
+      // in standard time there: PST ends 1 Nov 2026 and starts again 14 Mar 2027).
+      const midnightZ = { "UTC": "T00:00:00.000Z", "America/Los_Angeles": "T08:00:00.000Z" };
+      const shapeOk = r => { const a = r.after || {}, z = midnightZ[r.tz];
+        return !!a[1] && a[1].passed === true && a[1].date === "2026-11-20" && a[1].at === "2026-11-20" + z &&
+          !!a[2] && a[2].passed === true && a[2].date === "2027-03-13" && a[2].at === "2027-03-13" + z &&
+          !!a[3] && a[3].passed === false && same(r.replan, want); };
+      check("the next ordinary save stores { date, at, passed } (at = the date's LOCAL midnight, UTC and Los Angeles), and the plan does not move",
+        runs.every(shapeOk), runs.map(r => r.tz + " " + JSON.stringify(r.after) + " | " + show(r.replan || [])).join(" || "));
       check("no page errors (old date strings)", runs.every(r => r.errors.length === 0), runs.map(r => r.errors.join(" | ")).join(" "));
     }
 
     // (3) Only the next gate can be passed, only the last passed one unmarked.
-    //     A refused call stores nothing and logs nothing.
+    //     A refused call stores nothing and logs nothing. Run in Bahrain at
+    //     22:30Z on 20 Oct, which is 01:30 on the 21st there: a pass is dated
+    //     by the local calendar, as everything else here is.
+    const DAY_LOCAL = "2026-10-21";
     {
-      const { ctx, page, errors } = await scenario(browser, DAY_A, null);
+      const { ctx, page, errors } = await scenario(browser, DAY_A + "T22:30:00Z", null, "Asia/Bahrain");
       const r = await page.evaluate(() => {
         const T = window.__brickfordTest;
         const st = () => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
@@ -413,12 +419,12 @@ async function scenario(browser, now, state, tz) {
       check("an out-of-order pass is impossible: Gate 3, 2 or 5 before Gate 1 is refused, stores nothing and logs nothing",
         r.early.every(x => x === false) && r.earlyGates === "{}" && r.earlyEvents === 0 && r.earlyOpen,
         "returned " + r.early.join(",") + ", stored " + r.earlyGates + ", " + r.earlyEvents + " gate event(s)");
-      check("the next gate can be passed: stored as { date: today, at, passed: true }, and Gate 3 is still refused after it",
-        r.first === true && !!r.firstRec && r.firstRec.date === DAY_A && r.firstRec.passed === true && /^\d{4}-\d\d-\d\dT/.test(r.firstRec.at || "") &&
+      check("the next gate can be passed: stored as { date: today (local: 21 Oct in Bahrain), at, passed: true }, and Gate 3 is still refused after it",
+        r.first === true && !!r.firstRec && r.firstRec.date === DAY_LOCAL && r.firstRec.passed === true && /^\d{4}-\d\d-\d\dT/.test(r.firstRec.at || "") &&
           r.skip === false && r.second === true,
         "pass 1 " + r.first + " " + JSON.stringify(r.firstRec) + "; pass 3 " + r.skip + "; pass 2 " + r.second);
       check("only the last passed gate can be unmarked (Gate 1 refused while Gate 2 is passed; Gate 2 then stored { passed: false })",
-        r.unFirst === false && r.unSecond === true && !!r.rec2 && r.rec2.passed === false && same(r.plan, [DAY_A, null, null, null, null]) &&
+        r.unFirst === false && r.unSecond === true && !!r.rec2 && r.rec2.passed === false && same(r.plan, [DAY_LOCAL, null, null, null, null]) &&
           r.events === "gate1:true,gate2:true,gate2:false",
         "unmark 1 " + r.unFirst + ", unmark 2 " + r.unSecond + ", plan " + JSON.stringify(r.plan) + ", events " + r.events);
       check("no page errors (gate order)", errors.length === 0, errors.join(" | "));
@@ -441,15 +447,19 @@ async function scenario(browser, now, state, tz) {
         ["a legacy date string here pulls a newer unmark: open", { 1: "2026-10-12" }, { 1: U2 }, null],
         ["an unmark (t1) pulls a later pass (t2): passed", { 1: U1 }, { 1: P2 }, "2026-10-19"],
         ["a legacy false (no time) pulls a timed pass: passed", { 1: false }, { 1: P1 }, "2026-10-19"],
+        // The remote's own ledger carries the event, so it has to be merged
+        // before the gates are: otherwise this reads START_DATE (5 Oct).
+        ["nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day", {}, { 1: true }, "2026-10-07",
+          { phone: [gateEvent(0, "2026-10-07T09:00:00.000Z", 1, true)] }],
       ];
       const got = [];
-      for (const [name, local, remote, want] of cases) {
+      for (const [name, local, remote, want, ledgers] of cases) {
         const { ctx, page, errors } = await scenario(browser, DAY_A, { gates: local });
-        const r = await page.evaluate(remote => {
+        const r = await page.evaluate(([remote, ledgers]) => {
           const T = window.__brickfordTest;
-          const changed = T.mergeState({ v: 1, device: "other", state: { gates: remote }, ledgers: {} }).changed;
+          const changed = T.mergeState({ v: 1, device: "other", state: { gates: remote }, ledgers: ledgers || {} }).changed;
           return { done: T.gatePlan()[0].doneDate, changed };
-        }, remote);
+        }, [remote, ledgers || null]);
         got.push({ name, want, r, errors });
         await ctx.close();
       }
@@ -459,7 +469,9 @@ async function scenario(browser, now, state, tz) {
       check("LWW merge, mixed devices: an unmark beats an older legacy date string, either side",
         got.slice(2, 4).every(c => c.r.done === c.want), got.slice(2, 4).map(line).join("; "));
       check("LWW merge is last-writer-wins, not unmark-wins: a later pass beats an earlier unmark, and a timed pass beats a legacy false",
-        got.slice(4).every(c => c.r.done === c.want), got.slice(4).map(line).join("; "));
+        got.slice(4, 6).every(c => c.r.done === c.want), got.slice(4, 6).map(line).join("; "));
+      check("a remote legacy true is dated by its gate event in the remote's own ledger (7 Oct, not START_DATE)",
+        got[6].r.done === got[6].want, line(got[6]));
       {
         const { ctx, page, errors } = await scenario(browser, DAY_A, { gates: { 1: P1, 2: U2 } });
         const n = await page.evaluate(g => window.__brickfordTest.mergeState({ v: 1, device: "other", state: { gates: g }, ledgers: {} }).changed, { 1: P1, 2: U2 });

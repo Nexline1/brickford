@@ -698,18 +698,34 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
         !!sh && sh.open && sh.modal && JSON.stringify(sh.reqs.map(r => r.text)) === JSON.stringify(GATE1_REQ.map(t => t.charAt(0).toUpperCase() + t.slice(1))) &&
           sh.reqs.every(r => !r.on) && !!sh.go && sh.go.text === "Pass gate 1" && sh.go.disabled,
         JSON.stringify(sh));
-      if (keys) check("(m) the keyboard lands inside the sheet, on the first requirement", !!sh && sh.focusIn && sh.focus === "INPUT[req]", sh ? sh.focus : "no sheet");
-      // Tick all but the last, then press the button anyway.
-      for (let i = 0; i < GATE1_REQ.length - 1; i++) {
-        if (keys) { await page.keyboard.press("Space"); await page.keyboard.press("Tab"); }
-        else await page.tap("dialog.sheet label:has([data-gate-req]) >> nth=" + i);
+      if (keys) {
+        // Space on the focused requirement ticks it: the boxes take the keyboard.
+        await page.keyboard.press("Space");
+        const k = await sheetState(page);
+        check("(m) the keyboard lands inside the sheet, on the first requirement, and Space ticks it",
+          !!sh && sh.focusIn && sh.focus === "INPUT[req]" && !!k && k.reqs.length > 0 && k.reqs[0].on, (sh ? sh.focus : "no sheet") + ", first ticked " + (k && k.reqs[0] && k.reqs[0].on));
       }
-      sh = await sheetState(page);
-      await page.evaluate(() => document.querySelector("dialog.sheet [data-sheet-go]").click());
-      const blocked = { sh, w: await writes(page) - w0, g: await gatesStored(page), still: !!(await sheetState(page)) };
-      check("(m) with " + (GATE1_REQ.length - 1) + " of " + GATE1_REQ.length + " ticked the button is still disabled, and pressing it stores nothing",
-        blocked.sh.reqs.filter(r => r.on).length === GATE1_REQ.length - 1 && blocked.sh.go.disabled && blocked.w === 0 && JSON.stringify(blocked.g) === "{}" && blocked.still,
-        blocked.sh.reqs.filter(r => r.on).length + " ticked, disabled " + blocked.sh.go.disabled + ", " + blocked.w + " save(s), stored " + JSON.stringify(blocked.g));
+      // Every requirement is needed: with each one in turn left unticked (the
+      // others ticked) the button is disabled, and pressing it anyway stores
+      // nothing. A rule that skipped any one requirement fails one of these.
+      const holes = [];
+      for (let hole = 0; hole < GATE1_REQ.length; hole++) {
+        const now = (await sheetState(page)).reqs;
+        for (let i = 0; i < now.length; i++) {
+          if (now[i].on !== (i !== hole)) {
+            const sel = "dialog.sheet label:has([data-gate-req]) >> nth=" + i;
+            if (keys) await page.click(sel); else await page.tap(sel);
+          }
+        }
+        const st = await sheetState(page);
+        await page.evaluate(() => document.querySelector("dialog.sheet [data-sheet-go]").click());
+        holes.push({ hole, ticked: st.reqs.map(r => r.on ? 1 : 0).join(""), disabled: st.go.disabled, w: await writes(page) - w0,
+                     g: JSON.stringify(await gatesStored(page)), open: !!(await sheetState(page)) });
+      }
+      check("(m) with any one of the " + GATE1_REQ.length + " requirements unticked \"Pass gate 1\" is disabled, and pressing it stores nothing",
+        holes.length === GATE1_REQ.length && holes.every(h => h.disabled && h.w === 0 && h.g === "{}" && h.open &&
+          h.ticked === GATE1_REQ.map((_, i) => i === h.hole ? 0 : 1).join("")),
+        holes.map(h => h.ticked + (h.disabled ? " disabled" : " ENABLED") + ", " + h.w + " save(s), stored " + h.g).join("; "));
       // Escape (or Cancel) closes it and stores nothing; reopened, it starts unticked.
       if (keys) await page.keyboard.press("Escape"); else await page.tap("dialog.sheet [data-sheet-cancel]");
       const closed = await sheetGone(page);
@@ -717,13 +733,16 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
         "closed " + closed + ", " + ((await writes(page)) - w0) + " save(s)");
       await press("#view [data-gate-do=pass][data-gate='1']");
       await page.waitForSelector("dialog.sheet[open]", { timeout: 4000 }).catch(() => {});
+      const reopened = await sheetState(page);
       for (let i = 0; i < GATE1_REQ.length; i++) {
         if (keys) { await page.keyboard.press("Space"); if (i < GATE1_REQ.length - 1) await page.keyboard.press("Tab"); }
         else await page.tap("dialog.sheet label:has([data-gate-req]) >> nth=" + i);
       }
       sh = await sheetState(page);
       check("(m) reopened it starts unticked; with every requirement ticked \"Pass gate 1\" is enabled",
-        !!sh && sh.reqs.every(r => r.on) && !sh.go.disabled, JSON.stringify(sh && { reqs: sh.reqs, go: sh.go }));
+        !!reopened && reopened.reqs.length === GATE1_REQ.length && reopened.reqs.every(r => !r.on) && reopened.go.disabled &&
+          !!sh && sh.reqs.every(r => r.on) && !sh.go.disabled,
+        "reopened " + JSON.stringify(reopened && reopened.reqs.map(r => r.on)) + ", then " + JSON.stringify(sh && { reqs: sh.reqs.map(r => r.on), go: sh.go }));
       await markView(page);
       w0 = await writes(page);
       if (keys) {

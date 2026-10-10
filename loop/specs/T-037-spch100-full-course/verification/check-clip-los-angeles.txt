@@ -1,5 +1,5 @@
 # T-037 final CHECK — clip-los-angeles
-# commit 9cf42e7; everything outside verification/ identical to that commit: yes; 2026-10-09T18:28:43Z
+# commit 9ce4be2; everything outside verification/ identical to that commit: yes; 2026-10-10T13:18:23Z
 $ TZ=America/Los_Angeles node tools/verify-clip.js
 
 KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
@@ -30,5 +30,5 @@ KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
   T-003  td                                   24px@320; /electives
   T-003  tr                                   24px@320; /electives
 
-PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145070 element measurements)
-exit 0  (197s)
+PASS — 0 new, 0 stale, 815 known (T-002 660, T-003 155); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145072 element measurements)
+exit 0  (176s)

@@ -1,5 +1,5 @@
 # T-037 final CHECK — flows
-# commit 9cf42e7; everything outside verification/ identical to that commit: yes; 2026-10-09T18:24:48Z
+# commit 9ce4be2; everything outside verification/ identical to that commit: yes; 2026-10-10T13:14:52Z
 $ node tools/verify-flows.js
 
 390px
@@ -7,7 +7,7 @@ $ node tools/verify-flows.js
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
   ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 2.", options locked true, next button visible
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 5.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 3 today
@@ -122,11 +122,11 @@ a slow phone (once, 390px)
   ok    (i) no page errors
 
 multiple choice (once)
-  info  as written in the data — 4 options: 255/547/174/34
-  ok    (k) every multiple-choice question was mounted and its answer found — 1010 questions, 8080 mounts, 0 unfound
-  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 25%, C 25%, D 25% of 8080
-  ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1010 of 1010
-  ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1010 of 1010
+  info  as written in the data — 4 options: 266/565/179/34
+  ok    (k) every multiple-choice question was mounted and its answer found — 1044 questions, 8352 mounts, 0 unfound
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 26%, C 25%, D 24% of 8352
+  ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1044 of 1044
+  ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1044 of 1044
   ok    (k) no page errors
 
 sync (once)
@@ -140,4 +140,4 @@ sync (once)
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
 PASS — 123 checks: 8 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems) x 2 widths, each in a fresh context; the resume point's sync merge, a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot
-exit 0  (42s)
+exit 0  (35s)

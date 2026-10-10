@@ -1,5 +1,5 @@
 # T-037 final CHECK — shell
-# commit 9cf42e7; everything outside verification/ identical to that commit: yes; 2026-10-09T18:23:12Z
+# commit 9ce4be2; everything outside verification/ identical to that commit: yes; 2026-10-10T13:13:24Z
 $ node tools/verify-shell.js
    1536px  sidebar shown, column 322-1164
    1440px  sidebar shown, column 322-1068
@@ -26,4 +26,4 @@ $ node tools/verify-shell.js
   844x390  insets 47/47/21  all 12 landscape checks passed (capsule, tabs, Next card on 2 routes)
 
 PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes (1163 checks)
-exit 0  (81s)
+exit 0  (78s)

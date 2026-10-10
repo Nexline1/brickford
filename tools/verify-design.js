@@ -247,6 +247,40 @@
 //     than its box, no sideways scroll, and no word of the text this item
 //     added broken across two lines (labelWords, read from the rendered text).
 //
+// T-026c, Week, the Calendar's day view, and Library (loop/specs/T-026c-week-
+// calendar-library/spec.md), at 1440x900 and 390x844 in dark and light on the
+// seed plus T26C_PATCH (a problem and a lecture proven this week, one proven
+// the week before, today's MATH 120 lecture watched, three payments of which
+// the Sunday ending week 2 must not count, two sealed weeks), then four more
+// Week states at both sizes (no payment this week; this week sealed; nothing
+// sealed; a Sunday). Expected values come from storage, the data and the
+// study calendar walked here, never from the view:
+//   - /review: h1 "Week N" and its line; four tiles — DSA solved (every
+//     problem stored) and lectures proven (verifiedAt inside the plan week's
+//     dates), both "counted for you" in --good, posts a typed field, BHD
+//     earned the Treasury entries dated in the week "from Treasury" (typed
+//     when there are none) — and Seal reads the counted values through the
+//     inputs it always read; 4 across at 1440, 2 at 390; "Seal the week" the
+//     only filled primary; the state ("Opens <day> <date> · N days", "Ready
+//     to seal", "Sealed <date>"); the two questions on #rvShipped/#rvNotes;
+//     past weeks newest first (or the four places they will go), a card
+//     opening to its notes; and a render is a read (rendered twice, a card
+//     opened, nothing written);
+//   - /calendar, today, a Saturday and a Sunday: the grid, the day and the
+//     .ics fold in that order; the heading and "Day N · Week W · x of y done"
+//     ("Rest day · Week W" on a Saturday, the week just worked); ‹ Today ›
+//     each >= 44x44; the bar within 1%; one block per scheduled item, in
+//     order, with its href, "CODE · BLOCK" (uppercase), title, minutes and
+//     place ("lecture n" counted through the course's units, or "part p of
+//     q"), and a 6px bar in its faculty's colour (T26_FAC by faculty); a done
+//     one checked in --ink-2; no .glist left; the habits 4 (5 on a Sunday)
+//     with their minutes and "about 1 h 25"; ‹ › Today step the day in memory;
+//   - /library: h1 and its line; "Start here" the Handbook (the only --accent
+//     edge), the Method, the Calibration Kit; "Guides" every other id in
+//     DOCS, read from app.js on disk; the Progress Log's note in --ink-3;
+//     3 across at 1440, 1 at 390; 5 links then "+N", every link (folded ones
+//     too) target=_blank rel=noopener; "+N" shows the rest in memory.
+//
 // Setup, the way every harness here does it (loop/lessons.md): each context is
 // fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
@@ -1752,7 +1786,7 @@ const T26C_SUB = {
 // and one proven the week before, today's MATH 120 lecture watched (a done
 // block), three payments — the Sunday that ENDS week 2 (18 Oct, so the lower
 // edge is tested), and two this week — and two sealed weeks, one of them a
-// failed week. Every counted tile is non-zero and each can be wrong.
+// failed week with a note. Every counted tile is non-zero and each can be wrong.
 const T26C_PATCH = {
   problems: { "Arrays & Hashing|Valid Anagram": "2026-10-19" },
   lessons: {
@@ -1767,7 +1801,7 @@ const T26C_PATCH = {
   ] },
   weeks: [
     { week: 1, date: "2026-10-11", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
-    { week: 2, date: "2026-10-18", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "" },
+    { week: 2, date: "2026-10-18", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "flu, then a client fire" },
   ],
 };
 // The habits a study day carries, as the page had them before (four, and on
@@ -4161,7 +4195,10 @@ function t26cLib() {
       "T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at " + T26_OW.length + " widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of " + T26_GATES.length + " gates next at " + T31_WIDTHS.length + " widths x 2 roots (" + t26Checks + " checks); " +
       "T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (" + t38Checks + " checks); " +
       "T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, " + T26B_STATES.length + " more states at 1440/390, and no overflow or mid-word break at " +
-      T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks)"
+      T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks); " +
+      "T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view " +
+      "(one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides " +
+      "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, and " + T26C_STATES.length + " more Week states at 1440/390 (" + t26cChecks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

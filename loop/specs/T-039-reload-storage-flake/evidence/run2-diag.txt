@@ -1,0 +1,32 @@
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"dark","stored":{"raw":true,"has":false},"pre":null,"flag":"1","wrote":false}
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+DIAG2 {"theme":"light","stored":{"raw":true,"has":true,"theme":"light","mark":true},"pre":{"theme":"light","mark":true},"flag":"1","wrote":false}
+SWITCH-ONLY: 1 failed check(s) over 30 runs of switch (a)/(c), 150 checks

@@ -1210,6 +1210,9 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
     page.on("pageerror", e => errors.push(e.message));
     await page.goto(URL + "/transcript", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
+    // Declared out here: the other device below is seeded with them, and a
+    // harness error inside this try must not turn into a ReferenceError there.
+    let thePass = null, theUnmark = null;
     try {
       const passVia = async (doWhat) => {
         await page.evaluate(() => { const d = document.querySelector("#view details.unit"); if (d) d.open = true; });
@@ -1222,10 +1225,10 @@ for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "
         await viewReplaced(page);
       };
       await passVia("pass");
-      const thePass = (await gatesStored(page))[1];
+      thePass = (await gatesStored(page))[1];
       await ctx.clock.setFixedTime(new Date(TODAY + "T12:05:00Z"));
       await passVia("unmark");
-      const theUnmark = (await gatesStored(page))[1];
+      theUnmark = (await gatesStored(page))[1];
       remote = { v: 1, updatedAt: TODAY + "T12:00:30.000Z", device: "phone", ledgers: {}, state: { gates: { 1: thePass } } };
       await page.evaluate(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
       await page.reload({ waitUntil: "load" });

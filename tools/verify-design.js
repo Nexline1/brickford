@@ -3280,12 +3280,16 @@ function t26bRecord() {
   // ---- no overflow and no overlap, every filter, phone to desktop, two text sizes ----
   // verify-clip sweeps /atlas and /courses (Now); the Later, Finished and All
   // shelves only exist after a click, so they are swept here. 1100 is the
-  // narrowest column with three tiles and four covers across (the sidebar and
+  // narrowest column with three tiles and three covers across (the sidebar and
   // the rail both showing), where the first build squeezed a tile's code into
   // 29px at a 24px root.
   // 640 and 1280 are where the first breakpoint (32rem) left a sixth of the
   // horizontal track narrower than "Calibration" (review round 1).
-  const T26_OW = [320, 390, 640, 768, 1100, 1280, 1440];
+  // 376, 1038, 1132, 1178 and 1372 are where a shelf track landed between a
+  // 6.75rem column floor and "Mathematics" (6.81rem in .bk-t), so Later and
+  // All broke it "Mathematic/s": 1132 at a 16px root, the rest at 24px (T-031;
+  // a 2px sweep, 320 to 1440 at roots 16, 20 and 24, found every one).
+  const T26_OW = [320, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440];
   for (const root of [16, 24]) {
     for (const w of T26_OW) {
       const mobile = w < 861;

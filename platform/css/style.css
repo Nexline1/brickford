@@ -2809,3 +2809,22 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 }
 .cd-hb { padding: 14px; }
 .cd-blk:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---- Library ---- */
+/* Three across from 1024px, two from 600, one on a phone (.at-tiles), and
+   never narrower than a card's title needs: at 1100, or a larger text size,
+   the row drops a card instead of squeezing a word out of it. */
+@media (min-width: 600px) {
+  .at-tiles.lb-docs { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .at-tiles.lb-docs { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+}
+.lb-doc { min-height: 8.25rem; }
+.pb-glyph.lb-ic { width: 2rem; height: 2.5rem; }
+/* The suggested first read: an --accent edge drawn inside the card, so
+   nothing outside its box can clip it. */
+.lb-doc.start { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.lb-old .pb-d { color: var(--ink-3); }
+.lb-links [hidden] { display: none; }
+button.at-chip.lb-more { font-weight: 600; }

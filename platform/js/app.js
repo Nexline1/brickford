@@ -4596,70 +4596,61 @@
     { id: "offers", file: "../earning-offers.md", title: "Earning Offers", sub: "Three productized offers, Arabic pitch included" },
     { id: "log", file: "../progress-log.md", title: "Progress Log (file)", sub: "The original markdown log — the Week page supersedes it" },
   ];
-  // The Library is a list of things to open. It was rendering five one-line
-  // documents as five ~150px hero cards in a 2-col grid, with two more
-  // documents stranded as buttons in the page head - and then ten external
-  // links as a ragged pile of pills of ten different widths.
-  //
-  // apple-design 16, grouping and mapping: "proximity implies relationship."
-  // A pile in one row says these ten things are alike; they are not. So the
-  // documents become one compact list and the external links are grouped by
-  // what they actually are.
-  const HALLS = [
-    ["Video courses", [
-      ["Karpathy \u2014 Zero to Hero", "https://karpathy.ai/zero-to-hero.html"],
-      ["3Blue1Brown", "https://www.3blue1brown.com/"],
-      ["fast.ai", "https://course.fast.ai/"],
-      ["ARENA curriculum", "https://www.arena.education/"],
-    ]],
-    ["Books", [
-      ["Mathematics for ML", "https://mml-book.github.io/"],
-      ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
-    ]],
-    ["Problems & lectures", [
-      ["NeetCode", "https://neetcode.io/roadmap"],
-      ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
-      ["Stat 110", "https://stat110.hsites.harvard.edu/"],
-    ]],
-    ["Source", [
-      ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
-    ]],
+  // T-026c: the Library in three groups. "Start here" is the Handbook (its
+  // --accent edge says read this first), the Method and the Calibration Kit;
+  // "Guides" is every other document, as the same card; the outside links
+  // are chips, five and then "+N". A card carries a short title and one
+  // line; DOCS keeps the long titles each document's own page heads with.
+  const DOC_CARD = {
+    readme: ["Calibration Kit", "Weeks 1–2 checklist"],
+    curriculum: ["Phase 1 curriculum", "Months 1–6, week by week"],
+    coding: ["Coding diagnostic", "Flashcards build + NeetCode 10"],
+    offers: ["Earning offers", "Three offers, Arabic pitch"],
+  };
+  // The five reached for most, then the rest. Each opens in a new tab with
+  // rel="noopener", so the page it opens cannot reach back into this one.
+  const LINKS = [
+    ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
+    ["3Blue1Brown", "https://www.3blue1brown.com/"],
+    ["Karpathy", "https://karpathy.ai/zero-to-hero.html"],
+    ["NeetCode", "https://neetcode.io/roadmap"],
+    ["fast.ai", "https://course.fast.ai/"],
+    ["ARENA curriculum", "https://www.arena.education/"],
+    ["Mathematics for ML", "https://mml-book.github.io/"],
+    ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
+    ["Stat 110", "https://stat110.hsites.harvard.edu/"],
+    ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
+  const LINKS_SHOWN = 5;
   V.library = function () {
-    // The handbook and How it works are documents too - they were in the page
-    // head only because they are not in DOCS. They belong in the list.
-    const rows = [{ href: "#/guide", title: "The Handbook", sub: "How Brickford works, end to end" },
-                  { href: "#/method", title: "The Method", sub: "Why it is built this way \u2014 coverage vs. mastery" }]
-      .concat(DOCS.map(d => ({ href: "#/doc/" + d.id, title: d.title, sub: d.sub })));
-    return '<div class="view-enter">' + folio("Library") +
+    const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
+    const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
+      '<span class="pb-t">' + esc(t) + '</span><span class="pb-d">' + esc(m) + "</span></a>";
+    const face = d => DOC_CARD[d.id] || [d.title, d.sub];
+    const kit = DOCS.find(d => d.id === "readme");
+    const guides = DOCS.filter(d => d !== kit);
+    const more = LINKS.length - LINKS_SHOWN;
+    return '<div class="view-enter"><div class="page-head"><h1>Library</h1>' +
+      '<div class="sub">The rules of Brickford, and the guides for each phase.</div></div>' +
 
-      '<div class="ghead">Documents<span class="gh-meta">' + rows.length + " to read</span></div>" +
-      '<div class="glist">' +
-      rows.map(r => '<a class="grow" href="' + r.href + '">' +
-        '<span class="g-lead"></span>' +
-        '<span class="g-main"><span class="g-t">' + esc(r.title) + "</span>" +
-        '<span class="g-s">' + esc(r.sub) + "</span></span></a>").join("") +
-      "</div>" +
+      '<div class="ghead">Start here</div>' +
+      '<div class="at-tiles lb-docs lb-start">' +
+      doc("#/guide", "The Handbook", "How Brickford works, end to end", "start") +
+      doc("#/method", "The Method", "Why mastery beats coverage") +
+      (kit ? doc("#/doc/" + kit.id, face(kit)[0], face(kit)[1]) : "") + "</div>" +
 
-      // Ten outside links used to sit here as ten ghost buttons in four
-      // labelled strips — a chip rail, which is a shape this app uses nowhere
-      // else. They are rows in groups like everything else now, and the whole
-      // block folds, because you come to the Library for its own documents and
-      // leave for someone else's about twice a term.
-      '<details class="unit" style="margin-top:16px;"><summary>' +
-      '<span class="u-name">External halls</span><span class="pill">' +
-      HALLS.reduce((a, h) => a + h[1].length, 0) + " links</span>" +
-      '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
-      HALLS.map(([label, links]) =>
-        '<div class="ghead">' + esc(label) + "</div>" +
-        '<div class="glist">' + links.map(r =>
-          '<a class="grow" href="' + r[1] + '" target="_blank" rel="noopener">' +
-          '<span class="g-lead">\u2197</span>' +
-          '<span class="g-main"><span class="g-t">' + esc(r[0]) + "</span>" +
-          '<span class="g-s">' + esc(r[1].replace(/^https?:\/\//, "").replace(/\/.*$/, "")) + "</span></span></a>").join("") +
-        "</div>").join("") +
-      "</div></details>" +
-      "</div>";
+      // "Progress Log (file)" keeps its own title and its superseded note, in
+      // the quieter ink: it is there to be found, not to be read first.
+      '<div class="ghead">Guides</div>' +
+      '<div class="at-tiles lb-docs lb-guides">' +
+      guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
+
+      '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
+      '<div class="at-chips lb-links">' +
+      LINKS.map(([t, u], i) => '<a class="at-chip" href="' + u + '" target="_blank" rel="noopener"' +
+        (i >= LINKS_SHOWN ? " hidden data-lb-more" : "") + ">" + esc(t) + ' <span aria-hidden="true">↗</span></a>').join("") +
+      (more > 0 ? '<button type="button" class="at-chip lb-more" data-act="lbMore" aria-label="Show ' + more + ' more links">+' + more + "</button>" : "") +
+      "</div></div>";
   };
 
 
@@ -4877,6 +4868,13 @@
           // T-026b: the locked exams past the sixth, shown in place. In memory.
           $$("[data-ex-more]").forEach(el => { el.hidden = false; });
           b.remove();
+        } else if (act === "lbMore") {
+          // T-026c: the outside links past the fifth, shown in place. In
+          // memory; the first of them takes the focus the button had.
+          const rest = $$("[data-lb-more]");
+          rest.forEach(el => { el.hidden = false; });
+          b.remove();
+          if (rest[0]) rest[0].focus();
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));

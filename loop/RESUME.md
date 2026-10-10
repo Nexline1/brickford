@@ -20,16 +20,18 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
   - #12 T-032 (MCQ shuffle)
   - #13 T-026b (Problems, Exams, Proof)
   - #14 T-037 (SPCH 100, 170 lessons)
-- **Merged since:** #15 T-038 (honest gates).
-- **Building:** T-031 (Atlas/Courses polish), worktree `/home/user/bf-T-031`.
+- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish).
+- **Building:** T-026c (Week, Calendar day view, Library), worktree `/home/user/bf-T-026c`.
 
 ## Next, in the owner's order
-1. ~~T-031~~ building.
-2. **The page redesigns:** T-026c (Week, Calendar day, Library), T-028 (Practice recorder), T-027 (Treasury workspace plus the treasury merge fix).
+1. ~~T-031~~ merged (#16).
+2. **The page redesigns:** T-026c (Week, Calendar day, Library; building), T-028 (Practice recorder), T-027 (Treasury workspace plus the treasury merge fix).
 3. **T-022:** the opening screen. Rewrite its spec first: the calm Dark, the crest fading in on near-black. The navy specification is obsolete.
 4. **Smaller fixes:**
    - T-029: in landscape the phone bars are too tall.
    - T-030: Home overflows at 320px with a 24px root.
+   - T-039: the flaky T-024 "switch (c)" theme check (failed 2 of ~12 design runs).
+   - T-040: /atlas Gate 3 chip crosses the card at root 24, 320–329px; add a containment check.
 5. **T-033:** summaries for the unsummarised AI 200/210/300/310 and RES 400 lectures, from YouTube transcripts.
 6. **T-035 sample PDF:** send the owner a sample before building.
 7. **T-034:** Sunday review, on top of the full Sunday. No schedule change.

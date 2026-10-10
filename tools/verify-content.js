@@ -2381,6 +2381,34 @@ if (SPCH) {
   console.log("SPCH 100: " + spchLessons + " lessons, " + (spchMin / 60).toFixed(1) + " h of video — " +
     Object.keys(spchByModule).sort().map(m => m + " " + (spchByModule[m] / 60).toFixed(2) + "h").join(", "));
 
+  // ---- can the checks be answered without the lesson? (T-037 review round 1) ----
+  // At review, in 436 of 479 SPCH summary checks the answer was the unique
+  // longest option: pick the longest and you passed without watching anything.
+  // CONTENT-STANDARD: distractors must encode real errors, never filler — and a
+  // real misreading of a lesson is about as long as the right reading. With
+  // four options of honest, similar lengths the answer is the unique longest
+  // about a quarter of the time by chance, so the bound is about a third. The
+  // unique shortest is bounded the same way, so the fix cannot overshoot into
+  // the opposite tell. Scoped to spch100: other courses' checks are numeric.
+  let spchChecks = 0, longestN = 0, shortestN = 0;
+  Object.keys(D.SUMMARIES || {}).filter(k => k.startsWith("spch100.")).forEach(k =>
+    (D.SUMMARIES[k].checks || []).forEach(c => {
+      if (!Array.isArray(c.opts) || !Number.isInteger(c.a) || c.opts[c.a] === undefined) return;
+      const len = c.opts.map(o => String(o).length), mine = len[c.a];
+      const mx = Math.max(...len), mn = Math.min(...len);
+      spchChecks++;
+      if (mine === mx && len.filter(x => x === mx).length === 1) longestN++;
+      if (mine === mn && len.filter(x => x === mn).length === 1) shortestN++;
+    }));
+  const third = Math.ceil(spchChecks / 3);
+  ok(longestN <= third, "SPCH checks: the answer is the unique longest option in " + longestN + " of " + spchChecks +
+     " — at most about a third (" + third + ") may be, or the checks can be passed by picking the longest option");
+  ok(shortestN <= third, "SPCH checks: the answer is the unique shortest option in " + shortestN + " of " + spchChecks +
+     " — at most about a third (" + third + ") may be");
+  console.log("SPCH check options: answer unique longest in " + longestN + " of " + spchChecks + " (" +
+    (100 * longestN / Math.max(1, spchChecks)).toFixed(1) + "%), unique shortest in " + shortestN + " (" +
+    (100 * shortestN / Math.max(1, spchChecks)).toFixed(1) + "%); bound " + third);
+
   // ---- who the lessons say said it (T-037 review round 1) ----
   // A lesson that names a teacher, a channel or a person has to be able to show
   // where that name came from. data/storytelling/candidates.jsonl carries, for

@@ -54,3 +54,4 @@
 - 2026-10-11: T-039 r1 fixes in (8eab57e): stamps-only + unload report (pagehide/visibilitychange/unload), session stamp opt-in on switch (c), comments, PLANT_FIRST evidence. My CHECK all green, 0 notes. Review r2 sent.
 - 2026-10-11: T-039 review r2 CHANGES REQUIRED: fallback with no unload report retried an app wipe when the app silences console.log (3/20 fail vs base 10/20). Fix: fail-closed (no report => measured), report via exposeBinding, ATTEMPTS 3->5, two comments. Round 3 is the last before asking the owner.
 - 2026-10-11: T-039 r2 fixes in (4eecf84): fail-closed, report via exposeBinding (150/150 delivered), ATTEMPTS 5, comments. My CHECK all green. Review r3 (last) sent.
+- 2026-10-11: T-039 review r3: code passes everything; only finding = spec still described the old rule / 3 attempts. Coordinator amended spec.md (66a8fb4); reviewer asked to confirm the text only.

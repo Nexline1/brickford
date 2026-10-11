@@ -13,7 +13,9 @@
 //     intact, but the harness's write-once seed (verify-design's bareSettings,
 //     which keys "once" off sessionStorage) fired again and wrote its fixture
 //     over the app's state — so the app booted on {theme:"light"} with no
-//     marker and correctly switched it to dark. 6 of 60 isolated runs here.
+//     marker and correctly switched it to dark. 5 of 60 isolated runs here,
+//     read by a probe registered before every seed; no localStorage loss in
+//     those 60.
 // Neither is something the app can cause or prevent: nothing of it runs
 // before the read that came back wrong.
 //
@@ -93,7 +95,9 @@ class StorageLost extends Error {}
 // Measure `body` across a proven reload. `body(check, reload)` is the block as
 // it was, given a `check` that holds its calls (same arguments as the
 // harness's) and a `reload(page, options)` to use in place of page.reload.
-// `fail(why)` records one failing check in the harness's own terms.
+// The held check returns nothing, so a block must not branch on check's
+// result (none of the five does). `fail(why)` records one failing check in the
+// harness's own terms.
 async function acrossReload({ label, check, fail }, body) {
   for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
     const held = [];

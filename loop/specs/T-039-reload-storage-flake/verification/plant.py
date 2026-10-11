@@ -14,6 +14,12 @@ def edit(rel, pairs):
     print("planted", plant, "in", rel)
 if plant == "a":       # app bug: the theme pick does not save
     edit("platform/js/app.js", [("        save(); applyTheme();\n", "        applyTheme();\n")])
+elif plant in ("u50", "clearall"):   # app bugs at unload (review 1): a pagehide listener of the app's own, registered at load
+    act = 'if (Math.random() < 0.5) localStorage.removeItem("darhikmah_v1");' if plant == "u50" else "localStorage.clear();"
+    p = root + "/platform/js/app.js"
+    s0 = open(p, encoding="utf-8").read()
+    open(p, "w", encoding="utf-8").write('window.addEventListener("load", () => window.addEventListener("pagehide", () => { ' + act + ' }));\n' + s0)
+    print("planted", plant, "in platform/js/app.js")
 elif plant in ("b-design", "b2-design"):  # storage always lost on reload: a document-start clear in every fresh() context
     clr = CLEAR_LOCAL if plant == "b-design" else CLEAR_SESSION
     # Registered BEFORE the context's clock: Playwright's fake clock replaces window.performance with an
@@ -37,11 +43,11 @@ elif plant == "b-sync":
 """, """    const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", colorScheme: "light" });
     await ctx2.addInitScript(""" + CLEAR_LOCAL + """);
 """)])
-elif plant == "c":     # silent retry: the wrapper retries on ANY failure (a failing check or an error), not only the storage-lost precondition
+elif plant == "c":     # silent retry: the wrapper retries on ANY failure (a failing check or an error), not only the lost-stamp precondition
     edit("tools/lib-reload.js", [
       ("      return r;\n    };\n", "      run.last = r;\n      return r;\n    };\n"),
       ("    if (run.lost === null) {\n", "    if (run.lost === null && !err && !held.some(args => args.includes(false))) {\n"),
-      ("    const b = run.lost.boot, seen", "    if (run.lost === null) run.lost = run.last || { boot: { state: false, local: null, session: null }, stamp: \"\" };\n    const b = run.lost.boot, seen"),
+      ("    stats.lost++;\n", "    if (run.lost === null) run.lost = run.last || { stamp: \"\", session: false, report: null, boot: { local: null, session: null } };\n    stats.lost++;\n"),
     ])
 else:
     raise SystemExit("unknown plant " + plant)

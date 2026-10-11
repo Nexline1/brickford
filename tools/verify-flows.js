@@ -49,8 +49,10 @@
 //       in that order and nothing else, in two saves, with the counted DSA and
 //       BHD equal to the fixture's (worked out here from the plan week's
 //       dates), the week sealed before untouched, and the chain's week event
-//       as before — at 1440 and 390 in dark and light, and once with no
-//       payment in the week, where BHD is typed and stored as typed.
+//       as before — at 1440 and 390 in dark and light, the payments on both
+//       edges of the week and on its Saturday; once with an empty ledger,
+//       where BHD is typed and stored as typed; and once with a ledger that
+//       has nothing in the week, where BHD is a counted 0.
 //
 // And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
 //
@@ -347,9 +349,11 @@ const T26C_WEEK = (() => {
   const w = Math.floor(pos / 6) + 1;
   return { w, from: study[(w - 1) * 6], to: study[w * 6 - 1] };
 })();
-// Two problems solved, a lecture proven this week, payments on the Sunday
-// that ends the week before (not this week's) and two this week, and a week
-// already sealed — which a seal must leave exactly as it was.
+// Two problems solved, a lecture proven this week, a week already sealed —
+// which a seal must leave exactly as it was — and payments on both edges of
+// the plan week and its rest day: the Sunday that ends the week before and
+// the Monday after (neither counts), its Monday, a weekday, its Saturday and
+// its Sunday (all four count).
 const T26C_SEAL_STATE = (theme, entries) => ({
   settings: { theme, themeNavyOnce: true },
   problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-17", "Arrays & Hashing|Valid Anagram": "2026-10-19" },
@@ -358,6 +362,9 @@ const T26C_SEAL_STATE = (theme, entries) => ({
     { date: "2026-10-18", amount: 999, note: "the last day of the week before" },
     { date: "2026-10-19", amount: 120, note: "pilot" },
     { date: "2026-10-20", amount: 30.5, note: "a referral" },
+    { date: "2026-10-24", amount: 7, note: "the rest day" },
+    { date: "2026-10-25", amount: 2.25, note: "the last day of the week" },
+    { date: "2026-10-26", amount: 500, note: "the first day of the week after" },
   ] },
   weeks: [{ week: 1, date: "2026-10-11", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
 });
@@ -871,10 +878,12 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // counted numbers equal to the fixture's (DSA every problem solved, BHD the
   // payments dated in this plan week), in two saves (the week and its chain
   // event), the week before untouched, and the chain's week event as before.
-  // Then once, with no payment this week: BHD is typed, and stored as typed.
+  // Then once with an empty ledger, where BHD is typed and stored as typed
+  // (the spec: it "stays editable if the ledger has none"); and once with a
+  // ledger that has nothing in this week, where BHD is a counted 0.
   console.log("\nsealing the week (T-026c)");
   const sealFlow = async (theme, w, entries, typedRev) => {
-    const at = w + "px " + theme + (typedRev != null ? ", no payment this week" : "");
+    const at = w + "px " + theme + (typedRev != null ? ", an empty ledger (BHD typed)" : entries ? ", no payment in this week (BHD a counted 0)" : "");
     const state = T26C_SEAL_STATE(theme, entries);
     const { ctx, page, errors } = await fresh(browser, w, state, "/review");
     try {
@@ -914,7 +923,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   };
   for (const theme of ["dark", "light"]) for (const w of [1440, 390]) await sealFlow(theme, w);
-  await sealFlow("dark", 390, [{ date: "2026-10-18", amount: 999, note: "the last day of the week before" }], 75.5);
+  await sealFlow("dark", 390, [], 75.5);
+  await sealFlow("dark", 390, [{ date: "2026-10-18", amount: 999, note: "the last day of the week before" },
+                              { date: "2026-10-26", amount: 500, note: "the first day of the week after" }]);
 
   // ---- (j) the tab bar you slide along (T-023) ----
   // Once, at 390x568, with motion ON (the spring is part of what is measured).
@@ -1407,7 +1418,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
-      "Seal the week at 1440/390 x 2 themes and once with BHD typed, the stored week the shape it always was (T-026c)"
+      "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

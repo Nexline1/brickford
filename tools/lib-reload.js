@@ -15,15 +15,20 @@
 //
 // What is proven, and only this. Just before the reload a one-off stamp is
 // written beside the state in localStorage — and, for a block that opts in
-// with { session: true }, in sessionStorage too (only switch (c) does: its
-// seed is the only reader of sessionStorage; nothing in platform/ reads it).
-// Two readings are then taken:
+// with { session: true }, in sessionStorage too. Only switch (c) does:
+// bareSettings is the only seed on a reloaded page that reads sessionStorage
+// (verify-flows' other-device seed reads it too, but its page never reloads),
+// and nothing in platform/ reads it. Two readings are then taken:
 //   - the UNLOAD REPORT: a listener added to the old page last, so it runs
-//     after the app's own, reports through console.log at pagehide,
-//     visibilitychange and unload whether the state key and the stamps are
-//     still there. The app writes at pagehide (leaveLecture, the sync push)
-//     and at visibilitychange (keepPosition); unload is the last point the old
-//     page can touch storage. The last report received is the one used;
+//     after the app's own, reports at pagehide, visibilitychange and unload
+//     whether the state key and the stamps are still there. It reports through
+//     a binding only the harness owns (page.exposeBinding, BINDING below,
+//     installed on every attempt's page), captured when the listener is added
+//     — not through console.log, which the app owns and can replace. The app
+//     writes at pagehide (leaveLecture; the sync push writes nothing
+//     synchronously) and at visibilitychange (keepPosition); unload is the
+//     last point the old page can touch storage. The last report received is
+//     the one used;
 //   - DOCUMENT START: an init script added to the page reads the stamps before
 //     any page script, records them as window.__bootHadState and takes them
 //     away again, so the app sees the storage it left. Playwright runs init
@@ -32,25 +37,28 @@
 //     BEFORE this probe. No seed writes a stamp, which is why the stamps and
 //     not the state key are what is read.
 //
-// The rule. If the unload report says the app took the state key or a stamp
-// away, the attempt is the app's doing: it is measured as it is and never
-// retried. Otherwise, if a required stamp did not arrive at document start,
-// the attempt is not a measurement of the app: EVERY reading of it is
-// discarded — failing checks included — a note is printed, and the WHOLE block
-// is measured again from a fresh context, up to ATTEMPTS in all. If every
-// attempt loses the stamps, the gate FAILS with that reason; it never passes
-// on a measurement it did not make. Whether the state itself arrived is not
-// part of the rule: that is what the checks measure. If no unload report
-// arrives, the stamps alone decide, and the note says so. The checks' own
-// predicates are untouched: a block hands its `check` calls to a buffer with
-// the harness's own signature, and they are replayed into the harness's check,
-// in order, once the attempt stands.
+// The rule, fail-closed. An attempt is retried only when the unload report
+// arrived, says the old page still held the state key and every required
+// stamp when it finished unloading, and a required stamp is missing at
+// document start: lost between the documents, where no app script runs. Then
+// EVERY reading of the attempt is discarded — failing checks included — a
+// note is printed, and the WHOLE block is measured again from a fresh
+// context, up to ATTEMPTS in all; if every attempt loses the stamps, the gate
+// FAILS with that reason, so it never passes on a measurement it did not
+// make. In every other case the attempt is measured as it is and never
+// retried: if the report says the app took the key or a stamp away, that is
+// the app's doing; if no report arrived, nothing shows the stamps outlived the
+// app's own unload handlers, so a missing stamp may be the app's. Whether the
+// state itself arrived is not part of the rule: that is what the checks
+// measure. The checks' own predicates are untouched: a block hands its `check`
+// calls to a buffer with the harness's own signature, and they are replayed
+// into the harness's check, in order, once the attempt stands.
 "use strict";
 
 const STATE_KEY = "darhikmah_v1";
 const STAMP_KEY = "__harnessReloadStamp";
-const REPORT = "__harnessReloadUnload ";
-const ATTEMPTS = 3;
+const BINDING = "__harnessReloadReport";
+const ATTEMPTS = 5;
 
 // This process's tally, read by the isolated-block runners: attempts
 // discarded for a lost stamp, blocks that lost it on every attempt, attempts
@@ -72,33 +80,39 @@ function bootProbe([key, stampKey]) {
 }
 
 const probed = new WeakSet();
-const reports = new WeakMap();   // page -> { stamp: the last unload report for it }
+const reports = new WeakMap();   // page -> { stamp: { last: the last unload report, events: [every event reported] } }
 let serial = 0;
 
-// One proven reload. Returns { storedBefore, stamp, session, report, boot,
-// appRemoved, lost }:
-//   report      the last unload report for this stamp, or null if none came;
-//   appRemoved  the report says the state key or a required stamp was already
-//               gone when the old page unloaded — the app's doing;
-//   lost        the retry condition (below).
+// One proven reload. Returns { storedBefore, stamp, session, report,
+// reportEvents, boot, appRemoved, lost }:
+//   report        the last unload report for this stamp, or null if none came;
+//   reportEvents  the events that reported, in the order they arrived;
+//   appRemoved    the report says the state key or a required stamp was already
+//                 gone when the old page unloaded — the app's doing;
+//   lost          the retry condition (below).
 async function provenReload(page, options, session) {
   const stamp = "r" + process.pid + "." + (++serial) + "." + Date.now();
   if (!probed.has(page)) {
     await page.addInitScript(bootProbe, [STATE_KEY, STAMP_KEY]);
     const got = {};
     reports.set(page, got);
-    page.on("console", m => {
-      const t = m.text();
-      if (!t.startsWith(REPORT)) return;
-      try { const r = JSON.parse(t.slice(REPORT.length)); got[r.stamp] = r; } catch (e) {}
+    await page.exposeBinding(BINDING, (source, r) => {
+      if (!r || typeof r.stamp !== "string") return;
+      const e = got[r.stamp] || (got[r.stamp] = { last: null, events: [] });
+      e.last = r;
+      e.events.push(r.ev);
     });
     probed.add(page);
   }
-  const storedBefore = await page.evaluate(([key, stampKey, stamp, session, prefix]) => {
+  const storedBefore = await page.evaluate(([key, stampKey, stamp, session, binding]) => {
     const had = localStorage.getItem(key) !== null;
     if (!had) return false;
     localStorage.setItem(stampKey, stamp);
     if (session) sessionStorage.setItem(stampKey, stamp);
+    // The harness's own channel, captured now: nothing the app does to the
+    // global afterwards can silence it.
+    const send = window[binding];
+    if (typeof send !== "function") return true;   // no channel, so no report: measured, never retried
     // Added last, so on each event it runs after the app's own listeners.
     const tell = ev => () => {
       if (ev === "visibilitychange" && document.visibilityState !== "hidden") return;
@@ -106,24 +120,25 @@ async function provenReload(page, options, session) {
       try {
         r = { stamp, ev, key: localStorage.getItem(key) !== null, local: localStorage.getItem(stampKey), session: sessionStorage.getItem(stampKey) };
       } catch (e) { r = { stamp, ev, key: false, local: null, session: null, error: String(e && e.message || e) }; }
-      console.log(prefix + JSON.stringify(r));
+      try { send(r); } catch (e) {}
     };
     window.addEventListener("pagehide", tell("pagehide"));
     document.addEventListener("visibilitychange", tell("visibilitychange"));
     window.addEventListener("unload", tell("unload"));
     return true;
-  }, [STATE_KEY, STAMP_KEY, stamp, !!session, REPORT]);
+  }, [STATE_KEY, STAMP_KEY, stamp, !!session, BINDING]);
   await page.reload(options);
   const boot = await page.evaluate(() => window.__bootHadState);
   if (!boot) throw new Error("reload probe: the document-start probe did not run, so the reload is unproven");
-  const report = storedBefore ? reports.get(page)[stamp] || null : null;
+  const entry = storedBefore ? reports.get(page)[stamp] || null : null;
+  const report = entry && entry.last, reportEvents = entry ? entry.events.slice() : [];
   const kept = r => r.local === stamp && (!session || r.session === stamp);
   const appRemoved = !!report && !(report.key && kept(report));
-  // THE retry condition, and the only one: something was stored before the
-  // reload, the app did not take it away while the old page unloaded, and a
-  // required stamp is missing at document start.
-  const lost = storedBefore && !appRemoved && !kept(boot);
-  return { storedBefore, stamp, session: !!session, report, boot, appRemoved, lost };
+  // THE retry condition, and the only one, fail-closed: something was stored
+  // before the reload, the unload report arrived, it says the app did not take
+  // the key or a stamp away, and a required stamp is missing at document start.
+  const lost = storedBefore && !!report && !appRemoved && !kept(boot);
+  return { storedBefore, stamp, session: !!session, report, reportEvents, boot, appRemoved, lost };
 }
 
 class StorageLost extends Error {}
@@ -134,7 +149,7 @@ function account(r) {
   const parts = s => "the localStorage stamp " + seen(s.local, r.stamp) + (r.session ? ", the sessionStorage stamp " + seen(s.session, r.stamp) : "");
   const at = r.report
     ? "at the old page's " + r.report.ev + " the state key was " + (r.report.key ? "present" : "missing") + ", " + parts(r.report)
-    : "no unload report arrived, so the stamps alone decide";
+    : "no unload report arrived";
   return at + "; at document start " + parts(r.boot) + (r.boot.error ? " (" + r.boot.error + ")" : "");
 }
 
@@ -145,13 +160,15 @@ function account(r) {
 // result (none of the five does). `fail(why)` records one failing check in the
 // harness's own terms. `session: true` also requires the sessionStorage stamp.
 async function acrossReload({ label, check, fail, session }, body) {
-  const losses = [];
   for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
     const held = [];
     const run = { lost: null };
     const reload = async (page, options) => {
       const r = await provenReload(page, options, session);
-      if (r.storedBefore && !r.report) stats.noReport++;
+      if (r.storedBefore && !r.report) {
+        stats.noReport++;
+        console.log("  note  " + label + ": no unload report arrived (attempt " + attempt + ") — measured as it is, not retried — " + account(r));
+      }
       if (r.appRemoved) {
         stats.appRemoved++;
         console.log("  note  " + label + ": the app took the stored state or a stamp away while the old page unloaded (attempt " +
@@ -173,17 +190,14 @@ async function acrossReload({ label, check, fail, session }, body) {
     }
     // A lost attempt: every reading of it is discarded, failing checks included.
     stats.lost++;
-    losses.push(run.lost);
     console.log("  note  " + label + ": storage lost on reload (attempt " + attempt + " of " + ATTEMPTS + ")" +
       (attempt < ATTEMPTS ? ", re-measured" : "") + " — " + account(run.lost));
   }
   stats.exhausted++;
-  const reported = losses.filter(r => r.report).length;
   fail(label + ": the stamps written just before the reload did not arrive at document start in all " + ATTEMPTS +
-    " attempts, each from a fresh context, so the reloaded page was never measured and this cannot pass — " +
-    (reported === ATTEMPTS
-      ? "each time the old page still held them when it unloaded, so they were lost between its unload and the new page's document start, where no app script runs"
-      : (ATTEMPTS - reported) + " of the " + ATTEMPTS + " sent no unload report, so for those this rests on the stamps alone"));
+    " attempts, each from a fresh context, so the reloaded page was never measured and this cannot pass — each time the " +
+    "unload report had the old page still holding them when it finished unloading, so they were lost between its unload " +
+    "and the new page's document start, where no app script runs");
 }
 
-module.exports = { acrossReload, provenReload, bootProbe, stats, STATE_KEY, STAMP_KEY, REPORT, ATTEMPTS };
+module.exports = { acrossReload, provenReload, bootProbe, stats, STATE_KEY, STAMP_KEY, BINDING, ATTEMPTS };

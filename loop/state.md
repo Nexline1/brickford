@@ -49,3 +49,4 @@
 - 2026-10-10: T-026c builder launched in /home/user/bf-T-026c (branch loop/T-026c-week-calendar-library, from 45fdf55), tokens 20261010e.
 - 2026-10-10: T-026c built (3dcb96a/71c333e): all gates green except verify-design switch (c) flake (4 of 6 runs). Diagnosed T-039: on reload the harness browser sometimes starts with EMPTY localStorage (null at document start, 1 of 30), not an app bug. Spec written; building T-039 before T-026c review.
 - 2026-10-10: T-039 builder launched in /home/user/bf-T-039 (from 45fdf55).
+- 2026-10-11: T-039 built (26a4888): lib-reload.js proves storage arrived at document start (state key + localStorage and sessionStorage stamps), re-measures up to 3 on loss. Builder found sessionStorage loss too (5/60). My CHECK all green (design x2, flows x2, sync-loop x2, one re-measure note). Review r1 sent.

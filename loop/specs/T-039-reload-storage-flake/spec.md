@@ -57,10 +57,10 @@ The rule in Scope 1 was replaced during review. What ships, in `tools/lib-reload
 4. **The retry condition, whole:** `lost = storedBefore && !!report && !appRemoved && !kept(boot)`.
 5. **The session stamp is opt-in.** Only switch (c) depends on sessionStorage, through verify-design's write-once seed. Nothing in `platform/` reads sessionStorage.
 6. **5 attempts, not 3.**
-   - The browser here drops the sessionStorage stamp on about 8–16% of reloads, in bursts.
+   - The browser here drops a stamp, mostly the sessionStorage one, on about 2–16% of reloads, in bursts.
    - In round 2 the reviewer saw one block lose all 3 attempts: a red gate caused by the browser alone.
-   - Under the fail-closed, stamps-only rule, more attempts cannot pass an app failure.
+   - More attempts never retry a measured attempt. They only re-measure attempts the browser spoiled, where the stamps were held at the old page's last unload listener and missing at document start. A failing reading inside such an attempt is discarded with it (item 7), so a one-off app failure that coincides with a browser loss can pass; measured: 3 of 40 PLANT_FIRST runs.
 7. **Every reading of a lost attempt is discarded,** failing checks included. Exhaustion records exactly one failure.
 8. **Plant (c), as evidenced.** The plant that tells a silent retry from this wrapper skips the Light pick in attempt 1 only, with storage intact.
-   - HEAD exits 1 with 0 re-measures.
+   - HEAD exits 1 with 0 re-measures in the 5-run record. Across the reviewer's runs, a block run passes only when its first attempt also lost storage (3 of 40 runs measured).
    - HEAD with a retry-on-any-failure wrapper exits 0.

@@ -895,7 +895,10 @@
   }
   // The week-plan row that governs a given calendar date.
   function weekRowFor(iso) {
-    const w = Math.max(1, Math.floor(Math.max(0, studyIndex(iso)) / STUDY_WEEK) + 1);
+    // A rest day belongs to the week just worked (weekNumber's rule). Its own
+    // index is -1, which read as Week 1, and Week 1's focus, every Saturday.
+    const i = studyIndex(iso) >= 0 ? studyIndex(iso) : studyIndex(prevStudyDay(iso));
+    const w = Math.max(1, Math.floor(Math.max(0, i) / STUDY_WEEK) + 1);
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { w, row };
   }
@@ -1090,14 +1093,6 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
-  // A scheduled block that is not a lecture — the later weeks where a course has
-  // run out of lessons and the day is project or frontier work. Real lectures go
-  // through dayGroupsHTML below, on both pages that show a day.
-  function pseudoRowHTML(it) {
-    return '<a class="grow" href="' + it.href + '"><span class="g-lead">\u00b7</span>' +
-      '<span class="g-main"><span class="g-t">' + esc(it.t) + '</span>' +
-      '<span class="g-s">' + esc(it.track) + '</span></span></a>';
-  }
   // The day, grouped by course.
   //
   // Nine separate cards meant nine borders, nine "Open" buttons and six rows
@@ -2905,6 +2900,28 @@
   let sketchDirty = false;
   let calCursor = null; // "YYYY-MM" of the displayed month
   let calSel = null;    // "YYYY-MM-DD" of the selected day
+  // T-026c review 1: a re-render of the same page starts at the top
+  // (renderInner). For the day view's own ‹ Today › that threw a reader who
+  // had scrolled down to the day back up the page, and on a phone it left the
+  // row under the fixed bars, where the next tap opened whatever was there.
+  // So these keep the control that was pressed where it was on screen, under
+  // the finger for the next tap (the header above it can change height: a
+  // longer day name wraps), and the focus on it (found again by selector:
+  // the view is rebuilt). Without the control, the day's header holds still.
+  // Positions are layout positions (the offsetTop chain), not the painted box:
+  // the new view starts its entrance 4px low (viewIn), and correcting for
+  // that would leave the control 4px off once it settles.
+  function dayRender(sel) {
+    const at = () => $(sel) || $("#view .cd-head");
+    const top = n => { let y = 0; for (let e = n; e; e = e.offsetParent) y += e.offsetTop; return y - window.scrollY; };
+    const a0 = at(), top0 = a0 ? top(a0) : null;
+    render({ after: () => {
+      const a1 = at();
+      if (a1 && top0 != null) window.scrollBy({ top: top(a1) - top0, behavior: "instant" });
+      const c = $(sel), f = c && !c.disabled ? c : $("#view .cd-seg [data-cal-nav='today']");
+      if (f) f.focus({ preventScroll: true });
+    } });
+  }
 
   function monthGridHTML() {
     const today = todayISO();
@@ -2974,110 +2991,88 @@
     if (iso < D.START_DATE) {
       return '<div class="card"><h2>The climb hasn’t started yet</h2><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Day 1 is ' + D.START_DATE + '. Pick that day or later to see the brief.</p></div>';
     }
+    // T-026c: the selected day, below the month grid (which is untouched).
+    // It was a summary card, then one .ghead and .glist per course, then a
+    // list of routines: three shapes for one day. Now it is a header (the
+    // day, where it sits in the plan, a slim bar, ‹ Today ›), one block per
+    // scheduled item with its faculty's colour down its edge, and the habits
+    // as a row of tiles. Same facts; the order a day is actually worked in.
     const dObj = new Date(iso + "T00:00:00");
-    const nice = dObj.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    // "Wednesday 7 October", built from its parts: a locale's own order and
+    // comma are not the heading's.
+    const nice = dObj.toLocaleString("en-US", { weekday: "long" }) + " " + dObj.getDate() + " " +
+      dObj.toLocaleString("en-US", { month: "long" });
     const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
     const isSunday = dObj.getDay() === 0;
-    const isToday = iso === todayISO();
+    const first = todayISO() > D.START_DATE ? todayISO() : D.START_DATE;
     const status = dayStatus(iso);
-    const act = dayActivity(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
     const sched = scheduledFor(iso);
     const real = sched.filter(it => !it.pseudo);
     const schedDoneN = real.filter(schedDone).length;
-    const probs = nextProblems(2);
 
-    // This day's own lessons — fixed forever, done state shown per lesson.
-    // Same renderer as the dashboard: grouped by course, the row is the link.
-    // The "The lessons" label that used to head them is gone: each group names
-    // its own course, and the status pill above already says whether the day is
-    // owed, part-done or clear.
-    const schedRows = real.length || sched.some(it => it.pseudo)
-      ? dayGroupsHTML(real) +
-        (sched.some(it => it.pseudo)
-          ? '<div class="glist" style="margin-top:var(--sp-3);">' +
-            sched.filter(it => it.pseudo).map(pseudoRowHTML).join("") + "</div>"
-          : "")
-      : '<div class="ghead">No lectures on this day</div>' +
-        '<div class="glist"><a class="grow" href="#/workshop"><span class="g-lead">·</span>' +
-        '<span class="g-main"><span class="g-t">Project work</span>' +
-        '<span class="g-s">beyond the scheduled syllabus — per the week focus above</span></span></a></div>';
-
-    // The five things that run on every study day. They were .plan-row — a block
-    // label, a sentence and a "Go" button each — which is a fourth shape on a
-    // page that already had three. One group, one row apiece, the row is the
-    // link, and the five "Go" buttons are gone.
-    const routine = (name, time, what, href) =>
-      '<a class="grow" href="' + href + '"><span class="g-lead"></span>' +
-      '<span class="g-main"><span class="g-t">' + name + "</span>" +
-      '<span class="g-s">' + what + "</span></span>" +
-      '<span class="g-v">' + time + "</span></a>";
-
-    const statusPill = {
-      today: '<span class="pill teal">Today</span>',
-      upcoming: '<span class="pill">Upcoming</span>',
-      completed: '<span class="pill good">✓ Completed</span>',
-      partial: '<span class="pill" style="color:var(--accent-2); border-color:var(--accent-2);">Partly done</span>',
-      missed: '<span class="pill crimson">Missed — catch up</span>',
-      rest: '<span class="pill">Rest day</span>',
-    }[status];
-
-    // Per-day progress line: this day's scheduled lessons, done vs owed.
-    const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
-    const progressLine =
-      '<div style="margin-top:12px;">' +
-      // space-between with no gap: the moment the right-hand span wraps — which
-      // it does on a phone — the two halves meet and it reads "PROGRESS1 of 5
-      // lessons". space-between only separates what fits on one line.
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
-      '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600; flex-shrink:0;">Progress</span>' +
-      // Right-aligned so a wrapped second line stacks under the first rather
-      // than floating in the middle of the row.
-      '<span class="mono" style="text-align:right;">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
-      " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
-      '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
-      // courseStand ("Lin Algebra 6/51 lectures done") said the same thing as the
-      // bar above it and the rows below it. The day detail was stating its
-      // contents four separate ways - bar, this line, the chips, then the
-      // lessons themselves. Three of the four were restatements.
-      "</div>";
+    const sub = status === "rest" ? "Rest day · Week " + w
+      : "Day " + day + " · Week " + w + (real.length ? " · " + schedDoneN + " of " + real.length + " done" : "");
+    // ‹ and › step the selected day; Today is the grid's own Today.
+    const chev = d => '<svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+    const seg = '<div class="seg cd-seg" role="group" aria-label="Choose a day">' +
+      '<button type="button" data-cal-step="-1" aria-label="Previous day"' + (iso <= D.START_DATE ? " disabled" : "") + ">" + chev("M6.5 1.5 L2 6.5 L6.5 11.5") + "</button>" +
+      '<button type="button" data-cal-nav="today" aria-pressed="' + (iso === first) + '">Today</button>' +
+      '<button type="button" data-cal-step="1" aria-label="Next day">' + chev("M1.5 1.5 L6 6.5 L1.5 11.5") + "</button></div>";
 
     const catchUp = (status === "missed" || status === "partial")
-      ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--ink);">' +
+      ? '<p class="cd-note"><strong>' +
         (status === "missed" ? "You missed this day — its lessons are still here." : "You started this day but didn’t finish it.") +
         "</strong> This day’s content never moves. Clear the unticked lessons and the day turns green — even late.</p>"
       : "";
 
-    // The summary is a card because it is one object: a date, a state and a bar.
-    // Everything under it is rows, so the lists are NOT nested inside the card —
-    // a bordered group inside a bordered card is the second border this design
-    // spent three rounds getting rid of.
-    return '<div class="card" style="margin-top:12px;">' +
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
-      "<h2>" + nice + "</h2>" +
-      '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill +
-      (status === "rest"
-        ? '<span class="pill">Week ' + w + "</span>"
-        : '<span class="pill teal">Day ' + day + " · Week " + w + "</span>") + "</div></div>" +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
-      progressLine +
+    // A lecture: its course and block, its title, its length over its place in
+    // the course ("lecture n") or in a lecture that spans days ("part p of q").
+    const blk = it => {
+      const c = D.COURSES.find(x => x.id === it.cid);
+      const dn = schedDone(it);
+      const n = flatLessons(it.cid).findIndex(f => f.ui === it.ui && f.li === it.li) + 1;
+      const dur = it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading";
+      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+        '<span class="cd-bar" aria-hidden="true"></span>' +
+        '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") + esc(it.l.t) + "</span></span>" +
+        '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
+    };
+    // Not a lecture: the weeks where a course has run out and the block is
+    // problem sets, a project or frontier work. No faculty, so no colour.
+    const pblk = it => '<a class="cd-blk cd-pseudo" href="' + it.href + '"><span class="cd-bar" aria-hidden="true"></span>' +
+      '<span class="cd-main"><span class="cd-k">' + esc(it.track) + '</span><span class="cd-t">' + esc(it.t) + "</span></span></a>";
+    const blocks = sched.length
+      ? '<div class="cd-blocks">' + sched.map(it => it.pseudo ? pblk(it) : blk(it)).join("") + "</div>"
+      : status === "rest"
+        ? '<p class="cd-none">Nothing is scheduled and nothing is owed. The streak is safe.</p>'
+        : '<div class="cd-blocks">' + pblk({ track: "Project work", t: "Beyond the scheduled syllabus — per the week’s focus", href: "#/workshop" }) + "</div>";
+
+    // The things that run on every study day, and what they add up to.
+    const pool = missPool().length;
+    const habits = [
+      ["Practice", 45, nextProblems(1).length ? "NeetCode" : "all 150 done", "#/course/cs150"],
+      ["Drill", 10, pool ? pool + " missed" : "", "#/drill"],
+      ["Publish", 30, "one post", "#/review"],
+      ["Workshop", 0, "this week’s build", "#/workshop"],
+    ].concat(isSunday ? [["Seal the week", 30, "Week " + w, "#/review"]] : []);
+    const mins = habits.reduce((a, h) => a + h[1], 0);
+    const about = "about " + (mins >= 60 ? Math.floor(mins / 60) + " h" + (mins % 60 ? " " + pad2(mins % 60) : "") : mins + " min");
+    const habit = ([t, m, d, href]) => '<a class="at-tile cd-hb" href="' + href + '"><span class="tl-main">' +
+      '<span class="tl-t">' + t + '</span><span class="tl-m">' + [m ? m + " min" : "", d].filter(Boolean).join(" · ") + "</span></span></a>";
+
+    return '<div class="cd-day">' +
+      '<div class="cd-head"><div class="cd-title"><h2>' + nice + '</h2><p class="cd-sub">' + sub + "</p></div>" + seg + "</div>" +
+      (real.length ? '<div class="cd-prog' + (schedDoneN === real.length ? " full" : "") + '" role="img" aria-label="' + schedDoneN + " of " + real.length +
+        ' done"><i style="width:' + (schedDoneN / real.length * 100) + '%;"></i></div>' : "") +
+      '<p class="cd-note"><strong>Focus:</strong> ' + esc(row.focus) + "</p>" +
       catchUp +
-      (gate ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--accent);">◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
-      "</div>" +
-
-      schedRows +
-
-      '<div class="ghead">Every study day<span class="gh-meta">' + (isSunday ? "5" : "4") + "</span></div>" +
-      '<div class="glist">' +
-      routine("Practice", "45m",
-        probs.length ? "NeetCode: " + probs.map(esc).join(", ") : "All 150 problems done", "#/course/cs150") +
-      routine("Drill", "10m",
-        missPool().length ? missPool().length + " missed questions in the pool" : "pool clear — a random drill", "#/drill") +
-      routine("Publish", "30m", "turn today’s notes into a public post", "#/review") +
-      routine("Workshop", "", "the build that the week’s focus is for", "#/workshop") +
-      (isSunday ? routine("Seal the week", "30m", "no shipped artifact = a failed week", "#/review") : "") +
-      "</div>";
+      (gate ? '<p class="cd-note cd-gate"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
+      blocks +
+      '<div class="ghead">Every study day<span class="gh-meta">' + about + "</span></div>" +
+      '<div class="cd-habits">' + habits.map(habit).join("") + "</div></div>";
   }
 
   V.diag = function (id) {
@@ -3975,27 +3970,97 @@
       "</div>";
   };
 
+  // ---- T-026c: the plan week as dates ----
+  // Week w is study days (w-1)*6 .. w*6-1. Its dates run from the first of
+  // them to the last, so the Saturday between Friday and Sunday is inside it
+  // (a payment logged on a rest day still belongs to the week it sits in).
+  function weekSpan(w) {
+    return { from: dateForStudy((w - 1) * STUDY_WEEK), to: dateForStudy(w * STUDY_WEEK - 1) };
+  }
+  const shortDay = iso => { const d = new Date(iso + "T00:00:00");
+    return d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  const numText = v => (Math.round(v * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+  // T-026c: four numbers, two questions, one Seal. It was a form of five
+  // captioned fields over a register table, so "what is all this about?" was
+  // a fair question. The numbers the app already knows are counted here, at
+  // render, and written nowhere (a render is a read). They reach storage only
+  // through the Seal handler, which is unchanged and reads the same input ids
+  // it always has, so a sealed week is the shape it always was:
+  // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
+  // total, as that field always was (the dashboard draws it "over time").
   V.review = function () {
-    const w = weekNumber();
-    const logged = S.weeks.some(x => +x.week === w);
-    return '<div class="view-enter">' + folio("Week") + '<div class="page-head">' +
-      '<div class="sub">Seal the week: what shipped, what did not. No shipped artifact is a failed week.</div></div>' +
-      '<div class="card"><h2>Week ' + w + (logged ? " — already logged" : "") + "</h2>" +
-      '<div class="grid cols-2" style="margin-top:10px;">' +
-      '<div><label class="field">Shipped this week (repo, post, PR, delivery — or empty if none)</label><input type="text" id="rvShipped" placeholder="e.g. flashcards-cli on GitHub + blog post #1"></div>' +
-      '<div><label class="field">Total DSA problems solved (cumulative — auto-filled from CS 150)</label><input type="number" id="rvDsa" value="' + dsaCount() + '"></div>' +
-      '<div><label class="field">Posts published this week</label><input type="number" id="rvPosts" value="0" min="0"></div>' +
-      '<div><label class="field">Revenue this week (BHD)</label><input type="number" id="rvRev" value="0" min="0" step="0.01"></div>' +
+    const w = weekNumber(), today = todayISO();
+    const { from, to } = weekSpan(w);
+    const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
+    const sealed = S.weeks.find(x => +x.week === w);
+    const dsa = dsaCount();
+    const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
+    // BHD is counted from the Treasury ledger once it has any entry at all (a
+    // week with none in it is a counted 0); with an empty ledger it is typed.
+    const counted = S.treasury.entries.length > 0;
+    const earned = Math.round(S.treasury.entries.filter(e => e && inWeek(e.date))
+      .reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
+
+    // --n is the number's length in characters: a long one (1,149.5 BHD) is
+    // set smaller so it fits its tile at any width (style.css, .wk-tile b).
+    const tile = (n, label, em) => '<div class="at-tile pf-tile wk-tile"><span class="at-days"><b style="--n:' + String(n).length + '">' + n + "</b>" +
+      "<span>" + label + '</span><em class="wk-auto">' + em + "</em></span></div>";
+    // The one you type: the whole tile is the label, so a tap anywhere on it
+    // puts the cursor in the number.
+    const edit = (id, label, step) => '<label class="at-tile pf-tile wk-tile wk-edit"><span class="at-days">' +
+      '<input type="number" id="' + id + '" value="0" min="0" step="' + step + '" inputmode="decimal" aria-label="' + label + ' this week">' +
+      "<span>" + label + '</span><em class="wk-hand">tap to edit</em></span></label>';
+
+    const state = sealed ? "Sealed " + shortDay(sealed.date)
+      : today >= to ? "Ready to seal"
+      : (() => { const n = daysBetween(today, to);
+          return "Opens " + new Date(to + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(to) +
+            " · " + n + " day" + (n === 1 ? "" : "s"); })();
+
+    // Past weeks, newest first. A card opens to its notes: a <details>, so
+    // opening one is the browser's and stays in memory.
+    const past = S.weeks.slice().sort((a, b) => (+b.week || 0) - (+a.week || 0));
+    const card = x => {
+      const n = +x.posts || 0;
+      return '<details class="wk-card"><summary>' +
+        '<span class="wk-h"><b>Week ' + esc(String(x.week)) + "</b><span>" + (x.date ? esc(shortDay(x.date)) : "") + "</span></span>" +
+        (x.shipped ? '<span class="wk-s">' + esc(clipTitle(String(x.shipped), 60)) + "</span>"
+          : '<span class="wk-s wk-fail">nothing shipped</span>') +
+        // Each number keeps its unit on its line ("BHD" over "0" reads as two facts).
+        '<span class="wk-m">DSA\u00a0' + (+x.dsa || 0) + " · " + n + "\u00a0post" + (n === 1 ? "" : "s") + " · " +
+        esc(fmtBHD(+x.revenue || 0).replace(" ", "\u00a0")) + "</span>" +
+        '</summary><p class="wk-notes">' + (x.notes ? esc(x.notes) : "No notes.") + "</p></details>";
+    };
+    // Nothing sealed yet: this week and the three after it, as the places the
+    // cards will go. Faded by ink and a dashed edge, never by opacity.
+    const slots = [0, 1, 2, 3].map(k => '<div class="wk-card wk-slot' + (k ? " later" : "") + '"><b aria-hidden="true">—</b>' +
+      "<span>Week " + (w + k) + "</span></div>");
+
+    return '<div class="view-enter"><div class="page-head"><h1>Week ' + w + "</h1>" +
+      '<div class="sub">Every Sunday: what shipped, what didn’t. Seal it in two minutes.</div></div>' +
+
+      '<div class="at-tiles wk-tiles">' +
+      // The running total, as the stored field has always been: said so.
+      tile(dsa, "DSA solved", "all time · counted for you") +
+      tile(proven, "lectures proven", "counted for you") +
+      edit("rvPosts", "posts", "1") +
+      (counted ? tile(numText(earned), "BHD earned", "from Treasury") : edit("rvRev", "BHD earned", "0.01")) +
       "</div>" +
-      '<div style="margin-top:12px;"><label class="field">Notes / blockers</label><textarea id="rvNotes" placeholder="What worked, what broke, what changes next week."></textarea></div>' +
-      '<div style="margin-top:12px;"><button class="btn" data-act="logWeek">Seal the week</button></div></div>' +
-      '<div class="card"><h2>The register</h2><div class="table-wrap"><table><thead><tr><th>Week</th><th>Shipped</th><th>DSA</th><th>Posts</th><th>Revenue</th><th>Notes</th></tr></thead><tbody>' +
-      (S.weeks.length ? S.weeks.slice().reverse().map(x =>
-        "<tr><td><strong style='color:" + (x.shipped ? "var(--ink)" : "var(--bad)") + ";'>W" + x.week + (x.shipped ? "" : " ✗") + "</strong><div style='font-size:var(--fs-tiny); color:var(--ink-3);'>" + x.date + "</div></td>" +
-        "<td>" + (x.shipped ? esc(x.shipped) : "<span style='color:var(--bad);'>nothing shipped — failed week</span>") + "</td>" +
-        "<td>" + (x.dsa || 0) + "</td><td>" + (x.posts || 0) + "</td><td>" + fmtBHD(+x.revenue || 0) + "</td><td>" + esc(x.notes || "") + "</td></tr>").join("")
-        : '<tr><td colspan="6" style="color:var(--ink-3);">No weeks sealed yet. The first Sunday is coming.</td></tr>') +
-      "</tbody></table></div></div></div>";
+      '<input type="hidden" id="rvDsa" value="' + dsa + '">' +
+      (counted ? '<input type="hidden" id="rvRev" value="' + earned + '">' : "") +
+
+      '<div class="card wk-q"><label class="field wk-ql" for="rvShipped">What did you ship?</label>' +
+      '<input type="text" id="rvShipped" autocomplete="off" placeholder="a repo, a post, a delivery… or leave it empty"></div>' +
+      '<div class="card wk-q"><label class="field wk-ql" for="rvNotes">What got in the way?</label>' +
+      '<input type="text" id="rvNotes" autocomplete="off" placeholder="one line is enough"></div>' +
+
+      '<div class="wk-foot"><span class="wk-state">' + esc(state) + "</span>" +
+      '<button class="btn" data-act="logWeek">Seal the week</button></div>' +
+
+      '<div class="ghead">Past weeks<span class="gh-meta">' + (past.length ? past.length + " sealed" : "none sealed yet") + "</span></div>" +
+      '<div class="wk-weeks">' + (past.length ? past.map(card).join("") : slots.join("")) + "</div>" +
+      "</div>";
   };
 
   V.calendar = function () {
@@ -4562,70 +4627,61 @@
     { id: "offers", file: "../earning-offers.md", title: "Earning Offers", sub: "Three productized offers, Arabic pitch included" },
     { id: "log", file: "../progress-log.md", title: "Progress Log (file)", sub: "The original markdown log — the Week page supersedes it" },
   ];
-  // The Library is a list of things to open. It was rendering five one-line
-  // documents as five ~150px hero cards in a 2-col grid, with two more
-  // documents stranded as buttons in the page head - and then ten external
-  // links as a ragged pile of pills of ten different widths.
-  //
-  // apple-design 16, grouping and mapping: "proximity implies relationship."
-  // A pile in one row says these ten things are alike; they are not. So the
-  // documents become one compact list and the external links are grouped by
-  // what they actually are.
-  const HALLS = [
-    ["Video courses", [
-      ["Karpathy \u2014 Zero to Hero", "https://karpathy.ai/zero-to-hero.html"],
-      ["3Blue1Brown", "https://www.3blue1brown.com/"],
-      ["fast.ai", "https://course.fast.ai/"],
-      ["ARENA curriculum", "https://www.arena.education/"],
-    ]],
-    ["Books", [
-      ["Mathematics for ML", "https://mml-book.github.io/"],
-      ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
-    ]],
-    ["Problems & lectures", [
-      ["NeetCode", "https://neetcode.io/roadmap"],
-      ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
-      ["Stat 110", "https://stat110.hsites.harvard.edu/"],
-    ]],
-    ["Source", [
-      ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
-    ]],
+  // T-026c: the Library in three groups. "Start here" is the Handbook (its
+  // --accent edge says read this first), the Method and the Calibration Kit;
+  // "Guides" is every other document, as the same card; the outside links
+  // are chips, five and then "+N". A card carries a short title and one
+  // line; DOCS keeps the long titles each document's own page heads with.
+  const DOC_CARD = {
+    readme: ["Calibration Kit", "Weeks 1–2 checklist"],
+    curriculum: ["Phase 1 curriculum", "Months 1–6, week by week"],
+    coding: ["Coding diagnostic", "Flashcards build + NeetCode 10"],
+    offers: ["Earning offers", "Three offers, Arabic pitch"],
+  };
+  // The five reached for most, then the rest. Each opens in a new tab with
+  // rel="noopener", so the page it opens cannot reach back into this one.
+  const LINKS = [
+    ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
+    ["3Blue1Brown", "https://www.3blue1brown.com/"],
+    ["Karpathy", "https://karpathy.ai/zero-to-hero.html"],
+    ["NeetCode", "https://neetcode.io/roadmap"],
+    ["fast.ai", "https://course.fast.ai/"],
+    ["ARENA curriculum", "https://www.arena.education/"],
+    ["Mathematics for ML", "https://mml-book.github.io/"],
+    ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
+    ["Stat 110", "https://stat110.hsites.harvard.edu/"],
+    ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
+  const LINKS_SHOWN = 5;
   V.library = function () {
-    // The handbook and How it works are documents too - they were in the page
-    // head only because they are not in DOCS. They belong in the list.
-    const rows = [{ href: "#/guide", title: "The Handbook", sub: "How Brickford works, end to end" },
-                  { href: "#/method", title: "The Method", sub: "Why it is built this way \u2014 coverage vs. mastery" }]
-      .concat(DOCS.map(d => ({ href: "#/doc/" + d.id, title: d.title, sub: d.sub })));
-    return '<div class="view-enter">' + folio("Library") +
+    const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
+    const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
+      '<span class="pb-t">' + esc(t) + '</span><span class="pb-d">' + esc(m) + "</span></a>";
+    const face = d => DOC_CARD[d.id] || [d.title, d.sub];
+    const kit = DOCS.find(d => d.id === "readme");
+    const guides = DOCS.filter(d => d !== kit);
+    const more = LINKS.length - LINKS_SHOWN;
+    return '<div class="view-enter"><div class="page-head"><h1>Library</h1>' +
+      '<div class="sub">The rules of Brickford, and the guides for each phase.</div></div>' +
 
-      '<div class="ghead">Documents<span class="gh-meta">' + rows.length + " to read</span></div>" +
-      '<div class="glist">' +
-      rows.map(r => '<a class="grow" href="' + r.href + '">' +
-        '<span class="g-lead"></span>' +
-        '<span class="g-main"><span class="g-t">' + esc(r.title) + "</span>" +
-        '<span class="g-s">' + esc(r.sub) + "</span></span></a>").join("") +
-      "</div>" +
+      '<div class="ghead">Start here</div>' +
+      '<div class="at-tiles lb-docs lb-start">' +
+      doc("#/guide", "The Handbook", "How Brickford works, end to end", "start") +
+      doc("#/method", "The Method", "Why mastery beats coverage") +
+      (kit ? doc("#/doc/" + kit.id, face(kit)[0], face(kit)[1]) : "") + "</div>" +
 
-      // Ten outside links used to sit here as ten ghost buttons in four
-      // labelled strips — a chip rail, which is a shape this app uses nowhere
-      // else. They are rows in groups like everything else now, and the whole
-      // block folds, because you come to the Library for its own documents and
-      // leave for someone else's about twice a term.
-      '<details class="unit" style="margin-top:16px;"><summary>' +
-      '<span class="u-name">External halls</span><span class="pill">' +
-      HALLS.reduce((a, h) => a + h[1].length, 0) + " links</span>" +
-      '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
-      HALLS.map(([label, links]) =>
-        '<div class="ghead">' + esc(label) + "</div>" +
-        '<div class="glist">' + links.map(r =>
-          '<a class="grow" href="' + r[1] + '" target="_blank" rel="noopener">' +
-          '<span class="g-lead">\u2197</span>' +
-          '<span class="g-main"><span class="g-t">' + esc(r[0]) + "</span>" +
-          '<span class="g-s">' + esc(r[1].replace(/^https?:\/\//, "").replace(/\/.*$/, "")) + "</span></span></a>").join("") +
-        "</div>").join("") +
-      "</div></details>" +
-      "</div>";
+      // "Progress Log (file)" keeps its own title and its superseded note, in
+      // the quieter ink: it is there to be found, not to be read first.
+      '<div class="ghead">Guides</div>' +
+      '<div class="at-tiles lb-docs lb-guides">' +
+      guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
+
+      '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
+      '<div class="at-chips lb-links">' +
+      LINKS.map(([t, u], i) => '<a class="at-chip" href="' + u + '" target="_blank" rel="noopener"' +
+        (i >= LINKS_SHOWN ? " hidden data-lb-more" : "") + ">" + esc(t) + ' <span aria-hidden="true">↗</span></a>').join("") +
+      (more > 0 ? '<button type="button" class="at-chip lb-more" data-act="lbMore" aria-label="Show ' + more + ' more links">+' + more + "</button>" : "") +
+      "</div></div>";
   };
 
 
@@ -4843,6 +4899,13 @@
           // T-026b: the locked exams past the sixth, shown in place. In memory.
           $$("[data-ex-more]").forEach(el => { el.hidden = false; });
           b.remove();
+        } else if (act === "lbMore") {
+          // T-026c: the outside links past the fifth, shown in place. In
+          // memory; the first of them takes the focus the button had.
+          const rest = $$("[data-lb-more]");
+          rest.forEach(el => { el.hidden = false; });
+          b.remove();
+          if (rest[0]) rest[0].focus();
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));
@@ -4995,7 +5058,18 @@
           const nd = new Date(y, m - 1 + (nav === "next" ? 1 : -1), 1);
           calCursor = nd.getFullYear() + "-" + pad2(nd.getMonth() + 1);
         }
-        render();
+        if (b.closest(".cd-seg")) dayRender("#view .cd-seg [data-cal-nav='today']");
+        else render();
+      };
+    });
+    // T-026c: the day view's ‹ and › step the selected day (never before day
+    // 1), and the grid follows it into the next month. In memory, no save.
+    $$("[data-cal-step]", root).forEach(b => {
+      b.onclick = () => {
+        let d = addDaysISO(calSel || todayISO(), +b.dataset.calStep);
+        if (d < D.START_DATE) d = D.START_DATE;
+        calSel = d; calCursor = d.slice(0, 7);
+        dayRender("#view .cd-seg [data-cal-step='" + b.dataset.calStep + "']");
       };
     });
     // workshop labs + proof URLs + psets + electives
@@ -5489,7 +5563,9 @@
     if (rendering) return;
     if (opts && opts.background && videoOnScreen()) return;
     rendering = true;
-    const done = () => { rendering = false; };
+    // opts.after runs once the view is rebuilt, on either path below (T-026c:
+    // the day controls put the page back where the reader had it).
+    const done = () => { rendering = false; if (opts && opts.after) opts.after(); };
     // apple-design 7: a route change is a spatial move, and a hard swap gives
     // the eye nothing to follow. The View Transition API cross-fades the old
     // page into the new one at the compositor, so it costs nothing on the

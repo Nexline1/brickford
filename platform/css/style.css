@@ -2682,3 +2682,160 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .sheet .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .sheet-go .btn { min-height: 44px; min-width: 44px; justify-content: center; }
+
+/* ============================================================
+   T-026c: Week, the Calendar's day view, and Library
+   ------------------------------------------------------------
+   Built from T-026a/b's pieces: the .page-head header, .at-tiles /
+   .at-tile / .pf-tile for the numbers, the habits and the document
+   cards (.pb-glyph, .pb-t, .pb-d inside), .seg for the day controls,
+   .at-chip for the links and "+N", .tl-t / .tl-m for the habit text.
+   Tokens only. Nothing is faded by opacity (verify-contrast cannot see
+   it): a quieter thing takes a quieter ink, or a dashed edge.
+   ============================================================ */
+
+/* ---- Week: four numbers ---- */
+/* Four across while a tile keeps 7rem, two on a phone; at 1100 (the rail
+   takes its share) or a larger text size the row drops a tile instead of
+   squeezing "lectures" out of its box. */
+.at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); }
+}
+/* A counted number fits its tile whatever its length (T-026c review 1: a
+   1,149.5 BHD week ran out of its tile from 320 to 1280). --n is its length in
+   characters, set by app.js; a character of these digits is at most 0.64em
+   wide (DejaVu's 0.636 is the widest face the gates draw with), so the size is
+   capped at the tile's content width (100cqi) over that. Short numbers keep
+   the full 2.125rem. */
+.wk-tile { align-items: flex-start; container-type: inline-size; }
+.wk-tile .at-days b { font-size: min(2.125rem, calc(100cqi / (var(--n, 1) * 0.64))); white-space: nowrap; }
+.wk-tile .wk-auto, .wk-tile .wk-hand {
+  display: block; margin-top: 4px; font-size: var(--fs-caption); font-style: normal; line-height: 1.3;
+}
+.wk-auto { color: var(--good); }
+.wk-hand { color: var(--ink-3); }
+/* The typed number sits where the counted ones do, in the same face and
+   size; the field is 44px tall, pulled up by the difference so the four
+   numbers share a line (at a larger root the number is taller than 44px
+   and no pull is needed). */
+.wk-edit { cursor: text; }
+.wk-edit input[type="number"] {
+  display: block; width: 100%; min-height: 44px; margin: min(0px, calc((2.125rem - 44px) / 2)) 0;
+  padding: 0 2px; border: 0; border-radius: var(--r-sm); background: none; box-shadow: none;
+  color: var(--ink); font-family: var(--font-rounded); font-size: 2.125rem; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield;
+}
+.wk-edit input[type="number"]::-webkit-inner-spin-button,
+.wk-edit input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.wk-edit input[type="number"]:focus { box-shadow: 0 0 0 2px var(--accent); }
+
+/* ---- Week: the two questions, and Seal ---- */
+.card.wk-q { margin-top: var(--sp-3); padding: 16px 18px; border: 0; background: var(--surface); }
+.wk-ql.field {
+  margin: 0 0 8px; font-size: var(--fs-headline); font-weight: 600; letter-spacing: 0;
+  text-transform: none; color: var(--ink);
+}
+.wk-q input[type="text"] { min-height: 44px; background: var(--surface-2); }
+/* On --surface-2 the browser's placeholder grey is 4.26:1 in Light and 3.02:1
+   in Dark; --ink-2 is the quieter ink that still reads (--ink-3 does not, in
+   Dark). Opacity 1, so no browser's own fade is laid over it. */
+.wk-q input::placeholder { color: var(--ink-2); opacity: 1; }
+.wk-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; }
+.wk-state { font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.wk-foot .btn { margin-left: auto; min-height: 44px; min-width: 44px; justify-content: center; }
+
+/* ---- Week: past weeks ---- */
+.wk-weeks { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(max(8rem, calc((100% - 10px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .wk-weeks { grid-template-columns: repeat(auto-fill, minmax(max(8rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
+}
+.wk-card { min-width: 0; border-radius: var(--r-lg); background: var(--surface); color: var(--ink-2); font-size: var(--fs-footnote); }
+.wk-card > summary {
+  display: flex; flex-direction: column; gap: 4px; min-height: 44px; padding: 12px 14px;
+  list-style: none; cursor: pointer;
+}
+.wk-card > summary::-webkit-details-marker { display: none; }
+.wk-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; }
+.wk-h b { font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+.wk-h span { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* What was typed can be a URL: it may break anywhere rather than run out. */
+.wk-s { color: var(--ink); line-height: 1.35; overflow-wrap: anywhere; }
+.wk-s.wk-fail { color: var(--bad); }
+.wk-m { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.wk-notes { padding: 0 14px 12px; color: var(--ink-2); line-height: 1.4; overflow-wrap: anywhere; }
+.wk-slot {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 64px; padding: 12px; text-align: center;
+}
+.wk-slot b { font-size: var(--fs-subhead); color: var(--ink); }
+.wk-slot.later { background: none; border: 1px dashed var(--line-strong); color: var(--ink-3); }
+.wk-slot.later b { color: var(--ink-3); }
+.wk-card > summary:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---- Calendar: the selected day ---- */
+.cd-day { margin-top: 2rem; }
+.cd-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; }
+.cd-title { min-width: 0; }
+.cd-title h2 {
+  margin: 0; font-size: var(--fs-title1); font-weight: 700; line-height: var(--lh-title1);
+  letter-spacing: var(--tr-title1); color: var(--ink);
+}
+.cd-sub { margin-top: 2px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.seg.cd-seg { margin-top: 0; margin-left: auto; flex-wrap: nowrap; }
+.seg.cd-seg button { display: grid; place-items: center; }
+.seg.cd-seg button:disabled { color: var(--ink-3); cursor: default; }
+.cd-prog { height: 6px; margin-top: 12px; border-radius: 3px; background: var(--line); }
+.cd-prog i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.cd-prog.full i { background: var(--good); }
+.cd-note { margin-top: 10px; font-size: var(--fs-footnote); line-height: 1.45; color: var(--ink-2); }
+.cd-note strong { font-weight: 600; color: var(--ink); }
+.cd-note.cd-gate strong { color: var(--accent); }
+.cd-none { margin-top: 16px; font-size: var(--fs-subhead); color: var(--ink-2); }
+/* A block: a 6px bar in the faculty colour down the leading edge, the
+   course and block over the title, the length over the place on the right. */
+.cd-blocks { display: grid; gap: 10px; margin-top: 16px; }
+.cd-blk {
+  display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; align-items: center; gap: 4px 16px;
+  min-height: 44px; padding: 14px 18px 14px 0; border-radius: var(--r-lg);
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.cd-blk:hover { text-decoration: none; }
+.cd-bar { align-self: stretch; min-height: 2rem; border-radius: 0 3px 3px 0; background: var(--fac, var(--line-strong)); }
+.cd-main { display: flex; flex-direction: column; min-width: 0; }
+.cd-k { font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fac, var(--ink-3)); }
+.cd-t { margin-top: 2px; font-size: var(--fs-headline); font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
+.cd-r {
+  display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+  font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cd-ok { margin-right: 6px; color: var(--good); }
+.cd-blk.done .cd-t { color: var(--ink-2); }
+.cd-blk.done .cd-k { color: var(--ink-3); }
+.cd-pseudo .cd-k { color: var(--ink-3); }
+/* The habits: four across while a tile keeps 7rem, two on a phone. */
+.cd-habits { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 10px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .cd-habits { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
+}
+.cd-hb { padding: 14px; }
+.cd-blk:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---- Library ---- */
+/* Three across from 1024px, two from 600, one on a phone (.at-tiles), and
+   never narrower than a card's title needs: at 1100, or a larger text size,
+   the row drops a card instead of squeezing a word out of it. */
+@media (min-width: 600px) {
+  .at-tiles.lb-docs { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .at-tiles.lb-docs { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+}
+.lb-doc { min-height: 8.25rem; }
+.pb-glyph.lb-ic { width: 2rem; height: 2.5rem; }
+/* The suggested first read: an --accent edge drawn inside the card, so
+   nothing outside its box can clip it. */
+.lb-doc.start { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.lb-old .pb-d { color: var(--ink-3); }
+.lb-links [hidden] { display: none; }
+button.at-chip.lb-more { font-weight: 600; }

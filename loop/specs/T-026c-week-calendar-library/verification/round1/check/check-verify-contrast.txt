@@ -1,0 +1,5 @@
+# verify-contrast on a083a54, 2026-10-11T14:10:22Z
+# $ node tools/verify-contrast.js
+
+PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+exit 0

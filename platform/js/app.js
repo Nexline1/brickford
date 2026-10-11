@@ -1265,6 +1265,13 @@
   const V = {};
 
   // ---------- the practice layer ----------
+  // The one way a rep is logged: appended, and sealed into the chain. The hand
+  // forms and the recorder (T-028) both come through here, so a recorded rep
+  // is the same record as a typed one and counts the same everywhere.
+  function logRep(kind, entry, ev) {
+    S.reps[kind].push(entry);
+    logEvent("rep", kind, ev);
+  }
   // What is owed today, derived — never a stored "pending" flag, which would go
   // stale the moment the clock moved.
   function repsDue(iso) {
@@ -4165,16 +4172,283 @@
   const REP_ACT = { bank: "repBank", story: "repStory", humor: "repHumor", review: "repReview" };
   const REP_VERB = { bank: "Log it", story: "Log the rep", humor: "Log five", review: "Log the review" };
 
+  // ---------- T-028: record yourself ----------
+  // The owner: "the practice is not clear enough … an audio button where I can
+  // record myself." The page is now a recorder. Three things it must never do:
+  //   - save during a render. The tab, the recording in progress and "the
+  //     microphone failed" live in memory; the list of recordings is READ from
+  //     IndexedDB after the render (wire(), clipsPaint) and writes nothing;
+  //   - put audio in localStorage or the sync payload. A clip is a Blob in
+  //     IndexedDB (database brickford_audio, store clips, key <date>-<n>) on
+  //     the device that made it. What syncs is the rep, exactly as the hand
+  //     form logs it (logRep below), so streaks and counts keep working;
+  //   - break when there is no microphone. No getUserMedia, no MediaRecorder,
+  //     no IndexedDB, or a refused prompt: one line, and the form by hand.
+  const REC_LIMIT = 90;                       // seconds: the story rep's cap
+  const AUDIO_DB = "brickford_audio", AUDIO_STORE = "clips";
+  let practiceTab = null;                     // "story" | "humor" | "bank"; null = what is due
+  let rec = null;                             // the recording in progress, in memory
+  let micMissing = false;                     // this page load's microphone failed
+  const clipURLs = [];                        // object URLs the list made, revoked on its next fill
+  // The cap, or a shorter one a test sets (window.__recLimit, read only when defined).
+  const recLimit = () => (typeof window.__recLimit === "number" && window.__recLimit > 0 ? window.__recLimit : REC_LIMIT);
+  const recSupported = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder && window.indexedDB);
+  // "Tue 20 Oct": the weekday, the day, the month — in the reader's own calendar.
+  const recDay = iso => { const d = new Date(iso + "T00:00:00");
+    return d.toLocaleString("en-US", { weekday: "short" }) + " " + d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  const recSecs = r => Math.max(0, (performance.now() - r.t0) / 1000);
+
+  // ---- IndexedDB: the clips, on this device only ----
+  // A database left without its store (another open at version 1 before
+  // ours ran) is upgraded once more rather than failing every read.
+  function audioDB(version) {
+    return new Promise((res, rej) => {
+      const q = version ? indexedDB.open(AUDIO_DB, version) : indexedDB.open(AUDIO_DB);
+      q.onupgradeneeded = () => { if (!q.result.objectStoreNames.contains(AUDIO_STORE)) q.result.createObjectStore(AUDIO_STORE); };
+      q.onerror = () => rej(q.error);
+      q.onsuccess = () => {
+        const db = q.result;
+        if (db.objectStoreNames.contains(AUDIO_STORE)) return res(db);
+        const v = db.version + 1;
+        db.close();
+        audioDB(v).then(res, rej);
+      };
+    });
+  }
+  function clipTx(mode, fn) {
+    return audioDB().then(db => new Promise((res, rej) => {
+      const t = db.transaction(AUDIO_STORE, mode);
+      let out;
+      fn(t.objectStore(AUDIO_STORE), v => { out = v; });
+      t.oncomplete = () => { db.close(); res(out); };
+      t.onerror = t.onabort = () => { db.close(); rej(t.error); };
+    }));
+  }
+  // Every clip as { key, n, date, seconds, kind, title, blob }, newest first.
+  const clipList = () => clipTx("readonly", (st, done) => {
+    const out = [];
+    st.openCursor().onsuccess = e => {
+      const c = e.target.result;
+      if (!c) return done(out.sort((a, b) => (a.date === b.date ? b.n - a.n : a.date < b.date ? 1 : -1)));
+      out.push(Object.assign({ key: c.key, n: +String(c.key).split("-").pop() || 0 }, c.value));
+      c.continue();
+    };
+  });
+  // Stored under <date>-<n>, n one more than the day's last.
+  const clipAdd = clip => clipTx("readwrite", (st, done) => {
+    st.getAllKeys(IDBKeyRange.bound(clip.date + "-", clip.date + "-\uffff")).onsuccess = e => {
+      const n = e.target.result.reduce((m, k) => Math.max(m, +String(k).split("-").pop() || 0), 0) + 1;
+      const key = clip.date + "-" + n;
+      st.put(clip, key).onsuccess = () => done(key);
+    };
+  });
+  const clipRename = (key, title) => clipTx("readwrite", st => {
+    const g = st.get(key);
+    g.onsuccess = () => { if (g.result) st.put(Object.assign({}, g.result, { title: title }), key); };
+  });
+  const clipDelete = key => clipTx("readwrite", st => { st.delete(key); });
+
+  // ---- the recorder ----
+  async function recStart(kind) {
+    if (rec) return;
+    if (!recSupported()) return micGone();
+    rec = { kind: kind, starting: true };
+    let stream, mr;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mr = new MediaRecorder(stream);
+    } catch (e) {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      rec = null;
+      return micGone();
+    }
+    const r = rec = { kind: kind, stream: stream, mr: mr, chunks: [], t0: performance.now(), date: todayISO(), limit: recLimit() };
+    mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); };
+    mr.onstop = () => recSaved(r);
+    mr.start();
+    r.tick = setInterval(() => { if (recSecs(r) >= r.limit) recStop(); else recPaint(); }, 200);
+    recPaint();
+  }
+  function recStop() {
+    const r = rec;
+    if (!r || !r.mr || r.stopped) return;
+    r.stopped = true;
+    r.focused = !!document.activeElement && document.activeElement.classList.contains("pr-rec");
+    clearInterval(r.tick);
+    r.seconds = Math.max(1, Math.min(r.limit, Math.round(recSecs(r))));
+    if (r.mr.state !== "inactive") r.mr.stop(); else recSaved(r);
+  }
+  // On stop: the Blob to IndexedDB, then the rep through the form's own path.
+  async function recSaved(r) {
+    r.stream.getTracks().forEach(t => t.stop());
+    const title = (r.kind === "humor" ? "Humour" : "Story") + " · " + recDay(r.date);
+    const blob = new Blob(r.chunks, { type: r.mr.mimeType || (r.chunks[0] && r.chunks[0].type) || "audio/webm" });
+    let kept = true;
+    try { await clipAdd({ date: r.date, seconds: r.seconds, kind: r.kind, title: title, blob: blob }); }
+    catch (e) { kept = false; }
+    if (rec === r) rec = null;
+    const iso = r.date;
+    let msg;
+    if (isRestDay(iso) && iso >= D.START_DATE) {
+      msg = (kept ? "Kept on this device. " : "") + REST_NAME + " is a rest day — nothing logged.";
+    } else if (r.kind === "humor") {
+      const val = id => { const el = $("#" + id); return el ? el.value.trim() : ""; };
+      const k = +val("jokeKeep") || 0;
+      logRep("humor", { date: iso, attempts: [0, 1, 2, 3, 4].map(i => val("joke" + i)), keeper: k >= 1 && k <= 5 ? k : 0, seconds: r.seconds },
+        { date: iso, keeper: k >= 1 && k <= 5 ? k : 0 });
+      msg = "Logged, " + clockLabel(r.seconds) + " recorded.";
+    } else {
+      logRep("story", { date: iso, seconds: r.seconds, takes: 1, from: title }, { date: iso, seconds: r.seconds });
+      msg = r.seconds <= 90 ? "Logged, and inside 90s." : "Logged — " + r.seconds + "s. The cap is 90.";
+    }
+    if (!(isRestDay(iso) && iso >= D.START_DATE)) save();
+    if (!kept) msg = "Could not keep the recording on this device. " + msg;
+    // The reader pressed stop (or the cap did, on this page): a foreground
+    // render, as the form's Log does. Anywhere else, the save is enough.
+    if (route() === "/practice") {
+      render({ after: () => { const b = $("#view .pr-rec"); if (b && r.focused) b.focus(); } });
+    }
+    toast(msg);
+  }
+  function micGone() {
+    micMissing = true;
+    const pane = $("#view .pr-pane");
+    if (!pane) return;
+    paintPane(pane);
+    const f = $("input", pane);
+    if (f) f.focus();
+  }
+  function recToggle(kind) { if (rec) recStop(); else recStart(kind); }
+  // The button and the timer, changed in place: no render while recording.
+  function recPaint() {
+    // Leaving the page stops the recording (and keeps it), as leaving a
+    // recorder does: the microphone is not left open behind another page.
+    if (rec && rec.mr && !rec.stopped && route() !== "/practice") return recStop();
+    const b = $("#view .pr-rec"), t = $("#view .pr-time");
+    const on = !!(rec && rec.mr && !rec.stopped && b && b.dataset.kind === rec.kind);
+    if (b) {
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", String(on));
+      b.setAttribute("aria-label", on ? "Stop recording" : "Start recording");
+    }
+    if (t) t.textContent = clockLabel(on ? Math.floor(recSecs(rec)) : 0) + " / " + clockLabel(on ? rec.limit : recLimit());
+  }
+
+  const PR_TABS = [["story", "Story"], ["humor", "Humour"], ["bank", "Story bank"]];
+  // The kind owed today, the recorded ones first; nothing owed is Story.
+  function practiceDefault() {
+    const due = repsDue().map(d => d.kind);
+    return ["story", "humor", "bank"].find(k => due.includes(k)) || "story";
+  }
+  function recorderHTML(kind, prompt, hint) {
+    const on = !!(rec && rec.mr && !rec.stopped && rec.kind === kind);
+    return '<div class="card pr-card">' +
+      '<div class="pr-prompt">' + prompt + "</div>" +
+      '<p class="pr-hint">' + hint + "</p>" +
+      '<button type="button" class="pr-rec' + (on ? " on" : "") + '" data-act="recToggle" data-kind="' + kind + '" aria-pressed="' + on + '" aria-label="' + (on ? "Stop recording" : "Start recording") + '">' +
+      '<span class="pr-dot" aria-hidden="true"></span></button>' +
+      '<div class="pr-time">' + clockLabel(on ? Math.floor(recSecs(rec)) : 0) + " / " + clockLabel(on ? rec.limit : recLimit()) + "</div></div>";
+  }
+  function fallbackHTML(prompt, hint, form, act, verb) {
+    return '<div class="card pr-card pr-hand">' +
+      '<div class="pr-prompt">' + prompt + "</div>" +
+      '<p class="pr-hint">' + hint + "</p>" +
+      '<p class="pr-nomic">Microphone not available, so log it by hand</p>' +
+      '<div class="pr-form">' + form + "</div>" +
+      '<button class="btn lg one-go" data-act="' + act + '">' + verb + "</button></div>";
+  }
+  function paneHTML(tab) {
+    const hand = micMissing || !recSupported();
+    if (tab === "bank")
+      return '<div class="card pr-card pr-hand"><div class="pr-prompt">What happened today</div>' +
+        '<p class="pr-hint">One real thing, two lines.</p>' +
+        '<div class="pr-form">' + REP_FORM.bank() + "</div>" +
+        '<button class="btn lg one-go" data-act="repBank">' + REP_VERB.bank + "</button></div>";
+    if (tab === "humor")
+      return hand
+        ? fallbackHTML("Five attempts at one joke", "Most will be bad. Volume is the mechanic.", REP_FORM.humor(), "repHumor", REP_VERB.humor)
+        : recorderHTML("humor", "Five attempts at one joke", "Most will be bad. Volume is the mechanic.") +
+          '<details class="unit pr-write"><summary><span class="u-name">Write the five down instead</span></summary>' +
+          '<div class="u-body"><div class="pr-form">' + REP_FORM.humor() + "</div>" +
+          '<button class="btn lg one-go" data-act="repHumor">' + REP_VERB.humor + "</button></div></details>";
+    return hand
+      ? fallbackHTML("Tell one story from this week", "Under 90 seconds. Beginning, turn, ending.", REP_FORM.story(), "repStory", REP_VERB.story)
+      : recorderHTML("story", "Tell one story from this week", "Under 90 seconds. Beginning, turn, ending.");
+  }
+  function paintPane(pane) {
+    pane.innerHTML = paneHTML(practiceTab || practiceDefault());
+    wire(pane, route());
+  }
+
+  // ---- the list: read from IndexedDB after the render, never during it ----
+  const ICON_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5 L12.5 8 L5 12.5 Z" fill="currentColor"/></svg>';
+  const ICON_DL = '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 V12.5 M6 9 L10 13 L14 9 M4 16.5 H16"/></svg>';
+  const ICON_DEL = '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 H16 M8 6 V4 H12 V6 M6 6 L7 16.5 H13 L14 6"/></svg>';
+  const clipExt = type => (/ogg/.test(type) ? ".ogg" : /mp4|aac|m4a/.test(type) ? ".m4a" : /wav/.test(type) ? ".wav" : ".webm");
+  function clipsPaint() {
+    const host = $("#view #prClips");
+    if (!host) return;
+    const done = html => { if (host.isConnected) { host.innerHTML = html; host.setAttribute("aria-busy", "false"); wireClips(host); } };
+    if (!window.indexedDB) return done('<p class="pr-empty">This browser cannot keep recordings.</p>');
+    clipList().then(list => {
+      while (clipURLs.length) URL.revokeObjectURL(clipURLs.pop());
+      if (!list.length) return done('<p class="pr-empty">Nothing recorded yet. Press the red button and talk.</p>');
+      done('<div class="pr-list">' + list.map(c => {
+        const url = c.blob ? URL.createObjectURL(c.blob) : "";
+        if (url) clipURLs.push(url);
+        const t = esc(c.title || "Recording");
+        return '<div class="pr-clip" data-clip="' + esc(c.key) + '" data-url="' + url + '">' +
+          '<button type="button" class="pr-play" data-clip-play aria-label="Play ' + t + '">' + ICON_PLAY + "</button>" +
+          '<span class="pr-main"><input class="pr-name" type="text" maxlength="80" autocomplete="off" value="' + t + '" aria-label="Title of the recording from ' + esc(recDay(c.date)) + '">' +
+          '<span class="pr-meta">' + esc(recDay(c.date)) + " · " + clockLabel(c.seconds || 0) + "</span></span>" +
+          '<span class="pr-wave" aria-hidden="true"></span>' +
+          (url ? '<a class="pr-ic" href="' + url + '" download="' + esc((c.title || "recording").replace(/[\\/:*?"<>|]+/g, "-")) + clipExt(c.blob.type) + '" aria-label="Download ' + t + '">' + ICON_DL + "</a>" : "") +
+          '<button type="button" class="pr-ic" data-clip-del aria-label="Delete ' + t + '">' + ICON_DEL + "</button>" +
+          '<div class="pr-player"></div></div>';
+      }).join("") + "</div>");
+    }, () => done('<p class="pr-empty">This browser cannot keep recordings.</p>'));
+  }
+  function wireClips(host) {
+    $$(".pr-clip", host).forEach(row => {
+      const key = row.dataset.clip;
+      $("[data-clip-play]", row).onclick = () => {
+        let a = $("audio", row);
+        if (!a) {
+          a = document.createElement("audio");
+          a.controls = true;
+          a.preload = "auto";
+          a.src = row.dataset.url;
+          $(".pr-player", row).appendChild(a);
+        }
+        if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); } else a.pause();
+      };
+      const name = $(".pr-name", row);
+      const keep = () => {
+        const v = name.value.trim();
+        if (!v) { name.value = name.defaultValue; return; }
+        if (v === name.defaultValue) return;
+        name.defaultValue = v;
+        clipRename(key, v).catch(() => toast("Could not rename it."));
+      };
+      name.onchange = keep;
+      name.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); keep(); name.blur(); } };
+      $("[data-clip-del]", row).onclick = () => {
+        if (!confirm("Delete “" + name.value + "”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged.")) return;
+        clipDelete(key).then(clipsPaint, () => toast("Could not delete it."));
+      };
+    });
+  }
+
   V.practice = function () {
     const R = S.reps, today = todayISO(), due = repsDue();
     const resting = isRestDay(today) && today >= D.START_DATE;
     const n = k => (R[k] || []).length;
     const bank = (R.bank || []).slice().reverse();
     const wk = weekOf(today);
+    const tab = practiceTab || practiceDefault();
 
     // ---- The week, as six dots ----
-    // The only feedback on this page. Without it a good week and a bad week
-    // look identical, because all the page otherwise shows is today's rep.
+    // Without it a good week and a bad week look identical.
     let logged = 0;
     const dots = wk < 0 ? "" : (function () {
       let out = "";
@@ -4191,68 +4465,59 @@
       return out;
     })();
 
-    const head = '<div class="view-enter">' + folio("Practice") + '<div class="page-head">' +
-      '<div class="sub">Watching does not make anyone funnier. This does.</div></div>';
+    const head = '<div class="view-enter"><div class="page-head pr-head"><div class="pr-title"><h1>Practice</h1>' +
+      '<div class="sub">Speak it out loud. Recording yourself is the practice.</div></div>' +
+      (wk < 0 ? "" : '<div class="pr-week"><span class="weekdots" role="img" aria-label="' + logged + " of " + STUDY_WEEK + ' days logged this week">' + dots + "</span>" +
+        '<span class="pr-week-t">' + logged + " of " + STUDY_WEEK + " days this week</span></div>") +
+      "</div>";
 
-    // The dots sit in a labelled row rather than floating under the card with a
-    // two-word caption — so the thing they count is stated, not guessed.
-    const weekRow = wk < 0 ? "" :
-      '<div class="glist" style="margin-top:var(--sp-3);"><div class="grow">' +
-      '<span class="g-main"><span class="g-t">This week</span>' +
-      '<span class="g-s">' + logged + " of " + STUDY_WEEK + " days logged</span></span>" +
-      '<span class="weekdots" role="img" aria-label="' + logged + " of " + STUDY_WEEK + ' days logged this week">' + dots + "</span></div></div>";
+    // A rest day owes nothing, and says so above the recorder; recording is
+    // still there. The monthly review, when it is owed, is the one rep that
+    // has no tab, so it keeps its card here — otherwise it could never be done.
+    const rev = due.find(d => d.kind === "review");
+    const above = (resting
+      ? '<div class="card one"><div class="one-kind">' + REST_NAME + '</div><p class="one-hint">Nothing owed today.</p></div>' : "") +
+      (rev ? '<div class="card one"><div class="one-kind">' + esc(rev.label) + '</div><p class="one-hint">' + esc(rev.hint) + "</p>" +
+        '<div class="one-body">' + REP_FORM.review() + "</div>" +
+        '<button class="btn lg one-go" data-act="' + REP_ACT.review + '">' + REP_VERB.review + "</button></div>" : "");
 
-    // Four numbers that were a grid are four rows in the group every other page
-    // now uses — and a kind you have never done is not a zero on the screen.
-    const counts = (function () {
-      const rows = [["bank", "Story bank", "one real thing, two lines"],
+    const seg = '<div class="seg pr-seg" role="group" aria-label="What to practise">' +
+      PR_TABS.map(([k, label]) => '<button type="button" data-ptab="' + k + '" aria-pressed="' + (k === tab) + '">' + label + "</button>").join("") + "</div>";
+
+    const counts = [["bank", "Story bank", "one real thing, two lines"],
                     ["story", "Story reps", "recorded, under 90 seconds"],
                     ["humor", "Humour reps", "five attempts, most will be bad"],
                     ["review", "Monthly reviews", "rewatch what you recorded"]]
-        .filter(([k]) => n(k) > 0)
-        .map(([k, t, sub]) => '<div class="grow"><span class="g-main"><span class="g-t">' + t + "</span>" +
-          '<span class="g-s">' + sub + '</span></span><span class="g-v">' + n(k) + "</span></div>");
-      if (!rows.length) return "";
-      return '<div class="ghead">Logged so far</div><div class="glist">' + rows.join("") + "</div>";
-    })();
+      .filter(([k]) => n(k) > 0)
+      .map(([k, t, sub]) => '<div class="grow"><span class="g-main"><span class="g-t">' + t + "</span>" +
+        '<span class="g-s">' + sub + '</span></span><span class="g-v">' + n(k) + "</span></div>");
 
-    if (resting)
-      return head + '<div class="card one"><div class="one-kind">' + REST_NAME + "</div>" +
-        '<p class="one-hint">Nothing owed today.</p></div>' + weekRow + counts + "</div>";
-
-    if (!due.length)
-      return head + '<div class="card one one-clear"><div class="one-kind">Clear for today</div>' +
-        '<p class="one-hint">Every rep owed today is logged. Streak ' + streak() + "d.</p></div>" +
-        weekRow + counts + repHistoryHTML(bank, R) + "</div>";
-
-    // ONE rep. The next one appears here the moment this is logged.
-    const d = due[0];
-    return head +
-      '<div class="card one">' +
-      '<div class="one-kind">' + esc(d.label) + (due.length > 1 ? ' <span class="one-more">+' + (due.length - 1) + " more</span>" : "") + "</div>" +
-      '<p class="one-hint">' + esc(d.hint) + "</p>" +
-      '<div class="one-body">' + REP_FORM[d.kind]() + "</div>" +
-      '<button class="btn lg one-go" data-act="' + REP_ACT[d.kind] + '">' + REP_VERB[d.kind] + "</button>" +
-      "</div>" +
-      weekRow + counts + repHistoryHTML(bank, R) + "</div>";
+    return head + above + seg +
+      '<div class="pr-pane">' + paneHTML(tab) + "</div>" +
+      '<div class="ghead">Your recordings<span class="gh-meta">kept on this device</span></div>' +
+      '<div class="pr-clips" id="prClips" aria-busy="true"></div>' +
+      repHistoryHTML(bank, R, counts) + "</div>";
   };
 
-  // Everything that is not today's rep, folded away. It is a record, not a task.
-  function repHistoryHTML(bank, R) {
+  // "Logged so far" and everything logged, folded away under the list. It is
+  // a record, not a task.
+  function repHistoryHTML(bank, R, counts) {
     if (!bank.length && !(R.story || []).length && !(R.humor || []).length && !(R.review || []).length) return "";
     const row = (date, what, sub) =>
       '<div class="grow"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">' + esc(what) + "</span>" +
       (sub ? '<span class="g-s">' + esc(sub) + "</span>" : "") + "</span>" +
       '<span class="g-v">' + esc(date.slice(5)) + "</span></div>";
-    return '<details class="unit" style="margin-top:16px;"><summary>' +
-      '<span class="u-name">History</span><span class="pill">' +
+    return '<details class="unit pr-log"><summary>' +
+      '<span class="u-name">Logged so far</span><span class="pill">' +
       (bank.length + (R.story || []).length + (R.humor || []).length + (R.review || []).length) + " logged</span>" +
       '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
-      '<div class="glist">' +
+      (counts.length ? '<div class="glist">' + counts.join("") + "</div>" : "") +
+      '<div class="ghead">History</div><div class="glist">' +
       bank.slice(0, 10).map(e => row(e.date, e.what, e.why)).join("") +
-      (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep \u00b7 " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
-      (R.humor || []).slice(-4).reverse().map(e => row(e.date, (e.attempts || []).filter(Boolean).length + " jokes written", e.keeper ? "kept #" + e.keeper : "none kept")).join("") +
+      (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep · " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
+      (R.humor || []).slice(-4).reverse().map(e => row(e.date, e.seconds ? "Humour rep, recorded · " + clockLabel(e.seconds)
+        : (e.attempts || []).filter(Boolean).length + " jokes written", e.keeper ? "kept #" + e.keeper : "none kept")).join("") +
       (R.review || []).slice(-3).reverse().map(e => row(e.date, "Monthly review", (e.notes || "").slice(0, 90))).join("") +
       "</div></div></details>";
   }
@@ -4731,6 +4996,20 @@
         $$("[data-shelf]", root).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
       };
     });
+    // T-028: the Practice tabs. In memory, and a swap of the pane alone, as
+    // the Courses filter is: no save(), no render(). A recording in progress
+    // is stopped (and kept) first, as leaving a recorder does.
+    $$("[data-ptab]", root).forEach(b => {
+      b.onclick = () => {
+        if (rec) recStop();
+        practiceTab = b.dataset.ptab;
+        const pane = $(".pr-pane", root);
+        if (pane) paintPane(pane);
+        $$("[data-ptab]", root).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      };
+    });
+    // The recordings: read from IndexedDB once the view is on screen.
+    if ($("#prClips", root)) clipsPaint();
     // generic data-act buttons
     $$("[data-act]", root).forEach(b => {
       b.onclick = () => {
@@ -4759,6 +5038,8 @@
           if (navigator.clipboard && navigator.clipboard.writeText)
             navigator.clipboard.writeText(el.value).then(done, () => { document.execCommand("copy"); done(); });
           else { document.execCommand("copy"); done(); }
+        } else if (act === "recToggle") {
+          recToggle(b.dataset.kind);
         } else if (act === "repBank" || act === "repStory" || act === "repHumor" || act === "repReview") {
           // Guard the write, not just the control: a rep must carry a payload or
           // it does not exist. This is the same discipline as verified-vs-done on
@@ -4774,28 +5055,24 @@
           if (act === "repBank") {
             const what = val("bankWhat");
             if (!what) { toast("Write what happened first \u2014 an empty entry is not an entry."); return; }
-            S.reps.bank.push({ date: iso, what: what, why: val("bankWhy") });
-            logEvent("rep", "bank", { date: iso });
+            logRep("bank", { date: iso, what: what, why: val("bankWhy") }, { date: iso });
             toast("Logged. The bank is the input to every other rep.");
           } else if (act === "repStory") {
             const secs = +val("repSecs") || 0;
             if (!secs) { toast("How long was it? The 90-second cap is the teacher."); return; }
-            S.reps.story.push({ date: iso, seconds: secs, takes: +val("repTakes") || 1, from: val("repWhich") });
-            logEvent("rep", "story", { date: iso, seconds: secs });
+            logRep("story", { date: iso, seconds: secs, takes: +val("repTakes") || 1, from: val("repWhich") }, { date: iso, seconds: secs });
             toast(secs <= 90 ? "Logged, and inside 90s." : "Logged \u2014 " + secs + "s. The cap is 90.");
           } else if (act === "repHumor") {
             const attempts = [0, 1, 2, 3, 4].map(i => val("joke" + i));
             const n = attempts.filter(Boolean).length;
             if (n < 5) { toast("Five attempts, not " + n + ". Volume is the mechanic."); return; }
             const k = +val("jokeKeep") || 0;
-            S.reps.humor.push({ date: iso, attempts: attempts, keeper: k >= 1 && k <= 5 ? k : 0 });
-            logEvent("rep", "humor", { date: iso, keeper: k });
+            logRep("humor", { date: iso, attempts: attempts, keeper: k >= 1 && k <= 5 ? k : 0 }, { date: iso, keeper: k });
             toast(k ? "Logged, one keeper." : "Logged. No keeper this week \u2014 that is a normal week.");
           } else {
             const notes = val("revNotes");
             if (!notes) { toast("A review with no writing is a rewatch."); return; }
-            S.reps.review.push({ date: iso, notes: notes });
-            logEvent("rep", "review", { date: iso });
+            logRep("review", { date: iso, notes: notes }, { date: iso });
             toast("Review logged.");
           }
           save(); render();

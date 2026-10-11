@@ -2839,3 +2839,104 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .lb-old .pb-d { color: var(--ink-3); }
 .lb-links [hidden] { display: none; }
 button.at-chip.lb-more { font-weight: 600; }
+
+/* ============================================================
+   T-028: Practice — record yourself
+   ------------------------------------------------------------
+   Built from T-026a/b/c's pieces: the .page-head header, .seg for the
+   three tabs, a --surface card (as .wk-q), .ghead for the list's head,
+   .unit for the folds. Tokens only. The record button is 104px: a ring of
+   --rec-ring (white on Dark; on Light's white card a white ring would be
+   nothing, so it is --ink-3) round a --rec disc — #ff453a on Dark (4.99:1
+   on its card), --bad on Light, where #ff453a is only 3.41:1 on white and
+   --bad is 6.34:1. Recording, the disc becomes a rounded square.
+   ============================================================ */
+:root { --rec: var(--bad); --rec-ring: var(--ink-3); }
+[data-theme="dark"] { --rec: #ff453a; --rec-ring: #ffffff; }
+
+/* ---- the header: the title on the left, the week on the right ---- */
+.pr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.pr-title { min-width: 0; flex: 1 1 16rem; }
+.pr-week { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto; }
+.pr-week .weekdots { margin-top: 0; }
+.pr-week-t { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+@media (max-width: 599px) { .pr-week { align-items: flex-start; margin-left: 0; } }
+.page-head.pr-head + .card { margin-top: 0; }
+.pr-seg { margin-top: var(--sp-3); }
+
+/* ---- the card ---- */
+.pr-pane { margin-top: 18px; }
+.card.pr-card {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 30px 24px 26px; border: 0; background: var(--surface); text-align: center;
+}
+.pr-prompt { font-size: var(--fs-title3); font-weight: 650; line-height: var(--lh-title3); letter-spacing: var(--tr-title3); color: var(--ink); text-wrap: balance; }
+.pr-hint { margin: 0; font-size: var(--fs-subhead); color: var(--ink-2); }
+.pr-nomic { margin: 4px 0 0; font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+.pr-hand { align-items: stretch; text-align: left; }
+.pr-hand .pr-prompt, .pr-hand .pr-hint, .pr-hand .pr-nomic { text-align: center; }
+.pr-form { text-align: left; }
+.pr-hand .one-go { margin-top: 4px; align-self: center; }
+.pr-form input, .pr-form textarea { background: var(--surface-2); }
+.pr-form input::placeholder { color: var(--ink-2); opacity: 1; }
+
+/* ---- the record button ---- */
+.pr-rec {
+  display: grid; place-items: center; flex: none; width: 104px; height: 104px; margin-top: 8px; padding: 0;
+  border: 4px solid var(--rec-ring); border-radius: 50%; background: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-rec:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.pr-dot {
+  display: block; width: 78px; height: 78px; border-radius: 50%; background: var(--rec);
+  transition: width 200ms ease, height 200ms ease, border-radius 200ms ease;
+}
+.pr-rec.on .pr-dot { width: 40px; height: 40px; border-radius: var(--r-sm); }
+.pr-rec:active .pr-dot { transform: scale(0.94); }
+.pr-time { font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---- Humour: the five, written, folded under the recorder ---- */
+.pr-write { margin-top: 16px; }
+.pr-write .u-body { display: flex; flex-direction: column; }
+.pr-write .one-go { align-self: flex-start; }
+
+/* ---- the recordings ---- */
+.pr-empty { padding: 0 4px; font-size: var(--fs-subhead); color: var(--ink-2); }
+.pr-list { background: var(--surface); border-radius: var(--r-card); }
+.pr-clip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 12px 10px 16px; }
+.pr-clip + .pr-clip { border-top: 1px solid var(--surface-2); }
+.pr-play {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); cursor: pointer;
+}
+.pr-play svg { width: 14px; height: 14px; }
+.pr-main { flex: 1 1 8rem; display: flex; flex-direction: column; min-width: 0; }
+/* The title is the rename field, set as text until it is touched. The
+   size is the app's input size (16px on a phone, so focus does not zoom). */
+.pr-clip input.pr-name {
+  width: calc(100% + 6px); min-height: 44px; margin: -4px 0 -4px -6px; padding: 0 6px;
+  border: 0; border-radius: var(--r-sm); background: none; box-shadow: none;
+  color: var(--ink); font-weight: 600; text-overflow: ellipsis;
+}
+.pr-clip input.pr-name:hover { background: var(--surface-2); }
+.pr-clip input.pr-name:focus { background: var(--surface-2); box-shadow: 0 0 0 2px var(--accent); }
+.pr-meta { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pr-wave {
+  flex: 0 1 200px; height: 22px; margin-left: auto; border-radius: 3px;
+  background: repeating-linear-gradient(90deg, var(--line-strong) 0 2px, transparent 2px 5px);
+}
+@media (max-width: 767px) { .pr-wave { display: none; } }
+.pr-ic {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 50%; background: none; color: var(--ink-2); cursor: pointer; text-decoration: none;
+}
+.pr-ic:hover { background: var(--surface-2); text-decoration: none; }
+.pr-ic svg { width: 20px; height: 20px; }
+.pr-player { flex: 1 0 100%; }
+.pr-player:empty { display: none; }
+.pr-player audio { display: block; width: 100%; margin-top: 6px; }
+.pr-play:active, .pr-ic:active { transform: scale(0.94); transition: transform 100ms ease-out; }
+
+/* ---- Logged so far, and the history ---- */
+.pr-log { margin-top: 2rem; }
+.pr-log .ghead { margin-top: 1.5rem; }

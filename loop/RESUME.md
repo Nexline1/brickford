@@ -20,9 +20,9 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
   - #12 T-032 (MCQ shuffle)
   - #13 T-026b (Problems, Exams, Proof)
   - #14 T-037 (SPCH 100, 170 lessons)
-- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish).
-- **Built, waiting:** T-026c (Week, Calendar day view, Library), worktree `/home/user/bf-T-026c`, head 71c333e. All gates green except the T-039 flake. After T-039 merges: merge main into it, re-run verify-design, then review.
-- **Building:** T-039 (harness loses localStorage on reload; precondition proof + re-measure), worktree `/home/user/bf-T-039`.
+- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish), #17 T-039 (gate reloads prove storage arrived; tools/lib-reload.js).
+- **In CHECK:** T-026c (Week, Calendar day view, Library), worktree `/home/user/bf-T-026c`, main merged in at 9de36a6. Next: review.
+- **Rule for new gate code:** every page.reload in a gate goes through `tools/lib-reload.js` (acrossReload).
 
 ## Next, in the owner's order
 1. ~~T-031~~ merged (#16).
@@ -31,7 +31,6 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
 4. **Smaller fixes:**
    - T-029: in landscape the phone bars are too tall.
    - T-030: Home overflows at 320px with a 24px root.
-   - T-039: the flaky T-024 "switch (c)" theme check (failed 2 of ~12 design runs).
    - T-040: /atlas Gate 3 chip crosses the card at root 24, 320–329px; add a containment check.
 5. **T-033:** summaries for the unsummarised AI 200/210/300/310 and RES 400 lectures, from YouTube transcripts.
 6. **T-035 sample PDF:** send the owner a sample before building.

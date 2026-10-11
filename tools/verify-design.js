@@ -263,14 +263,17 @@
 // a sessionStorage flag, then wrote its fixture over the app's state. So the
 // two reloads here (switch (c) and (c2)) go through tools/lib-reload.js. Just
 // before the reload it writes a stamp beside the state in localStorage —
-// switch (c) also one in sessionStorage ({ session: true }), because only its
-// seed reads sessionStorage — and then reads whether the old page still held
-// them when it unloaded (the app's doing if not: measured, never retried) and
-// whether they arrived at document start, before any app script. Only a stamp
-// the old page held and the new one did not find discards the attempt — every
-// reading of it, failing checks included — and the block is re-measured from
-// a fresh context, up to 3 attempts; if all 3 lose it the gate fails with that
-// reason. Whether the state itself arrived is what the checks measure; their
+// switch (c) also one in sessionStorage ({ session: true }), because
+// bareSettings is the only seed on a reloaded page that reads sessionStorage —
+// and then reads whether the old page still held them when it unloaded (a
+// report through a binding only the harness owns; the app's doing if not:
+// measured, never retried) and whether they arrived at document start, before
+// any app script. Only a stamp the old page is reported to have held and the
+// new one did not find discards the attempt — every reading of it, failing
+// checks included — and the block is re-measured from a fresh context, up to
+// 5 attempts; if all 5 lose it the gate fails with that reason. With no unload
+// report the attempt is measured as it is, never retried (fail-closed).
+// Whether the state itself arrived is what the checks measure; their
 // predicates are as they were.
 //
 //   node tools/verify-design.js

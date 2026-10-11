@@ -18,13 +18,15 @@
 // just before each reload a stamp is written beside the state in localStorage
 // — a stamp, not the state key, because the seeds below rewrite a missing
 // state before any later init script could look — and two things are read:
-// whether the old page still held it when it unloaded (if not, the app took
-// it: measured, never retried) and whether it arrived at document start. Only
-// a stamp the old page held and the new one did not find discards the attempt
+// whether the old page still held it when it unloaded (a report through a
+// binding only the harness owns; if not, the app took it: measured, never
+// retried) and whether it arrived at document start. Only a stamp the old page
+// is reported to have held and the new one did not find discards the attempt
 // — every reading of it, failing checks included — and that half is
-// re-measured from a fresh context, up to 3 attempts; if all 3 lose it the
-// gate fails with that reason. Whether the state arrived is what the checks
-// measure; their predicates are as they were.
+// re-measured from a fresh context, up to 5 attempts; if all 5 lose it the
+// gate fails with that reason. With no unload report the attempt is measured
+// as it is, never retried (fail-closed). Whether the state arrived is what the
+// checks measure; their predicates are as they were.
 const path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const { acrossReload } = require("./lib-reload");

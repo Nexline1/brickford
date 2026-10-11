@@ -256,19 +256,22 @@
 // (themePainted below) — the theme lag verify-contrast.js was rewritten for.
 //
 // T-039, a reload (loop/specs/T-039-reload-storage-flake/spec.md). "switch (c)"
-// failed at random with its code unchanged, because the BROWSER, not the app,
-// sometimes reloads this file:// page in an ephemeral context without the
-// storage the page had. Measured at document start, before any app script ran:
-// either localStorage came back empty (the app's state gone), or
-// sessionStorage did — and then bareSettings' write-once seed, which keys
-// "once" off sessionStorage, fired again and wrote its fixture over the app's
-// state. So the two reloads here (switch (c) and (c2)) go through
-// tools/lib-reload.js, which proves at document start — the one point the app
-// cannot have written — that the state stored before the reload arrived, in
-// both storage areas. If it did not, the block is re-measured from a fresh
-// context, up to 3 attempts, and if every attempt loses it the gate fails with
-// that reason. The checks themselves are as they were; nothing else is ever
-// retried.
+// failed at random with its code unchanged. Instrumented, the reloaded page
+// started — before any app script ran — without storage the old page had:
+// in the spec's evidence localStorage was empty; in this item's runs
+// sessionStorage was, and bareSettings' write-once seed, which keys "once" off
+// a sessionStorage flag, then wrote its fixture over the app's state. So the
+// two reloads here (switch (c) and (c2)) go through tools/lib-reload.js. Just
+// before the reload it writes a stamp beside the state in localStorage —
+// switch (c) also one in sessionStorage ({ session: true }), because only its
+// seed reads sessionStorage — and then reads whether the old page still held
+// them when it unloaded (the app's doing if not: measured, never retried) and
+// whether they arrived at document start, before any app script. Only a stamp
+// the old page held and the new one did not find discards the attempt — every
+// reading of it, failing checks included — and the block is re-measured from
+// a fresh context, up to 3 attempts; if all 3 lose it the gate fails with that
+// reason. Whether the state itself arrived is what the checks measure; their
+// predicates are as they were.
 //
 //   node tools/verify-design.js
 "use strict";
@@ -2024,7 +2027,7 @@ function t26bRecord() {
     await page.click("#themeBtn");
     await page.click("#themeMenu [data-theme-pick='" + t + "']");
   };
-  await acrossReload({ label: "switch (c)", check, fail: why => check(why, false) }, async (check, reload) => {
+  await acrossReload({ label: "switch (c)", check, fail: why => check(why, false), session: true }, async (check, reload) => {
     // (a) "light", no marker, on a LIGHT phone (so navy is the switch, not the
     // phone); desktop, where the Theme menu is on screen for (c).
     const { ctx, page, errors } = await fresh(browser,

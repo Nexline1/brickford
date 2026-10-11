@@ -96,11 +96,27 @@
 // itself, and nothing in it leaves the machine. (h) and (i) answer the
 // embed's URL with a stub page the same way; nothing reaches YouTube.
 //
+// T-039 (loop/specs/T-039-reload-storage-flake/spec.md): the one reload here,
+// (n)'s boot pull, goes through tools/lib-reload.js. In verify-design's
+// "switch (c)" a reload of this file:// page in an ephemeral context was seen
+// to start, before any app script ran, without storage the old page had. So
+// just before the reload a stamp is written beside the state in localStorage,
+// and two things are read: whether the old page still held it when it
+// unloaded (a report through a binding only the harness owns; if not, the app
+// took it: measured, never retried) and whether it arrived at document start.
+// Only a stamp the old page is reported to have held and the new one did not
+// find discards the attempt — every reading of it, failing checks included —
+// and (n) is re-measured from fresh contexts, up to 5 attempts; if all 5 lose
+// it the gate fails with that reason. With no unload report the attempt is
+// measured as it is, never retried (fail-closed). Whether the state arrived is
+// what the checks measure; their predicates are as they were.
+//
 //   node tools/verify-flows.js                 # gate
 //   node tools/verify-flows.js --shots <dir>   # also write a screenshot per flow
 "use strict";
 const fs = require("fs"), path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
+const { acrossReload } = require("./lib-reload");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
 // Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
@@ -1289,7 +1305,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // still holds the pass exactly as this device stored it. A reload makes the
   // boot pull. Then the other device: the pass here, the unmark over there.
   console.log("\ngate sync (once)");
-  {
+  await acrossReload({ label: "(n) gate sync", check, fail: why => check(why, false) }, async (check, reload) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true });
     await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
     let remote = null, put = null, gets = 0, gotPut = null;
@@ -1330,7 +1346,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       theUnmark = (await gatesStored(page))[1];
       remote = { v: 1, updatedAt: TODAY + "T12:00:30.000Z", device: "phone", ledgers: {}, state: { gates: { 1: thePass } } };
       await page.evaluate(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
-      await page.reload({ waitUntil: "load" });
+      await reload(page, { waitUntil: "load" });
       const pulled = await page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt,
         null, { timeout: 8000 }).then(() => true, () => false);
       await page.waitForSelector("#view [data-gate]");
@@ -1383,7 +1399,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     } catch (e) { check("(n) the other device's flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
     check("(n) no page errors (the other device)", errors2.length === 0, errors2.join(" | "));
     await ctx2.close();
-  }
+  });
 
   await browser.close();
   console.log("");

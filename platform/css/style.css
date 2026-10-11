@@ -2702,7 +2702,14 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 @media (min-width: 600px) {
   .at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); }
 }
-.wk-tile { align-items: flex-start; }
+/* A counted number fits its tile whatever its length (T-026c review 1: a
+   1,149.5 BHD week ran out of its tile from 320 to 1280). --n is its length in
+   characters, set by app.js; a character of these digits is at most 0.64em
+   wide (DejaVu's 0.636 is the widest face the gates draw with), so the size is
+   capped at the tile's content width (100cqi) over that. Short numbers keep
+   the full 2.125rem. */
+.wk-tile { align-items: flex-start; container-type: inline-size; }
+.wk-tile .at-days b { font-size: min(2.125rem, calc(100cqi / (var(--n, 1) * 0.64))); white-space: nowrap; }
 .wk-tile .wk-auto, .wk-tile .wk-hand {
   display: block; margin-top: 4px; font-size: var(--fs-caption); font-style: normal; line-height: 1.3;
 }
@@ -2730,6 +2737,10 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
   text-transform: none; color: var(--ink);
 }
 .wk-q input[type="text"] { min-height: 44px; background: var(--surface-2); }
+/* On --surface-2 the browser's placeholder grey is 4.26:1 in Light and 3.02:1
+   in Dark; --ink-2 is the quieter ink that still reads (--ink-3 does not, in
+   Dark). Opacity 1, so no browser's own fade is laid over it. */
+.wk-q input::placeholder { color: var(--ink-2); opacity: 1; }
 .wk-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; }
 .wk-state { font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .wk-foot .btn { margin-left: auto; min-height: 44px; min-width: 44px; justify-content: center; }

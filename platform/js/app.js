@@ -2900,6 +2900,28 @@
   let sketchDirty = false;
   let calCursor = null; // "YYYY-MM" of the displayed month
   let calSel = null;    // "YYYY-MM-DD" of the selected day
+  // T-026c review 1: a re-render of the same page starts at the top
+  // (renderInner). For the day view's own ‹ Today › that threw a reader who
+  // had scrolled down to the day back up the page, and on a phone it left the
+  // row under the fixed bars, where the next tap opened whatever was there.
+  // So these keep the control that was pressed where it was on screen, under
+  // the finger for the next tap (the header above it can change height: a
+  // longer day name wraps), and the focus on it (found again by selector:
+  // the view is rebuilt). Without the control, the day's header holds still.
+  // Positions are layout positions (the offsetTop chain), not the painted box:
+  // the new view starts its entrance 4px low (viewIn), and correcting for
+  // that would leave the control 4px off once it settles.
+  function dayRender(sel) {
+    const at = () => $(sel) || $("#view .cd-head");
+    const top = n => { let y = 0; for (let e = n; e; e = e.offsetParent) y += e.offsetTop; return y - window.scrollY; };
+    const a0 = at(), top0 = a0 ? top(a0) : null;
+    render({ after: () => {
+      const a1 = at();
+      if (a1 && top0 != null) window.scrollBy({ top: top(a1) - top0, behavior: "instant" });
+      const c = $(sel), f = c && !c.disabled ? c : $("#view .cd-seg [data-cal-nav='today']");
+      if (f) f.focus({ preventScroll: true });
+    } });
+  }
 
   function monthGridHTML() {
     const today = todayISO();
@@ -3974,10 +3996,15 @@
     const sealed = S.weeks.find(x => +x.week === w);
     const dsa = dsaCount();
     const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
-    const paid = S.treasury.entries.filter(e => e && inWeek(e.date));
-    const earned = Math.round(paid.reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
+    // BHD is counted from the Treasury ledger once it has any entry at all (a
+    // week with none in it is a counted 0); with an empty ledger it is typed.
+    const counted = S.treasury.entries.length > 0;
+    const earned = Math.round(S.treasury.entries.filter(e => e && inWeek(e.date))
+      .reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
 
-    const tile = (n, label, em) => '<div class="at-tile pf-tile wk-tile"><span class="at-days"><b>' + n + "</b>" +
+    // --n is the number's length in characters: a long one (1,149.5 BHD) is
+    // set smaller so it fits its tile at any width (style.css, .wk-tile b).
+    const tile = (n, label, em) => '<div class="at-tile pf-tile wk-tile"><span class="at-days"><b style="--n:' + String(n).length + '">' + n + "</b>" +
       "<span>" + label + '</span><em class="wk-auto">' + em + "</em></span></div>";
     // The one you type: the whole tile is the label, so a tap anywhere on it
     // puts the cursor in the number.
@@ -4014,13 +4041,14 @@
       '<div class="sub">Every Sunday: what shipped, what didn’t. Seal it in two minutes.</div></div>' +
 
       '<div class="at-tiles wk-tiles">' +
-      tile(dsa, "DSA solved", "counted for you") +
+      // The running total, as the stored field has always been: said so.
+      tile(dsa, "DSA solved", "all time · counted for you") +
       tile(proven, "lectures proven", "counted for you") +
       edit("rvPosts", "posts", "1") +
-      (paid.length ? tile(numText(earned), "BHD earned", "from Treasury") : edit("rvRev", "BHD earned", "0.01")) +
+      (counted ? tile(numText(earned), "BHD earned", "from Treasury") : edit("rvRev", "BHD earned", "0.01")) +
       "</div>" +
       '<input type="hidden" id="rvDsa" value="' + dsa + '">' +
-      (paid.length ? '<input type="hidden" id="rvRev" value="' + earned + '">' : "") +
+      (counted ? '<input type="hidden" id="rvRev" value="' + earned + '">' : "") +
 
       '<div class="card wk-q"><label class="field wk-ql" for="rvShipped">What did you ship?</label>' +
       '<input type="text" id="rvShipped" autocomplete="off" placeholder="a repo, a post, a delivery… or leave it empty"></div>' +
@@ -5030,7 +5058,8 @@
           const nd = new Date(y, m - 1 + (nav === "next" ? 1 : -1), 1);
           calCursor = nd.getFullYear() + "-" + pad2(nd.getMonth() + 1);
         }
-        render();
+        if (b.closest(".cd-seg")) dayRender("#view .cd-seg [data-cal-nav='today']");
+        else render();
       };
     });
     // T-026c: the day view's ‹ and › step the selected day (never before day
@@ -5040,7 +5069,7 @@
         let d = addDaysISO(calSel || todayISO(), +b.dataset.calStep);
         if (d < D.START_DATE) d = D.START_DATE;
         calSel = d; calCursor = d.slice(0, 7);
-        render();
+        dayRender("#view .cd-seg [data-cal-step='" + b.dataset.calStep + "']");
       };
     });
     // workshop labs + proof URLs + psets + electives
@@ -5534,7 +5563,9 @@
     if (rendering) return;
     if (opts && opts.background && videoOnScreen()) return;
     rendering = true;
-    const done = () => { rendering = false; };
+    // opts.after runs once the view is rebuilt, on either path below (T-026c:
+    // the day controls put the page back where the reader had it).
+    const done = () => { rendering = false; if (opts && opts.after) opts.after(); };
     // apple-design 7: a route change is a spatial move, and a hard swap gives
     // the eye nothing to follow. The View Transition API cross-fades the old
     // page into the new one at the compositor, so it costs nothing on the

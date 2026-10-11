@@ -5,19 +5,24 @@ Mockups: `loop/design/specimen-week.png`, `specimen-calendar.png`, `specimen-lib
 
 ## Week (`V.review`)
 
-1. **DSA solved is the running total**, `dsaCount()`, as the stored `dsa` field always was
-   ("Total DSA problems solved (cumulative — auto-filled from CS 150)"); the dashboard draws it
-   as "DSA over time". The spec says "DSA solved: auto, from CS 150" and, unlike the lectures
-   and BHD tiles, not "this week". Changing it to a weekly count would change what an existing
-   stored number means. One line to flip if the owner wants the week's count instead.
+1. **DSA solved is the running total, and says so**: its caption is "all time · counted for
+   you" (review round 1; the mockup's is "counted for you"). It is `dsaCount()`, as the stored
+   `dsa` field always was ("Total DSA problems solved (cumulative — auto-filled from CS 150)");
+   the dashboard draws it as "DSA over time", and a weekly count would change what an existing
+   stored number means, so the stored shape and meaning stay. The spec says "DSA solved: auto,
+   from CS 150" and, unlike the lectures and BHD tiles, not "this week".
 2. **"Lectures proven this week" is shown, not stored.** The spec's "the four numbers plus the
    two texts" is read as the stored week, `{ week, date, shipped, dsa, posts, revenue, notes }`;
    adding a `lectures` field would be a changed shape (plant d). The Seal handler is
    byte-identical; the counted values reach it through the input ids it always read
    (`#rvDsa`, and `#rvRev` when counted, as hidden inputs).
-3. **BHD earned is counted when at least one Treasury entry is dated inside this plan week**
-   (its first study day to its last, so the Saturday between them is inside); with none, it is
-   a typed field. The spec's "where entries exist" read as entries in the week.
+3. **BHD earned follows the spec's rule: "It stays editable if the ledger has none."** Once the
+   Treasury ledger has any entry it is counted ("from Treasury"): the entries dated inside this
+   plan week, its first study day to its last, so the Saturday between them is inside — a week
+   with none of them is a counted 0. Only an empty ledger makes it a typed field. (Round 0 read
+   "where entries exist" as entries in the week; review round 1 corrected it to the ledger.)
+   A long sum is set smaller to fit its tile (`--n` × 0.64em against the tile's width in
+   `cqi`): 1,149.5 and 12,345.75 fit from 320 to 1440 at roots 16 and 24.
 4. **Typed tiles say "tap to edit"** in `--ink-3` under the label. The mockup's posts tile has no
    third line; without one an editable number looks the same as a counted one.
 5. **The empty "Past weeks" row is faded by ink and a dashed edge, not opacity.** The mockup
@@ -28,6 +33,8 @@ Mockups: `loop/design/specimen-week.png`, `specimen-calendar.png`, `specimen-lib
    "nothing shipped" in `--bad`, as the register did; numbers as "DSA n · n posts · BHD n", each
    number kept with its unit.
 7. The two questions are one-line inputs, as in the mockup. The old notes field was a textarea.
+   Their placeholders are `--ink-2` (5.42:1 Dark, 6.37:1 Light on `--surface-2`): the browser's
+   default grey measured 3.02:1 and 4.26:1 there (review round 1).
 8. The state line uses the plan week's last study day ("Opens Sunday 25 Oct · 5 days"; Sunday
    under the current start, derived rather than assumed), "Ready to seal" on it, "Sealed 20 Oct"
    once sealed. Seal stays enabled throughout, as the current rules allow an early seal.
@@ -40,6 +47,12 @@ Mockups: `loop/design/specimen-week.png`, `specimen-calendar.png`, `specimen-lib
    must stay exactly as it is, so they were not moved. The day header has a T-026a `.seg`:
    ‹ and › step the selected day (never before day 1; ‹ is disabled there) and the grid
    follows into the next month; its Today is the grid's own `data-cal-nav="today"`.
+   A press keeps the pressed control where it was on screen and the focus on it (review round
+   1: a same-route render started at the top, which on a phone put the row under the fixed bars
+   and the next tap opened a lesson). The reviewer suggested holding the day's header still;
+   the control is held instead, because a longer day name wraps the header and would move the
+   button out from under the finger (29px at 390). Positions are layout positions, not the
+   painted box, so the 4px entrance offset (`viewIn`) is not corrected for.
 2. The day name is an `h2`: the page's `h1` is the folio "Calendar" (verify-design measures any
    other visible `h1` as the large title).
 3. **Kept from the old summary card**, under the bar: the week's focus line (the only place the

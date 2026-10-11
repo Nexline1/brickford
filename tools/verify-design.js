@@ -1804,22 +1804,32 @@ const T26C_SUB = {
   "/library": "The rules of Brickford, and the guides for each phase.",
 };
 // On top of the seed (which has one problem on 17 Oct and math110.0.13
-// proven on 19 Oct): a second problem this week, a lecture proven this week
-// and one proven the week before, today's MATH 120 lecture watched (a done
-// block), three payments — the Sunday that ENDS week 2 (18 Oct, so the lower
-// edge is tested), and two this week — and two sealed weeks, one of them a
-// failed week with a note. Every counted tile is non-zero and each can be wrong.
+// proven on 19 Oct): a second problem this week; today's MATH 120 lecture
+// watched (a done block); two sealed weeks, one of them a failed week with a
+// note; and lectures proven and payments on BOTH edges of week 3 (Mon 19 to
+// Sun 25 Oct) and on its rest day — Sun 18 (the last day of week 2) and Mon
+// 26 (the first of week 4) must not count; Mon 19, Sat 24 and Sun 25 must.
+// So "iso < to", "iso > from" and a Saturday left out each change a tile
+// (review round 1: with "iso < to" planted, every check had passed). The
+// payments that count come to 1,149.5, a number long enough to have run out
+// of its tile.
 const T26C_PATCH = {
   problems: { "Arrays & Hashing|Valid Anagram": "2026-10-19" },
   lessons: {
+    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-18", verifiedAt: "2026-10-18", notes: "", checks: [] },
     "math110.0.2": { done: true, verified: true, doneAt: "2026-10-20", verifiedAt: "2026-10-20", notes: "", checks: [] },
-    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-16", verifiedAt: "2026-10-16", notes: "", checks: [] },
+    "math110.0.3": { done: true, verified: true, doneAt: "2026-10-24", verifiedAt: "2026-10-24", notes: "", checks: [] },
+    "math110.0.4": { done: true, verified: true, doneAt: "2026-10-25", verifiedAt: "2026-10-25", notes: "", checks: [] },
+    "math110.0.5": { done: true, verified: true, doneAt: "2026-10-26", verifiedAt: "2026-10-26", notes: "", checks: [] },
     "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] },
   },
   treasury: { offer: "", clients: [], niche: "", entries: [
     { date: "2026-10-18", amount: 999, note: "the last day of week 2" },
-    { date: "2026-10-19", amount: 120, note: "pilot" },
-    { date: "2026-10-20", amount: 30.5, note: "a referral" },
+    { date: "2026-10-19", amount: 1000, note: "pilot" },
+    { date: "2026-10-20", amount: 120, note: "a referral" },
+    { date: "2026-10-24", amount: 27, note: "the rest day" },
+    { date: "2026-10-25", amount: 2.5, note: "the last day of week 3" },
+    { date: "2026-10-26", amount: 500, note: "the first day of week 4" },
   ] },
   weeks: [
     { week: 1, date: "2026-10-11", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
@@ -1845,14 +1855,16 @@ function t26cWeekOf(iso) {
 function t26cWeekWant(st, today) {
   const { w, from, to } = t26cWeekOf(today);
   const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
-  const paid = ((st.treasury || {}).entries || []).filter(e => inWeek(e.date));
-  const earned = Math.round(paid.reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
+  const ledger = (st.treasury || {}).entries || [];
+  const earned = Math.round(ledger.filter(e => inWeek(e.date)).reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
   const weeks = (st.weeks || []).slice().sort((a, b) => b.week - a.week);
   const sealed = weeks.find(x => +x.week === w);
   const n = t26cDays(today, to);
   const bhd = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString("en-US");
   return {
-    w, from, to, auto: paid.length > 0, earned,
+    // Spec: BHD "stays editable if the ledger has none" — counted whenever
+    // the ledger has any entry, this week or not.
+    w, from, to, auto: ledger.length > 0, earned,
     dsa: Object.values(st.problems || {}).filter(Boolean).length,
     proven: Object.values(st.lessons || {}).filter(l => l && l.verified && inWeek(l.verifiedAt)).length,
     bhdText: earned.toLocaleString("en-US", { maximumFractionDigits: 2 }),
@@ -1897,8 +1909,29 @@ function t26cWeek() {
       notes: c.tagName === "DETAILS" && c.open ? txt(c, ".wk-notes") : null, open: !!c.open,
       sh: c.querySelector("summary") ? c.querySelector("summary").getBoundingClientRect().height : 0 })),
     past: (g => g ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null)(vis("#view .ghead").find(g => /^Past weeks/.test(g.textContent))),
+    // Each question's placeholder ink over what is behind the field.
+    ph: ["rvShipped", "rvNotes"].map(id => { const el = document.querySelector("#view #" + id); if (!el) return { id, ratio: 0 };
+      const back = z.backdrop(el), ink = z.over(z.bytes(getComputedStyle(el, "::placeholder").color), back);
+      return { id, text: el.placeholder, ratio: z.ratio(ink, back), ink: z.hex(ink), back: z.hex(back) }; }),
     good: z.tok("--good"), ink3: z.tok("--ink-3"),
   };
+}
+// Every counted or typed Week number inside its tile's content box, and the
+// BHD number's size.
+function t26cTileFit() {
+  const out = [];
+  document.querySelectorAll("#view .wk-tiles > *").forEach(t => {
+    const r = t.getBoundingClientRect(), cs = getComputedStyle(t);
+    const l = r.left + parseFloat(cs.paddingLeft) - 0.5, rt = r.right - parseFloat(cs.paddingRight) + 0.5;
+    t.querySelectorAll("b, input, .at-days > span, em").forEach(el => {
+      if (!el.checkVisibility()) return;
+      const a = el.getBoundingClientRect();
+      if (a.left < l || a.right > rt || el.scrollWidth > el.clientWidth + 1)
+        out.push(el.tagName.toLowerCase() + " \"" + (el.value || el.textContent).trim().slice(0, 16) + "\" " + a.left.toFixed(0) + "-" + a.right.toFixed(0) + " in " + l.toFixed(0) + "-" + rt.toFixed(0));
+    });
+  });
+  const b = document.querySelector("#view .wk-tiles > :nth-child(4) b");
+  return { out, bhd: b ? b.textContent : null, size: b ? parseFloat(getComputedStyle(b).fontSize) : 0 };
 }
 // The selected day, measured; and what it should be, from the schedule (the
 // test hook) and the data — the faculty colour by the course's faculty
@@ -3665,7 +3698,7 @@ function t26cLib() {
   })();
   async function t26bFresh(o) {
     const now = o.now || FIXED_NOW;
-    const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce", viewport: { width: o.w, height: o.h },
+    const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: o.motion || "reduce", viewport: { width: o.w, height: o.h },
       isMobile: o.mobile, hasTouch: o.mobile, colorScheme: o.theme });
     await ctx.clock.setFixedTime(now);
     await ctx.route(/^https?:/, r => { const u = r.request().url(); requests.push(u); if (/api\.github\.com/.test(u)) githubHits++; return r.abort(); });
@@ -3989,16 +4022,16 @@ function t26cLib() {
       JSON.stringify(m.tiles.map(t => t.label)) === JSON.stringify(wantLabels) && m.tiles.every(t => t.w >= 44 && t.h >= 44),
       m.tiles.map(t => t.label + " " + t.w.toFixed(0) + "x" + t.h.toFixed(0)).join(", "));
     const [tD, tP, tPo, tB] = m.tiles;
-    c26c(at + " /review: DSA solved is counted, not typed — " + W.dsa + ", every problem stored as solved — \"counted for you\" in --good, and Seal reads it (rvDsa " + W.dsa + ")",
-      !!tD && !tD.input && tD.n === String(W.dsa) && tD.em === "counted for you" && __same(tD.emCol, m.good) && !!m.rvDsa && m.rvDsa.type === "hidden" && m.rvDsa.value === String(W.dsa),
+    c26c(at + " /review: DSA solved is counted, not typed, and says it is the running total — " + W.dsa + ", every problem stored as solved — \"all time · counted for you\" in --good, and Seal reads it (rvDsa " + W.dsa + ")",
+      !!tD && !tD.input && tD.n === String(W.dsa) && tD.em === "all time · counted for you" && __same(tD.emCol, m.good) && !!m.rvDsa && m.rvDsa.type === "hidden" && m.rvDsa.value === String(W.dsa),
       tD ? tD.n + " \"" + tD.em + "\", rvDsa " + JSON.stringify(m.rvDsa) : "no tile");
     c26c(at + " /review: lectures proven is the lectures proven between " + W.from + " and " + W.to + " (" + W.proven + "), counted, \"counted for you\"",
       !!tP && !tP.input && tP.n === String(W.proven) && tP.em === "counted for you" && __same(tP.emCol, m.good), tP ? tP.n + " \"" + tP.em + "\"" : "no tile");
     c26c(at + " /review: posts is typed — the tile holds the number field #rvPosts (0), >= 44px tall, \"tap to edit\"",
       !!tPo && tPo.tag === "LABEL" && !!tPo.input && tPo.input.id === "rvPosts" && tPo.input.type === "number" && tPo.input.value === "0" && tPo.input.h >= 44 && tPo.em === "tap to edit",
       tPo ? tPo.tag + " " + JSON.stringify(tPo.input) + " \"" + tPo.em + "\"" : "no tile");
-    c26c(at + " /review: " + (W.auto ? "BHD earned is the Treasury entries dated " + W.from + " to " + W.to + " (" + W.bhdText + "), counted, \"from Treasury\", and Seal reads it (rvRev " + W.earned + ")"
-        : "no Treasury entry is dated in this week, so BHD earned is typed — the field #rvRev, \"tap to edit\""),
+    c26c(at + " /review: " + (W.auto ? "the ledger has entries, so BHD earned is counted: those dated " + W.from + " to " + W.to + ", its rest day included (" + W.bhdText + "), \"from Treasury\", and Seal reads it (rvRev " + W.earned + ")"
+        : "the Treasury ledger is empty, so BHD earned is typed — the field #rvRev, \"tap to edit\""),
       !!tB && (W.auto ? !tB.input && tB.n === W.bhdText && tB.em === "from Treasury" && __same(tB.emCol, m.good) && !!m.rvRev && m.rvRev.type === "hidden" && m.rvRev.value === String(W.earned)
         : tB.tag === "LABEL" && !!tB.input && tB.input.id === "rvRev" && tB.input.type === "number" && tB.input.h >= 44 && tB.em === "tap to edit"),
       tB ? (tB.input ? "typed " + JSON.stringify(tB.input) : tB.n + " \"" + tB.em + "\"") + ", rvRev " + JSON.stringify(m.rvRev) : "no tile");
@@ -4009,6 +4042,8 @@ function t26cLib() {
     c26c(at + " /review: \"Seal the week\" is the only filled primary (data-act logWeek, the existing handler)",
       m.filled.length === 1 && m.filled[0].text === "Seal the week" && m.filled[0].act === "logWeek", m.filled.map(f => "\"" + f.text + "\" " + f.act).join("; ") || "no filled button");
     c26c(at + " /review: beside it the state reads \"" + W.state + "\"", m.state === W.state, "\"" + m.state + "\"");
+    c26c(at + " /review: each question's placeholder reads at >= 4.5:1 on its field (" + m.ph.map(x => "#" + x.id).join(", ") + ")",
+      m.ph.length === 2 && m.ph.every(x => x.ratio >= 4.5), m.ph.map(x => "#" + x.id + " " + (x.ink || "?") + " on " + (x.back || "?") + " " + x.ratio.toFixed(2) + ":1").join("; "));
     c26c(at + " /review: two questions — \"What did you ship?\" on #rvShipped and \"What got in the way?\" on #rvNotes, each field >= 44px",
       JSON.stringify(m.qs.map(q => [q.q, q.forId, q.input])) === JSON.stringify([["What did you ship?", "rvShipped", "rvShipped"], ["What got in the way?", "rvNotes", "rvNotes"]]) && m.qs.every(q => q.h >= 44),
       JSON.stringify(m.qs));
@@ -4110,6 +4145,84 @@ function t26cLib() {
       [a, b, c].map(x => x.h2 + " (" + x.sel + ")").join(" -> "));
   }
 
+  // Review round 1: ‹ › and the day's Today put the page back where it was:
+  // the pressed control stays where it is on screen and keeps the focus. A
+  // same-route render had started at the top, which on a phone left the row
+  // under the fixed bars and the next tap opened a lesson. Pressed the way a
+  // reader does — scrolled down to the day, a finger on the control's centre
+  // where it is NOW, twice; on a desktop, Enter twice and then Today.
+  const t26cAdd = (iso, k) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + k); return d.toISOString().slice(0, 10); };
+  // Still: the scroll position unchanged and no finite animation running, for
+  // three frames in a row (a change, then a stop — not a duration).
+  const t26cSettled = page => page.waitForFunction(() => {
+    const y = window.scrollY, busy = document.getAnimations().some(a => a.playState === "running" &&
+      (!a.effect || a.effect.getComputedTiming().iterations !== Infinity));
+    if (busy || y !== window.__t26cY) { window.__t26cY = y; window.__t26cN = 0; return false; }
+    return ++window.__t26cN >= 3;
+  }, null, { polling: "raf", timeout: 6000 }).catch(() => {});
+  const t26cSegAt = (page, sel) => page.evaluate(sel => {
+    const b = document.querySelector(sel), r = b ? b.getBoundingClientRect() : null, x = r ? r.left + r.width / 2 : 0, y = r ? r.top + r.height / 2 : 0;
+    const hit = r ? document.elementFromPoint(x, y) : null, a = document.activeElement;
+    return { x, y, top: r ? r.top : NaN, mine: !!hit && !!b && b.contains(hit), hit: hit ? hit.tagName.toLowerCase() + "." + String(hit.className).split(" ")[0] : null,
+      hash: location.hash, h2: ((document.querySelector("#view .cd-head h2") || {}).textContent || "").trim(),
+      sel: (document.querySelector("#view .cal-cell.sel") || { dataset: {} }).dataset.calDay || null, focus: !!a && !!b && a === b };
+  }, sel);
+  const t26cDayIs = (page, iso) => page.waitForFunction(t => ((document.querySelector("#view .cd-head h2") || {}).textContent || "").trim() === t,
+    t26cNice(iso), { timeout: 4000, polling: "raf" }).catch(() => {});
+  // /calendar with today selected, from wherever the page is (go() to the
+  // hash it is already on would wait for a render that never comes).
+  async function t26cOnToday(page, today) {
+    if (await page.evaluate(() => location.hash) !== "#/calendar") await go(page, "/calendar");
+    if ((await t26cSegAt(page, "#view .cd-head h2")).h2 !== t26cNice(today)) {
+      await page.click("#view .cal-head [data-cal-nav='today']");
+      await t26cDayIs(page, today);
+    }
+  }
+  async function t26cStepTaps(page, at, o) {
+    const NEXT = "#view .cd-seg [data-cal-step='1']";
+    await t26cOnToday(page, o.today);
+    const w0 = await writesNow(page);
+    await page.evaluate(() => document.querySelector("#view .cd-seg").scrollIntoView({ block: "center", behavior: "instant" }));
+    await t26cSettled(page);
+    const a = await t26cSegAt(page, NEXT), taps = [];
+    for (const k of [1, 2]) {
+      const p = await t26cSegAt(page, NEXT);
+      await page.touchscreen.tap(p.x, p.y);
+      await t26cDayIs(page, t26cAdd(o.today, k));
+      await t26cSettled(page);
+      taps.push(await t26cSegAt(page, NEXT));
+    }
+    const last = t26cAdd(o.today, 2), w1 = await writesNow(page);
+    c26c(at + " /calendar: scrolled to the day, › tapped twice where it is — still /calendar, the day moved by 2 (" + last + "), › under the finger after each tap (within 1px, not covered) and holding the focus, nothing written",
+      a.mine && taps.length === 2 && taps.every(t => t.hash === "#/calendar" && Math.abs(t.top - a.top) <= 1 && t.mine && t.focus) &&
+        taps[1].h2 === t26cNice(last) && taps[1].sel === last && w1 === w0,
+      [a].concat(taps).map(t => t.hash + " \"" + t.h2 + "\" ›@" + t.top.toFixed(1) + (t.mine ? "" : " covered by " + t.hit) + (t.focus ? " focused" : "")).join(" -> ") + ", writes " + w0 + " -> " + w1);
+  }
+  async function t26cStepKeys(page, at, o) {
+    const NEXT = "#view .cd-seg [data-cal-step='1']", TODAY = "#view .cd-seg [data-cal-nav='today']";
+    await t26cOnToday(page, o.today);
+    const w0 = await writesNow(page);
+    await page.focus(NEXT);
+    await t26cSettled(page);
+    const a = await t26cSegAt(page, NEXT), keys = [];
+    for (const k of [1, 2]) {
+      await page.keyboard.press("Enter");
+      await t26cDayIs(page, t26cAdd(o.today, k));
+      await t26cSettled(page);
+      keys.push(await t26cSegAt(page, NEXT));
+    }
+    const t0 = await t26cSegAt(page, TODAY);
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Enter");
+    await t26cDayIs(page, o.today);
+    await t26cSettled(page);
+    const t1 = await t26cSegAt(page, TODAY), w1 = await writesNow(page);
+    c26c(at + " /calendar: Enter on › twice moves the day by 2 with › where it was and focused; Shift+Tab, Enter on Today comes back with Today focused, in place; nothing written",
+      keys.length === 2 && keys.every(t => t.hash === "#/calendar" && Math.abs(t.top - a.top) <= 1 && t.focus) && keys[1].h2 === t26cNice(t26cAdd(o.today, 2)) &&
+        t1.h2 === t26cNice(o.today) && t1.sel === o.today && t1.focus && Math.abs(t1.top - t0.top) <= 1 && w1 === w0,
+      [a].concat(keys).map(t => "\"" + t.h2 + "\" ›@" + t.top.toFixed(1) + (t.focus ? " focused" : "")).join(" -> ") + "; Today: \"" + t1.h2 + "\" @" + t1.top.toFixed(1) + " (was " + t0.top.toFixed(1) + ")" + (t1.focus ? " focused" : "") + ", writes " + w0 + " -> " + w1);
+  }
+
   async function t26cLibCheck(page, at, o) {
     const w0 = await writesNow(page);
     await go(page, "/library");
@@ -4165,6 +4278,7 @@ function t26cLib() {
       const w0 = await writesNow(page);
       await t26cWeekCheck(page, at, { today, click: true, cols: o.mobile ? 2 : 4 });
       await t26cCalCheck(page, at, { today, cols: o.mobile ? 2 : 4, more: ["2026-10-24", "2026-10-25"] });
+      if (o.mobile) await t26cStepTaps(page, at, { today }); else await t26cStepKeys(page, at, { today });
       await t26cLibCheck(page, at, { today, click: true, cols: o.mobile ? 1 : 3 });
       const w1 = await writesNow(page);
       c26c(at + " T-026c: nothing on the three pages wrote state (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
@@ -4173,9 +4287,12 @@ function t26cLib() {
     }
   }
   // ---- one state at a time, for what the seed cannot show ----
+  const T26C_LEDGER = entries => Object.assign({}, T26C_PATCH, { treasury: { offer: "", clients: [], niche: "", entries } });
   const T26C_STATES = [
-    { name: "no payment dated in this week (only the Sunday that ends week 2)",
-      patch: Object.assign({}, T26C_PATCH, { treasury: { offer: "", clients: [], niche: "", entries: [T26C_PATCH.treasury.entries[0]] } }) },
+    { name: "a ledger with no payment in this week (only Sun 18 and Mon 26), so BHD is a counted 0",
+      patch: T26C_LEDGER([T26C_PATCH.treasury.entries[0], T26C_PATCH.treasury.entries[5]]) },
+    { name: "an empty Treasury ledger, so BHD is typed", patch: T26C_LEDGER([]) },
+    { name: "a 12,345.75 week", patch: T26C_LEDGER([{ date: "2026-10-19", amount: 12345.75, note: "a big one" }]) },
     { name: "this week already sealed",
       patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([{ week: 3, date: "2026-10-20", shipped: "a repo", dsa: 2, posts: 2, revenue: 150.5, notes: "" }]) }) },
     { name: "nothing sealed yet", patch: Object.assign({}, T26C_PATCH, { weeks: [] }) },
@@ -4189,6 +4306,37 @@ function t26cLib() {
       await t26cWeekCheck(page, at, { today });
       c26c(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
+    }
+  }
+  // ---- the day controls at the reviewer's phone sizes, and with motion on ----
+  for (const o of [{ w: 375, h: 667 }, { w: 320, h: 568 }, { w: 390, h: 664 }, { w: 390, h: 844, motion: "no-preference" }, { w: 1440, h: 900, motion: "no-preference" }]) {
+    const mobile = o.w < 861, at = o.w + "x" + o.h + " dark" + (o.motion ? ", motion on" : "");
+    console.log("\nT-026c the day controls, " + at);
+    const { ctx, page, errors, today } = await t26bFresh({ w: o.w, h: o.h, mobile, theme: "dark", patch: T26C_PATCH, motion: o.motion });
+    if (mobile) await t26cStepTaps(page, at, { today }); else await t26cStepKeys(page, at, { today });
+    c26c(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  // ---- a long BHD week fits its tile ----
+  // Review round 1: 1,149.5 ran out of its tile at 320, 360, 1024, 1100 and
+  // 1280 (root 16) and 1440 (root 24), and scrolled the page sideways at 320;
+  // 12,345.75 at 390. Every number in the tiles inside its tile's content box,
+  // nothing in the view wider than its box, no sideways scroll.
+  const T26C_FIT_W = [320, 390, 1100, 1280, 1440];
+  for (const amt of [1149.5, 12345.75]) {
+    for (const root of [16, 24]) {
+      for (const w of T26C_FIT_W) {
+        const { ctx, page, errors } = await t26bFresh({ w, h: 900, mobile: w < 861, theme: "light", root,
+          patch: T26C_LEDGER([{ date: "2026-10-19", amount: amt, note: "x" }]) });
+        await go(page, "/review");
+        const f = await page.evaluate(t26cTileFit), ov = await page.evaluate(viewOverflow);
+        const rootNow = await page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
+        const want = amt.toLocaleString("en-US", { maximumFractionDigits: 2 });
+        c26c(w + "px root " + root + "px /review: a " + want + " BHD week fits its tile (every Week number inside its tile, nothing in the view wider than its box, no sideways scroll)",
+          rootNow === root + "px" && f.bhd === want && f.out.length === 0 && ov.out.length === 0 && !ov.side && errors.length === 0,
+          (f.out.concat(ov.out).concat(ov.side ? ["page " + ov.side] : []).concat(errors).join("; ") || "\"" + f.bhd + "\" at " + f.size.toFixed(1) + "px") + (rootNow === root + "px" ? "" : ", root " + rootNow));
+        await ctx.close();
+      }
     }
   }
 
@@ -4220,7 +4368,8 @@ function t26cLib() {
       T26B_OW.length + " widths x 3 roots (" + t26bChecks + " checks); " +
       "T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view " +
       "(one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides " +
-      "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, and " + T26C_STATES.length + " more Week states at 1440/390 (" + t26cChecks + " checks)"
+      "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, " + T26C_STATES.length + " more Week states at 1440/390, ‹ › Today tapped and keyed " +
+      "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

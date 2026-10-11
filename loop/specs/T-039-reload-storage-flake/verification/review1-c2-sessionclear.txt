@@ -1,0 +1,25 @@
+T-039 review 1, finding 2: the switch (c2) block at HEAD c64b762, 10 runs, with sessionStorage cleared on every document after a context's first (mkiso-c2.py <tree> 10 sessionclear — the reviewer's, plus the tally). (c2) no longer requires the sessionStorage stamp, and the app really held Light, so it must pass.
+Result: 0 of 10 fail, 0 attempts re-measured. The same runner at the previous head (26a4888, session stamp required everywhere) failed 3 of 3 with every attempt discarded for the missing sessionStorage stamp (the reviewer's iso-head-c2-sessionclear.txt), which is also the proof that this clear fires.
+
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+  ok    switch (c2): nothing stored, Light picked, reload: stays light (stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (c2): no page errors
+ISO-C2: 0 of 10 block runs failed; 0 failed of 20; lost 0, exhausted 0, app-removed 0, no unload report 0
+exit code: 0

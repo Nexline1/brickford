@@ -58,3 +58,4 @@
 - 2026-10-11: T-039 APPROVED after r3 + spec amendment confirmation; merged as PR #17 (9b004fe). Main merged into T-026c (9de36a6, clean), CHECK running.
 - 2026-10-11: T-026c CHECK on 9de36a6 all green (design 1787 x2, flows 172 x2, clip 801 + LA; sync-loop re-measured 3x on one reload, a real burst, passed on attempt 4). Review r1 sent.
 - 2026-10-11: T-026c review r1 CHANGES REQUIRED: (1) day-step/Today jumps to top on phone, 2nd tap opens a lesson; (2) BHD tile overflows with 1,149.5; (3) placeholder contrast 3.02 Dark; (4) week upper edge/Saturday BHD untested; (5) BHD editable rule per spec = ledger empty; (6) DSA tile must say all time. Builder resumed.
+- 2026-10-11: T-026c r1 fixes in (e2aeb32, code a083a54): all six fixed, plants (a)-(f) exit 1. My CHECK all green (design 1885 x2, flows 177 x2). Review r2 sent.

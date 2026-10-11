@@ -2846,13 +2846,13 @@ button.at-chip.lb-more { font-weight: 600; }
    Built from T-026a/b/c's pieces: the .page-head header, .seg for the
    three tabs, a --surface card (as .wk-q), .ghead for the list's head,
    .unit for the folds. Tokens only. The record button is 104px: a ring of
-   --rec-ring (white on Dark; on Light's white card a white ring would be
-   nothing, so it is --ink-3) round a --rec disc — #ff453a on Dark (4.99:1
-   on its card), --bad on Light, where #ff453a is only 3.41:1 on white and
-   --bad is 6.34:1. Recording, the disc becomes a rounded square.
+   --ink (white on Dark; on Light's white card a white ring would be
+   nothing, so it is the dark ink there) round a --bad disc. The spec's red
+   is #ff453a "or the theme's --bad if that has better contrast", and --bad
+   has it on the card in both themes: 5.58:1 to 4.99:1 on Dark's #1c1c1e,
+   6.34:1 to 3.41:1 on Light's white (verify-design measures both).
+   Recording, the disc becomes a rounded square.
    ============================================================ */
-:root { --rec: var(--bad); --rec-ring: var(--ink-3); }
-[data-theme="dark"] { --rec: #ff453a; --rec-ring: #ffffff; }
 
 /* ---- the header: the title on the left, the week on the right ---- */
 .pr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
@@ -2883,12 +2883,12 @@ button.at-chip.lb-more { font-weight: 600; }
 /* ---- the record button ---- */
 .pr-rec {
   display: grid; place-items: center; flex: none; width: 104px; height: 104px; margin-top: 8px; padding: 0;
-  border: 4px solid var(--rec-ring); border-radius: 50%; background: none; cursor: pointer;
+  border: 4px solid var(--ink); border-radius: 50%; background: none; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .pr-rec:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
 .pr-dot {
-  display: block; width: 78px; height: 78px; border-radius: 50%; background: var(--rec);
+  display: block; width: 78px; height: 78px; border-radius: 50%; background: var(--bad);
   transition: width 200ms ease, height 200ms ease, border-radius 200ms ease;
 }
 .pr-rec.on .pr-dot { width: 40px; height: 40px; border-radius: var(--r-sm); }

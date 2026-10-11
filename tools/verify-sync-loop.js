@@ -283,9 +283,73 @@ async function session(browser, { putOk }) {
     await ctx2.close();
   });
 
+  // T-028: a recording stays on the device that made it. A Chromium with a
+  // fake microphone (--use-fake-ui-for-media-stream grants the prompt,
+  // --use-fake-device-for-media-stream supplies the device; on this file://
+  // page getUserMedia, MediaRecorder and IndexedDB all work, so no server)
+  // records a story on /practice. The clip must be in IndexedDB — so its
+  // absence from the push means something — and every push captured (the
+  // manual one, and the automatic one the rep arms if it fires first) must carry the rep exactly as
+  // the hand form logs it and no audio: no data: URL, no base64, no object URL,
+  // nothing of brickford_audio, no Blob field, and no state key syncPayload
+  // does not already send. The clock is pinned to a study day (Tue 20 Oct
+  // 2026), so the rep is owed and logged whatever day this runs.
+  console.log("A recording stays on the device — the push carries the rep, never the audio:");
+  {
+    const mic = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
+    const ctx = await mic.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+    await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+    await ctx.addInitScript(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
+    const page = await ctx.newPage();
+    const pushes = [];
+    await page.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET")
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) });
+      try { pushes.push(Buffer.from(JSON.parse(route.request().postData()).content, "base64").toString()); } catch (e) { pushes.push("(unreadable push)"); }
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    const SENT = ["anchors", "concepts", "diag", "electives", "gates", "labs", "lessons", "problems", "psets", "quizAttempts", "quizMisses",
+      "reps", "review", "settings", "studyDays", "treasury", "weeks"].join(",");
+    const AUDIO = /data:audio|;base64,|blob:|brickford_audio|"(audio|blob|clip|chunks?)"\s*:/i;
+    try {
+      await page.goto(URL + "/practice", { waitUntil: "load" });
+      await page.waitForSelector("#view [data-ptab=story]");
+      await page.click("#view [data-ptab=story]");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => /^0:0[1-9]/.test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), null, { timeout: 8000 });
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      const clip = await page.evaluate(() => new Promise(res => {
+        const q = indexedDB.open("brickford_audio");
+        q.onerror = () => res(null);
+        q.onsuccess = () => { const g = q.result.transaction("clips").objectStore("clips").getAll();
+          g.onsuccess = () => { q.result.close(); res(g.result.map(v => ({ size: v.blob ? v.blob.size : 0, seconds: v.seconds }))); }; };
+      }));
+      check(!!clip && clip.length === 1 && clip[0].size > 0, "the clip is in IndexedDB brickford_audio (" + JSON.stringify(clip) + ")");
+      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.waitForSelector("[data-act='syncPush']");
+      const n0 = pushes.length;
+      await page.click("[data-act='syncPush']");
+      for (const t0 = Date.now(); pushes.length === n0 && Date.now() - t0 < 8000;) await page.waitForTimeout(100);
+      const parsed = pushes.map(p => { try { return JSON.parse(p); } catch (e) { return null; } });
+      const withRep = parsed.filter(p => p && p.state && ((p.state.reps || {}).story || []).length === 1);
+      check(pushes.length > n0 && withRep.length >= 1, "a push carried the recorded rep (" + pushes.length + " push(es), " + withRep.length + " with the rep)");
+      const rep = withRep.length ? withRep[withRep.length - 1].state.reps.story[0] : null;
+      check(!!rep && Object.keys(rep).join(",") === "date,seconds,takes,from" && rep.date === "2026-10-20" && !!clip && rep.seconds === clip[0].seconds,
+        "the pushed rep is the hand form's shape, { date, seconds, takes, from }, with the clip's seconds (" + JSON.stringify(rep) + ")");
+      const audio = pushes.map((p, i) => { const m = AUDIO.exec(p); return m ? "push " + (i + 1) + ": \"" + p.slice(Math.max(0, m.index - 30), m.index + 40) + "\"" : null; }).filter(Boolean);
+      check(audio.length === 0, "no push carries audio or brickford_audio data" + (audio.length ? " — " + audio.join(" | ") : " (" + pushes.length + " push(es) read)"));
+      const keys = parsed.map(p => p && p.state ? Object.keys(p.state).sort().join(",") : "(none)").filter(k => k !== SENT);
+      check(parsed.length > 0 && keys.length === 0, "every push's state has exactly the keys syncPayload sends" + (keys.length ? " — got " + keys[0] : ""));
+    } catch (e) { check(false, "the recording half ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    await ctx.close();
+    await mic.close();
+  }
+
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device (T-028)");
   process.exit(fails ? 1 : 0);
 })();

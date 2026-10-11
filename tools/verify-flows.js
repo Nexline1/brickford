@@ -54,6 +54,30 @@
 //       where BHD is typed and stored as typed; and once with a ledger that
 //       has nothing in the week, where BHD is a counted 0.
 //
+// And, since T-028 (loop/specs/T-028-practice-recorder/spec.md), record yourself
+// — in a second Chromium launched with a fake microphone
+// (--use-fake-ui-for-media-stream --use-fake-device-for-media-stream; this
+// file:// page is a secure context, and getUserMedia, MediaRecorder and
+// IndexedDB were measured to work on it, so there is no server):
+//
+//   (p) at 390 (tapped) and 1280 (keyboard): Story, record, about 2s by the
+//       page's own timer, stop. One clip in IndexedDB (brickford_audio/clips,
+//       key <date>-1, { date, seconds >= 1, kind, title } and a non-empty
+//       Blob); reps.story gains exactly one entry for today, the hand form's
+//       shape, through the form's path (a rep event on the chain); no audio
+//       in any localStorage key; the list shows it, play makes an <audio>
+//       with a blob: src, the title renames inline (IndexedDB only), and
+//       delete asks, then removes it. Opening the page, reading the list and
+//       recording write nothing. The 1:30 stop, on a limit shortened through
+//       window.__recLimit, on Humour: one press, it stops itself, and the rep
+//       goes through the humour path. A Saturday: "Nothing owed today" above
+//       the recorder, and the clip is kept (the rep path refuses a rest day);
+//   (q) no microphone, at 390 and 1280: the permission denied (getUserMedia
+//       stubbed to reject NotAllowedError) and no device (the plain Chromium,
+//       NotFoundError). The line "Microphone not available, so log it by
+//       hand" and the manual form, on Story and then Humour, and logging by
+//       hand stores what it always stored.
+//
 // And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
 //
 //   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
@@ -1687,7 +1711,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
-      "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c)"
+      "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
+      "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

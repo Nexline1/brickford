@@ -56,3 +56,4 @@
 - 2026-10-11: T-039 r2 fixes in (4eecf84): fail-closed, report via exposeBinding (150/150 delivered), ATTEMPTS 5, comments. My CHECK all green. Review r3 (last) sent.
 - 2026-10-11: T-039 review r3: code passes everything; only finding = spec still described the old rule / 3 attempts. Coordinator amended spec.md (66a8fb4); reviewer asked to confirm the text only.
 - 2026-10-11: T-039 APPROVED after r3 + spec amendment confirmation; merged as PR #17 (9b004fe). Main merged into T-026c (9de36a6, clean), CHECK running.
+- 2026-10-11: T-026c CHECK on 9de36a6 all green (design 1787 x2, flows 172 x2, clip 801 + LA; sync-loop re-measured 3x on one reload, a real burst, passed on attempt 4). Review r1 sent.

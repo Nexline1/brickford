@@ -14,6 +14,11 @@ def edit(rel, pairs):
     print("planted", plant, "in", rel)
 if plant == "a":       # app bug: the theme pick does not save
     edit("platform/js/app.js", [("        save(); applyTheme();\n", "        applyTheme();\n")])
+elif plant == "quietcl50":   # review 2: an app that silences console.log and clears all storage at pagehide half the time
+    p = root + "/platform/js/app.js"
+    s0 = open(p, encoding="utf-8").read()
+    open(p, "w", encoding="utf-8").write('console.log = function () {};  // an app that silences its logs\nwindow.addEventListener("load", () => window.addEventListener("pagehide", () => { if (Math.random() < 0.5) localStorage.clear(); }));\n' + s0)
+    print("planted", plant, "in platform/js/app.js")
 elif plant in ("u50", "clearall"):   # app bugs at unload (review 1): a pagehide listener of the app's own, registered at load
     act = 'if (Math.random() < 0.5) localStorage.removeItem("darhikmah_v1");' if plant == "u50" else "localStorage.clear();"
     p = root + "/platform/js/app.js"

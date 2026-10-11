@@ -1,0 +1,32 @@
+T-039 review 2, finding 1: delivery of the unload report through the harness-only binding (page.exposeBinding "__harnessReloadReport"), 150 instrumented reloads of switch (c)'s path, with lib-reload.js byte-identical to 4f74ac3 (cmp). measure-delivery.js <tree> 150: verify-design's context (1280x800, light scheme, pinned clock, network refused, the bareSettings-once seed), a real save, Light picked, then provenReload(..., { session: true }); for comparison, console.log listeners added just before reported the same events through the old channel.
+Result: the binding delivered all three reports (pagehide > visibilitychange > unload) before provenReload returned on 150 of 150 reloads; console also 150 of 150. So the binding is used alone. 24 of 150 reloads lost the sessionStorage stamp (localStorage stamp present every time), each with the report saying the old page still held both: the burst rate the reviewer described.
+
+LOST {"report":{"stamp":"r22917.1.1791721060060","ev":"unload","key":true,"local":"r22917.1.1791721060060","session":"r22917.1.1791721060060"},"boot":{"state":true,"local":"r22917.1.1791721060060","session":null}}
+LOST {"report":{"stamp":"r22917.9.1791721067283","ev":"unload","key":true,"local":"r22917.9.1791721067283","session":"r22917.9.1791721067283"},"boot":{"state":true,"local":"r22917.9.1791721067283","session":null}}
+LOST {"report":{"stamp":"r22917.10.1791721068154","ev":"unload","key":true,"local":"r22917.10.1791721068154","session":"r22917.10.1791721068154"},"boot":{"state":true,"local":"r22917.10.1791721068154","session":null}}
+LOST {"report":{"stamp":"r22917.36.1791721090938","ev":"unload","key":true,"local":"r22917.36.1791721090938","session":"r22917.36.1791721090938"},"boot":{"state":true,"local":"r22917.36.1791721090938","session":null}}
+LOST {"report":{"stamp":"r22917.44.1791721097697","ev":"unload","key":true,"local":"r22917.44.1791721097697","session":"r22917.44.1791721097697"},"boot":{"state":true,"local":"r22917.44.1791721097697","session":null}}
+LOST {"report":{"stamp":"r22917.45.1791721098635","ev":"unload","key":true,"local":"r22917.45.1791721098635","session":"r22917.45.1791721098635"},"boot":{"state":true,"local":"r22917.45.1791721098635","session":null}}
+LOST {"report":{"stamp":"r22917.47.1791721100422","ev":"unload","key":true,"local":"r22917.47.1791721100422","session":"r22917.47.1791721100422"},"boot":{"state":true,"local":"r22917.47.1791721100422","session":null}}
+LOST {"report":{"stamp":"r22917.49.1791721102132","ev":"unload","key":true,"local":"r22917.49.1791721102132","session":"r22917.49.1791721102132"},"boot":{"state":true,"local":"r22917.49.1791721102132","session":null}}
+LOST {"report":{"stamp":"r22917.53.1791721105371","ev":"unload","key":true,"local":"r22917.53.1791721105371","session":"r22917.53.1791721105371"},"boot":{"state":true,"local":"r22917.53.1791721105371","session":null}}
+LOST {"report":{"stamp":"r22917.62.1791721112729","ev":"unload","key":true,"local":"r22917.62.1791721112729","session":"r22917.62.1791721112729"},"boot":{"state":true,"local":"r22917.62.1791721112729","session":null}}
+LOST {"report":{"stamp":"r22917.87.1791721134788","ev":"unload","key":true,"local":"r22917.87.1791721134788","session":"r22917.87.1791721134788"},"boot":{"state":true,"local":"r22917.87.1791721134788","session":null}}
+LOST {"report":{"stamp":"r22917.88.1791721135585","ev":"unload","key":true,"local":"r22917.88.1791721135585","session":"r22917.88.1791721135585"},"boot":{"state":true,"local":"r22917.88.1791721135585","session":null}}
+LOST {"report":{"stamp":"r22917.92.1791721138814","ev":"unload","key":true,"local":"r22917.92.1791721138814","session":"r22917.92.1791721138814"},"boot":{"state":true,"local":"r22917.92.1791721138814","session":null}}
+LOST {"report":{"stamp":"r22917.95.1791721141303","ev":"unload","key":true,"local":"r22917.95.1791721141303","session":"r22917.95.1791721141303"},"boot":{"state":true,"local":"r22917.95.1791721141303","session":null}}
+LOST {"report":{"stamp":"r22917.98.1791721144143","ev":"unload","key":true,"local":"r22917.98.1791721144143","session":"r22917.98.1791721144143"},"boot":{"state":true,"local":"r22917.98.1791721144143","session":null}}
+LOST {"report":{"stamp":"r22917.100.1791721145903","ev":"unload","key":true,"local":"r22917.100.1791721145903","session":"r22917.100.1791721145903"},"boot":{"state":true,"local":"r22917.100.1791721145903","session":null}}
+LOST {"report":{"stamp":"r22917.101.1791721146772","ev":"unload","key":true,"local":"r22917.101.1791721146772","session":"r22917.101.1791721146772"},"boot":{"state":true,"local":"r22917.101.1791721146772","session":null}}
+LOST {"report":{"stamp":"r22917.110.1791721154746","ev":"unload","key":true,"local":"r22917.110.1791721154746","session":"r22917.110.1791721154746"},"boot":{"state":true,"local":"r22917.110.1791721154746","session":null}}
+LOST {"report":{"stamp":"r22917.120.1791721163521","ev":"unload","key":true,"local":"r22917.120.1791721163521","session":"r22917.120.1791721163521"},"boot":{"state":true,"local":"r22917.120.1791721163521","session":null}}
+LOST {"report":{"stamp":"r22917.130.1791721172469","ev":"unload","key":true,"local":"r22917.130.1791721172469","session":"r22917.130.1791721172469"},"boot":{"state":true,"local":"r22917.130.1791721172469","session":null}}
+LOST {"report":{"stamp":"r22917.132.1791721174136","ev":"unload","key":true,"local":"r22917.132.1791721174136","session":"r22917.132.1791721174136"},"boot":{"state":true,"local":"r22917.132.1791721174136","session":null}}
+LOST {"report":{"stamp":"r22917.135.1791721176704","ev":"unload","key":true,"local":"r22917.135.1791721176704","session":"r22917.135.1791721176704"},"boot":{"state":true,"local":"r22917.135.1791721176704","session":null}}
+LOST {"report":{"stamp":"r22917.136.1791721177513","ev":"unload","key":true,"local":"r22917.136.1791721177513","session":"r22917.136.1791721177513"},"boot":{"state":true,"local":"r22917.136.1791721177513","session":null}}
+LOST {"report":{"stamp":"r22917.141.1791721181570","ev":"unload","key":true,"local":"r22917.141.1791721181570","session":"r22917.141.1791721181570"},"boot":{"state":true,"local":"r22917.141.1791721181570","session":null}}
+SEQUENCES {
+ "binding pagehide>visibilitychange>unload | console pagehide>visibilitychange>unload": 150
+}
+TALLY {"reloads":150,"stored":150,"binding":150,"bindingAll3":150,"console":150,"consoleAll3":150,"bindingOnlyMissing":0,"consoleOnlyMissing":0,"lost":24,"appRemoved":0,"noReport":0,"pageErrors":0}
+exit code: 0

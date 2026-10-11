@@ -20,13 +20,13 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
   - #12 T-032 (MCQ shuffle)
   - #13 T-026b (Problems, Exams, Proof)
   - #14 T-037 (SPCH 100, 170 lessons)
-- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish), #17 T-039 (gate reloads prove storage arrived; tools/lib-reload.js).
-- **In CHECK:** T-026c (Week, Calendar day view, Library), worktree `/home/user/bf-T-026c`, main merged in at 9de36a6. Next: review.
+- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish), #17 T-039 (gate reloads prove storage arrived; tools/lib-reload.js), #18 T-026c (Week, Calendar day view, Library).
+- **Building:** T-028 (Practice recorder), worktree `/home/user/bf-T-028`.
 - **Rule for new gate code:** every page.reload in a gate goes through `tools/lib-reload.js` (acrossReload).
 
 ## Next, in the owner's order
 1. ~~T-031~~ merged (#16).
-2. **The page redesigns:** T-026c (Week, Calendar day, Library; building), T-028 (Practice recorder), T-027 (Treasury workspace plus the treasury merge fix).
+2. **The page redesigns:** ~~T-026c~~ merged (#18), T-028 (building) (Practice recorder), T-027 (Treasury workspace plus the treasury merge fix).
 3. **T-022:** the opening screen. Rewrite its spec first: the calm Dark, the crest fading in on near-black. The navy specification is obsolete.
 4. **Smaller fixes:**
    - T-029: in landscape the phone bars are too tall.

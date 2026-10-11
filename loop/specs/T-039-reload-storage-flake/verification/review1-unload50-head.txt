@@ -1,0 +1,138 @@
+T-039 review 1, finding 1: the reviewer's half-the-time unload plant at HEAD c64b762. Plant (plant.py u50, prepended to platform/js/app.js in the worktree, copied into a git-archive tree, then restored; cmp below):
+  window.addEventListener("load", () => window.addEventListener("pagehide", () => { if (Math.random() < 0.5) localStorage.removeItem("darhikmah_v1"); }));
+Runner: mkiso.py (the reviewer's, plus the tally) <tree> 20 — the switch (c) block, 20 runs.
+Result: 9 of 20 runs FAIL (base, same plant, same session: 13 of 20 — review1-unload50-base.txt; the reviewer's base: 10 of 20). Every one of the 9 has a note 'the app took the stored state ... measured as it is, not retried'; 1 attempt re-measured for a real sessionStorage loss (run 14, where the app had not removed the key).
+Restore: git show HEAD:platform/js/app.js > platform/js/app.js; git show HEAD:platform/js/app.js | cmp - platform/js/app.js -> identical (printed when it was run: 'u50 restored: identical').
+
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 1 passed (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 2 FAILED (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 3 passed (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 4 passed (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 5 passed (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 6 FAILED (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 7 FAILED (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 8 passed (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 9 passed (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 10 FAILED (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 11 passed (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 12 FAILED (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 13 passed (body ran 0x counted)
+  note  switch (c): storage lost on reload (attempt 1 of 3), re-measured — at the old page's unload the state key was present, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp missing
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 14 passed (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 15 FAILED (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 16 FAILED (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp present
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 17 FAILED (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 18 passed (body ran 0x counted)
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 19 passed (body ran 0x counted)
+  note  switch (c): the app took the stored state or a stamp away while the old page unloaded (attempt 1) — measured as it is, not retried — at the old page's unload the state key was missing, the localStorage stamp present, the sessionStorage stamp present; at document start the localStorage stamp present, the sessionStorage stamp missing
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false,"mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 20 FAILED (body ran 0x counted)
+ISO: 9 of 20 block runs failed; 9 failed checks of 100; lost attempts 1, exhausted 0, app-removed attempts 9, reloads with no unload report 0
+exit code: 1

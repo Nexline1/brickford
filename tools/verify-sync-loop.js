@@ -10,8 +10,26 @@
 // The test stubs GitHub the way the broken token behaved: GET succeeds, PUT is
 // rejected. Then it watches the lesson page for fifteen seconds and asserts the
 // iframe is the SAME NODE throughout.
+//
+// T-039 (loop/specs/T-039-reload-storage-flake/spec.md): the two reloads in
+// the theme-and-pull checks go through tools/lib-reload.js. In verify-design's
+// "switch (c)" a reload of this file:// page in an ephemeral context was seen
+// to start, before any app script ran, without storage the old page had. So
+// just before each reload a stamp is written beside the state in localStorage
+// — a stamp, not the state key, because the seeds below rewrite a missing
+// state before any later init script could look — and two things are read:
+// whether the old page still held it when it unloaded (a report through a
+// binding only the harness owns; if not, the app took it: measured, never
+// retried) and whether it arrived at document start. Only a stamp the old page
+// is reported to have held and the new one did not find discards the attempt
+// — every reading of it, failing checks included — and that half is
+// re-measured from a fresh context, up to 5 attempts; if all 5 lose it the
+// gate fails with that reason. With no unload report the attempt is measured
+// as it is, never retried (fail-closed). Whether the state arrived is what the
+// checks measure; their predicates are as they were.
 const path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
+const { acrossReload } = require("./lib-reload");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
 const WATCH_MS = 15000;          // long enough for three 4s push cycles
@@ -185,7 +203,7 @@ async function session(browser, { putOk }) {
   // left by the old default would become a kept "pick" here and the one-time
   // switch would be lost for good. The remote below carries both.
   console.log("A pull never carries the theme or the navy-switch marker between devices:");
-  {
+  await acrossReload({ label: "a pull, a save, a reload: still navy", check, fail: why => check(false, why) }, async (check, reload) => {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", colorScheme: "light" });
     await ctx.addInitScript(() => {
       localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
@@ -223,11 +241,13 @@ async function session(browser, { putOk }) {
     check(!!st, "the push was captured");
     check(!!st && !("themeNavyOnce" in st) && st.theme === undefined,
       "the pushed settings carry no marker and no theme (" + JSON.stringify(st) + ")");
-    await page.reload({ waitUntil: "load" });
+    await reload(page, { waitUntil: "load" });
     await page.waitForTimeout(400);
     const dt = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
     check(dt === "dark", "after a reload the device is still navy (data-theme " + dt + ")");
     await ctx.close();
+  });
+  await acrossReload({ label: "a pull, a save, a reload: a picked Light kept", check, fail: why => check(false, why) }, async (check, reload) => {
 
     // And the other way round: an explicit pick (Light, with the marker) must
     // survive a pull from a real remote, whose settings carry a theme and NO
@@ -253,7 +273,7 @@ async function session(browser, { putOk }) {
     await page2.waitForTimeout(400);
     await page2.click("[data-act='toggleDone']");
     await page2.waitForTimeout(400);
-    await page2.reload({ waitUntil: "load" });
+    await reload(page2, { waitUntil: "load" });
     await page2.waitForTimeout(400);
     const s2 = await page2.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings) || {});
     const dt2 = await page2.evaluate(() => document.documentElement.getAttribute("data-theme"));
@@ -261,7 +281,7 @@ async function session(browser, { putOk }) {
       "a picked Light survives a pull from a real remote, a save and a reload (" +
       JSON.stringify({ theme: s2.theme, mark: s2.themeNavyOnce, dataTheme: dt2 }) + ")");
     await ctx2.close();
-  }
+  });
 
   await browser.close();
   console.log(fails

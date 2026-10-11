@@ -1,0 +1,10 @@
+CHECK (review 1) verify-content on 126e8ef (0 changed files outside verification/)
+$ node tools/verify-content.js
+
+SPCH 100: 170 lessons, 46.4 h of video — A1 3.33h, A2 1.23h, A3 5.47h, A4 4.12h, A5 5.18h, A6 4.50h, A7 7.37h, A8 3.90h, B1 2.08h, B2 1.87h, B3 1.45h, B4 1.93h, B5 1.68h, B6 1.42h, B7 0.90h
+SPCH check options: answer unique longest in 91 of 513 (17.7%), unique shortest in 92 (17.9%); bound 171
+SPCH attributions: 558 names in lessons, 266 credits with sources checked
+
+PASS — 32354 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 414 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+
+exit code: 0 (3s)

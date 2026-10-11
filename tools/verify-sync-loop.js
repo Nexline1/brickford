@@ -12,16 +12,19 @@
 // iframe is the SAME NODE throughout.
 //
 // T-039 (loop/specs/T-039-reload-storage-flake/spec.md): the two reloads in
-// the theme-and-pull checks go through tools/lib-reload.js. verify-design's
-// "switch (c)" showed that the browser, not the app, sometimes reloads this
-// file:// page in an ephemeral context without the storage the page had — at
-// document start, before any app script ran, localStorage (or sessionStorage)
-// came back empty. So each reload is proven at document start, the one point
-// the app cannot have written yet (and with stamps, because the seeds below
-// rewrite a missing state before any later init script could look). If the
-// state stored before it did not arrive, that half is re-measured from a fresh
-// context, up to 3 attempts, and if all 3 lose it the gate fails with that
-// reason. The checks are as they were; nothing else is ever retried.
+// the theme-and-pull checks go through tools/lib-reload.js. In verify-design's
+// "switch (c)" a reload of this file:// page in an ephemeral context was seen
+// to start, before any app script ran, without storage the old page had. So
+// just before each reload a stamp is written beside the state in localStorage
+// — a stamp, not the state key, because the seeds below rewrite a missing
+// state before any later init script could look — and two things are read:
+// whether the old page still held it when it unloaded (if not, the app took
+// it: measured, never retried) and whether it arrived at document start. Only
+// a stamp the old page held and the new one did not find discards the attempt
+// — every reading of it, failing checks included — and that half is
+// re-measured from a fresh context, up to 3 attempts; if all 3 lose it the
+// gate fails with that reason. Whether the state arrived is what the checks
+// measure; their predicates are as they were.
 const path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const { acrossReload } = require("./lib-reload");

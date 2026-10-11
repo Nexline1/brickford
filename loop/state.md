@@ -51,3 +51,4 @@
 - 2026-10-10: T-039 builder launched in /home/user/bf-T-039 (from 45fdf55).
 - 2026-10-11: T-039 built (26a4888): lib-reload.js proves storage arrived at document start (state key + localStorage and sessionStorage stamps), re-measures up to 3 on loss. Builder found sessionStorage loss too (5/60). My CHECK all green (design x2, flows x2, sync-loop x2, one re-measure note). Review r1 sent.
 - 2026-10-11: T-039 review r1 CHANGES REQUIRED: (1) retry condition also retried an app deleting the key at unload (half-time plant: 18/20 passed after re-measure) -> stamps only + pagehide report; (2) session stamp opt-in for switch (c) only; (3) comments over-claim; (4) plant that separates silent retry. Builder resumed.
+- 2026-10-11: T-039 r1 fixes in (8eab57e): stamps-only + unload report (pagehide/visibilitychange/unload), session stamp opt-in on switch (c), comments, PLANT_FIRST evidence. My CHECK all green, 0 notes. Review r2 sent.

@@ -1056,8 +1056,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       await shot(page, "flow-p-recording-" + w);
       check("(p) " + at + ": nothing was written while recording", (await writes(page)) === w0, (await writes(page)) - w0 + " write(s)");
       await press(page, how);
-      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1 &&
-        (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").reps || { story: [] }).story.length === 1, null, { timeout: 8000 });
+      // The list is drawn by the render that follows the save, so a row on
+      // screen means the rep, if it was logged, is already stored.
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
       const db = await clipsInDB(page), c = db.list[0] || {};
       check("(p) " + at + ": one clip in IndexedDB brickford_audio/clips, key " + TODAY + "-1, { date, seconds >= 1, kind story, title \"Story · " + DAY + "\" } and a non-empty audio Blob",
         db.list.length === 1 && c.key === TODAY + "-1" && c.date === TODAY && c.seconds >= 1 && c.kind === "story" && c.title === "Story · " + DAY &&

@@ -116,3 +116,25 @@ Commit and push after **every 3 lectures**, and at the end of each course. A usa
    - Contrast and clip must be unaffected.
 4. `?v=` tokens are bumped.
 5. A sample audit is recorded in `verification/audit.md`: 10 random questions, each traced to its evidence quote, plus 3 numerics re-derived by hand.
+
+## Amendment, 2026-10-14 (owner decision): sources when transcripts are unavailable
+Both YouTube transcript tools stopped working. `Yt_T` now needs an API key, at 10 requests a day, and `Youtube_Transcribt` errors on every video. The session's network policy also blocks the paper hosts.
+
+The owner chose **"Course materials now, transcripts later"** and **"I'll allow the sites"**.
+
+1. **Official companion materials count as the lecture's source** for these courses, read from the authors' own GitHub repositories only:
+
+   | Course | Lectures | Repositories |
+   |---|---|---|
+   | AI 200 Zero to Hero | 9 | `karpathy/nn-zero-to-hero` (the lecture notebooks), plus `karpathy/micrograd`, `karpathy/makemore`, `karpathy/ng-video-lecture`, `karpathy/minbpe`, `karpathy/build-nanogpt` |
+   | AI 210 fast.ai 2022 | 8 | `fastai/course22` (the lesson notebooks) and `fastai/fastbook` (the chapters each lesson teaches) |
+   | AI 310 CS336 2025 | 17 | `stanford-cs336/spring2025-lectures` (the executable lecture notes) |
+
+   - **What to read:** the material for that lecture, in full.
+   - **The record:** `verification/sources.json` lists the repository, the path and the commit SHA.
+   - **Fields:** questions carry `src` (file and section or cell), not `at`.
+   - **Evidence:** each evidence quote comes from that material.
+   - **What a question may test:** only what the material shows the lecture does.
+   - **Third-party copies:** these still don't count.
+2. **The other 17 videos wait for working transcripts.** These are 3Blue1Brown (4), David Silver's RL course (10), the 2 big-picture LLM talks, and Hamming. `at` is added to every video quiz once transcripts work again.
+3. **Papers and readings on blocked hosts.** The owner will allow arxiv.org, proceedings.neurips.cc, cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu, www.neelnanda.io and www.arena.education. Try one fetch of each at the start of every session. Once a host is reachable, build its lectures from the paper or the page itself.

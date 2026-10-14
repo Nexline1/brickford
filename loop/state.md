@@ -74,3 +74,4 @@
 - 2026-10-14: T-028 merged as PR #19 (bdb6d0e) after 3 rounds + owner-approved quick check. Queued T-048 (focus on a rare mic-refused path). T-033 starting.
 - 2026-10-14: T-033 builder (general-purpose, MCP + WebFetch) launched in /home/user/bf-T-033 (from bdb6d0e), tokens 20261014d. Saves every 3 lectures + verification/progress.md.
 - 2026-10-14: Specs written while T-033 builds: T-043 (gate), T-045 (Problems due-now), T-046 (on-device transcription, transformers.js 4.3.0), T-047 (Claude coach, SDK 0.128.0, claude-opus-5-5, effort medium, fallbacks default). Note: cdn.jsdelivr.net and huggingface.co are blocked from this container (tests must stub them); npm registry reachable.
+- 2026-10-14: T-033 blocked on sources (transcript MCPs down, paper hosts blocked). Owner: official GitHub course materials for Zero to Hero / fast.ai / CS336 now; owner will allow paper domains. Spec amended.

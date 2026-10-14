@@ -49,3 +49,7 @@ Owner decisions on the mockups (AskUserQuestion, 2026-10-14):
 - Order: **content, then gate, then coach** — finish T-028; quizzes for the 80 lectures with none (AI 200 first, it is on the calendar); then the gate + lesson flow + Problems as due-now; then on-device transcription + Claude coach; then deeper quizzes everywhere. Other redesigns (Treasury, opening screen, …) after.
 - Lectures watched before the gate ships: **don't lock; list their quizzes to catch up** under Problems. Past days keep their colours.
 - Quiz depth: **5–8 questions per lecture, written from the video's transcript**, numerics re-derived, course by course ahead of the calendar.
+
+2026-10-14, T-033 sources: the transcript tools broke (`Yt_T` needs a key; `Youtube_Transcribt` errors) and the paper hosts are blocked. Owner decisions:
+- **"Course materials now, transcripts later":** quizzes come from the official GitHub companion materials for Zero to Hero, fast.ai and CS336 (34 videos). 3Blue1Brown, David Silver and the LLM talks wait.
+- **"I'll allow the sites":** arxiv.org, proceedings.neurips.cc, cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu, www.neelnanda.io and www.arena.education.

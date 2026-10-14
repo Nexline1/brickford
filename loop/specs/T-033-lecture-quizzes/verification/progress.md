@@ -3,12 +3,23 @@
 Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, then
 `git log --oneline`, then continue with the next lecture below.
 
-## Source access (check first — it decides what is buildable)
+## Sources (check at the start of every session)
 
-- Videos: BLOCKED. `Yt_T` needs an API key; `Youtube_Transcribt` returns nothing.
-  Re-try one call each at the start of a session; if either works, the videos open up
-  in `order.md` order (AI 200 first).
-- Papers and readings: only GitHub-hosted sources are reachable. See `unavailable.md`.
+- **Spec amendment, 2026-10-14** (end of `spec.md`): AI 200 Unit II, AI 210 and AI 310
+  Unit I are written from the authors' companion material on GitHub. Questions carry
+  `src` (file + cell/section); sized by the VIDEO's length (5/6/8); evidence quotes come
+  from the material; `sources.json` records repo, paths and commit SHA.
+- Clone the repos (git-ignored) if `sources/repos/` is missing:
+  `git clone --depth 1 https://github.com/<repo>.git sources/repos/<owner>_<name>` for
+  karpathy/nn-zero-to-hero, micrograd, makemore, ng-video-lecture, minbpe, build-nanogpt;
+  fastai/course22, fastai/fastbook; stanford-cs336/spring2025-lectures. Check HEAD
+  against the SHAs in `sources.json`; if a repo moved, record the new SHA.
+- Render notebooks: `python3 -I verification/nb2txt.py sources/text <notebooks...>`.
+- Try one fetch of each owner-allowed host: arxiv.org, proceedings.neurips.cc,
+  cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu,
+  www.neelnanda.io, www.arena.education. Last tried 2026-10-14 21:53 UTC: all refused.
+- Videos waiting for transcripts (17): 3Blue1Brown ×4, Silver ×10, the 2 big-picture
+  talks, Hamming. Retry `Yt_T` / `Youtube_Transcribt` once per session.
 
 ## Done
 
@@ -17,21 +28,31 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 1 | ai310.1.0 | HF LLM course ch. 1 (GitHub `huggingface/course`) | 6 (5 MCQ, 1 numeric) |
 | 2 | ai310.1.1 | TRL SFT Trainer docs (GitHub `huggingface/trl`) | 6 (5 MCQ, 1 numeric) |
 | 3 | ai310.1.2 | Transformers quantization overview (GitHub `huggingface/transformers`) | 6 (5 MCQ, 1 numeric) |
-| 4 | ai310.1.3 | lm-evaluation-harness README (GitHub `EleutherAI/lm-evaluation-harness`) | 6 (5 MCQ, 1 numeric) |
-| 5 | ai310.1.4 | vLLM docs: landing, Quickstart, Automatic Prefix Caching (GitHub `vllm-project/vllm`) | 6 (5 MCQ, 1 numeric) |
-| 6 | ai310.1.5 | HF Agents course, Unit 1 (GitHub `huggingface/agents-course`) | 6 (6 MCQ) |
-| 7 | res400.2.2 | Karpathy, A Survival Guide to a PhD (GitHub `karpathy/karpathy.github.io`) | 6 (5 MCQ, 1 numeric) |
+| 4 | ai310.1.3 | lm-evaluation-harness README | 6 (5 MCQ, 1 numeric) |
+| 5 | ai310.1.4 | vLLM docs: landing, Quickstart, Automatic Prefix Caching | 6 (5 MCQ, 1 numeric) |
+| 6 | ai310.1.5 | HF Agents course, Unit 1 | 6 (6 MCQ) |
+| 7 | res400.2.2 | Karpathy, A Survival Guide to a PhD | 6 (5 MCQ, 1 numeric) |
+| 8 | ai200.1.0 | micrograd lecture notebooks + karpathy/micrograd | 8 (5 MCQ, 3 numeric) |
+| 9 | ai200.1.1 | makemore_part1_bigrams.ipynb | 8 (6 MCQ, 2 numeric) |
+| 10 | ai200.1.2 | makemore_part2_mlp.ipynb | 6 (4 MCQ, 2 numeric) |
 
-## Next (buildable now, in calendar order)
+## Next, in order (calendar order within what is buildable; AI 200 first)
 
-none: every remaining lecture is blocked (see unavailable.md).
+ai200.1.3 makemore_part3_bn (116 min → 8) → ai200.1.4 makemore_part4_backprop (115 → 8)
+→ ai200.1.5 makemore_part5_cnn1 (56 → 6) → ai200.1.6 ng-video-lecture (116 → 8)
+→ ai200.1.7 minbpe (134 → 8) → ai200.1.8 build-nanogpt (241 → 8)
+→ ai210.0.0–0.7 (course22 lesson notebooks + fastbook chapters; 83/77/90 → 6, 95/103/103/107/97 → 8)
+→ ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
 
-Then: plants (a)–(e), gates, screenshots, audit.md.
+At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full
+CHECK one gate at a time (summary in `verification/check/`), screenshots (`shots.js`),
+and write `verification/audit.md`.
 
 ## Per-lecture routine
 
-1. Fetch the source into `sources/` (git-ignored), record it in `verification/sources.json`.
-2. Read all of it. 3. Write the entry in `platform/data/summaries-<course>.js`.
-4. Numerics → `expectedSummary` in `tools/verify-content.js`, derived another way.
-5. Evidence → `verification/evidence/<course>.jsonl`; run `check-evidence.js`.
-6. `node tools/verify-content.js`. 7. Commit and push every 3 lectures.
+1. Read the lecture's material in full (notebook text in `sources/text/`, repo files).
+2. Write the entry in `platform/data/summaries-<course>.js` (`src` on every check).
+3. Numerics → `expectedSummary` in `tools/verify-content.js`, derived another way.
+4. Evidence → `verification/evidence/<course>.jsonl`; repo/paths/SHA → `sources.json`.
+5. `node tools/verify-content.js` and `node verification/check-evidence.js`.
+6. Commit and push every 3 lectures.

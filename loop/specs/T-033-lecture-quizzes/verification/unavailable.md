@@ -1,4 +1,12 @@
-# T-033: lectures with no fetchable source (this session, 2026-10-14)
+# T-033: lectures with no fetchable source
+
+> **Update, 2026-10-14 (spec amendment).** The owner chose "course materials now,
+> transcripts later": AI 200 Unit II (9), AI 210 (8) and AI 310 Unit I (17) are now
+> written from the authors' companion material on GitHub, so those 34 rows below are
+> no longer blocked (see `progress.md`). Still unavailable: the 17 videos that wait for
+> transcripts (3Blue1Brown ×4, Silver ×10, the two big-picture talks, Hamming), the 16
+> AI 300 papers, and 6 readings (`res400.1.0`–`1.4`, `res400.2.1`) whose hosts the owner
+> will allow; at 21:53 UTC all eight hosts were still refused.
 
 The rule is "no source, no lecture": nothing below has a summary or a quiz, and none
 was written from memory. 73 of the 80 are here. They are blocked by access, not by

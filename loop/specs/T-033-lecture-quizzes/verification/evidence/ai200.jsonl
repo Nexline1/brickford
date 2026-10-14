@@ -1,0 +1,22 @@
+{"key": "ai200.1.0", "i": 0, "at": null, "src": "micrograd_lecture_first_half_roughly.ipynb, cells 2-5", "quote": "def f(x): return 3*x**2 - 4*x + 5"}
+{"key": "ai200.1.0", "i": 1, "at": null, "src": "micrograd_lecture_first_half_roughly.ipynb, cells 7-8", "quote": "self.grad += 1.0 * out.grad other.grad += 1.0 * out.grad"}
+{"key": "ai200.1.0", "i": 2, "at": null, "src": "micrograd_lecture_first_half_roughly.ipynb, cells 8 and 12", "quote": "b = Value(-3.0, label='b') b.data += h"}
+{"key": "ai200.1.0", "i": 3, "at": null, "src": "micrograd_lecture_first_half_roughly.ipynb, cells 8 and 17", "quote": "build_topo(self) self.grad = 1.0 for node in reversed(topo): node._backward()"}
+{"key": "ai200.1.0", "i": 4, "at": null, "src": "micrograd_lecture_first_half_roughly.ipynb, cell 32; second half, cell 8", "quote": "self.grad += out.data * out.grad # NOTE: in the video I incorrectly used = instead of +=. Fixed here."}
+{"key": "ai200.1.0", "i": 5, "at": null, "src": "micrograd_lecture_second_half_roughly.ipynb, cells 8 and 12", "quote": "e = (2*n).exp() o = (e - 1) / (e + 1)"}
+{"key": "ai200.1.0", "i": 6, "at": null, "src": "micrograd_lecture_second_half_roughly.ipynb, cells 15-16", "quote": "x = [2.0, 3.0, -1.0] n = MLP(3, [4, 4, 1])"}
+{"key": "ai200.1.0", "i": 7, "at": null, "src": "micrograd_lecture_second_half_roughly.ipynb, cell 18", "quote": "for p in n.parameters(): p.grad = 0.0 loss.backward()"}
+{"key": "ai200.1.1", "i": 0, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 6 and 9-11", "quote": "stoi['.'] = 0 itos = {i:s for s,i in stoi.items()}"}
+{"key": "ai200.1.1", "i": 1, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 11 and 28", "quote": ". e e m m m m a a ."}
+{"key": "ai200.1.1", "i": 2, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 19-24", "quote": "P.sum(1, keepdim=True).shape"}
+{"key": "ai200.1.1", "i": 3, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 24 and 27", "quote": "P = (N+1).float() P /= P.sum(1, keepdims=True)"}
+{"key": "ai200.1.1", "i": 4, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 26-27 and 47", "quote": "equivalent to minimizing the average negative log likelihood"}
+{"key": "ai200.1.1", "i": 5, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 31-45", "quote": "logits = xenc @ W # predict log-counts"}
+{"key": "ai200.1.1", "i": 6, "at": null, "src": "makemore_part1_bigrams.ipynb, cell 58", "quote": "loss = -probs[torch.arange(num), ys].log().mean() + 0.01*(W**2).mean()"}
+{"key": "ai200.1.1", "i": 7, "at": null, "src": "makemore_part1_bigrams.ipynb, cells 25 and 59", "quote": "BEFORE: #p = P[ix] # ---------- # NOW:"}
+{"key": "ai200.1.2", "i": 0, "at": null, "src": "makemore_part2_mlp.ipynb, cells 23-24", "quote": "sum(p.nelement() for p in parameters) # number of parameters in total"}
+{"key": "ai200.1.2", "i": 1, "at": null, "src": "makemore_part2_mlp.ipynb, cell 5", "quote": "for ch in w + '.': ix = stoi[ch] X.append(context) Y.append(ix)"}
+{"key": "ai200.1.2", "i": 2, "at": null, "src": "makemore_part2_mlp.ipynb, cells 9-11 and 28", "quote": "h = torch.tanh(emb.view(-1, 30) @ W1 + b1) # (32, 200)"}
+{"key": "ai200.1.2", "i": 3, "at": null, "src": "makemore_part2_mlp.ipynb, cell 28", "quote": "ix = torch.randint(0, Xtr.shape[0], (32,))"}
+{"key": "ai200.1.2", "i": 4, "at": null, "src": "makemore_part2_mlp.ipynb, cells 26-28", "quote": "lre = torch.linspace(-3, 0, 1000) lrs = 10**lre"}
+{"key": "ai200.1.2", "i": 5, "at": null, "src": "makemore_part2_mlp.ipynb, cells 30-31 and 33", "quote": "# training split, dev/validation split, test split # 80%, 10%, 10%"}

@@ -20,6 +20,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-phys100.js",
  "platform/data/summaries-math210.js",
  "platform/data/summaries-sys250.js",
+ "platform/data/summaries-ai200.js",
  "platform/data/summaries-ai310.js",
  "platform/data/summaries-res400.js",
  "platform/data/storytelling.js"]
@@ -2289,6 +2290,37 @@ const expectedSummary = {
     let hours = 0, days = 0; while (hours < 10000) { hours += 8; days++; }
     return [{ i: 3, v: Math.round(days / 260 * 100) / 100 }];
   })(),
+
+  // micrograd: the slope of 3x^2 - 4x + 5 at 3 by a central difference; dL/db by
+  // nudging b in L = (a*b + c)*f; the MLP's parameters by building its neurons.
+  "ai200.1.0": (function () {
+    const f = x => 3 * x * x - 4 * x + 5, h = 1e-5;
+    const L = b => (2 * b + 10) * -2;
+    const sizes = [3, 4, 4, 1]; let params = 0;
+    for (let l = 1; l < sizes.length; l++) for (let n = 0; n < sizes[l]; n++) params += sizes[l - 1] + 1;
+    return [{ i: 0, v: Math.round((f(3 + h) - f(3 - h)) / (2 * h)) },
+            { i: 2, v: Math.round((L(-3 + h) - L(-3 - h)) / (2 * h)) },
+            { i: 6, v: params }];
+  })(),
+
+  // makemore 1: count the adjacent pairs of '.isabella.'; the uniform model's
+  // NLL as the entropy of 27 equal probabilities, summed term by term.
+  "ai200.1.1": (function () {
+    const s = "." + "isabella" + "."; let pairs = 0;
+    for (let i = 0; i + 1 < s.length; i++) pairs++;
+    let H = 0; for (let k = 0; k < 27; k++) H -= (1 / 27) * Math.log(1 / 27);
+    return [{ i: 1, v: pairs }, { i: 4, v: Math.round(H * 100) / 100 }];
+  })(),
+
+  // makemore 2: parameters by tensor shapes; the examples of 'emma' by sliding
+  // a 3-character window over it, one per target including the final '.'.
+  "ai200.1.2": (function () {
+    const shapes = [[27, 10], [30, 200], [200], [200, 27], [27]];
+    const params = shapes.reduce((a, sh) => a + sh.reduce((x, y) => x * y, 1), 0);
+    let ctx = [".", ".", "."], n = 0;
+    for (const ch of "emma.") { n++; ctx = ctx.slice(1).concat([ch]); }
+    return [{ i: 0, v: params }, { i: 1, v: n }];
+  })(),
 };
 
 let sumNums = 0;
@@ -2360,9 +2392,9 @@ Object.keys(expectedSummary).forEach(k => {
 //     8 for longer, 6 for a paper or reading. A long lecture quizzed with five
 //     questions covers its first hour and calls it done;
 //   * a check that does not say WHERE it is taught. `at` (whole seconds into the
-//     video) for a video-sourced quiz, `src` (the section) for a reading-sourced
-//     one — never a mix, so the count rule knows which kind it is. An `at` past
-//     the end of the video points "rewatch from here" (T-043) at nothing;
+//     video) and/or `src` (the file, section or cell), each on every check or on
+//     none. An `at` past the end of the video points "rewatch from here" (T-043)
+//     at nothing;
 //   * an MCQ that is not four options with its answer among them, or two options
 //     that are the same text;
 //   * the tell. If the answer is the unique longest option in most of a lesson's
@@ -2373,10 +2405,18 @@ Object.keys(expectedSummary).forEach(k => {
 //     mount, but the bank should not lean on that;
 //   * raw HTML. q, opts and expl are injected unescaped like the prose, so no bare
 //     '<' before a letter or slash, and every '$' must be paired (KaTeX).
-// A video lesson may carry a reading-sourced quiz only when the lesson itself
-// names a paper or reading: AI 300's lessons whose `v` is a duplicate or another
-// course's lecture are quizzed from the paper the lesson is named for.
+// Where a `src` quiz is allowed on a video lesson. (1) A lesson that names a paper
+// or reading: AI 300's lessons whose `v` is a duplicate or another course's lecture
+// are quizzed from the paper the lesson is named for, sized as a paper (6).
+// (2) The spec's amendment of 2026-10-14: both transcript tools are down, and the
+// owner chose "course materials now, transcripts later" for three units, whose
+// quizzes are written from the authors' own companion material on GitHub (the
+// lecture notebooks or executable notes) and carry `src`; `at` is added when
+// transcripts work again. Those are still sized by the VIDEO's length — the quiz
+// is for the lecture, not for the file. Every other video lesson (3Blue1Brown,
+// Silver, the two big-picture talks, Hamming's talk) waits for a transcript.
 const T033 = ["ai200", "ai210", "ai300", "ai310", "res400"];
+const T033_COMPANION = ["ai200.1", "ai210.0", "ai310.0"];   // course.unit
 const t033 = {};
 T033.forEach(cid => {
   const c = D.COURSES.find(x => x.id === cid);
@@ -2393,15 +2433,18 @@ Object.keys(D.SUMMARIES || {}).filter(k => T033.includes(k.split(".")[0])).forEa
   const s = D.SUMMARIES[k], cs = Array.isArray(s.checks) ? s.checks : [], T = t033[cid];
   T.summaries++;
   const atN = cs.filter(q => q.at !== undefined).length, srcN = cs.filter(q => q.src !== undefined).length;
-  const fromVideo = atN > 0;
-  ok(cs.every(q => (q.at !== undefined) !== (q.src !== undefined)),
-     k + ": every check says where it is taught — `at` (seconds) for a video, `src` (section) for a reading — and not both");
-  ok(atN === 0 || srcN === 0, k + ": the quiz is all video-sourced (`at`) or all reading-sourced (`src`), not a mix");
-  if (fromVideo) ok(!!l.v && +l.min > 0, k + ": a video-sourced quiz is on a lesson with a video and a length");
-  else ok(!!(l.paper || l.read), k + ": a reading-sourced quiz is on a lesson that names a paper or reading");
-  const want = fromVideo ? (l.min <= 30 ? 5 : l.min <= 90 ? 6 : 8) : 6;
+  ok(cs.every(q => q.at !== undefined || q.src !== undefined),
+     k + ": every check says where it is taught — `at` (seconds into the video) and/or `src` (file, section or cell)");
+  ok(atN === 0 || atN === cs.length, k + ": `at` is on every check or on none (" + atN + " of " + cs.length + ")");
+  ok(srcN === 0 || srcN === cs.length, k + ": `src` is on every check or on none (" + srcN + " of " + cs.length + ")");
+  if (atN) ok(!!l.v && +l.min > 0, k + ": a quiz with `at` is on a lesson with a video and a length");
+  if (srcN) ok(!!(l.paper || l.read) || T033_COMPANION.includes(cid + "." + p[1]),
+     k + ": a `src` quiz is on a lesson that names a paper or reading, or in a unit the amendment admits companion material for (" +
+     T033_COMPANION.join(", ") + ")");
+  const byLength = !!l.v && +l.min > 0 && !l.paper;
+  const want = byLength ? (l.min <= 30 ? 5 : l.min <= 90 ? 6 : 8) : 6;
   ok(cs.length === want, k + ": has " + want + " checks, the size for " +
-     (fromVideo ? "a " + l.min + "-minute video" : "a paper or reading") + " (has " + cs.length + ")");
+     (byLength ? "a " + l.min + "-minute lecture" : "a paper or reading") + " (has " + cs.length + ")");
   let mcq = 0, longest = 0, shortest = 0;
   cs.forEach((q, i) => {
     const tag = k + " check " + i;

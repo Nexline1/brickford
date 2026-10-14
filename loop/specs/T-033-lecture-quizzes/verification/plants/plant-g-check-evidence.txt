@@ -1,0 +1,2 @@
+  FAIL ai310.1.0 check 0: quote not found in the cached source: It connects a model with its necessary preprocessing and tokenizing steps, allowing us to directly input any text and get an intelligible answer
+1 FAILED; 42 checks, 41 quotes found verbatim in the cached source, 0 with no cached source here

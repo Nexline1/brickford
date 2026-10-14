@@ -1,0 +1,26 @@
+baseline: verify-content exit 0 on HEAD
+plant (a) one numeric answer changed (ai310.1.0 ViT patches 196 -> 197): verify-content exit 1; restored: cmp backup identical, cmp HEAD identical
+      FAIL summary ai310.1.0 check 3: stated 197, recomputed 196
+    1 of 33698 checks FAILED
+plant (b) an answer index out of range (ai310.1.0 check 0: a 0 -> 4): verify-content exit 1; restored: cmp backup identical, cmp HEAD identical
+      FAIL summary ai310.1.0 check 0: answer index 4 is inside opts
+      FAIL ai310.1.0 check 0: answer index 4 is one of its 4 options
+    2 of 33698 checks FAILED
+plant (c) a >90-min lecture with 5 checks (planted video fixture ai200.1.0, 146 min, 5 checks): verify-content exit 1; restored: cmp backup identical, cmp HEAD identical
+      FAIL ai200.1.0: has 8 checks, the size for a 146-minute video (has 5)
+    1 of 33841 checks FAILED
+plant (c-control) control for (c) and (e): the same fixture with 8 checks, all at in range (must PASS, exit 0): verify-content exit 0; restored: cmp backup identical, cmp HEAD identical
+plant (d) the answer made the unique longest in every MCQ of one lesson (ai310.1.2): verify-content exit 1; restored: cmp backup identical, cmp HEAD identical
+      FAIL ai310.1.2: the answer is the unique longest option in 5 of 5 MCQs — at most 2, or the quiz can be passed by picking the longest option
+    1 of 33698 checks FAILED
+plant (e) at beyond the video's length (fixture with 8 checks, check 7 at 9000s > 146 min = 8760s): verify-content exit 1; restored: cmp backup identical, cmp HEAD identical
+      FAIL ai200.1.0 check 7: at 9000s is a whole second inside the 146-minute video (0 to 8759)
+    1 of 33907 checks FAILED
+plant (f) beyond the spec's five: answer slot A over 40% in a course (5 more AI 310 answers moved to slot A, 13 of 31): verify-content exit 1; restored: cmp backup identical, cmp HEAD identical
+      FAIL ai310.1.0: the answer is the unique longest option in 3 of 5 MCQs — at most 2, or the quiz can be passed by picking the longest option
+      FAIL AI 310: answer slot A holds 13 of 31 MCQ answers — no slot may hold more than 40%
+    2 of 33698 checks FAILED
+plant (g) check-evidence.js: one evidence quote altered (ai310.1.0 check 0): exit 1
+    restored: cmp backup identical
+    FAIL ai310.1.0 check 0: quote not found in the cached source: It connects a model with its necessary preprocessing and tokenizing steps, allowing us to directly input any text and get an intelligible answer
+  1 FAILED; 42 checks, 41 quotes found verbatim in the cached source, 0 with no cached source here

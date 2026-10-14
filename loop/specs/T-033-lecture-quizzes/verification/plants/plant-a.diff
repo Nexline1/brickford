@@ -1,0 +1,13 @@
+diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
+index 6c15167..c2f1a7e 100644
+--- a/platform/data/summaries-ai310.js
++++ b/platform/data/summaries-ai310.js
+@@ -45,7 +45,7 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
+         expl: "The pipeline extracts information from the provided context; it does not generate. Under the hood a span-classification head predicts start and end logits over the context's tokens, so the answer is always a piece of the text you passed in." },
+       { q: "During training a translation decoder is fed the entire target sentence at once. Why can it not simply copy the word it is asked to predict?", opts: ["Because the target sentence is shuffled before it reaches the decoder", "Because an attention mask hides that position and every later one", "Because the decoder reads only the encoder's output, never the target", "Because training uses a different language for the target each time"], a: 1, src: "1.4 The original architecture",
+         expl: "Feeding the whole target speeds training, so the decoder is masked: predicting the fourth word, its attention can use positions 1 to 3 only. The second attention layer still sees the encoder's output for the WHOLE source sentence, because word order differs between languages." },
+-      { q: "ViT splits a 224 x 224 image into non-overlapping 16 x 16 patches. How many patch embeddings does the encoder receive, before the [CLS] token is added?", num: 196, src: "1.5 Image classification",
++      { q: "ViT splits a 224 x 224 image into non-overlapping 16 x 16 patches. How many patch embeddings does the encoder receive, before the [CLS] token is added?", num: 197, src: "1.5 Image classification",
+         expl: "Each side holds 224 / 16 = 14 patches, so there are 14 x 14 = 196. Each patch becomes one embedding — the image is 'tokenized' into patches — and a learnable [CLS] embedding is prepended, so the sequence is 197 long." },
+       { q: "You need to tag every word of a sentence as person, organisation, location or none. Which architecture does the chapter point you to, and why?", opts: ["Decoder-only, because modern LLMs are decoders and handle every task best", "Encoder-decoder, because the output is itself a sequence of labels to generate", "Encoder-only, because each word's label depends on context on both sides of it", "Decoder-only, because labelling one word at a time is a left-to-right process"], a: 2, src: "1.6 Choosing the right architecture",
+         expl: "Named-entity recognition is understanding, not generation: a word's label can depend on the words after it as well as before. Encoders attend in both directions, and a token-classification head on top gives one label per token." },

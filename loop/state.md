@@ -61,3 +61,4 @@
 - 2026-10-11: T-026c r1 fixes in (e2aeb32, code a083a54): all six fixed, plants (a)-(f) exit 1. My CHECK all green (design 1885 x2, flows 177 x2). Review r2 sent.
 - 2026-10-11: T-026c APPROVED r2; merged as PR #18 (cc0d9ed). Queued T-041 (pre-existing Week bugs). T-028 (Practice recorder) building next.
 - 2026-10-11: T-028 builder launched in /home/user/bf-T-028 (from cc0d9ed), tokens 20261011b.
+- 2026-10-14: T-028 builder stopped on the weekly limit after 20fc35c (recorder, checks, screenshots pushed; plant (a) run, uncommitted wait tweak). Resumed for plants (b),(c), tokens, CHECK, report.

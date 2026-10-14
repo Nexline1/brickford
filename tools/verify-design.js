@@ -2050,10 +2050,11 @@ function t28Fill(ids) {
 // download/delete do not sit on top of the title.
 function t28Rows() {
   return [...document.querySelectorAll("#view .pr-clip")].map(row => {
-    const n = row.querySelector(".pr-name"), m = row.querySelector(".pr-main").getBoundingClientRect(), a = row.querySelector(".pr-acts").getBoundingClientRect();
+    const n = row.querySelector(".pr-name"), m = row.querySelector(".pr-main").getBoundingClientRect();
+    const ics = [...row.querySelectorAll(".pr-ic")].map(c => c.getBoundingClientRect());
     const ctl = [...row.querySelectorAll(".pr-play, .pr-ic")].map(c => c.getBoundingClientRect());
     return { title: n.value, scroll: n.scrollWidth, client: n.clientWidth,
-      apart: a.top >= m.bottom - 1 || a.left >= m.right - 1, small: ctl.filter(c => c.width < 44 || c.height < 44).length, ctl: ctl.length };
+      apart: ics.length > 0 && ics.every(a => a.top >= m.bottom - 1 || a.left >= m.right - 1), small: ctl.filter(c => c.width < 44 || c.height < 44).length, ctl: ctl.length };
   });
 }
 // The clips for t28Rows, written straight into IndexedDB as the recorder

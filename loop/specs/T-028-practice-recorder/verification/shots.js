@@ -49,10 +49,20 @@ const settle = page => page.evaluate(() => Promise.all(document.getAnimations()
       await page.screenshot({ path: path.join(OUT, "practice-" + tag + "-recorded.png"), fullPage: w >= 860 });
       if (w === 390 && theme === "dark") {
         await page.evaluate(() => window.scrollTo(0, 0));
-        await page.click("#view [data-ptab=humor]");
-        await page.click("#view .pr-write summary");
+        // Tapped, as a phone does (a mouse click leaves a hover behind), and
+        // shot only once the pressed tab's transition has finished and the
+        // tab reads pressed (review 1: the first story-bank shot caught it
+        // mid-transition, with the wrong tab looking picked).
+        const tab = async k => {
+          await page.tap("#view [data-ptab=" + k + "]");
+          await page.waitForFunction(k => document.querySelector("#view [data-ptab=" + k + "]").getAttribute("aria-pressed") === "true", k);
+          await settle(page);
+        };
+        await tab("humor");
+        await page.tap("#view .pr-write summary");
+        await settle(page);
         await page.screenshot({ path: path.join(OUT, "practice-" + tag + "-humour.png"), fullPage: true });
-        await page.click("#view [data-ptab=bank]");
+        await tab("bank");
         await page.screenshot({ path: path.join(OUT, "practice-" + tag + "-story-bank.png") });
       }
       await ctx.close();

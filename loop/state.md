@@ -63,3 +63,4 @@
 - 2026-10-11: T-028 builder launched in /home/user/bf-T-028 (from cc0d9ed), tokens 20261011b.
 - 2026-10-14: T-028 builder stopped on the weekly limit after 20fc35c (recorder, checks, screenshots pushed; plant (a) run, uncommitted wait tweak). Resumed for plants (b),(c), tokens, CHECK, report.
 - 2026-10-14: T-028 built (d950640, code 33ef295); plants a-c exit 1. My CHECK all green (flows 232 x2, design 1941 x2, clip 801 + LA). Review r1 sent.
+- 2026-10-14: T-028 review r1 CHANGES REQUIRED (8): self-stop breaks chain; no re-check after getUserMedia; <1s recording logs a rep; background render kills player; bank form squeezed (dead .pr-hand rule); clip title cut at phone; rest-day Log buttons; verify-flows read token key before skip. Builder resumed. Queued T-042 (recorded rep merge key collision).

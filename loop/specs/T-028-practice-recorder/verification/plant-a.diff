@@ -1,8 +1,8 @@
 diff --git a/platform/js/app.js b/platform/js/app.js
-index e76fb7a..7265b4a 100644
+index aa772d0..128b912 100644
 --- a/platform/js/app.js
 +++ b/platform/js/app.js
-@@ -4298,7 +4298,7 @@
+@@ -4352,7 +4352,7 @@
          { date: iso, keeper: k >= 1 && k <= 5 ? k : 0 });
        msg = "Logged, " + clockLabel(r.seconds) + " recorded.";
      } else {

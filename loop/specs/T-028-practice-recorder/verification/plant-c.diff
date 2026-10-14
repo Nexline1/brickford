@@ -1,5 +1,5 @@
 diff --git a/platform/js/app.js b/platform/js/app.js
-index aa772d0..8b60a77 100644
+index a568d3c..bea0910 100644
 --- a/platform/js/app.js
 +++ b/platform/js/app.js
 @@ -4271,7 +4271,7 @@

@@ -68,3 +68,4 @@
 - 2026-10-14: Owner approved the four mockups; order content → gate → coach; pre-gate lectures not locked (catch-up list); quizzes 5–8 per lecture from transcripts. Queue rows T-033 (rewritten), T-043, T-045, T-046, T-047, T-044 added. T-028 r1 fixes pushed (4425778) before a container restart.
 - 2026-10-14: T-028 r1 fixes (4425778): my CHECK all green (flows 248 x2, design 1954 x2). Review r2 sent. T-033 spec written (loop/specs/T-033-lecture-quizzes/spec.md); launch after T-028 merges.
 - 2026-10-14: T-028 review r2: all 8 r1 findings fixed; 3 new: next-recording check never failed (limit set too late); background-render deferral misses paused player and never replays skipped repaint; mr.start() throw leaves mic live. Builder resumed; round 3 is the last.
+- 2026-10-14: T-028 r2 fixes (8a735bf): my CHECK all green (flows 250 x2, design 1954 x2). Review r3 (last) sent.

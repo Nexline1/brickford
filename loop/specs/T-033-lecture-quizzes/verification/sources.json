@@ -53,5 +53,18 @@
    "sources/readings/huggingface_transformers_main_docs_source_en_quantization_overview.md"
   ],
   "note": "The page is the overview plus the full compatibility table; the GGUF, AWQ and bitsandbytes rows carry the tradeoffs the lesson title names."
+ },
+ "ai310.1.3": {
+  "kind": "reading",
+  "urls": [
+   "https://github.com/EleutherAI/lm-evaluation-harness"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/EleutherAI/lm-evaluation-harness/main/README.md"
+  ],
+  "files": [
+   "sources/readings/EleutherAI_lm-evaluation-harness_main_README.md"
+  ],
+  "note": "The lesson title names contamination and 'why public benchmarks lie'; the README does not discuss contamination, so the quiz covers what it does say: backends, parallel layouts, logprob limits, answer extraction, and the prompt-procedure priority meant to make cross-paper comparisons less harmful."
  }
 }

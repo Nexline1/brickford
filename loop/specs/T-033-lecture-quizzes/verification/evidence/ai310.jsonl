@@ -16,3 +16,9 @@
 {"key": "ai310.1.2", "i": 3, "at": null, "src": "Full compatibility table", "quote": "[bitsandbytes](./bitsandbytes) | 🟢 | 🟢 | 🟢 | 🟡 | 🟡 | 🟢 | 🟢 | 4/8 | 🟢"}
 {"key": "ai310.1.2", "i": 4, "at": null, "src": "Full compatibility table", "quote": "[GGUF / GGML (llama.cpp)](./gguf) | 🔴 | 🟢 | 🟢 | 🔴 | 🟢"}
 {"key": "ai310.1.2", "i": 5, "at": null, "src": "Overview — the quantization picker", "quote": "The picker shows whether the model fits in memory at each precision, including the KV cache"}
+{"key": "ai310.1.3", "i": 0, "at": null, "src": "Basic Usage — Evaluating GGUF Models", "quote": "Hugging Face will attempt to reconstruct the tokenizer from the GGUF file — this can take hours or even hang indefinitely."}
+{"key": "ai310.1.3", "i": 1, "at": null, "src": "Multi-GPU Evaluation with Hugging Face accelerate", "quote": "For cases where your model can fit on a single GPU, this allows you to evaluate on K GPUs K times faster than on one."}
+{"key": "ai310.1.3", "i": 2, "at": null, "src": "Tensor + Data Parallel and Optimized Inference with vLLM", "quote": "data_parallel_size>1 dispatches each replica as a separate [ray](https://github.com/ray-project/ray) actor and requires pip install ray. Each actor reserves tensor_parallel_size GPUs (default 1)."}
+{"key": "ai310.1.3", "i": 3, "at": null, "src": "Model APIs and Inference Servers", "quote": "Models which do not supply logits or logprobs can be used with tasks of type generate_until only"}
+{"key": "ai310.1.3", "i": 4, "at": null, "src": "Model APIs and Inference Servers (note on closed chat models)", "quote": "carefully looking at a few sample outputs using --limit 10 first to confirm answer extraction and scoring on generative tasks is performing as expected."}
+{"key": "ai310.1.3", "i": 5, "at": null, "src": "Contributing — Implementing new tasks", "quote": "to decrease the harm when people inevitably compare runs across different papers despite our discouragement of the practice."}

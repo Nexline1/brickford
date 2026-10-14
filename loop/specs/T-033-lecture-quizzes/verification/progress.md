@@ -17,10 +17,11 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 1 | ai310.1.0 | HF LLM course ch. 1 (GitHub `huggingface/course`) | 6 (5 MCQ, 1 numeric) |
 | 2 | ai310.1.1 | TRL SFT Trainer docs (GitHub `huggingface/trl`) | 6 (5 MCQ, 1 numeric) |
 | 3 | ai310.1.2 | Transformers quantization overview (GitHub `huggingface/transformers`) | 6 (5 MCQ, 1 numeric) |
+| 4 | ai310.1.3 | lm-evaluation-harness README (GitHub `EleutherAI/lm-evaluation-harness`) | 6 (5 MCQ, 1 numeric) |
 
 ## Next (buildable now, in calendar order)
 
-ai310.1.3 (lm-evaluation-harness README) → ai310.1.4 (vLLM docs index) →
+ai310.1.4 (vLLM docs index) →
 ai310.1.5 (HF agents course) → res400.2.2 (Karpathy PhD guide, GitHub
 `karpathy/karpathy.github.io` `_posts/2016-09-07-phd.markdown`).
 

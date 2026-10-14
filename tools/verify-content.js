@@ -2261,6 +2261,13 @@ const expectedSummary = {
     const params = 16e9 * 8 / 16;                 // bytes x bits-per-byte / bits-per-weight
     return [{ i: 1, v: params * 4 / 8 / 1e9 }];   // GB at int4
   })(),
+
+  // vLLM tensor x data parallel: one ray actor per replica, each holding its
+  // tensor-parallel shard set; count the GPUs the actors reserve.
+  "ai310.1.3": (function () {
+    const actors = []; for (let r = 0; r < 4; r++) actors.push({ gpus: Array.from({ length: 2 }, (_, j) => r * 2 + j) });
+    return [{ i: 2, v: new Set([].concat(...actors.map(a => a.gpus))).size }];
+  })(),
 };
 
 let sumNums = 0;

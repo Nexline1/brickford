@@ -31,5 +31,13 @@ A recording stays on the device — the push carries the rep, never the audio:
   ok    the pushed rep is the hand form's shape, { date, seconds, takes, from }, with the clip's seconds ({"date":"2026-10-20","seconds":1,"takes":1,"from":"Story · Tue 20 Oct"})
   ok    no push carries audio or brickford_audio data (1 push(es) read)
   ok    every push's state has exactly the keys syncPayload sends
+A background repaint leaves a playing recording and a recording in progress alone:
+  ok    (1) a push merged in the laptop's entry and asked for a background repaint while the recording played
+  ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.92})
+  ok    (1) no page errors
+  ok    (2) a push merged in the laptop's entry and asked for a background repaint while recording
+  ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:04 / 1:30"})
+  ok    (2) Enter then stops it and the second recording is kept (2 in the list)
+  ok    (2) no page errors
 
-PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device (T-028)
+PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing recording and a recording in progress alone (T-028)

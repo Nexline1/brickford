@@ -213,23 +213,23 @@ T-024: the theme before the first paint
   ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 13 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 10 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 11 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 12 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 14 frames
+  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme dark, meta #000000, state writes 0, stored "forest"
   ok    first paint (stored "forest" (removed), phone light): no page errors
   ok    first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
+  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
   ok    first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme dark, meta #000000, state writes 0, stored "slate"
   ok    first paint (stored "slate" (removed), phone light): no page errors
 
@@ -2101,6 +2101,8 @@ T-028 Practice, 1440px dark
   ok    1440px dark /practice: its ring is --ink (#ffffff), 4px, at 17.01:1 on the card (>= 3:1) — {"ring":"#ffffff","ink":"#ffffff","ringW":4}
   ok    1440px dark /practice: "Your recordings" heads the list, "kept on this device" — {"t":"Your recordings","meta":"kept on this device"}
   ok    1440px dark /practice: Tab from the last tab lands on the record button — true
+  ok    1440px dark /practice: Story bank's two fields fill the card's content box (698px) — {"content":698,"fields":[{"id":"bankWhat","l":0,"r":0,"w":698},{"id":"bankWhy","l":0,"r":0,"w":698}]}
+  ok    1440px dark /practice: with no microphone, Story's hand form fills the card — "Which entry" edge to edge, seconds and takes spanning the same width — {"fs2":{"content":698,"fields":[{"id":"repWhich","l":0,"r":0,"w":698}]},"grid":{"l":0,"r":0}}
   ok    1440px dark /practice: opening it and reading the recordings wrote nothing (state writes 0 -> 0)
   ok    1440px dark /practice: no page errors
 
@@ -2114,6 +2116,8 @@ T-028 Practice, 390px dark
   ok    390px dark /practice: its ring is --ink (#ffffff), 4px, at 17.01:1 on the card (>= 3:1) — {"ring":"#ffffff","ink":"#ffffff","ringW":4}
   ok    390px dark /practice: "Your recordings" heads the list, "kept on this device" — {"t":"Your recordings","meta":"kept on this device"}
   ok    390px dark /practice: Tab from the last tab lands on the record button — true
+  ok    390px dark /practice: Story bank's two fields fill the card's content box (302px) — {"content":302,"fields":[{"id":"bankWhat","l":0,"r":0,"w":302},{"id":"bankWhy","l":0,"r":0,"w":302}]}
+  ok    390px dark /practice: with no microphone, Story's hand form fills the card — "Which entry" edge to edge, seconds and takes spanning the same width — {"fs2":{"content":302,"fields":[{"id":"repWhich","l":0,"r":0,"w":302}]},"grid":{"l":0,"r":0}}
   ok    390px dark /practice: opening it and reading the recordings wrote nothing (state writes 0 -> 0)
   ok    390px dark /practice: no page errors
 
@@ -2127,6 +2131,8 @@ T-028 Practice, 1440px light
   ok    1440px light /practice: its ring is --ink (#111111), 4px, at 18.88:1 on the card (>= 3:1) — {"ring":"#111111","ink":"#111111","ringW":4}
   ok    1440px light /practice: "Your recordings" heads the list, "kept on this device" — {"t":"Your recordings","meta":"kept on this device"}
   ok    1440px light /practice: Tab from the last tab lands on the record button — true
+  ok    1440px light /practice: Story bank's two fields fill the card's content box (698px) — {"content":698,"fields":[{"id":"bankWhat","l":0,"r":0,"w":698},{"id":"bankWhy","l":0,"r":0,"w":698}]}
+  ok    1440px light /practice: with no microphone, Story's hand form fills the card — "Which entry" edge to edge, seconds and takes spanning the same width — {"fs2":{"content":698,"fields":[{"id":"repWhich","l":0,"r":0,"w":698}]},"grid":{"l":0,"r":0}}
   ok    1440px light /practice: opening it and reading the recordings wrote nothing (state writes 0 -> 0)
   ok    1440px light /practice: no page errors
 
@@ -2140,8 +2146,18 @@ T-028 Practice, 390px light
   ok    390px light /practice: its ring is --ink (#111111), 4px, at 18.88:1 on the card (>= 3:1) — {"ring":"#111111","ink":"#111111","ringW":4}
   ok    390px light /practice: "Your recordings" heads the list, "kept on this device" — {"t":"Your recordings","meta":"kept on this device"}
   ok    390px light /practice: Tab from the last tab lands on the record button — true
+  ok    390px light /practice: Story bank's two fields fill the card's content box (302px) — {"content":302,"fields":[{"id":"bankWhat","l":0,"r":0,"w":302},{"id":"bankWhy","l":0,"r":0,"w":302}]}
+  ok    390px light /practice: with no microphone, Story's hand form fills the card — "Which entry" edge to edge, seconds and takes spanning the same width — {"fs2":{"content":302,"fields":[{"id":"repWhich","l":0,"r":0,"w":302}]},"grid":{"l":0,"r":0}}
   ok    390px light /practice: opening it and reading the recordings wrote nothing (state writes 0 -> 0)
   ok    390px light /practice: no page errors
+
+T-028 320px dark, three recordings with default titles
+  ok    320px dark, three recordings with default titles — every title is shown whole (scrollWidth <= clientWidth), download and delete clear of it, every control >= 44x44 — "Story · Tue 20 Oct" 210/210; "Humour · Wed 30 Sep" 210/210; "Humour · Thu 24 Sep" 210/210
+  ok    320px dark, three recordings with default titles — nothing written, no page errors — writes 0 -> 0
+
+T-028 390px dark, three recordings with default titles
+  ok    390px dark, three recordings with default titles — every title is shown whole (scrollWidth <= clientWidth), download and delete clear of it, every control >= 44x44 — "Story · Tue 20 Oct" 280/280; "Humour · Wed 30 Sep" 280/280; "Humour · Thu 24 Sep" 280/280
+  ok    390px dark, three recordings with default titles — nothing written, no page errors — writes 0 -> 0
 
 T-028 390px dark, Tue 20 Oct, the bank not yet logged: Story bank
   ok    390px dark, Tue 20 Oct, the bank not yet logged: Story bank — the tab picked is Story bank — Story bank
@@ -2158,6 +2174,7 @@ T-028 390px dark, Fri 23 Oct, the bank and the story logged: Humour
 T-028 390px dark, Sat 24 Oct: the rest card above the tabs, Story
   ok    390px dark, Sat 24 Oct: the rest card above the tabs, Story — the tab picked is Story — Story
   ok    390px dark, Sat 24 Oct: the rest card above the tabs, Story — "Nothing owed today" is a card above the tabs and the recorder, which is still there — {"rest":{"x":20,"y":177.796875,"w":350,"h":104.140625,"cx":195,"b":281.9375},"segTop":297.9375,"rec":true}
+  ok    390px dark, Sat 24 Oct: the rest card above the tabs, Story — no tab draws a Log button; Story and Humour keep the recorder (Humour without its written fold); Story bank says "Nothing owed today." — {"story":{"log":[],"rec":true,"write":false,"rest":""},"humor":{"log":[],"rec":true,"write":false,"rest":""},"bank":{"log":[],"rec":false,"write":false,"rest":"Nothing owed today."}}
   ok    390px dark, Sat 24 Oct: the rest card above the tabs, Story — nothing written, no page errors — writes 0 -> 0
 
 T-028 390px dark, a monthly review owed: its card above the tabs, with its form
@@ -2168,4 +2185,4 @@ T-028 390px dark, a monthly review owed: its card above the tabs, with its form
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 1941 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 194 rows (554 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of 5 gates next at 15 widths x 2 roots (182 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (557 checks); T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view (one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides equal to DOCS, 5 links + "+N", all noopener) at 1440/390 x 2 themes, 6 more Week states at 1440/390, ‹ › Today tapped and keyed at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at 5 widths x 2 roots (370 checks); T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card — and the tab picked on 5 days, the Saturday and monthly-review cards (56 checks)
+PASS — 1954 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 194 rows (554 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of 5 gates next at 15 widths x 2 roots (182 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (557 checks); T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view (one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides equal to DOCS, 5 links + "+N", all noopener) at 1440/390 x 2 themes, 6 more Week states at 1440/390, ‹ › Today tapped and keyed at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at 5 widths x 2 roots (370 checks); T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on 5 days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (69 checks)

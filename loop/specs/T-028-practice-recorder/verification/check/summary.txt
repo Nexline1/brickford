@@ -1,14 +1,15 @@
-CHECK on 33ef295 (0 uncommitted platform/tools files), 2026-10-14T00:09:58Z
-typecheck exit 0 (2s) — PASS — node --check on every platform/js, platform/data and tools file
-content exit 0 (5s) — PASS — 32354 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 414 lecture summaries (420 numerics recomputed), 40 qu
-sync-loop exit 0 (76s) — PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
-shell exit 0 (81s) — PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes 
-contrast exit 0 (8s) — PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+CHECK on d156574 (0 uncommitted platform/tools files), 2026-10-14T01:37:30Z
+typecheck exit 0 (1s) — PASS — node --check on every platform/js, platform/data and tools file
+content exit 0 (4s) — PASS — 32354 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 414 lecture summaries (420 numerics recomputed), 40 qu
+sync-loop-1 exit 0 (96s) — PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
+sync-loop-2 exit 0 (94s) — PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
+shell exit 0 (84s) — PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes 
+contrast exit 0 (9s) — PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
 logic exit 0 (14s) — PASS — 45 invariants hold
-flows-1 exit 0 (60s) — PASS — 232 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
-flows-2 exit 0 (60s) — PASS — 232 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
-clip exit 0 (193s) — PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145564 element me
-clip-LA exit 0 (190s) — PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145564 element me
-design-1 exit 0 (193s) — PASS — 1941 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
-design-2 exit 0 (195s) — PASS — 1941 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
+flows-1 exit 0 (73s) — PASS — 248 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
+flows-2 exit 0 (73s) — PASS — 248 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
+clip exit 0 (194s) — PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145508 element me
+clip-LA exit 0 (192s) — PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145530 element me
+design-1 exit 0 (203s) — PASS — 1954 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
+design-2 exit 0 (201s) — PASS — 1954 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
 DONE

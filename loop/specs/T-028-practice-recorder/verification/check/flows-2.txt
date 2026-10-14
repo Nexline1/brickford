@@ -3,8 +3,8 @@
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
-  ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 7.", options locked true, next button visible
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 3 today
@@ -151,9 +151,9 @@ record yourself (T-028)
   ok    (p) 390px (tapped): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"}] ev {"type":"rep","ref":"story","data":{"date":"2026-10-20","seconds":2}}
   ok    (p) 390px (tapped): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 390px (tapped): after stop the button is idle again and holds the focus (or the page did not move it) — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 390px (tapped): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/b7baa36d-ac5c-4e9f-ab2b-549d36503459","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/b7baa36d-ac5c-4e9f-ab2b-549d36503459","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/b7baa36d-ac5c-4e9f-ab2b-549d36503459","dl":{"href":"blob:null/b7baa36d-ac5c-4e9f-ab2b-549d36503459","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 390px (tapped): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/9fd99e98-657d-4c2a-8299-ff250d1c59ff","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/9fd99e98-657d-4c2a-8299-ff250d1c59ff","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/9fd99e98-657d-4c2a-8299-ff250d1c59ff","dl":{"href":"blob:null/9fd99e98-657d-4c2a-8299-ff250d1c59ff","name":"Story · Tue 20 Oct.webm"}}]
   ok    (p) 390px (tapped): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 390px (tapped): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 390px (tapped): no page errors
@@ -161,23 +161,37 @@ record yourself (T-028)
   ok    (p) 1280px (keyboard): the record button is idle, labelled, and the timer reads 0:00 / 1:30 — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":false}
   ok    (p) 1280px (keyboard): while recording the button says Stop, the dot is a rounded square (radius under half its width), and the timer counts m:ss / 1:30 — {"on":true,"label":"Stop recording","time":"0:02 / 1:30","w":40,"radius":8,"focus":true}
   ok    (p) 1280px (keyboard): nothing was written while recording — 0 write(s)
-  ok    (p) 1280px (keyboard): one clip in IndexedDB brickford_audio/clips, key 2026-10-20-1, { date, seconds >= 1, kind story, title "Story · Tue 20 Oct" } and a non-empty audio Blob — {"list":[{"key":"2026-10-20-1","date":"2026-10-20","seconds":2,"kind":"story","title":"Story · Tue 20 Oct","fields":"blob,date,kind,seconds,title","blob":{"size":22343,"type":"audio/webm;codecs=opus"}}]}
+  ok    (p) 1280px (keyboard): one clip in IndexedDB brickford_audio/clips, key 2026-10-20-1, { date, seconds >= 1, kind story, title "Story · Tue 20 Oct" } and a non-empty audio Blob — {"list":[{"key":"2026-10-20-1","date":"2026-10-20","seconds":2,"kind":"story","title":"Story · Tue 20 Oct","fields":"blob,date,kind,seconds,title","blob":{"size":22348,"type":"audio/webm;codecs=opus"}}]}
   ok    (p) 1280px (keyboard): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"}] ev {"type":"rep","ref":"story","data":{"date":"2026-10-20","seconds":2}}
   ok    (p) 1280px (keyboard): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 1280px (keyboard): after stop the button is idle again and holds the focus — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 1280px (keyboard): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/485bbe12-6339-4d53-bb5b-2bb52a1cd19b","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/485bbe12-6339-4d53-bb5b-2bb52a1cd19b","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/485bbe12-6339-4d53-bb5b-2bb52a1cd19b","dl":{"href":"blob:null/485bbe12-6339-4d53-bb5b-2bb52a1cd19b","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 1280px (keyboard): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/abb9ea60-a8f8-41c0-b7ac-bd300ce15b24","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/abb9ea60-a8f8-41c0-b7ac-bd300ce15b24","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/abb9ea60-a8f8-41c0-b7ac-bd300ce15b24","dl":{"href":"blob:null/abb9ea60-a8f8-41c0-b7ac-bd300ce15b24","name":"Story · Tue 20 Oct.webm"}}]
   ok    (p) 1280px (keyboard): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 1280px (keyboard): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 1280px (keyboard): no page errors
-  ok    (p) auto-stop: with window.__recLimit = 2 one press records, the timer reads m:ss / 0:02, and it stops on its own at the limit — {"r1":{"on":true,"label":"Stop recording","time":"0:00 / 0:02","w":78,"radius":50,"focus":true},"r2":{"on":false,"label":"Start recording","time":"0:00 / 0:02","w":78,"radius":50,"focus":true}}
+  ok    (p) auto-stop: with window.__recLimit = 2 one press records, the timer reads m:ss / 0:02, and it stops on its own at the limit — {"r1":{"on":true,"label":"Stop recording","time":"0:00 / 0:02","w":56,"radius":50,"focus":true},"r2":{"on":false,"label":"Start recording","time":"0:00 / 0:02","w":78,"radius":50,"focus":true}}
   ok    (p) auto-stop: one humour clip, 1 to 3 seconds, title "Humour · Tue 20 Oct" — [{"key":"2026-10-20-1","date":"2026-10-20","seconds":2,"kind":"humor","title":"Humour · Tue 20 Oct","fields":"blob,date,kind,seconds,title","blob":{"size":22348,"type":"audio/webm;codecs=opus"}}]
   ok    (p) auto-stop: logged through the humour rep path — reps.humor gains one entry for today, reps.story none — {"bank":[],"story":[],"humor":[{"date":"2026-10-20","attempts":["","","","",""],"keeper":0,"seconds":2}],"review":[]}
   ok    (p) auto-stop: no page errors
   ok    (p) a Saturday: the "Nothing owed today" card sits above the recorder — {"rest":true,"above":true}
   ok    (p) a Saturday: recording is allowed — the clip is kept (key 2026-10-24-1); no rep is logged on a rest day — ["2026-10-24-1"] {}
   ok    (p) a Saturday: no page errors
+  ok    (p) the track ends under the recorder: the clip is finished anyway — one clip, one rep whose seconds is a number equal to the clip's, its chain event the same, nothing reading "undefined" — {"clips":[["2026-10-20-1",2]],"story":[{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"}],"ev":{"date":"2026-10-20","seconds":2}}
+  ok    (p) the track ends under the recorder: the button is idle again
+  ok    (p) the track ends under the recorder: the next recording runs to its full length (3 of a 3s limit), not cut short by the first one's timer — [["2026-10-20-1",2],["2026-10-20-2",3]]
+  ok    (p) the track ends under the recorder: after a reload /record says the chain is whole ("newest first", not "chain broken") — newest first
+  ok    (p) the recorder stops by itself: no page errors
+  ok    (p) the prompt is open and the reader leaves the page: while the prompt is open the button shows it is starting (aria-busy, "Starting…")
+  ok    (p) the prompt is open and the reader leaves the page: the stream that arrives after is released (every track ended), no clip, no rep, nothing written, and the button on screen is idle — {"ended":true,"clips":0,"reps":null,"writes":0,"button":{"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":false}}
+  ok    (p) the prompt is open and the reader leaves the page: no page errors
+  ok    (p) the prompt is open and the reader picks Humour: while the prompt is open the button shows it is starting (aria-busy, "Starting…")
+  ok    (p) the prompt is open and the reader picks Humour: the stream that arrives after is released (every track ended), no clip, no rep, nothing written, and the button on screen is idle — {"ended":true,"clips":0,"reps":null,"writes":0,"button":{"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":false}}
+  ok    (p) the prompt is open and the reader picks Humour: no page errors
+  ok    (p) a double tap 30ms apart: the microphone is released, the button is idle, no clip and no rep — {"ended":true,"still":true,"clips":0,"reps":null}
+  ok    (p) stopped 150ms in: nothing kept, nothing logged, and the reader is told ("Under a second…") — {"clips":0,"reps":null,"said":"Under a second — nothing kept. Hold it and talk."}
+  ok    (p) under a second: no page errors
   ok    (q) 390px, permission denied: Story — the fallback line and the manual form (seconds, takes, which, Log the rep) appear; no record button — {"line":true,"rec":false,"form":true}
   ok    (q) 390px, permission denied: logging by hand still works — reps.story { date, seconds 75, takes 2, from "the napkin one" } — [{"date":"2026-10-20","seconds":75,"takes":2,"from":"the napkin one"}]
   ok    (q) 390px, permission denied: Humour — once the microphone has failed, the same line, and the five attempts open (not folded); no record button — {"line":true,"rec":false,"fields":true}
@@ -198,6 +212,8 @@ record yourself (T-028)
   ok    (q) 1280px, no device: Humour — once the microphone has failed, the same line, and the five attempts open (not folded); no record button — {"line":true,"rec":false,"fields":true}
   ok    (q) 1280px, no device: Humour logs by hand as before — five attempts, no keeper — [{"date":"2026-10-20","attempts":["attempt 1","attempt 2","attempt 3","attempt 4","attempt 5"],"keeper":0}]
   ok    (q) 1280px, no device: no page errors
+  ok    (q) 390px, permission denied, Sat 24 Oct: Story, Humour and Story bank each say "Nothing owed today." and draw no Log button and no fields; Story and Humour still say the microphone is not available — {"story":{"nomic":true,"rest":"Nothing owed today.","log":[],"fields":0},"humor":{"nomic":true,"rest":"Nothing owed today.","log":[],"fields":0},"bank":{"nomic":false,"rest":"Nothing owed today.","log":[],"fields":0}}
+  ok    (q) 390px, permission denied, Sat 24 Oct: no page errors
 
 the tab bar (once, 390px)
   ok    (j) sliding 60% toward Courses: the bubble's translateX follows the finger within 2px — finger moved 42.0px, translateX moved 42.0px; bubble centre 97.0 vs finger 97.0
@@ -229,7 +245,7 @@ a slow phone (once, 390px)
 multiple choice (once)
   info  as written in the data — 4 options: 266/565/179/34
   ok    (k) every multiple-choice question was mounted and its answer found — 1044 questions, 8352 mounts, 0 unfound
-  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 26%, B 24%, C 25%, D 25% of 8352
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 26%, B 25%, C 24%, D 26% of 8352
   ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1044 of 1044
   ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1044 of 1044
   ok    (k) no page errors
@@ -251,4 +267,4 @@ gate sync (once)
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 232 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x 2 widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028)
+PASS — 248 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x 2 widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028)

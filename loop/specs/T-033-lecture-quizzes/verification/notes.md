@@ -56,3 +56,15 @@ and the course counts in the PASS line. Nothing existing was changed or loosened
 checks beyond the spec's list: the unique-SHORTEST bound (the SPCH rule's other half,
 so a fix for the longest-option tell cannot overshoot into the opposite tell) and
 paired `$` delimiters in every field (an odd `$` makes KaTeX eat the rest of the text).
+
+## Screenshots (`shots/`, `shots.js`)
+
+"Check yourself" on `ai310.1.2` at 1440 and 390, Dark and Light: the button under the
+summary ("Check yourself · 6 questions"), then the quiz mounted on its first question
+(a random draw — numeric in three runs, MCQ in one). `shots.js` asserts by computed
+style that the button is visible inside the viewport and that the mounted card causes
+no horizontal overflow. Pre-existing finding, not caused by T-033 and outside its
+scope (app code): at 390 and 320 the numeric answer row squeezes its Submit button,
+whose label overflows its own box (scrollWidth 78px vs clientWidth 73px at 390, 66px at
+320) and reads "Submi". The same happens on an existing MATH 130 numeric check. Queued
+as a separate task.

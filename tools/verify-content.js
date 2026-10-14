@@ -2244,6 +2244,23 @@ const expectedSummary = {
     let n = 0; for (let y = 0; y + 16 <= 224; y += 16) for (let x = 0; x + 16 <= 224; x += 16) n++;
     return [{ i: 3, v: n }];
   })(),
+
+  // mean_token_accuracy under completion-only loss: lay the tokens out with a
+  // loss mask and a hit flag, and average the hits over the unmasked ones.
+  "ai310.1.1": (function () {
+    const toks = [];
+    for (let j = 0; j < 4; j++) toks.push({ masked: true, hit: true });            // prompt
+    for (let j = 0; j < 6; j++) toks.push({ masked: false, hit: j % 2 === 0 });    // completion, 3 of 6 right
+    const live = toks.filter(t => !t.masked);
+    return [{ i: 2, v: live.filter(t => t.hit).length / live.length }];
+  })(),
+
+  // bf16 to int4: recover the parameter count from the bf16 size, then price
+  // each parameter at 4 bits.
+  "ai310.1.2": (function () {
+    const params = 16e9 * 8 / 16;                 // bytes x bits-per-byte / bits-per-weight
+    return [{ i: 1, v: params * 4 / 8 / 1e9 }];   // GB at int4
+  })(),
 };
 
 let sumNums = 0;

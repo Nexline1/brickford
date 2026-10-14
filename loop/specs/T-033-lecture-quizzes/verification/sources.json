@@ -27,5 +27,31 @@
    "sources/readings/hfcourse_ch1_10.mdx"
   ],
   "note": "chapter1/1 is the course and chapter introduction; the lesson ('pipeline fundamentals') is chapter 1, so all of its reading sections were read. 1.7 (quiz) and 1.11 (certification exam) are not reading."
+ },
+ "ai310.1.1": {
+  "kind": "reading",
+  "urls": [
+   "https://huggingface.co/docs/trl/sft_trainer"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/huggingface/trl/main/docs/source/sft_trainer.md"
+  ],
+  "files": [
+   "sources/readings/huggingface_trl_main_docs_source_sft_trainer.md"
+  ],
+  "note": "The lesson title also names the alignment handbook; the lesson links only the SFT Trainer page, so the quiz is from that page."
+ },
+ "ai310.1.2": {
+  "kind": "reading",
+  "urls": [
+   "https://huggingface.co/docs/transformers/quantization/overview"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/huggingface/transformers/main/docs/source/en/quantization/overview.md"
+  ],
+  "files": [
+   "sources/readings/huggingface_transformers_main_docs_source_en_quantization_overview.md"
+  ],
+  "note": "The page is the overview plus the full compatibility table; the GGUF, AWQ and bitsandbytes rows carry the tradeoffs the lesson title names."
  }
 }

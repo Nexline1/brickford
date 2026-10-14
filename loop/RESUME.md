@@ -20,8 +20,8 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
   - #12 T-032 (MCQ shuffle)
   - #13 T-026b (Problems, Exams, Proof)
   - #14 T-037 (SPCH 100, 170 lessons)
-- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish), #17 T-039 (gate reloads prove storage arrived; tools/lib-reload.js), #18 T-026c (Week, Calendar day view, Library).
-- **Building:** T-028 (Practice recorder), worktree `/home/user/bf-T-028`.
+- **Merged since:** #15 T-038 (honest gates), #16 T-031 (Atlas/Courses polish), #17 T-039 (gate reloads prove storage arrived; tools/lib-reload.js), #18 T-026c (Week, Calendar day view, Library), #19 T-028 (Practice recorder).
+- **Building:** T-033 (quizzes + summaries for the 80 lectures with none), worktree `/home/user/bf-T-033`, by a general-purpose agent (needs the YouTube transcript MCP and WebFetch).
 - **Rule for new gate code:** every page.reload in a gate goes through `tools/lib-reload.js` (acrossReload).
 
 ## Next, in the owner's order (updated 2026-10-14: owner's quiz-gate request comes first after T-028)

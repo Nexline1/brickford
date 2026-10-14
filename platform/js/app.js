@@ -4281,6 +4281,7 @@
       stream.getTracks().forEach(t => t.stop());
       if (rec === pending) rec = null;
       recPaint();
+      bgReplay();
       return;
     }
     try { mr = new MediaRecorder(stream); }
@@ -4295,7 +4296,15 @@
     // whether recStop asked for it or the track ended underneath it.
     mr.onstop = () => recFinish(r);
     mr.onerror = () => { if (mr.state === "inactive") recFinish(r); else { try { mr.stop(); } catch (x) { recFinish(r); } } };
-    mr.start();
+    // start() can throw (a recorder in a bad state, an unsupported stream):
+    // release the microphone and fall back to the hand form, as a refused
+    // prompt does (review 2) — never a button stuck on "Starting…".
+    try { mr.start(); }
+    catch (e) {
+      stream.getTracks().forEach(t => t.stop());
+      if (rec === r) rec = null;
+      return micGone();
+    }
     r.tick = setInterval(() => { if (recSecs(r) >= r.limit) recStop(); else recPaint(); }, 200);
     recPaint();
   }
@@ -4304,7 +4313,7 @@
   function recStop() {
     const r = rec;
     if (!r) return;
-    if (!r.mr) { rec = null; recPaint(); return; }
+    if (!r.mr) { rec = null; recPaint(); bgReplay(); return; }
     if (r.stopped) return;
     recMark(r);
     if (r.mr.state !== "inactive") { try { r.mr.stop(); return; } catch (e) { /* finish below */ } }
@@ -4330,7 +4339,9 @@
   async function recSaved(r) {
     if (rec === r) rec = null;
     const blob = new Blob(r.chunks, { type: r.mr.mimeType || (r.chunks[0] && r.chunks[0].type) || "audio/webm" });
-    const after = () => { if (route() === "/practice") render({ after: () => { const b = $("#view .pr-rec"); if (b && r.focused) b.focus(); } }); };
+    // On this page, a foreground render (it also brings in any repaint that
+    // was deferred while recording); anywhere else, the deferred one, if any.
+    const after = () => { if (route() === "/practice") render({ after: () => { const b = $("#view .pr-rec"); if (b && r.focused) b.focus(); } }); else bgReplay(); };
     if (!(r.elapsed >= REC_MIN) || !r.chunks.length || !blob.size) {
       after();
       toast("Under a second — nothing kept. Hold it and talk.");
@@ -4369,6 +4380,7 @@
   window.addEventListener("hashchange", () => { if (rec && route() !== "/practice") recStop(); });
   function micGone() {
     micMissing = true;
+    bgReplay();
     const pane = $("#view .pr-pane");
     if (!pane) return;
     paintPane(pane);
@@ -4457,7 +4469,9 @@
   function clipsPaint() {
     const host = $("#view #prClips");
     if (!host) return;
-    const done = html => { if (host.isConnected) { host.innerHTML = html; host.setAttribute("aria-busy", "false"); wireClips(host); } };
+    // A refill (after a delete) can take away the clip that was holding the
+    // page, so a deferred repaint is offered its turn here too.
+    const done = html => { if (host.isConnected) { host.innerHTML = html; host.setAttribute("aria-busy", "false"); wireClips(host); bgReplay(); } };
     if (!window.indexedDB) return done('<p class="pr-empty">This browser cannot keep recordings.</p>');
     clipList().then(list => {
       while (clipURLs.length) URL.revokeObjectURL(clipURLs.pop());
@@ -4487,6 +4501,9 @@
           a.controls = true;
           a.preload = "auto";
           a.src = row.dataset.url;
+          // Played to the end, the clip no longer holds the page: a repaint
+          // deferred while it played runs now (review 2).
+          a.addEventListener("ended", bgReplay);
           $(".pr-player", row).appendChild(a);
         }
         if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); } else a.pause();
@@ -5777,10 +5794,20 @@
   // and being cautious here costs nothing.
   const videoOnScreen = () => !!document.querySelector("#view .video-frame iframe");
   // T-028: the same for the Practice page. A recording in progress (or a
-  // microphone prompt open), or one of your recordings playing, would be
-  // destroyed by a repaint nobody asked for: the button and its focus, or the
-  // <audio> mid-sentence. Deferred, not lost — as for the video.
-  const mediaBusy = () => !!rec || $$("#view audio").some(a => !a.paused && !a.ended);
+  // microphone prompt open), or one of your recordings started and not
+  // finished — playing, or paused part-way (review 2: a paused player was
+  // detached and its place lost) — would be destroyed by a repaint nobody
+  // asked for: the button and its focus, or the <audio> and where it was.
+  const mediaBusy = () => !!rec || $$("#view audio").some(a => !a.paused || (a.currentTime > 0 && !a.ended));
+  // A repaint skipped for that is remembered (bgSkipped), and replayed once the
+  // page is free again: when a clip plays to its end, when a prompt is
+  // cancelled, when a recording finishes away from this page or falls back to
+  // the hand form. Any render that does run clears it — it has painted the
+  // same state. So the skip is a deferral, never a loss.
+  let bgSkipped = false;
+  function bgReplay() {
+    if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true });
+  }
 
   // ---------- resume points (T-016) ----------
   // The embed is asked for enablejsapi=1, and the player then talks to the
@@ -5907,12 +5934,15 @@
   //
   // Every caller of this kind is a sync that has just finished: a banner to
   // show, a merge to reflect. None of them is worth restarting a lecture ten
-  // minutes in. The paint is deferred, not lost — leaving the page renders it,
-  // and so does any action taken on the page, because those callers are in the
-  // foreground and pass nothing.
+  // minutes in, or a recording, or a clip part-way through. The paint is
+  // deferred, not lost: bgSkipped remembers it; leaving the page renders, and
+  // so does any action taken on the page, because those callers are in the
+  // foreground and pass nothing; and the Practice page replays it itself the
+  // moment it is free (bgReplay).
   function render(opts) {
     if (rendering) return;
-    if (opts && opts.background && (videoOnScreen() || mediaBusy())) return;
+    if (opts && opts.background && (videoOnScreen() || mediaBusy())) { bgSkipped = true; return; }
+    bgSkipped = false;
     rendering = true;
     // opts.after runs once the view is rebuilt, on either path below (T-026c:
     // the day controls put the page back where the reader had it).

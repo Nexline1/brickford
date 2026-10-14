@@ -359,10 +359,11 @@ async function session(browser, { putOk }) {
   console.log("A background repaint leaves a playing recording and a recording in progress alone:");
   {
     const mic = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
-    const busyCtx = async () => {
+    const busyCtx = async init => {
       const ctx = await mic.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
       await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
       await ctx.addInitScript(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
+      if (init) await ctx.addInitScript(init);
       const page = await ctx.newPage();
       let gets = 0;
       await page.route("https://api.github.com/**", route => {
@@ -432,12 +433,79 @@ async function session(browser, { putOk }) {
       check(errors.length === 0, "(2) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
       await ctx.close();
     } catch (e) { check(false, "(2) ran to its end without a harness error — " + e.message.split("\n")[0]); }
+
+    // Review 2: deferred, not lost. What the view says against what is stored:
+    // the "N logged" pill under the list, and the reps in localStorage.
+    const shown = page => page.evaluate(() => {
+      const r = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").reps || {};
+      const m = /(\d+) logged/.exec(((document.querySelector("#view .pr-log .pill") || {}).textContent || ""));
+      return { view: m ? +m[1] : null, stored: ["bank", "story", "humor", "review"].reduce((n, k) => n + (r[k] || []).length, 0) };
+    });
+    const caughtUp = page => page.waitForFunction(() => {
+      const r = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").reps || {};
+      const m = /(\d+) logged/.exec(((document.querySelector("#view .pr-log .pill") || {}).textContent || ""));
+      return !!m && +m[1] === ["bank", "story", "humor", "review"].reduce((n, k) => n + (r[k] || []).length, 0);
+    }, null, { timeout: 6000 }).then(() => true, () => false);
+    // (3) A clip paused part-way when the repaint is asked for: the <audio> is
+    // the same element at the same place. (4) Played on to its end: the
+    // repaint that was skipped runs, and the view shows the merged count.
+    try {
+      const { ctx, page, errors } = await busyCtx();
+      await page.click("#view .pr-rec");
+      await timer(page, "^0:08 ");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      await page.click("#view .pr-clip .pr-play");
+      await page.waitForFunction(() => { const a = document.querySelector("#view .pr-clip audio"); return a && a.currentTime > 1.5; }, null, { timeout: 6000 });
+      await page.click("#view .pr-clip .pr-play");                 // the same button pauses
+      await page.waitForFunction(() => document.querySelector("#view .pr-clip audio").paused, null, { timeout: 4000 });
+      const t0 = await page.evaluate(() => { window.__a = document.querySelector("#view .pr-clip audio"); return window.__a.currentTime; });
+      const asked = await mergedPush(page);
+      await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const a = await page.evaluate(() => ({ attached: window.__a.isConnected, same: document.querySelector("#view .pr-clip audio") === window.__a,
+        paused: window.__a.paused, t: window.__a.currentTime }));
+      const gap = await shown(page);
+      check(asked, "(3) a push merged in the laptop's entry and asked for a background repaint while the clip was paused part-way");
+      check(asked && a.attached && a.same && a.paused && Math.abs(a.t - t0) < 0.01,
+        "(3) the paused <audio> is the same element, attached, at the same place (" + JSON.stringify(Object.assign({ t0: +t0.toFixed(3) }, a, { t: +a.t.toFixed(3) })) + "; the view says " + gap.view + " logged, storage holds " + gap.stored + ")");
+      await page.click("#view .pr-clip .pr-play");                 // play on
+      const ended = await page.waitForFunction(() => window.__a.ended, null, { timeout: 15000 }).then(() => true, () => false);
+      const up = await caughtUp(page), now = await shown(page);
+      check(ended && up, "(4) played to its end, the skipped repaint runs: the view says " + now.view + " logged, storage holds " + now.stored);
+      check(errors.length === 0, "(3)(4) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
+      await ctx.close();
+    } catch (e) { check(false, "(3)(4) ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    // (5) The microphone prompt open (held a minute) when the repaint is asked
+    // for, and then cancelled: the view catches up.
+    try {
+      const { ctx, page, errors } = await busyCtx(() => {
+        if (window.top !== window || !navigator.mediaDevices) return;
+        const g = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+        navigator.mediaDevices.getUserMedia = async c => { if (window.__gumDelay) await new Promise(r => setTimeout(r, window.__gumDelay)); return g(c); };
+      });
+      await page.click("#view .pr-rec");
+      await timer(page, "^0:01 ");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      await page.evaluate(() => { window.__gumDelay = 60000; });
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelector("#view .pr-rec").getAttribute("aria-busy") === "true", null, { timeout: 4000 });
+      const asked = await mergedPush(page);
+      const gap = await shown(page);
+      check(asked && gap.view !== null && gap.view < gap.stored,
+        "(5) a push merged in the laptop's entry while the prompt was open, and the repaint waited (the view says " + gap.view + " logged, storage holds " + gap.stored + ")");
+      await page.click("#view .pr-rec");                          // cancel the start
+      const up = await caughtUp(page), now = await shown(page);
+      check(up, "(5) the prompt cancelled, the view catches up: " + now.view + " logged, storage holds " + now.stored);
+      check(errors.length === 0, "(5) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
+      await ctx.close();
+    } catch (e) { check(false, "(5) ran to its end without a harness error — " + e.message.split("\n")[0]); }
     await mic.close();
   }
 
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing recording and a recording in progress alone (T-028)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028)");
   process.exit(fails ? 1 : 0);
 })();

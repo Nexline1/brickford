@@ -1026,7 +1026,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.clock.setFixedTime(new Date((now || TODAY) + "T12:00:00Z"));
     if (state) await ctx.addInitScript(s => { if (window.top === window && !sessionStorage.getItem("__seeded")) { sessionStorage.setItem("__seeded", "1"); localStorage.setItem("darhikmah_v1", s); } }, JSON.stringify(state));
     await ctx.addInitScript(countWrites);
-    if (init) await ctx.addInitScript(init);
+    for (const f of [].concat(init || [])) await ctx.addInitScript(f);
     const page = await ctx.newPage();
     const errors = [], dialogs = [];
     page.on("pageerror", e => errors.push(e.message));
@@ -1187,15 +1187,25 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // The recorder stops by itself (the track ended: a device unplugged, the
   // permission revoked). The clip is still finished — numeric seconds, a rep
   // the chain can verify after a reload — and the microphone's timer does not
-  // outlive it: the next recording runs to its full length.
+  // outlive it: the next recording runs to its full length. Review 2: the
+  // limit is 3s from the FIRST press, the track ends at about 2s, and the
+  // second recording starts the moment the first one's row appears — so a
+  // leaked timer from the first (it would call recStop at 3s from the first
+  // press) lands inside the second and cuts it under a second. With the limit
+  // set only before the second press, the leak would have fired at 90s, long
+  // after this case ended, and the check could never fail.
   await acrossReload({ label: "(p) the recorder stops by itself", check, fail: why => check("(p) the recorder stops by itself: " + why, false) }, async (check, reload) => {
     const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, captureStreams);
     try {
       await pickTab(page, "story");
+      await page.evaluate(() => { window.__recLimit = 3; });
       await page.click("#view .pr-rec");
       await timerAt(page, "^0:02 ");
       await page.evaluate(() => window.__streams.forEach(s => s.getTracks().forEach(t => t.stop())));
       await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      const idleAfter = await idle(page);
+      // The second recording, at once: inside the first one's 3s.
+      await page.click("#view .pr-rec");
       const db = await clipsInDB(page), st = await stateNow(page), story = (st.reps || {}).story || [];
       const ev = (st.ledger || [])[(st.ledger || []).length - 1] || {};
       const hist = await page.evaluate(() => document.querySelector("#view .pr-log") ? document.querySelector("#view .pr-log").textContent : "");
@@ -1203,13 +1213,11 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         db.list.length === 1 && story.length === 1 && typeof story[0].seconds === "number" && story[0].seconds >= 1 && story[0].seconds === db.list[0].seconds &&
           !!ev.data && ev.data.seconds === story[0].seconds && !/undefined/.test(hist) && !/undefined/.test(JSON.stringify(st.reps)),
         JSON.stringify({ clips: db.list.map(c => [c.key, c.seconds]), story, ev: ev.data }));
-      check("(p) the track ends under the recorder: the button is idle again", await idle(page), "");
-      await page.evaluate(() => { window.__recLimit = 3; });
-      await page.click("#view .pr-rec");
+      check("(p) the track ends under the recorder: the button is idle again", idleAfter, "");
       await page.waitForFunction(() => document.querySelector("#view .pr-rec").getAttribute("aria-pressed") === "true", null, { timeout: 5000 });
       await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 2, null, { timeout: 10000 }).catch(() => {});
       const db2 = await clipsInDB(page), second = db2.list.find(c => c.key === TODAY + "-2");
-      check("(p) the track ends under the recorder: the next recording runs to its full length (3 of a 3s limit), not cut short by the first one's timer",
+      check("(p) the track ends under the recorder: the next recording, started inside the first one's 3s, runs to its full length (3 of a 3s limit), not cut short by the first one's timer",
         !!second && second.seconds === 3, JSON.stringify(db2.list.map(c => [c.key, c.seconds])));
       await reload(page, { waitUntil: "load" });
       await page.waitForSelector("#view > *");
@@ -1272,6 +1280,31 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         db2.list.length === 0 && !((st2.reps || {}).story || []).length && /^Under a second/.test(said), JSON.stringify({ clips: db2.list.length, reps: st2.reps || null, said }));
     } catch (e) { check("(p) under a second: the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
     check("(p) under a second: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // Review 2: MediaRecorder.start() throws (a recorder in a bad state). The
+  // microphone is released, the hand form appears as for a refused prompt,
+  // nothing is logged, and nothing escapes as a page error.
+  {
+    const at = "(p) MediaRecorder.start() throws";
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, [captureStreams, () => {
+      if (window.top === window && window.MediaRecorder) MediaRecorder.prototype.start = function () { throw new DOMException("bad state", "InvalidStateError"); };
+    }]);
+    try {
+      await pickTab(page, "story");
+      const w0 = await writes(page);
+      await page.click("#view .pr-rec");
+      const fell = await page.waitForFunction(() => /Microphone not available, so log it by hand/.test((document.querySelector("#view .pr-pane") || {}).textContent || ""), null, { timeout: 5000 }).then(() => true, () => false);
+      const ended = await allEnded(page);
+      const f = await page.evaluate(() => ({ rec: !!document.querySelector("#view .pr-rec"), form: !!document.querySelector("#view #repSecs") && !!document.querySelector("#view [data-act=repStory]"),
+        live: window.__streams.reduce((n, s) => n + s.getTracks().filter(t => t.readyState === "live").length, 0) }));
+      const db = await clipsInDB(page), st = await stateNow(page);
+      check(at + ": the fallback line and the hand form appear, the record button is gone, no track is live, no clip, nothing logged or written",
+        fell && ended && f.form && !f.rec && f.live === 0 && db.list.length === 0 && !((st.reps || {}).story || []).length && (await writes(page)) === w0,
+        JSON.stringify({ fell, ended, f, clips: db.list.length, reps: st.reps || null, writes: (await writes(page)) - w0 }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
   await micBrowser.close();

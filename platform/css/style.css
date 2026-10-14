@@ -2937,7 +2937,9 @@ button.at-chip.lb-more { font-weight: 600; }
    cut (review 1: "Story · Tue 20 …" at 390); download and delete wrap to
    their own line under it. */
 @media (max-width: 599px) {
-  .pr-main { flex: 1 1 calc(100% - 56px); }
+  .pr-clip { gap: 4px 8px; padding: 10px 10px 10px 12px; }
+  .pr-main { flex: 1 1 calc(100% - 52px); }
+  .pr-clip input.pr-name { width: calc(100% + 4px); margin-left: -4px; padding: 0 4px; }
   .pr-acts { margin-top: -4px; }
 }
 .pr-ic {

@@ -21,6 +21,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-math210.js",
  "platform/data/summaries-sys250.js",
  "platform/data/summaries-ai200.js",
+ "platform/data/summaries-ai210.js",
  "platform/data/summaries-ai310.js",
  "platform/data/summaries-res400.js",
  "platform/data/storytelling.js"]
@@ -2392,6 +2393,16 @@ const expectedSummary = {
     const mid = warm + (maxSteps - warm) / 2;
     return [{ i: 0, v: tied }, { i: 2, v: micro }, { i: 5, v: Math.round(lr(mid) * 1e7) / 1e7 },
             { i: 6, v: Number(BigInt(1e10) / BigInt(524288)) }];
+  })(),
+  // AI 210 (fast.ai 2022) — recomputed, never copied from the data file.
+  "ai210.0.2": (function () {
+    // double_relu at x = -3: evaluate each hinge as a piecewise branch rather than max().
+    const hinge = (m, b, x) => { const y = m * x + b; return y > 0 ? y : 0; };
+    const dbl = hinge(-1.5, -1.5, -3) + hinge(1.5, 1.5, -3);
+    // nnet sheet row: two ReLUs summed, then the squared error against Survived = 0.
+    const relu = v => (v < 0 ? 0 : v);
+    const pred = relu(-1.5) + relu(0.05);
+    return [{ i: 2, v: dbl }, { i: 5, v: Math.round(Math.pow(0 - pred, 2) * 1e8) / 1e8 }];
   })(),
 };
 

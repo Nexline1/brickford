@@ -41,6 +41,35 @@ OpenAI CDN are refused by the egress policy), so none of these quizzes exists ye
   Bonus Unit 1 and was not read. "Failure modes" is covered by Unit 1's hallucinated
   observation and the code-execution risk.
 
+## Companion material — scope and exclusions (spec amendment, 2026-10-14)
+
+With no transcript, a lecture is quizzed only on what its own material shows the
+lecture does. Where the material marks something as outside the video, it is left out:
+
+- AI 200: makemore part 3's bonus cells 22-25 ("not covered in video"); ng-video-lecture's
+  `_init_weights` (added after the video); build-nanogpt's lines marked "added after
+  video" (uint16 to int32, `device_type`, `require_backward_grad_sync`).
+- AI 210: which notebooks and chapters belong to each lesson comes from the course's own
+  lesson pages, `fastai/course22-web` `Lessons/lessonN.qmd` (pinned in `sources.json`).
+  Those pages say each lesson is "based partly on" a book chapter, so chapter questions
+  stay on the topics the lesson page names. The student-written "Summaries" pages on the
+  same site are not used. Per lesson:
+  - L2 (`ai210.0.1`): the lesson deploys with Gradio on Hugging Face Spaces; the chapter's
+    Voila/Binder steps are not quizzed, nor are the Drivetrain Approach and "How to Avoid
+    Disaster", which the page does not show the lesson covering. The chapter's SerpAPI
+    cells are a later edit to the book (Bing's image API was retired) and are not quizzed.
+  - L3 (`ai210.0.2`): the page names SGD, linear layers with nonlinear activations and
+    ReLU; chapter 4 questions stay there (not `mnist_loss`, sigmoid or DataLoader detail).
+    `xl/titanic.xlsx` was read sheet by sheet with `xlsx2txt.py` (formulas included).
+
+### Small errors in the source material (not quizzed, reported for the owner)
+
+- `course22/04-how-does-a-neural-net-really-work.ipynb` cell 19 says "a table of numbers
+  (a *matrix* or *rank-0 tensor*)"; a matrix is rank 2, as the book's own jargon recap says.
+- The same notebook's loop in cell 47 calls `backward()` each step without zeroing
+  `abc.grad`, so the gradients accumulate; chapter 4 explains why they must be zeroed.
+  The quiz asks only what the notebook says about the rising loss (cell 48).
+
 ## Where each reading was fetched from
 
 `huggingface.co`, `docs.vllm.ai` and `karpathy.github.io` are refused by the egress

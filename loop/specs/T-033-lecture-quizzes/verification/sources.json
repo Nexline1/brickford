@@ -356,5 +356,101 @@
    "sources/text/play.ipynb.txt"
   ],
   "note": "Lines marked 'added after video' (uint16->int32, device_type, require_backward_grad_sync) are not quizzed. input.txt is Tiny Shakespeare data."
+ },
+ "ai210.0.0": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "8SF_h3xF3cE (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson1.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "00-is-it-a-bird-creating-a-model-from-your-own-data.ipynb",
+     "01-jupyter-notebook-101.ipynb"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "01_intro.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/00-is-it-a-bird-creating-a-model-from-your-own-data.ipynb.txt",
+   "sources/text/01-jupyter-notebook-101.ipynb.txt",
+   "sources/text/01_intro.ipynb.txt"
+  ],
+  "note": "lesson1.qmd lists the bird notebook, Jupyter Notebook 101 and chapter 1 of the book. The student-written lesson summaries on course22-web are not used."
+ },
+ "ai210.0.1": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "F4tvM4Vb3A0 (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson2.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "02-saving-a-basic-fastai-model.ipynb"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "02_production.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/02-saving-a-basic-fastai-model.ipynb.txt",
+   "sources/text/02_production.ipynb.txt"
+  ],
+  "note": "lesson2.qmd: 'based partly on chapter 2'; the lesson deploys with Gradio on Hugging Face Spaces and a JavaScript front end. Not quizzed: the Drivetrain Approach and 'How to Avoid Disaster' (the page does not show the lesson covers them), the SerpAPI replacement for Bing search (a later edit to the book), and Binder/Voila specifics (the lesson used Gradio)."
+ },
+ "ai210.0.2": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "hBBOjCiFcuo (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson3.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "03-which-image-models-are-best.ipynb",
+     "04-how-does-a-neural-net-really-work.ipynb",
+     "xl/titanic.xlsx"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "04_mnist_basics.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/03-which-image-models-are-best.ipynb.txt",
+   "sources/text/04-how-does-a-neural-net-really-work.ipynb.txt",
+   "sources/text/04_mnist_basics.ipynb.txt",
+   "sources/text/titanic.xlsx.txt"
+  ],
+  "note": "lesson3.qmd names SGD, linear functions layered with nonlinear activations, and ReLU, lists the two Kaggle notebooks and the Titanic spreadsheet, and says the lesson is 'based partly on chapter 4'; chapter 4 questions stay on those topics (not mnist_loss, sigmoid or the DataLoader details). titanic.xlsx was rendered to text with verification/xlsx2txt.py (rows 1-12, columns A-AN of each sheet; all four sheets' formulas read). The HF Spaces pets repository is on huggingface.co, not GitHub, and was not used."
  }
 }

@@ -14,7 +14,10 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
   karpathy/nn-zero-to-hero, micrograd, makemore, ng-video-lecture, minbpe, build-nanogpt;
   fastai/course22, fastai/fastbook; stanford-cs336/spring2025-lectures. Check HEAD
   against the SHAs in `sources.json`; if a repo moved, record the new SHA.
-- Render notebooks: `python3 -I verification/nb2txt.py sources/text <notebooks...>`.
+- Render notebooks: `python3 -I verification/nb2txt.py sources/text <notebooks...>`;
+  spreadsheets: `python3 -I verification/xlsx2txt.py <file.xlsx> 12 40 > sources/text/<file>.xlsx.txt`.
+- fastai/course22-web (lesson pages, for the lesson-to-material map) is cloned to
+  `sources/repos/fastai_course22-web`.
 - Try one fetch of each owner-allowed host: arxiv.org, proceedings.neurips.cc,
   cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu,
   www.neelnanda.io, www.arena.education. Last tried 2026-10-14 21:53 UTC: all refused.
@@ -41,10 +44,15 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 14 | ai200.1.6 | karpathy/ng-video-lecture (gpt.py, bigram.py, git history) | 8 (6 MCQ, 2 numeric) |
 | 15 | ai200.1.7 | karpathy/minbpe (lecture.md, package, tests) | 8 (6 MCQ, 2 numeric) |
 | 16 | ai200.1.8 | karpathy/build-nanogpt (train_gpt2.py, fineweb, hellaswag, play.ipynb, history) | 8 (4 MCQ, 4 numeric) |
+| 17 | ai210.0.0 | course22 00 bird + 01 Jupyter 101; fastbook ch. 1 (map: course22-web lesson1.qmd) | 6 (6 MCQ) |
+| 18 | ai210.0.1 | course22 02 saving a model; fastbook ch. 2 (lesson2.qmd) | 6 (6 MCQ) |
+| 19 | ai210.0.2 | course22 03 image models, 04 neural net, xl/titanic.xlsx; fastbook ch. 4 (lesson3.qmd) | 6 (4 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-ai210.0.0–0.7 (course22 lesson notebooks + fastbook chapters; 83/77/90 → 6, 95/103/103/107/97 → 8)
+ai210.0.3–0.7 (lesson pages in course22-web map each to notebooks + chapters; 95/103/103/107/97 min → 8 each):
+L4 slides/nlp-intro.ipynb + ch. 10; L5 05 linear model + 06 why a framework + ch. 4/9; L6 07 random forests + 08 road to the top 1 + ch. 9;
+L7 10 road to the top 3 + ch. 8 + xl entropy_example/collab_filter; L8 ch. 13 + ch. 8 + xl collab_filter/conv-example
 → ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
 
 At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full

@@ -500,6 +500,57 @@ async function session(browser, { putOk }) {
       check(errors.length === 0, "(5) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
       await ctx.close();
     } catch (e) { check(false, "(5) ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    // (6) Review 3, under reduced motion (every context here asks for it, so
+    // a render replaces #view synchronously): the prompt open, a repaint
+    // skipped, then the reader picks Humour — exactly one tab is pressed, and
+    // it is Humour, with Humour's recorder on screen, once the view has caught
+    // up. (7) The same state, then the reader leaves /practice: the view is
+    // swapped exactly once (the router's render), not twice.
+    const gumDelay = () => {
+      if (window.top !== window || !navigator.mediaDevices) return;
+      const g = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+      navigator.mediaDevices.getUserMedia = async c => { if (window.__gumDelay) await new Promise(r => setTimeout(r, window.__gumDelay)); return g(c); };
+    };
+    const promptSkipped = async page => {
+      await page.click("#view .pr-rec");
+      await timer(page, "^0:01 ");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      await page.evaluate(() => { window.__gumDelay = 60000; });
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelector("#view .pr-rec").getAttribute("aria-busy") === "true", null, { timeout: 4000 });
+      const asked = await mergedPush(page), gap = await shown(page);
+      return asked && gap.view !== null && gap.view < gap.stored;
+    };
+    // A queued task and two frames: whatever the app queued before this ran.
+    const drained = page => page.evaluate(() => new Promise(r => setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(r)), 0)));
+    try {
+      const { ctx, page, errors } = await busyCtx(gumDelay);
+      const skipped = await promptSkipped(page);
+      await page.click("#view [data-ptab=humor]");
+      const up = await caughtUp(page);
+      await drained(page);
+      const t = await page.evaluate(() => ({ pressed: [...document.querySelectorAll("#view [data-ptab]")].filter(b => b.getAttribute("aria-pressed") === "true").map(b => b.dataset.ptab),
+        recorder: (document.querySelector("#view .pr-rec") || { dataset: {} }).dataset.kind || null, reduce: matchMedia("(prefers-reduced-motion: reduce)").matches }));
+      check(skipped, "(6) reduced motion: the prompt open, a merged push, and the repaint waited");
+      check(skipped && up && t.reduce && t.pressed.length === 1 && t.pressed[0] === "humor" && t.recorder === "humor",
+        "(6) reduced motion: picking Humour then leaves exactly one tab pressed, Humour, with Humour's recorder on screen and the view caught up (" + JSON.stringify(Object.assign({ caughtUp: up }, t)) + ")");
+      check(errors.length === 0, "(6) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
+      await ctx.close();
+    } catch (e) { check(false, "(6) ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    try {
+      const { ctx, page, errors } = await busyCtx(gumDelay);
+      const skipped = await promptSkipped(page);
+      await page.evaluate(() => { const v = document.querySelector("#view"); window.__swaps = 0;
+        new MutationObserver(ms => { window.__swaps += ms.filter(m => m.target === v && m.addedNodes.length).length; }).observe(v, { childList: true }); });
+      await page.evaluate(() => { location.hash = "#/"; });
+      await page.waitForFunction(() => location.hash === "#/" && !document.querySelector("#view .pr-seg") && !!document.querySelector("#view > *"), null, { timeout: 6000 });
+      await drained(page);
+      const swaps = await page.evaluate(() => window.__swaps);
+      check(skipped && swaps === 1, "(7) reduced motion: leaving /practice with the prompt open and a repaint waiting swaps the view once (" + swaps + " swap(s))");
+      check(errors.length === 0, "(7) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
+      await ctx.close();
+    } catch (e) { check(false, "(7) ran to its end without a harness error — " + e.message.split("\n")[0]); }
     await mic.close();
   }
 

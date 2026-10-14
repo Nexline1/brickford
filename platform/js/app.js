@@ -5087,11 +5087,13 @@
     // is stopped (and kept) first, as leaving a recorder does.
     $$("[data-ptab]", root).forEach(b => {
       b.onclick = () => {
-        if (rec) recStop();
         practiceTab = b.dataset.ptab;
-        const pane = $(".pr-pane", root);
+        if (rec) recStop();
+        // The view on screen now, and the pick by value (review 3): never the
+        // nodes this handler was bound with, which a render may have replaced.
+        const pane = $("#view .pr-pane");
         if (pane) paintPane(pane);
-        $$("[data-ptab]", root).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+        $$("#view [data-ptab]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.ptab === practiceTab)));
       };
     });
     // The recordings: read from IndexedDB once the view is on screen.
@@ -5804,9 +5806,15 @@
   // cancelled, when a recording finishes away from this page or falls back to
   // the hand form. Any render that does run clears it — it has painted the
   // same state. So the skip is a deferral, never a loss.
+  // Always queued, never run inside its caller (review 3): called from a tab
+  // click, a synchronous render under reduced motion would replace the view
+  // under the handler still working on it; called from the hashchange
+  // listener, it would paint before the router does, and then the router
+  // would paint again. Queued, the caller finishes first, and a render that
+  // runs in between clears bgSkipped so this one does nothing.
   let bgSkipped = false;
   function bgReplay() {
-    if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true });
+    setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true }); }, 0);
   }
 
   // ---------- resume points (T-016) ----------

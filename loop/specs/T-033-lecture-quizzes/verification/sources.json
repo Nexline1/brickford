@@ -274,5 +274,87 @@
    "sources/repos/karpathy_nn-zero-to-hero/README.md"
   ],
   "note": "The lecture's notebook, read in full, is the source; the WaveNet link is from the nn-zero-to-hero README's description of this lecture."
+ },
+ "ai200.1.6": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "kCc8FmEb1nY (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "karpathy/ng-video-lecture",
+    "commit": "52201428ed7b46804849dea0b3ccf0de9df1a5c3",
+    "paths": [
+     "README.md",
+     "bigram.py",
+     "gpt.py",
+     "more.txt",
+     "git history 83f7d22..5220142 (fetched unshallow)"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/karpathy_ng-video-lecture/README.md",
+   "sources/repos/karpathy_ng-video-lecture/bigram.py",
+   "sources/repos/karpathy_ng-video-lecture/gpt.py"
+  ],
+  "note": "The README points readers to the git log history, which records each step with its val loss (single head 2.5, multi-head 2.28, compute block 2.24, layer norms 2.06); those commit messages are cited in src. _init_weights is marked 'not covered in the original GPT video' and is not quizzed. input.txt is the dataset, not lecture text."
+ },
+ "ai200.1.7": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "zduSFxRajkE (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "karpathy/minbpe",
+    "commit": "1acefe89412b20245db5a22d2a02001e547dc602",
+    "paths": [
+     "lecture.md",
+     "README.md",
+     "exercise.md",
+     "minbpe/base.py",
+     "minbpe/basic.py",
+     "minbpe/regex.py",
+     "minbpe/gpt4.py",
+     "train.py",
+     "tests/test_tokenizer.py"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/karpathy_minbpe/lecture.md",
+   "sources/repos/karpathy_minbpe/README.md",
+   "sources/repos/karpathy_minbpe/exercise.md",
+   "sources/repos/karpathy_minbpe/minbpe/base.py",
+   "sources/repos/karpathy_minbpe/minbpe/basic.py",
+   "sources/repos/karpathy_minbpe/minbpe/regex.py",
+   "sources/repos/karpathy_minbpe/minbpe/gpt4.py",
+   "sources/repos/karpathy_minbpe/train.py",
+   "sources/repos/karpathy_minbpe/tests/test_tokenizer.py"
+  ],
+  "note": "The README says the code was built in this video and that lecture.md is the lecture in text form (lecture.md is unfinished: it covers the opening of the video). tests/taylorswift.txt is test data."
+ },
+ "ai200.1.8": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "l8pRSuU81PU (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "karpathy/build-nanogpt",
+    "commit": "6104ab1b53920f6e2159749676073ff7d815c1fa",
+    "paths": [
+     "README.md",
+     "train_gpt2.py",
+     "fineweb.py",
+     "hellaswag.py",
+     "play.ipynb",
+     "git history 28916d9..6104ab1 (fetched unshallow; the README says the commits follow the video step by step)"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/karpathy_build-nanogpt/README.md",
+   "sources/repos/karpathy_build-nanogpt/train_gpt2.py",
+   "sources/repos/karpathy_build-nanogpt/fineweb.py",
+   "sources/repos/karpathy_build-nanogpt/hellaswag.py",
+   "sources/text/play.ipynb.txt"
+  ],
+  "note": "Lines marked 'added after video' (uint16->int32, device_type, require_backward_grad_sync) are not quizzed. input.txt is Tiny Shakespeare data."
  }
 }

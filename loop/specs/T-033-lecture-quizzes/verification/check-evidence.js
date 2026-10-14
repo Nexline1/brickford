@@ -14,7 +14,7 @@ const FILES = ["curriculum", "summaries-ai200", "summaries-ai210", "summaries-ai
 FILES.forEach(f => { const p = path.join(ROOT, "platform/data", f + ".js"); if (fs.existsSync(p)) vm.runInContext(fs.readFileSync(p, "utf8"), ctx); });
 const D = ctx.DAR, COURSES = ["ai200", "ai210", "ai300", "ai310", "res400"];
 const sources = JSON.parse(fs.readFileSync(path.join(HERE, "sources.json"), "utf8"));
-const norm = s => String(s).replace(/<[^>]*>/g, " ").replace(/\[\[[^\]]*\]\]/g, "").replace(/[*_`#>]/g, "")
+const norm = s => String(s).replace(/<\/?[a-zA-Z][^<>\n]*>/g, " ").replace(/\[\[[^\]]*\]\]/g, "").replace(/[*_`#>]/g, "")
   .replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").trim().toLowerCase();
 let fail = 0, n = 0, verbatim = 0, uncached = 0;
 const bad = m => { fail++; console.log("  FAIL " + m); };

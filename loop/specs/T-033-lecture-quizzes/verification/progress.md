@@ -38,12 +38,13 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 11 | ai200.1.3 | makemore_part3_bn.ipynb (bonus cells 22-25 excluded) | 8 (6 MCQ, 2 numeric) |
 | 12 | ai200.1.4 | makemore_part4_backprop.ipynb | 8 (6 MCQ, 2 numeric) |
 | 13 | ai200.1.5 | makemore_part5_cnn1.ipynb | 6 (5 MCQ, 1 numeric) |
+| 14 | ai200.1.6 | karpathy/ng-video-lecture (gpt.py, bigram.py, git history) | 8 (6 MCQ, 2 numeric) |
+| 15 | ai200.1.7 | karpathy/minbpe (lecture.md, package, tests) | 8 (6 MCQ, 2 numeric) |
+| 16 | ai200.1.8 | karpathy/build-nanogpt (train_gpt2.py, fineweb, hellaswag, play.ipynb, history) | 8 (4 MCQ, 4 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-ai200.1.6 ng-video-lecture (116 → 8)
-→ ai200.1.7 minbpe (134 → 8) → ai200.1.8 build-nanogpt (241 → 8)
-→ ai210.0.0–0.7 (course22 lesson notebooks + fastbook chapters; 83/77/90 → 6, 95/103/103/107/97 → 8)
+ai210.0.0–0.7 (course22 lesson notebooks + fastbook chapters; 83/77/90 → 6, 95/103/103/107/97 → 8)
 → ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
 
 At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full

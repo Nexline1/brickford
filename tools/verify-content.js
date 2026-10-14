@@ -2351,6 +2351,48 @@ const expectedSummary = {
     total += 128 * 27 + 27;
     return [{ i: 0, v: total }];
   })(),
+
+  // Let's build GPT: list the (context, target) pairs one chunk yields; the
+  // attention scale from head_size = n_embd / n_head, as a reciprocal root.
+  "ai200.1.6": (function () {
+    const block = 8, data = Array.from({ length: block + 1 }, (_, j) => j); let pairs = 0;
+    for (let t = 0; t < block; t++) { const ctx = data.slice(0, t + 1), target = data[t + 1]; if (ctx.length && target !== undefined) pairs++; }
+    const hs = 384 / 6;
+    return [{ i: 0, v: pairs }, { i: 2, v: 1 / Math.sqrt(hs) }];
+  })(),
+
+  // The tokenizer: an independent byte-level BPE (train by most frequent pair,
+  // first occurrence wins ties as in Python's max over an insertion-ordered dict;
+  // encode by lowest merge index), run on Wikipedia's example; the merge count
+  // by building the id ranges.
+  "ai200.1.7": (function () {
+    const bytes = Array.from("aaabdaaabac", ch => ch.charCodeAt(0));
+    const stats = ids => { const m = new Map(); for (let i = 0; i + 1 < ids.length; i++) { const k = ids[i] + "," + ids[i + 1]; m.set(k, (m.get(k) || 0) + 1); } return m; };
+    const merge = (ids, k, idx) => { const [a, b] = k.split(",").map(Number), out = [];
+      for (let i = 0; i < ids.length; i++) { if (i + 1 < ids.length && ids[i] === a && ids[i + 1] === b) { out.push(idx); i++; } else out.push(ids[i]); } return out; };
+    let ids = bytes.slice(); const merges = new Map();
+    for (let m = 0; m < 3; m++) { let best = null, cnt = -1; for (const [k, c] of stats(ids)) if (c > cnt) { best = k; cnt = c; }
+      merges.set(best, 256 + m); ids = merge(ids, best, 256 + m); }
+    let enc = bytes.slice();
+    for (;;) { let best = null, rank = Infinity; for (const k of stats(enc).keys()) if (merges.has(k) && merges.get(k) < rank) { best = k; rank = merges.get(k); }
+      if (best === null) break; enc = merge(enc, best, rank); }
+    const ids32k = []; for (let id = 256; id < 32768; id++) ids32k.push(id);
+    return [{ i: 0, v: enc.length }, { i: 1, v: ids32k.length }];
+  })(),
+
+  // GPT-2 reproduction: the tied matrix's size; micro-steps by counting tokens
+  // until the total batch is reached; get_lr re-implemented and evaluated at the
+  // decay's midpoint step; whole steps in 10B tokens by integer division.
+  "ai200.1.8": (function () {
+    const tied = 50257 * 768;
+    let micro = 0, seen = 0; while (seen < 524288) { seen += 64 * 1024; micro++; }
+    const maxLr = 6e-4, minLr = maxLr * 0.1, warm = 715, maxSteps = 19073;
+    const lr = it => it < warm ? maxLr * (it + 1) / warm : it > maxSteps ? minLr
+      : minLr + 0.5 * (1 + Math.cos(Math.PI * (it - warm) / (maxSteps - warm))) * (maxLr - minLr);
+    const mid = warm + (maxSteps - warm) / 2;
+    return [{ i: 0, v: tied }, { i: 2, v: micro }, { i: 5, v: Math.round(lr(mid) * 1e7) / 1e7 },
+            { i: 6, v: Number(BigInt(1e10) / BigInt(524288)) }];
+  })(),
 };
 
 let sumNums = 0;

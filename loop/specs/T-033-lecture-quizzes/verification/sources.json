@@ -85,5 +85,42 @@
    "sources/readings/vllm_docs_design_prefix_caching.md"
   ],
   "note": "The lesson links the docs root (docs/README.md, a feature list). The lesson names PagedAttention and the KV cache, so the reading is the landing page plus, from the same docs site, the Quickstart (which the landing page names as where to start) and Automatic Prefix Caching (how KV-cache blocks are pooled, hashed, reused and evicted). docs/design/paged_attention.md was opened but not used: it says it is a historical document that no longer describes vLLM's code."
+ },
+ "ai310.1.5": {
+  "kind": "reading",
+  "urls": [
+   "https://huggingface.co/learn/agents-course/unit0/introduction (and Unit 1)"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit0/introduction.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/introduction.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/what-are-agents.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/what-are-llms.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/messages-and-special-tokens.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/tools.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/agent-steps-and-structure.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/thoughts.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/actions.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/observations.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/dummy-agent-library.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/tutorial.mdx",
+   "https://raw.githubusercontent.com/huggingface/agents-course/main/units/en/unit1/conclusion.mdx"
+  ],
+  "files": [
+   "sources/readings/huggingface_agents-course_main_units_en_unit0_introduction.mdx",
+   "sources/readings/agents_u1_introduction.mdx",
+   "sources/readings/agents_u1_what-are-agents.mdx",
+   "sources/readings/agents_u1_what-are-llms.mdx",
+   "sources/readings/agents_u1_messages-and-special-tokens.mdx",
+   "sources/readings/agents_u1_tools.mdx",
+   "sources/readings/agents_u1_agent-steps-and-structure.mdx",
+   "sources/readings/agents_u1_thoughts.mdx",
+   "sources/readings/agents_u1_actions.mdx",
+   "sources/readings/agents_u1_observations.mdx",
+   "sources/readings/agents_u1_dummy-agent-library.mdx",
+   "sources/readings/agents_u1_tutorial.mdx",
+   "sources/readings/agents_u1_conclusion.mdx"
+  ],
+  "note": "unit0/introduction is the course welcome (syllabus, certificates, team). The lesson is tool use and function calling, which the syllabus places in Unit 1 (Agent Fundamentals), so Unit 1 was read in full (its quizzes excepted) and the quiz is from it."
  }
 }

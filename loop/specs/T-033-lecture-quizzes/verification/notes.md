@@ -34,6 +34,12 @@ OpenAI CDN are refused by the egress policy), so none of these quizzes exists ye
   running models) and Automatic Prefix Caching (how KV-cache blocks are pooled, hashed,
   reused and evicted). The docs' PagedAttention page was opened and not used: it says
   it is a historical document that no longer describes vLLM's code.
+- `ai310.1.5` links `agents-course/unit0/introduction`, the course welcome (syllabus,
+  certificates, team). The lesson is tool use and function calling, which the syllabus
+  places in Unit 1, "Agent Fundamentals"; Unit 1 was read in full (its quizzes
+  excepted) and the quiz is from it. Fine-tuning for function calling is the course's
+  Bonus Unit 1 and was not read. "Failure modes" is covered by Unit 1's hallucinated
+  observation and the code-execution risk.
 
 ## Where each reading was fetched from
 

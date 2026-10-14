@@ -28,3 +28,9 @@
 {"key": "ai310.1.4", "i": 3, "at": null, "src": "Automatic Prefix Caching", "quote": "we hash each kv-cache block by the tokens in the block and the tokens in the prefix before the block"}
 {"key": "ai310.1.4", "i": 4, "at": null, "src": "Automatic Prefix Caching — Example", "quote": "only the first 2 blocks (8 tokens) hit the cache, because the 3rd block only matches 2 of 4 tokens."}
 {"key": "ai310.1.4", "i": 5, "at": null, "src": "Automatic Prefix Caching — Free", "quote": "This is because the last block of a request must hash more tokens and is less likely to be reused by other requests."}
+{"key": "ai310.1.5", "i": 0, "at": null, "src": "What is an Agent? — The spectrum of agency", "quote": "| ★★☆ | Agent output determines function execution | Tool caller | run_function(llm_chosen_tool, llm_chosen_args) |"}
+{"key": "ai310.1.5", "i": 1, "at": null, "src": "Messages and Special Tokens", "quote": "messages in the conversation are concatenated into a single prompt. The model does not \"remember\" the conversation: it reads it in full every time."}
+{"key": "ai310.1.5", "i": 2, "at": null, "src": "What are Tools? — How do tools work?", "quote": "They have no way to call tools on their own."}
+{"key": "ai310.1.5", "i": 3, "at": null, "src": "Thought: Internal Reasoning and the ReAct Approach", "quote": "| External tools | ❌ No | ✅ Yes (Actions + Observations) |"}
+{"key": "ai310.1.5", "i": 4, "at": null, "src": "Actions — Code Agents", "quote": "executing LLM-generated code may pose security risks, from prompt injection to the execution of harmful code."}
+{"key": "ai310.1.5", "i": 5, "at": null, "src": "Dummy Agent Library", "quote": "To prevent this, we stop generating right before \"Observation:\"."}

@@ -570,7 +570,11 @@
   }
   function logEvent(type, ref, data) {
     const prev = S.ledger.length ? S.ledger[S.ledger.length - 1].hash : GENESIS;
-    const e = { i: S.ledger.length, ts: new Date().toISOString(), type: type, ref: String(ref || ""), data: data || {}, prev: prev };
+    // The data is hashed as it will be STORED: a JSON round trip drops an
+    // undefined field and turns NaN into null here, as the save will, so the
+    // chain verifies the same after a reload (T-028 review 1: a rep logged
+    // with seconds undefined broke the chain for good).
+    const e = { i: S.ledger.length, ts: new Date().toISOString(), type: type, ref: String(ref || ""), data: data ? JSON.parse(JSON.stringify(data)) : {}, prev: prev };
     e.hash = sha256(canon(e));
     S.ledger.push(e);
     save();
@@ -4249,44 +4253,94 @@
   const clipDelete = key => clipTx("readwrite", st => { st.delete(key); });
 
   // ---- the recorder ----
+  // Its life, in memory: `rec` is { kind, starting } while the microphone
+  // prompt is open, then { kind, stream, mr, … } while recording, and null
+  // again once the clip is finished. Every way a recording ends — a press,
+  // the cap, leaving the page, switching tab, the recorder stopping on its
+  // own (the track ended, the device went away, an error) — comes through
+  // recFinish, exactly once (T-028 review 1).
+  const REC_MIN = 1;                          // seconds: under this there is no rep to log
   async function recStart(kind) {
     if (rec) return;
     if (!recSupported()) return micGone();
-    rec = { kind: kind, starting: true };
+    const pending = rec = { kind: kind, starting: true };
+    recPaint();
     let stream, mr;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mr = new MediaRecorder(stream);
     } catch (e) {
-      if (stream) stream.getTracks().forEach(t => t.stop());
+      if (rec !== pending) return;            // cancelled while the prompt was open
+      rec = null;
+      return micGone();
+    }
+    // The prompt may have been open for a while. If the reader pressed again,
+    // left the page or picked another tab meanwhile, this start is cancelled:
+    // the microphone is released and nothing is recorded.
+    const b = $("#view .pr-rec");
+    if (rec !== pending || route() !== "/practice" || !b || b.dataset.kind !== kind) {
+      stream.getTracks().forEach(t => t.stop());
+      if (rec === pending) rec = null;
+      recPaint();
+      return;
+    }
+    try { mr = new MediaRecorder(stream); }
+    catch (e) {
+      stream.getTracks().forEach(t => t.stop());
       rec = null;
       return micGone();
     }
     const r = rec = { kind: kind, stream: stream, mr: mr, chunks: [], t0: performance.now(), date: todayISO(), limit: recLimit() };
     mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); };
-    mr.onstop = () => recSaved(r);
+    // A recorder that stops by itself still finishes the clip: onstop fires
+    // whether recStop asked for it or the track ended underneath it.
+    mr.onstop = () => recFinish(r);
+    mr.onerror = () => { if (mr.state === "inactive") recFinish(r); else { try { mr.stop(); } catch (x) { recFinish(r); } } };
     mr.start();
     r.tick = setInterval(() => { if (recSecs(r) >= r.limit) recStop(); else recPaint(); }, 200);
     recPaint();
   }
+  // A press, the cap, leaving, a tab: ask the recorder to stop. A start still
+  // waiting on the prompt is cancelled instead.
   function recStop() {
     const r = rec;
-    if (!r || !r.mr || r.stopped) return;
+    if (!r) return;
+    if (!r.mr) { rec = null; recPaint(); return; }
+    if (r.stopped) return;
+    recMark(r);
+    if (r.mr.state !== "inactive") { try { r.mr.stop(); return; } catch (e) { /* finish below */ } }
+    recFinish(r);
+  }
+  function recMark(r) {
+    if (r.stopped) return;
     r.stopped = true;
     r.focused = !!document.activeElement && document.activeElement.classList.contains("pr-rec");
     clearInterval(r.tick);
-    r.seconds = Math.max(1, Math.min(r.limit, Math.round(recSecs(r))));
-    if (r.mr.state !== "inactive") r.mr.stop(); else recSaved(r);
+    r.elapsed = Math.min(r.limit, recSecs(r));
+  }
+  function recFinish(r) {
+    if (r.finished) return;
+    r.finished = true;
+    recMark(r);
+    r.stream.getTracks().forEach(t => t.stop());
+    recSaved(r);
   }
   // On stop: the Blob to IndexedDB, then the rep through the form's own path.
+  // Under a second, or no audio at all, is not a rep: nothing is kept and
+  // nothing is logged (the forms' rule — a rep must carry a payload).
   async function recSaved(r) {
-    r.stream.getTracks().forEach(t => t.stop());
-    const title = (r.kind === "humor" ? "Humour" : "Story") + " · " + recDay(r.date);
+    if (rec === r) rec = null;
     const blob = new Blob(r.chunks, { type: r.mr.mimeType || (r.chunks[0] && r.chunks[0].type) || "audio/webm" });
+    const after = () => { if (route() === "/practice") render({ after: () => { const b = $("#view .pr-rec"); if (b && r.focused) b.focus(); } }); };
+    if (!(r.elapsed >= REC_MIN) || !r.chunks.length || !blob.size) {
+      after();
+      toast("Under a second — nothing kept. Hold it and talk.");
+      return;
+    }
+    r.seconds = Math.max(REC_MIN, Math.round(r.elapsed));
+    const title = (r.kind === "humor" ? "Humour" : "Story") + " · " + recDay(r.date);
     let kept = true;
     try { await clipAdd({ date: r.date, seconds: r.seconds, kind: r.kind, title: title, blob: blob }); }
     catch (e) { kept = false; }
-    if (rec === r) rec = null;
     const iso = r.date;
     let msg;
     if (isRestDay(iso) && iso >= D.START_DATE) {
@@ -4305,11 +4359,14 @@
     if (!kept) msg = "Could not keep the recording on this device. " + msg;
     // The reader pressed stop (or the cap did, on this page): a foreground
     // render, as the form's Log does. Anywhere else, the save is enough.
-    if (route() === "/practice") {
-      render({ after: () => { const b = $("#view .pr-rec"); if (b && r.focused) b.focus(); } });
-    }
+    after();
     toast(msg);
   }
+  // Leaving the page stops the recording (and keeps it), as leaving a
+  // recorder does, and cancels a start still waiting on the prompt: the
+  // microphone is not left open behind another page. Registered before the
+  // router's own listener, so it runs first.
+  window.addEventListener("hashchange", () => { if (rec && route() !== "/practice") recStop(); });
   function micGone() {
     micMissing = true;
     const pane = $("#view .pr-pane");
@@ -4319,19 +4376,23 @@
     if (f) f.focus();
   }
   function recToggle(kind) { if (rec) recStop(); else recStart(kind); }
+  // What the button shows for `kind`: "rec" recording, "wait" the prompt is
+  // open, "" idle.
+  const recMode = kind => (!rec || rec.kind !== kind ? "" : rec.mr ? (rec.stopped ? "" : "rec") : "wait");
+  const recLabel = m => (m === "rec" ? "Stop recording" : m === "wait" ? "Starting the microphone — press to cancel" : "Start recording");
+  const recTime = m => (m === "wait" ? "Starting…" : clockLabel(m === "rec" ? Math.floor(recSecs(rec)) : 0) + " / " + clockLabel(m === "rec" ? rec.limit : recLimit()));
   // The button and the timer, changed in place: no render while recording.
   function recPaint() {
-    // Leaving the page stops the recording (and keeps it), as leaving a
-    // recorder does: the microphone is not left open behind another page.
     if (rec && rec.mr && !rec.stopped && route() !== "/practice") return recStop();
     const b = $("#view .pr-rec"), t = $("#view .pr-time");
-    const on = !!(rec && rec.mr && !rec.stopped && b && b.dataset.kind === rec.kind);
-    if (b) {
-      b.classList.toggle("on", on);
-      b.setAttribute("aria-pressed", String(on));
-      b.setAttribute("aria-label", on ? "Stop recording" : "Start recording");
-    }
-    if (t) t.textContent = clockLabel(on ? Math.floor(recSecs(rec)) : 0) + " / " + clockLabel(on ? rec.limit : recLimit());
+    if (!b) return;
+    const m = recMode(b.dataset.kind);
+    b.classList.toggle("on", m === "rec");
+    b.classList.toggle("wait", m === "wait");
+    b.setAttribute("aria-pressed", String(m === "rec"));
+    b.setAttribute("aria-busy", String(m === "wait"));
+    b.setAttribute("aria-label", recLabel(m));
+    if (t) t.textContent = recTime(m);
   }
 
   const PR_TABS = [["story", "Story"], ["humor", "Humour"], ["bank", "Story bank"]];
@@ -4341,36 +4402,44 @@
     return ["story", "humor", "bank"].find(k => due.includes(k)) || "story";
   }
   function recorderHTML(kind, prompt, hint) {
-    const on = !!(rec && rec.mr && !rec.stopped && rec.kind === kind);
+    const m = recMode(kind);
     return '<div class="card pr-card">' +
       '<div class="pr-prompt">' + prompt + "</div>" +
       '<p class="pr-hint">' + hint + "</p>" +
-      '<button type="button" class="pr-rec' + (on ? " on" : "") + '" data-act="recToggle" data-kind="' + kind + '" aria-pressed="' + on + '" aria-label="' + (on ? "Stop recording" : "Start recording") + '">' +
+      '<button type="button" class="pr-rec' + (m === "rec" ? " on" : m === "wait" ? " wait" : "") + '" data-act="recToggle" data-kind="' + kind +
+      '" aria-pressed="' + (m === "rec") + '" aria-busy="' + (m === "wait") + '" aria-label="' + recLabel(m) + '">' +
       '<span class="pr-dot" aria-hidden="true"></span></button>' +
-      '<div class="pr-time">' + clockLabel(on ? Math.floor(recSecs(rec)) : 0) + " / " + clockLabel(on ? rec.limit : recLimit()) + "</div></div>";
+      '<div class="pr-time">' + recTime(m) + "</div></div>";
   }
+  // A rest day owes nothing, so a form whose Log can only refuse is not drawn:
+  // the line says so instead. Recording is still there.
+  const practiceResting = () => isRestDay(todayISO()) && todayISO() >= D.START_DATE;
+  const restLine = '<p class="pr-rest">Nothing owed today.</p>';
   function fallbackHTML(prompt, hint, form, act, verb) {
     return '<div class="card pr-card pr-hand">' +
       '<div class="pr-prompt">' + prompt + "</div>" +
       '<p class="pr-hint">' + hint + "</p>" +
       '<p class="pr-nomic">Microphone not available, so log it by hand</p>' +
-      '<div class="pr-form">' + form + "</div>" +
-      '<button class="btn lg one-go" data-act="' + act + '">' + verb + "</button></div>";
+      (practiceResting() ? restLine
+        : '<div class="pr-form">' + form + "</div>" +
+          '<button class="btn lg one-go" data-act="' + act + '">' + verb + "</button>") + "</div>";
   }
   function paneHTML(tab) {
     const hand = micMissing || !recSupported();
     if (tab === "bank")
       return '<div class="card pr-card pr-hand"><div class="pr-prompt">What happened today</div>' +
         '<p class="pr-hint">One real thing, two lines.</p>' +
-        '<div class="pr-form">' + REP_FORM.bank() + "</div>" +
-        '<button class="btn lg one-go" data-act="repBank">' + REP_VERB.bank + "</button></div>";
+        (practiceResting() ? restLine
+          : '<div class="pr-form">' + REP_FORM.bank() + "</div>" +
+            '<button class="btn lg one-go" data-act="repBank">' + REP_VERB.bank + "</button>") + "</div>";
     if (tab === "humor")
       return hand
         ? fallbackHTML("Five attempts at one joke", "Most will be bad. Volume is the mechanic.", REP_FORM.humor(), "repHumor", REP_VERB.humor)
         : recorderHTML("humor", "Five attempts at one joke", "Most will be bad. Volume is the mechanic.") +
-          '<details class="unit pr-write"><summary><span class="u-name">Write the five down instead</span></summary>' +
-          '<div class="u-body"><div class="pr-form">' + REP_FORM.humor() + "</div>" +
-          '<button class="btn lg one-go" data-act="repHumor">' + REP_VERB.humor + "</button></div></details>";
+          (practiceResting() ? ""
+            : '<details class="unit pr-write"><summary><span class="u-name">Write the five down instead</span></summary>' +
+              '<div class="u-body"><div class="pr-form">' + REP_FORM.humor() + "</div>" +
+              '<button class="btn lg one-go" data-act="repHumor">' + REP_VERB.humor + "</button></div></details>");
     return hand
       ? fallbackHTML("Tell one story from this week", "Under 90 seconds. Beginning, turn, ending.", REP_FORM.story(), "repStory", REP_VERB.story)
       : recorderHTML("story", "Tell one story from this week", "Under 90 seconds. Beginning, turn, ending.");
@@ -4402,8 +4471,8 @@
           '<span class="pr-main"><input class="pr-name" type="text" maxlength="80" autocomplete="off" value="' + t + '" aria-label="Title of the recording from ' + esc(recDay(c.date)) + '">' +
           '<span class="pr-meta">' + esc(recDay(c.date)) + " · " + clockLabel(c.seconds || 0) + "</span></span>" +
           '<span class="pr-wave" aria-hidden="true"></span>' +
-          (url ? '<a class="pr-ic" href="' + url + '" download="' + esc((c.title || "recording").replace(/[\\/:*?"<>|]+/g, "-")) + clipExt(c.blob.type) + '" aria-label="Download ' + t + '">' + ICON_DL + "</a>" : "") +
-          '<button type="button" class="pr-ic" data-clip-del aria-label="Delete ' + t + '">' + ICON_DEL + "</button>" +
+          '<span class="pr-acts">' + (url ? '<a class="pr-ic" href="' + url + '" download="' + esc((c.title || "recording").replace(/[\\/:*?"<>|]+/g, "-")) + clipExt(c.blob.type) + '" aria-label="Download ' + t + '">' + ICON_DL + "</a>" : "") +
+          '<button type="button" class="pr-ic" data-clip-del aria-label="Delete ' + t + '">' + ICON_DEL + "</button></span>" +
           '<div class="pr-player"></div></div>';
       }).join("") + "</div>");
     }, () => done('<p class="pr-empty">This browser cannot keep recordings.</p>'));
@@ -5707,6 +5776,11 @@
   // the frame is cross-origin, so whether it is actually playing is unknowable,
   // and being cautious here costs nothing.
   const videoOnScreen = () => !!document.querySelector("#view .video-frame iframe");
+  // T-028: the same for the Practice page. A recording in progress (or a
+  // microphone prompt open), or one of your recordings playing, would be
+  // destroyed by a repaint nobody asked for: the button and its focus, or the
+  // <audio> mid-sentence. Deferred, not lost — as for the video.
+  const mediaBusy = () => !!rec || $$("#view audio").some(a => !a.paused && !a.ended);
 
   // ---------- resume points (T-016) ----------
   // The embed is asked for enablejsapi=1, and the player then talks to the
@@ -5838,7 +5912,7 @@
   // foreground and pass nothing.
   function render(opts) {
     if (rendering) return;
-    if (opts && opts.background && videoOnScreen()) return;
+    if (opts && opts.background && (videoOnScreen() || mediaBusy())) return;
     rendering = true;
     // opts.after runs once the view is rebuilt, on either path below (T-026c:
     // the day controls put the page back where the reader had it).

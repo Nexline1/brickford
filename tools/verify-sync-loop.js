@@ -347,9 +347,97 @@ async function session(browser, { putOk }) {
     await mic.close();
   }
 
+  // T-028 review 1: a repaint nobody asked for must not destroy the Practice
+  // page's media either. The remote here has something new on every GET (a
+  // bank entry "from the laptop"), so every push merges and then calls
+  // render({ background: true }) — the toast "Pushed — N changes merged in"
+  // is raised in the same task, so it is the proof the repaint was asked for.
+  // (1) One of your recordings playing when it lands: the <audio> must be the
+  // same element, still attached, still playing. (2) A recording in progress
+  // when it lands: the record button must be the same element, still
+  // recording, still holding the focus — and the recording then finishes.
+  console.log("A background repaint leaves a playing recording and a recording in progress alone:");
+  {
+    const mic = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
+    const busyCtx = async () => {
+      const ctx = await mic.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+      await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+      await ctx.addInitScript(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
+      const page = await ctx.newPage();
+      let gets = 0;
+      await page.route("https://api.github.com/**", route => {
+        if (route.request().method() === "GET") {
+          gets++;
+          const remote = { v: 1, device: "laptop", state: { reps: { bank: [{ date: "2026-10-1" + (gets % 10), what: "from the laptop " + gets, why: "" }] } }, ledgers: {} };
+          return route.fulfill({ status: 200, contentType: "application/json",
+            body: JSON.stringify({ sha: "s" + gets, content: Buffer.from(JSON.stringify(remote)).toString("base64") }) });
+        }
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "n" + gets } }) });
+      });
+      const errors = [];
+      page.on("pageerror", e => errors.push(e.message));
+      await page.goto(URL + "/practice", { waitUntil: "load" });
+      await page.waitForSelector("#view [data-ptab=story]");
+      await page.click("#view [data-ptab=story]");
+      return { ctx, page, errors };
+    };
+    const timer = (page, re, ms) => page.waitForFunction(re => new RegExp(re).test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), re, { timeout: ms || 12000 });
+    // Proof a background repaint was asked for: the push's merge toast, raised
+    // in the same task as render({ background: true }), after `n` was seen.
+    const mergedPush = async page => {
+      await page.evaluate(() => { const t = document.querySelector("#toast"); window.__toastSeen = []; new MutationObserver(() => window.__toastSeen.push(t.textContent)).observe(t, { childList: true, characterData: true, subtree: true }); });
+      return page.waitForFunction(() => window.__toastSeen.some(x => /merged in/.test(x)), null, { timeout: 12000 }).then(() => true, () => false);
+    };
+    try {
+      const { ctx, page, errors } = await busyCtx();
+      await page.click("#view .pr-rec");
+      await timer(page, "^0:08 ");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      // The save armed a push about 4s out; play the recording before it lands.
+      await page.click("#view .pr-clip .pr-play");
+      await page.waitForFunction(() => { const a = document.querySelector("#view .pr-clip audio"); return a && !a.paused; }, null, { timeout: 4000 });
+      await page.evaluate(() => { window.__a = document.querySelector("#view .pr-clip audio"); });
+      const asked = await mergedPush(page);
+      await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const a = await page.evaluate(() => ({ attached: window.__a.isConnected, same: document.querySelector("#view .pr-clip audio") === window.__a,
+        playing: !window.__a.paused && !window.__a.ended, t: +window.__a.currentTime.toFixed(2) }));
+      check(asked, "(1) a push merged in the laptop's entry and asked for a background repaint while the recording played");
+      check(asked && a.attached && a.same && a.playing, "(1) the playing <audio> is the same element, attached and still playing after it (" + JSON.stringify(a) + ")");
+      check(errors.length === 0, "(1) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
+      await ctx.close();
+    } catch (e) { check(false, "(1) ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    try {
+      const { ctx, page, errors } = await busyCtx();
+      await page.click("#view .pr-rec");
+      await timer(page, "^0:01 ");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      // The save armed a push about 4s out; start the next recording, from
+      // the keyboard, before it lands.
+      await page.focus("#view .pr-rec");
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(() => document.querySelector("#view .pr-rec").getAttribute("aria-pressed") === "true", null, { timeout: 5000 });
+      await page.evaluate(() => { window.__b = document.querySelector("#view .pr-rec"); });
+      const asked = await mergedPush(page);
+      await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const b = await page.evaluate(() => ({ attached: window.__b.isConnected, same: document.querySelector("#view .pr-rec") === window.__b,
+        recording: window.__b.getAttribute("aria-pressed") === "true", focus: document.activeElement === window.__b,
+        time: document.querySelector("#view .pr-time").textContent }));
+      check(asked, "(2) a push merged in the laptop's entry and asked for a background repaint while recording");
+      check(asked && b.attached && b.same && b.recording && b.focus, "(2) the record button is the same element, still recording and still focused after it (" + JSON.stringify(b) + ")");
+      await page.keyboard.press("Enter");
+      const two = await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 2, null, { timeout: 8000 }).then(() => true, () => false);
+      check(two, "(2) Enter then stops it and the second recording is kept (2 in the list)");
+      check(errors.length === 0, "(2) no page errors" + (errors.length ? " — " + errors.join(" | ") : ""));
+      await ctx.close();
+    } catch (e) { check(false, "(2) ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    await mic.close();
+  }
+
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device (T-028)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing recording and a recording in progress alone (T-028)");
   process.exit(fails ? 1 : 0);
 })();

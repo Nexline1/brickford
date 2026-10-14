@@ -2873,8 +2873,12 @@ button.at-chip.lb-more { font-weight: 600; }
 .pr-prompt { font-size: var(--fs-title3); font-weight: 650; line-height: var(--lh-title3); letter-spacing: var(--tr-title3); color: var(--ink); text-wrap: balance; }
 .pr-hint { margin: 0; font-size: var(--fs-subhead); color: var(--ink-2); }
 .pr-nomic { margin: 4px 0 0; font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
-.pr-hand { align-items: stretch; text-align: left; }
-.pr-hand .pr-prompt, .pr-hand .pr-hint, .pr-hand .pr-nomic { text-align: center; }
+/* The hand forms fill the card. `.card.pr-card` above is two classes, so
+   this has to be three: one class alone was a dead rule, and the forms were
+   squeezed to their fields' intrinsic width (review 1, ~220px). */
+.card.pr-card.pr-hand { align-items: stretch; text-align: left; }
+.pr-hand .pr-prompt, .pr-hand .pr-hint, .pr-hand .pr-nomic, .pr-hand .pr-rest { text-align: center; }
+.pr-rest { margin: 4px 0 0; font-size: var(--fs-subhead); color: var(--ink-2); }
 .pr-form { text-align: left; }
 .pr-hand .one-go { margin-top: 4px; align-self: center; }
 .pr-form input, .pr-form textarea { background: var(--surface-2); }
@@ -2892,6 +2896,8 @@ button.at-chip.lb-more { font-weight: 600; }
   transition: width 200ms ease, height 200ms ease, border-radius 200ms ease;
 }
 .pr-rec.on .pr-dot { width: 40px; height: 40px; border-radius: var(--r-sm); }
+/* The microphone prompt is open: a smaller disc, and the timer says so. */
+.pr-rec.wait .pr-dot { width: 56px; height: 56px; }
 .pr-rec:active .pr-dot { transform: scale(0.94); }
 .pr-time { font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
@@ -2926,6 +2932,14 @@ button.at-chip.lb-more { font-weight: 600; }
   background: repeating-linear-gradient(90deg, var(--line-strong) 0 2px, transparent 2px 5px);
 }
 @media (max-width: 767px) { .pr-wave { display: none; } }
+.pr-acts { display: flex; flex: none; margin-left: auto; }
+/* A phone: the title takes the row beside play, so a default title is never
+   cut (review 1: "Story · Tue 20 …" at 390); download and delete wrap to
+   their own line under it. */
+@media (max-width: 599px) {
+  .pr-main { flex: 1 1 calc(100% - 56px); }
+  .pr-acts { margin-top: -4px; }
+}
 .pr-ic {
   display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
   border: 0; border-radius: 50%; background: none; color: var(--ink-2); cursor: pointer; text-decoration: none;

@@ -32,3 +32,14 @@ Dump notes here after a study session. The loop turns new ones into proposed spe
 - Calendar: grid is one of the best; the lists beneath it (MATH 130, AI 200, SPCH 100) need a new layout.
 - Treasury: "a place where I can manage my business from. Imagine Notion ... every part of my business, my finance, all of that is being recorded in there."
 - Order decided: theme fix first, then pages one by one on desktop with a mockup before each; bottom bar finishes in parallel; opening screen after.
+
+## 2026-10-14 — owner: quiz after every lecture, reorganise practice, story transcription + coach
+Owner (verbatim gist): "I never, never, ever take the questions right after each video… create a quiz after each video… using the summary… block the next video for me unless I do take the quiz and solve it correctly. The quiz should actually be valuable and cover what's in each video. This applies to AI, storytelling, mathematics, and all other subjects." "I've never used the draw method… I've never taken [the problem sets and labs]… I'm not even sure what they are… reorganize and change how the quiz works, where the quiz appears, and/or reorganize everything." "Make sure… the audio recorder is recording the stories as audio and transcribing them as text too." "An AI brain to read the transcript and compare what the lectures are saying with the story format and story structure versus what I have recorded… find filler words that should be removed."
+
+Owner decisions (AskUserQuestion, 2026-10-14):
+- Gate: **every question right, misses retried** (a miss shows why and comes back reshuffled later in the same sitting); first-try score kept on the record.
+- **A lecture counts as done for the day only when watched AND its quiz passed** (day green / streak). No plan dates move.
+- Transcription: **on-device** speech-to-text in the browser (one-time model download ~40–75 MB; audio never leaves the device). This approves that dependency (pinned, from an allowed CDN) for the transcription item.
+- Story coach: **Claude inside the app**, with the owner's own Anthropic API key saved on the device (never synced).
+
+Census at decision time: 494 lessons (466 video). 414 have summaries with 2–4 "Check yourself" questions (1,233 total). 80 have none: AI 200 (15), AI 210 (8), AI 300 (16), AI 310 (23), RES 400 (18) — T-033.

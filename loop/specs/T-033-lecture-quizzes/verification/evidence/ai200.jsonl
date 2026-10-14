@@ -20,3 +20,25 @@
 {"key": "ai200.1.2", "i": 3, "at": null, "src": "makemore_part2_mlp.ipynb, cell 28", "quote": "ix = torch.randint(0, Xtr.shape[0], (32,))"}
 {"key": "ai200.1.2", "i": 4, "at": null, "src": "makemore_part2_mlp.ipynb, cells 26-28", "quote": "lre = torch.linspace(-3, 0, 1000) lrs = 10**lre"}
 {"key": "ai200.1.2", "i": 5, "at": null, "src": "makemore_part2_mlp.ipynb, cells 30-31 and 33", "quote": "# training split, dev/validation split, test split # 80%, 10%, 10%"}
+{"key": "ai200.1.3", "i": 0, "at": null, "src": "makemore_part3_bn.ipynb, cells 7-8 and 12", "quote": "W2 = torch.randn((n_hidden, vocab_size), generator=g) * 0.01 b2 = torch.randn(vocab_size, generator=g) * 0"}
+{"key": "ai200.1.3", "i": 1, "at": null, "src": "makemore_part3_bn.ipynb, cell 7", "quote": "W1 = torch.randn((n_embd * block_size, n_hidden), generator=g) * (5/3)/((n_embd * block_size)**0.5)"}
+{"key": "ai200.1.3", "i": 2, "at": null, "src": "makemore_part3_bn.ipynb, cells 12 and 16", "quote": "(t.abs() > 0.97).float().mean()*100"}
+{"key": "ai200.1.3", "i": 3, "at": null, "src": "makemore_part3_bn.ipynb, cells 7-8", "quote": "hpreact = bngain * (hpreact - bnmeani) / bnstdi + bnbias"}
+{"key": "ai200.1.3", "i": 4, "at": null, "src": "makemore_part3_bn.ipynb, cells 7-8 and 14", "quote": "hpreact = embcat @ W1 #+ b1 # hidden layer pre-activation"}
+{"key": "ai200.1.3", "i": 5, "at": null, "src": "makemore_part3_bn.ipynb, cells 8, 10-11 and 14", "quote": "hpreact = bngain * (hpreact - bnmean_running) / bnstd_running + bnbias"}
+{"key": "ai200.1.3", "i": 6, "at": null, "src": "makemore_part3_bn.ipynb, cell 7", "quote": "parameters = [C, W1, W2, b2, bngain, bnbias]"}
+{"key": "ai200.1.3", "i": 7, "at": null, "src": "makemore_part3_bn.ipynb, cells 15 and 19", "quote": "plt.plot([0, len(ud)], [-3, -3], 'k') # these ratios should be ~1e-3, indicate on plot"}
+{"key": "ai200.1.4", "i": 0, "at": null, "src": "makemore_part4_backprop.ipynb, cell 9", "quote": "initializating with e.g. all zeros could mask an incorrect"}
+{"key": "ai200.1.4", "i": 1, "at": null, "src": "makemore_part4_backprop.ipynb, cells 11-12", "quote": "dlogprobs[range(n), Yb] = -1.0/n"}
+{"key": "ai200.1.4", "i": 2, "at": null, "src": "makemore_part4_backprop.ipynb, cell 12", "quote": "dcounts_sum_inv = (counts * dprobs).sum(1, keepdim=True)"}
+{"key": "ai200.1.4", "i": 3, "at": null, "src": "makemore_part4_backprop.ipynb, cells 11-12", "quote": "norm_logits = logits - logit_maxes # subtract max for numerical stability"}
+{"key": "ai200.1.4", "i": 4, "at": null, "src": "makemore_part4_backprop.ipynb, cells 14-17", "quote": "dlogits = F.softmax(logits, 1) dlogits[range(n), Yb] -= 1 dlogits /= n"}
+{"key": "ai200.1.4", "i": 5, "at": null, "src": "makemore_part4_backprop.ipynb, cells 14 and 18", "quote": "dlogits[0].sum()"}
+{"key": "ai200.1.4", "i": 6, "at": null, "src": "makemore_part4_backprop.ipynb, cell 12", "quote": "dh = dlogits @ W2.T dW2 = h.T @ dlogits db2 = dlogits.sum(0)"}
+{"key": "ai200.1.4", "i": 7, "at": null, "src": "makemore_part4_backprop.ipynb, cell 12", "quote": "ix = Xb[k,j] dC[ix] += demb[k,j]"}
+{"key": "ai200.1.5", "i": 0, "at": null, "src": "makemore_part5_cnn1.ipynb, cell 10", "quote": "print(sum(p.nelement() for p in parameters)) # number of parameters in total"}
+{"key": "ai200.1.5", "i": 1, "at": null, "src": "makemore_part5_cnn1.ipynb, cells 8 and 10", "quote": "FlattenConsecutive(2), Linear(n_embd * 2, n_hidden, bias=False), BatchNorm1d(n_hidden), Tanh(),"}
+{"key": "ai200.1.5", "i": 2, "at": null, "src": "makemore_part5_cnn1.ipynb, cells 8 and 15", "quote": "elif x.ndim == 3: dim = (0,1)"}
+{"key": "ai200.1.5", "i": 3, "at": null, "src": "makemore_part5_cnn1.ipynb, cell 15", "quote": "flat -> hierarchical (22K params): train 1.941, val 2.029"}
+{"key": "ai200.1.5", "i": 4, "at": null, "src": "makemore_part5_cnn1.ipynb, cells 17-21", "quote": "# convolution is a \"for loop\" # allows us to forward Linear layers efficiently over space"}
+{"key": "ai200.1.5", "i": 5, "at": null, "src": "makemore_part5_cnn1.ipynb, cells 14-15", "quote": "scale up the network: n_embd 24, n_hidden 128 (76K params): train 1.769, val 1.993"}

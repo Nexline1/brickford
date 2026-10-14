@@ -140,8 +140,26 @@
   "kind": "companion material (spec amendment 2026-10-14)",
   "video": "VMj-3S1tku0 (transcript unavailable)",
   "repos": [
-   {"repo": "karpathy/nn-zero-to-hero", "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde", "paths": ["lectures/micrograd/micrograd_lecture_first_half_roughly.ipynb", "lectures/micrograd/micrograd_lecture_second_half_roughly.ipynb"]},
-   {"repo": "karpathy/micrograd", "commit": "7bc720e951fe422b8f8814aa5aa1b64121d26b4c", "paths": ["README.md", "micrograd/engine.py", "micrograd/nn.py", "demo.ipynb", "trace_graph.ipynb", "test/test_engine.py"]}
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "lectures/micrograd/micrograd_lecture_first_half_roughly.ipynb",
+     "lectures/micrograd/micrograd_lecture_second_half_roughly.ipynb"
+    ]
+   },
+   {
+    "repo": "karpathy/micrograd",
+    "commit": "7bc720e951fe422b8f8814aa5aa1b64121d26b4c",
+    "paths": [
+     "README.md",
+     "micrograd/engine.py",
+     "micrograd/nn.py",
+     "demo.ipynb",
+     "trace_graph.ipynb",
+     "test/test_engine.py"
+    ]
+   }
   ],
   "files": [
    "sources/text/micrograd_lecture_first_half_roughly.ipynb.txt",
@@ -159,20 +177,102 @@
   "kind": "companion material (spec amendment 2026-10-14)",
   "video": "PaCmpygFfXo (transcript unavailable)",
   "repos": [
-   {"repo": "karpathy/nn-zero-to-hero", "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde", "paths": ["lectures/makemore/makemore_part1_bigrams.ipynb"]},
-   {"repo": "karpathy/makemore", "commit": "988aa59e4d8fefa526d06f3b453ad116258398d4", "paths": ["README.md"]}
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "lectures/makemore/makemore_part1_bigrams.ipynb"
+    ]
+   },
+   {
+    "repo": "karpathy/makemore",
+    "commit": "988aa59e4d8fefa526d06f3b453ad116258398d4",
+    "paths": [
+     "README.md"
+    ]
+   }
   ],
-  "files": ["sources/text/makemore_part1_bigrams.ipynb.txt", "sources/repos/karpathy_makemore/README.md"],
+  "files": [
+   "sources/text/makemore_part1_bigrams.ipynb.txt",
+   "sources/repos/karpathy_makemore/README.md"
+  ],
   "note": "The lecture's notebook is the source. The makemore repository's makemore.py is the full project the series builds toward (MLP, RNN, transformer); only its README was read here, for context, and nothing is quizzed from it."
  },
  "ai200.1.2": {
   "kind": "companion material (spec amendment 2026-10-14)",
   "video": "TCH_1BHY58I (transcript unavailable)",
   "repos": [
-   {"repo": "karpathy/nn-zero-to-hero", "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde", "paths": ["lectures/makemore/makemore_part2_mlp.ipynb"]},
-   {"repo": "karpathy/makemore", "commit": "988aa59e4d8fefa526d06f3b453ad116258398d4", "paths": ["README.md"]}
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "lectures/makemore/makemore_part2_mlp.ipynb"
+    ]
+   },
+   {
+    "repo": "karpathy/makemore",
+    "commit": "988aa59e4d8fefa526d06f3b453ad116258398d4",
+    "paths": [
+     "README.md"
+    ]
+   }
   ],
-  "files": ["sources/text/makemore_part2_mlp.ipynb.txt", "sources/repos/karpathy_makemore/README.md"],
+  "files": [
+   "sources/text/makemore_part2_mlp.ipynb.txt",
+   "sources/repos/karpathy_makemore/README.md"
+  ],
   "note": "The lecture's notebook is the source; the README supplies 'MLP, following Bengio et al. 2003'."
+ },
+ "ai200.1.3": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "P6sfmUTpUmc (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "lectures/makemore/makemore_part3_bn.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/makemore_part3_bn.ipynb.txt"
+  ],
+  "note": "Cells 22-25 are marked in the notebook 'BONUS content below, not covered in video' and are not quizzed."
+ },
+ "ai200.1.4": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "q8SA3rM6ckI (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "lectures/makemore/makemore_part4_backprop.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/makemore_part4_backprop.ipynb.txt"
+  ],
+  "note": "The lecture's notebook, read in full, is the source."
+ },
+ "ai200.1.5": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "t3YJ5hKiMQ0 (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "lectures/makemore/makemore_part5_cnn1.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/makemore_part5_cnn1.ipynb.txt",
+   "sources/repos/karpathy_nn-zero-to-hero/README.md"
+  ],
+  "note": "The lecture's notebook, read in full, is the source; the WaveNet link is from the nn-zero-to-hero README's description of this lecture."
  }
 }

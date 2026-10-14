@@ -35,11 +35,13 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 8 | ai200.1.0 | micrograd lecture notebooks + karpathy/micrograd | 8 (5 MCQ, 3 numeric) |
 | 9 | ai200.1.1 | makemore_part1_bigrams.ipynb | 8 (6 MCQ, 2 numeric) |
 | 10 | ai200.1.2 | makemore_part2_mlp.ipynb | 6 (4 MCQ, 2 numeric) |
+| 11 | ai200.1.3 | makemore_part3_bn.ipynb (bonus cells 22-25 excluded) | 8 (6 MCQ, 2 numeric) |
+| 12 | ai200.1.4 | makemore_part4_backprop.ipynb | 8 (6 MCQ, 2 numeric) |
+| 13 | ai200.1.5 | makemore_part5_cnn1.ipynb | 6 (5 MCQ, 1 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-ai200.1.3 makemore_part3_bn (116 min → 8) → ai200.1.4 makemore_part4_backprop (115 → 8)
-→ ai200.1.5 makemore_part5_cnn1 (56 → 6) → ai200.1.6 ng-video-lecture (116 → 8)
+ai200.1.6 ng-video-lecture (116 → 8)
 → ai200.1.7 minbpe (134 → 8) → ai200.1.8 build-nanogpt (241 → 8)
 → ai210.0.0–0.7 (course22 lesson notebooks + fastbook chapters; 83/77/90 → 6, 95/103/103/107/97 → 8)
 → ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).

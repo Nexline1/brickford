@@ -2321,6 +2321,36 @@ const expectedSummary = {
     for (const ch of "emma.") { n++; ctx = ctx.slice(1).concat([ch]); }
     return [{ i: 0, v: params }, { i: 1, v: n }];
   })(),
+
+  // makemore 3: the Kaiming std via its variance, gain^2 / fan_in, then the root;
+  // the batch-norm net's trainable tensors by shape (buffers excluded).
+  "ai200.1.3": (function () {
+    const fanIn = 10 * 3, variance = (5 / 3) * (5 / 3) / fanIn;
+    const shapes = [[27, 10], [30, 200], [200, 27], [27], [1, 200], [1, 200]];
+    return [{ i: 1, v: Math.round(Math.sqrt(variance) * 1000) / 1000 },
+            { i: 6, v: shapes.reduce((a, sh) => a + sh.reduce((x, y) => x * y, 1), 0) }];
+  })(),
+
+  // makemore 4: dlogprobs by differentiating the mean-of-32 loss numerically at
+  // one label entry; dlogit for p = 0.0165 by a central difference of -log softmax
+  // over two logits built to give that probability.
+  "ai200.1.4": (function () {
+    const n = 32, h = 1e-6;
+    const lossOf = v => -(v + (n - 1) * 0) / n;                  // the other 31 label entries held at 0
+    const d1 = (lossOf(h) - lossOf(-h)) / (2 * h);
+    const nll = z => { const a = Math.exp(z), b = Math.exp(Math.log(0.9835)); return -Math.log(a / (a + b)); };
+    const z = Math.log(0.0165), d2 = (nll(z + h) - nll(z - h)) / (2 * h);
+    return [{ i: 1, v: Math.round(d1 * 1e6) / 1e6 }, { i: 4, v: Math.round(d2 * 1e4) / 1e4 }];
+  })(),
+
+  // makemore 5: walk the layer list with a running shape, adding each layer's
+  // parameters as it is applied (flatten doubles the width and halves T).
+  "ai200.1.5": (function () {
+    let width = 24, total = 27 * 24;                      // embedding
+    for (let b = 0; b < 3; b++) { width *= 2; total += width * 128 + 2 * 128; width = 128; }
+    total += 128 * 27 + 27;
+    return [{ i: 0, v: total }];
+  })(),
 };
 
 let sumNums = 0;

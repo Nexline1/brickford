@@ -72,3 +72,4 @@
 - 2026-10-14: T-028 review r3: 3 r2 findings fixed; 1 new low-severity (sync bgReplay inside tab handler leaves no tab pressed under reduced motion; double render on leave). Owner: "Fix it, quick check, merge".
 - 2026-10-14: T-028 final fix (7dac30c, head ad4f4bd): bgReplay queued, tabs by value, sync-loop (6)/(7). My CHECK all green. Quick scoped review sent.
 - 2026-10-14: T-028 merged as PR #19 (bdb6d0e) after 3 rounds + owner-approved quick check. Queued T-048 (focus on a rare mic-refused path). T-033 starting.
+- 2026-10-14: T-033 builder (general-purpose, MCP + WebFetch) launched in /home/user/bf-T-033 (from bdb6d0e), tokens 20261014d. Saves every 3 lectures + verification/progress.md.

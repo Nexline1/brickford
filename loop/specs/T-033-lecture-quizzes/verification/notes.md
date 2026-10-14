@@ -20,6 +20,20 @@ OpenAI CDN are refused by the egress policy), so none of these quizzes exists ye
   `chapter1/1`, which is the course's welcome page (authors, FAQ, translations). The
   lesson is chapter 1, so all of its reading sections were read (1.1–1.6, 1.8–1.10;
   1.7 is a quiz and 1.11 the certification exam) and the quiz spans them.
+- `ai310.1.1` names "TRL + alignment handbook" but links only TRL's SFT Trainer page;
+  the quiz is from that page.
+- `ai310.1.3` names "contamination, and why public benchmarks lie" and links the
+  lm-evaluation-harness README, which never discusses contamination. The quiz covers
+  what the README does say (backends, parallel layouts, logprob limits, answer
+  extraction, and its prompt-procedure priority, which exists to limit the harm of
+  cross-paper comparisons). If the owner wants contamination taught, the lesson needs
+  a reading that covers it.
+- `ai310.1.4` links the vLLM docs root, which is a feature list. The lesson names
+  PagedAttention and the KV cache, so the reading is the landing page plus two pages of
+  the same docs site: the Quickstart (the landing page's named starting point for
+  running models) and Automatic Prefix Caching (how KV-cache blocks are pooled, hashed,
+  reused and evicted). The docs' PagedAttention page was opened and not used: it says
+  it is a historical document that no longer describes vLLM's code.
 
 ## Where each reading was fetched from
 

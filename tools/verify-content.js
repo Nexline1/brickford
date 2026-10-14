@@ -2268,6 +2268,19 @@ const expectedSummary = {
     const actors = []; for (let r = 0; r < 4; r++) actors.push({ gpus: Array.from({ length: 2 }, (_, j) => r * 2 + j) });
     return [{ i: 2, v: new Set([].concat(...actors.map(a => a.gpus))).size }];
   })(),
+
+  // Prefix caching: build chained block hashes (parent hash + block tokens) for
+  // the cached prompt, then walk the new prompt's full blocks until one misses.
+  "ai310.1.4": (function () {
+    const B = 16, old = Array.from({ length: 64 }, (_, j) => "t" + j);
+    const neu = Array.from({ length: 50 }, (_, j) => (j < 40 ? "t" + j : "u" + j));
+    const hashes = toks => { const out = []; let parent = "";
+      for (let b = 0; (b + 1) * B <= toks.length; b++) { parent = parent + "|" + toks.slice(b * B, (b + 1) * B).join(","); out.push(parent); }
+      return out; };
+    const cached = new Set(hashes(old));
+    let hit = 0; for (const h of hashes(neu)) { if (!cached.has(h)) break; hit += B; }
+    return [{ i: 4, v: hit }];
+  })(),
 };
 
 let sumNums = 0;

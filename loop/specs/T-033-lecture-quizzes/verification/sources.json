@@ -66,5 +66,24 @@
    "sources/readings/EleutherAI_lm-evaluation-harness_main_README.md"
   ],
   "note": "The lesson title names contamination and 'why public benchmarks lie'; the README does not discuss contamination, so the quiz covers what it does say: backends, parallel layouts, logprob limits, answer extraction, and the prompt-procedure priority meant to make cross-paper comparisons less harmful."
+ },
+ "ai310.1.4": {
+  "kind": "reading",
+  "urls": [
+   "https://docs.vllm.ai/en/latest/",
+   "https://docs.vllm.ai/en/latest/getting_started/quickstart.html",
+   "https://docs.vllm.ai/en/latest/design/prefix_caching.html"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/vllm-project/vllm/main/docs/README.md",
+   "https://raw.githubusercontent.com/vllm-project/vllm/main/docs/getting_started/quickstart.md",
+   "https://raw.githubusercontent.com/vllm-project/vllm/main/docs/design/prefix_caching.md"
+  ],
+  "files": [
+   "sources/readings/vllm-project_vllm_main_docs_README.md",
+   "sources/readings/vllm_docs_getting_started_quickstart.md",
+   "sources/readings/vllm_docs_design_prefix_caching.md"
+  ],
+  "note": "The lesson links the docs root (docs/README.md, a feature list). The lesson names PagedAttention and the KV cache, so the reading is the landing page plus, from the same docs site, the Quickstart (which the landing page names as where to start) and Automatic Prefix Caching (how KV-cache blocks are pooled, hashed, reused and evicted). docs/design/paged_attention.md was opened but not used: it says it is a historical document that no longer describes vLLM's code."
  }
 }

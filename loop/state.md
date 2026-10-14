@@ -70,3 +70,4 @@
 - 2026-10-14: T-028 review r2: all 8 r1 findings fixed; 3 new: next-recording check never failed (limit set too late); background-render deferral misses paused player and never replays skipped repaint; mr.start() throw leaves mic live. Builder resumed; round 3 is the last.
 - 2026-10-14: T-028 r2 fixes (8a735bf): my CHECK all green (flows 250 x2, design 1954 x2). Review r3 (last) sent.
 - 2026-10-14: T-028 review r3: 3 r2 findings fixed; 1 new low-severity (sync bgReplay inside tab handler leaves no tab pressed under reduced motion; double render on leave). Owner: "Fix it, quick check, merge".
+- 2026-10-14: T-028 final fix (7dac30c, head ad4f4bd): bgReplay queued, tabs by value, sync-loop (6)/(7). My CHECK all green. Quick scoped review sent.

@@ -20,11 +20,11 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 4 | ai310.1.3 | lm-evaluation-harness README (GitHub `EleutherAI/lm-evaluation-harness`) | 6 (5 MCQ, 1 numeric) |
 | 5 | ai310.1.4 | vLLM docs: landing, Quickstart, Automatic Prefix Caching (GitHub `vllm-project/vllm`) | 6 (5 MCQ, 1 numeric) |
 | 6 | ai310.1.5 | HF Agents course, Unit 1 (GitHub `huggingface/agents-course`) | 6 (6 MCQ) |
+| 7 | res400.2.2 | Karpathy, A Survival Guide to a PhD (GitHub `karpathy/karpathy.github.io`) | 6 (5 MCQ, 1 numeric) |
 
 ## Next (buildable now, in calendar order)
 
-res400.2.2 (Karpathy PhD guide, GitHub
-`karpathy/karpathy.github.io` `_posts/2016-09-07-phd.markdown`).
+none: every remaining lecture is blocked (see unavailable.md).
 
 Then: plants (a)–(e), gates, screenshots, audit.md.
 

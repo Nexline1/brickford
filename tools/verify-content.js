@@ -21,6 +21,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-math210.js",
  "platform/data/summaries-sys250.js",
  "platform/data/summaries-ai310.js",
+ "platform/data/summaries-res400.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -2280,6 +2281,13 @@ const expectedSummary = {
     const cached = new Set(hashes(old));
     let hit = 0; for (const h of hashes(neu)) { if (!cached.has(h)) break; hit += B; }
     return [{ i: 4, v: hit }];
+  })(),
+
+  // Years to 10,000 hours at Karpathy's working year: count working days of 8
+  // hours until the total reaches 10,000, then express the days in 260-day years.
+  "res400.2.2": (function () {
+    let hours = 0, days = 0; while (hours < 10000) { hours += 8; days++; }
+    return [{ i: 3, v: Math.round(days / 260 * 100) / 100 }];
   })(),
 };
 

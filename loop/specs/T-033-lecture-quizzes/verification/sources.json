@@ -122,5 +122,18 @@
    "sources/readings/agents_u1_conclusion.mdx"
   ],
   "note": "unit0/introduction is the course welcome (syllabus, certificates, team). The lesson is tool use and function calling, which the syllabus places in Unit 1 (Agent Fundamentals), so Unit 1 was read in full (its quizzes excepted) and the quiz is from it."
+ },
+ "res400.2.2": {
+  "kind": "reading",
+  "urls": [
+   "https://karpathy.github.io/2016/09/07/phd/"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/karpathy/karpathy.github.io/master/_posts/2016-09-07-phd.markdown"
+  ],
+  "files": [
+   "sources/readings/karpathy_karpathy.github.io_master__posts_2016-09-07-phd.markdown"
+  ],
+  "note": "The blog is a GitHub Pages site built from this repository; the post's source file is the page."
  }
 }

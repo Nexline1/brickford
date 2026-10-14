@@ -54,6 +54,30 @@
 //       where BHD is typed and stored as typed; and once with a ledger that
 //       has nothing in the week, where BHD is a counted 0.
 //
+// And, since T-028 (loop/specs/T-028-practice-recorder/spec.md), record yourself
+// — in a second Chromium launched with a fake microphone
+// (--use-fake-ui-for-media-stream --use-fake-device-for-media-stream; this
+// file:// page is a secure context, and getUserMedia, MediaRecorder and
+// IndexedDB were measured to work on it, so there is no server):
+//
+//   (p) at 390 (tapped) and 1280 (keyboard): Story, record, about 2s by the
+//       page's own timer, stop. One clip in IndexedDB (brickford_audio/clips,
+//       key <date>-1, { date, seconds >= 1, kind, title } and a non-empty
+//       Blob); reps.story gains exactly one entry for today, the hand form's
+//       shape, through the form's path (a rep event on the chain); no audio
+//       in any localStorage key; the list shows it, play makes an <audio>
+//       with a blob: src, the title renames inline (IndexedDB only), and
+//       delete asks, then removes it. Opening the page, reading the list and
+//       recording write nothing. The 1:30 stop, on a limit shortened through
+//       window.__recLimit, on Humour: one press, it stops itself, and the rep
+//       goes through the humour path. A Saturday: "Nothing owed today" above
+//       the recorder, and the clip is kept (the rep path refuses a rest day);
+//   (q) no microphone, at 390 and 1280: the permission denied (getUserMedia
+//       stubbed to reject NotAllowedError) and no device (the plain Chromium,
+//       NotFoundError). The line "Microphone not available, so log it by
+//       hand" and the manual form, on Story and then Humour, and logging by
+//       hand stores what it always stored.
+//
 // And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
 //
 //   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
@@ -927,6 +951,457 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   await sealFlow("dark", 390, [{ date: "2026-10-18", amount: 999, note: "the last day of the week before" },
                               { date: "2026-10-26", amount: 500, note: "the first day of the week after" }]);
 
+  // ---- (p) record yourself, and (q) no microphone (T-028) ----
+  // A second Chromium, launched with a fake microphone: --use-fake-ui-for-
+  // media-stream grants the permission prompt and --use-fake-device-for-media-
+  // stream supplies a device. Measured on this file:// page first: it is a
+  // secure context there, getUserMedia, MediaRecorder and IndexedDB all work,
+  // so no server is needed and nothing in the app was changed for the harness.
+  // Every reading is the page's own storage: the clip as IndexedDB holds it
+  // (database brickford_audio, store clips), the rep as localStorage holds it.
+  console.log("\nrecord yourself (T-028)");
+  const micBrowser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
+  // The clips as stored, without ever creating the database: an open that
+  // would create it is aborted, so a read can never stand in for the app.
+  const clipsInDB = page => page.evaluate(() => new Promise(res => {
+    const q = indexedDB.open("brickford_audio");
+    q.onupgradeneeded = () => q.transaction.abort();
+    q.onerror = () => res({ absent: true, list: [] });
+    q.onsuccess = () => {
+      const db = q.result;
+      if (!db.objectStoreNames.contains("clips")) { db.close(); return res({ list: [], noStore: true }); }
+      const out = [], t = db.transaction("clips", "readonly");
+      t.objectStore("clips").openCursor().onsuccess = e => {
+        const c = e.target.result;
+        if (!c) return;
+        const v = c.value || {};
+        out.push({ key: c.key, date: v.date, seconds: v.seconds, kind: v.kind, title: v.title, fields: Object.keys(v).sort().join(","),
+          blob: v.blob instanceof Blob ? { size: v.blob.size, type: v.blob.type } : null });
+        c.continue();
+      };
+      t.oncomplete = () => { db.close(); res({ list: out }); };
+    };
+  }));
+  const stateNow = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+  // Audio in storage, by any of the shapes it could take: a data: URL, base64,
+  // an object URL, the database's name, or a field holding a Blob (which
+  // JSON writes as {}). Every localStorage key is read, not only the state —
+  // except the token, whose NAME is tested before anything reads it: no gate
+  // ever calls getItem("brickford_gh_token").
+  const audioInStorage = page => page.evaluate(() => {
+    const hits = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k === "brickford_gh_token") continue;
+      const v = localStorage.getItem(k) || "";
+      const m = /data:audio|;base64,|blob:|brickford_audio|"(audio|blob|clip|chunks?)"\s*:/i.exec(v);
+      if (m) hits.push(k + ": \"" + v.slice(Math.max(0, m.index - 30), m.index + 40) + "\"");
+    }
+    return hits;
+  });
+  const recState = page => page.evaluate(() => {
+    const b = document.querySelector("#view .pr-rec"), d = b && b.querySelector(".pr-dot"), t = document.querySelector("#view .pr-time");
+    const cs = d && getComputedStyle(d);
+    return b ? { on: b.getAttribute("aria-pressed") === "true", label: b.getAttribute("aria-label") || "", time: t ? t.textContent.trim() : "",
+      w: d.getBoundingClientRect().width, radius: cs ? parseFloat(cs.borderTopLeftRadius) : 0, focus: document.activeElement === b } : null;
+  });
+  const clipRows = page => page.evaluate(() => [...document.querySelectorAll("#view .pr-clip")].map(r => ({
+    key: r.dataset.clip, title: (r.querySelector(".pr-name") || {}).value || "", meta: ((r.querySelector(".pr-meta") || {}).textContent || "").trim(),
+    audio: r.querySelector("audio") ? r.querySelector("audio").getAttribute("src") || "" : null,
+    dl: r.querySelector("a[download]") ? { href: r.querySelector("a[download]").getAttribute("href") || "", name: r.querySelector("a[download]").getAttribute("download") || "" } : null,
+  })));
+  const pickTab = async (page, k) => {
+    await page.click("#view [data-ptab=" + k + "]");
+    await page.waitForFunction(k => { const b = document.querySelector("#view [data-ptab=" + k + "]"); return b && b.getAttribute("aria-pressed") === "true"; }, k, { timeout: 4000 });
+  };
+  const press = async (page, how) => {
+    if (how === "key") { await page.focus("#view .pr-rec"); await page.keyboard.press("Enter"); }
+    else if (how === "tap") await page.tap("#view .pr-rec");
+    else await page.click("#view .pr-rec");
+  };
+  const DAY = new Date(TODAY + "T00:00:00Z").toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).replace(",", "");
+  async function micFresh(br, w, state, now, init) {
+    const ctx = await br.newContext({ viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860, isMobile: w < 860 });
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.clock.setFixedTime(new Date((now || TODAY) + "T12:00:00Z"));
+    if (state) await ctx.addInitScript(s => { if (window.top === window && !sessionStorage.getItem("__seeded")) { sessionStorage.setItem("__seeded", "1"); localStorage.setItem("darhikmah_v1", s); } }, JSON.stringify(state));
+    await ctx.addInitScript(countWrites);
+    for (const f of [].concat(init || [])) await ctx.addInitScript(f);
+    const page = await ctx.newPage();
+    const errors = [], dialogs = [];
+    page.on("pageerror", e => errors.push(e.message));
+    page.on("dialog", d => { dialogs.push(d.message()); d.accept().catch(() => {}); });
+    await page.goto(URL + "/practice", { waitUntil: "load" });
+    await page.waitForSelector("#view .seg");
+    return { ctx, page, errors, dialogs };
+  }
+  const P_STATE = { settings: { theme: "dark", themeNavyOnce: true } };
+
+  for (const w of WIDTHS) {
+    const how = w < 860 ? "tap" : "key", at = w + "px (" + (how === "tap" ? "tapped" : "keyboard") + ")";
+    const { ctx, page, errors, dialogs } = await micFresh(micBrowser, w, P_STATE);
+    try {
+      const w0 = await writes(page);
+      await pickTab(page, "story");
+      // The list is filled from IndexedDB after the render: wait for it.
+      await page.waitForFunction(() => { const l = document.querySelector("#view #prClips"); return l && l.getAttribute("aria-busy") === "false"; }, null, { timeout: 5000 });
+      check("(p) " + at + ": opening Practice, switching to Story and reading the recordings wrote nothing", (await writes(page)) === w0, (await writes(page)) - w0 + " write(s)");
+      const r0 = await recState(page);
+      check("(p) " + at + ": the record button is idle, labelled, and the timer reads 0:00 / 1:30",
+        !!r0 && !r0.on && /record/i.test(r0.label) && r0.time === "0:00 / 1:30", JSON.stringify(r0));
+      await press(page, how);
+      await page.waitForFunction(() => { const b = document.querySelector("#view .pr-rec"); return b && b.getAttribute("aria-pressed") === "true"; }, null, { timeout: 5000 });
+      // About two seconds, measured by the page's own timer.
+      await page.waitForFunction(() => /^0:0[2-9] \/ 1:30$/.test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), null, { timeout: 8000 });
+      const r1 = await recState(page);
+      check("(p) " + at + ": while recording the button says Stop, the dot is a rounded square (radius under half its width), and the timer counts m:ss / 1:30",
+        !!r1 && r1.on && /stop/i.test(r1.label) && r1.radius < r1.w / 2 - 1 && /^0:0[2-9] \/ 1:30$/.test(r1.time) && (how !== "key" || r1.focus),
+        JSON.stringify(r1));
+      await shot(page, "flow-p-recording-" + w);
+      check("(p) " + at + ": nothing was written while recording", (await writes(page)) === w0, (await writes(page)) - w0 + " write(s)");
+      await press(page, how);
+      // The list is drawn by the render that follows the save, so a row on
+      // screen means the rep, if it was logged, is already stored.
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      const db = await clipsInDB(page), c = db.list[0] || {};
+      check("(p) " + at + ": one clip in IndexedDB brickford_audio/clips, key " + TODAY + "-1, { date, seconds >= 1, kind story, title \"Story · " + DAY + "\" } and a non-empty audio Blob",
+        db.list.length === 1 && c.key === TODAY + "-1" && c.date === TODAY && c.seconds >= 1 && c.kind === "story" && c.title === "Story · " + DAY &&
+          !!c.blob && c.blob.size > 0 && /^audio\//.test(c.blob.type), JSON.stringify(db));
+      const st = await stateNow(page), story = (st.reps || {}).story || [];
+      const ev = (st.ledger || [])[(st.ledger || []).length - 1] || {};
+      check("(p) " + at + ": reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story)",
+        story.length === 1 && story[0].date === TODAY && story[0].seconds === c.seconds && Object.keys(story[0]).join(",") === "date,seconds,takes,from" &&
+          ev.type === "rep" && ev.ref === "story" && ev.data && ev.data.seconds === c.seconds,
+        JSON.stringify(story) + " ev " + JSON.stringify({ type: ev.type, ref: ev.ref, data: ev.data }));
+      const hits = await audioInStorage(page);
+      check("(p) " + at + ": no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)", hits.length === 0, hits.join(" | "));
+      const r2 = await recState(page);
+      check("(p) " + at + ": after stop the button is idle again and holds the focus" + (how === "key" ? "" : " (or the page did not move it)"),
+        !!r2 && !r2.on && r2.time === "0:00 / 1:30" && (how !== "key" || r2.focus), JSON.stringify(r2));
+      let rows = await clipRows(page);
+      check("(p) " + at + ": the list shows it: \"Story · " + DAY + "\", \"" + DAY + " · 0:0" + c.seconds + "\", with a download link to a blob: URL",
+        rows.length === 1 && rows[0].key === TODAY + "-1" && rows[0].title === "Story · " + DAY && rows[0].meta === DAY + " · " + "0:" + String(c.seconds).padStart(2, "0") &&
+          !!rows[0].dl && /^blob:/.test(rows[0].dl.href) && /\.(webm|ogg|mp4|m4a|wav)$/.test(rows[0].dl.name), JSON.stringify(rows));
+      check("(p) " + at + ": no <audio> until play is pressed", rows.length === 1 && rows[0].audio === null, JSON.stringify(rows));
+      await page.click("#view .pr-clip .pr-play");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-clip audio"), null, { timeout: 4000 }).catch(() => {});
+      rows = await clipRows(page);
+      check("(p) " + at + ": play creates its <audio>, and its src is a blob: URL", rows.length === 1 && /^blob:/.test(rows[0].audio || ""), JSON.stringify(rows));
+      // Renamed inline: the title field, typed into and left.
+      const wR = await writes(page);
+      await page.fill("#view .pr-clip .pr-name", "The napkin one");
+      await page.press("#view .pr-clip .pr-name", "Enter");
+      await page.waitForFunction(() => new Promise(res => {
+        const q = indexedDB.open("brickford_audio");
+        q.onsuccess = () => { const t = q.result.transaction("clips"); const g = t.objectStore("clips").get(document.querySelector("#view .pr-clip").dataset.clip);
+          g.onsuccess = () => { q.result.close(); res(!!g.result && g.result.title === "The napkin one"); }; };
+        q.onerror = () => res(false);
+      }), null, { timeout: 4000 }).catch(() => {});
+      const db2 = await clipsInDB(page);
+      check("(p) " + at + ": the title renames inline: IndexedDB holds \"The napkin one\", and nothing is written to localStorage",
+        db2.list.length === 1 && db2.list[0].title === "The napkin one" && (await writes(page)) === wR, JSON.stringify(db2.list.map(x => x.title)) + ", " + ((await writes(page)) - wR) + " write(s)");
+      // Delete, after a confirm.
+      const wD = await writes(page), nDialogs = dialogs.length;
+      await page.click("#view .pr-clip [data-clip-del]");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 0, null, { timeout: 4000 }).catch(() => {});
+      const db3 = await clipsInDB(page), st3 = await stateNow(page);
+      check("(p) " + at + ": delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage",
+        dialogs.length === nDialogs + 1 && /delete/i.test(dialogs[dialogs.length - 1] || "") && db3.list.length === 0 && (await clipRows(page)).length === 0 &&
+          ((st3.reps || {}).story || []).length === 1 && (await writes(page)) === wD,
+        "dialogs " + JSON.stringify(dialogs.slice(nDialogs)) + ", clips " + db3.list.length + ", reps.story " + ((st3.reps || {}).story || []).length);
+      await shot(page, "flow-p-deleted-" + w);
+    } catch (e) { check("(p) " + at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(p) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // The 1:30 stop, on a limit shortened through the one hook (window.__recLimit,
+  // read only when defined), on the Humour tab: ONE press, and it stops itself.
+  {
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE);
+    try {
+      await pickTab(page, "humor");
+      await page.evaluate(() => { window.__recLimit = 2; });
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => { const b = document.querySelector("#view .pr-rec"); return b && b.getAttribute("aria-pressed") === "true"; }, null, { timeout: 5000 });
+      const r1 = await recState(page);
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 10000 });
+      const db = await clipsInDB(page), st = await stateNow(page), humor = (st.reps || {}).humor || [], c = db.list[0] || {};
+      const r2 = await recState(page);
+      check("(p) auto-stop: with window.__recLimit = 2 one press records, the timer reads m:ss / 0:02, and it stops on its own at the limit",
+        !!r1 && r1.on && / \/ 0:02$/.test(r1.time) && !!r2 && !r2.on, JSON.stringify({ r1, r2 }));
+      check("(p) auto-stop: one humour clip, 1 to 3 seconds, title \"Humour · " + DAY + "\"",
+        db.list.length === 1 && c.kind === "humor" && c.seconds >= 1 && c.seconds <= 3 && c.title === "Humour · " + DAY && !!c.blob && c.blob.size > 0, JSON.stringify(db.list));
+      check("(p) auto-stop: logged through the humour rep path — reps.humor gains one entry for today, reps.story none",
+        humor.length === 1 && humor[0].date === TODAY && humor[0].seconds === c.seconds && ((st.reps || {}).story || []).length === 0, JSON.stringify(st.reps));
+    } catch (e) { check("(p) auto-stop: the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(p) auto-stop: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // A rest day: "Nothing owed today" above the recorder, and recording still
+  // works — the clip is kept; the rep path refuses a rest day, as it always has.
+  {
+    const SAT = "2026-10-24";
+    const { ctx, page, errors } = await micFresh(micBrowser, 390, P_STATE, SAT);
+    try {
+      const o = await page.evaluate(() => {
+        const rest = [...document.querySelectorAll("#view .card")].find(c => /Nothing owed today/.test(c.textContent));
+        const btn = document.querySelector("#view .pr-rec");
+        return { rest: !!rest, above: !!rest && !!btn && rest.getBoundingClientRect().bottom <= btn.getBoundingClientRect().top };
+      });
+      check("(p) a Saturday: the \"Nothing owed today\" card sits above the recorder", o.rest && o.above, JSON.stringify(o));
+      await page.tap("#view .pr-rec");
+      await page.waitForFunction(() => /^0:0[1-9]/.test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), null, { timeout: 8000 });
+      await page.tap("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      const db = await clipsInDB(page), st = await stateNow(page);
+      check("(p) a Saturday: recording is allowed — the clip is kept (key " + SAT + "-1); no rep is logged on a rest day",
+        db.list.length === 1 && db.list[0].key === SAT + "-1" && (((st.reps || {}).story) || []).length === 0, JSON.stringify(db.list.map(x => x.key)) + " " + JSON.stringify(st.reps || {}));
+      await shot(page, "flow-p-saturday-390");
+    } catch (e) { check("(p) a Saturday: the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(p) a Saturday: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  // ---- T-028 review 1: how a recording can end ----
+  // The streams the page is handed, captured as getUserMedia returns them, so
+  // the harness can end a track under the recorder and read whether the app
+  // released the microphone. __gumDelay holds the prompt open that long.
+  const captureStreams = () => {
+    if (window.top !== window || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+    window.__streams = [];
+    const g = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = async c => {
+      if (window.__gumDelay) await new Promise(r => setTimeout(r, window.__gumDelay));
+      const s = await g(c);
+      window.__streams.push(s);
+      return s;
+    };
+  };
+  const allEnded = page => page.waitForFunction(() => window.__streams.length > 0 &&
+    window.__streams.every(s => s.getTracks().every(t => t.readyState === "ended")), null, { timeout: 8000 }).then(() => true, () => false);
+  const idle = page => page.waitForFunction(() => { const b = document.querySelector("#view .pr-rec");
+    return !!b && b.getAttribute("aria-pressed") === "false" && b.getAttribute("aria-busy") === "false"; }, null, { timeout: 8000 }).then(() => true, () => false);
+  const timerAt = (page, re) => page.waitForFunction(re => new RegExp(re).test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), re, { timeout: 8000 });
+
+  // The recorder stops by itself (the track ended: a device unplugged, the
+  // permission revoked). The clip is still finished — numeric seconds, a rep
+  // the chain can verify after a reload — and the microphone's timer does not
+  // outlive it: the next recording runs to its full length. Review 2: the
+  // limit is 3s from the FIRST press, the track ends at about 2s, and the
+  // second recording starts the moment the first one's row appears — so a
+  // leaked timer from the first (it would call recStop at 3s from the first
+  // press) lands inside the second and cuts it under a second. With the limit
+  // set only before the second press, the leak would have fired at 90s, long
+  // after this case ended, and the check could never fail.
+  await acrossReload({ label: "(p) the recorder stops by itself", check, fail: why => check("(p) the recorder stops by itself: " + why, false) }, async (check, reload) => {
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, captureStreams);
+    try {
+      await pickTab(page, "story");
+      await page.evaluate(() => { window.__recLimit = 3; });
+      await page.click("#view .pr-rec");
+      await timerAt(page, "^0:02 ");
+      await page.evaluate(() => window.__streams.forEach(s => s.getTracks().forEach(t => t.stop())));
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 1, null, { timeout: 8000 });
+      const idleAfter = await idle(page);
+      // The second recording, at once: inside the first one's 3s.
+      await page.click("#view .pr-rec");
+      const db = await clipsInDB(page), st = await stateNow(page), story = (st.reps || {}).story || [];
+      const ev = (st.ledger || [])[(st.ledger || []).length - 1] || {};
+      const hist = await page.evaluate(() => document.querySelector("#view .pr-log") ? document.querySelector("#view .pr-log").textContent : "");
+      check("(p) the track ends under the recorder: the clip is finished anyway — one clip, one rep whose seconds is a number equal to the clip's, its chain event the same, nothing reading \"undefined\"",
+        db.list.length === 1 && story.length === 1 && typeof story[0].seconds === "number" && story[0].seconds >= 1 && story[0].seconds === db.list[0].seconds &&
+          !!ev.data && ev.data.seconds === story[0].seconds && !/undefined/.test(hist) && !/undefined/.test(JSON.stringify(st.reps)),
+        JSON.stringify({ clips: db.list.map(c => [c.key, c.seconds]), story, ev: ev.data }));
+      check("(p) the track ends under the recorder: the button is idle again", idleAfter, "");
+      await page.waitForFunction(() => document.querySelector("#view .pr-rec").getAttribute("aria-pressed") === "true", null, { timeout: 5000 });
+      await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 2, null, { timeout: 10000 }).catch(() => {});
+      const db2 = await clipsInDB(page), second = db2.list.find(c => c.key === TODAY + "-2");
+      check("(p) the track ends under the recorder: the next recording, started inside the first one's 3s, runs to its full length (3 of a 3s limit), not cut short by the first one's timer",
+        !!second && second.seconds === 3, JSON.stringify(db2.list.map(c => [c.key, c.seconds])));
+      await reload(page, { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/record");
+      const seals = await page.evaluate(() => { const g = [...document.querySelectorAll("#view .ghead")].find(x => /Latest seals/.test(x.textContent));
+        return g ? ((g.querySelector(".gh-meta") || {}).textContent || "").trim() : null; });
+      check("(p) the track ends under the recorder: after a reload /record says the chain is whole (\"newest first\", not \"chain broken\")", seals === "newest first", String(seals));
+    } catch (e) { check("(p) the recorder stops by itself: the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(p) the recorder stops by itself: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  });
+
+  // A start still waiting on the microphone prompt (held open 1.5s) is
+  // cancelled by leaving the page or picking another tab: the stream that
+  // arrives afterwards is released, and nothing is recorded or logged.
+  for (const what of ["leave", "tab"]) {
+    const at = "(p) the prompt is open and the reader " + (what === "leave" ? "leaves the page" : "picks Humour");
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, captureStreams);
+    try {
+      await pickTab(page, "story");
+      const w0 = await writes(page);
+      await page.evaluate(() => { window.__gumDelay = 1500; });
+      await page.click("#view .pr-rec");
+      const wait = await page.waitForFunction(() => { const b = document.querySelector("#view .pr-rec");
+        return b.getAttribute("aria-busy") === "true" && /^Starting/.test(document.querySelector("#view .pr-time").textContent); }, null, { timeout: 2000 }).then(() => true, () => false);
+      check(at + ": while the prompt is open the button shows it is starting (aria-busy, \"Starting…\")", wait, "");
+      if (what === "leave") await page.evaluate(() => { location.hash = "#/"; });
+      else await page.click("#view [data-ptab=humor]");
+      const ended = await allEnded(page);
+      if (what === "leave") { await go(page, "/practice"); await pickTab(page, "story"); }
+      const db = await clipsInDB(page), st = await stateNow(page), b = await recState(page);
+      check(at + ": the stream that arrives after is released (every track ended), no clip, no rep, nothing written, and the button on screen is idle",
+        ended && db.list.length === 0 && !((st.reps || {}).story || []).length && !((st.reps || {}).humor || []).length && (await writes(page)) === w0 && !!b && !b.on && !/^Starting/.test(b.time),
+        JSON.stringify({ ended, clips: db.list.length, reps: st.reps || null, writes: (await writes(page)) - w0, button: b }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // Under a second is not a rep: a double tap 30ms apart, and a stop 150ms
+  // into a recording, keep nothing and log nothing.
+  {
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, captureStreams);
+    try {
+      await pickTab(page, "story");
+      await page.evaluate(() => { const b = () => document.querySelector("#view .pr-rec"); b().click(); setTimeout(() => b().click(), 30); });
+      const ended = await allEnded(page), still = await idle(page);
+      await page.waitForFunction(() => document.querySelector("#view #prClips").getAttribute("aria-busy") === "false", null, { timeout: 5000 });
+      const db = await clipsInDB(page), st = await stateNow(page);
+      check("(p) a double tap 30ms apart: the microphone is released, the button is idle, no clip and no rep",
+        ended && still && db.list.length === 0 && !((st.reps || {}).story || []).length, JSON.stringify({ ended, still, clips: db.list.length, reps: st.reps || null }));
+      await page.evaluate(() => { const t = document.querySelector("#toast"); window.__toasts = []; new MutationObserver(() => window.__toasts.push(t.textContent)).observe(t, { childList: true, characterData: true, subtree: true }); });
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => document.querySelector("#view .pr-rec").getAttribute("aria-pressed") === "true", null, { timeout: 5000 });
+      await page.waitForTimeout(150);                       // the length under test, not a settle
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => window.__toasts.length > 0, null, { timeout: 5000 });
+      const db2 = await clipsInDB(page), st2 = await stateNow(page), said = await page.evaluate(() => window.__toasts.join(" | "));
+      check("(p) stopped 150ms in: nothing kept, nothing logged, and the reader is told (\"Under a second…\")",
+        db2.list.length === 0 && !((st2.reps || {}).story || []).length && /^Under a second/.test(said), JSON.stringify({ clips: db2.list.length, reps: st2.reps || null, said }));
+    } catch (e) { check("(p) under a second: the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(p) under a second: no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // Review 2: MediaRecorder.start() throws (a recorder in a bad state). The
+  // microphone is released, the hand form appears as for a refused prompt,
+  // nothing is logged, and nothing escapes as a page error.
+  {
+    const at = "(p) MediaRecorder.start() throws";
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, [captureStreams, () => {
+      if (window.top === window && window.MediaRecorder) MediaRecorder.prototype.start = function () { throw new DOMException("bad state", "InvalidStateError"); };
+    }]);
+    try {
+      await pickTab(page, "story");
+      const w0 = await writes(page);
+      await page.click("#view .pr-rec");
+      const fell = await page.waitForFunction(() => /Microphone not available, so log it by hand/.test((document.querySelector("#view .pr-pane") || {}).textContent || ""), null, { timeout: 5000 }).then(() => true, () => false);
+      const ended = await allEnded(page);
+      const f = await page.evaluate(() => ({ rec: !!document.querySelector("#view .pr-rec"), form: !!document.querySelector("#view #repSecs") && !!document.querySelector("#view [data-act=repStory]"),
+        live: window.__streams.reduce((n, s) => n + s.getTracks().filter(t => t.readyState === "live").length, 0) }));
+      const db = await clipsInDB(page), st = await stateNow(page);
+      check(at + ": the fallback line and the hand form appear, the record button is gone, no track is live, no clip, nothing logged or written",
+        fell && ended && f.form && !f.rec && f.live === 0 && db.list.length === 0 && !((st.reps || {}).story || []).length && (await writes(page)) === w0,
+        JSON.stringify({ fell, ended, f, clips: db.list.length, reps: st.reps || null, writes: (await writes(page)) - w0 }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  await micBrowser.close();
+
+  // (q) No microphone. Twice: the permission denied (getUserMedia stubbed to
+  // reject with NotAllowedError, as a refused prompt does), and no device at
+  // all (the plain Chromium, which has none: NotFoundError). Each time the
+  // card shows the one line and the manual form, and logging by hand works.
+  const NOMIC = [
+    { name: "permission denied", init: () => {
+      if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
+    } },
+    { name: "no device", init: null },
+  ];
+  for (const nm of NOMIC) for (const w of WIDTHS) {
+    const at = w + "px, " + nm.name;
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860, isMobile: w < 860 });
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+    if (nm.init) await ctx.addInitScript(nm.init);
+    await ctx.addInitScript(countWrites);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    try {
+      await page.goto(URL + "/practice", { waitUntil: "load" });
+      await page.waitForSelector("#view .seg");
+      await pickTab(page, "story");
+      if (w < 860) await page.tap("#view .pr-rec"); else await page.click("#view .pr-rec");
+      await page.waitForFunction(() => /Microphone not available, so log it by hand/.test((document.querySelector("#view .pr-pane") || {}).textContent || ""), null, { timeout: 5000 }).catch(() => {});
+      const f = await page.evaluate(() => {
+        const p = document.querySelector("#view .pr-pane"), vis = s => { const e = p && p.querySelector(s); return !!e && e.checkVisibility(); };
+        return { line: /Microphone not available, so log it by hand/.test((p || {}).textContent || ""), rec: !!document.querySelector("#view .pr-rec"),
+          form: vis("#repSecs") && vis("#repTakes") && vis("#repWhich") && vis("[data-act=repStory]") };
+      });
+      check("(q) " + at + ": Story — the fallback line and the manual form (seconds, takes, which, Log the rep) appear; no record button",
+        f.line && f.form && !f.rec, JSON.stringify(f));
+      await shot(page, "flow-q-nomic-" + w + "-" + nm.name.replace(/ /g, "-"));
+      await page.fill("#repSecs", "75"); await page.fill("#repTakes", "2"); await page.fill("#repWhich", "the napkin one");
+      await markView(page);
+      await page.click("#view [data-act=repStory]");
+      await viewReplaced(page);
+      const st = await stateNow(page), story = (st.reps || {}).story || [];
+      check("(q) " + at + ": logging by hand still works — reps.story { date, seconds 75, takes 2, from \"the napkin one\" }",
+        story.length === 1 && JSON.stringify(story[0]) === JSON.stringify({ date: TODAY, seconds: 75, takes: 2, from: "the napkin one" }), JSON.stringify(story));
+      await pickTab(page, "humor");
+      const h = await page.evaluate(() => {
+        const p = document.querySelector("#view .pr-pane");
+        return { line: /Microphone not available, so log it by hand/.test((p || {}).textContent || ""), rec: !!document.querySelector("#view .pr-rec"),
+          fields: [0, 1, 2, 3, 4].every(k => { const e = document.getElementById("joke" + k); return !!e && e.checkVisibility(); }) };
+      });
+      check("(q) " + at + ": Humour — once the microphone has failed, the same line, and the five attempts open (not folded); no record button",
+        h.line && h.fields && !h.rec, JSON.stringify(h));
+      for (let k = 0; k < 5; k++) await page.fill("#joke" + k, "attempt " + (k + 1));
+      await markView(page);
+      await page.click("#view [data-act=repHumor]");
+      await viewReplaced(page);
+      const humor = ((await stateNow(page)).reps || {}).humor || [];
+      check("(q) " + at + ": Humour logs by hand as before — five attempts, no keeper", humor.length === 1 && humor[0].attempts.length === 5 && humor[0].keeper === 0, JSON.stringify(humor));
+    } catch (e) { check("(q) " + at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(q) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (q) on a Saturday, permission denied, at 390: the hand panes draw no Log
+  // button that could only refuse — the line "Nothing owed today" instead —
+  // on Story (once the microphone has failed), Humour and Story bank.
+  {
+    const at = "390px, permission denied, Sat 24 Oct";
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true, isMobile: true });
+    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+    await ctx.clock.setFixedTime(new Date("2026-10-24T12:00:00Z"));
+    await ctx.addInitScript(NOMIC[0].init);
+    await ctx.addInitScript(countWrites);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    try {
+      await page.goto(URL + "/practice", { waitUntil: "load" });
+      await page.waitForSelector("#view .seg");
+      await pickTab(page, "story");
+      await page.tap("#view .pr-rec");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-nomic"), null, { timeout: 5000 });
+      const pane = () => page.evaluate(() => { const p = document.querySelector("#view .pr-pane");
+        return { nomic: !!p.querySelector(".pr-nomic"), rest: ((p.querySelector(".pr-rest") || {}).textContent || "").trim(),
+          log: [...document.querySelectorAll("#view .pr-pane [data-act^=rep]")].map(b => b.dataset.act), fields: p.querySelectorAll("input, textarea").length }; });
+      const out = { story: await pane() };
+      await pickTab(page, "humor"); out.humor = await pane();
+      await pickTab(page, "bank"); out.bank = await pane();
+      check("(q) " + at + ": Story, Humour and Story bank each say \"Nothing owed today.\" and draw no Log button and no fields; Story and Humour still say the microphone is not available",
+        ["story", "humor", "bank"].every(k => out[k].rest === "Nothing owed today." && out[k].log.length === 0 && out[k].fields === 0) && out.story.nomic && out.humor.nomic,
+        JSON.stringify(out));
+    } catch (e) { check("(q) " + at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check("(q) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   // ---- (j) the tab bar you slide along (T-023) ----
   // Once, at 390x568, with motion ON (the spring is part of what is measured).
   // 568 tall so Today scrolls past 800 (at 844 it scrolls 548).
@@ -1418,7 +1893,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   console.log("\n" + (fails === 0
     ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
-      "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c)"
+      "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
+      "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

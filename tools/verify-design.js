@@ -1999,6 +1999,80 @@ function t26cLib() {
   };
 }
 
+// ---- T-028: Practice, as it is on screen ----
+// The header, the three tabs, the record button and what is painted round it.
+// The red is read off the disc and the card behind it is read the way
+// verify-contrast reads a backdrop; #ff453a (the spec's default red) is
+// measured against the same card, so the spec's rule — #ff453a, or the
+// theme's --bad if that has better contrast — is checked, not assumed.
+function t28Practice() {
+  const z = window.__dz, q = s => document.querySelector(s);
+  const txt = n => (n ? n.textContent.trim() : null);
+  const box = n => { const r = n.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, cx: r.left + r.width / 2, b: r.bottom }; };
+  const btn = q("#view .pr-rec"), card = btn && btn.closest(".pr-card"), dot = btn && btn.querySelector(".pr-dot");
+  const cardBg = card ? z.backdrop(card) : null;
+  const red = dot ? z.bytes(getComputedStyle(dot).backgroundColor) : null, ring = btn ? z.bytes(getComputedStyle(btn).borderTopColor) : null;
+  const SYS = [255, 69, 58, 255];
+  const list = q("#view #prClips"), lh = list && list.previousElementSibling;
+  const rest = [...document.querySelectorAll("#view .card.one")].find(c => /Nothing owed today/.test(c.textContent));
+  const rev = [...document.querySelectorAll("#view .card.one")].find(c => /Monthly review/.test(c.textContent));
+  const seg = q("#view .pr-seg");
+  return {
+    head: { h1: txt(q("#view .page-head h1")), sub: txt(q("#view .page-head .sub")), week: txt(q("#view .pr-week-t")),
+      dots: document.querySelectorAll("#view .pr-week .wd").length, on: document.querySelectorAll("#view .pr-week .wd.on").length },
+    seg: [...document.querySelectorAll("#view .pr-seg button")].map(b => Object.assign({ t: txt(b), on: b.getAttribute("aria-pressed") === "true" }, box(b))),
+    rec: btn ? Object.assign(box(btn), {
+      tag: btn.tagName, type: btn.getAttribute("type"), label: btn.getAttribute("aria-label") || "", tab: btn.tabIndex, card: box(card),
+      red: z.hex(red), bad: z.hex(z.tok("--bad")), ink: z.hex(z.tok("--ink")), ring: z.hex(ring), ringW: parseFloat(getComputedStyle(btn).borderTopWidth),
+      cardBg: z.hex(cardBg), redRatio: z.ratio(red, cardBg), sysRatio: z.ratio(SYS, cardBg), ringRatio: z.ratio(ring, cardBg),
+      round: dot ? parseFloat(getComputedStyle(dot).borderTopLeftRadius) >= dot.getBoundingClientRect().width / 2 - 0.5 : false }) : null,
+    time: txt(q("#view .pr-time")),
+    prompt: txt(q("#view .pr-card .pr-prompt")), hint: txt(q("#view .pr-card .pr-hint")),
+    listHead: lh && lh.matches(".ghead") ? { t: lh.firstChild.textContent.trim(), meta: txt(lh.querySelector(".gh-meta")) } : null,
+    rest: rest ? box(rest) : null, review: rev ? Object.assign(box(rev), { form: !!rev.querySelector("#revNotes"), go: txt(rev.querySelector("[data-act=repReview]")) }) : null,
+    segTop: seg ? seg.getBoundingClientRect().top : null,
+    focus: document.activeElement ? (document.activeElement.matches(".pr-rec") ? "record" : document.activeElement.tagName) : null,
+  };
+}
+// T-028 review 1: the hand forms fill their card. Each field's box against
+// the card's content box (its width less its padding): a dead align-items
+// rule once left them at their intrinsic ~220px.
+function t28Fill(ids) {
+  const card = document.querySelector("#view .pr-pane .pr-card");
+  if (!card) return null;
+  const r = card.getBoundingClientRect(), cs = getComputedStyle(card);
+  const left = r.left + parseFloat(cs.paddingLeft), right = r.right - parseFloat(cs.paddingRight);
+  return { content: +(right - left).toFixed(1), fields: ids.map(id => { const e = document.getElementById(id); if (!e) return { id, missing: true };
+    const b = e.getBoundingClientRect(); return { id, l: +(b.left - left).toFixed(1), r: +(right - b.right).toFixed(1), w: +b.width.toFixed(1) }; }) };
+}
+// T-028 review 1: the clip rows at phone widths. Every title field shows its
+// whole title (scrollWidth within clientWidth), its controls are 44x44, and
+// download/delete do not sit on top of the title.
+function t28Rows() {
+  return [...document.querySelectorAll("#view .pr-clip")].map(row => {
+    const n = row.querySelector(".pr-name"), m = row.querySelector(".pr-main").getBoundingClientRect();
+    const ics = [...row.querySelectorAll(".pr-ic")].map(c => c.getBoundingClientRect());
+    const ctl = [...row.querySelectorAll(".pr-play, .pr-ic")].map(c => c.getBoundingClientRect());
+    return { title: n.value, scroll: n.scrollWidth, client: n.clientWidth,
+      apart: ics.length > 0 && ics.every(a => a.top >= m.bottom - 1 || a.left >= m.right - 1), small: ctl.filter(c => c.width < 44 || c.height < 44).length, ctl: ctl.length };
+  });
+}
+// The clips for t28Rows, written straight into IndexedDB as the recorder
+// stores them: default titles, the widest weekday and month this app prints.
+function t28SeedClips(list) {
+  return new Promise((res, rej) => {
+    const q = indexedDB.open("brickford_audio", 1);
+    q.onupgradeneeded = () => { if (!q.result.objectStoreNames.contains("clips")) q.result.createObjectStore("clips"); };
+    q.onerror = () => rej(q.error);
+    q.onsuccess = () => {
+      const db = q.result, t = db.transaction("clips", "readwrite");
+      list.forEach(c => t.objectStore("clips").put({ date: c.date, seconds: c.seconds, kind: c.kind, title: c.title, blob: new Blob([new Uint8Array(64)], { type: "audio/webm" }) }, c.key));
+      t.oncomplete = () => { db.close(); res(list.length); };
+      t.onerror = () => rej(t.error);
+    };
+  });
+}
+
 (async () => {
   console.log("status bar (read from platform/css/style.css)");
   safeAreaSource();
@@ -4340,6 +4414,138 @@ function t26cLib() {
     }
   }
 
+  // ---- T-028: Practice — record yourself ----
+  // At 1440 and 390, Dark and Light, on a day with nothing owed (the bank
+  // logged Mon 19 and today, Tue 20): the header with its week, three tabs
+  // with Story picked, the record button >= 88px, centred in its card, a
+  // <button> with a label that the keyboard reaches, its red the theme's
+  // --bad where that beats #ff453a against the card (and >= 3:1 either way,
+  // non-text), its ring --ink at >= 3:1; nothing written. Then, once each at
+  // 390 Dark, the default tab on the days it changes, the Saturday card and
+  // the monthly review's card above the tabs.
+  let t28Checks = 0;
+  const c28 = (name, ok, detail) => { t28Checks++; return check(name, ok, detail); };
+  const T28_SUB = "Speak it out loud. Recording yourself is the practice.";
+  const t28Reps = o => Object.assign({ bank: [], story: [], humor: [], review: [] }, o);
+  const T28_BANK = d => ({ date: d, what: "a client asked what an embedding was", why: "he got it in 20 seconds" });
+  const T28_PATCH = { reps: t28Reps({ bank: [T28_BANK("2026-10-19"), T28_BANK("2026-10-20")] }) };
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      const at = o.w + "px " + theme;
+      console.log("\nT-028 Practice, " + at);
+      const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, patch: T28_PATCH }, o));
+      const w0 = await writesNow(page);
+      await go(page, "/practice");
+      await page.waitForFunction(() => { const l = document.querySelector("#view #prClips"); return l && l.getAttribute("aria-busy") === "false"; }, null, { timeout: 5000 }).catch(() => {});
+      const m = await page.evaluate(t28Practice), r = m.rec || {};
+      c28(at + " /practice: the header is h1 \"Practice\" and \"" + T28_SUB + "\", with the week's six dots and \"2 of 6 days this week\"",
+        m.head.h1 === "Practice" && m.head.sub === T28_SUB && m.head.dots === 6 && m.head.on === 2 && m.head.week === "2 of 6 days this week", JSON.stringify(m.head));
+      c28(at + " /practice: the segmented control has 3 options — Story, Humour, Story bank — each >= 44x44, and Story is picked (nothing is owed)",
+        m.seg.length === 3 && m.seg.map(s => s.t).join("|") === "Story|Humour|Story bank" && m.seg.every(s => s.w >= 44 && s.h >= 44) &&
+          m.seg.filter(s => s.on).map(s => s.t).join() === "Story", m.seg.map(s => s.t + (s.on ? "*" : "") + " " + s.w.toFixed(0) + "x" + s.h.toFixed(0)).join(", "));
+      c28(at + " /practice: the Story card reads \"Tell one story from this week\" / \"Under 90 seconds. Beginning, turn, ending.\" and the timer 0:00 / 1:30",
+        m.prompt === "Tell one story from this week" && m.hint === "Under 90 seconds. Beginning, turn, ending." && m.time === "0:00 / 1:30", JSON.stringify([m.prompt, m.hint, m.time]));
+      c28(at + " /practice: the record button is a <button type=button> labelled \"Start recording\", in the tab order, at least 88x88 (" + (r.w || 0).toFixed(0) + "x" + (r.h || 0).toFixed(0) + "), its disc round",
+        !!m.rec && r.tag === "BUTTON" && r.type === "button" && r.label === "Start recording" && r.tab === 0 && r.w >= 88 && r.h >= 88 && r.round, JSON.stringify(m.rec));
+      c28(at + " /practice: the record button is centred in its card (centre within 1px of the card's)",
+        !!m.rec && Math.abs(r.cx - r.card.cx) <= 1 && r.x >= r.card.x && r.x + r.w <= r.card.x + r.card.w,
+        m.rec ? "button centre " + r.cx.toFixed(1) + ", card centre " + r.card.cx.toFixed(1) : "no button");
+      c28(at + " /practice: its red is the theme's --bad (" + (r.bad || "?") + "), which beats #ff453a on the card (" + (r.redRatio || 0).toFixed(2) + ":1 against " + (r.sysRatio || 0).toFixed(2) + ":1 on " + (r.cardBg || "?") + "), and clears 3:1",
+        !!m.rec && r.red === r.bad && r.redRatio >= r.sysRatio && r.redRatio >= 3, JSON.stringify({ red: r.red, bad: r.bad, cardBg: r.cardBg }));
+      c28(at + " /practice: its ring is --ink (" + (r.ink || "?") + "), " + (r.ringW || 0) + "px, at " + (r.ringRatio || 0).toFixed(2) + ":1 on the card (>= 3:1)",
+        !!m.rec && r.ring === r.ink && r.ringW >= 3 && r.ringRatio >= 3, JSON.stringify({ ring: r.ring, ink: r.ink, ringW: r.ringW }));
+      c28(at + " /practice: \"Your recordings\" heads the list, \"kept on this device\"",
+        !!m.listHead && m.listHead.t === "Your recordings" && m.listHead.meta === "kept on this device", JSON.stringify(m.listHead));
+      // The keyboard: from the last tab, Tab lands on the record button.
+      await page.focus("#view [data-ptab=bank]");
+      await page.keyboard.press("Tab");
+      const f = await page.evaluate(() => document.activeElement && document.activeElement.matches(".pr-rec"));
+      c28(at + " /practice: Tab from the last tab lands on the record button", f, String(f));
+      // Review 1: the hand forms fill the card's content box (within 1px each side).
+      const fills = (x, ids) => !!x && x.fields.length === ids.length && x.fields.every(g => !g.missing && Math.abs(g.l) <= 1 && Math.abs(g.r) <= 1);
+      await page.click("#view [data-ptab=bank]");
+      const fb = await page.evaluate(t28Fill, ["bankWhat", "bankWhy"]);
+      c28(at + " /practice: Story bank's two fields fill the card's content box (" + (fb ? fb.content : "?") + "px)", fills(fb, ["bankWhat", "bankWhy"]), JSON.stringify(fb));
+      // No microphone in this browser: pressing record brings the hand form.
+      await page.click("#view [data-ptab=story]");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-nomic"), null, { timeout: 5000 }).catch(() => {});
+      const fs2 = await page.evaluate(t28Fill, ["repWhich"]);
+      const grid = await page.evaluate(() => { const a = document.getElementById("repSecs"), b = document.getElementById("repTakes"), w = document.getElementById("repWhich");
+        if (!a || !b || !w) return null; const A = a.getBoundingClientRect(), B = b.getBoundingClientRect(), W = w.getBoundingClientRect();
+        return { l: +(A.left - W.left).toFixed(1), r: +(W.right - B.right).toFixed(1) }; });
+      c28(at + " /practice: with no microphone, Story's hand form fills the card — \"Which entry\" edge to edge, seconds and takes spanning the same width",
+        fills(fs2, ["repWhich"]) && !!grid && Math.abs(grid.l) <= 1 && Math.abs(grid.r) <= 1, JSON.stringify({ fs2, grid }));
+      const w1 = await writesNow(page);
+      c28(at + " /practice: opening it and reading the recordings wrote nothing (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
+      c28(at + " /practice: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+  const T28_DAYS = [
+    { name: "Tue 20 Oct, the bank not yet logged: Story bank", patch: { reps: t28Reps() }, want: "Story bank" },
+    { name: "Fri 23 Oct (story and humour owed), the bank logged: Story", now: new Date("2026-10-23T12:00:00Z"),
+      patch: { reps: t28Reps({ bank: [T28_BANK("2026-10-23")] }) }, want: "Story" },
+    { name: "Fri 23 Oct, the bank and the story logged: Humour", now: new Date("2026-10-23T12:00:00Z"),
+      patch: { reps: t28Reps({ bank: [T28_BANK("2026-10-23")], story: [{ date: "2026-10-23", seconds: 70, takes: 1, from: "x" }] }) }, want: "Humour" },
+    { name: "Sat 24 Oct: the rest card above the tabs, Story", now: new Date("2026-10-24T12:00:00Z"), patch: { reps: t28Reps() }, want: "Story", rest: true },
+    { name: "a monthly review owed: its card above the tabs, with its form", patch: { reps: t28Reps({ bank: [T28_BANK("2026-10-20")],
+      story: [{ date: "2026-09-01", seconds: 80, takes: 1, from: "the first one" }] }) }, want: "Story", review: true },
+  ];
+  // Review 1: at 320 and 390 a default title is never cut off.
+  const T28_CLIPS = [
+    { key: "2026-10-20-1", date: "2026-10-20", seconds: 72, kind: "story", title: "Story \u00b7 Tue 20 Oct" },
+    { key: "2026-09-30-1", date: "2026-09-30", seconds: 58, kind: "humor", title: "Humour \u00b7 Wed 30 Sep" },
+    { key: "2026-09-24-1", date: "2026-09-24", seconds: 90, kind: "humor", title: "Humour \u00b7 Thu 24 Sep" },
+  ];
+  for (const w of [320, 390]) {
+    const at = w + "px dark, three recordings with default titles";
+    console.log("\nT-028 " + at);
+    const { ctx, page, errors } = await t26bFresh({ w, h: 844, mobile: true, theme: "dark", patch: T28_PATCH });
+    await page.evaluate(t28SeedClips, T28_CLIPS);
+    const w0 = await writesNow(page);
+    await go(page, "/practice");
+    await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 3, null, { timeout: 5000 }).catch(() => {});
+    const rows = await page.evaluate(t28Rows);
+    c28(at + " — every title is shown whole (scrollWidth <= clientWidth), download and delete clear of it, every control >= 44x44",
+      rows.length === 3 && rows.every(r => r.scroll <= r.client && r.apart && r.small === 0 && r.ctl === 3),
+      rows.map(r => "\"" + r.title + "\" " + r.scroll + "/" + r.client + (r.apart ? "" : " overlapped") + (r.small ? " " + r.small + " small" : "")).join("; "));
+    const w1 = await writesNow(page);
+    c28(at + " — nothing written, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
+    await ctx.close();
+  }
+  for (const d of T28_DAYS) {
+    const at = "390px dark, " + d.name;
+    console.log("\nT-028 " + at);
+    const { ctx, page, errors } = await t26bFresh({ w: 390, h: 844, mobile: true, theme: "dark", patch: d.patch, now: d.now });
+    const w0 = await writesNow(page);
+    await go(page, "/practice");
+    const m = await page.evaluate(t28Practice);
+    const picked = m.seg.filter(s => s.on).map(s => s.t).join();
+    c28(at + " — the tab picked is " + d.want, picked === d.want, picked || "none");
+    if (d.rest) c28(at + " — \"Nothing owed today\" is a card above the tabs and the recorder, which is still there",
+      !!m.rest && !!m.rec && m.rest.b <= m.segTop && m.rest.b <= m.rec.y, JSON.stringify({ rest: m.rest, segTop: m.segTop, rec: !!m.rec }));
+    if (d.rest) {
+      // Review 1: a Log button on a rest day could only refuse. None is drawn;
+      // the bank pane says "Nothing owed today." and the recorder stays.
+      const panes = {};
+      for (const k of ["story", "humor", "bank"]) {
+        await page.click("#view [data-ptab=" + k + "]");
+        panes[k] = await page.evaluate(() => { const p = document.querySelector("#view .pr-pane");
+          return { log: [...p.querySelectorAll("[data-act^=rep]")].map(b => b.dataset.act), rec: !!p.querySelector(".pr-rec"), write: !!p.querySelector(".pr-write"),
+            rest: ((p.querySelector(".pr-rest") || {}).textContent || "").trim() }; });
+      }
+      c28(at + " — no tab draws a Log button; Story and Humour keep the recorder (Humour without its written fold); Story bank says \"Nothing owed today.\"",
+        ["story", "humor", "bank"].every(k => panes[k].log.length === 0) && panes.story.rec && panes.humor.rec && !panes.humor.write && !panes.bank.rec &&
+          panes.bank.rest === "Nothing owed today.", JSON.stringify(panes));
+    }
+    if (d.review) c28(at + " — the review card, its notes field and \"Log the review\" sit above the tabs",
+      !!m.review && m.review.form && m.review.go === "Log the review" && m.review.b <= m.segTop, JSON.stringify(m.review));
+    const w1 = await writesNow(page);
+    c28(at + " — nothing written, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
+    await ctx.close();
+  }
+
   await browser.close();
 
   console.log("");
@@ -4369,7 +4575,8 @@ function t26cLib() {
       "T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view " +
       "(one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides " +
       "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, " + T26C_STATES.length + " more Week states at 1440/390, ‹ › Today tapped and keyed " +
-      "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks)"
+      "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
+      "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

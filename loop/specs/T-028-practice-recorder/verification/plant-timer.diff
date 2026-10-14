@@ -1,0 +1,13 @@
+diff --git a/platform/js/app.js b/platform/js/app.js
+index a568d3c..2155479 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4323,7 +4323,7 @@
+     if (r.stopped) return;
+     r.stopped = true;
+     r.focused = !!document.activeElement && document.activeElement.classList.contains("pr-rec");
+-    clearInterval(r.tick);
++    /* PLANT (timer): clearInterval(r.tick) removed from recMark */
+     r.elapsed = Math.min(r.limit, recSecs(r));
+   }
+   function recFinish(r) {

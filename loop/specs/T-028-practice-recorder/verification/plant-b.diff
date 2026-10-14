@@ -1,0 +1,15 @@
+diff --git a/platform/js/app.js b/platform/js/app.js
+index a568d3c..339a3c7 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4363,7 +4363,9 @@
+         { date: iso, keeper: k >= 1 && k <= 5 ? k : 0 });
+       msg = "Logged, " + clockLabel(r.seconds) + " recorded.";
+     } else {
+-      logRep("story", { date: iso, seconds: r.seconds, takes: 1, from: title }, { date: iso, seconds: r.seconds });
++      /* PLANT (b): the audio blob written into localStorage state, as a data: URL on the rep */
++      const audio = await new Promise(res => { const f = new FileReader(); f.onload = () => res(f.result); f.readAsDataURL(blob); });
++      logRep("story", { date: iso, seconds: r.seconds, takes: 1, from: title, audio: audio }, { date: iso, seconds: r.seconds });
+       msg = r.seconds <= 90 ? "Logged, and inside 90s." : "Logged — " + r.seconds + "s. The cap is 90.";
+     }
+     if (!(isRestDay(iso) && iso >= D.START_DATE)) save();

@@ -92,6 +92,23 @@ Also: the story-bank screenshot is retaken after its tab's transition has finish
 
 Restored; `cmp` clean. Tokens are now `20261014b`. The screenshots are unchanged from review 1, because round 2 changed no CSS and nothing that is drawn.
 
+## Review round 3 (1 finding)
+**The finding.** `bgReplay()` ran inside its caller. Under reduced motion it re-rendered `#view` synchronously in the middle of the tab handler. The handler then compared the new buttons against its old `b`, so no tab was left pressed. On the hashchange path the same thing made leaving the page render twice.
+
+**The fix.**
+- `bgReplay()` now always queues its check, with `setTimeout(…, 0)`. That covers every call site.
+- The tab handler sets `practiceTab` before `recStop()`. It works on the `#view` that is on screen and marks the pressed tab by value.
+
+**The checks (verify-sync-loop, reduced motion).** Both start with the prompt open and a merged push whose repaint has waited.
+- (6) Pick Humour: exactly one tab is pressed, it is Humour, and Humour's recorder is on screen.
+- (7) Leave /practice: the view is swapped once.
+
+**Against 8a735bf's `app.js`** (`review3-bugs-back/`): verify-sync-loop exits 1.
+- (6) no tab is pressed;
+- (7) the view is swapped twice.
+
+Restored; `cmp` clean. Tokens are now `20261014c`.
+
 ## Found, not fixed
 - `MediaRecorder` delivers its data only on stop. A tab closed mid-recording loses that recording, and the rep is not logged. A timeslice would bound the loss but would not save it.
 - verify-contrast's fixtures have no clips in IndexedDB, so it never measures a list row or the recording state.

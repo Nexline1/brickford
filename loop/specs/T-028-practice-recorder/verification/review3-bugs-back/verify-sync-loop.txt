@@ -36,15 +36,20 @@ A background repaint leaves a playing recording and a recording in progress alon
   ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.92})
   ok    (1) no page errors
   ok    (2) a push merged in the laptop's entry and asked for a background repaint while recording
-  ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:04 / 1:30"})
+  ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:03 / 1:30"})
   ok    (2) Enter then stops it and the second recording is kept (2 in the list)
   ok    (2) no page errors
   ok    (3) a push merged in the laptop's entry and asked for a background repaint while the clip was paused part-way
-  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.559,"attached":true,"same":true,"paused":true,"t":1.559}; the view says 2 logged, storage holds 3)
+  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.553,"attached":true,"same":true,"paused":true,"t":1.553}; the view says 2 logged, storage holds 3)
   ok    (4) played to its end, the skipped repaint runs: the view says 3 logged, storage holds 3
   ok    (3)(4) no page errors
   ok    (5) a push merged in the laptop's entry while the prompt was open, and the repaint waited (the view says 2 logged, storage holds 3)
   ok    (5) the prompt cancelled, the view catches up: 3 logged, storage holds 3
   ok    (5) no page errors
+  ok    (6) reduced motion: the prompt open, a merged push, and the repaint waited
+  FAIL  (6) reduced motion: picking Humour then leaves exactly one tab pressed, Humour, with Humour's recorder on screen and the view caught up ({"caughtUp":true,"pressed":[],"recorder":"humor","reduce":true})
+  ok    (6) no page errors
+  FAIL  (7) reduced motion: leaving /practice with the prompt open and a repaint waiting swaps the view once (2 swap(s))
+  ok    (7) no page errors
 
-PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028)
+FAIL — 2 assertions broken

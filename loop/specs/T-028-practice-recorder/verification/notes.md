@@ -45,7 +45,7 @@ I measured this before writing any test (probe in the scratchpad, not committed)
 17. **A second press while the microphone prompt is open cancels the start** (review 1, finding 2).
 18. **`logEvent` round-trips its data through JSON before hashing** (review 1, finding 1). This is in `app.js`'s chain code, outside `V.practice`; it changes no existing hash.
 
-## Plants (re-run on a9e6f67 after review 1; each restored, `cmp` of `platform/js/app.js` against HEAD clean)
+## Plants (re-run on 09f95e4 after review 2, with the same counts as after review 1; each restored, `cmp` of `platform/js/app.js` against HEAD clean)
 - (a) the clip not logged as a rep (`logRep("story", …)` removed from the recorder): verify-flows exit 1, 6 FAIL — "reps.story gains exactly one entry" and "the rep stays logged" after delete, at 390 and 1280, and the track-ended case's rep and chain checks. (Round 0's first run of this plant timed out in the (p) wait, which also waited for the rep; the wait now waits only for the clip's row, so the plant fails the check that names it — 8acbcad.)
 - (b) the audio written into localStorage state, as a `data:audio/…;base64` URL on the rep: verify-flows exit 1, 4 FAIL (the rep's keys, and "no audio anywhere in localStorage", at 390 and 1280); verify-sync-loop exit 1, 2 FAIL (the pushed rep's shape; "no push carries audio").
 - (c) no fallback when `getUserMedia` rejects (the `micGone()` in `recStart`'s catch removed): verify-flows exit 1, 9 FAIL — the named (q) check at 390/1280 for denied and no device; each then fails as a harness error where hand-logging cannot find the form, and the Saturday no-microphone case cannot reach its fallback.
@@ -61,6 +61,36 @@ I measured this before writing any test (probe in the scratchpad, not committed)
 7. Rest day: Story bank and the no-microphone panes draw no Log button and no fields, only "Nothing owed today."; Humour's written fold is not drawn; the recorder stays. Check: verify-design (all three tabs, Saturday) and verify-flows (Saturday, permission denied).
 8. verify-flows tests the key name before `getItem`: no gate calls `getItem("brickford_gh_token")`.
 Also: the story-bank screenshot is retaken after its tab's transition has finished (taps, then waits for the animations); tokens are `20261014a`.
+
+## Review round 2 (3 findings)
+1. **The full-length check could never fail.** It now sets `window.__recLimit = 3` before the first press, ends the track at about 2 s, and starts the second recording as soon as the first recording's row appears. A leaked timer from the first recording would call `recStop` 3 s after the first press, which is inside the second recording.
+   - **Timer plant** (only `clearInterval(r.tick)` removed from `recMark`, `plant-timer.diff`): verify-flows exits 1. The second recording is cut short (under a second, so nothing is kept). Restored; `cmp` clean.
+2. **Deferred, not lost.** `mediaBusy` now also counts a clip that has started and not finished: `!a.paused || (a.currentTime > 0 && !a.ended)`.
+   - A background render skipped for the video or the Practice page sets `bgSkipped`. Any render that runs clears it.
+   - `bgReplay()` runs the skipped render once the page is free. It is called from:
+     - the clip's `ended` listener;
+     - the cancel branch of `recStop`, and the post-prompt cancel in `recStart`;
+     - `recSaved` when it ends away from /practice;
+     - `micGone`;
+     - the list refill.
+   - The `render` comment now says how the deferral is kept.
+   - **verify-sync-loop checks:**
+     - (3) Pause mid-clip, then a merged push: the `<audio>` is the same element, at the same `currentTime`.
+     - (4) Play the clip to its end: the view's "N logged" equals storage.
+     - (5) A merged push lands while the prompt is open, which leaves the view behind; cancelling the prompt brings it up to date.
+3. **`mr.start()` throwing.** The call is wrapped in try/catch. On failure the tracks are released, `rec` is cleared, and `micGone()` shows the hand form. verify-flows covers it by stubbing `MediaRecorder.prototype.start` to throw, then checking:
+   - the hand form appears;
+   - no track is live;
+   - nothing is logged or written;
+   - there are no page errors.
+
+**Old-bytes runs (`review2-bugs-back/`).** The new checks were run against 4425778's `app.js`:
+- verify-flows exits 1: the start-throws case fails, plus "no page errors".
+- verify-sync-loop exits 1: (3), (4) and (5) fail.
+  - On the old app the paused `<audio>` is detached, so (3) fails, and the view caught up through that very render.
+  - (4) then fails because the detached element never ends.
+
+Restored; `cmp` clean. Tokens are now `20261014b`. The screenshots are unchanged from review 1, because round 2 changed no CSS and nothing that is drawn.
 
 ## Found, not fixed
 - `MediaRecorder` delivers its data only on stop. A tab closed mid-recording loses that recording, and the rep is not logged. A timeslice would bound the loss but would not save it.

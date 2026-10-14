@@ -1,1 +1,0 @@
-PASS — node --check on every platform/js, platform/data and tools file

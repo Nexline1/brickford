@@ -1,0 +1,13 @@
+diff --git a/platform/js/app.js b/platform/js/app.js
+index e76fb7a..948045d 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4260,7 +4260,7 @@
+     } catch (e) {
+       if (stream) stream.getTracks().forEach(t => t.stop());
+       rec = null;
+-      return micGone();
++      return;   /* PLANT (c): no fallback when getUserMedia rejects */
+     }
+     const r = rec = { kind: kind, stream: stream, mr: mr, chunks: [], t0: performance.now(), date: todayISO(), limit: recLimit() };
+     mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); };

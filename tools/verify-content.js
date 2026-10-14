@@ -20,6 +20,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-phys100.js",
  "platform/data/summaries-math210.js",
  "platform/data/summaries-sys250.js",
+ "platform/data/summaries-ai310.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -2232,6 +2233,17 @@ const expectedSummary = {
     let g = 0; for (let a = 0; a < 1024; a += 128) for (let b = 0; b < 1024; b += 128) g++;
     return [{ i: 0, v: g }];
   })(),
+
+  // ---- T-033: AI 200, AI 210, AI 300, AI 310, RES 400 lecture quizzes ----
+  // Same rule as everything above: derived here by a different route from the
+  // one the summary teaches, never copied from the data file.
+
+  // ViT patches of a 224x224 image: walk the pixel grid in 16-pixel steps and
+  // count the top-left corners that leave a whole patch inside the image.
+  "ai310.1.0": (function () {
+    let n = 0; for (let y = 0; y + 16 <= 224; y += 16) for (let x = 0; x + 16 <= 224; x += 16) n++;
+    return [{ i: 3, v: n }];
+  })(),
 };
 
 let sumNums = 0;
@@ -2293,6 +2305,110 @@ Object.keys(expectedSummary).forEach(k => {
        "expectedSummary " + k + " check " + e.i + ": is a numeric check on that summary");
   });
 });
+
+// ---------- T-033: the lecture quizzes for AI 200, AI 210, AI 300, AI 310, RES 400 ----------
+// The owner, 2026-10-14: "create a quiz after each video… The quiz should actually
+// be valuable and cover what's in each video." Each summary in these courses is
+// written from its source — a transcript, or the paper or page itself — and its
+// checks are the lecture quiz. The ways one goes wrong silently:
+//   * the wrong SIZE. 5 checks for a video of 30 minutes or less, 6 for 31-90,
+//     8 for longer, 6 for a paper or reading. A long lecture quizzed with five
+//     questions covers its first hour and calls it done;
+//   * a check that does not say WHERE it is taught. `at` (whole seconds into the
+//     video) for a video-sourced quiz, `src` (the section) for a reading-sourced
+//     one — never a mix, so the count rule knows which kind it is. An `at` past
+//     the end of the video points "rewatch from here" (T-043) at nothing;
+//   * an MCQ that is not four options with its answer among them, or two options
+//     that are the same text;
+//   * the tell. If the answer is the unique longest option in most of a lesson's
+//     MCQs, picking the longest passes without watching (the SPCH failure, 436 of
+//     479). At most a third per lesson may be, and the same bound holds for the
+//     unique shortest so the fix cannot overshoot. And within a course no answer
+//     slot may hold more than 40% of the answers: the engine shuffles options at
+//     mount, but the bank should not lean on that;
+//   * raw HTML. q, opts and expl are injected unescaped like the prose, so no bare
+//     '<' before a letter or slash, and every '$' must be paired (KaTeX).
+// A video lesson may carry a reading-sourced quiz only when the lesson itself
+// names a paper or reading: AI 300's lessons whose `v` is a duplicate or another
+// course's lecture are quizzed from the paper the lesson is named for.
+const T033 = ["ai200", "ai210", "ai300", "ai310", "res400"];
+const t033 = {};
+T033.forEach(cid => {
+  const c = D.COURSES.find(x => x.id === cid);
+  ok(!!c, cid + ": the course exists");
+  t033[cid] = { code: c ? c.code : cid, lessons: c ? c.units.reduce((n, u) => n + u.lessons.length, 0) : 0,
+                summaries: 0, checks: 0, mcq: 0, num: 0, slots: [0, 0, 0, 0], longest: 0, shortest: 0 };
+});
+const noTag = t => !/<[a-zA-Z/]/.test(t || "");
+const pairedDollars = t => ((t || "").replace(/\\\$/g, "").match(/\$/g) || []).length % 2 === 0;
+Object.keys(D.SUMMARIES || {}).filter(k => T033.includes(k.split(".")[0])).forEach(k => {
+  const p = k.split("."), cid = p[0], c = D.COURSES.find(x => x.id === cid);
+  const u = c && c.units[+p[1]], l = u && u.lessons[+p[2]];
+  if (!l) return;                       // already failed above: "keys a lecture that exists"
+  const s = D.SUMMARIES[k], cs = Array.isArray(s.checks) ? s.checks : [], T = t033[cid];
+  T.summaries++;
+  const atN = cs.filter(q => q.at !== undefined).length, srcN = cs.filter(q => q.src !== undefined).length;
+  const fromVideo = atN > 0;
+  ok(cs.every(q => (q.at !== undefined) !== (q.src !== undefined)),
+     k + ": every check says where it is taught — `at` (seconds) for a video, `src` (section) for a reading — and not both");
+  ok(atN === 0 || srcN === 0, k + ": the quiz is all video-sourced (`at`) or all reading-sourced (`src`), not a mix");
+  if (fromVideo) ok(!!l.v && +l.min > 0, k + ": a video-sourced quiz is on a lesson with a video and a length");
+  else ok(!!(l.paper || l.read), k + ": a reading-sourced quiz is on a lesson that names a paper or reading");
+  const want = fromVideo ? (l.min <= 30 ? 5 : l.min <= 90 ? 6 : 8) : 6;
+  ok(cs.length === want, k + ": has " + want + " checks, the size for " +
+     (fromVideo ? "a " + l.min + "-minute video" : "a paper or reading") + " (has " + cs.length + ")");
+  let mcq = 0, longest = 0, shortest = 0;
+  cs.forEach((q, i) => {
+    const tag = k + " check " + i;
+    T.checks++;
+    if (q.at !== undefined) ok(Number.isInteger(q.at) && q.at >= 0 && q.at < (+l.min || 0) * 60,
+      tag + ": at " + q.at + "s is a whole second inside the " + l.min + "-minute video (0 to " + ((+l.min || 0) * 60 - 1) + ")");
+    if (q.src !== undefined) ok(typeof q.src === "string" && q.src.trim().length > 3, tag + ": src names a section");
+    ok(typeof q.q === "string" && q.q.length > 15, tag + ": asks a question");
+    ok(typeof q.expl === "string" && q.expl.length > 40, tag + ": has an explanation that teaches");
+    const isNum = q.num !== undefined;
+    if (isNum) {
+      T.num++;
+      ok(typeof q.num === "number" && isFinite(q.num) && q.opts === undefined, tag + ": numeric, with no options");
+      ok(q.tol === undefined || (typeof q.tol === "number" && q.tol >= 0), tag + ": tol, if given, is a non-negative number");
+    } else {
+      mcq++; T.mcq++;
+      const o = Array.isArray(q.opts) ? q.opts : [];
+      ok(o.length === 4 && o.every(x => typeof x === "string" && x.trim().length > 0), tag + ": multiple choice with exactly 4 options");
+      ok(new Set(o).size === o.length, tag + ": options are distinct");
+      ok(Number.isInteger(q.a) && q.a >= 0 && q.a < o.length, tag + ": answer index " + q.a + " is one of its " + o.length + " options");
+      if (Number.isInteger(q.a) && q.a >= 0 && q.a < 4) T.slots[q.a]++;
+      if (o.length && o[q.a] !== undefined) {
+        const len = o.map(x => String(x).length), mine = len[q.a], mx = Math.max(...len), mn = Math.min(...len);
+        if (mine === mx && len.filter(x => x === mx).length === 1) longest++;
+        if (mine === mn && len.filter(x => x === mn).length === 1) shortest++;
+      }
+    }
+    [["q", q.q], ["expl", q.expl]].concat((q.opts || []).map((x, j) => ["option " + j, x])).forEach(([w, t]) => {
+      ok(noTag(t), tag + " " + w + ": no raw '<' — it is injected unescaped");
+      ok(pairedDollars(t), tag + " " + w + ": every '$' is paired (KaTeX delimiter)");
+    });
+  });
+  const bound = Math.ceil(mcq / 3);
+  ok(longest <= bound, k + ": the answer is the unique longest option in " + longest + " of " + mcq +
+     " MCQs — at most " + bound + ", or the quiz can be passed by picking the longest option");
+  ok(shortest <= bound, k + ": the answer is the unique shortest option in " + shortest + " of " + mcq + " MCQs — at most " + bound);
+  T.longest += longest; T.shortest += shortest;
+  (s.beats || []).forEach((b, i) => ok(noTag(b.t), k + " beat " + i + " title: no raw '<'"));
+  [s.takeaway, s.worked, s.watch].concat((s.beats || []).map(b => b.t + " " + b.d))
+    .forEach((t, i) => ok(pairedDollars(t), k + " prose field " + i + ": every '$' is paired (KaTeX delimiter)"));
+});
+T033.forEach(cid => {
+  const T = t033[cid], total = T.slots.reduce((a, b) => a + b, 0);
+  T.slots.forEach((n, j) => ok(n <= 0.4 * total, T.code + ": answer slot " + "ABCD"[j] + " holds " + n + " of " + total +
+    " MCQ answers — no slot may hold more than 40%"));
+});
+const t033Line = T033.map(cid => t033[cid].code + " " + t033[cid].summaries + "/" + t033[cid].lessons).join(", ");
+console.log("T-033 lecture quizzes: " + t033Line + " — " +
+  T033.reduce((a, cid) => a + t033[cid].checks, 0) + " checks (" + T033.reduce((a, cid) => a + t033[cid].mcq, 0) + " MCQ, " +
+  T033.reduce((a, cid) => a + t033[cid].num, 0) + " numeric); answer slots A-D " +
+  T033.map(cid => t033[cid].code + " " + t033[cid].slots.join("/")).join(", ") + "; unique longest " +
+  T033.reduce((a, cid) => a + t033[cid].longest, 0) + ", unique shortest " + T033.reduce((a, cid) => a + t033[cid].shortest, 0));
 
 // ---------- SPCH 100, the storytelling course (T-037) ----------
 // Fifteen core modules (B8 is archived) and some forty-five hours of video, every
@@ -2520,6 +2636,7 @@ console.log("\n" + (fail === 0
     + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
     + Object.keys(LAB).length + " interactive, "
     + summaryKeys.length + " lecture summaries (" + sumNums + " numerics recomputed), "
-    + tagged + " questions gated (" + untagged + " untagged)"
+    + tagged + " questions gated (" + untagged + " untagged), "
+    + "lecture quizzes " + t033Line
   : fail + " of " + checks + " checks FAILED"));
 process.exit(fail === 0 ? 0 : 1);

@@ -1,0 +1,6 @@
+{"key": "ai310.1.0", "i": 0, "at": null, "src": "1.3 Transformers, what can they do? — Working with pipelines", "quote": "It connects a model with its necessary preprocessing and postprocessing steps, allowing us to directly input any text and get an intelligible answer"}
+{"key": "ai310.1.0", "i": 1, "at": null, "src": "1.3 Question answering; 1.5 Question answering", "quote": "Note that this pipeline works by extracting information from the provided context; it does not generate the answer."}
+{"key": "ai310.1.0", "i": 2, "at": null, "src": "1.4 The original architecture", "quote": "when trying to predict the fourth word, the attention layer will only have access to the words in positions 1 to 3."}
+{"key": "ai310.1.0", "i": 3, "at": null, "src": "1.5 Image classification", "quote": "If you had a 224x224 pixel image, you could split it into 196 16x16 image patches."}
+{"key": "ai310.1.0", "i": 4, "at": null, "src": "1.6 Choosing the right architecture", "quote": "Encoder models are best suited for tasks requiring an understanding of the full sentence, such as sentence classification, named entity recognition"}
+{"key": "ai310.1.0", "i": 5, "at": null, "src": "1.8 The two-phase inference process; Key performance metrics", "quote": "How quickly can you get the first response? This is crucial for user experience and is primarily affected by the prefill phase."}

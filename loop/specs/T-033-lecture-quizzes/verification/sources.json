@@ -1,0 +1,31 @@
+{
+ "ai310.1.0": {
+  "kind": "reading",
+  "urls": [
+   "https://huggingface.co/learn/llm-course/chapter1/1 (and sections 2-10 of chapter 1)"
+  ],
+  "fetched_from": [
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/1.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/2.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/3.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/4.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/5.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/6.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/8.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/9.mdx",
+   "https://raw.githubusercontent.com/huggingface/course/main/chapters/en/chapter1/10.mdx"
+  ],
+  "files": [
+   "sources/readings/huggingface_course_main_chapters_en_chapter1_1.mdx",
+   "sources/readings/hfcourse_ch1_2.mdx",
+   "sources/readings/hfcourse_ch1_3.mdx",
+   "sources/readings/hfcourse_ch1_4.mdx",
+   "sources/readings/hfcourse_ch1_5.mdx",
+   "sources/readings/hfcourse_ch1_6.mdx",
+   "sources/readings/hfcourse_ch1_8.mdx",
+   "sources/readings/hfcourse_ch1_9.mdx",
+   "sources/readings/hfcourse_ch1_10.mdx"
+  ],
+  "note": "chapter1/1 is the course and chapter introduction; the lesson ('pipeline fundamentals') is chapter 1, so all of its reading sections were read. 1.7 (quiz) and 1.11 (certification exam) are not reading."
+ }
+}

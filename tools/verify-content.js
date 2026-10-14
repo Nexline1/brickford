@@ -2404,6 +2404,26 @@ const expectedSummary = {
     const pred = relu(-1.5) + relu(0.05);
     return [{ i: 2, v: dbl }, { i: 5, v: Math.round(Math.pow(0 - pred, 2) * 1e8) / 1e8 }];
   })(),
+  "ai210.0.4": (function () {
+    // Inputs: the notebook's indep_cols, counted from the lists, not taken as 12.
+    const cont = ["Age", "SibSp", "Parch", "LogFare"];
+    const dummies = { Sex: ["male", "female"], Pclass: [1, 2, 3], Embarked: ["C", "Q", "S"] };
+    const nIn = cont.length + Object.values(dummies).reduce((t, v) => t + v.length, 0);
+    const shapes = [[nIn, 20], [20, 1], [1]];                 // layer1, layer2, const
+    const params = shapes.reduce((t, sh) => t + sh.reduce((a, b) => a * b, 1), 0);
+    // LogFare via log1p (the framework notebook's form), rounded to the 2 dp asked for.
+    return [{ i: 4, v: params }, { i: 5, v: Math.round(Math.log1p(7.25) * 100) / 100 }];
+  })(),
+  "ai210.0.5": (function () {
+    // Threshold splits ("code <= t") needed to isolate one level of an ordered code:
+    // one cut below it unless it is the smallest, one above it unless it is the largest.
+    const codes = { C: 0, Q: 1, S: 2 }, vals = Object.values(codes);
+    const lo = Math.min(...vals), hi = Math.max(...vals), q = codes.Q;
+    const splits = (q > lo ? 1 : 0) + (q < hi ? 1 : 0);
+    // Gini as the chance two draws differ (survived then not, or not then survived).
+    const p = 3 / 4, giniDiff = p * (1 - p) + (1 - p) * p;
+    return [{ i: 1, v: splits }, { i: 7, v: giniDiff }];
+  })(),
 };
 
 let sumNums = 0;

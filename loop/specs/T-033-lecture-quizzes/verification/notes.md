@@ -61,6 +61,14 @@ lecture does. Where the material marks something as outside the video, it is lef
   - L3 (`ai210.0.2`): the page names SGD, linear layers with nonlinear activations and
     ReLU; chapter 4 questions stay there (not `mnist_loss`, sigmoid or DataLoader detail).
     `xl/titanic.xlsx` was read sheet by sheet with `xlsx2txt.py` (formulas included).
+  - L4 (`ai210.0.3`): the lesson notebook is course22's `slides/nlp-intro.ipynb` (the
+    course's copy of the Kaggle notebook), which stops at `trainer.train()`. Chapter 10
+    questions stay on ULMFiT and tokenization.
+  - L5 (`ai210.0.4`): the page lists notebooks 05, 06 and 07; its description is the
+    from-scratch model, sigmoid and metrics, so 05 and 06 are quizzed here and 07 (random
+    forests) once, with L6, whose page lists it again.
+  - L6 (`ai210.0.5`): 07, 08 (Road to the top, part 1) and chapter 9's random-forest,
+    interpretation and extrapolation sections; not its embeddings or neural-net sections.
 
 ### Small errors in the source material (not quizzed, reported for the owner)
 
@@ -69,6 +77,18 @@ lecture does. Where the material marks something as outside the video, it is lef
 - The same notebook's loop in cell 47 calls `backward()` each step without zeroing
   `abc.grad`, so the gradients accumulate; chapter 4 explains why they must be zeroed.
   The quiz asks only what the notebook says about the rising loss (cell 48).
+- `course22/07-how-random-forests-really-work.ipynb` cell 67 says gini is "the probability
+  that, if you pick two rows from a group, you'll get the same `Survived` result", 1.0 for a
+  uniform group. The formula it defines, 1 - p² - (1-p)², is the probability the two rows
+  DIFFER: 0 for a uniform group. The `ai210.0.5` question uses the formula and its
+  explanation states the meaning correctly. The same notebook's feature-importance plot
+  (cell 94) uses the single tree `m`, not the forest `rf` the prose describes, and cell 95
+  points to chapter 8 for feature importance, which is in chapter 9.
+- `course22/slides/nlp-intro.ipynb` says the split holds out 20% for validation; its code
+  holds out 25% (`train_test_split(0.25, ...)`). Not quizzed.
+- `course22/05-linear-model-and-neural-net-from-scratch.ipynb` cell 116 calls
+  `calc_preds(tst_indep, coeffs)` with the arguments swapped; the elementwise product makes
+  it harmless there. Not quizzed.
 
 ## Where each reading was fetched from
 

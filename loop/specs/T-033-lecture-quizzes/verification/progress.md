@@ -47,12 +47,14 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 17 | ai210.0.0 | course22 00 bird + 01 Jupyter 101; fastbook ch. 1 (map: course22-web lesson1.qmd) | 6 (6 MCQ) |
 | 18 | ai210.0.1 | course22 02 saving a model; fastbook ch. 2 (lesson2.qmd) | 6 (6 MCQ) |
 | 19 | ai210.0.2 | course22 03 image models, 04 neural net, xl/titanic.xlsx; fastbook ch. 4 (lesson3.qmd) | 6 (4 MCQ, 2 numeric) |
+| 20 | ai210.0.3 | course22 slides/nlp-intro.ipynb; fastbook ch. 10 (lesson4.qmd) | 8 (8 MCQ) |
+| 21 | ai210.0.4 | course22 05 from scratch, 06 why a framework (lesson5.qmd) | 8 (6 MCQ, 2 numeric) |
+| 22 | ai210.0.5 | course22 07 random forests, 08 road to the top 1; fastbook ch. 9 (lesson6.qmd) | 8 (6 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-ai210.0.3–0.7 (lesson pages in course22-web map each to notebooks + chapters; 95/103/103/107/97 min → 8 each):
-L4 slides/nlp-intro.ipynb + ch. 10; L5 05 linear model + 06 why a framework + ch. 4/9; L6 07 random forests + 08 road to the top 1 + ch. 9;
-L7 10 road to the top 3 + ch. 8 + xl entropy_example/collab_filter; L8 ch. 13 + ch. 8 + xl collab_filter/conv-example
+ai210.0.6–0.7 (107/97 min → 8 each): L7 10 road to the top 3 + ch. 8 + xl entropy_example/collab_filter;
+L8 ch. 13 + ch. 8 + xl collab_filter/conv-example
 → ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
 
 At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full

@@ -452,5 +452,99 @@
    "sources/text/titanic.xlsx.txt"
   ],
   "note": "lesson3.qmd names SGD, linear functions layered with nonlinear activations, and ReLU, lists the two Kaggle notebooks and the Titanic spreadsheet, and says the lesson is 'based partly on chapter 4'; chapter 4 questions stay on those topics (not mnist_loss, sigmoid or the DataLoader details). titanic.xlsx was rendered to text with verification/xlsx2txt.py (rows 1-12, columns A-AN of each sheet; all four sheets' formulas read). The HF Spaces pets repository is on huggingface.co, not GitHub, and was not used."
+ },
+ "ai210.0.3": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "toUgBQv1BT8 (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson4.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "slides/nlp-intro.ipynb"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "10_nlp.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/nlp-intro.ipynb.txt",
+   "sources/text/10_nlp.ipynb.txt"
+  ],
+  "note": "lesson4.qmd's notebook is Kaggle's 'Getting started with NLP for absolute beginners'; course22 carries the course's own copy as slides/nlp-intro.ipynb ('Getting started with Kaggle, NLP and HuggingFace for absolute beginners'), which ends at trainer.train() — the Kaggle version's later prediction cells are not in the repo and are not quizzed. Chapter 10 questions stay on ULMFiT and tokenization; AWD-LSTM training, gradual unfreezing and LMDataLoader batching are not quizzed. Not quizzed either: the validation split size, which the notebook's prose gives as 20% and its code as 0.25."
+ },
+ "ai210.0.4": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "_rXzeWq4C6w (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson5.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "05-linear-model-and-neural-net-from-scratch.ipynb",
+     "06-why-you-should-use-a-framework.ipynb"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "04_mnist_basics.ipynb",
+     "09_tabular.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/05-linear-model-and-neural-net-from-scratch.ipynb.txt",
+   "sources/text/06-why-you-should-use-a-framework.ipynb.txt"
+  ],
+  "note": "lesson5.qmd lists three notebooks — 05, 06 and 07 (random forests) — and says the lesson is based partly on chapters 4 and 9. Its description covers the from-scratch model, the training loop, sigmoid and metrics, so the quiz is from 05 and 06. 07 and chapter 9 (random forests) are quizzed under lesson 6, whose page lists 07 again and describes random forests; the OneR paper link on lesson5.qmd suggests lesson 5 ended by starting on 07, and it is quizzed once, with lesson 6. Chapter 4 was read for lesson 3."
+ },
+ "ai210.0.5": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "AdhG64NF76E (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson6.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "07-how-random-forests-really-work.ipynb",
+     "08-first-steps-road-to-the-top-part-1.ipynb"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "09_tabular.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/07-how-random-forests-really-work.ipynb.txt",
+   "sources/text/08-first-steps-road-to-the-top-part-1.ipynb.txt",
+   "sources/text/09_tabular.ipynb.txt"
+  ],
+  "note": "lesson6.qmd: how a random forest works, building one from scratch, and interpreting it; based partly on chapter 9. Chapter 9 questions stay on random forests, their interpretation and their limits; its categorical-embeddings opening and its neural-net section are not quizzed. The gini question states the measure correctly; the notebook's prose (cell 67) has it inverted, which notes.md reports."
  }
 }

@@ -43,3 +43,9 @@ Owner decisions (AskUserQuestion, 2026-10-14):
 - Story coach: **Claude inside the app**, with the owner's own Anthropic API key saved on the device (never synced).
 
 Census at decision time: 494 lessons (466 video). 414 have summaries with 2–4 "Check yourself" questions (1,233 total). 80 have none: AI 200 (15), AI 210 (8), AI 300 (16), AI 310 (23), RES 400 (18) — T-033.
+
+Owner decisions on the mockups (AskUserQuestion, 2026-10-14):
+- Mockups `specimen-lesson-quiz`, `specimen-lesson-passed`, `specimen-problems-v2`, `specimen-practice-coach`: **"Yes, build this"**.
+- Order: **content, then gate, then coach** — finish T-028; quizzes for the 80 lectures with none (AI 200 first, it is on the calendar); then the gate + lesson flow + Problems as due-now; then on-device transcription + Claude coach; then deeper quizzes everywhere. Other redesigns (Treasury, opening screen, …) after.
+- Lectures watched before the gate ships: **don't lock; list their quizzes to catch up** under Problems. Past days keep their colours.
+- Quiz depth: **5–8 questions per lecture, written from the video's transcript**, numerics re-derived, course by course ahead of the calendar.

@@ -24,7 +24,9 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
 - **Building:** T-028 (Practice recorder), worktree `/home/user/bf-T-028`.
 - **Rule for new gate code:** every page.reload in a gate goes through `tools/lib-reload.js` (acrossReload).
 
-## Next, in the owner's order
+## Next, in the owner's order (updated 2026-10-14: owner's quiz-gate request comes first after T-028)
+0. T-028 (recorder, in review) → T-033 (quizzes for the 80 lectures with none, AI 200 first, from transcripts; general-purpose agent for the transcript MCP) → T-043 (gate + lesson flow) → T-045 (Problems due-now) → T-046 (on-device transcription) → T-047 (Claude story coach) → T-044 (deeper quizzes, ahead of the calendar). Mockups approved: loop/design/specimen-{lesson-quiz,lesson-passed,problems-v2,practice-coach}.png. Decisions in loop/inbox.md (2026-10-14).
+
 1. ~~T-031~~ merged (#16).
 2. **The page redesigns:** ~~T-026c~~ merged (#18), T-028 (building) (Practice recorder), T-027 (Treasury workspace plus the treasury merge fix).
 3. **T-022:** the opening screen. Rewrite its spec first: the calm Dark, the crest fading in on near-black. The navy specification is obsolete.

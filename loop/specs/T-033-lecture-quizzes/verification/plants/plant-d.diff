@@ -1,8 +1,8 @@
 diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
-index 6c15167..4fc1016 100644
+index 0b22a55..c07187f 100644
 --- a/platform/data/summaries-ai310.js
 +++ b/platform/data/summaries-ai310.js
-@@ -102,17 +102,17 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
+@@ -614,17 +614,17 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
      watch: "Sizing the GPU from the quantized weights alone. The picker counts the KV cache as well, and at long context that can be what no longer fits even after the weights have been cut to a quarter.",
      concepts: [],
      checks: [

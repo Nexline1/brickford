@@ -1,13 +1,13 @@
 diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
-index 6c15167..fb3b8e3 100644
+index 0b22a55..f8cb65c 100644
 --- a/platform/data/summaries-ai310.js
 +++ b/platform/data/summaries-ai310.js
-@@ -216,4 +216,20 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
+@@ -728,4 +728,20 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
      ],
    },
  
 +
-+  "ai200.1.0": {
++  "ai200.2.1": {
 +    takeaway: "PLANTED FIXTURE for T-033 plants (c) and (e); never committed.",
 +    beats: [{ t: "Planted", d: "Planted beat one." }, { t: "Planted", d: "Planted beat two." }, { t: "Planted", d: "Planted beat three." }],
 +    worked: "PLANTED FIXTURE worked pattern, never committed.",

@@ -1,13 +1,13 @@
 diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
-index 6c15167..eeb9c0b 100644
+index 0b22a55..64a6666 100644
 --- a/platform/data/summaries-ai310.js
 +++ b/platform/data/summaries-ai310.js
-@@ -216,4 +216,23 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
+@@ -728,4 +728,23 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
      ],
    },
  
 +
-+  "ai200.1.0": {
++  "ai200.2.1": {
 +    takeaway: "PLANTED FIXTURE for T-033 plants (c) and (e); never committed.",
 +    beats: [{ t: "Planted", d: "Planted beat one." }, { t: "Planted", d: "Planted beat two." }, { t: "Planted", d: "Planted beat three." }],
 +    worked: "PLANTED FIXTURE worked pattern, never committed.",
@@ -21,7 +21,7 @@ index 6c15167..eeb9c0b 100644
 +      { q: "Planted check 4: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 0, at: 4200, expl: "This check exists only to exercise verify-content; it is never committed." },
 +      { q: "Planted check 5: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 1, at: 5100, expl: "This check exists only to exercise verify-content; it is never committed." },
 +      { q: "Planted check 6: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 2, at: 6000, expl: "This check exists only to exercise verify-content; it is never committed." },
-+      { q: "Planted check 7: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 3, at: 9000, expl: "This check exists only to exercise verify-content; it is never committed." },
++      { q: "Planted check 7: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 3, at: 13000, expl: "This check exists only to exercise verify-content; it is never committed." },
 +    ],
 +  },
 +

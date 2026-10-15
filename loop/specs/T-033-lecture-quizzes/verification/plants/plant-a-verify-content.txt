@@ -1,7 +1,7 @@
   FAIL summary ai310.1.0 check 3: stated 197, recomputed 196
-T-033 lecture quizzes: AI 200 0/15, AI 210 0/8, AI 300 0/16, AI 310 6/23, RES 400 1/18 — 42 checks (36 MCQ, 6 numeric); answer slots A-D AI 200 0/0/0/0, AI 210 0/0/0/0, AI 300 0/0/0/0, AI 310 8/8/8/7, RES 400 1/2/1/1; unique longest 6, unique shortest 4
+T-033 lecture quizzes: AI 200 9/15, AI 210 8/8, AI 300 0/16, AI 310 23/23, RES 400 1/18 — 270 checks (199 MCQ, 71 numeric); answer slots A-D AI 200 12/12/12/12, AI 210 11/12/12/12, AI 300 0/0/0/0, AI 310 25/25/24/25, RES 400 1/2/1/1; unique longest 33, unique shortest 20
 SPCH 100: 170 lessons, 46.4 h of video — A1 3.33h, A2 1.23h, A3 5.47h, A4 4.12h, A5 5.18h, A6 4.50h, A7 7.37h, A8 3.90h, B1 2.08h, B2 1.87h, B3 1.45h, B4 1.93h, B5 1.68h, B6 1.42h, B7 0.90h
 SPCH check options: answer unique longest in 91 of 513 (17.7%), unique shortest in 92 (17.9%); bound 171
 SPCH attributions: 558 names in lessons, 266 credits with sources checked
 
-1 of 33698 checks FAILED
+1 of 40213 checks FAILED

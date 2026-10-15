@@ -1,8 +1,8 @@
 diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
-index 6c15167..c2f1a7e 100644
+index 0b22a55..889ed4e 100644
 --- a/platform/data/summaries-ai310.js
 +++ b/platform/data/summaries-ai310.js
-@@ -45,7 +45,7 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
+@@ -557,7 +557,7 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
          expl: "The pipeline extracts information from the provided context; it does not generate. Under the hood a span-classification head predicts start and end logits over the context's tokens, so the answer is always a piece of the text you passed in." },
        { q: "During training a translation decoder is fed the entire target sentence at once. Why can it not simply copy the word it is asked to predict?", opts: ["Because the target sentence is shuffled before it reaches the decoder", "Because an attention mask hides that position and every later one", "Because the decoder reads only the encoder's output, never the target", "Because training uses a different language for the target each time"], a: 1, src: "1.4 The original architecture",
          expl: "Feeding the whole target speeds training, so the decoder is masked: predicting the fourth word, its attention can use positions 1 to 3 only. The second attention layer still sees the encoder's output for the WHOLE source sentence, because word order differs between languages." },

@@ -1834,6 +1834,41 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- (rw) T-043: "Rewatch from m:ss" on a miss, in place ----
+  // Once, at 1280. No summary carries `at` yet, so the page's own copy of the
+  // lecture's checks is given one (95s) before the quiz mounts. A miss then
+  // offers "Rewatch from 1:35"; pressing it puts the player back where the
+  // watched bar was, at start=95 (the resume mechanism's start=), without a
+  // render — the quiz card on screen is the same element, still on the miss.
+  console.log("\nrewatch from a miss (once, 1280px)");
+  {
+    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
+      "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } };
+    const { ctx, page, errors } = await fresh(browser, 1280, st, "/__test");
+    await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.forEach(q => { q.at = 95; }));
+    await go(page, "/lesson/math120/1/0");
+    await page.waitForSelector("#view #lqMount .lq-card");
+    await page.evaluate(() => {
+      const c = document.querySelector("#view .lq-card"), q = window.DAR.SUMMARIES["math120.1.0"].checks[+c.dataset.q];
+      c.dataset.flowStamp = "original";
+      const o = [...c.querySelectorAll(".opt")].find(b => +b.dataset.o !== q.a);
+      if (o) o.click(); else { document.querySelector("#view #numAns").value = "-98765"; document.querySelector("#view #numGo").click(); }
+    });
+    const btn = await page.evaluate(() => ((document.querySelector("#view .lq-rewatch-at") || {}).textContent || "").trim());
+    check("(rw) a miss on a question with `at` offers \"Rewatch from 1:35\"", btn === "Rewatch from 1:35", "\"" + btn + "\"");
+    const w0 = await writes(page);
+    if (btn) await page.click("#view .lq-rewatch-at");
+    const r = await page.evaluate(() => { const f = document.querySelector("#view .video-frame iframe[data-k]"), c = document.querySelector("#view .lq-card");
+      return { src: f ? f.getAttribute("src") : "", k: f ? f.dataset.k : "", bar: !!document.querySelector("#view .lq-watched"),
+        same: !!c && c.dataset.flowStamp === "original", miss: !!document.querySelector("#view .lq-segs i.miss") }; });
+    check("(rw) pressing it puts the player back in place at start=95, and the quiz card is the same element, still on the miss",
+      /[?&]start=95(&|$)/.test(r.src) && r.k === "math120.1.0" && !r.bar && r.same && r.miss, JSON.stringify(r));
+    check("(rw) and writes nothing", (await writes(page)) === w0, (await writes(page)) - w0 + " write(s)");
+    check("(rw) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   // ---- (f) the resume point syncs: the later posAt wins, per lecture ----
   // Once, at the desktop width: nothing here is about layout. A stub token and
   // a stub GitHub, both inside this context; the pull is the one boot() makes.

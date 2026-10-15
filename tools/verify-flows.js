@@ -1843,27 +1843,41 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   }
 
   // ---- (lk) T-043 review r1: a chain of locks deeper than two ----
-  // Once, at 390, nothing watched: MATH 120 lecture 4 is locked behind
-  // lecture 3, which is locked behind 2, behind 1. The card names lecture 3
-  // in its title, says three quizzes stand in the way, and its button opens
-  // lecture 1 (lockRoot). Today's calendar block for MATH 120 lecture 13 —
-  // a chain of twelve — links to lecture 1 too.
+  // Once, at 390, nothing watched. Only lectures planned on or after
+  // QUIZ_GATE_FROM lock (owner, 2026-10-15), and the plan's dates here are
+  // read from the page (planDateOf) and asserted, not assumed. In MATH 110,
+  // R is the first lecture planned from the gate on; R+3 is locked behind
+  // R+2, behind R+1, behind R — and R, whose predecessor is planned before
+  // the gate, is open. The card names R+2 in its title, says three quizzes
+  // stand in the way, and its button opens R (lockRoot). Today's calendar
+  // block for MATH 120 links to the root of its own chain, which stops at the
+  // gate too.
   console.log("\na chain of locks (once, 390px)");
   {
     const { ctx, page, errors } = await fresh(browser, 390, null, "/__test");
-    const titles = await page.evaluate(() => window.DAR.COURSES.find(c => c.id === "math120").units[0].lessons.slice(0, 4).map(l => l.t));
-    await go(page, "/lesson/math120/0/3");
+    const ch = await page.evaluate(() => {
+      const T = window.__brickfordTest, D = window.DAR, gate = T.QUIZ_GATE_FROM;
+      const flat = cid => { const f = []; D.COURSES.find(c => c.id === cid).units.forEach((u, ui) => u.lessons.forEach((l, li) => f.push({ k: cid + "." + ui + "." + li, ui, li, t: l.t }))); return f; };
+      const f = flat("math110"), j = f.findIndex(x => (T.planDateOf(x.k) || "9999") >= gate);
+      const m = flat("math120"), mj = m.findIndex(x => (T.planDateOf(x.k) || "9999") >= gate);
+      return { gate, R: f[j], R2: f[j + 2], R3: f[j + 3], prevDate: T.planDateOf(f[j - 1].k), rDate: T.planDateOf(f[j].k), no: j + 1,
+        rLocked: T.lockedBy("math110", f[j].ui, f[j].li), mRoot: m[mj].k };
+    });
+    await go(page, "/lesson/math110/" + ch.R3.ui + "/" + ch.R3.li);
     const L = await page.evaluate(() => { const c = document.querySelector("#view .lq-lock");
       return c ? { t: c.querySelector(".lq-lock-t").textContent.trim(), m: c.querySelector(".lq-lock-m").textContent.trim(), ahead: c.dataset.ahead,
         btn: c.querySelector("a.btn").getAttribute("href"), label: c.querySelector("a.btn").textContent.trim() } : null; });
-    check("(lk) a chain of three: the title names lecture 3, the line says 3 quizzes, the button opens lecture 1",
-      !!L && L.t === "Pass the quiz for “" + titles[2] + "” first" && L.ahead === "3" && /^MATH 120 · 3 quizzes stand before this lecture, from lecture 1/.test(L.m) &&
-        L.btn === "#/lesson/math120/0/0" && L.label === "Open lecture 1 ▸", JSON.stringify(L));
+    check("(lk) the chain stops at the gate: " + ch.R.k + " (planned " + ch.rDate + ") is open, its predecessor planned " + ch.prevDate + " before " + ch.gate,
+      ch.prevDate < ch.gate && ch.rDate >= ch.gate && ch.rLocked === false, JSON.stringify(ch));
+    check("(lk) a chain of three: the title names the lecture before, the line says 3 quizzes, the button opens the root",
+      !!L && L.t === "Pass the quiz for \u201c" + ch.R2.t + "\u201d first" && L.ahead === "3" &&
+        new RegExp("^MATH 110 · 3 quizzes stand before this lecture, from lecture " + ch.no + ",").test(L.m) &&
+        L.btn === "#/lesson/math110/" + ch.R.ui + "/" + ch.R.li && L.label === "Open lecture " + ch.no + " \u25b8", JSON.stringify(L));
     const root = await page.evaluate(() => window.__brickfordTest.lockRoot("math120", 1, 0));
     await go(page, "/calendar");
     const blk = await page.evaluate(() => [...document.querySelectorAll("#view .cd-blk.locked")].map(b => b.getAttribute("href")));
-    check("(lk) the calendar's locked block for today's MATH 120 lecture links to the first quiz in its chain",
-      root === "math120.0.0" && blk.includes("#/lesson/math120/0/0") && !blk.includes("#/lesson/math120/1/0"), "root " + root + "; locked blocks " + JSON.stringify(blk));
+    check("(lk) the calendar's locked block for today's MATH 120 lecture links to the first quiz in its chain, which starts at the gate",
+      root === ch.mRoot && blk.includes("#/lesson/" + root.split(".").join("/")) && !blk.includes("#/lesson/math120/1/0"), "root " + root + "; locked blocks " + JSON.stringify(blk));
     check("(lk) no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }

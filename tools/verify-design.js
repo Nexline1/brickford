@@ -1952,7 +1952,10 @@ function t26cDay([iso, fac]) {
   // that is not passed and was not watched before QUIZ_GATE_FROM; the chain
   // runs back through lectures that are themselves locked.
   const gate = T.QUIZ_GATE_FROM, sums = D.SUMMARIES || {};
-  const blocksNext = k => { const s0 = lessons[k] || {}; return !!((sums[k] || {}).checks || []).length && !(s0.quiz && s0.quiz.passedAt) && !(s0.done && s0.doneAt && s0.doneAt < gate); };
+  // Only a lecture planned on or after the gate blocks (owner, 2026-10-15:
+  // "lock from go-live only"); the plan date is the app's planDateOf.
+  const blocksNext = k => { const s0 = lessons[k] || {}; return (T.planDateOf(k) || "9999") >= gate && !!((sums[k] || {}).checks || []).length && !(s0.quiz && s0.quiz.passedAt) &&
+    !(s0.done && [s0.doneAt, s0.firstDoneAt].filter(Boolean).sort()[0] < gate); };
   const rootOf = it => {
     const flat = []; D.COURSES.find(x => x.id === it.cid).units.forEach((u, ui) => u.lessons.forEach((_, li) => flat.push(it.cid + "." + ui + "." + li)));
     let i = flat.indexOf(it.cid + "." + it.ui + "." + it.li), root = null;
@@ -4638,6 +4641,7 @@ function t28SeedClips(list) {
         cards: document.querySelectorAll("#view .card").length, ahead: lock.dataset.ahead } : null,
       kind: txt(".card.one.lead .one-kind"), go: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => null }).getAttribute("href"),
       railLock: !!document.querySelector("#rail .rl-lock"), railRule: txt("#rail .rl-rule"),
+      todayRoot: (r => r ? "#/lesson/" + r.split(".").join("/") : null)(window.__brickfordTest.lockRoot("math120", 1, 0)),
     };
   }
   for (const theme of ["dark", "light"]) {
@@ -4712,8 +4716,9 @@ function t28SeedClips(list) {
         } else if (st.name === "the dashboard pointing at a quiz") {
           // Review r1: nothing watched, so the first lecture in the chain is
           // to be watched first — not called a quiz.
-          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" and its \"Open ▸\" is the one primary",
-            /^Watch: .+, then its quiz$/.test(m.kind || "") && m.go === "#/lesson/math120/0/0" && filled.join() === "Open ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));
+          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" for the root of today's chain (which starts at the gate, not at lecture 1), and its \"Open ▸\" is the one primary",
+            /^Watch: .+, then its quiz$/.test(m.kind || "") && !!m.todayRoot && m.go === m.todayRoot && m.go !== "#/lesson/math120/0/0" && filled.join() === "Open ▸",
+            JSON.stringify({ kind: m.kind, go: m.go, root: m.todayRoot, filled }));
         } else {
           c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start ▸\" is the one primary",
             m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));

@@ -65,10 +65,13 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 31 | ai310.0.6 | CS336 nonexecutable/2025 Lecture 7 - Parallelism basics.pdf | 6 (4 MCQ, 2 numeric) |
 | 32 | ai310.0.7 | CS336 lecture_08.py + recorded stdout | 6 (4 MCQ, 2 numeric) |
 | 33 | ai310.0.8 | CS336 nonexecutable/2025 Lecture 9 - Scaling laws basics.pdf | 6 (4 MCQ, 2 numeric) |
+| 34 | ai310.0.9 | CS336 lecture_10.py + trace | 6 (4 MCQ, 2 numeric) |
+| 35 | ai310.0.10 | CS336 nonexecutable/2025 Lecture 11 - Scaling details.pdf | 6 (4 MCQ, 2 numeric) |
+| 36 | ai310.0.11 | CS336 lecture_12.py | 6 (4 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-AI 210 complete. ai310.0.9–0.16 (spring2025-lectures, all 65–87 min → 6): executable lectures
+AI 210 complete. ai310.0.12–0.16 (spring2025-lectures, all 65–87 min → 6): executable lectures
 are lecture_NN.py (+ var/traces/lecture_NN.json); lectures 3, 4, 5, 7, 9, 11, 15, 16 are slide PDFs in
 nonexecutable/, rendered to sources/text/cs336/ with verification/pdf2txt.py.
 

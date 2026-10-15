@@ -781,5 +781,58 @@
    "sources/text/cs336/Lecture_9_Scaling_laws_basics.txt"
   ],
   "note": "Slide deck, text via verification/pdf2txt.py. The mean-estimation formula (E(mu_hat - mu)^2 = sigma^2/n) is typeset; its text layer is legible but fragmented, so the quote is the sentence that sets up the example."
+ },
+ "ai310.0.9": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "fcgPYo3OtV0 (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_10.py",
+     "var/traces/lecture_10.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_10.py"
+  ],
+  "note": "Executable lecture whose accounting is symbolic (sympy); the recorded trace holds the substituted values quoted (Llama 2 13B: 8.0 ms and 125 tokens/s at batch 1, 23.8 ms and 2,689 tokens/s at batch 64; accelerator intensity 295.2)."
+ },
+ "ai310.0.10": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "OSYuUqGBQxw (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 11 - Scaling details.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_11_Scaling_details.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py. The muP derivation (slides 38-42) is typeset mathematics whose text layer is fragmented; the quiz uses only its stated conditions and the Adam learning-rate rule (1/fan-in) stated on slide 42."
+ },
+ "ai310.0.11": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "x-R5l2HsXqM (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_12.py",
+     "var/traces/lecture_12.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_12.py"
+  ],
+  "note": "Executable lecture made of text, links and images; the benchmark figures it shows are images, so only the facts stated in its text are quizzed."
  }
 }

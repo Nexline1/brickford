@@ -2524,6 +2524,28 @@ const expectedSummary = {
     const trillions = 70e9 * 215 / 1e12;
     return [{ i: 4, v: n }, { i: 5, v: Math.round(trillions * 100) / 100 }];
   })(),
+  "ai310.0.9": (function () {
+    const accel = 989e12 / 3.35e12;                               // FLOPs per byte the H100 can feed
+    // KV cache: one key and one value vector per token, layer and KV head, 2 bytes each.
+    let bytes = 0;
+    const S = 1024, L = 40, K = 40, H = 128;
+    for (const kv of ["key", "value"]) bytes += S * L * K * H * 2;
+    return [{ i: 4, v: Math.round(accel) }, { i: 5, v: Math.round(bytes / 1e9 * 100) / 100 }];
+  })(),
+  "ai310.0.10": (function () {
+    // lr x fan-in is invariant under the 1/fan-in rule: solve for the new rate.
+    const invariant = 0.01 * 1024;
+    const lr = invariant / 4096;
+    const tokensB = 2 * 192;                                      // billions of tokens for 2B params
+    return [{ i: 4, v: lr }, { i: 5, v: tokensB }];
+  })(),
+  "ai310.0.11": (function () {
+    // Perplexity through bits: average -log2 p, then 2 to that power.
+    const ps = [0.5, 0.25, 0.125];
+    const bits = ps.reduce((t, p) => t - Math.log2(p), 0) / ps.length;
+    const ppl = Math.pow(2, bits);
+    return [{ i: 4, v: Math.round(ppl * 1e9) / 1e9 }, { i: 5, v: 100 / 10 }];
+  })(),
 };
 
 let sumNums = 0;

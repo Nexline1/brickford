@@ -88,3 +88,21 @@
 {"key": "ai310.0.8", "i": 3, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 26-39", "quote": "The scaling law based design procedure. 1. Train a few smaller models 2. Establish a scaling law"}
 {"key": "ai310.0.8", "i": 4, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 16-19", "quote": "Example: If our task is to estimate the mean of a dataset, what's the scaling law?"}
 {"key": "ai310.0.8", "i": 5, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "Llama 3 70B – 215 tokens / param"}
+{"key": "ai310.0.9", "i": 0, "at": null, "src": "lecture_10.py, arithmetic_intensity_of_inference", "quote": "Unlike MLPs, no dependence on B, so batching doesn't help!"}
+{"key": "ai310.0.9", "i": 1, "at": null, "src": "lecture_10.py, speculative_sampling", "quote": "Key property: guaranteed to be an exact sample from the target model!"}
+{"key": "ai310.0.9", "i": 2, "at": null, "src": "lecture_10.py, paged_attention", "quote": "Divide the KV cache of a sequence into non-contiguous blocks"}
+{"key": "ai310.0.9", "i": 3, "at": null, "src": "lecture_10.py, throughput_and_latency; var/traces/lecture_10.json", "quote": "Smaller batch sizes yields better latency but worse throughput"}
+{"key": "ai310.0.9", "i": 4, "at": null, "src": "lecture_10.py, review_of_arithmetic_intensity", "quote": "assert round(accelerator_intensity) == 295"}
+{"key": "ai310.0.9", "i": 5, "at": null, "src": "lecture_10.py, compute_transformer_stats and llama2_13b_config", "quote": "kv_cache_size = S * (K*H) * L * 2 * 2  # 2 for key + value, 2 for bf16"}
+{"key": "ai310.0.10", "i": 0, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 17-19 and 30", "quote": "For chinchilla -style analysis, can restart the run at the end of the stable phase."}
+{"key": "ai310.0.10", "i": 1, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 37-42", "quote": "A1: The activations at initialization should remain Θ(1)"}
+{"key": "ai310.0.10", "i": 2, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 26-32 and 36", "quote": "Scaling strategy : don't use any muP, directly estimate optimal batch / LR"}
+{"key": "ai310.0.10", "i": 3, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 46-54", "quote": "In our arch – RMSNorm has learnable gains. This turns out to break muP"}
+{"key": "ai310.0.10", "i": 4, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 41-42", "quote": "Differences – LR changes for Adam, also init diffs when fanout"}
+{"key": "ai310.0.10", "i": 5, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 21-25", "quote": "The overall data -to-model ratio is very high (192)"}
+{"key": "ai310.0.11", "i": 0, "at": null, "src": "lecture_12.py, perplexity", "quote": "For perplexity, need LM to generate probabilities and trust that they sum to 1"}
+{"key": "ai310.0.11", "i": 1, "at": null, "src": "lecture_12.py, instruction_following_benchmarks", "quote": "They get response from two random (anonymized) models"}
+{"key": "ai310.0.11", "i": 2, "at": null, "src": "lecture_12.py, realism", "quote": "Asking is more realistic and produces value for the user."}
+{"key": "ai310.0.11", "i": 3, "at": null, "src": "lecture_12.py, safety_benchmarks", "quote": "For open weight models, capability matters (since can easily fine-tune safety away)"}
+{"key": "ai310.0.11", "i": 4, "at": null, "src": "lecture_12.py, perplexity", "quote": "Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D."}
+{"key": "ai310.0.11", "i": 5, "at": null, "src": "lecture_12.py, knowledge_benchmarks", "quote": "Expanded 4 choices to 10 choices"}

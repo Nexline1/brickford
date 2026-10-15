@@ -70,3 +70,21 @@
 {"key": "ai310.0.5", "i": 3, "at": null, "src": "lecture_06.py, review_of_gpus", "quote": "General rule: matrix multiplication is compute-bound, everything else is memory-bound"}
 {"key": "ai310.0.5", "i": 4, "at": null, "src": "lecture_06.py, triton_gelu", "quote": "num_blocks = triton.cdiv(num_elements, block_size)"}
 {"key": "ai310.0.5", "i": 5, "at": null, "src": "lecture_06.py, manual_softmax", "quote": "# Total: 5MN + M reads, 3MN + 2M writes"}
+{"key": "ai310.0.6", "i": 0, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 8 and 15-18", "quote": "ZeRO stage 1 is free (in the bandwidth limited regime) memory wins"}
+{"key": "ai310.0.6", "i": 1, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 38-39 and 49-52", "quote": "Tensor parallel up to GPUs / machine"}
+{"key": "ai310.0.6", "i": 2, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 40-45", "quote": "Observation: all the 10sbh terms are pointwise ops over the sequence"}
+{"key": "ai310.0.6", "i": 3, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 21-24 and 28", "quote": "But communicate activations (while zero3 sends params)."}
+{"key": "ai310.0.6", "i": 4, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 19-20 and 25", "quote": "Zero stage 2 24.62 B 2 (param) + (10 (grad+state))/8)"}
+{"key": "ai310.0.6", "i": 5, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 30-33", "quote": "The ratio of bubble time to useful compute is .."}
+{"key": "ai310.0.7", "i": 0, "at": null, "src": "lecture_08.py, data_parallelism_main", "quote": "# Sync gradients across workers (only difference between standard training and DDP)"}
+{"key": "ai310.0.7", "i": 1, "at": null, "src": "lecture_08.py, tensor_parallelism_main", "quote": "# Send activations via all gather"}
+{"key": "ai310.0.7", "i": 2, "at": null, "src": "lecture_08.py, pipeline_parallelism_main", "quote": "# Break up into micro batches to minimize the bubble"}
+{"key": "ai310.0.7", "i": 3, "at": null, "src": "lecture_08.py, main", "quote": "Unifying theme: orchestrate computation to avoid data transfer bottlenecks"}
+{"key": "ai310.0.7", "i": 4, "at": null, "src": "lecture_08.py, collective_operations_main; var/traces/lecture_08_stdout.txt", "quote": "Rank 2 [after reduce-scatter]: input = tensor([2., 3., 4., 5.], device='cuda:2'), output = tensor([14.], device='cuda:2')"}
+{"key": "ai310.0.7", "i": 5, "at": null, "src": "lecture_08.py, all_reduce", "quote": "sent_bytes = size_bytes * 2 * (world_size - 1)  # 2x because send input and receive output"}
+{"key": "ai310.0.8", "i": 0, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 45-49", "quote": "Pick a range of FLOP budgets, vary the total parameter count, take the min over these convex shapes."}
+{"key": "ai310.0.8", "i": 1, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 21-24", "quote": "A: Data composition affects the offset, not the slope."}
+{"key": "ai310.0.8", "i": 2, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "But most of the compute in a real deployment is inference.. So we should 'over' train"}
+{"key": "ai310.0.8", "i": 3, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 26-39", "quote": "The scaling law based design procedure. 1. Train a few smaller models 2. Establish a scaling law"}
+{"key": "ai310.0.8", "i": 4, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 16-19", "quote": "Example: If our task is to estimate the mean of a dataset, what's the scaling law?"}
+{"key": "ai310.0.8", "i": 5, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "Llama 3 70B – 215 tokens / param"}

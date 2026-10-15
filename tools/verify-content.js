@@ -2503,6 +2503,27 @@ const expectedSummary = {
     const reads = [MN, MN + M, MN, MN, MN].reduce((a, b) => a + b, 0);
     return [{ i: 4, v: blocks }, { i: 5, v: reads }];
   })(),
+  "ai310.0.6": (function () {
+    // Per-GPU bytes under ZeRO-2 on 8 GPUs: weights whole, gradients + optimizer state sharded.
+    const weights = 2, grads = 2, master = 4, adam = 2 + 2, gpus = 8;
+    const perParam = weights + (grads + master + adam) / gpus;
+    const billions = 80e9 / perParam / 1e9;
+    const bubble = (4 - 1) / 12;
+    return [{ i: 4, v: Math.round(billions * 10) / 10 }, { i: 5, v: bubble }];
+  })(),
+  "ai310.0.7": (function () {
+    // Simulate the reduce-scatter: sum element-wise over ranks, rank 2 keeps element 2.
+    const world = 4, base = [0, 1, 2, 3];
+    const summed = base.map((_, j) => { let t = 0; for (let r = 0; r < world; r++) t += base[j] + r; return t; });
+    const gib = (100 * 1024 * 1024 * 4) * 2 * (world - 1) / Math.pow(1024, 3);
+    return [{ i: 4, v: summed[2] }, { i: 5, v: Math.round(gib * 100) / 100 }];
+  })(),
+  "ai310.0.8": (function () {
+    // Smallest n with sigma^2 / n <= 0.01, found by search rather than division.
+    let n = 1; while (4 / n > 0.01 + 1e-12) n++;
+    const trillions = 70e9 * 215 / 1e12;
+    return [{ i: 4, v: n }, { i: 5, v: Math.round(trillions * 100) / 100 }];
+  })(),
 };
 
 let sumNums = 0;

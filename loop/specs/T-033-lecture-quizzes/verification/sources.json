@@ -726,5 +726,60 @@
    "sources/repos/stanford-cs336_spring2025-lectures/gelu.cu"
   ],
   "note": "Executable lecture, recorded on a GPU (the trace's timings are real: manual_gelu 8.1 ms, PyTorch 1.1 ms, CUDA 1.8 ms, Triton 1.8 ms, compiled 1.5 ms). triton_matmul_main is defined in the file but not called from main(), so its tiling and L2-grouping material is not quizzed. The 13 MB trace is not in files: every quote comes from the .py, and the timings above were read from the trace."
+ },
+ "ai310.0.6": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "l1RJcDjzK8M (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 7 - Parallelism basics.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_7_Parallelism_basics.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py. The pipeline bubble formula is typeset as a fraction whose text layer reads 'nstages-1 / nmicro'; the quoted evidence is the sentence that introduces it."
+ },
+ "ai310.0.7": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "LHpr5ytssLo (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_08.py",
+     "lecture_08_utils.py",
+     "var/traces/lecture_08.json",
+     "var/traces/lecture_08_stdout.txt"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_08.py",
+   "sources/repos/stanford-cs336_spring2025-lectures/var/traces/lecture_08_stdout.txt"
+  ],
+  "note": "Executable lecture; the multi-process demos ran on an 8-GPU node and their output is in var/traces/lecture_08_stdout.txt (the lecture links it), which supplies the recorded values quoted (collective results, ~2 ms and ~275 GB/s for the all-reduce)."
+ },
+ "ai310.0.8": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "6Q-ESEmDf4Q (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 9 - Scaling laws basics.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_9_Scaling_laws_basics.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py. The mean-estimation formula (E(mu_hat - mu)^2 = sigma^2/n) is typeset; its text layer is legible but fragmented, so the quote is the sentence that sets up the example."
  }
 }

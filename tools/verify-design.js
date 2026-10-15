@@ -74,7 +74,7 @@
 //   - reduced motion: the inline title is opaque in the same task the class
 //     that shows it lands, with no transition — and with motion allowed the
 //     same measurement does see a fade, so it is not blind;
-//   - a render is a read: scrolling /lesson/math110/0/13 (a video on the page)
+//   - a render is a read: scrolling /lesson/math120/0/0 (a video on the page; T-043)
 //     through the title and edge states writes no state, rebuilds no view and
 //     keeps the same <iframe> node.
 // T-007, the lists (loop/specs/T-007-inset-grouped-lists/spec.md), at 390 and
@@ -1821,7 +1821,10 @@ const T26C_PATCH = {
     "math110.0.3": { done: true, verified: true, doneAt: "2026-10-24", verifiedAt: "2026-10-24", notes: "", checks: [] },
     "math110.0.4": { done: true, verified: true, doneAt: "2026-10-25", verifiedAt: "2026-10-25", notes: "", checks: [] },
     "math110.0.5": { done: true, verified: true, doneAt: "2026-10-26", verifiedAt: "2026-10-26", notes: "", checks: [] },
-    "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] },
+    // T-043: a lecture counts once watched AND its quiz is passed, so the
+    // day's one done lecture carries its pass (a quiz pass added, nothing else).
+    "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [],
+      quiz: { passedAt: "2026-10-20", at: "2026-10-20T11:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
   },
   treasury: { offer: "", clients: [], niche: "", entries: [
     { date: "2026-10-18", amount: 999, note: "the last day of week 2" },
@@ -1950,7 +1953,11 @@ function t26cDay([iso, fac]) {
     for (let u = 0; u < it.ui; u++) n += c.units[u].lessons.length;
     return { href: "#/lesson/" + it.cid + "/" + it.ui + "/" + it.li, k: c.code + " · " + it.track, t: it.l.t,
       r: [it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading", it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n],
-      done: !!(lessons[it.cid + "." + it.ui + "." + it.li] || {}).done, fac: z.tok(fac[c.faculty] || "--accent"), faculty: c.faculty };
+      // T-043: done is watched AND cleared — its quiz passed, no quiz at all
+      // (the summary's checks, data), or watched before QUIZ_GATE_FROM.
+      done: (st0 => !!st0.done && (!!(st0.quiz && st0.quiz.passedAt) || !(((D.SUMMARIES || {})[it.cid + "." + it.ui + "." + it.li] || {}).checks || []).length ||
+        (!!st0.doneAt && st0.doneAt < T.QUIZ_GATE_FROM)))(lessons[it.cid + "." + it.ui + "." + it.li] || {}),
+      fac: z.tok(fac[c.faculty] || "--accent"), faculty: c.faculty };
   });
   const blocks = vis("#view .cd-blk").map(b => {
     const k = b.querySelector(".cd-k"), t = b.querySelector(".cd-t"), bar = b.querySelector(".cd-bar");
@@ -2913,7 +2920,10 @@ function t28SeedClips(list) {
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light" }, "light");
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await go(page, "/lesson/math110/0/13");
+    // T-043: a watched lecture's video collapses to the watched bar, and the
+    // seed has MATH 110 lectures 1 and 14 watched (so 2 is locked); the first
+    // lecture of MATH 120 is open, unwatched, and has its video on the page.
+    await go(page, "/lesson/math120/0/0");
     const before = await page.evaluate(() => {
       const f = document.querySelector("#view .video-frame iframe");
       if (f) f.dataset.designStamp = "original";
@@ -4636,7 +4646,7 @@ function t28SeedClips(list) {
             m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));
         } else if (st.name === "passed, with Go deeper") {
           c43(at + ": the pass card — \"Lecture passed\", \"3 of 3 · 2 right on the first try\", --surface, \"Next lecture →\" the one primary",
-            !!m.pass && /^✓ ?Lecture passed 3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
+            !!m.pass && /^✓\s*Lecture passed\s*3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
               filled.join() === "Next lecture →", JSON.stringify({ pass: m.pass, filled }));
           c43(at + ": Go deeper is three tiles — Sketch it, Recall it cold, Practice problems — each --surface and >= 44px",
             m.tiles.map(t => t.t).join("|") === "Sketch it|Recall it cold|Practice problems" && m.tiles.every(t => t.bg && t.h >= 44), JSON.stringify(m.tiles));
@@ -4690,7 +4700,8 @@ function t28SeedClips(list) {
       "(one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides " +
       "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, " + T26C_STATES.length + " more Week states at 1440/390, ‹ › Today tapped and keyed " +
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
-      "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks)"
+      "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
+      "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

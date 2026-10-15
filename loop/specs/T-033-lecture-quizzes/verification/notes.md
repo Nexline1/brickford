@@ -136,6 +136,39 @@ lecture does. Where the material marks something as outside the video, it is lef
   deviations (5.323 and 1.155), and the text says 'Variance reduced from' them. The quiz asks
   for the standard deviation and names the n − 1 convention.
 
+## Video-date check (review round 1, finding 1 and its generalisation)
+
+Every question sourced from a repository file (AI 200, AI 210, AI 310 Unit I) was checked
+against the material as it stood when the video was made, not as it stands now. For each
+lecture `sources.json` → `video_version` records the publication date and its basis, the
+commit, and every later commit that touched a cited file with what it changed. Files that
+differ are snapshotted at that commit in `sources/videodate/<repo>@<sha>/` (git-ignored;
+`git -C sources/repos/<repo> show <sha>:<path>`, notebooks rendered with `nb2txt.py`), and
+`check-evidence.js` now reads those, so every evidence quote is proven to exist at video date.
+
+- **Karpathy**: the date is the nn-zero-to-hero commit that adds each lecture's video link
+  (build-nanogpt: 'add the YouTube url now that we have it'). micrograd's and makemore
+  part 1's notebooks were first published a day to three weeks after their videos and never
+  changed; that first version is the reference.
+- **fast.ai 2022**: released 2022-07-21 (course22's README switched from 'release around
+  August 2022' on 07-23). No course22 or fastbook commit falls between 07-05 and 07-23.
+- **CS336**: YouTube publication dates cannot be checked here and the course says videos come
+  'with some lag'. The reference is the last commit on the day each lecture was given, which
+  is what the recording shows; later commits were inspected one by one.
+
+Changes this forced: ai200.1.6 check 2 (the video's gpt.py scaled by C, not the head size;
+fixed 10 days later) and check 6's class name; ai200.1.2 check 2's quote (a shape comment
+fixed later); ai200.1.7's two opening beats and check 5, which relied on `lecture.md` — the
+author's 'text version of the lecture', committed two days after the video; ai210.0.0 beat 1
+(an output the release notebook did not have) and check 0's cell numbers; ai310.0.1 check 2's
+quote and check 5's explanation (a caveat added four days after the lecture); ai310.0.5's
+millisecond timings (from a trace regenerated five days after the lecture); ai310.0.11's
+'look at individual predictions' (a takeaway added four days after). Two more source errors
+surfaced: CS336 `lecture_17.py` computed the policy-gradient ratio as `log_probs /
+old_log_probs` until 2026-01-08 (not quizzed numerically), and `lecture_13.py` had the
+Nemotron-CC high/low-quality rephrasing bullets swapped until 2025-11-20 (the quiz says only
+'rephrasing').
+
 ## Where each reading was fetched from
 
 `huggingface.co`, `docs.vllm.ai` and `karpathy.github.io` are refused by the egress

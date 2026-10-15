@@ -42,7 +42,7 @@
 {"key": "ai310.0.0", "i": 5, "at": null, "src": "lecture_01.py, bpe_tokenizer and train_bpe; var/traces/lecture_01.json", "quote": "Sketch: start with each byte as a token, and successively merge the most common pair of adjacent tokens."}
 {"key": "ai310.0.1", "i": 0, "at": null, "src": "lecture_02.py, tensors_memory", "quote": "bfloat16 uses the same memory as float16 but has the same dynamic range as float32!"}
 {"key": "ai310.0.1", "i": 1, "at": null, "src": "lecture_02.py, tensor_operations_flops and gradients_flops", "quote": "Backward pass: 4 (# data points) (# parameters) FLOPs"}
-{"key": "ai310.0.1", "i": 2, "at": null, "src": "lecture_02.py, module_parameters", "quote": "We want an initialization that is invariant to `input_dim`."}
+{"key": "ai310.0.1", "i": 2, "at": null, "src": "lecture_02.py, module_parameters", "quote": "To do that, we simply rescale by 1/sqrt(num_inputs)"}
 {"key": "ai310.0.1", "i": 3, "at": null, "src": "lecture_02.py, mixed_precision_training", "quote": "Use {bfloat16, fp8} for the forward pass (activations)."}
 {"key": "ai310.0.1", "i": 4, "at": null, "src": "lecture_02.py, motivating_questions", "quote": "flops_per_day = h100_flop_per_sec * mfu * 1024 * 60 * 60 * 24"}
 {"key": "ai310.0.1", "i": 5, "at": null, "src": "lecture_02.py, motivating_questions", "quote": "bytes_per_parameter = 4 + 4 + (4 + 4)  # parameters, gradients, optimizer state"}
@@ -65,7 +65,7 @@
 {"key": "ai310.0.4", "i": 4, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 41-44", "quote": "An A100 has 108 SMs, so it cannot execute all 120"}
 {"key": "ai310.0.4", "i": 5, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 23-24", "quote": "Memory access : 1 read (x), 1 write (if x < 0), float 16 = 4 bytes"}
 {"key": "ai310.0.5", "i": 0, "at": null, "src": "lecture_06.py, benchmarking", "quote": "torch.cuda.synchronize()  # Wait for CUDA threads to finish (important!)"}
-{"key": "ai310.0.5", "i": 1, "at": null, "src": "lecture_06.py, kernel_fusion_motivation; var/traces/lecture_06.json", "quote": "The PyTorch just calls one kernel whereas the others are atomic (remember the warehouse/factory)"}
+{"key": "ai310.0.5", "i": 1, "at": null, "src": "lecture_06.py, kernel_fusion_motivation", "quote": "The PyTorch just calls one kernel whereas the others are atomic (remember the warehouse/factory)"}
 {"key": "ai310.0.5", "i": 2, "at": null, "src": "lecture_06.py, triton_introduction and print_ptx_main", "quote": "Memory coalescing (transfer from DRAM)     manual    automatic"}
 {"key": "ai310.0.5", "i": 3, "at": null, "src": "lecture_06.py, review_of_gpus", "quote": "General rule: matrix multiplication is compute-bound, everything else is memory-bound"}
 {"key": "ai310.0.5", "i": 4, "at": null, "src": "lecture_06.py, triton_gelu", "quote": "num_blocks = triton.cdiv(num_elements, block_size)"}

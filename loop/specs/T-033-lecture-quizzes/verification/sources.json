@@ -248,15 +248,16 @@
   "repos": [
    {
     "repo": "karpathy/nn-zero-to-hero",
-    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "commit": "56eda75ed81390151aa72466f1b78022ad2eb574",
     "paths": [
      "lectures/micrograd/micrograd_lecture_first_half_roughly.ipynb",
      "lectures/micrograd/micrograd_lecture_second_half_roughly.ipynb"
-    ]
+    ],
+    "head_checked": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
    },
    {
     "repo": "karpathy/micrograd",
-    "commit": "7bc720e951fe422b8f8814aa5aa1b64121d26b4c",
+    "commit": "c911406e5ace8742e5841a7e0df113ecb5d54685",
     "paths": [
      "README.md",
      "micrograd/engine.py",
@@ -264,20 +265,31 @@
      "demo.ipynb",
      "trace_graph.ipynb",
      "test/test_engine.py"
-    ]
+    ],
+    "head_checked": "7bc720e951fe422b8f8814aa5aa1b64121d26b4c"
    }
   ],
   "files": [
    "sources/text/micrograd_lecture_first_half_roughly.ipynb.txt",
    "sources/text/micrograd_lecture_second_half_roughly.ipynb.txt",
-   "sources/repos/karpathy_micrograd/README.md",
+   "sources/videodate/karpathy_micrograd@c911406/README.md",
    "sources/repos/karpathy_micrograd/micrograd/engine.py",
    "sources/repos/karpathy_micrograd/micrograd/nn.py",
    "sources/text/demo.ipynb.txt",
    "sources/text/trace_graph.ipynb.txt",
    "sources/repos/karpathy_micrograd/test/test_engine.py"
   ],
-  "note": "Notebooks rendered to numbered plain text by verification/nb2txt.py (cells 1-based, in notebook order; text outputs kept, images skipped); src cites those cell numbers, which match the cell order in the .ipynb."
+  "note": "Notebooks rendered to numbered plain text by verification/nb2txt.py (cells 1-based, in notebook order; text outputs kept, images skipped); src cites those cell numbers, which match the cell order in the .ipynb.",
+  "video_version": {
+   "published": "2022-08-16",
+   "basis": "micrograd's code has no commit between 2020-04-18 (c911406) and 2026-08-02, so the code is the same for any publication date in that range; the lecture notebooks were first published in nn-zero-to-hero on 2022-09-08 (56eda75) and never changed since",
+   "commits": {
+    "karpathy/micrograd": "c911406e5ace8742e5841a7e0df113ecb5d54685",
+    "karpathy/nn-zero-to-hero": "56eda75ed81390151aa72466f1b78022ad2eb574 (first publication of the notebooks)"
+   },
+   "changes_after": "micrograd 7bc720e (2026-08-02) adds a README section linking microgpt; not quizzed. Quizzed content is identical at the video-date commits.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.1": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -285,24 +297,36 @@
   "repos": [
    {
     "repo": "karpathy/nn-zero-to-hero",
-    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "commit": "56eda75ed81390151aa72466f1b78022ad2eb574",
     "paths": [
      "lectures/makemore/makemore_part1_bigrams.ipynb"
-    ]
+    ],
+    "head_checked": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
    },
    {
     "repo": "karpathy/makemore",
-    "commit": "988aa59e4d8fefa526d06f3b453ad116258398d4",
+    "commit": "2f5e8d746e87b3c8424474e35b702092ed7e9579",
     "paths": [
      "README.md"
-    ]
+    ],
+    "head_checked": "988aa59e4d8fefa526d06f3b453ad116258398d4"
    }
   ],
   "files": [
    "sources/text/makemore_part1_bigrams.ipynb.txt",
-   "sources/repos/karpathy_makemore/README.md"
+   "sources/videodate/karpathy_makemore@2f5e8d7/README.md"
   ],
-  "note": "The lecture's notebook is the source. The makemore repository's makemore.py is the full project the series builds toward (MLP, RNN, transformer); only its README was read here, for context, and nothing is quizzed from it."
+  "note": "The lecture's notebook is the source. The makemore repository's makemore.py is the full project the series builds toward (MLP, RNN, transformer); only its README was read here, for context, and nothing is quizzed from it.",
+  "video_version": {
+   "published": "2022-09-07",
+   "basis": "the notebook was first published in nn-zero-to-hero's first commit, 2022-09-08 (56eda75), and never changed; makemore at 2f5e8d7 (2022-09-02) is the commit current on 2022-09-07",
+   "commits": {
+    "karpathy/nn-zero-to-hero": "56eda75ed81390151aa72466f1b78022ad2eb574",
+    "karpathy/makemore": "2f5e8d746e87b3c8424474e35b702092ed7e9579"
+   },
+   "changes_after": "makemore 988aa59 (2022-11-20) rewrites the README's list of models; not quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.2": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -310,24 +334,36 @@
   "repos": [
    {
     "repo": "karpathy/nn-zero-to-hero",
-    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "commit": "4c35597046b21602524fd572c68d9e35173f5d87",
     "paths": [
      "lectures/makemore/makemore_part2_mlp.ipynb"
-    ]
+    ],
+    "head_checked": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
    },
    {
     "repo": "karpathy/makemore",
-    "commit": "988aa59e4d8fefa526d06f3b453ad116258398d4",
+    "commit": "2f5e8d746e87b3c8424474e35b702092ed7e9579",
     "paths": [
      "README.md"
-    ]
+    ],
+    "head_checked": "988aa59e4d8fefa526d06f3b453ad116258398d4"
    }
   ],
   "files": [
-   "sources/text/makemore_part2_mlp.ipynb.txt",
-   "sources/repos/karpathy_makemore/README.md"
+   "sources/videodate/karpathy_nn-zero-to-hero@4c35597/lectures/makemore/makemore_part2_mlp.ipynb.txt",
+   "sources/videodate/karpathy_makemore@2f5e8d7/README.md"
   ],
-  "note": "The lecture's notebook is the source; the README supplies 'MLP, following Bengio et al. 2003'."
+  "note": "The lecture's notebook is the source; the README supplies 'MLP, following Bengio et al. 2003'.",
+  "video_version": {
+   "published": "2022-09-11/12",
+   "basis": "nn-zero-to-hero 4c35597 'add lecture 3 woot' (2022-09-11 20:56 -0700) adds the video link and the notebook",
+   "commits": {
+    "karpathy/nn-zero-to-hero": "4c35597046b21602524fd572c68d9e35173f5d87",
+    "karpathy/makemore": "2f5e8d746e87b3c8424474e35b702092ed7e9579"
+   },
+   "changes_after": "nn-zero-to-hero c6a5a3e (2022-09-16) updates stale shape comments, e.g. '# (32, 100)' to '# (32, 200)'; check 2's evidence quote was re-taken without the comment. makemore 988aa59 (2022-11-20) README list; not quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.3": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -335,16 +371,26 @@
   "repos": [
    {
     "repo": "karpathy/nn-zero-to-hero",
-    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "commit": "d5b5bfdacbab3199c3eed63722fd0eff3edaaf23",
     "paths": [
      "lectures/makemore/makemore_part3_bn.ipynb"
-    ]
+    ],
+    "head_checked": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
    }
   ],
   "files": [
    "sources/text/makemore_part3_bn.ipynb.txt"
   ],
-  "note": "Cells 22-25 are marked in the notebook 'BONUS content below, not covered in video' and are not quizzed."
+  "note": "Cells 22-25 are marked in the notebook 'BONUS content below, not covered in video' and are not quizzed.",
+  "video_version": {
+   "published": "2022-10-04",
+   "basis": "nn-zero-to-hero d5b5bfd 'adding makemore part3 bn lecture' (2022-10-04)",
+   "commits": {
+    "karpathy/nn-zero-to-hero": "d5b5bfdacbab3199c3eed63722fd0eff3edaaf23"
+   },
+   "changes_after": "none: the notebook has not changed since.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.4": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -352,16 +398,26 @@
   "repos": [
    {
     "repo": "karpathy/nn-zero-to-hero",
-    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "commit": "44cfac7e03782b78f6bf2390d37926453295c90a",
     "paths": [
      "lectures/makemore/makemore_part4_backprop.ipynb"
-    ]
+    ],
+    "head_checked": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
    }
   ],
   "files": [
    "sources/text/makemore_part4_backprop.ipynb.txt"
   ],
-  "note": "The lecture's notebook, read in full, is the source."
+  "note": "The lecture's notebook, read in full, is the source.",
+  "video_version": {
+   "published": "2022-10-11",
+   "basis": "nn-zero-to-hero 44cfac7 'adding backprop video' (2022-10-11)",
+   "commits": {
+    "karpathy/nn-zero-to-hero": "44cfac7e03782b78f6bf2390d37926453295c90a"
+   },
+   "changes_after": "none: the notebook has not changed since.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.5": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -369,17 +425,27 @@
   "repos": [
    {
     "repo": "karpathy/nn-zero-to-hero",
-    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "commit": "74aac39aea9bd1c8405354bff08a6fe675d38788",
     "paths": [
      "lectures/makemore/makemore_part5_cnn1.ipynb"
-    ]
+    ],
+    "head_checked": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
    }
   ],
   "files": [
    "sources/text/makemore_part5_cnn1.ipynb.txt",
-   "sources/repos/karpathy_nn-zero-to-hero/README.md"
+   "sources/videodate/karpathy_nn-zero-to-hero@74aac39/README.md"
   ],
-  "note": "The lecture's notebook, read in full, is the source; the WaveNet link is from the nn-zero-to-hero README's description of this lecture."
+  "note": "The lecture's notebook, read in full, is the source; the WaveNet link is from the nn-zero-to-hero README's description of this lecture.",
+  "video_version": {
+   "published": "2022-11-20/21",
+   "basis": "nn-zero-to-hero 74aac39 'adding lecture 6' (2022-11-21 09:32 +0900)",
+   "commits": {
+    "karpathy/nn-zero-to-hero": "74aac39aea9bd1c8405354bff08a6fe675d38788"
+   },
+   "changes_after": "the notebook has not changed since; the README only gained later lectures' entries.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.6": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -387,22 +453,32 @@
   "repos": [
    {
     "repo": "karpathy/ng-video-lecture",
-    "commit": "52201428ed7b46804849dea0b3ccf0de9df1a5c3",
+    "commit": "381c613da07c82ad27c8b06a01f93583318571b0",
     "paths": [
      "README.md",
      "bigram.py",
      "gpt.py",
      "more.txt",
      "git history 83f7d22..5220142 (fetched unshallow)"
-    ]
+    ],
+    "head_checked": "52201428ed7b46804849dea0b3ccf0de9df1a5c3"
    }
   ],
   "files": [
-   "sources/repos/karpathy_ng-video-lecture/README.md",
+   "sources/videodate/karpathy_ng-video-lecture@381c613/README.md",
    "sources/repos/karpathy_ng-video-lecture/bigram.py",
-   "sources/repos/karpathy_ng-video-lecture/gpt.py"
+   "sources/videodate/karpathy_ng-video-lecture@381c613/gpt.py"
   ],
-  "note": "The README points readers to the git log history, which records each step with its val loss (single head 2.5, multi-head 2.28, compute block 2.24, layer norms 2.06); those commit messages are cited in src. _init_weights is marked 'not covered in the original GPT video' and is not quizzed. input.txt is the dataset, not lecture text."
+  "note": "The README points readers to the git log history, which records each step with its val loss (single head 2.5, multi-head 2.28, compute block 2.24, layer norms 2.06); those commit messages are cited in src. _init_weights is marked 'not covered in the original GPT video' and is not quizzed. input.txt is the dataset, not lecture text.",
+  "video_version": {
+   "published": "2023-01-17",
+   "basis": "nn-zero-to-hero 374864c 'add new GPT lecture' (2023-01-17 08:50 -0800); ng-video-lecture's last commit before it is 381c613 (2023-01-17 02:23 UTC)",
+   "commits": {
+    "karpathy/ng-video-lecture": "381c613da07c82ad27c8b06a01f93583318571b0"
+   },
+   "changes_after": "988848a (PR #6, 2023-01-25, merged 01-27) scales attention by the head size instead of C — check 2 rewritten (review 1, finding 1); d5ae96f (01-31) renames BigramLanguageModel to GPTLanguageModel — check 6's src now uses the video's name; d38c865 (02-06) adds _init_weights, 'not covered in the original GPT video' — not quizzed; 4c8e902 (02-07) shape comments — not quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.7": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -410,9 +486,8 @@
   "repos": [
    {
     "repo": "karpathy/minbpe",
-    "commit": "1acefe89412b20245db5a22d2a02001e547dc602",
+    "commit": "a98e0a57d83b37d7a7e124ac55e4ad55934df535",
     "paths": [
-     "lecture.md",
      "README.md",
      "exercise.md",
      "minbpe/base.py",
@@ -421,21 +496,39 @@
      "minbpe/gpt4.py",
      "train.py",
      "tests/test_tokenizer.py"
+    ],
+    "head_checked": "1acefe89412b20245db5a22d2a02001e547dc602"
+   },
+   {
+    "repo": "karpathy/nn-zero-to-hero",
+    "commit": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde",
+    "paths": [
+     "README.md (Lecture 8 entry)"
     ]
    }
   ],
   "files": [
-   "sources/repos/karpathy_minbpe/lecture.md",
-   "sources/repos/karpathy_minbpe/README.md",
+   "sources/videodate/karpathy_minbpe@a98e0a5/README.md",
    "sources/repos/karpathy_minbpe/exercise.md",
    "sources/repos/karpathy_minbpe/minbpe/base.py",
    "sources/repos/karpathy_minbpe/minbpe/basic.py",
    "sources/repos/karpathy_minbpe/minbpe/regex.py",
    "sources/repos/karpathy_minbpe/minbpe/gpt4.py",
    "sources/repos/karpathy_minbpe/train.py",
-   "sources/repos/karpathy_minbpe/tests/test_tokenizer.py"
+   "sources/repos/karpathy_minbpe/tests/test_tokenizer.py",
+   "sources/videodate/karpathy_nn-zero-to-hero@73c3fcc/README.md"
   ],
-  "note": "The README says the code was built in this video and that lecture.md is the lecture in text form (lecture.md is unfinished: it covers the opening of the video). tests/taylorswift.txt is test data."
+  "note": "The README says the code was built in this video and that lecture.md is the lecture in text form (lecture.md is unfinished: it covers the opening of the video). tests/taylorswift.txt is test data.",
+  "video_version": {
+   "published": "2024-02-20",
+   "basis": "nn-zero-to-hero 73c3fcc 'add lecture 8 tokenization' (2024-02-20 09:19 -0800); minbpe's last commit before it is a98e0a5 (2024-02-19); f50ad93 (02-20 10:58) only touches .gitignore",
+   "commits": {
+    "karpathy/minbpe": "a98e0a57d83b37d7a7e124ac55e4ad55934df535",
+    "karpathy/nn-zero-to-hero": "73c3fcc741f0ec104ca850b1fb0df90e7e8d4cde"
+   },
+   "changes_after": "4520f7d (02-21) adds the video link to the README; 9324a08/d201df8/173b67f (02-22) add lecture.md, 'text version of the lecture', written after the video — everything that relied on it (beats 1-2 and check 5) was replaced with video-date material; 1fbc91c (02-23) and 45a0c2f (04-22) touch lecture.md and the README's community list; not quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai200.1.8": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -443,7 +536,7 @@
   "repos": [
    {
     "repo": "karpathy/build-nanogpt",
-    "commit": "6104ab1b53920f6e2159749676073ff7d815c1fa",
+    "commit": "842135596a31f50c0095952e6e0dc2c9fa35a22a",
     "paths": [
      "README.md",
      "train_gpt2.py",
@@ -451,17 +544,27 @@
      "hellaswag.py",
      "play.ipynb",
      "git history 28916d9..6104ab1 (fetched unshallow; the README says the commits follow the video step by step)"
-    ]
+    ],
+    "head_checked": "6104ab1b53920f6e2159749676073ff7d815c1fa"
    }
   ],
   "files": [
-   "sources/repos/karpathy_build-nanogpt/README.md",
-   "sources/repos/karpathy_build-nanogpt/train_gpt2.py",
+   "sources/videodate/karpathy_build-nanogpt@8421355/README.md",
+   "sources/videodate/karpathy_build-nanogpt@8421355/train_gpt2.py",
    "sources/repos/karpathy_build-nanogpt/fineweb.py",
    "sources/repos/karpathy_build-nanogpt/hellaswag.py",
-   "sources/text/play.ipynb.txt"
+   "sources/videodate/karpathy_build-nanogpt@8421355/play.ipynb.txt"
   ],
-  "note": "Lines marked 'added after video' (uint16->int32, device_type, require_backward_grad_sync) are not quizzed. input.txt is Tiny Shakespeare data."
+  "note": "Lines marked 'added after video' (uint16->int32, device_type, require_backward_grad_sync) are not quizzed. input.txt is Tiny Shakespeare data.",
+  "video_version": {
+   "published": "2024-06-09",
+   "basis": "build-nanogpt 8421355 'add the YouTube url now that we have it' (2024-06-09 19:58 UTC)",
+   "commits": {
+    "karpathy/build-nanogpt": "842135596a31f50c0095952e6e0dc2c9fa35a22a"
+   },
+   "changes_after": "41af0d1/12c1ea8/15bba07 (06-12) device_type and uint16 fixes, 01fd941 (06-13) README links, 8dde293 (06-16) play.ipynb ylim, f6d194b (06-17) moves require_backward_grad_sync up, 6104ab1 (06-17) cuda guard, plus a README errata section; none touches what is quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.0": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -474,26 +577,38 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "00-is-it-a-bird-creating-a-model-from-your-own-data.ipynb",
      "01-jupyter-notebook-101.ipynb"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "01_intro.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
-   "sources/text/00-is-it-a-bird-creating-a-model-from-your-own-data.ipynb.txt",
-   "sources/text/01-jupyter-notebook-101.ipynb.txt",
-   "sources/text/01_intro.ipynb.txt"
+   "sources/videodate/fastai_course22@6b6fb39/00-is-it-a-bird-creating-a-model-from-your-own-data.ipynb.txt",
+   "sources/videodate/fastai_course22@6b6fb39/01-jupyter-notebook-101.ipynb.txt",
+   "sources/videodate/fastai_fastbook@2b8b8a2/01_intro.ipynb.txt"
   ],
-  "note": "lesson1.qmd lists the bird notebook, Jupyter Notebook 101 and chapter 1 of the book. The student-written lesson summaries on course22-web are not used."
+  "note": "lesson1.qmd lists the bird notebook, Jupyter Notebook 101 and chapter 1 of the book. The student-written lesson summaries on course22-web are not used.",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "00-is-it-a-bird was rewritten after release (2023-2024: DuckDuckGo search code, a second 'sun photo' search, saved outputs) and gained a cell, so check 0's cells are now cited by the release numbering (16 and 21-22) and beat 1 no longer quotes the 1.0000 output, which the release notebook did not have; 01-jupyter-notebook-101 gained a Codespaces mention; fastbook 01_intro changed a link and a sample output; none of the rest is quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.1": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -506,24 +621,36 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "02-saving-a-basic-fastai-model.ipynb"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "02_production.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
    "sources/text/02-saving-a-basic-fastai-model.ipynb.txt",
-   "sources/text/02_production.ipynb.txt"
+   "sources/videodate/fastai_fastbook@2b8b8a2/02_production.ipynb.txt"
   ],
-  "note": "lesson2.qmd: 'based partly on chapter 2'; the lesson deploys with Gradio on Hugging Face Spaces and a JavaScript front end. Not quizzed: the Drivetrain Approach and 'How to Avoid Disaster' (the page does not show the lesson covers them), the SerpAPI replacement for Bing search (a later edit to the book), and Binder/Voila specifics (the lesson used Gradio)."
+  "note": "lesson2.qmd: 'based partly on chapter 2'; the lesson deploys with Gradio on Hugging Face Spaces and a JavaScript front end. Not quizzed: the Drivetrain Approach and 'How to Avoid Disaster' (the page does not show the lesson covers them), the SerpAPI replacement for Bing search (a later edit to the book), and Binder/Voila specifics (the lesson used Gradio).",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "fastbook 02_production replaced the retired Bing Image Search API with SerpAPI after release; not quizzed (the questions cite sections that did not change).",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.2": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -536,19 +663,21 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "03-which-image-models-are-best.ipynb",
      "04-how-does-a-neural-net-really-work.ipynb",
      "xl/titanic.xlsx"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "04_mnist_basics.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
@@ -557,7 +686,17 @@
    "sources/text/04_mnist_basics.ipynb.txt",
    "sources/text/titanic.xlsx.txt"
   ],
-  "note": "lesson3.qmd names SGD, linear functions layered with nonlinear activations, and ReLU, lists the two Kaggle notebooks and the Titanic spreadsheet, and says the lesson is 'based partly on chapter 4'; chapter 4 questions stay on those topics (not mnist_loss, sigmoid or the DataLoader details). titanic.xlsx was rendered to text with verification/xlsx2txt.py (rows 1-12, columns A-AN of each sheet; all four sheets' formulas read). The HF Spaces pets repository is on huggingface.co, not GitHub, and was not used."
+  "note": "lesson3.qmd names SGD, linear functions layered with nonlinear activations, and ReLU, lists the two Kaggle notebooks and the Titanic spreadsheet, and says the lesson is 'based partly on chapter 4'; chapter 4 questions stay on those topics (not mnist_loss, sigmoid or the DataLoader details). titanic.xlsx was rendered to text with verification/xlsx2txt.py (rows 1-12, columns A-AN of each sheet; all four sheets' formulas read). The HF Spaces pets repository is on huggingface.co, not GitHub, and was not used.",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "none of the cited files changed after release.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.3": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -570,24 +709,36 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "slides/nlp-intro.ipynb"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "10_nlp.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
    "sources/text/nlp-intro.ipynb.txt",
    "sources/text/10_nlp.ipynb.txt"
   ],
-  "note": "lesson4.qmd's notebook is Kaggle's 'Getting started with NLP for absolute beginners'; course22 carries the course's own copy as slides/nlp-intro.ipynb ('Getting started with Kaggle, NLP and HuggingFace for absolute beginners'), which ends at trainer.train() — the Kaggle version's later prediction cells are not in the repo and are not quizzed. Chapter 10 questions stay on ULMFiT and tokenization; AWD-LSTM training, gradual unfreezing and LMDataLoader batching are not quizzed. Not quizzed either: the validation split size, which the notebook's prose gives as 20% and its code as 0.25."
+  "note": "lesson4.qmd's notebook is Kaggle's 'Getting started with NLP for absolute beginners'; course22 carries the course's own copy as slides/nlp-intro.ipynb ('Getting started with Kaggle, NLP and HuggingFace for absolute beginners'), which ends at trainer.train() — the Kaggle version's later prediction cells are not in the repo and are not quizzed. Chapter 10 questions stay on ULMFiT and tokenization; AWD-LSTM training, gradual unfreezing and LMDataLoader batching are not quizzed. Not quizzed either: the validation split size, which the notebook's prose gives as 20% and its code as 0.25.",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "none of the cited files changed after release.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.4": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -600,26 +751,38 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "05-linear-model-and-neural-net-from-scratch.ipynb",
      "06-why-you-should-use-a-framework.ipynb"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "04_mnist_basics.ipynb",
      "09_tabular.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
-   "sources/text/05-linear-model-and-neural-net-from-scratch.ipynb.txt",
+   "sources/videodate/fastai_course22@6b6fb39/05-linear-model-and-neural-net-from-scratch.ipynb.txt",
    "sources/text/06-why-you-should-use-a-framework.ipynb.txt"
   ],
-  "note": "lesson5.qmd lists three notebooks — 05, 06 and 07 (random forests) — and says the lesson is based partly on chapters 4 and 9. Its description covers the from-scratch model, the training loop, sigmoid and metrics, so the quiz is from 05 and 06. 07 and chapter 9 (random forests) are quizzed under lesson 6, whose page lists 07 again and describes random forests; the OneR paper link on lesson5.qmd suggests lesson 5 ended by starting on 07, and it is quizzed once, with lesson 6. Chapter 4 was read for lesson 3."
+  "note": "lesson5.qmd lists three notebooks — 05, 06 and 07 (random forests) — and says the lesson is based partly on chapters 4 and 9. Its description covers the from-scratch model, the training loop, sigmoid and metrics, so the quiz is from 05 and 06. 07 and chapter 9 (random forests) are quizzed under lesson 6, whose page lists 07 again and describes random forests; the OneR paper link on lesson5.qmd suggests lesson 5 ended by starting on 07, and it is quizzed once, with lesson 6. Chapter 4 was read for lesson 3.",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "05-linear-model-and-neural-net-from-scratch changed only metadata (the rendered text is identical).",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.5": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -632,26 +795,38 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "07-how-random-forests-really-work.ipynb",
      "08-first-steps-road-to-the-top-part-1.ipynb"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "09_tabular.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
-   "sources/text/07-how-random-forests-really-work.ipynb.txt",
+   "sources/videodate/fastai_course22@6b6fb39/07-how-random-forests-really-work.ipynb.txt",
    "sources/text/08-first-steps-road-to-the-top-part-1.ipynb.txt",
-   "sources/text/09_tabular.ipynb.txt"
+   "sources/videodate/fastai_fastbook@2b8b8a2/09_tabular.ipynb.txt"
   ],
-  "note": "lesson6.qmd: how a random forest works, building one from scratch, and interpreting it; based partly on chapter 9. Chapter 9 questions stay on random forests, their interpretation and their limits; its categorical-embeddings opening and its neural-net section are not quizzed. The gini question states the measure correctly; the notebook's prose (cell 67) has it inverted, which notes.md reports."
+  "note": "lesson6.qmd: how a random forest works, building one from scratch, and interpreting it; based partly on chapter 9. Chapter 9 questions stay on random forests, their interpretation and their limits; its categorical-embeddings opening and its neural-net section are not quizzed. The gini question states the measure correctly; the notebook's prose (cell 67) has it inverted, which notes.md reports.",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "07-how-random-forests-really-work fixed three typos; fastbook 09_tabular pinned dtreeviz; not quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.6": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -664,28 +839,40 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "10-scaling-up-road-to-the-top-part-3.ipynb",
      "xl/entropy_example.xlsx",
      "xl/collab_filter.xlsx"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "08_collab.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
-   "sources/text/10-scaling-up-road-to-the-top-part-3.ipynb.txt",
+   "sources/videodate/fastai_course22@6b6fb39/10-scaling-up-road-to-the-top-part-3.ipynb.txt",
    "sources/text/entropy_example.xlsx.txt",
    "sources/text/collab_filter.xlsx.txt",
    "sources/text/08_collab.ipynb.txt"
   ],
-  "note": "lesson7.qmd lists Road to the Top parts 3 and 4 and the Collaborative Filtering Deep Dive (Kaggle), the entropy and collab_filter spreadsheets, and chapter 8. Part 4 and the Deep Dive notebook are not in course22, so are not used; chapter 8 is the book form of the Deep Dive. Lessons 7 and 8 share chapter 8 and collab_filter.xlsx: lesson 7 is quizzed on latent factors, the dot-product model, biases and weight decay (the page: 'one based on a classic linear algebra formulation, and one based on deep learning'); lesson 8 on embeddings themselves ('looking closely at embeddings'). Spreadsheets rendered with verification/xlsx2txt.py: entropy_example rows 1-40, collab_filter rows 1-45, columns to 60."
+  "note": "lesson7.qmd lists Road to the Top parts 3 and 4 and the Collaborative Filtering Deep Dive (Kaggle), the entropy and collab_filter spreadsheets, and chapter 8. Part 4 and the Deep Dive notebook are not in course22, so are not used; chapter 8 is the book form of the Deep Dive. Lessons 7 and 8 share chapter 8 and collab_filter.xlsx: lesson 7 is quizzed on latent factors, the dot-product model, biases and weight decay (the page: 'one based on a classic linear algebra formulation, and one based on deep learning'); lesson 8 on embeddings themselves ('looking closely at embeddings'). Spreadsheets rendered with verification/xlsx2txt.py: entropy_example rows 1-40, collab_filter rows 1-45, columns to 60.",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "10-scaling-up-road-to-the-top-part-3 fixed 'def res = 640,480' to 'res = 640,480'; not quizzed.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai210.0.7": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -698,19 +885,21 @@
   "repos": [
    {
     "repo": "fastai/course22",
-    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "commit": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
     "paths": [
      "xl/collab_filter.xlsx",
      "xl/conv-example.xlsx"
-    ]
+    ],
+    "head_checked": "230390584ba5b990e20487d68681a9ec5b258eff"
    },
    {
     "repo": "fastai/fastbook",
-    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "commit": "2b8b8a20974baa756e3702778270aa12e0ab046e",
     "paths": [
      "08_collab.ipynb",
      "13_convolutions.ipynb"
-    ]
+    ],
+    "head_checked": "971f0289c3d0bda81868d3c028a832c6ee380b58"
    }
   ],
   "files": [
@@ -719,7 +908,17 @@
    "sources/text/collab_filter.xlsx.txt",
    "sources/text/conv-example.xlsx.txt"
   ],
-  "note": "lesson8.qmd: finish collaborative filtering by looking closely at embeddings, then convolutions, pooling, dropout 'and more'; based partly on chapter 13; the Collaborative Filtering Deep Dive (chapter 8's Kaggle form) and the collab_filter and conv-example spreadsheets. Chapter 13's training-stability half (ActivationStats, 1cycle, batchnorm) is not quizzed, since the page does not name it. Receptive fields are not quizzed: the chapter says conv-example.xlsx shows two stride-2 layers with a 7x7 receptive field, but course22's copy convolves with stride 1 (see notes.md). conv-example.xlsx was rendered in full (rows 1-70, all columns)."
+  "note": "lesson8.qmd: finish collaborative filtering by looking closely at embeddings, then convolutions, pooling, dropout 'and more'; based partly on chapter 13; the Collaborative Filtering Deep Dive (chapter 8's Kaggle form) and the collab_filter and conv-example spreadsheets. Chapter 13's training-stability half (ActivationStats, 1cycle, batchnorm) is not quizzed, since the page does not name it. Receptive fields are not quizzed: the chapter says conv-example.xlsx shows two stride-2 layers with a 7x7 receptive field, but course22's copy convolves with stride 1 (see notes.md). conv-example.xlsx was rendered in full (rows 1-70, all columns).",
+  "video_version": {
+   "published": "2022-07-21",
+   "basis": "course released 2022-07-21; course22's README changed from 'We hope to release it around August 2022' to 'See course.fast.ai for the lessons' on 2022-07-23 (73c44a9). course22's last commit before that is 6b6fb39 (2022-07-05) and fastbook's is 2b8b8a2 (2022-05-05; next commit 2022-09-28), so the snapshot is the same for any release date in that window",
+   "commits": {
+    "fastai/course22": "6b6fb39eebbf8502c57825491a6cf0babf5093f8",
+    "fastai/fastbook": "2b8b8a20974baa756e3702778270aa12e0ab046e"
+   },
+   "changes_after": "none of the cited files changed after release.",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.0": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -727,18 +926,28 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "246e39ddf7c24b45de0b24e948e56ff35210bb38",
     "paths": [
      "lecture_01.py",
      "var/traces/lecture_01.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_01.py",
-   "sources/repos/stanford-cs336_spring2025-lectures/var/traces/lecture_01.json"
+   "sources/videodate/stanford-cs336_spring2025-lectures@246e39d/lecture_01.py",
+   "sources/videodate/stanford-cs336_spring2025-lectures@246e39d/var/traces/lecture_01.json"
   ],
-  "note": "Lecture 1 is an executable lecture: lecture_01.py is the lecture's text and code, and var/traces/lecture_01.json is the recorded run whose values the lecture displays (compression ratios, BPE merges). Values quoted in the quiz were read from that trace."
+  "note": "Lecture 1 is an executable lecture: lecture_01.py is the lecture's text and code, and var/traces/lecture_01.json is the recorded run whose values the lecture displays (compression ratios, BPE merges). Values quoted in the quiz were read from that trace.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-01; the recording shows that day's material, so the reference is the last commit on 2025-04-01 (246e39d)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "246e39ddf7c24b45de0b24e948e56ff35210bb38"
+   },
+   "changes_after": "later edits are typo and link fixes",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.1": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -746,19 +955,29 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "105662c59f5c71d7da5453d36d9fb45fedc622a7",
     "paths": [
      "lecture_02.py",
      "facts.py",
      "var/traces/lecture_02.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_02.py",
-   "sources/repos/stanford-cs336_spring2025-lectures/var/traces/lecture_02.json"
+   "sources/videodate/stanford-cs336_spring2025-lectures@105662c/lecture_02.py",
+   "sources/videodate/stanford-cs336_spring2025-lectures@105662c/var/traces/lecture_02.json"
   ],
-  "note": "Executable lecture. The recorded trace was run without a GPU, so its timing and MFU values are meaningless (promised FLOP/s returns 1) and are not quizzed; the napkin-math values (6.3e24 FLOPs, 143.9 days, 40B parameters) are exact arithmetic and match the trace."
+  "note": "Executable lecture. The recorded trace was run without a GPU, so its timing and MFU values are meaningless (promised FLOP/s returns 1) and are not quizzed; the napkin-math values (6.3e24 FLOPs, 143.9 days, 40B parameters) are exact arithmetic and match the trace.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-03; the recording shows that day's material, so the reference is the last commit on 2025-04-03 (105662c)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "105662c59f5c71d7da5453d36d9fb45fedc622a7"
+   },
+   "changes_after": "90e1bb8 (04-05) renames hidden_dim/num_inputs to input_dim — check 2's quote re-taken from the lecture-day text; 6ee7dbf (04-07) adds 'Caveat 1' on bf16 with a float32 master copy — removed from check 5's explanation; 65f90fe/cb8798a (06-10) correct the h1.grad formula; 99d2113 (12-02) mean to sum; the trace was regenerated on 06-10; none of the rest is quizzed",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.2": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -766,16 +985,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "c4feeea08b4a16a242051896758f40ec7e07c9a5",
     "paths": [
      "nonexecutable/2025 Lecture 3 - architecture.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_3_architecture.txt"
   ],
-  "note": "Slide deck; text extracted page by page with verification/pdf2txt.py (pypdf 5.1.0, installed outside the repo). Every slide has a text layer; figures and plots are not in the text and are not quizzed."
+  "note": "Slide deck; text extracted page by page with verification/pdf2txt.py (pypdf 5.1.0, installed outside the repo). Every slide has a text layer; figures and plots are not in the text and are not quizzed.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-08; the recording shows that day's material, so the reference is the last commit on 2025-04-08 (c4feeea)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "c4feeea08b4a16a242051896758f40ec7e07c9a5"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.3": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -783,16 +1012,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "98455ec198c9a88ec1ab2b1c4058662431b54ce3",
     "paths": [
      "nonexecutable/2025 Lecture 4 - MoEs.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_4_MoEs.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py. The same video is also linked by ai300.3.1 (Mixtral), which is to be quizzed from the Mixtral paper (notes.md). Slide 43 labels DeepSeek v3 as 'V2 (671B – 37 active)' and gives 258 fine-grained experts where slide 23's table gives 256; the quiz uses neither figure."
+  "note": "Slide deck, text via verification/pdf2txt.py. The same video is also linked by ai300.3.1 (Mixtral), which is to be quizzed from the Mixtral paper (notes.md). Slide 43 labels DeepSeek v3 as 'V2 (671B – 37 active)' and gives 258 fine-grained experts where slide 23's table gives 256; the quiz uses neither figure.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-10; the recording shows that day's material, so the reference is the last commit on 2025-04-10 (98455ec)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "98455ec198c9a88ec1ab2b1c4058662431b54ce3"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.4": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -800,16 +1039,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "8d6aeea20c82a9ddaa86c10218233d10a0390adc",
     "paths": [
      "nonexecutable/2025 Lecture 5 - GPUs.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_5_GPUs.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py."
+  "note": "Slide deck, text via verification/pdf2txt.py.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-15; the recording shows that day's material, so the reference is the last commit on 2025-04-15 (8d6aeea)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "8d6aeea20c82a9ddaa86c10218233d10a0390adc"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.5": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -817,21 +1066,31 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "8f4b9eda323b931bba7f811c214b1936d84433ad",
     "paths": [
      "lecture_06.py",
      "lecture_06_mlp.py",
      "lecture_06_utils.py",
      "gelu.cu",
      "var/traces/lecture_06.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_06.py",
-   "sources/repos/stanford-cs336_spring2025-lectures/gelu.cu"
+   "sources/videodate/stanford-cs336_spring2025-lectures@8f4b9ed/lecture_06.py",
+   "sources/videodate/stanford-cs336_spring2025-lectures@8f4b9ed/gelu.cu"
   ],
-  "note": "Executable lecture, recorded on a GPU (the trace's timings are real: manual_gelu 8.1 ms, PyTorch 1.1 ms, CUDA 1.8 ms, Triton 1.8 ms, compiled 1.5 ms). triton_matmul_main is defined in the file but not called from main(), so its tiling and L2-grouping material is not quizzed. The 13 MB trace is not in files: every quote comes from the .py, and the timings above were read from the trace."
+  "note": "Executable lecture, recorded on a GPU (the trace's timings are real: manual_gelu 8.1 ms, PyTorch 1.1 ms, CUDA 1.8 ms, Triton 1.8 ms, compiled 1.5 ms). triton_matmul_main is defined in the file but not called from main(), so its tiling and L2-grouping material is not quizzed. The 13 MB trace is not in files: every quote comes from the .py, and the timings above were read from the trace.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-17; the recording shows that day's material, so the reference is the last commit on 2025-04-17 (8f4b9ed)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "8f4b9eda323b931bba7f811c214b1936d84433ad"
+   },
+   "changes_after": "5e96bb7 (04-22, 'l6 misc from together machine') restructures benchmark/profile output and regenerates the trace on a GPU; the lecture-day trace (bd8a0b5, 04-12) has different timings, so the recorded millisecond figures were removed from the beats and from check 1, which now uses the lecture's own words ('significantly faster')",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.6": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -839,16 +1098,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "4eff81bee0a853217209e163936b264f03572b66",
     "paths": [
      "nonexecutable/2025 Lecture 7 - Parallelism basics.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_7_Parallelism_basics.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py. The pipeline bubble formula is typeset as a fraction whose text layer reads 'nstages-1 / nmicro'; the quoted evidence is the sentence that introduces it."
+  "note": "Slide deck, text via verification/pdf2txt.py. The pipeline bubble formula is typeset as a fraction whose text layer reads 'nstages-1 / nmicro'; the quoted evidence is the sentence that introduces it.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-22; the recording shows that day's material, so the reference is the last commit on 2025-04-22 (4eff81b)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "4eff81bee0a853217209e163936b264f03572b66"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.7": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -856,20 +1125,30 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "3527dce5085c30010e093bd36f4469c7f4a2ddac",
     "paths": [
      "lecture_08.py",
      "lecture_08_utils.py",
      "var/traces/lecture_08.json",
      "var/traces/lecture_08_stdout.txt"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_08.py",
-   "sources/repos/stanford-cs336_spring2025-lectures/var/traces/lecture_08_stdout.txt"
+   "sources/videodate/stanford-cs336_spring2025-lectures@3527dce/lecture_08.py",
+   "sources/videodate/stanford-cs336_spring2025-lectures@3527dce/var/traces/lecture_08_stdout.txt"
   ],
-  "note": "Executable lecture; the multi-process demos ran on an 8-GPU node and their output is in var/traces/lecture_08_stdout.txt (the lecture links it), which supplies the recorded values quoted (collective results, ~2 ms and ~275 GB/s for the all-reduce)."
+  "note": "Executable lecture; the multi-process demos ran on an 8-GPU node and their output is in var/traces/lecture_08_stdout.txt (the lecture links it), which supplies the recorded values quoted (collective results, ~2 ms and ~275 GB/s for the all-reduce).",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-24; the recording shows that day's material, so the reference is the last commit on 2025-04-24 (3527dce)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "3527dce5085c30010e093bd36f4469c7f4a2ddac"
+   },
+   "changes_after": "3e830d4 (04-25) re-runs the stdout trace (same values, different line order); b482bc4 (07-20) fixes reduce_scatter's byte count; not quizzed",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.8": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -877,16 +1156,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "fb79eb018fa047bf99c4c785dcbbd62fff361e54",
     "paths": [
      "nonexecutable/2025 Lecture 9 - Scaling laws basics.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_9_Scaling_laws_basics.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py. The mean-estimation formula (E(mu_hat - mu)^2 = sigma^2/n) is typeset; its text layer is legible but fragmented, so the quote is the sentence that sets up the example."
+  "note": "Slide deck, text via verification/pdf2txt.py. The mean-estimation formula (E(mu_hat - mu)^2 = sigma^2/n) is typeset; its text layer is legible but fragmented, so the quote is the sentence that sets up the example.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-04-29; the recording shows that day's material, so the reference is the last commit on 2025-04-29 (fb79eb0)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "fb79eb018fa047bf99c4c785dcbbd62fff361e54"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.9": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -894,17 +1183,27 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "f8e785c41bc836109b05ad8b496606e82bdd9236",
     "paths": [
      "lecture_10.py",
      "var/traces/lecture_10.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_10.py"
+   "sources/videodate/stanford-cs336_spring2025-lectures@f8e785c/lecture_10.py"
   ],
-  "note": "Executable lecture whose accounting is symbolic (sympy); the recorded trace holds the substituted values quoted (Llama 2 13B: 8.0 ms and 125 tokens/s at batch 1, 23.8 ms and 2,689 tokens/s at batch 64; accelerator intensity 295.2)."
+  "note": "Executable lecture whose accounting is symbolic (sympy); the recorded trace holds the substituted values quoted (Llama 2 13B: 8.0 ms and 125 tokens/s at batch 1, 23.8 ms and 2,689 tokens/s at batch 64; accelerator intensity 295.2).",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-01; the recording shows that day's material, so the reference is the last commit on 2025-05-01 (f8e785c)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "f8e785c41bc836109b05ad8b496606e82bdd9236"
+   },
+   "changes_after": "05f3799 (05-02) rewords text (MHA/MLA accuracy, GQA matrix shapes) and regenerates the trace; bab8432 (08-28) typo; nothing quizzed depends on the changed lines",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.10": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -912,16 +1211,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "00191bba00d6d64621dc46ccaed9122681413a24",
     "paths": [
      "nonexecutable/2025 Lecture 11 - Scaling details.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_11_Scaling_details.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py. The muP derivation (slides 38-42) is typeset mathematics whose text layer is fragmented; the quiz uses only its stated conditions and the Adam learning-rate rule (1/fan-in) stated on slide 42."
+  "note": "Slide deck, text via verification/pdf2txt.py. The muP derivation (slides 38-42) is typeset mathematics whose text layer is fragmented; the quiz uses only its stated conditions and the Adam learning-rate rule (1/fan-in) stated on slide 42.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-06; the recording shows that day's material, so the reference is the last commit on 2025-05-06 (00191bb)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "00191bba00d6d64621dc46ccaed9122681413a24"
+   },
+   "changes_after": "the PDF has not changed since (00191bb is the same-day typo fix)",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.11": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -929,17 +1238,27 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "40a0400f227b5dea3dff9c05021afe4a4c6006fd",
     "paths": [
      "lecture_12.py",
      "var/traces/lecture_12.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_12.py"
+   "sources/videodate/stanford-cs336_spring2025-lectures@40a0400/lecture_12.py"
   ],
-  "note": "Executable lecture made of text, links and images; the benchmark figures it shows are images, so only the facts stated in its text are quizzed."
+  "note": "Executable lecture made of text, links and images; the benchmark figures it shows are images, so only the facts stated in its text are quizzed.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-08; the recording shows that day's material, so the reference is the last commit on 2025-05-08 (40a0400)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "40a0400f227b5dea3dff9c05021afe4a4c6006fd"
+   },
+   "changes_after": "eb20629 (05-12) adds a 'Takeaways' list and reformats bullets; beat 'Methods or systems?' no longer uses the added 'always look at the individual instances' and points to HELM's prediction viewers, which the lecture-day file links",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.12": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -947,17 +1266,27 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "49afd77d38b84b71498a00fb2891a530af500411",
     "paths": [
      "lecture_13.py",
      "var/traces/lecture_13.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_13.py"
+   "sources/videodate/stanford-cs336_spring2025-lectures@49afd77/lecture_13.py"
   ],
-  "note": "Executable lecture of text and links. framework() is defined but not called from main(), so it is not quizzed. The lecture's line that copyright 'lasts for 75 years' is a simplification of US terms (notes.md) and is not quizzed."
+  "note": "Executable lecture of text and links. framework() is defined but not called from main(), so it is not quizzed. The lecture's line that copyright 'lasts for 75 years' is a simplification of US terms (notes.md) and is not quizzed.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-13; the recording shows that day's material, so the reference is the last commit on 2025-05-13 (49afd77)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "49afd77d38b84b71498a00fb2891a530af500411"
+   },
+   "changes_after": "49f088a (05-20) link fix; 1dd0879 (11-20) swaps 'high-quality'/'low-quality' in the Nemotron-CC rephrasing bullets — the quiz says only 'rephrasing', which holds either way",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.13": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -965,17 +1294,27 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "07e518a5aa8bfff63737f002177e5b6ec6b99bed",
     "paths": [
      "lecture_14.py",
      "var/traces/lecture_14.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_14.py"
+   "sources/videodate/stanford-cs336_spring2025-lectures@07e518a/lecture_14.py"
   ],
-  "note": "Executable lecture; every section is reached from main(). Numerics checked against the recorded trace: prob_collision(0.8, 5, 10) = 0.43330782 and jaccard = 0.6. The Dolma 'hate' classifier's positive set as written, {unlabeled, obscene}, looks garbled (notes.md) and is not quizzed."
+  "note": "Executable lecture; every section is reached from main(). Numerics checked against the recorded trace: prob_collision(0.8, 5, 10) = 0.43330782 and jaccard = 0.6. The Dolma 'hate' classifier's positive set as written, {unlabeled, obscene}, looks garbled (notes.md) and is not quizzed.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-15; the recording shows that day's material, so the reference is the last commit on 2025-05-15 (07e518a)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "07e518a5aa8bfff63737f002177e5b6ec6b99bed"
+   },
+   "changes_after": "f187c94 (10-27) replaces hash() by mmh3.hash in two hashing examples; not quizzed",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.14": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -983,16 +1322,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "7bc50cd6c81a31f89aecf12faf4acc84b6d28363",
     "paths": [
      "nonexecutable/2025 Lecture 15 - RLHF Alignment.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_15_RLHF_Alignment.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py. The equations on slides 31 and 53-58 are images or garbled in extraction; the quiz uses only what the slide text states. The cost table on slide 32 does not extract cleanly and is not quizzed. Slide 11's Alpaca example states '# Output 6.4' for a list whose mean is 6.2 (notes.md); the numeric asks for the real value."
+  "note": "Slide deck, text via verification/pdf2txt.py. The equations on slides 31 and 53-58 are images or garbled in extraction; the quiz uses only what the slide text states. The cost table on slide 32 does not extract cleanly and is not quizzed. Slide 11's Alpaca example states '# Output 6.4' for a list whose mean is 6.2 (notes.md); the numeric asks for the real value.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-20; the recording shows that day's material, so the reference is the last commit on 2025-05-20 (7bc50cd)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "7bc50cd6c81a31f89aecf12faf4acc84b6d28363"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.15": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -1000,16 +1349,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "e94e33f433985e57036b25215dff2a4292e67a4f",
     "paths": [
      "nonexecutable/2025 Lecture 16 - RLVR.pdf"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
    "sources/text/cs336/Lecture_16_RLVR.txt"
   ],
-  "note": "Slide deck, text via verification/pdf2txt.py. Slides 2-13 repeat the end of Lecture 15 (DPO, overoptimisation), already quizzed in ai310.0.14, so this quiz starts at slide 14. The GRPO, PPO and Kimi equations are images; the quiz uses only what the slide text states (z-score within group, 1e-4 stability factor, cliprange 0.2, sampling in proportion to 1 - success rate). The z-score numeric fixes the standard-deviation convention in the question because the slides do not."
+  "note": "Slide deck, text via verification/pdf2txt.py. Slides 2-13 repeat the end of Lecture 15 (DPO, overoptimisation), already quizzed in ai310.0.14, so this quiz starts at slide 14. The GRPO, PPO and Kimi equations are images; the quiz uses only what the slide text states (z-score within group, 1e-4 stability factor, cliprange 0.2, sampling in proportion to 1 - success rate). The z-score numeric fixes the standard-deviation convention in the question because the slides do not.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-22; the recording shows that day's material, so the reference is the last commit on 2025-05-22 (e94e33f)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "e94e33f433985e57036b25215dff2a4292e67a4f"
+   },
+   "changes_after": "the PDF has not changed since",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  },
  "ai310.0.16": {
   "kind": "companion material (spec amendment 2026-10-14)",
@@ -1017,16 +1376,26 @@
   "repos": [
    {
     "repo": "stanford-cs336/spring2025-lectures",
-    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "commit": "6b862afe727cbcc12b0c1c41954a5eb6b81dad45",
     "paths": [
      "lecture_17.py",
      "var/traces/lecture_17.json"
-    ]
+    ],
+    "head_checked": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b"
    }
   ],
   "files": [
-   "sources/repos/stanford-cs336_spring2025-lectures/lecture_17.py"
+   "sources/videodate/stanford-cs336_spring2025-lectures@6b862af/lecture_17.py"
   ],
-  "note": "Executable lecture; every section is reached from main(). Numerics checked against the recorded trace: baseline_variance = 1.1547 (naive 5.3229), sort_inclusion_ordering_reward([3,1,0,2], [0,3,1,2]) = 6 and sort_distance_reward of the same = 1, freezing_parameters grad 0.0 then 0.1192. The variables named naive_variance and baseline_variance hold torch.std values, i.e. standard deviations (notes.md); the question asks for the standard deviation and names the n - 1 convention. The experiments' learning curves and logs (var/policy_gradient_*.png/.txt) are in the repo; only what the lecture text says about them is quizzed."
+  "note": "Executable lecture; every section is reached from main(). Numerics checked against the recorded trace: baseline_variance = 1.1547 (naive 5.3229), sort_inclusion_ordering_reward([3,1,0,2], [0,3,1,2]) = 6 and sort_distance_reward of the same = 1, freezing_parameters grad 0.0 then 0.1192. The variables named naive_variance and baseline_variance hold torch.std values, i.e. standard deviations (notes.md); the question asks for the standard deviation and names the n - 1 convention. The experiments' learning curves and logs (var/policy_gradient_*.png/.txt) are in the repo; only what the lecture text says about them is quizzed.",
+  "video_version": {
+   "published": "not checkable here (youtube.com is refused); lecture_01.py says lectures go to YouTube 'with some lag'",
+   "basis": "lecture delivered 2025-05-27; the recording shows that day's material, so the reference is the last commit on 2025-05-27 (6b862af)",
+   "commits": {
+    "stanford-cs336/spring2025-lectures": "6b862afe727cbcc12b0c1c41954a5eb6b81dad45"
+   },
+   "changes_after": "0a341ce (2026-01-08) fixes compute_loss's ratio from log_probs / old_log_probs to exp(log_probs - old_log_probs) and regenerates the trace; the quizzed trace values (baseline 1.1547, naive 5.3229, rewards 6 and 1, grad 0.0 and 0.1192) are identical in the lecture-day trace",
+   "how_read": "cited files that changed after the video are read from snapshots at the video-date commit (sources/videodate/); files byte-identical at both commits are read from the clone"
+  }
  }
 }

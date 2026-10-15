@@ -2358,8 +2358,9 @@ const expectedSummary = {
   "ai200.1.6": (function () {
     const block = 8, data = Array.from({ length: block + 1 }, (_, j) => j); let pairs = 0;
     for (let t = 0; t < block; t++) { const ctx = data.slice(0, t + 1), target = data[t + 1]; if (ctx.length && target !== undefined) pairs++; }
-    const hs = 384 / 6;
-    return [{ i: 0, v: pairs }, { i: 2, v: 1 / Math.sqrt(hs) }];
+    // Scaled attention by the head size (the lecture's rule), not by C: head_size = n_embd // n_head.
+    const nEmbd = 384, nHead = 6, hs = Math.floor(nEmbd / nHead);
+    return [{ i: 0, v: pairs }, { i: 2, v: Math.round(Math.pow(hs, -0.5) * 1000) / 1000 }];
   })(),
 
   // The tokenizer: an independent byte-level BPE (train by most frequent pair,
@@ -2378,7 +2379,9 @@ const expectedSummary = {
     for (;;) { let best = null, rank = Infinity; for (const k of stats(enc).keys()) if (merges.has(k) && merges.get(k) < rank) { best = k; rank = merges.get(k); }
       if (best === null) break; enc = merge(enc, best, rank); }
     const ids32k = []; for (let id = 256; id < 32768; id++) ids32k.push(id);
-    return [{ i: 0, v: enc.length }, { i: 1, v: ids32k.length }];
+    // GPT-4's \p{N}{1,3}: run the actual regex over the digits and count the matches.
+    const numChunks = ("1234567".match(/\p{N}{1,3}/gu) || []).length;
+    return [{ i: 0, v: enc.length }, { i: 1, v: ids32k.length }, { i: 5, v: numChunks }];
   })(),
 
   // GPT-2 reproduction: the tied matrix's size; micro-steps by counting tokens

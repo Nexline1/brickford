@@ -21,6 +21,9 @@ PLANTS = {
   "f": ("the marked options' keys back on --ink-3 (review r1, finding 1)", "platform/css/style.css",
         ".lq-card .opt.correct .key, .lq-card .opt.wrong .key { color: var(--ink-2); }",
         ".lq-card .opt.correct .key, .lq-card .opt.wrong .key { color: var(--ink-3); }", ["tools/verify-design.js"]),
+  "g": ("the lock ignores the plan date (owner 2026-10-15: lock from go-live only)", "platform/js/app.js",
+        "const lessonBlocks = k => (planDateOf(k) || \"9999\") >= QUIZ_GATE_FROM &&",
+        "const lessonBlocks = k => true &&", ["tools/verify-logic.js"]),
 }
 which = sys.argv[1:] or sorted(PLANTS)
 results = []

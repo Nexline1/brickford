@@ -132,3 +132,13 @@ Add `opts.mastery: true`.
 **A lecture that is itself watched is never locked.** Section 4 locks lecture `i` when lecture `i−1` is not cleared, and exempts grandfathered lectures ("a lecture marked watched before the gate ships is not locked"). The build widens that exemption to every lecture already marked watched, whenever it was watched.
 
 The reason: the lock guards a video not yet seen ("block the next video"). A watched lecture can be behind an uncleared one only through another device, a sync race or a lecture verified before its predecessor. In those cases a lock card would hide the reader's own record (their watched mark, notes, the four gates and the lecture's own quiz) and protect nothing. Lectures not yet watched are locked exactly as section 4 says. The strict lock is unchanged.
+
+## Amendment 2026-10-15 (owner): lock from go-live only
+Relayed by the coordinator as reviewer r1 finding 9, owner's decision: **"Lock from go-live only".**
+- A lecture whose scheduled study date (its first date in the fixed plan, with no work-ahead re-anchoring) is before `QUIZ_GATE_FROM` never blocks the next lecture, watched or not.
+- Unwatched pre-gate lectures stay owed, as before (backlog, and the catch-up list once watched), but they lock nothing.
+- From go-live on, a lecture scheduled on or after `QUIZ_GATE_FROM` blocks the next lecture in its course until it is cleared (watched AND its quiz passed, or quiz-less, or grandfathered).
+- `schedDone` is unchanged: a lecture watched on or after the gate still needs its quiz passed to count.
+- The "a watched lecture is never locked" widening (amendment above) stays.
+
+The predicate lives in one place, `lessonBlocks` in `app.js`, which reads the plan date from `planDateOf`.

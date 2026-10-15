@@ -577,11 +577,35 @@ async function session(browser, { putOk }) {
     await pp.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
     const G = await pp.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM);
     await probe.close();
+    // The plan's own dates, walked with an empty state and the clock the day
+    // before the start (nothing re-anchored): only a lecture planned on or
+    // after the gate can lock the next one (owner, 2026-10-15). So the
+    // lecture whose pass unlocks its successor (K2), and the SPCH one whose
+    // merged date grandfathers it (K4), are each the first in their course
+    // planned on or after the gate.
+    const pc = await browser.newContext({ timezoneId: "UTC" });
+    const ppc = await pc.newPage();
+    await pc.clock.setFixedTime(new Date("2026-10-04T12:00:00Z"));
+    await ppc.goto(URL + "/__test", { waitUntil: "load" });
+    await ppc.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
+    const firstAfter = await ppc.evaluate(G => {
+      const T = window.__brickfordTest, D = window.DAR, dates = {};
+      const d = new Date(D.START_DATE + "T00:00:00Z");
+      for (let i = 0; i < 500; i++, d.setUTCDate(d.getUTCDate() + 1)) {
+        const iso = d.toISOString().slice(0, 10);
+        T.scheduledFor(iso).forEach(it => { if (!it.pseudo) { const k = it.cid + "." + it.ui + "." + it.li; if (!dates[k]) dates[k] = iso; } });
+      }
+      const pick = cid => { const f = []; D.COURSES.find(c => c.id === cid).units.forEach((u, ui) => u.lessons.forEach((_, li) => f.push(cid + "." + ui + "." + li)));
+        const j = f.findIndex(k => (dates[k] || "9999") >= G); return { k: f[j], next: f[j + 1] }; };
+      return { m: pick("math120"), s: pick("spch100"), dates };
+    }, G);
+    await pc.close();
+    const route = k => "/lesson/" + k.split(".").join("/");
     const day = n => { const d = new Date(G + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
     await ctx.clock.setFixedTime(new Date(day(5) + "T12:00:00Z"));
     const Q = (passedAt, firstTry, total, attempts) => ({ passedAt, at: passedAt + "T10:00:00.000Z", firstTry, total, attempts: attempts == null ? total + 1 : attempts });
-    const K0 = "math120.0.0", K1 = "math120.0.1", K1B = "math110.0.1", K2 = "math120.0.2", K3 = "math130.0.0", K4 = "spch100.0.0";
+    const K0 = "math120.0.0", K1 = "math120.0.1", K1B = "math110.0.1", K2 = firstAfter.m.k, K3 = "math130.0.0", K4 = firstAfter.s.k;
     const W = (doneAt, more) => Object.assign({ done: true, doneAt, notes: "", checks: [] }, more || {});
     const local = { lessons: {
       [K0]: W(day(1), { quiz: Q(day(3), 1, 2) }),
@@ -625,6 +649,7 @@ async function session(browser, { putOk }) {
     const expectNext = async () => {
       await page.goto(URL + "/__test", { waitUntil: "load" });
       await page.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
+      await page.evaluate(d => { window.__planDates = d; }, firstAfter.dates);
       return page.evaluate(() => {
       const T = window.__brickfordTest, D = window.DAR, gate = T.QUIZ_GATE_FROM;
       const L = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {};
@@ -633,7 +658,7 @@ async function session(browser, { putOk }) {
       const gf = s0 => !!s0.done && [s0.doneAt, s0.firstDoneAt].filter(Boolean).sort()[0] < gate;
       const passed = s0 => !!(s0.quiz && s0.quiz.passedAt);
       const cleared = k => { const s0 = L[k] || {}; return !!s0.done && (passed(s0) || !quiz(k) || gf(s0)); };
-      const blocks = k => { const s0 = L[k] || {}; return quiz(k) && !passed(s0) && !gf(s0); };
+      const blocks = k => { const s0 = L[k] || {}; return (window.__planDates[k] || "9999") >= gate && quiz(k) && !passed(s0) && !gf(s0); };
       const it = T.scheduledFor(iso).filter(x => !x.pseudo).find(x => !cleared(x.cid + "." + x.ui + "." + x.li));
       if (!it) return null;
       const flat = []; D.COURSES.find(c => c.id === it.cid).units.forEach((u, ui) => u.lessons.forEach((_, li) => flat.push(it.cid + "." + ui + "." + li)));
@@ -644,8 +669,8 @@ async function session(browser, { putOk }) {
     try {
       const wantBefore = await expectNext();
       const dashBefore = await view("/");
-      const lockBefore = await view("/lesson/math120/0/3");
-      const k4Before = await view("/lesson/spch100/0/1");
+      const lockBefore = await view(route(firstAfter.m.next));
+      const k4Before = await view(route(firstAfter.s.next));
       serve = true;
       await page.goto(URL + "/sync", { waitUntil: "load" });
       await page.waitForSelector("[data-act='syncPull']");
@@ -664,15 +689,15 @@ async function session(browser, { putOk }) {
       check(!!L[K3] && L[K3].verified === true && L[K3].doneAt === day(1) && L[K3].firstDoneAt === day(-1),
         "(k3) the remote's copy wins, and the earliest doneAt and the first-watched date before the gate stand (" + JSON.stringify(L[K3] && { doneAt: L[K3].doneAt, firstDoneAt: L[K3].firstDoneAt, verified: L[K3].verified }) + ")");
       check(!!L[K4] && L[K4].doneAt === day(-1), "(k3) both watched: the earlier doneAt (before the gate) stands (" + (L[K4] || {}).doneAt + ")");
-      const lockAfter = await view("/lesson/math120/0/3");
-      const k4After = await view("/lesson/spch100/0/1");
+      const lockAfter = await view(route(firstAfter.m.next));
+      const k4After = await view(route(firstAfter.s.next));
       const k3Next = await view("/lesson/math130/0/1");
       const dashAfter = await view("/");
       const wantAfter = await expectNext();
       check(lockBefore.lock && !lockBefore.mark && !lockAfter.lock && lockAfter.mark,
-        "(k2) lecture 4 is locked before the pull and open after it (before: lock " + lockBefore.lock + ", after: lock " + lockAfter.lock + ", Mark watched " + lockAfter.mark + ")");
+        "(k2) " + firstAfter.m.next + " (after " + K2 + ", the first MATH 120 lecture planned from the gate on) is locked before the pull and open after it (before: lock " + lockBefore.lock + ", after: lock " + lockAfter.lock + ", Mark watched " + lockAfter.mark + ")");
       check(k4Before.lock && !k4After.lock && !k3Next.lock,
-        "(k3) SPCH 100 lecture 2 is locked before the pull and open after it (grandfathered by the merged date); MATH 130 lecture 2 stays open (" +
+        "(k3) " + firstAfter.s.next + " (after " + K4 + ") is locked before the pull and open after it (grandfathered by the merged date); MATH 130 lecture 2 stays open (" +
           JSON.stringify({ k4Before: k4Before.lock, k4After: k4After.lock, k3Next: k3Next.lock }) + ")");
       check(!!wantBefore && dashBefore.next === wantBefore && dashAfter.next === wantAfter && (wantBefore !== wantAfter || wantBefore.indexOf("math120") < 0),
         "(k2) the dashboard's next action follows the merged state: " + dashBefore.next + " (" + dashBefore.kind + ") -> " + dashAfter.next + " (" + dashAfter.kind + "); walked here: " +

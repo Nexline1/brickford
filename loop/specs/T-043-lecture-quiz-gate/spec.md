@@ -127,3 +127,8 @@ Add `opts.mastery: true`.
    - (e) the quiz record is written during render.
 6. **All gates green,** run one at a time, plus clip under `TZ=America/Los_Angeles`.
 7. **Screenshots** at 1440 and 390, Dark and Light, for each state: before watched, quiz after a miss, passed with Go deeper, the locked page, and the dashboard pointing at a quiz.
+
+## Amendment (builder, accepted by reviewer r1), 2026-10-15
+**A lecture that is itself watched is never locked.** Section 4 locks lecture `i` when lecture `i−1` is not cleared, and exempts grandfathered lectures ("a lecture marked watched before the gate ships is not locked"). The build widens that exemption to every lecture already marked watched, whenever it was watched.
+
+The reason: the lock guards a video not yet seen ("block the next video"). A watched lecture can be behind an uncleared one only through another device, a sync race or a lecture verified before its predecessor. In those cases a lock card would hide the reader's own record (their watched mark, notes, the four gates and the lecture's own quiz) and protect nothing. Lectures not yet watched are locked exactly as section 4 says. The strict lock is unchanged.

@@ -2444,6 +2444,42 @@ const expectedSummary = {
     for (let out = 0; out < 8; out++) params += 4 * 3 * 3 + 1;
     return [{ i: 3, v: positions }, { i: 4, v: params }];
   })(),
+  // AI 310 Unit I (CS336 2025), from the lecture materials.
+  "ai310.0.0": (function () {
+    const dStar = 20 * 3;                                         // D* = 20 N*, N = 3B
+    const str = "Hello, \u{1F30D}! \u4F60\u597D!";
+    const ratio = Buffer.byteLength(str, "utf8") / Array.from(str).length;
+    // Byte-level BPE, written again: count adjacent pairs, merge the first most common.
+    const mergeAll = (ids, a, b, nid) => { const out = []; for (let i = 0; i < ids.length; i++) {
+      if (i + 1 < ids.length && ids[i] === a && ids[i + 1] === b) { out.push(nid); i++; } else out.push(ids[i]); } return out; };
+    let ids = Array.from(Buffer.from("the cat in the hat", "utf8")); const merges = [];
+    for (let m = 0; m < 3; m++) {
+      const counts = new Map();
+      for (let i = 0; i + 1 < ids.length; i++) { const k = ids[i] + "," + ids[i + 1]; counts.set(k, (counts.get(k) || 0) + 1); }
+      let best = null, bestN = -1; for (const [k, n] of counts) if (n > bestN) { best = k; bestN = n; }
+      const [a, b] = best.split(",").map(Number); merges.push([a, b, 256 + m]); ids = mergeAll(ids, a, b, 256 + m);
+    }
+    let enc = Array.from(Buffer.from("the quick brown fox", "utf8"));
+    merges.forEach(([a, b, nid]) => { enc = mergeAll(enc, a, b, nid); });
+    return [{ i: 3, v: dStar }, { i: 4, v: Math.round(ratio * 100) / 100 }, { i: 5, v: enc.length }];
+  })(),
+  "ai310.0.1": (function () {
+    // Days: work in units of 1e22 FLOPs to keep the arithmetic exact enough, then round.
+    const total = 6 * 70 * 15 * 1e21;                      // 6 x 70e9 x 15e12
+    const perSecond = (1979e12 / 2) * 0.5 * 1024;          // dense H100 peak x MFU x GPUs
+    const days = total / (perSecond * 24 * 3600);
+    // AdamW in float32: parameter, gradient, two moments.
+    const bytesPer = [4, 4, 4, 4].reduce((a, b) => a + b, 0);
+    const billions = (8 * 80e9 / bytesPer) / 1e9;
+    return [{ i: 4, v: Math.round(days) }, { i: 5, v: billions }];
+  })(),
+  "ai310.0.2": (function () {
+    // Equal parameters: 2 matrices at ratio 4 versus 3 matrices at ratio r, solved by bisection.
+    let lo = 0, hi = 10;
+    for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (3 * mid < 2 * 4) lo = mid; else hi = mid; }
+    const t5 = (128 * 128) / 1024;
+    return [{ i: 4, v: Math.round(lo * 100) / 100 }, { i: 5, v: t5 }];
+  })(),
 };
 
 let sumNums = 0;

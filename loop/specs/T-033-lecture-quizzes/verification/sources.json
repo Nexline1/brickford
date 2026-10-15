@@ -614,5 +614,61 @@
    "sources/text/conv-example.xlsx.txt"
   ],
   "note": "lesson8.qmd: finish collaborative filtering by looking closely at embeddings, then convolutions, pooling, dropout 'and more'; based partly on chapter 13; the Collaborative Filtering Deep Dive (chapter 8's Kaggle form) and the collab_filter and conv-example spreadsheets. Chapter 13's training-stability half (ActivationStats, 1cycle, batchnorm) is not quizzed, since the page does not name it. Receptive fields are not quizzed: the chapter says conv-example.xlsx shows two stride-2 layers with a 7x7 receptive field, but course22's copy convolves with stride 1 (see notes.md). conv-example.xlsx was rendered in full (rows 1-70, all columns)."
+ },
+ "ai310.0.0": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "SQ3fZ1sAqXI (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_01.py",
+     "var/traces/lecture_01.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_01.py",
+   "sources/repos/stanford-cs336_spring2025-lectures/var/traces/lecture_01.json"
+  ],
+  "note": "Lecture 1 is an executable lecture: lecture_01.py is the lecture's text and code, and var/traces/lecture_01.json is the recorded run whose values the lecture displays (compression ratios, BPE merges). Values quoted in the quiz were read from that trace."
+ },
+ "ai310.0.1": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "msHyYioAyNE (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_02.py",
+     "facts.py",
+     "var/traces/lecture_02.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_02.py",
+   "sources/repos/stanford-cs336_spring2025-lectures/var/traces/lecture_02.json"
+  ],
+  "note": "Executable lecture. The recorded trace was run without a GPU, so its timing and MFU values are meaningless (promised FLOP/s returns 1) and are not quizzed; the napkin-math values (6.3e24 FLOPs, 143.9 days, 40B parameters) are exact arithmetic and match the trace."
+ },
+ "ai310.0.2": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "ptFiH_bHnJw (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 3 - architecture.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_3_architecture.txt"
+  ],
+  "note": "Slide deck; text extracted page by page with verification/pdf2txt.py (pypdf 5.1.0, installed outside the repo). Every slide has a text layer; figures and plots are not in the text and are not quizzed."
  }
 }

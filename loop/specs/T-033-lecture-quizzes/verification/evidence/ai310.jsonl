@@ -34,3 +34,21 @@
 {"key": "ai310.1.5", "i": 3, "at": null, "src": "Thought: Internal Reasoning and the ReAct Approach", "quote": "| External tools | ❌ No | ✅ Yes (Actions + Observations) |"}
 {"key": "ai310.1.5", "i": 4, "at": null, "src": "Actions — Code Agents", "quote": "executing LLM-generated code may pose security risks, from prompt injection to the execution of harmful code."}
 {"key": "ai310.1.5", "i": 5, "at": null, "src": "Dummy Agent Library", "quote": "To prevent this, we stop generating right before \"Observation:\"."}
+{"key": "ai310.0.0", "i": 0, "at": null, "src": "lecture_01.py, why_this_course_exists", "quote": "We can teach mechanics and mindset (these do transfer)."}
+{"key": "ai310.0.0", "i": 1, "at": null, "src": "lecture_01.py, why_this_course_exists", "quote": "Right interpretation: algorithms that scale is what matters."}
+{"key": "ai310.0.0", "i": 2, "at": null, "src": "lecture_01.py, systems (Inference)", "quote": "Prefill (similar to training): tokens are given, can process all at once (compute-bound)"}
+{"key": "ai310.0.0", "i": 3, "at": null, "src": "lecture_01.py, scaling_laws", "quote": "TL;DR: $D^* = 20 N^*$ (e.g., 1.4B parameter model should be trained on 28B tokens)"}
+{"key": "ai310.0.0", "i": 4, "at": null, "src": "lecture_01.py, character_tokenizer and byte_tokenizer", "quote": "assert bytes(\"🌍\", encoding=\"utf-8\") == b\"\\xf0\\x9f\\x8c\\x8d\""}
+{"key": "ai310.0.0", "i": 5, "at": null, "src": "lecture_01.py, bpe_tokenizer and train_bpe; var/traces/lecture_01.json", "quote": "Sketch: start with each byte as a token, and successively merge the most common pair of adjacent tokens."}
+{"key": "ai310.0.1", "i": 0, "at": null, "src": "lecture_02.py, tensors_memory", "quote": "bfloat16 uses the same memory as float16 but has the same dynamic range as float32!"}
+{"key": "ai310.0.1", "i": 1, "at": null, "src": "lecture_02.py, tensor_operations_flops and gradients_flops", "quote": "Backward pass: 4 (# data points) (# parameters) FLOPs"}
+{"key": "ai310.0.1", "i": 2, "at": null, "src": "lecture_02.py, module_parameters", "quote": "We want an initialization that is invariant to `input_dim`."}
+{"key": "ai310.0.1", "i": 3, "at": null, "src": "lecture_02.py, mixed_precision_training", "quote": "Use {bfloat16, fp8} for the forward pass (activations)."}
+{"key": "ai310.0.1", "i": 4, "at": null, "src": "lecture_02.py, motivating_questions", "quote": "flops_per_day = h100_flop_per_sec * mfu * 1024 * 60 * 60 * 24"}
+{"key": "ai310.0.1", "i": 5, "at": null, "src": "lecture_02.py, motivating_questions", "quote": "bytes_per_parameter = 4 + 4 + (4 + 4)  # parameters, gradients, optimizer state"}
+{"key": "ai310.0.2", "i": 0, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 9-13", "quote": "Set up LayerNorm so that it doesn't affect the main residual signal path"}
+{"key": "ai310.0.2", "i": 1, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 14-19", "quote": "Important lesson: FLOPS are not runtime!"}
+{"key": "ai310.0.2", "i": 2, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 30-35", "quote": "the attention function only gets to depend on the relative position ( i-j)."}
+{"key": "ai310.0.2", "i": 3, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 58-64", "quote": "We have much fewer items to move in and out of memory (KV Cache)"}
+{"key": "ai310.0.2", "i": 4, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 23 and 37-41", "quote": "Remember that GLU variants scale down by 2/3 rd."}
+{"key": "ai310.0.2", "i": 5, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 42-44", "quote": "T5 128 128 1024 16"}

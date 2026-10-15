@@ -15,7 +15,9 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
   fastai/course22, fastai/fastbook; stanford-cs336/spring2025-lectures. Check HEAD
   against the SHAs in `sources.json`; if a repo moved, record the new SHA.
 - Render notebooks: `python3 -I verification/nb2txt.py sources/text <notebooks...>`;
-  spreadsheets: `python3 -I verification/xlsx2txt.py <file.xlsx> 12 40 > sources/text/<file>.xlsx.txt`.
+  spreadsheets: `python3 -I verification/xlsx2txt.py <file.xlsx> 12 40 > sources/text/<file>.xlsx.txt`;
+  slide PDFs: `pip install --target <scratch>/pylib pypdf==5.1.0` (outside the repo), then
+  `PYTHONPATH=<scratch>/pylib python3 verification/pdf2txt.py <pdf> sources/text/cs336/<name>.txt`.
 - fastai/course22-web (lesson pages, for the lesson-to-material map) is cloned to
   `sources/repos/fastai_course22-web`.
 - Try one fetch of each owner-allowed host: arxiv.org, proceedings.neurips.cc,
@@ -54,10 +56,15 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 22 | ai210.0.5 | course22 07 random forests, 08 road to the top 1; fastbook ch. 9 (lesson6.qmd) | 8 (6 MCQ, 2 numeric) |
 | 23 | ai210.0.6 | course22 10 road to the top 3, xl/entropy_example, xl/collab_filter; fastbook ch. 8 (lesson7.qmd) | 8 (5 MCQ, 3 numeric) |
 | 24 | ai210.0.7 | fastbook ch. 8 (embeddings) and ch. 13; xl/collab_filter, xl/conv-example (lesson8.qmd) | 8 (6 MCQ, 2 numeric) |
+| 25 | ai310.0.0 | CS336 lecture_01.py + its trace | 6 (3 MCQ, 3 numeric) |
+| 26 | ai310.0.1 | CS336 lecture_02.py + its trace | 6 (4 MCQ, 2 numeric) |
+| 27 | ai310.0.2 | CS336 nonexecutable/2025 Lecture 3 - architecture.pdf | 6 (4 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-AI 210 complete. → ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
+AI 210 complete. ai310.0.3–0.16 (spring2025-lectures, all 65–87 min → 6): executable lectures
+are lecture_NN.py (+ var/traces/lecture_NN.json); lectures 3, 4, 5, 7, 9, 11, 15, 16 are slide PDFs in
+nonexecutable/, rendered to sources/text/cs336/ with verification/pdf2txt.py.
 
 At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full
 CHECK one gate at a time (summary in `verification/check/`), screenshots (`shots.js`),

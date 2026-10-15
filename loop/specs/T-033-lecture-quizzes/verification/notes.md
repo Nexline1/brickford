@@ -106,6 +106,12 @@ lecture does. Where the material marks something as outside the video, it is lef
   `GradientAccumulation` is how many batches are accumulated; the code passes 64, the
   effective batch size in images (fastai counts samples). The quiz asks only what the
   technique does and the `bs=64//accum` arithmetic.
+- `stanford-cs336/spring2025-lectures/lecture_02.py`: `train()` ignores its `lr` and
+  `num_layers` arguments (it always builds `num_layers=0` and uses `lr=0.01`), so the
+  'hyperparameter tuning' call with `lr=0.1` trains exactly as the first one did; and the
+  '8 H100s for 2 weeks' line multiplies by one week of seconds (60*60*24*7). The recorded
+  trace was run without a GPU, so its timing and MFU values are meaningless. None of
+  these is quizzed.
 - `course22/05-linear-model-and-neural-net-from-scratch.ipynb` cell 116 calls
   `calc_preds(tst_indep, coeffs)` with the arguments swapped; the elementwise product makes
   it harmless there. Not quizzed.

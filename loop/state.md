@@ -82,3 +82,4 @@
 - 2026-10-15: T-033 r1 fixes done (builder opus, resumed): 366a2ef; finding 1 generalised to video-date versions of every repo source (7 more lectures corrected). CHECK (script, no model) all green. Review r2 (opus, same reviewer resumed, narrow brief).
 - 2026-10-15: T-033 r2 APPROVED (reviewer opus, resumed); 2 wording tweaks applied (2758fa9). PR #20 merged → main c889fea. 41 lectures, 270 questions. T-033b queued for the 39. Next: T-043.
 - 2026-10-15: T-043 build started (brickford-builder, opus) in /home/user/bf-T-043 from c889fea. .done readers listed by grep (no model) and passed by path.
+- 2026-10-15: T-043 builder hit the usage limit at a92b029 (worktree clean); resumed same agent (opus, resumed) after reset.

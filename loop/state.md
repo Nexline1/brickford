@@ -83,3 +83,4 @@
 - 2026-10-15: T-033 r2 APPROVED (reviewer opus, resumed); 2 wording tweaks applied (2758fa9). PR #20 merged → main c889fea. 41 lectures, 270 questions. T-033b queued for the 39. Next: T-043.
 - 2026-10-15: T-043 build started (brickford-builder, opus) in /home/user/bf-T-043 from c889fea. .done readers listed by grep (no model) and passed by path.
 - 2026-10-15: T-043 builder hit the usage limit at a92b029 (worktree clean); resumed same agent (opus, resumed) after reset.
+- 2026-10-15: T-043 built 4173728 (builder opus, resumed once; pushed by me). CHECK (script) all green: logic 55, flows 280, design 2052, clip 797. Review r1 (reviewer opus, fresh). My notes: Sketch-tile copy splice, Go deeper caption wrap at 390. Builder flagged CLAUDE.md START_DATE stale (2026-09-21 vs code 2026-10-05) — owner-protected file, needs owner OK.

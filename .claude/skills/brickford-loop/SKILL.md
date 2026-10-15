@@ -7,6 +7,8 @@ description: Orchestrator for the Brickford improvement loop. Reads loop/ state,
 
 Work from the repo root. Follow `CLAUDE.md`. Config, caps and PROTECTED paths are in `loop/config.md`.
 
+Before every Agent spawn, pick its model with the model-router skill (`.claude/skills/model-router/SKILL.md`). Builder, reviewer and content work stay on opus. Resume agents with SendMessage instead of respawning them, and put deterministic checks in scripts rather than agents.
+
 ## Training mode
 If `training_mode: on` in config: before (a) showing DISCOVER output, (b) BUILD and (c) SHIP, tell the owner in 3 lines what you are about to do and why, then wait for "go".
 

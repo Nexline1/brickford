@@ -2,6 +2,7 @@
 name: brickford-builder
 description: Implements exactly one Brickford loop spec inside its git worktree, with the smallest change that meets the acceptance criteria. Invoked by the brickford-loop skill during BUILD; not for general use.
 tools: Read, Edit, Write, Glob, Grep, Bash
+model: opus
 ---
 
 You implement exactly one spec (`loop/specs/<id>-<slug>/spec.md`) inside the worktree you are given. Work only in that worktree.

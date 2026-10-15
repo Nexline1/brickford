@@ -2568,6 +2568,32 @@ const expectedSummary = {
     const dev = xs.map((x) => x - 6).reduce((u, v) => u + v, 0) / xs.length;
     return [{ i: 5, v: Math.round((6 + dev) * 1000) / 1000 }];
   })(),
+  "ai310.0.15": (function () {
+    // Group z-score with the population variance taken as E[x^2] - E[x]^2.
+    const rs = [1, 0, 0, 0];
+    const m1 = rs.reduce((u, v) => u + v, 0) / rs.length;
+    const m2 = rs.reduce((u, v) => u + v * v, 0) / rs.length;
+    const adv = (rs[0] - m1) / Math.sqrt(m2 - m1 * m1);
+    // Sampling weights 1 - success, in tenths to stay exact.
+    const ratio = (10 - 4) / (10 - 9);
+    return [{ i: 4, v: Math.round(adv * 1000) / 1000 }, { i: 5, v: ratio }];
+  })(),
+  "ai310.0.16": (function () {
+    // Sample sd via n/(n-1) times the population variance E[x^2] - E[x]^2.
+    const xs = [11 - 10, 9 - 10, 0 - 1, 2 - 1];
+    const n = xs.length;
+    const m1 = xs.reduce((u, v) => u + v, 0) / n;
+    const m2 = xs.reduce((u, v) => u + v * v, 0) / n;
+    const sd = Math.sqrt((n / (n - 1)) * (m2 - m1 * m1));
+    // Partial credit: prompt numbers present, plus (pairs - descents).
+    const prompt = [3, 1, 0, 2], resp = [0, 3, 1, 2];
+    const present = new Set(resp);
+    let inc = 0;
+    prompt.forEach((x) => { if (present.has(x)) inc += 1; });
+    let descents = 0;
+    for (let j = 1; j < resp.length; j++) if (resp[j] < resp[j - 1]) descents += 1;
+    return [{ i: 4, v: Math.round(sd * 1000) / 1000 }, { i: 5, v: inc + (resp.length - 1 - descents) }];
+  })(),
 };
 
 let sumNums = 0;

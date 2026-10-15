@@ -124,6 +124,10 @@ lecture does. Where the material marks something as outside the video, it is lef
 - `nonexecutable/2025 Lecture 15 - RLHF Alignment.pdf` slide 11: the Alpaca example claims
   `print(avg_list([4, 3, 6, 10, 8]))` outputs 6.4; the mean is 31 / 5 = 6.2. The quiz asks for
   the real value (ai310.0.14 check 5) and says so in the explanation.
+- `stanford-cs336/spring2025-lectures/lecture_17.py` (policy_gradient): the variables
+  `naive_variance` and `baseline_variance` hold `torch.std(...)`, i.e. sample standard
+  deviations (5.323 and 1.155), and the text says 'Variance reduced from' them. The quiz asks
+  for the standard deviation and names the n − 1 convention.
 
 ## Where each reading was fetched from
 

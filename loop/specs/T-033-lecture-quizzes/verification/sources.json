@@ -887,5 +887,40 @@
    "sources/text/cs336/Lecture_15_RLHF_Alignment.txt"
   ],
   "note": "Slide deck, text via verification/pdf2txt.py. The equations on slides 31 and 53-58 are images or garbled in extraction; the quiz uses only what the slide text states. The cost table on slide 32 does not extract cleanly and is not quizzed. Slide 11's Alpaca example states '# Output 6.4' for a list whose mean is 6.2 (notes.md); the numeric asks for the real value."
+ },
+ "ai310.0.15": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "46f2QTDB08Q (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 16 - RLVR.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_16_RLVR.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py. Slides 2-13 repeat the end of Lecture 15 (DPO, overoptimisation), already quizzed in ai310.0.14, so this quiz starts at slide 14. The GRPO, PPO and Kimi equations are images; the quiz uses only what the slide text states (z-score within group, 1e-4 stability factor, cliprange 0.2, sampling in proportion to 1 - success rate). The z-score numeric fixes the standard-deviation convention in the question because the slides do not."
+ },
+ "ai310.0.16": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "JdGFdViaOJk (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_17.py",
+     "var/traces/lecture_17.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_17.py"
+  ],
+  "note": "Executable lecture; every section is reached from main(). Numerics checked against the recorded trace: baseline_variance = 1.1547 (naive 5.3229), sort_inclusion_ordering_reward([3,1,0,2], [0,3,1,2]) = 6 and sort_distance_reward of the same = 1, freezing_parameters grad 0.0 then 0.1192. The variables named naive_variance and baseline_variance hold torch.std values, i.e. standard deviations (notes.md); the question asks for the standard deviation and names the n - 1 convention. The experiments' learning curves and logs (var/policy_gradient_*.png/.txt) are in the repo; only what the lecture text says about them is quizzed."
  }
 }

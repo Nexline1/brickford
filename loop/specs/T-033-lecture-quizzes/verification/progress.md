@@ -71,12 +71,13 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 37 | ai310.0.12 | CS336 lecture_13.py | 6 (4 MCQ, 2 numeric) |
 | 38 | ai310.0.13 | CS336 lecture_14.py + trace | 6 (4 MCQ, 2 numeric) |
 | 39 | ai310.0.14 | CS336 nonexecutable/2025 Lecture 15 - RLHF Alignment.pdf | 6 (5 MCQ, 1 numeric) |
+| 40 | ai310.0.15 | CS336 nonexecutable/2025 Lecture 16 - RLVR.pdf | 6 (4 MCQ, 2 numeric) |
+| 41 | ai310.0.16 | CS336 lecture_17.py + trace | 6 (4 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-AI 210 complete. ai310.0.15–0.16 (spring2025-lectures, all 65–87 min → 6): executable lectures
-are lecture_NN.py (+ var/traces/lecture_NN.json); lectures 3, 4, 5, 7, 9, 11, 15, 16 are slide PDFs in
-nonexecutable/, rendered to sources/text/cs336/ with verification/pdf2txt.py.
+AI 210 and AI 310 Unit I complete: every lecture buildable from course materials is built.
+Remaining lectures wait on transcripts or paper hosts (unavailable.md).
 
 At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full
 CHECK one gate at a time (summary in `verification/check/`), screenshots (`shots.js`),

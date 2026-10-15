@@ -124,3 +124,15 @@
 {"key": "ai310.0.14", "i": 3, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 54-58", "quote": "In some sense, reduces to “pos gradient on good, neg gradient on bad”"}
 {"key": "ai310.0.14", "i": 4, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 64", "quote": "Holds true for human pref (left), noisy LM pref (mid) but not noiseless LM pref (right)"}
 {"key": "ai310.0.14", "i": 5, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 11", "quote": "len(nums) print(avg_list([4, 3, 6, 10, 8])) # Output 6.4"}
+{"key": "ai310.0.15", "i": 0, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slide 29", "quote": "Data not inherently pairwise (or in the form of Bradley -terry comparisons)"}
+{"key": "ai310.0.15", "i": 1, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slides 34-36", "quote": "The division by the stdev term is not a valid baseline that preserves unbiasedness."}
+{"key": "ai310.0.15", "i": 2, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slides 39-40", "quote": "Accuracy rewards (is it correct?)"}
+{"key": "ai310.0.15", "i": 3, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slide 53", "quote": "Exclude multiple choice / true false (false positives)"}
+{"key": "ai310.0.15", "i": 4, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slides 30-32", "quote": "Calculate the advantage as “z -score within group”"}
+{"key": "ai310.0.15", "i": 5, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slide 56", "quote": "Sample problems proportional to (1 -success_rate) to avoid repeating solved ones"}
+{"key": "ai310.0.16", "i": 0, "at": null, "src": "lecture_17.py, rl_setup_for_language_models", "quote": "Can do planning / test-time compute (unlike in robotics)"}
+{"key": "ai310.0.16", "i": 1, "at": null, "src": "lecture_17.py, policy_gradient", "quote": "Naive policy gradient only updates on correct responses"}
+{"key": "ai310.0.16", "i": 2, "at": null, "src": "lecture_17.py, experiments", "quote": "If all the responses for a given prompt have the same reward, then we don't update."}
+{"key": "ai310.0.16", "i": 3, "at": null, "src": "lecture_17.py, freezing_parameters", "quote": "When you're optimizing, it is important to freeze and not differentiate through p_old"}
+{"key": "ai310.0.16", "i": 4, "at": null, "src": "lecture_17.py, policy_gradient", "quote": "Define baseline b(s1) = 10, b(s2) = 1"}
+{"key": "ai310.0.16", "i": 5, "at": null, "src": "lecture_17.py, simple_task", "quote": "Note that the second reward function provides more credit to the 3rd response than the first reward function."}

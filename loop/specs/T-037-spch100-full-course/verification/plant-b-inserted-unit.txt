@@ -1,0 +1,45 @@
+# Plant (b): an inserted (not appended) unit that re-points spch100.0.0
+# 2026-10-09T18:08:23Z, commit 796ef6a. A one-lesson unit is inserted before the seed Unit I; every lesson's positional key shifts by one unit, so spch100.0.0 (pinned to Homework for Life, x7p329Z8MD0) now names the inserted video. The inserted video (RVKofRN1dyI) is real and was read, so the plant is about position, not content. The ledger check is the one that names the re-pointing; the drill and summary checks fail too, because their keys no longer line up. (TMPDIR_P is a scratch directory for the full gate output.)
+
+## The plant
+$ python3 -I /tmp/claude-0/-home-user-brickford/e8e314d5-7130-5570-8abd-d441eaf954df/scratchpad/plant/b.py
+$ git status --short (outside verification/)
+ M platform/data/storytelling.js
+$ git diff --stat; git diff
+ platform/data/storytelling.js | 6 ++++++
+ 1 file changed, 6 insertions(+)
+diff --git a/platform/data/storytelling.js b/platform/data/storytelling.js
+index 444ea31..ed2a394 100644
+--- a/platform/data/storytelling.js
++++ b/platform/data/storytelling.js
+@@ -45,6 +45,12 @@ DAR.COURSES.push({
+     { label: "Think Fast, Talk Smart (Stanford GSB)", url: "https://www.gsb.stanford.edu/business-podcasts/think-fast-talk-smart-podcast" },
+   ],
+   units: [
++    {
++      name: "Unit 0 — a unit inserted before the seed (PLANT)",
++      lessons: [
++        { t: "Document, don't create", v: "RVKofRN1dyI", min: 7 },
++      ],
++    },
+     {
+       name: "Unit I — Seed: finding, delivering, and holding up under pressure",
+       lessons: [
+
+## The gates, on the planted bytes
+$ node tools/verify-content.js > $TMPDIR_P/b-full.out 2>&1; rc=$?; echo "RESULT: $(grep -c 'FAIL spch100 ledger:' $TMPDIR_P/b-full.out) spch100 ledger failures (the first three follow), $(grep -c FAIL $TMPDIR_P/b-full.out) FAIL lines in all"; grep -m3 'FAIL spch100 ledger:' $TMPDIR_P/b-full.out; tail -1 $TMPDIR_P/b-full.out; exit $rc
+RESULT: 159 spch100 ledger failures (the first three follow), 503 FAIL lines in all
+  FAIL spch100 ledger: spch100.0.0 still points at x7p329Z8MD0 (it now points at RVKofRN1dyI — a unit or lesson was inserted or reordered)
+  FAIL spch100 ledger: spch100.0.1 still points at YyWZmdkPfDM (the key no longer exists)
+  FAIL spch100 ledger: spch100.0.2 still points at jw_-OSxk36U (the key no longer exists)
+502 of 27331 checks FAILED
+502 of 27331 checks FAILED
+exit 1
+
+## Restore
+cmp platform/data/storytelling.js: identical to the saved copy
+git status outside verification/: clean
+git diff HEAD outside verification/: none
+$ node tools/verify-content.js > $TMPDIR_P/b-full.out 2>&1; rc=$?; echo "RESULT: $(grep -c 'FAIL spch100 ledger:' $TMPDIR_P/b-full.out) spch100 ledger failures (the first three follow), $(grep -c FAIL $TMPDIR_P/b-full.out) FAIL lines in all"; grep -m3 'FAIL spch100 ledger:' $TMPDIR_P/b-full.out; tail -1 $TMPDIR_P/b-full.out; exit $rc   (restored)
+PASS — 29589 checks, 14 numeric answers recomputed, 159 drills, 12 concepts, 12 figures, 3 interactive, 403 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0

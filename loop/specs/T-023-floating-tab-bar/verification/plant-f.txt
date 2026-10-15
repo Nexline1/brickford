@@ -1,0 +1,115 @@
+# Plant f — 2026-10-07T17:09:04Z on 6d638bb
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 2c9f2a7..6d8e647 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1845,7 +1845,7 @@
+       const gap = (parseFloat(getComputedStyle(rb).bottom) || 0) - Math.max(0, tbh);
+       rbh = Math.ceil(rb.getBoundingClientRect().height + Math.max(0, gap));
+     }
+-    document.documentElement.style.setProperty("--railbar-h", rbh + "px");
++    document.documentElement.style.setProperty("--railbar-h", "0px");
+     set("--topbar-h", $("#topbar"));
+   }
+ 
+## node tools/verify-shell.js
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+  FAIL  320px /atlas: at the end of the scroll the tab bar or the Next card is sitting on text — span "Left depends on nothing" at 687-728 under the Next card at 710-770
+  FAIL  320px /courses: at the end of the scroll the tab bar or the Next card is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 667-728 under the Next card at 710-770
+  FAIL  320px /exams: at the end of the scroll the tab bar or the Next card is sitting on text — span "Concept banks attempted" at 684-728 under the Next card at 710-770
+  FAIL  320px /record: at the end of the scroll the tab bar or the Next card is sitting on text — span "the sealed days and the chain " at 688-728 under the Next card at 710-770
+  FAIL  320px /calendar: at the end of the scroll the tab bar or the Next card is sitting on text — span "Sync to your calendar app" at 683-723 under the Next card at 710-770
+  FAIL  320px /library: at the end of the scroll the tab bar or the Next card is sitting on text — span "External halls" at 700-721 under the Next card at 710-770
+  FAIL  320px /guide: at the end of the scroll the tab bar or the Next card is sitting on text — a "Sit the diagnostics" at 669-713 under the Next card at 710-770
+  FAIL  320px /transcript: at the end of the scroll the tab bar or the Next card is sitting on text — span "Mastery, course by course" at 682-723 under the Next card at 710-770
+  FAIL  320px /workshop: at the end of the scroll the tab bar or the Next card is sitting on text — span "Problem sets — pen and paper" at 683-723 under the Next card at 710-770
+  FAIL  320px /treasury: at the end of the scroll the tab bar or the Next card is sitting on text — button "Record payment" at 669-713 under the Next card at 710-770
+  FAIL  320px /course/math110: at the end of the scroll the tab bar or the Next card is sitting on text — span "MIT OCW 18.06 (notes, psets, e" at 661-728 under the Next card at 710-770
+  FAIL  320px /concept/la-eigen: at the end of the scroll the tab bar or the Next card is sitting on text — span "MATH 110" at 708-728 under the Next card at 710-770
+  FAIL  320px /sync: at the end of the scroll the tab bar or the Next card is sitting on text — span "How merging works" at 700-721 under the Next card at 710-770
+  FAIL  320px /method: at the end of the scroll the tab bar or the Next card is sitting on text — p "Mastery counts the second one." at 648-713 under the Next card at 710-770
+  FAIL  320px /electives: at the end of the scroll the tab bar or the Next card is sitting on text — span "Further out" at 701-721 under the Next card at 710-770
+    320px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+  FAIL  390px /atlas: at the end of the scroll the tab bar or the Next card is sitting on text — span "Left depends on nothing" at 708-728 under the Next card at 710-770
+  FAIL  390px /courses: at the end of the scroll the tab bar or the Next card is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 687-728 under the Next card at 710-770
+  FAIL  390px /exams: at the end of the scroll the tab bar or the Next card is sitting on text — span "Concept banks attempted" at 684-728 under the Next card at 710-770
+  FAIL  390px /record: at the end of the scroll the tab bar or the Next card is sitting on text — span "the sealed days and the chain " at 687-728 under the Next card at 710-770
+  FAIL  390px /calendar: at the end of the scroll the tab bar or the Next card is sitting on text — span "Sync to your calendar app" at 700-720 under the Next card at 710-770
+  FAIL  390px /library: at the end of the scroll the tab bar or the Next card is sitting on text — span "External halls" at 700-721 under the Next card at 710-770
+  FAIL  390px /guide: at the end of the scroll the tab bar or the Next card is sitting on text — a "Sit the diagnostics" at 669-713 under the Next card at 710-770
+  FAIL  390px /transcript: at the end of the scroll the tab bar or the Next card is sitting on text — span "Mastery, course by course" at 700-720 under the Next card at 710-770
+  FAIL  390px /workshop: at the end of the scroll the tab bar or the Next card is sitting on text — span "Problem sets — pen and paper" at 683-723 under the Next card at 710-770
+  FAIL  390px /treasury: at the end of the scroll the tab bar or the Next card is sitting on text — button "Record payment" at 669-713 under the Next card at 710-770
+  FAIL  390px /course/math110: at the end of the scroll the tab bar or the Next card is sitting on text — span "↗" at 697-714 under the Next card at 710-770
+  FAIL  390px /concept/la-eigen: at the end of the scroll the tab bar or the Next card is sitting on text — span "MATH 110" at 708-728 under the Next card at 710-770
+  FAIL  390px /sync: at the end of the scroll the tab bar or the Next card is sitting on text — span "How merging works" at 700-720 under the Next card at 710-770
+  FAIL  390px /method: at the end of the scroll the tab bar or the Next card is sitting on text — p "Mastery counts the second one." at 648-713 under the Next card at 710-770
+  FAIL  390px /electives: at the end of the scroll the tab bar or the Next card is sitting on text — span "Further out" at 700-721 under the Next card at 710-770
+    390px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+  FAIL  430px /atlas: at the end of the scroll the tab bar or the Next card is sitting on text — span "◇" at 698-715 under the Next card at 710-770
+  FAIL  430px /courses: at the end of the scroll the tab bar or the Next card is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 687-728 under the Next card at 710-770
+  FAIL  430px /exams: at the end of the scroll the tab bar or the Next card is sitting on text — span "Concept banks attempted" at 705-727 under the Next card at 710-770
+  FAIL  430px /record: at the end of the scroll the tab bar or the Next card is sitting on text — span "the sealed days and the chain " at 688-728 under the Next card at 710-770
+  FAIL  430px /calendar: at the end of the scroll the tab bar or the Next card is sitting on text — span "Sync to your calendar app" at 700-721 under the Next card at 710-770
+  FAIL  430px /library: at the end of the scroll the tab bar or the Next card is sitting on text — span "External halls" at 700-720 under the Next card at 710-770
+  FAIL  430px /guide: at the end of the scroll the tab bar or the Next card is sitting on text — a "Sit the diagnostics" at 669-713 under the Next card at 710-770
+  FAIL  430px /transcript: at the end of the scroll the tab bar or the Next card is sitting on text — span "Mastery, course by course" at 700-721 under the Next card at 710-770
+  FAIL  430px /workshop: at the end of the scroll the tab bar or the Next card is sitting on text — span "Problem sets — pen and paper" at 701-721 under the Next card at 710-770
+  FAIL  430px /treasury: at the end of the scroll the tab bar or the Next card is sitting on text — button "Record payment" at 669-713 under the Next card at 710-770
+  FAIL  430px /course/math110: at the end of the scroll the tab bar or the Next card is sitting on text — span "↗" at 697-714 under the Next card at 710-770
+  FAIL  430px /concept/la-eigen: at the end of the scroll the tab bar or the Next card is sitting on text — span "MATH 110" at 708-728 under the Next card at 710-770
+  FAIL  430px /sync: at the end of the scroll the tab bar or the Next card is sitting on text — span "How merging works" at 700-720 under the Next card at 710-770
+  FAIL  430px /method: at the end of the scroll the tab bar or the Next card is sitting on text — p "Mastery counts the second one." at 669-713 under the Next card at 710-770
+  FAIL  430px /electives: at the end of the scroll the tab bar or the Next card is sitting on text — span "Further out" at 701-721 under the Next card at 710-770
+    430px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+  FAIL  768px /atlas: at the end of the scroll the tab bar or the Next card is sitting on text — span "◇" at 698-715 under the Next card at 710-770
+  FAIL  768px /courses: at the end of the scroll the tab bar or the Next card is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 708-728 under the Next card at 710-770
+  FAIL  768px /exams: at the end of the scroll the tab bar or the Next card is sitting on text — span "Concept banks attempted" at 705-728 under the Next card at 710-770
+  FAIL  768px /record: at the end of the scroll the tab bar or the Next card is sitting on text — span "the sealed days and the chain " at 708-728 under the Next card at 710-770
+  FAIL  768px /calendar: at the end of the scroll the tab bar or the Next card is sitting on text — span "Sync to your calendar app" at 700-720 under the Next card at 710-770
+  FAIL  768px /guide: at the end of the scroll the tab bar or the Next card is sitting on text — a "Sit the diagnostics" at 669-713 under the Next card at 710-770
+  FAIL  768px /transcript: at the end of the scroll the tab bar or the Next card is sitting on text — span "Mastery, course by course" at 700-720 under the Next card at 710-770
+  FAIL  768px /workshop: at the end of the scroll the tab bar or the Next card is sitting on text — span "Problem sets — pen and paper" at 701-721 under the Next card at 710-770
+  FAIL  768px /treasury: at the end of the scroll the tab bar or the Next card is sitting on text — button "Add client" at 669-713 under the Next card at 710-770
+  FAIL  768px /course/math110: at the end of the scroll the tab bar or the Next card is sitting on text — span "↗" at 707-725 under the Next card at 710-770
+  FAIL  768px /concept/la-eigen: at the end of the scroll the tab bar or the Next card is sitting on text — span "MATH 110" at 708-728 under the Next card at 710-770
+  FAIL  768px /sync: at the end of the scroll the tab bar or the Next card is sitting on text — span "How merging works" at 700-721 under the Next card at 710-770
+  FAIL  768px /method: at the end of the scroll the tab bar or the Next card is sitting on text — p "Mastery counts the second one." at 692-713 under the Next card at 710-770
+  FAIL  768px /electives: at the end of the scroll the tab bar or the Next card is sitting on text — span "Further out" at 700-720 under the Next card at 710-770
+  FAIL  768px /review: at the end of the scroll the tab bar or the Next card is sitting on text — td "No weeks sealed yet. The first" at 666-711 under the Next card at 710-770
+    768px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+  FAIL  860px /atlas: at the end of the scroll the tab bar or the Next card is sitting on text — span "◇" at 698-715 under the Next card at 710-770
+  FAIL  860px /courses: at the end of the scroll the tab bar or the Next card is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 708-728 under the Next card at 710-770
+  FAIL  860px /exams: at the end of the scroll the tab bar or the Next card is sitting on text — span "Concept banks attempted" at 705-728 under the Next card at 710-770
+  FAIL  860px /record: at the end of the scroll the tab bar or the Next card is sitting on text — span "the sealed days and the chain " at 708-728 under the Next card at 710-770
+  FAIL  860px /calendar: at the end of the scroll the tab bar or the Next card is sitting on text — span "Sync to your calendar app" at 700-720 under the Next card at 710-770
+  FAIL  860px /guide: at the end of the scroll the tab bar or the Next card is sitting on text — a "Sit the diagnostics" at 669-713 under the Next card at 710-770
+  FAIL  860px /transcript: at the end of the scroll the tab bar or the Next card is sitting on text — span "Mastery, course by course" at 700-720 under the Next card at 710-770
+  FAIL  860px /workshop: at the end of the scroll the tab bar or the Next card is sitting on text — span "Problem sets — pen and paper" at 700-720 under the Next card at 710-770
+  FAIL  860px /treasury: at the end of the scroll the tab bar or the Next card is sitting on text — button "Add client" at 669-713 under the Next card at 710-770
+  FAIL  860px /course/math110: at the end of the scroll the tab bar or the Next card is sitting on text — span "↗" at 707-724 under the Next card at 710-770
+  FAIL  860px /concept/la-eigen: at the end of the scroll the tab bar or the Next card is sitting on text — span "MATH 110" at 708-728 under the Next card at 710-770
+  FAIL  860px /sync: at the end of the scroll the tab bar or the Next card is sitting on text — span "How merging works" at 700-720 under the Next card at 710-770
+  FAIL  860px /method: at the end of the scroll the tab bar or the Next card is sitting on text — p "Mastery counts the second one." at 692-713 under the Next card at 710-770
+  FAIL  860px /electives: at the end of the scroll the tab bar or the Next card is sitting on text — span "Further out" at 700-720 under the Next card at 710-770
+    860px  frame clears the page on 23 routes (menu button, tab bar, and the Next card on 21)
+    390px  every control reaches 44x44 on 23 routes
+  320/390px  roots 16/24  all 56 tab checks passed
+FAIL — 74 shell assertions broken
+## exit code: 1
+## restored: cmp identical, git diff clean

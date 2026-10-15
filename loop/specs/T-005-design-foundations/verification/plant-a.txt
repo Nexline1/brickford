@@ -1,0 +1,144 @@
+# plant (a) re-run by the round-2 reviewer on a copy of the final bytes (122-check gate), 2026-09-26
+status bar (read from platform/css/style.css)
+  ok    status bar: the phone .topbar pads its content below the inset (padding-top) — padding-top: calc(3px + env(safe-area-inset-top, 0px))
+  ok    status bar: the phone .topbar grows by the inset (min-height) — min-height: calc(50px + env(safe-area-inset-top, 0px))
+  ok    status bar: the drawer's content starts below the inset — padding-top: calc(var(--sp-4) + env(safe-area-inset-top, 0px))
+  ok    status bar: the edge-grab strip starts below the inset — top: env(safe-area-inset-top, 0px)
+
+390px light
+  FAIL  390px light /: no element is set in Caslon — span.tb-title, div.name-en, div.motto, div.one-kind
+  ok    390px light /: every visible .btn has 12px corners — 2 buttons
+  ok    390px light /: no control carries a key-cap gloss, lift or well
+  ok    390px light: the theme tokens resolve to the brief's values — data-theme light; 11 tokens
+  ok    390px light: the radius scale is 8/12/16/22
+  ok    390px light: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    390px light: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  FAIL  390px light /course/math110: no element is set in Caslon — span.tb-title, div.name-en, div.motto, h1
+  ok    390px light /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "Linear Algebra"
+  ok    390px light /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    390px light /course/math110: no control carries a key-cap gloss, lift or well
+  FAIL  390px light /lesson/math110/0/13: no element is set in Caslon — span.tb-title, a, div.name-en, div.motto
+  ok    390px light /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    390px light /lesson/math110/0/13: every visible .btn has 12px corners — 11 buttons
+  ok    390px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  FAIL  390px light /calendar: no element is set in Caslon — span.tb-title, div.name-en, div.motto, h1.folio
+  ok    390px light /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    390px light /calendar: no control carries a key-cap gloss, lift or well
+  FAIL  390px light /workshop: no element is set in Caslon — span.tb-title, div.name-en, div.motto, h1.folio
+  ok    390px light /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    390px light /workshop: no control carries a key-cap gloss, lift or well
+  ok    390px light: no page errors
+
+390px dark
+  FAIL  390px dark /: no element is set in Caslon — span.tb-title, div.name-en, div.motto, div.one-kind
+  ok    390px dark /: every visible .btn has 12px corners — 2 buttons
+  ok    390px dark /: no control carries a key-cap gloss, lift or well
+  ok    390px dark: the theme tokens resolve to the brief's values — data-theme dark; 11 tokens
+  ok    390px dark: the radius scale is 8/12/16/22
+  ok    390px dark: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    390px dark: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  FAIL  390px dark /course/math110: no element is set in Caslon — span.tb-title, div.name-en, div.motto, h1
+  ok    390px dark /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "Linear Algebra"
+  ok    390px dark /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    390px dark /course/math110: no control carries a key-cap gloss, lift or well
+  FAIL  390px dark /lesson/math110/0/13: no element is set in Caslon — span.tb-title, a, div.name-en, div.motto
+  ok    390px dark /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    390px dark /lesson/math110/0/13: every visible .btn has 12px corners — 11 buttons
+  ok    390px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  FAIL  390px dark /calendar: no element is set in Caslon — span.tb-title, div.name-en, div.motto, h1.folio
+  ok    390px dark /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    390px dark /calendar: no control carries a key-cap gloss, lift or well
+  FAIL  390px dark /workshop: no element is set in Caslon — span.tb-title, div.name-en, div.motto, h1.folio
+  ok    390px dark /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    390px dark /workshop: no control carries a key-cap gloss, lift or well
+  ok    390px dark: no page errors
+
+1280px light
+  FAIL  1280px light /: no element is set in Caslon — div.name-en, div.motto, div.one-kind, span.g-t
+  ok    1280px light /: every visible .btn has 12px corners — 2 buttons
+  ok    1280px light /: no control carries a key-cap gloss, lift or well
+  ok    1280px light: the theme tokens resolve to the brief's values — data-theme light; 11 tokens
+  ok    1280px light: the radius scale is 8/12/16/22
+  ok    1280px light: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    1280px light: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  FAIL  1280px light /course/math110: no element is set in Caslon — div.name-en, div.motto, h1, div.one-kind
+  ok    1280px light /course/math110: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "Linear Algebra"
+  ok    1280px light /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    1280px light /course/math110: no control carries a key-cap gloss, lift or well
+  FAIL  1280px light /lesson/math110/0/13: no element is set in Caslon — div.name-en, div.motto, h1, span.g-t
+  ok    1280px light /lesson/math110/0/13: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    1280px light /lesson/math110/0/13: every visible .btn has 12px corners — 12 buttons
+  ok    1280px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  FAIL  1280px light /calendar: no element is set in Caslon — div.name-en, div.motto, h1.folio, h2
+  ok    1280px light /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    1280px light /calendar: no control carries a key-cap gloss, lift or well
+  FAIL  1280px light /workshop: no element is set in Caslon — div.name-en, div.motto, h1.folio, div.one-kind
+  ok    1280px light /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    1280px light /workshop: no control carries a key-cap gloss, lift or well
+  ok    1280px light: no page errors
+
+1280px dark
+  FAIL  1280px dark /: no element is set in Caslon — div.name-en, div.motto, div.one-kind, span.g-t
+  ok    1280px dark /: every visible .btn has 12px corners — 2 buttons
+  ok    1280px dark /: no control carries a key-cap gloss, lift or well
+  ok    1280px dark: the theme tokens resolve to the brief's values — data-theme dark; 11 tokens
+  ok    1280px dark: the radius scale is 8/12/16/22
+  ok    1280px dark: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  ok    1280px dark: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif
+  FAIL  1280px dark /course/math110: no element is set in Caslon — div.name-en, div.motto, h1, div.one-kind
+  ok    1280px dark /course/math110: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "Linear Algebra"
+  ok    1280px dark /course/math110: every visible .btn has 12px corners — 2 buttons
+  ok    1280px dark /course/math110: no control carries a key-cap gloss, lift or well
+  FAIL  1280px dark /lesson/math110/0/13: no element is set in Caslon — div.name-en, div.motto, h1, span.g-t
+  ok    1280px dark /lesson/math110/0/13: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
+  ok    1280px dark /lesson/math110/0/13: every visible .btn has 12px corners — 12 buttons
+  ok    1280px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
+  FAIL  1280px dark /calendar: no element is set in Caslon — div.name-en, div.motto, h1.folio, h2
+  ok    1280px dark /calendar: every visible .btn has 12px corners — 4 buttons
+  ok    1280px dark /calendar: no control carries a key-cap gloss, lift or well
+  FAIL  1280px dark /workshop: no element is set in Caslon — div.name-en, div.motto, h1.folio, div.one-kind
+  ok    1280px dark /workshop: every visible .btn has 12px corners — 2 buttons
+  ok    1280px dark /workshop: no control carries a key-cap gloss, lift or well
+  ok    1280px dark: no page errors
+
+empty tracks, 390px light
+  ok    390px light /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.237:1, #dcdad5 on #f2f1ee (body); swatch 1.237:1, #dcdad5 on #f2f1ee (body)
+  ok    390px light /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.237:1, #dcdad5 on #f2f1ee (body)
+  ok    390px light /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.226:1, #f2f0ea on #dcdad5 (div.cal-grid); 1.140:1 against a plain day #ffffff
+  ok    390px light empty tracks: no page errors
+
+empty tracks, 390px dark
+  ok    390px dark /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.795:1, #38383a on #000000 (body); swatch 1.795:1, #38383a on #000000 (body)
+  ok    390px dark /quiz/linear-algebra: an unanswered question segment stands off its backdrop (>= 1.05:1) — 1.795:1, #38383a on #000000 (body)
+  ok    390px dark /calendar: a rest day stands off its backdrop and reads apart from a plain day (>= 1.05:1) — 1.654:1, #0b0e11 on #38383a (div.cal-grid); 1.137:1 against a plain day #1c1c1e
+  ok    390px dark empty tracks: no page errors
+
+Auto theme
+  ok    auto, phone dark: resolves to dark, --bg #000000 — data-theme dark, --bg rgb(0, 0, 0)
+  ok    auto, phone dark: the status-bar colour follows (#0a0d10) — meta theme-color #0a0d10
+  ok    auto, phone dark: "Auto" is listed first and marked as the pick — auto "Auto" on=true
+  ok    auto, phone flips to light while open: follows live, --bg #f2f1ee — data-theme light, --bg rgb(242, 241, 238), meta #2b2118
+  ok    auto, phone flips to light: a read — no save, no repaint, still stored as "auto" — state writes 0 -> 0, view kept true, stored "auto"
+  ok    auto, phone dark: no page errors
+  ok    auto, phone light: resolves to light, --bg #f2f1ee — data-theme light, --bg rgb(242, 241, 238)
+  ok    auto, phone light: the status-bar colour follows (#2b2118) — meta theme-color #2b2118
+  ok    auto, phone light: "Auto" is listed first and marked as the pick — auto "Auto" on=true
+  ok    auto, phone flips to dark while open: follows live, --bg #000000 — data-theme dark, --bg rgb(0, 0, 0), meta #0a0d10
+  ok    auto, phone flips to dark: a read — no save, no repaint, still stored as "auto" — state writes 0 -> 0, view kept true, stored "auto"
+  ok    auto, phone light: no page errors
+  ok    auto, picked from the menu on a dark phone: stored as "auto", shows dark — stored "auto", data-theme dark, --bg rgb(0, 0, 0)
+  ok    an older device reading "auto" falls back to light — --bg rgb(242, 241, 238)
+  ok    auto, picked from the menu: no page errors
+
+calendar cellPick
+  ok    the picked day runs cellPick — 1 cellPick animation(s) ["running"] on 2026-10-04
+  ok    cellPick starts from scale(0.92) — first keyframe scale(0.92)
+  ok    calendar (no-preference): no page errors
+  ok    under reduced motion the picked day does not animate — 0 cellPick animation(s) []
+  ok    calendar (reduce): no page errors
+
+  ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+FAIL — 20 of 122 design checks failed
+exit 1

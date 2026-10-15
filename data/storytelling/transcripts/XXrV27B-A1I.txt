@@ -1,0 +1,384 @@
+# Transcript: LISA19 - Storytelling for Engineers
+
+Source video: https://www.youtube.com/watch?v=XXrV27B-A1I
+Language: en (auto-generated) · Duration: 30:44 · Words: 5293
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (auto-generated captions, de-duplicated by the tool)
+
+[0:05] so I'm Brad Shively I work at uber advanced technologies group which is the self revving car
+group at Hoover duper so I work on productivity you know no pressure there just make sure a hundred
+percent of developers are productive 100% of the time so we work on tools and workflows which means
+trying to make the build not suck and we work on testing and CI pipelines which means try to make
+the tests not suck and a lot of what my team does is run distributed build
+
+[0:36] infrastructure including kind of compilation farms linking farms caching layers we use basil
+so if you know about basil or you know about software build systems I would love to talk to you
+after this if you don't blank then blank a lot of emails start this way and this is basically a
+simple filter if you don't use this service then you won't care about this email and I want to make
+sure I don't waste your time so if you
+
+[1:06] don't communicate with other humans then this talk isn't for you so hopefully you agree that
+means this talk is largely for everyone I don't see anyone running out of the room yet despite lion
+slide snafu so great we're all in agreement that this talk is for everyone I've got some bad news
+though this talk is about email I'm sure you're all really excited to think about your inboxes right
+now so does anyone feel like they don't get enough email cool I
+
+[1:39] saw at least one hand so send me your email address and you can handle all of mine and
+another thing I'm interested in is how happy are you with your email right now would you say that
+like a hundred percent of your email is good email what about like 50 percent all right I see one or
+two hands maybe like 10 percent this that's kind of where I would expect a lot of people will fall
+in like one in ten emails is useful or actionable or has a clear purpose and then the other nine are
+garbage so we
+
+[2:10] should probably ask what even is a good email and I'll start with my one simple email rule
+which is don't make me WTF so you probably react this way to email pretty often maybe you're
+thinking about the last time maybe it was this month it was this week or today maybe it's happening
+right now because I said this is to talk about email and you immediately dove into your smartphone
+and started ignoring me and there are a lot of reasons this can happen and maybe the email is long
+and it's like I'm not
+
+[2:41] gonna read all this maybe it's confusing maybe it's unclear if someone is just telling you
+something like an FYI or if they're asking you to take some action a lot of times something is like
+to do in disguise like hey here's just an announcement but actually it means I have to go move all
+my services out of a data center or something like that so you know these are the kind of the gamut
+of emails we deal with is everything from there shutting down the data center all your services live
+into their cupcakes in the East cafe and they're not the shitty Costco ones
+
+[3:11] they're from the cool bakery down the street so it's worth the trek to get them so
+communication is an essential engineering skill and we need to change the way we think about emails
+presentations meetings I would say even the way we explain things in conversation and the reason is
+we're all experts in something and we're always communicating with non experts so this makes perfect
+sense say there are 10 software teams of your organization so you run some platform the other nine
+teams are depending on that platform
+
+[3:43] they're not the experts that you are as the team that builds and runs that platform so we
+have to kind of meet those teams where they are and use language they understand give them the
+appropriate context so they can make good decisions so it turns out we do OK talking about software
+in systems when we're talking to a mirror of ourselves like within our teams that's never a problem
+because we have a bunch of shared context it's when we go outside of those boundaries we talk to
+outsiders we talk to customers that's where we really hit snags and we all need to get
+
+[4:13] better at honing our message for our audience that's the key point here so I'm gonna go ahead
+and say it engineering communication is broken we're all being bombarded with emails we generate a
+ton of data but none of it's very useful it's not clear when action is required or when it's not and
+we make a lot of bad assumptions in the communications we send that people understand what we're
+talking about when they obviously don't I'm here to convince you that storytelling is the saloon his
+problem so the thing is everything's
+
+[4:43] a story and everyone's a storyteller we're all telling stories all the time because we
+communicate all the time so there are some practical exceptions here you don't need to tell a story
+when the buildings on fire you probably want you to tell a story about the origin of the cupcakes
+when they're in the East cafe just tell people that they're there but when your service changes you
+tell a story when a reorg happens you tell a story and we have this responsibility to our audience
+to help them understand the narrative that we are trying to get across to them
+
+[5:14] most of us are just pretty bad at storytelling because we don't realize we're doing it
+communicating concisely is actually a lot harder than writing pages and pages or just don't think a
+bunch of data into an email so there's this often misattributed quote I would have written a shorter
+letter if I had more time so we just kind of say facts and data we dump a bunch of things in an
+email we don't do the hard work of cutting out what we can and making our communication short and
+focused so I can't decide what's important just dump a bunch of
+
+[5:44] garbage send a 5,000 word email good to go so why why should you bother telling stories you
+know you're all engineers system administrators okay I can just feel to tell people facts give them
+the data they'll figure it out they're all smart the thing is they won't and not because they're not
+smart just because again they don't have the context you have but even if they would figure out what
+you wanted them to there are still good reasons to tell a story so storytelling causes changes in
+your
+
+[6:14] brain it causes the release of neuro chemicals dopamine and oxytocin that activates the
+reward center of your brain that create empathy that kind of causes these pro-social good behaviors
+so it's not just about warm and fuzzy it's about working together more efficiently and the big thing
+is stories result in better understanding they result in more voluntary compliance and they improve
+memory and those are like all the things I want when I send an
+
+[6:44] email out of my sock or work I want people to understand what I say if I'm asking them to do
+something I want them to go and do it and I want them to remember the things I say long-term so
+there are tons of incentives to to tell stories in short if you want them to listen understand and
+remember tell a story so this is probably a good time to point out that this is not a TED talk I'm
+not gonna tell you about my childhood I'm not gonna take about how I learned to ride a
+
+[7:14] bike or how building systems is just like baking cookies with my graham I'm not gonna tell
+you to open up and be vulnerable or how to find your voice like those are important but they're
+different than what I'm talking about and there are lots of great TED talks on storytelling you
+should go watch them this is not that I'm here to tell you that there's a form of storytelling that
+is super useful to us as engineers and we should work on that so how do we do it the most important
+thing is
+
+[7:44] identifying your audience and understanding who you're actually talking to everything else is
+built on this if you don't do it you'll fail a great example is think about how you would update
+your CEO on a project versus how you would talk to the tech lead on the team about the same project
+so if you talk to your CEO you're probably talking about the strategic benefits to the business the
+quarter level plan we're gonna launch this this is the part of the business that enables here's like
+the customer problem that will solve if you're talking to the tech
+
+[8:15] lead you're probably talking day-to-day level granularity in the weeds on specific tasks
+here's why that's blocked here's what we're gonna do to fix it etc and the reason is those two
+people speak like entirely different languages their frame of reference could not be further apart
+and so we need to have this mindset when we communicate with our engineering organizations so we all
+kind of have this thing we imagine which is there's all this information that everyone knows in the
+org like we all
+
+[8:46] just agree implicitly on what that service is for what that process looks like and then
+here's like what my audience knows or my customer like they know like a little sliver of stuff that
+not everyone knows but they're like here's what I know cuz I'm a genius like I've got the big brain
+strats I know everything my customer knows I know everything your nose but I like so much more too
+but that's not really how reality looks reality looks
+
+[9:17] like this there's this tiny little nugget that we all know because mostly we like secretly
+disagree about everything and we don't know that so you know we use terminology differently we have
+overloaded acronyms there's all these aspects of working in an engineering organization that just
+cause us to sort of silently disagree about things so then my customer knows a lot of things and
+painful as it is to admit they probably know a lot more than I do and this is just for like the
+platform
+
+[9:48] problem I was describing earlier if there's 10 teams I'm on one of them 90% of the org is
+going to implicitly know more than 10% of the org that's just the way that works so there is some
+overlap between you and your audience but you need to work to bridge this gap over time and you
+especially need to work to not assume that this yellow section is gigantic most people in New York
+do not know the things you know but you also do not know the things most people in New York now so
+again your job as a
+
+[10:18] storyteller is to map your brain onto the audience's brain and this might seem like a weird
+analogy but I think of this the way I think of global and local variables so again there are not a
+ton of Global's there that that set is very small you should not make assumptions that everyone
+agrees that ci stands for continuous integration or you know it war refers to a specific system or
+something like that and then there are a lot of sort of local sets local state
+
+[10:49] your team has its internal state another team as a separate internal state and a lot of what
+you're doing as a communicator is trying to map your world on to their world so you can use language
+they're familiar with tell a story that makes sense to them so you need to understand how they think
+and then you need to learn to speak in those terms so once you know who your audience is you have to
+figure out what story you're actually telling and to do this we're gonna kind of look at very basic
+literally like elementary school elements of storytelling so the first is
+
+[11:19] who's your character SuperPi like alright this talks I'm gonna get some more coffee what is
+this guy talking about characters well in our case a character can be a system it can be a piece of
+software or our release it's just what is changing in this communication it's pretty uncommon to
+send an email this is like hey everyone everything's still the same as well as yesterday thanks for
+reading my email like presumably if you're communicating it's because you're communicating some
+change so again it could also be a
+
+[11:51] person or a team like saying or reorg or if your scope is changing character could be a
+person or a team and then what is the character arc and this is kind of harkening back to again
+middle school English class what is the change and how does it affect your audience so I usually use
+something like X has changed in way Y do to Z so this system is different now here's what the
+difference is and here's the reason for that difference and that's a pretty easy kind of line of
+thinking to follow and I
+
+[12:23] think a mistake we make a lot is just saying like X is different now with no explanation as
+to why so the last thing we have to do is tell the story with context and context is super important
+the amount that's required again relates back to who your audience is and who you are you're kind of
+trying to use context to bridge the gap between what you know what they know so let's apply
+literally none of what we just talked about and write an email so our subject is remote
+
+[12:58] testing I've focused on testing just because this is what my team does but all this stuff
+generalizes to really any sort of specialization that you're that your team is responsible for
+remote test execution has been launched cool so is this email good or bad does anyone think this is
+a great email okay it's anyone think this is a terrible email okay good I see some ambivalence
+
+[13:28] and that's what I want to see it depends and it depends on who is our audience so audience
+is the key to weather communication is effective or not I see some like self high fives happening
+which is awesome so if my audience is the build team it's my team we have a lot of local context in
+common we probably have similar ideas about things maybe this remote testing thing was like a six
+month project and this is just my the eagle has landed email like hey it's
+
+[13:58] it's on now we like we shipped it awesome in this case it's a great communication it's super
+concise gets the point across but let's assume this email is for the entire software org so pros
+easy and faster right I'm so efficient I should get a promotion it took me 30 seconds to achieve
+complete alignment with the entire engineering organization in a one-line email Kahn's literally
+everything else
+
+[14:28] so it's confusing it's ineffective it's going to generate a ton of follow-up questions it's
+only useful to people that are already in the know I have this idea in my head and hopefully some of
+you agree with it and not just up here talking to myself bad emails are like bad software a lot of
+times you write a bad email because it was faster to write it poorly than to write it correctly but
+the thing is when you write a bad email you've just offloaded your thinking to 500 or a thousand
+other people so instead of you
+
+[14:59] having to take the time once to figure out how to say what you're trying to say you now are
+making 500 people trying to make sense of your nonsense so it's the same as like when you write a
+bad unit test and it fails like 1 out of 50 times but you can get it green long enough to pass CI
+well now just the org pays that flaky test penalty over and over and over again as long as it exists
+so there are really strong incentives to do things right in terms of communication the first time
+plus like honestly you can save yourself a lot of pain by avoiding a million follow-up emails etc so
+
+[15:30] responses you might expect this email are so what or why are you telling you this or worst
+of all silence silence is the sound of I saw an email I didn't know what it meant and I certainly
+didn't care to figure it out and I deleted it so it's the same as if you never sent it so am i
+announcing that tests are now better or worse and more importantly do I want recipients to take some
+action this is like the key thing if you if you expect people to do
+
+[16:00] something you need to be very explicit about this so I say like don't tiptoe up to the line
+of explanation dive headfirst across it like you should be you shouldn't say like X&Y you should say
+x and y therefore Z and that's what people tend to leave off is that therefore here is the
+conclusion I'm asserting so let's talk about data I'm sure this group loves data
+
+[16:31] everyone here makes purely data-driven decisions right I'm sure at some point you've said
+just show me the data I can make a fact-based decision on my own don't and I'm sure right now some
+of you are thinking don't waste my time with storytelling the thing is just data often isn't lay
+that useful and there's also a lot of research that shows that pretty much when given raw data you
+just use it to prop up the conclusions you've already reached so let's take a look at our email
+again remote testing results
+
+[17:03] oh this will be much better look now we're providing data so remote testing has been enabled
+attached a results from several test runs there you go let's call it a day this is way better right
+look at all that data you know data could also be a bunch of graphs without a clear conclusion or a
+single number without a prayut without a prior reference point something like that so again
+responses what do you like what
+
+[17:33] delete just get out of here you know it's our responsibility to tell this story clearly so
+you make data useful with context analysis and insights so I have a co-worker who's like one of
+those UNIX Wizard guys and I'm sure his setup looks like some of yours where he's got you know 37
+terminal windows and 3 builds running and a container in one and a cloud instance in the other and
+all this stuff but sometimes he does this thing where he makes noises at me
+
+[18:04] like someone at a bus stop who's trying to drag me into a conversation unwillingly you know
+just like can you believe this and then it's like eventually I'm being like pulled over to his desk
+and he's just gesturing wildly at like one of the 37 terminals and it's like can you believe this
+and I it's like yeah it's totally outrageous see you later cupcakes in the East cafe gotta go and
+the reason is like I have no idea what he's talking about because I don't have the context for what
+he's showing me and
+
+[18:34] so with like some analysis and some you know crafting of a message I would understand like
+oh the build just got 40% slower great you know but without that I'm sort of left clueless and
+unwillingly dragged into a conversation so this has a bunch of names sometimes called the wisdom
+hierarchy or the knowledge hierarchy when the data pyramid but it basically shows the relationship
+that exists between data up
+
+[19:04] to wisdom and it turns out that when we apply effort we can turn data into something more
+useful so this is something we should really be doing for our audience because it also turns out
+that when you apply effort it becomes more valuable so don't give me a text file full of test
+results give me an explanation as to what changed and if we're seeing a result we expected so
+formulaic emails are bad but here's the
+
+[19:35] formula for better-than-average engineering emails so to start TL DR one-line summary of
+what we're seeing if you bla then bla this is just a filter it's honestly more of a courtesy than a
+necessity but if people quickly realize that your emails will reliably self-select they'll be more
+inclined to read them over time as you build a relationship with your organization so X
+
+[20:06] system X is now better different worse whatever in aspect y do to change Z now if we can do
+a provide a graph or a dashboard or something like that that's great and then for those very
+interested see details below so a key thing here is I think some people get this kind of bad taste
+in their mouth when I talk about storytelling because they think of it as spin like I'm trying to
+give you my version of reality and get you to buy
+
+[20:36] into it so you don't ask me tough questions that's not the case at all you shouldn't hide
+the details you should be open but be clear at the same time you know the the key thing is giving
+people the amount of information that they and then if for the small percentage that are super inch
+in the details make them available to them and and let them you know kind of dig into that at their
+leisure so let's rewrite our email remote CI testing is now faster already
+
+[21:10] this is like a huge improvement like for some percentage of users that's enough information
+they could just archive this email without ever opening it so TL DR faster test results and Q
+submissions by hundreds of seconds so I think I want to call out here is I'm using a global in this
+statement so you probably don't know what the Q is it's our CI pipeline but I know that everyone at
+my company that works on software knows what that
+
+[21:40] is so I'm free to say one little piece of jargon that I know is broadly available excuse me
+but but again we should keep this to a minimum I should not you know broadly assume that everyone in
+the organization has all these piece of information that they may or may not so if you don't work in
+this repo this doesn't concern you the key thing I would call out about this you know the suite now
+supports remote test
+
+[22:11] execution it's faster no action is required by you to see these benefits I think like this
+is a common thing that someone would leave out they would say like hey we made this change but you
+have to rebase to get the benefit of it or you have to switch over to some new cluster that you've
+never heard of or something like that so it's great to announce that something is available but we
+should also include the steps to achieve the benefits again referencing the PR so if you want to
+know about the
+
+[22:42] details of this change here's the PR where you can find out all about it and lastly a nice
+graph and again a small point but a lot of people would just include this graph like hey look the
+graph went down that's good right but there's a very clear inflection point on this graph so it
+makes sense to label that inflection point this is when the launch happened I think a lot of people
+would leave that open to interpretation again don't tiptoe up to the line of explanation dive
+headfirst across it
+
+[23:14] so a quick tactical recap understand who your audience is and what story you're telling if
+you ignored everything else I said please just remember this like this is the most important bit
+think about who you're writing for context is ridiculously important and it's incumbent on you to
+figure out how much to provide and where the conflicts are in your local variables versus your
+audience's local variables and there are
+
+[23:46] very few Global's so I would say this is the most common mistake people make and it leads to
+tons and tons of painful follow-up emails you just say something very casually off-the-cuff in an
+email where you use some acronym and then you that the flood starts just like the first comes in and
+then the third and then the tenth and there's people saying I don't know what you're talking about
+this might be needed to do something what is the service do we rely on this turn data into wisdom so
+do the heavy
+
+[24:16] lifting push your way up the pyramid and you'll create a lot of value in the process ask if
+you want me to do something ask be direct and clear about the implications of your emails you know
+the worst case scenario is you send an email it's something like we're shutting down a data center
+okay do I need to move my services or are you just gonna be super nice and move them for me I mean
+I'm gonna plead ignorance and hopefully you're gonna migrate them for
+
+[24:47] me so or I'll be that like last tenant out but you know I waited into the last possible
+second because I didn't know for two quarters that I needed to move subtlety is not your friend in
+engineering communications tell so be explicit make your point don't gesture wildly at a huge data
+file or your screen full of terminals assuming I'll figure out the implication you need to tell me
+very explicitly what the story is here what the conclusion that's being reached is and as an
+
+[25:19] absolute last resort use the formula so it's not perfect but a brief summary a clear filter
+and a well-defined arc can go a long way to helping people understand engineering communications
+thank you [Applause] [Music] Thank You Brad so it's time for questions if everybody
+
+[25:49] if everyone has a question just please step forward to the mic I wonder if you have advice
+on when you get an email that you don't think has sufficiently story told to you what do you do
+that's a good question so
+
+[26:23] if you're me you turn into the crazy person that writes this talk to give us an internal
+talk it's a sort of politely and lovingly scold your engineering organization some of the stuff I
+cut for the public consumption version of this talk would probably make your head spin like this
+slide that has nine million words on it that was used in a weekly update every week I mean I think
+that if you feel like this is something you care about or it's like worth investing in
+
+[26:53] the best thing to do is to sort of like kind of try to coach people again and like in that
+loving way you know like hey I'm trying to make us all better because it because it definitely is
+sensitive you know like sort of criticizing the way people will express themselves but I would say
+like responding back with like a hey I think like these key points maybe could be a little clearer
+it might be worth a follow up and you know no one's perfect I certainly have sent a few emails that
+generated some some buzz and then had to quickly like hey I'm getting this
+
+[27:23] question a lot already let me you know be a little more concise or explicitly address a few
+points that came up that I wasn't aware of something like that thank you great talk thank you Thanks
+I have a question around real-time communication using apps like slack teams how does storytelling
+work in that mode of communication that's a great question
+
+[27:53] so it turns out that I'm actually a big fan of real-time communication because I think it
+solves for a slightly different problem which is like to give you an example my team is based in
+Pittsburgh we are all like the entirety of folks that report to me or sort of within my my purview
+are in Pittsburgh and we have a few customers we work pretty closely with and there was one in
+particular where we kind of kept having bad interactions with him and I couldn't figure out why like
+he was rubbing me
+
+[28:24] the wrong way he was he was you know causing problems with my team people were kind of
+complaining to me but I was like wait a minute whenever I talk to this guy in person he's super nice
+and agreeable maybe it's just like a side effect of the medium so we sort of all just you know
+unified an agreement that we should just talk to this guy on zoom' or on the phone or in person as
+much as we could and that smoothed out the relationship a lot and so I think that it becomes less
+necessary as you're having like an
+
+[28:55] interactive dialogue because you can smooth out those inconsistencies or misunderstandings
+so so basically your message doesn't have to be as sharply crafted in a real-time format but I
+certainly think that like having a thesis and sort of having a narrative arc of explanation can help
+you know regardless of the medium Thanks so how do you handle communications where you have maybe a
+different message
+
+[29:27] or a different focus that you're trying to impart to the different subgroups of your
+audience simultaneously yeah so I'd say there's a few is a know that one is factored out the
+commonalities and make that into one communication and then maybe do like follow-ups in individually
+I think like at a certain point you may have to make some compromises you know you don't want to
+it's like obviously
+
+[29:57] you don't want to send a hundred different emails to a hundred different people so it's
+finding the right balance of is this going to address in the eater is it going to cause more
+confusion like if I make some blanket statements am I going to find it like three out of five groups
+are super unhappy with my blanket statements if that's the case then you may just have to meet with
+them individually or address them individually but usually I'd probably tackle something like that
+by saying here are the highlights for everyone and then maybe like here's a doc for the for
+
+[30:27] one team there's a doc for another team that sort of digs in the details and why they differ
+for each group any more questions okay very good breath [Applause]

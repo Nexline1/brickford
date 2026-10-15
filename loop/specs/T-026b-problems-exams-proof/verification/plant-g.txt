@@ -1,0 +1,47 @@
+Plant (g): the coding diagnostic gets no course (the old lookup: only a course that names the diagnostic)
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f73b70e..1fcf048 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -2768,7 +2768,7 @@
+     // questions unlocked (unlockedBank's rule). Nothing new is stored.
+     items.forEach(it => {
+       const id = it.id;
+-      const c = it.kind === "diag" ? D.COURSES.find(x => x.diagnostic === id) || D.COURSES.find(x => x.tracker) : D.COURSES.find(x => x.quiz === id);
++      const c = it.kind === "diag" ? D.COURSES.find(x => x.diagnostic === id) : D.COURSES.find(x => x.quiz === id);
+       const d = it.kind === "diag" ? D.DIAGNOSTICS.find(x => x.id === id) : null;
+       const bank = it.kind === "bank" ? D.QUIZZES[id] : null;
+       const st = c && !c.tracker ? courseLessonStats(c) : null;
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+22 failing check(s):
+  FAIL  1440px dark /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px light /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px light /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px dark, an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched /exams: "Also open" is one card per other open exam (6), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark, an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched /exams: "Also open" is one card per other open exam (6), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px dark, every bank open /exams: "Also open" is one card per other open exam (10), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark, every bank open /exams: "Also open" is one card per other open exam (10), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px dark, Gate 1 passed, so a bank leads /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark, Gate 1 passed, so a bank leads /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px dark, eight MATH 110 lectures watched, none a question's, so Linear Algebra is locked at 8 of 51 /exams: "Also open" is one card per other open exam (3), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark, eight MATH 110 lectures watched, none a question's, so Linear Algebra is locked at 8 of 51 /exams: "Also open" is one card per other open exam (3), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: the hero's tag is "CS 150 · Gate 1" in the course's faculty colour — "Programming · Gate 1"
+  FAIL  1440px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: the hero is "Coding Diagnostic — Flashcards CLI + NeetCode 10" with its facts — 360 min, 30 of 150 problems solved — "Coding Diagnostic — Flashcards CLI + NeetCode 10": 360 min
+  FAIL  1440px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: the readiness bar is the course's lectures watched (on the tracker, problems solved) over all of them (20.00%) within 1%, in the faculty colour — no bar
+  FAIL  390px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: the hero's tag is "CS 150 · Gate 1" in the course's faculty colour — "Programming · Gate 1"
+  FAIL  390px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: the hero is "Coding Diagnostic — Flashcards CLI + NeetCode 10" with its facts — 360 min, 30 of 150 problems solved — "Coding Diagnostic — Flashcards CLI + NeetCode 10": 360 min
+  FAIL  390px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: the readiness bar is the course's lectures watched (on the tracker, problems solved) over all of them (20.00%) within 1%, in the faculty colour — no bar
+  FAIL  1440px dark, day 1, nothing stored /exams: "Also open" is one card per other open exam (3), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark, day 1, nothing stored /exams: "Also open" is one card per other open exam (3), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  1440px dark, a Saturday (the rest day) /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+  FAIL  390px dark, a Saturday (the rest day) /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/diag/diag-code "Programming | 360 min" (want "CS 150 | 360 min")
+FAIL — 22 of 1378 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

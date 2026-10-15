@@ -1,0 +1,26 @@
+# Plant m — 2026-10-08T11:21:48Z on b94b5c2
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 5663b04..0fc8d7d 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1603,7 +1603,7 @@
+         // A modifier gained by the time of release is the browser's too: the
+         // click it sends is let through below, so activating here as well
+         // would be two actions from one tap.
+-        if (!cancelled && d.a && !modified(e)) { swallowUntil = performance.now() + 400; activate(d.a); }
++        if (!cancelled && d.a) { swallowUntil = performance.now() + 400; activate(d.a); }
+         return;
+       }
+       swallowUntil = performance.now() + 400;
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) a plain touch lifted with Ctrl (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/courses; new page #/courses
+  FAIL  (j) a plain touch lifted with Shift (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/courses; new page #/courses
+a slow phone (once, 390px)
+sync (once)
+2 of 106 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean (platform/js/app.js)

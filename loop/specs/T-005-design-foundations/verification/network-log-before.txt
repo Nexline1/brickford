@@ -1,0 +1,59 @@
+# Network log, BEFORE (origin/main dd86693, pristine export)
+
+390px /: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+390px /course/math110: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+390px /lesson/math110/0/13: 5 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+    https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab
+390px /calendar: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+390px /workshop: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+1280px /: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+1280px /course/math110: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+1280px /lesson/math110/0/13: 5 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+    https://www.youtube.com/embed/PFDu9oVAE-g?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab
+1280px /calendar: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+1280px /workshop: 4 http(s) request(s)
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+    https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+
+Distinct fonts.googleapis.com requests: 1
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap
+Requests naming Libre Caslon: 1
+    https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap

@@ -1,0 +1,179 @@
+T-031 review 1, fix 1: the next-gate text gets a min-content floor (.at-main { min-width: min-content }) and a chip's words no longer break (.at-req overflow-wrap: normal, was anywhere); the Exams hero keeps min-width 0
+
+---- the fix (git diff platform/css/style.css) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index ab723d6..b08afde 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2422,16 +2422,19 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+ }
+ 
+ /* ---- the next gate ---- */
+-/* The text and the days share a line while the text has 12rem (a 390 phone
+-   at the default size, a 3-digit count; 360 with 2 digits); below that (a
+-   phone at a larger text size) the days drop under it, rather than the
+-   title column being squeezed until "Calibration" breaks mid-word. In rem,
+-   so it follows the root size, which a media query would not. */
++/* The text and the days share a line while the text has 12rem and its
++   widest word fits (a 390 phone at the default size, a 3-digit count; 360
++   with 2 digits); below that (a phone at a larger text size, or a chip with
++   a long word: "6+ paper reimplementations") the days drop under it, rather
++   than the column being squeezed until "Calibration" or a chip breaks
++   mid-word. min-content is that floor, so a chip's words do not break
++   (overflow-wrap: normal on .at-req). In rem, so it follows the root size,
++   which a media query would not. */
+ .at-next {
+   display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
+   background: var(--surface); color: var(--ink); text-decoration: none;
+ }
+-.at-main { flex: 1 1 12rem; min-width: 0; }
++.at-main { flex: 1 1 12rem; min-width: min-content; }
+ .at-next:hover { text-decoration: none; }
+ .at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+ .at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }
+@@ -2440,7 +2443,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+ .at-req {
+   display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 14px;
+   border-radius: 999px; background: var(--surface-2); color: var(--ink-2);
+-  font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: anywhere; min-width: 0;
++  font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: normal; min-width: 0;
+ }
+ .at-req::before { content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
+ .at-days { flex: none; margin-left: auto; text-align: right; }
+@@ -2594,7 +2597,8 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
+ /* ---- Exams: the next one, the open ones, the locked ones ---- */
+ .ex-rec { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+ .ex-tag { display: inline-block; align-self: flex-start; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; overflow-wrap: normal; background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)); }
+-.ex-hero .at-main { flex: 3 1 14rem; }
++/* The Exams hero keeps a 0 floor: the min-content one is the Atlas card's. */
++.ex-hero .at-main { flex: 3 1 14rem; min-width: 0; }
+ .ex-hero .at-gate { margin-top: 10px; overflow-wrap: normal; }
+ .ex-facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+ /* A bar of the course's lectures watched, in its faculty colour. */
+
+---- verify-design on these bytes (run before the summary line named the new check; the final CHECK re-runs it) ----
+  ok    390px root 16px: /atlas, a 3-digit count of days to the next gate shares the text's line (right of it, not under the chips) — root 16px, "134" at 274,747.3,345,805.9; the text at 45,666.2,254,887.1
+  ok    /atlas, Gate 1 next (Calibration), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 1 next (Calibration), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 2 next (Core skills), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 2 next (Core skills), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 3 next (Research legs), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 3 next (Research legs), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 4 next (The fork), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 4 next (The fork), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 5 next (Arrival), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+  ok    /atlas, Gate 5 next (Arrival), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 15 widths
+
+PASS — 1515 design checks: 5 routes x 
+exit code: 0
+
+---- the mid-word probe, 1px steps, 320-400, every next gate x roots 16/20/24 (scratchpad r1/atlas2.js: the reviewer's atlas2.js plus an overflow read of the card) ----
+none = Gate 1 next, g1 = Gate 2, g12 = Gate 3, g123 = Gate 4, g1234 = Gate 5. BREAK = a word split, an element wider than its box in the card (OVER), or a page that scrolls sideways. pos = where the days sit, from that width on.
+pos root16 none (56) from w320: under col230
+pos root16 none (56) from w358: beside col192
+pos root16 g1 (134) from w320: under col230
+pos root16 g1 (134) from w373: beside col192
+pos root16 g12 (205) from w320: under col230
+pos root16 g12 (205) from w375: beside col194
+pos root16 g123 (206) from w320: under col230
+pos root16 g123 (206) from w373: beside col192
+pos root16 g1234 (633) from w320: under col230
+pos root16 g1234 (633) from w373: beside col192
+pos root20 none (56) from w320: under col230
+pos root20 g1 (134) from w320: under col230
+pos root20 g12 (205) from w320: under col230
+pos root20 g123 (206) from w320: under col230
+pos root20 g1234 (633) from w320: under col230
+pos root24 none (56) from w320: under col230
+pos root24 g1 (134) from w320: under col230
+BREAK root24 g12 w320 under col265 [] OVER ["card 289>278"]
+pos root24 g12 (205) from w320: under col265
+BREAK root24 g12 w321 under col265 [] OVER ["card 289>279"]
+BREAK root24 g12 w322 under col265 [] OVER ["card 289>280"]
+BREAK root24 g12 w323 under col265 [] OVER ["card 289>281"]
+BREAK root24 g12 w324 under col265 [] OVER ["card 289>282"]
+BREAK root24 g12 w325 under col265 [] OVER ["card 289>283"]
+BREAK root24 g12 w326 under col265 [] OVER ["card 289>284"]
+BREAK root24 g12 w327 under col265 [] OVER ["card 289>285"]
+BREAK root24 g12 w328 under col265 [] OVER ["card 289>286"]
+BREAK root24 g12 w329 under col265 [] OVER ["card 289>287"]
+pos root24 g123 (206) from w320: under col230
+pos root24 g1234 (633) from w320: under col230
+measured 1215, breaks 10
+exit 0
+
+on ad92fb5, the same probe (breaks only):
+BREAK root16 g12 w373 beside col192 ["at-req:6+ paper reimplementation/s"]
+BREAK root16 g12 w374 beside col193 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w320 under col230 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w321 under col231 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w322 under col232 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w323 under col233 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w324 under col234 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w325 under col235 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w326 under col236 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w327 under col237 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w328 under col238 ["at-req:6+ paper reimplementati/ons"]
+BREAK root24 g12 w329 under col239 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w330 under col240 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w331 under col241 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w332 under col242 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w333 under col243 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w334 under col244 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w335 under col245 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w336 under col246 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w337 under col247 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w338 under col248 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w339 under col249 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w340 under col250 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w341 under col251 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w342 under col252 ["at-req:6+ paper reimplementatio/ns"]
+BREAK root24 g12 w343 under col253 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w344 under col254 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w345 under col255 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w346 under col256 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w347 under col257 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w348 under col258 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w349 under col259 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w350 under col260 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w351 under col261 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w352 under col262 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w353 under col263 ["at-req:6+ paper reimplementation/s"]
+BREAK root24 g12 w354 under col264 ["at-req:6+ paper reimplementation/s"]
+measured 1215, breaks 37
+
+---- the same probe, 401-860 and 861-1440 ----
+measured 6900, breaks 0
+exit 0
+BREAK root16 g123 w1343 beside col518 ["rt-lab:Calibrat/ion","rt-lab:Researc/h legs"]
+BREAK root16 g1234 w1009 beside col517 ["rt-lab:Calibrat/ion","rt-lab:Researc/h legs"]
+BREAK root16 g1234 w1343 beside col518 ["rt-lab:Calibrat/ion","rt-lab:Researc/h legs"]
+measured 8700, breaks 3
+exit 0
+
+The three 861-1440 hits are route labels read in the first frames after a resize (the probe waits two frames, not for .main's padding transition); a fresh load at 1008-1010 and 1342-1344 with Gates 1-3 and 1-4 passed breaks nothing (scratchpad r1/fresh-lw.js):
+  every width: []
+
+---- the default-state sweep (scratchpad probe3.js: every visible text in #view, 320/360/390 x roots 16/20/24) ----
+root16 w320 /atlas 0 []
+root16 w320 /courses 0 []
+root16 w360 /atlas 0 []
+root16 w360 /courses 0 []
+root16 w390 /atlas 0 []
+root16 w390 /courses 0 []
+root20 w320 /atlas 0 []
+root20 w320 /courses 0 []
+root20 w360 /atlas 0 []
+root20 w360 /courses 0 []
+root20 w390 /atlas 0 []
+root20 w390 /courses 0 []
+root24 w320 /atlas 0 []
+root24 w320 /courses 0 []
+root24 w360 /atlas 0 []
+root24 w360 /courses 0 []
+root24 w390 /atlas 0 []
+root24 w390 /courses 0 []
+(every other route: the same counts as before this fix)
+
+---- the older chip break (T-040) ----
+Gate 3 next at a 24px root: ad92fb5 broke "reimplementati/ons" from 320 to 354px. With this fix the chip's word does not break, so from 330 to 354px it is whole and fits, and from 320 to 329px the whole chip is up to 11px wider than the card (card 289 > 278..287): it crosses the card's right edge (r1/atnext-320-root24-gate3-fixed.png, against r1/atnext-320-root24-gate3-ad92fb5.png). No sideways scroll. That is T-040's band; not chased.

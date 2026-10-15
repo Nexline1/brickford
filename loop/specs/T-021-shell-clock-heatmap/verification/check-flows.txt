@@ -1,0 +1,30 @@
+
+390px
+  ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
+  ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
+  ok    (a) no page errors
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
+  ok    (b) no page errors
+  ok    (c) the dashboard shows a count for today — 0 / 2 today
+  ok    (c) the lecture page records it — button now reads "Unmark watched"
+  ok    (c) the dashboard count goes up by one — 0 / 2 -> 1 / 2
+  ok    (c) no page errors
+
+1280px
+  ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
+  ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
+  ok    (a) no page errors
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
+  ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
+  ok    (b) no page errors
+  ok    (c) the dashboard shows a count for today — 0 / 2 today
+  ok    (c) the lecture page records it — button now reads "Unmark watched"
+  ok    (c) the dashboard count goes up by one — 0 / 2 -> 1 / 2
+  ok    (c) no page errors
+
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+PASS — 23 checks, 3 flows x 2 widths, each in a fresh context

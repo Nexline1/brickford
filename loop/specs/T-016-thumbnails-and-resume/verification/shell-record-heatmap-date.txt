@@ -1,0 +1,18 @@
+# verify-shell's one failure (390px /record: button.hc 10x10) is pre-existing and date-triggered, not T-016's.
+# /record draws its heatmap once daysBetween(START_DATE 2026-09-21, today) >= 14, i.e. from 2026-10-05 (app.js 'enoughHeat').
+# verify-shell does not pin the clock, and its exemption for dense date matrices names '.hc-wrap', which no element carries;
+# the heatmap's container is '.heat'. T-006's check-shell.txt passed on 2026-10-03, before the heatmap existed.
+# Below: /record with the clock pinned per day, on this branch and on the base commit cb1fdd0 (git archive), counting
+# the heatmap's day buttons and any .hc-wrap. Then verify-shell itself on the base, today: the same single failure.
+branch 2026-10-03 { heatButtons: 0, hcWrap: 0 }
+branch 2026-10-04 { heatButtons: 0, hcWrap: 0 }
+branch 2026-10-05 { heatButtons: 13, hcWrap: 0 }
+branch 2026-10-06 { heatButtons: 14, hcWrap: 0 }
+base   2026-10-03 { heatButtons: 0, hcWrap: 0 }
+base   2026-10-04 { heatButtons: 0, hcWrap: 0 }
+base   2026-10-05 { heatButtons: 13, hcWrap: 0 }
+base   2026-10-06 { heatButtons: 14, hcWrap: 0 }
+# verify-shell on base cb1fdd0, 2026-10-06:
+  FAIL  390px /record: 4 control(s) under 44x44 — button.hc.l0 10x10, button.hc.l1 10x10, button.hc.l2 10x10, button.hc.l1.now 10x10
+FAIL — 1 shell assertion broken
+# Fixing it is a gate edit (pin verify-shell's clock, or point the exemption at .heat) and needs approval; it was not touched here.

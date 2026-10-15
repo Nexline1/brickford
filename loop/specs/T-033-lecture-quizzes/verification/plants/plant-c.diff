@@ -1,0 +1,25 @@
+diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
+index abaf939..4caba8f 100644
+--- a/platform/data/summaries-ai310.js
++++ b/platform/data/summaries-ai310.js
+@@ -728,4 +728,20 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {
+     ],
+   },
+ 
++
++  "ai200.2.1": {
++    takeaway: "PLANTED FIXTURE for T-033 plants (c) and (e); never committed.",
++    beats: [{ t: "Planted", d: "Planted beat one." }, { t: "Planted", d: "Planted beat two." }, { t: "Planted", d: "Planted beat three." }],
++    worked: "PLANTED FIXTURE worked pattern, never committed.",
++    watch: "PLANTED FIXTURE watch, never committed.",
++    concepts: [],
++    checks: [
++      { q: "Planted check 0: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 0, at: 600, expl: "This check exists only to exercise verify-content; it is never committed." },
++      { q: "Planted check 1: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 1, at: 1500, expl: "This check exists only to exercise verify-content; it is never committed." },
++      { q: "Planted check 2: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 2, at: 2400, expl: "This check exists only to exercise verify-content; it is never committed." },
++      { q: "Planted check 3: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 3, at: 3300, expl: "This check exists only to exercise verify-content; it is never committed." },
++      { q: "Planted check 4: which option is the planted answer?", opts: ["Planted option one", "Planted option two", "Planted option 3rd", "Planted option 4th"], a: 0, at: 4200, expl: "This check exists only to exercise verify-content; it is never committed." },
++    ],
++  },
++
+ });

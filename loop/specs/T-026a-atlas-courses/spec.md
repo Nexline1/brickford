@@ -54,6 +54,7 @@ Source: owner, 2026-10-07. "I went into the Atlas and it's really not clear what
 10. **Later view.** Not-yet-open courses at about 45% opacity, with "Opens week N".
 11. **Finished view.** Courses with mastery of 85% or more. **All view:** every course, grouped by faculty.
 12. **Shelf columns:** 4 at 1024px and up, 3 at 768px, 2 below 600px.
+   - **Deviation (2026-10-10, T-031):** with the right rail visible, the shelf has 3 columns from about 1040px to about 1148px, because 4 would break titles mid-word ("Mathematic/s"). Each column has a 7rem floor, wider than "Mathematics" in the title (6.81rem). Measured at a 16px root: the rail appears at 1040px, and 4 columns return at 1149px.
 
 ### Both pages
 13. **Use tokens only:** `--surface`, `--surface-2`, `--ink-*`, the `--fac-*` colours, `--accent`. No new colours and no gradients beyond the faculty tint. Contrast must be 4.5:1 or better for every text in both themes, and `verify-contrast` must cover both routes.

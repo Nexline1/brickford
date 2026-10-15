@@ -1,0 +1,31 @@
+Plant: identity permutation (options in their written order)
+diff --git a/platform/js/quiz-engine.js b/platform/js/quiz-engine.js
+index b6eadc7..ecef6aa 100644
+--- a/platform/js/quiz-engine.js
++++ b/platform/js/quiz-engine.js
+@@ -39,7 +39,17 @@
+       const n = Math.min(bank.perSitting || 15, bank.questions.length);
+       // Draw by index so results can report which BANK questions were missed.
+       const order = shuffle(bank.questions.map((_, i) => i)).slice(0, n);
+-      const qs = order.map(i => bank.questions[i]);
++      // The options are shuffled too, on every sitting. The banks were written
++      // with the answer nearly always in the same slot (option B in the
++      // summaries, option A in two banks), and a reader learns the slot, not
++      // the material. The bank is never touched: each sitting presents a copy
++      // whose answer index follows its option through the permutation.
++      const present = q => {
++        if (!q.opts) return q;
++        const p = q.opts.map((_, i) => i);
++        return Object.assign({}, q, { opts: p.map(i => q.opts[i]), a: p.indexOf(q.a) });
++      };
++      const qs = order.map(i => present(bank.questions[i]));
+       let idx = 0, score = 0, answered = false, finished = false;
+       const results = [];
+ 
+  ok    (k) every multiple-choice question was mounted and its answer found — 531 questions, 4248 mounts, 0 unfound
+  FAIL  (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 19%, B 74%, C 6%, D 0% of 4248
+  ok    (k) choosing the right option is graded right, wherever it was shuffled to — 531 of 531
+  ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 531 of 531
+  ok    (k) no page errors
+1 of 111 flow check(s) FAILED
+exit 1

@@ -1,0 +1,37 @@
+Plant (f): the stale /exams oracle in tools/verify-design.js (!!gates[1], which reads an unmark object as passed) — run against the new unmark fixture
+Gate: node tools/verify-design.js
+Planted on: a6cb1e8 + the diff below
+
+---- diff ----
+diff --git a/tools/verify-design.js b/tools/verify-design.js
+index b2e16c8..5230281 100644
+--- a/tools/verify-design.js
++++ b/tools/verify-design.js
+@@ -1641,8 +1641,7 @@ function t26bExams() {
+   // { date: null, at, passed: false } — is open. (This read !!gates[1], which
+   // counts an unmark object as passed.)
+   const g1 = (st.gates || {})[1];
+-  const gatePassed = g1 && typeof g1 === "object" ? g1.passed === true && !!g1.date
+-    : g1 === true || (typeof g1 === "string" && /^\d{4}-\d\d-\d\d$/.test(g1));
++  const gatePassed = !!(st.gates || {})[1];
+   const unsatDiag = diags.find(x => !x.sat);
+   // The one to sit next: an unsat diagnostic while Gate 1 is open, else the
+   // open, unsat bank with the most of it unlocked.
+
+---- gate output (failing checks and summary) ----
+  FAIL  1440px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: the hero's tag is "CS 150" in the course's faculty colour — "MATH 110 · Gate 1"
+  FAIL  1440px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: the hero is "Algorithms — Concept Examination" with its facts — 15 questions, Pass at 70%, 1 of 150 problems solved — "MIT 18.06 Final Examination": 180 min, Pass at 70%, 2 of 51 lectures watched
+  FAIL  1440px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: the readiness bar is the course's lectures watched (on the tracker, problems solved) over all of them (0.67%) within 1%, in the faculty colour — 3.92% of a 419px track
+  FAIL  1440px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: no gate applies, so no days number — shows 56
+  FAIL  1440px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: "Sit it" is the one filled primary, to #/quiz/dsa — "Sit it" #/diag/diag-la
+  FAIL  1440px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — MATH 120 / MIT 18.01 Final Examination / 180 min · pass 70%; MATH 130 / Stat 110 Strategic Practice (sets 1, 3, 10) / 120 m
+  FAIL  390px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: the hero's tag is "CS 150" in the course's faculty colour — "MATH 110 · Gate 1"
+  FAIL  390px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: the hero is "Algorithms — Concept Examination" with its facts — 15 questions, Pass at 70%, 1 of 150 problems solved — "MIT 18.06 Final Examination": 180 min, Pass at 70%, 2 of 51 lectures watched
+  FAIL  390px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: the readiness bar is the course's lectures watched (on the tracker, problems solved) over all of them (0.67%) within 1%, in the faculty colour — 3.92% of a 300px track
+  FAIL  390px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: no gate applies, so no days number — shows 56
+  FAIL  390px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: "Sit it" is the one filled primary, to #/quiz/dsa — "Sit it" #/diag/diag-la
+  FAIL  390px dark, Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — MATH 120 / MIT 18.01 Final Examination / 180 min · pass 70%; MATH 130 / Stat 110 Strategic Practice (sets 1, 3, 10) / 120 mi
+FAIL — 12 of 1493 design checks failed
+
+exit code: 1
+restored: cmp identical to the committed tools/verify-design.js (a6cb1e8); git diff empty

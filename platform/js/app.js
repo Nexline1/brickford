@@ -11,10 +11,8 @@
   const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   // Local calendar date — NOT toISOString() (that's UTC and shows the
   // wrong day for anyone ahead of UTC, e.g. Bahrain UTC+3 before 3 AM).
-  const todayISO = () => {
-    const d = new Date();
-    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  };
+  const localISO = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const todayISO = () => localISO(new Date());
   const fmtBHD = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString();
   function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
 
@@ -157,7 +155,7 @@
     quizAttempts: {},   // bankId -> [{date, score, total, pct}]
     quizMisses: {},     // bankId -> [bank question indices currently in the miss pool]
     diag: {},           // diagId -> {score, date}
-    gates: {},          // gateN -> completion date (ISO) when passed
+    gates: {},          // gateN -> { date, at, passed } (gateRec reads the older shapes)
     studyDays: [],      // ISO dates
     weeks: [],          // {week, date, shipped, dsa, posts, revenue, notes}
     labs: {},           // labId -> {done, proof}
@@ -177,7 +175,10 @@
     // lastSyncAt / syncError are per-device facts about THIS browser's link to
     // GitHub, so they are deliberately not in syncPayload - pushing them would
     // tell the phone about the laptop's broken token.
-    settings: { theme: "light", lastBackup: null, dailyStart: "08:00", streakFrom: null,
+    // No theme here: an unset theme is the DEFAULT (dark, applyTheme), not a
+    // stored pick. With "light" in this object every device wrote "light" on
+    // its first save, and the default could never change again (T-024).
+    settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null,
                 lastSyncAt: null, syncError: null },
   };
   let S;
@@ -186,6 +187,27 @@
   S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
   S.reps = Object.assign({ bank: [], story: [], humor: [], review: [] }, S.reps);
   S.settings = Object.assign({}, DEFAULT.settings, S.settings);
+  // The navy switch (T-024; owner decision 2026-10-06, "switch existing
+  // devices to navy automatically", relayed by the loop coordinator and
+  // recorded in loop/specs/T-024-navy-theme/spec.md). Before T-024 the
+  // DEFAULT above carried theme "light", and every device wrote it on its
+  // first save whether or not anyone chose it. So a stored "light" without
+  // the marker is treated as that old default, ONCE per device: the theme
+  // goes back to unset (the default: dark, which is no longer navy since
+  // T-025) and the marker is set.
+  // `themeNavyOnce` means "this device's theme is past the navy switch". It
+  // is per device: syncPayload does not carry it and mergeState never reads
+  // a remote theme or marker. An explicit pick from the Theme menu sets it
+  // too, so Light chosen after this is kept.
+  // This is load-time normalisation, not a render, and it does NOT save():
+  // opening the app arms no push. The result persists with the next ordinary
+  // save; until then every load re-applies it, which changes nothing.
+  // The inline script in index.html's <head> applies the same rule before the
+  // first paint.
+  if (S.settings.theme === "light" && !S.settings.themeNavyOnce) {
+    delete S.settings.theme;
+    S.settings.themeNavyOnce = true;
+  }
   // Every persisted change schedules a push. This hangs off save() rather than
   // off logEvent() because only 16 of 42 mutation sites logged an event, so
   // notes, gates and treasury edits were silently never syncing.
@@ -209,6 +231,10 @@
   S.settings.deviceId = S.settings.deviceId ||
     (Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4));
   S.foreignLedgers = S.foreignLedgers || {};
+  // Gates in the shape that syncs (T-038). Load-time normalisation like the
+  // navy switch above: in memory only, no save(), so opening the app arms no
+  // push and rewrites nothing; the next ordinary save() stores the new shape.
+  Object.keys(S.gates || (S.gates = {})).forEach(k => { S.gates[k] = gateRec(S.gates[k], k); });
 
   const SYNC_REPO = "Nexline1/brickford";
   const SYNC_PATH = "progress/brickford-state.json";
@@ -239,6 +265,12 @@
       const mine = S.lessons[k], theirs = r.lessons[k];
       if (!theirs) return;
       if (!mine) { S.lessons[k] = theirs; changed++; return; }
+      // The resume point is not part of a lesson's standing: it goes with
+      // whichever side stamped it last (T-016), whoever wins below — so a
+      // pause on the phone survives the laptop's further-along copy, and an
+      // `ended` (pos cleared, posAt stamped) beats an older point elsewhere.
+      const pos = (theirs.posAt || "") > (mine.posAt || "") ? theirs : mine;
+      const keep = { pos: pos.pos, posAt: pos.posAt };
       const score = x => (x.verified ? 4 : 0) + (x.done ? 2 : 0) + ((x.notes || "").length + (x.recall || "").length > 0 ? 1 : 0);
       if (score(theirs) > score(mine)) { S.lessons[k] = theirs; changed++; }
       else if (score(theirs) === score(mine)) {
@@ -247,11 +279,17 @@
         if ((theirs.recall || "").length > (mine.recall || "").length) { mine.recall = theirs.recall; changed++; }
         if ((theirs.solved || 0) > (mine.solved || 0)) { mine.solved = theirs.solved; changed++; }
       }
+      const now = S.lessons[k];
+      if (now.pos !== keep.pos || now.posAt !== keep.posAt) {
+        if (keep.pos == null) delete now.pos; else now.pos = keep.pos;
+        if (keep.posAt == null) delete now.posAt; else now.posAt = keep.posAt;
+        if (now === mine) changed++;
+      }
     });
     // sets: union
     (r.studyDays || []).forEach(d => { if (S.studyDays.indexOf(d) < 0) { S.studyDays.push(d); changed++; } });
     S.studyDays.sort();
-    ["problems", "psets", "electives", "labs", "diag", "gates"].forEach(key => {
+    ["problems", "psets", "electives", "labs", "diag"].forEach(key => {
       Object.keys(r[key] || {}).forEach(k => {
         if (!S[key][k] && r[key][k]) { S[key][k] = r[key][k]; changed++; }
       });
@@ -321,6 +359,14 @@
       const theirs = ledgers[dev] || [];
       const mineForeign = S.foreignLedgers[dev] || [];
       if (theirs.length > mineForeign.length) { S.foreignLedgers[dev] = theirs; changed++; }
+    });
+    // Gates: last writer wins on `at`, per gate (T-038). They used to merge as
+    // "a truthy remote fills a falsy local", so an unmark (false) was undone
+    // by the next pull and a push kept the pass on the remote for good. After
+    // the ledgers, so a remote legacy `true` can find its own gate event.
+    Object.keys(r.gates || {}).forEach(k => {
+      const theirs = gateRec(r.gates[k], k), mine = gateRec(S.gates[k], k);
+      if ((theirs.at || "") > (mine.at || "")) { S.gates[k] = theirs; changed++; }
     });
     return { changed: changed };
   }
@@ -524,7 +570,11 @@
   }
   function logEvent(type, ref, data) {
     const prev = S.ledger.length ? S.ledger[S.ledger.length - 1].hash : GENESIS;
-    const e = { i: S.ledger.length, ts: new Date().toISOString(), type: type, ref: String(ref || ""), data: data || {}, prev: prev };
+    // The data is hashed as it will be STORED: a JSON round trip drops an
+    // undefined field and turns NaN into null here, as the save will, so the
+    // chain verifies the same after a reload (T-028 review 1: a rep logged
+    // with seconds undefined broke the chain for good).
+    const e = { i: S.ledger.length, ts: new Date().toISOString(), type: type, ref: String(ref || ""), data: data ? JSON.parse(JSON.stringify(data)) : {}, prev: prev };
     e.hash = sha256(canon(e));
     S.ledger.push(e);
     save();
@@ -697,21 +747,55 @@
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { week: w, focus: row.focus, tag: row.tag, phase: row.phase };
   }
+  // A gate as stored (T-038): { date, at, passed } — the local date it was
+  // passed, the instant this record was written (ISO, what the merge
+  // compares), and whether it is passed. The older shapes are read, never
+  // rewritten here:
+  //   "YYYY-MM-DD"  passed that date, at = that date's local midnight;
+  //   false/absent  not passed, no time (any timed record beats it);
+  //   true          (old backups) passed on the local date of its last passing
+  //                 `gate` ledger event, else on START_DATE. Never "today": a
+  //                 pass that moved with the clock slid every later target daily.
+  function gateRec(raw, n) {
+    if (raw && typeof raw === "object")
+      return { date: raw.date || null, at: raw.at || null, passed: raw.passed === true && !!raw.date };
+    const midnight = iso => { const p = iso.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]).toISOString(); };
+    if (typeof raw === "string" && /^\d{4}-\d\d-\d\d$/.test(raw)) return { date: raw, at: midnight(raw), passed: true };
+    if (raw === true) {
+      let ts = null;
+      [S.ledger || []].concat(Object.values(S.foreignLedgers || {})).forEach(L => (L || []).forEach(e => {
+        if (e && e.type === "gate" && e.ref === "gate" + n && e.data && e.data.passed && e.ts && (!ts || e.ts > ts)) ts = e.ts;
+      }));
+      return ts ? { date: localISO(new Date(ts)), at: ts, passed: true } : { date: D.START_DATE, at: midnight(D.START_DATE), passed: true };
+    }
+    return { date: null, at: null, passed: false };
+  }
   // Adaptive schedule: a gate's target = the previous gate's completion date
   // (its target while still open) + this gate's duration. Passing early pulls
-  // every later target earlier. S.gates[n] stores the completion date
-  // (legacy backups stored `true`; treated as passed today).
+  // every later target earlier.
   function gatePlan() {
     let base = D.START_DATE;
     return D.GATES.map(g => {
-      const raw = S.gates[g.n];
-      const doneDate = raw === true ? todayISO() : (raw || null);
+      const rec = gateRec(S.gates[g.n], g.n);
+      const doneDate = rec.passed ? rec.date : null;
       const target = addStudyDays(base, Math.round(g.months * 30.4));
       base = doneDate || target;
       return Object.assign({}, g, { target, doneDate });
     });
   }
   function nextGate() { return gatePlan().find(g => !g.doneDate); }
+  // The one way a gate changes (T-038), behind the Transcript's confirm
+  // sheet. Only the next open gate can be passed and only the last passed one
+  // unmarked; anything else is refused and changes nothing. One save(): the
+  // gate event's.
+  function setGate(n, pass) {
+    const plan = gatePlan();
+    const g = pass ? plan.find(x => !x.doneDate) : plan.filter(x => x.doneDate).pop();
+    if (!g || g.n !== n) return false;
+    S.gates[n] = { date: pass ? todayISO() : null, at: new Date().toISOString(), passed: !!pass };
+    logEvent("gate", "gate" + n, { passed: !!pass });
+    return true;
+  }
   function currentPhase() {
     const w = weekNumber();
     return w > 78 ? 3 : w > 26 ? 2 : w > 2 ? 1 : 0;
@@ -721,7 +805,7 @@
     const last = plan[plan.length - 1];
     const baseline = addStudyDays(D.START_DATE, Math.round(D.GATES.reduce((a, g) => a + g.months, 0) * 30.4));
     const projected = last.doneDate || last.target;
-    return { projected, aheadDays: daysBetween(projected, baseline) };
+    return { projected, baseline, aheadDays: daysBetween(projected, baseline) };
   }
 
   // ---------- calendar (Google-native, no OAuth, no API key) ----------
@@ -815,7 +899,10 @@
   }
   // The week-plan row that governs a given calendar date.
   function weekRowFor(iso) {
-    const w = Math.max(1, Math.floor(Math.max(0, studyIndex(iso)) / STUDY_WEEK) + 1);
+    // A rest day belongs to the week just worked (weekNumber's rule). Its own
+    // index is -1, which read as Week 1, and Week 1's focus, every Saturday.
+    const i = studyIndex(iso) >= 0 ? studyIndex(iso) : studyIndex(prevStudyDay(iso));
+    const w = Math.max(1, Math.floor(Math.max(0, i) / STUDY_WEEK) + 1);
     const row = D.WEEK_PLAN.find(r => w >= r.from && w <= r.to) || D.WEEK_PLAN[D.WEEK_PLAN.length - 1];
     return { w, row };
   }
@@ -1010,14 +1097,6 @@
   }
   function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
-  // A scheduled block that is not a lecture — the later weeks where a course has
-  // run out of lessons and the day is project or frontier work. Real lectures go
-  // through dayGroupsHTML below, on both pages that show a day.
-  function pseudoRowHTML(it) {
-    return '<a class="grow" href="' + it.href + '"><span class="g-lead">\u00b7</span>' +
-      '<span class="g-main"><span class="g-t">' + esc(it.t) + '</span>' +
-      '<span class="g-s">' + esc(it.track) + '</span></span></a>';
-  }
   // The day, grouped by course.
   //
   // Nine separate cards meant nine borders, nine "Open" buttons and six rows
@@ -1190,6 +1269,13 @@
   const V = {};
 
   // ---------- the practice layer ----------
+  // The one way a rep is logged: appended, and sealed into the chain. The hand
+  // forms and the recorder (T-028) both come through here, so a recorded rep
+  // is the same record as a typed one and counts the same everywhere.
+  function logRep(kind, entry, ev) {
+    S.reps[kind].push(entry);
+    logEvent("rep", kind, ev);
+  }
   // What is owed today, derived — never a stored "pending" flag, which would go
   // stale the moment the clock moved.
   function repsDue(iso) {
@@ -1495,67 +1581,230 @@
     drawer = { open, shut };
   }
 
-  // The rail, and its collapsed one-line form for phones. Same data, both
-  // rendered outside #view so they survive every route change.
-  // The phone's running head, filled from whatever the view actually rendered.
+  // ---------- the tab bar (T-023) ----------
+  //
+  // A finger pressed on the bar and slid along it carries the glass bubble with
+  // it, 1:1 and centred on the finger; past the first or last tab it resists
+  // (apple-design rubber band). On release the bubble springs to the tab
+  // nearest where the slide was GOING (projectMomentum) and that tab opens. A
+  // press that moves under 10px is a tap; a press that moves vertically first
+  // is the page's scroll and is let go. Tapping the tab you are on scrolls to
+  // the top. None of this saves: it moves a transform and changes the hash.
+  const TAB_ROUTES = ["/", "/courses", "/exams", "/workshop", "/review"];
+  // Where each tab was left, in memory only. Never persisted: a scroll position
+  // is not progress, and writing it would make every tab switch a save().
+  const tabScroll = {};
+  let tabbar = null;
+  function rubberBand(offset, dim) {
+    const c = 0.55;
+    return (1 - 1 / ((Math.abs(offset) * c) / dim + 1)) * dim * Math.sign(offset);
+  }
+  function mountTabbar() {
+    const bar = $("#tabbar");
+    const bub = bar && bar.querySelector(".tab-bubble");
+    if (!bar || !bub) return;
+    const tabs = $$("#tabbar a");
+    const reduce = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let x = null, anim = null, drag = null, swallowUntil = 0, goal = null;
+    const paint = px => { x = px; bub.style.transform = "translateX(" + px + "px)"; };
+    // Both measured from the bar's padding edge, which is where the bubble's
+    // left: 0 is.
+    const spot = a => a.offsetLeft + a.offsetWidth / 2 - bub.offsetWidth / 2;
+    function settleTo(a, vel) {
+      const to = spot(a);
+      if (anim && goal === to) return;                 // already on its way there
+      if (anim) { anim.cancel(); anim = null; }
+      goal = to;
+      if (x === null || reduce() || !bar.classList.contains("has-active")) { paint(to); return; }
+      anim = spring(x, to, { response: 0.35, damping: 1, velocity: vel || 0 }, paint, () => { anim = null; });
+    }
+    // After every render and resize: the bubble goes to whichever tab the
+    // router marked active, and hides on a page no tab owns.
+    function sync() {
+      if (drag && drag.moved) return;
+      if (!bar.offsetWidth) return;                    // desktop: no bar
+      const a = tabs.find(t => t.classList.contains("active"));
+      if (a) settleTo(a, anim ? anim.velocity : 0);
+      bar.classList.toggle("has-active", !!a);
+    }
+    function activate(a) {
+      const rt = a.dataset.route;
+      if (route() === rt) {
+        window.scrollTo({ top: 0, behavior: reduce() ? "instant" : "smooth" });
+        return;
+      }
+      location.hash = "#" + rt;
+    }
+    function follow(cx) {
+      const left = bar.getBoundingClientRect().left + bar.clientLeft;
+      const lo = spot(tabs[0]), hi = spot(tabs[tabs.length - 1]), dim = tabs[0].offsetWidth / 3;
+      let px = cx - left - bub.offsetWidth / 2;
+      if (px < lo) px = lo + rubberBand(px - lo, dim);
+      else if (px > hi) px = hi + rubberBand(px - hi, dim);
+      paint(px);
+    }
+    function end(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      try { bar.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      bar.classList.remove("sliding");
+      if (d.dead) { swallowUntil = performance.now() + 400; return; }
+      if (!d.moved) {
+        // A modifier gained by the time of release is the browser's too: the
+        // click it sends is let through below, so activating here as well
+        // would be two actions from one tap.
+        if (!cancelled && d.a && !modified(e)) { swallowUntil = performance.now() + 400; activate(d.a); }
+        return;
+      }
+      swallowUntil = performance.now() + 400;
+      if (cancelled) { sync(); return; }
+      // Velocity from the last 100ms of samples only: a finger that stopped
+      // before lifting has no throw left in it.
+      const now = performance.now(), hist = d.hist.filter(s => now - s.t < 100);
+      let vel = 0;
+      if (hist.length > 1) {
+        const a = hist[0], b = hist[hist.length - 1];
+        if (b.t > a.t) vel = (b.x - a.x) / ((b.t - a.t) / 1000);
+      }
+      const projected = x + projectMomentum(vel, 0.99);
+      let best = tabs[0];
+      tabs.forEach(t => { if (Math.abs(spot(t) - projected) < Math.abs(spot(best) - projected)) best = t; });
+      bar.classList.add("has-active");
+      settleTo(best, vel);
+      if (route() !== best.dataset.route) location.hash = "#" + best.dataset.route;
+    }
+    // Only a plain primary press is the bar's. Any other button (a mouse's
+    // right or middle, a pen's barrel button) and any modifier (new tab, new
+    // window, download) is the browser's to handle: no capture, no slide, no
+    // activate — for every pointer type, since an iPad with a keyboard
+    // Cmd-taps with a finger and a pen's barrel press opens a context menu.
+    // Touch and a pen's tip report button 0. The click guard below lets those
+    // clicks through, so a press that still activate()d here was two actions.
+    const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+    bar.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || modified(e)) return;
+      try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+      drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
+    });
+    bar.addEventListener("pointermove", e => {
+      if (!drag || e.pointerId !== drag.id || drag.dead) return;
+      const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+      if (!drag.moved) {
+        // Hysteresis: a press that goes vertical first is a scroll, not a slide.
+        if (Math.abs(dy) >= 10 && Math.abs(dy) >= Math.abs(dx)) { drag.dead = true; return; }
+        if (Math.abs(dx) < 10) return;
+        drag.moved = true;
+        if (anim) { anim.cancel(); anim = null; }
+        goal = null;
+        bar.classList.add("sliding", "has-active");
+      }
+      drag.hist.push({ x: e.clientX, t: performance.now() });
+      if (drag.hist.length > 6) drag.hist.shift();
+      follow(e.clientX);
+    });
+    bar.addEventListener("pointerup", e => end(e, false));
+    bar.addEventListener("pointercancel", e => end(e, true));
+    // Anchors are draggable; a native drag would cancel the pointer mid-slide.
+    bar.addEventListener("dragstart", e => e.preventDefault());
+    // Every activation goes through activate(): the pointer path above, and
+    // the click a keyboard (or a tap the pointer path already handled) sends.
+    bar.addEventListener("click", e => {
+      const a = e.target.closest("a");
+      if (!a || modified(e)) return;
+      e.preventDefault();
+      if (performance.now() < swallowUntil) return;
+      activate(a);
+    });
+    window.addEventListener("resize", () => { goal = null; if (anim) { anim.cancel(); anim = null; } x = null; sync(); });
+    tabbar = { sync };
+  }
+
+  // The phone's nav bar (T-006), filled from whatever the view actually
+  // rendered.
+  //
+  // Every page opens on a large title — a detail page's h1, an index page's
+  // folio, the dashboard's own — and that title stays in the page. The bar
+  // takes a COPY of its text for the small inline title it shows once the
+  // large one has scrolled under it, and the day and week for the capsule on
+  // the right. It used to MOVE the folio or the breadcrumb into the bar and
+  // hide it on the page (`.tb-taken`); nothing is moved any more.
   //
   // Deliberately derived rather than tabulated: a route table would be a second
   // list of page names to keep in step with the first, and the first is already
-  // on screen. Three sources, in the order a page prefers them:
-  //
-  //   .folio            18 routes — an index page names itself and the day
-  //   .page-head .kicker 4 routes — a detail page's breadcrumb, links and all
-  //   the active nav link   the 2 with neither, the dashboard among them
-  //
-  // Whichever it takes, that element is hidden on the phone (`.tb-taken`), so
-  // the head moves into the bar instead of being printed twice.
+  // on screen. A route with no h1 at all falls back to the active nav link.
   function mountTopbar() {
-    const t = $("#tbTitle"), m = $("#tbMeta");
-    if (!t || !m) return;
+    const bar = $("#topbar"), t = $("#tbTitle"), m = $("#tbMeta");
+    if (!bar || !t || !m) return;
     const view = $("#view");
     if (!view) return;
     $$(".tb-taken", view).forEach(el => el.classList.remove("tb-taken"));
 
-    const folio = $(".folio", view), head = $(".page-head", view);
-    const kicker = head ? $(".kicker", head) : null;
-    // The day and week, always — never the folio's own meta. Three folios pass
-    // an editorial line instead of the default ("timed · closed book · no AI",
-    // "13 courses · four phases", "≤2h/day · max 2 clients"), and those are
-    // subtitles for a page, not running heads: at 27 characters of mono, the
-    // Exams one was clipped in the bar at 320px with the text size UNTOUCHED.
-    // They describe the page; the day and week describe where the reader is,
-    // which is what a running head is for. Dropping them on the phone is a
-    // deliberate loss of three flavour lines, on a device whose whole complaint
-    // is that there is too much on the screen.
-    let meta = folioMeta();
-    if (folio) {
-      const fm = $(".fo-meta", folio);
-      const title = [...folio.childNodes]
-        .filter(n => n !== fm).map(n => n.textContent).join("").trim();
-      t.textContent = title;
-      folio.classList.add("tb-taken");
-    } else if (kicker) {
-      // innerHTML, not textContent: a breadcrumb's course code is a link, and
-      // it is the only way back to the course from a lecture on a phone.
-      t.innerHTML = kicker.innerHTML;
-      kicker.classList.add("tb-taken");
-      // The day and week belong to a page about the plan. On a page about one
-      // lecture they were taking 40% of the bar from the breadcrumb, which is
-      // the only thing up there the reader can act on.
-      meta = "";
-    } else {
-      const act = $(".nav a.active");
-      t.textContent = act ? act.textContent.trim() : "Brickford";
+    // The first h1 is the page's title. A folio carries its day meta inside
+    // it, which the capsule says instead, so that span is left out.
+    const h1 = $("h1", view);
+    let title = "";
+    if (h1) {
+      const fm = $(".fo-meta", h1);
+      title = [...h1.childNodes].filter(n => n !== fm).map(n => n.textContent).join("").trim();
     }
-    m.textContent = meta;
+    if (!title) {
+      const act = $(".nav a.active");
+      title = act ? act.textContent.trim() : "Brickford";
+    }
+    t.textContent = title;
+    // The day and week, always — never a folio's own editorial line ("timed ·
+    // closed book · no AI"): those describe the page, and the capsule says
+    // where the reader is in the three years, which is what it is for.
+    m.textContent = folioMeta();
     // The dashboard prints the same day and week at the head of its hero. With
-    // the bar carrying it, that half of the line is a duplicate; the other half
-    // (the phase and the day's count) is not, so only the first half goes.
+    // the capsule carrying it, that half of the line is a duplicate; the other
+    // half (the phase and the day's count) is not, so only the first half goes.
     const day = $(".one.lead .ghead.oh .gh-day", view);
     if (day) day.classList.add("tb-taken");
+    // A new page starts at the top (renderInner scrolls there next), where the
+    // large title is in view and nothing is under the bar. A page with no large
+    // title shows its name in the bar from the start.
+    bar.classList.remove("edge-on");
+    bar.classList.toggle("lt-on", !h1);
     measureFurniture();
+    watchTopbar(h1);
   }
 
+  // The inline title and the scroll edge, decided by ONE IntersectionObserver
+  // watching two things: the page's h1, and #tbSentinel, an empty div sitting
+  // directly under the bar in the document flow. The observer's root is the
+  // viewport with the bar cut off the top (a negative rootMargin of the bar's
+  // height), so "not intersecting, and above" means "scrolled under the bar":
+  //   the h1 under the bar      -> .lt-on   (the inline title shows)
+  //   the sentinel under the bar -> .edge-on (the hairline shows)
+  //
+  // A render is a read, and so is this: it toggles two classes on the bar and
+  // nothing else. No save() — which would arm a sync push from a scroll — and
+  // no render(), which would rebuild the view (and restart a video) because
+  // the reader moved their thumb. tools/verify-design.js scrolls a lesson page
+  // with a video on it and asserts both.
+  //
+  // Falls open: with no IntersectionObserver the bar simply always carries the
+  // name — a bar with no title is worse than one that shows it a little early.
+  let tbObs = null;
+  function watchTopbar(h1) {
+    const bar = $("#topbar"), mark = $("#tbSentinel");
+    if (tbObs) { tbObs.disconnect(); tbObs = null; }
+    if (!bar) return;
+    if (typeof IntersectionObserver === "undefined") { bar.classList.add("lt-on"); return; }
+    const h = Math.round(bar.getBoundingClientRect().height);
+    tbObs = new IntersectionObserver(es => {
+      es.forEach(e => {
+        const under = !e.isIntersecting && !!e.rootBounds && e.boundingClientRect.bottom <= e.rootBounds.top + 1;
+        bar.classList.toggle(e.target === mark ? "edge-on" : "lt-on", under);
+      });
+    }, { rootMargin: -h + "px 0px 0px 0px" });
+    if (h1) tbObs.observe(h1);
+    if (mark) tbObs.observe(mark);
+  }
+
+  // The rail, and its collapsed one-line form for phones. Same data, both
+  // rendered outside #view so they survive every route change.
   function mountRail() {
     const a = nextAction();
     const real = realSched(todayISO());
@@ -1633,17 +1882,31 @@
     ctaObs.observe(cta);
   }
 
-  // The tab bar is 58px on paper and 66px in fact — its padding carries
-  // env(safe-area-inset-bottom), which no stylesheet can predict. A hard-coded
-  // guess put the action bar 8px on top of it. So measure both and publish the
-  // real heights, which is also what reserves the right amount of scroll room.
+  // The tab bar is 49px on paper and more on a phone with a home indicator —
+  // its padding carries env(safe-area-inset-bottom), which no stylesheet can
+  // predict. A hard-coded guess once put the action bar 8px on top of it. So
+  // measure both and publish the real heights, which is also what reserves the
+  // right amount of scroll room.
   function measureFurniture() {
     const set = (name, el) => {
       const h = el && getComputedStyle(el).display !== "none" ? Math.ceil(el.getBoundingClientRect().height) : 0;
       document.documentElement.style.setProperty(name, h + "px");
     };
-    set("--tabbar-h", $(".tabbar"));
-    set("--railbar-h", $("#railbar"));
+    // The tab bar floats (T-023), so what it takes from the page is its height
+    // AND the gap under it: from its top edge to the bottom of the screen.
+    const tb = $(".tabbar");
+    const tbh = tb && getComputedStyle(tb).display !== "none" ? Math.ceil(window.innerHeight - tb.getBoundingClientRect().top) : 0;
+    document.documentElement.style.setProperty("--tabbar-h", Math.max(0, tbh) + "px");
+    // The Next bar floats above the tab bar on a phone (T-023): what it takes
+    // is its height plus the gap under it, which is its computed bottom less
+    // the tab bar's reserve. On a wider screen that gap is 0.
+    const rb = $("#railbar");
+    let rbh = 0;
+    if (rb && getComputedStyle(rb).display !== "none") {
+      const gap = (parseFloat(getComputedStyle(rb).bottom) || 0) - Math.max(0, tbh);
+      rbh = Math.ceil(rb.getBoundingClientRect().height + Math.max(0, gap));
+    }
+    document.documentElement.style.setProperty("--railbar-h", rbh + "px");
     set("--topbar-h", $("#topbar"));
   }
 
@@ -1681,6 +1944,9 @@
     const totalMin = real.reduce((s, it) => s + (it.l.min || 0), 0);
 
     return '<div class="view-enter">' +
+      // The phone's large title (T-006): every page opens on one, and the
+      // dashboard had no head of its own. Desktop does not show it.
+      '<h1 class="folio dash-title">Dashboard</h1>' +
       // ---- The one thing: the next lecture ----
       //
       // This was a .dash-hero: its own card component, with its own context
@@ -1875,56 +2141,117 @@
       "</div>";
   };
 
-  V.courses = function () {
-    const phase = currentPhase();
-    const starts = courseStartDays();
-    const PHASES = [
-      [0, "Phase 0 — Foundations"],
-      [1, "Phase 1 — The Spine"],
-      [2, "Phase 2 — Depth"],
-      [3, "Phase 3 — Frontier"],
-    ];
-
-    // Twelve hero cards, each with a code, a mastery pill, a title, an org line,
-    // a two-line blurb and a progress bar: 3794px and 701 words for the same
-    // twelve courses the Atlas draws in 1219px. Two pages were answering one
-    // question in two different shapes.
-    //
-    // So the Atlas stays the map of what is RUNNING, and this becomes what its
-    // own title already claims — a catalog. One row per course: what it is
-    // called, how big it is, and how far in you are, where you are in at all.
-    const row = c => {
-      const m = courseMastery(c);
-      const ls = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
-      const locked = c.phase > phase;
-      const size = c.tracker ? ls.total + " problems" : ls.total + " lecture" + (ls.total === 1 ? "" : "s");
-      return '<a class="grow ' + facClass(c) + (locked ? " muted-row" : "") + '" href="#/course/' + c.id + '">' +
-        '<span class="g-lead">' +
-        (locked ? lockSVG() : '<span class="gdot' + (m >= 85 ? " on" : m > 0 ? " part" : "") + '"></span>') +
-        "</span>" +
-        '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
-        '<span class="g-s">' + esc(c.code) + " · " + size +
-        (c.instructor ? " · " + esc(c.instructor.org) : "") + "</span></span>" +
-        // A mastery figure reading 0% on every row is twelve absences, not
-        // twelve measurements. It arrives when there is something to report.
-        // "Phase 2" here would restate the group header it sits under. The week
-        // it opens is the fact that header does not carry.
-        (m > 0 ? '<span class="g-v">' + m + "%</span>"
-               : locked ? '<span class="g-v">' + (starts[c.id] == null ? "later"
-                   : "wk " + (Math.floor(starts[c.id] / STUDY_WEEK) + 1)) + "</span>"
-                        : "") + "</a>";
+  // ---------- Courses: a shelf (T-026a) ----------
+  // The page you come to to pick a lecture back up. It was a catalog of rows,
+  // the same shape as the Atlas, so the two read as one page twice. Now it is
+  // covers: the courses you were watching first, at the lecture you left,
+  // then the rest of what is running.
+  //
+  // The filter is in memory only. It is never saved — a render is a read —
+  // and a click swaps the shelf in place (wire(), [data-shelf]) rather than
+  // re-rendering the page. It is set from the hash (#/courses?later, the
+  // Atlas's "+N" chip) only on arriving here; a background repaint keeps it.
+  let courseFilter = "now";
+  const SHELVES = ["now", "later", "finished", "all"];
+  // Where to pick a course back up, or null if nothing in it was started. A
+  // resume point (T-016's pos, on a lecture not yet watched) wins: it is
+  // literally where you left off. Otherwise the first lecture not yet
+  // watched, as the course page's own Continue does. `recent` orders the
+  // shelf: the newest local DATE of a posAt, doneAt or verifiedAt in the
+  // course. posAt is a UTC timestamp and doneAt a local date (todayISO), so
+  // the stamp is turned into the local date first — compared raw, an evening
+  // pause in Bahrain sorted a day behind that morning's watched lecture. On a
+  // same-day tie the course with a live resume point leads, then the later
+  // posAt.
+  const localDate = t => {
+    const d = new Date(t);
+    return isNaN(d) ? "" : d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
+  function continuePoint(c) {
+    if (c.tracker || !c.units) return null;
+    let started = false, recent = "", resume = null, next = null;
+    c.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+      const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+      const live = st.pos != null && !st.done && !st.verified;
+      if (!next && !st.done) next = { ui, li };
+      if (!live && !st.done && !st.verified) return;
+      started = true;
+      [live && st.posAt && localDate(st.posAt), st.done && st.doneAt, st.verified && st.verifiedAt].forEach(t => { if (t && t > recent) recent = t; });
+      if (live && (!resume || (st.posAt || "") > resume.at)) resume = { ui, li, at: st.posAt || "", pos: st.pos };
+    }));
+    if (!started) return null;
+    const at = resume || next;
+    return { c, recent, resumeAt: resume ? resume.at : "", ui: at ? at.ui : null, li: at ? at.li : null, pos: resume ? resume.pos : null };
+  }
+  // One cover: the faculty colour over --surface, the code large, a 4px bar
+  // for mastery. A course that has not opened is the same cover mixed into
+  // the page, its text in the muted inks (never under opacity).
+  function bookHTML(c, o) {
+    const m = courseMastery(c);
+    return '<a class="book ' + facClass(c) + (o.later ? " later" : "") + '" href="' + o.href + '">' +
+      '<span class="cover"><span class="cv-code">' + esc(c.code) + "</span>" +
+      (o.later || !m ? "" : '<span class="cv-bar" style="width:' + m + '%;"></span>') + "</span>" +
+      '<span class="bk-t">' + esc(c.title) + '</span><span class="bk-m">' + o.meta + "</span></a>";
+  }
+  function shelfHTML(f) {
+    const { starts, running, later } = courseSets();
+    const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+    const runMeta = c => {
+      if (c.tracker) return "150 problems · " + dsaCount() + " solved";
+      const st = courseLessonStats(c);
+      return plural(st.total, "lecture") + " · " + st.verified + " proven";
     };
+    const runBook = c => bookHTML(c, { href: "#/course/" + c.id, meta: runMeta(c) });
+    const laterBook = c => {
+      const wk = opensWeek(starts, c);
+      return bookHTML(c, { href: "#/course/" + c.id, meta: wk ? "Opens week " + wk : "Opens later", later: true });
+    };
+    const shelf = (head, meta, books) => '<div class="ghead">' + head +
+      (meta ? '<span class="gh-meta">' + meta + "</span>" : "") + "</div>" +
+      '<div class="shelf">' + books.join("") + "</div>";
+    const empty = t => '<p class="shelf-empty">' + t + "</p>";
 
-    return '<div class="view-enter">' + folio("Courses", D.COURSES.length + " courses \u00b7 four phases") +
-      PHASES.map(ph => {
-        const cs = D.COURSES.filter(c => c.phase === ph[0]);
-        if (!cs.length) return "";
-        const done = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).verified), 0);
-        const tot = cs.reduce((s, c) => s + (c.tracker ? 0 : courseLessonStats(c).total), 0);
-        return '<div class="ghead">' + ph[1] + '<span class="gh-meta">' +
-          (done ? done + " / " + tot + " proven" : tot + " lectures") + "</span></div>" +
-          '<div class="glist">' + cs.map(row).join("") + "</div>";
-      }).join("") + "</div>";
+    if (f === "later") return later.length ? shelf("Opens later", plural(later.length, "course"), later.map(laterBook)) : empty("Every course is open.");
+    if (f === "finished") {
+      const fin = D.COURSES.filter(c => courseMastery(c) >= 85);
+      return fin.length ? shelf("Finished", "85% or more", fin.map(runBook))
+        : empty("Nothing finished yet. A course moves here when its mastery reaches 85%.");
+    }
+    if (f === "all") {
+      const facs = [];
+      D.COURSES.forEach(c => { if (facs.indexOf(c.faculty) < 0) facs.push(c.faculty); });
+      return facs.map(fa => {
+        const cs = D.COURSES.filter(c => c.faculty === fa);
+        return shelf(esc(fa), plural(cs.length, "course"), cs.map(c => later.indexOf(c) >= 0 ? laterBook(c) : runBook(c)));
+      }).join("");
+    }
+    // Now: Continue, at most four, most recent first; then the rest running.
+    const cont = running.map(continuePoint).filter(Boolean)
+      .sort((a, b) => a.recent !== b.recent ? (a.recent < b.recent ? 1 : -1)
+        : !!b.resumeAt - !!a.resumeAt || (a.resumeAt < b.resumeAt ? 1 : a.resumeAt > b.resumeAt ? -1 : 0)).slice(0, 4);
+    const rest = running.filter(c => !cont.some(p => p.c === c));
+    const contBook = p => {
+      if (p.ui == null) return bookHTML(p.c, { href: "#/course/" + p.c.id, meta: "Every lecture watched" });
+      const l = p.c.units[p.ui].lessons[p.li];
+      const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (p.li + 1);
+      return bookHTML(p.c, { href: "#/lesson/" + p.c.id + "/" + p.ui + "/" + p.li,
+        meta: what + (p.pos != null ? " · resume at " + clockLabel(p.pos) : l.min ? " · " + l.min + " min" : "") });
+    };
+    return (cont.length ? shelf("Continue", "where you left off", cont.map(contBook)) : "") +
+      (rest.length ? shelf(cont.length ? "Also running" : "Running now",
+        cont.length ? rest.length + " more" : plural(rest.length, "course"), rest.map(runBook)) : "") +
+      (cont.length || rest.length ? "" : empty("Nothing is running yet."));
+  }
+  V.courses = function (q, arrived) {
+    if (arrived) courseFilter = q === "later" ? "later" : "now";
+    const { running, later } = courseSets();
+    const fin = D.COURSES.filter(c => courseMastery(c) >= 85).length;
+    const label = { now: "Now · " + running.length, later: "Later · " + later.length, finished: "Finished · " + fin, all: "All" };
+    return '<div class="view-enter"><div class="page-head"><h1>Courses</h1>' +
+      '<div class="seg" role="group" aria-label="Which courses">' +
+      SHELVES.map(s => '<button type="button" data-shelf="' + s + '" aria-pressed="' + (s === courseFilter) + '">' + label[s] + "</button>").join("") +
+      "</div></div>" +
+      '<div id="shelf">' + shelfHTML(courseFilter) + "</div></div>";
   };
 
   // ---------- course listing furniture ----------
@@ -1990,6 +2317,79 @@
     ]);
   }
 
+  // ---------- thumbnails ----------
+  // Every lecture already carries its YouTube id in `v` (296 of 324 lessons),
+  // and YouTube serves each video's frame from a public image host, so a
+  // thumbnail is derived, never stored — platform/data/ is not touched. The 28
+  // readings and papers have no `v`: null here, and the caller draws a typeset
+  // cover instead (the course colour, the code and the title).
+  function thumbFor(cid, u, i) {
+    const c = D.COURSES.find(x => x.id === cid);
+    const l = c && c.units && c.units[u] ? c.units[u].lessons[i] : null;
+    return l && l.v ? "https://i.ytimg.com/vi/" + l.v + "/hqdefault.jpg" : null;
+  }
+  // m:ss under an hour, h:mm:ss from one — the way a video's length is spelled.
+  function clockLabel(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0");
+  }
+  // One .thumb, whatever it shows. With a `src` it is a --surface-2 skeleton
+  // until the frame's load event lands (thumbSettled below); without one, or
+  // once the frame fails, it is the cover. The cover's text is always in the
+  // markup and only shown in that state, so the fallback is a class, not a
+  // rebuild. Empty alt and aria-hidden, on the cover and on the chip: the
+  // title is already beside it, and a bare "17:00" read out ahead of it is
+  // noise in the link's name.
+  // The cover's code is the course's, then which one this is ("MATH 110 · 3"):
+  // one run on a full-size cover, two lines on a row's 96px one, where the
+  // run would otherwise break wherever it ran out ("MATH 110 ·" / "10").
+  function thumbBox(c, o) {
+    return '<span class="thumb ' + facClass(c) + (o.src ? "" : " cover") + (o.state ? " " + o.state : "") + '">' +
+      (o.src ? '<img src="' + o.src + '" alt="" loading="lazy" decoding="async" width="480" height="270">' : "") +
+      '<span class="th-cover" aria-hidden="true"><span class="th-code">' + esc(c.code) +
+      (o.no != null ? '<span class="th-no"><span class="th-dot"> · </span>' + esc(o.no) + "</span>" : "") + "</span>" +
+      '<span class="th-ttl">' + esc(o.title) + "</span></span>" +
+      (o.dur ? '<span class="th-dur" aria-hidden="true">' + esc(o.dur) + "</span>" : "") +
+      (o.frac > 0 ? '<span class="th-prog"><i style="width:' + Math.round(Math.min(1, o.frac) * 1000) / 10 + '%"></i></span>' : "") +
+      "</span>";
+  }
+  // A lecture's thumbnail: its frame, its length, and how far you have got —
+  // the resume point as a fraction of the runtime, full once it is watched.
+  function thumbHTML(c, ui, li) {
+    const l = c.units[ui].lessons[li];
+    const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+    const len = (l.min || 0) * 60;
+    return thumbBox(c, {
+      src: thumbFor(c.id, ui, li),
+      no: l.v ? li + 1 : l.paper ? "Paper" : "Reading",
+      title: l.t,
+      dur: l.min ? clockLabel(len) : l.paper ? "Paper" : "Reading",
+      frac: st.done || st.verified ? 1 : st.pos && len ? st.pos / len : 0,
+      state: st.verified ? "proven" : st.done ? "watched" : "",
+    });
+  }
+  // The line under a lecture's title: what it is, then where you stand with it.
+  function lessonLine(l, i, st) {
+    const what = (l.v ? "Lecture " : l.paper ? "Paper " : "Reading ") + (i + 1);
+    return what + (st.verified ? ' · <span class="g-good">Proven</span>'
+      : st.done ? ' · <span class="g-good">Watched</span>'
+      : st.pos ? " · Resume at " + clockLabel(st.pos) : "");
+  }
+  // The frame either lands or it does not. Delegated, and in the capture
+  // phase because load and error do not bubble — so it is in place before any
+  // view inserts an image, and no render has to wire anything. YouTube answers
+  // an id it has no frame for with a 120x90 grey placeholder rather than an
+  // error, so that counts as a miss too.
+  function thumbSettled(ev) {
+    const img = ev.target, t = img && img.parentElement;
+    if (!(img instanceof HTMLImageElement) || !t || !t.classList.contains("thumb")) return;
+    if (ev.type === "error" || img.naturalWidth <= 120) { t.classList.add("cover"); img.remove(); }
+    else t.classList.add("loaded");
+  }
+  document.addEventListener("load", thumbSettled, true);
+  document.addEventListener("error", thumbSettled, true);
+
   V.course = function (cid) {
     const c = D.COURSES.find(x => x.id === cid);
     if (!c) return "<p>Unknown course.</p>";
@@ -2046,15 +2446,17 @@
           '<span class="u-prog" style="width:' + (tot ? (dn / tot) * 100 : 0) + '%;"></span></summary>' +
           // .lesson-row was a fifth row shape doing the grouped list's job with
           // its own number column, its own title and its own tick. Same row,
-          // one spelling: the tick is the leading mark, the duration is the
-          // value on the right.
+          // one spelling. The lecture's frame leads it now (T-016): the
+          // duration is the chip on the frame, the watched share is its
+          // bottom edge, and the number and the state are the line under the
+          // title.
           '<div class="u-body"><div class="glist">' +
           u.lessons.map((l, i) => {
             const st = S.lessons[lessonKey(c.id, ui, i)] || {};
             return '<a class="grow' + (st.done ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
-              '<span class="g-lead">' + (st.verified ? "\u2713\u2713" : st.done ? "\u2713" : i + 1) + "</span>" +
-              '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span></span>" +
-              '<span class="g-v">' + (l.min ? l.min + "m" : l.paper ? "paper" : "reading") + "</span></a>";
+              thumbHTML(c, ui, i) +
+              '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span>" +
+              '<span class="g-s">' + lessonLine(l, i, st) + "</span></span></a>";
           }).join("") + "</div></div></details>";
       }).join("") +
 
@@ -2182,13 +2584,32 @@
     // it — but writing it LOUDLY armed a GitHub push four seconds after every
     // lesson you opened, and when that push failed the failure handler
     // re-rendered, which ran this line again, which armed another push. A
-    // render is a read; anything it has to persist is persisted quietly.
-    syncQuiet++;
-    S.settings.lastLesson = { cid, ui: +ui, li: +li, label: c.code + " · " + l.t };
-    save();
-    syncQuiet--;
+    // render is a read; anything it has to persist is persisted quietly —
+    // and only when it changed, so rendering the same lecture again (a
+    // foreground repaint, a press on the page) writes nothing at all (T-016).
+    const was = S.settings.lastLesson || {};
+    const label = c.code + " · " + l.t;
+    if (was.cid !== cid || was.ui !== +ui || was.li !== +li || was.label !== label) {
+      syncQuiet++;
+      S.settings.lastLesson = { cid, ui: +ui, li: +li, label };
+      save();
+      syncQuiet--;
+    }
+    // Resume (T-016). enablejsapi lets the page hear the player through
+    // postMessage (see playerEvent); origin is where its messages are
+    // addressed, so it is only sent where the page has a real one (a file://
+    // page's origin is the string "null"); start is the resume point — the
+    // time this tab is holding for this lecture if it has one, which is newer
+    // than the stored one, else the stored one. Reading both is all a render
+    // does with them.
+    const resumeAt = player && player.k === k && player.t != null ? player.t : st.pos;
     const src = l.v
-      ? "https://www.youtube.com/embed/" + l.v + (u.playlist ? "?list=" + u.playlist : "")
+      ? "https://www.youtube.com/embed/" + l.v + "?" + [
+          u.playlist ? "list=" + u.playlist : "",
+          "enablejsapi=1",
+          /^https?:/.test(location.origin) ? "origin=" + encodeURIComponent(location.origin) : "",
+          resumeAt >= 1 ? "start=" + Math.floor(resumeAt) : "",
+        ].filter(Boolean).join("&")
       : u.playlist ? "https://www.youtube.com/embed/videoseries?list=" + u.playlist : null;
     const prev = li > 0 ? "#/lesson/" + cid + "/" + ui + "/" + (li - 1) : null;
     const next = li < u.lessons.length - 1 ? "#/lesson/" + cid + "/" + ui + "/" + (+li + 1) : null;
@@ -2276,7 +2697,7 @@
     return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
       (src
-        ? '<div class="video-frame"><iframe src="' + src + '" title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
+        ? '<div class="video-frame"><iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
         : l.paper
           ? '<div class="card">This lesson is a paper — the reading is the lecture.</div>'
           : l.read
@@ -2307,12 +2728,25 @@
 
       (st.done ? proveHTML() : "") +
 
-      // wrap + gap: at 320px with 150% text the two buttons together are wider
-      // than the column, and "Previous" has nowhere to break. They stack there
-      // instead of pushing the page sideways.
-      '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:16px;">' +
-      (prev ? '<a class="btn ghost" href="' + prev + '">← Previous</a>' : "<span></span>") +
-      (next ? '<a class="btn" href="' + next + '">Next lecture →</a>' : '<a class="btn" href="#/course/' + cid + '">Course complete view</a>') +
+      // Previous and next were two buttons, one of them filled — a second
+      // primary action under the page's one. They are the unit's neighbours
+      // now, as rows with their frames (T-016): next first, because that is
+      // where the evening goes. At the end of a unit the forward row is the
+      // course, with its cover.
+      '<div class="ghead">In this unit<span class="gh-meta">' + (+li + 1) + " of " + u.lessons.length + "</span></div>" +
+      '<div class="glist lsn-nav">' +
+      (next
+        ? '<a class="grow" href="' + next + '">' + thumbHTML(c, ui, +li + 1) +
+          '<span class="g-main"><span class="g-t">' + esc(u.lessons[+li + 1].t) + "</span>" +
+          '<span class="g-s">Next · ' + lessonLine(u.lessons[+li + 1], +li + 1, S.lessons[lessonKey(cid, ui, +li + 1)] || {}) + "</span></span></a>"
+        : '<a class="grow" href="#/course/' + cid + '">' + thumbBox(c, { title: c.title }) +
+          '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
+          '<span class="g-s">End of this unit · back to the course</span></span></a>') +
+      (prev
+        ? '<a class="grow" href="' + prev + '">' + thumbHTML(c, ui, li - 1) +
+          '<span class="g-main"><span class="g-t">' + esc(u.lessons[li - 1].t) + "</span>" +
+          '<span class="g-s">Previous · ' + lessonLine(u.lessons[li - 1], li - 1, S.lessons[lessonKey(cid, ui, li - 1)] || {}) + "</span></span></a>"
+        : "") +
       "</div></div>";
   };
 
@@ -2341,8 +2775,7 @@
       const r = S.diag[d.id] || {};
       const sat = r.score != null;
       items.push({
-        kind: "diag", href: "#/diag/" + d.id, title: d.title,
-        sub: d.subject + " · " + d.minutes + " min" + (d.gate ? " · pass at " + d.gate + "%" : ""),
+        kind: "diag", id: d.id, href: "#/diag/" + d.id, title: d.title,
         due: gateLeft, sat, score: r.score,
         verdict: !sat ? null : d.gate == null ? "logged" : r.score >= d.gate ? "pass" : "gap",
         // Unsat diagnostics outrank everything; the sooner the gate, the higher.
@@ -2352,8 +2785,7 @@
     qIds.forEach(id => {
       const bank = D.QUIZZES[id], n = unlockedIdx(id).length, best = bestQuiz(id);
       items.push({
-        kind: "bank", href: n ? "#/quiz/" + id : "#/courses", title: bank.title,
-        sub: bank.course + " · " + (n ? n + " of " + bank.questions.length + " unlocked" : "watch the lectures first"),
+        kind: "bank", id, href: n ? "#/quiz/" + id : "#/courses", title: bank.title,
         locked: !n, sat: best != null, score: best,
         verdict: best == null ? null : best >= 70 ? "pass" : "gap",
         // +1 so that an unsat diagnostic ALWAYS outranks a bank: a diagnostic
@@ -2372,43 +2804,81 @@
       it.verdict === "gap" ? '<span class="pill crimson">' + it.score + "%</span>" :
       it.verdict === "logged" ? '<span class="pill good">done</span>' : "";
 
-    const row = it => '<a class="grow' + (it.locked ? " muted-row" : "") + '" href="' + it.href + '">' +
-      '<span class="g-lead">' + (it.sat ? "✓" : it.locked ? lockSVG() : "") + "</span>" +
-      '<span class="g-main"><span class="g-t">' + esc(it.title) + "</span>" +
-      '<span class="g-s">' + esc(it.sub) + "</span></span>" +
-      (scoreTag(it) || "") + "</a>";
-
     const open = rest.filter(it => !it.locked);
     const shut = rest.filter(it => it.locked);
 
-    return '<div class="view-enter">' + folio("Exams", "timed \u00b7 closed book \u00b7 no AI") +
+    // ---- T-026b: the exam to sit next, what else is open, what watching unlocks ----
+    // Each exam carries its course — a diagnostic through the course that
+    // names it (course.diagnostic), a bank through the course whose quiz it
+    // is — for the tag's faculty colour and for readiness: the lectures of
+    // that course watched, over all of them. The one diagnostic no course
+    // names is the coding diagnostic (the NeetCode 10), which belongs to the
+    // tracker course, CS 150: its readiness is the problems solved of 150.
+    // A bank's size is what a sitting serves: perSitting, capped by the
+    // questions unlocked (unlockedBank's rule). Nothing new is stored.
+    items.forEach(it => {
+      const id = it.id;
+      const c = it.kind === "diag" ? D.COURSES.find(x => x.diagnostic === id) || D.COURSES.find(x => x.tracker) : D.COURSES.find(x => x.quiz === id);
+      const d = it.kind === "diag" ? D.DIAGNOSTICS.find(x => x.id === id) : null;
+      const bank = it.kind === "bank" ? D.QUIZZES[id] : null;
+      const st = c && !c.tracker ? courseLessonStats(c) : null;
+      it.course = c || null;
+      it.code = c ? c.code : d ? d.subject : bank ? bank.course : "";
+      it.size = d ? d.minutes + " min" : Math.min(bank.perSitting || 15, unlockedIdx(id).length) + " questions";
+      it.pass = d ? d.gate : 70;
+      it.watched = st ? st.done : c && c.tracker ? dsaCount() : 0;
+      it.of = st ? st.total : c && c.tracker ? 150 : 0;
+    });
+    const tag = (it, extra) => '<span class="tl-code ex-tag ' + (it.course ? facClass(it.course) : "") + '">' + esc(it.code) + (extra || "") + "</span>";
+    const pct = it => it.of ? Math.min(100, (it.watched / it.of) * 100) : 0;
+    const did = it => it.course && it.course.tracker ? " solved" : " watched";
+    // A short name for a locked bank: "Linear Algebra qualifier".
+    const short = t => {
+      const [a, b] = t.split(" \u2014 ");
+      return !b ? t : a + (/^Qualifying/.test(b) ? " qualifier" : /^Concept/.test(b) ? " concepts" : "");
+    };
+    const gateHere = lead && lead.due != null;
+    const hero = lead
+      ? '<div class="card at-next ex-hero' + (gateHere && lead.due <= 14 ? " urgent" : "") + '"><div class="at-main">' +
+        tag(lead, gateHere ? " \u00b7 Gate " + gate1.n : "") +
+        '<div class="at-gate">' + esc(lead.title) + "</div>" +
+        '<div class="ex-facts"><span>' + esc(lead.size) + "</span>" +
+        (lead.pass != null ? "<span>Pass at " + lead.pass + "%</span>" : "") +
+        (lead.of ? "<span>" + lead.watched + " of " + lead.of + (lead.course.tracker ? " problems solved" : " lectures watched") + "</span>" : "") +
+        "</div>" +
+        (lead.of ? '<div class="ex-bar ' + facClass(lead.course) + '" role="img" aria-label="' + lead.watched + " of " + lead.of + did(lead) + '"><i style="width:' + pct(lead).toFixed(2) + '%;"></i></div>' : "") +
+        "</div>" +
+        '<div class="ex-side">' +
+        (gateHere ? '<div class="at-days"><b>' + Math.max(0, lead.due) + "</b><span>days to the gate</span></div>" : "") +
+        '<a class="btn lg ex-sit" href="' + lead.href + '">Sit it</a></div></div>'
+      : "";
+    const card = it => '<a class="at-tile ex-card" href="' + it.href + '"><span class="tl-main">' + tag(it) +
+      '<span class="tl-t">' + esc(it.title) + "</span>" +
+      '<span class="tl-m">' + esc(it.size) + (it.pass != null ? " \u00b7 pass " + it.pass + "%" : "") + "</span></span>" +
+      (scoreTag(it) || "") + "</a>";
+    const lockRow = (it, i) => '<a class="ex-lock" href="' + it.href + '"' + (i >= 6 ? " data-ex-more hidden" : "") + ">" +
+      '<span class="ex-lk" aria-hidden="true">' + lockSVG() + "</span>" +
+      '<span class="ex-ln">' + esc(short(it.title)) + "</span>" +
+      '<span class="ex-lbar ' + (it.course ? facClass(it.course) : "") + '" role="img" aria-label="' + it.watched + " of " + it.of + did(it) + '"><i style="width:' + pct(it).toFixed(2) + '%;"></i></span></a>';
 
-      // ---- The one to sit next, at the size that says so ----
-      (lead
-        ? '<div class="card one' + (lead.due != null && lead.due <= 14 ? " urgent" : "") + '">' +
-          '<div class="one-kind">' + esc(lead.title) + "</div>" +
-          '<p class="one-hint">' + esc(lead.sub) +
-          (lead.due != null ? " · Gate " + gate1.n + " in " + lead.due + " days" : "") + "</p>" +
-          '<a class="btn lg one-go" href="' + lead.href + '">Sit it ▸</a></div>'
-        : "") +
+    return '<div class="view-enter"><div class="page-head"><h1>Exams</h1>' +
+      '<div class="sub">Timed, closed book, no AI. This is how a gate is passed.</div>' +
+      // The record, as one line where a group of two rows used to be.
+      '<div class="ex-rec">' + D.DIAGNOSTICS.length + " diagnostics \u00b7 " + qIds.length + " concept banks \u00b7 " + (diagSat + qDone) + " sat</div></div>" +
+
+      hero +
 
       (open.length
         ? '<div class="ghead">Also open<span class="gh-meta">' + open.length + "</span></div>" +
-          '<div class="glist">' + open.map(row).join("") + "</div>"
+          '<div class="at-tiles ex-open">' + open.map(card).join("") + "</div>"
         : "") +
 
       (shut.length
-        ? '<div class="ghead">Not open yet<span class="gh-meta">' + shut.length + "</span></div>" +
-          '<div class="glist">' + shut.map(row).join("") + "</div>"
+        ? '<div class="ghead">Unlock by watching<span class="gh-meta">' + shut.length + " locked</span></div>" +
+          '<div class="ex-locked">' + shut.map(lockRow).join("") + "</div>" +
+          (shut.length > 6 ? '<button type="button" class="at-chip ex-more" data-act="exMore">+' + (shut.length - 6) + " more</button>" : "")
         : "") +
-
-      '<div class="ghead">Record</div>' +
-      '<div class="glist">' +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Diagnostics sat</span></span>' +
-      '<span class="g-v">' + diagSat + " / " + D.DIAGNOSTICS.length + "</span></div>" +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Concept banks attempted</span></span>' +
-      '<span class="g-v">' + qDone + " / " + qIds.length + "</span></div>" +
-      "</div></div>";
+      "</div>";
   };
 
   V.quiz = function (bankId) {
@@ -2441,6 +2911,28 @@
   let sketchDirty = false;
   let calCursor = null; // "YYYY-MM" of the displayed month
   let calSel = null;    // "YYYY-MM-DD" of the selected day
+  // T-026c review 1: a re-render of the same page starts at the top
+  // (renderInner). For the day view's own ‹ Today › that threw a reader who
+  // had scrolled down to the day back up the page, and on a phone it left the
+  // row under the fixed bars, where the next tap opened whatever was there.
+  // So these keep the control that was pressed where it was on screen, under
+  // the finger for the next tap (the header above it can change height: a
+  // longer day name wraps), and the focus on it (found again by selector:
+  // the view is rebuilt). Without the control, the day's header holds still.
+  // Positions are layout positions (the offsetTop chain), not the painted box:
+  // the new view starts its entrance 4px low (viewIn), and correcting for
+  // that would leave the control 4px off once it settles.
+  function dayRender(sel) {
+    const at = () => $(sel) || $("#view .cd-head");
+    const top = n => { let y = 0; for (let e = n; e; e = e.offsetParent) y += e.offsetTop; return y - window.scrollY; };
+    const a0 = at(), top0 = a0 ? top(a0) : null;
+    render({ after: () => {
+      const a1 = at();
+      if (a1 && top0 != null) window.scrollBy({ top: top(a1) - top0, behavior: "instant" });
+      const c = $(sel), f = c && !c.disabled ? c : $("#view .cd-seg [data-cal-nav='today']");
+      if (f) f.focus({ preventScroll: true });
+    } });
+  }
 
   function monthGridHTML() {
     const today = todayISO();
@@ -2510,110 +3002,88 @@
     if (iso < D.START_DATE) {
       return '<div class="card"><h2>The climb hasn’t started yet</h2><p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Day 1 is ' + D.START_DATE + '. Pick that day or later to see the brief.</p></div>';
     }
+    // T-026c: the selected day, below the month grid (which is untouched).
+    // It was a summary card, then one .ghead and .glist per course, then a
+    // list of routines: three shapes for one day. Now it is a header (the
+    // day, where it sits in the plan, a slim bar, ‹ Today ›), one block per
+    // scheduled item with its faculty's colour down its edge, and the habits
+    // as a row of tiles. Same facts; the order a day is actually worked in.
     const dObj = new Date(iso + "T00:00:00");
-    const nice = dObj.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    // "Wednesday 7 October", built from its parts: a locale's own order and
+    // comma are not the heading's.
+    const nice = dObj.toLocaleString("en-US", { weekday: "long" }) + " " + dObj.getDate() + " " +
+      dObj.toLocaleString("en-US", { month: "long" });
     const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
     const isSunday = dObj.getDay() === 0;
-    const isToday = iso === todayISO();
+    const first = todayISO() > D.START_DATE ? todayISO() : D.START_DATE;
     const status = dayStatus(iso);
-    const act = dayActivity(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
     const sched = scheduledFor(iso);
     const real = sched.filter(it => !it.pseudo);
     const schedDoneN = real.filter(schedDone).length;
-    const probs = nextProblems(2);
 
-    // This day's own lessons — fixed forever, done state shown per lesson.
-    // Same renderer as the dashboard: grouped by course, the row is the link.
-    // The "The lessons" label that used to head them is gone: each group names
-    // its own course, and the status pill above already says whether the day is
-    // owed, part-done or clear.
-    const schedRows = real.length || sched.some(it => it.pseudo)
-      ? dayGroupsHTML(real) +
-        (sched.some(it => it.pseudo)
-          ? '<div class="glist" style="margin-top:var(--sp-3);">' +
-            sched.filter(it => it.pseudo).map(pseudoRowHTML).join("") + "</div>"
-          : "")
-      : '<div class="ghead">No lectures on this day</div>' +
-        '<div class="glist"><a class="grow" href="#/workshop"><span class="g-lead">·</span>' +
-        '<span class="g-main"><span class="g-t">Project work</span>' +
-        '<span class="g-s">beyond the scheduled syllabus — per the week focus above</span></span></a></div>';
-
-    // The five things that run on every study day. They were .plan-row — a block
-    // label, a sentence and a "Go" button each — which is a fourth shape on a
-    // page that already had three. One group, one row apiece, the row is the
-    // link, and the five "Go" buttons are gone.
-    const routine = (name, time, what, href) =>
-      '<a class="grow" href="' + href + '"><span class="g-lead"></span>' +
-      '<span class="g-main"><span class="g-t">' + name + "</span>" +
-      '<span class="g-s">' + what + "</span></span>" +
-      '<span class="g-v">' + time + "</span></a>";
-
-    const statusPill = {
-      today: '<span class="pill teal">Today</span>',
-      upcoming: '<span class="pill">Upcoming</span>',
-      completed: '<span class="pill good">✓ Completed</span>',
-      partial: '<span class="pill" style="color:var(--accent-2); border-color:var(--accent-2);">Partly done</span>',
-      missed: '<span class="pill crimson">Missed — catch up</span>',
-      rest: '<span class="pill">Rest day</span>',
-    }[status];
-
-    // Per-day progress line: this day's scheduled lessons, done vs owed.
-    const fill = real.length ? schedDoneN / real.length : (act.sealed ? 1 : 0);
-    const progressLine =
-      '<div style="margin-top:12px;">' +
-      // space-between with no gap: the moment the right-hand span wraps — which
-      // it does on a phone — the two halves meet and it reads "PROGRESS1 of 5
-      // lessons". space-between only separates what fits on one line.
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:var(--fs-tiny); color:var(--ink-3); margin-bottom:4px;">' +
-      '<span style="letter-spacing:0.06em; text-transform:uppercase; font-weight:600; flex-shrink:0;">Progress</span>' +
-      // Right-aligned so a wrapped second line stacks under the first rather
-      // than floating in the middle of the row.
-      '<span class="mono" style="text-align:right;">' + (real.length ? schedDoneN + " of " + real.length + " lessons" : "no scheduled lessons") +
-      " · " + act.problems + ' problem' + (act.problems === 1 ? "" : "s") + (act.sealed ? " · sealed ✓" : "") + "</span></div>" +
-      '<div class="bar' + (fill === 1 ? "" : " teal") + '"><i style="transform:scaleX(' + fill + ');"></i></div>' +
-      // courseStand ("Lin Algebra 6/51 lectures done") said the same thing as the
-      // bar above it and the rows below it. The day detail was stating its
-      // contents four separate ways - bar, this line, the chips, then the
-      // lessons themselves. Three of the four were restatements.
-      "</div>";
+    const sub = status === "rest" ? "Rest day · Week " + w
+      : "Day " + day + " · Week " + w + (real.length ? " · " + schedDoneN + " of " + real.length + " done" : "");
+    // ‹ and › step the selected day; Today is the grid's own Today.
+    const chev = d => '<svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+    const seg = '<div class="seg cd-seg" role="group" aria-label="Choose a day">' +
+      '<button type="button" data-cal-step="-1" aria-label="Previous day"' + (iso <= D.START_DATE ? " disabled" : "") + ">" + chev("M6.5 1.5 L2 6.5 L6.5 11.5") + "</button>" +
+      '<button type="button" data-cal-nav="today" aria-pressed="' + (iso === first) + '">Today</button>' +
+      '<button type="button" data-cal-step="1" aria-label="Next day">' + chev("M1.5 1.5 L6 6.5 L1.5 11.5") + "</button></div>";
 
     const catchUp = (status === "missed" || status === "partial")
-      ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--ink);">' +
+      ? '<p class="cd-note"><strong>' +
         (status === "missed" ? "You missed this day — its lessons are still here." : "You started this day but didn’t finish it.") +
         "</strong> This day’s content never moves. Clear the unticked lessons and the day turns green — even late.</p>"
       : "";
 
-    // The summary is a card because it is one object: a date, a state and a bar.
-    // Everything under it is rows, so the lists are NOT nested inside the card —
-    // a bordered group inside a bordered card is the second border this design
-    // spent three rounds getting rid of.
-    return '<div class="card" style="margin-top:12px;">' +
-      '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">' +
-      "<h2>" + nice + "</h2>" +
-      '<div style="display:flex; gap:6px; align-items:baseline;">' + statusPill +
-      (status === "rest"
-        ? '<span class="pill">Week ' + w + "</span>"
-        : '<span class="pill teal">Day ' + day + " · Week " + w + "</span>") + "</div></div>" +
-      '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;"><strong style="color:var(--ink);">Focus:</strong> ' + esc(row.focus) + "</p>" +
-      progressLine +
+    // A lecture: its course and block, its title, its length over its place in
+    // the course ("lecture n") or in a lecture that spans days ("part p of q").
+    const blk = it => {
+      const c = D.COURSES.find(x => x.id === it.cid);
+      const dn = schedDone(it);
+      const n = flatLessons(it.cid).findIndex(f => f.ui === it.ui && f.li === it.li) + 1;
+      const dur = it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading";
+      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+        '<span class="cd-bar" aria-hidden="true"></span>' +
+        '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") + esc(it.l.t) + "</span></span>" +
+        '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
+    };
+    // Not a lecture: the weeks where a course has run out and the block is
+    // problem sets, a project or frontier work. No faculty, so no colour.
+    const pblk = it => '<a class="cd-blk cd-pseudo" href="' + it.href + '"><span class="cd-bar" aria-hidden="true"></span>' +
+      '<span class="cd-main"><span class="cd-k">' + esc(it.track) + '</span><span class="cd-t">' + esc(it.t) + "</span></span></a>";
+    const blocks = sched.length
+      ? '<div class="cd-blocks">' + sched.map(it => it.pseudo ? pblk(it) : blk(it)).join("") + "</div>"
+      : status === "rest"
+        ? '<p class="cd-none">Nothing is scheduled and nothing is owed. The streak is safe.</p>'
+        : '<div class="cd-blocks">' + pblk({ track: "Project work", t: "Beyond the scheduled syllabus — per the week’s focus", href: "#/workshop" }) + "</div>";
+
+    // The things that run on every study day, and what they add up to.
+    const pool = missPool().length;
+    const habits = [
+      ["Practice", 45, nextProblems(1).length ? "NeetCode" : "all 150 done", "#/course/cs150"],
+      ["Drill", 10, pool ? pool + " missed" : "", "#/drill"],
+      ["Publish", 30, "one post", "#/review"],
+      ["Workshop", 0, "this week’s build", "#/workshop"],
+    ].concat(isSunday ? [["Seal the week", 30, "Week " + w, "#/review"]] : []);
+    const mins = habits.reduce((a, h) => a + h[1], 0);
+    const about = "about " + (mins >= 60 ? Math.floor(mins / 60) + " h" + (mins % 60 ? " " + pad2(mins % 60) : "") : mins + " min");
+    const habit = ([t, m, d, href]) => '<a class="at-tile cd-hb" href="' + href + '"><span class="tl-main">' +
+      '<span class="tl-t">' + t + '</span><span class="tl-m">' + [m ? m + " min" : "", d].filter(Boolean).join(" · ") + "</span></span></a>";
+
+    return '<div class="cd-day">' +
+      '<div class="cd-head"><div class="cd-title"><h2>' + nice + '</h2><p class="cd-sub">' + sub + "</p></div>" + seg + "</div>" +
+      (real.length ? '<div class="cd-prog' + (schedDoneN === real.length ? " full" : "") + '" role="img" aria-label="' + schedDoneN + " of " + real.length +
+        ' done"><i style="width:' + (schedDoneN / real.length * 100) + '%;"></i></div>' : "") +
+      '<p class="cd-note"><strong>Focus:</strong> ' + esc(row.focus) + "</p>" +
       catchUp +
-      (gate ? '<p class="muted" style="margin-top:10px;"><strong style="color:var(--accent);">◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
-      "</div>" +
-
-      schedRows +
-
-      '<div class="ghead">Every study day<span class="gh-meta">' + (isSunday ? "5" : "4") + "</span></div>" +
-      '<div class="glist">' +
-      routine("Practice", "45m",
-        probs.length ? "NeetCode: " + probs.map(esc).join(", ") : "All 150 problems done", "#/course/cs150") +
-      routine("Drill", "10m",
-        missPool().length ? missPool().length + " missed questions in the pool" : "pool clear — a random drill", "#/drill") +
-      routine("Publish", "30m", "turn today’s notes into a public post", "#/review") +
-      routine("Workshop", "", "the build that the week’s focus is for", "#/workshop") +
-      (isSunday ? routine("Seal the week", "30m", "no shipped artifact = a failed week", "#/review") : "") +
-      "</div>";
+      (gate ? '<p class="cd-note cd-gate"><strong>◆ Gate ' + gate.n + " — " + esc(gate.label) + "</strong> " + esc(gate.req) + "</p>" : "") +
+      blocks +
+      '<div class="ghead">Every study day<span class="gh-meta">' + about + "</span></div>" +
+      '<div class="cd-habits">' + habits.map(habit).join("") + "</div></div>";
   }
 
   V.diag = function (id) {
@@ -2642,13 +3112,12 @@
       "</div></div></div>";
   };
 
-  // Consistency at a glance: one square per day, a column per week.
+  // Consistency at a glance: one square per day, a column per week. Always
+  // the last nWeeks (T-026b): days before the start and after today are void.
   function heatmapHTML(nWeeks) {
     const today = todayISO();
     const lastSunday = addDaysISO(today, -new Date(today + "T00:00:00").getDay());
-    const alignedStart = addDaysISO(D.START_DATE, -new Date(D.START_DATE + "T00:00:00").getDay());
-    let first = addDaysISO(lastSunday, -7 * ((nWeeks || 26) - 1));
-    if (first < alignedStart) first = alignedStart;
+    const first = addDaysISO(lastSunday, -7 * ((nWeeks || 26) - 1));
     const cols = [];
     for (let wk = first; wk <= lastSunday; wk = addDaysISO(wk, 7)) {
       let col = "";
@@ -2665,7 +3134,7 @@
       }
       cols.push('<div class="hcol">' + col + "</div>");
     }
-    return '<div class="heat">' + cols.join("") + "</div>";
+    return '<div class="heat" style="--wk:' + cols.length + ';">' + cols.join("") + "</div>";
   }
 
   // The exact bytes hashed for an entry. Published in the export so a third
@@ -3033,77 +3502,132 @@
   const lockSVG = () => '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">' +
     '<rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4.2 5.5V4.2a1.8 1.8 0 013.6 0v1.3"/></svg>';
 
-  V.atlas = function () {
-    const gates = gatePlan();
+  // ---------- T-026a: the route, and what is on the shelf ----------
+  // A plan date as the route prints it: "Dec 2026" under a node, "April 2030"
+  // in the header. Local midnight, so a timezone west of UTC cannot pull the
+  // first of a month back into the one before.
+  const monthLabel = (iso, long) => new Date(iso + "T00:00:00")
+    .toLocaleString("en-US", { month: long ? "long" : "short", year: "numeric" });
+  // Which study day a date belongs to, for measuring how far into a stretch of
+  // the plan you are. A rest day counts as the study day before it (you are
+  // still where you stopped), and anything up to the start is day 0.
+  function studyPos(iso) {
+    if (iso <= D.START_DATE) return 0;
+    let d = iso;
+    for (let g = 0; g < 14 && studyIndex(d) < 0; g++) d = addDaysISO(d, -1);
+    return Math.max(0, studyIndex(d));
+  }
+  // What is running and what opens later, the same way on both pages: a course
+  // is running once the schedule has reached its first lecture (a tracker runs
+  // every day). On a Saturday that is still true of everything that ran on
+  // Friday. Later courses come in the order they open.
+  function courseSets() {
     const starts = courseStartDays();
-    const dToday = studyToday();
-    const ng = nextGate();
-
-    const running = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dToday));
+    const t = todayISO();
+    const dNow = t < D.START_DATE ? -1 : studyPos(t);
+    const running = D.COURSES.filter(c => c.tracker || (starts[c.id] != null && starts[c.id] <= dNow));
     const later = D.COURSES.filter(c => running.indexOf(c) < 0)
       .sort((a, b) => (starts[a.id] == null ? 1e9 : starts[a.id]) - (starts[b.id] == null ? 1e9 : starts[b.id]));
-    const passed = gates.filter(g => g.doneDate);
-    const ahead = gates.filter(g => !g.doneDate && (!ng || g.n !== ng.n));
+    return { starts, running, later };
+  }
+  const opensWeek = (starts, c) => starts[c.id] == null ? null : Math.floor(starts[c.id] / STUDY_WEEK) + 1;
+  const NUM_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
+  // A small ring for a tile: pathLength 100, so the dash is the percentage.
+  const miniRing = pct => '<svg viewBox="0 0 44 44" aria-hidden="true">' +
+    '<circle class="tr-bg" cx="22" cy="22" r="19"/>' +
+    '<circle class="tr-fg" cx="22" cy="22" r="19" pathLength="100" stroke-dasharray="' + pct + ' 100" transform="rotate(-90 22 22)"/></svg>';
 
-    // A course as one row. It used to be a card sitting on a rail with a node
-    // beside it, a coloured left edge, a progress bar four pixels wide at 4%,
-    // and the words "running now" repeated down the right of all five of them.
-    // That is five devices saying one thing. The row says it once.
-    const courseRow = c => {
+  // The Atlas is the whole route: where you are on it, what the next gate
+  // asks for and how long is left, then what you are studying and what opens
+  // later. It used to be the same folio-and-rows page as Courses, which is why
+  // the owner could not tell the two apart.
+  // A passed gate on the route says when it was passed (T-038): "Passed 9 Oct".
+  // Under its old target month it read as if it were still ahead.
+  const passedLabel = iso => { const d = new Date(iso + "T00:00:00");
+    return "Passed " + d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  // The projection against the baseline, in words: months once it is half a
+  // month or more (a calendar month is 30.44 days on average), days below that.
+  function driftWords(days) {
+    const a = Math.abs(days), m = Math.round(a / 30.44);
+    return (m >= 1 ? m + " month" + (m === 1 ? "" : "s") : a + " day" + (a === 1 ? "" : "s")) + (days > 0 ? " ahead" : " behind");
+  }
+  V.atlas = function () {
+    const gates = gatePlan();
+    const drift = planDrift();
+    const ng = nextGate();
+    const today = todayISO();
+    const { starts, running, later } = courseSets();
+
+    // ---- the route: Start and the five gates, evenly spaced ----
+    // k is the node of the next gate (1..5), 0 once every gate is passed. The
+    // fill runs through the passed segments and into the current one in
+    // proportion to the study days elapsed in it.
+    const k = ng ? gates.findIndex(g => !g.doneDate) + 1 : 0;
+    let f = 1, fill = 1;
+    if (k) {
+      const prev = k > 1 ? gates[k - 2] : null;
+      const a = studyPos(prev ? (prev.doneDate || prev.target) : D.START_DATE);
+      const b = studyPos(gates[k - 1].target);
+      f = b > a ? Math.min(1, Math.max(0, (studyPos(today) - a) / (b - a))) : 0;
+      fill = (k - 1 + f) / gates.length;
+    }
+    const nodes = [{ label: "Start", when: monthLabel(D.START_DATE), done: true }]
+      .concat(gates.map(g => ({ label: g.label, when: g.doneDate ? passedLabel(g.doneDate) : monthLabel(g.target), done: !!g.doneDate })));
+    const last = k ? k - 1 : nodes.length - 1;           // the node the pin follows
+    const pin = '<li class="rt-pin' + (fill > 0.5 ? " end" : "") + '">' +
+      (today < D.START_DATE ? "Starts " + esc(monthLabel(D.START_DATE)) : "You are here · day " + (studyPos(today) + 1)) + "</li>";
+    const route = '<div class="card at-route"><ol class="rt" style="--fill:' + fill.toFixed(4) + "; --f:" + f.toFixed(4) + ';">' +
+      nodes.map((n, i) => '<li class="rt-node' + (n.done ? " done" : "") + (k && i === k ? " next" : "") +
+        (i <= last ? " past" : "") + (i === last ? " cur" : "") + '">' +
+        '<span class="rt-dot"></span><span class="rt-lab"><b>' + esc(n.label) + "</b><span>" + esc(n.when) + "</span></span></li>" +
+        (i === last ? pin : "")).join("") + "</ol></div>";
+
+    // ---- the next gate: what it asks for, and the days left ----
+    const nextCard = ng
+      ? '<a class="card at-next" href="#/transcript"><div class="at-main">' +
+        '<div class="at-k">Next gate · ' + k + " of " + gates.length + "</div>" +
+        '<div class="at-gate">' + esc(ng.label) + "</div>" +
+        // No requirement has a done-state yet, so every chip is hollow.
+        '<div class="at-reqs">' + ng.req.split(" · ").map(r => '<span class="at-req">' + esc(capFirst(r)) + "</span>").join("") + "</div></div>" +
+        '<div class="at-days"><b>' + Math.max(0, daysBetween(today, ng.target)) + "</b><span>days left</span></div></a>"
+      : '<div class="card at-next"><div class="at-main"><div class="at-gate">All gates passed</div>' +
+        '<div class="at-sub">You are what you set out to become.</div></div></div>';
+
+    // ---- studying now: one tile per running course ----
+    const tile = c => {
       const m = courseMastery(c);
-      const st = c.tracker ? { done: dsaCount(), total: 150 } : courseLessonStats(c);
-      const doneN = c.tracker ? st.done : st.verified;
-      return '<a class="grow ' + facClass(c) + '" href="#/course/' + c.id + '">' +
-        '<span class="g-lead"><span class="gdot' + (m >= 85 ? " on" : m > 0 ? " part" : "") + '"></span></span>' +
-        '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
-        '<span class="g-s">' + esc(c.code) + " · " +
-        (c.tracker ? doneN + " of " + st.total + " problems" : doneN + " of " + st.total + " proven") + "</span></span>" +
-        (m > 0 ? '<span class="g-v">' + m + "%</span>" : "") + "</a>";
+      const st = c.tracker ? null : courseLessonStats(c);
+      return '<a class="at-tile ' + facClass(c) + '" href="#/course/' + c.id + '"><span class="tl-main">' +
+        '<span class="tl-code">' + esc(c.code) + "</span>" +
+        '<span class="tl-t">' + esc(c.title) + "</span>" +
+        '<span class="tl-m">' + (c.tracker ? dsaCount() + " of 150 problems" : st.verified + " of " + st.total + " proven") + "</span></span>" +
+        '<span class="tl-ring">' + miniRing(m) + '<span class="tl-pct">' + m + "%</span></span></a>";
     };
+    // ---- opens later: five chips, then the rest on Courses ----
+    const chip = c => {
+      const wk = opensWeek(starts, c);
+      return '<a class="at-chip" href="#/course/' + c.id + '"><b>' + esc(c.code) + "</b>" + (wk ? " week " + wk : " later") + "</a>";
+    };
+    const more = later.length - 5;
 
-    return '<div class="view-enter">' + folio("The Atlas") +
-
-      // The one thing: the gate you are actually walking towards.
-      (ng
-        ? '<a class="card one" href="#/transcript" style="text-decoration:none; display:block;">' +
-          '<div class="one-kind">Gate ' + ng.n + " — " + esc(ng.label) +
-          ' <span class="one-more">' + Math.max(0, daysBetween(todayISO(), ng.target)) + " days</span></div>" +
-          '<p class="one-hint">' + esc(ng.req) + "</p></a>"
-        : '<div class="card one one-clear"><div class="one-kind">All gates passed</div>' +
-          '<p class="one-hint">You are what you set out to become.</p></div>') +
-
-      '<div class="ghead">Running now<span class="gh-meta">' + running.length + "</span></div>" +
-      '<div class="glist">' + running.map(courseRow).join("") + "</div>" +
-
-      // Everything else on this page is now the same row, in one group: the
-      // crossings still ahead, the courses that have not opened, and the ideas.
-      '<div class="ghead">The rest of it</div>' +
-      '<div class="glist">' +
-      (ahead.length
-        ? '<a class="grow" href="#/transcript"><span class="g-lead">◆</span>' +
-          '<span class="g-main"><span class="g-t">Later gates</span>' +
-          '<span class="g-s">' + esc(ahead[0].label) + " next, " + Math.max(0, daysBetween(todayISO(), ahead[0].target)) + " days out</span></span>" +
-          '<span class="g-v">' + ahead.length + "</span></a>"
-        : "") +
-      (passed.length
-        ? '<a class="grow done-row" href="#/transcript"><span class="g-lead">✓</span>' +
-          '<span class="g-main"><span class="g-t">Gates passed</span></span>' +
-          '<span class="g-v">' + passed.length + "</span></a>"
-        : "") +
+    return '<div class="view-enter"><div class="page-head"><h1>Atlas</h1>' +
+      '<div class="sub">Your route to ' + esc(monthLabel(drift.projected, true)) + ", in " +
+      (NUM_WORDS[gates.length] || gates.length) + " gates.</div>" +
+      (drift.aheadDays ? '<p class="at-base">Plan baseline ' + esc(monthLabel(drift.baseline, true)) + " \u00b7 " + driftWords(drift.aheadDays) + "</p>" : "") +
+      "</div>" +
+      route + nextCard +
+      '<div class="ghead">Studying now<span class="gh-meta">' + running.length + " course" + (running.length === 1 ? "" : "s") + "</span></div>" +
+      '<div class="at-tiles">' + running.map(tile).join("") + "</div>" +
       (later.length
-        ? '<a class="grow" href="#/courses"><span class="g-lead">' + lockSVG() + "</span>" +
-          '<span class="g-main"><span class="g-t">Opening later</span>' +
-          '<span class="g-s">' + esc(later[0].title) + " opens week " +
-          (starts[later[0].id] == null ? "—" : Math.floor(starts[later[0].id] / STUDY_WEEK) + 1) + "</span></span>" +
-          '<span class="g-v">' + later.length + "</span></a>"
+        ? '<div class="ghead">Opens later<span class="gh-meta">' + later.length + " course" + (later.length === 1 ? "" : "s") + "</span></div>" +
+          '<div class="at-chips">' + later.slice(0, 5).map(chip).join("") +
+          (more > 0 ? '<a class="at-chip more" href="#/courses?later" aria-label="' + more + ' more opening later">+' + more + "</a>" : "") + "</div>"
         : "") +
-      (CONCEPTS().length
-        ? '<a class="grow" href="#/concept/' + CONCEPTS()[0].id + '"><span class="g-lead">◇</span>' +
-          '<span class="g-main"><span class="g-t">Linear algebra, as ideas</span>' +
-          '<span class="g-s">Left depends on nothing</span></span>' +
-          '<span class="g-v">' + CONCEPTS().length + "</span></a>"
-        : "") +
-      "</div></div>";
+      // The concept map used to be a row of its own in "The rest of it"; it is
+      // one link now, under the chips.
+      (CONCEPTS().length ? '<div><a class="at-concepts" href="#/concept/' + CONCEPTS()[0].id + '">Concept map →</a></div>' : "") +
+      "</div>";
   };
 
   V.concept = function (id) {
@@ -3284,89 +3808,62 @@
   V.record = function () {
     const v = verifyChain();
     const led = S.ledger;
-    const milestones = led.filter(e => ["exam", "diagnostic", "gate", "week", "lab", "streak"].indexOf(e.type) >= 0).slice(-14).reverse();
-    const counts = {};
-    led.forEach(e => { counts[e.type] = (counts[e.type] || 0) + 1; });
-    const first = led.length ? led[0].ts.slice(0, 10) : "—";
-    const last = led.length ? led[led.length - 1].ts.slice(0, 10) : "—";
-    const sealedDays = S.studyDays.length;
     const cur = streak(), best = bestStreak();
-    const enoughHeat = daysBetween(D.START_DATE, todayISO()) >= 14;
+    const proven = Object.values(S.lessons).filter(l => l && l.verified).length;
 
-    // ---- The page is one answer and a set of rows ----
-    //
-    // It was a verdict card, a counts row, a heatmap card, a streak box with its
-    // own two-number layout, a milestones card and a disclosure — six shapes.
-    // The answer this page exists to give is yes-or-no, so that is the card; the
-    // numbers behind it are rows in one group, the way Health puts a ring at the
-    // top and everything that feeds it underneath.
-    return '<div class="view-enter">' + folio("Proof") +
+    // ---- T-026b: three numbers, the sealed days, the newest links ----
+    // It was a verdict card and a register of rows, the same shape as every
+    // other page. Now the run is three tiles (the streak and the longest ever
+    // side by side, CLAUDE.md), the sealed days are the heatmap, and the chain
+    // is drawn as what it is: each seal pointing back at the one before it.
+    const tile = (n, label) => '<div class="at-tile pf-tile"><span class="at-days"><b>' + n + "</b><span>" + label + "</span></span></div>";
+    // A seal's name: the lecture's code and its place in the course where the
+    // entry is about a lecture; otherwise what kind of entry it is.
+    const sealName = e => {
+      const L = lessonLabel(e.ref);
+      if (typeof L !== "string") {
+        const c = D.COURSES.find(x => x.id === L.cid);
+        let n = L.li + 1;
+        for (let u = 0; u < L.ui; u++) n += c.units[u].lessons.length;
+        return L.code + " \u00b7 L" + n;
+      }
+      return EV_LABEL[e.type] || capFirst(e.type);
+    };
+    const shortHash = h => "#" + String(h).slice(0, 4) + "\u2026" + String(h).slice(-4);
+    const seals = led.slice(-4).reverse();
+    const sealsHTML = seals.map(e => '<span class="seal"><b>' + esc(sealName(e)) + '</b><span class="seal-h">' + esc(shortHash(e.hash)) + "</span></span>")
+      .concat(seals.length && seals[seals.length - 1].i === 0 ? ['<span class="seal gen"><b>Genesis</b><span class="seal-h">the first link</span></span>'] : [])
+      .join('<span class="seal-arrow" aria-hidden="true">\u2190</span>');
 
-      '<div class="card one' + (!led.length ? "" : v.ok ? " one-clear" : " urgent") + '">' +
-      '<div class="one-kind">' +
-      (!led.length ? "Nothing recorded yet" : v.ok ? "Chain intact" : "Chain broken at entry " + v.brokenAt) +
-      (led.length && v.ok ? ' <span class="one-more">' + v.count + " entr" + (v.count === 1 ? "y" : "ies") + "</span>" : "") +
-      "</div>" +
-      '<p class="one-hint">' + (led.length ? first + " → " + last : "The first lecture you prove starts the chain.") + "</p>" +
-      (led.length ? '<button class="btn lg one-go" data-act="exportRecord">Download record</button>' : "") +
-      "</div>" +
+    return '<div class="view-enter"><div class="page-head"><h1>Proof</h1>' +
+      '<div class="sub">Every lecture you prove is sealed into a record nobody can quietly edit.</div></div>' +
 
-      // The streak, as two rows rather than a bespoke box.
-      '<div class="ghead">The run</div>' +
-      '<div class="glist">' +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Current streak</span>' +
-      '<span class="g-s">' +
-      (S.settings.streakFrom ? "counting from " + esc(S.settings.streakFrom) : "every sealed day · Saturdays stepped over") +
-      "</span></span>" +
-      '<span class="g-v">' + cur + "d</span></div>" +
-      '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Longest ever</span>' +
-      '<span class="g-s">a reset never touches this</span></span>' +
-      '<span class="g-v">' + best + "d</span></div>" +
-      (sealedDays ? '<div class="grow"><span class="g-lead"></span><span class="g-main"><span class="g-t">Days sealed</span></span>' +
-        '<span class="g-v">' + sealedDays + "</span></div>" : "") +
-      (counts.lesson ? '<a class="grow" href="#/courses"><span class="g-lead"></span><span class="g-main"><span class="g-t">Lectures proven</span></span>' +
-        '<span class="g-v">' + counts.lesson + "</span></a>" : "") +
-      (counts.exam ? '<a class="grow" href="#/exams"><span class="g-lead"></span><span class="g-main"><span class="g-t">Examinations</span></span>' +
-        '<span class="g-v">' + counts.exam + "</span></a>" : "") +
-      "</div>" +
+      '<div class="at-tiles pf-tiles">' + tile(cur, "day streak") + tile(best, "longest streak") + tile(proven, "lectures proven") + "</div>" +
 
-      // The chart earns its card only once it has weeks to draw.
-      (enoughHeat
-        ? '<div class="ghead">Consistency<span class="gh-meta">one square per day</span></div>' +
-          '<div class="card">' + heatmapHTML(26) +
-          '<div class="cal-legend"><span>Quiet</span>' +
-          [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
-          "<span>Busy</span></div></div>"
-        : "") +
+      '<div class="ghead">Sealed days<span class="gh-meta">last 6 months</span></div>' +
+      '<div class="card pf-heat">' + heatmapHTML(26) +
+      '<div class="cal-legend"><span>Quiet</span>' +
+      [0, 1, 2, 3, 4].map(l => '<span class="hc l' + l + '" style="display:inline-block;"></span>').join("") +
+      "<span>Busy</span></div></div>" +
 
-      (milestones.length
-        ? '<div class="ghead">Milestones<span class="gh-meta">' + milestones.length + "</span></div>" +
-          '<div class="glist">' +
-          milestones.slice(0, 6).map(e =>
-            '<div class="grow"><span class="g-lead"></span><span class="g-main">' +
-            '<span class="g-t">' + esc(eventLine(e)) + "</span></span>" +
-            '<span class="g-v">' + e.ts.slice(5, 10) + "</span></div>").join("") +
-          "</div>"
-        : "") +
+      '<div class="ghead">Latest seals<span class="gh-meta' + (led.length && !v.ok ? " pf-broken" : "") + '">' +
+      (!led.length ? "none yet" : v.ok ? "newest first" : "chain broken at entry " + v.brokenAt) + "</span></div>" +
+      (led.length ? '<div class="pf-seals">' + sealsHTML + "</div>"
+        : '<p class="shelf-empty">The first lecture you prove starts the chain.</p>') +
 
-      // Everything you touch a few times a year, behind one row each.
-      '<div class="ghead">More</div>' +
-      '<div class="glist">' +
-      '<a class="grow" href="#/transcript"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t">Transcript &amp; gates</span><span class="g-s">mastery per course, the five crossings</span></span></a>' +
-      '<a class="grow" href="#/method"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t">How the record works</span><span class="g-s">what a hash chain proves, and what it does not</span></span></a>' +
-      '<button class="grow nav" data-act="toggleAdv"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t">Anchor &amp; verify</span><span class="g-s">' +
-      (S.anchors.length ? S.anchors.length + " anchored" : "publish the head hash, or check an exported file") + "</span></span></button>" +
-      '<button class="grow" data-act="resetStreak"><span class="g-lead"></span><span class="g-main">' +
-      '<span class="g-t" style="color:var(--bad);">Reset the streak counter</span>' +
-      '<span class="g-s">the sealed days and the chain are untouched</span></span></button>' +
+      // Everything you touch a few times a year, as pills. The reset keeps its
+      // confirmation and sits last, in its danger colour; it is never filled.
+      '<div class="pf-pills">' +
+      '<a class="at-chip" href="#/transcript">Transcript &amp; gates</a>' +
+      '<button type="button" class="at-chip" data-act="toggleAdv">Verify a file</button>' +
+      '<a class="at-chip" href="#/method">How it works</a>' +
+      '<button type="button" class="at-chip pf-reset" data-act="resetStreak">Reset the streak counter</button>' +
       "</div>" +
 
       '<div id="advBox" hidden style="margin-top:var(--sp-3);">' +
       (led.length ? '<div class="hash">head ' + esc(chainHead()) + "</div>" +
-        '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button></div>' : "") +
+        '<div class="row-actions"><button class="btn ghost" data-act="copyHead">Copy head hash</button>' +
+        '<button class="btn ghost" data-act="exportRecord">Download record</button></div>' : "") +
       '<div class="card" style="margin-top:12px;"><h2>Public anchors</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:2px;">Timestamps inside this app are self-reported. Publish the head hash somewhere public and its date becomes third-party evidence.</p>' +
       (S.anchors.length
@@ -3398,8 +3895,10 @@
     const plan = gatePlan();
     const ng = nextGate();
 
-    const gateBtn = g => '<button class="btn' + (g.doneDate ? " ghost" : "") + '" data-gate="' + g.n + '">' +
-      (g.doneDate ? "Unmark" : "Mark passed — honestly") + "</button>";
+    // Only the next gate can be passed and only the last passed one unmarked
+    // (T-038); each control opens the confirm sheet (gateSheet), never a toggle.
+    const lastPassed = plan.filter(g => g.doneDate).pop();
+    const gateBtn = g => '<button class="btn" data-gate="' + g.n + '" data-gate-do="pass">Mark passed — honestly</button>';
 
 
     // A gate as one row. This was a spine — an <ol class="quest"> with its own
@@ -3423,8 +3922,9 @@
       // The seal. It is the page's whole claim, so it stays — at the size a
       // statement needs rather than the 36px-padded block it was.
       '<div class="card feature" style="text-align:center;">' +
-            // Caslon ships 400 and 700; 600 makes the browser synthesise a weight by
-      // smearing the outlines, which is exactly the wrong thing to do to a seal.
+      // The wordmark is --font-display, the system face since T-005 (it was
+      // Libre Caslon, which shipped only 400 and 700). 700 is the title weight of
+      // the iOS ramp (loop/design/brief.md §3), so the seal matches the headings.
       '<div style="font-family:var(--font-display); font-weight:700; font-size:1.35rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink);">Brickford</div>' +
       '<div style="font-size:var(--fs-tiny); letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-3); margin-top:2px;">Academic record</div>' +
       '<div class="mono" style="font-size:2.4rem; font-weight:600; color:var(--ink); margin-top:10px;">' + overall + "%</div>" +
@@ -3460,10 +3960,10 @@
       // holds only the controls, one per gate, named by number.
       '<details class="unit"><summary><span class="u-name">Mark a gate passed</span>' +
       '<span class="pill">honestly</span><span class="u-prog" style="width:100%;"></span></summary>' +
-      '<div class="u-body"><p class="note" style="margin:0 0 10px;">Adaptive: pass one early and every later target moves earlier with it.</p>' +
-      '<div class="row-actions" style="margin-top:0;">' + plan.map(g =>
-        '<button class="btn' + (g.doneDate ? " ghost" : "") + '" data-gate="' + g.n + '">' +
-        (g.doneDate ? "Unmark " : "Pass ") + g.n + "</button>").join("") +
+      '<div class="u-body"><p class="note" style="margin:0 0 10px;">Adaptive: pass one early and every later target moves earlier with it. Gates pass in order, and only the last one passed can be unmarked.</p>' +
+      '<div class="row-actions" style="margin-top:0;">' +
+      (ng ? '<button class="btn" data-gate="' + ng.n + '" data-gate-do="pass">Pass ' + ng.n + "</button>" : "") +
+      (lastPassed ? '<button class="btn ghost" data-gate="' + lastPassed.n + '" data-gate-do="unmark">Unmark ' + lastPassed.n + "</button>" : "") +
       "</div></div></details>" +
 
       '<details class="unit"><summary><span class="u-name">Mastery, course by course</span>' +
@@ -3481,27 +3981,97 @@
       "</div>";
   };
 
+  // ---- T-026c: the plan week as dates ----
+  // Week w is study days (w-1)*6 .. w*6-1. Its dates run from the first of
+  // them to the last, so the Saturday between Friday and Sunday is inside it
+  // (a payment logged on a rest day still belongs to the week it sits in).
+  function weekSpan(w) {
+    return { from: dateForStudy((w - 1) * STUDY_WEEK), to: dateForStudy(w * STUDY_WEEK - 1) };
+  }
+  const shortDay = iso => { const d = new Date(iso + "T00:00:00");
+    return d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  const numText = v => (Math.round(v * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+  // T-026c: four numbers, two questions, one Seal. It was a form of five
+  // captioned fields over a register table, so "what is all this about?" was
+  // a fair question. The numbers the app already knows are counted here, at
+  // render, and written nowhere (a render is a read). They reach storage only
+  // through the Seal handler, which is unchanged and reads the same input ids
+  // it always has, so a sealed week is the shape it always was:
+  // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
+  // total, as that field always was (the dashboard draws it "over time").
   V.review = function () {
-    const w = weekNumber();
-    const logged = S.weeks.some(x => +x.week === w);
-    return '<div class="view-enter">' + folio("Week") + '<div class="page-head">' +
-      '<div class="sub">Seal the week: what shipped, what did not. No shipped artifact is a failed week.</div></div>' +
-      '<div class="card"><h2>Week ' + w + (logged ? " — already logged" : "") + "</h2>" +
-      '<div class="grid cols-2" style="margin-top:10px;">' +
-      '<div><label class="field">Shipped this week (repo, post, PR, delivery — or empty if none)</label><input type="text" id="rvShipped" placeholder="e.g. flashcards-cli on GitHub + blog post #1"></div>' +
-      '<div><label class="field">Total DSA problems solved (cumulative — auto-filled from CS 150)</label><input type="number" id="rvDsa" value="' + dsaCount() + '"></div>' +
-      '<div><label class="field">Posts published this week</label><input type="number" id="rvPosts" value="0" min="0"></div>' +
-      '<div><label class="field">Revenue this week (BHD)</label><input type="number" id="rvRev" value="0" min="0" step="0.01"></div>' +
+    const w = weekNumber(), today = todayISO();
+    const { from, to } = weekSpan(w);
+    const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
+    const sealed = S.weeks.find(x => +x.week === w);
+    const dsa = dsaCount();
+    const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
+    // BHD is counted from the Treasury ledger once it has any entry at all (a
+    // week with none in it is a counted 0); with an empty ledger it is typed.
+    const counted = S.treasury.entries.length > 0;
+    const earned = Math.round(S.treasury.entries.filter(e => e && inWeek(e.date))
+      .reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
+
+    // --n is the number's length in characters: a long one (1,149.5 BHD) is
+    // set smaller so it fits its tile at any width (style.css, .wk-tile b).
+    const tile = (n, label, em) => '<div class="at-tile pf-tile wk-tile"><span class="at-days"><b style="--n:' + String(n).length + '">' + n + "</b>" +
+      "<span>" + label + '</span><em class="wk-auto">' + em + "</em></span></div>";
+    // The one you type: the whole tile is the label, so a tap anywhere on it
+    // puts the cursor in the number.
+    const edit = (id, label, step) => '<label class="at-tile pf-tile wk-tile wk-edit"><span class="at-days">' +
+      '<input type="number" id="' + id + '" value="0" min="0" step="' + step + '" inputmode="decimal" aria-label="' + label + ' this week">' +
+      "<span>" + label + '</span><em class="wk-hand">tap to edit</em></span></label>';
+
+    const state = sealed ? "Sealed " + shortDay(sealed.date)
+      : today >= to ? "Ready to seal"
+      : (() => { const n = daysBetween(today, to);
+          return "Opens " + new Date(to + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(to) +
+            " · " + n + " day" + (n === 1 ? "" : "s"); })();
+
+    // Past weeks, newest first. A card opens to its notes: a <details>, so
+    // opening one is the browser's and stays in memory.
+    const past = S.weeks.slice().sort((a, b) => (+b.week || 0) - (+a.week || 0));
+    const card = x => {
+      const n = +x.posts || 0;
+      return '<details class="wk-card"><summary>' +
+        '<span class="wk-h"><b>Week ' + esc(String(x.week)) + "</b><span>" + (x.date ? esc(shortDay(x.date)) : "") + "</span></span>" +
+        (x.shipped ? '<span class="wk-s">' + esc(clipTitle(String(x.shipped), 60)) + "</span>"
+          : '<span class="wk-s wk-fail">nothing shipped</span>') +
+        // Each number keeps its unit on its line ("BHD" over "0" reads as two facts).
+        '<span class="wk-m">DSA\u00a0' + (+x.dsa || 0) + " · " + n + "\u00a0post" + (n === 1 ? "" : "s") + " · " +
+        esc(fmtBHD(+x.revenue || 0).replace(" ", "\u00a0")) + "</span>" +
+        '</summary><p class="wk-notes">' + (x.notes ? esc(x.notes) : "No notes.") + "</p></details>";
+    };
+    // Nothing sealed yet: this week and the three after it, as the places the
+    // cards will go. Faded by ink and a dashed edge, never by opacity.
+    const slots = [0, 1, 2, 3].map(k => '<div class="wk-card wk-slot' + (k ? " later" : "") + '"><b aria-hidden="true">—</b>' +
+      "<span>Week " + (w + k) + "</span></div>");
+
+    return '<div class="view-enter"><div class="page-head"><h1>Week ' + w + "</h1>" +
+      '<div class="sub">Every Sunday: what shipped, what didn’t. Seal it in two minutes.</div></div>' +
+
+      '<div class="at-tiles wk-tiles">' +
+      // The running total, as the stored field has always been: said so.
+      tile(dsa, "DSA solved", "all time · counted for you") +
+      tile(proven, "lectures proven", "counted for you") +
+      edit("rvPosts", "posts", "1") +
+      (counted ? tile(numText(earned), "BHD earned", "from Treasury") : edit("rvRev", "BHD earned", "0.01")) +
       "</div>" +
-      '<div style="margin-top:12px;"><label class="field">Notes / blockers</label><textarea id="rvNotes" placeholder="What worked, what broke, what changes next week."></textarea></div>' +
-      '<div style="margin-top:12px;"><button class="btn" data-act="logWeek">Seal the week</button></div></div>' +
-      '<div class="card"><h2>The register</h2><div class="table-wrap"><table><thead><tr><th>Week</th><th>Shipped</th><th>DSA</th><th>Posts</th><th>Revenue</th><th>Notes</th></tr></thead><tbody>' +
-      (S.weeks.length ? S.weeks.slice().reverse().map(x =>
-        "<tr><td><strong style='color:" + (x.shipped ? "var(--ink)" : "var(--bad)") + ";'>W" + x.week + (x.shipped ? "" : " ✗") + "</strong><div style='font-size:var(--fs-tiny); color:var(--ink-3);'>" + x.date + "</div></td>" +
-        "<td>" + (x.shipped ? esc(x.shipped) : "<span style='color:var(--bad);'>nothing shipped — failed week</span>") + "</td>" +
-        "<td>" + (x.dsa || 0) + "</td><td>" + (x.posts || 0) + "</td><td>" + fmtBHD(+x.revenue || 0) + "</td><td>" + esc(x.notes || "") + "</td></tr>").join("")
-        : '<tr><td colspan="6" style="color:var(--ink-3);">No weeks sealed yet. The first Sunday is coming.</td></tr>') +
-      "</tbody></table></div></div></div>";
+      '<input type="hidden" id="rvDsa" value="' + dsa + '">' +
+      (counted ? '<input type="hidden" id="rvRev" value="' + earned + '">' : "") +
+
+      '<div class="card wk-q"><label class="field wk-ql" for="rvShipped">What did you ship?</label>' +
+      '<input type="text" id="rvShipped" autocomplete="off" placeholder="a repo, a post, a delivery… or leave it empty"></div>' +
+      '<div class="card wk-q"><label class="field wk-ql" for="rvNotes">What got in the way?</label>' +
+      '<input type="text" id="rvNotes" autocomplete="off" placeholder="one line is enough"></div>' +
+
+      '<div class="wk-foot"><span class="wk-state">' + esc(state) + "</span>" +
+      '<button class="btn" data-act="logWeek">Seal the week</button></div>' +
+
+      '<div class="ghead">Past weeks<span class="gh-meta">' + (past.length ? past.length + " sealed" : "none sealed yet") + "</span></div>" +
+      '<div class="wk-weeks">' + (past.length ? past.map(card).join("") : slots.join("")) + "</div>" +
+      "</div>";
   };
 
   V.calendar = function () {
@@ -3606,16 +4176,365 @@
   const REP_ACT = { bank: "repBank", story: "repStory", humor: "repHumor", review: "repReview" };
   const REP_VERB = { bank: "Log it", story: "Log the rep", humor: "Log five", review: "Log the review" };
 
+  // ---------- T-028: record yourself ----------
+  // The owner: "the practice is not clear enough … an audio button where I can
+  // record myself." The page is now a recorder. Three things it must never do:
+  //   - save during a render. The tab, the recording in progress and "the
+  //     microphone failed" live in memory; the list of recordings is READ from
+  //     IndexedDB after the render (wire(), clipsPaint) and writes nothing;
+  //   - put audio in localStorage or the sync payload. A clip is a Blob in
+  //     IndexedDB (database brickford_audio, store clips, key <date>-<n>) on
+  //     the device that made it. What syncs is the rep, exactly as the hand
+  //     form logs it (logRep below), so streaks and counts keep working;
+  //   - break when there is no microphone. No getUserMedia, no MediaRecorder,
+  //     no IndexedDB, or a refused prompt: one line, and the form by hand.
+  const REC_LIMIT = 90;                       // seconds: the story rep's cap
+  const AUDIO_DB = "brickford_audio", AUDIO_STORE = "clips";
+  let practiceTab = null;                     // "story" | "humor" | "bank"; null = what is due
+  let rec = null;                             // the recording in progress, in memory
+  let micMissing = false;                     // this page load's microphone failed
+  const clipURLs = [];                        // object URLs the list made, revoked on its next fill
+  // The cap, or a shorter one a test sets (window.__recLimit, read only when defined).
+  const recLimit = () => (typeof window.__recLimit === "number" && window.__recLimit > 0 ? window.__recLimit : REC_LIMIT);
+  const recSupported = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder && window.indexedDB);
+  // "Tue 20 Oct": the weekday, the day, the month — in the reader's own calendar.
+  const recDay = iso => { const d = new Date(iso + "T00:00:00");
+    return d.toLocaleString("en-US", { weekday: "short" }) + " " + d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
+  const recSecs = r => Math.max(0, (performance.now() - r.t0) / 1000);
+
+  // ---- IndexedDB: the clips, on this device only ----
+  // A database left without its store (another open at version 1 before
+  // ours ran) is upgraded once more rather than failing every read.
+  function audioDB(version) {
+    return new Promise((res, rej) => {
+      const q = version ? indexedDB.open(AUDIO_DB, version) : indexedDB.open(AUDIO_DB);
+      q.onupgradeneeded = () => { if (!q.result.objectStoreNames.contains(AUDIO_STORE)) q.result.createObjectStore(AUDIO_STORE); };
+      q.onerror = () => rej(q.error);
+      q.onsuccess = () => {
+        const db = q.result;
+        if (db.objectStoreNames.contains(AUDIO_STORE)) return res(db);
+        const v = db.version + 1;
+        db.close();
+        audioDB(v).then(res, rej);
+      };
+    });
+  }
+  function clipTx(mode, fn) {
+    return audioDB().then(db => new Promise((res, rej) => {
+      const t = db.transaction(AUDIO_STORE, mode);
+      let out;
+      fn(t.objectStore(AUDIO_STORE), v => { out = v; });
+      t.oncomplete = () => { db.close(); res(out); };
+      t.onerror = t.onabort = () => { db.close(); rej(t.error); };
+    }));
+  }
+  // Every clip as { key, n, date, seconds, kind, title, blob }, newest first.
+  const clipList = () => clipTx("readonly", (st, done) => {
+    const out = [];
+    st.openCursor().onsuccess = e => {
+      const c = e.target.result;
+      if (!c) return done(out.sort((a, b) => (a.date === b.date ? b.n - a.n : a.date < b.date ? 1 : -1)));
+      out.push(Object.assign({ key: c.key, n: +String(c.key).split("-").pop() || 0 }, c.value));
+      c.continue();
+    };
+  });
+  // Stored under <date>-<n>, n one more than the day's last.
+  const clipAdd = clip => clipTx("readwrite", (st, done) => {
+    st.getAllKeys(IDBKeyRange.bound(clip.date + "-", clip.date + "-\uffff")).onsuccess = e => {
+      const n = e.target.result.reduce((m, k) => Math.max(m, +String(k).split("-").pop() || 0), 0) + 1;
+      const key = clip.date + "-" + n;
+      st.put(clip, key).onsuccess = () => done(key);
+    };
+  });
+  const clipRename = (key, title) => clipTx("readwrite", st => {
+    const g = st.get(key);
+    g.onsuccess = () => { if (g.result) st.put(Object.assign({}, g.result, { title: title }), key); };
+  });
+  const clipDelete = key => clipTx("readwrite", st => { st.delete(key); });
+
+  // ---- the recorder ----
+  // Its life, in memory: `rec` is { kind, starting } while the microphone
+  // prompt is open, then { kind, stream, mr, … } while recording, and null
+  // again once the clip is finished. Every way a recording ends — a press,
+  // the cap, leaving the page, switching tab, the recorder stopping on its
+  // own (the track ended, the device went away, an error) — comes through
+  // recFinish, exactly once (T-028 review 1).
+  const REC_MIN = 1;                          // seconds: under this there is no rep to log
+  async function recStart(kind) {
+    if (rec) return;
+    if (!recSupported()) return micGone();
+    const pending = rec = { kind: kind, starting: true };
+    recPaint();
+    let stream, mr;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      if (rec !== pending) return;            // cancelled while the prompt was open
+      rec = null;
+      return micGone();
+    }
+    // The prompt may have been open for a while. If the reader pressed again,
+    // left the page or picked another tab meanwhile, this start is cancelled:
+    // the microphone is released and nothing is recorded.
+    const b = $("#view .pr-rec");
+    if (rec !== pending || route() !== "/practice" || !b || b.dataset.kind !== kind) {
+      stream.getTracks().forEach(t => t.stop());
+      if (rec === pending) rec = null;
+      recPaint();
+      bgReplay();
+      return;
+    }
+    try { mr = new MediaRecorder(stream); }
+    catch (e) {
+      stream.getTracks().forEach(t => t.stop());
+      rec = null;
+      return micGone();
+    }
+    const r = rec = { kind: kind, stream: stream, mr: mr, chunks: [], t0: performance.now(), date: todayISO(), limit: recLimit() };
+    mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); };
+    // A recorder that stops by itself still finishes the clip: onstop fires
+    // whether recStop asked for it or the track ended underneath it.
+    mr.onstop = () => recFinish(r);
+    mr.onerror = () => { if (mr.state === "inactive") recFinish(r); else { try { mr.stop(); } catch (x) { recFinish(r); } } };
+    // start() can throw (a recorder in a bad state, an unsupported stream):
+    // release the microphone and fall back to the hand form, as a refused
+    // prompt does (review 2) — never a button stuck on "Starting…".
+    try { mr.start(); }
+    catch (e) {
+      stream.getTracks().forEach(t => t.stop());
+      if (rec === r) rec = null;
+      return micGone();
+    }
+    r.tick = setInterval(() => { if (recSecs(r) >= r.limit) recStop(); else recPaint(); }, 200);
+    recPaint();
+  }
+  // A press, the cap, leaving, a tab: ask the recorder to stop. A start still
+  // waiting on the prompt is cancelled instead.
+  function recStop() {
+    const r = rec;
+    if (!r) return;
+    if (!r.mr) { rec = null; recPaint(); bgReplay(); return; }
+    if (r.stopped) return;
+    recMark(r);
+    if (r.mr.state !== "inactive") { try { r.mr.stop(); return; } catch (e) { /* finish below */ } }
+    recFinish(r);
+  }
+  function recMark(r) {
+    if (r.stopped) return;
+    r.stopped = true;
+    r.focused = !!document.activeElement && document.activeElement.classList.contains("pr-rec");
+    clearInterval(r.tick);
+    r.elapsed = Math.min(r.limit, recSecs(r));
+  }
+  function recFinish(r) {
+    if (r.finished) return;
+    r.finished = true;
+    recMark(r);
+    r.stream.getTracks().forEach(t => t.stop());
+    recSaved(r);
+  }
+  // On stop: the Blob to IndexedDB, then the rep through the form's own path.
+  // Under a second, or no audio at all, is not a rep: nothing is kept and
+  // nothing is logged (the forms' rule — a rep must carry a payload).
+  async function recSaved(r) {
+    if (rec === r) rec = null;
+    const blob = new Blob(r.chunks, { type: r.mr.mimeType || (r.chunks[0] && r.chunks[0].type) || "audio/webm" });
+    // On this page, a foreground render (it also brings in any repaint that
+    // was deferred while recording); anywhere else, the deferred one, if any.
+    const after = () => { if (route() === "/practice") render({ after: () => { const b = $("#view .pr-rec"); if (b && r.focused) b.focus(); } }); else bgReplay(); };
+    if (!(r.elapsed >= REC_MIN) || !r.chunks.length || !blob.size) {
+      after();
+      toast("Under a second — nothing kept. Hold it and talk.");
+      return;
+    }
+    r.seconds = Math.max(REC_MIN, Math.round(r.elapsed));
+    const title = (r.kind === "humor" ? "Humour" : "Story") + " · " + recDay(r.date);
+    let kept = true;
+    try { await clipAdd({ date: r.date, seconds: r.seconds, kind: r.kind, title: title, blob: blob }); }
+    catch (e) { kept = false; }
+    const iso = r.date;
+    let msg;
+    if (isRestDay(iso) && iso >= D.START_DATE) {
+      msg = (kept ? "Kept on this device. " : "") + REST_NAME + " is a rest day — nothing logged.";
+    } else if (r.kind === "humor") {
+      const val = id => { const el = $("#" + id); return el ? el.value.trim() : ""; };
+      const k = +val("jokeKeep") || 0;
+      logRep("humor", { date: iso, attempts: [0, 1, 2, 3, 4].map(i => val("joke" + i)), keeper: k >= 1 && k <= 5 ? k : 0, seconds: r.seconds },
+        { date: iso, keeper: k >= 1 && k <= 5 ? k : 0 });
+      msg = "Logged, " + clockLabel(r.seconds) + " recorded.";
+    } else {
+      logRep("story", { date: iso, seconds: r.seconds, takes: 1, from: title }, { date: iso, seconds: r.seconds });
+      msg = r.seconds <= 90 ? "Logged, and inside 90s." : "Logged — " + r.seconds + "s. The cap is 90.";
+    }
+    if (!(isRestDay(iso) && iso >= D.START_DATE)) save();
+    if (!kept) msg = "Could not keep the recording on this device. " + msg;
+    // The reader pressed stop (or the cap did, on this page): a foreground
+    // render, as the form's Log does. Anywhere else, the save is enough.
+    after();
+    toast(msg);
+  }
+  // Leaving the page stops the recording (and keeps it), as leaving a
+  // recorder does, and cancels a start still waiting on the prompt: the
+  // microphone is not left open behind another page. Registered before the
+  // router's own listener, so it runs first.
+  window.addEventListener("hashchange", () => { if (rec && route() !== "/practice") recStop(); });
+  function micGone() {
+    micMissing = true;
+    bgReplay();
+    const pane = $("#view .pr-pane");
+    if (!pane) return;
+    paintPane(pane);
+    const f = $("input", pane);
+    if (f) f.focus();
+  }
+  function recToggle(kind) { if (rec) recStop(); else recStart(kind); }
+  // What the button shows for `kind`: "rec" recording, "wait" the prompt is
+  // open, "" idle.
+  const recMode = kind => (!rec || rec.kind !== kind ? "" : rec.mr ? (rec.stopped ? "" : "rec") : "wait");
+  const recLabel = m => (m === "rec" ? "Stop recording" : m === "wait" ? "Starting the microphone — press to cancel" : "Start recording");
+  const recTime = m => (m === "wait" ? "Starting…" : clockLabel(m === "rec" ? Math.floor(recSecs(rec)) : 0) + " / " + clockLabel(m === "rec" ? rec.limit : recLimit()));
+  // The button and the timer, changed in place: no render while recording.
+  function recPaint() {
+    if (rec && rec.mr && !rec.stopped && route() !== "/practice") return recStop();
+    const b = $("#view .pr-rec"), t = $("#view .pr-time");
+    if (!b) return;
+    const m = recMode(b.dataset.kind);
+    b.classList.toggle("on", m === "rec");
+    b.classList.toggle("wait", m === "wait");
+    b.setAttribute("aria-pressed", String(m === "rec"));
+    b.setAttribute("aria-busy", String(m === "wait"));
+    b.setAttribute("aria-label", recLabel(m));
+    if (t) t.textContent = recTime(m);
+  }
+
+  const PR_TABS = [["story", "Story"], ["humor", "Humour"], ["bank", "Story bank"]];
+  // The kind owed today, the recorded ones first; nothing owed is Story.
+  function practiceDefault() {
+    const due = repsDue().map(d => d.kind);
+    return ["story", "humor", "bank"].find(k => due.includes(k)) || "story";
+  }
+  function recorderHTML(kind, prompt, hint) {
+    const m = recMode(kind);
+    return '<div class="card pr-card">' +
+      '<div class="pr-prompt">' + prompt + "</div>" +
+      '<p class="pr-hint">' + hint + "</p>" +
+      '<button type="button" class="pr-rec' + (m === "rec" ? " on" : m === "wait" ? " wait" : "") + '" data-act="recToggle" data-kind="' + kind +
+      '" aria-pressed="' + (m === "rec") + '" aria-busy="' + (m === "wait") + '" aria-label="' + recLabel(m) + '">' +
+      '<span class="pr-dot" aria-hidden="true"></span></button>' +
+      '<div class="pr-time">' + recTime(m) + "</div></div>";
+  }
+  // A rest day owes nothing, so a form whose Log can only refuse is not drawn:
+  // the line says so instead. Recording is still there.
+  const practiceResting = () => isRestDay(todayISO()) && todayISO() >= D.START_DATE;
+  const restLine = '<p class="pr-rest">Nothing owed today.</p>';
+  function fallbackHTML(prompt, hint, form, act, verb) {
+    return '<div class="card pr-card pr-hand">' +
+      '<div class="pr-prompt">' + prompt + "</div>" +
+      '<p class="pr-hint">' + hint + "</p>" +
+      '<p class="pr-nomic">Microphone not available, so log it by hand</p>' +
+      (practiceResting() ? restLine
+        : '<div class="pr-form">' + form + "</div>" +
+          '<button class="btn lg one-go" data-act="' + act + '">' + verb + "</button>") + "</div>";
+  }
+  function paneHTML(tab) {
+    const hand = micMissing || !recSupported();
+    if (tab === "bank")
+      return '<div class="card pr-card pr-hand"><div class="pr-prompt">What happened today</div>' +
+        '<p class="pr-hint">One real thing, two lines.</p>' +
+        (practiceResting() ? restLine
+          : '<div class="pr-form">' + REP_FORM.bank() + "</div>" +
+            '<button class="btn lg one-go" data-act="repBank">' + REP_VERB.bank + "</button>") + "</div>";
+    if (tab === "humor")
+      return hand
+        ? fallbackHTML("Five attempts at one joke", "Most will be bad. Volume is the mechanic.", REP_FORM.humor(), "repHumor", REP_VERB.humor)
+        : recorderHTML("humor", "Five attempts at one joke", "Most will be bad. Volume is the mechanic.") +
+          (practiceResting() ? ""
+            : '<details class="unit pr-write"><summary><span class="u-name">Write the five down instead</span></summary>' +
+              '<div class="u-body"><div class="pr-form">' + REP_FORM.humor() + "</div>" +
+              '<button class="btn lg one-go" data-act="repHumor">' + REP_VERB.humor + "</button></div></details>");
+    return hand
+      ? fallbackHTML("Tell one story from this week", "Under 90 seconds. Beginning, turn, ending.", REP_FORM.story(), "repStory", REP_VERB.story)
+      : recorderHTML("story", "Tell one story from this week", "Under 90 seconds. Beginning, turn, ending.");
+  }
+  function paintPane(pane) {
+    pane.innerHTML = paneHTML(practiceTab || practiceDefault());
+    wire(pane, route());
+  }
+
+  // ---- the list: read from IndexedDB after the render, never during it ----
+  const ICON_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5 L12.5 8 L5 12.5 Z" fill="currentColor"/></svg>';
+  const ICON_DL = '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 V12.5 M6 9 L10 13 L14 9 M4 16.5 H16"/></svg>';
+  const ICON_DEL = '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 H16 M8 6 V4 H12 V6 M6 6 L7 16.5 H13 L14 6"/></svg>';
+  const clipExt = type => (/ogg/.test(type) ? ".ogg" : /mp4|aac|m4a/.test(type) ? ".m4a" : /wav/.test(type) ? ".wav" : ".webm");
+  function clipsPaint() {
+    const host = $("#view #prClips");
+    if (!host) return;
+    // A refill (after a delete) can take away the clip that was holding the
+    // page, so a deferred repaint is offered its turn here too.
+    const done = html => { if (host.isConnected) { host.innerHTML = html; host.setAttribute("aria-busy", "false"); wireClips(host); bgReplay(); } };
+    if (!window.indexedDB) return done('<p class="pr-empty">This browser cannot keep recordings.</p>');
+    clipList().then(list => {
+      while (clipURLs.length) URL.revokeObjectURL(clipURLs.pop());
+      if (!list.length) return done('<p class="pr-empty">Nothing recorded yet. Press the red button and talk.</p>');
+      done('<div class="pr-list">' + list.map(c => {
+        const url = c.blob ? URL.createObjectURL(c.blob) : "";
+        if (url) clipURLs.push(url);
+        const t = esc(c.title || "Recording");
+        return '<div class="pr-clip" data-clip="' + esc(c.key) + '" data-url="' + url + '">' +
+          '<button type="button" class="pr-play" data-clip-play aria-label="Play ' + t + '">' + ICON_PLAY + "</button>" +
+          '<span class="pr-main"><input class="pr-name" type="text" maxlength="80" autocomplete="off" value="' + t + '" aria-label="Title of the recording from ' + esc(recDay(c.date)) + '">' +
+          '<span class="pr-meta">' + esc(recDay(c.date)) + " · " + clockLabel(c.seconds || 0) + "</span></span>" +
+          '<span class="pr-wave" aria-hidden="true"></span>' +
+          '<span class="pr-acts">' + (url ? '<a class="pr-ic" href="' + url + '" download="' + esc((c.title || "recording").replace(/[\\/:*?"<>|]+/g, "-")) + clipExt(c.blob.type) + '" aria-label="Download ' + t + '">' + ICON_DL + "</a>" : "") +
+          '<button type="button" class="pr-ic" data-clip-del aria-label="Delete ' + t + '">' + ICON_DEL + "</button></span>" +
+          '<div class="pr-player"></div></div>';
+      }).join("") + "</div>");
+    }, () => done('<p class="pr-empty">This browser cannot keep recordings.</p>'));
+  }
+  function wireClips(host) {
+    $$(".pr-clip", host).forEach(row => {
+      const key = row.dataset.clip;
+      $("[data-clip-play]", row).onclick = () => {
+        let a = $("audio", row);
+        if (!a) {
+          a = document.createElement("audio");
+          a.controls = true;
+          a.preload = "auto";
+          a.src = row.dataset.url;
+          // Played to the end, the clip no longer holds the page: a repaint
+          // deferred while it played runs now (review 2).
+          a.addEventListener("ended", bgReplay);
+          $(".pr-player", row).appendChild(a);
+        }
+        if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); } else a.pause();
+      };
+      const name = $(".pr-name", row);
+      const keep = () => {
+        const v = name.value.trim();
+        if (!v) { name.value = name.defaultValue; return; }
+        if (v === name.defaultValue) return;
+        name.defaultValue = v;
+        clipRename(key, v).catch(() => toast("Could not rename it."));
+      };
+      name.onchange = keep;
+      name.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); keep(); name.blur(); } };
+      $("[data-clip-del]", row).onclick = () => {
+        if (!confirm("Delete “" + name.value + "”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged.")) return;
+        clipDelete(key).then(clipsPaint, () => toast("Could not delete it."));
+      };
+    });
+  }
+
   V.practice = function () {
     const R = S.reps, today = todayISO(), due = repsDue();
     const resting = isRestDay(today) && today >= D.START_DATE;
     const n = k => (R[k] || []).length;
     const bank = (R.bank || []).slice().reverse();
     const wk = weekOf(today);
+    const tab = practiceTab || practiceDefault();
 
     // ---- The week, as six dots ----
-    // The only feedback on this page. Without it a good week and a bad week
-    // look identical, because all the page otherwise shows is today's rep.
+    // Without it a good week and a bad week look identical.
     let logged = 0;
     const dots = wk < 0 ? "" : (function () {
       let out = "";
@@ -3632,68 +4551,59 @@
       return out;
     })();
 
-    const head = '<div class="view-enter">' + folio("Practice") + '<div class="page-head">' +
-      '<div class="sub">Watching does not make anyone funnier. This does.</div></div>';
+    const head = '<div class="view-enter"><div class="page-head pr-head"><div class="pr-title"><h1>Practice</h1>' +
+      '<div class="sub">Speak it out loud. Recording yourself is the practice.</div></div>' +
+      (wk < 0 ? "" : '<div class="pr-week"><span class="weekdots" role="img" aria-label="' + logged + " of " + STUDY_WEEK + ' days logged this week">' + dots + "</span>" +
+        '<span class="pr-week-t">' + logged + " of " + STUDY_WEEK + " days this week</span></div>") +
+      "</div>";
 
-    // The dots sit in a labelled row rather than floating under the card with a
-    // two-word caption — so the thing they count is stated, not guessed.
-    const weekRow = wk < 0 ? "" :
-      '<div class="glist" style="margin-top:var(--sp-3);"><div class="grow">' +
-      '<span class="g-main"><span class="g-t">This week</span>' +
-      '<span class="g-s">' + logged + " of " + STUDY_WEEK + " days logged</span></span>" +
-      '<span class="weekdots" role="img" aria-label="' + logged + " of " + STUDY_WEEK + ' days logged this week">' + dots + "</span></div></div>";
+    // A rest day owes nothing, and says so above the recorder; recording is
+    // still there. The monthly review, when it is owed, is the one rep that
+    // has no tab, so it keeps its card here — otherwise it could never be done.
+    const rev = due.find(d => d.kind === "review");
+    const above = (resting
+      ? '<div class="card one"><div class="one-kind">' + REST_NAME + '</div><p class="one-hint">Nothing owed today.</p></div>' : "") +
+      (rev ? '<div class="card one"><div class="one-kind">' + esc(rev.label) + '</div><p class="one-hint">' + esc(rev.hint) + "</p>" +
+        '<div class="one-body">' + REP_FORM.review() + "</div>" +
+        '<button class="btn lg one-go" data-act="' + REP_ACT.review + '">' + REP_VERB.review + "</button></div>" : "");
 
-    // Four numbers that were a grid are four rows in the group every other page
-    // now uses — and a kind you have never done is not a zero on the screen.
-    const counts = (function () {
-      const rows = [["bank", "Story bank", "one real thing, two lines"],
+    const seg = '<div class="seg pr-seg" role="group" aria-label="What to practise">' +
+      PR_TABS.map(([k, label]) => '<button type="button" data-ptab="' + k + '" aria-pressed="' + (k === tab) + '">' + label + "</button>").join("") + "</div>";
+
+    const counts = [["bank", "Story bank", "one real thing, two lines"],
                     ["story", "Story reps", "recorded, under 90 seconds"],
                     ["humor", "Humour reps", "five attempts, most will be bad"],
                     ["review", "Monthly reviews", "rewatch what you recorded"]]
-        .filter(([k]) => n(k) > 0)
-        .map(([k, t, sub]) => '<div class="grow"><span class="g-main"><span class="g-t">' + t + "</span>" +
-          '<span class="g-s">' + sub + '</span></span><span class="g-v">' + n(k) + "</span></div>");
-      if (!rows.length) return "";
-      return '<div class="ghead">Logged so far</div><div class="glist">' + rows.join("") + "</div>";
-    })();
+      .filter(([k]) => n(k) > 0)
+      .map(([k, t, sub]) => '<div class="grow"><span class="g-main"><span class="g-t">' + t + "</span>" +
+        '<span class="g-s">' + sub + '</span></span><span class="g-v">' + n(k) + "</span></div>");
 
-    if (resting)
-      return head + '<div class="card one"><div class="one-kind">' + REST_NAME + "</div>" +
-        '<p class="one-hint">Nothing owed today.</p></div>' + weekRow + counts + "</div>";
-
-    if (!due.length)
-      return head + '<div class="card one one-clear"><div class="one-kind">Clear for today</div>' +
-        '<p class="one-hint">Every rep owed today is logged. Streak ' + streak() + "d.</p></div>" +
-        weekRow + counts + repHistoryHTML(bank, R) + "</div>";
-
-    // ONE rep. The next one appears here the moment this is logged.
-    const d = due[0];
-    return head +
-      '<div class="card one">' +
-      '<div class="one-kind">' + esc(d.label) + (due.length > 1 ? ' <span class="one-more">+' + (due.length - 1) + " more</span>" : "") + "</div>" +
-      '<p class="one-hint">' + esc(d.hint) + "</p>" +
-      '<div class="one-body">' + REP_FORM[d.kind]() + "</div>" +
-      '<button class="btn lg one-go" data-act="' + REP_ACT[d.kind] + '">' + REP_VERB[d.kind] + "</button>" +
-      "</div>" +
-      weekRow + counts + repHistoryHTML(bank, R) + "</div>";
+    return head + above + seg +
+      '<div class="pr-pane">' + paneHTML(tab) + "</div>" +
+      '<div class="ghead">Your recordings<span class="gh-meta">kept on this device</span></div>' +
+      '<div class="pr-clips" id="prClips" aria-busy="true"></div>' +
+      repHistoryHTML(bank, R, counts) + "</div>";
   };
 
-  // Everything that is not today's rep, folded away. It is a record, not a task.
-  function repHistoryHTML(bank, R) {
+  // "Logged so far" and everything logged, folded away under the list. It is
+  // a record, not a task.
+  function repHistoryHTML(bank, R, counts) {
     if (!bank.length && !(R.story || []).length && !(R.humor || []).length && !(R.review || []).length) return "";
     const row = (date, what, sub) =>
       '<div class="grow"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">' + esc(what) + "</span>" +
       (sub ? '<span class="g-s">' + esc(sub) + "</span>" : "") + "</span>" +
       '<span class="g-v">' + esc(date.slice(5)) + "</span></div>";
-    return '<details class="unit" style="margin-top:16px;"><summary>' +
-      '<span class="u-name">History</span><span class="pill">' +
+    return '<details class="unit pr-log"><summary>' +
+      '<span class="u-name">Logged so far</span><span class="pill">' +
       (bank.length + (R.story || []).length + (R.humor || []).length + (R.review || []).length) + " logged</span>" +
       '<span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
-      '<div class="glist">' +
+      (counts.length ? '<div class="glist">' + counts.join("") + "</div>" : "") +
+      '<div class="ghead">History</div><div class="glist">' +
       bank.slice(0, 10).map(e => row(e.date, e.what, e.why)).join("") +
-      (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep \u00b7 " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
-      (R.humor || []).slice(-4).reverse().map(e => row(e.date, (e.attempts || []).filter(Boolean).length + " jokes written", e.keeper ? "kept #" + e.keeper : "none kept")).join("") +
+      (R.story || []).slice(-4).reverse().map(e => row(e.date, e.seconds + "s story rep · " + e.takes + " take" + (e.takes === 1 ? "" : "s"), e.from)).join("") +
+      (R.humor || []).slice(-4).reverse().map(e => row(e.date, e.seconds ? "Humour rep, recorded · " + clockLabel(e.seconds)
+        : (e.attempts || []).filter(Boolean).length + " jokes written", e.keeper ? "kept #" + e.keeper : "none kept")).join("") +
       (R.review || []).slice(-3).reverse().map(e => row(e.date, "Monthly review", (e.notes || "").slice(0, 90))).join("") +
       "</div></div></details>";
   }
@@ -3773,7 +4683,6 @@
     const labsDone = D.LABS.filter(l => (S.labs[l.id] || {}).done).length;
     const psetTotal = D.PSETS.reduce((a, g) => a + g.items.length, 0);
     const psetDone = D.PSETS.reduce((a, g) => a + g.items.filter(i => S.psets[i.id]).length, 0);
-    const pool = missPool();
     const phase = currentPhase();
     const PHASE_NAME = ["Phase 0 — Calibration", "Phase 1 — Foundations", "Phase 2 — Depth", "Phase 3 — Frontier"];
 
@@ -3803,30 +4712,53 @@
     const later = [0, 1, 2, 3].filter(ph => ph !== phase && labsIn(ph).length);
     const laterCount = later.reduce((a, ph) => a + labsIn(ph).length, 0);
 
-    return '<div class="view-enter">' + folio("Problems") +
+    // ---- T-026b: what the page is for, then the three ways in ----
+    // The drill is the daily thing — the labs are the month's and the problem
+    // sets are the term's — so it is the one card with a filled button. The
+    // other two cards say how far along you are and take you to their section
+    // below: an in-page jump, in memory (wire(), pbOpen) — never a save.
+    const mode = (k, glyph, title, desc, meta, act) =>
+      '<div class="at-tile pb-mode" data-mode="' + k + '"><span class="pb-glyph" aria-hidden="true">' + glyph + "</span>" +
+      '<span class="pb-t">' + title + '</span><span class="pb-d">' + desc + "</span>" +
+      '<span class="pb-foot"><span class="pb-m">' + meta + "</span>" + act + "</span></div>";
+    const G = d => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
+    // A lab's description cut to its first clause, and to about fifty
+    // characters on a word: never an ellipsis inside a word.
+    const firstClause = t => {
+      let c = String(t).split(/;|,| \u2014 |: |\. /)[0].replace(/[.\s]+$/, "");
+      if (c.length <= 50) return c;
+      c = c.slice(0, 51);
+      return c.slice(0, c.lastIndexOf(" ")).replace(/[\s,;:(\u2014-]+$/, "") + "\u2026";
+    };
+    const labRow = l => {
+      const st = S.labs[l.id] || { done: false, proof: "" };
+      return '<div class="pb-lab"><label class="check-row pb-row"><input type="checkbox" data-lab="' + l.id + '" ' + (st.done ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG + "</span>" +
+        '<span class="pb-lt"><span class="pb-lt-t">' + esc(l.title) + '</span><span class="pb-lt-d">' + esc(firstClause(l.req)) + "</span></span>" +
+        '<span class="pb-h">~' + l.hours + " h</span></label>" +
+        (st.done
+          ? '<input type="text" data-proof="' + l.id + '" placeholder="Proof URL — repo, post, or screenshot" value="' + esc(st.proof || "") + '" style="margin-top:8px;">' +
+            (st.proof ? "" : '<div class="note" style="margin-top:4px;">Law 6: no proof URL, no credit.</div>')
+          : "") +
+        "</div>";
+    };
+    const open = (to, label) => '<button type="button" class="at-chip pb-open" data-act="pbOpen" data-to="' + to + '" aria-label="' + label + '">Open</button>';
 
-      // The drill is the daily thing on this page — the labs are the month's and
-      // the problem sets are the term's. It goes first and it is the only card
-      // with a button.
-      '<div class="card one' + (pool.length ? " urgent" : " one-clear") + '">' +
-      '<div class="one-kind">Daily drill' +
-      (pool.length ? ' <span class="one-more">' + pool.length + " in the pool</span>" : "") + "</div>" +
-      '<p class="one-hint">' +
-      (pool.length
-        ? pool.length + " questions you have personally missed are waiting. Answer one correctly and it leaves the pool."
-        : "The pool is clear — the drill draws random questions to keep the blade sharp.") +
-      "</p>" +
-      '<a class="btn lg one-go" href="#/drill">' + (pool.length ? "Begin drill" : "Random drill") + " ▸</a></div>" +
-
-      '<div class="onecounts">' +
-      // "Recall due 0" is an absence; the Recall page says so in words.
-      (reviewsDue().length ? '<a href="#/recall"><b>' + reviewsDue().length + "</b><span>Recall due</span></a>" : "") +
-      "<div><b>" + labsDone + " / " + D.LABS.length + "</b><span>Labs shipped</span></div>" +
-      "<div><b>" + psetDone + " / " + psetTotal + "</b><span>Problem sets</span></div>" +
+    return '<div class="view-enter"><div class="page-head"><h1>Problems</h1>' +
+      '<div class="sub">Learning sticks when you solve, not when you watch.</div></div>' +
+      '<div class="at-tiles pb-modes">' +
+      mode("drill", G("M11 2.5 L4.5 11 H10 L9 17.5 L15.5 9 H10 Z"), "Daily drill", "Quick questions from everything you\u2019ve watched.",
+        "10 min", '<a class="btn" href="#/drill">Start</a>') +
+      mode("sets", G("M13.5 3.5 L16.5 6.5 L7 16 H4 V13 Z M11.5 5.5 L14.5 8.5"), "Problem sets", "Pen and paper, one set per unit.",
+        psetDone + " of " + psetTotal + " done", open("pbSets", "Open the problem sets")) +
+      mode("labs", G("M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"), "Labs", "Real things you build and ship.",
+        labsDone + " of " + D.LABS.length + " shipped", open("pbLabs", "Open the labs")) +
       "</div>" +
 
       // The phase you are in, at weight. Phase 3 is three years away.
-      phaseCard(phase) +
+      (labsIn(phase).length
+        ? '<div class="ghead">This phase\u2019s labs<span class="gh-meta">' + PHASE_NAME[phase].replace(" \u2014 ", " \u00b7 ") + "</span></div>" +
+          '<div class="pb-labs" id="pbLabs">' + labsIn(phase).map(labRow).join("") + "</div>"
+        : '<div id="pbLabs"></div>') +
 
       (later.length
         ? '<details class="unit"><summary><span class="u-name">Labs in the other phases</span>' +
@@ -3837,7 +4769,7 @@
 
       // Pen and paper, on a schedule of their own — you go to these, they do not
       // come to you.
-      '<details class="unit"><summary><span class="u-name">Problem sets — pen and paper</span>' +
+      '<details class="unit" id="pbSets"><summary><span class="u-name">Problem sets — pen and paper</span>' +
       '<span class="pill' + (psetDone === psetTotal ? " good" : "") + '">' + psetDone + " / " + psetTotal + "</span>" +
       '<span class="u-prog" style="width:' + (psetTotal ? (psetDone / psetTotal) * 100 : 0) + '%;"></span></summary>' +
       '<div class="u-body"><div class="grid cols-2">' +
@@ -4022,7 +4954,7 @@
       '<div class="u-body"><div class="glist">' +
       mod("Dashboard", "daily", "The next lecture, the rest of today, and where you stand.", "#/") +
       mod("The Atlas", "weekly", "What is running now, the gates ahead, and what opens later.", "#/atlas") +
-      mod("Courses", "reference", "Every course, in four phases. Follow the plan’s pick — the sequencing is the curriculum.", "#/courses") +
+      mod("Courses", "reference", "Pick a lecture back up: what is running, what opens later, what is finished.", "#/courses") +
       mod("Problems", "daily", "Labs with proof URLs, pen-and-paper problem sets, and the daily drill.", "#/workshop") +
       mod("Exams", "weekly", "The official MIT/Harvard diagnostics, plus the auto-graded concept banks.", "#/exams") +
       mod("Proof", "monthly", "The hash-chained record of everything done, the streak, and the export.", "#/record") +
@@ -4046,70 +4978,61 @@
     { id: "offers", file: "../earning-offers.md", title: "Earning Offers", sub: "Three productized offers, Arabic pitch included" },
     { id: "log", file: "../progress-log.md", title: "Progress Log (file)", sub: "The original markdown log — the Week page supersedes it" },
   ];
-  // The Library is a list of things to open. It was rendering five one-line
-  // documents as five ~150px hero cards in a 2-col grid, with two more
-  // documents stranded as buttons in the page head - and then ten external
-  // links as a ragged pile of pills of ten different widths.
-  //
-  // apple-design 16, grouping and mapping: "proximity implies relationship."
-  // A pile in one row says these ten things are alike; they are not. So the
-  // documents become one compact list and the external links are grouped by
-  // what they actually are.
-  const HALLS = [
-    ["Video courses", [
-      ["Karpathy \u2014 Zero to Hero", "https://karpathy.ai/zero-to-hero.html"],
-      ["3Blue1Brown", "https://www.3blue1brown.com/"],
-      ["fast.ai", "https://course.fast.ai/"],
-      ["ARENA curriculum", "https://www.arena.education/"],
-    ]],
-    ["Books", [
-      ["Mathematics for ML", "https://mml-book.github.io/"],
-      ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
-    ]],
-    ["Problems & lectures", [
-      ["NeetCode", "https://neetcode.io/roadmap"],
-      ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
-      ["Stat 110", "https://stat110.hsites.harvard.edu/"],
-    ]],
-    ["Source", [
-      ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
-    ]],
+  // T-026c: the Library in three groups. "Start here" is the Handbook (its
+  // --accent edge says read this first), the Method and the Calibration Kit;
+  // "Guides" is every other document, as the same card; the outside links
+  // are chips, five and then "+N". A card carries a short title and one
+  // line; DOCS keeps the long titles each document's own page heads with.
+  const DOC_CARD = {
+    readme: ["Calibration Kit", "Weeks 1–2 checklist"],
+    curriculum: ["Phase 1 curriculum", "Months 1–6, week by week"],
+    coding: ["Coding diagnostic", "Flashcards build + NeetCode 10"],
+    offers: ["Earning offers", "Three offers, Arabic pitch"],
+  };
+  // The five reached for most, then the rest. Each opens in a new tab with
+  // rel="noopener", so the page it opens cannot reach back into this one.
+  const LINKS = [
+    ["MIT OpenCourseWare", "https://ocw.mit.edu/"],
+    ["3Blue1Brown", "https://www.3blue1brown.com/"],
+    ["Karpathy", "https://karpathy.ai/zero-to-hero.html"],
+    ["NeetCode", "https://neetcode.io/roadmap"],
+    ["fast.ai", "https://course.fast.ai/"],
+    ["ARENA curriculum", "https://www.arena.education/"],
+    ["Mathematics for ML", "https://mml-book.github.io/"],
+    ["Understanding Deep Learning", "https://udlbook.github.io/udlbook/"],
+    ["Stat 110", "https://stat110.hsites.harvard.edu/"],
+    ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
+  const LINKS_SHOWN = 5;
   V.library = function () {
-    // The handbook and How it works are documents too - they were in the page
-    // head only because they are not in DOCS. They belong in the list.
-    const rows = [{ href: "#/guide", title: "The Handbook", sub: "How Brickford works, end to end" },
-                  { href: "#/method", title: "The Method", sub: "Why it is built this way \u2014 coverage vs. mastery" }]
-      .concat(DOCS.map(d => ({ href: "#/doc/" + d.id, title: d.title, sub: d.sub })));
-    return '<div class="view-enter">' + folio("Library") +
+    const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
+    const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
+      '<span class="pb-t">' + esc(t) + '</span><span class="pb-d">' + esc(m) + "</span></a>";
+    const face = d => DOC_CARD[d.id] || [d.title, d.sub];
+    const kit = DOCS.find(d => d.id === "readme");
+    const guides = DOCS.filter(d => d !== kit);
+    const more = LINKS.length - LINKS_SHOWN;
+    return '<div class="view-enter"><div class="page-head"><h1>Library</h1>' +
+      '<div class="sub">The rules of Brickford, and the guides for each phase.</div></div>' +
 
-      '<div class="ghead">Documents<span class="gh-meta">' + rows.length + " to read</span></div>" +
-      '<div class="glist">' +
-      rows.map(r => '<a class="grow" href="' + r.href + '">' +
-        '<span class="g-lead"></span>' +
-        '<span class="g-main"><span class="g-t">' + esc(r.title) + "</span>" +
-        '<span class="g-s">' + esc(r.sub) + "</span></span></a>").join("") +
-      "</div>" +
+      '<div class="ghead">Start here</div>' +
+      '<div class="at-tiles lb-docs lb-start">' +
+      doc("#/guide", "The Handbook", "How Brickford works, end to end", "start") +
+      doc("#/method", "The Method", "Why mastery beats coverage") +
+      (kit ? doc("#/doc/" + kit.id, face(kit)[0], face(kit)[1]) : "") + "</div>" +
 
-      // Ten outside links used to sit here as ten ghost buttons in four
-      // labelled strips — a chip rail, which is a shape this app uses nowhere
-      // else. They are rows in groups like everything else now, and the whole
-      // block folds, because you come to the Library for its own documents and
-      // leave for someone else's about twice a term.
-      '<details class="unit" style="margin-top:16px;"><summary>' +
-      '<span class="u-name">External halls</span><span class="pill">' +
-      HALLS.reduce((a, h) => a + h[1].length, 0) + " links</span>" +
-      '<span class="u-prog" style="width:0%;"></span></summary><div class="u-body">' +
-      HALLS.map(([label, links]) =>
-        '<div class="ghead">' + esc(label) + "</div>" +
-        '<div class="glist">' + links.map(r =>
-          '<a class="grow" href="' + r[1] + '" target="_blank" rel="noopener">' +
-          '<span class="g-lead">\u2197</span>' +
-          '<span class="g-main"><span class="g-t">' + esc(r[0]) + "</span>" +
-          '<span class="g-s">' + esc(r[1].replace(/^https?:\/\//, "").replace(/\/.*$/, "")) + "</span></span></a>").join("") +
-        "</div>").join("") +
-      "</div></details>" +
-      "</div>";
+      // "Progress Log (file)" keeps its own title and its superseded note, in
+      // the quieter ink: it is there to be found, not to be read first.
+      '<div class="ghead">Guides</div>' +
+      '<div class="at-tiles lb-docs lb-guides">' +
+      guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
+
+      '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
+      '<div class="at-chips lb-links">' +
+      LINKS.map(([t, u], i) => '<a class="at-chip" href="' + u + '" target="_blank" rel="noopener"' +
+        (i >= LINKS_SHOWN ? " hidden data-lb-more" : "") + ">" + esc(t) + ' <span aria-hidden="true">↗</span></a>').join("") +
+      (more > 0 ? '<button type="button" class="at-chip lb-more" data-act="lbMore" aria-label="Show ' + more + ' more links">+' + more + "</button>" : "") +
+      "</div></div>";
   };
 
 
@@ -4143,6 +5066,38 @@
 
   // ---------- actions ----------
   function wire(root, route) {
+    // A lecture's player, if one was just drawn: start the handshake.
+    // And again the moment the frame has loaded: whatever was said before
+    // that went to a page that was not the player yet.
+    const yt = $(".video-frame iframe[data-k]", root);
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
+    // T-026a: the Courses filter. In memory, and a swap of the shelf alone:
+    // no save() (a render is a read, and this is not even a render), and no
+    // render(), so the page keeps its scroll.
+    $$("[data-shelf]", root).forEach(b => {
+      b.onclick = () => {
+        courseFilter = b.dataset.shelf;
+        const shelf = $("#shelf", root);
+        if (shelf) shelf.innerHTML = shelfHTML(courseFilter);
+        $$("[data-shelf]", root).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      };
+    });
+    // T-028: the Practice tabs. In memory, and a swap of the pane alone, as
+    // the Courses filter is: no save(), no render(). A recording in progress
+    // is stopped (and kept) first, as leaving a recorder does.
+    $$("[data-ptab]", root).forEach(b => {
+      b.onclick = () => {
+        practiceTab = b.dataset.ptab;
+        if (rec) recStop();
+        // The view on screen now, and the pick by value (review 3): never the
+        // nodes this handler was bound with, which a render may have replaced.
+        const pane = $("#view .pr-pane");
+        if (pane) paintPane(pane);
+        $$("#view [data-ptab]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.ptab === practiceTab)));
+      };
+    });
+    // The recordings: read from IndexedDB once the view is on screen.
+    if ($("#prClips", root)) clipsPaint();
     // generic data-act buttons
     $$("[data-act]", root).forEach(b => {
       b.onclick = () => {
@@ -4171,6 +5126,8 @@
           if (navigator.clipboard && navigator.clipboard.writeText)
             navigator.clipboard.writeText(el.value).then(done, () => { document.execCommand("copy"); done(); });
           else { document.execCommand("copy"); done(); }
+        } else if (act === "recToggle") {
+          recToggle(b.dataset.kind);
         } else if (act === "repBank" || act === "repStory" || act === "repHumor" || act === "repReview") {
           // Guard the write, not just the control: a rep must carry a payload or
           // it does not exist. This is the same discipline as verified-vs-done on
@@ -4186,28 +5143,24 @@
           if (act === "repBank") {
             const what = val("bankWhat");
             if (!what) { toast("Write what happened first \u2014 an empty entry is not an entry."); return; }
-            S.reps.bank.push({ date: iso, what: what, why: val("bankWhy") });
-            logEvent("rep", "bank", { date: iso });
+            logRep("bank", { date: iso, what: what, why: val("bankWhy") }, { date: iso });
             toast("Logged. The bank is the input to every other rep.");
           } else if (act === "repStory") {
             const secs = +val("repSecs") || 0;
             if (!secs) { toast("How long was it? The 90-second cap is the teacher."); return; }
-            S.reps.story.push({ date: iso, seconds: secs, takes: +val("repTakes") || 1, from: val("repWhich") });
-            logEvent("rep", "story", { date: iso, seconds: secs });
+            logRep("story", { date: iso, seconds: secs, takes: +val("repTakes") || 1, from: val("repWhich") }, { date: iso, seconds: secs });
             toast(secs <= 90 ? "Logged, and inside 90s." : "Logged \u2014 " + secs + "s. The cap is 90.");
           } else if (act === "repHumor") {
             const attempts = [0, 1, 2, 3, 4].map(i => val("joke" + i));
             const n = attempts.filter(Boolean).length;
             if (n < 5) { toast("Five attempts, not " + n + ". Volume is the mechanic."); return; }
             const k = +val("jokeKeep") || 0;
-            S.reps.humor.push({ date: iso, attempts: attempts, keeper: k >= 1 && k <= 5 ? k : 0 });
-            logEvent("rep", "humor", { date: iso, keeper: k });
+            logRep("humor", { date: iso, attempts: attempts, keeper: k >= 1 && k <= 5 ? k : 0 }, { date: iso, keeper: k });
             toast(k ? "Logged, one keeper." : "Logged. No keeper this week \u2014 that is a normal week.");
           } else {
             const notes = val("revNotes");
             if (!notes) { toast("A review with no writing is a rewatch."); return; }
-            S.reps.review.push({ date: iso, notes: notes });
-            logEvent("rep", "review", { date: iso });
+            logRep("review", { date: iso, notes: notes }, { date: iso });
             toast("Review logged.");
           }
           save(); render();
@@ -4298,6 +5251,26 @@
           // essential).
           const box = $("#advBox");
           if (box) { box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+        } else if (act === "pbOpen") {
+          // T-026b: a mode card's Open is a jump to its section on this page,
+          // opening the problem sets' fold on the way. The DOM only — no save,
+          // no render, so nothing on the page moves but the scroll.
+          const t = $("#" + b.dataset.to);
+          if (t) {
+            if (t.tagName === "DETAILS") t.open = true;
+            t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+          }
+        } else if (act === "exMore") {
+          // T-026b: the locked exams past the sixth, shown in place. In memory.
+          $$("[data-ex-more]").forEach(el => { el.hidden = false; });
+          b.remove();
+        } else if (act === "lbMore") {
+          // T-026c: the outside links past the fifth, shown in place. In
+          // memory; the first of them takes the focus the button had.
+          const rest = $$("[data-lb-more]");
+          rest.forEach(el => { el.hidden = false; });
+          b.remove();
+          if (rest[0]) rest[0].focus();
         } else if (act === "copyHead") {
           const h = chainHead();
           if (navigator.clipboard) navigator.clipboard.writeText(h).then(() => toast("Head hash copied."), () => toast(h));
@@ -4450,7 +5423,18 @@
           const nd = new Date(y, m - 1 + (nav === "next" ? 1 : -1), 1);
           calCursor = nd.getFullYear() + "-" + pad2(nd.getMonth() + 1);
         }
-        render();
+        if (b.closest(".cd-seg")) dayRender("#view .cd-seg [data-cal-nav='today']");
+        else render();
+      };
+    });
+    // T-026c: the day view's ‹ and › step the selected day (never before day
+    // 1), and the grid follows it into the next month. In memory, no save.
+    $$("[data-cal-step]", root).forEach(b => {
+      b.onclick = () => {
+        let d = addDaysISO(calSel || todayISO(), +b.dataset.calStep);
+        if (d < D.START_DATE) d = D.START_DATE;
+        calSel = d; calCursor = d.slice(0, 7);
+        dayRender("#view .cd-seg [data-cal-step='" + b.dataset.calStep + "']");
       };
     });
     // workshop labs + proof URLs + psets + electives
@@ -4642,13 +5626,7 @@
     }
     // gates
     $$("[data-gate]", root).forEach(b => {
-      b.onclick = () => {
-        const n = +b.dataset.gate;
-        S.gates[n] = S.gates[n] ? false : todayISO();
-        logEvent("gate", "gate" + n, { passed: !!S.gates[n] });
-        save(); render();
-        if (S.gates[n]) toast("Gate " + n + " passed — every later target just moved earlier.");
-      };
+      b.onclick = () => gateSheet(+b.dataset.gate, b.dataset.gateDo !== "unmark");
     });
     // client delete
     $$("[data-delclient]", root).forEach(b => {
@@ -4690,6 +5668,53 @@
     toast("Backup exported. Keep it somewhere safe.");
     render();
   }
+  // ---------- the gate confirm sheet (T-038) ----------
+  // A pass was a bare toggle behind a fold, and the owner's device ended up
+  // with Gates 1-3 passed by accident. Now each control opens this: a native
+  // modal <dialog> on <body>, outside #view, so a background render cannot
+  // take it away; the page behind is inert, Escape closes it, and focus starts
+  // inside it. A pass lists the gate's requirements, and "Pass gate n" is
+  // disabled until every one is ticked. Opening, ticking and cancelling write
+  // nothing; the button is setGate()'s one save().
+  function gateSheet(n, pass) {
+    const g = gatePlan().find(x => x.n === n);
+    if (!g) return;
+    const old = $("dialog.sheet");
+    if (old) old.remove();
+    const dlg = document.createElement("dialog");
+    dlg.className = "sheet";
+    dlg.setAttribute("aria-labelledby", "sheetTitle");
+    dlg.innerHTML = '<div class="sheet-in">' +
+      '<h2 id="sheetTitle">' + (pass ? "Pass" : "Unmark") + " Gate " + g.n + " \u2014 " + esc(g.label) + "</h2>" +
+      '<p class="sheet-lede">' + (pass
+        ? "Tick each requirement that is true today. Every later target will count from today."
+        : "Gate " + g.n + " goes back to open, and every later target counts from its target again.") + "</p>" +
+      (pass ? '<div class="sheet-reqs">' + g.req.split(" \u00b7 ").map(r =>
+        '<label class="check-row"><input type="checkbox" data-gate-req><span class="checkbox">' + CHECK_SVG +
+        '</span><span class="check-label">' + esc(capFirst(r)) + "</span></label>").join("") + "</div>" : "") +
+      '<div class="sheet-go"><button class="btn ghost" type="button" data-sheet-cancel>Cancel</button>' +
+      '<button class="btn" type="button" data-sheet-go>' + (pass ? "Pass" : "Unmark") + " gate " + g.n + "</button></div></div>";
+    document.body.appendChild(dlg);
+    const go = $("[data-sheet-go]", dlg), boxes = $$("[data-gate-req]", dlg);
+    const ready = () => { go.disabled = !boxes.every(b => b.checked); };
+    boxes.forEach(b => { b.onchange = ready; });
+    ready();
+    const close = () => { if (dlg.open) dlg.close(); };
+    dlg.addEventListener("close", () => { dlg.remove(); window.removeEventListener("hashchange", close); });
+    window.addEventListener("hashchange", close);
+    $("[data-sheet-cancel]", dlg).onclick = close;
+    // A press on the dimmed page around the sheet dismisses it.
+    dlg.onclick = e => { if (e.target === dlg) close(); };
+    go.onclick = () => {
+      if (go.disabled) return;
+      close();
+      if (!setGate(n, pass)) { toast(pass ? "Only the next gate can be passed." : "Only the last gate passed can be unmarked."); render(); return; }
+      render();
+      toast(pass ? "Gate " + n + " passed \u2014 every later target now counts from today." : "Gate " + n + " is open again.");
+    };
+    dlg.showModal();
+  }
+
   function importBackup(file) {
     const r = new FileReader();
     r.onload = () => {
@@ -4770,18 +5795,166 @@
   // the frame is cross-origin, so whether it is actually playing is unknowable,
   // and being cautious here costs nothing.
   const videoOnScreen = () => !!document.querySelector("#view .video-frame iframe");
+  // T-028: the same for the Practice page. A recording in progress (or a
+  // microphone prompt open), or one of your recordings started and not
+  // finished — playing, or paused part-way (review 2: a paused player was
+  // detached and its place lost) — would be destroyed by a repaint nobody
+  // asked for: the button and its focus, or the <audio> and where it was.
+  const mediaBusy = () => !!rec || $$("#view audio").some(a => !a.paused || (a.currentTime > 0 && !a.ended));
+  // A repaint skipped for that is remembered (bgSkipped), and replayed once the
+  // page is free again: when a clip plays to its end, when a prompt is
+  // cancelled, when a recording finishes away from this page or falls back to
+  // the hand form. Any render that does run clears it — it has painted the
+  // same state. So the skip is a deferral, never a loss.
+  // Always queued, never run inside its caller (review 3): called from a tab
+  // click, a synchronous render under reduced motion would replace the view
+  // under the handler still working on it; called from the hashchange
+  // listener, it would paint before the router does, and then the router
+  // would paint again. Queued, the caller finishes first, and a render that
+  // runs in between clears bgSkipped so this one does nothing.
+  let bgSkipped = false;
+  function bgReplay() {
+    setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true }); }, 0);
+  }
+
+  // ---------- resume points (T-016) ----------
+  // The embed is asked for enablejsapi=1, and the player then talks to the
+  // page over postMessage — the protocol YouTube's IFrame API speaks
+  // underneath, so iframe_api is not loaded. The page says it is listening;
+  // the player answers with infoDelivery (currentTime, playerState) a few
+  // times a second, and onStateChange.
+  //
+  // The time lives in memory (`player`), and is written as
+  // S.lessons[k].pos (+ posAt, for the merge) at three moments only: a pause,
+  // leaving — the route or the page (pagehide, or hidden, which is how a
+  // phone mostly leaves) — and the end, which clears it. Never
+  // from a tick and never from a render: a write per tick is a sync push
+  // armed four times a second, and a write from a render is the reload loop
+  // CLAUDE.md describes.
+  const YT = "https://www.youtube.com";
+  const YT_ORIGIN = /^https:\/\/www\.youtube(-nocookie)?\.com$/;
+  const PS = { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 };
+  let player = null;        // { k, own, v, t, state, dirty, moved } for the lecture on screen
+  let hailH = null, heardFrom = null;
+  const ytFrame = () => document.querySelector("#view .video-frame iframe[data-k]");
+  // Say "listening" until the player answers, the way the IFrame API does
+  // (every 250ms; the browser drops it until the frame is on YouTube's
+  // origin). Messages out only — nothing here writes. No cap: this used to
+  // stop after 60 tries (15s), and a phone on a slow connection can take
+  // longer than that to put a player in the frame — which then waits to be
+  // asked, says nothing, and resume silently never starts. After the first
+  // 60 it asks once a second, for as long as the frame is on the page and
+  // has not answered; wire() also starts it again on the frame's own load.
+  function hailPlayer(f) {
+    clearInterval(hailH);
+    let n = 0;
+    const hail = () => {
+      if (!f.isConnected || heardFrom === f) { clearInterval(hailH); return; }
+      try { f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), YT); } catch (e) {}
+      if (++n === 60) { clearInterval(hailH); hailH = setInterval(hail, 1000); }
+    };
+    hail();
+    hailH = setInterval(hail, 250);
+  }
+  function onPlayerMessage(ev) {
+    const f = ytFrame();
+    if (!f || ev.source !== f.contentWindow || !YT_ORIGIN.test(ev.origin)) return;
+    playerEvent(f, ev.data);
+  }
+  function playerEvent(f, raw) {
+    let m = raw;
+    if (typeof m === "string") { try { m = JSON.parse(m); } catch (e) { return; } }
+    if (!m || typeof m !== "object") return;
+    if (heardFrom !== f) {
+      heardFrom = f;
+      // State changes arrive in infoDelivery as well; asking for the event
+      // too is what the IFrame API does when a page subscribes to it.
+      try { f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"], id: 1, channel: "widget" }), YT); } catch (e) {}
+    }
+    const k = f.dataset.k;
+    if (!player || player.k !== k) player = { k, own: f.dataset.v, v: f.dataset.v, t: null, state: null, dirty: false, moved: false };
+    let state = null;
+    if (m.event === "onStateChange") state = +m.info;
+    else if (m.event === "infoDelivery" || m.event === "initialDelivery") {
+      const info = m.info || {};
+      // A playlist embed moves on to the next video by itself; that time is
+      // not this lecture's.
+      if (info.videoData && info.videoData.video_id) player.v = info.videoData.video_id;
+      if (typeof info.playerState === "number") state = info.playerState;
+      const live = state != null ? state : player.state;
+      // A cued or unstarted player reports 0, and an ended one its length:
+      // neither is where the reader is. Nor, as a rule, is anything under a
+      // second: a player opened at start= reports 0 while it buffers, before
+      // it has seeked there (iOS does it on an ordinary open), and taking
+      // that would send a resume point back to the beginning. The one real
+      // 0 is a reader who went back to the start of a lecture that began
+      // there — playing or paused, after it had really played.
+      const t = info.currentTime;
+      if (typeof t === "number" && player.v === f.dataset.v &&
+          live !== PS.UNSTARTED && live !== PS.CUED && live !== PS.ENDED &&
+          (t >= 1 || (player.moved && !/[?&]start=/.test(f.getAttribute("src") || "") &&
+                      (live === PS.PLAYING || live === PS.PAUSED)))) {
+        player.t = t;
+        player.dirty = true;
+        if (t >= 1 && live === PS.PLAYING) player.moved = true;
+      }
+    }
+    if (state == null || isNaN(state) || state === player.state) return;
+    player.state = state;
+    if (player.v !== f.dataset.v) return;
+    if (state === PS.PAUSED) keepPosition("pause");
+    else if (state === PS.ENDED) keepPosition("ended");
+  }
+  // The only writer of pos, through the ordinary save path.
+  function keepPosition(why) {
+    if (!player) return;
+    const k = player.k;
+    const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+    if (why === "ended") {
+      // Stamped even when nothing was stored here, if it played: the clear
+      // has to be newer than a resume point another device is still holding.
+      const played = player.t != null;
+      player.t = null; player.dirty = false;
+      if (st.pos == null && !played) return;
+      delete st.pos;
+    } else {
+      // Not once a playlist embed has moved on to another video: the time it
+      // is holding is that video's, not this lecture's.
+      if (!player.dirty || player.t == null || player.v !== player.own) return;
+      player.dirty = false;
+      const p = Math.floor(player.t);
+      if (st.pos === p) return;
+      st.pos = p;
+    }
+    st.posAt = new Date().toISOString();
+    S.lessons[k] = st;
+    save();
+  }
+  // Leaving the lecture: the route changes (registered ahead of the render
+  // that replaces the frame) or the page goes away (ahead of the push).
+  function leaveLecture() {
+    clearInterval(hailH);
+    if (!player) return;
+    keepPosition("leave");
+    player = null;
+  }
   // render({ background: true }) — a repaint nobody asked for.
   //
   // Every caller of this kind is a sync that has just finished: a banner to
   // show, a merge to reflect. None of them is worth restarting a lecture ten
-  // minutes in. The paint is deferred, not lost — leaving the page renders it,
-  // and so does any action taken on the page, because those callers are in the
-  // foreground and pass nothing.
+  // minutes in, or a recording, or a clip part-way through. The paint is
+  // deferred, not lost: bgSkipped remembers it; leaving the page renders, and
+  // so does any action taken on the page, because those callers are in the
+  // foreground and pass nothing; and the Practice page replays it itself the
+  // moment it is free (bgReplay).
   function render(opts) {
     if (rendering) return;
-    if (opts && opts.background && videoOnScreen()) return;
+    if (opts && opts.background && (videoOnScreen() || mediaBusy())) { bgSkipped = true; return; }
+    bgSkipped = false;
     rendering = true;
-    const done = () => { rendering = false; };
+    // opts.after runs once the view is rebuilt, on either path below (T-026c:
+    // the day controls put the page back where the reader had it).
+    const done = () => { rendering = false; if (opts && opts.after) opts.after(); };
     // apple-design 7: a route change is a spatial move, and a hard swap gives
     // the eye nothing to follow. The View Transition API cross-fades the old
     // page into the new one at the compositor, so it costs nothing on the
@@ -4801,14 +5974,21 @@
       try { renderInner(); } finally { done(); }
     }
   }
+  let lastRoute = null;
   function renderInner() {
     clearInterval(timerH);
     const r = route();
+    // T-023: leaving a tab keeps its scroll position, in memory only.
+    const prevRoute = lastRoute, moved = prevRoute !== r;
+    lastRoute = r;
+    if (moved && TAB_ROUTES.includes(prevRoute)) tabScroll[prevRoute] = window.scrollY;
     const view = $("#view");
     let html;
     const seg = r.split("/").filter(Boolean);
     if (r === "/") html = V.dashboard();
-    else if (r === "/courses") html = V.courses();
+    // T-026a: #/courses?later is the Atlas's "+N" chip. The filter is taken
+    // from it only on arriving (moved); a repaint keeps the one picked.
+    else if (r === "/courses" || r.indexOf("/courses?") === 0) html = V.courses(r.slice("/courses?".length), moved);
     else if (seg[0] === "course") html = V.course(seg[1]);
     else if (seg[0] === "lesson") html = V.lesson(seg[1], +seg[2], +seg[3]);
     else if (r === "/exams") html = V.exams();
@@ -4859,34 +6039,73 @@
         (rt === "/library" && seg[0] === "doc");
       a.classList.toggle("active", !!active);
     });
-    // Last, because it reads what the view drew AND, for the two routes with no
-    // head of their own, which nav link is active — and that is set six lines
-    // up. Called before it, the dashboard's bar showed the name of the page the
-    // reader had just left.
+    // The Review tab's count of due reviews: a read of state, nothing more.
+    const badge = $("#tabBadge");
+    if (badge) {
+      const due = reviewsDue().length;
+      badge.textContent = due > 99 ? "99+" : due ? String(due) : "";
+      badge.hidden = !due;
+      badge.parentElement.setAttribute("aria-label", due ? "Review, " + due + " due" : "Review");
+    }
+    if (tabbar) tabbar.sync();
+    // Last, because it reads what the view drew AND, for a route with no h1 of
+    // its own, which nav link is active — and that is set six lines up. Called
+    // before it, the bar showed the name of the page the reader had just left.
     mountTopbar();
     $("#sidebar").classList.remove("open");
-    window.scrollTo({ top: 0 });
+    // Back on a tab: where it was left. Anywhere else, and a re-render of the
+    // same page, start at the top as before.
+    if (moved && tabScroll[r] !== undefined) window.scrollTo({ top: tabScroll[r], behavior: "instant" });
+    else window.scrollTo({ top: 0 });
   }
 
   // ---------- boot ----------
   function boot() {
+    // "auto" follows the phone's light/dark setting. It is stored as that
+    // string and resolved here, never written back as "light" or "dark", so
+    // the phone stays in charge.
+    // Unset means the default, which is "dark" (T-024; since T-025 the iOS
+    // near-black, not navy). Only an unset theme moves, plus the one-time
+    // switch at load (a stored "light" without themeNavyOnce; see the state
+    // block). A pick made from the Theme menu carries the marker and is never
+    // rewritten.
+    // Three choices since T-025 (the owner's decision of 2026-10-07): Auto,
+    // Dark, Light. A stored theme that no longer exists (parchment, forest,
+    // midnight, latte, slate) or any unknown string renders as dark — and is
+    // NOT rewritten: this is a read, and the stored value stays until the
+    // next pick from the menu. index.html's first-paint script does the same.
+    const THEMES = ["light", "dark"];
+    const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
     const applyTheme = () => {
-      document.documentElement.dataset.theme = S.settings.theme || "light";
+      let pick = S.settings.theme || "dark";
+      if (pick !== "auto" && !THEMES.includes(pick)) pick = "dark";
+      document.documentElement.dataset.theme =
+        pick === "auto" ? (darkQ && darkQ.matches ? "dark" : "light") : pick;
       // The Home Screen app's status bar is painted from this meta, and it was
-      // hard-coded to the brown panel — so picking Dark or Latte left a brown
+      // hard-coded to the brown panel — so picking a dark theme left a brown
       // bar above a near-black page. It follows the theme now. Read AFTER the
       // dataset is set, so it is this theme's panel and not the last one's.
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content",
         getComputedStyle(document.documentElement).getPropertyValue("--panel").trim() || "#2b2118");
       $$("#themeMenu [data-theme-pick]").forEach(b =>
-        b.classList.toggle("on", b.dataset.themePick === (S.settings.theme || "light")));
+        b.classList.toggle("on", b.dataset.themePick === pick));
     };
     applyTheme();
+    // The phone switching light/dark while the app is open. This is a read:
+    // it re-applies the theme and nothing else — no save(), which would arm a
+    // sync push, and no render(), since every colour is a token and follows
+    // data-theme on its own.
+    if (darkQ) {
+      const follow = () => { if (S.settings.theme === "auto") applyTheme(); };
+      if (darkQ.addEventListener) darkQ.addEventListener("change", follow);
+      else if (darkQ.addListener) darkQ.addListener(follow);   // Safari before 14
+    }
     $("#themeBtn").onclick = () => $("#themeMenu").classList.toggle("open");
     $$("#themeMenu [data-theme-pick]").forEach(b => {
       b.onclick = () => {
         S.settings.theme = b.dataset.themePick;
+        S.settings.themeNavyOnce = true;   // an explicit pick is kept (see load)
         save(); applyTheme();
         $("#themeMenu").classList.remove("open");
       };
@@ -4895,10 +6114,18 @@
     $("#importBtn").onclick = () => $("#importFile").click();
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
     mountDrawer();
+    mountTabbar();
+    // Before render: the frame is still the old lecture's when this runs.
+    window.addEventListener("hashchange", leaveLecture);
     window.addEventListener("hashchange", render);
-    // Rotating the phone changes which furniture exists and how tall it is.
+    window.addEventListener("message", onPlayerMessage);
+    // Rotating the phone changes which furniture exists and how tall it is —
+    // including the nav bar, whose height is the observer's rootMargin.
     let rt = null;
-    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measureFurniture, 120); });
+    window.addEventListener("resize", () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => { measureFurniture(); watchTopbar($("#view h1")); }, 120);
+    });
     render();
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.
@@ -4908,6 +6135,11 @@
     // resumes rather than reloads — never saw progress made on the laptop.
     let lastPull = Date.now();
     document.addEventListener("visibilitychange", () => {
+      // Hidden: keep the lecture's place first, so the push below carries
+      // it. A phone backgrounds a page — another app, the lock button —
+      // far more often than it fires pagehide. The player is not let go:
+      // the page may well come back to it.
+      if (document.visibilityState === "hidden") keepPosition("hide");
       if (!ghToken()) return;
       if (document.visibilityState === "visible") {
         if (Date.now() - lastPull < 20000) return;   // do not hammer the API
@@ -4919,9 +6151,21 @@
     });
     // iOS kills in-flight fetches as it backgrounds a page, so the push above is
     // best-effort. pagehide fires earlier and more reliably; both are cheap.
+    // The resume point is kept first, so the push carries it.
+    window.addEventListener("pagehide", leaveLecture);
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
   }
-  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount }); // read-only hook for tools/verify-logic.js (spec T-000)
+  if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
+    // T-016, for tools/verify-flows.js: a message as the lecture's player would
+    // send it, handed to playerEvent — so it WRITES through the same path a
+    // real player message does (a pause or an end saves); only the
+    // origin/source filter in front of it is skipped. And a foreground render.
+    playerMessage: data => { const f = ytFrame(); if (f) playerEvent(f, data); return !!f; },
+    render: () => render(),
+    // T-038, for tools/verify-logic.js: the gate plan (a read), setGate (the
+    // one write the confirm sheet makes, order guard included) and the sync
+    // merge, handed a remote file's shape.
+    gatePlan, setGate, mergeState });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

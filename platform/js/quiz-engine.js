@@ -39,7 +39,17 @@
       const n = Math.min(bank.perSitting || 15, bank.questions.length);
       // Draw by index so results can report which BANK questions were missed.
       const order = shuffle(bank.questions.map((_, i) => i)).slice(0, n);
-      const qs = order.map(i => bank.questions[i]);
+      // The options are shuffled too, on every sitting. The banks were written
+      // with the answer nearly always in the same slot (option B in the
+      // summaries, option A in two banks), and a reader learns the slot, not
+      // the material. The bank is never touched: each sitting presents a copy
+      // whose answer index follows its option through the permutation.
+      const present = q => {
+        if (!q.opts) return q;
+        const p = shuffle(q.opts.map((_, i) => i));
+        return Object.assign({}, q, { opts: p.map(i => q.opts[i]), a: p.indexOf(q.a) });
+      };
+      const qs = order.map(i => present(bank.questions[i]));
       let idx = 0, score = 0, answered = false, finished = false;
       const results = [];
 

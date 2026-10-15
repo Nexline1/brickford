@@ -1,0 +1,115 @@
+PLANT e: the inline script lets an unknown theme (forest) through to data-theme
+file: platform/index.html
+--- diff ---
+diff --git a/platform/index.html b/platform/index.html
+index 87313dd..b17a790 100644
+--- a/platform/index.html
++++ b/platform/index.html
+@@ -39,10 +39,9 @@
+     ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+     : pick;
+   // A removed theme or any unknown string is dark (T-025).
+-  if (!Object.prototype.hasOwnProperty.call(PANEL, theme)) theme = "dark";
+   document.documentElement.setAttribute("data-theme", theme);
+   var meta = document.querySelector('meta[name="theme-color"]');
+-  if (meta) meta.setAttribute("content", PANEL[theme]);
++  if (meta) meta.setAttribute("content", PANEL[theme] || PANEL.light);
+ })();
+ </script>
+ <link rel="manifest" href="manifest.json?v=20261007t">
+--- node tools/verify-design.js ---
+status bar (read from platform/css/style.css)
+
+hairlines (read from platform/css/style.css)
+
+390px light
+
+390px dark
+
+1280px light
+
+1280px dark
+
+empty tracks, 390px light
+
+empty tracks, 390px dark
+
+Auto theme
+
+T-024: the default theme
+
+T-024: the navy switch
+
+T-024: the theme before the first paint
+  FAIL  first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(242, 241, 238) (forest), app ran false, meta #2b2118
+  FAIL  first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 6 of 17 frames, e.g. rgb(242, 241, 238) (forest)
+  FAIL  first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(242, 241, 238) (slate), app ran false, meta #2b2118
+  FAIL  first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 8 of 11 frames, e.g. rgb(242, 241, 238) (slate)
+
+T-025: no glow, no decoration
+
+calendar cellPick
+
+nav bar, 390px light
+
+nav bar, 390px dark
+
+tab bar and sidebar, light
+
+tab bar and sidebar, dark
+
+reduced transparency, light
+
+reduced transparency, dark
+
+more contrast, light
+
+more contrast, dark
+
+the inline title under reduced motion
+
+scrolling a lesson page
+
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+
+the keyboard ring, 390px light
+
+the keyboard ring, 390px dark
+
+the keyboard ring, 1280px light
+
+the keyboard ring, 1280px dark
+
+press, light
+
+press, dark
+
+thumbnails, 390px light
+
+thumbnails, 390px dark
+
+thumbnails, 1280px light
+
+thumbnails, 1280px dark
+
+thumbnails that load, 390px light
+
+thumbnail contrast, light
+
+thumbnail contrast, dark
+
+
+FAIL — 4 of 642 design checks failed
+exit code: 1
+restored byte-for-byte (cmp platform/index.html against the pre-plant copy: identical)
+git diff on platform/index.html after restore: empty

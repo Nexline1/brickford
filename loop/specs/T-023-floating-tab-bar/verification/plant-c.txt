@@ -1,0 +1,26 @@
+# Plant c — 2026-10-07T16:49:30Z on 1e1feed
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 51934b6..7fa8e96 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -5311,8 +5311,7 @@
+     $("#sidebar").classList.remove("open");
+     // Back on a tab: where it was left. Anywhere else, and a re-render of the
+     // same page, start at the top as before.
+-    if (moved && tabScroll[r] !== undefined) window.scrollTo({ top: tabScroll[r], behavior: "instant" });
+-    else window.scrollTo({ top: 0 });
++    window.scrollTo({ top: 0 });
+   }
+ 
+   // ---------- boot ----------
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) scroll memory: Today at 600, to Courses (0) and back is 600 (+/-2) — back at 0
+a slow phone (once, 390px)
+sync (once)
+1 of 96 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean

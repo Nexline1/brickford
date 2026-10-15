@@ -1,0 +1,17 @@
+# Same harness on the final round-2 worktree (style.css sha256 72119c5e…).
+.cal-cell.rest                    light@390 1.226 #f2f0ea/#dcdad5 div.cal-grid nb 1.140 | light@1280 1.226 #f2f0ea/#dcdad5 div.cal-grid nb 1.140 | dark@390 1.654 #0b0e11/#38383a div.cal-grid nb 1.137 | dark@1280 1.654 #0b0e11/#38383a div.cal-grid nb 1.137
+.cal-cell.blank                   light@390 1.226 #f2f0ea/#dcdad5 div.cal-grid nb 1.140 | light@1280 1.226 #f2f0ea/#dcdad5 div.cal-grid nb 1.140 | dark@390 1.654 #0b0e11/#38383a div.cal-grid nb 1.137 | dark@1280 1.654 #0b0e11/#38383a div.cal-grid nb 1.137
+.cal-cell:hover                   light@390 1.226 #f2f0ea/#dcdad5 div.cal-grid nb 1.140 | light@1280 1.226 #f2f0ea/#dcdad5 div.cal-grid nb 1.140 | dark@390 1.654 #0b0e11/#38383a div.cal-grid nb 1.137 | dark@1280 1.654 #0b0e11/#38383a div.cal-grid nb 1.137
+.unit > summary:hover             light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.unit > summary:active            light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.opt:hover                        light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.check-row:hover                  light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.check-row:active                 light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.onecounts > a:hover              light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.btn.tiny.bare:hover              light@390 1.000 #ffffff/#ffffff tr | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.000 #1c1c1e/#1c1c1e tr | dark@1280 1.234 #1c1c1e/#000000 body
+.prose code                       light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.stack-table tr (:1063)           light@390 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body
+.hash (:1648)                     light@390 1.130 #ffffff/#f2f1ee body | light@1280 1.130 #ffffff/#f2f1ee body | dark@390 1.234 #1c1c1e/#000000 body | dark@1280 1.234 #1c1c1e/#000000 body
+.menu-btn:active (:1771)          light@390 1.237 #dcdad5/#f2f1ee body | dark@390 1.795 #38383a/#000000 body
+(extra) .theme-menu button:hover  light@1280 1.000 #2b2118/#2b2118 aside.sidebar (NOT HOVERED) | dark@1280 1.194 #1e2024/#0a0d10 aside.sidebar
+(extra) .navrow:hover             light@1280 1.278 #3d3329/#2b2118 aside.sidebar | dark@1280 1.194 #1e2024/#0a0d10 aside.sidebar

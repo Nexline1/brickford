@@ -1,0 +1,263 @@
+# Transcript: How To Make A Devlog Series For Your Indie Game
+
+Source video: https://www.youtube.com/watch?v=laSmItPiId0
+Language: en (auto-generated) · Duration: 16:49 · Words: 11476
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (de-duplicated from rolling auto-captions)
+
+[0:03] i make videos quite a few actually i've been doing it for a while and i'd like to think i'm
+pretty good at it i've had some comments before asking how exactly i go about the whole process
+shout out to snug pig gaming sorry it took me three months to do something with it so i thought i'd
+run you through how to assemble what i think is a pretty entertaining and educational devlog video
+for the indie game that you're making so let's talk video design first things first i need to
+clarify something for you this isn't going to be a tutorial about how to use a specific piece of
+software i'm not an
+
+[0:34] expert on adobe premiere or anything which is largely because i don't actually use premiere
+at all i use a program called cyberlink powerdirector why because i'm old and it's something i'm
+used to it's almost definitely not the best one and i think if you're going to start from scratch
+maybe go follow some tutorials on premiere instead having said that what i'm about to tell you
+applies to any video editing software at all because it's more about how to structure your devlog in
+a way that's hopefully entertaining for people also this video is going to be full of other people's
+footage that i've stolen
+
+[1:04] borrowed them being in this video isn't a critique or anything these are literally just all
+people i subscribe to who i think do a really good job of making devlogs i'll list all of their
+channels in the description below so if you see someone you like the look of go check them out i'd
+recommend them all anyway to be honest and if any of them see this i hope you don't mind being
+included in this video i do this out of love and cheap lazy content creation anyway here we go first
+thing you're going to want to do is decide which type of devlog you're going to want to make but
+zayn i hear you ask isn't there only
+
+[1:35] one type of devlog no and stop interrupting me it's not question time yet shush there are as
+far as i'm concerned two different types of devlogs which i've called technical and design i'll let
+you guess which one i the guy from let's talk game design know more about i'm sure you can figure it
+out [Music] [Music] this is the one that i know the least about because i don't actually make them i
+do however watch a fair few of them and i think it's a style that might benefit some of you so i'll
+share what i know a technical devlog is one that's focused on the technical aspects of game
+
+[2:05] development things like the code you're writing the processes you're following the engine
+you're using they're really popular with people who are also writing code following processes and
+using engines and they're the easiest type of devlog to update consistently since your content is
+made sort of automatically every time you do something to make a success out of this kind of devlog
+it's easier if you can try and think about making them as you go along rather than coming back to it
+once you've made some great milestone and assembling the process backwards get your screen recorder
+of choice loaded up in the background while you're working i use
+
+[2:35] obs and i'd recommend you do too and take clips or even full-blown hour-long recordings as
+you work taking in the process and crucially what that process does even with the kinds of people
+who enjoy technical devlogs you don't want to just fill 15 minutes of airtime with real-time footage
+of you typing code into a text editor that's not to say there isn't value in that it's just that's
+probably very specific and i'd imagine there's a comparatively small number of people for whom
+that's their jam instead you want to do something maybe speed up the footage of you doing it and
+then show the results of what
+
+[3:06] you've done this is visually the most impressive part generally speaking your audience wants
+to follow your thought process and technical struggles or competence rather than the actual code
+you're writing so focusing on the results rather than the code itself is going to give them the
+biggest possible window into what it is you're doing talk about things like the method you've used
+to accomplish your feature what struggles and challenges you faced in implementing it and how you
+overcame them imagine you're having a job interview for a coding position at your favorite aaa
+studio of choice and they've asked you to run them through your last big project you want to sound
+
+[3:37] impressive even if what you've done isn't actually that difficult for you a thing to remember
+here is that when it comes to technical devlogs they don't have to be pristine you don't have to be
+as good a coder as john carmack it's okay and even preferable if you've struggled a little bit
+broadly speaking as much as people like to see confidence and competence in their devlogs they also
+like people who are humanized even though i don't do technical devlogs i will still occasionally
+list things that i've found challenging in the process and things that i can't do because it
+balances out the confidence and frankly
+
+[4:07] sometimes arrogance more on that later that i mostly fill my videos with the struggle keeps
+you human so don't be afraid of it like i said i don't do technical devlogs so i'm kind of limited
+in how i can help but broadly what you want to aim for is a linear storyline to your video start
+with something you wanted to do and end with whether you achieved it or not what the final result
+looks like this will make sure you've always got a steady stream of something to show off my
+favorite example of a technical devlog producer is mrs who wastes absolutely no time in showing off
+what it is he's doing what he wants
+
+[4:38] to do and what that looks like when it's done so i'd recommend going to watch his entire
+devlog series of esteem games if you want more inspiration and now a word from our sponsor hello i'm
+our sponsor i wanted to come to you today to let you know that i have another channel it's called
+game stuff and on game stuff we talk game stuff it's a very new channel and i was hoping that you
+being amazing and brilliant and wonderful and lovely would go over there check it out subscribe
+share with all
+
+[5:08] your friends make it the most popular channel on youtube get me rich and famous so i can buy
+a boat this has been a word from our sponsor thanks our sponsor so i've just said a lot of words
+about something i don't really know how to do so imagine how much pointless rambling i'm going to do
+about ah here we go my wheelhouse a design devlog is focused less and sometimes not at all on the
+process of how you've made something and much more on the why what you're looking for here is
+decisions you've made either in the actual game
+
+[5:39] design or artistically and in general how you arrived at those decisions and what that ends
+up doing you're still ideally looking for something linear where you've aimed for a specific thing
+but unlike a technical devlog you don't want to show off how you tried to accomplish it instead you
+want to talk about what brought you to do that in the first place what your thought process was and
+how it's going to affect the quality of your game you might not even be able to show off the results
+yet as an example at the time that i'm writing this the last devlog on my current project is all
+about what makes a good twin stick shooter because that's what i'm making but it doesn't end with me
+
+[6:09] showing off hey look a good twin stick shooter because i won't know if it is any good until i
+finish the thing and get it on steam the way these are structured is much less about what you've
+done and much more about what you'd like to do and for that reason it doesn't really matter as much
+if you record your process along the way this can be good for what professionals call b-roll footage
+as in stuff you can just put on in the background while you're talking but you don't necessarily
+need it you can if you want and this is something i do quite a lot come back to your game when
+you're ready to actually make the video and purposefully record bits that reinforce the point you're
+
+[6:39] trying to make in your devlog if you look back through the devlogs i've made so far you'll
+notice the titles and thumbnails of them all reference something that makes up the main purpose of
+that specific video graphics level design cancelling my game sound and music cancelling my game
+again player feedback and critique that time i cancelled my game they're all specific topics that we
+explore in that video through the lens of the game that i'm making you don't necessarily have to
+have a purpose to each video you can if you want treat it like a technical devlog but if you're not
+particularly interested in the coding side of things
+
+[7:09] talk about the decisions you've made along the way instead ben bonk and his game slimekeeper
+are a good example of this it's not filled to the brim with the technical aspect but it does
+chronicle choices and features that he's made since the last video in a way that's visually very
+appealing and presented in a sort of linear fashion to the point that if you put them all together
+in a playlist you'd find a pretty structured timeline of how the game went from nothing to where it
+is now if you want to be like me and make ltgd style devlogs the first thing you need to do is go
+back to 1987 be born then spend your formative years as
+
+[7:40] a child playing video games and being a social outcast have you done that great sorry you're
+depressed now seriously though a big part of design devlogs is that you specifically as the person
+creating the thing need to find your voice and personality for how you specifically want to present
+the game you're making there's no point trying to be me or anyone else and definitely for the love
+of god please don't try and be danny because i imagine in a year's time you'll look back on what
+you've made and cringe yourself into oblivion with design devlogs and you know this because you're
+on my channel the audience is going to want to know why and not how i
+
+[8:11] stick to that and i think i do it pretty well and if you disagree you should probably realize
+that you're watching a video about how to make devlogs and i haven't talked once about how to
+actually make a devlog and told you to just go watch a tutorial on premiere and i've instead tricked
+you into listening to why i make devlogs and what my methods are behind them see you fell for it
+you're still here clearly it works so those are the two main forms of a devlog as i see them and how
+you might approach making either one now i should probably give you some general advice that applies
+to whatever kind of devlog or even just whatever kind of video in
+
+[8:41] general you want to make no matter what you're trying to show off in your video make sure
+that you look good doing it people respond well to someone who can present their ideas or processes
+in a confident and at least seemingly competent way they don't actually need to know that something
+took you four times as long as it should have done unless that's part of your presentation style but
+more on that in a minute they want to see highlights the linear progression of your idea and how it
+worked out in the end even if it didn't this is not to say that you have to lie to people if you
+struggled with something or if something didn't work
+
+[9:11] then i recommend telling us in doing that you can hopefully talk about what you've learned
+from the process of it going wrong and that personal growth believe it or not also shows that you're
+competent your audience most likely also develops video games or if they don't they'd like to and it
+shows a maturity and high level of experience on your part to be able to say yes this did not work
+here is how i've grown from that and what lessons you can take away from it because everybody knows
+that nothing ever actually goes that smoothly this is why i generally like to make my devlogs after
+i've done something that i suppose you'd class as a milestone either i've
+
+[9:42] sorted out the graphics or the basic gameplay underneath or some big thing that most likely
+i've struggled with a lot summarizing it at the end lets me come in with a conclusion my findings on
+it and why i made the choices i did that led me to the outcome that i got basically it shows that i
+know what i'm talking about even if sometimes i didn't because i've done it now a big part of giving
+you the impression that i know what i'm doing is because i speak in very long very well pronounced
+sentences with my lovely wonderful voice that everybody loves because i sound brilliant right that's
+that's what that
+
+[10:12] is would you believe me if i told you it's all a sham all right it's not this is still me
+talking i'm not like an ai robot or something but the confidence that i talk with isn't off the cuff
+i'm not sat here right now making all of this up on the spot riffing like an improv group and just
+spewing wisdom from my paws like a fountain of knowledge what i'm trying to say is that this is
+scripted i wrote it already and my devlog videos are all the same way i have the luxury of being
+able to sit and think about what it is i want to tell you what i want to focus on and how i want to
+do it and that means i can write up words that get that point across then
+
+[10:43] take my time in rehearsing and recording them in doing that when you put it all together i
+sound like i know what i'm doing and that makes me sound confident if you ever hear me talk out loud
+without a script which you can do if you go check out ltgdx which is my other channel where i do
+sort of vloggy updates about my life and opinions i'm having you'll notice that i use a lot of
+pointless connecting words and phrases like well like or i guess and every other word is probably
+which sounds a lot less professional and confident than what you're hearing now you can't spell
+confidence without the
+
+[11:14] word con and the truth is if you want to present yourself as confident you've got to just
+con people into believing you pretend act even if you don't believe it yourself just imagine that
+you do and then do that time for me to let you in on a little behind the scenes secret when i've
+recorded my narration for a video what i do is go into audacity grab the whole thing and increase
+the tempo by two or three percent not enough that people notice i'm talking faster but enough that
+it just naturally speeds up the way that i talk this has the added bonus of cutting down on the
+length of the audio so i have less editing to do
+
+[11:45] while also making me sound like i'm just reeling off point after brilliant point and
+impressing people with my genius and don't feel like you have to put your first take of a recording
+down into the actual video trust me none of the other people you've actually heard of will do that
+none of them at all even the funny ones speaking of which this is going to sound harsh but somebody
+needs to say it to you and i respect you enough for it to be me if you're not funny please don't try
+and be funny yes zayn i hear you cry but you're not funny and you keep trying first of all i'm
+hilarious but more broadly
+
+[12:16] that's not what i mean part of my real personality in real life with actual people is to
+make jokes a lot i am sarcastic cynical pessimistic and goofy i will make a joke out of anything and
+if it sounds incredibly tedious to know me well feel sympathy for my poor wife but the point is even
+if you don't find me funny my normal personality every day involves me at least trying to be funny
+even when i'm not being recorded that's just how i am as a person and that makes it much easier to
+try and write jokes into my devlog scripts because i write like an idealistic version of how i
+
+[12:47] normally talk only you will know if that's actually you or not and i beg of you to please
+take a long hard look at yourself and figure out if you are actually the kind of person who is funny
+even if nobody laughs at you because the easiest way to come across well on youtube or any media at
+all really is to take your personality that you already have and crank it up to an almost comical
+extreme i do this all the time contrary to what you might have heard in some of my devlogs i don't
+actually consider myself a golden god in real life nobody's that arrogant and if they were you
+wouldn't want to know them i
+
+[13:17] also balanced this out occasionally in the videos with overly dramatic self-deprecation as
+if i'm having a sudden self-esteem related anxiety attack that's definitely not real life either
+definitely not i'm fine i promise i just suck at everything and nobody likes me and see i just did
+it just now did you catch that anyway my point is find out who you are and then use that personality
+in your videos dialed up as far as it'll go if it's funny great if not don't worry about it remember
+when i mentioned mrs before he's not funny no offense if you
+
+[13:48] ever see this miz you're amazing but he doesn't try to be he just comes on bangs out a
+series of incredibly impressive achievements in a confident sounding monotone and then leaves
+brilliant love it more of that please play around and find out what makes you feel comfortable and
+represented truthfully even if it's a bit embellished in your videos they'll come across as more
+natural and believable and you'll feel better making them it's a win-win speaking of misses as is
+one of the things he's incredibly good at is probably the most important point of all
+
+[14:18] you clicked on this video because you want to know how to make a devlog i over the course of
+the last 10 minutes or so have talked you through how to make a devlog you know roughly speaking
+that means that you have got what you wanted from this video i fulfilled the promise of the title
+and you're gonna click like subscribe and then go show this to all the wannabe youtube game devs you
+know because clearly it's changed your life and you can't wait to spread the wisdom of this golden
+god to the world obviously my point is i gave you something you were looking for this video has
+value to you and the most important thing you can do with any
+
+[14:48] devlog at all is try and provide some value the thing to remember is that other than folks
+like danny who obviously i love you're not making devlogs for a general purpose audience you're
+making them for other people who are interested in game development now why they're interested isn't
+really up to you i for example often go on youtube type in the word devlog sort by newest upload and
+just watch what comes up because i'm always on the lookout for people making stuff because i think
+it's cool the value to me is just in watching people trying to discover themselves and their games
+and making cool things you
+
+[15:18] don't need to do much to get me watching to be honest but if you want to build an audience
+you need to do more than that i for example try and frame all of my videos around a specific
+educational question or topic things like how to approach art when you're bad at art or how to take
+and utilize feedback when you've done some play testing stuff that people might be searching for and
+if they're making a video game might want or even need to know so let's review how do you make a
+devlog series decide if you want to do technical or design based devlogs figure out a way to at
+least look competent in what you're doing
+
+[15:48] pretend you're confident in what you're doing even if you're not find a unique personality
+that you have and feel comfortable presenting as and always strive to provide value to your audience
+there's more of course but i think i've rambled too long and you probably need to go and watch a
+bunch of premiere pro tutorials because the one thing i haven't done in this video titled how to
+make a devlog series for your indie game is teach you how to make a devlog series for your indie
+game you should probably also go and watch all of the people that i've shamelessly stolen clips from
+to put into this video because you can learn a lot from all of
+
+[16:18] them i did and it's how i managed to make this video in the first place but if you've liked
+this video then be sure to like this video and then subscribe for more videos like the video you
+just liked since you liked it and i'll see you the next time i'm thinking hey let's talk game design
+
+[16:49] [Music] [Music] you

@@ -2,16 +2,18 @@
 
 ## The start date
 
-`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-09-21**. Day 1 is Monday
-21 September 2026. The first rest day is Saturday 26 September; day 1094 lands on
-2030-03-19.
+`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-10-05**. Day 1 is Monday
+5 October 2026. The first rest day is Saturday 10 October; day 1094 lands on
+2030-04-02.
 
 Two finish dates exist and they differ by one day, which is not a bug in the date arithmetic
 and must not be "fixed" as one. **Day 1094 is `dateForStudy(1093)`** — the 1094th study day,
-counting day 1 as the first — and that is 2030-03-19. The **gate baseline** the dashboard
+counting day 1 as the first — and that is 2030-04-02. The **gate baseline** the dashboard
 prints is `addStudyDays(START_DATE, 1094)`, which advances 1094 study days *from* the start and
-therefore lands on the 1095th, 2030-03-20. The same one-day gap was there before this reset
-(2030-03-12 against 2030-03-13) and before the one before it. If it is ever closed, close it by
+therefore lands on the 1095th, 2030-04-03. The same one-day gap was there before this reset
+(2030-03-19 against 2030-03-20), and under every start since 12 August. Under the 30 July
+start it was two days (2030-01-25 against 2030-01-27), because day 1094 fell on a Friday and
+the Saturday rest sat between them. If it is ever closed, close it by
 deciding which reading the gates should use, not by editing a date to match the other surface.
 
 ### The standing rule, and how it has been used
@@ -29,10 +31,11 @@ still turns green via `dayStatus`), and the calendar shows exactly which lessons
 date. Falling behind is recoverable without moving the start.
 
 **On 12 August 2026 the owner overrode it explicitly** — the refusal was given, the cost was
-shown (11 study days discarded, finish moving from 2030-01-27 to 2030-02-08), and they
+shown (11 study days discarded, gate baseline moving from 2030-01-27 to 2030-02-08; day 1094
+from 2030-01-25 to 2030-02-07), and they
 reaffirmed with a reason: they had watched day one and part of day two and wanted the run to
 begin from a day they were actually on. The rule is theirs to release; that is what an override
-is. It was carried out and the date above is the result.
+is. It was carried out (start 2026-08-12).
 
 **On 14 September 2026 they overrode it a second time.** The refusal was given with the numbers
 (28 study days discarded, finish slipping 33 days from 2030-02-07 to 2030-03-12) and the
@@ -44,7 +47,7 @@ reaffirmed. It was carried out.
 to have today as day 2 (22nd of sep 2026)". The refusal was given with the numbers — 6 study
 days discarded, finish slipping 7 calendar days from 2030-03-12 to 2030-03-19 — and the reply
 the next day was "do the reset". Note the shape of this one: it is the smallest of the four
-overrides by a wide margin, a single week rather than the four and the five that came before.
+overrides by a wide margin, a single week rather than the two and the five weeks that came before.
 
 Two details worth having. First, the owner pinned the DATE in parentheses rather than saying
 "today", so the reset was anchored to 22 September being day 2 — which is why the start is the
@@ -53,15 +56,38 @@ Two details worth having. First, the owner pinned the DATE in parentheses rather
 above were not estimated: they were computed by replicating `studyIndex`/`dateForStudy` from
 `platform/js/app.js` exactly, because a reset costed by hand is a reset costed wrongly.
 
+**On 6 October 2026 they overrode it a fourth time** (the sixth reset in all). The request was "reset the streak for the
+7th of OCT to be day 3" — the same shape as the third override, a DATE pinned to a day number,
+so it was read as a plan reset (moving `START_DATE`), not a streak-counter reset. The refusal was
+given with the numbers — 12 study days discarded, day 1094 slipping 14 calendar days from
+2030-03-19 to 2030-04-02 (gate baseline 2030-03-20 → 2030-04-03) — plus two alternatives: missed
+days stay owed and can be caught up, and a streak-counter reset (`streakFrom`) moves nothing in
+the plan. The refusal also pointed out that the owner's own phone screenshot that week read
+"This device is not syncing". The reply was "do the reset, 7th of Oct as day 3". It was carried
+out: `START_DATE` 2026-10-05, so 6 October is day 2 and 7 October is day 3. As before, the
+numbers were computed by replicating `studyIndex`/`dateForStudy` exactly. The gates' pinned
+clocks moved with it (verify-design, verify-clip and verify-flows from 2026-10-06 to 2026-10-20,
+verify-logic's fixtures two weeks forward), so every pinned clock keeps its plan day and weekday —
+day 14 everywhere, except verify-logic's rest-day backlog scenario, which stays on day 12. The
+month grid did change: 1, 2 and 4 October were plan days 10–12 and Saturday 3 October was the
+rest day the check measured. All four are now days before the start, which also carry `.rest`,
+so the first `.rest` cell became Thu 1 Oct and verify-design's rest-day check had silently
+stopped measuring a Saturday. Its selector now names
+the "· rest" status rather than the first `.rest` cell, and its cellPick click skips `.rest`
+cells; a planted bug (Saturdays without `.rest`) fails it again. The clip baseline was
+re-measured and did not change. (verify-shell,
+verify-contrast and verify-sync-loop pin no clock and measure whatever day they run on.)
+
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past
 version of themselves.
 
-**Count, for whoever reads this next: this is reset number five** (27 Jul → 30 Jul → 12 Aug →
-14 Sep → 23 Sep). That is not an argument for refusing twice, and it is not a reason to
+**Count, for whoever reads this next: this is reset number six** (27 Jul → 30 Jul → 12 Aug →
+14 Sep → 23 Sep → 6 Oct). That is not an argument for refusing twice, and it is not a reason to
 editorialise at the owner. It is a fact the next session should have, because the honest thing
-to check first is whether a reset is being asked for in place of a fix — twice now the screen
-that prompted one was a device that had never synced.
+to check first is whether a reset is being asked for in place of a fix — at least twice on record the
+screen around one was a device that was not syncing: 14 Sep's `never SYNCED`, and the week of
+6 Oct, when the owner's phone read "This device is not syncing".
 
 The one thing that needs no permission: a genuine bug in the date arithmetic, where the code
 disagrees with the date above being day one. Fix the arithmetic, never the date.
@@ -89,8 +115,8 @@ Consequences that must hold, because each one is a way the platform could quietl
 - The **exported calendar** uses `BYDAY=SU,MO,TU,WE,TH,FR`, derived from `REST_DOW` so the two
   cannot drift apart.
 - Gates are measured in months of **work** (~30.4 study days each) and their calendar targets
-  are walked through `addStudyDays`, so the countdown stays honest. Six days a week is why the
-  finish is Feb 2030 rather than mid-2029. That was the accepted trade: the load per day was the
+  are walked through `addStudyDays`, so the countdown stays honest. Six days a week is why day 1094 is
+  2 April 2030 (gate baseline 3 April) rather than 2 October 2029 — about six months later. That was the accepted trade: the load per day was the
   thing that was too heavy, so compressing seven days of work into six would have defeated the
   point.
 

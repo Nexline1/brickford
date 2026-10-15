@@ -1,0 +1,38 @@
+T-031 plant (j): the next-gate card's old grid (minmax(0, 1fr) auto) put back — at a 24px root on a phone the title column is squeezed and breaks mid-word (T-026a's plant j, re-run on the 12rem basis)
+Planted on 4236614, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index ab723d6..370382a 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2428,7 +2428,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+    title column being squeezed until "Calibration" breaks mid-word. In rem,
+    so it follows the root size, which a media query would not. */
+ .at-next {
+-  display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
++  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem 1.25rem; align-items: center;
+   background: var(--surface); color: var(--ink); text-decoration: none;
+ }
+ .at-main { flex: 1 1 12rem; min-width: 0; }
+
+---- verify-design, planted ----
+  FAIL  320px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /atlas a route label or next-gate text breaks mid-word: "Calibration" breaks inside a word at "Calibr/ation"; "Diagnostics done" breaks inside a word at "Diag/nostics done"
+  FAIL  376px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /atlas a route label or next-gate text breaks mid-word: "Calibration" breaks inside a word at "Calibrati/on"; "Diagnostics done" breaks inside a word at "Diagnostic/s done"
+  FAIL  390px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /atlas a route label or next-gate text breaks mid-word: "Calibration" breaks inside a word at "Calibratio/n"
+  FAIL  320px root 16px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 150>103, div.at-gate 150>103 | /exams (day 1) div.at-main 150>103, div.at-gate 150>103
+  FAIL  360px root 16px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 150>143, div.at-gate 150>143 | /exams (day 1) div.at-main 150>143, div.at-gate 150>143
+  FAIL  320px root 20px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 188>72, div.at-gate 188>72, div.ex-facts 80>72 | /exams (day 1) div.at-main 188>72, div.at-gate 188>72, div.ex-facts 80>72
+  FAIL  360px root 20px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 188>112, div.at-gate 188>112 | /exams (day 1) div.at-main 188>112, div.at-gate 188>112
+  FAIL  390px root 20px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 188>142, div.at-gate 188>142 | /exams (day 1) div.at-main 188>142, div.at-gate 188>142
+  FAIL  320px root 24px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 225>40, div.at-gate 225>40, div.ex-facts 96>40 | /exams (day 1) div.at-main 225>40, div.at-gate 225>40, div.ex-facts 96>40
+  FAIL  360px root 24px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 225>80, div.at-gate 225>80, div.ex-facts 96>80 | /exams (day 1) div.at-main 225>80, div.at-gate 225>80, div.ex-facts 96>80
+  FAIL  390px root 24px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 225>110, div.at-gate 225>110 | /exams (day 1) div.at-main 225>110, div.at-gate 225>110
+  FAIL  1100px root 24px: /workshop, /exams (also day 1, every locked bank shown) and /record — nothing wider than its box, no sideways scroll, no word broken mid-word — /exams div.at-main 225>184, div.at-gate 225>184 | /exams (day 1) div.at-main 225>184, div.at-gate 225>184
+
+FAIL — 12 of 1505 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to HEAD

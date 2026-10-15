@@ -1,0 +1,83 @@
+T-031 fix 1: the shelf column floor at max(7rem, ...) in all three rules; the widened sweep on these bytes
+run: node tools/verify-design.js
+
+---- the fix (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 9e572b2..512a918 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2499,14 +2499,16 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+ .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+ 
+ /* ---- Courses: the shelf ---- */
+-/* 2, 3 and 4 columns, each no narrower than 6.75rem: a title word
+-   ("Mathematics", "Probability") would otherwise break mid-word — at 1100px,
+-   where the rail takes its share, or at a larger text size — so the shelf
+-   drops a column instead. The 0.5px keeps the count exact at the default
+-   size (auto-fill floors the number of tracks that fit). */
+-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+-@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+-@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(6.75rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
++/* 2, 3 and 4 columns, each no narrower than 7rem: a title word would
++   otherwise break mid-word — at 1100px, where the rail takes its share, or
++   at a larger text size — so the shelf drops a column instead. The widest,
++   "Mathematics" in .bk-t, is 6.81rem (109px at 15px), so the floor sits
++   above it: at 6.75rem a track between the two split it "Mathematic/s"
++   (1132px at a 16px root, 376px at 24px). The 0.5px keeps the count exact
++   at the default size (auto-fill floors the number of tracks that fit). */
++.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
++@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
++@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
+ .book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
+ .book:hover { text-decoration: none; }
+ /* clip-path, not overflow:hidden: the cover rounds its bar into the corner
+
+---- verify-design: the T-026a sweep lines, then the summary ----
+  ok    320px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    376px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    390px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    640px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    768px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    1038px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1100px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1132px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1178px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1280px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1372px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1440px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    320px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    376px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    390px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    640px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    768px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken i
+  ok    1038px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1100px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1132px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1178px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1280px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1372px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+  ok    1440px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken 
+
+PASS — 1503 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 194 rows (554 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots (170 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (557 checks)
+exit code: 0
+
+---- the 2px sweep (scratchpad probe7.js: /courses Now, Later, All; .bk-t and .cv-code; 320 to 1440 step 2; roots 16, 20, 24) ----
+on main bytes (74b0b8e):
+root16 later Mathematic/s for Machine Learning @ 1132(4t,16px) 1134(4t,16px)
+root16 all Mathematic/s for Machine Learning @ 1132(4t,16px) 1134(4t,16px)
+root20 later Mathematic/s for Machine Learning @ 322(2t,20px) 324(2t,20px) 1088(3t,20px) 1090(3t,20px) 1252(4t,20px) 1254(4t,20px) 1256(4t,20px)
+root20 all Mathematic/s for Machine Learning @ 322(2t,20px) 324(2t,20px) 1088(3t,20px) 1090(3t,20px) 1252(4t,20px) 1254(4t,20px) 1256(4t,20px)
+root24 later Mathematic/s for Machine Learning @ 376(2t,24px) 378(2t,24px) 1038(4t,24px) 1178(3t,24px) 1180(3t,24px) 1182(3t,24px) 1372(4t,24px) 1374(4t,24px) 1376(4t,24px)
+root24 all Mathematic/s for Machine Learning @ 376(2t,24px) 378(2t,24px) 1038(4t,24px) 1178(3t,24px) 1180(3t,24px) 1182(3t,24px) 1372(4t,24px) 1374(4t,24px) 1376(4t,24px)
+DONE 6
+
+on these bytes:
+DONE 0
+exit 0
+
+---- shelf columns by width, root 16, All (scratchpad cols.js; a line where the count or the rail changes) ----
+990 tracks 3 track 205.656px shelf 641px rail false
+1024 tracks 4 track 158.906px shelf 672px rail false
+1040 tracks 3 track 120.656px shelf 386px rail true
+1149 tracks 4 track 112.031px shelf 484px rail true
+end 1460

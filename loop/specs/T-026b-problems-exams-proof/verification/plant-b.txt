@@ -1,0 +1,35 @@
+Plant (b): the Exams readiness bar uses mastery instead of watched
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 5c07acc..15f5586 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -2793,7 +2793,7 @@
+         (lead.pass != null ? "<span>Pass at " + lead.pass + "%</span>" : "") +
+         (lead.of ? "<span>" + lead.watched + " of " + lead.of + (lead.course.tracker ? " problems solved" : " lectures watched") + "</span>" : "") +
+         "</div>" +
+-        (lead.of ? '<div class="ex-bar ' + facClass(lead.course) + '" role="img" aria-label="' + lead.watched + " of " + lead.of + ' watched"><i style="width:' + pct(lead).toFixed(2) + '%;"></i></div>' : "") +
++        (lead.of ? '<div class="ex-bar ' + facClass(lead.course) + '" role="img" aria-label="' + lead.watched + " of " + lead.of + ' watched"><i style="width:' + courseMastery(lead.course).toFixed(2) + '%;"></i></div>' : "") +
+         "</div>" +
+         '<div class="ex-side">' +
+         (gateHere ? '<div class="at-days"><b>' + Math.max(0, lead.due) + "</b><span>days to the gate</span></div>" : "") +
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+10 failing check(s):
+  FAIL  1440px dark /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 419px track
+  FAIL  390px dark /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 300px track
+  FAIL  1440px light /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 419px track
+  FAIL  390px light /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 300px track
+  FAIL  1440px dark, an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched /exams: the readiness bar is the course's lectures watched over all of them (10.64%) within 1%, in the faculty colour — 0.00% of a 419px track
+  FAIL  390px dark, an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched /exams: the readiness bar is the course's lectures watched over all of them (10.64%) within 1%, in the faculty colour — 0.00% of a 300px track
+  FAIL  1440px dark, every bank open /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 419px track
+  FAIL  390px dark, every bank open /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 300px track
+  FAIL  1440px dark, a Saturday (the rest day) /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 419px track
+  FAIL  390px dark, a Saturday (the rest day) /exams: the readiness bar is the course's lectures watched over all of them (3.92%) within 1%, in the faculty colour — 2.00% of a 300px track
+FAIL — 10 of 1318 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

@@ -1,0 +1,39 @@
+Plant (e): an Exams card's size ignores the unlocked questions (the old perSitting-only size)
+
+== the planted diff (platform/js/app.js) ==
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f73b70e..2b56883 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -2774,7 +2774,7 @@
+       const st = c && !c.tracker ? courseLessonStats(c) : null;
+       it.course = c || null;
+       it.code = c ? c.code : d ? d.subject : bank ? bank.course : "";
+-      it.size = d ? d.minutes + " min" : Math.min(bank.perSitting || 15, unlockedIdx(id).length) + " questions";
++      it.size = d ? d.minutes + " min" : (bank.perSitting || 15) + " questions";
+       it.pass = d ? d.gate : 70;
+       it.watched = st ? st.done : c && c.tracker ? dsaCount() : 0;
+       it.of = st ? st.total : c && c.tracker ? 150 : 0;
+
+== node tools/verify-design.js on the planted bytes ==
+exit code: 1
+14 failing check(s):
+  FAIL  1440px dark /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px dark /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  1440px light /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px light /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  1440px dark, an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched /exams: "Also open" is one card per other open exam (6), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px dark, an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched /exams: "Also open" is one card per other open exam (6), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  1440px dark, every bank open /exams: "Also open" is one card per other open exam (10), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px dark, every bank open /exams: "Also open" is one card per other open exam (10), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  1440px dark, Gate 1 passed, so a bank leads /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px dark, Gate 1 passed, so a bank leads /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  1440px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px dark, the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  1440px dark, a Saturday (the rest day) /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+  FAIL  390px dark, a Saturday (the rest day) /exams: "Also open" is one card per other open exam (5), each with a title, its course tag and, exactly, its minutes or the questions a sitting serves, and its pass mark — wrong: #/quiz/linear-algebra "MATH 110 | 15 questions · pass 70%" (want "MATH 110 | 3 questions · pass 70%")
+FAIL — 14 of 1378 design checks failed
+
+== restored ==
+cmp backup app.js: identical
+git diff --quiet platform/js/app.js: clean

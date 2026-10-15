@@ -1,0 +1,32 @@
+T-026a plant (b): the days number is off by one (daysBetween(today, target) + 1)
+Planted on 1f850ff, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 58d31ef..61fe67e 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -3484,7 +3484,7 @@
+         '<div class="at-gate">' + esc(ng.label) + "</div>" +
+         // No requirement has a done-state yet, so every chip is hollow.
+         '<div class="at-reqs">' + ng.req.split(" · ").map(r => '<span class="at-req">' + esc(capFirst(r)) + "</span>").join("") + "</div></div>" +
+-        '<div class="at-days"><b>' + Math.max(0, daysBetween(today, ng.target)) + "</b><span>days left</span></div></a>"
++        '<div class="at-days"><b>' + Math.max(0, daysBetween(today, ng.target) + 1) + "</b><span>days left</span></div></a>"
+       : '<div class="card at-next"><div><div class="at-gate">All gates passed</div>' +
+         '<div class="at-sub">You are what you set out to become.</div></div></div>';
+ 
+
+---- verify-design, planted ----
+  FAIL  1440px dark /atlas: the days number is daysBetween(2026-10-20, 2026-12-15) = 56, worked out here — shows 57
+  FAIL  390px dark /atlas: the days number is daysBetween(2026-10-20, 2026-12-15) = 56, worked out here — shows 57
+  FAIL  1440px light /atlas: the days number is daysBetween(2026-10-20, 2026-12-15) = 56, worked out here — shows 57
+  FAIL  390px light /atlas: the days number is daysBetween(2026-10-20, 2026-12-15) = 56, worked out here — shows 57
+
+FAIL — 4 of 842 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

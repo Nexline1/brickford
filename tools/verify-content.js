@@ -20,6 +20,10 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-phys100.js",
  "platform/data/summaries-math210.js",
  "platform/data/summaries-sys250.js",
+ "platform/data/summaries-ai200.js",
+ "platform/data/summaries-ai210.js",
+ "platform/data/summaries-ai310.js",
+ "platform/data/summaries-res400.js",
  "platform/data/storytelling.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
@@ -2232,6 +2236,381 @@ const expectedSummary = {
     let g = 0; for (let a = 0; a < 1024; a += 128) for (let b = 0; b < 1024; b += 128) g++;
     return [{ i: 0, v: g }];
   })(),
+
+  // ---- T-033: AI 200, AI 210, AI 300, AI 310, RES 400 lecture quizzes ----
+  // Same rule as everything above: derived here by a different route from the
+  // one the summary teaches, never copied from the data file.
+
+  // ViT patches of a 224x224 image: walk the pixel grid in 16-pixel steps and
+  // count the top-left corners that leave a whole patch inside the image.
+  "ai310.1.0": (function () {
+    let n = 0; for (let y = 0; y + 16 <= 224; y += 16) for (let x = 0; x + 16 <= 224; x += 16) n++;
+    return [{ i: 3, v: n }];
+  })(),
+
+  // mean_token_accuracy under completion-only loss: lay the tokens out with a
+  // loss mask and a hit flag, and average the hits over the unmasked ones.
+  "ai310.1.1": (function () {
+    const toks = [];
+    for (let j = 0; j < 4; j++) toks.push({ masked: true, hit: true });            // prompt
+    for (let j = 0; j < 6; j++) toks.push({ masked: false, hit: j % 2 === 0 });    // completion, 3 of 6 right
+    const live = toks.filter(t => !t.masked);
+    return [{ i: 2, v: live.filter(t => t.hit).length / live.length }];
+  })(),
+
+  // bf16 to int4: recover the parameter count from the bf16 size, then price
+  // each parameter at 4 bits.
+  "ai310.1.2": (function () {
+    const params = 16e9 * 8 / 16;                 // bytes x bits-per-byte / bits-per-weight
+    return [{ i: 1, v: params * 4 / 8 / 1e9 }];   // GB at int4
+  })(),
+
+  // vLLM tensor x data parallel: one ray actor per replica, each holding its
+  // tensor-parallel shard set; count the GPUs the actors reserve.
+  "ai310.1.3": (function () {
+    const actors = []; for (let r = 0; r < 4; r++) actors.push({ gpus: Array.from({ length: 2 }, (_, j) => r * 2 + j) });
+    return [{ i: 2, v: new Set([].concat(...actors.map(a => a.gpus))).size }];
+  })(),
+
+  // Prefix caching: build chained block hashes (parent hash + block tokens) for
+  // the cached prompt, then walk the new prompt's full blocks until one misses.
+  "ai310.1.4": (function () {
+    const B = 16, old = Array.from({ length: 64 }, (_, j) => "t" + j);
+    const neu = Array.from({ length: 50 }, (_, j) => (j < 40 ? "t" + j : "u" + j));
+    const hashes = toks => { const out = []; let parent = "";
+      for (let b = 0; (b + 1) * B <= toks.length; b++) { parent = parent + "|" + toks.slice(b * B, (b + 1) * B).join(","); out.push(parent); }
+      return out; };
+    const cached = new Set(hashes(old));
+    let hit = 0; for (const h of hashes(neu)) { if (!cached.has(h)) break; hit += B; }
+    return [{ i: 4, v: hit }];
+  })(),
+
+  // Years to 10,000 hours at Karpathy's working year: count working days of 8
+  // hours until the total reaches 10,000, then express the days in 260-day years.
+  "res400.2.2": (function () {
+    let hours = 0, days = 0; while (hours < 10000) { hours += 8; days++; }
+    return [{ i: 3, v: Math.round(days / 260 * 100) / 100 }];
+  })(),
+
+  // micrograd: the slope of 3x^2 - 4x + 5 at 3 by a central difference; dL/db by
+  // nudging b in L = (a*b + c)*f; the MLP's parameters by building its neurons.
+  "ai200.1.0": (function () {
+    const f = x => 3 * x * x - 4 * x + 5, h = 1e-5;
+    const L = b => (2 * b + 10) * -2;
+    const sizes = [3, 4, 4, 1]; let params = 0;
+    for (let l = 1; l < sizes.length; l++) for (let n = 0; n < sizes[l]; n++) params += sizes[l - 1] + 1;
+    return [{ i: 0, v: Math.round((f(3 + h) - f(3 - h)) / (2 * h)) },
+            { i: 2, v: Math.round((L(-3 + h) - L(-3 - h)) / (2 * h)) },
+            { i: 6, v: params }];
+  })(),
+
+  // makemore 1: count the adjacent pairs of '.isabella.'; the uniform model's
+  // NLL as the entropy of 27 equal probabilities, summed term by term.
+  "ai200.1.1": (function () {
+    const s = "." + "isabella" + "."; let pairs = 0;
+    for (let i = 0; i + 1 < s.length; i++) pairs++;
+    let H = 0; for (let k = 0; k < 27; k++) H -= (1 / 27) * Math.log(1 / 27);
+    return [{ i: 1, v: pairs }, { i: 4, v: Math.round(H * 100) / 100 }];
+  })(),
+
+  // makemore 2: parameters by tensor shapes; the examples of 'emma' by sliding
+  // a 3-character window over it, one per target including the final '.'.
+  "ai200.1.2": (function () {
+    const shapes = [[27, 10], [30, 200], [200], [200, 27], [27]];
+    const params = shapes.reduce((a, sh) => a + sh.reduce((x, y) => x * y, 1), 0);
+    let ctx = [".", ".", "."], n = 0;
+    for (const ch of "emma.") { n++; ctx = ctx.slice(1).concat([ch]); }
+    return [{ i: 0, v: params }, { i: 1, v: n }];
+  })(),
+
+  // makemore 3: the Kaiming std via its variance, gain^2 / fan_in, then the root;
+  // the batch-norm net's trainable tensors by shape (buffers excluded).
+  "ai200.1.3": (function () {
+    const fanIn = 10 * 3, variance = (5 / 3) * (5 / 3) / fanIn;
+    const shapes = [[27, 10], [30, 200], [200, 27], [27], [1, 200], [1, 200]];
+    return [{ i: 1, v: Math.round(Math.sqrt(variance) * 1000) / 1000 },
+            { i: 6, v: shapes.reduce((a, sh) => a + sh.reduce((x, y) => x * y, 1), 0) }];
+  })(),
+
+  // makemore 4: dlogprobs by differentiating the mean-of-32 loss numerically at
+  // one label entry; dlogit for p = 0.0165 by a central difference of -log softmax
+  // over two logits built to give that probability.
+  "ai200.1.4": (function () {
+    const n = 32, h = 1e-6;
+    const lossOf = v => -(v + (n - 1) * 0) / n;                  // the other 31 label entries held at 0
+    const d1 = (lossOf(h) - lossOf(-h)) / (2 * h);
+    const nll = z => { const a = Math.exp(z), b = Math.exp(Math.log(0.9835)); return -Math.log(a / (a + b)); };
+    const z = Math.log(0.0165), d2 = (nll(z + h) - nll(z - h)) / (2 * h);
+    return [{ i: 1, v: Math.round(d1 * 1e6) / 1e6 }, { i: 4, v: Math.round(d2 * 1e4) / 1e4 }];
+  })(),
+
+  // makemore 5: walk the layer list with a running shape, adding each layer's
+  // parameters as it is applied (flatten doubles the width and halves T).
+  "ai200.1.5": (function () {
+    let width = 24, total = 27 * 24;                      // embedding
+    for (let b = 0; b < 3; b++) { width *= 2; total += width * 128 + 2 * 128; width = 128; }
+    total += 128 * 27 + 27;
+    return [{ i: 0, v: total }];
+  })(),
+
+  // Let's build GPT: list the (context, target) pairs one chunk yields; the
+  // attention scale from head_size = n_embd / n_head, as a reciprocal root.
+  "ai200.1.6": (function () {
+    const block = 8, data = Array.from({ length: block + 1 }, (_, j) => j); let pairs = 0;
+    for (let t = 0; t < block; t++) { const ctx = data.slice(0, t + 1), target = data[t + 1]; if (ctx.length && target !== undefined) pairs++; }
+    // Scaled attention by the head size (the lecture's rule), not by C: head_size = n_embd // n_head.
+    const nEmbd = 384, nHead = 6, hs = Math.floor(nEmbd / nHead);
+    return [{ i: 0, v: pairs }, { i: 2, v: Math.round(Math.pow(hs, -0.5) * 1000) / 1000 }];
+  })(),
+
+  // The tokenizer: an independent byte-level BPE (train by most frequent pair,
+  // first occurrence wins ties as in Python's max over an insertion-ordered dict;
+  // encode by lowest merge index), run on Wikipedia's example; the merge count
+  // by building the id ranges.
+  "ai200.1.7": (function () {
+    const bytes = Array.from("aaabdaaabac", ch => ch.charCodeAt(0));
+    const stats = ids => { const m = new Map(); for (let i = 0; i + 1 < ids.length; i++) { const k = ids[i] + "," + ids[i + 1]; m.set(k, (m.get(k) || 0) + 1); } return m; };
+    const merge = (ids, k, idx) => { const [a, b] = k.split(",").map(Number), out = [];
+      for (let i = 0; i < ids.length; i++) { if (i + 1 < ids.length && ids[i] === a && ids[i + 1] === b) { out.push(idx); i++; } else out.push(ids[i]); } return out; };
+    let ids = bytes.slice(); const merges = new Map();
+    for (let m = 0; m < 3; m++) { let best = null, cnt = -1; for (const [k, c] of stats(ids)) if (c > cnt) { best = k; cnt = c; }
+      merges.set(best, 256 + m); ids = merge(ids, best, 256 + m); }
+    let enc = bytes.slice();
+    for (;;) { let best = null, rank = Infinity; for (const k of stats(enc).keys()) if (merges.has(k) && merges.get(k) < rank) { best = k; rank = merges.get(k); }
+      if (best === null) break; enc = merge(enc, best, rank); }
+    const ids32k = []; for (let id = 256; id < 32768; id++) ids32k.push(id);
+    // GPT-4's \p{N}{1,3}: run the actual regex over the digits and count the matches.
+    const numChunks = ("1234567".match(/\p{N}{1,3}/gu) || []).length;
+    return [{ i: 0, v: enc.length }, { i: 1, v: ids32k.length }, { i: 5, v: numChunks }];
+  })(),
+
+  // GPT-2 reproduction: the tied matrix's size; micro-steps by counting tokens
+  // until the total batch is reached; get_lr re-implemented and evaluated at the
+  // decay's midpoint step; whole steps in 10B tokens by integer division.
+  "ai200.1.8": (function () {
+    const tied = 50257 * 768;
+    let micro = 0, seen = 0; while (seen < 524288) { seen += 64 * 1024; micro++; }
+    const maxLr = 6e-4, minLr = maxLr * 0.1, warm = 715, maxSteps = 19073;
+    const lr = it => it < warm ? maxLr * (it + 1) / warm : it > maxSteps ? minLr
+      : minLr + 0.5 * (1 + Math.cos(Math.PI * (it - warm) / (maxSteps - warm))) * (maxLr - minLr);
+    const mid = warm + (maxSteps - warm) / 2;
+    // (check 6, max_steps by integer division, was swapped for a flash-attention MCQ in review 1)
+    return [{ i: 0, v: tied }, { i: 2, v: micro }, { i: 5, v: Math.round(lr(mid) * 1e7) / 1e7 }];
+  })(),
+  // AI 210 (fast.ai 2022) — recomputed, never copied from the data file.
+  "ai210.0.2": (function () {
+    // double_relu at x = -3: evaluate each hinge as a piecewise branch rather than max().
+    const hinge = (m, b, x) => { const y = m * x + b; return y > 0 ? y : 0; };
+    const dbl = hinge(-1.5, -1.5, -3) + hinge(1.5, 1.5, -3);
+    // nnet sheet row: two ReLUs summed, then the squared error against Survived = 0.
+    const relu = v => (v < 0 ? 0 : v);
+    const pred = relu(-1.5) + relu(0.05);
+    return [{ i: 2, v: dbl }, { i: 5, v: Math.round(Math.pow(0 - pred, 2) * 1e8) / 1e8 }];
+  })(),
+  "ai210.0.4": (function () {
+    // Inputs: the notebook's indep_cols, counted from the lists, not taken as 12.
+    const cont = ["Age", "SibSp", "Parch", "LogFare"];
+    const dummies = { Sex: ["male", "female"], Pclass: [1, 2, 3], Embarked: ["C", "Q", "S"] };
+    const nIn = cont.length + Object.values(dummies).reduce((t, v) => t + v.length, 0);
+    const shapes = [[nIn, 20], [20, 1], [1]];                 // layer1, layer2, const
+    const params = shapes.reduce((t, sh) => t + sh.reduce((a, b) => a * b, 1), 0);
+    // LogFare via log1p (the framework notebook's form), rounded to the 2 dp asked for.
+    return [{ i: 4, v: params }, { i: 5, v: Math.round(Math.log1p(7.25) * 100) / 100 }];
+  })(),
+  "ai210.0.5": (function () {
+    // Threshold splits ("code <= t") needed to isolate one level of an ordered code:
+    // one cut below it unless it is the smallest, one above it unless it is the largest.
+    const codes = { C: 0, Q: 1, S: 2 }, vals = Object.values(codes);
+    const lo = Math.min(...vals), hi = Math.max(...vals), q = codes.Q;
+    const splits = (q > lo ? 1 : 0) + (q < hi ? 1 : 0);
+    // Gini as the chance two draws differ (survived then not, or not then survived).
+    const p = 3 / 4, giniDiff = p * (1 - p) + (1 - p) * p;
+    return [{ i: 1, v: splits }, { i: 7, v: giniDiff }];
+  })(),
+  "ai210.0.6": (function () {
+    const bs = Math.floor(64 / 4);                               // bs=64//accum
+    // Rebuild the prediction list in dict order, then append the slice [2:4].
+    const runs = ["convnext", "convnext", "vit", "vit", "swinv2", "swinv2", "swin", "swin"];
+    const all = runs.concat(runs.slice(2, 4));
+    const vitShare = all.filter(r => r === "vit").length / all.length;
+    // Binary cross-entropy for a non-cat at PredCat = 0.9, base-10 log as in Excel.
+    const bce = -Math.log(1 - 0.9) / Math.LN10;
+    return [{ i: 1, v: bs }, { i: 2, v: vitShare }, { i: 4, v: Math.round(bce * 1e6) / 1e6 }];
+  })(),
+  "ai210.0.7": (function () {
+    // Count window positions by sliding a kernel over the padded row, not by formula.
+    const n = 7, pad = 1, ks = 3, stride = 2;
+    let positions = 0;
+    for (let start = -pad; start + ks <= n + pad; start += stride) positions++;
+    // Conv2d(4, 8, 3): each output channel has its own kernel per input channel, plus a bias.
+    let params = 0;
+    for (let out = 0; out < 8; out++) params += 4 * 3 * 3 + 1;
+    return [{ i: 3, v: positions }, { i: 4, v: params }];
+  })(),
+  // AI 310 Unit I (CS336 2025), from the lecture materials.
+  "ai310.0.0": (function () {
+    // D* = 20 N* and C proportional to N*D: search for the N* whose compute is 4x that of N* = 1.
+    const computeAt = n => n * (20 * n);
+    let lo = 0, hi = 100; for (let it = 0; it < 200; it++) { const mid = (lo + hi) / 2; if (computeAt(mid) < 4 * computeAt(1)) lo = mid; else hi = mid; }
+    const dStar = Math.round(lo * 1e6) / 1e6;
+    const str = "Hello, \u{1F30D}! \u4F60\u597D!";
+    const ratio = Buffer.byteLength(str, "utf8") / Array.from(str).length;
+    // Byte-level BPE, written again: count adjacent pairs, merge the first most common.
+    const mergeAll = (ids, a, b, nid) => { const out = []; for (let i = 0; i < ids.length; i++) {
+      if (i + 1 < ids.length && ids[i] === a && ids[i + 1] === b) { out.push(nid); i++; } else out.push(ids[i]); } return out; };
+    let ids = Array.from(Buffer.from("the cat in the hat", "utf8")); const merges = [];
+    for (let m = 0; m < 3; m++) {
+      const counts = new Map();
+      for (let i = 0; i + 1 < ids.length; i++) { const k = ids[i] + "," + ids[i + 1]; counts.set(k, (counts.get(k) || 0) + 1); }
+      let best = null, bestN = -1; for (const [k, n] of counts) if (n > bestN) { best = k; bestN = n; }
+      const [a, b] = best.split(",").map(Number); merges.push([a, b, 256 + m]); ids = mergeAll(ids, a, b, 256 + m);
+    }
+    let enc = Array.from(Buffer.from("the quick brown fox", "utf8"));
+    merges.forEach(([a, b, nid]) => { enc = mergeAll(enc, a, b, nid); });
+    return [{ i: 3, v: dStar }, { i: 4, v: Math.round(ratio * 100) / 100 }, { i: 5, v: enc.length }];
+  })(),
+  "ai310.0.1": (function () {
+    // Days: work in units of 1e22 FLOPs to keep the arithmetic exact enough, then round.
+    const total = 6 * 70 * 15 * 1e21;                      // 6 x 70e9 x 15e12
+    const perSecond = (1979e12 / 2) * 0.5 * 1024;          // dense H100 peak x MFU x GPUs
+    const days = total / (perSecond * 24 * 3600);
+    // AdamW in float32: parameter, gradient, two moments.
+    const bytesPer = [4, 4, 4, 4].reduce((a, b) => a + b, 0);
+    const billions = (8 * 80e9 / bytesPer) / 1e9;
+    return [{ i: 4, v: Math.round(days) }, { i: 5, v: billions }];
+  })(),
+  "ai310.0.2": (function () {
+    // Equal parameters: 2 matrices at ratio 4 versus 3 matrices at ratio r, solved by bisection.
+    let lo = 0, hi = 10;
+    for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (3 * mid < 2 * 4) lo = mid; else hi = mid; }
+    const t5 = (128 * 128) / 1024;
+    return [{ i: 4, v: Math.round(lo * 100) / 100 }, { i: 5, v: t5 }];
+  })(),
+  "ai310.0.3": (function () {
+    const scores = [2, 1, 0, -1], k = 2;
+    const top = scores.slice().sort((a, b) => b - a).slice(0, k);
+    const z = top.reduce((t, v) => t + Math.exp(v), 0);
+    const gate = Math.exp(top[0]) / z;
+    const ffnEquivalents = (6 + 2) / 4;
+    return [{ i: 4, v: Math.round(gate * 1000) / 1000 }, { i: 5, v: ffnEquivalents }];
+  })(),
+  "ai310.0.4": (function () {
+    // Count tiles by stepping across the output, not by a ceiling formula.
+    const tilesAlong = (n, t) => { let c = 0; for (let x = 0; x < n; x += t) c++; return c; };
+    const tiles = tilesAlong(1600, 256) * tilesAlong(1600, 128);
+    const fp16Bytes = 16 / 8, readsPlusWrites = 2;
+    return [{ i: 4, v: tiles }, { i: 5, v: fp16Bytes * readsPlusWrites / 1 }];
+  })(),
+  "ai310.0.5": (function () {
+    const n = 16384 * 16384, bs = 1024;
+    const blocks = Math.floor((n + bs - 1) / bs);                // cdiv
+    // Sum the per-step read counts for M = 2, N = 3.
+    const M = 2, N = 3, MN = M * N;
+    const reads = [MN, MN + M, MN, MN, MN].reduce((a, b) => a + b, 0);
+    return [{ i: 4, v: blocks }, { i: 5, v: reads }];
+  })(),
+  "ai310.0.6": (function () {
+    // Per-GPU bytes under ZeRO-2 on 8 GPUs: weights whole, gradients + optimizer state sharded.
+    const weights = 2, grads = 2, master = 4, adam = 2 + 2, gpus = 8;
+    const perParam = weights + (grads + master + adam) / gpus;
+    const billions = 80e9 / perParam / 1e9;
+    const bubble = (4 - 1) / 12;
+    return [{ i: 4, v: Math.round(billions * 10) / 10 }, { i: 5, v: bubble }];
+  })(),
+  "ai310.0.7": (function () {
+    // Simulate the reduce-scatter: sum element-wise over ranks, rank 2 keeps element 2.
+    const world = 4, base = [0, 1, 2, 3];
+    const summed = base.map((_, j) => { let t = 0; for (let r = 0; r < world; r++) t += base[j] + r; return t; });
+    const gib = (100 * 1024 * 1024 * 4) * 2 * (world - 1) / Math.pow(1024, 3);
+    return [{ i: 4, v: summed[2] }, { i: 5, v: Math.round(gib * 100) / 100 }];
+  })(),
+  "ai310.0.8": (function () {
+    // Smallest n with sigma^2 / n <= 0.01, found by search rather than division.
+    let n = 1; while (4 / n > 0.01 + 1e-12) n++;
+    // Same compute (N x D) as Mistral 7B at 110 tokens/param, re-spent at 20 tokens/param: bisect for N.
+    const C = 7 * (7 * 110);                                      // in units of 1e18 (billions x billions)
+    let lo = 0, hi = 1000; for (let it = 0; it < 200; it++) { const mid = (lo + hi) / 2; if (mid * 20 * mid < C) lo = mid; else hi = mid; }
+    return [{ i: 4, v: n }, { i: 5, v: Math.round(lo * 10) / 10 }];
+  })(),
+  "ai310.0.9": (function () {
+    const accel = 989e12 / 3.35e12;                               // FLOPs per byte the H100 can feed
+    // KV cache: one key and one value vector per token, layer and KV head, 2 bytes each.
+    let bytes = 0;
+    const S = 1024, L = 40, K = 40, H = 128;
+    for (const kv of ["key", "value"]) bytes += S * L * K * H * 2;
+    return [{ i: 4, v: Math.round(accel) }, { i: 5, v: Math.round(bytes / 1e9 * 100) / 100 }];
+  })(),
+  "ai310.0.10": (function () {
+    // lr x fan-in is invariant under the 1/fan-in rule: solve for the new rate.
+    const invariant = 0.01 * 1024;
+    const lr = invariant / 4096;
+    // WSD: one stable run to the last branch point plus a 10% decay per data size, summed size by size.
+    let stableEnd = 0, decays = 0;
+    for (let size = 1; size <= 8; size++) { stableEnd = Math.max(stableEnd, size - 0.1 * size); decays += 0.1 * size; }
+    const wsd = Math.round((stableEnd + decays) * 10) / 10;
+    return [{ i: 4, v: lr }, { i: 5, v: wsd }];
+  })(),
+  "ai310.0.11": (function () {
+    // Perplexity through bits: average -log2 p, then 2 to that power.
+    const ps = [0.5, 0.25, 0.125];
+    const bits = ps.reduce((t, p) => t - Math.log2(p), 0) / ps.length;
+    const ppl = Math.pow(2, bits);
+    // Perplexity by the definition, (1/p(D))^(1/|D|), for |D| = 5 tokens each at probability e^-2.
+    const nTok = 5; let pD = 1; for (let t = 0; t < nTok; t++) pD *= Math.exp(-2);
+    const ppl2 = Math.pow(1 / pD, 1 / nTok);
+    return [{ i: 4, v: Math.round(ppl * 1e9) / 1e9 }, { i: 5, v: Math.round(ppl2 * 100) / 100 }];
+  })(),
+  "ai310.0.12": (function () {
+    const bytesPerToken = 806e9 / 156e9;
+    // C4's line rule applied to the five lines: ends in terminal punctuation and has at least 5 words.
+    const lines = ["Home | About | Contact", "Click here to subscribe.", "The river floods every spring after the snow melts.",
+      "Rooms start at 80 euros per night!", "Read the full story"];
+    const kept = lines.filter(l => /[.!?"]$/.test(l) && l.trim().split(/\s+/).length >= 5).length;
+    return [{ i: 4, v: Math.round(bytesPerToken * 100) / 100 }, { i: 5, v: kept }];
+  })(),
+  "ai310.0.13": (function () {
+    // LSH: the pair escapes only if every band misses; a band hits only if all r MinHashes agree.
+    const s = 0.8, b = 5, r = 10;
+    let bandHit = 1;
+    for (let j = 0; j < r; j++) bandHit *= s;
+    let allMiss = 1;
+    for (let j = 0; j < b; j++) allMiss *= (1 - bandHit);
+    // fastText: embedding table V x H plus head H x K, counted entry by entry.
+    const V = 8192, H = 16, K = 64;
+    return [{ i: 4, v: Math.round((1 - allMiss) * 1000) / 1000 }, { i: 5, v: V * H + H * K }];
+  })(),
+  "ai310.0.14": (function () {
+    // The mean of [4, 3, 6, 10, 8] by deviations from 6, not by summing the list.
+    const xs = [4, 3, 6, 10, 8];
+    const dev = xs.map((x) => x - 6).reduce((u, v) => u + v, 0) / xs.length;
+    return [{ i: 5, v: Math.round((6 + dev) * 1000) / 1000 }];
+  })(),
+  "ai310.0.15": (function () {
+    // Group z-score with the population variance taken as E[x^2] - E[x]^2.
+    const rs = [1, 0, 0, 0];
+    const m1 = rs.reduce((u, v) => u + v, 0) / rs.length;
+    const m2 = rs.reduce((u, v) => u + v * v, 0) / rs.length;
+    const adv = (rs[0] - m1) / Math.sqrt(m2 - m1 * m1);
+    // Sampling weights 1 - success, in tenths to stay exact.
+    const ratio = (10 - 4) / (10 - 9);
+    return [{ i: 4, v: Math.round(adv * 1000) / 1000 }, { i: 5, v: ratio }];
+  })(),
+  "ai310.0.16": (function () {
+    // Sample sd via n/(n-1) times the population variance E[x^2] - E[x]^2.
+    const xs = [11 - 10, 9 - 10, 0 - 1, 2 - 1];
+    const n = xs.length;
+    const m1 = xs.reduce((u, v) => u + v, 0) / n;
+    const m2 = xs.reduce((u, v) => u + v * v, 0) / n;
+    const sd = Math.sqrt((n / (n - 1)) * (m2 - m1 * m1));
+    // Partial credit: prompt numbers present, plus (pairs - descents).
+    const prompt = [3, 1, 0, 2], resp = [0, 3, 1, 2];
+    const present = new Set(resp);
+    let inc = 0;
+    prompt.forEach((x) => { if (present.has(x)) inc += 1; });
+    let descents = 0;
+    for (let j = 1; j < resp.length; j++) if (resp[j] < resp[j - 1]) descents += 1;
+    return [{ i: 4, v: Math.round(sd * 1000) / 1000 }, { i: 5, v: inc + (resp.length - 1 - descents) }];
+  })(),
 };
 
 let sumNums = 0;
@@ -2294,6 +2673,337 @@ Object.keys(expectedSummary).forEach(k => {
   });
 });
 
+// ---------- T-033: the lecture quizzes for AI 200, AI 210, AI 300, AI 310, RES 400 ----------
+// The owner, 2026-10-14: "create a quiz after each video… The quiz should actually
+// be valuable and cover what's in each video." Each summary in these courses is
+// written from its source — a transcript, or the paper or page itself — and its
+// checks are the lecture quiz. The ways one goes wrong silently:
+//   * the wrong SIZE. 5 checks for a video of 30 minutes or less, 6 for 31-90,
+//     8 for longer, 6 for a paper or reading. A long lecture quizzed with five
+//     questions covers its first hour and calls it done;
+//   * a check that does not say WHERE it is taught. `at` (whole seconds into the
+//     video) and/or `src` (the file, section or cell), each on every check or on
+//     none. An `at` past the end of the video points "rewatch from here" (T-043)
+//     at nothing;
+//   * an MCQ that is not four options with its answer among them, or two options
+//     that are the same text;
+//   * the tell. If the answer is the unique longest option in most of a lesson's
+//     MCQs, picking the longest passes without watching (the SPCH failure, 436 of
+//     479). At most a third per lesson may be, and the same bound holds for the
+//     unique shortest so the fix cannot overshoot. And within a course no answer
+//     slot may hold more than 40% of the answers: the engine shuffles options at
+//     mount, but the bank should not lean on that;
+//   * raw HTML. q, opts and expl are injected unescaped like the prose, so no bare
+//     '<' before a letter or slash, and every '$' must be paired (KaTeX).
+// Where a `src` quiz is allowed on a video lesson. (1) A lesson that names a paper
+// or reading: AI 300's lessons whose `v` is a duplicate or another course's lecture
+// are quizzed from the paper the lesson is named for, sized as a paper (6).
+// (2) The spec's amendment of 2026-10-14: both transcript tools are down, and the
+// owner chose "course materials now, transcripts later" for three units, whose
+// quizzes are written from the authors' own companion material on GitHub (the
+// lecture notebooks or executable notes) and carry `src`; `at` is added when
+// transcripts work again. Those are still sized by the VIDEO's length — the quiz
+// is for the lecture, not for the file. Every other video lesson (3Blue1Brown,
+// Silver, the two big-picture talks, Hamming's talk) waits for a transcript.
+const T033 = ["ai200", "ai210", "ai300", "ai310", "res400"];
+const T033_COMPANION = ["ai200.1", "ai210.0", "ai310.0"];   // course.unit
+const t033 = {};
+T033.forEach(cid => {
+  const c = D.COURSES.find(x => x.id === cid);
+  ok(!!c, cid + ": the course exists");
+  t033[cid] = { code: c ? c.code : cid, lessons: c ? c.units.reduce((n, u) => n + u.lessons.length, 0) : 0,
+                summaries: 0, checks: 0, mcq: 0, num: 0, slots: [0, 0, 0, 0], longest: 0, shortest: 0 };
+});
+const noTag = t => !/<[a-zA-Z/]/.test(t || "");
+const pairedDollars = t => ((t || "").replace(/\\\$/g, "").match(/\$/g) || []).length % 2 === 0;
+Object.keys(D.SUMMARIES || {}).filter(k => T033.includes(k.split(".")[0])).forEach(k => {
+  const p = k.split("."), cid = p[0], c = D.COURSES.find(x => x.id === cid);
+  const u = c && c.units[+p[1]], l = u && u.lessons[+p[2]];
+  if (!l) return;                       // already failed above: "keys a lecture that exists"
+  const s = D.SUMMARIES[k], cs = Array.isArray(s.checks) ? s.checks : [], T = t033[cid];
+  T.summaries++;
+  const atN = cs.filter(q => q.at !== undefined).length, srcN = cs.filter(q => q.src !== undefined).length;
+  ok(cs.every(q => q.at !== undefined || q.src !== undefined),
+     k + ": every check says where it is taught — `at` (seconds into the video) and/or `src` (file, section or cell)");
+  ok(atN === 0 || atN === cs.length, k + ": `at` is on every check or on none (" + atN + " of " + cs.length + ")");
+  ok(srcN === 0 || srcN === cs.length, k + ": `src` is on every check or on none (" + srcN + " of " + cs.length + ")");
+  if (atN) ok(!!l.v && +l.min > 0, k + ": a quiz with `at` is on a lesson with a video and a length");
+  if (srcN) ok(!!(l.paper || l.read) || T033_COMPANION.includes(cid + "." + p[1]),
+     k + ": a `src` quiz is on a lesson that names a paper or reading, or in a unit the amendment admits companion material for (" +
+     T033_COMPANION.join(", ") + ")");
+  const byLength = !!l.v && +l.min > 0 && !l.paper;
+  const want = byLength ? (l.min <= 30 ? 5 : l.min <= 90 ? 6 : 8) : 6;
+  ok(cs.length === want, k + ": has " + want + " checks, the size for " +
+     (byLength ? "a " + l.min + "-minute lecture" : "a paper or reading") + " (has " + cs.length + ")");
+  let mcq = 0, longest = 0, shortest = 0;
+  cs.forEach((q, i) => {
+    const tag = k + " check " + i;
+    T.checks++;
+    if (q.at !== undefined) ok(Number.isInteger(q.at) && q.at >= 0 && q.at < (+l.min || 0) * 60,
+      tag + ": at " + q.at + "s is a whole second inside the " + l.min + "-minute video (0 to " + ((+l.min || 0) * 60 - 1) + ")");
+    if (q.src !== undefined) ok(typeof q.src === "string" && q.src.trim().length > 3, tag + ": src names a section");
+    ok(typeof q.q === "string" && q.q.length > 15, tag + ": asks a question");
+    ok(typeof q.expl === "string" && q.expl.length > 40, tag + ": has an explanation that teaches");
+    const isNum = q.num !== undefined;
+    if (isNum) {
+      T.num++;
+      ok(typeof q.num === "number" && isFinite(q.num) && q.opts === undefined, tag + ": numeric, with no options");
+      ok(q.tol === undefined || (typeof q.tol === "number" && q.tol >= 0), tag + ": tol, if given, is a non-negative number");
+    } else {
+      mcq++; T.mcq++;
+      const o = Array.isArray(q.opts) ? q.opts : [];
+      ok(o.length === 4 && o.every(x => typeof x === "string" && x.trim().length > 0), tag + ": multiple choice with exactly 4 options");
+      ok(new Set(o).size === o.length, tag + ": options are distinct");
+      ok(Number.isInteger(q.a) && q.a >= 0 && q.a < o.length, tag + ": answer index " + q.a + " is one of its " + o.length + " options");
+      if (Number.isInteger(q.a) && q.a >= 0 && q.a < 4) T.slots[q.a]++;
+      if (o.length && o[q.a] !== undefined) {
+        const len = o.map(x => String(x).length), mine = len[q.a], mx = Math.max(...len), mn = Math.min(...len);
+        if (mine === mx && len.filter(x => x === mx).length === 1) longest++;
+        if (mine === mn && len.filter(x => x === mn).length === 1) shortest++;
+      }
+    }
+    [["q", q.q], ["expl", q.expl]].concat((q.opts || []).map((x, j) => ["option " + j, x])).forEach(([w, t]) => {
+      ok(noTag(t), tag + " " + w + ": no raw '<' — it is injected unescaped");
+      ok(pairedDollars(t), tag + " " + w + ": every '$' is paired (KaTeX delimiter)");
+    });
+  });
+  const bound = Math.ceil(mcq / 3);
+  ok(longest <= bound, k + ": the answer is the unique longest option in " + longest + " of " + mcq +
+     " MCQs — at most " + bound + ", or the quiz can be passed by picking the longest option");
+  ok(shortest <= bound, k + ": the answer is the unique shortest option in " + shortest + " of " + mcq + " MCQs — at most " + bound);
+  T.longest += longest; T.shortest += shortest;
+  (s.beats || []).forEach((b, i) => ok(noTag(b.t), k + " beat " + i + " title: no raw '<'"));
+  [s.takeaway, s.worked, s.watch].concat((s.beats || []).map(b => b.t + " " + b.d))
+    .forEach((t, i) => ok(pairedDollars(t), k + " prose field " + i + ": every '$' is paired (KaTeX delimiter)"));
+});
+T033.forEach(cid => {
+  const T = t033[cid], total = T.slots.reduce((a, b) => a + b, 0);
+  T.slots.forEach((n, j) => ok(n <= 0.4 * total, T.code + ": answer slot " + "ABCD"[j] + " holds " + n + " of " + total +
+    " MCQ answers — no slot may hold more than 40%"));
+});
+const t033Line = T033.map(cid => t033[cid].code + " " + t033[cid].summaries + "/" + t033[cid].lessons).join(", ");
+console.log("T-033 lecture quizzes: " + t033Line + " — " +
+  T033.reduce((a, cid) => a + t033[cid].checks, 0) + " checks (" + T033.reduce((a, cid) => a + t033[cid].mcq, 0) + " MCQ, " +
+  T033.reduce((a, cid) => a + t033[cid].num, 0) + " numeric); answer slots A-D " +
+  T033.map(cid => t033[cid].code + " " + t033[cid].slots.join("/")).join(", ") + "; unique longest " +
+  T033.reduce((a, cid) => a + t033[cid].longest, 0) + ", unique shortest " + T033.reduce((a, cid) => a + t033[cid].shortest, 0));
+
+// ---------- SPCH 100, the storytelling course (T-037) ----------
+// Fifteen core modules (B8 is archived) and some forty-five hours of video, every
+// lesson installed only after its transcript was read. Four ways it can go wrong silently, each of which the
+// browser would render as something merely missing:
+//   * a lesson whose transcript was never stored — the hard rule says no video is
+//     installed unread, and the stored file is the only proof it was read;
+//   * a unit INSERTED rather than appended — keys are positional, so the owner's
+//     progress on spch100.0.0 would quietly re-point to a different video. The
+//     ledger pins every key to its video id and only ever grows;
+//   * a drill or summary that is missing or malformed — drillHTML/summaryHTML
+//     return "" for a key with nothing behind it;
+//   * a check whose answer index is outside its options — the quiz engine would
+//     mark every reply wrong;
+//   * the same video installed under two keys — it renders twice, is scheduled
+//     twice and its minutes count twice towards the hour budget.
+// The prose is injected raw (rules, summaries, checks), so no bare "<" and no
+// "$": a dollar sign is KaTeX's delimiter and would eat the sentence after it.
+const SPCH = D.COURSES.find(c => c.id === "spch100");
+const spchLedger = JSON.parse(fs.readFileSync(path.join(ROOT, "data/storytelling/ledger.json"), "utf8")).keys;
+const SPCH_MODULE = /^(A[1-8]|B[1-8])$/;
+let spchLessons = 0, spchMin = 0;
+const spchByModule = {};
+ok(!!SPCH, "spch100: the course exists");
+if (SPCH) {
+  Object.keys(spchLedger).forEach(k => {
+    const p = k.split("."), u = SPCH.units[+p[1]], l = u && u.lessons[+p[2]];
+    ok(!!l && l.v === spchLedger[k], "spch100 ledger: " + k + " still points at " + spchLedger[k] +
+      (l ? " (it now points at " + l.v + " — a unit or lesson was inserted or reordered)" : " (the key no longer exists)"));
+  });
+  const spchSeen = {};
+  SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+    const k = "spch100." + ui + "." + li;
+    ok(!spchSeen[l.v], k + ": " + l.v + " is not already installed" + (spchSeen[l.v] ? " at " + spchSeen[l.v] +
+      " (a video installed twice is watched twice and counted twice in the hours)" : ""));
+    spchSeen[l.v] = spchSeen[l.v] || k;
+    spchLessons++;
+    spchMin += +l.min || 0;
+    ok(spchLedger[k] === l.v, k + ": is pinned in data/storytelling/ledger.json (append one line for a new lesson)");
+    ok(typeof l.t === "string" && l.t.length > 8, k + ": has a title");
+    ok(typeof l.min === "number" && l.min > 0, k + ": min is a positive number of minutes");
+    ok(/^[A-Za-z0-9_-]{11}$/.test(l.v || ""), k + ": v is an 11-character video id");
+    const tp = path.join(ROOT, "data/storytelling/transcripts", (l.v || "none") + ".txt");
+    const tx = fs.existsSync(tp) ? fs.readFileSync(tp, "utf8") : "";
+    ok(!!tx, k + ": transcript data/storytelling/transcripts/" + l.v + ".txt exists (no video is installed unread)");
+    ok(!tx || tx.indexOf("watch?v=" + l.v) >= 0, k + ": the stored transcript is for " + l.v);
+    ok(!tx || tx.length > 1500, k + ": the stored transcript is a transcript, not a stub");
+    // A stored transcript that the tool cut short carries a NOTE with the time it
+    // stops. That is only acceptable when the lesson itself stops earlier (the
+    // title says "stop at" or "talk ends" at or before that time) — otherwise the
+    // end of the video is installed unread and its minutes are counted anyway.
+    const cut = tx.match(/NOTE: the transcript tool truncates[^\n]*ends at about (\d+(?::\d\d){1,2})/);
+    const secs = t => t.split(":").reduce((a, x) => a * 60 + +x, 0);
+    const stop = (l.t || "").match(/\((?:stop at|talk ends) (\d+(?::\d\d){1,2})\)/);
+    ok(!cut || (!!stop && secs(stop[1]) <= secs(cut[1]) && l.min <= Math.ceil(secs(stop[1]) / 60)),
+       k + ": the stored transcript covers everything the lesson counts" +
+       (cut ? " (it stops at " + cut[1] + "; re-fetch it whole, or title the lesson '(stop at mm:ss)' and set min to the part read)" : ""));
+    const d = (D.DRILLS || {})[k];
+    ok(!!d, k + ": has a drill (mechanic, rules, drill, check)");
+    if (d) {
+      ok(SPCH_MODULE.test(d.module || ""), k + ": drill names its taxonomy module (A1-A8, B1-B8)");
+      ok(!!d.drill && !!d.drill.do && d.drill.minutes > 0, k + ": drill says what to do and for how long");
+      ok(!!d.check && d.check.length > 20, k + ": drill has its check");
+      spchByModule[d.module] = (spchByModule[d.module] || 0) + (+l.min || 0);
+      [d.mechanic, d.drill && d.drill.do, d.check].concat(d.rules || []).forEach((t, i) =>
+        ok(!/\$/.test(t || ""), k + " drill field " + i + ": no '$'"));
+      (d.rules || []).forEach((t, i) => ok(!/<(?![/]?(em|strong)>)/.test(t), k + " rule " + i + ": only <em>/<strong> markup, no bare '<'"));
+    }
+    const s = (D.SUMMARIES || {})[k];
+    ok(!!s, k + ": has a revision summary");
+    if (s) {
+      const cs = s.checks || [];
+      ok(cs.length >= 3, k + ": summary has at least 3 checks (has " + cs.length + ")");
+      cs.forEach((c, i) => {
+        ok(Array.isArray(c.opts) && c.opts.length >= 3 && Number.isInteger(c.a) && c.a >= 0 && c.a < c.opts.length,
+           k + " check " + i + ": multiple choice with its answer inside its options");
+        ok(Array.isArray(c.opts) && new Set(c.opts).size === c.opts.length, k + " check " + i + ": options are distinct");
+        [c.q, c.expl].concat(c.opts || []).forEach(t => ok(!/<[a-zA-Z/]/.test(t || "") && !/\$/.test(t || ""),
+           k + " check " + i + ": no raw '<' or '$' (injected unescaped)"));
+      });
+      ok(cs.length < 2 || new Set(cs.map(c => c.a)).size > 1, k + ": answers are not all in the same position");
+      [s.takeaway, s.worked, s.watch].concat((s.beats || []).map(b => b.t + " " + b.d))
+        .forEach((t, i) => ok(!/\$/.test(t || ""), k + " summary field " + i + ": no '$' (KaTeX delimiter)"));
+    }
+  }));
+  console.log("SPCH 100: " + spchLessons + " lessons, " + (spchMin / 60).toFixed(1) + " h of video — " +
+    Object.keys(spchByModule).sort().map(m => m + " " + (spchByModule[m] / 60).toFixed(2) + "h").join(", "));
+
+  // ---- can the checks be answered without the lesson? (T-037 review round 1) ----
+  // At review, in 436 of 479 SPCH summary checks the answer was the unique
+  // longest option: pick the longest and you passed without watching anything.
+  // CONTENT-STANDARD: distractors must encode real errors, never filler — and a
+  // real misreading of a lesson is about as long as the right reading. With
+  // four options of honest, similar lengths the answer is the unique longest
+  // about a quarter of the time by chance, so the bound is about a third. The
+  // unique shortest is bounded the same way, so the fix cannot overshoot into
+  // the opposite tell. Scoped to spch100: other courses' checks are numeric.
+  let spchChecks = 0, longestN = 0, shortestN = 0;
+  Object.keys(D.SUMMARIES || {}).filter(k => k.startsWith("spch100.")).forEach(k =>
+    (D.SUMMARIES[k].checks || []).forEach(c => {
+      if (!Array.isArray(c.opts) || !Number.isInteger(c.a) || c.opts[c.a] === undefined) return;
+      const len = c.opts.map(o => String(o).length), mine = len[c.a];
+      const mx = Math.max(...len), mn = Math.min(...len);
+      spchChecks++;
+      if (mine === mx && len.filter(x => x === mx).length === 1) longestN++;
+      if (mine === mn && len.filter(x => x === mn).length === 1) shortestN++;
+    }));
+  const third = Math.ceil(spchChecks / 3);
+  ok(longestN <= third, "SPCH checks: the answer is the unique longest option in " + longestN + " of " + spchChecks +
+     " — at most about a third (" + third + ") may be, or the checks can be passed by picking the longest option");
+  ok(shortestN <= third, "SPCH checks: the answer is the unique shortest option in " + shortestN + " of " + spchChecks +
+     " — at most about a third (" + third + ") may be");
+  console.log("SPCH check options: answer unique longest in " + longestN + " of " + spchChecks + " (" +
+    (100 * longestN / Math.max(1, spchChecks)).toFixed(1) + "%), unique shortest in " + shortestN + " (" +
+    (100 * shortestN / Math.max(1, spchChecks)).toFixed(1) + "%); bound " + third);
+
+  // ---- who the lessons say said it (T-037 review round 1) ----
+  // A lesson that names a teacher, a channel or a person has to be able to show
+  // where that name came from. data/storytelling/candidates.jsonl carries, for
+  // every installed video, `credits`: each name with the forms the lessons use
+  // (aka) and a source — the logged title, a quote from the stored transcript,
+  // a logged WebSearch (query plus the sentence of the result that says it), or
+  // another lesson whose video carries the name. The failure this exists for:
+  // a lesson credited to "Rachel's English" with nothing anywhere saying so.
+  //   * every credited name (any video) found in a lesson must be credited for
+  //     THAT lesson's video — a known name cannot drift onto the wrong video;
+  //   * "Firstname Surname" spans that match no credit at all fail too, so a
+  //     brand-new unlogged person cannot slip in (a bare unknown surname can;
+  //     the first-name list is the heuristic's whole reach);
+  //   * every credit's source is checked: quotes are looked up, references
+  //     resolved, WebSearch evidence must be present.
+  const candRows = fs.readFileSync(path.join(ROOT, "data/storytelling/candidates.jsonl"), "utf8")
+    .split("\n").filter(Boolean).map(l => JSON.parse(l));
+  const installedById = {};
+  candRows.forEach(c => { if (c.status === "installed") installedById[c.id] = c; });
+  const creditAliases = [];
+  Object.values(installedById).forEach(c => (c.credits || []).forEach(cr =>
+    [cr.name].concat(cr.aka || []).forEach(a => creditAliases.push({ a, name: cr.name }))));
+  const seenAlias = new Set();
+  const aliasList = creditAliases.filter(x => !seenAlias.has(x.a + "\u0000" + x.name) && seenAlias.add(x.a + "\u0000" + x.name))
+    .sort((x, y) => y.a.length - x.a.length);
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const aliasRe = aliasList.map(x => ({ name: x.name, a: x.a, re: new RegExp("(?<![\\w'’-])" + reEsc(x.a) + "(?![\\w-])", "g") }));
+  const FIRST_NAMES = new Set(("Aaron Abigail Adam Al Alan Alex Alexander Alexandra Alfred Ali Alice Alison Allen Allison Amanda Amy Andrea " +
+    "Andrew Andy Angela Ann Anna Anne April Ashley Austin Barack Barbara Ben Benjamin Beth Bill Bob Brad Brandon Brendan Brian " +
+    "Bruce Carl Carlos Carol Caroline Catherine Celeste Charles Charlie Cheri Chip Chris Christine Christopher Claire Cole Colin " +
+    "Craig Dan Daniel Danielle Dave David Deborah Derek Diana Donald Doug Edward Eddie Elizabeth Ellen Emily Emma Eric Florence " +
+    "Frank Gad Gary George Grace Greg Hannah Harry Heather Helen Henry Ira Jack Jackie James Jane Janet Jason Jeff Jefferson Jen " +
+    "Jennifer Jenny Jerry Jessica Jill Jim Joan Joe John Johnnie Johnny Jon Jonah Jonathan Jordan Joseph Josh Judy Julia Julian " +
+    "Justin Karen Kate Katherine Kathy Keith Kelly Ken Kevin Kim Kindra Kio Kirsty Kristen Kurt Larry Laura Lauren LeeAnn Leslie " +
+    "Linda Lisa Liz Lucy Madeleine Marc Marco Maria Marianna Marie Mark Marques Martin Mary Matt Matthew Maya Mel Melissa Michael " +
+    "Michelle Mike Miriam Modupe Monica Naomi Nancy Natalia Neil Nick Nicole Norm Oliver Paddy Pat Patricia Patrick Patton Paul " +
+    "Pete Peter Phil Philip Philipp Rachel Randy Rebecca Rene Riaz Ric Richard Rick Rob Robert Rodney Roger Ron Ronald Ryan Safwat " +
+    "Sam Samir Samuel Sandra Sarah Scott Sean Seth Simon Sofia Stephen Steve Steven Susan Tamsen Ted Thomas Tim Tina Todd Tom Tony " +
+    "Tracey Vanessa Viola Vinh William").split(/\s+/));
+  const firstRe = /(?<![\w'’-])([A-Z][a-z]+)\s+([A-Z][a-zA-Z'’-]+)/g;
+  const lower = s => (s || "").toLowerCase().replace(/\s+/g, " ");
+  let creditsChecked = 0, namesChecked = 0;
+  SPCH.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+    const k = "spch100." + ui + "." + li, c = installedById[l.v];
+    ok(!!c, k + ": " + l.v + " is logged as installed in data/storytelling/candidates.jsonl");
+    if (!c) return;
+    const credited = new Set((c.credits || []).map(x => x.name).concat(c.channel ? [c.channel] : []));
+    const d = (D.DRILLS || {})[k] || {}, s = (D.SUMMARIES || {})[k] || {};
+    const text = [l.t, d.mechanic, d.check, d.drill && d.drill.do, s.takeaway, s.worked, s.watch]
+      .concat(d.rules || [], (s.beats || []).map(b => b.t + ". " + b.d),
+        (s.checks || []).map(q => [q.q].concat(q.opts || [], [q.expl]).join(" | ")))
+      .filter(Boolean).join("\n").replace(/<\/?(em|strong)>/g, "");
+    const covered = new Uint8Array(text.length);
+    aliasRe.forEach(x => {
+      x.re.lastIndex = 0; let m;
+      while ((m = x.re.exec(text))) {
+        let hit = false; for (let i = m.index; i < m.index + m[0].length; i++) if (covered[i]) { hit = true; break; }
+        if (hit) continue;
+        covered.fill(1, m.index, m.index + m[0].length);
+        namesChecked++;
+        ok(credited.has(x.name), k + ": names '" + x.a + "' (" + x.name + "), which is not credited for " + l.v +
+          " in candidates.jsonl — log where the name comes from, or take it out of the lesson");
+      }
+    });
+    let m; firstRe.lastIndex = 0;
+    while ((m = firstRe.exec(text))) {
+      if (FIRST_NAMES.has(m[1])) {
+        let hit = false; for (let i = m.index; i < m.index + m[0].length; i++) if (covered[i]) { hit = true; break; }
+        ok(hit, k + ": names '" + m[0] + "', who is credited nowhere in candidates.jsonl — log the name with its source for " + l.v);
+      }
+      firstRe.lastIndex = m.index + m[1].length;
+    }
+    const tp = path.join(ROOT, "data/storytelling/transcripts", l.v + ".txt");
+    const tx = lower(fs.existsSync(tp) ? fs.readFileSync(tp, "utf8") : "");
+    (c.credits || []).forEach(cr => {
+      creditsChecked++;
+      const tag = k + " credit '" + cr.name + "'";
+      if (cr.src === "title") ok(!!cr.quote && lower(c.title).includes(lower(cr.quote)), tag + ": its quote is in the logged title");
+      else if (cr.src === "transcript") ok(!!cr.quote && tx.includes(lower(cr.quote)), tag + ": its quote is in the stored transcript");
+      else if (cr.src === "websearch") ok(!!cr.query && !!cr.evidence && cr.evidence.length > 20, tag + ": logs the WebSearch query and the sentence that supports it");
+      else if (cr.src === "lesson") {
+        const ref = (cr.ref || "").split("."), rl = SPCH.units[+ref[1]] && SPCH.units[+ref[1]].lessons[+ref[2]];
+        const rc = rl && installedById[rl.v];
+        ok(!!rc && (rc.credits || []).some(x => x.name === cr.name && x.src !== "lesson"),
+           tag + ": the lesson it refers to (" + cr.ref + ") carries the name with its own source");
+      } else ok(false, tag + ": has a source (title, transcript, websearch or lesson)");
+    });
+    // The uploading channel, where one is logged, carries its own source: the
+    // video naming itself in the stored transcript ("welcome back to English
+    // with Lucy"), or a logged WebSearch and the sentence of the result that
+    // names it. A row with no channel says why in channel_source.note.
+    const cs = c.channel_source || {};
+    ok(c.channel ? (cs.src === "transcript" ? !!cs.quote && tx.includes(lower(cs.quote))
+                    : cs.src === "websearch" && !!cs.query && !!cs.evidence && cs.evidence.length > 20)
+                 : !!cs.note,
+       k + ": the channel " + (c.channel ? "'" + c.channel + "' has the transcript quote or WebSearch evidence that names it"
+                                         : "is not logged, and channel_source.note says why"));
+  }));
+  console.log("SPCH attributions: " + namesChecked + " names in lessons, " + creditsChecked + " credits with sources checked");
+}
+
 D.COURSES.forEach(c => {
   ok(!!c.practice && /^https:\/\//.test(c.practice.url), c.code + ": has an https practice source");
   ok(!!c.practice && c.practice.label && c.practice.label.length > 8, c.code + ": practice source says what to do");
@@ -2304,6 +3014,7 @@ console.log("\n" + (fail === 0
     + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
     + Object.keys(LAB).length + " interactive, "
     + summaryKeys.length + " lecture summaries (" + sumNums + " numerics recomputed), "
-    + tagged + " questions gated (" + untagged + " untagged)"
+    + tagged + " questions gated (" + untagged + " untagged), "
+    + "lecture quizzes " + t033Line
   : fail + " of " + checks + " checks FAILED"));
 process.exit(fail === 0 ? 0 : 1);

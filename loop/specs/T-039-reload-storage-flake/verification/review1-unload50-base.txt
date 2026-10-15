@@ -1,0 +1,125 @@
+T-039 review 1, finding 1: the same half-the-time unload plant at BASE 45fdf55 (no wrapper), same session, for comparison. app.js is byte-identical at 45fdf55 and HEAD under the plant (cmp). Runner: mkiso-base.py (the reviewer's) <tree> 20.
+Result: 13 of 20 runs FAIL.
+
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false,"mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 1 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 2 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 3 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 4 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 5 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false,"mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 6 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 7 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 8 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 9 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 10 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 11 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 12 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 13 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 14 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 15 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false,"mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 16 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 17 FAILED
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 18 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  ok    switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme light, --bg rgb(242, 241, 238), meta #2b2118, stored {"raw":true,"has":true,"theme":"light","mark":true}
+  ok    switch (a)/(c): no page errors
+RUN 19 passed
+  ok    switch (a) stored "light", no marker: opens dark (--bg #0e0e10, meta #000000), Dark marked — data-theme dark, --bg rgb(14, 14, 16), meta #000000, Dark
+  ok    switch (a): opening the app writes nothing (no save at boot, so no push is armed) — state writes 0, stored {"raw":true,"has":true,"theme":"light"}
+  ok    switch (a): after a real save the stored state has no theme key and themeNavyOnce true, still dark — state writes 1 -> 3, stored {"raw":true,"has":false,"mark":true}, data-theme dark
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false}
+  ok    switch (a)/(c): no page errors
+RUN 20 FAILED
+ISO-BASE: 13 of 20 block runs failed; 13 failed checks of 100
+exit code: 1

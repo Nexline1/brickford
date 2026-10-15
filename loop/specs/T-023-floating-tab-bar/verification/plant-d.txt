@@ -1,0 +1,105 @@
+# Plant d — 2026-10-07T16:50:06Z on 1e1feed
+## diff
+diff --git a/platform/css/style.css b/platform/css/style.css
+index b9ae7d6..dbe33ac 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -1839,7 +1839,6 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
+      because the tab bar's padding carries env(safe-area-inset-bottom) and comes
+      out 66px where the stylesheet says 58. Getting this wrong hides the last
+      card behind the bar, which feels broken without looking broken. */
+-  .main { padding-bottom: calc(var(--sp-5) + var(--railbar-h) + var(--tabbar-h)); }
+   /* The rail, collapsed: one line, the next lecture, one tap. Sits directly on
+      top of the tab bar — never over it. */
+   /* Stowed while the hero's own button is on screen. Not display:none - it
+## node tools/verify-shell.js
+   1536px  sidebar shown, column 322-1164
+   1440px  sidebar shown, column 322-1068
+   1370px  sidebar shown, column 319-1002
+   1280px  sidebar shown, column 314-916
+   1100px  sidebar shown, column 305-745
+   1040px  sidebar shown, column 302-688
+    900px  sidebar shown, column 295-855
+    861px  sidebar shown, column 293-818
+   1370px  sidebar survives being navigated by
+   1040px  sidebar survives being navigated by
+    320px  drawer opens and closes
+    390px  drawer opens and closes
+    430px  drawer opens and closes
+    768px  drawer opens and closes
+    860px  drawer opens and closes
+  FAIL  320px /: at the end of the scroll the tab bar is sitting on text — span "this browser is the only copy" at 746-786 under the bar at 778-848
+  FAIL  320px /atlas: at the end of the scroll the tab bar is sitting on text — span "Left depends on nothing" at 745-786 under the bar at 778-848
+  FAIL  320px /courses: at the end of the scroll the tab bar is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 725-786 under the bar at 778-848
+  FAIL  320px /exams: at the end of the scroll the tab bar is sitting on text — span "Concept banks attempted" at 742-786 under the bar at 778-848
+  FAIL  320px /record: at the end of the scroll the tab bar is sitting on text — span "the sealed days and the chain " at 746-786 under the bar at 778-848
+  FAIL  320px /calendar: at the end of the scroll the tab bar is sitting on text — span "Sync to your calendar app" at 741-781 under the bar at 778-848
+  FAIL  320px /library: at the end of the scroll the tab bar is sitting on text — span "External halls" at 758-779 under the bar at 778-848
+  FAIL  320px /transcript: at the end of the scroll the tab bar is sitting on text — span "Mastery, course by course" at 740-781 under the bar at 778-848
+  FAIL  320px /workshop: at the end of the scroll the tab bar is sitting on text — span "Problem sets — pen and paper" at 741-781 under the bar at 778-848
+  FAIL  320px /course/math110: at the end of the scroll the tab bar is sitting on text — span "MIT OCW 18.06 (notes, psets, e" at 719-786 under the bar at 778-848
+  FAIL  320px /lesson/math110/0/0: at the end of the scroll the tab bar is sitting on text — span "Next · Lecture 2" at 766-786 under the bar at 778-848
+  FAIL  320px /concept/la-eigen: at the end of the scroll the tab bar is sitting on text — span "MATH 110" at 766-786 under the bar at 778-848
+  FAIL  320px /sync: at the end of the scroll the tab bar is sitting on text — span "How merging works" at 758-779 under the bar at 778-848
+  FAIL  320px /electives: at the end of the scroll the tab bar is sitting on text — span "Further out" at 759-779 under the bar at 778-848
+    320px  frame clears the page on 23 routes (menu button and tab bar)
+  FAIL  390px /: at the end of the scroll the tab bar is sitting on text — span "this browser is the only copy" at 766-786 under the bar at 778-848
+  FAIL  390px /atlas: at the end of the scroll the tab bar is sitting on text — span "Left depends on nothing" at 766-786 under the bar at 778-848
+  FAIL  390px /courses: at the end of the scroll the tab bar is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 745-786 under the bar at 778-848
+  FAIL  390px /exams: at the end of the scroll the tab bar is sitting on text — span "Concept banks attempted" at 742-786 under the bar at 778-848
+  FAIL  390px /record: at the end of the scroll the tab bar is sitting on text — span "the sealed days and the chain " at 745-786 under the bar at 778-848
+  FAIL  390px /calendar: at the end of the scroll the tab bar is sitting on text — span "Sync to your calendar app" at 758-778 under the bar at 778-848
+  FAIL  390px /transcript: at the end of the scroll the tab bar is sitting on text — span "Mastery, course by course" at 758-778 under the bar at 778-848
+  FAIL  390px /workshop: at the end of the scroll the tab bar is sitting on text — span "Problem sets — pen and paper" at 741-781 under the bar at 778-848
+  FAIL  390px /course/math110: at the end of the scroll the tab bar is sitting on text — span "MIT OCW 18.06 (notes, psets, e" at 742-786 under the bar at 778-848
+  FAIL  390px /lesson/math110/0/0: at the end of the scroll the tab bar is sitting on text — span "Next · Lecture 2" at 765-786 under the bar at 778-848
+  FAIL  390px /concept/la-eigen: at the end of the scroll the tab bar is sitting on text — span "MATH 110" at 766-786 under the bar at 778-848
+  FAIL  390px /sync: at the end of the scroll the tab bar is sitting on text — span "How merging works" at 758-778 under the bar at 778-848
+  FAIL  390px /electives: at the end of the scroll the tab bar is sitting on text — span "Further out" at 758-779 under the bar at 778-848
+    390px  frame clears the page on 23 routes (menu button and tab bar)
+  FAIL  430px /: at the end of the scroll the tab bar is sitting on text — span "this browser is the only copy" at 766-786 under the bar at 778-848
+  FAIL  430px /atlas: at the end of the scroll the tab bar is sitting on text — span "Left depends on nothing" at 766-786 under the bar at 778-848
+  FAIL  430px /courses: at the end of the scroll the tab bar is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 745-786 under the bar at 778-848
+  FAIL  430px /exams: at the end of the scroll the tab bar is sitting on text — span "Concept banks attempted" at 763-785 under the bar at 778-848
+  FAIL  430px /record: at the end of the scroll the tab bar is sitting on text — span "the sealed days and the chain " at 746-786 under the bar at 778-848
+  FAIL  430px /calendar: at the end of the scroll the tab bar is sitting on text — span "Sync to your calendar app" at 758-779 under the bar at 778-848
+  FAIL  430px /transcript: at the end of the scroll the tab bar is sitting on text — span "Mastery, course by course" at 758-779 under the bar at 778-848
+  FAIL  430px /workshop: at the end of the scroll the tab bar is sitting on text — span "Problem sets — pen and paper" at 759-779 under the bar at 778-848
+  FAIL  430px /course/math110: at the end of the scroll the tab bar is sitting on text — span "MIT OCW 18.06 (notes, psets, e" at 741-786 under the bar at 778-848
+  FAIL  430px /lesson/math110/0/0: at the end of the scroll the tab bar is sitting on text — span "Next · Lecture 2" at 765-786 under the bar at 778-848
+  FAIL  430px /concept/la-eigen: at the end of the scroll the tab bar is sitting on text — span "MATH 110" at 766-786 under the bar at 778-848
+  FAIL  430px /sync: at the end of the scroll the tab bar is sitting on text — span "How merging works" at 758-778 under the bar at 778-848
+  FAIL  430px /electives: at the end of the scroll the tab bar is sitting on text — span "Further out" at 759-779 under the bar at 778-848
+    430px  frame clears the page on 23 routes (menu button and tab bar)
+  FAIL  768px /: at the end of the scroll the tab bar is sitting on text — span "this browser is the only copy" at 766-786 under the bar at 778-848
+  FAIL  768px /atlas: at the end of the scroll the tab bar is sitting on text — span "Left depends on nothing" at 766-786 under the bar at 778-848
+  FAIL  768px /courses: at the end of the scroll the tab bar is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 766-786 under the bar at 778-848
+  FAIL  768px /exams: at the end of the scroll the tab bar is sitting on text — span "Concept banks attempted" at 763-786 under the bar at 778-848
+  FAIL  768px /record: at the end of the scroll the tab bar is sitting on text — span "the sealed days and the chain " at 766-786 under the bar at 778-848
+  FAIL  768px /calendar: at the end of the scroll the tab bar is sitting on text — span "Sync to your calendar app" at 758-778 under the bar at 778-848
+  FAIL  768px /transcript: at the end of the scroll the tab bar is sitting on text — span "Mastery, course by course" at 758-778 under the bar at 778-848
+  FAIL  768px /workshop: at the end of the scroll the tab bar is sitting on text — span "Problem sets — pen and paper" at 759-779 under the bar at 778-848
+  FAIL  768px /course/math110: at the end of the scroll the tab bar is sitting on text — span "↗" at 765-783 under the bar at 778-848
+  FAIL  768px /lesson/math110/0/0: at the end of the scroll the tab bar is sitting on text — span "10:00" at 765-780 under the bar at 778-848
+  FAIL  768px /concept/la-eigen: at the end of the scroll the tab bar is sitting on text — span "MATH 110" at 766-786 under the bar at 778-848
+  FAIL  768px /sync: at the end of the scroll the tab bar is sitting on text — span "How merging works" at 758-779 under the bar at 778-848
+  FAIL  768px /electives: at the end of the scroll the tab bar is sitting on text — span "1" at 755-781 under the bar at 778-848
+    768px  frame clears the page on 23 routes (menu button and tab bar)
+  FAIL  860px /: at the end of the scroll the tab bar is sitting on text — span "this browser is the only copy" at 766-786 under the bar at 778-848
+  FAIL  860px /atlas: at the end of the scroll the tab bar is sitting on text — span "Left depends on nothing" at 766-786 under the bar at 778-848
+  FAIL  860px /courses: at the end of the scroll the tab bar is sitting on text — span "RES 400 · 18 lectures · DeepMi" at 766-786 under the bar at 778-848
+  FAIL  860px /exams: at the end of the scroll the tab bar is sitting on text — span "Concept banks attempted" at 763-786 under the bar at 778-848
+  FAIL  860px /record: at the end of the scroll the tab bar is sitting on text — span "the sealed days and the chain " at 766-786 under the bar at 778-848
+  FAIL  860px /calendar: at the end of the scroll the tab bar is sitting on text — span "Sync to your calendar app" at 758-778 under the bar at 778-848
+  FAIL  860px /transcript: at the end of the scroll the tab bar is sitting on text — span "Mastery, course by course" at 758-778 under the bar at 778-848
+  FAIL  860px /workshop: at the end of the scroll the tab bar is sitting on text — span "Problem sets — pen and paper" at 758-778 under the bar at 778-848
+  FAIL  860px /course/math110: at the end of the scroll the tab bar is sitting on text — span "↗" at 765-782 under the bar at 778-848
+  FAIL  860px /lesson/math110/0/0: at the end of the scroll the tab bar is sitting on text — span "10:00" at 764-780 under the bar at 778-848
+  FAIL  860px /concept/la-eigen: at the end of the scroll the tab bar is sitting on text — span "MATH 110" at 766-786 under the bar at 778-848
+  FAIL  860px /electives: at the end of the scroll the tab bar is sitting on text — span "1" at 755-781 under the bar at 778-848
+    860px  frame clears the page on 23 routes (menu button and tab bar)
+    390px  every control reaches 44x44 on 23 routes
+  320/390px  roots 16/24  all 56 tab checks passed
+FAIL — 65 shell assertions broken
+## exit code: 1
+## restored: cmp identical, git diff clean

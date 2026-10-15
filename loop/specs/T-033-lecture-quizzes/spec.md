@@ -139,6 +139,7 @@ The owner chose **"Course materials now, transcripts later"** and **"I'll allow 
 2. **The other 17 videos wait for working transcripts.** These are 3Blue1Brown (4), David Silver's RL course (10), the 2 big-picture LLM talks, and Hamming. `at` is added to every video quiz once transcripts work again.
 3. **Papers and readings on blocked hosts.** The owner will allow arxiv.org, proceedings.neurips.cc, cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu, www.neelnanda.io and www.arena.education. Try one fetch of each at the start of every session. Once a host is reachable, build its lectures from the paper or the page itself.
 
+
 ## Amendment, 2026-10-15 (owner decision): readings on unreachable hosts
 huggingface.co and docs.vllm.ai are blocked from the build container. The owner was asked whether the source text of those pages, read from the authors' own GitHub repositories, counts as the reading. They answered **"Yes, count it"**.
 

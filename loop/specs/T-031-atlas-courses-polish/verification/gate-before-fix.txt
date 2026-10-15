@@ -1,0 +1,37 @@
+T-031 step 2: the widened T-026a sweep (T26_OW + 376, 1038, 1132, 1178, 1372) on the current main app bytes (74b0b8e; only tools/verify-design.js changed), before fix 1
+run: node tools/verify-design.js
+
+---- the harness change (git diff) ----
+diff --git a/tools/verify-design.js b/tools/verify-design.js
+index b2e16c8..ad8193f 100644
+--- a/tools/verify-design.js
++++ b/tools/verify-design.js
+@@ -3280,12 +3280,16 @@ function t26bRecord() {
+   // ---- no overflow and no overlap, every filter, phone to desktop, two text sizes ----
+   // verify-clip sweeps /atlas and /courses (Now); the Later, Finished and All
+   // shelves only exist after a click, so they are swept here. 1100 is the
+-  // narrowest column with three tiles and four covers across (the sidebar and
++  // narrowest column with three tiles and three covers across (the sidebar and
+   // the rail both showing), where the first build squeezed a tile's code into
+   // 29px at a 24px root.
+   // 640 and 1280 are where the first breakpoint (32rem) left a sixth of the
+   // horizontal track narrower than "Calibration" (review round 1).
+-  const T26_OW = [320, 390, 640, 768, 1100, 1280, 1440];
++  // 376, 1038, 1132, 1178 and 1372 are where a shelf track landed between a
++  // 6.75rem column floor and "Mathematics" (6.81rem in .bk-t), so Later and
++  // All broke it "Mathematic/s": 1132 at a 16px root, the rest at 24px (T-031;
++  // a 2px sweep, 320 to 1440 at roots 16, 20 and 24, found every one).
++  const T26_OW = [320, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440];
+   for (const root of [16, 24]) {
+     for (const w of T26_OW) {
+       const mobile = w < 861;
+
+---- verify-design: failures, then the summary ----
+  FAIL  1132px root 16px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  376px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  1038px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  1178px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+  FAIL  1372px root 24px: /atlas and every Courses filter — nothing wider than its box, no sideways scroll, no route text overlapping, no word broken in a route label, the next-gate card or a book — /courses later a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning" | /courses all a book title or code breaks mid-word: "Mathematics for Machine Learning" breaks inside a word at "Mathematic/s for Machine Learning"
+
+FAIL — 5 of 1503 design checks failed
+exit code: 1

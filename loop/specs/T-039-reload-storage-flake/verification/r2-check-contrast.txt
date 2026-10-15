@@ -1,0 +1,7 @@
+CHECK (review 2) verify-contrast on 04fc78b (0 changed files outside verification/)
+$ node tools/verify-contrast.js
+
+
+PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+
+exit code: 0 (6s)

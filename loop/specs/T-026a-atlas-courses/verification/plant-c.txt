@@ -1,0 +1,32 @@
+T-026a plant (c): the Continue shelf ignores the resume point (continuePoint treats no lesson as live, so pos is never read)
+Planted on 1f850ff, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 58d31ef..debaba3 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -2113,7 +2113,7 @@
+     let started = false, recent = "", resume = null, next = null;
+     c.units.forEach((u, ui) => u.lessons.forEach((l, li) => {
+       const st = S.lessons[lessonKey(c.id, ui, li)] || {};
+-      const live = st.pos != null && !st.done && !st.verified;
++      const live = false;
+       if (!next && !st.done) next = { ui, li };
+       if (!live && !st.done && !st.verified) return;
+       started = true;
+
+---- verify-design, planted ----
+  FAIL  1440px dark /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00 — Continue: MATH 110 #/lesson/math110/0/1 "Lecture 2 · 10 min"
+  FAIL  390px dark /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00 — Continue: MATH 110 #/lesson/math110/0/1 "Lecture 2 · 10 min"
+  FAIL  1440px light /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00 — Continue: MATH 110 #/lesson/math110/0/1 "Lecture 2 · 10 min"
+  FAIL  390px light /courses: the Continue shelf leads with AI 200, the course with the stored resume point — its lecture, at 5:00 — Continue: MATH 110 #/lesson/math110/0/1 "Lecture 2 · 10 min"
+
+FAIL — 4 of 842 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

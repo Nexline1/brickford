@@ -1,0 +1,14 @@
+# T-037 final CHECK — syntax
+# commit 9ce4be2; everything outside verification/ identical to that commit: yes; 2026-10-10T13:12:07Z
+$ for f in platform/js/app.js platform/data/storytelling.js tools/*.js; do node --check "$f" && echo "ok  $f" || { echo "BAD $f"; bad=1; }; done; exit ${bad:-0}
+ok  platform/js/app.js
+ok  platform/data/storytelling.js
+ok  tools/verify-clip.js
+ok  tools/verify-content.js
+ok  tools/verify-contrast.js
+ok  tools/verify-design.js
+ok  tools/verify-flows.js
+ok  tools/verify-logic.js
+ok  tools/verify-shell.js
+ok  tools/verify-sync-loop.js
+exit 0  (0s)

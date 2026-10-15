@@ -1,0 +1,85 @@
+# Plant (a): a lesson without its transcript file
+# 2026-10-09T18:07:27Z, commit 796ef6a. Lesson spch100.4.12 (v: 96AiJJnmys0) stays installed; its transcript file is deleted.
+
+## The plant
+$ rm data/storytelling/transcripts/96AiJJnmys0.txt
+$ git status --short (outside verification/)
+ D data/storytelling/transcripts/96AiJJnmys0.txt
+$ git diff --stat; git diff
+ data/storytelling/transcripts/96AiJJnmys0.txt | 56 ---------------------------
+ 1 file changed, 56 deletions(-)
+diff --git a/data/storytelling/transcripts/96AiJJnmys0.txt b/data/storytelling/transcripts/96AiJJnmys0.txt
+deleted file mode 100644
+index efce793..0000000
+--- a/data/storytelling/transcripts/96AiJJnmys0.txt
++++ /dev/null
+@@ -1,56 +0,0 @@
+-# Transcript: Public Speaking Secrets: 2 Reasons for Movement On Stage
+-
+-Source video: https://www.youtube.com/watch?v=96AiJJnmys0
+-Language: en (auto-generated) · Duration: 3:50 · Words: 717
+-Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+-
+-## Transcript (de-duplicated from rolling auto-captions)
+-
+-[0:03] [Music] most speakers do one of two things when it comes to using the stage either they stand
+-completely still most of the time or they paced back and forth most of the time neither one is ideal
+-keep in mind what Patricia Fripp told me and again I'm paraphrasing but she said something to the
+-effect of people won't remember what you say as much as they'll remember what they see when you say
+-it in other words we need to make our
+-
+-[0:33] speeches visual part of how we do this is with our words but the other part is through our
+-movement my advice for movement is this do what the story tells you to do if there's action in the
+-story do what the story tells you to do if there are two locations in the story set up a spot on the
+-stage for each location if you're telling a story about standing in line guess what you probably
+-won't need to move as much take a look at the video for a lesson on what I see are the two major
+-reasons for moving onstage at the
+-
+-[1:04] end of it ask yourself where will I place everybody and everything on my stage for this
+-specific story you'll see what I mean this video gives you a lesson so I'll see you in the next
+-lesson when we now here's I used to tell this story I'd be walking back and forth I created my scene
+-but then I'd walk back and forth like this telling the story the same exact way if you walk back and
+-forth what does that do your scene demolishes it and sadly to say
+-
+-[1:35] most speaker's walk all over their scene we have to move with a purpose and there are two
+-major purposes for movement the first major purpose for moving is this an action in your story
+-prompts the movement in your speech in other words I gotta go talk to my wife about this here's my
+-wife okay and I look them in the eyes and I came back so I transitioned you've got to remember where
+-you put everybody and
+-
+-[2:06] everything this is very important as what Louis because he's been to some boot camps we do
+-speak of boot camps around the country and one time I had a guy come up and do his speech and it was
+-a very touching speech very touching his uncle passed away and they held the funeral right here then
+-he went away and taught some more parts of the story then he had lunch right here and as sad as the
+-story was I had to say look I got to
+-
+-[2:36] tell you this do you realize you just had lunch on your uncle you try to remember where you
+-put everybody and everything my good friend Darren liquori calls them Holograms remember where you
+-put these Holograms so that you don't step on them or end up having lunch on your uncle okay so one
+-reason for movement is the action in your story prompts the movement in your speech another very
+-important reason for movement we want to use the stage that's a timeline time lines we read from
+-left to right correct read to left the right so we want to use the stage as a time
+-
+-[3:07] line I tell a story here and I sell my point or I make my point guess what I do in a keynote
+-address I'd go to another spot on stage and as I'm transitioning I use a transitional statement like
+-this fast-forward with me eight years I'm walking up the timeline okay tell my next story make my
+-next point over the next two decades what I came to understand was and what this allows you to do is
+-call back to those other points three stories three points by the time I finished my speech I can
+-say just like
+-
+-[3:38] when I was 10 years old call back visually and verbally this happened just like when I was 18
+
+## The gates, on the planted bytes
+$ node tools/verify-content.js
+  FAIL spch100.4.12: transcript data/storytelling/transcripts/96AiJJnmys0.txt exists (no video is installed unread)
+1 of 29589 checks FAILED
+1 of 29589 checks FAILED
+exit 1
+
+## Restore
+cmp data/storytelling/transcripts/96AiJJnmys0.txt: identical to the saved copy
+git status outside verification/: clean
+git diff HEAD outside verification/: none
+$ node tools/verify-content.js   (restored)
+PASS — 29589 checks, 14 numeric answers recomputed, 159 drills, 12 concepts, 12 figures, 3 interactive, 403 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0

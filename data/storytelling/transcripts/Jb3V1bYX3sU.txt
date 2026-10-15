@@ -1,0 +1,321 @@
+# Transcript: How to Build Your Story Bank in 30 Minutes (Step-by-Step Tutorial)
+
+Source video: https://www.youtube.com/watch?v=Jb3V1bYX3sU
+Language: en (auto-generated) · Duration: 21:34 · Words: 13846
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (de-duplicated from rolling auto-captions)
+
+[0:01] You know, storytelling is important as a content creator, but if you're constantly stressing
+about what stories to integrate into your content or what stories to share with your audience, this
+video is going to change the game for you. I'm going to show you exactly how to create a story bank
+in under 30 minutes, which has the potential to give you 100 plus content ideas right out of the
+gate with the questions and the prompts that I'll be sharing with you today. I'm also going to make
+your life a lot easier because you're going to
+
+[0:32] have a clearly organized and labeled an index story bank that's just going to make it so easy
+for you to elevate your content. By the end of this video, you're going to have your own story bank
+and you're going to know exactly how to use it. Hey there, I'm Michelle Knight and for the past nine
+years, I have been helping entrepreneurs tell their story online. As a brand storytelling expert, I
+get so lit up when I see my clients and entrepreneurs sharing their authenticity through
+storytelling. Now, we already know that storytelling is
+
+[1:03] necessary as a content creator and a business owner today, but I also know the process of a
+organizing your stories and b integrating those stories into your content can feel like a lot of
+work. This is where the story bank comes in and today I'm going to show you behind the scenes of
+exactly how to set it up. the exact categories I want you to use to organize some fun additional
+pieces that are just going to make integrating them into your content so freaking seamless. You have
+a story. I want to make it easy for you to share that story with the world. Now, what is
+
+[1:33] a story bank? It is simply a collection of stories that you are sharing both personal and
+we'll say professional or business related that build the no- like and trust factor with your
+audience. They also make selling so much easier. If you're new to storytelling, I have a video right
+here that walks through the art of storytelling to just give you a deeper dive in the process. So,
+definitely check that out after this video so you have more of an understanding of why digital
+storytelling and storytelling in general is so crucial for entrepreneurs today.
+
+[2:03] Because as brands and business owners who are using storytelling to build the no- like and
+trust and convert their clients, we have to understand that storytelling isn't just for fun. Now,
+telling stories is fun and it's my favorite way to create content, but we have to remember that all
+of these stories really need to connect to a your audience, who you're trying to attract, and b to
+your specific offers or the transformation that you provide your audience. And when you do this, and
+when you clearly highlight exactly what those stories do, which we'll dive into in
+
+[2:33] today's story bank, you are going to be able to repurpose these stories freaking everywhere.
+I'm talking social media, YouTube. You can be using them on your podcasts, as a guest expert, on
+your blogs, your Substack, whatever, and they are going to create an incredible ROI. I'm going to
+show you my story bank here inside of ClickUp. You can obviously do this anywhere that makes sense
+for you. But I am going to show you some of the amazing features that I love with ClickUp,
+especially their integration with AI. I've been using ClickUp in my business to organize literally
+everything. Like this entire video
+
+[3:03] script is in ClickUp. And if you want to check it out, you can use the link below to test
+ClickB for your business or your life cuz I use it for both. This is a very simple way to start
+organizing your storytelling content. Now, what a lot of people do is they will list out their ideas
+and they will leave it there. But I'm going to encourage you to take it a step further. What this is
+really going to help you do is that when it comes time to create the content, it's going to make it
+a lot easier for you to choose the right stories that is going to help that content convert.
+Meaning, if your purpose in creating that content
+
+[3:33] is to sell a particular offer, you'll be able to come right in here and find your offer
+connection and the stories that beautifully connect to the offer that you're trying to sell. It
+makes the selling process so much easier. You could also think about if you're doing a month of
+content and you're warming up your audience, you might want to start with making them feel a very
+particular type of emotion. So, you can come in here and you can actually categorize it based on an
+emotion. A lot of people will create a story bank and then they never look at it again. I don't want
+you to be that person. So, the very first thing that you're going to do if you're
+
+[4:03] using ClickUp or anything else is organize your ideas. And so, here inside of ClickUp, this
+is done underneath your list settings. And this is ultimately going to be your list statuses. So,
+this is the process that you would ultimately go through. The statuses that I like to use are super
+simple. We start with idea, which all of these are idea. Once something is written, maybe I would I
+typically like to write it inside of the task itself under the description so it's all in one area
+and I can reuse it again. I'll move it to written and then
+
+[4:34] if it's ready to use and then post it. You might just go idea to posted and that's totally
+fine. If you find like me there are certain times of the week or certain times of the day even where
+the storytelling is just clicking, it's working. You might come in here and you might write three or
+four of these out in the description, move them to written so that they're ready to go. So, that's
+super simple. You just want to be able to see the process. Now, I personally like using the list
+format, but obviously you can switch over and use the board format as well if you want to see that
+kind of visual. One of the
+
+[5:05] reasons I love the list is because I can see some of these custom sections that I have
+created. And this is where the story category, the emotion, the lesson, and the offer connection
+come into play. Now, I'm going to be breaking each of those down in just a minute, what they are and
+how you're going to use them. But in order to create these specifically in ClickUp, all you need to
+do is click this plus sign, add column, and then you can add whatever kind of column that is for
+you. So, for story category, I love to use
+
+[5:36] the drop down. So, I can put my different story categories like business moments, personal
+growth, experiences into these different sections. And then when I go there, I just get to pick
+whichever one it is. When it comes to emotion and maybe even lesson, there's a really cool feature
+inside of ClickUp that I love to use, and it's their AI feature. I like to use this is it saves me a
+ton of time and energy. So, I can come in here and I can drop in something like I'm going to tell a
+story about signing my very first paying client and the mix of excitement and fear that I
+
+[6:07] had around that. So then once I write that, I can utilize ClickUp's AI to actually fill in
+these categories. All I did to create this field is I went here to custom text under AI fields and
+then I typed in emotion and then I gave it the prompt. I said, I want you to look at the idea that I
+have, tell me what the main emotions are, anywhere from one to three emotions and list them out
+underneath this section. And I have the autofill toggled on and I hit create. So, all of my ideas
+were in before I did
+
+[6:38] this. So, all I'm going to do is this one right here, my pivot from one-on-one coaching to
+building courses. I'm just going to hit this generate, give it a hot second, and it's going to pull
+three emotions that work for my particular thing, inspiration, hope, and motivation. I'm going to
+share with you why this is so important in the next step, but I wanted to show you how to do that.
+Then, you can add a text feature for the lesson. you could utilize AI again and your offer
+connection can be another drop down. Some additional things that I like to include in my
+
+[7:09] story bank are the due date. So, if I have specific stories that I know I'm going to be using
+in a launch or I know I'm going to be using at a specific time, I put a due date on there so I don't
+forget. And then the other piece of this puzzle that is so crucial is including a link to the
+original post. So once I post that, I can come in here and I can put a link to that post. Why is
+this so important? Because we need to be creating databases for our content. If you want to see a
+behind the scenes of my master content database, how I
+
+[7:39] organize my short form video and all of that in ClickUp, let me know in the comments below
+and I'm happy to make a video all about that. The other thing that I love about ClickUp is that you
+have so much space within the task itself to write your content, to add photos, if you have a
+specific photo that you want to use, to leave, you know, comments on the activity, like this did
+really well on specific date and I got great engagement and I made three sales. We need to reuse
+this again. And so what I like to do is have
+
+[8:09] my specific kind of story that I'm going to be creating. And then I'll go in here and I will
+start writing out the notes that I have or I might write out that story again. So it's just super
+easy for me to use later. Then within the task itself under details, I can see those custom fields
+and I can add any attachments that I might want. So, one of the stories that I've told very
+frequently on webinars and on sales pages is signing my very first client on a live stream and what
+that felt like and how my entire business shifted in that moment. And I actually have a
+
+[8:40] picture that my husband took of me while I was on that live stream because I had literally
+run home from work and jumped on a live stream and he took a picture and we have that. Thank
+goodness. So, I might attach that photo here and use that when sharing that story online. Now that
+you understand how to organize it and organize it in a way that's really going to help you implement
+these stories down the road, let's talk about some of those key categories. I like to focus on five
+core categories for my storytelling content. You can add to
+
+[9:11] these and there are times that I do, but to start you want to have these five. What it's
+going to do is going to give you the variety for your content that's going to be exciting for you
+and keep your audience engaged. Number one is going to be career and business moments. I want you to
+think about failures, aha pivotal moments, pivots, wins, successes, anything that has happened to
+you that you can fit specifically in this career or business little category is going to be really
+incredibly
+
+[9:42] helpful. This is also where a lot of your core brand stories are going to live. I remember
+the moment that I got the idea to start my company Brand Mary. I was sitting on the couch. D dot dot
+dot. Right? A lot of those key moments are going to fall inside of the career and business category.
+Now, in the next section, I'm actually going to give you specific questions and prompts to start
+filling in these categories for yourself, but I want to give you the bird's eye view before we jump
+into that. So, number two is going to be personal growth experiences. This is my favorite one. So,
+these are those
+
+[10:12] everyday freaking stories that are happening. A lot of these are really going to be times I
+learned types of experience. The next one is going to be relationships and connections. And so these
+are going to be conversations that you've had, conversations with your clients, with your mentors,
+with your friends, with your partner, with your spouse that really made you look at something
+different, made you think about something differently, had you realized that you were doing
+something wrong, like whatever it is, it's usually going to be some sort of interaction like that.
+Number four, and another
+
+[10:42] favorite category of mine are challenge and obstacle types of content. These are so
+incredibly great when you are selling absolutely anything because your audience has challenges and
+they have obstacles and they have even objections and when you can create really personal stories
+from your experience or even from your clients, it really helps them see what is possible for them.
+So these can be what you overcame and how obstacles that you faced on your journey and what you did
+when you faced those. And finally, another favorite of mine and I'm realizing I said that about
+pretty much every single category here
+
+[11:13] is the life and behind the scenes. Again, we see such an uprise of this type of content
+happening, especially with short form video. Think short vlogs, get ready with me, even B-roll that
+just shows you doing something from your everyday life with a text overlay on top of it. Whether
+that text relates to what's happening in the video or not, it is a storytelling concept. These are
+ultimately the Monday moments, the everyday moments of how you navigate through your life. These are
+incredibly
+
+[11:43] relatable. Again, I really can't stress this category enough. This is why we are seeing this
+type of relatable content do so well on platforms like Tik Tok. Now, we are going to break it down.
+I am going to give you some specific questions and specific prompts that you can use to come up with
+content for your story bank. So, in an absolutely ideal world, you would be watching this with pen
+and paper. I know that's not always the case. So, bookmark this video, like it, make sure you
+subscribe so that you can come back to this later. so you
+
+[12:13] don't forget these types of questions. So to support you in the best way, I want to share
+the category. I'm going to share a general question that you can use to come up with ideas and then
+I'm going to give you very specific prompts, proven prompts that you can use to actually write out
+your content. So for career and business, we are going to start with the question, what are the
+defining moments in your career or business that shaped who you are today? Some specific prompts you
+can do use to get the juices flowing. Tell the story of your first paying client. Share a
+
+[12:43] launch that completely flopped and what you did about it. Talk about the scariest investment
+you ever made in your business or talk about a big pivot or decision and what happened as a result
+of that. Number two, personal growth experiences. What personal lessons or breakthroughs changed the
+way that you approach life or business? It's going to give you a lot of things to journal on with
+pen and paper, but here are some prompts to support you in getting started with the process. Expand
+on a limiting belief that you had to overcome in order to grow. Talk about the moment you almost
+quit and why you
+
+[13:13] did it. Talk about a habit or a ritual that transformed your life or your business. Share a
+book, a course, or a podcast that has really helped you in one specific area of your life or
+business. Number three, relationships and connection. What specific relationships or interactions
+have influenced your journey? You could talk about advice from a mentor that you had early on in
+your journey or maybe even during a specific pivot or shift. Again, this one could give you tons of
+content ideas. Share a specific client transformation and how it blew you away.
+
+[13:43] This specific category is really great for sharing your client testimonials as story
+content, which is much more impactful than just sharing a quote that your client said about you.
+Share a conversation that you had with your partner or your child that reminded you why you do what
+you do. Or encourage your audience to protect their time and share a moment where you said no to
+something to protect your boundaries. Number four, challenges and obstacles. What struggles, what
+failures and/or obstacles taught you valuable lessons
+
+[14:14] that you carry into your life and your business? Talk about a financial struggle that you
+had to work through. Share a tech disaster that nearly derailed a launch or a specific pivotal
+moment in your business. I have such a fantastic story about this. Talk about negative feedback or a
+rejection that you got that really stung and what you did about it. Share more about the toughest
+season that you've gone through as a business owner. And this could also be more general as it
+relates to your life. And number five, your daily and behindthecenes content. What everyday
+routines, habits, and behindthe-scene
+
+[14:46] moments can help reveal who you are as a person. Share more about your values and connect
+with your ideal customer. Share a small everyday routine that keeps you creative, that keeps you
+grounded. Really fill in the share behind the scenes look of how you prepare for the day. Literally
+today, I decided that I would share a vlog, a behind-the-scenes content on what a content creation
+day looks like for me. Share a system or a workflow that you rely on consistently to show up in your
+life. Be the best mother or partner or business owner, or
+
+[15:17] just share you doing something that you do on a regular basis that you can then integrate
+into that B-roll category that we talked about before. You can probably already see how quickly this
+can add up based on the questions and the prompts that I gave you. you are going to already have a
+minimum of 20 storytelling ideas. But if you repeat this process every single week and you start to
+really pay attention to your everyday moments and the conversations that you're having, you're going
+to be able to continuously add to this. And the beautiful thing about the story bank is you don't
+have to keep all the details of that story here because you
+
+[15:47] have them organized inside of your story bank. So you can go about living your life and come
+back to those pieces of content when you need them. The final part of this process is to talk about
+those special tags. Now, this part is absolutely optional to you, but it's really going to help you
+when you go to add these stories into your existing content. So, if you know that you're creating a
+YouTube video on a specific software that you use and then you have a story in there that talks
+about the first time that you used it or how that software has made your life easier, you can go in
+there, you can search for
+
+[16:17] those keywords, and then you can ultimately integrate that into your story. Or like I
+mentioned in the example before, if you're trying to get a specific emotion from your audience, you
+can choose it based on emotion, lesson, or the specific offer that you are selling. Because this is
+where storytelling and selling come together, chef's kit. So, think about the category as the filing
+cabinet door. And think about your tags as those little individual color markers on the folders
+because most people have a bank or create a bank with the best intention of
+
+[16:48] using it, but when they go to do it, they feel overwhelmed. So tag your stuff. It's going to
+make your life a lot easier. The first tag, as I showed you in the example, but just to reiterate,
+is the emotion tag. So again, I love to use ClickUp for this. I think using their AI tool, they can
+just go ahead and read the prompt and then tell you what the key emotions are, but you can also just
+put it in there yourself. match the emotion with how you want your audience to feel when they read
+that story or watch it or listen to it. The second one is the lesson tag. So, I don't use this all
+the time, but I do
+
+[17:19] like to use it if I have a very clear lesson that I want my audience to walk away with and I
+don't want to forget it because sometimes I'll go to write it and then I'll be like, what was the
+point of this piece of content? And so a lot of times when I'm coming up with story ideas, I think
+about a specific lesson that I actually want my audience to remember or walk away with and then I
+tie that to the specific experience. And so I will fill this lesson in so I don't forget it because
+some of these stories I don't touch for 6 months and I'm not
+
+[17:49] going to remember what I thought would be a really good piece of content 6 months ago
+because my brain is full of information. The lesson here is to trust your gut. The lesson here is
+that perfectionism slows down growth. The lesson here is that simple systems work. You get the idea.
+But this last one, number three, I want you to use this in all of the areas. It makes the most
+sense. This is your offer connection. Now, I'm probably going to create a video in the next few
+weeks on using storytelling to sell your offers because the number one thing that my clients and
+
+[18:19] my community come to me is they talk about selling being really hard. Like, how do I go from
+sharing something to making the pitch? When you use storytelling in this way, it's actually so
+freaking simple. And when you go in to be like, "Oh, I'm in the middle of a launch and I want to
+share a story. Let me look for all the stories that really beautifully lead to this particular
+offer." You can filter them inside of your ClickUp. And then you just have them right there. Makes
+your life so easy. I know I keep saying that, but it really does get to be that easy. So, think
+which products, which services
+
+[18:49] does this story naturally lead to? Then create that category filter. Go through and select
+that. And then you can go in at the time when you're looking for that particular story. You can
+filter it based on stories that connect to that specific offer and then you can use that in your
+content. The purpose is to use stories that actually sell your stuff because it is the best sales
+strategy out there on the internet and not enough entrepreneurs are using it. There you have it.
+Okay. So now you have a story bank. Now you understand exactly how to organize it. We have those
+extra steps with the tags and the categories. It's going to make your life a hell of a lot
+
+[19:19] easier. Now you need to make this a system. So, I like to use ClickUp because I have it on
+my phone. You could also use something like Google Drive where you can jump into a sheet. The key
+here is that you don't want your story bank sitting on your desk in a physical notebook because
+you're going to get an idea at the store. You're going to get an idea driving in the car. You want
+to be able to voice note that stuff. You want to be able to type it in really, really quick. Because
+once you perk up those bunny ears and you start really thinking about all the things happening
+
+[19:49] around you as potential content and stories for your business, you will see it everywhere.
+It's like when you're like, I'm going to get that car and then you see that car everywhere you
+freaking go. So have an easy system for you to jot those down and then try to create a consistent
+like every Sunday night or every week whenever you plan your content to go in and ask yourself what
+happened this week? What could I create content around from my experiences this week that my
+audience could benefit from? What moment made me proud this
+
+[20:19] week? Moment was a challenge this week. What conversation did I have this week that really
+stood out to me? Plug those in there. It will take you less than 10 minutes to do it and it will
+save you hours in the long run. You now have everything you need to build your story bank. So, go
+forth, prosper. I have that ClickUp link below if you want to check it out. Again, it's my favorite
+task management software. I have been using it for years in my business. If it's not in ClickUp, it
+doesn't happen. It's our motto here at Brand Mary. And if you love the idea of having the story
+bank, but the idea of going in and and trying to think of things or maybe you're early
+
+[20:49] on in the stages and you're like, "These questions were great, Michelle, but I need more
+prompts. I just need more prompts." I put together an entire storytelling content super bundle that
+includes over 2,900 storytelling prompts for you. And again, these are prompts that work for any
+industry. They are prompts that specifically work for business owners and brands that are selling
+something. They fall into these categories. They expand beyond these categories. You literally could
+have content for years with this bundle. And the best part is it's only 27 bucks. So,
+
+[21:19] if you actually want to take that route, I've done the hard work for you. You can go ahead
+and find that information in the description below and you can grab it today. And I will also leave
+you with this lovely bonus video that I just did last week on emotional branding. Go ahead and check
+it out and be sure to subscribe. I'll see you next week for another video.

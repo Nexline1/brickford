@@ -1,0 +1,841 @@
+# Transcript: Do You Talk Funny? | David Nihill | Talks at Google
+
+Source video: https://www.youtube.com/watch?v=oZmn7OTv6Go
+Language: en · Duration: 55:26 · Words: 12419
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript
+
+[0:00] MALE SPEAKER: A few weeks ago, I went to a comedy show in the city, and I got talking to this
+Irish guy who had this very interesting background. He had this debilitating fear of public
+speaking. So the obvious way to approach conquering that fear is, of course, becoming a stand-up
+comedian. So as a non-comedian, he pretended to be a stand-up comedian for a year to get over his
+fear of public speaking. An interesting way to attack it-- but in the process of doing that, he
+learned a lot about comedy techniques, about stand-up techniques,
+
+[0:31] and about public speaking in general. And he took all these ideas, and he thought about how
+to make more effective presentations, which we had a long discussion about because I care deeply
+about public presentations and humor and how to make them all more engaging. And he took that
+information. He wrapped it up to it into a book. And I thought, well, that sounds like an
+interesting book. I'd like to read it someday. So three days later, there was an internal email at
+Google that said, hey, there's this author named David Nihill who has a new book coming out on
+public speaking.
+
+[1:01] Would anybody like to host this? Well, that's a perfect opportunity for me to have an excuse
+to actually read his book now. So here we are, a few weeks later. And he's going to tell us about
+how to make more effective presentations using techniques of stand-up comedians. I think we all know
+and suffer from public presentations that could be a heck of a lot more entertaining than they are.
+And there's no reason why they shouldn't be, except that maybe people don't common techniques that
+
+[1:31] could be used to make them so. So that's sort of what the book is about, and it's about what
+the presentation is about. And please welcome David Nihill. [APPLAUSE] DAVID NIHILL: Thank you. Fine
+introduction. So I know that sounds like the worst plan ever. You're scared of public speaking, and
+you're going to pretend to be a comedian for a year? That does not sound like a good idea. It 100%
+was not a good idea. But at least we've written it down at this stage. Thanks for coming. I always
+like to ask who thinks they're not
+
+[2:03] funny by a show of hands. So is there anyone who's like, I'm not funny at all? So four of you
+are not funny, and the rest of you are really, really funny? So this will be fine no matter what I
+say. Because we can just call upon you guys to rock it, right? Anyone else hate public speaking? I
+totally hate public speaking, which is ironic that I'm merely laying an egg on video right now here
+recording this one. How many? Keep the hands up. I mean like shaking the page kind of fear public
+speaking? That was me, always.
+
+[2:35] Nobody over here in the States knew. Obviously I'm from Ireland originally with a dodgy
+accent, and I went to university in Ireland. And all my friends had me nicknamed shakin' Stevens,
+because whenever I had a bit of paper in my hand for a presentation, public speaking, it would just
+start moving around like this all the time, and I'd start sweating. And do you know this feeling at
+all, anybody? And it's just getting worse. And I'm holding the microphone, and I can't hold it
+steady anymore either. It was always, always, always that bad for me. And honestly, I would have
+described it
+
+[3:05] as a crippling fear. If you ask me, in any way public speaking for you, it is a crippling
+fear. And that was until a rather serious phone call that I got about a friend of mine. And it was
+to inform me that he'd just suffered a severe spinal cord injury, and he might never walk again. And
+his insurance provider cut him off, and we were trying to come up with ways, because he was in no
+way accepting this that he was never going to walk again. He's like, I'm going to get back on my
+feet. I just need to be able to do the rehab process to do it. So we're like, well, as his friends,
+we got together.
+
+[3:36] We're like, let's start doing fundraisers to get him back on his feet. And I just happened to
+live next to this guy who was a touring comedian and a headlining comedian. And I was like, hey,
+Tim, would you by chance do this comedy show fundraiser we're going to do? I don't know anything
+about organizing it or anything, but let's do it. And he said yes. And all my friends were like,
+well, you're naturally pretty talkative, you are going to be the host because you are organizing it.
+And I was like, I am not hosting that never, absolutely no way. And they were all just kept at me.
+No, no, you have to. And up to that moment, I was like there's no way.
+
+[4:07] I can describe this as a fear that's crippling. I mean, faced with a more serious impact--
+the real impact of that word, I was like, all right, time to get over this. So I went, and I did
+this. And I was looking right-- if I had to get good at public speaking quickly and had to get over
+this fear, like who's the best person to study? Like, where do I get the information from? There's
+books out there. I don't want to read them all. I don't really have time. Where do I get it from?
+Who are the true masters? So I was thinking, well, comedians are probably the true masters of public
+speaking. I just read a lot of Malcolm Gladwell, which
+
+[4:38] I'm sure you're very familiar with and his 10,000 hour rule that makes a master. Well,
+comedians are on stage more than anybody else. They take people to a range of emotions more so than
+anybody else. Let me see what I can get from. It's a comedy show anyway. So it'll be pretty useful,
+and I don't want to be that one funny nervous guy with the shakin' Stevens moves and see what
+happens. So it went really well. We raised a good chunk of money, totally packed. And it went so
+well that the main comedian asked me, like, literally, like, hey, Dave, do you want to open for me
+at the Punchline Comedy
+
+[5:08] Club in a couple of weeks? And I was like, do I tell him that I haven't got a clue? I was
+like, nah. Yeah, sure, I'll do that. So I did it. And I'd just been reading-- he's an author. I'm
+sure he's been here at Google before. You might be familiar with his work, AJ Jacobs. He's very much
+referenced by in Tim Ferriss's books. He was known for going deep into a topic for a year and
+writing about it. And I read his books. And he'd just done "The Year of Living Biblically," where
+even though he was Jewish, followed the rules of the Bible to the letter of the law, like so much so
+he was out
+
+[5:39] throwing stones at adulterers. It was pretty cool. I was like, right. Maybe I'll keep this
+going for a year. Maybe I'll get Tim Ferriss on it. I was very influenced by him breaking things
+down, 80/20 principle, trying to figure out what are the techniques that are most effective. And
+I'll do it for a full year. And I was like, well, I've just left a corporate job. And if I tell my
+friends I'm going to put all my effort into being a comedian for a year with actually no objective
+of being a full time comedian, and very little potential income from this choice for a year, they're
+going to think I am bonkers.
+
+[6:09] So I was like, I better make up a stage name, because I don't want people tagging me on
+Facebook doing all this comedy stuff, and I hate public speaking in the first place. So I got a bit
+carried away. And we came up with Irish Dave. That was the comedian. And this kind of became the
+book, was my learning along the way. But here I got very much carried away with this. Irish Dave
+doesn't sound like the most novel stage name to an Irish person, but Americans seem to like it for
+some reason. And I went as an accomplished comedian. So I was trying to make it known that I was
+already well-versed in comedy because it's
+
+[6:39] much easier to get booked in clubs and festivals that way. So this was one of the first shows
+I managed to get booked on, a real highlight. You can see "Estrogen Entree with a Side of Balls." I
+got to be that side of balls. As you can see with all the ladies names, a real proud moment for my
+parents. I can imagine-- David, glad to see you've left your corporate job. When are you going back
+to it again, please? [INAUDIBLE] side of balls. Loads and loads of festivals, loads of comedy clubs
+all over the US. And it wasn't all totally nutty.
+
+[7:10] I learned a lot along the way. And some of the cooler ones, are any of you familiar with
+NPR's The Moth, the storytelling series-- true stories told live? So I was trying to get on any
+stage that would have me. So I went along, told a story, and I won. And then they're like, well, now
+you have to go on our biggest event that they produce worldwide is in San Francisco, in the Castro
+Theatre. So that little ant on stage is me. And it's 1,400 people there, and I am about to lay an
+egg I am so nervous. And if you shook my hand beforehand, you'd feel like you'd been assaulted
+
+[7:40] by a semi-defrosted mackerel-- like, bad. I was so nervous. But you wouldn't know it if you
+were in the audience. So over a year of experiments, I'd learned enough to make it at least look
+like I was quite comfortable where I very much was not on stage. And telling that story that night,
+I could never have predicted what would have happened. It set off a lot of really cool stuff that
+I'm going to tell you about by the end of this talk. So I just want to give you an overview some of
+the things in the book that I learned along the way that I think you can replicate, and in the end
+we'll get some questions going because I know there's loads around it.
+
+[8:10] But I just wanted to focus on what were the techniques that I was using to do this along the
+way and what I saw from comedians. Because everyone I saw along the way in comedy, they didn't all
+get famous as comedians. In fact, very few of them did. But every single one of them got funnier
+along the way. They were very much showing that there was a process behind it. All of their writing
+got better. So there was certain techniques behind it. So if I said to you you can become funnier,
+you'd be like, well, no. You're nuts. Or most of you today would be like, yeah, I'm funny enough as
+it, which is what
+
+[8:40] I got from the raise of hands. You're like, no, no no we're all fine in this department. But
+comedians over time, they all become better writers. So if I said to you you can become a better
+writer, you'd say, well, of course. I just need to do a little bit every day. And that's effectively
+what they did. So over the course of the year, I guess there was really three key findings
+[INAUDIBLE]. So I studied all the leading TED Talks. I studied all the most popular business talks.
+And we were trying to find trends for humor in there because no one had done it. And I was like,
+well, surely everybody says humor is a key part of talks, but is it?
+
+[9:11] So sure enough, it was. All these top speakers were using humor. They were using the exact
+same techniques as comedians, even though a lot of them did not know it. And the nice thing for only
+the four people in here that weren't funny, you don't need to be a natural comedian to get laughs. I
+remember being at a comedy club out in Pleasanton. And we were sitting there, and this guy was
+literally the most boring dude I've ever met in my existence, like barely conversed with anybody,
+just sat there super awkward. And I was like, well, is it your first time coming
+
+[9:42] to this comedy club? Are you enjoying it? He's like, no, I'm here all the time. It's like,
+oh, what? He's like, yeah, I'm up next. I'm one of the comedians. It's like, whoa, this is not going
+to end well for you. No. Did your friends tell you to do this as a career? And this is a really bad
+choice. No, no, no, no, no. He went on stage and absolutely crushed it. I mean, people were belly
+laughing. I would have bet my house on this guy not being funny, and he was amazing. And he was far
+from the only guy I saw this over a period of time. So people who weren't naturally funny, chatty,
+witty, or outgoing off stage were very funny on stage.
+
+[10:15] And I was like, how are they doing this? What are they learning behind the scenes along the
+way? And why would you need to do this in a business setting? We're obviously here at Google today.
+A lot of you guys are giving business talks. Why do you care about this? Well, John Medina's work on
+this is all around brain science, but it's essentially the brain doesn't pay attention to boring
+things or dodgy accents. If you can't understand me or you don't like what I'm saying, you have your
+phone for company at any moment. And you will whip it out and let me know. Comedians, they say, are
+judged about every 12 seconds.
+
+[10:46] And we're pretty much doing the same to business speakers these days because you're like,
+I've got a computer in my pocket. I do not have to be listening to this fellow who's boring me to
+pieces. All right, and they're never intentionally boring their audience to pieces. Nobody goes on
+stage to be boring. They just don't really know the techniques behind that that can change it a bit.
+So infotainment, basically, all of a sudden, has become our means for getting information. So if
+you're competing with where people go for entertainment to advertise or get your content out there,
+whether it's public speaking or written
+
+[11:17] content, then you these days have to become that entertainment. Because I'm just scrolling
+through it on Facebook. And if you're trying to get my attention there, I expect it to be some way
+engaging or entertaining. So do any of you guys watch the old school news anymore for news? Not so
+much. Does anyone get their news from somebody like this guy? [CHUCKLING] Historically, right? I
+mean, that's the way we're getting information with a punch line. Did anybody see on late night TV
+recently any political stuff, annihilation of Donald Trump in one way by a comedian?
+
+[11:48] They released some of President Obama's footage today, talking about his objections to the
+Republican candidates. It was basically stand-up comedy. It was amazing. The timing was there. The
+principles were there, everything. And most of the time he has comedy writers writing his talk.
+That's why they're really good. Obviously he has to get good at delivering them, and he has some
+huge natural skill there. But a lot of people will say, well, humor isn't appropriate at my job. If
+the president's using humor, you're probably going to be OK. All right? So you can replicate these
+techniques.
+
+[12:19] Anyone familiar with Seth Godin's work? Very, very leading marketer, author, and blogger,
+you name it. His talks are so good that even TED themselves described him as funny. They're not my
+words. They're from TED's description of his talk. And they're really, really funny. When you
+actually analyze his TED Talks, you get 3.4 laughs per minute. And that won't mean a lot to you as a
+metric until we compared them to the three funniest movies of all time. So if I wanted to get laughs
+per minute,
+
+[12:49] I would be better off listening to a business talk and watching it than I would be the
+funniest movies ever made, which is totally insane when you think about it. Now, we're in Google. I
+know there's some good statistics heads in the room here. You'll be like, well, it's a longer period
+in the movie. It's harder to sustain a consistent level of laughs with a story arc. Absolutely. I
+belly laughed during "The Hangover." I didn't belly laugh during the TED Talk, absolutely. But if
+you wanted just to laugh on a laughs per minute basis and get some good laughs in, you're
+
+[13:19] better off watching a lot of TED Talks these days. And his talk was by no means alone. The
+good news for us as people who are trying to pull something out of these techniques is that 58% of
+his laughs in that talk came from using funny images. So if you're like, I can't be a comedian-- and
+I'm not telling anybody in this room to be a comedian. I'm just saying there's a lot we can use and
+learn from the techniques that they use. Using funny images, stuff that you know is socially proven
+and funny already and just sticking it into your presentation, is one of the easiest ways
+
+[13:50] ever to get laughs. And these guys are using it at the very highest level in TED Talks. But
+it gets treated very much like a joke. So a joke is always a set-up to something and the funny bit.
+So a lot of business speakers will put the image up there and just go, look at that. It's funny,
+isn't it? And it gets a little bit of a laugh. But if you build up that image, like everything, the
+frustration I felt that moment can all be described by this one image, and it's just something
+crazy, always a big laugh. And you literally just treat the funny image or the content
+
+[14:20] you have as the joke. You're not the one delivering the joke. You just build up anticipation
+to it. So the cool thing, when we go into this, and we link the techniques he's using and the
+techniques that a lot of TED Talks are using, every single one of the top 10 TED Talks at the moment
+has humor in them. Every one of them moves the needle on humor, and some of them at levels that
+rival a stand-up comedian and many of them at levels that are higher than the funniest talks of all
+time. So there's a bunch of them interchanged. These are researchers. These are not stand-up
+comedians,
+
+[14:50] from Sir Ken Robinson, the most viewed TED Talk of all time, literally to Shawn Achor,
+Harvard researcher, one of the funniest TED Talks you'll ever watch. I think it's the 11th most
+viewed at all time at the moment. Does anybody know Mary Roach's talk, particularly about female
+orgasm? Any guys in the room know that one? [CHUCKLING] Not one of you? Just one you-- smartest man
+in the room. This is a very good time to say I know that talk. I love that talk. Actually, I start
+every day with that talk. That's how I prepare for life.
+
+[15:20] You'll be a very popular man in the dating cycle. List that as your most common interest. I
+like soccer and Mary Roach's talk about orgasm. You will see the undying dating spike come pretty
+quickly. But the proof is there when you go through all these, and we did. And we were correlated
+them. They're all funny. They're all entertainment. And TED themselves are called technology,
+entertainment, and design. The entertainment level is there. My argument was that it's just getting
+higher and higher. And if you're a speaker in any way, and you go on after one of these really funny
+folks,
+
+[15:51] you're going to know all about it if you're not able to reproduce some of those contexts.
+Anybody had that happen in a conference where you go on after the really funny speaker? You're like,
+oh, no. You see them crushing it. You're like, oh no! I don't want to go next. How do I do that? The
+thing is you can if you know some of the techniques behind it. So what I'm going to give you a
+little overview is very much 80/20. So what was I doing fast? How was I trying to break it down?
+Again, very influenced by trying to find the 20% of the things I could do that would give me 80%
+results in the fastest time possible.
+
+[16:24] So starting with a story was pretty much the basis for me doing this. And that was for a
+number of reasons. But if you're public speaking in any way and you're not using stories, well, then
+you're not memorable in any way because I cannot recall the information you've just given me as a
+bunch of numbers, facts, and figures. If I tell you a story about the customer problem, the solution
+I've solved, whatever acquisition it was, whatever challenge that you're working on, now my mind can
+actually process and remember that. And if you're public speaking and no one can remember what you
+said, then were you even there in the first place?
+
+[16:54] I am today because I'm on video somewhere. But most of the time, you don't leave as much of
+a trail. So it's very important to deliver your information in a memorable way. We know our mind
+works like that. I don't know how we have for Spanish speakers in the room-- any Spanish speakers?
+The word for "to put" in Spanish is caber. And if I'm trying to teach someone that word-- there's a
+lot of non-speakers? Most of you guys? Si, senor. All right. Nicely done. I don't want to have an
+Irish person trying to speak Spanish in here-- never going to end well.
+
+[17:24] But if I'm trying to teach you that word just as a word, nearly impossible to remember
+literally by itself and to recall. But if I give you some context around that, and we break it up in
+a way that your mind's able to remember it-- so this example I've taken from Benny Lewis who is an
+Irishman who speaks 12 languages. And he's the first one since James Joyce to do that. So he's
+probably worth listening to. And his stuff is really good around the topic. But literally we take
+the word caber to fit, and we make up a crazy story around it. So we literally picture a yellow New
+York taxi car,
+
+[17:54] pulling over on the side of the street. And then we picture a big hairy bear trying to get
+in the window of the taxi cab, because he doesn't know how to work a door. And his bottom is taken
+out the window, hairy bottom in the wind, and the taxi driver is going crazy. And maybe he's from
+somewhere in Russia or somewhere Eastern European. He's like, hey, bear! Get out of taxicab. You
+cannot fit in taxi! It's a very bad accent, to be honest, but it's the best I'm going to be able to
+do for the moment. And right, you're like, the bear does not fit in the cab. Caber, caber is the
+word for it to fit.
+
+[18:24] And if I ask you that ever again, what's the word for "to fit" in Spanish? You will know it.
+You won't know it instantly, but it will take you one to two seconds to put the story together in
+your head. So what we want to do in trying to be funny in any way or trying to be memorable--
+remember, this and the book and the objective is not to be funny. It's to be engaging. And the
+easiest way to be engaging is to go for fun before funny and use your own personal stories because
+they're unique to you. So anyone will say, oh, I tell a joke. You know the moment your boss calls
+you, and he's like, hey, I got a good joke for you.
+
+[18:56] You're just like-- I know it's not going to be funny. I know based on historically you just
+make a decision. You see the joke coming, and you've assumed it's either going to be funny or un-
+funny. But there was a moment where you had a chance to get off the bus or get out of the office and
+go, I need to get away from this. This is going to be bad. The nice thing when you're telling a
+story is everybody loves a story. We've never had those moments in life where we're like, shut up
+telling me that story! I hate stories. All right, nobody does. Your mind is just naturally wired to
+appreciate them. So if I'm not trying to be funny in any way, shape, or form,
+
+[19:27] and I do it in the form of a story that just happens to be funny, there is no risk anymore
+to not being funny. What happens if you don't laugh at my story? I just told you a story, no
+downside, more exciting than your pie chart, or your graph, or your list of facts and figures, and
+more engaging. And now if we can find out a sneaky structure to make that story funny, now is where
+we use some comedic techniques. The nice thing about your stories are extremely unique, personable
+to your own style, and literally
+
+[19:58] can't be copied by anyone else. They're yours. And the really nice thing with public
+speaking for the nervous public speakers out there, when you're telling your story, your own stuff,
+and you screw it up, and you say something wrong or you leave out something, what happens? Nothing.
+Nobody knows whatsoever that you just messed up your own story. You're the only person that knows
+that content. And you don't have to stock with your stories. You can draw on things that you really
+like around. But if it's your stories, ultimately your audience wants to know a little bit about
+you. And your stories make it cool.
+
+[20:28] They get to know you a bit. They get to feel for you, and they get to relate to you in a
+little bit way. The most powerful thing you can ever do with story telling is to allow the listener
+to see themselves within your story. So if you do that in any way, shape, or form, you're already
+creating a memory that they're like, oh, yeah. I remember. I felt something during that talk. So
+literally, when we're trying to be funny fast, 80/20 principle style, we take a list of our stories,
+and we put them through comedy writing techniques. So if I say to you now, tell me a funny story,
+you'd be like, no.
+
+[20:59] And that's what everyone, even a comedian, someone who's performing a story, tell me a funny
+story right now. Automatically the mind goes blank. I've got nothing. And honestly, if I ask you,
+tell me a funny story, do you have anything in life? Most of you will be like, oh, I don't know.
+What comedians and performers are amazing at doing is literally keeping a list on a smartphone or
+device that's like a funny story file. And every time they see anything remotely funny, they're like
+shut up. Stop. I need to make a note of this, and they do. And every time they listen to a podcast,
+or NPR, Snap Judgment, a storytelling series, every time
+
+[21:29] they see a stand-up comedian and it jogs a memory in their mind, they write it down. And all
+of a sudden, you have a mountain of material from your own life that's highly personable to you
+that's more engaging than the average little factoid. And you can link those and literally build
+your own presentations around them. And that's what we were seeing in the most successful talks when
+we were studying, that these guys were a shoe horning stories they like to tell, just in linking it
+to business topics. And you'll always say, I'm not sure there's a way to do that. And in the book, I
+listed all sorts of ways to do that. But any story about anything that you think
+
+[22:00] is not appropriate you can link that to work, absolutely, no problem. So we were taking
+these lists of stories that everybody thinks they don't have. At the moment, are you still like, oh,
+I don't know. I got nothing funny. Most embarrassing thing that ever happened to you? First date you
+ever went on? First blind date you ever went on? Strange Skype call with your parents where that
+drove you crazy trying to teach them how to work Skype or trying to turn on the video? Inappropriate
+text messages you received by accident from your friends or when somebody just had to retype, the
+respell, the autocorrect on there do it for them?
+
+[22:31] That time you tried to learn a new language and you said the wrong word, and it didn't end
+so well. First day at work. Strangest customer you ever came across. All of a sudden you're kind of
+like, OK. Yeah, I know. I definitely have stories. And they're the coolest stories because they're
+relatable. So if I tell you a great story about me being in China, you're like, that's great. I
+don't care. Unless you've been to China or you're Chinese or you're interested in it, I need to give
+you a reason to get on board, that you relate to in a way. So an opening set up becomes very
+important to allow you to tell a story. So if I tell the story about China, don't care.
+
+[23:03] But if I can make that relatable to you in a way that you all go, OK, so if I'm like, being
+in a new place can be challenging, being in a new place can be uncomfortable, this time I was in
+China-- now your opening statement was appealing to the whole room. You didn't shut everybody off.
+And you're very much not just trying to be Jerry Seinfeld or something by making a comment that's
+kind of controversial or Louie CK and be like, Oakland is a crazy place! And then people are like,
+oh, no, no, from Oakland in the room. You just lost half the room. And while comedians will do what
+their skill is,
+
+[23:33] they'll bring that back. And everybody laughs in the end. It's all happy. We as business
+speakers are not going to be doing that whatsoever. Stay away from it. We just tell stories. There's
+no strong opinions in them. You have no chance of running the risk. And that way there's no
+nervousness when you're using it in a business environment. And to do that, we literally just put it
+through a structure that comedians use all the time. So the reason to tell the story, what's the key
+funny part in the story, and then any other little lines afterwards that are kind of engaging or
+funny that you can say. So a comedic delivery can always be
+
+[24:03] refined to a set up, the punchline which is the funny part of your joke, and then the
+tagline. And comedians will literally force themselves to be really concise. Business speakers, not
+so much. Comedians are losing people every 12 seconds, so they get very good at delivering that
+content very fast. And obviously for a business audience with these techniques, in any way or anyone
+speaking, you don't have an unscheduled amount of time. You've got to be pretty tight in your
+content. But again, we're going to take that, and we're going to rewrite your story to delay the
+funny component in your story.
+
+[24:34] You ever seen somebody getting a laugh on the business stage, and then the whole audience
+laughs, and they keep talking? And then the whole audience stops all of a sudden to listen to them.
+Why? There's a really cool expression that's called the end of laughter is followed by the height of
+listening. So the most attentive your mind will ever be is that moment after you've laughed because
+you're like, give me more of that! Compared to your average business conference you've been to,
+you're like, oh my god. Wait, was that funny? That was good. I want more. I need more of that. And
+you get really, really attentive to the next words.
+
+[25:05] So comedic performers, and comedic copywriters, and anyone who's good, did you ever see
+somebody on stage, and you're like his, delivery was amazing? He has really good timing. Comedians,
+you're like, that was really good. President Obama, the video today that I watched, all the
+comments-- timing was amazing. But you can impact that timing by taking out the funny bit and
+sticking it at the end of the sentence. Literally, what's the funny word? And how do I hide that
+till the end? And if you say the funny word last, second to last, last two or three words, then you
+just stop
+
+[25:35] and you allow people to react. If it's your story, you know more or less where they're going
+to react. You've told it to your family before. If you had to force it to one key element, what
+would it be? You kind of know that people might laugh or respond on this. And now you literally go
+out of your way to structure the sentence so the key word is at the end. When the key word is at the
+end, you just kind of sit back, and you're like, yeah. And you let people allow that time to react.
+And when that happens, everyone goes away. And they're like, his timing was really good. I wanted to
+show you a great example of this, and it was from President Obama himself
+
+[26:07] in Congress, delivering it. But it's very hard to get the copyright permission to show you
+that video, so what I've done is I've basically convinced a friend of mine to recreate it for you,
+and we're going to watch a very low quality, low budget production that took approximately six
+seconds to put together. And you're going to notice that in this, President Obama, well, to be
+honest and frankly truthful, he's Indian in this. And we figured, well, with the growth of tech and
+the demand for programmers in Fremont,
+
+[26:38] it's only a matter of time before you have an Indian president anyway, so you should be
+comfortable with that, that's fine. Good! So just have a look at this. But this is the actual words
+that he said in Congress that day, and just pay attention for how good the timing is going to look.
+Very high budget. And then there's my favorite example. The Interior Department is in charge of
+salmon, while they're in freshwater. But the Commerce Department handles them when they're in
+saltwater. I hear it gets even more complicated
+
+[27:08] once they're smoked. [LAUGHTER] All right, completely terrible with awkward look at the end
+there. That's my friend Richard. He is a programmer at Yahoo. He's a also very, very, very, very
+funny comedian. But unfortunately, we had to work with the actual words in that because we wanted to
+recreate it accurately for you guys. But you notice the word "smoked," he's really gone out of his
+way to put it as the last word. And when you look up that video for yourself, the actual real video
+of it, you'll see President Obama just kind of kicking back.
+
+[27:39] Because he knows what's going to happen. They're going to laugh. And if I said, and when
+they're smoked, it's even more crazy, or when they're smoked it's even more insane, or when they're
+smoked something, once I say the word "smoked," you know it's a joke. You start to laugh. I keep
+talking. You stop laughing. And you start listening again. So I've actually stopped the laughter, so
+my timing looks really bad. So it's just one little sneaky hack you guys can use yourself to
+recreate it. Find a key part in the story and place it at the end. Leave it as a surprise. And a
+really key thing in comedy, which is tough for me
+
+[28:10] to talk about as an Irish person because we're not very good at saying the number three,
+every time in fact we say three, it doesn't really come out like it should and sounds a bit strange.
+But the rule of three, if any of you know it or any of you have copywriting positions here in any
+way or watching, the rule of three is at the heart of everything memorable you've ever been
+subjected to in any marketing or copywriting material, because three is the smallest amount of
+numbers your brain can recognize as a sequence or pattern. So if I give you one, two, you're always
+expecting three.
+
+[28:41] And I remember when I looked at this first, I was remembering when I used to box when I was
+in college or back before college. It was always one, two, right. And you would always hit them with
+that left, left, right, because they weren't expecting the right. And that was the sequence that you
+were always trying to punch in. It was one, two, and you automatically expect the third one to come
+from the same direction. Comedy is extremely similar. It's always that one, two, three. And in
+comedy, three is funny, because three is actually four. So a joke is always one, two-- you think
+three is coming,
+
+[29:13] but it's not. It's four. It's a flip of expectations. So to describe it is very much like a
+train coming down the tracks with the first two elements in the sequence. I'm trying to create a
+picture and let you think you know where it's going. And your laughter will come when I derail or
+flip that expectation. So literally just changing the last word in that sequence will make it kind
+of funny. It might not be viral hilarity by any means, but it will be more engaging, whether it's
+copyright, whether it's your own Facebook updates, whether it's for Twitter, or whether it's for
+public speaking.
+
+[29:43] Any information in sequence of three is more memorable, and it's also more shocking to your
+mind when that third element in that is a flip and it changes the expectation. I mean, this is a
+really good graphic that shows how central the rule of three is to everything that we're doing, from
+all the campaigns and slogans you've been subjected to, to marketing copy that you're like, oh, I
+recognize that, to the strikes and the sporting systems we go through and all the sports you watch.
+You remember Snap, Crackle, and Pop in the world of cereal
+
+[30:13] when you're a kid or the Three Little Bears. Like, why was it always three? There was always
+three of these items, whether it's their primary colors, to literature, and to company names, to TED
+themselves. These names are not three words by mistake. They're three words very intentionally.
+Obviously here Google just went, nah. Google, fine. But a lot of these companies were not as
+creative in that endeavor, and they're playing on the same mind pattern of recognition for you to
+remember that.
+
+[30:43] Now here's a good example I didn't have to go too far to find. It's down from the Tenderloin
+in San Francisco. Some of you will be worried about what I'm about to show. Don't worry. So just a
+sign outside a bar-- not amazingly funny, but you're like, oh, that's kind of funny. And you can
+replicate this sequence in any way. We used to do it to sell tickets for events we were doing. We're
+like, buy your tickets now and get a free drone, a Tesla, and false advertising. And they're all
+like, ha-ha. Buy a ticket.
+
+[31:13] It works. And a little spike of dopamine gets you a bit happier. And it's a little bit of a
+laugh that wasn't hard to get. What happens if I change that sequence? So that's very much one, two,
+four. And that's the best example of it there. One and two, logical sequence. I think I know what's
+coming. Four, flip of expectation. And so the third element, essentially, becomes a four, just to
+throw you off a little bit and not be able to recognize the pattern. What happens if I move false
+advertising there and change the sequence? Not funny anymore, not even mildly entertaining.
+
+[31:44] I mean, you can use this anywhere once you're start familiar and start mining to use this.
+So this is the back of my book. And not much entertainment value, traditionally, to the back of a
+book. Normally you have a couple of blurbs from famous people going, oh my god, book's so amazing.
+Read it, whatever. You don't pay attention to it. We use it as an opportunity for humor. So one and
+two there, pretty much normal. Three, "This book is great. I haven't read it yet, but David drew a
+picture when he was 6 years old of a penguin drinking beer in a Chinese restaurant, and it
+
+[32:14] was clear the potential for slight wisdom and misguided creativity were there," Marita
+Nihill, David's mother. Is that unusual all of a sudden? Now you're thinking my mom's kind of cool.
+And to be honest, she is. And she's pretty funny, if I inherited any of that. You guys are already
+funny already. So you got lucky as well. But one, two, four. So your mind's just logically
+processing information, and it comes as a little bit of a shock that you broke the pattern. That
+opportunity's in everything, at the end of the emails you send, in subject lines
+
+[32:45] for emails, and autosign-- anything we have squeezed humor into places where you don't
+expect it. And if you're worrying how to sequence it, it's always that structure of three. So I want
+to show you a quick example. This is from a comedy club. I wrote this joke. It is terrible. It is
+the worst joke ever. I'm embarrassed to even show it to you. Even my own friends are like, oh no,
+no. Don't be telling that joke again. But I wrote it with this sequence in mind. So I'm like, if I
+sit down to take a story from my life and write it in a joke format and I go and tell it in a comedy
+club or on any stage,
+
+[33:16] and then I go to another one and I tell the same one, I tell the same one, can it become
+predictable? Can it be repeatable? And what effect will it have on people? And what I'd like you to
+note is just the structure of how I do it. Has he hid the last word until the end or not? And you
+might not think it's funny. You probably won't. And I'll have to explain why I think it's mildly
+funny after, but just note the audience's reaction. And apologies, again, for this joke. Because
+it's really terrible. [VIDEO PLAYBACK] -I don't know a lot about California, I must admit. But does
+anybody else have this problem? Guys, you're going to have with your girlfriend-- she's always
+
+[33:47] on you to go to Napa. (FEMALE VOICE) I want to go to Napa. I want to go to Napa. So I gave
+in. I was sick of listening to her. I said, all right. And I finally brought her, and it turns out
+she doesn't even like auto parts. [LAUGHTER] --auto parts. [LAUGHTER] --even like auto parts.
+[LAUGHTER] --auto parts. [LAUGHTER] --auto parts. [LAUGHTER] [END PLAYBACK]
+
+[34:17] That was totally terrible. I did apologize. For those of you who don't get it, and of
+course, if you're not familiar with here in the Bay Area, you might not. Napa, famous wine region.
+When I mentioned the word Napa, girls are automatically like, oh, that warm day. I had my nice dress
+on. I can nearly taste the wine. Oh, I really like Napa. And maybe they've even grabbed a memory
+already of when they were last there. A lot of guys will be like, oh, that time I got dragged to
+Napa. I'm sick of going with my girlfriend there all the time. But all of a sudden you're painting a
+picture of a place that is very much not what I'm talking about in that joke.
+
+[34:48] So it was a rubbish joke, but NAPA, of course, is also a chain of automative service stores
+where you go to get the oil in your car changed, not a good place to bring somebody on a date, even
+if you are watching that talk all the time about the female orgasm. You still won't get away from
+bringing the lady to the oil parts place. So that's the flip in expectations. So you're like, why is
+this thing humorous? If I wrote it out, it doesn't seem that funny. But very much the last word is
+at the end of the sequence. And that's what brings it to life a little bit. It sounds totally crazy.
+But in it's simplistic form, that can be recreated,
+
+[35:20] and it can be used for all content that you're crafting, whether it's on the back of a book.
+I just like that cat, and that's why I put him up there, for no apparent reason. But a lot of stuff
+around public speaking that I have in the book, a lot of it is tips on the actual delivery yourself.
+But I wanted to talk to you about the content side of it at the start, how to craft it, just so you
+have a bunch of cool material that you feel, OK, I have an embarrassing story, or have a crazy
+client story, or have a customer story. Because we wouldn't be in business if we weren't solving
+some sort of problem.
+
+[35:50] So you're like, who was the person I was solving it for? Now tell me about them a little
+bit. That's your story to start with. So a lot of pitches, and you'll have heard before where they
+go in-- they're just numbers. 80% year on year growth rate, whatever attraction. Brian, my partner,
+pivoted refinance series B. You're like, what are they talking about? Totally lost. Start with a
+story, and then the numbers become the icing on the cake. So once you give people something to latch
+onto and remember, you're good, a little bit of a shared experience if you can, so they can see
+themselves within your story, and understand the pain point you're solving in any way,
+
+[36:22] or what you're trying to communicate, and then all the numbers come. And guess what? If
+you're pitching with numbers the same thing as comedic effect and timing, if your company is getting
+an 80% year on year growth rate, it's much more impactful if I say, we have a year on year growth
+rate of 80%. The impactful word gets moved to the end of the sentence, and it doesn't sound as
+natural to say, but with a tiny bit of practice, it feels all right, and it sounds totally natural
+to your audience. But I'd love to take some questions from you guys as to-- there's all
+
+[36:52] this stuff around the delivery. Obviously I pretended to be a comedian for a year. That
+probably threw up a couple of wacky things. I mean, the book is very much my story, what happened
+with all this stuff, and then how to replicate it, and how to do it by using comedians' techniques
+to do it. So what are comedians so good at doing on stage that the average business speakers don't
+learn because they're not clocking up 10,000 hours on stage. So is there anything you could do or
+replicate? So I'd love if any of you guys have questions. We do have a microphone. There is one, I
+guess, I got asked quite a bit. Does anyone fear going blank on stage?
+
+[37:23] Has that ever popped up for anyone? I see a lot of head nods. I think the single biggest
+thing I learned in the whole year I learned from Richard, actually, our fake Indian President Obama
+you had in the video there, in the low budget recording. But he taught me about something called the
+memory palace, which I hadn't heard of or I wasn't aware of, but you might have. Joshua Foer wrote a
+very good book on it called "Moonwalking with Einstein," which essentially is a way to remember your
+talk or anything you need to remember and never worry about forgetting it in any way, shape, or
+form. So do you guys-- you didn't speak Spanish earlier.
+
+[37:56] You remember the word for "to put" or "to fit," I should say? AUDIENCE: Caber. DAVID NIHILL:
+Caber, nearly everybody, pretty much everybody. Can't test you guys on the livestream inside of it.
+But you won't forget that story. That's just the way you wrapped it. And it even gets more powerful
+of a memory if you take that story and you put it in a specific location. So if I ask you guys, have
+you got a favorite restaurant you like in San Francisco or the Bay Area and picture it, and be like,
+when I walk in, where's the server? How many tables are there?
+
+[38:27] Where's the bathroom? It's very easy for that to come to your mind. And you're like, oh no,
+there's like six tables on the left. The server's on the right. OK, I get it. So if you take a space
+like that that you remember easily, now make it something super familiar, like your house or your
+office, or somewhere where you grew up in. And you plant all these little stories as memories within
+that structure. All of a sudden, now you're never trying to remember a word. You're trying to
+remember a location. So you're on stage. And you're literally like, where am I in the talk?
+
+[38:57] I'm in the kitchen. Who's in the kitchen? OK. Those crazy memories I planted there is a
+story. So if I'm going to talk about, say, Mexico and economic growth and I need to remember the GDP
+of Mexico is 11%, I'm literally going to picture a Mexican guy. I open my door. And there's a guy
+from Mexico on a donkey, and he's got no pants on whatsoever. And he's a bottle of Guinness in each
+hand for no reason whatsoever, and he has a soccer Jersey on him. And 11 is the number on the
+jersey. So the first thing I need to talk about is in my talk, I open the door. I'm starting to talk
+about Mexico.
+
+[39:29] I hope I have the image of it. Oh yeah. So remembered the story I told you I told for The
+Moth for 1,400 people? That's all I had in my back pocket. And it stays in my back pocket. I never
+take it out in anyway. Because if you have any notes, people automatically assume that you didn't
+prepare for this, whether you want them to get that idea or not. And that's all I have. And you'll
+be looking at thinking, that's a bit of a strange story. What are those notes? Potatoes, 69,
+cookies, fireworks, Lululemon pants. It was about my mother coming to San Francisco
+
+[40:00] as a conservative kind Irish lady and getting a lot less conservative and going home wearing
+like Lululemon pants and getting a bit of a taste for weed cookies, which was pretty interesting, to
+say the least. But all I've done is I positioned a little story in every location in my room. And
+the nice thing is when you're doing your talk now, you're not looking at a list of bullet points
+anymore and trying to remember them. And the really cool thing is when you do this, and you realize,
+OK, this works. I actually can't forget this stuff anymore. Then you can sit in the audience and
+watch the three speakers
+
+[40:32] before you. So have you ever been to a conference or done public speaking and someone went
+on and they talked about the exact same thing that the last guy talked about? And you're sitting
+there going, why is he saying this? Why doesn't he argue with the last guy's point? Or why is he
+saying the same thing? And the answer is normally because he was backstage sweating, reading off a
+load of notes. And he wasn't totally confident that he was going to remember it, and the easiest way
+you'll ever get laughs if the really funny guy goes on before you, then you just talk about how
+funny he was. And you make the same jokes that he did. In comedy, they call that a call back. And
+you just use something that already worked.
+
+[41:03] But when you know you're not going to get to go blank on stage, the shaking and the sweating
+calms down a lot before you go on, because you're like, all right, the biggest single fear, I've
+just taken that off the table. And this works 100% of the time. I've never gone blank using this.
+Any of my friends that have used this have never gone blank using it. So it's a big topic by itself,
+but to be honest, that's it. Just draw out a floor plan and create a little memory of something. Put
+it in each place, and that's your talk. And when you get really good at doing your talk, if you've
+ever spoke at a conference, some of you might relate to this where it's a 25 minute talk.
+
+[41:35] And they're like, actually-- just before you go on-- everybody else ran over a bit. If you
+can just do 11 minutes. That'll be fine. You're like 11 minutes! I've got like 50 slides. What am I
+going to do? When you get really good at doing this, you know how long you're going to have to spend
+in each room. So I know if I go into the bathroom and I'm talking about the intellectual capital of
+California that is Stockton, for you guys there, that's literally going to take me a minute. So I'm
+like, all right. I'm not going into the bathroom. I'm going to walk straight through the kitchen,
+and that's going to take another two minutes off the time. And all of a sudden, you become very,
+very flexible with what you're doing.
+
+[42:05] So I'd say of all the tips and the takeaways I got for the world of business, or any form of
+public speaking, this is number one for me because it allowed me to relax quite a lot. Still nervous
+beforehand, still sweating, but got better about managing it, and I knew like the ultimate fear was
+gone, like me to stand there and be like, what do I do? All of sudden you get a lot more
+comfortable. There were loads of little tips like that along the way that I was getting from
+performers and comedians that I'd never, ever seen in the world of business. Any other kind of wacky
+questions?
+
+[42:35] AUDIENCE: You did that by drawing it out? DAVID NIHILL: Yeah, definitely. AUDIENCE: Or you
+picturing yourself in the space? DAVID NIHILL: I draw it out just to help me. But I literally sit
+down and visualize myself walking through the house. And the crazier the stories I concoct, kind of
+like the bear in the taxi cab and give it the extra detail, who's the person, put some celebrities
+in there, anything, the crazier that story becomes that you create for each bullet point, and then I
+just draw it out, just as literally something to visualize that morning. And to be honest, once
+maybe I'll run through the talk in fast forward.
+
+[43:05] And if I can't say the word really fast, I definitely can say it really slow. It was a
+really good thing that someone taught me. Like when you put a quote in a presentation, you're like,
+now I'd like to share a quote. And you're like, I can't even remember what the quote is because it's
+not as familiar as you thought it would be to you. And you can't say it really fast. If you can't
+say it fast, you can't say it slow. I think that was one of the better tips somebody gave me.
+Someone also said along the way, you know, filler words-- Irish people are great for mumbling, no
+offense Irish people who are watching, but we definitely do it. And it's why I have a hard time
+sometimes
+
+[43:35] with foreign languages of sounding like a native speaker when I'm studying them. But the
+filler words that you use, like uhh, eh, but-- anyone ever have problems with that when you're
+public speaking? You watch it back, and you're like, oh, I said eh so many times. But if you speak
+literally like I am now, 10% to 15% higher than normal, it sounds totally normal to you guys. I feel
+like a lunatic. But it looks really, really natural. And you know what happens? It's nearly
+impossible to say uhh really loudly.
+
+[44:06] You just don't. And all of a sudden, the words come slower because you're talking faster,
+and there isn't a single filler word. And you've just cured that problem as well straight away. I
+got that from comedians as well. All these little things they were doing, that I was thinking
+business speakers had never heard of. Like coming out to a crowd and just get them to applaud for
+anything. Have you ever been in a comedy club, and they're like, give it up for your bar and wait
+staff! And you're like, they're charging me so much money for drinks. They don't even come. And then
+when the comedian tries to talk, they talk over them. I don't want to applaud for them.
+
+[44:36] But you do. Give it up for yourselves for coming out to support live comedy tonight. Sound
+familiar? Now give it up for all the great comedians you're about to hear. The rule of three, the
+same law that applies to copywriting applies to your behavior. If you do something three times like
+clap, you're more likely to do it again later in the show. So if they walk out, and it's a totally
+flat audience, what they do is just ask them for a round of applause. Just get them to do something.
+Comedians, again, amazing at doing it. Introductions, when you're introducing a speaker-- and that
+was his point-- do you ever have someone seen him coming to a stage and be like,
+
+[45:07] John is a friend of mine. John's our next speaker. He was an early stage investor in his
+company. And every time he says the word John, you're like, do we applaud now? No, OK. Said the name
+again. Do we applaud now? No. But comedy club-- ladies and gentlemen, our next comedian has been on
+at the Punchline. You've seen him on the improv. You've seen him on Comedy Central. He's huge.
+Please give it up for, and you as the audience are like, [GASPS] who is it? That's the only thing
+you want to know. The anticipation is building to what's now the punchline. It's the same structure.
+And when I say that guy's name, now he gets a big round of applause all of a sudden, in unison,
+
+[45:39] from everybody at the same time. Small little things like that have a huge impact on what's
+going to happen. I saw a question from yourself. Was it, all the way-- did you have one still or no?
+Finito. Yeah, same as don't end on the questions and answers. Have you ever seen that? Or anyone do
+a Q&A session where you're literally standing up there, and the guy comes back, the host, similar
+although he's doing it much better. And it's literally like, anyone got any questions? Nobody? And
+you're just standing there as the speaker going, oh my god. I hope somebody asks a question at some
+stage now soon. And then he'll be like, oh, guy in the back, like I just did.
+
+[46:09] And the guy's like, no, wasn't me. It's gone, straight away, no intention of asking a
+question, don't want to. And then the speaker, they kind of go off stage like this, OK, thanks. Bye-
+bye. And the conference organizer now has to go back in and try and edit that video and make it look
+like they didn't go away on the flattest note in history. So literally, you can change all that. A
+comedian would never go out like that. It's Steve Jobs strong ending for a comedian. Second
+strongest joke at the start, strongest joke at the finish, out with a bang-- everybody knows it's
+over. And as a business speaker, all you have to do
+
+[46:39] is say I'm going to take a few questions and answers before making my conclusion. And if
+nobody asks a question, who cares? I still have a slide, which is going to have how many takeaways
+on it that you're going to remember? Three. Still cannot pronounce that word, but now I control the
+ending. So all of a sudden, I know it's going to end. All of a sudden you know it's over. All of a
+sudden the host can say, round of applause. You guys give it. Everybody's happy. Makes a massive
+difference. Next time you go to a conference, you're going to see that. They're going to be running
+around with a mic.
+
+[47:09] Nobody's saying anything to speakers, just standing there on stage looking totally
+mortified. And because you can't control that, you're leaving it up to random chance. So good, good
+tip as well. Anything else? Yeah? Please. We'll get you a microphone, just so they can all hear it.
+I better turn off my little potato picture [INAUDIBLE]. AUDIENCE: Thank you for coming to talk to us
+today. DAVID NIHILL: Oh, thank you. AUDIENCE: I was wondering how long it took you to stop feeling
+nervous on stage. You said you did this for like a year?
+
+[47:39] DAVID NIHILL: Yeah, more than a year now. Never. And I wish someone had told me that to
+start. I was like, when does it get good? No. And I'd go do these comedy shows, and you'd think a
+green room backstage to a comedy show, like 10 comedians are in there, must be so fun in there-- not
+fun whatsoever. Never. Everyone's super nervous. Like, they're getting ready. They're doing their
+own way of preparation. They're still sweating and shaking a lot of the time. If there's
+consequences, you're always nervous. And it was just reframing that to say, I'm not nervous. I'm
+excited.
+
+[48:09] And this is what happens. Nobody's trying to kill me on a daily basis anymore, so that fight
+or flight moment doesn't really happen. It happens with little things like public speaking, or it
+happens with like a road rage incident that leads to nothing. It's non-threatening things where we
+get that, and you do get it for public speaking. And it doesn't go away. It becomes manageable. But
+reframing that in your head, that makes all the difference. You're like, oh, I'm sweating. This
+always happens. OK, I'm perfectly prepared. So if you get it in your head like, right. If I was an
+IndyCar race car driver, and I'm in the final, and it's a championship decider, would it
+
+[48:39] be a good idea if I took a shot of vodka just before I drove the car, a shot of tequila, to
+null the senses? It would be terrible. Public speaking is the same. Like if something happens in a
+room, you want to react to it straight away. And you're at your most heightened state. That's your
+best condition, when the heartbeat is going. But you do little things like wear clothing you know is
+kind of sweat proof so it doesn't show it if you're getting sweaty. If there's a microphone in the
+stand, I would never take it out for the first 30 seconds, because I know I'm going to be shaking so
+much. But the nice thing is if I'm relying on my stories and my content, that's
+
+[49:09] what I'm using in my talk, and I start with a story, then I'm not going to forget it. It's
+mine. And if I mess it up, you don't know anyway. So I get way more comfortable about what I'm about
+to talk about. And if I have all that stuff memorized that we were talking about earlier, and I know
+the logical sequence, and I know I have one or two things that will 100% get people to laugh, or I
+know I can just show a video, and the video is going to make them laugh, or a couple of memes, and
+you get really comfortable pretty quick. So to answer your question, you know, it never goes away.
+And I wish people just said that all the time and admitted to it.
+
+[49:39] But if you reframe it, then it gets pretty easy to deal with. So one more question if we
+have one, otherwise I'll just finish it up. Yeah? AUDIENCE: I was just wondering your thoughts about
+the choice of a story. If you're talking about something, it's not exactly public. But we have a lot
+of things that are like [INAUDIBLE] 10 people. How you're designing this component of a software
+system, or how you're marketing-- some in between. You'd never do a TED Talk. DAVID NIHILL: No,
+true, true.
+
+[50:09] AUDIENCE: [INAUDIBLE]. But you don't tell a story about your childhood. It has no relation
+whatsoever. So-- DAVID NIHILL: Well, I mean, sometimes it does. But I mean, that's kind of a
+different form because it's a bit more personal. There's five or 10 of you in the room. But why are
+you making this change? So there was a really good example at Skype when they launched the video
+conferencing component to Skype. Most of the staff were against it. They're like, that's not our
+core component. So the CEO brought into their weekly meetings they were doing at the time customers
+who were literally the people that were using this.
+
+[50:39] And the guy'd come in, and he's like, listen, I was in the military for six months. And the
+only way I kept my relationship together with my wife was by using the video technology component.
+We have to roll out this beta. So if you weren't able to tell the story of the user's problem you
+were trying to solve, they were actually bringing in these people and [INAUDIBLE] them. So I think
+you just vocalize who is the end user that your problem is affecting. Where you guys, you always
+have an end user. So your opinion is not as strong a way of motivating people as the story. Why does
+it affect those persons?
+
+[51:09] What was the frustration in it for them if we don't fix this? Vocalize that. Now hit them
+with a few solutions. Yeah. It tends to work. Yeah, I better tell you guys the end of all this
+lunacy for me. And the nice thing for it, remember this sign earlier? The sequence of three. This is
+rubbish. You can nearly feel the frustration in this sign as you read it. You're like, I've tried
+comedy, but it's not working. All right. Roses are red. Bacon is red. Poems are hard-- bacon. It's
+exactly like they just gave up on the process, but it's still kind of funny, right?
+
+[51:40] If you try to be funny ever, and it doesn't get a laugh, all you have to do is acknowledge
+how terrible it was and everybody's cool. It's that guy who thinks he's amazing at public speaking
+or doing something in front of an audience. And you're like, well, he sucks. That's when you're not
+liking it. But as long as they're like, that would joke was terrible, wasn't it? I'll never try that
+again. OK. Good. We'll remember that. It was funny last night when I was practicing my cat-- did not
+translate to the main stage today. Cool. Then everybody's still happy with it. I mean, the nice
+thing behind it, I love this metric and I love the little cute baby photo, obviously, as well.
+
+[52:12] But we used to laugh 300 times a day, and now they reckon it's somewhere about 15, depending
+on the age bracket, 15 to 20. So like anybody who can stick in a little bit of laughter there
+quickly becomes a bit of a hero. And like the average conference, it's not the most difficult
+audience. The average conference speaker is horrendous. They're literally like a group of happy
+dolphins when you bring in humor going backwards. They're like, oh, that was so great. My day just
+got much better. That was a book I wrote about it, and there's loads of tips in there, huge amount
+of tips.
+
+[52:43] But if you don't want to buy it, you can get those tips for free, totally, just by going to
+7comedyhabits.com/80tips and download them all. So I'm not writing this book to write 10 books or
+become an expert on public speaking. I hate public speaking. It took a lot of arm twisting even to
+get me on video and doing this one and coming today. Because I really don't like to be a video
+either. So I still hate public speaking. I don't want to be going around doing it. But if you want
+to get in touch, that's me. I'll put that up again in a sec. I didn't want to leave you hanging.
+Remember this story I was done for 1,400 people
+
+[53:13] and nearly laying an egg on stage? And I was trying to tell you guys you never know what
+will happen when you tell your story. So that was pretty much the conclusion of my public speaking
+experiments. I did this big storytelling competition, and I went early on in the night. There were
+10 storytellers. And I was winning all the way right to the end. And my friends were like, you're
+going to win! And I was thinking it would be a good end to the book this one if I win. And then the
+very last lady went and won, beat me like point point something. And I was like, aw. There goes the
+happy ending. And then two weeks later, this guy contacted me.
+
+[53:44] And that was a manager of a very famous comedian but was also the producer of TEDx Marin,
+one of the bigger high profile events here. And he's like, hey, David, would you like to come and
+tell a story or do a talk at our TED event? And I was thinking, that's quite a twist for somebody
+who hated public speaking. That's pretty cool, actually. And then before I got carried away, I was
+like, oh, wait a minute. I have a friend, and he's the reason I got into all this stuff when he
+suffered a spinal cord injury. And he just did a talk, and I helped him craft it. And he gave it.
+And he went on after Guy Kawasaki, like his first talk
+
+[54:16] ever, and crushed it. And his second talk ever, he used the techniques I used, the memory
+palace there that I taught him, and he got written up in Forbes about it. And I was like, let me
+send you his video. I think you'll like it. And the guy watched it, and he wrote back to me. He's
+like, awesome. Booked. Done. If you don't mind, we'll put him on. I was like, no, man. Put him on.
+That's going to be epic. So he went. He gave that TED Talk. That's me and him on stage at it. I was
+watching backstage. He was the very last speaker. He got a 51-second standing ovation, telling them
+about the case of spinal cord injury.
+
+[54:46] the talk is called "Little Big Steps." And literally, like my mother has all her old lady
+group in Ireland watch it for motivational reasons because it's unbelievably cool. And at the end of
+it, he actually stands on his own two feet to tell the story of how he trained himself to be able to
+stand up again, even though he was told he never would and proposed to his beautiful girlfriend eye
+to eye. So it was pretty epic. So if you take nothing away from this little random talk, start with
+your story and literally pick out the funny component in it and get out there and tell it using some
+comedy techniques.
+
+[55:17] [INAUDIBLE] engagement. It's your story. Nobody knows it better than you. And the nice thing
+is, you never know what will happen when you tell it. So thank you very much. [APPLAUSE]

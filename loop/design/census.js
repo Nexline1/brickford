@@ -4,13 +4,13 @@ const path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const ROOT = process.argv[2], OUT = process.argv[3];
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
-const NOW = new Date("2026-10-06T12:00:00Z");
+const NOW = new Date("2026-10-20T12:00:00Z");   // plan day 14 (moved with reset six)
 const ROUTES = [["home","/"],["lesson","/lesson/math110/0/13"],["courses","/courses"],["course","/course/math110"],
   ["calendar","/calendar"],["quiz","/quiz/linear-algebra"],["workshop","/workshop"],["record","/record"]];
 function seed([nowMs, theme]) {
   if (window.top !== window) return;
   const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
-  const s = { lessons: {}, problems: {}, studyDays: [], review: {}, settings: { theme } };
+  const s = { lessons: {}, problems: {}, studyDays: [], review: {}, settings: { theme, themeNavyOnce: true } };   // a seeded theme is a menu pick (T-024 navy switch)
   for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
   s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n", checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
   s.lessons["math110.0.0"] = { done: true, verified: false, doneAt: iso(2), notes: "", checks: [] };

@@ -1,0 +1,23 @@
+A failing token — the state the bug needed:
+  ok    lesson page renders a video frame
+  ok    video frame still present after 15s
+  ok    iframe is the same element after 15s (was: original)
+  ok    iframe src unchanged
+  ok    the view was not rebuilt while sitting on the page (rebuilds: 0)
+A working token — the normal path must still work:
+  ok    video frame present
+  ok    iframe survives a successful push too
+  ok    a successful push does not repaint either (rebuilds: 0)
+The page still responds to being used:
+  ok    the watched control is on the lesson page (Mark watched)
+  ok    marking watched is recorded
+  ok    and the page repaints to show it — foreground render still runs (Unmark watched)
+A rejected token latches the automatic push, and only that:
+  ok    a rejected token is recorded as fatal
+  ok    the first automatic push was attempted (1)
+  ok    latched — further saves armed no push (still 1)
+  ok    a manual push still runs while latched — it is not a lockout
+  ok    a success clears the error, lifting the latch
+  ok    automatic push resumes once sync works again
+
+PASS — sync never restarts the video, and a rejected token latches only the automatic push

@@ -1,0 +1,28 @@
+T-026a plant (h): a section header on the Courses shelf restyled (.ghead:has(+ .shelf) uppercase, 400) — caught only if the n/a list route still measures .ghead
+Planted on 34d9e89, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 3f524b6..0906963 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2516,3 +2516,4 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+ .at-tile:active, .at-chip:active, .book:active, .seg button:active {
+   transform: scale(0.985); transition: transform 100ms ease-out;
+ }
++.ghead:has(+ .shelf){text-transform:uppercase;font-weight:400}
+
+---- verify-design, planted ----
+  FAIL  390px light /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 — "Continue" uppercase 20px/400 rule 0px; "Also running" uppercase 20px/400 rule 0px
+  FAIL  390px dark /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 — "Continue" uppercase 20px/400 rule 0px; "Also running" uppercase 20px/400 rule 0px
+  FAIL  1280px light /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 — "Continue" uppercase 20px/400 rule 0px; "Also running" uppercase 20px/400 rule 0px
+  FAIL  1280px dark /courses: every .ghead is sentence case (text-transform none), 20px, 600, with no rule — 2 — "Continue" uppercase 20px/400 rule 0px; "Also running" uppercase 20px/400 rule 0px
+
+FAIL — 4 of 876 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/js/app.js: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/js/app.js: identical to HEAD
+cmp platform/css/style.css: identical to HEAD

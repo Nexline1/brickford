@@ -1,0 +1,56 @@
+Plant g: mergeState imports the remote theme and marker (reviewer round 3's plant).
+diff --git a/platform/js/app.js b/platform/js/app.js
+index b2325b4..72f4990 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -345,6 +345,7 @@
+     // reset on the phone would be silently undone by the next pull from the
+     // laptop — and taking the later date also means a reset can never be
+     // un-done by an older device that has not heard about it yet.
++    if ((r.settings || {}).theme) { S.settings.theme = r.settings.theme; S.settings.themeNavyOnce = true; }
+     const rf = (r.settings || {}).streakFrom;
+     if (rf && rf > (S.settings.streakFrom || "")) { S.settings.streakFrom = rf; changed++; }
+ 
+@@ -5174,9 +5175,10 @@
+     // "auto" straight into data-theme, which no theme block matches, so it
+     // shows light.
+     // Unset means the default, which is the navy "dark" theme since T-024 (the
+-    // owner's decision of 2026-10-06). Only an unset theme moves: a stored
+-    // pick, "light" included, is never rewritten, so whoever chose Light keeps
+-    // it until they choose again.
++    // owner's decision of 2026-10-06). Only an unset theme moves, plus the
++    // one-time navy switch at load (a stored "light" without themeNavyOnce; see
++    // the state block). A pick made from the Theme menu carries the marker and
++    // is never rewritten.
+     const darkQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+     const applyTheme = () => {
+       const pick = S.settings.theme || "dark";
+A failing token — the state the bug needed:
+  ok    lesson page renders a video frame
+  ok    video frame still present after 15s
+  ok    iframe is the same element after 15s (was: original)
+  ok    iframe src unchanged
+  ok    the view was not rebuilt while sitting on the page (rebuilds: 0)
+A working token — the normal path must still work:
+  ok    video frame present
+  ok    iframe survives a successful push too
+  ok    a successful push does not repaint either (rebuilds: 0)
+The page still responds to being used:
+  ok    the watched control is on the lesson page (Mark watched)
+  ok    marking watched is recorded
+  ok    and the page repaints to show it — foreground render still runs (Unmark watched)
+A rejected token latches the automatic push, and only that:
+  ok    a rejected token is recorded as fatal
+  ok    the first automatic push was attempted (1)
+  ok    latched — further saves armed no push (still 1)
+  ok    a manual push still runs while latched — it is not a lockout
+  ok    a success clears the error, lifting the latch
+  ok    automatic push resumes once sync works again
+A pull never carries the theme or the navy-switch marker between devices:
+  FAIL  after a pull and a save, this device's theme is its own navy switch, not the remote's ({"theme":"parchment","mark":true})
+  ok    the push was captured
+  FAIL  the pushed settings carry no marker and no theme ({"theme":"parchment","dailyStart":"08:00","streakFrom":null})
+  FAIL  after a reload the device is still navy (data-theme parchment)
+
+FAIL — 3 assertions broken
+exit 1

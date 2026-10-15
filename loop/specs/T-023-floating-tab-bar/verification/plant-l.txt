@@ -1,0 +1,25 @@
+# Plant l — 2026-10-08T11:21:03Z on 1c8e445
+## diff
+diff --git a/platform/js/app.js b/platform/js/app.js
+index 5663b04..af713ac 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1632,7 +1632,7 @@
+     // clicks through, so a press that still activate()d here was two actions.
+     const modified = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+     bar.addEventListener("pointerdown", e => {
+-      if (e.button !== 0 || modified(e)) return;
++      if ((e.pointerType === "mouse" && e.button !== 0) || modified(e)) return;
+       try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, a: e.target.closest("a"), moved: false, dead: false, hist: [] };
+     });
+## node tools/verify-flows.js
+390px
+1280px
+the tab bar (once, 390px)
+  FAIL  (j) a pen barrel-button (right) press on the Courses tab at 390 leaves this page on #/ — this page at #/courses
+a slow phone (once, 390px)
+sync (once)
+1 of 106 flow check(s) FAILED
+## exit code: 1
+## restored: cmp identical, git diff clean (platform/js/app.js)

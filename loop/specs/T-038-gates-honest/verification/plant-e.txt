@@ -1,0 +1,30 @@
+Plant (e): the confirm sheet enables "Pass gate n" when ANY requirement is ticked (some, not every)
+Gate: node tools/verify-flows.js
+Planted on: a6cb1e8 + the diff below
+
+---- diff ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f6b09fa..2614df9 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -5257,7 +5257,7 @@
+       '<button class="btn" type="button" data-sheet-go>' + (pass ? "Pass" : "Unmark") + " gate " + g.n + "</button></div></div>";
+     document.body.appendChild(dlg);
+     const go = $("[data-sheet-go]", dlg), boxes = $$("[data-gate-req]", dlg);
+-    const ready = () => { go.disabled = !boxes.every(b => b.checked); };
++    const ready = () => { go.disabled = !boxes.some(b => b.checked); };
+     boxes.forEach(b => { b.onchange = ready; });
+     ready();
+     const close = () => { if (dlg.open) dlg.close(); };
+
+---- gate output (failing checks and summary) ----
+  FAIL  (m) with any one of the 3 requirements unticked "Pass gate 1" is disabled, and pressing it stores nothing — 011 ENABLED, 1 save(s), stored {"1":{"date":"2026-10-20","at":"2026-10-20T12:00:00.000Z","passed":true}}
+  FAIL  (m) with any one of the 3 requirements unticked "Pass gate 1" is disabled, and pressing it stores nothing — 011 ENABLED, 1 save(s), stored {"1":{"date":"2026-10-20","at":"2026-10-20T12:00:00.000Z","passed":true}}
+  FAIL  (n) this device's flow ran to its end without a harness error — page.tap: Timeout 30000ms exceeded.
+  FAIL  (n) the device that still held the pass pulls the unmark: Gate 1 open there too — pulled true, now {"date":"2026-10-20","at":"2026-10-20T12:00:00.000Z","passed":true}, controls pass 2, unmark 1
+4 of 136 flow check(s) FAILED
+
+4 of 136 flow check(s) FAILED
+
+exit code: 1
+restored: cmp identical to the committed app.js (a6cb1e8); git diff empty

@@ -1,0 +1,68 @@
+T-031 plant (k), on the final bytes: ad92fb5's platform/css/style.css put back — the 12rem basis with no min-content floor, chips that break anywhere
+Planted on 8ba1dbb, run: node tools/verify-design.js
+
+---- the plant (git diff) ----
+diff --git a/platform/css/style.css b/platform/css/style.css
+index b08afde..ab723d6 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -2422,19 +2422,16 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+ }
+ 
+ /* ---- the next gate ---- */
+-/* The text and the days share a line while the text has 12rem and its
+-   widest word fits (a 390 phone at the default size, a 3-digit count; 360
+-   with 2 digits); below that (a phone at a larger text size, or a chip with
+-   a long word: "6+ paper reimplementations") the days drop under it, rather
+-   than the column being squeezed until "Calibration" or a chip breaks
+-   mid-word. min-content is that floor, so a chip's words do not break
+-   (overflow-wrap: normal on .at-req). In rem, so it follows the root size,
+-   which a media query would not. */
++/* The text and the days share a line while the text has 12rem (a 390 phone
++   at the default size, a 3-digit count; 360 with 2 digits); below that (a
++   phone at a larger text size) the days drop under it, rather than the
++   title column being squeezed until "Calibration" breaks mid-word. In rem,
++   so it follows the root size, which a media query would not. */
+ .at-next {
+   display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
+   background: var(--surface); color: var(--ink); text-decoration: none;
+ }
+-.at-main { flex: 1 1 12rem; min-width: min-content; }
++.at-main { flex: 1 1 12rem; min-width: 0; }
+ .at-next:hover { text-decoration: none; }
+ .at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+ .at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }
+@@ -2443,7 +2440,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
+ .at-req {
+   display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 14px;
+   border-radius: 999px; background: var(--surface-2); color: var(--ink-2);
+-  font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: normal; min-width: 0;
++  font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: anywhere; min-width: 0;
+ }
+ .at-req::before { content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
+ .at-days { flex: none; margin-left: auto; text-align: right; }
+@@ -2597,8 +2594,7 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
+ /* ---- Exams: the next one, the open ones, the locked ones ---- */
+ .ex-rec { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+ .ex-tag { display: inline-block; align-self: flex-start; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; overflow-wrap: normal; background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)); }
+-/* The Exams hero keeps a 0 floor: the min-content one is the Atlas card's. */
+-.ex-hero .at-main { flex: 3 1 14rem; min-width: 0; }
++.ex-hero .at-main { flex: 3 1 14rem; }
+ .ex-hero .at-gate { margin-top: 10px; overflow-wrap: normal; }
+ .ex-facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+ /* A bar of the course's lectures watched, in its faculty colour. */
+
+---- verify-design, planted ----
+  FAIL  switch (c): Light picked from the menu after the switch survives a reload (light, stored "light" + marker) — data-theme dark, --bg rgb(14, 14, 16), meta #000000, stored {"raw":true,"has":false,"mark":true}
+  FAIL  /atlas, Gate 3 next (Research legs), root 16px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 373px: "6+ paper reimplementations" breaks inside a word at "6+ paper reimplementation/s" | 374px: "6+ paper reimplementations" breaks inside a word at "6+ paper reimplementation/s"
+  FAIL  /atlas, Gate 3 next (Research legs), root 24px: no route label, next-gate title or chip broken mid-word at 320, 358, 373, 374, 376, 390, 640, 768, 1038, 1100, 1132, 1178, 1280, 1372, 1440px — 320px: "6+ paper reimplementations" breaks inside a word at "6+ paper reimplementati/ons"
+
+FAIL — 3 of 1515 design checks failed
+exit code: 1
+
+---- restored ----
+cmp platform/css/style.css: identical to the pre-plant bytes
+cmp platform/css/style.css: identical to HEAD
+
+---- note ----
+The "switch (c)" failure is not the plant. It is T-024's theme check on "/" at 1280, which picks Light and reloads at once. It also failed on its own in plant b's first run (plant-b-run1.txt), and it passed in every other run, including the CHECK on these bytes. The plant's own failures are the two Gate 3 lines.

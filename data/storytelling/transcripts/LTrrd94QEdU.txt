@@ -1,0 +1,564 @@
+# Transcript: How to Talk Gooder: The Science (and Serendipity) of Conversation
+
+Source video: https://www.youtube.com/watch?v=LTrrd94QEdU
+Language: en (auto-generated) · Duration: 42:48 · Words: 7767
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037); re-fetched whole in review round 1 (an earlier fetch stopped at the tool's 120,000-character limit)
+
+## Transcript (auto-generated captions, de-duplicated by the tool)
+
+[0:03] allison you are our last speaker in this series um and we're hoping that in the fall lots of
+things will be different than they are now and so we'll stay tuned but this may be allison you may
+be our last ever speaker in the dcfg seminar we'll see what happens well we're not going to do we
+don't think we're going to do this weekly in the fall certainly if if life is back to normal but
+this has been such a i mean we've had 5 000 people register for this or something along those lines
+it's been such a hit we're definitely
+
+[0:33] going to do something yeah we'll do some virtual events in the future given the response but
+not weekly if travel is allowed again and we can have a regular seminar series can i really quickly
+do the thing about bcfg angela okay so really quickly this came which is really exciting yes which
+hopefully everyone who's excited about behavioral science is excited about and also this can oh just
+well the great bob chaldini so
+
+[1:04] anyway lots of we're very excited and then allison and i want to say this is being published
+oh i should have gotten it i'm sorry i don't have it okay here you go i will hold it up for both of
+us allison thank you angela we're very excited about lots of books about behavioral science this
+month this month even something this week um okay okay so allison i'm not really going to teach you
+much more than to say that i'm really looking forward to this talk you're uh a world-class
+behavioral scientist you're in a band with other world-class behavioral
+
+[1:35] scientists how many people can say that um and i know this topic a conversation is
+intrinsically interesting to quite literally all of us so with that i'm going to seat the floor to
+you and thank you so much for being here oh my gosh thank you angela and katie let me share my
+slides and we can kick it off okay um all right okay guys so let's go um thank you so
+
+[2:05] much katie and angela for organizing the seminar series during this weird time i have loved
+the talks in this series and i i really feel so honored to be the closer this spring um i know cass
+sunstein was the closer in the fall and um i'm gonna try and live up to the legacy of the legacy of
+cass um thanks to everyone in the audience too i think you deserve a trophy for clicking the link to
+listen to another thing on zoom after this very difficult year so go you
+
+[2:36] and today i am totally thrilled to share some of my research on the science and serendipity
+of conversation okay here we go so let's start at a decision point i want you to think of a big
+decision that you made in your life maybe recently maybe a little while ago so i hear him thinking
+about decisions like who should we hire at work uh should we buy those plane tickets which home
+should we buy which study should we
+
+[3:08] run first shout out to the ras and doctoral students and academics in the crowd should i ask
+for that raise hmm thinking of linda babcock here uh is he guilty ooh taking a dark turn should i
+say yes to a second date should i marry her oh my goodness okay so what i love about behavioral
+science is that over the last several decades we have learned so much about the decisions we make in
+our lives
+
+[3:38] and how we tend to make them the barriers that stand in the way and the mistakes that we make
+along the way and more and more about the ways that we can make and architect our decisions a little
+more effectively and luckily our amazing seminar series organizer katie milkman has summarized these
+learnings beautifully in her book that hits shelves tomorrow um called how to change and the forward
+was written by angela so good job katie and angela everybody go out and buy how to change so
+behavioral science
+
+[4:11] tells us a lot about how to make decisions and how to do it more effectively but behavioral
+science tells us far less about the conversations that surround the decisions we make so who we talk
+to what we say and how we say it especially based on conversations between real people at scale so
+here if you think back to one of those decisions like should i marry her um what was said or done in
+the conversations leading up to that decision maybe that uh you know the week before
+
+[4:42] the month before what about the hundreds of thousands of decisions or conversations that
+happened um leading up to and make that person who he or she was that led them to meet someone that
+they wanted to propose to uh what about the conversation surrounding the big decision so what were
+they talking about when they decided yup i'm gonna marry that person or what was happening during
+that conversation where they actually proposed and then what about the hundreds of thousands of
+conversations that will have yet to happen that have yet to come
+
+[5:13] uh here we know a bit less and so each one of these conversations differs wildly right with
+different people involved in different relationships different places with different words and
+different purposes and of course we're not only concerned with singular decisions like will you
+marry me because every conversation is filled with a multitude of micro decisions so these are
+choices we make at every turn of every conversation and so each conversation is filled with outcomes
+too
+
+[5:45] because conversations are both a means to important ends like who am i going to marry but
+they are also ends unto themselves so the micro decisions we make uh determine how we define
+ourselves how we influence the trajectories of all of our relationships and then how we come to
+understand the boundaries of our shared reality and the social world now in my research what i'm
+really looking for are strategies and frameworks to help us understand and execute conversations a
+little bit
+
+[6:16] better across all of these sort of differently tinted uh conversations of our social worlds
+are there things that we can do that apply across all of the various situations uh to disseminate my
+work i created a course at harvard called how to talk good or in business and life and in my course
+i aggregate what we know about conversation into four maxims so trying to wrap some simplicity
+around this like ocean of of complexity and this is a play on paul grice's conversational maxims
+from the
+
+[6:47] 1970s and the four maxims that i focus on are topics so how can we prepare select shift and
+end topics effectively asking so how can we ask and answer questions well levity creating and
+appreciating moments of humor and playfulness and joy even when you tell stupid cow jokes about
+music right like how can we how can we do that more how can we appreciate it even when the jokes
+aren't so good and then the k is kindness so we define
+
+[7:18] this very precisely as three things receptiveness to opposing views responsive listening and
+reflection away from conversation there is a lot of robust research underlying the talk maxims but
+they're also intuitive right so if you think back to all the bad conversations you've had in your
+life there's probably some elements of the talk maxims that went awry so maybe you talked about one
+horrible topic for the whole conversation or maybe you skipped across too many topics and it felt
+
+[7:48] manic um or you landed on one that you just really didn't like maybe your partner didn't ask
+anything about you or maybe they asked too many questions or maybe they ask one really intrusive and
+appropriate question um maybe they didn't care about your answers uh maybe the conversation was
+overly serious and lacked levity and joy or maybe your partner was a bad listener listener or overly
+serious or just you know a flippin jerk so the maxim's aim to fix these very
+
+[8:18] very common problems i wish i had time to share findings across all of the maxims but uh
+we're always limited by time so today i'm going to zoom in on topic specifically because my work on
+topics is new and fresh and exciting and i'm i'm really bursting to share it with you okay so i'd
+like for you to think about conversation topics as a level of content analysis and this level of
+content analysis is useful as a chunking heuristic which is a uh sort of
+
+[8:50] overly complex term coined by previous scholars in sociology and computer science because
+topics provide a helpful chunking heuristic for researchers who want to make sense out of text data
+after the fact so this is for things like topic modeling after the fact but in this talk what i want
+to convince you of is that it's also helpful for conversationalists themselves themselves to think
+about uh topics uh to chunk their conversations before during and after their conversations
+
+[9:20] because topics are more fine-grained than thinking about whole conversations and more
+digestible more cognitively possible than trying to monitor every word choice that we make as we go
+along so topics sort of hit this sweet spot between whole conversations and and words so today i'm
+going to share two projects with you the first is going to describe a major barrier we face in terms
+of topic management conversation and the second project is going to provide a simple strategy that
+can help us
+
+[9:50] navigate topics more effectively okay yes i do want to do this um okay so to start we're
+going to analyze the conversation together i'm going to show you one minute of this sort of random
+interview i pulled from youtube of amy poehler and tina fey two comedians they're on access
+hollywood during a press tour for one of their movies called sisters um as you watch this i want to
+try to think about their micro decisions especially their topic choices so when and why do they
+switch topics
+
+[10:20] why do they stay on topic and how do their topic choices influence the conversation overall
+tina when was the hardest time i ever made you laugh the hardest time you ever made me laugh oh uh
+how can i say it uh when we were last time we hosted the golden globes amy just for the fun of it
+wrote a list of all the jokes that would be terribly inappropriate for us to tell the most
+inappropriate and we just and she only read them to me and they were
+
+[10:51] we had a lot of fun it was a good time yeah okay if we were really sisters i would steal
+your identity and spend money on my credit cards and buy things with it and because you've done that
+before she's done that before okay most p tina most people don't know my hidden talent is your
+hidden talent is uh knife throwing yeah what you know what it's more that she's she has an interest
+in it it's not that
+
+[11:22] she's that great at it i just love watching she loves throwing knives i just love watching
+it on tv i love betting on she loves to try betting on knife terrified amy would say my most
+annoying habit is doing a fake slip and falls in supermarkets tina pretends that she fell on like a
+on like spilled milk and then she sues the superhero she's done it three or four times i got a boat
+
+[11:52] and she does okay okay so let's imagine oh my god isn't it so fun to watch people talk to
+each other who clearly like each other so fun okay so let's imagine that we hit pause in the middle
+of the conversation and we asked amy and tina what they're thinking uh do they like the topic
+they're discussing can they tell if their partner likes the topic if their partner doesn't like the
+topic but they stay on it anyway this is a costly choice especially for
+
+[12:22] awesome conversationalists like amy and tina who could be finding comedy goals and fun and
+learning on so many other topics right so this is a big opportunity cost so for example let's
+imagine that tina is thinking oh man this knife throwing bit is pretty lame but at the same time amy
+is thinking oh tina thinks this knife throwing bit is hilarious so here amy's getting this
+metacognition incorrect okay so in this project we're to ask how well
+
+[12:52] can we detect what topics other people want to talk about and to be piffy and sort of
+quintessentially academic we're going to call this topic preference detection can i detect what my
+partner wants to talk about this is a collaboration with my delightful co-author mike yeomans who's
+at imperial college in london okay so let's take a closer look at this conversation first i just
+want to note very importantly that conversations are data we can paste each
+
+[13:22] conversational turn into a row and annotate that data per turn right so here i'm showing you
+the speakers second column is uh their conversational turns or the words they said and then i'm
+giving you a smattering of different sort of options just a sample of the types of variables that
+you can code at the turn-by-turn level of conversation so here i'm showing you topics and i've just
+labeled them as one two three four questions did they ask a question uh was there laughter this is a
+prosodic
+
+[13:54] cue prosidy is somewhere between verbal and nonverbal right laughter isn't quite a word but
+it is a very important aspect of conversational structure did tina smile did amy smile these are
+non-verbal cues and then the last one is did they finish each other's sentences so another sort of
+melding of prosidy and verbal content so i just wanted to show you what's possible and you could add
+you know almost an infinite number of more columns and even within the columns they don't have to be
+binary right it doesn't have to be yes no we could code things on on continuous scales
+
+[14:24] there's so much we have yet to learn by looking at conversation data in this way but for now
+i want you to focus on the topic column and here you can see how topics uh as a chunking heuristic
+can play out because they started with the topic of what was the hardest time they ever made you
+laugh then they switch to steal your identity then what's your hidden talent and then what's your
+most annoying habit so this is helpful for researchers if we want to look back and do some analysis
+
+[14:54] of their topics but the chunking heuristic is also helpful for the speakers as they're
+conversing so taking the perspective of amy and tina at every turn they're making micro decisions
+they're making choices should we stay on this topic or should we switch and topic switches require
+them to become a topic leader right so at the beginning amy's deciding we're going to start with
+when's the hardest time i ever made you laugh and then tina decides we're going to switch uh to what
+would i steal um and so on and so forth at the end by
+
+[15:24] the way conversational endings are always the final topic switch both of them somehow try to
+coordinate to walk away and stop talking um they're also implicitly deciding to stay on topic in all
+of the other turns right this is a passive choice if you're not switching you're staying and we can
+go beyond their observable decisions to the cognitions that underlie these conversation choices so
+if we think about for example what's going on in the listener's mind every time their partner is
+speaking
+
+[15:55] what is the listener thinking about what i'm going to show you in this project is one thing
+that we care a lot about and do a lot of mental spend a lot of mental energy thinking about is
+whether the person who's speaking is enjoying what we're talking about so when tina's saying the
+hardest time you ever made me laugh oh i'm going to tell you i'm going to tell the story about the
+golden globes amy's thinking does tina like this topic should we switch to something else right like
+right after this or should we stay on this for a while and it's not just aiming right like
+
+[16:25] they're all they're both thinking about this at every turn of the conversation trying to
+make this judgment so in our research we use a paradigm that's quite similar to this so here's our
+preference detection task in step one mike and i defined a list of 12 discrete conversation topics
+for all of our participants to discuss and we did this we did you know extensive pilot testing we
+pick topics that are sort of middlingly interesting with high variance on interestingness we don't
+want people to agree on what's
+
+[16:55] interesting so these are topics like when's the last time you sang to yourself or if you
+could teleport anywhere where would you go do you have fruit trees plants or a garden so on and so
+forth the second step is to ask people to either type asynchronously to each other or talk to each
+other live face to face about these 12 topics specifically the third step is to ask people to report
+their own interest in the topics and try to predict their partner's preferences for the topics
+
+[17:25] as they unfold and as you'll see in a moment sometimes we do this per turn right we look at
+the asynchronous typers and we ask them after each turn how much does your partner like this or if
+they're talking face-to-face we'll ask them at the end of the conversation because we don't want to
+disrupt the conversational flow so we'll ask them to look back at the conversation and say how much
+do they like fruit trees plants and garden how much did they like teleportation how much did they
+like um when's the last time you sang to yourself etc
+
+[17:56] and then the last step uh we're gonna take the human topic preference detection judgments
+the accuracy of those judgments and we're going to compare them to a normative benchmark and for our
+research the normative benchmark we created a very basic nlp natural language processing algorithm
+that analyzes people's spoken words or typed words to predict their underlying topic preferences and
+for those interested for the nlp nerds among us here we used word embeddings and
+
+[18:26] politeness cues in a lasso regression and then for the live face-to-face data we were also
+able to add responsive speech acts to the algorithm so this is stuff like question types and
+laughter and then for both predictors whether it's the humans making predictions or the algorithm
+the ground truth is people's actual topic preferences right because people were rating their own
+preferences as well okay so i'm going to show you findings from three different studies the first
+study was strangers on mturk who did this
+
+[18:57] typing task to each other uh study two was the same task but we brought close pairs into the
+lab so this is like work colleagues and friends and acquaintances and romantic partners and parents
+and children and siblings etc people who know each other but they're going to do the same typing
+task as the m turkers did and then in study three we're going to bring in strangers into our lab but
+they're going to sit and talk to each other face to face and ostensibly do the same task but they're
+actually talking about it now the first result i'm going to show
+
+[19:27] you is the correlation of the relationship between our own topic preferences and on the
+y-axis the guess of the partner's topic preferences now if we had no egocentric projection then the
+relationship between these two variables would be zero and of course that's not what we see we see
+robust egocentrism across all three of our studies the correlation here shouldn't be zero because
+there's a very minor positive relationship between our own topic preferences
+
+[19:57] and others topic preferences right the problem here is that we're massively overweighting
+our own preferences when we guess other people's preferences so this is a clear example of
+egocentric projection here's some other details about how people how humans tend to make these
+predictions and so i'm going to show you several different verbal cues that people rely on to make
+these predictions if humans were good at perceiving others linguistic cues and incorporating them
+into their judgments then all of the verbal cues would fall on the
+
+[20:27] 45 degree line between the correlation with their partner's true preferences and on the
+x-axis and the features correlation with their guess of the partner's preference on the y-axis and
+again of course this is not what we see let me give you an example first one cue for example that
+falls below the 45-degree line is introducing topics so if your partner raises the topic it's a good
+indicator that they like that topic and yet we tend to not wait that heavily enough maybe we don't
+even
+
+[20:57] notice it another example is laughter so if you're laughing at yourself and actually if you
+laugh at others too laughter is a good cue that people like the topic that you're discussing and
+it's one that we tend to underweight and then a final example here callbacks a callback is if you
+were discussing something earlier in the conversation and your partner raises it again it's a really
+good indicator that they want to keep talking about it that they're enjoying it but we tend not to
+notice that uh in the moment on the flip side of it any cues that are above the 45 degree line
+
+[21:27] are cues that we tend to overweight that are not great indicators of people's interests but
+we use them anyway and one example i'll share with you here uh are mirror questions and a mirror
+question would be like if i ask you how was your weekend and you tell me and then you asked me how
+was your weekend back to me it feels good and i sort of feel like that means you want to know and
+you want to stay on this topic and i i underestimate how much you're relying on politeness there
+right like you have to ask me how my weekend was my weekend was great by the way thank you for
+asking um and then there are
+
+[21:58] lots of cues that fall along the 45 degree line that where we seem to be weighing them
+pretty accurately and here we're looking at things like interruptions and back channel feedback back
+general feedback is like oh uh these are prosodic use that are not quite words and not quite
+gestures and then follow-up questions okay so let's compare the human predictions to the normative
+benchmark right our nlp algorithm in order to make sense of human accuracy in this test
+
+[22:28] um uh we we had the humans look at the exact same data that the nlp algorithm looked at
+right the nlp is going to look at the same words it's the words that your partner is saying and make
+its own predictions on the x-axis again i'm showing you those same three studies strangers on mturk
+close pairs in the lab and then strangers in the lab on the y-axis here i'm showing you topic
+preference detection accuracy another label you could give to that is just perspective taking
+accuracy how well are we guessing our partners
+
+[22:59] topic preferences and there's good news here uh even though we're not great we are better
+than chance so chance would be 50 50 here and instead we're doing a little bit better than chance
+and that's true in study one study two and study three we're doing even a little bit better now
+remember study three that's where you're talking face to face so you have more cues to draw from you
+have the verbal cues of what people are saying and you can see their body language that might convey
+something about their interest in the topics now the bad news comes when
+
+[23:31] we compare it to our nlp algorithm the nlp when pooled with human judgment is just picking
+up on a lot of stuff that we are not so the the algorithm beats human judgment every time it's most
+remarkable in study three because here the algorithm is only using verbal cues as its input and we
+the humans had more right we had non-verbals as well so we're missing a lot of things that even a
+very basic nlp algorithm picks up on these are reliable cues that people like and dislike topics
+okay so here's where we are so
+
+[24:04] far conversations provide a rich setting to study pervasive micro decisions topics are
+important and i haven't shown you much data on this but we see this robustly across all of our
+studies and so you have to take my word for it a bit here uh the topics we choose and avoid define
+who we are as individuals groups and society they robustly predict very important outcomes like
+enjoyment and productivity like learning of course it's almost tautological that the only thing we
+can learn is what we the stuff we spend our time talking
+
+[24:35] about and then people want to accommodate their partners topic preferences this is a really
+uplifting part of thing that has come out of this research is that people want their partners to
+have a good time and they know that they should talk about stuff that their partner likes and not
+just talk about stuff that they like uh the problem is it's hard so we are egocentric we tend to use
+our own preferences as a proxy for other people's preferences and we incorrectly weigh lots of
+observable cues about our partners topic preferences so what can we do well
+
+[25:07] obviously we can try and get better at listening so this is like learning the cues that are
+good indicators of other people's topic preferences like callbacks and laughter and whether they
+started the topic we can try and pay attention to those more and get better at this task or we can
+try and sidestep it sort of entirely and and here i'm going to tell you a little bit about about a
+project where we're looking at preparing topics ahead of time so instead of trying to pick up
+people's preferences on the fly maybe i can think about those people ahead of time think about what
+they
+
+[25:37] might like and then um have those topics at the ready in my back pocket and so this is a
+project with nicole abbey esper at harvard doing a burger at wharton and again mike yeomans at
+imperial college so if we think back to amy and tina you can see that the access hollywood producers
+handed a list of prepared topics to them um so fun now we don't know what would have happened if amy
+and tina didn't use this list of prepared topics if they had thrown them aside and gone
+
+[26:07] entirely for improv but we can test the effects of topic preparation versus no topic prep in
+our experiments and that's what we're going to do so in this project i'm again going to show you
+three different studies and this one it's all close pairs so this is all people who know each other
+they're talking in person and in study one this was in the wharton behavioral lab study two is a
+pre-registered replication of study one and in those two studies we're gonna experiment and
+experimentally manipulate topic prep
+
+[26:37] in study three it's a little bit different it's not an experiment this was with my mba
+students at harvard and they did a class exercise where they all went around and had five round
+robin conversations i made everybody prepare topics for this exercise and in this data what i'm
+going to show you is we're going to measure whether they actually raised the topics that they
+prepared did they rely on the topics that they prepared ahead of time we'll use that as a sort of
+proxy of topic prep on the y-axis we're going to study enjoyment of the conversation
+
+[27:07] we study enjoyment sometimes because i mean one it's just pervasive almost no one goes into
+conversations like hoping that they will be unenjoyable and two many other conversational goals
+either feed into enjoyment or rely on it need enjoyment as an important input to be achieved so
+they're inextricably linked and here i'm thinking of other dv's like persuasion impression
+management conflict management or information exchange so
+
+[27:37] here's the manipulation that we use it's very simple we ask participants to generate a list
+of five topics that might be fun or productive to discuss with your partner there are no
+restrictions uh you can talk about these topics if you wish but you're not required to so they're
+flexible right like you've got them in your back pocket and you can you can use them if you want to
+but you don't have to and of course we see significant improvements in enjoyment for those who
+prepared topics and study one replicated the effect of study two and
+
+[28:08] then we see it sort of more in the wild with my mba students at hbs that prepping topic
+seems to increase enjoyment then the question becomes like why why would this why would prepping
+topics help what's so exciting about conversation research is that it provides all kinds of rich
+opportunities to study mechanism data so we can use classic psych methods like self-report as we did
+here what we find is that people who prep topics have reduced anxiety per their self-reported
+emotions um
+
+[28:39] having those topics in your back pocket makes you less anxious tom gilovich has this really
+nice data emerging now that the stuff we fear most in conversation might be those awkward silences
+we're all afraid of encountering silence and not knowing what to talk about and so prepping topics
+ahead of time gets rid of that and so it just reduces our anxiety similarly prepping topics makes us
+more confident anxiety and confidence excuse me are almost always indirectly related have an inverse
+
+[29:09] relationship but then we can also move away from self-report and look at the transcript data
+too to look for mechanism and here i'm thinking of stuff like conversational just fluency so we can
+look at the length of their pauses their awkward stuttering their flow in the text itself and we do
+see that people who prep topics ahead of time have fewer conversational disfluencies in the
+transcript then we can go another step and actually ask coders third-party readers to look into the
+transcript and rate things and in this project we asked
+
+[29:39] coders to go through and and rate things about the nature of the topics they discussed and
+what we found is people who prep topics are just more likely to land on interesting topics those who
+don't plan tend to talk more about stuff in their immediate salient environment like the weather or
+like you know what what are you having for dinner has your food rather than you know what's the
+greatest you know problem facing humanity and how can we solve it okay so a little bit more
+background about topic prep we did a pilot study and we
+
+[30:11] asked people how do you tend to prepare for conversations this was sort of fun here's what
+we found 44 of people say they think about the person ahead of time that's nice uh 27 say they plan
+what to wear i don't know what the other uh 73 of people are doing but okay um and then 23 say they
+research the person online good on ya only 18 say that they write topics down or think about them
+ahead of time so we're spending more time planning what
+
+[30:42] we're going to wear rather than thinking about what we're going to talk about once we're
+together why don't people tend to prepare topics well a few reasons the first is that a lot of
+people describe it they think it's going to be distracting like having that list of topics is going
+to distract them during the conversation many people think about 53 think that it's unnecessary if
+you're close with someone or you know a work colleague well then you're gonna know what to talk
+about on the fly across many of our studies this turns out to not really be the case but we feel
+this way and then 34 say that
+
+[31:15] prepping topics will feel forced and unnatural just feels like we have this really strong
+instinct for naturalness that um leads to a sort of knowing doing gap where in in the execution of
+conversation a little bit of planning actually makes it feel much smoother and and more natural um
+okay so in our studies themselves 80 of the participants in the control condition who didn't prep
+topics believe that preparing would have decreased their conversational enjoyment all right so this
+pans out can we dispel
+
+[31:46] these lay beliefs are better habits learnable the answer is i think yes so if we look at the
+participants in the topic prep conditions of studies one and two 88 of them thought that preparing
+topics had increased their conversational enjoyment now this might just be a demand effect right
+like we told them the prep topics they had a conversation and then afterwards they're like yeah that
+helped um what i find more compelling though is that at the end of my course on how to talk gooder
+
+[32:16] this is both with mba students and with executives i asked them to make open-endedly name
+the top three things they took from the course and i now have taught this to about 300 people now
+and 91 of them have named topic prep as one of their top three learnings from the talk course so
+this really does seem to be a correcting mechanism in our sort of false lay beliefs about topic prep
+so i want you to remember this from my talk every turn of every conversation presents rich
+opportunities to study decision making and behavior change
+
+[32:47] for good we are not great at detecting others topic preferences during conversation this is
+a coordination error and it's a it's a costly one it's a costly misunderstanding and preparing
+topics ahead of time can really help so i've shown you some findings about topic management but
+we've only scratched the surface of the talk maxims in my research i'm working on many other
+interventions across all four of the maxims all with the goal of helping conversationalists not only
+through prep
+
+[33:17] but also strategies to use on the fly within the predictable structure of conversation this
+is a sample of my recent and ongoing work please reach out if you have data from live conversations
+that you might want to untangle together or to pair with experiments or if you're interested in
+learning about how i teach this stuff i'm so eager to push this revolution forward and of course i
+am not alone either here's an example these are nine papers from our forthcoming special issue of
+organizational behavior and human decision processes on the psychology of
+
+[33:47] conversation i edited this special issue with mike norton and ethan cross who spoke earlier
+in the series and dan gilbert all of these papers include data from real people talking to real
+people and many of them include experiments as well so just a sort of lofty ending through this
+research we can all make our conversations glow just a little bit brighter even if each conversation
+proves just a little bit imagine the accumulated effect of all the conversations of our lives and
+careers and so in the words of
+
+[34:18] irving goffman legendary sociologist wordsmith and grandfather of conversation research
+conversation is the spark not the more obvious kinds of love that can light up the world so let's
+get out there and light up the world katie shall we i feel like i didn't prepare enough though is
+the problem because i count on our amazing questions to come in but but i think the audience
+prepared me and and so did the wonderful research assistants here and by the way i should also point
+if you guys want to come say hi because this is our last time um our
+
+[34:49] amazing research assistants helped prepare the conversation and melanie makes all the magic
+happen if you guys want to come wave for a second before the end of this and just thank you to all
+of you heather and melanie and tim and jake um yay these are the people who prepare so that this is
+a success um okay i did not prepare but these these folks have great questions let me jump into one
+um from alison buttonheim who's in our nursing school is a bcfg team scientist and does wonderful
+work on communication about important health
+
+[35:20] issues um she's asking how we can incorporate these insights about topic preferences into
+tough conversations like the ones we have about vaccination gun control climate change can we make
+those conversations more productive and pleasant oh my gosh allison fellow allison a resounding yes
+and so we are i love that you're thinking through how you can you can apply these so what i showed
+you today was sort of um run-of-the-mill data from that is context-less right we were looking at
+
+[35:50] like m-turkers and people in our lab but in many of our studies in many of our projects what
+we start with is a field data set for example we're trying to crack the nut of healthcare
+conversations now of course they're very protected um in terms of hipaa and data privacy but we're
+working with some companies now that capture conversations between doctors and their patients
+between doctors and doctors um so that we can apply some of these basic sort of fundamental
+linguistic learnings to very clear
+
+[36:21] and very important context and so in many of our other projects we start with that field
+data we observe correlationally what seems to be going well and then what we love to do is like take
+those strategies from those top performers top performers as doctors those really like those
+patients who really abide by what their doctors tell them and see if we can bring that into the lab
+in a different context and see if we can teach it teach it to other people see if there's sort of
+this causal relationship so yes uh the answer is yes we're working on it
+
+[36:51] this whole area is just emerging so hopefully we'll have more specific things to say about
+applying it in the healthcare domain in the next three to five to ten years and in the meantime send
+me an email because i have some ideas about how you can use it now um okay eamonn colvin has a great
+question it's very popular question too about um whether preference detection is any different when
+people are equals and he points out like amy and tina versus one there's a power asymmetry like a
+boss with an employee
+
+[37:21] oh my gosh all of social life all of conversation is so profoundly influenced by status
+right every group that you're a part of has this inherent status hierarchy that's changing how
+people make those micro decisions in conversation and and influences the cognitions that we have you
+know i move from my co-ed basketball team where i'm the worst player and i'm like so concerned about
+what everybody's thinking and how they're thinking and then you go and you like lead a meeting at
+work
+
+[37:51] and all of a sudden that's that power that status makes you think less about the preferences
+of others and it turns you into a jerk um so yes status matters profoundly uh some of the projects
+we're looking at for example i'll give you one example we find that people in low status positions
+let's call them women tend to laugh more in general if they're in a low status position not because
+they're happy but because they feel like they need to show deference to the people in
+
+[38:21] the group who are higher status um and they're not wrong right if you're low status and you
+don't laugh people like you less right so that's sort of the dark side of the truth but then if you
+put those women in a high status position their laughter behavior starts to resemble the laughter of
+men and other high status people so there's all kind there's so much we have left to learn about
+these conversational dynamics and the interplay with status but yes it matters profoundly for sure
+so interesting okay let's turn from these sort of high level
+
+[38:51] questions to a very research focused question this is um gretchen chapman is wondering what
+you think of as the correct weight for my preference when predicting a partner's preferences in
+other words how much of a correlation um would count as overweighting yeah so gretchen great
+question i thought i'd get this one from don moore actually um the so the the right answer is there
+is an actual correlation between my preference and my partner's preference right so there actually
+is a correct
+
+[39:22] weighting of it i don't have that i don't have that slide on hand here but the true the sort
+of ground truth there is that if there's a very minor positive correlation it's not even a
+significant positive correlation so it's ostensibly zero but it's very minor and what we actually
+see is like this major positive correlation between my preferences and my guess of my partner's
+preferences i can send you more information via email what you're saying is your ground truth is
+defined by what you observe when you take the ratings of each individual and that is much much lower
+
+[39:53] and that's sort of what you're comparing to instead you think it's really if i like it they
+like it if i'm exactly right which is it makes sense that we would like we don't have that much else
+to go on although the problem is as we as we are in relationships longer we feel we get ever more
+confident that we're good at this task that we're like we know i know you katie so i'm gonna get
+good at picking up on your topic preferences but so that's our that's the sort of where
+overconfidence sort of like ramps up
+
+[40:23] but then over time in actuality we don't actually see people's accuracy getting better over
+time uh at all that's so interesting okay i'm gonna i'm gonna end with a question from um grant
+donnelly uh grant wants to know if you have any tips on how to switch topics well and points out
+that he feels so awkward doing it and i will just say me too yes oh my god yes hi grant thanks for
+the question okay so this is this is a huge part of when i turn to my students and teach this to
+them this is their biggest thing
+
+[40:54] too like give us phrases give us strategies like how do we do this and so one thing that
+they find helpful is thinking about it in two different buckets the first bucket is note the switch
+so you can use phrases like is it okay if we change topics now or i'd like to switch or i'm dying to
+talk to you about another topic right something that signals positive sentiment and excitement and
+maybe also deference and respect like asking can i switch now that's nice like they the other person
+has to consent to it so that's the first category like noting
+
+[41:25] the switch explicitly the second category is like don't talk about it be about it just
+switch and now this one is much smoother and like it's this is like a real high ability uh uh skill
+to have but it's really cool so if you have topics prepped for example instead of being like is it
+okay if we switch like just start talking about something interesting i mean katie's book is coming
+out tomorrow you guys let's talk about that right like so just going for something
+
+[41:55] else everybody's attention gets sort of zapped away to it and they don't even notice that
+it's happening so trying to practice both of those buckets of strategies would be good grant i'll
+send you a list of phrases you'll love them i see angela is back which means our time for topic
+switching has come oh sad thank you so much and what a great way to end with such a practical and
+fascinating and fun talk thank you awesome you closed us out without parallel and you talked about
+
+[42:25] exactly what i wanted to talk about today so thank you so much thanks guys thanks for having
+me it was great and thank you again to our amazing team if you guys want to come off for a final
+wave to the audience so they can see you and and applaud you privately and their homes are in the q
+a please please come back we're so grateful you guys were amazing thanks for making this happen bye
+bye everyone everybody

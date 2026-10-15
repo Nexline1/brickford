@@ -1,0 +1,132 @@
+# Transcript: Exposing YouTube’s BIGGEST lie: Click Through Rate
+
+Source video: https://www.youtube.com/watch?v=jlFDJ4sWIZM
+Language: en (auto-generated) · Duration: 9:43 · Words: 1682
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript (auto-generated captions, de-duplicated by the tool)
+
+[0:00] What is a better clickthrough rate? 10% or 4%. 10%. Right? Because when 10 out of 100 people
+click, that's better than when four out of 100 click. But the 4% clickthrough rate video had 300,000
+views. The 10% clickthrough rate video had only 7,000. [clears throat] And it could as well have
+been the other way around. So 7,000 views with 4% clickthrough rate. But the truth is that the
+height of the clickthrough rate doesn't say anything whether the video gets a lot of views or not.
+And comparing clickthrough rates between
+
+[0:31] videos is about the most useless thing you can do. And yes, it's true. Clickthrough rate is a
+huge factor for the algorithm to decide if it should promote your video, yes or no. But CTR
+fluctuates all the time. Let's say that this is your YouTube video that you release and this is your
+audience. These are groups of people. These lines are stick figures. I got bored of drawing stick
+figures. What happens when you release a video? You will release a video first of all to your
+subscribers.
+
+[1:02] If your subscribers react well, then it will promote your video to more people. YouTube tests
+what the reaction is of those people. If they don't react very well, then it won't promote it
+anymore to these people, but these and these groups of people react very well. So, it goes and
+promote the video further to a bigger audience. When they react very well then it goes further. When
+they don't react, they don't react and they don't react. Only the path continues
+
+[1:32] here. Same here. It goes well and it will promote it further. But here it is not received
+very well. How does YouTube measure if a video does very well? Well, that is by the amount of click-
+through rate amongst other things. But the problem is that when it promotes your video to this group
+of people, your CTR goes down. When it promotes to this group of people, it goes up. To this group
+of people, [music] it goes up, up,
+
+[2:03] up, down, down, down, down. This is the CTR that you see fluctuate over and over and over
+again in your YouTube analytics. That number changes all the time. So you can't really derive a
+certain conclusion from a number on a certain day in YouTube analytics. But the funny thing is when
+your video is promoted to a bigger group of people, that means that it also includes people that are
+less interested. That means that every single time that your video is promoted to a bigger group of
+people,
+
+[2:34] then your CTR goes down. So you have maybe for example a CTR here of 15% uh here of 12% here
+10% here 5% and here it dips to 1% for example that means that your clickthrough rate goes down when
+your videos get bigger and bigger and bigger on YouTube that means that if you have more views that
+your clickthrough rate overall is lower and we can see
+
+[3:06] this happening In our 300k views video that I used as an example in the beginning of this
+video, you can see that the clickthrough rate over here was actually pretty high. It was around 10%
+even. But suddenly over here in the beginning of November, it took a nose dive. And we can explain
+the nose in click-through rate by looking at our views graph because this shows us that at the same
+date that the clickthrough rate went down that our views went up. And not a little bit. it spiked.
+But
+
+[3:37] this also explains why you have a high clickthrough rate. For example, I have a clickthrough
+rate here of 12%. But YouTube, let's say that this group of people doesn't react. So, it can't
+promote the video any further because the next group of people are not into the video. And
+especially for small channels, your click-through rate is all over the place. Your sample size is
+simply smaller. Two or three views can make the difference between a super high clickthrough rate
+and a super low clickthrough rate. And drawing conclusions based on statistically
+
+[4:08] insignificant data is pretty dangerous. Clickthrough rate is calculated based on impressions.
+But not every single impression is counted. Most notably, what they don't count are external apps
+and websites, the YouTube mobile website, a couple of YouTube apps, impressions from end screens and
+cards. They use a separate metric for that, videos that play in the background, and thumbnails that
+are shown less than 50% or less than a second. When you want to
+
+[4:40] compare click-through rates, you also have to take into consideration the traffic sources and
+the amount of traffic that is coming from that source compared to the other video. I have here three
+videos with all different click-through rates in the same time span. The first video has a
+clickthrough rate of 3.6%, the second 10.5, and the third 5.2. Can you see that all three videos
+have different traffic sources that drive the most views? The first one is the end screen which
+drives 26% of the traffic but the impressions aren't
+
+[5:10] counted as I said earlier. The second one is external which drives 45% of the traffic which
+is pretty significant for a video but the impressions aren't counted. And the third video is
+suggested which drives 47% of the traffic and impressions are counted in this video. The same
+applies to the rest of the traffic sources of course. Looking at the views, the first video has only
+a click-through rate of 3.6% but had 1618 views. The second video
+
+[5:40] 10.5% click-through rate but had only 289 views. Can you really compare these average click-
+through rates? I'll take that 3.6%. And by the way, if you want more views on your YouTube videos
+instead of higher clickthrough rates, I can help you in my coaching program, The Cheat Code. Because
+the program is basically a cheat code for your YouTube career. You can shave off two or three years
+because I already made all your mistakes for you on my other channels over the last 10 years. A link
+to book a
+
+[6:10] discovery call is in the description. And back to click-through rate, it highly depends on
+your audience. A broad audience topic like humor or talk shows probably have lower click-through
+rates than let's say a video about music production simply because the audience is bigger. Also,
+viewers might not be into the topic of your video. You might have the best thumbnail in the world,
+but if viewers won't click, your click-through rate is low, but that doesn't mean that your
+thumbnail is bad.
+
+[6:40] Therefore, how strong a video idea is influences click-through rate heavily. Mark Robber's
+video with the squirrel obstacle course leans heavily on the video idea, but the title and thumbnail
+communicate that idea very clearly and deliver a home run for a viral video. But I guess the click-
+through rate for that video is two maybe 3% because it's such a broad audience video. Clickthrough
+rate is highly relative to the competition and on that particular topic. So comparing click-through
+rates between videos doesn't make much sense.
+
+[7:12] You may have a lot of competition on one topic but not on the other which influence the CTR
+heavily on the same channel on the same audience. If the competition has a click-through rate of 6%
+[music] and you have 5% that is bad. And when the competition has a clickthrough rate of 4% and you
+have 5% that's good. But we don't know the clickthrough rate percentages of other videos. So is 5%
+good or is 5% bad? There is no way of knowing that. CTR
+
+[7:43] also changes over time. I have a video here with a pretty [music] consistent amount of views
+except for the Corona bump here and the startup phase here. You can see when I look at the
+impressions click-through rates that overall the clickthrough rate goes down. Another video with
+less consistent views. You can see here corona bump here and the baseline is a little bit higher but
+it goes down. The impressions clickthrough rate goes down overall.
+
+[8:13] another video with even less consistent views. The impressions click-through rate overall is
+going down. But click-through rate going down is not the case for every single video. And this had a
+chrona bump here, but overall somewhat consistent views. Then over here, when I look at the CTR, we
+can see that there is a little bit an upward trend here and it might even go down a little bit here.
+So, if you want to compare click-through rates, you should also take the age of the video into
+
+[8:43] consideration. So, is click-through rate completely useless? I don't think so. When you have
+a low click-through rate, let's say lower than 2% on a video and you have a low amount of views on a
+video, I do think that tells you something. I think that you probably need to take a look at your
+title and your thumbnail. And I think that the most reliable comparison you can do on the video
+itself because the audience stays somewhat the same and the competition stays somewhat the same. I
+do think that the click-through rate in the YouTube dashboard in the first 24
+
+[9:14] hours after releasing a video tells you something because it says something about how
+interested your existing audience is in the topic of your video and it tells you something about how
+willing they are to click on that video. But CTR being unreliable doesn't change the fact that
+better thumbnails will get you more views. In this video right here, I'll tell you exactly how you
+can hack the human brain and use some psychology to get more views on your YouTube videos. But I can
+also help you with your titles and thumbnails in my coaching program. The link to book a discovery
+call is in the description.

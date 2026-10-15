@@ -1,0 +1,6 @@
+# T-037 final CHECK — contrast
+# commit 9ce4be2; everything outside verification/ identical to that commit: yes; 2026-10-10T13:14:42Z
+$ node tools/verify-contrast.js
+
+PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+exit 0  (6s)

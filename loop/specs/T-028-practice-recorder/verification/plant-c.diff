@@ -1,0 +1,13 @@
+diff --git a/platform/js/app.js b/platform/js/app.js
+index a568d3c..bea0910 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4271,7 +4271,7 @@
+     } catch (e) {
+       if (rec !== pending) return;            // cancelled while the prompt was open
+       rec = null;
+-      return micGone();
++      return;   /* PLANT (c): no fallback when getUserMedia rejects */
+     }
+     // The prompt may have been open for a while. If the reader pressed again,
+     // left the page or picked another tab meanwhile, this start is cancelled:

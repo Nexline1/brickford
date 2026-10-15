@@ -1,0 +1,86 @@
+# Plant (e): check options that can be answered by length
+# 2026-10-10T13:10:39Z, commit 4cf3a74. The SPCH check options of 97d2e13 (before fix 2; every fix-1 lesson already installed) are put back into the current storytelling.js; nothing else changes.
+
+## The plant
+$ node /tmp/claude-0/-home-user-brickford/e8e314d5-7130-5570-8abd-d441eaf954df/scratchpad/plant/e.js
+restored the pre-fix options of 440 SPCH checks
+$ git status --short (outside verification/)
+ M platform/data/storytelling.js
+$ git diff --stat; git diff
+ platform/data/storytelling.js | 880 +++++++++++++++++++++---------------------
+ 1 file changed, 440 insertions(+), 440 deletions(-)
+diff --git a/platform/data/storytelling.js b/platform/data/storytelling.js
+index 1ef5592..5356b54 100644
+--- a/platform/data/storytelling.js
++++ b/platform/data/storytelling.js
+@@ -416,11 +416,11 @@ Object.assign(DAR.SUMMARIES, {
+     watch: "Waiting for something dramatic before writing anything down. The practice depends on logging the ordinary; skipping the 'boring' days is exactly what keeps the lens from sharpening.",
+     concepts: [],
+     checks: [
+-      { q: "What question does Dicks ask himself each night?", opts: ["What was the most dramatic thing that happened to me today, worth a full story?", "What was the most story-like moment of today, if I had to tell a story from it?", "What did I learn today that I could teach in a five-minute talk?", "Which conversation today would make the funniest story at dinner?"], a: 1,
++      { q: "What question does Dicks ask himself each night?", opts: ["What did I achieve today?", "If I had to tell a five-minute story from something that happened today, what was the most story-like moment?", "What was the worst thing that happened today?", "What should I do better tomorrow?"], a: 1,
+         expl: "The words 'as benign as it might be' matter: the point is the best moment of an ordinary day." },
+-      { q: "Why doesn't he write the whole story down?", opts: ["It would be too much work, and he would stop doing it", "Writing it out would fix the story before it was ready", "He keeps the full stories in a separate notebook instead", "Stories should be told aloud, never written"], a: 0,
++      { q: "Why doesn't he write the whole story down?", opts: ["It would be too much, and he would stop doing it", "Writing kills spontaneity", "The Moth forbids notes", "He records audio instead"], a: 0,
+         expl: "He says outright that writing the story would be too much. A sentence or two keeps the habit alive." },
+-      { q: "Which effect of the practice did he not expect?", opts: ["Winning more StorySLAMs with smaller, quieter stories", "Sleeping better after writing each night", "Time slowing down, so days stop disappearing", "Finding his dramatic stories went down better"], a: 2,
++      { q: "Which effect of the practice did he not expect?", opts: ["Winning more StorySLAMs", "Better spelling", "Time slowing down, so days stop disappearing", "Becoming a teacher"], a: 2,
+         expl: "He calls it a magical elixir: the days creep by, and none is lost." },
+     ],
+   },
+@@ -439,11 +439,11 @@ Object.assign(DAR.SUMMARIES, {
+     watch: "Assuming good content is enough. Correct words said in the wrong voice are not effective, and listeners decide on confidence and trust within seconds.",
+     concepts: [],
+     checks: [
+-      { q: "Besides visual image, what makes up the other half of a first impression?", opts: ["Your verbal content — the words you choose to say first", "Your vocal image — what people conclude when you speak", "Your body language — what people read in how you stand", "Your credentials — what people know about you beforehand"], a: 1,
++      { q: "Besides visual image, what makes up the other half of a first impression?", opts: ["Your vocabulary", "Your vocal image — what people conclude when you speak", "Your handshake", "Your credentials"], a: 1,
+         expl: "He splits the first impression roughly fifty-fifty between visual image and vocal image." },
+-      { q: "What does the 'great career path' demonstration show?", opts: ["The same words can mean opposite things, depending on how they're said", "Sarcasm is the hardest tone to read, so avoid it at work", "Praise sounds false unless it names something specific about the person", "Listeners believe the words over the tone when the two disagree"], a: 0,
++      { q: "What does the 'great career path' demonstration show?", opts: ["Identical words can carry opposite meanings depending on how they are said", "Career advice should be specific", "Sarcasm never works", "Short sentences are clearer"], a: 0,
+         expl: "The same sentence came out amazed, sarcastic, defeated and disappointed." },
+-      { q: "Why make one video a month?", opts: ["To build an archive of clips you can post on social media", "To compare your voice with the speakers you've chosen as models", "To make otherwise invisible progress visible, one marker a month", "To replace live practice, which is hard to schedule every week"], a: 2,
++      { q: "Why make one video a month?", opts: ["To build a following", "To practise editing", "To create markers that make otherwise invisible progress visible", "To replace live practice"], a: 2,
+         expl: "Progress in communication is hard to see; twelve markers a year make it visible and keep you going." },
+     ],
+   },
+@@ -463,13 +463,13 @@ Object.assign(DAR.SUMMARIES, {
+     watch: "Thinking out loud — listing points as they occur to you. It says far more than needed and leaves the listener with nothing they can remember.",
+     concepts: [],
+     checks: [
+-      { q: "According to Abrahams, what is the wrong place to start small talk?", opts: ["Asking the other person an open question", "Commenting on something in your surroundings", "Feeling that you must be interesting", "Saying 'tell me more' before they have finished"], a: 2,
++      { q: "According to Abrahams, what is the wrong place to start small talk?", opts: ["Asking a question", "Commenting on your surroundings", "Feeling that you must be interesting", "Saying 'tell me more'"], a: 2,
+         expl: "The pressure to be interesting is the problem; being interested is the fix." },
+-      { q: "What does ADD stand for?", opts: ["Answer, give a Detailed example, Describe why it matters", "Ask a question back, Discuss it, then Decide together", "Agree with the point, Deflect, then Defer to the expert", "Address the asker, Define your terms, Deliver the answer"], a: 0,
++      { q: "What does ADD stand for?", opts: ["Answer, give a Detailed example, Describe why it matters", "Ask, Discuss, Decide", "Agree, Deflect, Defer", "Attention, Desire, Demand"], a: 0,
+         expl: "He uses it for Q&A — answer, example, relevance — and demonstrates it on a mock interview question." },
+-      { q: "How does he reduce filler words like 'um'?", opts: ["Speaking a little faster, so there is no gap left to fill", "Memorising the opening so the first words come without 'um'", "Pausing deliberately before each new point while holding your breath", "Finishing each thought out of breath, so the inhale becomes a pause"], a: 3,
++      { q: "How does he reduce filler words like 'um'?", opts: ["Speaking faster", "Memorising the talk", "Never pausing", "Finishing each thought out of breath, so the inhale becomes a pause"], a: 3,
+         expl: "You cannot say 'um' while breathing in, so the pause replaces the filler." },
+-      { q: "In small talk, roughly what share of turns should support the other person's topic?", opts: ["About a third, so that you lead the conversation", "About half, so neither person dominates", "Roughly two-thirds to three-quarters of them", "Every turn, so you never change the subject"], a: 2,
++      { q: "In small talk, roughly what share of turns should support the other person's topic?", opts: ["About a tenth", "About half", "About two-thirds to three-quarters", "Every single turn"], a: 2,
+         expl: "The rest are shifting turns, which move the topic or the focus." },
+     ],
+   },
+@@ -489,9 +489,9 @@ Object.assign(DAR.SUMMARIES, {
+     checks: [
+       { q: "Which prompt forces cause and effect?", opts: ["Once upon a time", "Every day", "Because of that", "Until finally"], a: 2,
+         expl: "If 'and then' would work just as well, the story has gone slack at that point." },
+-      { q: "What does the spine give you before any details?", opts: ["A wireframe or outline of the whole story", "A cast of characters and what each one wants", "The final line, so you know where to stop", "A title and a theme to build the scenes on"], a: 0,
++      { q: "What does the spine give you before any details?", opts: ["A wireframe or outline of the whole story", "A cast of characters", "A final line", "A title"], a: 0,
+         expl: "Details come afterwards, chosen to push toward the ending." },
+-      { q: "What ordinary story does the video suggest practising on?", opts: ["A film you watched last week", "Your CV, told as a career story", "A family wedding", "Going to the grocery store"], a: 3,
+
+## The gates, on the planted bytes
+$ node tools/verify-content.js
+  FAIL SPCH checks: the answer is the unique longest option in 442 of 513 — at most about a third (171) may be, or the checks can be passed by picking the longest option
+1 of 32354 checks FAILED
+1 of 32354 checks FAILED
+exit 1
+
+## Restore
+cmp platform/data/storytelling.js: identical to the saved copy
+git status outside verification/: clean
+git diff HEAD outside verification/: none
+$ node tools/verify-content.js   (restored)
+PASS — 32354 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 414 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0

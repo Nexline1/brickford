@@ -1,0 +1,3 @@
+# typecheck (at 5a595a9)
+all files pass node --check
+exit 0

@@ -1,0 +1,13 @@
+diff --git a/platform/js/app.js b/platform/js/app.js
+index a568d3c..5bba7fd 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -4363,7 +4363,7 @@
+         { date: iso, keeper: k >= 1 && k <= 5 ? k : 0 });
+       msg = "Logged, " + clockLabel(r.seconds) + " recorded.";
+     } else {
+-      logRep("story", { date: iso, seconds: r.seconds, takes: 1, from: title }, { date: iso, seconds: r.seconds });
++      /* PLANT (a): the clip is not logged as a rep */
+       msg = r.seconds <= 90 ? "Logged, and inside 90s." : "Logged — " + r.seconds + "s. The cap is 90.";
+     }
+     if (!(isRestDay(iso) && iso >= D.START_DATE)) save();

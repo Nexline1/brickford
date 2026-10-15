@@ -1,0 +1,51 @@
+# Plant (d): a schedule change that moves another course's date (variant 1: depends on storytelling being loaded)
+# 2026-10-09T18:10:13Z, commit 796ef6a. The natural mistake when lengthening SPCH: 'make room for it' by carving 10 effort-minutes out of the Build block whenever the storytelling course is loaded. The AI spine (ai200/ai210) then packs differently and its dates move. Two gates: tools/verify-logic.js (the standing isolation check added in T-037) and the before/after date-map diff (first three moved lessons shown, cut to 150 characters). TMPDIR_P is a scratch directory.
+
+## The plant
+$ python3 -I /tmp/claude-0/-home-user-brickford/e8e314d5-7130-5570-8abd-d441eaf954df/scratchpad/plant/d1.py
+$ git status --short (outside verification/)
+ M platform/js/app.js
+$ git diff --stat; git diff
+ platform/js/app.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f73b70e..a25d598 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -1009,7 +1009,7 @@
+     // ~1.5h block: short primer videos pair up; a 2h+ Karpathy build spans
+     // several days ("day 2 of 4"). Future days re-anchor if you work ahead.
+     const spineFlat = flatLessons("ai200").concat(flatLessons("ai210"));
+-    const bw = windowFor("b:spine", spineFlat, BUILD_BUDGET, d, dT < 0 ? -1 : dT);
++    const bw = windowFor("b:spine", spineFlat, BUILD_BUDGET - (D.COURSES.some(c => c.id === "spch100") ? 10 : 0), d, dT < 0 ? -1 : dT);
+     let buildAdded = false;
+     if (bw) {
+       bw.idxs.forEach(k => items.push(Object.assign({ track: "Build", dayN: bw.dayN, spanN: bw.spanN }, spineFlat[k])));
+
+## The gates, on the planted bytes
+$ node tools/verify-logic.js
+  FAIL  removing storytelling moves no other lesson or block — 59 day(s) differ, first 2026-10-07: Theory:math130.0.0 | Build:ai200.1.0#1/4  vs without SPCH: Theory:math130.0.0 | Build:ai200.1.0#1/3
+1 of 27 invariant(s) FAILED
+1 of 27 invariant(s) FAILED
+exit 1
+
+$ node loop/specs/T-037-spch100-full-course/verification/date-map.js platform $TMPDIR_P/dm.json > /dev/null && node loop/specs/T-037-spch100-full-course/verification/date-map.js --diff loop/specs/T-037-spch100-full-course/verification/date-map-before.json $TMPDIR_P/dm.json > $TMPDIR_P/dm.out; rc=$?; grep -m3 '  MOVED' $TMPDIR_P/dm.out | cut -c1-150; grep -v '  MOVED' $TMPDIR_P/dm.out; exit $rc
+  MOVED non-SPCH lesson ai200.1.0: ["2026-10-07#1/3@Build","2026-10-08#2/3@Build","2026-10-09#3/3@Build"] -> ["2026-10-07#1/4@Build","2026-10-08#2/4@B
+  MOVED non-SPCH lesson ai200.1.1: ["2026-10-11#1/3@Build","2026-10-12#2/3@Build","2026-10-13#3/3@Build"] -> ["2026-10-12#1/3@Build","2026-10-13#2/3@B
+  MOVED non-SPCH lesson ai200.1.2: ["2026-10-14#1/2@Build","2026-10-15#2/2@Build"] -> ["2026-10-15#1/2@Build","2026-10-16#2/2@Build"]
+DIFF  non-SPCH lesson: 324 keys, 19 differ
+DIFF  pseudo block: 1689 keys, 6 differ
+RESULT: 25 group(s) differ
+RESULT: 25 group(s) differ
+exit 1
+
+## Restore
+cmp platform/js/app.js: identical to the saved copy
+git status outside verification/: clean
+git diff HEAD outside verification/: none
+$ node tools/verify-logic.js   (restored)
+PASS — 27 invariants hold
+exit 0
+$ node loop/specs/T-037-spch100-full-course/verification/date-map.js platform $TMPDIR_P/dm.json > /dev/null && node loop/specs/T-037-spch100-full-course/verification/date-map.js --diff loop/specs/T-037-spch100-full-course/verification/date-map-before.json $TMPDIR_P/dm.json > $TMPDIR_P/dm.out; rc=$?; grep -m3 '  MOVED' $TMPDIR_P/dm.out | cut -c1-150; grep -v '  MOVED' $TMPDIR_P/dm.out; exit $rc   (restored)
+RESULT: identical — no non-SPCH date, pseudo block, seed lesson, start, day 1094 or baseline moved
+exit 0

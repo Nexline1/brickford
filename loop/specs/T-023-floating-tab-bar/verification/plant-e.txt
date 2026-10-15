@@ -1,0 +1,74 @@
+# Plant e — 2026-10-07T17:08:10Z on 6d638bb
+## diff
+diff --git a/platform/css/style.css b/platform/css/style.css
+index 633c597..d81a856 100644
+--- a/platform/css/style.css
++++ b/platform/css/style.css
+@@ -1886,7 +1886,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
+    it stays the edge-to-edge bar above. */
+ @media (max-width: 860px) {
+   .railbar {
+-    left: 14px; right: 14px; bottom: calc(var(--tabbar-h) + 8px);
++    left: 0; right: 0; bottom: calc(var(--tabbar-h) + 8px);
+     min-height: 60px; padding: 7px 8px 7px 16px; border-radius: 22px;
+     background: color-mix(in srgb, var(--surface) 78%, transparent);
+     -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+## node tools/verify-design.js
+status bar (read from platform/css/style.css)
+hairlines (read from platform/css/style.css)
+390px light
+390px dark
+1280px light
+1280px dark
+empty tracks, 390px light
+empty tracks, 390px dark
+Auto theme
+T-024: the default theme
+T-024: the navy switch
+T-024: the theme before the first paint
+T-025: no glow, no decoration
+calendar cellPick
+nav bar, 390px light
+nav bar, 390px dark
+tab bar and sidebar, light
+    1
+    1 #6e6b65
+tab bar and sidebar, dark
+    1
+    1 #8e8e93
+floating tab bar, light
+  FAIL  390px light Next card: the capsule's insets (+/-1) — left -14.0, right -14.0 from the capsule's
+  FAIL  320px light Next card: the capsule's insets (+/-1) — left -14.0, right -14.0 from the capsule's
+floating tab bar, dark
+  FAIL  390px dark Next card: the capsule's insets (+/-1) — left -14.0, right -14.0 from the capsule's
+  FAIL  320px dark Next card: the capsule's insets (+/-1) — left -14.0, right -14.0 from the capsule's
+reduced transparency, light
+reduced transparency, dark
+more contrast, light
+more contrast, dark
+the inline title under reduced motion
+scrolling a lesson page
+lists, 390px light
+  n/a   390px light /workshop: no .glist on this route
+lists, 390px dark
+  n/a   390px dark /workshop: no .glist on this route
+lists, 1280px light
+  n/a   1280px light /workshop: no .glist on this route
+lists, 1280px dark
+  n/a   1280px dark /workshop: no .glist on this route
+the keyboard ring, 390px light
+the keyboard ring, 390px dark
+the keyboard ring, 1280px light
+the keyboard ring, 1280px dark
+press, light
+press, dark
+thumbnails, 390px light
+thumbnails, 390px dark
+thumbnails, 1280px light
+thumbnails, 1280px dark
+thumbnails that load, 390px light
+thumbnail contrast, light
+thumbnail contrast, dark
+FAIL — 4 of 704 design checks failed
+## exit code: 1
+## restored: cmp identical, git diff clean

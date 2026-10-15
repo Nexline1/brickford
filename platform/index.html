@@ -1,15 +1,51 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <!-- Home-screen install. Every path here is RELATIVE: the site is served from a
      subpath (…/brickford/platform/), so a leading slash would resolve to the
      domain root and 404. -->
-<!-- One colour, both schemes: the browser chrome should read as Brickford's
-     panel, which is what the sidebar and the app icon already are. -->
-<meta name="theme-color" content="#2b2118">
-<link rel="manifest" href="manifest.json?v=20260925h">
+<!-- theme-color follows --panel, the sidebar's solid fill, for the status bar
+     and the app icon. This is the default (dark) theme's --panel; the script
+     below swaps in the stored theme's before the first paint, and
+     applyTheme() in app.js keeps it. -->
+<meta name="theme-color" content="#000000">
+<!-- The theme, before the first paint (T-024). app.js is deferred behind the
+     KaTeX CDN, so the static data-theme above would paint on its own until it
+     ran: every device with "light" stored would flash dark and then flip to
+     light. This reads the stored pick — READ ONLY, nothing is written — and
+     resolves it the way app.js does: a stored "light" without the
+     themeNavyOnce marker is the old default and paints dark (the T-024
+     switch, see app.js load), "auto" follows the phone, unset is the dark
+     default, and anything that is not a theme any more (parchment, forest,
+     midnight, latte, slate, or any unknown string; T-025) paints dark. The
+     stored value is left as it is until the next pick from the menu.
+     PANEL is each theme's --panel in css/style.css; tools/verify-design.js
+     checks the map against the stylesheet, so the two cannot drift apart. -->
+<script>
+(function () {
+  var PANEL = { light: "#2b2118", dark: "#000000" };
+  var pick;
+  try {
+    var st = (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {});
+    pick = st.theme;
+    // The T-024 switch, as app.js applies it at load: a stored "light"
+    // without the per-device marker is the old default, and paints dark.
+    if (pick === "light" && !st.themeNavyOnce) pick = null;
+  } catch (e) { pick = null; }
+  pick = pick || "dark";
+  var theme = pick === "auto"
+    ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : pick;
+  // A removed theme or any unknown string is dark (T-025).
+  if (!Object.prototype.hasOwnProperty.call(PANEL, theme)) theme = "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", PANEL[theme]);
+})();
+</script>
+<link rel="manifest" href="manifest.json?v=20261014d">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -20,40 +56,39 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20260925h">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20260925h">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261014d">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261014d">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20260925h">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20260925h">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20260925h">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261014d">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261014d">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261014d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Libre Caslon Text for display, the system face for body, JetBrains Mono for
-     figures. Caslon is the face English university presses set their books in,
-     and it is what gives this thing an age; the body was Inter, which is the
-     default of every generated interface on the web and reads as exactly that.
-     Two web fonts instead of three, and the one that carries the most text is
-     now the platform’s own — SF on his phone — which ships optical sizing and
-     tracking tables no webfont here can match (apple-design 15). -->
-<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Every heading, label and number is the platform's own face (SF on his
+     phone), so the only web font left is JetBrains Mono, and it is for code
+     only (library documents and the record's hashes). Libre Caslon Text went
+     with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20260925h">
+<link rel="stylesheet" href="css/style.css?v=20261014d">
 </head>
 <body>
 
-<!-- The phone's running head. Desktop hides it outright: there the sidebar is
-     the frame and the page carries its own folio.
+<!-- The phone's nav bar (T-006). Desktop hides it outright: there the sidebar
+     is the frame and the page carries its own folio.
+     Three columns, the way iOS draws one: the menu button, the page's name, and
+     a capsule with the day and week. The page's own h1 is the large title in
+     the flow below; the name here stays transparent until that title has
+     scrolled under the bar. mountTopbar() fills it from the rendered view and
+     watchTopbar() decides when the name and the bottom hairline show.
      It exists because the menu button used to be position:fixed with nothing
      behind it, floating over whatever happened to be underneath — on a lecture
-     it landed in the breadcrumb and broke "MATH 110" in half. The bar gives it
-     somewhere to live, and carries the running head that the folio was showing
-     anyway, so it costs no height. mountTopbar() fills it from the rendered
-     view. -->
+     it landed in the breadcrumb and broke "MATH 110" in half. -->
 <header class="topbar" id="topbar">
   <button class="menu-btn" id="menuBtn" aria-label="Open navigation">
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h14M2 9h14M2 14h14"/></svg>
@@ -61,6 +96,9 @@
   <span class="tb-title" id="tbTitle"></span>
   <span class="tb-meta" id="tbMeta"></span>
 </header>
+<!-- Empty, and directly under the bar in the flow: when it has scrolled under
+     the bar, content is under the bar, and the bar shows its scroll edge. -->
+<div id="tbSentinel" aria-hidden="true"></div>
 
 <div class="shell">
   <aside class="sidebar" id="sidebar">
@@ -122,13 +160,11 @@
 
     <div class="sidebar-foot">
       <div class="theme-menu" id="themeMenu">
-        <button data-theme-pick="light"><span class="swatch" style="background:#fcfcfd;"></span>Paper</button>
-        <button data-theme-pick="parchment"><span class="swatch" style="background:linear-gradient(90deg, #2b2118 34%, #f8f4ec 34%);"></span>Parchment</button>
-        <button data-theme-pick="dark"><span class="swatch" style="background:#171b21;"></span>Dark</button>
-        <button data-theme-pick="latte"><span class="swatch" style="background:linear-gradient(90deg, #faf7f0 50%, #2c2115 50%);"></span>Latte</button>
-        <button data-theme-pick="forest"><span class="swatch" style="background:#2f6b43;"></span>Forest</button>
-        <button data-theme-pick="midnight"><span class="swatch" style="background:#151c2b;"></span>Midnight</button>
-        <button data-theme-pick="slate"><span class="swatch" style="background:#ffffff;"></span>Slate</button>
+        <!-- Three choices (T-025): Auto follows the phone's light/dark setting,
+             live, and is stored as the string "auto"; Dark is the default. -->
+        <button data-theme-pick="auto"><span class="swatch" style="background:linear-gradient(90deg, #f2f1ee 50%, #0e0e10 50%);"></span>Auto</button>
+        <button data-theme-pick="dark"><span class="swatch" style="background:#0e0e10;"></span>Dark</button>
+        <button data-theme-pick="light"><span class="swatch" style="background:#f2f1ee;"></span>Light</button>
       </div>
       <button class="navrow" id="themeBtn">
         <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 3 A7 7 0 0 1 10 17 Z" fill="currentColor" stroke="none"/></svg>
@@ -161,6 +197,7 @@
 <div class="railbar" id="railbar" aria-hidden="false"></div>
 
 <nav class="tabbar" id="tabbar" aria-label="Quick navigation">
+  <span class="tab-bubble" aria-hidden="true"></span>
   <a href="#/" data-route="/">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10 L10 3 L17 10 M5 8.5 V17 H15 V8.5"/></svg>
     Home
@@ -180,6 +217,7 @@
   <a href="#/review" data-route="/review">
     <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10 A6.5 6.5 0 1 1 14 4.9 M16.5 2.5 V5.5 H13.5"/><path d="M7 10.2 L9.2 12.4 L13.2 8.4"/></svg>
     Review
+    <span class="tab-badge" id="tabBadge" aria-hidden="true" hidden></span>
   </a>
 </nav>
 
@@ -188,27 +226,31 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20260925h"></script>
-<script defer src="js/figures.js?v=20260925h"></script>
-<script defer src="js/lab.js?v=20260925h"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20260925h"></script>
-<script defer src="data/summaries-math110.js?v=20260925h"></script>
-<script defer src="data/summaries-math110-mit.js?v=20260925h"></script>
-<script defer src="data/summaries-math120.js?v=20260925h"></script>
-<script defer src="data/summaries-math130.js?v=20260925h"></script>
-<script defer src="data/summaries-phys100.js?v=20260925h"></script>
-<script defer src="data/summaries-math210.js?v=20260925h"></script>
-<script defer src="data/summaries-sys250.js?v=20260925h"></script>
-<script defer src="data/workshop.js?v=20260925h"></script>
-<script defer src="data/storytelling.js?v=20260925h"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20260925h"></script>
-<script defer src="data/quiz-calculus.js?v=20260925h"></script>
-<script defer src="data/quiz-probability.js?v=20260925h"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20260925h"></script>
-<script defer src="data/quiz-dsa.js?v=20260925h"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20260925h"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20260925h"></script>
-<script defer src="js/quiz-engine.js?v=20260925h"></script>
-<script defer src="js/app.js?v=20260925h"></script>
+<script defer src="data/curriculum.js?v=20261014d"></script>
+<script defer src="js/figures.js?v=20261014d"></script>
+<script defer src="js/lab.js?v=20261014d"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261014d"></script>
+<script defer src="data/summaries-math110.js?v=20261014d"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261014d"></script>
+<script defer src="data/summaries-math120.js?v=20261014d"></script>
+<script defer src="data/summaries-math130.js?v=20261014d"></script>
+<script defer src="data/summaries-phys100.js?v=20261014d"></script>
+<script defer src="data/summaries-math210.js?v=20261014d"></script>
+<script defer src="data/summaries-sys250.js?v=20261014d"></script>
+<script defer src="data/summaries-ai200.js?v=20261014d"></script>
+<script defer src="data/summaries-ai210.js?v=20261014d"></script>
+<script defer src="data/summaries-ai310.js?v=20261014d"></script>
+<script defer src="data/summaries-res400.js?v=20261014d"></script>
+<script defer src="data/workshop.js?v=20261014d"></script>
+<script defer src="data/storytelling.js?v=20261014d"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261014d"></script>
+<script defer src="data/quiz-calculus.js?v=20261014d"></script>
+<script defer src="data/quiz-probability.js?v=20261014d"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261014d"></script>
+<script defer src="data/quiz-dsa.js?v=20261014d"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261014d"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261014d"></script>
+<script defer src="js/quiz-engine.js?v=20261014d"></script>
+<script defer src="js/app.js?v=20261014d"></script>
 </body>
 </html>

@@ -1,33 +1,34 @@
 /* ============================================================
    Brickford — Design System
-   Espresso ink on cream paper. A register, not an app: the
-   content is ruled, not carded — head rules, hairlines between
-   entries, numbers in a right-aligned column, square corners,
-   nothing floating. Serif display, quiet motion.
-   Light is the default mode; dark is the roast.
+   A premium, iOS-native app, phone first and desktop too. The
+   owner chose this on 25 Sep 2026; the full intent, the target
+   tokens and the screen roadmap are in loop/design/brief.md, and
+   where this file and the brief disagree, the brief wins.
 
-   The cards went on 20 Sep 2026. Rounded white slabs with a
-   shadow are an iOS grouped list, which is a good structure
-   wearing the wrong clothes for a university — and cream plus a
-   high-contrast serif plus a warm accent is, by 2026, the single
-   most over-produced generated look there is. The structure did
-   not change; the box did. A ruled run is a table, a boxed item
-   is a figure, and those are the only two surfaces left.
+   What that means here: the phone's own font, headings sized and
+   tracked the way iOS text styles are (a rem ramp, so a larger
+   text setting scales the whole layout), rounded corners from one
+   radius scale, flat control fills with no key-cap gloss, one soft
+   shadow kept for the things that truly float, and light and dark
+   that can follow the phone (the Auto theme).
 
-   That description is the original intent, and for a long time it
-   was not what the file did: the neutrals had drifted to a cool
-   grey (#fcfcfd paper, #14181f panel, #7fb0e6 crest) and the
-   display face was a grotesque, not a serif. The result was a
-   competent modern dashboard with a university's crest on it —
-   and the app icon shipped gold-on-brown while the crest inside
-   the app was light blue, so the home screen and the app did not
-   even agree with each other.
+   It replaces an earlier stance, "a register, not an app": ruled
+   content, square corners and a Libre Caslon serif display face.
+   The STRUCTURE that stance produced stays — one primary action
+   per screen, a list for anything that repeats, numbers in a
+   right-hand column — and so does the brand: navy and gold, and
+   the crest. Only the clothes change, and they change screen by
+   screen (T-006 onward); this file's foundations change first.
 
-   The neutrals are warm again (cream paper, espresso ink), the
-   panel is the icon's own #2b2118, the crest is the icon's own
-   gold, and the display face is Libre Caslon Text — the face
-   English university presses set their books in. Every value
-   still clears 4.5:1; that is checked, not asserted.
+   What does not change, ever: every ink is a SOLID colour, never
+   an alpha; every text pair clears 4.5:1 in every theme (Light and
+   Dark since T-025), and that is checked by tools/verify-contrast.js,
+   not asserted; the dark --panel may be painted by the sidebar and
+   the tab bar and nothing else (docs/CONTENT-STANDARD.md) — and
+   since T-025 the sidebar paints it again, as a solid fill.
+   tools/verify-design.js asserts the tokens below on real
+   elements, so a later change cannot quietly put the serif, the
+   square corner or the dark slab back.
    ============================================================ */
 
 :root {
@@ -42,20 +43,36 @@
      failure hides: the same token passes on one surface and fails on the next,
      so nobody can check it by reading the stylesheet. Each value below was
      solved against the worst surface it can land on and clears 4.5:1 there. */
-  --bg: #faf9f6;
+  /* The lead pair, light half: loop/design/brief.md §3. A warm grouped
+     background rather than iOS's cool #f2f2f7, white cells on it. */
+  --bg: #f2f1ee;          /* grouped page background */
   --bg-2: #f2f0ea;        /* section bands — how sections separate */
-  --surface: #ffffff;     /* cards */
-  --surface-2: #f7f5f0;
-  --float: #ffffff;
-  --line: #e4e0d8;
+  --surface: #ffffff;     /* cells, cards */
+  --surface-2: #f7f6f3;   /* gray fills, pressed cells */
+  /* The lightest surface, for the few things drawn over the page (the chart
+     tooltip). It was called --float until --float became the shadow below. */
+  --surface-float: #ffffff;
+  --line: #dcdad5;        /* hairline separators; not text */
   --line-strong: #c7c0b3;
-  --ink: #1c1a17;
-  --ink-2: #4f4941;
-  --ink-3: #6b645a;
-  /* An ink navy, not a link blue. #1f4e79 was a mid-saturation web blue and on
-     cream paper beside a gold crest it read as a hyperlink colour; this reads as
-     ink. Navy and gold is also the oldest university pairing there is. */
-  --accent: #23405f;      /* actions and links ONLY — under 5% of pixels */
+  --ink: #111111;         /* primary label */
+  --ink-2: #5c5a55;       /* secondary label */
+  --ink-3: #6e6b65;       /* tertiary — still text, so still 4.5:1 */
+  /* Navy and gold is the oldest university pairing there is, and the brand
+     keeps it: the tint stays in the navy family. */
+  --accent: #1e4f8f;      /* tint: links, the active tab, tinted-button labels */
+  /* The filled button and the done-day fill. Its label is --accent-fill-ink:
+     white here (8.2:1); dark's button is light, so its label is dark. */
+  --accent-fill: #1e4f8f;
+  /* The tinted-button fill; its label is --accent (6.9:1). */
+  --accent-soft: #e6edf6;
+  /* The crest, the streak and achievement moments. Never an action. */
+  --gold: #8a5f12;
+  /* --accent-fill is set for the lead pair only; the other five themes
+     inherit the light value until T-008 paints with it. --accent-soft is the
+     sidebar's selection pill since T-006, so every theme sets its own (its
+     accent at 10-12% into its --surface, label >= 5.3:1). --gold is the crest
+     since T-006: the four light themes read this value (5.6:1 on white), and
+     the three dark ones set their own (8.1:1 and up on their --surface). */
   /* SECONDARY ACTION, not a second success colour. This was #26665f — the
      identical hex to --fac-sys, and 26 away from --good — so "Partly done"
      rendered in a green that sat next to a green "✓ Completed". It is the
@@ -70,6 +87,10 @@
   --urgent: #9a5a16;
   --btn-bg: #241f1a;
   --btn-ink: #ffffff;
+  /* The label on a FILLED accent: the primary .btn (on --btn-bg), the toast,
+     anything painted --accent-fill (T-024). White on light's fills; dark's
+     button is light grey, so dark restates it as its own --btn-ink (T-025). */
+  --accent-fill-ink: #ffffff;
   /* Elevation, as a three-step scale instead of three unrelated ad-hoc values.
      Derived from --shade so all seven themes get it without restating it, and
      two-layer because a single blur reads as a smudge: a tight shadow gives the
@@ -84,44 +105,34 @@
   --e3: 0 4px 10px color-mix(in srgb, var(--shade) 10%, transparent),
         0 16px 36px color-mix(in srgb, var(--shade) 12%, transparent);
   --shadow-float: var(--e3);
-  /* ---------- Control depth ----------
-     Surfaces are paper; controls are objects sitting on it. The --e* scale
-     above was built for surfaces and went dead when the app flattened — this
-     is the same idea aimed at the only things that should still have depth,
-     the ones you press.
-
-     Two layers, and they do different jobs: a hard 1px edge, which is the
-     button's own thickness, and a soft ambient shadow, which is the light in
-     the room. Losing the hard edge is what makes a press read as a press —
-     without it a shadow is just a sticker. */
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 34%, transparent),
-          0 2px 5px color-mix(in srgb, var(--shade) 15%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 13%, transparent);
-  /* Light catching the top edge of a filled button (apple-design 12). The fill
-     is dark in this theme, so a white inset reads as a bevel. Themes whose
-     button is LIGHT on a dark page override this with an underside line
-     instead — a white gloss on a near-white key is invisible. */
-  --btn-gloss: inset 0 1px 0 color-mix(in srgb, #ffffff 17%, transparent);
-  /* A well: the inverse of --lift, and that inversion is the whole trick. A
-     raised thing is dark underneath and light on top; a sunken one is dark
-     along its TOP inside edge, where the wall casts into the recess, and light
-     along the bottom where the floor catches the light. Same two layers, read
-     upside down, so a field reads as something you drop text into rather than
-     a rectangle with a border round it. */
-  --sink: inset 0 1px 2px color-mix(in srgb, var(--shade) 15%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 65%, transparent);
-  /* An OUTLINED control has no fill to catch light, so on light paper a
-     highlight would light nothing and this is deliberately empty — the shadow
-     alone stands it off the page. On a dark page the opposite is true: a dark
-     shadow around a transparent button on a dark ground is invisible by
-     definition, so the dark themes give this a bright top edge and let light
-     do the work instead. */
+  /* The one soft shadow (brief §3), for the things that truly float: sheets,
+     menus, the hero card on desktop. Cards sit on --bg by contrast of fill,
+     not by shadow. The dark themes swap it for a 1px --line ring, because a
+     dark shadow on a black page is not a shadow. */
+  --float: 0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .08);
+  /* ---------- Control depth: flat ----------
+     These were a key-cap: a hard 1px edge and an ambient shadow under every
+     button (--lift, pressed to --lift-press), a white bevel on its top edge
+     (--btn-gloss), a recessed well in every field (--sink), and a bright top
+     edge on outlined buttons in the dark themes (--lift-edge). iOS controls
+     are flat fills, so each is now an empty shadow.
+     The tokens are kept, not deleted, so that every rule that reads them keeps
+     its shape: `box-shadow: var(--btn-gloss), var(--lift)` is still a valid
+     two-layer list, just an invisible one. Each value has to be a real
+     <shadow> for that reason — `none` inside a comma list is invalid and
+     would drop the whole declaration. No theme restates them. */
+  --lift: 0 0 0 transparent;
+  --lift-press: 0 0 0 transparent;
+  --btn-gloss: 0 0 0 transparent;
+  --sink: 0 0 0 transparent;
   --lift-edge: 0 0 0 transparent;
 
-  /* The panel is the sidebar and the tabbar. It is the ONE filled surface in
-     the whole interface, which is what makes it read as structure rather than
-     decoration — and confining it to two components is what stops its dark
-     value from landing under dark text somewhere else. */
+  /* The panel is the sidebar: a solid fill darker than the page in every
+     theme (T-025; from T-006 to T-024 the sidebar was a translucent material
+     and nothing painted this). The Home Screen status bar is coloured from it
+     too (meta theme-color, in app.js). CONTENT-STANDARD's rule stands: only
+     the sidebar or the tab bar paints it, and it re-scopes the ink with it —
+     --panel-ink and --panel-accent are that ink, kept with it. */
   --panel: #2b2118;
   --panel-ink: #f2ece2;
   --panel-accent: #d3a874;
@@ -131,24 +142,38 @@
      inside it. */
   --feature: var(--accent);
 
-  /* Type. Display is Libre Caslon Text — Caslon is the face English university
-     presses set their books in, and it is what gives this thing an age rather
-     than a theme. Body is the platform's own face (SF on his phone), which
-     ships optical sizing and tracking tables no webfont here can match, and
-     which is also how the interface stops looking like every other generated
-     dashboard on the web. Scale is 1.25 from a 16px base.
-     Georgia is the fallback on purpose, not as filler: it is the one serif on
-     every machine with the same bones as Caslon, so a failed webfont degrades
-     to the right shape rather than to Times. */
-  --font-display: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  /* ---------- Type ----------
+     One face: the phone's own (SF on an iPhone), which ships optical sizing
+     and tracking tables no webfont can match, and costs no request. Display
+     and body are the same stack; hierarchy comes from the text styles below.
+     --font-rounded is for big stat numbers (SF Pro Rounded on Apple, the
+     system face elsewhere). --font-mono is for CODE only — numbers that used
+     to be mono for alignment are the body face with tabular-nums. */
+  --font-body: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-body);
+  --font-rounded: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
-  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --fs-h1: clamp(1.94rem, 4vw, 2.44rem);
-  --fs-h2: 1.5625rem;
-  --fs-h3: 1.25rem;
-  --fs-body: 1rem;
-  --fs-small: 0.875rem;
-  --fs-tiny: 0.75rem;
+  /* The iOS text styles (brief §3), in rem so a larger text setting scales the
+     whole layout. Size, leading and tracking move together: large sizes are
+     tight, body is 0, small text opens up slightly. On desktop (>= 861px) the
+     large title steps up to 2.5rem; every other style is the same everywhere,
+     which is why the separate phone type step is gone. */
+  --fs-large: 2.125rem;    --lh-large: 1.2;     --tr-large: -0.022em;    /* 34, 700 */
+  --fs-title1: 1.75rem;    --lh-title1: 1.2;    --tr-title1: -0.02em;    /* 28, 700 */
+  --fs-title2: 1.375rem;   --lh-title2: 1.25;   --tr-title2: -0.015em;   /* 22, 700 */
+  --fs-title3: 1.25rem;    --lh-title3: 1.25;   --tr-title3: -0.01em;    /* 20, 600 */
+  --fs-headline: 1.0625rem; --lh-headline: 1.3; --tr-headline: -0.005em; /* 17, 600 */
+  --fs-body: 1.0625rem;    --lh-body: 1.45;     --tr-body: 0;            /* 17, 400 */
+  --fs-callout: 1rem;      --lh-callout: 1.4;   --tr-callout: 0;         /* 16, 400 */
+  --fs-subhead: 0.9375rem; --lh-subhead: 1.35;  --tr-subhead: 0;         /* 15, 400 */
+  --fs-footnote: 0.8125rem; --lh-footnote: 1.35; --tr-footnote: 0.005em; /* 13, 400 */
+  --fs-caption: 0.75rem;   --lh-caption: 1.3;   --tr-caption: 0.01em;    /* 12, 500 */
+  /* The names the rest of the file already reads, mapped onto the ramp. */
+  --fs-h1: var(--fs-large);
+  --fs-h2: var(--fs-title2);
+  --fs-h3: var(--fs-title3);
+  --fs-small: var(--fs-subhead);
+  --fs-tiny: var(--fs-caption);
 
   /* Spacing + motion */
   /* rem, not px, so the layout grows with the reader's text-size setting
@@ -167,11 +192,14 @@
   --sp-1: clamp(6px,  0.375rem, 9px);  --sp-2: clamp(10px, 0.625rem, 15px);
   --sp-3: clamp(16px, 1rem,     22px);  --sp-4: clamp(24px, 1.5rem,   32px);
   --sp-5: clamp(40px, 2.5rem,   52px);  --sp-6: clamp(64px, 4rem,     80px);
-  /* Square, near enough. A printed register has no rounded corners, and the
-     6/10px pair was the single loudest "this is an iOS app" signal in the file.
-     Kept at 2px rather than 0 so a focus ring and a button still read as
-     drawn objects rather than as torn edges. */
-  --radius: 2px; --radius-lg: 2px;
+  /* One radius scale (brief §3): chips and small tiles, then list sections,
+     inputs and buttons, then cards, then the hero card and sheets. Capsules
+     use 999px. The two older names map onto it, so every rule that reads them
+     moves with the scale. */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+  /* Cards and grouped sections (T-024, brief §9): 20px in every theme. */
+  --r-card: 20px;
+  --radius: var(--r-md); --radius-lg: var(--r-lg);
   --ease: cubic-bezier(0.25, 0.6, 0.3, 1);
   /* Stacking, named once. Ad-hoc numbers turn into an arms race. */
   --z-tabbar: 39; --z-drawer: 40; --z-drawer-btn: 41; --z-tip: 50; --z-toast: 60;
@@ -191,206 +219,46 @@
   --fac-speech: #8a4a63;
 }
 
-/* Brickford's original identity, kept as a theme rather than thrown away: brown
-   sidebar, warm cream page, caramel highlights. Every ink here was re-solved to
-   clear 4.5:1 — the old version's alpha inks measured 2.83:1, which is the whole
-   reason the palette was rebuilt in the first place. */
-[data-theme="parchment"] {
-  color-scheme: light;
-  --urgent: #8a4f14;
-  --shade: #2b2118;
-  --fac-math: #35608f; --fac-ai: #88592b; --fac-sys: #26665f; --fac-phys: #9c4534; --fac-res: #63498a; --fac-speech: #8a4a63;
-  --bg: #f8f4ec;
-  --bg-2: #f0e9db;
-  --surface: #ffffff;
-  --surface-2: #faf7f0;
-  --float: #ffffff;
-  --line: #e6dcc9;
-  --line-strong: #d0c0a5;
-  --ink: #2b2118;
-  --ink-2: #534b40;
-  --ink-3: #71685c;
-  --accent: #5d3f26;
-  --accent-2: #8a5f2e;
-  --good: #3b6845;
-  --bad: #a8331f;
-  --btn-bg: #2b2118;
-  --btn-ink: #f8f4ec;
-  --panel: #2b2118;
-  --panel-ink: #f4ead9;
-  --panel-accent: #c99a63;
-  --feature: var(--accent);
-}
-
 [data-theme="dark"] {
   color-scheme: dark;
   --urgent: #d99a4e;
   --shade: #000308;
-  /* Cool neutral dark. Was a warm roast; the institutional identity is cool now,
-     and the ink values are solved against --float, the lightest surface here. */
+  /* The lead pair, dark half: loop/design/brief.md §3. iOS's own dark system
+     neutrals (#1c1c1e cells) with Brickford's navy lifted to a tint that
+     reads on them. T-024's navy and gold replaced it for a day; the owner
+     asked for this one back on 2026-10-07 (T-025) because it is the one that
+     is comfortable for hours. Restored exactly, with three exceptions so the
+     sidebar is the darkest thing on screen: --panel is true black (it is the
+     sidebar now), and the page is lifted just off it (--bg, --bg-2). */
   --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  --bg: #0f1216;
-  --bg-2: #0b0e11;
-  --surface: #171b21;
-  --surface-2: #1c2128;
-  --float: #22272f;
-  --line: #2a3038;
+  --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
+  --bg: #0e0e10;
+  --bg-2: #141416;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-float: #22272f;
+  --line: #38383a;
   --line-strong: #3d454f;
-  --ink: #e8ebef;
-  --ink-2: #a4acb7;
-  --ink-3: #818993;
-  --accent: #7fb0e6;
+  --ink: #ffffff;
+  --ink-2: #a1a1a6;
+  --ink-3: #8e8e93;
+  --accent: #78aef0;
+  --accent-fill: #2f6bbd;
+  --accent-soft: #1a2a3f;
+  --gold: #e0b35a;
   --accent-2: #9ec2e8;
   --good: #62b881;
   --bad: #e8705c;
   --btn-bg: #e8ebef;
   --btn-ink: #0f1216;
-  /* Light key on a dark page: the gloss becomes an underside line — the shadow
-     the key casts on itself — and the ambient goes deeper so it reads against a
-     ground that is already dark. */
-  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
-  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
-  /* A dark inset on an already-dark field is invisible, so here the recess is
-     read from the light along its floor rather than the shadow under its lip. */
-  --sink: inset 0 1px 3px color-mix(in srgb, var(--shade) 55%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 9%, transparent);
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
-          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
-  --panel: #0a0d10;
+  /* The button is light, so its label is its own dark ink. */
+  --accent-fill-ink: #0f1216;
+  /* A dark shadow on a near-black page is not a shadow: what floats gets a ring. */
+  --float: 0 0 0 1px var(--line);
+  /* The sidebar (T-025), and the status bar (meta theme-color). */
+  --panel: #000000;
   --panel-ink: #e8ebef;
   --panel-accent: #7fb0e6;
-  --feature: var(--accent);
-}
-
-[data-theme="forest"] {
-  color-scheme: light;
-  --urgent: #8a5312;
-  --shade: #17201a;
-  --bg: #f2f5f1;
-  --bg-2: #e6ece3;
-  --surface: #ffffff;
-  --surface-2: #f7faf5;
-  --float: #ffffff;
-  --line: #dbe4d5;
-  --line-strong: #b8ccb0;
-  --ink: #17201a;
-  --ink-2: #474f48;
-  --ink-3: #626b63;
-  --accent: #2f6b43;
-  --accent-2: #2b5a86;
-  --good: #286a43;
-  --bad: #b32d1f;
-  --btn-bg: #17201a;
-  --btn-ink: #ffffff;
-  --panel: #16241a;
-  --panel-ink: #e9f0e2;
-  --panel-accent: #9dc9a3;
-  --feature: var(--accent);
-}
-
-[data-theme="midnight"] {
-  color-scheme: dark;
-  --urgent: #e0a35c;
-  --shade: #00030a;
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  --bg: #0f1420;
-  --bg-2: #0b0f19;
-  --surface: #151c2b;
-  --surface-2: #1a2333;
-  --float: #1e2839;
-  --line: #263349;
-  --line-strong: #3a4d6b;
-  --ink: #e7ecf4;
-  --ink-2: #a3aebf;
-  --ink-3: #808a9a;
-  --accent: #7fa3d1;
-  --accent-2: #9db8dd;
-  --good: #62b881;
-  --bad: #e8705c;
-  --btn-bg: #e7ecf4;
-  --btn-ink: #10151f;
-  /* Light key on a dark page: the gloss becomes an underside line — the shadow
-     the key casts on itself — and the ambient goes deeper so it reads against a
-     ground that is already dark. */
-  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
-  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
-  /* A dark inset on an already-dark field is invisible, so here the recess is
-     read from the light along its floor rather than the shadow under its lip. */
-  --sink: inset 0 1px 3px color-mix(in srgb, var(--shade) 55%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 9%, transparent);
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
-          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
-  --panel: #080b12;
-  --panel-ink: #e7ecf4;
-  --panel-accent: #7fa3d1;
-  --feature: var(--accent);
-}
-
-[data-theme="latte"] {
-  color-scheme: dark;
-  --urgent: #dda05a;
-  --shade: #000204;
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
-  /* The one theme that keeps Brickford's coffee: dark roast content, milk panel. */
-  --bg: #241a12;
-  --bg-2: #1d140d;
-  --surface: #2c2115;
-  --surface-2: #33271a;
-  --float: #392d1d;
-  --line: #42331f;
-  --line-strong: #5e4a2e;
-  --ink: #f0e7d8;
-  --ink-2: #beb3a4;
-  --ink-3: #9a8f81;
-  --accent: #d9b382;
-  --accent-2: #cfa06a;
-  --good: #8cb394;
-  --bad: #f08a78;
-  --btn-bg: #f0e7d8;
-  --btn-ink: #2b2118;
-  /* Light key on a dark page: the gloss becomes an underside line — the shadow
-     the key casts on itself — and the ambient goes deeper so it reads against a
-     ground that is already dark. */
-  --btn-gloss: inset 0 -1px 0 color-mix(in srgb, var(--shade) 30%, transparent);
-  --lift-edge: inset 0 1px 0 color-mix(in srgb, #ffffff 18%, transparent);
-  /* A dark inset on an already-dark field is invisible, so here the recess is
-     read from the light along its floor rather than the shadow under its lip. */
-  --sink: inset 0 1px 3px color-mix(in srgb, var(--shade) 55%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, #ffffff 9%, transparent);
-  --lift: 0 1px 0 color-mix(in srgb, var(--shade) 62%, transparent),
-          0 3px 8px color-mix(in srgb, var(--shade) 46%, transparent);
-  --lift-press: 0 1px 2px color-mix(in srgb, var(--shade) 38%, transparent);
-  --panel: #faf7f0;
-  --panel-ink: #2b2118;
-  --panel-accent: #5d3f26;
-  --feature: var(--accent);
-}
-
-[data-theme="slate"] {
-  color-scheme: light;
-  --urgent: #8f5518;
-  --shade: #1a1a19;
-  --bg: #f7f7f5;
-  --bg-2: #eeeeea;
-  --surface: #ffffff;
-  --surface-2: #fafaf8;
-  --float: #ffffff;
-  --line: #e4e4df;
-  --line-strong: #c8c9c0;
-  --ink: #1a1a19;
-  --ink-2: #4f4f4c;
-  --ink-3: #6c6c69;
-  --accent: #3d4c60;
-  --accent-2: #456a94;
-  --good: #296d45;
-  --bad: #b32d1f;
-  --btn-bg: #1a1a19;
-  --btn-ink: #ffffff;
-  --panel: #1c1c1b;
-  --panel-ink: #f2f2ee;
-  --panel-accent: #b9c4d4;
   --feature: var(--accent);
 }
 
@@ -399,11 +267,10 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-body);
+  /* Body is iOS body: 17px at 1.45. It was 16px at 1.55, which was already
+     tightened from essay leading for a dense interface (apple-design 15). */
   font-size: var(--fs-body);
-  /* 1.7 is essay leading. This is a dense, information-heavy interface and it
-     read loose and sprawling - apple-design 15: "tighten it for dense,
-     information-heavy UI". */
-  line-height: 1.55;
+  line-height: var(--lh-body);
   color: var(--ink);
   background: var(--bg);
   /* dvh follows the mobile toolbar; the vh line stays as the fallback. */
@@ -420,30 +287,34 @@ body {
    display and loose on body. And hierarchy comes from weight, size and leading
    AS A SET rather than from weight 800 everywhere, which flattened h1 against
    h2 and made both shout.
-   The face has changed since that was written, and the tracking changed with it:
-   a grotesque at 800 needed pulling in, a Caslon at 700 does not. */
+   The three heading levels are three iOS text styles now: h1 the large title,
+   h2 title 2, h3 title 3, each with its own size, leading and tracking from
+   the ramp in :root. */
 h1, h2, .display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
 }
-/* Tracking is face-specific as well as size-specific. A grotesque at weight 800
-   needs -0.03em to stop looking gappy; a Caslon at 700 already has the fit its
-   punchcutter gave it, and pulling it -0.03em closes the counters and turns the
-   serifs into a smear. Tighten it barely, and only at display size. */
 /* A two-line lecture title that drops one word onto the second line reads as
    a mistake. balance evens the lines of a heading; pretty keeps orphans out of
    running text. Both degrade to normal wrapping where unsupported. */
-h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.008em; line-height: 1.1; text-wrap: balance; }
-h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: -0.004em; line-height: 1.2; text-wrap: balance; }
+/* overflow-wrap: at a 24px root the large title is 51px, and one long word
+   ("Eigenvectors", 359px in the fallback sans) is wider than a 320px or 390px
+   screen's column. It breaks only when a word cannot fit a line on its own,
+   so at the default size nothing changes. */
+h1, .display { font-size: var(--fs-h1); font-weight: 700; letter-spacing: var(--tr-large); line-height: var(--lh-large); text-wrap: balance; overflow-wrap: anywhere; }
+h2 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: var(--tr-title2); line-height: var(--lh-title2); text-wrap: balance; }
 h3 {
-  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 700;
-  letter-spacing: 0; line-height: 1.3; font-optical-sizing: auto;
+  font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 600;
+  letter-spacing: var(--tr-title3); line-height: var(--lh-title3); font-optical-sizing: auto;
 }
+/* The one step in the ramp that is not the same everywhere: on desktop the
+   large title is 40px (brief §3). */
+@media (min-width: 861px) { :root { --fs-large: 2.5rem; } }
 /* Small text wants slightly POSITIVE tracking - the mirror of the rule above.
    Applied at the token so every label inherits it rather than each block
    re-deciding. */
 .sub, .muted, .note { letter-spacing: 0.004em; line-height: 1.5; }
-.mono { font-family: var(--font-mono); }
+.mono { font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
@@ -453,42 +324,46 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* ---------- Shell ---------- */
 .shell { display: flex; min-height: 100vh; min-height: 100dvh; }
 
+/* The sidebar is a plain, solid --panel in every theme (T-025, the owner's
+   "make it slightly darker"): darker than the page, so it recedes and the
+   reading column is the brightest thing on screen. No blur, no gradient, no
+   translucent material; a hairline --line is its trailing edge. In dark the
+   page's own inks clear 4.5:1 on its black with room to spare. Light's panel
+   is espresso, so there the sidebar re-scopes its inks below — to SOLID
+   colours, never alpha mixes (docs/CONTENT-STANDARD.md). */
 .sidebar {
-  /* Panel: re-scope the ink/line tokens so every child recolors per theme */
-  --ink: var(--panel-ink);
-  --ink-2: color-mix(in srgb, var(--panel-ink) 82%, transparent);
-  --ink-3: color-mix(in srgb, var(--panel-ink) 68%, transparent);
-  --line: color-mix(in srgb, var(--panel-ink) 14%, transparent);
-  --line-strong: color-mix(in srgb, var(--panel-ink) 32%, transparent);
-  --bg-2: color-mix(in srgb, var(--panel-ink) 9%, transparent);
-  --surface: color-mix(in srgb, var(--panel-ink) 6%, transparent);
-  --accent: var(--panel-accent);
-  /* The panel re-scopes its INK, and for a long time that was the whole list.
-     It also has to re-scope its SHADOWS, for the same reason and in the same
-     direction: --shadow-float is solved from --shade against the page, and the
-     one floating thing in here — the theme menu — drops it onto a panel that
-     is dark in six themes out of seven. A dark shadow on dark brown is not a
-     shadow. Solved against the panel instead, so the menu lifts off it. */
-  --shadow-float:
-    0 4px 10px color-mix(in srgb, var(--shade) 55%, transparent),
-    0 14px 34px color-mix(in srgb, var(--shade) 42%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--panel-ink) 12%, transparent);
   width: 250px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
   background: var(--panel);
+  border-right: 0.5px solid var(--line);
   padding: var(--sp-4) var(--sp-3);
   display: flex; flex-direction: column; gap: var(--sp-2);
 }
+
+/* Light's sidebar inks, each solved on the espresso --panel #2b2118 and on the
+   two fills a row can carry there (hover --bg-2, the active pill
+   --accent-soft): --ink 13.4:1 on the panel, --ink-2 8.9:1, --ink-3 6.5:1
+   (4.7:1 on the pill), --accent 7.2:1 (5.2:1 on the pill). The pill is
+   --panel-accent at 16% into the panel, the hover --panel-ink at 8%, the
+   rules inside it --panel-ink at 16%, all worked out as solid hexes (the
+   sidebar's own trailing edge stays the page's --line). The crest is
+   caramel on espresso, as it was when the sidebar was last the panel. */
+[data-theme="light"] .sidebar {
+  --ink: var(--panel-ink); --ink-2: #cbc1b2; --ink-3: #b0a594;
+  --accent: var(--panel-accent); --accent-soft: #463727; --bg-2: #3b3128;
+  --gold: var(--panel-accent);
+}
+[data-theme="light"] .sidebar > * { --line: #4b4138; }
 
 .crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
 .crest svg { width: 46px; height: 46px; color: var(--accent); }
 .crest .name-en {
   font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--ink);
-  /* A seal is letterspaced wider than a logotype. Caslon caps have room for it. */
+  /* A seal is letterspaced wider than a logotype. */
   margin-top: 8px; letter-spacing: 0.14em; text-transform: uppercase;
 }
 /* A hairline between name and descriptor — the lockup device every institutional
    identity in the references uses to say "this is a seal, not a logotype". */
-.crest .wordrule { width: 34px; height: 1px; background: var(--accent); margin: 7px auto 6px; opacity: 0.85; }
+.crest .wordrule { width: 34px; height: 1px; background: var(--gold); margin: 7px auto 6px; opacity: 0.85; }
 .crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
@@ -499,7 +374,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    than copying it, so the two halves cannot drift apart. */
 .nav a, .navrow {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: clamp(8px, 0.5rem, 11px) var(--sp-2); border-radius: var(--radius);
+  padding: clamp(8px, 0.5rem, 11px) var(--sp-2); border-radius: var(--r-sm);
   color: var(--ink-2); font-size: var(--fs-small); font-weight: 500; text-decoration: none;
   position: relative;
   transition: background-color var(--t-hover) ease;
@@ -507,14 +382,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   background: none; border: 0; font-family: var(--font-body); text-align: left;
   cursor: pointer;
 }
-/* 0.7 over --ink-2 on a dark panel is a smudge, not a mark. The glyph comes up
-   and colour carries the state instead of opacity doing both jobs. */
+/* 0.7 over --ink-2 is a smudge, not a mark. The glyph comes up and colour
+   carries the state instead of opacity doing both jobs. */
 .nav a .glyph, .navrow .glyph { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.85; }
+/* Hover and press are --bg-2, the page's section-band grey: on the sidebar
+   material it measures >= 1.09:1 in every theme (>= 1.12:1 on the drawer's
+   solid --surface), with --ink and --ink-2 >= 6.0:1 on it. */
 .nav a:hover, .navrow:hover { background: var(--bg-2); color: var(--ink); text-decoration: none; }
-.nav a.active { background: var(--bg-2); color: var(--ink); font-weight: 600; }
-.nav a.active::before {
-  content: ""; position: absolute; left: -1px; top: 24%; bottom: 24%; width: 2px;
-  background: var(--accent);
+/* The current page is a tinted pill: --accent-soft with an --accent label
+   (>= 5.3:1 in all seven themes), on --r-sm corners. It was a --bg-2 fill and
+   a 2px accent bar down the left edge, which on a light material reads as a
+   hover that got stuck. The pill keeps its tint while pressed or hovered —
+   the press is the scale below, not a second fill. */
+.sidebar .nav a.active, .sidebar .nav a.active:hover, .sidebar .nav a.active:active {
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
 }
 .nav a.active .glyph { opacity: 1; color: var(--accent); }
 
@@ -579,7 +460,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .main { flex: 1; min-width: 0; padding: var(--sp-5) clamp(20px, 5vw, 72px) var(--sp-6); max-width: 1160px; }
 
-.view-enter { animation: viewIn var(--t-enter) var(--ease) both; }
+/* The view declares its own ink rather than inheriting one through the shell.
+   In T-006's first round verify-contrast flaked once on a view whose text
+   measured a theme behind its page; with the colour declared here, the view's
+   text follows the current theme's --ink directly. */
+.view-enter { animation: viewIn var(--t-enter) var(--ease) both; color: var(--ink); }
 @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Action rail ----------
@@ -621,9 +506,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   font-size: var(--fs-tiny); letter-spacing: 0.07em; text-transform: uppercase;
   color: var(--ink-3); font-weight: 600;
 }
-.rail-card .rl-code { font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
+.rail-card .rl-code { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
 .rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: 0; line-height: 1.3; color: var(--ink); margin-top: 2px; }
-.rail-card .rl-meta { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
+.rail-card .rl-meta { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
 .rail-card .btn { width: 100%; justify-content: center; margin-top: var(--sp-3); }
 .rail-card .rl-foot {
   display: flex; justify-content: space-between; gap: 8px;
@@ -631,7 +516,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   border-top: 1px solid var(--line);
   font-size: var(--fs-tiny); color: var(--ink-3);
 }
-.rail-card .rl-foot b { font-family: var(--font-mono); color: var(--ink); font-weight: 500; }
+.rail-card .rl-foot b { font-family: var(--font-body); font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; }
 
 /* ---------- Common blocks ---------- */
 /* A double rule under the title, which is how a printed title page divides
@@ -649,7 +534,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    dashboard was the only route without one, and the only one never complained
    about.
 
-   Still an <h1>: small is a styling decision, not a heading level. */
+   Still an <h1>: small is a styling decision, not a heading level. That is
+   this desktop shape; on a phone (T-006) the folio is the page's large title
+   instead, and the dashboard carries one too — see "The large title" in the
+   phone block below. */
 .folio {
   display: flex; align-items: baseline; justify-content: space-between;
   gap: 12px; flex-wrap: wrap;
@@ -660,10 +548,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color: var(--ink);
 }
 .folio .fo-meta {
-  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+  font-family: var(--font-body); font-size: var(--fs-tiny); font-weight: 500;
   letter-spacing: 0.04em; text-transform: none; color: var(--ink-3);
   font-variant-numeric: lining-nums tabular-nums;
 }
+/* The dashboard's large title. On a phone every page opens on one (T-006);
+   the dashboard had no head of its own, so it carries this one, which the
+   desktop does not show — there the hero is the top of the page. */
+.folio.dash-title { display: none; }
 /* A detail page — one course, one lecture, one document — is the case where the
    title IS the information, so it keeps a real heading. The folio above it
    becomes the breadcrumb it already was. */
@@ -675,7 +567,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .card {
   background: none;
-  border: 1px solid var(--line-strong); border-radius: 0;
+  border: 1px solid var(--line-strong); border-radius: var(--r-card);
   padding: var(--sp-4);
 }
 .card + .card { margin-top: var(--sp-3); }
@@ -700,7 +592,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .card.feature::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
   background: var(--feature);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--r-card) var(--r-card) 0 0;
 }
 
 .grid { display: grid; gap: var(--sp-3); }
@@ -712,8 +604,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--font-body); font-size: var(--fs-small); font-weight: 600;
-  color: var(--btn-ink); background: var(--btn-bg);
-  border: 1px solid var(--btn-bg); border-radius: var(--radius);
+  /* A filled button is a capsule with an --accent-fill-ink label (T-024):
+     dark on dark's light-grey fill, white on light. The outlined kinds below
+     (ghost, danger, bare) keep --radius. */
+  color: var(--accent-fill-ink); background: var(--btn-bg);
+  border: 1px solid var(--btn-bg); border-radius: 999px;
   padding: clamp(9px, 0.5625rem, 12px) clamp(18px, 1.125rem, 24px); cursor: pointer;
   box-shadow: var(--btn-gloss), var(--lift);
   transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
@@ -726,9 +621,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    silently winning. */
 /* No gloss: a ghost button is the colour of the paper, so a white inset on top
    of it lights nothing. The lift alone is what stands it off the page. */
-.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); box-shadow: var(--lift-edge), var(--lift); }
-.btn.ghost:hover { opacity: 1; background: var(--bg-2); }
-.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: var(--lift-edge), var(--lift); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius); box-shadow: var(--lift-edge), var(--lift); }
+/* The hover is a gray fill, and --line is the one fill that stands off both
+   --bg (>= 1.19:1) and --surface (>= 1.28:1) in all seven themes. It was
+   --bg-2, which is 1.009:1 on the light --bg — a hover nobody could see. The
+   label is --ink, >= 9.9:1 on --line everywhere. */
+.btn.ghost:hover { opacity: 1; background: var(--line); }
+.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); border-radius: var(--radius); box-shadow: var(--lift-edge), var(--lift); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
    inline padding:4px versions of these were unhittable on a phone. */
 /* 44px stays px on purpose: it is the size of a fingertip, a physical
@@ -738,9 +637,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* Bare: a text button sitting inside a register row. Standing it off the page
    would make every row it appears in lumpy, so it is the one .btn with no
    depth at all — at rest or pressed. */
-.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); box-shadow: none; }
+.btn.tiny.bare { border-color: transparent; background: transparent; color: var(--ink-2); border-radius: var(--radius); box-shadow: none; }
 .btn.tiny.bare:active { box-shadow: none; }
-.btn.tiny.bare:hover { background: var(--bg-2); }
+/* --surface, not the ghost's --line: this one carries status pills, whose
+   --good and --accent-2 inks fall under 4.5:1 on --line (4.29 and 3.81 in
+   light). --bg-2 was 1.009:1 on the light --bg. */
+.btn.tiny.bare:hover { background: var(--surface); }
 /* opacity:0.4 on a FILLED button leaves a solid grey slab, and in the specimen
    that slab read as heavier than the live ghost button beside it — a dead
    control shouting louder than the ones you can press. A disabled button loses
@@ -759,8 +661,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   /* A chip is a SaaS part; a tag is a catalogue part, and the difference is
      almost entirely the radius. 999px is the single most recognisable shape in
      a generated interface, and this element repeats on nearly every page here —
-     so it is the highest-leverage two-character change in the file. */
-  border-radius: 3px;
+     so it is the highest-leverage two-character change in the file.
+     The owner reversed that on 2026-10-06 (T-024, brief §9): chips are full
+     capsules in every theme, the iOS shape the rest of the app now speaks. */
+  border-radius: 999px;
   border: 1px solid var(--line-strong); color: var(--ink-2); text-transform: uppercase;
   white-space: nowrap; font-variant-numeric: lining-nums tabular-nums;
 }
@@ -794,7 +698,9 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 
 /* Checkboxes */
 .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: var(--radius); cursor: pointer; transition: background-color var(--t-micro) ease; }
-.check-row:hover { background: var(--bg-2); }
+/* Hover and press lift the row to --surface, for the reason .grow's do (see
+   there): --bg-2 was 1.009:1 on the light --bg, and the label is text. */
+.check-row:hover { background: var(--surface); }
 .check-row input { display: none; }
 .checkbox {
   width: 16px; height: 16px; flex-shrink: 0; margin-top: 4px; border-radius: 2px;
@@ -815,10 +721,13 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 .check-label { font-size: var(--fs-small); color: var(--ink-2); }
 
 /* Progress bars */
-/* Square like everything else. 999px was a pill from before this file decided
-   a printed register has no rounded corners; on the dashboard hero it was the
-   roundest thing on the page. */
-.bar { height: 4px; background: var(--bg-2); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: var(--sink); }
+/* The corners are --radius, 12px since T-005, so a 4px bar draws as a
+   capsule — the shape of an iOS progress bar. (It was square while this file
+   held that a printed register has no rounded corners.)
+   The empty track is --line: a non-text fill that stands off --bg (>= 1.19:1)
+   and --surface (>= 1.28:1) in every theme. It was --bg-2, which vanished
+   once the light --bg moved to #f2f1ee (1.009:1). */
+.bar { height: 4px; background: var(--line); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: var(--sink); }
 /* Two truths in one bar: the pale fill is what you have watched, the solid
    fill is what you have actually proven. The gap between them is the point. */
 .bar > u { position: absolute; inset: 0; display: block; border-radius: var(--radius); transform-origin: left; background: color-mix(in srgb, var(--accent) 24%, transparent); }
@@ -860,7 +769,9 @@ tr:last-child td { border-bottom: none; }
 /* ---------- Quiz ---------- */
 .q-card { max-width: 780px; }
 .q-progress { display: flex; gap: 4px; margin-bottom: var(--sp-3); }
-.q-progress i { flex: 1; height: 3px; border-radius: 2px; background: var(--bg-2); box-shadow: var(--sink); }
+/* An unanswered segment is --line, like every empty track (see .bar);
+   --bg-2 measured 1.009:1 on the light --bg and the row read as one dash. */
+.q-progress i { flex: 1; height: 3px; border-radius: 2px; background: var(--line); box-shadow: var(--sink); }
 .q-progress i.done { background: var(--accent); box-shadow: none; }
 .q-progress i.now { background: var(--ink); box-shadow: none; }
 /* Inline KaTeX (a pmatrix, say) cannot wrap, so let a wide question scroll
@@ -886,12 +797,24 @@ tr:last-child td { border-bottom: none; }
    unbreakable token. Break it instead of letting it push the page sideways. */
 .opt, .opt > * { min-width: 0; }
 .opt { overflow-wrap: anywhere; }
-.opt:hover { border-color: var(--line-strong); background: var(--bg-2); }
-.opt .key { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+/* A hovered option keeps its --surface cell and says so with its edge. Its
+   hover fill was --bg-2, which on the light --bg (1.009:1) made the option
+   melt into the page under the pointer; --surface-2 is 1.045:1 there, and a
+   darker gray would take the --ink-3 key letter under 4.5:1. */
+.opt:hover { border-color: var(--line-strong); background: var(--surface); }
+/* flex-shrink: 0 — `.opt > *` lets every child shrink so a long answer wraps,
+   and in the body face the key letter was the child that gave way (9px of a
+   12px "A" at 320px with a 24px root). The answer text absorbs it instead. */
+.opt .key { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); flex-shrink: 0; }
 .opt.sel { border-color: var(--ink); color: var(--ink); }
 .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--surface)); color: var(--ink); }
 .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, var(--surface)); }
-.expl { border-left: 2px solid var(--accent); padding: var(--sp-2) var(--sp-3); background: var(--bg-2); border-radius: 0 var(--radius) var(--radius) 0; font-size: var(--fs-small); color: var(--ink-2); margin-top: var(--sp-2); }
+/* The explanation box carries text (--ink-2, --ink-3, --good, --bad), so its
+   fill must separate from the page AND keep every one of those at 4.5:1:
+   --surface does both in all seven themes (>= 1.07:1 off --bg; --ink-3 is
+   >= 4.88:1 on it). A darker fill cannot — the light --ink-3 is 4.70:1 on
+   --bg, so any gray visibly darker than --bg takes it under 4.5. */
+.expl { border-left: 2px solid var(--accent); padding: var(--sp-2) var(--sp-3); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; font-size: var(--fs-small); color: var(--ink-2); margin-top: var(--sp-2); }
 
 .score-seal {
   width: 140px; height: 140px; border-radius: 50%; margin: 0 auto var(--sp-3);
@@ -899,26 +822,26 @@ tr:last-child td { border-bottom: none; }
   border: 2px solid var(--accent);
   animation: sealIn 320ms var(--ease) both;
 }
-.score-seal .pct { font-family: var(--font-mono); font-size: 2rem; font-weight: 500; color: var(--ink); line-height: 1; }
+.score-seal .pct { font-family: var(--font-rounded); font-variant-numeric: tabular-nums; font-size: 2rem; font-weight: 500; color: var(--ink); line-height: 1; }
 .score-seal .of { font-size: var(--fs-tiny); color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 5px; }
 @keyframes sealIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
 
 /* Exam timer */
-.timer { font-family: var(--font-mono); font-weight: 500; font-size: 2.4rem; letter-spacing: 0.03em; color: var(--ink); text-align: center; font-variant-numeric: tabular-nums; }
+.timer { font-family: var(--font-rounded); font-weight: 500; font-size: 2.4rem; letter-spacing: 0.03em; color: var(--ink); text-align: center; font-variant-numeric: tabular-nums; }
 .timer.low { color: var(--bad); }
 
 
 /* ---------- Charts (hand-rolled SVG) ---------- */
-.chart-tip { position: fixed; z-index: var(--z-tip); pointer-events: none; background: var(--float); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 6px 10px; font-size: var(--fs-tiny); color: var(--ink); box-shadow: var(--shadow-float); opacity: 0; transition: opacity var(--t-micro) ease; }
+.chart-tip { position: fixed; z-index: var(--z-tip); pointer-events: none; background: var(--surface-float); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 6px 10px; font-size: var(--fs-tiny); color: var(--ink); box-shadow: var(--shadow-float); opacity: 0; transition: opacity var(--t-micro) ease; }
 .chart-tip.show { opacity: 1; }
 .chart svg { display: block; width: 100%; height: auto; }
 .chart .grid-line { stroke: var(--line); stroke-width: 1; }
-.chart .axis-label { fill: var(--ink-3); font-size: 12px; font-family: var(--font-mono); }
+.chart .axis-label { fill: var(--ink-3); font-size: 12px; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; bottom: 24px; left: 50%; z-index: var(--z-toast);
-  background: var(--btn-bg); color: var(--btn-ink);
+  background: var(--btn-bg); color: var(--accent-fill-ink);
   border-radius: var(--radius); padding: 11px 20px; font-size: var(--fs-small);
   box-shadow: var(--shadow-float);
   opacity: 0; transform: translate(-50%, 8px); pointer-events: none;
@@ -934,7 +857,9 @@ tr:last-child td { border-bottom: none; }
 .prose p, .prose li { color: var(--ink-2); font-size: var(--fs-small); }
 .prose ul, .prose ol { padding-left: 1.4em; margin: 0.5em 0 1em; }
 .prose li { margin: 0.3em 0; }
-.prose code { font-family: var(--font-mono); background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 0.82em; color: var(--ink); }
+/* A --surface chip with its --line hairline: --bg-2 was 1.009:1 on the light
+   --bg, so inline code was a border and nothing inside it. */
+.prose code { font-family: var(--font-mono); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 0.82em; color: var(--ink); }
 .prose blockquote { border-left: 2px solid var(--accent); padding-left: var(--sp-3); color: var(--ink-2); margin: 0.8em 0; }
 .prose hr { border: none; border-top: 1px solid var(--line); margin: var(--sp-4) 0; }
 .prose table { margin: 1em 0; }
@@ -957,7 +882,9 @@ tr:last-child td { border-bottom: none; }
 .cal-nav [data-cal-nav="prev"], .cal-nav [data-cal-nav="next"] { width: 34px; padding: 0; }
 .cal-nav [data-cal-nav="today"] { padding: 0 16px; font-size: var(--fs-small); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.cal-dow { background: var(--surface-2); text-align: center; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 8px 0; font-weight: 600; }
+/* --ink-2, not --ink-3: the brief's dark pair solves --ink-3 against --bg and
+   --surface, and on --surface-2 (#2c2c2e) #8e8e93 is 4.27:1. */
+.cal-dow { background: var(--surface-2); text-align: center; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); padding: 8px 0; font-weight: 600; }
 /* 92px tall because it held three lines of text. It holds a date, a mark and
    sometimes a flag now, so it is a square you read as a pattern rather than a
    paragraph you read twenty times. */
@@ -976,13 +903,29 @@ tr:last-child td { border-bottom: none; }
 .cal-cell:active { transform: scale(0.97); box-shadow: var(--sink); }
 /* Not days: an empty pad and a rest day are not things you press. */
 .cal-cell.blank, .cal-cell.rest { box-shadow: none; }
-.cal-cell.sel { animation: cellPick 260ms var(--ease) both; }
+/* The picked day settles into place: a scale from 0.92 to 1 on a critically
+   damped spring (damping 1, response 0.3s — brief §2), so it arrives without
+   overshoot. The spring is sampled into linear(): x(t) = 1 - (1 + wt)e^-wt,
+   w = 2pi/0.3, over 320ms, where it is within 1% of rest. A browser without
+   linear() drops that one declaration and keeps the --ease curve before it.
+   This rule named cellPick for a long time while no @keyframes cellPick
+   existed, so the selected day never moved at all; tools/verify-design.js now
+   asserts the animation actually runs. Motion only: under reduced motion the
+   rule does not apply, and the day is simply selected. */
+@keyframes cellPick { from { transform: scale(0.92); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .cal-cell.sel {
+    animation: cellPick 320ms var(--ease) both;
+    animation-timing-function: linear(0, 0.045 5%, 0.146 10%, 0.266 15%, 0.387 20%, 0.499 25%,
+      0.597 30%, 0.748 40%, 0.848 50%, 0.91 60%, 0.948 70%, 0.978 85%, 1);
+  }
+}
 .cal-cell.blank { background: var(--bg-2); cursor: default; }
 .cal-cell.today .dnum { color: var(--accent); font-weight: 700; }
 .cal-cell.sel { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .cal-cell.rest { background: var(--bg-2); }
 .cal-cell .dnum {
-  font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
+  font-family: var(--font-body); font-size: 0.68rem; color: var(--ink-3); line-height: 1;
   font-variant-numeric: lining-nums tabular-nums;
 }
 /* The day itself. Solid is a day completed, half is one started, an open ring
@@ -1017,7 +960,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
 }
 .drill .dr-tag {
-  font-family: var(--font-mono); font-size: var(--fs-tiny); letter-spacing: 0.08em;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--ink); font-weight: 600;
   margin-bottom: 6px;
 }
@@ -1032,9 +975,12 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
   .table-wrap { overflow-x: visible; }
   .stack-table, .stack-table tbody, .stack-table tr, .stack-table td { display: block; width: auto; }
   .stack-table thead { display: none; }
+  /* Each restacked row is a --surface cell. It was --bg-2, 1.009:1 on the
+     light --bg; the row is all text, so the fill has to keep --ink-3 at
+     4.5:1 as well as separate, and --surface does both in every theme. */
   .stack-table tr {
     border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 6px 12px; margin-bottom: 10px; background: var(--bg-2);
+    padding: 6px 12px; margin-bottom: 10px; background: var(--surface);
   }
   .stack-table tr:last-child { margin-bottom: 0; }
   .stack-table td {
@@ -1089,7 +1035,7 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 @keyframes ringDraw { to { stroke-dashoffset: var(--to, 100); } }
 .ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
 .ring-wrap .ring-label {
-  position: absolute; text-align: center; font-family: var(--font-mono);
+  position: absolute; text-align: center; font-family: var(--font-rounded); font-variant-numeric: tabular-nums;
   font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
 }
 .ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
@@ -1113,9 +1059,12 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 
 /* ---------- Crest ----------
    A filled field with the device cut out of it, which is what makes a seal read
-   as a seal. Outlines would go spindly the moment it is scaled down. */
+   as a seal. Outlines would go spindly the moment it is scaled down.
+   The field is --gold, the brand's crest colour (brief §1), and the cut-outs
+   are the --panel the sidebar is painted with, so the device reads as holes
+   in the seal (T-025: the sidebar is the panel again). */
 .crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
-.crest .cr-field { fill: var(--accent); }
+.crest .cr-field { fill: var(--gold); }
 .crest .cr-key { fill: none; stroke: var(--panel); stroke-width: 3; opacity: 0.55; }
 .crest .cr-cut { fill: var(--panel); }
 .crest .cr-stem { fill: none; stroke: var(--panel); stroke-width: 3.4; stroke-linecap: round; }
@@ -1164,9 +1113,9 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    paints is a stranger to the page it is painted on. */
 :root { accent-color: var(--accent); caret-color: var(--accent); }
 ::selection { background: color-mix(in srgb, var(--accent) 24%, transparent); color: var(--ink); }
-/* Thin, and in the page's own colours rather than the platform's. */
+/* Thin, and in the page's own colours rather than the platform's. The sidebar
+   inherits it: it is the page's material now, not the dark panel. */
 html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
-.sidebar { scrollbar-color: color-mix(in srgb, var(--panel-ink) 26%, transparent) transparent; }
 
 /* ---------- Utilities ----------
    Every repeated inline style is a place the design can drift, so the recurring
@@ -1178,7 +1127,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 
 /* The one button that matters. Long lecture titles wrap rather than shove the
    ring off the band. */
-.btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: var(--radius); white-space: normal; text-align: left; line-height: 1.3; }
+.btn.lg { padding: 13px 22px; font-size: 0.92rem; border-radius: 999px; white-space: normal; text-align: left; line-height: 1.3; }
 
 /* ---------- Section rhythm ----------
    Each block of the page announces itself and states its own number, so the
@@ -1207,9 +1156,6 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .one.lead .one-kind {
   font-size: clamp(1.5rem, 5.2vw, 2.1rem); line-height: 1.16; letter-spacing: -0.006em;
 }
-/* A group header used as a card's own context line: no top margin, and it is
-   inside a card rather than between two of them. */
-.ghead.oh { margin: 0 0 10px; }
 /* The leading mark on a row that is a warning. The alert banners this replaced
    carried a red rule, a red code line and a red bubble; one red mark says it. */
 .grow .g-lead.bad-lead { color: var(--bad); font-size: 0.95rem; }
@@ -1222,7 +1168,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   letter-spacing: -0.004em; line-height: 1.2; color: var(--ink);
 }
 .one-more {
-  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 500;
   color: var(--ink-3); letter-spacing: 0; vertical-align: 0.35em;
 }
 .one-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
@@ -1304,13 +1250,14 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 /* At 320px three cells leave 75px of content, and "CATEGORY" in tracked caps
    needs 77. Six pixels of side padding buys the two it was short of. */
 @media (max-width: 360px) { .onecounts > * { padding: 9px 6px; } }
-.onecounts > a:hover { text-decoration: none; background: var(--bg-2); }
+/* --surface: --bg-2 was 1.009:1 on the light --bg, and the cell is text. */
+.onecounts > a:hover { text-decoration: none; background: var(--surface); }
 /* A cell that links is a control. It is inside a framed table whose rules are
    drawn by the cells themselves, so it raises with the hard edge only — an
    ambient shadow here would smear the rules either side of it. */
 .onecounts > a { box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 40%, transparent); }
 .onecounts > * b {
-  display: block; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 500;
+  display: block; font-family: var(--font-body); font-size: 0.95rem; font-weight: 500;
   color: var(--ink-2); font-variant-numeric: tabular-nums; line-height: 1.25;
 }
 .onecounts > * span {
@@ -1327,12 +1274,23 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    living on the browser's generic grey flash.
    They answer the finger now, which is also what makes it safe to take the
    flash away below: removing it first would have made every tap feel dead. */
-.nav a:active, .navrow:active, .theme-menu button:active, .check-row:active {
+/* The nav, its footer rows and the theme menu sit on the sidebar material
+   (or the drawer's solid --surface), where --bg-2 measures >= 1.09:1 in every
+   theme, so --bg-2 reads there; their labels (--ink-2, --ink on hover) are
+   >= 6.0:1 on it. A check row and a disclosure summary sit on the page, where
+   --bg-2 is 1.009:1 against the light --bg; they press to --surface instead
+   (they carry text, so a darker gray would take --ink-3 under 4.5:1). */
+.nav a:active, .navrow:active, .theme-menu button:active {
   background: var(--bg-2);
   transform: scale(0.985);
   transition: transform 100ms ease-out, background-color 100ms ease-out;
 }
-.unit > summary:active { background: var(--bg-2); }
+.check-row:active {
+  background: var(--surface);
+  transform: scale(0.985);
+  transition: transform 100ms ease-out, background-color 100ms ease-out;
+}
+.unit > summary:active { background: var(--surface); }
 /* A day on the heatmap is 13px; scaling it would be invisible, so it brightens
    its own edge instead. */
 .hc:active { box-shadow: inset 0 0 0 2px var(--accent); }
@@ -1371,7 +1329,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .taught .av {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
   display: grid; place-items: center;
-  font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 0.78rem; font-weight: 600;
   color: var(--fac, var(--accent));
   background: color-mix(in srgb, var(--fac, var(--accent)) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--fac, var(--accent)) 30%, transparent);
@@ -1391,7 +1349,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   transition: background-color var(--t-micro) ease;
 }
 .unit > summary::-webkit-details-marker { display: none; }
-.unit > summary:hover { background: var(--bg-2); }
+.unit > summary:hover { background: var(--surface); }   /* see :active */
 .unit > summary::after {
   content: ""; flex-shrink: 0; width: 7px; height: 7px;
   border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
@@ -1463,7 +1421,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 .lab-read {
   display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
-  margin-top: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-small);
+  margin-top: var(--sp-3); font-family: var(--font-body); font-size: var(--fs-small);
   color: var(--ink-2); font-variant-numeric: tabular-nums;
 }
 .lab-read b { color: var(--ink); font-weight: 500; }
@@ -1546,7 +1504,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 /* ---------- Method: curves, steps, spacing ---------- */
 .curve { width: 100%; height: auto; display: block; }
-.curve .ctick { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-3); }
+.curve .ctick { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 12px; fill: var(--ink-3); }
 /* Draw the good curve on rather than snapping it in. */
 .curve-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: drawLine 1400ms var(--ease) 120ms forwards; }
 @keyframes drawLine { to { stroke-dashoffset: 0; } }
@@ -1556,13 +1514,13 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .mstep .mnum {
   width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
   background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
-  display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+  display: grid; place-items: center; font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 0.7rem; font-weight: 600;
 }
 
 .spacing { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
 .spacing .sp-node { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
 .spacing .sp-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
-.spacing .sp-lab { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+.spacing .sp-lab { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); }
 .spacing .sp-line { flex: 1; min-width: 14px; height: 1px; background: var(--line-strong); margin-bottom: 16px; }
 
 /* ---------- Lecture gates: the four proofs ---------- */
@@ -1580,22 +1538,37 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 
 /* ---------- The Record: heatmap, verification seal, hashes ---------- */
 /* Consistency at a glance: one square per day, columns are weeks. */
-.heat { display: flex; gap: 3px; overflow-x: auto; padding: 2px 0 6px; }
-.hcol { display: flex; flex-direction: column; gap: 3px; }
-.hc { width: 13px; height: 13px; border-radius: 2px; background: var(--bg-2); display: block; border: 0; padding: 0; }
-.hc.void { background: transparent; }
+/* T-026b: always the last 26 weeks (--wk columns, set by heatmapHTML), so
+   the grid is fluid — each column a share of the card and each cell square —
+   rather than 13px cells that scrolled sideways on a phone. */
+.heat { display: grid; grid-template-columns: repeat(var(--wk, 26), minmax(0, 1fr)); gap: clamp(2px, 0.4vw, 5px); padding: 2px 0 6px; }
+.hcol { display: grid; gap: inherit; }
+/* An empty day is --line, a fill that stands off the page in every theme
+   (>= 1.19:1 on --bg). It was --bg-2 with a --sink inset for its edge; once
+   the light --bg moved to #f2f1ee (1.009:1 against --bg-2) and --sink went
+   flat, every empty day and the "Quiet" swatch vanished. The levels are the
+   accent mixed into the EMPTY colour, so they moved with it: mixed into
+   --bg-2, level 1 is 1.02:1 against an empty --line day in dark — a quiet
+   day and a light one the same lightness (1.64:1 mixed into --line).
+   tools/verify-design.js
+   measures the empty day and the swatch against their backdrop. */
+.hc { width: 13px; height: 13px; border-radius: 2px; background: var(--line); display: block; border: 0; padding: 0; }
+/* Before the start or after today: not a day of the plan, so the faintest
+   cell, there only to keep the grid's shape (T-026b). */
+.hc.void { background: color-mix(in srgb, var(--line) 45%, transparent); }
 /* A rest day is neither work nor a gap. Hollow, so three years of rest days
    do not read as three years of misses. */
 .hc.rest { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
-.hc.l0 { background: var(--bg-2); box-shadow: var(--sink); }
-.hc.l1 { background: color-mix(in srgb, var(--accent) 28%, var(--bg-2)); }
-.hc.l2 { background: color-mix(in srgb, var(--accent) 52%, var(--bg-2)); }
-.hc.l3 { background: color-mix(in srgb, var(--accent) 76%, var(--bg-2)); }
+.hc.l0 { background: var(--line); box-shadow: var(--sink); }
+.hc.l1 { background: color-mix(in srgb, var(--accent) 28%, var(--line)); }
+.hc.l2 { background: color-mix(in srgb, var(--accent) 52%, var(--line)); }
+.hc.l3 { background: color-mix(in srgb, var(--accent) 76%, var(--line)); }
 .hc.l4 { background: var(--accent); }
 .hc.now { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
 .hc[data-hday] { cursor: pointer; transition: transform var(--t-micro) var(--ease); }
 .hc[data-hday]:hover, .hc[data-hday]:focus-visible { transform: scale(1.35); }
 @media (max-width: 640px) { .hc { width: 10px; height: 10px; } }
+.heat .hc { width: 100%; height: auto; aspect-ratio: 1; border-radius: 22%; }
 
 /* Verification verdict — the first thing a sceptic should see. */
 .vseal { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
@@ -1609,44 +1582,28 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .vseal .vtext { min-width: 0; }
 .vseal .vhead { font-weight: 600; color: var(--ink); }
 
+/* A --surface well for the hash: --bg-2 was 1.009:1 on the light --bg, and
+   the hash is --ink-2 text, which needs 4.5:1 on whatever holds it. */
 .hash {
   font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-2);
-  overflow-wrap: anywhere; background: var(--bg-2); border-radius: var(--radius);
+  overflow-wrap: anywhere; background: var(--surface); border-radius: var(--radius);
   padding: 8px 10px; line-height: 1.5;
 }
 
 /* ---------- Responsive ---------- */
 .topbar { display: none; }
 .menu-btn { display: none; }
-/* apple-design 12: "scroll edge effects, not hard dividers". The bar is a
-   translucent material with content moving under it, so it needs a bright top
-   edge and a soft lift — an --e3 slab under glass reads as a drawer, not a
-   material. */
-.tabbar {
-  display: none;
-  box-shadow: 0 -1px 0 color-mix(in srgb, var(--panel-ink) 12%, transparent),
-              0 -8px 24px color-mix(in srgb, var(--shade) 18%, transparent);
-}
+/* apple-design 12: "scroll edge effects, not hard dividers". The tab bar is a
+   material with content scrolling under it (brief §4): --surface at 78% under
+   a blur, a 0.5px --line along its top, and no slab or lift of its own. It was
+   the dark --panel with a bright top edge and an --e3 shadow, which is a
+   drawer, not a material. */
+.tabbar { display: none; }
 @media (max-width: 860px) {
-  /* ---- The phone's own type step ----
-     There wasn't one. Measured on a 390px screen, the scale was byte-for-byte
-     the desktop's: 25px Caslon headings, 20px sub-headings, and the text a
-     reader actually READS — a row's second line, a card's prose — at 14px,
-     under what any phone platform calls body. /workshop stacked four 25px
-     "Phase N" headings down one 390px column.
-     So the display comes down and the reading comes up. The gap closes from
-     1.8x to about 1.3x, which is the difference between a page and a poster.
-     .one-kind is deliberately NOT in here: it is the one thing on the page, it
-     keeps the weight it had, and everything under it stops competing with it. */
-  :root {
-    --fs-h1: 1.625rem;      /* 31px -> 26px */
-    --fs-h3: 1.0625rem;     /* 20px -> 17px */
-    --fs-small: 0.9375rem;  /* 14px -> 15px */
-  }
-  /* h2 alone rather than --fs-h2, because .one-kind reads that token too. */
-  h2 { font-size: 1.25rem; }            /* 25px -> 20px */
-
-  :root { --tabbar-h: 58px; }
+  /* There used to be a separate phone type step here: smaller headings and a
+     15px --fs-small. The iOS ramp in :root replaced it. The phone and the
+     desktop now share every text style except the large title, and
+     --fs-small is the 15px subhead everywhere. */
   .shell { flex-direction: column; }
   /* No transition: the spring in app.js owns this transform frame by frame, and
      a CSS transition on the same property would fight it — the element would
@@ -1657,83 +1614,122 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     position: fixed; z-index: var(--z-drawer); height: 100vh; height: 100dvh;
     transform: translateX(-100%); width: 264px; box-shadow: var(--shadow-float);
     touch-action: pan-y;
+    /* The drawer runs from the very top of the screen, under the status bar
+       (see .topbar below). Its fill covers that strip; its content — the
+       crest, and the theme menu in its footer when the drawer scrolls —
+       starts below it. */
+    padding-top: calc(var(--sp-4) + env(safe-area-inset-top, 0px));
+    /* The same solid --panel as the desktop sidebar (T-025). Never
+       translucent: the drawer slides over the scrim, and a translucent drawer
+       shows the dimmed page through it — measured, that took its labels
+       under 4.5:1. */
+    background: var(--panel);
   }
-  /* ---- The running head ----
-     The menu button used to be position:fixed with nothing behind it, and the
-     page was expected to get out of its way: the folio and the breadcrumb each
-     carried `padding-left: 52px` so their first line cleared the button.
-     Two things were wrong with that. It only ever indented the FIRST line, so
-     anything that wrapped ran back under the button. And the breadcrumb's rule
-     used `display: flex`, which makes the course-code link and the unit name
-     two flex ITEMS side by side rather than one run of text — on MATH 110's
-     Unit I that printed
+  /* ---- The nav bar ----
+     iOS's, in three columns (brief §4): the menu button leading, the page's
+     name in the middle, and a capsule carrying the day and week trailing. The
+     page's own h1 is the large title, in the flow under the bar; the name in
+     the middle stays transparent until that title has scrolled under the bar,
+     and the hairline under the bar appears only once content is beneath it.
+     watchTopbar() in app.js decides both with one IntersectionObserver and
+     only toggles .lt-on and .edge-on here — it never saves and never renders.
+
+     History, because both earlier shapes were bugs. The menu button was once
+     position:fixed with nothing behind it, and the page indented its first
+     line past it: anything that wrapped ran back underneath, and on MATH 110's
+     Unit I the breadcrumb printed
 
          [x]  MATH · UNIT I - ESSENCE OF LINEAR
               110   ALGEBRA (3BLUE1BROWN)
 
-     with the code split down the middle. A control that floats over the page
-     will always be arguing with the page. This one has a bar to sit in.
-
-     It costs nothing in height: the folio it replaces was ~58px in flow with
-     its rule and margin, and this is 46px, pinned, so the reader keeps the
-     running head while scrolling instead of losing it after one screen. */
+     A control that floats over the page will always be arguing with the page.
+     Then the bar became a register's running head — a small-caps page name
+     MOVED out of the page into the bar, a mono day line and a 1.5px ink rule —
+     with the page's own h1 below it as a second title. Nothing is moved into
+     the bar now: it reads the title, and the page keeps it. */
   .topbar {
-    display: flex; align-items: center; gap: 10px;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: 8px;
     position: sticky; top: 0; z-index: var(--z-tabbar);
-    /* The bar is as tall as the control inside it: a 44px hamburger plus 3px
-       of breathing room either side. It was 46px with a 34px button, which is
-       a button nobody can reliably hit — 8px of bar is the price of that. */
-    min-height: 50px;
-    padding: 3px max(14px, env(safe-area-inset-left)) 3px max(14px, env(safe-area-inset-right));
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1.5px solid var(--ink);
+    padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
+    /* Under the status bar. index.html sets viewport-fit=cover and the
+       black-translucent status bar, so an installed app draws from the very
+       top of the screen — and on 26 Sep 2026 the clock and the signal sat on
+       top of "DASHBOARD". The bar grows by the inset and pads its content
+       below it; its own material fills the strip, so the status bar reads
+       over the bar and never over the page. 0 wherever there is no notch,
+       which is every desktop and every browser tab. Chromium cannot emulate
+       a notch, so tools/verify-design.js asserts this in the source. */
+    padding-top: env(safe-area-inset-top, 0px);
+    /* 44px: the bar is exactly the menu button it holds, a fingertip. */
+    min-height: calc(44px + env(safe-area-inset-top, 0px));
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
   }
-  /* Both halves shrink, and both clip rather than push.
-     The meta was flex-shrink:0, which is fine until the reader turns text size
-     up: at 150% on a 320px screen "Day 007 · Week 2" alone is wider than the
-     room left beside the title, and a bar that cannot shrink makes the whole
-     PAGE scroll sideways — measured at /exams, 373px of bar in 320px of screen.
-     The priority when it is tight is hamburger, then name, then the day. */
+  /* The scroll edge: a 0.5px --line along the bottom of the bar, there only
+     while content is under it. Drawn inside the bar so it moves nothing. */
+  .topbar::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+    border-bottom: 0.5px solid var(--line);
+    opacity: 0; transition: opacity var(--t-hover) ease;
+  }
+  .topbar.edge-on::after { opacity: 1; }
+  /* The inline title: 17px/600, centred while it fits and ellipsised when it
+     does not. One line, always — a bar that wraps is a bar that moves. */
   .topbar .tb-title {
-    flex: 1 1 auto; min-width: 0;
-    font-family: var(--font-display); font-size: var(--fs-tiny); font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
-    /* One line, always. A running head that wraps is a head that moves. */
+    grid-column: 2; min-width: 0; text-align: center;
+    font-family: var(--font-body); font-size: var(--fs-headline); font-weight: 600;
+    letter-spacing: var(--tr-headline); line-height: var(--lh-headline); color: var(--ink);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0; transition: opacity var(--t-hover) ease;
   }
-  /* The course code is a link and the only way back to the course from a
-     lecture on a phone — so it is a control, and it was 68x14 of hit area.
-     Padded to fill the bar's height; the negative margin keeps the text where
-     the eye expects it. */
-  .topbar .tb-title a {
-    color: var(--accent); text-decoration: none;
-    display: inline-block; padding: 15px 6px; margin: -15px -6px;
-  }
+  .topbar.lt-on .tb-title { opacity: 1; }
+  /* The day and the week, as a capsule. --ink-2 on --surface is >= 6.6:1 in
+     every theme. It never wraps: at a 24px root on a 320px screen it is
+     197px beside the 44px button, and the title gives way first (50px). */
   .topbar .tb-meta {
-    flex: 0 1 auto; min-width: 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 500;
-    letter-spacing: 0.04em; color: var(--ink-3);
-    font-variant-numeric: lining-nums tabular-nums;
+    grid-column: 3; justify-self: end;
+    display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px;
+    border-radius: 999px; background: var(--surface); color: var(--ink-2);
+    font-family: var(--font-body); font-size: var(--fs-footnote); font-weight: 500;
+    line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums;
   }
-  /* Whatever the bar took, the page no longer prints. */
+  .topbar .tb-meta:empty { display: none; }
+  /* The one thing the page still hides on a phone: the hero's "Day 014 · Week
+     3", which the capsule above already says. */
   .tb-taken { display: none !important; }
-  /* A detail page's h1 is its first line now, so it needs the folio's air. */
-  .page-head .kicker.tb-taken + h1 { margin-top: 0; }
+
+  /* ---- The large title ----
+     Every page opens on one, 34px/700 (brief §3): a detail page's h1 already
+     is, and the folio — an index page's small-caps running head — becomes one
+     here, without the day meta the capsule carries. */
+  .folio {
+    display: block; margin: 0 0 var(--sp-3); padding: 0; border: 0;
+    font-size: var(--fs-large); font-weight: 700; letter-spacing: var(--tr-large);
+    line-height: var(--lh-large); text-transform: none; color: var(--ink);
+  }
+  .folio .fo-meta { display: none; }
+  .folio.dash-title { display: block; }
+  /* A detail page's breadcrumb stays on the page now, and its course code is
+     the way back to the course — a control, so a 44px target. The negative
+     margin keeps the text where the eye expects it. */
+  .page-head .kicker a { display: inline-block; padding: 15px 6px; margin: -15px -6px; }
 
   .menu-btn {
+    grid-column: 1; justify-self: start;
     display: inline-flex; flex-shrink: 0;
-    background: none; color: var(--ink); border: 0;
-    width: 34px; height: 34px; margin-left: -7px;
+    background: none; color: var(--accent); border: 0;
+    width: 44px; height: 44px;
     align-items: center; justify-content: center; cursor: pointer;
     border-radius: var(--radius);
     transition: background-color var(--t-micro) ease, transform var(--t-micro) ease;
   }
   /* In a bar, not on the page: it needs no shadow to separate it from what is
-     behind it, because nothing is behind it any more. */
+     behind it, because nothing is behind it any more. The glyph is --accent,
+     the tint (brief §4); its press is a --line fill, on which the glyph — not
+     text — measures >= 4.8:1 in every theme. --bg-2 was 1.009:1 against the
+     light --bg the bar shows through. */
   .menu-btn:active {
-    background: var(--bg-2); transform: scale(0.94);
+    background: var(--line); transform: scale(0.94);
     transition: transform 100ms ease-out, background-color 100ms ease-out;
   }
 
@@ -1744,40 +1740,73 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .main > .view-enter > :first-child { margin-top: 0; }
 
 
-  /* Bottom tab bar — thumb-reach navigation for phones.
-     It carries the dark panel fill but never re-scoped its ink the way .sidebar
-     does, so its labels used the page's --ink-3 — dark grey on a dark bar, 2.6:1.
-     Any component that paints the panel has to re-scope the ink with it. */
+  /* ---- The tab bar ----
+     Thumb-reach navigation for phones. It painted the dark panel for a long
+     time, and any component that paints the panel has to re-scope the ink
+     with it — this one did not, once, and its labels were 2.6:1. It is the
+     page's own material, so the page's solid inks apply as they are: --ink-3
+     labels and the --accent active tab are >= 4.9:1 on it in all seven
+     themes. Sentence-case 10px/500 labels under 24px glyphs (brief §4).
+
+     T-023 (brief §9): a capsule floating 14px in from each side and 12px
+     above the safe area, not a slab pinned to the edge. The page reserves its
+     height plus that gap (measureFurniture reads innerHeight - top), so at the
+     end of a scroll no text is under it. A glass bubble sits behind the
+     active tab and follows a finger sliding along the bar (mountTabbar in
+     app.js); it has no transition, because the spring owns its transform. */
+  :root { --tabbar-h: calc(82px + env(safe-area-inset-bottom, 0px)); }
   .tabbar {
-    --ink: var(--panel-ink);
-    --ink-2: color-mix(in srgb, var(--panel-ink) 82%, transparent);
-    --ink-3: color-mix(in srgb, var(--panel-ink) 68%, transparent);
-    --accent: var(--panel-accent);
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: var(--z-tabbar);
-    display: flex;
-    background: color-mix(in srgb, var(--panel) 96%, transparent);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    padding: 6px max(6px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-right));
+    /* 14px in from each side, and from the notch in landscape: viewport-fit
+       is cover, so the side insets are the page's to keep clear. */
+    position: fixed; left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: var(--z-tabbar);
+    display: flex; height: 70px; padding: 0 5px; border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-float);
+    /* Vertical drags stay the page's: the browser scrolls and the slide is
+       never started. The horizontal axis is the slide's. */
+    touch-action: pan-y; -webkit-user-select: none; user-select: none;
   }
+  .tabbar .tab-bubble {
+    position: absolute; left: 0; top: 5px; bottom: 5px; width: calc((100% - 10px) / 5);
+    border-radius: 999px; pointer-events: none;
+    background: color-mix(in srgb, var(--ink) 9%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    opacity: 0; transition: opacity var(--t-hover) ease;
+  }
+  .tabbar.has-active .tab-bubble { opacity: 1; }
   .tabbar a {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 6px 2px; border-radius: var(--radius);
-    color: var(--ink-3); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-    text-decoration: none;
+    position: relative;
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 49px; min-width: 0; padding: 4px 2px; border-radius: 999px;
+    color: var(--ink-3); font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.2;
+    text-decoration: none; -webkit-user-drag: none;
     /* T-001: the labels are rem, so at a 24px root the bar was 397px and
-       "Review" fell off a 390px screen. The label is capped at 3.5vw.
-       Measured on "/": at 320 and 390px, roots 16-32px, all five tabs are on
-       screen, each label inside its own tab, every tab at least 52x50px; at a
-       16px root the bar is pixel-identical to before (0.62rem is smaller).
-       Below 300px some tabs are under 44px wide (16px root, 250px: Home 35.5px,
-       was 39.7px with Review off screen). At 28px/250px and 32px/250-260px the
-       page content is wider than the screen and Review sits past it; before, two
-       or three tabs did. */
-    font-size: min(0.62rem, 3.5vw);
+       "Review" fell off a 390px screen. The label is capped at 3.5vw, and the
+       cap stays: at a 16px root 0.625rem (10px) is under it at every phone
+       width, so it only bites at larger text. Measured by verify-shell on "/"
+       at 320 and 390px, roots 16 and 24px: all five tabs on screen, each at
+       least 44x44. */
+    font-size: min(0.625rem, 3.5vw);
   }
   .tabbar a:hover { text-decoration: none; }
-  .tabbar a .glyph { width: 20px; height: 20px; }
-  .tabbar a.active { color: var(--panel-accent); }
+  .tabbar a .glyph { width: 24px; height: 24px; }
+  .tabbar a.active { color: var(--accent); }
+  /* Due reviews. A solid red with white text, 5.4:1, in every theme. Anchored
+     from the tab's right so it can never leave the tab: a one-digit badge
+     (18px) starts 3px right of the centre as before, and a wider one ("99+",
+     the most it says) grows toward the glyph instead of off the capsule. */
+  .tabbar .tab-badge {
+    position: absolute; top: 4px; right: max(2px, calc(50% - 21px));
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+    background: #c4342a; color: #fff;
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .tabbar .tab-badge[hidden] { display: none; }
 
   /* 16px inputs stop mobile browsers from zooming the page on focus */
   input[type="text"], input[type="number"], input[type="date"], textarea, select { font-size: 16px; }
@@ -1797,7 +1826,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   .btn { min-height: 44px; }
   .nav a, .navrow { min-height: 44px; }
   .theme-menu button { min-height: 44px; }
-  .menu-btn { width: 44px; height: 44px; margin-left: -11px; }
+  /* -3px against the bar's 8px padding: the button's box starts 5px in, on the
+     screen, and its glyph 19px in, where the specimen's is. The -11px this
+     was set against a 14px padding hung the box 3px off the left edge. */
+  .menu-btn { width: 44px; height: 44px; margin-left: -3px; }
   /* A tag carrying a concept title is a link to a page, so it is a control. The
      short status pills are not links and keep their size. */
   a.pill { min-height: 44px; padding-top: 8px; padding-bottom: 8px; }
@@ -1834,9 +1866,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
     display: flex; align-items: center; gap: 10px;
     position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: var(--z-tabbar);
     min-height: var(--railbar-h);
-    padding: 7px max(10px, env(safe-area-inset-left)) 7px max(10px, env(safe-area-inset-right));
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    padding: 7px max(10px, env(safe-area-inset-right)) 7px max(10px, env(safe-area-inset-left));
+    /* The tab bar's material, since it sits directly on top of it (T-006). */
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
     border-top: 1px solid var(--line);
   }
   .railbar:empty { display: none; }
@@ -1856,11 +1889,33 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      after it. The bar is 54px; the button in it can be 44. */
   .railbar .btn { flex-shrink: 0; min-height: 44px; }
 }
+/* T-023: on a phone the Next bar is a card floating 8px above the tab bar's
+   capsule — the mini-player over the tab bar — on the same 14px insets and in
+   the same glass. A full-width slab on top of a floating capsule was two bar
+   styles stacked, with the page showing through between them. Its reserved
+   height (measureFurniture) includes the 8px gap, so at the end of a scroll
+   nothing rests under either. Between 861 and 1039px there is no tab bar and
+   it stays the edge-to-edge bar above. */
+@media (max-width: 860px) {
+  .railbar {
+    left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--tabbar-h) + 8px);
+    min-height: 60px; padding: 7px 8px 7px 16px; border-radius: 22px;
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-float);
+  }
+}
 
 /* ---------- Reduced motion: global kill-switch ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
+  /* The nav bar's title and scroll edge swap in the frame the title goes
+     under the bar, with no fade at all. A 0.01ms transition is still a
+     transition — one frame of the old value — so this one is removed. */
+  .topbar .tb-title, .topbar::after { transition: none; }
 }
 
 /* Print: transcript */
@@ -1877,7 +1932,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    runtime. The four gates arrive when the lecture is marked watched, which is
    when they are the next thing to do rather than a wall in front of the video. */
 .lsn-act { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-4); }
-.lsn-run { font-family: var(--font-mono); font-size: var(--fs-tiny); color: var(--ink-3); }
+.lsn-run { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); }
 @media (max-width: 700px) {
   .lsn-act .btn.lg { width: 100%; justify-content: center; }
   .lsn-run { margin-top: -4px; }
@@ -1889,17 +1944,29 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    translucency or more contrast is asking for legibility, not for decoration —
    so the materials go solid and the borders get defined, rather than anything
    being taken away. */
+/* Every material in the chrome goes solid: the nav bar to the page's --bg it
+   was mixed from, the tab bar and the action bar to --surface. The sidebar is
+   already a solid --panel (T-025), so nothing here repaints it. */
 @media (prefers-reduced-transparency: reduce) {
-  .tabbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .tabbar, .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .tabbar .tab-bubble { background: var(--accent-soft); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
   :root { --line: var(--line-strong); }
-  .card, .glist, .unit, .onecounts { border-color: var(--line-strong); }
-  .tabbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .railbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .card, .unit, .onecounts { border-color: var(--line-strong); }
+  /* The same solid chrome, and its edges stated: a 1px --line-strong edge on
+     each, the nav bar's shown whether or not anything is under it. */
+  .topbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .topbar::after { opacity: 1; border-bottom: 1px solid var(--line-strong); }
+  .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--line-strong); }
+  .railbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: var(--line-strong); }
+  .sidebar { border-right: 1px solid var(--line-strong); }
+  /* A list section is a fill on a fill — --surface on --bg, 1.073:1 in
+     slate, the faintest theme — so here it is outlined as well. */
+  .glist { border: 1px solid var(--line-strong); }
   /* A hairline is a suggestion; at this setting the separation has to be stated. */
-  .grow { border-top-color: var(--line-strong); }
+  .grow::before { border-top: 1px solid var(--line-strong); }
   /* apple-design 14: at this setting depth is replaced by a stated border. A
      shadow is a soft cue and soft cues are the first thing to go. */
   .btn, .menu-btn, .opt, .cal-cell, .onecounts > a { box-shadow: none; }
@@ -1919,91 +1986,141 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    strip. Four languages, one screen, and the owner's word for it
    was "confusing".
 
-   This is the one language. It is the iOS grouped list, and it
-   is here because it answers exactly what he asked for: a
-   section header naming what follows, one inset group, rows that
-   are all the same shape, a value on the right, and a chevron
-   where there is somewhere to go. No per-row card, no rail, no
-   second border. Everything that is not the one action on a page
-   is a row in one of these.
+   This is the one language. It is the iOS inset grouped list
+   (brief §4, T-007), and it is here because it answers exactly
+   what he asked for: a section header naming what follows, one
+   rounded --surface section, rows that are all the same shape, a
+   value on the right, and a chevron where there is somewhere to
+   go. No per-row card, no rail, no second border. Everything that
+   is not the one action on a page is a row in one of these.
+
+   Until T-007 it was dressed as a ruled register — an uppercase
+   tracked header over a 1.5px ink rule, full-width hairlines, no
+   fill, serif titles and mono values — which on a phone read as a
+   printed table, not an app. The structure did not change; the
+   clothes did.
    ============================================================ */
-/* The head of the register: a column label with a real rule under it, the way
-   a ledger or a class list is headed. It used to be a floating caption above a
-   card with nothing tying it to the rows it named. */
+/* The section header: Title 3 (20px/600) in sentence case, its count or
+   total on the right in subhead --ink-2. No rule under it — the section's own
+   fill says where the rows begin. The 4px side padding is all it needs: the
+   page gutter (.main) already insets the header and the section together, so
+   the header's text lines up a few pixels in from the section's edge.
+   It wraps: at a 24px root the title is 30px, and on a 320px screen
+   "Consistency" beside "one square per day" is wider than the column — the
+   meta drops to its own line and keeps to the right edge. */
 .ghead {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
-  margin: var(--sp-5) 0 0; padding-bottom: 6px;
-  border-bottom: 1.5px solid var(--ink);
-  font-size: var(--fs-tiny); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px;
+  margin: 2rem 0 0; padding: 0 4px 8px;
+  font-size: var(--fs-title3); font-weight: 600; line-height: var(--lh-title3);
+  letter-spacing: var(--tr-title3); text-transform: none; color: var(--ink);
 }
-/* A head rule immediately followed by a row's own top rule draws two lines 1px
-   apart. The head carries the rule; the first row under it does not. */
-.ghead + .glist > .grow:first-child { border-top: 0; }
 .ghead .gh-meta {
-  font-family: var(--font-mono); letter-spacing: 0; text-transform: none;
+  margin-left: auto;
+  font-family: var(--font-body); font-size: var(--fs-subhead); font-weight: 400;
+  letter-spacing: 0; text-transform: none; color: var(--ink-2);
   font-variant-numeric: lining-nums tabular-nums;
 }
-/* A register, not a card.
-   The rows used to sit on a white slab with a 1px border and a 10px radius —
-   an iOS grouped list, which is a fine structure wearing the wrong clothes for
-   a university. The structure is unchanged; the box is gone. What is left is
-   what a printed register actually is: a head rule, hairlines between entries,
-   a closing rule, and the page itself showing through. */
-.glist {
-  border-bottom: 1px solid var(--line-strong);
-  background: none;
+/* The hero's context line ("Phase 1 · 0 / 2 today") is a .ghead too, and it
+   keeps the caption it has always had until T-009 restyles the hero: small,
+   tracked capitals over a rule, inside the card rather than between two. */
+.ghead.oh {
+  margin: 0 0 10px; padding: 0 0 6px;
+  border-bottom: 1.5px solid var(--ink);
+  font-size: var(--fs-tiny); font-weight: 600; line-height: var(--lh-body);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
 }
-.glist + .glist { margin-top: var(--sp-4); }
+.ghead.oh .gh-meta { font-size: inherit; font-weight: inherit; color: inherit; }
+/* The section: a --surface fill on --bg with --r-card corners (20px, T-024).
+   overflow:hidden is what rounds the rows' press fill into the corners with it. */
+.glist {
+  background: var(--surface); border-radius: var(--r-card); overflow: hidden;
+}
+.glist + .glist { margin-top: 2rem; }
 .grow {
+  position: relative;
   display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: clamp(12px, 0.75rem, 16px) clamp(15px, 0.9375rem, 19px);
-  min-height: clamp(54px, 3.375rem, 68px); color: var(--ink); text-decoration: none;
-  /* A <button> brings a UA border on all four sides; the row wants exactly one,
-     along its top, like every other row in the group. */
-  border: 0; border-top: 1px solid var(--line); background: none; text-align: left;
+  padding: 10px 16px; min-height: 44px;
+  color: var(--ink); text-decoration: none;
+  /* A <button> brings a UA border on all four sides; the row wants none. */
+  border: 0; background: none; text-align: left;
   font: inherit; cursor: pointer;
   transition: background-color var(--t-hover) ease;
 }
-@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--bg-2); text-decoration: none; } }
-.grow:active { background: var(--bg-2); }
+/* Two lines, two sizes: a row with a subtitle is 56px at least. */
+.grow:has(.g-s) { min-height: 56px; }
+/* The separator: a 0.5px --line along the top of every row but the first,
+   inset to where the row's text starts — past the leading slot where there is
+   one (16px of padding, the slot, and the 12px gap). A full-width rule under
+   the lead column is what made the old list read as a table. */
+.grow::before {
+  content: none; position: absolute; top: 0; right: 0; left: 16px;
+  border-top: 0.5px solid var(--line); pointer-events: none;
+}
+.grow + .grow::before { content: ""; }
+.grow:has(> .g-lead)::before { left: calc(16px + 1.375rem + 12px); }
+/* Hover and press fill the row with --surface-2, the brief's pressed-cell
+   grey. It stands off the section's --surface by >= 1.05:1 in every theme
+   (slate's was 1.045:1 and was re-solved), and everything a row can carry
+   stays >= 4.5:1 on it — which is why the leading slot and a muted value are
+   --ink-2 below: --ink-3 is 4.27:1 on the dark --surface-2.
+   The press is instant: .grow:active (further up, with the shared pointer-down
+   rule) narrows the transition to the transform, so the fill lands on
+   pointer-down and only fades on release. */
+@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--surface-2); text-decoration: none; } }
+.grow:active { background: var(--surface-2); }
+/* The keyboard ring goes INSIDE the row. The global ring is drawn 2px outside
+   an element's box, and the section clips its rows (overflow: hidden, above),
+   so a focused row kept only the edges it shared with a neighbour and a
+   one-row section showed no ring at all. -3px puts the 2px ring 1px inside
+   the row; the row takes the section's radius while focused, so the ring is
+   concentric with the rounded corner rather than cut by it. */
+.glist .grow:focus-visible { outline-offset: -3px; border-radius: var(--r-card); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
-   of them so every row's text starts on the same vertical line. */
+   of them so every row's text starts on the same vertical line — and the
+   separator inset above is computed from it.
+   In rem, because it holds text: 22px at the default size, as before. It was
+   a fixed 22px, which a two-digit number in mono just fitted at a 24px root;
+   in the body face with tabular numerals "14" is 24px there. */
 .grow .g-lead {
-  width: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-3);
+  width: 1.375rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-2);
 }
 .grow .g-main { flex: 1; min-width: 0; }
+/* Headline: 17px/600 in the body face. */
 .grow .g-t {
-  display: block; font-family: var(--font-display); font-weight: 700;
-  font-size: 1.02rem; line-height: 1.3; overflow-wrap: anywhere;
-}
-.grow .g-s {
-  display: block; font-family: var(--font-body); font-size: var(--fs-small);
-  color: var(--ink-3); margin-top: 1px; line-height: 1.35;
+  display: block; font-family: var(--font-body); font-weight: 600;
+  font-size: var(--fs-headline); line-height: var(--lh-headline); letter-spacing: var(--tr-headline);
   overflow-wrap: anywhere;
 }
-/* The ledger column. This was flex-shrink:0 and nothing else, so every value
+/* Subhead: 15px --ink-2. */
+.grow .g-s {
+  display: block; font-family: var(--font-body); font-size: var(--fs-subhead);
+  color: var(--ink-2); margin-top: 1px; line-height: var(--lh-subhead);
+  overflow-wrap: anywhere;
+}
+/* The value column. This was flex-shrink:0 and nothing else, so every value
    ended wherever its own width put it and no two lined up — a list of numbers
    that never became a column. A fixed measure, right-aligned and tabular, is
-   the whole difference between a list and a register: 6%, 3/51, 12m and 65d
-   now stack into one edge you can read straight down.
+   what makes it one: 6%, 3/51, 12m and 65d stack into one edge you can read
+   straight down. Tabular numerals in the body face do that job now; it was
+   mono until T-005.
    min-width, not width, so "20+ lectures" is not clipped to fit the column. */
 .grow .g-v {
   flex-shrink: 0; min-width: 5.5ch; text-align: right;
-  font-family: var(--font-mono); font-size: var(--fs-small);
+  font-family: var(--font-body); font-size: var(--fs-subhead);
   color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums;
 }
 /* Only rows that go somewhere get the chevron — apple-design 16, a control's
-   look has to predict what it does. */
+   look has to predict what it does. --ink-3, the tertiary label colour. */
 a.grow::after, button.grow.nav::after {
-  content: ""; flex-shrink: 0; width: 6px; height: 6px; margin-left: -2px;
-  border-right: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong);
+  content: ""; flex-shrink: 0; width: 7px; height: 7px; margin-left: -2px;
+  border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3);
   transform: rotate(-45deg);
 }
-/* A row that is not yet available recedes; it is still readable, still there. */
+/* A row that is not yet available recedes; it is still readable, still there.
+   Its value is --ink-2, not --ink-3, for the press fill's sake (see above). */
 .grow.muted-row .g-t { color: var(--ink-2); font-weight: 400; }
-.grow.muted-row .g-v { color: var(--ink-3); }
+.grow.muted-row .g-v { color: var(--ink-2); }
 .grow.done-row .g-lead { color: var(--good); }
 .grow.done-row .g-t { color: var(--ink-2); font-weight: 400; }
 /* A row that carries a control as well as text has to wrap. At 320px a button
@@ -2013,10 +2130,104 @@ a.grow::after, button.grow.nav::after {
 .grow:has(> .btn) { flex-wrap: wrap; }
 .grow:has(> .btn) .g-main { min-width: 150px; }
 
-/* The exception that used to live here — a nested .glist dropping its border so
-   a card would not draw a second frame around it — deleted itself when the
-   register stopped being a box. There is no frame to double any more, so a
-   group reads the same wherever it sits. */
+/* A .glist inside a card or a unit reads the same as one on the page: a
+   rounded --surface section. There is no frame to double — the section's fill
+   is its edge — so nothing is special-cased by where it sits. */
+
+/* A row's state, said in words in its subtitle ("Lecture 3 · Watched"). The
+   one coloured run in an otherwise --ink-2 line: --good, 600. */
+.grow .g-s .g-good { color: var(--good); font-weight: 600; }
+
+/* ============================================================
+   The thumbnail (T-016)
+   ------------------------------------------------------------
+   A lecture's own video frame, from YouTube's public image host
+   (app.js thumbFor), in one component wherever a lecture is
+   listed: a 16:9 frame with --r-md corners, the length on a dark
+   chip at the bottom right, and how far you have watched as a
+   3px edge along the bottom (loop/design/brief.md §8, the look
+   in specimen-feed.html).
+
+   Three states, all classes on the one box, so falling back is
+   a class and never a rebuild:
+   - waiting: the --surface-2 skeleton, the frame invisible over
+     it until its load event lands (.loaded), then a 120ms fade;
+   - the frame: .loaded;
+   - the cover: .cover — a reading has no frame, and a frame that
+     fails (error, or YouTube's 120x90 grey "no such video") is
+     removed. The course colour, its code and the title, set in
+     type. Its text is in the markup from the start and only shown
+     here.
+   Everything drawn ON the picture is a fixed colour, not a theme
+   ink: it sits on a photograph (or on the cover, which is dark in
+   every theme), not on the page. White on the chip's 78% black is
+   >= 11:1 whatever is under it. */
+.thumb {
+  position: relative; display: block; flex-shrink: 0;
+  aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden;
+  background: var(--surface-2);
+  color: #fff;
+  /* A change of state is a swap, never a blend. Under reduced motion the
+     kill-switch gives every property a 0.01ms transition, and that was enough
+     for the cover's white code to land a frame before its colour did — white
+     on the skeleton, which verify-contrast caught as a frame failed on screen. */
+  transition: none;
+}
+.thumb img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  /* hqdefault is 4:3 with the 16:9 frame letterboxed inside it; cover crops
+     the bars off. */
+  opacity: 0; transition: opacity var(--t-micro) ease;
+}
+.thumb.loaded img { opacity: 1; }
+/* Reduced motion: the frame is simply there. `none`, not the kill-switch's
+   0.01ms — that is still a transition, one frame of the skeleton. */
+@media (prefers-reduced-motion: reduce) { .thumb img { transition: none; } }
+/* The cover. The light themes' --fac colours already carry white text
+   (>= 5.9:1); the dark themes' are tints made to read ON black, so there the
+   cover is the tint taken --cover-k of the way to black (>= 8:1). */
+.thumb.cover { background: color-mix(in srgb, var(--fac, var(--fac-math)), #000 var(--cover-k, 0%)); }
+.thumb .th-cover { display: none; }
+.thumb.cover .th-cover { display: block; position: absolute; inset: 0; padding: 10px 12px; }
+.thumb .th-code {
+  display: block; font-family: var(--font-body); font-size: var(--fs-caption); font-weight: 600;
+  line-height: 1.2; letter-spacing: 0.02em; overflow-wrap: anywhere;
+}
+.thumb .th-ttl {
+  position: absolute; left: 12px; right: 12px; bottom: 16px;
+  font-family: var(--font-body); font-size: 1.125rem; font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.01em; overflow-wrap: anywhere;
+}
+/* The length: m:ss, or h:mm:ss from an hour; "Reading" or "Paper" where
+   there is no video. */
+.thumb .th-dur {
+  position: absolute; right: 8px; bottom: 8px; padding: 2px 6px; border-radius: 6px;
+  background: rgb(0 0 0 / .78); color: #fff;
+  font-family: var(--font-body); font-size: var(--fs-caption); font-weight: 600; line-height: 1.3;
+  font-variant-numeric: tabular-nums; letter-spacing: 0; white-space: nowrap;
+}
+/* How far you have got: the resume point over the runtime, full once the
+   lecture is watched. White on a darkened track, so it reads on a white slide
+   and a black one alike. Proven is the achievement gold — the dark themes'
+   --gold, fixed, because it is drawn on the picture. */
+.thumb .th-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgb(0 0 0 / .45); }
+.thumb .th-prog i { display: block; height: 100%; background: #fff; }
+.thumb.proven .th-prog i { background: #e0b35a; }
+
+/* As a list row's leading image: 96px wide, the course code only (the title
+   is the row's own, beside it), the chip and the cover tighter to the edge. */
+.grow > .thumb { width: 96px; }
+.grow > .thumb .th-ttl { display: none; }
+.grow > .thumb.cover .th-cover { padding: 6px 8px; }
+.grow > .thumb .th-code { font-size: clamp(10px, 0.625rem, 12px); }
+.grow > .thumb .th-no { display: block; }
+.grow > .thumb .th-dot { display: none; }
+/* The frame is a fixed 96px picture, so what is printed on it is capped the
+   way a picture's own text would be: at a 24px root an uncapped 18px chip
+   covered half the frame and the cover's second line with it. */
+.grow > .thumb .th-dur { right: 4px; bottom: 6px; padding: 0 4px; border-radius: 4px; font-size: min(var(--fs-caption), 13px); }
+/* The separator starts where the text does: past the 96px frame and the gap. */
+.grow:has(> .thumb)::before { left: calc(16px + 96px + 12px); }
 
 /* A status dot, for when a row's state is the whole point (a day, a course). */
 .gdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
@@ -2041,8 +2252,10 @@ a.grow::after, button.grow.nav::after {
 @media (min-width: 861px) { .scrim, .edge-grab { display: none; } }
 /* The strip you pull from. 20px is Apple's own edge-swipe target: wide enough
    to catch a thumb, narrow enough not to eat taps on real content. */
+/* It starts below the status bar, like the nav bar: the strip under the
+   clock is the system's (a tap there scrolls to the top), not ours. */
 .edge-grab {
-  position: fixed; left: 0; top: 0; bottom: 0; width: 20px;
+  position: fixed; left: 0; top: env(safe-area-inset-top, 0px); bottom: 0; width: 20px;
   z-index: calc(var(--z-drawer) - 2); background: transparent;
   /* none, not pan-y: inside this strip the horizontal drag is entirely ours,
      and leaving the browser a gesture to claim is what lets it cancel the
@@ -2070,10 +2283,12 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 
 
 /* ---------- The phone's spacing ceiling ----------
-   Last in the file on purpose. Two of the three element rules it caps — .grow
-   and .btn — are declared further up, and a rule of equal specificity declared
-   later wins: sitting where it used to sit, the .grow line in here was dead the
-   moment it was written, capping nothing while reading as though it did. */
+   Last in the file on purpose. The element rules it caps — .btn and .btn.tiny
+   — are declared further up, and a rule of equal specificity declared later
+   wins: sitting where it used to sit, a .grow line in here was dead the moment
+   it was written, capping nothing while reading as though it did. (.grow is no
+   longer capped here at all: since T-007 its padding is a fixed 10px 16px,
+   which has nothing to grow.) */
 /* A phone has less width to give away, so on a phone the spacing scale splits
    along the axis it is spent on.
    Text size is unbounded; horizontal space is not. Below 460px the four small
@@ -2095,7 +2310,649 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 @media (max-width: 460px) {
   :root { --sp-1: 6px; --sp-2: 10px; --sp-3: 16px; --sp-4: 24px; }
   /* The element-level clamps are horizontal padding for the same reason. */
-  .grow { padding: clamp(12px, 0.75rem, 16px) 15px; }
   .btn { padding: clamp(9px, 0.5625rem, 12px) 18px; }
   .btn.tiny { padding: clamp(6px, 0.375rem, 9px) 10px; }
+  /* The drawer's column is 232px here. "BRICKFORD" at 1.3rem with 0.14em
+     tracking fitted it exactly in the serif (232px at a 24px root) and is
+     243px in the system face's fallback, so on a phone the wordmark stops
+     growing at 29px (226px). At the default size it is 20.8px, unchanged.
+     The same wordmark at 768px and up is T-002's and is NOT fixed here — and
+     the face change made it 13px worse at a 24px root. Measured in the gates'
+     headless Chromium: the text was 230px and is 243px, in a 220px column at
+     768 (overflow 10 -> 23px) and a 206px column at 1024 and 1280 (24 ->
+     37px). At a 16px root it is 162px (was 153) and fits every column. */
+  .crest .name-en { font-size: min(1.3rem, 29px); }
 }
+
+/* ============================================================
+   T-026a: the Atlas as a route, Courses as a shelf
+   ------------------------------------------------------------
+   Both pages were a ruled folio over .glist rows, so they looked like
+   the same page. The Atlas now draws the 3½-year route itself
+   (Start and five gates on one track); Courses is a shelf of covers
+   that takes you back into what you were watching.
+   Tokens only (the tracks are --line, which --surface-2 is too faint
+   for on the light theme's white card: 1.08:1). The one tint is the faculty colour over --surface,
+   at 14% rather than the mockup's 18%: at 18% the dark RES and PHYS
+   codes measure 4.31 and 4.45:1 on their own cover, and every text
+   here has to be >= 4.5:1. A course that has not opened is dimmed by
+   mixing its COVER into the page (45%), never by putting its text
+   under opacity: verify-contrast cannot see ancestor opacity, so a
+   faded label would be unreadable and still pass.
+   ============================================================ */
+
+/* ---- the route card ---- */
+.at-route { background: var(--surface); container: atroute / inline-size; }
+.rt {
+  --pin-h: 2rem; --rt-o: 0.61rem; --rt-gap: 1.1rem;
+  position: relative; list-style: none;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding-top: var(--pin-h);
+}
+/* The track runs from the centre of the first column to the centre of the
+   last, so the six nodes are evenly spaced by construction. */
+.rt::before, .rt::after {
+  content: ""; position: absolute; left: calc(100% / 12);
+  top: calc(var(--pin-h) + 7px); height: 4px; border-radius: 2px;
+}
+.rt::before { right: calc(100% / 12); background: var(--line); }
+.rt::after { width: calc(var(--fill, 0) * 100% * 10 / 12); background: var(--accent); }
+.rt-node {
+  position: relative; z-index: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  text-align: center;
+}
+.rt-dot {
+  position: relative; z-index: 1; flex: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--ink-3);
+}
+.rt-node.done .rt-dot { background: var(--accent); border-color: var(--accent); }
+.rt-node.next .rt-dot { border: 4px solid var(--accent); }
+.rt-lab { display: flex; flex-direction: column; align-items: center; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.rt-lab b { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.22rem; color: var(--ink); }
+.rt-lab span { font-size: var(--fs-footnote); line-height: 1.35; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* You are here: above the fill's end, its stick down to the track. Past the
+   middle it hangs to the left of the stick, so it never runs off the card. */
+.rt-pin {
+  position: absolute; top: 0; z-index: 2;
+  left: calc(100% / 12 + var(--fill, 0) * 100% * 10 / 12);
+  font-size: var(--fs-footnote); font-weight: 600; line-height: 1.22rem;
+  color: var(--accent); white-space: nowrap;
+}
+.rt-pin.end { transform: translateX(-100%); }
+.rt-pin::after {
+  content: ""; position: absolute; left: -1px; top: 1.3rem;
+  height: calc(var(--pin-h) - 1.3rem + 7px); width: 2px; background: var(--accent);
+}
+.rt-pin.end::after { left: auto; right: -1px; }
+/* Narrow: the track turns vertical. Rows in the flow, labels to the right,
+   so no two pieces of text can sit on each other. Each row draws its own
+   piece of track down to the next dot; the pin is a row of its own, placed
+   in its segment in proportion (--f) by the padding either side of it.
+   A container query in rem, so it moves with the text size: below 38rem of
+   card (608px at the default size) a sixth of the track is narrower than the
+   longest label word ("Calibration"), which would break mid-word. */
+@container atroute (max-width: 38rem) {
+  .rt { display: flex; flex-direction: column; padding-top: 0; }
+  .rt::before, .rt::after { content: none; }
+  .rt-node, .rt-pin {
+    position: relative; left: auto; top: auto; transform: none;
+    flex-direction: row; align-items: flex-start; text-align: left; white-space: normal;
+    padding: 0 0 var(--rt-gap) calc(18px + 0.75rem);
+  }
+  .rt-node.cur { padding-bottom: calc(var(--rt-gap) + var(--f, 0) * 2rem); }
+  .rt-pin { z-index: 1; padding-bottom: calc(var(--rt-gap) + (1 - var(--f, 0)) * 2rem); }
+  /* A pin past the middle hangs left of its stick on the horizontal track;
+     here it is a row like the others, so that has to be undone at the same
+     specificity (0,2,0) or it beats the reset above and leaves the card. */
+  .rt-pin.end { transform: none; }
+  .rt-dot { position: absolute; left: 0; top: calc(var(--rt-o) - 9px); }
+  .rt-lab { align-items: flex-start; }
+  .rt-node:not(:last-child)::after, .rt-pin:not(:last-child)::after {
+    content: ""; position: absolute; z-index: 0; left: 7px; right: auto; width: 4px; height: auto;
+    top: var(--rt-o); bottom: calc(-1 * var(--rt-o)); background: var(--line); border-radius: 0;
+  }
+  .rt-node.past:not(:last-child)::after { background: var(--accent); }
+  .rt-pin:last-child::after { content: none; }
+  .rt-pin::before {
+    content: ""; position: absolute; z-index: 1; left: 3px; top: calc(var(--rt-o) - 6px);
+    width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
+  }
+}
+
+/* ---- the next gate ---- */
+/* The text and the days share a line while the text has 12rem and its
+   widest word fits (a 390 phone at the default size, a 3-digit count; 360
+   with 2 digits); below that (a phone at a larger text size, or a chip with
+   a long word: "6+ paper reimplementations") the days drop under it, rather
+   than the column being squeezed until "Calibration" or a chip breaks
+   mid-word. min-content is that floor, so a chip's words do not break
+   (overflow-wrap: normal on .at-req). In rem, so it follows the root size,
+   which a media query would not. */
+.at-next {
+  display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center;
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.at-main { flex: 1 1 12rem; min-width: min-content; }
+.at-next:hover { text-decoration: none; }
+.at-k { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.at-gate { margin-top: 4px; font-size: var(--fs-title2); font-weight: 700; line-height: 1.25; letter-spacing: var(--tr-title2); overflow-wrap: anywhere; }
+.at-sub { margin-top: 6px; font-size: var(--fs-subhead); color: var(--ink-2); }
+.at-reqs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.at-req {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 14px;
+  border-radius: 999px; background: var(--surface-2); color: var(--ink-2);
+  font-size: var(--fs-subhead); line-height: 1.3; overflow-wrap: normal; min-width: 0;
+}
+.at-req::before { content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
+.at-days { flex: none; margin-left: auto; text-align: right; }
+.at-days b { display: block; font-family: var(--font-rounded); font-size: 2.125rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.at-days span { font-size: var(--fs-footnote); color: var(--ink-3); }
+
+/* ---- studying now: one tile per running course ---- */
+.at-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 600px) { .at-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .at-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* The text and the ring share a line while the tile has room for both; in
+   a narrow tile (1100px, where the sidebar and the rail both take their
+   share, or a larger text size) the ring drops under the text rather than
+   squeezing the code into a sliver beside it. */
+.at-tile {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  min-height: 44px; padding: 14px 16px; border-radius: var(--r-card);
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.at-tile:hover { text-decoration: none; }
+.tl-main { flex: 1 1 6rem; min-width: 0; display: flex; flex-direction: column; }
+.tl-code { font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
+.tl-t { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.tl-m { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tl-ring { flex: none; position: relative; width: 2.75rem; height: 2.75rem; display: grid; place-items: center; }
+.tl-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tl-ring circle { fill: none; stroke-width: 4; }
+.tl-ring .tr-bg { stroke: var(--line); }
+.tl-ring .tr-fg { stroke: var(--fac, var(--accent)); }
+.tl-pct { position: relative; font-size: 0.6875rem; line-height: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---- opens later ---- */
+.at-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.at-chip {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px;
+  background: var(--surface); color: var(--ink-2); text-decoration: none;
+  font-size: var(--fs-subhead); font-variant-numeric: tabular-nums;
+}
+.at-chip:hover { text-decoration: none; }
+.at-chip b { color: var(--ink); font-weight: 600; }
+.at-concepts { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font-size: var(--fs-subhead); color: var(--accent); }
+
+/* ---- Courses: the filter ---- */
+.seg {
+  display: flex; flex-wrap: wrap; gap: 2px; width: fit-content; max-width: 100%;
+  margin-top: var(--sp-3); padding: 3px; border-radius: 14px; background: var(--surface);
+}
+.seg button {
+  flex: 1 1 auto; min-height: 44px; min-width: 44px; padding: 0 16px;
+  border: 0; border-radius: 11px; background: none; color: var(--ink-2);
+  font: inherit; font-size: var(--fs-subhead); white-space: nowrap; cursor: pointer;
+}
+/* Four labels in a 350px column (a 390 phone) with 12px either side; at 320,
+   or with larger text, the control wraps rather than clipping a label. */
+@media (max-width: 599px) { .seg button { padding: 0 12px; } }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+
+/* ---- Courses: the shelf ---- */
+/* 2, 3 and 4 columns, each no narrower than 7rem: a title word would
+   otherwise break mid-word — at 1100px, where the rail takes its share, or
+   at a larger text size — so the shelf drops a column instead. The widest,
+   "Mathematics" in .bk-t, is 6.81rem (109px at 15px), so the floor sits
+   above it: at 6.75rem a track between the two split it "Mathematic/s"
+   (1132px at a 16px root, 376px at 24px). The 0.5px keeps the count exact
+   at the default size (auto-fill floors the number of tracks that fit). */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); gap: 18px 12px; }
+@media (min-width: 600px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); } }
+@media (min-width: 1024px) { .shelf { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); } }
+.book { display: block; min-width: 0; color: var(--ink); text-decoration: none; }
+.book:hover { text-decoration: none; }
+/* clip-path, not overflow:hidden: the cover rounds its bar into the corner
+   without losing its automatic minimum height, so a large text size grows
+   the cover instead of cutting the code off. */
+.book .cover {
+  position: relative; display: flex; align-items: flex-end;
+  aspect-ratio: 16 / 10; padding: 12px 14px; border-radius: var(--r-lg);
+  clip-path: inset(0 round var(--r-lg));
+  background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface));
+}
+.cv-code { min-width: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; color: var(--fac, var(--accent)); overflow-wrap: anywhere; }
+.cv-bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--fac, var(--accent)); }
+.bk-t, .bk-m { display: block; }
+.bk-t { margin-top: 10px; font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.bk-m { margin-top: 2px; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.book.later .cover { background: color-mix(in srgb, color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)) 45%, var(--bg)); }
+.book.later .cv-code, .book.later .bk-t { color: var(--ink-2); }
+.book.later .bk-m { color: var(--ink-3); }
+.shelf-empty { font-size: var(--fs-subhead); color: var(--ink-2); padding: 0 4px; }
+
+/* The press: a scale only, so nothing a press shows changes colour. */
+.at-tile:active, .at-chip:active, .book:active, .seg button:active {
+  transform: scale(0.985); transition: transform 100ms ease-out;
+}
+
+/* ============================================================
+   T-026b: Problems, Exams and Proof say what they are for
+   ------------------------------------------------------------
+   Each page opens with an h1 and one line saying what it is for, then its
+   one primary action. Built from T-026a's pieces rather than beside them:
+   the .page-head header, .at-tiles/.at-tile for the mode cards, the
+   also-open cards and the stat tiles, the next-gate card (.at-next,
+   .at-main, .at-gate, .at-days) for the exam to sit next, .tl-code for the
+   course tags, and .at-chip for every pill (Open, "+N more", Proof's
+   links). Tokens only. No text here is set to break inside a word: the
+   blocks wrap (a footer, a fact, a bar drops to its own line) instead.
+   ============================================================ */
+
+/* ---- Problems: three ways in ---- */
+/* 3 across from 1024px and 1 under 600 (.at-tiles), but never narrower than
+   a card's longest word needs: at 1100, where the sidebar and the rail leave
+   the page 440px, or at a larger text size, the grid drops a column (the
+   T-026a shelf's rule) instead of pushing "Problem" out of its card. The
+   also-open cards on Exams take the same rule at their own width. */
+@media (min-width: 600px) {
+  .at-tiles.pb-modes { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+  .at-tiles.ex-open { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .at-tiles.pb-modes { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+  .at-tiles.ex-open { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+}
+.pb-mode { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0; padding: 18px 20px; }
+.pb-glyph {
+  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--r-sm);
+  background: var(--surface-2); color: var(--ink-2);
+}
+.pb-glyph svg { width: 1.125rem; height: 1.125rem; }
+.pb-t { margin-top: 12px; font-size: var(--fs-headline); font-weight: 700; line-height: 1.25; }
+.pb-d { margin-top: 4px; font-size: var(--fs-subhead); line-height: 1.35; color: var(--ink-2); }
+.pb-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-top: auto; padding-top: 14px; }
+.pb-m { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pb-foot .btn { min-height: 44px; min-width: 44px; justify-content: center; }
+/* The pills that are buttons lose the UA border and font. Open sits on a
+   card (--surface), so it takes --surface-2 with a --line edge: the edge is
+   what shows it on the light theme's white card. */
+button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
+.pb-open { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font-weight: 600; }
+/* The lab rows: one rounded list, its separators inset like .glist's. */
+.pb-labs { background: var(--surface); border-radius: var(--r-card); padding: 0 16px; scroll-margin-top: calc(var(--topbar-h, 0px) + 4rem); }
+.pb-lab { padding: 12px 0; }
+.pb-lab + .pb-lab { border-top: 0.5px solid var(--line); }
+.pb-row { flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 0; min-height: 44px; }
+.pb-row .checkbox { align-self: center; }
+.pb-lt { flex: 1 1 9rem; display: flex; flex-direction: column; }
+.pb-lt-t { font-size: var(--fs-subhead); font-weight: 600; line-height: 1.3; color: var(--ink); }
+.pb-lt-d { font-size: var(--fs-footnote); line-height: 1.35; color: var(--ink-2); }
+.pb-h { flex: none; margin-left: auto; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#pbSets { scroll-margin-top: calc(var(--topbar-h, 0px) + 1rem); }
+
+/* ---- Exams: the next one, the open ones, the locked ones ---- */
+.ex-rec { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.ex-tag { display: inline-block; align-self: flex-start; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; overflow-wrap: normal; background: color-mix(in srgb, var(--fac, var(--accent)) 14%, var(--surface)); }
+/* The Exams hero keeps a 0 floor: the min-content one is the Atlas card's. */
+.ex-hero .at-main { flex: 3 1 14rem; min-width: 0; }
+.ex-hero .at-gate { margin-top: 10px; overflow-wrap: normal; }
+.ex-facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* A bar of the course's lectures watched, in its faculty colour. */
+.ex-bar, .ex-lbar { display: block; height: 6px; border-radius: 3px; background: var(--line); }
+.ex-bar { margin-top: 14px; }
+.ex-bar i, .ex-lbar i { display: block; height: 100%; border-radius: inherit; background: var(--fac, var(--accent)); }
+.ex-side { flex: 1 1 12rem; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.ex-hero.urgent .at-days b { color: var(--urgent); }
+.ex-sit { width: 100%; justify-content: center; text-align: center; }
+.ex-card .tl-t, .ex-card .tl-m, .pf-tile .at-days { overflow-wrap: normal; }
+.ex-card .tl-main { min-width: auto; }
+.ex-card .tl-t { margin-top: 8px; }
+.ex-locked { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media (min-width: 600px) { .ex-locked { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ex-lock {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 44px; padding: 10px 14px;
+  border: 1px solid var(--line); border-radius: var(--r-md); color: var(--ink-2); text-decoration: none;
+  font-size: var(--fs-subhead);
+}
+.ex-lock:hover { text-decoration: none; }
+.ex-lock[hidden] { display: none; }
+.ex-lk { flex: none; display: grid; width: 12px; height: 12px; color: var(--ink-3); }
+.ex-lk svg { width: 100%; height: 100%; }
+.ex-ln { flex: 1 1 7rem; }
+.ex-lbar { flex: 0 0 5rem; height: 4px; border-radius: 2px; margin-left: auto; }
+.ex-more { margin-top: 10px; }
+
+/* ---- Proof: the run, the sealed days, the chain ---- */
+/* Three across wherever a tile keeps 6.5rem, so a phone sees the run in one
+   row; at 320 or a larger text size the row drops a tile rather than
+   squeezing "longest" out of its box. */
+.at-tiles.pf-tiles { grid-template-columns: repeat(auto-fill, minmax(max(6.5rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+.pf-tile { padding: 14px 16px; }
+.pf-tile .at-days { flex: 1 1 auto; margin-left: 0; text-align: left; }
+.pf-tile .at-days span { display: block; margin-top: 6px; line-height: 1.3; }
+.pf-heat { background: var(--surface); }
+.pf-seals { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.seal { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: var(--r-md); background: var(--surface); }
+.seal b { font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+.seal-h { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--ink-2); }
+/* Genesis, faded by its inks and a dashed edge — never by opacity, which
+   verify-contrast cannot see. */
+.seal.gen { background: none; box-shadow: inset 0 0 0 1px var(--line-strong); }
+.seal.gen b, .seal.gen .seal-h { color: var(--ink-3); }
+.seal-arrow { color: var(--ink-3); font-size: var(--fs-subhead); }
+.ghead .gh-meta.pf-broken { color: var(--bad); }
+.pf-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2rem; }
+.pf-reset { color: var(--bad); }
+
+.ex-lock:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---------- T-038: the baseline line, and the gate confirm sheet ----------
+   The Atlas head states the projected arrival; when that is not the plan's
+   baseline, a muted line under it says so. --ink-3 is still text: 4.5:1. */
+.page-head .at-base { color: var(--ink-3); font-size: var(--fs-footnote); margin-top: 4px; font-variant-numeric: tabular-nums; }
+/* A native modal <dialog> (showModal): the top layer, so nothing of the page —
+   the tab bar, the rail, the nav bar — is ever over it, and the page behind is
+   inert. A phone gets a sheet that rises from the bottom edge with --r-xl top
+   corners (brief §3); a desktop the same card, centred. It scrolls as one
+   piece when it is taller than the screen: nothing in it is fixed. */
+.sheet {
+  position: fixed; inset: auto 0 0 0; margin: 0 auto;
+  width: 100%; max-width: 560px; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); overflow: auto;
+  padding: 0; border: 0; border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface); color: var(--ink); box-shadow: var(--float);
+}
+@media (min-width: 861px) { .sheet { inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 48px); border-radius: var(--r-xl); } }
+/* --shade with a fallback: a ::backdrop that does not inherit custom
+   properties (older WebKit) still dims. */
+.sheet::backdrop { background: color-mix(in srgb, var(--shade, #000) 55%, transparent); }
+.sheet-in { padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); }
+.sheet h2 { margin: 0; }
+.sheet-lede { color: var(--ink-2); font-size: var(--fs-small); margin-top: 6px; }
+.sheet-reqs { display: grid; gap: 2px; margin-top: 12px; }
+/* The requirement rows are the app's .check-row, but here the box must take
+   the keyboard: the input is kept (visually hidden, not display:none) and its
+   focus ring is drawn on the box beside it. A row is a 44px target. */
+.sheet .check-row { position: relative; align-items: center; min-height: 44px; }
+.sheet .check-row input { display: block; position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.sheet .checkbox { margin-top: 0; width: 20px; height: 20px; }
+.sheet .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.sheet-go .btn { min-height: 44px; min-width: 44px; justify-content: center; }
+
+/* ============================================================
+   T-026c: Week, the Calendar's day view, and Library
+   ------------------------------------------------------------
+   Built from T-026a/b's pieces: the .page-head header, .at-tiles /
+   .at-tile / .pf-tile for the numbers, the habits and the document
+   cards (.pb-glyph, .pb-t, .pb-d inside), .seg for the day controls,
+   .at-chip for the links and "+N", .tl-t / .tl-m for the habit text.
+   Tokens only. Nothing is faded by opacity (verify-contrast cannot see
+   it): a quieter thing takes a quieter ink, or a dashed edge.
+   ============================================================ */
+
+/* ---- Week: four numbers ---- */
+/* Four across while a tile keeps 7rem, two on a phone; at 1100 (the rail
+   takes its share) or a larger text size the row drops a tile instead of
+   squeezing "lectures" out of its box. */
+.at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .at-tiles.wk-tiles { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 36px) / 4 - 0.5px)), 1fr)); }
+}
+/* A counted number fits its tile whatever its length (T-026c review 1: a
+   1,149.5 BHD week ran out of its tile from 320 to 1280). --n is its length in
+   characters, set by app.js; a character of these digits is at most 0.64em
+   wide (DejaVu's 0.636 is the widest face the gates draw with), so the size is
+   capped at the tile's content width (100cqi) over that. Short numbers keep
+   the full 2.125rem. */
+.wk-tile { align-items: flex-start; container-type: inline-size; }
+.wk-tile .at-days b { font-size: min(2.125rem, calc(100cqi / (var(--n, 1) * 0.64))); white-space: nowrap; }
+.wk-tile .wk-auto, .wk-tile .wk-hand {
+  display: block; margin-top: 4px; font-size: var(--fs-caption); font-style: normal; line-height: 1.3;
+}
+.wk-auto { color: var(--good); }
+.wk-hand { color: var(--ink-3); }
+/* The typed number sits where the counted ones do, in the same face and
+   size; the field is 44px tall, pulled up by the difference so the four
+   numbers share a line (at a larger root the number is taller than 44px
+   and no pull is needed). */
+.wk-edit { cursor: text; }
+.wk-edit input[type="number"] {
+  display: block; width: 100%; min-height: 44px; margin: min(0px, calc((2.125rem - 44px) / 2)) 0;
+  padding: 0 2px; border: 0; border-radius: var(--r-sm); background: none; box-shadow: none;
+  color: var(--ink); font-family: var(--font-rounded); font-size: 2.125rem; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield;
+}
+.wk-edit input[type="number"]::-webkit-inner-spin-button,
+.wk-edit input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.wk-edit input[type="number"]:focus { box-shadow: 0 0 0 2px var(--accent); }
+
+/* ---- Week: the two questions, and Seal ---- */
+.card.wk-q { margin-top: var(--sp-3); padding: 16px 18px; border: 0; background: var(--surface); }
+.wk-ql.field {
+  margin: 0 0 8px; font-size: var(--fs-headline); font-weight: 600; letter-spacing: 0;
+  text-transform: none; color: var(--ink);
+}
+.wk-q input[type="text"] { min-height: 44px; background: var(--surface-2); }
+/* On --surface-2 the browser's placeholder grey is 4.26:1 in Light and 3.02:1
+   in Dark; --ink-2 is the quieter ink that still reads (--ink-3 does not, in
+   Dark). Opacity 1, so no browser's own fade is laid over it. */
+.wk-q input::placeholder { color: var(--ink-2); opacity: 1; }
+.wk-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; }
+.wk-state { font-size: var(--fs-footnote); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.wk-foot .btn { margin-left: auto; min-height: 44px; min-width: 44px; justify-content: center; }
+
+/* ---- Week: past weeks ---- */
+.wk-weeks { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(max(8rem, calc((100% - 10px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .wk-weeks { grid-template-columns: repeat(auto-fill, minmax(max(8rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
+}
+.wk-card { min-width: 0; border-radius: var(--r-lg); background: var(--surface); color: var(--ink-2); font-size: var(--fs-footnote); }
+.wk-card > summary {
+  display: flex; flex-direction: column; gap: 4px; min-height: 44px; padding: 12px 14px;
+  list-style: none; cursor: pointer;
+}
+.wk-card > summary::-webkit-details-marker { display: none; }
+.wk-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; }
+.wk-h b { font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+.wk-h span { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* What was typed can be a URL: it may break anywhere rather than run out. */
+.wk-s { color: var(--ink); line-height: 1.35; overflow-wrap: anywhere; }
+.wk-s.wk-fail { color: var(--bad); }
+.wk-m { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.wk-notes { padding: 0 14px 12px; color: var(--ink-2); line-height: 1.4; overflow-wrap: anywhere; }
+.wk-slot {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 64px; padding: 12px; text-align: center;
+}
+.wk-slot b { font-size: var(--fs-subhead); color: var(--ink); }
+.wk-slot.later { background: none; border: 1px dashed var(--line-strong); color: var(--ink-3); }
+.wk-slot.later b { color: var(--ink-3); }
+.wk-card > summary:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---- Calendar: the selected day ---- */
+.cd-day { margin-top: 2rem; }
+.cd-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; }
+.cd-title { min-width: 0; }
+.cd-title h2 {
+  margin: 0; font-size: var(--fs-title1); font-weight: 700; line-height: var(--lh-title1);
+  letter-spacing: var(--tr-title1); color: var(--ink);
+}
+.cd-sub { margin-top: 2px; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.seg.cd-seg { margin-top: 0; margin-left: auto; flex-wrap: nowrap; }
+.seg.cd-seg button { display: grid; place-items: center; }
+.seg.cd-seg button:disabled { color: var(--ink-3); cursor: default; }
+.cd-prog { height: 6px; margin-top: 12px; border-radius: 3px; background: var(--line); }
+.cd-prog i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.cd-prog.full i { background: var(--good); }
+.cd-note { margin-top: 10px; font-size: var(--fs-footnote); line-height: 1.45; color: var(--ink-2); }
+.cd-note strong { font-weight: 600; color: var(--ink); }
+.cd-note.cd-gate strong { color: var(--accent); }
+.cd-none { margin-top: 16px; font-size: var(--fs-subhead); color: var(--ink-2); }
+/* A block: a 6px bar in the faculty colour down the leading edge, the
+   course and block over the title, the length over the place on the right. */
+.cd-blocks { display: grid; gap: 10px; margin-top: 16px; }
+.cd-blk {
+  display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; align-items: center; gap: 4px 16px;
+  min-height: 44px; padding: 14px 18px 14px 0; border-radius: var(--r-lg);
+  background: var(--surface); color: var(--ink); text-decoration: none;
+}
+.cd-blk:hover { text-decoration: none; }
+.cd-bar { align-self: stretch; min-height: 2rem; border-radius: 0 3px 3px 0; background: var(--fac, var(--line-strong)); }
+.cd-main { display: flex; flex-direction: column; min-width: 0; }
+.cd-k { font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fac, var(--ink-3)); }
+.cd-t { margin-top: 2px; font-size: var(--fs-headline); font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
+.cd-r {
+  display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+  font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cd-ok { margin-right: 6px; color: var(--good); }
+.cd-blk.done .cd-t { color: var(--ink-2); }
+.cd-blk.done .cd-k { color: var(--ink-3); }
+.cd-pseudo .cd-k { color: var(--ink-3); }
+/* The habits: four across while a tile keeps 7rem, two on a phone. */
+.cd-habits { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 10px) / 2 - 0.5px)), 1fr)); }
+@media (min-width: 600px) {
+  .cd-habits { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
+}
+.cd-hb { padding: 14px; }
+.cd-blk:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
+/* ---- Library ---- */
+/* Three across from 1024px, two from 600, one on a phone (.at-tiles), and
+   never narrower than a card's title needs: at 1100, or a larger text size,
+   the row drops a card instead of squeezing a word out of it. */
+@media (min-width: 600px) {
+  .at-tiles.lb-docs { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 12px) / 2 - 0.5px)), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .at-tiles.lb-docs { grid-template-columns: repeat(auto-fill, minmax(max(9rem, calc((100% - 24px) / 3 - 0.5px)), 1fr)); }
+}
+.lb-doc { min-height: 8.25rem; }
+.pb-glyph.lb-ic { width: 2rem; height: 2.5rem; }
+/* The suggested first read: an --accent edge drawn inside the card, so
+   nothing outside its box can clip it. */
+.lb-doc.start { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.lb-old .pb-d { color: var(--ink-3); }
+.lb-links [hidden] { display: none; }
+button.at-chip.lb-more { font-weight: 600; }
+
+/* ============================================================
+   T-028: Practice — record yourself
+   ------------------------------------------------------------
+   Built from T-026a/b/c's pieces: the .page-head header, .seg for the
+   three tabs, a --surface card (as .wk-q), .ghead for the list's head,
+   .unit for the folds. Tokens only. The record button is 104px: a ring of
+   --ink (white on Dark; on Light's white card a white ring would be
+   nothing, so it is the dark ink there) round a --bad disc. The spec's red
+   is #ff453a "or the theme's --bad if that has better contrast", and --bad
+   has it on the card in both themes: 5.58:1 to 4.99:1 on Dark's #1c1c1e,
+   6.34:1 to 3.41:1 on Light's white (verify-design measures both).
+   Recording, the disc becomes a rounded square.
+   ============================================================ */
+
+/* ---- the header: the title on the left, the week on the right ---- */
+.pr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.pr-title { min-width: 0; flex: 1 1 16rem; }
+.pr-week { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto; }
+.pr-week .weekdots { margin-top: 0; }
+.pr-week-t { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+@media (max-width: 599px) { .pr-week { align-items: flex-start; margin-left: 0; } }
+.page-head.pr-head + .card { margin-top: 0; }
+.pr-seg { margin-top: var(--sp-3); }
+
+/* ---- the card ---- */
+.pr-pane { margin-top: 18px; }
+.card.pr-card {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 30px 24px 26px; border: 0; background: var(--surface); text-align: center;
+}
+.pr-prompt { font-size: var(--fs-title3); font-weight: 650; line-height: var(--lh-title3); letter-spacing: var(--tr-title3); color: var(--ink); text-wrap: balance; }
+.pr-hint { margin: 0; font-size: var(--fs-subhead); color: var(--ink-2); }
+.pr-nomic { margin: 4px 0 0; font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
+/* The hand forms fill the card. `.card.pr-card` above is two classes, so
+   this has to be three: one class alone was a dead rule, and the forms were
+   squeezed to their fields' intrinsic width (review 1, ~220px). */
+.card.pr-card.pr-hand { align-items: stretch; text-align: left; }
+.pr-hand .pr-prompt, .pr-hand .pr-hint, .pr-hand .pr-nomic, .pr-hand .pr-rest { text-align: center; }
+.pr-rest { margin: 4px 0 0; font-size: var(--fs-subhead); color: var(--ink-2); }
+.pr-form { text-align: left; }
+.pr-hand .one-go { margin-top: 4px; align-self: center; }
+.pr-form input, .pr-form textarea { background: var(--surface-2); }
+.pr-form input::placeholder { color: var(--ink-2); opacity: 1; }
+
+/* ---- the record button ---- */
+.pr-rec {
+  display: grid; place-items: center; flex: none; width: 104px; height: 104px; margin-top: 8px; padding: 0;
+  border: 4px solid var(--ink); border-radius: 50%; background: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-rec:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.pr-dot {
+  display: block; width: 78px; height: 78px; border-radius: 50%; background: var(--bad);
+  transition: width 200ms ease, height 200ms ease, border-radius 200ms ease;
+}
+.pr-rec.on .pr-dot { width: 40px; height: 40px; border-radius: var(--r-sm); }
+/* The microphone prompt is open: a smaller disc, and the timer says so. */
+.pr-rec.wait .pr-dot { width: 56px; height: 56px; }
+.pr-rec:active .pr-dot { transform: scale(0.94); }
+.pr-time { font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---- Humour: the five, written, folded under the recorder ---- */
+.pr-write { margin-top: 16px; }
+.pr-write .u-body { display: flex; flex-direction: column; }
+.pr-write .one-go { align-self: flex-start; }
+
+/* ---- the recordings ---- */
+.pr-empty { padding: 0 4px; font-size: var(--fs-subhead); color: var(--ink-2); }
+.pr-list { background: var(--surface); border-radius: var(--r-card); }
+.pr-clip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 12px 10px 16px; }
+.pr-clip + .pr-clip { border-top: 1px solid var(--surface-2); }
+.pr-play {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); cursor: pointer;
+}
+.pr-play svg { width: 14px; height: 14px; }
+.pr-main { flex: 1 1 8rem; display: flex; flex-direction: column; min-width: 0; }
+/* The title is the rename field, set as text until it is touched. The
+   size is the app's input size (16px on a phone, so focus does not zoom). */
+.pr-clip input.pr-name {
+  width: calc(100% + 6px); min-height: 44px; margin: -4px 0 -4px -6px; padding: 0 6px;
+  border: 0; border-radius: var(--r-sm); background: none; box-shadow: none;
+  color: var(--ink); font-weight: 600; text-overflow: ellipsis;
+}
+.pr-clip input.pr-name:hover { background: var(--surface-2); }
+.pr-clip input.pr-name:focus { background: var(--surface-2); box-shadow: 0 0 0 2px var(--accent); }
+.pr-meta { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pr-wave {
+  flex: 0 1 200px; height: 22px; margin-left: auto; border-radius: 3px;
+  background: repeating-linear-gradient(90deg, var(--line-strong) 0 2px, transparent 2px 5px);
+}
+@media (max-width: 767px) { .pr-wave { display: none; } }
+.pr-acts { display: flex; flex: none; margin-left: auto; }
+/* A phone: the title takes the row beside play, so a default title is never
+   cut (review 1: "Story · Tue 20 …" at 390); download and delete wrap to
+   their own line under it. */
+@media (max-width: 599px) {
+  .pr-clip { gap: 4px 8px; padding: 10px 10px 10px 12px; }
+  .pr-main { flex: 1 1 calc(100% - 52px); }
+  .pr-clip input.pr-name { width: calc(100% + 4px); margin-left: -4px; padding: 0 4px; }
+  .pr-acts { margin-top: -4px; }
+}
+.pr-ic {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 50%; background: none; color: var(--ink-2); cursor: pointer; text-decoration: none;
+}
+.pr-ic:hover { background: var(--surface-2); text-decoration: none; }
+.pr-ic svg { width: 20px; height: 20px; }
+.pr-player { flex: 1 0 100%; }
+.pr-player:empty { display: none; }
+.pr-player audio { display: block; width: 100%; margin-top: 6px; }
+.pr-play:active, .pr-ic:active { transform: scale(0.94); transition: transform 100ms ease-out; }
+
+/* ---- Logged so far, and the history ---- */
+.pr-log { margin-top: 2rem; }
+.pr-log .ghead { margin-top: 1.5rem; }

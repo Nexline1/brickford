@@ -1,0 +1,48 @@
+# Plant (f): an attribution no logged source supports
+# 2026-10-09T22:47:43Z, commit 48bfd3e. spch100.4.5 names Vinh Giang again (logged for other videos, not for FsxorSNJBaA) and spch100.8.1 names Jordan Peterson, whom no row logs.
+
+## The plant
+$ python3 -I /tmp/claude-0/-home-user-brickford/e8e314d5-7130-5570-8abd-d441eaf954df/scratchpad/plant/f.py
+$ git status --short (outside verification/)
+ M platform/data/storytelling.js
+$ git diff --stat; git diff
+ platform/data/storytelling.js | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+diff --git a/platform/data/storytelling.js b/platform/data/storytelling.js
+index edebd0b..ce4b703 100644
+--- a/platform/data/storytelling.js
++++ b/platform/data/storytelling.js
+@@ -1369,7 +1369,7 @@ Object.assign(DAR.SUMMARIES, {
+   },
+ 
+   "spch100.4.5": {
+-    takeaway: "A communication coach's three levels — rookie, pretty good, natural — assessed on voice, body and words. You move up by first getting self-awareness, then using your full range, and finally having more than one way to make any point.",
++    takeaway: "Vinh Giang's three levels — rookie, pretty good, natural — assessed on voice, body and words. You move up by first getting self-awareness, then using your full range, and finally having more than one way to make any point.",
+     beats: [
+       { t: "Rookie", d: "Flat delivery, vocal fry, filler words in every breath, a body that does nothing, no structure. He calls them habits, not who you are." },
+       { t: "The self-awareness exercise", d: "Two unscripted minutes on camera, transcribed, so you can see the filler words and the circling." },
+@@ -2899,7 +2899,7 @@ Object.assign(DAR.SUMMARIES, {
+   },
+ 
+   "spch100.8.1": {
+-    takeaway: "Celeste Headlee on her book We Need to Talk: conversation is a skill we practise, not information we memorise. The habits that hurt it most — like shifting attention to ourselves — are the ones we can't see, so ask the people around you.",
++    takeaway: "As Jordan Peterson puts it, Celeste Headlee on her book We Need to Talk: conversation is a skill we practise, not information we memorise. The habits that hurt it most — like shifting attention to ourselves — are the ones we can't see, so ask the people around you.",
+     beats: [
+       { t: "A skill, like the gym", d: "You don't go once. And being bad at listening is a human problem — babies arrive knowing how to scream, not listen." },
+       { t: "Shift versus support", d: "Shift responses move attention to you; support responses keep it on them. Conversational narcissism is always taking the ball." },
+
+## The gates, on the planted bytes
+$ node tools/verify-content.js
+  FAIL spch100.4.5: names 'Vinh Giang' (Vinh Giang), which is not credited for FsxorSNJBaA in candidates.jsonl — log where the name comes from, or take it out of the lesson
+  FAIL spch100.8.1: names 'Jordan Peterson', who is credited nowhere in candidates.jsonl — log the name with its source for bGYfTSHoyq4
+2 of 31089 checks FAILED
+2 of 31089 checks FAILED
+exit 1
+
+## Restore
+cmp platform/data/storytelling.js: identical to the saved copy
+git status outside verification/: clean
+git diff HEAD outside verification/: none
+$ node tools/verify-content.js   (restored)
+PASS — 31086 checks, 14 numeric answers recomputed, 159 drills, 12 concepts, 12 figures, 3 interactive, 403 lecture summaries (420 numerics recomputed), 40 questions gated (210 untagged)
+exit 0

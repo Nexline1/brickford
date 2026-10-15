@@ -1,0 +1,29 @@
+Plant (a): the old merge for gates (a truthy remote fills a falsy local), so the unmark is undone
+Gate: node tools/verify-logic.js
+Planted on: 3783455 + the diff below
+
+---- diff ----
+diff --git a/platform/js/app.js b/platform/js/app.js
+index f6b09fa..a81ab04 100644
+--- a/platform/js/app.js
++++ b/platform/js/app.js
+@@ -366,7 +366,7 @@
+     // the ledgers, so a remote legacy `true` can find its own gate event.
+     Object.keys(r.gates || {}).forEach(k => {
+       const theirs = gateRec(r.gates[k], k), mine = gateRec(S.gates[k], k);
+-      if ((theirs.at || "") > (mine.at || "")) { S.gates[k] = theirs; changed++; }
++      if (!S.gates[k] && r.gates[k]) { S.gates[k] = r.gates[k]; changed++; }
+     });
+     return { changed: changed };
+   }
+
+---- gate output (failing checks and summary) ----
+  FAIL  LWW merge: a pass at t1, then an unmark at t2 on another device, gives an unmark after a pull either way round — the device that passed (t1) pulls the unmark (t2): open -> passed 2026-10-19 (want open); the device that unmarked (t2) pulls the pass (t1): still open -> open
+  FAIL  LWW merge, mixed devices: an unmark beats an older legacy date string, either side — an unmark (t2) pulls a legacy date string for that day (00:00): still open -> open; a legacy date string here pulls a newer unmark: open -> passed 2026-10-12 (want open)
+  FAIL  LWW merge is last-writer-wins, not unmark-wins: a later pass beats an earlier unmark, and a timed pass beats a legacy false — an unmark (t1) pulls a later pass (t2): passed -> open (want passed 2026-10-19); a legacy false (no time) pulls a timed pass: passed -> open (want passed 2026-10-19)
+3 of 45 invariant(s) FAILED
+
+3 of 45 invariant(s) FAILED
+
+exit code: 1
+restored: cmp identical to the committed app.js (3783455); git diff empty

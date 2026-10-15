@@ -1,0 +1,440 @@
+# Transcript: Jefferson Fisher | The Next Conversation Workbook | Talks at Google
+
+Source video: https://www.youtube.com/watch?v=bIjz7UkauBA
+Language: en · Duration: 32:20 · Words: 6031
+Fetched: 2026-10-09 through the Yt_T transcript MCP (T-037)
+
+## Transcript
+
+[0:00] [MUSIC PLAYING] ZARA BROWNLESS: Jefferson Fisher was an esteemed Texas trial lawyer whose
+very job, when communicating, was to win. And although he came to reconsider that goal when it comes
+to communication, he did find that a lot of the tactics that worked in the courtroom could also
+benefit those of us in our day-to-day lives in the communication from our dining room table
+
+[0:31] to our boardroom seats. And he has come out with not one, but two rather splendid books to
+help us with just that, one of which we are going to be talking about today, "The Next Conversation
+Workbook." So, without further ado, let me introduce you to Jefferson, and we're going to have a
+little chat about chatting. Jefferson Fisher, everyone. Welcome to Google. [APPLAUSE] It's good to
+have you. I'll pass you right over here. JEFFERSON FISHER: Hey, everybody.
+
+[1:01] ZARA BROWNLESS: Jefferson, this isn't your first time in New York. When were you last here?
+JEFFERSON FISHER: Oh, I was here back in, I don't know, March. ZARA BROWNLESS: March. Yeah.
+JEFFERSON FISHER: A little bit different. ZARA BROWNLESS: Right. But from Texas originally, right?
+JEFFERSON FISHER: That's correct. ZARA BROWNLESS: What's your general views on the city? How do you
+like being in New York? JEFFERSON FISHER: I don't understand, really. You all have these gases that
+come up through the ground and above the ground. And I'm like, does anybody question-- this feels
+like it's opening up my pores at a spa
+
+[1:32] and nobody really cares. It's great. New York is awesome. The food is great, and the people
+are even greater, so I'm loving it. ZARA BROWNLESS: The food is pretty great. Look, I imagine you
+might have been experiencing a little bit of deja vu recently, because it's pretty hard to talk
+about your new book without also talking about its best-selling predecessor, "The Next
+Conversation." Now, tell me, what is the relationship between these books? Is there a codependent
+relationship? Do they need each other, or can they stand alone? JEFFERSON FISHER: They can stand
+alone. ZARA BROWNLESS: They can stand alone? JEFFERSON FISHER: Yeah.
+
+[2:02] ZARA BROWNLESS: Tell me a little bit about what these books have to do with each other.
+JEFFERSON FISHER: Sure. So last March, I had a book called "The Next Conversation" come out, and I
+was honored for it to be a New York best times. And I was at the-- it was like the big three-story
+Barnes and Noble somewhere here in New York. I'm not really sure where things are yet here. It's
+pretty big. But that was a wonderful time. And the workbook is based on that, but it gives practical
+exercises. So a lot of prompts, a lot of places to journal and write things down to actually apply
+it.
+
+[2:32] So it's practical exercises for arguing less and talking more. ZARA BROWNLESS: I like this,
+because we can sometimes get very bunged up in the theory, especially in a place like Google. We
+talk a lot about ideas, and I think putting things, actually, into an application-focused context is
+often really important for us. So I'm very glad that you have accompanied what was already an
+excellent book with an excellent companion. JEFFERSON FISHER: Thank you, Zara. ZARA BROWNLESS: So
+look, you do communication videos online. They gather tens of millions of views. So clearly, your
+advice resonates very deeply with everyone, from engineers to executives and everything
+
+[3:03] in between. You will have a range of those people in the audience with us today. Who did you
+write this book for? Who do you most hope in the room today will pick up a copy and take a read?
+JEFFERSON FISHER: The person who is kind of that middle-- finds himself in the middle. Usually they
+have people who are underneath them and also have to talk to people above them. And so they have to
+manage these relationships where you also have to lead, but also you have to report. And so I find a
+lot of my content resonates a lot with teachers, because they have, of course, students and faculty
+and parents, of course.
+
+[3:36] And so as a son of a teacher and my sister's a teacher and my mother-in-law is a principal,
+there's a lot to be said for good communication when it comes to our education. ZARA BROWNLESS: What
+was it like being raised by amazing teachers like that? It must have taught you a lot about
+communication from an early age. JEFFERSON FISHER: It taught me a lot about sitting still and
+keeping my mouth quiet when they were talking. My brothers had my mom for a teacher, and lord, I
+don't wish that. I didn't have to have that.
+
+[4:06] But yeah, it taught me a lot about being very disciplined. ZARA BROWNLESS: Being very
+disciplined. OK. Well, before we dive into some specifics about some of the ideas and rules and
+principles in your book, let's set the stage a little. When I was preparing to chat with you today,
+I was looking up some quotes about what people tend to say about communication. And I found one from
+George Bernard Shaw, who famously cautioned that, "The single biggest problem in communication is
+the illusion that it has taken place."
+
+[4:39] Now, I wonder if an Irish playwright and a Texan lawyer would see eye to eye here? What do
+you think is the single biggest problem in communication? JEFFERSON FISHER: That what was said was
+what was heard. And usually we get into this conflict. And anybody who's been in any kind of
+relationship knows what it feels like to go, I didn't say that. And they go, yeah, you did. And
+you're like, that's not what I said. And they're like, I wish I had it recorded. You know what? I
+wish I had a video camera to show you that you said this,
+
+[5:09] and you're like, that's not how I said it. So we have this skewed understanding of just
+because I said it is exactly how the other person receives it. So instead of saying, that's not what
+I said, what I would consider you to try, after the principles in my book, is instead saying, well,
+what did you hear? What did you hear? And that allows you to at least have some kind of perspective.
+We're terrible subjective judgers of what we say, because we not only will say my words,
+
+[5:39] I also will interpret them for you. And that's where we get in trouble. ZARA BROWNLESS:
+Fascinating. So actually, it turns out an Irish playwright and a Texan lawyer might actually share
+something in common there. There's a fascinating idea about what George Bernard Shaw was trying to
+do was write something for an audience to hear, and what you're often doing in the courtroom is
+delivering something that a jury or a judge or some kind of adjudicator is going to hear. Actually,
+maybe those things are more similar than they might, in some ways, appear on the surface. Anyway, I
+am neither a Texas playwright nor a Texan lawyer, but I'm a British behavioral scientist, which is
+hard to say,
+
+[6:10] but fun to do. So I share your fascination with human behavior and communication, and I think
+a lot about how behavioral biases influence how we talk, how we argue. And you talk about several
+such phenomena in your book, from fundamental attribution error to confirmation bias, the autonomic
+nervous system, to the idea of flooding. The one that really stands out to me, though, slightly
+selfishly, because it's what I wrote my thesis on, is cognitive dissonance.
+
+[6:41] Tell me what cognitive dissonance has to do with communication, how it shows up, for better
+or for worse, and what we can do about it. JEFFERSON FISHER: I come from a small town in Texas. And
+so this is not going to be the best use of my vocabulary. Cognitive dissonance is that part in a
+conversation where you're listening, you go, I don't really like that. I hear an opinion. I don't
+really-- I don't agree with that opinion. Cognitive dissonance really, in my opinion,
+
+[7:12] shows up when you hear something. Without even thinking about it, you just start to frown.
+You start to go, I don't know if I agree with that. I don't know if I like that. Anything that
+somebody says, any kind of opinion that they give, we have this filter of saying, does this agree
+with me or is this something that does not agree with me? Every opinion that is different from
+yours, however big or however small, it hits that system to where you feel that dissonance of going,
+
+[7:42] that doesn't agree with me. So you might hear an opinion that disagrees with something you
+learned when you were six. It's an opinion that disagrees with something your grandmother believed.
+It's something that's deeply rooted within you. And all of a sudden, when you hear an opinion that's
+different from yours, we just put up our walls, and all of a sudden, we get into confirmation bias.
+We get into different types of modes where we start defending and filtering out everything. You see
+this a lot with juries. And an opening argument is crucial. In fact, even before that, when I'm
+picking a jury--
+
+[8:13] what they call "vor-die-er" down in Texas, "vwa-deer" up here in the Northeast-- and that's
+simply a process where it's my first chance to paint a frame about the case. And instantly, without
+even knowing it, every jury and every person, even here, is you're starting to sniff of, I don't
+know, does this guy know his stuff? Does he not know his stuff? I don't know if I really like him.
+And you start looking at every little microexpression. And once you decide I like this side, you
+immediately filter out everything that doesn't go with that side.
+
+[8:44] So we do that in every little argument, every opinion that we hear. ZARA BROWNLESS: And what
+can we do about it if you're talking to someone and you're trying to convince them of something or
+explain a concept to them? And I think we can also see it happening in the people we talk to. You
+can notice when you're saying something, it's just hitting a kind of membrane wall around them where
+they're like, nuh-uh, I don't agree with that or that doesn't align with what I already believe.
+What can we do about it when we're trying to communicate with someone like that? JEFFERSON FISHER:
+It's an understanding
+
+[9:14] that the person you see is not necessarily the person you're talking to. We all have a
+surface. We all have a depth. And usually, if I were to tell you you're wrong, I might also be
+saying your grandfather's wrong. Your mom's wrong. All these deeply-held beliefs that you've had
+your whole life, that experience you had when you were at camp when you were eight, is all wrong.
+And you will go to the ends of the Earth to keep that comfort rather than reject it, because you
+keep to what you know. That's why a lot of times in arguments, evidence
+
+[9:46] doesn't work. Facts don't work. You have all this stuff online and in news articles and
+politics where they do fact checker. Does it really sway anybody? Generally, no, because a lot of
+the times, the facts don't matter. It's the strongly-held belief that we've had. So what do you do
+instead? If there's something I want you to remember from our brief time, it is this. When you go
+into that difficult conversation, you want to change somebody's mind, have something to learn,
+
+[10:17] not something to prove. So the more you can stop pushing your opinion and instead flip it
+and start trying to learn more about their opinion, it opens them up. And all of a sudden, their
+drawbridge starts to come down, because they start to share. And then they get curious about where
+you are. So instead of the why do you believe that? So the why. Use an open-ended question. Well,
+how long have you felt that way? What led to that? When did you first take to that opinion?
+
+[10:47] Find ways to get them curious. And that's where real conversation happens. ZARA BROWNLESS:
+Because we're not talking with a machine where it's like input in equals input out, where it's like,
+if I give you this fact, you will ingest it in an entirely detached way. JEFFERSON FISHER: Like
+Claude and chat or whatever. ZARA BROWNLESS: Yeah, exactly. We're not talking with machines here.
+JEFFERSON FISHER: Or Google AI. I don't know. Sorry. ZARA BROWNLESS: Gemini. Yeah, yeah. JEFFERSON
+FISHER: Yeah, yeah. Sorry. I don't know which one. ZARA BROWNLESS: Appropriately named after the
+idea
+
+[11:18] of being two-faced. JEFFERSON FISHER: Yeah, there we go. That's what I meant. ZARA
+BROWNLESS: So yes, actually, this is a great segue, because we're in a tech audience today. Like
+many others here, I spend a lot of time thinking about how technology interacts with communication,
+specifically how technological shifts influence our communication trends and tendencies. So today,
+the smartphone revolution made innumerable changes to the way we tend to communicate. You can
+FaceTime a far-flung family member any time, any place.
+
+[11:48] But we tend to actually text over popping on a call these days, whereas in the past we
+probably did more voice-to-voice communication. And as with most things, there's two sides to this
+coin. There's the ways in which the smartphone revolution made communication, easier and deeper in
+some ways, but also ways in which it maybe made it harder and more superficial. And now we're no
+longer in the smartphone revolution. We're in the AI revolution.
+
+[12:19] What do you see as the ways that AI is affecting how we communicate, and what are the two
+sides of the coin here? JEFFERSON FISHER: Well, let's just go ahead and put it out. A lot of people
+use AI to say, hey, I'm about to have a conversation, or I want to change this email, and we use it
+as a tool to help us go, this is kind of what I want to talk about. And I think it's fantastic,
+because it gives you another way, another picture. Because sometimes our minds can be pretty
+stubborn. Sometimes our minds can be, well, this is how I want them to interpret it,
+
+[12:49] and I want to interpret it for them. AI can give you words, but it can't-- how can I put
+this? AI can build sentences. It can't build trust. AI can't build character. AI can't build the
+integrity of wherever you're working. So it can give you tools, but it can't do things that only
+human connection can do. So if I want to build trust with you,
+
+[13:20] I can't be like, hold up real quick. Let me-- do you want to trust me? It doesn't happen
+that way. And so we will always favor the in-person smile and the in-person touch rather than the
+winky face. ZARA BROWNLESS: And I sometimes think from a behavioral science perspective, one
+strategy that can work for people who are both feeling very resistant to using AI, whether to
+improve their communication, draft an email
+
+[13:50] or otherwise, and people who are really leaning into it is the idea of a veto list. Saying
+to yourself, I'm going to decide what things there are in my life that I'm not going to use AI for
+ever. I always think of the example of your wedding vows. Can you imagine being stood across from
+your partner on your wedding day and they're saying their vows and you're like, that sounded like
+ChatGPT. JEFFERSON FISHER: Yeah, exactly. That would be a little rough. ZARA BROWNLESS: And I think
+we can all-- there are parts of our lives we wouldn't want AI to encroach in.
+
+[14:21] But sometimes, actually, setting that boundary can, for people that are feeling resistant to
+AI, setting that boundary can then actually help them feel more open to the parts of their life
+where they actually are like, OK, now, actually, I can be more receptive to the idea that there are
+parts of my life I would be comfortable using AI for. JEFFERSON FISHER: And I find that it's very
+good at helping me see blind spots. So maybe if you have a conversation that's coming up and ask it
+that, what are the blind spots of this conversation? How are they going to interpret it? What's a
+way that I might be able to approach it? And so using it as a thought partner is, to me, invaluable.
+
+[14:54] It just can't say the words for you. It can't make you say things confident. So it can give
+you the actual words, and you could recite them. But unless you say them in a way that's you, in a
+way that's genuine, it doesn't mean a thing. ZARA BROWNLESS: Yeah, and I know you love to get to the
+practical. So what's a practical way that you've been using AI in your work or communication lately
+to your benefit? JEFFERSON FISHER: A lot of times I might have a thought. So I have a rule in my
+company.
+
+[15:24] It's three sentences or less. That's what I try to keep emails to. And sometimes I have a
+big thought, and it's hard for me at the moment to condense it down to three sentences. And so I
+might just get it and verbalize my whole thought. And I say, give me three sentences. And that helps
+me distill what are the essential parts that I really need them to know. Because most of the time,
+and this is the same thing in jury trials, you feel like they need to know all this information, all
+the evidence, every file, every record, but really, they don't. They only need this little bitty
+thing that makes a difference.
+
+[15:56] Because a lot of times, you'll have this piece of evidence that you think this is really
+what the whole case is about. And the jury goes, no, I didn't care about that. I cared about this.
+And so when I can use it to say, help me map out my thoughts, as long as they're my thoughts, I feel
+good about it. ZARA BROWNLESS: I see this all the time in public speaking forums like this, whether
+a fireside or a keynote. You'll talk for, I don't know, 10 minutes, 20 minutes, 40 minutes, and
+you'll always feel like there was stuff you didn't get around to saying. And then you'll talk to--
+maybe lucky enough
+
+[16:27] to cross paths with an audience member the next day or a week later. And they might, if
+you're lucky, have remembered one specific thing you said. So it's a numbers game. You're going to
+say all this stuff and very little is actually going to truly go through and stay. JEFFERSON FISHER:
+Oh yeah. Yeah, I've done it before where I've spoke, and the next day I saw somebody and they were
+like, yeah, I remember you had that shirt. That's the same shirt that my cousin had. And I was like,
+oh, that's awesome. And that just happens.
+
+[16:57] What you think is the information that they remember, it's not. And that's the same thing.
+People rarely remember what you taught them. They remember how you talked to them. It's not the
+things you say. It's often how you made them feel with it. And so it's that same underlying thing of
+what makes them go, you know what, I kind of like that person. Usually it's not the thing that we
+think, it's something else. ZARA BROWNLESS: I know that saying well. Yeah. It's not what you said.
+It's how you made them feel that people remember. Yeah, totally. OK, I want to talk a little bit
+about--
+
+[17:28] I alluded to this in my intro, subcultures of communication and how we move through them. So
+big tech, like most industries, is actually pretty incestuous. Most of us have either worked at
+Apple or Microsoft or Meta in the past, or will do at some point in the future. That's the way most
+industries work. And big tech, also like most industries, has particular kinds of communication
+culture, both practically in terms of the tools that we use. People always talk about Slack
+messages.
+
+[17:58] And I'm like, that always goes right over me, because we don't use Slack here, compared to,
+say, you look at how big law tends to communicate or how the arts or how education have cultures of
+communication. So in Google, for instance, we have this word called googliness, very aptly named. It
+captures our unique emphasis on moving quickly and not taking ourselves too seriously. JEFFERSON
+FISHER: Can you use it in a sentence? ZARA BROWNLESS: Keep being googly. That's often a thing you'll
+see. JEFFERSON FISHER: That sounds great, guys.
+
+[18:29] Yeah. Keep doing that. ZARA BROWNLESS: We have great peer recognition incentives around
+where you can give a colleague a little peer bonus for helping you out with something. And often in
+the text of that peer bonus will be something like, they're so googly or great googliness or
+something. JEFFERSON FISHER: Yeah. ZARA BROWNLESS: I'm seeing a mixture of emotion. JEFFERSON
+FISHER: I wanna use that in my life. Yeah. ZARA BROWNLESS: It's great. It was something I was
+excited to be a part of when I joined Google. JEFFERSON FISHER: That was awesome. Yeah. ZARA
+BROWNLESS: There's a whole thing about all the things
+
+[18:59] that googliness represents, above and beyond what I just talked about, like moving fast and
+not taking ourselves too seriously. But it's just one way in which we have a culture, it shows up in
+our communication. Now, in the book, you acknowledge that our communication habits are heavily
+influenced by the cultures we grew up in and that we find ourselves around. What advice would you
+give to people as they are moving between cultures of communication, whether it's someone moving
+from Google to Apple and back
+
+[19:29] to Google? How do we balance assimilation with authenticity, with some sense of who I
+actually am, how I somehow intrinsically communicate, being ourselves with fitting in? How do we
+balance that as we move between all the different cultures and subcultures of communication in our
+lives? JEFFERSON FISHER: I find that it doesn't matter what company. It could be a corner store
+deli. We're all just people and we're all trying to figure it out.
+
+[20:01] And so the more often, quicker I can get to sharing my struggles, the quicker I can get to
+understanding you. Because perfection is not relatable. Struggle is. How does that sound in
+communication? It sounds like I'm going to tell you, hey, look, I know I'm not going to say this the
+right way. Here's my thought. It might sound like, I'm struggling with this thought, and I would
+really love your help. I'd really like to put your smart brain to this if I can find a way that
+signals I don't know everything.
+
+[20:34] See, confidence has that way of signaling this. Confidence is not you know all the answers.
+It's knowing that you don't. And so when I can-- the more I can show that I don't have that ego, in
+fact, I want to be part of the collective, the better everybody's going to feel. I see this
+sometimes with people coming into a new role and there's other people who might feel they either
+deserve it, don't deserve it,
+
+[21:04] and they feel like they have to be kind of protective about things. And so I had a woman one
+time and say, hey, look, I got into this new role and I got kind of promoted, and other people don't
+feel like I'm really all that qualified. And I was like, well, do you feel qualified? She's like,
+well, not really. I said, OK, that's cool. So why don't you just use that to your advantage? When
+you hear that, you get to say, you know what, I know that I have a way to go here, but what makes me
+so excited about that is-- Find ways to add into your conversation and use what you think is your
+struggle and your weakness as something that you
+
+[21:35] can use as an advantage. It's something you can share with one another. And to me, that's
+one way of talking about this throughout no matter what culture you're in. And I will also say find
+a way of sharing perspectives rather than trying to prove points. So if somebody has an idea, it's a
+whole lot easier instead of saying whether their idea is good or not instead to talk about
+perspective. So instead of saying I don't agree, say I see things differently.
+
+[22:05] I have another approach. I have a different take. I have a different perspective. Use words
+of perspective, and that tends to make things go a lot better for communication. ZARA BROWNLESS: And
+there's also is it the operator's manual that you talk about as well? It's this practical thing that
+you can use to help people know how to communicate with you. Tell me a little bit about that and how
+that maybe can help in these sort of culture transition moments. JEFFERSON FISHER: We invest a lot
+in all kinds of things. Most people care more about how they make their coffee
+
+[22:37] and how they drink their coffee than how they think about how they communicate. And what I
+created was to help you make an owner's manual, meaning, what you say is who you are. If you want to
+be a kind person, you have to use kind words. If you want to be seen as aggressive, well, there's
+words for that too. So how do you find a way of going, this is what I allow. This is how I will
+allow myself to be spoken to. This is what I will permit, and this is what I will not allow, and
+this is what I will not permit.
+
+[23:07] And so I have a lot of these fill-in-the-blank places to where you get to sketch out, how do
+I want to be spoken to? That goes into boundaries. And then also what words am I going to use to
+say, this is how I want to communicate? If you want to be remembered, what you say is who you are.
+ZARA BROWNLESS: And while we're on the topic of tech culture, I have to say, throughout the book,
+you call out several phrases that I see all the time, every day, show up in how we talk to each
+other, and they tend to be phrases which undermine our credibility
+
+[23:39] or our confidence. Close your eyes for a moment. Do me a favor. Close your eyes. Put up a
+hand if you've ever said, sorry to bother you. OK, keep your hands up. Add your hand if you said,
+this might be a dumb question. Yep, a few more. And finally, does that make sense? OK, open your
+eyes. Lots of hands up around you. Everyone's in good company here. Does that make sense is it
+particularly big
+
+[24:10] one here at Google. Personally, I do the thing where I use "just" in moments where I don't
+need one, just to clarify, just to ask something. You call out these phrases as things that we don't
+really need and that are undermining us in ways we might not fully appreciate. If you could
+eradicate one phrase from tech culture communication tomorrow, what would it be, why, and what would
+you replace it with? JEFFERSON FISHER: Oh. There's several. The one that resonates the most is, does
+that make sense?
+
+[24:44] It's real easy to tag on to the end of your sentences, and it often becomes a crutch. And I
+know why you do it, all right? You want to make sure that what you said made logical sense. And what
+happens is the other person hears something different. They hear one of two things. Either one,
+you're making sure that they got it because you're not sure they're smart enough to get it. Does
+that make sense to your little brain?
+
+[25:14] Or you're not really sure what you're talking about, and so you have to say it out loud.
+Does that make sense? ZARA BROWNLESS: I'm not sure it makes sense. JEFFERSON FISHER: Yeah, does that
+make sense? And so instead of that, that question really does not mean anything. And in fact, it
+puts the other person in a position of it's a lose-lose, because nobody wants to go, no, that
+doesn't make sense. They all go, yeah, yeah, and then they walk away like, that doesn't make sense
+at all. So instead of that, ask a real question. Do you have any thoughts?
+
+[25:45] Do you have a question? How does that feel to you? What's your take? Questions that invite
+them to do something rather than just nod out of fear. That would be my-- ZARA BROWNLESS: Fear or
+insults. You argue that in communication, silence can be a very powerful tool, as I'm currently
+demonstrating. Can you explain the difference between a short pause and a long one, and how we
+should use each, especially
+
+[26:17] in a fast-paced environment like ours? JEFFERSON FISHER: Whenever you hear somebody pause,
+kind of like I just did, I gave it about two more seconds, it signals to you that I'm thinking. If I
+just give rapid responses to everything you say, it often signals that I'm all about speed. I'm not
+actually thinking. But imagine asking somebody a question and they're going, give me one moment to
+think about that. You go, oh, OK, that's different. They're actually thinking. They're actually
+appreciating what I'm saying.
+
+[26:48] I can tell you, the people who sound and look the most confident in interviews are the
+people that when you ask them a question, they sit back and go, rather than having some rapid fire
+nightly TV show talking head response. You go, that's a great question. Let me think. Take time to
+actually think. People appreciate that. Short pauses are great for capturing the point. Long pauses
+are great for when somebody's saying something that's mean or rude or belittling.
+
+[27:19] Five to seven seconds of saying nothing often reflects back as an echo to them. Somebody
+says something ugly. Imagine you saying something really mean to me. And instead of responding, I
+just gave it five seconds. It becomes uncomfortable for them, because now their words are out in the
+open and I get to say, are you good with what you just said? Are you sure you good with that? And
+often, they'll take it back or they'll apologize, or maybe they'll double down.
+
+[27:50] But silence can never be misquoted, so it's much better to leave it there. Also, when it
+comes to email or text, take time. If you're not really sure what to say, that means you shouldn't
+send anything at all. You should wait. Often if I am heated about something and I just rapid fire, I
+decide that message was really rude because, of course, we always read that it's rude. It could be
+like have a good day. Have a good day? We always read it negative.
+
+[28:20] And you're like, come here. Can you read this? Can you see what they said? They said have a
+good day. And instead of that, just wait, even till the next morning. Whatever is most urgent
+typically is not. So don't let somebody's urgency become your priority. ZARA BROWNLESS: And I wonder
+if some folks might worry that using a pause might be misinterpreted as uncertainty, or not knowing
+what to do. Is there anything we can be doing with our other vocal noises, like hmm, or our face
+
+[28:50] to just convey that, hey, I'm not glitching right here. This isn't a system-loading moment.
+I actually am thinking. Is there anything you tend to do subtly to just signify this is an
+intentional pause? JEFFERSON FISHER: No. ZARA BROWNLESS: No, we just run the risk? JEFFERSON FISHER:
+I like the full sentence. I'm going to say, I'm not ignoring you. I'm thinking. A lot of times, like
+in an argument, in a relationship, maybe, it's just a big pause and you're like, did you hear me?
+Are you just thinking of-- it's much better to go, no, I hear you.
+
+[29:21] I'm thinking of how I want to respond or I need time with that before I respond. I need to
+think a moment before I say something. That signals strength. It does not signal weakness. So just
+use the full sentences. ZARA BROWNLESS: I think that will actually be especially important in a
+video call context, because this was another thing I was going to ask you about. At Google, we spend
+a lot of time on video calls, and we're not alone. The video conferencing industry is booming, $10
+billion and growing. Tons of people are on video calls these days.
+
+[29:52] And it's not just team meetings that are happening on these calls. You talked about
+interviews. A lot of job interviews are happening on video calls these days. You're a keynote
+speaker as well. Keynotes are happening virtually these days more and more often, so big-stakes
+moments happening on a screen. And communication can be a little different on the screen than face
+to face. And I can imagine, for instance, in a pause on a screen, you don't want people to think,
+has their internet dropped? I've had that before where I'm thinking and they're like, oh, are you
+still there? And I'm like, yeah, I'm just thinking. So sometimes there are nuances to communicating
+via screen
+
+[30:26] and via face to face. Do you have any notes on how we can be communicating better on screen
+when we can't be face to face with someone? JEFFERSON FISHER: Well, one, it's going to be something
+y'all all know even though you may not want to do it. Smiling on a video screen is never a bad
+thing. So just put that aside. Two is your hands. The more people can see your hands, even in
+screens, rather than if it was just cut off and all they see is a talking head, it's hard to place
+things in a context. We use hands a lot when we talk, as well as our facial features.
+
+[30:58] So I would treat it just as any kind of normal conversation. I'd say, number three, what I
+try to emphasize on video calls, the shorter the answer, the better it typically tends to go.
+Because on video, it's much easier for your mind to wander. You're on the screen, and all of a
+sudden you're like, what am I having for lunch? You start wondering about-- because, what, you're
+probably not wearing pants. You may be looking at a screen and then you're like, my feet are kind of
+cold.
+
+[31:28] I need to get socks. And you're thinking about other stuff. And so if I can keep the answers
+really short and concise, the faster that conversation is going to go. So when you give that long
+information, it's hard. So what I like to teach is rather than being a waterfall, be a well. Rather
+than overexplaining and telling them things they probably already know, say your sentence. At least
+limit it to three sentences if you can. And then if they have a question, they will ask.
+
+[32:00] Everybody that's on your Zoom call is highly intelligent, despite what you might think.
+Allow them, trust them enough. They have the agency to ask a question. ZARA BROWNLESS: Please join
+me in giving a big hand to our terrific guest today. JEFFERSON FISHER: Thank you all very much.
+[MUSIC PLAYING]

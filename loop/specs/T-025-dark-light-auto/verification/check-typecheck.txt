@@ -1,0 +1,3 @@
+final bytes: 28121e4
+node --check on 30 files
+exit code: 0

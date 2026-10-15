@@ -2878,10 +2878,10 @@
       '<span class="lq-tm">' + m + "</span>" +
       '<span class="lq-go">' + goLbl + "</span></" + tag + ">";
     const deeperHTML = () =>
-      '<div class="ghead">Go deeper<span class="gh-meta">optional · each one makes it stick</span></div>' +
+      '<div class="ghead lq-deep-head">Go deeper<span class="gh-meta">optional</span></div>' +
       '<div class="lq-deep">' +
       (sketchC ? tile("a", "#/concept/" + sketchC.id, "✎", "Sketch it",
-        "Draw " + esc(sketchC.title) + " from memory, then compare with the summary.", "Open the pad") : "") +
+        "Sketch \u201c" + esc(sketchC.title) + "\u201d from memory, then compare with the summary.", "Open the pad") : "") +
       tile("button", null, "◷", "Recall it cold",
         "Three minutes, no notes: write what this lecture established and why.", "Start 3:00",
         ' type="button" data-act="recallTimer" data-open-prove="1"') +

@@ -4621,6 +4621,12 @@ function t28SeedClips(list) {
         segs: [...card.querySelectorAll(".lq-segs i")].map(i => i.className), note: txt("#view .lq-foot .lq-note"),
         why: txt("#view #qFeedback"), bg: bgOk(card), opts: vis("#view .lq-card .opt").map(box) } : null,
       pass: pass ? { text: txt("#view .lq-pass"), bg: bgOk(pass), btn: txt("#view .lq-pass .btn") } : null,
+      // Review r1: the Go deeper heading and its caption on one line.
+      deepHead: (() => { const h = document.querySelector("#view .lq-deep-head"), m = h && h.querySelector(".gh-meta");
+        if (!h || !m) return null; const rg = document.createRange(); rg.selectNodeContents(h.firstChild);
+        const a = rg.getBoundingClientRect(), b = m.getBoundingClientRect();
+        return { text: h.textContent, oneLine: Math.abs(a.bottom - b.bottom) <= 4, a: Math.round(a.top), b: Math.round(b.top) }; })(),
+      sketch: ((document.querySelector("#view .lq-tile .lq-tm") || {}).textContent || "").trim(),
       tiles: vis("#view .lq-tile").map(n => ({ t: (n.querySelector(".lq-tt") || {}).textContent, go: (n.querySelector(".lq-go") || {}).textContent, bg: bgOk(n), h: box(n).h })),
       prove: (() => { const d = document.querySelector("#view details.lq-prove"); return d ? { open: d.open, sum: d.querySelector("summary").textContent.replace(/\s+/g, " ").trim() } : null; })(),
       check: !!document.querySelector("#view [data-act=startSummaryCheck]"),
@@ -4687,6 +4693,10 @@ function t28SeedClips(list) {
               filled.join() === "Next lecture →", JSON.stringify({ pass: m.pass, filled }));
           c43(at + ": Go deeper is three tiles — Sketch it, Recall it cold, Practice problems — each --surface and >= 44px",
             m.tiles.map(t => t.t).join("|") === "Sketch it|Recall it cold|Practice problems" && m.tiles.every(t => t.bg && t.h >= 44), JSON.stringify(m.tiles));
+          c43(at + ": the Go deeper heading reads \"Go deeper\" with \"optional\" on the same line", !!m.deepHead && m.deepHead.text === "Go deeperoptional" && m.deepHead.oneLine,
+            JSON.stringify(m.deepHead));
+          c43(at + ": the Sketch tile names the concept in quotes and reads as a sentence",
+            /^Sketch “[^”]+” from memory, then compare with the summary\.$/.test(m.sketch), "\"" + m.sketch + "\"");
           c43(at + ": the four gates sit under a closed \"Prove mastery · 4 gates\" disclosure", !!m.prove && !m.prove.open && /^Prove mastery · 4 gates/.test(m.prove.sum),
             JSON.stringify(m.prove));
           c43(at + ": no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44", !m.quiz && !!m.rewatch && m.rewatch.w >= 44 && m.rewatch.h >= 44, JSON.stringify(m.rewatch));

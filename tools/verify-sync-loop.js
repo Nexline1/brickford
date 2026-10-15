@@ -190,7 +190,10 @@ async function session(browser, { putOk }) {
     check(!(await storedError()), "a success clears the error, lifting the latch");
 
     const before = puts;
-    await page.goto(URL + "/lesson/math110/0/1", { waitUntil: "load" });
+    // T-043: lecture 2 is locked behind lecture 1's quiz now (no Mark watched
+    // on a locked page), so the save that proves the push resumed is made on
+    // lecture 1 — any save arms the push; which lecture it is was never the point.
+    await page.goto(URL + "/lesson/math110/0/0", { waitUntil: "load" });
     await page.waitForTimeout(400);
     await page.click("[data-act='toggleDone']");
     await page.waitForTimeout(6000);
@@ -554,9 +557,77 @@ async function session(browser, { putOk }) {
     await mic.close();
   }
 
+  // T-043 (loop/specs/T-043-lecture-quiz-gate/spec.md): the lecture quiz
+  // pass is carried apart from the "further along" rule. Device A here; the
+  // remote is device B. (k0) A passed, B's copy is further along (verified)
+  // with no quiz: the pass survives B winning. (k1) both passed: the
+  // earliest passedAt and the best firstTry, from different sides. (k2) only
+  // B passed: after the pull the lock on the next lecture lifts and the
+  // dashboard's next action moves on with it.
+  console.log("A quiz pass survives the merge, and the lock and the dashboard follow it (T-043):");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+    await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+    const Q = (passedAt, firstTry, total) => ({ passedAt, at: passedAt + "T10:00:00.000Z", firstTry, total, attempts: total + 1 });
+    const K0 = "math120.0.0", K1 = "math120.0.1", K2 = "math120.0.2";
+    const local = { lessons: {
+      [K0]: { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: Q("2026-10-18", 1, 2) },
+      [K1]: { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: Q("2026-10-19", 3, 3) },
+      [K2]: { done: true, doneAt: "2026-10-19", notes: "", checks: [] } } };
+    const remote = { v: 1, device: "device-b", ledgers: {}, state: { lessons: {
+      [K0]: { done: true, doneAt: "2026-10-16", verified: true, verifiedAt: "2026-10-19", notes: "x".repeat(90), recall: "y".repeat(130), solved: 3, checks: [true, true, true] },
+      [K1]: { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: Q("2026-10-17", 2, 3) },
+      [K2]: { done: true, doneAt: "2026-10-19", notes: "", checks: [], quiz: Q("2026-10-19", 2, 2) } } } };
+    await ctx.addInitScript(s => {
+      if (window.top !== window) return;
+      localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+      if (!localStorage.getItem("darhikmah_v1")) localStorage.setItem("darhikmah_v1", s);
+    }, JSON.stringify(local));
+    const page = await ctx.newPage();
+    let serve = false;
+    await page.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET")
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify(serve ? remote : {})).toString("base64") }) });
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    const stored = () => page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons) || {});
+    const view = async route => {
+      await page.goto(URL + route, { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      return page.evaluate(() => ({
+        lock: !!document.querySelector("#view .lq-lock"), mark: !!document.querySelector("#view [data-act=toggleDone]"),
+        next: (document.querySelector(".card.one.lead a.one-go") || {}).getAttribute ? document.querySelector(".card.one.lead a.one-go").getAttribute("href") : "",
+        kind: ((document.querySelector(".card.one.lead .one-kind") || {}).textContent || "").trim() }));
+    };
+    try {
+      const dashBefore = await view("/");
+      const lockBefore = await view("/lesson/math120/0/3");
+      serve = true;
+      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.waitForSelector("[data-act='syncPull']");
+      await page.click("[data-act='syncPull']");
+      await page.waitForFunction(k => !!(((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {})[k] || {}).quiz), K2, { timeout: 8000 }).catch(() => {});
+      const L = await stored();
+      const q = k => JSON.stringify((L[k] || {}).quiz || null);
+      check(!!L[K0] && L[K0].verified === true && !!L[K0].quiz && L[K0].quiz.passedAt === "2026-10-18" && L[K0].quiz.firstTry === 1,
+        "(k0) the pass on this device survives the remote's further-along copy winning (verified " + (L[K0] || {}).verified + ", quiz " + q(K0) + ")");
+      check(!!L[K1] && !!L[K1].quiz && L[K1].quiz.passedAt === "2026-10-17" && L[K1].quiz.firstTry === 3,
+        "(k1) the earliest passedAt (2026-10-17, the remote's) and the best firstTry (3, this device's) win (" + q(K1) + ")");
+      check(!!L[K2] && !!L[K2].quiz && L[K2].quiz.passedAt === "2026-10-19", "(k2) a pass only the remote had arrives (" + q(K2) + ")");
+      const lockAfter = await view("/lesson/math120/0/3");
+      const dashAfter = await view("/");
+      check(lockBefore.lock && !lockBefore.mark && !lockAfter.lock && lockAfter.mark,
+        "(k2) lecture 4 is locked before the pull and open after it (before: lock " + lockBefore.lock + ", after: lock " + lockAfter.lock + ", Mark watched " + lockAfter.mark + ")");
+      check(dashBefore.next === "#/lesson/math120/0/2" && dashAfter.next === "#/lesson/math120/0/3",
+        "(k2) the dashboard's next action follows the merged pass: " + dashBefore.next + " (" + dashBefore.kind + ") -> " + dashAfter.next + " (" + dashAfter.kind + ")");
+    } catch (e) { check(false, "the quiz merge half ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    await ctx.close();
+  }
+
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043)");
   process.exit(fails ? 1 : 0);
 })();

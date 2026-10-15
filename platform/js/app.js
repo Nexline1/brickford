@@ -1408,7 +1408,7 @@
           label: "Quiz: " + clipTitle(blk.l.t, 30),
           hint: blk === nextUp ? "pass it and the lecture counts for today"
             : "pass it to open " + clipTitle(nextUp.l.t, 40),
-          verb: "Take the quiz",
+          verb: "Start",
         };
       }
       return {

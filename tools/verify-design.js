@@ -4546,6 +4546,120 @@ function t28SeedClips(list) {
     await ctx.close();
   }
 
+  // =================== T-043: the lecture quiz gate ===================
+  // loop/specs/T-043-lecture-quiz-gate/spec.md, criterion 4; the mockups are
+  // loop/design/specimen-lesson-quiz.png and specimen-lesson-passed.png. At
+  // 1440 and 390, Dark and Light: the page before "watched", the quiz after a
+  // miss, the pass with Go deeper, the locked lecture, and the dashboard
+  // pointing at a quiz. Each state has at most one filled primary in the
+  // view (t26bPrimary: a visible <a>/<button> painted --btn-bg); the watched
+  // bar's Rewatch is >= 44x44; the cards and tiles are painted --surface.
+  let t43Checks = 0;
+  const c43 = (name, ok, detail) => { t43Checks++; return check(name, ok, detail); };
+  const T43_PASS = (d, ft, n) => ({ passedAt: d, at: d + "T10:00:00.000Z", firstTry: ft, total: n, attempts: n + 1 });
+  const T43_STATES = [
+    { name: "before watched", route: "/lesson/math120/1/0",
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) } } } },
+    { name: "the quiz after a miss", route: "/lesson/math120/1/0", miss: true,
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+    { name: "passed, with Go deeper", route: "/lesson/math110/0/13",
+      patch: { lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", notes: "n", checks: [true], solved: 3, recall: "x".repeat(200),
+        verifiedAt: "2026-10-19", quiz: T43_PASS("2026-10-19", 2, 3) } } } },
+    { name: "the locked lecture", route: "/lesson/math120/1/1", patch: null },
+    { name: "the dashboard pointing at a quiz", route: "/", patch: null },
+  ];
+  function t43Measure() {
+    const z = window.__dz, surface = z.tok("--surface");
+    const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+    const box = n => { const r = n.getBoundingClientRect(); return { w: +r.width.toFixed(1), h: +r.height.toFixed(1) }; };
+    const bgOk = n => !!n && z.same(z.bytes(getComputedStyle(n).backgroundColor), surface, 2);
+    const txt = sel => { const n = document.querySelector(sel); return n ? n.textContent.replace(/\s+/g, " ").trim() : null; };
+    const card = document.querySelector("#view .lq-card"), pass = document.querySelector("#view .lq-pass"), lock = document.querySelector("#view .lq-lock");
+    const rw = document.querySelector("#view .lq-rewatch");
+    return {
+      frame: !!document.querySelector("#view .video-frame iframe"), mark: txt("#view [data-act=toggleDone]"),
+      bar: !!document.querySelector("#view .lq-watched"), rewatch: rw && rw.checkVisibility() ? box(rw) : null,
+      quiz: card ? { title: txt("#view .lq-title"), sub: txt("#view .lq-head .lq-note"), n: txt("#view .lq-n"),
+        segs: [...card.querySelectorAll(".lq-segs i")].map(i => i.className), note: txt("#view .lq-foot .lq-note"),
+        why: txt("#view #qFeedback"), bg: bgOk(card), opts: vis("#view .lq-card .opt").map(box) } : null,
+      pass: pass ? { text: txt("#view .lq-pass"), bg: bgOk(pass), btn: txt("#view .lq-pass .btn") } : null,
+      tiles: vis("#view .lq-tile").map(n => ({ t: (n.querySelector(".lq-tt") || {}).textContent, go: (n.querySelector(".lq-go") || {}).textContent, bg: bgOk(n), h: box(n).h })),
+      prove: (() => { const d = document.querySelector("#view details.lq-prove"); return d ? { open: d.open, sum: d.querySelector("summary").textContent.replace(/\s+/g, " ").trim() } : null; })(),
+      check: !!document.querySelector("#view [data-act=startSummaryCheck]"),
+      lock: lock ? { text: txt("#view .lq-lock-t"), glyph: !!lock.querySelector(".lq-lock-ic svg"), bg: bgOk(lock), h1: txt("#view .page-head h1"),
+        kicker: txt("#view .page-head .kicker"), btn: (lock.querySelector("a.btn") || { getAttribute: () => null }).getAttribute("href"),
+        cards: document.querySelectorAll("#view .card").length } : null,
+      kind: txt(".card.one.lead .one-kind"), go: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => null }).getAttribute("href"),
+      railLock: !!document.querySelector("#rail .rl-lock"), railRule: txt("#rail .rl-rule"),
+    };
+  }
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      for (const st of T43_STATES) {
+        const at = o.w + "px " + theme + ", " + st.name;
+        console.log("\nT-043 " + at);
+        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, patch: st.patch }, o));
+        await go(page, st.route);
+        if (st.miss) {
+          await page.waitForSelector("#view .lq-card");
+          // A wrong answer: the first option that is not the bank's answer,
+          // or a number nobody would give.
+          await page.evaluate(() => {
+            const c = document.querySelector("#view .lq-card"), q = window.DAR.SUMMARIES["math120.1.0"].checks[+c.dataset.q];
+            const o = [...c.querySelectorAll(".opt")].find(b => +b.dataset.o !== q.a);
+            if (o) o.click(); else { document.querySelector("#view #numAns").value = "-98765"; document.querySelector("#view #numGo").click(); }
+          });
+          await page.waitForFunction(() => getComputedStyle(document.querySelector("#view #nextBtn")).visibility === "visible", null, { timeout: 4000 });
+        }
+        const w0 = await writesNow(page);
+        const m = await page.evaluate(t43Measure), p = await page.evaluate(t26bPrimary);
+        const filled = p.filled.map(f => f.text);
+        c43(at + ": at most one filled primary in the view", p.filled.length <= 1, filled.join(" | ") || "none");
+        if (st.name === "before watched") {
+          c43(at + ": the page as before — the video, \"Mark watched\" the one primary, no quiz, no watched bar",
+            m.frame && m.mark === "Mark watched" && filled.join() === "Mark watched" && !m.quiz && !m.bar && !m.pass && m.tiles.length === 0, JSON.stringify({ frame: m.frame, mark: m.mark, filled }));
+        } else if (st.name === "the quiz after a miss") {
+          const q = m.quiz || {};
+          c43(at + ": the video is the watched bar, the quiz under it", !m.frame && m.bar && !!m.quiz, JSON.stringify({ frame: m.frame, bar: m.bar }));
+          c43(at + ": the bar's Rewatch is >= 44x44", !!m.rewatch && m.rewatch.w >= 44 && m.rewatch.h >= 44, JSON.stringify(m.rewatch));
+          c43(at + ": the quiz card reads \"Lecture quiz\" · \"From this lecture only\" · \"Question i of n\", with n segments and the miss red",
+            q.title === "Lecture quiz" && q.sub === "From this lecture only" && /^Question \d+ of \d+$/.test(q.n || "") &&
+              q.segs.length === +/of (\d+)/.exec(q.n || "of 0")[1] && q.segs.includes("miss"), JSON.stringify(q));
+          c43(at + ": the note says misses come back and the first-try score is kept; the miss says why and that it comes back",
+            q.note === "Misses come back, reshuffled, until you get them. Your first-try score is kept." && /^Not quite\./.test(q.why || "") && /comes back at the end/.test(q.why || ""),
+            JSON.stringify({ note: q.note, why: q.why }));
+          c43(at + ": the card is --surface, every option >= 44px tall, and \"Next question\" is the one primary", q.bg && q.opts.every(b => b.h >= 44) && filled.join() === "Next question",
+            JSON.stringify({ bg: q.bg, opts: q.opts, filled }));
+          c43(at + ": no \"Check yourself\" under the summary (the quiz is the check)", !m.check, String(m.check));
+          if (o.w === 1440) c43(at + ": the rail says how the ring counts and shows the next lecture locked",
+            m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));
+        } else if (st.name === "passed, with Go deeper") {
+          c43(at + ": the pass card — \"Lecture passed\", \"3 of 3 · 2 right on the first try\", --surface, \"Next lecture →\" the one primary",
+            !!m.pass && /^✓ ?Lecture passed 3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
+              filled.join() === "Next lecture →", JSON.stringify({ pass: m.pass, filled }));
+          c43(at + ": Go deeper is three tiles — Sketch it, Recall it cold, Practice problems — each --surface and >= 44px",
+            m.tiles.map(t => t.t).join("|") === "Sketch it|Recall it cold|Practice problems" && m.tiles.every(t => t.bg && t.h >= 44), JSON.stringify(m.tiles));
+          c43(at + ": the four gates sit under a closed \"Prove mastery · 4 gates\" disclosure", !!m.prove && !m.prove.open && /^Prove mastery · 4 gates/.test(m.prove.sum),
+            JSON.stringify(m.prove));
+          c43(at + ": no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44", !m.quiz && !!m.rewatch && m.rewatch.w >= 44 && m.rewatch.h >= 44, JSON.stringify(m.rewatch));
+        } else if (st.name === "the locked lecture") {
+          const L = m.lock || {};
+          c43(at + ": one card, no video: \"Pass the quiz for “…” first\", a lock glyph, the kicker and title above, --surface",
+            !!m.lock && L.cards === 1 && !m.frame && !m.mark && /^Pass the quiz for “.+” first$/.test(L.text || "") && L.glyph && L.bg &&
+              /^2\. /.test(L.h1 || "") && /^MATH 120/.test(L.kicker || ""), JSON.stringify(L));
+          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0", JSON.stringify({ filled, href: L.btn }));
+        } else {
+          c43(at + ": the Next card points at the blocking quiz (\"Quiz: …\") and its button is the one primary",
+            /^Quiz: /.test(m.kind || "") && /^#\/lesson\//.test(m.go || "") && p.filled.length === 1, JSON.stringify({ kind: m.kind, go: m.go, filled }));
+        }
+        const w1 = await writesNow(page);
+        c43(at + ": measuring wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
+        await ctx.close();
+      }
+    }
+  }
+
   await browser.close();
 
   console.log("");

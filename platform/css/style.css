@@ -2962,13 +2962,14 @@ button.at-chip.lb-more { font-weight: 600; }
    44px or more on any width; nothing is fixed over the page. */
 /* The watched bar: the video, collapsed once it is watched. */
 .lq-watched {
-  display: flex; align-items: center; gap: 14px; margin-top: var(--sp-3);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: var(--sp-3);
   background: var(--surface); border-radius: var(--r-lg); padding: 10px 10px 10px 14px;
 }
 .lq-watched .thumb { width: 96px; border-radius: var(--r-sm); }
 .lq-watched .thumb .th-ttl, .lq-watched .thumb .th-dur, .lq-watched .thumb .th-code { display: none; }
-.lq-wm { flex: 1 1 auto; min-width: 0; }
-.lq-wt { font-weight: 600; color: var(--ink); }
+@media (max-width: 599px) { .lq-watched .thumb { display: none; } }
+.lq-wm { flex: 1 1 9rem; min-width: 0; }
+.lq-wt { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
 .lq-tick { color: var(--good); font-weight: 700; }
 .lq-ws { font-size: var(--fs-footnote); color: var(--ink-2); overflow-wrap: anywhere; margin-top: 2px; }
 .btn.ghost.lq-rewatch { flex: none; min-height: 44px; min-width: 44px; justify-content: center; border-color: transparent; color: var(--ink-2); }
@@ -2995,7 +2996,8 @@ button.at-chip.lb-more { font-weight: 600; }
 .lq-card .expl { border-left: 0; border-radius: var(--r-md); background: var(--bg); color: var(--ink-2); line-height: 1.45; }
 .lq-card .expl strong { color: var(--ink); }
 .btn.ghost.lq-rewatch-at { margin-top: 8px; min-height: 44px; }
-.lq-num { display: flex; gap: 10px; max-width: 340px; }
+.lq-num { display: flex; flex-wrap: wrap; gap: 10px; max-width: 340px; }
+.lq-num input { flex: 1 1 10rem; min-width: 0; width: auto; }
 .lq-num .btn { min-height: 44px; }
 .lq-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 16px; }
 .lq-foot .lq-note { flex: 1 1 16rem; }

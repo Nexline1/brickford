@@ -1407,7 +1407,9 @@
           fac: bc ? facClass(bc) : "",
           label: "Quiz: " + clipTitle(blk.l.t, 30),
           hint: blk === nextUp ? "pass it and the lecture counts for today"
-            : "pass it to open " + clipTitle(nextUp.l.t, 40),
+            : (n => n > 1 ? "the first of " + n + " quizzes before " : "pass it to open ")(
+                flatLessons(nextUp.cid).findIndex(f => f.ui === nextUp.ui && f.li === nextUp.li) -
+                flatLessons(blk.cid).indexOf(blk)) + clipTitle(nextUp.l.t, 40),
           verb: "Start",
         };
       }

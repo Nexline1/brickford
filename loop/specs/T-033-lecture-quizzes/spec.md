@@ -138,3 +138,17 @@ The owner chose **"Course materials now, transcripts later"** and **"I'll allow 
    - **Third-party copies:** these still don't count.
 2. **The other 17 videos wait for working transcripts.** These are 3Blue1Brown (4), David Silver's RL course (10), the 2 big-picture LLM talks, and Hamming. `at` is added to every video quiz once transcripts work again.
 3. **Papers and readings on blocked hosts.** The owner will allow arxiv.org, proceedings.neurips.cc, cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu, www.neelnanda.io and www.arena.education. Try one fetch of each at the start of every session. Once a host is reachable, build its lectures from the paper or the page itself.
+
+
+## Amendment, 2026-10-15 (owner decision): readings on unreachable hosts
+huggingface.co and docs.vllm.ai are blocked from the build container. The owner was asked whether the source text of those pages, read from the authors' own GitHub repositories, counts as the reading. They answered **"Yes, count it"**.
+
+1. **Where the text comes from.** A reading whose page is built from the authors' own repository may be read from that repository. The file must be the one that builds the page the lesson links.
+2. **Pinned to what the site serves.** `verification/sources.json` records the commit SHA and the version the live page shows:
+   - HF LLM course and Agents course: `main`
+   - TRL and Transformers docs: the latest release tag
+   - vLLM `/en/latest/`: `main`
+   - lm-evaluation-harness: the GitHub README, which is the linked page itself
+   - karpathy.github.io: `master`, the GitHub Pages source
+3. **What a question may test.** No question may rely on text that is absent from the served version.
+4. **Third-party copies still don't count.**

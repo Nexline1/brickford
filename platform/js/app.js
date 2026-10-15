@@ -285,6 +285,15 @@
       // with the earliest passedAt and the best first-try score.
       const quiz = mergeQuiz(mine.quiz, theirs.quiz);
       if (quiz && canon(quiz) !== canon(now.quiz || null)) { now.quiz = quiz; changed++; }
+      // Review r1: when both sides have it watched, the earlier watch date
+      // stands, and the first-watched date is the earliest either side knows,
+      // so grandfathering cannot be lost to whichever copy won.
+      if (mine.done && theirs.done && mine.doneAt && theirs.doneAt) {
+        const early = mine.doneAt < theirs.doneAt ? mine.doneAt : theirs.doneAt;
+        if (now.doneAt !== early) { now.doneAt = early; changed++; }
+      }
+      const fd = [mine.firstDoneAt, theirs.firstDoneAt].filter(Boolean).sort()[0];
+      if (fd && now.firstDoneAt !== fd) { now.firstDoneAt = fd; changed++; }
       if (now.pos !== keep.pos || now.posAt !== keep.posAt) {
         if (keep.pos == null) delete now.pos; else now.pos = keep.pos;
         if (keep.posAt == null) delete now.posAt; else now.posAt = keep.posAt;
@@ -376,13 +385,17 @@
     return { changed: changed };
   }
 
-  // Two quiz records, one result: the earlier pass (its date and time), and
-  // the better first-try score of the two. Either alone is kept as it is.
+  // Two quiz records, one result. The pass date and time come from the
+  // earlier pass; firstTry, total and attempts come TOGETHER from the better
+  // sitting — the higher share right on the first try (then the more
+  // questions) — never mixed across two sittings (review r1: 5 of 3).
   function mergeQuiz(a, b) {
     if (!a || !a.passedAt) return b && b.passedAt ? b : (a || null);
     if (!b || !b.passedAt) return a;
     const first = (b.passedAt + (b.at || "")) < (a.passedAt + (a.at || "")) ? b : a;
-    return Object.assign({}, first, { firstTry: Math.max(+a.firstTry || 0, +b.firstTry || 0) });
+    const share = x => (+x.total > 0 ? (+x.firstTry || 0) / +x.total : 0);
+    const better = share(b) > share(a) || (share(b) === share(a) && (+b.total || 0) > (+a.total || 0)) ? b : a;
+    return { passedAt: first.passedAt, at: first.at, firstTry: better.firstTry, total: better.total, attempts: better.attempts };
   }
 
   // One code path for both directions so the manual buttons and the automatic
@@ -1123,7 +1136,12 @@
     return sm && sm.checks && sm.checks.length ? sm.checks : null;
   }
   const quizPassed = k => !!((S.lessons[k] || {}).quiz || {}).passedAt;
-  const grandfathered = st => !!(st && st.done && st.doneAt && st.doneAt < QUIZ_GATE_FROM);
+  // The first time a lecture was ever marked watched: the earlier of doneAt
+  // and firstDoneAt, which an unmark records before it deletes doneAt (review
+  // r1). So unmarking and re-marking a lecture watched before the gate keeps
+  // it grandfathered; doneAt itself stays the date of the latest watch.
+  const firstWatched = st => [st && st.doneAt, st && st.firstDoneAt].filter(Boolean).sort()[0] || null;
+  const grandfathered = st => !!(st && st.done && firstWatched(st) && firstWatched(st) < QUIZ_GATE_FROM);
   function lessonCleared(k) {
     const st = S.lessons[k] || {};
     return !!st.done && (quizPassed(k) || !lessonQuiz(k) || grandfathered(st));
@@ -5525,7 +5543,8 @@
           const ls = cs && cs.units[+m[2]] ? cs.units[+m[2]].lessons[+m[3]] : null;
           if (act === "toggleDone") {
             st.done = !st.done;
-            if (st.done) st.doneAt = todayISO(); else delete st.doneAt;
+            if (st.done) st.doneAt = todayISO();
+            else { if (st.doneAt) st.firstDoneAt = firstWatched(st); delete st.doneAt; }
           }
           if (act === "verify") {
             if (!lessonCanVerify(st, ls)) { S.lessons[k] = st; save(); render(); toast("Finish the four gates first."); return; }
@@ -6162,7 +6181,9 @@
     const st = S.lessons[k] || { done: false, notes: "", checks: [] };
     const was = st.quiz;
     if (was && was.passedAt) {
-      if ((+res.firstTry || 0) > (+was.firstTry || 0)) was.firstTry = res.firstTry;
+      const share = x => (+x.total > 0 ? (+x.firstTry || 0) / +x.total : 0);
+      if (share(res) > share(was) || (share(res) === share(was) && (+res.total || 0) > (+was.total || 0)))
+        Object.assign(was, { firstTry: +res.firstTry || 0, total: +res.total || 0, attempts: +res.attempts || 0 });
     } else {
       st.quiz = { passedAt: todayISO(), at: new Date().toISOString(),
                   firstTry: +res.firstTry || 0, total: +res.total || 0, attempts: +res.attempts || 0 };

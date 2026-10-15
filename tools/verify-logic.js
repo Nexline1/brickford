@@ -485,17 +485,22 @@ async function scenario(browser, now, state, tz) {
 
   // ---- the lecture quiz gate (T-043) ----
   // loop/specs/T-043-lecture-quiz-gate/spec.md. "Done" is watched AND
-  // cleared: the quiz passed, no quiz at all, or watched before the gate
-  // shipped (grandfathered). Tue 6 Oct schedules three MATH 120 lectures and
-  // one SPCH 100 lecture that have quizzes, and two AI 200 lectures that have
-  // none. Every expectation is worked out here from the fixture and the
-  // summaries' checks (the data), never from schedDone: a key counts as
-  // cleared when its fixture says watched and (passed, or quiz-less, or
-  // doneAt before QUIZ_GATE_FROM).
+  // cleared: the quiz passed, no quiz at all, or first watched before the
+  // gate shipped (grandfathered). Tue 6 Oct schedules three MATH 120 lectures
+  // and one SPCH 100 lecture that have quizzes, and two AI 200 lectures that
+  // have none. Every expectation is worked out here from the fixture and the
+  // summaries' checks (the data), never from schedDone. Every date is derived
+  // from the app's QUIZ_GATE_FROM (review r1): grandfathered = gate - 1,
+  // gated = gate + 1, the clock at gate + 5 — so any ship date works.
   {
-    const P = "2026-10-06", TODAY = "2026-10-20";
+    const P = "2026-10-06";
+    const probe = await scenario(browser, "2026-10-20", null);
+    const GATE = await probe.page.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM);
+    await probe.ctx.close();
+    const BEFORE = addDays(GATE, -1), AFTER = addDays(GATE, 1), TODAY = addDays(GATE, 5);
+    const PASS = { passedAt: AFTER, at: AFTER + "T10:00:00.000Z", firstTry: 2, total: 3, attempts: 4 };
     const run = async (name, lessonsFor, extra) => {
-      const { ctx, page, errors } = await scenario(browser, "2026-10-20", null);
+      const { ctx, page, errors } = await scenario(browser, TODAY, null);
       const meta = await page.evaluate(P => ({
         gate: window.__brickfordTest.QUIZ_GATE_FROM,
         items: window.__brickfordTest.scheduledFor(P).filter(it => !it.pseudo).map(it => {
@@ -529,16 +534,19 @@ async function scenario(browser, now, state, tz) {
     };
     const watched = doneAt => meta => { const L = {}; meta.items.forEach(i => { L[i.k] = { done: true, doneAt, notes: "", checks: [] }; }); return L; };
     const passed = doneAt => meta => { const L = watched(doneAt)(meta);
-      meta.items.forEach(i => { if (i.quiz) L[i.k].quiz = { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 3, attempts: 4 }; }); return L; };
-    const gated = await run("gated", watched("2026-10-16"));
-    const pass = await run("passed", passed("2026-10-16"));
-    const gf = await run("grandfathered", watched(P));
-    const sealedRun = await run("gated, with the sealed run", watched("2026-10-16"), () => ({ studyDays: sealed }));
+      meta.items.forEach(i => { if (i.quiz) L[i.k].quiz = Object.assign({}, PASS); }); return L; };
+    // The ten study days up to TODAY, sealed: the streak with every quiz open
+    // must equal the streak with no lectures at all.
+    const run10 = []; for (let d = TODAY; run10.length < 10; d = addDays(d, -1)) if (!isSat(d)) run10.push(d);
+    const gated = await run("gated", watched(AFTER));
+    const pass = await run("passed", passed(AFTER));
+    const gf = await run("grandfathered", watched(BEFORE));
+    const sealedRun = await run("gated, with ten sealed days", watched(AFTER), () => ({ studyDays: run10.slice().sort() }));
+    const sealedBare = await run("no lectures, the same ten sealed days", () => ({}), () => ({ studyDays: run10.slice().sort() }));
     const nQ = gated.meta.items.filter(i => i.quiz).length, nNo = gated.meta.items.length - nQ;
     const schedLine = x => x.r.sched.map(s => s.k + "=" + s.got + (s.got === s.want ? "" : "(want " + s.want + ")")).join(" ");
-    check("the fixture day has gated and quiz-less lectures, and the gate date lies between the two doneAt dates (not vacuous)",
-      nQ > 0 && nNo > 0 && gated.meta.gate > P && gated.meta.gate <= "2026-10-16",
-      nQ + " with a quiz, " + nNo + " without; QUIZ_GATE_FROM " + gated.meta.gate);
+    check("the fixture day has gated and quiz-less lectures; dates from QUIZ_GATE_FROM " + GATE + " (grandfathered " + BEFORE + ", gated " + AFTER + ", today " + TODAY + ")",
+      nQ > 0 && nNo > 0 && gated.meta.gate === GATE && BEFORE >= P, nQ + " with a quiz, " + nNo + " without");
     check("schedDone: watched after the gate with the quiz not passed is NOT done; a quiz-less watched lecture is",
       gated.r.sched.every(s => s.got === s.want) && gated.r.sched.some(s => !s.got) && gated.r.sched.some(s => s.got), schedLine(gated));
     check("schedDone: a passed quiz makes a watched lecture done", pass.r.sched.every(s => s.got === s.want && s.got), schedLine(pass));
@@ -559,10 +567,40 @@ async function scenario(browser, now, state, tz) {
       JSON.stringify(gf.r.catchUp.slice().sort()) === JSON.stringify(wantCU.slice().sort()) && gated.r.catchUp.length === 0 && pass.r.catchUp.length === 0 &&
         gf.r.catchUp.indexOf("math120.0.0") < gf.r.catchUp.indexOf("math120.0.2"),
       "grandfathered " + gf.r.catchUp.join(",") + "; gated " + gated.r.catchUp.length + "; passed " + pass.r.catchUp.length);
-    check("the streak is unchanged by the gate: open quizzes do not touch sealed days (8, best 8)",
-      sealedRun.r.streak === 8 && sealedRun.r.best === 8, "streak " + sealedRun.r.streak + ", best " + sealedRun.r.best);
-    check("no page errors (quiz gate)", [gated, pass, gf, sealedRun].every(x => x.errors.length === 0),
-      [gated, pass, gf, sealedRun].map(x => x.errors.join(" | ")).join(" "));
+    check("the streak is unchanged by the gate: open quizzes do not touch sealed days",
+      sealedRun.r.streak === sealedBare.r.streak && sealedRun.r.best === sealedBare.r.best && sealedBare.r.streak >= 8,
+      "with open quizzes " + sealedRun.r.streak + " (best " + sealedRun.r.best + "), without lectures " + sealedBare.r.streak + " (best " + sealedBare.r.best + ")");
+    check("no page errors (quiz gate)", [gated, pass, gf, sealedRun, sealedBare].every(x => x.errors.length === 0),
+      [gated, pass, gf, sealedRun, sealedBare].map(x => x.errors.join(" | ")).join(" "));
+
+    // Review r1: unmark, then mark watched again, through the page. A lecture
+    // first watched before the gate stays grandfathered: cleared, on the
+    // catch-up list, and not holding the next lecture.
+    {
+      const k = "math120.0.0";
+      const { ctx, page, errors } = await scenario(browser, TODAY, { lessons: { [k]: { done: true, doneAt: BEFORE, notes: "", checks: [] } } });
+      const at = () => page.evaluate(k => { const T = window.__brickfordTest, st = (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {})[k] || null;
+        return { cleared: T.lessonCleared(k), lock: T.lockedBy("math120", 0, 1), cu: T.catchUpQuizzes().some(x => x.k === k), st }; }, k);
+      const before = await at();
+      const press = async want => {
+        await page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); });
+        await page.click("#view [data-act=toggleDone]");
+        await page.waitForFunction(w => !document.querySelector("#view [data-logic-stale]") &&
+          ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === w, want, { timeout: 8000 });
+      };
+      await page.evaluate(() => { location.hash = "#/lesson/math120/0/0"; });
+      await page.waitForSelector("#view [data-act=toggleDone]");
+      await press("Mark watched");
+      const off = await at();
+      await press("Unmark watched");
+      const again = await at();
+      check("unmark then re-mark keeps a lecture first watched before the gate grandfathered (cleared, on catch-up, the next lecture open)",
+        before.cleared && !before.lock && off.st && !off.st.done && off.st.firstDoneAt === BEFORE &&
+          again.cleared && !again.lock && again.cu && again.st.done && again.st.doneAt === TODAY && again.st.firstDoneAt === BEFORE,
+        JSON.stringify({ before, off: off.st, again }));
+      check("no page errors (re-mark)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
   }
 
   // The hook is test-only: an ordinary load must not publish it.

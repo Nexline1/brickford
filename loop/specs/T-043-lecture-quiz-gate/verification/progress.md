@@ -10,7 +10,7 @@ Branch loop/T-043-lecture-quiz-gate, worktree /home/user/bf-T-043, base main c88
 - [x] 4. CSS
 - [x] 5. gates: verify-logic, verify-sync-loop, verify-flows (flow c = AC1, rw), verify-design T-043 block
 - [x] 6. plants (a)-(e): verification/plants.py, all exit 1 (plants.log)
-- [ ] 7. full gate run + screenshots
+- [x] 7. full gate run + screenshots: all green sequentially incl. clip under TZ=America/Los_Angeles (verification/gates.log)
 
 ## Decisions
 - Pushing: the subagent system rules forbid push; checkpoints are local commits only.

@@ -2480,6 +2480,29 @@ const expectedSummary = {
     const t5 = (128 * 128) / 1024;
     return [{ i: 4, v: Math.round(lo * 100) / 100 }, { i: 5, v: t5 }];
   })(),
+  "ai310.0.3": (function () {
+    const scores = [2, 1, 0, -1], k = 2;
+    const top = scores.slice().sort((a, b) => b - a).slice(0, k);
+    const z = top.reduce((t, v) => t + Math.exp(v), 0);
+    const gate = Math.exp(top[0]) / z;
+    const ffnEquivalents = (6 + 2) / 4;
+    return [{ i: 4, v: Math.round(gate * 1000) / 1000 }, { i: 5, v: ffnEquivalents }];
+  })(),
+  "ai310.0.4": (function () {
+    // Count tiles by stepping across the output, not by a ceiling formula.
+    const tilesAlong = (n, t) => { let c = 0; for (let x = 0; x < n; x += t) c++; return c; };
+    const tiles = tilesAlong(1600, 256) * tilesAlong(1600, 128);
+    const fp16Bytes = 16 / 8, readsPlusWrites = 2;
+    return [{ i: 4, v: tiles }, { i: 5, v: fp16Bytes * readsPlusWrites / 1 }];
+  })(),
+  "ai310.0.5": (function () {
+    const n = 16384 * 16384, bs = 1024;
+    const blocks = Math.floor((n + bs - 1) / bs);                // cdiv
+    // Sum the per-step read counts for M = 2, N = 3.
+    const M = 2, N = 3, MN = M * N;
+    const reads = [MN, MN + M, MN, MN, MN].reduce((a, b) => a + b, 0);
+    return [{ i: 4, v: blocks }, { i: 5, v: reads }];
+  })(),
 };
 
 let sumNums = 0;

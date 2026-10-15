@@ -670,5 +670,61 @@
    "sources/text/cs336/Lecture_3_architecture.txt"
   ],
   "note": "Slide deck; text extracted page by page with verification/pdf2txt.py (pypdf 5.1.0, installed outside the repo). Every slide has a text layer; figures and plots are not in the text and are not quizzed."
+ },
+ "ai310.0.3": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "LPv1KfUXLCo (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 4 - MoEs.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_4_MoEs.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py. The same video is also linked by ai300.3.1 (Mixtral), which is to be quizzed from the Mixtral paper (notes.md). Slide 43 labels DeepSeek v3 as 'V2 (671B – 37 active)' and gives 258 fine-grained experts where slide 23's table gives 256; the quiz uses neither figure."
+ },
+ "ai310.0.4": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "6OBtO9niT00 (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 5 - GPUs.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_5_GPUs.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py."
+ },
+ "ai310.0.5": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "E8Mju53VB00 (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_06.py",
+     "lecture_06_mlp.py",
+     "lecture_06_utils.py",
+     "gelu.cu",
+     "var/traces/lecture_06.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_06.py",
+   "sources/repos/stanford-cs336_spring2025-lectures/gelu.cu"
+  ],
+  "note": "Executable lecture, recorded on a GPU (the trace's timings are real: manual_gelu 8.1 ms, PyTorch 1.1 ms, CUDA 1.8 ms, Triton 1.8 ms, compiled 1.5 ms). triton_matmul_main is defined in the file but not called from main(), so its tiling and L2-grouping material is not quizzed. The 13 MB trace is not in files: every quote comes from the .py, and the timings above were read from the trace."
  }
 }

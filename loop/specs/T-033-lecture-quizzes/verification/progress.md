@@ -59,10 +59,13 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 25 | ai310.0.0 | CS336 lecture_01.py + its trace | 6 (3 MCQ, 3 numeric) |
 | 26 | ai310.0.1 | CS336 lecture_02.py + its trace | 6 (4 MCQ, 2 numeric) |
 | 27 | ai310.0.2 | CS336 nonexecutable/2025 Lecture 3 - architecture.pdf | 6 (4 MCQ, 2 numeric) |
+| 28 | ai310.0.3 | CS336 nonexecutable/2025 Lecture 4 - MoEs.pdf | 6 (4 MCQ, 2 numeric) |
+| 29 | ai310.0.4 | CS336 nonexecutable/2025 Lecture 5 - GPUs.pdf | 6 (4 MCQ, 2 numeric) |
+| 30 | ai310.0.5 | CS336 lecture_06.py, gelu.cu + trace | 6 (4 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-AI 210 complete. ai310.0.3–0.16 (spring2025-lectures, all 65–87 min → 6): executable lectures
+AI 210 complete. ai310.0.6–0.16 (spring2025-lectures, all 65–87 min → 6): executable lectures
 are lecture_NN.py (+ var/traces/lecture_NN.json); lectures 3, 4, 5, 7, 9, 11, 15, 16 are slide PDFs in
 nonexecutable/, rendered to sources/text/cs336/ with verification/pdf2txt.py.
 

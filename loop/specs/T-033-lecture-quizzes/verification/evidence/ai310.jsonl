@@ -52,3 +52,21 @@
 {"key": "ai310.0.2", "i": 3, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 58-64", "quote": "We have much fewer items to move in and out of memory (KV Cache)"}
 {"key": "ai310.0.2", "i": 4, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 23 and 37-41", "quote": "Remember that GLU variants scale down by 2/3 rd."}
 {"key": "ai310.0.2", "i": 5, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 42-44", "quote": "T5 128 128 1024 16"}
+{"key": "ai310.0.3", "i": 0, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 3-13", "quote": "You can increase the # experts without affecting FLOPs"}
+{"key": "ai310.0.3", "i": 1, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 24-31", "quote": "Heuristic 'balancing' losses."}
+{"key": "ai310.0.3", "i": 2, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slide 34", "quote": "Token dropping from routing happens at a batch level – this means that other people's queries can drop your token!"}
+{"key": "ai310.0.3", "i": 3, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 35-36", "quote": "Use Float 32 just for the expert router (sometimes with an aux z -loss)"}
+{"key": "ai310.0.3", "i": 4, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 17-19", "quote": "Mixtral, DBRX, DeepSeek v3 softmaxes after the TopK"}
+{"key": "ai310.0.3", "i": 5, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 20-23 and 41", "quote": "DeepSeek v1 64 6 2 1/4"}
+{"key": "ai310.0.4", "i": 0, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 8-12", "quote": "CPUs optimize for latency (each thread finishes quickly) GPUs optimize for throughput (total processed data)"}
+{"key": "ai310.0.4", "i": 1, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 26-29", "quote": "What if we have to do many operations? Shipping back and forth is somewhat silly"}
+{"key": "ai310.0.4", "i": 2, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 30-32", "quote": "Throwing away computation can actually be optimal, w/ 5/8 th the memory accesses!"}
+{"key": "ai310.0.4", "i": 3, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 46-50", "quote": "To keep track of the max, incrementally update the max, and set up a telescoping sum"}
+{"key": "ai310.0.4", "i": 4, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 41-44", "quote": "An A100 has 108 SMs, so it cannot execute all 120"}
+{"key": "ai310.0.4", "i": 5, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 23-24", "quote": "Memory access : 1 read (x), 1 write (if x < 0), float 16 = 4 bytes"}
+{"key": "ai310.0.5", "i": 0, "at": null, "src": "lecture_06.py, benchmarking", "quote": "torch.cuda.synchronize()  # Wait for CUDA threads to finish (important!)"}
+{"key": "ai310.0.5", "i": 1, "at": null, "src": "lecture_06.py, kernel_fusion_motivation; var/traces/lecture_06.json", "quote": "The PyTorch just calls one kernel whereas the others are atomic (remember the warehouse/factory)"}
+{"key": "ai310.0.5", "i": 2, "at": null, "src": "lecture_06.py, triton_introduction and print_ptx_main", "quote": "Memory coalescing (transfer from DRAM)     manual    automatic"}
+{"key": "ai310.0.5", "i": 3, "at": null, "src": "lecture_06.py, review_of_gpus", "quote": "General rule: matrix multiplication is compute-bound, everything else is memory-bound"}
+{"key": "ai310.0.5", "i": 4, "at": null, "src": "lecture_06.py, triton_gelu", "quote": "num_blocks = triton.cdiv(num_elements, block_size)"}
+{"key": "ai310.0.5", "i": 5, "at": null, "src": "lecture_06.py, manual_softmax", "quote": "# Total: 5MN + M reads, 3MN + 2M writes"}

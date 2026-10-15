@@ -28,13 +28,29 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
   talks, Hamming. Retry `Yt_T` / `Youtube_Transcribt` once per session. 2026-10-15: `Yt_T`
   still asks for an API key; `Youtube_Transcribt` returns empty output.
 
+## Review round 1 (2026-10-15): CHANGES REQUIRED, findings 1-12 fixed
+
+Spec amendment 2026-10-15 ("Yes, count it": readings read from the authors' repos, pinned to
+the served version) is appended to spec.md.
+
+- **Video-date sources.** Every repo-sourced lecture is checked against the commit current
+  when its video was made (CS336: the lecture day). See `sources.json` → `video_version` and
+  notes.md, "Video-date check". Snapshots are in `sources/videodate/<repo>@<sha>/` (git-ignored).
+  Regenerate them with `git -C sources/repos/<repo> show <sha>:<path>` and render notebooks with
+  `nb2txt.py`. The repos must be unshallowed (`git fetch --unshallow`).
+- **Readings pinned.** `sources/pinned/<repo>@<sha>/` (git-ignored) holds the files fetched from
+  `raw.githubusercontent.com/<repo>/<sha>/<path>`. The SHAs come from `git ls-remote`; the
+  `gh api` proxy is not enabled for those repos.
+- **Commits:** 68fb381 (amendment), baa6f14 (findings 2, 3, 4, 6, 7, 8, 11), 6e20028 (5, 12),
+  e91cf5e (1 and the video-date check), c6c7c5b (9), 654b75c (10), fc2ad93 (plants).
+
 ## Done
 
 | # | key | source | checks |
 |---|---|---|---|
 | 1 | ai310.1.0 | HF LLM course ch. 1 (GitHub `huggingface/course`) | 6 (5 MCQ, 1 numeric) |
 | 2 | ai310.1.1 | TRL SFT Trainer docs (GitHub `huggingface/trl`) | 6 (5 MCQ, 1 numeric) |
-| 3 | ai310.1.2 | Transformers quantization overview (GitHub `huggingface/transformers`) | 6 (5 MCQ, 1 numeric) |
+| 3 | ai310.1.2 | Transformers quantization overview (GitHub `huggingface/transformers` at v5.19.0, the served release) | 6 (5 MCQ, 1 numeric) |
 | 4 | ai310.1.3 | lm-evaluation-harness README | 6 (5 MCQ, 1 numeric) |
 | 5 | ai310.1.4 | vLLM docs: landing, Quickstart, Automatic Prefix Caching | 6 (5 MCQ, 1 numeric) |
 | 6 | ai310.1.5 | HF Agents course, Unit 1 | 6 (6 MCQ) |
@@ -46,8 +62,8 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 12 | ai200.1.4 | makemore_part4_backprop.ipynb | 8 (6 MCQ, 2 numeric) |
 | 13 | ai200.1.5 | makemore_part5_cnn1.ipynb | 6 (5 MCQ, 1 numeric) |
 | 14 | ai200.1.6 | karpathy/ng-video-lecture (gpt.py, bigram.py, git history) | 8 (6 MCQ, 2 numeric) |
-| 15 | ai200.1.7 | karpathy/minbpe (lecture.md, package, tests) | 8 (6 MCQ, 2 numeric) |
-| 16 | ai200.1.8 | karpathy/build-nanogpt (train_gpt2.py, fineweb, hellaswag, play.ipynb, history) | 8 (4 MCQ, 4 numeric) |
+| 15 | ai200.1.7 | karpathy/minbpe at a98e0a5 (README, package, tests; lecture.md is post-video and no longer used) | 8 (5 MCQ, 3 numeric) |
+| 16 | ai200.1.8 | karpathy/build-nanogpt at 8421355 (train_gpt2.py, fineweb, hellaswag, play.ipynb, history) | 8 (5 MCQ, 3 numeric) |
 | 17 | ai210.0.0 | course22 00 bird + 01 Jupyter 101; fastbook ch. 1 (map: course22-web lesson1.qmd) | 6 (6 MCQ) |
 | 18 | ai210.0.1 | course22 02 saving a model; fastbook ch. 2 (lesson2.qmd) | 6 (6 MCQ) |
 | 19 | ai210.0.2 | course22 03 image models, 04 neural net, xl/titanic.xlsx; fastbook ch. 4 (lesson3.qmd) | 6 (4 MCQ, 2 numeric) |

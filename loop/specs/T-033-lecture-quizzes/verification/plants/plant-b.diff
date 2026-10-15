@@ -1,5 +1,5 @@
 diff --git a/platform/data/summaries-ai310.js b/platform/data/summaries-ai310.js
-index 0b22a55..0315116 100644
+index abaf939..797cf92 100644
 --- a/platform/data/summaries-ai310.js
 +++ b/platform/data/summaries-ai310.js
 @@ -551,7 +551,7 @@ DAR.SUMMARIES = Object.assign(DAR.SUMMARIES || {}, {

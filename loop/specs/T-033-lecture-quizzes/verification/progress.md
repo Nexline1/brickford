@@ -79,9 +79,10 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 AI 210 and AI 310 Unit I complete: every lecture buildable from course materials is built.
 Remaining lectures wait on transcripts or paper hosts (unavailable.md).
 
-At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full
-CHECK one gate at a time (summary in `verification/check/`), screenshots (`shots.js`),
-and write `verification/audit.md`.
+End-of-build steps, 2026-10-15: plants (a)–(g) re-run on the final data (all exit 1, control
+exit 0, every restore proven with cmp; `plants/plants-summary.txt`); full CHECK one gate at a
+time plus clip under TZ=America/Los_Angeles (`check/summary.txt`); screenshots (`shots.js`);
+`audit.md` (10 sampled questions traced, 3 numerics by hand); `unavailable.md` updated.
 
 ## Per-lecture routine
 

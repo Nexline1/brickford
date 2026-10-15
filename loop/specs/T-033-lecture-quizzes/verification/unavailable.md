@@ -1,15 +1,23 @@
 # T-033: lectures with no fetchable source
 
-> **Update, 2026-10-14 (spec amendment).** The owner chose "course materials now,
-> transcripts later": AI 200 Unit II (9), AI 210 (8) and AI 310 Unit I (17) are now
-> written from the authors' companion material on GitHub, so those 34 rows below are
-> no longer blocked (see `progress.md`). Still unavailable: the 17 videos that wait for
-> transcripts (3Blue1Brown ×4, Silver ×10, the two big-picture talks, Hamming), the 16
-> AI 300 papers, and 6 readings (`res400.1.0`–`1.4`, `res400.2.1`) whose hosts the owner
-> will allow; at 21:53 UTC all eight hosts were still refused.
+> **Update, 2026-10-15 (final state of this build).** Under the owner's 2026-10-14
+> amendment ("course materials now, transcripts later") the 34 video rows for AI 200
+> Unit II (`ai200.1.0`–`1.8`), AI 210 (`ai210.0.0`–`0.7`) and AI 310 Unit I
+> (`ai310.0.0`–`0.16`) are **built** from the authors' companion material on GitHub
+> (`progress.md`, `sources.json`); their transcripts are still unavailable, so their
+> checks carry `src`, not `at`. With the 7 readings built earlier, 41 of the 80 lectures
+> are done (AI 200 9/15, AI 210 8/8, AI 310 23/23, RES 400 1/18).
+>
+> **Still unavailable (39):** 6 AI 200 videos (3Blue1Brown ×4, the two big-picture
+> talks), the 16 AI 300 papers, the 10 Silver lectures, Hamming, and the 6 readings
+> `res400.1.0`–`1.4` and `res400.2.1`. Retried once this session (2026-10-15 02:22 UTC):
+> all eight owner-allowed hosts still refused (proxy CONNECT 403); `Yt_T` still asks for
+> an API key; `Youtube_Transcribt` returns empty output.
 
-The rule is "no source, no lecture": nothing below has a summary or a quiz, and none
-was written from memory. 73 of the 80 are here. They are blocked by access, not by
+The rule is "no source, no lecture": none was written from memory. The table below is
+the original list of the 73 lectures (of 80) that had no fetchable source; the 34 rows
+named above are now built from course materials, and the other 39 still have no summary
+or quiz. They are blocked by access, not by
 content: each becomes buildable the moment its source can be fetched, and the order
 in `order.md` still applies.
 

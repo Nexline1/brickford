@@ -1,10 +1,10 @@
   ok    1440-dark button 'Check yourself · 6 questions' visible, x 347-624 of 1440, h 38px, data-theme dark
-  ok    1440-dark question mounted: numeric, 'A model's weights take 16 GB stored in bf16. Ignoring the sm…', no horizontal overflow (1440 <= 1440)
+  ok    1440-dark question mounted: 4 options, 'You need weights at 2 bits per parameter. What does the over…', no horizontal overflow (1440 <= 1440)
   ok    1440-light button 'Check yourself · 6 questions' visible, x 347-624 of 1440, h 38px, data-theme light
-  ok    1440-light question mounted: 4 options, 'According to the overview, what does quantization trade, and…', no horizontal overflow (1440 <= 1440)
+  ok    1440-light question mounted: numeric, 'A model's weights take 16 GB stored in bf16. Ignoring the sm…', no horizontal overflow (1440 <= 1440)
   ok    390-dark button 'Check yourself · 6 questions' visible, x 45-322 of 390, h 44px, data-theme dark
-  ok    390-dark question mounted: 4 options, 'You want to run a quantized model locally on an Apple Silico…', no horizontal overflow (390 <= 390)
+  ok    390-dark question mounted: numeric, 'A model's weights take 16 GB stored in bf16. Ignoring the sm…', no horizontal overflow (390 <= 390)
   ok    390-light button 'Check yourself · 6 questions' visible, x 45-322 of 390, h 44px, data-theme light
-  ok    390-light question mounted: 4 options, 'You need weights at 2 bits per parameter. What does the over…', no horizontal overflow (390 <= 390)
+  ok    390-light question mounted: numeric, 'A model's weights take 16 GB stored in bf16. Ignoring the sm…', no horizontal overflow (390 <= 390)
 
 PASS — Check yourself on ai310.1.2 at 1440/390 x Dark/Light: button visible, quiz mounts, no overflow

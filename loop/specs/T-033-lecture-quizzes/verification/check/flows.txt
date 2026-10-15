@@ -4,7 +4,7 @@
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
   ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 2.", options locked true, next button visible
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 5.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 3 today
@@ -58,8 +58,8 @@
   ok    (a) the dashboard names the next lecture — "Rate of Change" -> #/lesson/math120/1/0
   ok    (a) its button opens that lecture — at #/lesson/math120/1/0, h1 "1. Rate of Change"
   ok    (a) no page errors
-  ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 1.", options locked true, next button visible
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today — 0 / 3 today
@@ -151,9 +151,9 @@ record yourself (T-028)
   ok    (p) 390px (tapped): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"}] ev {"type":"rep","ref":"story","data":{"date":"2026-10-20","seconds":2}}
   ok    (p) 390px (tapped): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 390px (tapped): after stop the button is idle again and holds the focus (or the page did not move it) — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 390px (tapped): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/c4b8c848-d1cf-4073-a449-512175c4982e","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/c4b8c848-d1cf-4073-a449-512175c4982e","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/c4b8c848-d1cf-4073-a449-512175c4982e","dl":{"href":"blob:null/c4b8c848-d1cf-4073-a449-512175c4982e","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 390px (tapped): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/e2c5d515-1292-4e0b-ae3e-122367dfae9f","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/e2c5d515-1292-4e0b-ae3e-122367dfae9f","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/e2c5d515-1292-4e0b-ae3e-122367dfae9f","dl":{"href":"blob:null/e2c5d515-1292-4e0b-ae3e-122367dfae9f","name":"Story · Tue 20 Oct.webm"}}]
   ok    (p) 390px (tapped): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 390px (tapped): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 390px (tapped): no page errors
@@ -165,9 +165,9 @@ record yourself (T-028)
   ok    (p) 1280px (keyboard): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"}] ev {"type":"rep","ref":"story","data":{"date":"2026-10-20","seconds":2}}
   ok    (p) 1280px (keyboard): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 1280px (keyboard): after stop the button is idle again and holds the focus — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 1280px (keyboard): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/92c54a25-c614-4784-8ca6-05a19ed5a125","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/92c54a25-c614-4784-8ca6-05a19ed5a125","name":"Story · Tue 20 Oct.webm"}}]
-  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/92c54a25-c614-4784-8ca6-05a19ed5a125","dl":{"href":"blob:null/92c54a25-c614-4784-8ca6-05a19ed5a125","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 1280px (keyboard): the list shows it: "Story · Tue 20 Oct", "Tue 20 Oct · 0:02", with a download link to a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/08365a62-a47f-490c-a7ed-47351ca4abe6","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":null,"dl":{"href":"blob:null/08365a62-a47f-490c-a7ed-47351ca4abe6","name":"Story · Tue 20 Oct.webm"}}]
+  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-10-20-1","title":"Story · Tue 20 Oct","meta":"Tue 20 Oct · 0:02","audio":"blob:null/08365a62-a47f-490c-a7ed-47351ca4abe6","dl":{"href":"blob:null/08365a62-a47f-490c-a7ed-47351ca4abe6","name":"Story · Tue 20 Oct.webm"}}]
   ok    (p) 1280px (keyboard): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 1280px (keyboard): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 1280px (keyboard): no page errors
@@ -245,11 +245,11 @@ a slow phone (once, 390px)
   ok    (i) no page errors
 
 multiple choice (once)
-  info  as written in the data — 4 options: 275/575/188/42
-  ok    (k) every multiple-choice question was mounted and its answer found — 1080 questions, 8640 mounts, 0 unfound
-  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 26%, B 25%, C 25%, D 25% of 8640
-  ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1080 of 1080
-  ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1080 of 1080
+  info  as written in the data — 4 options: 315/616/228/84
+  ok    (k) every multiple-choice question was mounted and its answer found — 1243 questions, 9944 mounts, 0 unfound
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 26%, B 25%, C 24%, D 25% of 9944
+  ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1243 of 1243
+  ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1243 of 1243
   ok    (k) no page errors
 
 sync (once)

@@ -2680,15 +2680,26 @@
     // and not even lastLesson is written (Resume must not lead to a lock).
     const lock = lockedBy(cid, ui, li);
     if (lock) {
+      // The title names the lecture just before this one; the button goes to
+      // the first lecture in the chain of locks (lockRoot, as the dashboard
+      // does), and the line says how many quizzes stand in the way.
       const lc = D.COURSES.find(x => x.id === lock.cid) || c;
+      const root = lockRoot(cid, ui, li);
+      const lflat = flatLessons(cid);
+      const ahead = lflat.findIndex(f => f.ui === +ui && f.li === +li) - lflat.indexOf(root);
+      const rootNo = lflat.indexOf(root) + 1;
+      const rootSeen = !!(S.lessons[lessonKey(root.cid, root.ui, root.li)] || {}).done;
       return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
         "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
-        '<div class="card lq-lock" data-lock="' + esc(lessonKey(lock.cid, lock.ui, lock.li)) + '">' +
+        '<div class="card lq-lock" data-lock="' + esc(lessonKey(lock.cid, lock.ui, lock.li)) + '" data-root="' + esc(lessonKey(root.cid, root.ui, root.li)) + '" data-ahead="' + ahead + '">' +
         '<span class="lq-lock-ic">' + lockSVG() + "</span>" +
         '<div class="lq-lock-body"><div class="lq-lock-t">Pass the quiz for \u201c' + esc(lock.l.t) + '\u201d first</div>' +
-        '<div class="lq-lock-m">' + esc(lc.code) + " · lecture " + (flatLessons(lock.cid).indexOf(lock) + 1) +
-        " · this lecture opens when that quiz is passed</div>" +
-        '<a class="btn" href="#/lesson/' + lock.cid + "/" + lock.ui + "/" + lock.li + '">Go to the quiz \u25b8</a></div></div></div>';
+        '<div class="lq-lock-m">' + esc(lc.code) + " · " +
+        (ahead > 1
+          ? ahead + " quizzes stand before this lecture, from lecture " + rootNo + ", \u201c" + esc(clipTitle(root.l.t, 48)) + "\u201d"
+          : "lecture " + rootNo + " · this lecture opens when that quiz is passed") + "</div>" +
+        '<a class="btn" href="#/lesson/' + root.cid + "/" + root.ui + "/" + root.li + '">' +
+        (ahead > 1 || !rootSeen ? (rootSeen ? "Go to lecture " + rootNo + "\u2019s quiz" : "Open lecture " + rootNo) : "Go to the quiz") + " \u25b8</a></div></div></div>";
     }
     const quiz = lessonQuiz(k);
     const passed = quizPassed(k);
@@ -3231,10 +3242,11 @@
       const c = D.COURSES.find(x => x.id === it.cid);
       const dn = schedDone(it);
       // T-043: a locked lecture says so, and stays a link — to its lock card.
-      const lk = !dn && !!lockedBy(it.cid, it.ui, it.li);
+      // Review r1: a locked block links to the first quiz in its chain.
+      const lk = !dn && lockedBy(it.cid, it.ui, it.li) ? lockRoot(it.cid, it.ui, it.li) : null;
       const n = flatLessons(it.cid).findIndex(f => f.ui === it.ui && f.li === it.li) + 1;
       const dur = it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading";
-      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + (lk ? lk.cid + "/" + lk.ui + "/" + lk.li : it.cid + "/" + it.ui + "/" + it.li) + '">' +
         '<span class="cd-bar" aria-hidden="true"></span>' +
         '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
         '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") +
@@ -6423,7 +6435,8 @@
     // merge, handed a remote file's shape.
     gatePlan, setGate, mergeState,
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
-    QUIZ_GATE_FROM, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes });
+    QUIZ_GATE_FROM, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
+    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; } });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

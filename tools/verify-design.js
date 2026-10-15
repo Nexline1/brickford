@@ -1946,12 +1946,27 @@ function t26cDay([iso, fac]) {
   const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
   const txt = (n, s) => { const x = n && n.querySelector(s); return x ? x.textContent.trim() : null; };
   const col = (n, p) => n ? z.bytes(getComputedStyle(n)[p || "color"]) : null;
+  // T-043 (review r1): a locked lecture's block links to the first quiz in
+  // its chain of locks. Walked here from storage and the summaries' checks:
+  // a lecture not yet watched is locked while the one before it has a quiz
+  // that is not passed and was not watched before QUIZ_GATE_FROM; the chain
+  // runs back through lectures that are themselves locked.
+  const gate = T.QUIZ_GATE_FROM, sums = D.SUMMARIES || {};
+  const blocksNext = k => { const s0 = lessons[k] || {}; return !!((sums[k] || {}).checks || []).length && !(s0.quiz && s0.quiz.passedAt) && !(s0.done && s0.doneAt && s0.doneAt < gate); };
+  const rootOf = it => {
+    const flat = []; D.COURSES.find(x => x.id === it.cid).units.forEach((u, ui) => u.lessons.forEach((_, li) => flat.push(it.cid + "." + ui + "." + li)));
+    let i = flat.indexOf(it.cid + "." + it.ui + "." + it.li), root = null;
+    while (i > 0 && !(lessons[flat[i]] || {}).done && blocksNext(flat[i - 1])) { root = flat[i - 1]; i--; }
+    return root ? "#/lesson/" + root.split(".").join("/") : null;
+  };
   const want = T.scheduledFor(iso).map(it => {
     if (it.pseudo) return { pseudo: true, href: it.href };
     const c = D.COURSES.find(x => x.id === it.cid);
     let n = it.li + 1;
     for (let u = 0; u < it.ui; u++) n += c.units[u].lessons.length;
-    return { href: "#/lesson/" + it.cid + "/" + it.ui + "/" + it.li, k: c.code + " · " + it.track, t: it.l.t,
+    const dnK = (st0 => !!st0.done && (!!(st0.quiz && st0.quiz.passedAt) || !(((D.SUMMARIES || {})[it.cid + "." + it.ui + "." + it.li] || {}).checks || []).length ||
+        (!!st0.doneAt && st0.doneAt < T.QUIZ_GATE_FROM)))(lessons[it.cid + "." + it.ui + "." + it.li] || {});
+    return { href: (!dnK && rootOf(it)) || "#/lesson/" + it.cid + "/" + it.ui + "/" + it.li, k: c.code + " · " + it.track, t: it.l.t,
       r: [it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading", it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n],
       // T-043: done is watched AND cleared — its quiz passed, no quiz at all
       // (the summary's checks, data), or watched before QUIZ_GATE_FROM.
@@ -4576,7 +4591,10 @@ function t28SeedClips(list) {
     { name: "passed, with Go deeper", route: "/lesson/math110/0/13",
       patch: { lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", notes: "n", checks: [true], solved: 3, recall: "x".repeat(200),
         verifiedAt: "2026-10-19", quiz: T43_PASS("2026-10-19", 2, 3) } } } },
-    { name: "the locked lecture", route: "/lesson/math120/1/1", patch: null },
+    // One quiz in the way: lecture 13 watched, its quiz not passed.
+    { name: "the locked lecture", route: "/lesson/math120/1/1",
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
     { name: "the dashboard pointing at a quiz", route: "/", patch: null },
   ];
   function t43Measure() {
@@ -4608,7 +4626,7 @@ function t28SeedClips(list) {
       check: !!document.querySelector("#view [data-act=startSummaryCheck]"),
       lock: lock ? { text: txt("#view .lq-lock-t"), glyph: !!lock.querySelector(".lq-lock-ic svg"), bg: bgOk(lock), h1: txt("#view .page-head h1"),
         kicker: txt("#view .page-head .kicker"), btn: (lock.querySelector("a.btn") || { getAttribute: () => null }).getAttribute("href"),
-        cards: document.querySelectorAll("#view .card").length } : null,
+        cards: document.querySelectorAll("#view .card").length, ahead: lock.dataset.ahead } : null,
       kind: txt(".card.one.lead .one-kind"), go: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => null }).getAttribute("href"),
       railLock: !!document.querySelector("#rail .rl-lock"), railRule: txt("#rail .rl-rule"),
     };
@@ -4677,7 +4695,7 @@ function t28SeedClips(list) {
           c43(at + ": one card, no video: \"Pass the quiz for “…” first\", a lock glyph, the kicker and title above, --surface",
             !!m.lock && L.cards === 1 && !m.frame && !m.mark && /^Pass the quiz for “.+” first$/.test(L.text || "") && L.glyph && L.bg &&
               /^2\. /.test(L.h1 || "") && /^MATH 120/.test(L.kicker || ""), JSON.stringify(L));
-          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0", JSON.stringify({ filled, href: L.btn }));
+          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
         } else {
           c43(at + ": the Next card points at the blocking quiz (\"Quiz: …\") and its button is the one primary",
             /^Quiz: /.test(m.kind || "") && /^#\/lesson\//.test(m.go || "") && p.filled.length === 1, JSON.stringify({ kind: m.kind, go: m.go, filled }));

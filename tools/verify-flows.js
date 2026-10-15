@@ -1834,6 +1834,32 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- (lk) T-043 review r1: a chain of locks deeper than two ----
+  // Once, at 390, nothing watched: MATH 120 lecture 4 is locked behind
+  // lecture 3, which is locked behind 2, behind 1. The card names lecture 3
+  // in its title, says three quizzes stand in the way, and its button opens
+  // lecture 1 (lockRoot). Today's calendar block for MATH 120 lecture 13 —
+  // a chain of twelve — links to lecture 1 too.
+  console.log("\na chain of locks (once, 390px)");
+  {
+    const { ctx, page, errors } = await fresh(browser, 390, null, "/__test");
+    const titles = await page.evaluate(() => window.DAR.COURSES.find(c => c.id === "math120").units[0].lessons.slice(0, 4).map(l => l.t));
+    await go(page, "/lesson/math120/0/3");
+    const L = await page.evaluate(() => { const c = document.querySelector("#view .lq-lock");
+      return c ? { t: c.querySelector(".lq-lock-t").textContent.trim(), m: c.querySelector(".lq-lock-m").textContent.trim(), ahead: c.dataset.ahead,
+        btn: c.querySelector("a.btn").getAttribute("href"), label: c.querySelector("a.btn").textContent.trim() } : null; });
+    check("(lk) a chain of three: the title names lecture 3, the line says 3 quizzes, the button opens lecture 1",
+      !!L && L.t === "Pass the quiz for “" + titles[2] + "” first" && L.ahead === "3" && /^MATH 120 · 3 quizzes stand before this lecture, from lecture 1/.test(L.m) &&
+        L.btn === "#/lesson/math120/0/0" && L.label === "Open lecture 1 ▸", JSON.stringify(L));
+    const root = await page.evaluate(() => window.__brickfordTest.lockRoot("math120", 1, 0));
+    await go(page, "/calendar");
+    const blk = await page.evaluate(() => [...document.querySelectorAll("#view .cd-blk.locked")].map(b => b.getAttribute("href")));
+    check("(lk) the calendar's locked block for today's MATH 120 lecture links to the first quiz in its chain",
+      root === "math120.0.0" && blk.includes("#/lesson/math120/0/0") && !blk.includes("#/lesson/math120/1/0"), "root " + root + "; locked blocks " + JSON.stringify(blk));
+    check("(lk) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   // ---- (rw) T-043: "Rewatch from m:ss" on a miss, in place ----
   // Once, at 1280. No summary carries `at` yet, so the page's own copy of the
   // lecture's checks is given one (95s) before the quiz mounts. A miss then

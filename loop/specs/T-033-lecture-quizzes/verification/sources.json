@@ -834,5 +834,58 @@
    "sources/repos/stanford-cs336_spring2025-lectures/lecture_12.py"
   ],
   "note": "Executable lecture made of text, links and images; the benchmark figures it shows are images, so only the facts stated in its text are quizzed."
+ },
+ "ai310.0.12": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "WePxmeXU1xg (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_13.py",
+     "var/traces/lecture_13.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_13.py"
+  ],
+  "note": "Executable lecture of text and links. framework() is defined but not called from main(), so it is not quizzed. The lecture's line that copyright 'lasts for 75 years' is a simplification of US terms (notes.md) and is not quizzed."
+ },
+ "ai310.0.13": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "9Cd0THLS1t0 (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "lecture_14.py",
+     "var/traces/lecture_14.json"
+    ]
+   }
+  ],
+  "files": [
+   "sources/repos/stanford-cs336_spring2025-lectures/lecture_14.py"
+  ],
+  "note": "Executable lecture; every section is reached from main(). Numerics checked against the recorded trace: prob_collision(0.8, 5, 10) = 0.43330782 and jaccard = 0.6. The Dolma 'hate' classifier's positive set as written, {unlabeled, obscene}, looks garbled (notes.md) and is not quizzed."
+ },
+ "ai310.0.14": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "Dfu7vC9jo4w (transcript unavailable)",
+  "repos": [
+   {
+    "repo": "stanford-cs336/spring2025-lectures",
+    "commit": "b98b08a98d9d47a69bbdcb4e96a58aa48ee4d13b",
+    "paths": [
+     "nonexecutable/2025 Lecture 15 - RLHF Alignment.pdf"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/cs336/Lecture_15_RLHF_Alignment.txt"
+  ],
+  "note": "Slide deck, text via verification/pdf2txt.py. The equations on slides 31 and 53-58 are images or garbled in extraction; the quiz uses only what the slide text states. The cost table on slide 32 does not extract cleanly and is not quizzed. Slide 11's Alpaca example states '# Output 6.4' for a list whose mean is 6.2 (notes.md); the numeric asks for the real value."
  }
 }

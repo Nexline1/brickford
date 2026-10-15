@@ -106,3 +106,21 @@
 {"key": "ai310.0.11", "i": 3, "at": null, "src": "lecture_12.py, safety_benchmarks", "quote": "For open weight models, capability matters (since can easily fine-tune safety away)"}
 {"key": "ai310.0.11", "i": 4, "at": null, "src": "lecture_12.py, perplexity", "quote": "Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D."}
 {"key": "ai310.0.11", "i": 5, "at": null, "src": "lecture_12.py, knowledge_benchmarks", "quote": "Expanded 4 choices to 10 choices"}
+{"key": "ai310.0.12", "i": 0, "at": null, "src": "lecture_13.py, introduction", "quote": "Reasons for secrecy: (i) competitive dynamics and (ii) copyright liability"}
+{"key": "ai310.0.12", "i": 1, "at": null, "src": "lecture_13.py, t5_c4", "quote": "Keep lines that end in punctuation and have >= 5 words"}
+{"key": "ai310.0.12", "i": 2, "at": null, "src": "lecture_13.py, dclm", "quote": "Trained a fastText classifier, run it on all of DCLM-pool"}
+{"key": "ai310.0.12", "i": 3, "at": null, "src": "lecture_13.py, copyright", "quote": "Example: YouTube's terms of service prohibits downloading videos, even if the videos are licensed under Creative Commons."}
+{"key": "ai310.0.12", "i": 4, "at": null, "src": "lecture_13.py, t5_c4", "quote": "End result: 806 GB of text (156 billion tokens)"}
+{"key": "ai310.0.12", "i": 5, "at": null, "src": "lecture_13.py, github", "quote": "git clone'd 137M repositories, 51B files (5B unique!)"}
+{"key": "ai310.0.13", "i": 0, "at": null, "src": "lecture_14.py, filtering_summary", "quote": "score(x) = p_T(x) / p_R(x)"}
+{"key": "ai310.0.13", "i": 1, "at": null, "src": "lecture_14.py, quality_filtering", "quote": "Train 1.3B LM on new filtered subset (performance: 17.68% after 36K steps) - better!"}
+{"key": "ai310.0.13", "i": 2, "at": null, "src": "lecture_14.py, bloom_filter", "quote": "If return 'no', definitely 'no'"}
+{"key": "ai310.0.13", "i": 3, "at": null, "src": "lecture_14.py, exact_deduplication", "quote": "Warning: when a 3-sentence span is removed from the middle of a document, the resulting document might not be coherent"}
+{"key": "ai310.0.13", "i": 4, "at": null, "src": "lecture_14.py, locality_sensitive_hashing", "quote": "prob_collision = get_prob_collision(sim=0.8, b=5, r=10)"}
+{"key": "ai310.0.13", "i": 5, "at": null, "src": "lecture_14.py, fasttext_main", "quote": "Only H*(V + K) parameters"}
+{"key": "ai310.0.14", "i": 0, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 31", "quote": "Maximize some reward function that we can measure"}
+{"key": "ai310.0.14", "i": 1, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 20-21", "quote": "Fine -tuning a model on ‘facts it doesn’t know’ makes it hallucinate"}
+{"key": "ai310.0.14", "i": 2, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 23-25", "quote": "The challenge is really to balance this with over -refusals"}
+{"key": "ai310.0.14", "i": 3, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 54-58", "quote": "In some sense, reduces to “pos gradient on good, neg gradient on bad”"}
+{"key": "ai310.0.14", "i": 4, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 64", "quote": "Holds true for human pref (left), noisy LM pref (mid) but not noiseless LM pref (right)"}
+{"key": "ai310.0.14", "i": 5, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 11", "quote": "len(nums) print(avg_list([4, 3, 6, 10, 8])) # Output 6.4"}

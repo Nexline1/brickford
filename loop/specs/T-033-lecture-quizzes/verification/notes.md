@@ -115,6 +115,15 @@ lecture does. Where the material marks something as outside the video, it is lef
 - `course22/05-linear-model-and-neural-net-from-scratch.ipynb` cell 116 calls
   `calc_preds(tst_indep, coeffs)` with the arguments swapped; the elementwise product makes
   it harmless there. Not quizzed.
+- `stanford-cs336/spring2025-lectures/lecture_13.py` (copyright): 'lasts for 75 years' is a
+  simplification — US terms depend on authorship and date (life + 70 for individual authors
+  today, 95 years from publication for many corporate works). Not quizzed.
+- `stanford-cs336/spring2025-lectures/lecture_14.py` (toxicity_filtering): Dolma's 'hate'
+  classifier is written as 'positive = {unlabeled, obscene}', which cannot be what was meant
+  for a hate-speech label set that has toxic / threat / insult / identity_hate. Not quizzed.
+- `nonexecutable/2025 Lecture 15 - RLHF Alignment.pdf` slide 11: the Alpaca example claims
+  `print(avg_list([4, 3, 6, 10, 8]))` outputs 6.4; the mean is 31 / 5 = 6.2. The quiz asks for
+  the real value (ai310.0.14 check 5) and says so in the explanation.
 
 ## Where each reading was fetched from
 

@@ -2546,6 +2546,28 @@ const expectedSummary = {
     const ppl = Math.pow(2, bits);
     return [{ i: 4, v: Math.round(ppl * 1e9) / 1e9 }, { i: 5, v: 100 / 10 }];
   })(),
+  "ai310.0.12": (function () {
+    const bytesPerToken = 806e9 / 156e9;
+    const uniquePct = 5e9 / 51e9 * 100;
+    return [{ i: 4, v: Math.round(bytesPerToken * 100) / 100 }, { i: 5, v: Math.round(uniquePct * 10) / 10 }];
+  })(),
+  "ai310.0.13": (function () {
+    // LSH: the pair escapes only if every band misses; a band hits only if all r MinHashes agree.
+    const s = 0.8, b = 5, r = 10;
+    let bandHit = 1;
+    for (let j = 0; j < r; j++) bandHit *= s;
+    let allMiss = 1;
+    for (let j = 0; j < b; j++) allMiss *= (1 - bandHit);
+    // fastText: embedding table V x H plus head H x K, counted entry by entry.
+    const V = 8192, H = 16, K = 64;
+    return [{ i: 4, v: Math.round((1 - allMiss) * 1000) / 1000 }, { i: 5, v: V * H + H * K }];
+  })(),
+  "ai310.0.14": (function () {
+    // The mean of [4, 3, 6, 10, 8] by deviations from 6, not by summing the list.
+    const xs = [4, 3, 6, 10, 8];
+    const dev = xs.map((x) => x - 6).reduce((u, v) => u + v, 0) / xs.length;
+    return [{ i: 5, v: Math.round((6 + dev) * 1000) / 1000 }];
+  })(),
 };
 
 let sumNums = 0;

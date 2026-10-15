@@ -280,6 +280,11 @@
         if ((theirs.solved || 0) > (mine.solved || 0)) { mine.solved = theirs.solved; changed++; }
       }
       const now = S.lessons[k];
+      // The quiz pass is carried the same way, apart from the standing rule
+      // (T-043): a pass on either device survives whichever copy won above,
+      // with the earliest passedAt and the best first-try score.
+      const quiz = mergeQuiz(mine.quiz, theirs.quiz);
+      if (quiz && canon(quiz) !== canon(now.quiz || null)) { now.quiz = quiz; changed++; }
       if (now.pos !== keep.pos || now.posAt !== keep.posAt) {
         if (keep.pos == null) delete now.pos; else now.pos = keep.pos;
         if (keep.posAt == null) delete now.posAt; else now.posAt = keep.posAt;
@@ -369,6 +374,15 @@
       if ((theirs.at || "") > (mine.at || "")) { S.gates[k] = theirs; changed++; }
     });
     return { changed: changed };
+  }
+
+  // Two quiz records, one result: the earlier pass (its date and time), and
+  // the better first-try score of the two. Either alone is kept as it is.
+  function mergeQuiz(a, b) {
+    if (!a || !a.passedAt) return b && b.passedAt ? b : (a || null);
+    if (!b || !b.passedAt) return a;
+    const first = (b.passedAt + (b.at || "")) < (a.passedAt + (a.at || "")) ? b : a;
+    return Object.assign({}, first, { firstTry: Math.max(+a.firstTry || 0, +b.firstTry || 0) });
   }
 
   // One code path for both directions so the manual buttons and the automatic
@@ -1095,7 +1109,64 @@
     }
     return items;
   }
-  function schedDone(it) { return !it.pseudo && !!(S.lessons[lessonKey(it.cid, it.ui, it.li)] || {}).done; }
+  // ---------- the lecture quiz gate (T-043) ----------
+  // A lecture counts for the day only once it is watched AND cleared, and the
+  // next lecture in its course stays locked until it is. Cleared is one of:
+  // its quiz is passed; it has no quiz (a summary with no checks, or none); or
+  // it was watched before the gate shipped (grandfathered — those already
+  // counted, and nothing they touched is re-coloured; their quizzes go to the
+  // catch-up list instead). Everything here is DERIVED from S.lessons on every
+  // read: the lock is never stored, so there is nothing to fall out of date.
+  const QUIZ_GATE_FROM = "2026-10-15";                 // the ship date
+  function lessonQuiz(k) {
+    const sm = (D.SUMMARIES || {})[k];
+    return sm && sm.checks && sm.checks.length ? sm.checks : null;
+  }
+  const quizPassed = k => !!((S.lessons[k] || {}).quiz || {}).passedAt;
+  const grandfathered = st => !!(st && st.done && st.doneAt && st.doneAt < QUIZ_GATE_FROM);
+  function lessonCleared(k) {
+    const st = S.lessons[k] || {};
+    return !!st.done && (quizPassed(k) || !lessonQuiz(k) || grandfathered(st));
+  }
+  // Whether lecture k holds back the one after it: it has a quiz, the quiz is
+  // not passed, and it is not grandfathered. A quiz-less lecture never does.
+  const lessonBlocks = k => !!lessonQuiz(k) && !quizPassed(k) && !grandfathered(S.lessons[k]);
+  // The lecture that locks (cid, ui, li), or null. The first lecture of a
+  // course is never locked, and neither is one already watched — the lock
+  // guards a video not yet seen (a lecture watched before the gate is the
+  // owner's "past lectures don't lock").
+  function lockedBy(cid, ui, li) {
+    if ((S.lessons[lessonKey(cid, ui, li)] || {}).done) return null;
+    const flat = flatLessons(cid);
+    const i = flat.findIndex(f => f.ui === +ui && f.li === +li);
+    if (i <= 0) return null;
+    const p = flat[i - 1];
+    return lessonBlocks(lessonKey(p.cid, p.ui, p.li)) ? p : null;
+  }
+  // The earliest lecture in an unbroken chain of locks: the one to go to now.
+  function lockRoot(cid, ui, li) {
+    let b = lockedBy(cid, ui, li);
+    for (let guard = 0; b && guard < 1000; guard++) {
+      const up = lockedBy(b.cid, b.ui, b.li);
+      if (!up) break;
+      b = up;
+    }
+    return b;
+  }
+  // Watched before the gate, with a quiz never passed, in course order. T-045
+  // lists these on Problems; taking one records a pass like any other.
+  function catchUpQuizzes() {
+    const out = [];
+    D.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => {
+      const k = lessonKey(c.id, ui, li), st = S.lessons[k];
+      if (st && st.done && lessonQuiz(k) && !quizPassed(k) && grandfathered(st))
+        out.push({ k, cid: c.id, ui, li, code: c.code, title: l.t });
+    })));
+    return out;
+  }
+  // The one "done" predicate every reader shares: dayStatus, backlogCount,
+  // the dashboard ring and bar, the rail, the calendar's blocks.
+  function schedDone(it) { return !it.pseudo && lessonCleared(lessonKey(it.cid, it.ui, it.li)); }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
   // The day, grouped by course.
   //
@@ -1323,6 +1394,23 @@
     const due = reviewsDue();
     if (nextUp) {
       const c = D.COURSES.find(x => x.id === nextUp.cid);
+      // T-043: when the next lecture is locked, or watched with its quiz still
+      // to pass, the next thing to do is that quiz, so the card says so.
+      const nk = lessonKey(nextUp.cid, nextUp.ui, nextUp.li);
+      const blk = lockRoot(nextUp.cid, nextUp.ui, nextUp.li) ||
+        ((S.lessons[nk] || {}).done && lessonQuiz(nk) && !quizPassed(nk) ? nextUp : null);
+      if (blk) {
+        const bc = D.COURSES.find(x => x.id === blk.cid);
+        return {
+          href: "#/lesson/" + blk.cid + "/" + blk.ui + "/" + blk.li,
+          kind: "quiz", code: blk.code, title: "Quiz: " + blk.l.t,
+          fac: bc ? facClass(bc) : "",
+          label: "Quiz: " + clipTitle(blk.l.t, 30),
+          hint: blk === nextUp ? "pass it and the lecture counts for today"
+            : "pass it to open " + clipTitle(nextUp.l.t, 40),
+          verb: "Take the quiz",
+        };
+      }
       return {
         href: "#/lesson/" + nextUp.cid + "/" + nextUp.ui + "/" + nextUp.li,
         kind: "lecture", code: nextUp.code, title: nextUp.l.t,
@@ -1819,14 +1907,27 @@
     // 1 of 6 today", and the count. So it stows on "/" and works everywhere else.
     const rail = $("#rail");
     if (rail) rail.classList.toggle("stowed", route() === "/");
+    // T-043: on a lecture whose quiz is not passed yet, the rail says how the
+    // ring counts, and the next lecture in the course shows as locked.
+    const lm = route().match(/^\/lesson\/([^/]+)\/(\d+)\/(\d+)/);
+    const lk = lm ? lessonKey(lm[1], +lm[2], +lm[3]) : null;
+    const lflat = lm && D.COURSES.some(x => x.id === lm[1]) ? flatLessons(lm[1]) : null;
+    const lnext = lflat ? lflat[lflat.findIndex(f => f.ui === +lm[2] && f.li === +lm[3]) + 1] : null;
+    const lockNext = lnext && lockedBy(lnext.cid, lnext.ui, lnext.li) && !lockedBy(lm[1], +lm[2], +lm[3]) ? lnext : null;
     if (rail) rail.innerHTML =
       '<div class="rail-card ' + (a.fac || "") + '">' +
       '<div class="rl-ring">' + ringHTML(pct, real.length ? doneToday + "/" + real.length : (studied ? "✓" : "—"), "today", pct >= 100 ? "good" : "", 84) + "</div>" +
-      '<div class="rl-label">Next up</div>' +
-      '<div class="rl-code">' + esc(a.code) + "</div>" +
-      '<div class="rl-title">' + esc(clipTitle(a.title, 56)) + "</div>" +
-      '<div class="rl-meta">' + esc(a.hint) + "</div>" +
-      '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>" +
+      (lk && !lessonCleared(lk) && lessonQuiz(lk) ? '<div class="rl-rule">A lecture counts once its quiz is passed</div>' : "") +
+      (lockNext
+        ? '<div class="rl-label">Next in ' + esc(lockNext.code) + "</div>" +
+          '<div class="rl-lock"><span class="rl-lock-ic">' + lockSVG() + "</span>" +
+          '<span class="rl-lock-body"><span class="rl-lock-t">' + (lflat.indexOf(lockNext) + 1) + ". " + esc(clipTitle(lockNext.l.t, 56)) + "</span>" +
+          '<span class="rl-lock-m">Opens when you pass this quiz</span></span></div>'
+        : '<div class="rl-label">Next up</div>' +
+          '<div class="rl-code">' + esc(a.code) + "</div>" +
+          '<div class="rl-title">' + esc(clipTitle(a.title, 56)) + "</div>" +
+          '<div class="rl-meta">' + esc(a.hint) + "</div>" +
+          '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>") +
       (studied
         ? '<div class="rl-foot"><span>Day sealed</span><b style="color:var(--good);">✓</b></div>'
         : '<div class="rl-foot"><span>Streak</span><b>' + streak() + "d</b></div>") +
@@ -2571,6 +2672,25 @@
     const u = c.units[ui], l = u.lessons[li];
     const k = lessonKey(cid, ui, li);
     const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+    // T-043: a lecture whose predecessor is not cleared is locked. Its page is
+    // one card and nothing else — no video, nothing in the frame — pointing
+    // at the quiz that opens it. Derived on every render; nothing is stored,
+    // and not even lastLesson is written (Resume must not lead to a lock).
+    const lock = lockedBy(cid, ui, li);
+    if (lock) {
+      const lc = D.COURSES.find(x => x.id === lock.cid) || c;
+      return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
+        "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
+        '<div class="card lq-lock" data-lock="' + esc(lessonKey(lock.cid, lock.ui, lock.li)) + '">' +
+        '<span class="lq-lock-ic">' + lockSVG() + "</span>" +
+        '<div class="lq-lock-body"><div class="lq-lock-t">Pass the quiz for \u201c' + esc(lock.l.t) + '\u201d first</div>' +
+        '<div class="lq-lock-m">' + esc(lc.code) + " · lecture " + (flatLessons(lock.cid).indexOf(lock) + 1) +
+        " · this lecture opens when that quiz is passed</div>" +
+        '<a class="btn" href="#/lesson/' + lock.cid + "/" + lock.ui + "/" + lock.li + '">Go to the quiz \u25b8</a></div></div></div>';
+    }
+    const quiz = lessonQuiz(k);
+    const passed = quizPassed(k);
+    const cleared = lessonCleared(k);
     const gates = lessonGates(st, l);
     const gatesOk = gates.filter(g => g.ok).length;
     const canVerify = gatesOk === 4;
@@ -2603,13 +2723,17 @@
     // than the stored one, else the stored one. Reading both is all a render
     // does with them.
     const resumeAt = player && player.k === k && player.t != null ? player.t : st.pos;
-    const src = l.v
+    // srcBase is the embed without a start point: T-043's Rewatch builds the
+    // frame from it in place, with whichever start it is asked for.
+    const srcBase = l.v
       ? "https://www.youtube.com/embed/" + l.v + "?" + [
           u.playlist ? "list=" + u.playlist : "",
           "enablejsapi=1",
           /^https?:/.test(location.origin) ? "origin=" + encodeURIComponent(location.origin) : "",
-          resumeAt >= 1 ? "start=" + Math.floor(resumeAt) : "",
         ].filter(Boolean).join("&")
+      : null;
+    const src = l.v
+      ? srcBase + (resumeAt >= 1 ? "&start=" + Math.floor(resumeAt) : "")
       : u.playlist ? "https://www.youtube.com/embed/videoseries?list=" + u.playlist : null;
     const prev = li > 0 ? "#/lesson/" + cid + "/" + ui + "/" + (li - 1) : null;
     const next = li < u.lessons.length - 1 ? "#/lesson/" + cid + "/" + ui + "/" + (+li + 1) : null;
@@ -2694,9 +2818,59 @@
           "</div>"
         : "");
 
+    // ---- T-043: the lecture after "watched" ----
+    // Watching collapses the video into one slim bar (Rewatch opens it again,
+    // in place); the lecture's own quiz mounts directly under it until it is
+    // passed; a pass shows the pass card and Go deeper. Before "watched" the
+    // page is as it was: the video, Mark watched, the summary folded.
+    const watchedBar = !!(st.done && srcBase);
+    const flat = flatLessons(cid);
+    const fi = flat.findIndex(f => f.ui === +ui && f.li === +li);
+    const after = flat[fi + 1] || null;
+    const nextHref = after ? "#/lesson/" + after.cid + "/" + after.ui + "/" + after.li : "#/";
+    const today = realSched(todayISO()).some(it => it.cid === cid && it.ui === +ui && it.li === +li);
+    const qr = st.quiz || {};
+    const passHTML = () =>
+      '<div class="card lq-pass"><span class="lq-big" aria-hidden="true">✓</span>' +
+      '<div class="lq-pass-body"><div class="lq-pass-t">Lecture passed</div>' +
+      '<div class="lq-pass-m">' + (qr.total || quiz.length) + " of " + (qr.total || quiz.length) + " · " +
+      (qr.firstTry || 0) + " right on the first try · " + (today ? "counted for today" : "counted") + "</div></div>" +
+      '<a class="btn" href="' + nextHref + '">' + (after ? "Next lecture →" : "Back to today") + "</a></div>";
+    // The first concept this lecture teaches: its own page holds the sketch pad.
+    const sm = (D.SUMMARIES || {})[k] || {};
+    const sketchId = (lessonWhy[0] || {}).id || (sm.concepts || []).find(id => conceptById(id));
+    const sketchC = sketchId ? conceptById(sketchId) : null;
+    const tile = (tag, href, ic, t, m, goLbl, extra) =>
+      "<" + tag + ' class="lq-tile"' + (href ? ' href="' + href + '"' : "") + (extra || "") + ">" +
+      '<span class="lq-ic" aria-hidden="true">' + ic + "</span>" +
+      '<span class="lq-tt">' + t + "</span>" +
+      '<span class="lq-tm">' + m + "</span>" +
+      '<span class="lq-go">' + goLbl + "</span></" + tag + ">";
+    const deeperHTML = () =>
+      '<div class="ghead">Go deeper<span class="gh-meta">optional · each one makes it stick</span></div>' +
+      '<div class="lq-deep">' +
+      (sketchC ? tile("a", "#/concept/" + sketchC.id, "✎", "Sketch it",
+        "Draw " + esc(sketchC.title) + " from memory, then compare with the summary.", "Open the pad") : "") +
+      tile("button", null, "◷", "Recall it cold",
+        "Three minutes, no notes: write what this lecture established and why.", "Start 3:00",
+        ' type="button" data-act="recallTimer" data-open-prove="1"') +
+      tile(c.practice ? "a" : "div", c.practice ? c.practice.url : null, "Σ", "Practice problems",
+        esc(c.practice ? c.practice.label : "Problems from the course source") + " · " + (st.solved || 0) + " of " + need + " solved unaided.",
+        c.practice ? "Open ↗" : "Count them under Prove mastery",
+        c.practice ? ' target="_blank" rel="noopener"' : "") +
+      "</div>" +
+      '<details class="unit lq-prove" id="proveBox"><summary><span class="u-name">Prove mastery · 4 gates</span>' +
+      '<span class="pill">' + gatesOk + " of 4</span></summary>" + '<div class="u-body">' + proveHTML() + "</div></details>";
+
     return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
-      (src
+      (watchedBar
+        ? '<div class="lq-watched" id="lqWatched" data-src="' + esc(srcBase) + '" data-k="' + k + '" data-v="' + esc(l.v) + '" data-title="' + esc(l.t) + '">' +
+          thumbHTML(c, ui, li) +
+          '<div class="lq-wm"><div class="lq-wt"><span class="lq-tick" aria-hidden="true">✓</span> Watched' + (l.min ? " · " + l.min + " min" : "") + "</div>" +
+          '<div class="lq-ws">' + esc(c.title) + "</div></div>" +
+          '<button class="btn ghost lq-rewatch" type="button" data-act="rewatch">Rewatch</button></div>'
+        : src
         ? '<div class="video-frame"><iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
         : l.paper
           ? '<div class="card">This lesson is a paper — the reading is the lecture.</div>'
@@ -2705,28 +2879,39 @@
             : '<div class="card">This lesson lives outside YouTube — use the course links.</div>') +
       (l.paper || l.read
         ? '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
-          (l.paper ? '<a class="btn" href="' + l.paper + '" target="_blank" rel="noopener">Read the paper ↗</a>' : "") +
-          (l.read ? '<a class="btn ' + (l.paper ? "ghost" : "") + '" href="' + l.read + '" target="_blank" rel="noopener">' + (l.paper ? "Companion reading" : "Open the reading") + ' ↗</a>' : "") +
+          (l.paper ? '<a class="btn' + (st.done ? " ghost" : "") + '" href="' + l.paper + '" target="_blank" rel="noopener">Read the paper ↗</a>' : "") +
+          (l.read ? '<a class="btn ' + (l.paper || st.done ? "ghost" : "") + '" href="' + l.read + '" target="_blank" rel="noopener">' + (l.paper ? "Companion reading" : "Open the reading") + ' ↗</a>' : "") +
           "</div>"
         : "") +
 
       // ---- one button, beside the runtime ----
-      // Unwatched, this is the whole page below the video. Watched, it hands over
-      // to the Prove-it card at the foot of the page.
-      '<div class="lsn-act">' +
-      '<button class="btn' + (st.done ? " ghost" : " lg") + '" data-act="toggleDone">' +
-      (st.done ? "Unmark watched" : "Mark watched") + "</button>" +
-      '<span class="lsn-run">' + esc(runtime) + "</span></div>" +
+      // Unwatched, this is the whole page below the video. Watched, it moves
+      // to the foot of the page as a quiet Unmark (T-043).
+      (st.done ? ""
+        : '<div class="lsn-act">' +
+          '<button class="btn lg" data-act="toggleDone">Mark watched</button>' +
+          '<span class="lsn-run">' + esc(runtime) + "</span></div>") +
 
-      // The summary, on the page the lecture is on. It sits under the video and
-      // the one action, not behind a button on a page of its own.
-      summaryHTML(k) +
+      // The quiz, the pass, and what comes after it.
+      (st.done && quiz && !passed
+        ? '<div class="lq-mount" id="lqMount" data-k="' + k + '"></div>'
+        : "") +
+      (st.done && quiz && passed ? passHTML() : "") +
+      (st.done && cleared ? deeperHTML() : "") +
+
+      // The summary, on the page the lecture is on, folded under its heading.
+      // Its own "Check yourself" goes when the lecture has a quiz: the quiz is
+      // the check.
+      summaryHTML(k, { noCheck: !!quiz }) +
 
       // The drill is same-day work and deliberately NOT behind "watched": it is
       // what turns watching into something, so it tells you what to listen for.
       drillHTML(k) +
 
-      (st.done ? proveHTML() : "") +
+      (st.done
+        ? '<div class="lsn-act lsn-unmark"><button class="btn ghost" data-act="toggleDone">Unmark watched</button>' +
+          '<span class="lsn-run">' + esc(runtime) + "</span></div>"
+        : "") +
 
       // Previous and next were two buttons, one of them filled — a second
       // primary action under the page's one. They are the unit's neighbours
@@ -3043,12 +3228,15 @@
     const blk = it => {
       const c = D.COURSES.find(x => x.id === it.cid);
       const dn = schedDone(it);
+      // T-043: a locked lecture says so, and stays a link — to its lock card.
+      const lk = !dn && !!lockedBy(it.cid, it.ui, it.li);
       const n = flatLessons(it.cid).findIndex(f => f.ui === it.ui && f.li === it.li) + 1;
       const dur = it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading";
-      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
+      return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + it.cid + "/" + it.ui + "/" + it.li + '">' +
         '<span class="cd-bar" aria-hidden="true"></span>' +
         '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
-        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") + esc(it.l.t) + "</span></span>" +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") +
+        (lk ? '<span class="cd-lock" role="img" aria-label="locked">' + lockSVG() + "</span>" : "") + esc(it.l.t) + "</span></span>" +
         '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
     };
     // Not a lecture: the weeks where a course has run out and the block is
@@ -3158,7 +3346,7 @@
       entries: S.ledger.map(e => Object.assign({}, e, { preimage: preimage(e) })),
     };
   }
-  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed", streak: "Streak", rep: "Practice" };
+  const EV_LABEL = { lesson: "Lecture", problem: "Problem", exam: "Examination", diagnostic: "Diagnostic", gate: "Gate", week: "Week sealed", lab: "Lab", day: "Day sealed", streak: "Streak", rep: "Practice", quiz: "Lecture quiz" };
   function eventLine(e) {
     const d = e.data || {};
     if (e.type === "exam") return "Examination · " + e.ref + " · " + d.pct + "% (" + d.score + "/" + d.total + ")";
@@ -3167,6 +3355,7 @@
     if (e.type === "week") return "Week sealed · " + e.ref + (d.shipped ? " · shipped: " + d.shipped : " · nothing shipped");
     if (e.type === "lab") return (d.done ? "Lab shipped · " : "Lab un-marked · ") + e.ref;
     if (e.type === "lesson") return (d.done ? "Lecture completed · " : "Lecture un-marked · ") + e.ref;
+    if (e.type === "quiz") return "Lecture quiz passed · " + e.ref + " · " + (d.firstTry || 0) + " of " + (d.total || 0) + " first try";
     if (e.type === "problem") return (d.solved ? "Problem solved · " : "Problem un-marked · ") + e.ref;
     if (e.type === "day") return "Deep Track day sealed";
     if (e.type === "rep") return ({
@@ -3326,13 +3515,17 @@
   //
   // Six of MATH 110's fifty-one lectures have one written. The rest render
   // nothing here rather than a dead control.
-  function summaryHTML(k) {
+  // T-043: folded under its heading — the takeaway shows, the steps open on
+  // a tap (a <details>, so opening it is the browser's and writes nothing) —
+  // and with no "Check yourself" where the lecture's own quiz is the check.
+  function summaryHTML(k, o) {
     const sm = (D.SUMMARIES || {})[k];
     if (!sm) return "";
     return '<div class="ghead">Summary<span class="gh-meta">' +
       sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</span></div>" +
       '<div class="card">' +
       '<p class="sum-lead">' + sm.takeaway + "</p>" +
+      '<details class="sum-more"><summary>Read the ' + sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</summary>" +
       '<div class="beats">' +
       sm.beats.map((b, i) =>
         '<div class="beat"><div class="beat-n mono">' + (i + 1) + "</div>" +
@@ -3353,9 +3546,9 @@
             const q = (D.CONCEPTS || []).find(x => x.id === id);
             return q ? '<a class="pill wrapping" href="#/concept/' + id + '">' + esc(q.title) + "</a>" : "";
           }).join("") + "</div>"
-        : "") + "</div></div>" +
+        : "") + "</div></div></details>" +
 
-      (sm.checks && sm.checks.length
+      (sm.checks && sm.checks.length && !(o && o.noCheck)
         ? '<div id="sumCheck" style="margin-top:var(--sp-3);">' +
           '<button class="btn ghost" data-act="startSummaryCheck" data-k="' + esc(k) + '">Check yourself · ' +
           sm.checks.length + " question" + (sm.checks.length === 1 ? "" : "s") + "</button></div>"
@@ -5071,6 +5264,17 @@
     // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
     if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
+    // T-043: the lecture's quiz, mounted once the view is on screen — never
+    // from the render, which only leaves the empty mount.
+    const lq = $("#lqMount", root);
+    if (lq && window.DAR.Quiz && lessonQuiz(lq.dataset.k)) {
+      const k = lq.dataset.k;
+      DAR.Quiz.mount(lq, { title: "Lecture quiz", course: "", questions: lessonQuiz(k) }, {
+        mastery: true,
+        onRewatch: at => expandVideo(at),
+        onFinish: res => { recordQuizPass(k, res); render(); toast("Passed. " + res.firstTry + " of " + res.total + " on the first try."); },
+      });
+    }
     // T-026a: the Courses filter. In memory, and a swap of the shelf alone:
     // no save() (a render is a read, and this is not even a render), and no
     // render(), so the page keeps its scroll.
@@ -5293,6 +5497,8 @@
           if ($("#recFile")) $("#recFile").click();
         } else if (act === "backup") {
           exportBackup();
+        } else if (act === "rewatch") {
+          expandVideo(null);
         } else if (act === "toggleDone" || act === "saveNotes" || act === "saveLesson" || act === "verify" || act === "unverify") {
           const m = location.hash.match(/#\/lesson\/([^/]+)\/(\d+)\/(\d+)/);
           if (!m) return;
@@ -5324,7 +5530,7 @@
             toast("Unverified."); return;
           }
           S.lessons[k] = st; save();
-          if (act === "toggleDone") { logEvent("lesson", k, { done: st.done }); render(); toast(st.done ? "Marked watched — mastery still needs the four gates." : "Unmarked."); }
+          if (act === "toggleDone") { logEvent("lesson", k, { done: st.done }); render(); toast(st.done ? (lessonCleared(k) ? "Marked watched." : "Marked watched — now its quiz.") : "Unmarked."); }
           else { render(); toast("Saved."); }
         } else if (act === "saveDiag") {
           const m = location.hash.match(/#\/diag\/(.+)/);
@@ -5538,6 +5744,8 @@
     // 3-minute blank-page recall timer
     $$('[data-act="recallTimer"]', root).forEach(b => {
       b.onclick = () => {
+        // T-043's Go deeper tile: the recall lives in the Prove disclosure.
+        if (b.dataset.openProve && $("#proveBox", root)) $("#proveBox", root).open = true;
         const clock = $("#recallClock", root);
         if (!clock) return;
         let left = 180;
@@ -5812,6 +6020,9 @@
   // listener, it would paint before the router does, and then the router
   // would paint again. Queued, the caller finishes first, and a render that
   // runs in between clears bgSkipped so this one does nothing.
+  // T-043: a lecture quiz part-way through is the same: a repaint would throw
+  // the sitting away (leaving keeps nothing), so a background one waits.
+  const quizLive = () => !!document.querySelector("#view #lqMount .lq-card");
   let bgSkipped = false;
   function bgReplay() {
     setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true }); }, 0);
@@ -5930,6 +6141,49 @@
     S.lessons[k] = st;
     save();
   }
+  // T-043: the quiz record, written once, on finish, through the ordinary
+  // save (logEvent saves). A pass is permanent: a later sitting only raises
+  // the best first-try score, and unmarking watched never touches it.
+  function recordQuizPass(k, res) {
+    const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+    const was = st.quiz;
+    if (was && was.passedAt) {
+      if ((+res.firstTry || 0) > (+was.firstTry || 0)) was.firstTry = res.firstTry;
+    } else {
+      st.quiz = { passedAt: todayISO(), at: new Date().toISOString(),
+                  firstTry: +res.firstTry || 0, total: +res.total || 0, attempts: +res.attempts || 0 };
+    }
+    S.lessons[k] = st;
+    logEvent("quiz", k, { firstTry: +res.firstTry || 0, total: +res.total || 0 });
+  }
+  // Rewatch, in place: the watched bar becomes the player again, at `at`
+  // seconds (Rewatch from m:ss) or at the resume point. A foreground action
+  // that never re-renders, so a quiz part-way through stays where it is.
+  // The start is the resume mechanism's own (T-016's start=).
+  function expandVideo(at) {
+    const bar = $("#view #lqWatched");
+    const f = ytFrame();
+    const base = bar ? bar.dataset.src : f ? f.dataset.src0 : null;
+    if (!base) return;
+    const k = bar ? bar.dataset.k : f.dataset.k;
+    const st = S.lessons[k] || {};
+    const t = at != null ? at : player && player.k === k && player.t != null ? player.t : st.pos;
+    const src = base + (t >= 1 ? "&start=" + Math.floor(t) : "");
+    if (f) {
+      f.setAttribute("src", src);
+      f.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    const box = document.createElement("div");
+    box.className = "video-frame";
+    box.innerHTML = '<iframe src="' + esc(src) + '" data-k="' + esc(k) + '" data-v="' + esc(bar.dataset.v) + '" data-src0="' + esc(base) +
+      '" title="' + esc(bar.dataset.title) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+    bar.replaceWith(box);
+    const nf = box.querySelector("iframe");
+    hailPlayer(nf);
+    nf.addEventListener("load", () => hailPlayer(nf));
+    box.scrollIntoView({ block: "nearest" });
+  }
   // Leaving the lecture: the route changes (registered ahead of the render
   // that replaces the frame) or the page goes away (ahead of the push).
   function leaveLecture() {
@@ -5949,7 +6203,7 @@
   // moment it is free (bgReplay).
   function render(opts) {
     if (rendering) return;
-    if (opts && opts.background && (videoOnScreen() || mediaBusy())) { bgSkipped = true; return; }
+    if (opts && opts.background && (videoOnScreen() || mediaBusy() || quizLive())) { bgSkipped = true; return; }
     bgSkipped = false;
     rendering = true;
     // opts.after runs once the view is rebuilt, on either path below (T-026c:
@@ -6165,7 +6419,9 @@
     // T-038, for tools/verify-logic.js: the gate plan (a read), setGate (the
     // one write the confirm sheet makes, order guard included) and the sync
     // merge, handed a remote file's shape.
-    gatePlan, setGate, mergeState });
+    gatePlan, setGate, mergeState,
+    // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
+    QUIZ_GATE_FROM, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

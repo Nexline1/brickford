@@ -50,7 +50,7 @@
 {"key": "ai200.1.6", "i": 5, "at": null, "src": "gpt.py, class Block (commit 5c3a2d2, 'introduce the residual block')", "quote": "x = x + self.sa(self.ln1(x)) x = x + self.ffwd(self.ln2(x))"}
 {"key": "ai200.1.6", "i": 6, "at": null, "src": "gpt.py, GPTLanguageModel.generate (commit 10024b1)", "quote": "# crop idx to the last block_size tokens idx_cond = idx[:, -block_size:]"}
 {"key": "ai200.1.6", "i": 7, "at": null, "src": "gpt.py, estimate_loss", "quote": "model.eval() for split in ['train', 'val']: losses = torch.zeros(eval_iters)"}
-{"key": "ai200.1.7", "i": 0, "at": null, "src": "minbpe README.md, quick start; tests/test_tokenizer.py, test_wikipedia_example", "quote": "So we expect the output list of ids to be [258, 100, 258, 97, 99]"}
+{"key": "ai200.1.7", "i": 0, "at": null, "src": "minbpe/basic.py, train(); README.md, quick start; tests/test_tokenizer.py, test_wikipedia_example", "quote": "So we expect the output list of ids to be [258, 100, 258, 97, 99]"}
 {"key": "ai200.1.7", "i": 1, "at": null, "src": "minbpe/basic.py and regex.py, train(); README.md, special tokens", "quote": "assert vocab_size >= 256 num_merges = vocab_size - 256"}
 {"key": "ai200.1.7", "i": 2, "at": null, "src": "minbpe README.md; minbpe/base.py, _build_vocab", "quote": "The BPE algorithm is \"byte-level\" because it runs on UTF-8 encoded strings."}
 {"key": "ai200.1.7", "i": 3, "at": null, "src": "minbpe/basic.py and regex.py, encode() / _encode_chunk()", "quote": "# find the pair with the lowest merge index"}

@@ -80,6 +80,13 @@ lecture does. Where the material marks something as outside the video, it is lef
 
 ### Small errors in the source material (not quizzed, reported for the owner)
 
+- `karpathy/minbpe` README.md (quick start) and `tests/test_tokenizer.py`
+  (`test_wikipedia_example` docstring) explain the toy run on 'aaabdaaabac' with
+  Wikipedia's merges: aa → Z, ab → Y, ZY → X. minbpe's own `train()` takes
+  `max(stats, key=stats.get)`, which on a tie keeps the pair counted first, so the code
+  learns aa → 256, (256, a) → 257, (257, b) → 258. The final ids [258, 100, 258, 97, 99]
+  agree; the second and third merges do not. `ai200.1.7` (beat 4, check 0) teaches the
+  code's merges and says so. (Review round 1, finding 2.)
 - `course22/04-how-does-a-neural-net-really-work.ipynb` cell 19 says "a table of numbers
   (a *matrix* or *rank-0 tensor*)"; a matrix is rank 2, as the book's own jargon recap says.
 - The same notebook's loop in cell 47 calls `backward()` each step without zeroing

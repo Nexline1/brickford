@@ -1,0 +1,14 @@
+CHECK on fc2ad93 (0 uncommitted platform/ or tools/ files), 2026-10-15T14:16:56Z, one gate at a time, NODE_PATH=/opt/node22/lib/node_modules
+typecheck exit 0 (2s) — typecheck: all 35 files parse
+content exit 0 (5s) — PASS — 40213 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 455 lecture summaries (491 numerics recomputed), 40 questions gated (210 untagged), lecture qu
+sync-loop exit 0 (136s) — PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leav
+shell exit 0 (83s) — PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes (1163 checks)
+contrast exit 0 (10s) — PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+logic exit 0 (16s) — PASS — 45 invariants hold
+flows exit 0 (83s) — PASS — 250 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm she
+clip exit 0 (203s) — PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145506 element measurements)
+clip-LA exit 0 (209s) — PASS — 0 new, 0 stale, 801 known (T-002 660, T-003 141); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (145530 element measurements)
+design exit 0 (252s) — PASS — 1954 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab ba
+verify-clip.baseline.json unchanged: yes
+check-evidence exit 0 — PASS — 270 checks, 270 quotes found verbatim in the cached source, 0 with no cached source here
+DONE

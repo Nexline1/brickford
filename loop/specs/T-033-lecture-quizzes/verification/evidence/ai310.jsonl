@@ -1,0 +1,138 @@
+{"key": "ai310.1.0", "i": 0, "at": null, "src": "1.3 Transformers, what can they do? — Working with pipelines", "quote": "It connects a model with its necessary preprocessing and postprocessing steps, allowing us to directly input any text and get an intelligible answer"}
+{"key": "ai310.1.0", "i": 1, "at": null, "src": "1.3 Question answering; 1.5 Question answering", "quote": "Note that this pipeline works by extracting information from the provided context; it does not generate the answer."}
+{"key": "ai310.1.0", "i": 2, "at": null, "src": "1.4 The original architecture", "quote": "when trying to predict the fourth word, the attention layer will only have access to the words in positions 1 to 3."}
+{"key": "ai310.1.0", "i": 3, "at": null, "src": "1.5 Image classification", "quote": "If you had a 224x224 pixel image, you could split it into 196 16x16 image patches."}
+{"key": "ai310.1.0", "i": 4, "at": null, "src": "1.6 Choosing the right architecture", "quote": "Encoder models are best suited for tasks requiring an understanding of the full sentence, such as sentence classification, named entity recognition"}
+{"key": "ai310.1.0", "i": 5, "at": null, "src": "1.8 The two-phase inference process; Key performance metrics", "quote": "How quickly can you get the first response? This is crucial for user experience and is primarily affected by the prefill phase."}
+{"key": "ai310.1.1", "i": 0, "at": null, "src": "Looking deeper into the SFT method — Computing the loss", "quote": "The goal is to minimize the negative log-likelihood (NLL) of the target sequence, conditioning on the input."}
+{"key": "ai310.1.1", "i": 1, "at": null, "src": "Customization — Train on completion only", "quote": "By default, the trainer computes the loss on the completion tokens only, ignoring the prompt tokens."}
+{"key": "ai310.1.1", "i": 2, "at": null, "src": "Logged metrics; Train on completion only", "quote": "mean_token_accuracy: The proportion of non-masked tokens for which the model’s top-1 prediction matches the ground truth token."}
+{"key": "ai310.1.1", "i": 3, "at": null, "src": "Customization — Train on assistant messages only", "quote": "This functionality requires the chat template to include &#123;% generation %&#125; and &#123;% endgeneration %&#125; keywords."}
+{"key": "ai310.1.1", "i": 4, "at": null, "src": "Customization — Train adapters with PEFT", "quote": "When training adapters, you typically use a higher learning rate (≈1e‑4) since only new parameters are being learned."}
+{"key": "ai310.1.1", "i": 5, "at": null, "src": "Instruction tuning example", "quote": "it is necessary to align the EOS token with the chat template to ensure the model's responses terminate correctly."}
+{"key": "ai310.1.2", "i": 0, "at": null, "src": "Overview", "quote": "lowers the memory requirements of loading and using a model by storing the weights in a lower precision while trying to preserve as much accuracy"}
+{"key": "ai310.1.2", "i": 1, "at": null, "src": "Overview", "quote": "half-precision (fp16 or bf16) are increasingly popular data types given the large size of models today. Some quantization methods can reduce the precision even further"}
+{"key": "ai310.1.2", "i": 2, "at": null, "src": "Overview", "quote": "Some methods require calibration for greater accuracy and extreme compression (1-2 bits), while other methods work out of the box with on-the-fly quantization."}
+{"key": "ai310.1.2", "i": 3, "at": null, "src": "Overview, compatibility table", "quote": "[bitsandbytes](./bitsandbytes) | 🟢 | 🟢 | 🟢 | 🟡 | 🟡 | 🟢 | 🟢 | 4/8 | 🟢"}
+{"key": "ai310.1.2", "i": 4, "at": null, "src": "Overview, compatibility table", "quote": "[GGUF / GGML (llama.cpp)](./gguf) | 🔴 | 🟢 | 🟢 | 🔴 | 🟢"}
+{"key": "ai310.1.2", "i": 5, "at": null, "src": "Overview, compatibility table", "quote": "[HIGGS](./higgs) | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 2/4"}
+{"key": "ai310.1.3", "i": 0, "at": null, "src": "Basic Usage — Evaluating GGUF Models", "quote": "Hugging Face will attempt to reconstruct the tokenizer from the GGUF file — this can take hours or even hang indefinitely."}
+{"key": "ai310.1.3", "i": 1, "at": null, "src": "Multi-GPU Evaluation with Hugging Face accelerate", "quote": "For cases where your model can fit on a single GPU, this allows you to evaluate on K GPUs K times faster than on one."}
+{"key": "ai310.1.3", "i": 2, "at": null, "src": "Tensor + Data Parallel and Optimized Inference with vLLM", "quote": "data_parallel_size>1 dispatches each replica as a separate [ray](https://github.com/ray-project/ray) actor and requires pip install ray. Each actor reserves tensor_parallel_size GPUs (default 1)."}
+{"key": "ai310.1.3", "i": 3, "at": null, "src": "Model APIs and Inference Servers", "quote": "Models which do not supply logits or logprobs can be used with tasks of type generate_until only"}
+{"key": "ai310.1.3", "i": 4, "at": null, "src": "Model APIs and Inference Servers (note on closed chat models)", "quote": "carefully looking at a few sample outputs using --limit 10 first to confirm answer extraction and scoring on generative tasks is performing as expected."}
+{"key": "ai310.1.3", "i": 5, "at": null, "src": "Contributing — Implementing new tasks", "quote": "to decrease the harm when people inevitably compare runs across different papers despite our discouragement of the practice."}
+{"key": "ai310.1.4", "i": 0, "at": null, "src": "Welcome to vLLM — vLLM is fast with", "quote": "Efficient management of attention key and value memory with [PagedAttention](https://blog.vllm.ai/2023/06/20/vllm.html)"}
+{"key": "ai310.1.4", "i": 1, "at": null, "src": "Quickstart — Offline Batched Inference", "quote": "The llm.generate method does not automatically apply the model's chat template to the input prompt."}
+{"key": "ai310.1.4", "i": 2, "at": null, "src": "Quickstart — Offline Batched Inference; Online Serving", "quote": "By default, vLLM will use sampling parameters recommended by model creator by applying the generation_config.json from the Hugging Face model repository if it exists."}
+{"key": "ai310.1.4", "i": 3, "at": null, "src": "Automatic Prefix Caching", "quote": "we hash each kv-cache block by the tokens in the block and the tokens in the prefix before the block"}
+{"key": "ai310.1.4", "i": 4, "at": null, "src": "Automatic Prefix Caching — Example", "quote": "only the first 2 blocks (8 tokens) hit the cache, because the 3rd block only matches 2 of 4 tokens."}
+{"key": "ai310.1.4", "i": 5, "at": null, "src": "Automatic Prefix Caching — Free", "quote": "This is because the last block of a request must hash more tokens and is less likely to be reused by other requests."}
+{"key": "ai310.1.5", "i": 0, "at": null, "src": "What is an Agent? — The spectrum of agency", "quote": "| ★★☆ | Agent output determines function execution | Tool caller | run_function(llm_chosen_tool, llm_chosen_args) |"}
+{"key": "ai310.1.5", "i": 1, "at": null, "src": "Messages and Special Tokens", "quote": "messages in the conversation are concatenated into a single prompt. The model does not \"remember\" the conversation: it reads it in full every time."}
+{"key": "ai310.1.5", "i": 2, "at": null, "src": "What are Tools? — How do tools work?", "quote": "They have no way to call tools on their own."}
+{"key": "ai310.1.5", "i": 3, "at": null, "src": "Thought: Internal Reasoning and the ReAct Approach", "quote": "| External tools | ❌ No | ✅ Yes (Actions + Observations) |"}
+{"key": "ai310.1.5", "i": 4, "at": null, "src": "Actions — Code Agents", "quote": "executing LLM-generated code may pose security risks, from prompt injection to the execution of harmful code."}
+{"key": "ai310.1.5", "i": 5, "at": null, "src": "Dummy Agent Library", "quote": "To prevent this, we stop generating right before \"Observation:\"."}
+{"key": "ai310.0.0", "i": 0, "at": null, "src": "lecture_01.py, why_this_course_exists", "quote": "We can teach mechanics and mindset (these do transfer)."}
+{"key": "ai310.0.0", "i": 1, "at": null, "src": "lecture_01.py, why_this_course_exists", "quote": "Right interpretation: algorithms that scale is what matters."}
+{"key": "ai310.0.0", "i": 2, "at": null, "src": "lecture_01.py, systems (Inference)", "quote": "Prefill (similar to training): tokens are given, can process all at once (compute-bound)"}
+{"key": "ai310.0.0", "i": 3, "at": null, "src": "lecture_01.py, scaling_laws", "quote": "TL;DR: $D^* = 20 N^*$ (e.g., 1.4B parameter model should be trained on 28B tokens)"}
+{"key": "ai310.0.0", "i": 4, "at": null, "src": "lecture_01.py, character_tokenizer and byte_tokenizer", "quote": "assert bytes(\"🌍\", encoding=\"utf-8\") == b\"\\xf0\\x9f\\x8c\\x8d\""}
+{"key": "ai310.0.0", "i": 5, "at": null, "src": "lecture_01.py, bpe_tokenizer and train_bpe; var/traces/lecture_01.json", "quote": "Sketch: start with each byte as a token, and successively merge the most common pair of adjacent tokens."}
+{"key": "ai310.0.1", "i": 0, "at": null, "src": "lecture_02.py, tensors_memory", "quote": "bfloat16 uses the same memory as float16 but has the same dynamic range as float32!"}
+{"key": "ai310.0.1", "i": 1, "at": null, "src": "lecture_02.py, tensor_operations_flops and gradients_flops", "quote": "Backward pass: 4 (# data points) (# parameters) FLOPs"}
+{"key": "ai310.0.1", "i": 2, "at": null, "src": "lecture_02.py, module_parameters", "quote": "To do that, we simply rescale by 1/sqrt(num_inputs)"}
+{"key": "ai310.0.1", "i": 3, "at": null, "src": "lecture_02.py, mixed_precision_training", "quote": "Use {bfloat16, fp8} for the forward pass (activations)."}
+{"key": "ai310.0.1", "i": 4, "at": null, "src": "lecture_02.py, motivating_questions", "quote": "flops_per_day = h100_flop_per_sec * mfu * 1024 * 60 * 60 * 24"}
+{"key": "ai310.0.1", "i": 5, "at": null, "src": "lecture_02.py, motivating_questions", "quote": "bytes_per_parameter = 4 + 4 + (4 + 4)  # parameters, gradients, optimizer state"}
+{"key": "ai310.0.2", "i": 0, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 9-13", "quote": "Set up LayerNorm so that it doesn't affect the main residual signal path"}
+{"key": "ai310.0.2", "i": 1, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 14-19", "quote": "Important lesson: FLOPS are not runtime!"}
+{"key": "ai310.0.2", "i": 2, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 30-35", "quote": "the attention function only gets to depend on the relative position ( i-j)."}
+{"key": "ai310.0.2", "i": 3, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 58-64", "quote": "We have much fewer items to move in and out of memory (KV Cache)"}
+{"key": "ai310.0.2", "i": 4, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 23 and 37-41", "quote": "Remember that GLU variants scale down by 2/3 rd."}
+{"key": "ai310.0.2", "i": 5, "at": null, "src": "2025 Lecture 3 - architecture.pdf, slides 42-44", "quote": "T5 128 128 1024 16"}
+{"key": "ai310.0.3", "i": 0, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 3-13", "quote": "You can increase the # experts without affecting FLOPs"}
+{"key": "ai310.0.3", "i": 1, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 24-31", "quote": "Heuristic 'balancing' losses."}
+{"key": "ai310.0.3", "i": 2, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slide 34", "quote": "Token dropping from routing happens at a batch level – this means that other people's queries can drop your token!"}
+{"key": "ai310.0.3", "i": 3, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 35-36", "quote": "Use Float 32 just for the expert router (sometimes with an aux z -loss)"}
+{"key": "ai310.0.3", "i": 4, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 17-19", "quote": "Mixtral, DBRX, DeepSeek v3 softmaxes after the TopK"}
+{"key": "ai310.0.3", "i": 5, "at": null, "src": "2025 Lecture 4 - MoEs.pdf, slides 20-23 and 41", "quote": "DeepSeek v1 64 6 2 1/4"}
+{"key": "ai310.0.4", "i": 0, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 8-12", "quote": "CPUs optimize for latency (each thread finishes quickly) GPUs optimize for throughput (total processed data)"}
+{"key": "ai310.0.4", "i": 1, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 26-29", "quote": "What if we have to do many operations? Shipping back and forth is somewhat silly"}
+{"key": "ai310.0.4", "i": 2, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 30-32", "quote": "Throwing away computation can actually be optimal, w/ 5/8 th the memory accesses!"}
+{"key": "ai310.0.4", "i": 3, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 46-50", "quote": "To keep track of the max, incrementally update the max, and set up a telescoping sum"}
+{"key": "ai310.0.4", "i": 4, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 41-44", "quote": "An A100 has 108 SMs, so it cannot execute all 120"}
+{"key": "ai310.0.4", "i": 5, "at": null, "src": "2025 Lecture 5 - GPUs.pdf, slides 23-24", "quote": "Memory access : 1 read (x), 1 write (if x < 0), float 16 = 4 bytes"}
+{"key": "ai310.0.5", "i": 0, "at": null, "src": "lecture_06.py, benchmarking", "quote": "torch.cuda.synchronize()  # Wait for CUDA threads to finish (important!)"}
+{"key": "ai310.0.5", "i": 1, "at": null, "src": "lecture_06.py, kernel_fusion_motivation", "quote": "The PyTorch just calls one kernel whereas the others are atomic (remember the warehouse/factory)"}
+{"key": "ai310.0.5", "i": 2, "at": null, "src": "lecture_06.py, triton_introduction and print_ptx_main", "quote": "Memory coalescing (transfer from DRAM)     manual    automatic"}
+{"key": "ai310.0.5", "i": 3, "at": null, "src": "lecture_06.py, review_of_gpus", "quote": "General rule: matrix multiplication is compute-bound, everything else is memory-bound"}
+{"key": "ai310.0.5", "i": 4, "at": null, "src": "lecture_06.py, triton_gelu", "quote": "num_blocks = triton.cdiv(num_elements, block_size)"}
+{"key": "ai310.0.5", "i": 5, "at": null, "src": "lecture_06.py, manual_softmax", "quote": "# Total: 5MN + M reads, 3MN + 2M writes"}
+{"key": "ai310.0.6", "i": 0, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 8 and 15-18", "quote": "ZeRO stage 1 is free (in the bandwidth limited regime) memory wins"}
+{"key": "ai310.0.6", "i": 1, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 38-39 and 49-52", "quote": "Tensor parallel up to GPUs / machine"}
+{"key": "ai310.0.6", "i": 2, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 40-45", "quote": "Observation: all the 10sbh terms are pointwise ops over the sequence"}
+{"key": "ai310.0.6", "i": 3, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 21-24 and 28", "quote": "But communicate activations (while zero3 sends params)."}
+{"key": "ai310.0.6", "i": 4, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 19-20 and 25", "quote": "Zero stage 2 24.62 B 2 (param) + (10 (grad+state))/8)"}
+{"key": "ai310.0.6", "i": 5, "at": null, "src": "2025 Lecture 7 - Parallelism basics.pdf, slides 30-33", "quote": "The ratio of bubble time to useful compute is .."}
+{"key": "ai310.0.7", "i": 0, "at": null, "src": "lecture_08.py, data_parallelism_main", "quote": "# Sync gradients across workers (only difference between standard training and DDP)"}
+{"key": "ai310.0.7", "i": 1, "at": null, "src": "lecture_08.py, tensor_parallelism_main", "quote": "# Send activations via all gather"}
+{"key": "ai310.0.7", "i": 2, "at": null, "src": "lecture_08.py, pipeline_parallelism_main", "quote": "# Break up into micro batches to minimize the bubble"}
+{"key": "ai310.0.7", "i": 3, "at": null, "src": "lecture_08.py, main", "quote": "Unifying theme: orchestrate computation to avoid data transfer bottlenecks"}
+{"key": "ai310.0.7", "i": 4, "at": null, "src": "lecture_08.py, collective_operations_main; var/traces/lecture_08_stdout.txt", "quote": "Rank 2 [after reduce-scatter]: input = tensor([2., 3., 4., 5.], device='cuda:2'), output = tensor([14.], device='cuda:2')"}
+{"key": "ai310.0.7", "i": 5, "at": null, "src": "lecture_08.py, all_reduce", "quote": "sent_bytes = size_bytes * 2 * (world_size - 1)  # 2x because send input and receive output"}
+{"key": "ai310.0.8", "i": 0, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 45-49", "quote": "Pick a range of FLOP budgets, vary the total parameter count, take the min over these convex shapes."}
+{"key": "ai310.0.8", "i": 1, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 21-24", "quote": "A: Data composition affects the offset, not the slope."}
+{"key": "ai310.0.8", "i": 2, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "But most of the compute in a real deployment is inference.. So we should 'over' train"}
+{"key": "ai310.0.8", "i": 3, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 26-39", "quote": "The scaling law based design procedure. 1. Train a few smaller models 2. Establish a scaling law"}
+{"key": "ai310.0.8", "i": 4, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 16-19", "quote": "Example: If our task is to estimate the mean of a dataset, what's the scaling law?"}
+{"key": "ai310.0.8", "i": 5, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "Mistral 7B – 110 tokens / param"}
+{"key": "ai310.0.9", "i": 0, "at": null, "src": "lecture_10.py, arithmetic_intensity_of_inference", "quote": "Unlike MLPs, no dependence on B, so batching doesn't help!"}
+{"key": "ai310.0.9", "i": 1, "at": null, "src": "lecture_10.py, speculative_sampling", "quote": "Key property: guaranteed to be an exact sample from the target model!"}
+{"key": "ai310.0.9", "i": 2, "at": null, "src": "lecture_10.py, paged_attention", "quote": "Divide the KV cache of a sequence into non-contiguous blocks"}
+{"key": "ai310.0.9", "i": 3, "at": null, "src": "lecture_10.py, throughput_and_latency; var/traces/lecture_10.json", "quote": "Smaller batch sizes yields better latency but worse throughput"}
+{"key": "ai310.0.9", "i": 4, "at": null, "src": "lecture_10.py, review_of_arithmetic_intensity", "quote": "assert round(accelerator_intensity) == 295"}
+{"key": "ai310.0.9", "i": 5, "at": null, "src": "lecture_10.py, compute_transformer_stats and llama2_13b_config", "quote": "kv_cache_size = S * (K*H) * L * 2 * 2  # 2 for key + value, 2 for bf16"}
+{"key": "ai310.0.10", "i": 0, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 17-19 and 30", "quote": "For chinchilla -style analysis, can restart the run at the end of the stable phase."}
+{"key": "ai310.0.10", "i": 1, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 37-42", "quote": "A1: The activations at initialization should remain Θ(1)"}
+{"key": "ai310.0.10", "i": 2, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 26-32 and 36", "quote": "Scaling strategy : don't use any muP, directly estimate optimal batch / LR"}
+{"key": "ai310.0.10", "i": 3, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 46-54", "quote": "In our arch – RMSNorm has learnable gains. This turns out to break muP"}
+{"key": "ai310.0.10", "i": 4, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 41-42", "quote": "Differences – LR changes for Adam, also init diffs when fanout"}
+{"key": "ai310.0.10", "i": 5, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 17-19", "quote": "For chinchilla -style analysis, can restart the run at the end of the stable phase."}
+{"key": "ai310.0.11", "i": 0, "at": null, "src": "lecture_12.py, perplexity", "quote": "For perplexity, need LM to generate probabilities and trust that they sum to 1"}
+{"key": "ai310.0.11", "i": 1, "at": null, "src": "lecture_12.py, instruction_following_benchmarks", "quote": "They get response from two random (anonymized) models"}
+{"key": "ai310.0.11", "i": 2, "at": null, "src": "lecture_12.py, realism", "quote": "Asking is more realistic and produces value for the user."}
+{"key": "ai310.0.11", "i": 3, "at": null, "src": "lecture_12.py, safety_benchmarks", "quote": "For open weight models, capability matters (since can easily fine-tune safety away)"}
+{"key": "ai310.0.11", "i": 4, "at": null, "src": "lecture_12.py, perplexity", "quote": "Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D."}
+{"key": "ai310.0.11", "i": 5, "at": null, "src": "lecture_12.py, perplexity", "quote": "In pre-training, you minimize perplexity on the training set."}
+{"key": "ai310.0.12", "i": 0, "at": null, "src": "lecture_13.py, introduction", "quote": "Reasons for secrecy: (i) competitive dynamics and (ii) copyright liability"}
+{"key": "ai310.0.12", "i": 1, "at": null, "src": "lecture_13.py, t5_c4", "quote": "Keep lines that end in punctuation and have >= 5 words"}
+{"key": "ai310.0.12", "i": 2, "at": null, "src": "lecture_13.py, dclm", "quote": "Trained a fastText classifier, run it on all of DCLM-pool"}
+{"key": "ai310.0.12", "i": 3, "at": null, "src": "lecture_13.py, copyright", "quote": "Example: YouTube's terms of service prohibits downloading videos, even if the videos are licensed under Creative Commons."}
+{"key": "ai310.0.12", "i": 4, "at": null, "src": "lecture_13.py, t5_c4", "quote": "End result: 806 GB of text (156 billion tokens)"}
+{"key": "ai310.0.12", "i": 5, "at": null, "src": "lecture_13.py, t5_c4", "quote": "Keep lines that end in punctuation and have >= 5 words"}
+{"key": "ai310.0.13", "i": 0, "at": null, "src": "lecture_14.py, filtering_summary", "quote": "score(x) = p_T(x) / p_R(x)"}
+{"key": "ai310.0.13", "i": 1, "at": null, "src": "lecture_14.py, quality_filtering", "quote": "Train 1.3B LM on new filtered subset (performance: 17.68% after 36K steps) - better!"}
+{"key": "ai310.0.13", "i": 2, "at": null, "src": "lecture_14.py, bloom_filter", "quote": "If return 'no', definitely 'no'"}
+{"key": "ai310.0.13", "i": 3, "at": null, "src": "lecture_14.py, exact_deduplication", "quote": "Warning: when a 3-sentence span is removed from the middle of a document, the resulting document might not be coherent"}
+{"key": "ai310.0.13", "i": 4, "at": null, "src": "lecture_14.py, locality_sensitive_hashing", "quote": "prob_collision = get_prob_collision(sim=0.8, b=5, r=10)"}
+{"key": "ai310.0.13", "i": 5, "at": null, "src": "lecture_14.py, fasttext_main", "quote": "Only H*(V + K) parameters"}
+{"key": "ai310.0.14", "i": 0, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 31", "quote": "Maximize some reward function that we can measure"}
+{"key": "ai310.0.14", "i": 1, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 20-21", "quote": "Fine -tuning a model on ‘facts it doesn’t know’ makes it hallucinate"}
+{"key": "ai310.0.14", "i": 2, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 23-25", "quote": "The challenge is really to balance this with over -refusals"}
+{"key": "ai310.0.14", "i": 3, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slides 54-58", "quote": "In some sense, reduces to “pos gradient on good, neg gradient on bad”"}
+{"key": "ai310.0.14", "i": 4, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 64", "quote": "Holds true for human pref (left), noisy LM pref (mid) but not noiseless LM pref (right)"}
+{"key": "ai310.0.14", "i": 5, "at": null, "src": "2025 Lecture 15 - RLHF Alignment.pdf, slide 11", "quote": "len(nums) print(avg_list([4, 3, 6, 10, 8])) # Output 6.4"}
+{"key": "ai310.0.15", "i": 0, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slide 29", "quote": "Data not inherently pairwise (or in the form of Bradley -terry comparisons)"}
+{"key": "ai310.0.15", "i": 1, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slides 34-36", "quote": "The division by the stdev term is not a valid baseline that preserves unbiasedness."}
+{"key": "ai310.0.15", "i": 2, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slides 39-40", "quote": "Accuracy rewards (is it correct?)"}
+{"key": "ai310.0.15", "i": 3, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slide 53", "quote": "Exclude multiple choice / true false (false positives)"}
+{"key": "ai310.0.15", "i": 4, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slides 30-32", "quote": "Calculate the advantage as “z -score within group”"}
+{"key": "ai310.0.15", "i": 5, "at": null, "src": "2025 Lecture 16 - RLVR.pdf, slide 56", "quote": "Sample problems proportional to (1 -success_rate) to avoid repeating solved ones"}
+{"key": "ai310.0.16", "i": 0, "at": null, "src": "lecture_17.py, rl_setup_for_language_models", "quote": "Can do planning / test-time compute (unlike in robotics)"}
+{"key": "ai310.0.16", "i": 1, "at": null, "src": "lecture_17.py, policy_gradient", "quote": "Naive policy gradient only updates on correct responses"}
+{"key": "ai310.0.16", "i": 2, "at": null, "src": "lecture_17.py, experiments", "quote": "If all the responses for a given prompt have the same reward, then we don't update."}
+{"key": "ai310.0.16", "i": 3, "at": null, "src": "lecture_17.py, freezing_parameters", "quote": "When you're optimizing, it is important to freeze and not differentiate through p_old"}
+{"key": "ai310.0.16", "i": 4, "at": null, "src": "lecture_17.py, policy_gradient", "quote": "Define baseline b(s1) = 10, b(s2) = 1"}
+{"key": "ai310.0.16", "i": 5, "at": null, "src": "lecture_17.py, simple_task", "quote": "Note that the second reward function provides more credit to the 3rd response than the first reward function."}

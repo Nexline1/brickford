@@ -1,0 +1,4 @@
+ai310.1.2 320 {"goRight":250,"cardInner":250,"cardRight":275,"goW":68,"goScrollW":78,"goClientW":66,"inpW":102}
+ai310.1.2 390 {"goRight":320,"cardInner":320,"cardRight":345,"goW":75,"goScrollW":78,"goClientW":73,"inpW":165}
+math130.0.0 320 {"goRight":250,"cardInner":250,"cardRight":275,"goW":68,"goScrollW":78,"goClientW":66,"inpW":102}
+math130.0.0 390 {"goRight":320,"cardInner":320,"cardRight":345,"goW":75,"goScrollW":78,"goClientW":73,"inpW":165}

@@ -22,7 +22,7 @@ If `training_mode: on` in config: before (a) showing DISCOVER output, (b) BUILD 
    - A Playwright walk through the changed screens at 390 px and 1280 px, with screenshots saved to `loop/specs/<id>-<slug>/verification/`.
    - Save each command's output to `verification/`.
    - Any failure goes back to the builder with the exact output.
-6. **REVIEW.** Send the diff, the spec and the CHECK output to the brickford-reviewer agent in a fresh context. Set status review. CHANGES REQUIRED goes back to the builder (step 4) with the findings.
+6. **REVIEW.** Round 1: send the diff, the spec and the CHECK output to a new brickford-reviewer agent, so it starts with a fresh context. From round 2 on, resume that same reviewer with SendMessage, naming its findings and the fix commits. A new reviewer would have to re-read everything. Set status review. CHANGES REQUIRED goes back to the builder (step 4) with the findings.
 7. **SHIP.** Checks green AND reviewer APPROVED:
    - Commit with the attribution lines, then `git push -u origin loop/<id>-<slug>`.
    - Open a PR to `main` via `pr_tool`: the GitHub MCP `create_pull_request` in the cloud, `gh pr create` on the PC.

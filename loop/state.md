@@ -75,3 +75,4 @@
 - 2026-10-14: T-033 builder (general-purpose, MCP + WebFetch) launched in /home/user/bf-T-033 (from bdb6d0e), tokens 20261014d. Saves every 3 lectures + verification/progress.md.
 - 2026-10-14: Specs written while T-033 builds: T-043 (gate), T-045 (Problems due-now), T-046 (on-device transcription, transformers.js 4.3.0), T-047 (Claude coach, SDK 0.128.0, claude-opus-5-5, effort medium, fallbacks default). Note: cdn.jsdelivr.net and huggingface.co are blocked from this container (tests must stub them); npm registry reachable.
 - 2026-10-14: T-033 blocked on sources (transcript MCPs down, paper hosts blocked). Owner: official GitHub course materials for Zero to Hero / fast.ai / CS336 now; owner will allow paper domains. Spec amended.
+- 2026-10-15: T-033 at 5a15498: 22 lectures done (AI 310 Unit II readings 6, RES 400 PhD guide, AI 200 Zero to Hero 9, AI 210 L1-6). Paper hosts still refused 2026-10-14 21:53 UTC. Builder resumed: AI 210 L7-8, then CS336 x17.

@@ -2394,8 +2394,8 @@ const expectedSummary = {
     const lr = it => it < warm ? maxLr * (it + 1) / warm : it > maxSteps ? minLr
       : minLr + 0.5 * (1 + Math.cos(Math.PI * (it - warm) / (maxSteps - warm))) * (maxLr - minLr);
     const mid = warm + (maxSteps - warm) / 2;
-    return [{ i: 0, v: tied }, { i: 2, v: micro }, { i: 5, v: Math.round(lr(mid) * 1e7) / 1e7 },
-            { i: 6, v: Number(BigInt(1e10) / BigInt(524288)) }];
+    // (check 6, max_steps by integer division, was swapped for a flash-attention MCQ in review 1)
+    return [{ i: 0, v: tied }, { i: 2, v: micro }, { i: 5, v: Math.round(lr(mid) * 1e7) / 1e7 }];
   })(),
   // AI 210 (fast.ai 2022) — recomputed, never copied from the data file.
   "ai210.0.2": (function () {

@@ -2424,6 +2424,26 @@ const expectedSummary = {
     const p = 3 / 4, giniDiff = p * (1 - p) + (1 - p) * p;
     return [{ i: 1, v: splits }, { i: 7, v: giniDiff }];
   })(),
+  "ai210.0.6": (function () {
+    const bs = Math.floor(64 / 4);                               // bs=64//accum
+    // Rebuild the prediction list in dict order, then append the slice [2:4].
+    const runs = ["convnext", "convnext", "vit", "vit", "swinv2", "swinv2", "swin", "swin"];
+    const all = runs.concat(runs.slice(2, 4));
+    const vitShare = all.filter(r => r === "vit").length / all.length;
+    // Binary cross-entropy for a non-cat at PredCat = 0.9, base-10 log as in Excel.
+    const bce = -Math.log(1 - 0.9) / Math.LN10;
+    return [{ i: 1, v: bs }, { i: 2, v: vitShare }, { i: 4, v: Math.round(bce * 1e6) / 1e6 }];
+  })(),
+  "ai210.0.7": (function () {
+    // Count window positions by sliding a kernel over the padded row, not by formula.
+    const n = 7, pad = 1, ks = 3, stride = 2;
+    let positions = 0;
+    for (let start = -pad; start + ks <= n + pad; start += stride) positions++;
+    // Conv2d(4, 8, 3): each output channel has its own kernel per input channel, plus a bias.
+    let params = 0;
+    for (let out = 0; out < 8; out++) params += 4 * 3 * 3 + 1;
+    return [{ i: 3, v: positions }, { i: 4, v: params }];
+  })(),
 };
 
 let sumNums = 0;

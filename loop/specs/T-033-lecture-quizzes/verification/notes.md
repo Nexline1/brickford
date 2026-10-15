@@ -69,6 +69,14 @@ lecture does. Where the material marks something as outside the video, it is lef
     forests) once, with L6, whose page lists it again.
   - L6 (`ai210.0.5`): 07, 08 (Road to the top, part 1) and chapter 9's random-forest,
     interpretation and extrapolation sections; not its embeddings or neural-net sections.
+  - L7 and L8 (`ai210.0.6`, `ai210.0.7`) share chapter 8 and `collab_filter.xlsx`. L7's page
+    describes the dot-product and deep-learning approaches, so it is quizzed on latent
+    factors, biases and weight decay (plus Road to the Top part 3 and the entropy sheet);
+    L8's page says it finishes collaborative filtering 'by looking closely at embeddings',
+    so it is quizzed on the embedding lookup, interpreting it and bootstrapping, then on
+    chapter 13's convolutions and `conv-example.xlsx`. Chapter 13's training-stability half
+    (ActivationStats, 1cycle, batchnorm) is not quizzed. Road to the Top part 4 and the
+    Collaborative Filtering Deep Dive are Kaggle-only and not in course22.
 
 ### Small errors in the source material (not quizzed, reported for the owner)
 
@@ -86,6 +94,18 @@ lecture does. Where the material marks something as outside the video, it is lef
   points to chapter 8 for feature importance, which is in chapter 9.
 - `course22/slides/nlp-intro.ipynb` says the split holds out 20% for validation; its code
   holds out 25% (`train_test_split(0.25, ...)`). Not quizzed.
+- `fastbook/13_convolutions.ipynb` (Receptive Fields) says `conv-example.xlsx` shows two
+  stride-2 convolutions with a 7×7 receptive field. course22's `xl/conv-example.xlsx`
+  convolves with stride 1 (cell AI3 reads A2:C4, AJ3 reads B2:D4), which gives a 5×5
+  receptive field after two layers; only its 2×2 max-pool has stride 2. Its headers also
+  say 'Conv1 (27 x 27)' and 'Conv2 (26 x 26)' for grids that are 26 and 24 wide. Receptive
+  field is therefore not quizzed.
+- `course22/xl/entropy_example.xlsx` sheet entropy: the binary-cross-entropy total F32 is
+  `-SUM(F27:F31)` over values that are already negated, so it shows -1.66. Not quizzed.
+- `course22/10-scaling-up-road-to-the-top-part-3.ipynb` cell 12 says the number passed to
+  `GradientAccumulation` is how many batches are accumulated; the code passes 64, the
+  effective batch size in images (fastai counts samples). The quiz asks only what the
+  technique does and the `bs=64//accum` arithmetic.
 - `course22/05-linear-model-and-neural-net-from-scratch.ipynb` cell 116 calls
   `calc_preds(tst_indep, coeffs)` with the arguments swapped; the elementwise product makes
   it harmless there. Not quizzed.

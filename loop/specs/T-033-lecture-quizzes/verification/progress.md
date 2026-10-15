@@ -20,9 +20,11 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
   `sources/repos/fastai_course22-web`.
 - Try one fetch of each owner-allowed host: arxiv.org, proceedings.neurips.cc,
   cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu,
-  www.neelnanda.io, www.arena.education. Last tried 2026-10-14 21:53 UTC: all refused.
+  www.neelnanda.io, www.arena.education. Last tried 2026-10-15 02:22 UTC: all refused
+  (proxy CONNECT 403).
 - Videos waiting for transcripts (17): 3Blue1Brown ×4, Silver ×10, the 2 big-picture
-  talks, Hamming. Retry `Yt_T` / `Youtube_Transcribt` once per session.
+  talks, Hamming. Retry `Yt_T` / `Youtube_Transcribt` once per session. 2026-10-15: `Yt_T`
+  still asks for an API key; `Youtube_Transcribt` returns empty output.
 
 ## Done
 
@@ -50,12 +52,12 @@ Branch `loop/T-033-lecture-quizzes`, worktree `/home/user/bf-T-033`. Read this, 
 | 20 | ai210.0.3 | course22 slides/nlp-intro.ipynb; fastbook ch. 10 (lesson4.qmd) | 8 (8 MCQ) |
 | 21 | ai210.0.4 | course22 05 from scratch, 06 why a framework (lesson5.qmd) | 8 (6 MCQ, 2 numeric) |
 | 22 | ai210.0.5 | course22 07 random forests, 08 road to the top 1; fastbook ch. 9 (lesson6.qmd) | 8 (6 MCQ, 2 numeric) |
+| 23 | ai210.0.6 | course22 10 road to the top 3, xl/entropy_example, xl/collab_filter; fastbook ch. 8 (lesson7.qmd) | 8 (5 MCQ, 3 numeric) |
+| 24 | ai210.0.7 | fastbook ch. 8 (embeddings) and ch. 13; xl/collab_filter, xl/conv-example (lesson8.qmd) | 8 (6 MCQ, 2 numeric) |
 
 ## Next, in order (calendar order within what is buildable; AI 200 first)
 
-ai210.0.6–0.7 (107/97 min → 8 each): L7 10 road to the top 3 + ch. 8 + xl entropy_example/collab_filter;
-L8 ch. 13 + ch. 8 + xl collab_filter/conv-example
-→ ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
+AI 210 complete. → ai310.0.0–0.16 (spring2025-lectures, all 65–87 min → 6).
 
 At the end: rerun `verification/plants/run-plants.sh` (spec plants a–e plus f), the full
 CHECK one gate at a time (summary in `verification/check/`), screenshots (`shots.js`),

@@ -546,5 +546,73 @@
    "sources/text/09_tabular.ipynb.txt"
   ],
   "note": "lesson6.qmd: how a random forest works, building one from scratch, and interpreting it; based partly on chapter 9. Chapter 9 questions stay on random forests, their interpretation and their limits; its categorical-embeddings opening and its neural-net section are not quizzed. The gini question states the measure correctly; the notebook's prose (cell 67) has it inverted, which notes.md reports."
+ },
+ "ai210.0.6": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "p4ZZq0736Po (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson7.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "10-scaling-up-road-to-the-top-part-3.ipynb",
+     "xl/entropy_example.xlsx",
+     "xl/collab_filter.xlsx"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "08_collab.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/10-scaling-up-road-to-the-top-part-3.ipynb.txt",
+   "sources/text/entropy_example.xlsx.txt",
+   "sources/text/collab_filter.xlsx.txt",
+   "sources/text/08_collab.ipynb.txt"
+  ],
+  "note": "lesson7.qmd lists Road to the Top parts 3 and 4 and the Collaborative Filtering Deep Dive (Kaggle), the entropy and collab_filter spreadsheets, and chapter 8. Part 4 and the Deep Dive notebook are not in course22, so are not used; chapter 8 is the book form of the Deep Dive. Lessons 7 and 8 share chapter 8 and collab_filter.xlsx: lesson 7 is quizzed on latent factors, the dot-product model, biases and weight decay (the page: 'one based on a classic linear algebra formulation, and one based on deep learning'); lesson 8 on embeddings themselves ('looking closely at embeddings'). Spreadsheets rendered with verification/xlsx2txt.py: entropy_example rows 1-40, collab_filter rows 1-45, columns to 60."
+ },
+ "ai210.0.7": {
+  "kind": "companion material (spec amendment 2026-10-14)",
+  "video": "htiNBPxcXgo (transcript unavailable)",
+  "lesson_map": {
+   "repo": "fastai/course22-web",
+   "commit": "4ed1a845b9089998b9781badfc6741276c9c8082",
+   "path": "Lessons/lesson8.qmd"
+  },
+  "repos": [
+   {
+    "repo": "fastai/course22",
+    "commit": "230390584ba5b990e20487d68681a9ec5b258eff",
+    "paths": [
+     "xl/collab_filter.xlsx",
+     "xl/conv-example.xlsx"
+    ]
+   },
+   {
+    "repo": "fastai/fastbook",
+    "commit": "971f0289c3d0bda81868d3c028a832c6ee380b58",
+    "paths": [
+     "08_collab.ipynb",
+     "13_convolutions.ipynb"
+    ]
+   }
+  ],
+  "files": [
+   "sources/text/08_collab.ipynb.txt",
+   "sources/text/13_convolutions.ipynb.txt",
+   "sources/text/collab_filter.xlsx.txt",
+   "sources/text/conv-example.xlsx.txt"
+  ],
+  "note": "lesson8.qmd: finish collaborative filtering by looking closely at embeddings, then convolutions, pooling, dropout 'and more'; based partly on chapter 13; the Collaborative Filtering Deep Dive (chapter 8's Kaggle form) and the collab_filter and conv-example spreadsheets. Chapter 13's training-stability half (ActivationStats, 1cycle, batchnorm) is not quizzed, since the page does not name it. Receptive fields are not quizzed: the chapter says conv-example.xlsx shows two stride-2 layers with a 7x7 receptive field, but course22's copy convolves with stride 1 (see notes.md). conv-example.xlsx was rendered in full (rows 1-70, all columns)."
  }
 }

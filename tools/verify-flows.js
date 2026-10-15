@@ -414,7 +414,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       const cta = await page.evaluate(() => {
         const a = document.querySelector(".card.one.lead a.one-go");
         const k = document.querySelector(".card.one.lead .one-kind");
-        return a ? { href: a.getAttribute("href"), title: k ? k.textContent.trim() : "" } : null;
+        return a ? { href: a.getAttribute("href"), title: k ? k.textContent.trim() : "", verb: a.textContent.trim() } : null;
       });
       check("(a) the dashboard names the next lecture", !!cta && /^#\/lesson\//.test(cta.href) && cta.title.length > 0,
         cta ? "\"" + cta.title + "\" -> " + cta.href : "no .one-go button on the dashboard");
@@ -429,7 +429,10 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         }));
         // T-043: when today's lecture is locked the card names the quiz that
         // opens it ("Quiz: <title>"), and its button opens that lecture.
-        check("(a) its button opens that lecture", got.hash === cta.href && got.h1.includes(cta.title.replace(/^Quiz: /, "")) && got.btn,
+        // Review r1: a lecture not yet watched is "Watch: <title>, then its quiz".
+        check("(a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with \"Open\"",
+          /^Watch: .+, then its quiz$/.test(cta.title) && cta.verb === "Open ▸", "\"" + cta.title + "\", \"" + cta.verb + "\"");
+        check("(a) its button opens that lecture", got.hash === cta.href && got.h1.includes(cta.title.replace(/^(Quiz|Watch): /, "").replace(/, then its quiz$/, "")) && got.btn,
           "at " + got.hash + ", h1 \"" + got.h1.trim() + "\"");
         await shot(page, "flow-a-open-session-" + w);
       }
@@ -515,6 +518,11 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         /^0\/3/.test(mounted.ring) && mounted.rule && mounted.railLock, JSON.stringify(mounted));
       await go(page, "/");
       const mid = await todayCount(page);
+      const midCta = await page.evaluate(() => ({ kind: ((document.querySelector(".card.one.lead .one-kind") || {}).textContent || "").trim(),
+        verb: ((document.querySelector(".card.one.lead a.one-go") || {}).textContent || "").trim(),
+        href: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => "" }).getAttribute("href") }));
+      check("(c) watched with the quiz still to pass: the card says \"Quiz: <title>\" with \"Start\", to this lecture",
+        midCta.kind === "Quiz: Rate of Change" && midCta.verb === "Start ▸" && midCta.href === "#/lesson/math120/1/0", JSON.stringify(midCta));
       check("(c) the dashboard count does not move on \"watched\" alone", !!mid && !!before && mid.done === before.done && mid.of === before.of,
         (before ? before.done + " / " + before.of : "?") + " -> " + (mid ? mid.done + " / " + mid.of : "?"));
       await go(page, "/lesson/math120/1/0");

@@ -4596,6 +4596,9 @@ function t28SeedClips(list) {
       patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
                           "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
     { name: "the dashboard pointing at a quiz", route: "/", patch: null },
+    { name: "the dashboard pointing at a watched lecture's quiz", route: "/",
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
   ];
   function t43Measure() {
     const z = window.__dz, surface = z.tok("--surface");
@@ -4706,9 +4709,14 @@ function t28SeedClips(list) {
             !!m.lock && L.cards === 1 && !m.frame && !m.mark && /^Pass the quiz for “.+” first$/.test(L.text || "") && L.glyph && L.bg &&
               /^2\. /.test(L.h1 || "") && /^MATH 120/.test(L.kicker || ""), JSON.stringify(L));
           c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
+        } else if (st.name === "the dashboard pointing at a quiz") {
+          // Review r1: nothing watched, so the first lecture in the chain is
+          // to be watched first — not called a quiz.
+          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" and its \"Open ▸\" is the one primary",
+            /^Watch: .+, then its quiz$/.test(m.kind || "") && m.go === "#/lesson/math120/0/0" && filled.join() === "Open ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));
         } else {
-          c43(at + ": the Next card points at the blocking quiz (\"Quiz: …\") and its button is the one primary",
-            /^Quiz: /.test(m.kind || "") && /^#\/lesson\//.test(m.go || "") && p.filled.length === 1, JSON.stringify({ kind: m.kind, go: m.go, filled }));
+          c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start ▸\" is the one primary",
+            m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));
         }
         const w1 = await writesNow(page);
         c43(at + ": measuring wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));

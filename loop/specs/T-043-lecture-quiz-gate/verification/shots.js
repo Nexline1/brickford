@@ -16,6 +16,7 @@ const STATES = [
     "math110.0.13": { done: true, doneAt: "2026-10-19", notes: "", checks: [], quiz: P("2026-10-19", 2, 3) } } }],
   ["4-locked", "/lesson/math120/1/1", {}],
   ["5-dashboard-quiz", "/", {}],
+  ["5b-dashboard-quiz-watched", "/", { lessons: Object.assign({}, prev, { "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } }) }],
 ];
 (async () => {
   const b = await chromium.launch();

@@ -1419,16 +1419,20 @@
         ((S.lessons[nk] || {}).done && lessonQuiz(nk) && !quizPassed(nk) ? nextUp : null);
       if (blk) {
         const bc = D.COURSES.find(x => x.id === blk.cid);
+        // Review r1: a lecture not yet watched has no quiz to take yet, so the
+        // card says to watch it first; "Quiz:" is kept for a watched lecture
+        // whose quiz is still to pass.
+        const seen = !!(S.lessons[lessonKey(blk.cid, blk.ui, blk.li)] || {}).done;
+        const ahead = flatLessons(nextUp.cid).findIndex(f => f.ui === nextUp.ui && f.li === nextUp.li) - flatLessons(blk.cid).indexOf(blk);
         return {
           href: "#/lesson/" + blk.cid + "/" + blk.ui + "/" + blk.li,
-          kind: "quiz", code: blk.code, title: "Quiz: " + blk.l.t,
+          kind: "quiz", code: blk.code,
+          title: seen ? "Quiz: " + blk.l.t : "Watch: " + blk.l.t + ", then its quiz",
           fac: bc ? facClass(bc) : "",
-          label: "Quiz: " + clipTitle(blk.l.t, 30),
+          label: (seen ? "Quiz: " : "Watch: ") + clipTitle(blk.l.t, 30),
           hint: blk === nextUp ? "pass it and the lecture counts for today"
-            : (n => n > 1 ? "the first of " + n + " quizzes before " : "pass it to open ")(
-                flatLessons(nextUp.cid).findIndex(f => f.ui === nextUp.ui && f.li === nextUp.li) -
-                flatLessons(blk.cid).indexOf(blk)) + clipTitle(nextUp.l.t, 40),
-          verb: "Start",
+            : (ahead > 1 ? "the first of " + ahead + " quizzes before " : "pass it to open ") + clipTitle(nextUp.l.t, 40),
+          verb: seen ? "Start" : "Open",
         };
       }
       return {

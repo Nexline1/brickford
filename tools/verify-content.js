@@ -2449,7 +2449,10 @@ const expectedSummary = {
   })(),
   // AI 310 Unit I (CS336 2025), from the lecture materials.
   "ai310.0.0": (function () {
-    const dStar = 20 * 3;                                         // D* = 20 N*, N = 3B
+    // D* = 20 N* and C proportional to N*D: search for the N* whose compute is 4x that of N* = 1.
+    const computeAt = n => n * (20 * n);
+    let lo = 0, hi = 100; for (let it = 0; it < 200; it++) { const mid = (lo + hi) / 2; if (computeAt(mid) < 4 * computeAt(1)) lo = mid; else hi = mid; }
+    const dStar = Math.round(lo * 1e6) / 1e6;
     const str = "Hello, \u{1F30D}! \u4F60\u597D!";
     const ratio = Buffer.byteLength(str, "utf8") / Array.from(str).length;
     // Byte-level BPE, written again: count adjacent pairs, merge the first most common.
@@ -2524,8 +2527,10 @@ const expectedSummary = {
   "ai310.0.8": (function () {
     // Smallest n with sigma^2 / n <= 0.01, found by search rather than division.
     let n = 1; while (4 / n > 0.01 + 1e-12) n++;
-    const trillions = 70e9 * 215 / 1e12;
-    return [{ i: 4, v: n }, { i: 5, v: Math.round(trillions * 100) / 100 }];
+    // Same compute (N x D) as Mistral 7B at 110 tokens/param, re-spent at 20 tokens/param: bisect for N.
+    const C = 7 * (7 * 110);                                      // in units of 1e18 (billions x billions)
+    let lo = 0, hi = 1000; for (let it = 0; it < 200; it++) { const mid = (lo + hi) / 2; if (mid * 20 * mid < C) lo = mid; else hi = mid; }
+    return [{ i: 4, v: n }, { i: 5, v: Math.round(lo * 10) / 10 }];
   })(),
   "ai310.0.9": (function () {
     const accel = 989e12 / 3.35e12;                               // FLOPs per byte the H100 can feed
@@ -2539,20 +2544,29 @@ const expectedSummary = {
     // lr x fan-in is invariant under the 1/fan-in rule: solve for the new rate.
     const invariant = 0.01 * 1024;
     const lr = invariant / 4096;
-    const tokensB = 2 * 192;                                      // billions of tokens for 2B params
-    return [{ i: 4, v: lr }, { i: 5, v: tokensB }];
+    // WSD: one stable run to the last branch point plus a 10% decay per data size, summed size by size.
+    let stableEnd = 0, decays = 0;
+    for (let size = 1; size <= 8; size++) { stableEnd = Math.max(stableEnd, size - 0.1 * size); decays += 0.1 * size; }
+    const wsd = Math.round((stableEnd + decays) * 10) / 10;
+    return [{ i: 4, v: lr }, { i: 5, v: wsd }];
   })(),
   "ai310.0.11": (function () {
     // Perplexity through bits: average -log2 p, then 2 to that power.
     const ps = [0.5, 0.25, 0.125];
     const bits = ps.reduce((t, p) => t - Math.log2(p), 0) / ps.length;
     const ppl = Math.pow(2, bits);
-    return [{ i: 4, v: Math.round(ppl * 1e9) / 1e9 }, { i: 5, v: 100 / 10 }];
+    // Perplexity by the definition, (1/p(D))^(1/|D|), for |D| = 5 tokens each at probability e^-2.
+    const nTok = 5; let pD = 1; for (let t = 0; t < nTok; t++) pD *= Math.exp(-2);
+    const ppl2 = Math.pow(1 / pD, 1 / nTok);
+    return [{ i: 4, v: Math.round(ppl * 1e9) / 1e9 }, { i: 5, v: Math.round(ppl2 * 100) / 100 }];
   })(),
   "ai310.0.12": (function () {
     const bytesPerToken = 806e9 / 156e9;
-    const uniquePct = 5e9 / 51e9 * 100;
-    return [{ i: 4, v: Math.round(bytesPerToken * 100) / 100 }, { i: 5, v: Math.round(uniquePct * 10) / 10 }];
+    // C4's line rule applied to the five lines: ends in terminal punctuation and has at least 5 words.
+    const lines = ["Home | About | Contact", "Click here to subscribe.", "The river floods every spring after the snow melts.",
+      "Rooms start at 80 euros per night!", "Read the full story"];
+    const kept = lines.filter(l => /[.!?"]$/.test(l) && l.trim().split(/\s+/).length >= 5).length;
+    return [{ i: 4, v: Math.round(bytesPerToken * 100) / 100 }, { i: 5, v: kept }];
   })(),
   "ai310.0.13": (function () {
     // LSH: the pair escapes only if every band misses; a band hits only if all r MinHashes agree.

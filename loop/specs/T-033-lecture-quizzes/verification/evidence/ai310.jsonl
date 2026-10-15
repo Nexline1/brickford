@@ -87,7 +87,7 @@
 {"key": "ai310.0.8", "i": 2, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "But most of the compute in a real deployment is inference.. So we should 'over' train"}
 {"key": "ai310.0.8", "i": 3, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 26-39", "quote": "The scaling law based design procedure. 1. Train a few smaller models 2. Establish a scaling law"}
 {"key": "ai310.0.8", "i": 4, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slides 16-19", "quote": "Example: If our task is to estimate the mean of a dataset, what's the scaling law?"}
-{"key": "ai310.0.8", "i": 5, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "Llama 3 70B – 215 tokens / param"}
+{"key": "ai310.0.8", "i": 5, "at": null, "src": "2025 Lecture 9 - Scaling laws basics.pdf, slide 50", "quote": "Mistral 7B – 110 tokens / param"}
 {"key": "ai310.0.9", "i": 0, "at": null, "src": "lecture_10.py, arithmetic_intensity_of_inference", "quote": "Unlike MLPs, no dependence on B, so batching doesn't help!"}
 {"key": "ai310.0.9", "i": 1, "at": null, "src": "lecture_10.py, speculative_sampling", "quote": "Key property: guaranteed to be an exact sample from the target model!"}
 {"key": "ai310.0.9", "i": 2, "at": null, "src": "lecture_10.py, paged_attention", "quote": "Divide the KV cache of a sequence into non-contiguous blocks"}
@@ -99,19 +99,19 @@
 {"key": "ai310.0.10", "i": 2, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 26-32 and 36", "quote": "Scaling strategy : don't use any muP, directly estimate optimal batch / LR"}
 {"key": "ai310.0.10", "i": 3, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 46-54", "quote": "In our arch – RMSNorm has learnable gains. This turns out to break muP"}
 {"key": "ai310.0.10", "i": 4, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 41-42", "quote": "Differences – LR changes for Adam, also init diffs when fanout"}
-{"key": "ai310.0.10", "i": 5, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 21-25", "quote": "The overall data -to-model ratio is very high (192)"}
+{"key": "ai310.0.10", "i": 5, "at": null, "src": "2025 Lecture 11 - Scaling details.pdf, slides 17-19", "quote": "For chinchilla -style analysis, can restart the run at the end of the stable phase."}
 {"key": "ai310.0.11", "i": 0, "at": null, "src": "lecture_12.py, perplexity", "quote": "For perplexity, need LM to generate probabilities and trust that they sum to 1"}
 {"key": "ai310.0.11", "i": 1, "at": null, "src": "lecture_12.py, instruction_following_benchmarks", "quote": "They get response from two random (anonymized) models"}
 {"key": "ai310.0.11", "i": 2, "at": null, "src": "lecture_12.py, realism", "quote": "Asking is more realistic and produces value for the user."}
 {"key": "ai310.0.11", "i": 3, "at": null, "src": "lecture_12.py, safety_benchmarks", "quote": "For open weight models, capability matters (since can easily fine-tune safety away)"}
 {"key": "ai310.0.11", "i": 4, "at": null, "src": "lecture_12.py, perplexity", "quote": "Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D."}
-{"key": "ai310.0.11", "i": 5, "at": null, "src": "lecture_12.py, knowledge_benchmarks", "quote": "Expanded 4 choices to 10 choices"}
+{"key": "ai310.0.11", "i": 5, "at": null, "src": "lecture_12.py, perplexity", "quote": "In pre-training, you minimize perplexity on the training set."}
 {"key": "ai310.0.12", "i": 0, "at": null, "src": "lecture_13.py, introduction", "quote": "Reasons for secrecy: (i) competitive dynamics and (ii) copyright liability"}
 {"key": "ai310.0.12", "i": 1, "at": null, "src": "lecture_13.py, t5_c4", "quote": "Keep lines that end in punctuation and have >= 5 words"}
 {"key": "ai310.0.12", "i": 2, "at": null, "src": "lecture_13.py, dclm", "quote": "Trained a fastText classifier, run it on all of DCLM-pool"}
 {"key": "ai310.0.12", "i": 3, "at": null, "src": "lecture_13.py, copyright", "quote": "Example: YouTube's terms of service prohibits downloading videos, even if the videos are licensed under Creative Commons."}
 {"key": "ai310.0.12", "i": 4, "at": null, "src": "lecture_13.py, t5_c4", "quote": "End result: 806 GB of text (156 billion tokens)"}
-{"key": "ai310.0.12", "i": 5, "at": null, "src": "lecture_13.py, github", "quote": "git clone'd 137M repositories, 51B files (5B unique!)"}
+{"key": "ai310.0.12", "i": 5, "at": null, "src": "lecture_13.py, t5_c4", "quote": "Keep lines that end in punctuation and have >= 5 words"}
 {"key": "ai310.0.13", "i": 0, "at": null, "src": "lecture_14.py, filtering_summary", "quote": "score(x) = p_T(x) / p_R(x)"}
 {"key": "ai310.0.13", "i": 1, "at": null, "src": "lecture_14.py, quality_filtering", "quote": "Train 1.3B LM on new filtered subset (performance: 17.68% after 36K steps) - better!"}
 {"key": "ai310.0.13", "i": 2, "at": null, "src": "lecture_14.py, bloom_filter", "quote": "If return 'no', definitely 'no'"}

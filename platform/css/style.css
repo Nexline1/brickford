@@ -2993,6 +2993,9 @@ button.at-chip.lb-more { font-weight: 600; }
 .lq-card .opt.dim { color: var(--ink-2); }
 .lq-card .opt.correct { background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
 .lq-card .opt.wrong { background: color-mix(in srgb, var(--bad) 13%, var(--surface)); color: var(--ink); }
+/* --ink-3 measures 4.10:1 on the tinted correct fill and 4.36:1 on the wrong
+   one in Dark (review r1); --ink-2 clears 4.5:1 on both, in both themes. */
+.lq-card .opt.correct .key, .lq-card .opt.wrong .key { color: var(--ink-2); }
 .lq-card .expl { border-left: 0; border-radius: var(--r-md); background: var(--bg); color: var(--ink-2); line-height: 1.45; }
 .lq-card .expl strong { color: var(--ink); }
 .btn.ghost.lq-rewatch-at { margin-top: 8px; min-height: 44px; }

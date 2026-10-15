@@ -18,6 +18,9 @@ PLANTS = {
   "e": ("the quiz record is written during render", "platform/js/app.js",
         "    const cleared = lessonCleared(k);\n",
         "    const cleared = lessonCleared(k);\n    if (passed) { S.lessons[k].quiz.seenAt = new Date().toISOString(); save(); }\n", ["tools/verify-flows.js"]),
+  "f": ("the marked options' keys back on --ink-3 (review r1, finding 1)", "platform/css/style.css",
+        ".lq-card .opt.correct .key, .lq-card .opt.wrong .key { color: var(--ink-2); }",
+        ".lq-card .opt.correct .key, .lq-card .opt.wrong .key { color: var(--ink-3); }", ["tools/verify-design.js"]),
 }
 which = sys.argv[1:] or sorted(PLANTS)
 results = []

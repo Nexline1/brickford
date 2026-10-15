@@ -4587,7 +4587,16 @@ function t28SeedClips(list) {
     const txt = sel => { const n = document.querySelector(sel); return n ? n.textContent.replace(/\s+/g, " ").trim() : null; };
     const card = document.querySelector("#view .lq-card"), pass = document.querySelector("#view .lq-pass"), lock = document.querySelector("#view .lq-lock");
     const rw = document.querySelector("#view .lq-rewatch");
+    // Review r1: every text-bearing element in the quiz card, measured against
+    // what is painted behind it (z.backdrop), at the 4.5:1 text threshold —
+    // the miss state's tinted option fills included.
+    const lowInk = card ? [...card.querySelectorAll("*")].filter(n => n.checkVisibility() &&
+      [...n.childNodes].some(c => c.nodeType === 3 && c.textContent.trim())).map(n => {
+        const r = z.ratio(z.over(z.bytes(getComputedStyle(n).color), z.backdrop(n)), z.backdrop(n));
+        return { n: n.className || n.tagName, t: n.textContent.trim().slice(0, 16), r: +r.toFixed(2) };
+      }).filter(x => x.r < 4.5) : null;
     return {
+      lowInk, marked: card ? card.querySelectorAll(".opt.wrong, .opt.correct").length : 0,
       frame: !!document.querySelector("#view .video-frame iframe"), mark: txt("#view [data-act=toggleDone]"),
       bar: !!document.querySelector("#view .lq-watched"), rewatch: rw && rw.checkVisibility() ? box(rw) : null,
       quiz: card ? { title: txt("#view .lq-title"), sub: txt("#view .lq-head .lq-note"), n: txt("#view .lq-n"),
@@ -4613,6 +4622,14 @@ function t28SeedClips(list) {
         await go(page, st.route);
         if (st.miss) {
           await page.waitForSelector("#view .lq-card");
+          // The miss is made on a multiple-choice question, so the marked
+          // options are on screen to measure (review r1): a numeric one drawn
+          // first is answered right and passed over.
+          for (let g = 0; g < 4 && await page.evaluate(() => !document.querySelector("#view .lq-card .opt")); g++) {
+            await page.evaluate(() => { const c = document.querySelector("#view .lq-card");
+              document.querySelector("#view #numAns").value = String(window.DAR.SUMMARIES["math120.1.0"].checks[+c.dataset.q].num);
+              document.querySelector("#view #numGo").click(); document.querySelector("#view #nextBtn").click(); });
+          }
           // A wrong answer: the first option that is not the bank's answer,
           // or a number nobody would give.
           await page.evaluate(() => {
@@ -4641,6 +4658,8 @@ function t28SeedClips(list) {
             JSON.stringify({ note: q.note, why: q.why }));
           c43(at + ": the card is --surface, every option >= 44px tall, and \"Next question\" is the one primary", q.bg && q.opts.every(b => b.h >= 44) && filled.join() === "Next question",
             JSON.stringify({ bg: q.bg, opts: q.opts, filled }));
+          c43(at + ": every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included",
+            Array.isArray(m.lowInk) && m.lowInk.length === 0 && m.marked === 2, "marked options " + m.marked + "; under 4.5: " + JSON.stringify(m.lowInk));
           c43(at + ": no \"Check yourself\" under the summary (the quiz is the check)", !m.check, String(m.check));
           if (o.w === 1440) c43(at + ": the rail says how the ring counts and shows the next lecture locked",
             m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));

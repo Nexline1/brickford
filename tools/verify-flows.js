@@ -222,6 +222,13 @@ const lessonOf = (() => {
   };
 })();
 const CUR = lessonOf(LECTURE.cid, LECTURE.ui, LECTURE.li);
+// T-043: a lecture opens only once the one before it is cleared, so the
+// resume flows' contexts carry lecture 13 watched with its quiz passed —
+// a quiz pass added to the fixture, nothing else. Their own lecture (14) is
+// untouched by it.
+const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
+  quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
+const unlocked = st => Object.assign({}, st || {}, { lessons: Object.assign({}, PREV_PASSED, (st || {}).lessons || {}) });
 
 // The page going to the background, as the page sees it: visibilityState,
 // and the visibilitychange event (a headless page cannot be backgrounded).
@@ -420,7 +427,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
           h1: (document.querySelector("#view h1") || {}).textContent || "",
           btn: !!document.querySelector("#view [data-act=toggleDone]"),
         }));
-        check("(a) its button opens that lecture", got.hash === cta.href && got.h1.includes(cta.title) && got.btn,
+        // T-043: when today's lecture is locked the card names the quiz that
+        // opens it ("Quiz: <title>"), and its button opens that lecture.
+        check("(a) its button opens that lecture", got.hash === cta.href && got.h1.includes(cta.title.replace(/^Quiz: /, "")) && got.btn,
           "at " + got.hash + ", h1 \"" + got.h1.trim() + "\"");
         await shot(page, "flow-a-open-session-" + w);
       }
@@ -462,32 +471,132 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       await ctx.close();
     }
 
-    // ---- (c) mark a lecture watched ----
+    // ---- (c) mark a lecture watched, then pass its quiz (T-043) ----
+    // loop/specs/T-043-lecture-quiz-gate/spec.md, criterion 1. Before T-043
+    // marking watched moved the count; now a lecture counts once it is
+    // watched AND its quiz is passed. Today's first lecture is MATH 120
+    // lecture 13; the fixture passes the quiz of the lecture before it (a
+    // quiz pass added, nothing else), so it is open. One question is
+    // answered wrong, the rest right; the answers are read from the summary's
+    // own checks (window.DAR), by the bank index the card carries.
     {
-      const { ctx, page, errors } = await fresh(browser, w, null);
+      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
+      const { ctx, page, errors } = await fresh(browser, w, { lessons: PREV }, "/__test");
+      await go(page, "/");
       const before = await todayCount(page);
-      check("(c) the dashboard shows a count for today", !!before && before.of > 0,
-        before ? before.done + " / " + before.of + " today" : "no \"N / M today\" on the dashboard");
-      await markView(page);
-      await page.click(".card.one.lead a.one-go");
-      await viewReplaced(page);
+      const cta = await page.evaluate(() => (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => "" }).getAttribute("href"));
+      check("(c) the dashboard shows a count for today, and its next lecture is open", !!before && before.of > 0 && cta === "#/lesson/math120/1/0",
+        (before ? before.done + " / " + before.of + " today" : "no \"N / M today\" on the dashboard") + ", next " + cta);
+      const calSub = () => page.evaluate(() => ((document.querySelector("#view .cd-sub") || {}).textContent || "").trim());
+      await go(page, "/calendar");
+      const cal0 = await calSub();
+      // The next lecture, before the pass: one card, no video, no Mark watched.
+      await go(page, "/lesson/math120/1/1");
+      const lock0 = await page.evaluate(() => ({ lock: !!document.querySelector("#view .lq-lock"), frame: !!document.querySelector("#view .video-frame"),
+        mark: !!document.querySelector("#view [data-act=toggleDone]"),
+        go: (document.querySelector("#view .lq-lock a.btn") || { getAttribute: () => "" }).getAttribute("href"),
+        text: ((document.querySelector("#view .lq-lock") || {}).textContent || "").trim() }));
+      check("(c) the next lecture is locked before the pass: one card pointing at this quiz, no video, no Mark watched",
+        lock0.lock && !lock0.frame && !lock0.mark && lock0.go === "#/lesson/math120/1/0" && /^Pass the quiz for/.test(lock0.text),
+        JSON.stringify(lock0));
+      await shot(page, "flow-c-locked-" + w);
+      await go(page, "/lesson/math120/1/0");
       await markView(page);
       await page.click("#view [data-act=toggleDone]");
       await viewReplaced(page);
       const label = await page.evaluate(() => document.querySelector("#view [data-act=toggleDone]").textContent.trim());
       check("(c) the lecture page records it", label === "Unmark watched", "button now reads \"" + label + "\"");
+      const mounted = await page.evaluate(() => ({ quiz: !!document.querySelector("#view #lqMount .lq-card"), bar: !!document.querySelector("#view .lq-watched"),
+        frame: !!document.querySelector("#view .video-frame"), ring: ((document.querySelector("#rail .rl-ring") || {}).textContent || "").replace(/\s+/g, " ").trim(),
+        rule: !!document.querySelector("#rail .rl-rule"), railLock: !!document.querySelector("#rail .rl-lock") }));
+      check("(c) watching collapses the video to the watched bar and mounts the quiz under it", mounted.quiz && mounted.bar && !mounted.frame, JSON.stringify(mounted));
+      check("(c) the rail's ring does not count it yet, says why, and shows the next lecture locked",
+        /^0\/3/.test(mounted.ring) && mounted.rule && mounted.railLock, JSON.stringify(mounted));
+      await go(page, "/");
+      const mid = await todayCount(page);
+      check("(c) the dashboard count does not move on \"watched\" alone", !!mid && !!before && mid.done === before.done && mid.of === before.of,
+        (before ? before.done + " / " + before.of : "?") + " -> " + (mid ? mid.done + " / " + mid.of : "?"));
+      await go(page, "/lesson/math120/1/0");
+      await page.waitForSelector("#view #lqMount .lq-card");
+      // The sitting.
+      const bank = await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.map(q => ({ a: q.a, num: q.num, opts: q.opts ? q.opts.length : 0 })));
+      const n = bank.length;
+      const w0 = await writes(page);
+      let missedQ = null, firstOrder = null, againOrder = null, answeredN = 0, wFinish = null;
+      for (let guard = 0; guard < 3 * n + 4; guard++) {
+        const cur = await page.evaluate(() => { const c = document.querySelector("#view #lqMount .lq-card");
+          return c ? { q: +c.dataset.q, order: [...c.querySelectorAll(".opt")].map(b => +b.dataset.o), head: (c.querySelector(".lq-n") || {}).textContent } : null; });
+        if (!cur) break;
+        const b = bank[cur.q];
+        const miss = missedQ === null && b.opts > 1;
+        if (miss) { missedQ = cur.q; firstOrder = cur.order; }
+        else if (cur.q === missedQ) againOrder = cur.order;
+        if (b.opts) {
+          const pick = miss ? cur.order.findIndex(o => o !== b.a) : cur.order.indexOf(b.a);
+          await page.click("#view #lqMount .opt >> nth=" + pick);
+        } else {
+          await page.fill("#view #numAns", String(b.num));
+          await page.click("#view #numGo");
+        }
+        answeredN++;
+        await page.waitForFunction(() => getComputedStyle(document.querySelector("#view #nextBtn")).visibility === "visible", null, { timeout: 4000 });
+        if (miss) {
+          const after = await page.evaluate(() => ({ seg: [...document.querySelectorAll("#view .lq-segs i")].map(i => i.className),
+            why: ((document.querySelector("#view #qFeedback") || {}).textContent || "").trim() }));
+          check("(c) a miss shows why and turns its segment red", after.seg.includes("miss") && /^Not quite\./.test(after.why) && /comes back/.test(after.why),
+            JSON.stringify(after));
+          await shot(page, "flow-c-quiz-miss-" + w);
+        }
+        const last = await page.evaluate(() => document.querySelector("#view #nextBtn").textContent.trim() === "Finish");
+        if (last) wFinish = await writes(page);
+        await markView(page).catch(() => {});
+        await page.click("#view #nextBtn");
+        if (last) { await viewReplaced(page); break; }
+      }
+      check("(c) the missed question comes back with its options reshuffled", missedQ !== null && !!againOrder && againOrder.join() !== firstOrder.join() &&
+        againOrder.slice().sort().join() === firstOrder.slice().sort().join(), "first " + JSON.stringify(firstOrder) + ", again " + JSON.stringify(againOrder));
+      check("(c) the sitting asks every question, and the miss once more", answeredN === n + 1, answeredN + " answers for " + n + " questions");
+      const passCard = await page.evaluate(() => ((document.querySelector("#view .lq-pass") || {}).textContent || "").replace(/\s+/g, " ").trim());
+      check("(c) the pass card shows firstTry = n-1 and that it counted for today",
+        passCard.includes(n + " of " + n + " · " + (n - 1) + " right on the first try · counted for today") && /Next lecture/.test(passCard), "\"" + passCard + "\"");
+      await shot(page, "flow-c-passed-" + w);
+      const rec = await page.evaluate(() => { const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+        return { q: ((s.lessons || {})["math120.1.0"] || {}).quiz || null, ev: (s.ledger || []).filter(e => e.type === "quiz") }; });
+      const wAfter = await writes(page);
+      check("(c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n",
+        wFinish === w0 && !!rec.q && rec.q.passedAt === TODAY && rec.q.firstTry === n - 1 && rec.q.total === n && rec.q.attempts === n + 1 &&
+          rec.ev.length === 1 && rec.ev[0].ref === "math120.1.0" && rec.ev[0].data.firstTry === n - 1 && rec.ev[0].data.total === n && wAfter - w0 === 1,
+        "writes while answering " + (wFinish - w0) + ", at finish " + (wAfter - wFinish) + "; record " + JSON.stringify(rec.q) + "; events " + JSON.stringify(rec.ev.map(e => e.data)));
+      // A render is a read: three more renders of the passed page write nothing.
+      const wr0 = await writes(page);
+      for (let i = 0; i < 3; i++) { await markView(page); await page.evaluate(() => window.__brickfordTest.render()); await viewReplaced(page); }
+      const ring1 = await page.evaluate(() => ((document.querySelector("#rail .rl-ring") || {}).textContent || "").replace(/\s+/g, " ").trim());
+      check("(c) nothing is written at render (three renders of the passed lecture)", (await writes(page)) === wr0, (await writes(page)) - wr0 + " write(s)");
+      check("(c) the rail's ring counts it after the pass", /^1\/3/.test(ring1), "ring " + ring1);
       await go(page, "/");
       const after = await todayCount(page);
-      check("(c) the dashboard count goes up by one", !!before && !!after && after.done === before.done + 1 && after.of === before.of,
+      check("(c) the dashboard count goes up by one after the pass", !!before && !!after && after.done === before.done + 1 && after.of === before.of,
         (before ? before.done + " / " + before.of : "?") + " -> " + (after ? after.done + " / " + after.of : "?"));
       await shot(page, "flow-c-mark-watched-" + w);
+      await go(page, "/calendar");
+      const cal1 = await calSub();
+      check("(c) today's day status in the calendar counts it only after the pass", /0 of 3 done/.test(cal0) && /1 of 3 done/.test(cal1), "\"" + cal0 + "\" -> \"" + cal1 + "\"");
+      await go(page, "/lesson/math120/1/0");
+      await markView(page);
+      await page.click("#view .lq-pass a.btn");
+      await viewReplaced(page);
+      const nx = await page.evaluate(() => ({ hash: location.hash, h1: ((document.querySelector("#view h1") || {}).textContent || "").trim(),
+        lock: !!document.querySelector("#view .lq-lock"), mark: !!document.querySelector("#view [data-act=toggleDone]") }));
+      check("(c) Next lecture navigates, and the next lecture is open after the pass", nx.hash === "#/lesson/math120/1/1" && !nx.lock && nx.mark && /^2\. /.test(nx.h1),
+        JSON.stringify(nx));
       check("(c) no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
 
     // ---- (d) resume: kept on pause, on leaving, on pagehide; cleared at the end ----
     {
-      const { ctx, page, errors } = await fresh(browser, w, null, "/__test");
+      const { ctx, page, errors } = await fresh(browser, w, unlocked(null), "/__test");
       const hook = await page.evaluate(() => !!window.__brickfordTest && typeof window.__brickfordTest.playerMessage === "function");
       check("(d) the test hook is installed on a #/__test boot", hook);
       await go(page, LROUTE);
@@ -579,7 +688,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // starts at the time just heard — the proof a time WAS held at that render.
     {
       const seeded = { settings: { lastLesson: { cid: LECTURE.cid, ui: LECTURE.ui, li: LECTURE.li, label: CUR.label } } };
-      const { ctx, page, errors } = await fresh(browser, w, seeded, "/__test");
+      const { ctx, page, errors } = await fresh(browser, w, unlocked(seeded), "/__test");
       const w0 = await writes(page);
       await go(page, LROUTE);
       await page.evaluate(() => {
@@ -621,7 +730,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     {
       const T10 = "2026-10-20T10:00:00.000Z";
       const seeded = { lessons: { [LK]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 } } };
-      const { ctx, page, errors } = await fresh(browser, w, seeded, "/__test");
+      const { ctx, page, errors } = await fresh(browser, w, unlocked(seeded), "/__test");
       await go(page, LROUTE);
       const src = await frameSrc(page);
       await page.evaluate(v => window.__brickfordTest.playerMessage(JSON.stringify(
@@ -633,7 +742,10 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
 
       // The one real 0: a lecture that began at 0 (no start=), played to 5:00
       // and paused there, then taken back to its start and paused again.
-      const B = { cid: LECTURE.cid, ui: LECTURE.ui, li: LECTURE.li - 1 };
+      // T-043: the course's first lecture (never locked, and not watched in
+      // this fixture); it was the lecture before LECTURE, which the fixture
+      // now holds watched with its quiz passed so that LECTURE is open.
+      const B = { cid: LECTURE.cid, ui: 0, li: 0 };
       const BK = B.cid + "." + B.ui + "." + B.li, BL = lessonOf(B.cid, B.ui, B.li);
       await go(page, "/lesson/" + B.cid + "/" + B.ui + "/" + B.li);
       const srcB = await frameSrc(page);
@@ -654,7 +766,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // No test hook: the stub is served into the lecture's frame, on YouTube's
     // origin, and everything below is a real postMessage between windows.
     {
-      const { ctx, page, errors } = await fresh(browser, w, null, "/");
+      const { ctx, page, errors } = await fresh(browser, w, unlocked(null), "/");
       await stubPlayer(ctx, 0);
       await listenAfterApp(page);
       await go(page, LROUTE);
@@ -1641,7 +1753,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // page is still asking after that (about 16s in). Then resume has to work.
   console.log("\na slow phone (once, 390px)");
   {
-    const { ctx, page, errors } = await fresh(browser, 390, null, "/");
+    const { ctx, page, errors } = await fresh(browser, 390, unlocked(null), "/");
     await stubPlayer(ctx, 60);
     await listenAfterApp(page);
     await go(page, LROUTE);

@@ -49,17 +49,19 @@
       for (let guard = 0; prev && q.opts.length > 1 && p.join() === prev.join() && guard < 50; guard++)
         p = shuffle(q.opts.map((_, i) => i));
       lastPerm[bi] = p;
-      return Object.assign({}, q, { opts: p.map(i => q.opts[i]), a: p.indexOf(q.a) });
+      return Object.assign({}, q, { opts: p.map(i => q.opts[i]), a: p.indexOf(q.a), perm: p });
     };
     const order = shuffle(qsrc.map((_, i) => i));
     const queue = order.map((bi, pos) => ({ bi, pos, again: false }));
     const seg = order.map(() => "");
     const missed = [];
-    let firstTry = 0, attempts = 0, cur = null, q = null, answered = false, lastOk = false, over = false;
+    let firstTry = 0, attempts = 0, cur = null, q = null, answered = false, over = false;
     const clock = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
 
     function card() {
-      return '<div class="card q-card lq-card">' +
+      // data-q / data-o: the bank index of the question and of each option as
+      // presented, so a harness can tell a reshuffle from the same order.
+      return '<div class="card q-card lq-card" data-q="' + cur.bi + '">' +
         '<div class="lq-head"><span class="lq-title">' + esc(opts.label || "Lecture quiz") + "</span>" +
         '<span class="lq-note">' + esc(opts.sub || "From this lecture only") + "</span>" +
         '<span class="lq-n">Question ' + (cur.pos + 1) + " of " + n + (cur.again ? " \u00b7 again" : "") + "</span></div>" +
@@ -67,7 +69,7 @@
           '<i class="' + (i === cur.pos && !answered ? "now" : s) + '"></i>').join("") + "</div>" +
         '<div class="q-text">' + q.q + "</div>" +
         (q.opts
-          ? q.opts.map((o, i) => '<button class="opt" data-i="' + i + '"><span class="key">' + keys[i] + '.</span><span>' + o + "</span></button>").join("")
+          ? q.opts.map((o, i) => '<button class="opt" data-i="' + i + '" data-o="' + q.perm[i] + '"><span class="key">' + keys[i] + '.</span><span>' + o + "</span></button>").join("")
           : '<div class="lq-num"><input type="text" id="numAns" inputmode="decimal" placeholder="Your answer (a number)" aria-label="Your numeric answer" autocomplete="off">' +
             '<button class="btn ghost" id="numGo">Submit</button></div>') +
         '<div id="qFeedback"></div>' +
@@ -85,7 +87,6 @@
       answered = true;
       attempts++;
       const ok = grade(given);
-      lastOk = ok;
       if (ok) {
         if (!cur.again) firstTry++;
         if (seg[cur.pos] !== "miss") seg[cur.pos] = "ok";

@@ -50,3 +50,4 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
 - T-043 (quiz gate): r1 fixes committed and pushed up to f9f7bdc on loop/T-043-lecture-quiz-gate (/home/user/bf-T-043). Builder (same agent, opus) finishing finding 1 (Dark contrast + verify-design measurement fix), then gates.
 - Next: CHECK by script (scratchpad/t043-check/run.sh <outdir>), then review r2 by the SAME reviewer (narrow brief: findings 1-9 + `git diff 4173728..HEAD`), then set QUIZ_GATE_FROM to the ship date, PR, merge (owner standing instruction).
 - Owner decisions on record: lock from go-live only; CLAUDE.md on main already correct.
+- 2026-10-16: T-043 MERGED (PR #21, main 8c2bbd1). Next in owner order: T-045 (Problems due-now), then T-046, T-047.

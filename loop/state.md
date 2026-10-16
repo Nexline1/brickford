@@ -85,3 +85,4 @@
 - 2026-10-15: T-043 builder hit the usage limit at a92b029 (worktree clean); resumed same agent (opus, resumed) after reset.
 - 2026-10-15: T-043 built 4173728 (builder opus, resumed once; pushed by me). CHECK (script) all green: logic 55, flows 280, design 2052, clip 797. Review r1 (reviewer opus, fresh). My notes: Sketch-tile copy splice, Go deeper caption wrap at 390. Builder flagged CLAUDE.md START_DATE stale (2026-09-21 vs code 2026-10-05) — owner-protected file, needs owner OK.
 - 2026-10-15: T-043 r1 CHANGES REQUIRED (9 findings); 1-8 sent to builder (opus, resumed). Owner: 'Lock from go-live only' (pre-gate-scheduled lectures never block) — sent to builder. CLAUDE.md: main already correct (2026-10-05); loop branch was stale, merged main in. Owner approved a correction, none needed.
+- 2026-10-16: T-043 r2 APPROVED (reviewer opus, resumed). QUIZ_GATE_FROM = 2026-10-16. PR #21 merged → main 8c2bbd1. Flows (p) flaked once (queued T-050). Next: T-045.

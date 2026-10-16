@@ -51,3 +51,4 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
 - Next: CHECK by script (scratchpad/t043-check/run.sh <outdir>), then review r2 by the SAME reviewer (narrow brief: findings 1-9 + `git diff 4173728..HEAD`), then set QUIZ_GATE_FROM to the ship date, PR, merge (owner standing instruction).
 - Owner decisions on record: lock from go-live only; CLAUDE.md on main already correct.
 - 2026-10-16: T-043 MERGED (PR #21, main 8c2bbd1). Next in owner order: T-045 (Problems due-now), then T-046, T-047.
+- 2026-10-16: T-045 building in /home/user/bf-T-045 (branch loop/T-045-problems-due-now). If cut off: resume builder, then CHECK by script (sed the worktree path in scratchpad/t043-check/run.sh), fresh reviewer r1, merge.

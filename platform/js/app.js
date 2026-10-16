@@ -5063,10 +5063,15 @@
     const rows = P.quizzes.map(q => quizRow(q, false)).concat(P.catchUp.map(q => quizRow(q, true)), P.psets.map(psetRow), P.labs.map(labDueRow),
       P.review ? ['<a class="pd-row" data-due="review" href="#/drill">' + ic("↻") +
         body("Daily review", "", "questions you missed, served back until they stick") + go("Start") + "</a>"] : []);
-    // Nothing due: the next lecture not yet cleared, from today on.
+    // Nothing due: the next lecture not yet cleared, from today on — or, when
+    // a chain of unwatched lectures locks it, the first of that chain (the
+    // one the lesson page's lock card would send you to).
     const nextLec = (() => {
       let iso = todayISO() < D.START_DATE ? D.START_DATE : todayISO();
-      for (let g = 0; g < 60; g++, iso = addDaysISO(iso, 1)) { const it = realSched(iso).find(x => !schedDone(x)); if (it) return it; }
+      for (let g = 0; g < 60; g++, iso = addDaysISO(iso, 1)) {
+        const it = realSched(iso).find(x => !schedDone(x));
+        if (it) return lockRoot(it.cid, it.ui, it.li) || it;
+      }
       return null;
     })();
     const catalogue =

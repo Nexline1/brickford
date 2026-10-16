@@ -1573,7 +1573,7 @@ function t38Sheet() {
 // from the lessons, problems and sealed days on that date, and the hash chain
 // for the seals is built here, hashed with Node's own sha256.
 const T26B_HEAD = {
-  "/workshop": ["Problems", "Learning sticks when you solve, not when you watch."],
+  "/workshop": ["Problems", "Only what\u2019s due now. Each item says what it is and why it\u2019s here."],   // T-045
   "/exams": ["Exams", "Timed, closed book, no AI. This is how a gate is passed."],
   "/record": ["Proof", "Every lecture you prove is sealed into a record nobody can quietly edit."],
 };
@@ -1635,46 +1635,73 @@ function t26bPrimary() {
       return { h1: h ? h.textContent.trim() : null, sub: s ? s.textContent.trim() : null }; })(),
   };
 }
-function t26bWorkshop() {
+// T-045 (replaces T-026b's mode cards and phase list): what /workshop
+// should list as due, worked out here from the stored state and the data
+// files — `after` on every pset and lab, the phase from the study index —
+// with only "cleared" asked of the app (T-043's lessonCleared, itself gated
+// by verify-logic). And what the page shows: the due rows (kind, id, title,
+// tag, why-line, action and its box), the count, the empty state, "How this
+// works", "Coming up", and the "Everything" fold.
+function t45Problems() {
   const D = window.DAR, T = window.__brickfordTest, st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
-  const today = (() => { const d = new Date(), p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); })();
-  // The plan week: six study days; a rest day belongs to the week just worked.
-  let iso = today, idx = T.studyIndex(iso);
-  for (let g = 0; g < 7 && idx < 0 && iso > D.START_DATE; g++) {
-    const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() - 1);
-    iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    idx = T.studyIndex(iso);
-  }
-  const week = Math.max(1, Math.floor(Math.max(0, idx) / 6) + 1);
-  const phase = week > 78 ? 3 : week > 26 ? 2 : week > 2 ? 1 : 0;
-  const labs = st.labs || {}, psets = st.psets || {};
-  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const p2 = n => String(n).padStart(2, "0"), isoOf = d => d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate());
+  let iso = isoOf(new Date()), idx = T.studyIndex(iso);
+  for (let g = 0; g < 7 && idx < 0 && iso > D.START_DATE; g++) { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() - 1); iso = isoOf(d); idx = T.studyIndex(iso); }
+  const week = Math.max(1, Math.floor(Math.max(0, idx) / 6) + 1), phase = week > 78 ? 3 : week > 26 ? 2 : week > 2 ? 1 : 0;
+  const lessons = st.lessons || {}, psets = st.psets || {}, labs = st.labs || {};
+  const flat = [].concat(...D.COURSES.map(c => [].concat(...(c.units || []).map((u, ui) => u.lessons.map((l, li) => ({ k: c.id + "." + ui + "." + li, cid: c.id, ui, li, code: c.code, t: l.t }))))));
+  const byKey = Object.fromEntries(flat.map(f => [f.k, f]));
+  const nOf = k => { const f = byKey[k]; return f ? flat.filter(x => x.cid === f.cid).findIndex(x => x.k === k) + 1 : 0; };
+  const checksOf = k => ((D.SUMMARIES || {})[k] || {}).checks || [];
+  const first = s => [s.doneAt, s.firstDoneAt].filter(Boolean).sort()[0] || null;
+  const gf = s => !!(s && s.done && first(s) && first(s) < T.QUIZ_GATE_FROM);
+  const open = f => { const s = lessons[f.k]; return !!(s && s.done) && checksOf(f.k).length > 0 && !((s.quiz || {}).passedAt); };
+  const items = [].concat(...D.PSETS.map(g => g.items.map(i => Object.assign({ course: g.course }, i))));
+  const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+  const want = [];
+  flat.filter(f => open(f) && !gf(lessons[f.k])).forEach(f => {
+    const nx = flat[flat.indexOf(f) + 1], locks = !!nx && nx.cid === f.cid && T.lockedBy(nx.cid, nx.ui, nx.li);
+    want.push({ due: "quiz", id: f.k, title: "Lecture quiz · " + f.t, tag: "Quiz",
+      why: f.code + " · watched, not passed · " + plural(checksOf(f.k).length, "question") + (locks ? " · locks the next lecture" : ""), go: "Take it", href: "#/lesson/" + f.cid + "/" + f.ui + "/" + f.li });
+  });
+  flat.filter(f => open(f) && gf(lessons[f.k])).forEach(f => want.push({ due: "catchup", id: f.k, title: "Lecture quiz · " + f.t, tag: "Quiz",
+    why: f.code + " · catch-up · watched, not passed · " + plural(checksOf(f.k).length, "question"), go: "Take it", href: "#/lesson/" + f.cid + "/" + f.ui + "/" + f.li }));
+  items.filter(i => T.lessonCleared(i.after) && !psets[i.id]).forEach(i => want.push({ due: "pset", id: i.id, title: "Problem set · " + i.course + ", " + i.label, tag: "Problem set",
+    why: "Pen and paper · unlocked: you passed " + (byKey[i.after] || {}).t, go: "Open" }));
+  D.LABS.filter(l => T.lessonCleared(l.after) && l.phase <= phase && !(labs[l.id] || {}).done).forEach(l => want.push({ due: "lab", id: l.id, title: "Lab · " + l.title, tag: "Lab",
+    req: l.req, tail: " · Phase " + l.phase + " · ~" + l.hours + " h", go: "Start" }));
+  const misses = Object.keys(st.quizMisses || {}).some(b => (st.quizMisses[b] || []).some(i => {
+    const bank = (D.QUIZZES || {})[b], q = bank && bank.questions[i]; if (!q) return false;
+    if (q.after) return !!(lessons[q.after] || {}).done;
+    const c = D.COURSES.find(x => x.quiz === b); return !!c && flat.some(f => f.cid === c.id && (lessons[f.k] || {}).done); }));
+  if (misses) want.push({ due: "review", id: undefined, title: "Daily review", tag: null, why: "questions you missed, served back until they stick", go: "Start", href: "#/drill" });
   const z = window.__dz, fill = z.tok("--btn-bg");
-  const txt = (n, s) => { const x = n.querySelector(s); return x ? x.textContent.trim() : null; };
-  return {
-    phase,
-    want: {
-      rows: D.LABS.filter(l => l.phase === phase).map(l => ({ id: l.id, title: l.title, req: l.req, hours: l.hours, done: !!(labs[l.id] || {}).done })),
-      sets: D.PSETS.reduce((a, g) => a + g.items.filter(i => psets[i.id]).length, 0) + " of " + D.PSETS.reduce((a, g) => a + g.items.length, 0) + " done",
-      labs: D.LABS.filter(l => (labs[l.id] || {}).done).length + " of " + D.LABS.length + " shipped",
-    },
-    cards: vis("#view .pb-mode").map(c => {
-      const act = c.querySelector(".pb-foot a, .pb-foot button"), r = c.getBoundingClientRect(), ar = act ? act.getBoundingClientRect() : null;
-      return { mode: c.dataset.mode, title: txt(c, ".pb-t"), desc: txt(c, ".pb-d"), meta: txt(c, ".pb-m"), glyph: !!c.querySelector(".pb-glyph svg"),
-        left: Math.round(r.left), act: act ? { text: act.textContent.trim(), tag: act.tagName, href: act.getAttribute("href"), to: act.dataset.to || null,
-          w: ar.width, h: ar.height, filled: (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(act).backgroundColor)) } : null };
-    }),
-    rows: vis("#view .pb-labs .pb-lab").map(r => {
-      const cb = r.querySelector("input[data-lab]"), lb = r.querySelector("label");
-      return { id: cb ? cb.dataset.lab : null, checked: cb ? cb.checked : null, title: txt(r, ".pb-lt-t"), desc: txt(r, ".pb-lt-d"), hours: txt(r, ".pb-h"),
-        box: !!r.querySelector(".checkbox"), h: lb ? lb.getBoundingClientRect().height : 0 };
-    }),
-    head: (() => { const l = document.querySelector("#view #pbLabs"), g = l && l.previousElementSibling;
-      return g && g.matches(".ghead") ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null; })(),
-    phaseName: ["Phase 0 · Calibration", "Phase 1 · Foundations", "Phase 2 · Depth", "Phase 3 · Frontier"][phase],
-    statBox: document.querySelectorAll("#view .onecounts").length,
-    setsFold: !!document.querySelector("#view details#pbSets"), otherFold: [...document.querySelectorAll("#view details.unit .u-name")].map(n => n.textContent.trim()),
-  };
+  const txt = (n, sel) => { const x = sel ? n.querySelector(sel) : n; return x ? x.textContent.replace(/\s+/g, " ").trim() : null; };
+  const rows = [...document.querySelectorAll("#view #pdDue [data-due]")].map(n => {
+    const row = n.matches("details") ? n.querySelector("summary") : n, go = row.querySelector(".pd-go"), gr = go ? go.getBoundingClientRect() : null;
+    const tag = row.querySelector(".pd-tag"), m = row.querySelector(".pd-m");
+    return { due: n.dataset.due, id: n.dataset.id, title: txt(row, ".pd-t"), tag: tag ? tag.textContent.trim() : null,
+      why: m ? [...m.childNodes].filter(c => c !== tag).map(c => c.textContent).join("").replace(/\s+/g, " ").trim() : null,
+      go: go ? go.textContent.trim() : null, goW: gr ? gr.width : 0, goH: gr ? gr.height : 0, t: gr ? gr.top : 0, b: gr ? gr.bottom : 0, text: go ? go.textContent.trim() : null, rowH: row.getBoundingClientRect().height,
+      href: n.getAttribute("href"), visible: row.checkVisibility(),
+      filled: !!go && (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(go).backgroundColor)) };
+  });
+  const soon = [...document.querySelectorAll("#view .pd-soon [data-soon]")].map(n => ({ soon: n.dataset.soon, id: n.dataset.id, meta: txt(n, ".pd-m"), title: txt(n, ".pd-t") }));
+  const soonOk = soon.map(r => {
+    const it = r.soon === "pset" ? items.find(i => i.id === r.id) : D.LABS.find(l => l.id === r.id); if (!it) return r.id + ": unknown";
+    const L = byKey[it.after], at = "After lecture " + nOf(it.after) + " · " + (L || {}).t;
+    const locked = r.soon === "pset" ? !T.lessonCleared(it.after) && !psets[it.id] : !(labs[it.id] || {}).done && (!T.lessonCleared(it.after) || it.phase > phase);
+    const meta = r.soon === "pset" ? at : at + " · Phase " + it.phase;
+    return locked && r.meta === meta ? null : r.id + ": \"" + r.meta + "\" (want \"" + meta + "\", locked " + locked + ")";
+  }).filter(Boolean);
+  const empty = document.querySelector("#view .pd-empty"), ea = empty && empty.querySelector("a[href]");
+  const all = document.querySelector("#view details#pbAll");
+  return { phase, want, rows, soon, soonOk, count: txt(document, "#view .pd-count"),
+    empty: empty ? { text: txt(empty), href: ea ? ea.getAttribute("href") : null } : null,
+    how: [...document.querySelectorAll("#view .pd-how > div")].map(d => ({ b: txt(d, "b"), text: txt(d) })),
+    howCols: new Set([...document.querySelectorAll("#view .pd-how > div")].map(d => Math.round(d.getBoundingClientRect().left))).size,
+    all: all ? { open: all.open, sum: txt(all, "summary .u-name") } : null,
+    oldModes: document.querySelectorAll("#view .pb-mode").length };
 }
 function t26bExams() {
   const D = window.DAR, z = window.__dz, st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
@@ -3823,64 +3850,52 @@ function t28SeedClips(list) {
   const inView = (p, f) => p.scrollY === 0 && !!f && f.t >= p.top - 0.5 && f.b <= p.floor + 0.5;
   const where = f => f ? f.text + " at " + f.t.toFixed(0) + "-" + f.b.toFixed(0) : "none";
 
+  // T-045 replaced the page T-026b measured here (the mode cards, the
+  // phase's lab list and their Opens): what stays is the header, the one
+  // filled primary inside the first viewport, and that reading the page
+  // writes nothing. The rest is T-045's own check, on every state.
+  const T45_HOW = [["Lecture quiz", "After every lecture. Pass it to count the lecture and open the next one."],
+    ["Problem set", "Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions."],
+    ["Lab", "A build project, one or two per phase. Done when it’s on GitHub and meets its checklist."]];
+  const T45_ORDER = ["quiz", "catchup", "pset", "lab", "review"];
+  async function t45Check(page, at, o, chk) {
+    const p = await page.evaluate(t26bPrimary), m = await page.evaluate(t45Problems);
+    chk(at + " /workshop: the header is h1 \"Problems\" and \"" + T26B_HEAD["/workshop"][1] + "\"", headOk(p, "/workshop"), JSON.stringify(p.head));
+    const key = r => r.due + ":" + r.id;
+    const got = m.rows.map(key), want = m.want.map(key);
+    const sorted = (a, b) => a.slice().sort().join() === b.slice().sort().join();
+    const ordered = m.rows.every((r, i) => i === 0 || T45_ORDER.indexOf(m.rows[i - 1].due) <= T45_ORDER.indexOf(r.due));
+    chk(at + " /workshop: \"Due now\" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (" + m.phase + "), then the review — and its count says so",
+      sorted(got, want) && ordered && m.count === String(m.want.length), "shows [" + got.join(", ") + "], want [" + want.join(", ") + "], count " + m.count);
+    const bad = m.rows.map(r => {
+      const w = m.want.find(x => key(x) === key(r)); if (!w) return null;
+      const why = w.due === "lab" ? r.why && r.why.endsWith(w.tail) && w.req.indexOf(r.why.slice(0, -w.tail.length).replace(/…$/, "")) === 0 : r.why === w.why;
+      const ok = r.title === w.title && r.tag === w.tag && why && r.go === w.go && (!w.href || r.href === w.href) && r.visible && r.goW >= 44 && r.goH >= 44 && r.rowH >= 44;
+      return ok ? null : JSON.stringify(r) + " want " + JSON.stringify(w);
+    }).filter(Boolean);
+    chk(at + " /workshop: each due row has its title, its tag, its why-line and its action (Take it / Open / Start), the action and the row >= 44px",
+      bad.length === 0, bad.join(" | ") || m.rows.map(r => r.tag + " \"" + r.why + "\"").join("; ") || "no rows");
+    // t26bPrimary reads <a>/<button>; a row's action is a span painted like
+    // a button inside the row (the row is the link), so both are counted.
+    const filled = p.filled.map(f => f.text).concat(m.rows.filter(r => r.filled).map(r => r.go));
+    chk(at + " /workshop: at most one filled primary, and it is the first row's action", filled.length <= 1 && (m.rows.length ? m.rows[0].filled : true),
+      (filled.join(" | ") || "none") + (m.rows[0] ? ", first row " + m.rows[0].go + (m.rows[0].filled ? " filled" : "") : ""));
+    if (m.rows.length) chk(at + " /workshop: the primary is inside the first viewport", inView(p, m.rows[0]), where(m.rows[0]) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
+    chk(at + " /workshop: the empty state shows exactly when nothing is due: \"Nothing due. Your next lecture is ‹title›.\" with a link",
+      m.want.length ? !m.empty : !!m.empty && /^Nothing due\. Your next lecture is .+\.$/.test(m.empty.text) && /^#\/(lesson\/|courses)/.test(m.empty.href || ""),
+      JSON.stringify(m.empty));
+    chk(at + " /workshop: \"How this works\" is three columns — Lecture quiz, Problem set, Lab — in the mockup's words",
+      m.how.length === 3 && m.how.every((h, i) => h.b === T45_HOW[i][0] && h.text === T45_HOW[i][0] + T45_HOW[i][1]) && m.howCols === (o.w >= 861 ? 3 : 1),
+      m.how.map(h => h.b).join(" | ") + ", " + m.howCols + " column(s)");
+    chk(at + " /workshop: \"Coming up\" has 3 rows or fewer, each still locked and reading \"After lecture n · ‹title›\"",
+      m.soon.length <= 3 && m.soonOk.length === 0, m.soon.length + " rows" + (m.soonOk.length ? "; " + m.soonOk.join("; ") : ": " + m.soon.map(r => r.meta).join(" | ")));
+    chk(at + " /workshop: the catalogue is behind a closed \"Everything\" disclosure, and the mode cards are gone",
+      !!m.all && !m.all.open && m.all.sum === "Everything" && m.oldModes === 0, JSON.stringify(m.all) + ", " + m.oldModes + " mode cards");
+    return m;
+  }
   async function t26bProblems(page, at, o) {
     await go(page, "/workshop");
-    const p = await page.evaluate(t26bPrimary), m = await page.evaluate(t26bWorkshop);
-    c26b(at + " /workshop: the header is h1 \"Problems\" and \"" + T26B_HEAD["/workshop"][1] + "\"", headOk(p, "/workshop"), JSON.stringify(p.head));
-    c26b(at + " /workshop: three mode cards — Daily drill, Problem sets, Labs — each a glyph tile, a title and a one-line description",
-      m.cards.map(c => c.title).join("|") === "Daily drill|Problem sets|Labs" && m.cards.every(c => c.glyph && !!c.desc),
-      m.cards.map(c => c.title + (c.glyph ? "" : " (no glyph)")).join(", "));
-    if (o.cols) {
-      const cols = new Set(m.cards.map(c => c.left)).size;
-      c26b(at + " /workshop: the mode cards are " + o.cols + " column" + (o.cols === 1 ? "" : "s") + " wide", cols === o.cols, cols + " distinct columns");
-    }
-    const f = p.filled[0];
-    c26b(at + " /workshop: Daily drill holds the only filled primary — \"Start\" to #/drill — and reads \"10 min\"",
-      p.filled.length === 1 && f.mode === "drill" && f.href === "#/drill" && f.text === "Start" && m.cards[0] && m.cards[0].meta === "10 min",
-      p.filled.map(x => (x.mode || "?") + " \"" + x.text + "\" " + x.href).join("; ") || "no filled button in the view");
-    c26b(at + " /workshop: the primary is inside the first viewport (under the bar, above the tab bar and the Next bar)", inView(p, f),
-      where(f) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0) + ", scrollY " + p.scrollY);
-    const opens = [1, 2].map(i => m.cards[i] && m.cards[i].act);
-    c26b(at + " /workshop: Problem sets reads \"" + m.want.sets + "\" and Labs \"" + m.want.labs + "\", each with an Open pill >= 44x44 that is not filled",
-      !!m.cards[2] && m.cards[1].meta === m.want.sets && m.cards[2].meta === m.want.labs &&
-        opens.every(a => a && a.text === "Open" && !a.filled && a.w >= 44 && a.h >= 44),
-      m.cards.slice(1).map(c => "\"" + c.meta + "\" " + (c.act ? c.act.text + " " + c.act.w.toFixed(0) + "x" + c.act.h.toFixed(0) + (c.act.filled ? " filled" : "") : "no action")).join("; "));
-    c26b(at + " /workshop: the stat box is gone (no .onecounts in the view)", m.statBox === 0, m.statBox + " found");
-    c26b(at + " /workshop: \"This phase’s labs\" heads the list, its meta the phase (" + m.phaseName + ")",
-      !!m.head && m.head.t === "This phase’s labs" && m.head.meta === m.phaseName, JSON.stringify(m.head));
-    const rowsOk = m.rows.length === m.want.rows.length && m.rows.every((r, i) => {
-      const w = m.want.rows[i];
-      return r.id === w.id && r.title === w.title && r.hours === "~" + w.hours + " h" && r.checked === w.done && r.box && r.h >= 44;
-    });
-    c26b(at + " /workshop: the list has one row per lab of phase " + m.phase + " (" + m.want.rows.length + "), in order — a checkbox, the title, ~N h, ticked as stored, >= 44px",
-      m.want.rows.length > 0 && rowsOk, m.rows.map(r => r.id + " \"" + r.title + "\" " + r.hours + (r.checked ? " [x]" : " [ ]") + " " + r.h.toFixed(0) + "px").join("; "));
-    const descBad = m.rows.filter((r, i) => {
-      const w = m.want.rows[i]; if (!w || !r.desc) return true;
-      const d = r.desc.replace(/…$/, ""), cut = d !== r.desc;
-      const next = w.req.charAt(d.length);
-      return r.desc.length > 51 || !d.length || w.req.indexOf(d) !== 0 || /[;,]/.test(d) || /[A-Za-z0-9]/.test(next) ||
-        (!cut && !/^([;,:.]|\s—|$)/.test(w.req.slice(d.length)));
-    });
-    c26b(at + " /workshop: each row's description is its lab's first clause, at most ~50 characters, cut only at the end of a word",
-      m.rows.length > 0 && descBad.length === 0, (descBad.length ? "bad: " : "") + (descBad.length ? descBad : m.rows).map(r => "\"" + r.desc + "\"").join("; "));
-    c26b(at + " /workshop: the problem sets" + (m.otherFold.length > 1 ? " and the other phases' labs" : "") + " stay behind their folds, under the list",
-      m.setsFold && m.otherFold.indexOf("Problem sets — pen and paper") >= 0 && (m.phase === 3 || m.otherFold.indexOf("Labs in the other phases") >= 0),
-      m.otherFold.join(" | "));
-    if (o.click) {
-      const w0 = await writesNow(page);
-      await page.click("#view .pb-mode[data-mode=sets] .pb-open");
-      const sets = await page.waitForFunction(() => { const d = document.querySelector("#view details#pbSets"); if (!d || !d.open) return false;
-        const t = document.querySelector("#topbar"), top = t && t.checkVisibility() ? t.getBoundingClientRect().bottom : 0, r = d.getBoundingClientRect();
-        return r.top >= top - 1 && r.top < window.innerHeight * 0.6; }, null, { timeout: 4000, polling: "raf" }).then(() => true, () => false);
-      c26b(at + " /workshop: Problem sets' Open opens the problem-set fold and brings it into view", sets);
-      await page.click("#view .pb-mode[data-mode=labs] .pb-open");
-      const labs = await page.waitForFunction(() => { const d = document.querySelector("#view #pbLabs");
-        const t = document.querySelector("#topbar"), top = t && t.checkVisibility() ? t.getBoundingClientRect().bottom : 0, r = d.getBoundingClientRect();
-        return r.top >= top - 1 && r.top < window.innerHeight * 0.6; }, null, { timeout: 4000, polling: "raf" }).then(() => true, () => false);
-      c26b(at + " /workshop: Labs' Open brings the labs list into view", labs);
-      const w1 = await writesNow(page);
-      c26b(at + " /workshop: both Opens are in memory — no save() (state writes " + w0 + " -> " + w1 + ")", w1 === w0);
-    }
+    await t45Check(page, at, o, c26b);
   }
 
   async function t26bExamsCheck(page, at, o) {
@@ -4076,7 +4091,7 @@ function t28SeedClips(list) {
   // of a word on different lines), at 8 widths x 3 root sizes, on a state that
   // draws all of it: labs ticked, a passed exam (a score pill on a card), a
   // chain; and day 1 for the locked rows, expanded past "+N more".
-  const T26B_TEXT = "#view .page-head, #view .pb-modes, #view .pb-labs, #view .ghead, #view .ex-hero, #view .ex-open, #view .ex-locked, " +
+  const T26B_TEXT = "#view .page-head, #view .pb-modes, #view .pb-labs, #view .ghead, #view .pd-list, #view .pd-how, #view .pd-empty, #view .ex-hero, #view .ex-open, #view .ex-locked, " +
     "#view .ex-more, #view .pf-tiles, #view .pf-seals, #view .pf-pills, #view .pf-heat, #view .shelf-empty";
   const T26B_OW = [320, 360, 390, 640, 768, 1100, 1280, 1440];
   for (const root of [16, 20, 24]) {
@@ -4756,6 +4771,52 @@ function t28SeedClips(list) {
     }
   }
 
+  // =================== T-045: Problems shows what's due now ===================
+  // loop/specs/T-045-problems-due-now/spec.md, criterion 2; the mockup is
+  // loop/design/specimen-problems-v2.png. At 1440 and 390, Dark and Light,
+  // on five stored states at the pinned clock (Tue 20 Oct 2026, phase 1):
+  // one quiz waiting, one catch-up quiz, one pset unlocked, one lab due (with
+  // a phase-2 lab's lecture also cleared, so a lab shown before its phase
+  // fails), and nothing due. t45Check works out what is due from storage and
+  // the data files; here each state also asserts it is the one row it names
+  // (so a fixture that stopped meaning anything fails), and the dashboard's
+  // "n due on Problems" line is there exactly when something is due.
+  let t45Checks = 0;
+  const c45 = (name, ok, detail) => { t45Checks++; return check(name, ok, detail); };
+  const T45_L = (d, pass) => Object.assign({ done: true, doneAt: d, notes: "", checks: [] },
+    pass ? { quiz: { passedAt: d, at: d + "T10:00:00.000Z", firstTry: pass, total: pass, attempts: pass } } : {});
+  const T45_STATES = [
+    { name: "one quiz waiting", one: "quiz:math120.1.0", lessons: { "math120.1.0": T45_L("2026-10-20") } },
+    { name: "one catch-up quiz", one: "catchup:math130.0.0", lessons: { "math130.0.0": T45_L("2026-10-10") } },
+    { name: "one pset unlocked", one: "pset:1806-ps1", lessons: { "math110.1.1": T45_L("2026-10-19", 2) } },
+    { name: "one lab due (and a phase-2 lab's lecture cleared)", one: "lab:micrograd-blind",
+      lessons: { "ai200.1.0": T45_L("2026-10-07", 8), "ai200.1.8": T45_L("2026-10-19", 8) } },
+    { name: "nothing due", one: null, lessons: {} },
+  ];
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      for (const st of T45_STATES) {
+        const at = o.w + "px " + theme + ", " + st.name;
+        console.log("\nT-045 " + at);
+        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, empty: true, patch: { lessons: st.lessons } }, o));
+        const w0 = await writesNow(page);
+        await go(page, "/workshop");
+        const m = await t45Check(page, at, o, c45);
+        const got = m.rows.map(r => r.due + ":" + r.id);
+        c45(at + ": the fixture is what it names — " + (st.one ? "exactly one row, " + st.one : "no row"),
+          st.one ? got.join() === st.one : got.length === 0, got.join(", ") || "no rows");
+        await go(page, "/");
+        const line = await page.evaluate(() => { const a = document.querySelector(".card.one.lead a.one-due");
+          return a ? { text: a.textContent.trim(), href: a.getAttribute("href"), h: a.getBoundingClientRect().height, vis: a.checkVisibility() } : null; });
+        c45(at + ": the Today card " + (m.want.length ? "reads \"" + m.want.length + " due on Problems\", linking to #/workshop, >= 44px" : "has no Problems line"),
+          m.want.length ? !!line && line.text === m.want.length + " due on Problems" && line.href === "#/workshop" && line.vis && line.h >= 44 : !line, JSON.stringify(line));
+        const w1 = await writesNow(page);
+        c45(at + ": reading both pages wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
+        await ctx.close();
+      }
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -4787,7 +4848,8 @@ function t28SeedClips(list) {
       "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, " + T26C_STATES.length + " more Week states at 1440/390, ‹ › Today tapped and keyed " +
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
-      "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)"
+      "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
+      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

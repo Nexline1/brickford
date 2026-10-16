@@ -1149,18 +1149,17 @@
   }
   // The lecture's own date in the plan: the first study day the fixed plan
   // gives it, read with no work-ahead re-anchoring (planOnly), so progress
-  // can never move it. Built once; the plan does not depend on S. A lecture
-  // the plan never schedules has none.
-  let planOnly = false, _planDate = null;
+  // can never move it. Walked lazily, a study day at a time and only as far
+  // as a lookup needs (most ask about lectures near today), and remembered:
+  // the plan does not depend on S. A lecture the plan never schedules has none.
+  let planOnly = false, _planNext = 0;
+  const _planDate = {};
   function planDateOf(k) {
-    if (!_planDate) {
-      _planDate = {};
+    while (!_planDate[k] && _planNext < 1300) {
+      const iso = dateForStudy(_planNext++);
       planOnly = true;
       try {
-        for (let i = 0; i < 1300; i++) {
-          const iso = dateForStudy(i);
-          scheduledFor(iso).forEach(it => { if (!it.pseudo) { const kk = lessonKey(it.cid, it.ui, it.li); if (!_planDate[kk]) _planDate[kk] = iso; } });
-        }
+        scheduledFor(iso).forEach(it => { if (!it.pseudo) { const kk = lessonKey(it.cid, it.ui, it.li); if (!_planDate[kk]) _planDate[kk] = iso; } });
       } finally { planOnly = false; }
     }
     return _planDate[k] || null;
@@ -1171,8 +1170,8 @@
   // watched or not (it stays owed, and on the catch-up list once watched).
   // From go-live on: it has a quiz, the quiz is not passed, and it is not
   // grandfathered. A quiz-less lecture never blocks.
-  const lessonBlocks = k => (planDateOf(k) || "9999") >= QUIZ_GATE_FROM &&
-    !!lessonQuiz(k) && !quizPassed(k) && !grandfathered(S.lessons[k]);
+  const lessonBlocks = k => !!lessonQuiz(k) && !quizPassed(k) && !grandfathered(S.lessons[k]) &&
+    (planDateOf(k) || "9999") >= QUIZ_GATE_FROM;
   // The lecture that locks (cid, ui, li), or null. The first lecture of a
   // course is never locked, and neither is one already watched — the lock
   // guards a video not yet seen (a lecture watched before the gate is the

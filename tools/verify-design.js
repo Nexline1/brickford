@@ -4614,9 +4614,18 @@ function t28SeedClips(list) {
     // Review r1: every text-bearing element in the quiz card, measured against
     // what is painted behind it (z.backdrop), at the 4.5:1 text threshold —
     // the miss state's tinted option fills included.
+    // The tinted option fills are color-mix() results, which compute to
+    // "color(srgb r g b)" — a form the canvas in z.bytes does not take (it
+    // read them as black, and a planted --ink-3 key passed). Parsed here.
+    const px = c => { let m = /^color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+      if (m) return [m[1], m[2], m[3]].map(v => Math.round(+v * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255));
+      return z.bytes(c); };
+    const behind = el => { const stack = [];
+      for (let n = el; n; n = n.parentElement) { const b = px(getComputedStyle(n).backgroundColor); if (b[3] === 0) continue; stack.push(b); if (b[3] === 255) break; }
+      let base = [255, 255, 255, 255]; for (let i = stack.length - 1; i >= 0; i--) base = z.over(stack[i], base); return base; };
     const lowInk = card ? [...card.querySelectorAll("*")].filter(n => n.checkVisibility() &&
       [...n.childNodes].some(c => c.nodeType === 3 && c.textContent.trim())).map(n => {
-        const r = z.ratio(z.over(z.bytes(getComputedStyle(n).color), z.backdrop(n)), z.backdrop(n));
+        const r = z.ratio(z.over(px(getComputedStyle(n).color), behind(n)), behind(n));
         return { n: n.className || n.tagName, t: n.textContent.trim().slice(0, 16), r: +r.toFixed(2) };
       }).filter(x => x.r < 4.5) : null;
     return {

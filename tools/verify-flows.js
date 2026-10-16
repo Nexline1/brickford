@@ -847,6 +847,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     {
       const { ctx, page, errors } = await fresh(browser, w, null);
       await go(page, "/workshop");
+      // T-045: the catalogue sits behind "Everything" now; it is opened as a
+      // reader would, by pressing its summary, before the lab is looked for.
+      await page.click("#view details#pbAll > summary");
       const lab = await page.evaluate(() => {
         const cb = [...document.querySelectorAll("#view input[data-lab]")].find(i => i.closest("label").checkVisibility());
         if (!cb) return null;
@@ -2081,6 +2084,59 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     check("(n) no page errors (the other device)", errors2.length === 0, errors2.join(" | "));
     await ctx2.close();
   });
+
+  // ---- (pd) T-045: Problems, as what is due now ----
+  // A lecture watched with its quiz not passed, and 18.06 Pset 1 unlocked
+  // (its lecture, Elimination with Matrices, watched and passed). "Take it"
+  // on the quiz row opens that lecture's quiz; passing it takes the row off
+  // Problems. "Open" on the pset shows its source and its done toggle;
+  // ticking it takes that row off too, and stores S.psets as before.
+  for (const w of WIDTHS) {
+    console.log("\nProblems: due now (" + w + "px)");
+    const st = { lessons: {
+      "math120.1.0": { done: true, doneAt: TODAY, notes: "", checks: [] },
+      "math110.1.1": { done: true, doneAt: TODAY, notes: "", checks: [], quiz: { passedAt: TODAY, at: TODAY + "T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } } };
+    const { ctx, page, errors } = await fresh(browser, w, st, "/__test");
+    const due = () => page.evaluate(() => [...document.querySelectorAll("#view #pdDue [data-due]")].map(n => n.dataset.due + ":" + n.dataset.id));
+    await go(page, "/workshop");
+    const d0 = await due();
+    check("(pd) /workshop lists the quiz waiting and the unlocked pset", d0.includes("quiz:math120.1.0") && d0.includes("pset:1806-ps1"), d0.join(", "));
+    await markView(page);
+    await page.click('#view #pdDue a[data-due=quiz][data-id="math120.1.0"]');
+    await viewReplaced(page);
+    const opened = await page.waitForSelector("#view #lqMount .lq-card", { timeout: 4000 }).then(() => true, () => false);
+    check("(pd) \"Take it\" opens that lecture's quiz", opened && /#\/lesson\/math120\/1\/0$/.test(page.url()), page.url().split("#")[1]);
+    const bank = await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.map(q => ({ a: q.a, num: q.num, opts: q.opts ? q.opts.length : 0 })));
+    for (let guard = 0; guard < 2 * bank.length + 2; guard++) {
+      const cur = await page.evaluate(() => { const c = document.querySelector("#view #lqMount .lq-card");
+        return c ? { q: +c.dataset.q, order: [...c.querySelectorAll(".opt")].map(b => +b.dataset.o) } : null; });
+      if (!cur) break;
+      const b = bank[cur.q];
+      if (b.opts) await page.click("#view #lqMount .opt >> nth=" + cur.order.indexOf(b.a));
+      else { await page.fill("#view #numAns", String(b.num)); await page.click("#view #numGo"); }
+      await page.waitForFunction(() => getComputedStyle(document.querySelector("#view #nextBtn")).visibility === "visible", null, { timeout: 4000 });
+      const last = await page.evaluate(() => document.querySelector("#view #nextBtn").textContent.trim() === "Finish");
+      await markView(page).catch(() => {});
+      await page.click("#view #nextBtn");
+      if (last) { await viewReplaced(page); break; }
+    }
+    const passed = !!((await stored(page, "math120.1.0")) || {}).quiz;
+    await go(page, "/workshop");
+    const d1 = await due();
+    check("(pd) passing it takes the quiz row off Problems", passed && !d1.includes("quiz:math120.1.0") && d1.includes("pset:1806-ps1"), "passed " + passed + "; " + d1.join(", "));
+    const sel = '#view #pdDue details[data-due=pset][data-id="1806-ps1"]';
+    await page.click(sel + " > summary");
+    const body = await page.evaluate(s => { const d = document.querySelector(s), a = d && d.querySelector(".pd-body a[href]"), cb = d && d.querySelector("input[data-pset]");
+      return d ? { open: d.open, src: a ? a.getAttribute("href") : null, srcVis: !!a && a.checkVisibility(), cb: !!cb && cb.closest("label").checkVisibility() } : null; }, sel);
+    check("(pd) \"Open\" on the pset shows its source link and its done toggle", !!body && body.open && /^https:\/\/ocw\.mit\.edu\//.test(body.src || "") && body.srcVis && body.cb, JSON.stringify(body));
+    await markView(page);
+    await page.click(sel + " label:has(input[data-pset])");
+    await viewReplaced(page);
+    const d2 = await due(), ps = await page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").psets || {})["1806-ps1"]);
+    check("(pd) marking it done stores psets[\"1806-ps1\"] = true and takes the row off Problems", ps === true && !d2.includes("pset:1806-ps1"), "stored " + ps + "; " + (d2.join(", ") || "nothing due"));
+    check("(pd) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
 
   await browser.close();
   console.log("");

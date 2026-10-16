@@ -1,0 +1,19 @@
+(a) a pset shows before its after lecture is cleared -> tools/verify-design.js exit 1 (77 FAIL lines)
+      FAIL  1440px dark /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — and its count says so — shows [quiz:math110.0.0, q
+      FAIL  390px dark /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — and its count says so — shows [quiz:math110.0.0, qu
+      FAIL  1440px light /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — and its count says so — shows [quiz:math110.0.0, 
+      FAIL  390px light /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — and its count says so — shows [quiz:math110.0.0, q
+      FAIL  1440px dark, labs and problem sets done /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — and its count says so 
+      FAIL  390px dark, labs and problem sets done /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — and its count says so —
+(b) a lab shows before its phase -> tools/verify-design.js exit 1 (13 FAIL lines)
+      FAIL  1440px dark, one lab due (and a phase-2 lab's lecture cleared) /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review —
+      FAIL  1440px dark, one lab due (and a phase-2 lab's lecture cleared): the fixture is what it names — exactly one row, lab:micrograd-blind — lab:micrograd-blind, lab:gpt2-repro
+      FAIL  1440px dark, one lab due (and a phase-2 lab's lecture cleared): the Today card reads "1 due on Problems", linking to #/workshop, >= 44px — {"text":"2 due on Problems","href":"#/workshop","h":44,"vis":true}
+      FAIL  390px dark, one lab due (and a phase-2 lab's lecture cleared) /workshop: "Due now" lists exactly what is due — quizzes waiting, then catch-up, then psets whose lecture is cleared, then labs cleared AND in phase (1), then the review — 
+      FAIL  390px dark, one lab due (and a phase-2 lab's lecture cleared): the fixture is what it names — exactly one row, lab:micrograd-blind — lab:micrograd-blind, lab:gpt2-repro
+      FAIL  390px dark, one lab due (and a phase-2 lab's lecture cleared): the Today card reads "1 due on Problems", linking to #/workshop, >= 44px — {"text":"2 due on Problems","href":"#/workshop","h":44,"vis":true}
+(c) an after names a lesson that does not exist -> tools/verify-content.js exit 1 (2 FAIL lines)
+      FAIL T-045 1806-ps3: after "math110.1.99" is a real lesson
+      1 of 40288 checks FAILED
+ALL PLANTS EXIT 1
+exit 0

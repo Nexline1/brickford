@@ -74,7 +74,7 @@
 //   - reduced motion: the inline title is opaque in the same task the class
 //     that shows it lands, with no transition — and with motion allowed the
 //     same measurement does see a fade, so it is not blind;
-//   - a render is a read: scrolling /lesson/math110/0/13 (a video on the page)
+//   - a render is a read: scrolling /lesson/math120/0/0 (a video on the page; T-043)
 //     through the title and edge states writes no state, rebuilds no view and
 //     keeps the same <iframe> node.
 // T-007, the lists (loop/specs/T-007-inset-grouped-lists/spec.md), at 390 and
@@ -1821,7 +1821,10 @@ const T26C_PATCH = {
     "math110.0.3": { done: true, verified: true, doneAt: "2026-10-24", verifiedAt: "2026-10-24", notes: "", checks: [] },
     "math110.0.4": { done: true, verified: true, doneAt: "2026-10-25", verifiedAt: "2026-10-25", notes: "", checks: [] },
     "math110.0.5": { done: true, verified: true, doneAt: "2026-10-26", verifiedAt: "2026-10-26", notes: "", checks: [] },
-    "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] },
+    // T-043: a lecture counts once watched AND its quiz is passed, so the
+    // day's one done lecture carries its pass (a quiz pass added, nothing else).
+    "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [],
+      quiz: { passedAt: "2026-10-20", at: "2026-10-20T11:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
   },
   treasury: { offer: "", clients: [], niche: "", entries: [
     { date: "2026-10-18", amount: 999, note: "the last day of week 2" },
@@ -1943,14 +1946,36 @@ function t26cDay([iso, fac]) {
   const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
   const txt = (n, s) => { const x = n && n.querySelector(s); return x ? x.textContent.trim() : null; };
   const col = (n, p) => n ? z.bytes(getComputedStyle(n)[p || "color"]) : null;
+  // T-043 (review r1): a locked lecture's block links to the first quiz in
+  // its chain of locks. Walked here from storage and the summaries' checks:
+  // a lecture not yet watched is locked while the one before it has a quiz
+  // that is not passed and was not watched before QUIZ_GATE_FROM; the chain
+  // runs back through lectures that are themselves locked.
+  const gate = T.QUIZ_GATE_FROM, sums = D.SUMMARIES || {};
+  // Only a lecture planned on or after the gate blocks (owner, 2026-10-15:
+  // "lock from go-live only"); the plan date is the app's planDateOf.
+  const blocksNext = k => { const s0 = lessons[k] || {}; return (T.planDateOf(k) || "9999") >= gate && !!((sums[k] || {}).checks || []).length && !(s0.quiz && s0.quiz.passedAt) &&
+    !(s0.done && [s0.doneAt, s0.firstDoneAt].filter(Boolean).sort()[0] < gate); };
+  const rootOf = it => {
+    const flat = []; D.COURSES.find(x => x.id === it.cid).units.forEach((u, ui) => u.lessons.forEach((_, li) => flat.push(it.cid + "." + ui + "." + li)));
+    let i = flat.indexOf(it.cid + "." + it.ui + "." + it.li), root = null;
+    while (i > 0 && !(lessons[flat[i]] || {}).done && blocksNext(flat[i - 1])) { root = flat[i - 1]; i--; }
+    return root ? "#/lesson/" + root.split(".").join("/") : null;
+  };
   const want = T.scheduledFor(iso).map(it => {
     if (it.pseudo) return { pseudo: true, href: it.href };
     const c = D.COURSES.find(x => x.id === it.cid);
     let n = it.li + 1;
     for (let u = 0; u < it.ui; u++) n += c.units[u].lessons.length;
-    return { href: "#/lesson/" + it.cid + "/" + it.ui + "/" + it.li, k: c.code + " · " + it.track, t: it.l.t,
+    const dnK = (st0 => !!st0.done && (!!(st0.quiz && st0.quiz.passedAt) || !(((D.SUMMARIES || {})[it.cid + "." + it.ui + "." + it.li] || {}).checks || []).length ||
+        (!!st0.doneAt && st0.doneAt < T.QUIZ_GATE_FROM)))(lessons[it.cid + "." + it.ui + "." + it.li] || {});
+    return { href: (!dnK && rootOf(it)) || "#/lesson/" + it.cid + "/" + it.ui + "/" + it.li, k: c.code + " · " + it.track, t: it.l.t,
       r: [it.l.min ? it.l.min + " min" : it.l.paper ? "paper" : "reading", it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n],
-      done: !!(lessons[it.cid + "." + it.ui + "." + it.li] || {}).done, fac: z.tok(fac[c.faculty] || "--accent"), faculty: c.faculty };
+      // T-043: done is watched AND cleared — its quiz passed, no quiz at all
+      // (the summary's checks, data), or watched before QUIZ_GATE_FROM.
+      done: (st0 => !!st0.done && (!!(st0.quiz && st0.quiz.passedAt) || !(((D.SUMMARIES || {})[it.cid + "." + it.ui + "." + it.li] || {}).checks || []).length ||
+        (!!st0.doneAt && st0.doneAt < T.QUIZ_GATE_FROM)))(lessons[it.cid + "." + it.ui + "." + it.li] || {}),
+      fac: z.tok(fac[c.faculty] || "--accent"), faculty: c.faculty };
   });
   const blocks = vis("#view .cd-blk").map(b => {
     const k = b.querySelector(".cd-k"), t = b.querySelector(".cd-t"), bar = b.querySelector(".cd-bar");
@@ -2913,7 +2938,10 @@ function t28SeedClips(list) {
       { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light" }, "light");
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
-    await go(page, "/lesson/math110/0/13");
+    // T-043: a watched lecture's video collapses to the watched bar, and the
+    // seed has MATH 110 lectures 1 and 14 watched (so 2 is locked); the first
+    // lecture of MATH 120 is open, unwatched, and has its video on the page.
+    await go(page, "/lesson/math120/0/0");
     const before = await page.evaluate(() => {
       const f = document.querySelector("#view .video-frame iframe");
       if (f) f.dataset.designStamp = "original";
@@ -4546,6 +4574,188 @@ function t28SeedClips(list) {
     await ctx.close();
   }
 
+  // =================== T-043: the lecture quiz gate ===================
+  // loop/specs/T-043-lecture-quiz-gate/spec.md, criterion 4; the mockups are
+  // loop/design/specimen-lesson-quiz.png and specimen-lesson-passed.png. At
+  // 1440 and 390, Dark and Light: the page before "watched", the quiz after a
+  // miss, the pass with Go deeper, the locked lecture, and the dashboard
+  // pointing at a quiz. Each state has at most one filled primary in the
+  // view (t26bPrimary: a visible <a>/<button> painted --btn-bg); the watched
+  // bar's Rewatch is >= 44x44; the cards and tiles are painted --surface.
+  let t43Checks = 0;
+  const c43 = (name, ok, detail) => { t43Checks++; return check(name, ok, detail); };
+  const T43_PASS = (d, ft, n) => ({ passedAt: d, at: d + "T10:00:00.000Z", firstTry: ft, total: n, attempts: n + 1 });
+  const T43_STATES = [
+    { name: "before watched", route: "/lesson/math120/1/0",
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) } } } },
+    { name: "the quiz after a miss", route: "/lesson/math120/1/0", miss: true,
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+    { name: "passed, with Go deeper", route: "/lesson/math110/0/13",
+      patch: { lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", notes: "n", checks: [true], solved: 3, recall: "x".repeat(200),
+        verifiedAt: "2026-10-19", quiz: T43_PASS("2026-10-19", 2, 3) } } } },
+    // One quiz in the way: lecture 13 watched, its quiz not passed.
+    { name: "the locked lecture", route: "/lesson/math120/1/1",
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+    { name: "the dashboard pointing at a quiz", route: "/", patch: null },
+    { name: "the dashboard pointing at a watched lecture's quiz", route: "/",
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+  ];
+  function t43Measure() {
+    const z = window.__dz, surface = z.tok("--surface");
+    const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+    const box = n => { const r = n.getBoundingClientRect(); return { w: +r.width.toFixed(1), h: +r.height.toFixed(1) }; };
+    const bgOk = n => !!n && z.same(z.bytes(getComputedStyle(n).backgroundColor), surface, 2);
+    const txt = sel => { const n = document.querySelector(sel); return n ? n.textContent.replace(/\s+/g, " ").trim() : null; };
+    const card = document.querySelector("#view .lq-card"), pass = document.querySelector("#view .lq-pass"), lock = document.querySelector("#view .lq-lock");
+    const rw = document.querySelector("#view .lq-rewatch");
+    // Review r1: every text-bearing element in the quiz card, measured against
+    // what is painted behind it (z.backdrop), at the 4.5:1 text threshold —
+    // the miss state's tinted option fills included.
+    // The tinted option fills are color-mix() results, which compute to
+    // "color(srgb r g b)" — a form the canvas in z.bytes does not take (it
+    // read them as black, and a planted --ink-3 key passed). Parsed here.
+    // Chromium also serialises some of them as oklab(L a b), converted here
+    // with the standard OKLab -> linear sRGB matrices.
+    const px = c => { let m = /^color\(srgb ([-\d.e]+) ([-\d.e]+) ([-\d.e]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+      if (m) return [m[1], m[2], m[3]].map(v => Math.round(Math.min(1, Math.max(0, +v)) * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255));
+      m = /^oklab\(([-\d.e]+) ([-\d.e]+) ([-\d.e]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+      if (m) {
+        const L = +m[1], A = +m[2], B = +m[3];
+        const l = Math.pow(L + 0.3963377774 * A + 0.2158037573 * B, 3), mm = Math.pow(L - 0.1055613458 * A - 0.0638541728 * B, 3), s3 = Math.pow(L - 0.0894841775 * A - 1.2914855480 * B, 3);
+        const lin = [4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s3, -1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s3, -0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * s3];
+        const g = v => { v = Math.min(1, Math.max(0, v)); return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055; };
+        return lin.map(v => Math.round(g(v) * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255));
+      }
+      return z.bytes(c); };
+    const behind = el => { const stack = [];
+      for (let n = el; n; n = n.parentElement) { const b = px(getComputedStyle(n).backgroundColor); if (b[3] === 0) continue; stack.push(b); if (b[3] === 255) break; }
+      let base = [255, 255, 255, 255]; for (let i = stack.length - 1; i >= 0; i--) base = z.over(stack[i], base); return base; };
+    const lowInk = card ? [...card.querySelectorAll("*")].filter(n => n.checkVisibility() &&
+      [...n.childNodes].some(c => c.nodeType === 3 && c.textContent.trim())).map(n => {
+        const r = z.ratio(z.over(px(getComputedStyle(n).color), behind(n)), behind(n));
+        return { n: n.className || n.tagName, t: n.textContent.trim().slice(0, 16), r: +r.toFixed(2) };
+      }).filter(x => x.r < 4.5) : null;
+    return {
+      lowInk, marked: card ? card.querySelectorAll(".opt.wrong, .opt.correct").length : 0,
+      keyInk: card ? [...card.querySelectorAll(".opt.wrong .key, .opt.correct .key")].map(n => +z.ratio(z.over(px(getComputedStyle(n).color), behind(n)), behind(n)).toFixed(2)) : null,
+      frame: !!document.querySelector("#view .video-frame iframe"), mark: txt("#view [data-act=toggleDone]"),
+      bar: !!document.querySelector("#view .lq-watched"), rewatch: rw && rw.checkVisibility() ? box(rw) : null,
+      quiz: card ? { title: txt("#view .lq-title"), sub: txt("#view .lq-head .lq-note"), n: txt("#view .lq-n"),
+        segs: [...card.querySelectorAll(".lq-segs i")].map(i => i.className), note: txt("#view .lq-foot .lq-note"),
+        why: txt("#view #qFeedback"), bg: bgOk(card), opts: vis("#view .lq-card .opt").map(box) } : null,
+      pass: pass ? { text: txt("#view .lq-pass"), bg: bgOk(pass), btn: txt("#view .lq-pass .btn") } : null,
+      // Review r1: the Go deeper heading and its caption on one line.
+      deepHead: (() => { const h = document.querySelector("#view .lq-deep-head"), m = h && h.querySelector(".gh-meta");
+        if (!h || !m) return null; const rg = document.createRange(); rg.selectNodeContents(h.firstChild);
+        const a = rg.getBoundingClientRect(), b = m.getBoundingClientRect();
+        return { text: h.textContent, oneLine: Math.abs(a.bottom - b.bottom) <= 4, a: Math.round(a.top), b: Math.round(b.top) }; })(),
+      sketch: ((document.querySelector("#view .lq-tile .lq-tm") || {}).textContent || "").trim(),
+      tiles: vis("#view .lq-tile").map(n => ({ t: (n.querySelector(".lq-tt") || {}).textContent, go: (n.querySelector(".lq-go") || {}).textContent, bg: bgOk(n), h: box(n).h })),
+      prove: (() => { const d = document.querySelector("#view details.lq-prove"); return d ? { open: d.open, sum: d.querySelector("summary").textContent.replace(/\s+/g, " ").trim() } : null; })(),
+      check: !!document.querySelector("#view [data-act=startSummaryCheck]"),
+      lock: lock ? { text: txt("#view .lq-lock-t"), glyph: !!lock.querySelector(".lq-lock-ic svg"), bg: bgOk(lock), h1: txt("#view .page-head h1"),
+        kicker: txt("#view .page-head .kicker"), btn: (lock.querySelector("a.btn") || { getAttribute: () => null }).getAttribute("href"),
+        cards: document.querySelectorAll("#view .card").length, ahead: lock.dataset.ahead } : null,
+      kind: txt(".card.one.lead .one-kind"), go: (document.querySelector(".card.one.lead a.one-go") || { getAttribute: () => null }).getAttribute("href"),
+      railLock: !!document.querySelector("#rail .rl-lock"), railRule: txt("#rail .rl-rule"),
+      todayRoot: (r => r ? "#/lesson/" + r.split(".").join("/") : null)(window.__brickfordTest.lockRoot("math120", 1, 0)),
+    };
+  }
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      for (const st of T43_STATES) {
+        const at = o.w + "px " + theme + ", " + st.name;
+        console.log("\nT-043 " + at);
+        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, patch: st.patch }, o));
+        await go(page, st.route);
+        if (st.miss) {
+          await page.waitForSelector("#view .lq-card");
+          // The miss is made on a multiple-choice question, so the marked
+          // options are on screen to measure (review r1): a numeric one drawn
+          // first is answered right and passed over.
+          for (let g = 0; g < 4 && await page.evaluate(() => !document.querySelector("#view .lq-card .opt")); g++) {
+            await page.evaluate(() => { const c = document.querySelector("#view .lq-card");
+              document.querySelector("#view #numAns").value = String(window.DAR.SUMMARIES["math120.1.0"].checks[+c.dataset.q].num);
+              document.querySelector("#view #numGo").click(); document.querySelector("#view #nextBtn").click(); });
+          }
+          // A wrong answer: the first option that is not the bank's answer,
+          // or a number nobody would give.
+          await page.evaluate(() => {
+            const c = document.querySelector("#view .lq-card"), q = window.DAR.SUMMARIES["math120.1.0"].checks[+c.dataset.q];
+            const o = [...c.querySelectorAll(".opt")].find(b => +b.dataset.o !== q.a);
+            if (o) o.click(); else { document.querySelector("#view #numAns").value = "-98765"; document.querySelector("#view #numGo").click(); }
+          });
+          await page.waitForFunction(() => getComputedStyle(document.querySelector("#view #nextBtn")).visibility === "visible", null, { timeout: 4000 });
+          // The marked options' fills transition in: measure once they have
+          // changed (the correct one is no longer the plain option's fill) and
+          // nothing in the card is still running — proof, not a duration.
+          await page.waitForFunction(() => { const c = document.querySelector("#view .lq-card"), ok = c && c.querySelector(".opt.correct"), plain = c && c.querySelector(".opt:not(.correct):not(.wrong)");
+            return !!ok && (!plain || getComputedStyle(ok).backgroundColor !== getComputedStyle(plain).backgroundColor) &&
+              c.getAnimations({ subtree: true }).every(a => a.playState !== "running"); }, null, { timeout: 4000, polling: "raf" }).catch(() => {});
+        }
+        const w0 = await writesNow(page);
+        const m = await page.evaluate(t43Measure), p = await page.evaluate(t26bPrimary);
+        const filled = p.filled.map(f => f.text);
+        c43(at + ": at most one filled primary in the view", p.filled.length <= 1, filled.join(" | ") || "none");
+        if (st.name === "before watched") {
+          c43(at + ": the page as before — the video, \"Mark watched\" the one primary, no quiz, no watched bar",
+            m.frame && m.mark === "Mark watched" && filled.join() === "Mark watched" && !m.quiz && !m.bar && !m.pass && m.tiles.length === 0, JSON.stringify({ frame: m.frame, mark: m.mark, filled }));
+        } else if (st.name === "the quiz after a miss") {
+          const q = m.quiz || {};
+          c43(at + ": the video is the watched bar, the quiz under it", !m.frame && m.bar && !!m.quiz, JSON.stringify({ frame: m.frame, bar: m.bar }));
+          c43(at + ": the bar's Rewatch is >= 44x44", !!m.rewatch && m.rewatch.w >= 44 && m.rewatch.h >= 44, JSON.stringify(m.rewatch));
+          c43(at + ": the quiz card reads \"Lecture quiz\" · \"From this lecture only\" · \"Question i of n\", with n segments and the miss red",
+            q.title === "Lecture quiz" && q.sub === "From this lecture only" && /^Question \d+ of \d+$/.test(q.n || "") &&
+              q.segs.length === +/of (\d+)/.exec(q.n || "of 0")[1] && q.segs.includes("miss"), JSON.stringify(q));
+          c43(at + ": the note says misses come back and the first-try score is kept; the miss says why and that it comes back",
+            q.note === "Misses come back, reshuffled, until you get them. Your first-try score is kept." && /^Not quite\./.test(q.why || "") && /comes back at the end/.test(q.why || ""),
+            JSON.stringify({ note: q.note, why: q.why }));
+          c43(at + ": the card is --surface, every option >= 44px tall, and \"Next question\" is the one primary", q.bg && q.opts.every(b => b.h >= 44) && filled.join() === "Next question",
+            JSON.stringify({ bg: q.bg, opts: q.opts, filled }));
+          c43(at + ": every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included",
+            Array.isArray(m.lowInk) && m.lowInk.length === 0 && m.marked === 2, "marked options " + m.marked + ", their keys " + JSON.stringify(m.keyInk) + ":1; under 4.5: " + JSON.stringify(m.lowInk));
+          c43(at + ": no \"Check yourself\" under the summary (the quiz is the check)", !m.check, String(m.check));
+          if (o.w === 1440) c43(at + ": the rail says how the ring counts and shows the next lecture locked",
+            m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));
+        } else if (st.name === "passed, with Go deeper") {
+          c43(at + ": the pass card — \"Lecture passed\", \"3 of 3 · 2 right on the first try\", --surface, \"Next lecture →\" the one primary",
+            !!m.pass && /^✓\s*Lecture passed\s*3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
+              filled.join() === "Next lecture →", JSON.stringify({ pass: m.pass, filled }));
+          c43(at + ": Go deeper is three tiles — Sketch it, Recall it cold, Practice problems — each --surface and >= 44px",
+            m.tiles.map(t => t.t).join("|") === "Sketch it|Recall it cold|Practice problems" && m.tiles.every(t => t.bg && t.h >= 44), JSON.stringify(m.tiles));
+          c43(at + ": the Go deeper heading reads \"Go deeper\" with \"optional\" on the same line", !!m.deepHead && m.deepHead.text === "Go deeperoptional" && m.deepHead.oneLine,
+            JSON.stringify(m.deepHead));
+          c43(at + ": the Sketch tile names the concept in quotes and reads as a sentence",
+            /^Sketch “[^”]+” from memory, then compare with the summary\.$/.test(m.sketch), "\"" + m.sketch + "\"");
+          c43(at + ": the four gates sit under a closed \"Prove mastery · 4 gates\" disclosure", !!m.prove && !m.prove.open && /^Prove mastery · 4 gates/.test(m.prove.sum),
+            JSON.stringify(m.prove));
+          c43(at + ": no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44", !m.quiz && !!m.rewatch && m.rewatch.w >= 44 && m.rewatch.h >= 44, JSON.stringify(m.rewatch));
+        } else if (st.name === "the locked lecture") {
+          const L = m.lock || {};
+          c43(at + ": one card, no video: \"Pass the quiz for “…” first\", a lock glyph, the kicker and title above, --surface",
+            !!m.lock && L.cards === 1 && !m.frame && !m.mark && /^Pass the quiz for “.+” first$/.test(L.text || "") && L.glyph && L.bg &&
+              /^2\. /.test(L.h1 || "") && /^MATH 120/.test(L.kicker || ""), JSON.stringify(L));
+          c43(at + ": its one primary goes to the previous lecture's quiz", filled.join() === "Go to the quiz ▸" && L.btn === "#/lesson/math120/1/0" && L.ahead === "1", JSON.stringify({ filled, href: L.btn }));
+        } else if (st.name === "the dashboard pointing at a quiz") {
+          // Review r1: nothing watched, so the first lecture in the chain is
+          // to be watched first — not called a quiz.
+          c43(at + ": nothing watched — the Next card says \"Watch: <title>, then its quiz\" for the root of today's chain (which starts at the gate, not at lecture 1), and its \"Open ▸\" is the one primary",
+            /^Watch: .+, then its quiz$/.test(m.kind || "") && !!m.todayRoot && m.go === m.todayRoot && m.go !== "#/lesson/math120/0/0" && filled.join() === "Open ▸",
+            JSON.stringify({ kind: m.kind, go: m.go, root: m.todayRoot, filled }));
+        } else {
+          c43(at + ": a watched lecture with its quiz to pass — the Next card says \"Quiz: <title>\" and its \"Start ▸\" is the one primary",
+            m.kind === "Quiz: Rate of Change" && m.go === "#/lesson/math120/1/0" && filled.join() === "Start ▸", JSON.stringify({ kind: m.kind, go: m.go, filled }));
+        }
+        const w1 = await writesNow(page);
+        c43(at + ": measuring wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
+        await ctx.close();
+      }
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -4576,7 +4786,8 @@ function t28SeedClips(list) {
       "(one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides " +
       "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, " + T26C_STATES.length + " more Week states at 1440/390, ‹ › Today tapped and keyed " +
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
-      "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks)"
+      "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
+      "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

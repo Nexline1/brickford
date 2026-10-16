@@ -2956,3 +2956,103 @@ button.at-chip.lb-more { font-weight: 600; }
 /* ---- Logged so far, and the history ---- */
 .pr-log { margin-top: 2rem; }
 .pr-log .ghead { margin-top: 1.5rem; }
+
+/* ---------- T-043: the lecture quiz gate ----------
+   specimen-lesson-quiz / -passed. Tokens only. Every pressable thing here is
+   44px or more on any width; nothing is fixed over the page. */
+/* The watched bar: the video, collapsed once it is watched. */
+.lq-watched {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: var(--sp-3);
+  background: var(--surface); border-radius: var(--r-lg); padding: 10px 10px 10px 14px;
+}
+.lq-watched .thumb { width: 96px; border-radius: var(--r-sm); }
+.lq-watched .thumb .th-ttl, .lq-watched .thumb .th-dur, .lq-watched .thumb .th-code { display: none; }
+@media (max-width: 599px) { .lq-watched .thumb { display: none; } }
+.lq-wm { flex: 1 1 9rem; min-width: 0; }
+.lq-wt { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.lq-tick { color: var(--good); font-weight: 700; }
+.lq-ws { font-size: var(--fs-footnote); color: var(--ink-2); overflow-wrap: anywhere; margin-top: 2px; }
+.btn.ghost.lq-rewatch { flex: none; min-height: 44px; min-width: 44px; justify-content: center; border-color: transparent; color: var(--ink-2); }
+.lq-watched + .video-frame, .page-head + .video-frame { margin-top: 0; }
+
+/* The quiz card. */
+.lq-mount { margin-top: var(--sp-3); }
+.card.lq-card { max-width: none; background: var(--surface); border: 0; padding: 22px 26px; }
+@media (max-width: 599px) { .card.lq-card { padding: 18px 16px; } }
+.lq-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.lq-title { font-size: var(--fs-headline); font-weight: 700; color: var(--ink); }
+.lq-note { font-size: var(--fs-footnote); color: var(--ink-2); }
+.lq-n { margin-left: auto; font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lq-segs { margin: 12px 0 0; gap: 5px; }
+.lq-segs i { height: 5px; border-radius: 3px; background: var(--surface-2); box-shadow: none; }
+.lq-segs i.ok { background: var(--good); }
+.lq-segs i.miss { background: var(--bad); }
+.lq-segs i.now { background: var(--accent); }
+.lq-card .q-text { font-size: var(--fs-headline); font-weight: 600; line-height: 1.4; margin: 20px 0 14px; }
+.lq-card .opt { background: var(--surface); border-color: var(--line-strong); min-height: 44px; }
+.lq-card .opt.dim { color: var(--ink-2); }
+.lq-card .opt.correct { background: color-mix(in srgb, var(--good) 14%, var(--surface)); }
+.lq-card .opt.wrong { background: color-mix(in srgb, var(--bad) 13%, var(--surface)); color: var(--ink); }
+/* --ink-3 measures 4.10:1 on the tinted correct fill and 4.36:1 on the wrong
+   one in Dark (review r1); --ink-2 clears 4.5:1 on both, in both themes. */
+.lq-card .opt.correct .key, .lq-card .opt.wrong .key { color: var(--ink-2); }
+.lq-card .expl { border-left: 0; border-radius: var(--r-md); background: var(--bg); color: var(--ink-2); line-height: 1.45; }
+.lq-card .expl strong { color: var(--ink); }
+.btn.ghost.lq-rewatch-at { margin-top: 8px; min-height: 44px; }
+.lq-num { display: flex; flex-wrap: wrap; gap: 10px; max-width: 340px; }
+.lq-num input { flex: 1 1 10rem; min-width: 0; width: auto; }
+.lq-num .btn { min-height: 44px; }
+.lq-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 16px; }
+.lq-foot .lq-note { flex: 1 1 16rem; }
+.lq-foot .btn { min-height: 44px; }
+
+/* The lock: on the locked lecture's own page, and in the rail. */
+.card.lq-lock { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 0; }
+.lq-lock-ic, .rl-lock-ic {
+  flex: none; display: grid; place-items: center; width: 32px; height: 32px;
+  border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink-2);
+}
+.lq-lock-ic svg { width: 14px; height: 14px; }
+.lq-lock-body { flex: 1 1 auto; min-width: 0; }
+.lq-lock-t { font-size: var(--fs-headline); font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.lq-lock-m { font-size: var(--fs-footnote); color: var(--ink-2); margin-top: 4px; }
+.lq-lock .btn { margin-top: var(--sp-3); min-height: 44px; }
+.rail-card .rl-rule { font-size: var(--fs-tiny); color: var(--ink-2); text-align: center; margin: -4px 0 12px; }
+.rail-card .rl-lock { display: flex; gap: 12px; align-items: flex-start; margin-top: 8px; padding: 12px; border-radius: var(--r-md); background: var(--surface); }
+.rl-lock-ic { width: 30px; height: 30px; }
+.rl-lock-ic svg { width: 13px; height: 13px; }
+.rl-lock-body { min-width: 0; }
+.rl-lock-t { display: block; font-weight: 700; color: var(--ink); line-height: 1.3; overflow-wrap: anywhere; }
+.rl-lock-m { display: block; font-size: var(--fs-tiny); color: var(--ink-2); margin-top: 3px; }
+.cd-lock { display: inline-grid; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; color: var(--ink-2); }
+.cd-lock svg { width: 100%; height: 100%; }
+
+/* The pass. */
+.card.lq-pass { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: var(--sp-3); background: var(--surface); border: 0; padding: 22px 26px; }
+@media (max-width: 599px) { .card.lq-pass { padding: 18px 16px; } }
+.lq-big {
+  flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  background: color-mix(in srgb, var(--good) 16%, var(--surface)); color: var(--good); font-size: 1.6rem; font-weight: 700;
+}
+.lq-pass-body { flex: 1 1 12rem; min-width: 0; }
+.lq-pass-t { font-size: var(--fs-title3); font-weight: 700; color: var(--ink); }
+.lq-pass-m { color: var(--ink-2); margin-top: 2px; }
+.lq-pass .btn { margin-left: auto; min-height: 44px; }
+
+/* Go deeper: three tiles, then the four gates under a disclosure. */
+.lq-deep { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr)); gap: 14px; }
+.lq-tile {
+  display: flex; flex-direction: column; gap: 6px; min-height: 132px; padding: 16px 18px;
+  background: var(--surface); border: 0; border-radius: var(--r-lg); color: var(--ink);
+  font: inherit; text-align: left; text-decoration: none; cursor: pointer;
+}
+div.lq-tile { cursor: default; }
+.lq-tile:hover { text-decoration: none; }
+.lq-ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink-2); font-size: var(--fs-footnote); }
+.lq-tt { font-weight: 650; color: var(--ink); }
+.lq-tm { font-size: var(--fs-footnote); line-height: 1.4; color: var(--ink-2); }
+.lq-go { margin-top: auto; font-size: var(--fs-footnote); font-weight: 600; color: var(--accent); }
+div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
+.unit.lq-prove { margin-top: var(--sp-3); }
+.sum-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-weight: 600; font-size: var(--fs-small); }
+.lsn-unmark { margin-top: var(--sp-3); }

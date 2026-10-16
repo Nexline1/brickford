@@ -1,0 +1,10 @@
+syntax 1
+content exit 0: PASS — 40213 checks, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 455 lecture summaries (491 numerics recomputed), 40 qu
+sync-loop exit 0: PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
+shell exit 0: PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes 
+contrast exit 0: PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+logic exit 0: PASS — 55 invariants hold
+flows exit 0: PASS — 280 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
+clip exit 0: PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (139008 element me
+design exit 0: PASS — 2052 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
+clip-LA exit 0: PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (138998 element me

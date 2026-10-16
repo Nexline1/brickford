@@ -1,0 +1,29 @@
+(a) a miss is not re-queued -> tools/verify-flows.js exit 1
+      FAIL  (c) the missed question comes back with its options reshuffled — first [0,3,1,2], again null
+      FAIL  (c) the sitting asks every question, and the miss once more — 2 answers for 2 questions
+      FAIL  (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-10-20","at":"2026-10-20T12:00:00.000Z",
+      FAIL  (c) the missed question comes back with its options reshuffled — first [3,1,0,2], again null
+      FAIL  (c) the sitting asks every question, and the miss once more — 2 answers for 2 questions
+      FAIL  (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-10-20","at":"2026-10-20T12:00:00.000Z",
+(b) schedDone ignores the quiz -> tools/verify-logic.js exit 1
+      FAIL  schedDone: watched after the gate with the quiz not passed is NOT done; a quiz-less watched lecture is — math120.0.0=true(want false) math120.0.1=true(want false) math120.0.2=true(want false) ai200.0.2=true ai200.0
+      FAIL  dayStatus follows: partial while a quiz is open, completed once passed or grandfathered — gated completed, passed completed, grandfathered completed
+      FAIL  backlogCount follows: an unpassed quiz is still owed, a pass or a grandfathered watch is not — gated 38 (want 42), passed 38 (want 38), grandfathered 38 (want 38)
+      3 of 55 invariant(s) FAILED
+(c) the merge drops a pass -> tools/verify-sync-loop.js exit 1
+      FAIL  (k0) the pass on this device survives the remote's further-along copy winning (verified true, quiz null)
+      FAIL  (k1) the earliest passedAt (2026-10-17, the remote's) and the best firstTry (3, this device's) win ({"passedAt":"2026-10-19","at":"2026-10-19T10:00:00.000Z","firstTry":3,"total":3,"attempts":4})
+      FAIL  (k2) a pass only the remote had arrives (null)
+      FAIL  (k2) lecture 4 is locked before the pull and open after it (before: lock true, after: lock true, Mark watched false)
+      FAIL  (k2) the dashboard's next action follows the merged pass: #/lesson/math120/0/2 (Quiz: Derivative formulas through geometry) -> #/lesson/math120/0/2 (Quiz: Derivative formulas through geometry)
+      FAIL — 5 assertions broken
+(d) the lock reads a stored flag instead of deriving -> tools/verify-logic.js exit 1
+      FAIL  the lock: the next lecture is locked behind an unpassed quiz, open after a pass or a grandfathered watch; the first lecture never; a quiz-less one never — math120 lecture 4: gated false, passed false, grandfathered
+      1 of 55 invariant(s) FAILED
+(e) the quiz record is written during render -> tools/verify-flows.js exit 1
+      FAIL  (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 2; record {"passedAt":"2026-10-20","at":"2026-10-20T12:00:00.000Z",
+      FAIL  (c) nothing is written at render (three renders of the passed lecture) — 3 write(s)
+      FAIL  (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 2; record {"passedAt":"2026-10-20","at":"2026-10-20T12:00:00.000Z",
+      FAIL  (c) nothing is written at render (three renders of the passed lecture) — 3 write(s)
+      4 of 280 flow check(s) FAILED
+ALL PLANTS EXIT 1

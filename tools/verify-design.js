@@ -4617,8 +4617,18 @@ function t28SeedClips(list) {
     // The tinted option fills are color-mix() results, which compute to
     // "color(srgb r g b)" — a form the canvas in z.bytes does not take (it
     // read them as black, and a planted --ink-3 key passed). Parsed here.
-    const px = c => { let m = /^color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)$/.exec(c);
-      if (m) return [m[1], m[2], m[3]].map(v => Math.round(+v * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255));
+    // Chromium also serialises some of them as oklab(L a b), converted here
+    // with the standard OKLab -> linear sRGB matrices.
+    const px = c => { let m = /^color\(srgb ([-\d.e]+) ([-\d.e]+) ([-\d.e]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+      if (m) return [m[1], m[2], m[3]].map(v => Math.round(Math.min(1, Math.max(0, +v)) * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255));
+      m = /^oklab\(([-\d.e]+) ([-\d.e]+) ([-\d.e]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+      if (m) {
+        const L = +m[1], A = +m[2], B = +m[3];
+        const l = Math.pow(L + 0.3963377774 * A + 0.2158037573 * B, 3), mm = Math.pow(L - 0.1055613458 * A - 0.0638541728 * B, 3), s3 = Math.pow(L - 0.0894841775 * A - 1.2914855480 * B, 3);
+        const lin = [4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s3, -1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s3, -0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * s3];
+        const g = v => { v = Math.min(1, Math.max(0, v)); return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055; };
+        return lin.map(v => Math.round(g(v) * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255));
+      }
       return z.bytes(c); };
     const behind = el => { const stack = [];
       for (let n = el; n; n = n.parentElement) { const b = px(getComputedStyle(n).backgroundColor); if (b[3] === 0) continue; stack.push(b); if (b[3] === 255) break; }
@@ -4630,6 +4640,7 @@ function t28SeedClips(list) {
       }).filter(x => x.r < 4.5) : null;
     return {
       lowInk, marked: card ? card.querySelectorAll(".opt.wrong, .opt.correct").length : 0,
+      keyInk: card ? [...card.querySelectorAll(".opt.wrong .key, .opt.correct .key")].map(n => +z.ratio(z.over(px(getComputedStyle(n).color), behind(n)), behind(n)).toFixed(2)) : null,
       frame: !!document.querySelector("#view .video-frame iframe"), mark: txt("#view [data-act=toggleDone]"),
       bar: !!document.querySelector("#view .lq-watched"), rewatch: rw && rw.checkVisibility() ? box(rw) : null,
       quiz: card ? { title: txt("#view .lq-title"), sub: txt("#view .lq-head .lq-note"), n: txt("#view .lq-n"),
@@ -4678,6 +4689,12 @@ function t28SeedClips(list) {
             if (o) o.click(); else { document.querySelector("#view #numAns").value = "-98765"; document.querySelector("#view #numGo").click(); }
           });
           await page.waitForFunction(() => getComputedStyle(document.querySelector("#view #nextBtn")).visibility === "visible", null, { timeout: 4000 });
+          // The marked options' fills transition in: measure once they have
+          // changed (the correct one is no longer the plain option's fill) and
+          // nothing in the card is still running — proof, not a duration.
+          await page.waitForFunction(() => { const c = document.querySelector("#view .lq-card"), ok = c && c.querySelector(".opt.correct"), plain = c && c.querySelector(".opt:not(.correct):not(.wrong)");
+            return !!ok && (!plain || getComputedStyle(ok).backgroundColor !== getComputedStyle(plain).backgroundColor) &&
+              c.getAnimations({ subtree: true }).every(a => a.playState !== "running"); }, null, { timeout: 4000, polling: "raf" }).catch(() => {});
         }
         const w0 = await writesNow(page);
         const m = await page.evaluate(t43Measure), p = await page.evaluate(t26bPrimary);
@@ -4699,7 +4716,7 @@ function t28SeedClips(list) {
           c43(at + ": the card is --surface, every option >= 44px tall, and \"Next question\" is the one primary", q.bg && q.opts.every(b => b.h >= 44) && filled.join() === "Next question",
             JSON.stringify({ bg: q.bg, opts: q.opts, filled }));
           c43(at + ": every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included",
-            Array.isArray(m.lowInk) && m.lowInk.length === 0 && m.marked === 2, "marked options " + m.marked + "; under 4.5: " + JSON.stringify(m.lowInk));
+            Array.isArray(m.lowInk) && m.lowInk.length === 0 && m.marked === 2, "marked options " + m.marked + ", their keys " + JSON.stringify(m.keyInk) + ":1; under 4.5: " + JSON.stringify(m.lowInk));
           c43(at + ": no \"Check yourself\" under the summary (the quiz is the check)", !m.check, String(m.check));
           if (o.w === 1440) c43(at + ": the rail says how the ring counts and shows the next lecture locked",
             m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));

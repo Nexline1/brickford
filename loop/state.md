@@ -87,3 +87,4 @@
 - 2026-10-15: T-043 r1 CHANGES REQUIRED (9 findings); 1-8 sent to builder (opus, resumed). Owner: 'Lock from go-live only' (pre-gate-scheduled lectures never block) — sent to builder. CLAUDE.md: main already correct (2026-10-05); loop branch was stale, merged main in. Owner approved a correction, none needed.
 - 2026-10-16: T-043 r2 APPROVED (reviewer opus, resumed). QUIZ_GATE_FROM = 2026-10-16. PR #21 merged → main 8c2bbd1. Flows (p) flaked once (queued T-050). Next: T-045.
 - 2026-10-16: T-045 build started (brickford-builder, opus) in /home/user/bf-T-045 from 8c2bbd1.
+- 2026-10-16: T-045 built 105002d (builder opus). CHECK (script) all green: content 40288, flows 300, design 2272, clip 797. Review r1 (reviewer opus, fresh), focus on removed T-026b assertions.

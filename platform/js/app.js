@@ -1131,7 +1131,7 @@
   // counted, and nothing they touched is re-coloured; their quizzes go to the
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
-  const QUIZ_GATE_FROM = "2026-10-15";                 // the ship date
+  const QUIZ_GATE_FROM = "2026-10-16";                 // the ship date
   function lessonQuiz(k) {
     const sm = (D.SUMMARIES || {})[k];
     return sm && sm.checks && sm.checks.length ? sm.checks : null;

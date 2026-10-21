@@ -362,6 +362,10 @@
     // reset on the phone would be silently undone by the next pull from the
     // laptop — and taking the later date also means a reset can never be
     // un-done by an older device that has not heard about it yet.
+    // T-054: Monk Mode merges per day, plan and loop by the newer `at`, and
+    // never deletes. While MONK_SYNCS is false a remote `monk` is not read at all.
+    if (MONK_SYNCS && r.monk && typeof r.monk === "object") changed += mergeMonk(r.monk);
+
     const rf = (r.settings || {}).streakFrom;
     if (rf && rf > (S.settings.streakFrom || "")) { S.settings.streakFrom = rf; changed++; }
 
@@ -396,6 +400,38 @@
     const share = x => (+x.total > 0 ? (+x.firstTry || 0) / +x.total : 0);
     const better = share(b) > share(a) || (share(b) === share(a) && (+b.total || 0) > (+a.total || 0)) ? b : a;
     return { passedAt: first.passedAt, at: first.at, firstTry: better.firstTry, total: better.total, attempts: better.attempts };
+  }
+
+  // ---- T-054: Monk Mode's store. Created on the first write (never by a
+  // render); the four seed loops come with the first loops object.
+  function monkStore() {
+    if (!S.monk || typeof S.monk !== "object") S.monk = {};
+    const m = S.monk;
+    if (!m.days || typeof m.days !== "object") m.days = {};
+    if (!m.plans || typeof m.plans !== "object") m.plans = {};
+    if (!m.loops || typeof m.loops !== "object") m.loops = monkSeedLoops();
+    return m;
+  }
+  function mergeMonk(rm) {
+    const m = monkStore();
+    let n = 0;
+    ["days", "plans", "loops"].forEach(part => {
+      const theirs = rm[part] || {};
+      Object.keys(theirs).forEach(k => {
+        const t = theirs[k], mine = m[part][k];
+        if (!t || typeof t !== "object") return;
+        if (!mine || (t.at || "") > (mine.at || "")) { m[part][k] = t; n++; }
+      });
+    });
+    return n;
+  }
+  // Every monk write ends here: it is a save() like any other, but while
+  // MONK_SYNCS is false it arms no push — the push would carry nothing of it,
+  // and its commit time alone would say when a prayer was ticked.
+  function monkSave() {
+    if (MONK_SYNCS) { save(); return; }
+    syncQuiet++;
+    try { save(); } finally { syncQuiet--; }
   }
 
   // One code path for both directions so the manual buttons and the automatic
@@ -520,6 +556,8 @@
      "weeks", "labs", "psets", "electives", "treasury", "review", "concepts", "anchors", "reps"]
       .forEach(k => state[k] = S[k]);
     state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart, streakFrom: S.settings.streakFrom };
+    // T-054: Monk Mode is private until T-053; see MONK_SYNCS.
+    if (MONK_SYNCS && S.monk) state.monk = S.monk;
     const ledgers = Object.assign({}, S.foreignLedgers);
     ledgers[S.settings.deviceId] = S.ledger;
     return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
@@ -1134,10 +1172,133 @@
   const QUIZ_GATE_FROM = "2026-10-16";                 // the ship date
   // T-052: the owner's 90-day monk mode (22 Oct 2026 to 19 Jan 2027) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
-  // inbox, which this app cannot. The dashboard row links there. The day counts
+  // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
+  // which keeps one row out to that page (MONK.url). The day counts
   // calendar days, Saturdays included: it is a life plan, not the study plan.
   const MONK = Object.freeze({ from: "2026-10-22", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
   function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
+  // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
+  // Ported from loop/design/monk-mode.html, with the owner's amendment of
+  // 2026-10-23: Ja'fari (Tehran) times, the five prayers kept in three
+  // combined blocks, no Jumu'ah, and the owner's routine. Everything here is
+  // a pure read of what it is handed; the page and the hook both call it.
+  //
+  // PRIVACY: until T-053 (private sync) ships, S.monk never leaves this device.
+  // syncPayload() leaves it out, mergeState() ignores a remote one, and a monk
+  // write arms no push (a commit's time alone would say when a prayer was
+  // ticked). T-053 flips this one constant.
+  const MONK_SYNCS = false;
+  // Fajr and Isha by the sun's depression angle; Maghrib too (4.5°, not
+  // sunset). `combine`: three blocks (Fajr, Dhuhr & Asr, Maghrib & Isha), else five.
+  const PRAYER_METHOD = Object.freeze({ fajr: 17.7, maghrib: 4.5, isha: 14, combine: true });
+  const MONK_GEO = Object.freeze({ lat: 26.2285, lng: 50.586, tzh: 3 });   // Manama
+  const mkDow = iso => new Date(iso + "T00:00:00Z").getUTCDay();             // 0 = Sunday
+  const monkWeekStart = iso => addDaysISO(iso, -mkDow(iso));                  // weeks run Sunday to Saturday
+  const mkHHMM = m => { const r = Math.round(m); return pad2(Math.floor(r / 60) % 24) + ":" + pad2(r % 60); };
+  const mkDur = m => { const r = Math.round(m); return r >= 60 ? Math.floor(r / 60) + "h " + (r % 60) + "m" : r + "m"; };
+  function monkPrayerTimes(iso, method) {
+    const M = method || PRAYER_METHOD, LAT = MONK_GEO.lat, LNG = MONK_GEO.lng;
+    const d2r = Math.PI / 180, r2d = 180 / Math.PI;
+    const S_ = x => Math.sin(x * d2r), C_ = x => Math.cos(x * d2r), T_ = x => Math.tan(x * d2r);
+    const fix = (a, b) => { a = a - b * Math.floor(a / b); return a < 0 ? a + b : a; };
+    const julian = (y, m, d) => { if (m <= 2) { y -= 1; m += 12; } const A = Math.floor(y / 100), B = 2 - A + Math.floor(A / 4);
+      return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5; };
+    const sun = jd => { const D0 = jd - 2451545, g = fix(357.529 + 0.98560028 * D0, 360), q = fix(280.459 + 0.98564736 * D0, 360),
+      L = fix(q + 1.915 * S_(g) + 0.02 * S_(2 * g), 360), e = 23.439 - 0.00000036 * D0;
+      const RA = Math.atan2(C_(e) * S_(L), C_(L)) * r2d / 15; return { decl: Math.asin(S_(e) * S_(L)) * r2d, eqt: q / 15 - fix(RA, 24) }; };
+    const jd = julian(+iso.slice(0, 4), +iso.slice(5, 7), +iso.slice(8, 10)) - LNG / (15 * 24);
+    const noon = t => fix(12 - sun(jd + t).eqt, 24);
+    const at = (angle, t, ccw) => { const dc = sun(jd + t).decl, n = noon(t),
+      v = (1 / 15) * Math.acos((-S_(angle) - S_(dc) * S_(LAT)) / (C_(dc) * C_(LAT))) * r2d; return n + (ccw ? -v : v); };
+    const asr = t => { const dc = sun(jd + t).decl; return at(-Math.atan(1 / (1 + T_(Math.abs(LAT - dc)))) * r2d, t, false); };
+    const adj = MONK_GEO.tzh - LNG / 15, m = h => (h + adj) * 60;
+    return { fajr: m(at(M.fajr, 5 / 24, true)), sunrise: m(at(0.833, 6 / 24, true)), dhuhr: m(noon(12 / 24)),
+      asr: m(asr(13 / 24)), maghrib: m(at(M.maghrib, 18 / 24, false)), isha: m(at(M.isha, 18 / 24, false)) };
+  }
+  // The chips, and the prayer blocks of the day. `at` is the time it is prayed at.
+  function monkSlots(method) {
+    return (method || PRAYER_METHOD).combine
+      ? [{ k: "fajr", label: "Fajr", at: "fajr", mins: 15 }, { k: "dhuhrAsr", label: "Dhuhr & Asr", at: "dhuhr", mins: 25 },
+         { k: "maghribIsha", label: "Maghrib & Isha", at: "maghrib", mins: 25 }]
+      : [["fajr", "Fajr"], ["dhuhr", "Dhuhr"], ["asr", "Asr"], ["maghrib", "Maghrib"], ["isha", "Isha"]].map(([k, l]) => ({ k, label: l, at: k, mins: 15 }));
+  }
+  // The owner's routine (amendment 2026-10-23, second message), in minutes from midnight.
+  function monkPlanFor(iso, method) {
+    const w = mkDow(iso), pt = monkPrayerTimes(iso, method), ev = [];
+    const add = (start, mins, title, kind) => ev.push({ start, end: start + mins, title, kind: kind || "" });
+    monkSlots(method).forEach(s => add(pt[s.at], s.mins, s.label, "prayer"));
+    add(330, 10, "Journaling"); add(340, 20, "Meditation");
+    add(360, 90, "Gym"); add(360, 45, "German — Easy German podcast");
+    add(450, 180, "Brickford — Deep Track");
+    if (w === 5) add(480, 60, "Grandmother — grave visit");
+    add(630, 45, "Scripting");
+    add(720, 120, w === 0 || w === 3 ? "Editing — stream → clips" : "Working — business");
+    add(830, 10, "Post short-form"); add(840, 90, "Nap");
+    add(930, 10, "German — speaking"); add(940, 10, "German — writing"); add(950, 70, "Working — business");
+    add(1080, 25, "German — reading");
+    if (w === 0) add(1080, 30, "Weekly review");
+    if (w === 2 || w === 6) add(1140, 120, "Stream (English)"); else add(1105, 155, "Working — business");
+    add(1260, 55, "Reading"); add(1315, 5, "Plan tomorrow");
+    return ev.sort((a, b) => a.start - b.start);
+  }
+  const MONK_GERMAN = [["podcast", "Podcast", 45], ["speak", "Speak", 10], ["write", "Write", 10], ["read", "Read", 25]];
+  const MONK_HABITS = [["german", "German 1.5 h"], ["brickford", "Brickford 3 h"], ["meditate", "Meditate"], ["read", "Read"],
+    ["clean", "No TikTok · IG · YouTube"], ["plan", "Plan tomorrow"]];
+  // German is done only when all four of its chips are.
+  const mkHabitDone = (d, k) => k === "german" ? !!d.german && typeof d.german === "object" && MONK_GERMAN.every(([g]) => !!d.german[g]) : !!d[k];
+  const mkPrayed = (d, method) => monkSlots(method).filter(s => !!(d.prayers && d.prayers[s.k])).length;
+  function monkScore(d, method) {
+    d = d || {};
+    const slots = monkSlots(method).length;
+    const done = mkPrayed(d, method) + MONK_HABITS.filter(([k]) => mkHabitDone(d, k)).length +
+      ((d.work || 0) >= 10 ? 1 : 0) + (d.phone != null && d.phone < 2 ? 1 : 0);
+    const n = slots + MONK_HABITS.length + 2;
+    return { done, n, pct: Math.round(100 * done / n) };
+  }
+  const MONK_WEEK = [["shorts", "Short-form", 8], ["stream", "Streams", 2], ["video", "Videos", 2], ["scripts", "Scripts", 4], ["gym", "Gym", 5], ["book", "Book", 1], ["work", "Work hours", 70]];
+  const MONK_MONTH = [["stream", "Streams", 8], ["clips", "Clips", 36]];
+  function mkSum(days, key, from, to) { let t = 0; for (let i = from; i <= to; i = addDaysISO(i, 1)) t += +((days[i] || {})[key] || 0); return t; }
+  function monkWeekSums(days, iso) {
+    const a = monkWeekStart(iso), b = addDaysISO(a, 6), out = {};
+    MONK_WEEK.forEach(([k]) => { out[k] = mkSum(days || {}, k, a, b); });
+    return out;
+  }
+  function monkMonthSums(days, iso) {
+    const a = iso.slice(0, 8) + "01", b = addDaysISO(addDaysISO(a, 32).slice(0, 8) + "01", -1), out = {};
+    MONK_MONTH.forEach(([k]) => { out[k] = mkSum(days || {}, k, a, b); });
+    return out;
+  }
+  const MONK_FIX = {
+    prayers: "Stop what you're doing at the adhan alert. Pray first, then open anything else.",
+    german: "Do German listening on the run and speaking on the drive. Don't save it for later.",
+    brickford: "Start the Deep Track before you check any messages.",
+    meditate: "Meditate straight after journaling, same spot every day.",
+    read: "Leave your phone in another room at 21:00 and read 20 pages.",
+    clean: "Delete TikTok, Instagram and YouTube from the phone for the 90 days.",
+    plan: "The 21:55 alert is your cue: tick today, write tomorrow's 3, lights out.",
+    work: "Protect the 12:00 and 18:25 blocks. No calls, no phone.",
+    phone: "Set a 2-hour screen-time limit and keep the phone out of reach while you work.",
+  };
+  // The weakest habit over the seven days before `today` (monk days only).
+  function monkFocus(days, today, method) {
+    days = days || {};
+    const end = addDaysISO(today, -1), list = [];
+    for (let i = addDaysISO(end, -6); i <= end; i = addDaysISO(i, 1)) if (i >= MONK.from) list.push(i);
+    if (!list.length) return null;
+    const rate = f => Math.round(100 * list.filter(i => f(days[i] || {})).length / list.length);
+    const n = monkSlots(method).length;
+    const rows = [["prayers", "All " + n + " on time", rate(d => mkPrayed(d, method) === n)]]
+      .concat(MONK_HABITS.map(([k, l]) => [k, l, rate(d => mkHabitDone(d, k))]))
+      .concat([["work", "10 h of work", rate(d => (d.work || 0) >= 10)], ["phone", "Phone under 2 h", rate(d => d.phone != null && d.phone < 2)]]);
+    rows.sort((a, b) => a[2] - b[2]);
+    return { days: list.length, key: rows[0][0], label: rows[0][1], rate: rows[0][2], fix: MONK_FIX[rows[0][0]] || "" };
+  }
+  const MONK_SEED_AT = "2026-10-22T00:00:00.000Z";   // older than any real edit, so the merge never prefers a seed
+  const MONK_SEEDS = [
+    "Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop",
+    "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
+    "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];
+  const monkSeedLoops = () => { const o = {}; MONK_SEEDS.forEach((t, i) => { o["s" + (i + 1)] = { text: t, done: false, at: MONK_SEED_AT }; }); return o; };
   function lessonQuiz(k) {
     const sm = (D.SUMMARIES || {})[k];
     return sm && sm.checks && sm.checks.length ? sm.checks : null;
@@ -2173,7 +2334,7 @@
         const n = monkDay(todayISO());
         if (!n) return "";
         return '<div class="ghead">Monk Mode<span class="gh-meta">Day ' + n + " of " + MONK.days + "</span></div>" +
-          '<div class="glist"><a class="grow monk-row" href="' + MONK.url + '" target="_blank" rel="noopener">' +
+          '<div class="glist"><a class="grow monk-row" href="#/monk">' +
           '<span class="g-lead">\u25d0</span><span class="g-main"><span class="g-t">Open today\u2019s dashboard</span>' +
           '<span class="g-s">prayers, habits, tomorrow\u2019s plan</span></span></a></div>';
       })() +
@@ -5399,6 +5560,192 @@
 
   // Not a fallback to Today: an answer. Says what was asked for, and offers the
   // two places worth going from a dead link.
+  // =================== T-054: Monk Mode (#/monk) ===================
+  // loop/specs/T-054-monk-page/spec.md; the layout, logic and copy mirror
+  // loop/design/monk-mode.html. A render is a read: nothing here creates
+  // S.monk — the seed loops are drawn from monkSeedLoops() until the first
+  // write stores them. Typed text not yet saved lives in monkDraft (memory).
+  let monkDraft = {};
+  const mkNice = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const mkNowMin = () => { const t = new Date(); return t.getHours() * 60 + t.getMinutes(); };
+  const mkRow = (tm, title, v, cls) => '<div class="grow mk-static' + (cls ? " " + cls : "") + '">' +
+    (tm != null ? '<span class="mk-tm">' + esc(tm) + "</span>" : "") +
+    '<span class="g-main"><span class="g-t">' + esc(title) + "</span></span>" + (v ? '<span class="g-v">' + esc(v) + "</span>" : "") + "</div>";
+  function monkNowRows(iso) {
+    const min = mkNowMin(), evs = monkPlanFor(iso);
+    const cur = evs.filter(e => e.start <= min && min < e.end).sort((a, b) => (b.kind === "prayer") - (a.kind === "prayer") || b.start - a.start)[0];
+    const nxt = evs.find(e => e.start > min);
+    const pt = monkPrayerTimes(iso), np = monkSlots().map(s => ({ l: s.label, m: pt[s.at] })).find(p => p.m > min);
+    let h = cur ? mkRow("Now", cur.title, "until " + mkHHMM(cur.end), "mk-cur") : mkRow("Now", "Free", "");
+    if (nxt) h += mkRow(mkHHMM(nxt.start), nxt.title, "in " + mkDur(nxt.start - min));
+    if (np && !(nxt && nxt.kind === "prayer" && Math.abs(nxt.start - np.m) < 20)) h += mkRow(mkHHMM(np.m), np.l, "adhan · in " + mkDur(np.m - min));
+    return h;
+  }
+  function monkPrayerStreak(days, today) {
+    const n = monkSlots().length, full = i => mkPrayed(days[i] || {}) === n;
+    let s = 0, i = today;
+    if (!full(i)) i = addDaysISO(i, -1);
+    while (i >= MONK.from && full(i)) { s++; i = addDaysISO(i, -1); }
+    return s;
+  }
+  V.monk = function () {
+    const iso = todayISO(), n = monkDay(iso), before = iso < MONK.from;
+    const M = S.monk || {}, days = M.days || {}, d = days[iso] || {}, w = mkDow(iso), sc = monkScore(d);
+    const from = Number(MONK.from.slice(8)) + " " + mkNice(MONK.from).split(" ").pop();
+    const head = n ? "Day " + n + " of " + MONK.days : before ? "Starts " + from : MONK.days + " days done";
+    const weeks = Math.ceil(MONK.days / 7), week = n ? "Week " + (Math.floor((n - 1) / 7) + 1) + " of " + weeks : "";
+    const gh = (t, meta) => '<div class="ghead">' + esc(t) + (meta ? '<span class="gh-meta">' + esc(meta) + "</span>" : "") + "</div>";
+    const tick = on => on ? CHECK_SVG : '<span class="mk-ring"></span>';
+
+    // ---- Now / Next, and the full day behind a disclosure ----
+    const min = mkNowMin(), evs = monkPlanFor(iso);
+    const nowHTML = gh("Now", "Plan") + '<div class="glist" id="mkNow">' + monkNowRows(iso) + "</div>" +
+      '<details class="glist mk-day"><summary class="grow"><span class="g-main"><span class="g-t">Full day</span></span><span class="g-v">' + evs.length + " blocks</span></summary>" +
+      evs.map(e => mkRow(mkHHMM(e.start), e.title, "", e.end <= min ? "muted-row" : "")).join("") + "</details>";
+
+    // ---- Top 3 today: last night's plan, or the day-type defaults ----
+    const plan = (M.plans || {})[iso] || {};
+    const def = { business: "Decide the business idea: one hour, one page",
+      content: w === 2 || w === 6 ? "Stream at 19:00, script ready by 18:00" : w === 0 || w === 3 ? "Cut 4–5 clips from the stream" : "Script one video, post one short",
+      education: "Today’s Brickford lectures + their quizzes" };
+    const topHTML = gh("Top 3 today", plan.at ? "Planned" : "") + '<div class="glist" id="mkTop3">' +
+      [["business", "B"], ["content", "C"], ["education", "E"]].map(([k, g]) =>
+        '<div class="grow mk-static mk-top"><span class="g-lead">' + g + '</span><span class="g-main"><span class="g-t">' + esc(plan[k] || def[k]) + "</span></span></div>").join("") + "</div>";
+
+    // ---- Prayer on time ----
+    const pt = monkPrayerTimes(iso), ps = monkPrayerStreak(days, iso), pr = d.prayers || {};
+    const prayHTML = gh("Prayer on time", ps ? ps + "-day streak" : "") + '<div class="glist"><div class="mk-chips">' +
+      monkSlots().map(s => '<button type="button" class="mk-chip" data-mk-pray="' + s.k + '" aria-pressed="' + !!pr[s.k] + '">' +
+        esc(s.label) + "<small>" + mkHHMM(pt[s.at]) + "</small></button>").join("") + "</div></div>";
+
+    // ---- Non-negotiables: German as four chips, then five toggles ----
+    const ger = d.german && typeof d.german === "object" ? d.german : {}, gDone = MONK_GERMAN.filter(([g]) => ger[g]).length;
+    const habHTML = gh("Non-negotiables", MONK_HABITS.filter(([k]) => mkHabitDone(d, k)).length + " of " + MONK_HABITS.length) + '<div class="glist">' +
+      '<div class="grow mk-static' + (gDone === 4 ? " done-row" : "") + '"><span class="g-lead">' + tick(gDone === 4) + '</span><span class="g-main"><span class="g-t">German 1.5 h</span></span><span class="g-v">' + gDone + " of 4</span></div>" +
+      '<div class="mk-chips mk-german">' + MONK_GERMAN.map(([g, l, mins]) => '<button type="button" class="mk-chip" data-mk-german="' + g + '" aria-pressed="' + !!ger[g] + '">' +
+        l + "<small>" + mins + " min</small></button>").join("") + "</div>" +
+      MONK_HABITS.filter(([k]) => k !== "german").map(([k, l]) => '<button type="button" class="grow mk-habit' + (d[k] ? " done-row" : "") + '" data-mk-habit="' + k + '" aria-pressed="' + !!d[k] + '">' +
+        '<span class="g-lead">' + tick(!!d[k]) + '</span><span class="g-main"><span class="g-t">' + esc(l) + "</span></span></button>").join("") + "</div>";
+
+    // ---- Numbers ----
+    const NUMS = [["work", "Work hours", 0.5, 10, ">="], ["phone", "Phone hours", 0.5, 2, "<"], ["gym", "Gym", 1], ["shorts", "Short-form posted", 1],
+      ["video", "Videos published", 1], ["scripts", "Scripts written", 1], ["stream", "Streams done", 1], ["clips", "Clips cut", 1], ["book", "Books finished", 1]];
+    const numHTML = gh("Numbers") + '<div class="glist">' + NUMS
+      .filter(([k]) => k !== "stream" || w === 2 || w === 6).filter(([k]) => k !== "clips" || w === 0 || w === 3 || (d.clips || 0) > 0)
+      .map(([k, l, step, target, cmp]) => {
+        const v = +(d[k] || 0), good = cmp === ">=" ? v >= target : cmp === "<" ? d[k] != null && v < target : false;
+        return '<div class="grow mk-static mk-num"><span class="g-main"><span class="g-t">' + l + '</span></span><span class="mk-step">' +
+          '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + -step + '" aria-label="Less: ' + l + '">−</button>' +
+          '<output data-mk-out="' + k + '"' + (good ? ' class="mk-good"' : "") + ">" + v + (cmp ? " / " + target : "") + "</output>" +
+          '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + step + '" aria-label="More: ' + l + '">+</button></span></div>';
+      }).join("") + "</div>";
+
+    // ---- This week (Sunday to Saturday) and this month ----
+    const prog = (l, v, t) => { const p = Math.min(100, Math.round(100 * v / t));
+      return '<div class="grow mk-static"><span class="g-main"><span class="g-t">' + l + '</span></span><span class="g-v">' + +v.toFixed(1) + " / " + t +
+        '</span><span class="mk-bar" aria-hidden="true"><i style="width:' + p + '%"></i></span></div>'; };
+    const ws = monkWeekStart(iso), wk = monkWeekSums(days, iso), mo = monkMonthSums(days, iso);
+    const strip = x => x.replace(/^\w+ /, "");
+    const sumHTML = gh("This week", strip(mkNice(ws)) + " – " + strip(mkNice(addDaysISO(ws, 6)))) + '<div class="glist">' + MONK_WEEK.map(([k, l, t]) => prog(l, wk[k], t)).join("") + "</div>" +
+      gh("This month", new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" })) + '<div class="glist">' + MONK_MONTH.map(([k, l, t]) => prog(l, mo[k], t)).join("") + "</div>";
+
+    // ---- 90 days: 13 week columns x 7 days, by the day's score ----
+    let cols = "", sum = 0, past = 0;
+    for (let c = 0; c < weeks; c++) {
+      cols += '<div class="hcol">';
+      for (let r = 0; r < 7; r++) {
+        const k = c * 7 + r;
+        if (k >= MONK.days) { cols += '<span class="hc void"></span>'; continue; }
+        const di = addDaysISO(MONK.from, k);
+        if (di > iso) { cols += '<span class="hc' + '" title="' + esc(mkNice(di)) + '"></span>'; continue; }
+        const p = monkScore(days[di]).pct;
+        if (di < iso) { sum += p; past++; }
+        const lv = p >= 90 ? "l4" : p >= 70 ? "l3" : p >= 40 ? "l2" : p > 0 ? "l1" : "l0";
+        cols += '<span class="hc ' + lv + (di === iso ? " now" : "") + '" title="' + esc(mkNice(di)) + " · " + p + '%"></span>';
+      }
+      cols += "</div>";
+    }
+    const mapHTML = gh("90 days", past ? "avg " + Math.round(sum / past) + "%" : "") +
+      '<div class="glist mk-mapbox"><div class="heat" id="mkMap" style="--wk:' + weeks + '" role="img" aria-label="Daily score, 90 days">' + cols + "</div></div>";
+
+    // ---- Focus this week: the weakest habit, and its one-line fix ----
+    const f = monkFocus(days, iso);
+    const focusHTML = gh("Focus this week") + '<div class="glist">' + (f
+      ? '<div class="grow mk-static"><span class="g-main"><span class="g-t">' + esc(f.label) + " · " + f.rate + '%</span><span class="g-s">' + esc(f.fix) + "</span></span></div>"
+      : mkRow(null, iso === MONK.from ? "Starts tomorrow" : "Starts " + Number(addDaysISO(MONK.from, 1).slice(8)) + " " + mkNice(MONK.from).split(" ").pop(), "", "muted-row")) + "</div>";
+
+    // ---- Open loops ----
+    const loops = M.loops || monkSeedLoops();
+    const ids = Object.keys(loops).sort((a, b) => (!!loops[a].done - !!loops[b].done) || (loops[a].at || "").localeCompare(loops[b].at || "") || a.localeCompare(b, "en", { numeric: true }));
+    const open = ids.filter(k => !loops[k].done).length;
+    const loopHTML = gh("Open loops", open ? open + " open" : "") + '<div class="glist">' + (ids.length ? ids.map(k =>
+      '<button type="button" class="grow mk-habit' + (loops[k].done ? " done-row" : "") + '" data-mk-loop="' + esc(k) + '" aria-pressed="' + !!loops[k].done + '">' +
+      '<span class="g-lead">' + tick(!!loops[k].done) + '</span><span class="g-main"><span class="g-t">' + esc(loops[k].text) + "</span></span></button>").join("")
+      : mkRow(null, "Nothing open", "", "muted-row")) + "</div>" +
+      '<form class="glist mk-add" id="mkLoopForm"><div class="grow mk-static mk-field"><label for="mkLoopNew">New</label>' +
+      '<input id="mkLoopNew" autocomplete="off" maxlength="200" placeholder="Something to close" value="' + esc(monkDraft.loop || "") + '">' +
+      '<button type="submit" class="btn tiny ghost" data-mk-add>Add</button></div></form>';
+
+    // ---- Plan tomorrow ----
+    const tm = addDaysISO(iso, 1), tp = (M.plans || {})[tm] || {};
+    const fld = (k, l) => { const v = monkDraft[k] != null ? monkDraft[k] : tp[k] || "", id = "mkPlan" + capFirst(k);
+      return '<div class="grow mk-static mk-field"><label for="' + id + '">' + l + '</label><input id="' + id + '" data-mk-plan="' + k + '" autocomplete="off" maxlength="200" value="' + esc(v) + '"></div>'; };
+    const planHTML = gh("Plan tomorrow", mkNice(tm)) + '<div class="glist">' + fld("business", "Business") + fld("content", "Content") + fld("education", "Education") + "</div>" +
+      '<div class="mk-actions"><button type="button" class="btn" data-mk-save>Save tomorrow’s plan</button>' +
+      (tp.at ? '<span class="mk-note">Saved for ' + esc(mkNice(tm)) + "</span>" : "") + "</div>";
+
+    const extHTML = '<div class="glist mk-extbox"><a class="grow mk-ext" href="' + MONK.url + '" target="_blank" rel="noopener"><span class="g-main"><span class="g-t">Calendar and inbox</span></span></a></div>';
+
+    return '<div class="view-enter mk">' + folio("Monk Mode", week || mkNice(iso)) +
+      '<div class="card one mk-head"><div class="mk-hl"><div class="one-kind">' + esc(head) + '</div><div class="one-hint">' + esc(mkNice(iso) + (week ? " · " + week : "")) + "</div></div>" +
+      ringHTML(sc.pct, sc.pct + "%", "", "good", 64) + "</div>" +
+      nowHTML + topHTML + prayHTML + habHTML + numHTML + sumHTML + mapHTML + focusHTML + loopHTML + planHTML + extHTML + "</div>";
+  };
+  function wireMonk(root) {
+    const iso = todayISO(), stamp = () => new Date().toISOString();
+    const dayPatch = fn => { const m = monkStore(), d = Object.assign({}, m.days[iso]); fn(d); d.at = stamp(); m.days[iso] = d; monkSave(); render(); };
+    $$("[data-mk-pray]", root).forEach(b => { b.onclick = () => dayPatch(d => { const p = Object.assign({}, d.prayers), k = b.dataset.mkPray; p[k] = !p[k]; d.prayers = p; }); });
+    $$("[data-mk-german]", root).forEach(b => { b.onclick = () => dayPatch(d => {
+      const g = Object.assign({}, d.german && typeof d.german === "object" ? d.german : {}), k = b.dataset.mkGerman; g[k] = !g[k]; d.german = g; }); });
+    $$("[data-mk-habit]", root).forEach(b => { b.onclick = () => dayPatch(d => { const k = b.dataset.mkHabit; d[k] = !d[k]; }); });
+    $$("[data-mk-num]", root).forEach(b => { b.onclick = () => dayPatch(d => {
+      const k = b.dataset.mkNum; let v = Math.max(0, Math.round((+(d[k] || 0) + +b.dataset.d) * 2) / 2);
+      if (k === "gym") v = Math.min(1, v);                    // one session a day
+      d[k] = v; }); });
+    $$("[data-mk-loop]", root).forEach(b => { b.onclick = () => {
+      const m = monkStore(), l = m.loops[b.dataset.mkLoop]; if (!l) return;
+      m.loops[b.dataset.mkLoop] = Object.assign({}, l, { done: !l.done, at: stamp() }); monkSave(); render(); }; });
+    const form = $("#mkLoopForm", root);
+    if (form) form.onsubmit = e => {
+      e.preventDefault();
+      const inp = $("#mkLoopNew", root), text = (inp.value || "").trim().slice(0, 200);
+      if (!text) return;
+      const m = monkStore();
+      m.loops["l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)] = { text, done: false, at: stamp() };
+      monkDraft.loop = ""; monkSave(); render();
+    };
+    const ln = $("#mkLoopNew", root);
+    if (ln) ln.oninput = () => { monkDraft.loop = ln.value; };
+    $$("[data-mk-plan]", root).forEach(i => { i.oninput = () => { monkDraft[i.dataset.mkPlan] = i.value; }; });
+    // Typing is what a background repaint would interrupt; it waits, and runs on leaving the field.
+    $$(".mk-field input", root).forEach(i => i.addEventListener("blur", bgReplay));
+    const sv = $("[data-mk-save]", root);
+    if (sv) sv.onclick = () => {
+      const m = monkStore(), tm = addDaysISO(iso, 1), at = stamp(), p = { at };
+      $$("[data-mk-plan]", root).forEach(i => { p[i.dataset.mkPlan] = (i.value || "").trim().slice(0, 200); });
+      m.plans[tm] = p;
+      m.days[iso] = Object.assign({}, m.days[iso], { plan: true, at });  // saving it is today's "Plan tomorrow"
+      monkDraft = {}; monkSave(); render();
+    };
+    // Now / Next follows the clock: the rows are rewritten in place (a read,
+    // nothing stored); a new day repaints the page.
+    timerH = setInterval(() => {
+      if (route() !== "/monk") return;
+      if (todayISO() !== iso) { render({ background: true }); return; }
+      const g = $("#mkNow"); if (g) g.innerHTML = monkNowRows(iso);
+    }, 30000);
+  }
+
   V.notFound = function (r) {
     return '<div class="view-enter">' + folio("Not found") + '<div class="page-head">' +
       '<div class="sub">Nothing in Brickford answers to <code>#' + esc(r) + "</code>. It may have been renamed, or the link may be old.</div></div>" +
@@ -5427,6 +5774,7 @@
 
   // ---------- actions ----------
   function wire(root, route) {
+    if (route === "/monk") wireMonk(root);
     // A lecture's player, if one was just drawn: start the handshake.
     // And again the moment the frame has loaded: whatever was said before
     // that went to a page that was not the player yet.
@@ -6190,9 +6538,12 @@
   // T-043: a lecture quiz part-way through is the same: a repaint would throw
   // the sitting away (leaving keeps nothing), so a background one waits.
   const quizLive = () => !!document.querySelector("#view #lqMount .lq-card");
+  // T-054: a Monk Mode field being typed in (its text is kept in monkDraft,
+  // but a repaint would still take the caret away). Replayed on blur.
+  const monkTyping = () => { const a = document.activeElement; return !!a && !!a.closest && !!a.closest("#view .mk-field"); };
   let bgSkipped = false;
   function bgReplay() {
-    setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true }); }, 0);
+    setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen() && !monkTyping()) render({ background: true }); }, 0);
   }
 
   // ---------- resume points (T-016) ----------
@@ -6372,7 +6723,7 @@
   // moment it is free (bgReplay).
   function render(opts) {
     if (rendering) return;
-    if (opts && opts.background && (videoOnScreen() || mediaBusy() || quizLive())) { bgSkipped = true; return; }
+    if (opts && opts.background && (videoOnScreen() || mediaBusy() || quizLive() || monkTyping())) { bgSkipped = true; return; }
     bgSkipped = false;
     rendering = true;
     // opts.after runs once the view is rebuilt, on either path below (T-026c:
@@ -6437,6 +6788,7 @@
     else if (r === "/guide") html = V.guide();
     else if (r === "/calendar") html = V.calendar();
     else if (r === "/library") html = V.library();
+    else if (r === "/monk") html = V.monk();
     else if (seg[0] === "doc") html = V.doc(seg[1]);
     // Every unrecognised hash used to render the dashboard, silently. A typo, a
     // stale bookmark or a route that was renamed all looked like "you are on
@@ -6590,7 +6942,9 @@
     // merge, handed a remote file's shape.
     gatePlan, setGate, mergeState,
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
-    QUIZ_GATE_FROM, monkDay, MONK, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
+    QUIZ_GATE_FROM, monkDay, MONK, schedDone,
+    // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
+    MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
     lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

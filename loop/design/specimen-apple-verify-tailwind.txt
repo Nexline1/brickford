@@ -1,0 +1,36 @@
+$ node tools/verify-tailwind.js
+ok    platform/css/tailwind.css is current (32680 bytes, 1764 lines)
+exit 0
+
+# plant 1: a stale copy (an older build: the .press-row rule removed)
+$ CSS=<scratch>/tailwind.stale.css node tools/verify-tailwind.js
+FAIL  <scratch>/tailwind.stale.css is stale: it is not what the config, the input CSS and the pages build.
+      first difference at line 846:
+        committed: ""
+        built:     "  .press-row {"
+      committed 32515 bytes, built 32680 bytes. Run `npm run build:css` and commit the result.
+exit 1
+
+# plant 2: a class no page used before (bg-orange/10) added to the specimen, CSS not rebuilt
+# (a first attempt used text-tint-text, which the page already uses elsewhere, so the CSS really was current and the gate rightly passed)
+$ node tools/verify-tailwind.js
+FAIL  platform/css/tailwind.css is stale: it is not what the config, the input CSS and the pages build.
+      first difference at line 1086:
+        committed: "  .bg-orange {"
+        built:     "  .bg-orange, .bg-orange\\/10 {"
+      committed 32680 bytes, built 32860 bytes. Run `npm run build:css` and commit the result.
+exit 1
+
+# plant 3: a token changed in tailwind.config.js, CSS not rebuilt
+$ node tools/verify-tailwind.js
+FAIL  platform/css/tailwind.css is stale: it is not what the config, the input CSS and the pages build.
+      first difference at line 347:
+        committed: "    --ios-canvas: #f2f2f7;"
+        built:     "    --ios-canvas: #f2f2f8;"
+      committed 32680 bytes, built 32680 bytes. Run `npm run build:css` and commit the result.
+exit 1
+
+# restored
+$ node tools/verify-tailwind.js
+ok    platform/css/tailwind.css is current (32680 bytes, 1764 lines)
+exit 0

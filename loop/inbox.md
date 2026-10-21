@@ -72,3 +72,4 @@ The owner sent a full spec: Inter as the SF stand-in, the iOS type scale, iOS sy
 - **"Mockup of 3 screens first, then the whole app".** Dashboard, lecture with quiz, and Problems, at 390 and 1440, in Light and Dark.
 - T-045 is paused at 105002d; its r1 fixes resume under the new system.
 - The apple-design skill gained `references/ios-system-tokens.md` (aad8bd3).
+- **2026-10-22, the T-051 mockup:** approved ("rebuild the whole app"); 13px regular headers; floating capsule tab bar; the press dip is fine. Phone feedback: too much text, titles too long, the layout isn't user-friendly, "monitor that to make it better". Answered by the density rules and verify-density in the T-051 spec.

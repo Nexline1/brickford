@@ -18,6 +18,19 @@ PLANTS = {
         "    const review = missPool().filter(p => questionUnlocked(p.bankId, D.QUIZZES[p.bankId].questions[p.idx])).length;",
         "    const review = 0;", ["tools/verify-design.js"]),
 }
+# Interrupt-safe (review r1): before a file is planted its original is copied
+# to <file>.plant-backup, and removed only once it is restored. A run killed
+# outright (SIGKILL, a container restart) leaves the backup behind, and the
+# next run puts it back before anything else. SIGTERM/SIGHUP are turned into
+# SystemExit so the `finally` below restores the file on those too.
+import signal
+def _exit(signum, frame): raise SystemExit(128 + signum)
+for sig in (signal.SIGTERM, signal.SIGHUP): signal.signal(sig, _exit)
+for _, path, _o, _n, _g in PLANTS.values():
+    bk = os.path.join(ROOT, path) + ".plant-backup"
+    if os.path.exists(bk):
+        os.replace(bk, os.path.join(ROOT, path))
+        print("restored %s from a backup a killed run left behind" % path)
 which = sys.argv[1:] or sorted(PLANTS)
 results = []
 for key in which:
@@ -25,6 +38,7 @@ for key in which:
     fp = os.path.join(ROOT, path)
     src = open(fp).read()
     assert src.count(old) == 1, (key, "anchor not found once")
+    open(fp + ".plant-backup", "w").write(src)
     open(fp, "w").write(src.replace(old, new))
     try:
         for g in gates:
@@ -35,6 +49,7 @@ for key in which:
             results.append((key, r.returncode))
     finally:
         open(fp, "w").write(src)
+        os.remove(fp + ".plant-backup")
 ok = all(code == 1 for _, code in results)
 print("ALL PLANTS EXIT 1" if ok else "SOME PLANT DID NOT EXIT 1: %r" % results)
 sys.exit(0 if ok else 1)

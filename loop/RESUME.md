@@ -52,3 +52,4 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
 - Owner decisions on record: lock from go-live only; CLAUDE.md on main already correct.
 - 2026-10-16: T-043 MERGED (PR #21, main 8c2bbd1). Next in owner order: T-045 (Problems due-now), then T-046, T-047.
 - 2026-10-16: T-045 building in /home/user/bf-T-045 (branch loop/T-045-problems-due-now). If cut off: resume builder, then CHECK by script (sed the worktree path in scratchpad/t043-check/run.sh), fresh reviewer r1, merge.
+- 2026-10-21: COURSE CHANGE. Owner wants a native-Apple redesign (inbox 2026-10-21). T-045 is paused at 105002d (/home/user/bf-T-045); its r1 fixes 1-3 plus the owner's rag-system decision (phase 3, after ai300.3.3) still have to be done, after the redesign. T-051 mockup is building in /home/user/bf-T-051 (branch loop/T-051-apple-system). When it reports: show the owner the 12 PNGs and the tailwind.config.js, and wait for approval before the full rebuild.

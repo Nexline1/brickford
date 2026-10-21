@@ -128,7 +128,13 @@ const PROBE = function () {
   const sel = el => {
     let s = el.tagName.toLowerCase();
     if (el.id) s += "#" + el.id;
-    if (typeof el.className === "string" && el.className.trim()) s += "." + el.className.trim().split(/\s+/).slice(0, 3).join(".");
+    // T-051: press-* are behaviour classes app.js puts on every control; they
+    // say nothing about which element this is, so they stay out of its name
+    // and every baseline key stays what it was.
+    if (typeof el.className === "string" && el.className.trim()) {
+      const cls = el.className.trim().split(/\s+/).filter(c => !/^press-(row|btn|card|text)$/.test(c));
+      if (cls.length) s += "." + cls.slice(0, 3).join(".");
+    }
     return s;
   };
   const clipped = [];

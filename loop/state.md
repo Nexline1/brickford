@@ -91,3 +91,4 @@
 - 2026-10-21: Owner course-correction to a native Apple design (see inbox). T-045 paused (builder stopped). T-051 mockup phase next. apple-design skill improved (aad8bd3).
 - 2026-10-21: T-051 mockup agent (general-purpose, opus) started in /home/user/bf-T-051: Tailwind 4.3.3 + config + self-hosted Inter + specimen-apple (3 screens x 390/1440 x light/dark).
 - 2026-10-21: Owner: run earlier tasks in parallel. T-045 r1 fixes resumed (builder opus, resumed). T-046 builder (general-purpose opus, for WebFetch) in /home/user/bf-T-046; huggingface.co and jsdelivr are blocked from the shell. T-047 waits for T-046 (same Practice screen, needs its transcript). T-051 mockup running.
+- 2026-10-22: Usage limit + container restart stopped all three agents. Saved WIP: T-051 7801961, T-046 4debf52. T-045: a killed plant run had left 'const review = 0;' in app.js; restored to HEAD cfee64f. All three agents resumed (opus, resumed); autopush restarted.

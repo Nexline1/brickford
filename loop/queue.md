@@ -31,7 +31,7 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-030 | Dashboard: at 320px with a 24px root the next-lecture kicker (.one-kind) overflows (scrollWidth 340 vs 280) on long titles, which zooms the whole page out on isMobile | proposed | 0 | | pre-existing on main; found by T-023 r2 reviewer 2026-10-08 (probe rv023r2/ovf3.js) |
 | T-031 | Atlas/Courses layout polish from T-026a review r3: shelf floor 7rem, sweep widths, card basis 12rem, plants, deviation note | done | 2 | PR #16 | merged 2026-10-10 (45fdf55) |
 | T-032 | Shuffle MCQ options at mount (answers are 95% option 2 in summaries, ~all option 1 in two banks) + uniform-position gate | merged (PR #12) | 0 | | owner 2026-10-08: fix first |
-| T-035 | Sunday revision PDF: sample first, then #/revision/<week> print layout, Export only on Sunday | proposed | 0 | | owner 2026-10-08; sample to owner before build |
+| T-035 | Sunday revision PDF: sample first, then #/revision/<week> print layout, Export only on Sunday | building (phase 1: sample) | 0 | | owner 2026-10-23: priority |
 | T-034 | Sunday review #/sunday: week at a glance, recall, mastery-loop exercises, week-understood seal; on top of the full Sunday | ready | 0 | | owner 2026-10-08 (no schedule change) |
 | T-036 | Review council: 5 advisor agents + llm-council skill + owner profile; monthly routine + on demand; proposals only | ready | 0 | | owner 2026-10-08 |
 | T-037 | SPCH 100 full course (~50 h, 16 modules, transcript-verified, drill per lesson), appended after the seed; no other dates move | merged (PR #14) | 0 | | owner 2026-10-09: bigger ~50 h; right after T-026b |

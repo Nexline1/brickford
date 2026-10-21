@@ -3009,6 +3009,37 @@ D.COURSES.forEach(c => {
   ok(!!c.practice && c.practice.label && c.practice.label.length > 8, c.code + ": practice source says what to do");
 });
 
+// ---------- T-046: the speech model is pinned, not floating ----------
+// loop/specs/T-046-story-transcription/spec.md approves ONE dependency, pinned:
+// @huggingface/transformers@4.3.0 from jsdelivr, and an English Whisper whose
+// revision is a commit hash read off the model page and recorded in
+// verification/notes.md. A revision of "main" (or anything that is not 40 hex
+// characters) would download whatever the repo holds that day, so this fails
+// until the hash is real and written down next to the model id. The worker's
+// ?v= token is the page's, so a bumped page can never run a stale worker.
+{
+  const app = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const html = fs.readFileSync(path.join(ROOT, "platform/index.html"), "utf8");
+  const notesPath = path.join(ROOT, "loop/specs/T-046-story-transcription/verification/notes.md");
+  const notes = fs.existsSync(notesPath) ? fs.readFileSync(notesPath, "utf8") : "";
+  const konst = name => { const m = new RegExp("const " + name + " = \"([^\"]*)\"").exec(app); return m ? m[1] : null; };
+  const lib = konst("TX_LIB"), model = konst("TX_MODEL"), rev = konst("TX_REVISION"), worker = konst("TX_WORKER");
+  const mb = /const TX_MODEL_MB = (\d+);/.exec(app);
+  const hex40 = !!rev && /^[0-9a-f]{40}$/.test(rev);
+  ok(lib === "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0",
+     "T-046: TX_LIB is the pinned library, https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0 (got " + lib + ")");
+  ok(!!model && /^[\w.-]+\/whisper-[\w.-]*\.en$/.test(model), "T-046: TX_MODEL names an English Whisper repo (got " + model + ")");
+  ok(!!mb && +mb[1] > 0, "T-046: TX_MODEL_MB is a size in MB for the consent prompt");
+  ok(hex40, "T-046: TX_REVISION is a 40-hex commit of " + model + " (got \"" + rev + "\") — read it from https://huggingface.co/api/models/" + model +
+     " and record it in loop/specs/T-046-story-transcription/verification/notes.md; until then the model is not pinned");
+  ok(hex40 && notes.includes(rev) && notes.includes(model),
+     "T-046: verification/notes.md records the model id and its revision side by side");
+  const pageTok = (/css\/style\.css\?v=(\w+)/.exec(html) || [])[1], workerTok = ((worker || "").match(/\?v=(\w+)$/) || [])[1];
+  ok(!!worker && /^js\/transcribe-worker\.js\?v=\w+$/.test(worker) && fs.existsSync(path.join(ROOT, "platform/js/transcribe-worker.js")),
+     "T-046: TX_WORKER is js/transcribe-worker.js with a ?v= token, and the file exists (got " + worker + ")");
+  ok(!!pageTok && workerTok === pageTok, "T-046: the worker's ?v= token (" + workerTok + ") is the page's (" + pageTok + ")");
+}
+
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + numChecked + " numeric answers recomputed, "
     + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "

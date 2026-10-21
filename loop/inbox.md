@@ -54,3 +54,21 @@ Owner decisions on the mockups (AskUserQuestion, 2026-10-14):
 - **"Course materials now, transcripts later":** quizzes come from the official GitHub companion materials for Zero to Hero, fast.ai and CS336 (34 videos). 3Blue1Brown, David Silver and the LLM talks wait.
 - **"I'll allow the sites":** arxiv.org, proceedings.neurips.cc, cdn.openai.com, transformer-circuits.pub, web.stanford.edu, www.cs.virginia.edu, www.neelnanda.io and www.arena.education.
 - **2026-10-15, readings (T-033 review r1, finding 12):** "Yes, count it". The 7 reading quizzes may use the page's source text from the authors' own repos, pinned to the version the live site serves. Questions on text the served page lacks are removed.
+
+## 2026-10-21: owner course-correction, "a premium, native Apple application"
+The owner sent a full spec: Inter as the SF stand-in, the iOS type scale, iOS system colours, inset grouped lists with `rounded-2xl`, and press physics on everything tappable. They asked for a tailwind.config.js and a rewrite of the visual template. Their decisions:
+- **"Add Tailwind with a build step".** Tailwind 4.3.3, CLI, `tailwind.config.js`, compiled CSS committed so GitHub Pages stays as it is.
+- **"Apple's accessible shades".**
+
+  | Use | Light | Dark |
+  |---|---|---|
+  | Grey text | `#6E6E73` | `#8E8E93` |
+  | Links and tint text | `#0066CC` | `#0A84FF` |
+  | Filled buttons, white text | `#0071E3` | |
+  | Red text | `#D70015` | `#FF453A` |
+
+  Exact iOS hues stay for fills and icons. The 4.5:1 contrast gate stays.
+- **"Pure iOS; crest stays as the logo".** Navy and gold leave the interface.
+- **"Mockup of 3 screens first, then the whole app".** Dashboard, lecture with quiz, and Problems, at 390 and 1440, in Light and Dark.
+- T-045 is paused at 105002d; its r1 fixes resume under the new system.
+- The apple-design skill gained `references/ios-system-tokens.md` (aad8bd3).

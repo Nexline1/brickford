@@ -163,7 +163,7 @@ function check(name, ok, detail) {
 // `boot` is the first hash: "/" for the flows a reader starts from Today, and
 // "/__test" for the ones that need the test hook (it is only installed when
 // the page boots on a hash carrying __test).
-async function fresh(browser, w, state, boot) {
+async function fresh(browser, w, state, boot, now) {
   const ctx = await browser.newContext({
     viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860,
   });
@@ -171,7 +171,7 @@ async function fresh(browser, w, state, boot) {
     if (/api\.github\.com/.test(r.request().url())) githubHits++;
     return r.abort();
   });
-  await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+  await ctx.clock.setFixedTime(new Date((now || TODAY) + "T12:00:00Z"));
   if (state) await ctx.addInitScript(s => { if (window.top === window) localStorage.setItem("darhikmah_v1", s); }, JSON.stringify(state));
   await ctx.addInitScript(countWrites);
   const page = await ctx.newPage();
@@ -2138,6 +2138,94 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- T-054: Monk Mode, #/monk (loop/specs/T-054-monk-page/spec.md) ----
+  // At 390 and 1280, on Wed 28 Oct 2026 (day 7 of 90), nothing stored:
+  //   opening the page writes nothing (twice, and after a repaint);
+  //   a prayer chip, a habit, a German chip, a stepper and a new loop each write exactly
+  //   once, on the press, and the page shows it; the four seed loops are
+  //   on screen before anything is stored, and stored with the first loop;
+  //   saving tomorrow's plan writes once, ticks today's "Plan tomorrow", and
+  //   with the clock moved to Thu 29 Oct is that day's Top 3.
+  const MK_DAY = "2026-10-28", MK_NEXT = "2026-10-29";
+  const SEED_LOOPS = ["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop",
+    "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
+    "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];
+  for (const w of WIDTHS) {
+    console.log("\nT-054 Monk Mode at " + w + "px:");
+    const { ctx, page, errors } = await fresh(browser, w, null, "/", MK_DAY);
+    const monk = () => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || null);
+    const w0 = await writes(page);
+    await go(page, "/monk");
+    await go(page, "/");
+    await go(page, "/monk");
+    const w1 = await writes(page);
+    const first = await page.evaluate(() => ({
+      head: ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim(),
+      loops: [...document.querySelectorAll("#view [data-mk-loop] .g-t")].map(n => n.textContent.trim()),
+      chips: [...document.querySelectorAll("#view [data-mk-pray]")].map(b => b.dataset.mkPray) }));
+    check("(m) opening #/monk writes nothing (" + w0 + " -> " + w1 + ", opened twice)", w1 === w0 && !(await monk()));
+    check("(m) the page is day 7 of 90 with 3 prayer chips and the 4 seed loops, before anything is stored",
+      first.head === "Day 7 of 90" && first.chips.join() === "fajr,dhuhrAsr,maghribIsha" && JSON.stringify(first.loops) === JSON.stringify(SEED_LOOPS), JSON.stringify(first));
+    const once = async (sel, name, ok) => {
+      const before = await writes(page);
+      await markView(page);
+      await page.click(sel);
+      await viewReplaced(page);
+      const after = await writes(page), m = await monk();
+      const pressed = await page.evaluate(s => { const b = document.querySelector(s); return b ? b.getAttribute("aria-pressed") : null; }, sel);
+      check("(m) " + name + ": exactly one write, on the press, and the page shows it", after - before === 1 && !!m && ok(m, pressed), (after - before) + " write(s); " + JSON.stringify(m && m.days && m.days[MK_DAY]) + "; aria-pressed " + pressed);
+    };
+    const isISO = v => typeof v === "string" && !isNaN(Date.parse(v)) && /T/.test(v);
+    await once("#view [data-mk-pray=fajr]", "the Fajr chip", (m, p) => m.days[MK_DAY].prayers.fajr === true && isISO(m.days[MK_DAY].at) && p === "true");
+    await once("#view [data-mk-habit=brickford]", "the Brickford habit", (m, p) => m.days[MK_DAY].brickford === true && m.days[MK_DAY].prayers.fajr === true && p === "true");
+    await once("#view [data-mk-german=podcast]", "the German podcast chip", (m, p) => JSON.stringify(m.days[MK_DAY].german) === JSON.stringify({ podcast: true }) && m.days[MK_DAY].brickford === true && p === "true");
+    await once("#view [data-mk-num=work][data-d='0.5']", "the work-hours stepper (+0.5)", m => m.days[MK_DAY].work === 0.5);
+    const outText = await page.evaluate(() => ((document.querySelector("#view [data-mk-out=work]") || {}).textContent || "").trim());
+    check("(m) the stepper reads 0.5 / 10", outText === "0.5 / 10", outText);
+    // A new loop: the first write to loops stores the four seeds with it.
+    {
+      const before = await writes(page);
+      await page.fill("#mkLoopNew", "Reply to the venue");
+      await markView(page);
+      await page.click("#view [data-mk-add]");
+      await viewReplaced(page);
+      const m = await monk(), after = await writes(page);
+      const texts = m && m.loops ? Object.values(m.loops).map(l => l.text) : [];
+      check("(m) adding a loop: one write, the four seeds stored first, then the new one",
+        after - before === 1 && texts.length === 5 && SEED_LOOPS.every(t => texts.includes(t)) && texts.includes("Reply to the venue") &&
+        Object.values(m.loops).every(l => isISO(l.at) && l.done === false), (after - before) + " write(s); " + JSON.stringify(texts));
+    }
+    // Tomorrow's plan.
+    {
+      await page.fill("#mkPlanBusiness", "Call two venues");
+      await page.fill("#mkPlanContent", "Script the Bahrain video");
+      await page.fill("#mkPlanEducation", "MATH 120 lecture 4");
+      const before = await writes(page);
+      await markView(page);
+      await page.click("#view [data-mk-save]");
+      await viewReplaced(page);
+      const m = await monk(), after = await writes(page);
+      const plan = m && m.plans && m.plans[MK_NEXT];
+      check("(m) saving tomorrow's plan: one write, the three fields under " + MK_NEXT + ", and today's Plan tomorrow ticked",
+        after - before === 1 && !!plan && plan.business === "Call two venues" && plan.content === "Script the Bahrain video" && plan.education === "MATH 120 lecture 4" &&
+        isISO(plan.at) && m.days[MK_DAY].plan === true, (after - before) + " write(s); " + JSON.stringify(plan));
+      const top = await page.evaluate(() => [...document.querySelectorAll("#view #mkTop3 .g-t")].map(n => n.textContent.trim()));
+      check("(m) today's Top 3 is still today's (the defaults), not tomorrow's", top.length === 3 && !top.includes("Call two venues"), JSON.stringify(top));
+      await ctx.clock.setFixedTime(new Date(MK_NEXT + "T12:00:00Z"));
+      await go(page, "/");
+      const w2 = await writes(page);
+      await go(page, "/monk");
+      const top2 = await page.evaluate(() => [...document.querySelectorAll("#view #mkTop3 .g-t")].map(n => n.textContent.trim()));
+      const head2 = await page.evaluate(() => ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim());
+      check("(m) the clock moved to " + MK_NEXT + ": day 8, and the Top 3 is the plan saved last night, with no write",
+        head2 === "Day 8 of 90" && JSON.stringify(top2) === JSON.stringify(["Call two venues", "Script the Bahrain video", "MATH 120 lecture 4"]) && (await writes(page)) === w2,
+        head2 + " " + JSON.stringify(top2));
+    }
+    await shot(page, "monk-" + w);
+    check("(m) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -2145,7 +2233,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
       "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
-      "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028)"
+      "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028); " +
+      "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, a habit, a German chip, a stepper, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

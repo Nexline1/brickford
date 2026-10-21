@@ -673,16 +673,157 @@ async function scenario(browser, now, state, tz) {
       const T = window.__brickfordTest;
       const a = document.querySelector("#view a.monk-row");
       return { url: T.MONK.url, row: !!a,
-        href: a ? a.getAttribute("href") : null, blank: a ? a.target === "_blank" && /noopener/.test(a.rel) : null,
+        href: a ? a.getAttribute("href") : null, blank: a ? a.target === "_blank" : null,
         head: a ? a.closest(".glist").previousElementSibling.textContent : null,
         h: a ? Math.round(a.getBoundingClientRect().height) : null };
     });
     const day = await probe.page.evaluate(d => window.__brickfordTest.monkDay(d), now);
+    // T-054 changed where the row goes: #/monk in the same window (it was
+    // MONK.url in a new tab). The day, the head and the 44px are as they were.
     const ok = day === want && (want === null
       ? !r.row
-      : r.row && r.href === r.url && /^https:\/\/claude\.ai\/artifact\//.test(r.url) && r.blank && r.head === "Monk ModeDay " + want + " of 90" && r.h >= 44);
-    check("monk mode on " + now + ": " + (want === null ? "no row" : "day " + want + " of 90, a 44px row opening the page in a new tab"), ok, JSON.stringify({ day, ...r }));
+      : r.row && r.href === "#/monk" && r.blank === false && r.head === "Monk ModeDay " + want + " of 90" && r.h >= 44);
+    check("monk mode on " + now + ": " + (want === null ? "no row" : "day " + want + " of 90, a 44px row opening #/monk in the same window"), ok, JSON.stringify({ day, ...r }));
     check("no page errors (monk mode " + now + ")", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // T-054: the Monk Mode page's arithmetic (loop/specs/T-054-monk-page/spec.md,
+  // with the owner's amendment of 2026-10-23: Ja'fari Tehran, prayers combined
+  // into 3). Expected values are stated here or worked out here in Node, never
+  // read from the app.
+  //
+  // The prayer table is ONE line: the method the app must ship and the Manama
+  // times it must give, within a minute. When the owner settles a method, this
+  // line and PRAYER_METHOD in app.js are the whole change.
+  const PRAYER_TABLE = { method: { fajr: 17.7, maghrib: 4.5, isha: 14, combine: true }, days: { "2026-10-22": { fajr: "04:24", dhuhr: "11:22", maghrib: "17:20" }, "2026-12-06": { fajr: "04:51", dhuhr: "11:29", maghrib: "17:04" }, "2027-01-15": { fajr: "05:07", dhuhr: "11:47", maghrib: "17:25" } } };
+  {
+    const probe = await scenario(browser, "2026-10-28", null);
+    const toMin = hm => +hm.slice(0, 2) * 60 + +hm.slice(3);
+    const r = await probe.page.evaluate(days => {
+      const T = window.__brickfordTest;
+      const out = { method: T.PRAYER_METHOD, syncs: T.MONK_SYNCS, times: {} };
+      for (const d of days) out.times[d] = T.monkPrayerTimes(d);
+      return out;
+    }, Object.keys(PRAYER_TABLE.days));
+    check("PRAYER_METHOD is the table's method (" + JSON.stringify(PRAYER_TABLE.method) + ")",
+      JSON.stringify(r.method) === JSON.stringify(PRAYER_TABLE.method), JSON.stringify(r.method));
+    check("MONK_SYNCS ships false until T-053", r.syncs === false, String(r.syncs));
+    for (const [d, want] of Object.entries(PRAYER_TABLE.days)) {
+      const got = r.times[d] || {};
+      const off = Object.keys(want).map(k => [k, typeof got[k] === "number" ? Math.abs(got[k] - toMin(want[k])) : Infinity]);
+      check("prayer times, Manama, " + d + ": " + Object.entries(want).map(([k, v]) => k + " " + v).join(", ") + " within 1 minute",
+        off.every(([, m]) => m <= 1), off.map(([k, m]) => k + " off by " + (isFinite(m) ? m.toFixed(2) : "missing")).join(", "));
+    }
+
+    // Combined and separate: the slots, and the prayer blocks in the routine.
+    // 23 Oct 2026 is a Friday: no Jumu'ah, the grave visit stays.
+    const FRI = "2026-10-23";
+    const c = await probe.page.evaluate(d => {
+      const T = window.__brickfordTest, on = T.PRAYER_METHOD, off = Object.assign({}, on, { combine: false });
+      const pick = m => ({ slots: T.monkSlots(m).map(s => s.label), pt: T.monkPrayerTimes(d, m),
+        blocks: T.monkPlanFor(d, m).filter(e => e.kind === "prayer").map(e => [e.title, e.start, e.end - e.start]),
+        titles: T.monkPlanFor(d, m).map(e => e.title) });
+      return { on: pick(on), off: pick(off) };
+    }, FRI);
+    const near = (a, b) => Math.abs(a - b) < 1e-9;
+    check("combine on: 3 chips, Fajr, Dhuhr & Asr, Maghrib & Isha", c.on.slots.join("|") === "Fajr|Dhuhr & Asr|Maghrib & Isha", c.on.slots.join("|"));
+    check("combine on: 3 prayer blocks, Fajr 15 min at Fajr, Dhuhr & Asr 25 min at Dhuhr, Maghrib & Isha 25 min at Maghrib",
+      c.on.blocks.length === 3 && c.on.blocks[0][0] === "Fajr" && near(c.on.blocks[0][1], c.on.pt.fajr) && c.on.blocks[0][2] === 15 &&
+      c.on.blocks[1][0] === "Dhuhr & Asr" && near(c.on.blocks[1][1], c.on.pt.dhuhr) && c.on.blocks[1][2] === 25 &&
+      c.on.blocks[2][0] === "Maghrib & Isha" && near(c.on.blocks[2][1], c.on.pt.maghrib) && c.on.blocks[2][2] === 25, JSON.stringify(c.on.blocks));
+    check("combine off: 5 chips and 5 prayer blocks, each at its own time",
+      c.off.slots.join("|") === "Fajr|Dhuhr|Asr|Maghrib|Isha" && c.off.blocks.length === 5 &&
+      ["fajr", "dhuhr", "asr", "maghrib", "isha"].every((k, i) => near(c.off.blocks[i][1], c.off.pt[k])), JSON.stringify(c.off.blocks));
+    // The owner's routine (amendment 2026-10-23, second message), every
+    // block but the prayers, by weekday, stated here as the table was given.
+    const BASE = [[330, 10, "Journaling"], [340, 20, "Meditation"], [360, 90, "Gym"], [360, 45, "German \u2014 Easy German podcast"],
+      [450, 180, "Brickford \u2014 Deep Track"], [630, 45, "Scripting"], [720, 120, "Working \u2014 business"], [830, 10, "Post short-form"], [840, 90, "Nap"],
+      [930, 10, "German \u2014 speaking"], [940, 10, "German \u2014 writing"], [950, 70, "Working \u2014 business"], [1080, 25, "German \u2014 reading"],
+      [1105, 155, "Working \u2014 business"], [1260, 55, "Reading"], [1315, 5, "Plan tomorrow"]];
+    const ROUTINE = dw => {
+      let b = BASE.map(x => x.slice());
+      if (dw === 0 || dw === 3) b[6][2] = "Editing \u2014 stream \u2192 clips";
+      if (dw === 2 || dw === 6) b = b.filter(x => x[0] !== 1105).concat([[1140, 120, "Stream (English)"]]);
+      if (dw === 5) b.push([480, 60, "Grandmother \u2014 grave visit"]);
+      if (dw === 0) b.push([1080, 30, "Weekly review"]);
+      return b.map(x => x.join(" ")).sort();
+    };
+    const WEEK = range("2026-10-25", "2026-10-31");
+    const rt = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkPlanFor(d).filter(e => e.kind !== "prayer").map(e => [e.start, e.end - e.start, e.title].join(" ")).sort()), WEEK);
+    WEEK.forEach((d, i) => {
+      const want = ROUTINE(new Date(d + "T00:00:00Z").getUTCDay());
+      const miss = want.filter(x => !rt[i].includes(x)), extra = rt[i].filter(x => !want.includes(x));
+      check("the routine on " + d + " (" + ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00Z").getUTCDay()] + "): " + want.length + " blocks as the owner gave them",
+        miss.length === 0 && extra.length === 0, "missing " + JSON.stringify(miss) + ", extra " + JSON.stringify(extra));
+    });
+    check("Friday " + FRI + ": no Jumu'ah block, the grave visit stays",
+      !c.on.titles.some(t => /jumu/i.test(t)) && !c.off.titles.some(t => /jumu/i.test(t)) && c.on.titles.includes("Grandmother — grave visit"), c.on.titles.join(", "));
+
+    // The day score: 3 prayer slots + 6 habits + work >= 10 + phone < 2 = 11
+    // items (13 with combine off). Each fixture says what it gets, by hand.
+    const ALL3 = { fajr: true, dhuhrAsr: true, maghribIsha: true };
+    const GER = { podcast: true, speak: true, write: true, read: true };
+    const HAB = { german: GER, brickford: true, meditate: true, read: true, clean: true, plan: true };
+    const SCORE = [
+      ["nothing logged", {}, 0, 11],
+      ["everything", Object.assign({ prayers: ALL3, work: 10, phone: 1.5 }, HAB), 11, 11],
+      ["Fajr only, work 9.5, phone exactly 2", { prayers: { fajr: true }, work: 9.5, phone: 2 }, 1, 11],
+      ["phone 0 counts as under 2", { phone: 0 }, 1, 11],
+      ["two prayers, German (all 4), work 10, phone 1.5", { prayers: { dhuhrAsr: true, maghribIsha: true }, german: GER, work: 10, phone: 1.5 }, 5, 11],
+      ["German 3 of 4 does not count", { german: { podcast: true, speak: true, write: true } }, 0, 11],
+      ["German as a bare true (the old shape) does not count", { german: true }, 0, 11],
+      ["a separate-prayer key does not count when combined", { prayers: { dhuhr: true, asr: true } }, 0, 11],
+    ];
+    const sc = await probe.page.evaluate(F => F.map(([, rec]) => window.__brickfordTest.monkScore(rec)), SCORE);
+    SCORE.forEach(([name, , done, n], i) => {
+      const want = { done, n, pct: Math.round(100 * done / n) };
+      check("score: " + name + " = " + done + " of " + n + " (" + want.pct + "%)", JSON.stringify(sc[i]) === JSON.stringify(want), JSON.stringify(sc[i]));
+    });
+    const sc5 = await probe.page.evaluate(() => { const T = window.__brickfordTest, off = Object.assign({}, T.PRAYER_METHOD, { combine: false });
+      return T.monkScore({ prayers: { fajr: true, dhuhr: true, asr: true, maghrib: true, isha: true }, work: 10 }, off); });
+    check("score, combine off: 5 prayers + work = 6 of 13", JSON.stringify(sc5) === JSON.stringify({ done: 6, n: 13, pct: 46 }), JSON.stringify(sc5));
+
+    // Weeks run Sunday to Saturday: every day from the Sunday before day 1 to
+    // the Saturday after day 90, against getUTCDay() here.
+    const span = range("2026-10-18", "2027-01-23");
+    const ws = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkWeekStart(d)), span);
+    const wsBad = span.filter((d, i) => ws[i] !== addDays(d, -new Date(d + "T00:00:00Z").getUTCDay()) || new Date(ws[i] + "T00:00:00Z").getUTCDay() !== 0);
+    check("weeks start on Sunday: " + span.length + " days, each in the week of the Sunday on or before it", wsBad.length === 0, wsBad.slice(0, 3).map(d => d + " -> " + ws[span.indexOf(d)]).join(", "));
+
+    // The weekly and monthly sums on a fixture. Wednesday 28 Oct 2026: its
+    // week is Sun 25 Oct to Sat 31 Oct, so Sat 24 Oct and Sun 1 Nov are out.
+    const DAYS = {
+      "2026-10-24": { shorts: 5, stream: 1, work: 12, gym: 1, clips: 3 },
+      "2026-10-25": { shorts: 2, work: 8.5, gym: 1, clips: 5, scripts: 1 },
+      "2026-10-28": { shorts: 1, stream: 1, work: 10, video: 1 },
+      "2026-10-31": { shorts: 3, stream: 1, book: 1, work: 11.5, gym: 1, scripts: 2 },
+      "2026-11-01": { shorts: 9, work: 9, clips: 4, stream: 1 },
+    };
+    const sums = await probe.page.evaluate(D => { const T = window.__brickfordTest;
+      return { wk: T.monkWeekSums(D, "2026-10-28"), wkSun: T.monkWeekSums(D, "2026-10-25"), wkSat: T.monkWeekSums(D, "2026-10-31"),
+        oct: T.monkMonthSums(D, "2026-10-28"), nov: T.monkMonthSums(D, "2026-11-01") }; }, DAYS);
+    const WK = { shorts: 6, stream: 2, video: 1, scripts: 3, gym: 2, book: 1, work: 30 };
+    const same = (a, b) => Object.keys(b).every(k => a && a[k] === b[k]);
+    check("this week (Sun 25 - Sat 31 Oct) from Wed 28 Oct: " + JSON.stringify(WK), same(sums.wk, WK), JSON.stringify(sums.wk));
+    check("the same week from its Sunday and from its Saturday", same(sums.wkSun, WK) && same(sums.wkSat, WK), JSON.stringify([sums.wkSun, sums.wkSat]));
+    check("this month: October streams 3, clips 8; November streams 1, clips 4",
+      same(sums.oct, { stream: 3, clips: 8 }) && same(sums.nov, { stream: 1, clips: 4 }), JSON.stringify([sums.oct, sums.nov]));
+
+    // Focus this week: the weakest habit over the 7 days before today, with
+    // its fix. Today 28 Oct: the window is 21-27 Oct, of which 22-27 are monk
+    // days (6). Prayers all 3 on 4 of them (67%), German on 1 (17%), the rest
+    // on all 6 (100%), work and phone on all 6: German is the weakest. On the
+    // other 5 days German is 3 of its 4 chips, which is not done.
+    const FOCUS = {};
+    ["2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27"].forEach((d, i) => {
+      FOCUS[d] = Object.assign({ prayers: i < 4 ? ALL3 : { fajr: true }, work: 10, phone: 1 }, HAB, { german: i === 0 ? GER : { podcast: true, speak: true, read: true } });
+    });
+    FOCUS["2026-10-21"] = { german: false };           // before day 1: not counted
+    const f = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-10-28"), FOCUS);
+    check("focus this week: German 1.5 h at 17% over 6 days, with its fix",
+      !!f && f.days === 6 && f.key === "german" && f.label === "German 1.5 h" && f.rate === 17 && /German listening/.test(f.fix || ""), JSON.stringify(f));
+    check("no page errors (monk arithmetic)", probe.errors.length === 0, probe.errors.join(" | "));
     await probe.ctx.close();
   }
 

@@ -79,3 +79,11 @@ Relayed by the loop coordinator. It replaces the Umm al-Qura method in item 4 an
   - 2026-10-22: Fajr 04:24, Dhuhr 11:22, Maghrib 17:20 (Isha 18:03)
   - 2026-12-06: Fajr 04:51, Dhuhr 11:29, Maghrib 17:04 (Isha 17:49)
   - 2027-01-15: Fajr 05:07, Dhuhr 11:47, Maghrib 17:25 (Isha 18:10)
+
+### Amendment 2026-10-23, second message (owner): the routine and German
+Relayed by the loop coordinator. `planFor` is replaced by this routine (and the reference's copy with it).
+- **Prayers** (3 combined, Ja'fari Tehran): Fajr at Fajr, 15 min; "Dhuhr & Asr" at Dhuhr, 25 min, every day including Friday; "Maghrib & Isha" at Maghrib (4.5°), 25 min.
+- **Daily blocks:** 05:30 Journaling (10) · 05:40 Meditation (20) · 06:00 Gym (90), once a day after Fajr · 06:00 German — Easy German podcast on Spotify (45), during the workout · 07:30 Brickford — Deep Track (180), fixed, straight after the gym · 10:30 Scripting (45) · 12:00 Working (120), "Editing — stream → clips" on Sun and Wed · 13:50 Post short-form (10) · 14:00 Nap (90) · 15:30 German — speaking (10) · 15:40 German — writing (10) · 15:50 Working (70) · 18:00 German — reading (25) · 18:25 Working (155) on Sun, Mon, Wed, Thu, Fri · 19:00 Stream (120) on Tue and Sat · 21:00 Reading (55) · 21:55 Plan tomorrow (5).
+- Fridays add the grandmother grave visit at 08:00 (60). Sundays add the weekly review at 18:00 (30).
+- **German on the page:** the single "German 1.5 h" toggle becomes 4 chips in one row, like the prayer chips: Podcast 45, Speak 10, Write 10, Read 25. German counts as done for the score and the weekly focus only when all 4 are ticked. Stored as `german: {podcast, speak, write, read}`.
+- **Gym:** one session a day (the stepper stops at 1). The weekly target stays 5.

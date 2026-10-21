@@ -109,3 +109,4 @@
   - Email: the connected Gmail is the Adam pipeline mailbox (5 threads). Nothing needs a reply. 2 carousels are open loops.
 - 2026-10-23: Owner: transcription runs on the desktop with audio synced automatically, and progress sync moves to a private repo (the repo stays public for free Pages). Specs: T-053 written; T-046 amended. create_repository was refused (403), so the owner creates Nexline1/brickford-private and grants the token. T-052 (monk row) gates running.
 - 2026-10-23: Running in parallel: T-035 phase-1 sample PDF (general-purpose opus, /home/user/bf-T-035); T-053 private sync (builder opus, /home/user/bf-T-053); T-046 rework (builder opus, resumed); T-052 gates (script). Owner to-do: create Nexline1/brickford-private, give the token access, allow huggingface.co.
+- 2026-10-23: Owner: dashboard first. Paused T-035, T-053 and T-046 (agents stopped, worktrees clean, pushed).

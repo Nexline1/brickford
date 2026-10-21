@@ -32,7 +32,7 @@ const palette = {
   bar:                ["rgb(249 249 249 / 0.94)", "rgb(22 22 23 / 0.94)"], // chrome material (tab bar), used with backdrop-blur
   // Ink
   label:              ["#1D1D1F", "#F5F5F7"],   // owner's ink (apple.com), in place of #000 / #FFF
-  "label-secondary":  ["#6E6E73", "#8E8E93"],   // small grey text: accessible shade light, systemGray dark
+  "label-secondary":  ["#6E6E73", "#98989D"],   // small grey text (dark: what iOS secondaryLabel composites to; #8E8E93 is 4.27:1 on #2C2C2E)
   "label-tertiary":   ["#C7C7CC", "#48484A"],   // chevrons, disclosure glyphs; never words
   // Lines and states
   separator:          ["#C6C6C8", "#38383A"],   // opaque separator
@@ -40,7 +40,7 @@ const palette = {
   fill:               ["#E5E5EA", "#2C2C2E"],   // systemGray5: tracks, empty segments, selected sidebar row
   // Tint (iOS blue)
   tint:               ["#007AFF", "#0A84FF"],   // systemBlue: icons, fills, large text
-  "tint-text":        ["#0066CC", "#0A84FF"],   // links and tinted words
+  "tint-text":        ["#0066CC", "#409CFF"],   // links and tinted words (dark: iOS increased-contrast systemBlue; #0A84FF is under 4.5:1 on any tinted or elevated dark fill)
   "tint-fill":        ["#0071E3", "#0071E3"],   // filled-button background under white text (4.70:1)
   // Destructive (iOS red)
   destructive:        ["#FF3B30", "#FF453A"],   // systemRed: icons, fills

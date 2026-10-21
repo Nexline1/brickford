@@ -37,36 +37,38 @@
      operating system. Every theme read `normal`, so the three with a
      near-black page were drawing light scrollbars on black. */
   color-scheme: light;
-  --shade: #2b2118;
+  --shade: #000000;
   /* Semantic — light theme: white cards on near-white, one institutional blue.
      Every ink is a SOLID value, never an alpha. Alpha inks are how a contrast
      failure hides: the same token passes on one surface and fails on the next,
      so nobody can check it by reading the stylesheet. Each value below was
      solved against the worst surface it can land on and clears 4.5:1 there. */
-  /* The lead pair, light half: loop/design/brief.md §3. A warm grouped
-     background rather than iOS's cool #f2f2f7, white cells on it. */
-  --bg: #f2f1ee;          /* grouped page background */
-  --bg-2: #f2f0ea;        /* section bands — how sections separate */
+  /* T-051 (owner, 2026-10-21): the iOS palette, in Apple's accessible shades
+     where a colour is text (tailwind.config.js holds the same values as named
+     tokens). Grouped background #f2f2f7, white cells, ink #1d1d1f, grey text
+     #6e6e73, tint #0066cc, filled buttons #0071e3, red #d70015. */
+  --bg: #f2f2f7;          /* grouped page background */
+  --bg-2: #f2f2f7;        /* section bands — how sections separate */
   --surface: #ffffff;     /* cells, cards */
-  --surface-2: #f7f6f3;   /* gray fills, pressed cells */
+  --surface-2: #f2f2f7;   /* gray fills, pressed cells */
   /* The lightest surface, for the few things drawn over the page (the chart
      tooltip). It was called --float until --float became the shadow below. */
   --surface-float: #ffffff;
-  --line: #dcdad5;        /* hairline separators; not text */
-  --line-strong: #c7c0b3;
-  --ink: #111111;         /* primary label */
-  --ink-2: #5c5a55;       /* secondary label */
-  --ink-3: #6e6b65;       /* tertiary — still text, so still 4.5:1 */
+  --line: #c6c6c8;        /* hairline separators; not text */
+  --line-strong: #aeaeb2;
+  --ink: #1d1d1f;         /* primary label */
+  --ink-2: #6e6e73;       /* secondary label */
+  --ink-3: #6e6e73;       /* tertiary — still text, so still 4.5:1 */
   /* Navy and gold is the oldest university pairing there is, and the brand
      keeps it: the tint stays in the navy family. */
-  --accent: #1e4f8f;      /* tint: links, the active tab, tinted-button labels */
+  --accent: #0066cc;      /* tint: links, the active tab, tinted-button labels */
   /* The filled button and the done-day fill. Its label is --accent-fill-ink:
      white here (8.2:1); dark's button is light, so its label is dark. */
-  --accent-fill: #1e4f8f;
+  --accent-fill: #0071e3;
   /* The tinted-button fill; its label is --accent (6.9:1). */
-  --accent-soft: #e6edf6;
+  --accent-soft: #e0eefc;
   /* The crest, the streak and achievement moments. Never an action. */
-  --gold: #8a5f12;
+  --gold: #c93400;
   /* --accent-fill is set for the lead pair only; the other five themes
      inherit the light value until T-008 paints with it. --accent-soft is the
      sidebar's selection pill since T-006, so every theme sets its own (its
@@ -79,13 +81,13 @@
      accent's own family now: partial and scheduled read as ACTIVE, and green
      means finished and nothing else. The same collision was in five of the
      seven themes and is fixed in each below. */
-  --accent-2: #3f6ea0;
-  --good: #2a7047;
-  --bad: #b32d1f;
+  --accent-2: #2a68c0;
+  --good: #1f7a35;
+  --bad: #d70015;
   /* The one thing that is due. Derived from --bad's hue but pulled back, so it
      reads as attention rather than as something having gone wrong. */
-  --urgent: #9a5a16;
-  --btn-bg: #241f1a;
+  --urgent: #c93400;
+  --btn-bg: #0071e3;
   --btn-ink: #ffffff;
   /* The label on a FILLED accent: the primary .btn (on --btn-bg), the toast,
      anything painted --accent-fill (T-024). White on light's fills; dark's
@@ -133,9 +135,9 @@
      too (meta theme-color, in app.js). CONTENT-STANDARD's rule stands: only
      the sidebar or the tab bar paints it, and it re-scopes the ink with it —
      --panel-ink and --panel-accent are that ink, kept with it. */
-  --panel: #2b2118;
-  --panel-ink: #f2ece2;
-  --panel-accent: #d3a874;
+  --panel: #ffffff;
+  --panel-ink: #1d1d1f;
+  --panel-accent: #0066cc;
   /* Emphasis is a rule, not a fill: --feature is the colour of the line along
      the top of a feature card. It used to be a dark background that re-scoped
      eight ink tokens, and every child that assumed light-theme values broke
@@ -149,25 +151,25 @@
      --font-rounded is for big stat numbers (SF Pro Rounded on Apple, the
      system face elsewhere). --font-mono is for CODE only — numbers that used
      to be mono for alignment are the body face with tabular-nums. */
-  --font-body: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   --font-display: var(--font-body);
-  --font-rounded: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-rounded: ui-rounded, -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
   /* The iOS text styles (brief §3), in rem so a larger text setting scales the
      whole layout. Size, leading and tracking move together: large sizes are
      tight, body is 0, small text opens up slightly. On desktop (>= 861px) the
      large title steps up to 2.5rem; every other style is the same everywhere,
      which is why the separate phone type step is gone. */
-  --fs-large: 2.125rem;    --lh-large: 1.2;     --tr-large: -0.022em;    /* 34, 700 */
-  --fs-title1: 1.75rem;    --lh-title1: 1.2;    --tr-title1: -0.02em;    /* 28, 700 */
-  --fs-title2: 1.375rem;   --lh-title2: 1.25;   --tr-title2: -0.015em;   /* 22, 700 */
-  --fs-title3: 1.25rem;    --lh-title3: 1.25;   --tr-title3: -0.01em;    /* 20, 600 */
-  --fs-headline: 1.0625rem; --lh-headline: 1.3; --tr-headline: -0.005em; /* 17, 600 */
-  --fs-body: 1.0625rem;    --lh-body: 1.45;     --tr-body: 0;            /* 17, 400 */
-  --fs-callout: 1rem;      --lh-callout: 1.4;   --tr-callout: 0;         /* 16, 400 */
-  --fs-subhead: 0.9375rem; --lh-subhead: 1.35;  --tr-subhead: 0;         /* 15, 400 */
-  --fs-footnote: 0.8125rem; --lh-footnote: 1.35; --tr-footnote: 0.005em; /* 13, 400 */
-  --fs-caption: 0.75rem;   --lh-caption: 1.3;   --tr-caption: 0.01em;    /* 12, 500 */
+  --fs-large: 2.125rem;    --lh-large: 1.206;     --tr-large: -0.0218em;    /* 34, 700 */
+  --fs-title1: 1.75rem;    --lh-title1: 1.214;    --tr-title1: -0.0209em;    /* 28, 700 */
+  --fs-title2: 1.375rem;   --lh-title2: 1.273;   --tr-title2: -0.0183em;   /* 22, 700 */
+  --fs-title3: 1.25rem;    --lh-title3: 1.25;   --tr-title3: -0.0167em;    /* 20, 600 */
+  --fs-headline: 1.0625rem; --lh-headline: 1.294; --tr-headline: -0.0128em; /* 17, 600 */
+  --fs-body: 1.0625rem;    --lh-body: 1.294;     --tr-body: -0.0128em;            /* 17, 400 */
+  --fs-callout: 1rem;      --lh-callout: 1.3125;   --tr-callout: -0.011em;         /* 16, 400 */
+  --fs-subhead: 0.9375rem; --lh-subhead: 1.333;  --tr-subhead: -0.0088em;         /* 15, 400 */
+  --fs-footnote: 0.8125rem; --lh-footnote: 1.385; --tr-footnote: -0.0032em; /* 13, 400 */
+  --fs-caption: 0.75rem;   --lh-caption: 1.333;   --tr-caption: 0.0005em;    /* 12, 500 */
   /* The names the rest of the file already reads, mapped onto the ramp. */
   --fs-h1: var(--fs-large);
   --fs-h2: var(--fs-title2);
@@ -211,18 +213,18 @@
   /* Faculty identity — now the only warmth on the page, and the thing that lets
      a subject be recognised before its name is read. Each is darkened exactly as
      far as 4.5:1 against the band colour demands, hue held. */
-  --fac-math: #35608f;
-  --fac-ai: #88592b;
-  --fac-sys: #26665f;
-  --fac-phys: #9c4534;
-  --fac-res: #63498a;
-  --fac-speech: #8a4a63;
+  --fac-math: #4b49c9;
+  --fac-ai: #c93400;
+  --fac-sys: #0b7480;
+  --fac-phys: #d70015;
+  --fac-res: #8944ab;
+  --fac-speech: #d30f45;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --urgent: #d99a4e;
-  --shade: #000308;
+  --urgent: #ff9f0a;
+  --shade: #000000;
   /* The lead pair, dark half: loop/design/brief.md §3. iOS's own dark system
      neutrals (#1c1c1e cells) with Brickford's navy lifted to a tint that
      reads on them. T-024's navy and gold replaced it for a day; the owner
@@ -230,35 +232,35 @@
      is comfortable for hours. Restored exactly, with three exceptions so the
      sidebar is the darkest thing on screen: --panel is true black (it is the
      sidebar now), and the page is lifted just off it (--bg, --bg-2). */
-  --fac-math: #7aa6da; --fac-ai: #d9ab6d; --fac-sys: #63b3aa; --fac-phys: #d98071; --fac-res: #a58ac9; --fac-speech: #c98fac;
+  --fac-math: #9b99ff; --fac-ai: #ff9f0a; --fac-sys: #40c8e0; --fac-phys: #ff453a; --fac-res: #da8fff; --fac-speech: #ff6482;
   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
-  --bg: #0e0e10;
-  --bg-2: #141416;
+  --bg: #000000;
+  --bg-2: #000000;
   --surface: #1c1c1e;
   --surface-2: #2c2c2e;
-  --surface-float: #22272f;
+  --surface-float: #2c2c2e;
   --line: #38383a;
-  --line-strong: #3d454f;
-  --ink: #ffffff;
-  --ink-2: #a1a1a6;
-  --ink-3: #8e8e93;
-  --accent: #78aef0;
-  --accent-fill: #2f6bbd;
-  --accent-soft: #1a2a3f;
-  --gold: #e0b35a;
-  --accent-2: #9ec2e8;
-  --good: #62b881;
-  --bad: #e8705c;
-  --btn-bg: #e8ebef;
-  --btn-ink: #0f1216;
+  --line-strong: #48484a;
+  --ink: #f5f5f7;
+  --ink-2: #98989d;
+  --ink-3: #98989d;
+  --accent: #409cff;
+  --accent-fill: #0071e3;
+  --accent-soft: #0b1a2b;
+  --gold: #ff9f0a;
+  --accent-2: #64a8ff;
+  --good: #30d158;
+  --bad: #ff453a;
+  --btn-bg: #0071e3;
+  --btn-ink: #ffffff;
   /* The button is light, so its label is its own dark ink. */
-  --accent-fill-ink: #0f1216;
+  --accent-fill-ink: #ffffff;
   /* A dark shadow on a near-black page is not a shadow: what floats gets a ring. */
   --float: 0 0 0 1px var(--line);
   /* The sidebar (T-025), and the status bar (meta theme-color). */
-  --panel: #000000;
-  --panel-ink: #e8ebef;
-  --panel-accent: #7fb0e6;
+  --panel: #1c1c1e;
+  --panel-ink: #f5f5f7;
+  --panel-accent: #409cff;
   --feature: var(--accent);
 }
 
@@ -309,7 +311,7 @@ h3 {
 }
 /* The one step in the ramp that is not the same everywhere: on desktop the
    large title is 40px (brief §3). */
-@media (min-width: 861px) { :root { --fs-large: 2.5rem; } }
+/* T-051: 34px at every width, the iOS large title (it was 40px on desktop). */
 /* Small text wants slightly POSITIVE tracking - the mirror of the rule above.
    Applied at the token so every label inherits it rather than each block
    re-deciding. */
@@ -339,34 +341,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   display: flex; flex-direction: column; gap: var(--sp-2);
 }
 
-/* Light's sidebar inks, each solved on the espresso --panel #2b2118 and on the
-   two fills a row can carry there (hover --bg-2, the active pill
-   --accent-soft): --ink 13.4:1 on the panel, --ink-2 8.9:1, --ink-3 6.5:1
-   (4.7:1 on the pill), --accent 7.2:1 (5.2:1 on the pill). The pill is
-   --panel-accent at 16% into the panel, the hover --panel-ink at 8%, the
-   rules inside it --panel-ink at 16%, all worked out as solid hexes (the
-   sidebar's own trailing edge stays the page's --line). The crest is
-   caramel on espresso, as it was when the sidebar was last the panel. */
-[data-theme="light"] .sidebar {
-  --ink: var(--panel-ink); --ink-2: #cbc1b2; --ink-3: #b0a594;
-  --accent: var(--panel-accent); --accent-soft: #463727; --bg-2: #3b3128;
-  --gold: var(--panel-accent);
-}
-[data-theme="light"] .sidebar > * { --line: #4b4138; }
+/* T-051: the sidebar is the card colour in both themes (the approved
+   mockup): white beside the #f2f2f7 page, #1c1c1e beside black. The page's own
+   inks apply on it unchanged, so the espresso re-scoping that lived here is
+   gone. */
 
-.crest { text-align: center; padding-bottom: var(--sp-3); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-2); }
-.crest svg { width: 46px; height: 46px; color: var(--accent); }
-.crest .name-en {
-  font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--ink);
-  /* A seal is letterspaced wider than a logotype. */
-  margin-top: 8px; letter-spacing: 0.14em; text-transform: uppercase;
-}
-/* A hairline between name and descriptor — the lockup device every institutional
-   identity in the references uses to say "this is a seal, not a logotype". */
-.crest .wordrule { width: 34px; height: 1px; background: var(--gold); margin: 7px auto 6px; opacity: 0.85; }
-.crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px var(--sp-3); }
+/* The crest stays as the logo: the app icon itself, with the iOS icon corner. */
+.brand-icon { width: 40px; height: 40px; flex-shrink: 0; border-radius: 22.37%; display: block; }
+[data-theme="dark"] .brand-icon { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.15); }
+.brand-name { font-size: var(--fs-body); font-weight: 600; letter-spacing: var(--tr-body); line-height: var(--lh-body); color: var(--ink); }
+.brand-sub { font-size: var(--fs-footnote); font-weight: 500; letter-spacing: var(--tr-footnote); line-height: var(--lh-footnote); color: var(--ink-2); }
 
-.nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
+.nav-group-label { font-size: var(--fs-footnote); line-height: var(--lh-footnote); font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin: var(--sp-3) 12px 4px; }
 /* The sidebar is one column of rows under a crest. The footer used to hold
    four bordered buttons — 181px of Theme / Backup / Restore / Sync, shouting
    louder than the eleven nav items above them, for the controls touched least
@@ -374,30 +361,30 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    than copying it, so the two halves cannot drift apart. */
 .nav a, .navrow {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: clamp(8px, 0.5rem, 11px) var(--sp-2); border-radius: var(--r-sm);
-  color: var(--ink-2); font-size: var(--fs-small); font-weight: 500; text-decoration: none;
+  min-height: 44px; padding: 0 12px; border-radius: var(--r-md);
+  color: var(--ink); font-size: var(--fs-body); font-weight: 400; letter-spacing: var(--tr-body); line-height: var(--lh-body); text-decoration: none;
   position: relative;
-  transition: background-color var(--t-hover) ease;
   /* a <button> brings its own chrome; the row wants none of it */
   background: none; border: 0; font-family: var(--font-body); text-align: left;
   cursor: pointer;
 }
 /* 0.7 over --ink-2 is a smudge, not a mark. The glyph comes up and colour
    carries the state instead of opacity doing both jobs. */
-.nav a .glyph, .navrow .glyph { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.85; }
+.nav a .glyph, .navrow .glyph { width: 22px; height: 22px; flex-shrink: 0; color: var(--accent); }
 /* Hover and press are --bg-2, the page's section-band grey: on the sidebar
    material it measures >= 1.09:1 in every theme (>= 1.12:1 on the drawer's
    solid --surface), with --ink and --ink-2 >= 6.0:1 on it. */
-.nav a:hover, .navrow:hover { background: var(--bg-2); color: var(--ink); text-decoration: none; }
+.nav a:hover:not(:active), .navrow:hover:not(:active) { background: var(--bg-2); color: var(--ink); text-decoration: none; }
 /* The current page is a tinted pill: --accent-soft with an --accent label
    (>= 5.3:1 in all seven themes), on --r-sm corners. It was a --bg-2 fill and
    a 2px accent bar down the left edge, which on a light material reads as a
    hover that got stuck. The pill keeps its tint while pressed or hovered —
    the press is the scale below, not a second fill. */
-.sidebar .nav a.active, .sidebar .nav a.active:hover, .sidebar .nav a.active:active {
-  background: var(--accent-soft); color: var(--accent); font-weight: 600;
+.sidebar .nav a.active, .sidebar .nav a.active:hover {
+  background: var(--accent-fill); color: var(--accent-fill-ink); font-weight: 600;
 }
-.nav a.active .glyph { opacity: 1; color: var(--accent); }
+.sidebar .nav a.active:active { background: var(--accent-fill); opacity: 0.7; }
+.nav a.active .glyph { color: var(--accent-fill-ink); }
 
 .sidebar-foot { margin-top: auto; padding-top: var(--sp-2); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 1px; }
 .sidebar-foot .motto { margin-top: var(--sp-3); }
@@ -448,11 +435,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .theme-menu button {
   display: flex; align-items: center; gap: 10px;
   background: transparent; border: none; cursor: pointer;
-  color: var(--ink-2); font-family: var(--font-body); font-size: var(--fs-small); font-weight: 500;
-  padding: 7px 10px; border-radius: 5px; text-align: left;
-  transition: background-color var(--t-micro) ease;
+  color: var(--ink); font-family: var(--font-body); font-size: var(--fs-body); font-weight: 400;
+  min-height: 44px; padding: 0 10px; border-radius: var(--r-sm); text-align: left;
 }
-.theme-menu button:hover { background: var(--bg-2); color: var(--ink); }
+.theme-menu button:hover:not(:active) { background: var(--bg-2); color: var(--ink); }
 .theme-menu button.on { color: var(--ink); font-weight: 600; }
 .theme-menu button.on::after { content: "✓"; margin-left: auto; color: var(--accent); }
 .theme-menu .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(128, 118, 100, 0.5); }
@@ -539,17 +525,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    instead, and the dashboard carries one too — see "The large title" in the
    phone block below. */
 .folio {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
-  margin: 0 0 var(--sp-4); padding-bottom: 7px;
-  border-bottom: 1.5px solid var(--ink);
-  font-family: var(--font-display); font-size: var(--fs-small); font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.3;
+  /* T-051: the iOS large title at every width (34/41 bold), with where you
+     are in the three years as a grey caption above it — the running head's
+     small caps and ink rule were the register stance. On a phone the caption
+     goes, because the nav bar's capsule carries it (the phone block below). */
+  display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 2px;
+  margin: 0 0 var(--sp-4); padding: 0; border: 0;
+  font-family: var(--font-display); font-size: var(--fs-large); font-weight: 700;
+  letter-spacing: var(--tr-large); text-transform: none; line-height: var(--lh-large);
   color: var(--ink);
 }
 .folio .fo-meta {
-  font-family: var(--font-body); font-size: var(--fs-tiny); font-weight: 500;
-  letter-spacing: 0.04em; text-transform: none; color: var(--ink-3);
+  font-family: var(--font-body); font-size: var(--fs-footnote); font-weight: 500;
+  letter-spacing: var(--tr-footnote); line-height: var(--lh-footnote); text-transform: none; color: var(--ink-2);
   font-variant-numeric: lining-nums tabular-nums;
 }
 /* The dashboard's large title. On a phone every page opens on one (T-006);
@@ -561,9 +549,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    becomes the breadcrumb it already was. */
 .page-head { margin-bottom: var(--sp-4); }
 .page-head h1 { margin-top: 2px; }
-.page-head .kicker { font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
-.page-head .kicker a { color: inherit; }
-.page-head .sub { color: var(--ink-2); font-size: var(--fs-small); max-width: 64ch; margin-top: 6px; }
+.page-head .kicker { font-size: var(--fs-footnote); line-height: var(--lh-footnote); letter-spacing: var(--tr-footnote); color: var(--ink-2); font-weight: 500; }
+.page-head .kicker a { color: var(--accent); }
+.page-head .sub { color: var(--ink-2); font-size: var(--fs-footnote); line-height: var(--lh-footnote); letter-spacing: var(--tr-footnote); font-weight: 500; max-width: 64ch; margin-top: 4px; }
 
 .card {
   background: none;
@@ -611,10 +599,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   border: 1px solid var(--btn-bg); border-radius: 999px;
   padding: clamp(9px, 0.5625rem, 12px) clamp(18px, 1.125rem, 24px); cursor: pointer;
   box-shadow: var(--btn-gloss), var(--lift);
-  transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
-              box-shadow var(--t-micro) ease;
 }
-.btn:hover { opacity: 0.88; }
+.btn:hover:not(:active) { opacity: 0.88; }
 /* No :active transform here. There is a shared pointer-down rule further down
    that scales every pressable surface, and this one used to translateY(1px)
    against it — two conflicting transforms on the same element, the later one
@@ -626,7 +612,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    --bg (>= 1.19:1) and --surface (>= 1.28:1) in all seven themes. It was
    --bg-2, which is 1.009:1 on the light --bg — a hover nobody could see. The
    label is --ink, >= 9.9:1 on --line everywhere. */
-.btn.ghost:hover { opacity: 1; background: var(--line); }
+.btn.ghost:hover:not(:active) { opacity: 1; background: var(--line); }
 .btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); border-radius: var(--radius); box-shadow: var(--lift-edge), var(--lift); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
    inline padding:4px versions of these were unhittable on a phone. */
@@ -642,7 +628,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* --surface, not the ghost's --line: this one carries status pills, whose
    --good and --accent-2 inks fall under 4.5:1 on --line (4.29 and 3.81 in
    light). --bg-2 was 1.009:1 on the light --bg. */
-.btn.tiny.bare:hover { background: var(--surface); }
+.btn.tiny.bare:hover:not(:active) { background: var(--surface); }
 /* opacity:0.4 on a FILLED button leaves a solid grey slab, and in the specimen
    that slab read as heavier than the live ghost button beside it — a dead
    control shouting louder than the ones you can press. A disabled button loses
@@ -697,10 +683,10 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 .field { display: block; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 4px; font-weight: 600; }
 
 /* Checkboxes */
-.check-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: var(--radius); cursor: pointer; transition: background-color var(--t-micro) ease; }
-/* Hover and press lift the row to --surface, for the reason .grow's do (see
+.check-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: var(--radius); cursor: pointer; }
+/* Hover and press lift the row to --surface, for the reason .g-row's do (see
    there): --bg-2 was 1.009:1 on the light --bg, and the label is text. */
-.check-row:hover { background: var(--surface); }
+.check-row:hover:not(:active) { background: var(--surface); }
 .check-row input { display: none; }
 .checkbox {
   width: 16px; height: 16px; flex-shrink: 0; margin-top: 4px; border-radius: 2px;
@@ -716,7 +702,7 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 /* Struck-through text is a to-do-app idiom, and it contradicts a decision this
    file already made and wrote down: a filled "done" state was removed in an
    earlier round because it read as SELECTED rather than finished, in favour of
-   a tick and recession. .grow.done-row does exactly that; this agrees with it. */
+   a tick and recession. .g-row.done-row does exactly that; this agrees with it. */
 .check-row input:checked ~ .check-label { color: var(--ink-3); }
 .check-label { font-size: var(--fs-small); color: var(--ink-2); }
 
@@ -736,7 +722,7 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 .bar.teal > i { background: var(--accent-2); }
 /* .bar.sweep animates from empty on first paint; --w carries the target scale.
    The inline transform stays as the reduced-motion / no-JS resting state.
-   It was `.bar.grow` until `.grow` became the register's ROW class — min-height
+   It was `.bar.g-row` until `.g-row` became the register's ROW class — min-height
    54px, flex, its own padding and a rule along the top. Every bar carrying the
    modifier silently became an empty 54px box: on the dashboard hero, a tall
    rounded outline with nothing in it above the Open button, because a flex item
@@ -787,10 +773,7 @@ tr:last-child td { border-bottom: none; }
      these stack in a column and a full --lift on each turns a question into a
      flight of steps. */
   box-shadow: 0 1px 0 color-mix(in srgb, var(--shade) 20%, transparent);
-  transition: border-color var(--t-micro) ease, background-color var(--t-micro) ease,
-              transform var(--t-micro) ease, box-shadow var(--t-micro) ease;
 }
-.opt:active { transform: translateY(1px); box-shadow: none; }
 /* Answered: the choice is made, so it stops offering itself. */
 .opt.correct, .opt.wrong { box-shadow: none; transform: none; }
 /* Questions are drawn at random, so any sitting may serve a long formula or
@@ -801,7 +784,7 @@ tr:last-child td { border-bottom: none; }
    hover fill was --bg-2, which on the light --bg (1.009:1) made the option
    melt into the page under the pointer; --surface-2 is 1.045:1 there, and a
    darker gray would take the --ink-3 key letter under 4.5:1. */
-.opt:hover { border-color: var(--line-strong); background: var(--surface); }
+.opt:hover:not(:active) { border-color: var(--line-strong); background: var(--surface); }
 /* flex-shrink: 0 — `.opt > *` lets every child shrink so a long answer wraps,
    and in the body face the key letter was the child that gave way (9px of a
    12px "A" at 320px with a 24px root). The answer text absorbs it instead. */
@@ -893,14 +876,14 @@ tr:last-child td { border-bottom: none; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   position: relative; transition: background-color var(--t-micro) ease;
 }
-.cal-cell:hover { background: var(--bg-2); }
+.cal-cell:hover:not(:active) { background: var(--bg-2); }
 /* A day tile is pressable, so it raises — but with an INSET highlight, never an
    outer shadow. .cal-grid draws its rules as 1px gaps showing the container
    through; an ambient shadow has exactly that 1px to bleed into and would
    smudge every rule in the month. Light on the top face of each tile reads as
    raised and leaves the rules alone. */
 .cal-cell { box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent); }
-.cal-cell:active { transform: scale(0.97); box-shadow: var(--sink); }
+
 /* Not days: an empty pad and a rest day are not things you press. */
 .cal-cell.blank, .cal-cell.rest { box-shadow: none; }
 /* The picked day settles into place: a scale from 0.92 to 1 on a critically
@@ -1023,22 +1006,22 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 
 
 /* Donut progress. pathLength=100 makes the dash maths percentage-direct. */
-.ring { display: block; flex-shrink: 0; }
-.ring circle { fill: none; stroke-linecap: round; }
-.ring .track { stroke: var(--line); }
-.ring .fill {
+.progress-ring { display: block; flex-shrink: 0; }
+.progress-ring circle { fill: none; stroke-linecap: round; }
+.progress-ring .track { stroke: var(--line); }
+.progress-ring .fill {
   stroke: var(--accent); stroke-dasharray: 100; stroke-dashoffset: 100;
   animation: ringDraw 900ms var(--ease) 80ms forwards;
 }
-.ring .fill.teal { stroke: var(--accent-2); }
-.ring .fill.good { stroke: var(--good); }
+.progress-ring .fill.teal { stroke: var(--accent-2); }
+.progress-ring .fill.good { stroke: var(--good); }
 @keyframes ringDraw { to { stroke-dashoffset: var(--to, 100); } }
 .ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
-.ring-wrap .ring-label {
+.ring-wrap .progress-ring-label {
   position: absolute; text-align: center; font-family: var(--font-rounded); font-variant-numeric: tabular-nums;
   font-size: 1.15rem; font-weight: 500; color: var(--ink); line-height: 1.1;
 }
-.ring-wrap .ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
+.ring-wrap .progress-ring-label small { display: block; font-family: var(--font-body); font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
 
 
 /* Staggered entrance for a list of cards or rows. */
@@ -1158,7 +1141,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 }
 /* The leading mark on a row that is a warning. The alert banners this replaced
    carried a red rule, a red code line and a red bubble; one red mark says it. */
-.grow .g-lead.bad-lead { color: var(--bad); font-size: 0.95rem; }
+.g-row .g-lead.bad-lead { color: var(--bad); font-size: 0.95rem; }
 /* When the one thing is overdue rather than merely next. */
 .one.urgent { border-top-color: var(--urgent); }
 .one.urgent .one-kind { color: var(--urgent); }
@@ -1225,7 +1208,6 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   padding: 9px 9px; text-decoration: none; color: var(--ink);
   border-left: 1px solid var(--line-strong); margin-left: -1px;
   border-top: 1px solid var(--line-strong); margin-top: -1px;
-  transition: background-color var(--t-hover) ease;
 }
 .onecounts > :first-child { border-left: 0; margin-left: 0; }
 /* Two things the white fill was hiding, both visible the moment it went.
@@ -1251,7 +1233,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    needs 77. Six pixels of side padding buys the two it was short of. */
 @media (max-width: 360px) { .onecounts > * { padding: 9px 6px; } }
 /* --surface: --bg-2 was 1.009:1 on the light --bg, and the cell is text. */
-.onecounts > a:hover { text-decoration: none; background: var(--surface); }
+.onecounts > a:hover:not(:active) { text-decoration: none; background: var(--surface); }
 /* A cell that links is a control. It is inside a framed table whose rules are
    drawn by the cells themselves, so it raises with the hard edge only — an
    ambient shadow here would smear the rules either side of it. */
@@ -1280,42 +1262,22 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    >= 6.0:1 on it. A check row and a disclosure summary sit on the page, where
    --bg-2 is 1.009:1 against the light --bg; they press to --surface instead
    (they carry text, so a darker gray would take --ink-3 under 4.5:1). */
-.nav a:active, .navrow:active, .theme-menu button:active {
-  background: var(--bg-2);
-  transform: scale(0.985);
-  transition: transform 100ms ease-out, background-color 100ms ease-out;
-}
-.check-row:active {
-  background: var(--surface);
-  transform: scale(0.985);
-  transition: transform 100ms ease-out, background-color 100ms ease-out;
-}
-.unit > summary:active { background: var(--surface); }
+/* T-051: the press itself is now one of four utilities from tailwind.css —
+   press-row (rows highlight to systemGray4, no scale), press-btn (filled
+   buttons scale to 0.97), press-card (cards and tiles scale and dim),
+   press-text (text buttons dim) — and app.js puts one on every tappable
+   element (PRESS). The rules that used to live here set transform and
+   background on :active, and because this file is unlayered they would beat
+   the utilities, so they are gone. Hover stays here, as :hover:not(:active),
+   so a mouse press shows the press and not the hover. */
 /* A day on the heatmap is 13px; scaling it would be invisible, so it brightens
-   its own edge instead. */
+   its own edge as well. */
 .hc:active { box-shadow: inset 0 0 0 2px var(--accent); }
-.tabbar a:active { transform: scale(0.92); transition: transform 100ms ease-out; }
 /* The browser's tap flash is a grey rectangle with no relationship to the
-   thing it lands on. Every surface above now has feedback of its own, designed
-   to the element, so the generic one is noise — and on an app installed to the
-   Home Screen it is the loudest "this is a web page" tell there is. */
+   thing it lands on. Every tappable element has a designed press now, so the
+   generic one is noise — and on an app installed to the Home Screen it is the
+   loudest "this is a web page" tell there is. */
 a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transparent; }
-
-.grow:active, .onecounts > a:active {
-  transform: scale(0.985);
-  transition: transform 100ms ease-out;
-}
-/* A button depresses as well as scaling, and .btn therefore leaves the shared
-   rule above: two rules setting transform on the same element is the exact bug
-   this file already carries a comment about further up, where the later one
-   silently won. Both moves live in one declaration.
-   The hard edge collapses and the ambient shrinks, so the key goes down into
-   the page instead of shrinking on top of it. */
-.btn:active:not(:disabled) {
-  transform: translateY(1px) scale(0.99);
-  box-shadow: var(--lift-press);
-  transition: transform 100ms ease-out, box-shadow 100ms ease-out;
-}
 
 
 /* ---------- Course page ----------
@@ -1349,7 +1311,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   transition: background-color var(--t-micro) ease;
 }
 .unit > summary::-webkit-details-marker { display: none; }
-.unit > summary:hover { background: var(--surface); }   /* see :active */
+.unit > summary:hover:not(:active) { background: var(--surface); }
 .unit > summary::after {
   content: ""; flex-shrink: 0; width: 7px; height: 7px;
   border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3);
@@ -1446,7 +1408,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .beat:last-child { border-bottom: none; }
 .beat-n {
   width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface)); color: var(--accent);
   display: grid; place-items: center; font-size: 0.68rem; font-weight: 600;
 }
 .beat-body { min-width: 0; flex: 1; }
@@ -1513,7 +1475,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .mstep:last-child { border-bottom: none; }
 .mstep .mnum {
   width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface)); color: var(--accent);
   display: grid; place-items: center; font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 0.7rem; font-weight: 600;
 }
 
@@ -1728,10 +1690,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      the tint (brief §4); its press is a --line fill, on which the glyph — not
      text — measures >= 4.8:1 in every theme. --bg-2 was 1.009:1 against the
      light --bg the bar shows through. */
-  .menu-btn:active {
-    background: var(--line); transform: scale(0.94);
-    transition: transform 100ms ease-out, background-color 100ms ease-out;
-  }
+
 
   .main { padding-top: var(--sp-3); }
   /* The first block in a view has the bar above it and the page's own padding
@@ -1966,7 +1925,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
      slate, the faintest theme — so here it is outlined as well. */
   .glist { border: 1px solid var(--line-strong); }
   /* A hairline is a suggestion; at this setting the separation has to be stated. */
-  .grow::before { border-top: 1px solid var(--line-strong); }
+  .g-row::before { border-top: 1px solid var(--line-strong); }
   /* apple-design 14: at this setting depth is replaced by a stated border. A
      shadow is a soft cue and soft cues are the first thing to go. */
   .btn, .menu-btn, .opt, .cal-cell, .onecounts > a { box-shadow: none; }
@@ -2036,7 +1995,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   background: var(--surface); border-radius: var(--r-card); overflow: hidden;
 }
 .glist + .glist { margin-top: 2rem; }
-.grow {
+.g-row {
   position: relative;
   display: flex; align-items: center; gap: 12px; width: 100%;
   padding: 10px 16px; min-height: 44px;
@@ -2044,56 +2003,54 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   /* A <button> brings a UA border on all four sides; the row wants none. */
   border: 0; background: none; text-align: left;
   font: inherit; cursor: pointer;
-  transition: background-color var(--t-hover) ease;
 }
 /* Two lines, two sizes: a row with a subtitle is 56px at least. */
-.grow:has(.g-s) { min-height: 56px; }
+.g-row:has(.g-s) { min-height: 56px; }
 /* The separator: a 0.5px --line along the top of every row but the first,
    inset to where the row's text starts — past the leading slot where there is
    one (16px of padding, the slot, and the 12px gap). A full-width rule under
    the lead column is what made the old list read as a table. */
-.grow::before {
+.g-row::before {
   content: none; position: absolute; top: 0; right: 0; left: 16px;
   border-top: 0.5px solid var(--line); pointer-events: none;
 }
-.grow + .grow::before { content: ""; }
-.grow:has(> .g-lead)::before { left: calc(16px + 1.375rem + 12px); }
+.g-row + .g-row::before { content: ""; }
+.g-row:has(> .g-lead)::before { left: calc(16px + 1.375rem + 12px); }
 /* Hover and press fill the row with --surface-2, the brief's pressed-cell
    grey. It stands off the section's --surface by >= 1.05:1 in every theme
    (slate's was 1.045:1 and was re-solved), and everything a row can carry
    stays >= 4.5:1 on it — which is why the leading slot and a muted value are
    --ink-2 below: --ink-3 is 4.27:1 on the dark --surface-2.
-   The press is instant: .grow:active (further up, with the shared pointer-down
+   The press is instant: .g-row:active (further up, with the shared pointer-down
    rule) narrows the transition to the transform, so the fill lands on
    pointer-down and only fades on release. */
-@media (hover: hover) { a.grow:hover, button.grow:hover { background: var(--surface-2); text-decoration: none; } }
-.grow:active { background: var(--surface-2); }
+@media (hover: hover) { a.g-row:hover:not(:active), button.g-row:hover:not(:active) { background: var(--surface-2); text-decoration: none; } }
 /* The keyboard ring goes INSIDE the row. The global ring is drawn 2px outside
    an element's box, and the section clips its rows (overflow: hidden, above),
    so a focused row kept only the edges it shared with a neighbour and a
    one-row section showed no ring at all. -3px puts the 2px ring 1px inside
    the row; the row takes the section's radius while focused, so the ring is
    concentric with the rounded corner rather than cut by it. */
-.glist .grow:focus-visible { outline-offset: -3px; border-radius: var(--r-card); }
+.glist .g-row:focus-visible { outline-offset: -3px; border-radius: var(--r-card); }
 /* The leading slot: a number, a tick, a lock, a status dot. One width for all
    of them so every row's text starts on the same vertical line — and the
    separator inset above is computed from it.
    In rem, because it holds text: 22px at the default size, as before. It was
    a fixed 22px, which a two-digit number in mono just fitted at a 24px root;
    in the body face with tabular numerals "14" is 24px there. */
-.grow .g-lead {
+.g-row .g-lead {
   width: 1.375rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-2);
 }
-.grow .g-main { flex: 1; min-width: 0; }
+.g-row .g-main { flex: 1; min-width: 0; }
 /* Headline: 17px/600 in the body face. */
-.grow .g-t {
+.g-row .g-t {
   display: block; font-family: var(--font-body); font-weight: 600;
   font-size: var(--fs-headline); line-height: var(--lh-headline); letter-spacing: var(--tr-headline);
   overflow-wrap: anywhere;
 }
 /* Subhead: 15px --ink-2. */
-.grow .g-s {
+.g-row .g-s {
   display: block; font-family: var(--font-body); font-size: var(--fs-subhead);
   color: var(--ink-2); margin-top: 1px; line-height: var(--lh-subhead);
   overflow-wrap: anywhere;
@@ -2105,30 +2062,30 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
    straight down. Tabular numerals in the body face do that job now; it was
    mono until T-005.
    min-width, not width, so "20+ lectures" is not clipped to fit the column. */
-.grow .g-v {
+.g-row .g-v {
   flex-shrink: 0; min-width: 5.5ch; text-align: right;
   font-family: var(--font-body); font-size: var(--fs-subhead);
   color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums;
 }
 /* Only rows that go somewhere get the chevron — apple-design 16, a control's
    look has to predict what it does. --ink-3, the tertiary label colour. */
-a.grow::after, button.grow.nav::after {
+a.g-row::after, button.g-row.nav::after {
   content: ""; flex-shrink: 0; width: 7px; height: 7px; margin-left: -2px;
   border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3);
   transform: rotate(-45deg);
 }
 /* A row that is not yet available recedes; it is still readable, still there.
    Its value is --ink-2, not --ink-3, for the press fill's sake (see above). */
-.grow.muted-row .g-t { color: var(--ink-2); font-weight: 400; }
-.grow.muted-row .g-v { color: var(--ink-2); }
-.grow.done-row .g-lead { color: var(--good); }
-.grow.done-row .g-t { color: var(--ink-2); font-weight: 400; }
+.g-row.muted-row .g-t { color: var(--ink-2); font-weight: 400; }
+.g-row.muted-row .g-v { color: var(--ink-2); }
+.g-row.done-row .g-lead { color: var(--good); }
+.g-row.done-row .g-t { color: var(--ink-2); font-weight: 400; }
 /* A row that carries a control as well as text has to wrap. At 320px a button
    beside a title squeezed the title's content box to zero and clipped it
    entirely — found by the sweep, on /transcript, the first time around. */
-.grow > .btn { flex-shrink: 0; margin-left: auto; }
-.grow:has(> .btn) { flex-wrap: wrap; }
-.grow:has(> .btn) .g-main { min-width: 150px; }
+.g-row > .btn { flex-shrink: 0; margin-left: auto; }
+.g-row:has(> .btn) { flex-wrap: wrap; }
+.g-row:has(> .btn) .g-main { min-width: 150px; }
 
 /* A .glist inside a card or a unit reads the same as one on the page: a
    rounded --surface section. There is no frame to double — the section's fill
@@ -2136,7 +2093,7 @@ a.grow::after, button.grow.nav::after {
 
 /* A row's state, said in words in its subtitle ("Lecture 3 · Watched"). The
    one coloured run in an otherwise --ink-2 line: --good, 600. */
-.grow .g-s .g-good { color: var(--good); font-weight: 600; }
+.g-row .g-s .g-good { color: var(--good); font-weight: 600; }
 
 /* ============================================================
    The thumbnail (T-016)
@@ -2216,18 +2173,18 @@ a.grow::after, button.grow.nav::after {
 
 /* As a list row's leading image: 96px wide, the course code only (the title
    is the row's own, beside it), the chip and the cover tighter to the edge. */
-.grow > .thumb { width: 96px; }
-.grow > .thumb .th-ttl { display: none; }
-.grow > .thumb.cover .th-cover { padding: 6px 8px; }
-.grow > .thumb .th-code { font-size: clamp(10px, 0.625rem, 12px); }
-.grow > .thumb .th-no { display: block; }
-.grow > .thumb .th-dot { display: none; }
+.g-row > .thumb { width: 96px; }
+.g-row > .thumb .th-ttl { display: none; }
+.g-row > .thumb.cover .th-cover { padding: 6px 8px; }
+.g-row > .thumb .th-code { font-size: clamp(10px, 0.625rem, 12px); }
+.g-row > .thumb .th-no { display: block; }
+.g-row > .thumb .th-dot { display: none; }
 /* The frame is a fixed 96px picture, so what is printed on it is capped the
    way a picture's own text would be: at a 24px root an uncapped 18px chip
    covered half the frame and the cover's second line with it. */
-.grow > .thumb .th-dur { right: 4px; bottom: 6px; padding: 0 4px; border-radius: 4px; font-size: min(var(--fs-caption), 13px); }
+.g-row > .thumb .th-dur { right: 4px; bottom: 6px; padding: 0 4px; border-radius: 4px; font-size: min(var(--fs-caption), 13px); }
 /* The separator starts where the text does: past the 96px frame and the gap. */
-.grow:has(> .thumb)::before { left: calc(16px + 96px + 12px); }
+.g-row:has(> .thumb)::before { left: calc(16px + 96px + 12px); }
 
 /* A status dot, for when a row's state is the whole point (a day, a course). */
 .gdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
@@ -2285,8 +2242,8 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 /* ---------- The phone's spacing ceiling ----------
    Last in the file on purpose. The element rules it caps — .btn and .btn.tiny
    — are declared further up, and a rule of equal specificity declared later
-   wins: sitting where it used to sit, a .grow line in here was dead the moment
-   it was written, capping nothing while reading as though it did. (.grow is no
+   wins: sitting where it used to sit, a .g-row line in here was dead the moment
+   it was written, capping nothing while reading as though it did. (.g-row is no
    longer capped here at all: since T-007 its padding is a fixed 10px 16px,
    which has nothing to grow.) */
 /* A phone has less width to give away, so on a phone the spacing scale splits
@@ -2534,10 +2491,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .book.later .bk-m { color: var(--ink-3); }
 .shelf-empty { font-size: var(--fs-subhead); color: var(--ink-2); padding: 0 4px; }
 
-/* The press: a scale only, so nothing a press shows changes colour. */
-.at-tile:active, .at-chip:active, .book:active, .seg button:active {
-  transform: scale(0.985); transition: transform 100ms ease-out;
-}
+
 
 /* ============================================================
    T-026b: Problems, Exams and Proof say what they are for
@@ -2648,7 +2602,7 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .pf-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2rem; }
 .pf-reset { color: var(--bad); }
 
-.ex-lock:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
 
 /* ---------- T-038: the baseline line, and the gate confirm sheet ----------
    The Atlas head states the projected arrival; when that is not the plan's
@@ -2771,7 +2725,7 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
 .wk-slot b { font-size: var(--fs-subhead); color: var(--ink); }
 .wk-slot.later { background: none; border: 1px dashed var(--line-strong); color: var(--ink-3); }
 .wk-slot.later b { color: var(--ink-3); }
-.wk-card > summary:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
 
 /* ---- Calendar: the selected day ---- */
 .cd-day { margin-top: 2rem; }
@@ -2819,7 +2773,7 @@ button.at-chip { border: 0; font-family: inherit; cursor: pointer; }
   .cd-habits { grid-template-columns: repeat(auto-fill, minmax(max(7rem, calc((100% - 30px) / 4 - 0.5px)), 1fr)); }
 }
 .cd-hb { padding: 14px; }
-.cd-blk:active { transform: scale(0.985); transition: transform 100ms ease-out; }
+
 
 /* ---- Library ---- */
 /* Three across from 1024px, two from 600, one on a phone (.at-tiles), and
@@ -2946,12 +2900,12 @@ button.at-chip.lb-more { font-weight: 600; }
   display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0;
   border: 0; border-radius: 50%; background: none; color: var(--ink-2); cursor: pointer; text-decoration: none;
 }
-.pr-ic:hover { background: var(--surface-2); text-decoration: none; }
+.pr-ic:hover:not(:active) { background: var(--surface-2); text-decoration: none; }
 .pr-ic svg { width: 20px; height: 20px; }
 .pr-player { flex: 1 0 100%; }
 .pr-player:empty { display: none; }
 .pr-player audio { display: block; width: 100%; margin-top: 6px; }
-.pr-play:active, .pr-ic:active { transform: scale(0.94); transition: transform 100ms ease-out; }
+
 
 /* ---- Logged so far, and the history ---- */
 .pr-log { margin-top: 2rem; }

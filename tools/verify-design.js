@@ -944,7 +944,7 @@ function listState() {
     const radii = [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
     if (radii.some(r => r !== "20px") || s.overflowX !== "hidden" || s.overflowY !== "hidden")
       note("shape", "list " + gi + " corners " + radii.join(" ") + ", overflow " + s.overflowX + "/" + s.overflowY);
-    const rows = [...g.children].filter(r => r.classList.contains("grow") && r.checkVisibility());
+    const rows = [...g.children].filter(r => r.classList.contains("g-row") && r.checkVisibility());
     rows.forEach((r, ri) => {
       cnt("row");
       const rr = r.getBoundingClientRect(), min = r.querySelector(".g-s") ? 56 : 44;
@@ -975,7 +975,7 @@ function listState() {
         const c = z.bytes(getComputedStyle(lead).color);
         if (!z.same(c, T.ink2)) note("lead", "lead \"" + lead.textContent.trim() + "\" " + z.hex(c));
       }
-      if (r.matches("a.grow")) {
+      if (r.matches("a.g-row")) {
         cnt("chev");
         const c = z.bytes(getComputedStyle(r, "::after").borderRightColor);
         if (!z.same(c, T.ink3)) note("lead", "chevron " + z.hex(c));
@@ -1059,7 +1059,7 @@ function thumbState() {
     return { r: z.ratio(fg, bg), fg: z.hex(fg), bg: z.hex(bg) };
   };
   const rows = [];
-  document.querySelectorAll('#view a.grow[href^="#/lesson/"]').forEach(a => {
+  document.querySelectorAll('#view a.g-row[href^="#/lesson/"]').forEach(a => {
     const [, , cid, ui, li] = a.getAttribute("href").slice(1).split("/");
     const c = window.DAR.COURSES.find(x => x.id === cid);
     const l = c && c.units[+ui] && c.units[+ui].lessons[+li];
@@ -1169,7 +1169,7 @@ const ytimg = v => "https://i.ytimg.com/vi/" + v + "/hqdefault.jpg";
 function markOneRow() {
   const g = [...document.querySelectorAll("#view .glist")].filter(n => n.checkVisibility()).find(n => {
     const k = [...n.children].filter(c => c.checkVisibility());
-    return k.length === 1 && k[0].matches("a.grow, button.grow");
+    return k.length === 1 && k[0].matches("a.g-row, button.g-row");
   });
   if (!g) return null;
   g.dataset.ringList = "1";
@@ -1276,7 +1276,7 @@ function hairlineSource() {
     // hairline edge"); it was a 0.5px top edge on a full-width bar.
     ["the tab bar's edge", phone, ".tabbar", "border", "1px"],
     ["the sidebar's trailing edge", top, ".sidebar", "border-right"],
-    ["a row's separator", top, ".grow::before", "border-top"],
+    ["a row's separator", top, ".g-row::before", "border-top"],
   ]) {
     const px = width || "0.5px";
     const r = rule(list, sel), v = r && effective(r, prop);
@@ -2982,7 +2982,7 @@ function t28SeedClips(list) {
     shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
     head: "every .ghead is sentence case (text-transform none), 20px, 600, with no rule",
     meta: "every .gh-meta is 15px --ink-2 with tabular numerals",
-    height: "every .grow is at least 44px tall (56 with a subtitle)",
+    height: "every .g-row is at least 44px tall (56 with a subtitle)",
     type: ".g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2",
     value: ".g-v has tabular numerals and no mono face",
     sep: "no separator above a first row; each later row's 0.5px --line separator starts at or right of the .g-t above it",
@@ -3061,9 +3061,9 @@ function t28SeedClips(list) {
       check(at + ": the row is :focus-visible with a solid, opaque, non-zero --accent outline",
         r.fv && r.style !== "none" && r.w >= 2 && r.col[3] === 255 && __same(r.col, r.accent),
         r.name + " :focus-visible " + r.fv + ", outline " + r.style + " " + r.w + "px " + hx(r.col) + " (--accent " + hx(r.accent) + "), offset " + r.off + "px");
-      const inside = r.ring.l >= r.clip.l - 0.01 && r.ring.t >= r.clip.t - 0.01 && r.ring.r <= r.clip.r + 0.01 && r.ring.b <= r.clip.b + 0.01;
+      const inside = r.progress-ring.l >= r.clip.l - 0.01 && r.progress-ring.t >= r.clip.t - 0.01 && r.progress-ring.r <= r.clip.r + 0.01 && r.progress-ring.b <= r.clip.b + 0.01;
       check(at + ": the outline's outer box lies inside the section's box (the box that clips it)", inside,
-        "outline " + box(r.ring) + " in section " + box(r.clip));
+        "outline " + box(r.progress-ring) + " in section " + box(r.clip));
       check(at + ": nothing covers the section while its pixels are read", r.covered.length === 0,
         r.covered.length ? "covered by " + r.covered.join(", ") : "clear");
       // Painted, not just declared: the section with the row focused, then
@@ -3112,10 +3112,10 @@ function t28SeedClips(list) {
       };
       for (const route of PRESS_ROUTES) {
         await go(page, route);
-        // Every row takes the press (.grow:active has no selector on the
+        // Every row takes the press (.g-row:active has no selector on the
         // element); only a row that goes somewhere — a link or a button —
         // takes the hover.
-        const sel = mobile ? "#view .glist > .grow" : "#view .glist > a.grow, #view .glist > button.grow";
+        const sel = mobile ? "#view .glist > .g-row" : "#view .glist > a.g-row, #view .glist > button.g-row";
         const nForced = await force(cdp, sel, state);
         const r = await measure(sel);
         await force(cdp, sel, []);
@@ -3267,7 +3267,7 @@ function t28SeedClips(list) {
     await page.goto(URL + "/__boot", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     await go(page, "/course/math110");
-    const sel = li => '#view a.grow[href="#/lesson/math110/0/' + li + '"] > .thumb';
+    const sel = li => '#view a.g-row[href="#/lesson/math110/0/' + li + '"] > .thumb';
     const landed = await page.waitForFunction(([a, b]) => {
       const x = document.querySelector(a), y = document.querySelector(b);
       return !!x && !!y && x.classList.contains("loaded") && y.classList.contains("cover");
@@ -3407,10 +3407,10 @@ function t28SeedClips(list) {
         a.tiles.length === sets.running.length && JSON.stringify(tileHrefs) === JSON.stringify(wantHrefs), tileHrefs.join(" "));
       const tcols = new Set(a.tiles.map(t => Math.round(t.box.l))).size;
       c26(at + " /atlas: the tiles are " + cols + " column" + (cols === 1 ? "" : "s") + " wide", tcols === cols, tcols + " distinct columns");
-      const tileBad = a.tiles.filter((t, i) => t.box.h < 44 || t.box.w < 44 || !t.ring || !/^\d+%$/.test(t.pct || "") ||
+      const tileBad = a.tiles.filter((t, i) => t.box.h < 44 || t.box.w < 44 || !t.progress-ring || !/^\d+%$/.test(t.pct || "") ||
         !__same(t.col, a.fac[fac(sets.running[i])]));
       c26(at + " /atlas: every tile is >= 44x44, carries a mastery ring, and its code is in the faculty colour",
-        a.tiles.length > 0 && tileBad.length === 0, tileBad.map(t => t.href + " " + t.box.w.toFixed(0) + "x" + t.box.h.toFixed(0) + " ring " + t.ring + " " + hx(t.col)).join("; ") || a.tiles.length + " tiles");
+        a.tiles.length > 0 && tileBad.length === 0, tileBad.map(t => t.href + " " + t.box.w.toFixed(0) + "x" + t.box.h.toFixed(0) + " ring " + t.progress-ring + " " + hx(t.col)).join("; ") || a.tiles.length + " tiles");
       const more = sets.later.length - 5;
       const wantChips = sets.later.slice(0, 5).map(id => "#/course/" + id).concat(more > 0 ? ["#/courses?later"] : []);
       c26(at + " /atlas: Opens later is capped at 5 chips in start order, then \"+" + more + "\" to #/courses?later",
@@ -4481,7 +4481,7 @@ function t28SeedClips(list) {
       c28(at + " /practice: its red is the theme's --bad (" + (r.bad || "?") + "), which beats #ff453a on the card (" + (r.redRatio || 0).toFixed(2) + ":1 against " + (r.sysRatio || 0).toFixed(2) + ":1 on " + (r.cardBg || "?") + "), and clears 3:1",
         !!m.rec && r.red === r.bad && r.redRatio >= r.sysRatio && r.redRatio >= 3, JSON.stringify({ red: r.red, bad: r.bad, cardBg: r.cardBg }));
       c28(at + " /practice: its ring is --ink (" + (r.ink || "?") + "), " + (r.ringW || 0) + "px, at " + (r.ringRatio || 0).toFixed(2) + ":1 on the card (>= 3:1)",
-        !!m.rec && r.ring === r.ink && r.ringW >= 3 && r.ringRatio >= 3, JSON.stringify({ ring: r.ring, ink: r.ink, ringW: r.ringW }));
+        !!m.rec && r.progress-ring === r.ink && r.ringW >= 3 && r.ringRatio >= 3, JSON.stringify({ ring: r.progress-ring, ink: r.ink, ringW: r.ringW }));
       c28(at + " /practice: \"Your recordings\" heads the list, \"kept on this device\"",
         !!m.listHead && m.listHead.t === "Your recordings" && m.listHead.meta === "kept on this device", JSON.stringify(m.listHead));
       // The keyboard: from the last tab, Tab lands on the record button.

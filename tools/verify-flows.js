@@ -515,7 +515,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         rule: !!document.querySelector("#rail .rl-rule"), railLock: !!document.querySelector("#rail .rl-lock") }));
       check("(c) watching collapses the video to the watched bar and mounts the quiz under it", mounted.quiz && mounted.bar && !mounted.frame, JSON.stringify(mounted));
       check("(c) the rail's ring does not count it yet, says why, and shows the next lecture locked",
-        /^0\/3/.test(mounted.ring) && mounted.rule && mounted.railLock, JSON.stringify(mounted));
+        /^0\/3/.test(mounted.progress-ring) && mounted.rule && mounted.railLock, JSON.stringify(mounted));
       await go(page, "/");
       const mid = await todayCount(page);
       const midCta = await page.evaluate(() => ({ kind: ((document.querySelector(".card.one.lead .one-kind") || {}).textContent || "").trim(),
@@ -626,7 +626,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       // The course page says where you are: the row's subtitle and its frame's edge.
       await go(page, "/course/" + LECTURE.cid);
       const row = await page.evaluate(href => {
-        const a = document.querySelector('#view a.grow[href="#' + href + '"]');
+        const a = document.querySelector('#view a.g-row[href="#' + href + '"]');
         if (!a) return null;
         const i = a.querySelector(".thumb .th-prog i");
         return { line: ((a.querySelector(".g-s") || {}).textContent || "").trim(), edge: i ? i.style.width : "" };
@@ -980,7 +980,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
           } else await page.tap("dialog.sheet [data-sheet-go]");
           await viewReplaced(page);
           const passed = { w: await writes(page) - w0, g: await gatesStored(page), gone: await sheetGone(page), ctl: await gateControls(page),
-            row: await page.evaluate(() => ((document.querySelector("#view .glist .grow .g-lead") || {}).textContent || "").trim()) };
+            row: await page.evaluate(() => ((document.querySelector("#view .glist .g-row .g-lead") || {}).textContent || "").trim()) };
           const p1 = passed.g[1] || {};
           check("(m) passing is one save() of { date: today, at, passed: true }; the sheet closes, Gate 1 reads passed, and the controls move on (pass 2, unmark 1)",
             passed.w === 1 && p1.passed === true && p1.date === TODAY && /^\d{4}-\d\d-\d\dT/.test(p1.at || "") && passed.gone && passed.row === "\u2713" && passed.ctl === "pass 2, unmark 1",

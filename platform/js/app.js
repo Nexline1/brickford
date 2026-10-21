@@ -1241,7 +1241,7 @@
           const dn = schedDone(it);
           n++;
           const dur = it.l.min ? it.l.min + "m" : it.l.paper ? "paper" : "reading";
-          return '<a class="grow ' + (fc ? facClass(fc) : "") + (dn ? " done-row" : "") + '" href="#/lesson/' +
+          return '<a class="g-row ' + (fc ? facClass(fc) : "") + (dn ? " done-row" : "") + '" href="#/lesson/' +
             it.cid + "/" + it.ui + "/" + it.li + '">' +
             '<span class="g-lead">' + (dn ? "\u2713" : n) + "</span>" +
             '<span class="g-main"><span class="g-t">' + esc(it.l.t) + "</span></span>" +
@@ -1429,6 +1429,25 @@
   // Karpathy's lecture titles run past 60 characters; a button is not a place
   // for a sentence.
   const clipTitle = (s, n) => (s.length > n ? s.slice(0, n - 1).replace(/[\s—·-]+$/, "") + "…" : s);
+  // T-051 (the owner's density rule 1): a list shows a SHORT title, made here
+  // at display time — platform/data is never touched, and the lecture page's
+  // own header keeps the full one. An all-caps parenthetical at the end ("(DO
+  // NOT SKIP)") goes; then the title is cut at its first " — ", " – ", ": "
+  // or " (" that leaves at least two words in front of it. "Makemore 4 —
+  // becoming a backprop ninja (DO NOT SKIP)" is "Makemore 4"; "Building a
+  // story live: know the end, start close to it" is "Building a story live".
+  // A title with no such break is returned whole; the row's CSS ellipsis is
+  // what keeps it to one line.
+  function shortTitle(t) {
+    let s = String(t || "").replace(/\s*\((?=[^)]*[A-Z])[^a-z()]*\)\s*$/, "").trim();
+    const cuts = [" \u2014 ", " \u2013 ", ": ", " ("];
+    const at = cuts.map(c => s.indexOf(c)).filter(i => i > 0).sort((a, b) => a - b);
+    for (const i of at) {
+      const head = s.slice(0, i).trim();
+      if (head.split(/\s+/).length >= 2) return head;
+    }
+    return s;
+  }
   function nextAction() {
     const real = realSched(todayISO());
     const nextUp = real.find(it => !schedDone(it));
@@ -1968,11 +1987,11 @@
       (lockNext
         ? '<div class="rl-label">Next in ' + esc(lockNext.code) + "</div>" +
           '<div class="rl-lock"><span class="rl-lock-ic">' + lockSVG() + "</span>" +
-          '<span class="rl-lock-body"><span class="rl-lock-t">' + (lflat.indexOf(lockNext) + 1) + ". " + esc(clipTitle(lockNext.l.t, 56)) + "</span>" +
+          '<span class="rl-lock-body"><span class="rl-lock-t">' + (lflat.indexOf(lockNext) + 1) + ". " + esc(clipTitle(shortTitle(lockNext.l.t), 56)) + "</span>" +
           '<span class="rl-lock-m">Opens when you pass this quiz</span></span></div>'
         : '<div class="rl-label">Next up</div>' +
           '<div class="rl-code">' + esc(a.code) + "</div>" +
-          '<div class="rl-title">' + esc(clipTitle(a.title, 56)) + "</div>" +
+          '<div class="rl-title">' + esc(clipTitle(shortTitle(a.title), 56)) + "</div>" +
           '<div class="rl-meta">' + esc(a.hint) + "</div>" +
           '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>") +
       (studied
@@ -1983,7 +2002,7 @@
     const bar = $("#railbar");
     if (bar) bar.innerHTML =
       '<span class="rb-main"><span class="rb-label">Next</span>' +
-      '<span class="rb-t">' + esc(a.code) + " · " + esc(a.title) + "</span></span>" +
+      '<span class="rb-t">' + esc(a.code) + " · " + esc(shortTitle(a.title)) + "</span></span>" +
       '<a class="btn" href="' + a.href + '">' + esc(a.verb) + " ▸</a>";
     measureFurniture();
     watchHeroCta(a.href);
@@ -2138,15 +2157,15 @@
         // nobody connected. A token that errors is worse — it looked connected
         // the whole time it was diverging — so it says what GitHub said.
         if (!ghToken())
-          rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">!</span>' +
+          rows.push('<a class="g-row" href="#/sync"><span class="g-lead bad-lead">!</span>' +
             '<span class="g-main"><span class="g-t">This device is not syncing</span>' +
             '<span class="g-s">progress stays in this browser only</span></span></a>');
         else if (e)
-          rows.push('<a class="grow" href="#/sync"><span class="g-lead bad-lead">!</span>' +
+          rows.push('<a class="g-row" href="#/sync"><span class="g-lead bad-lead">!</span>' +
             '<span class="g-main"><span class="g-t">Sync is failing</span>' +
             '<span class="g-s">' + esc(e.msg) + " \u00b7 since " + esc(agoLabel(e.at)) + "</span></span></a>");
         if (backlog > 0)
-          rows.push('<a class="grow" href="#/calendar"><span class="g-lead bad-lead">!</span>' +
+          rows.push('<a class="g-row" href="#/calendar"><span class="g-lead bad-lead">!</span>' +
             '<span class="g-main"><span class="g-t">' + (backlog > 20 ? "20+" : backlog) +
             " lecture" + (backlog === 1 ? "" : "s") + " owed from earlier days</span>" +
             '<span class="g-s">catching up late still turns the day green</span></span></a>');
@@ -2167,42 +2186,42 @@
         // part of the plan rather than a hole in it.
         ? '<div class="ghead">' + esc(REST_NAME) + '<span class="gh-meta">rest day</span></div>' +
           '<div class="glist">' +
-          '<div class="grow"><span class="g-lead">\u2014</span>' +
+          '<div class="g-row"><span class="g-lead">\u2014</span>' +
           '<span class="g-main"><span class="g-t">Nothing is scheduled</span>' +
           '<span class="g-s">the plan runs six days a week \u2014 taking the seventh is following it. Your streak is safe.</span></span></div>' +
-          '<a class="grow" href="' + nextStudyHref() + '"><span class="g-lead"></span>' +
+          '<a class="g-row" href="' + nextStudyHref() + '"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">' + esc(nextStudyLabel()) + "</span>" +
           '<span class="g-s">the next study day</span></span></a>' +
-          '<a class="grow" href="#/recall"><span class="g-lead"></span>' +
+          '<a class="g-row" href="#/recall"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Recall, if you want to</span></span></a>' +
           "</div>"
         : real.length
           ? dayGroupsHTML(real) +
             '<div class="glist" style="margin-top:var(--sp-3);">' +
             (studiedToday
-              ? '<div class="grow done-row"><span class="g-lead">\u2713</span>' +
+              ? '<div class="g-row done-row"><span class="g-lead">\u2713</span>' +
                 '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>'
               // No Deep Track to mark on a rest day, and none offered: letting a
               // rest day be logged as a study day would inflate the streak, the
               // one number that has to stay honest.
-              : '<button class="grow" data-act="studied"><span class="g-lead">\u25cb</span>' +
+              : '<button class="g-row" data-act="studied"><span class="g-lead">\u25cb</span>' +
                 '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
                 '<span class="g-s">seals the day</span></span></button>') +
             "</div>"
           : '<div class="ghead">Today<span class="gh-meta">nothing scheduled</span></div>' +
             '<div class="glist">' +
-            '<div class="grow"><span class="g-lead">\u2014</span>' +
+            '<div class="g-row"><span class="g-lead">\u2014</span>' +
             '<span class="g-main"><span class="g-t">' +
             (todaySched.length ? "Problem sets and review only" : "Calibration and setup") + "</span>" +
             '<span class="g-s">' + (todaySched.length ? "no lectures on this day" : "see the Handbook") + "</span></span></div>" +
-            '<a class="grow" href="#/calendar"><span class="g-lead"></span>' +
+            '<a class="g-row" href="#/calendar"><span class="g-lead"></span>' +
             '<span class="g-main"><span class="g-t">Calendar</span></span></a>' +
-            '<a class="grow" href="#/guide"><span class="g-lead"></span>' +
+            '<a class="g-row" href="#/guide"><span class="g-lead"></span>' +
             '<span class="g-main"><span class="g-t">Handbook</span></span></a>' +
             (studiedToday
-              ? '<div class="grow done-row"><span class="g-lead">\u2713</span>' +
+              ? '<div class="g-row done-row"><span class="g-lead">\u2713</span>' +
                 '<span class="g-main"><span class="g-t">Deep Track marked for today</span></span></div>'
-              : '<button class="grow" data-act="studied"><span class="g-lead">\u25cb</span>' +
+              : '<button class="g-row" data-act="studied"><span class="g-lead">\u25cb</span>' +
                 '<span class="g-main"><span class="g-t">Mark today\u2019s Deep Track done</span>' +
                 '<span class="g-s">seals the day</span></span></button>') +
             "</div>") +
@@ -2217,54 +2236,54 @@
       '<div class="ghead">Where you stand</div>' +
       '<div class="glist">' +
       (g
-        ? '<a class="grow" href="#/transcript"><span class="g-lead">\u25c6</span>' +
+        ? '<a class="g-row" href="#/transcript"><span class="g-lead">\u25c6</span>' +
           '<span class="g-main"><span class="g-t">Gate ' + g.n + " \u2014 " + esc(g.label) + "</span>" +
           '<span class="g-s">' + esc(drift.projected) + " finish" +
           (drift.aheadDays > 0 ? " \u00b7 " + drift.aheadDays + " days ahead"
             : drift.aheadDays < 0 ? " \u00b7 " + (-drift.aheadDays) + " days behind" : " \u00b7 on baseline") +
           "</span></span><span class=\"g-v\">" + gateLeft + "d</span></a>"
-        : '<a class="grow done-row" href="#/transcript"><span class="g-lead">\u2713</span>' +
+        : '<a class="g-row done-row" href="#/transcript"><span class="g-lead">\u2713</span>' +
           '<span class="g-main"><span class="g-t">All gates passed</span></span></a>') +
       (st > 0
-        ? '<a class="grow" href="#/record"><span class="g-lead"></span>' +
+        ? '<a class="g-row" href="#/record"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Streak</span></span>' +
           '<span class="g-v">' + st + "d</span></a>"
         : "") +
       (proven > 0
-        ? '<a class="grow" href="#/atlas"><span class="g-lead"></span>' +
+        ? '<a class="g-row" href="#/atlas"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Lectures proven</span></span>' +
           '<span class="g-v">' + proven + "</span></a>"
         : "") +
       (due.length
-        ? '<a class="grow" href="#/recall"><span class="g-lead">!</span>' +
+        ? '<a class="g-row" href="#/recall"><span class="g-lead">!</span>' +
           '<span class="g-main"><span class="g-t">Recall due</span>' +
           '<span class="g-s">before new material</span></span>' +
           '<span class="g-v">' + due.length + "</span></a>"
         : "") +
       (missPool().length
-        ? '<a class="grow" href="#/drill"><span class="g-lead"></span>' +
+        ? '<a class="g-row" href="#/drill"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Missed questions waiting</span></span>' +
           '<span class="g-v">' + missPool().length + "</span></a>"
         : "") +
       (probs.length
-        ? '<a class="grow" href="#/course/cs150"><span class="g-lead"></span>' +
+        ? '<a class="g-row" href="#/course/cs150"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Problems today</span>' +
           '<span class="g-s">' + (probsCat ? esc(probsCat) + " \u00b7 " : "") + probs.map(esc).join(", ") + "</span></span></a>"
         : "") +
       (function () {
         const rd = repsDue();
         if (resting || !rd.length) return "";
-        return '<a class="grow" href="#/practice"><span class="g-lead"></span>' +
+        return '<a class="g-row" href="#/practice"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">' + esc(rd[0].label) + "</span>" +
           '<span class="g-s">' + esc(rd[0].hint) + "</span></span></a>";
       })() +
       (ghToken()
-        ? '<a class="grow" href="#/sync"><span class="g-lead"></span>' +
+        ? '<a class="g-row" href="#/sync"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Synced</span></span>' +
           '<span class="g-v">' + esc(S.settings.syncError ? "failing" : agoLabel(S.settings.lastSyncAt || S.settings.lastSync)) + "</span></a>"
         : "") +
       (backupAge === null || backupAge > 14
-        ? '<button class="grow" data-act="backup"><span class="g-lead"></span>' +
+        ? '<button class="g-row" data-act="backup"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Export a backup</span>' +
           '<span class="g-s">' + (backupAge === null ? "this browser is the only copy" : "last one " + backupAge + " days ago") + "</span></span></button>"
         : "") +
@@ -2601,7 +2620,7 @@
           '<div class="u-body"><div class="glist">' +
           u.lessons.map((l, i) => {
             const st = S.lessons[lessonKey(c.id, ui, i)] || {};
-            return '<a class="grow' + (st.done ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
+            return '<a class="g-row' + (st.done ? " done-row" : "") + '" href="#/lesson/' + c.id + "/" + ui + "/" + i + '">' +
               thumbHTML(c, ui, i) +
               '<span class="g-main"><span class="g-t">' + esc(l.t) + "</span>" +
               '<span class="g-s">' + lessonLine(l, i, st) + "</span></span></a>";
@@ -2613,12 +2632,12 @@
       '<div class="ghead">This course elsewhere</div>' +
       '<div class="glist">' +
       (c.quiz
-        ? '<a class="grow" href="#/quiz/' + c.quiz + '"><span class="g-lead">\u25c6</span>' +
+        ? '<a class="g-row" href="#/quiz/' + c.quiz + '"><span class="g-lead">\u25c6</span>' +
           '<span class="g-main"><span class="g-t">Sit the examination</span>' +
           '<span class="g-s">15 questions, drawn fresh, graded instantly</span></span>' +
           (cbest != null ? '<span class="g-v">best ' + cbest + "%</span>" : "") + "</a>"
         : "") +
-      c.external.map(e => '<a class="grow" href="' + e.url + '" target="_blank" rel="noopener">' +
+      c.external.map(e => '<a class="g-row" href="' + e.url + '" target="_blank" rel="noopener">' +
         '<span class="g-lead">\u2197</span>' +
         '<span class="g-main"><span class="g-t">' + esc(e.label) + "</span></span></a>").join("") +
       "</div></div>";
@@ -2696,13 +2715,13 @@
       '<details class="unit" style="margin-top:16px;"><summary><span class="u-name">How this track works</span>' +
       '<span class="pill">' + esc(c.code) + '</span><span class="u-prog" style="width:100%;"></span></summary>' +
       '<div class="u-body"><div class="glist">' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">Why it is here</span>' +
       '<span class="g-s">Interviews are still solved on a whiteboard, and reading a paper into working code needs a language you do not have to fight. That is what this buys.</span></span></div>' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">It runs apart from the mathematics</span>' +
       '<span class="g-s">Nothing here builds on linear algebra, and nothing in linear algebra needs this. They are two tracks on the same day.</span></span></div>' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">In order, top to bottom</span>' +
       '<span class="g-s">The list is the NeetCode roadmap order — do not shop around in it.</span></span></div>' +
 
@@ -2869,7 +2888,7 @@
       (lessonWhy.length
         ? '<div class="ghead">Why this matters<span class="gh-meta">' + lessonWhy.length + " concept" + (lessonWhy.length === 1 ? "" : "s") + "</span></div>" +
           '<div class="glist">' +
-          lessonWhy.map(x => '<a class="grow ' + facClass(c) + '" href="#/concept/' + x.id + '">' +
+          lessonWhy.map(x => '<a class="g-row ' + facClass(c) + '" href="#/concept/' + x.id + '">' +
             '<span class="g-lead"></span>' +
             '<span class="g-main"><span class="g-t">' + esc(x.title) + "</span>" +
             '<span class="g-s">' + esc(x.applies) + "</span></span></a>").join("") +
@@ -2979,14 +2998,14 @@
       '<div class="ghead">In this unit<span class="gh-meta">' + (+li + 1) + " of " + u.lessons.length + "</span></div>" +
       '<div class="glist lsn-nav">' +
       (next
-        ? '<a class="grow" href="' + next + '">' + thumbHTML(c, ui, +li + 1) +
+        ? '<a class="g-row" href="' + next + '">' + thumbHTML(c, ui, +li + 1) +
           '<span class="g-main"><span class="g-t">' + esc(u.lessons[+li + 1].t) + "</span>" +
           '<span class="g-s">Next · ' + lessonLine(u.lessons[+li + 1], +li + 1, S.lessons[lessonKey(cid, ui, +li + 1)] || {}) + "</span></span></a>"
-        : '<a class="grow" href="#/course/' + cid + '">' + thumbBox(c, { title: c.title }) +
+        : '<a class="g-row" href="#/course/' + cid + '">' + thumbBox(c, { title: c.title }) +
           '<span class="g-main"><span class="g-t">' + esc(c.title) + "</span>" +
           '<span class="g-s">End of this unit · back to the course</span></span></a>') +
       (prev
-        ? '<a class="grow" href="' + prev + '">' + thumbHTML(c, ui, li - 1) +
+        ? '<a class="g-row" href="' + prev + '">' + thumbHTML(c, ui, li - 1) +
           '<span class="g-main"><span class="g-t">' + esc(u.lessons[li - 1].t) + "</span>" +
           '<span class="g-s">Previous · ' + lessonLine(u.lessons[li - 1], li - 1, S.lessons[lessonKey(cid, ui, li - 1)] || {}) + "</span></span></a>"
         : "") +
@@ -3661,11 +3680,11 @@
       (tok ? "" :
         '<div class="card" style="margin-top:16px;"><h2>Connect</h2>' +
         '<div class="glist" style="margin-top:10px;">' +
-        '<div class="grow"><span class="g-lead">1</span><span class="g-main"><span class="g-t">Generate a token</span>' +
+        '<div class="g-row"><span class="g-lead">1</span><span class="g-main"><span class="g-t">Generate a token</span>' +
         '<span class="g-s">GitHub \u2192 Settings \u2192 Developer settings \u2192 <strong>Fine-grained tokens</strong> \u2192 Generate.</span></span></div>' +
-        '<div class="grow"><span class="g-lead">2</span><span class="g-main"><span class="g-t">Scope it to one repository</span>' +
+        '<div class="g-row"><span class="g-lead">2</span><span class="g-main"><span class="g-t">Scope it to one repository</span>' +
         '<span class="g-s">Repository access: <strong>only</strong> ' + SYNC_REPO + ". Permissions: <strong>Contents \u2192 Read and write</strong>. Nothing else.</span></span></div>" +
-        '<div class="grow"><span class="g-lead">3</span><span class="g-main"><span class="g-t">Paste it below</span>' +
+        '<div class="g-row"><span class="g-lead">3</span><span class="g-main"><span class="g-t">Paste it below</span>' +
         '<span class="g-s">It stays in this browser and is sent only to github.com.</span></span></div>' +
         "</div>" +
         '<div style="margin-top:12px;"><label class="field" for="ghTok">Token</label>' +
@@ -3682,13 +3701,13 @@
       '<span class="pill">3</span><span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
       '<p class="muted">The token is stored in <strong>this browser only</strong>. Paste the same token on the laptop and on the phone — a device you have not connected keeps its own private copy of your progress and never tells you.</p>' +
       '<div class="glist" style="margin-top:10px;">' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">On a phone, connect the installed app too</span>' +
       '<span class="g-s">If you added Brickford to the Home Screen, connect it <strong>inside that app</strong> as well — a home-screen app can hold its own storage separate from Safari.</span></span></div>' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">How to check a device</span>' +
       '<span class="g-s">The dashboard names any device that is not connected, and shows how long ago it last synced on any device that is.</span></span></div>' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">Order does not matter</span>' +
       '<span class="g-s">A push merges what is already stored before it writes, so neither device can overwrite the other.</span></span></div>' +
 
@@ -3697,10 +3716,10 @@
       '<details class="unit"><summary><span class="u-name">How merging works</span>' +
       '<span class="pill">2</span><span class="u-prog" style="width:100%;"></span></summary><div class="u-body">' +
       '<div class="glist">' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">Working on two devices is safe</span>' +
       '<span class="g-s">Pull merges field by field \\u2014 the further-along version of each lecture wins, days and problems union.</span></span></div>' +
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">The record survives a sync</span>' +
       '<span class="g-s">Each device keeps its own hash chain. Syncing never re-hashes history, so a head you have already published stays valid.</span></span></div>' +
 
@@ -3917,10 +3936,10 @@
       (revealed && D.FIG && D.FIG[c.fig]
         ? '<div class="card" style="margin-top:16px;"><h2>The figure</h2>' + D.FIG[c.fig]({}) +
           '<div class="glist" style="margin-top:10px;">' +
-          '<div class="grow"><span class="g-lead"></span>' +
+          '<div class="g-row"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">Where people go wrong</span>' +
           '<span class="g-s">' + esc(c.miss) + "</span></span></div>" +
-          '<div class="grow"><span class="g-lead"></span>' +
+          '<div class="g-row"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">What it is for, in AI</span>' +
           '<span class="g-s">' + esc(c.applies) + "</span></span></div>" +
           "</div></div>"
@@ -3959,7 +3978,7 @@
       (c.lectures || []).map(k => {
         const L = lessonLabel(k);
         if (typeof L === "string") return "";
-        return '<a class="grow" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">' +
+        return '<a class="g-row" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '">' +
           '<span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
           '<span class="g-s">' + esc(L.code) + "</span></span></a>";
@@ -4048,7 +4067,7 @@
           next.map(k => {
             const L = lessonLabel(k);
             if (typeof L === "string") return "";
-            return '<div class="grow"><span class="g-lead"></span>' +
+            return '<div class="g-row"><span class="g-lead"></span>' +
               '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
               '<span class="g-s">' + esc(L.code) + "</span></span>" +
               '<span class="g-v">' + esc(S.review[k].due.slice(5)) + "</span></div>";
@@ -4121,7 +4140,7 @@
       (S.anchors.length
         ? '<div class="glist" style="margin-top:10px;">' + S.anchors.slice().reverse().map((an, ri) => {
             const i = S.anchors.length - 1 - ri;
-            return '<div class="grow"><span class="g-lead">◆</span>' +
+            return '<div class="g-row"><span class="g-lead">◆</span>' +
               '<span class="g-main"><span class="g-t">' + (an.url ? '<a href="' + esc(an.url) + '" target="_blank" rel="noopener">' + esc(an.where || an.url) + "</a>" : esc(an.where || "—")) + "</span>" +
               '<span class="g-s">' + esc(an.date) + '</span><div class="hash" style="margin-top:4px;">' + esc(an.head) + "</div></span>" +
               '<button class="btn tiny" data-delanchor="' + i + '">Remove</button></div>';
@@ -4160,7 +4179,7 @@
     const gateLine = g => {
       const passed = !!g.doneDate;
       const left = daysBetween(todayISO(), g.target);
-      return '<div class="grow' + (passed ? " done-row" : "") + '">' +
+      return '<div class="g-row' + (passed ? " done-row" : "") + '">' +
         '<span class="g-lead">' + (passed ? "✓" : g.n) + "</span>" +
         '<span class="g-main"><span class="g-t">Gate ' + g.n + " — " + esc(g.label) + "</span>" +
         '<span class="g-s">' + esc(g.req) + "</span></span>" +
@@ -4366,7 +4385,7 @@
 
       (openGates.length
         ? '<div class="glist" style="margin-top:14px;">' + openGates.map(g =>
-            '<div class="grow"><span class="g-lead">' + g.n + "</span>" +
+            '<div class="g-row"><span class="g-lead">' + g.n + "</span>" +
             '<span class="g-main"><span class="g-t">' + esc(g.label) + "</span>" +
             '<span class="g-s">' + g.target + "</span></span>" +
             '<a class="btn tiny" href="' + gcalUrl("Brickford Gate " + g.n + " \u2014 " + g.label, g.req, { allDay: true, startDate: g.target }) + '" target="_blank" rel="noopener">Add \u2197</a></div>'
@@ -4827,7 +4846,7 @@
                     ["humor", "Humour reps", "five attempts, most will be bad"],
                     ["review", "Monthly reviews", "rewatch what you recorded"]]
       .filter(([k]) => n(k) > 0)
-      .map(([k, t, sub]) => '<div class="grow"><span class="g-main"><span class="g-t">' + t + "</span>" +
+      .map(([k, t, sub]) => '<div class="g-row"><span class="g-main"><span class="g-t">' + t + "</span>" +
         '<span class="g-s">' + sub + '</span></span><span class="g-v">' + n(k) + "</span></div>");
 
     return head + above + seg +
@@ -4842,7 +4861,7 @@
   function repHistoryHTML(bank, R, counts) {
     if (!bank.length && !(R.story || []).length && !(R.humor || []).length && !(R.review || []).length) return "";
     const row = (date, what, sub) =>
-      '<div class="grow"><span class="g-lead"></span>' +
+      '<div class="g-row"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">' + esc(what) + "</span>" +
       (sub ? '<span class="g-s">' + esc(sub) + "</span>" : "") + "</span>" +
       '<span class="g-v">' + esc(date.slice(5)) + "</span></div>";
@@ -4875,7 +4894,7 @@
             '<div class="ghead">The first five moves</div>' +
             '<div class="glist">' +
             ["List 30 targets from Google Maps + Instagram — name, owner, number", "Record a 60-second Arabic demo of the agent answering on YOUR number", "Send 10 DMs a day for 3 days (script: Library → Earning Offers)", "Close ONE pilot at 50% price with a testimonial + referral clause", "Deliver in ≤2 weeks, publish the case study, raise the price"]
-              .map((s, i) => '<div class="grow"><span class="g-lead">' + (i + 1) + "</span>" +
+              .map((s, i) => '<div class="g-row"><span class="g-lead">' + (i + 1) + "</span>" +
                 '<span class="g-main"><span class="g-t">' + esc(s) + "</span></span></div>").join("") +
             "</div>";
         }
@@ -4884,7 +4903,7 @@
         // pitches. The recommended one is the page; the other five are a fold.
         const pick = D.NICHES.find(n => n.pick) || D.NICHES[0];
         const rest = D.NICHES.filter(n => n !== pick);
-        const nicheRow = n => '<div class="grow"><span class="g-lead"></span>' +
+        const nicheRow = n => '<div class="g-row"><span class="g-lead"></span>' +
           '<span class="g-main"><span class="g-t">' + esc(n.name) + "</span>" +
           '<span class="g-s">' + esc(n.market) + " · " + esc(n.pricing) + " — " + esc(n.verdict) + "</span></span>" +
           '<button class="btn tiny" data-niche="' + n.id + '">Lock</button></div>';
@@ -5121,22 +5140,22 @@
     // where there is somewhere to go, and plain text where there is not — the
     // same rule the day list, the library and the exam list already follow.
     const row = (n, title, body, href) => {
-      // The chevron comes from a.grow::after, so a row that goes nowhere does
+      // The chevron comes from a.g-row::after, so a row that goes nowhere does
       // not grow one — a control's look has to predict what it does.
       const inner = '<span class="g-lead">' + n + "</span>" +
         '<span class="g-main"><span class="g-t">' + title + "</span>" +
         '<span class="g-s">' + body + "</span></span>";
-      return href ? '<a class="grow" href="' + href + '">' + inner + "</a>"
-                  : '<div class="grow">' + inner + "</div>";
+      return href ? '<a class="g-row" href="' + href + '">' + inner + "</a>"
+                  : '<div class="g-row">' + inner + "</div>";
     };
     const law = (n, title, body) =>
-      '<div class="grow"><span class="g-lead">' + n + "</span>" +
+      '<div class="g-row"><span class="g-lead">' + n + "</span>" +
       '<span class="g-main"><span class="g-t">' + title + "</span>" +
       '<span class="g-s">' + body + "</span></span></div>";
     // A room is a row, not a card. Nine cards with a title, a pill and a blurb
     // came to 14 cards on a page whose job is to be read once and referred to.
     const mod = (name, when, what, href) =>
-      '<a class="grow" href="' + href + '"><span class="g-lead"></span>' +
+      '<a class="g-row" href="' + href + '"><span class="g-lead"></span>' +
       '<span class="g-main"><span class="g-t">' + name + "</span>" +
       '<span class="g-s">' + what + "</span></span>" +
       '<span class="g-v">' + when + "</span></a>";
@@ -6009,12 +6028,12 @@
   function ringHTML(pct, label, sub, tone, size) {
     const s = size || 84, r = (s - 9) / 2, p = Math.max(0, Math.min(100, Math.round(pct)));
     return '<div class="ring-wrap" style="width:' + s + "px; height:" + s + 'px;">' +
-      '<svg class="ring" width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + " " + s + '" aria-hidden="true">' +
+      '<svg class="progress-ring" width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + " " + s + '" aria-hidden="true">' +
       '<circle class="track" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r + '" stroke-width="5"/>' +
       '<circle class="fill' + (tone ? " " + tone : "") + '" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r +
       '" stroke-width="5" pathLength="100" style="--to:' + (100 - p) + '; transform:rotate(-90deg); transform-origin:center;"/>' +
       "</svg>" +
-      '<div class="ring-label">' + esc(label) + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</div></div>";
+      '<div class="progress-ring-label">' + esc(label) + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</div></div>";
   }
 
   // Count a number up from zero on entry. The element already holds its final
@@ -6376,7 +6395,43 @@
   }
 
   // ---------- boot ----------
+  // ---- T-051: press feedback on every tappable element ----
+  // The four utilities live in tailwind.input.css: press-row (a list row
+  // highlights to systemGray4 at once and fades back, no scale), press-card
+  // (a card or tile scales to 0.97 and dims), press-btn (a filled button or a
+  // discrete control scales to 0.97), press-text (a text button or link dims).
+  // Which control takes which is this table, first match wins; markup written
+  // before the rebuild gets its class here without being rewritten, and the
+  // rebuilt screens (51b-c) write the class into their markup. Anything
+  // tappable the table does not name falls to press-text (a link or a button
+  // that is not a row, a card or a filled button is text). Adding a class
+  // touches the DOM only: no state is read or written, so a render stays a
+  // read. tools/verify-shell.js holds every control on every route to it.
+  const PRESS = [
+    ["press-card", ".at-tile, .book, .cd-blk, .ex-lock, .lq-tile, .wk-card > summary, .opt"],
+    ["press-row", ".g-row, .nav a, .navrow, .theme-menu button, .check-row, details > summary, .onecounts > a, .at-next"],
+    ["press-btn", ".btn:not(.ghost):not(.bare), .menu-btn, .cal-cell, .hc, .cal-nav button, .pr-rec, .pr-play, .pr-ic, .at-chip"],
+    ["press-text", "a[href], button, summary, [role=button], label.check-row"],
+  ];
+  const PRESS_CLS = PRESS.map(p => p[0]);
+  function pressUp(root) {
+    if (!root || root.nodeType !== 1) return;
+    for (const [cls, sel] of PRESS) {
+      const hits = root.matches(sel) ? [root] : [];
+      hits.concat([...root.querySelectorAll(sel)]).forEach(el => {
+        if (!PRESS_CLS.some(c => el.classList.contains(c))) el.classList.add(cls);
+      });
+    }
+  }
+  function watchPress() {
+    pressUp(document.body);
+    new MutationObserver(list => {
+      for (const m of list) m.addedNodes.forEach(pressUp);
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
   function boot() {
+    watchPress();
     // "auto" follows the phone's light/dark setting. It is stored as that
     // string and resolved here, never written back as "light" or "dark", so
     // the phone stays in charge.
@@ -6403,7 +6458,7 @@
       // dataset is set, so it is this theme's panel and not the last one's.
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content",
-        getComputedStyle(document.documentElement).getPropertyValue("--panel").trim() || "#2b2118");
+        getComputedStyle(document.documentElement).getPropertyValue("--panel").trim() || "#ffffff");
       $$("#themeMenu [data-theme-pick]").forEach(b =>
         b.classList.toggle("on", b.dataset.themePick === pick));
     };
@@ -6484,7 +6539,9 @@
     gatePlan, setGate, mergeState,
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
     QUIZ_GATE_FROM, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
-    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf });
+    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
+    // T-051, for tools/verify-logic.js: the short-title helper (display only).
+    shortTitle });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

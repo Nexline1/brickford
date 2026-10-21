@@ -152,7 +152,12 @@ async function freshContext(browser, opts) {
     await page.click("#menuBtn");
     const open = await arrive(s => s.x === 0 && s.open);
     check(open.x === 0 && open.open, w + "px: drawer did not open (x=" + open.x + ")");
-    await page.click("#scrim", { force: true });
+    // Tap the scrim where it is exposed, beside the drawer. Clicking its
+    // centre (force: true) landed on the drawer above it — on a nav link,
+    // whose navigation closed the drawer — so this never touched the scrim
+    // (found by T-051, when the 44px rows put a group label at that point).
+    const sb = await page.evaluate(() => document.querySelector(".sidebar").getBoundingClientRect().right);
+    await page.mouse.click(Math.round((sb + w) / 2), 422);
     const shut1 = await arrive(s => s.x <= -180 && !s.open);
     check(shut1.x <= -180, w + "px: drawer did not close (x=" + shut1.x + ")");
     console.log("  " + String(w).padStart(5) + "px  drawer opens and closes");
@@ -300,6 +305,121 @@ async function freshContext(browser, opts) {
     }
     console.log("  " + String(390).padStart(5) + "px  every control reaches 44x44 on " + checked + " routes");
     await ctx.close();
+  }
+
+  // ---- T-051: a press on every control, and the press is felt ----
+  //
+  // The owner's spec: every tappable element answers the finger, and not with
+  // one rule for everything — a row highlights, a filled button or a discrete
+  // object scales, a card scales and dims, a text button dims (app.js PRESS,
+  // the utilities in tailwind.input.css). Two halves, because either alone
+  // proves nothing: the class on every control (the same controls the 44px
+  // sweep measures — a date-matrix cell is still pressed, so only prose links,
+  // form captions and the inputs themselves are left out), and then the
+  // press itself, with a real pointer held down, read back as computed style.
+  {
+    const PRESS = ["press-row", "press-card", "press-btn", "press-text"];
+    const ctx = await freshContext(browser, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+    await ctx.addInitScript(seedProgress);
+    const page = await ctx.newPage();
+    let controls = 0;
+    const kinds = {};
+    for (const r of FRAME_ROUTES) {
+      await page.goto(URL + r, { waitUntil: "load" });
+      await page.waitForTimeout(220);
+      const m = await page.evaluate(PRESS => {
+        const out = { n: 0, bare: [], twice: [], wrong: [], kinds: {} };
+        // The canonical controls and the press each must take.
+        const WANT = [[".glist > .g-row", "press-row"], [".sidebar .nav a", "press-row"], [".tabbar a", "press-text"],
+                      [".btn:not(.ghost):not(.bare)", "press-btn"], [".btn.ghost", "press-text"], [".at-tile, .book", "press-card"]];
+        document.querySelectorAll("a,button,summary,label,[role=button]").forEach(el => {
+          if (!el.checkVisibility()) return;
+          const b = el.getBoundingClientRect();
+          if (b.width < 1 || b.height < 1) return;
+          if (el.tagName === "A" && el.closest("p,.beat-d,.g-s,.sub")) return;   // a link in a sentence is text being read
+          if (el.tagName === "LABEL" && !el.classList.contains("check-row")) return;   // a caption over a field
+          out.n++;
+          const has = PRESS.filter(c => el.classList.contains(c));
+          const name = el.tagName.toLowerCase() + "." + String(el.className).replace(/\s+/g, ".").slice(0, 40);
+          if (!has.length) out.bare.push(name);
+          if (has.length > 1) out.twice.push(name + " " + has.join("+"));
+          if (has.length === 1) out.kinds[has[0]] = (out.kinds[has[0]] || 0) + 1;
+          for (const [sel, cls] of WANT) if (el.matches(sel) && !el.classList.contains(cls)) out.wrong.push(name + " wants " + cls);
+        });
+        return out;
+      }, PRESS);
+      controls += m.n;
+      Object.entries(m.kinds).forEach(([k, v]) => { kinds[k] = (kinds[k] || 0) + v; });
+      check(!m.bare.length, "390px " + r + ": " + m.bare.length + " control(s) with no press — " + [...new Set(m.bare)].slice(0, 4).join(", "));
+      check(!m.twice.length, "390px " + r + ": " + m.twice.length + " control(s) with two presses — " + m.twice.slice(0, 3).join(", "));
+      check(!m.wrong.length, "390px " + r + ": " + m.wrong.length + " control(s) with the wrong press — " + [...new Set(m.wrong)].slice(0, 4).join(", "));
+    }
+    check(PRESS.every(k => kinds[k] > 0), "390px: every press kind is in use (" + JSON.stringify(kinds) + ")");
+    console.log("  " + String(390).padStart(5) + "px  " + controls + " controls on " + FRAME_ROUTES.length + " routes, each with one press " + JSON.stringify(kinds));
+    await ctx.close();
+
+    // Held down. One control of each kind, pressed with the pointer and read
+    // while it is held: what the finger sees, not what a rule says.
+    for (const motion of ["no-preference", "reduce"]) {
+      const c2 = await freshContext(browser, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: motion });
+      await c2.addInitScript(seedProgress);
+      const p2 = await c2.newPage();
+      const felt = {};
+      for (const [cls, route, sel] of [["press-row", "/", "#view .glist > a.g-row"], ["press-btn", "/", "#view a.btn.press-btn"],
+                                       ["press-text", "/", ".tabbar a.press-text:not(.active)"], ["press-card", "/atlas", "#view .press-card"]]) {
+        await p2.goto(URL + route, { waitUntil: "load" });
+        await p2.waitForTimeout(300);
+        const el = p2.locator(sel).first();
+        if (!(await el.count())) { felt[cls] = null; continue; }
+        await el.scrollIntoViewIfNeeded();
+        const box = await el.boundingBox();
+        const read = () => el.evaluate(e => { const s = getComputedStyle(e); return { bg: s.backgroundColor, tf: s.transform, op: s.opacity }; });
+        const rest = await read();
+        await p2.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await p2.mouse.down();
+        await p2.waitForTimeout(150);
+        const held = await read();
+        await p2.mouse.up();
+        felt[cls] = { rest, held };
+        // A release that navigates is fine; the next goto starts clean.
+      }
+      // The row highlight is systemGray4 in whichever theme is painted, read
+      // from the token through a probe so it is an rgb() like the reading.
+      const hl = await p2.evaluate(() => { const d = document.createElement("div"); d.style.background = "var(--ios-highlight)"; document.body.appendChild(d);
+        const v = getComputedStyle(d).backgroundColor; d.remove(); return v; });
+      const scaled = f => f && /^matrix\(0\.97, 0, 0, 0\.97/.test(f.held.tf);
+      const at = "390px press held (" + motion + ")";
+      check(!!felt["press-row"] && felt["press-row"].held.bg === hl && felt["press-row"].held.tf === "none",
+        at + ": a row highlights to systemGray4 and does not scale — " + JSON.stringify(felt["press-row"]));
+      check(motion === "reduce" ? !!felt["press-btn"] && felt["press-btn"].held.tf === "none" && +felt["press-btn"].held.op === 0.7 : scaled(felt["press-btn"]),
+        at + ": a filled button " + (motion === "reduce" ? "dims to 0.7 and does not scale" : "scales to 0.97") + " — " + JSON.stringify(felt["press-btn"]));
+      check(!!felt["press-text"] && +felt["press-text"].held.op === 0.4 && felt["press-text"].held.tf === "none",
+        at + ": a text control dims to 0.4 — " + JSON.stringify(felt["press-text"]));
+      check(motion === "reduce" ? !!felt["press-card"] && felt["press-card"].held.tf === "none" && +felt["press-card"].held.op === 0.7
+                                : scaled(felt["press-card"]) && +felt["press-card"].held.op === 0.9,
+        at + ": a card " + (motion === "reduce" ? "dims to 0.7 and does not scale" : "scales to 0.97 and dims to 0.9") + " — " + JSON.stringify(felt["press-card"]));
+      await c2.close();
+    }
+
+    // Beside the page, with a mouse: the hover must not hide the press.
+    const c3 = await freshContext(browser, { viewport: { width: 1280, height: 880 }, reducedMotion: "reduce" });
+    const p3 = await c3.newPage();
+    await p3.goto(URL + "/", { waitUntil: "load" });
+    await p3.waitForTimeout(300);
+    const row = p3.locator(".sidebar .nav a[href='#/atlas']");
+    const rb = await row.boundingBox();
+    await p3.mouse.move(rb.x + 40, rb.y + rb.height / 2);
+    await p3.waitForTimeout(100);
+    const hover = await row.evaluate(e => getComputedStyle(e).backgroundColor);
+    await p3.mouse.down();
+    await p3.waitForTimeout(100);
+    const held = await row.evaluate(e => getComputedStyle(e).backgroundColor);
+    await p3.mouse.up();
+    const hl3 = await p3.evaluate(() => { const d = document.createElement("div"); d.style.background = "var(--ios-highlight)"; document.body.appendChild(d);
+      const v = getComputedStyle(d).backgroundColor; d.remove(); return v; });
+    check(held === hl3 && hover !== held, "1280px: a sidebar row held under the mouse shows the press (systemGray4 " + hl3 + "), not its hover — hover " + hover + ", held " + held);
+    await c3.close();
+    console.log("  press held: row, filled button, text, card at 390 (both motion settings); a sidebar row under the mouse at 1280");
   }
 
   // ---- every tab in the bottom bar, at the owner's text size ----

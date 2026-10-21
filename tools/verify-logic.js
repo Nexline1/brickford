@@ -662,6 +662,33 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // ---- T-051: the short title, display only ----
+  // The spec's two examples, the rule's two guards (a cut must leave at least
+  // two words; a title with no break comes back whole), and the data itself
+  // untouched after every lecture title has been through the helper.
+  {
+    const { ctx, page, errors } = await scenario(browser, "2026-10-20", null);
+    const r = await page.evaluate(() => {
+      const T = window.__brickfordTest, D = window.DAR;
+      const cases = [
+        ["Makemore 4 — becoming a backprop ninja (DO NOT SKIP)", "Makemore 4"],
+        ["Building a story live: know the end, start close to it", "Building a story live"],
+        ["Harvard Statistics 110 — Joe Blitzstein (full course)", "Harvard Statistics 110"],
+        ["Micrograd — spelled-out intro to neural networks and backpropagation", "Micrograd — spelled-out intro to neural networks and backpropagation"],
+        ["Conditioning Continued, Law of Total Probability", "Conditioning Continued, Law of Total Probability"],
+        ["Let's reproduce GPT-2 (124M)", "Let's reproduce GPT-2"],
+      ].map(([t, want]) => ({ t, want, got: T.shortTitle(t) }));
+      const before = JSON.stringify(D.COURSES);
+      let n = 0;
+      D.COURSES.forEach(c => c.units.forEach(u => u.lessons.forEach(l => { T.shortTitle(l.t); n++; })));
+      return { cases, same: JSON.stringify(D.COURSES) === before, n };
+    });
+    r.cases.forEach(c => check("shortTitle(“" + c.t + "”) is “" + c.want + "”", c.got === c.want, "got “" + c.got + "”"));
+    check("shortTitle leaves the curriculum data untouched (" + r.n + " lecture titles run through it)", r.same && r.n > 0, "data changed: " + !r.same);
+    check("no page errors (shortTitle)", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

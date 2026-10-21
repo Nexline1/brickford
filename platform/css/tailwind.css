@@ -68,251 +68,6 @@
 }
 
 @layer base {
-  *, :after, :before, ::backdrop {
-    box-sizing: border-box;
-    border: 0 solid;
-    margin: 0;
-    padding: 0;
-  }
-
-  ::file-selector-button {
-    box-sizing: border-box;
-    border: 0 solid;
-    margin: 0;
-    padding: 0;
-  }
-
-  html, :host {
-    -webkit-text-size-adjust: 100%;
-    tab-size: 4;
-    font-feature-settings: normal;
-    font-variation-settings: normal;
-    -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
-    line-height: 1.5;
-  }
-
-  hr {
-    height: 0;
-    color: inherit;
-    border-top-width: 1px;
-  }
-
-  abbr:where([title]) {
-    -webkit-text-decoration: underline dotted;
-    text-decoration: underline dotted;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-size: inherit;
-    font-weight: inherit;
-  }
-
-  a {
-    color: inherit;
-    -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
-    text-decoration: inherit;
-  }
-
-  b, strong {
-    font-weight: bolder;
-  }
-
-  code, kbd, samp, pre {
-    font-feature-settings: normal;
-    font-variation-settings: normal;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 1em;
-  }
-
-  small {
-    font-size: 80%;
-  }
-
-  sub, sup {
-    vertical-align: baseline;
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-  }
-
-  sub {
-    bottom: -.25em;
-  }
-
-  sup {
-    top: -.5em;
-  }
-
-  table {
-    text-indent: 0;
-    border-color: inherit;
-    border-collapse: collapse;
-  }
-
-  :-moz-focusring:where(:not(iframe)) {
-    outline: auto;
-  }
-
-  progress {
-    vertical-align: baseline;
-  }
-
-  summary {
-    display: list-item;
-  }
-
-  ol, ul, menu {
-    list-style: none;
-  }
-
-  img, svg, video, canvas, audio, iframe, embed, object {
-    vertical-align: middle;
-    display: block;
-  }
-
-  img, video {
-    max-width: 100%;
-    height: auto;
-  }
-
-  button, input, select, optgroup, textarea {
-    font: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    letter-spacing: inherit;
-    color: inherit;
-    opacity: 1;
-    background-color: #0000;
-    border-radius: 0;
-  }
-
-  ::file-selector-button {
-    font: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    letter-spacing: inherit;
-    color: inherit;
-    opacity: 1;
-    background-color: #0000;
-    border-radius: 0;
-  }
-
-  :where(select:is([multiple], [size])) optgroup {
-    font-weight: bolder;
-  }
-
-  :where(select:is([multiple], [size])) optgroup option {
-    padding-inline-start: 20px;
-  }
-
-  ::file-selector-button {
-    margin-inline-end: 4px;
-  }
-
-  ::placeholder {
-    opacity: 1;
-  }
-
-  @supports (not ((-webkit-appearance: -apple-pay-button))) or (contain-intrinsic-size: 1px) {
-    ::placeholder {
-      color: currentColor;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      ::placeholder {
-        color: color-mix(in oklab, currentcolor 50%, transparent);
-      }
-    }
-  }
-
-  textarea {
-    resize: vertical;
-  }
-
-  ::-webkit-search-decoration {
-    -webkit-appearance: none;
-  }
-
-  ::-webkit-date-and-time-value {
-    min-height: 1lh;
-    text-align: inherit;
-  }
-
-  ::-webkit-datetime-edit {
-    display: inline-flex;
-  }
-
-  ::-webkit-datetime-edit-fields-wrapper {
-    padding: 0;
-  }
-
-  ::-webkit-datetime-edit {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-year-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-month-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-day-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-hour-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-minute-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-second-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-millisecond-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-meridiem-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-calendar-picker-indicator {
-    line-height: 1;
-  }
-
-  :-moz-ui-invalid {
-    box-shadow: none;
-  }
-
-  button, input:where([type="button"], [type="reset"], [type="submit"]) {
-    appearance: button;
-  }
-
-  ::file-selector-button {
-    appearance: button;
-  }
-
-  ::-webkit-inner-spin-button {
-    height: auto;
-  }
-
-  ::-webkit-outer-spin-button {
-    height: auto;
-  }
-
-  [hidden]:where(:not([hidden="until-found"])) {
-    display: none !important;
-  }
-
   html {
     font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
@@ -340,6 +95,149 @@
   :focus-visible {
     outline: 2px solid var(--ios-tint);
     outline-offset: 2px;
+  }
+
+  :where(.preflight), :where(.preflight) *, :where(.preflight) :after, :where(.preflight) :before, :where(.preflight) ::backdrop {
+    box-sizing: border-box;
+    border: 0 solid;
+    margin: 0;
+    padding: 0;
+  }
+
+  :where(.preflight) ::file-selector-button {
+    box-sizing: border-box;
+    border: 0 solid;
+    margin: 0;
+    padding: 0;
+  }
+
+  :where(.preflight) {
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.5;
+  }
+
+  :where(.preflight) hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+
+  :where(.preflight) abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+
+  :where(.preflight) :where(h1, h2, h3, h4, h5, h6) {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  :where(.preflight) a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    -webkit-text-decoration: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+
+  :where(.preflight) :where(b, strong) {
+    font-weight: bolder;
+  }
+
+  :where(.preflight) :where(code, kbd, samp, pre) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 1em;
+  }
+
+  :where(.preflight) small {
+    font-size: 80%;
+  }
+
+  :where(.preflight) :where(sub, sup) {
+    vertical-align: baseline;
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+  }
+
+  :where(.preflight) sub {
+    bottom: -.25em;
+  }
+
+  :where(.preflight) sup {
+    top: -.5em;
+  }
+
+  :where(.preflight) table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+
+  :where(.preflight) progress {
+    vertical-align: baseline;
+  }
+
+  :where(.preflight) summary {
+    display: list-item;
+  }
+
+  :where(.preflight) :where(ol, ul, menu) {
+    list-style: none;
+  }
+
+  :where(.preflight) :where(img, svg, video, canvas, audio, iframe, embed, object) {
+    vertical-align: middle;
+    display: block;
+  }
+
+  :where(.preflight) :where(img, video) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  :where(.preflight) :where(button, input, select, optgroup, textarea) {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    opacity: 1;
+    background-color: #0000;
+    border-radius: 0;
+  }
+
+  :where(.preflight) ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    opacity: 1;
+    background-color: #0000;
+    border-radius: 0;
+  }
+
+  :where(.preflight) ::placeholder {
+    opacity: 1;
+  }
+
+  :where(.preflight) textarea {
+    resize: vertical;
+  }
+
+  :where(.preflight) :where(button, input:where([type="button"], [type="reset"], [type="submit"])) {
+    appearance: button;
+  }
+
+  :where(.preflight) ::file-selector-button {
+    appearance: button;
+  }
+
+  :where(.preflight) [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
   }
 
   :root {
@@ -377,13 +275,13 @@
     --ios-card-inset: #2c2c2e;
     --ios-bar: #161617f0;
     --ios-label: #f5f5f7;
-    --ios-label-secondary: #8e8e93;
+    --ios-label-secondary: #98989d;
     --ios-label-tertiary: #48484a;
     --ios-separator: #38383a;
     --ios-highlight: #3a3a3c;
     --ios-fill: #2c2c2e;
     --ios-tint: #0a84ff;
-    --ios-tint-text: #0a84ff;
+    --ios-tint-text: #409cff;
     --ios-tint-fill: #0071e3;
     --ios-destructive: #ff453a;
     --ios-destructive-text: #ff453a;
@@ -818,6 +716,26 @@
 
   .-rotate-90 {
     rotate: -90deg;
+  }
+
+  .press-card {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform .3s cubic-bezier(.2, .8, .2, 1), opacity .2s ease-out;
+  }
+
+  .press-card:active {
+    opacity: .9;
+    transition-duration: 80ms;
+    transform: scale(.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .press-card:active {
+      opacity: .7;
+      transform: none;
+    }
   }
 
   .press-btn {
@@ -1343,10 +1261,6 @@
   .ring {
     --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-
-  .ring-label {
-    --tw-ring-color: var(--ios-label);
   }
 
   .filter {

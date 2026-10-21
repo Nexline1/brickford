@@ -10,7 +10,7 @@
      and the app icon. This is the default (dark) theme's --panel; the script
      below swaps in the stored theme's before the first paint, and
      applyTheme() in app.js keeps it. -->
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#1c1c1e">
 <!-- The theme, before the first paint (T-024). app.js is deferred behind the
      KaTeX CDN, so the static data-theme above would paint on its own until it
      ran: every device with "light" stored would flash dark and then flip to
@@ -25,7 +25,7 @@
      checks the map against the stylesheet, so the two cannot drift apart. -->
 <script>
 (function () {
-  var PANEL = { light: "#2b2118", dark: "#000000" };
+  var PANEL = { light: "#ffffff", dark: "#1c1c1e" };
   var pick;
   try {
     var st = (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {});
@@ -45,7 +45,7 @@
   if (meta) meta.setAttribute("content", PANEL[theme]);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=20261016a">
+<link rel="manifest" href="manifest.json?v=20261021t">
 <!-- iOS reads the apple-* pair; `mobile-web-app-capable` is the standard one that
      replaced it. Both, because Safari still honours only its own. -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -56,17 +56,17 @@
 <meta name="apple-mobile-web-app-title" content="Brickford">
 <!-- Must be a PNG. Safari ignores SVG for apple-touch-icon, which is why these
      are real files rather than the inline data URI the favicon uses. -->
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261016a">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261016a">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=20261021t">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=20261021t">
 <title>Brickford</title>
 <!-- Browser tab: the SAME full crest as the home-screen icon, at the sizes
      browsers actually request. PNG rather than the previous inline SVG,
      because an SVG gets scaled to 16px and the laurels turn to mud —
      rendering each size separately means 32px (what retina tabs use) is
      drawn properly instead of squeezed. -->
-<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261016a">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261016a">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261016a">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png?v=20261021t">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=20261021t">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png?v=20261021t">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Every heading, label and number is the platform's own face (SF on his
@@ -75,7 +75,14 @@
      with the register stance on 25 Sep 2026 (loop/design/brief.md). -->
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css?v=20261016a">
+<!-- T-051: the iOS system. tailwind.css is built from tailwind.input.css and
+     tailwind.config.js (npm run build:css; tools/verify-tailwind.js fails if it
+     is stale). It is LAYERED and style.css is not, so during the migration the
+     old rules win wherever both speak, and the new utilities apply only where
+     the old file is silent (preflight is scoped to .preflight, so unmigrated
+     screens keep their own resets). It also carries the self-hosted Inter. -->
+<link rel="stylesheet" href="css/tailwind.css?v=20261021t">
+<link rel="stylesheet" href="css/style.css?v=20261021t">
 </head>
 <body>
 
@@ -102,11 +109,14 @@
 
 <div class="shell">
   <aside class="sidebar" id="sidebar">
-    <div class="crest">
-      <svg viewBox="0 0 200 224" aria-label="Brickford crest"><path class="cr-field" d="M18 16 H182 V118 C182 168 143 199 100 212 C57 199 18 168 18 118 Z"/><path class="cr-key" d="M30 28 H170 V118 C170 160 137 187 100 199 C63 187 30 160 30 118 Z"/><polygon class="cr-cut" points="54.2,99.7 40.3,98.4 44.3,81.8 57.3,87.0"/><polygon class="cr-cut" points="58.1,84.9 45.4,79.1 54.6,64.8 65.2,73.9"/><polygon class="cr-cut" points="66.7,72.3 56.6,62.6 69.9,52.1 77.0,64.2"/><polygon class="cr-cut" points="78.9,63.1 72.5,50.7 88.6,45.1 91.3,58.8"/><polygon class="cr-cut" points="93.5,58.5 91.5,44.6 108.5,44.6 106.5,58.5"/><polygon class="cr-cut" points="108.7,58.8 111.4,45.1 127.5,50.7 121.1,63.1"/><polygon class="cr-cut" points="123.0,64.2 130.1,52.1 143.4,62.6 133.3,72.3"/><polygon class="cr-cut" points="134.8,73.9 145.4,64.8 154.6,79.1 141.9,84.9"/><polygon class="cr-cut" points="142.7,87.0 155.7,81.8 159.7,98.4 145.8,99.7"/><polygon class="cr-cut" points="100,58 142,84 58,84"/><rect class="cr-cut" x="58" y="88" width="84" height="7" rx="1"/><rect class="cr-cut" x="63.0" y="99" width="9" height="47"/><rect class="cr-cut" x="84.5" y="99" width="9" height="47"/><rect class="cr-cut" x="106.0" y="99" width="9" height="47"/><rect class="cr-cut" x="127.5" y="99" width="9" height="47"/><rect class="cr-cut" x="52" y="150" width="96" height="7" rx="1"/><rect class="cr-cut" x="46" y="161" width="108" height="7" rx="1"/><path class="cr-stem" d="M60.0 178 C38.0 158 30.0 118 48.0 78"/><ellipse class="cr-cut" cx="51.0" cy="178.0" rx="10.5" ry="5.2" transform="rotate(58 51.0 178.0)"/><ellipse class="cr-cut" cx="41.2" cy="166.4" rx="10.0" ry="5.0" transform="rotate(52 41.2 166.4)"/><ellipse class="cr-cut" cx="34.1" cy="152.1" rx="9.4" ry="4.7" transform="rotate(47 34.1 152.1)"/><ellipse class="cr-cut" cx="30.0" cy="135.5" rx="8.9" ry="4.5" transform="rotate(41 30.0 135.5)"/><ellipse class="cr-cut" cx="29.2" cy="117.3" rx="8.4" ry="4.2" transform="rotate(35 29.2 117.3)"/><ellipse class="cr-cut" cx="32.1" cy="97.9" rx="7.8" ry="4.0" transform="rotate(30 32.1 97.9)"/><ellipse class="cr-cut" cx="39.0" cy="78.0" rx="7.3" ry="3.7" transform="rotate(24 39.0 78.0)"/><path class="cr-stem" d="M140.0 178 C162.0 158 170.0 118 152.0 78"/><ellipse class="cr-cut" cx="149.0" cy="178.0" rx="10.5" ry="5.2" transform="rotate(-58 149.0 178.0)"/><ellipse class="cr-cut" cx="158.8" cy="166.4" rx="10.0" ry="5.0" transform="rotate(-52 158.8 166.4)"/><ellipse class="cr-cut" cx="165.9" cy="152.1" rx="9.4" ry="4.7" transform="rotate(-47 165.9 152.1)"/><ellipse class="cr-cut" cx="170.0" cy="135.5" rx="8.9" ry="4.5" transform="rotate(-41 170.0 135.5)"/><ellipse class="cr-cut" cx="170.8" cy="117.3" rx="8.4" ry="4.2" transform="rotate(-35 170.8 117.3)"/><ellipse class="cr-cut" cx="167.9" cy="97.9" rx="7.8" ry="4.0" transform="rotate(-30 167.9 97.9)"/><ellipse class="cr-cut" cx="161.0" cy="78.0" rx="7.3" ry="3.7" transform="rotate(-24 161.0 78.0)"/><rect class="cr-cut" x="93" y="35" width="14" height="14" transform="rotate(45 100 42)"/><rect class="cr-cut" x="94" y="177" width="12" height="12" transform="rotate(45 100 183)"/></svg>
-      <div class="name-en">Brickford</div>
-      <div class="wordrule"></div>
-      <div class="est">Self-built university</div>
+    <!-- T-051: the crest stays as the logo — the app icon itself, beside the
+         name, as the approved mockup draws it. -->
+    <div class="brand">
+      <img class="brand-icon" src="icons/apple-touch-icon.png?v=20261021t" alt="">
+      <div>
+        <div class="brand-name">Brickford</div>
+        <div class="brand-sub">Self-built university</div>
+      </div>
     </div>
 
     <nav class="nav" id="nav">
@@ -183,7 +193,6 @@
         Sync devices
       </a>
       <input type="file" id="importFile" accept=".json" style="display:none;">
-      <div class="motto">From imitation to invention</div>
     </div>
   </aside>
 
@@ -226,31 +235,31 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script defer src="data/curriculum.js?v=20261016a"></script>
-<script defer src="js/figures.js?v=20261016a"></script>
-<script defer src="js/lab.js?v=20261016a"></script>
-<script defer src="data/concepts-linear-algebra.js?v=20261016a"></script>
-<script defer src="data/summaries-math110.js?v=20261016a"></script>
-<script defer src="data/summaries-math110-mit.js?v=20261016a"></script>
-<script defer src="data/summaries-math120.js?v=20261016a"></script>
-<script defer src="data/summaries-math130.js?v=20261016a"></script>
-<script defer src="data/summaries-phys100.js?v=20261016a"></script>
-<script defer src="data/summaries-math210.js?v=20261016a"></script>
-<script defer src="data/summaries-sys250.js?v=20261016a"></script>
-<script defer src="data/summaries-ai200.js?v=20261016a"></script>
-<script defer src="data/summaries-ai210.js?v=20261016a"></script>
-<script defer src="data/summaries-ai310.js?v=20261016a"></script>
-<script defer src="data/summaries-res400.js?v=20261016a"></script>
-<script defer src="data/workshop.js?v=20261016a"></script>
-<script defer src="data/storytelling.js?v=20261016a"></script>
-<script defer src="data/quiz-linear-algebra.js?v=20261016a"></script>
-<script defer src="data/quiz-calculus.js?v=20261016a"></script>
-<script defer src="data/quiz-probability.js?v=20261016a"></script>
-<script defer src="data/quiz-zero-to-hero.js?v=20261016a"></script>
-<script defer src="data/quiz-dsa.js?v=20261016a"></script>
-<script defer src="data/quiz-math-for-ml.js?v=20261016a"></script>
-<script defer src="data/quiz-llm-engineering.js?v=20261016a"></script>
-<script defer src="js/quiz-engine.js?v=20261016a"></script>
-<script defer src="js/app.js?v=20261016a"></script>
+<script defer src="data/curriculum.js?v=20261021t"></script>
+<script defer src="js/figures.js?v=20261021t"></script>
+<script defer src="js/lab.js?v=20261021t"></script>
+<script defer src="data/concepts-linear-algebra.js?v=20261021t"></script>
+<script defer src="data/summaries-math110.js?v=20261021t"></script>
+<script defer src="data/summaries-math110-mit.js?v=20261021t"></script>
+<script defer src="data/summaries-math120.js?v=20261021t"></script>
+<script defer src="data/summaries-math130.js?v=20261021t"></script>
+<script defer src="data/summaries-phys100.js?v=20261021t"></script>
+<script defer src="data/summaries-math210.js?v=20261021t"></script>
+<script defer src="data/summaries-sys250.js?v=20261021t"></script>
+<script defer src="data/summaries-ai200.js?v=20261021t"></script>
+<script defer src="data/summaries-ai210.js?v=20261021t"></script>
+<script defer src="data/summaries-ai310.js?v=20261021t"></script>
+<script defer src="data/summaries-res400.js?v=20261021t"></script>
+<script defer src="data/workshop.js?v=20261021t"></script>
+<script defer src="data/storytelling.js?v=20261021t"></script>
+<script defer src="data/quiz-linear-algebra.js?v=20261021t"></script>
+<script defer src="data/quiz-calculus.js?v=20261021t"></script>
+<script defer src="data/quiz-probability.js?v=20261021t"></script>
+<script defer src="data/quiz-zero-to-hero.js?v=20261021t"></script>
+<script defer src="data/quiz-dsa.js?v=20261021t"></script>
+<script defer src="data/quiz-math-for-ml.js?v=20261021t"></script>
+<script defer src="data/quiz-llm-engineering.js?v=20261021t"></script>
+<script defer src="js/quiz-engine.js?v=20261021t"></script>
+<script defer src="js/app.js?v=20261021t"></script>
 </body>
 </html>

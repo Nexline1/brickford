@@ -1,0 +1,525 @@
+<title>Monk Mode</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one iOS inset-grouped column on the phone; two columns from 900px (today | week & log). */
+:root{
+  --canvas:#F2F2F7; --card:#FFFFFF; --inset:#F2F2F7; --label:#1D1D1F; --label2:#6E6E73; --glyph:#C7C7CC;
+  --sep:#C6C6C8; --press:#D1D1D6; --fill:#E5E5EA;
+  --tint:#0066CC; --tint-fill:#0071E3; --on-tint:#FFFFFF;
+  --green:#34C759; --green-text:#1F7A35; --orange-text:#C93400; --red-text:#D70015;
+  --heat1:#C8EED3; --heat2:#8EDCA6; --heat3:#4CC977; --heat4:#249A4A;
+  --font:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --canvas:#000000; --card:#1C1C1E; --inset:#2C2C2E; --label:#F5F5F7; --label2:#8E8E93; --glyph:#48484A;
+  --sep:#38383A; --press:#3A3A3C; --fill:#2C2C2E;
+  --tint:#0A84FF; --tint-fill:#0071E3; --on-tint:#FFFFFF;
+  --green:#30D158; --green-text:#30D158; --orange-text:#FF9F0A; --red-text:#FF453A;
+  --heat1:#123A1E; --heat2:#1B6B33; --heat3:#26A04B; --heat4:#30D158; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --canvas:#000000; --card:#1C1C1E; --inset:#2C2C2E; --label:#F5F5F7; --label2:#8E8E93; --glyph:#48484A;
+  --sep:#38383A; --press:#3A3A3C; --fill:#2C2C2E;
+  --tint:#0A84FF; --tint-fill:#0071E3; --on-tint:#FFFFFF;
+  --green:#30D158; --green-text:#30D158; --orange-text:#FF9F0A; --red-text:#FF453A;
+  --heat1:#123A1E; --heat2:#1B6B33; --heat3:#26A04B; --heat4:#30D158; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--canvas);color:var(--label);font:400 1.0625rem/1.375rem var(--font);letter-spacing:-0.0128em;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 40px}
+.wrap{max-width:1080px;margin:0 auto}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 4px 4px}
+.kick{font-size:.8125rem;line-height:1.125rem;color:var(--label2)}
+h1{font-size:2.125rem;line-height:2.5625rem;font-weight:700;letter-spacing:-0.0218em;margin:2px 0 0;text-wrap:balance}
+.ring{flex:none;width:58px;height:58px;position:relative}
+.ring svg{width:58px;height:58px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:.8125rem;font-weight:600;font-variant-numeric:tabular-nums}
+.cols{display:grid;gap:0 28px}
+@media (min-width:900px){.cols{grid-template-columns:1.05fr 1fr}}
+.cols>div{min-width:0}
+.sec{margin-top:24px}
+.sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 16px 6px;font-size:.8125rem;line-height:1.125rem;text-transform:uppercase;letter-spacing:.06em;color:var(--label2)}
+.group{background:var(--card);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 16px;position:relative;width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;text-decoration:none}
+.row+.row::before{content:"";position:absolute;top:0;right:0;left:16px;border-top:1px solid var(--sep)}
+@media (min-resolution:2dppx){.row+.row::before{border-top-width:.5px}}
+.row.ic+.row::before,.row+.row.ic::before{left:57px}
+button.row,a.row{cursor:pointer;transition:background-color .3s ease-out}
+button.row:active,a.row:active{background:var(--press);transition-duration:0s}
+.t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s{color:var(--label2);font-size:.9375rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tm{width:3.1rem;flex:none;color:var(--label2);font-size:.9375rem;font-variant-numeric:tabular-nums}
+.tile{width:29px;height:29px;flex:none;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:.8125rem;font-weight:600}
+.chev{color:var(--glyph);font-size:1.1rem}
+.now{color:var(--tint);font-weight:600}
+.past .t,.past .tm{color:var(--label2)}
+.check{width:24px;height:24px;flex:none;border-radius:50%;border:1.5px solid var(--glyph);display:grid;place-items:center;transition:background-color .2s,border-color .2s}
+.on .check{background:var(--green);border-color:var(--green)}
+.on .check::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.chips{display:flex;gap:6px;padding:12px}
+.chip{flex:1 1 0;min-width:0;min-height:44px;border:0;border-radius:10px;background:var(--fill);color:var(--label);font:500 .8125rem/1.1 var(--font);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .3s cubic-bezier(.2,.8,.2,1),background-color .2s}
+.chip small{font-size:.6875rem;color:var(--label2);font-variant-numeric:tabular-nums}
+.chip.on{background:var(--green);color:#fff}
+.chip.on small{color:#fff}
+.chip:active{transform:scale(.97);transition-duration:.08s}
+.row.num{padding-block:0;padding-right:4px}
+.top .t{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.step{display:flex;align-items:center;gap:4px;flex:none}
+.step button{width:44px;height:44px;border:0;border-radius:22px;background:none;color:var(--tint);font-size:1.4rem;cursor:pointer}
+.step button:active{background:var(--press)}
+.step output{min-width:2.6rem;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.bar{height:4px;border-radius:2px;background:var(--fill);overflow:hidden;width:72px;flex:none}
+.bar i{display:block;height:100%;background:var(--green)}
+.bar i.part{background:var(--tint-fill)}
+.heat{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;gap:4px;padding:14px 16px;overflow-x:auto}
+.heat i{width:16px;height:16px;border-radius:4px;background:var(--fill)}
+.heat i.n{background:transparent}
+.heat i.l1{background:var(--heat1)}.heat i.l2{background:var(--heat2)}.heat i.l3{background:var(--heat3)}.heat i.l4{background:var(--heat4)}
+.heat i.today{outline:2px solid var(--tint);outline-offset:1px}
+.field{display:flex;align-items:center;gap:12px;min-height:44px;padding:4px 16px;position:relative}
+.field+.field::before{content:"";position:absolute;top:0;right:0;left:16px;border-top:1px solid var(--sep)}
+.field label{width:5.6rem;flex:none;color:var(--label2);font-size:.9375rem}
+.field input{flex:1;min-width:0;border:0;background:none;color:var(--label);font:inherit;padding:10px 0;outline:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;width:100%;border:0;border-radius:12px;background:var(--tint-fill);color:var(--on-tint);font:600 1.0625rem var(--font);cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s}
+.btn:active{transform:scale(.97);transition-duration:.08s}
+.btn.quiet{background:var(--fill);color:var(--tint)}
+.btn[disabled]{opacity:.5;cursor:default}
+.actions{display:flex;gap:10px;margin-top:10px}
+.note{padding:8px 16px 0;font-size:.8125rem;line-height:1.125rem;color:var(--label2)}
+.focus{color:var(--orange-text);font-weight:600}
+.answer{padding:12px 16px;font-size:.9375rem;line-height:1.35rem;white-space:pre-wrap}
+:focus-visible{outline:2px solid var(--tint);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.chip:active,.btn:active{transform:none;opacity:.7}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kick" id="kick">—</div>
+      <h1 id="dayTitle">Monk Mode</h1>
+    </div>
+    <div class="ring" aria-label="Today's score"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--fill)" stroke-width="4"></circle><circle id="ringArc" cx="18" cy="18" r="15.5" fill="none" stroke="var(--green)" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 100"></circle></svg><b id="ringPct">0%</b></div>
+  </header>
+
+  <div class="cols">
+    <div>
+      <section class="sec">
+        <div class="sh"><span>Now</span><span id="srcLabel">Plan</span></div>
+        <div class="group" id="nowGroup"></div>
+        <details class="group" style="margin-top:10px" id="dayDetails">
+          <summary class="row" style="cursor:pointer;list-style:none"><span class="t">Full day</span><span class="s" id="dayCount"></span><span class="chev">›</span></summary>
+          <div id="dayList"></div>
+        </details>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Top 3 today</span></div>
+        <div class="group" id="top3"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Prayer on time</span><span id="prayStreak"></span></div>
+        <div class="group"><div class="chips" id="prayers"></div></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Non-negotiables</span><span id="habitCount"></span></div>
+        <div class="group" id="habits"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Numbers</span></div>
+        <div class="group" id="numbers"></div>
+      </section>
+    </div>
+
+    <div>
+      <section class="sec">
+        <div class="sh"><span>This week</span><span id="weekLabel"></span></div>
+        <div class="group" id="week"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>This month</span><span id="monthLabel"></span></div>
+        <div class="group" id="month"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>90 days</span><span id="heatLabel"></span></div>
+        <div class="group"><div class="heat" id="heat" aria-label="Daily score, 90 days"></div></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Focus this week</span></div>
+        <div class="group" id="focus"></div>
+        <div class="actions"><button class="btn quiet" id="askBtn" type="button" hidden>Ask Claude for a weekly review</button></div>
+        <div class="group" id="answerBox" style="margin-top:10px" hidden><div class="answer" id="answer"></div></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Inbox</span><span id="inboxCount"></span></div>
+        <div class="group" id="inbox"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Open loops</span><span id="loopCount"></span></div>
+        <div class="group" id="loops"></div>
+        <div class="group" style="margin-top:10px"><div class="field"><label for="loopNew">New</label><input id="loopNew" placeholder="Something to close" autocomplete="off"></div></div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><span>Plan tomorrow</span><span>21:55</span></div>
+        <div class="group">
+          <div class="field"><label for="pBiz">Business</label><input id="pBiz" autocomplete="off"></div>
+          <div class="field"><label for="pCon">Content</label><input id="pCon" autocomplete="off"></div>
+          <div class="field"><label for="pEdu">Education</label><input id="pEdu" autocomplete="off"></div>
+        </div>
+        <div class="actions"><button class="btn" id="savePlan" type="button">Save tomorrow's plan</button></div>
+        <div class="note" id="planNote"></div>
+      </section>
+
+      <section class="sec">
+        <div class="group">
+          <a class="row ic" href="https://nexline1.github.io/brickford/platform/" target="_blank" rel="noopener"><span class="tile" style="background:#5856D6">B</span><span class="t">Open Brickford</span><span class="chev">›</span></a>
+          <a class="row ic" href="https://calendar.google.com/calendar/r/day" target="_blank" rel="noopener"><span class="tile" style="background:#FF9500">C</span><span class="t">Open Google Calendar</span><span class="chev">›</span></a>
+        </div>
+        <div class="note" id="storeNote"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- fixed facts ----------
+  const START = "2026-10-22", DAYS = 90, ZONE = "Asia/Bahrain";
+  const LAT = 26.2285, LNG = 50.586, TZH = 3; // Manama
+  const PRAYERS = [["fajr","Fajr"],["dhuhr","Dhuhr"],["asr","Asr"],["maghrib","Maghrib"],["isha","Isha"]];
+  const HABITS = [
+    ["german","German 1.5 h","#FF3B30","De"],
+    ["brickford","Brickford 3 h","#5856D6","B"],
+    ["meditate","Meditate","#30B0C7","M"],
+    ["read","Read","#AF52DE","R"],
+    ["clean","No TikTok · IG · YouTube","#FF9500","∅"],
+    ["plan","Plan tomorrow","#007AFF","P"],
+  ];
+  const NUMBERS = [
+    ["work","Work hours",.5,"h",10,"≥"],
+    ["phone","Phone hours (max)",.5,"h",2,"<"],
+    ["gym","Gym",1,"",1,""],
+    ["shorts","Short-form posted",1,"",0,""],
+    ["video","Videos published",1,"",0,""],
+    ["scripts","Scripts written",1,"",0,""],
+    ["stream","Streams done",1,"",0,""],
+    ["clips","Clips cut",1,"",0,""],
+    ["book","Books finished",1,"",0,""],
+  ];
+  const WEEK_TARGETS = [["shorts","Short-form",8],["stream","Streams",2],["video","Videos",2],["scripts","Scripts",4],["gym","Gym",5],["book","Book",1]];
+  const MONTH_TARGETS = [["stream","Streams",8],["clips","Clips",36]];
+
+  // ---------- dates in Bahrain time ----------
+  const fmt = new Intl.DateTimeFormat("en-CA",{timeZone:ZONE,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+  function nowParts(){ const p = Object.fromEntries(fmt.formatToParts(new Date()).map(x=>[x.type,x.value])); return {iso:`${p.year}-${p.month}-${p.day}`, min:+p.hour*60 + +p.minute}; }
+  const isoToUTC = iso => Date.UTC(+iso.slice(0,4), +iso.slice(5,7)-1, +iso.slice(8,10));
+  const addDays = (iso,n) => new Date(isoToUTC(iso)+n*864e5).toISOString().slice(0,10);
+  const dow = iso => new Date(isoToUTC(iso)).getUTCDay(); // 0 Sun
+  const dayIndex = iso => Math.round((isoToUTC(iso)-isoToUTC(START))/864e5);
+  const weekStart = iso => addDays(iso, -dow(iso)); // weeks run Sunday to Saturday
+  const hhmm = m => { const r = Math.round(m); return String(Math.floor(r/60)%24).padStart(2,"0")+":"+String(r%60).padStart(2,"0"); };
+  const longDate = iso => new Date(isoToUTC(iso)).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"});
+
+  // ---------- prayer times (Umm al-Qura: Fajr 18.5°, Isha = Maghrib + 90 min) ----------
+  const d2r = Math.PI/180, r2d = 180/Math.PI;
+  const S = x=>Math.sin(x*d2r), C = x=>Math.cos(x*d2r), T = x=>Math.tan(x*d2r);
+  const fix = (a,b)=>{ a = a - b*Math.floor(a/b); return a<0 ? a+b : a; };
+  function julian(y,m,d){ if(m<=2){y-=1;m+=12} const A=Math.floor(y/100), B=2-A+Math.floor(A/4); return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5; }
+  function sun(jd){ const D=jd-2451545, g=fix(357.529+.98560028*D,360), q=fix(280.459+.98564736*D,360), L=fix(q+1.915*S(g)+.02*S(2*g),360), e=23.439-.00000036*D;
+    const RA=Math.atan2(C(e)*S(L),C(L))*r2d/15; return {decl:Math.asin(S(e)*S(L))*r2d, eqt:q/15-fix(RA,24)}; }
+  function prayerTimes(iso){
+    const jd = julian(+iso.slice(0,4), +iso.slice(5,7), +iso.slice(8,10)) - LNG/(15*24);
+    const noon = t => fix(12 - sun(jd+t).eqt, 24);
+    const at = (angle,t,ccw) => { const dc=sun(jd+t).decl, n=noon(t), v=(1/15)*Math.acos((-S(angle)-S(dc)*S(LAT))/(C(dc)*C(LAT)))*r2d; return n + (ccw?-v:v); };
+    const asr = t => { const dc=sun(jd+t).decl; return at(-Math.atan(1/(1+T(Math.abs(LAT-dc))))*r2d, t, false); };
+    const adj = TZH - LNG/15, m = h => (h+adj)*60;
+    const maghrib = m(at(.833,18/24,false));
+    return {fajr:m(at(18.5,5/24,true)), sunrise:m(at(.833,6/24,true)), dhuhr:m(noon(12/24)), asr:m(asr(13/24)), maghrib, isha:maghrib+90};
+  }
+
+  // ---------- the routine, used when the calendar can't be read ----------
+  function planFor(iso){
+    const w = dow(iso), pt = prayerTimes(iso), ev = [];
+    const add = (start,mins,title,kind) => ev.push({start,end:start+mins,title,kind});
+    add(pt.fajr,15,"Fajr","prayer");
+    add(390,10,"Journaling"); add(400,20,"Meditation"); add(420,30,"German — listening");
+    add(450,180,"Brickford — Deep Track");
+    if (w===5) add(480,60,"Grandmother — grave visit");
+    add(630,45,"Scripting");
+    if (w===5) add(675,60,"Jumu'ah","prayer"); else add(pt.dhuhr,15,"Dhuhr","prayer");
+    add(720,120,(w===0||w===3)?"Editing — stream → clips":"Working — business");
+    add(830,10,"Post short-form"); add(840,90,"Nap");
+    add(pt.asr,15,"Asr","prayer");
+    add(930,30,"German — speaking"); add(945,90,"Gym");
+    add(pt.maghrib,15,"Maghrib","prayer");
+    add(1065,30,"German — writing & reading");
+    add(pt.isha,15,"Isha","prayer");
+    if (w===2||w===6) add(1140,120,"Stream (English)"); else add(1095,165,"Working — business");
+    if (w===0) add(1080,30,"Weekly review");
+    add(1260,55,"Reading"); add(1315,5,"Plan tomorrow");
+    return ev.sort((a,b)=>a.start-b.start);
+  }
+
+  // ---------- state ----------
+  const st = { today:"", days:{}, plans:{}, loops:[], cal:null, calErr:null, mail:null, mailErr:null, db:null, sample:null };
+  const LS = "monk90.local";
+  function lsLoad(){ try { const v = JSON.parse(localStorage.getItem(LS)||"null"); if (v) { st.days=v.days||{}; st.plans=v.plans||{}; st.loops=v.loops||[]; } } catch(e){} }
+  function lsSave(){ if (st.db) return; try { localStorage.setItem(LS, JSON.stringify({days:st.days,plans:st.plans,loops:st.loops})); } catch(e){} }
+  const day = iso => st.days[iso] || {};
+
+  async function writeDay(iso, patch){
+    st.days[iso] = Object.assign({}, day(iso), patch, {date:iso});
+    render();
+    if (st.db) { try { await st.db.doc("days/"+iso).set(st.days[iso]); } catch(e){ note("Couldn't save just now. Your tick shows here but may not be stored."); } }
+    else lsSave();
+  }
+
+  // ---------- scoring ----------
+  function score(iso){
+    const d = day(iso); let n = 0, done = 0;
+    for (const [k] of PRAYERS){ n++; if (d.prayers && d.prayers[k]) done++; }
+    for (const [k] of HABITS){ n++; if (d[k]) done++; }
+    n++; if ((d.work||0) >= 10) done++;
+    n++; if (d.phone != null && d.phone < 2) done++;
+    return {done, n, pct: Math.round(100*done/n)};
+  }
+  function streakPrayers(){
+    let s = 0, iso = st.today;
+    const full = i => PRAYERS.every(([k]) => day(i).prayers && day(i).prayers[k]);
+    if (!full(iso)) iso = addDays(iso,-1);
+    while (dayIndex(iso) >= 0 && full(iso)) { s++; iso = addDays(iso,-1); }
+    return s;
+  }
+  function sumRange(key, from, to){ let t=0; for (let i=from; i<=to; i=addDays(i,1)) t += +(day(i)[key]||0); return t; }
+
+  // ---------- render ----------
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  function note(t){ $("storeNote").textContent = t; }
+
+  function todaysEvents(){
+    if (st.cal) return st.cal;
+    return planFor(st.today);
+  }
+  function render(){
+    const {iso, min} = nowParts(); st.today = iso;
+    const di = dayIndex(iso);
+    $("kick").textContent = longDate(iso) + (di>=0 && di<DAYS ? " · Week " + (Math.floor(di/7)+1) : "");
+    $("dayTitle").textContent = di < 0 ? "Starts 22 Oct" : di >= DAYS ? "90 days done" : `Day ${di+1} of ${DAYS}`;
+    const sc = score(iso); $("ringPct").textContent = sc.pct + "%";
+    $("ringArc").setAttribute("stroke-dasharray", `${(sc.pct/100)*97.4} 100`);
+
+    // now / next
+    const evs = todaysEvents();
+    $("srcLabel").textContent = st.cal ? "Google Calendar" : "Plan";
+    const cur = evs.filter(e => e.start <= min && min < e.end).sort((a,b)=> (b.kind==="prayer")-(a.kind==="prayer") || b.start-a.start)[0];
+    const nxt = evs.find(e => e.start > min);
+    const pt = prayerTimes(iso), nextPrayer = PRAYERS.map(([k,l])=>({l, m:pt[k]})).find(p => p.m > min);
+    let h = "";
+    h += cur ? `<div class="row"><span class="tm now">Now</span><span class="t now">${esc(cur.title)}</span><span class="s">until ${hhmm(cur.end)}</span></div>`
+             : `<div class="row"><span class="tm">Now</span><span class="t">Free</span></div>`;
+    if (nxt) h += `<div class="row"><span class="tm">${hhmm(nxt.start)}</span><span class="t">${esc(nxt.title)}</span><span class="s">in ${dur(nxt.start-min)}</span></div>`;
+    if (nextPrayer && !(nxt && nxt.kind==="prayer" && Math.abs(nxt.start-nextPrayer.m)<20)) h += `<div class="row"><span class="tm">${hhmm(nextPrayer.m)}</span><span class="t">${nextPrayer.l}</span><span class="s">adhan · in ${dur(nextPrayer.m-min)}</span></div>`;
+    if (st.calErr) h += `<div class="row"><span class="t s">${esc(st.calErr)}</span></div>`;
+    $("nowGroup").innerHTML = h;
+    $("dayCount").textContent = evs.length + " blocks";
+    $("dayList").innerHTML = evs.map(e => `<div class="row ${e.end<=min?"past":""}"><span class="tm ${e===cur?"now":""}">${hhmm(e.start)}</span><span class="t ${e===cur?"now":""}">${esc(e.title)}</span></div>`).join("");
+
+    // top 3
+    const plan = st.plans[iso] || {}, w = dow(iso);
+    const def = {
+      business: "Decide the business idea: one hour, one page",
+      content: w===2||w===6 ? "Stream at 19:00, script ready by 18:00" : (w===0||w===3) ? "Cut 4–5 clips from the stream" : "Script one video, post one short",
+      education: "Today's Brickford lectures + their quizzes",
+    };
+    $("top3").innerHTML = [["business","Business","#34C759"],["content","Content","#FF2D55"],["education","Education","#5856D6"]]
+      .map(([k,l,c]) => `<div class="row ic top"><span class="tile" style="background:${c}">${l[0]}</span><span class="t">${esc(plan[k] || def[k])}</span></div>`).join("");
+
+    // prayers
+    const d = day(iso);
+    $("prayers").innerHTML = PRAYERS.map(([k,l]) => `<button class="chip ${d.prayers&&d.prayers[k]?"on":""}" data-pray="${k}" type="button" aria-pressed="${!!(d.prayers&&d.prayers[k])}">${l}<small>${hhmm(pt[k])}</small></button>`).join("");
+    const ps = streakPrayers(); $("prayStreak").textContent = ps ? `${ps}-day streak` : "";
+
+    // habits
+    $("habits").innerHTML = HABITS.map(([k,l,c,g]) => `<button class="row ic ${d[k]?"on":""}" data-habit="${k}" type="button" aria-pressed="${!!d[k]}"><span class="tile" style="background:${c}">${g}</span><span class="t">${l}</span><span class="check"></span></button>`).join("");
+    $("habitCount").textContent = `${HABITS.filter(([k])=>d[k]).length} of ${HABITS.length}`;
+
+    // numbers
+    $("numbers").innerHTML = NUMBERS.filter(([k]) => k!=="stream" || w===2||w===6).filter(([k]) => k!=="clips" || w===0||w===3||(d.clips||0)>0)
+      .map(([k,l,step,unit,target,cmp]) => {
+        const v = +(d[k]||0), good = cmp==="≥" ? v>=target : cmp==="<" ? (d[k]!=null && v<target) : false;
+        return `<div class="row num"><span class="t">${l}</span>
+          <span class="step"><button type="button" data-num="${k}" data-d="${-step}" aria-label="Less ${l}">−</button><output style="${good?"color:var(--green-text)":""}">${v}${target&&cmp?" / "+target:unit}</output><button type="button" data-num="${k}" data-d="${step}" aria-label="More ${l}">+</button></span></div>`;
+      }).join("");
+
+    // week & month
+    const ws = weekStart(iso), we = addDays(ws,6);
+    $("weekLabel").textContent = longDate(ws).replace(/^\w+ /,"") + " – " + longDate(we).replace(/^\w+ /,"");
+    $("week").innerHTML = WEEK_TARGETS.map(([k,l,t]) => progRow(l, sumRange(k, ws, we), t)).join("")
+      + progRow("Work hours", sumRange("work", ws, we), 70);
+    const ms = iso.slice(0,8)+"01", me = addDays(addDays(ms,32).slice(0,8)+"01",-1);
+    $("monthLabel").textContent = new Date(isoToUTC(ms)).toLocaleDateString("en-GB",{month:"long",timeZone:"UTC"});
+    $("month").innerHTML = MONTH_TARGETS.map(([k,l,t]) => progRow(l, sumRange(k, ms, me), t)).join("");
+
+    // heat
+    const gridStart = weekStart(START); let cells = "";
+    for (let i = gridStart; dayIndex(i) < DAYS || dow(i) !== 0; i = addDays(i,1)) {
+      const k = dayIndex(i);
+      if (k < 0 || k >= DAYS) { cells += `<i class="n"></i>`; continue; }
+      const p = i > iso ? -1 : score(i).pct, lvl = p < 0 ? "" : p >= 90 ? "l4" : p >= 70 ? "l3" : p >= 40 ? "l2" : p > 0 ? "l1" : "";
+      cells += `<i class="${lvl} ${i===iso?"today":""}" title="${longDate(i)}${p>=0?" · "+p+"%":""}"></i>`;
+    }
+    $("heat").innerHTML = cells;
+    const past = Array.from({length:Math.max(0,Math.min(di,DAYS))}, (_,j)=>score(addDays(START,j)).pct);
+    $("heatLabel").textContent = past.length ? `avg ${Math.round(past.reduce((a,b)=>a+b,0)/past.length)}%` : "";
+
+    renderFocus(); renderInbox(); renderLoops();
+    const tm = addDays(iso,1), tp = st.plans[tm] || {};
+    for (const [id,k] of [["pBiz","business"],["pCon","content"],["pEdu","education"]]) { const el=$(id); if (document.activeElement!==el && !el.dataset.dirty) el.value = tp[k]||""; }
+    $("planNote").textContent = st.plans[tm] ? "Saved for " + longDate(tm) + "." : "";
+  }
+  function progRow(label, v, t){
+    const pct = Math.min(100, Math.round(100*v/t));
+    return `<div class="row"><span class="t">${label}</span><span class="s">${+v.toFixed(1)} / ${t}</span><span class="bar"><i class="${pct>=100?"":"part"}" style="width:${pct}%"></i></span></div>`;
+  }
+  const dur = m => { const r = Math.round(m); return r >= 60 ? `${Math.floor(r/60)}h ${r%60}m` : `${r}m`; };
+
+  // ---------- the weekly loop: what slipped, and one change ----------
+  const FIX = {
+    prayers:"Stop what you're doing at the adhan alert. Pray first, then open anything else.",
+    german:"Do German listening on the run and speaking on the drive. Don't save it for later.",
+    brickford:"Start the Deep Track before you check any messages.",
+    meditate:"Meditate straight after journaling at 06:40, same spot every day.",
+    read:"Leave your phone in another room at 21:00 and read 20 pages.",
+    clean:"Delete TikTok, Instagram and YouTube from the phone for the 90 days.",
+    plan:"The 21:55 alert is your cue: tick today, write tomorrow's 3, lights out.",
+    work:"Protect the 12:00 and 18:15 blocks. No calls, no phone.",
+    phone:"Set a 2-hour screen-time limit and keep the phone out of reach while you work.",
+  };
+  function weekly(){
+    const end = addDays(st.today,-1), start = addDays(end,-6), rows = [];
+    const days = []; for (let i=start; i<=end; i=addDays(i,1)) if (dayIndex(i)>=0) days.push(i);
+    if (!days.length) return {days, rows};
+    const rate = f => Math.round(100*days.filter(f).length/days.length);
+    rows.push(["prayers","All 5 on time", rate(i=>PRAYERS.every(([k])=>day(i).prayers&&day(i).prayers[k]))]);
+    for (const [k,l] of HABITS) rows.push([k,l,rate(i=>day(i)[k])]);
+    rows.push(["work","10 h of work", rate(i=>(day(i).work||0)>=10)]);
+    rows.push(["phone","Phone under 2 h", rate(i=>day(i).phone!=null && day(i).phone<2)]);
+    rows.sort((a,b)=>a[2]-b[2]);
+    return {days, rows};
+  }
+  function renderFocus(){
+    const {days, rows} = weekly();
+    if (!days.length) { $("focus").innerHTML = `<div class="row"><span class="t s">Starts tomorrow</span></div>`; $("askBtn").hidden = true; return; }
+    const worst = rows[0];
+    $("focus").innerHTML = `<div class="row"><span class="t focus">${esc(worst[1])} · ${worst[2]}%</span></div><div class="note" style="padding:0 16px 12px">${esc(FIX[worst[0]]||"")}</div>`
+      + rows.slice(1,4).map(r => `<div class="row"><span class="t">${esc(r[1])}</span><span class="s">${r[2]}%</span></div>`).join("");
+    $("askBtn").hidden = !st.sample;
+  }
+
+  // ---------- inbox ----------
+  function renderInbox(){
+    if (st.mailErr) { $("inbox").innerHTML = `<div class="row"><span class="t s">${esc(st.mailErr)}</span></div>`; $("inboxCount").textContent=""; return; }
+    if (!st.mail) { $("inbox").innerHTML = `<div class="row"><span class="t s">Loading mail…</span></div>`; return; }
+    $("inboxCount").textContent = st.mail.length ? st.mail.length + " unread" : "";
+    $("inbox").innerHTML = st.mail.length ? st.mail.map(m => `<a class="row" href="${esc(m.url)}" target="_blank" rel="noopener"><span class="t"><b style="font-weight:600">${esc(m.from)}</b> <span class="s">${esc(m.subject)}</span></span><span class="chev">›</span></a>`).join("")
+      : `<div class="row"><span class="t s">Inbox zero</span></div>`;
+  }
+
+  // ---------- loops ----------
+  function renderLoops(){
+    const open = st.loops.filter(l => !l.done);
+    $("loopCount").textContent = open.length ? open.length + " open" : "";
+    $("loops").innerHTML = st.loops.length ? st.loops.slice().sort((a,b)=>a.done-b.done || (a.at||"").localeCompare(b.at||"")).map(l =>
+      `<button class="row ${l.done?"on past":""}" data-loop="${esc(l.id)}" type="button" aria-pressed="${!!l.done}"><span class="t">${esc(l.text)}</span><span class="check"></span></button>`).join("")
+      : `<div class="row"><span class="t s">Nothing open</span></div>`;
+  }
+
+  // ---------- events ----------
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const iso = st.today, d = day(iso);
+    if (b.dataset.pray) { const p = Object.assign({}, d.prayers); p[b.dataset.pray] = !p[b.dataset.pray]; writeDay(iso, {prayers:p}); }
+    else if (b.dataset.habit) writeDay(iso, {[b.dataset.habit]: !d[b.dataset.habit]});
+    else if (b.dataset.num) { const k = b.dataset.num, v = Math.max(0, Math.round(((+(d[k]||0)) + +b.dataset.d)*2)/2); writeDay(iso, {[k]: v}); }
+    else if (b.dataset.loop) toggleLoop(b.dataset.loop);
+    else if (b.id === "savePlan") savePlan();
+    else if (b.id === "askBtn") askClaude();
+  });
+  for (const id of ["pBiz","pCon","pEdu"]) $(id).addEventListener("input", e => e.target.dataset.dirty = "1");
+  $("loopNew").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.value.trim()) { addLoop(e.target.value.trim()); e.target.value = ""; } });
+
+  async function savePlan(){
+    const tm = addDays(st.today,1), p = {date:tm, business:$("pBiz").value.trim(), content:$("pCon").value.trim(), education:$("pEdu").value.trim()};
+    st.plans[tm] = p; for (const id of ["pBiz","pCon","pEdu"]) delete $(id).dataset.dirty;
+    if (st.db) { try { await st.db.doc("plans/"+tm).set(p); } catch(e){ note("Couldn't save the plan. Try again."); return; } } else lsSave();
+    if (!day(st.today).plan) writeDay(st.today, {plan:true}); else render();
+  }
+  async function addLoop(text){
+    const l = {id: "l"+Date.now().toString(36), text, done:false, at:new Date().toISOString()};
+    st.loops.push(l); render();
+    if (st.db) { try { await st.db.doc("loops/"+l.id).set(l); } catch(e){ note("Couldn't save that loop."); } } else lsSave();
+  }
+  async function toggleLoop(id){
+    const l = st.loops.find(x => x.id === id); if (!l) return; l.done = !l.done; render();
+    if (st.db) { try { await st.db.doc("loops/"+id).update({done:l.done}); } catch(e){ note("Couldn't save that change."); } } else lsSave();
+  }
+  async function askClaude(){
+    if (!st.sample) return;
+    const btn = $("askBtn"); btn.disabled = true; $("answerBox").hidden = false; $("answer").textContent = "Thinking…";
+    const {days, rows} = weekly();
+    const log = days.map(i => ({date:i, ...day(i)}));
+    const input = "You coach a 90-day monk-mode routine for a Muslim content creator and student in Bahrain. Daily: 5 prayers on time, German 1.5 h, Brickford study 3 h, meditation, reading (a book a week), gym 5×/week, 10 h of work, phone under 2 h, no TikTok, Instagram or YouTube. Weekly: 8 short-form posts with storytelling, 2 streams (Tue & Sat), 2 videos, 4 scripts, editing the day after each stream. Below are completion rates for the last 7 days and the raw daily log. Reply in at most 6 short lines: the one pattern that matters most, and 2 concrete changes for next week tied to times in the routine. No preamble.\n\nRates: " + JSON.stringify(rows) + "\nLog: " + JSON.stringify(log);
+    try { const r = await st.sample(input, {modelTier:"default", onText:({text}) => { $("answer").textContent = text; }}); $("answer").textContent = r.text; }
+    catch(e){ $("answer").textContent = e && e.code === "rate_limited" ? "Claude is busy. Try again in a minute." : e && e.code === "not_granted" ? "Allow Claude for this page to use this." : "Couldn't get a review right now."; }
+    btn.disabled = false;
+  }
+
+  // ---------- capabilities ----------
+  lsLoad(); render();
+  setInterval(render, 60000);
+
+  const host = window.claude;
+  if (host && host.use) {
+    host.use("db").then(db => {
+      if (!db) { note("Your log is kept in this browser only."); return; }
+      st.db = db;
+      db.collection("days").onSnapshot(q => { st.days = {}; for (const s of q.docs) { const v = s.data(); if (v && v.date) st.days[v.date] = v; } render(); }, () => note("Your log couldn't load. Reopen the page."));
+      db.collection("plans").onSnapshot(q => { st.plans = {}; for (const s of q.docs) { const v = s.data(); if (v && v.date) st.plans[v.date] = v; } render(); }, () => {});
+      db.collection("loops").onSnapshot(q => { st.loops = q.docs.map(s => s.data()).filter(Boolean); render(); }, () => {});
+    });
+    host.use("sample").then(s => { st.sample = s; render(); });
+    host.use("mcp").then(mcp => {
+      if (!mcp) { st.calErr = null; st.mailErr = "Connect Gmail in Claude to see unread mail here"; render(); return; }
+      const iso = nowParts().iso;
+      mcp.watchTool("Google Calendar", "list_events", {startTime: iso+"T00:00:00", endTime: addDays(iso,1)+"T00:00:00", orderBy:"startTime", pageSize:100}, ev => {
+        if (ev.type === "error") { if (!st.cal) st.calErr = ev.error && /not_granted|needs_reauth|denied/.test(ev.error.code||"") ? "Calendar not connected: showing your plan" : null; render(); return; }
+        const p = ev.result && ev.result.payload, list = (p && p.events) || [];
+        const toMin = t => { if (!t || !t.dateTime) return null; const d = new Date(t.dateTime); const q = Object.fromEntries(fmt.formatToParts(d).map(x=>[x.type,x.value])); const dIso = `${q.year}-${q.month}-${q.day}`; return dIso < iso ? 0 : dIso > iso ? 1440 : +q.hour*60 + +q.minute; };
+        const evs = list.filter(e => e.status !== "cancelled" && e.start && e.start.dateTime).map(e => ({start:toMin(e.start), end:toMin(e.end), title:e.summary||"Busy", kind: /^(Fajr|Dhuhr|Asr|Maghrib|Isha|Jumu'ah|Prayer)$/.test(e.summary||"") ? "prayer" : ""}))
+          .filter(e => e.start != null && e.end != null && e.end > e.start).sort((a,b)=>a.start-b.start);
+        st.cal = evs.length ? evs : null; st.calErr = null; render();
+      }, {refetchInterval: 10*60000});
+      mcp.watchTool("Gmail", "search_threads", {query:"in:inbox is:unread -category:promotions -category:social newer_than:3d", pageSize:8}, ev => {
+        if (ev.type === "error") { st.mailErr = "Couldn't read Gmail. Check the Gmail connector in Claude."; render(); return; }
+        const p = ev.result && ev.result.payload, threads = (p && p.threads) || [];
+        st.mail = threads.slice(0,5).map(t => { const m = (t.messages||[]).filter(x => (x.labelIds||[]).includes("UNREAD")).pop() || (t.messages||[])[0] || {};
+          const from = String(m.sender||"").replace(/<.*>/,"").replace(/@.*/,"").trim() || "Someone";
+          return {from, subject: String(m.subject||"(no subject)").replace(/&#39;/g,"'").replace(/&amp;/g,"&").replace(/&quot;/g,'"'), url: t.viewUrl || m.viewUrl || "https://mail.google.com/"}; });
+        st.mailErr = null; render();
+      }, {refetchInterval: 15*60000});
+    });
+  } else {
+    note("Your log is kept in this browser only.");
+  }
+})();
+</script>

@@ -97,3 +97,13 @@
 - 2026-10-22: T-045 r2 APPROVED (reviewer opus, resumed). PR #22 merged → main 4502908. T-046 and T-051a still building; both must merge main before their PRs.
 - 2026-10-22: T-046 built a0fd659 (builder opus). All gates pass except verify-content's two intentional pin checks: TX_REVISION unverified because huggingface.co is blocked (WebFetch ENOTFOUND, proxy 403). Asked owner to allow huggingface.co. Builder merging main (conflicts in index.html, verify-content, verify-design).
 - 2026-10-22 21:15: Owner reprioritised: life dashboard, email triage and the 90-day monk-mode plan come first. T-051 PAUSED at bc4416b (51a foundation + screenshots, pushed). T-046 merged main at 1d44bfa (pushed); still blocked on the model pin. All agents stopped.
+- 2026-10-23 (Bahrain): MONK MODE delivered.
+  - Google Calendar: 61 #monk90 events (log: scratchpad/monk/created.txt).
+    - 15 daily blocks, plus Jumu'ah.
+    - 45 prayer blocks in 9 ten-day segments (Manama, Umm al-Qura).
+    - Streams Tue/Sat 19:00, editing Sun/Wed.
+  - Dashboard artifact: https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z.
+    - It reads the calendar and Gmail live (mcp) and keeps the habit log in db.
+    - The weekly focus is rule-based; the Claude review is on demand (sample).
+    - Seeded 4 loops.
+  - Email: the connected Gmail is the Adam pipeline mailbox (5 threads). Nothing needs a reply. 2 carousels are open loops.

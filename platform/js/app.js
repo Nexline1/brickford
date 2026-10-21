@@ -1209,6 +1209,41 @@
   // the dashboard ring and bar, the rail, the calendar's blocks.
   function schedDone(it) { return !it.pseudo && lessonCleared(lessonKey(it.cid, it.ui, it.li)); }
   function realSched(iso) { return scheduledFor(iso).filter(it => !it.pseudo); }
+  // ---------- Problems, as what is due now (T-045) ----------
+  // Every pset and lab names the lecture that prepares for it (`after`, in
+  // workshop.js). A pset is due once that lecture is cleared; a lab once it
+  // is cleared AND the plan is in the lab's phase. Derived on every read,
+  // like the lock: nothing here is stored.
+  const lessonOf = k => { const p = String(k).split("."), f = D.COURSES.some(c => c.id === p[0]) ? flatLessons(p[0]) : [];
+    const i = f.findIndex(x => x.ui === +p[1] && x.li === +p[2]); return i < 0 ? null : Object.assign({ n: i + 1 }, f[i]); };
+  const psetDue = i => lessonCleared(i.after) && !S.psets[i.id];
+  const labDue = l => lessonCleared(l.after) && currentPhase() >= l.phase && !(S.labs[l.id] || {}).done;
+  const byPlan = (a, b) => (planDateOf(a.after) || "9999").localeCompare(planDateOf(b.after) || "9999");
+  function problemsDue() {
+    // Watched since the gate, with a quiz not yet passed: the quizzes the
+    // lock is about. Then T-043's catch-up list (watched before it).
+    const quizzes = [];
+    D.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => {
+      const k = lessonKey(c.id, ui, li), st = S.lessons[k];
+      if (st && st.done && lessonQuiz(k) && !quizPassed(k) && !grandfathered(st))
+        quizzes.push({ k, cid: c.id, ui, li, code: c.code, title: l.t });
+    })));
+    const allPsets = [].concat(...D.PSETS.map(g => g.items.map(i => Object.assign({ course: g.course, url: g.url }, i))));
+    const psets = allPsets.filter(psetDue).sort(byPlan);
+    const labs = D.LABS.filter(labDue).sort(byPlan);
+    const review = missPool().filter(p => questionUnlocked(p.bankId, D.QUIZZES[p.bankId].questions[p.idx])).length;
+    const catchUp = catchUpQuizzes();
+    // Not yet unlocked and not done, nearest first: a lab held only by its
+    // phase sorts by the day its phase begins.
+    const phaseStart = ph => dateForStudy([0, 12, 156, 468][ph]);
+    const when = it => { const d = planDateOf(it.after) || "9999", p = it.lab ? phaseStart(it.lab.phase) : "";
+      return d > p ? d : p; };
+    const coming = allPsets.filter(i => !S.psets[i.id] && !psetDue(i)).map(i => ({ after: i.after, pset: i }))
+      .concat(D.LABS.filter(l => !(S.labs[l.id] || {}).done && !labDue(l)).map(l => ({ after: l.after, lab: l })))
+      .sort((a, b) => when(a).localeCompare(when(b)));
+    return { quizzes, catchUp, psets, labs, review, coming,
+      n: quizzes.length + catchUp.length + psets.length + labs.length + (review ? 1 : 0) };
+  }
   // The day, grouped by course.
   //
   // Nine separate cards meant nine borders, nine "Open" buttons and six rows
@@ -2071,6 +2106,7 @@
     const real = todaySched.filter(it => !it.pseudo);
     const doneToday = real.filter(schedDone).length;
     const backlog = backlogCount();
+    const dueN = problemsDue().n;
     const probs = nextProblems(2);
     const trackerC = D.COURSES.find(x => x.tracker);
     const probsCat = trackerC ? Object.keys(trackerC.problems).find(cat => trackerC.problems[cat].some(p => !S.problems[cat + "|" + p])) : null;
@@ -2115,6 +2151,8 @@
       "</div>" +
       '<div class="one-kind">' + esc(cta.title) + "</div>" +
       '<p class="one-hint">' + esc(cta.code) + " \u00b7 " + esc(cta.hint) + "</p>" +
+      // T-045: one line when anything is due on Problems.
+      (dueN ? '<a class="one-due" href="#/workshop">' + dueN + " due on Problems</a>" : "") +
       // The bar is a progress ring's job done in 4px. Only once there is
       // progress to draw: an empty track reads as an unfinished element rather
       // than as "none yet".
@@ -4964,16 +5002,6 @@
     const later = [0, 1, 2, 3].filter(ph => ph !== phase && labsIn(ph).length);
     const laterCount = later.reduce((a, ph) => a + labsIn(ph).length, 0);
 
-    // ---- T-026b: what the page is for, then the three ways in ----
-    // The drill is the daily thing — the labs are the month's and the problem
-    // sets are the term's — so it is the one card with a filled button. The
-    // other two cards say how far along you are and take you to their section
-    // below: an in-page jump, in memory (wire(), pbOpen) — never a save.
-    const mode = (k, glyph, title, desc, meta, act) =>
-      '<div class="at-tile pb-mode" data-mode="' + k + '"><span class="pb-glyph" aria-hidden="true">' + glyph + "</span>" +
-      '<span class="pb-t">' + title + '</span><span class="pb-d">' + desc + "</span>" +
-      '<span class="pb-foot"><span class="pb-m">' + meta + "</span>" + act + "</span></div>";
-    const G = d => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
     // A lab's description cut to its first clause, and to about fifty
     // characters on a word: never an ellipsis inside a word.
     const firstClause = t => {
@@ -4993,19 +5021,63 @@
           : "") +
         "</div>";
     };
-    const open = (to, label) => '<button type="button" class="at-chip pb-open" data-act="pbOpen" data-to="' + to + '" aria-label="' + label + '">Open</button>';
-
-    return '<div class="view-enter"><div class="page-head"><h1>Problems</h1>' +
-      '<div class="sub">Learning sticks when you solve, not when you watch.</div></div>' +
-      '<div class="at-tiles pb-modes">' +
-      mode("drill", G("M11 2.5 L4.5 11 H10 L9 17.5 L15.5 9 H10 Z"), "Daily drill", "Quick questions from everything you\u2019ve watched.",
-        "10 min", '<a class="btn" href="#/drill">Start</a>') +
-      mode("sets", G("M13.5 3.5 L16.5 6.5 L7 16 H4 V13 Z M11.5 5.5 L14.5 8.5"), "Problem sets", "Pen and paper, one set per unit.",
-        psetDone + " of " + psetTotal + " done", open("pbSets", "Open the problem sets")) +
-      mode("labs", G("M8 2.5 H12 M9 2.5 V7.5 L4.5 15.5 Q3.8 17.5 5.5 17.5 H14.5 Q16.2 17.5 15.5 15.5 L11 7.5 V2.5 M6.5 12 H13.5"), "Labs", "Real things you build and ship.",
-        labsDone + " of " + D.LABS.length + " shipped", open("pbLabs", "Open the labs")) +
-      "</div>" +
-
+    // ---- T-045: only what is due now, each row saying what it is and why ----
+    // The page used to open on three catalogue cards that explained nothing
+    // and were tied to no lecture. Now: the quizzes waiting, the psets and
+    // labs their lecture has unlocked, the daily review when it has misses to
+    // serve; what each kind is; the next few still locked; and the whole
+    // catalogue, as it was, behind "Everything". The first row's action is
+    // the page's one filled primary.
+    const P = problemsDue();
+    let first = true;
+    const go = label => { const c = first ? "btn" : "btn ghost"; first = false; return '<span class="' + c + ' pd-go">' + label + "</span>"; };
+    const ic = g => '<span class="pd-ic" aria-hidden="true">' + g + "</span>";
+    const body = (t, tag, m) => '<span class="pd-b"><span class="pd-t">' + esc(t) + '</span><span class="pd-m">' +
+      (tag ? '<span class="pd-tag">' + tag + "</span> " : "") + esc(m) + "</span></span>";
+    const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+    const quizRow = (q, catchUp) => {
+      const n = lessonQuiz(q.k).length, nx = flatLessons(q.cid)[flatLessons(q.cid).findIndex(f => f.ui === q.ui && f.li === q.li) + 1];
+      const locks = !catchUp && !!nx && !!lockedBy(nx.cid, nx.ui, nx.li);
+      return '<a class="pd-row" data-due="' + (catchUp ? "catchup" : "quiz") + '" data-id="' + q.k + '" href="#/lesson/' + q.cid + "/" + q.ui + "/" + q.li + '">' +
+        ic("?") + body("Lecture quiz · " + q.title, "Quiz",
+          q.code + (catchUp ? " · catch-up" : "") + " · watched, not passed · " + plural(n, "question") + (locks ? " · locks the next lecture" : "")) +
+        go("Take it") + "</a>";
+    };
+    // "passed" only when its quiz was: a lecture cleared because it has no
+    // quiz, or because it was watched before the gate (its quiz still on the
+    // catch-up list, review r1), was watched, not passed.
+    const psetRow = i => {
+      const L = lessonOf(i.after);
+      return '<details class="pd-item" data-due="pset" data-id="' + i.id + '"><summary class="pd-row">' + ic("✎") +
+        body("Problem set · " + i.course + ", " + i.label, "Problem set", "Pen and paper · unlocked: you " + (quizPassed(i.after) ? "passed " : "watched ") + (L ? L.l.t : i.after)) + go("Open") +
+        '</summary><div class="pd-body"><a class="btn ghost" href="' + i.url + '" target="_blank" rel="noopener">The set, at the source ↗</a>' +
+        '<label class="check-row"><input type="checkbox" data-pset="' + i.id + '" ' + (S.psets[i.id] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG +
+        '</span><span class="check-label">Done — ' + esc(i.label) + "</span></label></div></details>";
+    };
+    const labDueRow = l => '<details class="pd-item" data-due="lab" data-id="' + l.id + '"><summary class="pd-row">' + ic("⌘") +
+      body("Lab · " + l.title, "Lab", firstClause(l.req) + " · Phase " + l.phase + " · ~" + l.hours + " h") + go("Start") +
+      '</summary><div class="pd-body">' + lab(l, true) + "</div></details>";
+    const soonRow = c => {
+      const L = lessonOf(c.after), at = L ? "After lecture " + L.n + " · " + L.l.t : "After " + c.after;
+      return c.pset
+        ? '<div class="pd-row muted" data-soon="pset" data-id="' + c.pset.id + '">' + ic("✎") + body("Problem set · " + c.pset.course + ", " + c.pset.label, "", at) + "</div>"
+        : '<div class="pd-row muted" data-soon="lab" data-id="' + c.lab.id + '">' + ic("⌘") + body("Lab · " + c.lab.title, "", at + " · Phase " + c.lab.phase) + "</div>";
+    };
+    const rows = P.quizzes.map(q => quizRow(q, false)).concat(P.catchUp.map(q => quizRow(q, true)), P.psets.map(psetRow), P.labs.map(labDueRow),
+      P.review ? ['<a class="pd-row" data-due="review" data-id="drill" href="#/drill">' + ic("↻") +
+        body("Daily review", "", "questions you missed, served back until they stick") + go("Start") + "</a>"] : []);
+    // Nothing due: the next lecture not yet cleared, from today on — or, when
+    // a chain of unwatched lectures locks it, the first of that chain (the
+    // one the lesson page's lock card would send you to).
+    const nextLec = (() => {
+      let iso = todayISO() < D.START_DATE ? D.START_DATE : todayISO();
+      for (let g = 0; g < 60; g++, iso = addDaysISO(iso, 1)) {
+        const it = realSched(iso).find(x => !schedDone(x));
+        if (it) return lockRoot(it.cid, it.ui, it.li) || it;
+      }
+      return null;
+    })();
+    const catalogue =
       // The phase you are in, at weight. Phase 3 is three years away.
       (labsIn(phase).length
         ? '<div class="ghead">This phase\u2019s labs<span class="gh-meta">' + PHASE_NAME[phase].replace(" \u2014 ", " \u00b7 ") + "</span></div>" +
@@ -5030,7 +5102,28 @@
         g.items.map(i =>
           '<label class="check-row"><input type="checkbox" data-pset="' + i.id + '" ' + (S.psets[i.id] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG + '</span><span class="check-label">' + esc(i.label) + "</span></label>"
         ).join("") + "</div>"
-      ).join("") + "</div></div></details>" +
+      ).join("") + "</div></div></details>";
+
+    return '<div class="view-enter"><div class="page-head"><h1>Problems</h1>' +
+      '<div class="sub">Only what’s due now. Each item says what it is and why it’s here.</div></div>' +
+      '<div class="ghead">Due now<span class="gh-meta pd-count">' + P.n + "</span></div>" +
+      (rows.length
+        ? '<div class="pd-list" id="pdDue">' + rows.join("") + "</div>"
+        : '<div class="card pd-empty"><p>Nothing due. Your next lecture is ' +
+          (nextLec ? '<a href="#/lesson/' + nextLec.cid + "/" + nextLec.ui + "/" + nextLec.li + '">' + esc(nextLec.l.t) + "</a>" : '<a href="#/courses">in Courses</a>') +
+          ".</p></div>") +
+      '<div class="pd-how" role="group" aria-label="How this works">' +
+      "<div><b>Lecture quiz</b>After every lecture. Pass it to count the lecture and open the next one.</div>" +
+      "<div><b>Problem set</b>Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions.</div>" +
+      "<div><b>Lab</b>A build project, one or two per phase. Done when it’s on GitHub and meets its checklist.</div></div>" +
+      (P.coming.length
+        ? '<div class="ghead">Coming up<span class="gh-meta">unlocks as you go</span></div>' +
+          '<div class="pd-list pd-soon">' + P.coming.slice(0, 3).map(soonRow).join("") + "</div>"
+        : "") +
+      '<details class="unit" id="pbAll"><summary><span class="u-name">Everything</span>' +
+      '<span class="pill">' + (psetDone + labsDone) + " / " + (psetTotal + D.LABS.length) + "</span>" +
+      '<span class="u-prog" style="width:' + ((psetDone + labsDone) / (psetTotal + D.LABS.length)) * 100 + '%;"></span></summary>' +
+      '<div class="u-body">' + catalogue + "</div></details>" +
       "</div>";
   };
 
@@ -5514,15 +5607,6 @@
           // essential).
           const box = $("#advBox");
           if (box) { box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
-        } else if (act === "pbOpen") {
-          // T-026b: a mode card's Open is a jump to its section on this page,
-          // opening the problem sets' fold on the way. The DOM only — no save,
-          // no render, so nothing on the page moves but the scroll.
-          const t = $("#" + b.dataset.to);
-          if (t) {
-            if (t.tagName === "DETAILS") t.open = true;
-            t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-          }
         } else if (act === "exMore") {
           // T-026b: the locked exams past the sixth, shown in place. In memory.
           $$("[data-ex-more]").forEach(el => { el.hidden = false; });
@@ -5747,7 +5831,14 @@
       };
     }
     $$("[data-pset]", root).forEach(cb => {
-      cb.onchange = () => { S.psets[cb.dataset.pset] = cb.checked; save(); };
+      // T-045: a set ticked done leaves "Due now" at once, so the page is
+      // rebuilt (a foreground render: the reader acted), with the folds that
+      // were open kept open.
+      cb.onchange = () => {
+        S.psets[cb.dataset.pset] = cb.checked; save();
+        const open = $$("#view details[open][id]").map(d => d.id);
+        render({ after: () => open.forEach(id => { const d = document.getElementById(id); if (d) d.open = true; }) });
+      };
     });
     $$("[data-niche]", root).forEach(b => {
       b.onclick = () => {

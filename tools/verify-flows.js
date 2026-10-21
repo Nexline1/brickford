@@ -91,7 +91,7 @@
 //   (r) at 390 (tapped) and 1280: record a story; the page ASKS before
 //       anything downloads (no import, no Worker until Download); Download;
 //       the stub is asked for automatic-speech-recognition, the pinned model
-//       and revision, with 16 kHz mono Float32 PCM; "Downloading… n%" then
+//       and revision, with 16 kHz mono Float32 PCM; "Loading the speech model… n%" then
 //       "Transcribing… n%"; the transcript { text, chunks, model, at } is on
 //       the clip's IndexedDB record and in no storage key, the chain or the
 //       rep; the fillers struck are exactly the fixture's (I like it, things
@@ -1750,9 +1750,9 @@ export async function pipeline(task, model, opts) {
         ((rp.len || 0) / 16000).toFixed(2) + "s for a " + c.seconds + "s clip)",
         net.reports.length === 1 && rp.task === "automatic-speech-recognition" && rp.model === TX_MODEL && rp.revision === TX_REVISION && rp.dtype === "q8" && rp.device === "wasm" &&
           rp.f32 === true && rp.timestamps === true && Math.abs(rp.len / 16000 - c.seconds) <= 1, JSON.stringify(net.reports));
-      check(at + ": while it worked the row said \"Downloading the speech model… n%\", then \"Transcribing… n%\"",
-        n1.lines.some(l => /^Downloading the speech model… \d{1,3}%$/.test(l)) && n1.lines.some(l => /^Transcribing… \d{1,3}%$/.test(l)) &&
-          n1.lines.findIndex(l => /^Transcribing/.test(l)) > n1.lines.findIndex(l => /^Downloading/.test(l)), JSON.stringify(n1.lines));
+      check(at + ": while it worked the row said \"Loading the speech model… n%\", then \"Transcribing… n%\"",
+        n1.lines.some(l => /^Loading the speech model… \d{1,3}%$/.test(l)) && n1.lines.some(l => /^Transcribing… \d{1,3}%$/.test(l)) &&
+          n1.lines.findIndex(l => /^Transcribing/.test(l)) > n1.lines.findIndex(l => /^Loading/.test(l)), JSON.stringify(n1.lines));
       check(at + ": the transcript is on the clip's IndexedDB record as { text, chunks, model, at } — the stub's text and chunks, model " + TX_MODEL + "@" + TX_REVISION + " — and the audio is untouched",
         db.length === 1 && c.fields === "blob,date,kind,seconds,title,transcript" && Object.keys(t).join(",") === "text,chunks,model,at" && t.text === TX_TEXT &&
           JSON.stringify(t.chunks) === JSON.stringify(TX_CHUNKS) && t.model === TX_MODEL + "@" + TX_REVISION && !isNaN(Date.parse(t.at)) && c.size === (before[0] || {}).size,

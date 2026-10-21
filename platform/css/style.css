@@ -2957,6 +2957,41 @@ button.at-chip.lb-more { font-weight: 600; }
 .pr-log { margin-top: 2rem; }
 .pr-log .ghead { margin-top: 1.5rem; }
 
+/* ---- T-046: the transcript, under its clip ----
+   Every line here is text, so >= 4.5:1, including the struck fillers: --bad
+   on a 10% --bad tint over --surface measures ~4.9:1 in Dark and ~5.4:1 in
+   Light (verify-design reads them). Controls are 44px at every width. */
+.pr-txrow { flex: 1 0 100%; min-width: 0; }
+.pr-txrow:empty { display: none; }
+.tx-line, .pr-txoff-t { margin: 2px 0 0; font-size: var(--fs-footnote); color: var(--ink-2); }
+.pr-txrow > [data-tx-go] { margin-top: 2px; }
+.pr-tx > summary {
+  min-height: 44px; padding: 11px 0; box-sizing: border-box; cursor: pointer;
+  color: var(--accent); font-size: var(--fs-subhead); font-weight: 600;
+}
+.tx-card { padding: 0 0 6px; }
+.tx-stats { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tx-text { margin: 8px 0 0; color: var(--ink); line-height: 1.6; user-select: text; -webkit-user-select: text; overflow-wrap: anywhere; }
+.tx-f {
+  color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent);
+  text-decoration: line-through; border-radius: 3px; padding: 0 2px;
+}
+.tx-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tx-chip {
+  display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+  background: var(--surface-2); color: var(--ink-2); font-size: var(--fs-footnote); font-variant-numeric: tabular-nums;
+}
+.tx-chip.tx-total { background: color-mix(in srgb, var(--bad) 10%, var(--surface)); color: var(--bad); font-weight: 600; }
+.tx-note { margin: 10px 0 0; font-size: var(--fs-footnote); color: var(--ink-2); }
+.tx-card [data-tx-copy] { margin-top: 10px; }
+/* The question before the one-time download, above the list. */
+.pr-ask { margin-bottom: 12px; padding: 16px; border-radius: var(--r-card); background: var(--surface); }
+.pr-ask-t { margin: 0; font-size: var(--fs-subhead); color: var(--ink); }
+.pr-ask-b { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pr-ask .btn { min-height: 44px; min-width: 44px; justify-content: center; }
+.pr-txoff { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 10px; padding: 0 4px; }
+.pr-txoff .pr-txoff-t { margin: 0; }
+
 /* ---------- T-043: the lecture quiz gate ----------
    specimen-lesson-quiz / -passed. Tokens only. Every pressable thing here is
    44px or more on any width; nothing is fixed over the page. */

@@ -72,3 +72,4 @@ To resume after a cut-off:
 - 2026-10-22: T-045 MERGED (#22, main 4502908). Next merges: T-046, then T-047 build, T-051a.
 - 2026-10-23 (Bahrain): Monk-mode build in progress. Calendar plan: scratchpad/monk/plan.md + segments.json; created events logged to scratchpad/monk/created.txt. Then: dashboard artifact, then next-tasks list for the owner.
 - 2026-10-23: The monk-mode dashboard and calendar are DONE. Owner asked for no further work until they say so; the next-task list was given to the owner. T-046 is still waiting on huggingface.co; T-051 is paused at bc4416b.
+- 2026-10-23: In flight: T-052 (monk row; gates → review → merge), T-035 sample, T-053 build, T-046 rework. Owner: create brickford-private, give the token access, allow huggingface.co.

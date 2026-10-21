@@ -1592,7 +1592,10 @@ export async function pipeline(task, model, opts) {
     o = o || {};
     await report({ task, model, revision: opts.revision, dtype: opts.dtype, device: opts.device, f32: audio instanceof Float32Array,
       len: audio && audio.length, timestamps: o.return_timestamps, chunk: o.chunk_length_s });
-    const t0 = performance.now(); while (performance.now() - t0 < 400) {}
+    // The model's work, in a task of its own: a timer task is reported as a long
+    // task wherever it runs, and a loop run straight after a fetch's await was
+    // measured NOT to be — plant (d) slipped past this check until it moved here.
+    await new Promise(r => setTimeout(() => { const t0 = performance.now(); while (performance.now() - t0 < 400) {} r(); }, 0));
     if (o.streamer && typeof o.streamer.end === "function") o.streamer.end();
     await wait(150);
     ${mode === "oom" ? "throw new RangeError(\"Array buffer allocation failed\");"

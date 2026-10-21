@@ -1743,7 +1743,7 @@ export async function pipeline(task, model, opts) {
       await page.waitForFunction(() => !!document.querySelector("#view .pr-clip details.pr-tx"), null, { timeout: 15000 });
       const n1 = await txNow(page), db = await txDB(page), c = db[0] || {}, t = c.transcript || {};
       check(at + ": Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it",
-        n1.workers.length === 1 && n1.workers[0].type === "module" && /\/js\/transcribe-worker\.js\?v=\w+$/.test(n1.workers[0].url) && net.lib === 1 && net.hf === 0,
+        n1.workers.length === 1 && n1.workers[0].type === "module" && /(^|\/)js\/transcribe-worker\.js\?v=\w+$/.test(n1.workers[0].url) && net.lib === 1 && net.hf === 0,
         JSON.stringify({ workers: n1.workers, lib: net.lib, hf: net.hf }));
       const rp = net.reports[0] || {};
       check(at + ": the worker asked for automatic-speech-recognition with " + TX_MODEL + " at revision " + TX_REVISION + " (q8, wasm), with timestamps, and was handed 16 kHz mono Float32 PCM (" +

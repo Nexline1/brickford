@@ -383,7 +383,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .sidebar .nav a.active, .sidebar .nav a.active:hover {
   background: var(--accent-fill); color: var(--accent-fill-ink); font-weight: 600;
 }
-.sidebar .nav a.active:active { background: var(--accent-fill); opacity: 0.7; }
+/* Pressed, the current row keeps its fill and dims (app.js gives it press-text). */
 .nav a.active .glyph { color: var(--accent-fill-ink); }
 
 .sidebar-foot { margin-top: auto; padding-top: var(--sp-2); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 1px; }

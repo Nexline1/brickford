@@ -6373,6 +6373,14 @@
         (rt === "/workshop" && r === "/drill") ||
         (rt === "/library" && seg[0] === "doc");
       a.classList.toggle("active", !!active);
+      // T-051: the current sidebar row is white on the filled tint, and a
+      // row's press is a grey highlight — white on grey is 1.5:1. So the
+      // current row dims when pressed instead (press-text), and takes the
+      // row press back when it stops being current.
+      if (a.closest(".nav")) {
+        a.classList.toggle("press-row", !active);
+        a.classList.toggle("press-text", !!active);
+      }
     });
     // The Review tab's count of due reviews: a read of state, nothing more.
     const badge = $("#tabBadge");
@@ -6410,7 +6418,7 @@
   const PRESS = [
     ["press-card", ".at-tile, .book, .cd-blk, .ex-lock, .lq-tile, .wk-card > summary, .opt"],
     ["press-row", ".g-row, .nav a, .navrow, .theme-menu button, .check-row, details > summary, .onecounts > a, .at-next"],
-    ["press-btn", ".btn:not(.ghost):not(.bare), .menu-btn, .cal-cell, .hc, .cal-nav button, .pr-rec, .pr-play, .pr-ic, .at-chip"],
+    ["press-btn", ".btn:not(.ghost):not(.bare), .menu-btn, .cal-cell, .hc, .pr-rec, .pr-play, .pr-ic, .at-chip"],
     ["press-text", "a[href], button, summary, [role=button], label.check-row"],
   ];
   const PRESS_CLS = PRESS.map(p => p[0]);

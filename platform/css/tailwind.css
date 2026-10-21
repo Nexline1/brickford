@@ -726,15 +726,15 @@
   }
 
   .press-card:active {
-    opacity: .9;
-    transition-duration: 80ms;
-    transform: scale(.97);
+    opacity: .9 !important;
+    transition-duration: 80ms !important;
+    transform: scale(.97) !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .press-card:active {
-      opacity: .7;
-      transform: none;
+      opacity: .7 !important;
+      transform: none !important;
     }
   }
 
@@ -746,14 +746,14 @@
   }
 
   .press-btn:active {
-    transition-duration: 80ms;
-    transform: scale(.97);
+    transition-duration: 80ms !important;
+    transform: scale(.97) !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .press-btn:active {
-      opacity: .7;
-      transform: none;
+      opacity: .7 !important;
+      transform: none !important;
     }
   }
 
@@ -769,8 +769,8 @@
   }
 
   .press-row:active {
-    background-color: var(--ios-highlight);
-    transition-duration: 0s;
+    background-color: var(--ios-highlight) !important;
+    transition-duration: 0s !important;
   }
 
   .press-row:focus-visible {
@@ -785,8 +785,8 @@
   }
 
   .press-text:active {
-    opacity: .4;
-    transition-duration: 0s;
+    opacity: .4 !important;
+    transition-duration: 0s !important;
   }
 
   .resize {

@@ -330,7 +330,7 @@ async function freshContext(browser, opts) {
       const m = await page.evaluate(PRESS => {
         const out = { n: 0, bare: [], twice: [], wrong: [], kinds: {} };
         // The canonical controls and the press each must take.
-        const WANT = [[".glist > .g-row", "press-row"], [".sidebar .nav a", "press-row"], [".tabbar a", "press-text"],
+        const WANT = [[".glist > .g-row", "press-row"], [".sidebar .nav a:not(.active)", "press-row"], [".sidebar .nav a.active", "press-text"], [".tabbar a", "press-text"],
                       [".btn:not(.ghost):not(.bare)", "press-btn"], [".btn.ghost", "press-text"], [".at-tile, .book", "press-card"]];
         document.querySelectorAll("a,button,summary,label,[role=button]").forEach(el => {
           if (!el.checkVisibility()) return;

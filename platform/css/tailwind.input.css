@@ -122,6 +122,14 @@
  * would also animate layout, unrelated colours and the theme switch.
  * (iOS Safari only fires :active on touch when a touchstart listener exists on
  * the page; the app registers an empty passive one.)
+ *
+ * The pressed declarations are !important for the migration (T-051 51a-c):
+ * style.css is unlayered, so an ordinary declaration there — `background:
+ * none` on a row that is a <button>, a legacy transform — beats anything in a
+ * layer, and the press would silently not show (verify-shell holds a real
+ * pointer down and caught exactly that). An !important declaration in a layer
+ * beats every normal one. They apply only while :active. Phase 51d, with the
+ * old rules gone, can drop them.
  */
 
 /* A list row: highlights to systemGray4 at once and fades back over 300ms.
@@ -133,8 +141,8 @@
   touch-action: manipulation;
   transition: background-color 300ms ease-out;
   &:active {
-    background-color: var(--ios-highlight);
-    transition-duration: 0ms;
+    background-color: var(--ios-highlight) !important;
+    transition-duration: 0ms !important;
   }
   &:focus-visible {
     outline-offset: -2px;
@@ -148,13 +156,13 @@
   touch-action: manipulation;
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease-out;
   &:active {
-    transform: scale(0.97);
-    transition-duration: 80ms;
+    transform: scale(0.97) !important;
+    transition-duration: 80ms !important;
   }
   @media (prefers-reduced-motion: reduce) {
     &:active {
-      transform: none;
-      opacity: 0.7;
+      transform: none !important;
+      opacity: 0.7 !important;
     }
   }
 }
@@ -166,14 +174,14 @@
   touch-action: manipulation;
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease-out;
   &:active {
-    transform: scale(0.97);
-    opacity: 0.9;
-    transition-duration: 80ms;
+    transform: scale(0.97) !important;
+    opacity: 0.9 !important;
+    transition-duration: 80ms !important;
   }
   @media (prefers-reduced-motion: reduce) {
     &:active {
-      transform: none;
-      opacity: 0.7;
+      transform: none !important;
+      opacity: 0.7 !important;
     }
   }
 }
@@ -185,8 +193,8 @@
   touch-action: manipulation;
   transition: opacity 200ms ease-out;
   &:active {
-    opacity: 0.4;
-    transition-duration: 0ms;
+    opacity: 0.4 !important;
+    transition-duration: 0ms !important;
   }
 }
 

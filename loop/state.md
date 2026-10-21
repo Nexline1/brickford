@@ -107,3 +107,4 @@
     - The weekly focus is rule-based; the Claude review is on demand (sample).
     - Seeded 4 loops.
   - Email: the connected Gmail is the Adam pipeline mailbox (5 threads). Nothing needs a reply. 2 carousels are open loops.
+- 2026-10-23: Owner: transcription runs on the desktop with audio synced automatically, and progress sync moves to a private repo (the repo stays public for free Pages). Specs: T-053 written; T-046 amended. create_repository was refused (403), so the owner creates Nexline1/brickford-private and grants the token. T-052 (monk row) gates running.

@@ -66,3 +66,27 @@ T-028, which is merged: clips live in IndexedDB `brickford_audio` / `clips`.
 - Syncing transcripts between devices.
 - Languages other than English.
 - Changes to Story bank.
+
+## Amendment, 2026-10-23 (owner): record on the phone, transcribe on the desktop, audio synced privately
+The owner rejected `openai/whisper-large-v3` running in the browser, which is about 3 GB. They chose: record on the phone, transcribe on the desktop, transcripts on the desktop only, and audio synced automatically to a private repo.
+1. **Where it runs.**
+   - "Desktop" means `matchMedia("(pointer: fine)").matches` and a viewport of at least 1024px.
+   - The transcription UI, the consent question and the model only ever appear or load on the desktop.
+   - The phone never downloads a model.
+2. **Audio sync.** When a Story clip is saved, it is uploaded to `PRIVATE_REPO` (`Nexline1/brickford-private`, the same constant T-053 introduces) at `audio/<clip key>.<ext>`.
+   - It uses the Contents API PUT, base64, with the existing sync token.
+   - The clip record gets `remote: {sha, at}`.
+   - On failure, one muted line: "Audio stays on this device until your token can reach brickford-private". It retries on the next Practice open, never in a loop.
+   - Uploading is a write: never during a render, always from the save action or the Practice-open path, following the existing sync rules.
+3. **Desktop pull.** On the desktop, Practice lists `audio/` in the private repo and downloads clips it doesn't have into its own IndexedDB `clips` store, in the same record shape. They then show in the list with Transcribe.
+4. **Model.** On the desktop, use the whisper-large-v3-turbo class ONNX build that transformers.js 4.3.0 supports (`onnx-community/whisper-large-v3-turbo` is the candidate). Pin the exact id and its 40-character revision; size is about 800 MB, and the consent text states the real size. While huggingface.co is unreachable, the existing failing pin check stays: no guessed revision.
+5. **Transcripts** stay on the desktop's IndexedDB record only. They are never uploaded or synced, the same as before.
+6. **Acceptance additions:**
+   - a phone-width context never shows Transcribe and never imports the library;
+   - an upload PUT goes to the private repo path only;
+   - the desktop pulls a stubbed remote clip and transcribes it;
+   - a failed upload leaves the clip intact, with the muted line.
+   - Plants:
+     - an upload during render;
+     - an upload to the public repo;
+     - the model loading on the phone.

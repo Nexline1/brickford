@@ -3,7 +3,7 @@
   "private": true,
   "description": "Brickford study platform. The npm tooling here only builds platform/css/tailwind.css; GitHub Pages serves platform/ as committed files.",
   "scripts": {
-    "build:css": "tailwindcss -i platform/css/tailwind.input.css -o platform/css/tailwind.css",
+    "build:css": "tailwindcss -i platform/css/tailwind.input.css -o platform/css/tailwind.css --optimize",
     "verify:tailwind": "node tools/verify-tailwind.js"
   },
   "devDependencies": {

@@ -255,14 +255,12 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     add(450,180,"Brickford — Deep Track");
     if (w===5) add(480,60,"Grandmother — grave visit");
     add(630,45,"Scripting");
-    if (w===5) add(675,60,"Jumu'ah","prayer"); else add(pt.dhuhr,15,"Dhuhr","prayer");
+    add(pt.dhuhr,25,"Dhuhr & Asr","prayer"); // amendment 2026-10-23: combined, no Jumu'ah
     add(720,120,(w===0||w===3)?"Editing — stream → clips":"Working — business");
     add(830,10,"Post short-form"); add(840,90,"Nap");
-    add(pt.asr,15,"Asr","prayer");
     add(930,30,"German — speaking"); add(945,90,"Gym");
-    add(pt.maghrib,15,"Maghrib","prayer");
+    add(pt.maghrib,25,"Maghrib & Isha","prayer");
     add(1065,30,"German — writing & reading");
-    add(pt.isha,15,"Isha","prayer");
     if (w===2||w===6) add(1140,120,"Stream (English)"); else add(1095,165,"Working — business");
     if (w===0) add(1080,30,"Weekly review");
     add(1260,55,"Reading"); add(1315,5,"Plan tomorrow");

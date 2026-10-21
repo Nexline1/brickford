@@ -67,3 +67,15 @@ Use Brickford's current components (`.one`, `.ghead`, `.glist`, `.grow`, the 44p
   - `monk` included in the push while `MONK_SYNCS` is false;
   - an off-by-one in `prayerTimes`.
 - Every gate passes, and the `?v=` tokens are bumped.
+
+## Amendment 2026-10-23 (owner): Shia, Ja'fari Tehran, prayers combined into 3 blocks, no Jumu'ah
+Relayed by the loop coordinator. It replaces the Umm al-Qura method in item 4 and the prayer values under Acceptance.
+- **Method:** one constant, `PRAYER_METHOD = {fajr: 17.7, maghrib: 4.5, isha: 14, combine: true}` (Ja'fari, Tehran). Maghrib is the sun at a 4.5° depression, not sunset. Isha is by angle (14°), not by minutes. Asr keeps shadow factor 1 when shown separately. Still Manama.
+- **Combined:** with `combine` true the page shows 3 prayer chips and 3 blocks: "Fajr", "Dhuhr & Asr" (at Dhuhr time) and "Maghrib & Isha" (at Maghrib time). With `combine` false it shows 5.
+- **Score and streak:** the day score counts 3 prayer items, not 5. The prayer streak means all 3 on time.
+- **No Jumu'ah.** Friday is an ordinary "Dhuhr & Asr" day. The Friday grave visit stays.
+- **Routine template** (`planFor`, also in `loop/design/monk-mode.html`): the separate Asr and Isha blocks are gone; "Dhuhr & Asr" lasts 25 min and "Maghrib & Isha" 25 min.
+- **verify-logic** reads the expected Manama times from one table, within 1 minute:
+  - 2026-10-22: Fajr 04:24, Dhuhr 11:22, Maghrib 17:20 (Isha 18:03)
+  - 2026-12-06: Fajr 04:51, Dhuhr 11:29, Maghrib 17:04 (Isha 17:49)
+  - 2027-01-15: Fajr 05:07, Dhuhr 11:47, Maghrib 17:25 (Isha 18:10)

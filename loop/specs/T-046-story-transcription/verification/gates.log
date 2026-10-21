@@ -134,3 +134,16 @@ T-046 390px light
   ok    T-046 390px light: Not now leaves "Transcription is off on this device." and "Turn on transcription", >= 4.5:1, the control >= 44x44 — Transcription is off on this d 6.1 218x19, Turn on transcription 16.72 165x44
   ok    T-046 390px light: no page errors
 PASS — 2108 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; list
+
+## verify-flows re-run at 736dce4 (after the long-task check was fixed; app.js and style.css unchanged since cc89990)
+PASS — 339 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm she
+flows exit 0
+  ok    (p) the track ends under the recorder: after a reload /record says the chain is whole ("newest first", not "chain broken") — newest first
+  ok    (r) 390px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — []
+  ok    (r) 1280px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — []
+
+## one flake, recorded: verify-flows at 2a8131f, run between the plant runs
+  FAIL  (p) the track ends under the recorder: after a reload /record says the chain is whole ("newest first", not "chain broken") — none yet
+1 of 339 flow check(s) FAILED
+It is T-028's reload check: the chain read empty after acrossReload's reload ("none yet").
+It passed in the full gate run, in all three plant runs that reached it and in the 736dce4 re-run. T-046 writes nothing in that flow (txRequest only sets txAsk and repaints), so it is not attributed to this item.

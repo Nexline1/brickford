@@ -22,3 +22,8 @@ Branch loop/T-046-story-transcription, worktree /home/user/bf-T-046, base main 8
 - Run 1 of verify-flows (cc89990's parent): all 337 old+new checks ok except the worker-URL regex (fixed in cc89990).
 - verify-content: only the two TX_REVISION checks fail (the blocker), by design.
 - Coordinator 2026-10-21: push own branch after every commit (no PRs).
+- Plant (d) first exited 1 only through the Worker and progress checks; the long-task check itself passed under the plant. Two harness causes, both measured in probes:
+  (1) Playwright's fixed clock fakes performance.now() (and performance.mark, Event.timeStamp) onto another timeline than the long-task entries, so the reference now reads document.timeline.currentTime (native, shared);
+  (2) a busy loop run straight after a fetch's await was not reported as a long task, so the stub's 400ms now runs in a timer task.
+  After both fixes the long-task check fails under (d) at 390 and 1280 (a 400ms task), and passes unplanted (flows 339/339 at 736dce4).
+- One flake seen once (T-028's reload/chain check, "none yet") — see gates.log.

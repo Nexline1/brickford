@@ -14,7 +14,9 @@
 // @custom-variant and follows data-theme="dark" on <html>.
 //
 // Text contrast: every `*-text` token and `label-secondary` clears 4.5:1 on
-// canvas and card in both themes (tools/verify-contrast.js keeps that true).
+// canvas and card in both themes: loop/design/specimen-apple-contrast.js
+// measures it in the specimen now, tools/verify-contrast.js in the app once
+// the rebuild uses these tokens.
 // The exact iOS hues (`tint`, `destructive`, `green`, `orange`, `gray` ...) are
 // for fills, icons and large text only. `label-tertiary` is for chevrons and
 // other glyphs, never for words.
@@ -27,7 +29,7 @@ const palette = {
   canvas:             ["#F2F2F7", "#000000"],   // systemGroupedBackground
   card:               ["#FFFFFF", "#1C1C1E"],   // secondarySystemGroupedBackground
   "card-inset":       ["#F2F2F7", "#2C2C2E"],   // tertiarySystemGroupedBackground: a well inside a card
-  bar:                ["rgb(249 249 249 / 0.94)", "rgb(22 22 23 / 0.94)"], // chrome material (tab bar, sidebar), used with backdrop-blur
+  bar:                ["rgb(249 249 249 / 0.94)", "rgb(22 22 23 / 0.94)"], // chrome material (tab bar), used with backdrop-blur
   // Ink
   label:              ["#1D1D1F", "#F5F5F7"],   // owner's ink (apple.com), in place of #000 / #FFF
   "label-secondary":  ["#6E6E73", "#8E8E93"],   // small grey text: accessible shade light, systemGray dark

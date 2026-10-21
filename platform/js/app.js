@@ -4503,6 +4503,13 @@
     g.onsuccess = () => { if (g.result) st.put(Object.assign({}, g.result, { title: title }), key); };
   });
   const clipDelete = key => clipTx("readwrite", st => { st.delete(key); });
+  // T-046: one clip, and fields merged onto it (the transcript) in one
+  // transaction, so a rename in between is not lost. A deleted clip stays deleted.
+  const clipGet = key => clipTx("readonly", (st, done) => { const g = st.get(key); g.onsuccess = () => done(g.result || null); });
+  const clipPatch = (key, fields) => clipTx("readwrite", st => {
+    const g = st.get(key);
+    g.onsuccess = () => { if (g.result) st.put(Object.assign({}, g.result, fields), key); };
+  });
 
   // ---- the recorder ----
   // Its life, in memory: `rec` is { kind, starting } while the microphone
@@ -4601,8 +4608,8 @@
     }
     r.seconds = Math.max(REC_MIN, Math.round(r.elapsed));
     const title = (r.kind === "humor" ? "Humour" : "Story") + " · " + recDay(r.date);
-    let kept = true;
-    try { await clipAdd({ date: r.date, seconds: r.seconds, kind: r.kind, title: title, blob: blob }); }
+    let kept = true, key = null;
+    try { key = await clipAdd({ date: r.date, seconds: r.seconds, kind: r.kind, title: title, blob: blob }); }
     catch (e) { kept = false; }
     const iso = r.date;
     let msg;
@@ -4620,6 +4627,10 @@
     }
     if (!(isRestDay(iso) && iso >= D.START_DATE)) save();
     if (!kept) msg = "Could not keep the recording on this device. " + msg;
+    // T-046: a kept clip is offered for transcription — asked first, run if
+    // this device said yes, left alone if it said Not now. This is the end of
+    // a recording (an event), never a render.
+    if (kept && key) txRequest(key);
     // The reader pressed stop (or the cap did, on this page): a foreground
     // render, as the form's Log does. Anywhere else, the save is enough.
     after();
@@ -4727,8 +4738,11 @@
     if (!window.indexedDB) return done('<p class="pr-empty">This browser cannot keep recordings.</p>');
     clipList().then(list => {
       while (clipURLs.length) URL.revokeObjectURL(clipURLs.pop());
+      // T-046: what the transcript UI reads — never the Blob.
+      txClips.clear();
+      list.forEach(c => txClips.set(c.key, { key: c.key, seconds: c.seconds, transcript: c.transcript || null }));
       if (!list.length) return done('<p class="pr-empty">Nothing recorded yet. Press the red button and talk.</p>');
-      done('<div class="pr-list">' + list.map(c => {
+      done('<div id="prTxAsk">' + txAskNow() + '</div><div class="pr-list">' + list.map(c => {
         const url = c.blob ? URL.createObjectURL(c.blob) : "";
         if (url) clipURLs.push(url);
         const t = esc(c.title || "Recording");
@@ -4739,11 +4753,23 @@
           '<span class="pr-wave" aria-hidden="true"></span>' +
           '<span class="pr-acts">' + (url ? '<a class="pr-ic" href="' + url + '" download="' + esc((c.title || "recording").replace(/[\\/:*?"<>|]+/g, "-")) + clipExt(c.blob.type) + '" aria-label="Download ' + t + '">' + ICON_DL + "</a>" : "") +
           '<button type="button" class="pr-ic" data-clip-del aria-label="Delete ' + t + '">' + ICON_DEL + "</button></span>" +
-          '<div class="pr-player"></div></div>';
-      }).join("") + "</div>");
+          '<div class="pr-player"></div>' +
+          '<div class="pr-txrow">' + txRowHTML(txClips.get(c.key)) + "</div></div>";
+      }).join("") + '</div><div id="prTxOff">' + txOffNow() + "</div>");
     }, () => done('<p class="pr-empty">This browser cannot keep recordings.</p>'));
   }
   function wireClips(host) {
+    // T-046: the transcription controls are delegated from the list, so a row
+    // repainted in place (progress, a finished transcript) needs no rewiring.
+    host.onclick = txClick;
+    if (!host.dataset.txWired) {
+      host.dataset.txWired = "1";
+      // An open transcript stays open through the next fill of the list.
+      host.addEventListener("toggle", e => {
+        const d = e.target, row = d.closest && d.matches("details.pr-tx") && d.closest(".pr-clip");
+        if (row) { if (d.open) txOpen.add(row.dataset.clip); else txOpen.delete(row.dataset.clip); }
+      }, true);
+    }
     $$(".pr-clip", host).forEach(row => {
       const key = row.dataset.clip;
       $("[data-clip-play]", row).onclick = () => {
@@ -4775,6 +4801,251 @@
         clipDelete(key).then(clipsPaint, () => toast("Could not delete it."));
       };
     });
+  }
+
+  // ---------- T-046: the story, transcribed on this device ----------
+  // The owner, 2026-10-14: "make sure… the audio recorder is recording the
+  // stories as audio and transcribing them as text too", on the device
+  // (loop/specs/T-046-story-transcription/spec.md). Whisper runs in a module
+  // Web Worker (js/transcribe-worker.js) after a one-time download the reader
+  // agrees to, and the audio never leaves the device. What must hold:
+  //   - consent first. No worker exists and nothing is imported or downloaded
+  //     until Download is pressed once on this device. The answer is
+  //     settings.transcribe ("on" / "off"), which is per device: syncPayload
+  //     sends only theme, dailyStart and streakFrom from settings;
+  //   - the transcript lives on the clip's IndexedDB record — { text, chunks,
+  //     model, at } — and nowhere else: not localStorage, not the sync
+  //     payload, not the chain;
+  //   - a render is a read. A transcription starts from a press (Transcribe,
+  //     Download) or from a clip being kept (recSaved), never from a render;
+  //     V.practice and clipsPaint only draw what memory and IndexedDB hold;
+  //   - every failure is one muted line on the row, and the recording stays.
+  // The pins. verify-content fails until TX_REVISION is a 40-hex commit
+  // recorded in the spec's verification/notes.md: huggingface.co could not be
+  // reached when this was built, so the revision is NOT yet verified. Until it
+  // is, the library asks for that revision, finds no such files, and the row
+  // says the download failed: an unpinned model is never fetched.
+  const TX_LIB = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+  const TX_MODEL = "Xenova/whisper-base.en";
+  const TX_REVISION = "UNVERIFIED";
+  const TX_MODEL_MB = 75;
+  const TX_WORKER = "js/transcribe-worker.js?v=20261021a";
+  const TX_MSG = {
+    unsupported: "This browser cannot run the speech model, so this one stays audio only.",
+    download: "Could not download the speech model. The recording is kept.",
+    memory: "Not enough memory to transcribe this one. The recording is kept.",
+    silence: "No speech found in this recording.",
+    unreadable: "Could not read the audio of this one. The recording is kept.",
+    failed: "Could not transcribe this one. The recording is kept.",
+  };
+  const txClips = new Map();   // key -> { key, seconds, transcript }, as the list last read them
+  const txState = {};          // key -> { phase: "wait" | "load" | "run" | "fail", pct, msg }: memory only
+  const txOpen = new Set();    // keys whose transcript is open
+  const txQueue = [];
+  let txAsk = null;            // the clip the consent question is for
+  let txBusy = null, txWorker = null, txLoaded = false;
+  const txSetting = () => S.settings.transcribe;
+  const txSupported = () => typeof Worker === "function" && typeof WebAssembly === "object" && !!(window.OfflineAudioContext || window.webkitOfflineAudioContext);
+  // A press, not a render: stored quietly, because it does not sync.
+  function txSet(v) {
+    if (v) S.settings.transcribe = v; else delete S.settings.transcribe;
+    syncQuiet++; save(); syncQuiet--;
+  }
+
+  // ---- fillers ----
+  // Deterministic: a list and five context rules, no model. Each entry is the
+  // words it matches (lower case) and when they count:
+  //   always — every time: um, uh, er, ah, basically, actually, literally,
+  //            so yeah;
+  //   comma  — "like", only when a comma follows it: "it was, like, huge" and
+  //            "Like, I don't know" count; "I like it", "looks like rain" and
+  //            "things like that" do not. Whisper writes a filler "like" with
+  //            commas round it; one it leaves bare is missed, which is better
+  //            than striking a real verb;
+  //   loose  — "you know", "I mean", only when punctuation follows, so they
+  //            take no object: "you know, the napkin" counts; "you know him",
+  //            "I mean it" do not;
+  //   nodet  — "kind of", "sort of", not straight after a determiner: "I kind
+  //            of froze" counts; "a kind of map", "what sort of person" do not;
+  //   start  — "okay so", only at the start of a sentence or after a comma:
+  //            "Okay so we tried again" counts; "it's okay so far" does not;
+  //   tag    — "right?" after a comma: "it's hard, right?" counts; "is that
+  //            right?" and "turn right" do not.
+  // "So" alone is never a filler: it is how a story moves on. Only "so yeah"
+  // (always) and "okay so" (start) are. The two-word entries come first, so a
+  // phrase wins over its own words.
+  const FILLERS = [
+    { w: "you know", when: "loose" }, { w: "i mean", when: "loose", label: "I mean" },
+    { w: "kind of", when: "nodet" }, { w: "sort of", when: "nodet" },
+    { w: "so yeah", when: "always" }, { w: "okay so", when: "start" }, { w: "ok so", when: "start", label: "okay so" },
+    { w: "um", when: "always" }, { w: "uh", when: "always" }, { w: "er", when: "always" }, { w: "ah", when: "always" },
+    { w: "basically", when: "always" }, { w: "actually", when: "always" }, { w: "literally", when: "always" },
+    { w: "like", when: "comma" }, { w: "right", when: "tag", label: "right?" },
+  ];
+  const TX_DET = new Set("a an the this that these those what which whatever any some every each one no same another my your his her our their its".split(" "));
+  // { marks: [{ s, e, label }], counts: [[label, n]] in reading order, total, words }
+  function txFillers(text) {
+    const words = [], re = /[A-Za-z0-9]+(?:['’][A-Za-z]+)*(?:-[A-Za-z0-9]+)*/g;
+    for (let m; (m = re.exec(text));) words.push({ w: m[0].toLowerCase(), s: m.index, e: m.index + m[0].length });
+    const gap = i => text.slice(i ? words[i - 1].e : 0, words[i].s);
+    const next = i => (/^\s*(\S?)/.exec(text.slice(words[i].e, i + 1 < words.length ? words[i + 1].s : text.length)) || [])[1] || "";
+    const marks = [], counts = new Map();
+    for (let i = 0; i < words.length; i++) {
+      for (const f of FILLERS) {
+        const parts = f.w.split(" "), last = i + parts.length - 1;
+        if (last >= words.length || parts.some((p, k) => words[i + k].w !== p)) continue;
+        if (parts.some((p, k) => k > 0 && /\S/.test(gap(i + k)))) continue;   // a phrase is its words, spaces between
+        const after = next(last);
+        const ok = f.when === "always" ? true
+          : f.when === "comma" ? after === ","
+          : f.when === "loose" ? /^[,.?!;:]$/.test(after) || last === words.length - 1
+          : f.when === "nodet" ? !(i > 0 && TX_DET.has(words[i - 1].w) && !/\S/.test(gap(i)))
+          : f.when === "start" ? i === 0 || /[.?!,;:]/.test(gap(i))
+          : f.when === "tag" ? after === "?" && /,/.test(gap(i))
+          : false;
+        if (!ok) continue;
+        const label = f.label || f.w;
+        marks.push({ s: words[i].s, e: words[last].e, label: label });
+        counts.set(label, (counts.get(label) || 0) + 1);
+        i = last;
+        break;
+      }
+    }
+    return { marks: marks, counts: [...counts], total: marks.length, words: words.length };
+  }
+  // Whisper's own non-speech tags ("[BLANK_AUDIO]", "(silence)") are not words.
+  const txSpeech = text => /[A-Za-z0-9]/.test(String(text || "").replace(/\[[^\]]*\]|\([^)]*\)/g, ""));
+
+  // ---- what the list shows ----
+  const txAskNow = () => (txAsk && txClips.has(txAsk) && txSetting() !== "on" && txSetting() !== "off"
+    ? '<div class="pr-ask" role="group" aria-label="Transcription"><p class="pr-ask-t">Download the speech model (~' + TX_MODEL_MB +
+      " MB, once)? It runs on this device; your audio never leaves it.</p>" +
+      '<div class="pr-ask-b"><button type="button" class="btn" data-tx="yes">Download</button>' +
+      '<button type="button" class="btn ghost" data-tx="no">Not now</button></div></div>' : "");
+  const txOffNow = () => (txSetting() === "off" && txClips.size
+    ? '<div class="pr-txoff"><p class="pr-txoff-t">Transcription is off on this device.</p>' +
+      '<button type="button" class="btn tiny ghost" data-tx="on">Turn on transcription</button></div>' : "");
+  const txProgress = s => (s.phase === "load" ? "Loading the speech model… " + (s.pct || 0) + "%"
+    : s.phase === "run" ? "Transcribing… " + (s.pct || 0) + "%" : "Preparing the audio…");
+  function txRowHTML(c) {
+    if (!c) return "";
+    if (c.transcript && typeof c.transcript.text === "string") return txCardHTML(c);
+    const s = txState[c.key];
+    if (s && s.phase !== "fail") return '<p class="tx-line" role="status">' + txProgress(s) + "</p>";
+    return (s ? '<p class="tx-line" role="status">' + esc(s.msg) + "</p>" : "") +
+      (!(s && s.unsupported) && txSetting() !== "off" ? '<button type="button" class="btn tiny ghost" data-tx-go>Transcribe</button>' : "");
+  }
+  function txCardHTML(c) {
+    const text = c.transcript.text.trim(), f = txFillers(text);
+    let body = "", at = 0;
+    f.marks.forEach(k => { body += esc(text.slice(at, k.s)) + '<s class="tx-f">' + esc(text.slice(k.s, k.e)) + "</s>"; at = k.e; });
+    body += esc(text.slice(at));
+    const wpm = c.seconds > 0 ? Math.round(f.words * 60 / c.seconds) : null;
+    return '<details class="pr-tx"' + (txOpen.has(c.key) ? " open" : "") + "><summary>Transcript</summary>" +
+      '<div class="tx-card"><div class="tx-stats">' + f.words + " words" + (wpm === null ? "" : " · " + wpm + " per minute") + "</div>" +
+      '<p class="tx-text">' + body + "</p>" +
+      '<div class="tx-chips"><span class="tx-chip tx-total">' + (f.total ? f.total + " filler" + (f.total === 1 ? "" : "s") + " to cut" : "No fillers marked") + "</span>" +
+      f.counts.map(([l, n]) => '<span class="tx-chip">' + esc(l) + " ×" + n + "</span>").join("") + "</div>" +
+      "<p class=\"tx-note\">Whisper can miss 'um' and 'uh'.</p>" +
+      '<button type="button" class="btn tiny ghost" data-tx-copy>Copy</button></div></details>';
+  }
+  // In place: the two slots and each row's transcript, never the whole list
+  // (a refill would stop a clip that is playing).
+  function txPaint() {
+    const host = $("#view #prClips");
+    if (!host) return;
+    const ask = $("#prTxAsk", host), off = $("#prTxOff", host);
+    if (ask) ask.innerHTML = txAskNow();
+    if (off) off.innerHTML = txOffNow();
+    $$(".pr-clip", host).forEach(row => { const slot = $(".pr-txrow", row); if (slot) slot.innerHTML = txRowHTML(txClips.get(row.dataset.clip)); });
+  }
+  function txClick(e) {
+    const b = e.target.closest("[data-tx], [data-tx-go], [data-tx-copy]");
+    if (!b) return;
+    const row = b.closest(".pr-clip"), key = row && row.dataset.clip;
+    if (b.dataset.tx === "yes") { const k = txAsk; txAsk = null; txSet("on"); if (k) txRequest(k); else txPaint(); }
+    else if (b.dataset.tx === "no") { txAsk = null; txSet("off"); txPaint(); }
+    else if (b.dataset.tx === "on") {
+      // Back to "ask", and asked again for the newest clip with no transcript.
+      txSet(null);
+      const c = [...txClips.values()].find(x => !x.transcript);
+      txAsk = c ? c.key : null;
+      txPaint();
+    }
+    else if (b.hasAttribute("data-tx-go") && key) txRequest(key);
+    else if (b.hasAttribute("data-tx-copy") && key) {
+      const c = txClips.get(key), text = c && c.transcript ? c.transcript.text.trim() : "";
+      const no = () => toast("Could not copy. Select the text instead.");
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast("Copied."), no); else no();
+    }
+  }
+
+  // ---- running it ----
+  function txRequest(key) {
+    if (!txSupported()) { txState[key] = { phase: "fail", unsupported: true, msg: TX_MSG.unsupported }; return txPaint(); }
+    if (txSetting() === "off") return;                       // Not now: nothing is asked or run
+    if (txSetting() !== "on") { txAsk = key; return txPaint(); }   // the first use asks
+    if (txBusy === key || txQueue.includes(key)) return;
+    txState[key] = { phase: "wait" };
+    txQueue.push(key);
+    txPaint();
+    txNext();
+  }
+  // The clip as 16 kHz mono PCM, decoded on the page: an OfflineAudioContext
+  // at 16 kHz resamples as it decodes; the channels are averaged.
+  async function txPCM(blob) {
+    const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const buf = await new AC(1, 16000, 16000).decodeAudioData(await blob.arrayBuffer());
+    const n = buf.length, ch = buf.numberOfChannels, out = new Float32Array(n);
+    for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) out[i] += d[i] / ch; }
+    return out;
+  }
+  function txWorkerGet() {
+    if (txWorker) return txWorker;
+    const w = new Worker(TX_WORKER, { type: "module" });
+    w.onmessage = e => txHeard(e.data || {});
+    // The worker itself failed (its script, or something it threw outside a
+    // run): drop it, so the next press makes a new one.
+    w.onerror = e => { if (e && e.preventDefault) e.preventDefault(); if (txWorker === w) txWorker = null; try { w.terminate(); } catch (x) { /* gone */ } if (txBusy) txEnd(txBusy, TX_MSG.failed); };
+    return (txWorker = w);
+  }
+  async function txNext() {
+    if (txBusy || !txQueue.length) return;
+    const key = txBusy = txQueue.shift();
+    let pcm;
+    try {
+      const c = await clipGet(key);
+      if (!c || !c.blob) return txEnd(key, TX_MSG.unreadable);
+      pcm = await txPCM(c.blob);
+    } catch (e) { return txEnd(key, e instanceof RangeError ? TX_MSG.memory : TX_MSG.unreadable); }
+    if (!pcm.length) return txEnd(key, TX_MSG.silence);
+    let w;
+    try { w = txWorkerGet(); } catch (e) { return txEnd(key, TX_MSG.unsupported, true); }   // e.g. no Worker on this origin
+    txState[key] = { phase: txLoaded ? "run" : "load", pct: 0 };
+    txPaint();
+    w.postMessage({ type: "run", id: key, lib: TX_LIB, model: TX_MODEL, revision: TX_REVISION, pcm: pcm }, [pcm.buffer]);
+  }
+  function txHeard(m) {
+    if (!m.id || m.id !== txBusy) return;
+    if (m.type === "progress") {
+      if (m.phase === "run") txLoaded = true;
+      txState[m.id] = { phase: m.phase === "run" ? "run" : "load", pct: Math.max(0, Math.min(100, m.pct | 0)) };
+      return txPaint();
+    }
+    if (m.type === "done") {
+      txLoaded = true;
+      if (!txSpeech(m.text)) return txEnd(m.id, TX_MSG.silence);
+      const t = { text: String(m.text), chunks: Array.isArray(m.chunks) ? m.chunks : [], model: TX_MODEL + "@" + TX_REVISION, at: new Date().toISOString() };
+      return clipPatch(m.id, { transcript: t }).then(() => { const c = txClips.get(m.id); if (c) c.transcript = t; txEnd(m.id, null); },
+        () => txEnd(m.id, TX_MSG.failed));
+    }
+    if (m.type === "error") txEnd(m.id, m.kind === "memory" ? TX_MSG.memory : m.kind === "download" ? TX_MSG.download : TX_MSG.failed);
+  }
+  function txEnd(key, msg, unsupported) {
+    if (msg) txState[key] = { phase: "fail", msg: msg, unsupported: !!unsupported }; else delete txState[key];
+    if (txBusy === key) txBusy = null;
+    txPaint();
+    txNext();
   }
 
   V.practice = function () {

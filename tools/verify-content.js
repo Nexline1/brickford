@@ -3040,8 +3040,48 @@ D.COURSES.forEach(c => {
   ok(!!pageTok && workerTok === pageTok, "T-046: the worker's ?v= token (" + workerTok + ") is the page's (" + pageTok + ")");
 }
 
+// ---------- T-045: when each problem set and lab unlocks ----------
+// Every pset and lab names the lecture that prepares for it (`after`), and
+// Problems lists it as due once that lecture is cleared. A key that resolves
+// to nothing would never unlock — the item would sit in "Coming up" for three
+// years and nothing would say why — so each must be a real lesson. A lab also
+// waits for its phase, so its `after` lecture must be scheduled in that phase
+// or earlier: one the plan reaches only in a later phase would quietly move
+// the lab out of the phase it is listed under. The plan date is the app's
+// own (planDateOf, through the test hook, with app.js run in a bare VM whose
+// boot never fires); the phase of that date is worked out here from the
+// study index, with the week thresholds of currentPhase() restated.
+let t45Items = 0;
+{
+  const store = {};
+  const app = { console, Date, Math, JSON, setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
+    localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = v; }, removeItem() {} },
+    location: { hash: "#/__test", href: "file:///verify-content" }, matchMedia: () => ({ matches: false, addEventListener() {} }),
+    addEventListener() {}, navigator: { userAgent: "" },
+    document: { readyState: "loading", addEventListener() {}, querySelector: () => null, querySelectorAll: () => [],
+      documentElement: { setAttribute() {}, dataset: {}, style: { setProperty() {} } }, createElement: () => ({ style: {} }) } };
+  app.window = app; vm.createContext(app);
+  const html = fs.readFileSync(path.join(ROOT, "platform/index.html"), "utf8");
+  (html.match(/<script[^>]+src="(?!https?:)[^"]+"/g) || []).map(m => /src="([^"?]+)/.exec(m)[1])
+    .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, "platform", f), "utf8"), app, { filename: f }));
+  const T = app.__brickfordTest;
+  ok(!!T && typeof T.planDateOf === "function", "T-045: app.js loads in a bare VM and exposes planDateOf");
+  const phaseOf = iso => { const w = Math.floor(T.studyIndex(iso) / 6) + 1; return w > 78 ? 3 : w > 26 ? 2 : w > 2 ? 1 : 0; };
+  const items = D.LABS.map(l => ({ id: l.id, after: l.after, phase: l.phase, lab: true }))
+    .concat(...D.PSETS.map(g => g.items.map(i => ({ id: i.id, after: i.after }))));
+  items.forEach(it => {
+    t45Items++;
+    ok(typeof it.after === "string" && lessonKeys.has(it.after), "T-045 " + it.id + ": after \"" + it.after + "\" is a real lesson");
+    if (it.lab && T && lessonKeys.has(it.after)) {
+      const d = T.planDateOf(it.after);
+      ok(!!d && phaseOf(d) <= it.phase, "T-045 lab " + it.id + " (phase " + it.phase + "): its after lecture " + it.after +
+        " is scheduled " + d + ", phase " + (d ? phaseOf(d) : "none") + " — in its phase or earlier");
+    }
+  });
+}
+
 console.log("\n" + (fail === 0
-  ? "PASS — " + checks + " checks, " + numChecked + " numeric answers recomputed, "
+  ? "PASS — " + checks + " checks, " + t45Items + " problem sets and labs unlocked by a real lecture, " + numChecked + " numeric answers recomputed, "
     + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "
     + Object.keys(LAB).length + " interactive, "
     + summaryKeys.length + " lecture summaries (" + sumNums + " numerics recomputed), "

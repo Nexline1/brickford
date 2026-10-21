@@ -5043,10 +5043,13 @@
           q.code + (catchUp ? " · catch-up" : "") + " · watched, not passed · " + plural(n, "question") + (locks ? " · locks the next lecture" : "")) +
         go("Take it") + "</a>";
     };
+    // "passed" only when its quiz was: a lecture cleared because it has no
+    // quiz, or because it was watched before the gate (its quiz still on the
+    // catch-up list, review r1), was watched, not passed.
     const psetRow = i => {
       const L = lessonOf(i.after);
       return '<details class="pd-item" data-due="pset" data-id="' + i.id + '"><summary class="pd-row">' + ic("✎") +
-        body("Problem set · " + i.course + ", " + i.label, "Problem set", "Pen and paper · unlocked: you passed " + (L ? L.l.t : i.after)) + go("Open") +
+        body("Problem set · " + i.course + ", " + i.label, "Problem set", "Pen and paper · unlocked: you " + (quizPassed(i.after) ? "passed " : "watched ") + (L ? L.l.t : i.after)) + go("Open") +
         '</summary><div class="pd-body"><a class="btn ghost" href="' + i.url + '" target="_blank" rel="noopener">The set, at the source ↗</a>' +
         '<label class="check-row"><input type="checkbox" data-pset="' + i.id + '" ' + (S.psets[i.id] ? "checked" : "") + '><span class="checkbox">' + CHECK_SVG +
         '</span><span class="check-label">Done — ' + esc(i.label) + "</span></label></div></details>";

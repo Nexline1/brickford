@@ -1705,7 +1705,7 @@ function t45Problems() {
   flat.filter(f => open(f) && gf(lessons[f.k])).forEach(f => want.push({ due: "catchup", id: f.k, title: "Lecture quiz · " + f.t, tag: "Quiz",
     why: f.code + " · catch-up · watched, not passed · " + plural(checksOf(f.k).length, "question"), go: "Take it", href: "#/lesson/" + f.cid + "/" + f.ui + "/" + f.li }));
   items.filter(i => T.lessonCleared(i.after) && !psets[i.id]).forEach(i => want.push({ due: "pset", id: i.id, title: "Problem set · " + i.course + ", " + i.label, tag: "Problem set",
-    why: "Pen and paper · unlocked: you passed " + (byKey[i.after] || {}).t, go: "Open" }));
+    why: "Pen and paper · unlocked: you " + (((lessons[i.after] || {}).quiz || {}).passedAt ? "passed " : "watched ") + (byKey[i.after] || {}).t, go: "Open" }));
   D.LABS.filter(l => T.lessonCleared(l.after) && l.phase <= phase && !(labs[l.id] || {}).done).forEach(l => want.push({ due: "lab", id: l.id, title: "Lab · " + l.title, tag: "Lab",
     req: l.req, tail: " · Phase " + l.phase + " · ~" + l.hours + " h", go: "Start" }));
   const misses = Object.keys(st.quizMisses || {}).some(b => (st.quizMisses[b] || []).some(i => {
@@ -4871,6 +4871,15 @@ function t28SeedClips(list) {
     { name: "the daily review beside one pset", one: "pset:1806-ps1,review:drill", twin: "one pset unlocked",
       lessons: { "math110.1.1": T45_L("2026-10-19", 2), "math110.0.1": T45_L("2026-10-19", 2) }, misses: { "linear-algebra": [8] } },
   ];
+  // Review r1, finding 3: a lecture watched before the gate (grandfathered,
+  // so cleared) with its quiz never passed. Its pset is unlocked and its quiz
+  // is on the catch-up list in the same view, so the pset must not say "you
+  // passed" it. The clock is the gate's own day, 16 Oct 2026; both rows'
+  // wording is stated here in full.
+  T45_STATES.push({ name: "a pset unlocked by a lecture watched before the gate", now: new Date("2026-10-16T12:00:00Z"),
+    one: "catchup:math130.0.1,pset:s110-sp1", lessons: { "math130.0.1": T45_L("2026-10-11") },
+    words: { "catchup:math130.0.1": "MATH 130 · catch-up · watched, not passed · 3 questions",
+             "pset:s110-sp1": "Pen and paper · unlocked: you watched Story Proofs, Axioms of Probability" } });
   const t45Seen = {};
   for (const theme of ["dark", "light"]) {
     for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
@@ -4885,6 +4894,11 @@ function t28SeedClips(list) {
         const got = m.rows.map(r => r.due + ":" + r.id);
         c45(at + ": the fixture is what it names — " + (st.one ? "exactly the row" + (st.one.includes(",") ? "s " : " ") + st.one : "no row"),
           st.one ? got.join() === st.one : got.length === 0, got.join(", ") || "no rows");
+        if (st.words) {
+          const said = Object.fromEntries(m.rows.map(r => [r.due + ":" + r.id, r.why]));
+          c45(at + ": the catch-up row and the pset row say what happened — watched, not passed; unlocked because you watched it",
+            Object.keys(st.words).every(k => said[k] === st.words[k]), JSON.stringify(said));
+        }
         await go(page, "/");
         const line = await page.evaluate(() => { const a = document.querySelector(".card.one.lead a.one-due");
           return a ? { text: a.textContent.trim(), href: a.getAttribute("href"), h: a.getBoundingClientRect().height, vis: a.checkVisibility() } : null; });
@@ -4938,7 +4952,7 @@ function t28SeedClips(list) {
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
-      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)"
+      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

@@ -1,0 +1,24 @@
+# plant 1: a 2-line subtitle (the dashboard's Story bank row, 11 words, no sentence rule broken)
+exit 1
+NEW — 2 finding(s) not in tools/verify-density.baseline.json
+  FAIL  sub|320|/|one real thing from today, two lines, kept for the interview   (sub on 3 lines)
+  FAIL  sub|390|/|one real thing from today, two lines, kept for the interview   (sub on 2 lines)
+FAIL — 32 route-renders (16 routes x 320/390px, Light); 2014 first-viewport words in all; 97 known findings (T-051b 20, T-051c 77), 2 new, 0 stale, 0 over
+
+# plant 2: a returned sentence on the dashboard (16 words under the title)
+exit 1
+OVER — first-viewport words above the ceiling in 2 route-width(s)
+  FAIL  320 /: 49 words in the first viewport (ceiling 47)
+  FAIL  390 /: 97 words in the first viewport (ceiling 78)
+NEW — 2 finding(s) not in tools/verify-density.baseline.json
+  FAIL  long|320|/|Every lecture you finish today moves the whole plan one real step clos   (16 words)
+  FAIL  long|390|/|Every lecture you finish today moves the whole plan one real step clos   (16 words)
+FAIL — 32 route-renders (16 routes x 320/390px, Light); 2035 first-viewport words in all; 97 known findings (T-051b 20, T-051c 77), 2 new, 0 stale, 2 over
+
+# plant 3: a raised word count (the dashboard title, five words longer; no row, no sentence)
+exit 1
+OVER — first-viewport words above the ceiling in 1 route-width(s)
+  FAIL  390 /: 80 words in the first viewport (ceiling 78)
+FAIL — 32 route-renders (16 routes x 320/390px, Light); 2007 first-viewport words in all; 97 known findings (T-051b 20, T-051c 77), 0 new, 0 stale, 1 over
+
+PASS — 32 route-renders (16 routes x 320/390px, Light); 2014 first-viewport words in all; 97 known findings (T-051b 20, T-051c 77), 0 new, 0 stale, 0 over

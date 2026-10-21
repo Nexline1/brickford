@@ -157,6 +157,10 @@ function loadBaseline() {
     await ctx.clock.setFixedTime(FIXED_NOW);
     await ctx.route(/^https?:/, r => r.abort());
     await ctx.addInitScript(seed, [FIXED_NOW.getTime()]);
+    // The drill draws its questions at random, so a count would differ run to
+    // run; a finding has to survive a re-measure. A seeded generator makes
+    // every draw the same draw.
+    await ctx.addInitScript(() => { let x = 20261022; Math.random = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648); });
     const page = await ctx.newPage();
     page.on("pageerror", e => errors.push(w + " " + e.message));
     for (const route of ROUTES) {

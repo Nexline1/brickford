@@ -45,7 +45,7 @@ const palette = {
   "destructive-text": ["#D70015", "#FF453A"],   // red words (light: systemRed, increased contrast)
   // System greens and oranges
   green:              ["#34C759", "#30D158"],   // systemGreen: icons, fills, rings
-  "green-text":       ["#248A3D", "#30D158"],   // green words (light: systemGreen, increased contrast)
+  "green-text":       ["#1F7A35", "#30D158"],   // green words (light: darker than iOS #248A3D, which is 4.40:1 on white)
   orange:             ["#FF9500", "#FF9F0A"],   // systemOrange: icons, fills
   "orange-text":      ["#C93400", "#FF9F0A"],   // orange words (light: systemOrange, increased contrast)
   // The rest of the system palette, for icon tiles (Settings-style, white glyph)

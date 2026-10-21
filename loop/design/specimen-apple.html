@@ -1,4 +1,559 @@
-<html data-theme="light"><body class="bg-canvas text-label text-body dark:shadow-none">
-<div class="inset-group sep-icon"><a class="press-row px-4 py-3.5 flex">A</a><a class="press-row px-4 py-3.5 flex">B</a></div>
-<p class="section-header text-footnote text-large-title text-tint-text bg-tint-fill/80 bg-canvas-dark press-btn press-card press-text hairline-t rounded-icon size-icon-tile nav:flex tracking-caps ease-ios bg-blue-500"></p>
-</body></html>
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brickford iOS specimen</title>
+<meta name="description" content="T-051 mockup: Dashboard, Lecture and Problems in the iOS system, styled only by platform/css/tailwind.css. ?screen=dashboard|lesson|problems, ?theme=light|dark.">
+<link rel="stylesheet" href="../../platform/css/tailwind.css">
+<script>
+  // Theme before first paint: ?theme= wins, then the remembered choice, then the OS.
+  (function () {
+    var q = new URLSearchParams(location.search), t = q.get("theme");
+    try { t = t || localStorage.getItem("bf-specimen-theme"); } catch (e) {}
+    if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+</head>
+<body class="min-h-dvh">
+
+<!-- SF Symbols stand-ins, drawn on a 24 grid. -->
+<svg width="0" height="0" class="absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.8 12 4l8.5 6.8"/><path d="M5.8 9.3V20h4.6v-5.6h3.2V20h4.6V9.3"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.8C10 5.3 7 4.8 3.5 5.2v13.3c3.5-.4 6.5.1 8.5 1.6 2-1.5 5-2 8.5-1.6V5.2C17 4.8 14 5.3 12 6.8z"/><path d="M12 6.8v13.3"/></symbol>
+    <symbol id="i-checklist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3.8 6.5 1.6 1.6 2.9-3M3.8 12.5l1.6 1.6 2.9-3M3.8 18.5l1.6 1.6 2.9-3"/><path d="M11.5 6.6h8.7M11.5 12.6h8.7M11.5 18.6h8.7"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h7.3l4.7 4.7V20.5h-12z"/><path d="M13.8 3.5v4.7h4.7M9 12.5h6M9 16h6"/></symbol>
+    <symbol id="i-seal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9.5" r="5.8"/><path d="M8.8 14.3 7.6 21l4.4-2.4 4.4 2.4-1.2-6.7"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+    <symbol id="i-week" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4M9 14.6l2 2 4-4"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8 13.3h.01M12 13.3h.01M16 13.3h.01M8 16.8h.01M12 16.8h.01" stroke-width="2.6"/></symbol>
+    <symbol id="i-banknote" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.6v4.8M18 9.6v4.8"/></symbol>
+    <symbol id="i-books" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h4.2v16H4zM10.2 4h4.2v16h-4.2z"/><path d="m16.2 5.3 3.4-.9 2.6 14.8-3.4.9z"/></symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 15.5v3.3c0 .9.7 1.7 1.7 1.7h11.6c1 0 1.7-.8 1.7-1.7v-3.3"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 15.5v3.3c0 .9.7 1.7 1.7 1.7h11.6c1 0 1.7-.8 1.7-1.7v-3.3"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19.4 9.2A8 8 0 0 0 5.3 7.4M4.6 14.8a8 8 0 0 0 14.1 1.8"/><path d="M5 3.6v4h4M19 20.4v-4h-4"/></symbol>
+    <symbol id="i-review" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4v4.5H15"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5 7.5 12l7.5 7.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m5.5 12.5 4.2 4.2 8.8-9.4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10M17 7 7 17"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8.5 5.6v12.8c0 .8.9 1.3 1.5.8l9.8-6.4c.6-.4.6-1.2 0-1.6L10 4.8c-.6-.5-1.5 0-1.5.8z" fill="currentColor"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12.3 2.4c.6 3.1-1.3 4.9-2.9 6.6-1.6 1.7-2.7 3.4-2.7 5.7A5.3 5.3 0 0 0 12 20.2a5.4 5.4 0 0 0 5.4-5.8c-.2-2.6-1.7-4.3-2.8-5.6-.3 1.6-1 2.6-2.1 3 .8-3.3.5-6.5-.2-9.4z"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 21V4"/><path d="M5.5 4.6h11.3l-2.2 4 2.2 4H5.5" fill="currentColor"/></symbol>
+    <symbol id="i-cloud-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 18.5h10.3a3.6 3.6 0 0 0 .5-7.1 5.6 5.6 0 0 0-10.7-1.5 4.3 4.3 0 0 0-.1 8.6z"/><path d="m4 4 16 16"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.3"/><path d="M12 13.5V9.6M10 2.8h4M18.2 6.6l1.3-1.3"/></symbol>
+    <symbol id="i-sigma" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 5.5h-11l6 6.5-6 6.5h11"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="10.5" width="13" height="10" rx="2.2" fill="currentColor" stroke="none"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+    <symbol id="i-question" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9.2a3 3 0 1 1 4.3 2.7c-.8.4-1.3 1-1.3 1.9v.7"/><path d="M12 18.2h.01" stroke-width="2.8"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m15.3 4.7 4 4L8.8 19.2l-4.9 1 1-4.9z"/><path d="m13.3 6.7 4 4"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7.5 3.5 12 8 16.5M16 7.5l4.5 4.5-4.5 4.5M13.6 5l-3.2 14"/></symbol>
+    <symbol id="i-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 16.5 16.5 7.5M9.5 7.5h7v7"/></symbol>
+    <symbol id="i-bubble" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5h15v10.2h-8.2L6.8 19.3v-3.6H4.5z"/><path d="M8 9.4h8M8 12.3h5"/></symbol>
+    <symbol id="i-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.6"/><path d="M8.6 8.6h.01M15.4 8.6h.01M12 12h.01M8.6 15.4h.01M15.4 15.4h.01" stroke-width="2.8"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.6"/><path d="M10 3.5V7M14 3.5V7M10 17v3.5M14 17v3.5M3.5 10H7M3.5 14H7M17 10h3.5M17 14h3.5"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19.4 14.6A7.9 7.9 0 1 1 9.4 4.6a6.4 6.4 0 0 0 10 10z"/></symbol>
+  </defs>
+</svg>
+
+<!-- ======================= Sidebar (860px and up) ======================= -->
+<aside class="hidden nav:flex fixed inset-y-0 left-0 z-10 w-72 flex-col overflow-y-auto bg-card hairline-r px-3 pb-5">
+  <div class="flex items-center gap-3 px-3 pt-7 pb-6">
+    <img src="../../platform/icons/apple-touch-icon.png" alt="" class="size-10 rounded-app dark:ring-1 dark:ring-white/15">
+    <div>
+      <div class="text-body font-semibold">Brickford</div>
+      <div class="text-footnote font-medium text-label-secondary">Self-built university</div>
+    </div>
+  </div>
+  <nav class="flex flex-col gap-0.5" aria-label="Sections">
+    <a href="#dashboard" data-go="dashboard" class="side press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-house"/></svg>Dashboard</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-map"/></svg>The Atlas</a>
+    <div class="section-header mt-5 mb-1 pl-3">Academics</div>
+    <a href="#lesson" data-go="lesson" class="side press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-book"/></svg>Courses</a>
+    <a href="#problems" data-go="problems" class="side press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-checklist"/></svg>Problems</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-doc"/></svg>Exams</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-seal"/></svg>Proof</a>
+    <div class="section-header mt-5 mb-1 pl-3">Rhythm</div>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-mic"/></svg>Practice</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-week"/></svg>Week</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-calendar"/></svg>Calendar</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-banknote"/></svg>Treasury</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-books"/></svg>Library</a>
+  </nav>
+  <div class="mt-auto pt-6">
+    <div class="section-header mb-1 pl-3">Appearance</div>
+    <div class="px-3 pb-3">
+      <div class="grid grid-cols-2 gap-0.5 rounded-[0.6rem] bg-fill p-0.5" role="group" aria-label="Theme">
+        <button type="button" data-theme-set="light" class="press-text min-h-11 rounded-lg text-footnote font-semibold">Light</button>
+        <button type="button" data-theme-set="dark" class="press-text min-h-11 rounded-lg text-footnote font-semibold">Dark</button>
+      </div>
+    </div>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-down"/></svg>Backup</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-up"/></svg>Restore backup</a>
+    <a href="#" class="press-row flex min-h-11 items-center gap-3 rounded-xl px-3"><svg class="size-[22px] text-tint" stroke-width="1.8"><use href="#i-sync"/></svg>Sync devices</a>
+  </div>
+</aside>
+
+<main class="nav:pl-72">
+
+<!-- ============================ (a) Dashboard ============================ -->
+<section data-screen="dashboard" aria-label="Dashboard">
+  <div class="mx-auto max-w-[68rem] px-4 pb-32 nav:px-10 nav:pt-10 nav:pb-16">
+    <!-- phone navigation bar -->
+    <div class="flex h-11 items-center justify-end nav:hidden">
+      <button type="button" data-theme-toggle class="press-btn grid size-11 place-items-center rounded-full bg-card text-label shadow-sm dark:shadow-none" aria-label="Switch theme"><svg class="size-[22px]" stroke-width="1.8"><use href="#i-theme"/></svg></button>
+    </div>
+    <header class="mb-6">
+      <p class="text-footnote font-medium text-label-secondary">Wednesday 21 October · Day 15 · Week 3</p>
+      <h1 class="text-large-title font-bold">Dashboard</h1>
+    </header>
+
+    <div class="flex flex-col gap-9 xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start xl:gap-x-10">
+      <!-- main column -->
+      <div class="contents xl:block xl:space-y-9">
+        <!-- Up next -->
+        <div class="order-1">
+          <h2 class="section-header">Up next</h2>
+          <div class="rounded-2xl bg-card p-4 nav:p-5">
+            <div class="flex items-center gap-2.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-destructive text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-dice"/></svg></span>
+              <span class="text-footnote font-medium text-label-secondary">MATH 130 · Lecture 4 · 50 min</span>
+            </div>
+            <p class="mt-3 text-title2 font-bold">Watch: Conditional Probability, then its quiz</p>
+            <p class="mt-1 text-footnote font-medium text-label-secondary">Pass it to open Conditioning Continued, Law of Total Probability.</p>
+            <a href="#lesson" data-go="lesson" class="press-btn mt-4 flex h-[3.125rem] items-center justify-center gap-2 rounded-full bg-tint-fill px-7 text-body font-semibold text-white nav:inline-flex nav:h-11">
+              <svg class="size-[18px]"><use href="#i-play"/></svg>Open
+            </a>
+          </div>
+        </div>
+
+        <!-- Today -->
+        <div class="order-4">
+          <h2 class="section-header flex items-baseline justify-between gap-3"><span>Today</span><span>3 lectures · 3 h 26 min</span></h2>
+          <div class="inset-group sep-icon">
+            <a href="#lesson" data-go="lesson" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-destructive text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-dice"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Conditioning Continued, Law of Total Probability</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">MATH 130 · Theory · 50 min</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+            <a href="#lesson" data-go="lesson" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-indigo text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-cpu"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Makemore 4 — becoming a backprop ninja (DO NOT SKIP)</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">AI 200 · Build · 1 h 55 min · day 2 of 3</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+            <a href="#lesson" data-go="lesson" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-orange text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-mic"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Building a story live: know the end, start close to it</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">SPCH 100 · Publish · 41 min · day 2 of 2</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+          </div>
+          <div class="inset-group mt-4">
+            <button type="button" class="press-row flex w-full min-h-11 items-center gap-3 px-4 py-3.5 text-left">
+              <span class="grid size-icon-tile shrink-0 place-items-center"><span class="size-[1.375rem] rounded-full border-2 border-label-tertiary"></span></span>
+              <span class="min-w-0 flex-1"><span class="block">Mark today’s Deep Track done</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Seals the day</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- side column (beside the main one from 1280px; interleaved on a phone) -->
+      <div class="contents xl:block xl:space-y-9">
+        <!-- Progress -->
+        <div class="order-2">
+          <h2 class="section-header flex items-baseline justify-between gap-3"><span>Progress</span><span>Phase 1</span></h2>
+          <div class="inset-group">
+            <div class="flex items-center gap-4 px-4 py-4">
+              <div class="relative size-16 shrink-0">
+                <svg viewBox="0 0 64 64" class="size-16 -rotate-90" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke-width="9" class="stroke-green/25"/></svg>
+                <span class="absolute inset-0 grid place-items-center text-subhead font-semibold">0/3</span>
+              </div>
+              <div class="min-w-0">
+                <p class="font-semibold">0 of 3 lectures today</p>
+                <p class="mt-0.5 text-footnote font-medium text-label-secondary">3 h 26 min to go · not sealed yet</p>
+              </div>
+            </div>
+            <div class="px-4 py-3.5">
+              <div class="flex items-center justify-between">
+                <span class="text-footnote font-medium text-label-secondary">This week</span>
+                <span class="flex items-center gap-1 text-footnote font-semibold text-orange-text"><svg class="size-4 text-orange"><use href="#i-flame"/></svg>3-day streak</span>
+              </div>
+              <ol class="mt-3 grid grid-cols-7 gap-1 text-center">
+                <li><span class="block text-caption2 font-medium text-label-secondary">M</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full bg-green text-white"><svg class="size-4" stroke-width="3"><use href="#i-check"/></svg></span></li>
+                <li><span class="block text-caption2 font-medium text-label-secondary">T</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full bg-green text-white"><svg class="size-4" stroke-width="3"><use href="#i-check"/></svg></span></li>
+                <li><span class="block text-caption2 font-semibold text-tint-text">W</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full border-2 border-tint text-caption1 font-semibold text-tint-text">21</span></li>
+                <li><span class="block text-caption2 font-medium text-label-secondary">T</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full bg-card-inset text-caption1 font-medium">22</span></li>
+                <li><span class="block text-caption2 font-medium text-label-secondary">F</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full bg-card-inset text-caption1 font-medium">23</span></li>
+                <li><span class="block text-caption2 font-medium text-label-secondary">S</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full text-label-secondary" title="Rest day"><svg class="size-4" stroke-width="2"><use href="#i-moon"/></svg></span></li>
+                <li><span class="block text-caption2 font-medium text-label-secondary">S</span><span class="mx-auto mt-1 grid size-8 place-items-center rounded-full bg-card-inset text-caption1 font-medium">25</span></li>
+              </ol>
+            </div>
+            <div class="px-4 py-3.5">
+              <div class="flex items-baseline justify-between">
+                <span>Day 15 of 1,094</span>
+                <span class="text-footnote font-medium text-label-secondary">1%</span>
+              </div>
+              <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-fill"><div class="h-full w-[1.37%] min-w-1.5 rounded-full bg-tint"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Needs attention -->
+        <div class="order-3">
+          <h2 class="section-header flex items-baseline justify-between gap-3"><span>Needs attention</span><span>1</span></h2>
+          <div class="inset-group sep-icon">
+            <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-orange text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-cloud-off"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">This device is not syncing</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Progress stays in this browser only</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Where you stand -->
+        <div class="order-5">
+          <h2 class="section-header">Where you stand</h2>
+          <div class="inset-group sep-icon">
+            <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-indigo text-white"><svg class="size-[18px]" stroke-width="2"><use href="#i-flag"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Gate 1 — Calibration</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Finish 3 April 2030 · on baseline</span></span>
+              <span class="shrink-0 text-label-secondary">55 days</span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+            <a href="#problems" data-go="problems" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-teal text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-code"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Problems today</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Arrays &amp; Hashing · Contains Duplicate, Valid Anagram</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+            <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-pink text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-bubble"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Story bank</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">One real thing, two lines</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+            <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+              <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-gray text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-down"/></svg></span>
+              <span class="min-w-0 flex-1"><span class="block">Export a backup</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">This browser is the only copy</span></span>
+              <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ (b) Lecture ============================== -->
+<section data-screen="lesson" aria-label="Lecture" hidden>
+  <div class="mx-auto max-w-[68rem] px-4 pb-32 nav:px-10 nav:pt-6 nav:pb-16">
+    <!-- navigation bar: back to the course -->
+    <div class="-ml-2 flex h-11 items-center justify-between">
+      <a href="#" class="press-text inline-flex min-h-11 items-center gap-0.5 pr-2 text-tint-text"><svg class="size-6" stroke-width="2.4"><use href="#i-chev-l"/></svg>MATH 130</a>
+      <button type="button" data-theme-toggle class="press-btn grid size-11 place-items-center rounded-full bg-card text-label shadow-sm nav:hidden dark:shadow-none" aria-label="Switch theme"><svg class="size-[22px]" stroke-width="1.8"><use href="#i-theme"/></svg></button>
+    </div>
+
+    <div class="xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start xl:gap-x-10">
+      <div class="min-w-0">
+        <header class="mt-2 mb-6">
+          <p class="text-footnote font-medium text-label-secondary">Probability · Lecture 4 of 34</p>
+          <h1 class="text-large-title font-bold">Conditional Probability</h1>
+        </header>
+
+        <!-- Watched bar -->
+        <div class="inset-group">
+          <div class="flex min-h-11 items-center gap-3 px-4 py-3">
+            <span class="grid h-9 w-16 shrink-0 place-items-center rounded-md bg-label text-card" aria-hidden="true"><svg class="size-4"><use href="#i-play"/></svg></span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-center gap-1.5"><svg class="size-[18px] shrink-0 text-green" stroke-width="2.6"><use href="#i-check"/></svg><span class="font-semibold">Watched</span><span class="text-label-secondary">· 50 min</span></span>
+              <span class="mt-0.5 block text-footnote font-medium text-label-secondary">Joe Blitzstein · Harvard Stat 110</span>
+            </span>
+            <button type="button" class="press-text -mr-2 min-h-11 shrink-0 px-2 text-tint-text">Rewatch</button>
+          </div>
+        </div>
+
+        <!-- Lecture quiz, mid-question after a miss -->
+        <h2 class="section-header mt-9 flex items-baseline justify-between gap-3"><span>Lecture quiz · this lecture only</span><span>3 of 3</span></h2>
+        <div class="rounded-2xl bg-card px-4 pt-4 pb-5">
+          <div class="flex gap-1.5" role="img" aria-label="Question 1 right, question 2 right, question 3 missed">
+            <span class="h-1 flex-1 rounded-full bg-green"></span>
+            <span class="h-1 flex-1 rounded-full bg-green"></span>
+            <span class="h-1 flex-1 rounded-full bg-destructive"></span>
+          </div>
+          <p class="mt-4 text-title3 font-semibold">A and B are disjoint, with P(A) and P(B) both above 0. Are they independent?</p>
+        </div>
+        <div class="inset-group mt-4 [--sep-inset:3.25rem]">
+          <button type="button" disabled class="press-row flex w-full min-h-11 items-center gap-3 px-4 py-3.5 text-left">
+            <span class="grid size-7 shrink-0 place-items-center rounded-full bg-destructive text-white"><svg class="size-4" stroke-width="3"><use href="#i-x"/></svg></span>
+            <span class="min-w-0 flex-1">Yes — disjoint events never interact</span>
+            <span class="shrink-0 text-footnote font-medium text-destructive-text">Your answer</span>
+          </button>
+          <button type="button" disabled class="press-row flex w-full min-h-11 items-center gap-3 px-4 py-3.5 text-left text-label-secondary">
+            <span class="grid size-7 shrink-0 place-items-center rounded-full hairline text-footnote font-semibold">B</span>
+            <span class="min-w-0 flex-1">Only if P(A) = P(B)</span>
+          </button>
+          <button type="button" disabled class="press-row flex w-full min-h-11 items-center gap-3 px-4 py-3.5 text-left">
+            <span class="grid size-7 shrink-0 place-items-center rounded-full bg-green text-white"><svg class="size-4" stroke-width="3"><use href="#i-check"/></svg></span>
+            <span class="min-w-0 flex-1">No — P(A ∩ B) = 0 while P(A)·P(B) &gt; 0, so they are strongly dependent</span>
+            <span class="shrink-0 text-footnote font-medium text-green-text">Correct</span>
+          </button>
+          <button type="button" disabled class="press-row flex w-full min-h-11 items-center gap-3 px-4 py-3.5 text-left text-label-secondary">
+            <span class="grid size-7 shrink-0 place-items-center rounded-full hairline text-footnote font-semibold">D</span>
+            <span class="min-w-0 flex-1">It cannot be determined</span>
+          </button>
+        </div>
+        <div class="mt-4 flex gap-3 rounded-2xl bg-card px-4 py-3.5">
+          <svg class="mt-px size-[1.375rem] shrink-0 text-destructive" stroke-width="2.4"><use href="#i-x"/></svg>
+          <p><span class="font-semibold text-destructive-text">Not quite.</span> Knowing A occurred tells you B certainly did not, which is the most informative thing one event can say about another. <span class="font-semibold">This one comes back at the end.</span></p>
+        </div>
+        <div class="mt-4 flex flex-col gap-3 nav:flex-row nav:items-center nav:justify-between nav:gap-6">
+          <p class="px-4 text-footnote font-medium text-label-secondary nav:px-0">Misses come back, reshuffled, until you get them. Your first-try score is kept.</p>
+          <button type="button" class="press-btn h-[3.125rem] shrink-0 rounded-full bg-tint-fill px-7 text-body font-semibold text-white nav:h-11">Next question</button>
+        </div>
+
+        <!-- the same page once the quiz is passed -->
+        <div class="my-12 flex items-center gap-3" role="separator">
+          <span class="flex-1 hairline-t"></span>
+          <span class="text-footnote font-medium text-label-secondary">Once it is passed, the quiz gives way to</span>
+          <span class="flex-1 hairline-t"></span>
+        </div>
+
+        <div class="rounded-2xl bg-card p-4 nav:flex nav:items-center nav:gap-4 nav:p-5">
+          <div class="flex items-center gap-3.5 nav:flex-1">
+            <span class="grid size-11 shrink-0 place-items-center rounded-full bg-green text-white"><svg class="size-6" stroke-width="2.8"><use href="#i-check"/></svg></span>
+            <div class="min-w-0">
+              <p class="text-title3 font-semibold">Lecture passed</p>
+              <p class="mt-0.5 text-footnote font-medium text-label-secondary">3 of 3 · 2 right on the first try · counted</p>
+            </div>
+          </div>
+          <a href="#" class="press-btn mt-4 flex h-[3.125rem] items-center justify-center rounded-full bg-tint-fill px-7 text-body font-semibold text-white nav:mt-0 nav:h-11 nav:shrink-0">Next lecture</a>
+        </div>
+
+        <h2 class="section-header mt-9 flex items-baseline justify-between gap-3"><span>Go deeper</span><span>Optional</span></h2>
+        <div class="inset-group sep-icon">
+          <button type="button" class="press-row flex w-full min-h-11 items-center gap-3 px-4 py-3.5 text-left">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-purple text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-timer"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Recall it cold</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Three minutes, no notes: write what this lecture established and why.</span></span>
+            <span class="shrink-0 text-tint-text">Start 3:00</span>
+          </button>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-teal text-white"><svg class="size-[19px]" stroke-width="2.2"><use href="#i-sigma"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Practice problems</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Stat 110 strategic practice, solutions inside each PDF · 0 of 3 solved unaided</span></span>
+            <svg class="size-[18px] shrink-0 text-tint" stroke-width="2.2"><use href="#i-arrow-ur"/></svg>
+          </a>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-green text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-seal"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Prove mastery</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Four gates</span></span>
+            <span class="shrink-0 text-label-secondary">0 of 4</span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+          </a>
+        </div>
+
+        <h2 class="section-header mt-9 flex items-baseline justify-between gap-3"><span>Summary</span><span>13 steps</span></h2>
+        <div class="inset-group">
+          <p class="px-4 py-4">Conditional probability is P(A | B) = P(A ∩ B) / P(B) — restrict the world to B and renormalise — and conditioning is the soul of statistics, because it is how beliefs get updated by evidence.</p>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3">
+            <span class="flex-1 text-tint-text">Read the 13 steps</span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- rail, 1280px and up -->
+      <aside class="hidden xl:block xl:pt-[4.5rem]">
+        <div class="rounded-2xl bg-card p-5 text-center">
+          <div class="relative mx-auto size-24">
+            <svg viewBox="0 0 64 64" class="size-24 -rotate-90" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke-width="7" class="stroke-green/25"/></svg>
+            <span class="absolute inset-0 grid place-items-center text-title3 font-semibold">0/3</span>
+          </div>
+          <p class="mt-3 font-semibold">Today</p>
+          <p class="mt-0.5 text-footnote font-medium text-label-secondary">A lecture counts once its quiz is passed</p>
+        </div>
+        <h2 class="section-header mt-9">Next in MATH 130</h2>
+        <div class="inset-group">
+          <div class="flex items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-gray text-white"><svg class="size-4" stroke-width="2"><use href="#i-lock"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">5. Conditioning Continued, Law of Total Probability</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Opens when you pass this quiz</span></span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ (c) Problems ============================= -->
+<section data-screen="problems" aria-label="Problems" hidden>
+  <div class="mx-auto max-w-[68rem] px-4 pb-32 nav:px-10 nav:pt-10 nav:pb-16">
+    <div class="flex h-11 items-center justify-end nav:hidden">
+      <button type="button" data-theme-toggle class="press-btn grid size-11 place-items-center rounded-full bg-card text-label shadow-sm dark:shadow-none" aria-label="Switch theme"><svg class="size-[22px]" stroke-width="1.8"><use href="#i-theme"/></svg></button>
+    </div>
+
+    <div class="xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start xl:gap-x-10">
+      <div class="min-w-0">
+        <header class="mb-6">
+          <h1 class="text-large-title font-bold">Problems</h1>
+          <p class="mt-1 text-footnote font-medium text-label-secondary">Only what’s due now. Each item says what it is and why it’s here.</p>
+        </header>
+
+        <h2 class="section-header flex items-baseline justify-between gap-3"><span>Due now</span><span>3</span></h2>
+        <div class="inset-group sep-icon">
+          <a href="#lesson" data-go="lesson" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-tint text-white"><svg class="size-[19px]" stroke-width="2.4"><use href="#i-question"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Lecture quiz · Conditional Probability</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">MATH 130 · watched, not passed · 3 questions · locks the next lecture</span></span>
+            <span class="press-btn grid h-11 shrink-0 place-items-center rounded-full bg-tint-fill px-4 text-subhead font-semibold text-white">Take it</span>
+          </a>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-orange text-white"><svg class="size-[18px]" stroke-width="2"><use href="#i-pencil"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Problem set · MATH 130, SP 1 — naive definition, counting</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Pen and paper · unlocked: you passed Story Proofs, Axioms of Probability</span></span>
+            <span class="press-btn grid h-11 shrink-0 place-items-center rounded-full bg-fill px-4 text-subhead font-semibold">Open</span>
+          </a>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-indigo text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-code"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Lab · Micrograd from a blank file</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Autograd engine + MLP that trains on a toy dataset · Phase 1 · ~8 h</span></span>
+            <span class="press-btn grid h-11 shrink-0 place-items-center rounded-full bg-fill px-4 text-subhead font-semibold">Start</span>
+          </a>
+        </div>
+
+        <h2 class="section-header mt-9">How this works</h2>
+        <div class="inset-group sep-icon">
+          <div class="flex items-start gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-tint text-white"><svg class="size-[19px]" stroke-width="2.4"><use href="#i-question"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Lecture quiz</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">After every lecture. Pass it to count the lecture and open the next one.</span></span>
+          </div>
+          <div class="flex items-start gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-orange text-white"><svg class="size-[18px]" stroke-width="2"><use href="#i-pencil"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Problem set</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions.</span></span>
+          </div>
+          <div class="flex items-start gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-indigo text-white"><svg class="size-[19px]" stroke-width="2"><use href="#i-code"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Lab</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">A build project, one or two per phase. Done when it’s on GitHub and meets its checklist.</span></span>
+          </div>
+        </div>
+
+        <h2 class="section-header mt-9 flex items-baseline justify-between gap-3"><span>Coming up</span><span>Unlocks as you go</span></h2>
+        <div class="inset-group sep-icon">
+          <div class="flex items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-fill text-label-secondary"><svg class="size-[18px]" stroke-width="2"><use href="#i-pencil"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Problem set · MATH 130, SP 2 — conditional probability, Bayes</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">After lecture 5 · Conditioning Continued, Law of Total Probability</span></span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2"><use href="#i-lock"/></svg>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-fill text-label-secondary"><svg class="size-[19px]" stroke-width="2"><use href="#i-code"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Lab · One technical deep-dive post</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">After lecture 9 · Makemore 4 — becoming a backprop ninja · Phase 1</span></span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2"><use href="#i-lock"/></svg>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3.5">
+            <span class="grid size-icon-tile shrink-0 place-items-center rounded-icon bg-fill text-label-secondary"><svg class="size-[19px]" stroke-width="2"><use href="#i-code"/></svg></span>
+            <span class="min-w-0 flex-1"><span class="block">Lab · GPT on your own Arabic corpus</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">After lecture 11 · Let’s build GPT — from scratch, in code · Phase 1</span></span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2"><use href="#i-lock"/></svg>
+          </div>
+        </div>
+
+        <h2 class="section-header mt-9 flex items-baseline justify-between gap-3"><span>Everything</span><span>2 of 54 done</span></h2>
+        <div class="inset-group">
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="min-w-0 flex-1"><span class="block">This phase’s labs</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">Phase 1 · Foundations</span></span>
+            <span class="shrink-0 text-label-secondary">0 of 6</span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+          </a>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="min-w-0 flex-1">Labs in the other phases</span>
+            <span class="shrink-0 text-label-secondary">2 of 14</span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+          </a>
+          <a href="#" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="min-w-0 flex-1">Problem sets — pen and paper</span>
+            <span class="shrink-0 text-label-secondary">0 of 34</span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <aside class="hidden xl:block xl:pt-[4.25rem]">
+        <div class="rounded-2xl bg-card p-5 text-center">
+          <div class="relative mx-auto size-24">
+            <svg viewBox="0 0 64 64" class="size-24 -rotate-90" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke-width="7" class="stroke-green/25"/></svg>
+            <span class="absolute inset-0 grid place-items-center text-title3 font-semibold">0/3</span>
+          </div>
+          <p class="mt-3 font-semibold">Today</p>
+          <p class="mt-0.5 flex items-center justify-center gap-1 text-footnote font-semibold text-orange-text"><svg class="size-4 text-orange"><use href="#i-flame"/></svg>3-day streak</p>
+        </div>
+        <h2 class="section-header mt-9">Next up</h2>
+        <div class="inset-group">
+          <a href="#lesson" data-go="lesson" class="press-row flex min-h-11 items-center gap-3 px-4 py-3.5">
+            <span class="min-w-0 flex-1"><span class="block">Quiz: Conditional Probability</span><span class="mt-0.5 block text-footnote font-medium text-label-secondary">MATH 130 · 3 questions</span></span>
+            <svg class="size-4 shrink-0 text-label-tertiary" stroke-width="2.6"><use href="#i-chev-r"/></svg>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ======================= Tab bar (below 860px) ======================== -->
+<nav class="pointer-events-none fixed inset-x-0 bottom-0 z-20 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] nav:hidden" aria-label="Tabs">
+  <div class="pointer-events-auto mx-auto flex h-16 max-w-md items-stretch rounded-full bg-bar px-1.5 shadow-[0_8px_28px_rgb(0_0_0/0.14)] backdrop-blur-xl backdrop-saturate-150 hairline dark:shadow-none">
+    <a href="#dashboard" data-go="dashboard" class="tab press-text flex min-w-11 flex-1 flex-col items-center justify-center gap-0.5"><svg class="size-6" stroke-width="1.8"><use href="#i-house"/></svg><span class="text-tab font-medium">Home</span></a>
+    <a href="#lesson" data-go="lesson" class="tab press-text flex min-w-11 flex-1 flex-col items-center justify-center gap-0.5"><svg class="size-6" stroke-width="1.8"><use href="#i-book"/></svg><span class="text-tab font-medium">Courses</span></a>
+    <a href="#" class="tab press-text flex min-w-11 flex-1 flex-col items-center justify-center gap-0.5"><svg class="size-6" stroke-width="1.8"><use href="#i-doc"/></svg><span class="text-tab font-medium">Exams</span></a>
+    <a href="#problems" data-go="problems" class="tab press-text flex min-w-11 flex-1 flex-col items-center justify-center gap-0.5"><svg class="size-6" stroke-width="1.8"><use href="#i-checklist"/></svg><span class="text-tab font-medium">Problems</span></a>
+    <a href="#" class="tab press-text flex min-w-11 flex-1 flex-col items-center justify-center gap-0.5"><svg class="size-6" stroke-width="1.8"><use href="#i-review"/></svg><span class="text-tab font-medium">Review</span></a>
+  </div>
+</nav>
+
+<!-- Classes the script below toggles, listed so the build keeps them:
+     bg-tint-fill text-white font-semibold text-tint text-tint-text text-label-secondary bg-card shadow-sm -->
+<script>
+  // Navigation between the three screens, the selected states, and the theme.
+  (function () {
+    var root = document.documentElement;
+    var SCREENS = ["dashboard", "lesson", "problems"];
+    function show(name) {
+      if (SCREENS.indexOf(name) < 0) name = "dashboard";
+      document.querySelectorAll("[data-screen]").forEach(function (s) { s.hidden = s.getAttribute("data-screen") !== name; });
+      // Selected sidebar row: white on tint-fill (4.70:1), as iPadOS draws it.
+      document.querySelectorAll("a.side").forEach(function (a) {
+        var on = a.getAttribute("data-go") === name, ic = a.querySelector("svg");
+        a.classList.toggle("bg-tint-fill", on);
+        a.classList.toggle("text-white", on);
+        a.classList.toggle("font-semibold", on);
+        ic.classList.toggle("text-white", on);
+        ic.classList.toggle("text-tint", !on);
+        if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+      });
+      // Selected tab: tint; the rest secondary label.
+      document.querySelectorAll("a.tab").forEach(function (a) {
+        var on = a.getAttribute("data-go") === name;
+        a.classList.toggle("text-tint-text", on);
+        a.classList.toggle("text-label-secondary", !on);
+      });
+      window.scrollTo(0, 0);
+    }
+    function theme(t) {
+      root.setAttribute("data-theme", t);
+      try { localStorage.setItem("bf-specimen-theme", t); } catch (e) {}
+      document.querySelectorAll("[data-theme-set]").forEach(function (b) {
+        var on = b.getAttribute("data-theme-set") === t;
+        b.classList.toggle("bg-card", on);
+        b.classList.toggle("shadow-sm", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest("a[href]");
+      if (a && a.getAttribute("href") === "#") { e.preventDefault(); return; }
+      var set = e.target.closest("[data-theme-set]");
+      if (set) theme(set.getAttribute("data-theme-set"));
+      if (e.target.closest("[data-theme-toggle]")) theme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    });
+    window.addEventListener("hashchange", function () { show(location.hash.slice(1)); });
+    // iOS Safari fires :active on touch only once the page listens for touchstart.
+    document.addEventListener("touchstart", function () {}, { passive: true });
+    show(new URLSearchParams(location.search).get("screen") || location.hash.slice(1));
+    theme(root.getAttribute("data-theme"));
+  })();
+</script>
+</body>
+</html>

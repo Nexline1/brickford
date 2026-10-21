@@ -1132,6 +1132,12 @@
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
   const QUIZ_GATE_FROM = "2026-10-16";                 // the ship date
+  // T-052: the owner's 90-day monk mode (22 Oct 2026 to 19 Jan 2027) lives on its
+  // own dashboard, a private claude.ai page that reads the calendar and the
+  // inbox, which this app cannot. The dashboard row links there. The day counts
+  // calendar days, Saturdays included: it is a life plan, not the study plan.
+  const MONK = Object.freeze({ from: "2026-10-22", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
   function lessonQuiz(k) {
     const sm = (D.SUMMARIES || {})[k];
     return sm && sm.checks && sm.checks.length ? sm.checks : null;
@@ -2161,6 +2167,16 @@
         : "") +
       '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + " \u25b8</a>" +
       "</div>" +
+
+      // ---- T-052: monk mode, one tap away while the 90 days run ----
+      (function () {
+        const n = monkDay(todayISO());
+        if (!n) return "";
+        return '<div class="ghead">Monk Mode<span class="gh-meta">Day ' + n + " of " + MONK.days + "</span></div>" +
+          '<div class="glist"><a class="grow monk-row" href="' + MONK.url + '" target="_blank" rel="noopener">' +
+          '<span class="g-lead">\u25d0</span><span class="g-main"><span class="g-t">Open today\u2019s dashboard</span>' +
+          '<span class="g-s">prayers, habits, tomorrow\u2019s plan</span></span></a></div>';
+      })() +
 
       // ---- Anything wrong, in one place ----
       //
@@ -6574,7 +6590,7 @@
     // merge, handed a remote file's shape.
     gatePlan, setGate, mergeState,
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
-    QUIZ_GATE_FROM, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
+    QUIZ_GATE_FROM, monkDay, MONK, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
     lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

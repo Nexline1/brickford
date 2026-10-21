@@ -662,6 +662,30 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // T-052: the monk-mode row. Day 1 is 22 Oct 2026 and day 90 is 19 Jan 2027,
+  // counted in calendar days (a Saturday counts); the dashboard shows the row
+  // only inside those 90 days, linking to the private monk-mode page.
+  for (const [now, want] of [["2026-10-21", null], ["2026-10-22", 1], ["2026-10-24", 3], ["2027-01-19", 90], ["2027-01-20", null]]) {
+    const probe = await scenario(browser, now, null);
+    await probe.page.evaluate(() => { location.hash = "#/"; });
+    await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
+    const r = await probe.page.evaluate(() => {
+      const T = window.__brickfordTest;
+      const a = document.querySelector("#view a.monk-row");
+      return { url: T.MONK.url, row: !!a,
+        href: a ? a.getAttribute("href") : null, blank: a ? a.target === "_blank" && /noopener/.test(a.rel) : null,
+        head: a ? a.closest(".glist").previousElementSibling.textContent : null,
+        h: a ? Math.round(a.getBoundingClientRect().height) : null };
+    });
+    const day = await probe.page.evaluate(d => window.__brickfordTest.monkDay(d), now);
+    const ok = day === want && (want === null
+      ? !r.row
+      : r.row && r.href === r.url && /^https:\/\/claude\.ai\/artifact\//.test(r.url) && r.blank && r.head === "Monk ModeDay " + want + " of 90" && r.h >= 44);
+    check("monk mode on " + now + ": " + (want === null ? "no row" : "day " + want + " of 90, a 44px row opening the page in a new tab"), ok, JSON.stringify({ day, ...r }));
+    check("no page errors (monk mode " + now + ")", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

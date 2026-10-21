@@ -262,6 +262,23 @@ Tactical rules that serve these:
 - **Design interaction and visuals together.** "You shouldn't be able to tell where one ends and the other begins." Motion is not a layer added after the pixels.
 - **Test with real people in real context**, and review motion with fresh eyes — play it in slow motion / frame-by-frame to catch what's invisible at full speed.
 
+## 18. iOS system tokens — the numbers
+
+The sections above are principles. For the concrete values that make a web page read as native iOS, read `references/ios-system-tokens.md` before writing any CSS. It covers:
+- the font stack (SF first, Inter as the fallback, with Inter's tracking curve);
+- the iOS text styles;
+- system colours for light and dark;
+- the accessible substitutes for the system greys and blue, which fail 4.5:1 as small text;
+- the anatomy of an inset grouped list;
+- press feedback, where rows highlight and buttons or cards scale, and the release is slower than the press;
+- hairlines;
+- how to translate a Tailwind-style spec.
+
+The three mistakes it prevents most often:
+- **One tracking value for every size.**
+- **`#8E8E93` or `#007AFF` as small text.** Both fail contrast.
+- **`scale()` on full-width list rows.**
+
 ## Quick Reference
 
 | Need | Technique | Concrete value |
@@ -279,4 +296,6 @@ Tactical rules that serve these:
 | Boundary | Rubber-band, don't hard-stop | progressive resistance |
 | Translucent chrome | `backdrop-filter` layer | content scrolls under |
 | Type tracking | Size-specific, never fixed | tighten large text (`-0.02em`), body near `0` |
+| Press feedback | Rows highlight, buttons/cards scale | press ~0–100ms, release ~250–300ms |
+| Small text colour | Accessible shade, not the raw system grey/blue | `#6E6E73`, `#0066CC` on light |
 | Reduced motion | Cross-fade, not slide/spring | `@media (prefers-reduced-motion)` |

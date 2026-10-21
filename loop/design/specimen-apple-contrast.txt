@@ -1,0 +1,44 @@
+Brickford iOS specimen: text contrast, measured on computed styles (WCAG 2.x relative luminance)
+Screens: dashboard, lesson, problems | widths: 390, 1440 | themes: light, dark
+Text elements measured: 692 | distinct text/background pairs: 25 | threshold 4.5:1 for all text
+Lowest: 4.54:1 (#6E6E73 on #F2F2F7) | failures: 0
+
+Every pair, lowest first (ratio, colours, count, size px/weight, where, lowest example):
+  4.54:1  #6E6E73 on #F2F2F7   x54   size/weight 13/500, 13/400                     1440 light, 390 light  e.g. “Wednesday 21 October · Day 15 · Week 3”
+  4.66:1  #0A84FF on #1C1C1E   x10   size/weight 11/600, 12/600, 17/400             1440 dark, 390 dark  e.g. “W”
+  4.70:1  #FFFFFF on #0071E3   x22   size/weight 17/600, 15/600                     1440 dark, 1440 light, 390 dark, 390 light  e.g. “Open”
+  4.80:1  #6E6E73 on #F9F9F9   x12   size/weight 10/500                             390 light  e.g. “Courses”
+  4.99:1  #0066CC on #F2F2F7   x2    size/weight 17/400                             1440 light, 390 light  e.g. “MATH 130”
+  4.99:1  #FF453A on #1C1C1E   x4    size/weight 13/500, 17/600                     1440 dark, 390 dark  e.g. “Your answer”
+  5.02:1  #0A84FF on #151516   x3    size/weight 10/500                             390 dark  e.g. “Home”
+  5.07:1  #6E6E73 on #FFFFFF   x103  size/weight 13/500, 11/500, 17/400, 13/600, 13/400 1440 light, 390 light  e.g. “MATH 130 · Lecture 4 · 50 min”
+  5.22:1  #8E8E93 on #1C1C1E   x103  size/weight 13/500, 11/500, 17/400, 13/600, 13/400 1440 dark, 390 dark  e.g. “MATH 130 · Lecture 4 · 50 min”
+  5.27:1  #0066CC on #F9F9F9   x3    size/weight 10/500                             390 light  e.g. “Home”
+  5.28:1  #C93400 on #FFFFFF   x3    size/weight 13/600                             1440 light, 390 light  e.g. “3-day streak”
+  5.38:1  #D70015 on #FFFFFF   x4    size/weight 13/500, 17/600                     1440 light, 390 light  e.g. “Your answer”
+  5.39:1  #1F7A35 on #FFFFFF   x2    size/weight 13/500                             1440 light, 390 light  e.g. “Correct”
+  5.57:1  #0066CC on #FFFFFF   x10   size/weight 11/600, 12/600, 17/400             1440 light, 390 light  e.g. “W”
+  5.61:1  #8E8E93 on #151516   x12   size/weight 10/500                             390 dark  e.g. “Courses”
+  5.76:1  #0A84FF on #000000   x2    size/weight 17/400                             1440 dark, 390 dark  e.g. “MATH 130”
+  6.44:1  #8E8E93 on #000000   x54   size/weight 13/500, 13/400                     1440 dark, 390 dark  e.g. “Wednesday 21 October · Day 15 · Week 3”
+  8.28:1  #FF9F0A on #1C1C1E   x3    size/weight 13/600                             1440 dark, 390 dark  e.g. “3-day streak”
+  8.42:1  #30D158 on #1C1C1E   x2    size/weight 13/500                             1440 dark, 390 dark  e.g. “Correct”
+ 12.80:1  #F5F5F7 on #2C2C2E   x13   size/weight 12/500, 15/600, 13/600             1440 dark, 390 dark  e.g. “22”
+ 13.41:1  #1D1D1F on #E5E5EA   x7    size/weight 15/600, 13/600                     1440 light, 390 light  e.g. “Open”
+ 15.08:1  #1D1D1F on #F2F2F7   x12   size/weight 34/700, 12/500                     1440 light, 390 light  e.g. “Dashboard”
+ 15.63:1  #F5F5F7 on #1C1C1E   x123  size/weight 22/700, 17/400, 15/600, 17/600, 20/600, 13/600 1440 dark, 390 dark  e.g. “Watch: Conditional Probability, then its quiz”
+ 16.83:1  #1D1D1F on #FFFFFF   x123  size/weight 22/700, 17/400, 15/600, 17/600, 20/600, 13/600 1440 light, 390 light  e.g. “Watch: Conditional Probability, then its quiz”
+ 19.29:1  #F5F5F7 on #000000   x6    size/weight 34/700                             1440 dark, 390 dark  e.g. “Dashboard”
+
+Note: the tab bar is a 94%-opaque material over blurred content; it is measured over the canvas colour.
+
+Informational, not gated: press-row text against the pressed highlight (systemGray4), on screen ~300ms:
+  3.11:1  #0A84FF on #3A3A3C   x4    size/weight 17/400                             1440 dark, 390 dark  e.g. “Start 3:00”
+  3.33:1  #6E6E73 on #D1D1D6   x43   size/weight 13/500, 17/400                     1440 light, 390 light  e.g. “MATH 130 · Theory · 50 min”
+  3.48:1  #8E8E93 on #3A3A3C   x43   size/weight 13/500, 17/400                     1440 dark, 390 dark  e.g. “MATH 130 · Theory · 50 min”
+  3.66:1  #0066CC on #D1D1D6   x4    size/weight 17/400                             1440 light, 390 light  e.g. “Start 3:00”
+  4.70:1  #FFFFFF on #0071E3   x4    size/weight 15/600                             1440 dark, 1440 light, 390 dark, 390 light  e.g. “Take it”
+ 10.42:1  #F5F5F7 on #3A3A3C   x76   size/weight 17/400                             1440 dark, 390 dark  e.g. “Conditioning Continued, Law of Total Probability”
+ 11.06:1  #1D1D1F on #D1D1D6   x76   size/weight 17/400                             1440 light, 390 light  e.g. “Conditioning Continued, Law of Total Probability”
+ 12.80:1  #F5F5F7 on #2C2C2E   x4    size/weight 15/600                             1440 dark, 390 dark  e.g. “Open”
+ 13.41:1  #1D1D1F on #E5E5EA   x4    size/weight 15/600                             1440 light, 390 light  e.g. “Open”

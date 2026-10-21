@@ -504,7 +504,7 @@
 </nav>
 
 <!-- Classes the script below toggles, listed so the build keeps them:
-     bg-tint-fill text-white font-semibold text-tint text-tint-text text-label-secondary bg-card shadow-sm -->
+     bg-tint-fill text-white font-semibold text-tint text-tint-text text-label-secondary bg-card shadow-sm press-row press-text -->
 <script>
   // Navigation between the three screens, the selected states, and the theme.
   (function () {
@@ -519,6 +519,9 @@
         a.classList.toggle("bg-tint-fill", on);
         a.classList.toggle("text-white", on);
         a.classList.toggle("font-semibold", on);
+        // The selected row dims when pressed: a grey highlight under white text would be 1.5:1.
+        a.classList.toggle("press-row", !on);
+        a.classList.toggle("press-text", on);
         ic.classList.toggle("text-white", on);
         ic.classList.toggle("text-tint", !on);
         if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");

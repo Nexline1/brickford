@@ -1690,7 +1690,11 @@ export async function pipeline(task, model, opts) {
   }));
   const asked = page => page.evaluate(() => { const a = document.querySelector("#view .pr-ask");
     return a ? { text: ((a.querySelector(".pr-ask-t") || a).textContent || "").trim().replace(/\s+/g, " "), buttons: [...a.querySelectorAll("button")].map(b => b.textContent.trim()) } : null; });
-  const txNow = page => page.evaluate(() => ({ workers: window.__workers.slice(), lines: window.__lines.slice(), t: performance.now(),
+  // `t` is on the long-task entries' own timeline: document.timeline.currentTime.
+  // Not performance.now(), which the fixed clock fakes onto another timeline —
+  // measured: a 400ms main-thread task "started" 190ms before a performance.now()
+  // read taken ahead of the press that caused it, so plant (d) passed this check.
+  const txNow = page => page.evaluate(() => ({ workers: window.__workers.slice(), lines: window.__lines.slice(), t: document.timeline.currentTime,
     setting: (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).transcribe }));
   // A playable clip, written straight into IndexedDB the way the recorder
   // keeps one: a 2.0s 440 Hz tone, 16-bit PCM WAV at 48 kHz (so the page has

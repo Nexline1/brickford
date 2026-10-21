@@ -37,7 +37,7 @@ for key in which:
             r = subprocess.run(["node", g], cwd=ROOT, capture_output=True, text=True)
             fails = [l for l in r.stdout.splitlines() if "FAIL" in l]
             print("(%s) %s -> %s exit %d" % (key, name, g, r.returncode))
-            for l in fails[:8]: print("      " + l.strip()[:240])
+            for l in fails[:30]: print("      " + l.strip()[:240])
             results.append((key, g, r.returncode))
     finally:
         open(fp, "w").write(src)

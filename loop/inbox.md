@@ -73,3 +73,9 @@ The owner sent a full spec: Inter as the SF stand-in, the iOS type scale, iOS sy
 - T-045 is paused at 105002d; its r1 fixes resume under the new system.
 - The apple-design skill gained `references/ios-system-tokens.md` (aad8bd3).
 - **2026-10-22, the T-051 mockup:** approved ("rebuild the whole app"); 13px regular headers; floating capsule tab bar; the press dip is fine. Phone feedback: too much text, titles too long, the layout isn't user-friendly, "monitor that to make it better". Answered by the density rules and verify-density in the T-051 spec.
+- **2026-10-23, the owner is Shia:**
+  - Prayers: Ja'fari (Tehran) in 3 combined blocks (Fajr; Dhuhr & Asr; Maghrib & Isha); no Jumu'ah.
+  - Gym once a day, right after Fajr; Brickford 3 h straight after the gym (fixed).
+  - German 1.5 h spread through the day: Easy German podcast on Spotify 45 (during the workout), speaking 10, writing 10, reading 25.
+  - 10 h of work a day.
+  - The 22 Oct day plan is the model. Calendar reworked to match (log: scratchpad/monk/created.txt).

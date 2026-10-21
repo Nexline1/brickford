@@ -213,12 +213,12 @@
   /* Faculty identity — now the only warmth on the page, and the thing that lets
      a subject be recognised before its name is read. Each is darkened exactly as
      far as 4.5:1 against the band colour demands, hue held. */
-  --fac-math: #4b49c9;
-  --fac-ai: #c93400;
-  --fac-sys: #0b7480;
-  --fac-phys: #d70015;
-  --fac-res: #8944ab;
-  --fac-speech: #d30f45;
+  --fac-math: #4947c3;
+  --fac-ai: #a22a00;
+  --fac-sys: #09616b;
+  --fac-phys: #a90010;
+  --fac-res: #793c97;
+  --fac-speech: #aa0c38;
 }
 
 [data-theme="dark"] {
@@ -232,7 +232,7 @@
      is comfortable for hours. Restored exactly, with three exceptions so the
      sidebar is the darkest thing on screen: --panel is true black (it is the
      sidebar now), and the page is lifted just off it (--bg, --bg-2). */
-  --fac-math: #9b99ff; --fac-ai: #ff9f0a; --fac-sys: #40c8e0; --fac-phys: #ff453a; --fac-res: #da8fff; --fac-speech: #ff6482;
+  --fac-math: #9b99ff; --fac-ai: #ff9f0a; --fac-sys: #40c8e0; --fac-phys: #ff766e; --fac-res: #da8fff; --fac-speech: #ff7691;
   --cover-k: 55%;          /* a typeset cover is --fac this far toward black (T-016) */
   --bg: #000000;
   --bg-2: #000000;

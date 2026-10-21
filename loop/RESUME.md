@@ -54,3 +54,18 @@ Updated 2026-10-10. Everything below is pushed to GitHub. A fresh session can co
 - 2026-10-16: T-045 building in /home/user/bf-T-045 (branch loop/T-045-problems-due-now). If cut off: resume builder, then CHECK by script (sed the worktree path in scratchpad/t043-check/run.sh), fresh reviewer r1, merge.
 - 2026-10-21: COURSE CHANGE. Owner wants a native-Apple redesign (inbox 2026-10-21). T-045 is paused at 105002d (/home/user/bf-T-045); its r1 fixes 1-3 plus the owner's rag-system decision (phase 3, after ai300.3.3) still have to be done, after the redesign. T-051 mockup is building in /home/user/bf-T-051 (branch loop/T-051-apple-system). When it reports: show the owner the 12 PNGs and the tailwind.config.js, and wait for approval before the full rebuild.
 - 2026-10-21: In parallel: T-045 fixes (/home/user/bf-T-045), T-046 build (/home/user/bf-T-046), T-051 mockup (/home/user/bf-T-051). Merge order: T-045, T-046, then T-047 build, then T-051 full rebuild after owner approves the mockup.
+
+## Checkpoint 2026-10-21 (owner may hit the 5-hour limit)
+Everything committed is on GitHub. A background script pushes all branches every 3 minutes, and the builders push after every commit.
+
+| Item | Branch | Last pushed | State |
+|---|---|---|---|
+| T-045 | loop/T-045-problems-due-now | cfee64f | r1 findings 1–4 in progress, finding 4 (rag-system to phase 3) done. Next: gates, then r2 to the same reviewer, then merge. |
+| T-046 | loop/T-046-story-transcription | a525359 | Building. The model revision is a constant that fails verify-content until verified; huggingface.co is blocked, so the owner may need to allow it. |
+| T-051 | loop/T-051-apple-system | cfc6dbd | Mockup: Tailwind 4.3.3 is set up; the specimen and 12 PNGs are in progress. Show them to the owner for approval before the full rebuild. |
+
+T-047 starts after T-046 merges.
+
+To resume after a cut-off:
+1. Run `git fetch` and check each worktree's `git log`.
+2. SendMessage the same agents if this session survives. Otherwise start a fresh builder per item with its spec and its progress.md.

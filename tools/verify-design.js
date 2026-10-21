@@ -360,7 +360,7 @@ const PRESS_ROUTES = ["/", "/course/math110"];
 // elevated dark fill (verify-contrast, T-051a).
 const BRIEF = {
   light: { "--bg": "#f2f2f7", "--bg-2": "#f2f2f7", "--surface": "#ffffff", "--surface-2": "#f2f2f7", "--surface-float": "#ffffff", "--line": "#c6c6c8", "--line-strong": "#aeaeb2", "--ink": "#1d1d1f", "--ink-2": "#6e6e73", "--ink-3": "#6e6e73", "--accent": "#0066cc", "--accent-fill": "#0071e3", "--accent-soft": "#e0eefc", "--gold": "#c93400", "--accent-2": "#2a68c0", "--good": "#1f7a35", "--bad": "#d70015", "--urgent": "#c93400", "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff", "--fac-math": "#4947c3", "--fac-ai": "#a22a00", "--fac-sys": "#09616b", "--fac-phys": "#a90010", "--fac-res": "#793c97", "--fac-speech": "#aa0c38", "--panel": "#ffffff", "--panel-ink": "#1d1d1f", "--panel-accent": "#0066cc" },
-  dark: { "--bg": "#000000", "--bg-2": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#2c2c2e", "--line": "#38383a", "--line-strong": "#48484a", "--ink": "#f5f5f7", "--ink-2": "#98989d", "--ink-3": "#98989d", "--accent": "#409cff", "--accent-fill": "#0071e3", "--accent-soft": "#0b1a2b", "--gold": "#ff9f0a", "--accent-2": "#64a8ff", "--good": "#30d158", "--bad": "#ff453a", "--urgent": "#ff9f0a", "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff", "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff766e", "--fac-res": "#da8fff", "--fac-speech": "#ff7691", "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff" },
+  dark: { "--bg": "#000000", "--bg-2": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#2c2c2e", "--line": "#38383a", "--line-strong": "#48484a", "--ink": "#f5f5f7", "--ink-2": "#98989d", "--ink-3": "#98989d", "--accent": "#409cff", "--accent-fill": "#0071e3", "--accent-soft": "#0b1a2b", "--gold": "#ff9f0a", "--accent-2": "#64a8ff", "--good": "#30d158", "--bad": "#ff6961", "--urgent": "#ff9f0a", "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff", "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff766e", "--fac-res": "#da8fff", "--fac-speech": "#ff7691", "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff" },
 };
 // Each theme's --panel: the sidebar's fill (T-025) and what the Home Screen
 // status bar is painted from (meta theme-color).
@@ -2682,7 +2682,9 @@ function t28SeedClips(list) {
       // T-023 set the capsule's glass to blur(22px) saturate(170%); it was the
       // nav bar's blur(20px) saturate(180%).
       check(at + ": a material — --surface at 78%, blur(22px) saturate(170%), not the --panel slab",
-        tabBlurOk(t.bf) && material(t.bg, t.surface, 0.78) && !__same(t.bg, t.panel, 0),
+        // T-051: in light --panel is the card colour, white like --surface, so
+        // "not the slab" is read as "not a SOLID --panel" (the alpha says it).
+        tabBlurOk(t.bf) && material(t.bg, t.surface, 0.78) && !(__same(t.bg, t.panel, 0) && t.bg[3] === 255),
         "backdrop-filter " + t.bf + "; background " + hx(t.bg) + " (--surface " + hx(t.surface) + ", --panel " + hx(t.panel) + ")");
       // T-023: a 1px --line edge (it was a 0.5px top edge).
       check(at + ": a 1px --line edge all round", t.edges.every(e => e.w === 1 && __same(e.col, t.line)),

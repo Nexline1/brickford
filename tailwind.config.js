@@ -44,7 +44,7 @@ const palette = {
   "tint-fill":        ["#0071E3", "#0071E3"],   // filled-button background under white text (4.70:1)
   // Destructive (iOS red)
   destructive:        ["#FF3B30", "#FF453A"],   // systemRed: icons, fills
-  "destructive-text": ["#D70015", "#FF453A"],   // red words (light: systemRed, increased contrast)
+  "destructive-text": ["#D70015", "#FF6961"],   // red words (light and dark: systemRed, increased contrast; #FF453A is 4.09:1 on #2C2C2E)
   // System greens and oranges
   green:              ["#34C759", "#30D158"],   // systemGreen: icons, fills, rings
   "green-text":       ["#1F7A35", "#30D158"],   // green words (light: darker than iOS #248A3D, which is 4.40:1 on white)

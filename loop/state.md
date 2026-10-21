@@ -90,3 +90,4 @@
 - 2026-10-16: T-045 built 105002d (builder opus). CHECK (script) all green: content 40288, flows 300, design 2272, clip 797. Review r1 (reviewer opus, fresh), focus on removed T-026b assertions.
 - 2026-10-21: Owner course-correction to a native Apple design (see inbox). T-045 paused (builder stopped). T-051 mockup phase next. apple-design skill improved (aad8bd3).
 - 2026-10-21: T-051 mockup agent (general-purpose, opus) started in /home/user/bf-T-051: Tailwind 4.3.3 + config + self-hosted Inter + specimen-apple (3 screens x 390/1440 x light/dark).
+- 2026-10-21: Owner: run earlier tasks in parallel. T-045 r1 fixes resumed (builder opus, resumed). T-046 builder (general-purpose opus, for WebFetch) in /home/user/bf-T-046; huggingface.co and jsdelivr are blocked from the shell. T-047 waits for T-046 (same Practice screen, needs its transcript). T-051 mockup running.

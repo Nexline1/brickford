@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# T-045 plants (a)-(c): put each bug back, run the gate that must catch it,
+# T-045 plants (a)-(d): put each bug back, run the gate that must catch it,
 # record its exit code, restore the file. Run from the worktree root:
-#   NODE_PATH=/opt/node22/lib/node_modules python3 loop/specs/T-045-problems-due-now/verification/plants.py [a b c]
+#   NODE_PATH=/opt/node22/lib/node_modules python3 loop/specs/T-045-problems-due-now/verification/plants.py [a b c d]
 import subprocess, sys, os
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
 PLANTS = {
@@ -14,6 +14,9 @@ PLANTS = {
   "c": ("an after names a lesson that does not exist", "platform/data/workshop.js",
         'id: "1806-ps3", after: "math110.1.5",',
         'id: "1806-ps3", after: "math110.1.99",', ["tools/verify-content.js"]),
+  "d": ("the Daily review row is never shown (review r1, finding 2)", "platform/js/app.js",
+        "    const review = missPool().filter(p => questionUnlocked(p.bankId, D.QUIZZES[p.bankId].questions[p.idx])).length;",
+        "    const review = 0;", ["tools/verify-design.js"]),
 }
 which = sys.argv[1:] or sorted(PLANTS)
 results = []

@@ -1712,7 +1712,7 @@ function t45Problems() {
     const bank = (D.QUIZZES || {})[b], q = bank && bank.questions[i]; if (!q) return false;
     if (q.after) return !!(lessons[q.after] || {}).done;
     const c = D.COURSES.find(x => x.quiz === b); return !!c && flat.some(f => f.cid === c.id && (lessons[f.k] || {}).done); }));
-  if (misses) want.push({ due: "review", id: undefined, title: "Daily review", tag: null, why: "questions you missed, served back until they stick", go: "Start", href: "#/drill" });
+  if (misses) want.push({ due: "review", id: "drill", title: "Daily review", tag: null, why: "questions you missed, served back until they stick", go: "Start", href: "#/drill" });
   const z = window.__dz, fill = z.tok("--btn-bg");
   const txt = (n, sel) => { const x = sel ? n.querySelector(sel) : n; return x ? x.textContent.replace(/\s+/g, " ").trim() : null; };
   const rows = [...document.querySelectorAll("#view #pdDue [data-due]")].map(n => {
@@ -4863,24 +4863,42 @@ function t28SeedClips(list) {
     { name: "one lab due (and a phase-2 lab's lecture cleared)", one: "lab:micrograd-blind",
       lessons: { "ai200.1.0": T45_L("2026-10-07", 8), "ai200.1.8": T45_L("2026-10-19", 8) } },
     { name: "nothing due", one: null, lessons: {} },
+    // Review r1, finding 2: the Daily review row, which no state drew. A
+    // missed Linear Algebra question (index 8, `after` math110.0.1) whose
+    // lecture is watched and passed, beside the pset of "one pset unlocked":
+    // the review row is last, goes to #/drill, and adds exactly one to that
+    // state's count and to its dashboard line.
+    { name: "the daily review beside one pset", one: "pset:1806-ps1,review:drill", twin: "one pset unlocked",
+      lessons: { "math110.1.1": T45_L("2026-10-19", 2), "math110.0.1": T45_L("2026-10-19", 2) }, misses: { "linear-algebra": [8] } },
   ];
+  const t45Seen = {};
   for (const theme of ["dark", "light"]) {
     for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
       for (const st of T45_STATES) {
         const at = o.w + "px " + theme + ", " + st.name;
         console.log("\nT-045 " + at);
-        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, empty: true, patch: { lessons: st.lessons } }, o));
+        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, empty: true, now: st.now,
+          patch: Object.assign({ lessons: st.lessons }, st.misses ? { quizMisses: st.misses } : {}) }, o));
         const w0 = await writesNow(page);
         await go(page, "/workshop");
         const m = await t45Check(page, at, o, c45);
         const got = m.rows.map(r => r.due + ":" + r.id);
-        c45(at + ": the fixture is what it names — " + (st.one ? "exactly one row, " + st.one : "no row"),
+        c45(at + ": the fixture is what it names — " + (st.one ? "exactly the row" + (st.one.includes(",") ? "s " : " ") + st.one : "no row"),
           st.one ? got.join() === st.one : got.length === 0, got.join(", ") || "no rows");
         await go(page, "/");
         const line = await page.evaluate(() => { const a = document.querySelector(".card.one.lead a.one-due");
           return a ? { text: a.textContent.trim(), href: a.getAttribute("href"), h: a.getBoundingClientRect().height, vis: a.checkVisibility() } : null; });
         c45(at + ": the Today card " + (m.want.length ? "reads \"" + m.want.length + " due on Problems\", linking to #/workshop, >= 44px" : "has no Problems line"),
           m.want.length ? !!line && line.text === m.want.length + " due on Problems" && line.href === "#/workshop" && line.vis && line.h >= 44 : !line, JSON.stringify(line));
+        const lineN = line ? parseInt(line.text, 10) : 0, key = theme + o.w;
+        t45Seen[key + st.name] = { count: +m.count, line: lineN };
+        if (st.twin) {
+          const tw = t45Seen[key + st.twin] || null, rv = m.rows[m.rows.length - 1] || {};
+          c45(at + ": the Daily review row is last, goes to #/drill, and it and its Start are >= 44px",
+            rv.due === "review" && rv.href === "#/drill" && rv.rowH >= 44 && rv.goW >= 44 && rv.goH >= 44 && rv.visible, JSON.stringify(rv));
+          c45(at + ": it adds exactly 1 to the count and to the dashboard line (\"" + st.twin + "\": " + (tw ? tw.count + " / " + tw.line : "not measured") + ")",
+            !!tw && +m.count === tw.count + 1 && lineN === tw.line + 1, "count " + m.count + ", line " + lineN);
+        }
         const w1 = await writesNow(page);
         c45(at + ": reading both pages wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
         await ctx.close();
@@ -4920,7 +4938,7 @@ function t28SeedClips(list) {
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
-      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)"
+      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

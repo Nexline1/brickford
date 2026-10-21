@@ -5061,7 +5061,7 @@
         : '<div class="pd-row muted" data-soon="lab" data-id="' + c.lab.id + '">' + ic("⌘") + body("Lab · " + c.lab.title, "", at + " · Phase " + c.lab.phase) + "</div>";
     };
     const rows = P.quizzes.map(q => quizRow(q, false)).concat(P.catchUp.map(q => quizRow(q, true)), P.psets.map(psetRow), P.labs.map(labDueRow),
-      P.review ? ['<a class="pd-row" data-due="review" href="#/drill">' + ic("↻") +
+      P.review ? ['<a class="pd-row" data-due="review" data-id="drill" href="#/drill">' + ic("↻") +
         body("Daily review", "", "questions you missed, served back until they stick") + go("Start") + "</a>"] : []);
     // Nothing due: the next lecture not yet cleared, from today on — or, when
     // a chain of unwatched lectures locks it, the first of that chain (the

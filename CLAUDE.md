@@ -158,6 +158,8 @@ node tools/verify-sync-loop.js     # sync must never repaint a page being read
 node tools/verify-logic.js         # the date/streak invariants above, asserted with a fixed clock
 node tools/verify-flows.js         # open today's lecture, answer a question, mark watched
 node tools/verify-clip.js          # the clipping sweep (below); known clips in verify-clip.baseline.json
+node tools/verify-tailwind.js      # platform/css/tailwind.css is what tailwind.config.js + the input build (T-051)
+node tools/verify-density.js       # phone text density; ceilings and known findings in verify-density.baseline.json (T-051)
 ```
 
 Plus the clipping sweep, which is `tools/verify-clip.js` (all routes at

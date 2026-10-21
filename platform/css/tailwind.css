@@ -333,6 +333,10 @@
     line-height: 1.375rem;
   }
 
+  p {
+    text-wrap: pretty;
+  }
+
   :focus-visible {
     outline: 2px solid var(--ios-tint);
     outline-offset: 2px;
@@ -744,6 +748,10 @@
     height: calc(var(--spacing) * 16);
   }
 
+  .h-\[1\.875rem\] {
+    height: 1.875rem;
+  }
+
   .h-\[3\.125rem\] {
     height: 3.125rem;
   }
@@ -1043,6 +1051,10 @@
     background-color: var(--ios-bar);
   }
 
+  .bg-black {
+    background-color: #000;
+  }
+
   .bg-card {
     background-color: var(--ios-card);
   }
@@ -1069,10 +1081,6 @@
 
   .bg-indigo {
     background-color: var(--ios-indigo);
-  }
-
-  .bg-label {
-    background-color: var(--ios-label);
   }
 
   .bg-orange {
@@ -1131,6 +1139,10 @@
 
   .px-3 {
     padding-inline: calc(var(--spacing) * 3);
+  }
+
+  .px-3\.5 {
+    padding-inline: calc(var(--spacing) * 3.5);
   }
 
   .px-4 {
@@ -1268,10 +1280,6 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
-  }
-
-  .text-card {
-    color: var(--ios-card);
   }
 
   .text-destructive {

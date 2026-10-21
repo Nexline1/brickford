@@ -3061,9 +3061,9 @@ function t28SeedClips(list) {
       check(at + ": the row is :focus-visible with a solid, opaque, non-zero --accent outline",
         r.fv && r.style !== "none" && r.w >= 2 && r.col[3] === 255 && __same(r.col, r.accent),
         r.name + " :focus-visible " + r.fv + ", outline " + r.style + " " + r.w + "px " + hx(r.col) + " (--accent " + hx(r.accent) + "), offset " + r.off + "px");
-      const inside = r.progress-ring.l >= r.clip.l - 0.01 && r.progress-ring.t >= r.clip.t - 0.01 && r.progress-ring.r <= r.clip.r + 0.01 && r.progress-ring.b <= r.clip.b + 0.01;
+      const inside = r.ring.l >= r.clip.l - 0.01 && r.ring.t >= r.clip.t - 0.01 && r.ring.r <= r.clip.r + 0.01 && r.ring.b <= r.clip.b + 0.01;
       check(at + ": the outline's outer box lies inside the section's box (the box that clips it)", inside,
-        "outline " + box(r.progress-ring) + " in section " + box(r.clip));
+        "outline " + box(r.ring) + " in section " + box(r.clip));
       check(at + ": nothing covers the section while its pixels are read", r.covered.length === 0,
         r.covered.length ? "covered by " + r.covered.join(", ") : "clear");
       // Painted, not just declared: the section with the row focused, then
@@ -3407,10 +3407,10 @@ function t28SeedClips(list) {
         a.tiles.length === sets.running.length && JSON.stringify(tileHrefs) === JSON.stringify(wantHrefs), tileHrefs.join(" "));
       const tcols = new Set(a.tiles.map(t => Math.round(t.box.l))).size;
       c26(at + " /atlas: the tiles are " + cols + " column" + (cols === 1 ? "" : "s") + " wide", tcols === cols, tcols + " distinct columns");
-      const tileBad = a.tiles.filter((t, i) => t.box.h < 44 || t.box.w < 44 || !t.progress-ring || !/^\d+%$/.test(t.pct || "") ||
+      const tileBad = a.tiles.filter((t, i) => t.box.h < 44 || t.box.w < 44 || !t.ring || !/^\d+%$/.test(t.pct || "") ||
         !__same(t.col, a.fac[fac(sets.running[i])]));
       c26(at + " /atlas: every tile is >= 44x44, carries a mastery ring, and its code is in the faculty colour",
-        a.tiles.length > 0 && tileBad.length === 0, tileBad.map(t => t.href + " " + t.box.w.toFixed(0) + "x" + t.box.h.toFixed(0) + " ring " + t.progress-ring + " " + hx(t.col)).join("; ") || a.tiles.length + " tiles");
+        a.tiles.length > 0 && tileBad.length === 0, tileBad.map(t => t.href + " " + t.box.w.toFixed(0) + "x" + t.box.h.toFixed(0) + " ring " + t.ring + " " + hx(t.col)).join("; ") || a.tiles.length + " tiles");
       const more = sets.later.length - 5;
       const wantChips = sets.later.slice(0, 5).map(id => "#/course/" + id).concat(more > 0 ? ["#/courses?later"] : []);
       c26(at + " /atlas: Opens later is capped at 5 chips in start order, then \"+" + more + "\" to #/courses?later",
@@ -4481,7 +4481,7 @@ function t28SeedClips(list) {
       c28(at + " /practice: its red is the theme's --bad (" + (r.bad || "?") + "), which beats #ff453a on the card (" + (r.redRatio || 0).toFixed(2) + ":1 against " + (r.sysRatio || 0).toFixed(2) + ":1 on " + (r.cardBg || "?") + "), and clears 3:1",
         !!m.rec && r.red === r.bad && r.redRatio >= r.sysRatio && r.redRatio >= 3, JSON.stringify({ red: r.red, bad: r.bad, cardBg: r.cardBg }));
       c28(at + " /practice: its ring is --ink (" + (r.ink || "?") + "), " + (r.ringW || 0) + "px, at " + (r.ringRatio || 0).toFixed(2) + ":1 on the card (>= 3:1)",
-        !!m.rec && r.progress-ring === r.ink && r.ringW >= 3 && r.ringRatio >= 3, JSON.stringify({ ring: r.progress-ring, ink: r.ink, ringW: r.ringW }));
+        !!m.rec && r.ring === r.ink && r.ringW >= 3 && r.ringRatio >= 3, JSON.stringify({ ring: r.ring, ink: r.ink, ringW: r.ringW }));
       c28(at + " /practice: \"Your recordings\" heads the list, \"kept on this device\"",
         !!m.listHead && m.listHead.t === "Your recordings" && m.listHead.meta === "kept on this device", JSON.stringify(m.listHead));
       // The keyboard: from the last tab, Tab lands on the record button.

@@ -722,7 +722,7 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
 .bar.teal > i { background: var(--accent-2); }
 /* .bar.sweep animates from empty on first paint; --w carries the target scale.
    The inline transform stays as the reduced-motion / no-JS resting state.
-   It was `.bar.g-row` until `.g-row` became the register's ROW class — min-height
+   It was `.bar.grow` until `.grow` (since T-051, `.g-row`) became the register's ROW class — min-height
    54px, flex, its own padding and a rule along the top. Every bar carrying the
    modifier silently became an empty 54px box: on the dashboard hero, a tall
    rounded outline with nothing in it above the Open button, because a flex item

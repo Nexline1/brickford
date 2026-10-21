@@ -73,3 +73,4 @@ To resume after a cut-off:
 - 2026-10-23 (Bahrain): Monk-mode build in progress. Calendar plan: scratchpad/monk/plan.md + segments.json; created events logged to scratchpad/monk/created.txt. Then: dashboard artifact, then next-tasks list for the owner.
 - 2026-10-23: The monk-mode dashboard and calendar are DONE. Owner asked for no further work until they say so; the next-task list was given to the owner. T-046 is still waiting on huggingface.co; T-051 is paused at bc4416b.
 - 2026-10-23: In flight: T-052 (monk row; gates → review → merge), T-035 sample, T-053 build, T-046 rework. Owner: create brickford-private, give the token access, allow huggingface.co.
+- 2026-10-23: ONLY T-054 (native Monk Mode page) is active. Paused: T-035, T-053, T-046, T-051. If cut off, resume the T-054 builder, then CHECK (script), fresh reviewer, merge.

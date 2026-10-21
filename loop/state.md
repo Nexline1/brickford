@@ -111,3 +111,4 @@
 - 2026-10-23: Running in parallel: T-035 phase-1 sample PDF (general-purpose opus, /home/user/bf-T-035); T-053 private sync (builder opus, /home/user/bf-T-053); T-046 rework (builder opus, resumed); T-052 gates (script). Owner to-do: create Nexline1/brickford-private, give the token access, allow huggingface.co.
 - 2026-10-23: Owner: dashboard first. Paused T-035, T-053 and T-046 (agents stopped, worktrees clean, pushed).
 - 2026-10-23: Owner: rebuild the dashboard natively in Brickford (T-054, folds in T-052). Monk data device-only until T-053.
+- 2026-10-23: T-054 builder started (brickford-builder, opus) in /home/user/bf-T-054 on top of T-052. Everything else paused.

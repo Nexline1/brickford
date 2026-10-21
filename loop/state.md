@@ -113,3 +113,4 @@
 - 2026-10-23: Owner: rebuild the dashboard natively in Brickford (T-054, folds in T-052). Monk data device-only until T-053.
 - 2026-10-23: T-054 builder started (brickford-builder, opus) in /home/user/bf-T-054 on top of T-052. Everything else paused.
 - 2026-10-23: Calendar reworked to Ja'fari 3 blocks, gym in the morning, German split (55 calls). T-054 builder told the new method and template.
+- 2026-10-23: Monk dashboard v2 published: Ja'fari 3 blocks, 4 German chips, new routine. Reference copied to loop/design and bf-T-054.

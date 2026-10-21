@@ -124,6 +124,11 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
       </section>
 
       <section class="sec">
+        <div class="sh"><span>German</span><span id="germanCount"></span></div>
+        <div class="group"><div class="chips" id="german"></div></div>
+      </section>
+
+      <section class="sec">
         <div class="sh"><span>Non-negotiables</span><span id="habitCount"></span></div>
         <div class="group" id="habits"></div>
       </section>
@@ -195,9 +200,9 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
   // ---------- fixed facts ----------
   const START = "2026-10-22", DAYS = 90, ZONE = "Asia/Bahrain";
   const LAT = 26.2285, LNG = 50.586, TZH = 3; // Manama
-  const PRAYERS = [["fajr","Fajr"],["dhuhr","Dhuhr"],["asr","Asr"],["maghrib","Maghrib"],["isha","Isha"]];
+  const PRAYERS = [["fajr","Fajr"],["dhuhr","Dhuhr & Asr"],["maghrib","Maghrib & Isha"]]; // Ja'fari, prayed in 3 combined blocks
+  const GERMAN = [["podcast","Podcast",45],["speak","Speak",10],["write","Write",10],["read","Read",25]];
   const HABITS = [
-    ["german","German 1.5 h","#FF3B30","De"],
     ["brickford","Brickford 3 h","#5856D6","B"],
     ["meditate","Meditate","#30B0C7","M"],
     ["read","Read","#AF52DE","R"],
@@ -229,7 +234,7 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
   const hhmm = m => { const r = Math.round(m); return String(Math.floor(r/60)%24).padStart(2,"0")+":"+String(r%60).padStart(2,"0"); };
   const longDate = iso => new Date(isoToUTC(iso)).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"});
 
-  // ---------- prayer times (Umm al-Qura: Fajr 18.5°, Isha = Maghrib + 90 min) ----------
+  // ---------- prayer times (Ja'fari, Tehran: Fajr 17.7°, Maghrib 4.5° below the horizon, Isha 14°) ----------
   const d2r = Math.PI/180, r2d = 180/Math.PI;
   const S = x=>Math.sin(x*d2r), C = x=>Math.cos(x*d2r), T = x=>Math.tan(x*d2r);
   const fix = (a,b)=>{ a = a - b*Math.floor(a/b); return a<0 ? a+b : a; };
@@ -242,8 +247,7 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     const at = (angle,t,ccw) => { const dc=sun(jd+t).decl, n=noon(t), v=(1/15)*Math.acos((-S(angle)-S(dc)*S(LAT))/(C(dc)*C(LAT)))*r2d; return n + (ccw?-v:v); };
     const asr = t => { const dc=sun(jd+t).decl; return at(-Math.atan(1/(1+T(Math.abs(LAT-dc))))*r2d, t, false); };
     const adj = TZH - LNG/15, m = h => (h+adj)*60;
-    const maghrib = m(at(.833,18/24,false));
-    return {fajr:m(at(18.5,5/24,true)), sunrise:m(at(.833,6/24,true)), dhuhr:m(noon(12/24)), asr:m(asr(13/24)), maghrib, isha:maghrib+90};
+    return {fajr:m(at(17.7,5/24,true)), sunrise:m(at(.833,6/24,true)), dhuhr:m(noon(12/24)), asr:m(asr(13/24)), sunset:m(at(.833,18/24,false)), maghrib:m(at(4.5,18/24,false)), isha:m(at(14,18/24,false))};
   }
 
   // ---------- the routine, used when the calendar can't be read ----------
@@ -251,19 +255,18 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     const w = dow(iso), pt = prayerTimes(iso), ev = [];
     const add = (start,mins,title,kind) => ev.push({start,end:start+mins,title,kind});
     add(pt.fajr,15,"Fajr","prayer");
-    add(390,10,"Journaling"); add(400,20,"Meditation"); add(420,30,"German — listening");
+    add(330,10,"Journaling"); add(340,20,"Meditation");
+    add(360,90,"Gym"); add(360,45,"German — Easy German podcast");
     add(450,180,"Brickford — Deep Track");
     if (w===5) add(480,60,"Grandmother — grave visit");
     add(630,45,"Scripting");
-    if (w===5) add(675,60,"Jumu'ah","prayer"); else add(pt.dhuhr,15,"Dhuhr","prayer");
+    add(pt.dhuhr,25,"Dhuhr & Asr","prayer");
     add(720,120,(w===0||w===3)?"Editing — stream → clips":"Working — business");
     add(830,10,"Post short-form"); add(840,90,"Nap");
-    add(pt.asr,15,"Asr","prayer");
-    add(930,30,"German — speaking"); add(945,90,"Gym");
-    add(pt.maghrib,15,"Maghrib","prayer");
-    add(1065,30,"German — writing & reading");
-    add(pt.isha,15,"Isha","prayer");
-    if (w===2||w===6) add(1140,120,"Stream (English)"); else add(1095,165,"Working — business");
+    add(930,10,"German — speaking"); add(940,10,"German — writing"); add(950,70,"Working — business");
+    add(pt.maghrib,25,"Maghrib & Isha","prayer");
+    add(1080,25,"German — reading");
+    if (w===2||w===6) add(1140,120,"Stream (English)"); else add(1105,155,"Working — business");
     if (w===0) add(1080,30,"Weekly review");
     add(1260,55,"Reading"); add(1315,5,"Plan tomorrow");
     return ev.sort((a,b)=>a.start-b.start);
@@ -287,11 +290,13 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
   function score(iso){
     const d = day(iso); let n = 0, done = 0;
     for (const [k] of PRAYERS){ n++; if (d.prayers && d.prayers[k]) done++; }
+    n++; if (germanDone(d)) done++;
     for (const [k] of HABITS){ n++; if (d[k]) done++; }
     n++; if ((d.work||0) >= 10) done++;
     n++; if (d.phone != null && d.phone < 2) done++;
     return {done, n, pct: Math.round(100*done/n)};
   }
+  function germanDone(d){ return !!d.german && GERMAN.every(([k]) => d.german[k]); }
   function streakPrayers(){
     let s = 0, iso = st.today;
     const full = i => PRAYERS.every(([k]) => day(i).prayers && day(i).prayers[k]);
@@ -348,6 +353,9 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     const d = day(iso);
     $("prayers").innerHTML = PRAYERS.map(([k,l]) => `<button class="chip ${d.prayers&&d.prayers[k]?"on":""}" data-pray="${k}" type="button" aria-pressed="${!!(d.prayers&&d.prayers[k])}">${l}<small>${hhmm(pt[k])}</small></button>`).join("");
     const ps = streakPrayers(); $("prayStreak").textContent = ps ? `${ps}-day streak` : "";
+    const g = d.german || {};
+    $("german").innerHTML = GERMAN.map(([k,l,m]) => `<button class="chip ${g[k]?"on":""}" data-german="${k}" type="button" aria-pressed="${!!g[k]}">${l}<small>${m} min</small></button>`).join("");
+    $("germanCount").textContent = `${GERMAN.filter(([k])=>g[k]).reduce((t,[, ,m])=>t+m,0)} of 90 min`;
 
     // habits
     $("habits").innerHTML = HABITS.map(([k,l,c,g]) => `<button class="row ic ${d[k]?"on":""}" data-habit="${k}" type="button" aria-pressed="${!!d[k]}"><span class="tile" style="background:${c}">${g}</span><span class="t">${l}</span><span class="check"></span></button>`).join("");
@@ -395,8 +403,8 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
 
   // ---------- the weekly loop: what slipped, and one change ----------
   const FIX = {
-    prayers:"Stop what you're doing at the adhan alert. Pray first, then open anything else.",
-    german:"Do German listening on the run and speaking on the drive. Don't save it for later.",
+    prayers:"Stop at the alert: Fajr, Dhuhr & Asr, Maghrib & Isha. Pray first, then anything else.",
+    german:"Play Easy German the moment the workout starts; do speak 15:30, write 15:40, read 18:00.",
     brickford:"Start the Deep Track before you check any messages.",
     meditate:"Meditate straight after journaling at 06:40, same spot every day.",
     read:"Leave your phone in another room at 21:00 and read 20 pages.",
@@ -410,7 +418,8 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     const days = []; for (let i=start; i<=end; i=addDays(i,1)) if (dayIndex(i)>=0) days.push(i);
     if (!days.length) return {days, rows};
     const rate = f => Math.round(100*days.filter(f).length/days.length);
-    rows.push(["prayers","All 5 on time", rate(i=>PRAYERS.every(([k])=>day(i).prayers&&day(i).prayers[k]))]);
+    rows.push(["prayers","All 3 prayers on time", rate(i=>PRAYERS.every(([k])=>day(i).prayers&&day(i).prayers[k]))]);
+    rows.push(["german","German 90 min", rate(i=>germanDone(day(i)))]);
     for (const [k,l] of HABITS) rows.push([k,l,rate(i=>day(i)[k])]);
     rows.push(["work","10 h of work", rate(i=>(day(i).work||0)>=10)]);
     rows.push(["phone","Phone under 2 h", rate(i=>day(i).phone!=null && day(i).phone<2)]);
@@ -449,6 +458,7 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     const b = e.target.closest("button"); if (!b) return;
     const iso = st.today, d = day(iso);
     if (b.dataset.pray) { const p = Object.assign({}, d.prayers); p[b.dataset.pray] = !p[b.dataset.pray]; writeDay(iso, {prayers:p}); }
+    else if (b.dataset.german) { const g2 = Object.assign({}, d.german); g2[b.dataset.german] = !g2[b.dataset.german]; writeDay(iso, {german:g2}); }
     else if (b.dataset.habit) writeDay(iso, {[b.dataset.habit]: !d[b.dataset.habit]});
     else if (b.dataset.num) { const k = b.dataset.num, v = Math.max(0, Math.round(((+(d[k]||0)) + +b.dataset.d)*2)/2); writeDay(iso, {[k]: v}); }
     else if (b.dataset.loop) toggleLoop(b.dataset.loop);
@@ -478,7 +488,7 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
     const btn = $("askBtn"); btn.disabled = true; $("answerBox").hidden = false; $("answer").textContent = "Thinking…";
     const {days, rows} = weekly();
     const log = days.map(i => ({date:i, ...day(i)}));
-    const input = "You coach a 90-day monk-mode routine for a Muslim content creator and student in Bahrain. Daily: 5 prayers on time, German 1.5 h, Brickford study 3 h, meditation, reading (a book a week), gym 5×/week, 10 h of work, phone under 2 h, no TikTok, Instagram or YouTube. Weekly: 8 short-form posts with storytelling, 2 streams (Tue & Sat), 2 videos, 4 scripts, editing the day after each stream. Below are completion rates for the last 7 days and the raw daily log. Reply in at most 6 short lines: the one pattern that matters most, and 2 concrete changes for next week tied to times in the routine. No preamble.\n\nRates: " + JSON.stringify(rows) + "\nLog: " + JSON.stringify(log);
+    const input = "You coach a 90-day monk-mode routine for a Shia Muslim content creator and student in Bahrain. Daily: 3 prayer times on time (Fajr; Dhuhr & Asr; Maghrib & Isha), German 1.5 h split as podcast 45 during the gym + speak 10 + write 10 + read 25, Brickford study 3 h straight after the gym, meditation, reading (a book a week), gym once a day after Fajr (5×/week), 10 h of work, phone under 2 h, no TikTok, Instagram or YouTube. Weekly: 8 short-form posts with storytelling, 2 streams (Tue & Sat), 2 videos, 4 scripts, editing the day after each stream. Below are completion rates for the last 7 days and the raw daily log. Reply in at most 6 short lines: the one pattern that matters most, and 2 concrete changes for next week tied to times in the routine. No preamble.\n\nRates: " + JSON.stringify(rows) + "\nLog: " + JSON.stringify(log);
     try { const r = await st.sample(input, {modelTier:"default", onText:({text}) => { $("answer").textContent = text; }}); $("answer").textContent = r.text; }
     catch(e){ $("answer").textContent = e && e.code === "rate_limited" ? "Claude is busy. Try again in a minute." : e && e.code === "not_granted" ? "Allow Claude for this page to use this." : "Couldn't get a review right now."; }
     btn.disabled = false;
@@ -505,7 +515,7 @@ button.row:active,a.row:active{background:var(--press);transition-duration:0s}
         if (ev.type === "error") { if (!st.cal) st.calErr = ev.error && /not_granted|needs_reauth|denied/.test(ev.error.code||"") ? "Calendar not connected: showing your plan" : null; render(); return; }
         const p = ev.result && ev.result.payload, list = (p && p.events) || [];
         const toMin = t => { if (!t || !t.dateTime) return null; const d = new Date(t.dateTime); const q = Object.fromEntries(fmt.formatToParts(d).map(x=>[x.type,x.value])); const dIso = `${q.year}-${q.month}-${q.day}`; return dIso < iso ? 0 : dIso > iso ? 1440 : +q.hour*60 + +q.minute; };
-        const evs = list.filter(e => e.status !== "cancelled" && e.start && e.start.dateTime).map(e => ({start:toMin(e.start), end:toMin(e.end), title:e.summary||"Busy", kind: /^(Fajr|Dhuhr|Asr|Maghrib|Isha|Jumu'ah|Prayer)$/.test(e.summary||"") ? "prayer" : ""}))
+        const evs = list.filter(e => e.status !== "cancelled" && e.start && e.start.dateTime).map(e => ({start:toMin(e.start), end:toMin(e.end), title:e.summary||"Busy", kind: /^(Fajr|Dhuhr & Asr|Maghrib & Isha|Prayer)$/.test(e.summary||"") ? "prayer" : ""}))
           .filter(e => e.start != null && e.end != null && e.end > e.start).sort((a,b)=>a.start-b.start);
         st.cal = evs.length ? evs : null; st.calErr = null; render();
       }, {refetchInterval: 10*60000});

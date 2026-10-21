@@ -331,7 +331,7 @@ const ROUTES = ["/", "/course/math110", "/lesson/math110/0/13", "/calendar", "/w
 const TITLE_ROUTES = new Set(["/course/math110", "/lesson/math110/0/13"]);
 const WIDTHS = [
   { w: 390, h: 844, mobile: true, large: 34 },
-  { w: 1280, h: 800, mobile: false, large: 40 },
+  { w: 1280, h: 800, mobile: false, large: 34 },   // T-051: 34px at every width (was 40 on desktop)
 ];
 const THEMES = ["light", "dark"];
 // T-006: the nav bar is measured where the spec names it.
@@ -350,32 +350,17 @@ const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
 const LIST_NA = new Set(["/workshop", "/courses", "/exams"]);
 const PRESS_ROUTES = ["/", "/course/math110"];
-// The lead pair: light from loop/design/brief.md §3 (:root, unchanged); dark
-// is T-025's: the [data-theme="dark"] block as it was at commit a309b5a,
-// before T-024's navy, copied here value by value — plus the spec's three
-// exceptions, so the sidebar is darker than the page, and the label token
-// T-024 introduced, which in dark is the button's own ink.
-const DARK_A309B5A = {
-  "--bg": "#000000", "--bg-2": "#0b0e11", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#22272f",
-  "--line": "#38383a", "--line-strong": "#3d454f", "--ink": "#ffffff", "--ink-2": "#a1a1a6", "--ink-3": "#8e8e93",
-  "--accent": "#78aef0", "--accent-fill": "#2f6bbd", "--accent-soft": "#1a2a3f", "--gold": "#e0b35a", "--accent-2": "#9ec2e8",
-  "--good": "#62b881", "--bad": "#e8705c", "--urgent": "#d99a4e", "--btn-bg": "#e8ebef", "--btn-ink": "#0f1216",
-  "--fac-math": "#7aa6da", "--fac-ai": "#d9ab6d", "--fac-sys": "#63b3aa", "--fac-phys": "#d98071", "--fac-res": "#a58ac9", "--fac-speech": "#c98fac",
-  "--panel": "#0a0d10", "--panel-ink": "#e8ebef", "--panel-accent": "#7fb0e6",
-};
+// T-051 (owner, 2026-10-21; spec 51a): the iOS palette, in Apple's accessible
+// shades where a colour is text. The lead pair used to be loop/design/brief.md
+// §3's warm light and T-025's restored dark (a309b5a); every token below is
+// the same token, asserted on the same elements, at its new value — read here
+// from the spec's table, not from the stylesheet, so a drift in style.css
+// fails. Two dark values are not the owner's table: tint text #409cff and grey
+// text #98989d, because #0a84ff and #8e8e93 fall under 4.5:1 on any tinted or
+// elevated dark fill (verify-contrast, T-051a).
 const BRIEF = {
-  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f0ea", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--surface-float": "#ffffff",
-           "--line": "#dcdad5", "--line-strong": "#c7c0b3",
-           "--ink": "#111111", "--ink-2": "#5c5a55", "--ink-3": "#6e6b65", "--accent": "#1e4f8f",
-           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12", "--accent-2": "#3f6ea0",
-           "--good": "#2a7047", "--bad": "#b32d1f", "--urgent": "#9a5a16",
-           "--btn-bg": "#241f1a", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
-           "--fac-math": "#35608f", "--fac-ai": "#88592b", "--fac-sys": "#26665f", "--fac-phys": "#9c4534", "--fac-res": "#63498a", "--fac-speech": "#8a4a63",
-           "--panel": "#2b2118", "--panel-ink": "#f2ece2", "--panel-accent": "#d3a874" },
-  dark: Object.assign({}, DARK_A309B5A, {
-    "--panel": "#000000", "--bg": "#0e0e10", "--bg-2": "#141416",     // the spec's three exceptions
-    "--accent-fill-ink": DARK_A309B5A["--btn-ink"],                    // = --btn-ink
-  }),
+  light: { "--bg": "#f2f2f7", "--bg-2": "#f2f2f7", "--surface": "#ffffff", "--surface-2": "#f2f2f7", "--surface-float": "#ffffff", "--line": "#c6c6c8", "--line-strong": "#aeaeb2", "--ink": "#1d1d1f", "--ink-2": "#6e6e73", "--ink-3": "#6e6e73", "--accent": "#0066cc", "--accent-fill": "#0071e3", "--accent-soft": "#e0eefc", "--gold": "#c93400", "--accent-2": "#2a68c0", "--good": "#1f7a35", "--bad": "#d70015", "--urgent": "#c93400", "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff", "--fac-math": "#4b49c9", "--fac-ai": "#c93400", "--fac-sys": "#0b7480", "--fac-phys": "#d70015", "--fac-res": "#8944ab", "--fac-speech": "#d30f45", "--panel": "#ffffff", "--panel-ink": "#1d1d1f", "--panel-accent": "#0066cc" },
+  dark: { "--bg": "#000000", "--bg-2": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#2c2c2e", "--line": "#38383a", "--line-strong": "#48484a", "--ink": "#f5f5f7", "--ink-2": "#98989d", "--ink-3": "#98989d", "--accent": "#409cff", "--accent-fill": "#0071e3", "--accent-soft": "#0b1a2b", "--gold": "#ff9f0a", "--accent-2": "#64a8ff", "--good": "#30d158", "--bad": "#ff453a", "--urgent": "#ff9f0a", "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff", "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff453a", "--fac-res": "#da8fff", "--fac-speech": "#ff6482", "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff" },
 };
 // Each theme's --panel: the sidebar's fill (T-025) and what the Home Screen
 // status bar is painted from (meta theme-color).
@@ -386,10 +371,11 @@ const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "
 // measured.
 const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
 // The primary action's pair: in light a white label on the fill; in dark
-// (T-025) the restored light-grey fill with its dark label.
+// (T-025) the restored light-grey fill with its dark label. T-051: in both,
+// white on the filled tint, as iOS draws a filled button.
 const PRIMARY = {
-  light: { bg: "#241f1a", ink: "#ffffff", what: "a white label on the fill" },
-  dark:  { bg: "#e8ebef", ink: "#0f1216", what: "a light-grey fill (#e8ebef) with a dark label (#0f1216)" },
+  light: { bg: "#0071e3", ink: "#ffffff", what: "a white label on the filled tint (#0071e3, 4.70:1)" },
+  dark:  { bg: "#0071e3", ink: "#ffffff", what: "a white label on the filled tint (#0071e3, 4.70:1)" },
 };
 const hexBytes = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).concat(255);
 
@@ -880,7 +866,8 @@ function sideState() {
   const z = window.__dz;
   const s = document.querySelector("#sidebar"), cs = getComputedStyle(s);
   const act = document.querySelector(".sidebar .nav a.active"), as = act && getComputedStyle(act);
-  const field = document.querySelector(".crest .cr-field"), cut = document.querySelector(".crest .cr-cut");
+  // T-051: the crest is the app icon now, an <img> beside the name.
+  const icon = document.querySelector(".sidebar .brand-icon"), ics = icon && getComputedStyle(icon);
   // A token as the sidebar's contents see it (T-025: light's espresso sidebar
   // re-scopes its inks), resolved on a probe inside the nav.
   const sideTok = n => {
@@ -897,7 +884,9 @@ function sideState() {
     rightW: parseFloat(cs.borderRightWidth) || 0, rightCol: z.bytes(cs.borderRightColor), line: z.tok("--line"), strong: z.tok("--line-strong"),
     act: act ? { text: act.textContent.trim(), bg: z.bytes(as.backgroundColor), color: z.bytes(as.color), radius: as.borderTopLeftRadius } : null,
     soft: sideTok("--accent-soft"), accent: sideTok("--accent"), gold: sideTok("--gold"),
-    field: field ? z.bytes(getComputedStyle(field).fill) : null, cut: cut ? z.bytes(getComputedStyle(cut).fill) : null,
+    fill: sideTok("--accent-fill"), fillInk: sideTok("--accent-fill-ink"),
+    icon: icon ? { src: icon.getAttribute("src") || "", w: icon.getBoundingClientRect().width, h: icon.getBoundingClientRect().height,
+                   radius: ics.borderTopLeftRadius, loaded: icon.complete && icon.naturalWidth > 0 } : null,
   };
 }
 
@@ -1012,7 +1001,11 @@ function listState() {
 
 // Every visible element matching `sel` is in its pressed (forced) state: how
 // far its fill stands off what it sits on, and the worst text on it.
-function pressState(sel) {
+// `floor`: the least any text may measure while pressed. T-051 (owner,
+// 2026-10-22): a pressed row may dip below 4.5:1 for the ~0.3s it is held, and
+// the contrast gate exempts :active only — so a forced :active is held to 3:1,
+// enough that nothing on it can vanish, and a hover still to 4.5:1 (3:1 large).
+function pressState([sel, floor]) {
   const z = window.__dz;
   const rows = [...document.querySelectorAll(sel)].filter(r => r.checkVisibility());
   const out = { rows: rows.length, texts: 0, lowFill: [], lowText: [], fill: null, text: null };
@@ -1026,7 +1019,7 @@ function pressState(sel) {
       if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return;
       const cs = getComputedStyle(el), bg = z.backdrop(el), fg = z.over(z.bytes(cs.color), bg);
       const ratio = z.ratio(fg, bg), px = parseFloat(cs.fontSize);
-      const need = px >= 24 || (px >= 18.66 && +cs.fontWeight >= 700) ? 3 : 4.5;
+      const need = floor || (px >= 24 || (px >= 18.66 && +cs.fontWeight >= 700) ? 3 : 4.5);
       out.texts++;
       if (!out.text || ratio / need < out.text.r / out.text.need)
         out.text = { r: ratio, need, at: z.name(el) + " \"" + el.textContent.trim().slice(0, 20) + "\" " + z.hex(fg) + " on " + z.hex(bg) };
@@ -2724,15 +2717,22 @@ function t28SeedClips(list) {
       check(at + ": a solid --panel (" + PANEL[theme] + "), no backdrop-filter, no background-image",
         s.bg[3] === 255 && __same(s.bg, s.panel, 0) && __same(s.bg, hexBytes(PANEL[theme]), 0) && s.bf === "none" && s.img === "none",
         "background " + hx(s.bg) + " (--panel " + hx(s.panel) + "), backdrop-filter " + s.bf + ", image " + s.img);
-      check(at + ": darker than the page — its luminance below the page --bg's",
-        s.lSide < s.lPage, "sidebar " + hx(s.bg) + " L " + s.lSide.toFixed(4) + ", page --bg " + hx(s.page) + " L " + s.lPage.toFixed(4));
+      // T-051: the approved mockup's sidebar is the card colour — white beside
+      // the #f2f2f7 page, #1c1c1e beside black — so lighter than the page in
+      // both themes (it was "darker than the page", T-025).
+      check(at + ": the card colour (--surface), lighter than the page — its luminance above the page --bg's",
+        __same(s.bg, s.surface, 0) && s.lSide > s.lPage, "sidebar " + hx(s.bg) + " (--surface " + hx(s.surface) + ") L " + s.lSide.toFixed(4) + ", page --bg " + hx(s.page) + " L " + s.lPage.toFixed(4));
       check(at + ": a 0.5px --line trailing edge", hairline(s.rightW) && __same(s.rightCol, s.line), s.rightW + "px " + hx(s.rightCol));
-      check(at + ": the current item is an --accent-soft pill, --accent label, 8px corners",
-        !!s.act && s.act.bg[3] === 255 && __same(s.act.bg, s.soft) && __same(s.act.color, s.accent) && s.act.radius === "8px",
-        s.act ? "\"" + s.act.text + "\" " + hx(s.act.bg) + " (--accent-soft " + hx(s.soft) + "), label " + hx(s.act.color) + ", " + s.act.radius : "no current nav item");
-      check(at + ": the crest is --gold with --panel cut-outs (holes in the seal, T-025)",
-        !!s.field && __same(s.field, s.gold) && !!s.cut && __same(s.cut, s.panel),
-        "field " + (s.field ? hx(s.field) : "?") + " (--gold " + hx(s.gold) + "), cut " + (s.cut ? hx(s.cut) : "?"));
+      // T-051: iPadOS's selection — white on the filled tint (4.70:1), 12px
+      // corners (it was an --accent-soft pill with an --accent label, 8px).
+      check(at + ": the current item is an --accent-fill pill, --accent-fill-ink label, 12px corners",
+        !!s.act && s.act.bg[3] === 255 && __same(s.act.bg, s.fill) && __same(s.act.color, s.fillInk) && s.act.radius === "12px",
+        s.act ? "\"" + s.act.text + "\" " + hx(s.act.bg) + " (--accent-fill " + hx(s.fill) + "), label " + hx(s.act.color) + ", " + s.act.radius : "no current nav item");
+      // T-051: the crest stays as the logo, as the app icon itself (it was the
+      // SVG seal, --gold with --panel cut-outs, T-025).
+      check(at + ": the crest is the app icon (icons/apple-touch-icon.png), loaded, 40x40, with the iOS icon corner",
+        !!s.icon && /^icons\/apple-touch-icon\.png/.test(s.icon.src) && s.icon.loaded && Math.abs(s.icon.w - 40) < 0.5 && Math.abs(s.icon.h - 40) < 0.5 && /^(22\.37%|8\.948px|8\.95px)$/.test(s.icon.radius),
+        JSON.stringify(s.icon));
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
@@ -3103,11 +3103,12 @@ function t28SeedClips(list) {
       await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      const measure = async sel => {
+      const measure = async (sel, states) => {
+        const floor = states.includes("active") ? 3 : 0;
         await frames(page);
-        let r = await page.evaluate(pressState, sel);
+        let r = await page.evaluate(pressState, [sel, floor]);
         // A finding has to survive a re-measure.
-        if (r.lowFill.length || r.lowText.length) { await page.waitForTimeout(250); r = await page.evaluate(pressState, sel); }
+        if (r.lowFill.length || r.lowText.length) { await page.waitForTimeout(250); r = await page.evaluate(pressState, [sel, floor]); }
         return r;
       };
       for (const route of PRESS_ROUTES) {
@@ -3117,13 +3118,13 @@ function t28SeedClips(list) {
         // takes the hover.
         const sel = mobile ? "#view .glist > .g-row" : "#view .glist > a.g-row, #view .glist > button.g-row";
         const nForced = await force(cdp, sel, state);
-        const r = await measure(sel);
+        const r = await measure(sel, state);
         await force(cdp, sel, []);
         const where = w + "px " + theme + " " + route + " rows :" + state.join(":");
         pressRows += r.rows; pressTexts += r.texts;
         check(where + ": the pressed fill stands off the section (>= 1.05:1)", r.rows > 0 && nForced > 0 && r.lowFill.length === 0,
           r.rows === 0 ? "no visible row" : r.lowFill.length ? r.lowFill.slice(0, 3).join("; ") : r.rows + " rows, least " + r.fill.r.toFixed(3) + ":1 (" + r.fill.at + ")");
-        check(where + ": every text node on a pressed row is >= 4.5:1 (3:1 large)", r.texts > 0 && r.lowText.length === 0,
+        check(where + (state.includes("active") ? ": every text node on a pressed row is >= 3:1 (the owner's :active exemption, 2026-10-22; it was 4.5:1)" : ": every text node on a hovered row is >= 4.5:1 (3:1 large)"), r.texts > 0 && r.lowText.length === 0,
           r.lowText.length ? r.lowText.length + " — " + r.lowText.slice(0, 3).join("; ") : r.texts + " texts, least " + r.text.r.toFixed(2) + ":1 (" + r.text.at + ")");
       }
       // The sidebar's own rows.
@@ -3131,13 +3132,13 @@ function t28SeedClips(list) {
       if (!mobile) await page.evaluate(() => document.querySelector("#themeMenu").classList.add("open"));
       const ssel = ".sidebar .nav a, .sidebar .navrow, .sidebar .theme-menu button";
       await force(cdp, ssel, sideState2);
-      const r = await measure(ssel);
+      const r = await measure(ssel, sideState2);
       await force(cdp, ssel, []);
       const where = w + "px " + theme + " sidebar rows :" + sideState2.join(":");
       pressRows += r.rows; pressTexts += r.texts;
       check(where + ": the pressed fill stands off the sidebar (>= 1.05:1)", r.rows > 0 && r.lowFill.length === 0,
         r.rows === 0 ? "no visible row" : r.lowFill.length ? r.lowFill.slice(0, 3).join("; ") : r.rows + " rows, least " + r.fill.r.toFixed(3) + ":1 (" + r.fill.at + ")");
-      check(where + ": every label on a pressed row is >= 4.5:1", r.texts > 0 && r.lowText.length === 0,
+      check(where + (sideState2.includes("active") ? ": every label on a pressed row is >= 3:1 (the owner's :active exemption, 2026-10-22; it was 4.5:1)" : ": every label on a pressed row is >= 4.5:1"), r.texts > 0 && r.lowText.length === 0,
         r.lowText.length ? r.lowText.length + " — " + r.lowText.slice(0, 3).join("; ") : r.texts + " texts, least " + r.text.r.toFixed(2) + ":1 (" + r.text.at + ")");
       check(w + "px " + theme + " press: no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();

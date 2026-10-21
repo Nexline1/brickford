@@ -94,3 +94,4 @@
 - 2026-10-22: Usage limit + container restart stopped all three agents. Saved WIP: T-051 7801961, T-046 4debf52. T-045: a killed plant run had left 'const review = 0;' in app.js; restored to HEAD cfee64f. All three agents resumed (opus, resumed); autopush restarted.
 - 2026-10-22: T-045 r1 fixes done 46b639d (builder opus, resumed); CHECK running (script). T-051 mockup APPROVED with phone-density feedback; spec written (9a860bc); 51a foundation started (mockup agent opus, resumed, in /home/user/bf-T-051). T-046 finishing gates.
 - 2026-10-22 16:15: Limit reset. Saved T-051a WIP bf26626 (12 uncommitted files). Resumed: T-045 r2 reviewer, T-046 builder (0ed2c60, waiting on plants), T-051a agent. All on opus, resumed.
+- 2026-10-22: T-045 r2 APPROVED (reviewer opus, resumed). PR #22 merged → main 4502908. T-046 and T-051a still building; both must merge main before their PRs.

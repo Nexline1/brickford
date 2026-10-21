@@ -5604,15 +5604,6 @@
           // essential).
           const box = $("#advBox");
           if (box) { box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
-        } else if (act === "pbOpen") {
-          // T-026b: a mode card's Open is a jump to its section on this page,
-          // opening the problem sets' fold on the way. The DOM only — no save,
-          // no render, so nothing on the page moves but the scroll.
-          const t = $("#" + b.dataset.to);
-          if (t) {
-            if (t.tagName === "DETAILS") t.open = true;
-            t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-          }
         } else if (act === "exMore") {
           // T-026b: the locked exams past the sixth, shown in place. In memory.
           $$("[data-ex-more]").forEach(el => { el.hidden = false; });

@@ -1635,6 +1635,44 @@ function t26bPrimary() {
       return { h1: h ? h.textContent.trim() : null, sub: s ? s.textContent.trim() : null }; })(),
   };
 }
+// T-026b's catalogue, as it still ships behind T-045's "Everything" fold:
+// the current phase's lab list (its head and the phase name, one row per lab
+// of the phase, in order, ticked as stored), the folds under it, no stat box.
+// Read once #pbAll has been opened by pressing its summary.
+function t26bWorkshop() {
+  const D = window.DAR, T = window.__brickfordTest, st = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
+  const today = (() => { const d = new Date(), p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); })();
+  // The plan week: six study days; a rest day belongs to the week just worked.
+  let iso = today, idx = T.studyIndex(iso);
+  for (let g = 0; g < 7 && idx < 0 && iso > D.START_DATE; g++) {
+    const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() - 1);
+    iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    idx = T.studyIndex(iso);
+  }
+  const week = Math.max(1, Math.floor(Math.max(0, idx) / 6) + 1);
+  const phase = week > 78 ? 3 : week > 26 ? 2 : week > 2 ? 1 : 0;
+  const labs = st.labs || {};
+  const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
+  const txt = (n, s) => { const x = n.querySelector(s); return x ? x.textContent.trim() : null; };
+  const all = document.querySelector("#view details#pbAll");
+  return {
+    phase, allOpen: !!all && all.open,
+    want: { rows: D.LABS.filter(l => l.phase === phase).map(l => ({ id: l.id, title: l.title, req: l.req, hours: l.hours, done: !!(labs[l.id] || {}).done })) },
+    rows: vis("#view .pb-labs .pb-lab").map(r => {
+      const cb = r.querySelector("input[data-lab]"), lb = r.querySelector("label");
+      return { id: cb ? cb.dataset.lab : null, checked: cb ? cb.checked : null, title: txt(r, ".pb-lt-t"), desc: txt(r, ".pb-lt-d"), hours: txt(r, ".pb-h"),
+        box: !!r.querySelector(".checkbox"), h: lb ? lb.getBoundingClientRect().height : 0 };
+    }),
+    head: (() => { const l = document.querySelector("#view #pbLabs"), g = l && l.previousElementSibling;
+      return g && g.matches(".ghead") ? { t: g.firstChild.textContent.trim(), meta: txt(g, ".gh-meta") } : null; })(),
+    phaseName: ["Phase 0 · Calibration", "Phase 1 · Foundations", "Phase 2 · Depth", "Phase 3 · Frontier"][phase],
+    statBox: document.querySelectorAll("#view .onecounts").length,
+    setsFold: !!document.querySelector("#view details#pbSets"), otherFold: [...document.querySelectorAll("#view details.unit .u-name")].map(n => n.textContent.trim()),
+    // "under the list": each fold starts below the last lab row.
+    under: (() => { const l = document.querySelector("#view #pbLabs"), lb = l ? l.getBoundingClientRect().bottom : null;
+      return [...document.querySelectorAll("#view #pbAll details.unit")].map(d => ({ name: txt(d, ".u-name"), below: lb === null || d.getBoundingClientRect().top >= lb - 0.5 })); })(),
+  };
+}
 // T-045 (replaces T-026b's mode cards and phase list): what /workshop
 // should list as due, worked out here from the stored state and the data
 // files — `after` on every pset and lab, the phase from the study index —
@@ -3858,6 +3896,16 @@ function t28SeedClips(list) {
     ["Problem set", "Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions."],
     ["Lab", "A build project, one or two per phase. Done when it’s on GitHub and meets its checklist."]];
   const T45_ORDER = ["quiz", "catchup", "pset", "lab", "review"];
+  // A lab's description is its first clause, at most ~50 characters, cut
+  // only at the end of a word (T-026b's rule; T-045's due rows use it too).
+  // Returns true when `desc` breaks it against the lab's `req`.
+  const clauseBad = (desc, req) => {
+    if (!desc || !req) return true;
+    const d = desc.replace(/…$/, ""), cut = d !== desc;
+    const next = req.charAt(d.length);
+    return desc.length > 51 || !d.length || req.indexOf(d) !== 0 || /[;,]/.test(d) || /[A-Za-z0-9]/.test(next) ||
+      (!cut && !/^([;,:.]|\s—|$)/.test(req.slice(d.length)));
+  };
   async function t45Check(page, at, o, chk) {
     const p = await page.evaluate(t26bPrimary), m = await page.evaluate(t45Problems);
     chk(at + " /workshop: the header is h1 \"Problems\" and \"" + T26B_HEAD["/workshop"][1] + "\"", headOk(p, "/workshop"), JSON.stringify(p.head));
@@ -3869,7 +3917,7 @@ function t28SeedClips(list) {
       sorted(got, want) && ordered && m.count === String(m.want.length), "shows [" + got.join(", ") + "], want [" + want.join(", ") + "], count " + m.count);
     const bad = m.rows.map(r => {
       const w = m.want.find(x => key(x) === key(r)); if (!w) return null;
-      const why = w.due === "lab" ? r.why && r.why.endsWith(w.tail) && w.req.indexOf(r.why.slice(0, -w.tail.length).replace(/…$/, "")) === 0 : r.why === w.why;
+      const why = w.due === "lab" ? !!r.why && r.why.endsWith(w.tail) && !clauseBad(r.why.slice(0, -w.tail.length), w.req) : r.why === w.why;
       const ok = r.title === w.title && r.tag === w.tag && why && r.go === w.go && (!w.href || r.href === w.href) && r.visible && r.goW >= 44 && r.goH >= 44 && r.rowH >= 44;
       return ok ? null : JSON.stringify(r) + " want " + JSON.stringify(w);
     }).filter(Boolean);
@@ -3896,6 +3944,29 @@ function t28SeedClips(list) {
   async function t26bProblems(page, at, o) {
     await go(page, "/workshop");
     await t45Check(page, at, o, c26b);
+    // Review r1, finding 1: the catalogue still ships, behind "Everything".
+    // Opened as a reader would, by pressing its summary, then measured with
+    // T-026b's own checks.
+    await page.click("#view details#pbAll > summary");
+    await page.waitForFunction(() => { const d = document.querySelector("#view details#pbAll"); return !!d && d.open; }, null, { timeout: 4000 }).catch(() => {});
+    const m = await page.evaluate(t26bWorkshop);
+    c26b(at + " /workshop: pressing \"Everything\" opens the catalogue", m.allOpen);
+    c26b(at + " /workshop: the stat box is gone (no .onecounts in the view)", m.statBox === 0, m.statBox + " found");
+    c26b(at + " /workshop: \"This phase’s labs\" heads the catalogue's list, its meta the phase (" + m.phaseName + ")",
+      !!m.head && m.head.t === "This phase’s labs" && m.head.meta === m.phaseName, JSON.stringify(m.head));
+    const rowsOk = m.rows.length === m.want.rows.length && m.rows.every((r, i) => {
+      const w = m.want.rows[i];
+      return r.id === w.id && r.title === w.title && r.hours === "~" + w.hours + " h" && r.checked === w.done && r.box && r.h >= 44;
+    });
+    c26b(at + " /workshop: the list has one row per lab of phase " + m.phase + " (" + m.want.rows.length + "), in order — a checkbox, the title, ~N h, ticked as stored, >= 44px",
+      m.want.rows.length > 0 && rowsOk, m.rows.map(r => r.id + " \"" + r.title + "\" " + r.hours + (r.checked ? " [x]" : " [ ]") + " " + r.h.toFixed(0) + "px").join("; "));
+    const descBad = m.rows.filter((r, i) => { const w = m.want.rows[i]; return !w || clauseBad(r.desc, w.req); });
+    c26b(at + " /workshop: each row's description is its lab's first clause, at most ~50 characters, cut only at the end of a word",
+      m.rows.length > 0 && descBad.length === 0, (descBad.length ? "bad: " : "") + (descBad.length ? descBad : m.rows).map(r => "\"" + r.desc + "\"").join("; "));
+    c26b(at + " /workshop: the problem sets" + (m.phase === 3 ? "" : " and the other phases' labs") + " stay behind their folds, under the list",
+      m.setsFold && m.otherFold.indexOf("Problem sets — pen and paper") >= 0 && (m.phase === 3 || m.otherFold.indexOf("Labs in the other phases") >= 0) &&
+        m.under.length >= 1 && m.under.every(u => u.below),
+      m.otherFold.join(" | ") + "; " + JSON.stringify(m.under));
   }
 
   async function t26bExamsCheck(page, at, o) {

@@ -1,0 +1,35 @@
+# T-046 plants (a)-(d), run on 0ed2c60 by verification/plants.py; each plant put back, its gates run, the file restored (asserted byte-identical)
+(a) the transcript is written into localStorage and the sync payload (onto the story rep) -> tools/verify-flows.js exit 1
+      FAIL  (r) 390px: and nowhere else — no storage key holds it, the rep is the hand form's shape, the chain has no transcript event; the device remembers only "on" — {"elsewhere":["localStorage.darhikmah_v1"],"rep":{"date":"2026-10-20","second
+      FAIL  (r) 1280px: and nowhere else — no storage key holds it, the rep is the hand form's shape, the chain has no transcript event; the device remembers only "on" — {"elsewhere":["localStorage.darhikmah_v1"],"rep":{"date":"2026-10-20","secon
+      2 of 339 flow check(s) FAILED
+(a) the transcript is written into localStorage and the sync payload (onto the story rep) -> tools/verify-sync-loop.js exit 1
+      FAIL  no push carries the transcript's text, a transcript or chunks field, or the transcription setting — push 1: king minus man plus woman
+      FAIL — 1 assertion broken
+(b) "I like it" is counted as a filler (like: always) -> tools/verify-flows.js exit 1
+      FAIL  (r) 390px: the fillers struck through are exactly ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"] — not "I like it", "Things like that", "a kind of map" or "Is that right?" — ["um","l
+      FAIL  (r) 390px: the chips give the total, then each filler's count in reading order: 11 fillers to cut, um ×1, like ×1, actually ×1, you know ×2, I mean ×1, kind of ×1, okay so ×1, right? ×1, uh ×1, so yeah ×1 — ["13 fillers to cut","um ×1
+      FAIL  (r) 1280px: the fillers struck through are exactly ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"] — not "I like it", "Things like that", "a kind of map" or "Is that right?" — ["um","
+      FAIL  (r) 1280px: the chips give the total, then each filler's count in reading order: 11 fillers to cut, um ×1, like ×1, actually ×1, you know ×2, I mean ×1, kind of ×1, okay so ×1, right? ×1, uh ×1, so yeah ×1 — ["13 fillers to cut","um ×
+      4 of 339 flow check(s) FAILED
+(c) the model download starts without consent (the first use does not ask) -> tools/verify-flows.js exit 1
+      FAIL  (r) 390px: once the clip is saved the page asks first — "Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.", Download and Not now — and before the answer nothing is imported, no Worker exist
+      FAIL  (r) 390px: the flow ran to its end without a harness error — page.tap: Timeout 30000ms exceeded.
+      FAIL  (r) 1280px: once the clip is saved the page asks first — "Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.", Download and Not now — and before the answer nothing is imported, no Worker exis
+      FAIL  (r) 1280px: the flow ran to its end without a harness error — page.click: Timeout 30000ms exceeded.
+      FAIL  (r) Not now, 390px: the flow ran to its end without a harness error — page.waitForSelector: Timeout 5000ms exceeded.
+      5 of 314 flow check(s) FAILED
+(d) the transcription runs on the main thread (no Worker: the library imported and run by the page) -> tools/verify-flows.js exit 1
+      FAIL  (r) 390px: Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it — {"workers":[],"lib":1,"hf":0}
+      FAIL  (r) 390px: while it worked the row said "Loading the speech model… n%", then "Transcribing… n%" — ["Preparing the audio…","Loading the speech model… 0%"]
+      FAIL  (r) 390px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — [{"at":2804,"ms":400}]
+      FAIL  (r) 390px: leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once — {"workers":0,"lib":1,"reports":1}
+      FAIL  (r) 1280px: Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it — {"workers":[],"lib":1,"hf":0}
+      FAIL  (r) 1280px: while it worked the row said "Loading the speech model… n%", then "Transcribing… n%" — ["Preparing the audio…","Loading the speech model… 0%"]
+      FAIL  (r) 1280px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — [{"at":2766.4000000001397,"ms":399}]
+      FAIL  (r) 1280px: leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once — {"workers":0,"lib":1,"reports":1}
+      FAIL  (r) failure, the download fails, 1280px: the row shows one muted line (Could not download the speech model. The recording is kept.) — {"key":"2026-10-19-1","go":true,"tx":false,"play":true,"lines":["Could not transcribe this one. The 
+      FAIL  (r) failure, out of memory, 1280px: the row shows one muted line (Not enough memory to transcribe this one. The recording is kept.) — {"key":"2026-10-19-1","go":true,"tx":false,"play":true,"lines":["Could not transcribe this one. The 
+      10 of 339 flow check(s) FAILED
+ALL PLANTS EXIT 1
+plants exit 0

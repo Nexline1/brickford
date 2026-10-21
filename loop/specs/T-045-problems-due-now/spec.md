@@ -65,3 +65,6 @@ When anything is due, the Today card gains one line, "n due on Problems", linkin
    - (c) an `after` names a lesson that doesn't exist.
 5. **All gates green**, run one at a time, plus clip under the LA timezone.
 6. **Screenshots** at 1440 and 390, Dark and Light.
+
+## Amendment 2026-10-16 (owner)
+rag-system moves to phase 3, after ai300.3.3.

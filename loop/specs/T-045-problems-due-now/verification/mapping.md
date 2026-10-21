@@ -75,7 +75,7 @@ that lecture is cleared **and** the plan is in the lab's phase; verify-content c
 | cuda-matmul (2) | sys250.1.4 (2027-08-24, 2) | "Going Further with CUDA for Python Programmers" — the tiled shared-memory matmul |
 | kernel-profile (2) | sys250.1.0 (2027-08-15, 2) | "How to profile CUDA kernels in PyTorch" |
 | oss-pr (2) | ai310.1.0 (2027-10-21, 2) | "The Hugging Face LLM course — pipeline fundamentals" — the first lecture working inside the open-source ML libraries a PR would target (judgment call) |
-| rag-system (2) | ai300.1.1 (2027-09-05, 2) | "BERT — Pre-training Deep Bidirectional Transformers" — the encoder behind dense retrieval. The RAG paper itself (ai300.3.3) is scheduled 2028-05-07, phase 3, which would move a phase-2 lab out of its phase (judgment call) |
+| rag-system (3) | ai300.3.3 (2028-05-07, 3) | "RAG — Retrieval-Augmented Generation (2020)". Owner decision, 2026-10-16: the lab moves from phase 2 to phase 3 and comes after the RAG paper. Round 1 had it in phase 2 after ai300.1.1 (BERT), because the paper is scheduled in phase 3 |
 | dpo-run (2) | ai300.2.2 (2028-01-05, 2) | "DPO — Direct Preference Optimization (2023)" |
 | interp-notebook (3) | res400.1.1 (2027-12-13, 2) | "In-context Learning and Induction Heads" — the induction heads the notebook reproduces |
 | agent-tools (3) | ai310.1.5 (2027-11-02, 2) | "Agents — tool use, function calling, and failure modes" |

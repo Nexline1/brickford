@@ -44,7 +44,8 @@ DAR.LABS = [
     req: "torch.profiler trace of a training step; one bottleneck found and fixed with before/after numbers." },
   { id: "oss-pr", after: "ai310.1.0", phase: 2, hours: 12, title: "Merged open-source PR",
     req: "A non-trivial PR merged into an ML repo you actually use (not a typo fix)." },
-  { id: "rag-system", after: "ai300.1.1", phase: 2, hours: 10, title: "RAG over your own documents, no framework",
+  // Phase 3 by the owner's amendment of 2026-10-16 (T-045): after the RAG paper.
+  { id: "rag-system", after: "ai300.3.3", phase: 3, hours: 10, title: "RAG over your own documents, no framework",
     req: "Retrieval + generation built from parts; faithfulness measured with and without retrieval." },
   { id: "dpo-run", after: "ai300.2.2", phase: 2, hours: 10, title: "DPO alignment run",
     req: "DPO on a small model with a public preference dataset; win-rate vs the SFT base reported." },

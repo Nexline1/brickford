@@ -70,3 +70,4 @@ To resume after a cut-off:
 1. Run `git fetch` and check each worktree's `git log`.
 2. SendMessage the same agents if this session survives. Otherwise start a fresh builder per item with its spec and its progress.md.
 - 2026-10-22: T-045 MERGED (#22, main 4502908). Next merges: T-046, then T-047 build, T-051a.
+- 2026-10-23 (Bahrain): Monk-mode build in progress. Calendar plan: scratchpad/monk/plan.md + segments.json; created events logged to scratchpad/monk/created.txt. Then: dashboard artifact, then next-tasks list for the owner.

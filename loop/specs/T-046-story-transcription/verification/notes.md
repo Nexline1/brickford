@@ -53,3 +53,40 @@ Hand-building `decoder_input_ids` with `<|startofprev|>` would put the prompt to
 | model id | `Xenova/whisper-base.en` (candidate, unverified) | huggingface.co unreachable |
 | revision | UNVERIFIED | huggingface.co unreachable |
 | size | ~75 MB (the spec's estimate, unverified) | spec |
+
+## Harness: why one Chromium flag
+- **The problem:** a Worker cannot be constructed from a `file://` page. It throws a SecurityError, because the script "cannot be accessed from origin 'null'". This was measured in a probe before any test was written.
+- **The fix:** the transcription contexts launch Chromium with `--allow-file-access-from-files`, in the same way T-028 added the fake-media flags.
+  - With it, a module worker runs, and `ctx.route` intercepts the worker's `import()` of the pinned URL. This was measured as well.
+  - The app is unchanged for the harness. On GitHub Pages (https) no flag is involved.
+  - On a bare `file://` page the app shows the no-Worker line, which is the right behaviour.
+- **The stub:**
+  - It is served for exactly `https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0`.
+  - Its `pipeline()` reports progress, then returns a transcriber. The transcriber busy-loops for 400 ms (the model's work, a long task on whichever thread runs it) and returns a canned `{ text, chunks }`.
+  - It POSTs what it was asked for to `https://tx-stub.test/report`, which the harness answers itself. That covers the task, the model, the revision, the dtype and device, `Float32Array`, the length and the timestamps.
+  - Every other https request is aborted, and huggingface.co requests are counted (0).
+
+## Interpretations
+1. **Progress wording.**
+   - "Preparing the audio…" while the clip decodes.
+   - "Loading the speech model… n%" while the library and model load. The spec has one line, "Transcribing… n%". After the first time the load reads from the browser cache, so "Downloading" would not be true.
+   - "Transcribing… n%" while it runs. The n is coarse: it counts 30 s windows done, capped at 99 until the text is back, so a clip under 30 s reads 0% and then finishes.
+2. **Consent is remembered on the device as `settings.transcribe`:**
+   - "on" after Download;
+   - "off" after Not now;
+   - unset means ask.
+
+   It is stored with `syncQuiet` (a press, but nothing about it syncs), and `syncPayload` still sends only `theme`, `dailyStart` and `streakFrom` from settings. A pull merges settings key by key, so it survives.
+3. **"Turn on transcription"** clears the setting and asks again for the newest clip with no transcript. If every clip has one, it only clears the setting.
+4. **Where the consent question sits:** above the list, not on the row. While transcription is off, rows do not offer Transcribe. One muted line, "Transcription is off on this device.", sits under the list with the control. That line is the "refused" case of the failure paths.
+5. **No Worker / no WebAssembly / no OfflineAudioContext, or a Worker the page may not construct:**
+   - the row says "This browser cannot run the speech model, so this one stays audio only.";
+   - it offers no retry;
+   - the consent question is not asked (nothing could be downloaded).
+6. **Failures are kept in memory only.** The row offers Transcribe again (except the case above). Nothing is written for a failure: a clip with no speech gets no transcript field.
+7. **No speech** is a transcript with no letters or digits once Whisper's bracketed or parenthesised tags (`[BLANK_AUDIO]`, `(silence)`) are removed.
+8. **Words** are matched by `[A-Za-z0-9]+` with inner apostrophes and hyphens; the test counts by whitespace instead. **Words per minute** is `round(words × 60 / seconds)`, using the clip's stored `seconds`.
+9. **Rules beyond "like" and "so".** "you know", "I mean", "kind of", "sort of" and "right?" also have context rules (documented above `FILLERS`), because counting "a kind of map" or "is that right?" would strike real words. The rules: "loose" means punctuation follows; "nodet" means not after a determiner; "tag" means "right" followed by "?" and preceded by a comma.
+10. **The transcript stays open through a list refill.** `txOpen` remembers it in memory, so a background repaint does not fold a transcript that is being read.
+11. **The worker URL carries the page's `?v=` token** (`TX_WORKER`); verify-content holds them equal.
+12. **The mockup** (`specimen-practice-coach.png`) is untracked in the main checkout only, so it was viewed there and not copied. The transcript sits under its clip row, as a disclosure. The coach column belongs to T-047.

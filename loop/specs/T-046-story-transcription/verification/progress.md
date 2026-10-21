@@ -10,8 +10,9 @@ Branch loop/T-046-story-transcription, worktree /home/user/bf-T-046, base main 8
 - [x] 4. app.js + transcribe-worker.js + style.css; bump ?v= tokens
 - [x] 5. verify-sync-loop (written): no transcript in any push; settings keys unchanged
 - [x] 6. verify-design (written): transcript card, chips, struck text >= 4.5:1, 44px controls at 1440/390 x dark/light
-- [ ] 7. plants (a)-(d) via verification/plants.py, each exit 1
-- [ ] 8. all gates sequential + clip under TZ=America/Los_Angeles
+- [~] 7. plants (running) (a)-(d) via verification/plants.py, each exit 1
+- [x] 8. all gates sequential + clip under TZ=America/Los_Angeles (verification/gates.log): typecheck 0, content 1 (ONLY the two TX_REVISION checks: the blocker), sync-loop 0, shell 0, contrast 0, logic 0, flows 0 (339), clip 0 and 0 under LA (797 known, 0 new, 0 stale), design 0 (2108)
+- [x] 9. screenshots: verification/shots.js -> verification/screens/ (8 PNGs), read
 
 ## Decisions
 - Harness: a Worker cannot be constructed from a file:// page (SecurityError, origin 'null'), measured. The transcription contexts launch Chromium with --allow-file-access-from-files (as T-028 added fake-media flags); with it a module worker runs and ctx.route intercepts its import() of the pinned URL (measured in a probe). Production (GitHub Pages, https) needs no flag. Without it, the page shows the "cannot run" line, which is the no-Worker failure path.

@@ -1,0 +1,136 @@
+# T-046 gates, run sequentially by the builder (NODE_PATH=/opt/node22/lib/node_modules)
+# code at cc89990; commits after it touch only loop/ files (plants.py, shots.js, progress.md, lessons.md), none read by a gate
+head cc89990
+typecheck exit 0
+verify-content exit 1 | 2 of 40220 checks FAILED
+verify-sync-loop exit 0 | PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
+verify-shell exit 0 | PASS — shell intact across 8 desktop widths x 12 routes and 5 phone widths, frame clear on 24 routes, phone landscape inside the safe-area insets on 3 routes 
+verify-contrast exit 0 | PASS — 124 page-renders across 31 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+verify-logic exit 0 | PASS — 63 invariants hold
+verify-flows exit 0 | PASS — 339 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
+verify-clip exit 0 | PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (140130 element me
+verify-clip TZ=America/Los_Angeles exit 0 | PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (140220 element me
+verify-design exit 0 | PASS — 2108 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
+done
+
+## verify-content FAILs
+  FAIL T-046: TX_REVISION is a 40-hex commit of Xenova/whisper-base.en (got "UNVERIFIED") — read it from https://huggingface.co/api/models/Xenova/whisper-base.en and record it in loop/specs/T-046-story-transcription/verification/notes.md; until then the model is not pinned
+  FAIL T-046: verification/notes.md records the model id and its revision side by side
+2 of 40220 checks FAILED
+
+## T-046 lines
+  ok    (m) /transcript offers a pass for the next gate only (Gate 1), and no unmark — controls: pass 1
+  ok    (m) /transcript offers a pass for the next gate only (Gate 1), and no unmark — controls: pass 1
+transcribe a story (T-046)
+  ok    (r) 390px: once the clip is saved the page asks first — "Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.", Download and Not now — and before the answer nothing is imported, no Worker exists and nothing is stored — {"a":{"text":"Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.","buttons":["Downl
+  ok    (r) 390px: Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it — {"workers":[{"url":"js/transcribe-worker.js?v=20261021a","type":"module"}],"lib":1,"hf":0}
+  ok    (r) 390px: the worker asked for automatic-speech-recognition with Xenova/whisper-base.en at revision UNVERIFIED (q8, wasm), with timestamps, and was handed 16 kHz mono Float32 PCM (2.04s for a 2s clip) — [{"task":"automatic-speech-recognition","model":"Xenova/whisper-base.en","revision":"UNVERIFIED","dtype":"q8","device":"wasm","f32":true,"len":32640,"timestamps":true,"chunk":30}]
+  ok    (r) 390px: while it worked the row said "Loading the speech model… n%", then "Transcribing… n%" — ["Preparing the audio…","Loading the speech model… 0%","Loading the speech model… 40%","Loading the speech model… 100%","Transcribing… 0%","Transcribing… 99%"]
+  ok    (r) 390px: the transcript is on the clip's IndexedDB record as { text, chunks, model, at } — the stub's text and chunks, model Xenova/whisper-base.en@UNVERIFIED — and the audio is untouched — {"fields":"blob,date,kind,seconds,title,transcript","keys":["text","chunks","model","at"],"model":"Xenova/whisper-base.en@UNVERIFIED","at":"2026-10-20T12:00:00.000Z","size":[23000,23000]}
+  ok    (r) 390px: and nowhere else — no storage key holds it, the rep is the hand form's shape, the chain has no transcript event; the device remembers only "on" — {"elsewhere":[],"rep":{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"},"setting":"on"}
+  ok    (r) 390px: the fillers struck through are exactly ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"] — not "I like it", "Things like that", "a kind of map" or "Is that right?" — ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"]
+  ok    (r) 390px: the chips give the total, then each filler's count in reading order: 11 fillers to cut, um ×1, like ×1, actually ×1, you know ×2, I mean ×1, kind of ×1, okay so ×1, right? ×1, uh ×1, so yeah ×1 — ["11 fillers to cut","um ×1","like ×1","actually ×1","you know ×2","I mean ×1","kind of ×1","okay so ×1","right? ×1","uh ×1","so yeah ×1"]
+  ok    (r) 390px: the card says 61 words · 1830 per minute (from the clip's 2 seconds), and "Whisper can miss 'um' and 'uh'." — ["61 words · 1830 per minute","Whisper can miss 'um' and 'uh'."]
+  ok    (r) 390px: the card's text is the transcript, selectable, with a Copy button — {"text":"So um, last Tuesday a client asked me, l","select":"text","copy":true}
+  ok    (r) 390px: Copy puts the transcript on the clipboard — "So um, last Tuesday a client asked me, like, what an embeddi"
+  ok    (r) 390px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — []
+  ok    (r) 390px: leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once — {"workers":1,"lib":1,"reports":1}
+  ok    (r) 390px: no page errors
+  ok    (r) 1280px: once the clip is saved the page asks first — "Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.", Download and Not now — and before the answer nothing is imported, no Worker exists and nothing is stored — {"a":{"text":"Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.","buttons":["Down
+  ok    (r) 1280px: Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it — {"workers":[{"url":"js/transcribe-worker.js?v=20261021a","type":"module"}],"lib":1,"hf":0}
+  ok    (r) 1280px: the worker asked for automatic-speech-recognition with Xenova/whisper-base.en at revision UNVERIFIED (q8, wasm), with timestamps, and was handed 16 kHz mono Float32 PCM (2.04s for a 2s clip) — [{"task":"automatic-speech-recognition","model":"Xenova/whisper-base.en","revision":"UNVERIFIED","dtype":"q8","device":"wasm","f32":true,"len":32640,"timestamps":true,"chunk":30}]
+  ok    (r) 1280px: while it worked the row said "Loading the speech model… n%", then "Transcribing… n%" — ["Preparing the audio…","Loading the speech model… 0%","Loading the speech model… 40%","Loading the speech model… 100%","Transcribing… 0%","Transcribing… 99%"]
+  ok    (r) 1280px: the transcript is on the clip's IndexedDB record as { text, chunks, model, at } — the stub's text and chunks, model Xenova/whisper-base.en@UNVERIFIED — and the audio is untouched — {"fields":"blob,date,kind,seconds,title,transcript","keys":["text","chunks","model","at"],"model":"Xenova/whisper-base.en@UNVERIFIED","at":"2026-10-20T12:00:00.000Z","size":[23000,23000]}
+  ok    (r) 1280px: and nowhere else — no storage key holds it, the rep is the hand form's shape, the chain has no transcript event; the device remembers only "on" — {"elsewhere":[],"rep":{"date":"2026-10-20","seconds":2,"takes":1,"from":"Story · Tue 20 Oct"},"setting":"on"}
+  ok    (r) 1280px: the fillers struck through are exactly ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"] — not "I like it", "Things like that", "a kind of map" or "Is that right?" — ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"]
+  ok    (r) 1280px: the chips give the total, then each filler's count in reading order: 11 fillers to cut, um ×1, like ×1, actually ×1, you know ×2, I mean ×1, kind of ×1, okay so ×1, right? ×1, uh ×1, so yeah ×1 — ["11 fillers to cut","um ×1","like ×1","actually ×1","you know ×2","I mean ×1","kind of ×1","okay so ×1","right? ×1","uh ×1","so yeah ×1"]
+  ok    (r) 1280px: the card says 61 words · 1830 per minute (from the clip's 2 seconds), and "Whisper can miss 'um' and 'uh'." — ["61 words · 1830 per minute","Whisper can miss 'um' and 'uh'."]
+  ok    (r) 1280px: the card's text is the transcript, selectable, with a Copy button — {"text":"So um, last Tuesday a client asked me, l","select":"text","copy":true}
+  ok    (r) 1280px: Copy puts the transcript on the clipboard — "So um, last Tuesday a client asked me, like, what an embeddi"
+  ok    (r) 1280px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — []
+  ok    (r) 1280px: leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once — {"workers":1,"lib":1,"reports":1}
+  ok    (r) 1280px: no page errors
+  ok    (r) Not now, 390px: Not now closes the question; the list says "Transcription is off on this device." with "Turn on transcription", and no row offers Transcribe — {"ask":false,"line":"Transcription is off on this device.","on":"Turn on transcription","go":0}
+  ok    (r) Not now, 390px: it is remembered on the device (settings.transcribe "off"); nothing was imported and no Worker was made — {"setting":"off","lib":0,"workers":0}
+  ok    (r) Not now, 390px: after leaving and coming back, and after a second recording, it is still off — no question, no import, no Worker — {"o2":{"ask":false,"line":"Transcription is off on this device.","on":"Turn on transcription","go":0},"o3":{"ask":false,"line":"Transcription is off on this device.","on":"Turn on transcription","go":0},"lib":0,"workers":0}
+  ok    (r) Not now, 390px: "Turn on transcription" brings the question back, and still downloads nothing until it is answered — {"a":{"text":"Download the speech model (~75 MB, once)? It runs on this device; your audio never leaves it.","buttons":["Download","Not now"]},"lib":0}
+  ok    (r) Not now, 390px: no page errors
+  ok    (r) Transcribe on a kept clip, 1280px: with transcription on, opening the page with an untranscribed clip starts nothing — no import, no Worker — and its row offers Transcribe — {"r0":[{"key":"2026-10-19-1","go":true,"tx":false,"play":true,"lines":[],"muted":true}],"lib":0,"workers":0}
+  ok    (r) Transcribe on a kept clip, 1280px: Transcribe ran it without asking again: the 2.0s 48 kHz WAV reached the worker as 32000 samples (32000 at 16 kHz, within 10ms) — [{"task":"automatic-speech-recognition","model":"Xenova/whisper-base.en","revision":"UNVERIFIED","dtype":"q8","device":"wasm","f32":true,"len":32000,"timestamps":true,"chunk":30}]
+  ok    (r) Transcribe on a kept clip, 1280px: the transcript is stored on that clip and the audio is untouched — {"size":[192044,192044],"has":true}
+  ok    (r) Transcribe on a kept clip, 1280px: words per minute come from the clip's own seconds: 61 words · 51 per minute at 72s — "61 words · 51 per minute"
+  ok    (r) Transcribe on a kept clip, 1280px: no page errors
+  ok    (r) failure, no Worker, 1280px: the row shows one muted line (This browser cannot run the speech model, so this one stays audio only.) — {"key":"2026-10-19-1","go":false,"tx":false,"play":true,"lines":["This browser cannot run the speech model, so this one stays audio only."],"muted":true}
+  ok    (r) failure, no Worker, 1280px: the recording is intact — the same audio, no transcript, still playable — {"size":[192044,192044],"transcript":false,"play":true}
+  ok    (r) failure, no Worker, 1280px: nothing was imported — lib 0
+  ok    (r) failure, no Worker, 1280px: no page errors
+  ok    (r) failure, the download fails, 1280px: the row shows one muted line (Could not download the speech model. The recording is kept.) — {"key":"2026-10-19-1","go":true,"tx":false,"play":true,"lines":["Could not download the speech model. The recording is kept."],"muted":true}
+  ok    (r) failure, the download fails, 1280px: the recording is intact — the same audio, no transcript, still playable — {"size":[192044,192044],"transcript":false,"play":true}
+  ok    (r) failure, the download fails, 1280px: no page errors
+  ok    (r) failure, out of memory, 1280px: the row shows one muted line (Not enough memory to transcribe this one. The recording is kept.) — {"key":"2026-10-19-1","go":true,"tx":false,"play":true,"lines":["Not enough memory to transcribe this one. The recording is kept."],"muted":true}
+  ok    (r) failure, out of memory, 1280px: the recording is intact — the same audio, no transcript, still playable — {"size":[192044,192044],"transcript":false,"play":true}
+  ok    (r) failure, out of memory, 1280px: no page errors
+  ok    (r) failure, no speech, 1280px: the row shows one muted line (No speech found in this recording.) — {"key":"2026-10-19-1","go":true,"tx":false,"play":true,"lines":["No speech found in this recording."],"muted":true}
+  ok    (r) failure, no speech, 1280px: the recording is intact — the same audio, no transcript, still playable — {"size":[192044,192044],"transcript":false,"play":true}
+  ok    (r) failure, no speech, 1280px: no page errors
+A transcript stays on the device — no push carries its text (T-046):
+  ok    the transcript is on the clip's IndexedDB record ([" I drew arrows on a napkin, king minus man plus woman. She said it back better than I had."])
+  ok    no push carries the transcript's text, a transcript or chunks field, or the transcription setting (1 push(es) read)
+PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, nor its transcript (T-046), and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043)
+  ok    1440px dark /atlas: the next-gate card links to #/transcript, "Next gate · 1 of 5", Calibration, its requirements as 3 chips — {"next":{"tag":"A","href":"#/transcript"},"kicker":"Next gate · 1 of 5","gate":"Calibration","reqs":["Diagnostics done","Blog live","First paid client"]}
+  ok    390px dark /atlas: the next-gate card links to #/transcript, "Next gate · 1 of 5", Calibration, its requirements as 3 chips — {"next":{"tag":"A","href":"#/transcript"},"kicker":"Next gate · 1 of 5","gate":"Calibration","reqs":["Diagnostics done","Blog live","First paid client"]}
+  ok    1440px light /atlas: the next-gate card links to #/transcript, "Next gate · 1 of 5", Calibration, its requirements as 3 chips — {"next":{"tag":"A","href":"#/transcript"},"kicker":"Next gate · 1 of 5","gate":"Calibration","reqs":["Diagnostics done","Blog live","First paid client"]}
+  ok    390px light /atlas: the next-gate card links to #/transcript, "Next gate · 1 of 5", Calibration, its requirements as 3 chips — {"next":{"tag":"A","href":"#/transcript"},"kicker":"Next gate · 1 of 5","gate":"Calibration","reqs":["Diagnostics done","Blog live","First paid client"]}
+  ok    1440px dark T-038 /transcript: with Gates 1-2 passed the only gate controls are "pass 3, unmark 2" (the next gate, the last passed) — pass 3, unmark 2
+  ok    1440px dark T-038 /transcript: the pass sheet for Gate 3 opens ("Pass Gate 3 — Research legs") — Pass Gate 3 — Research legs
+  ok    1440px dark T-038 /transcript: the unmark sheet for Gate 2 opens ("Unmark Gate 2 — Core skills") — Unmark Gate 2 — Core skills
+  ok    1440px dark T-038: drawing /atlas and /transcript and opening both sheets wrote nothing (writes 0 -> 0)
+  ok    390px dark T-038 /transcript: with Gates 1-2 passed the only gate controls are "pass 3, unmark 2" (the next gate, the last passed) — pass 3, unmark 2
+  ok    390px dark T-038 /transcript: the pass sheet for Gate 3 opens ("Pass Gate 3 — Research legs") — Pass Gate 3 — Research legs
+  ok    390px dark T-038 /transcript: the unmark sheet for Gate 2 opens ("Unmark Gate 2 — Core skills") — Unmark Gate 2 — Core skills
+  ok    390px dark T-038: drawing /atlas and /transcript and opening both sheets wrote nothing (writes 0 -> 0)
+  ok    1440px light T-038 /transcript: with Gates 1-2 passed the only gate controls are "pass 3, unmark 2" (the next gate, the last passed) — pass 3, unmark 2
+  ok    1440px light T-038 /transcript: the pass sheet for Gate 3 opens ("Pass Gate 3 — Research legs") — Pass Gate 3 — Research legs
+  ok    1440px light T-038 /transcript: the unmark sheet for Gate 2 opens ("Unmark Gate 2 — Core skills") — Unmark Gate 2 — Core skills
+  ok    1440px light T-038: drawing /atlas and /transcript and opening both sheets wrote nothing (writes 0 -> 0)
+  ok    390px light T-038 /transcript: with Gates 1-2 passed the only gate controls are "pass 3, unmark 2" (the next gate, the last passed) — pass 3, unmark 2
+  ok    390px light T-038 /transcript: the pass sheet for Gate 3 opens ("Pass Gate 3 — Research legs") — Pass Gate 3 — Research legs
+  ok    390px light T-038 /transcript: the unmark sheet for Gate 2 opens ("Unmark Gate 2 — Core skills") — Unmark Gate 2 — Core skills
+  ok    390px light T-038: drawing /atlas and /transcript and opening both sheets wrote nothing (writes 0 -> 0)
+T-046 1440px dark
+  ok    T-046 1440px dark: the transcript card is open, its fillers struck through (line-through) and exactly ["um","like","You know","kind of","Okay so","right","Uh","so yeah"] — ["um line-through","like line-through","You know line-through","kind of line-through","Okay so line-through","right line-through","Uh line-through","so yeah line-through"]
+  ok    T-046 1440px dark: the chips are the total and one per filler (9), each >= 4.5:1 — 8 fillers to cut 4.92, um ×1 5.42, like ×1 5.42, you know ×1 5.42, kind of ×1 5.42, okay so ×1 5.42, right? ×1 5.42, uh ×1 5.42, so yeah ×1 5.42
+  ok    T-046 1440px dark: every text in the card — the transcript, each struck filler, the words line, the note, the disclosure, Copy, Transcribe — is >= 4.5:1 — 23 texts, lowest 4.89
+  ok    T-046 1440px dark: Copy and the other row's Transcribe are >= 44x44, and the disclosure is >= 44 tall — Copy 55x44, Transcribe 92x44, Transcript 718x44
+  ok    T-046 1440px dark: opening the page and the transcript wrote nothing — writes 0 -> 0
+  ok    T-046 1440px dark: Transcribe asks first — the question >= 4.5:1, Download and Not now >= 44x44 and >= 4.5:1 — and nothing is requested — Download the speech model (~75 17.01 714x44, Download 15.7 122x44, Not now 17.01 108x44; requests +0
+  ok    T-046 1440px dark: Not now leaves "Transcription is off on this device." and "Turn on transcription", >= 4.5:1, the control >= 44x44 — Transcription is off on this d 7.5 218x19, Turn on transcription 19.28 165x44
+  ok    T-046 1440px dark: no page errors
+T-046 390px dark
+  ok    T-046 390px dark: the transcript card is open, its fillers struck through (line-through) and exactly ["um","like","You know","kind of","Okay so","right","Uh","so yeah"] — ["um line-through","like line-through","You know line-through","kind of line-through","Okay so line-through","right line-through","Uh line-through","so yeah line-through"]
+  ok    T-046 390px dark: the chips are the total and one per filler (9), each >= 4.5:1 — 8 fillers to cut 4.92, um ×1 5.42, like ×1 5.42, you know ×1 5.42, kind of ×1 5.42, okay so ×1 5.42, right? ×1 5.42, uh ×1 5.42, so yeah ×1 5.42
+  ok    T-046 390px dark: every text in the card — the transcript, each struck filler, the words line, the note, the disclosure, Copy, Transcribe — is >= 4.5:1 — 23 texts, lowest 4.89
+  ok    T-046 390px dark: Copy and the other row's Transcribe are >= 44x44, and the disclosure is >= 44 tall — Copy 55x44, Transcribe 92x44, Transcript 328x44
+  ok    T-046 390px dark: opening the page and the transcript wrote nothing — writes 0 -> 0
+  ok    T-046 390px dark: Transcribe asks first — the question >= 4.5:1, Download and Not now >= 44x44 and >= 4.5:1 — and nothing is requested — Download the speech model (~75 17.01 318x65, Download 15.7 122x44, Not now 17.01 108x44; requests +0
+  ok    T-046 390px dark: Not now leaves "Transcription is off on this device." and "Turn on transcription", >= 4.5:1, the control >= 44x44 — Transcription is off on this d 7.5 218x19, Turn on transcription 19.28 165x44
+  ok    T-046 390px dark: no page errors
+T-046 1440px light
+  ok    T-046 1440px light: the transcript card is open, its fillers struck through (line-through) and exactly ["um","like","You know","kind of","Okay so","right","Uh","so yeah"] — ["um line-through","like line-through","You know line-through","kind of line-through","Okay so line-through","right line-through","Uh line-through","so yeah line-through"]
+  ok    T-046 1440px light: the chips are the total and one per filler (9), each >= 4.5:1 — 8 fillers to cut 5.4, um ×1 6.37, like ×1 6.37, you know ×1 6.37, kind of ×1 6.37, okay so ×1 6.37, right? ×1 6.37, uh ×1 6.37, so yeah ×1 6.37
+  ok    T-046 1440px light: every text in the card — the transcript, each struck filler, the words line, the note, the disclosure, Copy, Transcribe — is >= 4.5:1 — 23 texts, lowest 5.40
+  ok    T-046 1440px light: Copy and the other row's Transcribe are >= 44x44, and the disclosure is >= 44 tall — Copy 55x44, Transcribe 92x44, Transcript 718x44
+  ok    T-046 1440px light: opening the page and the transcript wrote nothing — writes 0 -> 0
+  ok    T-046 1440px light: Transcribe asks first — the question >= 4.5:1, Download and Not now >= 44x44 and >= 4.5:1 — and nothing is requested — Download the speech model (~75 18.88 714x44, Download 16.33 122x44, Not now 18.88 108x44; requests +0
+  ok    T-046 1440px light: Not now leaves "Transcription is off on this device." and "Turn on transcription", >= 4.5:1, the control >= 44x44 — Transcription is off on this d 6.1 218x19, Turn on transcription 16.72 165x44
+  ok    T-046 1440px light: no page errors
+T-046 390px light
+  ok    T-046 390px light: the transcript card is open, its fillers struck through (line-through) and exactly ["um","like","You know","kind of","Okay so","right","Uh","so yeah"] — ["um line-through","like line-through","You know line-through","kind of line-through","Okay so line-through","right line-through","Uh line-through","so yeah line-through"]
+  ok    T-046 390px light: the chips are the total and one per filler (9), each >= 4.5:1 — 8 fillers to cut 5.4, um ×1 6.37, like ×1 6.37, you know ×1 6.37, kind of ×1 6.37, okay so ×1 6.37, right? ×1 6.37, uh ×1 6.37, so yeah ×1 6.37
+  ok    T-046 390px light: every text in the card — the transcript, each struck filler, the words line, the note, the disclosure, Copy, Transcribe — is >= 4.5:1 — 23 texts, lowest 5.40
+  ok    T-046 390px light: Copy and the other row's Transcribe are >= 44x44, and the disclosure is >= 44 tall — Copy 55x44, Transcribe 92x44, Transcript 328x44
+  ok    T-046 390px light: opening the page and the transcript wrote nothing — writes 0 -> 0
+  ok    T-046 390px light: Transcribe asks first — the question >= 4.5:1, Download and Not now >= 44x44 and >= 4.5:1 — and nothing is requested — Download the speech model (~75 18.88 318x65, Download 16.33 122x44, Not now 18.88 108x44; requests +0
+  ok    T-046 390px light: Not now leaves "Transcription is off on this device." and "Turn on transcription", >= 4.5:1, the control >= 44x44 — Transcription is off on this d 6.1 218x19, Turn on transcription 16.72 165x44
+  ok    T-046 390px light: no page errors
+PASS — 2108 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; list

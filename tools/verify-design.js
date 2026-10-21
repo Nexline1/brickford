@@ -4756,6 +4756,93 @@ function t28SeedClips(list) {
     }
   }
 
+  // ---- T-046: the transcript card, its chips, and the question ----
+  // loop/specs/T-046-story-transcription/spec.md, at 1440 and 390 in Dark
+  // and Light. Two clips written straight into IndexedDB as the app keeps
+  // them: one with a transcript, one without. Opened, the card's every text —
+  // the transcript, each struck filler (struck: line-through), each chip,
+  // the words line, the muted note, the disclosure and Copy — measures
+  // >= 4.5:1 against what is painted behind it; the disclosure, Copy and the
+  // other row's Transcribe are >= 44x44 (44 tall for the full-width
+  // disclosure). Then Transcribe asks the question — its text >= 4.5:1,
+  // Download and Not now >= 44x44, nothing requested — and Not now leaves
+  // the off line and "Turn on transcription" (>= 4.5:1, >= 44x44). Opening the
+  // page and the card writes nothing.
+  let t46Checks = 0;
+  const c46 = (name, ok, detail) => { t46Checks++; return check(name, ok, detail); };
+  const T46_TEXT = " So um, she asked me, like, what an embedding is. You know, I kind of froze. Okay so I drew it, right? Uh, so yeah.";
+  const T46_STRUCK = ["um", "like", "You know", "kind of", "Okay so", "right", "Uh", "so yeah"];
+  const t46Seed = text => new Promise((res, rej) => {
+    const q = indexedDB.open("brickford_audio", 1);
+    q.onupgradeneeded = () => { if (!q.result.objectStoreNames.contains("clips")) q.result.createObjectStore("clips"); };
+    q.onerror = () => rej(q.error);
+    q.onsuccess = () => {
+      const db = q.result, t = db.transaction("clips", "readwrite"), blob = () => new Blob([new Uint8Array(64)], { type: "audio/webm" });
+      t.objectStore("clips").put({ date: "2026-10-20", seconds: 12, kind: "story", title: "Story · Tue 20 Oct", blob: blob(),
+        transcript: { text: text, chunks: [{ text: text, timestamp: [0, 12] }], model: "stub@stub", at: "2026-10-20T12:00:00.000Z" } }, "2026-10-20-1");
+      t.objectStore("clips").put({ date: "2026-10-19", seconds: 72, kind: "humor", title: "Humour · Mon 19 Oct", blob: blob() }, "2026-10-19-1");
+      t.oncomplete = () => { db.close(); res(2); };
+      t.onerror = () => rej(t.error);
+    };
+  });
+  // Each text's ratio against its own backdrop, and each control's box.
+  const t46Measure = sels => {
+    const z = window.__dz, out = [];
+    sels.forEach(s => document.querySelectorAll(s).forEach(el => {
+      if (!el.checkVisibility()) return;
+      const bg = z.backdrop(el), fg = z.over(z.bytes(getComputedStyle(el).color), bg), r = el.getBoundingClientRect();
+      out.push({ sel: s, text: el.textContent.trim().slice(0, 30), ratio: +z.ratio(fg, bg).toFixed(2), w: r.width, h: r.height,
+        strike: getComputedStyle(el).textDecorationLine });
+    }));
+    return out;
+  };
+  const T46_TEXTS = ["#view .tx-text", "#view .tx-text s.tx-f", "#view .tx-chip", "#view .tx-stats", "#view .tx-note", "#view .pr-tx > summary", "#view [data-tx-copy]", "#view [data-tx-go]"];
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      const at = "T-046 " + o.w + "px " + theme;
+      console.log("\n" + at);
+      const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, patch: T28_PATCH }, o));
+      try {
+        await page.evaluate(t46Seed, T46_TEXT);
+        const w0 = await writesNow(page), r0 = requests.length;
+        await go(page, "/practice");
+        await page.waitForFunction(() => document.querySelectorAll("#view .pr-clip").length === 2, null, { timeout: 5000 });
+        await page.click("#view .pr-clip details.pr-tx > summary");
+        await page.waitForFunction(() => { const d = document.querySelector("#view details.pr-tx"); return d && d.open; }, null, { timeout: 4000 });
+        const m = await page.evaluate(t46Measure, T46_TEXTS);
+        const of = s => m.filter(x => x.sel === s);
+        const struck = of("#view .tx-text s.tx-f");
+        c46(at + ": the transcript card is open, its fillers struck through (line-through) and exactly " + JSON.stringify(T46_STRUCK),
+          of("#view .tx-text").length === 1 && JSON.stringify(struck.map(x => x.text)) === JSON.stringify(T46_STRUCK) && struck.every(x => /line-through/.test(x.strike)),
+          JSON.stringify(struck.map(x => x.text + " " + x.strike)));
+        c46(at + ": the chips are the total and one per filler (" + of("#view .tx-chip").length + "), each >= 4.5:1",
+          of("#view .tx-chip").length === 9 && of("#view .tx-chip").every(x => x.ratio >= 4.5), of("#view .tx-chip").map(x => x.text + " " + x.ratio).join(", "));
+        const low = m.filter(x => x.ratio < 4.5);
+        c46(at + ": every text in the card — the transcript, each struck filler, the words line, the note, the disclosure, Copy, Transcribe — is >= 4.5:1",
+          m.length >= 20 && low.length === 0, low.length ? low.map(x => x.sel + " \"" + x.text + "\" " + x.ratio).join("; ") : m.length + " texts, lowest " + Math.min(...m.map(x => x.ratio)).toFixed(2));
+        const ctl = of("#view [data-tx-copy]").concat(of("#view [data-tx-go]")), sum = of("#view .pr-tx > summary");
+        c46(at + ": Copy and the other row's Transcribe are >= 44x44, and the disclosure is >= 44 tall",
+          ctl.length === 2 && ctl.every(x => x.w >= 44 && x.h >= 44) && sum.length === 1 && sum[0].h >= 44,
+          ctl.concat(sum).map(x => x.text + " " + x.w.toFixed(0) + "x" + x.h.toFixed(0)).join(", "));
+        const w1 = await writesNow(page);
+        c46(at + ": opening the page and the transcript wrote nothing", w1 === w0, "writes " + w0 + " -> " + w1);
+        await page.click("#view [data-tx-go]");
+        await page.waitForSelector("#view .pr-ask", { timeout: 4000 });
+        const a = await page.evaluate(t46Measure, ["#view .pr-ask-t", "#view .pr-ask button"]);
+        c46(at + ": Transcribe asks first — the question >= 4.5:1, Download and Not now >= 44x44 and >= 4.5:1 — and nothing is requested",
+          a.length === 3 && a.every(x => x.ratio >= 4.5) && a.slice(1).every(x => x.w >= 44 && x.h >= 44) && requests.length === r0,
+          a.map(x => x.text + " " + x.ratio + " " + x.w.toFixed(0) + "x" + x.h.toFixed(0)).join(", ") + "; requests +" + (requests.length - r0));
+        await page.click("#view .pr-ask [data-tx=no]");
+        await page.waitForSelector("#view .pr-txoff [data-tx=on]", { timeout: 4000 });
+        const f = await page.evaluate(t46Measure, ["#view .pr-txoff-t", "#view .pr-txoff [data-tx=on]"]);
+        c46(at + ": Not now leaves \"Transcription is off on this device.\" and \"Turn on transcription\", >= 4.5:1, the control >= 44x44",
+          f.length === 2 && f.every(x => x.ratio >= 4.5) && f[1].w >= 44 && f[1].h >= 44, f.map(x => x.text + " " + x.ratio + " " + x.w.toFixed(0) + "x" + x.h.toFixed(0)).join(", "));
+      } catch (e) { c46(at + ": ran to its end without a harness error", false, e.message.split("\n")[0]); }
+      c46(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -4787,7 +4874,8 @@ function t28SeedClips(list) {
       "equal to DOCS, 5 links + \"+N\", all noopener) at 1440/390 x 2 themes, " + T26C_STATES.length + " more Week states at 1440/390, ‹ › Today tapped and keyed " +
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
-      "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)"
+      "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks); " +
+      "T-046: the transcript card, its struck fillers and chips >= 4.5:1, its controls and the question's >= 44x44, at 1440/390 x 2 themes (" + t46Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

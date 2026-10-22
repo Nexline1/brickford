@@ -226,8 +226,8 @@ const CUR = lessonOf(LECTURE.cid, LECTURE.ui, LECTURE.li);
 // resume flows' contexts carry lecture 13 watched with its quiz passed —
 // a quiz pass added to the fixture, nothing else. Their own lecture (14) is
 // untouched by it.
-const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-27", notes: "", checks: [],
-  quiz: { passedAt: "2026-10-27", at: "2026-10-27T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
+const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
+  quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
 const unlocked = st => Object.assign({}, st || {}, { lessons: Object.assign({}, PREV_PASSED, (st || {}).lessons || {}) });
 
 // The page going to the background, as the page sees it: visibilityState,
@@ -488,8 +488,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // answered wrong, the rest right; the answers are read from the summary's
     // own checks (window.DAR), by the bank index the card carries.
     {
-      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-27", notes: "", checks: [],
-        quiz: { passedAt: "2026-10-27", at: "2026-10-27T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
+      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
       const { ctx, page, errors } = await fresh(browser, w, { lessons: PREV }, "/__test");
       await go(page, "/");
       const before = await todayCount(page);
@@ -1898,8 +1898,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // render — the quiz card on screen is the same element, still on the miss.
   console.log("\nrewatch from a miss (once, 1280px)");
   {
-    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-27", notes: "", checks: [],
-        quiz: { passedAt: "2026-10-27", at: "2026-10-27T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
+    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
       "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } } };
     const { ctx, page, errors } = await fresh(browser, 1280, st, "/__test");
     await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.forEach(q => { q.at = 95; }));

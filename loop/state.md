@@ -116,3 +116,4 @@
 - 2026-10-23: Monk dashboard v2 published: Ja'fari 3 blocks, 4 German chips, new routine. Reference copied to loop/design and bf-T-054.
 - 2026-10-23: T-054 built 356bf80 (builder opus, resumed). CHECK (script) all green: logic 105, flows 324, design 2566. Review r1 (reviewer opus, fresh), with privacy as the first focus.
 - 2026-10-23: T-054 APPROVED r1 (reviewer opus, fresh). PR #23 merged → main e0cb40c. Monk data stays on the device until T-053.
+- 2026-10-23: Owner: Sunday revision PDFs for plan weeks 1–6 only (files, no app feature yet). T-035 agent resumed (general-purpose opus).

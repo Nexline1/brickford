@@ -2,16 +2,16 @@
 
 ## The start date
 
-`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-10-05**. Day 1 is Monday
-5 October 2026. The first rest day is Saturday 10 October; day 1094 lands on
-2030-04-02.
+`DAR.START_DATE` in `platform/data/curriculum.js` is **2026-10-16**. Day 1 is Friday
+16 October 2026. The first rest day is the next day, Saturday 17 October; day 1094 lands on
+2030-04-14.
 
 Two finish dates exist and they differ by one day, which is not a bug in the date arithmetic
 and must not be "fixed" as one. **Day 1094 is `dateForStudy(1093)`** — the 1094th study day,
-counting day 1 as the first — and that is 2030-04-02. The **gate baseline** the dashboard
+counting day 1 as the first — and that is 2030-04-14. The **gate baseline** the dashboard
 prints is `addStudyDays(START_DATE, 1094)`, which advances 1094 study days *from* the start and
-therefore lands on the 1095th, 2030-04-03. The same one-day gap was there before this reset
-(2030-03-19 against 2030-03-20), and under every start since 12 August. Under the 30 July
+therefore lands on the 1095th, 2030-04-15. The same one-day gap was there before this reset
+(2030-04-02 against 2030-04-03), and under every start since 12 August. Under the 30 July
 start it was two days (2030-01-25 against 2030-01-27), because day 1094 fell on a Friday and
 the Saturday rest sat between them. If it is ever closed, close it by
 deciding which reading the gates should use, not by editing a date to match the other surface.
@@ -78,16 +78,48 @@ cells; a planted bug (Saturdays without `.rest`) fails it again. The clip baseli
 re-measured and did not change. (verify-shell,
 verify-contrast and verify-sync-loop pin no clock and measure whatever day they run on.)
 
+**On 23 October 2026 they overrode it a fifth time** (the seventh reset in all). The request was
+"reset brickford progress so that the day 1 becomes the 16th of oct", read as a plan reset
+(moving `START_DATE`). The refusal was given with the numbers — 10 study days discarded (5–15
+Oct), day 1094 moving from 2030-04-02 to 2030-04-14 and the gate baseline from 2030-04-03 to
+2030-04-15 — and the owner chose "Reset anyway: day 1 = 16 Oct". It was carried out:
+`START_DATE` 2026-10-16, a Friday, so the first rest day is the very next day. The owner added:
+keep the days and videos already watched, and do not make him rewatch. Nothing about a lecture
+is keyed by date, so done, doneAt, quiz and notes were not touched, and the lectures he watched
+from the old plan's days 1–8 are the new plan's days 1–8 too.
+
+This one was asked for **alongside a real bug**, and the bug was fixed in the same change. The
+quiz gate (T-043) shipped with `QUIZ_GATE_FROM` 2026-10-16, so every lecture ticked from 16 Oct
+on counted only once its quiz was passed: days whose every lecture was watched painted "Part",
+and the ✓ beside a watched lecture (drawn from `lessonCleared`, not from `done`) did not appear —
+which is what "ticks disappearing" looked like. `QUIZ_GATE_FROM` now moves to the day the fix
+merges, so everything watched before it counts and its quiz waits on the catch-up list; and when
+today's lectures are all cleared, the dashboard's next action is the first lecture not yet
+watched (the next study day's work-ahead plan) rather than Resume or "Nothing scheduled".
+verify-logic holds both, on the owner's own fixture.
+
+A Monday start becoming a Friday one cannot keep a pinned clock's plan day AND its weekday, so
+this time the clocks kept the **plan day**: every study-day fixture moved 10 study days
+(`dateForStudy(studyIndex(d))` under the old start, replicated, not counted by hand), and each
+Saturday fixture moved to the Saturday of the same plan week. The plan-day-14 clocks
+(verify-design, verify-clip, verify-flows, verify-shell, verify-logic) went from Tue 20 Oct to
+**Sun 1 Nov**. Weekday-only fixtures (a Friday's speech rep, a Saturday rest card) kept their
+own dates, which are still a Friday and a Saturday inside the plan. The fixtures that mean
+"watched before / after the gate" are derived from `QUIZ_GATE_FROM`, so moving the gate is a
+one-line edit. verify-design's rest-day check still measures a Saturday (Saturdays planted
+without `.rest` fail it, 2 of 2566), and the clip baseline was re-measured: 797, unchanged.
+
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past
 version of themselves.
 
-**Count, for whoever reads this next: this is reset number six** (27 Jul → 30 Jul → 12 Aug →
-14 Sep → 23 Sep → 6 Oct). That is not an argument for refusing twice, and it is not a reason to
+**Count, for whoever reads this next: this is reset number seven** (27 Jul → 30 Jul → 12 Aug →
+14 Sep → 23 Sep → 6 Oct → 23 Oct). That is not an argument for refusing twice, and it is not a reason to
 editorialise at the owner. It is a fact the next session should have, because the honest thing
 to check first is whether a reset is being asked for in place of a fix — at least twice on record the
 screen around one was a device that was not syncing: 14 Sep's `never SYNCED`, and the week of
-6 Oct, when the owner's phone read "This device is not syncing".
+6 Oct, when the owner's phone read "This device is not syncing". And on 23 Oct the reset came
+with a real defect (half-done days), which needed a fix, not a new start.
 
 The one thing that needs no permission: a genuine bug in the date arithmetic, where the code
 disagrees with the date above being day one. Fix the arithmetic, never the date.
@@ -116,7 +148,7 @@ Consequences that must hold, because each one is a way the platform could quietl
   cannot drift apart.
 - Gates are measured in months of **work** (~30.4 study days each) and their calendar targets
   are walked through `addStudyDays`, so the countdown stays honest. Six days a week is why day 1094 is
-  2 April 2030 (gate baseline 3 April) rather than 2 October 2029 — about six months later. That was the accepted trade: the load per day was the
+  14 April 2030 (gate baseline 15 April) rather than 13 October 2029 — about six months later. That was the accepted trade: the load per day was the
   thing that was too heavy, so compressing seven days of work into six would have defeated the
   point.
 

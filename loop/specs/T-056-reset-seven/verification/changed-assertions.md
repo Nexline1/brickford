@@ -59,7 +59,7 @@ unless a row says otherwise. Nothing was removed or loosened; 11 checks were add
 | T38_DONE | {1: 10-09, 2: 10-14} | {1: 10-21, 2: 10-26} |
 | T38_ALL | 10-09, 10-14, 10-15, 10-16, 10-19 | 10-21, 10-26, 10-27, 10-28, 10-30 |
 | gatesSeed / T-031 passed gates | 12-16 Oct / 12-15 Oct | 23, 25, 26, 27, 28 Oct / 23, 25, 26, 27 Oct |
-| ledger events | 15, 16, 19, 20 Oct | 26, 28, 30 Oct, 1 Nov |
+| ledger events | 15, 16, 19, 20 Oct | 27, 28, 30 Oct, 1 Nov |
 | T26C patch (problems, proven lectures, payments, sealed weeks) | 18-26 Oct, weeks 11 and 18 Oct | per map: 29 Oct-6 Nov (rest Sat 31 Oct), weeks 22 and 29 Oct; BHD 1,149.5 unchanged |
 | T26C states: counted-0 ledger, 12,345.75 week, already sealed | 18/26 Oct, 19 Oct, 20 Oct | 29 Oct/6 Nov, 30 Oct, 1 Nov |
 | "a Sunday, the day the week is sealed" | Sun 25 Oct | Thu 5 Nov ("the plan week's last day"); the seal-day wording is held for the owner (review findings 2-3) |

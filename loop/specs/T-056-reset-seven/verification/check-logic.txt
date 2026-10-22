@@ -66,7 +66,10 @@
   ok    T-056: the calendar draws days 1-7 done (dfull), no Part (dhalf) — 10-16 dfull, 10-18 dfull, 10-19 dfull, 10-20 dfull, 10-21 dfull, 10-22 dfull, 10-23 dfull
   ok    T-056: on Sun 25 Oct (day 8, its lectures already watched) the next action opens the first lecture not yet watched — {"next":"math130.0.2","title":"Birthday Problem, Properties of Probability","prev":"math130.0.1","rail":"#/lesson/math130/0/2"}
   ok    T-056: nothing on the dashboard asks to re-watch a watched lecture (a watched one shows only as a ticked done row) — 1 open lesson link(s), none watched; 6 ticked done row(s)
+  ok    T-056: nothing is owed, so the work-ahead card says "ahead of plan" — backlog 0, hint "MATH 130 · 49m video · today is done · ahead of plan"
   ok    no page errors (T-056 watched days)
+  ok    T-056: today cleared with a lecture owed (math130.0.0): the card says "today is done · 1 owed", never "ahead of plan" — {"today":true,"backlog":1,"hint":"MATH 130 · 49m video · today is done · 1 owed","href":"#/lesson/math130/0/2"}
+  ok    no page errors (T-056 owed)
   ok    monk mode on 2026-10-23: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
   ok    no page errors (monk mode 2026-10-23)
   ok    monk mode on 2026-10-24: day 1 of 90, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 90","h":63}
@@ -112,4 +115,4 @@
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 113 invariants hold
+PASS — 116 invariants hold

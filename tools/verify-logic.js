@@ -24,10 +24,15 @@ const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index
 // and so does this block — on purpose, in the same commit. Reset six (2026-10-06)
 // moved the start to 2026-10-05, and every dated fixture below moved forward two
 // weeks with it, weekdays unchanged, so each still sits inside the plan.
-const START = "2026-10-05";
-const DAY_1094 = "2030-04-02";           // dateForStudy(1093)
-const BASELINE = "2030-04-03";           // addStudyDays(START, 1094)
-const WALK_TO = "2030-04-15";            // past the finish, so the whole plan is walked
+// Reset seven (T-056, 2026-10-23) moved it to Friday 2026-10-16. A Monday start
+// becoming a Friday one cannot keep both a fixture's plan day and its weekday,
+// so every study-day fixture moved 10 study days (dateForStudy(studyIndex) under
+// the old start, replicated, not counted by hand) and keeps its plan day; each
+// Saturday fixture was re-picked as the Saturday its scenario needs.
+const START = "2026-10-16";
+const DAY_1094 = "2030-04-14";           // dateForStudy(1093)
+const BASELINE = "2030-04-15";           // addStudyDays(START, 1094)
+const WALK_TO = "2030-04-27";            // past the finish, so the whole plan is walked
 
 // ---------- calendar arithmetic, independent of the app ----------
 const addDays = (iso, n) => {
@@ -74,9 +79,9 @@ async function scenario(browser, now, state, tz) {
   const planDays = days.filter(d => d >= START);
   const saturdays = planDays.filter(isSat);
 
-  // ---- pure date functions: one scenario, empty state, a fixed Tuesday ----
+  // ---- pure date functions: one scenario, empty state, plan day 14 (Sun 1 Nov) ----
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20", null);
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", null);
     const r = await page.evaluate(({ days, saturdays }) => {
       const T = window.__brickfordTest;
       const idx = {};
@@ -92,7 +97,7 @@ async function scenario(browser, now, state, tz) {
         base: T.addStudyDays(window.DAR.START_DATE, 1094),
         idx, back, satSched, satStatus,
         day1Sched: T.scheduledFor(window.DAR.START_DATE).length,
-        missedTue: T.dayStatus("2026-10-13"),     // a past study day, nothing done
+        missedTue: T.dayStatus("2026-10-25"),     // a past study day (plan day 8), nothing done
       };
     }, { days, saturdays });
 
@@ -133,23 +138,24 @@ async function scenario(browser, now, state, tz) {
     const stBad = saturdays.filter(d => r.satStatus[d] !== "rest");
     check('dayStatus(Saturday) = "rest"', stBad.length === 0 && r.missedTue === "missed",
       stBad.length ? stBad.length + " Saturday(s) not rest, first " + stBad[0] + " -> " + r.satStatus[stBad[0]]
-                   : "every Saturday rest; an untouched past Tuesday is \"" + r.missedTue + "\" (not vacuous)");
+                   : "every Saturday rest; an untouched past study day is \"" + r.missedTue + "\" (not vacuous)");
     check("no page errors (date scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 
   // ---- the streak ----
-  // Today is Tuesday 20 Oct. Sealed: Mon 5 – Wed 7 Oct (an old run of 3), then
-  // Mon 12 – Fri 16 Oct and Sun 18 – Tue 20 Oct. Saturday 17 Oct is not sealed
-  // and must be stepped over: the current run is 8, not 3.
-  const sealed = ["2026-10-05", "2026-10-06", "2026-10-07",
-    "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
-    "2026-10-18", "2026-10-19", "2026-10-20"];
+  // Today is Sunday 1 Nov (plan day 14). Sealed: Fri 16 – Mon 19 Oct, plan days
+  // 1-3 (an old run of 3), then Fri 23 – Fri 30 Oct and Sun 1 Nov, plan days
+  // 7-14. Saturdays 24 and 31 Oct are not sealed and must be stepped over: the
+  // current run is 8, not 1.
+  const sealed = ["2026-10-16", "2026-10-18", "2026-10-19",
+    "2026-10-23", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28",
+    "2026-10-29", "2026-10-30", "2026-11-01"];
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20", { studyDays: sealed });
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", { studyDays: sealed });
     const r = await page.evaluate(() => ({ s: window.__brickfordTest.streak(), b: window.__brickfordTest.bestStreak() }));
     check("streak steps over an unsealed Saturday", r.s === 8,
-      "run Mon 12 – Tue 20 Oct across unsealed Sat 17 Oct: expected 8, got " + r.s);
+      "run Fri 23 Oct – Sun 1 Nov across unsealed Sats 24 and 31 Oct: expected 8, got " + r.s);
     // Known app bug: bestStreak counts a sealed Saturday (app.js:572-587). Owned
     // by a follow-up item; its fix must add the assertion bestStreak() === 8 for
     // the sealed-Saturday fixture below. Until then no check here claims that
@@ -158,27 +164,27 @@ async function scenario(browser, now, state, tz) {
     check("no page errors (streak scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // The same run with Saturday 17 Oct SEALED as well: a rest day is never
+  // The same run with Saturday 31 Oct SEALED as well: a rest day is never
   // counted, even when there is a seal on it, so the run is still 8, not 9.
   // bestStreak is deliberately not asserted on this fixture (known app bug above).
   {
-    const withSat = sealed.concat(["2026-10-17"]).sort();
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20", { studyDays: withSat });
+    const withSat = sealed.concat(["2026-10-31"]).sort();
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", { studyDays: withSat });
     const s = await page.evaluate(() => window.__brickfordTest.streak());
     check("streak does not count a sealed Saturday", s === 8,
-      "run Mon 12 – Tue 20 Oct with Sat 17 Oct sealed: expected 8, got " + s);
+      "run Fri 23 Oct – Sun 1 Nov with Sat 31 Oct sealed: expected 8, got " + s);
     check("no page errors (sealed-Saturday scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20",
-      { studyDays: sealed, settings: { streakFrom: "2026-10-19" } });
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01",
+      { studyDays: sealed, settings: { streakFrom: "2026-10-30" } });
     const r = await page.evaluate(() => ({ s: window.__brickfordTest.streak(), b: window.__brickfordTest.bestStreak() }));
-    check("streak stops at streakFrom", r.s === 2, "streakFrom 19 Oct: expected 2, got " + r.s);
+    check("streak stops at streakFrom", r.s === 2, "streakFrom 30 Oct: expected 2, got " + r.s);
     // Known app bug: bestStreak counts a sealed Saturday (app.js:572-587). Owned
     // by a follow-up item; its fix must add the assertion bestStreak() === 8 for
     // the sealed-Saturday fixture above.
-    check("bestStreak ignores streakFrom", r.b === 8, "streakFrom 19 Oct: expected 8, got " + r.b);
+    check("bestStreak ignores streakFrom", r.b === 8, "streakFrom 30 Oct: expected 8, got " + r.b);
     check("no page errors (streakFrom scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
@@ -193,17 +199,17 @@ async function scenario(browser, now, state, tz) {
   // (1) The only day between the first activity and today is a Saturday, so
   //     nothing can be owed.
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-18", { studyDays: ["2026-10-17"] });
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", { studyDays: ["2026-10-31"] });
     const n = await page.evaluate(() => window.__brickfordTest.backlogCount());
     check("a rest day owes no lessons (backlogCount)", n === 0, "expected 0, got " + n);
     check("no page errors (backlog scenario 1)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // (2) Mon 12 to Mon 19 Oct, nothing watched: the backlog is exactly the
+  // (2) Fri 23 to Fri 30 Oct, nothing watched: the backlog is exactly the
   //     lectures scheduled on the seven non-Saturdays (Saturday is left out by
   //     the calendar here, not by the app; see the note above on the skip).
   {
-    const from = "2026-10-12", today = "2026-10-20";
+    const from = "2026-10-23", today = "2026-11-01";
     const owedDays = range(from, addDays(today, -1)).filter(d => !isSat(d));
     const { ctx, page, errors } = await scenario(browser, today, { studyDays: [from] });
     const r = await page.evaluate(owedDays => {
@@ -234,7 +240,7 @@ async function scenario(browser, now, state, tz) {
       await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
       if (withoutSpch) await ctx.route(/\/data\/storytelling\.js/, r => r.fulfill({ status: 200,
         contentType: "application/javascript", body: "/* storytelling removed for the isolation check */" }));
-      await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+      await ctx.clock.setFixedTime(new Date("2026-11-01T12:00:00Z"));
       const page = await ctx.newPage();
       const errors = [];
       page.on("pageerror", e => errors.push(e.message));
@@ -308,9 +314,9 @@ async function scenario(browser, now, state, tz) {
 
     // (1) A legacy `true` is passed on a date that does not move: START_DATE
     //     with no gate event, and the LOCAL date of its last passing gate event
-    //     when there is one. Two different days (Tue 20 Oct and Tue 3 Nov) must
+    //     when there is one. Two different days (Sun 1 Nov and Sun 15 Nov) must
     //     give the same plan. Read as "today", every later target slides daily.
-    const DAY_A = "2026-10-20", DAY_B = "2026-11-03";
+    const DAY_A = "2026-11-01", DAY_B = "2026-11-15";
     {
       const plans = [];
       for (const day of [DAY_A, DAY_B]) {
@@ -326,21 +332,21 @@ async function scenario(browser, now, state, tz) {
       check("no page errors (legacy true scenarios)", plans.every(p => p.errors.length === 0), plans.map(p => p.errors.join(" | ")).join(" "));
     }
     {
-      // In Bahrain (UTC+3) 22:30Z on 7 Oct is 01:30 on the 8th. The last
-      // PASSING event wins: passed on the 6th, passed again late on the 7th
-      // (UTC), then an unmark on the 9th that the old merge undid (which is
-      // how a `true` outlives its unmark) — so 8 Oct, local. The first event
-      // would say the 6th, the last of any kind the 9th, a UTC reading the 7th.
-      const ledger = [gateEvent(0, "2026-10-06T10:00:00.000Z", 1, true), gateEvent(1, "2026-10-07T22:30:00.000Z", 1, true),
-                      gateEvent(2, "2026-10-09T09:00:00.000Z", 1, false)];
+      // In Bahrain (UTC+3) 22:30Z on 19 Oct is 01:30 on the 20th. The last
+      // PASSING event wins: passed on the 18th, passed again late on the 19th
+      // (UTC), then an unmark on the 21st that the old merge undid (which is
+      // how a `true` outlives its unmark) — so 20 Oct, local. The first event
+      // would say the 18th, the last of any kind the 21st, a UTC reading the 19th.
+      const ledger = [gateEvent(0, "2026-10-18T10:00:00.000Z", 1, true), gateEvent(1, "2026-10-19T22:30:00.000Z", 1, true),
+                      gateEvent(2, "2026-10-21T09:00:00.000Z", 1, false)];
       const plans = [];
       for (const day of [DAY_A, DAY_B]) {
         const { ctx, page, errors } = await scenario(browser, day, { gates: { 1: true }, ledger }, "Asia/Bahrain");
         plans.push({ plan: await readPlan(page), errors });
         await ctx.close();
       }
-      const want = expectPlan({ 1: "2026-10-08" });
-      check("a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 7 Oct 22:30Z is 8 Oct; a later unmark event is not it), the same on two days",
+      const want = expectPlan({ 1: "2026-10-20" });
+      check("a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 19 Oct 22:30Z is 20 Oct; a later unmark event is not it), the same on two days",
         same(plans[0].plan, plans[1].plan) && same(plans[0].plan, want),
         DAY_A + ": " + show(plans[0].plan) + " | " + DAY_B + ": " + show(plans[1].plan) + " | want " + show(want));
       check("no page errors (legacy true with a gate event)", plans.every(p => p.errors.length === 0), plans.map(p => p.errors.join(" | ")).join(" "));
@@ -392,9 +398,9 @@ async function scenario(browser, now, state, tz) {
 
     // (3) Only the next gate can be passed, only the last passed one unmarked.
     //     A refused call stores nothing and logs nothing. Run in Bahrain at
-    //     22:30Z on 20 Oct, which is 01:30 on the 21st there: a pass is dated
+    //     22:30Z on 1 Nov, which is 01:30 on the 2nd there: a pass is dated
     //     by the local calendar, as everything else here is.
-    const DAY_LOCAL = "2026-10-21";
+    const DAY_LOCAL = "2026-11-02";
     {
       const { ctx, page, errors } = await scenario(browser, DAY_A + "T22:30:00Z", null, "Asia/Bahrain");
       const r = await page.evaluate(() => {
@@ -419,7 +425,7 @@ async function scenario(browser, now, state, tz) {
       check("an out-of-order pass is impossible: Gate 3, 2 or 5 before Gate 1 is refused, stores nothing and logs nothing",
         r.early.every(x => x === false) && r.earlyGates === "{}" && r.earlyEvents === 0 && r.earlyOpen,
         "returned " + r.early.join(",") + ", stored " + r.earlyGates + ", " + r.earlyEvents + " gate event(s)");
-      check("the next gate can be passed: stored as { date: today (local: 21 Oct in Bahrain), at, passed: true }, and Gate 3 is still refused after it",
+      check("the next gate can be passed: stored as { date: today (local: 2 Nov in Bahrain), at, passed: true }, and Gate 3 is still refused after it",
         r.first === true && !!r.firstRec && r.firstRec.date === DAY_LOCAL && r.firstRec.passed === true && /^\d{4}-\d\d-\d\dT/.test(r.firstRec.at || "") &&
           r.skip === false && r.second === true,
         "pass 1 " + r.first + " " + JSON.stringify(r.firstRec) + "; pass 3 " + r.skip + "; pass 2 " + r.second);
@@ -437,20 +443,20 @@ async function scenario(browser, now, state, tz) {
     //     — and the other direction (a later pass beats an earlier unmark), so
     //     "the unmark always wins" cannot pass for last-writer-wins.
     {
-      const T1 = "2026-10-19T08:00:00.000Z", T2 = "2026-10-19T20:00:00.000Z";
-      const P1 = { date: "2026-10-19", at: T1, passed: true }, U2 = { date: null, at: T2, passed: false };
-      const U1 = { date: null, at: T1, passed: false }, P2 = { date: "2026-10-19", at: T2, passed: true };
+      const T1 = "2026-10-30T08:00:00.000Z", T2 = "2026-10-30T20:00:00.000Z";
+      const P1 = { date: "2026-10-30", at: T1, passed: true }, U2 = { date: null, at: T2, passed: false };
+      const U1 = { date: null, at: T1, passed: false }, P2 = { date: "2026-10-30", at: T2, passed: true };
       const cases = [
         ["the device that passed (t1) pulls the unmark (t2): open", { 1: P1 }, { 1: U2 }, null],
         ["the device that unmarked (t2) pulls the pass (t1): still open", { 1: U2 }, { 1: P1 }, null],
-        ["an unmark (t2) pulls a legacy date string for that day (00:00): still open", { 1: U2 }, { 1: "2026-10-19" }, null],
-        ["a legacy date string here pulls a newer unmark: open", { 1: "2026-10-12" }, { 1: U2 }, null],
-        ["an unmark (t1) pulls a later pass (t2): passed", { 1: U1 }, { 1: P2 }, "2026-10-19"],
-        ["a legacy false (no time) pulls a timed pass: passed", { 1: false }, { 1: P1 }, "2026-10-19"],
+        ["an unmark (t2) pulls a legacy date string for that day (00:00): still open", { 1: U2 }, { 1: "2026-10-30" }, null],
+        ["a legacy date string here pulls a newer unmark: open", { 1: "2026-10-23" }, { 1: U2 }, null],
+        ["an unmark (t1) pulls a later pass (t2): passed", { 1: U1 }, { 1: P2 }, "2026-10-30"],
+        ["a legacy false (no time) pulls a timed pass: passed", { 1: false }, { 1: P1 }, "2026-10-30"],
         // The remote's own ledger carries the event, so it has to be merged
-        // before the gates are: otherwise this reads START_DATE (5 Oct).
-        ["nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day", {}, { 1: true }, "2026-10-07",
-          { phone: [gateEvent(0, "2026-10-07T09:00:00.000Z", 1, true)] }],
+        // before the gates are: otherwise this reads START_DATE (16 Oct).
+        ["nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day", {}, { 1: true }, "2026-10-19",
+          { phone: [gateEvent(0, "2026-10-19T09:00:00.000Z", 1, true)] }],
       ];
       const got = [];
       for (const [name, local, remote, want, ledgers] of cases) {
@@ -470,7 +476,7 @@ async function scenario(browser, now, state, tz) {
         got.slice(2, 4).every(c => c.r.done === c.want), got.slice(2, 4).map(line).join("; "));
       check("LWW merge is last-writer-wins, not unmark-wins: a later pass beats an earlier unmark, and a timed pass beats a legacy false",
         got.slice(4, 6).every(c => c.r.done === c.want), got.slice(4, 6).map(line).join("; "));
-      check("a remote legacy true is dated by its gate event in the remote's own ledger (7 Oct, not START_DATE)",
+      check("a remote legacy true is dated by its gate event in the remote's own ledger (19 Oct, not START_DATE)",
         got[6].r.done === got[6].want, line(got[6]));
       {
         const { ctx, page, errors } = await scenario(browser, DAY_A, { gates: { 1: P1, 2: U2 } });
@@ -486,15 +492,15 @@ async function scenario(browser, now, state, tz) {
   // ---- the lecture quiz gate (T-043) ----
   // loop/specs/T-043-lecture-quiz-gate/spec.md. "Done" is watched AND
   // cleared: the quiz passed, no quiz at all, or first watched before the
-  // gate shipped (grandfathered). Tue 6 Oct schedules three MATH 120 lectures
+  // gate shipped (grandfathered). Sun 18 Oct (plan day 2) schedules three MATH 120 lectures
   // and one SPCH 100 lecture that have quizzes, and two AI 200 lectures that
   // have none. Every expectation is worked out here from the fixture and the
   // summaries' checks (the data), never from schedDone. Every date is derived
   // from the app's QUIZ_GATE_FROM (review r1): grandfathered = gate - 1,
   // gated = gate + 1, the clock at gate + 5 — so any ship date works.
   {
-    const P = "2026-10-06";
-    const probe = await scenario(browser, "2026-10-20", null);
+    const P = "2026-10-18";
+    const probe = await scenario(browser, "2026-11-01", null);
     const GATE = await probe.page.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM);
     await probe.ctx.close();
     const BEFORE = addDays(GATE, -1), AFTER = addDays(GATE, 1), TODAY = addDays(GATE, 5);
@@ -662,10 +668,94 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
-  // T-052: the monk-mode row. Day 1 is 22 Oct 2026 and day 90 is 19 Jan 2027,
+  // ---- T-056: reset seven keeps what was watched, and nothing goes half done ----
+  // loop/specs/T-056-reset-seven. The owner watched the lectures of the OLD
+  // plan's days 1-8 (START 2026-10-05) between 16 and 22 Oct, no quizzes, and
+  // asked for 16 Oct to be day 1 without rewatching anything. Nothing about a
+  // lecture is keyed by date, so those lectures are the new plan's days 1-8
+  // too. Under the gate T-043 shipped (16 Oct) every one of them would need its
+  // quiz and days 1-7 would paint "Part" — the half-done bug. With the gate at
+  // this change's ship date they are grandfathered: the days paint done, the
+  // quizzes wait on the catch-up list, and on Sun 25 Oct (day 8, its lectures
+  // already watched) the next action is the first lecture not yet watched,
+  // read from the work-ahead plan, never a watched one. The old plan is read
+  // from the app itself, curriculum.js served with the old START_DATE.
+  {
+    const GATE = await (async () => { const p = await scenario(browser, "2026-11-01", null);
+      const g = await p.page.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM); await p.ctx.close(); return g; })();
+    const oldCtx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
+    await oldCtx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
+    const curSrc = require("fs").readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/curriculum.js"), "utf8");
+    const oldSrc = curSrc.replace(/DAR\.START_DATE = "[0-9-]+";/, 'DAR.START_DATE = "2026-10-05";');
+    await oldCtx.route(/\/data\/curriculum\.js/, r => r.fulfill({ status: 200, contentType: "application/javascript", body: oldSrc }));
+    await oldCtx.clock.setFixedTime(new Date("2026-10-04T12:00:00Z"));
+    const oldPage = await oldCtx.newPage();
+    await oldPage.goto(URL + "/__test", { waitUntil: "load" });
+    await oldPage.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
+    const oldPlan = await oldPage.evaluate(() => { const T = window.__brickfordTest, keys = [];
+      for (let i = 0; i < 8; i++) T.scheduledFor(T.dateForStudy(i)).forEach(it => { if (!it.pseudo) { const k = it.cid + "." + it.ui + "." + it.li; if (keys.indexOf(k) < 0) keys.push(k); } });
+      return { start: window.DAR.START_DATE, keys }; });
+    await oldCtx.close();
+    const WATCH_ON = ["2026-10-16", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22"];
+    const lessons = {};
+    oldPlan.keys.forEach((k, i) => { lessons[k] = { done: true, doneAt: WATCH_ON[i % WATCH_ON.length], notes: "", checks: [] }; });
+    const NOW = "2026-10-25";
+    const DAYS7 = ["2026-10-16", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"];
+    const { ctx, page, errors } = await scenario(browser, NOW, { lessons });
+    const r = await page.evaluate(([DAYS7, NOW]) => {
+      const T = window.__brickfordTest, sums = window.DAR.SUMMARIES || {};
+      return { start: window.DAR.START_DATE, idx: DAYS7.map(d => T.studyIndex(d)), nowIdx: T.studyIndex(NOW),
+        status: DAYS7.map(d => T.dayStatus(d)), sat17: T.dayStatus("2026-10-17"),
+        sched: DAYS7.concat([NOW]).map(d => T.scheduledFor(d).filter(it => !it.pseudo).map(it => [it.cid + "." + it.ui + "." + it.li, T.schedDone(it)])),
+        cu: T.catchUpQuizzes().map(x => x.k), quizK: Object.keys(sums).filter(k => ((sums[k] || {}).checks || []).length) };
+    }, [DAYS7, NOW]);
+    const watchedK = new Set(oldPlan.keys);
+    const withQuiz = oldPlan.keys.filter(k => r.quizK.indexOf(k) >= 0);
+    check("T-056 fixture: the old plan's days 1-8 read from START 2026-10-05 (" + oldPlan.keys.length + " lectures), watched 16-22 Oct, no quiz passed; " + withQuiz.length + " of them have a quiz; gate " + GATE,
+      oldPlan.start === "2026-10-05" && oldPlan.keys.length > 20 && withQuiz.length > 5 && r.start === "2026-10-16" &&
+        r.idx.join() === "0,1,2,3,4,5,6" && r.nowIdx === 7 && r.sat17 === "rest",
+      "new indices " + r.idx.join() + ", 25 Oct index " + r.nowIdx + ", Sat 17 Oct " + r.sat17);
+    const notDone = r.sched.flat().filter(([k, d]) => !d).map(([k]) => k);
+    check("T-056: every lecture the new plan puts on days 1-8 was watched and counts as done (grandfathered, no quiz needed)",
+      r.sched.every(day => day.length > 0) && r.sched.flat().every(([k, d]) => watchedK.has(k) && d),
+      notDone.length ? "not done: " + notDone.join(",") : r.sched.map(d => d.length).join("+") + " lectures");
+    check("T-056: days 1-7 (16-23 Oct, Sat 17 Oct rest) paint completed, none partial",
+      r.status.every(s => s === "completed"), DAYS7.map((d, i) => d.slice(5) + " " + r.status[i]).join(", "));
+    const cuMissing = withQuiz.filter(k => r.cu.indexOf(k) < 0);
+    check("T-056: their quizzes stay on the catch-up list", cuMissing.length === 0, cuMissing.length ? "missing " + cuMissing.join(",") : r.cu.length + " on the list");
+    // The calendar, as drawn: no "Part" dot on those days, and no lock on the day view.
+    await page.evaluate(() => { location.hash = "#/calendar"; });
+    await page.waitForSelector("#view [data-cal-day='2026-10-16']", { state: "attached", timeout: 8000 });
+    const cal = await page.evaluate(DAYS7 => DAYS7.map(d => { const c = document.querySelector("#view [data-cal-day='" + d + "'] .cmark");
+      return c ? c.className.replace("cmark ", "") : "none"; }), DAYS7);
+    check("T-056: the calendar draws days 1-7 done (dfull), no Part (dhalf)", cal.every(c => c === "dfull"), DAYS7.map((d, i) => d.slice(5) + " " + cal[i]).join(", "));
+    // The dashboard on Sun 25 Oct: the next action and the rail.
+    await page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); location.hash = "#/"; });
+    await page.waitForFunction(() => !document.querySelector("#view [data-logic-stale]") && document.querySelector("#view .card.one.lead .one-go"), null, { timeout: 8000 });
+    const dash = await page.evaluate(() => { const lead = document.querySelector("#view .card.one.lead"), rail = document.querySelector("#rail a.btn");
+      return { href: lead.querySelector(".one-go").getAttribute("href"), kind: lead.querySelector(".one-kind").textContent, rail: rail ? rail.getAttribute("href") : null,
+        lessonLinks: [...document.querySelectorAll("#view a[href^='#/lesson/']")].filter(a => !a.classList.contains("done-row")).map(a => a.getAttribute("href")),
+        doneRows: document.querySelectorAll("#view a.done-row[href^='#/lesson/']").length }; });
+    const keyOf = h => { const m = /^#\/lesson\/([^/]+)\/(\d+)\/(\d+)$/.exec(h || ""); return m ? m[1] + "." + m[2] + "." + m[3] : null; };
+    const nk = keyOf(dash.href);
+    const firstUnwatched = nk ? await page.evaluate(nk => { const cid = nk.split(".")[0], c = window.DAR.COURSES.find(x => x.id === cid), flat = [];
+      c.units.forEach((u, ui) => u.lessons.forEach((_, li) => flat.push(cid + "." + ui + "." + li))); return flat; }, nk) : [];
+    const prevK = firstUnwatched[firstUnwatched.indexOf(nk) - 1];
+    check("T-056: on Sun 25 Oct (day 8, its lectures already watched) the next action opens the first lecture not yet watched",
+      !!nk && !watchedK.has(nk) && !!prevK && watchedK.has(prevK) && !/^(Quiz|Watch): /.test(dash.kind) && keyOf(dash.rail) === nk,
+      JSON.stringify({ next: nk, title: dash.kind, prev: prevK, rail: dash.rail }));
+    const rewatch = dash.lessonLinks.map(keyOf).filter(k => k && watchedK.has(k) && k !== nk);
+    check("T-056: nothing on the dashboard asks to re-watch a watched lecture (a watched one shows only as a ticked done row)",
+      !watchedK.has(nk) && rewatch.length === 0 && dash.doneRows > 0, rewatch.length ? "open links to watched: " + rewatch.join(",")
+        : dash.lessonLinks.length + " open lesson link(s), none watched; " + dash.doneRows + " ticked done row(s)");
+    check("no page errors (T-056 watched days)", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // T-052: the monk-mode row. Day 1 is 24 Oct 2026 and day 90 is 21 Jan 2027 (T-056),
   // counted in calendar days (a Saturday counts); the dashboard shows the row
   // only inside those 90 days, linking to the private monk-mode page.
-  for (const [now, want] of [["2026-10-21", null], ["2026-10-22", 1], ["2026-10-24", 3], ["2027-01-19", 90], ["2027-01-20", null]]) {
+  for (const [now, want] of [["2026-10-23", null], ["2026-10-24", 1], ["2026-10-26", 3], ["2027-01-21", 90], ["2027-01-22", null]]) {
     const probe = await scenario(browser, now, null);
     await probe.page.evaluate(() => { location.hash = "#/"; });
     await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
@@ -727,7 +817,7 @@ async function scenario(browser, now, state, tz) {
       const geo = /const LAT = ([\d.]+), LNG = ([\d.]+), TZH = (\d+)/.exec(html);
       let ref = null;
       try { ref = a > 0 && b > a && geo ? new Function("LAT", "LNG", "TZH", html.slice(a, b) + "\nreturn prayerTimes;")(+geo[1], +geo[2], +geo[3]) : null; } catch (e) { ref = null; }
-      const span90 = range("2026-10-22", "2027-01-19");
+      const span90 = range("2026-10-24", "2027-01-21");
       const app = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkPrayerTimes(d)), span90);
       const KEYS = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
       const worst = ref ? span90.map((d, i) => { const r0 = ref(d); return KEYS.map(k => [d + " " + k, Math.abs(app[i][k] - r0[k])]); }).flat().sort((x, y) => y[1] - x[1])[0] : null;
@@ -830,16 +920,16 @@ async function scenario(browser, now, state, tz) {
       same(sums.oct, { stream: 3, clips: 8 }) && same(sums.nov, { stream: 1, clips: 4 }), JSON.stringify([sums.oct, sums.nov]));
 
     // Focus this week: the weakest habit over the 7 days before today, with
-    // its fix. Today 28 Oct: the window is 21-27 Oct, of which 22-27 are monk
-    // days (6). Prayers all 3 on 4 of them (67%), German on 1 (17%), the rest
+    // its fix. Today 30 Oct: the window is 23-29 Oct, of which 24-29 are monk
+    // days (6; day 1 is 24 Oct since T-056). Prayers all 3 on 4 of them (67%), German on 1 (17%), the rest
     // on all 6 (100%), work and phone on all 6: German is the weakest. On the
     // other 5 days German is 3 of its 4 chips, which is not done.
     const FOCUS = {};
-    ["2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27"].forEach((d, i) => {
+    ["2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29"].forEach((d, i) => {
       FOCUS[d] = Object.assign({ prayers: i < 4 ? ALL3 : { fajr: true }, work: 10, phone: 1 }, HAB, { german: i === 0 ? GER : { podcast: true, speak: true, read: true } });
     });
-    FOCUS["2026-10-21"] = { german: false };           // before day 1: not counted
-    const f = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-10-28"), FOCUS);
+    FOCUS["2026-10-23"] = { german: false };           // before day 1: not counted
+    const f = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-10-30"), FOCUS);
     check("focus this week: German 1.5 h at 17% over 6 days, with its fix",
       !!f && f.days === 6 && f.key === "german" && f.label === "German 1.5 h" && f.rate === 17 && /German listening/.test(f.fix || ""), JSON.stringify(f));
     check("no page errors (monk arithmetic)", probe.errors.length === 0, probe.errors.join(" | "));
@@ -849,7 +939,7 @@ async function scenario(browser, now, state, tz) {
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
-    await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+    await ctx.clock.setFixedTime(new Date("2026-11-01T12:00:00Z"));
     await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
     const page = await ctx.newPage();
     await page.goto(URL + "/", { waitUntil: "load" });

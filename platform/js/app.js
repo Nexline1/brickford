@@ -1169,13 +1169,13 @@
   // counted, and nothing they touched is re-coloured; their quizzes go to the
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
-  const QUIZ_GATE_FROM = "2026-10-16";                 // the ship date
-  // T-052: the owner's 90-day monk mode (22 Oct 2026 to 19 Jan 2027) lives on its
+  const QUIZ_GATE_FROM = "2026-10-23";                 // the ship date (T-056 moved it here, the day the fix merges)
+  // T-052: the owner's 90-day monk mode (24 Oct 2026 to 21 Jan 2027, moved by T-056) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
   // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
   // which keeps one row out to that page (MONK.url). The day counts
   // calendar days, Saturdays included: it is a life plan, not the study plan.
-  const MONK = Object.freeze({ from: "2026-10-22", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  const MONK = Object.freeze({ from: "2026-10-24", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
   function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
   // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
   // Ported from loop/design/monk-mode.html, with the owner's amendment of
@@ -1635,7 +1635,26 @@
     const real = realSched(todayISO());
     const nextUp = real.find(it => !schedDone(it));
     const due = reviewsDue();
-    if (nextUp) {
+    if (nextUp) return lectureAction(nextUp, real, false);
+    if (due.length) return {
+      href: "#/recall", kind: "recall", code: "RECALL",
+      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
+      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
+      hint: "due before new material", verb: "Start",
+    };
+    // T-056: today's lectures are all cleared (watched earlier, say), so the
+    // next thing is the first lecture not yet cleared, read from the next
+    // study day's plan, which the work-ahead logic (windowFor) re-anchors at
+    // the first unfinished lecture. Never a watched one, and ahead of Resume,
+    // which would point back at a lecture already seen.
+    if (real.length) {
+      const ahead = realSched(addStudyDays(todayISO(), 1)).find(it => !schedDone(it));
+      if (ahead) return lectureAction(ahead, real, true);
+    }
+    return idleAction();
+  }
+  function lectureAction(nextUp, real, workAhead) {
+    {
       const c = D.COURSES.find(x => x.id === nextUp.cid);
       // T-043: when the next lecture is locked, or watched with its quiz still
       // to pass, the next thing to do is that quiz, so the card says so.
@@ -1666,16 +1685,12 @@
         fac: c ? facClass(c) : "",
         label: clipTitle(nextUp.l.t, 34),
         hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
-              (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
+              (workAhead ? "today is done · ahead of plan" : (real.indexOf(nextUp) + 1) + " of " + real.length + " today"),
         verb: "Open",
       };
     }
-    if (due.length) return {
-      href: "#/recall", kind: "recall", code: "RECALL",
-      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
-      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
-      hint: "due before new material", verb: "Start",
-    };
+  }
+  function idleAction() {
     if (S.settings.lastLesson) {
       const L = S.settings.lastLesson;
       return {

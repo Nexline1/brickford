@@ -733,7 +733,8 @@ async function scenario(browser, now, state, tz) {
     await page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); location.hash = "#/"; });
     await page.waitForFunction(() => !document.querySelector("#view [data-logic-stale]") && document.querySelector("#view .card.one.lead .one-go"), null, { timeout: 8000 });
     const dash = await page.evaluate(() => { const lead = document.querySelector("#view .card.one.lead"), rail = document.querySelector("#rail a.btn");
-      return { href: lead.querySelector(".one-go").getAttribute("href"), kind: lead.querySelector(".one-kind").textContent, rail: rail ? rail.getAttribute("href") : null,
+      return { href: lead.querySelector(".one-go").getAttribute("href"), kind: lead.querySelector(".one-kind").textContent,
+        hint: lead.querySelector(".one-hint").textContent, backlog: window.__brickfordTest.backlogCount(), rail: rail ? rail.getAttribute("href") : null,
         lessonLinks: [...document.querySelectorAll("#view a[href^='#/lesson/']")].filter(a => !a.classList.contains("done-row")).map(a => a.getAttribute("href")),
         doneRows: document.querySelectorAll("#view a.done-row[href^='#/lesson/']").length }; });
     const keyOf = h => { const m = /^#\/lesson\/([^/]+)\/(\d+)\/(\d+)$/.exec(h || ""); return m ? m[1] + "." + m[2] + "." + m[3] : null; };
@@ -748,8 +749,27 @@ async function scenario(browser, now, state, tz) {
     check("T-056: nothing on the dashboard asks to re-watch a watched lecture (a watched one shows only as a ticked done row)",
       !watchedK.has(nk) && rewatch.length === 0 && dash.doneRows > 0, rewatch.length ? "open links to watched: " + rewatch.join(",")
         : dash.lessonLinks.length + " open lesson link(s), none watched; " + dash.doneRows + " ticked done row(s)");
+    check("T-056: nothing is owed, so the work-ahead card says \"ahead of plan\"", dash.backlog === 0 && /today is done · ahead of plan$/.test(dash.hint),
+      "backlog " + dash.backlog + ", hint \"" + dash.hint + "\"");
     check("no page errors (T-056 watched days)", errors.length === 0, errors.join(" | "));
     await ctx.close();
+    // Review r1, finding 4: the same, with one earlier lecture (MATH 130's
+    // first, plan day 3) never watched. Today is still cleared, so the card
+    // works ahead, but it must not claim "ahead of plan": it says what is
+    // owed, as the dashboard's "owed from earlier days" row counts it.
+    const owedK = "math130.0.0";
+    const less = Object.assign({}, lessons); delete less[owedK];
+    const o = await scenario(browser, NOW, { lessons: less });
+    await o.page.evaluate(() => { location.hash = "#/"; });
+    await o.page.waitForSelector("#view .card.one.lead .one-go", { timeout: 8000 });
+    const od = await o.page.evaluate(() => ({ today: window.__brickfordTest.scheduledFor(window.__brickfordTest.dateForStudy(7)).filter(it => !it.pseudo).every(it => window.__brickfordTest.schedDone(it)),
+      backlog: window.__brickfordTest.backlogCount(), hint: document.querySelector("#view .card.one.lead .one-hint").textContent,
+      href: document.querySelector("#view .card.one.lead .one-go").getAttribute("href") }));
+    check("T-056: today cleared with a lecture owed (" + owedK + "): the card says \"today is done · 1 owed\", never \"ahead of plan\"",
+      od.today && od.backlog === 1 && /today is done · 1 owed$/.test(od.hint) && !/ahead of plan/.test(od.hint) && !watchedK.has(keyOf(od.href)),
+      JSON.stringify(od));
+    check("no page errors (T-056 owed)", o.errors.length === 0, o.errors.join(" | "));
+    await o.ctx.close();
   }
 
   // T-052: the monk-mode row. Day 1 is 24 Oct 2026 and day 90 is 21 Jan 2027 (T-056),

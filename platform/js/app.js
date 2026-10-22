@@ -1685,10 +1685,16 @@
         fac: c ? facClass(c) : "",
         label: clipTitle(nextUp.l.t, 34),
         hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
-              (workAhead ? "today is done · ahead of plan" : (real.indexOf(nextUp) + 1) + " of " + real.length + " today"),
+              (workAhead ? workAheadHint() : (real.indexOf(nextUp) + 1) + " of " + real.length + " today"),
         verb: "Open",
       };
     }
+  }
+  // "Ahead of plan" only when nothing is owed; otherwise the count, worded
+  // and capped as the dashboard's "owed from earlier days" row words it.
+  function workAheadHint() {
+    const owed = backlogCount();
+    return owed > 0 ? "today is done · " + (owed > 20 ? "20+" : owed) + " owed" : "today is done · ahead of plan";
   }
   function idleAction() {
     if (S.settings.lastLesson) {

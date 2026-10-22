@@ -33,13 +33,14 @@ PY
   echo "exit $rc" >> "$OUT/plant-$name.txt"
 }
 
-want="${*:-grandfather-old-date monk-off-by-one work-ahead-removed rest-dow-5 dateforstudy-off-by-one saturday-not-rest}"
+want="${*:-grandfather-old-date monk-off-by-one work-ahead-removed ahead-despite-backlog rest-dow-5 dateforstudy-off-by-one saturday-not-rest}"
 for n in $want; do case "$n" in
   grandfather-old-date) plant "$n" "$APP" logic 'const QUIZ_GATE_FROM = "2026-10-23";' 'const QUIZ_GATE_FROM = "2026-10-16";' ;;
   monk-off-by-one) plant "$n" "$APP" logic 'const MONK = Object.freeze({ from: "2026-10-24",' 'const MONK = Object.freeze({ from: "2026-10-23",' ;;
   work-ahead-removed) plant "$n" "$APP" logic '    if (real.length) {
       const ahead' '    if (false) {
       const ahead' ;;
+  ahead-despite-backlog) plant "$n" "$APP" logic 'return owed > 0 ? "today is done · "' 'return false ? "today is done · "' ;;
   rest-dow-5) plant "$n" "$APP" logic 'const REST_DOW = 6;' 'const REST_DOW = 5;' ;;
   dateforstudy-off-by-one) plant "$n" "$APP" logic 'k + 1 + Math.floor(j / 6) * 7 + (j % 6));' 'k + 2 + Math.floor(j / 6) * 7 + (j % 6));' ;;
   saturday-not-rest) plant "$n" "$APP" design 'if (before || resting) cls.push("rest");' 'if (before) cls.push("rest");' ;;

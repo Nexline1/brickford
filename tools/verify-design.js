@@ -5013,6 +5013,21 @@ function t28SeedClips(list) {
       }
     }
   }
+  // The clipping sweep's widths and roots on #/monk, inside the view. (Not in
+  // verify-clip.js: there a new route brings the sidebar crest's known clip at
+  // a 24px root, 20 baseline entries, and that baseline may only shrink.)
+  for (const w of [320, 390, 768, 1024, 1100, 1280, 1440]) {
+    for (const root of [16, 24]) {
+      const st = T54_STATES[0], at = w + "px root " + root + ", " + st.name;
+      const { ctx, page, errors } = await t26bFresh({ theme: "dark", empty: true, now: st.now, patch: st.patch, w, h: 900, mobile: w < 860, root });
+      await go(page, "/monk");
+      await page.click("#view details.mk-day > summary");
+      const m = await page.evaluate(t54Measure);
+      c54("T-054 " + at + ": nothing wider than the window, no text outside a box that clips it (Full day open)", !m.wide && m.clipped.length === 0 && errors.length === 0,
+        (m.wide || "") + " " + m.clipped.slice(0, 3).join("; ") + errors.join(" | "));
+      await ctx.close();
+    }
+  }
 
   await browser.close();
 
@@ -5047,7 +5062,7 @@ function t28SeedClips(list) {
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
       "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)" + "; " +
-      "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 13 x 7 map (" + t54Checks + " checks)"
+      "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 13 x 7 map, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

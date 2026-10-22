@@ -716,6 +716,25 @@ async function scenario(browser, now, state, tz) {
         off.every(([, m]) => m <= 1), off.map(([k, m]) => k + " off by " + (isFinite(m) ? m.toFixed(2) : "missing")).join(", "));
     }
 
+    // The port is the reference's: loop/design/monk-mode.html's own
+    // prayerTimes, read from the file and run here, against the app's on all
+    // 90 days, to 0.01 minute. The table above allows a minute, which a date
+    // one day out stays inside (the times move under a minute a day); this
+    // does not.
+    {
+      const html = require("fs").readFileSync(path.join(path.resolve(__dirname, ".."), "loop/design/monk-mode.html"), "utf8");
+      const a = html.indexOf("  const d2r"), b = html.indexOf("  // ---------- the routine");
+      const geo = /const LAT = ([\d.]+), LNG = ([\d.]+), TZH = (\d+)/.exec(html);
+      let ref = null;
+      try { ref = a > 0 && b > a && geo ? new Function("LAT", "LNG", "TZH", html.slice(a, b) + "\nreturn prayerTimes;")(+geo[1], +geo[2], +geo[3]) : null; } catch (e) { ref = null; }
+      const span90 = range("2026-10-22", "2027-01-19");
+      const app = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkPrayerTimes(d)), span90);
+      const KEYS = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+      const worst = ref ? span90.map((d, i) => { const r0 = ref(d); return KEYS.map(k => [d + " " + k, Math.abs(app[i][k] - r0[k])]); }).flat().sort((x, y) => y[1] - x[1])[0] : null;
+      check("prayer times equal the reference's prayerTimes (loop/design/monk-mode.html) on all " + span90.length + " days, to 0.01 minute",
+        !!worst && span90.length === 90 && worst[1] < 0.01, worst ? "worst " + worst[0] + " off by " + worst[1].toFixed(4) + " min" : "could not read the reference's prayerTimes");
+    }
+
     // Combined and separate: the slots, and the prayer blocks in the routine.
     // 23 Oct 2026 is a Friday: no Jumu'ah, the grave visit stays.
     const FRI = "2026-10-23";

@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# T-054 plants: each puts one bug into platform/js/app.js, runs the gate that
-# must catch it, and expects exit 1. app.js is backed up first and restored on
-# any exit (including Ctrl-C); a backup left by an interrupted run is restored
-# before anything else happens.
+# T-054 plants: each puts one bug into one file, runs the gate that must catch
+# it, and expects exit 1. The file is backed up first and restored on any exit
+# (including Ctrl-C); a backup left by an interrupted run is restored before
+# anything else happens.
 set -u
 cd "$(dirname "$0")/../../../.."
 export NODE_PATH=/opt/node22/lib/node_modules
-APP=platform/js/app.js BAK=platform/js/app.js.plant-bak
-if [ -f "$BAK" ]; then echo "leftover backup found: restoring $APP"; mv -f "$BAK" "$APP"; fi
-restore() { [ -f "$BAK" ] && mv -f "$BAK" "$APP"; }
+APP=platform/js/app.js
+for f in platform/js/app.js platform/css/style.css; do
+  if [ -f "$f.plant-bak" ]; then echo "leftover backup found: restoring $f"; mv -f "$f.plant-bak" "$f"; fi
+done
+BAK=$APP.plant-bak
+restore() { [ -f "$BAK" ] && mv -f "$BAK" "$APP"; return 0; }
 trap restore EXIT INT TERM
 plant() {  # name, gate, python find, python replace
+  if [ -n "${ONLY:-}" ] && [[ "$1" != "($ONLY)"* ]]; then return 0; fi   # ONLY=c runs plant (c) alone
   cp "$APP" "$BAK"
   python3 - "$APP" "$3" "$4" <<'PY' || { echo "PLANT $1: pattern not found"; restore; return 1; }
 import sys
@@ -33,4 +37,7 @@ plant "(b) monk in the push while MONK_SYNCS is false" sync-loop \
   'if (MONK_SYNCS && S.monk) state.monk = S.monk;' 'if (S.monk) state.monk = S.monk;'
 plant "(c) an off-by-one in prayerTimes" logic \
   '+iso.slice(8, 10)) - LNG / (15 * 24);' '+iso.slice(8, 10) + 1) - LNG / (15 * 24);'
-git diff --quiet -- "$APP" && echo "app.js restored, unchanged"
+APP=platform/css/style.css BAK=platform/css/style.css.plant-bak
+plant "(d) Monk rows that do not wrap at 320px / a 24px root" design \
+  '.mk .grow.mk-static { flex-wrap: wrap; }' '.mk .grow.mk-static { flex-wrap: nowrap; }'
+git diff --quiet -- platform/js/app.js platform/css/style.css && echo "app.js and style.css restored, unchanged"

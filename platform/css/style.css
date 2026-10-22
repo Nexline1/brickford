@@ -3148,3 +3148,12 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
 .mk-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 12px; }
 .mk-note { font-size: var(--fs-subhead); color: var(--ink-2); }
 .mk-extbox { margin-top: 2rem; }
+/* Narrow or large text (320px, a 24px root): a row's value drops under its
+   title rather than squeezing the title to nothing; chips wrap to a second
+   row rather than cutting a word. */
+.mk .grow.mk-static { flex-wrap: wrap; }
+.mk .grow.mk-static .g-main { min-width: 7rem; }
+.mk .grow.mk-static .g-v { margin-left: auto; }
+.mk-chips { flex-wrap: wrap; }
+.mk-chip { flex: 1 1 4.5rem; }
+.mk-actions .btn { min-height: 44px; }

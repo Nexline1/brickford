@@ -60,7 +60,7 @@ const ROUTES = [
   "/lesson/math110/0/13", "/concept/la-eigen",
   "/workshop", "/electives", "/exams", "/quiz/linear-algebra", "/recall",
   "/method", "/record", "/transcript", "/review", "/calendar", "/library",
-  "/treasury", "/sync", "/drill", "/guide", "/practice", "/monk",
+  "/treasury", "/sync", "/drill", "/guide", "/practice",
   "/lesson/math110/0/0", "/no-such-page",
   "/course/spch100", "/lesson/spch100/0/0", "/lesson/spch100/1/0", "/course/ai200",
   "/diag/diag-la", "/doc/readme",

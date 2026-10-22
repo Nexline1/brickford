@@ -114,3 +114,4 @@
 - 2026-10-23: T-054 builder started (brickford-builder, opus) in /home/user/bf-T-054 on top of T-052. Everything else paused.
 - 2026-10-23: Calendar reworked to Ja'fari 3 blocks, gym in the morning, German split (55 calls). T-054 builder told the new method and template.
 - 2026-10-23: Monk dashboard v2 published: Ja'fari 3 blocks, 4 German chips, new routine. Reference copied to loop/design and bf-T-054.
+- 2026-10-23: T-054 built 356bf80 (builder opus, resumed). CHECK (script) all green: logic 105, flows 324, design 2566. Review r1 (reviewer opus, fresh), with privacy as the first focus.

@@ -16,7 +16,7 @@ const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
 const ROUTES = ["/", "/atlas", "/courses", "/exams", "/record", "/calendar",
-                "/library", "/guide", "/practice", "/transcript", "/workshop", "/treasury"];
+                "/library", "/guide", "/practice", "/transcript", "/workshop", "/treasury", "/monk"];
 const DESKTOP = [1536, 1440, 1370, 1280, 1100, 1040, 900, 861];
 const PHONE = [320, 390, 430, 768, 860];
 // Wider than ROUTES: the frame check needs the DETAIL pages too, because the
@@ -80,13 +80,15 @@ async function freshContext(browser, opts) {
           visible: side.checkVisibility(),
           inline: side.getAttribute("style") || "",
           links: side.querySelectorAll(".nav a").length,
+          monk: !!side.querySelector(".nav a[href='#/monk']"),
           menu: getComputedStyle(document.querySelector(".menu-btn")).display,
           col: Math.round(vb.x) + "-" + Math.round(vb.right),
         };
       });
       check(m.visible && m.x === 0 && m.w > 180, w + "px " + r + ": sidebar off-screen (x=" + m.x + ")");
       check(m.inline === "", w + "px " + r + ": sidebar carries an inline style (" + m.inline + ")");
-      check(m.links >= 10, w + "px " + r + ": only " + m.links + " nav links");
+      // T-054: 12 links since Monk Mode joined Rhythm (was ">= 10" with 11).
+      check(m.links === 12 && m.monk, w + "px " + r + ": " + m.links + " nav links, not 12 with Monk Mode (#/monk)");
       check(m.menu === "none", w + "px " + r + ": hamburger showing beside the sidebar");
       columns.add(m.col);
     }

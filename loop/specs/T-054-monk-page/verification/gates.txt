@@ -1,0 +1,12 @@
+syntax exit 0
+content exit 0 | PASS — 40288 checks, 54 problem sets and labs unlocked by a real lecture, 14 numeric answers recomputed, 170
+sync-loop exit 0 | PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never
+shell exit 0 | PASS — shell intact across 8 desktop widths x 13 routes and 5 phone widths, frame clear on 25 routes, phone 
+contrast exit 0 | PASS — 128 page-renders across 32 routes × 2 themes × 2 widths, every text/background pair at or above thr
+logic exit 0 | PASS — 104 invariants hold
+flows exit 0 | PASS — 324 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player
+clip exit 0 | PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draw
+clip TZ=LA exit 0 | PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draw
+design exit 0 | PASS — 2566 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the s
+plants done
+logic exit 0 | PASS — 105 invariants hold (re-run after the reference-equality prayer check was added)

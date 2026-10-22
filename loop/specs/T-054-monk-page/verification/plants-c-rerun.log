@@ -1,0 +1,2 @@
+plant (c) an off-by-one in prayerTimes -> verify-logic exit 1 (1 FAIL lines)
+  FAIL  prayer times equal the reference's prayerTimes (loop/design/monk-mode.html) on all 90 days, to 0.01 minute — worst 2026-10-22 maghrib off by 0.8360 min

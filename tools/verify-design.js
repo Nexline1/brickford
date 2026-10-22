@@ -4920,6 +4920,115 @@ function t28SeedClips(list) {
     }
   }
 
+  // =================== T-054: Monk Mode, #/monk ===================
+  // loop/specs/T-054-monk-page/spec.md, verify-design: at 1440 and 390, Dark
+  // and Light, on two states — day 7 of 90 with a day logged (a prayer, a
+  // habit and two numbers on, a loop closed, a plan saved for today), and
+  // 20 Oct, before the 90 days, with nothing stored — and once more with the
+  // Full day disclosure open. Measured on the rendered page (t54Measure):
+  // at most one filled primary, and it is "Save tomorrow's plan"; every
+  // visible control (link, button, input, summary) at least 44x44; nothing
+  // wider than the window and no text outside a box that clips it; every
+  // visible text at 4.5:1 on what is painted behind it (3:1 when large).
+  let t54Checks = 0;
+  const c54 = (name, ok, detail) => { t54Checks++; return check(name, ok, detail); };
+  const T54_DAY = "2026-10-28";
+  const T54_STATES = [
+    { name: "day 7 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 7 of 90", patch: { monk: {
+      days: { [T54_DAY]: { prayers: { fajr: true }, german: { podcast: true, speak: true }, brickford: true, work: 8, phone: 1.5, at: T54_DAY + "T09:00:00.000Z" },
+              "2026-10-27": { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: true }, german: { podcast: true, speak: true, write: true, read: true }, brickford: true, work: 10, phone: 1, at: "2026-10-27T21:00:00.000Z" } },
+      plans: { [T54_DAY]: { business: "Call two venues", content: "Script the Bahrain video", education: "MATH 120 lecture 4", at: "2026-10-27T21:55:00.000Z" } },
+      loops: { s1: { text: "Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop", done: true, at: "2026-10-27T10:00:00.000Z" },
+               l2: { text: "Reply to the venue", done: false, at: "2026-10-26T10:00:00.000Z" } } } } },
+    { name: "before the 90 days, nothing stored", now: FIXED_NOW, head: "Starts 22 Oct", patch: null },
+  ];
+  function t54Measure() {
+    const z = window.__dz, fill = z.tok("--btn-bg");
+    const vis = el => el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+    const filled = [...document.querySelectorAll("#view a, #view button")].filter(n => vis(n) &&
+      (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(n).backgroundColor))).map(n => n.textContent.trim());
+    const small = [...document.querySelectorAll("#view a, #view button, #view input, #view summary, #view select, #view textarea")].filter(vis)
+      .map(n => ({ n, r: n.getBoundingClientRect() })).filter(x => x.r.width < 44 - 0.5 || x.r.height < 44 - 0.5)
+      .map(x => z.name(x.n) + " \"" + (x.n.textContent || x.n.placeholder || "").trim().slice(0, 20) + "\" " + x.r.width.toFixed(1) + "x" + x.r.height.toFixed(1));
+    const controls = [...document.querySelectorAll("#view a, #view button, #view input, #view summary")].filter(vis).length;
+    const clipped = [], low = [];
+    let texts = 0;
+    for (const el of document.querySelectorAll("#view *")) {
+      if (![...el.childNodes].some(t => t.nodeType === 3 && t.textContent.trim())) continue;
+      if (!vis(el)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      texts++;
+      for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+        const cs = getComputedStyle(a);
+        if (!/hidden|clip|auto|scroll/.test(cs.overflowX + cs.overflowY)) continue;
+        const b = a.getBoundingClientRect();
+        if (r.left < b.left - 1 || r.right > b.right + 1 || r.top < b.top - 1 || r.bottom > b.bottom + 1) {
+          clipped.push(z.name(el) + " \"" + el.textContent.trim().slice(0, 24) + "\" outside " + z.name(a)); break; }
+      }
+      const cs = getComputedStyle(el);
+      if (cs.overflowX === "hidden" && el.scrollWidth > el.clientWidth + 1) clipped.push(z.name(el) + " \"" + el.textContent.trim().slice(0, 24) + "\" cut (" + el.scrollWidth + " > " + el.clientWidth + ")");
+      const bg = z.backdrop(el), fg = z.over(z.bytes(cs.color), bg), ratio = z.ratio(fg, bg), px = parseFloat(cs.fontSize);
+      const need = px >= 24 || (px >= 18.66 && +cs.fontWeight >= 700) ? 3 : 4.5;
+      if (ratio < need - 0.005) low.push(z.name(el) + " \"" + el.textContent.trim().slice(0, 20) + "\" " + ratio.toFixed(2) + ":1 (" + z.hex(fg) + " on " + z.hex(bg) + ")");
+    }
+    const map = document.querySelector("#view #mkMap");
+    const cols = map ? [...map.querySelectorAll(".hcol")] : [];
+    return { filled, small, controls, clipped, low, texts,
+      wide: document.documentElement.scrollWidth > window.innerWidth + 1 ? document.documentElement.scrollWidth + " > " + window.innerWidth : null,
+      head: ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim(),
+      map: { cols: cols.length, rows: cols.map(c => c.querySelectorAll(".hc").length), now: map ? map.querySelectorAll(".hc.now").length : -1,
+        fits: !!map && map.scrollWidth <= map.clientWidth + 1 },
+      ext: (a => a ? { href: a.getAttribute("href"), blank: a.target === "_blank", rel: a.rel } : null)(document.querySelector("#view a.mk-ext")) };
+  }
+  for (const theme of ["dark", "light"]) {
+    for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
+      for (const st of T54_STATES) {
+        const at = o.w + "px " + theme + ", " + st.name;
+        console.log("\nT-054 " + at);
+        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, empty: true, now: st.now, patch: st.patch }, o));
+        await themePainted(page, theme, "T-054 " + at);
+        const w0 = await writesNow(page);
+        await go(page, "/monk");
+        for (const open of [false, true]) {
+          if (open) {
+            await page.click("#view details.mk-day > summary");
+            await page.waitForFunction(() => { const d = document.querySelector("#view details.mk-day"); return !!d && d.open; });
+          }
+          const m = await page.evaluate(t54Measure), lab = at + (open ? ", Full day open" : "");
+          c54(lab + ": the head reads \"" + st.head + "\"", m.head === st.head, m.head);
+          c54(lab + ": at most one filled primary, and it is Save tomorrow's plan", m.filled.length <= 1 && m.filled.every(t => t === "Save tomorrow’s plan"), JSON.stringify(m.filled));
+          c54(lab + ": every visible control is at least 44x44 (" + m.controls + " measured)", m.controls > 20 && m.small.length === 0, m.small.slice(0, 4).join("; "));
+          c54(lab + ": nothing wider than the window, no text outside a box that clips it", !m.wide && m.clipped.length === 0, (m.wide || "") + " " + m.clipped.slice(0, 3).join("; "));
+          c54(lab + ": every visible text at 4.5:1 (3:1 large) on what is behind it (" + m.texts + " texts)", m.texts > 30 && m.low.length === 0, m.low.slice(0, 3).join("; "));
+          if (!open) {
+            c54(lab + ": the 90-day map is 13 week columns x 7 days, inside its box" + (st.patch ? ", today outlined" : ""),
+              m.map.cols === 13 && m.map.rows.every(n => n === 7) && m.map.fits && m.map.now === (st.patch ? 1 : 0), JSON.stringify(m.map));
+            c54(lab + ": Calendar and inbox opens MONK.url in a new tab", !!m.ext && /^https:\/\/claude\.ai\/artifact\//.test(m.ext.href) && m.ext.blank && /noopener/.test(m.ext.rel), JSON.stringify(m.ext));
+          }
+        }
+        const w1 = await writesNow(page);
+        c54(at + ": reading the page and opening Full day wrote nothing, no page errors", w1 === w0 && errors.length === 0, "writes " + w0 + " -> " + w1 + (errors.length ? ", " + errors.join(" | ") : ""));
+        await ctx.close();
+      }
+    }
+  }
+  // The clipping sweep's widths and roots on #/monk, inside the view. (Not in
+  // verify-clip.js: there a new route brings the sidebar crest's known clip at
+  // a 24px root, 20 baseline entries, and that baseline may only shrink.)
+  for (const w of [320, 390, 768, 1024, 1100, 1280, 1440]) {
+    for (const root of [16, 24]) {
+      const st = T54_STATES[0], at = w + "px root " + root + ", " + st.name;
+      const { ctx, page, errors } = await t26bFresh({ theme: "dark", empty: true, now: st.now, patch: st.patch, w, h: 900, mobile: w < 860, root });
+      await go(page, "/monk");
+      await page.click("#view details.mk-day > summary");
+      const m = await page.evaluate(t54Measure);
+      c54("T-054 " + at + ": nothing wider than the window, no text outside a box that clips it (Full day open)", !m.wide && m.clipped.length === 0 && errors.length === 0,
+        (m.wide || "") + " " + m.clipped.slice(0, 3).join("; ") + errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   await browser.close();
 
   console.log("");
@@ -4952,7 +5061,8 @@ function t28SeedClips(list) {
       "at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at " + T26C_FIT_W.length + " widths x 2 roots (" + t26cChecks + " checks); " +
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
-      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)"
+      "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)" + "; " +
+      "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 13 x 7 map, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

@@ -3087,3 +3087,73 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
 .unit.lq-prove { margin-top: var(--sp-3); }
 .sum-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-weight: 600; font-size: var(--fs-small); }
 .lsn-unmark { margin-top: var(--sp-3); }
+
+/* ============================================================
+   T-054: Monk Mode (#/monk)
+   ------------------------------------------------------------
+   The app's own parts — .one for the head, .ghead/.glist/.grow for every
+   section, .btn.tiny for the steppers, .heat/.hc for the 90-day map — plus
+   the few things they have no shape for: a time column, the chips, a field
+   row and a small bar. Phone density (T-051): one-line rows. */
+.mk-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.mk-hl { min-width: 0; }
+.mk .grow.mk-static { cursor: default; }
+.mk .grow.mk-static:active { background: none; }
+.mk-tm { width: 3.2rem; flex-shrink: 0; font-size: var(--fs-subhead); color: var(--ink-2); font-variant-numeric: lining-nums tabular-nums; }
+.mk-cur .mk-tm, .mk-cur .g-t { color: var(--ink); }
+.mk .grow .g-t { font-weight: 500; }
+.mk-cur .g-t { font-weight: 600; }
+.glist + .glist.mk-day { margin-top: 10px; }
+.mk-day > summary { list-style: none; }
+.mk-day > summary::-webkit-details-marker { display: none; }
+.mk-day > summary::after {
+  content: ""; flex-shrink: 0; width: 7px; height: 7px; margin: 0 2px 3px 0;
+  border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg);
+}
+.mk-day[open] > summary::after { transform: rotate(-135deg); margin-bottom: -3px; }
+.mk-top .g-t { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mk .g-lead svg { width: 18px; height: 18px; color: var(--good); }
+.mk-ring { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--ink-3); display: block; }
+.mk-chips { display: flex; gap: 6px; padding: 10px 12px; }
+.mk-german { padding-top: 0; }
+.mk-chip {
+  flex: 1 1 0; min-width: 0; min-height: 44px; padding: 6px 4px;
+  border: 0; border-radius: 12px; background: var(--surface-2); color: var(--ink);
+  font: inherit; font-size: var(--fs-subhead); font-weight: 500; line-height: 1.15; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center;
+}
+.mk-chip small { font-size: var(--fs-footnote, 0.8125rem); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.mk-chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
+.mk-chip[aria-pressed="true"] small { color: var(--surface); }
+.mk-num { padding-top: 0; padding-bottom: 0; padding-right: 4px; }
+.mk-step { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.mk-step .btn.tiny { font-size: 1.25rem; color: var(--ink); padding: 0; width: 44px; }
+.mk-step output { min-width: 3.6rem; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mk-step output.mk-good { color: var(--good); }
+.mk-bar { width: 64px; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; flex-shrink: 0; }
+.mk-bar i { display: block; height: 100%; background: var(--good); }
+.mk-mapbox { padding: 14px 16px; }
+.mk-mapbox .heat { max-width: 420px; }
+.mk-field { padding-top: 0; padding-bottom: 0; gap: 10px; }
+.mk-field label { width: 5.6rem; min-height: 44px; display: flex; align-items: center; flex-shrink: 0; font-size: var(--fs-subhead); color: var(--ink-2); }
+.mk-field input {
+  flex: 1; min-width: 0; min-height: 44px; padding: 10px 0; border: 0; border-radius: 0; box-shadow: none;
+  background: none; color: var(--ink); font: inherit; font-size: var(--fs-body, 1rem);
+}
+.mk-field input::placeholder { color: var(--ink-2); }
+.mk-field input:focus { outline: none; }
+.mk-field:focus-within { box-shadow: inset 0 0 0 2px var(--accent); border-radius: var(--r-card); }
+.glist + .glist.mk-add { margin-top: 10px; }
+.mk-add .btn.tiny { margin-left: auto; }
+.mk-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 12px; }
+.mk-note { font-size: var(--fs-subhead); color: var(--ink-2); }
+.mk-extbox { margin-top: 2rem; }
+/* Narrow or large text (320px, a 24px root): a row's value drops under its
+   title rather than squeezing the title to nothing; chips wrap to a second
+   row rather than cutting a word. */
+.mk .grow.mk-static { flex-wrap: wrap; }
+.mk .grow.mk-static .g-main { min-width: 7rem; }
+.mk .grow.mk-static .g-v { margin-left: auto; }
+.mk-chips { flex-wrap: wrap; }
+.mk-chip { flex: 1 1 4.5rem; }
+.mk-actions .btn { min-height: 44px; }

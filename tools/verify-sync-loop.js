@@ -706,9 +706,153 @@ async function session(browser, { putOk }) {
     await ctx.close();
   }
 
+  // ---- T-054: Monk Mode stays on the device until T-053 ----
+  // loop/specs/T-054-monk-page/spec.md, "Data, and privacy". With MONK_SYNCS
+  // false (as shipped): a monk write arms no push (its commit time alone would
+  // say when a prayer was ticked); a push carries no `monk` key and none of
+  // its text; a pull — even of a remote that has a `monk` — leaves the local
+  // monk data exactly as it was. Then the same app with the constant flipped
+  // on (a temporary copy of platform/ whose app.js says true, everything else
+  // linked to the real files): a pull merges every day, plan and loop by the
+  // newer `at`, deletes nothing, and the push carries the result.
+  console.log("\nMonk Mode stays on the device (T-054):");
+  // This file's check() is (ok, msg); these read (msg, ok, detail) like the other gates.
+  const c54 = (msg, ok, detail) => check(ok, msg + (detail ? " — " + detail : ""));
+  {
+    const MARK = "MONK-PRIVATE-7f3a";
+    const at = h => "2026-10-28T" + String(h).padStart(2, "0") + ":00:00.000Z";
+    const localMonk = {
+      days: { "2026-10-27": { prayers: { fajr: true }, german: true, at: at(5) }, "2026-10-26": { work: 4, at: at(3) } },
+      plans: { "2026-10-28": { business: "Ship " + MARK, content: "c", education: "e", at: at(4) } },
+      loops: { s1: { text: "seed one", done: false, at: "2026-10-22T00:00:00.000Z" }, mine: { text: "loop " + MARK, done: false, at: at(2) } },
+    };
+    const remoteMonk = {
+      days: { "2026-10-27": { prayers: {}, german: false, at: at(9) }, "2026-10-20": { work: 9, at: at(1) } },
+      plans: {}, loops: { theirs: { text: "remote loop", done: false, at: at(1) } },
+    };
+    const remote = { v: 1, device: "device-b", ledgers: {}, state: { studyDays: ["2026-10-19"], monk: remoteMonk } };
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+    await ctx.clock.setFixedTime(new Date("2026-10-28T12:00:00Z"));
+    await ctx.addInitScript(m => {
+      if (window.top !== window) return;
+      localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+      if (!sessionStorage.getItem("seeded")) { localStorage.setItem("darhikmah_v1", JSON.stringify({ studyDays: [], monk: m })); sessionStorage.setItem("seeded", "1"); }
+    }, localMonk);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    const puts = [];
+    await page.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET")
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify(remote)).toString("base64") }) });
+      try { puts.push(Buffer.from(JSON.parse(route.request().postData()).content, "base64").toString()); } catch (e) { puts.push("(unreadable push)"); }
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    const st = () => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+    try {
+      await page.goto(URL + "/monk", { waitUntil: "load" });
+      await page.waitForFunction(() => !!(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt, null, { timeout: 8000 });
+      const a = await st();
+      c54("(m1) the boot pull ran and merged the remote's study day (the pull is real)", (a.studyDays || []).includes("2026-10-19"), JSON.stringify(a.studyDays));
+      c54("(m1) a pull of a remote that HAS a monk key leaves local monk data exactly as it was",
+        JSON.stringify(a.monk) === JSON.stringify(localMonk), JSON.stringify(a.monk).slice(0, 200));
+      await page.waitForSelector("#view [data-mk-pray]");
+      const p0 = puts.length;
+      await page.click("#view [data-mk-pray]");
+      await page.waitForFunction(() => !!((((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || {}).days || {})["2026-10-28"] || {}).prayers), null, { timeout: 5000 });
+      // The automatic push is 4s after a save; 6s is past it. The manual push
+      // below is the proof this stub sees a PUT when one is made.
+      await page.waitForTimeout(6000);
+      c54("(m2) a monk write arms no automatic push (" + (puts.length - p0) + " PUT(s) in 6s after a prayer tick)", puts.length === p0);
+      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.waitForSelector("[data-act='syncPush']");
+      const p1 = puts.length;
+      await page.click("[data-act='syncPush']");
+      for (const t0 = Date.now(); puts.length === p1 && Date.now() - t0 < 8000;) await page.waitForTimeout(100);
+      const body = puts[puts.length - 1] || "";
+      let parsed = null; try { parsed = JSON.parse(body); } catch (e) {}
+      c54("(m3) a manual push was made and read", puts.length > p1 && !!parsed && !!parsed.state, puts.length - p1 + " PUT(s)");
+      c54("(m3) the push's state has no monk key", !!parsed && !!parsed.state && !("monk" in parsed.state), parsed && parsed.state ? Object.keys(parsed.state).join(",") : "");
+      c54("(m3) and none of the monk text anywhere in it (\"" + MARK + "\", \"remote loop\")", body.length > 0 && !body.includes(MARK) && !body.includes("remote loop"), "");
+      const b = await st();
+      c54("(m3) after the push merged the remote, local monk still has only its own data (+ today's tick)",
+        !!b.monk && JSON.stringify(b.monk.days["2026-10-27"]) === JSON.stringify(localMonk.days["2026-10-27"]) && !b.monk.days["2026-10-20"] && !b.monk.loops.theirs && !!b.monk.loops.mine,
+        JSON.stringify(b.monk && Object.keys(b.monk.days)));
+      c54("(m) no page errors", errors.length === 0, errors.join(" | "));
+    } catch (e) { check(false, "(m) the privacy half ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    await ctx.close();
+  }
+  {
+    // The same app with MONK_SYNCS flipped on, in a temporary copy.
+    const fs = require("fs"), os = require("os");
+    const SRC = path.join(path.resolve(__dirname, ".."), "platform");
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bf-monk-syncs-"));
+    try {
+      for (const e of fs.readdirSync(SRC)) if (e !== "js") fs.symlinkSync(path.join(SRC, e), path.join(dir, e));
+      fs.mkdirSync(path.join(dir, "js"));
+      for (const e of fs.readdirSync(path.join(SRC, "js"))) if (e !== "app.js") fs.symlinkSync(path.join(SRC, "js", e), path.join(dir, "js", e));
+      const app = fs.readFileSync(path.join(SRC, "js/app.js"), "utf8"), FLIP = "const MONK_SYNCS = false;";
+      const found = app.split(FLIP).length - 1;
+      c54("(f) app.js declares `" + FLIP + "` exactly once, so the flip is real", found === 1, found + " found");
+      fs.writeFileSync(path.join(dir, "js/app.js"), app.replace(FLIP, "const MONK_SYNCS = true;"));
+      const at = (d, h) => d + "T" + String(h).padStart(2, "0") + ":00:00.000Z";
+      const T = "2026-10-28";
+      const local = { studyDays: [], monk: {
+        days: { "2026-10-26": { work: 6, at: at(T, 9) }, "2026-10-27": { work: 2, at: at(T, 1) }, "2026-10-25": { gym: 1, at: at(T, 2) } },
+        plans: { "2026-10-29": { business: "mine newer", at: at(T, 8) }, "2026-10-30": { business: "mine older", at: at(T, 1) } },
+        loops: { s1: { text: "seed", done: false, at: "2026-10-22T00:00:00.000Z" }, keep: { text: "local done", done: true, at: at(T, 7) }, solo: { text: "local only", done: false, at: at(T, 3) } } } };
+      const remoteMonk = {
+        days: { "2026-10-26": { work: 1, at: at(T, 3) }, "2026-10-27": { work: 10, at: at(T, 4) }, "2026-10-24": { book: 1, at: at(T, 5) } },
+        plans: { "2026-10-29": { business: "theirs older", at: at(T, 2) }, "2026-10-30": { business: "theirs newer", at: at(T, 6) } },
+        loops: { s1: { text: "seed", done: true, at: at(T, 6) }, keep: { text: "local done", done: false, at: at(T, 2) }, far: { text: "remote only", done: false, at: at(T, 1) } } };
+      const want = {
+        days: { "2026-10-26": local.monk.days["2026-10-26"], "2026-10-27": remoteMonk.days["2026-10-27"], "2026-10-25": local.monk.days["2026-10-25"], "2026-10-24": remoteMonk.days["2026-10-24"] },
+        plans: { "2026-10-29": local.monk.plans["2026-10-29"], "2026-10-30": remoteMonk.plans["2026-10-30"] },
+        loops: { s1: remoteMonk.loops.s1, keep: local.monk.loops.keep, solo: local.monk.loops.solo, far: remoteMonk.loops.far } };
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+      await ctx.clock.setFixedTime(new Date(T + "T12:00:00Z"));
+      await ctx.addInitScript(s => {
+        if (window.top !== window) return;
+        localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+        if (!localStorage.getItem("darhikmah_v1")) localStorage.setItem("darhikmah_v1", s);
+      }, JSON.stringify(local));
+      const page = await ctx.newPage();
+      const errors = [];
+      page.on("pageerror", e => errors.push(e.message));
+      const puts = [];
+      await page.route("https://api.github.com/**", route => {
+        if (route.request().method() === "GET")
+          return route.fulfill({ status: 200, contentType: "application/json",
+            body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify({ v: 1, device: "device-b", ledgers: {}, state: { monk: remoteMonk } })).toString("base64") }) });
+        try { puts.push(JSON.parse(Buffer.from(JSON.parse(route.request().postData()).content, "base64").toString())); } catch (e) { puts.push(null); }
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+      });
+      try {
+        await page.goto("file://" + path.join(dir, "index.html") + "#/monk", { waitUntil: "load" });
+        await page.waitForFunction(() => !!(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt, null, { timeout: 8000 });
+        const m = await page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || null);
+        const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+        for (const part of ["days", "plans", "loops"])
+          for (const k of Object.keys(want[part]))
+            c54("(f) flipped on, a pull keeps the newer `at`: " + part + "." + k + " = " + (want[part][k] === (remoteMonk[part] || {})[k] ? "the remote's" : "this device's"),
+              !!m && eq(m[part][k], want[part][k]), JSON.stringify(m && m[part][k]));
+        c54("(f) and deletes nothing: exactly the union of keys", !!m && ["days", "plans", "loops"].every(p => eq(Object.keys(m[p]).sort(), Object.keys(want[p]).sort())),
+          JSON.stringify(m && { d: Object.keys(m.days), p: Object.keys(m.plans), l: Object.keys(m.loops) }));
+        await page.click("#view [data-mk-habit=brickford]");
+        for (const t0 = Date.now(); !puts.length && Date.now() - t0 < 9000;) await page.waitForTimeout(100);
+        const last = puts[puts.length - 1];
+        c54("(f) flipped on, a monk write arms the push, and it carries the merged monk with today's write",
+          !!last && !!last.state && !!last.state.monk && eq(last.state.monk.loops, want.loops) && !!(last.state.monk.days[T] || {}).brickford, last && last.state ? Object.keys(last.state).join(",") : "no push");
+        c54("(f) no page errors", errors.length === 0, errors.join(" | "));
+      } catch (e) { check(false, "(f) the flipped half ran to its end without a harness error — " + e.message.split("\n")[0]); }
+      await ctx.close();
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  }
+
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054)");
   process.exit(fails ? 1 : 0);
 })();

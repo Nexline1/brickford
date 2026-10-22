@@ -5546,6 +5546,12 @@
       doc("#/method", "The Method", "Why mastery beats coverage") +
       (kit ? doc("#/doc/" + kit.id, face(kit)[0], face(kit)[1]) : "") + "</div>" +
 
+      // "Progress Log (file)" keeps its own title and its superseded note, in
+      // the quieter ink: it is there to be found, not to be read first.
+      '<div class="ghead">Guides</div>' +
+      '<div class="at-tiles lb-docs lb-guides">' +
+      guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
+
       // T-055: the Sunday revision PDFs (T-035), one per plan week, made by
       // tools/revision-pdf.js into revision/ at the repo root. They open in a
       // new tab; the browser's own viewer handles the PDF.
@@ -5554,12 +5560,6 @@
       REVISION_WEEKS.map(([n, dates, lec]) => '<a class="at-tile pb-mode lb-doc" href="../revision/week-' + String(n).padStart(2, "0") +
         '.pdf" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + n + "</span>" +
         '<span class="pb-d">' + esc(dates) + " \u00b7 " + lec + " lectures</span></a>").join("") + "</div>" +
-
-      // "Progress Log (file)" keeps its own title and its superseded note, in
-      // the quieter ink: it is there to be found, not to be read first.
-      '<div class="ghead">Guides</div>' +
-      '<div class="at-tiles lb-docs lb-guides">' +
-      guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
 
       '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
       '<div class="at-chips lb-links">' +

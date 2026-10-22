@@ -104,7 +104,11 @@ this time the clocks kept the **plan day**: every study-day fixture moved 10 stu
 Saturday fixture moved to the Saturday of the same plan week. The plan-day-14 clocks
 (verify-design, verify-clip, verify-flows, verify-shell, verify-logic) went from Tue 20 Oct to
 **Sun 1 Nov**. Weekday-only fixtures (a Friday's speech rep, a Saturday rest card) kept their
-own dates, which are still a Friday and a Saturday inside the plan. The fixtures that mean
+own dates, which are still a Friday and a Saturday inside the plan. Two fixtures did NOT keep
+their plan day: verify-logic's rest-day backlog scenario went from plan day 12 to day 14 (Sun
+1 Nov), its Saturday moved to Sat 31 Oct, because the new day 12 is a Thursday with no Saturday
+just before it; and verify-design's calendar extra days are now Sat 7 Nov and Thu 5 Nov, because
+the mapped Saturday (31 Oct) is not in the pinned month's grid. The fixtures that mean
 "watched before / after the gate" are derived from `QUIZ_GATE_FROM`, so moving the gate is a
 one-line edit. verify-design's rest-day check still measures a Saturday (Saturdays planted
 without `.rest` fail it, 2 of 2566), and the clip baseline was re-measured: 797, unchanged.

@@ -118,3 +118,4 @@
 - 2026-10-23: T-054 APPROVED r1 (reviewer opus, fresh). PR #23 merged → main e0cb40c. Monk data stays on the device until T-053.
 - 2026-10-23: Owner: Sunday revision PDFs for plan weeks 1–6 only (files, no app feature yet). T-035 agent resumed (general-purpose opus).
 - 2026-10-23: T-035 PDFs for weeks 1–6 delivered (agent opus, resumed; 193k tokens). Generator tools/revision-pdf.js on branch loop/T-035-revision-pdf 523314a. Found an app bug: '\$' in 4 MATH summaries garbles the line in the app.
+- 2026-10-23: T-055 APPROVED (reviewer opus, fresh, 32k). PR #24 merged → main fcc2226: the weeks 1–6 revision PDFs are in Library → Sunday revision.

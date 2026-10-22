@@ -119,3 +119,4 @@
 - 2026-10-23: Owner: Sunday revision PDFs for plan weeks 1–6 only (files, no app feature yet). T-035 agent resumed (general-purpose opus).
 - 2026-10-23: T-035 PDFs for weeks 1–6 delivered (agent opus, resumed; 193k tokens). Generator tools/revision-pdf.js on branch loop/T-035-revision-pdf 523314a. Found an app bug: '\$' in 4 MATH summaries garbles the line in the app.
 - 2026-10-23: T-055 APPROVED (reviewer opus, fresh, 32k). PR #24 merged → main fcc2226: the weeks 1–6 revision PDFs are in Library → Sunday revision.
+- 2026-10-23: Owner asked for reset seven (day 1 = 16 Oct). Refused with the numbers (10 study days; 2030-04-02 → 04-14); owner reaffirmed. The half-done bug was found (grandfathering by doneAt < gate). Monk Mode moves to start 24 Oct. Spec T-056.

@@ -319,8 +319,8 @@ const ROOT = path.resolve(__dirname, "..");
 const CSS_FILE = path.join(ROOT, "platform/css/style.css");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 
-// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
-const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
+// Plan day 14 (moved with reset seven, START 2026-10-16; was 2026-10-20 under START 2026-10-05, 2026-10-06 under 2026-09-21).
+const FIXED_NOW = new Date("2026-11-01T12:00:00Z");
 const ROUTES = ["/", "/course/math110", "/lesson/math110/0/13", "/calendar", "/workshop"];
 // The routes whose view carries a page-title h1 (a detail page's title). The
 // other three head themselves with the folio, an h1 styled as a running head

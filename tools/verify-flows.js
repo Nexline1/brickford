@@ -145,8 +145,8 @@ const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const { acrossReload } = require("./lib-reload");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
-// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
-const TODAY = "2026-10-20";               // a Tuesday: a study day with lectures scheduled
+// Plan day 14 (moved with reset seven, START 2026-10-16; was 2026-10-20 under START 2026-10-05, 2026-10-06 under 2026-09-21).
+const TODAY = "2026-11-01";               // a Sunday: a study day with lectures scheduled
 const WIDTHS = [390, 1280];
 const shotsAt = process.argv.indexOf("--shots");
 const SHOTS = shotsAt > 0 ? path.resolve(process.argv[shotsAt + 1]) : null;
@@ -226,8 +226,8 @@ const CUR = lessonOf(LECTURE.cid, LECTURE.ui, LECTURE.li);
 // resume flows' contexts carry lecture 13 watched with its quiz passed —
 // a quiz pass added to the fixture, nothing else. Their own lecture (14) is
 // untouched by it.
-const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
-  quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
+const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-27", notes: "", checks: [],
+  quiz: { passedAt: "2026-10-27", at: "2026-10-27T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
 const unlocked = st => Object.assign({}, st || {}, { lessons: Object.assign({}, PREV_PASSED, (st || {}).lessons || {}) });
 
 // The page going to the background, as the page sees it: visibilityState,
@@ -357,9 +357,13 @@ const sheetState = page => page.evaluate(() => {
 });
 const sheetGone = page => page.waitForFunction(() => !document.querySelector("dialog.sheet"), null, { timeout: 4000 }).then(() => true, () => false);
 
-// Watched lectures unlock quiz questions, so flow (b) starts with some watched.
+// Watched lectures unlock quiz questions, so flow (b) starts with some watched,
+// the day before the quiz gate (QUIZ_GATE_FROM, read from app.js): watched
+// before it shipped, as they were when this fixture was written (T-056).
+const GATE = /const QUIZ_GATE_FROM = "(\d{4}-\d\d-\d\d)"/.exec(fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/js/app.js"), "utf8"))[1];
+const BEFORE_GATE = (d => { d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); })(new Date(GATE + "T00:00:00Z"));
 const WATCHED = {};
-for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "2026-10-15", notes: "", checks: [] };
+for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: BEFORE_GATE, notes: "", checks: [] };
 
 
 // ---- T-026c: the plan week the pinned clock is in, walked here ----
@@ -382,22 +386,23 @@ const T26C_WEEK = (() => {
 })();
 // Two problems solved, a lecture proven this week, a week already sealed —
 // which a seal must leave exactly as it was — and payments on both edges of
-// the plan week and its rest day: the Sunday that ends the week before and
-// the Monday after (neither counts), its Monday, a weekday, its Saturday and
-// its Sunday (all four count).
+// the plan week and its rest day: the Thursday that ends the week before and
+// the Friday after (neither counts), its Friday, a weekday, its Saturday and
+// its Thursday (all four count). Since reset seven (START a Friday) plan week 3
+// runs Fri 30 Oct to Thu 5 Nov, rest day Sat 31 Oct.
 const T26C_SEAL_STATE = (theme, entries) => ({
   settings: { theme, themeNavyOnce: true },
-  problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-17", "Arrays & Hashing|Valid Anagram": "2026-10-19" },
-  lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", verifiedAt: "2026-10-19", notes: "", checks: [] } },
+  problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-24", "Arrays & Hashing|Valid Anagram": "2026-10-30" },
+  lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-30", verifiedAt: "2026-10-30", notes: "", checks: [] } },
   treasury: { offer: "", clients: [], niche: "", entries: entries || [
-    { date: "2026-10-18", amount: 999, note: "the last day of the week before" },
-    { date: "2026-10-19", amount: 120, note: "pilot" },
-    { date: "2026-10-20", amount: 30.5, note: "a referral" },
-    { date: "2026-10-24", amount: 7, note: "the rest day" },
-    { date: "2026-10-25", amount: 2.25, note: "the last day of the week" },
-    { date: "2026-10-26", amount: 500, note: "the first day of the week after" },
+    { date: "2026-10-29", amount: 999, note: "the last day of the week before" },
+    { date: "2026-10-30", amount: 120, note: "pilot" },
+    { date: "2026-11-01", amount: 30.5, note: "a referral" },
+    { date: "2026-10-31", amount: 7, note: "the rest day" },
+    { date: "2026-11-05", amount: 2.25, note: "the last day of the week" },
+    { date: "2026-11-06", amount: 500, note: "the first day of the week after" },
   ] },
-  weeks: [{ week: 1, date: "2026-10-11", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
+  weeks: [{ week: 1, date: "2026-10-22", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
 });
 const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T26C_WEEK.from && e.date <= T26C_WEEK.to)
   .reduce((a, e) => a + e.amount, 0) * 100) / 100;
@@ -483,8 +488,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // answered wrong, the rest right; the answers are read from the summary's
     // own checks (window.DAR), by the bank index the card carries.
     {
-      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
-        quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
+      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-27", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-27", at: "2026-10-27T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
       const { ctx, page, errors } = await fresh(browser, w, { lessons: PREV }, "/__test");
       await go(page, "/");
       const before = await todayCount(page);
@@ -736,7 +741,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // seeked there (iOS, on an ordinary open). Left at that moment, the
     // lecture must keep the point it was opened at.
     {
-      const T10 = "2026-10-20T10:00:00.000Z";
+      const T10 = "2026-11-01T10:00:00.000Z";
       const seeded = { lessons: { [LK]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 } } };
       const { ctx, page, errors } = await fresh(browser, w, unlocked(seeded), "/__test");
       await go(page, LROUTE);
@@ -1071,8 +1076,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   };
   for (const theme of ["dark", "light"]) for (const w of [1440, 390]) await sealFlow(theme, w);
   await sealFlow("dark", 390, [], 75.5);
-  await sealFlow("dark", 390, [{ date: "2026-10-18", amount: 999, note: "the last day of the week before" },
-                              { date: "2026-10-26", amount: 500, note: "the first day of the week after" }]);
+  await sealFlow("dark", 390, [{ date: "2026-10-29", amount: 999, note: "the last day of the week before" },
+                              { date: "2026-11-06", amount: 500, note: "the first day of the week after" }]);
 
   // ---- (p) record yourself, and (q) no microphone (T-028) ----
   // A second Chromium, launched with a fake microphone: --use-fake-ui-for-
@@ -1893,9 +1898,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // render — the quiz card on screen is the same element, still on the miss.
   console.log("\nrewatch from a miss (once, 1280px)");
   {
-    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
-        quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
-      "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } };
+    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-27", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-27", at: "2026-10-27T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
+      "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } } };
     const { ctx, page, errors } = await fresh(browser, 1280, st, "/__test");
     await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.forEach(q => { q.at = 95; }));
     await go(page, "/lesson/math120/1/0");
@@ -1925,7 +1930,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // a stub GitHub, both inside this context; the pull is the one boot() makes.
   console.log("\nsync (once)");
   {
-    const T9 = "2026-10-20T09:00:00.000Z", T10 = "2026-10-20T10:00:00.000Z", T11 = "2026-10-20T11:00:00.000Z";
+    const T9 = "2026-11-01T09:00:00.000Z", T10 = "2026-11-01T10:00:00.000Z", T11 = "2026-11-01T11:00:00.000Z";
     const A = "math110.0.13", B = "math110.0.14", C = "math110.0.15";
     const local = { lessons: {
       [A]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 },   // theirs is newer, and further along
@@ -2139,7 +2144,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   }
 
   // ---- T-054: Monk Mode, #/monk (loop/specs/T-054-monk-page/spec.md) ----
-  // At 390 and 1280, on Wed 28 Oct 2026 (day 7 of 90), nothing stored:
+  // At 390 and 1280, on Wed 28 Oct 2026 (day 5 of 90 since T-056 moved day 1 to 24 Oct), nothing stored:
   //   opening the page writes nothing (twice, and after a repaint);
   //   a prayer chip, a habit, a German chip, a stepper and a new loop each write exactly
   //   once, on the press, and the page shows it; the four seed loops are
@@ -2164,8 +2169,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       loops: [...document.querySelectorAll("#view [data-mk-loop] .g-t")].map(n => n.textContent.trim()),
       chips: [...document.querySelectorAll("#view [data-mk-pray]")].map(b => b.dataset.mkPray) }));
     check("(m) opening #/monk writes nothing (" + w0 + " -> " + w1 + ", opened twice)", w1 === w0 && !(await monk()));
-    check("(m) the page is day 7 of 90 with 3 prayer chips and the 4 seed loops, before anything is stored",
-      first.head === "Day 7 of 90" && first.chips.join() === "fajr,dhuhrAsr,maghribIsha" && JSON.stringify(first.loops) === JSON.stringify(SEED_LOOPS), JSON.stringify(first));
+    check("(m) the page is day 5 of 90 with 3 prayer chips and the 4 seed loops, before anything is stored",
+      first.head === "Day 5 of 90" && first.chips.join() === "fajr,dhuhrAsr,maghribIsha" && JSON.stringify(first.loops) === JSON.stringify(SEED_LOOPS), JSON.stringify(first));
     const once = async (sel, name, ok) => {
       const before = await writes(page);
       await markView(page);
@@ -2217,8 +2222,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       await go(page, "/monk");
       const top2 = await page.evaluate(() => [...document.querySelectorAll("#view #mkTop3 .g-t")].map(n => n.textContent.trim()));
       const head2 = await page.evaluate(() => ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim());
-      check("(m) the clock moved to " + MK_NEXT + ": day 8, and the Top 3 is the plan saved last night, with no write",
-        head2 === "Day 8 of 90" && JSON.stringify(top2) === JSON.stringify(["Call two venues", "Script the Bahrain video", "MATH 120 lecture 4"]) && (await writes(page)) === w2,
+      check("(m) the clock moved to " + MK_NEXT + ": day 6, and the Top 3 is the plan saved last night, with no write",
+        head2 === "Day 6 of 90" && JSON.stringify(top2) === JSON.stringify(["Call two venues", "Script the Bahrain video", "MATH 120 lecture 4"]) && (await writes(page)) === w2,
         head2 + " " + JSON.stringify(top2));
     }
     await shot(page, "monk-" + w);

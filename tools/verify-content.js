@@ -6,6 +6,7 @@
 // the mathematics rather than copied from the data file.
 "use strict";
 const fs = require("fs"), vm = require("vm"), path = require("path");
+const ROOT_T055 = path.resolve(__dirname, "..");
 
 const ROOT = path.resolve(__dirname, "..");
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
@@ -3047,6 +3048,24 @@ let t45Items = 0;
         " is scheduled " + d + ", phase " + (d ? phaseOf(d) : "none") + " — in its phase or earlier");
     }
   });
+}
+
+// T-055: every Sunday-revision week the Library links must have its PDF in
+// revision/ at the repo root, and every PDF there must be linked. A missing
+// file would be a tile that opens a 404.
+{
+  const appSrc = fs.readFileSync(path.join(ROOT_T055, "platform/js/app.js"), "utf8");
+  const m = appSrc.match(/const REVISION_WEEKS = (\[[\s\S]*?\]\]);/);
+  ok(!!m, "T-055 REVISION_WEEKS is declared in app.js");
+  const weeks = m ? JSON.parse(m[1].replace(/\\u2013/g, "-")) : [];
+  const dir = path.join(ROOT_T055, "revision");
+  const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => /^week-\d\d\.pdf$/.test(f)).sort() : [];
+  for (const [n] of weeks) {
+    const f = "week-" + String(n).padStart(2, "0") + ".pdf";
+    const fp = path.join(dir, f);
+    ok(fs.existsSync(fp) && fs.readFileSync(fp).slice(0, 5).toString() === "%PDF-", "T-055 revision/" + f + " exists and is a PDF");
+  }
+  ok(files.length === weeks.length, "T-055 every revision PDF is linked (" + files.length + " files, " + weeks.length + " linked)");
 }
 
 console.log("\n" + (fail === 0

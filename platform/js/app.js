@@ -5526,6 +5526,9 @@
     ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
   const LINKS_SHOWN = 5;
+  // T-055: weeks with a revision PDF in revision/ (week, dates, lectures).
+  const REVISION_WEEKS = [[1, "5\u201311 Oct", 30], [2, "12\u201318 Oct", 22], [3, "19\u201325 Oct", 15],
+    [4, "26 Oct\u20131 Nov", 13], [5, "2\u20138 Nov", 14], [6, "9\u201315 Nov", 12]];
   V.library = function () {
     const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
     const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
@@ -5542,6 +5545,15 @@
       doc("#/guide", "The Handbook", "How Brickford works, end to end", "start") +
       doc("#/method", "The Method", "Why mastery beats coverage") +
       (kit ? doc("#/doc/" + kit.id, face(kit)[0], face(kit)[1]) : "") + "</div>" +
+
+      // T-055: the Sunday revision PDFs (T-035), one per plan week, made by
+      // tools/revision-pdf.js into revision/ at the repo root. They open in a
+      // new tab; the browser's own viewer handles the PDF.
+      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_WEEKS.length + " weeks</span></div>" +
+      '<div class="at-tiles lb-docs lb-rev">' +
+      REVISION_WEEKS.map(([n, dates, lec]) => '<a class="at-tile pb-mode lb-doc" href="../revision/week-' + String(n).padStart(2, "0") +
+        '.pdf" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + n + "</span>" +
+        '<span class="pb-d">' + esc(dates) + " \u00b7 " + lec + " lectures</span></a>").join("") + "</div>" +
 
       // "Progress Log (file)" keeps its own title and its superseded note, in
       // the quieter ink: it is there to be found, not to be read first.

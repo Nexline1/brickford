@@ -140,7 +140,7 @@ async function readPlan(browser) {
     keys.forEach(k => {
       const [cid, ui, li] = k.split(".");
       const c = D.COURSES.find(x => x.id === cid), u = c.units[+ui], l = u.lessons[+li];
-      lessons[k] = { code: c.code, course: c.title, color: c.color || null, unit: u.t || u.title || "", title: l.t, v: l.v || null, url: l.url || null, min: l.min || null };
+      lessons[k] = { code: c.code, course: c.title, unit: u.t || u.title || "", title: l.t, v: l.v || null, url: l.url || null, min: l.min || null };
       const sm = (D.SUMMARIES || {})[k];
       if (sm) {
         summaries[k] = JSON.parse(JSON.stringify(sm));
@@ -229,7 +229,6 @@ code { font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: .88e
 .row.total { font-weight: 600; }
 .row.total .val { color: var(--label); }
 .code { font-weight: 600; font-size: 8pt; letter-spacing: .04em; color: var(--label-3); }
-.dot { display: inline-block; width: 6pt; height: 6pt; border-radius: 50%; margin-right: 5pt; vertical-align: .5pt; }
 .foot { font-size: 8pt; color: var(--label-3); margin: 5pt 11pt 0; line-height: 1.4; }
 
 /* cover */
@@ -242,7 +241,7 @@ code { font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: .88e
 .cover .bottom { margin-top: auto; }
 
 /* contents */
-.toc .row { padding: 4.5pt 11pt; font-size: 9.5pt; line-height: 1.3; }
+.toc .row { padding: 3.3pt 11pt; font-size: 9.5pt; line-height: 1.3; }
 .toc .t { font-weight: 500; }
 .toc .meta { font-size: 8.5pt; color: var(--label-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .toc .code { width: 50pt; flex: none; }
@@ -250,7 +249,7 @@ code { font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: .88e
 .badge.no { background: var(--orange-tint); color: var(--orange-ink); }
 
 /* a lecture: they flow, one after another, separated by space and a rule */
-.lec { break-before: auto; }
+.lec.page { break-before: page; }
 .lec + .lec { border-top: .75pt solid var(--sep); margin-top: 24pt; padding-top: 16pt; }
 .lec-open { break-inside: avoid; }
 .lec-head { margin-bottom: 12pt; }
@@ -285,9 +284,9 @@ ol.beats li + li { border-top: .5pt solid var(--sep); }
 .qn { font-weight: 600; color: var(--label-3); margin-right: 3pt; font-variant-numeric: tabular-nums; }
 
 /* week's end and answers */
-.est { margin: 0 0 9pt; break-inside: avoid; }
-.est .k { font-size: 8pt; color: var(--label-3); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
-.est p { margin-top: 1.5pt; }
+.est { margin: 0 0 5.5pt; break-inside: avoid; font-size: 9.5pt; line-height: 1.38; color: var(--label-2); }
+.est .k { font-weight: 600; color: var(--label); }
+.est .k .qn { font-weight: 600; }
 .course-h { display: flex; align-items: center; font-weight: 600; font-size: 11pt; margin: 14pt 0 6pt; break-after: avoid; }
 .course-h:first-of-type { margin-top: 4pt; }
 .ans { padding: 6pt 11pt; position: relative; break-inside: avoid; }
@@ -321,9 +320,8 @@ function buildHTML(P, W) {
   const rh = "Week " + week + " · " + rangeLabel(span.from, span.to);
   // courses, in the order they first appear
   const courses = [];
-  L.forEach(x => { let c = courses.find(c => c.code === x.code); if (!c) courses.push(c = { code: x.code, title: x.course, color: x.color, lec: [], min: 0 }); c.lec.push(x); c.min += x.weekMin; });
+  L.forEach(x => { let c = courses.find(c => c.code === x.code); if (!c) courses.push(c = { code: x.code, title: x.course, lec: [], min: 0 }); c.lec.push(x); c.min += x.weekMin; });
   const totalMin = L.reduce((a, x) => a + x.weekMin, 0);
-  const dot = c => c.color ? '<span class="dot" style="background:' + esc(c.color) + '"></span>' : "";
   const split = L.filter(x => x.spanN > 1 && (x.carriedIn || x.carriesOn));
 
   let h = "";
@@ -339,7 +337,7 @@ function buildHTML(P, W) {
     '<div class="stat"><div class="n">' + done.length + " / " + L.length + '</div><div class="l">Summarised</div></div>' +
     "</div>" +
     '<div class="bottom"><div class="section-h" style="margin-top:0">Courses this week</div><div class="group">' +
-    courses.map(c => '<div class="row"><span class="grow">' + dot(c) + '<span class="code">' + esc(c.code) + "</span>&nbsp;&nbsp;" + esc(c.title) + "</span>" +
+    courses.map(c => '<div class="row"><span class="grow">' + '<span class="code">' + esc(c.code) + "</span>&nbsp;&nbsp;" + esc(c.title) + "</span>" +
       '<span class="val">' + plural(c.lec.length, "lecture") + " · " + esc(hm(c.min)) + "</span></div>").join("") +
     '<div class="row total"><span class="grow">Total</span><span class="val">' + plural(L.length, "lecture") + " · " + esc(hm(totalMin)) + "</span></div>" +
     "</div>" +
@@ -370,8 +368,7 @@ function buildHTML(P, W) {
   let qNo = 0;
   L.forEach(x => {
     h += '<section class="' + (x.n === 1 ? "page " : "") + 'lec" id="lec-' + x.n + '"><div class="lec-open">' +
-      '<div class="lec-head"><div class="eyebrow">' + (x.color ? '<span class="dot" style="background:' + esc(x.color) + '"></span>' : "") +
-      esc(x.code) + " · " + esc(x.course) + " · Lecture " + x.n + " of " + L.length + "</div>" +
+      '<div class="lec-head"><div class="eyebrow">' + esc(x.code) + " · " + esc(x.course) + " · Lecture " + x.n + " of " + L.length + "</div>" +
       '<h2 class="h1">' + esc(x.title) + "</h2>" +
       '<div class="lec-meta">' + esc(lectureMeta(x)) + (x.href ? " · " + videoLink(x) : "") +
       (x.carriedIn ? " · began in week " + (week - 1) : "") + (x.carriesOn ? " · finishes in week " + (week + 1) : "") + "</div>" +
@@ -415,10 +412,10 @@ function buildHTML(P, W) {
   h += '<section class="page" id="established"><div class="eyebrow">' + esc(rh) + '</div><h2 class="h1">What this week established</h2>' +
     '<p class="sub">Each lecture’s takeaway, by course.</p>';
   courses.forEach(c => {
-    h += '<div class="course-h">' + dot(c) + esc(c.code) + "&nbsp;·&nbsp;" + esc(c.title) + "</div>";
+    h += '<div class="course-h">' + esc(c.code) + "&nbsp;·&nbsp;" + esc(c.title) + "</div>";
     c.lec.forEach(x => {
-      h += '<div class="est"><div class="k">' + x.n + " · " + esc(x.title) + "</div>" +
-        (x.sum ? "<p>" + x.sum.takeaway + "</p>" : '<p class="muted">Not yet summarised.</p>') + "</div>";
+      h += '<p class="est"><span class="k"><span class="qn">' + x.n + "</span>" + esc(x.title) + (/[.?!]$/.test(x.title) ? "" : ".") + "</span> " +
+        (x.sum ? x.sum.takeaway : '<span class="muted">Not yet summarised.</span>') + "</p>";
     });
   });
   h += "</section>";
@@ -436,6 +433,12 @@ function buildHTML(P, W) {
   });
   h += "</section>";
 
+  // An escaped dollar (\$40) means money. KaTeX's auto-render does not treat
+  // \$ as escaped, so it pairs it with the next $ and garbles the rest of the
+  // line (the app has the same defect). Here it is set apart in its own
+  // element, which auto-render reads as a separate text node, so it prints
+  // as a plain "$" and the real $...$ pairs stay paired.
+  h = h.replace(/\\\$/g, '<span class="usd">$</span>');
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Brickford · Week ' + week + " revision</title>" +
     '<link rel="stylesheet" href="' + fileURL(path.join(KATEX, "dist/katex.min.css")) + '">' +
     "<style>" + CSS + ":root{--rh:" + JSON.stringify(rh) + "}</style></head><body>" + h +
@@ -461,6 +464,7 @@ function buildHTML(P, W) {
     const page = await ctx.newPage();
     const errs = [];
     page.on("pageerror", e => errs.push(e.message));
+    page.on("console", m => { if (/^RAW\$/.test(m.text())) console.log("  " + m.text()); });
     await page.goto(fileURL(htmlPath), { waitUntil: "load" });
     await page.waitForFunction(() => document.body.dataset.math === "done", null, { timeout: 15000 });
     await page.evaluate(() => document.fonts.ready);
@@ -468,7 +472,7 @@ function buildHTML(P, W) {
     const audit = await page.evaluate(() => {
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       let raw = 0, n;
-      while ((n = walker.nextNode())) if (!n.parentElement.closest(".katex, script, style") && /\$/.test(n.nodeValue)) raw++;
+      while ((n = walker.nextNode())) if (!n.parentElement.closest(".katex, .usd, script, style") && /\$/.test(n.nodeValue)) { raw++; console.log("RAW$ " + n.nodeValue.slice(0, 200)); }
       return { katexErrors: document.querySelectorAll(".katex-error").length, rawDollar: raw, text: document.body.innerText };
     });
     const problems = [];

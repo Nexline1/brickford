@@ -33,7 +33,7 @@ PY
   echo "exit $rc" >> "$OUT/plant-$name.txt"
 }
 
-want="${*:-grandfather-old-date monk-off-by-one work-ahead-removed ahead-despite-backlog rest-dow-5 dateforstudy-off-by-one saturday-not-rest}"
+want="${*:-grandfather-old-date monk-off-by-one work-ahead-removed ahead-despite-backlog rest-dow-5 dateforstudy-off-by-one saturday-not-rest seal-on-non-sunday seal-labels-plan-week review-seals-plan-week library-tile-range}"
 for n in $want; do case "$n" in
   grandfather-old-date) plant "$n" "$APP" logic 'const QUIZ_GATE_FROM = "2026-10-23";' 'const QUIZ_GATE_FROM = "2026-10-16";' ;;
   monk-off-by-one) plant "$n" "$APP" logic 'const MONK = Object.freeze({ from: "2026-10-24",' 'const MONK = Object.freeze({ from: "2026-10-23",' ;;
@@ -44,5 +44,12 @@ for n in $want; do case "$n" in
   rest-dow-5) plant "$n" "$APP" logic 'const REST_DOW = 6;' 'const REST_DOW = 5;' ;;
   dateforstudy-off-by-one) plant "$n" "$APP" logic 'k + 1 + Math.floor(j / 6) * 7 + (j % 6));' 'k + 2 + Math.floor(j / 6) * 7 + (j % 6));' ;;
   saturday-not-rest) plant "$n" "$APP" design 'if (before || resting) cls.push("rest");' 'if (before) cls.push("rest");' ;;
+  # Round 2 (the owner's "Keep Sunday"): the seal offered on a non-Sunday; the
+  # seal tile naming the plan week in progress; the Week page sealing the plan
+  # week; a Library tile showing a range that is not its revision week.
+  seal-on-non-sunday) plant "$n" "$APP" logic 'function isSealDay(iso) { return dowOf(iso) === 0 &&' 'function isSealDay(iso) { return dowOf(iso) !== 6 &&' ;;
+  seal-labels-plan-week) plant "$n" "$APP" logic '[["Seal the week", 30, "Week " + sealW.r + ' '[["Seal the week", 30, "Week " + w + ' ;;
+  review-seals-plan-week) plant "$n" "$APP" design 'const today = todayISO(), w = revisionWeekOf(today);' 'const today = todayISO(), w = weekNumber();' ;;
+  library-tile-range) plant "$n" "$APP" content 'dates: shortRange(rw.from, rw.to),' 'dates: shortRange(rw.from, rw.sun),' ;;
   *) echo "unknown plant $n" ;;
 esac; done

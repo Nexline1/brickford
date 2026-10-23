@@ -3,4 +3,5 @@ SPCH 100: 170 lessons, 46.4 h of video — A1 3.33h, A2 1.23h, A3 5.47h, A4 4.12
 SPCH check options: answer unique longest in 91 of 513 (17.7%), unique shortest in 92 (17.9%); bound 171
 SPCH attributions: 558 names in lessons, 266 credits with sources checked
 
-PASS — 40296 checks, 54 problem sets and labs unlocked by a real lecture, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 455 lecture summaries (491 numerics recomputed), 40 questions gated (210 untagged), lecture quizzes AI 200 9/15, AI 210 8/8, AI 300 0/16, AI 310 23/23, RES 400 1/18
+PASS — 40303 checks, 54 problem sets and labs unlocked by a real lecture, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 455 lecture summaries (491 numerics recomputed), 40 questions gated (210 untagged), lecture quizzes AI 200 9/15, AI 210 8/8, AI 300 0/16, AI 310 23/23, RES 400 1/18
+exit 0

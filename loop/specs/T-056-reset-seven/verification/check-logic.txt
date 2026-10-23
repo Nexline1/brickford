@@ -70,6 +70,41 @@
   ok    no page errors (T-056 watched days)
   ok    T-056: today cleared with a lecture owed (math130.0.0): the card says "today is done · 1 owed", never "ahead of plan" — {"today":true,"backlog":1,"hint":"MATH 130 · 49m video · today is done · 1 owed","href":"#/lesson/math130/0/2"}
   ok    no page errors (T-056 owed)
+  ok    T-056 r2: revision weeks 1-6 are the owner's: 16-23 Oct (revised Sun 25 Oct), then 25-30 Oct, 1-6 Nov, 8-13 Nov, 15-20 Nov, 22-27 Nov, each revised the Sunday after — [["2026-10-16","2026-10-23","2026-10-25"],["2026-10-25","2026-10-30","2026-11-01"],["2026-11-01","2026-11-06","2026-11-08"],["2026-11-08","2026-11-13","2026-11-15"],["2026-11-15","2026-11-20","2026-11-22"],["2026-11-22","2026-11-27","2026-11-29"]]
+  ok    T-056 r2: every date to Oct 2028 answers to the revision week of the first revision Sunday on or after it (731 dates) — first 2026-10-16 -> 1
+  ok    T-056 r2: the revision weeks partition the study days: week 1 holds 7, every other 6, each ends on a Friday and is revised two days later, a Sunday — 104 weeks to 2028-10-13
+  ok    T-056 r2: the exported calendar's weekly review starts Sun 25 Oct 18:00, weekly on Sundays (BYDAY=SU) —  | UID:brickford-review@brickford.local | DTSTAMP:20261101T120000Z | DTSTART:20261025T180000 | DTEND:20261025T183000 | RRULE:FREQ=WEEKLY;BYDAY=SU | SUMMARY:Brickford — Weekly Review (seal the week) | 
+  ok    no page errors (T-056 r2 arithmetic)
+  ok    T-056 r2: 2026-10-18 (Sun) offers no seal — []
+  ok    T-056 r2: 2026-10-18 the Week page is "Week 1" and reads "Opens Sunday 25 Oct · 7 days" — {"h1":"Week 1","state":"Opens Sunday 25 Oct · 7 days"}
+  ok    no page errors (T-056 r2 2026-10-18)
+  ok    T-056 r2: 2026-10-23 (Fri) offers no seal — []
+  ok    T-056 r2: 2026-10-23 the Week page is "Week 1" and reads "Opens Sunday 25 Oct · 2 days" — {"h1":"Week 1","state":"Opens Sunday 25 Oct · 2 days"}
+  ok    no page errors (T-056 r2 2026-10-23)
+  ok    T-056 r2: 2026-10-24 (Sat) offers no seal — []
+  ok    T-056 r2: 2026-10-24 the Week page is "Week 1" and reads "Opens Sunday 25 Oct · 1 day" — {"h1":"Week 1","state":"Opens Sunday 25 Oct · 1 day"}
+  ok    no page errors (T-056 r2 2026-10-24)
+  ok    T-056 r2: 2026-10-25 (Sun) offers the seal, "30 min · Week 1 · 16–23 Oct" — [["Seal the week","30 min · Week 1 · 16–23 Oct"]]
+  ok    T-056 r2: 2026-10-25 the Week page is "Week 1" and reads "Ready to seal" — {"h1":"Week 1","state":"Ready to seal"}
+  ok    no page errors (T-056 r2 2026-10-25)
+  ok    T-056 r2: 2026-10-26 (Mon) offers no seal — []
+  ok    T-056 r2: 2026-10-26 the Week page is "Week 2" and reads "Opens Sunday 1 Nov · 6 days" — {"h1":"Week 2","state":"Opens Sunday 1 Nov · 6 days"}
+  ok    no page errors (T-056 r2 2026-10-26)
+  ok    T-056 r2: 2026-10-30 (Fri) offers no seal — []
+  ok    T-056 r2: 2026-10-30 the Week page is "Week 2" and reads "Opens Sunday 1 Nov · 2 days" — {"h1":"Week 2","state":"Opens Sunday 1 Nov · 2 days"}
+  ok    no page errors (T-056 r2 2026-10-30)
+  ok    T-056 r2: 2026-11-01 (Sun) offers the seal, "30 min · Week 2 · 25–30 Oct" — [["Seal the week","30 min · Week 2 · 25–30 Oct"]]
+  ok    T-056 r2: 2026-11-01 the Week page is "Week 2" and reads "Ready to seal" — {"h1":"Week 2","state":"Ready to seal"}
+  ok    T-056 r2: sealing on Sun 1 Nov (plan day 14, plan week 3 running) stores revision week 2 (25-30 Oct), and the chain says week2 — {"weeks":[{"week":2,"date":"2026-11-01","shipped":"a repo","dsa":0,"posts":0,"revenue":0,"notes":""}],"ev":{"type":"week","ref":"week2"}}
+  ok    no page errors (T-056 r2 2026-11-01)
+  ok    T-056 r2: 2026-11-05 (Thu) offers no seal — []
+  ok    T-056 r2: 2026-11-05 the Week page is "Week 3" and reads "Opens Sunday 8 Nov · 3 days" — {"h1":"Week 3","state":"Opens Sunday 8 Nov · 3 days"}
+  ok    no page errors (T-056 r2 2026-11-05)
+  ok    T-056 r2: 2026-11-08 (Sun) offers the seal, "30 min · Week 3 · 1–6 Nov" — [["Seal the week","30 min · Week 3 · 1–6 Nov"]]
+  ok    T-056 r2: 2026-11-08 the Week page is "Week 3" and reads "Ready to seal" — {"h1":"Week 3","state":"Ready to seal"}
+  ok    no page errors (T-056 r2 2026-11-08)
+  ok    T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (34, 19, 15, 14, 14, 12) — [["../revision/week-01.pdf","Week 1","16–23 Oct · 34 lectures"],["../revision/week-02.pdf","Week 2","25–30 Oct · 19 lectures"],["../revision/week-03.pdf","Week 3","1–6 Nov · 15 lectures"],["../revision/week-04.pdf","Week 4","8–13 Nov · 14 lectures"],["../revision/week-05.pdf","Week 5","15–20 Nov · 14 lectures"],["../revision/week-06.pdf","Week 6","22–27 Nov · 12 lectures"]]
+  ok    no page errors (T-056 r2 Library)
   ok    monk mode on 2026-10-23: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
   ok    no page errors (monk mode 2026-10-23)
   ok    monk mode on 2026-10-24: day 1 of 90, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 90","h":63}
@@ -115,4 +150,5 @@
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 116 invariants hold
+PASS — 151 invariants hold
+exit 0

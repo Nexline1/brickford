@@ -1907,8 +1907,9 @@ const T26C_PATCH = {
     { week: 1, date: "2026-10-25", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
   ],
 };
-// Week 2 sealed on its Sunday, as a failed week with a note (T-056 r2: on the
-// pinned clock week 2 is the week being sealed, so the base has only week 1).
+// Week 2 sealed on its Sunday, as a failed week with a note, for the Sun 8 Nov
+// state (T-056 r2: on the pinned clock week 2 is the week being sealed, so the
+// base has only week 1; "this week already sealed" seals it as "a repo").
 const T26C_WEEK2 = { week: 2, date: "2026-11-01", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "flu, then a client fire" };
 // The habits a study day carries, as the page had them before (four, and on
 // a Sunday the seal as a fifth), in minutes; Workshop has no fixed time.
@@ -4514,7 +4515,7 @@ function t28SeedClips(list) {
     { name: "an empty Treasury ledger, so BHD is typed", patch: T26C_LEDGER([]) },
     { name: "a 12,345.75 week", patch: T26C_LEDGER([{ date: "2026-10-30", amount: 12345.75, note: "a big one" }]) },
     { name: "this week already sealed",
-      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([T26C_WEEK2]) }) },
+      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([{ week: 2, date: "2026-11-01", shipped: "a repo", dsa: 2, posts: 2, revenue: 150.5, notes: "" }]) }) },
     { name: "nothing sealed yet", patch: Object.assign({}, T26C_PATCH, { weeks: [] }) },
     { name: "a Sunday, the day the week is sealed (Sun 8 Nov, week 3; weeks 1 and 2 sealed)", now: new Date("2026-11-08T12:00:00Z"),
       patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([T26C_WEEK2]) }) },

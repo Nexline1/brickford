@@ -97,7 +97,7 @@ being sealed on the pinned clock (Sun 1 Nov) is now revision week 2, not plan we
 | T26C_PATCH payments | 29 Oct 999, 30 Oct 1000, 1 Nov 120, 31 Oct 27, 5 Nov 2.5, 6 Nov 500 | 24 Oct 999, 25 Oct 1000, 28 Oct 120, 31 Oct 27, 30 Oct 2.5, 1 Nov 500; counted 1,149.5 (unchanged) |
 | T26C_PATCH sealed weeks | week 1 (22 Oct, shipped), week 2 (29 Oct, failed, notes) | week 1 (25 Oct, shipped); week 2 is the week being sealed, so the failed week (1 Nov) is `T26C_WEEK2`, used by the two states below |
 | state "a ledger with no payment in this week" | only Thu 29 Oct and Fri 6 Nov | only Sat 24 Oct and Sun 1 Nov |
-| state "this week already sealed" | + week 3 sealed 1 Nov ("a repo", 150.5) | + week 2 sealed 1 Nov (`T26C_WEEK2`, failed, with its note); "a repo" entry dropped |
+| state "this week already sealed" | + week 3 sealed 1 Nov ("a repo", 150.5) | + week 2 sealed 1 Nov ("a repo", dsa 2, 2 posts, 150.5, notes "") — the same entry, renumbered to the week being sealed. (r2 first dropped it for `T26C_WEEK2`, which lost the "No notes." fallback, the plural "2 posts" and a decimal BHD; review r2 finding 1 restored it.) `T26C_WEEK2` (failed, with its note) is used only by the Sun 8 Nov state |
 | state renamed in r1 to "the plan week's last day (Thu 5 Nov…), the day the week is sealed" | Thu 5 Nov, T26C_PATCH | **restored** to "a Sunday, the day the week is sealed": Sun 8 Nov (week 3, Ready to seal), weeks 1 and 2 sealed |
 | NEW state | — | "mid-week (Thu 5 Nov), the seal not open until Sunday": week 3, "Opens Sunday 8 Nov · 3 days" (the Opens branch the base clock no longer shows) |
 | calendar habit tiles (~4307): Seal as a fifth tile | on every Sunday | on every Sunday from the first revision Sunday (25 Oct) |

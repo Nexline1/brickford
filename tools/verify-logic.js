@@ -766,7 +766,12 @@ async function scenario(browser, now, state, tz) {
       backlog: window.__brickfordTest.backlogCount(), hint: document.querySelector("#view .card.one.lead .one-hint").textContent,
       href: document.querySelector("#view .card.one.lead .one-go").getAttribute("href") }));
     check("T-056: today cleared with a lecture owed (" + owedK + "): the card says \"today is done · 1 owed\", never \"ahead of plan\"",
-      od.today && od.backlog === 1 && /today is done · 1 owed$/.test(od.hint) && !/ahead of plan/.test(od.hint) && !watchedK.has(keyOf(od.href)),
+      od.today && od.backlog === 1 && /today is done · 1 owed$/.test(od.hint) && !/ahead of plan/.test(od.hint) && !less[keyOf(od.href)],
+      JSON.stringify(od));
+    // Review r2, finding 2: and the card opens THAT lecture — the earliest
+    // owed, in plan order — not the next study day's first uncleared one.
+    check("T-056: with " + owedK + " owed, the work-ahead card opens it (the first lecture not watched, in plan order)",
+      keyOf(od.href) === owedK,
       JSON.stringify(od));
     check("no page errors (T-056 owed)", o.errors.length === 0, o.errors.join(" | "));
     await o.ctx.close();

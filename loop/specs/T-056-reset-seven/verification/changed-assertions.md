@@ -123,3 +123,11 @@ being sealed on the pinned clock (Sun 1 Nov) is now revision week 2, not plan we
 | Assertion | Old | New |
 |---|---|---|
 | NEW (T-056 r2, 35 checks) | — | revision weeks 1–6 = the owner's ranges; revisionWeekOf for 731 dates = the first revision Sunday on or after; 104 weeks partition the study days (7 then 6, Friday end, Sunday seal); .ics review DTSTART 20261025T180000 BYDAY=SU; the seal tile only on 25 Oct, 1 Nov, 8 Nov and naming its week (none on Sun 18 Oct, Fri, Sat, Mon, Thu); the Week page's heading and state on 9 dates; Seal on 1 Nov stores week 2 / ref week2; the six Library tiles; page errors |
+
+## Round 3 (review r2)
+
+### verify-logic.js
+| Assertion | Old (r2) | New (r3) |
+|---|---|---|
+| "today cleared with a lecture owed …": the card's lecture is not watched | `!watchedK.has(keyOf(od.href))` — watchedK is the OLD plan's days 1-8, which includes the owed lecture deleted from this scenario, so it forbade exactly the lecture the owner's rule asks for | `!less[keyOf(od.href)]` — not watched in THIS scenario's state (same intent, the scenario's own watched set) |
+| NEW | — | with math130.0.0 owed, the work-ahead card opens it: `keyOf(od.href) === owedK` (review r2 finding 2; plant next-skips-owed) |

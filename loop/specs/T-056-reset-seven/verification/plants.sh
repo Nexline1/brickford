@@ -50,6 +50,8 @@ for n in $want; do case "$n" in
   seal-on-non-sunday) plant "$n" "$APP" logic 'function isSealDay(iso) { return dowOf(iso) === 0 &&' 'function isSealDay(iso) { return dowOf(iso) !== 6 &&' ;;
   seal-labels-plan-week) plant "$n" "$APP" logic '[["Seal the week", 30, "Week " + sealW.r + ' '[["Seal the week", 30, "Week " + w + ' ;;
   review-seals-plan-week) plant "$n" "$APP" design 'const today = todayISO(), w = revisionWeekOf(today);' 'const today = todayISO(), w = weekNumber();' ;;
+  # Round 3: the work-ahead card skipping an owed lecture (the round-2 behaviour).
+  next-skips-owed) plant "$n" "$APP" logic 'const ahead = (backlogCount() > 0 && firstOwed()) || realSched(' 'const ahead = realSched(' ;;
   library-tile-range) plant "$n" "$APP" content 'dates: shortRange(rw.from, rw.to),' 'dates: shortRange(rw.from, rw.sun),' ;;
   *) echo "unknown plant $n" ;;
 esac; done

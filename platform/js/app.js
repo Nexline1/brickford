@@ -1475,6 +1475,18 @@
     }
     return owed.size;
   }
+  // T-056 r3: the earliest owed lecture in plan order — the first not cleared
+  // on the first day backlogCount() counts as owing one. Null when none is owed.
+  function firstOwed() {
+    const today = todayISO(), from = firstActivityISO();
+    if (!from) return null;
+    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
+      if (isRestDay(iso)) continue;
+      const it = realSched(iso).find(x => !schedDone(x));
+      if (it) return it;
+    }
+    return null;
+  }
   // Status of a calendar day: judged against ITS OWN scheduled lessons —
   // catching up late still turns the day green. Falls back to activity
   // for days beyond the scheduled syllabus.
@@ -1646,8 +1658,10 @@
     // study day's plan, which the work-ahead logic (windowFor) re-anchors at
     // the first unfinished lecture. Never a watched one, and ahead of Resume,
     // which would point back at a lecture already seen.
+    // T-056 r3: but when something is owed, the owner's rule is "the first
+    // lecture I haven't watched": the earliest owed one, in plan order.
     if (real.length) {
-      const ahead = realSched(addStudyDays(todayISO(), 1)).find(it => !schedDone(it));
+      const ahead = (backlogCount() > 0 && firstOwed()) || realSched(addStudyDays(todayISO(), 1)).find(it => !schedDone(it));
       if (ahead) return lectureAction(ahead, real, true);
     }
     return idleAction();

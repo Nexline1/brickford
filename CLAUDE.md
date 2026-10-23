@@ -114,7 +114,7 @@ just before it; and verify-design's calendar extra days are now Sat 7 Nov and Th
 the mapped Saturday (31 Oct) is not in the pinned month's grid. The fixtures that mean
 "watched before / after the gate" are derived from `QUIZ_GATE_FROM`, so moving the gate is a
 one-line edit. verify-design's rest-day check still measures a Saturday (Saturdays planted
-without `.rest` fail it, 2 of 2566), and the clip baseline was re-measured: 797, unchanged.
+without `.rest` fail it, 2 of 2596 at the round-3 head), and the clip baseline was re-measured: 797, unchanged.
 
 A Friday start also made plan weeks run Fri–Thu, so "Seal the week · Week N" on a Sunday named a
 plan week two days in. **The owner decided "Keep Sunday"**: Sunday stays the weekly

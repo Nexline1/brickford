@@ -110,6 +110,12 @@
   ok    T-056 r3: Sun 25 Oct with a pre-reset Week 1 sealed 11 Oct: the Week page reads "Ready to seal", not "Sealed 11 Oct" — "Ready to seal"
   ok    T-056 r3: sealing it keeps the pre-reset entry exactly and appends this week's (week 1, 25 Oct); the page reads "Sealed 25 Oct" — {"state":"Sealed 25 Oct","weeks":[{"week":1,"date":"2026-10-11","shipped":"an old-plan repo","dsa":1,"posts":0,"revenue":0,"notes":"before reset seven"},{"week":1,"date":"2026-10-25","shipped":"flashcards-cli","dsa":0,"posts":0,"revenue":0,"notes":""}]}
   ok    no page errors (T-056 r3 pre-reset week)
+  ok    T-056 r4: remote [old, new] pulled into local [old, new]: exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0 — {"first":0,"second":0,"cards":["Week 111 Oct","Week 125 Oct"]}
+  ok    no page errors (T-056 r4 merge [old, new])
+  ok    T-056 r4: remote [old, new] pulled into local [old]: exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0 — {"first":1,"second":0,"cards":["Week 111 Oct","Week 125 Oct"]}
+  ok    no page errors (T-056 r4 merge [old])
+  ok    T-056 r4: remote [old, new] pulled into local [new]: exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0 — {"first":1,"second":0,"cards":["Week 125 Oct","Week 111 Oct"]}
+  ok    no page errors (T-056 r4 merge [new])
   ok    T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (34, 19, 15, 14, 14, 12) — [["../revision/week-01.pdf","Week 1","16–23 Oct · 34 lectures"],["../revision/week-02.pdf","Week 2","25–30 Oct · 19 lectures"],["../revision/week-03.pdf","Week 3","1–6 Nov · 15 lectures"],["../revision/week-04.pdf","Week 4","8–13 Nov · 14 lectures"],["../revision/week-05.pdf","Week 5","15–20 Nov · 14 lectures"],["../revision/week-06.pdf","Week 6","22–27 Nov · 12 lectures"]]
   ok    no page errors (T-056 r2 Library)
   ok    monk mode on 2026-10-23: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
@@ -157,5 +163,5 @@
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 158 invariants hold
+PASS — 164 invariants hold
 exit 0

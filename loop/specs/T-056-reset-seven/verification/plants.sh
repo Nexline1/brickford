@@ -56,6 +56,7 @@ for n in $want; do case "$n" in
   old-week-overwritten) plant "$n" "$APP" logic 'const i = S.weeks.findIndex(x => +x.week === w && (x.date || "") >= wFrom);' 'const i = S.weeks.findIndex(x => +x.week === w);' ;;
   gate-on-merge-day) plant "$n" "$APP" logic 'const QUIZ_GATE_FROM = "2026-10-24";' 'const QUIZ_GATE_FROM = "2026-10-23";' ;;
   gate-not-strict) plant "$n" "$APP" logic 'firstWatched(st) < QUIZ_GATE_FROM);' 'firstWatched(st) <= QUIZ_GATE_FROM);' ;;
+  week-merge-number-only) plant "$n" "$APP" logic 'const i = S.weeks.findIndex(x => +x.week === +w.week && side(x) === side(w));' 'const i = S.weeks.findIndex(x => +x.week === +w.week);' ;;
   library-tile-range) plant "$n" "$APP" content 'dates: shortRange(rw.from, rw.to),' 'dates: shortRange(rw.from, rw.sun),' ;;
   *) echo "unknown plant $n" ;;
 esac; done

@@ -124,6 +124,9 @@ on. These **revision weeks** (`revisionWeek`/`revisionWeekOf` in app.js) are del
 plan weeks (`weekNumber`/`weekSpan`, unchanged): the Week page, the Seal it stores, the
 calendar's Sunday seal tile, the .ics review, the Library's revision tiles and
 `tools/revision-pdf.js` all use them, and revision/week-01..06.pdf were regenerated from them.
+A week sealed before the reset can carry the same number as a new revision week; it is kept beside
+the new one, never overwritten, on this device and across sync (`mergeState` treats two entries as
+the same seal only when both sit on the same side of that revision week's start).
 
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past

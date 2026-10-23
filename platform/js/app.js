@@ -317,9 +317,13 @@
         if (!seen.has(k)) { S.quizAttempts[b].push(a2); seen.add(k); changed++; }
       });
     });
-    // weeks: by week number, later entry wins
+    // weeks: by week number, later entry wins. T-056 r4: a week sealed under an
+    // earlier start can carry the same number, so two entries are the same
+    // seal only when both sit on the same side of that revision week's start;
+    // otherwise the remote one is kept beside the local one, never over it.
     (r.weeks || []).forEach(w => {
-      const i = S.weeks.findIndex(x => +x.week === +w.week);
+      const wFrom = revisionWeek(+w.week).from, side = x => (x.date || "") >= wFrom;
+      const i = S.weeks.findIndex(x => +x.week === +w.week && side(x) === side(w));
       if (i < 0) { S.weeks.push(w); changed++; }
       else if ((w.date || "") > (S.weeks[i].date || "")) { S.weeks[i] = w; changed++; }
     });

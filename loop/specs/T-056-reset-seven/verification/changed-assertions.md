@@ -135,3 +135,11 @@ being sealed on the pinned clock (Sun 1 Nov) is now revision week 2, not plan we
 | QUIZ_GATE_FROM (app.js), and every fixture derived from it (verify-logic T-043 gate-1/gate+1/gate+5, flows BEFORE_GATE, design T-045 gate-day clock) | 2026-10-23 | 2026-10-24 (review r2 finding 4); derived fixtures follow automatically |
 | NEW (3 checks) | — | lectures watched on Fri 23 Oct count as done (grandfathered), the day completed, and GATE === 2026-10-24; a lecture watched ON the gate day needs its quiz (partial); page errors (plants gate-on-merge-day, gate-not-strict) |
 | plant grandfather-old-date pattern | `QUIZ_GATE_FROM = "2026-10-23"` → 16 Oct | `QUIZ_GATE_FROM = "2026-10-24"` → 16 Oct |
+
+## Round 4 (review r3)
+
+| Assertion | Old (r3) | New (r4) |
+|---|---|---|
+| mergeState `weeks` (app.js, owner-approved for this fix only; S shape and streakFrom rules unchanged) | same seal = same week number; later date wins | same seal = same week number AND both dates on the same side of `revisionWeek(week).from`; later date wins within a match; otherwise the remote entry is appended |
+| verify-logic comment "mergeState still matches by number" | — | replaced by the merge test below |
+| NEW verify-logic (6 checks) | — | remote [old 11 Oct, new 25 Oct] Week 1 pulled into local [old, new], [old] and [new]: exactly one of each on the Week page's past list, two cards, a second pull changes 0; page errors x3 (plant week-merge-number-only) |

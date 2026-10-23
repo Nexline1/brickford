@@ -871,7 +871,7 @@ async function scenario(browser, now, state, tz) {
     // Review r2, finding 3: a week sealed under an earlier start (Week 1 on
     // 11 Oct, reset six's plan) carries the same number as revision week 1.
     // On Sun 25 Oct it must not read as this week's seal, and sealing must
-    // keep it and append the new one. (mergeState still matches by number.)
+    // keep it and append the new one. (Review r3: across a sync too, below.)
     {
       const OLD = { week: 1, date: "2026-10-11", shipped: "an old-plan repo", dsa: 1, posts: 0, revenue: 0, notes: "before reset seven" };
       const o = await scenario(browser, "2026-10-25", { weeks: [OLD] });
@@ -889,6 +889,33 @@ async function scenario(browser, now, state, tz) {
           after.weeks[1].week === 1 && after.weeks[1].date === "2026-10-25" && after.weeks[1].shipped === "flashcards-cli", JSON.stringify(after));
       check("no page errors (T-056 r3 pre-reset week)", o.errors.length === 0, o.errors.join(" | "));
       await o.ctx.close();
+    }
+
+    // Review r3: and across a sync. mergeState matched weeks by number alone,
+    // so a pulled new Week 1 replaced the local old one. Remote [old, new] is
+    // pulled into local [old, new], [old] and [new]; each time exactly one old
+    // and one new Week 1 remain (read off the Week page's past list), and the
+    // same pull again changes nothing.
+    {
+      const OLD = { week: 1, date: "2026-10-11", shipped: "an old-plan repo", dsa: 1, posts: 0, revenue: 0, notes: "before reset seven" };
+      const NEW = { week: 1, date: "2026-10-25", shipped: "flashcards-cli", dsa: 0, posts: 0, revenue: 0, notes: "" };
+      for (const [name, local] of [["[old, new]", [OLD, NEW]], ["[old]", [OLD]], ["[new]", [NEW]]]) {
+        const m = await scenario(browser, "2026-11-01", { weeks: local });
+        await m.page.evaluate(() => { location.hash = "#/review"; });
+        await m.page.waitForSelector("#view .wk-weeks", { timeout: 8000 });
+        const r = await m.page.evaluate(remote => {
+          const T = window.__brickfordTest, pull = () => T.mergeState({ v: 1, device: "other", state: { weeks: JSON.parse(JSON.stringify(remote)) }, ledgers: {} }).changed;
+          const first = pull(), second = pull();
+          T.render();
+          const cards = [...document.querySelectorAll("#view .wk-weeks > details .wk-h")].map(h => h.textContent.replace(/\u00a0/g, " "));
+          return { first, second, cards };
+        }, [OLD, NEW]);
+        const old1 = r.cards.filter(c => c === "Week 111 Oct").length, new1 = r.cards.filter(c => c === "Week 125 Oct").length;
+        check("T-056 r4: remote [old, new] pulled into local " + name + ": exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0",
+          old1 === 1 && new1 === 1 && r.cards.length === 2 && r.second === 0, JSON.stringify(r));
+        check("no page errors (T-056 r4 merge " + name + ")", m.errors.length === 0, m.errors.join(" | "));
+        await m.ctx.close();
+      }
     }
 
     // The Library's Sunday revision tiles: one per PDF, each its revision

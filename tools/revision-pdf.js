@@ -1,4 +1,4 @@
-// revision-pdf.js — the Sunday revision PDF for one plan week (T-035).
+// revision-pdf.js — the Sunday revision PDF for one revision week (T-035).
 //
 //   node tools/revision-pdf.js <week>        → revision/week-0N.pdf
 //   node tools/revision-pdf.js <week> --html → also keeps the print HTML beside it
@@ -11,11 +11,14 @@
 // link; nothing is written for it here. Self-checks are the summary's own
 // checks, answered at the back with the summary's own answers.
 //
-// The week's dates are not computed here. Week N is study days 6(N-1)..6N-1
-// (STUDY_WEEK = 6), read through dateForStudy, and then CONFIRMED against the
-// week number the app itself prints (weekNumber(), via the Today folio) on
-// the week's first and last day and on the study day either side. If the app
-// disagrees, nothing is written.
+// The week's dates are not computed here. Since T-056 r2 (the owner's "Keep
+// Sunday") week N is the app's REVISION week, revisionWeek(N): the study days
+// Sunday..Friday before the Sunday it is revised on (week 1 also takes the
+// days before the first Sunday: 16-23 Oct, revised Sun 25 Oct), which the
+// Library's tiles read too. Plan weeks (weekNumber) run from START_DATE and
+// are not these. The span is then CONFIRMED against the week number the app
+// itself prints on its Week page (#/review) on the week's last study day, on
+// its Sunday, and on the day after. If the app disagrees, nothing is written.
 //
 // Math is rendered by KaTeX 0.16.11, the version the app loads, with the
 // app's delimiters. The page is printed offline, so KaTeX and the Inter
@@ -30,7 +33,6 @@ const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 
 const ROOT = path.resolve(__dirname, "..");
 const APP = "file://" + path.join(ROOT, "platform/index.html");
-const STUDY_WEEK = 6;
 const CHECKS_PER_LECTURE = 3;
 const KATEX_VER = "0.16.11", INTER_VER = "5.2.8";
 const CACHE = process.env.BRICKFORD_CACHE || path.join(os.homedir(), ".cache", "brickford");
@@ -89,14 +91,15 @@ async function hookPage(ctx) {
   await page.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 15000 });
   return page;
 }
-// The week number the app prints for `iso`: its folio reads "Day 013 · Week 3",
-// or "Saturday · Week 3" on the rest day (textContent; the CSS uppercases it).
+// The revision week the app's Week page offers to seal on `iso`: its heading
+// reads "Week 3".
 async function appWeekOn(browser, iso) {
   const ctx = await appContext(browser, iso);
   const page = await ctx.newPage();
-  await page.goto(APP + "#/", { waitUntil: "load" });
+  await page.goto(APP + "#/review", { waitUntil: "load" });
   const w = await page.waitForFunction(() => {
-    const m = /(?:Day \d+|day) \u00b7 Week (\d+)\b/.exec(document.body.textContent || "");
+    const h = document.querySelector("#view .wk-state") && document.querySelector("#view h1");
+    const m = h && /^Week (\d+)$/.exec(h.textContent.trim());
     return m && +m[1];
   }, null, { timeout: 15000 }).then(h => h.jsonValue());
   await ctx.close();
@@ -104,26 +107,25 @@ async function appWeekOn(browser, iso) {
 }
 
 async function readPlan(browser) {
-  // Pass 1: the week's dates, from the app's own dateForStudy.
+  // Pass 1: the week's dates, from the app's own revisionWeek.
   let ctx = await appContext(browser, "2026-01-01");
   let page = await hookPage(ctx);
-  const span = await page.evaluate(({ week, SW }) => {
-    const T = window.__brickfordTest;
-    const from = T.dateForStudy((week - 1) * SW), to = T.dateForStudy(week * SW - 1);
-    return { start: window.DAR.START_DATE, from, to, prev: week > 1 ? T.dateForStudy((week - 1) * SW - 1) : null,
-      next: T.dateForStudy(week * SW), restDow: T.REST_DOW };
-  }, { week, SW: STUDY_WEEK });
+  const span = await page.evaluate(week => {
+    const T = window.__brickfordTest, rw = T.revisionWeek(week);
+    const d = new Date(rw.sun + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + 1);
+    return { start: window.DAR.START_DATE, from: rw.from, to: rw.to, sun: rw.sun, after: d.toISOString().slice(0, 10),
+      lectures: T.revisionLectures(week), restDow: T.REST_DOW };
+  }, week);
   await ctx.close();
 
-  // Confirm with weekNumber(): first and last day are week N, the study days
-  // either side are N-1 and N+1.
-  const seen = { from: await appWeekOn(browser, span.from), to: await appWeekOn(browser, span.to),
-    next: await appWeekOn(browser, span.next), prev: span.prev ? await appWeekOn(browser, span.prev) : null };
-  const ok = seen.from === week && seen.to === week && seen.next === week + 1 && (!span.prev || seen.prev === week - 1);
-  if (!ok) throw new Error("week boundaries disagree with the app's weekNumber(): " + JSON.stringify({ span, seen }));
+  // Confirm with the Week page: the last study day and the Sunday are week
+  // N (the Sunday seals it), the day after is N+1.
+  const seen = { to: await appWeekOn(browser, span.to), sun: await appWeekOn(browser, span.sun), after: await appWeekOn(browser, span.after) };
+  const ok = seen.to === week && seen.sun === week && seen.after === week + 1;
+  if (!ok) throw new Error("week boundaries disagree with the app's Week page: " + JSON.stringify({ span, seen }));
 
-  // Pass 2: the lectures, with the clock on the week's last day (its Sunday).
-  ctx = await appContext(browser, span.to);
+  // Pass 2: the lectures, with the clock on the week's Sunday.
+  ctx = await appContext(browser, span.sun);
   page = await hookPage(ctx);
   const plan = await page.evaluate(({ from, to }) => {
     const T = window.__brickfordTest, D = window.DAR;
@@ -327,7 +329,7 @@ function buildHTML(P, W) {
   let h = "";
   // ---- cover ----
   h += '<section class="cover">' +
-    '<div class="top"><span class="eyebrow">Brickford · Sunday revision</span><span class="eyebrow">Plan week ' + week + "</span></div>" +
+    '<div class="top"><span class="eyebrow">Brickford · Sunday revision</span><span class="eyebrow">Revised ' + esc(dayShort(span.sun)) + "</span></div>" +
     '<div class="title"><div class="eyebrow">Revision notes</div>' +
     '<h1 class="h-large">Week ' + week + "</h1>" +
     '<div class="sub">' + esc(rangeLabel(span.from, span.to)) + "</div></div>" +
@@ -454,6 +456,8 @@ function buildHTML(P, W) {
     const P = await readPlan(browser);
     const W = shapeWeek(P);
     if (!W.lectures.length) throw new Error("week " + week + " schedules no lectures");
+    // The Library's tile for this week reads revisionLectures(N): the same count.
+    if (W.lectures.length !== P.span.lectures) throw new Error("week " + week + ": " + W.lectures.length + " lectures here, the app's revisionLectures says " + P.span.lectures);
     const html = buildHTML(P, W);
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brickford-revision-"));
     const htmlPath = path.join(tmp, "week-" + String(week).padStart(2, "0") + ".html");
@@ -489,7 +493,7 @@ function buildHTML(P, W) {
     fs.rmSync(tmp, { recursive: true, force: true });
 
     const summarised = W.lectures.filter(x => x.sum).length;
-    console.log("week " + week + " · " + rangeLabel(P.span.from, P.span.to) + " (app weekNumber: " + JSON.stringify(P.seen) + ")");
+    console.log("week " + week + " · " + rangeLabel(P.span.from, P.span.to) + ", revised " + dayShort(P.span.sun) + " (app Week page: " + JSON.stringify(P.seen) + ")");
     W.lectures.forEach(x => console.log("  " + String(x.n).padStart(2) + "  " + x.key.padEnd(13) + (x.sum ? "summary  " : "MISSING  ") + x.title));
     console.log("  " + W.lectures.length + " lectures, " + summarised + " summarised, " + (W.lectures.length - summarised) + " missing → " + path.relative(ROOT, OUT));
   } catch (e) {

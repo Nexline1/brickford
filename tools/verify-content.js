@@ -3022,6 +3022,7 @@ D.COURSES.forEach(c => {
 // boot never fires); the phase of that date is worked out here from the
 // study index, with the week thresholds of currentPhase() restated.
 let t45Items = 0;
+let APP_T = null;                        // the app's test hook, kept for T-055's tiles below
 {
   const store = {};
   const app = { console, Date, Math, JSON, setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
@@ -3035,6 +3036,7 @@ let t45Items = 0;
   (html.match(/<script[^>]+src="(?!https?:)[^"]+"/g) || []).map(m => /src="([^"?]+)/.exec(m)[1])
     .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, "platform", f), "utf8"), app, { filename: f }));
   const T = app.__brickfordTest;
+  APP_T = T;
   ok(!!T && typeof T.planDateOf === "function", "T-045: app.js loads in a bare VM and exposes planDateOf");
   const phaseOf = iso => { const w = Math.floor(T.studyIndex(iso) / 6) + 1; return w > 78 ? 3 : w > 26 ? 2 : w > 2 ? 1 : 0; };
   const items = D.LABS.map(l => ({ id: l.id, after: l.after, phase: l.phase, lab: true }))
@@ -3053,11 +3055,33 @@ let t45Items = 0;
 // T-055: every Sunday-revision week the Library links must have its PDF in
 // revision/ at the repo root, and every PDF there must be linked. A missing
 // file would be a tile that opens a 404.
+// T-056 r2: the tiles are no longer a table in app.js (it held the old
+// start's dates); they are revisionTiles(), read here through the test hook.
+// Each tile's range must be the owner's revision week ("Keep Sunday": week 1
+// 16-23 Oct, then Sun-Fri, each revised the Sunday after), written out here,
+// and its lecture count the distinct lectures the plan as drawn puts on those
+// days, counted here from scheduledFor on an empty state, as
+// tools/revision-pdf.js counts them for the PDF.
 {
-  const appSrc = fs.readFileSync(path.join(ROOT_T055, "platform/js/app.js"), "utf8");
-  const m = appSrc.match(/const REVISION_WEEKS = (\[[\s\S]*?\]\]);/);
-  ok(!!m, "T-055 REVISION_WEEKS is declared in app.js");
-  const weeks = m ? JSON.parse(m[1].replace(/\\u2013/g, "-")) : [];
+  const tiles = APP_T && typeof APP_T.revisionTiles === "function" ? APP_T.revisionTiles() : null;
+  ok(!!tiles && tiles.length > 0, "T-055 the Library's revision tiles are read from the app (revisionTiles)");
+  const weeks = (tiles || []).map(t => [t.n]);
+  const OWNER = [["2026-10-16", "2026-10-23", "2026-10-25"], ["2026-10-25", "2026-10-30", "2026-11-01"], ["2026-11-01", "2026-11-06", "2026-11-08"],
+    ["2026-11-08", "2026-11-13", "2026-11-15"], ["2026-11-15", "2026-11-20", "2026-11-22"], ["2026-11-22", "2026-11-27", "2026-11-29"]];
+  const mon = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const sh = iso => Number(iso.slice(8)) + " " + mon[Number(iso.slice(5, 7)) - 1];
+  const rangeOf = (a, b) => (a.slice(0, 7) === b.slice(0, 7) ? String(Number(a.slice(8))) : sh(a)) + "\u2013" + sh(b);
+  ok(!!tiles && tiles.length === OWNER.length, "T-056 r2 one revision tile per week 1-" + OWNER.length + " (" + (tiles || []).length + ")");
+  (tiles || []).forEach((t, i) => {
+    const o = OWNER[i] || [];
+    const keys = new Set();
+    for (let d = new Date(o[0] + "T00:00:00Z"); o[1] && d.toISOString().slice(0, 10) <= o[1]; d.setUTCDate(d.getUTCDate() + 1))
+      APP_T.scheduledFor(d.toISOString().slice(0, 10)).forEach(it => { if (!it.pseudo) keys.add(it.cid + "." + it.ui + "." + it.li); });
+    ok(t.n === i + 1 && t.from === o[0] && t.to === o[1] && t.sun === o[2] && t.dates === rangeOf(o[0], o[1]) &&
+        t.lectures === keys.size && keys.size > 0 && t.href === "../revision/week-" + String(i + 1).padStart(2, "0") + ".pdf",
+      "T-056 r2 revision tile " + (i + 1) + " is " + rangeOf(o[0] || "", o[1] || "") + " (revised " + o[2] + "), " + keys.size + " lectures: got " +
+        JSON.stringify({ n: t.n, from: t.from, to: t.to, sun: t.sun, dates: t.dates, lectures: t.lectures }));
+  });
   const dir = path.join(ROOT_T055, "revision");
   const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => /^week-\d\d\.pdf$/.test(f)).sort() : [];
   for (const [n] of weeks) {

@@ -250,13 +250,15 @@
 // T-026c, Week, the Calendar's day view, and Library (loop/specs/T-026c-week-
 // calendar-library/spec.md), at 1440x900 and 390x844 in dark and light on the
 // seed plus T26C_PATCH (a problem and a lecture proven this week, one proven
-// the week before, today's MATH 120 lecture watched, three payments of which
-// the Sunday ending week 2 must not count, two sealed weeks), then four more
-// Week states at both sizes (no payment this week; this week sealed; nothing
-// sealed; a Sunday). Expected values come from storage, the data and the
-// study calendar walked here, never from the view:
+// the week before, today's MATH 120 lecture watched, payments on both edges
+// of the week, week 1 sealed), then six more Week states at both sizes (no
+// payment this week; an empty ledger; a big week; this week sealed; nothing
+// sealed; a Sunday; mid-week). Since T-056 r2 the week is the REVISION week,
+// sealed on its Sunday (the owner's "Keep Sunday"), not the plan week.
+// Expected values come from storage, the data and the study calendar walked
+// here, never from the view:
 //   - /review: h1 "Week N" and its line; four tiles — DSA solved (every
-//     problem stored) and lectures proven (verifiedAt inside the plan week's
+//     problem stored) and lectures proven (verifiedAt inside the week's
 //     dates), both "counted for you" in --good, posts a typed field, BHD
 //     earned the Treasury entries dated in the week "from Treasury" (typed
 //     when there are none) — and Seal reads the counted values through the
@@ -282,7 +284,7 @@
 //     too) target=_blank rel=noopener; "+N" shows the rest in memory.
 //
 // Setup, the way every harness here does it (loop/lessons.md): each context is
-// fresh, the clock is pinned (Tuesday 20 Oct 2026, noon UTC) and the timezone is
+// fresh, the clock is pinned (Sunday 1 Nov 2026, plan day 14, noon UTC) and the timezone is
 // UTC, and every http(s) request is refused and logged — nothing here needs the
 // network, and the log is how "no request for Libre Caslon" is checked.
 // Where a block reads colours right after a boot (the 1280 sidebar, and the
@@ -319,8 +321,8 @@ const ROOT = path.resolve(__dirname, "..");
 const CSS_FILE = path.join(ROOT, "platform/css/style.css");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 
-// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
-const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
+// Plan day 14 (moved with reset seven, START 2026-10-16; was 2026-10-20 under START 2026-10-05, 2026-10-06 under 2026-09-21).
+const FIXED_NOW = new Date("2026-11-01T12:00:00Z");
 const ROUTES = ["/", "/course/math110", "/lesson/math110/0/13", "/calendar", "/workshop"];
 // The routes whose view carries a page-title h1 (a detail page's title). The
 // other three head themselves with the folio, an h1 styled as a running head
@@ -1249,8 +1251,8 @@ async function ringPixels([on, off]) {
 function seedScores() {
   if (window.top !== window) return;
   const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
-  s.quizAttempts = { "linear-algebra": [{ date: "2026-10-05", score: 9, total: 10, pct: 90 }],
-                     "calculus": [{ date: "2026-10-05", score: 4, total: 10, pct: 40 }] };
+  s.quizAttempts = { "linear-algebra": [{ date: "2026-10-16", score: 9, total: 10, pct: 90 }],
+                     "calculus": [{ date: "2026-10-16", score: 4, total: 10, pct: 40 }] };
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
 // Force a pseudo-class on every node matching `selector`, over CDP: the state
@@ -1335,7 +1337,7 @@ function seedResume([nowMs]) {
 function seedGate1() {
   if (window.top !== window) return;
   const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
-  s.gates = { 1: "2026-10-12" };
+  s.gates = { 1: "2026-10-23" };
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
 // Running and later, from the schedule: a course runs once a lecture of it
@@ -1491,11 +1493,11 @@ function routeOverlaps() {
 // date string. Everything expected is walked here from curriculum.js: the
 // targets on the study calendar (T26_STUDY, Saturdays skipped), the arrival,
 // the baseline (1094 study days from the start) and the gap between them.
-const T38_DONE = { 1: "2026-10-09", 2: "2026-10-14" };
+const T38_DONE = { 1: "2026-10-21", 2: "2026-10-26" };
 function seedT38() {
   if (window.top !== window) return;
   const s = JSON.parse(localStorage.getItem("darhikmah_v1") || "{}");
-  s.gates = { 1: { date: "2026-10-09", at: "2026-10-09T08:00:00.000Z", passed: true }, 2: "2026-10-14" };
+  s.gates = { 1: { date: "2026-10-21", at: "2026-10-21T08:00:00.000Z", passed: true }, 2: "2026-10-26" };
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
 // Every done date used here is a study day, so it indexes T26_STUDY directly.
@@ -1603,12 +1605,12 @@ const t26bLectureName = ref => {
   return c.code + " · L" + n;
 };
 const T26B_LONG = t26bChain([
-  { ts: "2026-10-15T09:00:00.000Z", type: "lesson", ref: "math110.0.0", data: { done: true } },
-  { ts: "2026-10-16T09:00:00.000Z", type: "lesson", ref: "math110.0.13", data: { done: true } },
-  { ts: "2026-10-16T10:00:00.000Z", type: "verified", ref: "math110.0.13", data: { solved: 3 } },
-  { ts: "2026-10-19T09:00:00.000Z", type: "day", ref: "2026-10-19", data: {} },
-  { ts: "2026-10-19T10:00:00.000Z", type: "lab", ref: "micrograd-blind", data: { done: true } },
-  { ts: "2026-10-20T09:00:00.000Z", type: "lesson", ref: "math110.1.2", data: { done: true } },
+  { ts: "2026-10-27T09:00:00.000Z", type: "lesson", ref: "math110.0.0", data: { done: true } },
+  { ts: "2026-10-28T09:00:00.000Z", type: "lesson", ref: "math110.0.13", data: { done: true } },
+  { ts: "2026-10-28T10:00:00.000Z", type: "verified", ref: "math110.0.13", data: { solved: 3 } },
+  { ts: "2026-10-30T09:00:00.000Z", type: "day", ref: "2026-10-30", data: {} },
+  { ts: "2026-10-30T10:00:00.000Z", type: "lab", ref: "micrograd-blind", data: { done: true } },
+  { ts: "2026-11-01T09:00:00.000Z", type: "lesson", ref: "math110.1.2", data: { done: true } },
 ]);
 const T26B_SHORT = T26B_LONG.slice(0, 2);
 // The tracker's problems, as S.problems keys them ("category|name").
@@ -1870,40 +1872,45 @@ const T26C_SUB = {
 };
 // On top of the seed (which has one problem on 17 Oct and math110.0.13
 // proven on 19 Oct): a second problem this week; today's MATH 120 lecture
-// watched (a done block); two sealed weeks, one of them a failed week with a
-// note; and lectures proven and payments on BOTH edges of week 3 (Mon 19 to
-// Sun 25 Oct) and on its rest day — Sun 18 (the last day of week 2) and Mon
-// 26 (the first of week 4) must not count; Mon 19, Sat 24 and Sun 25 must.
+// watched (a done block); week 1 sealed; and lectures proven and payments on
+// BOTH edges of the week the clock (Sun 1 Nov) seals and on its rest day.
+// T-056 r2: that is revision week 2, Sun 25 - Sat 31 Oct (plan week 3, Fri 30
+// Oct - Thu 5 Nov, is two days in and is not it) — Sat 24 Oct (the last day
+// of week 1) and Sun 1 Nov (the first of week 3) must not count; Sun 25 Oct,
+// Fri 30 Oct and Sat 31 Oct must.
 // So "iso < to", "iso > from" and a Saturday left out each change a tile
 // (review round 1: with "iso < to" planted, every check had passed). The
 // payments that count come to 1,149.5, a number long enough to have run out
 // of its tile.
 const T26C_PATCH = {
-  problems: { "Arrays & Hashing|Valid Anagram": "2026-10-19" },
+  problems: { "Arrays & Hashing|Valid Anagram": "2026-10-30" },
   lessons: {
-    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-18", verifiedAt: "2026-10-18", notes: "", checks: [] },
-    "math110.0.2": { done: true, verified: true, doneAt: "2026-10-20", verifiedAt: "2026-10-20", notes: "", checks: [] },
-    "math110.0.3": { done: true, verified: true, doneAt: "2026-10-24", verifiedAt: "2026-10-24", notes: "", checks: [] },
-    "math110.0.4": { done: true, verified: true, doneAt: "2026-10-25", verifiedAt: "2026-10-25", notes: "", checks: [] },
-    "math110.0.5": { done: true, verified: true, doneAt: "2026-10-26", verifiedAt: "2026-10-26", notes: "", checks: [] },
+    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-24", verifiedAt: "2026-10-24", notes: "", checks: [] },
+    "math110.0.2": { done: true, verified: true, doneAt: "2026-11-01", verifiedAt: "2026-11-01", notes: "", checks: [] },
+    "math110.0.3": { done: true, verified: true, doneAt: "2026-10-31", verifiedAt: "2026-10-31", notes: "", checks: [] },
+    "math110.0.4": { done: true, verified: true, doneAt: "2026-10-30", verifiedAt: "2026-10-30", notes: "", checks: [] },
+    "math110.0.5": { done: true, verified: true, doneAt: "2026-10-25", verifiedAt: "2026-10-25", notes: "", checks: [] },
     // T-043: a lecture counts once watched AND its quiz is passed, so the
     // day's one done lecture carries its pass (a quiz pass added, nothing else).
-    "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [],
-      quiz: { passedAt: "2026-10-20", at: "2026-10-20T11:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
+    "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [],
+      quiz: { passedAt: "2026-11-01", at: "2026-11-01T11:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
   },
   treasury: { offer: "", clients: [], niche: "", entries: [
-    { date: "2026-10-18", amount: 999, note: "the last day of week 2" },
-    { date: "2026-10-19", amount: 1000, note: "pilot" },
-    { date: "2026-10-20", amount: 120, note: "a referral" },
-    { date: "2026-10-24", amount: 27, note: "the rest day" },
-    { date: "2026-10-25", amount: 2.5, note: "the last day of week 3" },
-    { date: "2026-10-26", amount: 500, note: "the first day of week 4" },
+    { date: "2026-10-24", amount: 999, note: "the last day of week 1" },
+    { date: "2026-10-25", amount: 1000, note: "pilot" },
+    { date: "2026-10-28", amount: 120, note: "a referral" },
+    { date: "2026-10-31", amount: 27, note: "the rest day" },
+    { date: "2026-10-30", amount: 2.5, note: "the last study day of week 2" },
+    { date: "2026-11-01", amount: 500, note: "the first day of week 3" },
   ] },
   weeks: [
-    { week: 1, date: "2026-10-11", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
-    { week: 2, date: "2026-10-18", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "flu, then a client fire" },
+    { week: 1, date: "2026-10-25", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
   ],
 };
+// Week 2 sealed on its Sunday, as a failed week with a note, for the Sun 8 Nov
+// state (T-056 r2: on the pinned clock week 2 is the week being sealed, so the
+// base has only week 1; "this week already sealed" seals it as "a repo").
+const T26C_WEEK2 = { week: 2, date: "2026-11-01", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "flu, then a client fire" };
 // The habits a study day carries, as the page had them before (four, and on
 // a Sunday the seal as a fifth), in minutes; Workshop has no fixed time.
 const T26C_HABITS = [["Practice", 45, "#/course/cs150"], ["Drill", 10, "#/drill"], ["Publish", 30, "#/review"], ["Workshop", 0, "#/workshop"]];
@@ -1913,21 +1920,40 @@ const t26cUTC = (iso, o) => new Date(iso + "T00:00:00Z").toLocaleString("en-US",
 const t26cShort = iso => Number(iso.slice(8)) + " " + t26cUTC(iso, { month: "short" });
 const t26cNice = iso => t26cUTC(iso, { weekday: "long" }) + " " + Number(iso.slice(8)) + " " + t26cUTC(iso, { month: "long" });
 const t26cDays = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
-// The plan week a date belongs to (a rest day: the week just worked), and
-// its first and last study day, from the calendar walked here.
+// T-056 r2 (owner, "Keep Sunday"): the Week page seals the REVISION week,
+// not the plan week. The revision Sundays are every Sunday from the first
+// with a whole Sun-Fri week of the plan behind it (Sun 25 Oct since reset
+// seven); a date answers to the first revision Sunday on or after it. The
+// week runs from the Sunday before (week 1: the start) to the Saturday before
+// its own Sunday — its rest day in it — and is sealed on that Sunday. Walked
+// here from the calendar, Sunday by Sunday; the app uses arithmetic.
+const T26C_REVSUN = (() => {
+  const out = [], d = new Date(CURRICULUM.START_DATE + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + 7);                    // a week of the plan behind it
+  while (d.getUTCDay() !== 0) d.setUTCDate(d.getUTCDate() + 1);
+  while (out.length < 60) { out.push(d.toISOString().slice(0, 10)); d.setUTCDate(d.getUTCDate() + 7); }
+  return out;
+})();
+const t26cBack = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
 function t26cWeekOf(iso) {
-  const w = Math.floor(t26Pos(iso) / 6) + 1;
-  return { w, from: T26_STUDY[(w - 1) * 6], to: T26_STUDY[w * 6 - 1] };
+  const k = T26C_REVSUN.findIndex(s => s >= iso), sun = T26C_REVSUN[k];
+  return { w: k + 1, from: k ? t26cBack(sun, 7) : CURRICULUM.START_DATE, to: t26cBack(sun, 1), sun };
+}
+// What a revision Sunday's seal tile names: "Week r · 25–30 Oct", its study
+// days Sunday (week 1: the start) to Friday.
+function t26cSealLabel(iso) {
+  const { w, from, sun } = t26cWeekOf(iso), to = t26cBack(sun, 2);
+  return "Week " + w + " · " + (from.slice(0, 7) === to.slice(0, 7) ? Number(from.slice(8)) : t26cShort(from)) + "\u2013" + t26cShort(to);
 }
 // What the Week page should say, from the stored state alone.
 function t26cWeekWant(st, today) {
-  const { w, from, to } = t26cWeekOf(today);
+  const { w, from, to, sun } = t26cWeekOf(today);
   const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
   const ledger = (st.treasury || {}).entries || [];
   const earned = Math.round(ledger.filter(e => inWeek(e.date)).reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
   const weeks = (st.weeks || []).slice().sort((a, b) => b.week - a.week);
   const sealed = weeks.find(x => +x.week === w);
-  const n = t26cDays(today, to);
+  const n = t26cDays(today, sun);
   const bhd = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString("en-US");
   return {
     // Spec: BHD "stays editable if the ledger has none" — counted whenever
@@ -1936,8 +1962,8 @@ function t26cWeekWant(st, today) {
     dsa: Object.values(st.problems || {}).filter(Boolean).length,
     proven: Object.values(st.lessons || {}).filter(l => l && l.verified && inWeek(l.verifiedAt)).length,
     bhdText: earned.toLocaleString("en-US", { maximumFractionDigits: 2 }),
-    state: sealed ? "Sealed " + t26cShort(sealed.date) : today >= to ? "Ready to seal"
-      : "Opens " + t26cUTC(to, { weekday: "long" }) + " " + t26cShort(to) + " · " + n + " day" + (n === 1 ? "" : "s"),
+    state: sealed ? "Sealed " + t26cShort(sealed.date) : today >= sun ? "Ready to seal"
+      : "Opens " + t26cUTC(sun, { weekday: "long" }) + " " + t26cShort(sun) + " · " + n + " day" + (n === 1 ? "" : "s"),
     cards: weeks.map(x => ({ h: "Week " + x.week, date: t26cShort(x.date), s: x.shipped || "nothing shipped", fail: !x.shipped,
       m: "DSA " + (+x.dsa || 0) + " · " + (+x.posts || 0) + " post" + ((+x.posts || 0) === 1 ? "" : "s") + " · " + bhd(+x.revenue || 0),
       notes: x.notes || "No notes." })),
@@ -3557,7 +3583,7 @@ function t28SeedClips(list) {
   // next. Gates 1-3 passed puts the fill at ~60%; all five puts it at 100%.
   const gatesSeed = passed => new Function("args",
     "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}');" +
-    "s.gates = " + JSON.stringify(Object.fromEntries(passed.map((n, i) => [n, "2026-10-1" + (2 + i)]))) + ";" +
+    "s.gates = " + JSON.stringify(Object.fromEntries(passed.map((n, i) => [n, ["2026-10-23", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28"][i]]))) + ";" +
     "localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
   for (const passed of [[1, 2, 3], [1, 2, 3, 4, 5]]) {
     for (const w of [390, 1100, 1440]) {
@@ -3655,7 +3681,7 @@ function t28SeedClips(list) {
   const t38Seed = gates => new Function("args", "if (window.top !== window) return; const s = JSON.parse(localStorage.getItem('darhikmah_v1') || '{}');" +
     "s.gates = " + JSON.stringify(gates) + "; localStorage.setItem('darhikmah_v1', JSON.stringify(s));");
   const t38Obj = done => Object.fromEntries(Object.keys(done).map(n => [n, { date: done[n], at: done[n] + "T08:00:00.000Z", passed: true }]));
-  const T38_ALL = { 1: "2026-10-09", 2: "2026-10-14", 3: "2026-10-15", 4: "2026-10-16", 5: "2026-10-19" };
+  const T38_ALL = { 1: "2026-10-21", 2: "2026-10-26", 3: "2026-10-27", 4: "2026-10-28", 5: "2026-10-30" };
   for (const fx of [
     { name: "no gate passed", done: {}, seed: t38Seed({}) },
     { name: "all five passed", done: T38_ALL, seed: t38Seed(t38Obj(T38_ALL)) },
@@ -3685,20 +3711,20 @@ function t28SeedClips(list) {
   }
   // ---- Continue orders by the reader's own date, not UTC's ----
   // Review round 1: posAt is a UTC timestamp and doneAt a local date. In
-  // Bahrain (UTC+3) at 02:00 on 21 Oct, a lecture watched that day and a
-  // lecture paused at 23:00Z on the 20th are the same day; compared raw,
-  // "2026-10-21" beat "2026-10-20T23:00:00.000Z" and MATH 110 led. On the
+  // Bahrain (UTC+3) at 02:00 on 2 Nov, a lecture watched that day and a
+  // lecture paused at 23:00Z on 1 Nov are the same day; compared raw,
+  // "2026-11-02" beat "2026-11-01T23:00:00.000Z" and MATH 110 led. On the
   // same day the live resume point leads.
   for (const w of [1440, 390]) {
-    const mobile = w < 861, at = w + "px Asia/Bahrain 21 Oct 02:00";
+    const mobile = w < 861, at = w + "px Asia/Bahrain 2 Nov 02:00";
     const ctx = await browser.newContext({ timezoneId: "Asia/Bahrain", reducedMotion: "reduce", viewport: { width: w, height: 900 }, isMobile: mobile, hasTouch: mobile });
-    await ctx.clock.setFixedTime(new Date("2026-10-20T23:00:00Z"));
+    await ctx.clock.setFixedTime(new Date("2026-11-01T23:00:00Z"));
     await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
     await ctx.addInitScript(() => {
       if (window.top !== window) return;
       localStorage.setItem("darhikmah_v1", JSON.stringify({ settings: { theme: "dark", themeNavyOnce: true }, studyDays: [], lessons: {
-        "math110.0.0": { done: true, doneAt: "2026-10-21", notes: "", checks: [] },
-        "ai200.0.1": { done: false, notes: "", checks: [], pos: 300, posAt: "2026-10-20T23:00:00.000Z" } } }));
+        "math110.0.0": { done: true, doneAt: "2026-11-02", notes: "", checks: [] },
+        "ai200.0.1": { done: false, notes: "", checks: [], pos: 300, posAt: "2026-11-01T23:00:00.000Z" } } }));
     });
     await ctx.addInitScript(countWrites);
     await ctx.addInitScript(installHelpers);
@@ -3799,7 +3825,7 @@ function t28SeedClips(list) {
   const T31_WIDTHS = T26_OW.concat([358, 373, 374]).sort((a, b) => a - b);
   for (let k = 1; k <= T26_GATES.length; k++) {
     const passed = {};
-    for (let g = 1; g < k; g++) passed[g] = "2026-10-1" + (1 + g);   // 12, 13, 14, 15 Oct
+    for (let g = 1; g < k; g++) passed[g] = ["2026-10-23", "2026-10-25", "2026-10-26", "2026-10-27"][g - 1];   // plan days 7-10 (were 12-15 Oct before reset seven)
     for (const root of [16, 24]) {
       const bad = [], errs = [], seen = new Set();
       for (const mobile of [true, false]) {
@@ -4109,30 +4135,30 @@ function t28SeedClips(list) {
       patch: { labs: { "micrograd-blind": { done: true, proof: "" }, "flashcards-cli": { done: true, proof: "https://example.org/x" } },
                psets: Object.fromEntries(PSET_IDS.slice(0, 3).map(id => [id, true])) } },
     { name: "an exam passed (MIT 18.06, 80%) and five MATH 120 lectures watched", routes: ["/exams"],
-      patch: { diag: { "diag-la": { score: 80, date: "2026-10-19" } },
-               lessons: Object.fromEntries([0, 1, 2, 3, 4].map(i => ["math120.0." + i, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
+      patch: { diag: { "diag-la": { score: 80, date: "2026-10-30" } },
+               lessons: Object.fromEntries([0, 1, 2, 3, 4].map(i => ["math120.0." + i, { done: true, doneAt: "2026-10-29", notes: "", checks: [] }])) } },
     { name: "every bank open", routes: ["/exams"],
-      patch: { lessons: Object.fromEntries(["math120.0.0", "math130.0.0", "ai200.0.0", "math210.0.0", "ai310.0.0"].map(k => [k, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
-    { name: "Gate 1 passed, so a bank leads", routes: ["/exams"], patch: { gates: { 1: "2026-10-12" } } },
+      patch: { lessons: Object.fromEntries(["math120.0.0", "math130.0.0", "ai200.0.0", "math210.0.0", "ai310.0.0"].map(k => [k, { done: true, doneAt: "2026-10-29", notes: "", checks: [] }])) } },
+    { name: "Gate 1 passed, so a bank leads", routes: ["/exams"], patch: { gates: { 1: "2026-10-23" } } },
     // T-038 review round 1: an unmark is stored as an object, which is truthy.
     // Gate 1 unmarked is open, so the next diagnostic still leads, tagged
     // "· Gate 1" with the days to the gate — read off the page itself below,
     // not only through the expectation above.
     { name: "Gate 1 unmarked (stored { passed: false }), so it is open and a diagnostic leads", routes: ["/exams"], gate1Open: true,
-      patch: { gates: { 1: { date: null, at: "2026-10-19T09:00:00.000Z", passed: false } } } },
+      patch: { gates: { 1: { date: null, at: "2026-10-30T09:00:00.000Z", passed: false } } } },
     // Review round 1: every other state has nothing watched in a locked
     // bank's course, so a bar drawn at 0 passed. Eight MATH 110 lectures that
     // no Linear Algebra question waits on: the bank stays locked at 8/51.
     { name: "eight MATH 110 lectures watched, none a question's, so Linear Algebra is locked at 8 of 51", routes: ["/exams"], empty: true, lockedWatched: true,
-      patch: { lessons: Object.fromEntries([0, 3, 4, 7, 9, 10, 11, 12].map(i => ["math110.0." + i, { done: true, doneAt: "2026-10-18", notes: "", checks: [] }])) } },
+      patch: { lessons: Object.fromEntries([0, 3, 4, 7, 9, 10, 11, 12].map(i => ["math110.0." + i, { done: true, doneAt: "2026-10-29", notes: "", checks: [] }])) } },
     // Review round 1: with the three maths diagnostics sat the coding one
     // leads, and the approved mockup tags it CS 150 — readiness is problems
     // solved of 150 (30 here, so a bar drawn at 0 cannot pass).
     { name: "the three maths diagnostics sat, so the coding diagnostic leads, with 30 problems solved", routes: ["/exams"],
-      patch: { diag: { "diag-la": { score: 80, date: "2026-10-19" }, "diag-calc": { score: 75, date: "2026-10-19" }, "diag-prob": { score: 72, date: "2026-10-19" } },
-               problems: Object.fromEntries(T26B_PROBLEMS.slice(0, 30).map(k => [k, "2026-10-18"])) } },
+      patch: { diag: { "diag-la": { score: 80, date: "2026-10-30" }, "diag-calc": { score: 75, date: "2026-10-30" }, "diag-prob": { score: 72, date: "2026-10-30" } },
+               problems: Object.fromEntries(T26B_PROBLEMS.slice(0, 30).map(k => [k, "2026-10-29"])) } },
     { name: "a two-entry chain (genesis reached) after a streak reset", routes: ["/record"],
-      patch: { ledger: T26B_SHORT, settings: { streakFrom: "2026-10-19" } } },
+      patch: { ledger: T26B_SHORT, settings: { streakFrom: "2026-10-30" } } },
     { name: "day 1, nothing stored", routes: ["/workshop", "/exams", "/record"], empty: true, now: T26B_DAY1, click: true },
     { name: "a Saturday (the rest day)", routes: ["/workshop", "/exams", "/record"], now: T26B_SAT, patch: { ledger: T26B_LONG } },
   ];
@@ -4303,12 +4329,19 @@ function t28SeedClips(list) {
         blockBad.join("; ") || m.blocks.map(b => b.k + " " + (b.r || []).join("/") + (b.done ? " (done)" : "")).join(", ") || "none (a rest day)");
       if (iso === o.today) c26c(tag + ": the old per-course group headers and .glist rows are gone (no visible .glist; the section headers are only \"Every study day\")",
         m.glist === 0 && JSON.stringify(m.groupHeads) === JSON.stringify(["Every study day"]), m.glist + " .glist, headers " + JSON.stringify(m.groupHeads));
-      const H = T26C_HABITS.concat(new Date(iso + "T00:00:00Z").getUTCDay() === 0 ? [T26C_SEAL] : []);
+      const sealDay = new Date(iso + "T00:00:00Z").getUTCDay() === 0 && iso >= T26C_REVSUN[0];
+      const H = T26C_HABITS.concat(sealDay ? [T26C_SEAL] : []);
       const habitBad = m.habits.filter((h, i) => !H[i] || h.tag !== "A" || h.t !== H[i][0] || h.href !== H[i][2] || h.w < 44 || h.h < 44 ||
         !(H[i][1] ? h.m.indexOf(H[i][1] + " min") === 0 : !/\bmin\b/.test(h.m)));
       c26c(tag + ": \"Every study day\" is " + H.length + " habit tiles (" + H.map(h => h[0]).join(", ") + "), each a link with its minutes, and reads \"" + t26cAbout(H.reduce((a, h) => a + h[1], 0)) + "\"",
         m.habits.length === H.length && habitBad.length === 0 && m.about === t26cAbout(H.reduce((a, h) => a + h[1], 0)),
         m.habits.map(h => h.t + " \"" + h.m + "\"").join(", ") + "; \"" + m.about + "\"");
+      // T-056 r2: on a revision Sunday the seal names the week it seals —
+      // never the plan week in progress (on Sun 1 Nov that is plan week 3).
+      if (sealDay) {
+        const seal = m.habits.find(h => h.t === T26C_SEAL[0]), want = "30 min · " + t26cSealLabel(iso);
+        c26c(tag + ": the seal names the revision week it seals, \"" + want + "\"", !!seal && seal.m === want, seal ? "\"" + seal.m + "\"" : "no seal tile");
+      }
       if (iso === o.today && o.cols) {
         const cols = new Set(m.habits.map(h => h.left)).size;
         c26c(tag + ": the habits are " + o.cols + " across", cols === o.cols, cols + " distinct columns");
@@ -4465,7 +4498,7 @@ function t28SeedClips(list) {
       const { ctx, page, errors, today } = await t26bFresh(Object.assign({ theme, patch: T26C_PATCH }, o));
       const w0 = await writesNow(page);
       await t26cWeekCheck(page, at, { today, click: true, cols: o.mobile ? 2 : 4 });
-      await t26cCalCheck(page, at, { today, cols: o.mobile ? 2 : 4, more: ["2026-10-24", "2026-10-25"] });
+      await t26cCalCheck(page, at, { today, cols: o.mobile ? 2 : 4, more: ["2026-11-07", "2026-11-05"] });   // a rest day and a later study day in the pinned month (reset seven: Sat 31 Oct is in October)
       if (o.mobile) await t26cStepTaps(page, at, { today }); else await t26cStepKeys(page, at, { today });
       await t26cLibCheck(page, at, { today, click: true, cols: o.mobile ? 1 : 3 });
       const w1 = await writesNow(page);
@@ -4477,14 +4510,16 @@ function t28SeedClips(list) {
   // ---- one state at a time, for what the seed cannot show ----
   const T26C_LEDGER = entries => Object.assign({}, T26C_PATCH, { treasury: { offer: "", clients: [], niche: "", entries } });
   const T26C_STATES = [
-    { name: "a ledger with no payment in this week (only Sun 18 and Mon 26), so BHD is a counted 0",
+    { name: "a ledger with no payment in this week (only Sat 24 Oct and Sun 1 Nov), so BHD is a counted 0",
       patch: T26C_LEDGER([T26C_PATCH.treasury.entries[0], T26C_PATCH.treasury.entries[5]]) },
     { name: "an empty Treasury ledger, so BHD is typed", patch: T26C_LEDGER([]) },
-    { name: "a 12,345.75 week", patch: T26C_LEDGER([{ date: "2026-10-19", amount: 12345.75, note: "a big one" }]) },
+    { name: "a 12,345.75 week", patch: T26C_LEDGER([{ date: "2026-10-30", amount: 12345.75, note: "a big one" }]) },
     { name: "this week already sealed",
-      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([{ week: 3, date: "2026-10-20", shipped: "a repo", dsa: 2, posts: 2, revenue: 150.5, notes: "" }]) }) },
+      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([{ week: 2, date: "2026-11-01", shipped: "a repo", dsa: 2, posts: 2, revenue: 150.5, notes: "" }]) }) },
     { name: "nothing sealed yet", patch: Object.assign({}, T26C_PATCH, { weeks: [] }) },
-    { name: "a Sunday, the day the week is sealed", now: new Date("2026-10-25T12:00:00Z"), patch: T26C_PATCH },
+    { name: "a Sunday, the day the week is sealed (Sun 8 Nov, week 3; weeks 1 and 2 sealed)", now: new Date("2026-11-08T12:00:00Z"),
+      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([T26C_WEEK2]) }) },
+    { name: "mid-week (Thu 5 Nov), the seal not open until Sunday", now: new Date("2026-11-05T12:00:00Z"), patch: T26C_PATCH },
   ];
   for (const st of T26C_STATES) {
     for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
@@ -4515,7 +4550,7 @@ function t28SeedClips(list) {
     for (const root of [16, 24]) {
       for (const w of T26C_FIT_W) {
         const { ctx, page, errors } = await t26bFresh({ w, h: 900, mobile: w < 861, theme: "light", root,
-          patch: T26C_LEDGER([{ date: "2026-10-19", amount: amt, note: "x" }]) });
+          patch: T26C_LEDGER([{ date: "2026-10-30", amount: amt, note: "x" }]) });
         await go(page, "/review");
         const f = await page.evaluate(t26cTileFit), ov = await page.evaluate(viewOverflow);
         const rootNow = await page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
@@ -4530,7 +4565,7 @@ function t28SeedClips(list) {
 
   // ---- T-028: Practice — record yourself ----
   // At 1440 and 390, Dark and Light, on a day with nothing owed (the bank
-  // logged Mon 19 and today, Tue 20): the header with its week, three tabs
+  // logged Fri 30 Oct and today, Sun 1 Nov): the header with its week, three tabs
   // with Story picked, the record button >= 88px, centred in its card, a
   // <button> with a label that the keyboard reaches, its red the theme's
   // --bad where that beats #ff453a against the card (and >= 3:1 either way,
@@ -4542,7 +4577,7 @@ function t28SeedClips(list) {
   const T28_SUB = "Speak it out loud. Recording yourself is the practice.";
   const t28Reps = o => Object.assign({ bank: [], story: [], humor: [], review: [] }, o);
   const T28_BANK = d => ({ date: d, what: "a client asked what an embedding was", why: "he got it in 20 seconds" });
-  const T28_PATCH = { reps: t28Reps({ bank: [T28_BANK("2026-10-19"), T28_BANK("2026-10-20")] }) };
+  const T28_PATCH = { reps: t28Reps({ bank: [T28_BANK("2026-10-30"), T28_BANK("2026-11-01")] }) };
   for (const theme of ["dark", "light"]) {
     for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {
       const at = o.w + "px " + theme;
@@ -4597,13 +4632,13 @@ function t28SeedClips(list) {
     }
   }
   const T28_DAYS = [
-    { name: "Tue 20 Oct, the bank not yet logged: Story bank", patch: { reps: t28Reps() }, want: "Story bank" },
+    { name: "Sun 1 Nov (the pinned clock), the bank not yet logged: Story bank", patch: { reps: t28Reps() }, want: "Story bank" },
     { name: "Fri 23 Oct (story and humour owed), the bank logged: Story", now: new Date("2026-10-23T12:00:00Z"),
       patch: { reps: t28Reps({ bank: [T28_BANK("2026-10-23")] }) }, want: "Story" },
     { name: "Fri 23 Oct, the bank and the story logged: Humour", now: new Date("2026-10-23T12:00:00Z"),
       patch: { reps: t28Reps({ bank: [T28_BANK("2026-10-23")], story: [{ date: "2026-10-23", seconds: 70, takes: 1, from: "x" }] }) }, want: "Humour" },
     { name: "Sat 24 Oct: the rest card above the tabs, Story", now: new Date("2026-10-24T12:00:00Z"), patch: { reps: t28Reps() }, want: "Story", rest: true },
-    { name: "a monthly review owed: its card above the tabs, with its form", patch: { reps: t28Reps({ bank: [T28_BANK("2026-10-20")],
+    { name: "a monthly review owed: its card above the tabs, with its form", patch: { reps: t28Reps({ bank: [T28_BANK("2026-11-01")],
       story: [{ date: "2026-09-01", seconds: 80, takes: 1, from: "the first one" }] }) }, want: "Story", review: true },
   ];
   // Review 1: at 320 and 390 a default title is never cut off.
@@ -4673,21 +4708,21 @@ function t28SeedClips(list) {
   const T43_PASS = (d, ft, n) => ({ passedAt: d, at: d + "T10:00:00.000Z", firstTry: ft, total: n, attempts: n + 1 });
   const T43_STATES = [
     { name: "before watched", route: "/lesson/math120/1/0",
-      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) } } } },
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [], quiz: T43_PASS("2026-10-28", 2, 2) } } } },
     { name: "the quiz after a miss", route: "/lesson/math120/1/0", miss: true,
-      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
-                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [], quiz: T43_PASS("2026-10-28", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } } } },
     { name: "passed, with Go deeper", route: "/lesson/math110/0/13",
-      patch: { lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", notes: "n", checks: [true], solved: 3, recall: "x".repeat(200),
-        verifiedAt: "2026-10-19", quiz: T43_PASS("2026-10-19", 2, 3) } } } },
+      patch: { lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-30", notes: "n", checks: [true], solved: 3, recall: "x".repeat(200),
+        verifiedAt: "2026-10-30", quiz: T43_PASS("2026-10-30", 2, 3) } } } },
     // One quiz in the way: lecture 13 watched, its quiz not passed.
     { name: "the locked lecture", route: "/lesson/math120/1/1",
-      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
-                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [], quiz: T43_PASS("2026-10-28", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } } } },
     { name: "the dashboard pointing at a quiz", route: "/", patch: null },
     { name: "the dashboard pointing at a watched lecture's quiz", route: "/",
-      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [], quiz: T43_PASS("2026-10-16", 2, 2) },
-                          "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } } },
+      patch: { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [], quiz: T43_PASS("2026-10-28", 2, 2) },
+                          "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } } } },
   ];
   function t43Measure() {
     const z = window.__dz, surface = z.tok("--surface");
@@ -4845,7 +4880,7 @@ function t28SeedClips(list) {
   // =================== T-045: Problems shows what's due now ===================
   // loop/specs/T-045-problems-due-now/spec.md, criterion 2; the mockup is
   // loop/design/specimen-problems-v2.png. At 1440 and 390, Dark and Light,
-  // on five stored states at the pinned clock (Tue 20 Oct 2026, phase 1):
+  // on five stored states at the pinned clock (Sun 1 Nov 2026, phase 1):
   // one quiz waiting, one catch-up quiz, one pset unlocked, one lab due (with
   // a phase-2 lab's lecture also cleared, so a lab shown before its phase
   // fails), and nothing due. t45Check works out what is due from storage and
@@ -4857,11 +4892,11 @@ function t28SeedClips(list) {
   const T45_L = (d, pass) => Object.assign({ done: true, doneAt: d, notes: "", checks: [] },
     pass ? { quiz: { passedAt: d, at: d + "T10:00:00.000Z", firstTry: pass, total: pass, attempts: pass } } : {});
   const T45_STATES = [
-    { name: "one quiz waiting", one: "quiz:math120.1.0", lessons: { "math120.1.0": T45_L("2026-10-20") } },
-    { name: "one catch-up quiz", one: "catchup:math130.0.0", lessons: { "math130.0.0": T45_L("2026-10-10") } },
-    { name: "one pset unlocked", one: "pset:1806-ps1", lessons: { "math110.1.1": T45_L("2026-10-19", 2) } },
+    { name: "one quiz waiting", one: "quiz:math120.1.0", lessons: { "math120.1.0": T45_L("2026-11-01") } },
+    { name: "one catch-up quiz", one: "catchup:math130.0.0", lessons: { "math130.0.0": T45_L("2026-10-17") } },
+    { name: "one pset unlocked", one: "pset:1806-ps1", lessons: { "math110.1.1": T45_L("2026-10-30", 2) } },
     { name: "one lab due (and a phase-2 lab's lecture cleared)", one: "lab:micrograd-blind",
-      lessons: { "ai200.1.0": T45_L("2026-10-07", 8), "ai200.1.8": T45_L("2026-10-19", 8) } },
+      lessons: { "ai200.1.0": T45_L("2026-10-19", 8), "ai200.1.8": T45_L("2026-10-30", 8) } },
     { name: "nothing due", one: null, lessons: {} },
     // Review r1, finding 2: the Daily review row, which no state drew. A
     // missed Linear Algebra question (index 8, `after` math110.0.1) whose
@@ -4869,15 +4904,16 @@ function t28SeedClips(list) {
     // the review row is last, goes to #/drill, and adds exactly one to that
     // state's count and to its dashboard line.
     { name: "the daily review beside one pset", one: "pset:1806-ps1,review:drill", twin: "one pset unlocked",
-      lessons: { "math110.1.1": T45_L("2026-10-19", 2), "math110.0.1": T45_L("2026-10-19", 2) }, misses: { "linear-algebra": [8] } },
+      lessons: { "math110.1.1": T45_L("2026-10-30", 2), "math110.0.1": T45_L("2026-10-30", 2) }, misses: { "linear-algebra": [8] } },
   ];
   // Review r1, finding 3: a lecture watched before the gate (grandfathered,
   // so cleared) with its quiz never passed. Its pset is unlocked and its quiz
   // is on the catch-up list in the same view, so the pset must not say "you
-  // passed" it. The clock is the gate's own day, 16 Oct 2026; both rows'
-  // wording is stated here in full.
-  T45_STATES.push({ name: "a pset unlocked by a lecture watched before the gate", now: new Date("2026-10-16T12:00:00Z"),
-    one: "catchup:math130.0.1,pset:s110-sp1", lessons: { "math130.0.1": T45_L("2026-10-11") },
+  // passed" it. The clock is the gate's own day, QUIZ_GATE_FROM read from
+  // app.js (T-056); both rows' wording is stated here in full.
+  const T45_GATE = /const QUIZ_GATE_FROM = "(\d{4}-\d\d-\d\d)"/.exec(fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8"))[1];
+  T45_STATES.push({ name: "a pset unlocked by a lecture watched before the gate", now: new Date(T45_GATE + "T12:00:00Z"),
+    one: "catchup:math130.0.1,pset:s110-sp1", lessons: { "math130.0.1": T45_L("2026-10-22") },
     words: { "catchup:math130.0.1": "MATH 130 · catch-up · watched, not passed · 3 questions",
              "pset:s110-sp1": "Pen and paper · unlocked: you watched Story Proofs, Axioms of Probability" } });
   const t45Seen = {};
@@ -4922,7 +4958,7 @@ function t28SeedClips(list) {
 
   // =================== T-054: Monk Mode, #/monk ===================
   // loop/specs/T-054-monk-page/spec.md, verify-design: at 1440 and 390, Dark
-  // and Light, on two states — day 7 of 90 with a day logged (a prayer, a
+  // and Light, on two states — day 5 of 90 (day 1 is 24 Oct since T-056) with a day logged (a prayer, a
   // habit and two numbers on, a loop closed, a plan saved for today), and
   // 20 Oct, before the 90 days, with nothing stored — and once more with the
   // Full day disclosure open. Measured on the rendered page (t54Measure):
@@ -4934,13 +4970,13 @@ function t28SeedClips(list) {
   const c54 = (name, ok, detail) => { t54Checks++; return check(name, ok, detail); };
   const T54_DAY = "2026-10-28";
   const T54_STATES = [
-    { name: "day 7 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 7 of 90", patch: { monk: {
+    { name: "day 5 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 5 of 90", patch: { monk: {
       days: { [T54_DAY]: { prayers: { fajr: true }, german: { podcast: true, speak: true }, brickford: true, work: 8, phone: 1.5, at: T54_DAY + "T09:00:00.000Z" },
               "2026-10-27": { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: true }, german: { podcast: true, speak: true, write: true, read: true }, brickford: true, work: 10, phone: 1, at: "2026-10-27T21:00:00.000Z" } },
       plans: { [T54_DAY]: { business: "Call two venues", content: "Script the Bahrain video", education: "MATH 120 lecture 4", at: "2026-10-27T21:55:00.000Z" } },
       loops: { s1: { text: "Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop", done: true, at: "2026-10-27T10:00:00.000Z" },
                l2: { text: "Reply to the venue", done: false, at: "2026-10-26T10:00:00.000Z" } } } } },
-    { name: "before the 90 days, nothing stored", now: FIXED_NOW, head: "Starts 22 Oct", patch: null },
+    { name: "before the 90 days, nothing stored", now: new Date("2026-10-20T12:00:00Z"), head: "Starts 24 Oct", patch: null },
   ];
   function t54Measure() {
     const z = window.__dz, fill = z.tok("--btn-bg");

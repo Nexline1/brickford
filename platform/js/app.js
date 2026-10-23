@@ -317,9 +317,13 @@
         if (!seen.has(k)) { S.quizAttempts[b].push(a2); seen.add(k); changed++; }
       });
     });
-    // weeks: by week number, later entry wins
+    // weeks: by week number, later entry wins. T-056 r4: a week sealed under an
+    // earlier start can carry the same number, so two entries are the same
+    // seal only when both sit on the same side of that revision week's start;
+    // otherwise the remote one is kept beside the local one, never over it.
     (r.weeks || []).forEach(w => {
-      const i = S.weeks.findIndex(x => +x.week === +w.week);
+      const wFrom = revisionWeek(+w.week).from, side = x => (x.date || "") >= wFrom;
+      const i = S.weeks.findIndex(x => +x.week === +w.week && side(x) === side(w));
       if (i < 0) { S.weeks.push(w); changed++; }
       else if ((w.date || "") > (S.weeks[i].date || "")) { S.weeks[i] = w; changed++; }
     });
@@ -931,9 +935,8 @@
       "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
       "END:VEVENT",
     ].join("\r\n"));
-    const startDow = new Date(D.START_DATE + "T00:00:00").getDay();
-    // A Sunday start date must not review a week that hasn't run yet.
-    const sunday = addDaysISO(D.START_DATE, (7 - startDow) % 7 || 7);
+    // The first revision Sunday (T-056 r2): never one before a week has run.
+    const sunday = revisionWeek(1).sun;
     events.push([
       "BEGIN:VEVENT", "UID:brickford-review@brickford.local", "DTSTAMP:" + stamp,
       "DTSTART:" + ymd(sunday) + "T180000", "DTEND:" + ymd(sunday) + "T183000",
@@ -1169,13 +1172,13 @@
   // counted, and nothing they touched is re-coloured; their quizzes go to the
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
-  const QUIZ_GATE_FROM = "2026-10-16";                 // the ship date
-  // T-052: the owner's 90-day monk mode (22 Oct 2026 to 19 Jan 2027) lives on its
+  const QUIZ_GATE_FROM = "2026-10-24";                 // the day after the fix merges (T-056 r3): everything watched on the merge day counts; a Saturday, so the gate starts with Sunday's lectures
+  // T-052: the owner's 90-day monk mode (24 Oct 2026 to 21 Jan 2027, moved by T-056) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
   // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
   // which keeps one row out to that page (MONK.url). The day counts
   // calendar days, Saturdays included: it is a life plan, not the study plan.
-  const MONK = Object.freeze({ from: "2026-10-22", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  const MONK = Object.freeze({ from: "2026-10-24", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
   function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
   // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
   // Ported from loop/design/monk-mode.html, with the owner's amendment of
@@ -1476,6 +1479,18 @@
     }
     return owed.size;
   }
+  // T-056 r3: the earliest owed lecture in plan order — the first not cleared
+  // on the first day backlogCount() counts as owing one. Null when none is owed.
+  function firstOwed() {
+    const today = todayISO(), from = firstActivityISO();
+    if (!from) return null;
+    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
+      if (isRestDay(iso)) continue;
+      const it = realSched(iso).find(x => !schedDone(x));
+      if (it) return it;
+    }
+    return null;
+  }
   // Status of a calendar day: judged against ITS OWN scheduled lessons —
   // catching up late still turns the day green. Falls back to activity
   // for days beyond the scheduled syllabus.
@@ -1635,7 +1650,28 @@
     const real = realSched(todayISO());
     const nextUp = real.find(it => !schedDone(it));
     const due = reviewsDue();
-    if (nextUp) {
+    if (nextUp) return lectureAction(nextUp, real, false);
+    if (due.length) return {
+      href: "#/recall", kind: "recall", code: "RECALL",
+      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
+      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
+      hint: "due before new material", verb: "Start",
+    };
+    // T-056: today's lectures are all cleared (watched earlier, say), so the
+    // next thing is the first lecture not yet cleared, read from the next
+    // study day's plan, which the work-ahead logic (windowFor) re-anchors at
+    // the first unfinished lecture. Never a watched one, and ahead of Resume,
+    // which would point back at a lecture already seen.
+    // T-056 r3: but when something is owed, the owner's rule is "the first
+    // lecture I haven't watched": the earliest owed one, in plan order.
+    if (real.length) {
+      const ahead = (backlogCount() > 0 && firstOwed()) || realSched(addStudyDays(todayISO(), 1)).find(it => !schedDone(it));
+      if (ahead) return lectureAction(ahead, real, true);
+    }
+    return idleAction();
+  }
+  function lectureAction(nextUp, real, workAhead) {
+    {
       const c = D.COURSES.find(x => x.id === nextUp.cid);
       // T-043: when the next lecture is locked, or watched with its quiz still
       // to pass, the next thing to do is that quiz, so the card says so.
@@ -1666,16 +1702,18 @@
         fac: c ? facClass(c) : "",
         label: clipTitle(nextUp.l.t, 34),
         hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
-              (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
+              (workAhead ? workAheadHint() : (real.indexOf(nextUp) + 1) + " of " + real.length + " today"),
         verb: "Open",
       };
     }
-    if (due.length) return {
-      href: "#/recall", kind: "recall", code: "RECALL",
-      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
-      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
-      hint: "due before new material", verb: "Start",
-    };
+  }
+  // "Ahead of plan" only when nothing is owed; otherwise the count, worded
+  // and capped as the dashboard's "owed from earlier days" row words it.
+  function workAheadHint() {
+    const owed = backlogCount();
+    return owed > 0 ? "today is done · " + (owed > 20 ? "20+" : owed) + " owed" : "today is done · ahead of plan";
+  }
+  function idleAction() {
     if (S.settings.lastLesson) {
       const L = S.settings.lastLesson;
       return {
@@ -3473,7 +3511,8 @@
       dObj.toLocaleString("en-US", { month: "long" });
     const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
-    const isSunday = dObj.getDay() === 0;
+    // T-056 r2: a revision Sunday seals the revision week it ends, named.
+    const sealW = isSealDay(iso) ? revisionWeek(revisionWeekOf(iso)) : null;
     const first = todayISO() > D.START_DATE ? todayISO() : D.START_DATE;
     const status = dayStatus(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
@@ -3530,7 +3569,7 @@
       ["Drill", 10, pool ? pool + " missed" : "", "#/drill"],
       ["Publish", 30, "one post", "#/review"],
       ["Workshop", 0, "this week’s build", "#/workshop"],
-    ].concat(isSunday ? [["Seal the week", 30, "Week " + w, "#/review"]] : []);
+    ].concat(sealW ? [["Seal the week", 30, "Week " + sealW.r + " \u00b7 " + shortRange(sealW.from, sealW.to), "#/review"]] : []);
     const mins = habits.reduce((a, h) => a + h[1], 0);
     const about = "about " + (mins >= 60 ? Math.floor(mins / 60) + " h" + (mins % 60 ? " " + pad2(mins % 60) : "") : mins + " min");
     const habit = ([t, m, d, href]) => '<a class="at-tile cd-hb" href="' + href + '"><span class="tl-main">' +
@@ -4455,6 +4494,41 @@
   function weekSpan(w) {
     return { from: dateForStudy((w - 1) * STUDY_WEEK), to: dateForStudy(w * STUDY_WEEK - 1) };
   }
+  // ---- T-056 r2: the revision week (owner, 2026-10-23: "Keep Sunday") ----
+  // Sunday is the seal-and-revision day whatever weekday the plan started on.
+  // Revision week r is the study days Sunday..Friday before its Sunday, `sun`;
+  // week 1 also takes the study days before the first Sunday, so with the
+  // Friday start it is 16-23 Oct (days 1-7), revised Sun 25 Oct. These are
+  // NOT plan weeks (weekNumber/weekSpan count from START_DATE, Fri-Thu since
+  // reset seven): a seal names the days just worked, never a plan week still
+  // running. A Sunday start revises its first week a week later, not that day.
+  function firstSunday() { return addDaysISO(D.START_DATE, (7 - dowOf(D.START_DATE)) % 7); }
+  function revisionWeek(r) {
+    const sun = addDaysISO(firstSunday(), 7 * r);
+    return { r, from: r === 1 ? D.START_DATE : addDaysISO(sun, -7), to: prevStudyDay(sun), sun };
+  }
+  // The revision week a date answers to: the first whose Sunday is on or after
+  // it (on a revision Sunday, the week that Sunday seals).
+  function revisionWeekOf(iso) { return Math.max(1, Math.ceil(daysBetween(firstSunday(), iso) / 7)); }
+  // The Sundays that seal: every Sunday from the first revision Sunday on.
+  function isSealDay(iso) { return dowOf(iso) === 0 && iso >= revisionWeek(1).sun; }
+  // The lectures the plan as drawn puts in revision week r (no work-ahead
+  // re-anchoring, so progress never changes it): distinct lectures, pseudo
+  // blocks left out — what tools/revision-pdf.js prints for that week.
+  function revisionLectures(r) {
+    const { from, to } = revisionWeek(r), keys = new Set();
+    planOnly = true;
+    try {
+      for (let iso = from; iso <= to; iso = addDaysISO(iso, 1))
+        scheduledFor(iso).forEach(it => { if (!it.pseudo) keys.add(lessonKey(it.cid, it.ui, it.li)); });
+    } finally { planOnly = false; }
+    return keys.size;
+  }
+  // "16–23 Oct", or "26 Oct–1 Nov" across a month.
+  function shortRange(a, b) {
+    const d = iso => new Date(iso + "T00:00:00");
+    return (a.slice(0, 7) === b.slice(0, 7) ? String(d(a).getDate()) : shortDay(a)) + "\u2013" + shortDay(b);
+  }
   const shortDay = iso => { const d = new Date(iso + "T00:00:00");
     return d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
   const numText = v => (Math.round(v * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
@@ -4468,10 +4542,14 @@
   // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
   // total, as that field always was (the dashboard draws it "over time").
   V.review = function () {
-    const w = weekNumber(), today = todayISO();
-    const { from, to } = weekSpan(w);
-    const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
-    const sealed = S.weeks.find(x => +x.week === w);
+    // T-056 r2: the revision week, sealed on its Sunday. Its Saturday is in
+    // it (a payment logged on the rest day belongs to the week just worked).
+    const today = todayISO(), w = revisionWeekOf(today);
+    const { from, sun } = revisionWeek(w);
+    const inWeek = iso => typeof iso === "string" && iso >= from && iso < sun;
+    // T-056 r3: a week sealed under an earlier start can carry the same
+    // number; it is this week only if it was sealed on or after this week began.
+    const sealed = S.weeks.find(x => +x.week === w && (x.date || "") >= from);
     const dsa = dsaCount();
     const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
     // BHD is counted from the Treasury ledger once it has any entry at all (a
@@ -4491,9 +4569,9 @@
       "<span>" + label + '</span><em class="wk-hand">tap to edit</em></span></label>';
 
     const state = sealed ? "Sealed " + shortDay(sealed.date)
-      : today >= to ? "Ready to seal"
-      : (() => { const n = daysBetween(today, to);
-          return "Opens " + new Date(to + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(to) +
+      : today >= sun ? "Ready to seal"
+      : (() => { const n = daysBetween(today, sun);
+          return "Opens " + new Date(sun + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(sun) +
             " · " + n + " day" + (n === 1 ? "" : "s"); })();
 
     // Past weeks, newest first. A card opens to its notes: a <details>, so
@@ -4547,7 +4625,7 @@
     const dailyLink = gcalUrl("Brickford — Deep Track",
       "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan.",
       { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS });
-    const nextSunday = addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7);
+    const nextSunday = [addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7), revisionWeek(1).sun].sort()[1];
     const reviewLink = gcalUrl("Brickford — Weekly Review (seal the week)",
       "No shipped artifact = a failed week. Fill the row before the day ends.",
       { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
@@ -5526,9 +5604,19 @@
     ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
   const LINKS_SHOWN = 5;
-  // T-055: weeks with a revision PDF in revision/ (week, dates, lectures).
-  const REVISION_WEEKS = [[1, "5\u201311 Oct", 30], [2, "12\u201318 Oct", 22], [3, "19\u201325 Oct", 15],
-    [4, "26 Oct\u20131 Nov", 13], [5, "2\u20138 Nov", 14], [6, "9\u201315 Nov", 12]];
+  // T-055: the revision weeks with a PDF in revision/ (weeks 1..REVISION_PDFS).
+  // T-056 r2: each tile's dates and lecture count are the revision week's own
+  // (revisionWeek, revisionLectures), never a table of an older start's dates.
+  const REVISION_PDFS = 6;
+  function revisionTiles() {
+    const out = [];
+    for (let n = 1; n <= REVISION_PDFS; n++) {
+      const rw = revisionWeek(n);
+      out.push({ n, from: rw.from, to: rw.to, sun: rw.sun, dates: shortRange(rw.from, rw.to), lectures: revisionLectures(n),
+        href: "../revision/week-" + String(n).padStart(2, "0") + ".pdf" });
+    }
+    return out;
+  }
   V.library = function () {
     const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
     const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
@@ -5552,14 +5640,14 @@
       '<div class="at-tiles lb-docs lb-guides">' +
       guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
 
-      // T-055: the Sunday revision PDFs (T-035), one per plan week, made by
+      // T-055: the Sunday revision PDFs (T-035), one per revision week, made by
       // tools/revision-pdf.js into revision/ at the repo root. They open in a
       // new tab; the browser's own viewer handles the PDF.
-      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_WEEKS.length + " weeks</span></div>" +
+      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></div>" +
       '<div class="at-tiles lb-docs lb-rev">' +
-      REVISION_WEEKS.map(([n, dates, lec]) => '<a class="at-tile pb-mode lb-doc" href="../revision/week-' + String(n).padStart(2, "0") +
-        '.pdf" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + n + "</span>" +
-        '<span class="pb-d">' + esc(dates) + " \u00b7 " + lec + " lectures</span></a>").join("") + "</div>" +
+      revisionTiles().map(t => '<a class="at-tile pb-mode lb-doc" href="' + t.href +
+        '" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
+        '<span class="pb-d">' + esc(t.dates) + " \u00b7 " + t.lectures + " lectures</span></a>").join("") + "</div>" +
 
       '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
       '<div class="at-chips lb-links">' +
@@ -6064,7 +6152,7 @@
           S.diag[m[1]] = { score: null, date: todayISO() };
           logEvent("diagnostic", m[1], { score: null }); save(); render(); toast("Diagnostic marked complete.");
         } else if (act === "logWeek") {
-          const w = weekNumber();
+          const w = revisionWeekOf(todayISO());      // T-056 r2: the revision week, as the page shows it
           const entry = {
             week: w, date: todayISO(),
             shipped: $("#rvShipped").value.trim(),
@@ -6073,7 +6161,10 @@
             revenue: +$("#rvRev").value || 0,
             notes: $("#rvNotes").value.trim(),
           };
-          const i = S.weeks.findIndex(x => +x.week === w);
+          // T-056 r3: re-sealing replaces this week's entry; one from an earlier
+          // start with the same number is kept, and the new one appended.
+          const wFrom = revisionWeek(w).from;
+          const i = S.weeks.findIndex(x => +x.week === w && (x.date || "") >= wFrom);
           if (i >= 0) S.weeks[i] = entry; else S.weeks.push(entry);
           logEvent("week", "week" + w, { shipped: entry.shipped, dsa: entry.dsa, posts: entry.posts, revenue: entry.revenue });
           save(); render();
@@ -6957,7 +7048,9 @@
     QUIZ_GATE_FROM, monkDay, MONK, schedDone,
     // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
     MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
-    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf });
+    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
+    // T-056 r2, for verify-logic, verify-content and tools/revision-pdf.js: the revision weeks (reads only).
+    revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

@@ -1,0 +1,90 @@
+A failing token — the state the bug needed:
+  ok    lesson page renders a video frame
+  ok    video frame still present after 15s
+  ok    iframe is the same element after 15s (was: original)
+  ok    iframe src unchanged
+  ok    the view was not rebuilt while sitting on the page (rebuilds: 0)
+A working token — the normal path must still work:
+  ok    video frame present
+  ok    iframe survives a successful push too
+  ok    a successful push does not repaint either (rebuilds: 0)
+The page still responds to being used:
+  ok    the watched control is on the lesson page (Mark watched)
+  ok    marking watched is recorded
+  ok    and the page repaints to show it — foreground render still runs (Unmark watched)
+A rejected token latches the automatic push, and only that:
+  ok    a rejected token is recorded as fatal
+  ok    the first automatic push was attempted (1)
+  ok    latched — further saves armed no push (still 1)
+  ok    a manual push still runs while latched — it is not a lockout
+  ok    a success clears the error, lifting the latch
+  ok    automatic push resumes once sync works again
+A pull never carries the theme or the navy-switch marker between devices:
+  ok    after a pull and a save, this device's theme is its own navy switch, not the remote's ({"mark":true})
+  ok    the push was captured
+  ok    the pushed settings carry no marker and no theme ({"dailyStart":"08:00","streakFrom":null})
+  ok    after a reload the device is still navy (data-theme dark)
+  ok    a picked Light survives a pull from a real remote, a save and a reload ({"theme":"light","mark":true,"dataTheme":"light"})
+A recording stays on the device — the push carries the rep, never the audio:
+  ok    the clip is in IndexedDB brickford_audio ([{"size":8788,"seconds":1}])
+  ok    a push carried the recorded rep (1 push(es), 1 with the rep)
+  ok    the pushed rep is the hand form's shape, { date, seconds, takes, from }, with the clip's seconds ({"date":"2026-10-20","seconds":1,"takes":1,"from":"Story · Tue 20 Oct"})
+  ok    no push carries audio or brickford_audio data (1 push(es) read)
+  ok    every push's state has exactly the keys syncPayload sends
+A background repaint leaves a playing recording and a recording in progress alone:
+  ok    (1) a push merged in the laptop's entry and asked for a background repaint while the recording played
+  ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.92})
+  ok    (1) no page errors
+  ok    (2) a push merged in the laptop's entry and asked for a background repaint while recording
+  ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:03 / 1:30"})
+  ok    (2) Enter then stops it and the second recording is kept (2 in the list)
+  ok    (2) no page errors
+  ok    (3) a push merged in the laptop's entry and asked for a background repaint while the clip was paused part-way
+  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.553,"attached":true,"same":true,"paused":true,"t":1.553}; the view says 2 logged, storage holds 3)
+  ok    (4) played to its end, the skipped repaint runs: the view says 3 logged, storage holds 3
+  ok    (3)(4) no page errors
+  ok    (5) a push merged in the laptop's entry while the prompt was open, and the repaint waited (the view says 2 logged, storage holds 3)
+  ok    (5) the prompt cancelled, the view catches up: 3 logged, storage holds 3
+  ok    (5) no page errors
+  ok    (6) reduced motion: the prompt open, a merged push, and the repaint waited
+  ok    (6) reduced motion: picking Humour then leaves exactly one tab pressed, Humour, with Humour's recorder on screen and the view caught up ({"caughtUp":true,"pressed":["humor"],"recorder":"humor","reduce":true})
+  ok    (6) no page errors
+  ok    (7) reduced motion: leaving /practice with the prompt open and a repaint waiting swaps the view once (1 swap(s))
+  ok    (7) no page errors
+A quiz pass survives the merge, and the lock and the dashboard follow it (T-043):
+  ok    (k0) the pass on this device survives the remote's further-along copy winning (verified true, quiz {"passedAt":"2026-10-27","at":"2026-10-27T10:00:00.000Z","firstTry":1,"total":2,"attempts":3})
+  ok    (k1) an earlier 3 of 3 here against a later 5 of 8 there: this sitting, whole — no 5 of 3 ({"passedAt":"2026-10-25","at":"2026-10-25T10:00:00.000Z","firstTry":3,"total":3,"attempts":3})
+  ok    (k1) a later 2 of 2 here against an earlier 1 of 2 there: the remote's passedAt and at, this sitting's firstTry, total and attempts ({"passedAt":"2026-10-25","at":"2026-10-25T10:00:00.000Z","firstTry":2,"total":2,"attempts":2})
+  ok    (k2) a pass only the remote had arrives ({"passedAt":"2026-10-28","at":"2026-10-28T10:00:00.000Z","firstTry":2,"total":2,"attempts":3})
+  ok    (k3) the remote's copy wins, and the earliest doneAt and the first-watched date before the gate stand ({"doneAt":"2026-10-25","firstDoneAt":"2026-10-23","verified":true})
+  ok    (k3) both watched: the earlier doneAt (before the gate) stands (2026-10-23)
+  ok    (k2) math120.0.7 (after math120.0.6, the first MATH 120 lecture planned from the gate on) is locked before the pull and open after it (before: lock true, after: lock false, Mark watched true)
+  ok    (k3) spch100.2.1 (after spch100.2.0) is locked before the pull and open after it (grandfathered by the merged date); MATH 130 lecture 2 stays open ({"k4Before":true,"k4After":false,"k3Next":false})
+  ok    (k2) the dashboard's next action follows the merged state: #/lesson/math130/0/2 (Watch: Birthday Problem, Properties of Probability, then its quiz) -> #/lesson/math130/0/2 (Watch: Birthday Problem, Properties of Probability, then its quiz); walked here: #/lesson/math130/0/2 -> #/lesson/math130/0/2
+
+Monk Mode stays on the device (T-054):
+  ok    (m1) the boot pull ran and merged the remote's study day (the pull is real) — ["2026-10-19"]
+  ok    (m1) a pull of a remote that HAS a monk key leaves local monk data exactly as it was — {"days":{"2026-10-27":{"prayers":{"fajr":true},"german":true,"at":"2026-10-28T05:00:00.000Z"},"2026-10-26":{"work":4,"at":"2026-10-28T03:00:00.000Z"}},"plans":{"2026-10-28":{"business":"Ship MONK-PRIV
+  ok    (m2) a monk write arms no automatic push (0 PUT(s) in 6s after a prayer tick)
+  ok    (m3) a manual push was made and read — 1 PUT(s)
+  ok    (m3) the push's state has no monk key — lessons,problems,quizAttempts,quizMisses,diag,gates,studyDays,weeks,labs,psets,electives,treasury,review,concepts,anchors,reps,settings
+  ok    (m3) and none of the monk text anywhere in it ("MONK-PRIVATE-7f3a", "remote loop")
+  ok    (m3) after the push merged the remote, local monk still has only its own data (+ today's tick) — ["2026-10-27","2026-10-26","2026-10-28"]
+  ok    (m) no page errors
+  ok    (f) app.js declares `const MONK_SYNCS = false;` exactly once, so the flip is real — 1 found
+  ok    (f) flipped on, a pull keeps the newer `at`: days.2026-10-26 = this device's — {"work":6,"at":"2026-10-28T09:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: days.2026-10-27 = the remote's — {"work":10,"at":"2026-10-28T04:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: days.2026-10-25 = this device's — {"gym":1,"at":"2026-10-28T02:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: days.2026-10-24 = the remote's — {"book":1,"at":"2026-10-28T05:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: plans.2026-10-29 = this device's — {"business":"mine newer","at":"2026-10-28T08:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: plans.2026-10-30 = the remote's — {"business":"theirs newer","at":"2026-10-28T06:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: loops.s1 = the remote's — {"text":"seed","done":true,"at":"2026-10-28T06:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: loops.keep = this device's — {"text":"local done","done":true,"at":"2026-10-28T07:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: loops.solo = this device's — {"text":"local only","done":false,"at":"2026-10-28T03:00:00.000Z"}
+  ok    (f) flipped on, a pull keeps the newer `at`: loops.far = the remote's — {"text":"remote only","done":false,"at":"2026-10-28T01:00:00.000Z"}
+  ok    (f) and deletes nothing: exactly the union of keys — {"d":["2026-10-26","2026-10-27","2026-10-25","2026-10-24"],"p":["2026-10-29","2026-10-30"],"l":["s1","keep","solo","far"]}
+  ok    (f) flipped on, a monk write arms the push, and it carries the merged monk with today's write — lessons,problems,quizAttempts,quizMisses,diag,gates,studyDays,weeks,labs,psets,electives,treasury,review,concepts,anchors,reps,settings,monk
+  ok    (f) no page errors
+
+PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054)
+exit 0

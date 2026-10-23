@@ -772,6 +772,89 @@ async function scenario(browser, now, state, tz) {
     await o.ctx.close();
   }
 
+  // ---- T-056 r2: Sunday stays the seal-and-revision day (owner, "Keep Sunday") ----
+  // With a Friday start, plan weeks run Fri-Thu, so "Seal the week · Week N"
+  // on a Sunday named a plan week two days in. The owner kept Sunday: each
+  // Sunday seals and revises the six study days before it, Sun-Fri, and the
+  // first, Sun 25 Oct, takes the start to Fri 23 Oct (days 1-7). Revision
+  // weeks are not plan weeks. The ranges below are the owner's, written out;
+  // the week a date answers to is worked out here from the Sundays alone (the
+  // first revision Sunday on or after it), never from the app's arithmetic.
+  {
+    const OWNER = [["2026-10-16", "2026-10-23", "2026-10-25"], ["2026-10-25", "2026-10-30", "2026-11-01"], ["2026-11-01", "2026-11-06", "2026-11-08"],
+      ["2026-11-08", "2026-11-13", "2026-11-15"], ["2026-11-15", "2026-11-20", "2026-11-22"], ["2026-11-22", "2026-11-27", "2026-11-29"]];
+    const isSun = iso => new Date(iso + "T00:00:00Z").getUTCDay() === 0;
+    const revSundays = days.filter(d => isSun(d) && d >= "2026-10-25");
+    const revOf = d => 1 + revSundays.findIndex(s => s >= d);
+    const span = planDays.filter(d => d <= "2028-10-15");
+    const p = await scenario(browser, "2026-11-01", null);
+    const r = await p.page.evaluate(span => { const T = window.__brickfordTest;
+      const weeks = []; for (let n = 1; T.revisionWeek(n).sun <= span[span.length - 1]; n++) weeks.push(T.revisionWeek(n));
+      return { weeks, of: span.map(d => T.revisionWeekOf(d)), ics: T.buildICS(),
+        study: span.filter(d => T.studyIndex(d) >= 0) }; }, span);
+    const got6 = r.weeks.slice(0, 6).map(w => [w.from, w.to, w.sun]);
+    check("T-056 r2: revision weeks 1-6 are the owner's: 16-23 Oct (revised Sun 25 Oct), then 25-30 Oct, 1-6 Nov, 8-13 Nov, 15-20 Nov, 22-27 Nov, each revised the Sunday after",
+      JSON.stringify(got6) === JSON.stringify(OWNER) && r.weeks.slice(0, 6).every((w, i) => w.r === i + 1), JSON.stringify(got6));
+    const ofBad = span.map((d, i) => [d, r.of[i], revOf(d)]).filter(x => x[1] !== x[2]);
+    check("T-056 r2: every date to Oct 2028 answers to the revision week of the first revision Sunday on or after it (" + span.length + " dates)",
+      ofBad.length === 0, ofBad.length ? ofBad.length + " wrong, first " + ofBad[0].join(" -> ") : "first " + span[0] + " -> " + r.of[0]);
+    const cover = {}; let shapeBad = null;
+    r.weeks.forEach(w => {
+      const inW = r.study.filter(d => d >= w.from && d <= w.to);
+      inW.forEach(d => { cover[d] = (cover[d] || 0) + 1; });
+      const want = w.r === 1 ? 7 : 6;
+      if (!shapeBad && (inW.length !== want || !isSun(w.sun) || new Date(w.to + "T00:00:00Z").getUTCDay() !== 5 || w.to !== addDays(w.sun, -2) ||
+        (w.r > 1 && w.from !== addDays(w.sun, -7)))) shapeBad = JSON.stringify(w) + " holds " + inW.length + " study days";
+    });
+    const last = r.weeks[r.weeks.length - 1].to;
+    const coverBad = r.study.filter(d => d <= last && cover[d] !== 1);
+    check("T-056 r2: the revision weeks partition the study days: week 1 holds 7, every other 6, each ends on a Friday and is revised two days later, a Sunday",
+      !shapeBad && coverBad.length === 0 && r.weeks.length > 100, shapeBad || (coverBad.length ? coverBad.length + " study day(s) not in exactly one week, first " + coverBad[0] : r.weeks.length + " weeks to " + last));
+    const ev = (r.ics.split("BEGIN:VEVENT").find(e => /UID:brickford-review@/.test(e)) || "");
+    check("T-056 r2: the exported calendar's weekly review starts Sun 25 Oct 18:00, weekly on Sundays (BYDAY=SU)",
+      /DTSTART:20261025T180000/.test(ev) && /RRULE:FREQ=WEEKLY;BYDAY=SU\r\n/.test(ev), ev.replace(/\r\n/g, " | ").slice(0, 200));
+    check("no page errors (T-056 r2 arithmetic)", p.errors.length === 0, p.errors.join(" | "));
+    await p.ctx.close();
+
+    // The calendar's day view offers the seal only on a revision Sunday, and
+    // names the week it seals; the Week page seals that week, never the plan
+    // week in progress. One clock per day.
+    const short = iso => Number(iso.slice(8)) + " " + new Date(iso + "T00:00:00Z").toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+    const label = n => { const [a, b] = OWNER[n - 1]; return "Week " + n + " · " + (a.slice(0, 7) === b.slice(0, 7) ? Number(a.slice(8)) + "–" + short(b) : short(a) + "–" + short(b)); };
+    const DAYS = [["2026-10-18", null, 1, "Opens Sunday 25 Oct · 7 days"], ["2026-10-23", null, 1, "Opens Sunday 25 Oct · 2 days"],
+      ["2026-10-24", null, 1, "Opens Sunday 25 Oct · 1 day"], ["2026-10-25", 1, 1, "Ready to seal"], ["2026-10-26", null, 2, "Opens Sunday 1 Nov · 6 days"],
+      ["2026-10-30", null, 2, "Opens Sunday 1 Nov · 2 days"], ["2026-11-01", 2, 2, "Ready to seal"], ["2026-11-05", null, 3, "Opens Sunday 8 Nov · 3 days"],
+      ["2026-11-08", 3, 3, "Ready to seal"]];
+    for (const [d, sealN, weekN, state] of DAYS) {
+      const s = await scenario(browser, d, null);
+      await s.page.evaluate(() => { location.hash = "#/calendar"; });
+      await s.page.waitForSelector("#view .cd-hb", { timeout: 8000 });
+      const tiles = await s.page.evaluate(() => [...document.querySelectorAll("#view .cd-hb")].map(a =>
+        [a.querySelector(".tl-t").textContent, a.querySelector(".tl-m").textContent.replace(/ /g, " ")]));
+      const seal = tiles.filter(t => t[0] === "Seal the week");
+      check("T-056 r2: " + d + " (" + new Date(d + "T00:00:00Z").toLocaleString("en-US", { weekday: "short", timeZone: "UTC" }) + ") " +
+          (sealN ? "offers the seal, \"30 min · " + label(sealN) + "\"" : "offers no seal"),
+        sealN ? seal.length === 1 && seal[0][1] === "30 min · " + label(sealN) : seal.length === 0, JSON.stringify(seal));
+      await s.page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); location.hash = "#/review"; });
+      await s.page.waitForFunction(() => !document.querySelector("#view [data-logic-stale]") && document.querySelector("#view .wk-state"), null, { timeout: 8000 });
+      const wk = await s.page.evaluate(() => ({ h1: document.querySelector("#view h1").textContent, state: document.querySelector("#view .wk-state").textContent }));
+      check("T-056 r2: " + d + " the Week page is \"Week " + weekN + "\" and reads \"" + state + "\"", wk.h1 === "Week " + weekN && wk.state === state, JSON.stringify(wk));
+      if (d === "2026-11-01") {
+        await s.page.fill("#rvShipped", "a repo");
+        await s.page.click("#view [data-act=logWeek]");
+        await s.page.waitForFunction(() => /Sealed/.test((document.querySelector("#view .wk-state") || {}).textContent || ""), null, { timeout: 8000 });
+        const st = await s.page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+        const e = (st.ledger || [])[(st.ledger || []).length - 1];
+        check("T-056 r2: sealing on Sun 1 Nov (plan day 14, plan week 3 running) stores revision week 2 (25-30 Oct), and the chain says week2",
+          (st.weeks || []).length === 1 && st.weeks[0].week === 2 && st.weeks[0].date === d && !!e && e.type === "week" && e.ref === "week2",
+          JSON.stringify({ weeks: st.weeks, ev: e && { type: e.type, ref: e.ref } }));
+      }
+      check("no page errors (T-056 r2 " + d + ")", s.errors.length === 0, s.errors.join(" | "));
+      await s.ctx.close();
+    }
+
+  }
+
   // T-052: the monk-mode row. Day 1 is 24 Oct 2026 and day 90 is 21 Jan 2027 (T-056),
   // counted in calendar days (a Saturday counts); the dashboard shows the row
   // only inside those 90 days, linking to the private monk-mode page.

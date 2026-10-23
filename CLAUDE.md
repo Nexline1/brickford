@@ -113,6 +113,15 @@ the mapped Saturday (31 Oct) is not in the pinned month's grid. The fixtures tha
 one-line edit. verify-design's rest-day check still measures a Saturday (Saturdays planted
 without `.rest` fail it, 2 of 2566), and the clip baseline was re-measured: 797, unchanged.
 
+A Friday start also made plan weeks run Fri–Thu, so "Seal the week · Week N" on a Sunday named a
+plan week two days in. **The owner decided "Keep Sunday"**: Sunday stays the weekly
+seal-and-revision day, and each Sunday seals and revises the six study days before it, Sun–Fri.
+The first, Sun 25 Oct, takes the start to Fri 23 Oct (days 1–7); then 25–30 Oct, 1–6 Nov, and so
+on. These **revision weeks** (`revisionWeek`/`revisionWeekOf` in app.js) are deliberately not
+plan weeks (`weekNumber`/`weekSpan`, unchanged): the Week page, the Seal it stores, the
+calendar's Sunday seal tile, the .ics review, the Library's revision tiles and
+`tools/revision-pdf.js` all use them, and revision/week-01..06.pdf were regenerated from them.
+
 So: refuse first, show the numbers, and if they reaffirm, do it and update this file. Do not
 refuse twice — the rule exists to interrupt a reflex, not to hold the owner hostage to a past
 version of themselves.

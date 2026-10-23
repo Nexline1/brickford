@@ -931,9 +931,8 @@
       "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
       "END:VEVENT",
     ].join("\r\n"));
-    const startDow = new Date(D.START_DATE + "T00:00:00").getDay();
-    // A Sunday start date must not review a week that hasn't run yet.
-    const sunday = addDaysISO(D.START_DATE, (7 - startDow) % 7 || 7);
+    // The first revision Sunday (T-056 r2): never one before a week has run.
+    const sunday = revisionWeek(1).sun;
     events.push([
       "BEGIN:VEVENT", "UID:brickford-review@brickford.local", "DTSTAMP:" + stamp,
       "DTSTART:" + ymd(sunday) + "T180000", "DTEND:" + ymd(sunday) + "T183000",
@@ -3494,7 +3493,8 @@
       dObj.toLocaleString("en-US", { month: "long" });
     const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
-    const isSunday = dObj.getDay() === 0;
+    // T-056 r2: a revision Sunday seals the revision week it ends, named.
+    const sealW = isSealDay(iso) ? revisionWeek(revisionWeekOf(iso)) : null;
     const first = todayISO() > D.START_DATE ? todayISO() : D.START_DATE;
     const status = dayStatus(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
@@ -3551,7 +3551,7 @@
       ["Drill", 10, pool ? pool + " missed" : "", "#/drill"],
       ["Publish", 30, "one post", "#/review"],
       ["Workshop", 0, "this week’s build", "#/workshop"],
-    ].concat(isSunday ? [["Seal the week", 30, "Week " + w, "#/review"]] : []);
+    ].concat(sealW ? [["Seal the week", 30, "Week " + sealW.r + " \u00b7 " + shortRange(sealW.from, sealW.to), "#/review"]] : []);
     const mins = habits.reduce((a, h) => a + h[1], 0);
     const about = "about " + (mins >= 60 ? Math.floor(mins / 60) + " h" + (mins % 60 ? " " + pad2(mins % 60) : "") : mins + " min");
     const habit = ([t, m, d, href]) => '<a class="at-tile cd-hb" href="' + href + '"><span class="tl-main">' +
@@ -4476,6 +4476,29 @@
   function weekSpan(w) {
     return { from: dateForStudy((w - 1) * STUDY_WEEK), to: dateForStudy(w * STUDY_WEEK - 1) };
   }
+  // ---- T-056 r2: the revision week (owner, 2026-10-23: "Keep Sunday") ----
+  // Sunday is the seal-and-revision day whatever weekday the plan started on.
+  // Revision week r is the study days Sunday..Friday before its Sunday, `sun`;
+  // week 1 also takes the study days before the first Sunday, so with the
+  // Friday start it is 16-23 Oct (days 1-7), revised Sun 25 Oct. These are
+  // NOT plan weeks (weekNumber/weekSpan count from START_DATE, Fri-Thu since
+  // reset seven): a seal names the days just worked, never a plan week still
+  // running. A Sunday start revises its first week a week later, not that day.
+  function firstSunday() { return addDaysISO(D.START_DATE, (7 - dowOf(D.START_DATE)) % 7); }
+  function revisionWeek(r) {
+    const sun = addDaysISO(firstSunday(), 7 * r);
+    return { r, from: r === 1 ? D.START_DATE : addDaysISO(sun, -7), to: prevStudyDay(sun), sun };
+  }
+  // The revision week a date answers to: the first whose Sunday is on or after
+  // it (on a revision Sunday, the week that Sunday seals).
+  function revisionWeekOf(iso) { return Math.max(1, Math.ceil(daysBetween(firstSunday(), iso) / 7)); }
+  // The Sundays that seal: every Sunday from the first revision Sunday on.
+  function isSealDay(iso) { return dowOf(iso) === 0 && iso >= revisionWeek(1).sun; }
+  // "16–23 Oct", or "26 Oct–1 Nov" across a month.
+  function shortRange(a, b) {
+    const d = iso => new Date(iso + "T00:00:00");
+    return (a.slice(0, 7) === b.slice(0, 7) ? String(d(a).getDate()) : shortDay(a)) + "\u2013" + shortDay(b);
+  }
   const shortDay = iso => { const d = new Date(iso + "T00:00:00");
     return d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
   const numText = v => (Math.round(v * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
@@ -4489,9 +4512,11 @@
   // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
   // total, as that field always was (the dashboard draws it "over time").
   V.review = function () {
-    const w = weekNumber(), today = todayISO();
-    const { from, to } = weekSpan(w);
-    const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
+    // T-056 r2: the revision week, sealed on its Sunday. Its Saturday is in
+    // it (a payment logged on the rest day belongs to the week just worked).
+    const today = todayISO(), w = revisionWeekOf(today);
+    const { from, sun } = revisionWeek(w);
+    const inWeek = iso => typeof iso === "string" && iso >= from && iso < sun;
     const sealed = S.weeks.find(x => +x.week === w);
     const dsa = dsaCount();
     const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
@@ -4512,9 +4537,9 @@
       "<span>" + label + '</span><em class="wk-hand">tap to edit</em></span></label>';
 
     const state = sealed ? "Sealed " + shortDay(sealed.date)
-      : today >= to ? "Ready to seal"
-      : (() => { const n = daysBetween(today, to);
-          return "Opens " + new Date(to + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(to) +
+      : today >= sun ? "Ready to seal"
+      : (() => { const n = daysBetween(today, sun);
+          return "Opens " + new Date(sun + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(sun) +
             " · " + n + " day" + (n === 1 ? "" : "s"); })();
 
     // Past weeks, newest first. A card opens to its notes: a <details>, so
@@ -4568,7 +4593,7 @@
     const dailyLink = gcalUrl("Brickford — Deep Track",
       "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan.",
       { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS });
-    const nextSunday = addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7);
+    const nextSunday = [addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7), revisionWeek(1).sun].sort()[1];
     const reviewLink = gcalUrl("Brickford — Weekly Review (seal the week)",
       "No shipped artifact = a failed week. Fill the row before the day ends.",
       { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
@@ -6085,7 +6110,7 @@
           S.diag[m[1]] = { score: null, date: todayISO() };
           logEvent("diagnostic", m[1], { score: null }); save(); render(); toast("Diagnostic marked complete.");
         } else if (act === "logWeek") {
-          const w = weekNumber();
+          const w = revisionWeekOf(todayISO());      // T-056 r2: the revision week, as the page shows it
           const entry = {
             week: w, date: todayISO(),
             shipped: $("#rvShipped").value.trim(),
@@ -6978,7 +7003,9 @@
     QUIZ_GATE_FROM, monkDay, MONK, schedDone,
     // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
     MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
-    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf });
+    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
+    // T-056 r2, for verify-logic: the revision weeks (reads only).
+    revisionWeek, revisionWeekOf, buildICS });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

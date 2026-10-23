@@ -47,7 +47,7 @@
 //   (o) Seal the week stores exactly what it stored before the page changed
 //       shape: { week, date, shipped, dsa, posts, revenue, notes }, those keys
 //       in that order and nothing else, in two saves, with the counted DSA and
-//       BHD equal to the fixture's (worked out here from the plan week's
+//       BHD equal to the fixture's (worked out here from the revision week's
 //       dates), the week sealed before untouched, and the chain's week event
 //       as before — at 1440 and 390 in dark and light, the payments on both
 //       edges of the week and on its Saturday; once with an empty ledger,
@@ -366,10 +366,16 @@ const WATCHED = {};
 for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: BEFORE_GATE, notes: "", checks: [] };
 
 
-// ---- T-026c: the plan week the pinned clock is in, walked here ----
-// Study days from START_DATE (curriculum.js), Saturdays skipped; week w is
-// study days (w-1)*6 .. w*6-1. The Seal flow's expected numbers are worked out
-// from its own fixture and these dates, never read from the page.
+// ---- T-026c: the week the pinned clock seals, walked here ----
+// T-056 r2 (owner, "Keep Sunday"): the Week page seals the REVISION week, not
+// the plan week. Revision Sundays are every Sunday from the first one with a
+// study week behind it (Sun 25 Oct since reset seven); the week a date answers
+// to is the first revision Sunday on or after it, and runs from the Sunday
+// before (week 1: START_DATE) to the day before its own Sunday, so its Saturday
+// is in it. On Sun 1 Nov that is week 2, 25-31 Oct (study days 25-30 Oct) —
+// plan week 3 (Fri 30 Oct - Thu 5 Nov) is two days in and must not be sealed.
+// The Seal flow's expected numbers are worked out from its own fixture and
+// these dates, never read from the page.
 const T26C_WEEK = (() => {
   const vm = require("vm");
   const sandbox = { window: {} };
@@ -379,30 +385,39 @@ const T26C_WEEK = (() => {
   const study = [];
   for (const d = new Date(sandbox.window.DAR.START_DATE + "T00:00:00Z"); study.length < 400; d.setUTCDate(d.getUTCDate() + 1))
     if (d.getUTCDay() !== 6) study.push(d.toISOString().slice(0, 10));
-  let pos = 0;
-  for (let i = 0; i < study.length && study[i] <= TODAY; i++) pos = i;
-  const w = Math.floor(pos / 6) + 1;
-  return { w, from: study[(w - 1) * 6], to: study[w * 6 - 1] };
+  const start = sandbox.window.DAR.START_DATE, sundays = [];
+  for (const d = new Date(start + "T00:00:00Z"); sundays.length < 60; d.setUTCDate(d.getUTCDate() + 1)) {
+    const iso = d.toISOString().slice(0, 10);
+    if (d.getUTCDay() === 0 && study.some(x => x < iso)) sundays.push(iso);   // a Sunday with study days behind it
+  }
+  // The first such Sunday may still be inside the first week (a Friday start
+  // has one study day before Sun 18 Oct): the first revision Sunday is the
+  // first one with a full Sun-Fri week behind it, week 1 taking what precedes.
+  const firstRev = sundays.find(s => { const d = new Date(s + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - 7); return d.toISOString().slice(0, 10) >= start; });
+  const revs = sundays.filter(s => s >= firstRev);
+  const k = revs.findIndex(s => s >= TODAY), sun = revs[k];
+  const back = n => { const d = new Date(sun + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
+  return { w: k + 1, from: k === 0 ? start : back(7), to: back(1), sun };
 })();
 // Two problems solved, a lecture proven this week, a week already sealed —
 // which a seal must leave exactly as it was — and payments on both edges of
-// the plan week and its rest day: the Thursday that ends the week before and
-// the Friday after (neither counts), its Friday, a weekday, its Saturday and
-// its Thursday (all four count). Since reset seven (START a Friday) plan week 3
-// runs Fri 30 Oct to Thu 5 Nov, rest day Sat 31 Oct.
+// the week and its rest day: the Saturday that ends the week before and the
+// Sunday it is sealed on, which starts the week after (neither counts), its
+// Sunday, a weekday, its Saturday and its Friday (all four count). T-056 r2:
+// the week sealed on Sun 1 Nov is revision week 2, Sun 25 - Sat 31 Oct.
 const T26C_SEAL_STATE = (theme, entries) => ({
   settings: { theme, themeNavyOnce: true },
   problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-24", "Arrays & Hashing|Valid Anagram": "2026-10-30" },
   lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-30", verifiedAt: "2026-10-30", notes: "", checks: [] } },
   treasury: { offer: "", clients: [], niche: "", entries: entries || [
-    { date: "2026-10-29", amount: 999, note: "the last day of the week before" },
-    { date: "2026-10-30", amount: 120, note: "pilot" },
-    { date: "2026-11-01", amount: 30.5, note: "a referral" },
+    { date: "2026-10-24", amount: 999, note: "the last day of the week before" },
+    { date: "2026-10-25", amount: 120, note: "pilot" },
+    { date: "2026-10-28", amount: 30.5, note: "a referral" },
     { date: "2026-10-31", amount: 7, note: "the rest day" },
-    { date: "2026-11-05", amount: 2.25, note: "the last day of the week" },
-    { date: "2026-11-06", amount: 500, note: "the first day of the week after" },
+    { date: "2026-10-30", amount: 2.25, note: "the last study day of the week" },
+    { date: "2026-11-01", amount: 500, note: "the first day of the week after" },
   ] },
-  weeks: [{ week: 1, date: "2026-10-22", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
+  weeks: [{ week: 1, date: "2026-10-25", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
 });
 const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T26C_WEEK.from && e.date <= T26C_WEEK.to)
   .reduce((a, e) => a + e.amount, 0) * 100) / 100;
@@ -1076,8 +1091,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   };
   for (const theme of ["dark", "light"]) for (const w of [1440, 390]) await sealFlow(theme, w);
   await sealFlow("dark", 390, [], 75.5);
-  await sealFlow("dark", 390, [{ date: "2026-10-29", amount: 999, note: "the last day of the week before" },
-                              { date: "2026-11-06", amount: 500, note: "the first day of the week after" }]);
+  await sealFlow("dark", 390, [{ date: "2026-10-24", amount: 999, note: "the last day of the week before" },
+                              { date: "2026-11-01", amount: 500, note: "the first day of the week after" }]);
 
   // ---- (p) record yourself, and (q) no microphone (T-028) ----
   // A second Chromium, launched with a fake microphone: --use-fake-ui-for-

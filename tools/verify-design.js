@@ -250,13 +250,15 @@
 // T-026c, Week, the Calendar's day view, and Library (loop/specs/T-026c-week-
 // calendar-library/spec.md), at 1440x900 and 390x844 in dark and light on the
 // seed plus T26C_PATCH (a problem and a lecture proven this week, one proven
-// the week before, today's MATH 120 lecture watched, three payments of which
-// the Sunday ending week 2 must not count, two sealed weeks), then four more
-// Week states at both sizes (no payment this week; this week sealed; nothing
-// sealed; a Sunday). Expected values come from storage, the data and the
-// study calendar walked here, never from the view:
+// the week before, today's MATH 120 lecture watched, payments on both edges
+// of the week, week 1 sealed), then six more Week states at both sizes (no
+// payment this week; an empty ledger; a big week; this week sealed; nothing
+// sealed; a Sunday; mid-week). Since T-056 r2 the week is the REVISION week,
+// sealed on its Sunday (the owner's "Keep Sunday"), not the plan week.
+// Expected values come from storage, the data and the study calendar walked
+// here, never from the view:
 //   - /review: h1 "Week N" and its line; four tiles — DSA solved (every
-//     problem stored) and lectures proven (verifiedAt inside the plan week's
+//     problem stored) and lectures proven (verifiedAt inside the week's
 //     dates), both "counted for you" in --good, posts a typed field, BHD
 //     earned the Treasury entries dated in the week "from Treasury" (typed
 //     when there are none) — and Seal reads the counted values through the
@@ -1870,11 +1872,12 @@ const T26C_SUB = {
 };
 // On top of the seed (which has one problem on 17 Oct and math110.0.13
 // proven on 19 Oct): a second problem this week; today's MATH 120 lecture
-// watched (a done block); two sealed weeks, one of them a failed week with a
-// note; and lectures proven and payments on BOTH edges of week 3 (Fri 30 Oct
-// to Thu 5 Nov since reset seven) and on its rest day — Thu 29 Oct (the last
-// day of week 2) and Fri 6 Nov (the first of week 4) must not count; Fri 30
-// Oct, Sat 31 Oct and Thu 5 Nov must.
+// watched (a done block); week 1 sealed; and lectures proven and payments on
+// BOTH edges of the week the clock (Sun 1 Nov) seals and on its rest day.
+// T-056 r2: that is revision week 2, Sun 25 - Sat 31 Oct (plan week 3, Fri 30
+// Oct - Thu 5 Nov, is two days in and is not it) — Sat 24 Oct (the last day
+// of week 1) and Sun 1 Nov (the first of week 3) must not count; Sun 25 Oct,
+// Fri 30 Oct and Sat 31 Oct must.
 // So "iso < to", "iso > from" and a Saturday left out each change a tile
 // (review round 1: with "iso < to" planted, every check had passed). The
 // payments that count come to 1,149.5, a number long enough to have run out
@@ -1882,29 +1885,31 @@ const T26C_SUB = {
 const T26C_PATCH = {
   problems: { "Arrays & Hashing|Valid Anagram": "2026-10-30" },
   lessons: {
-    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-29", verifiedAt: "2026-10-29", notes: "", checks: [] },
+    "math110.0.1": { done: true, verified: true, doneAt: "2026-10-24", verifiedAt: "2026-10-24", notes: "", checks: [] },
     "math110.0.2": { done: true, verified: true, doneAt: "2026-11-01", verifiedAt: "2026-11-01", notes: "", checks: [] },
     "math110.0.3": { done: true, verified: true, doneAt: "2026-10-31", verifiedAt: "2026-10-31", notes: "", checks: [] },
-    "math110.0.4": { done: true, verified: true, doneAt: "2026-11-05", verifiedAt: "2026-11-05", notes: "", checks: [] },
-    "math110.0.5": { done: true, verified: true, doneAt: "2026-11-06", verifiedAt: "2026-11-06", notes: "", checks: [] },
+    "math110.0.4": { done: true, verified: true, doneAt: "2026-10-30", verifiedAt: "2026-10-30", notes: "", checks: [] },
+    "math110.0.5": { done: true, verified: true, doneAt: "2026-10-25", verifiedAt: "2026-10-25", notes: "", checks: [] },
     // T-043: a lecture counts once watched AND its quiz is passed, so the
     // day's one done lecture carries its pass (a quiz pass added, nothing else).
     "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [],
       quiz: { passedAt: "2026-11-01", at: "2026-11-01T11:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
   },
   treasury: { offer: "", clients: [], niche: "", entries: [
-    { date: "2026-10-29", amount: 999, note: "the last day of week 2" },
-    { date: "2026-10-30", amount: 1000, note: "pilot" },
-    { date: "2026-11-01", amount: 120, note: "a referral" },
+    { date: "2026-10-24", amount: 999, note: "the last day of week 1" },
+    { date: "2026-10-25", amount: 1000, note: "pilot" },
+    { date: "2026-10-28", amount: 120, note: "a referral" },
     { date: "2026-10-31", amount: 27, note: "the rest day" },
-    { date: "2026-11-05", amount: 2.5, note: "the last day of week 3" },
-    { date: "2026-11-06", amount: 500, note: "the first day of week 4" },
+    { date: "2026-10-30", amount: 2.5, note: "the last study day of week 2" },
+    { date: "2026-11-01", amount: 500, note: "the first day of week 3" },
   ] },
   weeks: [
-    { week: 1, date: "2026-10-22", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
-    { week: 2, date: "2026-10-29", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "flu, then a client fire" },
+    { week: 1, date: "2026-10-25", shipped: "flashcards-cli on GitHub and a first post", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" },
   ],
 };
+// Week 2 sealed on its Sunday, as a failed week with a note (T-056 r2: on the
+// pinned clock week 2 is the week being sealed, so the base has only week 1).
+const T26C_WEEK2 = { week: 2, date: "2026-11-01", shipped: "", dsa: 6, posts: 0, revenue: 0, notes: "flu, then a client fire" };
 // The habits a study day carries, as the page had them before (four, and on
 // a Sunday the seal as a fifth), in minutes; Workshop has no fixed time.
 const T26C_HABITS = [["Practice", 45, "#/course/cs150"], ["Drill", 10, "#/drill"], ["Publish", 30, "#/review"], ["Workshop", 0, "#/workshop"]];
@@ -1914,21 +1919,40 @@ const t26cUTC = (iso, o) => new Date(iso + "T00:00:00Z").toLocaleString("en-US",
 const t26cShort = iso => Number(iso.slice(8)) + " " + t26cUTC(iso, { month: "short" });
 const t26cNice = iso => t26cUTC(iso, { weekday: "long" }) + " " + Number(iso.slice(8)) + " " + t26cUTC(iso, { month: "long" });
 const t26cDays = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
-// The plan week a date belongs to (a rest day: the week just worked), and
-// its first and last study day, from the calendar walked here.
+// T-056 r2 (owner, "Keep Sunday"): the Week page seals the REVISION week,
+// not the plan week. The revision Sundays are every Sunday from the first
+// with a whole Sun-Fri week of the plan behind it (Sun 25 Oct since reset
+// seven); a date answers to the first revision Sunday on or after it. The
+// week runs from the Sunday before (week 1: the start) to the Saturday before
+// its own Sunday — its rest day in it — and is sealed on that Sunday. Walked
+// here from the calendar, Sunday by Sunday; the app uses arithmetic.
+const T26C_REVSUN = (() => {
+  const out = [], d = new Date(CURRICULUM.START_DATE + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + 7);                    // a week of the plan behind it
+  while (d.getUTCDay() !== 0) d.setUTCDate(d.getUTCDate() + 1);
+  while (out.length < 60) { out.push(d.toISOString().slice(0, 10)); d.setUTCDate(d.getUTCDate() + 7); }
+  return out;
+})();
+const t26cBack = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
 function t26cWeekOf(iso) {
-  const w = Math.floor(t26Pos(iso) / 6) + 1;
-  return { w, from: T26_STUDY[(w - 1) * 6], to: T26_STUDY[w * 6 - 1] };
+  const k = T26C_REVSUN.findIndex(s => s >= iso), sun = T26C_REVSUN[k];
+  return { w: k + 1, from: k ? t26cBack(sun, 7) : CURRICULUM.START_DATE, to: t26cBack(sun, 1), sun };
+}
+// What a revision Sunday's seal tile names: "Week r · 25–30 Oct", its study
+// days Sunday (week 1: the start) to Friday.
+function t26cSealLabel(iso) {
+  const { w, from, sun } = t26cWeekOf(iso), to = t26cBack(sun, 2);
+  return "Week " + w + " · " + (from.slice(0, 7) === to.slice(0, 7) ? Number(from.slice(8)) : t26cShort(from)) + "\u2013" + t26cShort(to);
 }
 // What the Week page should say, from the stored state alone.
 function t26cWeekWant(st, today) {
-  const { w, from, to } = t26cWeekOf(today);
+  const { w, from, to, sun } = t26cWeekOf(today);
   const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
   const ledger = (st.treasury || {}).entries || [];
   const earned = Math.round(ledger.filter(e => inWeek(e.date)).reduce((a, e) => a + (+e.amount || 0), 0) * 100) / 100;
   const weeks = (st.weeks || []).slice().sort((a, b) => b.week - a.week);
   const sealed = weeks.find(x => +x.week === w);
-  const n = t26cDays(today, to);
+  const n = t26cDays(today, sun);
   const bhd = v => "BHD " + (Math.round(v * 100) / 100).toLocaleString("en-US");
   return {
     // Spec: BHD "stays editable if the ledger has none" — counted whenever
@@ -1937,8 +1961,8 @@ function t26cWeekWant(st, today) {
     dsa: Object.values(st.problems || {}).filter(Boolean).length,
     proven: Object.values(st.lessons || {}).filter(l => l && l.verified && inWeek(l.verifiedAt)).length,
     bhdText: earned.toLocaleString("en-US", { maximumFractionDigits: 2 }),
-    state: sealed ? "Sealed " + t26cShort(sealed.date) : today >= to ? "Ready to seal"
-      : "Opens " + t26cUTC(to, { weekday: "long" }) + " " + t26cShort(to) + " · " + n + " day" + (n === 1 ? "" : "s"),
+    state: sealed ? "Sealed " + t26cShort(sealed.date) : today >= sun ? "Ready to seal"
+      : "Opens " + t26cUTC(sun, { weekday: "long" }) + " " + t26cShort(sun) + " · " + n + " day" + (n === 1 ? "" : "s"),
     cards: weeks.map(x => ({ h: "Week " + x.week, date: t26cShort(x.date), s: x.shipped || "nothing shipped", fail: !x.shipped,
       m: "DSA " + (+x.dsa || 0) + " · " + (+x.posts || 0) + " post" + ((+x.posts || 0) === 1 ? "" : "s") + " · " + bhd(+x.revenue || 0),
       notes: x.notes || "No notes." })),
@@ -4304,12 +4328,19 @@ function t28SeedClips(list) {
         blockBad.join("; ") || m.blocks.map(b => b.k + " " + (b.r || []).join("/") + (b.done ? " (done)" : "")).join(", ") || "none (a rest day)");
       if (iso === o.today) c26c(tag + ": the old per-course group headers and .glist rows are gone (no visible .glist; the section headers are only \"Every study day\")",
         m.glist === 0 && JSON.stringify(m.groupHeads) === JSON.stringify(["Every study day"]), m.glist + " .glist, headers " + JSON.stringify(m.groupHeads));
-      const H = T26C_HABITS.concat(new Date(iso + "T00:00:00Z").getUTCDay() === 0 ? [T26C_SEAL] : []);
+      const sealDay = new Date(iso + "T00:00:00Z").getUTCDay() === 0 && iso >= T26C_REVSUN[0];
+      const H = T26C_HABITS.concat(sealDay ? [T26C_SEAL] : []);
       const habitBad = m.habits.filter((h, i) => !H[i] || h.tag !== "A" || h.t !== H[i][0] || h.href !== H[i][2] || h.w < 44 || h.h < 44 ||
         !(H[i][1] ? h.m.indexOf(H[i][1] + " min") === 0 : !/\bmin\b/.test(h.m)));
       c26c(tag + ": \"Every study day\" is " + H.length + " habit tiles (" + H.map(h => h[0]).join(", ") + "), each a link with its minutes, and reads \"" + t26cAbout(H.reduce((a, h) => a + h[1], 0)) + "\"",
         m.habits.length === H.length && habitBad.length === 0 && m.about === t26cAbout(H.reduce((a, h) => a + h[1], 0)),
         m.habits.map(h => h.t + " \"" + h.m + "\"").join(", ") + "; \"" + m.about + "\"");
+      // T-056 r2: on a revision Sunday the seal names the week it seals —
+      // never the plan week in progress (on Sun 1 Nov that is plan week 3).
+      if (sealDay) {
+        const seal = m.habits.find(h => h.t === T26C_SEAL[0]), want = "30 min · " + t26cSealLabel(iso);
+        c26c(tag + ": the seal names the revision week it seals, \"" + want + "\"", !!seal && seal.m === want, seal ? "\"" + seal.m + "\"" : "no seal tile");
+      }
       if (iso === o.today && o.cols) {
         const cols = new Set(m.habits.map(h => h.left)).size;
         c26c(tag + ": the habits are " + o.cols + " across", cols === o.cols, cols + " distinct columns");
@@ -4478,14 +4509,16 @@ function t28SeedClips(list) {
   // ---- one state at a time, for what the seed cannot show ----
   const T26C_LEDGER = entries => Object.assign({}, T26C_PATCH, { treasury: { offer: "", clients: [], niche: "", entries } });
   const T26C_STATES = [
-    { name: "a ledger with no payment in this week (only Thu 29 Oct and Fri 6 Nov), so BHD is a counted 0",
+    { name: "a ledger with no payment in this week (only Sat 24 Oct and Sun 1 Nov), so BHD is a counted 0",
       patch: T26C_LEDGER([T26C_PATCH.treasury.entries[0], T26C_PATCH.treasury.entries[5]]) },
     { name: "an empty Treasury ledger, so BHD is typed", patch: T26C_LEDGER([]) },
     { name: "a 12,345.75 week", patch: T26C_LEDGER([{ date: "2026-10-30", amount: 12345.75, note: "a big one" }]) },
     { name: "this week already sealed",
-      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([{ week: 3, date: "2026-11-01", shipped: "a repo", dsa: 2, posts: 2, revenue: 150.5, notes: "" }]) }) },
+      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([T26C_WEEK2]) }) },
     { name: "nothing sealed yet", patch: Object.assign({}, T26C_PATCH, { weeks: [] }) },
-    { name: "the plan week's last day (Thu 5 Nov since reset seven), the day the week is sealed", now: new Date("2026-11-05T12:00:00Z"), patch: T26C_PATCH },
+    { name: "a Sunday, the day the week is sealed (Sun 8 Nov, week 3; weeks 1 and 2 sealed)", now: new Date("2026-11-08T12:00:00Z"),
+      patch: Object.assign({}, T26C_PATCH, { weeks: T26C_PATCH.weeks.concat([T26C_WEEK2]) }) },
+    { name: "mid-week (Thu 5 Nov), the seal not open until Sunday", now: new Date("2026-11-05T12:00:00Z"), patch: T26C_PATCH },
   ];
   for (const st of T26C_STATES) {
     for (const o of [{ w: 1440, h: 900, mobile: false }, { w: 390, h: 844, mobile: true }]) {

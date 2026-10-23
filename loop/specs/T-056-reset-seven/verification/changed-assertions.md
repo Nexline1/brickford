@@ -140,6 +140,6 @@ being sealed on the pinned clock (Sun 1 Nov) is now revision week 2, not plan we
 
 | Assertion | Old (r3) | New (r4) |
 |---|---|---|
-| mergeState `weeks` (app.js, owner-approved for this fix only; S shape and streakFrom rules unchanged) | same seal = same week number; later date wins | same seal = same week number AND both dates on the same side of `revisionWeek(week).from`; later date wins within a match; otherwise the remote entry is appended |
+| mergeState `weeks` (app.js; approved by the loop run, not the owner: the `weeks` rule is neither the S shape nor the streakFrom rule named in config.md:40, and the change only stops data loss; S shape and streakFrom rules unchanged) | same seal = same week number; later date wins | same seal = same week number AND both dates on the same side of `revisionWeek(week).from`; later date wins within a match; otherwise the remote entry is appended |
 | verify-logic comment "mergeState still matches by number" | — | replaced by the merge test below |
 | NEW verify-logic (6 checks) | — | remote [old 11 Oct, new 25 Oct] Week 1 pulled into local [old, new], [old] and [new]: exactly one of each on the Week page's past list, two cards, a second pull changes 0; page errors x3 (plant week-merge-number-only) |

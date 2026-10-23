@@ -41,14 +41,17 @@
   ok    a remote legacy true is dated by its gate event in the remote's own ledger (19 Oct, not START_DATE) — nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day -> passed 2026-10-19
   ok    a pull of the same gates changes nothing — 0 change(s)
   ok    no page errors (gate merge) —        
-  ok    the fixture day has gated and quiz-less lectures; dates from QUIZ_GATE_FROM 2026-10-23 (grandfathered 2026-10-22, gated 2026-10-24, today 2026-10-28) — 4 with a quiz, 2 without
+  ok    the fixture day has gated and quiz-less lectures; dates from QUIZ_GATE_FROM 2026-10-24 (grandfathered 2026-10-23, gated 2026-10-25, today 2026-10-29) — 4 with a quiz, 2 without
   ok    schedDone: watched after the gate with the quiz not passed is NOT done; a quiz-less watched lecture is — math120.0.0=false math120.0.1=false math120.0.2=false ai200.0.2=true ai200.0.3=true spch100.0.0=false
   ok    schedDone: a passed quiz makes a watched lecture done — math120.0.0=true math120.0.1=true math120.0.2=true ai200.0.2=true ai200.0.3=true spch100.0.0=true
   ok    schedDone: watched before the gate is done without a quiz (grandfathered) — math120.0.0=true math120.0.1=true math120.0.2=true ai200.0.2=true ai200.0.3=true spch100.0.0=true
+  ok    T-056 r3: QUIZ_GATE_FROM is 2026-10-24, so lectures watched on Fri 23 Oct count as done with no quiz (grandfathered) and the day paints completed — math120.0.0=true math120.0.1=true math120.0.2=true ai200.0.2=true ai200.0.3=true spch100.0.0=true; completed
+  ok    T-056 r3: a lecture watched ON the gate day (2026-10-24) still needs its quiz (strict <): not done, the day partial — math120.0.0=false math120.0.1=false math120.0.2=false ai200.0.2=true ai200.0.3=true spch100.0.0=false; partial
+  ok    no page errors (T-056 r3 gate-day fixtures)
   ok    dayStatus follows: partial while a quiz is open, completed once passed or grandfathered — gated partial, passed completed, grandfathered completed
-  ok    backlogCount follows: an unpassed quiz is still owed, a pass or a grandfathered watch is not — gated 34 (want 34), passed 30 (want 30), grandfathered 30 (want 30)
+  ok    backlogCount follows: an unpassed quiz is still owed, a pass or a grandfathered watch is not — gated 39 (want 39), passed 35 (want 35), grandfathered 35 (want 35)
   ok    the lock: the first lecture of a course never; a lecture after a quiz-less one never (watched or not) — math120 lecture 1 false; ai200 0.1 and 1.0, each after a quiz-less lecture (one unwatched), false
-  ok    the fixture chain crosses the gate (not vacuous) — math120.0.5 2026-10-21 | math120.0.6 2026-10-25 | math120.0.7 | math120.0.8 (gate 2026-10-23)
+  ok    the fixture chain crosses the gate (not vacuous) — math120.0.5 2026-10-21 | math120.0.6 2026-10-25 | math120.0.7 | math120.0.8 (gate 2026-10-24)
   ok    a lecture planned before the gate, not watched, does not lock its successor — math120.0.6 locked false
   ok    a lecture planned on or after the gate, not watched, locks its successor — math120.0.7 locked true
   ok    a chain across the gate locks only from the gate on: the root of math120.0.8 is math120.0.6, not math120.0.5 — root math120.0.6
@@ -57,9 +60,9 @@
   ok    catchUpQuizzes lists the grandfathered lectures with a quiz not passed, in course order, and nothing gated or passed — grandfathered math120.0.0,math120.0.1,math120.0.2,spch100.0.0; gated 0; passed 0
   ok    the streak is unchanged by the gate: open quizzes do not touch sealed days — with open quizzes 10 (best 10), without lectures 10 (best 10)
   ok    no page errors (quiz gate) —     
-  ok    unmark then re-mark keeps a lecture first watched before the gate grandfathered (cleared, on catch-up, the next lecture open) — {"before":{"cleared":true,"lock":false,"cu":true,"st":{"done":true,"doneAt":"2026-10-22","notes":"","checks":[]}},"off":{"done":false,"notes":"","checks":[],"recall":"","firstDoneAt":"2026-10-22"},"again":{"cleared":true,"lock":false,"cu":true,"st":{"done":true,"notes":"","checks":[],"recall":"","firstDoneAt":"2026-10-22","doneAt":"2026-10-28"}}}
+  ok    unmark then re-mark keeps a lecture first watched before the gate grandfathered (cleared, on catch-up, the next lecture open) — {"before":{"cleared":true,"lock":false,"cu":true,"st":{"done":true,"doneAt":"2026-10-23","notes":"","checks":[]}},"off":{"done":false,"notes":"","checks":[],"recall":"","firstDoneAt":"2026-10-23"},"again":{"cleared":true,"lock":false,"cu":true,"st":{"done":true,"notes":"","checks":[],"recall":"","firstDoneAt":"2026-10-23","doneAt":"2026-10-29"}}}
   ok    no page errors (re-mark)
-  ok    T-056 fixture: the old plan's days 1-8 read from START 2026-10-05 (40 lectures), watched 16-22 Oct, no quiz passed; 36 of them have a quiz; gate 2026-10-23 — new indices 0,1,2,3,4,5,6, 25 Oct index 7, Sat 17 Oct rest
+  ok    T-056 fixture: the old plan's days 1-8 read from START 2026-10-05 (40 lectures), watched 16-22 Oct, no quiz passed; 36 of them have a quiz; gate 2026-10-24 — new indices 0,1,2,3,4,5,6, 25 Oct index 7, Sat 17 Oct rest
   ok    T-056: every lecture the new plan puts on days 1-8 was watched and counts as done (grandfathered, no quiz needed) — 8+6+3+7+5+4+5+6 lectures
   ok    T-056: days 1-7 (16-23 Oct, Sat 17 Oct rest) paint completed, none partial — 10-16 completed, 10-18 completed, 10-19 completed, 10-20 completed, 10-21 completed, 10-22 completed, 10-23 completed
   ok    T-056: their quizzes stay on the catch-up list — 36 on the list
@@ -68,7 +71,8 @@
   ok    T-056: nothing on the dashboard asks to re-watch a watched lecture (a watched one shows only as a ticked done row) — 1 open lesson link(s), none watched; 6 ticked done row(s)
   ok    T-056: nothing is owed, so the work-ahead card says "ahead of plan" — backlog 0, hint "MATH 130 · 49m video · today is done · ahead of plan"
   ok    no page errors (T-056 watched days)
-  ok    T-056: today cleared with a lecture owed (math130.0.0): the card says "today is done · 1 owed", never "ahead of plan" — {"today":true,"backlog":1,"hint":"MATH 130 · 49m video · today is done · 1 owed","href":"#/lesson/math130/0/2"}
+  ok    T-056: today cleared with a lecture owed (math130.0.0): the card says "today is done · 1 owed", never "ahead of plan" — {"today":true,"backlog":1,"hint":"MATH 130 · 46m video · today is done · 1 owed","href":"#/lesson/math130/0/0"}
+  ok    T-056: with math130.0.0 owed, the work-ahead card opens it (the first lecture not watched, in plan order) — {"today":true,"backlog":1,"hint":"MATH 130 · 46m video · today is done · 1 owed","href":"#/lesson/math130/0/0"}
   ok    no page errors (T-056 owed)
   ok    T-056 r2: revision weeks 1-6 are the owner's: 16-23 Oct (revised Sun 25 Oct), then 25-30 Oct, 1-6 Nov, 8-13 Nov, 15-20 Nov, 22-27 Nov, each revised the Sunday after — [["2026-10-16","2026-10-23","2026-10-25"],["2026-10-25","2026-10-30","2026-11-01"],["2026-11-01","2026-11-06","2026-11-08"],["2026-11-08","2026-11-13","2026-11-15"],["2026-11-15","2026-11-20","2026-11-22"],["2026-11-22","2026-11-27","2026-11-29"]]
   ok    T-056 r2: every date to Oct 2028 answers to the revision week of the first revision Sunday on or after it (731 dates) — first 2026-10-16 -> 1
@@ -103,6 +107,9 @@
   ok    T-056 r2: 2026-11-08 (Sun) offers the seal, "30 min · Week 3 · 1–6 Nov" — [["Seal the week","30 min · Week 3 · 1–6 Nov"]]
   ok    T-056 r2: 2026-11-08 the Week page is "Week 3" and reads "Ready to seal" — {"h1":"Week 3","state":"Ready to seal"}
   ok    no page errors (T-056 r2 2026-11-08)
+  ok    T-056 r3: Sun 25 Oct with a pre-reset Week 1 sealed 11 Oct: the Week page reads "Ready to seal", not "Sealed 11 Oct" — "Ready to seal"
+  ok    T-056 r3: sealing it keeps the pre-reset entry exactly and appends this week's (week 1, 25 Oct); the page reads "Sealed 25 Oct" — {"state":"Sealed 25 Oct","weeks":[{"week":1,"date":"2026-10-11","shipped":"an old-plan repo","dsa":1,"posts":0,"revenue":0,"notes":"before reset seven"},{"week":1,"date":"2026-10-25","shipped":"flashcards-cli","dsa":0,"posts":0,"revenue":0,"notes":""}]}
+  ok    no page errors (T-056 r3 pre-reset week)
   ok    T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (34, 19, 15, 14, 14, 12) — [["../revision/week-01.pdf","Week 1","16–23 Oct · 34 lectures"],["../revision/week-02.pdf","Week 2","25–30 Oct · 19 lectures"],["../revision/week-03.pdf","Week 3","1–6 Nov · 15 lectures"],["../revision/week-04.pdf","Week 4","8–13 Nov · 14 lectures"],["../revision/week-05.pdf","Week 5","15–20 Nov · 14 lectures"],["../revision/week-06.pdf","Week 6","22–27 Nov · 12 lectures"]]
   ok    no page errors (T-056 r2 Library)
   ok    monk mode on 2026-10-23: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
@@ -150,5 +157,5 @@
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 151 invariants hold
+PASS — 158 invariants hold
 exit 0

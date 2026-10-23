@@ -4494,6 +4494,18 @@
   function revisionWeekOf(iso) { return Math.max(1, Math.ceil(daysBetween(firstSunday(), iso) / 7)); }
   // The Sundays that seal: every Sunday from the first revision Sunday on.
   function isSealDay(iso) { return dowOf(iso) === 0 && iso >= revisionWeek(1).sun; }
+  // The lectures the plan as drawn puts in revision week r (no work-ahead
+  // re-anchoring, so progress never changes it): distinct lectures, pseudo
+  // blocks left out — what tools/revision-pdf.js prints for that week.
+  function revisionLectures(r) {
+    const { from, to } = revisionWeek(r), keys = new Set();
+    planOnly = true;
+    try {
+      for (let iso = from; iso <= to; iso = addDaysISO(iso, 1))
+        scheduledFor(iso).forEach(it => { if (!it.pseudo) keys.add(lessonKey(it.cid, it.ui, it.li)); });
+    } finally { planOnly = false; }
+    return keys.size;
+  }
   // "16–23 Oct", or "26 Oct–1 Nov" across a month.
   function shortRange(a, b) {
     const d = iso => new Date(iso + "T00:00:00");
@@ -5572,9 +5584,19 @@
     ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
   const LINKS_SHOWN = 5;
-  // T-055: weeks with a revision PDF in revision/ (week, dates, lectures).
-  const REVISION_WEEKS = [[1, "5\u201311 Oct", 30], [2, "12\u201318 Oct", 22], [3, "19\u201325 Oct", 15],
-    [4, "26 Oct\u20131 Nov", 13], [5, "2\u20138 Nov", 14], [6, "9\u201315 Nov", 12]];
+  // T-055: the revision weeks with a PDF in revision/ (weeks 1..REVISION_PDFS).
+  // T-056 r2: each tile's dates and lecture count are the revision week's own
+  // (revisionWeek, revisionLectures), never a table of an older start's dates.
+  const REVISION_PDFS = 6;
+  function revisionTiles() {
+    const out = [];
+    for (let n = 1; n <= REVISION_PDFS; n++) {
+      const rw = revisionWeek(n);
+      out.push({ n, from: rw.from, to: rw.to, sun: rw.sun, dates: shortRange(rw.from, rw.to), lectures: revisionLectures(n),
+        href: "../revision/week-" + String(n).padStart(2, "0") + ".pdf" });
+    }
+    return out;
+  }
   V.library = function () {
     const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
     const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
@@ -5598,14 +5620,14 @@
       '<div class="at-tiles lb-docs lb-guides">' +
       guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
 
-      // T-055: the Sunday revision PDFs (T-035), one per plan week, made by
+      // T-055: the Sunday revision PDFs (T-035), one per revision week, made by
       // tools/revision-pdf.js into revision/ at the repo root. They open in a
       // new tab; the browser's own viewer handles the PDF.
-      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_WEEKS.length + " weeks</span></div>" +
+      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></div>" +
       '<div class="at-tiles lb-docs lb-rev">' +
-      REVISION_WEEKS.map(([n, dates, lec]) => '<a class="at-tile pb-mode lb-doc" href="../revision/week-' + String(n).padStart(2, "0") +
-        '.pdf" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + n + "</span>" +
-        '<span class="pb-d">' + esc(dates) + " \u00b7 " + lec + " lectures</span></a>").join("") + "</div>" +
+      revisionTiles().map(t => '<a class="at-tile pb-mode lb-doc" href="' + t.href +
+        '" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
+        '<span class="pb-d">' + esc(t.dates) + " \u00b7 " + t.lectures + " lectures</span></a>").join("") + "</div>" +
 
       '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
       '<div class="at-chips lb-links">' +
@@ -7004,8 +7026,8 @@
     // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
     MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
     lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
-    // T-056 r2, for verify-logic: the revision weeks (reads only).
-    revisionWeek, revisionWeekOf, buildICS });
+    // T-056 r2, for verify-logic, verify-content and tools/revision-pdf.js: the revision weeks (reads only).
+    revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

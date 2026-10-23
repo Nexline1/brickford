@@ -853,6 +853,26 @@ async function scenario(browser, now, state, tz) {
       await s.ctx.close();
     }
 
+    // The Library's Sunday revision tiles: one per PDF, each its revision
+    // week's range and the lectures the plan as drawn puts in it (counted
+    // here from scheduledFor on an empty state, distinct lectures, pseudo
+    // blocks left out, exactly as tools/revision-pdf.js counts them).
+    const l = await scenario(browser, "2026-11-01", null);
+    const lib = await l.page.evaluate(OWNER => { const T = window.__brickfordTest;
+      const counts = OWNER.map(([a, b]) => { const k = new Set();
+        for (let d = new Date(a + "T00:00:00Z"); d.toISOString().slice(0, 10) <= b; d.setUTCDate(d.getUTCDate() + 1))
+          T.scheduledFor(d.toISOString().slice(0, 10)).forEach(it => { if (!it.pseudo) k.add(it.cid + "." + it.ui + "." + it.li); });
+        return k.size; });
+      location.hash = "#/library";
+      return counts; }, OWNER);
+    await l.page.waitForSelector("#view .lb-rev a", { timeout: 8000 });
+    const tiles = await l.page.evaluate(() => [...document.querySelectorAll("#view .lb-rev a")].map(a =>
+      [a.getAttribute("href"), a.querySelector(".pb-t").textContent, a.querySelector(".pb-d").textContent]));
+    const wantT = OWNER.map((_, i) => ["../revision/week-0" + (i + 1) + ".pdf", "Week " + (i + 1), label(i + 1).replace(/^Week \d+ · /, "") + " · " + lib[i] + " lectures"]);
+    check("T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (" + lib.join(", ") + ")",
+      JSON.stringify(tiles) === JSON.stringify(wantT) && lib.every(n => n > 0), JSON.stringify(tiles));
+    check("no page errors (T-056 r2 Library)", l.errors.length === 0, l.errors.join(" | "));
+    await l.ctx.close();
   }
 
   // T-052: the monk-mode row. Day 1 is 24 Oct 2026 and day 90 is 21 Jan 2027 (T-056),

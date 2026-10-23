@@ -4543,7 +4543,9 @@
     const today = todayISO(), w = revisionWeekOf(today);
     const { from, sun } = revisionWeek(w);
     const inWeek = iso => typeof iso === "string" && iso >= from && iso < sun;
-    const sealed = S.weeks.find(x => +x.week === w);
+    // T-056 r3: a week sealed under an earlier start can carry the same
+    // number; it is this week only if it was sealed on or after this week began.
+    const sealed = S.weeks.find(x => +x.week === w && (x.date || "") >= from);
     const dsa = dsaCount();
     const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
     // BHD is counted from the Treasury ledger once it has any entry at all (a
@@ -6155,7 +6157,10 @@
             revenue: +$("#rvRev").value || 0,
             notes: $("#rvNotes").value.trim(),
           };
-          const i = S.weeks.findIndex(x => +x.week === w);
+          // T-056 r3: re-sealing replaces this week's entry; one from an earlier
+          // start with the same number is kept, and the new one appended.
+          const wFrom = revisionWeek(w).from;
+          const i = S.weeks.findIndex(x => +x.week === w && (x.date || "") >= wFrom);
           if (i >= 0) S.weeks[i] = entry; else S.weeks.push(entry);
           logEvent("week", "week" + w, { shipped: entry.shipped, dsa: entry.dsa, posts: entry.posts, revenue: entry.revenue });
           save(); render();

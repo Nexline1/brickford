@@ -52,6 +52,8 @@ for n in $want; do case "$n" in
   review-seals-plan-week) plant "$n" "$APP" design 'const today = todayISO(), w = revisionWeekOf(today);' 'const today = todayISO(), w = weekNumber();' ;;
   # Round 3: the work-ahead card skipping an owed lecture (the round-2 behaviour).
   next-skips-owed) plant "$n" "$APP" logic 'const ahead = (backlogCount() > 0 && firstOwed()) || realSched(' 'const ahead = realSched(' ;;
+  old-week-collides) plant "$n" "$APP" logic 'const sealed = S.weeks.find(x => +x.week === w && (x.date || "") >= from);' 'const sealed = S.weeks.find(x => +x.week === w);' ;;
+  old-week-overwritten) plant "$n" "$APP" logic 'const i = S.weeks.findIndex(x => +x.week === w && (x.date || "") >= wFrom);' 'const i = S.weeks.findIndex(x => +x.week === w);' ;;
   library-tile-range) plant "$n" "$APP" content 'dates: shortRange(rw.from, rw.to),' 'dates: shortRange(rw.from, rw.sun),' ;;
   *) echo "unknown plant $n" ;;
 esac; done

@@ -858,6 +858,29 @@ async function scenario(browser, now, state, tz) {
       await s.ctx.close();
     }
 
+    // Review r2, finding 3: a week sealed under an earlier start (Week 1 on
+    // 11 Oct, reset six's plan) carries the same number as revision week 1.
+    // On Sun 25 Oct it must not read as this week's seal, and sealing must
+    // keep it and append the new one. (mergeState still matches by number.)
+    {
+      const OLD = { week: 1, date: "2026-10-11", shipped: "an old-plan repo", dsa: 1, posts: 0, revenue: 0, notes: "before reset seven" };
+      const o = await scenario(browser, "2026-10-25", { weeks: [OLD] });
+      await o.page.evaluate(() => { location.hash = "#/review"; });
+      await o.page.waitForSelector("#view .wk-state", { timeout: 8000 });
+      const st0 = await o.page.evaluate(() => document.querySelector("#view .wk-state").textContent);
+      check("T-056 r3: Sun 25 Oct with a pre-reset Week 1 sealed 11 Oct: the Week page reads \"Ready to seal\", not \"Sealed 11 Oct\"", st0 === "Ready to seal", "\"" + st0 + "\"");
+      await o.page.fill("#rvShipped", "flashcards-cli");
+      await o.page.click("#view [data-act=logWeek]");
+      await o.page.waitForFunction(() => /Sealed/.test((document.querySelector("#view .wk-state") || {}).textContent || ""), null, { timeout: 8000 }).catch(() => {});
+      const after = await o.page.evaluate(() => ({ state: document.querySelector("#view .wk-state").textContent,
+        weeks: (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").weeks || []) }));
+      check("T-056 r3: sealing it keeps the pre-reset entry exactly and appends this week's (week 1, 25 Oct); the page reads \"Sealed 25 Oct\"",
+        after.state === "Sealed 25 Oct" && after.weeks.length === 2 && JSON.stringify(after.weeks[0]) === JSON.stringify(OLD) &&
+          after.weeks[1].week === 1 && after.weeks[1].date === "2026-10-25" && after.weeks[1].shipped === "flashcards-cli", JSON.stringify(after));
+      check("no page errors (T-056 r3 pre-reset week)", o.errors.length === 0, o.errors.join(" | "));
+      await o.ctx.close();
+    }
+
     // The Library's Sunday revision tiles: one per PDF, each its revision
     // week's range and the lectures the plan as drawn puts in it (counted
     // here from scheduledFor on an empty state, distinct lectures, pseudo

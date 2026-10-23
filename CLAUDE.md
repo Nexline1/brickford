@@ -92,10 +92,13 @@ This one was asked for **alongside a real bug**, and the bug was fixed in the sa
 quiz gate (T-043) shipped with `QUIZ_GATE_FROM` 2026-10-16, so every lecture ticked from 16 Oct
 on counted only once its quiz was passed: days whose every lecture was watched painted "Part",
 and the ✓ beside a watched lecture (drawn from `lessonCleared`, not from `done`) did not appear —
-which is what "ticks disappearing" looked like. `QUIZ_GATE_FROM` now moves to the day the fix
-merges, so everything watched before it counts and its quiz waits on the catch-up list; and when
-today's lectures are all cleared, the dashboard's next action is the first lecture not yet
-watched (the next study day's work-ahead plan) rather than Resume or "Nothing scheduled".
+which is what "ticks disappearing" looked like. `QUIZ_GATE_FROM` now moves to **2026-10-24, the day
+after the fix is expected to merge** (23 Oct), so everything watched up to and including the merge
+day counts and its quiz waits on the catch-up list (the comparison stays a strict `<`; the 24th is
+a Saturday, so in practice the gate starts with Sunday 25 Oct's lectures). And when today's
+lectures are all cleared, the dashboard's next action is the first lecture not yet watched: the
+earliest owed lecture in plan order when anything is owed, otherwise the next study day's
+work-ahead plan — never Resume or "Nothing scheduled".
 verify-logic holds both, on the owner's own fixture.
 
 A Monday start becoming a Friday one cannot keep a pinned clock's plan day AND its weekday, so

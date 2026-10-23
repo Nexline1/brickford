@@ -575,6 +575,11 @@ async function scenario(browser, now, state, tz) {
     const gated = await run("gated", watched(AFTER));
     const pass = await run("passed", passed(AFTER));
     const gf = await run("grandfathered", watched(BEFORE));
+    // Review r2, finding 4: the owner's own day. Lectures watched on 23 Oct
+    // (the expected merge day) are grandfathered; one watched ON the gate day
+    // needs its quiz (the comparison is a strict <).
+    const on23 = await run("watched 23 Oct", watched("2026-10-23"));
+    const onGate = await run("watched on the gate day", watched(GATE));
     const sealedRun = await run("gated, with ten sealed days", watched(AFTER), () => ({ studyDays: run10.slice().sort() }));
     const sealedBare = await run("no lectures, the same ten sealed days", () => ({}), () => ({ studyDays: run10.slice().sort() }));
     const nQ = gated.meta.items.filter(i => i.quiz).length, nNo = gated.meta.items.length - nQ;
@@ -585,6 +590,11 @@ async function scenario(browser, now, state, tz) {
       gated.r.sched.every(s => s.got === s.want) && gated.r.sched.some(s => !s.got) && gated.r.sched.some(s => s.got), schedLine(gated));
     check("schedDone: a passed quiz makes a watched lecture done", pass.r.sched.every(s => s.got === s.want && s.got), schedLine(pass));
     check("schedDone: watched before the gate is done without a quiz (grandfathered)", gf.r.sched.every(s => s.got === s.want && s.got), schedLine(gf));
+    check("T-056 r3: QUIZ_GATE_FROM is 2026-10-24, so lectures watched on Fri 23 Oct count as done with no quiz (grandfathered) and the day paints completed",
+      GATE === "2026-10-24" && on23.r.sched.every(s => s.got === s.want && s.got) && on23.r.status === "completed", schedLine(on23) + "; " + on23.r.status);
+    check("T-056 r3: a lecture watched ON the gate day (" + GATE + ") still needs its quiz (strict <): not done, the day partial",
+      onGate.r.sched.every(s => s.got === s.want) && onGate.r.sched.some(s => !s.got) && onGate.r.status === "partial", schedLine(onGate) + "; " + onGate.r.status);
+    check("no page errors (T-056 r3 gate-day fixtures)", on23.errors.length === 0 && onGate.errors.length === 0, on23.errors.concat(onGate.errors).join(" | "));
     check("dayStatus follows: partial while a quiz is open, completed once passed or grandfathered",
       gated.r.status === "partial" && pass.r.status === "completed" && gf.r.status === "completed",
       "gated " + gated.r.status + ", passed " + pass.r.status + ", grandfathered " + gf.r.status);

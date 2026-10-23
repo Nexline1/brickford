@@ -35,7 +35,7 @@ PY
 
 want="${*:-grandfather-old-date monk-off-by-one work-ahead-removed ahead-despite-backlog rest-dow-5 dateforstudy-off-by-one saturday-not-rest seal-on-non-sunday seal-labels-plan-week review-seals-plan-week library-tile-range}"
 for n in $want; do case "$n" in
-  grandfather-old-date) plant "$n" "$APP" logic 'const QUIZ_GATE_FROM = "2026-10-23";' 'const QUIZ_GATE_FROM = "2026-10-16";' ;;
+  grandfather-old-date) plant "$n" "$APP" logic 'const QUIZ_GATE_FROM = "2026-10-24";' 'const QUIZ_GATE_FROM = "2026-10-16";' ;;
   monk-off-by-one) plant "$n" "$APP" logic 'const MONK = Object.freeze({ from: "2026-10-24",' 'const MONK = Object.freeze({ from: "2026-10-23",' ;;
   work-ahead-removed) plant "$n" "$APP" logic '    if (real.length) {
       const ahead' '    if (false) {
@@ -54,6 +54,8 @@ for n in $want; do case "$n" in
   next-skips-owed) plant "$n" "$APP" logic 'const ahead = (backlogCount() > 0 && firstOwed()) || realSched(' 'const ahead = realSched(' ;;
   old-week-collides) plant "$n" "$APP" logic 'const sealed = S.weeks.find(x => +x.week === w && (x.date || "") >= from);' 'const sealed = S.weeks.find(x => +x.week === w);' ;;
   old-week-overwritten) plant "$n" "$APP" logic 'const i = S.weeks.findIndex(x => +x.week === w && (x.date || "") >= wFrom);' 'const i = S.weeks.findIndex(x => +x.week === w);' ;;
+  gate-on-merge-day) plant "$n" "$APP" logic 'const QUIZ_GATE_FROM = "2026-10-24";' 'const QUIZ_GATE_FROM = "2026-10-23";' ;;
+  gate-not-strict) plant "$n" "$APP" logic 'firstWatched(st) < QUIZ_GATE_FROM);' 'firstWatched(st) <= QUIZ_GATE_FROM);' ;;
   library-tile-range) plant "$n" "$APP" content 'dates: shortRange(rw.from, rw.to),' 'dates: shortRange(rw.from, rw.sun),' ;;
   *) echo "unknown plant $n" ;;
 esac; done

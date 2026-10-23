@@ -27,6 +27,7 @@ Also: "reset monk mode to start on the 24th of oct".
 - **Cause:** `grandfathered()` uses the first-watched date being before `QUIZ_GATE_FROM` (2026-10-16). Lectures the owner ticked on or after 16 Oct therefore count only once their quiz is passed. So days whose every lecture is watched paint "Part".
 - **Fix:**
   - set `QUIZ_GATE_FROM` to this change's ship date, the day it merges (pass it in at ship), so everything watched before the change ships counts;
+  - review r2 (finding 4): set to **2026-10-24**, the day after the expected merge (23 Oct), so lectures watched on the merge day itself are grandfathered too; the strict `<` stays;
   - those lectures' quizzes stay on the catch-up list;
   - the lock-from-go-live rule follows the same constant.
 - **Tests:**

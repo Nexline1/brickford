@@ -1168,7 +1168,7 @@
   // counted, and nothing they touched is re-coloured; their quizzes go to the
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
-  const QUIZ_GATE_FROM = "2026-10-23";                 // the ship date (T-056 moved it here, the day the fix merges)
+  const QUIZ_GATE_FROM = "2026-10-24";                 // the day after the fix merges (T-056 r3): everything watched on the merge day counts; a Saturday, so the gate starts with Sunday's lectures
   // T-052: the owner's 90-day monk mode (24 Oct 2026 to 21 Jan 2027, moved by T-056) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
   // inbox, which this app cannot. The dashboard row links to #/monk (T-054),

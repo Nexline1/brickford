@@ -13,7 +13,7 @@ What does clear or hide a tick, other than the explicit Unmark (`toggleDone`):
   there. The owner's phone read "This device is not syncing" the week of 6 Oct.
 - `grandfathered()` uses a strict `<` against `QUIZ_GATE_FROM`, so a lecture first watched ON the
   gate date itself is not grandfathered and needs its quiz. The code is left as it is: the gate
-  date is set to the merge date.
+  date is set to the day after the merge date (2026-10-24, review r2), so the merge day's watches count.
 
 What does not clear `done`: `mergeState` keeps the higher-standing copy (watched scores 2, notes
 alone 1) and only ever takes the earlier `firstDoneAt`; the check, solve, keepPosition and

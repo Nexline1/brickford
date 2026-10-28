@@ -79,3 +79,12 @@ The owner sent a full spec: Inter as the SF stand-in, the iOS type scale, iOS sy
   - German 1.5 h spread through the day: Easy German podcast on Spotify 45 (during the workout), speaking 10, writing 10, reading 25.
   - 10 h of work a day.
   - The 22 Oct day plan is the model. Calendar reworked to match (log: scratchpad/monk/created.txt).
+
+## 2026-10-28
+[want] Offline: "make sure the platform is working offline … the entire platform … ASAP". → T-058 (everything but the video stream), T-059 (offline video).
+[want] FUTURE (owner: "SET THE NEW AI TOOLS AND CODING VIDEOS AS A TASK TO BE DONE IN THE FUTURE"). A daily "New tools" slot, ≤ ~20 min a day, of YouTube videos on new AI tools and coding that serve the owner's END GOAL. Examples the owner named: Codex, Claude Code, "Rublet" (probably Replit; confirm), Python, JavaScript, "what is the difference between JavaScript and JSON".
+  - Step 1 is to measure the goal, not to pick videos. Read README.md, CLAUDE.md, the 3-year plan and the gates in platform/data/curriculum.js. Write the goal down in one paragraph and have the owner confirm it before any video is chosen.
+  - The owner's coding background is exactly CS50 2025 (the ~24 h course) and nothing else. Pitch everything from there.
+  - Weekly refresh: a scheduled task, once a week, finds that week's new tools and videos and loads up to 7 days of ≤20-min items. A tool that is useless for the goal is not added; an empty week is fine.
+  - Rules carried over: read every video's transcript before it goes in (as T-037/T-033 did), invent nothing, and keep these items OUT of the 3-year plan's study days (separate from studyIndex/backlog), so they never make a day owed or move day 1094.
+  → T-060 (future)

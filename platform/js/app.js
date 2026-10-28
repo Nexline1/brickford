@@ -441,6 +441,29 @@
   // One code path for both directions so the manual buttons and the automatic
   // pull-on-open cannot drift apart.
   let syncBusy = false;
+  // T-058: offline is not a failure. A request the network never carried is
+  // not GitHub's answer, so it records no syncError: no banner, no repaint, and
+  // never the rejection latch. It is remembered here, in memory only, and the
+  // `online` event (boot) pushes once through syncSoon, the same automatic
+  // path a save takes, so every rule below still holds.
+  let syncOffline = false;
+  const offline = () => navigator.onLine === false;
+  const OFFLINE_SAY = "Offline — this device will sync when the connection is back.";
+  // The sync status in words, wherever it is drawn (the dashboard row, /sync).
+  // The online and offline events repaint these words in place: never the page.
+  function syncWords() {
+    const last = S.settings.lastSyncAt || S.settings.lastSync;
+    return offline() ? { t: "Offline · will sync", v: agoLabel(last) }
+      : { t: "Synced", v: S.settings.syncError ? "failing" : agoLabel(last) };
+  }
+  const syncHead = () => !ghToken() ? "Not connected" : offline() ? "Offline · will sync"
+    : S.settings.syncError ? "Connected, but failing" : "Connected";
+  function paintSync() {
+    const w = syncWords();
+    $$("#view [data-sync-t]").forEach(el => { el.textContent = w.t; });
+    $$("#view [data-sync-v]").forEach(el => { el.textContent = w.v; });
+    $$("#view [data-sync-head]").forEach(el => { el.textContent = syncHead(); });
+  }
   // A sync that fails silently is worse than one that never ran: the device goes
   // on looking connected while its record quietly diverges. `say` only ever
   // reaches the /sync page, and four of the five callers pass nothing - the boot
@@ -459,6 +482,7 @@
     S.settings.syncError = null;
     save();
     syncQuiet--;
+    paintSync();   // T-058: "just now", in place
     if (transition && !rendering) render({ background: true });
   }
   // A rejected token is not a bad moment on the network, it is a configuration
@@ -476,6 +500,7 @@
   function runSync(dir, say) {
     say = say || function () {};
     if (!ghToken() || syncBusy) return Promise.resolve(false);
+    if (offline()) { syncOffline = true; say(OFFLINE_SAY); return Promise.resolve(false); }
     syncBusy = true;
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
@@ -529,6 +554,8 @@
         return true;
       });
     }).catch(err => {
+      // T-058: the connection went while the request was out. Not an error.
+      if (offline()) { syncOffline = true; say(OFFLINE_SAY); return false; }
       const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
@@ -2521,8 +2548,8 @@
       })() +
       (ghToken()
         ? '<a class="grow" href="#/sync"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">Synced</span></span>' +
-          '<span class="g-v">' + esc(S.settings.syncError ? "failing" : agoLabel(S.settings.lastSyncAt || S.settings.lastSync)) + "</span></a>"
+          '<span class="g-main"><span class="g-t" data-sync-t>' + esc(syncWords().t) + "</span></span>" +
+          '<span class="g-v" data-sync-v>' + esc(syncWords().v) + "</span></a>"
         : "") +
       (backupAge === null || backupAge > 14
         ? '<button class="grow" data-act="backup"><span class="g-lead"></span>' +
@@ -3190,7 +3217,15 @@
           '<div class="lq-ws">' + esc(c.title) + "</div></div>" +
           '<button class="btn ghost lq-rewatch" type="button" data-act="rewatch">Rewatch</button></div>'
         : src
-        ? '<div class="video-frame"><iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
+        ? (function () {
+            const frame = '<iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+            // T-058: offline, a frame could only hold an error page. A plain
+            // panel takes its place, carrying the frame it stands in for, which
+            // videoBack() puts there when the connection returns.
+            return offline()
+              ? '<div class="card video-off" data-frame="' + esc(frame) + '">Video needs a connection. The summary, quiz and notes on this page work offline.</div>'
+              : '<div class="video-frame">' + frame + "</div>";
+          })()
         : l.paper
           ? '<div class="card">This lesson is a paper — the reading is the lecture.</div>'
           : l.read
@@ -3890,8 +3925,7 @@
 
       '<div class="card"><div class="vseal">' +
       '<div class="vico ' + (state === "ok" ? "ok" : "bad") + '">' + (state === "ok" ? "\u2713" : "!") + "</div>" +
-      '<div class="vtext"><div class="vhead">' +
-      (state === "ok" ? "Connected" : state === "broken" ? "Connected, but failing" : "Not connected") + "</div>" +
+      '<div class="vtext"><div class="vhead" data-sync-head>' + syncHead() + "</div>" +
       '<div class="muted">' +
       (last ? "Last successful sync " + esc(agoLabel(last)) : "This device has never synced.") +
       (devs ? " \u00b7 " + devs + " other device" + (devs === 1 ? "" : "s") : "") + "</div></div></div>" +
@@ -5573,6 +5607,13 @@
       mod("Library", "reference", "The founding documents and the outside courses.", "#/library") +
       "</div></div></details>" +
 
+      // T-058: the owner asked for it as an app, and for it to work offline.
+      '<div class="ghead">On your phone</div>' +
+      '<div class="glist">' +
+      row("", "Install it", "iPhone: Safari → Share → Add to Home Screen. Android: Chrome → ⋮ → Install app", null) +
+      row("", "Offline", "everything works without a connection except the videos; progress syncs when you are back online", null) +
+      "</div>" +
+
       '<div class="card" style="margin-top:16px;"><h2>Right now — Phase 0, weeks 1–2</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Four things, then Phase 1 opens: three math diagnostics (≥70%), the coding diagnostic, GitHub/blog/X, and the Treasury’s first five moves.</p>' +
       '<div style="margin-top:12px;"><a class="btn" href="#/exams">Sit the diagnostics</a></div></div>' +
@@ -6802,6 +6843,8 @@
   // that never re-renders, so a quiz part-way through stays where it is.
   // The start is the resume mechanism's own (T-016's start=).
   function expandVideo(at) {
+    // T-058: no frame without a connection; it could only show an error page.
+    if (offline()) { toast("Video needs a connection."); return; }
     const bar = $("#view #lqWatched");
     const f = ytFrame();
     const base = bar ? bar.dataset.src : f ? f.dataset.src0 : null;
@@ -6824,6 +6867,19 @@
     hailPlayer(nf);
     nf.addEventListener("load", () => hailPlayer(nf));
     box.scrollIntoView({ block: "nearest" });
+  }
+  // T-058: the connection is back, and a lecture drawn offline has its panel
+  // where the video goes. The frame it carries goes in its place, the frame
+  // the page would have drawn. Not a render: nothing else on the page moves.
+  function videoBack() {
+    const off = $("#view .video-off[data-frame]");
+    if (!off) return;
+    const box = document.createElement("div");
+    box.className = "video-frame";
+    box.innerHTML = off.dataset.frame;
+    off.replaceWith(box);
+    const f = box.querySelector("iframe[data-k]");
+    if (f) { hailPlayer(f); f.addEventListener("load", () => hailPlayer(f)); }
   }
   // Leaving the lecture: the route changes (registered ahead of the render
   // that replaces the frame) or the page goes away (ahead of the push).
@@ -7050,6 +7106,16 @@
     // The resume point is kept first, so the push carries it.
     window.addEventListener("pagehide", leaveLecture);
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
+    // T-058: the connection going and coming back. The sync words change in
+    // place and a lecture drawn offline gets its video back; neither repaints
+    // the page. What could not sync while offline is pushed once, through
+    // syncSoon: the automatic path, latch and all.
+    window.addEventListener("offline", paintSync);
+    window.addEventListener("online", () => {
+      paintSync();
+      videoBack();
+      if (syncOffline) { syncOffline = false; syncSoon(); }
+    });
   }
   if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
     // T-016, for tools/verify-flows.js: a message as the lecture's player would

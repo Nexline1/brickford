@@ -56,15 +56,17 @@ for n in $want; do case "$n" in
     '  const want = new Set(refs.filter(u => u.href.startsWith(APP) && !u.hash).map(u => u.href));
   for (const u of want) if (/\/data\/quiz-dsa\.js/.test(u)) want.delete(u);' ;;
   # index.html cache-first: a stale page, so an update never arrives.
+  # (Review r1, 1 put a comment between these lines; the plant follows the code.)
   index-cache-first) plant "$n" "$SW" \
     '  const cached = () => caches.match(INDEX, { cacheName: SHELL });
-  try {' \
+  // no-cache:' \
     '  const cached = () => caches.match(INDEX, { cacheName: SHELL });
   { const hit = await cached(); if (hit) return hit; }
-  try {' ;;
+  // no-cache:' ;;
   # An offline push treated as a token rejection: recorded as fatal, latched.
+  # (Review r1, 3 replaced syncOffline with the owed mark; the plant follows the code.)
   offline-push-rejected) plant "$n" "$APP" \
-    '    if (offline()) { syncOffline = true; say(OFFLINE_SAY); return Promise.resolve(false); }' \
+    '    if (offline()) { markOwed(); say(OFFLINE_SAY); return Promise.resolve(false); }' \
     '    if (offline()) { syncFailed("Token rejected — offline"); return Promise.resolve(false); }' ;;
   # Old caches not deleted on activate.
   old-caches-kept) plant "$n" "$SW" \

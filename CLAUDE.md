@@ -209,7 +209,16 @@ node tools/verify-sync-loop.js     # sync must never repaint a page being read
 node tools/verify-logic.js         # the date/streak invariants above, asserted with a fixed clock
 node tools/verify-flows.js         # open today's lecture, answer a question, mark watched
 node tools/verify-clip.js          # the clipping sweep (below); known clips in verify-clip.baseline.json
+node tools/verify-offline.js       # no connection: every route, KaTeX, the PDFs, one push on return, updates
 ```
+
+`verify-offline.js` exists because on 28 Oct 2026 the owner asked for the whole platform to
+work with no Wi-Fi and no connection, and with no service worker it did not open at all. `sw.js`
+sits at the site root, not in `platform/`, so its scope covers `revision/` too (GitHub Pages
+cannot send `Service-Worker-Allowed`), and its `?v=` is the same token as every asset, so the
+token bump is also the update. It is the only gate on http rather than `file://`, because a
+service worker does not exist on `file://`; the others never register one. Offline there means
+`setOffline(true)` and the gate's own server refusing connections, both at once.
 
 Plus the clipping sweep, which is `tools/verify-clip.js` (all routes at
 320/390/768/1024/1100/1280/1440 — no overflow, nothing clipped inside an `overflow:hidden` box). `docs/CONTENT-STANDARD.md` has the reasoning,

@@ -25,8 +25,9 @@
 // element proves the stylesheet came as well. YouTube answers with a blank
 // page online and refuses offline; GitHub's API is a stub that counts every
 // request. The update block runs in a second browser with no routes at all
-// (routing turns Chromium's HTTP cache off) and every outside host resolving
-// nowhere, because that block is about the HTTP cache.
+// (routing turns Chromium's HTTP cache off), because that block is about the
+// HTTP cache; there, and everywhere, an outside request fails on this machine
+// (SEALED, below).
 //
 // Blocks: install (what the worker holds, and that the app can be installed),
 // offline (every route verify-shell visits, KaTeX, the lesson's video panel,
@@ -36,6 +37,7 @@
 // reloaded under a video), and file:// (the other gates' world: no worker).
 "use strict";
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
+process.env.PLAYWRIGHT_DISABLE_FORCED_CHROMIUM_PROXIED_LOOPBACK = "1";
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -161,7 +163,7 @@ function watch(page) {
   const w = { failed: [], errors: [] };
   page.on("requestfailed", r => {
     const u = r.url();
-    if (u.startsWith(BASE) || /^https:\/\/(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//.test(u)) w.failed.push(u.replace(BASE, ""));
+    if (u.startsWith(BASE) || /^https:\/\/(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//.test(u)) w.failed.push(u.replace(BASE, "") + " " + ((r.failure() || {}).errorText || ""));
   });
   page.on("pageerror", e => w.errors.push(String(e.message || e).split("\n")[0]));
   return w;
@@ -179,27 +181,43 @@ const cacheMap = page => page.evaluate(async () => {
 });
 const stored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
 const viewReady = page => page.waitForFunction(() => !!document.querySelector("#view > *"), null, { timeout: 15000 }).then(() => true, () => false);
-const viewFacts = page => page.evaluate(() => {
+// The font loads this page started settle before the harness moves on:
+// navigating away mid-load cancels them (net::ERR_ABORTED), which is the
+// harness and not the cache. Measured: 28 of 40 offline lesson visits lost the
+// KaTeX woff2 that way without the wait, 0 of 40 with it.
+const viewFacts = page => page.evaluate(async () => {
   const k = document.querySelector("#view .katex");
+  const font = k ? getComputedStyle(k).fontFamily : "";
+  await document.fonts.ready;
   return {
     h1: ((document.querySelector("#view h1") || {}).textContent || "").trim(),
     text: (document.querySelector("#view") || {}).innerText || "",
     title: document.title,
     katex: document.querySelectorAll("#view .katex").length,
-    font: k ? getComputedStyle(k).fontFamily : "",
+    font,
   };
 });
 async function launch(page, r) {
+  // Whatever page is open lets its font loads finish first (see viewFacts).
+  await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
   await page.goto("about:blank");
   await page.goto(BASE + "/platform/#" + r, { waitUntil: "load" }).catch(() => {});
   return viewReady(page);
 }
 let BASE = "";
+// Every browser here sends every outside request to a proxy that is not
+// there (port 9 on this machine), and only 127.0.0.1 goes direct: Chromium's
+// own loopback bypass, which Playwright turns off unless told not to. The
+// cloud sandbox's proxy comes in from the environment otherwise, and
+// --no-proxy-server or a resolver rule alone were both measured still
+// tunnelling to jsdelivr through it. The routed browser has its stand-ins in
+// front of this; the others have nothing else.
+const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
 
 (async () => {
   await new Promise(r => srv.listen(0, "127.0.0.1", r));
   BASE = "http://127.0.0.1:" + srv.address().port;
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(SEALED);
 
   // ================= install =================
   console.log("Install: what the worker holds, and that the app can be installed");
@@ -413,7 +431,7 @@ let BASE = "";
   // about the HTTP cache), and every host but this one resolving nowhere.
   console.log("Update: version A, then B on the next launch");
   {
-    const b2 = await chromium.launch({ args: ["--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1"] });
+    const b2 = await chromium.launch(SEALED);
     const c = await freshContext(b2, false);
     server.token = TOKEN;
     const p1 = await c.newPage();
@@ -450,7 +468,7 @@ let BASE = "";
   // ================= file:// =================
   console.log("file://: where the other gates load the app, no worker");
   {
-    const b3 = await chromium.launch();
+    const b3 = await chromium.launch(SEALED);
     const c = await freshContext(b3, false);
     const p = await c.newPage();
     const errs = []; p.on("pageerror", e => errs.push(e.message));

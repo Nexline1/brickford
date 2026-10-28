@@ -13,6 +13,7 @@ OUT="$(dirname "$0")"
 export NODE_PATH=/opt/node22/lib/node_modules
 APP="$ROOT/platform/js/app.js"
 SW="$ROOT/sw.js"
+MANIFEST="$ROOT/platform/manifest.json"
 BAK=""; TARGET=""; CHILD=""; BAD=0
 restore() {
   if [ -n "$BAK" ] && [ -f "$BAK" ]; then
@@ -46,7 +47,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -98,6 +99,21 @@ for n in $want; do case "$n" in
   offline-before-latch) plant "$n" "$APP" \
     '    if (latched()) return { t: "Synced", v: "failing" };' \
     '' ;;
+  # Review r1, 6: the Home Screen app opens the PDF in a new tab, outside the app's storage on iOS.
+  standalone-new-tab)
+    old=$(cat <<'X'
+        '"' + (standalone() ? "" : ' target="_blank" rel="noopener"') + ">" + glyph
+X
+)
+    new=$(cat <<'X'
+        '" target="_blank" rel="noopener">' + glyph
+X
+)
+    plant "$n" "$APP" "$old" "$new" ;;
+  # Review r1, 6: the app's window is platform/ again, so revision/ is outside it.
+  scope-platform-only) plant "$n" "$MANIFEST" \
+    '  "scope": "../",' \
+    '  "scope": "./",' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

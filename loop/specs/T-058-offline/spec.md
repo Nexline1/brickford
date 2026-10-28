@@ -42,3 +42,25 @@ Offline video is a separate item (T-059) and is out of scope here.
   shrink + TZ=LA, design ×2). The existing gates load file:// — the SW must not break them (register only on
   http(s)). Add verify-offline to CLAUDE.md's gate list (PROTECTED path, owner-approved for this line).
 - No new runtime dependency (no Workbox): hand-written SW.
+
+## How the revision PDFs open offline (builder's record)
+- **The worker sits at the site root.** `sw.js` lives beside `platform/` and `revision/`, and
+  `platform/index.html` registers `../sw.js?v=<token>`. Its scope is the site root, so it answers the
+  top-level navigation to `revision/week-NN.pdf` from its files cache. No Service-Worker-Allowed header
+  is needed, which GitHub Pages could not send.
+- **In a browser tab** a tile opens its PDF in a new tab (`target="_blank"`), as before. That tab is in the
+  same browser and storage, so the worker serves it offline.
+- **In the installed app** (review r1, 6) the tile carries no target and opens the PDF in the app's own
+  window. The test is `navigator.standalone` (iOS) or `matchMedia("(display-mode: standalone)")`
+  (Android, desktop). On iOS a new tab from a Home Screen app opens in Safari, which does not share the
+  app's storage, so the worker and its cached PDFs would not be there offline. For the PDF to stay in
+  the app's window it must be inside the app's scope, so `manifest.json`'s `scope` went from `./`
+  (platform/) to `../` (the site root, the worker's own scope). `start_url` and `id` are unchanged and
+  inside it, so an installed app keeps its identity.
+- **Needs a check on the owner's iPhone.** verify-offline emulates standalone in Chromium, so it proves
+  only the app's half: no target, the same window, the bytes out of the cache, offline. It cannot prove
+  iOS's half. On the iPhone, with the app on the Home Screen and the device in Airplane Mode, check that
+  Library → Sunday revision → Week 1 shows the PDF inside the app, and that a swipe from the left edge
+  returns to the Library (a Home Screen app has no back button). An app added before this change may
+  need re-adding to pick up the new scope. Android's installed app takes the same path and has not been
+  seen either: Chrome on Android may download a PDF rather than show it.

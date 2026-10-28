@@ -3,7 +3,7 @@
   "short_name": "Brickford",
   "description": "A three-year curriculum in mathematics, AI and systems, with a record that only counts what you have proven.",
   "start_url": "./",
-  "scope": "./",
+  "scope": "../",
   "id": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

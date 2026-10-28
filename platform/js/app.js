@@ -5705,6 +5705,14 @@
   // T-056 r2: each tile's dates and lecture count are the revision week's own
   // (revisionWeek, revisionLectures), never a table of an older start's dates.
   const REVISION_PDFS = 6;
+  // T-058 r1: in the Home Screen app a tile opens its PDF in the app's own
+  // window, not a new tab. On an iPhone a new tab leaves the app for a Safari
+  // view that does not share the app's storage, so the worker and its cached
+  // PDFs would not be there offline. manifest.json's scope is the site root
+  // (../), so revision/ is inside the app and iOS keeps the PDF in its
+  // window. A read: nothing is stored. Not seen on an iPhone by any gate.
+  const standalone = () => navigator.standalone === true ||
+    !!(window.matchMedia && matchMedia("(display-mode: standalone)").matches);
   function revisionTiles() {
     const out = [];
     for (let n = 1; n <= REVISION_PDFS; n++) {
@@ -5739,11 +5747,12 @@
 
       // T-055: the Sunday revision PDFs (T-035), one per revision week, made by
       // tools/revision-pdf.js into revision/ at the repo root. They open in a
-      // new tab; the browser's own viewer handles the PDF.
+      // new tab, or in the Home Screen app's own window (T-058 r1,
+      // standalone); the browser's own viewer handles the PDF.
       '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></div>" +
       '<div class="at-tiles lb-docs lb-rev">' +
       revisionTiles().map(t => '<a class="at-tile pb-mode lb-doc" href="' + t.href +
-        '" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
+        '"' + (standalone() ? "" : ' target="_blank" rel="noopener"') + ">" + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
         '<span class="pb-d">' + esc(t.dates) + " \u00b7 " + t.lectures + " lectures</span></a>").join("") + "</div>" +
 
       '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +

@@ -32,9 +32,10 @@
 // Blocks: install (what the worker holds, and that the app can be installed),
 // offline (every route verify-shell visits, KaTeX, the lesson's video panel,
 // a lecture ticked and kept, sync words, the revision PDFs, the Library's
-// documents), online again (exactly one push, no latch), the video back in
-// place, the update (A to B on the next launch, A's cache gone, nothing
-// reloaded under a video), and file:// (the other gates' world: no worker).
+// documents), online again (exactly one push, no latch), the Home Screen app
+// (a revision PDF in the app's own window), the video back in place, the
+// update (A to B on the next launch, A's cache gone, nothing reloaded under a
+// video), and file:// (the other gates' world: no worker).
 "use strict";
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
 process.env.PLAYWRIGHT_DISABLE_FORCED_CHROMIUM_PROXIED_LOOPBACK = "1";
@@ -262,7 +263,7 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   await page.goto(BASE + "/platform/#/", { waitUntil: "load" });
   const ctl = await controlled(page);
   const reg = ctl ? await page.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); return { scope: r.scope, script: navigator.serviceWorker.controller.scriptURL }; }) : {};
-  check(ctl && reg.scope === BASE + "/" && reg.script === BASE + "/sw.js?v=" + TOKEN,
+  check(ctl && reg.scope === BASE + "/" && (BASE + "/revision/" + PDFS[0]).startsWith(reg.scope) && reg.script === BASE + "/sw.js?v=" + TOKEN,
     "the worker controls the page from the site root, so its scope covers revision/ too (scope " + reg.scope + ", " + (reg.script || "none") + ")");
   // The files cache fills after activation (review r1, 2): waited for, as proof.
   await filled(page);
@@ -289,10 +290,17 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   // and the apple meta iOS reads instead.
   const icon = (size, purpose) => MANIFEST.icons.find(i => i.sizes === size + "x" + size && (i.purpose || "any").split(" ").includes(purpose));
   const iconsTrue = MANIFEST.icons.every(i => { const s = pngSize(path.join(ROOT, "platform", i.src)); return s && i.sizes === s[0] + "x" + s[1] && i.type === "image/png"; });
-  const scope = new URL(MANIFEST.scope, BASE + "/platform/manifest.json").href, start = new URL(MANIFEST.start_url, BASE + "/platform/manifest.json").href;
-  check(MANIFEST.name && MANIFEST.short_name && MANIFEST.display === "standalone" && start.startsWith(scope) &&
-    icon(192, "any") && icon(512, "any") && icon(512, "maskable") && iconsTrue,
-    "manifest: name, short_name, standalone, start_url inside scope, 192 and 512 icons plus a maskable 512, each the size it says");
+  // Review r1, 6: the scope is the app's window. It is the site root, the
+  // directory the worker answers for, so a revision PDF opened from the Home
+  // Screen app stays inside it; start_url and id (the app's identity: moving
+  // it would make an installed app a different one) stay inside too.
+  const at = u => new URL(u, BASE + "/platform/manifest.json").href;
+  const scope = at(MANIFEST.scope), start = at(MANIFEST.start_url), id = at(MANIFEST.id || MANIFEST.start_url);
+  const revIn = at("../revision/" + PDFS[0]).startsWith(scope);
+  check(MANIFEST.name && MANIFEST.short_name && MANIFEST.display === "standalone" && start.startsWith(scope) && id.startsWith(scope) && revIn &&
+    scope === reg.scope && icon(192, "any") && icon(512, "any") && icon(512, "maskable") && iconsTrue,
+    "manifest: name, short_name, standalone; scope " + scope.replace(BASE, "") + " is the worker's (" + String(reg.scope).replace(BASE, "") + ") and covers revision/, start_url " +
+    start.replace(BASE, "") + " and id " + id.replace(BASE, "") + " inside it; 192 and 512 icons plus a maskable 512, each the size it says");
   const touch = (INDEX_HTML.match(/rel="apple-touch-icon" sizes="180x180" href="([^"?]+)/) || [])[1];
   const ts = touch && pngSize(path.join(ROOT, "platform", touch));
   check(ts && ts[0] === 180 && ts[1] === 180 && /name="apple-mobile-web-app-capable" content="yes"/.test(INDEX_HTML) &&
@@ -537,6 +545,69 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     check(fatal && d.t === "Synced" && d.v === "failing" && d.failing && head === "Connected, but failing",
       "latched by a 401, then offline: the row reads \"" + d.t + " \u00b7 " + d.v + "\", \"Sync is failing\" stays, /sync reads \"" + head + "\" (never \"will sync\")");
     net.offline = false; server.down = false;
+    await c.close();
+  }
+
+  // ================= the Home Screen app =================
+  // navigator.standalone is what iOS sets in a Home Screen app. Emulated: the
+  // gate cannot see iOS, so this proves the app's half (a tile opens in the
+  // app's own window, served from the cache) and not iOS's.
+  console.log("The Home Screen app (standalone): a revision PDF opens in the app's own window, offline");
+  const tileTargets = p => p.evaluate(() => [...document.querySelectorAll("#view .lb-rev a")].map(a => a.getAttribute("target")));
+  {
+    // iOS: navigator.standalone, and nothing else (matchMedia untouched).
+    const c = await freshContext(browser, false);
+    await c.addInitScript(() => { Object.defineProperty(Navigator.prototype, "standalone", { get: () => true, configurable: true }); });
+    await standIns(c);
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/library", { waitUntil: "load" });
+    await controlled(p) && await filled(p);
+    net.offline = true; server.down = true;
+    await c.setOffline(true);
+    await launch(p, "/library");
+    const tgt = await tileTargets(p);
+    const before = c.pages().length;
+    // Headless Chromium has no PDF viewer: the navigation ends as a download.
+    // Listened for on any new tab as well, so a tile that opened one is seen.
+    const dlP = new Promise(res => {
+      const t = setTimeout(() => res(null), 10000);
+      const got = d => { clearTimeout(t); res(d); };
+      p.once("download", got);
+      c.once("page", q => q.once("download", got));
+    });
+    await p.click("#view .lb-rev a");
+    const dl = await dlP;
+    // A new tab can be reported after its download (see the Library case above).
+    const tab = await until(() => c.pages().length > before, 3000);
+    let how = "nothing arrived", ok = false;
+    if (dl) {
+      const got = fs.readFileSync(await dl.path()), disk = fs.readFileSync(path.join(ROOT, "revision", PDFS[0]));
+      ok = got.equals(disk) && dl.url() === BASE + "/revision/" + PDFS[0];
+      how = got.length + " bytes from " + dl.url().replace(BASE, "") + ", " + (got.equals(disk) ? "identical to the file" : "not the file");
+    }
+    check(tgt.length === PDFS.length && tgt.every(t => t === null) && !tab && ok,
+      "navigator.standalone (iOS): no tile carries a target (" + JSON.stringify(tgt) + "), Week 1 opens in the same window (" + (tab ? "a new tab" : "no new tab") +
+      "), offline, out of the cache (" + how + ")");
+    net.offline = false; server.down = false;
+    await c.close();
+  }
+  {
+    // Android and desktop: the display-mode media query alone (navigator.standalone untouched).
+    const c = await freshContext(browser, false);
+    await c.addInitScript(() => {
+      const real = window.matchMedia.bind(window);
+      window.matchMedia = q => /display-mode:\s*standalone/.test(q)
+        ? { matches: true, media: q, onchange: null, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {}, dispatchEvent() { return false; } }
+        : real(q);
+    });
+    await standIns(c);
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/library", { waitUntil: "load" });
+    await viewReady(p);
+    const tgt = await tileTargets(p);
+    const ns = await p.evaluate(() => navigator.standalone);
+    check(ns === undefined && tgt.length === PDFS.length && tgt.every(t => t === null),
+      "display-mode: standalone (Android, desktop): no tile carries a target either (" + JSON.stringify(tgt) + ")");
     await c.close();
   }
 

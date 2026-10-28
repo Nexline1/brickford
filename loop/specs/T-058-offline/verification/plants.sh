@@ -46,7 +46,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -68,6 +68,10 @@ for n in $want; do case "$n" in
   old-caches-kept) plant "$n" "$SW" \
     'if (name.startsWith("brickford-") && name !== SHELL && name !== FILES) await caches.delete(name);' \
     'if (name.startsWith("brickford-") && name !== SHELL && name !== FILES) void name;' ;;
+  # Review r1, 1: no timeout, so a network that never answers holds the launch.
+  no-timeout) plant "$n" "$SW" \
+    '    const first = await Promise.race([net, late]);' \
+    '    const first = await net;' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

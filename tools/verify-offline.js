@@ -56,6 +56,9 @@ const FIXED_NOW = new Date("2026-11-01T12:00:00Z");
 const STUB_TOKEN = "ghp_stub_token_for_the_harness";
 
 let fails = 0, checks = 0;
+// A gate fails; it never hangs. A worker that waits forever on a network that
+// never answers is exactly the defect some plants put back.
+setTimeout(() => { console.log("\nFAIL — the gate did not finish in 10 minutes (" + fails + " failed of " + checks + " so far)"); process.exit(1); }, 600000).unref();
 const check = (ok, msg) => { checks++; console.log((ok ? "  ok    " : "  FAIL  ") + msg); if (!ok) fails++; };
 
 // ---------- what the worker should hold, read from the files themselves ----------
@@ -84,10 +87,14 @@ const pngSize = f => { const b = fs.readFileSync(f); return b.toString("ascii", 
 // ---------- the server ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
   ".json": "application/json", ".png": "image/png", ".pdf": "application/pdf", ".md": "text/markdown; charset=utf-8" };
-const server = { down: false, token: TOKEN, hits: [] };
+// hang: a test on the path; a match is accepted and never answered (one bar
+// of signal, a Wi-Fi with nothing behind it), and held until release().
+const server = { down: false, token: TOKEN, hits: [], hang: null, held: [] };
+server.release = () => { server.hang = null; server.held.splice(0).forEach(r => r.socket && r.socket.destroy()); };
 const srv = http.createServer((req, res) => {
   if (server.down) { req.socket.destroy(); return; }
   const p = decodeURIComponent(req.url.split("?")[0]);
+  if (server.hang && server.hang(p)) { server.held.push(res); return; }
   const file = path.normalize(path.join(ROOT, p.endsWith("/") ? p + "index.html" : p));
   server.hits.push(req.url);
   if (!file.startsWith(ROOT + path.sep)) { res.writeHead(403); res.end(); return; }
@@ -104,7 +111,7 @@ const srv = http.createServer((req, res) => {
 });
 
 // ---------- the outside world, standing in ----------
-const net = { offline: false, gh: [], ghSeen: 0, yt: 0, other: [] };
+const net = { offline: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false };
 const CORS = { "access-control-allow-origin": "*" };
 const STUB_AUTORENDER = "window.renderMathInElement = function (el) {" +
   " var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n, hit = [];" +
@@ -130,6 +137,7 @@ async function standIns(ctx) {
       return net.offline ? refuse() : route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>player</title>" });
     }
     if (net.offline) return refuse();
+    if (net.hangFontCss && /^https:\/\/fonts\.googleapis\.com\/css/.test(u)) return;   // taken, never answered
     if (/katex@[^/]+\/dist\/katex\.min\.js$/.test(u)) return route.fulfill({ status: 200, headers: CORS, contentType: "text/javascript", body: "window.katex = { standIn: true };" });
     if (/katex@[^/]+\/dist\/contrib\/auto-render\.min\.js$/.test(u)) return route.fulfill({ status: 200, headers: CORS, contentType: "text/javascript", body: STUB_AUTORENDER });
     if (/katex@[^/]+\/dist\/katex\.min\.css$/.test(u)) return route.fulfill({ status: 200, headers: CORS, contentType: "text/css",
@@ -179,6 +187,16 @@ const cacheMap = page => page.evaluate(async () => {
   for (const name of await caches.keys()) out[name] = (await (await caches.open(name)).keys()).map(r => r.url);
   return out;
 });
+// Everything the files cache should hold, there (it may fill after activation).
+const wantFilesList = () => PDFS.map(f => "/revision/" + f).concat(DOCS.map(d => "/" + d.file)).concat(THIRD).concat(STANDIN_FONTS);
+async function filled(page, ms) {
+  const want = wantFilesList().map(u => u.startsWith("/") ? BASE + u : u);
+  return page.waitForFunction(async w => {
+    if (!(await caches.has("brickford-files"))) return false;
+    const have = new Set((await (await caches.open("brickford-files")).keys()).map(r => r.url));
+    return w.every(u => have.has(u));
+  }, want, { timeout: ms || 30000, polling: 250 }).then(() => true, () => false);
+}
 const stored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
 const viewReady = page => page.waitForFunction(() => !!document.querySelector("#view > *"), null, { timeout: 15000 }).then(() => true, () => false);
 // The font loads this page started settle before the harness moves on:
@@ -244,7 +262,7 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   const onDisk = ["data", "js", "css"].flatMap(d => fs.readdirSync(path.join(ROOT, "platform", d)).filter(f => /\.(js|css)$/.test(f)).map(f => "/platform/" + d + "/" + f));
   const missDisk = onDisk.filter(f => !shell.some(u => u.split("?")[0] === f));
   check(!missDisk.length, "every platform/data, js and css file on disk is in it (" + onDisk.length + " files" + (missDisk.length ? "; missing " + missDisk.join(", ") : "") + ")");
-  const wantFiles = PDFS.map(f => "/revision/" + f).concat(DOCS.map(d => "/" + d.file)).concat(THIRD).concat(STANDIN_FONTS);
+  const wantFiles = wantFilesList();
   const missFiles = wantFiles.filter(u => !files.includes(u));
   check(PDFS.length >= 6 && DOCS.length >= 5 && THIRD.length >= 4 && !missFiles.length,
     "brickford-files holds the " + PDFS.length + " revision PDFs, the " + DOCS.length + " Library documents, KaTeX and the font stylesheet (" + THIRD.length +
@@ -422,6 +440,40 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     const back = await p.waitForSelector("#view .video-frame iframe[data-k]", { state: "attached", timeout: 5000 }).then(() => true, () => false);
     const after = await p.evaluate(() => ({ off: !!document.querySelector("#view .video-off"), same: document.querySelector("#view").firstElementChild === window.__first }));
     check(before && back && !after.off && after.same, "offline the panel, online the player in its place, and the rest of the page untouched (not a repaint)");
+    await c.close();
+  }
+
+  // ================= a network that never answers =================
+  console.log("A network that takes the request and never answers: the cache, after 3s");
+  {
+    const c = await freshContext(browser, false);
+    await standIns(c);
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    const ready = await controlled(p) && await filled(p);
+    // A second page, open before the network goes quiet: the PDF and document
+    // fetches run there, so they never wait on a navigation that is hanging.
+    const p2 = await c.newPage();
+    await p2.goto(BASE + "/platform/#/library", { waitUntil: "load" });
+    // Online as far as the browser knows: nothing is refused, nothing answers.
+    server.hang = q => /^\/platform\/(index\.html)?$|^\/revision\/|\.md$/.test(q);
+    net.hangFontCss = true;
+    await p.goto("about:blank");
+    const t0 = Date.now();
+    p.goto(BASE + "/platform/#/", { waitUntil: "commit", timeout: 20000 }).catch(() => {});
+    const shown = await p.waitForFunction(() => !!document.querySelector("#view > *") && !!document.querySelector("#view h1"), null, { timeout: 15000 }).then(() => true, () => false);
+    const s0 = (Date.now() - t0) / 1000;
+    check(ready && shown && s0 < 5, "index.html and the font stylesheet taken and never answered: the app opens from the cache in " + s0.toFixed(1) + "s (under 5s)");
+    const t1 = Date.now();
+    const got = await Promise.race([p2.evaluate(async list => Promise.all(list.map(async u => {
+      try { const r = await fetch(u, { signal: AbortSignal.timeout(10000) }); return [u, r.status, (await r.arrayBuffer()).byteLength]; } catch (e) { return [u, 0, 0]; }
+    })), ["../revision/" + PDFS[0], "../" + DOCS[0].file]).catch(() => []), new Promise(r => setTimeout(r, 15000, []))]);
+    const s1 = (Date.now() - t1) / 1000;
+    const sizes = [fs.statSync(path.join(ROOT, "revision", PDFS[0])).size, fs.statSync(path.join(ROOT, DOCS[0].file)).size];
+    check(got.length === 2 && got.every((g, i) => g[1] === 200 && g[2] === sizes[i]) && s1 < 5,
+      "a revision PDF and a Library document the same way, whole, in " + s1.toFixed(1) + "s (under 5s)");
+    net.hangFontCss = false;
+    server.release();
     await c.close();
   }
   await browser.close();

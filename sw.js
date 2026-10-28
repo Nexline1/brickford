@@ -12,14 +12,17 @@
 //
 // One rule per kind of request:
 //   - the app's page (platform/ and platform/index.html): NETWORK FIRST, this
-//     version's copy only when the network fails. That is how a new version
-//     arrives: on the next launch, never by reloading a page someone is using.
+//     version's copy when the network fails or has not answered in 3s (SLOW).
+//     That is how a new version arrives: on the next launch, never by
+//     reloading a page someone is using. (On a network that is always slower
+//     than 3s, the new version waits for a launch that gets an answer in time.)
 //   - everything else under platform/ (the ?v= scripts, data, stylesheet,
 //     icons, manifest): CACHE FIRST from this version's own cache, which install
 //     fills from the page itself, so the list cannot drift from what it loads.
 //   - files the app opens but does not load (the revision PDFs, the Library's
-//     documents) and Google's font stylesheet: network first, kept in a cache
-//     that outlives versions, so an update does not download 7 MB of PDFs again.
+//     documents): network first within SLOW too, kept in a cache that outlives
+//     versions, so an update does not download 7 MB of PDFs again.
+//   - Google's font stylesheet: the cached copy, refreshed behind it.
 //   - KaTeX and the font files: cache first, since their URLs change when
 //     their bytes do (a version in the path, a hash in the name).
 // Anything else (YouTube, GitHub's API) is not touched: it goes to the network
@@ -99,12 +102,31 @@ self.addEventListener("activate", event => event.waitUntil((async () => {
   await self.clients.claim();
 })()));
 
+// A network that takes a request and never answers (one bar of signal, a
+// Wi-Fi with no internet behind it) must not hold the app hostage. Wherever a
+// cached copy can answer, the network gets SLOW ms; then the copy is served,
+// and the network may still finish behind it.
+const SLOW = 3000;
+// The network's answer if it comes within SLOW ms; else the cached copy, if
+// there is one; else the network's answer whenever it comes.
+async function soon(net, cached) {
+  let t;
+  const late = new Promise(r => { t = setTimeout(r, SLOW, null); });
+  try {
+    const first = await Promise.race([net, late]);
+    if (first) return first;
+    return (await cached()) || await net;
+  } finally { clearTimeout(t); }
+}
+const quiet = p => { p.catch(() => {}); return p; };
+
 async function appPage(req) {
   const cached = () => caches.match(INDEX, { cacheName: SHELL });
+  // no-cache: GitHub Pages sends max-age=600, and the HTTP cache must not
+  // hold a new version back either. Unchanged, this is a 304.
+  const net = quiet(fetch(req.url, { cache: "no-cache", credentials: "same-origin" }));
   try {
-    // no-cache: GitHub Pages sends max-age=600, and the HTTP cache must not
-    // hold a new version back either. Unchanged, this is a 304.
-    const res = await fetch(req.url, { cache: "no-cache", credentials: "same-origin" });
+    const res = await soon(net, cached);
     return res.ok ? res : (await cached()) || res;
   } catch (e) {
     const hit = await cached();
@@ -112,31 +134,56 @@ async function appPage(req) {
     throw e;
   }
 }
-async function networkFirst(req, url) {
+// The PDFs and the documents: network first, within SLOW. What the network
+// brings is kept, late or not (200 only: a ranged 206 from a PDF viewer
+// cannot be stored).
+async function networkFirst(event, url) {
   const cache = await caches.open(FILES);
-  try {
-    const res = await fetch(url.startsWith(ROOT) ? req : new Request(url, { mode: "cors", credentials: "omit" }));
-    // 200 only: a ranged 206 from a PDF viewer cannot be stored.
+  const net = quiet(fetch(event.request).then(res => {
     if (res.status === 200) cache.put(url, res.clone()).catch(() => {});
     return res;
+  }));
+  event.waitUntil(net.then(() => {}, () => {}));
+  try {
+    return await soon(net, () => cache.match(url));
   } catch (e) {
     const hit = await cache.match(url);
     if (hit) return hit;
     throw e;
   }
 }
-async function cacheFirst(name, req, url) {
-  const cache = await caches.open(name);
+// Third-party, in CORS mode so the copy is readable rather than opaque.
+const cors = url => fetch(url, { mode: "cors", credentials: "omit" });
+async function refreshInto(cache, url) {
+  const res = await cors(url);
+  if (res.status === 200) await cache.put(url, res.clone());
+  return res;
+}
+// Google's font stylesheet: the copy at once, refreshed behind it. With no
+// copy yet, the network gets SLOW ms and then the page gets an empty sheet: it
+// renders in the fallback face rather than waiting on a font.
+async function fontSheet(event, url) {
+  const cache = await caches.open(FILES);
+  const net = quiet(refreshInto(cache, url));
+  event.waitUntil(net.then(() => {}, () => {}));
+  const hit = await cache.match(url);
+  return hit || soon(net, async () => new Response("", { headers: { "Content-Type": "text/css" } }));
+}
+// KaTeX and the font files: cache first. A file not cached yet gets SLOW ms,
+// then the page goes on without it (KaTeX's script must not hold app.js, which
+// runs after it) while the fetch finishes and is kept for next time.
+async function pinned(event, url) {
+  const cache = await caches.open(FILES);
   const hit = await cache.match(url);
   if (hit) return hit;
-  if (name === SHELL) return fetch(req);
-  try {
-    const res = await fetch(url, { mode: "cors", credentials: "omit" });
-    if (res.status === 200) cache.put(url, res.clone()).catch(() => {});
-    return res;
-  } catch (e) {
-    return fetch(req);
-  }
+  const net = quiet(refreshInto(cache, url).catch(() => fetch(event.request)));
+  event.waitUntil(net.then(() => {}, () => {}));
+  return soon(net, async () => Response.error());
+}
+// This version's own files. A lookup by name, not caches.open, which would
+// create the cache again after a newer version deleted it.
+async function fromShell(req, url) {
+  return (await caches.match(url, { cacheName: SHELL })) || fetch(req);
 }
 
 self.addEventListener("fetch", event => {
@@ -144,8 +191,8 @@ self.addEventListener("fetch", event => {
   if (req.method !== "GET") return;
   const url = req.url.split("#")[0], bare = url.split("?")[0];
   if (bare === APP || bare === INDEX) event.respondWith(appPage(req));
-  else if (OPENED.includes(bare)) event.respondWith(networkFirst(req, bare));
-  else if (url.startsWith(APP)) event.respondWith(cacheFirst(SHELL, req, url));
-  else if (PINNED.test(url)) event.respondWith(cacheFirst(FILES, req, url));
-  else if (FONT_CSS.test(url)) event.respondWith(networkFirst(req, url));
+  else if (OPENED.includes(bare)) event.respondWith(networkFirst(event, bare));
+  else if (url.startsWith(APP)) event.respondWith(fromShell(req, url));
+  else if (PINNED.test(url)) event.respondWith(pinned(event, url));
+  else if (FONT_CSS.test(url)) event.respondWith(fontSheet(event, url));
 });

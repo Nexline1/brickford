@@ -3092,7 +3092,7 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
    T-054: Monk Mode (#/monk)
    ------------------------------------------------------------
    The app's own parts — .one for the head, .ghead/.glist/.grow for every
-   section, .btn.tiny for the steppers, .heat/.hc for the 90-day map — plus
+   section, .btn.tiny for the steppers, .heat/.hc for the day map — plus
    the few things they have no shape for: a time column, the chips, a field
    row and a small bar. Phone density (T-051): one-line rows. */
 .mk-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
@@ -3133,7 +3133,7 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
 .mk-bar { width: 64px; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; flex-shrink: 0; }
 .mk-bar i { display: block; height: 100%; background: var(--good); }
 .mk-mapbox { padding: 14px 16px; }
-.mk-mapbox .heat { max-width: 420px; }
+.mk-mapbox .heat { max-width: calc(var(--wk, 13) * 32px); }   /* T-057: a cell the size it was at 13 weeks in 420px, whatever MONK.days */
 .mk-field { padding-top: 0; padding-bottom: 0; gap: 10px; }
 .mk-field label { width: 5.6rem; min-height: 44px; display: flex; align-items: center; flex-shrink: 0; font-size: var(--fs-subhead); color: var(--ink-2); }
 .mk-field input {

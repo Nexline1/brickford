@@ -1173,12 +1173,12 @@
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
   const QUIZ_GATE_FROM = "2026-10-24";                 // the day after the fix merges (T-056 r3): everything watched on the merge day counts; a Saturday, so the gate starts with Sunday's lectures
-  // T-052: the owner's 90-day monk mode (24 Oct 2026 to 21 Jan 2027, moved by T-056) lives on its
+  // T-052: the owner's monk mode (T-057: MONK.days days from MONK.from, 28 Oct to 17 Nov 2026) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
   // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
   // which keeps one row out to that page (MONK.url). The day counts
   // calendar days, Saturdays included: it is a life plan, not the study plan.
-  const MONK = Object.freeze({ from: "2026-10-24", days: 90, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  const MONK = Object.freeze({ from: "2026-10-28", days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
   function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
   // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
   // Ported from loop/design/monk-mode.html, with the owner's amendment of
@@ -1245,17 +1245,27 @@
     return ev.sort((a, b) => a.start - b.start);
   }
   const MONK_GERMAN = [["podcast", "Podcast", 45], ["speak", "Speak", 10], ["write", "Write", 10], ["read", "Read", 25]];
-  const MONK_HABITS = [["german", "German 1.5 h"], ["brickford", "Brickford 3 h"], ["meditate", "Meditate"], ["read", "Read"],
-    ["clean", "No TikTok · IG · YouTube"], ["plan", "Plan tomorrow"]];
+  // T-057: the owner's five priorities, in his order. They alone make the
+  // ring, the day score, the map and the focus. Brickford is hours under its
+  // own key `bfh`: an old boolean `brickford` is not 3 hours, and is left alone.
+  const MONK_PRI = [["prayers", "Prayer on time"], ["nosin", "No sin today"], ["work", "Work 10 h"], ["bfh", "Brickford 3 h"], ["german", "German 1.5 h"]];
+  // Everything else is "Also": done or not, it is not counted in the ring.
+  const MONK_HABITS = [["meditate", "Meditate"], ["read", "Read"], ["clean", "No TikTok · IG · YouTube"], ["plan", "Plan tomorrow"]];
   // German is done only when all four of its chips are.
   const mkHabitDone = (d, k) => k === "german" ? !!d.german && typeof d.german === "object" && MONK_GERMAN.every(([g]) => !!d.german[g]) : !!d[k];
   const mkPrayed = (d, method) => monkSlots(method).filter(s => !!(d.prayers && d.prayers[s.k])).length;
+  const mkHours = (d, k, h) => typeof d[k] === "number" && d[k] >= h;
+  function mkPriDone(d, k, method) {
+    if (k === "prayers") return mkPrayed(d, method) === monkSlots(method).length;
+    if (k === "nosin") return d.nosin === true;
+    if (k === "work") return mkHours(d, "work", 10);
+    if (k === "bfh") return mkHours(d, "bfh", 3);
+    return mkHabitDone(d, k);
+  }
+  const mkPhoneOk = d => d.phone != null && d.phone < 2;
   function monkScore(d, method) {
     d = d || {};
-    const slots = monkSlots(method).length;
-    const done = mkPrayed(d, method) + MONK_HABITS.filter(([k]) => mkHabitDone(d, k)).length +
-      ((d.work || 0) >= 10 ? 1 : 0) + (d.phone != null && d.phone < 2 ? 1 : 0);
-    const n = slots + MONK_HABITS.length + 2;
+    const done = MONK_PRI.filter(([k]) => mkPriDone(d, k, method)).length, n = MONK_PRI.length;
     return { done, n, pct: Math.round(100 * done / n) };
   }
   const MONK_WEEK = [["shorts", "Short-form", 8], ["stream", "Streams", 2], ["video", "Videos", 2], ["scripts", "Scripts", 4], ["gym", "Gym", 5], ["book", "Book", 1], ["work", "Work hours", 70]];
@@ -1274,25 +1284,23 @@
   const MONK_FIX = {
     prayers: "Stop what you're doing at the adhan alert. Pray first, then open anything else.",
     german: "Do German listening on the run and speaking on the drive. Don't save it for later.",
-    brickford: "Start the Deep Track before you check any messages.",
+    nosin: "When the pull comes, get up and change rooms. Don't negotiate with it.",
+    bfh: "Start the Deep Track before you check any messages.",
     meditate: "Meditate straight after journaling, same spot every day.",
     read: "Leave your phone in another room at 21:00 and read 20 pages.",
-    clean: "Delete TikTok, Instagram and YouTube from the phone for the 90 days.",
+    clean: "Delete TikTok, Instagram and YouTube from the phone for the " + MONK.days + " days.",
     plan: "The 21:55 alert is your cue: tick today, write tomorrow's 3, lights out.",
     work: "Protect the 12:00 and 18:25 blocks. No calls, no phone.",
     phone: "Set a 2-hour screen-time limit and keep the phone out of reach while you work.",
   };
-  // The weakest habit over the seven days before `today` (monk days only).
+  // The weakest of the five priorities over the seven days before `today` (monk days only).
   function monkFocus(days, today, method) {
     days = days || {};
     const end = addDaysISO(today, -1), list = [];
     for (let i = addDaysISO(end, -6); i <= end; i = addDaysISO(i, 1)) if (i >= MONK.from) list.push(i);
     if (!list.length) return null;
     const rate = f => Math.round(100 * list.filter(i => f(days[i] || {})).length / list.length);
-    const n = monkSlots(method).length;
-    const rows = [["prayers", "All " + n + " on time", rate(d => mkPrayed(d, method) === n)]]
-      .concat(MONK_HABITS.map(([k, l]) => [k, l, rate(d => mkHabitDone(d, k))]))
-      .concat([["work", "10 h of work", rate(d => (d.work || 0) >= 10)], ["phone", "Phone under 2 h", rate(d => d.phone != null && d.phone < 2)]]);
+    const rows = MONK_PRI.map(([k, l]) => [k, l, rate(d => mkPriDone(d, k, method))]);
     rows.sort((a, b) => a[2] - b[2]);
     return { days: list.length, key: rows[0][0], label: rows[0][1], rate: rows[0][2], fix: MONK_FIX[rows[0][0]] || "" };
   }
@@ -2367,7 +2375,7 @@
       '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + " \u25b8</a>" +
       "</div>" +
 
-      // ---- T-052: monk mode, one tap away while the 90 days run ----
+      // ---- T-052: monk mode, one tap away while its MONK.days days run ----
       (function () {
         const n = monkDay(todayISO());
         if (!n) return "";
@@ -5712,33 +5720,43 @@
       [["business", "B"], ["content", "C"], ["education", "E"]].map(([k, g]) =>
         '<div class="grow mk-static mk-top"><span class="g-lead">' + g + '</span><span class="g-main"><span class="g-t">' + esc(plan[k] || def[k]) + "</span></span></div>").join("") + "</div>";
 
-    // ---- Prayer on time ----
-    const pt = monkPrayerTimes(iso), ps = monkPrayerStreak(days, iso), pr = d.prayers || {};
-    const prayHTML = gh("Prayer on time", ps ? ps + "-day streak" : "") + '<div class="glist"><div class="mk-chips">' +
-      monkSlots().map(s => '<button type="button" class="mk-chip" data-mk-pray="' + s.k + '" aria-pressed="' + !!pr[s.k] + '">' +
-        esc(s.label) + "<small>" + mkHHMM(pt[s.at]) + "</small></button>").join("") + "</div></div>";
+    // ---- A stepper row (hours and counts), the page's one stepper shape ----
+    const numRow = ([k, l, step, target, cmp], attr) => {
+      const v = +(d[k] || 0), good = cmp === ">=" ? v >= target : cmp === "<" ? d[k] != null && v < target : false;
+      return '<div ' + (attr || "") + 'class="grow mk-static mk-num"><span class="g-main"><span class="g-t">' + l + '</span></span><span class="mk-step">' +
+        '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + -step + '" aria-label="Less: ' + l + '">−</button>' +
+        '<output data-mk-out="' + k + '"' + (good ? ' class="mk-good"' : "") + ">" + v + (cmp ? " / " + target : "") + "</output>" +
+        '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + step + '" aria-label="More: ' + l + '">+</button></span></div>';
+    };
+    const toggle = (k, l, attr) => '<button type="button" ' + (attr || "") + 'class="grow mk-habit' + (d[k] ? " done-row" : "") + '" data-mk-habit="' + k + '" aria-pressed="' + !!d[k] + '">' +
+      '<span class="g-lead">' + tick(!!d[k]) + '</span><span class="g-main"><span class="g-t">' + esc(l) + "</span></span></button>";
 
-    // ---- Non-negotiables: German as four chips, then five toggles ----
+    // ---- T-057: the five priorities, in the owner's order ----
+    const pt = monkPrayerTimes(iso), ps = monkPrayerStreak(days, iso), pr = d.prayers || {}, nSlots = monkSlots().length, pDone = mkPrayed(d);
     const ger = d.german && typeof d.german === "object" ? d.german : {}, gDone = MONK_GERMAN.filter(([g]) => ger[g]).length;
-    const habHTML = gh("Non-negotiables", MONK_HABITS.filter(([k]) => mkHabitDone(d, k)).length + " of " + MONK_HABITS.length) + '<div class="glist">' +
-      '<div class="grow mk-static' + (gDone === 4 ? " done-row" : "") + '"><span class="g-lead">' + tick(gDone === 4) + '</span><span class="g-main"><span class="g-t">German 1.5 h</span></span><span class="g-v">' + gDone + " of 4</span></div>" +
+    const priHTML = gh("Priorities", sc.done + " of " + sc.n) + '<div class="glist" id="mkPri">' +
+      '<div class="grow mk-static' + (pDone === nSlots ? " done-row" : "") + '" data-mk-pri="prayers"><span class="g-lead">' + tick(pDone === nSlots) + '</span><span class="g-main"><span class="g-t">Prayer on time</span></span><span class="g-v">' +
+        (ps ? ps + "-day streak · " : "") + pDone + " of " + nSlots + "</span></div>" +
+      '<div class="mk-chips">' + monkSlots().map(s => '<button type="button" class="mk-chip" data-mk-pray="' + s.k + '" aria-pressed="' + !!pr[s.k] + '">' +
+        esc(s.label) + "<small>" + mkHHMM(pt[s.at]) + "</small></button>").join("") + "</div>" +
+      toggle("nosin", "No sin today", 'data-mk-pri="nosin" ') +
+      numRow(["work", "Work 10 h", 0.5, 10, ">="], 'data-mk-pri="work" ') +
+      numRow(["bfh", "Brickford 3 h", 0.5, 3, ">="], 'data-mk-pri="bfh" ') +
+      '<div class="grow mk-static' + (gDone === 4 ? " done-row" : "") + '" data-mk-pri="german"><span class="g-lead">' + tick(gDone === 4) + '</span><span class="g-main"><span class="g-t">German 1.5 h</span></span><span class="g-v">' + gDone + " of 4</span></div>" +
       '<div class="mk-chips mk-german">' + MONK_GERMAN.map(([g, l, mins]) => '<button type="button" class="mk-chip" data-mk-german="' + g + '" aria-pressed="' + !!ger[g] + '">' +
-        l + "<small>" + mins + " min</small></button>").join("") + "</div>" +
-      MONK_HABITS.filter(([k]) => k !== "german").map(([k, l]) => '<button type="button" class="grow mk-habit' + (d[k] ? " done-row" : "") + '" data-mk-habit="' + k + '" aria-pressed="' + !!d[k] + '">' +
-        '<span class="g-lead">' + tick(!!d[k]) + '</span><span class="g-main"><span class="g-t">' + esc(l) + "</span></span></button>").join("") + "</div>";
+        l + "<small>" + mins + " min</small></button>").join("") + "</div></div>";
+
+    // ---- Also: the rest of the day, done as before, not in the ring ----
+    const alsoDone = MONK_HABITS.filter(([k]) => mkHabitDone(d, k)).length + (mkPhoneOk(d) ? 1 : 0);
+    const alsoHTML = gh("Also", alsoDone + " of " + (MONK_HABITS.length + 1)) + '<div class="glist" id="mkAlso">' +
+      MONK_HABITS.map(([k, l]) => toggle(k, l)).join("") + numRow(["phone", "Phone hours", 0.5, 2, "<"]) + "</div>";
 
     // ---- Numbers ----
-    const NUMS = [["work", "Work hours", 0.5, 10, ">="], ["phone", "Phone hours", 0.5, 2, "<"], ["gym", "Gym", 1], ["shorts", "Short-form posted", 1],
+    const NUMS = [["gym", "Gym", 1], ["shorts", "Short-form posted", 1],
       ["video", "Videos published", 1], ["scripts", "Scripts written", 1], ["stream", "Streams done", 1], ["clips", "Clips cut", 1], ["book", "Books finished", 1]];
     const numHTML = gh("Numbers") + '<div class="glist">' + NUMS
       .filter(([k]) => k !== "stream" || w === 2 || w === 6).filter(([k]) => k !== "clips" || w === 0 || w === 3 || (d.clips || 0) > 0)
-      .map(([k, l, step, target, cmp]) => {
-        const v = +(d[k] || 0), good = cmp === ">=" ? v >= target : cmp === "<" ? d[k] != null && v < target : false;
-        return '<div class="grow mk-static mk-num"><span class="g-main"><span class="g-t">' + l + '</span></span><span class="mk-step">' +
-          '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + -step + '" aria-label="Less: ' + l + '">−</button>' +
-          '<output data-mk-out="' + k + '"' + (good ? ' class="mk-good"' : "") + ">" + v + (cmp ? " / " + target : "") + "</output>" +
-          '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + step + '" aria-label="More: ' + l + '">+</button></span></div>';
-      }).join("") + "</div>";
+      .map(r => numRow(r)).join("") + "</div>";
 
     // ---- This week (Sunday to Saturday) and this month ----
     const prog = (l, v, t) => { const p = Math.min(100, Math.round(100 * v / t));
@@ -5749,7 +5767,7 @@
     const sumHTML = gh("This week", strip(mkNice(ws)) + " – " + strip(mkNice(addDaysISO(ws, 6)))) + '<div class="glist">' + MONK_WEEK.map(([k, l, t]) => prog(l, wk[k], t)).join("") + "</div>" +
       gh("This month", new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" })) + '<div class="glist">' + MONK_MONTH.map(([k, l, t]) => prog(l, mo[k], t)).join("") + "</div>";
 
-    // ---- 90 days: 13 week columns x 7 days, by the day's score ----
+    // ---- MONK.days days (21: 3 week columns x 7 days), by the day's score: the five priorities ----
     let cols = "", sum = 0, past = 0;
     for (let c = 0; c < weeks; c++) {
       cols += '<div class="hcol">';
@@ -5765,10 +5783,10 @@
       }
       cols += "</div>";
     }
-    const mapHTML = gh("90 days", past ? "avg " + Math.round(sum / past) + "%" : "") +
-      '<div class="glist mk-mapbox"><div class="heat" id="mkMap" style="--wk:' + weeks + '" role="img" aria-label="Daily score, 90 days">' + cols + "</div></div>";
+    const mapHTML = gh(MONK.days + " days", past ? "avg " + Math.round(sum / past) + "%" : "") +
+      '<div class="glist mk-mapbox"><div class="heat" id="mkMap" style="--wk:' + weeks + '" role="img" aria-label="Daily score, ' + MONK.days + ' days">' + cols + "</div></div>";
 
-    // ---- Focus this week: the weakest habit, and its one-line fix ----
+    // ---- Focus this week: the weakest priority, and its one-line fix ----
     const f = monkFocus(days, iso);
     const focusHTML = gh("Focus this week") + '<div class="glist">' + (f
       ? '<div class="grow mk-static"><span class="g-main"><span class="g-t">' + esc(f.label) + " · " + f.rate + '%</span><span class="g-s">' + esc(f.fix) + "</span></span></div>"
@@ -5799,7 +5817,7 @@
     return '<div class="view-enter mk">' + folio("Monk Mode", week || mkNice(iso)) +
       '<div class="card one mk-head"><div class="mk-hl"><div class="one-kind">' + esc(head) + '</div><div class="one-hint">' + esc(mkNice(iso) + (week ? " · " + week : "")) + "</div></div>" +
       ringHTML(sc.pct, sc.pct + "%", "", "good", 64) + "</div>" +
-      nowHTML + topHTML + prayHTML + habHTML + numHTML + sumHTML + mapHTML + focusHTML + loopHTML + planHTML + extHTML + "</div>";
+      nowHTML + priHTML + topHTML + mapHTML + focusHTML + alsoHTML + numHTML + sumHTML + loopHTML + planHTML + extHTML + "</div>";
   };
   function wireMonk(root) {
     const iso = todayISO(), stamp = () => new Date().toISOString();

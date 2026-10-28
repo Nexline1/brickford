@@ -443,11 +443,22 @@
   let syncBusy = false;
   // T-058: offline is not a failure. A request the network never carried is
   // not GitHub's answer, so it records no syncError: no banner, no repaint, and
-  // never the rejection latch. It is remembered here, in memory only, and the
-  // `online` event (boot) pushes once through syncSoon, the same automatic
+  // never the rejection latch. What it owes is remembered (below), and the
+  // `online` event (boot) pushes once through armPush, the same automatic
   // path a save takes, so every rule below still holds.
-  let syncOffline = false;
   const offline = () => navigator.onLine === false;
+  // T-058 r1: a sync this device owes — saved work not yet pushed, or a sync
+  // the network did not carry — kept in its own key, NOT in darhikmah_v1, so
+  // the state's shape is untouched and the debt outlives the app being closed
+  // offline. A counter: a push clears it only when no save came in while that
+  // push was out. While it is set, boot and coming back to the page push (a
+  // push merges first, so nothing a pull would bring is lost).
+  const OWED = "brickford_sync_pending";
+  const owedMark = () => { try { return localStorage.getItem(OWED); } catch (e) { return null; } };
+  function markOwed() { try { localStorage.setItem(OWED, String((parseInt(owedMark(), 10) || 0) + 1)); } catch (e) {} }
+  function clearOwed(mark) { try { if (owedMark() === mark) localStorage.removeItem(OWED); } catch (e) {} }
+  // A push asked for while another sync was out: run once that one is done.
+  let pushAgain = false;
   const OFFLINE_SAY = "Offline — this device will sync when the connection is back.";
   // The sync status in words, wherever it is drawn (the dashboard row, /sync).
   // The online and offline events repaint these words in place: never the page.
@@ -499,8 +510,9 @@
   }
   function runSync(dir, say) {
     say = say || function () {};
-    if (!ghToken() || syncBusy) return Promise.resolve(false);
-    if (offline()) { syncOffline = true; say(OFFLINE_SAY); return Promise.resolve(false); }
+    if (!ghToken()) return Promise.resolve(false);
+    if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }
+    if (offline()) { markOwed(); say(OFFLINE_SAY); return Promise.resolve(false); }
     syncBusy = true;
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
@@ -538,6 +550,7 @@
         mergedIn = mergeState(remote).changed;
         syncQuiet--;
       }
+      const mark = owedMark();   // what this push carries; a later save keeps the debt
       const body = {
         message: "progress: " + todayISO() + " from " + S.settings.deviceId +
           (mergedIn ? " (merged " + mergedIn + ")" : ""),
@@ -547,6 +560,7 @@
       return ghFetch("PUT", body).then(res2 => {
         if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
+        clearOwed(mark);
         syncOk(); say("");
         // If the push pulled work in on its way past, the screen is out of date.
         if (mergedIn) { render({ background: true }); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
@@ -555,7 +569,7 @@
       });
     }).catch(err => {
       // T-058: the connection went while the request was out. Not an error.
-      if (offline()) { syncOffline = true; say(OFFLINE_SAY); return false; }
+      if (offline()) { markOwed(); say(OFFLINE_SAY); return false; }
       const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
@@ -566,13 +580,22 @@
       // identical error says nothing the first one did not.
       if (!rendering && before !== err.message) render({ background: true });
       return false;
-    }).then(v => { syncBusy = false; return v; });
+    }).then(v => {
+      syncBusy = false;
+      if (pushAgain) { pushAgain = false; runSync("push"); }
+      return v;
+    });
   }
 
   // Push shortly after progress changes, so sync is not a chore to remember.
   let pushTimer = null;
   function syncSoon() {
     if (!ghToken() || syncQuiet) return;
+    markOwed();   // T-058 r1: owed until a push carries it, even across a relaunch
+    armPush();
+  }
+  function armPush() {
+    if (!ghToken()) return;
     // Latched off after a rejection. syncOk() clears syncError, and connecting
     // or forgetting a token clears it too, so a fixed token lifts this on the
     // next manual pull or push — which is exactly when you would try again.
@@ -7081,7 +7104,8 @@
     render();
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.
-    if (ghToken()) runSync("pull");
+    // T-058 r1: a push instead while a sync is owed (it merges first).
+    if (ghToken()) runSync(owedMark() ? "push" : "pull");
     // Pull again whenever the page comes back to the foreground. Pulling only on
     // load meant a phone with the tab already open — the normal case, since iOS
     // resumes rather than reloads — never saw progress made on the laptop.
@@ -7096,7 +7120,7 @@
       if (document.visibilityState === "visible") {
         if (Date.now() - lastPull < 20000) return;   // do not hammer the API
         lastPull = Date.now();
-        runSync("pull");
+        runSync(owedMark() ? "push" : "pull");
       } else {
         runSync("push");
       }
@@ -7108,13 +7132,13 @@
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
     // T-058: the connection going and coming back. The sync words change in
     // place and a lecture drawn offline gets its video back; neither repaints
-    // the page. What could not sync while offline is pushed once, through
-    // syncSoon: the automatic path, latch and all.
+    // the page. What is owed is pushed once, through armPush: the automatic
+    // path, latch and all.
     window.addEventListener("offline", paintSync);
     window.addEventListener("online", () => {
       paintSync();
       videoBack();
-      if (syncOffline) { syncOffline = false; syncSoon(); }
+      if (owedMark()) armPush();
     });
   }
   if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)

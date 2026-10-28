@@ -111,7 +111,14 @@ const srv = http.createServer((req, res) => {
 });
 
 // ---------- the outside world, standing in ----------
-const net = { offline: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false };
+// holdGet: GitHub GETs are taken and held (a pull in flight) until releaseGets().
+const net = { offline: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [] };
+const ghAnswer = route => route.request().method() === "GET"
+  ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) })
+  : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+net.releaseGets = () => { net.holdGet = false; net.held.splice(0).forEach(r => ghAnswer(r).catch(() => {})); };
+// What a PUT carried: the pushed state.
+const pushedState = g => { try { return JSON.parse(Buffer.from(JSON.parse(g.body).content, "base64").toString("utf8")).state; } catch (e) { return null; } };
 const CORS = { "access-control-allow-origin": "*" };
 const STUB_AUTORENDER = "window.renderMathInElement = function (el) {" +
   " var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n, hit = [];" +
@@ -126,11 +133,10 @@ async function standIns(ctx) {
     const req = route.request(), u = req.url();
     const refuse = () => route.abort("internetdisconnected");
     if (u.startsWith("https://api.github.com/")) {
-      net.gh.push({ method: req.method(), offline: net.offline });
+      net.gh.push({ method: req.method(), offline: net.offline, body: req.postData() });
       if (net.offline) return refuse();
-      return req.method() === "GET"
-        ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) })
-        : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+      if (net.holdGet && req.method() === "GET") { net.held.push(route); return; }
+      return ghAnswer(route);
     }
     if (/^https:\/\/www\.youtube(-nocookie)?\.com\//.test(u)) {
       net.yt++;
@@ -428,6 +434,56 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   check(!st.settings.syncError && !!st.settings.lastSyncAt && ((st.lessons || {})["math110.0.0"] || {}).done === true,
     "and it succeeded: no sync error, no latch, the offline tick still there (" + JSON.stringify(st.settings.syncError || null) + ")");
   await ctx.close();
+
+  // ================= owed, across a relaunch =================
+  console.log("A lecture ticked offline, the app closed before any push, relaunched online");
+  {
+    const c = await freshContext(browser, true);
+    await standIns(c);
+    let p = await c.newPage();
+    await p.goto(BASE + "/platform/#/lesson/math110/0/0", { waitUntil: "load" });
+    await controlled(p);
+    await p.waitForFunction(() => !!(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt, null, { timeout: 10000 }).catch(() => {});
+    net.offline = true; server.down = true;
+    await c.setOffline(true);
+    await p.reload({ waitUntil: "load" }).catch(() => {});
+    await viewReady(p);
+    await p.click("#view [data-act='toggleDone']");
+    await p.waitForFunction(() => ((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {})["math110.0.0"] || {}).done === true, null, { timeout: 5000 }).catch(() => {});
+    const owed = await p.evaluate(() => localStorage.getItem("brickford_sync_pending"));
+    await p.close();   // closed at once, still offline: no push could have been made
+    net.offline = false; server.down = false;
+    await c.setOffline(false);
+    const g0 = net.gh.length;
+    p = await c.newPage();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    const put1 = await until(() => net.gh.slice(g0).some(g => g.method === "PUT"), 15000);
+    await p.waitForTimeout(6000);   // a second push would need one more 4s cycle
+    const puts = net.gh.slice(g0).filter(g => g.method === "PUT");
+    const sent = puts.length ? pushedState(puts[0]) : null;
+    const after = await p.evaluate(() => localStorage.getItem("brickford_sync_pending"));
+    check(!!owed && put1 && puts.length === 1 && !!sent && ((sent.lessons || {})["math110.0.0"] || {}).done === true && after === null,
+      "the relaunch pushes it: owed " + JSON.stringify(owed) + " when closed, then exactly one PUT (" + puts.length + "), carrying the tick (" +
+      JSON.stringify(sent && (sent.lessons || {})["math110.0.0"] && sent.lessons["math110.0.0"].done) + "), and nothing owed after (" + JSON.stringify(after) + ")");
+    await c.close();
+  }
+  console.log("A pull in flight when the push timer fires: the push still happens");
+  {
+    const c = await freshContext(browser, true);
+    await standIns(c);
+    net.holdGet = true;   // the boot pull is out and stays out
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/lesson/math110/0/0", { waitUntil: "load" });
+    const g0 = net.gh.length;
+    await p.click("#view [data-act='toggleDone']");
+    await p.waitForTimeout(5000);   // the push timer is 4s, by design: it fires while the pull is out
+    net.releaseGets();
+    const put = await until(() => net.gh.slice(g0).some(g => g.method === "PUT"), 10000);
+    const sent = put ? pushedState(net.gh.slice(g0).find(g => g.method === "PUT")) : null;
+    check(put && ((sent && sent.lessons || {})["math110.0.0"] || {}).done === true,
+      "once the pull is answered, the push it held up is made, carrying the tick (" + (put ? "PUT seen" : "no PUT in 10s") + ")");
+    await c.close();
+  }
 
   // ================= the video, back =================
   console.log("The video comes back with the connection, in place");

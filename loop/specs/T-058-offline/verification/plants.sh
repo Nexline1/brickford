@@ -46,7 +46,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -78,6 +78,14 @@ for n in $want; do case "$n" in
   await self.skipWaiting();' \
     '  await fill();
   await self.skipWaiting();' ;;
+  # Review r1, 3: the debt not read at boot (a pull, as before), so a relaunch never pushes it.
+  owed-ignored-at-boot) plant "$n" "$APP" \
+    '    if (ghToken()) runSync(owedMark() ? "push" : "pull");' \
+    '    if (ghToken()) runSync("pull");' ;;
+  # Review r1, 3: a push asked for while a pull is out is dropped.
+  busy-push-dropped) plant "$n" "$APP" \
+    '    if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }' \
+    '    if (syncBusy) return Promise.resolve(false);' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

@@ -1,0 +1,31 @@
+== plant data-file-left-out -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  this version's cache brickford-20261028c holds index.html, everything it loads, and the manifest's icons (35 entries; missing /platform/data/quiz-dsa.js?v=20261028c)
+  FAIL  every platform/data, js and css file on disk is in it (27 files; missing /platform/data/quiz-dsa.js)
+  FAIL  offline, nothing of ours failed to load and nothing threw (/platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261028c net::ERR_FAILED)
+FAIL — 3 of 35 offline checks failed
+  exit 1 (caught, as required)
+== plant index-cache-first -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261028c)
+  FAIL  B's worker is in charge, its cache is there and A's is gone (caches: brickford-20261028c, brickford-files)
+  FAIL  and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261028c)
+FAIL — 3 of 35 offline checks failed
+  exit 1 (caught, as required)
+== plant offline-push-rejected -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  marking the lecture watched offline is saved locally, and records no sync error ({"msg":"Token rejected — offline","at":"2026-11-01T12:00:00.000Z","fatal":true})
+  FAIL  /sync offline reads "Offline · will sync"; Push says it will sync later and records no error, so nothing is latched ({"msg":"Token rejected — offline","at":"2026-11-01T12:00:00.000Z","fatal":true})
+  FAIL  the dashboard's sync row reads "Offline · will sync", and nothing says sync is failing
+  FAIL  back online, exactly one push (0 PUTs)
+  FAIL  and it succeeded: no sync error, no latch, the offline tick still there ({"msg":"Token rejected — offline","at":"2026-11-01T12:00:00.000Z","fatal":true})
+FAIL — 5 of 35 offline checks failed
+  exit 1 (caught, as required)
+== plant old-caches-kept -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  B's worker is in charge, its cache is there and A's is gone (caches: brickford-20261028c, brickford-files, brickford-20261028cupdate)
+FAIL — 1 of 35 offline checks failed
+  exit 1 (caught, as required)
+
+PLANTS: every plant caught (exit 1), every restore cmp-identical
+plants.sh exit 0

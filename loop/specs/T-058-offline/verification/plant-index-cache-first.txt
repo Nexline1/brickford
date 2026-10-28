@@ -1,0 +1,44 @@
+Install: what the worker holds, and that the app can be installed
+  ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
+  ok    verify-shell's routes read from verify-shell.js (25)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:35761/, http://127.0.0.1:35761/sw.js?v=20261028c)
+  ok    this version's cache brickford-20261028c holds index.html, everything it loads, and the manifest's icons (36 entries)
+  ok    every platform/data, js and css file on disk is in it (27 files)
+  ok    brickford-files holds the 6 revision PDFs, the 5 Library documents, KaTeX and the font stylesheet (4) and the fonts they name
+  ok    the first load, online: nothing failed ()
+  ok    manifest: name, short_name, standalone, start_url inside scope, 192 and 512 icons plus a maskable 512, each the size it says
+  ok    iPhone: a 180x180 PNG apple-touch-icon, apple-mobile-web-app-capable and a title
+  ok    Chromium's own installability check: no errors ()
+Offline: no network at all, and the server refusing connections
+  ok    relaunched offline: the dashboard renders (Dashboard)
+  ok    every route verify-shell visits renders offline, the same page as online (25 routes)
+  ok    offline, nothing of ours failed to load and nothing threw ()
+  ok    KaTeX renders offline: the same .katex count as online on every route, 1 with math (/lesson/math110/0/0), font KaTeX_Main, serif
+  ok    the Library's 5 documents open offline
+  ok    a lesson offline: the video frame is a plain "Video needs a connection" panel, and no iframe
+  ok    and it stays put: no repaint in 6s, no request to YouTube (0 repaints, 0 requests)
+  ok    marking the lecture watched offline is saved locally, and records no sync error (null)
+  ok    Rewatch offline says so instead of opening a broken frame (Video needs a connection.)
+  ok    and it is still watched after an offline relaunch
+  ok    /sync offline reads "Offline · will sync"; Push says it will sync later and records no error, so nothing is latched (null)
+  ok    the dashboard's sync row reads "Offline · will sync", and nothing says sync is failing
+  ok    offline, the app sent GitHub nothing (0 requests)
+  ok    the Library's Week 1 tile opens its revision PDF offline, in its own tab (1714587 bytes from /revision/week-01.pdf in a new tab, identical to revision/week-01.pdf)
+  ok    all 6 revision PDFs come out of the cache whole
+Online again: one push, through the ordinary path
+  ok    the dashboard's sync row says Synced again the moment the connection is back, in place
+  ok    back online, exactly one push (1 PUT)
+  ok    and it succeeded: no sync error, no latch, the offline tick still there (null)
+The video comes back with the connection, in place
+  ok    offline the panel, online the player in its place, and the rest of the page untouched (not a repaint)
+Update: version A, then B on the next launch
+  ok    A: installed, its cache brickford-20261028c in place
+  FAIL  the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261028c)
+  FAIL  B's worker is in charge, its cache is there and A's is gone (caches: brickford-20261028c, brickford-files)
+  ok    the page that was open, with its video, was not reloaded: same document, same frame, still running A
+  FAIL  and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261028c)
+file://: where the other gates load the app, no worker
+  ok    file:// renders as before and registers nothing (0 registrations)
+
+FAIL — 3 of 35 offline checks failed
+exit 1

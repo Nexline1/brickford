@@ -171,9 +171,19 @@
   ok    focus this week: German 1.5 h at 14% over 7 days, with its fix (Also items, all 0%, are not candidates) — {"days":7,"key":"german","label":"German 1.5 h","rate":14,"fix":"Do German listening on the run and speaking on the drive. Don't save it for later."}
   ok    focus this week: No sin today at 29% over 7 days, with a one-line fix — {"days":7,"key":"nosin","label":"No sin today","rate":29,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
   ok    focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged — {"days":7,"key":"bfh","label":"Brickford 3 h","rate":0,"fix":"Start the Deep Track before you check any messages."}
+  ok    focus on Sat 31 Oct: 3 monk days (28-30 Oct), the days before day 1 not counted: No sin at 0% — {"days":3,"key":"nosin","label":"No sin today","rate":0,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
+  ok    phone under 2 h: phone 0 -> true — true
+  ok    phone under 2 h: phone 1.5 -> true — true
+  ok    phone under 2 h: phone exactly 2 -> false — false
+  ok    phone under 2 h: phone missing -> false — false
+  ok    phone under 2 h: phone null -> false — false
   ok    no page errors (monk arithmetic)
+  ok    the Also count with {phone: 0} reads 1 of 5 — ["Also","1 of 5"]
+  ok    no page errors (Also count, 1 of 5)
+  ok    the Also count with nothing logged reads 0 of 5 — ["Also","0 of 5"]
+  ok    no page errors (Also count, 0 of 5)
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 176 invariants hold
+PASS — 186 invariants hold
 exit 0

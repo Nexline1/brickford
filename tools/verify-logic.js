@@ -1152,7 +1152,35 @@ async function scenario(browser, now, state, tz) {
     const f3 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-04"), FOCUS3);
     check("focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged",
       !!f3 && f3.key === "bfh" && f3.label === "Brickford 3 h" && f3.rate === 0 && /Deep Track/.test(f3.fix || ""), JSON.stringify(f3));
+    // The pre-start filter (T-057 review): today Sat 31 Oct, the window is 24-30 Oct and
+    // only 28-30 Oct are monk days. 24-27 Oct have every priority but German (so counted,
+    // German would be the weakest at 3 of 7, 43%); 28-30 Oct have every priority but No sin.
+    // Counting only the monk days, German is 100% and No sin 0%.
+    const PRE = {};
+    range("2026-10-24", "2026-10-27").forEach(d => { PRE[d] = without("german"); });
+    range("2026-10-28", "2026-10-30").forEach(d => { PRE[d] = without("nosin"); });
+    const f4 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-10-31"), PRE);
+    check("focus on Sat 31 Oct: 3 monk days (28-30 Oct), the days before day 1 not counted: No sin at 0%",
+      !!f4 && f4.days === 3 && f4.key === "nosin" && f4.rate === 0, JSON.stringify(f4));
+    // Phone under 2 h: not in the score, but it drives the Also count and the stepper's green.
+    const PH = [["phone 0", { phone: 0 }, true], ["phone 1.5", { phone: 1.5 }, true], ["phone exactly 2", { phone: 2 }, false],
+      ["phone missing", {}, false], ["phone null", { phone: null }, false]];
+    const ph = await probe.page.evaluate(F => F.map(([, rec]) => window.__brickfordTest.mkPhoneOk(rec)), PH);
+    PH.forEach(([name, , want], i) => check("phone under 2 h: " + name + " -> " + want, ph[i] === want, String(ph[i])));
     check("no page errors (monk arithmetic)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // T-057 review: the Also count on #/monk reads the phone rule. Wed 4 Nov
+  // (day 8): {phone: 0} is 1 of 5, nothing logged is 0 of 5.
+  for (const [rec, want] of [[{ phone: 0, at: "2026-11-04T09:00:00.000Z" }, "1 of 5"], [null, "0 of 5"]]) {
+    const probe = await scenario(browser, "2026-11-04", rec ? { studyDays: [], monk: { days: { "2026-11-04": rec } } } : null);
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view #mkAlso", { state: "attached" });
+    const got = await probe.page.evaluate(() => { const g = document.querySelector("#view #mkAlso").previousElementSibling;
+      return [g.firstChild.textContent, (g.querySelector(".gh-meta") || {}).textContent]; });
+    check("the Also count with " + (rec ? "{phone: 0}" : "nothing logged") + " reads " + want, got[0] === "Also" && got[1] === want, JSON.stringify(got));
+    check("no page errors (Also count, " + want + ")", probe.errors.length === 0, probe.errors.join(" | "));
     await probe.ctx.close();
   }
 

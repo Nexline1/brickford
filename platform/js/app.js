@@ -7065,7 +7065,7 @@
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
     QUIZ_GATE_FROM, monkDay, MONK, schedDone,
     // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
-    MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
+    MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, mkPhoneOk, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
     lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
     // T-056 r2, for verify-logic, verify-content and tools/revision-pdf.js: the revision weeks (reads only).
     revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS });

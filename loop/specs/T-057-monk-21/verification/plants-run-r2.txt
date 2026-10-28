@@ -1,0 +1,15 @@
+== plant focus-counts-prestart -> node tools/verify-logic.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  focus on Sat 31 Oct: 3 monk days (28-30 Oct), the days before day 1 not counted: No sin at 0% — {"days":7,"key":"german","label":"German 1.5 h","rate":43,"fix":"Do German listening on the run and speaking on the drive. Don't save it for later."}
+1 of 186 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant phone-missing-counts -> node tools/verify-logic.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  phone under 2 h: phone null -> false — true
+1 of 186 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant phone-two-counts -> node tools/verify-logic.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  phone under 2 h: phone exactly 2 -> false — true
+1 of 186 invariant(s) FAILED
+  exit 1 (caught, as required)

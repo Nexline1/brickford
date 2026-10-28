@@ -33,7 +33,7 @@ PY
   echo "exit $rc" >> "$OUT/plant-$name.txt"
 }
 
-want="${*:-days-90 ring-counts-also bfh-reads-brickford-bool priorities-not-first}"
+want="${*:-days-90 ring-counts-also bfh-reads-brickford-bool priorities-not-first focus-counts-prestart phone-missing-counts phone-two-counts}"
 for n in $want; do case "$n" in
   # The 90 days back (MONK.days 21 -> 90): monkDay("2026-11-18") is no longer null.
   days-90) plant "$n" "$APP" logic 'const MONK = Object.freeze({ from: "2026-10-28", days: 21,' 'const MONK = Object.freeze({ from: "2026-10-28", days: 90,' ;;
@@ -43,5 +43,10 @@ for n in $want; do case "$n" in
   bfh-reads-brickford-bool) plant "$n" "$APP" logic 'if (k === "bfh") return mkHours(d, "bfh", 3);' 'if (k === "bfh") return mkHours(d, "bfh", 3) || d.brickford === true;' ;;
   # Also above Priorities on #/monk.
   priorities-not-first) plant "$n" "$APP" design 'nowHTML + priHTML + topHTML + mapHTML + focusHTML + alsoHTML +' 'nowHTML + alsoHTML + topHTML + mapHTML + focusHTML + priHTML +' ;;
+  # Review round 1: monkFocus counting the days before day 1.
+  focus-counts-prestart) plant "$n" "$APP" logic 'for (let i = addDaysISO(end, -6); i <= end; i = addDaysISO(i, 1)) if (i >= MONK.from) list.push(i);' 'for (let i = addDaysISO(end, -6); i <= end; i = addDaysISO(i, 1)) list.push(i);' ;;
+  # Review round 1: the phone rule's two edges.
+  phone-missing-counts) plant "$n" "$APP" logic 'const mkPhoneOk = d => d.phone != null && d.phone < 2;' 'const mkPhoneOk = d => d.phone < 2;' ;;
+  phone-two-counts) plant "$n" "$APP" logic 'const mkPhoneOk = d => d.phone != null && d.phone < 2;' 'const mkPhoneOk = d => d.phone != null && d.phone <= 2;' ;;
   *) echo "unknown plant $n" ;;
 esac; done

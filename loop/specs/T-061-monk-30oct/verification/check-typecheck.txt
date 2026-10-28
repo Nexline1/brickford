@@ -1,0 +1,2 @@
+PASS typecheck: node --check on 36 files
+exit 0

@@ -940,10 +940,11 @@ async function scenario(browser, now, state, tz) {
     await l.ctx.close();
   }
 
-  // T-052: the monk-mode row. Day 1 is 28 Oct 2026 and day 21 is Tue 17 Nov 2026 (T-057:
-  // the owner's 21 days, was 90 from 24 Oct), counted in calendar days (a Saturday counts);
-  // the dashboard shows the row only inside those 21 days, linking to #/monk.
-  for (const [now, want] of [["2026-10-27", null], ["2026-10-28", 1], ["2026-10-30", 3], ["2026-11-17", 21], ["2026-11-18", null]]) {
+  // T-052: the monk-mode row. Day 1 is Fri 30 Oct 2026 and day 21 is Thu 19 Nov 2026 (T-061:
+  // the owner reset the start to 30 Oct; T-057 had 21 days from 28 Oct, before it 90 from 24 Oct),
+  // counted in calendar days (a Saturday counts); the dashboard shows the row only inside those
+  // 21 days, linking to #/monk.
+  for (const [now, want] of [["2026-10-29", null], ["2026-10-30", 1], ["2026-11-01", 3], ["2026-11-19", 21], ["2026-11-20", null]]) {
     const probe = await scenario(browser, now, null);
     await probe.page.evaluate(() => { location.hash = "#/"; });
     await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
@@ -1097,7 +1098,7 @@ async function scenario(browser, now, state, tz) {
     check("score, combine off: all 5 prayers + work = 2 of 5; 4 of 5 prayers + work = 1 of 5",
       JSON.stringify(sc5) === JSON.stringify([{ done: 2, n: 5, pct: 40 }, { done: 1, n: 5, pct: 20 }]), JSON.stringify(sc5));
     const md = await probe.page.evaluate(() => ({ from: window.__brickfordTest.MONK.from, days: window.__brickfordTest.MONK.days }));
-    check("MONK is 21 days from Wed 28 Oct 2026 (T-057)", md.from === "2026-10-28" && md.days === 21, JSON.stringify(md));
+    check("MONK is 21 days from Fri 30 Oct 2026 (T-061; T-057 had Wed 28 Oct)", md.from === "2026-10-30" && md.days === 21, JSON.stringify(md));
 
     // Weeks run Sunday to Saturday: every day from the Sunday before day 1 to
     // the Saturday after day 90, against getUTCDay() here.
@@ -1126,41 +1127,43 @@ async function scenario(browser, now, state, tz) {
       same(sums.oct, { stream: 3, clips: 8 }) && same(sums.nov, { stream: 1, clips: 4 }), JSON.stringify([sums.oct, sums.nov]));
 
     // Focus this week (T-057): the weakest of the five priorities over the 7
-    // days before today, with its fix. Today Wed 4 Nov: the window is 28 Oct
-    // - 3 Nov, all 7 monk days (day 1 is 28 Oct). Every Also item is undone
+    // days before today, with its fix. Today Fri 6 Nov (day 8; T-061 moved it
+    // from Wed 4 Nov with day 1): the window is 30 Oct - 5 Nov, all 7 monk days
+    // (day 1 is 30 Oct). Every Also item is undone
     // on every day, so a gate that ranked them would pick one of those (0%).
     // Prayers all 3 on 5 of them (71%), German on 1 (14%), the rest on all 7:
     // German is the weakest. On the other 6 days German is 3 of its 4 chips.
-    const WIN = range("2026-10-28", "2026-11-03");
+    const WIN = range("2026-10-30", "2026-11-05");
     const FOCUS = {};
     WIN.forEach((d, i) => {
       FOCUS[d] = Object.assign({}, PRI, { prayers: i < 5 ? ALL3 : { fajr: true }, german: i === 0 ? GER : { podcast: true, speak: true, read: true } });
     });
-    FOCUS["2026-10-27"] = { german: false };           // before day 1: not counted
-    const f = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-04"), FOCUS);
+    FOCUS["2026-10-29"] = { german: false };           // before day 1: not counted
+    const f = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-06"), FOCUS);
     check("focus this week: German 1.5 h at 14% over 7 days, with its fix (Also items, all 0%, are not candidates)",
       !!f && f.days === 7 && f.key === "german" && f.label === "German 1.5 h" && f.rate === 14 && /German listening/.test(f.fix || ""), JSON.stringify(f));
     // The same week with No sin on 2 of 7 days and German on all: No sin is the weakest.
     const FOCUS2 = {};
     WIN.forEach((d, i) => { FOCUS2[d] = Object.assign({}, PRI, { nosin: i < 2 }); });
-    const f2 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-04"), FOCUS2);
+    const f2 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-06"), FOCUS2);
     check("focus this week: No sin today at 29% over 7 days, with a one-line fix",
       !!f2 && f2.days === 7 && f2.key === "nosin" && f2.label === "No sin today" && f2.rate === 29 && typeof f2.fix === "string" && f2.fix.length > 10 && !/\n/.test(f2.fix), JSON.stringify(f2));
     // Brickford ticked as the old boolean every day, bfh never: Brickford 3 h is the weakest, at 0%.
     const FOCUS3 = {};
     WIN.forEach(d => { FOCUS3[d] = Object.assign(without("bfh"), { brickford: true, bfh: d === WIN[0] ? 2.5 : undefined }); });
-    const f3 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-04"), FOCUS3);
+    const f3 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-06"), FOCUS3);
     check("focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged",
       !!f3 && f3.key === "bfh" && f3.label === "Brickford 3 h" && f3.rate === 0 && /Deep Track/.test(f3.fix || ""), JSON.stringify(f3));
-    // The pre-start filter (T-057 review): today Sat 31 Oct, the window is 24-30 Oct and
-    // only 28-30 Oct are monk days. 24-27 Oct have every priority but German (so counted,
-    // German would be the weakest at 3 of 7, 43%); 28-30 Oct have every priority but No sin.
+    // The pre-start filter (T-057 review; T-061 moved today from Sat 31 Oct with day 1): today
+    // Mon 2 Nov, the window is 26 Oct - 1 Nov and only 30 Oct - 1 Nov are monk days. 26-29 Oct
+    // have every priority but German (so counted, German would be the weakest at 3 of 7, 43%);
+    // 30 Oct - 1 Nov have every priority but No sin.
     // Counting only the monk days, German is 100% and No sin 0%.
     const PRE = {};
-    range("2026-10-24", "2026-10-27").forEach(d => { PRE[d] = without("german"); });
-    range("2026-10-28", "2026-10-30").forEach(d => { PRE[d] = without("nosin"); });
-    const f4 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-10-31"), PRE);
-    check("focus on Sat 31 Oct: 3 monk days (28-30 Oct), the days before day 1 not counted: No sin at 0%",
+    range("2026-10-26", "2026-10-29").forEach(d => { PRE[d] = without("german"); });
+    range("2026-10-30", "2026-11-01").forEach(d => { PRE[d] = without("nosin"); });
+    const f4 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-02"), PRE);
+    check("focus on Mon 2 Nov: 3 monk days (30 Oct - 1 Nov), the days before day 1 not counted: No sin at 0%",
       !!f4 && f4.days === 3 && f4.key === "nosin" && f4.rate === 0, JSON.stringify(f4));
     // Phone under 2 h: not in the score, but it drives the Also count and the stepper's green.
     const PH = [["phone 0", { phone: 0 }, true], ["phone 1.5", { phone: 1.5 }, true], ["phone exactly 2", { phone: 2 }, false],
@@ -1172,7 +1175,7 @@ async function scenario(browser, now, state, tz) {
   }
 
   // T-057 review: the Also count on #/monk reads the phone rule. Wed 4 Nov
-  // (day 8): {phone: 0} is 1 of 5, nothing logged is 0 of 5.
+  // (day 6 since T-061; it was day 8): {phone: 0} is 1 of 5, nothing logged is 0 of 5.
   for (const [rec, want] of [[{ phone: 0, at: "2026-11-04T09:00:00.000Z" }, "1 of 5"], [null, "0 of 5"]]) {
     const probe = await scenario(browser, "2026-11-04", rec ? { studyDays: [], monk: { days: { "2026-11-04": rec } } } : null);
     await probe.page.evaluate(() => { location.hash = "#/monk"; });

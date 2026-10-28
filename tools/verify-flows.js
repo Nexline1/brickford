@@ -2159,14 +2159,14 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   }
 
   // ---- T-054: Monk Mode, #/monk (loop/specs/T-054-monk-page/spec.md) ----
-  // At 390 and 1280, on Wed 28 Oct 2026 (day 1 of 21 since T-057 moved day 1 to 28 Oct; it was day 5 of 90), nothing stored:
+  // At 390 and 1280, on Fri 30 Oct 2026 (day 1 of 21 since T-061 moved day 1 to 30 Oct; T-057 had it on Wed 28 Oct, day 5 of 90 before that), nothing stored:
   //   opening the page writes nothing (twice, and after a repaint);
   //   a prayer chip, No sin (a toggle), a German chip, the work and Brickford-hours steppers and a new loop each write exactly
   //   once, on the press, and the page shows it; the four seed loops are
   //   on screen before anything is stored, and stored with the first loop;
   //   saving tomorrow's plan writes once, ticks today's "Plan tomorrow", and
-  //   with the clock moved to Thu 29 Oct is that day's Top 3.
-  const MK_DAY = "2026-10-28", MK_NEXT = "2026-10-29";
+  //   with the clock moved to Sat 31 Oct (day 2) is that day's Top 3.
+  const MK_DAY = "2026-10-30", MK_NEXT = "2026-10-31";
   const SEED_LOOPS = ["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop",
     "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
     "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];

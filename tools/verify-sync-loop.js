@@ -720,19 +720,21 @@ async function session(browser, { putOk }) {
   const c54 = (msg, ok, detail) => check(ok, msg + (detail ? " — " + detail : ""));
   {
     const MARK = "MONK-PRIVATE-7f3a";
-    const at = h => "2026-10-28T" + String(h).padStart(2, "0") + ":00:00.000Z";
+    // T-061: every monk date in this block and the next moved +2 days with day 1 (28 -> 30 Oct), so
+    // today is day 1 again and each other date keeps its place around it. The seed stamp and the remote study day stay.
+    const at = h => "2026-10-30T" + String(h).padStart(2, "0") + ":00:00.000Z";
     const localMonk = {
-      days: { "2026-10-27": { prayers: { fajr: true }, german: true, at: at(5) }, "2026-10-26": { work: 4, at: at(3) } },
-      plans: { "2026-10-28": { business: "Ship " + MARK, content: "c", education: "e", at: at(4) } },
+      days: { "2026-10-29": { prayers: { fajr: true }, german: true, at: at(5) }, "2026-10-28": { work: 4, at: at(3) } },
+      plans: { "2026-10-30": { business: "Ship " + MARK, content: "c", education: "e", at: at(4) } },
       loops: { s1: { text: "seed one", done: false, at: "2026-10-22T00:00:00.000Z" }, mine: { text: "loop " + MARK, done: false, at: at(2) } },
     };
     const remoteMonk = {
-      days: { "2026-10-27": { prayers: {}, german: false, at: at(9) }, "2026-10-20": { work: 9, at: at(1) } },
+      days: { "2026-10-29": { prayers: {}, german: false, at: at(9) }, "2026-10-22": { work: 9, at: at(1) } },
       plans: {}, loops: { theirs: { text: "remote loop", done: false, at: at(1) } },
     };
     const remote = { v: 1, device: "device-b", ledgers: {}, state: { studyDays: ["2026-10-19"], monk: remoteMonk } };
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
-    await ctx.clock.setFixedTime(new Date("2026-10-28T12:00:00Z"));
+    await ctx.clock.setFixedTime(new Date("2026-10-30T12:00:00Z"));
     await ctx.addInitScript(m => {
       if (window.top !== window) return;
       localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
@@ -760,7 +762,7 @@ async function session(browser, { putOk }) {
       await page.waitForSelector("#view [data-mk-pray]");
       const p0 = puts.length;
       await page.click("#view [data-mk-pray]");
-      await page.waitForFunction(() => !!((((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || {}).days || {})["2026-10-28"] || {}).prayers), null, { timeout: 5000 });
+      await page.waitForFunction(() => !!((((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || {}).days || {})["2026-10-30"] || {}).prayers), null, { timeout: 5000 });
       // The automatic push is 4s after a save; 6s is past it. The manual push
       // below is the proof this stub sees a PUT when one is made.
       await page.waitForTimeout(6000);
@@ -777,7 +779,7 @@ async function session(browser, { putOk }) {
       c54("(m3) and none of the monk text anywhere in it (\"" + MARK + "\", \"remote loop\")", body.length > 0 && !body.includes(MARK) && !body.includes("remote loop"), "");
       const b = await st();
       c54("(m3) after the push merged the remote, local monk still has only its own data (+ today's tick)",
-        !!b.monk && JSON.stringify(b.monk.days["2026-10-27"]) === JSON.stringify(localMonk.days["2026-10-27"]) && !b.monk.days["2026-10-20"] && !b.monk.loops.theirs && !!b.monk.loops.mine,
+        !!b.monk && JSON.stringify(b.monk.days["2026-10-29"]) === JSON.stringify(localMonk.days["2026-10-29"]) && !b.monk.days["2026-10-22"] && !b.monk.loops.theirs && !!b.monk.loops.mine,
         JSON.stringify(b.monk && Object.keys(b.monk.days)));
       c54("(m) no page errors", errors.length === 0, errors.join(" | "));
     } catch (e) { check(false, "(m) the privacy half ran to its end without a harness error — " + e.message.split("\n")[0]); }
@@ -797,18 +799,18 @@ async function session(browser, { putOk }) {
       c54("(f) app.js declares `" + FLIP + "` exactly once, so the flip is real", found === 1, found + " found");
       fs.writeFileSync(path.join(dir, "js/app.js"), app.replace(FLIP, "const MONK_SYNCS = true;"));
       const at = (d, h) => d + "T" + String(h).padStart(2, "0") + ":00:00.000Z";
-      const T = "2026-10-28";
+      const T = "2026-10-30";
       const local = { studyDays: [], monk: {
-        days: { "2026-10-26": { work: 6, at: at(T, 9) }, "2026-10-27": { work: 2, at: at(T, 1) }, "2026-10-25": { gym: 1, at: at(T, 2) } },
-        plans: { "2026-10-29": { business: "mine newer", at: at(T, 8) }, "2026-10-30": { business: "mine older", at: at(T, 1) } },
+        days: { "2026-10-28": { work: 6, at: at(T, 9) }, "2026-10-29": { work: 2, at: at(T, 1) }, "2026-10-27": { gym: 1, at: at(T, 2) } },
+        plans: { "2026-10-31": { business: "mine newer", at: at(T, 8) }, "2026-11-01": { business: "mine older", at: at(T, 1) } },
         loops: { s1: { text: "seed", done: false, at: "2026-10-22T00:00:00.000Z" }, keep: { text: "local done", done: true, at: at(T, 7) }, solo: { text: "local only", done: false, at: at(T, 3) } } } };
       const remoteMonk = {
-        days: { "2026-10-26": { work: 1, at: at(T, 3) }, "2026-10-27": { work: 10, at: at(T, 4) }, "2026-10-24": { book: 1, at: at(T, 5) } },
-        plans: { "2026-10-29": { business: "theirs older", at: at(T, 2) }, "2026-10-30": { business: "theirs newer", at: at(T, 6) } },
+        days: { "2026-10-28": { work: 1, at: at(T, 3) }, "2026-10-29": { work: 10, at: at(T, 4) }, "2026-10-26": { book: 1, at: at(T, 5) } },
+        plans: { "2026-10-31": { business: "theirs older", at: at(T, 2) }, "2026-11-01": { business: "theirs newer", at: at(T, 6) } },
         loops: { s1: { text: "seed", done: true, at: at(T, 6) }, keep: { text: "local done", done: false, at: at(T, 2) }, far: { text: "remote only", done: false, at: at(T, 1) } } };
       const want = {
-        days: { "2026-10-26": local.monk.days["2026-10-26"], "2026-10-27": remoteMonk.days["2026-10-27"], "2026-10-25": local.monk.days["2026-10-25"], "2026-10-24": remoteMonk.days["2026-10-24"] },
-        plans: { "2026-10-29": local.monk.plans["2026-10-29"], "2026-10-30": remoteMonk.plans["2026-10-30"] },
+        days: { "2026-10-28": local.monk.days["2026-10-28"], "2026-10-29": remoteMonk.days["2026-10-29"], "2026-10-27": local.monk.days["2026-10-27"], "2026-10-26": remoteMonk.days["2026-10-26"] },
+        plans: { "2026-10-31": local.monk.plans["2026-10-31"], "2026-11-01": remoteMonk.plans["2026-11-01"] },
         loops: { s1: remoteMonk.loops.s1, keep: local.monk.loops.keep, solo: local.monk.loops.solo, far: remoteMonk.loops.far } };
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
       await ctx.clock.setFixedTime(new Date(T + "T12:00:00Z"));

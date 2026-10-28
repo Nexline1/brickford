@@ -129,3 +129,4 @@
     - The T-059 step-1 source count is a research agent (sonnet), paused by the usage limit; its output goes to scratchpad t059-sources.md.
   - **(3) T-060 is a future task.** It covers AI tools and coding videos (Replit confirmed).
 - 2026-10-28: The usage limit hit all three agents (reset 16:20 UTC). The calendar and T-058 agents have been resumed. The research agent resumes once the calendar job is done.
+- 2026-10-29: T-058's gates all exited 0 at df6b977; the builder hit the limit again, so I committed the outputs myself. Review r1 is running (reviewer opus, fresh). Owner: "Reset monk mode to start on 30 of Oct" → T-061 (from 30 Oct, still 21 days, ends 19 Nov), built by builder (opus) in /home/user/bf-T-061. Merge order: T-061 first (it is time-sensitive), then T-058 merges main and re-runs CHECK. Calendar still ends 17 Nov; owner to say whether to add 18–19 Nov.

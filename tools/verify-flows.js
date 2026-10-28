@@ -2159,9 +2159,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   }
 
   // ---- T-054: Monk Mode, #/monk (loop/specs/T-054-monk-page/spec.md) ----
-  // At 390 and 1280, on Wed 28 Oct 2026 (day 5 of 90 since T-056 moved day 1 to 24 Oct), nothing stored:
+  // At 390 and 1280, on Wed 28 Oct 2026 (day 1 of 21 since T-057 moved day 1 to 28 Oct; it was day 5 of 90), nothing stored:
   //   opening the page writes nothing (twice, and after a repaint);
-  //   a prayer chip, a habit, a German chip, a stepper and a new loop each write exactly
+  //   a prayer chip, No sin (a toggle), a German chip, the work and Brickford-hours steppers and a new loop each write exactly
   //   once, on the press, and the page shows it; the four seed loops are
   //   on screen before anything is stored, and stored with the first loop;
   //   saving tomorrow's plan writes once, ticks today's "Plan tomorrow", and
@@ -2184,8 +2184,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       loops: [...document.querySelectorAll("#view [data-mk-loop] .g-t")].map(n => n.textContent.trim()),
       chips: [...document.querySelectorAll("#view [data-mk-pray]")].map(b => b.dataset.mkPray) }));
     check("(m) opening #/monk writes nothing (" + w0 + " -> " + w1 + ", opened twice)", w1 === w0 && !(await monk()));
-    check("(m) the page is day 5 of 90 with 3 prayer chips and the 4 seed loops, before anything is stored",
-      first.head === "Day 5 of 90" && first.chips.join() === "fajr,dhuhrAsr,maghribIsha" && JSON.stringify(first.loops) === JSON.stringify(SEED_LOOPS), JSON.stringify(first));
+    check("(m) the page is day 1 of 21 with 3 prayer chips and the 4 seed loops, before anything is stored",
+      first.head === "Day 1 of 21" && first.chips.join() === "fajr,dhuhrAsr,maghribIsha" && JSON.stringify(first.loops) === JSON.stringify(SEED_LOOPS), JSON.stringify(first));
     const once = async (sel, name, ok) => {
       const before = await writes(page);
       await markView(page);
@@ -2197,11 +2197,15 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     };
     const isISO = v => typeof v === "string" && !isNaN(Date.parse(v)) && /T/.test(v);
     await once("#view [data-mk-pray=fajr]", "the Fajr chip", (m, p) => m.days[MK_DAY].prayers.fajr === true && isISO(m.days[MK_DAY].at) && p === "true");
-    await once("#view [data-mk-habit=brickford]", "the Brickford habit", (m, p) => m.days[MK_DAY].brickford === true && m.days[MK_DAY].prayers.fajr === true && p === "true");
-    await once("#view [data-mk-german=podcast]", "the German podcast chip", (m, p) => JSON.stringify(m.days[MK_DAY].german) === JSON.stringify({ podcast: true }) && m.days[MK_DAY].brickford === true && p === "true");
+    // T-057: the Brickford habit toggle became the bfh hours stepper; No sin is the toggle pressed here.
+    await once("#view [data-mk-habit=nosin]", "the No sin toggle", (m, p) => m.days[MK_DAY].nosin === true && m.days[MK_DAY].prayers.fajr === true && p === "true");
+    await once("#view [data-mk-german=podcast]", "the German podcast chip", (m, p) => JSON.stringify(m.days[MK_DAY].german) === JSON.stringify({ podcast: true }) && m.days[MK_DAY].nosin === true && p === "true");
     await once("#view [data-mk-num=work][data-d='0.5']", "the work-hours stepper (+0.5)", m => m.days[MK_DAY].work === 0.5);
     const outText = await page.evaluate(() => ((document.querySelector("#view [data-mk-out=work]") || {}).textContent || "").trim());
     check("(m) the stepper reads 0.5 / 10", outText === "0.5 / 10", outText);
+    await once("#view [data-mk-num=bfh][data-d='0.5']", "the Brickford-hours stepper (+0.5), under bfh, no boolean brickford written", m => m.days[MK_DAY].bfh === 0.5 && !("brickford" in m.days[MK_DAY]) && m.days[MK_DAY].work === 0.5);
+    const bfhText = await page.evaluate(() => ((document.querySelector("#view [data-mk-out=bfh]") || {}).textContent || "").trim());
+    check("(m) the Brickford stepper reads 0.5 / 3", bfhText === "0.5 / 3", bfhText);
     // A new loop: the first write to loops stores the four seeds with it.
     {
       const before = await writes(page);
@@ -2237,8 +2241,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       await go(page, "/monk");
       const top2 = await page.evaluate(() => [...document.querySelectorAll("#view #mkTop3 .g-t")].map(n => n.textContent.trim()));
       const head2 = await page.evaluate(() => ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim());
-      check("(m) the clock moved to " + MK_NEXT + ": day 6, and the Top 3 is the plan saved last night, with no write",
-        head2 === "Day 6 of 90" && JSON.stringify(top2) === JSON.stringify(["Call two venues", "Script the Bahrain video", "MATH 120 lecture 4"]) && (await writes(page)) === w2,
+      check("(m) the clock moved to " + MK_NEXT + ": day 2, and the Top 3 is the plan saved last night, with no write",
+        head2 === "Day 2 of 21" && JSON.stringify(top2) === JSON.stringify(["Call two venues", "Script the Bahrain video", "MATH 120 lecture 4"]) && (await writes(page)) === w2,
         head2 + " " + JSON.stringify(top2));
     }
     await shot(page, "monk-" + w);
@@ -2254,7 +2258,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
       "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
       "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028); " +
-      "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, a habit, a German chip, a stepper, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054)"
+      "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

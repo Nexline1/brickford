@@ -1,0 +1,189 @@
+  ok    day 1 = START_DATE — DAR.START_DATE 2026-10-16, studyIndex(START) 0, dateForStudy(0) 2026-10-16
+  ok    day 1094 = dateForStudy(1093) = 2030-04-14 — got 2030-04-14
+  ok    gate baseline addStudyDays(START, 1094) = 2030-04-15 — got 2030-04-15
+  ok    studyIndex is -1 on a Saturday — 185 Saturdays from 2026-10-16 to 2030-04-27
+  ok    studyIndex is -1 before the start — 289 days before 2026-10-16
+  ok    studyIndex counts every non-Saturday once, in order — 1105 study days, the last index 1104
+  ok    dateForStudy(studyIndex(d)) = d for study days — 1105 study days round-tripped
+  ok    scheduledFor(Saturday) = [] — every Saturday empty; day 1 schedules 8 (not vacuous)
+  ok    dayStatus(Saturday) = "rest" — every Saturday rest; an untouched past study day is "missed" (not vacuous)
+  ok    no page errors (date scenario)
+  ok    streak steps over an unsealed Saturday — run Fri 23 Oct – Sun 1 Nov across unsealed Sats 24 and 31 Oct: expected 8, got 8
+  ok    bestStreak steps over unsealed rest-day gaps — expected 8, got 8
+  ok    no page errors (streak scenario)
+  ok    streak does not count a sealed Saturday — run Fri 23 Oct – Sun 1 Nov with Sat 31 Oct sealed: expected 8, got 8
+  ok    no page errors (sealed-Saturday scenario)
+  ok    streak stops at streakFrom — streakFrom 30 Oct: expected 2, got 2
+  ok    bestStreak ignores streakFrom — streakFrom 30 Oct: expected 8, got 8
+  ok    no page errors (streakFrom scenario)
+  ok    a rest day owes no lessons (backlogCount) — expected 0, got 0
+  ok    no page errors (backlog scenario 1)
+  ok    backlogCount = the unwatched lectures scheduled since the first activity — 7 study days 2026-10-23 .. 2026-10-31: expected 23, got 23
+  ok    no page errors (backlog scenario 2)
+  ok    storytelling runs only in the Publish block — 221 SPCH item-days, 0 outside Publish, 0 non-SPCH item(s) in Publish
+  ok    removing storytelling moves no other lesson or block — 1105 days of Theory and Build identical with and without the course
+  ok    no page errors (isolation scenario)
+  ok    a legacy true gives the same targets on two different days (no gate event: passed on START_DATE) — 2026-11-01: 1:passed 2026-10-16->2026-12-27 2:open->2027-03-08 3:open->2027-10-06 4:open->2028-05-05 5:open->2030-02-03 | 2026-11-15: 1:passed 2026-10-16->2026-12-27 2:open->2027-03-08 3:open->2027-10-06 4:open->2028-05-05 5:open->2030-02-03 | want 1:passed 2026-10-16->2026-12-27 2:open->2027-03-08 3:open->2027-10-06 4:open->2028-05-05 5:open->2030-02-03
+  ok    no page errors (legacy true scenarios) —  
+  ok    a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 19 Oct 22:30Z is 20 Oct; a later unmark event is not it), the same on two days — 2026-11-01: 1:passed 2026-10-20->2026-12-27 2:open->2027-03-11 3:open->2027-10-10 4:open->2028-05-09 5:open->2030-02-06 | 2026-11-15: 1:passed 2026-10-20->2026-12-27 2:open->2027-03-11 3:open->2027-10-10 4:open->2028-05-09 5:open->2030-02-06 | want 1:passed 2026-10-20->2026-12-27 2:open->2027-03-11 3:open->2027-10-10 4:open->2028-05-09 5:open->2030-02-06
+  ok    no page errors (legacy true with a gate event) —  
+  ok    old date strings read the same as before (passed on that date; a Saturday pass counts from the next study day), in UTC and America/Los_Angeles — UTC: 1:passed 2026-11-20->2026-12-27 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08 | America/Los_Angeles: 1:passed 2026-11-20->2026-12-27 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08 | want 1:passed 2026-11-20->2026-12-27 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08
+  ok    render is a read: loading and drawing /atlas, /transcript and / leaves the old shapes as stored — UTC true,true,true; America/Los_Angeles true,true,true
+  ok    the next ordinary save stores { date, at, passed } (at = the date's LOCAL midnight, UTC and Los Angeles), and the plan does not move — UTC {"1":{"date":"2026-11-20","at":"2026-11-20T00:00:00.000Z","passed":true},"2":{"date":"2027-03-13","at":"2027-03-13T00:00:00.000Z","passed":true},"3":{"date":null,"at":null,"passed":false}} | 1:passed 2026-11-20->2026-12-27 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08 || America/Los_Angeles {"1":{"date":"2026-11-20","at":"2026-11-20T08:00:00.000Z","passed":true},"2":{"date":"2027-03-13","at":"2027-03-13T08:00:00.000Z","passed":true},"3":{"date":null,"at":null,"passed":false}} | 1:passed 2026-11-20->2026-12-27 2:passed 2027-03-13->2027-04-12 3:open->2027-10-12 4:open->2028-05-11 5:open->2030-02-08
+  ok    no page errors (old date strings) —  
+  ok    an out-of-order pass is impossible: Gate 3, 2 or 5 before Gate 1 is refused, stores nothing and logs nothing — returned false,false,false, stored {}, 0 gate event(s)
+  ok    the next gate can be passed: stored as { date: today (local: 2 Nov in Bahrain), at, passed: true }, and Gate 3 is still refused after it — pass 1 true {"date":"2026-11-02","at":"2026-11-01T22:30:00.000Z","passed":true}; pass 3 false; pass 2 true
+  ok    only the last passed gate can be unmarked (Gate 1 refused while Gate 2 is passed; Gate 2 then stored { passed: false }) — unmark 1 false, unmark 2 true, plan ["2026-11-02",null,null,null,null], events gate1:true,gate2:true,gate2:false
+  ok    no page errors (gate order)
+  ok    LWW merge: a pass at t1, then an unmark at t2 on another device, gives an unmark after a pull either way round — the device that passed (t1) pulls the unmark (t2): open -> open; the device that unmarked (t2) pulls the pass (t1): still open -> open
+  ok    LWW merge, mixed devices: an unmark beats an older legacy date string, either side — an unmark (t2) pulls a legacy date string for that day (00:00): still open -> open; a legacy date string here pulls a newer unmark: open -> open
+  ok    LWW merge is last-writer-wins, not unmark-wins: a later pass beats an earlier unmark, and a timed pass beats a legacy false — an unmark (t1) pulls a later pass (t2): passed -> passed 2026-10-30; a legacy false (no time) pulls a timed pass: passed -> passed 2026-10-30
+  ok    a remote legacy true is dated by its gate event in the remote's own ledger (19 Oct, not START_DATE) — nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day -> passed 2026-10-19
+  ok    a pull of the same gates changes nothing — 0 change(s)
+  ok    no page errors (gate merge) —        
+  ok    the fixture day has gated and quiz-less lectures; dates from QUIZ_GATE_FROM 2026-10-24 (grandfathered 2026-10-23, gated 2026-10-25, today 2026-10-29) — 4 with a quiz, 2 without
+  ok    schedDone: watched after the gate with the quiz not passed is NOT done; a quiz-less watched lecture is — math120.0.0=false math120.0.1=false math120.0.2=false ai200.0.2=true ai200.0.3=true spch100.0.0=false
+  ok    schedDone: a passed quiz makes a watched lecture done — math120.0.0=true math120.0.1=true math120.0.2=true ai200.0.2=true ai200.0.3=true spch100.0.0=true
+  ok    schedDone: watched before the gate is done without a quiz (grandfathered) — math120.0.0=true math120.0.1=true math120.0.2=true ai200.0.2=true ai200.0.3=true spch100.0.0=true
+  ok    T-056 r3: QUIZ_GATE_FROM is 2026-10-24, so lectures watched on Fri 23 Oct count as done with no quiz (grandfathered) and the day paints completed — math120.0.0=true math120.0.1=true math120.0.2=true ai200.0.2=true ai200.0.3=true spch100.0.0=true; completed
+  ok    T-056 r3: a lecture watched ON the gate day (2026-10-24) still needs its quiz (strict <): not done, the day partial — math120.0.0=false math120.0.1=false math120.0.2=false ai200.0.2=true ai200.0.3=true spch100.0.0=false; partial
+  ok    no page errors (T-056 r3 gate-day fixtures)
+  ok    dayStatus follows: partial while a quiz is open, completed once passed or grandfathered — gated partial, passed completed, grandfathered completed
+  ok    backlogCount follows: an unpassed quiz is still owed, a pass or a grandfathered watch is not — gated 39 (want 39), passed 35 (want 35), grandfathered 35 (want 35)
+  ok    the lock: the first lecture of a course never; a lecture after a quiz-less one never (watched or not) — math120 lecture 1 false; ai200 0.1 and 1.0, each after a quiz-less lecture (one unwatched), false
+  ok    the fixture chain crosses the gate (not vacuous) — math120.0.5 2026-10-21 | math120.0.6 2026-10-25 | math120.0.7 | math120.0.8 (gate 2026-10-24)
+  ok    a lecture planned before the gate, not watched, does not lock its successor — math120.0.6 locked false
+  ok    a lecture planned on or after the gate, not watched, locks its successor — math120.0.7 locked true
+  ok    a chain across the gate locks only from the gate on: the root of math120.0.8 is math120.0.6, not math120.0.5 — root math120.0.6
+  ok    after the gate: watched with the quiz not passed still locks the next; a pass or a watch before the gate opens it — watched true, passed false, watched before the gate false
+  ok    no page errors (lock from go-live) —    
+  ok    catchUpQuizzes lists the grandfathered lectures with a quiz not passed, in course order, and nothing gated or passed — grandfathered math120.0.0,math120.0.1,math120.0.2,spch100.0.0; gated 0; passed 0
+  ok    the streak is unchanged by the gate: open quizzes do not touch sealed days — with open quizzes 10 (best 10), without lectures 10 (best 10)
+  ok    no page errors (quiz gate) —     
+  ok    unmark then re-mark keeps a lecture first watched before the gate grandfathered (cleared, on catch-up, the next lecture open) — {"before":{"cleared":true,"lock":false,"cu":true,"st":{"done":true,"doneAt":"2026-10-23","notes":"","checks":[]}},"off":{"done":false,"notes":"","checks":[],"recall":"","firstDoneAt":"2026-10-23"},"again":{"cleared":true,"lock":false,"cu":true,"st":{"done":true,"notes":"","checks":[],"recall":"","firstDoneAt":"2026-10-23","doneAt":"2026-10-29"}}}
+  ok    no page errors (re-mark)
+  ok    T-056 fixture: the old plan's days 1-8 read from START 2026-10-05 (40 lectures), watched 16-22 Oct, no quiz passed; 36 of them have a quiz; gate 2026-10-24 — new indices 0,1,2,3,4,5,6, 25 Oct index 7, Sat 17 Oct rest
+  ok    T-056: every lecture the new plan puts on days 1-8 was watched and counts as done (grandfathered, no quiz needed) — 8+6+3+7+5+4+5+6 lectures
+  ok    T-056: days 1-7 (16-23 Oct, Sat 17 Oct rest) paint completed, none partial — 10-16 completed, 10-18 completed, 10-19 completed, 10-20 completed, 10-21 completed, 10-22 completed, 10-23 completed
+  ok    T-056: their quizzes stay on the catch-up list — 36 on the list
+  ok    T-056: the calendar draws days 1-7 done (dfull), no Part (dhalf) — 10-16 dfull, 10-18 dfull, 10-19 dfull, 10-20 dfull, 10-21 dfull, 10-22 dfull, 10-23 dfull
+  ok    T-056: on Sun 25 Oct (day 8, its lectures already watched) the next action opens the first lecture not yet watched — {"next":"math130.0.2","title":"Birthday Problem, Properties of Probability","prev":"math130.0.1","rail":"#/lesson/math130/0/2"}
+  ok    T-056: nothing on the dashboard asks to re-watch a watched lecture (a watched one shows only as a ticked done row) — 1 open lesson link(s), none watched; 6 ticked done row(s)
+  ok    T-056: nothing is owed, so the work-ahead card says "ahead of plan" — backlog 0, hint "MATH 130 · 49m video · today is done · ahead of plan"
+  ok    no page errors (T-056 watched days)
+  ok    T-056: today cleared with a lecture owed (math130.0.0): the card says "today is done · 1 owed", never "ahead of plan" — {"today":true,"backlog":1,"hint":"MATH 130 · 46m video · today is done · 1 owed","href":"#/lesson/math130/0/0"}
+  ok    T-056: with math130.0.0 owed, the work-ahead card opens it (the first lecture not watched, in plan order) — {"today":true,"backlog":1,"hint":"MATH 130 · 46m video · today is done · 1 owed","href":"#/lesson/math130/0/0"}
+  ok    no page errors (T-056 owed)
+  ok    T-056 r2: revision weeks 1-6 are the owner's: 16-23 Oct (revised Sun 25 Oct), then 25-30 Oct, 1-6 Nov, 8-13 Nov, 15-20 Nov, 22-27 Nov, each revised the Sunday after — [["2026-10-16","2026-10-23","2026-10-25"],["2026-10-25","2026-10-30","2026-11-01"],["2026-11-01","2026-11-06","2026-11-08"],["2026-11-08","2026-11-13","2026-11-15"],["2026-11-15","2026-11-20","2026-11-22"],["2026-11-22","2026-11-27","2026-11-29"]]
+  ok    T-056 r2: every date to Oct 2028 answers to the revision week of the first revision Sunday on or after it (731 dates) — first 2026-10-16 -> 1
+  ok    T-056 r2: the revision weeks partition the study days: week 1 holds 7, every other 6, each ends on a Friday and is revised two days later, a Sunday — 104 weeks to 2028-10-13
+  ok    T-056 r2: the exported calendar's weekly review starts Sun 25 Oct 18:00, weekly on Sundays (BYDAY=SU) —  | UID:brickford-review@brickford.local | DTSTAMP:20261101T120000Z | DTSTART:20261025T180000 | DTEND:20261025T183000 | RRULE:FREQ=WEEKLY;BYDAY=SU | SUMMARY:Brickford — Weekly Review (seal the week) | 
+  ok    no page errors (T-056 r2 arithmetic)
+  ok    T-056 r2: 2026-10-18 (Sun) offers no seal — []
+  ok    T-056 r2: 2026-10-18 the Week page is "Week 1" and reads "Opens Sunday 25 Oct · 7 days" — {"h1":"Week 1","state":"Opens Sunday 25 Oct · 7 days"}
+  ok    no page errors (T-056 r2 2026-10-18)
+  ok    T-056 r2: 2026-10-23 (Fri) offers no seal — []
+  ok    T-056 r2: 2026-10-23 the Week page is "Week 1" and reads "Opens Sunday 25 Oct · 2 days" — {"h1":"Week 1","state":"Opens Sunday 25 Oct · 2 days"}
+  ok    no page errors (T-056 r2 2026-10-23)
+  ok    T-056 r2: 2026-10-24 (Sat) offers no seal — []
+  ok    T-056 r2: 2026-10-24 the Week page is "Week 1" and reads "Opens Sunday 25 Oct · 1 day" — {"h1":"Week 1","state":"Opens Sunday 25 Oct · 1 day"}
+  ok    no page errors (T-056 r2 2026-10-24)
+  ok    T-056 r2: 2026-10-25 (Sun) offers the seal, "30 min · Week 1 · 16–23 Oct" — [["Seal the week","30 min · Week 1 · 16–23 Oct"]]
+  ok    T-056 r2: 2026-10-25 the Week page is "Week 1" and reads "Ready to seal" — {"h1":"Week 1","state":"Ready to seal"}
+  ok    no page errors (T-056 r2 2026-10-25)
+  ok    T-056 r2: 2026-10-26 (Mon) offers no seal — []
+  ok    T-056 r2: 2026-10-26 the Week page is "Week 2" and reads "Opens Sunday 1 Nov · 6 days" — {"h1":"Week 2","state":"Opens Sunday 1 Nov · 6 days"}
+  ok    no page errors (T-056 r2 2026-10-26)
+  ok    T-056 r2: 2026-10-30 (Fri) offers no seal — []
+  ok    T-056 r2: 2026-10-30 the Week page is "Week 2" and reads "Opens Sunday 1 Nov · 2 days" — {"h1":"Week 2","state":"Opens Sunday 1 Nov · 2 days"}
+  ok    no page errors (T-056 r2 2026-10-30)
+  ok    T-056 r2: 2026-11-01 (Sun) offers the seal, "30 min · Week 2 · 25–30 Oct" — [["Seal the week","30 min · Week 2 · 25–30 Oct"]]
+  ok    T-056 r2: 2026-11-01 the Week page is "Week 2" and reads "Ready to seal" — {"h1":"Week 2","state":"Ready to seal"}
+  ok    T-056 r2: sealing on Sun 1 Nov (plan day 14, plan week 3 running) stores revision week 2 (25-30 Oct), and the chain says week2 — {"weeks":[{"week":2,"date":"2026-11-01","shipped":"a repo","dsa":0,"posts":0,"revenue":0,"notes":""}],"ev":{"type":"week","ref":"week2"}}
+  ok    no page errors (T-056 r2 2026-11-01)
+  ok    T-056 r2: 2026-11-05 (Thu) offers no seal — []
+  ok    T-056 r2: 2026-11-05 the Week page is "Week 3" and reads "Opens Sunday 8 Nov · 3 days" — {"h1":"Week 3","state":"Opens Sunday 8 Nov · 3 days"}
+  ok    no page errors (T-056 r2 2026-11-05)
+  ok    T-056 r2: 2026-11-08 (Sun) offers the seal, "30 min · Week 3 · 1–6 Nov" — [["Seal the week","30 min · Week 3 · 1–6 Nov"]]
+  ok    T-056 r2: 2026-11-08 the Week page is "Week 3" and reads "Ready to seal" — {"h1":"Week 3","state":"Ready to seal"}
+  ok    no page errors (T-056 r2 2026-11-08)
+  ok    T-056 r3: Sun 25 Oct with a pre-reset Week 1 sealed 11 Oct: the Week page reads "Ready to seal", not "Sealed 11 Oct" — "Ready to seal"
+  ok    T-056 r3: sealing it keeps the pre-reset entry exactly and appends this week's (week 1, 25 Oct); the page reads "Sealed 25 Oct" — {"state":"Sealed 25 Oct","weeks":[{"week":1,"date":"2026-10-11","shipped":"an old-plan repo","dsa":1,"posts":0,"revenue":0,"notes":"before reset seven"},{"week":1,"date":"2026-10-25","shipped":"flashcards-cli","dsa":0,"posts":0,"revenue":0,"notes":""}]}
+  ok    no page errors (T-056 r3 pre-reset week)
+  ok    T-056 r4: remote [old, new] pulled into local [old, new]: exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0 — {"first":0,"second":0,"cards":["Week 111 Oct","Week 125 Oct"]}
+  ok    no page errors (T-056 r4 merge [old, new])
+  ok    T-056 r4: remote [old, new] pulled into local [old]: exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0 — {"first":1,"second":0,"cards":["Week 111 Oct","Week 125 Oct"]}
+  ok    no page errors (T-056 r4 merge [old])
+  ok    T-056 r4: remote [old, new] pulled into local [new]: exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0 — {"first":1,"second":0,"cards":["Week 125 Oct","Week 111 Oct"]}
+  ok    no page errors (T-056 r4 merge [new])
+  ok    T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (34, 19, 15, 14, 14, 12) — [["../revision/week-01.pdf","Week 1","16–23 Oct · 34 lectures"],["../revision/week-02.pdf","Week 2","25–30 Oct · 19 lectures"],["../revision/week-03.pdf","Week 3","1–6 Nov · 15 lectures"],["../revision/week-04.pdf","Week 4","8–13 Nov · 14 lectures"],["../revision/week-05.pdf","Week 5","15–20 Nov · 14 lectures"],["../revision/week-06.pdf","Week 6","22–27 Nov · 12 lectures"]]
+  ok    no page errors (T-056 r2 Library)
+  ok    monk mode on 2026-10-27: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
+  ok    no page errors (monk mode 2026-10-27)
+  ok    monk mode on 2026-10-28: day 1 of 21, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 21","h":63}
+  ok    no page errors (monk mode 2026-10-28)
+  ok    monk mode on 2026-10-30: day 3 of 21, a 44px row opening #/monk in the same window — {"day":3,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 3 of 21","h":63}
+  ok    no page errors (monk mode 2026-10-30)
+  ok    monk mode on 2026-11-17: day 21 of 21, a 44px row opening #/monk in the same window — {"day":21,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 21 of 21","h":63}
+  ok    no page errors (monk mode 2026-11-17)
+  ok    monk mode on 2026-11-18: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
+  ok    no page errors (monk mode 2026-11-18)
+  ok    PRAYER_METHOD is the table's method ({"fajr":17.7,"maghrib":4.5,"isha":14,"combine":true}) — {"fajr":17.7,"maghrib":4.5,"isha":14,"combine":true}
+  ok    MONK_SYNCS ships false until T-053 — false
+  ok    prayer times, Manama, 2026-10-22: fajr 04:24, dhuhr 11:22, maghrib 17:20 within 1 minute — fajr off by 0.39, dhuhr off by 0.14, maghrib off by 0.20
+  ok    prayer times, Manama, 2026-12-06: fajr 04:51, dhuhr 11:29, maghrib 17:04 within 1 minute — fajr off by 0.04, dhuhr off by 0.39, maghrib off by 0.48
+  ok    prayer times, Manama, 2027-01-15: fajr 05:07, dhuhr 11:47, maghrib 17:25 within 1 minute — fajr off by 0.09, dhuhr off by 0.07, maghrib off by 0.08
+  ok    prayer times equal the reference's prayerTimes (loop/design/monk-mode.html) on all 90 days, to 0.01 minute — worst 2026-11-06 maghrib off by 0.0000 min
+  ok    combine on: 3 chips, Fajr, Dhuhr & Asr, Maghrib & Isha — Fajr|Dhuhr & Asr|Maghrib & Isha
+  ok    combine on: 3 prayer blocks, Fajr 15 min at Fajr, Dhuhr & Asr 25 min at Dhuhr, Maghrib & Isha 25 min at Maghrib — [["Fajr",264.8830312119823,15],["Dhuhr & Asr",681.9930718516416,25],["Maghrib & Isha",1039.3626751154438,25]]
+  ok    combine off: 5 chips and 5 prayer blocks, each at its own time — [["Fajr",264.8830312119823,15],["Dhuhr",681.9930718516416,15],["Asr",877.1523816686621,15],["Maghrib",1039.3626751154438,15],["Isha",1082.1936274444402,15]]
+  ok    the routine on 2026-10-25 (Sun): 17 blocks as the owner gave them — missing [], extra []
+  ok    the routine on 2026-10-26 (Mon): 16 blocks as the owner gave them — missing [], extra []
+  ok    the routine on 2026-10-27 (Tue): 16 blocks as the owner gave them — missing [], extra []
+  ok    the routine on 2026-10-28 (Wed): 16 blocks as the owner gave them — missing [], extra []
+  ok    the routine on 2026-10-29 (Thu): 16 blocks as the owner gave them — missing [], extra []
+  ok    the routine on 2026-10-30 (Fri): 17 blocks as the owner gave them — missing [], extra []
+  ok    the routine on 2026-10-31 (Sat): 16 blocks as the owner gave them — missing [], extra []
+  ok    Friday 2026-10-23: no Jumu'ah block, the grave visit stays — Fajr, Journaling, Meditation, Gym, German — Easy German podcast, Brickford — Deep Track, Grandmother — grave visit, Scripting, Dhuhr & Asr, Working — business, Post short-form, Nap, German — speaking, German — writing, Working — business, Maghrib & Isha, German — reading, Working — business, Reading, Plan tomorrow
+  ok    score: nothing logged = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: all five priorities, every Also item undone = 5 of 5 (100%) — {"done":5,"n":5,"pct":100}
+  ok    score: every Also item done, no priorities = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: all five and every Also item = 5 of 5 (100%) — {"done":5,"n":5,"pct":100}
+  ok    score: brickford: true alone does not satisfy Brickford = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: four priorities + brickford: true instead of bfh = 4 of 5 (80%) — {"done":4,"n":5,"pct":80}
+  ok    score: bfh 3 counts = 1 of 5 (20%) — {"done":1,"n":5,"pct":20}
+  ok    score: bfh 2.5 does not = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: work 10 counts = 1 of 5 (20%) — {"done":1,"n":5,"pct":20}
+  ok    score: work 9.5 does not = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: nosin required: the other four, nosin missing = 4 of 5 (80%) — {"done":4,"n":5,"pct":80}
+  ok    score: nosin required: the other four, nosin false = 4 of 5 (80%) — {"done":4,"n":5,"pct":80}
+  ok    score: nosin true alone = 1 of 5 (20%) — {"done":1,"n":5,"pct":20}
+  ok    score: Fajr only is not prayer on time = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: German 3 of 4 does not count = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: German as a bare true (the old shape) does not count = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score: a separate-prayer key does not count when combined = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
+  ok    score, combine off: all 5 prayers + work = 2 of 5; 4 of 5 prayers + work = 1 of 5 — [{"done":2,"n":5,"pct":40},{"done":1,"n":5,"pct":20}]
+  ok    MONK is 21 days from Wed 28 Oct 2026 (T-057) — {"from":"2026-10-28","days":21}
+  ok    weeks start on Sunday: 98 days, each in the week of the Sunday on or before it
+  ok    this week (Sun 25 - Sat 31 Oct) from Wed 28 Oct: {"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30} — {"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30}
+  ok    the same week from its Sunday and from its Saturday — [{"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30},{"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30}]
+  ok    this month: October streams 3, clips 8; November streams 1, clips 4 — [{"stream":3,"clips":8},{"stream":1,"clips":4}]
+  ok    focus this week: German 1.5 h at 14% over 7 days, with its fix (Also items, all 0%, are not candidates) — {"days":7,"key":"german","label":"German 1.5 h","rate":14,"fix":"Do German listening on the run and speaking on the drive. Don't save it for later."}
+  ok    focus this week: No sin today at 29% over 7 days, with a one-line fix — {"days":7,"key":"nosin","label":"No sin today","rate":29,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
+  ok    focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged — {"days":7,"key":"bfh","label":"Brickford 3 h","rate":0,"fix":"Start the Deep Track before you check any messages."}
+  ok    focus on Sat 31 Oct: 3 monk days (28-30 Oct), the days before day 1 not counted: No sin at 0% — {"days":3,"key":"nosin","label":"No sin today","rate":0,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
+  ok    phone under 2 h: phone 0 -> true — true
+  ok    phone under 2 h: phone 1.5 -> true — true
+  FAIL  phone under 2 h: phone exactly 2 -> false — true
+  ok    phone under 2 h: phone missing -> false — false
+  ok    phone under 2 h: phone null -> false — false
+  ok    no page errors (monk arithmetic)
+  ok    the Also count with {phone: 0} reads 1 of 5 — ["Also","1 of 5"]
+  ok    no page errors (Also count, 1 of 5)
+  ok    the Also count with nothing logged reads 0 of 5 — ["Also","0 of 5"]
+  ok    no page errors (Also count, 0 of 5)
+  ok    the test hook exists only under #__test — absent on #/
+  ok    no network sync (GitHub requests from test contexts) — 0 request(s)
+
+1 of 186 invariant(s) FAILED
+exit 1

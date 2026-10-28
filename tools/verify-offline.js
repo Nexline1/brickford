@@ -166,7 +166,12 @@ function watch(page) {
   page.on("pageerror", e => w.errors.push(String(e.message || e).split("\n")[0]));
   return w;
 }
-const controlled = page => page.waitForFunction(() => !!(navigator.serviceWorker && navigator.serviceWorker.controller), null, { timeout: 30000 }).then(() => true, () => false);
+// Controlled by a worker that has finished activating: a page's controller
+// switches to a new worker when its activation STARTS (the spec moves the
+// clients before the activate event runs), and the old caches go inside that
+// event, so a controller alone proves nothing about them.
+const controlled = (page, token) => page.waitForFunction(t => { const c = navigator.serviceWorker && navigator.serviceWorker.controller;
+  return !!c && c.state === "activated" && (!t || c.scriptURL.endsWith("?v=" + t)); }, token || null, { timeout: 30000 }).then(() => true, () => false);
 const cacheMap = page => page.evaluate(async () => {
   const out = {};
   for (const name of await caches.keys()) out[name] = (await (await caches.open(name)).keys()).map(r => r.url);
@@ -174,11 +179,16 @@ const cacheMap = page => page.evaluate(async () => {
 });
 const stored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
 const viewReady = page => page.waitForFunction(() => !!document.querySelector("#view > *"), null, { timeout: 15000 }).then(() => true, () => false);
-const viewFacts = page => page.evaluate(() => ({
-  h1: ((document.querySelector("#view h1") || {}).textContent || "").trim(),
-  text: (document.querySelector("#view") || {}).innerText || "",
-  title: document.title,
-}));
+const viewFacts = page => page.evaluate(() => {
+  const k = document.querySelector("#view .katex");
+  return {
+    h1: ((document.querySelector("#view h1") || {}).textContent || "").trim(),
+    text: (document.querySelector("#view") || {}).innerText || "",
+    title: document.title,
+    katex: document.querySelectorAll("#view .katex").length,
+    font: k ? getComputedStyle(k).fontFamily : "",
+  };
+});
 async function launch(page, r) {
   await page.goto("about:blank");
   await page.goto(BASE + "/platform/#" + r, { waitUntil: "load" }).catch(() => {});
@@ -253,22 +263,23 @@ let BASE = "";
   w = watch(page);
   check(await launch(page, "/") && (await viewFacts(page)).h1 === online["/"].h1 && await page.evaluate(() => navigator.onLine === false),
     "relaunched offline: the dashboard renders (" + online["/"].h1 + ")");
-  const bad = [];
+  const bad = [], mathBad = [], withMath = [];
+  let font = "";
   for (const r of SHELL_ROUTES) {
     const ok = await launch(page, r);
     const f = await viewFacts(page);
-    const math = await page.evaluate(() => typeof window.renderMathInElement === "function");
-    if (!ok || f.title !== "Brickford" || f.h1 !== online[r].h1 || f.text.length < 40 || !math) bad.push(r + " (h1 " + JSON.stringify(f.h1) + ", " + f.text.length + " chars" + (math ? "" : ", no KaTeX") + ")");
+    if (!ok || f.title !== "Brickford" || f.h1 !== online[r].h1 || f.text.length < 40) bad.push(r + " (h1 " + JSON.stringify(f.h1) + ", " + f.text.length + " chars)");
+    if (f.katex !== online[r].katex) mathBad.push(r + " " + online[r].katex + " online, " + f.katex + " offline");
+    if (f.katex) { withMath.push(r); font = font || f.font; }
   }
   check(!bad.length, "every route verify-shell visits renders offline, the same page as online (" + SHELL_ROUTES.length + " routes" + (bad.length ? "; " + bad.join("; ") : "") + ")");
   check(!w.failed.length && !w.errors.length, "offline, nothing of ours failed to load and nothing threw (" + w.failed.concat(w.errors).slice(0, 8).join(", ") + ")");
-
   // KaTeX: the script, auto-render and the stylesheet, all out of the cache.
-  for (const r of ["/lesson/math110/0/0", "/concept/la-eigen"]) {
-    await launch(page, r);
-    const k = await page.evaluate(() => { const e = document.querySelector("#view .katex"); return { n: document.querySelectorAll("#view .katex").length, font: e ? getComputedStyle(e).fontFamily : "" }; });
-    check(k.n > 0 && /KaTeX_Main/.test(k.font), "KaTeX renders offline on " + r + " (" + k.n + " .katex, font " + (k.font || "none") + ")");
-  }
+  // Every route's math is typeset offline exactly as online, and the
+  // stylesheet's font-family reaches a typeset element.
+  check(withMath.length > 0 && !mathBad.length && /KaTeX_Main/.test(font),
+    "KaTeX renders offline: the same .katex count as online on every route, " + withMath.length + " with math (" + withMath.join(", ") + "), font " + (font || "none") +
+    (mathBad.length ? "; differs: " + mathBad.join("; ") : ""));
   // The Library's documents load by fetch, from beside platform/.
   const docBad = [];
   for (const d of DOCS) {
@@ -324,24 +335,31 @@ let BASE = "";
   // The revision PDFs, opened from the Library the way the owner opens them:
   // a new tab, a top-level navigation outside platform/.
   await launch(page, "/library");
-  // The download listener goes on in the page event itself, before the tab can
-  // do anything: headless Chromium has no PDF viewer, so the PDF arrives as a
-  // download, and a listener added a moment later can miss it.
-  const opened = new Promise(res => ctx.once("page", p => {
-    const t = setTimeout(() => res({ tab: p, dl: null }), 10000);
-    p.once("download", d => { clearTimeout(t); res({ tab: p, dl: d }); });
-  }));
+  // Headless Chromium has no PDF viewer, so the PDF arrives as a download,
+  // reported on the opener as well as on the tab it opened in, and sometimes
+  // on the opener before the tab's own page event: listened for on both, from
+  // before the click, and the new tab is its own fact (the page count grew).
+  const pagesBefore = ctx.pages().length;
+  const dlP = new Promise(res => {
+    const t = setTimeout(() => res(null), 10000);
+    const got = d => { clearTimeout(t); res(d); };
+    page.once("download", got);
+    ctx.once("page", p => p.once("download", got));
+  });
   await page.click("#view .lb-rev a");
-  const { tab, dl } = await opened;
+  const dl = await dlP;
+  const newTab = await until(() => ctx.pages().length > pagesBefore, 3000);
+  const tab = ctx.pages().slice(pagesBefore)[0] || null;
   let pdfOk = false, how = "nothing arrived";
   if (dl) {
     const got = fs.readFileSync(await dl.path()), disk = fs.readFileSync(path.join(ROOT, "revision", PDFS[0]));
-    pdfOk = got.equals(disk); how = got.length + " bytes, " + (pdfOk ? "identical to " : "not ") + "revision/" + PDFS[0];
-  } else {
+    pdfOk = newTab && got.equals(disk) && dl.url() === BASE + "/revision/" + PDFS[0];
+    how = got.length + " bytes from " + dl.url().replace(BASE, "") + (newTab ? " in a new tab, " : " (no new tab), ") + (got.equals(disk) ? "identical to " : "not ") + "revision/" + PDFS[0];
+  } else if (tab) {
     const body = await tab.evaluate(() => document.contentType).catch(() => "");
-    pdfOk = body === "application/pdf"; how = "opened as " + body;
+    pdfOk = body === "application/pdf"; how = "opened as " + (body || "nothing");
   }
-  await tab.close();
+  for (const p of ctx.pages().slice(pagesBefore)) await p.close().catch(() => {});
   check(pdfOk, "the Library's Week 1 tile opens its revision PDF offline, in its own tab (" + how + ")");
   const all = await page.evaluate(async list => Promise.all(list.map(async f => {
     try { const r = await fetch("../revision/" + f); const b = new Uint8Array(await r.arrayBuffer()); return [f, r.status, b.length, String.fromCharCode(...b.slice(0, 5))]; }
@@ -410,7 +428,7 @@ let BASE = "";
     await p2.goto(BASE + "/platform/#/", { waitUntil: "load" });
     const appB = await p2.evaluate(() => (document.querySelector('script[src*="js/app.js"]') || {}).src || "");
     check(appB.endsWith("?v=" + TOKEN_B) && await viewReady(p2), "the next launch runs B: index.html came from the network, past a fresh HTTP cache (" + appB.replace(BASE, "") + ")");
-    const swB = await p2.waitForFunction(t => !!navigator.serviceWorker.controller && navigator.serviceWorker.controller.scriptURL.endsWith("?v=" + t), TOKEN_B, { timeout: 30000 }).then(() => true, () => false);
+    const swB = await controlled(p2, TOKEN_B);
     const cb = await cacheMap(p2);
     check(swB && !!cb["brickford-" + TOKEN_B] && !cb["brickford-" + TOKEN] && !!cb["brickford-files"],
       "B's worker is in charge, its cache is there and A's is gone (caches: " + Object.keys(cb).join(", ") + ")");

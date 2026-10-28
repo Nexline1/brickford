@@ -1,0 +1,2 @@
+node --check: 38 files OK
+exit 0

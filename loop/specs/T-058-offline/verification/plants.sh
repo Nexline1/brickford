@@ -13,6 +13,7 @@ OUT="$(dirname "$0")"
 export NODE_PATH=/opt/node22/lib/node_modules
 APP="$ROOT/platform/js/app.js"
 SW="$ROOT/sw.js"
+INDEX="$ROOT/platform/index.html"
 MANIFEST="$ROOT/platform/manifest.json"
 BAK=""; TARGET=""; CHILD=""; BAD=0
 restore() {
@@ -47,7 +48,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only register-on-file}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -114,6 +115,10 @@ X
   scope-platform-only) plant "$n" "$MANIFEST" \
     '  "scope": "../",' \
     '  "scope": "./",' ;;
+  # Review r1, 7: the http(s) guard gone, so file:// calls register() (and is refused).
+  register-on-file) plant "$n" "$INDEX" \
+    'if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))' \
+    'if ("serviceWorker" in navigator)' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

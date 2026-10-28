@@ -35,7 +35,7 @@
 // documents), online again (exactly one push, no latch), the Home Screen app
 // (a revision PDF in the app's own window), the video back in place, the
 // update (A to B on the next launch, A's cache gone, nothing reloaded under a
-// video), and file:// (the other gates' world: no worker).
+// video), and file:// (the other gates' world: register() never called).
 "use strict";
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
 process.env.PLAYWRIGHT_DISABLE_FORCED_CHROMIUM_PROXIED_LOOPBACK = "1";
@@ -729,13 +729,27 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   {
     const b3 = await chromium.launch(SEALED);
     const c = await freshContext(b3, false);
+    // Review r1, 7: register() itself is watched. A registration count cannot
+    // tell the guard from no guard, since on file:// register() is called,
+    // rejects and is caught, leaving zero registrations either way.
+    await c.addInitScript(() => {
+      window.__swSpy = { installed: false, calls: [] };
+      if (window.ServiceWorkerContainer && ServiceWorkerContainer.prototype.register) {
+        const real = ServiceWorkerContainer.prototype.register;
+        ServiceWorkerContainer.prototype.register = function (u) { window.__swSpy.calls.push(String(u)); return real.apply(this, arguments); };
+        window.__swSpy.installed = true;
+      }
+    });
     const p = await c.newPage();
     const errs = []; p.on("pageerror", e => errs.push(e.message));
     await p.goto("file://" + INDEX_FILE + "#/", { waitUntil: "load" });
     await p.waitForTimeout(500);
-    const r = await p.evaluate(async () => ({ view: !!document.querySelector("#view > *"),
+    const r = await p.evaluate(async () => ({ view: !!document.querySelector("#view > *"), sw: "serviceWorker" in navigator, spy: window.__swSpy,
       regs: navigator.serviceWorker && navigator.serviceWorker.getRegistrations ? (await navigator.serviceWorker.getRegistrations().catch(() => [])).length : 0 }));
-    check(r.view && r.regs === 0 && !errs.length, "file:// renders as before and registers nothing (" + r.regs + " registrations" + (errs.length ? ", " + errs[0] : "") + ")");
+    // The spy reaches register() here, so a call would be seen: the check can fail.
+    check(r.view && r.sw && r.spy.installed && r.spy.calls.length === 0 && r.regs === 0 && !errs.length,
+      "file:// renders as before and never calls register() (" + r.spy.calls.length + " calls" + (r.spy.calls.length ? ": " + r.spy.calls.join(", ") : "") +
+      ", spy " + (r.spy.installed ? "installed" : "NOT installed") + ", " + r.regs + " registrations" + (errs.length ? ", " + errs[0] : "") + ")");
     await b3.close();
   }
 

@@ -57,6 +57,6 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-058 | Offline: the whole app works with no connection (service worker, cached data/KaTeX/fonts/PDFs, offline lesson panel, sync on reconnect), installable | review | 1 | | owner 2026-10-28 "ASAP" |
 | T-059 | Offline video: a per-lecture Download button where the course publishes an official, licensed video file (e.g. MIT OCW), stored in the app and played offline. Step 1: count which lectures qualify. Owner also asked to download from YouTube itself: declined (YouTube terms) | ready (owner 2026-10-28, after T-058) | 0 | | owner 2026-10-28 |
 | T-060 | FUTURE: daily ≤20-min "New tools" videos (AI tools + coding: Codex, Claude Code, Replit, Python, JS, JSON) chosen for the owner's confirmed end goal; weekly scheduled refresh; outside the 3-year plan | future (owner 2026-10-28) | 0 | | see inbox 2026-10-28 |
-| T-061 | Monk Mode starts 30 Oct (21 days, ends 19 Nov) | building | 0 | | owner 2026-10-29 |
+| T-061 | Monk Mode starts 30 Oct (21 days, ends 19 Nov) | merged | 1 | #27 | owner 2026-10-29 |
 | T-053 | Progress sync moves to the private repo Nexline1/brickford-private, with a one-time merge from the public file (spec written) | paused (owner 2026-10-23: dashboard first) | 0 | | owner 2026-10-23 |
 | T-050 | verify-flows (p) "recorder track survives a reload" failed once in 3 runs on 2026-10-16 (T-043 ship check); likely the T-039 reload-storage residual. Instrument, then fix or extend acrossReload | proposed | 0 | | 2026-10-16 |

@@ -4958,9 +4958,10 @@ function t28SeedClips(list) {
 
   // =================== T-054: Monk Mode, #/monk ===================
   // loop/specs/T-054-monk-page/spec.md, verify-design: at 1440 and 390, Dark
-  // and Light, on two states — day 5 of 90 (day 1 is 24 Oct since T-056) with a day logged (a prayer, a
-  // habit and two numbers on, a loop closed, a plan saved for today), and
-  // 20 Oct, before the 90 days, with nothing stored — and once more with the
+  // and Light, on two states — day 8 of 21 (T-057: day 1 is Wed 28 Oct, so the pinned
+  // clock moved from Wed 28 Oct, day 5 of 90, to Wed 4 Nov, the same weekday) with a day logged
+  // (a prayer, No sin, two hours steppers, two German chips, an Also habit and the phone on, a loop
+  // closed, a plan saved for today), and 20 Oct, before the 21 days, with nothing stored — and once more with the
   // Full day disclosure open. Measured on the rendered page (t54Measure):
   // at most one filled primary, and it is "Save tomorrow's plan"; every
   // visible control (link, button, input, summary) at least 44x44; nothing
@@ -4968,15 +4969,15 @@ function t28SeedClips(list) {
   // visible text at 4.5:1 on what is painted behind it (3:1 when large).
   let t54Checks = 0;
   const c54 = (name, ok, detail) => { t54Checks++; return check(name, ok, detail); };
-  const T54_DAY = "2026-10-28";
+  const T54_DAY = "2026-11-04", T54_PREV = "2026-11-03";
   const T54_STATES = [
-    { name: "day 5 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 5 of 90", patch: { monk: {
-      days: { [T54_DAY]: { prayers: { fajr: true }, german: { podcast: true, speak: true }, brickford: true, work: 8, phone: 1.5, at: T54_DAY + "T09:00:00.000Z" },
-              "2026-10-27": { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: true }, german: { podcast: true, speak: true, write: true, read: true }, brickford: true, work: 10, phone: 1, at: "2026-10-27T21:00:00.000Z" } },
+    { name: "day 8 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 8 of 21", pri: "1 of 5", ring: "20%", also: "2 of 5", patch: { monk: {
+      days: { [T54_DAY]: { prayers: { fajr: true }, nosin: true, german: { podcast: true, speak: true }, brickford: true, bfh: 1.5, work: 8, meditate: true, phone: 1.5, at: T54_DAY + "T09:00:00.000Z" },
+              [T54_PREV]: { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: true }, nosin: true, german: { podcast: true, speak: true, write: true, read: true }, bfh: 3, work: 10, phone: 1, at: T54_PREV + "T21:00:00.000Z" } },
       plans: { [T54_DAY]: { business: "Call two venues", content: "Script the Bahrain video", education: "MATH 120 lecture 4", at: "2026-10-27T21:55:00.000Z" } },
       loops: { s1: { text: "Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop", done: true, at: "2026-10-27T10:00:00.000Z" },
                l2: { text: "Reply to the venue", done: false, at: "2026-10-26T10:00:00.000Z" } } } } },
-    { name: "before the 90 days, nothing stored", now: new Date("2026-10-20T12:00:00Z"), head: "Starts 24 Oct", patch: null },
+    { name: "before the 21 days, nothing stored", now: new Date("2026-10-20T12:00:00Z"), head: "Starts 28 Oct", pri: "0 of 5", ring: "0%", also: "0 of 5", patch: null },
   ];
   function t54Measure() {
     const z = window.__dz, fill = z.tok("--btn-bg");
@@ -5013,6 +5014,12 @@ function t28SeedClips(list) {
     return { filled, small, controls, clipped, low, texts,
       wide: document.documentElement.scrollWidth > window.innerWidth + 1 ? document.documentElement.scrollWidth + " > " + window.innerWidth : null,
       head: ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim(),
+      // T-057: the groups in page order, each head's title and meta; the priority rows in order; the ring's label.
+      heads: [...document.querySelectorAll("#view .ghead")].map(h => [(h.firstChild && h.firstChild.nodeType === 3 ? h.firstChild.textContent : "").trim(), ((h.querySelector(".gh-meta") || {}).textContent || "").trim()]),
+      pri: [...document.querySelectorAll("#view #mkPri [data-mk-pri]")].map(n => n.dataset.mkPri),
+      priFirst: (p => !!p && !!p.previousElementSibling && p.previousElementSibling.textContent.startsWith("Priorities") &&
+        [...document.querySelectorAll("#view .glist")].filter(g => g.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING).every(g => g.id === "mkNow" || g.classList.contains("mk-day")))(document.querySelector("#view #mkPri")),
+      ring: ((document.querySelector("#view .mk-head .ring-label") || {}).textContent || "").trim(),
       map: { cols: cols.length, rows: cols.map(c => c.querySelectorAll(".hc").length), now: map ? map.querySelectorAll(".hc.now").length : -1,
         fits: !!map && map.scrollWidth <= map.clientWidth + 1 },
       ext: (a => a ? { href: a.getAttribute("href"), blank: a.target === "_blank", rel: a.rel } : null)(document.querySelector("#view a.mk-ext")) };
@@ -5038,8 +5045,14 @@ function t28SeedClips(list) {
           c54(lab + ": nothing wider than the window, no text outside a box that clips it", !m.wide && m.clipped.length === 0, (m.wide || "") + " " + m.clipped.slice(0, 3).join("; "));
           c54(lab + ": every visible text at 4.5:1 (3:1 large) on what is behind it (" + m.texts + " texts)", m.texts > 30 && m.low.length === 0, m.low.slice(0, 3).join("; "));
           if (!open) {
-            c54(lab + ": the 90-day map is 13 week columns x 7 days, inside its box" + (st.patch ? ", today outlined" : ""),
-              m.map.cols === 13 && m.map.rows.every(n => n === 7) && m.map.fits && m.map.now === (st.patch ? 1 : 0), JSON.stringify(m.map));
+            c54(lab + ": the 21-day map is 3 week columns x 7 days, inside its box" + (st.patch ? ", today outlined" : ""),
+              m.map.cols === 3 && m.map.rows.every(n => n === 7) && m.map.fits && m.map.now === (st.patch ? 1 : 0), JSON.stringify(m.map));
+            const titles = m.heads.map(h => h[0]), meta = t => (m.heads.find(h => h[0] === t) || [])[1];
+            c54(lab + ": the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities",
+              titles[0] === "Now" && titles[1] === "Priorities" && titles[2] === "Top 3 today" && titles.indexOf("Also") > 2 && titles.includes("21 days") && m.priFirst, JSON.stringify(titles));
+            c54(lab + ": the five priorities in the owner's order (prayers, nosin, work, bfh, german)", m.pri.join() === "prayers,nosin,work,bfh,german", m.pri.join());
+            c54(lab + ": Priorities reads " + st.pri + ", Also " + st.also + ", and the ring " + st.ring + " (the priorities only)",
+              meta("Priorities") === st.pri && meta("Also") === st.also && m.ring === st.ring, JSON.stringify([meta("Priorities"), meta("Also"), m.ring]));
             c54(lab + ": Calendar and inbox opens MONK.url in a new tab", !!m.ext && /^https:\/\/claude\.ai\/artifact\//.test(m.ext.href) && m.ext.blank && /noopener/.test(m.ext.rel), JSON.stringify(m.ext));
           }
         }
@@ -5098,7 +5111,7 @@ function t28SeedClips(list) {
       "T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on " + T28_DAYS.length + " days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (" + t28Checks + " checks); " +
       "T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (" + t43Checks + " checks)" + "; " +
       "T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (" + t45Checks + " checks)" + "; " +
-      "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 13 x 7 map, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)"
+      "T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 3 x 7 map, the Priorities first and the ring of five, and no clip at 7 widths x roots 16/24 (" + t54Checks + " checks)"
     : "FAIL — " + fails + " of " + checks + " design checks failed"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => {

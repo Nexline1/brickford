@@ -839,11 +839,11 @@ async function session(browser, { putOk }) {
               !!m && eq(m[part][k], want[part][k]), JSON.stringify(m && m[part][k]));
         c54("(f) and deletes nothing: exactly the union of keys", !!m && ["days", "plans", "loops"].every(p => eq(Object.keys(m[p]).sort(), Object.keys(want[p]).sort())),
           JSON.stringify(m && { d: Object.keys(m.days), p: Object.keys(m.plans), l: Object.keys(m.loops) }));
-        await page.click("#view [data-mk-habit=brickford]");
+        await page.click("#view [data-mk-habit=nosin]");   // T-057: was the Brickford toggle, now the bfh stepper
         for (const t0 = Date.now(); !puts.length && Date.now() - t0 < 9000;) await page.waitForTimeout(100);
         const last = puts[puts.length - 1];
         c54("(f) flipped on, a monk write arms the push, and it carries the merged monk with today's write",
-          !!last && !!last.state && !!last.state.monk && eq(last.state.monk.loops, want.loops) && !!(last.state.monk.days[T] || {}).brickford, last && last.state ? Object.keys(last.state).join(",") : "no push");
+          !!last && !!last.state && !!last.state.monk && eq(last.state.monk.loops, want.loops) && (last.state.monk.days[T] || {}).nosin === true, last && last.state ? Object.keys(last.state).join(",") : "no push");
         c54("(f) no page errors", errors.length === 0, errors.join(" | "));
       } catch (e) { check(false, "(f) the flipped half ran to its end without a harness error — " + e.message.split("\n")[0]); }
       await ctx.close();

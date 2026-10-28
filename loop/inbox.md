@@ -88,3 +88,4 @@ The owner sent a full spec: Inter as the SF stand-in, the iOS type scale, iOS sy
   - Weekly refresh: a scheduled task, once a week, finds that week's new tools and videos and loads up to 7 days of ≤20-min items. A tool that is useless for the goal is not added; an empty week is fine.
   - Rules carried over: read every video's transcript before it goes in (as T-037/T-033 did), invent nothing, and keep these items OUT of the 3-year plan's study days (separate from studyIndex/backlog), so they never make a day owed or move day 1094.
   → T-060 (future)
+[bug] From the T-061 reviewer: `monkFocus` (app.js ~1300) filters only `i >= MONK.from`, so from 21 Nov "Focus this week" counts days after day 21. Also, no gate checks the #/monk head on day 21 or the day after (confirmed by hand: "Day 21 of 21", "21 days done").

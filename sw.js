@@ -19,6 +19,7 @@
 //   - everything else under platform/ (the ?v= scripts, data, stylesheet,
 //     icons, manifest): CACHE FIRST from this version's own cache, which install
 //     fills from the page itself, so the list cannot drift from what it loads.
+//     Installing waits on that cache alone; everything else fills afterwards.
 //   - files the app opens but does not load (the revision PDFs, the Library's
 //     documents): network first within SLOW too, kept in a cache that outlives
 //     versions, so an update does not download 7 MB of PDFs again.
@@ -46,9 +47,13 @@ const FONT_CSS = /^https:\/\/fonts\.googleapis\.com\/css/;
 // Into the cache unless it is already there. CORS mode, so a third-party file
 // is stored readable rather than opaque (an opaque one cannot be checked, and
 // counts as megabytes against the quota).
+// Each fetch is bounded (a minute: a 1.7 MB PDF on a slow line), so one that
+// stalls ends, and the next launch tries it again.
+const FILL_MS = 60000;
 async function keep(cache, url) {
   if (await cache.match(url)) return;
-  const res = await fetch(url, { mode: "cors", credentials: "omit" });
+  const signal = self.AbortSignal && AbortSignal.timeout ? AbortSignal.timeout(FILL_MS) : undefined;
+  const res = await fetch(url, { mode: "cors", credentials: "omit", signal });
   if (res.status === 200) await cache.put(url, res);
 }
 // The woff2 files a stylesheet already in the cache names (KaTeX's, Google's).
@@ -84,23 +89,40 @@ self.addEventListener("install", event => event.waitUntil((async () => {
   }
   await Promise.all([...want].map(async u => shell.put(u, await get(u))));
   await shell.put(INDEX, page);
-  // Best effort, and only what is missing: the PDFs and documents, KaTeX and
-  // the font stylesheet, then the fonts those stylesheets name. A file that
-  // cannot be fetched now is fetched the first time it is used online.
-  const files = await caches.open(FILES);
-  const third = refs.filter(u => u.pathname !== "/").map(u => u.href).filter(u => PINNED.test(u) || FONT_CSS.test(u));
-  await Promise.all(OPENED.concat(third).map(u => keep(files, u).catch(() => {})));
-  await Promise.all(third.filter(u => /\.css$|\/css2?\?/.test(u)).map(u => keepFonts(files, u).catch(() => {})));
+  // Nothing else: installing waits on the shell alone (fill, below).
   await self.skipWaiting();
 })()));
 
+// Best effort, and only what is missing: the PDFs and documents, KaTeX and the
+// font stylesheet that index.html names, then the fonts those stylesheets
+// name. Never part of installing or activating, so one stalled download
+// cannot keep a version from starting: it runs once this version is active,
+// and again on every launch (the page's fetch keeps the worker alive for it)
+// until nothing is missing. One run at a time.
+let filling = null;
+function fill() {
+  return filling || (filling = (async () => {
+    const page = await caches.match(INDEX, { cacheName: SHELL });
+    if (!page) return;
+    const third = [...(await page.text()).matchAll(/\s(?:src|href)="(https:\/\/[^"]+)"/g)].map(m => new URL(m[1]))
+      .filter(u => u.pathname !== "/").map(u => u.href).filter(u => PINNED.test(u) || FONT_CSS.test(u));
+    const files = await caches.open(FILES);
+    await Promise.all(OPENED.concat(third).map(u => keep(files, u).catch(() => {})));
+    await Promise.all(third.filter(u => /\.css$|\/css2?\?/.test(u)).map(u => keepFonts(files, u).catch(() => {})));
+  })().catch(() => {}).then(() => { filling = null; }));
+}
+
 // The old version's cache goes the moment this one is active. Pages already
 // open keep running the code they loaded; nothing is reloaded under them.
-self.addEventListener("activate", event => event.waitUntil((async () => {
-  for (const name of await caches.keys())
-    if (name.startsWith("brickford-") && name !== SHELL && name !== FILES) await caches.delete(name);
-  await self.clients.claim();
-})()));
+self.addEventListener("activate", event => {
+  const ready = (async () => {
+    for (const name of await caches.keys())
+      if (name.startsWith("brickford-") && name !== SHELL && name !== FILES) await caches.delete(name);
+    await self.clients.claim();
+  })();
+  event.waitUntil(ready);
+  ready.then(fill, () => {});
+});
 
 // A network that takes a request and never answers (one bar of signal, a
 // Wi-Fi with no internet behind it) must not hold the app hostage. Wherever a
@@ -190,7 +212,7 @@ self.addEventListener("fetch", event => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = req.url.split("#")[0], bare = url.split("?")[0];
-  if (bare === APP || bare === INDEX) event.respondWith(appPage(req));
+  if (bare === APP || bare === INDEX) { event.respondWith(appPage(req)); event.waitUntil(fill()); }
   else if (OPENED.includes(bare)) event.respondWith(networkFirst(event, bare));
   else if (url.startsWith(APP)) event.respondWith(fromShell(req, url));
   else if (PINNED.test(url)) event.respondWith(pinned(event, url));

@@ -180,8 +180,8 @@ function watch(page) {
 // switches to a new worker when its activation STARTS (the spec moves the
 // clients before the activate event runs), and the old caches go inside that
 // event, so a controller alone proves nothing about them.
-const controlled = (page, token) => page.waitForFunction(t => { const c = navigator.serviceWorker && navigator.serviceWorker.controller;
-  return !!c && c.state === "activated" && (!t || c.scriptURL.endsWith("?v=" + t)); }, token || null, { timeout: 30000 }).then(() => true, () => false);
+const controlled = (page, token, ms) => page.waitForFunction(t => { const c = navigator.serviceWorker && navigator.serviceWorker.controller;
+  return !!c && c.state === "activated" && (!t || c.scriptURL.endsWith("?v=" + t)); }, token || null, { timeout: ms || 30000 }).then(() => true, () => false);
 const cacheMap = page => page.evaluate(async () => {
   const out = {};
   for (const name of await caches.keys()) out[name] = (await (await caches.open(name)).keys()).map(r => r.url);
@@ -189,13 +189,17 @@ const cacheMap = page => page.evaluate(async () => {
 });
 // Everything the files cache should hold, there (it may fill after activation).
 const wantFilesList = () => PDFS.map(f => "/revision/" + f).concat(DOCS.map(d => "/" + d.file)).concat(THIRD).concat(STANDIN_FONTS);
+// Polled from here with evaluate, which awaits the page's promise; a
+// waitForFunction predicate that returns a promise is truthy at once.
 async function filled(page, ms) {
   const want = wantFilesList().map(u => u.startsWith("/") ? BASE + u : u);
-  return page.waitForFunction(async w => {
+  const all = () => page.evaluate(async w => {
     if (!(await caches.has("brickford-files"))) return false;
     const have = new Set((await (await caches.open("brickford-files")).keys()).map(r => r.url));
     return w.every(u => have.has(u));
-  }, want, { timeout: ms || 30000, polling: 250 }).then(() => true, () => false);
+  }, want).catch(() => false);
+  for (const end = Date.now() + (ms || 30000); Date.now() < end; await new Promise(r => setTimeout(r, 250))) if (await all()) return true;
+  return all();
 }
 const stored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
 const viewReady = page => page.waitForFunction(() => !!document.querySelector("#view > *"), null, { timeout: 15000 }).then(() => true, () => false);
@@ -222,7 +226,7 @@ async function launch(page, r) {
   await page.goto(BASE + "/platform/#" + r, { waitUntil: "load" }).catch(() => {});
   return viewReady(page);
 }
-let BASE = "";
+let BASE = "", wantShellCount = 0;
 // Every browser here sends every outside request to a proxy that is not
 // there (port 9 on this machine), and only 127.0.0.1 goes direct: Chromium's
 // own loopback bypass, which Playwright turns off unless told not to. The
@@ -251,12 +255,15 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   const reg = ctl ? await page.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); return { scope: r.scope, script: navigator.serviceWorker.controller.scriptURL }; }) : {};
   check(ctl && reg.scope === BASE + "/" && reg.script === BASE + "/sw.js?v=" + TOKEN,
     "the worker controls the page from the site root, so its scope covers revision/ too (scope " + reg.scope + ", " + (reg.script || "none") + ")");
+  // The files cache fills after activation (review r1, 2): waited for, as proof.
+  await filled(page);
   const caches1 = await cacheMap(page);
   const shell = (caches1["brickford-" + TOKEN] || []).map(u => u.replace(BASE, ""));
   const files = (caches1["brickford-files"] || []).map(u => u.replace(BASE, ""));
   const wantShell = new Set(localRefs(INDEX_HTML).concat(["/platform/index.html"])
     .concat(MANIFEST.icons.map(i => "/platform/" + i.src)));
   const missShell = [...wantShell].filter(u => !shell.includes(u));
+  wantShellCount = wantShell.size;
   check(shell.length > 0 && !missShell.length, "this version's cache brickford-" + TOKEN + " holds index.html, everything it loads, and the manifest's icons (" +
     shell.length + " entries" + (missShell.length ? "; missing " + missShell.join(", ") : "") + ")");
   const onDisk = ["data", "js", "css"].flatMap(d => fs.readdirSync(path.join(ROOT, "platform", d)).filter(f => /\.(js|css)$/.test(f)).map(f => "/platform/" + d + "/" + f));
@@ -440,6 +447,24 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     const back = await p.waitForSelector("#view .video-frame iframe[data-k]", { state: "attached", timeout: 5000 }).then(() => true, () => false);
     const after = await p.evaluate(() => ({ off: !!document.querySelector("#view .video-off"), same: document.querySelector("#view").firstElementChild === window.__first }));
     check(before && back && !after.off && after.same, "offline the panel, online the player in its place, and the rest of the page untouched (not a repaint)");
+    await c.close();
+  }
+
+  // ================= one stalled download =================
+  console.log("One download that stalls during the first install does not hold the worker back");
+  {
+    const c = await freshContext(browser, false);
+    await standIns(c);
+    server.hang = q => q === "/revision/" + PDFS[2];
+    const p = await c.newPage();
+    const t0 = Date.now();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    const on = await controlled(p, TOKEN, 15000);
+    const secs = (Date.now() - t0) / 1000;
+    const shell = on ? ((await cacheMap(p))["brickford-" + TOKEN] || []).length : 0;
+    check(on && shell >= wantShellCount, "revision/" + PDFS[2] + " taken and never answered: the worker is active anyway, in " + secs.toFixed(1) +
+      "s (under 15s), its shell complete (" + shell + " of " + wantShellCount + ")");
+    server.release();
     await c.close();
   }
 

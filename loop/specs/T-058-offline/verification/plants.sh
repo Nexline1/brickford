@@ -46,7 +46,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -72,6 +72,12 @@ for n in $want; do case "$n" in
   no-timeout) plant "$n" "$SW" \
     '    const first = await Promise.race([net, late]);' \
     '    const first = await net;' ;;
+  # Review r1, 2: the files cache filled inside install, so one stalled PDF holds activation.
+  fill-in-install) plant "$n" "$SW" \
+    '  // Nothing else: installing waits on the shell alone (fill, below).
+  await self.skipWaiting();' \
+    '  await fill();
+  await self.skipWaiting();' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

@@ -1,6 +1,6 @@
 # Resume here, if a session ends mid-work
 
-Updated 2026-10-23. Latest: T-056 (reset seven) merged as #25; next item waits on the owner (installable app, and whether to move hosting to Vercel with a private repo). Everything below is pushed to GitHub. A fresh session can continue from this file, `loop/queue.md` and `loop/state.md` alone.
+Updated 2026-10-28. Latest: T-057 (Monk Mode 21 days, priorities) merged as #26; next item waits on the owner (installable app, and whether to move hosting to Vercel with a private repo). Everything below is pushed to GitHub. A fresh session can continue from this file, `loop/queue.md` and `loop/state.md` alone.
 
 ## How the loop runs
 - Process: `.claude/skills/brickford-loop/SKILL.md`.

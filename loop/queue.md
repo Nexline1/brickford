@@ -53,5 +53,6 @@ Only the owner moves an item from proposed to ready (T-000 was made ready on the
 | T-052 | Monk Mode row on the Brickford dashboard (days 1-90, links to the private monk-mode page) | done (in #23) | 1 | | owner 2026-10-23 |
 | T-054 | Monk Mode page inside Brickford (#/monk): native rebuild of the monk dashboard; monk data device-only until private sync (spec written) | done | 1 | [#23](https://github.com/Nexline1/brickford/pull/23) | owner 2026-10-23: priority |
 | T-056 | Reset seven (day 1 = 16 Oct), the half-done fix (gate date moves to the ship date), Monk Mode from 24 Oct | merged | 4 | #25 | owner 2026-10-23 (reset refused once, reaffirmed) |
+| T-057 | Monk Mode 21 days from 28 Oct; the owner's five priorities first (prayer, no sin, work 10 h, Brickford 3 h, German 1.5 h); everything else under Also | merged | 2 | #26 | owner 2026-10-28 |
 | T-053 | Progress sync moves to the private repo Nexline1/brickford-private, with a one-time merge from the public file (spec written) | paused (owner 2026-10-23: dashboard first) | 0 | | owner 2026-10-23 |
 | T-050 | verify-flows (p) "recorder track survives a reload" failed once in 3 runs on 2026-10-16 (T-043 ship check); likely the T-039 reload-storage residual. Instrument, then fix or extend acrossReload | proposed | 0 | | 2026-10-16 |

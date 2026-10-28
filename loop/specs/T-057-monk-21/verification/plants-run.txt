@@ -1,0 +1,44 @@
+== plant days-90 -> node tools/verify-logic.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  monk mode on 2026-10-28: day 1 of 21, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 90","h":63}
+  FAIL  monk mode on 2026-10-30: day 3 of 21, a 44px row opening #/monk in the same window — {"day":3,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 3 of 90","h":63}
+  FAIL  monk mode on 2026-11-17: day 21 of 21, a 44px row opening #/monk in the same window — {"day":21,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 21 of 90","h":63}
+  FAIL  monk mode on 2026-11-18: no row — {"day":22,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 22 of 90","h":63}
+  FAIL  MONK is 21 days from Wed 28 Oct 2026 (T-057) — {"from":"2026-10-28","days":90}
+5 of 176 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant ring-counts-also -> node tools/verify-logic.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  score: nothing logged = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: all five priorities, every Also item undone = 5 of 5 (100%) — {"done":5,"n":9,"pct":56}
+  FAIL  score: every Also item done, no priorities = 0 of 5 (0%) — {"done":4,"n":9,"pct":44}
+  FAIL  score: all five and every Also item = 5 of 5 (100%) — {"done":9,"n":9,"pct":100}
+  FAIL  score: brickford: true alone does not satisfy Brickford = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: four priorities + brickford: true instead of bfh = 4 of 5 (80%) — {"done":4,"n":9,"pct":44}
+  FAIL  score: bfh 3 counts = 1 of 5 (20%) — {"done":1,"n":9,"pct":11}
+  FAIL  score: bfh 2.5 does not = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: work 10 counts = 1 of 5 (20%) — {"done":1,"n":9,"pct":11}
+  FAIL  score: work 9.5 does not = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: nosin required: the other four, nosin missing = 4 of 5 (80%) — {"done":4,"n":9,"pct":44}
+  FAIL  score: nosin required: the other four, nosin false = 4 of 5 (80%) — {"done":4,"n":9,"pct":44}
+  exit 1 (caught, as required)
+== plant bfh-reads-brickford-bool -> node tools/verify-logic.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  score: every Also item done, no priorities = 0 of 5 (0%) — {"done":1,"n":5,"pct":20}
+  FAIL  score: brickford: true alone does not satisfy Brickford = 0 of 5 (0%) — {"done":1,"n":5,"pct":20}
+  FAIL  score: four priorities + brickford: true instead of bfh = 4 of 5 (80%) — {"done":5,"n":5,"pct":100}
+  FAIL  focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged — {"days":7,"key":"prayers","label":"Prayer on time","rate":100,"fix":"Stop what you're doing at the adhan alert. Pray first, then open anything else."}
+4 of 176 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant priorities-not-first -> node tools/verify-design.js
+  restored /home/user/bf-T-057/platform/js/app.js (cmp identical)
+  FAIL  1440px dark, day 8 with a day logged: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  1440px dark, before the 21 days, nothing stored: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  390px dark, day 8 with a day logged: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  390px dark, before the 21 days, nothing stored: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  1440px light, day 8 with a day logged: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  1440px light, before the 21 days, nothing stored: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  390px light, day 8 with a day logged: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+  FAIL  390px light, before the 21 days, nothing stored: the groups run Now, Priorities, Top 3 today, … Also, with nothing but Now/Full day above Priorities — ["Now","Also","Top 3 today","21 days","Focus this week","Priorities","Numbers","This week","This month","Open loops","Plan tomorrow"]
+FAIL — 8 of 2620 design checks failed
+  exit 1 (caught, as required)

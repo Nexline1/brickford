@@ -250,6 +250,11 @@
         "X-GitHub-Api-Version": "2022-11-28",
       },
       body: body ? JSON.stringify(body) : undefined,
+    }).catch(e => {
+      // T-058 r1: no answer at all (no HTTP status) is the network, not GitHub.
+      const x = new Error((e && e.message) || "No connection");
+      x.network = true;
+      throw x;
     });
   }
 
@@ -447,6 +452,18 @@
   // `online` event (boot) pushes once through armPush, the same automatic
   // path a save takes, so every rule below still holds.
   const offline = () => navigator.onLine === false;
+  // T-058 r1: navigator.onLine stays true on a Wi-Fi with no internet behind
+  // it. So the app also goes by its own requests: one that got no answer at
+  // all (the sync, or the lesson's check in probeNet) sets netDown, and any
+  // answer clears it. Memory only; a launch finds out again.
+  let netDown = false;
+  const noNet = () => offline() || netDown;
+  function netState(down) {
+    if (netDown === down) return;
+    netDown = down;
+    paintSync();
+    if (down) videoGone(); else if (!offline()) videoBack();
+  }
   // T-058 r1: a sync this device owes — saved work not yet pushed, or a sync
   // the network did not carry — kept in its own key, NOT in darhikmah_v1, so
   // the state's shape is untouched and the debt outlives the app being closed
@@ -464,10 +481,10 @@
   // The online and offline events repaint these words in place: never the page.
   function syncWords() {
     const last = S.settings.lastSyncAt || S.settings.lastSync;
-    return offline() ? { t: "Offline · will sync", v: agoLabel(last) }
+    return noNet() ? { t: "Offline · will sync", v: agoLabel(last) }
       : { t: "Synced", v: S.settings.syncError ? "failing" : agoLabel(last) };
   }
-  const syncHead = () => !ghToken() ? "Not connected" : offline() ? "Offline · will sync"
+  const syncHead = () => !ghToken() ? "Not connected" : noNet() ? "Offline · will sync"
     : S.settings.syncError ? "Connected, but failing" : "Connected";
   function paintSync() {
     const w = syncWords();
@@ -516,6 +533,7 @@
     syncBusy = true;
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
+      netState(false);   // an answer, whatever it says: the network is there
       if (res.status === 404) return { missing: true };
       if (res.status === 401 || res.status === 403) throw new Error("Token rejected \u2014 it needs Contents: Read and write on " + SYNC_REPO + ".");
       if (!res.ok) throw new Error("GitHub returned " + res.status + ".");
@@ -568,8 +586,10 @@
         return true;
       });
     }).catch(err => {
-      // T-058: the connection went while the request was out. Not an error.
-      if (offline()) { markOwed(); say(OFFLINE_SAY); return false; }
+      // T-058: the connection went while the request was out, or (r1) the
+      // request got no answer at all: offline either way, not an error.
+      // HTTP statuses (a rejected token, a 409, a 500) go on as before.
+      if (offline() || err.network) { markOwed(); netState(true); say(OFFLINE_SAY); return false; }
       const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
@@ -3245,8 +3265,8 @@
             // T-058: offline, a frame could only hold an error page. A plain
             // panel takes its place, carrying the frame it stands in for, which
             // videoBack() puts there when the connection returns.
-            return offline()
-              ? '<div class="card video-off" data-frame="' + esc(frame) + '">Video needs a connection. The summary, quiz and notes on this page work offline.</div>'
+            return noNet()
+              ? '<div class="card video-off" data-frame="' + esc(frame) + '">' + VIDEO_OFF + "</div>"
               : '<div class="video-frame">' + frame + "</div>";
           })()
         : l.paper
@@ -5961,7 +5981,7 @@
     // And again the moment the frame has loaded: whatever was said before
     // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
-    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); probeNet(); }
     // T-043: the lecture's quiz, mounted once the view is on screen — never
     // from the render, which only leaves the empty mount.
     const lq = $("#lqMount", root);
@@ -6867,7 +6887,7 @@
   // The start is the resume mechanism's own (T-016's start=).
   function expandVideo(at) {
     // T-058: no frame without a connection; it could only show an error page.
-    if (offline()) { toast("Video needs a connection."); return; }
+    if (noNet()) { toast("Video needs a connection."); return; }
     const bar = $("#view #lqWatched");
     const f = ytFrame();
     const base = bar ? bar.dataset.src : f ? f.dataset.src0 : null;
@@ -6890,6 +6910,34 @@
     hailPlayer(nf);
     nf.addEventListener("load", () => hailPlayer(nf));
     box.scrollIntoView({ block: "nearest" });
+  }
+  const VIDEO_OFF = "Video needs a connection. The summary, quiz and notes on this page work offline.";
+  // T-058 r1: the network turned out not to be there (netState), and the
+  // lecture's frame was drawn before that was known. A frame whose player has
+  // never answered (heardFrom) holds an error page or a portal's, not a
+  // video: it becomes the panel, carrying itself for videoBack(). A player
+  // that has answered is a video on screen and is never touched, and neither
+  // is a playlist frame (no data-k: it never answers, so it cannot be told).
+  function videoGone() {
+    const f = ytFrame();
+    if (!f || heardFrom === f) return;
+    const box = f.closest(".video-frame");
+    if (!box) return;
+    clearInterval(hailH);
+    const off = document.createElement("div");
+    off.className = "card video-off";
+    off.setAttribute("data-frame", f.outerHTML);
+    off.textContent = VIDEO_OFF;
+    box.replaceWith(off);
+  }
+  // T-058 r1: is there a network behind navigator.onLine? Asked when a lesson
+  // draws its frame, so a device with no sync token finds out too: a HEAD for
+  // ../sw.js, which the worker does not answer for (it answers GETs only). Only
+  // a request that fails counts; there is no timeout, so a slow network is
+  // never taken for none. http(s) only: the gates' file:// pages have no network.
+  function probeNet() {
+    if (!/^https?:$/.test(location.protocol) || offline()) return;
+    fetch("../sw.js", { method: "HEAD", cache: "no-store" }).then(() => netState(false), () => netState(true));
   }
   // T-058: the connection is back, and a lecture drawn offline has its panel
   // where the video goes. The frame it carries goes in its place, the frame
@@ -7137,7 +7185,7 @@
     window.addEventListener("offline", paintSync);
     window.addEventListener("online", () => {
       paintSync();
-      videoBack();
+      if (!netDown) videoBack();
       if (owedMark()) armPush();
     });
   }

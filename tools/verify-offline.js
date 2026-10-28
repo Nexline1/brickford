@@ -112,7 +112,9 @@ const srv = http.createServer((req, res) => {
 
 // ---------- the outside world, standing in ----------
 // holdGet: GitHub GETs are taken and held (a pull in flight) until releaseGets().
-const net = { offline: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [] };
+// captive: everything outside refused while the browser still says online
+// (a Wi-Fi with no internet behind it); with server.down, this site too.
+const net = { offline: false, captive: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [] };
 const ghAnswer = route => route.request().method() === "GET"
   ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) })
   : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
@@ -134,15 +136,15 @@ async function standIns(ctx) {
     const refuse = () => route.abort("internetdisconnected");
     if (u.startsWith("https://api.github.com/")) {
       net.gh.push({ method: req.method(), offline: net.offline, body: req.postData() });
-      if (net.offline) return refuse();
+      if (net.offline || net.captive) return refuse();
       if (net.holdGet && req.method() === "GET") { net.held.push(route); return; }
       return ghAnswer(route);
     }
     if (/^https:\/\/www\.youtube(-nocookie)?\.com\//.test(u)) {
       net.yt++;
-      return net.offline ? refuse() : route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>player</title>" });
+      return net.offline || net.captive ? refuse() : route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><title>player</title>" });
     }
-    if (net.offline) return refuse();
+    if (net.offline || net.captive) return refuse();
     if (net.hangFontCss && /^https:\/\/fonts\.googleapis\.com\/css/.test(u)) return;   // taken, never answered
     if (/katex@[^/]+\/dist\/katex\.min\.js$/.test(u)) return route.fulfill({ status: 200, headers: CORS, contentType: "text/javascript", body: "window.katex = { standIn: true };" });
     if (/katex@[^/]+\/dist\/contrib\/auto-render\.min\.js$/.test(u)) return route.fulfill({ status: 200, headers: CORS, contentType: "text/javascript", body: STUB_AUTORENDER });
@@ -482,6 +484,34 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     const sent = put ? pushedState(net.gh.slice(g0).find(g => g.method === "PUT")) : null;
     check(put && ((sent && sent.lessons || {})["math110.0.0"] || {}).done === true,
       "once the pull is answered, the push it held up is made, carrying the tick (" + (put ? "PUT seen" : "no PUT in 10s") + ")");
+    await c.close();
+  }
+
+  // ================= a Wi-Fi with no internet =================
+  console.log("A Wi-Fi with no internet behind it: navigator.onLine stays true, nothing answers");
+  {
+    const c = await freshContext(browser, true);
+    await standIns(c);
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    await controlled(p) && await filled(p);
+    net.captive = true; server.down = true;   // no setOffline
+    await launch(p, "/");
+    const words = await p.waitForFunction(() => ((document.querySelector("#view [data-sync-t]") || {}).textContent || "") === "Offline \u00b7 will sync", null, { timeout: 8000 }).then(() => true, () => false);
+    const d = await p.evaluate(() => ({ onLine: navigator.onLine, failing: /Sync is failing/.test(document.querySelector("#view").innerText),
+      err: (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).syncError || null, owed: localStorage.getItem("brickford_sync_pending") }));
+    check(d.onLine && words && !d.failing && !d.err && !!d.owed,
+      "the dashboard says \"Offline \u00b7 will sync\", not \"Sync is failing\"; no sync error; the sync is owed (onLine " + d.onLine + ", error " + JSON.stringify(d.err) + ", owed " + JSON.stringify(d.owed) + ")");
+    await launch(p, "/lesson/math110/0/0");
+    const panel = await p.waitForSelector("#view .video-off", { state: "attached", timeout: 8000 }).then(() => true, () => false);
+    const frames = await p.evaluate(() => document.querySelectorAll("#view iframe").length);
+    check(panel && !frames, "a lesson there: its frame, whose player never answered, becomes the \"Video needs a connection\" panel (" + frames + " iframes)");
+    net.captive = false; server.down = false;
+    const g0 = net.gh.length;
+    await launch(p, "/");
+    const put = await until(() => net.gh.slice(g0).some(g => g.method === "PUT"), 15000);
+    const back = await p.waitForFunction(() => ((document.querySelector("#view [data-sync-t]") || {}).textContent || "") === "Synced" && !localStorage.getItem("brickford_sync_pending"), null, { timeout: 8000 }).then(() => true, () => false);
+    check(put && back, "the internet back, the next launch pushes what was owed and reads Synced, nothing owed");
     await c.close();
   }
 

@@ -46,7 +46,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -86,6 +86,14 @@ for n in $want; do case "$n" in
   busy-push-dropped) plant "$n" "$APP" \
     '    if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }' \
     '    if (syncBusy) return Promise.resolve(false);' ;;
+  # Review r1, 4: a fetch with no answer (navigator.onLine true) treated as a sync failure.
+  no-answer-is-failure) plant "$n" "$APP" \
+    '      if (offline() || err.network) { markOwed(); netState(true); say(OFFLINE_SAY); return false; }' \
+    '      if (offline()) { markOwed(); netState(true); say(OFFLINE_SAY); return false; }' ;;
+  # Review r1, 4: the lesson trusts navigator.onLine alone; a frame drawn before the failure stays.
+  frame-kept-when-net-down) plant "$n" "$APP" \
+    '    if (!f || heardFrom === f) return;' \
+    '    if (f || !f) return;' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

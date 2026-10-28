@@ -114,7 +114,7 @@ const srv = http.createServer((req, res) => {
 // holdGet: GitHub GETs are taken and held (a pull in flight) until releaseGets().
 // captive: everything outside refused while the browser still says online
 // (a Wi-Fi with no internet behind it); with server.down, this site too.
-const net = { offline: false, captive: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [] };
+const net = { ghStatus: 200, offline: false, captive: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [] };
 const ghAnswer = route => route.request().method() === "GET"
   ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) })
   : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
@@ -137,6 +137,7 @@ async function standIns(ctx) {
     if (u.startsWith("https://api.github.com/")) {
       net.gh.push({ method: req.method(), offline: net.offline, body: req.postData() });
       if (net.offline || net.captive) return refuse();
+      if (net.ghStatus !== 200) return route.fulfill({ status: net.ghStatus, contentType: "application/json", body: JSON.stringify({ message: "Bad credentials" }) });
       if (net.holdGet && req.method() === "GET") { net.held.push(route); return; }
       return ghAnswer(route);
     }
@@ -512,6 +513,30 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     const put = await until(() => net.gh.slice(g0).some(g => g.method === "PUT"), 15000);
     const back = await p.waitForFunction(() => ((document.querySelector("#view [data-sync-t]") || {}).textContent || "") === "Synced" && !localStorage.getItem("brickford_sync_pending"), null, { timeout: 8000 }).then(() => true, () => false);
     check(put && back, "the internet back, the next launch pushes what was owed and reads Synced, nothing owed");
+    await c.close();
+  }
+
+  // ================= a rejected token, then offline =================
+  console.log("A rejected token, then offline: the latch is what the status says");
+  {
+    const c = await freshContext(browser, true);
+    await standIns(c);
+    net.ghStatus = 401;
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    await controlled(p);
+    const fatal = await p.waitForFunction(() => ((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).syncError || {}).fatal === true, null, { timeout: 10000 }).then(() => true, () => false);
+    net.ghStatus = 200;
+    net.offline = true; server.down = true;
+    await c.setOffline(true);
+    await launch(p, "/");
+    const d = await p.evaluate(() => ({ t: (document.querySelector("#view [data-sync-t]") || {}).textContent, v: (document.querySelector("#view [data-sync-v]") || {}).textContent,
+      failing: /Sync is failing/.test(document.querySelector("#view").innerText) }));
+    await launch(p, "/sync");
+    const head = await p.evaluate(() => (document.querySelector("[data-sync-head]") || {}).textContent);
+    check(fatal && d.t === "Synced" && d.v === "failing" && d.failing && head === "Connected, but failing",
+      "latched by a 401, then offline: the row reads \"" + d.t + " \u00b7 " + d.v + "\", \"Sync is failing\" stays, /sync reads \"" + head + "\" (never \"will sync\")");
+    net.offline = false; server.down = false;
     await c.close();
   }
 

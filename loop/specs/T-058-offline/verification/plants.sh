@@ -46,7 +46,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -94,6 +94,10 @@ for n in $want; do case "$n" in
   frame-kept-when-net-down) plant "$n" "$APP" \
     '    if (!f || heardFrom === f) return;' \
     '    if (f || !f) return;' ;;
+  # Review r1, 5: offline tested before the latch, so a rejected token reads "will sync".
+  offline-before-latch) plant "$n" "$APP" \
+    '    if (latched()) return { t: "Synced", v: "failing" };' \
+    '' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

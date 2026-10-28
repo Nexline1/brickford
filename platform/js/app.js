@@ -479,12 +479,17 @@
   const OFFLINE_SAY = "Offline — this device will sync when the connection is back.";
   // The sync status in words, wherever it is drawn (the dashboard row, /sync).
   // The online and offline events repaint these words in place: never the page.
+  // A rejected token comes first (r1): latched, this device will not sync when
+  // the connection is back either, so "will sync" would be a promise it
+  // cannot keep.
+  const latched = () => !!(S.settings.syncError && S.settings.syncError.fatal);
   function syncWords() {
     const last = S.settings.lastSyncAt || S.settings.lastSync;
+    if (latched()) return { t: "Synced", v: "failing" };
     return noNet() ? { t: "Offline · will sync", v: agoLabel(last) }
       : { t: "Synced", v: S.settings.syncError ? "failing" : agoLabel(last) };
   }
-  const syncHead = () => !ghToken() ? "Not connected" : noNet() ? "Offline · will sync"
+  const syncHead = () => !ghToken() ? "Not connected" : latched() ? "Connected, but failing" : noNet() ? "Offline · will sync"
     : S.settings.syncError ? "Connected, but failing" : "Connected";
   function paintSync() {
     const w = syncWords();

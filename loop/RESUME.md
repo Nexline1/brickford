@@ -1,6 +1,21 @@
 # Resume here, if a session ends mid-work
 
-Updated 2026-10-28. Latest: T-057 (Monk Mode 21 days, priorities) merged as #26; next item waits on the owner (installable app, and whether to move hosting to Vercel with a private repo). Everything below is pushed to GitHub. A fresh session can continue from this file, `loop/queue.md` and `loop/state.md` alone.
+Updated 2026-10-28 (evening). See "Live state" below.
+
+## Live state, 2026-10-28 (read this first)
+- **Merged today:** #26 T-057. Monk Mode runs 28 Oct–17 Nov (21 days), with the five priorities first.
+- **Calendar:** Monk events end on 17 Nov. The ID log is in the session scratchpad only (monk/created.txt). It is never committed, because monk data stays out of this public repo.
+- **T-058 offline:** building in /home/user/bf-T-058, branch loop/T-058-offline.
+  - The code and verify-offline (35 checks) are pushed. The builder is running the final full gates.
+  - Next: CHECK (scratchpad t056-check/run.sh, with the path swapped to bf-T-058, plus verify-offline), a fresh reviewer, the PR, then merge. The owner wants it ASAP.
+- **T-059 offline video:** ready. The owner chose official downloads. YouTube download was declined (its terms).
+  - The survey is loop/specs/T-059-offline-video/sources.md: 124 of 463 lectures have an official CC-licensed file (MIT 18.06, 18.01, 8.01, 18.S096).
+  - Blocked: the owner needs to allow archive.org, *.us.archive.org and ocw.mit.edu so CORS and range playback can be verified.
+  - Open owner decision: swap Probability (Stat 110) for MIT 6.041 (downloadable)?
+- **T-060 (future):** daily AI-tools and coding videos, Replit confirmed. See inbox 2026-10-28.
+- **Still owed by the owner:**
+  - Vercel/private hosting yes or no.
+  - Whether to end the non-Monk calendar series (Deep Track, Weekly Review, check-ins and others) on 17 Nov too.
 
 ## How the loop runs
 - Process: `.claude/skills/brickford-loop/SKILL.md`.

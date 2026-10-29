@@ -582,9 +582,13 @@ function probe(names) {
   const z = window.__dz;
   const kinds = btns.map((b, i) => {
     const s = getComputedStyle(b);
+    const r = b.getBoundingClientRect();
     return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 24),
              filled: !b.matches(".ghost, .danger, .bare"), lg: b.matches(".lg"), disabled: b.matches(":disabled"),
-             corners: corners[i], bg: z.bytes(s.backgroundColor), color: z.bytes(s.color) };
+             corners: corners[i], bg: z.bytes(s.backgroundColor), color: z.bytes(s.color),
+             // T-051-1 r1: what the painted capsule needs — the box and its edges.
+             w: r.width, h: r.height, bt: parseFloat(s.borderTopWidth) || 0, bb: parseFloat(s.borderBottomWidth) || 0,
+             bl: parseFloat(s.borderLeftWidth) || 0, br: parseFloat(s.borderRightWidth) || 0 };
   });
   const four = s => [s.borderTopLeftRadius, s.borderTopRightRadius, s.borderBottomRightRadius, s.borderBottomLeftRadius];
   const cards = [...document.querySelectorAll(".card:not(.one)")].filter(n => n.checkVisibility())
@@ -2351,12 +2355,23 @@ function t28SeedClips(list) {
         // ghost, danger and bare — kept 12px. T-051-1 (the owner, 2026-10-29:
         // buttons "too plain"): the ghost and the danger are tinted capsules
         // and the bare one a text button with a capsule hover, so every kind
-        // is 999px. Same check, new expected value.
-        const shapeOff = m.kinds.filter(k => k.corners.some(r => r !== "999px"));
-        check(where + ": every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px)",
+        // is a capsule. Review r1: measured as PAINTED, not as declared — the
+        // paint is the padding box inside a transparent edge, so the corner it
+        // shows is the used radius (the declared one clamped to the box, the
+        // way the browser clamps it) less that edge, and a capsule's is a
+        // circle of half the painted height on every corner.
+        const used = k => {
+          const c = k.corners.map(v => { const n = v.split(" ").map(parseFloat); return [n[0], n.length > 1 ? n[1] : n[0]]; });   // [across, down] per corner, tl tr br bl
+          const f = Math.min(1, k.w / (c[0][0] + c[1][0]), k.w / (c[3][0] + c[2][0]), k.h / (c[0][1] + c[3][1]), k.h / (c[1][1] + c[2][1]));
+          const half = (k.h - k.bt - k.bb) / 2;
+          const inner = [[c[0][0] * f - k.bl, c[0][1] * f - k.bt], [c[1][0] * f - k.br, c[1][1] * f - k.bt], [c[2][0] * f - k.br, c[2][1] * f - k.bb], [c[3][0] * f - k.bl, c[3][1] * f - k.bb]];
+          return { half, inner, ok: inner.every(([x, y]) => Math.abs(x - half) <= 1.5 && Math.abs(y - half) <= 1.5) };
+        };
+        const shapeOff = m.kinds.map(k => Object.assign({ u: used(k) }, k)).filter(k => !k.u.ok);
+        check(where + ": every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px)",
           m.btns > 0 && shapeOff.length === 0,
           m.btns === 0 ? "no visible .btn on this route" : shapeOff.length ? shapeOff.length + " of " + m.btns + ", e.g. " +
-            shapeOff[0].name + " \"" + shapeOff[0].text + "\" (" + (shapeOff[0].filled ? "filled" : "outlined") + ") " + shapeOff[0].corners.join(" ")
+            shapeOff[0].name + " \"" + shapeOff[0].text + "\" corner " + shapeOff[0].u.inner[0].map(v => v.toFixed(1)).join("x") + " for half-height " + shapeOff[0].u.half.toFixed(1) + " (declared " + shapeOff[0].corners[0] + ")"
             : m.btns + " buttons (" + m.kinds.filter(k => k.filled).length + " filled)");
         // T-024: every filled, enabled .btn is the gold-or-light fill with the
         // --accent-fill-ink label, at 4.5:1 or better.
@@ -2369,7 +2384,7 @@ function t28SeedClips(list) {
           if (k.lg) prim.lg++;
           const r = z2.ratio(k.color, k.bg);
           const ok = k.bg[3] === 255 && __same(k.bg, m.fillTok.bg) && __same(k.color, m.fillTok.ink) && r >= 4.5 &&
-            __same(k.bg, hexBytes(PRIMARY[theme].bg)) && __same(k.color, hexBytes(PRIMARY[theme].ink)) && k.corners.every(c => c === "999px");
+            __same(k.bg, hexBytes(PRIMARY[theme].bg)) && __same(k.color, hexBytes(PRIMARY[theme].ink)) && used(k).ok;   // T-051-1 r1: a painted capsule (it read 999px)
           if (!ok) (k.lg ? prim.lgBad : prim.bad).push(route + " " + k.name + " \"" + k.text + "\" " + hx(k.color) + " on " + hx(k.bg) +
             "/" + k.bg[3] + " " + r.toFixed(2) + ":1 " + k.corners[0]);
         }
@@ -2397,7 +2412,7 @@ function t28SeedClips(list) {
       }
       // ---- T-024: the primary action, the toast, cards and chips ----
       const want = PRIMARY[theme];
-      check(at + ": the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, " + want.what +
+      check(at + ": the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), " + want.what +
         ", label --accent-fill-ink, >= 4.5:1",
         prim.lg > 0 && prim.lgBad.length === 0 && prim.bad.length === 0,
         (prim.lg === 0 ? "no .btn.lg on " + ROUTES.join(" ") + "; " : "") + (prim.lgBad.length + prim.bad.length

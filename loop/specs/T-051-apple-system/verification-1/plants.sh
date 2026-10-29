@@ -54,7 +54,7 @@ GT_NEW='.grow .g-t {
   display: block; font-family: var(--font-body); font-weight: 600;
   font-size: 1.375rem;'
 
-want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold meta-uppercase manifest-espresso border-painted edge-inset}"
+want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold meta-uppercase manifest-espresso border-painted edge-inset corners-999}"
 for n in $want; do case "$n" in
   # verify-density 1: a 2-line subtitle. The dashboard's "Problems today"
   # subtitle, below the fold, ten words instead of three (no sentence rule broken).
@@ -77,8 +77,8 @@ for n in $want; do case "$n" in
   # A button painted 44px: the 5px transparent hit edge taken away, so the
   # 44px box is all paint. The hit box is unchanged; the paint check catches it.
   button-paints-44) plant "$n" "$CSS" design \
-    "  border: 5px solid transparent; border-radius: 999px;" \
-    "  border: 0 solid transparent; border-radius: 999px;" ;;
+    "  border: 5px solid transparent; border-width: 5px 0; border-radius: 340px / 440px;" \
+    "  border: 0 solid transparent; border-width: 0; border-radius: 340px / 440px;" ;;
   # A token reverted to the stock iOS hue its accessible shade replaced:
   # Light's tint #0066cc back to systemBlue #007aff (4.0:1 on white).
   contrast-accent-stock) plant "$n" "$CSS" contrast \
@@ -111,13 +111,18 @@ for n in $want; do case "$n" in
   # Review r1, 4: the hit edge painted in the fill colour, so the clip says
   # padding-box and the eye sees a 44px slab.
   border-painted) plant "$n" "$CSS" design \
-    "  border: 5px solid transparent; border-radius: 999px;" \
-    "  border: 5px solid var(--btn-bg); border-radius: 999px;" ;;
-  # Review r1, 5: the 5px hit edge not given back, so the paint sits 5px in
-  # from the column and a full-width primary is 10px short of it.
+    "  border: 5px solid transparent; border-width: 5px 0; border-radius: 340px / 440px;" \
+    "  border: 5px solid var(--btn-bg); border-width: 5px 0; border-radius: 340px / 440px;" ;;
+  # Review r1, 5: the 5px hit edge on the sides as well, so the paint sits 5px
+  # in from the column and a full-width primary is 10px short of it.
   edge-inset) plant "$n" "$CSS" design \
-    ".btn:not(.tiny) { margin-inline: -5px; }" \
-    ".btn:not(.tiny) { margin-inline: 0; }" ;;
+    "  border: 5px solid transparent; border-width: 5px 0; border-radius: 340px / 440px;" \
+    "  border: 5px solid transparent; border-width: 5px; border-radius: 340px / 440px;" ;;
+  # Review r1, 5: 999px corners on a top-and-bottom edge paint 22x17px
+  # ellipses at the ends, not a capsule.
+  corners-999) plant "$n" "$CSS" design \
+    "  border: 5px solid transparent; border-width: 5px 0; border-radius: 340px / 440px;" \
+    "  border: 5px solid transparent; border-width: 5px 0; border-radius: 999px;" ;;
   *) echo "unknown plant $n"; MISSED=$((MISSED + 1)) ;;
 esac; done
 echo "plants: $(( $(echo $want | wc -w) - MISSED )) of $(echo $want | wc -w) caught (each gate exit 1)"

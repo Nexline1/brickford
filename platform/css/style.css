@@ -562,7 +562,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .rail-card .rl-code { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
 .rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: 0; line-height: 1.3; color: var(--ink); margin-top: 2px; }
 .rail-card .rl-meta { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
-.rail-card .btn { width: calc(100% + 10px); justify-content: center; margin-top: var(--sp-3); }   /* + the 5px hit edge each side (Buttons) */
+.rail-card .btn { width: 100%; justify-content: center; margin-top: var(--sp-3); }
 .rail-card .rl-foot {
   display: flex; justify-content: space-between; gap: 8px;
   margin-top: var(--sp-3); padding-top: var(--sp-2);
@@ -663,35 +663,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
                                --accent label (.btn.danger is the same in red);
      .btn.bare     tertiary  — plain text, no fill.
    The finger still gets 44px. The capsule is the PADDING box: a 5px
-   transparent border all round, with background-clip: padding-box, makes the
-   element 44px tall (34 + 10) while only 34px of it is painted. The border is
-   part of the element, so it is part of the hit test — the 44x44 that
-   tools/verify-shell.js measures is the box a tap lands in, not a promise in a
-   pseudo-element — and its radius is concentric, so the painted shape is a
-   true capsule (999px outside, half the painted height inside). */
+   transparent border above and below, with background-clip: padding-box,
+   makes the element 44px tall (34 + 10) while only 34px of it is painted. The
+   border is part of the element, so it is part of the hit test — the 44x44
+   that tools/verify-shell.js measures is the box a tap lands in, not a
+   promise in a pseudo-element.
+   Above and below only (T-051-1 review r1): with the edge on the sides too
+   the paint sat 5px in from the column, a full-width button 10px short of it,
+   and giving it back with a negative margin pushed every such button 5px out
+   of its parent, which verify-clip reads as 805 new overflows. Across, the
+   paint is the box, so it lines up with the column, and min-width: 44px keeps
+   the finger's width. The corners: an elliptical radius, 340px across by
+   440px down, which a 44px box clamps to 17px by 22px; less the 5px edge
+   above and below, the painted corner is a 17px circle — half the 34px paint,
+   a true capsule. (999px would clamp to 22px both ways and leave the paint
+   with 22px by 17px ellipses at its ends.) */
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--font-body); font-size: var(--fs-subhead); font-weight: 600;
   line-height: var(--lh-subhead); letter-spacing: var(--tr-subhead);
   color: var(--accent-fill-ink); background: var(--btn-bg); background-clip: padding-box;
-  border: 5px solid transparent; border-radius: 999px;
+  border: 5px solid transparent; border-width: 5px 0; border-radius: 340px / 440px;
   padding: 7px 14px; cursor: pointer;
   box-shadow: var(--btn-gloss), var(--lift);
   transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
               box-shadow var(--t-micro) ease;
 }
-/* The paint sits 5px inside the box, so a button on a column's edge would
-   paint 5px in from the text above it, and a full-width one 10px short of the
-   column (T-051-1 review r1). The box gives those 5px back on each side, so
-   the PAINT lines up with the column and the transparent hit edge hangs into
-   the gutter. Neighbouring buttons therefore need >= 10px between them, or
-   their hit edges would overlap (every button row here has 10px or more;
-   tools/verify-design.js measures both). .tiny buttons sit inside table
-   cells and steppers, not on a column edge, and keep their box. */
-.btn:not(.tiny) { margin-inline: -5px; }
-/* The ring hugs the painted capsule, not the transparent edge around it, and
-   keeps the capsule's corners (the global focus rule would square them). */
-.btn:focus-visible { outline-offset: -3px; border-radius: 999px; }
+/* The ring keeps the capsule's corners (the global focus rule would square
+   them); 2px out, since across there is no transparent edge to sit in. */
+.btn:focus-visible { outline-offset: 2px; border-radius: 340px / 440px; }
 /* Hover: a SOLID change of colour, only where there is a pointer that
    hovers. It was opacity 0.88 with no guard, which took every kind under
    4.5:1 in both themes (the filled label 3.89:1 in Light) — and iOS keeps
@@ -976,7 +976,7 @@ tr:last-child td { border-bottom: none; }
    found by the sweep for the storytelling routes. */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: var(--sp-3); flex-wrap: wrap; }
 .cal-head h2 { font-size: 1.3rem; }
-.cal-nav { display: flex; gap: 10px; }   /* >= 10px between buttons, so their 5px hit edges do not overlap (Buttons) */
+.cal-nav { display: flex; gap: 6px; }
 /* 44px boxes: a .btn paints 34px of them (Buttons, T-051-1), so the arrows
    are the 34px circles they were, with the 5px hit edge round them. */
 .cal-nav button { height: 44px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
@@ -1224,7 +1224,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    ones live here instead. */
 .muted { font-size: var(--fs-small); color: var(--ink-2); }
 .note { font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 12px; }
-.row-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }   /* 10px: see .cal-nav */
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .row-split { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 
 /* The one button that matters. Long lecture titles wrap rather than shove the
@@ -1278,11 +1278,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .one-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
 .one-body { margin-top: var(--sp-4); }
 .one-go { margin-top: var(--sp-4); width: 100%; justify-content: center; }
-/* A button that is the whole row gives the 5px hit edge back on each side
-   (Buttons), so its paint is the column; .one-go also names a row of gate
-   buttons (a div), which keeps 100%. */
-.btn.one-go { width: calc(100% + 10px); }
-@media (min-width: 700px) { .one-go, .btn.one-go { width: auto; min-width: 200px; } }
+@media (min-width: 700px) { .one-go { width: auto; min-width: 200px; } }
 .one-clear { border-top-color: var(--good); }
 
 /* ---------- The week, as six dots ----------
@@ -2042,7 +2038,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .lsn-act { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-4); }
 .lsn-run { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); }
 @media (max-width: 700px) {
-  .lsn-act .btn.lg { width: calc(100% + 10px); justify-content: center; }   /* + the 5px hit edge each side (Buttons) */
+  .lsn-act .btn.lg { width: 100%; justify-content: center; }
   .lsn-run { margin-top: -4px; }
 }
 
@@ -2754,7 +2750,7 @@ summary.pd-row::-webkit-details-marker { display: none; }
 .ex-bar i, .ex-lbar i { display: block; height: 100%; border-radius: inherit; background: var(--fac, var(--accent)); }
 .ex-side { flex: 1 1 12rem; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
 .ex-hero.urgent .at-days b { color: var(--urgent); }
-.ex-sit { width: calc(100% + 10px); justify-content: center; text-align: center; }   /* + the 5px hit edge each side (Buttons) */
+.ex-sit { width: 100%; justify-content: center; text-align: center; }
 .ex-card .tl-t, .ex-card .tl-m, .pf-tile .at-days { overflow-wrap: normal; }
 .ex-card .tl-main { min-width: auto; }
 .ex-card .tl-t { margin-top: 8px; }
@@ -2827,7 +2823,7 @@ summary.pd-row::-webkit-details-marker { display: none; }
 .sheet .check-row input { display: block; position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
 .sheet .checkbox { margin-top: 0; width: 20px; height: 20px; }
 .sheet .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
-.sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 16px; }   /* 10px: see .cal-nav */
+.sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .sheet-go .btn { min-height: 44px; min-width: 44px; justify-content: center; }
 
 /* ============================================================

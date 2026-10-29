@@ -3193,7 +3193,7 @@
       // 3 · solve, from a real source with solutions
       '<div style="margin-top:16px;"><div class="field">3 · Solve ' + need + ' problems unaided</div>' +
       '<div style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(c.practice ? c.practice.label : "Problems from the course source") + "</div>" +
-      '<div style="margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">' +
+      '<div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
       (c.practice ? '<a class="btn ghost" href="' + c.practice.url + '" target="_blank" rel="noopener">Open problems ↗</a>' : "") +
       (c.quiz ? '<a class="btn ghost" href="#/quiz/' + c.quiz + '">Auto-graded bank</a>' : "") +
       '<span style="display:inline-flex; align-items:center; gap:6px;">' +
@@ -3206,7 +3206,7 @@
       '<div style="margin-top:16px;"><label class="field" for="lessonNotes">4 · Explain it plainly — this becomes your post</label>' +
       '<textarea id="lessonNotes" placeholder="Explain it as if to a smart friend who has not seen it. No jargon you cannot unpack.">' + esc(st.notes) + "</textarea></div>" +
 
-      '<div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">' +
+      '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
       '<button class="btn ghost" data-act="saveLesson">Save</button>' +
       (st.verified
         ? '<span class="pill good">✓ Verified ' + esc(st.verifiedAt || "") + "</span>" +
@@ -3301,7 +3301,7 @@
             ? '<div class="card">This lesson is a reading — open it below and work through it actively.</div>'
             : '<div class="card">This lesson lives outside YouTube — use the course links.</div>') +
       (l.paper || l.read
-        ? '<div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">' +
+        ? '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
           (l.paper ? '<a class="btn' + (st.done ? " ghost" : "") + '" href="' + l.paper + '" target="_blank" rel="noopener">Read the paper ↗</a>' : "") +
           (l.read ? '<a class="btn ' + (l.paper || st.done ? "ghost" : "") + '" href="' + l.read + '" target="_blank" rel="noopener">' + (l.paper ? "Companion reading" : "Open the reading") + ' ↗</a>' : "") +
           "</div>"
@@ -3705,14 +3705,14 @@
     const r = S.diag[id] || {};
     return '<div class="view-enter"><div class="page-head"><div class="kicker">Official diagnostic · ' + esc(d.subject) + "</div><h1>" + esc(d.title) + "</h1>" +
       '<div class="sub">' + esc(d.note) + "</div>" +
-      '<div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">' +
+      '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">' +
       (d.pdf ? '<a class="btn" href="' + d.pdf + '" target="_blank" rel="noopener">Open exam paper ↗</a>' : "") +
       (d.solutions ? '<a class="btn ghost" href="' + d.solutions + '" target="_blank" rel="noopener">Solutions (after only) ↗</a>' : "") +
       "</div></div>" +
       '<div class="grid cols-2">' +
       '<div class="card" style="text-align:center;"><h2>Exam clock — ' + (d.minutes / 60) + ' hours</h2>' +
       '<div class="timer" id="diagTimer">' + String(Math.floor(d.minutes / 60)).padStart(2, "0") + ":" + String(d.minutes % 60).padStart(2, "0") + ':00</div>' +
-      '<div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">' +
+      '<div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">' +
       '<button class="btn" id="timerStart">Begin — exam conditions</button>' +
       '<button class="btn ghost" id="timerStop">Stop</button></div>' +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin-top:10px;">The clock lives on this page — leave it open in a tab while you work on paper.</p></div>' +
@@ -4016,7 +4016,7 @@
           '<div id="tokBox" hidden style="margin-top:12px;">' +
           '<label class="field" for="tokOut">This device\u2019s token — paste it into your other device</label>' +
           '<input id="tokOut" type="text" readonly value="' + esc(tok) + '">' +
-          '<div style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">' +
+          '<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">' +
           '<button class="btn" data-act="syncCopyTok">Copy</button>' +
           '<button class="btn ghost" data-act="syncHideTok">Hide</button></div>' +
           '<p class="note">Anyone who reads this can write to ' + SYNC_REPO +
@@ -4266,7 +4266,7 @@
       (st.proven ? '<span class="pill good">✓ proven</span>' : "") + "</div>" +
       '<p style="font-size:var(--fs-tiny); color:var(--ink-3); margin:2px 0 10px;">Sketch first — then compare. Producing beats recognising.</p>' +
       '<canvas id="sketchPad" class="sketchpad" width="640" height="360"></canvas>' +
-      '<div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">' +
+      '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
       '<button class="btn ghost" data-act="sketchClear">Clear</button>' +
       '<button class="btn ghost" data-act="sketchSave" data-cid="' + esc(id) + '">Save sketch</button>' +
       (revealed
@@ -4389,7 +4389,7 @@
         '<div style="color:var(--ink); font-weight:600;">' + esc(L.title) + "</div></div>" +
         '<span class="pill' + (rv.lapses > 1 ? " crimson" : "") + '">interval ' + BOXES[rv.box] + "d" + (rv.lapses ? " · " + rv.lapses + " lapse" + (rv.lapses === 1 ? "" : "s") : "") + "</span></div>" +
         '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:8px;">Say it out loud before you open anything. Then judge honestly.</p>' +
-        '<div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">' +
+        '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
         '<button class="btn ghost" data-recall="forgot" data-k="' + esc(k) + '">Forgot</button>' +
         '<button class="btn ghost" data-recall="shaky" data-k="' + esc(k) + '">Shaky</button>' +
         '<button class="btn" data-recall="solid" data-k="' + esc(k) + '">Solid</button>' +
@@ -4553,7 +4553,7 @@
           '<div class="one-kind">Gate ' + ng.n + " — " + esc(ng.label) +
           ' <span class="one-more">' + Math.max(0, daysBetween(todayISO(), ng.target)) + "d left</span></div>" +
           '<p class="one-hint">' + esc(ng.req) + "</p>" +
-          '<div class="one-go" style="display:flex; gap:10px; flex-wrap:wrap;">' + gateBtn(ng) + "</div></div>"
+          '<div class="one-go" style="display:flex; gap:8px; flex-wrap:wrap;">' + gateBtn(ng) + "</div></div>"
         : '<div class="card one one-clear"><div class="one-kind">All gates passed</div>' +
           '<p class="one-hint">You are what you set out to become.</p></div>') +
 

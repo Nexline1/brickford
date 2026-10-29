@@ -116,3 +116,11 @@ This tightens the density rules for every page PR (T-051-2 onward) and overrides
     The target is about 40 words for the Dashboard and about 30 for the others.
 - **Lesson content is exempt:** the summary, the quiz questions and the explanations shown after an answer. The
   lecture page's chrome around them follows the same rules.
+
+## Owner, 2026-10-29 (third message, with two phone screenshots, Dark)
+> "Even the sidebar is too big (on mobile version and texts too) + buttons in the entire app are too large and too plain"
+
+- **T-051-1 now also covers:**
+  - the iOS type scale on the phone (17 body, 15 secondary, 13 section header, 34 large title only), with the cause of the oversized text fixed;
+  - every button smaller (a 34–36px visual inside a 44px hit area) and no longer plain (filled, tinted and text variants, with press feedback).
+- **The order is now:** T-051-2 is the **shell** (a compact drawer and sidebar, the tab bar, and the floating NEXT bar no longer covering content), and T-051-3 is the Dashboard. The rest follow as listed.

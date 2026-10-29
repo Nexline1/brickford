@@ -41,6 +41,9 @@ Offline video is a separate item (T-059) and is out of scope here.
 - Every existing gate green (content, contrast, shell, sync-loop ×2, logic, flows ×2, clip 797 may only
   shrink + TZ=LA, design ×2). The existing gates load file:// — the SW must not break them (register only on
   http(s)). Add verify-offline to CLAUDE.md's gate list (PROTECTED path, owner-approved for this line).
+  CLAUDE.md paragraph approved by the loop run, flagged to the owner. This covers the paragraph under
+  the gate list (why verify-offline exists, the root-scoped worker, file://, the three offline modes),
+  which goes beyond that one line. Approved by the loop's review (round 2), not yet by the owner.
 - No new runtime dependency (no Workbox): hand-written SW.
 
 ## How the revision PDFs open offline (builder's record)

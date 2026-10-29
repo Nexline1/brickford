@@ -333,7 +333,7 @@ const ROUTES = ["/", "/course/math110", "/lesson/math110/0/13", "/calendar", "/w
 const TITLE_ROUTES = new Set(["/course/math110", "/lesson/math110/0/13"]);
 const WIDTHS = [
   { w: 390, h: 844, mobile: true, large: 34 },
-  { w: 1280, h: 800, mobile: false, large: 40 },
+  { w: 1280, h: 800, mobile: false, large: 34 },   // T-051-1: 34px at every width (was 40 on desktop)
 ];
 const THEMES = ["light", "dark"];
 // T-006: the nav bar is measured where the spec names it.
@@ -352,32 +352,39 @@ const NAV_ROUTES = ["/", "/course/math110", "/calendar"];
 const LIST_ROUTES = ["/", "/course/math110", "/exams", "/courses", "/workshop"];
 const LIST_NA = new Set(["/workshop", "/courses", "/exams"]);
 const PRESS_ROUTES = ["/", "/course/math110"];
-// The lead pair: light from loop/design/brief.md §3 (:root, unchanged); dark
-// is T-025's: the [data-theme="dark"] block as it was at commit a309b5a,
-// before T-024's navy, copied here value by value — plus the spec's three
-// exceptions, so the sidebar is darker than the page, and the label token
-// T-024 introduced, which in dark is the button's own ink.
-const DARK_A309B5A = {
-  "--bg": "#000000", "--bg-2": "#0b0e11", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#22272f",
-  "--line": "#38383a", "--line-strong": "#3d454f", "--ink": "#ffffff", "--ink-2": "#a1a1a6", "--ink-3": "#8e8e93",
-  "--accent": "#78aef0", "--accent-fill": "#2f6bbd", "--accent-soft": "#1a2a3f", "--gold": "#e0b35a", "--accent-2": "#9ec2e8",
-  "--good": "#62b881", "--bad": "#e8705c", "--urgent": "#d99a4e", "--btn-bg": "#e8ebef", "--btn-ink": "#0f1216",
-  "--fac-math": "#7aa6da", "--fac-ai": "#d9ab6d", "--fac-sys": "#63b3aa", "--fac-phys": "#d98071", "--fac-res": "#a58ac9", "--fac-speech": "#c98fac",
-  "--panel": "#0a0d10", "--panel-ink": "#e8ebef", "--panel-accent": "#7fb0e6",
-};
+// T-051-1 (owner, 2026-10-21 "pure iOS"; re-planned 2026-10-29, colours
+// first): the iOS palette in Apple's accessible shades where a colour is
+// text, the values loop/specs/T-051-apple-system measured on its reference
+// branch (bc4416b). Until T-051-1 this table was brief.md §3's warm light and
+// T-025's restored dark (a309b5a); every token below is the same token,
+// asserted on the same elements, at its new value, and every old -> new pair
+// is listed in loop/specs/T-051-apple-system/verification-1/changed-assertions.md.
+// Read here from the spec's table, not from the stylesheet, so a drift in
+// style.css fails. Three dark values are not the stock iOS ones: tint text
+// #409cff and grey text #98989d, because #0a84ff and #8e8e93 fall under 4.5:1
+// on any tinted or elevated dark fill, and red text #ff6961, because #ff453a is
+// 4.09:1 on the #2c2c2e hover. And one is not the reference branch's: dark
+// --accent-soft is #212e3e (the tint 14% into the #1c1c1e card), because the
+// branch's #0b1a2b is DARKER than the card and the sidebar's current pill read
+// 1.03:1 against it (this file's own press check) — the branch had moved the
+// pill to --accent-fill, which T-051-1 does not.
 const BRIEF = {
-  light: { "--bg": "#f2f1ee", "--bg-2": "#f2f0ea", "--surface": "#ffffff", "--surface-2": "#f7f6f3", "--surface-float": "#ffffff",
-           "--line": "#dcdad5", "--line-strong": "#c7c0b3",
-           "--ink": "#111111", "--ink-2": "#5c5a55", "--ink-3": "#6e6b65", "--accent": "#1e4f8f",
-           "--accent-fill": "#1e4f8f", "--accent-soft": "#e6edf6", "--gold": "#8a5f12", "--accent-2": "#3f6ea0",
-           "--good": "#2a7047", "--bad": "#b32d1f", "--urgent": "#9a5a16",
-           "--btn-bg": "#241f1a", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
-           "--fac-math": "#35608f", "--fac-ai": "#88592b", "--fac-sys": "#26665f", "--fac-phys": "#9c4534", "--fac-res": "#63498a", "--fac-speech": "#8a4a63",
-           "--panel": "#2b2118", "--panel-ink": "#f2ece2", "--panel-accent": "#d3a874" },
-  dark: Object.assign({}, DARK_A309B5A, {
-    "--panel": "#000000", "--bg": "#0e0e10", "--bg-2": "#141416",     // the spec's three exceptions
-    "--accent-fill-ink": DARK_A309B5A["--btn-ink"],                    // = --btn-ink
-  }),
+  light: { "--bg": "#f2f2f7", "--bg-2": "#f2f2f7", "--surface": "#ffffff", "--surface-2": "#f2f2f7", "--surface-float": "#ffffff",
+           "--line": "#c6c6c8", "--line-strong": "#aeaeb2",
+           "--ink": "#1d1d1f", "--ink-2": "#6e6e73", "--ink-3": "#6e6e73", "--accent": "#0066cc",
+           "--accent-fill": "#0071e3", "--accent-soft": "#e0eefc", "--gold": "#c93400", "--accent-2": "#2a68c0",
+           "--good": "#1f7a35", "--bad": "#d70015", "--urgent": "#c93400",
+           "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
+           "--fac-math": "#4947c3", "--fac-ai": "#a22a00", "--fac-sys": "#09616b", "--fac-phys": "#a90010", "--fac-res": "#793c97", "--fac-speech": "#aa0c38",
+           "--panel": "#ffffff", "--panel-ink": "#1d1d1f", "--panel-accent": "#0066cc" },
+  dark:  { "--bg": "#000000", "--bg-2": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#2c2c2e",
+           "--line": "#38383a", "--line-strong": "#48484a",
+           "--ink": "#f5f5f7", "--ink-2": "#98989d", "--ink-3": "#98989d", "--accent": "#409cff",
+           "--accent-fill": "#0071e3", "--accent-soft": "#212e3e", "--gold": "#ff9f0a", "--accent-2": "#64a8ff",
+           "--good": "#30d158", "--bad": "#ff6961", "--urgent": "#ff9f0a",
+           "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
+           "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff766e", "--fac-res": "#da8fff", "--fac-speech": "#ff7691",
+           "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff" },
 };
 // Each theme's --panel: the sidebar's fill (T-025) and what the Home Screen
 // status bar is painted from (meta theme-color).
@@ -388,12 +395,22 @@ const RADII = { "--r-sm": "8px", "--r-md": "12px", "--r-lg": "16px", "--r-xl": "
 // measured.
 const GLOW_ROUTES = ["/", "/course/math110", "/calendar", "/record"];
 // The primary action's pair: in light a white label on the fill; in dark
-// (T-025) the restored light-grey fill with its dark label.
+// (T-025) the restored light-grey fill with its dark label. T-051-1: in both,
+// white on the filled tint, as iOS draws a filled button.
 const PRIMARY = {
-  light: { bg: "#241f1a", ink: "#ffffff", what: "a white label on the fill" },
-  dark:  { bg: "#e8ebef", ink: "#0f1216", what: "a light-grey fill (#e8ebef) with a dark label (#0f1216)" },
+  light: { bg: "#0071e3", ink: "#ffffff", what: "a white label on the filled tint (#0071e3, 4.70:1)" },
+  dark:  { bg: "#0071e3", ink: "#ffffff", what: "a white label on the filled tint (#0071e3, 4.70:1)" },
 };
 const hexBytes = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).concat(255);
+// T-051-1 (the owner's iPhone, 2026-10-29: row titles on five lines, section
+// heads "huge", buttons "too large and too plain"): where the phone type scale
+// and the button sizes are measured. Every main route (verify-density's), the
+// two lectures, and the detail pages with their own titles and buttons.
+const TYPE_ROUTES = ["/", "/lesson/math110/0/13", "/lesson/math110/0/0", "/workshop", "/atlas", "/courses", "/course/math110",
+  "/exams", "/record", "/practice", "/review", "/calendar", "/treasury", "/library", "/drill", "/transcript", "/sync", "/monk",
+  "/guide", "/concept/la-eigen", "/quiz/linear-algebra", "/method", "/recall", "/electives"];
+// The face, as the stack names it (spec, re-plan step 1).
+const FONT_STACK = '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif';
 
 let checks = 0, fails = 0;
 function check(name, ok, detail) {
@@ -996,20 +1013,84 @@ function listState() {
       }
     });
   });
+  // T-051-1: the iOS grouped-list header, 13px regular uppercase --ink-2 (the
+  // owner's decision of 2026-10-22). Until T-051-1: sentence case, 20px, 600.
   vis("#view .ghead:not(.oh)").forEach(h => {
     cnt("ghead");
     const hs = getComputedStyle(h);
-    if (hs.textTransform !== "none" || hs.fontSize !== "20px" || hs.fontWeight !== "600" || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
-      note("head", "\"" + h.firstChild.textContent.trim().slice(0, 20) + "\" " + hs.textTransform + " " + hs.fontSize + "/" + hs.fontWeight + " rule " + hs.borderBottomWidth);
+    if (hs.textTransform !== "uppercase" || hs.fontSize !== "13px" || hs.fontWeight !== "400" || !z.same(z.bytes(hs.color), T.ink2) || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
+      note("head", "\"" + h.firstChild.textContent.trim().slice(0, 20) + "\" " + hs.textTransform + " " + hs.fontSize + "/" + hs.fontWeight + " " + z.hex(z.bytes(hs.color)) + " rule " + hs.borderBottomWidth);
     const m = h.querySelector(".gh-meta");
     if (m) {
       cnt("ghmeta");
       const ms = getComputedStyle(m);
-      if (ms.fontSize !== "15px" || !z.same(z.bytes(ms.color), T.ink2) || !/tabular-nums/.test(ms.fontVariantNumeric))
+      // T-051-1: 13px, as the header it sits in (it was 15px).
+      if (ms.fontSize !== "13px" || !z.same(z.bytes(ms.color), T.ink2) || !/tabular-nums/.test(ms.fontVariantNumeric))
         note("meta", "\"" + m.textContent.trim() + "\" " + ms.fontSize + " " + z.hex(z.bytes(ms.color)) + " " + ms.fontVariantNumeric);
     }
   });
   return { bad, n };
+}
+
+// T-051-1: the type on a phone. Every visible text node in the view that has
+// a letter in it (numerals and glyphs — a day count, a stepper's "+" — are
+// figures, not type) is at most 17px, the iOS body and headline size, except:
+//   - the page's large title, the view's h1, which must be 34px;
+//   - artwork: a course cover or a lecture thumbnail is a picture with its
+//     name typeset on it (T-016);
+//   - the transcript's institution wordmark, a seal printed on a document as
+//     the drawer's crest is (both owned by later page steps: T-051-7, T-051-2).
+// Returns every offender, and what was measured.
+function typeState() {
+  const out = { texts: 0, big: [], h1: null };
+  const view = document.querySelector("#view");
+  const h1 = [...view.querySelectorAll("h1")].find(n => n.checkVisibility());
+  if (h1) out.h1 = parseFloat(getComputedStyle(h1).fontSize);
+  const w = document.createTreeWalker(view, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) {
+    const el = n.parentElement, t = n.textContent.trim();
+    if (!t || !/\p{L}/u.test(t) || !el || el.closest("svg, script, style")) continue;
+    if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+    if (el.closest(".cover, .thumb")) continue;
+    if (h1 && h1.contains(el)) continue;
+    if (t === "Brickford" && getComputedStyle(el).textTransform === "uppercase") continue;
+    out.texts++;
+    const cs = getComputedStyle(el), px = parseFloat(cs.fontSize);
+    if (px > 17.01) out.big.push(window.__dz.name(el) + " \"" + t.slice(0, 28) + "\" " + px + "px/" + cs.fontWeight);
+  }
+  return out;
+}
+// T-051-1: every visible button, measured as a box and as paint. The HIT box
+// is the border box (what a tap lands in); the PAINTED capsule is the padding
+// box — a .btn draws its fill with background-clip: padding-box inside a 5px
+// transparent border. Kinds by CLASS, as the T-024 check reads them (the
+// paint is the thing under test): .bare and the lesson's Rewatch are text
+// buttons, .ghost and .danger tinted, everything else filled.
+function buttonState() {
+  const z = window.__dz;
+  // color-mix() computes to color(srgb r g b) — a form the canvas in z.bytes
+  // reads as black (see t43Measure) — so it is parsed here.
+  const px = c => { const m = /^color\(srgb ([-\d.e]+) ([-\d.e]+) ([-\d.e]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+    return m ? [m[1], m[2], m[3]].map(v => Math.round(Math.min(1, Math.max(0, +v)) * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255)) : z.bytes(c); };
+  const T = { accent: z.tok("--accent"), bad: z.tok("--bad"), surface: z.tok("--surface"), fill: z.tok("--btn-bg"), ink: z.tok("--accent-fill-ink") };
+  const mix = (a, p) => [0, 1, 2].map(i => a[i] * p + T.surface[i] * (1 - p));
+  return [...document.querySelectorAll(".btn")].filter(b => b.checkVisibility()).map(b => {
+    const cs = getComputedStyle(b), r = b.getBoundingClientRect();
+    const bt = parseFloat(cs.borderTopWidth) || 0, bb = parseFloat(cs.borderBottomWidth) || 0;
+    const kind = b.matches(".bare, .lq-rewatch") ? "text" : b.matches(".ghost, .danger") ? "tinted" : "filled";
+    const bg = px(cs.backgroundColor), color = px(cs.color);
+    let paintOk = true, want = "";
+    if (b.matches(":disabled")) want = "disabled";
+    else if (kind === "filled") { paintOk = bg[3] === 255 && z.same(bg, T.fill) && z.same(color, T.ink); want = "--btn-bg under --accent-fill-ink"; }
+    else if (kind === "tinted") {
+      const red = b.matches(".danger"), tint = mix(red ? T.bad : T.accent, red ? 0.08 : 0.12);
+      paintOk = bg[3] === 255 && z.same(bg, tint, 3) && z.same(color, red ? T.bad : T.accent) && cs.backgroundClip === "padding-box";
+      want = (red ? "--bad 8%" : "--accent 12%") + " into --surface (" + z.hex(tint) + "), " + (red ? "--bad" : "--accent") + " label";
+    } else { paintOk = bg[3] === 0; want = "no fill"; }
+    return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 22), kind, tiny: b.matches(".tiny"),
+      w: r.width, h: r.height, painted: r.height - bt - bb, clip: cs.backgroundClip,
+      size: cs.fontSize, weight: cs.fontWeight, bg: z.hex(bg), color: z.hex(color), paintOk, want };
+  });
 }
 
 // Every visible element matching `sel` is in its pressed (forced) state: how
@@ -2224,9 +2305,12 @@ function t28SeedClips(list) {
         }
         // T-005's corner check, with T-024's shapes (the owner's decision of
         // 2026-10-06): a filled .btn is a 999px capsule; the outlined kinds —
-        // ghost, danger and bare — keep 12px. Same check, new expected values.
-        const shapeOff = m.kinds.filter(k => k.corners.some(r => r !== (k.filled ? "999px" : "12px")));
-        check(where + ": every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners",
+        // ghost, danger and bare — kept 12px. T-051-1 (the owner, 2026-10-29:
+        // buttons "too plain"): the ghost and the danger are tinted capsules
+        // and the bare one a text button with a capsule hover, so every kind
+        // is 999px. Same check, new expected value.
+        const shapeOff = m.kinds.filter(k => k.corners.some(r => r !== "999px"));
+        check(where + ": every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px)",
           m.btns > 0 && shapeOff.length === 0,
           m.btns === 0 ? "no visible .btn on this route" : shapeOff.length ? shapeOff.length + " of " + m.btns + ", e.g. " +
             shapeOff[0].name + " \"" + shapeOff[0].text + "\" (" + (shapeOff[0].filled ? "filled" : "outlined") + ") " + shapeOff[0].corners.join(" ")
@@ -2284,6 +2368,93 @@ function t28SeedClips(list) {
       check(at + ": every visible chip (.pill) is a capsule (999px)", prim.pills > 0 && prim.pillBad.length === 0,
         prim.pillBad.length ? prim.pillBad.slice(0, 3).join("; ") : prim.pills + " chips");
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
+  // ---- T-051-1: the phone type scale, the face, and the buttons ----
+  // The owner's iPhone, 2026-10-29. Light: neither the sizes nor the shapes
+  // depend on the theme, and the tinted paint is checked against this
+  // theme's tokens (verify-contrast holds both themes' pairs).
+  {
+    console.log("\nT-051-1: type and buttons");
+    for (const [w, h, mobile] of [[390, 844, true], [1280, 800, false]]) {
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: "light" }, "light");
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      if (mobile) {
+        // The face: the stack the spec names, and Inter — self-hosted, the
+        // face wherever SF is not installed, as here — actually loaded.
+        const face = await page.evaluate(async () => { await document.fonts.ready;
+          return { stack: getComputedStyle(document.body).fontFamily,
+                   inter: [...document.fonts].filter(f => f.family.replace(/["']/g, "") === "Inter").map(f => f.status),
+                   renders: document.fonts.check('17px Inter') }; });
+        check("390px light: the body face is " + FONT_STACK + ", and Inter (self-hosted, platform/fonts) is loaded and renders",
+          face.stack === FONT_STACK && face.inter.length === 2 && face.inter.includes("loaded") && !face.inter.includes("error") && face.renders,
+          "font-family " + face.stack + "; Inter faces " + face.inter.join(", "));
+      }
+      let typeTexts = 0, btnN = 0;
+      const typeBad = [], hitBad = [], paintBad = [], labelBad = [], kindBad = [], kinds = {};
+      for (const route of (mobile ? TYPE_ROUTES : ROUTES)) {
+        await go(page, route);
+        await page.evaluate(() => document.fonts.ready);
+        if (mobile) {
+          const t = await page.evaluate(typeState);
+          typeTexts += t.texts;
+          if (t.h1 !== null && t.h1 !== 34) typeBad.push(route + " h1 " + t.h1 + "px (want 34)");
+          t.big.forEach(x => typeBad.push(route + " " + x));
+        }
+        for (const b of await page.evaluate(buttonState)) {
+          btnN++; kinds[b.kind] = (kinds[b.kind] || 0) + 1;
+          const at = route + " " + b.name + " \"" + b.text + "\"";
+          if (mobile && (b.w < 44 || b.h < 44)) hitBad.push(at + " hit " + b.w.toFixed(0) + "x" + b.h.toFixed(0));
+          if (!(b.painted >= 30 && b.painted <= 38) || b.clip !== "padding-box") paintBad.push(at + " painted " + b.painted.toFixed(1) + "px (" + b.clip + ")");
+          if (!b.tiny && (b.size !== "15px" || b.weight !== "600")) labelBad.push(at + " " + b.size + "/" + b.weight);
+          if (!b.paintOk) kindBad.push(at + " " + b.kind + ": " + b.bg + " under " + b.color + " (want " + b.want + ")");
+        }
+      }
+      const at = w + "px light";
+      if (mobile) {
+        check(at + ": the iOS type scale — no text in the view over 17px but the page's 34px large title (" + TYPE_ROUTES.length + " routes; figures, covers and the transcript's wordmark aside)",
+          typeTexts > 0 && typeBad.length === 0, typeBad.length ? typeBad.length + " — " + typeBad.slice(0, 4).join("; ") : typeTexts + " texts");
+        check(at + ": every button's hit box is at least 44x44 (the border box a tap lands in)", btnN > 0 && hitBad.length === 0,
+          hitBad.length ? hitBad.slice(0, 4).join("; ") : btnN + " buttons");
+      }
+      check(at + ": every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box)",
+        btnN > 0 && paintBad.length === 0, paintBad.length ? paintBad.length + " — " + paintBad.slice(0, 4).join("; ") : btnN + " buttons");
+      check(at + ": every label is 15px semibold (600), .tiny's compact 12px aside", btnN > 0 && labelBad.length === 0,
+        labelBad.length ? labelBad.slice(0, 4).join("; ") : btnN + " buttons");
+      check(at + ": the three kinds paint as iOS's — filled (--btn-bg), tinted (the accent 12% into the card, accent label; red 8% for danger), text (no fill)",
+        btnN > 0 && kindBad.length === 0 && kinds.filled > 0 && kinds.tinted > 0, kindBad.length ? kindBad.slice(0, 4).join("; ") : JSON.stringify(kinds));
+      check(at + " type and buttons: no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    // The press: held down (forced :active), a filled and a tinted button
+    // scale to 0.97 and dip to 0.7 opacity; under reduced motion they only dip.
+    for (const motion of ["no-preference", "reduce"]) {
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: "light", reducedMotion: motion }, "light");
+      const cdp = await ctx.newCDPSession(page);
+      await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      await go(page, "/lesson/math110/0/13");
+      const felt = {};
+      for (const [k, sel] of [["filled", "#view .btn:not(.ghost):not(.danger):not(.bare):not(:disabled)"], ["tinted", "#view .btn.ghost:not(.lq-rewatch):not(:disabled)"]]) {
+        const read = () => page.evaluate(sel => { const b = [...document.querySelectorAll(sel)].find(n => n.checkVisibility());
+          if (!b) return null; const s = getComputedStyle(b); return { tf: s.transform, op: s.opacity }; }, sel);
+        const rest = await read();
+        await force(cdp, sel, ["active"]);
+        await frames(page);
+        await page.waitForTimeout(150);
+        const held = await read();
+        await force(cdp, sel, []);
+        felt[k] = { rest, held };
+      }
+      const ok = f => !!f && !!f.rest && !!f.held && f.rest.op === "1" && +f.held.op === 0.7 &&
+        (motion === "reduce" ? f.held.tf === "none" : /^matrix\(0\.97, 0, 0, 0\.97, /.test(f.held.tf));
+      check("390px light press (" + motion + "): a filled and a tinted button held down " + (motion === "reduce" ? "dip to 0.7 and do not move" : "scale to 0.97 and dip to 0.7"),
+        ok(felt.filled) && ok(felt.tinted), JSON.stringify(felt));
+      check("390px light press (" + motion + "): no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
   }
@@ -2779,8 +2950,11 @@ function t28SeedClips(list) {
       const at = "390px " + theme + " tab bar";
       // T-023 set the capsule's glass to blur(22px) saturate(170%); it was the
       // nav bar's blur(20px) saturate(180%).
+      // T-051-1: in light --panel is the card colour, white like --surface, so
+      // "not the slab" is read as "not a SOLID --panel": the same colour at
+      // 78% is the material, and the alpha is what says so.
       check(at + ": a material — --surface at 78%, blur(22px) saturate(170%), not the --panel slab",
-        tabBlurOk(t.bf) && material(t.bg, t.surface, 0.78) && !__same(t.bg, t.panel, 0),
+        tabBlurOk(t.bf) && material(t.bg, t.surface, 0.78) && !(__same(t.bg, t.panel, 0) && t.bg[3] === 255),
         "backdrop-filter " + t.bf + "; background " + hx(t.bg) + " (--surface " + hx(t.surface) + ", --panel " + hx(t.panel) + ")");
       // T-023: a 1px --line edge (it was a 0.5px top edge).
       check(at + ": a 1px --line edge all round", t.edges.every(e => e.w === 1 && __same(e.col, t.line)),
@@ -2815,8 +2989,11 @@ function t28SeedClips(list) {
       check(at + ": a solid --panel (" + PANEL[theme] + "), no backdrop-filter, no background-image",
         s.bg[3] === 255 && __same(s.bg, s.panel, 0) && __same(s.bg, hexBytes(PANEL[theme]), 0) && s.bf === "none" && s.img === "none",
         "background " + hx(s.bg) + " (--panel " + hx(s.panel) + "), backdrop-filter " + s.bf + ", image " + s.img);
-      check(at + ": darker than the page — its luminance below the page --bg's",
-        s.lSide < s.lPage, "sidebar " + hx(s.bg) + " L " + s.lSide.toFixed(4) + ", page --bg " + hx(s.page) + " L " + s.lPage.toFixed(4));
+      // T-051-1: the approved mockup's sidebar is the card colour — white
+      // beside the #f2f2f7 page, #1c1c1e beside black — so it is lighter than
+      // the page in both themes (it was "darker than the page", T-025).
+      check(at + ": the card colour (--surface), lighter than the page — its luminance above the page --bg's",
+        __same(s.bg, s.surface, 0) && s.lSide > s.lPage, "sidebar " + hx(s.bg) + " (--surface " + hx(s.surface) + ") L " + s.lSide.toFixed(4) + ", page --bg " + hx(s.page) + " L " + s.lPage.toFixed(4));
       check(at + ": a 0.5px --line trailing edge", hairline(s.rightW) && __same(s.rightCol, s.line), s.rightW + "px " + hx(s.rightCol));
       check(at + ": the current item is an --accent-soft pill, --accent label, 8px corners",
         !!s.act && s.act.bg[3] === 255 && __same(s.act.bg, s.soft) && __same(s.act.color, s.accent) && s.act.radius === "8px",
@@ -3071,8 +3248,8 @@ function t28SeedClips(list) {
     fill: "every visible .glist is an opaque --surface section",
     // 12px under T-007; 20px (--r-card) since T-024, the owner's decision.
     shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
-    head: "every .ghead is sentence case (text-transform none), 20px, 600, with no rule",
-    meta: "every .gh-meta is 15px --ink-2 with tabular numerals",
+    head: "every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600)",
+    meta: "every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px)",
     height: "every .grow is at least 44px tall (56 with a subtitle)",
     type: ".g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2",
     value: ".g-v has tabular numerals and no mono face",

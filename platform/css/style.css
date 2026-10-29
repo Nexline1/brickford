@@ -2025,8 +2025,13 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   html { scroll-behavior: auto; }
   /* The nav bar's title and scroll edge swap in the frame the title goes
      under the bar, with no fade at all. A 0.01ms transition is still a
-     transition — one frame of the old value — so this one is removed. */
-  .topbar .tb-title, .topbar::after { transition: none; }
+     transition — one frame of the old value — so this one is removed. So is
+     the bar's own: the kill-switch above leaves transition-property at
+     `all`, and since the self-hosted Inter (T-051-1) Chromium starts a
+     0.01ms scrollbar-color transition on the bar, from a value to the same
+     value, in about one scroll in four — verify-design's reduced-motion
+     check caught it (5 of 30 runs; 0 of 60 with this line). */
+  .topbar, .topbar .tb-title, .topbar::after { transition: none; }
 }
 
 /* Print: transcript */

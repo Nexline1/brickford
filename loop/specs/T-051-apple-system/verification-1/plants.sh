@@ -14,6 +14,7 @@ export NODE_PATH=/opt/node22/lib/node_modules
 APP="$ROOT/platform/js/app.js"
 CSS="$ROOT/platform/css/style.css"
 SW="$ROOT/sw.js"
+MAN="$ROOT/platform/manifest.json"
 BAK=""; TARGET=""; CHILD=""; MISSED=0
 echo "plants against $ROOT ($(cd "$ROOT" && git rev-parse --short HEAD))"
 restore() {
@@ -53,7 +54,7 @@ GT_NEW='.grow .g-t {
   display: block; font-family: var(--font-body); font-weight: 600;
   font-size: 1.375rem;'
 
-want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold meta-uppercase}"
+want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold meta-uppercase manifest-espresso}"
 for n in $want; do case "$n" in
   # verify-density 1: a 2-line subtitle. The dashboard's "Problems today"
   # subtitle, below the fold, ten words instead of three (no sentence rule broken).
@@ -103,6 +104,10 @@ for n in $want; do case "$n" in
   meta-uppercase) plant "$n" "$CSS" design \
     "letter-spacing: inherit; text-transform: none; color: var(--ink-2);" \
     "letter-spacing: inherit; text-transform: inherit; color: var(--ink-2);" ;;
+  # Review r1, 6: the install splash back on the espresso it kept.
+  manifest-espresso) plant "$n" "$MAN" design \
+    '"theme_color": "#1c1c1e",' \
+    '"theme_color": "#2b2118",' ;;
   *) echo "unknown plant $n"; MISSED=$((MISSED + 1)) ;;
 esac; done
 echo "plants: $(( $(echo $want | wc -w) - MISSED )) of $(echo $want | wc -w) caught (each gate exit 1)"

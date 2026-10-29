@@ -2823,6 +2823,22 @@ function t28SeedClips(list) {
     check("first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025)",
       !!mm && keys.length === 2 && off.length === 0,
       !mm ? "no PANEL map in index.html" : off.length ? off.map(k => k + " " + map[k] + " vs css " + cssPanel[k]).join(", ") : keys.length + " themes");
+    // T-051-1 review r1: the colours painted before the stylesheet can say
+    // anything — the install splash and the theme menu's swatches — are the
+    // current palette's, not the espresso and warm-grey ones they kept.
+    // The splash is the default (dark) theme: its --panel as theme_color,
+    // the same as index.html's static meta theme-color, and its --bg.
+    const man = JSON.parse(fs.readFileSync(path.join(ROOT, "platform/manifest.json"), "utf8"));
+    const meta0 = (/<meta name="theme-color" content="(#[0-9a-fA-F]{6})">/.exec(html) || [])[1];
+    check("install: manifest.json theme_color is the default theme's --panel (" + PANEL.dark + ", as index.html's meta) and background_color its --bg (" + BRIEF.dark["--bg"] + ")",
+      String(man.theme_color).toLowerCase() === PANEL.dark && String(meta0).toLowerCase() === PANEL.dark && String(man.background_color).toLowerCase() === BRIEF.dark["--bg"],
+      "theme_color " + man.theme_color + ", meta " + meta0 + ", background_color " + man.background_color);
+    const sw = {};
+    for (const m of html.matchAll(/data-theme-pick="(\w+)"><span class="swatch" style="background:([^"]+)"/g)) sw[m[1]] = m[2].toLowerCase();
+    const want = { light: BRIEF.light["--bg"], dark: BRIEF.dark["--bg"] };
+    const auto = (/linear-gradient\(90deg, (#[0-9a-f]{6}) 50%, (#[0-9a-f]{6}) 50%\)/.exec(sw.auto || "") || []).slice(1);
+    check("the Theme menu's swatches are each theme's --bg (light " + want.light + ", dark " + want.dark + "; Auto half and half)",
+      sw.light === want.light + ";" && sw.dark === want.dark + ";" && auto[0] === want.light && auto[1] === want.dark, JSON.stringify(sw));
   }
   function samplePaints() {
     if (window.top !== window) return;

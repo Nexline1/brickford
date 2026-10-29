@@ -4,8 +4,8 @@
   ok    (a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with "Open" — "Watch: Limits, L'Hôpital's rule, and epsilon delta definitions, then its quiz", "Open ▸"
   ok    (a) its button opens that lecture — at #/lesson/math120/0/6, h1 "7. Limits, L'Hôpital's rule, and epsilon delta definitions"
   ok    (a) no page errors
-  ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) a question is on screen — numeric
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 5.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today, and its next lecture is open — 0 / 3 today, next #/lesson/math120/1/0
@@ -15,8 +15,8 @@
   ok    (c) the rail's ring does not count it yet, says why, and shows the next lecture locked — {"quiz":true,"bar":true,"frame":false,"ring":"0/3today","rule":true,"railLock":true}
   ok    (c) watched with the quiz still to pass: the card says "Quiz: <title>" with "Start", to this lecture — {"kind":"Quiz: Rate of Change","verb":"Start ▸","href":"#/lesson/math120/1/0"}
   ok    (c) the dashboard count does not move on "watched" alone — 0 / 3 -> 0 / 3
-  ok    (c) a miss shows why and turns its segment red — {"seg":["miss",""],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    (c) the missed question comes back with its options reshuffled — first [0,3,1,2], again [1,3,2,0]
+  ok    (c) a miss shows why and turns its segment red — {"seg":["ok","miss"],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
+  ok    (c) the missed question comes back with its options reshuffled — first [0,1,2,3], again [3,1,2,0]
   ok    (c) the sitting asks every question, and the miss once more — 3 answers for 2 questions
   ok    (c) the pass card shows firstTry = n-1 and that it counted for today — "✓Lecture passed2 of 2 · 1 right on the first try · counted for todayNext lecture →"
   ok    (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-11-01","at":"2026-11-01T12:00:00.000Z","firstTry":1,"total":2,"attempts":3}; events [{"firstTry":1,"total":2}]
@@ -74,8 +74,8 @@
   ok    (a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with "Open" — "Watch: Limits, L'Hôpital's rule, and epsilon delta definitions, then its quiz", "Open ▸"
   ok    (a) its button opens that lecture — at #/lesson/math120/0/6, h1 "7. Limits, L'Hôpital's rule, and epsilon delta definitions"
   ok    (a) no page errors
-  ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 1.", options locked true, next button visible
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today, and its next lecture is open — 0 / 3 today, next #/lesson/math120/1/0
@@ -86,7 +86,7 @@
   ok    (c) watched with the quiz still to pass: the card says "Quiz: <title>" with "Start", to this lecture — {"kind":"Quiz: Rate of Change","verb":"Start ▸","href":"#/lesson/math120/1/0"}
   ok    (c) the dashboard count does not move on "watched" alone — 0 / 3 -> 0 / 3
   ok    (c) a miss shows why and turns its segment red — {"seg":["miss",""],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    (c) the missed question comes back with its options reshuffled — first [0,3,2,1], again [3,2,1,0]
+  ok    (c) the missed question comes back with its options reshuffled — first [0,2,3,1], again [1,3,2,0]
   ok    (c) the sitting asks every question, and the miss once more — 3 answers for 2 questions
   ok    (c) the pass card shows firstTry = n-1 and that it counted for today — "✓Lecture passed2 of 2 · 1 right on the first try · counted for todayNext lecture →"
   ok    (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-11-01","at":"2026-11-01T12:00:00.000Z","firstTry":1,"total":2,"attempts":3}; events [{"firstTry":1,"total":2}]
@@ -181,9 +181,9 @@ record yourself (T-028)
   ok    (p) 390px (tapped): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}] ev {"type":"rep","ref":"story","data":{"date":"2026-11-01","seconds":2}}
   ok    (p) 390px (tapped): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 390px (tapped): after stop the button is idle again and holds the focus (or the page did not move it) — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 390px (tapped): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/0962df8c-7489-4ac9-b6cd-21484b67ea08","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/0962df8c-7489-4ac9-b6cd-21484b67ea08","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/0962df8c-7489-4ac9-b6cd-21484b67ea08","dl":{"href":"blob:null/0962df8c-7489-4ac9-b6cd-21484b67ea08","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/34adb624-693c-4b89-84f9-c36343814629","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/34adb624-693c-4b89-84f9-c36343814629","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/34adb624-693c-4b89-84f9-c36343814629","dl":{"href":"blob:null/34adb624-693c-4b89-84f9-c36343814629","name":"Story · Sun 1 Nov.webm"}}]
   ok    (p) 390px (tapped): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 390px (tapped): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 390px (tapped): no page errors
@@ -195,9 +195,9 @@ record yourself (T-028)
   ok    (p) 1280px (keyboard): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}] ev {"type":"rep","ref":"story","data":{"date":"2026-11-01","seconds":2}}
   ok    (p) 1280px (keyboard): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 1280px (keyboard): after stop the button is idle again and holds the focus — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 1280px (keyboard): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/635c86ae-5616-45e7-9a7b-4b9209af91a3","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/635c86ae-5616-45e7-9a7b-4b9209af91a3","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/635c86ae-5616-45e7-9a7b-4b9209af91a3","dl":{"href":"blob:null/635c86ae-5616-45e7-9a7b-4b9209af91a3","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/6fb13819-2b09-4767-9502-0a3dfde0f7e1","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/6fb13819-2b09-4767-9502-0a3dfde0f7e1","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/6fb13819-2b09-4767-9502-0a3dfde0f7e1","dl":{"href":"blob:null/6fb13819-2b09-4767-9502-0a3dfde0f7e1","name":"Story · Sun 1 Nov.webm"}}]
   ok    (p) 1280px (keyboard): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 1280px (keyboard): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 1280px (keyboard): no page errors
@@ -277,7 +277,7 @@ a slow phone (once, 390px)
 multiple choice (once)
   info  as written in the data — 4 options: 315/616/228/84
   ok    (k) every multiple-choice question was mounted and its answer found — 1243 questions, 9944 mounts, 0 unfound
-  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 24%, B 25%, C 25%, D 25% of 9944
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 25%, C 25%, D 25% of 9944
   ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1243 of 1243
   ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1243 of 1243
   ok    (k) no page errors
@@ -303,7 +303,7 @@ sync (once)
   ok    (f) no page errors
 
 gate sync (once)
-  ok    (n) after a pull from a stub remote that still holds the pass, the unmark sticks (Gate 1 open, pass 1 offered) — pass {"date":"2026-11-01","at":"2026-11-01T12:00:00.000Z","passed":true}, unmark {"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}, pulled true (2 GET), now {"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}, controls pass 1
+  ok    (n) after a pull from a stub remote that still holds the pass, the unmark sticks (Gate 1 open, pass 1 offered) — pass {"date":"2026-11-01","at":"2026-11-01T12:00:00.000Z","passed":true}, unmark {"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}, pulled true (1 GET), now {"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}, controls pass 1
   ok    (n) the push that follows carries the unmark, so the remote loses the pass — {"1":{"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}}
   ok    (n) no page errors (this device)
   ok    (n) the device that still held the pass pulls the unmark: Gate 1 open there too — pulled true, now {"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}, controls pass 1

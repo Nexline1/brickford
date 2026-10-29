@@ -26,7 +26,7 @@ hairlines (read from platform/css/style.css)
   ok    390px light /course/math110: no control carries a key-cap gloss, lift or well
   ok    390px light /lesson/math110/0/13: no element is set in Caslon
   ok    390px light /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
-  ok    390px light /lesson/math110/0/13: every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners — 4 buttons (1 filled)
+  ok    390px light /lesson/math110/0/13: every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners — 3 buttons (1 filled)
   ok    390px light /lesson/math110/0/13: meta theme-color is this theme's --panel (#2b2118) — meta #2b2118
   ok    390px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
   ok    390px light /calendar: no element is set in Caslon
@@ -128,7 +128,7 @@ hairlines (read from platform/css/style.css)
   ok    1280px dark /course/math110: no control carries a key-cap gloss, lift or well
   ok    1280px dark /lesson/math110/0/13: no element is set in Caslon
   ok    1280px dark /lesson/math110/0/13: the page h1 is the large title (40px, 700, -0.022em) — 40px, weight 700, -0.0220em, "14. Eigenvectors and eigenvalues"
-  ok    1280px dark /lesson/math110/0/13: every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners — 5 buttons (2 filled)
+  ok    1280px dark /lesson/math110/0/13: every visible filled .btn is a 999px capsule and every ghost, danger or bare one has 12px corners — 4 buttons (2 filled)
   ok    1280px dark /lesson/math110/0/13: meta theme-color is this theme's --panel (#000000) — meta #000000
   ok    1280px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
   ok    1280px dark /calendar: no element is set in Caslon
@@ -210,26 +210,26 @@ T-024: the navy switch
 T-024: the theme before the first paint
   ok    first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025) — 2 themes
   ok    first paint (stored "light", no marker, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 8 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 12 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f1ee, meta #2b2118 — held 1, first paint rgb(242, 241, 238) (light), app ran false, meta #2b2118
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 12 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 10 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
+  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "forest" — data-theme dark, meta #000000, state writes 0, stored "forest"
   ok    first paint (stored "forest" (removed), phone light): no page errors
   ok    first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #0e0e10, meta #000000 — held 1, first paint rgb(14, 14, 16) (dark), app ran false, meta #000000
-  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 10 frames
+  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
   ok    first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #000000, zero state writes at boot, still stored "slate" — data-theme dark, meta #000000, state writes 0, stored "slate"
   ok    first paint (stored "slate" (removed), phone light): no page errors
 
@@ -2245,10 +2245,10 @@ T-043 1440px dark, the quiz after a miss
   ok    1440px dark, the quiz after a miss: at most one filled primary in the view — Next question
   ok    1440px dark, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
   ok    1440px dark, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":110.5,"h":44}
-  ok    1440px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74}]}
+  ok    1440px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":74},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50}]}
   ok    1440px dark, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    1440px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74}],"filled":["Next question"]}
-  ok    1440px dark, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [5.51,5.18]:1; under 4.5: []
+  ok    1440px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":74},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50}],"filled":["Next question"]}
+  ok    1440px dark, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [5.18,5.51]:1; under 4.5: []
   ok    1440px dark, the quiz after a miss: no "Check yourself" under the summary (the quiz is the check) — false
   ok    1440px dark, the quiz after a miss: the rail says how the ring counts and shows the next lecture locked — {"rule":"A lecture counts once its quiz is passed","lock":true}
   ok    1440px dark, the quiz after a miss: measuring wrote nothing, no page errors — writes 1 -> 1
@@ -2288,7 +2288,7 @@ T-043 390px dark, the quiz after a miss
   ok    390px dark, the quiz after a miss: at most one filled primary in the view — Next question
   ok    390px dark, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
   ok    390px dark, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":110.5,"h":44}
-  ok    390px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 2 of 2","segs":["ok","miss"],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":74},{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50}]}
+  ok    390px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":74},{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50}]}
   ok    390px dark, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
   ok    390px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":318,"h":74},{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50}],"filled":["Next question"]}
   ok    390px dark, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [5.51,5.18]:1; under 4.5: []
@@ -2330,7 +2330,7 @@ T-043 1440px light, the quiz after a miss
   ok    1440px light, the quiz after a miss: at most one filled primary in the view — Next question
   ok    1440px light, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
   ok    1440px light, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":110.5,"h":44}
-  ok    1440px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}]}
+  ok    1440px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 2 of 2","segs":["ok","miss"],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}]}
   ok    1440px light, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
   ok    1440px light, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}],"filled":["Next question"]}
   ok    1440px light, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [5.6,5.65]:1; under 4.5: []
@@ -2373,10 +2373,10 @@ T-043 390px light, the quiz after a miss
   ok    390px light, the quiz after a miss: at most one filled primary in the view — Next question
   ok    390px light, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
   ok    390px light, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":110.5,"h":44}
-  ok    390px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":74}]}
+  ok    390px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":74},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":122}]}
   ok    390px light, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    390px light, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":74}],"filled":["Next question"]}
-  ok    390px light, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [5.65,5.6]:1; under 4.5: []
+  ok    390px light, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":318,"h":74},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":122}],"filled":["Next question"]}
+  ok    390px light, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [5.6,5.65]:1; under 4.5: []
   ok    390px light, the quiz after a miss: no "Check yourself" under the summary (the quiz is the check) — false
   ok    390px light, the quiz after a miss: measuring wrote nothing, no page errors — writes 1 -> 1
 

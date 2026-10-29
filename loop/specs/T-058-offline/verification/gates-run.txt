@@ -1,4 +1,4 @@
-gates against de4ff1b, 2026-10-29T00:16:55Z
+gates against 83d48b2, 2026-10-29T05:19:19Z
 == typecheck: typecheck
    exit 0 (1s) 
 == content: node tools/verify-content.js
@@ -6,26 +6,26 @@ gates against de4ff1b, 2026-10-29T00:16:55Z
 == logic: node tools/verify-logic.js
    exit 0 (37s) PASS — 186 invariants hold
 == sync-loop: node tools/verify-sync-loop.js
-   exit 0 (142s) PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
-== sync-loop-2: node tools/verify-sync-loop.js
    exit 0 (143s) PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
+== sync-loop-2: node tools/verify-sync-loop.js
+   exit 0 (142s) PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t
 == flows: node tools/verify-flows.js
-   exit 0 (75s) PASS — 328 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
+   exit 0 (74s) PASS — 328 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
 == flows-2: node tools/verify-flows.js
-   exit 0 (72s) PASS — 328 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
+   exit 0 (73s) PASS — 328 checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate pas
 == design: node tools/verify-design.js
-   exit 0 (209s) PASS — 2620 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
+   exit 0 (210s) PASS — 2620 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
 == design-2: node tools/verify-design.js
-   exit 0 (216s) PASS — 2620 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
+   exit 0 (224s) PASS — 2620 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the na
 == shell: node tools/verify-shell.js
-   exit 0 (82s) PASS — shell intact across 8 desktop widths x 13 routes and 5 phone widths, frame clear on 25 routes, phone landscape inside the safe-area insets on 3 routes 
+   exit 0 (83s) PASS — shell intact across 8 desktop widths x 13 routes and 5 phone widths, frame clear on 25 routes, phone landscape inside the safe-area insets on 3 routes 
 == contrast: node tools/verify-contrast.js
-   exit 0 (7s) PASS — 128 page-renders across 32 routes × 2 themes × 2 widths, every text/background pair at or above threshold
+   exit 0 (9s) PASS — 128 page-renders across 32 routes × 2 themes × 2 widths, every text/background pair at or above threshold
 == clip: node tools/verify-clip.js
-   exit 0 (177s) PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (142296 element me
+   exit 0 (180s) PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (142334 element me
 == clip-tz-la: env TZ=America/Los_Angeles node tools/verify-clip.js
-   exit 0 (176s) PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (142246 element me
+   exit 0 (177s) PASS — 0 new, 0 stale, 797 known (T-002 660, T-003 137); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (142334 element me
 == offline: node tools/verify-offline.js
-   exit 0 (66s) PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (46 checks)
+   exit 0 (66s) PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (50 checks)
 == offline-2: node tools/verify-offline.js
-   exit 0 (66s) PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (46 checks)
+   exit 0 (68s) PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (50 checks)

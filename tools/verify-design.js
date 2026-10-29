@@ -1091,8 +1091,11 @@ function buttonState() {
       paintOk = bg[3] === 255 && z.same(bg, tint, 3) && z.same(color, red ? T.bad : T.accent) && cs.backgroundClip === "padding-box";
       want = (red ? "--bad 8%" : "--accent 12%") + " into --surface (" + z.hex(tint) + "), " + (red ? "--bad" : "--accent") + " label";
     } else { paintOk = bg[3] === 0; want = "no fill"; }
+    // Review r1: the 5px edge must be transparent on all four sides, or the
+    // paint is the whole 44px box whatever the clip says.
+    const edge = [cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor].map(c => px(c)[3]);
     return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 22), kind, tiny: b.matches(".tiny"),
-      w: r.width, h: r.height, painted: r.height - bt - bb, clip: cs.backgroundClip,
+      w: r.width, h: r.height, painted: r.height - bt - bb, clip: cs.backgroundClip, edge,
       size: cs.fontSize, weight: cs.fontWeight, bg: z.hex(bg), color: z.hex(color), paintOk, want };
   });
 }
@@ -2439,7 +2442,8 @@ function t28SeedClips(list) {
           btnN++; kinds[b.kind] = (kinds[b.kind] || 0) + 1;
           const at = route + " " + b.name + " \"" + b.text + "\"";
           if (mobile && (b.w < 44 || b.h < 44)) hitBad.push(at + " hit " + b.w.toFixed(0) + "x" + b.h.toFixed(0));
-          if (!(b.painted >= 30 && b.painted <= 38) || b.clip !== "padding-box") paintBad.push(at + " painted " + b.painted.toFixed(1) + "px (" + b.clip + ")");
+          if (!(b.painted >= 30 && b.painted <= 38) || b.clip !== "padding-box" || b.edge.some(a => a !== 0))
+            paintBad.push(at + " painted " + b.painted.toFixed(1) + "px (" + b.clip + ", edge alpha " + b.edge.join("/") + ")");
           if (!b.tiny && (b.size !== "15px" || b.weight !== "600")) labelBad.push(at + " " + b.size + "/" + b.weight);
           if (!b.paintOk) kindBad.push(at + " " + b.kind + ": " + b.bg + " under " + b.color + " (want " + b.want + ")");
         }
@@ -2451,7 +2455,7 @@ function t28SeedClips(list) {
         check(at + ": every button's hit box is at least 44x44 (the border box a tap lands in)", btnN > 0 && hitBad.length === 0,
           hitBad.length ? hitBad.slice(0, 4).join("; ") : btnN + " buttons");
       }
-      check(at + ": every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box)",
+      check(at + ": every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box, a transparent edge on all four sides)",
         btnN > 0 && paintBad.length === 0, paintBad.length ? paintBad.length + " — " + paintBad.slice(0, 4).join("; ") : btnN + " buttons");
       check(at + ": every label is 15px semibold (600), .tiny's compact 12px aside", btnN > 0 && labelBad.length === 0,
         labelBad.length ? labelBad.slice(0, 4).join("; ") : btnN + " buttons");

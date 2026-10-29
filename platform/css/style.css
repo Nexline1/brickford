@@ -867,6 +867,13 @@ tr:last-child td { border-bottom: none; }
    right) wraps as a row instead of wrapping each label: on a phone both labels
    broke onto two lines, a 54px capsule each (T-051-1, the button-size check). */
 .q-card > div:has(> #quitBtn) { flex-wrap: wrap; gap: 10px; }
+/* An answer field with its button beside it (the examination's numeric
+   answer, the diagnostic's score): the field gives way, never the button's
+   label. The phone's min-width: 44px on .btn replaces a flex item's
+   automatic minimum, so at 320px the button was squeezed under its own word
+   and "Submit" ran out of it (T-051-1 review r1, the clip sweep). */
+:has(> input + .btn) > .btn { flex-shrink: 0; }
+:has(> input + .btn) > input { min-width: 0; }
 .q-progress { display: flex; gap: 4px; margin-bottom: var(--sp-3); }
 /* An unanswered segment is --line, like every empty track (see .bar);
    --bg-2 measured 1.009:1 on the light --bg and the row read as one dash. */

@@ -94,13 +94,19 @@ a 44px slab. The fix was in style.css (`background-color` in every .btn variant)
 | install: the fonts | every woff2 in platform/fonts is named by style.css and held by this version's cache | `inter-not-precached` |
 | offline: the face | on the last route visited offline, the Inter FontFaces include `loaded` and no `error` | `inter-not-precached` |
 
-## tools/verify-clip.baseline.json — 182 stale entries removed, 0 added
+## tools/verify-clip.baseline.json — 208 stale entries removed, 0 added (182, then 26 in review r1)
 
 797 → 615 entries. The new face, the smaller type and the wrapping quiz footer stopped 182 known clips (T-002 132:
 the drawer crest's wordmark, `div.crest` and `div.name-en`, at 768px with a 24px root, on every route; T-003 50: the
 quiz, drill and diagnostic pages, /electives, /transcript and /recall at a 24px root). Each was reported STALE by both the UTC and the TZ=America/Los_Angeles run,
 identically, so each survived a re-measure. The list is `clip-stale-removed.txt`. Nothing new clips: both runs say
 "0 new".
+
+Review r1: fix 5's take 2 made a button's box 10px narrower, and the phone's `min-width: 44px` on .btn replaces a flex
+item's automatic minimum, so at 320px the quiz's and the diagnostic's numeric rows squeezed the button under its own
+word: 4 new findings (their rows, "234>230"). The answer field now gives way instead (`:has(> input + .btn) > input
+{ min-width: 0 }`, the button `flex-shrink: 0`), which also cleared 26 known T-003 clips of those same buttons and
+rows; they are removed (615 → 589), listed at the end of `clip-stale-removed.txt`.
 
 ## tools/verify-density.js — a new gate, and its baseline
 

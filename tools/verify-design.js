@@ -1094,8 +1094,17 @@ function buttonState() {
     // Review r1: the 5px edge must be transparent on all four sides, or the
     // paint is the whole 44px box whatever the clip says.
     const edge = [cs.borderTopColor, cs.borderRightColor, cs.borderBottomColor, cs.borderLeftColor].map(c => px(c)[3]);
+    // Review r1, 5: where the paint sits against the column it is in (the
+    // parent's content box), and whether its hit box runs into a neighbour's.
+    const p = b.parentElement, pr = p.getBoundingClientRect(), ps = getComputedStyle(p);
+    const colL = pr.left + parseFloat(ps.borderLeftWidth) + parseFloat(ps.paddingLeft), colR = pr.right - parseFloat(ps.borderRightWidth) - parseFloat(ps.paddingRight);
+    const paintL = r.left + (parseFloat(cs.borderLeftWidth) || 0), paintR = r.right - (parseFloat(cs.borderRightWidth) || 0);
+    const overlaps = [...p.children].filter(o => o !== b && o.matches(".btn") && o.checkVisibility()).filter(o => {
+      const q = o.getBoundingClientRect(); return r.left < q.right - 0.5 && q.left < r.right - 0.5 && r.top < q.bottom - 0.5 && q.top < r.bottom - 0.5; }).length;
+    const full = b.matches(".btn.one-go, .ex-sit, .rail-card .btn, .lsn-act .btn.lg");
     return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 22), kind, tiny: b.matches(".tiny"),
       w: r.width, h: r.height, painted: r.height - bt - bb, clip: cs.backgroundClip, edge,
+      dl: paintL - colL, dr: colR - paintR, boxL: r.left - colL, overlaps, full,
       size: cs.fontSize, weight: cs.fontWeight, bg: z.hex(bg), color: z.hex(color), paintOk, want };
   });
 }
@@ -2428,7 +2437,8 @@ function t28SeedClips(list) {
           "font-family " + face.stack + "; Inter faces " + face.inter.join(", "));
       }
       let typeTexts = 0, btnN = 0;
-      const typeBad = [], hitBad = [], paintBad = [], labelBad = [], kindBad = [], kinds = {};
+      const typeBad = [], hitBad = [], paintBad = [], labelBad = [], kindBad = [], kinds = {}, edgeBad = [], fullBad = [], lapBad = [];
+      let fullN = 0, edgeN = 0;
       for (const route of (mobile ? TYPE_ROUTES : ROUTES)) {
         await go(page, route);
         await page.evaluate(() => document.fonts.ready);
@@ -2446,6 +2456,10 @@ function t28SeedClips(list) {
             paintBad.push(at + " painted " + b.painted.toFixed(1) + "px (" + b.clip + ", edge alpha " + b.edge.join("/") + ")");
           if (!b.tiny && (b.size !== "15px" || b.weight !== "600")) labelBad.push(at + " " + b.size + "/" + b.weight);
           if (!b.paintOk) kindBad.push(at + " " + b.kind + ": " + b.bg + " under " + b.color + " (want " + b.want + ")");
+          if (b.overlaps) lapBad.push(at + " overlaps " + b.overlaps + " neighbour(s)");
+          if (mobile && b.full) { fullN++; if (Math.abs(b.dl) > 1 || Math.abs(b.dr) > 1) fullBad.push(at + " paint " + b.dl.toFixed(1) + "/" + b.dr.toFixed(1) + "px in from the column"); }
+          // A button that starts its line: its paint, not its box, is on the column's edge.
+          if (!b.tiny && (Math.abs(b.dl) <= 6 || Math.abs(b.boxL) <= 6)) { edgeN++; if (Math.abs(b.dl) > 1) edgeBad.push(at + " paint " + b.dl.toFixed(1) + "px from the column's edge"); }
         }
       }
       const at = w + "px light";
@@ -2457,6 +2471,13 @@ function t28SeedClips(list) {
       }
       check(at + ": every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box, a transparent edge on all four sides)",
         btnN > 0 && paintBad.length === 0, paintBad.length ? paintBad.length + " — " + paintBad.slice(0, 4).join("; ") : btnN + " buttons");
+      // Review r1, 5: the 5px hit edge hangs into the gutter, not the paint.
+      if (mobile) check(at + ": a full-width primary PAINTS the column's width (±1px; the hit edge hangs 5px past each side)",
+        fullN > 0 && fullBad.length === 0, fullBad.length ? fullBad.slice(0, 4).join("; ") : fullN + " full-width buttons");
+      check(at + ": a button that starts its line paints from the column's edge (±1px), not 5px in from it", edgeN > 0 && edgeBad.length === 0,
+        edgeBad.length ? edgeBad.length + " — " + edgeBad.slice(0, 4).join("; ") : edgeN + " buttons on the edge");
+      check(at + ": no button's hit box runs into a neighbouring button's (>= 10px between them)", btnN > 0 && lapBad.length === 0,
+        lapBad.length ? lapBad.slice(0, 4).join("; ") : btnN + " buttons");
       check(at + ": every label is 15px semibold (600), .tiny's compact 12px aside", btnN > 0 && labelBad.length === 0,
         labelBad.length ? labelBad.slice(0, 4).join("; ") : btnN + " buttons");
       check(at + ": the three kinds paint as iOS's — filled (--btn-bg), tinted (the accent 12% into the card, accent label; red 8% for danger), text (no fill)",

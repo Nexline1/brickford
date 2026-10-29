@@ -562,7 +562,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .rail-card .rl-code { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); font-weight: 600; color: var(--fac, var(--accent)); margin-top: 8px; }
 .rail-card .rl-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: 0; line-height: 1.3; color: var(--ink); margin-top: 2px; }
 .rail-card .rl-meta { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 5px; }
-.rail-card .btn { width: 100%; justify-content: center; margin-top: var(--sp-3); }
+.rail-card .btn { width: calc(100% + 10px); justify-content: center; margin-top: var(--sp-3); }   /* + the 5px hit edge each side (Buttons) */
 .rail-card .rl-foot {
   display: flex; justify-content: space-between; gap: 8px;
   margin-top: var(--sp-3); padding-top: var(--sp-2);
@@ -680,6 +680,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   transition: opacity var(--t-micro) ease, transform var(--t-micro) ease,
               box-shadow var(--t-micro) ease;
 }
+/* The paint sits 5px inside the box, so a button on a column's edge would
+   paint 5px in from the text above it, and a full-width one 10px short of the
+   column (T-051-1 review r1). The box gives those 5px back on each side, so
+   the PAINT lines up with the column and the transparent hit edge hangs into
+   the gutter. Neighbouring buttons therefore need >= 10px between them, or
+   their hit edges would overlap (every button row here has 10px or more;
+   tools/verify-design.js measures both). .tiny buttons sit inside table
+   cells and steppers, not on a column edge, and keep their box. */
+.btn:not(.tiny) { margin-inline: -5px; }
 /* The ring hugs the painted capsule, not the transparent edge around it, and
    keeps the capsule's corners (the global focus rule would square them). */
 .btn:focus-visible { outline-offset: -3px; border-radius: 999px; }
@@ -967,7 +976,7 @@ tr:last-child td { border-bottom: none; }
    found by the sweep for the storytelling routes. */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: var(--sp-3); flex-wrap: wrap; }
 .cal-head h2 { font-size: 1.3rem; }
-.cal-nav { display: flex; gap: 6px; }
+.cal-nav { display: flex; gap: 10px; }   /* >= 10px between buttons, so their 5px hit edges do not overlap (Buttons) */
 /* 44px boxes: a .btn paints 34px of them (Buttons, T-051-1), so the arrows
    are the 34px circles they were, with the 5px hit edge round them. */
 .cal-nav button { height: 44px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
@@ -1215,7 +1224,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
    ones live here instead. */
 .muted { font-size: var(--fs-small); color: var(--ink-2); }
 .note { font-size: var(--fs-tiny); color: var(--ink-3); margin-top: 12px; }
-.row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.row-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }   /* 10px: see .cal-nav */
 .row-split { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 
 /* The one button that matters. Long lecture titles wrap rather than shove the
@@ -1269,7 +1278,11 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .one-hint { font-size: var(--fs-small); color: var(--ink-2); margin-top: 4px; }
 .one-body { margin-top: var(--sp-4); }
 .one-go { margin-top: var(--sp-4); width: 100%; justify-content: center; }
-@media (min-width: 700px) { .one-go { width: auto; min-width: 200px; } }
+/* A button that is the whole row gives the 5px hit edge back on each side
+   (Buttons), so its paint is the column; .one-go also names a row of gate
+   buttons (a div), which keeps 100%. */
+.btn.one-go { width: calc(100% + 10px); }
+@media (min-width: 700px) { .one-go, .btn.one-go { width: auto; min-width: 200px; } }
 .one-clear { border-top-color: var(--good); }
 
 /* ---------- The week, as six dots ----------
@@ -2029,7 +2042,7 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .lsn-act { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: var(--sp-4); }
 .lsn-run { font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: var(--fs-tiny); color: var(--ink-3); }
 @media (max-width: 700px) {
-  .lsn-act .btn.lg { width: 100%; justify-content: center; }
+  .lsn-act .btn.lg { width: calc(100% + 10px); justify-content: center; }   /* + the 5px hit edge each side (Buttons) */
   .lsn-run { margin-top: -4px; }
 }
 
@@ -2741,7 +2754,7 @@ summary.pd-row::-webkit-details-marker { display: none; }
 .ex-bar i, .ex-lbar i { display: block; height: 100%; border-radius: inherit; background: var(--fac, var(--accent)); }
 .ex-side { flex: 1 1 12rem; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
 .ex-hero.urgent .at-days b { color: var(--urgent); }
-.ex-sit { width: 100%; justify-content: center; text-align: center; }
+.ex-sit { width: calc(100% + 10px); justify-content: center; text-align: center; }   /* + the 5px hit edge each side (Buttons) */
 .ex-card .tl-t, .ex-card .tl-m, .pf-tile .at-days { overflow-wrap: normal; }
 .ex-card .tl-main { min-width: auto; }
 .ex-card .tl-t { margin-top: 8px; }
@@ -2814,7 +2827,7 @@ summary.pd-row::-webkit-details-marker { display: none; }
 .sheet .check-row input { display: block; position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
 .sheet .checkbox { margin-top: 0; width: 20px; height: 20px; }
 .sheet .check-row input:focus-visible + .checkbox { outline: 2px solid var(--accent); outline-offset: 2px; }
-.sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.sheet-go { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 16px; }   /* 10px: see .cal-nav */
 .sheet-go .btn { min-height: 44px; min-width: 44px; justify-content: center; }
 
 /* ============================================================

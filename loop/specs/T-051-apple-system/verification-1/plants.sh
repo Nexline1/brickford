@@ -54,7 +54,7 @@ GT_NEW='.grow .g-t {
   display: block; font-family: var(--font-body); font-weight: 600;
   font-size: 1.375rem;'
 
-want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold meta-uppercase manifest-espresso border-painted}"
+want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold meta-uppercase manifest-espresso border-painted edge-inset}"
 for n in $want; do case "$n" in
   # verify-density 1: a 2-line subtitle. The dashboard's "Problems today"
   # subtitle, below the fold, ten words instead of three (no sentence rule broken).
@@ -113,6 +113,11 @@ for n in $want; do case "$n" in
   border-painted) plant "$n" "$CSS" design \
     "  border: 5px solid transparent; border-radius: 999px;" \
     "  border: 5px solid var(--btn-bg); border-radius: 999px;" ;;
+  # Review r1, 5: the 5px hit edge not given back, so the paint sits 5px in
+  # from the column and a full-width primary is 10px short of it.
+  edge-inset) plant "$n" "$CSS" design \
+    ".btn:not(.tiny) { margin-inline: -5px; }" \
+    ".btn:not(.tiny) { margin-inline: 0; }" ;;
   *) echo "unknown plant $n"; MISSED=$((MISSED + 1)) ;;
 esac; done
 echo "plants: $(( $(echo $want | wc -w) - MISSED )) of $(echo $want | wc -w) caught (each gate exit 1)"

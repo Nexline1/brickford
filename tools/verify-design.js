@@ -1093,6 +1093,33 @@ function buttonState() {
   });
 }
 
+// T-051-1 review r1: every visible, enabled button as it paints right now —
+// its label against its own fill, the whole element composited at its
+// opacity over what is behind it (an opacity hover takes the label and the
+// fill toward the page together, which is how 0.88 fell to 3.89:1). Colours
+// parsed here, color-mix() results included (see buttonState).
+function hoverState() {
+  const z = window.__dz;
+  const px = c => { const m = /^color\(srgb ([-\d.e]+) ([-\d.e]+) ([-\d.e]+)(?: \/ ([\d.]+))?\)$/.exec(c);
+    return m ? [m[1], m[2], m[3]].map(v => Math.round(Math.min(1, Math.max(0, +v)) * 255)).concat(Math.round((m[4] == null ? 1 : +m[4]) * 255)) : z.bytes(c); };
+  const over = (top, bot) => { const a = top[3] / 255; return [0, 1, 2].map(i => top[i] * a + bot[i] * (1 - a)).concat(255); };
+  const behind = el => {
+    const stack = [];
+    for (let n = el; n; n = n.parentElement) { const c = px(getComputedStyle(n).backgroundColor); if (c[3] === 0) continue; stack.push(c); if (c[3] === 255) break; }
+    let base = [255, 255, 255, 255];
+    for (let i = stack.length - 1; i >= 0; i--) base = over(stack[i], base);
+    return base;
+  };
+  return [...document.querySelectorAll("#view .btn, .railbar .btn")].filter(b => b.checkVisibility() && !b.matches(":disabled")).map(b => {
+    const cs = getComputedStyle(b), op = +cs.opacity, back = behind(b.parentElement);
+    const fill = over(px(cs.backgroundColor), back), ink = over(px(cs.color), fill);
+    const fade = c => [0, 1, 2].map(i => c[i] * op + back[i] * (1 - op)).concat(255);
+    const kind = b.matches(".bare, .lq-rewatch") ? "text" : b.matches(".ghost, .danger") ? "tinted" : "filled";
+    return { name: z.name(b), text: b.textContent.trim().replace(/\s+/g, " ").slice(0, 22), kind, op, bg: cs.backgroundColor, color: cs.color,
+             ratio: z.ratio(fade(ink), fade(fill)), ink: z.hex(fade(ink)), fill: z.hex(fade(fill)) };
+  });
+}
+
 // Every visible element matching `sel` is in its pressed (forced) state: how
 // far its fill stands off what it sits on, and the worst text on it.
 function pressState(sel) {
@@ -2455,6 +2482,51 @@ function t28SeedClips(list) {
       check("390px light press (" + motion + "): a filled and a tinted button held down " + (motion === "reduce" ? "dip to 0.7 and do not move" : "scale to 0.97 and dip to 0.7"),
         ok(felt.filled) && ok(felt.tinted), JSON.stringify(felt));
       check("390px light press (" + motion + "): no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    // The hover (review r1). With a pointer that hovers (1280), every kind,
+    // forced :hover in both themes: a SOLID change of colour — opacity stays 1
+    // — whose label is >= 4.5:1 on its fill, and a change there is (so the
+    // check is not measuring a hover that does not exist). On a phone
+    // (hover: none) a forced :hover changes nothing, because iOS keeps :hover
+    // on whatever was tapped last.
+    const SEL = "#view .btn, .railbar .btn";
+    for (const theme of THEMES) for (const [w, h, mobile] of [[1280, 800, false], [390, 844, true]]) {
+      const { ctx, page, errors } = await fresh(browser, { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
+      const cdp = await ctx.newCDPSession(page);
+      await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
+      await page.goto(URL + "/__boot", { waitUntil: "load" });
+      await page.waitForSelector("#view > *");
+      const low = [], same = [], moved = [], kinds = {};
+      let n = 0;
+      for (const route of ROUTES.concat(["/electives", "/treasury"])) {
+        await go(page, route);
+        const rest = await page.evaluate(hoverState);
+        await force(cdp, SEL, ["hover"]);
+        await frames(page); await page.waitForTimeout(120);
+        const hov = await page.evaluate(hoverState);
+        await force(cdp, SEL, []);
+        hov.forEach((b, i) => {
+          const r0 = rest[i], at = route + " " + b.name + " \"" + b.text + "\"";
+          n++; kinds[b.kind] = (kinds[b.kind] || 0) + 1;
+          const changed = !r0 || r0.bg !== b.bg || r0.color !== b.color || r0.op !== b.op;
+          if (mobile) { if (changed) moved.push(at + " " + (r0 ? r0.bg + "/" + r0.op : "?") + " -> " + b.bg + "/" + b.op); return; }
+          if (b.op !== 1 || b.ratio < 4.5) low.push(at + " " + b.kind + " " + b.ink + " on " + b.fill + " " + b.ratio.toFixed(2) + ":1, opacity " + b.op);
+          if (!changed) same.push(at);
+        });
+      }
+      const at = w + "px " + theme + " hover";
+      if (mobile)
+        check(at + " (hover: none): a forced :hover changes no button's fill, label or opacity", n > 0 && moved.length === 0,
+          moved.length ? moved.length + " — " + moved.slice(0, 3).join("; ") : n + " buttons");
+      else {
+        check(at + ": every button, forced :hover, keeps opacity 1 and its label >= 4.5:1 on its fill — filled, tinted and text kinds",
+          n > 0 && low.length === 0 && kinds.filled > 0 && kinds.tinted > 0 && kinds.text > 0,
+          low.length ? low.length + " — " + low.slice(0, 4).join("; ") : n + " buttons " + JSON.stringify(kinds));
+        check(at + ": and the hover is a change of colour on every one (it exists to be measured)", n > 0 && same.length === 0,
+          same.length ? same.slice(0, 4).join("; ") : n + " buttons");
+      }
+      check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
   }

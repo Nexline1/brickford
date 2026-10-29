@@ -53,7 +53,7 @@ GT_NEW='.grow .g-t {
   display: block; font-family: var(--font-body); font-weight: 600;
   font-size: 1.375rem;'
 
-want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached}"
+want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity}"
 for n in $want; do case "$n" in
   # verify-density 1: a 2-line subtitle. The dashboard's "Problems today"
   # subtitle, below the fold, ten words instead of three (no sentence rule broken).
@@ -87,6 +87,14 @@ for n in $want; do case "$n" in
   inter-not-precached) plant "$n" "$SW" offline \
     ".filter(u => u.startsWith(APP)).forEach(u => want.add(u));" \
     ".filter(u => u.startsWith(APP) && !/\\/fonts\\//.test(u)).forEach(u => want.add(u));" ;;
+  # Review r1, 1: the unguarded opacity hover back (opacity 0.88 on every
+  # .btn, every pointer), which took every kind under 4.5:1.
+  hover-opacity) plant "$n" "$CSS" design \
+    "@media (hover: hover) {
+  .btn:hover:not(:disabled) { background-color: var(--btn-bg-hover); }" \
+    ".btn:hover { opacity: 0.88; }
+@media (hover: hover) {
+  .btn:hover:not(:disabled) { background-color: var(--btn-bg-hover); }" ;;
   *) echo "unknown plant $n"; MISSED=$((MISSED + 1)) ;;
 esac; done
 echo "plants: $(( $(echo $want | wc -w) - MISSED )) of $(echo $want | wc -w) caught (each gate exit 1)"

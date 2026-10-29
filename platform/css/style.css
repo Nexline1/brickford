@@ -124,6 +124,13 @@
   --urgent: #c93400;
   --btn-bg: #0071e3;
   --btn-ink: #ffffff;
+  /* Hover, solid (T-051-1 r1): the filled tint 15% toward black (white on it
+     6.1:1), and the tinted kinds' deeper labels — --accent and --bad 15%
+     toward black here, 20% toward white in dark — each >= 5.2:1 on its
+     hover tint. */
+  --btn-bg-hover: #0060c1;
+  --accent-hover: #0057ad;
+  --bad-hover: #b70012;
   /* The label on a FILLED accent: the primary .btn (on --btn-bg), the toast,
      anything painted --accent-fill (T-024). White on light's fills; dark's
      button is light grey, so dark restates it as its own --btn-ink (T-025). */
@@ -299,6 +306,9 @@
   --bad: #ff6961;
   --btn-bg: #0071e3;
   --btn-ink: #ffffff;
+  --btn-bg-hover: #0060c1;
+  --accent-hover: #66b0ff;
+  --bad-hover: #ff8781;
   /* White on the filled tint, as iOS draws a filled button in both themes. */
   --accent-fill-ink: #ffffff;
   /* A dark shadow on a near-black page is not a shadow: what floats gets a ring. */
@@ -665,7 +675,24 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* The ring hugs the painted capsule, not the transparent edge around it, and
    keeps the capsule's corners (the global focus rule would square them). */
 .btn:focus-visible { outline-offset: -3px; border-radius: 999px; }
-.btn:hover { opacity: 0.88; }
+/* Hover: a SOLID change of colour, only where there is a pointer that
+   hovers. It was opacity 0.88 with no guard, which took every kind under
+   4.5:1 in both themes (the filled label 3.89:1 in Light) — and iOS keeps
+   :hover on whatever was last tapped, so the phone saw it too (T-051-1 review
+   r1). Each pair below measures >= 4.5:1 (tools/verify-design.js, forced
+   :hover in both themes): the filled tint darkens (white on it 6.1:1); the
+   tinted kinds take a stronger tint under a deeper label (5.2:1 and up); the
+   text kinds take the tinted fill. */
+@media (hover: hover) {
+  .btn:hover:not(:disabled) { background-color: var(--btn-bg-hover); }
+  .btn.ghost:hover:not(:disabled) { background-color: color-mix(in srgb, var(--accent) 20%, var(--surface)); color: var(--accent-hover); }
+  .btn.danger:hover:not(:disabled) { background-color: color-mix(in srgb, var(--bad) 14%, var(--surface)); color: var(--bad-hover); }
+  .btn.bare:hover:not(:disabled), .btn.ghost.lq-rewatch:hover:not(:disabled) { background-color: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); }
+  /* --surface, not the ghost's --line: this one carries status pills, whose
+     --good and --accent-2 inks fall under 4.5:1 on --line (4.29 and 3.81 in
+     light). --bg-2 was 1.009:1 on the light --bg. */
+  .btn.tiny.bare:hover:not(:disabled) { background-color: var(--surface); color: var(--ink-2); }
+}
 /* No :active transform here. There is a shared pointer-down rule further down
    that scales every pressable surface, and this one used to translateY(1px)
    against it — two conflicting transforms on the same element, the later one
@@ -677,7 +704,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    --accent on it is 4.6:1 in Light and 4.9:1 in Dark; the red is pulled back
    to 8% for the same reason (--bad on it 4.6:1 in Light). Until T-051-1 the
    ghost was an outlined --ink label with --radius corners, hovered to --line;
-   it hovers as the filled one does now, so the label never loses its fill. */
+   it hovers to a stronger tint under a deeper label (above). */
 .btn.ghost { background-color: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); }
 .btn.danger { background-color: color-mix(in srgb, var(--bad) 8%, var(--surface)); color: var(--bad); }
 /* Compact buttons in table rows. Small type, but a real 44px target — the
@@ -694,10 +721,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    --ink-2: it is a value in a register row, not an action label.) */
 .btn.bare { background-color: transparent; color: var(--accent); box-shadow: none; }
 .btn.tiny.bare:active { box-shadow: none; }
-/* --surface, not the ghost's --line: this one carries status pills, whose
-   --good and --accent-2 inks fall under 4.5:1 on --line (4.29 and 3.81 in
-   light). --bg-2 was 1.009:1 on the light --bg. */
-.btn.tiny.bare:hover { background-color: var(--surface); }
 /* opacity:0.4 on a FILLED button leaves a solid grey slab, and in the specimen
    that slab read as heavier than the live ghost button beside it — a dead
    control shouting louder than the ones you can press. A disabled button loses

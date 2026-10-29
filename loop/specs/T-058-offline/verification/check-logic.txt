@@ -118,16 +118,16 @@
   ok    no page errors (T-056 r4 merge [new])
   ok    T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (34, 19, 15, 14, 14, 12) — [["../revision/week-01.pdf","Week 1","16–23 Oct · 34 lectures"],["../revision/week-02.pdf","Week 2","25–30 Oct · 19 lectures"],["../revision/week-03.pdf","Week 3","1–6 Nov · 15 lectures"],["../revision/week-04.pdf","Week 4","8–13 Nov · 14 lectures"],["../revision/week-05.pdf","Week 5","15–20 Nov · 14 lectures"],["../revision/week-06.pdf","Week 6","22–27 Nov · 12 lectures"]]
   ok    no page errors (T-056 r2 Library)
-  ok    monk mode on 2026-10-27: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
-  ok    no page errors (monk mode 2026-10-27)
-  ok    monk mode on 2026-10-28: day 1 of 21, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 21","h":63}
-  ok    no page errors (monk mode 2026-10-28)
-  ok    monk mode on 2026-10-30: day 3 of 21, a 44px row opening #/monk in the same window — {"day":3,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 3 of 21","h":63}
+  ok    monk mode on 2026-10-29: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
+  ok    no page errors (monk mode 2026-10-29)
+  ok    monk mode on 2026-10-30: day 1 of 21, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 21","h":63}
   ok    no page errors (monk mode 2026-10-30)
-  ok    monk mode on 2026-11-17: day 21 of 21, a 44px row opening #/monk in the same window — {"day":21,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 21 of 21","h":63}
-  ok    no page errors (monk mode 2026-11-17)
-  ok    monk mode on 2026-11-18: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
-  ok    no page errors (monk mode 2026-11-18)
+  ok    monk mode on 2026-11-01: day 3 of 21, a 44px row opening #/monk in the same window — {"day":3,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 3 of 21","h":63}
+  ok    no page errors (monk mode 2026-11-01)
+  ok    monk mode on 2026-11-19: day 21 of 21, a 44px row opening #/monk in the same window — {"day":21,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 21 of 21","h":63}
+  ok    no page errors (monk mode 2026-11-19)
+  ok    monk mode on 2026-11-20: no row — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
+  ok    no page errors (monk mode 2026-11-20)
   ok    PRAYER_METHOD is the table's method ({"fajr":17.7,"maghrib":4.5,"isha":14,"combine":true}) — {"fajr":17.7,"maghrib":4.5,"isha":14,"combine":true}
   ok    MONK_SYNCS ships false until T-053 — false
   ok    prayer times, Manama, 2026-10-22: fajr 04:24, dhuhr 11:22, maghrib 17:20 within 1 minute — fajr off by 0.39, dhuhr off by 0.14, maghrib off by 0.20
@@ -163,7 +163,7 @@
   ok    score: German as a bare true (the old shape) does not count = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
   ok    score: a separate-prayer key does not count when combined = 0 of 5 (0%) — {"done":0,"n":5,"pct":0}
   ok    score, combine off: all 5 prayers + work = 2 of 5; 4 of 5 prayers + work = 1 of 5 — [{"done":2,"n":5,"pct":40},{"done":1,"n":5,"pct":20}]
-  ok    MONK is 21 days from Wed 28 Oct 2026 (T-057) — {"from":"2026-10-28","days":21}
+  ok    MONK is 21 days from Fri 30 Oct 2026 (T-061; T-057 had Wed 28 Oct) — {"from":"2026-10-30","days":21}
   ok    weeks start on Sunday: 98 days, each in the week of the Sunday on or before it
   ok    this week (Sun 25 - Sat 31 Oct) from Wed 28 Oct: {"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30} — {"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30}
   ok    the same week from its Sunday and from its Saturday — [{"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30},{"shorts":6,"stream":2,"video":1,"scripts":3,"gym":2,"book":1,"work":30}]
@@ -171,7 +171,7 @@
   ok    focus this week: German 1.5 h at 14% over 7 days, with its fix (Also items, all 0%, are not candidates) — {"days":7,"key":"german","label":"German 1.5 h","rate":14,"fix":"Do German listening on the run and speaking on the drive. Don't save it for later."}
   ok    focus this week: No sin today at 29% over 7 days, with a one-line fix — {"days":7,"key":"nosin","label":"No sin today","rate":29,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
   ok    focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged — {"days":7,"key":"bfh","label":"Brickford 3 h","rate":0,"fix":"Start the Deep Track before you check any messages."}
-  ok    focus on Sat 31 Oct: 3 monk days (28-30 Oct), the days before day 1 not counted: No sin at 0% — {"days":3,"key":"nosin","label":"No sin today","rate":0,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
+  ok    focus on Mon 2 Nov: 3 monk days (30 Oct - 1 Nov), the days before day 1 not counted: No sin at 0% — {"days":3,"key":"nosin","label":"No sin today","rate":0,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
   ok    phone under 2 h: phone 0 -> true — true
   ok    phone under 2 h: phone 1.5 -> true — true
   ok    phone under 2 h: phone exactly 2 -> false — false

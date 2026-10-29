@@ -4,8 +4,8 @@
   ok    (a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with "Open" — "Watch: Limits, L'Hôpital's rule, and epsilon delta definitions, then its quiz", "Open ▸"
   ok    (a) its button opens that lecture — at #/lesson/math120/0/6, h1 "7. Limits, L'Hôpital's rule, and epsilon delta definitions"
   ok    (a) no page errors
-  ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 7.", options locked true, next button visible
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today, and its next lecture is open — 0 / 3 today, next #/lesson/math120/1/0
@@ -16,7 +16,7 @@
   ok    (c) watched with the quiz still to pass: the card says "Quiz: <title>" with "Start", to this lecture — {"kind":"Quiz: Rate of Change","verb":"Start ▸","href":"#/lesson/math120/1/0"}
   ok    (c) the dashboard count does not move on "watched" alone — 0 / 3 -> 0 / 3
   ok    (c) a miss shows why and turns its segment red — {"seg":["ok","miss"],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    (c) the missed question comes back with its options reshuffled — first [1,0,3,2], again [2,1,0,3]
+  ok    (c) the missed question comes back with its options reshuffled — first [2,3,1,0], again [3,2,1,0]
   ok    (c) the sitting asks every question, and the miss once more — 3 answers for 2 questions
   ok    (c) the pass card shows firstTry = n-1 and that it counted for today — "✓Lecture passed2 of 2 · 1 right on the first try · counted for todayNext lecture →"
   ok    (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-11-01","at":"2026-11-01T12:00:00.000Z","firstTry":1,"total":2,"attempts":3}; events [{"firstTry":1,"total":2}]
@@ -74,8 +74,8 @@
   ok    (a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with "Open" — "Watch: Limits, L'Hôpital's rule, and epsilon delta definitions, then its quiz", "Open ▸"
   ok    (a) its button opens that lecture — at #/lesson/math120/0/6, h1 "7. Limits, L'Hôpital's rule, and epsilon delta definitions"
   ok    (a) no page errors
-  ok    (b) a question is on screen — numeric
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 5.", options locked true, next button visible
+  ok    (b) a question is on screen — 4 options
+  ok    (b) the answer registers: graded, locked and marked — feedback "Correct.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today, and its next lecture is open — 0 / 3 today, next #/lesson/math120/1/0
@@ -86,7 +86,7 @@
   ok    (c) watched with the quiz still to pass: the card says "Quiz: <title>" with "Start", to this lecture — {"kind":"Quiz: Rate of Change","verb":"Start ▸","href":"#/lesson/math120/1/0"}
   ok    (c) the dashboard count does not move on "watched" alone — 0 / 3 -> 0 / 3
   ok    (c) a miss shows why and turns its segment red — {"seg":["miss",""],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    (c) the missed question comes back with its options reshuffled — first [3,0,2,1], again [2,0,3,1]
+  ok    (c) the missed question comes back with its options reshuffled — first [2,1,0,3], again [3,1,2,0]
   ok    (c) the sitting asks every question, and the miss once more — 3 answers for 2 questions
   ok    (c) the pass card shows firstTry = n-1 and that it counted for today — "✓Lecture passed2 of 2 · 1 right on the first try · counted for todayNext lecture →"
   ok    (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-11-01","at":"2026-11-01T12:00:00.000Z","firstTry":1,"total":2,"attempts":3}; events [{"firstTry":1,"total":2}]
@@ -181,9 +181,9 @@ record yourself (T-028)
   ok    (p) 390px (tapped): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}] ev {"type":"rep","ref":"story","data":{"date":"2026-11-01","seconds":2}}
   ok    (p) 390px (tapped): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 390px (tapped): after stop the button is idle again and holds the focus (or the page did not move it) — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 390px (tapped): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/e3206295-0796-4fc1-a9e3-02f0b7a39286","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/e3206295-0796-4fc1-a9e3-02f0b7a39286","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/e3206295-0796-4fc1-a9e3-02f0b7a39286","dl":{"href":"blob:null/e3206295-0796-4fc1-a9e3-02f0b7a39286","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/4b2bcbde-c766-485e-a2ef-65df39d1ef41","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/4b2bcbde-c766-485e-a2ef-65df39d1ef41","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/4b2bcbde-c766-485e-a2ef-65df39d1ef41","dl":{"href":"blob:null/4b2bcbde-c766-485e-a2ef-65df39d1ef41","name":"Story · Sun 1 Nov.webm"}}]
   ok    (p) 390px (tapped): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 390px (tapped): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 390px (tapped): no page errors
@@ -195,9 +195,9 @@ record yourself (T-028)
   ok    (p) 1280px (keyboard): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}] ev {"type":"rep","ref":"story","data":{"date":"2026-11-01","seconds":2}}
   ok    (p) 1280px (keyboard): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 1280px (keyboard): after stop the button is idle again and holds the focus — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 1280px (keyboard): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/d790920d-58af-4551-8cb0-1df37314f27b","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/d790920d-58af-4551-8cb0-1df37314f27b","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/d790920d-58af-4551-8cb0-1df37314f27b","dl":{"href":"blob:null/d790920d-58af-4551-8cb0-1df37314f27b","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/48ff9fdb-2a13-45e8-b8dc-b7c9048a018b","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/48ff9fdb-2a13-45e8-b8dc-b7c9048a018b","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/48ff9fdb-2a13-45e8-b8dc-b7c9048a018b","dl":{"href":"blob:null/48ff9fdb-2a13-45e8-b8dc-b7c9048a018b","name":"Story · Sun 1 Nov.webm"}}]
   ok    (p) 1280px (keyboard): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 1280px (keyboard): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 1280px (keyboard): no page errors
@@ -277,7 +277,7 @@ a slow phone (once, 390px)
 multiple choice (once)
   info  as written in the data — 4 options: 315/616/228/84
   ok    (k) every multiple-choice question was mounted and its answer found — 1243 questions, 9944 mounts, 0 unfound
-  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 26%, C 25%, D 24% of 9944
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 25%, C 25%, D 25% of 9944
   ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1243 of 1243
   ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1243 of 1243
   ok    (k) no page errors
@@ -328,33 +328,33 @@ Problems: due now (1280px)
 T-054 Monk Mode at 390px:
   ok    (m) opening #/monk writes nothing (0 -> 0, opened twice)
   ok    (m) the page is day 1 of 21 with 3 prayer chips and the 4 seed loops, before anything is stored — {"head":"Day 1 of 21","loops":["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop","Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe","Connect your main Gmail in Claude","Allow huggingface.co in the cloud environment"],"chips":["fajr","dhuhrAsr","maghribIsha"]}
-  ok    (m) the Fajr chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z"}; aria-pressed true
-  ok    (m) the No sin toggle: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true}; aria-pressed true
-  ok    (m) the German podcast chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true,"german":{"podcast":true}}; aria-pressed true
-  ok    (m) the work-hours stepper (+0.5): exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5}; aria-pressed null
+  ok    (m) the Fajr chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z"}; aria-pressed true
+  ok    (m) the No sin toggle: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true}; aria-pressed true
+  ok    (m) the German podcast chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true,"german":{"podcast":true}}; aria-pressed true
+  ok    (m) the work-hours stepper (+0.5): exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5}; aria-pressed null
   ok    (m) the stepper reads 0.5 / 10 — 0.5 / 10
-  ok    (m) the Brickford-hours stepper (+0.5), under bfh, no boolean brickford written: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5,"bfh":0.5}; aria-pressed null
+  ok    (m) the Brickford-hours stepper (+0.5), under bfh, no boolean brickford written: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5,"bfh":0.5}; aria-pressed null
   ok    (m) the Brickford stepper reads 0.5 / 3 — 0.5 / 3
   ok    (m) adding a loop: one write, the four seeds stored first, then the new one — 1 write(s); ["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop","Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe","Connect your main Gmail in Claude","Allow huggingface.co in the cloud environment","Reply to the venue"]
-  ok    (m) saving tomorrow's plan: one write, the three fields under 2026-10-29, and today's Plan tomorrow ticked — 1 write(s); {"at":"2026-10-28T12:00:00.000Z","business":"Call two venues","content":"Script the Bahrain video","education":"MATH 120 lecture 4"}
-  ok    (m) today's Top 3 is still today's (the defaults), not tomorrow's — ["Decide the business idea: one hour, one page","Cut 4–5 clips from the stream","Today’s Brickford lectures + their quizzes"]
-  ok    (m) the clock moved to 2026-10-29: day 2, and the Top 3 is the plan saved last night, with no write — Day 2 of 21 ["Call two venues","Script the Bahrain video","MATH 120 lecture 4"]
+  ok    (m) saving tomorrow's plan: one write, the three fields under 2026-10-31, and today's Plan tomorrow ticked — 1 write(s); {"at":"2026-10-30T12:00:00.000Z","business":"Call two venues","content":"Script the Bahrain video","education":"MATH 120 lecture 4"}
+  ok    (m) today's Top 3 is still today's (the defaults), not tomorrow's — ["Decide the business idea: one hour, one page","Script one video, post one short","Today’s Brickford lectures + their quizzes"]
+  ok    (m) the clock moved to 2026-10-31: day 2, and the Top 3 is the plan saved last night, with no write — Day 2 of 21 ["Call two venues","Script the Bahrain video","MATH 120 lecture 4"]
   ok    (m) no page errors
 
 T-054 Monk Mode at 1280px:
   ok    (m) opening #/monk writes nothing (0 -> 0, opened twice)
   ok    (m) the page is day 1 of 21 with 3 prayer chips and the 4 seed loops, before anything is stored — {"head":"Day 1 of 21","loops":["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop","Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe","Connect your main Gmail in Claude","Allow huggingface.co in the cloud environment"],"chips":["fajr","dhuhrAsr","maghribIsha"]}
-  ok    (m) the Fajr chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z"}; aria-pressed true
-  ok    (m) the No sin toggle: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true}; aria-pressed true
-  ok    (m) the German podcast chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true,"german":{"podcast":true}}; aria-pressed true
-  ok    (m) the work-hours stepper (+0.5): exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5}; aria-pressed null
+  ok    (m) the Fajr chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z"}; aria-pressed true
+  ok    (m) the No sin toggle: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true}; aria-pressed true
+  ok    (m) the German podcast chip: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true,"german":{"podcast":true}}; aria-pressed true
+  ok    (m) the work-hours stepper (+0.5): exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5}; aria-pressed null
   ok    (m) the stepper reads 0.5 / 10 — 0.5 / 10
-  ok    (m) the Brickford-hours stepper (+0.5), under bfh, no boolean brickford written: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5,"bfh":0.5}; aria-pressed null
+  ok    (m) the Brickford-hours stepper (+0.5), under bfh, no boolean brickford written: exactly one write, on the press, and the page shows it — 1 write(s); {"prayers":{"fajr":true},"at":"2026-10-30T12:00:00.000Z","nosin":true,"german":{"podcast":true},"work":0.5,"bfh":0.5}; aria-pressed null
   ok    (m) the Brickford stepper reads 0.5 / 3 — 0.5 / 3
   ok    (m) adding a loop: one write, the four seeds stored first, then the new one — 1 write(s); ["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop","Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe","Connect your main Gmail in Claude","Allow huggingface.co in the cloud environment","Reply to the venue"]
-  ok    (m) saving tomorrow's plan: one write, the three fields under 2026-10-29, and today's Plan tomorrow ticked — 1 write(s); {"at":"2026-10-28T12:00:00.000Z","business":"Call two venues","content":"Script the Bahrain video","education":"MATH 120 lecture 4"}
-  ok    (m) today's Top 3 is still today's (the defaults), not tomorrow's — ["Decide the business idea: one hour, one page","Cut 4–5 clips from the stream","Today’s Brickford lectures + their quizzes"]
-  ok    (m) the clock moved to 2026-10-29: day 2, and the Top 3 is the plan saved last night, with no write — Day 2 of 21 ["Call two venues","Script the Bahrain video","MATH 120 lecture 4"]
+  ok    (m) saving tomorrow's plan: one write, the three fields under 2026-10-31, and today's Plan tomorrow ticked — 1 write(s); {"at":"2026-10-30T12:00:00.000Z","business":"Call two venues","content":"Script the Bahrain video","education":"MATH 120 lecture 4"}
+  ok    (m) today's Top 3 is still today's (the defaults), not tomorrow's — ["Decide the business idea: one hour, one page","Script one video, post one short","Today’s Brickford lectures + their quizzes"]
+  ok    (m) the clock moved to 2026-10-31: day 2, and the Top 3 is the plan saved last night, with no write — Day 2 of 21 ["Call two venues","Script the Bahrain video","MATH 120 lecture 4"]
   ok    (m) no page errors
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)

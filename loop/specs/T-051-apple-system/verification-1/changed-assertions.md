@@ -1,6 +1,7 @@
 # T-051-1: changed assertions
 
-Every change below is an assertion moved to the new value it measures, or a new assertion. **No assertion was
+Every change below is an assertion moved to the new value it measures, or a new assertion. Review round 1's seven
+fixes are folded in, each marked "review r1". **No assertion was
 removed, skipped or loosened**, and no threshold moved. The contrast gate is untouched (4.5:1, both themes, Light and
 Dark — the two themes main has). Where a row names a plant, that plant exits 1 (`plants-run.txt`).
 
@@ -58,9 +59,10 @@ was solved instead: the tint 14% into the card, 1.24:1 against it, `--accent` on
 | `WIDTHS`: "the page h1 is the large title" | 390: 34px; 1280: 40px | 34px at both | The iOS large title is 34 at every width; the desktop 2.5rem step is gone from style.css. -0.022em ±0.002 unchanged (the token is -0.0218em). |
 | 1280 sidebar: "darker than the page — its luminance below the page --bg's" | `lSide < lPage` | "the card colour (--surface), lighter than the page": `same(bg, --surface) && lSide > lPage` | The approved mockup's sidebar is white beside #f2f2f7 and #1c1c1e beside black. The neighbouring "a solid --panel, no backdrop-filter, no image" check is unchanged and still pins the exact hex. |
 | 390 tab bar: "a material … not the --panel slab" | `material(bg, --surface, 0.78) && !same(bg, --panel)` | `material(…) && !(same(bg, --panel) && alpha === 255)` | --panel now equals --surface in both themes, so a 78% --surface material has --panel's rgb by construction. "Not the slab" is read as "not SOLID": `material()` still demands alpha 0.78 and blur(22px) saturate(170%), so a solid slab still fails. |
-| Every visible .btn's corners (5 routes × 2 widths × 2 themes) | filled 999px; ghost, danger, bare 12px | every kind 999px | The owner, 2026-10-29: buttons "too plain". The ghost and the danger are tinted capsules, the bare one a text button whose hover fill is a capsule. |
+| Every visible .btn's corners (5 routes × 2 widths × 2 themes) | filled 999px; ghost, danger, bare 12px | every kind PAINTS a capsule: the used corner radius (the declared one clamped to the box, as the browser clamps it) less the transparent edge is a circle of half the painted height, ±1.5px, on all four corners | The owner, 2026-10-29: buttons "too plain"; the ghost and the danger are tinted capsules, the bare one a text button whose hover fill is a capsule. Review r1 (fix 5): measured as painted, not read as "999px", because the paint is the padding box inside a 5px top-and-bottom edge and its declared radius is 340px / 440px (999px there paints 22×17px ellipses; plant `corners-999`). The T-024 primary-action check's own "999px" clause moved to the same painted test. |
+| The sidebar crest (1280, both themes) | the field is --gold, cut-outs --panel | the field is **--crest**, at #d3a874 (Light) / #e0b35a (Dark), and not --gold; cut-outs --panel | Review r1 (fix 2): --gold became iOS orange and took the seal off the home-screen icon's colours. --crest is pinned to what the crest painted before T-051 (caramel in Light, from the espresso sidebar's --panel-accent; gold in Dark) and joins the token tables. Plant `crest-is-gold`. |
 | `.ghead` (5 list routes × 2 widths × 2 themes) | sentence case, 20px, 600, no rule | uppercase, 13px, 400, **and --ink-2** (added), no rule | The owner's decision of 2026-10-22 ("Section headers are 13px regular uppercase"), applied after his phone showed the heads as the biggest text on screen. |
-| `.gh-meta` | 15px --ink-2, tabular | 13px --ink-2, tabular | The count sits in the header, at its size. |
+| `.gh-meta` | 15px --ink-2, tabular | 13px --ink-2, tabular, **text-transform none** | The count sits in the header, at its size. Review r1 (fix 7): not uppercased with it, because "50m" and "1h56" are units ("50M", "1H56"). Plant `meta-uppercase`. |
 
 ## tools/verify-design.js — new assertions (T-051-1)
 
@@ -69,7 +71,13 @@ was solved instead: the tint 14% into the card, 1.24:1 against it, `--accent` on
 | 390 light: the body face | `font-family` is exactly `-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif`, both Inter FontFaces exist, one is `loaded`, none `error`, and `document.fonts.check("17px Inter")` | — (verify-offline's precache plant covers the file going missing) |
 | 390 light: the iOS type scale, 24 routes | no text node with a letter in it renders over 17px in `#view`, except the view's h1, which must be 34px; figures (numerals, a stepper's "+"), course covers and lecture thumbnails (artwork, T-016) and the transcript's "Brickford" wordmark are named exemptions | `row-title-22-design` (.g-t at 22px) |
 | 390 light: every button's hit box ≥ 44x44 | the border box, which is where a tap lands (the 5px transparent border is part of the element and its hit test) | — (verify-shell's own 44px sweep is unchanged and still measures the border box) |
-| 390 and 1280 light: every button PAINTS 30-38px | border box minus the top and bottom borders, with `background-clip: padding-box` | `button-paints-44` (the 5px transparent border taken away: the hit box stays 44, the paint becomes 44) |
+| 390 and 1280 light: every button PAINTS 30-38px | border box minus the top and bottom borders, with `background-clip: padding-box`, and (review r1, fix 4) all four border colours transparent | `button-paints-44` (the 5px transparent border taken away: the hit box stays 44, the paint becomes 44); `border-painted` (the edge painted in the fill colour) |
+| 390 light: a full-width primary PAINTS the column (review r1, fix 5) | .btn.one-go, .ex-sit, .rail-card .btn, .lsn-act .btn.lg: paint left and right within 1px of the parent's content edges | `edge-inset` |
+| 390 and 1280 light: a button that starts its line paints from the column's edge (fix 5) | every non-tiny button whose paint or box is within 6px of its parent's content-left paints from it within 1px | `edge-inset` |
+| 390 and 1280 light: no hit box runs into a neighbour's (fix 5) | no two visible buttons under one parent have intersecting boxes | — |
+| 1280, both themes: the hover (review r1, fix 1) | every button in #view and the NEXT bar, forced `:hover` on 7 routes: opacity stays 1, the label is >= 4.5:1 on its fill (composited at its opacity), filled, tinted and text kinds each present, and the hover changes the paint on every one | `hover-opacity` (the unguarded opacity 0.88 back) |
+| 390, both themes: no hover on a phone (fix 1) | the same buttons, forced `:hover` under (hover: none): fill, label and opacity unchanged | `hover-opacity` |
+| install colours (review r1, fix 6) | manifest.json theme_color is the default theme's --panel #1c1c1e (as index.html's static meta) and background_color its --bg #000000; the Theme menu's swatches are each theme's --bg | `manifest-espresso` |
 | 390 and 1280 light: labels | 15px / 600, .tiny's compact 12px aside | — |
 | 390 and 1280 light: the kinds | filled = --btn-bg under --accent-fill-ink; tinted = the accent 12% into --surface (red 8% for .danger) under the accent (or --bad), padding-box; text = no fill | — |
 | 390 light press, motion allowed and reduced | a filled and a tinted button, forced `:active`: matrix(0.97 …) and opacity 0.7; under reduced motion transform none and opacity 0.7 | — |
@@ -155,6 +163,17 @@ floor; with `flex: 1 1 auto` the value wraps under the title instead), and with 
 the stream`, `title|320|/monk|Editing — stream → clips` and `title|390|/monk|Editing — stream → clips`. 156 findings
 remain, none new.
 
+## Review r1, fix 5: the first take was undone because verify-clip failed it
+
+The review asked for `margin-inline: -5px` (and `calc(100% + 10px)` on full-width buttons, with >= 10px between
+neighbours) so the paint would line up with the column. That was built and committed (a7edffd), and verify-clip then
+reported **805 new findings**: every such button sticks 5px out of its parent, which the sweep reads as overflow
+("285>280, overflow-x visible"), and that baseline may only shrink. So take 2 (d22ee3a) undid it — the margins, the
+widths, the four CSS gaps and the nine inline gaps in app.js, which is back to main's — and moved the 5px transparent
+edge to the top and bottom only. Across, the paint is the box (min-width: 44px keeps the finger's width), so it is
+on the column without leaving its parent, and the corners are an elliptical 340px / 440px so the paint stays a true
+capsule. The checks the review asked for (full-width paint = column ±1px, edge, no overlap) hold it.
+
 ## Colour fixes the new tokens forced (style.css, tokens and colour only)
 
 | where | was | now | measured |
@@ -162,3 +181,6 @@ remain, none new.
 | `.lq-card .opt.correct .key`, `.wrong .key` | --ink-2 | --ink | verify-design T-043 quiz block: the iOS grey #6e6e73 is 4.01-4.17:1 on Light's tinted options |
 | `.beat-n`, `.mstep .mnum` | accent 12% into transparent | accent 8% into --surface | verify-contrast: 4.19:1 over the light page; 4.98:1 now |
 | dark `--accent-soft` | (reference) #0b1a2b | #212e3e | see above |
+| `.btn:hover` (review r1, fix 1) | opacity 0.88, every pointer | inside `@media (hover: hover)`: filled → --btn-bg-hover #0060c1; ghost → the accent 20% into --surface under --accent-hover (#0057ad Light, #66b0ff Dark); danger → --bad 14% under --bad-hover (#b70012, #ff8781); text kinds → the 12% tint under --accent | verify-design forced :hover: filled 6.10:1, ghost 5.24 / 5.42:1, text 4.68 / 5.06:1 (Light / Dark); opacity 0.88 had been 3.84–4.47:1 |
+| `.crest` field and wordrule (fix 2) | --gold | --crest (#d3a874 Light, #e0b35a Dark) | the home-screen icon's caramel |
+| manifest.json, Theme swatches (fix 6) | #2b2118, #f2f1ee, #0e0e10 | theme_color #1c1c1e, background_color #000000; swatches #f2f2f7 and #000000 | the default theme's --panel and --bg |

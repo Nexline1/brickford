@@ -134,3 +134,12 @@
 - 2026-10-29: T-058 review r2 (same reviewer, resumed) closed all 7 round-1 findings. It found one new bug from fix 4: a stale `netDown` hides every video for the rest of the session after one failed sync request (captive Wi-Fi recovering, or iOS backgrounding). It also found a CLAUDE.md paragraph beyond the spec's approved line; I approved it as loop documentation, to be flagged to the owner. The builder (opus, aff1f76) is fixing both. The next review is round 3, the last before the round limit.
 - 2026-10-29: T-058 review r3: the code was APPROVED. The only open item was the CLAUDE.md paragraph, which the owner then approved ("Approve both"). CHECK (script): every gate passed, including offline 51 ×2. PR #28 merged → main 3968924. Offline works for everything except video streams. Still to do on the device: the owner checks the revision PDF in Airplane Mode in the installed iPhone app, and may need to re-add the app to the home screen. Next: T-059 (official MIT downloads, 124 lectures), which is blocked until the owner allows archive.org, *.us.archive.org and ocw.mit.edu.
 - 2026-10-29: Owner: "Start doing the apple design task, but slight fixes page by page (and after each page push and merge)". Chose "Colours first, then pages", with no Tailwind. The spec re-plan is pushed on loop/T-051-1-colours. T-051-1 (iOS tokens, Inter, verify-density baseline) is being built by builder (opus) in /home/user/bf-T-051-1. Then: Dashboard, Lesson, Problems, Week+Calendar, Courses, Exams/Proof/Record, Practice/Library, Monk, shell — one PR each, merged before the next.
+- 2026-10-29: T-051-1 built (builder opus), with the owner's type and button feedback folded in. The owner's phone is zoomed (Display Zoom or ~123% page zoom), so treat 320 as their real width. Review r1 (reviewer opus, fresh): 7 fixes needed:
+  - hover contrast <4.5;
+  - crest recoloured by --gold;
+  - a density wrap introduced, plus 21 raised ceilings not recorded;
+  - the paint check is blind to borders;
+  - a 5px paint inset at column edges;
+  - stale manifest and swatch colours;
+  - uppercased durations.
+  The builder is fixing them; I push. Reviewer item 8 (add offline/density to loop/config.md CHECK) is not done: config.md is PROTECTED. My CHECK runner includes both gates. Ask the owner whether to add them to config.md.

@@ -3,9 +3,10 @@
 Updated 2026-10-28 (evening). See "Live state" below.
 
 ## Live state, 2026-10-28 (read this first)
-- **Merged today:** #26 T-057. Monk Mode runs 28 Oct–17 Nov (21 days), with the five priorities first.
+- **Merged:** #26 T-057, #27 T-061 (Monk Mode now runs 30 Oct–19 Nov), #28 T-058 (offline).
+- **Earlier:** #26 T-057. Monk Mode runs 28 Oct–17 Nov (21 days), with the five priorities first.
 - **Calendar:** Monk events end on 17 Nov. The ID log is in the session scratchpad only (monk/created.txt). It is never committed, because monk data stays out of this public repo.
-- **T-058 offline:** building in /home/user/bf-T-058, branch loop/T-058-offline.
+- **T-058 offline:** MERGED as #28 (main 3968924). The owner still has to check PDFs on the iPhone. (Old notes follow.)
   - The code and verify-offline (35 checks) are pushed. The builder is running the final full gates.
   - Next: CHECK (scratchpad t056-check/run.sh, with the path swapped to bf-T-058, plus verify-offline), a fresh reviewer, the PR, then merge. The owner wants it ASAP.
 - **T-059 offline video:** ready. The owner chose official downloads. YouTube download was declined (its terms).

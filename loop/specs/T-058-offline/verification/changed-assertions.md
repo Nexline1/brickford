@@ -79,3 +79,37 @@ New checks, not changed ones. Listed so that every check added in round 1 has it
   the lesson's frame becomes the panel, and the next launch pushes. Plants `no-answer-is-failure` and
   `frame-kept-when-net-down`.
 - Fix 5, a rejected token, then offline: "Synced · failing", never "will sync". Plant `offline-before-latch`.
+
+## Review round 2: new checks for one lost request (fix 1)
+
+Added checks only. No existing check was changed, removed or loosened: the 46 checks of round 1 assert
+what they asserted. verify-offline now has 50. Each new check failed on the code before the fix and passes after
+it. The red run failed 5 of 50: the 4 new checks, plus the 401 block, which the harness itself broke.
+A goto that changed only the hash did not relaunch, so a cut-request counter was left set for the next
+block. That was fixed (about:blank first, the counter zeroed at the block's end) before any green run. Each has a plant that exits 1 against the
+final head (`plants-run.txt`). Two of the four plants (`no-probe-on-visible`, `frame-gone-on-sync-signal`) go
+beyond the two the review asked for. They hold the other two halves of the fix.
+
+| Check | Block | What it holds | Plant |
+|---|---|---|---|
+| The internet back, no relaunch, no online event: the next lecture opens with its frame in under 5s | A Wi-Fi with no internet | `navigator.onLine` never changed and nothing syncs, so only the panel's own question to the network can bring the frame back. Before the fix: still the panel after 8s (the reviewer measured 30s). | `no-probe-on-panel` |
+| A panel on screen, the page hidden and shown again once the internet is back: the frame returns in place in under 5s | A Wi-Fi with no internet | The page's push as it goes to the background is refused while the internet is still gone. Then the internet returns and the page comes back: the frame returns on the same page, with no navigation. | `no-probe-on-visible` |
+| A push cut off while the page is hidden: owed, the row reads "Synced" and a MutationObserver saw it read "Offline · will sync" 0 times, and the next lecture opens with its frame, 0 panels drawn | One GitHub request lost (new) | iOS cuts a backgrounded page's requests, so the cut is no evidence about the network. The first draft read the row once, after the failure, and the plant passed it: the new probe answers and mends netDown before a single read. So the check now counts every moment the row shows netDown. Under the plant that count is 1. | `hidden-fail-sets-netdown` |
+| A launch whose first sync request is cut, the network fine: the loading frame stays, 0 panels drawn, the push still owed | One GitHub request lost (new) | A sync's lost request alone no longer takes a frame away: the probe has to fail too. The wait is proof that the app asked (two HEADs for `/sw.js` at the gate's server). The panel count comes from a MutationObserver, so a frame taken away and put back still counts. | `frame-gone-on-sync-signal` |
+
+One more plant had to follow the code: `no-answer-is-failure`. Round 2's hidden-page guard went into
+the line it matches. It still removes `|| err.network`, and it exits 1 on the Wi-Fi-without-internet
+check, as before.
+
+Harness additions they need, none of which changes any earlier check:
+- `net.resetGh`: the next n GitHub requests are cut (a connection reset).
+- `server.heads`: the server counts the HEADs for `/sw.js`.
+- `visStub`: drives `document.visibilityState` through an init script, because headless pages are always visible.
+- `offWatch`: counts every panel drawn.
+- `frameOf`: waits for a lecture's frame with no panel.
+
+Not changed by this round: the reviewer took the `online` event to clear netDown, but it does not. It
+puts the frame back only when netDown is already false. After this round that matters only for a
+device with no token whose own probe failed, which then went offline and came back online: its panel
+waits for the next navigation or the next return to the foreground. Neither is far off, so it was
+left alone. It would be a one-line `else probeNet()` in the online handler.

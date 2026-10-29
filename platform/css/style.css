@@ -3267,7 +3267,11 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
    title rather than squeezing the title to nothing; chips wrap to a second
    row rather than cutting a word. */
 .mk .grow.mk-static { flex-wrap: wrap; }
-.mk .grow.mk-static .g-main { min-width: 7rem; }
+/* flex-basis auto, not flex: 1's 0%: the value wraps under the title when the
+   two do not fit side by side, instead of fitting by squeezing the title to
+   its 7rem floor and breaking it ("Maghrib & / Isha" in Inter, whose value
+   is 9px narrower than the fallback face's; T-051-1 review r1). */
+.mk .grow.mk-static .g-main { min-width: 7rem; flex: 1 1 auto; }
 .mk .grow.mk-static .g-v { margin-left: auto; }
 .mk-chips { flex-wrap: wrap; }
 .mk-chip { flex: 1 1 4.5rem; }

@@ -99,8 +99,61 @@ identically, so each survived a re-measure. The list is `clip-stale-removed.txt`
 Copied from the reference branch (bc4416b) and pointed at main: `.grow` rows (the branch had renamed them
 `.g-row`), verify-design's clock (2026-11-01) and seed (value for value; the branch's two quiz scores dated before
 START are not in verify-design's seed), and /monk added to the routes. Baseline measured twice on this branch,
-identical both times (160 findings, 1983 first-viewport words over 34 route-widths), each finding owned by the page
+identical both times (160 findings, 1983 first-viewport words over 34 route-widths; 156 after review r1, below), each finding owned by the page
 step that will fix it. Plants: `density-two-line-sub`, `density-dashboard-sentence`, `density-more-words`.
+
+## verify-density: the first-screen word ceilings against main's (review r1)
+
+**Smaller type put more words on the first screen.** main (3968924), measured with this same gate, has 1872
+first-viewport words over the 34 route-widths; this branch has 1983. The 13px section headers, the 17px card
+titles and the 34px buttons take less height, so more of each page rises into the first 844 (or 568) pixels. That
+is the measurement the owner asked to see, not a regression this PR hides: the page PRs (T-051-2 shell, T-051-3
+Dashboard, then the pages) cut these ceilings, and each may only come down. 20 route-widths rose above main's
+(21 before review r1; 320 /monk fell below main's with fix 3):
+
+| route-width | main | T-051-1 ceiling | change |
+|---|---|---|---|
+| 320 /calendar | 50 | 53 | +3 |
+| 320 /course/math110 | 54 | 67 | +13 |
+| 320 /courses | 32 | 35 | +3 |
+| 320 /drill | 49 | 50 | +1 |
+| 320 /exams | 49 | 54 | +5 |
+| 320 /lesson/math110/0/13 | 34 | 45 | +11 |
+| 320 /practice | 39 | 41 | +2 |
+| 320 /record | 36 | 39 | +3 |
+| 320 /sync | 30 | 36 | +6 |
+| 320 /transcript | 23 | 34 | +11 |
+| 320 /treasury | 49 | 70 | +21 |
+| 320 /workshop | 49 | 69 | +20 |
+| 390 / | 75 | 88 | +13 |
+| 390 /atlas | 52 | 54 | +2 |
+| 390 /courses | 51 | 59 | +8 |
+| 390 /exams | 69 | 71 | +2 |
+| 390 /lesson/math110/0/13 | 89 | 92 | +3 |
+| 390 /record | 58 | 65 | +7 |
+| 390 /review | 60 | 61 | +1 |
+| 390 /transcript | 52 | 70 | +18 |
+
+And 7 fell below main's:
+
+| route-width | main | T-051-1 ceiling | change |
+|---|---|---|---|
+| 320 /atlas | 37 | 35 | -2 |
+| 390 /calendar | 74 | 69 | -5 |
+| 390 /course/math110 | 87 | 84 | -3 |
+| 390 /monk | 73 | 70 | -3 |
+| 390 /sync | 93 | 74 | -19 |
+| 390 /treasury | 84 | 80 | -4 |
+| 390 /workshop | 95 | 89 | -6 |
+
+**The baseline itself moved during review r1, before it ever merged.** Re-measured twice, identically, after the
+round's fixes: three ceilings changed against the first T-051-1 measurement — 390 /transcript 65 → 70 (fix 7: the
+lower-case meta is narrower, so a section header fits on one line and the page below it rises), 390 /monk 68 → 70
+and 320 /monk 40 → 33 (fix 3) — and four /monk findings no longer occur and were deleted: `title|390|/monk|Maghrib &
+Isha` (the one the review named: `.g-main`'s `flex: 1` basis of 0 let a row fit by squeezing the title to its 7rem
+floor; with `flex: 1 1 auto` the value wraps under the title instead), and with it `title|320|/monk|Cut 4–5 clips from
+the stream`, `title|320|/monk|Editing — stream → clips` and `title|390|/monk|Editing — stream → clips`. 156 findings
+remain, none new.
 
 ## Colour fixes the new tokens forced (style.css, tokens and colour only)
 

@@ -12,33 +12,33 @@ hairlines (read from platform/css/style.css)
 
 390px light
   ok    390px light /: no element is set in Caslon
-  ok    390px light /: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    390px light /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    390px light /: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    390px light /: no control carries a key-cap gloss, lift or well
-  ok    390px light: the theme tokens resolve to the brief's values — data-theme light; 30 tokens
+  ok    390px light: the theme tokens resolve to the brief's values — data-theme light; 31 tokens
   ok    390px light: the radius scale is 8/12/16/22, cards 20 (--r-card)
   ok    390px light: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    390px light: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    390px light /course/math110: no element is set in Caslon
   ok    390px light /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Linear Algebra"
-  ok    390px light /course/math110: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    390px light /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    390px light /course/math110: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    390px light /course/math110: no control carries a key-cap gloss, lift or well
   ok    390px light /lesson/math110/0/13: no element is set in Caslon
   ok    390px light /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "14. Eigenvectors and eigenvalues"
-  ok    390px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
+  ok    390px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
   ok    390px light /lesson/math110/0/13: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    390px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
   ok    390px light /calendar: no element is set in Caslon
-  ok    390px light /calendar: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
+  ok    390px light /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
   ok    390px light /calendar: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    390px light /calendar: no control carries a key-cap gloss, lift or well
   ok    390px light /workshop: no element is set in Caslon
   ok    390px light /workshop: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Problems"
-  ok    390px light /workshop: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
+  ok    390px light /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
   ok    390px light /workshop: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    390px light /workshop: no control carries a key-cap gloss, lift or well
-  ok    390px light: the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 8 filled buttons (2 .btn.lg)
+  ok    390px light: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 8 filled buttons (2 .btn.lg)
   ok    390px light: the toast is the same pair (--btn-bg under an --accent-fill-ink label) — toast 255,255,255 on 0,113,227
   ok    390px light: every visible card (bar the hero's ruled .one) has 20px corners — 3 cards
   ok    390px light: every visible chip (.pill) is a capsule (999px) — 4 chips
@@ -46,33 +46,33 @@ hairlines (read from platform/css/style.css)
 
 390px dark
   ok    390px dark /: no element is set in Caslon
-  ok    390px dark /: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    390px dark /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    390px dark /: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    390px dark /: no control carries a key-cap gloss, lift or well
-  ok    390px dark: the theme tokens resolve to the brief's values — data-theme dark; 30 tokens
+  ok    390px dark: the theme tokens resolve to the brief's values — data-theme dark; 31 tokens
   ok    390px dark: the radius scale is 8/12/16/22, cards 20 (--r-card)
   ok    390px dark: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    390px dark: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    390px dark /course/math110: no element is set in Caslon
   ok    390px dark /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Linear Algebra"
-  ok    390px dark /course/math110: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    390px dark /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    390px dark /course/math110: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    390px dark /course/math110: no control carries a key-cap gloss, lift or well
   ok    390px dark /lesson/math110/0/13: no element is set in Caslon
   ok    390px dark /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "14. Eigenvectors and eigenvalues"
-  ok    390px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
+  ok    390px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 buttons (1 filled)
   ok    390px dark /lesson/math110/0/13: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    390px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
   ok    390px dark /calendar: no element is set in Caslon
-  ok    390px dark /calendar: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
+  ok    390px dark /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
   ok    390px dark /calendar: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    390px dark /calendar: no control carries a key-cap gloss, lift or well
   ok    390px dark /workshop: no element is set in Caslon
   ok    390px dark /workshop: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Problems"
-  ok    390px dark /workshop: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
+  ok    390px dark /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
   ok    390px dark /workshop: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    390px dark /workshop: no control carries a key-cap gloss, lift or well
-  ok    390px dark: the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 8 filled buttons (2 .btn.lg)
+  ok    390px dark: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 8 filled buttons (2 .btn.lg)
   ok    390px dark: the toast is the same pair (--btn-bg under an --accent-fill-ink label) — toast 255,255,255 on 0,113,227
   ok    390px dark: every visible card (bar the hero's ruled .one) has 20px corners — 3 cards
   ok    390px dark: every visible chip (.pill) is a capsule (999px) — 4 chips
@@ -80,33 +80,33 @@ hairlines (read from platform/css/style.css)
 
 1280px light
   ok    1280px light /: no element is set in Caslon
-  ok    1280px light /: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    1280px light /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    1280px light /: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    1280px light /: no control carries a key-cap gloss, lift or well
-  ok    1280px light: the theme tokens resolve to the brief's values — data-theme light; 30 tokens
+  ok    1280px light: the theme tokens resolve to the brief's values — data-theme light; 31 tokens
   ok    1280px light: the radius scale is 8/12/16/22, cards 20 (--r-card)
   ok    1280px light: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    1280px light: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    1280px light /course/math110: no element is set in Caslon
   ok    1280px light /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Linear Algebra"
-  ok    1280px light /course/math110: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    1280px light /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    1280px light /course/math110: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    1280px light /course/math110: no control carries a key-cap gloss, lift or well
   ok    1280px light /lesson/math110/0/13: no element is set in Caslon
   ok    1280px light /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "14. Eigenvectors and eigenvalues"
-  ok    1280px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (2 filled)
+  ok    1280px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 5 buttons (2 filled)
   ok    1280px light /lesson/math110/0/13: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    1280px light /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
   ok    1280px light /calendar: no element is set in Caslon
-  ok    1280px light /calendar: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
+  ok    1280px light /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
   ok    1280px light /calendar: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    1280px light /calendar: no control carries a key-cap gloss, lift or well
   ok    1280px light /workshop: no element is set in Caslon
   ok    1280px light /workshop: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Problems"
-  ok    1280px light /workshop: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
+  ok    1280px light /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
   ok    1280px light /workshop: meta theme-color is this theme's --panel (#ffffff) — meta #ffffff
   ok    1280px light /workshop: no control carries a key-cap gloss, lift or well
-  ok    1280px light: the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 9 filled buttons (2 .btn.lg)
+  ok    1280px light: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 9 filled buttons (2 .btn.lg)
   ok    1280px light: the toast is the same pair (--btn-bg under an --accent-fill-ink label) — toast 255,255,255 on 0,113,227
   ok    1280px light: every visible card (bar the hero's ruled .one) has 20px corners — 3 cards
   ok    1280px light: every visible chip (.pill) is a capsule (999px) — 4 chips
@@ -114,33 +114,33 @@ hairlines (read from platform/css/style.css)
 
 1280px dark
   ok    1280px dark /: no element is set in Caslon
-  ok    1280px dark /: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    1280px dark /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    1280px dark /: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    1280px dark /: no control carries a key-cap gloss, lift or well
-  ok    1280px dark: the theme tokens resolve to the brief's values — data-theme dark; 30 tokens
+  ok    1280px dark: the theme tokens resolve to the brief's values — data-theme dark; 31 tokens
   ok    1280px dark: the radius scale is 8/12/16/22, cards 20 (--r-card)
   ok    1280px dark: body is the system face at 17px — 17px -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    1280px dark: --font-rounded asks for ui-rounded first — ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif
   ok    1280px dark /course/math110: no element is set in Caslon
   ok    1280px dark /course/math110: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Linear Algebra"
-  ok    1280px dark /course/math110: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
+  ok    1280px dark /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 buttons (2 filled)
   ok    1280px dark /course/math110: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    1280px dark /course/math110: no control carries a key-cap gloss, lift or well
   ok    1280px dark /lesson/math110/0/13: no element is set in Caslon
   ok    1280px dark /lesson/math110/0/13: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "14. Eigenvectors and eigenvalues"
-  ok    1280px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 5 buttons (2 filled)
+  ok    1280px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 5 buttons (2 filled)
   ok    1280px dark /lesson/math110/0/13: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    1280px dark /lesson/math110/0/13: no control carries a key-cap gloss, lift or well
   ok    1280px dark /calendar: no element is set in Caslon
-  ok    1280px dark /calendar: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
+  ok    1280px dark /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 buttons (1 filled)
   ok    1280px dark /calendar: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    1280px dark /calendar: no control carries a key-cap gloss, lift or well
   ok    1280px dark /workshop: no element is set in Caslon
   ok    1280px dark /workshop: the page h1 is the large title (34px, 700, -0.022em) — 34px, weight 700, -0.0218em, "Problems"
-  ok    1280px dark /workshop: every visible .btn — filled, ghost, danger or bare — is a 999px capsule (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
+  ok    1280px dark /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 buttons (2 filled)
   ok    1280px dark /workshop: meta theme-color is this theme's --panel (#1c1c1e) — meta #1c1c1e
   ok    1280px dark /workshop: no control carries a key-cap gloss, lift or well
-  ok    1280px dark: the primary action — every filled .btn and at least one .btn.lg is a 999px capsule, a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 9 filled buttons (2 .btn.lg)
+  ok    1280px dark: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — 9 filled buttons (2 .btn.lg)
   ok    1280px dark: the toast is the same pair (--btn-bg under an --accent-fill-ink label) — toast 255,255,255 on 0,113,227
   ok    1280px dark: every visible card (bar the hero's ruled .one) has 20px corners — 3 cards
   ok    1280px dark: every visible chip (.pill) is a capsule (999px) — 4 chips
@@ -148,20 +148,35 @@ hairlines (read from platform/css/style.css)
 
 T-051-1: type and buttons
   ok    390px light: the body face is -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif, and Inter (self-hosted, platform/fonts) is loaded and renders — font-family -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif; Inter faces loaded, unloaded
-  ok    390px light: the iOS type scale — no text in the view over 17px but the page's 34px large title (24 routes; figures, covers and the transcript's wordmark aside) — 756 texts
-  ok    390px light: every button's hit box is at least 44x44 (the border box a tap lands in) — 105 buttons
-  ok    390px light: every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box) — 105 buttons
-  ok    390px light: every label is 15px semibold (600), .tiny's compact 12px aside — 105 buttons
-  ok    390px light: the three kinds paint as iOS's — filled (--btn-bg), tinted (the accent 12% into the card, accent label; red 8% for danger), text (no fill) — {"filled":44,"text":33,"tinted":28}
+  ok    390px light: the iOS type scale — no text in the view over 17px but the page's 34px large title (24 routes; figures, covers and the transcript's wordmark aside) — 749 texts
+  ok    390px light: every button's hit box is at least 44x44 (the border box a tap lands in) — 106 buttons
+  ok    390px light: every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box, a transparent edge on all four sides) — 106 buttons
+  ok    390px light: a full-width primary PAINTS the column's width (±1px; the hit edge hangs 5px past each side) — 6 full-width buttons
+  ok    390px light: a button that starts its line paints from the column's edge (±1px), not 5px in from it — 25 buttons on the edge
+  ok    390px light: no button's hit box runs into a neighbouring button's (>= 10px between them) — 106 buttons
+  ok    390px light: every label is 15px semibold (600), .tiny's compact 12px aside — 106 buttons
+  ok    390px light: the three kinds paint as iOS's — filled (--btn-bg), tinted (the accent 12% into the card, accent label; red 8% for danger), text (no fill) — {"filled":44,"text":33,"tinted":29}
   ok    390px light type and buttons: no page errors
-  ok    1280px light: every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box) — 15 buttons
-  ok    1280px light: every label is 15px semibold (600), .tiny's compact 12px aside — 15 buttons
-  ok    1280px light: the three kinds paint as iOS's — filled (--btn-bg), tinted (the accent 12% into the card, accent label; red 8% for danger), text (no fill) — {"filled":9,"text":1,"tinted":5}
+  ok    1280px light: every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box, a transparent edge on all four sides) — 16 buttons
+  ok    1280px light: a button that starts its line paints from the column's edge (±1px), not 5px in from it — 8 buttons on the edge
+  ok    1280px light: no button's hit box runs into a neighbouring button's (>= 10px between them) — 16 buttons
+  ok    1280px light: every label is 15px semibold (600), .tiny's compact 12px aside — 16 buttons
+  ok    1280px light: the three kinds paint as iOS's — filled (--btn-bg), tinted (the accent 12% into the card, accent label; red 8% for danger), text (no fill) — {"filled":9,"text":1,"tinted":6}
   ok    1280px light type and buttons: no page errors
   ok    390px light press (no-preference): a filled and a tinted button held down scale to 0.97 and dip to 0.7 — {"filled":{"rest":{"tf":"none","op":"1"},"held":{"tf":"matrix(0.97, 0, 0, 0.97, 0, 0)","op":"0.7"}},"tinted":{"rest":{"tf":"none","op":"1"},"held":{"tf":"matrix(0.97, 0, 0, 0.97, 0, 0)","op":"0.7"}}}
   ok    390px light press (no-preference): no page errors
   ok    390px light press (reduce): a filled and a tinted button held down dip to 0.7 and do not move — {"filled":{"rest":{"tf":"none","op":"1"},"held":{"tf":"none","op":"0.7"}},"tinted":{"rest":{"tf":"none","op":"1"},"held":{"tf":"none","op":"0.7"}}}
   ok    390px light press (reduce): no page errors
+  ok    1280px light hover: every button, forced :hover, keeps opacity 1 and its label >= 4.5:1 on its fill — filled, tinted and text kinds — 40 buttons {"filled":7,"text":14,"tinted":19}
+  ok    1280px light hover: and the hover is a change of colour on every one (it exists to be measured) — 40 buttons
+  ok    1280px light hover: no page errors
+  ok    390px light hover (hover: none): a forced :hover changes no button's fill, label or opacity — 47 buttons
+  ok    390px light hover: no page errors
+  ok    1280px dark hover: every button, forced :hover, keeps opacity 1 and its label >= 4.5:1 on its fill — filled, tinted and text kinds — 41 buttons {"filled":7,"text":14,"tinted":20}
+  ok    1280px dark hover: and the hover is a change of colour on every one (it exists to be measured) — 41 buttons
+  ok    1280px dark hover: no page errors
+  ok    390px dark hover (hover: none): a forced :hover changes no button's fill, label or opacity — 46 buttons
+  ok    390px dark hover: no page errors
 
 empty tracks, 390px light
   ok    390px light /record: an empty heatmap day and the Quiet swatch stand off their backdrop (>= 1.05:1) — day 1.706:1, #c6c6c8 on #ffffff (div.card); swatch 1.706:1, #c6c6c8 on #ffffff (div.card)
@@ -226,27 +241,29 @@ T-024: the navy switch
 
 T-024: the theme before the first paint
   ok    first paint: index.html's PANEL map is every theme's --panel in style.css (light and dark, T-025) — 2 themes
+  ok    install: manifest.json theme_color is the default theme's --panel (#1c1c1e, as index.html's meta) and background_color its --bg (#000000) — theme_color #1c1c1e, meta #1c1c1e, background_color #000000
+  ok    the Theme menu's swatches are each theme's --bg (light #f2f2f7, dark #000000; Auto half and half) — {"auto":"linear-gradient(90deg, #f2f2f7 50%, #000000 50%);","dark":"#000000;","light":"#f2f2f7;"}
   ok    first paint (stored "light", no marker, phone light): with app.js held, the first painted body is the dark --bg #000000, meta #1c1c1e — held 1, first paint rgb(0, 0, 0) (dark), app ran false, meta #1c1c1e
-  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
+  ok    first paint (stored "light", no marker, phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
   ok    first paint (stored "light", no marker, phone light): no page errors
   ok    first paint (stored "light" + marker, phone dark): with app.js held, the first painted body is the light --bg #f2f2f7, meta #ffffff — held 1, first paint rgb(242, 242, 247) (light), app ran false, meta #ffffff
-  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 16 frames
+  ok    first paint (stored "light" + marker, phone dark): every frame, held and after app.js ran, is light — never the other theme — 10 frames
   ok    first paint (stored "light" + marker, phone dark): no page errors
   ok    first paint (nothing stored, phone light): with app.js held, the first painted body is the dark --bg #000000, meta #1c1c1e — held 1, first paint rgb(0, 0, 0) (dark), app ran false, meta #1c1c1e
-  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (nothing stored, phone light): every frame, held and after app.js ran, is dark — never the other theme — 9 frames
   ok    first paint (nothing stored, phone light): no page errors
   ok    first paint (stored "auto", phone dark): with app.js held, the first painted body is the dark --bg #000000, meta #1c1c1e — held 1, first paint rgb(0, 0, 0) (dark), app ran false, meta #1c1c1e
-  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
+  ok    first paint (stored "auto", phone dark): every frame, held and after app.js ran, is dark — never the other theme — 14 frames
   ok    first paint (stored "auto", phone dark): no page errors
   ok    first paint (stored "auto", phone light): with app.js held, the first painted body is the light --bg #f2f2f7, meta #ffffff — held 1, first paint rgb(242, 242, 247) (light), app ran false, meta #ffffff
-  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 13 frames
+  ok    first paint (stored "auto", phone light): every frame, held and after app.js ran, is light — never the other theme — 11 frames
   ok    first paint (stored "auto", phone light): no page errors
   ok    first paint (stored "forest" (removed), phone light): with app.js held, the first painted body is the dark --bg #000000, meta #1c1c1e — held 1, first paint rgb(0, 0, 0) (dark), app ran false, meta #1c1c1e
-  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (stored "forest" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 13 frames
   ok    first paint (stored "forest" (removed), phone light): after app.js ran, data-theme="dark", meta #1c1c1e, zero state writes at boot, still stored "forest" — data-theme dark, meta #1c1c1e, state writes 0, stored "forest"
   ok    first paint (stored "forest" (removed), phone light): no page errors
   ok    first paint (stored "slate" (removed), phone light): with app.js held, the first painted body is the dark --bg #000000, meta #1c1c1e — held 1, first paint rgb(0, 0, 0) (dark), app ran false, meta #1c1c1e
-  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 12 frames
+  ok    first paint (stored "slate" (removed), phone light): every frame, held and after app.js ran, is dark — never the other theme — 11 frames
   ok    first paint (stored "slate" (removed), phone light): after app.js ran, data-theme="dark", meta #1c1c1e, zero state writes at boot, still stored "slate" — data-theme dark, meta #1c1c1e, state writes 0, stored "slate"
   ok    first paint (stored "slate" (removed), phone light): no page errors
 
@@ -368,7 +385,7 @@ tab bar and sidebar, light
   ok    1280px light sidebar: the card colour (--surface), lighter than the page — its luminance above the page --bg's — sidebar #ffffff (--surface #ffffff) L 1.0000, page --bg #f2f2f7 L 0.8910
   ok    1280px light sidebar: a 0.5px --line trailing edge — 1px #c6c6c8
   ok    1280px light sidebar: the current item is an --accent-soft pill, --accent label, 8px corners — "Dashboard" #e0eefc (--accent-soft #e0eefc), label #0066cc, 8px
-  ok    1280px light sidebar: the crest is --gold with --panel cut-outs (holes in the seal, T-025) — field #c93400 (--gold #c93400), cut #ffffff
+  ok    1280px light sidebar: the crest is --crest (#d3a874, the brand's, not --gold) with --panel cut-outs (holes in the seal, T-025) — field #d3a874 (--crest #d3a874, --gold #c93400), cut #ffffff
   ok    1280px light sidebar: no page errors
 
 tab bar and sidebar, dark
@@ -388,7 +405,7 @@ tab bar and sidebar, dark
   ok    1280px dark sidebar: the card colour (--surface), lighter than the page — its luminance above the page --bg's — sidebar #1c1c1e (--surface #1c1c1e) L 0.0117, page --bg #000000 L 0.0000
   ok    1280px dark sidebar: a 0.5px --line trailing edge — 1px #38383a
   ok    1280px dark sidebar: the current item is an --accent-soft pill, --accent label, 8px corners — "Dashboard" #212e3e (--accent-soft #212e3e), label #409cff, 8px
-  ok    1280px dark sidebar: the crest is --gold with --panel cut-outs (holes in the seal, T-025) — field #ff9f0a (--gold #ff9f0a), cut #1c1c1e
+  ok    1280px dark sidebar: the crest is --crest (#e0b35a, the brand's, not --gold) with --panel cut-outs (holes in the seal, T-025) — field #e0b35a (--crest #e0b35a, --gold #ff9f0a), cut #1c1c1e
   ok    1280px dark sidebar: no page errors
 
 floating tab bar, light
@@ -405,7 +422,7 @@ floating tab bar, light
   ok    390px light Next card: the capsule's insets (+/-1) — left 0.0, right 0.0 from the capsule's
   ok    390px light Next card: radius >= 20px and 8px (+/-1) above the capsule — radius 22, gap 8.0
   ok    390px light Next card: the capsule's glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow — blur(22px) saturate(1.7); #ffffff at 78%; edges 1/1/1/1; shadow yes
-  ok    390px light Next card: Open is at least 44x44 — 87.8x44.0
+  ok    390px light Next card: Open is at least 44x44 — 77.8x44.0
   ok    390px light floating tab bar: no page errors
   ok    320px light floating tab bar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(242, 242, 247), --bg #f2f2f7 (rgb(242, 242, 247))
   ok    320px light floating tab bar: 14px (+/-1) in from both edges — 14.0 and 14.0
@@ -420,7 +437,7 @@ floating tab bar, light
   ok    320px light Next card: the capsule's insets (+/-1) — left 0.0, right 0.0 from the capsule's
   ok    320px light Next card: radius >= 20px and 8px (+/-1) above the capsule — radius 22, gap 8.0
   ok    320px light Next card: the capsule's glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow — blur(22px) saturate(1.7); #ffffff at 78%; edges 1/1/1/1; shadow yes
-  ok    320px light Next card: Open is at least 44x44 — 87.8x44.0
+  ok    320px light Next card: Open is at least 44x44 — 77.8x44.0
   ok    320px light floating tab bar: no page errors
 
 floating tab bar, dark
@@ -437,7 +454,7 @@ floating tab bar, dark
   ok    390px dark Next card: the capsule's insets (+/-1) — left 0.0, right 0.0 from the capsule's
   ok    390px dark Next card: radius >= 20px and 8px (+/-1) above the capsule — radius 22, gap 8.0
   ok    390px dark Next card: the capsule's glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow — blur(22px) saturate(1.7); #1c1c1d at 78%; edges 1/1/1/1; shadow yes
-  ok    390px dark Next card: Open is at least 44x44 — 87.8x44.0
+  ok    390px dark Next card: Open is at least 44x44 — 77.8x44.0
   ok    390px dark floating tab bar: no page errors
   ok    320px dark floating tab bar: painted in the theme asked for before anything is read (body = its --bg in style.css) — body rgb(0, 0, 0), --bg #000000 (rgb(0, 0, 0))
   ok    320px dark floating tab bar: 14px (+/-1) in from both edges — 14.0 and 14.0
@@ -452,7 +469,7 @@ floating tab bar, dark
   ok    320px dark Next card: the capsule's insets (+/-1) — left 0.0, right 0.0 from the capsule's
   ok    320px dark Next card: radius >= 20px and 8px (+/-1) above the capsule — radius 22, gap 8.0
   ok    320px dark Next card: the capsule's glass — --surface at 78%, blur(22px) saturate(170%), a 1px --line edge, a shadow — blur(22px) saturate(1.7); #1c1c1d at 78%; edges 1/1/1/1; shadow yes
-  ok    320px dark Next card: Open is at least 44x44 — 87.8x44.0
+  ok    320px dark Next card: Open is at least 44x44 — 77.8x44.0
   ok    320px dark floating tab bar: no page errors
 
 the Review badge with a long count
@@ -563,7 +580,7 @@ lists, 390px light
   ok    390px light /: every visible .glist is an opaque --surface section — 7 measured
   ok    390px light /: every visible .glist has 20px corners and clips its rows (overflow hidden) — 7 measured
   ok    390px light /: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 6 measured
-  ok    390px light /: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 5 measured
+  ok    390px light /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 measured
   ok    390px light /: every .grow is at least 44px tall (56 with a subtitle) — 14 measured
   ok    390px light /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
   ok    390px light /: .g-v has tabular numerals and no mono face — 7 measured
@@ -578,20 +595,20 @@ lists, 390px light
   ok    390px light /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 20 measured
   n/a   390px light /exams: no .glist on this route (rows and sections); headers measured
   ok    390px light /exams: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    390px light /exams: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    390px light /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   390px light /courses: no .glist on this route (rows and sections); headers measured
   ok    390px light /courses: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    390px light /courses: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    390px light /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   390px light /workshop: no .glist on this route (rows and sections); headers measured
   ok    390px light /workshop: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    390px light /workshop: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    390px light /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   ok    390px light lists: no page errors
 
 lists, 390px dark
   ok    390px dark /: every visible .glist is an opaque --surface section — 7 measured
   ok    390px dark /: every visible .glist has 20px corners and clips its rows (overflow hidden) — 7 measured
   ok    390px dark /: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 6 measured
-  ok    390px dark /: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 5 measured
+  ok    390px dark /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 measured
   ok    390px dark /: every .grow is at least 44px tall (56 with a subtitle) — 14 measured
   ok    390px dark /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
   ok    390px dark /: .g-v has tabular numerals and no mono face — 7 measured
@@ -606,20 +623,20 @@ lists, 390px dark
   ok    390px dark /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 20 measured
   n/a   390px dark /exams: no .glist on this route (rows and sections); headers measured
   ok    390px dark /exams: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    390px dark /exams: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    390px dark /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   390px dark /courses: no .glist on this route (rows and sections); headers measured
   ok    390px dark /courses: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    390px dark /courses: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    390px dark /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   390px dark /workshop: no .glist on this route (rows and sections); headers measured
   ok    390px dark /workshop: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    390px dark /workshop: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    390px dark /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   ok    390px dark lists: no page errors
 
 lists, 1280px light
   ok    1280px light /: every visible .glist is an opaque --surface section — 7 measured
   ok    1280px light /: every visible .glist has 20px corners and clips its rows (overflow hidden) — 7 measured
   ok    1280px light /: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 6 measured
-  ok    1280px light /: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 5 measured
+  ok    1280px light /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 measured
   ok    1280px light /: every .grow is at least 44px tall (56 with a subtitle) — 14 measured
   ok    1280px light /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
   ok    1280px light /: .g-v has tabular numerals and no mono face — 7 measured
@@ -634,20 +651,20 @@ lists, 1280px light
   ok    1280px light /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 20 measured
   n/a   1280px light /exams: no .glist on this route (rows and sections); headers measured
   ok    1280px light /exams: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    1280px light /exams: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    1280px light /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   1280px light /courses: no .glist on this route (rows and sections); headers measured
   ok    1280px light /courses: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    1280px light /courses: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    1280px light /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   1280px light /workshop: no .glist on this route (rows and sections); headers measured
   ok    1280px light /workshop: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    1280px light /workshop: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    1280px light /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   ok    1280px light lists: no page errors
 
 lists, 1280px dark
   ok    1280px dark /: every visible .glist is an opaque --surface section — 7 measured
   ok    1280px dark /: every visible .glist has 20px corners and clips its rows (overflow hidden) — 7 measured
   ok    1280px dark /: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 6 measured
-  ok    1280px dark /: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 5 measured
+  ok    1280px dark /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 measured
   ok    1280px dark /: every .grow is at least 44px tall (56 with a subtitle) — 14 measured
   ok    1280px dark /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 22 measured
   ok    1280px dark /: .g-v has tabular numerals and no mono face — 7 measured
@@ -662,13 +679,13 @@ lists, 1280px dark
   ok    1280px dark /course/math110: the leading slot is --ink-2 and the chevron --ink-3 — 20 measured
   n/a   1280px dark /exams: no .glist on this route (rows and sections); headers measured
   ok    1280px dark /exams: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    1280px dark /exams: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    1280px dark /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   1280px dark /courses: no .glist on this route (rows and sections); headers measured
   ok    1280px dark /courses: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    1280px dark /courses: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    1280px dark /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   n/a   1280px dark /workshop: no .glist on this route (rows and sections); headers measured
   ok    1280px dark /workshop: every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600) — 2 measured
-  ok    1280px dark /workshop: every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px) — 2 measured
+  ok    1280px dark /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 measured
   ok    1280px dark lists: no page errors
 
 the keyboard ring, 390px light
@@ -2261,11 +2278,11 @@ T-043 1440px dark, before watched
 T-043 1440px dark, the quiz after a miss
   ok    1440px dark, the quiz after a miss: at most one filled primary in the view — Next question
   ok    1440px dark, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
-  ok    1440px dark, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":101.1,"h":44}
-  ok    1440px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":74},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50}]}
+  ok    1440px dark, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":91.1,"h":44}
+  ok    1440px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}]}
   ok    1440px dark, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    1440px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":74},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50}],"filled":["Next question"]}
-  ok    1440px dark, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [12.09,12.97]:1; under 4.5: []
+  ok    1440px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}],"filled":["Next question"]}
+  ok    1440px dark, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [12.97,12.09]:1; under 4.5: []
   ok    1440px dark, the quiz after a miss: no "Check yourself" under the summary (the quiz is the check) — false
   ok    1440px dark, the quiz after a miss: the rail says how the ring counts and shows the next lecture locked — {"rule":"A lecture counts once its quiz is passed","lock":true}
   ok    1440px dark, the quiz after a miss: measuring wrote nothing, no page errors — writes 1 -> 1
@@ -2277,7 +2294,7 @@ T-043 1440px dark, passed, with Go deeper
   ok    1440px dark, passed, with Go deeper: the Go deeper heading reads "Go deeper" with "optional" on the same line — {"text":"Go deeperoptional","oneLine":true,"a":342,"b":341}
   ok    1440px dark, passed, with Go deeper: the Sketch tile names the concept in quotes and reads as a sentence — "Sketch “Eigenvectors are the directions that survive” from memory, then compare with the summary."
   ok    1440px dark, passed, with Go deeper: the four gates sit under a closed "Prove mastery · 4 gates" disclosure — {"open":false,"sum":"Prove mastery · 4 gates2 of 4"}
-  ok    1440px dark, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":101.1,"h":44}
+  ok    1440px dark, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":91.1,"h":44}
   ok    1440px dark, passed, with Go deeper: measuring wrote nothing, no page errors — writes 1 -> 1
 
 T-043 1440px dark, the locked lecture
@@ -2304,10 +2321,10 @@ T-043 390px dark, before watched
 T-043 390px dark, the quiz after a miss
   ok    390px dark, the quiz after a miss: at most one filled primary in the view — Next question
   ok    390px dark, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
-  ok    390px dark, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":101.1,"h":44}
-  ok    390px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 2 of 2","segs":["ok","miss"],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":122}]}
+  ok    390px dark, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":91.1,"h":44}
+  ok    390px dark, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":50},{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50}]}
   ok    390px dark, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    390px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":122}],"filled":["Next question"]}
+  ok    390px dark, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":318,"h":50},{"w":318,"h":122},{"w":318,"h":50},{"w":318,"h":50}],"filled":["Next question"]}
   ok    390px dark, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [12.97,12.09]:1; under 4.5: []
   ok    390px dark, the quiz after a miss: no "Check yourself" under the summary (the quiz is the check) — false
   ok    390px dark, the quiz after a miss: measuring wrote nothing, no page errors — writes 1 -> 1
@@ -2319,7 +2336,7 @@ T-043 390px dark, passed, with Go deeper
   ok    390px dark, passed, with Go deeper: the Go deeper heading reads "Go deeper" with "optional" on the same line — {"text":"Go deeperoptional","oneLine":true,"a":472,"b":471}
   ok    390px dark, passed, with Go deeper: the Sketch tile names the concept in quotes and reads as a sentence — "Sketch “Eigenvectors are the directions that survive” from memory, then compare with the summary."
   ok    390px dark, passed, with Go deeper: the four gates sit under a closed "Prove mastery · 4 gates" disclosure — {"open":false,"sum":"Prove mastery · 4 gates2 of 4"}
-  ok    390px dark, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":101.1,"h":44}
+  ok    390px dark, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":91.1,"h":44}
   ok    390px dark, passed, with Go deeper: measuring wrote nothing, no page errors — writes 1 -> 1
 
 T-043 390px dark, the locked lecture
@@ -2346,11 +2363,11 @@ T-043 1440px light, before watched
 T-043 1440px light, the quiz after a miss
   ok    1440px light, the quiz after a miss: at most one filled primary in the view — Next question
   ok    1440px light, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
-  ok    1440px light, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":101.1,"h":44}
-  ok    1440px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}]}
+  ok    1440px light, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":91.1,"h":44}
+  ok    1440px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 2 of 2","segs":["ok","miss"],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":694,"h":74},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50}]}
   ok    1440px light, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    1440px light, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":74},{"w":694,"h":50}],"filled":["Next question"]}
-  ok    1440px light, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [13.3,13.85]:1; under 4.5: []
+  ok    1440px light, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":694,"h":74},{"w":694,"h":50},{"w":694,"h":50},{"w":694,"h":50}],"filled":["Next question"]}
+  ok    1440px light, the quiz after a miss: every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included — marked options 2, their keys [13.85,13.3]:1; under 4.5: []
   ok    1440px light, the quiz after a miss: no "Check yourself" under the summary (the quiz is the check) — false
   ok    1440px light, the quiz after a miss: the rail says how the ring counts and shows the next lecture locked — {"rule":"A lecture counts once its quiz is passed","lock":true}
   ok    1440px light, the quiz after a miss: measuring wrote nothing, no page errors — writes 1 -> 1
@@ -2362,7 +2379,7 @@ T-043 1440px light, passed, with Go deeper
   ok    1440px light, passed, with Go deeper: the Go deeper heading reads "Go deeper" with "optional" on the same line — {"text":"Go deeperoptional","oneLine":true,"a":342,"b":341}
   ok    1440px light, passed, with Go deeper: the Sketch tile names the concept in quotes and reads as a sentence — "Sketch “Eigenvectors are the directions that survive” from memory, then compare with the summary."
   ok    1440px light, passed, with Go deeper: the four gates sit under a closed "Prove mastery · 4 gates" disclosure — {"open":false,"sum":"Prove mastery · 4 gates2 of 4"}
-  ok    1440px light, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":101.1,"h":44}
+  ok    1440px light, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":91.1,"h":44}
   ok    1440px light, passed, with Go deeper: measuring wrote nothing, no page errors — writes 1 -> 1
 
 T-043 1440px light, the locked lecture
@@ -2389,7 +2406,7 @@ T-043 390px light, before watched
 T-043 390px light, the quiz after a miss
   ok    390px light, the quiz after a miss: at most one filled primary in the view — Next question
   ok    390px light, the quiz after a miss: the video is the watched bar, the quiz under it — {"frame":false,"bar":true}
-  ok    390px light, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":101.1,"h":44}
+  ok    390px light, the quiz after a miss: the bar's Rewatch is >= 44x44 — {"w":91.1,"h":44}
   ok    390px light, the quiz after a miss: the quiz card reads "Lecture quiz" · "From this lecture only" · "Question i of n", with n segments and the miss red — {"title":"Lecture quiz","sub":"From this lecture only","n":"Question 1 of 2","segs":["miss",""],"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end.","bg":true,"opts":[{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":122}]}
   ok    390px light, the quiz after a miss: the note says misses come back and the first-try score is kept; the miss says why and that it comes back — {"note":"Misses come back, reshuffled, until you get them. Your first-try score is kept.","why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
   ok    390px light, the quiz after a miss: the card is --surface, every option >= 44px tall, and "Next question" is the one primary — {"bg":true,"opts":[{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":50},{"w":318,"h":122}],"filled":["Next question"]}
@@ -2404,7 +2421,7 @@ T-043 390px light, passed, with Go deeper
   ok    390px light, passed, with Go deeper: the Go deeper heading reads "Go deeper" with "optional" on the same line — {"text":"Go deeperoptional","oneLine":true,"a":472,"b":471}
   ok    390px light, passed, with Go deeper: the Sketch tile names the concept in quotes and reads as a sentence — "Sketch “Eigenvectors are the directions that survive” from memory, then compare with the summary."
   ok    390px light, passed, with Go deeper: the four gates sit under a closed "Prove mastery · 4 gates" disclosure — {"open":false,"sum":"Prove mastery · 4 gates2 of 4"}
-  ok    390px light, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":101.1,"h":44}
+  ok    390px light, passed, with Go deeper: no quiz on a passed lecture, and the watched bar's Rewatch >= 44x44 — {"w":91.1,"h":44}
   ok    390px light, passed, with Go deeper: measuring wrote nothing, no page errors — writes 1 -> 1
 
 T-043 390px light, the locked lecture
@@ -2504,7 +2521,7 @@ T-045 1440px dark, the daily review beside one pset
   ok    1440px dark, the daily review beside one pset /workshop: the catalogue is behind a closed "Everything" disclosure, and the mode cards are gone — {"open":false,"sum":"Everything"}, 0 mode cards
   ok    1440px dark, the daily review beside one pset: the fixture is what it names — exactly the rows pset:1806-ps1,review:drill — pset:1806-ps1, review:drill
   ok    1440px dark, the daily review beside one pset: the Today card reads "2 due on Problems", linking to #/workshop, >= 44px — {"text":"2 due on Problems","href":"#/workshop","h":44,"vis":true}
-  ok    1440px dark, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":72.34375,"goH":44,"t":250.5,"b":294.5,"text":"Start","rowH":69,"href":"#/drill","visible":true,"filled":false}
+  ok    1440px dark, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":62.34375,"goH":44,"t":250.5,"b":294.5,"text":"Start","rowH":69,"href":"#/drill","visible":true,"filled":false}
   ok    1440px dark, the daily review beside one pset: it adds exactly 1 to the count and to the dashboard line ("one pset unlocked": 1 / 1) — count 2, line 2
   ok    1440px dark, the daily review beside one pset: reading both pages wrote nothing, no page errors — writes 0 -> 0
 
@@ -2604,7 +2621,7 @@ T-045 390px dark, the daily review beside one pset
   ok    390px dark, the daily review beside one pset /workshop: the catalogue is behind a closed "Everything" disclosure, and the mode cards are gone — {"open":false,"sum":"Everything"}, 0 mode cards
   ok    390px dark, the daily review beside one pset: the fixture is what it names — exactly the rows pset:1806-ps1,review:drill — pset:1806-ps1, review:drill
   ok    390px dark, the daily review beside one pset: the Today card reads "2 due on Problems", linking to #/workshop, >= 44px — {"text":"2 due on Problems","href":"#/workshop","h":44,"vis":true}
-  ok    390px dark, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":72.34375,"goH":44,"t":442.328125,"b":486.328125,"text":"Start","rowH":133.59375,"href":"#/drill","visible":true,"filled":false}
+  ok    390px dark, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":62.34375,"goH":44,"t":442.328125,"b":486.328125,"text":"Start","rowH":133.59375,"href":"#/drill","visible":true,"filled":false}
   ok    390px dark, the daily review beside one pset: it adds exactly 1 to the count and to the dashboard line ("one pset unlocked": 1 / 1) — count 2, line 2
   ok    390px dark, the daily review beside one pset: reading both pages wrote nothing, no page errors — writes 0 -> 0
 
@@ -2704,7 +2721,7 @@ T-045 1440px light, the daily review beside one pset
   ok    1440px light, the daily review beside one pset /workshop: the catalogue is behind a closed "Everything" disclosure, and the mode cards are gone — {"open":false,"sum":"Everything"}, 0 mode cards
   ok    1440px light, the daily review beside one pset: the fixture is what it names — exactly the rows pset:1806-ps1,review:drill — pset:1806-ps1, review:drill
   ok    1440px light, the daily review beside one pset: the Today card reads "2 due on Problems", linking to #/workshop, >= 44px — {"text":"2 due on Problems","href":"#/workshop","h":44,"vis":true}
-  ok    1440px light, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":72.34375,"goH":44,"t":250.5,"b":294.5,"text":"Start","rowH":69,"href":"#/drill","visible":true,"filled":false}
+  ok    1440px light, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":62.34375,"goH":44,"t":250.5,"b":294.5,"text":"Start","rowH":69,"href":"#/drill","visible":true,"filled":false}
   ok    1440px light, the daily review beside one pset: it adds exactly 1 to the count and to the dashboard line ("one pset unlocked": 1 / 1) — count 2, line 2
   ok    1440px light, the daily review beside one pset: reading both pages wrote nothing, no page errors — writes 0 -> 0
 
@@ -2804,7 +2821,7 @@ T-045 390px light, the daily review beside one pset
   ok    390px light, the daily review beside one pset /workshop: the catalogue is behind a closed "Everything" disclosure, and the mode cards are gone — {"open":false,"sum":"Everything"}, 0 mode cards
   ok    390px light, the daily review beside one pset: the fixture is what it names — exactly the rows pset:1806-ps1,review:drill — pset:1806-ps1, review:drill
   ok    390px light, the daily review beside one pset: the Today card reads "2 due on Problems", linking to #/workshop, >= 44px — {"text":"2 due on Problems","href":"#/workshop","h":44,"vis":true}
-  ok    390px light, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":72.34375,"goH":44,"t":442.328125,"b":486.328125,"text":"Start","rowH":133.59375,"href":"#/drill","visible":true,"filled":false}
+  ok    390px light, the daily review beside one pset: the Daily review row is last, goes to #/drill, and it and its Start are >= 44px — {"due":"review","id":"drill","title":"Daily review","tag":null,"why":"questions you missed, served back until they stick","go":"Start","goW":62.34375,"goH":44,"t":442.328125,"b":486.328125,"text":"Start","rowH":133.59375,"href":"#/drill","visible":true,"filled":false}
   ok    390px light, the daily review beside one pset: it adds exactly 1 to the count and to the dashboard line ("one pset unlocked": 1 / 1) — count 2, line 2
   ok    390px light, the daily review beside one pset: reading both pages wrote nothing, no page errors — writes 0 -> 0
 
@@ -2992,5 +3009,5 @@ T-054 390px light, before the 21 days, nothing stored
   ok    no request for Libre Caslon — https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-PASS — 2635 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 202 rows (570 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of 5 gates next at 15 widths x 2 roots (182 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (577 checks); T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view (one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides equal to DOCS, 5 links + "+N", all noopener) at 1440/390 x 2 themes, 7 more Week states at 1440/390, ‹ › Today tapped and keyed at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at 5 widths x 2 roots (400 checks); T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on 5 days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (69 checks); T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (122 checks); T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (344 checks); T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 3 x 7 map, the Priorities first and the ring of five, and no clip at 7 widths x roots 16/24 (142 checks)
+PASS — 2652 design checks: 5 routes x 2 widths x 2 themes, the empty tracks, the Auto theme, cellPick, the status-bar inset and the declared hairlines; the nav bar on 3 routes x 2 themes, the tab bar, the floating tab bar and the Next card at 390/320 (T-023), the Review badge at 99/99+ in 16 cases, the sidebar, reduced transparency, more contrast, reduced motion and a scroll that is a read; lists on 2 routes (+ /exams, /courses, /workshop n/a) x 2 widths x 2 themes; the keyboard ring inside its section in 4 contexts; the press on 202 rows (570 texts) in 2 themes; thumbnails: 204 lecture rows measured across 2 widths x 2 themes (204 error fallbacks, 612 texts on them), a frame that loads with and without motion, and cover/chip contrast on 5 courses in 2 themes (546 texts); T-024: the default (nothing stored, no stored theme, a stored Light kept), the primary action, cards, chips; T-025: the restored dark, the solid --panel sidebar below the page, the three-option menu, removed themes paint dark with no write, and no decoration on 4 routes x 2 widths x 2 themes; T-026a: the Atlas route and the Courses shelf at 1440/390 x 2 themes and the filters overflow-free at 12 widths x 2 roots, a 3-digit count beside the text at 390, no word on /atlas broken mid-word with each of 5 gates next at 15 widths x 2 roots (182 checks); T-038: passed gates on /atlas, its head and baseline line, and the confirm sheet at 1440/390 x 2 themes (80 checks); T-026b: Problems, Exams and Proof at 1440/390 x 2 themes, 10 more states at 1440/390, and no overflow or mid-word break at 8 widths x 3 roots (577 checks); T-026c: Week (four tiles, the counted ones equal to storage, Seal the only primary, a render that is a read), the Calendar's day view (one block per scheduled lecture in its faculty colour, the habits, on today, a Saturday and a Sunday) and Library (3 start cards, the guides equal to DOCS, 5 links + "+N", all noopener) at 1440/390 x 2 themes, 7 more Week states at 1440/390, ‹ › Today tapped and keyed at 5 more sizes (2 with motion on), and 1,149.5 / 12,345.75 BHD weeks fitting their tile at 5 widths x 2 roots (400 checks); T-028: Practice at 1440/390 x 2 themes — the header and its week, 3 tabs, the record button >= 88px, centred, keyboard-reachable, its --bad red and --ink ring measured on the card, the hand forms filling it — the tab picked on 5 days, the Saturday (no Log buttons) and monthly-review cards, and whole titles at 320/390 (69 checks); T-043: the lecture quiz gate at 1440/390 x 2 themes — before watched, the quiz after a miss, the pass with Go deeper, the locked lecture and the dashboard pointing at a quiz, one primary each, Rewatch >= 44x44 (122 checks); T-045: Problems as what's due now at 1440/390 x 2 themes — one quiz waiting, one catch-up, one pset, one lab, nothing due, the daily review, a grandfathered unlock — the rows, tags and why-lines worked out from storage, Coming up <= 3, the empty state, and the dashboard's line (344 checks); T-054: Monk Mode at 1440/390 x 2 themes x 2 states, Full day shut and open — one filled primary at most, every control >= 44x44, nothing clipped, every text at 4.5:1, the 3 x 7 map, the Priorities first and the ring of five, and no clip at 7 widths x roots 16/24 (142 checks)
 exit 0

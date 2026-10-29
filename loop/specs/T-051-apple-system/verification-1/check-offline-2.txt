@@ -1,7 +1,7 @@
 Install: what the worker holds, and that the app can be installed
   ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
   ok    verify-shell's routes read from verify-shell.js (25)
-  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:41907/, http://127.0.0.1:41907/sw.js?v=20261029e)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:42399/, http://127.0.0.1:42399/sw.js?v=20261029e)
   ok    this version's cache brickford-20261029e holds index.html, everything it loads, and the manifest's icons (38 entries)
   ok    and the 2 self-hosted Inter woff2 files in platform/fonts, each named by css/style.css and held (inter-latin-ext-standard-normal.woff2, inter-latin-standard-normal.woff2)
   ok    every platform/data, js and css file on disk is in it (27 files)
@@ -54,9 +54,9 @@ The Home Screen app (standalone): a revision PDF opens in the app's own window, 
 The video comes back with the connection, in place
   ok    offline the panel, online the player in its place, and the rest of the page untouched (not a repaint)
 One download that stalls during the first install does not hold the worker back
-  ok    revision/week-03.pdf taken and never answered: the worker is active anyway, in 0.6s (under 15s), its shell complete (38 of 38)
+  ok    revision/week-03.pdf taken and never answered: the worker is active anyway, in 0.7s (under 15s), its shell complete (38 of 38)
 A network that takes the request and never answers: the cache, after 3s
-  ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.2s (under 5s)
+  ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.3s (under 5s)
   ok    a revision PDF and a Library document the same way, whole, in 3.0s (under 5s)
 Update: version A, then B on the next launch
   ok    A: installed, its cache brickford-20261029e in place

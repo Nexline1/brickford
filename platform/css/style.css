@@ -2117,7 +2117,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .ghead .gh-meta {
   margin-left: auto;
   font-family: var(--font-body); font-size: var(--fs-footnote); font-weight: 400;
-  letter-spacing: inherit; text-transform: inherit; color: var(--ink-2);
+  /* Not uppercased: the meta carries durations and counts, and "50m" and
+     "1h56" are units, which capitals turn into "50M" and "1H56" (T-051-1
+     review r1). It keeps the header's size, colour and tracking. */
+  letter-spacing: inherit; text-transform: none; color: var(--ink-2);
   font-variant-numeric: lining-nums tabular-nums;
 }
 /* The hero's context line ("Phase 1 · 0 / 2 today") is a .ghead too, and it

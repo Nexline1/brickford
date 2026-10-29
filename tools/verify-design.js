@@ -1027,9 +1027,10 @@ function listState() {
     if (m) {
       cnt("ghmeta");
       const ms = getComputedStyle(m);
-      // T-051-1: 13px, as the header it sits in (it was 15px).
-      if (ms.fontSize !== "13px" || !z.same(z.bytes(ms.color), T.ink2) || !/tabular-nums/.test(ms.fontVariantNumeric))
-        note("meta", "\"" + m.textContent.trim() + "\" " + ms.fontSize + " " + z.hex(z.bytes(ms.color)) + " " + ms.fontVariantNumeric);
+      // T-051-1: 13px, as the header it sits in (it was 15px), and NOT
+      // uppercased with it (review r1: "50m" read "50M").
+      if (ms.fontSize !== "13px" || ms.textTransform !== "none" || !z.same(z.bytes(ms.color), T.ink2) || !/tabular-nums/.test(ms.fontVariantNumeric))
+        note("meta", "\"" + m.textContent.trim() + "\" " + ms.fontSize + " " + ms.textTransform + " " + z.hex(z.bytes(ms.color)) + " " + ms.fontVariantNumeric);
     }
   });
   return { bad, n };
@@ -3327,7 +3328,7 @@ function t28SeedClips(list) {
     // 12px under T-007; 20px (--r-card) since T-024, the owner's decision.
     shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
     head: "every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600)",
-    meta: "every .gh-meta is 13px --ink-2 with tabular numerals (T-051-1; it was 15px)",
+    meta: "every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px)",
     height: "every .grow is at least 44px tall (56 with a subtitle)",
     type: ".g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2",
     value: ".g-v has tabular numerals and no mono face",

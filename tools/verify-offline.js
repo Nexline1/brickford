@@ -90,7 +90,8 @@ const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; cha
   ".json": "application/json", ".png": "image/png", ".pdf": "application/pdf", ".md": "text/markdown; charset=utf-8" };
 // hang: a test on the path; a match is accepted and never answered (one bar
 // of signal, a Wi-Fi with nothing behind it), and held until release().
-const server = { down: false, token: TOKEN, hits: [], hang: null, held: [] };
+// heads: the app's own question to the network (probeNet: HEAD ../sw.js), counted.
+const server = { down: false, token: TOKEN, hits: [], hang: null, held: [], heads: 0 };
 server.release = () => { server.hang = null; server.held.splice(0).forEach(r => r.socket && r.socket.destroy()); };
 const srv = http.createServer((req, res) => {
   if (server.down) { req.socket.destroy(); return; }
@@ -98,6 +99,7 @@ const srv = http.createServer((req, res) => {
   if (server.hang && server.hang(p)) { server.held.push(res); return; }
   const file = path.normalize(path.join(ROOT, p.endsWith("/") ? p + "index.html" : p));
   server.hits.push(req.url);
+  if (req.method === "HEAD" && p === "/sw.js") server.heads++;
   if (!file.startsWith(ROOT + path.sep)) { res.writeHead(403); res.end(); return; }
   fs.readFile(file, (err, buf) => {
     if (err) { res.writeHead(404, { "Content-Type": "text/plain" }); res.end("not found"); return; }
@@ -115,7 +117,9 @@ const srv = http.createServer((req, res) => {
 // holdGet: GitHub GETs are taken and held (a pull in flight) until releaseGets().
 // captive: everything outside refused while the browser still says online
 // (a Wi-Fi with no internet behind it); with server.down, this site too.
-const net = { ghStatus: 200, offline: false, captive: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [] };
+// resetGh: the next n GitHub requests are cut (a connection reset) while
+// everything else answers: one request lost, the network fine.
+const net = { ghStatus: 200, offline: false, captive: false, gh: [], ghSeen: 0, yt: 0, other: [], hangFontCss: false, holdGet: false, held: [], resetGh: 0 };
 const ghAnswer = route => route.request().method() === "GET"
   ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) })
   : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
@@ -138,6 +142,7 @@ async function standIns(ctx) {
     if (u.startsWith("https://api.github.com/")) {
       net.gh.push({ method: req.method(), offline: net.offline, body: req.postData() });
       if (net.offline || net.captive) return refuse();
+      if (net.resetGh > 0) { net.resetGh--; return route.abort("connectionreset"); }
       if (net.ghStatus !== 200) return route.fulfill({ status: net.ghStatus, contentType: "application/json", body: JSON.stringify({ message: "Bad credentials" }) });
       if (net.holdGet && req.method() === "GET") { net.held.push(route); return; }
       return ghAnswer(route);
@@ -170,6 +175,24 @@ async function freshContext(browser, token) {
   if (token) await ctx.addInitScript(t => { try { localStorage.setItem("brickford_gh_token", t); } catch (e) {} }, STUB_TOKEN);
   return ctx;
 }
+// Headless pages are always visible: document.visibilityState, driven from
+// here (__setVis fires visibilitychange the way the browser does).
+const visStub = () => {
+  let vis = "visible";
+  Object.defineProperty(Document.prototype, "visibilityState", { get: () => vis, configurable: true });
+  Object.defineProperty(Document.prototype, "hidden", { get: () => vis === "hidden", configurable: true });
+  window.__setVis = v => { vis = v; document.dispatchEvent(new Event("visibilitychange")); };
+};
+// Every "Video needs a connection" panel this document draws, however briefly
+// it stays: a frame taken away and put back is still a frame lost.
+const offWatch = () => {
+  window.__offSeen = 0;
+  new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes)
+    if (n.nodeType === 1 && (n.matches(".video-off") || n.querySelector(".video-off"))) window.__offSeen++; })
+    .observe(document, { childList: true, subtree: true });
+};
+const frameOf = (page, k) => page.waitForFunction(k => { const f = document.querySelector("#view .video-frame iframe[data-k]");
+  return !!f && f.dataset.k === k && !document.querySelector("#view .video-off"); }, k, { timeout: 8000 }).then(() => true, () => false);
 // Wait on proof held in this process (the stand-ins' counters).
 async function until(fn, ms) {
   for (const end = Date.now() + ms; Date.now() < end; await new Promise(r => setTimeout(r, 100))) if (fn()) return true;
@@ -500,6 +523,7 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   console.log("A Wi-Fi with no internet behind it: navigator.onLine stays true, nothing answers");
   {
     const c = await freshContext(browser, true);
+    await c.addInitScript(visStub);
     await standIns(c);
     const p = await c.newPage();
     await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
@@ -515,12 +539,95 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     const panel = await p.waitForSelector("#view .video-off", { state: "attached", timeout: 8000 }).then(() => true, () => false);
     const frames = await p.evaluate(() => document.querySelectorAll("#view iframe").length);
     check(panel && !frames, "a lesson there: its frame, whose player never answered, becomes the \"Video needs a connection\" panel (" + frames + " iframes)");
+    // Review r2, 1: the internet back, with no relaunch and no online event
+    // (navigator.onLine never changed). Nothing syncs, so only the panel's
+    // own question to the network (probeNet) can find it.
     net.captive = false; server.down = false;
+    let gh1 = net.gh.length, t1 = Date.now();
+    await p.evaluate(() => { location.hash = "#/lesson/math110/0/1"; });
+    const next = await frameOf(p, "math110.0.1");
+    let s1 = (Date.now() - t1) / 1000;
+    check(next && s1 < 5, "the internet back, no relaunch, no online event: the next lecture opens with its frame in " + s1.toFixed(1) + "s (under 5s), " +
+      (net.gh.length - gh1) + " GitHub requests meanwhile");
+    // The other way back: the panel already on screen, the page backgrounded
+    // while the internet is still gone, then brought back once it is not.
+    net.captive = true; server.down = true;
+    await p.evaluate(() => { location.hash = "#/lesson/math110/0/2"; });
+    const gone = await p.waitForSelector("#view .video-off", { state: "attached", timeout: 8000 }).then(() => true, () => false);
+    const ghHide = net.gh.length;
+    await p.evaluate(() => window.__setVis("hidden"));   // the push it makes as it goes, refused while hidden
+    const hidPush = await until(() => net.gh.length > ghHide, 5000);
+    net.captive = false; server.down = false;
+    gh1 = net.gh.length; t1 = Date.now();
+    await p.evaluate(() => window.__setVis("visible"));
+    const inPlace = await frameOf(p, "math110.0.2");
+    s1 = (Date.now() - t1) / 1000;
+    check(gone && hidPush && inPlace && s1 < 5, "a panel on screen, the page hidden and shown again once the internet is back: its frame returns in place in " + s1.toFixed(1) +
+      "s (under 5s), " + (net.gh.length - gh1) + " GitHub requests meanwhile");
     const g0 = net.gh.length;
     await launch(p, "/");
     const put = await until(() => net.gh.slice(g0).some(g => g.method === "PUT"), 15000);
     const back = await p.waitForFunction(() => ((document.querySelector("#view [data-sync-t]") || {}).textContent || "") === "Synced" && !localStorage.getItem("brickford_sync_pending"), null, { timeout: 8000 }).then(() => true, () => false);
     check(put && back, "the internet back, the next launch pushes what was owed and reads Synced, nothing owed");
+    await c.close();
+  }
+
+  // ================= one request lost, the network fine =================
+  // Review r2, 1. iOS cuts a page's fetches as it goes to the background, so a
+  // request that fails while the page is hidden says nothing about the
+  // network. And one request with no answer is a question, not an answer: the
+  // app asks the network itself (probeNet) before it takes a frame away.
+  console.log("One GitHub request lost while everything else answers: no video hidden for it");
+  {
+    const c = await freshContext(browser, true);
+    await c.addInitScript(visStub);
+    await c.addInitScript(offWatch);
+    await standIns(c);
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    await controlled(p);
+    await p.waitForFunction(() => !!(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt, null, { timeout: 10000 }).catch(() => {});
+    // Every moment the dashboard's row reads "Offline · will sync" is
+    // counted: that is netDown set, however soon a probe that answers
+    // (the network is fine here) puts it back.
+    await p.evaluate(() => {
+      window.__offRow = 0;
+      new MutationObserver(() => { const r = document.querySelector("#view [data-sync-t]"); if (r && r.textContent === "Offline \u00b7 will sync") window.__offRow++; })
+        .observe(document.querySelector("#view"), { childList: true, subtree: true, characterData: true });
+    });
+    net.resetGh = 1;
+    await p.evaluate(() => window.__setVis("hidden"));   // the app pushes as it goes to the background
+    const cut = await until(() => net.resetGh === 0, 8000);
+    // markOwed and the network verdict run in the same tick: once owed, the row has had its answer.
+    const owed = await p.waitForFunction(() => !!localStorage.getItem("brickford_sync_pending"), null, { timeout: 5000 }).then(() => true, () => false);
+    const { row, offRow } = await p.evaluate(() => ({ row: (document.querySelector("#view [data-sync-t]") || {}).textContent, offRow: window.__offRow }));
+    await p.evaluate(() => window.__setVis("visible"));
+    await p.evaluate(() => { location.hash = "#/lesson/math110/0/0"; });
+    const fr = await frameOf(p, "math110.0.0");
+    const seen = await p.evaluate(() => window.__offSeen);
+    check(cut && owed && row === "Synced" && offRow === 0 && fr && seen === 0,
+      "a push cut off while the page is hidden (" + (cut ? "cut" : "NOT cut") + "): owed (" + owed + "), the row reads \"" + row + "\" and never read \"Offline \u00b7 will sync\" (" +
+      offRow + " times), and the next lecture opens with its frame (" + seen + " panels drawn)");
+    // A launch whose first request is cut while the lecture's frame is still
+    // loading (its player has not answered: the stand-in never does).
+    // A new document (about:blank first: a goto that changes only the hash
+    // stays in the same one, and nothing would launch).
+    net.resetGh = 1;
+    await p.goto("about:blank");
+    const h0 = server.heads;
+    await p.goto(BASE + "/platform/#/lesson/math110/0/1", { waitUntil: "load" });
+    const cut2 = await until(() => net.resetGh === 0, 8000);
+    // Proof the sync's verdict is in: the frame asks the network as it is
+    // drawn, and the lost request makes the app ask again (two HEADs here).
+    // That second question is sent from the same tick that would have taken
+    // the frame away, so any panel is drawn by the time it arrives.
+    const asked = await until(() => server.heads - h0 >= 2, 5000);
+    const after = await p.evaluate(() => ({ seen: window.__offSeen, k: (document.querySelector("#view .video-frame iframe[data-k]") || { dataset: {} }).dataset.k || null,
+      owed: !!localStorage.getItem("brickford_sync_pending") }));
+    check(cut2 && asked && after.seen === 0 && after.k === "math110.0.1" && after.owed,
+      "a launch whose first sync request is cut, the network fine: the lecture's loading frame stays (" + after.seen + " panels drawn, frame " + after.k +
+      "), since the network answered the app's own question (" + (server.heads - h0) + " asked); the push stays owed (" + after.owed + "; request cut " + cut2 + ")");
+    net.resetGh = 0;
     await c.close();
   }
 

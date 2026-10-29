@@ -458,12 +458,32 @@
   // answer clears it. Memory only; a launch finds out again.
   let netDown = false;
   const noNet = () => offline() || netDown;
-  function netState(down) {
+  // T-058 r2: a sync's lost request is a question, not an answer. One reset
+  // connection used to hide every video for the rest of the session: netDown
+  // was set, the lesson drew its panel, and nothing asked again. Now the app
+  // asks the network itself (probeNet) before it believes a sync, and only
+  // the probe's own failure (sure) takes away a frame that is still loading.
+  function netState(down, sure) {
+    if (down && sure) videoGone();
     if (netDown === down) return;
     netDown = down;
     paintSync();
-    if (down) videoGone(); else if (!offline()) videoBack();
+    if (!down) { if (!offline()) videoBack(); }
+    else if (!sure) probeNet();
   }
+  // T-058 r2: iOS cuts a page's requests as it goes to the background, so a
+  // request that was out while the page was hidden says nothing about the
+  // network: it leaves netDown alone (a sync only marks itself owed). A mark
+  // taken as a request starts; hiddenSince(mark) is true if the page was
+  // hidden then, is now, or was in between. Coming back to the foreground
+  // with netDown set asks the network again.
+  let hides = 0;
+  const hiddenMark = () => document.visibilityState === "hidden" ? -1 : hides;
+  const hiddenSince = m => m === -1 || m !== hides || document.visibilityState === "hidden";
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") hides++;
+    else if (netDown) probeNet();
+  });
   // T-058 r1: a sync this device owes — saved work not yet pushed, or a sync
   // the network did not carry — kept in its own key, NOT in darhikmah_v1, so
   // the state's shape is untouched and the debt outlives the app being closed
@@ -536,6 +556,7 @@
     if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }
     if (offline()) { markOwed(); say(OFFLINE_SAY); return Promise.resolve(false); }
     syncBusy = true;
+    const seen = hiddenMark();   // T-058 r2: a request cut while hidden is not the network
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
       netState(false);   // an answer, whatever it says: the network is there
@@ -594,7 +615,7 @@
       // T-058: the connection went while the request was out, or (r1) the
       // request got no answer at all: offline either way, not an error.
       // HTTP statuses (a rejected token, a 409, a 500) go on as before.
-      if (offline() || err.network) { markOwed(); netState(true); say(OFFLINE_SAY); return false; }
+      if (offline() || err.network) { markOwed(); if (!hiddenSince(seen)) netState(true); say(OFFLINE_SAY); return false; }
       const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
@@ -5996,6 +6017,10 @@
     // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
     if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); probeNet(); }
+    // T-058 r2: a panel drawn for netDown (not for navigator.onLine) asks the
+    // network itself: an answer puts the frame back (netState → videoBack).
+    // Nothing else would, while the panel stands where the frame would ask.
+    if ($(".video-off[data-frame]", root) && !offline()) probeNet();
     // T-043: the lecture's quiz, mounted once the view is on screen — never
     // from the render, which only leaves the empty mount.
     const lq = $("#lqMount", root);
@@ -6926,7 +6951,8 @@
     box.scrollIntoView({ block: "nearest" });
   }
   const VIDEO_OFF = "Video needs a connection. The summary, quiz and notes on this page work offline.";
-  // T-058 r1: the network turned out not to be there (netState), and the
+  // T-058 r1: the network turned out not to be there (netState; r2: the
+  // probe's own failure, never a sync's word alone), and the
   // lecture's frame was drawn before that was known. A frame whose player has
   // never answered (heardFrom) holds an error page or a portal's, not a
   // video: it becomes the panel, carrying itself for videoBack(). A player
@@ -6949,9 +6975,13 @@
   // ../sw.js, which the worker does not answer for (it answers GETs only). Only
   // a request that fails counts; there is no timeout, so a slow network is
   // never taken for none. http(s) only: the gates' file:// pages have no network.
+  // r2: asked as well when a sync's request goes unanswered (netState), when
+  // the panel is drawn (wire) and when the page comes back with netDown set, so
+  // the panel always has a way back. A failure while hidden counts for nothing.
   function probeNet() {
     if (!/^https?:$/.test(location.protocol) || offline()) return;
-    fetch("../sw.js", { method: "HEAD", cache: "no-store" }).then(() => netState(false), () => netState(true));
+    const seen = hiddenMark();
+    fetch("../sw.js", { method: "HEAD", cache: "no-store" }).then(() => netState(false), () => { if (!hiddenSince(seen)) netState(true, true); });
   }
   // T-058: the connection is back, and a lecture drawn offline has its panel
   // where the video goes. The frame it carries goes in its place, the frame

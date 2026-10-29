@@ -48,7 +48,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only register-on-file}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only register-on-file no-probe-on-panel hidden-fail-sets-netdown no-probe-on-visible frame-gone-on-sync-signal}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -121,6 +121,24 @@ X
   register-on-file) plant "$n" "$INDEX" \
     'if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))' \
     'if ("serviceWorker" in navigator)' ;;
+  # Review r2, 1: the panel never asks the network, so one lost request hides every video after it.
+  no-probe-on-panel) plant "$n" "$APP" \
+    '    if ($(".video-off[data-frame]", root) && !offline()) probeNet();
+' \
+    '' ;;
+  # Review r2, 1: a request cut while the page is hidden (iOS backgrounding) taken for no network.
+  hidden-fail-sets-netdown) plant "$n" "$APP" \
+    'if (!hiddenSince(seen)) netState(true); say(OFFLINE_SAY);' \
+    'netState(true); say(OFFLINE_SAY);' ;;
+  # Review r2, 1: coming back to the foreground does not ask, so a panel on screen stays.
+  no-probe-on-visible) plant "$n" "$APP" \
+    '    else if (netDown) probeNet();
+' \
+    '' ;;
+  # Review r2, 1: a sync's lost request alone takes a still-loading frame away.
+  frame-gone-on-sync-signal) plant "$n" "$APP" \
+    '    if (down && sure) videoGone();' \
+    '    if (down) videoGone();' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

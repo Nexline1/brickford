@@ -1,0 +1,27 @@
+OVER — first-viewport words above the ceiling in 2 route-width(s)
+  FAIL  320 /: 52 words in the first viewport (ceiling 48)
+  FAIL  390 /sync: 93 words in the first viewport (ceiling 74)
+NEW — 14 finding(s) not in tools/verify-density.baseline.json
+  FAIL  title|320|/|Rate of Change   (title on 2 lines)
+  FAIL  title|320|/|Lectures proven   (title on 2 lines)
+  FAIL  title|320|/transcript|Gate 4 — The fork   (title on 2 lines)
+  FAIL  title|320|/transcript|Gate 5 — Arrival   (title on 2 lines)
+  FAIL  title|320|/sync|Generate a token   (title on 2 lines)
+  FAIL  title|320|/monk|No TikTok · IG · YouTube   (title on 2 lines)
+  FAIL  title|390|/|Deep Track marked for today   (title on 2 lines)
+  FAIL  title|390|/course/math110|Abstract vector spaces   (title on 2 lines)
+  FAIL  title|390|/transcript|Gate 3 — Research legs   (title on 2 lines)
+  FAIL  title|390|/sync|Scope it to one repository   (title on 2 lines)
+  FAIL  title|390|/monk|Cut 4–5 clips from the stream   (title on 2 lines)
+  FAIL  title|390|/monk|Short-form posted   (title on 2 lines)
+  FAIL  title|390|/monk|Videos published   (title on 2 lines)
+  FAIL  title|390|/monk|Connect your main Gmail in Claude   (title on 2 lines)
+BELOW THE CEILING (lower it in the baseline) — 6
+  note  320 /sync: 30 (ceiling 36)
+  note  320 /monk: 33 (ceiling 40)
+  note  390 /: 83 (ceiling 88)
+  note  390 /course/math110: 82 (ceiling 84)
+  note  390 /transcript: 61 (ceiling 65)
+  note  390 /monk: 62 (ceiling 68)
+FAIL — 34 route-renders (17 routes x 320/390px, Light); 1976 first-viewport words in all; 160 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 19, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 25, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 14 new, 0 stale, 2 over
+exit 1

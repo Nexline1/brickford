@@ -1,0 +1,2 @@
+PASS — node --check on 40 files
+exit 0

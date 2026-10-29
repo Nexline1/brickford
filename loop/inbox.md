@@ -89,3 +89,4 @@ The owner sent a full spec: Inter as the SF stand-in, the iOS type scale, iOS sy
   - Rules carried over: read every video's transcript before it goes in (as T-037/T-033 did), invent nothing, and keep these items OUT of the 3-year plan's study days (separate from studyIndex/backlog), so they never make a day owed or move day 1094.
   → T-060 (future)
 [bug] From the T-061 reviewer: `monkFocus` (app.js ~1300) filters only `i >= MONK.from`, so from 21 Nov "Focus this week" counts days after day 21. Also, no gate checks the #/monk head on day 21 or the day after (confirmed by hand: "Day 21 of 21", "21 days done").
+[want] Owner 2026-10-29: "barely any words in the main User interface, only visual appearance and buttons"; details branch into pages, tabs and sheets. Written into the T-051 spec (loop branch copy). Carry it into T-051-2's spec on main once T-051-1 merges. → T-051-2..10

@@ -92,3 +92,27 @@ Status: ready (owner approved the mockup on 2026-10-22, "rebuild the whole app")
 
 ## Merge order
 T-045 and T-046 merge first. Each T-051 phase rebases on main before its PR.
+
+## Owner, 2026-10-29 (second message): "barely any words"
+> "minimize the unnecessary details or branch them inside the pages/tabs, since the UI looks messy with a lot
+> of words, I don't like that I want to barely have any words in the main User interface, only visual
+> appearance and buttons"
+
+This tightens the density rules for every page PR (T-051-2 onward) and overrides them where they conflict.
+
+- **Overview screens show only labels, numbers, visuals and buttons.** Overview screens are Dashboard, Courses,
+  Atlas, Problems, Exams, Week, Calendar, Practice home, Library, Record and Monk. No sentences at all.
+  - Labels are at most 3 words.
+  - Numbers are compact ("3h 26m", "Day 15", "🔥 3").
+  - State is shown visually: rings, bars, heatmaps, ticks, colour dots, SF-style glyphs.
+- **Every detail moves one level down.** Explanations, hints, secondary facts and "how this works" text move into
+  the item's own page or tab, a sheet behind ⓘ, or a collapsed "More" disclosure. Nothing is deleted that the
+  owner needs, but it is no longer on the main surface.
+- **A row is a glyph, a short title and one value.** A subtitle is allowed only where the row is ambiguous
+  without it.
+- **verify-density tightens per page as each page ships.**
+  - On overview routes, the longest text node is at most **6 words** (was 12).
+  - Each overview route gets a first-viewport word budget at 390px, set when its PR lands and only ever lowered.
+    The target is about 40 words for the Dashboard and about 30 for the others.
+- **Lesson content is exempt:** the summary, the quiz questions and the explanations shown after an answer. The
+  lecture page's chrome around them follows the same rules.

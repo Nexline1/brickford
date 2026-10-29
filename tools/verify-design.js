@@ -376,7 +376,9 @@ const BRIEF = {
            "--good": "#1f7a35", "--bad": "#d70015", "--urgent": "#c93400",
            "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
            "--fac-math": "#4947c3", "--fac-ai": "#a22a00", "--fac-sys": "#09616b", "--fac-phys": "#a90010", "--fac-res": "#793c97", "--fac-speech": "#aa0c38",
-           "--panel": "#ffffff", "--panel-ink": "#1d1d1f", "--panel-accent": "#0066cc" },
+           "--panel": "#ffffff", "--panel-ink": "#1d1d1f", "--panel-accent": "#0066cc",
+           // T-051-1 r1: the crest, pinned to what it painted before T-051.
+           "--crest": "#d3a874" },
   dark:  { "--bg": "#000000", "--bg-2": "#000000", "--surface": "#1c1c1e", "--surface-2": "#2c2c2e", "--surface-float": "#2c2c2e",
            "--line": "#38383a", "--line-strong": "#48484a",
            "--ink": "#f5f5f7", "--ink-2": "#98989d", "--ink-3": "#98989d", "--accent": "#409cff",
@@ -384,7 +386,8 @@ const BRIEF = {
            "--good": "#30d158", "--bad": "#ff6961", "--urgent": "#ff9f0a",
            "--btn-bg": "#0071e3", "--btn-ink": "#ffffff", "--accent-fill-ink": "#ffffff",
            "--fac-math": "#9b99ff", "--fac-ai": "#ff9f0a", "--fac-sys": "#40c8e0", "--fac-phys": "#ff766e", "--fac-res": "#da8fff", "--fac-speech": "#ff7691",
-           "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff" },
+           "--panel": "#1c1c1e", "--panel-ink": "#f5f5f7", "--panel-accent": "#409cff",
+           "--crest": "#e0b35a" },
 };
 // Each theme's --panel: the sidebar's fill (T-025) and what the Home Screen
 // status bar is painted from (meta theme-color).
@@ -915,7 +918,7 @@ function sideState() {
     page, lSide: L(bg), lPage: L(page),
     rightW: parseFloat(cs.borderRightWidth) || 0, rightCol: z.bytes(cs.borderRightColor), line: z.tok("--line"), strong: z.tok("--line-strong"),
     act: act ? { text: act.textContent.trim(), bg: z.bytes(as.backgroundColor), color: z.bytes(as.color), radius: as.borderTopLeftRadius } : null,
-    soft: sideTok("--accent-soft"), accent: sideTok("--accent"), gold: sideTok("--gold"),
+    soft: sideTok("--accent-soft"), accent: sideTok("--accent"), gold: sideTok("--gold"), crest: sideTok("--crest"),
     field: field ? z.bytes(getComputedStyle(field).fill) : null, cut: cut ? z.bytes(getComputedStyle(cut).fill) : null,
   };
 }
@@ -3070,9 +3073,12 @@ function t28SeedClips(list) {
       check(at + ": the current item is an --accent-soft pill, --accent label, 8px corners",
         !!s.act && s.act.bg[3] === 255 && __same(s.act.bg, s.soft) && __same(s.act.color, s.accent) && s.act.radius === "8px",
         s.act ? "\"" + s.act.text + "\" " + hx(s.act.bg) + " (--accent-soft " + hx(s.soft) + "), label " + hx(s.act.color) + ", " + s.act.radius : "no current nav item");
-      check(at + ": the crest is --gold with --panel cut-outs (holes in the seal, T-025)",
-        !!s.field && __same(s.field, s.gold) && !!s.cut && __same(s.cut, s.panel),
-        "field " + (s.field ? hx(s.field) : "?") + " (--gold " + hx(s.gold) + "), cut " + (s.cut ? hx(s.cut) : "?"));
+      // T-051-1 r1: the field is --crest, pinned to the pre-T-051 brand colour
+      // (it was --gold, which T-051-1 made iOS orange), so it still matches
+      // the home-screen icon.
+      check(at + ": the crest is --crest (" + BRIEF[theme]["--crest"] + ", the brand's, not --gold) with --panel cut-outs (holes in the seal, T-025)",
+        !!s.field && __same(s.field, s.crest) && __same(s.field, hexBytes(BRIEF[theme]["--crest"])) && !__same(s.field, s.gold) && !!s.cut && __same(s.cut, s.panel),
+        "field " + (s.field ? hx(s.field) : "?") + " (--crest " + hx(s.crest) + ", --gold " + hx(s.gold) + "), cut " + (s.cut ? hx(s.cut) : "?"));
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }

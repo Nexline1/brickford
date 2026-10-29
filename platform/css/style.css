@@ -101,9 +101,16 @@
   --accent-fill: #0071e3;
   /* The tinted-button fill; its label is --accent (4.9:1). */
   --accent-soft: #e0eefc;
-  /* The crest, the streak and achievement moments. Never an action. iOS
-     orange, increased contrast. */
+  /* The streak and achievement moments. Never an action. iOS orange,
+     increased contrast. */
   --gold: #c93400;
+  /* The crest: the brand's own colour, pinned, and not --gold (T-051-1 review
+     r1). When --gold became iOS orange the sidebar's seal went with it and
+     stopped matching the home-screen icon (icons/, caramel on espresso),
+     which the approved mockup keeps as the logo. These are the values the
+     crest painted before T-051: caramel in Light (the espresso sidebar's
+     --panel-accent), gold in Dark. */
+  --crest: #d3a874;
   /* --accent-fill is set for the lead pair only; the other five themes
      inherit the light value until T-008 paints with it. --accent-soft is the
      sidebar's selection pill since T-006, so every theme sets its own (its
@@ -301,6 +308,7 @@
      reference branch's #0b1a2b was darker than the card, 1.03:1 against it. */
   --accent-soft: #212e3e;
   --gold: #ff9f0a;
+  --crest: #e0b35a;
   --accent-2: #64a8ff;
   --good: #30d158;
   --bad: #ff6961;
@@ -408,7 +416,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 /* A hairline between name and descriptor — the lockup device every institutional
    identity in the references uses to say "this is a seal, not a logotype". */
-.crest .wordrule { width: 34px; height: 1px; background: var(--gold); margin: 7px auto 6px; opacity: 0.85; }
+.crest .wordrule { width: 34px; height: 1px; background: var(--crest); margin: 7px auto 6px; opacity: 0.85; }
 .crest .est { font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.2em; text-transform: uppercase; }
 
 .nav-group-label { font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); margin: var(--sp-2) var(--sp-2) 2px; }
@@ -1144,11 +1152,12 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
 /* ---------- Crest ----------
    A filled field with the device cut out of it, which is what makes a seal read
    as a seal. Outlines would go spindly the moment it is scaled down.
-   The field is --gold, the brand's crest colour (brief §1), and the cut-outs
-   are the --panel the sidebar is painted with, so the device reads as holes
-   in the seal (T-025: the sidebar is the panel again). */
+   The field is --crest, the brand's crest colour (brief §1; it was --gold
+   until T-051-1 made --gold iOS orange), and the cut-outs are the --panel the
+   sidebar is painted with, so the device reads as holes in the seal (T-025:
+   the sidebar is the panel again). */
 .crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
-.crest .cr-field { fill: var(--gold); }
+.crest .cr-field { fill: var(--crest); }
 .crest .cr-key { fill: none; stroke: var(--panel); stroke-width: 3; opacity: 0.55; }
 .crest .cr-cut { fill: var(--panel); }
 .crest .cr-stem { fill: none; stroke: var(--panel); stroke-width: 3.4; stroke-linecap: round; }

@@ -53,7 +53,7 @@ GT_NEW='.grow .g-t {
   display: block; font-family: var(--font-body); font-weight: 600;
   font-size: 1.375rem;'
 
-want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity}"
+want="${*:-density-two-line-sub density-dashboard-sentence density-more-words row-title-22-density row-title-22-design button-paints-44 contrast-accent-stock inter-not-precached hover-opacity crest-is-gold}"
 for n in $want; do case "$n" in
   # verify-density 1: a 2-line subtitle. The dashboard's "Problems today"
   # subtitle, below the fold, ten words instead of three (no sentence rule broken).
@@ -95,6 +95,10 @@ for n in $want; do case "$n" in
     ".btn:hover { opacity: 0.88; }
 @media (hover: hover) {
   .btn:hover:not(:disabled) { background-color: var(--btn-bg-hover); }" ;;
+  # Review r1, 2: the crest back on --gold (iOS orange), off the brand colour.
+  crest-is-gold) plant "$n" "$CSS" design \
+    ".crest .cr-field { fill: var(--crest); }" \
+    ".crest .cr-field { fill: var(--gold); }" ;;
   *) echo "unknown plant $n"; MISSED=$((MISSED + 1)) ;;
 esac; done
 echo "plants: $(( $(echo $want | wc -w) - MISSED )) of $(echo $want | wc -w) caught (each gate exit 1)"

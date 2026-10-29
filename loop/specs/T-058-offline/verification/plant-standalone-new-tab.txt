@@ -1,8 +1,8 @@
 Install: what the worker holds, and that the app can be installed
   ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
   ok    verify-shell's routes read from verify-shell.js (25)
-  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:36601/, http://127.0.0.1:36601/sw.js?v=20261029b)
-  ok    this version's cache brickford-20261029b holds index.html, everything it loads, and the manifest's icons (36 entries)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:38483/, http://127.0.0.1:38483/sw.js?v=20261029c)
+  ok    this version's cache brickford-20261029c holds index.html, everything it loads, and the manifest's icons (36 entries)
   ok    every platform/data, js and css file on disk is in it (27 files)
   ok    brickford-files holds the 6 revision PDFs, the 5 Library documents, KaTeX and the font stylesheet (4) and the fonts they name
   ok    the first load, online: nothing failed ()
@@ -36,7 +36,12 @@ A pull in flight when the push timer fires: the push still happens
 A Wi-Fi with no internet behind it: navigator.onLine stays true, nothing answers
   ok    the dashboard says "Offline · will sync", not "Sync is failing"; no sync error; the sync is owed (onLine true, error null, owed "2")
   ok    a lesson there: its frame, whose player never answered, becomes the "Video needs a connection" panel (0 iframes)
+  ok    the internet back, no relaunch, no online event: the next lecture opens with its frame in 0.0s (under 5s), 0 GitHub requests meanwhile
+  ok    a panel on screen, the page hidden and shown again once the internet is back: its frame returns in place in 0.0s (under 5s), 0 GitHub requests meanwhile
   ok    the internet back, the next launch pushes what was owed and reads Synced, nothing owed
+One GitHub request lost while everything else answers: no video hidden for it
+  ok    a push cut off while the page is hidden (cut): owed (true), the row reads "Synced" and never read "Offline · will sync" (0 times), and the next lecture opens with its frame (0 panels drawn)
+  ok    a launch whose first sync request is cut, the network fine: the lecture's loading frame stays (0 panels drawn, frame math110.0.1), since the network answered the app's own question (2 asked); the push stays owed (true; request cut true)
 A rejected token, then offline: the latch is what the status says
   ok    latched by a 401, then offline: the row reads "Synced · failing", "Sync is failing" stays, /sync reads "Connected, but failing" (never "will sync")
 The Home Screen app (standalone): a revision PDF opens in the app's own window, offline
@@ -50,13 +55,13 @@ A network that takes the request and never answers: the cache, after 3s
   ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.2s (under 5s)
   ok    a revision PDF and a Library document the same way, whole, in 3.0s (under 5s)
 Update: version A, then B on the next launch
-  ok    A: installed, its cache brickford-20261029b in place
-  ok    the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261029bupdate)
-  ok    B's worker is in charge, its cache is there and A's is gone (caches: brickford-files, brickford-20261029bupdate)
+  ok    A: installed, its cache brickford-20261029c in place
+  ok    the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261029cupdate)
+  ok    B's worker is in charge, its cache is there and A's is gone (caches: brickford-files, brickford-20261029cupdate)
   ok    the page that was open, with its video, was not reloaded: same document, same frame, still running A
-  ok    and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261029bupdate)
+  ok    and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261029cupdate)
 file://: where the other gates load the app, no worker
   ok    file:// renders as before and never calls register() (0 calls, spy installed, 0 registrations)
 
-FAIL — 2 of 46 offline checks failed
+FAIL — 2 of 50 offline checks failed
 exit 1

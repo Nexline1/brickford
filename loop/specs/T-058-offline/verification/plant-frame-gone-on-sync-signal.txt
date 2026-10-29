@@ -1,7 +1,7 @@
 Install: what the worker holds, and that the app can be installed
   ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
   ok    verify-shell's routes read from verify-shell.js (25)
-  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:38661/, http://127.0.0.1:38661/sw.js?v=20261029c)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:40789/, http://127.0.0.1:40789/sw.js?v=20261029c)
   ok    this version's cache brickford-20261029c holds index.html, everything it loads, and the manifest's icons (36 entries)
   ok    every platform/data, js and css file on disk is in it (27 files)
   ok    brickford-files holds the 6 revision PDFs, the 5 Library documents, KaTeX and the font stylesheet (4) and the fonts they name
@@ -40,7 +40,7 @@ A Wi-Fi with no internet behind it: navigator.onLine stays true, nothing answers
   ok    a panel on screen, the page hidden and shown again once the internet is back: its frame returns in place in 0.0s (under 5s), 0 GitHub requests meanwhile
   ok    the internet back, the next launch pushes what was owed and reads Synced, nothing owed
 One GitHub request lost while everything else answers: no video hidden for it
-  ok    a push cut off while the page is hidden (cut): owed (true), the row still reads "Synced" (not "Offline · will sync"), and the next lecture opens with its frame (0 panels drawn)
+  ok    a push cut off while the page is hidden (cut): owed (true), the row reads "Synced" and never read "Offline · will sync" (0 times), and the next lecture opens with its frame (0 panels drawn)
   FAIL  a launch whose first sync request is cut, the network fine: the lecture's loading frame stays (1 panels drawn, frame math110.0.1), since the network answered the app's own question (2 asked); the push stays owed (true; request cut true)
 A rejected token, then offline: the latch is what the status says
   ok    latched by a 401, then offline: the row reads "Synced · failing", "Sync is failing" stays, /sync reads "Connected, but failing" (never "will sync")

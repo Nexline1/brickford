@@ -124,3 +124,35 @@ beyond what the page needs, and no behaviour changes.
    - Lower that page's verify-density baseline. It may only shrink.
    - Take screenshots of that page at 390 and 1440, Light and Dark.
    - Pass every gate.
+
+### Owner feedback, 2026-10-29 (evening), and the scope change it brought (relayed by the coordinator)
+
+Two screenshots from the owner's iPhone, Dark, are the "before" evidence:
+`loop/design/apple-1/owner-2026-10-29-dashboard-phone-dark.png` and `owner-2026-10-29-drawer-phone-dark.png`.
+
+The owner: "Even the sidebar is too big (on mobile version and texts too) + buttons in the entire app are too
+large and too plain". Earlier: "I want to barely have any words in the main User interface, only visual appearance
+and buttons" — that rule is for the page PRs, not T-051-1.
+
+What the screenshots show: row titles wrapping to 2–5 lines ("Makemore 3 — activations, gradients, BatchNorm" on
+five), section heads as the biggest text on screen ("MATH 130 · Theory"), the floating NEXT bar and the tab bar
+together covering about a quarter of the screen, the drawer's crest, BRICKFORD and SELF-BUILT UNIVERSITY taking a
+third of it, and oversized nav rows.
+
+**Added to T-051-1, because they are app-wide:**
+1. **The iOS type scale on a phone.** Body and list rows 17px; subtitles and secondary text 15px; section headers
+   13px uppercase (the owner's decision of 2026-10-22); the large title 34px only at the top of a page; the nav bar's
+   inline title 17px semibold; card and row titles at most 17px semibold. Find out whether the app inflates the root
+   font size, and fix the cause. The verify-clip root 16/24px sweep keeps passing.
+2. **Buttons, all of them: smaller and not plain.** Primary: a filled accent capsule, 15px semibold, about 34–36px
+   painted. Secondary: tinted, the accent at about 12–15% fill with accent text. Tertiary: plain accent text. The
+   hit area stays 44×44 without a 44px visual, and verify-shell's 44px measurement must measure the hit box, not be
+   loosened. Press feedback: a 0.97 scale and an opacity dip, with reduced motion respected.
+3. **Left alone in T-051-1:** the drawer, the sidebar layout, the floating NEXT bar and the tab bar. No view is
+   restructured.
+
+Plants added: a 22px row title, and a button painted 44px or taller, each caught (exit 1).
+
+**The order after T-051-1 changes:** the shell moves up, right after this PR, because of this feedback. The next
+PRs are **T-051-2 shell** (the sidebar and drawer made compact, the tab bar, the NEXT bar; it was T-051-10) and
+**T-051-3 Dashboard**. The page steps after them keep their order.

@@ -250,6 +250,11 @@
         "X-GitHub-Api-Version": "2022-11-28",
       },
       body: body ? JSON.stringify(body) : undefined,
+    }).catch(e => {
+      // T-058 r1: no answer at all (no HTTP status) is the network, not GitHub.
+      const x = new Error((e && e.message) || "No connection");
+      x.network = true;
+      throw x;
     });
   }
 
@@ -441,6 +446,77 @@
   // One code path for both directions so the manual buttons and the automatic
   // pull-on-open cannot drift apart.
   let syncBusy = false;
+  // T-058: offline is not a failure. A request the network never carried is
+  // not GitHub's answer, so it records no syncError: no banner, no repaint, and
+  // never the rejection latch. What it owes is remembered (below), and the
+  // `online` event (boot) pushes once through armPush, the same automatic
+  // path a save takes, so every rule below still holds.
+  const offline = () => navigator.onLine === false;
+  // T-058 r1: navigator.onLine stays true on a Wi-Fi with no internet behind
+  // it. So the app also goes by its own requests: one that got no answer at
+  // all (the sync, or the lesson's check in probeNet) sets netDown, and any
+  // answer clears it. Memory only; a launch finds out again.
+  let netDown = false;
+  const noNet = () => offline() || netDown;
+  // T-058 r2: a sync's lost request is a question, not an answer. One reset
+  // connection used to hide every video for the rest of the session: netDown
+  // was set, the lesson drew its panel, and nothing asked again. Now the app
+  // asks the network itself (probeNet) before it believes a sync, and only
+  // the probe's own failure (sure) takes away a frame that is still loading.
+  function netState(down, sure) {
+    if (down && sure) videoGone();
+    if (netDown === down) return;
+    netDown = down;
+    paintSync();
+    if (!down) { if (!offline()) videoBack(); }
+    else if (!sure) probeNet();
+  }
+  // T-058 r2: iOS cuts a page's requests as it goes to the background, so a
+  // request that was out while the page was hidden says nothing about the
+  // network: it leaves netDown alone (a sync only marks itself owed). A mark
+  // taken as a request starts; hiddenSince(mark) is true if the page was
+  // hidden then, is now, or was in between. Coming back to the foreground
+  // with netDown set asks the network again.
+  let hides = 0;
+  const hiddenMark = () => document.visibilityState === "hidden" ? -1 : hides;
+  const hiddenSince = m => m === -1 || m !== hides || document.visibilityState === "hidden";
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") hides++;
+    else if (netDown) probeNet();
+  });
+  // T-058 r1: a sync this device owes — saved work not yet pushed, or a sync
+  // the network did not carry — kept in its own key, NOT in darhikmah_v1, so
+  // the state's shape is untouched and the debt outlives the app being closed
+  // offline. A counter: a push clears it only when no save came in while that
+  // push was out. While it is set, boot and coming back to the page push (a
+  // push merges first, so nothing a pull would bring is lost).
+  const OWED = "brickford_sync_pending";
+  const owedMark = () => { try { return localStorage.getItem(OWED); } catch (e) { return null; } };
+  function markOwed() { try { localStorage.setItem(OWED, String((parseInt(owedMark(), 10) || 0) + 1)); } catch (e) {} }
+  function clearOwed(mark) { try { if (owedMark() === mark) localStorage.removeItem(OWED); } catch (e) {} }
+  // A push asked for while another sync was out: run once that one is done.
+  let pushAgain = false;
+  const OFFLINE_SAY = "Offline — this device will sync when the connection is back.";
+  // The sync status in words, wherever it is drawn (the dashboard row, /sync).
+  // The online and offline events repaint these words in place: never the page.
+  // A rejected token comes first (r1): latched, this device will not sync when
+  // the connection is back either, so "will sync" would be a promise it
+  // cannot keep.
+  const latched = () => !!(S.settings.syncError && S.settings.syncError.fatal);
+  function syncWords() {
+    const last = S.settings.lastSyncAt || S.settings.lastSync;
+    if (latched()) return { t: "Synced", v: "failing" };
+    return noNet() ? { t: "Offline · will sync", v: agoLabel(last) }
+      : { t: "Synced", v: S.settings.syncError ? "failing" : agoLabel(last) };
+  }
+  const syncHead = () => !ghToken() ? "Not connected" : latched() ? "Connected, but failing" : noNet() ? "Offline · will sync"
+    : S.settings.syncError ? "Connected, but failing" : "Connected";
+  function paintSync() {
+    const w = syncWords();
+    $$("#view [data-sync-t]").forEach(el => { el.textContent = w.t; });
+    $$("#view [data-sync-v]").forEach(el => { el.textContent = w.v; });
+    $$("#view [data-sync-head]").forEach(el => { el.textContent = syncHead(); });
+  }
   // A sync that fails silently is worse than one that never ran: the device goes
   // on looking connected while its record quietly diverges. `say` only ever
   // reaches the /sync page, and four of the five callers pass nothing - the boot
@@ -459,6 +535,7 @@
     S.settings.syncError = null;
     save();
     syncQuiet--;
+    paintSync();   // T-058: "just now", in place
     if (transition && !rendering) render({ background: true });
   }
   // A rejected token is not a bad moment on the network, it is a configuration
@@ -475,10 +552,14 @@
   }
   function runSync(dir, say) {
     say = say || function () {};
-    if (!ghToken() || syncBusy) return Promise.resolve(false);
+    if (!ghToken()) return Promise.resolve(false);
+    if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }
+    if (offline()) { markOwed(); say(OFFLINE_SAY); return Promise.resolve(false); }
     syncBusy = true;
+    const seen = hiddenMark();   // T-058 r2: a request cut while hidden is not the network
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
+      netState(false);   // an answer, whatever it says: the network is there
       if (res.status === 404) return { missing: true };
       if (res.status === 401 || res.status === 403) throw new Error("Token rejected \u2014 it needs Contents: Read and write on " + SYNC_REPO + ".");
       if (!res.ok) throw new Error("GitHub returned " + res.status + ".");
@@ -513,6 +594,7 @@
         mergedIn = mergeState(remote).changed;
         syncQuiet--;
       }
+      const mark = owedMark();   // what this push carries; a later save keeps the debt
       const body = {
         message: "progress: " + todayISO() + " from " + S.settings.deviceId +
           (mergedIn ? " (merged " + mergedIn + ")" : ""),
@@ -522,6 +604,7 @@
       return ghFetch("PUT", body).then(res2 => {
         if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
+        clearOwed(mark);
         syncOk(); say("");
         // If the push pulled work in on its way past, the screen is out of date.
         if (mergedIn) { render({ background: true }); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
@@ -529,6 +612,10 @@
         return true;
       });
     }).catch(err => {
+      // T-058: the connection went while the request was out, or (r1) the
+      // request got no answer at all: offline either way, not an error.
+      // HTTP statuses (a rejected token, a 409, a 500) go on as before.
+      if (offline() || err.network) { markOwed(); if (!hiddenSince(seen)) netState(true); say(OFFLINE_SAY); return false; }
       const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
@@ -539,13 +626,22 @@
       // identical error says nothing the first one did not.
       if (!rendering && before !== err.message) render({ background: true });
       return false;
-    }).then(v => { syncBusy = false; return v; });
+    }).then(v => {
+      syncBusy = false;
+      if (pushAgain) { pushAgain = false; runSync("push"); }
+      return v;
+    });
   }
 
   // Push shortly after progress changes, so sync is not a chore to remember.
   let pushTimer = null;
   function syncSoon() {
     if (!ghToken() || syncQuiet) return;
+    markOwed();   // T-058 r1: owed until a push carries it, even across a relaunch
+    armPush();
+  }
+  function armPush() {
+    if (!ghToken()) return;
     // Latched off after a rejection. syncOk() clears syncError, and connecting
     // or forgetting a token clears it too, so a fixed token lifts this on the
     // next manual pull or push — which is exactly when you would try again.
@@ -2521,8 +2617,8 @@
       })() +
       (ghToken()
         ? '<a class="grow" href="#/sync"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">Synced</span></span>' +
-          '<span class="g-v">' + esc(S.settings.syncError ? "failing" : agoLabel(S.settings.lastSyncAt || S.settings.lastSync)) + "</span></a>"
+          '<span class="g-main"><span class="g-t" data-sync-t>' + esc(syncWords().t) + "</span></span>" +
+          '<span class="g-v" data-sync-v>' + esc(syncWords().v) + "</span></a>"
         : "") +
       (backupAge === null || backupAge > 14
         ? '<button class="grow" data-act="backup"><span class="g-lead"></span>' +
@@ -3190,7 +3286,15 @@
           '<div class="lq-ws">' + esc(c.title) + "</div></div>" +
           '<button class="btn ghost lq-rewatch" type="button" data-act="rewatch">Rewatch</button></div>'
         : src
-        ? '<div class="video-frame"><iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
+        ? (function () {
+            const frame = '<iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+            // T-058: offline, a frame could only hold an error page. A plain
+            // panel takes its place, carrying the frame it stands in for, which
+            // videoBack() puts there when the connection returns.
+            return noNet()
+              ? '<div class="card video-off" data-frame="' + esc(frame) + '">' + VIDEO_OFF + "</div>"
+              : '<div class="video-frame">' + frame + "</div>";
+          })()
         : l.paper
           ? '<div class="card">This lesson is a paper — the reading is the lecture.</div>'
           : l.read
@@ -3890,8 +3994,7 @@
 
       '<div class="card"><div class="vseal">' +
       '<div class="vico ' + (state === "ok" ? "ok" : "bad") + '">' + (state === "ok" ? "\u2713" : "!") + "</div>" +
-      '<div class="vtext"><div class="vhead">' +
-      (state === "ok" ? "Connected" : state === "broken" ? "Connected, but failing" : "Not connected") + "</div>" +
+      '<div class="vtext"><div class="vhead" data-sync-head>' + syncHead() + "</div>" +
       '<div class="muted">' +
       (last ? "Last successful sync " + esc(agoLabel(last)) : "This device has never synced.") +
       (devs ? " \u00b7 " + devs + " other device" + (devs === 1 ? "" : "s") : "") + "</div></div></div>" +
@@ -5573,6 +5676,13 @@
       mod("Library", "reference", "The founding documents and the outside courses.", "#/library") +
       "</div></div></details>" +
 
+      // T-058: the owner asked for it as an app, and for it to work offline.
+      '<div class="ghead">On your phone</div>' +
+      '<div class="glist">' +
+      row("", "Install it", "iPhone: Safari → Share → Add to Home Screen. Android: Chrome → ⋮ → Install app", null) +
+      row("", "Offline", "everything works without a connection except the videos; progress syncs when you are back online", null) +
+      "</div>" +
+
       '<div class="card" style="margin-top:16px;"><h2>Right now — Phase 0, weeks 1–2</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Four things, then Phase 1 opens: three math diagnostics (≥70%), the coding diagnostic, GitHub/blog/X, and the Treasury’s first five moves.</p>' +
       '<div style="margin-top:12px;"><a class="btn" href="#/exams">Sit the diagnostics</a></div></div>' +
@@ -5616,6 +5726,14 @@
   // T-056 r2: each tile's dates and lecture count are the revision week's own
   // (revisionWeek, revisionLectures), never a table of an older start's dates.
   const REVISION_PDFS = 6;
+  // T-058 r1: in the Home Screen app a tile opens its PDF in the app's own
+  // window, not a new tab. On an iPhone a new tab leaves the app for a Safari
+  // view that does not share the app's storage, so the worker and its cached
+  // PDFs would not be there offline. manifest.json's scope is the site root
+  // (../), so revision/ is inside the app and iOS keeps the PDF in its
+  // window. A read: nothing is stored. Not seen on an iPhone by any gate.
+  const standalone = () => navigator.standalone === true ||
+    !!(window.matchMedia && matchMedia("(display-mode: standalone)").matches);
   function revisionTiles() {
     const out = [];
     for (let n = 1; n <= REVISION_PDFS; n++) {
@@ -5650,11 +5768,12 @@
 
       // T-055: the Sunday revision PDFs (T-035), one per revision week, made by
       // tools/revision-pdf.js into revision/ at the repo root. They open in a
-      // new tab; the browser's own viewer handles the PDF.
+      // new tab, or in the Home Screen app's own window (T-058 r1,
+      // standalone); the browser's own viewer handles the PDF.
       '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></div>" +
       '<div class="at-tiles lb-docs lb-rev">' +
       revisionTiles().map(t => '<a class="at-tile pb-mode lb-doc" href="' + t.href +
-        '" target="_blank" rel="noopener">' + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
+        '"' + (standalone() ? "" : ' target="_blank" rel="noopener"') + ">" + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
         '<span class="pb-d">' + esc(t.dates) + " \u00b7 " + t.lectures + " lectures</span></a>").join("") + "</div>" +
 
       '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
@@ -5897,7 +6016,11 @@
     // And again the moment the frame has loaded: whatever was said before
     // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
-    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); probeNet(); }
+    // T-058 r2: a panel drawn for netDown (not for navigator.onLine) asks the
+    // network itself: an answer puts the frame back (netState → videoBack).
+    // Nothing else would, while the panel stands where the frame would ask.
+    if ($(".video-off[data-frame]", root) && !offline()) probeNet();
     // T-043: the lecture's quiz, mounted once the view is on screen — never
     // from the render, which only leaves the empty mount.
     const lq = $("#lqMount", root);
@@ -6802,6 +6925,8 @@
   // that never re-renders, so a quiz part-way through stays where it is.
   // The start is the resume mechanism's own (T-016's start=).
   function expandVideo(at) {
+    // T-058: no frame without a connection; it could only show an error page.
+    if (noNet()) { toast("Video needs a connection."); return; }
     const bar = $("#view #lqWatched");
     const f = ytFrame();
     const base = bar ? bar.dataset.src : f ? f.dataset.src0 : null;
@@ -6824,6 +6949,52 @@
     hailPlayer(nf);
     nf.addEventListener("load", () => hailPlayer(nf));
     box.scrollIntoView({ block: "nearest" });
+  }
+  const VIDEO_OFF = "Video needs a connection. The summary, quiz and notes on this page work offline.";
+  // T-058 r1: the network turned out not to be there (netState; r2: the
+  // probe's own failure, never a sync's word alone), and the
+  // lecture's frame was drawn before that was known. A frame whose player has
+  // never answered (heardFrom) holds an error page or a portal's, not a
+  // video: it becomes the panel, carrying itself for videoBack(). A player
+  // that has answered is a video on screen and is never touched, and neither
+  // is a playlist frame (no data-k: it never answers, so it cannot be told).
+  function videoGone() {
+    const f = ytFrame();
+    if (!f || heardFrom === f) return;
+    const box = f.closest(".video-frame");
+    if (!box) return;
+    clearInterval(hailH);
+    const off = document.createElement("div");
+    off.className = "card video-off";
+    off.setAttribute("data-frame", f.outerHTML);
+    off.textContent = VIDEO_OFF;
+    box.replaceWith(off);
+  }
+  // T-058 r1: is there a network behind navigator.onLine? Asked when a lesson
+  // draws its frame, so a device with no sync token finds out too: a HEAD for
+  // ../sw.js, which the worker does not answer for (it answers GETs only). Only
+  // a request that fails counts; there is no timeout, so a slow network is
+  // never taken for none. http(s) only: the gates' file:// pages have no network.
+  // r2: asked as well when a sync's request goes unanswered (netState), when
+  // the panel is drawn (wire) and when the page comes back with netDown set, so
+  // the panel always has a way back. A failure while hidden counts for nothing.
+  function probeNet() {
+    if (!/^https?:$/.test(location.protocol) || offline()) return;
+    const seen = hiddenMark();
+    fetch("../sw.js", { method: "HEAD", cache: "no-store" }).then(() => netState(false), () => { if (!hiddenSince(seen)) netState(true, true); });
+  }
+  // T-058: the connection is back, and a lecture drawn offline has its panel
+  // where the video goes. The frame it carries goes in its place, the frame
+  // the page would have drawn. Not a render: nothing else on the page moves.
+  function videoBack() {
+    const off = $("#view .video-off[data-frame]");
+    if (!off) return;
+    const box = document.createElement("div");
+    box.className = "video-frame";
+    box.innerHTML = off.dataset.frame;
+    off.replaceWith(box);
+    const f = box.querySelector("iframe[data-k]");
+    if (f) { hailPlayer(f); f.addEventListener("load", () => hailPlayer(f)); }
   }
   // Leaving the lecture: the route changes (registered ahead of the render
   // that replaces the frame) or the page goes away (ahead of the push).
@@ -7025,7 +7196,8 @@
     render();
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.
-    if (ghToken()) runSync("pull");
+    // T-058 r1: a push instead while a sync is owed (it merges first).
+    if (ghToken()) runSync(owedMark() ? "push" : "pull");
     // Pull again whenever the page comes back to the foreground. Pulling only on
     // load meant a phone with the tab already open — the normal case, since iOS
     // resumes rather than reloads — never saw progress made on the laptop.
@@ -7040,7 +7212,7 @@
       if (document.visibilityState === "visible") {
         if (Date.now() - lastPull < 20000) return;   // do not hammer the API
         lastPull = Date.now();
-        runSync("pull");
+        runSync(owedMark() ? "push" : "pull");
       } else {
         runSync("push");
       }
@@ -7050,6 +7222,17 @@
     // The resume point is kept first, so the push carries it.
     window.addEventListener("pagehide", leaveLecture);
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
+    // T-058: the connection going and coming back. The sync words change in
+    // place and a lecture drawn offline gets its video back; neither repaints
+    // the page. What is owed is pushed once, through armPush: the automatic
+    // path, latch and all.
+    window.addEventListener("offline", paintSync);
+    window.addEventListener("online", () => {
+      paintSync();
+      if (!netDown) videoBack();
+      else probeNet();   // T-058 r3: netDown is the network's word, so ask it again (a device with no token has no sync to)
+      if (owedMark()) armPush();
+    });
   }
   if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
     // T-016, for tools/verify-flows.js: a message as the lecture's player would

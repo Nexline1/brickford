@@ -91,9 +91,10 @@ for n in $want; do case "$n" in
     '    if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }' \
     '    if (syncBusy) return Promise.resolve(false);' ;;
   # Review r1, 4: a fetch with no answer (navigator.onLine true) treated as a sync failure.
+  # (Review r2, 1 added the hidden-page guard to this line; the plant follows the code.)
   no-answer-is-failure) plant "$n" "$APP" \
-    '      if (offline() || err.network) { markOwed(); netState(true); say(OFFLINE_SAY); return false; }' \
-    '      if (offline()) { markOwed(); netState(true); say(OFFLINE_SAY); return false; }' ;;
+    '      if (offline() || err.network) { markOwed(); if (!hiddenSince(seen)) netState(true); say(OFFLINE_SAY); return false; }' \
+    '      if (offline()) { markOwed(); if (!hiddenSince(seen)) netState(true); say(OFFLINE_SAY); return false; }' ;;
   # Review r1, 4: the lesson trusts navigator.onLine alone; a frame drawn before the failure stays.
   frame-kept-when-net-down) plant "$n" "$APP" \
     '    if (!f || heardFrom === f) return;' \

@@ -1,8 +1,8 @@
 Install: what the worker holds, and that the app can be installed
   ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
   ok    verify-shell's routes read from verify-shell.js (25)
-  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:38531/, http://127.0.0.1:38531/sw.js?v=20261028d)
-  ok    this version's cache brickford-20261028d holds index.html, everything it loads, and the manifest's icons (36 entries)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:37445/, http://127.0.0.1:37445/sw.js?v=20261029b)
+  ok    this version's cache brickford-20261029b holds index.html, everything it loads, and the manifest's icons (36 entries)
   ok    every platform/data, js and css file on disk is in it (27 files)
   ok    brickford-files holds the 6 revision PDFs, the 5 Library documents, KaTeX and the font stylesheet (4) and the fonts they name
   ok    the first load, online: nothing failed ()
@@ -50,13 +50,13 @@ A network that takes the request and never answers: the cache, after 3s
   ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.2s (under 5s)
   ok    a revision PDF and a Library document the same way, whole, in 3.0s (under 5s)
 Update: version A, then B on the next launch
-  ok    A: installed, its cache brickford-20261028d in place
-  ok    the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261028dupdate)
-  ok    B's worker is in charge, its cache is there and A's is gone (caches: brickford-files, brickford-20261028dupdate)
+  ok    A: installed, its cache brickford-20261029b in place
+  ok    the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261029bupdate)
+  ok    B's worker is in charge, its cache is there and A's is gone (caches: brickford-files, brickford-20261029bupdate)
   ok    the page that was open, with its video, was not reloaded: same document, same frame, still running A
-  ok    and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261028dupdate)
+  ok    and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261029bupdate)
 file://: where the other gates load the app, no worker
-  FAIL  file:// renders as before and never calls register() (1 calls: ../sw.js?v=20261028d, spy installed, 0 registrations)
+  FAIL  file:// renders as before and never calls register() (1 calls: ../sw.js?v=20261029b, spy installed, 0 registrations)
 
 FAIL — 1 of 46 offline checks failed
 exit 1

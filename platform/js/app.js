@@ -7230,6 +7230,7 @@
     window.addEventListener("online", () => {
       paintSync();
       if (!netDown) videoBack();
+      else probeNet();   // T-058 r3: netDown is the network's word, so ask it again (a device with no token has no sync to)
       if (owedMark()) armPush();
     });
   }

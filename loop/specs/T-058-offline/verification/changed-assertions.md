@@ -108,8 +108,16 @@ Harness additions they need, none of which changes any earlier check:
 - `offWatch`: counts every panel drawn.
 - `frameOf`: waits for a lecture's frame with no panel.
 
-Not changed by this round: the reviewer took the `online` event to clear netDown, but it does not. It
-puts the frame back only when netDown is already false. After this round that matters only for a
-device with no token whose own probe failed, which then went offline and came back online: its panel
-waits for the next navigation or the next return to the foreground. Neither is far off, so it was
-left alone. It would be a one-line `else probeNet()` in the online handler.
+## Review round 3: the online event asks too
+
+Round 2 left one gap open: the `online` event did not clear netDown. It put the frame back only when
+netDown was already false, so a device with no token whose own probe had failed kept its panel
+through a reconnect. The online handler now calls `else probeNet()`.
+
+One check added (50 -> 51), nothing changed, removed or loosened. The check runs with no token and a
+captive network (onLine true, everything refused). The lecture's own probe fails and its panel goes
+up. Then the Wi-Fi drops and comes back with the internet (`setOffline(true)`, then `false`: a real
+`online` event). The frame returns in place within 5s: the same `#view` child (not a repaint), no
+navigation, no visibility change. Plant `no-probe-on-online` (the new line removed) exits 1
+(`plants-run-r3.txt`). Only typecheck, verify-offline x2 and verify-sync-loop were re-run for this round
+(`gates-run-r3.txt`). The other check-*.txt files are from 83d48b2.

@@ -1,8 +1,8 @@
 Install: what the worker holds, and that the app can be installed
   ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
   ok    verify-shell's routes read from verify-shell.js (25)
-  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:46017/, http://127.0.0.1:46017/sw.js?v=20261029c)
-  ok    this version's cache brickford-20261029c holds index.html, everything it loads, and the manifest's icons (36 entries)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:42989/, http://127.0.0.1:42989/sw.js?v=20261029d)
+  ok    this version's cache brickford-20261029d holds index.html, everything it loads, and the manifest's icons (36 entries)
   ok    every platform/data, js and css file on disk is in it (27 files)
   ok    brickford-files holds the 6 revision PDFs, the 5 Library documents, KaTeX and the font stylesheet (4) and the fonts they name
   ok    the first load, online: nothing failed ()
@@ -39,6 +39,8 @@ A Wi-Fi with no internet behind it: navigator.onLine stays true, nothing answers
   ok    the internet back, no relaunch, no online event: the next lecture opens with its frame in 0.0s (under 5s), 0 GitHub requests meanwhile
   ok    a panel on screen, the page hidden and shown again once the internet is back: its frame returns in place in 0.0s (under 5s), 0 GitHub requests meanwhile
   ok    the internet back, the next launch pushes what was owed and reads Synced, nothing owed
+No token, a captive network, then the connection back: the online event asks the network
+  ok    no token, the panel up for a probe that failed: on the online event the frame returns in place in 0.0s (under 5s), no navigation, no trip to the foreground, the page not repainted (true)
 One GitHub request lost while everything else answers: no video hidden for it
   ok    a push cut off while the page is hidden (cut): owed (true), the row reads "Synced" and never read "Offline · will sync" (0 times), and the next lecture opens with its frame (0 panels drawn)
   ok    a launch whose first sync request is cut, the network fine: the lecture's loading frame stays (0 panels drawn, frame math110.0.1), since the network answered the app's own question (2 asked); the push stays owed (true; request cut true)
@@ -52,16 +54,16 @@ The video comes back with the connection, in place
 One download that stalls during the first install does not hold the worker back
   ok    revision/week-03.pdf taken and never answered: the worker is active anyway, in 0.6s (under 15s), its shell complete (36 of 36)
 A network that takes the request and never answers: the cache, after 3s
-  ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.2s (under 5s)
+  ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.3s (under 5s)
   ok    a revision PDF and a Library document the same way, whole, in 3.0s (under 5s)
 Update: version A, then B on the next launch
-  ok    A: installed, its cache brickford-20261029c in place
-  ok    the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261029cupdate)
-  ok    B's worker is in charge, its cache is there and A's is gone (caches: brickford-files, brickford-20261029cupdate)
+  ok    A: installed, its cache brickford-20261029d in place
+  ok    the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261029dupdate)
+  ok    B's worker is in charge, its cache is there and A's is gone (caches: brickford-files, brickford-20261029dupdate)
   ok    the page that was open, with its video, was not reloaded: same document, same frame, still running A
-  ok    and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261029cupdate)
+  ok    and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261029dupdate)
 file://: where the other gates load the app, no worker
   ok    file:// renders as before and never calls register() (0 calls, spy installed, 0 registrations)
 
-PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (50 checks)
+PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (51 checks)
 exit 0

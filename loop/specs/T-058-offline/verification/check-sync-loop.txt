@@ -20,6 +20,8 @@ A rejected token latches the automatic push, and only that:
   ok    a success clears the error, lifting the latch
   ok    automatic push resumes once sync works again
 A pull never carries the theme or the navy-switch marker between devices:
+  note  a pull, a save, a reload: still navy: storage lost on reload (attempt 1 of 5), re-measured — at the old page's unload the state key was present, the localStorage stamp present; at document start the localStorage stamp missing
+  note  a pull, a save, a reload: still navy: storage lost on reload (attempt 2 of 5), re-measured — at the old page's unload the state key was present, the localStorage stamp present; at document start the localStorage stamp missing
   ok    after a pull and a save, this device's theme is its own navy switch, not the remote's ({"mark":true})
   ok    the push was captured
   ok    the pushed settings carry no marker and no theme ({"dailyStart":"08:00","streakFrom":null})
@@ -33,14 +35,14 @@ A recording stays on the device — the push carries the rep, never the audio:
   ok    every push's state has exactly the keys syncPayload sends
 A background repaint leaves a playing recording and a recording in progress alone:
   ok    (1) a push merged in the laptop's entry and asked for a background repaint while the recording played
-  ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.74})
+  ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.92})
   ok    (1) no page errors
   ok    (2) a push merged in the laptop's entry and asked for a background repaint while recording
-  ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:04 / 1:30"})
+  ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:03 / 1:30"})
   ok    (2) Enter then stops it and the second recording is kept (2 in the list)
   ok    (2) no page errors
   ok    (3) a push merged in the laptop's entry and asked for a background repaint while the clip was paused part-way
-  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.554,"attached":true,"same":true,"paused":true,"t":1.554}; the view says 2 logged, storage holds 3)
+  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.548,"attached":true,"same":true,"paused":true,"t":1.548}; the view says 2 logged, storage holds 3)
   ok    (4) played to its end, the skipped repaint runs: the view says 3 logged, storage holds 3
   ok    (3)(4) no page errors
   ok    (5) a push merged in the laptop's entry while the prompt was open, and the repaint waited (the view says 2 logged, storage holds 3)

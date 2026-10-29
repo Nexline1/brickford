@@ -48,7 +48,7 @@ PY
   [ $rc -eq 1 ] || BAD=1
 }
 
-want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only register-on-file no-probe-on-panel hidden-fail-sets-netdown no-probe-on-visible frame-gone-on-sync-signal}"
+want="${*:-data-file-left-out index-cache-first offline-push-rejected old-caches-kept no-timeout fill-in-install owed-ignored-at-boot busy-push-dropped no-answer-is-failure frame-kept-when-net-down offline-before-latch standalone-new-tab scope-platform-only register-on-file no-probe-on-panel hidden-fail-sets-netdown no-probe-on-visible frame-gone-on-sync-signal no-probe-on-online}"
 for n in $want; do case "$n" in
   # A data file left out of the precache: install skips quiz-dsa.js.
   data-file-left-out) plant "$n" "$SW" \
@@ -140,6 +140,10 @@ X
   frame-gone-on-sync-signal) plant "$n" "$APP" \
     '    if (down && sure) videoGone();' \
     '    if (down) videoGone();' ;;
+  # Review r3: the online event does not ask, so a no-token device's panel stays.
+  no-probe-on-online) plant "$n" "$APP" \
+    '      else probeNet();   // T-058 r3:' \
+    '      // T-058 r3:' ;;
   *) echo "unknown plant $n"; BAD=1 ;;
 esac; done
 echo

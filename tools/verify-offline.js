@@ -572,6 +572,34 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     await c.close();
   }
 
+  // ================= no token: the online event asks =================
+  // Review r3: netDown set by the app's own failed probe (a device with no
+  // token has no sync to clear it), then the Wi-Fi drops and comes back with
+  // the internet behind it. The online event is the only thing that happens:
+  // it asks the network, and the frame returns in place.
+  console.log("No token, a captive network, then the connection back: the online event asks the network");
+  {
+    const c = await freshContext(browser, false);
+    await standIns(c);
+    const p = await c.newPage();
+    await p.goto(BASE + "/platform/#/", { waitUntil: "load" });
+    await controlled(p);
+    net.captive = true; server.down = true;   // navigator.onLine stays true
+    await p.evaluate(() => { location.hash = "#/lesson/math110/0/0"; });
+    const panel = await p.waitForSelector("#view .video-off", { state: "attached", timeout: 8000 }).then(() => true, () => false);
+    await p.evaluate(() => { window.__first = document.querySelector("#view").firstElementChild; });
+    await c.setOffline(true);                  // the Wi-Fi drops ...
+    net.captive = false; server.down = false;
+    const t0 = Date.now();
+    await c.setOffline(false);                 // ... and comes back, the internet with it: online fires
+    const back = await frameOf(p, "math110.0.0");
+    const s0 = (Date.now() - t0) / 1000;
+    const same = await p.evaluate(() => document.querySelector("#view").firstElementChild === window.__first);
+    check(panel && back && same && s0 < 5, "no token, the panel up for a probe that failed: on the online event the frame returns in place in " + s0.toFixed(1) +
+      "s (under 5s), no navigation, no trip to the foreground, the page not repainted (" + same + ")");
+    await c.close();
+  }
+
   // ================= one request lost, the network fine =================
   // Review r2, 1. iOS cuts a page's fetches as it goes to the background, so a
   // request that fails while the page is hidden says nothing about the

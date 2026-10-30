@@ -1,7 +1,7 @@
 Install: what the worker holds, and that the app can be installed
   ok    index.html: one ?v= token everywhere (34 uses), and the worker is registered as ../sw.js with it
   ok    verify-shell's routes read from verify-shell.js (25)
-  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:39181/, http://127.0.0.1:39181/sw.js?v=20261029e)
+  ok    the worker controls the page from the site root, so its scope covers revision/ too (scope http://127.0.0.1:45413/, http://127.0.0.1:45413/sw.js?v=20261029e)
   FAIL  this version's cache brickford-20261029e holds index.html, everything it loads, and the manifest's icons (36 entries; missing /platform/fonts/inter-latin-standard-normal.woff2, /platform/fonts/inter-latin-ext-standard-normal.woff2)
   FAIL  and the 2 self-hosted Inter woff2 files in platform/fonts, each named by css/style.css and held; missing /platform/fonts/inter-latin-ext-standard-normal.woff2, /platform/fonts/inter-latin-standard-normal.woff2
   ok    every platform/data, js and css file on disk is in it (27 files)
@@ -56,7 +56,7 @@ The video comes back with the connection, in place
 One download that stalls during the first install does not hold the worker back
   FAIL  revision/week-03.pdf taken and never answered: the worker is active anyway, in 0.6s (under 15s), its shell complete (36 of 38)
 A network that takes the request and never answers: the cache, after 3s
-  ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.3s (under 5s)
+  ok    index.html and the font stylesheet taken and never answered: the app opens from the cache in 3.2s (under 5s)
   ok    a revision PDF and a Library document the same way, whole, in 3.0s (under 5s)
 Update: version A, then B on the next launch
   ok    A: installed, its cache brickford-20261029e in place

@@ -5,5 +5,5 @@ NEW — 2 finding(s) not in tools/verify-density.baseline.json
   FAIL  long|390|/|Every lecture you finish today moves the whole plan one real step clos   (16 words)
 BELOW THE CEILING (lower it in the baseline) — 1
   note  390 /: 85 (ceiling 88)
-FAIL — 34 route-renders (17 routes x 320/390px, Light); 1996 first-viewport words in all; 160 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 19, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 25, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 2 new, 0 stale, 1 over
+FAIL — 34 route-renders (17 routes x 320/390px, Light); 1996 first-viewport words in all; 156 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 19, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 21, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 2 new, 0 stale, 1 over
 exit 1

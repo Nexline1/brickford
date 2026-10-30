@@ -71,6 +71,10 @@ function localRefs(html) {
 const THIRD = [...INDEX_HTML.matchAll(/\s(?:src|href)="(https:\/\/[^"]+)"/g)].map(m => m[1])
   .filter(u => /^https:\/\/(cdn\.jsdelivr\.net\/npm\/katex@|fonts\.googleapis\.com\/css)/.test(u));
 const MANIFEST = JSON.parse(fs.readFileSync(path.join(ROOT, "platform", "manifest.json"), "utf8"));
+// T-051: the self-hosted fonts the app's stylesheet names (Inter), read from
+// css/style.css on disk, resolved the way the browser resolves them.
+const CSS_FONTS = [...new Set([...fs.readFileSync(path.join(ROOT, "platform", "css", "style.css"), "utf8")
+  .matchAll(/url\(["']?([^"')]+\.woff2)["']?\)/g)].map(m => new URL(m[1], "http://x/platform/css/style.css").pathname))];
 const PDFS = fs.readdirSync(path.join(ROOT, "revision")).filter(f => /\.pdf$/.test(f)).sort();
 const APP_JS = fs.readFileSync(path.join(ROOT, "platform", "js", "app.js"), "utf8");
 const DOCS = [...(APP_JS.match(/const DOCS = \[[\s\S]*?\];/) || [""])[0].matchAll(/\{ id: "([^"]+)", file: "\.\.\/([^"]+)"/g)].map(m => ({ id: m[1], file: m[2] }));
@@ -294,11 +298,17 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
   const shell = (caches1["brickford-" + TOKEN] || []).map(u => u.replace(BASE, ""));
   const files = (caches1["brickford-files"] || []).map(u => u.replace(BASE, ""));
   const wantShell = new Set(localRefs(INDEX_HTML).concat(["/platform/index.html"])
-    .concat(MANIFEST.icons.map(i => "/platform/" + i.src)));
+    .concat(MANIFEST.icons.map(i => "/platform/" + i.src)).concat(CSS_FONTS));
   const missShell = [...wantShell].filter(u => !shell.includes(u));
   wantShellCount = wantShell.size;
   check(shell.length > 0 && !missShell.length, "this version's cache brickford-" + TOKEN + " holds index.html, everything it loads, and the manifest's icons (" +
     shell.length + " entries" + (missShell.length ? "; missing " + missShell.join(", ") : "") + ")");
+  // T-051: Inter is self-hosted, and a font the stylesheet names but the
+  // worker does not hold is a page drawn in the fallback face offline.
+  const fontsOnDisk = fs.readdirSync(path.join(ROOT, "platform", "fonts")).filter(f => /\.woff2$/.test(f)).map(f => "/platform/fonts/" + f);
+  const missFonts = fontsOnDisk.filter(f => !CSS_FONTS.includes(f) || !shell.includes(f));
+  check(fontsOnDisk.length >= 2 && !missFonts.length, "and the " + fontsOnDisk.length + " self-hosted Inter woff2 files in platform/fonts, each named by css/style.css and held" +
+    (missFonts.length ? "; missing " + missFonts.join(", ") : " (" + fontsOnDisk.map(f => f.split("/").pop()).join(", ") + ")"));
   const onDisk = ["data", "js", "css"].flatMap(d => fs.readdirSync(path.join(ROOT, "platform", d)).filter(f => /\.(js|css)$/.test(f)).map(f => "/platform/" + d + "/" + f));
   const missDisk = onDisk.filter(f => !shell.some(u => u.split("?")[0] === f));
   check(!missDisk.length, "every platform/data, js and css file on disk is in it (" + onDisk.length + " files" + (missDisk.length ? "; missing " + missDisk.join(", ") : "") + ")");
@@ -356,6 +366,11 @@ const SEALED = { proxy: { server: "http://127.0.0.1:9" } };
     if (f.katex) { withMath.push(r); font = font || f.font; }
   }
   check(!bad.length, "every route verify-shell visits renders offline, the same page as online (" + SHELL_ROUTES.length + " routes" + (bad.length ? "; " + bad.join("; ") : "") + ")");
+  // T-051: the face itself, offline. On this machine SF is not installed, so
+  // the stack lands on Inter, and its latin file has to come out of the cache.
+  const inter = await page.evaluate(async () => { await document.fonts.ready;
+    return [...document.fonts].filter(f => f.family.replace(/["']/g, "") === "Inter").map(f => f.status); });
+  check(inter.includes("loaded") && !inter.includes("error"), "Inter, self-hosted, loads offline (FontFace status " + (inter.join(", ") || "none") + ")");
   check(!w.failed.length && !w.errors.length, "offline, nothing of ours failed to load and nothing threw (" + w.failed.concat(w.errors).slice(0, 8).join(", ") + ")");
   // KaTeX: the script, auto-render and the stylesheet, all out of the cache.
   // Every route's math is typeset offline exactly as online, and the

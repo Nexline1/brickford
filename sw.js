@@ -17,9 +17,11 @@
 //     reloading a page someone is using. (On a network that is always slower
 //     than 3s, the new version waits for a launch that gets an answer in time.)
 //   - everything else under platform/ (the ?v= scripts, data, stylesheet,
-//     icons, manifest): CACHE FIRST from this version's own cache, which install
-//     fills from the page itself, so the list cannot drift from what it loads.
-//     Installing waits on that cache alone; everything else fills afterwards.
+//     icons, manifest, and the self-hosted Inter the stylesheet names): CACHE
+//     FIRST from this version's own cache, which install fills from the page
+//     itself, and from the stylesheet the way it fills from the manifest, so
+//     the list cannot drift from what it loads. Installing waits on that cache
+//     alone; everything else fills afterwards.
 //   - files the app opens but does not load (the revision PDFs, the Library's
 //     documents): network first within SLOW too, kept in a cache that outlives
 //     versions, so an update does not download 7 MB of PDFs again.
@@ -66,8 +68,9 @@ async function keepFonts(cache, cssUrl) {
 
 self.addEventListener("install", event => event.waitUntil((async () => {
   // The page says what it loads: every relative src and href in index.html,
-  // plus the icons its manifest names. All or nothing: a version whose cache
-  // is missing a file is not installed, and the one before it stays.
+  // plus the icons its manifest names and the fonts its stylesheet names. All
+  // or nothing: a version whose cache is missing a file is not installed, and
+  // the one before it stays.
   const page = await fetch(INDEX, { cache: "no-cache" });
   if (!page.ok) throw new Error("index.html: " + page.status);
   const html = await page.clone().text();
@@ -86,6 +89,16 @@ self.addEventListener("install", event => event.waitUntil((async () => {
     ((await res.clone().json()).icons || []).forEach(i => want.add(new URL(i.src, man).href));
     await shell.put(man, res);
     want.delete(man);
+  }
+  // The app's own stylesheets name the fonts they load (T-051: Inter, from
+  // platform/fonts/), the way the manifest names its icons. Only woff2 files
+  // under platform/; the third-party sheets are fill()'s.
+  for (const css of [...want].filter(u => /\.css(\?|$)/.test(u))) {
+    const res = await get(css);
+    [...(await res.clone().text()).matchAll(/url\(["']?([^"')]+\.woff2)["']?\)/g)]
+      .map(m => new URL(m[1], css).href).filter(u => u.startsWith(APP)).forEach(u => want.add(u));
+    await shell.put(css, res);
+    want.delete(css);
   }
   await Promise.all([...want].map(async u => shell.put(u, await get(u))));
   await shell.put(INDEX, page);

@@ -210,6 +210,7 @@ node tools/verify-logic.js         # the date/streak invariants above, asserted 
 node tools/verify-flows.js         # open today's lecture, answer a question, mark watched
 node tools/verify-clip.js          # the clipping sweep (below); known clips in verify-clip.baseline.json
 node tools/verify-offline.js       # no connection: every route, KaTeX, the PDFs, one push on return, updates
+node tools/verify-density.js       # how much a phone screen asks you to read; ceilings in verify-density.baseline.json, may only shrink
 ```
 
 `verify-offline.js` exists because on 28 Oct 2026 the owner asked for the whole platform to

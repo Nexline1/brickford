@@ -143,3 +143,4 @@
   - stale manifest and swatch colours;
   - uppercased durations.
   The builder is fixing them; I push. Reviewer item 8 (add offline/density to loop/config.md CHECK) is not done: config.md is PROTECTED. My CHECK runner includes both gates. Ask the owner whether to add them to config.md.
+- 2026-10-30: The owner asked to apply the work as it stood, tested or not. T-051-1 was merged unreviewed as PR #29 (main e91a59e). Round-1 findings that were not yet fixed carry over. Next: T-051-2 shell.

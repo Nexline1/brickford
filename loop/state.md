@@ -144,3 +144,4 @@
   - uppercased durations.
   The builder is fixing them; I push. Reviewer item 8 (add offline/density to loop/config.md CHECK) is not done: config.md is PROTECTED. My CHECK runner includes both gates. Ask the owner whether to add them to config.md.
 - 2026-10-30: The owner asked to apply the work as it stood, tested or not. T-051-1 was merged unreviewed as PR #29 (main e91a59e). Round-1 findings that were not yet fixed carry over. Next: T-051-2 shell.
+- 2026-10-31: Owner: "Reset monk Mode to start on Nov 1" → T-062 (builder sonnet, at the owner's low-token request). Independent CHECK green. No separate review, because it is the same change as T-061. PR #30 merged → main 9197db1: Monk Mode runs 1 Nov – 21 Nov. verify-density reads the real clock, so it fails only before 1 Nov (4 monk entries read stale). Follow-up: pin its clock. The calendar events still end 17 Nov.

@@ -2166,7 +2166,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   //   on screen before anything is stored, and stored with the first loop;
   //   saving tomorrow's plan writes once, ticks today's "Plan tomorrow", and
   //   with the clock moved to Sat 31 Oct (day 2) is that day's Top 3.
-  const MK_DAY = "2026-10-30", MK_NEXT = "2026-10-31";
+  const MK_DAY = "2026-11-01", MK_NEXT = "2026-11-02";  // T-062: day 1 is Sun 1 Nov, day 2 Mon 2 Nov (was 30/31 Oct)
   const SEED_LOOPS = ["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop",
     "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
     "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];

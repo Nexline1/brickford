@@ -5272,7 +5272,7 @@ function t28SeedClips(list) {
   // loop/specs/T-054-monk-page/spec.md, verify-design: at 1440 and 390, Dark
   // and Light, on two states — day 6 of 21 (T-057: day 1 was Wed 28 Oct, so the pinned
   // clock moved from Wed 28 Oct, day 5 of 90, to Wed 4 Nov, the same weekday, day 8; T-061 moved
-  // day 1 to Fri 30 Oct, and Wed 4 Nov and the day before it stay monk days, so the clock stays) with a day logged
+  // day 1 to Fri 30 Oct, T-062 to Sun 1 Nov (Wed 4 Nov is day 4), and Wed 4 Nov and the day before it stay monk days, so the clock stays) with a day logged
   // (a prayer, No sin, two hours steppers, two German chips, an Also habit and the phone on, a loop
   // closed, a plan saved for today), and 20 Oct, before the 21 days, with nothing stored — and once more with the
   // Full day disclosure open. Measured on the rendered page (t54Measure):
@@ -5284,13 +5284,13 @@ function t28SeedClips(list) {
   const c54 = (name, ok, detail) => { t54Checks++; return check(name, ok, detail); };
   const T54_DAY = "2026-11-04", T54_PREV = "2026-11-03";
   const T54_STATES = [
-    { name: "day 6 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 6 of 21", pri: "1 of 5", ring: "20%", also: "2 of 5", patch: { monk: {
+    { name: "day 4 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 4 of 21", pri: "1 of 5", ring: "20%", also: "2 of 5", patch: { monk: {
       days: { [T54_DAY]: { prayers: { fajr: true }, nosin: true, german: { podcast: true, speak: true }, brickford: true, bfh: 1.5, work: 8, meditate: true, phone: 1.5, at: T54_DAY + "T09:00:00.000Z" },
               [T54_PREV]: { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: true }, nosin: true, german: { podcast: true, speak: true, write: true, read: true }, bfh: 3, work: 10, phone: 1, at: T54_PREV + "T21:00:00.000Z" } },
       plans: { [T54_DAY]: { business: "Call two venues", content: "Script the Bahrain video", education: "MATH 120 lecture 4", at: "2026-10-27T21:55:00.000Z" } },
       loops: { s1: { text: "Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop", done: true, at: "2026-10-27T10:00:00.000Z" },
                l2: { text: "Reply to the venue", done: false, at: "2026-10-26T10:00:00.000Z" } } } } },
-    { name: "before the 21 days, nothing stored", now: new Date("2026-10-20T12:00:00Z"), head: "Starts 30 Oct", pri: "0 of 5", ring: "0%", also: "0 of 5", patch: null },
+    { name: "before the 21 days, nothing stored", now: new Date("2026-10-20T12:00:00Z"), head: "Starts 1 Nov", pri: "0 of 5", ring: "0%", also: "0 of 5", patch: null },
   ];
   function t54Measure() {
     const z = window.__dz, fill = z.tok("--btn-bg");

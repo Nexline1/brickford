@@ -1,0 +1,20 @@
+
+KNOWN (baselined, owned by a fix item) — item, element, root@width, routes
+  T-002  div.crest                            24px@1024 24px@1100 24px@1280 24px@1440; 34 routes
+  T-002  div.name-en                          24px@1024 24px@1100 24px@1280 24px@1440; 34 routes
+  T-003  button#timerStop.btn.ghost           24px@320 24px@768; /diag/diag-la
+  T-003  div#diagTimer.timer                  24px@320 24px@1024; /diag/diag-la
+  T-003  div#drillMount                       24px@320 24px@390; /drill /drill~num
+  T-003  div#quizMount                        24px@320 24px@390; /quiz/linear-algebra /quiz/linear-algebra~num
+  T-003  div                                  24px@320 24px@768 24px@1100; /diag/diag-la /course/math110
+  T-003  div.card                             24px@320; /diag/diag-la
+  T-003  div.card.q-card.view-enter           24px@320 24px@390; /quiz/linear-algebra /drill /quiz/linear-algebra~num /drill~num
+  T-003  div.grid.cols-2                      24px@320; /diag/diag-la
+  T-003  div.shell                            24px@320 24px@390; /quiz/linear-algebra /drill /quiz/linear-algebra~num /drill~num
+  T-003  div.view-enter                       24px@320 24px@390; 5 routes
+  T-003  main#view.main                       24px@320 24px@390; /quiz/linear-algebra /drill /quiz/linear-algebra~num /drill~num
+  T-003  sideways-scroll                      24px@320 24px@390; /quiz/linear-algebra /drill /quiz/linear-algebra~num /drill~num
+  T-003  span                                 24px@1100; /course/math110
+  T-003  td                                   24px@320; /electives
+
+PASS — 0 new, 0 stale, 589 known (T-002 528, T-003 61); 924 renders: 32 routes × 2 states + 2 numeric draws, × 7 widths × roots 16/24px (142466 element measurements)

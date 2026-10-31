@@ -1,0 +1,41 @@
+plants against /home/user/bf-T-062 (d1120f2)
+== plant days-90 -> node tools/verify-logic.js
+  restored /home/user/bf-T-062/platform/js/app.js (cmp identical)
+  FAIL  monk mode on 2026-11-01: day 1 of 21, a 44px row opening #/monk in the same window — {"day":1,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 1 of 90","h":63}
+  FAIL  monk mode on 2026-11-03: day 3 of 21, a 44px row opening #/monk in the same window — {"day":3,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 3 of 90","h":63}
+  FAIL  monk mode on 2026-11-21: day 21 of 21, a 44px row opening #/monk in the same window — {"day":21,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 21 of 90","h":63}
+  FAIL  monk mode on 2026-11-22: no row — {"day":22,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 22 of 90","h":63}
+  FAIL  MONK is 21 days from Sun 1 Nov 2026 (T-062; T-061 had Fri 30 Oct) — {"from":"2026-11-01","days":90}
+5 of 186 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant focus-counts-prestart -> node tools/verify-logic.js
+  restored /home/user/bf-T-062/platform/js/app.js (cmp identical)
+  FAIL  focus on Wed 4 Nov: 3 monk days (1-3 Nov), the days before day 1 not counted: No sin at 0% — {"days":7,"key":"german","label":"German 1.5 h","rate":43,"fix":"Do German listening on the run and speaking on the drive. Don't save it for later."}
+1 of 186 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant monk-from-30 -> node tools/verify-logic.js
+  restored /home/user/bf-T-062/platform/js/app.js (cmp identical)
+  FAIL  monk mode on 2026-10-31: no row — {"day":2,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 2 of 21","h":63}
+  FAIL  monk mode on 2026-11-01: day 1 of 21, a 44px row opening #/monk in the same window — {"day":3,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 3 of 21","h":63}
+  FAIL  monk mode on 2026-11-03: day 3 of 21, a 44px row opening #/monk in the same window — {"day":5,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":true,"href":"#/monk","blank":false,"head":"Monk ModeDay 5 of 21","h":63}
+  FAIL  monk mode on 2026-11-21: day 21 of 21, a 44px row opening #/monk in the same window — {"day":null,"url":"https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z","row":false,"href":null,"blank":null,"head":null,"h":null}
+  FAIL  MONK is 21 days from Sun 1 Nov 2026 (T-062; T-061 had Fri 30 Oct) — {"from":"2026-10-30","days":21}
+  FAIL  focus on Wed 4 Nov: 3 monk days (1-3 Nov), the days before day 1 not counted: No sin at 0% — {"days":5,"key":"nosin","label":"No sin today","rate":40,"fix":"When the pull comes, get up and change rooms. Don't negotiate with it."}
+6 of 186 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant ring-counts-also -> node tools/verify-logic.js
+  restored /home/user/bf-T-062/platform/js/app.js (cmp identical)
+  FAIL  score: nothing logged = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: all five priorities, every Also item undone = 5 of 5 (100%) — {"done":5,"n":9,"pct":56}
+  FAIL  score: every Also item done, no priorities = 0 of 5 (0%) — {"done":4,"n":9,"pct":44}
+  FAIL  score: all five and every Also item = 5 of 5 (100%) — {"done":9,"n":9,"pct":100}
+  FAIL  score: brickford: true alone does not satisfy Brickford = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: four priorities + brickford: true instead of bfh = 4 of 5 (80%) — {"done":4,"n":9,"pct":44}
+  FAIL  score: bfh 3 counts = 1 of 5 (20%) — {"done":1,"n":9,"pct":11}
+  FAIL  score: bfh 2.5 does not = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: work 10 counts = 1 of 5 (20%) — {"done":1,"n":9,"pct":11}
+  FAIL  score: work 9.5 does not = 0 of 5 (0%) — {"done":0,"n":9,"pct":0}
+  FAIL  score: nosin required: the other four, nosin missing = 4 of 5 (80%) — {"done":4,"n":9,"pct":44}
+  FAIL  score: nosin required: the other four, nosin false = 4 of 5 (80%) — {"done":4,"n":9,"pct":44}
+  exit 1 (caught, as required)
+plants: 4 of 4 caught (each gate exit 1)

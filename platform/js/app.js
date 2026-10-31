@@ -102,6 +102,10 @@
     return dateForStudy(base + n);
   }
   const studyToday = () => studyIndex(todayISO());
+  // T-063: the slot windowing treats as "today". On a rest day studyToday() is -1, which
+  // re-anchored every past day to the first unfinished lesson; use the last study day instead.
+  // Before the start it stays -1. Windowing only; a rest day itself still schedules nothing.
+  const studyAnchor = () => { const i = studyToday(); return i >= 0 || todayISO() < D.START_DATE ? i : studyIndex(prevStudyDay(todayISO())); };
   function nextStudyDay(iso) {
     let cur = addDaysISO(iso, 1);
     for (let guard = 0; guard < 14 && isRestDay(cur); guard++) cur = addDaysISO(cur, 1);
@@ -1178,7 +1182,7 @@
     // packed from REAL video minutes to fill the ~2h block — ~5 short 3B1B
     // chapters, or one 50-minute MIT lecture. Future days re-anchor if you
     // work ahead (see windowFor).
-    const dT = studyToday();
+    const dT = studyAnchor();
     const rotIdx = d % 3, rot = THEORY_ROT[rotIdx];
     const rotFlat = flatLessons(rot);
     const turn = Math.floor(d / 3);

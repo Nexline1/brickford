@@ -1187,6 +1187,36 @@ async function scenario(browser, now, state, tz) {
     await probe.ctx.close();
   }
 
+  // T-063: on a rest day the past must stay frozen. studyToday() is -1 on a Saturday,
+  // and windowFor re-anchored every past day to the first unfinished lesson.
+  {
+    const FRI = "2026-10-30", SAT = "2026-10-31";     // 15 plan days in, then the rest day
+    const probe = await scenario(browser, FRI, null);
+    const first = await probe.page.evaluate(([S, F]) => {
+      const T = window.__brickfordTest, out = {};
+      for (let d = new Date(S + "T00:00:00Z"); d.toISOString().slice(0, 10) <= F; d.setUTCDate(d.getUTCDate() + 1))
+        T.scheduledFor(d.toISOString().slice(0, 10)).forEach(it => { if (!it.pseudo) out[it.cid + "." + it.ui + "." + it.li] = 1; });
+      return Object.keys(out).slice(0, 8);
+    }, [START, "2026-10-19"]);
+    await probe.ctx.close();
+    const lessons = {};
+    first.forEach(k => { lessons[k] = { done: true, doneAt: "2026-10-17T10:00:00.000Z", firstDoneAt: "2026-10-17T10:00:00.000Z" }; });
+    const state = { lessons, studyDays: ["2026-10-16", "2026-10-17", "2026-10-19"] };
+    const past = range(START, FRI).filter(d => !isSat(d));
+    const read = async now => { const sc = await scenario(browser, now, state);
+      const r = await sc.page.evaluate(([days, sat]) => { const T = window.__brickfordTest; return { days: days.map(d => T.scheduledFor(d).map(it => it.pseudo ? "p:" + it.short : it.cid + "." + it.ui + "." + it.li)), sat: T.scheduledFor(sat).length }; }, [past, SAT]);
+      await sc.ctx.close(); return r; };
+    const onFri = await read(FRI), onSat = await read(SAT);
+    const diff = past.filter((d, i) => JSON.stringify(onFri.days[i]) !== JSON.stringify(onSat.days[i]));
+    check("rest day: every past day's plan equals the Friday's (past stays frozen)", diff.length === 0 && first.length > 0, diff.length + " day(s) differ, first " + diff[0]);
+    check("rest day: its own schedule is still empty", onSat.sat === 0, String(onSat.sat));
+    const pre = await scenario(browser, "2026-10-10", null), fri0 = await scenario(browser, FRI, null);
+    const a = await pre.page.evaluate(d => window.__brickfordTest.scheduledFor(d).map(it => it.cid + "." + it.ui + "." + it.li), START);
+    const b = await fri0.page.evaluate(d => window.__brickfordTest.scheduledFor(d).map(it => it.cid + "." + it.ui + "." + it.li), START);
+    await pre.ctx.close(); await fri0.ctx.close();
+    check("before the start: day 1 is the fixed plan, unchanged", a.length > 0 && JSON.stringify(a) === JSON.stringify(b), JSON.stringify(a));
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

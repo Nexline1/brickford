@@ -2965,6 +2965,8 @@ summary.pd-row::-webkit-details-marker { display: none; }
   font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .cd-ok { margin-right: 6px; color: var(--good); }
+.cd-st { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 50%; border: 1.5px solid var(--ink-3); box-sizing: border-box; }
+.cd-part { background: linear-gradient(90deg, var(--ink-3) 50%, transparent 50%); }
 .cd-blk.done .cd-t { color: var(--ink-2); }
 .cd-blk.done .cd-k { color: var(--ink-3); }
 .cd-pseudo .cd-k { color: var(--ink-3); }

@@ -3664,7 +3664,9 @@
       return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + (lk ? lk.cid + "/" + lk.ui + "/" + lk.li : it.cid + "/" + it.ui + "/" + it.li) + '">' +
         '<span class="cd-bar" aria-hidden="true"></span>' +
         '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
-        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>'
+          : (S.lessons[it.cid + "." + it.ui + "." + it.li] || {}).done ? '<span class="cd-st cd-part" role="img" aria-label="watched, quiz not passed"></span>'
+          : '<span class="cd-st cd-ring" role="img" aria-label="not watched"></span>') +
         (lk ? '<span class="cd-lock" role="img" aria-label="locked">' + lockSVG() + "</span>" : "") + esc(it.l.t) + "</span></span>" +
         '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
     };

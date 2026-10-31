@@ -1269,12 +1269,12 @@
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
   const QUIZ_GATE_FROM = "2026-10-24";                 // the day after the fix merges (T-056 r3): everything watched on the merge day counts; a Saturday, so the gate starts with Sunday's lectures
-  // T-052: the owner's monk mode (T-057: MONK.days days from MONK.from; T-061: 30 Oct to 19 Nov 2026) lives on its
+  // T-052: the owner's monk mode (T-057: MONK.days days from MONK.from; T-062: 1 Nov to 21 Nov 2026) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
   // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
   // which keeps one row out to that page (MONK.url). The day counts
   // calendar days, Saturdays included: it is a life plan, not the study plan.
-  const MONK = Object.freeze({ from: "2026-10-30", days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  const MONK = Object.freeze({ from: "2026-11-01", days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
   function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
   // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
   // Ported from loop/design/monk-mode.html, with the owner's amendment of

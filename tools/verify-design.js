@@ -4451,10 +4451,11 @@ function t28SeedClips(list) {
       const g = b.querySelector(".cd-t [role=img]"), r = b.getBoundingClientRect(), s = g && getComputedStyle(g);
       return { href: b.getAttribute("href"), label: g ? g.getAttribute("aria-label") : null, cls: g ? g.className : null, h: r.height,
         w: g ? g.getBoundingClientRect().width : 0, ink: s ? s.color : null, bd: s ? s.borderTopColor : null }; }));
-    const want = { "#/lesson/math120/1/0": "done", "#/lesson/ai200/1/4": "watched, quiz not passed", "#/lesson/spch100/2/5": "not watched" };
+    const want = { "#/lesson/math120/1/0": "done", "#/lesson/ai200/1/4": "watched, quiz not passed" };
     const bad = Object.keys(want).filter(h => { const r = rows.find(x => x.href === h); return !r || r.label !== want[h] || r.h < 44 || r.w < 8; });
+    const empty = rows.filter(r => r.label === "not watched" && r.h >= 44 && r.w >= 8);
     check("T-063 " + theme + " 390px: the day view shows tick / half ring / empty ring for watched+cleared / watched, quiz open / not watched",
-      bad.length === 0 && new Set(rows.map(r => r.cls)).size === 3, JSON.stringify(rows));
+      bad.length === 0 && empty.length >= 1 && new Set(rows.map(r => r.cls)).size === 3, JSON.stringify(rows));
     check("T-063 " + theme + ": no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }

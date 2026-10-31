@@ -102,6 +102,10 @@
     return dateForStudy(base + n);
   }
   const studyToday = () => studyIndex(todayISO());
+  // T-063: the slot windowing treats as "today". On a rest day studyToday() is -1, which
+  // re-anchored every past day to the first unfinished lesson; use the last study day instead.
+  // Before the start it stays -1. Windowing only; a rest day itself still schedules nothing.
+  const studyAnchor = () => { const i = studyToday(); return i >= 0 || todayISO() < D.START_DATE ? i : studyIndex(prevStudyDay(todayISO())); };
   function nextStudyDay(iso) {
     let cur = addDaysISO(iso, 1);
     for (let guard = 0; guard < 14 && isRestDay(cur); guard++) cur = addDaysISO(cur, 1);
@@ -1178,7 +1182,7 @@
     // packed from REAL video minutes to fill the ~2h block — ~5 short 3B1B
     // chapters, or one 50-minute MIT lecture. Future days re-anchor if you
     // work ahead (see windowFor).
-    const dT = studyToday();
+    const dT = studyAnchor();
     const rotIdx = d % 3, rot = THEORY_ROT[rotIdx];
     const rotFlat = flatLessons(rot);
     const turn = Math.floor(d / 3);
@@ -3660,7 +3664,9 @@
       return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + (lk ? lk.cid + "/" + lk.ui + "/" + lk.li : it.cid + "/" + it.ui + "/" + it.li) + '">' +
         '<span class="cd-bar" aria-hidden="true"></span>' +
         '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
-        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>'
+          : (S.lessons[it.cid + "." + it.ui + "." + it.li] || {}).done ? '<span class="cd-st cd-part" role="img" aria-label="watched, quiz not passed"></span>'
+          : '<span class="cd-st cd-ring" role="img" aria-label="not watched"></span>') +
         (lk ? '<span class="cd-lock" role="img" aria-label="locked">' + lockSVG() + "</span>" : "") + esc(it.l.t) + "</span></span>" +
         '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
     };

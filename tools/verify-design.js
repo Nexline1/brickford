@@ -4441,6 +4441,24 @@ function t28SeedClips(list) {
       await ctx.close();
     }
   }
+  // T-063: each lecture row in the day view shows its own state: tick (watched and
+  // cleared), half ring (watched, quiz not passed), empty ring (not watched).
+  for (const theme of ["dark", "light"]) {
+    const { ctx, page, errors, today } = await t26bFresh({ theme, w: 390, h: 844, mobile: true,
+      patch: Object.assign({}, T26C_PATCH, { lessons: Object.assign({}, T26C_PATCH.lessons, { "ai200.1.4": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } }) }) });
+    await go(page, "/calendar");
+    const rows = await page.evaluate(() => [...document.querySelectorAll("#view .cd-blk:not(.cd-pseudo)")].filter(b => b.checkVisibility()).map(b => {
+      const g = b.querySelector(".cd-t [role=img]"), r = b.getBoundingClientRect(), s = g && getComputedStyle(g);
+      return { href: b.getAttribute("href"), label: g ? g.getAttribute("aria-label") : null, cls: g ? g.className : null, h: r.height,
+        w: g ? g.getBoundingClientRect().width : 0, ink: s ? s.color : null, bd: s ? s.borderTopColor : null }; }));
+    const want = { "#/lesson/math120/1/0": "done", "#/lesson/ai200/1/4": "watched, quiz not passed" };
+    const bad = Object.keys(want).filter(h => { const r = rows.find(x => x.href === h); return !r || r.label !== want[h] || r.h < 44 || r.w < 8; });
+    const empty = rows.filter(r => r.label === "not watched" && r.h >= 44 && r.w >= 8);
+    check("T-063 " + theme + " 390px: the day view shows tick / half ring / empty ring for watched+cleared / watched, quiz open / not watched",
+      bad.length === 0 && empty.length >= 1 && new Set(rows.map(r => r.cls)).size === 3, JSON.stringify(rows));
+    check("T-063 " + theme + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
   // ---- one state at a time, for what the seed cannot show ----
   const T26B_STATES = [
     { name: "labs and problem sets done", routes: ["/workshop"],

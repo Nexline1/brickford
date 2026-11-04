@@ -141,13 +141,16 @@ class SchedItem {
 
 /// The dashboard's one next action (app.js nextAction), without the HTML.
 class NextAction {
-  const NextAction(this.kind, {this.cid, this.ui, this.li, this.title = '', this.code = '', this.workAhead = false});
+  const NextAction(this.kind,
+      {this.cid, this.ui, this.li, this.title = '', this.code = '', this.workAhead = false, this.seen = false});
   /// lecture | quiz | recall | resume | rest | none
   final String kind;
   final String? cid;
   final int? ui, li;
   final String title, code;
   final bool workAhead;
+  /// For a quiz action: the lecture is watched, so its quiz is what is left ("Quiz:"), else "Watch: …, then its quiz".
+  final bool seen;
   bool get opensLesson => cid != null;
 }
 
@@ -710,7 +713,8 @@ class Engine {
     if (root != null || watchedOpen) {
       final cid = root?.cid ?? nextUp.cid!, ui = root?.ui ?? nextUp.ui!, li = root?.li ?? nextUp.li!;
       final t = root != null ? (root.l['t'] as String? ?? '') : nextUp.title;
-      return NextAction('quiz', cid: cid, ui: ui, li: li, title: t, code: root?.code ?? nextUp.code ?? '');
+      final seen = truthy(_map(lessons[lessonKey(cid, ui, li)])['done']);
+      return NextAction('quiz', cid: cid, ui: ui, li: li, title: t, code: root?.code ?? nextUp.code ?? '', seen: seen);
     }
     return NextAction('lecture',
         cid: nextUp.cid, ui: nextUp.ui, li: nextUp.li, title: nextUp.title, code: nextUp.code ?? '', workAhead: workAhead);

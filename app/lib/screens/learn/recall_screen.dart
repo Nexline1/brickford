@@ -118,7 +118,7 @@ class _RecallCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: 12.h),
           Padding(
             padding: EdgeInsets.only(right: 8.w),
             child: Row(

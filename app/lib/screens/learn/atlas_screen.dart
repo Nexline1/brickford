@@ -52,10 +52,10 @@ class AtlasScreen extends StatelessWidget {
               key: ValueKey('atlas-tile-${t.id}'),
               id: 'atlas-tile-${t.id}',
               leading: LeadTile(text: t.code.split(' ').last),
-              subtitle: t.code,
+              subtitle: '${t.code}  ·  ${t.n}/${t.of}',
               title: t.title,
               meta: '${t.pct}%',
-              below: _TileBar(t),
+              below: ProgressBar(t.pct / 100),
               onTap: () => _course(context, t.id),
             ),
           if (a.later.isNotEmpty) ...[
@@ -67,7 +67,7 @@ class AtlasScreen extends StatelessWidget {
                 for (final c in a.later)
                   Semantics(
                     identifier: 'atlas-later-${c.id}',
-                    child: BrickChip(key: ValueKey('atlas-later-${c.id}'), label: c.text, selected: false, onTap: () => _course(context, c.id)),
+                    child: IntrinsicWidth(child: BrickChip(key: ValueKey('atlas-later-${c.id}'), label: c.text, selected: false, onTap: () => _course(context, c.id))),
                   ),
               ],
             ),
@@ -76,19 +76,6 @@ class AtlasScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _TileBar extends StatelessWidget {
-  const _TileBar(this.t);
-  final AtlasTile t;
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(child: ProgressBar(t.pct / 100)),
-      SizedBox(width: 10.w),
-      Text('${t.n}/${t.of}', style: body(11.5, color: Tokens.ink2, weight: FontWeight.w600)),
-    ],
-  );
 }
 
 /// The route: Start and the five gates down a rail that fills as the study days pass,

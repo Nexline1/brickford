@@ -63,22 +63,41 @@ class _LearnScreenState extends State<LearnScreen> {
             Stat(icon: Icons.code, value: '${e.dsaCount()}/150', semantic: 'problems solved'),
           ],
         ),
-      ],
-    );
-
-    // The tools: each opens its own page (the tabs below only filter the list under them).
-    final tools = ChipRow(
-      children: [
-        for (final (id, icon, label, page) in [
-          ('atlas', Icons.map_outlined, 'Atlas', const AtlasScreen()),
-          ('recall', Icons.psychology_alt_outlined, e.reviewsDue().isEmpty ? 'Recall' : 'Recall · ${e.reviewsDue().length}', const RecallScreen()),
-          ('drill', Icons.bolt_outlined, 'Drill', const QuizScreen.drill()),
-          ('electives', Icons.explore_outlined, 'Electives', const ElectivesScreen()),
-        ])
-          Semantics(
-            identifier: 'learn-tool-$id',
-            child: BrickChip(key: ValueKey('learn-tool-$id'), icon: icon, label: label, selected: false, onTap: () => _push(page)),
-          ),
+        SizedBox(height: 14.h),
+        // The tools: each opens its own page (the chips below only filter the list under them).
+        Row(
+          children: [
+            for (final (id, icon, label, page, badge) in [
+              ('atlas', Icons.map_outlined, 'Atlas', const AtlasScreen(), 0),
+              ('recall', Icons.psychology_alt_outlined, 'Recall', const RecallScreen(), e.reviewsDue().length),
+              ('drill', Icons.bolt_outlined, 'Drill', const QuizScreen.drill(), 0),
+              ('electives', Icons.explore_outlined, 'Electives', const ElectivesScreen(), 0),
+            ])
+              Padding(
+                padding: EdgeInsets.only(right: 12.w),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    FrostButton(key: ValueKey('learn-tool-$id'), id: 'learn-tool-$id', icon: icon, tooltip: badge > 0 ? '$label, $badge due' : label, dark: true, onPressed: () => _push(page)),
+                    if (badge > 0)
+                      Positioned(
+                        right: -4,
+                        top: -4,
+                        child: IgnorePointer(
+                          child: Container(
+                            constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(color: Tokens.gold, borderRadius: BorderRadius.circular(10)),
+                            child: Text(badge > 99 ? '99+' : '$badge', style: body(11, color: Tokens.midnight, weight: FontWeight.w800)),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ],
     );
 
@@ -114,7 +133,7 @@ class _LearnScreenState extends State<LearnScreen> {
     return SheetScaffold(
       tabbed: true,
       header: header,
-      children: [tools, SizedBox(height: 8.h), tabs, SizedBox(height: 16.h), ...list],
+      children: [tabs, SizedBox(height: 16.h), ...list],
     );
   }
 

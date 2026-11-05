@@ -114,3 +114,7 @@ Port from platform/js/app.js (V.atlas, the course and unit pages, V.recall, V.dr
 ---
 ## Stage 6b (owner "Continue", 5 Nov): Practice (recorder), transcript, guide, method, workshop
 Practice goes under Build; transcript, guide, method and workshop are readable pages under Profile (the Library gains the guides and outside links stage 5 left out). Port from platform/js/app.js (V.practice and the recorder, V.transcript, V.guide, V.method, V.workshop, DOCS). Recordings stay on the device (IndexedDB on web, or whatever the web app does); transcription is paused (T-046), so the recorder only records. State plainly what an iPhone can do (MediaRecorder support, microphone permission). Same S shape, existing design, barely any words; parity blocks and plants in verify-app where there is logic (practice streak/reps, workshop gating).
+
+---
+## Performance (owner, 5 Nov): "The app is lagging" — when scrolling and when opening screens/tabs
+See the Performance section of the approved plan. Causes to fix: live BackdropFilter blur on the floating bar (sigma 18) and blur-24 shadows; big shadow/clip/opacity layers on scrolling pages; whole-screen recompute on every notifyListeners (scheduledFor/backlogCount/streak in Home.build, recorder tick); undebounced save() (jsonEncode of the whole S); eager Column lists; main-thread JSON decode at startup. Measure before/after with tools/perf-app.js (Chromium, 4x CPU throttle, 375x812): frame times while scrolling, time to open screens. Targets: no frame > 50 ms while scrolling, screens open < 300 ms at 4x.

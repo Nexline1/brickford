@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!-- Hand-written, not build output: app/ is the Flutter project's folder, so
+     /brickford/app/ forwards to the built app at /brickford/app-web/
+     (tools/build-app.sh), keeping any #route the link carried. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12141C">
+  <title>Brickford</title>
+  <link rel="canonical" href="../app-web/">
+  <script>location.replace("../app-web/" + location.hash);</script>
+  <noscript><meta http-equiv="refresh" content="0; url=../app-web/"></noscript>
+  <style>html, body { margin: 0; background: #12141C; color: #fff; font: 16px system-ui, sans-serif; }
+    a { color: #fff; display: block; padding: 24px; }</style>
+</head>
+<body><a href="../app-web/">Brickford</a></body>
+</html>

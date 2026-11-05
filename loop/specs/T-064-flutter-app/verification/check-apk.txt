@@ -1,0 +1,11 @@
+$ flutter build apk --release
+[!] No Android SDK found. Try setting the ANDROID_HOME environment variable.
+
+$ curl https://dl.google.com/android/repository/repository2-3.xml
+curl: (56) CONNECT tunnel failed, response 403   (agent proxy: dl.google.com connect_rejected)
+
+No Android SDK is installed in this container, and dl.google.com, the only host that serves the SDK
+(cmdline-tools, platform-tools, build-tools, platforms), is refused by the egress proxy.
+maven.google.com and services.gradle.org answer, but neither carries the SDK itself.
+APK: NOT BUILT. Nothing was faked. Build it where dl.google.com is reachable:
+  sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'; cd app && flutter build apk --release

@@ -84,3 +84,11 @@ A **parity test** runs the JS functions (in node, over the existing app.js test 
   - plants (a changed rest day, a stale JSON) each exit 1.
 - `flutter build web --base-href /app/` and `flutter build apk`. Playwright screenshots of `/app/` at 375×812, compared against the owner's reference images.
 - The existing web gates all stay green, since `platform/` is untouched.
+
+---
+## Stage 2 (4-5 Nov, owner "continue"): Calendar + day view
+Branch loop/T-064-flutter-2. Plan = the "Stage 2" section of the approved plan file; summary:
+- Calendar screen: Sunday-first month grid on the white sheet; status per day = done (green tick) / part (half ring) / missed (red ring) / ahead (grey ring) / rest (muted) / gate (diamond); month chevrons + Today as round frosted buttons; Sunday seal tile from revisionWeek; tap a day = day view.
+- Day view: bottom sheet with a drag handle; header (weekday, date, "Day N · Week W"); one row per scheduled lecture with glyph (tick = watched+cleared, half ring = watched, quiz pending, empty ring = not watched), short title, track, minutes; row opens the lecture screen. Past days use the frozen plan (reuse studyAnchor, T-063). Barely any words.
+- Entry points: Home (chip/day count) and a Calendar button.
+- Gates: flutter analyze clean; widget tests (grid status per day for a fixture; row glyphs match lessonCleared); verify-app gains a dayStatus parity block (Dart vs JS, every day Oct-Dec 2026, on a Saturday clock and a study-day clock); 375x812 screenshots (month, day sheet, a rest-day Saturday); taps >= 44; rebuild app-web/ via tools/build-app.sh; platform/, sw.js, CLAUDE.md untouched; re-run existing gates and report the pre-existing failures (offline Inter, design, density, clip on main) separately.

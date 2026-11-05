@@ -4,7 +4,12 @@
 import 'dart:convert';
 
 import 'package:app/engine/learn.dart';
+import 'package:app/engine/quiz.dart';
+import 'package:app/engine/record.dart';
 import 'package:app/main.dart';
+import 'package:app/screens/learn/recall_screen.dart';
+import 'package:app/screens/quiz/quiz_screen.dart';
+import 'package:app/widgets/question_view.dart';
 import 'package:app/screens/course/course_screen.dart';
 import 'package:app/shell.dart';
 import 'package:app/state/app_model.dart';
@@ -95,5 +100,124 @@ void main() {
     expect(t.meta, '1 of ${t.of} proven');
     expect(m.engine.unitCounts('math110').first.done, 2);
     expect(a.tiles.firstWhere((t) => t.tracker).meta, '2 of 150 problems');
+  });
+
+  // ---------- Recall ----------
+
+  Map<String, dynamic> reviewState({String due = '2026-11-03'}) => {
+    'lessons': {
+      'math110.0.0': w('2026-10-20', more: {'verified': true, 'verifiedAt': '2026-10-21'}),
+      'math110.0.1': w('2026-10-21', more: {'verified': true, 'verifiedAt': '2026-10-22'}),
+    },
+    'review': {
+      'math110.0.0': {'box': 1, 'due': due, 'last': '2026-10-27', 'lapses': 0},
+      'math110.0.1': {'box': 1, 'due': '2026-11-20', 'last': '2026-11-13', 'lapses': 1},
+    },
+  };
+
+  testWidgets('answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each', (tester) async {
+    final m = await model(reviewState());
+    await openLearn(tester, m);
+    await tool(tester, 'recall');
+    expect(find.byType(RecallScreen), findsOneWidget);
+    expect(find.byKey(const ValueKey('recall-card-math110.0.0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('recall-card-math110.0.1')), findsNothing, reason: 'due on the 20th, so only coming up');
+    expect(find.byKey(const ValueKey('recall-next-math110.0.1')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('recall-solid-math110.0.0')));
+    await tester.pumpAndSettle();
+    var rv = m.engine.review['math110.0.0'] as Map;
+    expect(rv, {'box': 2, 'due': '2026-11-25', 'last': '2026-11-04', 'lapses': 0}, reason: 'box 1 -> 2 is 21 days from today');
+    expect(find.byKey(const ValueKey('recall-card-math110.0.0')), findsNothing, reason: 'it left the due list');
+    expect(find.byKey(const ValueKey('recall-empty')), findsOneWidget);
+    final ev = m.engine.S['ledger'].last as Map;
+    expect([ev['type'], ev['ref'], ev['data']], ['recall', 'math110.0.0', {'grade': 'solid', 'box': 2}]);
+    // Forgot: back to the first box, a lapse counted.
+    m.engine.review['math110.0.0']['due'] = '2026-11-04';
+    m.refresh();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('recall-forgot-math110.0.0')));
+    await tester.pumpAndSettle();
+    rv = m.engine.review['math110.0.0'] as Map;
+    expect(rv, {'box': 0, 'due': '2026-11-06', 'last': '2026-11-04', 'lapses': 1});
+    expect((m.engine.S['ledger'] as List).length, 2);
+    expect(m.engine.reviewsDue(), isEmpty);
+    expect(m.engine.verifyChain().ok, isTrue, reason: 'the events chain');
+  });
+
+  testWidgets('Home shows the review row only while something is due, with its button into Recall', (tester) async {
+    final m = await model(reviewState(due: '2026-11-20'));
+    tester.view.physicalSize = const Size(375 * 3, 812 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(BrickfordApp(model: m));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('home-review')), findsNothing, reason: 'nothing due on the 4th');
+    // Something falls due: the row appears with the count and a 44px button.
+    m.engine.review['math110.0.0']['due'] = '2026-11-04';
+    m.engine.review['math110.0.1']['due'] = '2026-11-01';
+    m.refresh();
+    await tester.pumpAndSettle();
+    await tester.dragUntilVisible(find.byKey(const ValueKey('home-review')), find.byType(Scrollable).last, const Offset(0, -120));
+    expect(find.byKey(const ValueKey('home-review')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const ValueKey('home-review')), matching: find.textContaining('2', findRichText: true)), findsWidgets);
+    final size = tester.getSize(find.byKey(const ValueKey('home-review-go')));
+    expect(size.width >= 44 && size.height >= 44, isTrue, reason: 'button is $size');
+    await tester.tap(find.byKey(const ValueKey('home-review-go')));
+    await tester.pumpAndSettle();
+    expect(find.byType(RecallScreen), findsOneWidget);
+    expect(find.byKey(const ValueKey('recall-card-math110.0.1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('recall-card-math110.0.0')), findsOneWidget);
+  });
+
+  // ---------- Drill ----------
+
+  QuestionView current(WidgetTester tester) => tester.widget<QuestionView>(find.byType(QuestionView));
+
+  testWidgets('Drill: ten questions (three misses padded from what is taught); right answers leave the miss pool, a wrong one stays', (tester) async {
+    final m = await model({
+      'lessons': {'math120.0.0': w('2026-10-20')},
+      'quizMisses': {'calculus': [0, 1, 2]},
+    });
+    await openLearn(tester, m);
+    var seed = 7;
+    double rand() => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+    tester.state<NavigatorState>(find.byType(Navigator).first).push(MaterialPageRoute(builder: (_) => QuizScreen.drill(rand: rand)));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(find.byKey(const ValueKey('quiz-count'))).data, '1');
+    String? wrong;
+    for (var i = 0; i < 10; i++) {
+      final q = current(tester).q;
+      if (i == 0) wrong = '${q['q']}';
+      if (q['opts'] != null) {
+        final a = q['a'] as int;
+        await tester.tap(find.byKey(ValueKey('opt-${i == 0 ? (a == 0 ? 1 : 0) : a}')));
+      } else {
+        final field = find.descendant(of: find.byKey(const ValueKey('quiz-num')), matching: find.byType(TextField));
+        await tester.enterText(field, i == 0 ? 'zzz' : '${q['num']}'.replaceAll('.', ','));
+        await tester.tap(find.byKey(const ValueKey('quiz-submit')));
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('quiz-next')));
+      await tester.pumpAndSettle();
+    }
+    expect(find.byKey(const ValueKey('quiz-result')), findsOneWidget);
+    // Which question was the wrong one?
+    final pool = <String>[];
+    m.data.quizzes.forEach((b, v) {
+      final qs = (v as Map)['questions'] as List;
+      for (var i = 0; i < qs.length; i++) {
+        if ('${qs[i]['q']}' == wrong) pool.add('$b|$i');
+      }
+    });
+    final misses = [for (final p in m.engine.missPool()) '${p.bankId}|${p.idx}'];
+    expect(misses, pool, reason: 'only the wrong answer is in the pool: the three right misses left, no padded question joined');
+    expect((m.engine.S['ledger'] as List), isEmpty, reason: 'the web drill chains nothing');
+  });
+
+  testWidgets('Drill with nothing taught shows nothing to drill', (tester) async {
+    final m = await model({});
+    await openLearn(tester, m);
+    await tool(tester, 'drill');
+    expect(find.byKey(const ValueKey('drill-empty')), findsOneWidget);
   });
 }

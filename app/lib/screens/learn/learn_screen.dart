@@ -17,6 +17,7 @@ import '../course/course_screen.dart';
 import '../quiz/quiz_screen.dart';
 import 'atlas_screen.dart';
 import 'diag_screen.dart';
+import 'recall_screen.dart';
 import 'problem_sheets.dart';
 
 enum _Tab { courses, due, exams, code, all }
@@ -69,6 +70,8 @@ class _LearnScreenState extends State<LearnScreen> {
       children: [
         for (final (id, icon, label, page) in [
           ('atlas', Icons.map_outlined, 'Atlas', const AtlasScreen()),
+          ('recall', Icons.psychology_alt_outlined, e.reviewsDue().isEmpty ? 'Recall' : 'Recall · ${e.reviewsDue().length}', const RecallScreen()),
+          ('drill', Icons.bolt_outlined, 'Drill', const QuizScreen.drill()),
         ])
           Semantics(
             identifier: 'learn-tool-$id',

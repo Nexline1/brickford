@@ -15,6 +15,7 @@ import '../../widgets/blocks.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../calendar/calendar_screen.dart';
+import '../learn/recall_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../monk/monk_screen.dart';
 import '../quiz/quiz_screen.dart';
@@ -62,6 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final doneN = real.where(e.schedDone).length;
     final owed = e.backlogCount();
     final next = e.nextAction();
+    final reviewsN = e.reviewsDue().length;
+    void openRecall() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RecallScreen()));
     final codes = <String>{for (final it in real) ?it.code}.toList();
     if (only != null && !codes.contains(only)) only = null;
 
@@ -211,9 +214,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               : next.opensLesson
               ? () => open(next.cid!, next.ui!, next.li!)
+              : next.kind == 'recall'
+              ? openRecall
               : null,
         ),
         SizedBox(height: 18.h),
+        // The daily review (app.js: "Recall due"): only while something is due.
+        if (reviewsN > 0) ...[
+          _ReviewRow(n: reviewsN, onPressed: openRecall),
+          SizedBox(height: 18.h),
+        ],
         for (final it in shown)
           if (it.pseudo)
             ItemBlock(
@@ -294,6 +304,43 @@ class _NextUp extends StatelessWidget {
           ),
           SizedBox(height: 14.h),
           PillButton(key: const ValueKey('home-next'), icon: icon, label: label, onPressed: onPressed),
+        ],
+      ),
+    );
+  }
+}
+
+/// "N due" with its one button into Recall; the web dashboard's "Recall due" row.
+class _ReviewRow extends StatelessWidget {
+  const _ReviewRow({required this.n, required this.onPressed});
+  final int n;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const ValueKey('home-review'),
+      padding: EdgeInsets.fromLTRB(12.w, 10.h, 10.w, 10.h),
+      decoration: BoxDecoration(color: Tokens.fieldFill, borderRadius: BorderRadius.circular(Tokens.radius)),
+      child: Row(
+        children: [
+          const LeadTile(icon: Icons.psychology_alt_outlined),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Semantics(
+              label: '$n lectures due for recall',
+              excludeSemantics: true,
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: '$n', style: body(20, weight: FontWeight.w800)),
+                    TextSpan(text: ' due', style: body(14.5, color: Tokens.ink2, weight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          PillButton(key: const ValueKey('home-review-go'), id: 'home-review-go', label: 'Recall', icon: Icons.arrow_forward_rounded, expand: false, onPressed: onPressed),
         ],
       ),
     );

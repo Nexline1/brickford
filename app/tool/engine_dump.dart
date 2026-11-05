@@ -361,6 +361,64 @@ Map<String, dynamic> learnDump(Map<String, dynamic> fx, BrickfordData data) {
       };
     }
   }
+
+  // ---- Recall: the lists, and the grading over the matrix ----
+  final R = L['recall'] as Map<String, dynamic>;
+  out['recall'] = {
+    for (final f in R['pages'] as List)
+      f['name'] as String: () {
+        final r = eng(f as Map<String, dynamic>).recallData();
+        return {
+          'due': [for (final it in r.due) [it.k, it.label.code, it.label.title, it.pill, it.crimson]],
+          'counts': r.dueN == 0 ? null : ['${r.dueN}', '${r.scheduled}'],
+          'nothing': r.dueN > 0 ? null : (r.scheduled > 0 ? '${r.scheduled} lecture${r.scheduled == 1 ? '' : 's'} scheduled ahead.' : 'Prove a lecture and it enters the rotation.'),
+          'next': [for (final it in r.next) [it.label.title, it.label.code, it.due.substring(5)]],
+        };
+      }(),
+  };
+  out['grades'] = [
+    for (final c in R['grades'] as List)
+      () {
+        final k = c['k'] as String;
+        final e = Engine(
+          data,
+          {'review': {if (c['rv'] != null) k: copy(c['rv'])}, 'lessons': {k: {'verified': true}}},
+          today: () => c['clock'] as String,
+        );
+        e.gradeRecall(k, c['grade'] as String, '2026-11-10T09:00:00.000Z');
+        return {
+          'rv': copy(e.review[k]),
+          'events': [for (final ev in e.S['ledger'] as List) [ev['type'], ev['ref'], copy(ev['data'])]],
+        };
+      }(),
+  ];
+
+  // ---- Drill: the candidates, and the properties of a pick over the same four seeds ----
+  out['drill'] = {
+    for (final f in L['drill'] as List)
+      f['name'] as String: () {
+        final e = eng(f as Map<String, dynamic>);
+        String key(BankQ p) => '${p.bankId}|${p.idx}';
+        final misses = [for (final p in e.drillMisses()) key(p)];
+        final unlocked = [for (final b in data.quizzes.keys) for (final i in e.unlockedIdx(b)) '$b|$i'];
+        return {
+          'misses': [...misses]..sort(),
+          'unlocked': [...unlocked]..sort(),
+          'picks': [
+            for (final n in [1, 2, 3, 4])
+              () {
+                final pick = [for (final p in e.drillPick(lcg(n))) key(p)];
+                return {
+                  'size': pick.length,
+                  'dups': pick.length - pick.toSet().length,
+                  'outside': pick.where((x) => !misses.contains(x) && !(misses.length < 5 && unlocked.contains(x))).length,
+                  'fromMiss': pick.where(misses.contains).length,
+                };
+              }(),
+          ],
+        };
+      }(),
+  };
   return out;
 }
 

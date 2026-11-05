@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../engine/learn.dart' show BankQ, ReviewEngine;
 import '../../engine/quiz.dart';
 import '../../state/app_model.dart';
 import '../../theme/theme.dart';
@@ -19,6 +20,11 @@ import '../lesson/lesson_screen.dart' show plain;
 class QuizScreen extends StatefulWidget {
   const QuizScreen.lecture(String this.k, {super.key, this.rand}) : bankId = null;
   const QuizScreen.bank(String this.bankId, {super.key, this.rand}) : k = null;
+
+  /// The Drill: ten questions drawn from what you have missed (padded from what you have been taught).
+  const QuizScreen.drill({super.key, this.rand})
+      : k = null,
+        bankId = null;
 
   final String? k, bankId;
 
@@ -40,6 +46,10 @@ class _QuizScreenState extends State<QuizScreen> {
   int shown = 0;
 
   bool get isLecture => widget.k != null;
+  bool get isDrill => widget.k == null && widget.bankId == null;
+
+  /// The drill's draw: where each question of the sitting came from (bank, index).
+  List<BankQ> drillPool = const [];
 
   @override
   void didChangeDependencies() {
@@ -55,6 +65,12 @@ class _QuizScreenState extends State<QuizScreen> {
     if (isLecture) {
       final checks = m.engine.lessonQuiz(widget.k!);
       if (checks != null) s = MasterySitting(checks, rand: widget.rand);
+    } else if (isDrill) {
+      final pool = m.engine.drillPick(widget.rand ?? randomSource());
+      if (pool.isNotEmpty) {
+        drillPool = pool;
+        s = BankSitting([for (final p in pool) ((m.data.quizzes[p.bankId] as Map)['questions'] as List)[p.idx]], pool.length, rand: widget.rand);
+      }
     } else {
       final u = m.engine.unlockedBank(widget.bankId!);
       if (u.questions.isNotEmpty) {
@@ -82,7 +98,11 @@ class _QuizScreenState extends State<QuizScreen> {
       if (x is MasterySitting) {
         m.passedQuiz(widget.k!, x.result!);
       } else if (x is BankSitting) {
-        m.sat(widget.bankId!, x, map);
+        if (isDrill) {
+          m.drilled(drillPool, x);
+        } else {
+          m.sat(widget.bankId!, x, map);
+        }
       }
     }
     setState(() {
@@ -123,6 +143,8 @@ class _QuizScreenState extends State<QuizScreen> {
                       height: 22,
                       child: CircularProgressIndicator(key: ValueKey('quiz-loading'), strokeWidth: 2.4, color: Tokens.accent),
                     )
+                  : isDrill
+                  ? const Icon(Icons.event_available, key: ValueKey('drill-empty'), size: 48, color: Tokens.quiet, semanticLabel: 'nothing to drill yet')
                   : const Icon(Icons.lock_outline, size: 40, color: Tokens.quiet, semanticLabel: 'nothing unlocked yet'),
             ),
           ],

@@ -13,6 +13,7 @@ import 'dates.dart';
 import 'engine.dart';
 import 'problems.dart' show stableSorted;
 import 'quiz.dart';
+import 'record.dart';
 
 Map<String, dynamic> _m(Object? v) => v is Map ? v.cast<String, dynamic>() : <String, dynamic>{};
 
@@ -233,5 +234,148 @@ extension LearnEngine on Engine {
           return (name: '${units[ui]['name']}', done: dn, total: ls.length);
         }(),
     ];
+  }
+}
+
+// ---------- spaced recall (app.js BOXES, scheduleReview, V.recall) ----------
+
+/// A verified lecture comes back on a widening schedule: days until the next check, by box.
+const BOXES = [2, 7, 21, 60, 120];
+
+typedef LessonLabel = ({String code, String cid, int ui, int li, String title});
+
+class RecallItem {
+  const RecallItem(this.k, this.label, this.box, this.lapses, this.due);
+  final String k;
+  final LessonLabel label;
+  final int box, lapses;
+  final String due;
+
+  /// The web pill: "interval 7d · 2 lapses".
+  String get pill => 'interval ${BOXES[box.clamp(0, BOXES.length - 1)]}d${lapses > 0 ? ' · $lapses lapse${lapses == 1 ? '' : 's'}' : ''}';
+  bool get crimson => lapses > 1;
+}
+
+class RecallData {
+  const RecallData({required this.dueN, required this.scheduled, required this.due, required this.next});
+
+  /// Everything due (the count), and every verified lecture in the rotation.
+  final int dueN, scheduled;
+
+  /// The first eight due, then up to six coming up (nearest first). Unknown keys are left out, as on the web.
+  final List<RecallItem> due, next;
+}
+
+typedef BankQ = ({String bankId, int idx});
+
+extension ReviewEngine on Engine {
+  Map<String, dynamic> get review => _m(S['review']);
+
+  /// app.js lessonLabel: a lecture key as its course code, place and title; null when it names no lecture.
+  LessonLabel? lessonLabel(String k) {
+    final parts = k.split('.');
+    if (parts.length != 3) return null;
+    final c = D.course(parts[0]);
+    final ui = int.tryParse(parts[1]), li = int.tryParse(parts[2]);
+    final units = (c?['units'] as List?) ?? const [];
+    if (c == null || ui == null || li == null || ui < 0 || ui >= units.length) return null;
+    final ls = units[ui]['lessons'] as List;
+    if (li < 0 || li >= ls.length) return null;
+    return (code: '${c['code']}', cid: parts[0], ui: ui, li: li, title: '${ls[li]['t']}');
+  }
+
+  /// app.js scheduleReview: box [box] (clamped), due BOXES[box] days from today, lapses kept.
+  void scheduleReview(String k, num? box) {
+    final b = math.max(0, math.min(BOXES.length - 1, (box == null || box.isNaN ? 0 : box).toInt()));
+    final prev = review[k] is Map ? _m(review[k]) : const <String, dynamic>{};
+    review[k] = {
+      'box': b,
+      'due': addDaysISO(todayISO(), BOXES[b]),
+      'last': todayISO(),
+      'lapses': truthy(prev['lapses']) ? prev['lapses'] : 0,
+    };
+  }
+
+  /// The recall grading (app.js [data-recall] handler): forgetting resets the interval and counts a lapse,
+  /// shaky holds the box, solid moves one box out. One `recall` event on the chain. False when [k] is not in the rotation.
+  bool gradeRecall(String k, String grade, String ts) {
+    final rv = review[k];
+    if (rv is! Map) return false;
+    final r = _m(rv);
+    final lapses = r['lapses'] is num ? (r['lapses'] as num).toInt() : 0;
+    final box = r['box'] is num ? (r['box'] as num).toInt() : 0;
+    if (grade == 'forgot') {
+      r['lapses'] = lapses + 1;
+      scheduleReview(k, 0);
+      review[k]['lapses'] = lapses + 1;
+    } else if (grade == 'shaky') {
+      scheduleReview(k, r['box'] is num ? r['box'] as num : null);
+      review[k]['lapses'] = lapses;
+    } else {
+      scheduleReview(k, box + 1);
+      review[k]['lapses'] = lapses;
+    }
+    logEvent('recall', k, {'grade': grade, 'box': review[k]['box']}, ts);
+    return true;
+  }
+
+  /// V.recall's lists: what is due now and what comes up next.
+  RecallData recallData() {
+    final today = todayISO();
+    final dueKeys = reviewsDue();
+    String dueOf(String k) => _m(review[k])['due'] is String ? _m(review[k])['due'] as String : '';
+    final all = review.keys.where((k) => truthy(_m(lessons[k])['verified'])).toList();
+    final nextKeys = stableSorted(all.where((k) => dueOf(k).isNotEmpty && dueOf(k).compareTo(today) > 0), (a, b) => dueOf(a).compareTo(dueOf(b))).take(6);
+    RecallItem? item(String k) {
+      final L = lessonLabel(k);
+      if (L == null) return null;
+      final rv = _m(review[k]);
+      return RecallItem(k, L, rv['box'] is num ? (rv['box'] as num).toInt() : 0, rv['lapses'] is num ? (rv['lapses'] as num).toInt() : 0, dueOf(k));
+    }
+
+    return RecallData(
+      dueN: dueKeys.length,
+      scheduled: all.length,
+      due: [for (final k in dueKeys.take(8)) ?item(k)],
+      next: [for (final k in nextKeys) ?item(k)],
+    );
+  }
+
+  // ---------- the Drill (app.js V.drill) ----------
+
+  /// The questions you have missed that are unlocked (a miss on a lecture not yet reached is not served).
+  List<BankQ> drillMisses() => [
+    for (final p in missPool())
+      if (questionUnlocked(p.bankId, _m(((D.quizzes[p.bankId] as Map)['questions'] as List)[p.idx]))) p,
+  ];
+
+  /// Ten of them at random; under five, padded from material already taught (every unlocked question of every
+  /// bank, never a course not yet opened) up to ten, with no question twice.
+  List<BankQ> drillPick(double Function() rand) {
+    final pool = shuffled(drillMisses(), rand).take(10).toList();
+    if (pool.length < 5) {
+      final have = {for (final p in pool) '${p.bankId}|${p.idx}'};
+      final all = shuffled<BankQ>([
+        for (final b in D.quizzes.keys)
+          for (final i in unlockedIdx(b)) (bankId: b, idx: i),
+      ], rand);
+      for (final p in all) {
+        if (pool.length >= 10) break;
+        if (have.add('${p.bankId}|${p.idx}')) pool.add(p);
+      }
+    }
+    return pool;
+  }
+
+  /// A finished drill: right answers leave the miss pool, wrong ones stay in it (updateMisses per bank).
+  void recordDrill(List<BankQ> pool, BankSitting s) {
+    final byBank = <String, ({List<int> m, List<int> c})>{};
+    for (final j in s.missedBank) {
+      byBank.putIfAbsent(pool[j].bankId, () => (m: <int>[], c: <int>[])).m.add(pool[j].idx);
+    }
+    for (final j in s.correctBank) {
+      byBank.putIfAbsent(pool[j].bankId, () => (m: <int>[], c: <int>[])).c.add(pool[j].idx);
+    }
+    byBank.forEach((b, v) => updateMisses(b, v.m, v.c));
   }
 }

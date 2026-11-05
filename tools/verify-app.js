@@ -67,8 +67,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -780,11 +780,96 @@ function learnFixtures(plan) {
     { name: "phase 2, gates 1 and 2 passed", clock: plan.d300, state: st({ lessons: late, gates: { 1: g("2026-12-20"), 2: g("2027-03-15") }, studyDays: ["2027-06-01"] }) },
     { name: "every gate passed (object, legacy date, legacy true)", clock: "2029-05-01", state: st({ gates: { 1: g("2026-12-20"), 2: "2027-03-15", 3: true, 4: g("2028-01-10"), 5: g("2029-04-20") } }) },
   ];
-  return { atlas, courseFixtures: [3, 4, 5] };
+  // Recall: V.recall rendered (due, counts, coming up) and the grading handler lifted, over a matrix.
+  const k = i => plan.keys[i], KS = Array.from({ length: 22 }, (_, i) => k(i * 3));
+  const rv = (box, due, lapses, last) => Object.assign({ box, due, last: last || "2026-10-30" }, lapses === undefined ? {} : { lapses });
+  const verifiedL = keys => Object.fromEntries(keys.map(x => [x, { done: true, doneAt: "2026-10-20", notes: "", checks: [], verified: true, verifiedAt: "2026-10-21" }]));
+  const review = {
+    [KS[0]]: rv(0, "2026-11-01", 0), [KS[1]]: rv(1, "2026-11-10", 1), [KS[2]]: rv(2, "2026-11-10", 2), [KS[3]]: rv(3, "2026-11-05", 0), [KS[4]]: rv(4, "2026-11-02", 3),
+    [KS[5]]: rv(0, "2026-10-28", 1), [KS[6]]: rv(1, "2026-10-29"), [KS[7]]: rv(2, "2026-10-30", 0), [KS[8]]: rv(3, "2026-11-04", 1), [KS[9]]: rv(0, "2026-11-09", 0),
+    "ghost.9.9": rv(0, "2026-10-25", 0),
+    [KS[10]]: rv(1, "2026-11-11", 0), [KS[11]]: rv(2, "2026-11-12", 1), [KS[12]]: rv(3, "2026-11-15", 0), [KS[13]]: rv(0, "2026-11-12", 2), [KS[14]]: rv(4, "2026-12-01", 0),
+    [KS[15]]: rv(1, "2026-11-20", 0), [KS[16]]: rv(2, "2026-11-30", 0), [KS[17]]: rv(0, "2026-11-13", 0), [KS[18]]: rv(1, "2026-12-15", 0),
+    [KS[19]]: rv(0, "2026-11-01", 0), [KS[20]]: rv(0, "2026-11-01", 0),
+  };
+  const lessonsR = Object.assign(verifiedL(KS.slice(0, 19).concat(["ghost.9.9"])), { [KS[19]]: { done: true, doneAt: "2026-10-20", notes: "", checks: [] } });   // KS[19] watched, not proven; KS[20] has no lecture state
+  const many = st({ lessons: lessonsR, review });
+  const future = st({ lessons: verifiedL([KS[0]]), review: { [KS[0]]: rv(1, "2026-11-20", 0) } });
+  const recall = {
+    pages: [
+      { name: "many due: ties, a ghost key, more than eight, nine ahead", clock: "2026-11-10", state: many },
+      { name: "fewer due on an earlier day", clock: "2026-11-06", state: many },
+      { name: "nothing due, scheduled ahead", clock: "2026-10-01", state: many },
+      { name: "nothing due, one scheduled", clock: "2026-11-10", state: future },
+      { name: "no reviews at all", clock: "2026-11-10", state: st({ lessons: verifiedL([KS[0]]) }) },
+    ],
+    grades: [],
+  };
+  for (const clock of ["2026-11-10", "2028-02-27", "2026-12-30"]) for (const box of [0, 1, 2, 3, 4, 9, undefined]) for (const lapses of [undefined, 0, 1, 3])
+    for (const grade of ["forgot", "shaky", "solid"]) recall.grades.push({ clock, k: KS[1], rv: Object.assign({ due: "2026-11-01", last: "2026-10-28" }, box === undefined ? {} : { box }, lapses === undefined ? {} : { lapses }), grade });
+  for (const grade of ["forgot", "shaky", "solid"]) recall.grades.push({ clock: "2026-11-10", k: KS[1], rv: null, grade });
+
+  // Drill: the pick, over states that reach the pad rule (under five), exactly five, the cap of ten, a locked miss, stray indices.
+  const banks = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "quizzes.json"), "utf8"));
+  const LA = banks["linear-algebra"].questions, afters = [...new Set(LA.map(q => q.after))];
+  const watched = afters.slice(0, 6), unlockedLA = LA.map((q, i) => watched.includes(q.after) ? i : -1).filter(i => i >= 0), lockedLA = LA.map((q, i) => watched.includes(q.after) ? -1 : i).filter(i => i >= 0);
+  const watchedL = Object.assign(Object.fromEntries(watched.map(x => [x, { done: true, doneAt: "2026-10-20", notes: "", checks: [] }])), { [F.math120[0]]: { done: true, doneAt: "2026-10-20", notes: "", checks: [] } });
+  const upTo = n => Array.from({ length: n }, (_, i) => i);
+  const dr = (name, misses, lessons) => ({ name, clock: "2026-11-04", state: st({ lessons: lessons || watchedL, quizMisses: misses }) });
+  const drill = [
+    dr("nothing watched, no misses", {}, {}),
+    dr("a miss in a course not started", { calculus: [0, 1, 2] }, {}),
+    dr("three misses, padded to ten from what is taught", { calculus: [0, 1, 2] }),
+    dr("four misses, padded", { calculus: upTo(4) }),
+    dr("five misses, not padded", { calculus: upTo(5) }),
+    dr("six misses", { calculus: upTo(6) }),
+    dr("ten misses", { calculus: upTo(10) }),
+    dr("thirteen misses across two banks, capped at ten", { calculus: upTo(8), "linear-algebra": unlockedLA.slice(0, 5) }),
+    dr("only locked misses: padded, never from a lecture not reached", { "linear-algebra": lockedLA.slice(0, 4) }),
+    dr("stray indices and an unknown bank are skipped", { calculus: [0, 1, 999, -1, "x"], nope: [1], "linear-algebra": [lockedLA[0]] }),
+    dr("one lecture watched, one miss", { "linear-algebra": [unlockedLA[0]] }, { [afters[0]]: { done: true, doneAt: "2026-10-20", notes: "", checks: [] } }),
+  ];
+  return { atlas, courseFixtures: [3, 4, 5], recall, drill };
 }
 
+// The recall grading handler and V.drill's pick, lifted out of app.js's own text (marker to marker), so what
+// runs here is app.js's code with a scripted clock and a seeded Math.random, never a copy written for the test.
+function jsRecall() {
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const a = src.indexOf('$$("[data-recall]", root).forEach(btn => {'), b = src.indexOf("// heatmap day -> that day in the calendar", a);
+  if (a < 0 || b < 0) throw new Error("jsRecall: the recall handler not found in app.js");
+  const ctx = { __today: "", __events: [], S: null };
+  vm.createContext(ctx);
+  vm.runInContext("const todayISO = () => __today; const logEvent = (t, r, d) => __events.push([t, r, d]); const save = () => {}; const render = () => {}; const toast = () => {};\n" +
+    vmExtract(["pad2", "addDaysISO", "BOXES", "scheduleReview"]) +
+    "\nthis.__f = { run: (today, k, rv, grade) => { __today = today; __events.length = 0; S = { review: rv ? { [k]: JSON.parse(JSON.stringify(rv)) } : {} }; let h; const root = null;\n" +
+    "const $$ = () => [{ set onclick(f) { h = f; }, dataset: { k, recall: grade } }];\n" + src.slice(a, b) +
+    "\nh(); return { rv: S.review[k] || null, events: JSON.parse(JSON.stringify(__events)) }; } };", ctx);
+  return ctx.__f;
+}
+function jsDrill(courses, banks) {
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const a = src.indexOf("let pool = missPool()"), b = src.indexOf("if (!pool.length) {", a);
+  if (a < 0 || b < 0) throw new Error("jsDrill: the pick not found in V.drill");
+  const ctx = { D: { COURSES: courses, QUIZZES: banks }, S: null };
+  vm.createContext(ctx);
+  vm.runInContext(vmExtract(["lessonKey", "courseLessonStats", "dsaCount", "missPool", "questionUnlocked", "unlockedIdx"]) +
+    "\nthis.__f = { setS: s => { S = s; }, seed: n => { let st = n; Math.random = () => { st = (st * 1664525 + 1013904223) % 4294967296; return st / 4294967296; }; }," +
+    " pick: () => { " + src.slice(a, b) + "\nreturn pool.map(p => p.bankId + '|' + p.idx); }," +
+    " misses: () => missPool().filter(p => questionUnlocked(p.bankId, D.QUIZZES[p.bankId].questions[p.idx])).map(p => p.bankId + '|' + p.idx)," +
+    " unlocked: () => Object.keys(D.QUIZZES).flatMap(b => unlockedIdx(b).map(i => b + '|' + i)) };", ctx);
+  return ctx.__f;
+}
+// What a pick must be, whatever the shuffle: its size, whether it repeats a question, how many are neither a miss
+// nor (when padded) taught, and how many are misses. The draw itself is random, so the properties are what is compared.
+const pickProps = (pick, misses, unlocked) => ({
+  size: pick.length, dups: pick.length - new Set(pick).size,
+  outside: pick.filter(x => !misses.includes(x) && !(misses.length < 5 && unlocked.includes(x))).length, fromMiss: pick.filter(x => misses.includes(x)).length,
+});
+const DRILL_SEEDS = [1, 2, 3, 4];
+
 async function runLearnJS(browser, fx) {
-  const out = { errors: [], atlas: {}, units: {} };
+  const out = { errors: [], atlas: {}, units: {}, recall: {}, grades: [], drill: {} };
   const L = fx.learn;
   const readAtlas = () => {
     const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : null; };
@@ -815,6 +900,34 @@ async function runLearnJS(browser, fx) {
       out.units[f.name] = units;
     }
     out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  // Recall: the rendered page, then the grading handler over the matrix
+  const readRecall = () => {
+    const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : null; };
+    const cards = [...document.querySelectorAll("[data-recall=solid]")].map(b => {
+      const head = b.closest(".card").firstElementChild, id = head.firstElementChild, pill = head.querySelector(".pill");
+      return [b.dataset.k, id.children[0].textContent.trim(), id.children[1].textContent.trim(), pill.textContent.trim(), pill.classList.contains("crimson")];
+    });
+    const counts = [...document.querySelectorAll(".onecounts b")].map(e => e.textContent.trim());
+    const vt = document.querySelector(".vtext");
+    return { due: cards, counts: counts.length ? counts : null, nothing: vt ? vt.children[1].textContent.trim() : null,
+      next: [...document.querySelectorAll(".glist .grow")].map(r => [t(r, ".g-t"), t(r, ".g-s"), t(r, ".g-v")]) };
+  };
+  for (const f of L.recall.pages) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/recall"; });
+    await p.waitForFunction(() => document.querySelector(".onecounts, .vtext"), null, { timeout: 15000 });
+    out.recall[f.name] = await p.evaluate(readRecall);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  const R = jsRecall();
+  out.grades = L.recall.grades.map(c => R.run(c.clock, c.k, c.rv, c.grade));
+  // Drill: the lifted pick over seeds; the candidates it draws from, from the lifted missPool and unlockedIdx
+  const D = jsDrill(JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")), JSON.parse(fs.readFileSync(path.join(exporter.OUT, "quizzes.json"), "utf8")));
+  for (const f of L.drill) {
+    D.setS(JSON.parse(JSON.stringify(f.state)));
+    const misses = D.misses(), unlocked = D.unlocked();
+    out.drill[f.name] = { misses: misses.slice().sort(), unlocked: unlocked.slice().sort(), picks: DRILL_SEEDS.map(n => { D.seed(n); return pickProps(D.pick(), misses, unlocked); }) };
   }
   return out;
 }
@@ -954,6 +1067,8 @@ function diff(a, b, at, out, label) {
     "seal-guard": ["lib/engine/record.dart", "return ge(t, revisionWeek(revisionWeekOf(t)).sun);", "return ge(t, revisionWeek(revisionWeekOf(t)).from);"],   // the seal opens on the week's first day, not its Sunday
     "treasury-sum": ["lib/engine/record.dart", "(a, e) => a + (e is Map ? jsOr0(e['amount']) : 0))", "(a, e) => a + (e is Map ? jsOr0(e['amount']).floorToDouble() : 0))"],   // every payment loses its cents
     "atlas-count": ["lib/engine/learn.dart", "tracker ? dsaCount() : st!.verified,", "tracker ? dsaCount() : st!.done,"],   // a tile counts the lectures watched as proven
+    "recall-interval": ["lib/engine/learn.dart", "const BOXES = [2, 7, 21, 60, 120];", "const BOXES = [2, 7, 14, 60, 120];"],   // the third box comes back after 14 days, not 21
+    "drill-pick": ["lib/engine/learn.dart", "if (pool.length < 5) {", "if (pool.length < 6) {"],   // a drill of exactly five misses is padded to ten
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1214,6 +1329,9 @@ function diff(a, b, at, out, label) {
       const dl = dart.learn || {}, idx = (at, i) => i, one = (name, a, b) => { const out = []; diff(a, b, [], out, idx); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
       for (const f of fx.learn.atlas) one("parity: Atlas — " + f.name + " (" + jl.atlas[f.name].tiles.length + " running, " + jl.atlas[f.name].laterN + " later; route, next gate, fill, tiles' proven counts and mastery)", jl.atlas[f.name], dl.atlas && dl.atlas[f.name]);
       for (const name of Object.keys(jl.units)) one("parity: unit counts on every course page — " + name + " (" + Object.values(jl.units[name]).reduce((a, u) => a + u.length, 0) + " units)", jl.units[name], dl.units && dl.units[name]);
+      for (const f of fx.learn.recall.pages) one("parity: Recall — " + f.name + " (" + jl.recall[f.name].due.length + " cards, " + jl.recall[f.name].next.length + " coming up; due order, the interval pill, the eight and six caps)", jl.recall[f.name], dl.recall && dl.recall[f.name]);
+      one("parity: grading a recall (forgot, shaky, solid) — S.review and the recall event on " + fx.learn.recall.grades.length + " cases: boxes 0-4, 9 and none, lapses none/0/1/3, three clocks across a leap day and a year end, and a lecture not in the rotation", jl.grades, dl.grades);
+      for (const f of fx.learn.drill) one("parity: Drill — " + f.name + " (" + jl.drill[f.name].misses.length + " unlocked misses, " + jl.drill[f.name].unlocked.length + " unlocked in all; pick size " + jl.drill[f.name].picks[0].size + ")", jl.drill[f.name], dl.drill && dl.drill[f.name]);
       // Reach: the fixtures must hit what the plants break.
       const A = jl.atlas, pv = A["proven and watched lectures, gate 1 passed, exams, DSA"], all = A["every gate passed (object, legacy date, legacy true)"];
       check("the Atlas fixtures reach a passed gate, all gates passed, a pre-start pin, proven below watched (a count that differs), a best exam in the mastery, DSA on the tracker, and later chips with +N",
@@ -1221,6 +1339,19 @@ function diff(a, b, at, out, label) {
         pv.tiles.some(t => t[3] === "3 of 150 problems") && pv.tiles.some(t => t[4] !== "0%") && pv.more.startsWith("+") && A["worked ahead"].tiles.length >= pv.tiles.length &&
         Object.values(jl.units).every(u => Object.values(u).some(x => x.some(y => y[1].split("/")[0] !== "0"))),
         pv.tiles.map(t => t[0] + " " + t[3] + " " + t[4]).join("; "));
+      const rp = jl.recall["many due: ties, a ghost key, more than eight, nine ahead"], gr = jl.grades, dsz = n => jl.drill[n].picks[0].size;
+      check("the Recall fixtures reach a tie on the due date, a crimson pill (two lapses), the eight-card cap with a key that names no lecture, six coming up of nine, nothing due and its two messages, and every box and grade",
+        rp.counts[0] === "11" && rp.due.length === 7 && rp.due.some(c => c[4]) && rp.next.length === 6 && rp.due.filter(c => c[3].startsWith("interval 7d") || c[3].startsWith("interval 21d")).length >= 2 &&
+        jl.recall["nothing due, scheduled ahead"].nothing.endsWith("scheduled ahead.") && jl.recall["nothing due, one scheduled"].nothing === "1 lecture scheduled ahead." &&
+        jl.recall["no reviews at all"].nothing.startsWith("Prove a lecture") && new Set(gr.map(g => g.rv && g.rv.box)).size >= 5 && gr.some(g => g.rv === null && g.events.length === 0) &&
+        gr.some(g => g.rv && g.rv.due === "2028-02-29") && gr.some(g => g.rv && g.rv.lapses === 4),
+        rp.counts.join("/") + " due/scheduled; " + rp.due.length + " cards");
+      check("the Drill fixtures reach nothing to drill, a locked miss, three and four misses padded to ten, five not padded, the cap of ten, and a padded pick that excludes lectures not reached",
+        dsz("nothing watched, no misses") === 0 && jl.drill["a miss in a course not started"].misses.length === 0 && dsz("three misses, padded to ten from what is taught") === 10 &&
+        dsz("four misses, padded") === 10 && dsz("five misses, not padded") === 5 && dsz("six misses") === 6 && dsz("ten misses") === 10 && dsz("thirteen misses across two banks, capped at ten") === 10 &&
+        jl.drill["only locked misses: padded, never from a lecture not reached"].misses.length === 0 && dsz("only locked misses: padded, never from a lecture not reached") === 10 &&
+        dsz("one lecture watched, one miss") < 10 && jl.drill["stray indices and an unknown bank are skipped"].misses.length >= 2,
+        fx.learn.drill.map(f => dsz(f.name)).join("/"));
     }
   } finally {
     await browser.close();

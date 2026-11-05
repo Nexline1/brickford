@@ -160,3 +160,4 @@
     - CLAUDE.md gate lines for verify-app, verify-boot and shoot-app (owner's OK).
     - The reference screenshot says the owner sees blank on iPhone; waiting for their retry with the new build.
     - Stage 3: Monk Mode.
+- 2026-11-05: T-064 stage 3 (GitHub sync + Monk Mode) merged as PR #34 (main 13bca66), by builder (sonnet), no separate review (owner's tokens). Independent: analyze clean, 33 tests, verify-app 76/76, verify-boot, no diff in platform/ sw.js CLAUDE.md, secret scan clean. Sync only ever ran against a fake GitHub: the first real push is the owner's. Next stage 4: quizzes + Problems/Exams (then Week/Record/Proof/Treasury; Atlas/Practice/Recall/Drill/Electives/guide/transcript + offline).

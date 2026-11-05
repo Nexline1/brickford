@@ -1,8 +1,6 @@
 // The four tabs: Home, Learn, Build, Profile, under a floating frosted
 // bar (icon + tiny label per tab, a soft pill behind the selected one) with a
 // separate round search button beside it.
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -83,38 +81,32 @@ class BrickfordBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Tokens.barHeight / 2),
-        boxShadow: const [BoxShadow(color: Color(0x29000000), blurRadius: 24, offset: Offset(0, 8))],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(Tokens.barHeight / 2),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            height: Tokens.barHeight,
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Tokens.frost,
-              borderRadius: BorderRadius.circular(Tokens.barHeight / 2),
-              border: Border.all(color: Tokens.hairline),
-            ),
-            child: Row(
-              children: [
-                for (var i = 0; i < tabs.length; i++)
-                  Expanded(
-                    child: BarTab(
-                      key: ValueKey('tab-${tabs[i].$3}'),
-                      icon: i == index ? tabs[i].$2 : tabs[i].$1,
-                      label: tabs[i].$3,
-                      selected: i == index,
-                      onTap: () => onSelect(i),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+    // No live blur (a BackdropFilter re-samples and re-blurs everything under it on every frame the sheet
+    // scrolls, which is what made the phone lag): the 90% white fill and the hairline carry the frosted
+    // look, a small shadow floats it, and the RepaintBoundary paints the bar once and only composites it.
+    return RepaintBoundary(
+      child: Container(
+        height: Tokens.barHeight,
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Tokens.frost,
+          borderRadius: BorderRadius.circular(Tokens.barHeight / 2),
+          border: Border.all(color: Tokens.hairline),
+          boxShadow: const [BoxShadow(color: Color(0x24000000), blurRadius: 12, offset: Offset(0, 4))],
+        ),
+        child: Row(
+          children: [
+            for (var i = 0; i < tabs.length; i++)
+              Expanded(
+                child: BarTab(
+                  key: ValueKey('tab-${tabs[i].$3}'),
+                  icon: i == index ? tabs[i].$2 : tabs[i].$1,
+                  label: tabs[i].$3,
+                  selected: i == index,
+                  onTap: () => onSelect(i),
+                ),
+              ),
+          ],
         ),
       ),
     );

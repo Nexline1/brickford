@@ -3,7 +3,6 @@
 // dark lecture card, the lesson glyph, the persistent badge (§5, Rhythm), a
 // stat on the canvas, a progress bar, and the video thumbnail with its
 // fallback tile.
-import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,21 +41,18 @@ class FrostButton extends StatelessWidget {
       identifier: id,
       child: Tooltip(
         message: tooltip,
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Material(
-              color: fill,
-              shape: CircleBorder(side: BorderSide(color: dark ? Colors.white24 : Tokens.hairline)),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: onPressed,
-                child: SizedBox(
-                  width: size,
-                  height: size,
-                  child: Icon(icon, size: size * 0.42, color: fg, semanticLabel: tooltip),
-                ),
-              ),
+        // No live blur: the translucent fill and the hairline are the frosted look, and a
+        // BackdropFilter would re-blur what is under it on every scrolled frame.
+        child: Material(
+          color: fill,
+          shape: CircleBorder(side: BorderSide(color: dark ? Colors.white24 : Tokens.hairline)),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onPressed,
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: Icon(icon, size: size * 0.42, color: fg, semanticLabel: tooltip),
             ),
           ),
         ),

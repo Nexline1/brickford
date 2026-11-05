@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'shell.dart';
 import 'state/app_model.dart';
+import 'state/sync.dart';
 import 'theme/theme.dart';
 import 'theme/tokens.dart';
 import 'widgets/crest.dart';
@@ -71,11 +72,14 @@ class BrickfordApp extends StatelessWidget {
             data: mq.copyWith(size: Size(w, mq.size.height)),
             child: AppScope(
               model: model,
-              child: ScreenUtilInit(
-                designSize: const Size(375, 812),
-                minTextAdapt: true,
-                builder: (context, _) =>
-                    MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
+              child: _SyncHooks(
+                sync: model.sync,
+                child: ScreenUtilInit(
+                  designSize: const Size(375, 812),
+                  minTextAdapt: true,
+                  builder: (context, _) =>
+                      MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
+                ),
               ),
             ),
           ),
@@ -83,4 +87,45 @@ class BrickfordApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The sync's boot pull and its foreground / background hooks (app.js: boot,
+/// visibilitychange, pagehide). The page being read is not touched: the sync
+/// reports on its own notifier.
+class _SyncHooks extends StatefulWidget {
+  const _SyncHooks({required this.sync, required this.child});
+  final SyncService sync;
+  final Widget child;
+  @override
+  State<_SyncHooks> createState() => _SyncHooksState();
+}
+
+class _SyncHooksState extends State<_SyncHooks> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    widget.sync.boot();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        widget.sync.onVisible();
+      case AppLifecycleState.hidden || AppLifecycleState.paused || AppLifecycleState.detached:
+        widget.sync.onHidden();
+      case AppLifecycleState.inactive:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

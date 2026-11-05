@@ -15,6 +15,10 @@ import 'dart:io';
 
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/engine.dart';
+// ignore: avoid_relative_lib_imports
+import '../lib/engine/merge.dart';
+// ignore: avoid_relative_lib_imports
+import '../lib/engine/monk.dart';
 
 String schedKey(List<SchedItem> items) => items
     .map((it) => '${it.track}:${it.key}${it.dayN != null || it.spanN != null ? '@${it.dayN}/${it.spanN}' : ''}')
@@ -28,8 +32,10 @@ void main(List<String> args) {
   final dates = (fx['dates'] as List).cast<String>();
   final out = <String, dynamic>{};
 
+  final heavy = fx['light'] != true; // a light plant (merge, monk) skips the plan, fixtures and calendar
+
   // ---- the plan itself: no state, no clock dependence ----
-  {
+  if (heavy) {
     final e = Engine(data, null, today: () => fx['planClock'] as String);
     out['plan'] = {
       'START_DATE': e.START_DATE,
@@ -61,7 +67,7 @@ void main(List<String> args) {
 
   // ---- each fixture: its own state and clock ----
   final fixtures = <String, dynamic>{};
-  for (final f in fx['fixtures'] as List) {
+  for (final f in heavy ? fx['fixtures'] as List : const []) {
     final name = f['name'] as String;
     final state = (jsonDecode(jsonEncode(f['state'])) as Map?)?.cast<String, dynamic>();
     var now = f['clock'] as String;
@@ -95,7 +101,7 @@ void main(List<String> args) {
   final cal = fx['calendar'] as Map<String, dynamic>;
   final calDates = (cal['dates'] as List).cast<String>();
   final calendar = <String, dynamic>{};
-  for (final f in fx['fixtures'] as List) {
+  for (final f in heavy ? fx['fixtures'] as List : const []) {
     for (final clock in (cal['clocks'] as List).cast<String>()) {
       final state = (jsonDecode(jsonEncode(f['state'])) as Map?)?.cast<String, dynamic>();
       final e = Engine(data, state, today: () => clock);
@@ -107,5 +113,64 @@ void main(List<String> args) {
     }
   }
   out['calendar'] = calendar;
+
+  // ---- sync (T-064 stage 3): mergeState over each fixture, and the payload ----
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  dynamic strip(Object? v) => v is Map
+      ? {for (final en in v.entries) if (en.value != null) en.key: strip(en.value)}
+      : v is List
+      ? [for (final x in v) strip(x)]
+      : v;
+  Map<String, dynamic> project(Engine e) => {
+    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk'])
+      k: e.S[k],
+    'streakFrom': e.settings['streakFrom'],
+  };
+  out['merge'] = {
+    for (final f in fx['merge'] as List)
+      f['name'] as String: () {
+        final e = Engine(data, copy(f['local']) as Map<String, dynamic>, today: () => fx['planClock'] as String);
+        final n = mergeState(e, copy(f['remote']));
+        return {'changed': n, 'state': strip(copy(project(e)))};
+      }(),
+  };
+  out['payload'] = {
+    for (final f in fx['payload'] as List)
+      f['name'] as String: () {
+        final e = Engine(data, copy(f['local']) as Map<String, dynamic>, today: () => fx['planClock'] as String);
+        final p = copy(syncPayload(e)) as Map<String, dynamic>..remove('updatedAt');
+        return strip(p);
+      }(),
+  };
+
+  // ---- Monk Mode (T-064 stage 3): prayer times, the day plan, sums and focus ----
+  final mk = fx['monk'] as Map<String, dynamic>;
+  final monkDays = (mk['days'] as Map).cast<String, dynamic>();
+  out['monk'] = {
+    'times': {
+      for (final d in (mk['dates'] as List).cast<String>())
+        d: () {
+          final t = monkPrayerTimes(d);
+          return {'raw': t, 'hhmm': {for (final en in t.entries) en.key: mkHHMM(en.value)}};
+        }(),
+    },
+    'plan': {
+      for (final d in (mk['dates'] as List).cast<String>())
+        d: [for (final ev in monkPlanFor(d)) '${mkHHMM(ev.start)}-${mkHHMM(ev.end)} ${ev.kind} ${ev.title}'],
+    },
+    'slots': [for (final s in Engine.monkSlots()) '${s.k}|${s.label}|${s.at}|${s.mins}'],
+    'sums': {
+      for (final d in (mk['sumDates'] as List).cast<String>())
+        d: {'week': monkWeekSums(monkDays, d), 'month': monkMonthSums(monkDays, d), 'weekStart': monkWeekStart(d)},
+    },
+    'focus': {
+      for (final d in (mk['focusDates'] as List).cast<String>())
+        d: () {
+          final f = monkFocus(monkDays, d);
+          return f == null ? null : {'days': f.days, 'key': f.key, 'label': f.label, 'rate': f.rate, 'fix': f.fix};
+        }(),
+    },
+    'phoneOk': [for (final d in (mk['phones'] as List)) mkPhoneOk(d == null ? <String, dynamic>{} : (d as Map).cast<String, dynamic>())],
+  };
   stdout.write(jsonEncode(out));
 }

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../state/app_model.dart';
+import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../course/course_screen.dart';
+import 'sync_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -36,6 +38,20 @@ class ProfileScreen extends StatelessWidget {
       tabbed: true,
       header: header,
       children: [
+        ListenableBuilder(
+          listenable: m.sync,
+          builder: (context, _) {
+            final look = syncLook(m.sync.status);
+            return ItemBlock(
+              key: const ValueKey('profile-sync'),
+              id: 'profile-sync',
+              leading: LeadTile(icon: look.icon, color: Tokens.card, fg: look.onDark),
+              subtitle: syncSub(m.sync),
+              title: look.word,
+              onTap: () => openSync(context),
+            );
+          },
+        ),
         for (final c in m.data.courses)
           if (((c['units'] as List?) ?? const []).isNotEmpty)
             () {

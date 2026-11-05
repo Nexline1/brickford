@@ -149,7 +149,7 @@ class LeadTile extends StatelessWidget {
 }
 
 class ItemBlock extends StatelessWidget {
-  const ItemBlock({super.key, this.leading, required this.title, this.subtitle, this.meta, this.onTap, this.below});
+  const ItemBlock({super.key, this.leading, required this.title, this.subtitle, this.meta, this.onTap, this.below, this.id});
 
   final Widget? leading;
   final String title;
@@ -158,11 +158,16 @@ class ItemBlock extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? below;
 
+  /// The semantics identifier (what a browser harness finds it by).
+  final String? id;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
-      child: Material(
+      child: Semantics(
+        identifier: id,
+        child: Material(
         color: Tokens.fieldFill,
         borderRadius: BorderRadius.circular(Tokens.radius),
         child: InkWell(
@@ -212,6 +217,7 @@ class ItemBlock extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }
@@ -390,14 +396,17 @@ class LectureCard extends StatelessWidget {
 }
 
 /// A persistent badge on the canvas (§5, Rhythm): raised midnight, a gold hairline and a gold icon.
+/// With [onTap] it is a button: the badge stays 36 high and its hit area is 44.
 class RhythmBadge extends StatelessWidget {
-  const RhythmBadge({super.key, required this.icon, required this.label});
+  const RhythmBadge({super.key, required this.icon, required this.label, this.onTap, this.id});
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
+  final String? id;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final badge = Container(
       height: 36,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
@@ -416,6 +425,14 @@ class RhythmBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+    if (onTap == null) return badge;
+    return Semantics(
+      identifier: id,
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: SizedBox(height: 44, child: Center(child: badge))),
     );
   }
 }

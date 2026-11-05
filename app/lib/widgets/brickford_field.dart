@@ -7,13 +7,25 @@ import '../theme/theme.dart';
 import '../theme/tokens.dart';
 
 class BrickfordField extends StatelessWidget {
-  const BrickfordField({super.key, required this.icon, this.hint, this.controller, this.onChanged, this.autofocus = false});
+  const BrickfordField({
+    super.key,
+    required this.icon,
+    this.hint,
+    this.controller,
+    this.onChanged,
+    this.onSubmitted,
+    this.autofocus = false,
+    this.obscure = false,
+  });
 
   final IconData icon;
   final String? hint;
   final TextEditingController? controller;
-  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onChanged, onSubmitted;
   final bool autofocus;
+
+  /// A secret: dots, no suggestions, no autocorrect.
+  final bool obscure;
 
   static const _none = OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(Tokens.radius)), borderSide: BorderSide.none);
 
@@ -22,7 +34,11 @@ class BrickfordField extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
       autofocus: autofocus,
+      obscureText: obscure,
+      enableSuggestions: !obscure,
+      autocorrect: !obscure,
       style: body(15),
       decoration: InputDecoration(
         filled: true,

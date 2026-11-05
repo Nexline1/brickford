@@ -14,6 +14,7 @@ import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../calendar/calendar_screen.dart';
 import '../lesson/lesson_screen.dart';
+import '../monk/monk_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -134,7 +135,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return SheetScaffold(
       tabbed: true,
       trailing: monk != null
-          ? RhythmBadge(key: const ValueKey('home-monk'), icon: Icons.self_improvement, label: 'Day $monk / ${Engine.MONK.days}')
+          ? RhythmBadge(
+              key: const ValueKey('home-monk'),
+              id: 'home-monk',
+              icon: Icons.self_improvement,
+              label: 'Day $monk / ${Engine.MONK.days}',
+              onTap: () => openMonk(context),
+            )
           : null,
       header: header,
       children: [
@@ -148,6 +155,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icons.calendar_month_outlined,
                 selected: false,
                 onTap: () => openCalendar(context),
+              ),
+            ),
+            Semantics(
+              identifier: 'chip-monk',
+              child: BrickChip(
+                key: const ValueKey('chip-monk'),
+                label: 'Monk',
+                icon: Icons.self_improvement,
+                selected: false,
+                onTap: () => openMonk(context),
               ),
             ),
             if (codes.length > 1) ...[

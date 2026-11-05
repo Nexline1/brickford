@@ -19,10 +19,167 @@ import '../lib/engine/engine.dart';
 import '../lib/engine/merge.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/monk.dart';
+// ignore: avoid_relative_lib_imports
+import '../lib/engine/problems.dart';
+// ignore: avoid_relative_lib_imports
+import '../lib/engine/quiz.dart';
 
 String schedKey(List<SchedItem> items) => items
     .map((it) => '${it.track}:${it.key}${it.dayN != null || it.spanN != null ? '@${it.dayN}/${it.spanN}' : ''}')
     .join(' ');
+
+/// The seeded random both sides use for the sitting traces: Math.random replaced by this in the page.
+double Function() lcg(int seed) {
+  var s = seed;
+  return () {
+    s = (s * 1664525 + 1013904223) % 4294967296;
+    return s / 4294967296;
+  };
+}
+
+/// One scripted sitting (mirrored by driveSitting in verify-app.js): the same
+/// answer policy, so the two traces list the same questions, option orders and outcomes.
+Map<String, dynamic> runSitting(Map<String, dynamic> f, BrickfordData data, String dir) {
+  final mastery = f['mode'] == 'mastery';
+  List<dynamic> qs;
+  if (f['lecture'] != null) {
+    final sm = jsonDecode(File('$dir/summaries.json').readAsStringSync()) as Map<String, dynamic>;
+    qs = (sm[f['lecture']] as Map)['checks'] as List;
+  } else {
+    qs = ((data.quizzes[f['bank']] as Map)['questions'] as List).take(f['take'] as int).toList();
+  }
+  final rand = lcg(f['seed'] as int);
+  final Sitting s = mastery ? MasterySitting(qs, rand: rand) : BankSitting(qs, f['perSitting'] as int?, rand: rand);
+  final nth = <int, int>{};
+  final trace = <String>[];
+  while (!s.over && trace.length < 500) {
+    final q = s.q!;
+    final bi = s is MasterySitting ? s.bi! : (s as BankSitting).order[s.pos];
+    final n0 = nth[bi] ?? 0;
+    nth[bi] = n0 + 1;
+    final right = bi % 3 != 0 || n0 >= 1;
+    final Object given = q['opts'] != null
+        ? (right ? q['a'] as int : ((q['a'] as int) == 0 ? 1 : 0))
+        : (right ? (bi % 2 == 0 ? '${(qs[bi] as Map)['num']}' : '${(qs[bi] as Map)['num']}'.replaceFirst('.', ',')) : 'zzz');
+    final again = s.again;
+    final ok = s.answer(given)!;
+    final segs = s.seg.map((x) => x == 'ok' ? 'o' : x == 'miss' ? 'm' : '.').join();
+    trace.add('$bi:${q['opts'] != null ? (q['perm'] as List).join() : ''}:${again ? 'r' : 'n'}:${ok ? '+' : '-'}${mastery ? ':$segs' : ''}');
+    s.next();
+  }
+  final r = s is MasterySitting
+      ? (() {
+          final x = s.result!;
+          return {'total': x.total, 'firstTry': x.firstTry, 'attempts': x.attempts, 'missed': x.missed};
+        })()
+      : (() {
+          final b = s as BankSitting;
+          return {'score': b.score, 'total': b.n, 'pct': b.pct, 'missed': b.missedBank, 'correct': b.correctBank};
+        })();
+  return {'trace': trace, 'result': r};
+}
+
+/// The quiz / Problems / Exams answers (T-064 stage 4).
+Map<String, dynamic> quizDump(Map<String, dynamic> fx, BrickfordData data, String dir) {
+  final q = fx['quiz'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  Engine engine(Map f) => Engine(data, copy(f['state']) as Map<String, dynamic>?, today: () => f['clock'] as String);
+  final out = <String, dynamic>{};
+  final g = q['grade'] as Map<String, dynamic>;
+  out['grade'] = [
+    for (final qq in g['qs'] as List) [for (final given in g['given'] as List) gradeAnswer((qq as Map).cast<String, dynamic>(), given)],
+  ];
+  out['sittings'] = {for (final f in q['sittings'] as List) f['name'] as String: runSitting((f as Map).cast<String, dynamic>(), data, dir)};
+
+  final gate = q['gate'] as Map<String, dynamic>;
+  final ge = engine(gate);
+  out['gate'] = {
+    'cleared': {for (final k in gate['quizKeys'] as List) k as String: ge.lessonCleared(k)},
+    'grandfathered': {
+      for (final k in gate['quizKeys'] as List)
+        if (ge.lessons[k] is Map) k as String: Engine.grandfathered((ge.lessons[k] as Map).cast<String, dynamic>()),
+    },
+    'passed': {for (final k in gate['quizKeys'] as List) k as String: ge.quizPassed(k)},
+    'locked': {
+      for (final k in fx['lessonKeys'] as List)
+        k as String: (() {
+          final p = k.split('.');
+          return ge.lockedBy(p[0], int.parse(p[1]), int.parse(p[2])) != null;
+        })(),
+    },
+    'catchUp': [for (final c in ge.catchUpQuizzes()) c.k],
+  };
+
+  out['problems'] = {
+    for (final f in q['problems'] as List)
+      f['name'] as String: (() {
+        final e = engine(f as Map);
+        final P = e.problemsDue();
+        return {
+          'due': P.keys,
+          'n': P.n,
+          'soon': [for (final c in P.coming.take(3)) c.pset != null ? 'pset:${c.pset!['id']}' : 'lab:${c.lab!['id']}'],
+          'psetDue': {for (final i in e.allPsets()) i['id'] as String: e.psetDue(i)},
+          'labDue': {for (final l in data.labs) l['id'] as String: e.labDue(l)},
+        };
+      })(),
+  };
+
+  out['exams'] = {
+    for (final f in q['exams'] as List)
+      f['name'] as String: (() {
+        final e = engine(f as Map);
+        final items = e.examItems();
+        final lead = items.first, rest = items.skip(1).toList();
+        final rows = <List<String>>[
+          [
+            'hero',
+            lead.href,
+            lead.title,
+            lead.size,
+            lead.due != null ? '${lead.due! < 0 ? 0 : lead.due}' : '',
+          ],
+          for (final x in rest.where((x) => !x.locked))
+            ['card', x.href, x.title, '${x.size}${x.pass != null ? ' \u00b7 pass ${x.pass}%' : ''}', x.tag],
+          for (final x in rest.where((x) => x.locked))
+            ['lock', x.short, '${x.watched} of ${x.of}${truthy(x.course?['tracker']) ? ' solved' : ' watched'}'],
+        ];
+        final diagSat = items.where((x) => x.kind == 'diag' && x.sat).length, bankSat = items.where((x) => x.kind == 'bank' && x.sat).length;
+        return {
+          'rows': rows,
+          'rec': '${data.diagnostics.length} diagnostics \u00b7 ${data.quizzes.length} concept banks \u00b7 ${diagSat + bankSat} sat',
+        };
+      })(),
+  };
+
+  // recordQuizPass, updateMisses, bestQuiz: each step's state, from a fresh engine.
+  final rec = q['record'] as Map<String, dynamic>;
+  final e = Engine(data, null, today: () => '2026-11-04');
+  final passes = <dynamic>[];
+  for (final p in rec['passes'] as List) {
+    e.recordQuizPass(
+      rec['key'] as String,
+      SittingResult(total: p['total'] as int, firstTry: p['firstTry'] as int, attempts: p['attempts'] as int, missed: const []),
+      'AT',
+    );
+    final quiz = copy((e.lessons[rec['key']] as Map)['quiz']) as Map;
+    quiz.remove('at');
+    passes.add(quiz);
+  }
+  final misses = <dynamic>[];
+  for (final m in rec['misses'] as List) {
+    e.updateMisses(m[0] as String, (m[1] as List).cast<int>(), (m[2] as List).cast<int>());
+    misses.add(copy((e.S['quizMisses'] as Map)[m[0]]));
+  }
+  final be = Engine(data, <String, dynamic>{'quizAttempts': copy(rec['attempts'])}, today: () => '2026-11-04');
+  out['record'] = {
+    'passes': passes,
+    'misses': misses,
+    'best': {for (final b in (rec['attempts'] as Map).keys) b as String: be.bestQuiz(b)},
+    'bestNone': be.bestQuiz('none'),
+  };
+  return out;
+}
 
 void main(List<String> args) {
   final dir = args[0];
@@ -172,5 +329,6 @@ void main(List<String> args) {
     },
     'phoneOk': [for (final d in (mk['phones'] as List)) mkPhoneOk(d == null ? <String, dynamic>{} : (d as Map).cast<String, dynamic>())],
   };
+  out['quiz'] = quizDump(fx, data, dir);
   stdout.write(jsonEncode(out));
 }

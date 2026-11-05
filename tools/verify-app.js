@@ -41,6 +41,22 @@
 //    date from 2026-10-01 to 2026-12-31, for each state fixture above under a
 //    Saturday clock and under a study-day clock, Dart against app.js.
 //    Each runs in a scratch copy; nothing in the repo is modified.
+//
+// 5. QUIZ, PROBLEMS, EXAMS (T-064 stage 4). app.js and the Dart port on the same
+//    inputs: grade() lifted out of quiz-engine.js against gradeAnswer over a
+//    matrix of questions and typed answers (the comma, the tolerance, parseFloat's
+//    prefix); whole sittings (the lecture's mastery quiz and the bank sitting)
+//    run through the real DAR.Quiz in the page, with Math.random replaced by a
+//    seeded generator and scripted answers, against MasterySitting/BankSitting
+//    with the same generator: every question drawn, every option order, every
+//    outcome and the result must be identical; recordQuizPass, updateMisses and
+//    bestQuiz lifted from app.js; and lessonCleared, grandfathered, lockedBy and
+//    the catch-up list at the gate. problemsDue and V.exams are read from the
+//    rendered pages (#/workshop, #/exams) of app.js against problemsDue and
+//    examItems, so psetDue, labDue, the plan ordering and the 70 pass mark are
+//    measured end to end, not re-implemented in the test.
+//    Plants: quiz-pass-mark (the bank pass mark 70 -> 75), quiz-gate (the gate day
+//    counts as grandfathered), pset-due (a ticked pset stays due).
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), vm = require("vm");
 const { execFileSync, spawnSync } = require("child_process");
@@ -50,8 +66,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times"].includes(process.argv[process.argv.indexOf("--plant") + 1]);
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due"].includes(process.argv[process.argv.indexOf("--plant") + 1]);
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -73,8 +89,8 @@ const schedKey = items => items.map(it => it.track + ":" + (it.pseudo ? "~" + it
 
 // ---------- app.js functions that are not on the hook ----------
 // Lifted out of the source by name, so what runs is app.js's own text.
-function vmExtract(names) {
-  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+function vmExtract(names, file) {
+  const src = fs.readFileSync(path.join(ROOT, file || "platform/js/app.js"), "utf8");
   const pieces = names.map(name => {
     const fi = src.indexOf("function " + name + "(");
     if (fi >= 0) {
@@ -94,11 +110,11 @@ function jsPure(startDate) {
   const code = vmExtract(["pad2", "addDaysISO", "daysBetween", "dowOf", "REST_DOW", "isRestDay", "_restK", "restOffset",
     "restsWithin", "studyIndex", "dateForStudy", "prevStudyDay", "studyToday", "studyAnchor", "QUIZ_GATE_FROM",
     "firstWatched", "grandfathered", "MONK_PRI", "localISO", "firstSunday", "revisionWeek", "canon", "mergeQuiz", "mergeState", "gateRec",
-    "syncPayload", "MONK_SYNCS", "mkHHMM"]);
+    "syncPayload", "MONK_SYNCS", "mkHHMM", "quizPassed", "recordQuizPass", "updateMisses", "bestQuiz"]);
   ctx.S = null;
-  vm.runInContext("const todayISO = () => __today;\n" + code +
+  vm.runInContext("const todayISO = () => __today; const logEvent = () => {}; const save = () => {};\n" + code +
     "\nthis.__f = { prevStudyDay, studyAnchor, grandfathered, MONK_PRI, setToday: t => { __today = t; }, mkHHMM," +
-    " mergeState, syncPayload, setS: s => { S = s; }, getS: () => S };", ctx);
+    " mergeState, syncPayload, setS: s => { S = s; }, getS: () => S, quizPassed, recordQuizPass, updateMisses, bestQuiz };", ctx);
   return ctx.__f;
 }
 
@@ -332,6 +348,174 @@ async function runMonkJS(browser, fx, pure) {
   };
 }
 
+// ---------- quiz, Problems, Exams fixtures (T-064 stage 4) ----------
+const GRADE_QS = [{ opts: ["a", "b", "c"], a: 2 }, { num: 5 }, { num: 2.5 }, { num: 2.5, tol: 0.01 }, { num: 1.234 }, { num: -0.5 }, { num: 0 }, { num: 100, tol: 0 }, { num: 1000 }];
+const GRADE_GIVEN = [0, 1, 2, "5", "5.0", " 5", "5,0", "5abc", "abc", "", "1e0", "1e3", "+5", ".5", "-.5", "5.", "2,5", "2.5", "2.505", "2.52", "1,234.5", "1.234",
+  "-0.5", "−0.5", "0x10", "Infinity", "-Infinity", "1e999", "1_000", "  \n5", "5 6", "5e", "5e+", "e5", "NaN", "0.1e1", "1E2", "00012", "1.2.3", ",5", "0,0", "-0", "100.000001", "999.9999999"];
+function quizFixtures(plan, fixtures) {
+  const sm = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "summaries.json"), "utf8"));
+  const quizKeys = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "quiz-keys.json"), "utf8"));
+  const work = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "workshop.json"), "utf8"));
+  const banks = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "quizzes.json"), "utf8"));
+  const pick = f => Object.keys(sm).find(k => sm[k].checks && f(sm[k].checks));
+  const lec = {
+    big: pick(c => c.length === 8 && c.some(q => !q.opts)) || pick(c => c.length === 8),
+    flt: pick(c => c.some(q => !q.opts && !Number.isInteger(q.num))),
+    tol: pick(c => c.some(q => q.tol != null && !q.opts)) || pick(c => c.some(q => q.tol != null)),
+    mcq: pick(c => c.length === 3 && c.every(q => q.opts)),
+  };
+  const sittings = [
+    { name: "lecture quiz, 8 checks, seed 1", mode: "mastery", lecture: lec.big, seed: 1 },
+    { name: "lecture quiz, 8 checks, seed 77", mode: "mastery", lecture: lec.big, seed: 77 },
+    { name: "lecture quiz, a decimal answer", mode: "mastery", lecture: lec.flt, seed: 42 },
+    { name: "lecture quiz, a tolerance", mode: "mastery", lecture: lec.tol, seed: 5 },
+    { name: "lecture quiz, options only", mode: "mastery", lecture: lec.mcq, seed: 99 },
+    { name: "bank linear-algebra, 15 of 40", mode: "bank", bank: "linear-algebra", take: 40, perSitting: 15, seed: 5 },
+    { name: "bank dsa, 15 of 30", mode: "bank", bank: "dsa", take: 30, perSitting: 15, seed: 6 },
+    { name: "bank math-for-ml, 12 of 30", mode: "bank", bank: "math-for-ml", take: 30, perSitting: 12, seed: 7 },
+    { name: "bank calculus, perSitting above the 7 unlocked", mode: "bank", bank: "calculus", take: 7, perSitting: 12, seed: 8 },
+    { name: "bank probability, perSitting 0 means 15", mode: "bank", bank: "probability", take: 20, perSitting: 0, seed: 9 },
+  ];
+  // The gate: lectures spread across the plan (some before the gate date, some after), each with a successor left unwatched.
+  const inQ = plan.keys.filter(k => quizKeys.includes(k)), spread = [0, 20, 40, 60, 80, 100, 120, 140, 160].map(i => inQ[i]).filter(Boolean);
+  const noQ = plan.keys.find(k => !quizKeys.includes(k));
+  const L = {};
+  const w = (on, extra) => Object.assign({ done: true, doneAt: on, notes: "", checks: [] }, extra || {});
+  const st = [w("2026-10-20"), w("2026-10-23"), w("2026-10-24"), w("2026-10-26", { quiz: { passedAt: "2026-10-26" } }),
+    { done: false, firstDoneAt: "2026-10-20", notes: "", checks: [] }, w("2026-10-30", { firstDoneAt: "2026-10-20" }),
+    { done: false, notes: "", checks: [], quiz: { passedAt: "2026-10-26" } }, w("2026-11-02"), w("2026-10-24", { firstDoneAt: "2026-10-23" })];
+  spread.forEach((k, i) => { L[k] = st[i]; });
+  if (noQ) L[noQ] = w("2026-10-26");
+  const gate = { name: "the gate", clock: "2026-11-04", state: { lessons: L }, quizKeys: spread.concat(noQ ? [noQ] : []) };
+  // Problems / Exams: every plan fixture, plus four built for them.
+  const la = banks["linear-algebra"].questions;
+  const mix = { name: "problems: owed, catch-up, due and ticked psets and labs", clock: "2026-10-27", state: {
+    lessons: { "math110.1.1": w("2026-10-20"), "math110.1.4": w("2026-10-26", { quiz: { passedAt: "2026-10-26" } }), "math110.1.5": w("2026-10-26"), "ai200.0.0": w("2026-10-26") },
+    psets: { "1806-ps1": "2026-10-26" }, labs: { "neetcode-10": { done: true, proof: "" } } } };
+  const review = { name: "problems: a miss pool, one question locked", clock: "2026-11-04", state: {
+    lessons: { [la[0].after]: w("2026-10-26"), [la[1].after]: w("2026-10-26") }, quizMisses: { "linear-algebra": [0, 1, 39, 200] } } };
+  const exMix = { lessons: { "math110.0.0": w("2026-10-26"), "math110.0.1": w("2026-10-26"), "math110.0.2": w("2026-10-26"), "math120.0.0": w("2026-10-26") },
+    problems: { "Arrays & Hashing|Two Sum": "2026-10-27" },
+    diag: { "diag-la": { score: 70, date: "2026-11-01" }, "diag-calc": { score: 69, date: "2026-11-01" }, "diag-code": { score: 80, date: "2026-11-01" } },
+    quizAttempts: { "linear-algebra": [{ date: "2026-11-01", score: 10, total: 15, pct: 70 }], dsa: [{ date: "2026-11-01", score: 10, total: 15, pct: 69 }, { date: "2026-11-02", score: 8, total: 15, pct: 55 }], calculus: [{ date: "2026-11-01", score: 15, total: 15, pct: 100 }] } };
+  const clone2 = v => JSON.parse(JSON.stringify(v));
+  // The coding diagnostic marked complete in the app is { score: null }: V.exams counts it as not sat (score != null), and so does the port.
+  const exGate = Object.assign(clone2(exMix), { gates: { 1: { date: "2026-11-01", at: "2026-11-01T10:00:00.000Z", passed: true } }, diag: Object.assign(clone2(exMix.diag), { "diag-code": { score: null, date: "2026-11-01" } }) });
+  const exAll = Object.assign(clone2(exMix), { diag: Object.assign(clone2(exMix.diag), { "diag-prob": { score: 88, date: "2026-11-02" } }) });
+  const evals = fixtures.map(f => ({ name: f.name, clock: f.clock, state: f.state }))
+    .concat([mix, review, { name: "exams: sat, boundary scores, a gate-less diagnostic with a score", clock: "2026-11-04", state: exMix },
+      { name: "exams: gate 1 already passed", clock: "2026-11-04", state: exGate }, { name: "exams: every diagnostic sat", clock: "2026-11-04", state: exAll }]);
+  return {
+    grade: { qs: GRADE_QS, given: GRADE_GIVEN }, sittings, gate, evals,
+    problems: evals, exams: evals,
+    psetIds: [].concat(...work.PSETS.map(g => g.items.map(i => i.id))), labIds: work.LABS.map(l => l.id),
+    record: { key: lec.mcq,
+      passes: [{ total: 5, firstTry: 3, attempts: 7 }, { total: 5, firstTry: 2, attempts: 6 }, { total: 5, firstTry: 4, attempts: 5 }, { total: 5, firstTry: 4, attempts: 4 },
+        { total: 10, firstTry: 8, attempts: 12 }, { total: 6, firstTry: 5, attempts: 6 }],
+      misses: [["linear-algebra", [1, 2, 3], []], ["linear-algebra", [5], [1]], ["calculus", [0], []], ["linear-algebra", [], [2, 3, 5]], ["linear-algebra", [3], [3]]],
+      attempts: { a: [{ pct: 70 }, { pct: 69 }], b: [{ pct: 0 }], c: [] } },
+  };
+}
+function jsGrade() {
+  const ctx = {}; vm.createContext(ctx);
+  vm.runInContext("let q = null;\n" + vmExtract(["grade"], "platform/js/quiz-engine.js") + "\nthis.__g = (qq, g) => { q = qq; return grade(g); };", ctx);
+  return ctx.__g;
+}
+// Runs in the page. The same policy as runSitting in engine_dump.dart: a question numbered bi is missed on its first
+// showing when bi % 3 == 0, a numeric answer is typed with a decimal comma when bi is odd, and the miss is answered
+// right when it comes back. Math.random is a seeded generator, so the draws match the Dart port's.
+function driveSitting(f) {
+  let seed = f.seed; Math.random = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  const D = window.DAR, mastery = f.mode === "mastery";
+  const qs = f.lecture ? D.SUMMARIES[f.lecture].checks : D.QUIZZES[f.bank].questions.slice(0, f.take);
+  const norm = h => { const d = document.createElement("div"); d.innerHTML = h; return d.innerHTML; };
+  const box = document.createElement("div"); document.body.appendChild(box);
+  let result = null;
+  D.Quiz.mount(box, mastery ? { title: "t", course: "", questions: qs } : { title: "t", course: "c", perSitting: f.perSitting, questions: qs },
+    { mastery, onFinish: r => { result = r; } });
+  const trace = [], nth = {};
+  for (let guard = 0; !result && guard < 500; guard++) {
+    const opts = Array.from(box.querySelectorAll(".opt"));
+    let bi, perm = [];
+    if (mastery) { bi = +box.querySelector(".q-card").dataset.q; perm = opts.map(b => +b.dataset.o); }
+    else {
+      const text = box.querySelector(".q-text").innerHTML;
+      bi = qs.findIndex(q => norm(q.q) === text);
+      if (opts.length) {
+        const used = new Set();
+        perm = opts.map(b => { const t = b.querySelector("span:last-child").innerHTML; const i = qs[bi].opts.findIndex((o, j) => !used.has(j) && norm(o) === t); used.add(i); return i; });
+      }
+    }
+    const q = qs[bi], n0 = nth[bi] || 0; nth[bi] = n0 + 1;
+    const right = bi % 3 !== 0 || n0 >= 1;
+    const again = mastery && /again/.test(box.querySelector(".lq-n").textContent);
+    if (opts.length) { const aSlot = perm.indexOf(q.a); opts[right ? aSlot : (aSlot === 0 ? 1 : 0)].click(); }
+    else { const num = String(q.num); box.querySelector("#numAns").value = right ? (bi % 2 === 0 ? num : num.replace(".", ",")) : "zzz"; box.querySelector("#numGo").click(); }
+    const ok = /^Correct/.test(box.querySelector("#qFeedback strong").textContent);
+    const segs = mastery ? ":" + Array.from(box.querySelectorAll(".lq-segs i")).map(i => i.className === "ok" ? "o" : i.className === "miss" ? "m" : ".").join("") : "";
+    trace.push(bi + ":" + perm.join("") + ":" + (again ? "r" : "n") + ":" + (ok ? "+" : "-") + segs);
+    box.querySelector("#nextBtn").click();
+  }
+  return { trace, result: mastery ? { total: result.total, firstTry: result.firstTry, attempts: result.attempts, missed: result.missed }
+    : { score: result.score, total: result.total, pct: result.pct, missed: result.missed, correct: result.correct } };
+}
+const readProblems = () => {
+  const q = s => Array.from(document.querySelectorAll(s));
+  return { due: q("#pdDue > [data-due]").map(e => e.dataset.due + ":" + e.dataset.id), n: +document.querySelector(".pd-count").textContent,
+    soon: q(".pd-soon [data-soon]").map(e => e.dataset.soon + ":" + e.dataset.id) };
+};
+const readExams = () => {
+  const t = (e, s) => { const x = e.querySelector(s); return x ? x.textContent : ""; }, rows = [];
+  const hero = document.querySelector(".ex-hero");
+  if (hero) rows.push(["hero", hero.querySelector(".ex-sit").getAttribute("href"), t(hero, ".at-gate"), t(hero, ".ex-facts span"), t(hero, ".at-days b")]);
+  document.querySelectorAll(".ex-open .ex-card").forEach(c => { const p = c.querySelector(".pill");
+    rows.push(["card", c.getAttribute("href"), t(c, ".tl-t"), t(c, ".tl-m"), p ? p.className.replace("pill ", "") + ":" + p.textContent : ""]); });
+  document.querySelectorAll(".ex-locked .ex-lock").forEach(c => rows.push(["lock", t(c, ".ex-ln"), c.querySelector(".ex-lbar").getAttribute("aria-label")]));
+  return { rows, rec: t(document, ".ex-rec") };
+};
+async function runQuizJS(browser, fx, pure) {
+  const qf = fx.quiz, out = { errors: [], sittings: {}, problems: {}, exams: {} };
+  const grade = jsGrade();
+  out.grade = qf.grade.qs.map(q => qf.grade.given.map(g => !!grade(q, g)));
+  {
+    const { ctx, page: p, errors } = await page(browser, fx.planClock, null);
+    for (const f of qf.sittings) out.sittings[f.name] = await p.evaluate(driveSitting, f);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  {
+    const g = qf.gate, { ctx, page: p, errors } = await page(browser, g.clock, g.state);
+    const r = await p.evaluate(({ keys, all }) => { const T = window.__brickfordTest;
+      return { cleared: Object.fromEntries(keys.map(k => [k, !!T.lessonCleared(k)])),
+        locked: Object.fromEntries(all.map(k => { const [c, u, l] = k.split("."); return [k, !!T.lockedBy(c, +u, +l)]; })), catchUp: T.catchUpQuizzes().map(x => x.k) }; },
+      { keys: g.quizKeys, all: fx.lessonKeys });
+    pure.setS(clone(g.state)); pure.setToday(g.clock);
+    r.grandfathered = Object.fromEntries(g.quizKeys.filter(k => g.state.lessons[k]).map(k => [k, !!pure.grandfathered(g.state.lessons[k])]));
+    r.passed = Object.fromEntries(g.quizKeys.map(k => [k, !!pure.quizPassed(k)]));
+    out.gate = r; out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  for (const f of qf.evals) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/workshop"; });
+    await p.waitForSelector(".pd-count", { timeout: 15000 });
+    const pr = await p.evaluate(readProblems);
+    pr.psetDue = Object.fromEntries(qf.psetIds.map(id => [id, pr.due.includes("pset:" + id)]));
+    pr.labDue = Object.fromEntries(qf.labIds.map(id => [id, pr.due.includes("lab:" + id)]));
+    out.problems[f.name] = pr;
+    await p.evaluate(() => { location.hash = "#/exams"; });
+    await p.waitForSelector(".ex-rec", { timeout: 15000 });
+    out.exams[f.name] = await p.evaluate(readExams);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  const r = qf.record;
+  pure.setS({ lessons: {}, quizMisses: {}, quizAttempts: clone(r.attempts) }); pure.setToday("2026-11-04");
+  out.record = { passes: [], misses: [], best: {} };
+  r.passes.forEach(x => { pure.recordQuizPass(r.key, clone(x)); const q = clone(pure.getS().lessons[r.key].quiz); delete q.at; out.record.passes.push(q); });
+  r.misses.forEach(m => { pure.updateMisses(m[0], m[1], m[2]); out.record.misses.push(clone(pure.getS().quizMisses[m[0]])); });
+  Object.keys(r.attempts).forEach(b => { out.record.best[b] = pure.bestQuiz(b); });
+  out.record.bestNone = pure.bestQuiz("none");
+  return out;
+}
+
 // ---------- the two engines ----------
 async function runJS(browser, fx) {
   const out = { fixtures: {} };
@@ -461,6 +645,9 @@ function diff(a, b, at, out, label) {
     "merge-weeks": ["lib/engine/merge.dart", "side(x) == side(w)", "true"],                                   // the revisionWeek.from rule gone
     "merge-streak": ["lib/engine/merge.dart", "_js(rf).compareTo(_s(e.settings['streakFrom'])) > 0", "_js(rf).compareTo(_s(e.settings['streakFrom'])) < 0"],   // the earlier date wins
     "monk-times": ["lib/engine/engine.dart", "isha: 14,", "isha: 15,"],                                      // Isha at 15 degrees, not 14
+    "quiz-pass-mark": ["lib/engine/quiz.dart", "const examPassAt = 70;", "const examPassAt = 75;"],            // a bank's pass mark, 70 -> 75
+    "quiz-gate": ["lib/engine/engine.dart", "fw != null && lt(fw, QUIZ_GATE_FROM);", "fw != null && le(fw, QUIZ_GATE_FROM);"],   // the gate day itself counts as before the gate
+    "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
     const [file, was, now] = PLANT_EDITS[argPlant];
@@ -512,6 +699,7 @@ function diff(a, b, at, out, label) {
       calendar: { dates: range(CAL_FROM, CAL_TO), clocks: CAL_CLOCKS },
       light: LIGHT, merge: mergeFixtures(plan), payload: payloadFixtures(), monk: monkFixture(),
     };
+    fx.quiz = quizFixtures(plan, fx.fixtures);
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
     const fxFile = path.join(scratch, "fixtures.json");
@@ -627,6 +815,40 @@ function diff(a, b, at, out, label) {
       const f5 = jk.out.focus["2026-11-05"];
       check("the monk fixtures reach a focus line, a month sum and a Friday-free week", !!f5 && f5.days >= 2 && jk.out.sums["2026-11-05"].week.shorts > 0 && jk.out.sums["2026-11-08"].month.clips > 0,
         f5 ? f5.label + " " + f5.rate + "% over " + f5.days + " days" : "no focus");
+    }
+
+    // 7. quiz, Problems, Exams
+    {
+      const pure = jsPure(fx.START);
+      const tQ = Date.now();
+      const jq = await runQuizJS(browser, fx, pure);
+      console.log("  quiz:        " + fx.quiz.sittings.length + " sittings, " + fx.quiz.evals.length + " Problems/Exams pages, " + Math.round((Date.now() - tQ) / 1000) + "s");
+      check("the quiz block ran in app.js without page errors", jq.errors.length === 0, jq.errors.slice(0, 3).join(" | "));
+      const dq = dart.quiz || {}, idx = (at, i) => i, one = (name, a, b, label) => { const out = []; diff(a, b, [], out, label || idx); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      one("parity: grading — gradeAnswer against quiz-engine.js grade() over " + GRADE_QS.length + " questions x " + GRADE_GIVEN.length + " answers (the comma, the tolerance, parseFloat's prefix)", jq.grade, dq.grade);
+      for (const f of fx.quiz.sittings) one("parity: sitting — " + f.name + " (" + jq.sittings[f.name].trace.length + " questions shown: draw, option order, outcome, result)", jq.sittings[f.name], dq.sittings && dq.sittings[f.name]);
+      one("parity: the gate — lessonCleared, grandfathered, quizPassed on " + fx.quiz.gate.quizKeys.length + " lectures, lockedBy on all " + fx.lessonKeys.length + ", catchUpQuizzes", jq.gate, dq.gate);
+      one("parity: recordQuizPass (a pass kept, a worse sitting ignored, a better one kept), updateMisses, bestQuiz", jq.record, dq.record);
+      for (const f of fx.quiz.evals) {
+        one("parity: problemsDue — " + f.name + " (" + jq.problems[f.name].n + " due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)", jq.problems[f.name],
+          dq.problems && dq.problems[f.name] && { due: dq.problems[f.name].due, n: dq.problems[f.name].n, soon: dq.problems[f.name].soon, psetDue: dq.problems[f.name].psetDue, labDue: dq.problems[f.name].labDue });
+        one("parity: Exams — " + f.name + " (" + jq.exams[f.name].rows.length + " rows: hero, open, locked, verdicts)", jq.exams[f.name], dq.exams && dq.exams[f.name]);
+      }
+      // Reach: the fixtures must hit what the plants break.
+      const traces = [].concat(...Object.values(jq.sittings).map(x => x.trace)), prob = Object.values(jq.problems), ex = Object.values(jq.exams);
+      const kinds = new Set([].concat(...prob.map(x => x.due.map(d => d.split(":")[0]))));
+      const tags = new Set([].concat(...ex.map(x => x.rows.filter(r => r[0] === "card").map(r => r[4]))));
+      const mixP = jq.problems["problems: owed, catch-up, due and ticked psets and labs"], exM = jq.exams["exams: sat, boundary scores, a gate-less diagnostic with a score"];
+      check("the quiz fixtures reach a miss that comes back, a decimal comma, a wrong bank answer, and a lecture quiz that cost attempts",
+        traces.some(t => t.includes(":r:")) && traces.some(t => t.includes(":n:-")) && Object.values(jq.sittings).some(x => x.result.attempts > x.result.total) &&
+        jq.grade[2][GRADE_GIVEN.indexOf("2,5")] === true && jq.grade[1][GRADE_GIVEN.indexOf("5abc")] === true && jq.grade[1][GRADE_GIVEN.indexOf("abc")] === false,
+        traces.length + " questions shown");
+      check("the Problems fixtures reach every kind of row, a pset ticked and so not due, a lab not yet in its phase, and the next locked items",
+        ["quiz", "catchup", "pset", "lab", "review"].every(k => kinds.has(k)) && mixP.psetDue["1806-ps1"] === false && mixP.psetDue["1806-ps2"] === true &&
+        prob.every(x => x.soon.length > 0 || x.n > 0) && Object.values(jq.problems).some(x => Object.values(x.labDue).some(v => !v)), [...kinds].join("/") + "; " + mixP.due.length + " due in the mix");
+      check("the Exams fixtures reach a pass at 70, a gap at 69, a logged diagnostic, locked banks, and a hero with days to the gate",
+        exM.rows.some(r => r[0] === "card" && r[4] === "good:70%") && exM.rows.some(r => r[0] === "card" && r[4] === "crimson:69%") && tags.has("good:done") &&
+        ex.some(x => x.rows.some(r => r[0] === "lock")) && ex.some(x => x.rows[0][4] !== "") && ex.some(x => x.rows[0][4] === ""), [...tags].join(", "));
     }
   } finally {
     await browser.close();

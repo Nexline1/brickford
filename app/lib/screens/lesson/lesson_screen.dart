@@ -14,6 +14,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
+import '../quiz/quiz_screen.dart';
 import 'video_embed.dart';
 
 /// Summary prose is written as HTML with KaTeX `$...$` for the web app; here
@@ -394,18 +395,18 @@ class _LessonScreenState extends State<LessonScreen> {
               onPressed: () => m.toggleDone(k),
             ),
           ),
-          if (mark == LessonMark.watched && checks != null)
+          if (watched && checks != null)
             Padding(
               padding: EdgeInsets.only(top: 10.h),
-              child: Row(
-                children: [
-                  const Icon(Icons.quiz_outlined, size: 18, color: Tokens.half),
-                  SizedBox(width: 6.w),
-                  Text(
-                    '${checks.length}',
-                    style: body(14, color: Tokens.ink, weight: FontWeight.w700),
-                  ),
-                ],
+              child: Semantics(
+                identifier: 'lesson-quiz',
+                child: PillButton(
+                  key: const ValueKey('lesson-quiz'),
+                  icon: m.engine.quizPassed(k) ? Icons.verified_outlined : Icons.quiz_outlined,
+                  label: 'Quiz',
+                  tone: m.engine.quizPassed(k) ? PillTone.quiet : PillTone.primary,
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => QuizScreen.lecture(k))),
+                ),
               ),
             ),
           if (link != null) ...[

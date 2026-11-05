@@ -55,7 +55,7 @@ function build(root) {
     // opens). app.js lessonQuiz's own test: sm && sm.checks && sm.checks.length.
     "quiz-keys.json": Object.keys(D.SUMMARIES || {}).filter(k => { const sm = D.SUMMARIES[k]; return !!(sm && sm.checks && sm.checks.length); }),
     "quizzes.json": D.QUIZZES || {},
-    "workshop.json": { PSETS: D.PSETS || [], LABS: D.LABS || [], NICHES: D.NICHES || [] },
+    "workshop.json": { PSETS: D.PSETS || [], LABS: D.LABS || [], NICHES: D.NICHES || [], ELECTIVES: D.ELECTIVES || [] },
     "gates.json": { GATES: D.GATES, DIAGNOSTICS: D.DIAGNOSTICS, WEEK_PLAN: D.WEEK_PLAN },
     "storytelling.json": { courses: SPEECH, DRILLS: D.DRILLS || {} },
   };

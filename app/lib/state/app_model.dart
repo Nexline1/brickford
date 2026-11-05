@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../engine/dates.dart';
 import '../engine/engine.dart';
+import '../engine/learn.dart';
 import '../engine/monk.dart';
 import '../engine/quiz.dart';
 import '../engine/record.dart';
@@ -149,6 +150,27 @@ class AppModel extends ChangeNotifier {
   void sat(String bankId, BankSitting s, List<int> map) {
     engine.recordExam(bankId, s, map);
     engine.logEvent('exam', bankId, {'score': s.score, 'total': s.n, 'pct': s.pct}, _ts());
+    persist();
+    notifyListeners();
+  }
+
+  /// A recall graded (forgot / shaky / solid): the lecture is rescheduled and one `recall` event chained.
+  void recall(String k, String grade) {
+    if (!engine.gradeRecall(k, grade, _ts())) return;
+    persist();
+    notifyListeners();
+  }
+
+  /// The Electives status tap: none -> planned -> done -> none.
+  void cycleElective(String id) {
+    engine.cycleElective(id);
+    persist();
+    notifyListeners();
+  }
+
+  /// A drill finished: right answers leave the miss pool, wrong ones stay in it.
+  void drilled(List<BankQ> pool, BankSitting s) {
+    engine.recordDrill(pool, s);
     persist();
     notifyListeners();
   }

@@ -106,3 +106,7 @@ Port from platform/js/app.js and platform/data (quiz-*.js, summaries, workshop.j
 ---
 ## Stage 5 (owner order, 5 Nov): Week + Sunday seal, Record, Proof, Treasury
 Port from platform/js/app.js (V.week, logWeek, the seal and revision weeks, V.record, the hash-chain ledger and its events including the quiz/exam events stage 4 skipped, V.proof, V.treasury), same S shape, synced through the stage-3 merge; the Sunday revision PDFs open from the Library entry. Existing app design, barely any words; parity blocks and plants in verify-app (ledger chain hash, revision weeks, weekly seal merge, treasury totals).
+
+---
+## Stage 6a (owner "Continue", 5 Nov): Atlas, Recall, Drill, Electives (all under Learn)
+Port from platform/js/app.js (V.atlas, the course and unit pages, V.recall, V.drill, the spaced-review scheduler and S.review, V.electives). Existing design, barely any words; parity blocks + plants in verify-app (review scheduler due dates, drill picks, electives data). Same S shape, synced via the stage-3 merge.

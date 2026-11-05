@@ -159,6 +159,18 @@ class RecordScreen extends StatelessWidget {
                 ],
               ],
             ),
+          SizedBox(height: 14.h),
+          Row(
+            children: [
+              Expanded(
+                child: PillButton(key: const ValueKey('record-proof'), id: 'record-proof', label: 'Proof', icon: Icons.shield_outlined, tone: PillTone.dark, onPressed: () => openProof(context)),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: PillButton(key: const ValueKey('record-reset'), id: 'record-reset', label: 'Reset', icon: Icons.restart_alt, tone: PillTone.quiet, onPressed: () => _reset(context, m)),
+              ),
+            ],
+          ),
           if (led.isNotEmpty) ...[
             const SheetLabel(Icons.receipt_long_outlined, 'Ledger'),
             for (final x in led.reversed.take(40))
@@ -170,22 +182,6 @@ class RecordScreen extends StatelessWidget {
                 meta: '#${x['i']}',
               ),
           ],
-          SizedBox(height: 14.h),
-          PillButton(
-            key: const ValueKey('record-proof'), id: 'record-proof',
-            label: 'Proof',
-            icon: Icons.shield_outlined,
-            tone: PillTone.dark,
-            onPressed: () => openProof(context),
-          ),
-          SizedBox(height: 10.h),
-          PillButton(
-            key: const ValueKey('record-reset'), id: 'record-reset',
-            label: 'Reset streak',
-            icon: Icons.restart_alt,
-            tone: PillTone.quiet,
-            onPressed: () => _reset(context, m),
-          ),
         ],
       ),
     );

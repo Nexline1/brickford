@@ -100,6 +100,7 @@ const state = {
     // ---- Home: the two chips ----
     await wait("chip-week");
     check("Home carries the Week chip, and Seal day while today is open", (await has("chip-week")) && (await has("chip-seal")));
+    await shot("home");
 
     // ---- Week ----
     await tap("chip-week");
@@ -115,8 +116,8 @@ const state = {
     await shot("week-sealed");
     let S = await stored();
     const mine = S.weeks.filter(x => +x.week === 3 && x.date === "2026-11-08");
-    check("sealing wrote S.weeks in the web app's shape (week 3, today's date, what shipped, DSA counted, posts, BHD counted from the Treasury)",
-      mine.length === 1 && mine[0].shipped === "the Treasury page" && mine[0].notes === "a slow Thursday" && mine[0].dsa === 3 && mine[0].posts === 3 && mine[0].revenue === 0 && S.weeks.length === 3, JSON.stringify(mine[0]));
+    check("sealing wrote S.weeks in the web app's shape (week 3, today's date, what shipped, DSA counted, posts, BHD counted from the Treasury: 250 + 60.5)",
+      mine.length === 1 && mine[0].shipped === "the Treasury page" && mine[0].notes === "a slow Thursday" && mine[0].dsa === 3 && mine[0].posts === 3 && mine[0].revenue === 310.5 && S.weeks.length === 3, JSON.stringify(mine[0]));
     const ev = S.ledger[S.ledger.length - 1];
     check("and one week event, linked to the chain, which still verifies with node's sha256", ev.type === "week" && ev.ref === "week3" && S.ledger.length === 8 && verify(S.ledger) && /^2026-11-08T\d\d:\d\d:\d\d\.\d{3}Z$/.test(ev.ts), JSON.stringify(ev.data));
     await tap("back");
@@ -124,6 +125,7 @@ const state = {
     // ---- Record ----
     await tap("tab-Profile");
     await wait("chip-record");
+    await shot("profile");
     await tap("chip-record");
     await wait("record-proof");
     await shot("record");
@@ -163,7 +165,9 @@ const state = {
     S = await stored();
     const last = S.treasury.entries[S.treasury.entries.length - 1];
     check("a payment is stored as the web app stores it (today, the number, the note)", S.treasury.entries.length === 3 && last.date === "2026-11-08" && last.amount === 1137.5 && last.note === "annual retainer", JSON.stringify(last));
-    await scroll(1200);
+    await scroll(1500);
+    await shot("treasury-clients");
+    await scroll(1500);
     await shot("treasury-offers");
     await wait("niche-lock");
     await sized(["niche-lock"], "Lock this niche");

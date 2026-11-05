@@ -39,7 +39,7 @@ class LibraryScreen extends StatelessWidget {
                 leading: LeadTile(text: 'W$n', color: Colors.white),
                 title: 'Week $n',
                 subtitle: shortRange(rw.from, rw.to),
-                meta: '${e.revisionLectures(n)}',
+                meta: '${e.revisionLectures(n)} lectures',
                 onTap: () => openUrl(revisionUrl(n)),
               );
             }(),

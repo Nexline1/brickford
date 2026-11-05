@@ -154,6 +154,7 @@ const state = {
     await tap("back");
 
     // ---- Treasury ----
+    await tap("tab-Build");
     await tap("chip-treasury");
     await wait("entry-add");
     await shot("treasury");

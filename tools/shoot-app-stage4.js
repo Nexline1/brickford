@@ -77,10 +77,11 @@ const state = {
     const stored = async () => JSON.parse(JSON.parse(await page.evaluate(() => localStorage.getItem("flutter.darhikmah_v1"))));
 
     // ---- Problems ----
-    await tap("tab-Market");
+    await tap("tab-Learn");
+    await tap("learn-tab-due");
     await page.waitForSelector('[flt-semantics-identifier="due-quiz-math110.0.0"]', { timeout: 10000 });
     await shot("problems");
-    await sized(["due-quiz-math110.0.0", "due-catchup-math110.1.1", "due-pset-1806-ps1", "market-tab-due", "market-tab-exams", "market-tab-code"], "the Problems rows and the chips");
+    await sized(["due-quiz-math110.0.0", "due-catchup-math110.1.1", "due-pset-1806-ps1", "learn-tab-due", "learn-tab-exams", "learn-tab-code"], "the Problems rows and the chips");
     await page.mouse.move(W / 2, 500); await page.mouse.wheel(0, 700); await page.waitForTimeout(700);
     await sized(["due-lab-flashcards-cli"], "a lab row, scrolled to");
     await page.mouse.wheel(0, -1400); await page.waitForTimeout(500);
@@ -123,7 +124,7 @@ const state = {
     check("the passed quiz left Problems", !(await has("due-quiz-math110.0.0")));
 
     // ---- Exams ----
-    await tap("market-tab-exams");
+    await tap("learn-tab-exams");
     await page.waitForSelector('[flt-semantics-identifier="exam-sit"]', { timeout: 10000 });
     await shot("exams");
     await sized(["exam-sit"], "the exam hero's Sit");

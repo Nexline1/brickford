@@ -14,6 +14,7 @@ import 'package:app/widgets/pill_button.dart';
 import 'package:app/widgets/sheet_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,13 +100,13 @@ void main() {
     expect(shape.borderRadius, BorderRadius.circular(16.0));
   });
 
-  testWidgets('the floating bar has exactly 4 tabs, Home Market Community Profile, and switches', (tester) async {
+  testWidgets('the floating bar has exactly 4 tabs, Home Learn Build Profile, and switches', (tester) async {
     await pumpApp(tester, await model('2026-11-04'));
     final bar = find.byKey(const ValueKey('brickford-tabs'));
     expect(bar, findsOneWidget);
     final tabs = find.descendant(of: bar, matching: find.byType(BarTab));
     expect(tabs, findsNWidgets(4));
-    expect([for (final t in tester.widgetList<BarTab>(tabs)) t.label], ['Home', 'Market', 'Community', 'Profile']);
+    expect([for (final t in tester.widgetList<BarTab>(tabs)) t.label], ['Home', 'Learn', 'Build', 'Profile']);
     expect(tester.widget<BarTab>(tabs.first).selected, isTrue);
     // Every tab is a full fingertip: at least 44 x 44.
     for (final e in tabs.evaluate()) {
@@ -119,11 +120,63 @@ void main() {
     expect(tester.widget<BarTab>(find.byKey(const ValueKey('tab-Profile'))).selected, isTrue);
   });
 
+  testWidgets('entry points moved: courses on Learn, Treasury on Build, neither on Profile', (tester) async {
+    await pumpApp(tester, await model('2026-11-04'));
+    Finder courses() => find.byWidgetPredicate((w) => w.key is ValueKey && '${(w.key! as ValueKey).value}'.startsWith('learn-course-'));
+    Future<void> goto(String t) async {
+      await tester.tap(find.byKey(ValueKey('tab-$t')));
+      await tester.pumpAndSettle();
+    }
+
+    await goto('Learn');
+    expect(courses(), findsWidgets);
+    await goto('Build');
+    expect(find.byKey(const ValueKey('chip-treasury')), findsOneWidget);
+    await goto('Profile');
+    expect(find.byKey(const ValueKey('chip-treasury')), findsNothing);
+    expect(find.byKey(const ValueKey('chip-record')), findsOneWidget);
+    expect(find.byKey(const ValueKey('chip-library')), findsOneWidget);
+    expect(find.byKey(const ValueKey('profile-sync')), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w.key is ValueKey && '${(w.key! as ValueKey).value}'.startsWith('profile-course-')), findsNothing);
+  });
+
+  testWidgets('search sheet: the field is at least 16px at phone widths, and the sheet shrinks above the keyboard', (tester) async {
+    await pumpApp(tester, await model('2026-11-04'));
+    for (final w in [320.0, 375.0, 390.0, 430.0]) {
+      tester.view.physicalSize = Size(w * 3, 844 * 3);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('brickford-search')));
+      await tester.pumpAndSettle();
+      final ed = tester.widget<EditableText>(find.descendant(of: find.byKey(const ValueKey('search-field')), matching: find.byType(EditableText)));
+      expect(ed.style.fontSize! >= 16, isTrue, reason: 'search field is ${ed.style.fontSize}px at width $w');
+      // The keyboard (300 logical px) opens: the sheet ends above it.
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
+      await tester.pumpAndSettle();
+      final bottom = tester.getBottomLeft(find.byType(DraggableScrollableSheet)).dy;
+      expect(bottom <= 844 - 300 + 0.5, isTrue, reason: 'sheet bottom $bottom runs under the keyboard at width $w');
+      tester.view.resetViewInsets();
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.byType(DraggableScrollableSheet))).pop();
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('every BrickfordField, at any width, is at least 16px', (tester) async {
+    for (final w in [320.0, 390.0]) {
+      tester.view.physicalSize = Size(w * 3, 800 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) => ScreenUtilInit(designSize: const Size(375, 812), minTextAdapt: true, builder: (_, _) => const Scaffold(body: BrickfordField(icon: Icons.search, hint: 'x'))))));
+      await tester.pumpAndSettle();
+      expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontSize! >= 16, isTrue);
+    }
+  });
+
   testWidgets('Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs', (tester) async {
     await pumpApp(tester, await model('2026-11-04'));
     expect(tester.widget<Text>(find.byKey(const ValueKey('home-day'))).data, '17');
     expect(find.text('Day 4 / 21'), findsOneWidget);
-    for (final t in ['Home', 'Market', 'Community', 'Profile']) {
+    for (final t in ['Home', 'Learn', 'Build', 'Profile']) {
       expect(find.text(t), findsOneWidget);
     }
     // Saturday 7 Nov is a rest day: still the day just worked, nothing scheduled.

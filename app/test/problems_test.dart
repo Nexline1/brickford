@@ -1,4 +1,4 @@
-// T-064 stage 4: Problems (what is due now) and Exams on the Market tab.
+// T-064 stage 4: Problems (what is due now) and Exams on the Learn tab.
 // The fixture, on 2026-10-27 (plan day 9, phase 0):
 //   math110.1.1  watched 20 Oct, before the gate, quiz never passed  -> cleared (grandfathered), a catch-up row, pset 1806-ps1 due
 //   math110.1.4  watched 26 Oct, quiz passed                          -> cleared, pset 1806-ps2 due
@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:app/engine/problems.dart';
 import 'package:app/engine/quiz.dart';
 import 'package:app/main.dart';
-import 'package:app/screens/market/diag_screen.dart';
+import 'package:app/screens/learn/diag_screen.dart';
 import 'package:app/screens/quiz/quiz_screen.dart';
 import 'package:app/shell.dart';
 import 'package:app/state/app_model.dart';
@@ -54,7 +54,7 @@ Future<AppModel> model(
   );
 }
 
-Future<void> openMarket(WidgetTester tester, AppModel m) async {
+Future<void> openLearn(WidgetTester tester, AppModel m) async {
   tester.view.physicalSize = const Size(375 * 3, 812 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -68,6 +68,8 @@ Future<void> openMarket(WidgetTester tester, AppModel m) async {
         )
         .at(1),
   );
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const ValueKey('learn-tab-due')));
   await tester.pumpAndSettle();
 }
 
@@ -116,7 +118,7 @@ void main() {
     'Problems lists the right items, the held-back ones are muted, and an item opens',
     (tester) async {
       final m = await model(fixture);
-      await openMarket(tester, m);
+      await openLearn(tester, m);
       for (final s in [
         'due-quiz-math110.1.5',
         'due-catchup-math110.1.1',
@@ -152,7 +154,7 @@ void main() {
         scrollable: find.byType(Scrollable).first,
       );
       expect(
-        tester.widget<Text>(find.byKey(const ValueKey('market-count'))).data,
+        tester.widget<Text>(find.byKey(const ValueKey('learn-count'))).data,
         '6',
       );
       // A pset opens, ticks, and leaves the list.
@@ -169,7 +171,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(id('due-pset-1806-ps1'), findsNothing);
       expect(
-        tester.widget<Text>(find.byKey(const ValueKey('market-count'))).data,
+        tester.widget<Text>(find.byKey(const ValueKey('learn-count'))).data,
         '5',
       );
       // A lab opens and ticks; its proof field appears.
@@ -200,7 +202,7 @@ void main() {
         isFalse,
       );
       await m.ensureSummaries();
-      await openMarket(tester, m);
+      await openLearn(tester, m);
       await tester.tap(id('due-quiz-math110.1.5'));
       await tester.pumpAndSettle();
       for (
@@ -243,8 +245,8 @@ void main() {
             'math110.0.$i': w('2026-10-26', passed: '2026-10-26'),
         },
       });
-      await openMarket(tester, m);
-      await tester.tap(find.byKey(const ValueKey('market-tab-exams')));
+      await openLearn(tester, m);
+      await tester.tap(find.byKey(const ValueKey('learn-tab-exams')));
       await tester.pumpAndSettle();
       final items = m.engine.examItems();
       expect(

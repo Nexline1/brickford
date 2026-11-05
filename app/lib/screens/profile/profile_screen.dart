@@ -1,4 +1,4 @@
-// Profile (stage 1): the record in numbers, and every course with its progress.
+// Profile: the record in numbers, Record, Library and Sync (the courses moved to Learn, the Treasury to Build).
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -6,10 +6,8 @@ import '../../state/app_model.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/sheet_scaffold.dart';
-import '../course/course_screen.dart';
 import '../library/library_screen.dart';
 import '../record/record_screen.dart';
-import '../treasury/treasury_screen.dart';
 import 'sync_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -44,7 +42,6 @@ class ProfileScreen extends StatelessWidget {
         ChipRow(
           children: [
             Semantics(identifier: 'chip-record', child: BrickChip(key: const ValueKey('chip-record'), label: 'Record', icon: Icons.verified_outlined, selected: false, onTap: () => openRecord(context))),
-            Semantics(identifier: 'chip-treasury', child: BrickChip(key: const ValueKey('chip-treasury'), label: 'Treasury', icon: Icons.savings_outlined, selected: false, onTap: () => openTreasury(context))),
             Semantics(identifier: 'chip-library', child: BrickChip(key: const ValueKey('chip-library'), label: 'Library', icon: Icons.menu_book_outlined, selected: false, onTap: () => openLibrary(context))),
           ],
         ),
@@ -63,21 +60,6 @@ class ProfileScreen extends StatelessWidget {
             );
           },
         ),
-        for (final c in m.data.courses)
-          if (((c['units'] as List?) ?? const []).isNotEmpty)
-            () {
-              final id = c['id'] as String;
-              final n = courseCounts(m, id);
-              return ItemBlock(
-                key: ValueKey('profile-course-$id'),
-                leading: LeadTile(text: '${c['code']}'.split(' ').last),
-                subtitle: '${c['code']}',
-                title: '${c['title']}',
-                meta: '${n.cleared}/${n.total}',
-                below: ProgressBar(n.total == 0 ? 0 : n.cleared / n.total),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseScreen(cid: id))),
-              );
-            }(),
       ],
     );
   }

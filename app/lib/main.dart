@@ -61,29 +61,38 @@ class BrickfordApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQueryData.fromView(View.of(context));
-    final w = math.min(mq.size.width, maxWidth);
-    return ColoredBox(
-      color: Tokens.midnight,
-      child: Center(
-        child: SizedBox(
-          width: w,
-          child: MediaQuery(
-            data: mq.copyWith(size: Size(w, mq.size.height)),
-            child: AppScope(
-              model: model,
-              child: _SyncHooks(
-                sync: model.sync,
-                child: ScreenUtilInit(
-                  designSize: const Size(375, 812),
-                  minTextAdapt: true,
-                  builder: (context, _) =>
-                      MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
+    // fromView, not MediaQueryData.fromView(View.of(context)) once: that is read at build time and
+    // never hears the view's metrics change, so the keyboard (viewInsets) and rotation stayed stale.
+    return MediaQuery.fromView(
+      view: View.of(context),
+      child: Builder(
+        builder: (context) {
+          final mq = MediaQuery.of(context);
+          final w = math.min(mq.size.width, maxWidth);
+          return ColoredBox(
+            color: Tokens.midnight,
+            child: Center(
+              child: SizedBox(
+                width: w,
+                child: MediaQuery(
+                  data: mq.copyWith(size: Size(w, mq.size.height)),
+                  child: AppScope(
+                    model: model,
+                    child: _SyncHooks(
+                      sync: model.sync,
+                      child: ScreenUtilInit(
+                        designSize: const Size(375, 812),
+                        minTextAdapt: true,
+                        builder: (context, _) =>
+                            MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

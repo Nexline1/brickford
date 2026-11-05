@@ -14,6 +14,7 @@ import 'package:app/widgets/pill_button.dart';
 import 'package:app/widgets/sheet_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -137,6 +138,38 @@ void main() {
     expect(find.byKey(const ValueKey('chip-library')), findsOneWidget);
     expect(find.byKey(const ValueKey('profile-sync')), findsOneWidget);
     expect(find.byWidgetPredicate((w) => w.key is ValueKey && '${(w.key! as ValueKey).value}'.startsWith('profile-course-')), findsNothing);
+  });
+
+  testWidgets('search sheet: the field is at least 16px at phone widths, and the sheet shrinks above the keyboard', (tester) async {
+    await pumpApp(tester, await model('2026-11-04'));
+    for (final w in [320.0, 375.0, 390.0, 430.0]) {
+      tester.view.physicalSize = Size(w * 3, 844 * 3);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('brickford-search')));
+      await tester.pumpAndSettle();
+      final ed = tester.widget<EditableText>(find.descendant(of: find.byKey(const ValueKey('search-field')), matching: find.byType(EditableText)));
+      expect(ed.style.fontSize! >= 16, isTrue, reason: 'search field is ${ed.style.fontSize}px at width $w');
+      // The keyboard (300 logical px) opens: the sheet ends above it.
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
+      await tester.pumpAndSettle();
+      final bottom = tester.getBottomLeft(find.byType(DraggableScrollableSheet)).dy;
+      expect(bottom <= 844 - 300 + 0.5, isTrue, reason: 'sheet bottom $bottom runs under the keyboard at width $w');
+      tester.view.resetViewInsets();
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.byType(DraggableScrollableSheet))).pop();
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('every BrickfordField, at any width, is at least 16px', (tester) async {
+    for (final w in [320.0, 390.0]) {
+      tester.view.physicalSize = Size(w * 3, 800 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) => ScreenUtilInit(designSize: const Size(375, 812), minTextAdapt: true, builder: (_, _) => const Scaffold(body: BrickfordField(icon: Icons.search, hint: 'x'))))));
+      await tester.pumpAndSettle();
+      expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontSize! >= 16, isTrue);
+    }
   });
 
   testWidgets('Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs', (tester) async {

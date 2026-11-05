@@ -4,7 +4,24 @@
   <!-- flutter build replaces this with --base-href (tools/build-app.sh passes /brickford/app-web/). -->
   <base href="/brickford/app-web/">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <script>
+    /* Flutter's engine (full-page mode) deletes every <meta name=viewport> at startup and appends its own,
+       "width=device-width, initial-scale=1.0, maximum-scale=5.0", which gives the zoom back. Keep the
+       engine's meta but pin its scale: maximum-scale=1, user-scalable=no (no focus zoom, no sideways drift). */
+    (function () {
+      function pin() {
+        var ms = document.head.querySelectorAll('meta[name="viewport"]');
+        for (var i = 0; i < ms.length; i++) {
+          var c = ms[i].getAttribute("content") || "";
+          if (/maximum-scale=1(\.0)?(,|$)/.test(c) && /user-scalable=no/.test(c)) continue;
+          ms[i].setAttribute("content", c.replace(/,?\s*(maximum-scale|user-scalable)=[^,]*/g, "") + ", maximum-scale=1, user-scalable=no");
+        }
+      }
+      new MutationObserver(pin).observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ["content"] });
+      pin();
+    })();
+  </script>
   <meta name="description" content="Brickford, the Flutter app.">
   <meta name="theme-color" content="#12141C">
   <meta name="mobile-web-app-capable" content="yes">
@@ -18,6 +35,10 @@
   <link rel="manifest" href="manifest.json">
   <style>
     html, body { margin: 0; background: #12141C; }
+    /* iOS Safari zooms the page (and shifts it sideways) when a text field under 16px takes focus.
+       The fields are already >= 16px in Dart (fieldStyle); this holds the engine's hidden editing
+       input to the same floor, whatever it is handed. */
+    input, textarea, flt-text-editing-host input, flt-text-editing-host textarea { font-size: 16px !important; }
     /* The boot screen (T-064 boot). Static HTML, so it is on screen from the
        first paint, before any script: the crest, the wordmark, and real
        progress. It stays until Flutter reports its first frame. */
@@ -50,7 +71,7 @@
      fonts) and finished <script> loads (main.dart.js) from the resource timing
      entries. The total is the build's own sum, written in by tools/build-app.sh. */
   (function () {
-    var TOTAL = +"12487847" || 0, LIMIT = 25000, t0 = Date.now();
+    var TOTAL = +"12488489" || 0, LIMIT = 25000, t0 = Date.now();
     var streamed = 0, scripts = {}, booted = false, failed = false, errs = [], origFetch = window.fetch;
     function $(id) { return document.getElementById(id); }
     function got() { var n = streamed; for (var k in scripts) n += scripts[k]; return n; }

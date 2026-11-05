@@ -176,47 +176,52 @@ Future<void> showSearchSheet(BuildContext context) {
     showDragHandle: true,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(borderRadius: Tokens.sheetBorderRadius),
-    builder: (sheet) => DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.9,
-      maxChildSize: 0.94,
-      builder: (_, scroll) => StatefulBuilder(
-        builder: (context, setState) {
-          final needle = q.toLowerCase();
-          final hits = needle.isEmpty
-              ? const []
-              : all.where((f) => '${f.code} ${f.l['t']}'.toLowerCase().contains(needle)).take(60).toList();
-          return ListView(
-            controller: scroll,
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 28.h),
-            children: [
-              BrickfordField(
-                key: const ValueKey('search-field'),
-                icon: Icons.search,
-                hint: 'Search',
-                autofocus: true,
-                onChanged: (v) => setState(() => q = v.trim()),
-              ),
-              SizedBox(height: 14.h),
-              for (final f in hits)
-                ItemBlock(
-                  leading: LessonGlyph(m.markOf(f.key)),
-                  subtitle: f.code,
-                  title: '${f.l['t']}',
-                  meta: f.l['min'] != null ? "${f.l['min']}m" : null,
-                  onTap: () {
-                    Navigator.of(sheet).pop();
-                    nav.push(
-                      MaterialPageRoute(
-                        builder: (_) => LessonScreen(cid: f.cid, ui: f.ui, li: f.li),
-                      ),
-                    );
-                  },
+    // The sheet shrinks above the keyboard (viewInsets), so the results stay visible
+    // instead of sliding under it.
+    builder: (sheet) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheet).bottom),
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.9,
+        maxChildSize: 0.94,
+        builder: (_, scroll) => StatefulBuilder(
+          builder: (context, setState) {
+            final needle = q.toLowerCase();
+            final hits = needle.isEmpty
+                ? const []
+                : all.where((f) => '${f.code} ${f.l['t']}'.toLowerCase().contains(needle)).take(60).toList();
+            return ListView(
+              controller: scroll,
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 28.h),
+              children: [
+                BrickfordField(
+                  key: const ValueKey('search-field'),
+                  icon: Icons.search,
+                  hint: 'Search',
+                  autofocus: true,
+                  onChanged: (v) => setState(() => q = v.trim()),
                 ),
-            ],
-          );
-        },
+                SizedBox(height: 14.h),
+                for (final f in hits)
+                  ItemBlock(
+                    leading: LessonGlyph(m.markOf(f.key)),
+                    subtitle: f.code,
+                    title: '${f.l['t']}',
+                    meta: f.l['min'] != null ? "${f.l['min']}m" : null,
+                    onTap: () {
+                      Navigator.of(sheet).pop();
+                      nav.push(
+                        MaterialPageRoute(
+                          builder: (_) => LessonScreen(cid: f.cid, ui: f.ui, li: f.li),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     ),
   );

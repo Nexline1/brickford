@@ -14,6 +14,7 @@ import '../engine/dates.dart';
 import '../engine/engine.dart';
 import '../engine/monk.dart';
 import '../engine/quiz.dart';
+import '../engine/record.dart';
 import 'sync.dart';
 
 class AppModel extends ChangeNotifier {
@@ -128,6 +129,7 @@ class AppModel extends ChangeNotifier {
   /// Mark watched / unmark (the web app's toggleDone).
   void toggleDone(String k) {
     engine.toggleDone(k);
+    engine.logEvent('lesson', k, {'done': truthy(lesson(k)['done'])}, _ts());
     persist();
     notifyListeners();
   }
@@ -138,6 +140,7 @@ class AppModel extends ChangeNotifier {
   /// the lecture is cleared everywhere that reads lessonCleared.
   void passedQuiz(String k, SittingResult r) {
     engine.recordQuizPass(k, r, now().toUtc().toIso8601String());
+    engine.logEvent('quiz', k, {'firstTry': r.firstTry, 'total': r.total}, _ts());
     persist();
     notifyListeners();
   }
@@ -145,9 +148,12 @@ class AppModel extends ChangeNotifier {
   /// A bank sitting finished: the attempt, and the misses it adds or clears.
   void sat(String bankId, BankSitting s, List<int> map) {
     engine.recordExam(bankId, s, map);
+    engine.logEvent('exam', bankId, {'score': s.score, 'total': s.n, 'pct': s.pct}, _ts());
     persist();
     notifyListeners();
   }
+
+  String _ts() => isoStamp(now());
 
   void _write(void Function() f) {
     f();
@@ -156,11 +162,35 @@ class AppModel extends ChangeNotifier {
   }
 
   void tickPset(String id, bool on) => _write(() => engine.setPset(id, on));
-  void tickLab(String id, bool on) => _write(() => engine.setLab(id, on));
+  void tickLab(String id, bool on) => _write(() {
+    engine.setLab(id, on);
+    engine.logEvent('lab', id, {'done': on}, _ts());
+  });
   void labProof(String id, String url) => _write(() => engine.setLabProof(id, url));
-  void tickProblem(String key, bool on) => _write(() => engine.setProblem(key, on));
+  void tickProblem(String key, bool on) => _write(() {
+    engine.setProblem(key, on);
+    engine.logEvent('problem', key, {'solved': on}, _ts());
+  });
   bool recordDiag(String id, double? v) {
     final ok = engine.recordDiag(id, v);
+    if (ok) {
+      engine.logEvent('diagnostic', id, {'score': jsRound(v!)}, _ts());
+      persist();
+      notifyListeners();
+    }
+    return ok;
+  }
+
+  void recordDiagDone(String id) => _write(() {
+    engine.recordDiagDone(id);
+    engine.logEvent('diagnostic', id, {'score': null}, _ts());
+  });
+
+  // ---------- the record (stage 5): the day seal, the Sunday week, the streak reset, anchors, Treasury ----------
+
+  /// "Mark today's Deep Track done" (app.js act "studied"): false on a rest day.
+  bool sealDay() {
+    final ok = engine.sealDay(_ts());
     if (ok) {
       persist();
       notifyListeners();
@@ -168,7 +198,38 @@ class AppModel extends ChangeNotifier {
     return ok;
   }
 
-  void recordDiagDone(String id) => _write(() => engine.recordDiagDone(id));
+  /// "Seal the week": Sunday only; false when it is not.
+  bool sealWeek({required String shipped, required String notes, required num posts, num? revenue}) {
+    final e = engine.sealWeek(shipped: shipped, notes: notes, posts: posts, revenue: revenue, ts: _ts());
+    if (e == null) return false;
+    persist();
+    notifyListeners();
+    return true;
+  }
+
+  void resetStreak() => _write(() => engine.resetStreak(_ts()));
+  String? addAnchor(String where, String url) {
+    final err = engine.addAnchor(where, url);
+    if (err == null) _write(() {});
+    return err;
+  }
+
+  void removeAnchor(int i) => _write(() => engine.removeAnchor(i));
+  void saveOffer(String t) => _write(() => engine.saveOffer(t));
+  bool addClient(String name, String project, num price, {bool force = false}) {
+    final ok = engine.addClient(name, project, price, force: force);
+    if (ok) _write(() {});
+    return ok;
+  }
+
+  void removeClient(int i) => _write(() => engine.removeClient(i));
+  bool addEntry(num amount, String note) {
+    final ok = engine.addEntry(amount, note);
+    if (ok) _write(() {});
+    return ok;
+  }
+
+  void lockNiche(String id) => _write(() => engine.lockNiche(id));
 
   /// The lesson page records itself as the one to resume, only when it changed
   /// (the web app's rule: a render is a read; this runs once, on open).

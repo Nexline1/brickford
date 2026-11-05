@@ -7,6 +7,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../course/course_screen.dart';
+import '../library/library_screen.dart';
 import 'sync_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -38,6 +39,12 @@ class ProfileScreen extends StatelessWidget {
       tabbed: true,
       header: header,
       children: [
+        ChipRow(
+          children: [
+            BrickChip(key: const ValueKey('chip-library'), label: 'Library', icon: Icons.menu_book_outlined, selected: false, onTap: () => openLibrary(context)),
+          ],
+        ),
+        SizedBox(height: 14.h),
         ListenableBuilder(
           listenable: m.sync,
           builder: (context, _) {

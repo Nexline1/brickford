@@ -5,7 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../engine/dates.dart';
 import '../../engine/engine.dart';
+import '../../engine/record.dart';
 import '../../state/app_model.dart';
 import '../../theme/theme.dart';
 import '../../theme/tokens.dart';
@@ -16,6 +18,7 @@ import '../calendar/calendar_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../monk/monk_screen.dart';
 import '../quiz/quiz_screen.dart';
+import '../week/week_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -159,6 +162,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Semantics(
+              identifier: 'chip-week',
+              child: BrickChip(
+                key: const ValueKey('chip-week'),
+                label: 'Week',
+                icon: Icons.verified_outlined,
+                selected: false,
+                onTap: () => openWeek(context),
+              ),
+            ),
+            Semantics(
               identifier: 'chip-monk',
               child: BrickChip(
                 key: const ValueKey('chip-monk'),
@@ -168,6 +181,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => openMonk(context),
               ),
             ),
+            if (!rest && !e.sealedToday && ge(today, e.START_DATE))
+              Semantics(
+                identifier: 'chip-seal',
+                child: BrickChip(
+                  key: const ValueKey('chip-seal'),
+                  label: 'Seal day',
+                  icon: Icons.task_alt,
+                  selected: false,
+                  onTap: () => m.sealDay(),
+                ),
+              ),
             if (codes.length > 1) ...[
               BrickChip(key: const ValueKey('chip-all'), label: 'All', selected: only == null, onTap: () => setState(() => only = null)),
               for (final c in codes)

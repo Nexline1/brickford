@@ -360,5 +360,73 @@
    "title": "Deploy an inference API",
    "req": "A quantized model served publicly; p95 latency and cost per 1k tokens documented."
   }
+ ],
+ "NICHES": [
+  {
+   "id": "clinics",
+   "pick": true,
+   "name": "Private clinics — dental, derma, physio",
+   "market": "Bahrain first, then Saudi via referrals",
+   "pain": "Every unanswered WhatsApp after hours is a lost 30–200 BHD appointment; no-shows quietly eat 10–20% of revenue; reception can't cover evenings or weekends.",
+   "offer": "Bilingual (Arabic/English) WhatsApp receptionist: booking, reminders that cut no-shows, FAQ, and review requests.",
+   "pricing": "BHD 400–700 setup + 60–100/mo retainer",
+   "edge": "Your Arabic+English agent already exists; patients live on WhatsApp; the owner-doctor answers their own phone — one decision-maker, fast close.",
+   "verdict": "THE PICK. Real budgets, monthly retainers, and the same build resells to every clinic in the Gulf."
+  },
+  {
+   "id": "carrental",
+   "pick": false,
+   "name": "Car rental & dealerships",
+   "market": "Bahrain + Saudi (WhatsApp-heavy inquiry flow)",
+   "pain": "Huge after-hours inquiry volume; the first responder wins the booking; staff drown in repetitive availability questions.",
+   "offer": "WhatsApp agent for instant availability, qualification, and booking handoff.",
+   "pricing": "BHD 500–900 setup + retainer",
+   "edge": "Inquiry volume makes ROI obvious in week one.",
+   "verdict": "Strong #2 — bigger tickets than salons, but the owner is harder to reach than a clinic's."
+  },
+  {
+   "id": "restaurants",
+   "pick": false,
+   "name": "Restaurants & cafés",
+   "market": "Bahrain — you know this world from the inside",
+   "pain": "Missed reservations and order questions during rush hours; no one owns the WhatsApp inbox.",
+   "offer": "Reservations + menu FAQ + order-status agent.",
+   "pricing": "BHD 250–450 setup + small retainer",
+   "edge": "You RAN a coffee shop — instant credibility and vocabulary with owners.",
+   "verdict": "Fallback #1 — fastest doors to open for your first 1–2 logos, but budgets are thin and churn is high. Don't build the business here."
+  },
+  {
+   "id": "salons",
+   "pick": false,
+   "name": "Salons & aesthetic studios",
+   "market": "Bahrain, Instagram-driven",
+   "pain": "Booking chaos across Instagram DMs and WhatsApp; no-shows on peak slots.",
+   "offer": "Booking + reminder agent unified over WhatsApp/Instagram.",
+   "pricing": "BHD 200–350 setup",
+   "edge": "Quick yes from owner-operators.",
+   "verdict": "Volume play — good for confidence reps early, bad for margin. Graduate out fast."
+  },
+  {
+   "id": "realestate",
+   "pick": false,
+   "name": "Real-estate agencies (your paused niche)",
+   "market": "Bahrain/Dubai",
+   "pain": "Speed-to-lead decides who gets the viewing; agents leak leads constantly.",
+   "offer": "Instant lead-response + qualification agent feeding a sheet/CRM.",
+   "pricing": "BHD 700–1,200 setup",
+   "edge": "You know the players from last time.",
+   "verdict": "Parked, deliberately. Commission-driven owners haggle, retainers churn when the market cools, and momentum here was already lost once. Reopen only on a warm referral."
+  },
+  {
+   "id": "lawfirms",
+   "pick": false,
+   "name": "Law & consulting firms",
+   "market": "Bahrain + GCC",
+   "pain": "Expensive partners doing free phone triage; unqualified consults burn billable hours.",
+   "offer": "Client-intake qualification agent + calendar handoff.",
+   "pricing": "BHD 800–1,500 setup",
+   "edge": "High ticket, low competition.",
+   "verdict": "Wrong for now — conservative buyers and a 2-month sales cycle you can't afford at ≤2h/day. Phase 2 candidate."
+  }
  ]
 }

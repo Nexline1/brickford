@@ -11,14 +11,15 @@
 //   - tap -> the new screen on screen: a tab switch (Learn, Build, Profile), a lecture, the Calendar, Monk, Atlas,
 //     as ident (the first moment the new screen's semantics identifier is in the DOM, which follows the frame that
 //     painted it) and settled (the end of the last frame over 32 ms in the 1.2 s after the tap).
-// What it can not say: this is a software-GL Chromium on a server CPU, throttled by a multiplier, not an iPhone's
+// The plain walk says it is an iPhone (user agent and navigator.platform), so Flutter takes its iOS paths (Cupertino
+// route transitions); the semantics walk runs as Linux. What it can not say: this is a software-GL Chromium on a server CPU, throttled by a multiplier, not an iPhone's
 // GPU. Raster cost (blurs, shadows) is exaggerated by software GL and the main-thread (Dart) cost is scaled by 4;
 // read the numbers as a ranking of before against after, not as milliseconds on the phone.
 "use strict";
 const fs = require("fs"), http = require("http"), path = require("path"), crypto = require("crypto");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 
-const ROOT = path.resolve(__dirname, "..");
+const ROOT = path.resolve(process.env.APP_ROOT || path.join(__dirname, ".."));   // APP_ROOT: a folder holding app-web/ (a baseline checkout)
 const OUT = process.argv[2] ? path.resolve(process.argv[2]) : null;
 const THROTTLE = +(process.env.THROTTLE || 4);
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json",
@@ -115,6 +116,11 @@ const f1 = n => (Number.isFinite(n) ? n.toFixed(1) : "-");
     const page = await ctx.newPage();
     const cdp = await ctx.newCDPSession(page);
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: THROTTLE });
+    // The owner's phone is an iPhone: Flutter picks its platform from the user agent and navigator.platform, and on iOS
+    // routes slide in (Cupertino) where Linux/Android zoom the whole page. The plain walk says iPhone, so the same code
+    // paths run. (The semantics walk can not: Flutter's mobile a11y placeholder ignores a scripted click.)
+    if (!sem) await cdp.send("Network.setUserAgentOverride", { platform: "iPhone", userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1" });
     page.on("pageerror", e => errors.push(e.message));
     const res = { start: {}, scroll: [], open: [] };
 

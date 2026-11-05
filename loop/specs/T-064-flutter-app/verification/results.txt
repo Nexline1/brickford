@@ -1,0 +1,25 @@
+T-064 stage 1 — gate results, 5 Nov 2026 (branch loop/T-064-flutter-1)
+
+platform/, platform/data, sw.js, progress/, loop/config.md and CLAUDE.md are unchanged against the
+base 2160899 (git diff --stat is empty), so every web-app gate measures the same site as main.
+
+  typecheck (node --check, 42 files)  pass
+  verify-content                      pass
+  verify-logic                        pass
+  verify-sync-loop                    pass
+  verify-flows                        pass (first run, no re-run needed)
+  verify-shell                        pass
+  verify-contrast                     pass
+  verify-app (export + parity + plants) pass, 20 checks; plants stale-json and rest-day exit 1
+  verify-design                       FAIL 1/2656: Inter FontFace "unloaded" at 390px light
+  verify-offline                      FAIL 1/53:   Inter FontFace "unloaded" offline
+  verify-density                      FAIL: 3 new (/courses sub lines wrap at 320), 4 stale (/monk et al.)
+  verify-clip                         FAIL: 0 new, 1 stale baseline entry (seeded|24|1100|/course/math110|div)
+  tools/shoot-app.js                  pass, 16 checks (app-web/ under the root sw.js included)
+  flutter analyze / flutter test      clean / 7 passed
+
+The four failures are not this branch's: each gate was re-run on a detached checkout of the base
+commit 2160899 in the same container, and produced the identical findings (base-2160899-*.txt).
+The two Inter failures share a cause in this environment (the self-hosted Inter face is never
+requested by Chromium here); the /courses density wraps at 320px are plausibly the same fallback
+font being wider. They passed in T-062's runs, so they are environmental drift, not a regression.

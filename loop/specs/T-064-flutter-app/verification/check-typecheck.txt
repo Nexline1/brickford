@@ -1,0 +1,2 @@
+typecheck: all JS parses (42 files)
+exit 0

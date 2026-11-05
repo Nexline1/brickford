@@ -67,8 +67,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum"].includes(process.argv[process.argv.indexOf("--plant") + 1]);
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -749,6 +749,76 @@ async function runRecordJS(browser, fx, pure) {
   return out;
 }
 
+// ---------- Atlas, Recall, Drill, Electives fixtures (T-064 stage 6a) ----------
+// The Atlas and the course pages are read from app.js's rendered #/atlas and #/course/<id> (so the route, the
+// gates, which courses are running and the unit counts are measured end to end), against Dart's AtlasData and
+// unitCounts. Reach: every branch the plants break must be hit by some fixture.
+function learnFixtures(plan) {
+  const st = over => baseState(over), F = plan.flat;
+  const provenLessons = Object.assign({},
+    lessonsOn(F.math110.slice(0, 6), "2026-10-20", { verified: true, verifiedAt: "2026-10-21" }),   // proven
+    lessonsOn(F.math110.slice(6, 10), "2026-10-22"),                                                // watched, not proven
+    lessonsOn(F.ai200.slice(0, 3), "2026-10-22", { verified: true, verifiedAt: "2026-10-23" }), lessonsOn(F.ai200.slice(3, 4), "2026-10-24"));
+  const proven = st({
+    lessons: provenLessons,
+    gates: { 1: { date: "2026-10-30", at: "2026-10-30T09:00:00.000Z", passed: true } },
+    quizAttempts: { "linear-algebra": [{ date: "2026-10-25", score: 11, total: 15, pct: 73 }, { date: "2026-10-28", score: 13, total: 15, pct: 87 }], dsa: [{ date: "2026-11-01", score: 9, total: 15, pct: 60 }] },
+    problems: { "Arrays & Hashing|Two Sum": "2026-10-27", "Arrays & Hashing|Valid Anagram": "2026-10-28", "Stack|Min Stack": true, "Stack|Other": false },
+  });
+  const late = {};
+  ["math110", "math120", "math130", "ai200", "ai210"].forEach(cid => F[cid].forEach(k => { late[k] = { done: true, doneAt: "2026-10-20", notes: "", checks: [], verified: true, verifiedAt: "2026-10-21" }; }));
+  const aheadL = {};
+  F.math110.slice(0, 30).forEach(k => { aheadL[k] = { done: true, doneAt: "2026-10-17", notes: "", checks: [] }; });
+  F.ai200.slice(0, 12).forEach(k => { aheadL[k] = { done: true, doneAt: "2026-10-18", notes: "", checks: [] }; });
+  const g = (date, at) => ({ date, at: at || date + "T09:00:00.000Z", passed: true });
+  const atlas = [
+    { name: "before the start", clock: "2026-09-20", state: st({}) },
+    { name: "a Saturday, the first rest day", clock: "2026-10-10", state: st({}) },
+    { name: "day 17, nothing done", clock: "2026-11-04", state: st({}) },
+    { name: "proven and watched lectures, gate 1 passed, exams, DSA", clock: "2026-11-04", state: proven },
+    { name: "worked ahead", clock: "2026-10-20", state: st({ lessons: aheadL }) },
+    { name: "phase 2, gates 1 and 2 passed", clock: plan.d300, state: st({ lessons: late, gates: { 1: g("2026-12-20"), 2: g("2027-03-15") }, studyDays: ["2027-06-01"] }) },
+    { name: "every gate passed (object, legacy date, legacy true)", clock: "2029-05-01", state: st({ gates: { 1: g("2026-12-20"), 2: "2027-03-15", 3: true, 4: g("2028-01-10"), 5: g("2029-04-20") } }) },
+  ];
+  return { atlas, courseFixtures: [3, 4, 5] };
+}
+
+async function runLearnJS(browser, fx) {
+  const out = { errors: [], atlas: {}, units: {} };
+  const L = fx.learn;
+  const readAtlas = () => {
+    const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : null; };
+    const rt = document.querySelector(".rt"), pin = document.querySelector(".rt-pin"), nx = document.querySelector(".at-next");
+    const chips = [...document.querySelectorAll(".at-chip")], later = [...document.querySelectorAll(".ghead")].find(h => h.textContent.startsWith("Opens later"));
+    return {
+      sub: t(document, ".page-head .sub"), base: t(document, ".at-base"),
+      nodes: [...document.querySelectorAll(".rt-node")].map(li => [t(li, ".rt-lab b"), t(li, ".rt-lab span"), ["done", "next", "past", "cur"].filter(c => li.classList.contains(c)).join(" ")]),
+      pin: pin.textContent.trim(), pinEnd: pin.classList.contains("end"), fill: rt.style.getPropertyValue("--fill").trim(), f: rt.style.getPropertyValue("--f").trim(),
+      next: nx && nx.querySelector(".at-k") ? { k: t(nx, ".at-k"), gate: t(nx, ".at-gate"), reqs: [...nx.querySelectorAll(".at-req")].map(e => e.textContent.trim()), days: t(nx, ".at-days b") } : null,
+      tiles: [...document.querySelectorAll(".at-tile")].map(a => [a.getAttribute("href").replace("#/course/", ""), t(a, ".tl-code"), t(a, ".tl-t"), t(a, ".tl-m"), t(a, ".tl-pct")]),
+      chips: chips.filter(c => !c.classList.contains("more")).map(c => c.textContent.trim()), more: (chips.find(c => c.classList.contains("more")) || { textContent: "" }).textContent.trim(),
+      laterN: later ? t(later, ".gh-meta") : null,
+    };
+  };
+  for (const f of L.atlas) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/atlas"; });
+    await p.waitForSelector(".rt-node", { timeout: 15000 });
+    out.atlas[f.name] = await p.evaluate(readAtlas);
+    if (L.courseFixtures.includes(L.atlas.indexOf(f))) {
+      const units = {};
+      for (const c of L.courses.filter(c => !c.tracker)) {
+        await p.evaluate(h => { location.hash = h; }, "#/course/" + c.id);
+        await p.waitForFunction(code => ((document.querySelector(".page-head .kicker") || {}).textContent || "").startsWith(code), c.code, { timeout: 15000 });
+        units[c.id] = await p.evaluate(() => [...document.querySelectorAll("details.unit")].map(d => [d.querySelector(".u-name").textContent, d.querySelector(".pill").textContent]));
+      }
+      out.units[f.name] = units;
+    }
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  return out;
+}
+
 // ---------- the two engines ----------
 async function runJS(browser, fx) {
   const out = { fixtures: {} };
@@ -883,6 +953,7 @@ function diff(a, b, at, out, label) {
     "ledger-hash": ["lib/engine/record.dart", "final keys = [for (final k in v.keys) '$k']..sort();", "final keys = [for (final k in v.keys) '$k'];"],   // canon no longer sorts keys: the chain hash differs from the web app's
     "seal-guard": ["lib/engine/record.dart", "return ge(t, revisionWeek(revisionWeekOf(t)).sun);", "return ge(t, revisionWeek(revisionWeekOf(t)).from);"],   // the seal opens on the week's first day, not its Sunday
     "treasury-sum": ["lib/engine/record.dart", "(a, e) => a + (e is Map ? jsOr0(e['amount']) : 0))", "(a, e) => a + (e is Map ? jsOr0(e['amount']).floorToDouble() : 0))"],   // every payment loses its cents
+    "atlas-count": ["lib/engine/learn.dart", "tracker ? dsaCount() : st!.verified,", "tracker ? dsaCount() : st!.done,"],   // a tile counts the lectures watched as proven
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -937,6 +1008,8 @@ function diff(a, b, at, out, label) {
     };
     fx.quiz = quizFixtures(plan, fx.fixtures);
     fx.record = recordFixtures(plan);
+    fx.learn = learnFixtures(plan);
+    fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
     const fxFile = path.join(scratch, "fixtures.json");
@@ -995,7 +1068,7 @@ function diff(a, b, at, out, label) {
     }
 
     // 5. sync: app.js's mergeState and syncPayload (lifted into a VM), the live hook's `changed` as a cross-check, and Dart.
-    {
+    if (!process.env.VERIFY_ONLY) {
       const pure = jsPure(fx.START);
       const tM = Date.now();
       const jm = await runMergeJS(browser, fx, pure);
@@ -1031,7 +1104,7 @@ function diff(a, b, at, out, label) {
     }
 
     // 6. monk: the prayer times, the day plan, the sums and the focus
-    {
+    if (!process.env.VERIFY_ONLY) {
       const pure = jsPure(fx.START);
       const jk = await runMonkJS(browser, fx, pure);
       check("the monk block ran in app.js without page errors", jk.errors.length === 0, jk.errors.slice(0, 3).join(" | "));
@@ -1055,7 +1128,7 @@ function diff(a, b, at, out, label) {
     }
 
     // 7. quiz, Problems, Exams
-    {
+    if (!process.env.VERIFY_ONLY) {
       const pure = jsPure(fx.START);
       const tQ = Date.now();
       const jq = await runQuizJS(browser, fx, pure);
@@ -1089,7 +1162,7 @@ function diff(a, b, at, out, label) {
     }
 
     // 8. record: the ledger chain, the Week page and the seal, the streak reset, the Record page, the Treasury
-    {
+    if (!process.env.VERIFY_ONLY) {
       const pure = jsPure(fx.START);
       const tR = Date.now();
       const jr = await runRecordJS(browser, fx, pure);
@@ -1130,6 +1203,24 @@ function diff(a, b, at, out, label) {
         jr.weeks["Sunday: a counted treasury, proven lectures and DSA in the week"].counted === true && jr.weeks["Sunday: a counted treasury, proven lectures and DSA in the week"].tiles[3] === "120.25" &&
         jr.weeks["Wednesday: nothing sealed, an empty treasury (typed BHD)"].counted === false,
         jl.entries.length + " links; week 3 earned " + jr.weeks["Sunday: a counted treasury, proven lectures and DSA in the week"].tiles[3]);
+    }
+
+    // 9. Atlas, Recall, Drill, Electives (stage 6a)
+    {
+      const tL = Date.now();
+      const jl = await runLearnJS(browser, fx);
+      console.log("  learn:       " + fx.learn.atlas.length + " Atlas pages, " + Math.round((Date.now() - tL) / 1000) + "s");
+      check("the Atlas block ran in app.js without page errors", jl.errors.length === 0, jl.errors.slice(0, 3).join(" | "));
+      const dl = dart.learn || {}, idx = (at, i) => i, one = (name, a, b) => { const out = []; diff(a, b, [], out, idx); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      for (const f of fx.learn.atlas) one("parity: Atlas — " + f.name + " (" + jl.atlas[f.name].tiles.length + " running, " + jl.atlas[f.name].laterN + " later; route, next gate, fill, tiles' proven counts and mastery)", jl.atlas[f.name], dl.atlas && dl.atlas[f.name]);
+      for (const name of Object.keys(jl.units)) one("parity: unit counts on every course page — " + name + " (" + Object.values(jl.units[name]).reduce((a, u) => a + u.length, 0) + " units)", jl.units[name], dl.units && dl.units[name]);
+      // Reach: the fixtures must hit what the plants break.
+      const A = jl.atlas, pv = A["proven and watched lectures, gate 1 passed, exams, DSA"], all = A["every gate passed (object, legacy date, legacy true)"];
+      check("the Atlas fixtures reach a passed gate, all gates passed, a pre-start pin, proven below watched (a count that differs), a best exam in the mastery, DSA on the tracker, and later chips with +N",
+        pv.nodes[1][2].includes("done") && all.next === null && A["before the start"].pin.startsWith("Starts ") && pv.tiles.some(t => /^[1-9]\d* of \d+ proven$/.test(t[3])) &&
+        pv.tiles.some(t => t[3] === "3 of 150 problems") && pv.tiles.some(t => t[4] !== "0%") && pv.more.startsWith("+") && A["worked ahead"].tiles.length >= pv.tiles.length &&
+        Object.values(jl.units).every(u => Object.values(u).some(x => x.some(y => y[1].split("/")[0] !== "0"))),
+        pv.tiles.map(t => t[0] + " " + t[3] + " " + t[4]).join("; "));
     }
   } finally {
     await browser.close();

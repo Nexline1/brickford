@@ -18,6 +18,8 @@ import '../lib/engine/dates.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/engine.dart';
 // ignore: avoid_relative_lib_imports
+import '../lib/engine/learn.dart';
+// ignore: avoid_relative_lib_imports
 import '../lib/engine/merge.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/monk.dart';
@@ -327,6 +329,41 @@ Map<String, dynamic> recordDump(Map<String, dynamic> fx, BrickfordData data) {
   return out;
 }
 
+/// Atlas, Recall, Drill and Electives (T-064 stage 6a): the same fixtures app.js renders, as the Dart port sees them.
+Map<String, dynamic> learnDump(Map<String, dynamic> fx, BrickfordData data) {
+  final L = fx['learn'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  Engine eng(Map<String, dynamic> f) => Engine(data, (copy(f['state']) as Map?)?.cast<String, dynamic>(), today: () => f['clock'] as String);
+  final out = <String, dynamic>{'atlas': <String, dynamic>{}, 'units': <String, dynamic>{}};
+
+  // ---- the Atlas, and the unit counts of the course pages ----
+  for (final f in L['atlas'] as List) {
+    final e = eng(f as Map<String, dynamic>);
+    final a = e.atlas();
+    (out['atlas'] as Map)[f['name']] = {
+      'sub': a.sub,
+      'base': a.base,
+      'nodes': [for (final n in a.nodes) [n.label, n.when, [if (n.done) 'done', if (n.next) 'next', if (n.past) 'past', if (n.cur) 'cur'].join(' ')]],
+      'pin': a.pin,
+      'pinEnd': a.pinEnd,
+      'fill': a.fill.toStringAsFixed(4),
+      'f': a.f.toStringAsFixed(4),
+      'next': a.next == null ? null : {'k': 'Next gate · ${a.next!.k} of ${a.next!.of}', 'gate': a.next!.label, 'reqs': a.next!.reqs, 'days': '${a.next!.daysLeft}'},
+      'tiles': [for (final t in a.tiles) [t.id, t.code, t.title, t.meta, '${t.pct}%']],
+      'chips': [for (final c in a.later.take(5)) c.text],
+      'more': a.later.length > 5 ? '+${a.later.length - 5}' : '',
+      'laterN': a.later.isEmpty ? null : '${a.later.length} course${a.later.length == 1 ? '' : 's'}',
+    };
+    if ((L['courseFixtures'] as List).contains((L['atlas'] as List).indexOf(f))) {
+      (out['units'] as Map)[f['name']] = {
+        for (final c in (L['courses'] as List).where((c) => c['tracker'] != true))
+          c['id'] as String: [for (final u in e.unitCounts(c['id'] as String)) [u.name, '${u.done}/${u.total}']],
+      };
+    }
+  }
+  return out;
+}
+
 void main(List<String> args) {
   final dir = args[0];
   final fx = jsonDecode(File(args[1]).readAsStringSync()) as Map<String, dynamic>;
@@ -477,5 +514,6 @@ void main(List<String> args) {
   };
   out['quiz'] = quizDump(fx, data, dir);
   out['record'] = recordDump(fx, data);
+  out['learn'] = learnDump(fx, data);
   stdout.write(jsonEncode(out));
 }

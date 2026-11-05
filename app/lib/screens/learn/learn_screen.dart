@@ -15,6 +15,7 @@ import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../course/course_screen.dart';
 import '../quiz/quiz_screen.dart';
+import 'atlas_screen.dart';
 import 'diag_screen.dart';
 import 'problem_sheets.dart';
 
@@ -63,6 +64,19 @@ class _LearnScreenState extends State<LearnScreen> {
       ],
     );
 
+    // The tools: each opens its own page (the tabs below only filter the list under them).
+    final tools = ChipRow(
+      children: [
+        for (final (id, icon, label, page) in [
+          ('atlas', Icons.map_outlined, 'Atlas', const AtlasScreen()),
+        ])
+          Semantics(
+            identifier: 'learn-tool-$id',
+            child: BrickChip(key: ValueKey('learn-tool-$id'), icon: icon, label: label, selected: false, onTap: () => _push(page)),
+          ),
+      ],
+    );
+
     final tabs = ChipRow(
       children: [
         for (final (t, icon, label) in [
@@ -95,7 +109,7 @@ class _LearnScreenState extends State<LearnScreen> {
     return SheetScaffold(
       tabbed: true,
       header: header,
-      children: [tabs, SizedBox(height: 16.h), ...list],
+      children: [tools, SizedBox(height: 8.h), tabs, SizedBox(height: 16.h), ...list],
     );
   }
 

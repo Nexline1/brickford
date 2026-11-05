@@ -1,5 +1,5 @@
-// Market: Problems (what is due now), Exams, the NeetCode tracker, and the whole
-// catalogue, behind a chip row. The data and the rules are the web app's
+// Learn: the courses list, Problems (what is due now), Exams, the NeetCode tracker,
+// and the whole catalogue, behind a chip row. The data and the rules are the web app's
 // (T-045 problemsDue, V.exams); this is their face: icons, counts, blocks.
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,20 +13,21 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
+import '../course/course_screen.dart';
 import '../quiz/quiz_screen.dart';
 import 'diag_screen.dart';
 import 'problem_sheets.dart';
 
-enum _Tab { due, exams, code, all }
+enum _Tab { courses, due, exams, code, all }
 
-class MarketScreen extends StatefulWidget {
-  const MarketScreen({super.key});
+class LearnScreen extends StatefulWidget {
+  const LearnScreen({super.key});
   @override
-  State<MarketScreen> createState() => _MarketScreenState();
+  State<LearnScreen> createState() => _LearnScreenState();
 }
 
-class _MarketScreenState extends State<MarketScreen> {
-  _Tab tab = _Tab.due;
+class _LearnScreenState extends State<LearnScreen> {
+  _Tab tab = _Tab.courses;
 
   void _push(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
 
@@ -48,7 +49,7 @@ class _MarketScreenState extends State<MarketScreen> {
           semantic: 'due now',
           value: '$rows',
           total: '${rows + P.coming.length}',
-          valueKey: const ValueKey('market-count'),
+          valueKey: const ValueKey('learn-count'),
         ),
         SizedBox(height: 10.h),
         Wrap(
@@ -65,15 +66,16 @@ class _MarketScreenState extends State<MarketScreen> {
     final tabs = ChipRow(
       children: [
         for (final (t, icon, label) in [
+          (_Tab.courses, Icons.menu_book_outlined, 'Courses'),
           (_Tab.due, Icons.assignment_outlined, 'Due'),
           (_Tab.exams, Icons.school_outlined, 'Exams'),
           (_Tab.code, Icons.code, 'Code'),
           (_Tab.all, Icons.checklist_rounded, 'All'),
         ])
           Semantics(
-            identifier: 'market-tab-${t.name}',
+            identifier: 'learn-tab-${t.name}',
             child: BrickChip(
-              key: ValueKey('market-tab-${t.name}'),
+              key: ValueKey('learn-tab-${t.name}'),
               icon: icon,
               label: label,
               selected: tab == t,
@@ -84,6 +86,7 @@ class _MarketScreenState extends State<MarketScreen> {
     );
 
     final List<Widget> list = switch (tab) {
+      _Tab.courses => _courses(context, m),
       _Tab.due => _due(context, m, P, rows),
       _Tab.exams => _exams(m, exams),
       _Tab.code => _code(context, m),
@@ -95,6 +98,26 @@ class _MarketScreenState extends State<MarketScreen> {
       children: [tabs, SizedBox(height: 16.h), ...list],
     );
   }
+
+  // ---------- Courses (moved here from Profile) ----------
+
+  List<Widget> _courses(BuildContext context, AppModel m) => [
+    for (final c in m.data.courses)
+      if (((c['units'] as List?) ?? const []).isNotEmpty)
+        () {
+          final id = c['id'] as String;
+          final n = courseCounts(m, id);
+          return ItemBlock(
+            key: ValueKey('learn-course-$id'),
+            leading: LeadTile(text: '${c['code']}'.split(' ').last),
+            subtitle: '${c['code']}',
+            title: '${c['title']}',
+            meta: '${n.cleared}/${n.total}',
+            below: ProgressBar(n.total == 0 ? 0 : n.cleared / n.total),
+            onTap: () => _push(CourseScreen(cid: id)),
+          );
+        }(),
+  ];
 
   // ---------- Due ----------
 

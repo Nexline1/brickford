@@ -6,7 +6,7 @@
 // /brickford/app-web/ side by side) on a local port; run tools/build-app.sh first. Then:
 //   1. opens /brickford/app/ (the hand-written forward) and checks it lands on
 //      /brickford/app-web/; screenshots at 375x812: Home, a lecture (opened from
-//      Home, then marked watched), Market, Community, Profile. A fresh device:
+//      Home, then marked watched), Learn, Build, Profile. A fresh device:
 //      no state is seeded, so every number on screen is the engine's own.
 //      Controls are found through Flutter's semantics tree (each carries a
 //      semantics identifier), never by guessing coordinates.
@@ -111,7 +111,7 @@ async function tap(page, id, nth = 0) {
       const shot = async name => { const f = path.join(OUT, name + ".png"); await page.screenshot({ path: f }); console.log("  shot  " + path.relative(ROOT, f)); };
       await shot("home");
       // Tap targets on Home: the bar's tabs and the search button are at least 44x44.
-      for (const id of ["tab-Home", "tab-Market", "tab-Community", "tab-Profile", "search"]) {
+      for (const id of ["tab-Home", "tab-Learn", "tab-Build", "tab-Profile", "search"]) {
         const b = await page.locator(`[flt-semantics-identifier="${id}"]`).boundingBox();
         check(id + " is at least 44x44", b && b.width >= 44 && b.height >= 44, b ? Math.round(b.width) + "x" + Math.round(b.height) : "missing");
       }
@@ -135,7 +135,7 @@ async function tap(page, id, nth = 0) {
         marked.length ? marked[0][0] + " " + JSON.stringify(marked[0][1]) : "nothing stored");
       await tap(page, "lesson-back");
       await page.waitForTimeout(1000);
-      for (const name of ["Market", "Community", "Profile"]) {
+      for (const name of ["Learn", "Build", "Profile"]) {
         await tap(page, "tab-" + name);
         await page.waitForTimeout(1200);
         await shot(name.toLowerCase());

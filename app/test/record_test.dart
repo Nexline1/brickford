@@ -278,7 +278,7 @@ void main() {
 
   Future<void> openTreasuryPage(WidgetTester tester, AppModel m) async {
     await open(tester, m);
-    await tester.tap(key('tab-Profile'));
+    await tester.tap(key('tab-Build'));
     await tester.pumpAndSettle();
     await tester.tap(key('chip-treasury'));
     await tester.pumpAndSettle();

@@ -99,13 +99,13 @@ void main() {
     expect(shape.borderRadius, BorderRadius.circular(16.0));
   });
 
-  testWidgets('the floating bar has exactly 4 tabs, Home Market Community Profile, and switches', (tester) async {
+  testWidgets('the floating bar has exactly 4 tabs, Home Learn Build Profile, and switches', (tester) async {
     await pumpApp(tester, await model('2026-11-04'));
     final bar = find.byKey(const ValueKey('brickford-tabs'));
     expect(bar, findsOneWidget);
     final tabs = find.descendant(of: bar, matching: find.byType(BarTab));
     expect(tabs, findsNWidgets(4));
-    expect([for (final t in tester.widgetList<BarTab>(tabs)) t.label], ['Home', 'Market', 'Community', 'Profile']);
+    expect([for (final t in tester.widgetList<BarTab>(tabs)) t.label], ['Home', 'Learn', 'Build', 'Profile']);
     expect(tester.widget<BarTab>(tabs.first).selected, isTrue);
     // Every tab is a full fingertip: at least 44 x 44.
     for (final e in tabs.evaluate()) {
@@ -119,11 +119,31 @@ void main() {
     expect(tester.widget<BarTab>(find.byKey(const ValueKey('tab-Profile'))).selected, isTrue);
   });
 
+  testWidgets('entry points moved: courses on Learn, Treasury on Build, neither on Profile', (tester) async {
+    await pumpApp(tester, await model('2026-11-04'));
+    Finder courses() => find.byWidgetPredicate((w) => w.key is ValueKey && '${(w.key! as ValueKey).value}'.startsWith('learn-course-'));
+    Future<void> goto(String t) async {
+      await tester.tap(find.byKey(ValueKey('tab-$t')));
+      await tester.pumpAndSettle();
+    }
+
+    await goto('Learn');
+    expect(courses(), findsWidgets);
+    await goto('Build');
+    expect(find.byKey(const ValueKey('chip-treasury')), findsOneWidget);
+    await goto('Profile');
+    expect(find.byKey(const ValueKey('chip-treasury')), findsNothing);
+    expect(find.byKey(const ValueKey('chip-record')), findsOneWidget);
+    expect(find.byKey(const ValueKey('chip-library')), findsOneWidget);
+    expect(find.byKey(const ValueKey('profile-sync')), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w.key is ValueKey && '${(w.key! as ValueKey).value}'.startsWith('profile-course-')), findsNothing);
+  });
+
   testWidgets('Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs', (tester) async {
     await pumpApp(tester, await model('2026-11-04'));
     expect(tester.widget<Text>(find.byKey(const ValueKey('home-day'))).data, '17');
     expect(find.text('Day 4 / 21'), findsOneWidget);
-    for (final t in ['Home', 'Market', 'Community', 'Profile']) {
+    for (final t in ['Home', 'Learn', 'Build', 'Profile']) {
       expect(find.text(t), findsOneWidget);
     }
     // Saturday 7 Nov is a rest day: still the day just worked, nothing scheduled.

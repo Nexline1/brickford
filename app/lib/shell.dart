@@ -1,4 +1,4 @@
-// The four tabs: Home, Market, Community, Profile, under a floating frosted
+// The four tabs: Home, Learn, Build, Profile, under a floating frosted
 // bar (icon + tiny label per tab, a soft pill behind the selected one) with a
 // separate round search button beside it.
 import 'dart:ui' show ImageFilter;
@@ -6,10 +6,10 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'screens/community/community_screen.dart';
+import 'screens/build/build_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/lesson/lesson_screen.dart';
-import 'screens/market/market_screen.dart';
+import 'screens/learn/learn_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'state/app_model.dart';
 import 'theme/theme.dart';
@@ -28,8 +28,8 @@ class _ShellState extends State<Shell> {
 
   static const tabs = [
     (Icons.home_outlined, Icons.home_rounded, 'Home'),
-    (Icons.storefront_outlined, Icons.storefront, 'Market'),
-    (Icons.groups_outlined, Icons.groups, 'Community'),
+    (Icons.school_outlined, Icons.school, 'Learn'),
+    (Icons.construction_outlined, Icons.construction, 'Build'),
     (Icons.person_outline, Icons.person, 'Profile'),
   ];
 
@@ -41,7 +41,7 @@ class _ShellState extends State<Shell> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: IndexedStack(index: index, children: const [HomeScreen(), MarketScreen(), CommunityScreen(), ProfileScreen()]),
+            child: IndexedStack(index: index, children: const [HomeScreen(), LearnScreen(), BuildScreen(), ProfileScreen()]),
           ),
           Positioned(
             left: 16.w,

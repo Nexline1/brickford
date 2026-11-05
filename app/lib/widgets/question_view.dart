@@ -213,7 +213,9 @@ class _QuestionViewState extends State<QuestionView> {
         if (opts != null)
           for (final (i, o) in opts.indexed) _option(i, '$o')
         else ...[
-          BrickfordField(
+          Semantics(
+            identifier: 'quiz-num',
+            child: BrickfordField(
             key: const ValueKey('quiz-num'),
             icon: Icons.pin_outlined,
             hint: '123',
@@ -223,14 +225,18 @@ class _QuestionViewState extends State<QuestionView> {
               signed: true,
             ),
             onSubmitted: (_) => _submit(),
+            ),
           ),
           SizedBox(height: 10.h),
           if (!w.answered)
-            PillButton(
-              key: const ValueKey('quiz-submit'),
-              label: 'Submit',
-              icon: Icons.check,
-              onPressed: _submit,
+            Semantics(
+              identifier: 'quiz-submit',
+              child: PillButton(
+                key: const ValueKey('quiz-submit'),
+                label: 'Submit',
+                icon: Icons.check,
+                onPressed: _submit,
+              ),
             ),
         ],
         if (ok != null) ...[
@@ -281,11 +287,14 @@ class _QuestionViewState extends State<QuestionView> {
           SizedBox(height: 14.h),
           KeyedSubtree(
             key: _nextKey,
-            child: PillButton(
-              key: const ValueKey('quiz-next'),
-              label: w.last ? 'Finish' : 'Next',
-              icon: w.last ? Icons.flag_rounded : Icons.arrow_forward_rounded,
-              onPressed: w.onNext,
+            child: Semantics(
+              identifier: 'quiz-next',
+              child: PillButton(
+                key: const ValueKey('quiz-next'),
+                label: w.last ? 'Finish' : 'Next',
+                icon: w.last ? Icons.flag_rounded : Icons.arrow_forward_rounded,
+                onPressed: w.onNext,
+              ),
             ),
           ),
         ],

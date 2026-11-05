@@ -70,12 +70,15 @@ class _MarketScreenState extends State<MarketScreen> {
           (_Tab.code, Icons.code, 'Code'),
           (_Tab.all, Icons.checklist_rounded, 'All'),
         ])
-          BrickChip(
-            key: ValueKey('market-tab-${t.name}'),
-            icon: icon,
-            label: label,
-            selected: tab == t,
-            onTap: () => setState(() => tab = t),
+          Semantics(
+            identifier: 'market-tab-${t.name}',
+            child: BrickChip(
+              key: ValueKey('market-tab-${t.name}'),
+              icon: icon,
+              label: label,
+              selected: tab == t,
+              onTap: () => setState(() => tab = t),
+            ),
           ),
       ],
     );
@@ -314,7 +317,10 @@ class _ExamHero extends StatelessWidget {
             ),
           ],
           SizedBox(height: 14.h),
-          PillButton(key: const ValueKey('exam-sit'), label: 'Sit', icon: Icons.play_arrow_rounded, onPressed: onSit),
+          Semantics(
+            identifier: 'exam-sit',
+            child: PillButton(key: const ValueKey('exam-sit'), label: 'Sit', icon: Icons.play_arrow_rounded, onPressed: onSit),
+          ),
         ],
       ),
     );

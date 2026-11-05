@@ -205,11 +205,14 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       ),
       SizedBox(height: 22.h),
-      PillButton(
-        key: const ValueKey('quiz-done'),
-        label: 'Done',
-        icon: Icons.check,
-        onPressed: () => Navigator.of(context).maybePop(),
+      Semantics(
+        identifier: 'quiz-done',
+        child: PillButton(
+          key: const ValueKey('quiz-done'),
+          label: 'Done',
+          icon: Icons.check,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
       ),
       if (!isLecture) ...[
         SizedBox(height: 10.h),

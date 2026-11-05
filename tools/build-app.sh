@@ -32,5 +32,11 @@ mkdir -p "$OUT"
   ! -path './canvaskit/skwasm*' ! -path './canvaskit/wimp*' ! -path './canvaskit/webparagraph/*' -print0 \
   | while IFS= read -r -d '' f; do mkdir -p "$OUT/$(dirname "$f")"; cp "$f" "$OUT/$f"; done)
 
+# T-064 boot: the shipped JSON minified (app/assets/data stays indented, so
+# curriculum diffs stay readable and export-data's freshness check is
+# unchanged), and the boot screen's denominator: the bytes a first start
+# reads, summed from the files themselves (see BOOT_FILES).
+node "$ROOT/tools/boot-files.js" "$OUT"
+
 grep -q "<base href=\"$BASE\">" "$OUT/index.html" || { echo "build-app: index.html does not carry base $BASE" >&2; exit 1; }
 echo "build-app: $(find "$OUT" -type f | wc -l) files, $(du -sb "$OUT" | cut -f1) bytes in app-web/ (base $BASE)"

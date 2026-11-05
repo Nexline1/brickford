@@ -49,6 +49,7 @@ class BrickfordData {
     required this.identity,
     required this.courses,
     required this.summaries,
+    required this.quizKeys,
     required this.quizzes,
     required this.psets,
     required this.labs,
@@ -63,7 +64,15 @@ class BrickfordData {
   final String startDate;
   final Map<String, dynamic> identity;
   final List<Map<String, dynamic>> courses;
-  final Map<String, dynamic> summaries;
+  /// summaries.json: read when a lecture opens, not at startup (it is 1.9 MB),
+  /// so empty until [summariesLoaded]. The quiz gate never waits on it: it
+  /// asks [quizKeys].
+  Map<String, dynamic> summaries;
+  bool summariesLoaded = false;
+
+  /// quiz-keys.json: the lectures whose summary carries checks (app.js
+  /// lessonQuiz(k) != null), exported from the same data.
+  final Set<String> quizKeys;
   final Map<String, dynamic> quizzes;
   final List<Map<String, dynamic>> psets;
   final List<Map<String, dynamic>> labs;
@@ -73,11 +82,15 @@ class BrickfordData {
   final Map<String, dynamic> drills;
   final List<String> speechCourseIds;
 
+  /// What startup reads.
   static const files = [
-    'meta.json', 'courses.json', 'summaries.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
+    'meta.json', 'courses.json', 'quiz-keys.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
   ];
 
-  /// From the decoded text of [files], keyed by file name.
+  /// Read later, on first need.
+  static const lazyFiles = ['summaries.json'];
+
+  /// From the decoded text of [files] (and [lazyFiles], when given), keyed by file name.
   factory BrickfordData.fromText(Map<String, String> text) {
     Map<String, dynamic> obj(String f) => _map(jsonDecode(text[f]!));
     List<Map<String, dynamic>> list(Object? v) => (v as List).map((e) => _map(e)).toList();
@@ -86,7 +99,8 @@ class BrickfordData {
       startDate: meta['START_DATE'] as String,
       identity: _map(meta['IDENTITY']),
       courses: list(jsonDecode(text['courses.json']!)),
-      summaries: obj('summaries.json'),
+      summaries: text['summaries.json'] != null ? obj('summaries.json') : <String, dynamic>{},
+      quizKeys: (jsonDecode(text['quiz-keys.json']!) as List).cast<String>().toSet(),
       quizzes: obj('quizzes.json'),
       psets: list(work['PSETS']),
       labs: list(work['LABS']),
@@ -95,7 +109,7 @@ class BrickfordData {
       weekPlan: list(gates['WEEK_PLAN']),
       drills: _map(story['DRILLS']),
       speechCourseIds: (story['courses'] as List).cast<String>(),
-    );
+    )..summariesLoaded = text['summaries.json'] != null;
   }
 
   Map<String, dynamic>? course(String id) {
@@ -520,6 +534,11 @@ class Engine {
   // ---------- the lecture quiz gate (T-043) ----------
   static const QUIZ_GATE_FROM = '2026-10-24';
 
+  /// lessonQuiz(k) != null, answered from quiz-keys.json so it holds before
+  /// summaries.json is read. Every gate decision goes through this.
+  bool hasQuiz(String k) => D.quizKeys.contains(k);
+
+  /// The checks themselves (the lesson page), once summaries.json is read.
   List<dynamic>? lessonQuiz(String k) {
     final sm = D.summaries[k];
     if (sm is! Map) return null;
@@ -542,7 +561,7 @@ class Engine {
 
   bool lessonCleared(String k) {
     final st = _map(lessons[k]);
-    return truthy(st['done']) && (quizPassed(k) || lessonQuiz(k) == null || grandfathered(st));
+    return truthy(st['done']) && (quizPassed(k) || !hasQuiz(k) || grandfathered(st));
   }
 
   // The lecture's own date in the plan, read with no work-ahead re-anchoring.
@@ -564,7 +583,7 @@ class Engine {
   }
 
   bool lessonBlocks(String k) =>
-      lessonQuiz(k) != null &&
+      hasQuiz(k) &&
       !quizPassed(k) &&
       !grandfathered(lessons[k] is Map ? _map(lessons[k]) : null) &&
       ge(planDateOf(k) ?? '9999', QUIZ_GATE_FROM);
@@ -709,7 +728,7 @@ class Engine {
   NextAction lectureAction(SchedItem nextUp, List<SchedItem> real, bool workAhead) {
     final nk = nextUp.key;
     final root = lockRoot(nextUp.cid!, nextUp.ui!, nextUp.li!);
-    final watchedOpen = truthy(_map(lessons[nk])['done']) && lessonQuiz(nk) != null && !quizPassed(nk);
+    final watchedOpen = truthy(_map(lessons[nk])['done']) && hasQuiz(nk) && !quizPassed(nk);
     if (root != null || watchedOpen) {
       final cid = root?.cid ?? nextUp.cid!, ui = root?.ui ?? nextUp.ui!, li = root?.li ?? nextUp.li!;
       final t = root != null ? (root.l['t'] as String? ?? '') : nextUp.title;

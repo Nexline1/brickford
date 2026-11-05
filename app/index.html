@@ -1,18 +1,39 @@
 <!DOCTYPE html>
 <!-- Hand-written, not build output: app/ is the Flutter project's folder, so
      /brickford/app/ forwards to the built app at /brickford/app-web/
-     (tools/build-app.sh), keeping any #route the link carried. -->
+     (tools/build-app.sh), keeping any #route the link carried.
+     T-064 boot: the target is worked out from this page's own path, so
+     /brickford/app, /brickford/app/ and /brickford/app/index.html all land on
+     /brickford/app-web/ (a relative "../app-web/" from /brickford/app would
+     have meant /app-web/). If the redirect does not happen, the page is not
+     blank: it shows the wordmark and a link to tap. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#12141C">
   <title>Brickford</title>
-  <link rel="canonical" href="../app-web/">
-  <script>location.replace("../app-web/" + location.hash);</script>
-  <noscript><meta http-equiv="refresh" content="0; url=../app-web/"></noscript>
-  <style>html, body { margin: 0; background: #12141C; color: #fff; font: 16px system-ui, sans-serif; }
-    a { color: #fff; display: block; padding: 24px; }</style>
+  <noscript><meta http-equiv="refresh" content="0; url=/brickford/app-web/"></noscript>
+  <script>
+    (function () {
+      var p = location.pathname.replace(/index\.html$/, "").replace(/\/+$/, "");
+      var to = /\/app$/.test(p) ? p.replace(/\/app$/, "/app-web/") : "/brickford/app-web/";
+      window.__appTarget = to + location.search + location.hash;
+      try { location.replace(window.__appTarget); } catch (e) {}
+    })();
+  </script>
+  <style>
+    html, body { margin: 0; min-height: 100%; background: #12141C; color: #fff; font: 16px/1.4 -apple-system, system-ui, sans-serif; }
+    main { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; box-sizing: border-box; }
+    .wm { font: 700 24px/1 Georgia, "Times New Roman", serif; letter-spacing: 0.14em; }
+    a { color: #12141C; background: #C89B60; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 16px; }
+  </style>
 </head>
-<body><a href="../app-web/">Brickford</a></body>
+<body>
+  <main>
+    <div class="wm">BRICKFORD</div>
+    <a id="open" href="/brickford/app-web/">Open Brickford</a>
+  </main>
+  <script>if (window.__appTarget) document.getElementById("open").href = window.__appTarget;</script>
+</body>
 </html>

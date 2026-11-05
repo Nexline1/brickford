@@ -211,6 +211,7 @@ class _LessonScreenState extends State<LessonScreen> {
     if (_recorded) return;
     _recorded = true;
     final m = AppScope.of(context);
+    m.ensureSummaries();
     final c = m.data.course(widget.cid);
     final l = _lesson(c);
     if (c != null && l != null) m.openedLesson(widget.cid, widget.ui, widget.li, '${c['code']} · ${l['t']}');
@@ -414,6 +415,17 @@ class _LessonScreenState extends State<LessonScreen> {
               title: link,
             ),
           ],
+          if (!m.data.summariesLoaded && m.engine.hasQuiz(k))
+            Padding(
+              padding: EdgeInsets.only(top: 28.h),
+              child: const Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(key: ValueKey('lesson-summary-loading'), strokeWidth: 2.4, color: Tokens.accent),
+                ),
+              ),
+            ),
           if (sm != null) ...[
             SizedBox(height: 22.h),
             Text(plain(sm['takeaway']), style: body(16, weight: FontWeight.w700, height: 1.4)),

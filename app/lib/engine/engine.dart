@@ -207,6 +207,14 @@ Map<String, dynamic> normalizeState(Map<String, dynamic>? stored) {
     s[k] = _map(s[k]);
   }
   if (s['studyDays'] is! List) s['studyDays'] = <dynamic>[];
+  // app.js adds these after load (S.ledger = S.ledger || [] and so on); they
+  // are what the sync payload and mergeState read.
+  for (final k in ['concepts', 'foreignLedgers']) {
+    s[k] = s[k] is Map ? _map(s[k]) : <String, dynamic>{};
+  }
+  for (final k in ['ledger', 'anchors']) {
+    if (s[k] is! List) s[k] = <dynamic>[];
+  }
   return s;
 }
 

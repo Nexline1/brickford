@@ -10,6 +10,14 @@
 //      no state is seeded, so every number on screen is the engine's own.
 //      Controls are found through Flutter's semantics tree (each carries a
 //      semantics identifier), never by guessing coordinates.
+//   1b. T-064 stage 2, the calendar: Home's calendar button opens the month
+//      (stage2-month), a day opens its sheet (stage2-day-sheet); then, under a
+//      Saturday clock with a progress state seeded in the web app's shape (the
+//      plan's own lectures for 16-27 Oct, watched on their days), the month
+//      again (stage2-month-saturday, and October: stage2-month-progress), a past day's sheet on the rest day (its
+//      own lectures, T-063: stage2-saturday-past-day) and the Saturday itself
+//      (stage2-rest-saturday). Every day cell, the month buttons and the day
+//      rows are measured at 44x44 or more.
 //   2. the root service worker: opens /brickford/platform/ until sw.js
 //      controls it, then opens /brickford/app/ under that worker and asserts
 //      the app still loads and renders, every request it makes is answered,
@@ -60,6 +68,11 @@ async function semantics(page) {
   await page.waitForSelector("[flt-semantics-identifier]", { timeout: 10000 });
 }
 // Click the centre of the (first) node with this semantics identifier.
+async function box(page, id, nth = 0) {
+  const el = page.locator(`[flt-semantics-identifier="${id}"]`).nth(nth);
+  await el.waitFor({ timeout: 10000 });
+  return el.boundingBox();
+}
 async function tap(page, id, nth = 0) {
   const el = page.locator(`[flt-semantics-identifier="${id}"]`).nth(nth);
   await el.waitFor({ timeout: 10000 });
@@ -137,6 +150,78 @@ async function tap(page, id, nth = 0) {
       check("no third-party host is asked for anything but the lecture's video", foreign.size === 0, [...foreign].join(", "));
       await ctx.close();
     }
+
+    // ---- 1b. the calendar ----
+    const sized = async (page, ids, label) => {
+      const small = [];
+      for (const id of ids) {
+        const n = await page.locator(`[flt-semantics-identifier="${id}"]`).count();
+        for (let i = 0; i < n; i++) {
+          const b = await page.locator(`[flt-semantics-identifier="${id}"]`).nth(i).boundingBox();
+          if (!b || b.width < 44 || b.height < 44) small.push(id + (n > 1 ? "#" + i : "") + " " + (b ? Math.round(b.width) + "x" + Math.round(b.height) : "missing"));
+        }
+      }
+      check(label + " are at least 44x44", small.length === 0, small.slice(0, 4).join(", ") || ids.length + " ids measured");
+    };
+    const calendar = async (clock, state, shots) => {
+      const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, serviceWorkers: "block" });
+      await ctx.clock.setFixedTime(new Date(clock + "T12:00:00Z"));
+      await ctx.route(/youtube\.com|ytimg\.com/, r => r.abort());
+      if (state) await ctx.addInitScript(s => localStorage.setItem("flutter.darhikmah_v1", s), JSON.stringify(JSON.stringify(state)));
+      const page = await ctx.newPage();
+      const errors = [];
+      page.on("pageerror", e => errors.push(e.message));
+      await page.goto(BASE + "app-web/", { waitUntil: "load" });
+      await ready(page);
+      await semantics(page);
+      await page.waitForTimeout(500);
+      // The pointer off every control first: a click leaves it hovering, and a hovered month button shows its tooltip.
+      const shot = async name => { await page.mouse.move(W - 4, 200); await page.waitForTimeout(1600);
+        const f = path.join(OUT, name + ".png"); await page.screenshot({ path: f }); console.log("  shot  " + path.relative(ROOT, f)); };
+      const hb = await box(page, "home-calendar");
+      check("Home's calendar button is at least 44x44", hb && hb.width >= 44 && hb.height >= 44, hb ? Math.round(hb.width) + "x" + Math.round(hb.height) : "missing");
+      await tap(page, "home-calendar");
+      await page.waitForTimeout(1200);
+      await shot(shots.month);
+      const month = clock.slice(0, 7), days = new Date(Date.UTC(+month.slice(0, 4), +month.slice(5, 7), 0)).getUTCDate();
+      const cells = Array.from({ length: days }, (_, i) => "cal-" + month + "-" + String(i + 1).padStart(2, "0"));
+      await sized(page, cells.concat(["cal-prev", "cal-next", "cal-today"]), "the " + days + " day cells of " + month + " and the month buttons (" + clock + ")");
+      if (shots.prevMonth) {                            // the month before, where the seeded progress is
+        await tap(page, "cal-prev"); await page.waitForTimeout(900);
+        await shot(shots.prevMonth);
+        await tap(page, "cal-next"); await page.waitForTimeout(700);
+      }
+      for (const [day, name] of shots.days) {
+        if (day.slice(0, 7) < month) { await tap(page, "cal-prev"); await page.waitForTimeout(700); }
+        await tap(page, "cal-" + day);
+        await page.waitForTimeout(1200);
+        await shot(name);
+        const rows = await page.locator('[flt-semantics-identifier="day-row"]').count();
+        if (rows) await sized(page, ["day-row"], "the " + rows + " lecture rows of " + day);
+        await page.mouse.click(W / 2, 40);               // the modal barrier, above the sheet
+        await page.waitForTimeout(900);
+        if (day.slice(0, 7) < month) { await tap(page, "cal-next"); await page.waitForTimeout(700); }
+      }
+      check("the calendar (" + clock + ") ran without page errors", errors.length === 0, errors.slice(0, 2).join(" | "));
+      await ctx.close();
+    };
+    await calendar("2026-11-04", null, { month: "stage2-month", days: [["2026-11-03", "stage2-day-sheet"]] });
+    // A progress state in the web app's shape: the plan's own lectures for these days, watched on them
+    // (16-23 Oct before the quiz gate, so cleared; 27 Oct after it with no quiz passed, so half rings).
+    const W8 = (on, passed) => Object.assign({ done: true, doneAt: on, notes: "", checks: [] }, passed ? { quiz: { passedAt: passed } } : {});
+    const seeded = { lessons: {}, studyDays: ["2026-10-16", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21"] };
+    const plan = {
+      "2026-10-16": ["math110.0.0", "math110.0.1", "math110.0.2", "math110.0.3", "math110.0.4", "math110.0.5", "ai200.0.0", "ai200.0.1"],
+      "2026-10-18": ["math120.0.0", "math120.0.1", "math120.0.2", "ai200.0.2", "ai200.0.3", "spch100.0.0"],
+      "2026-10-19": ["math130.0.0", "ai200.1.0", "spch100.0.1"],
+      "2026-10-20": ["math110.0.6", "math110.0.7", "math110.0.8", "math110.0.9", "math110.0.10", "spch100.0.2"],
+      "2026-10-21": ["math120.0.3", "math120.0.4", "math120.0.5"],
+      "2026-10-27": ["math110.0.15", "math110.1.0"],
+    };
+    for (const [on, keys] of Object.entries(plan)) keys.forEach(k => { seeded.lessons[k] = W8(on); });
+    seeded.lessons["math110.0.15"] = W8("2026-10-27", "2026-10-27");
+    await calendar("2026-11-07", seeded, { month: "stage2-month-saturday", prevMonth: "stage2-month-progress",
+      days: [["2026-11-07", "stage2-rest-saturday"], ["2026-10-27", "stage2-saturday-past-day"]] });
 
     // ---- 2. under the site's root service worker ----
     {

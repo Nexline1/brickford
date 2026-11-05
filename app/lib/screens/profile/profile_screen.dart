@@ -1,4 +1,4 @@
-// Profile: the record in numbers, Record, Library and Sync (the courses moved to Learn, the Treasury to Build).
+// Profile: the record in numbers; Record, Transcript, Library, Guide, Method, Workshop and Sync (the courses moved to Learn, the Treasury to Build).
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -7,6 +7,10 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../library/library_screen.dart';
+import 'guide_screen.dart';
+import 'method_screen.dart';
+import 'transcript_screen.dart';
+import 'workshop_screen.dart';
 import '../record/record_screen.dart';
 import 'sync_screen.dart';
 
@@ -43,6 +47,10 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Semantics(identifier: 'chip-record', child: BrickChip(key: const ValueKey('chip-record'), label: 'Record', icon: Icons.verified_outlined, selected: false, onTap: () => openRecord(context))),
             Semantics(identifier: 'chip-library', child: BrickChip(key: const ValueKey('chip-library'), label: 'Library', icon: Icons.menu_book_outlined, selected: false, onTap: () => openLibrary(context))),
+            Semantics(identifier: 'chip-transcript', child: BrickChip(key: const ValueKey('chip-transcript'), label: 'Transcript', icon: Icons.workspace_premium_outlined, selected: false, onTap: () => openTranscript(context))),
+            Semantics(identifier: 'chip-guide', child: BrickChip(key: const ValueKey('chip-guide'), label: 'Guide', icon: Icons.auto_stories_outlined, selected: false, onTap: () => openGuide(context))),
+            Semantics(identifier: 'chip-method', child: BrickChip(key: const ValueKey('chip-method'), label: 'Method', icon: Icons.psychology_alt_outlined, selected: false, onTap: () => openMethod(context))),
+            Semantics(identifier: 'chip-workshop', child: BrickChip(key: const ValueKey('chip-workshop'), label: 'Workshop', icon: Icons.construction_outlined, selected: false, onTap: () => openWorkshop(context))),
           ],
         ),
         SizedBox(height: 14.h),

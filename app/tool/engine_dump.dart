@@ -24,6 +24,10 @@ import '../lib/engine/merge.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/monk.dart';
 // ignore: avoid_relative_lib_imports
+import '../lib/engine/pages.dart';
+// ignore: avoid_relative_lib_imports
+import '../lib/engine/practice.dart';
+// ignore: avoid_relative_lib_imports
 import '../lib/engine/problems.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/quiz.dart';
@@ -609,5 +613,121 @@ void main(List<String> args) {
   out['quiz'] = quizDump(fx, data, dir);
   out['record'] = recordDump(fx, data);
   out['learn'] = learnDump(fx, data);
+  out['pages'] = pagesDump(fx, data);
   stdout.write(jsonEncode(out));
+}
+
+/// Practice, gates, Transcript, Workshop, Method and Library (stage 6b), shaped as tools/verify-app.js reads app.js's pages.
+Map<String, dynamic> pagesDump(Map<String, dynamic> fx, BrickfordData data) {
+  final P = fx['pages'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  Engine eng(Map f) => Engine(data, (copy(f['state']) as Map?)?.cast<String, dynamic>(), today: () => f['clock'] as String);
+  final out = <String, dynamic>{'practice': <String, dynamic>{}, 'forms': <String, dynamic>{}, 'gates': <String, dynamic>{}, 'transcript': <String, dynamic>{}, 'workshop': <String, dynamic>{}};
+
+  for (final f in P['practice'] as List) {
+    final e = eng(f as Map);
+    final due = e.repsDue(), w = e.weekDots(), lg = e.repLog();
+    (out['practice'] as Map)[f['name']] = {
+      'due': [for (final d in due) [d.kind, d.label, d.hint]],
+      'tabDefault': e.practiceDefault(),
+      'page': {
+        'weekT': w == null ? null : '${w.logged} of ${Engine.STUDY_WEEK} days this week',
+        'dots': [for (final d in w?.dots ?? const <WeekDot>[]) [if (d.on) 'on' else if (d.ahead) 'ahead', if (d.now) 'now'].join(' ')],
+        'tab': repTabs.firstWhere((t) => t.$1 == e.practiceDefault()).$2,
+        'above': [
+          if (e.practiceResting) ['Saturday', 'Nothing owed today.'],
+          for (final d in due.where((d) => d.kind == 'review')) [d.label, d.hint],
+        ],
+        'counts': lg.counts,
+        'history': [for (final h in lg.history) [h[1], h[2], h[0]]],
+      },
+    };
+  }
+  for (final f in P['forms'] as List) {
+    final e = Engine(data, <String, dynamic>{}, today: () => f['clock'] as String);
+    final r = e.logRepForm(f['act'] as String, ((f['vals'] as Map).cast<String, dynamic>()).map((k, v) => MapEntry(k, '$v')), '2026-11-05T09:00:00.000Z');
+    (out['forms'] as Map)[f['name']] = {
+      'msg': r.msg,
+      'reps': copy(e.reps),
+      'events': [for (final x in e.ledger) [(x as Map)['type'], x['ref'], x['data']]],
+    };
+  }
+  out['standing'] = [for (final x in P['standing'] as List) () {
+    final r = standing(x as num);
+    return [r.$1, r.$2];
+  }()];
+  out['clocks'] = [for (final x in P['clocks'] as List) clockLabel(x as num)];
+  out['recDays'] = [for (final x in P['recDays'] as List) recDay(x as String)];
+
+  for (final f in P['gates'] as List) {
+    final e = eng(f as Map);
+    (out['gates'] as Map)[f['name']] = [
+      for (final st in f['steps'] as List)
+        [
+          e.setGate((st as List)[0] as int, st[1] as bool, '2026-11-05T09:00:00.000Z'),
+          [for (final g in e.gatePlan()) '${g.n}@${g.target}:${g.doneDate ?? '-'}'],
+        ],
+    ];
+  }
+
+  for (final f in P['transcript'] as List) {
+    final e = eng(f as Map), t = e.transcript(), nx = t.next;
+    (out['transcript'] as Map)[f['name']] = {
+      'overall': '${t.overall}%',
+      'pill': t.standing + (t.grade != '\u2014' ? ' \u00b7 Grade ${t.grade}' : ''),
+      'next': nx == null ? ['All gates passed', 'You are what you set out to become.'] : ['Gate ${nx.n} \u2014 ${nx.label} ${nx.left < 0 ? 0 : nx.left}d left', nx.req],
+      'counts': [
+        ['${t.gates.where((g) => g.doneDate != null).length} / ${t.gates.length}', 'Gates passed'],
+        ['${t.counted}', 'Courses counted'],
+        if (t.mastered > 0) ['${t.mastered}', 'Mastered'],
+      ],
+      'gates': [
+        for (final g in t.gates)
+          [g.doneDate != null ? '\u2713' : '${g.n}', 'Gate ${g.n} \u2014 ${g.label}', g.req, g.doneDate ?? (g.left >= 0 ? '${g.left}d' : '${-g.left}d over')],
+      ],
+      'rows': [for (final r in t.rows) [r.code, r.title, r.best != null ? '${r.best}%' : '\u2014', '${r.mastery}% \u00b7 ${r.standing}']],
+    };
+  }
+
+  for (final f in P['workshop'] as List) {
+    final e = eng(f as Map), w = e.workshop(), labs = e.S['labs'] as Map, psets = e.S['psets'] as Map;
+    List labRow(Map<String, dynamic> l) => [l['title'], firstClause('${l['req']}'), '~${l['hours']} h', truthy((labs[l['id']] is Map ? labs[l['id']] as Map : const {})['done'])];
+    final laterN = w.later.fold<int>(0, (a, x) => a + x.$2.length);
+    (out['workshop'] as Map)[f['name']] = {
+      'all': '${w.psetDone + w.labsDone} / ${w.psetTotal + data.labs.length}',
+      'phaseLabs': [for (final l in w.phaseLabs) labRow(l)],
+      'later': w.later.isEmpty
+          ? null
+          : [
+              '$laterN',
+              [
+                for (final (ph, ls) in w.later)
+                  [phaseNames[ph], [for (final l in ls) '${l['title']}|${truthy((labs[l['id']] is Map ? labs[l['id']] as Map : const {})['done'])}']],
+              ],
+            ],
+      'sets': [
+        '${w.psetDone} / ${w.psetTotal}',
+        [
+          for (final g in w.groups) [g.title, g.url, [for (final i in g.items) '${i['label']}|${truthy(psets[i['id']])}']],
+        ],
+      ],
+    };
+  }
+
+  final c = RetentionCurve();
+  out['curve'] = {
+    'passive': [for (final p in c.passive) [p.$1, p.$2]],
+    'spaced': [for (final p in c.spaced) [p.$1, p.$2]],
+    'dots': [for (final p in c.dots) [p.$1, p.$2]],
+  };
+  out['docs'] = {
+    'docs': [for (final d in libraryDocs) [d.id, d.file, d.title, d.sub]],
+    'cards': [for (final d in libraryDocs) if (d.id != 'log') [d.id, d.card, d.cardSub]],
+    'links': [for (final l in libraryLinks) [l.$1, l.$2]],
+    'shown': 5,
+  };
+  out['md'] = {
+    for (final d in P['docs'] as List) (d as Map)['file'] as String: [for (final b in parseMd(d['text'] as String)) b.kind],
+  };
+  return out;
 }

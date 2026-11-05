@@ -149,7 +149,7 @@ class LeadTile extends StatelessWidget {
 }
 
 class ItemBlock extends StatelessWidget {
-  const ItemBlock({super.key, this.leading, required this.title, this.subtitle, this.meta, this.onTap, this.below, this.id});
+  const ItemBlock({super.key, this.leading, required this.title, this.subtitle, this.meta, this.onTap, this.below, this.id, this.subtitleLines = 1});
 
   final Widget? leading;
   final String title;
@@ -157,6 +157,9 @@ class ItemBlock extends StatelessWidget {
   final String? meta;
   final VoidCallback? onTap;
   final Widget? below;
+
+  /// How many lines the subtitle may take (a reading page lets a sentence run; a list row keeps one).
+  final int subtitleLines;
 
   /// The semantics identifier (what a browser harness finds it by).
   final String? id;
@@ -195,7 +198,7 @@ class ItemBlock extends StatelessWidget {
                           SizedBox(height: 2.h),
                           Text(
                             subtitle!,
-                            maxLines: 1,
+                            maxLines: subtitleLines,
                             overflow: TextOverflow.ellipsis,
                             style: body(12, color: Tokens.ink2, weight: FontWeight.w500),
                           ),

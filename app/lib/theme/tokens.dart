@@ -99,6 +99,9 @@ abstract final class Tokens {
   static const ringTrack = Color(0xFFDCDFE6);
   static const restMark = Color(0xFFC4C8D2);
 
+  /// The record button's dot on the dark card: 4.6:1 on [card] (a glyph, never text).
+  static const rec = Color(0xFFE5484D);
+
   /// The floating bar's frosted fill.
   static const frost = Color(0xE6FFFFFF);
 

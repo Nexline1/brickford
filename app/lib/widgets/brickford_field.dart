@@ -17,6 +17,8 @@ class BrickfordField extends StatelessWidget {
     this.autofocus = false,
     this.obscure = false,
     this.keyboardType,
+    this.minLines,
+    this.maxLines = 1,
   });
 
   final IconData icon;
@@ -29,6 +31,9 @@ class BrickfordField extends StatelessWidget {
   final bool obscure;
   final TextInputType? keyboardType;
 
+  /// A multi-line field (the Treasury's offer): grows between [minLines] and [maxLines].
+  final int? minLines, maxLines;
+
   static const _none = OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(Tokens.radius)), borderSide: BorderSide.none);
 
   @override
@@ -40,6 +45,8 @@ class BrickfordField extends StatelessWidget {
       autofocus: autofocus,
       obscureText: obscure,
       keyboardType: keyboardType,
+      minLines: minLines,
+      maxLines: maxLines,
       enableSuggestions: !obscure,
       autocorrect: !obscure,
       style: body(15),

@@ -11,6 +11,7 @@ import 'package:app/engine/quiz.dart';
 import 'package:app/main.dart';
 import 'package:app/screens/library/library_screen.dart';
 import 'package:app/state/app_model.dart';
+import 'package:app/widgets/sheet_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,21 @@ Future<void> open(WidgetTester tester, AppModel m) async {
 }
 
 Finder key(String s) => find.byKey(ValueKey(s));
+
+/// Scrolls the page until [k] is built and on screen (the sheet's list builds lazily).
+Future<void> reveal(WidgetTester t, String k) async {
+  final f = key(k), sc = find.descendant(of: find.byKey(SheetScaffold.sheetKey).last, matching: find.byType(Scrollable)).first;
+  for (var i = 0; i < 80 && f.evaluate().isEmpty; i++) {
+    await t.drag(sc, const Offset(0, -250));
+    await t.pump();
+  }
+  for (var i = 0; i < 80 && f.evaluate().isEmpty; i++) {
+    await t.drag(sc, const Offset(0, 250));
+    await t.pump();
+  }
+  await Scrollable.ensureVisible(t.element(f), alignment: 0.5);
+  await t.pumpAndSettle();
+}
 
 void main() {
   test('the seal is Sunday only: the revision week own Sunday and no other day', () async {
@@ -256,5 +272,99 @@ void main() {
     expect(m.engine.verifyChain().ok, isTrue);
     expect(m.engine.eventLine(ev[1]), 'Examination · bank-x · 100% (2/2)');
     expect(m.engine.eventLine(ev[0]), 'Lecture quiz passed · math110.0.0 · 4 of 5 first try');
+  });
+
+  // -------------------------------------------------------------- Treasury
+
+  Future<void> openTreasuryPage(WidgetTester tester, AppModel m) async {
+    await open(tester, m);
+    await tester.tap(key('tab-Profile'));
+    await tester.pumpAndSettle();
+    await tester.tap(key('chip-treasury'));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> pay(WidgetTester tester, String amount, String note) async {
+    await reveal(tester, 'entry-amount');
+    await tester.enterText(key('entry-amount'), amount);
+    await tester.enterText(key('entry-note'), note);
+    await reveal(tester, 'entry-add');
+    await tester.tap(key('entry-add'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('Treasury: adding payments updates the ledger, the total and the week, in the web app\'s decimals', (tester) async {
+    final m = await model({}, today: '2026-11-05');
+    await openTreasuryPage(tester, m);
+    expect(tester.widget<Text>(key('treasury-total')).data, '0');
+    await pay(tester, '12.5', 'first');
+    await pay(tester, '1137', 'second');
+    await pay(tester, '0', 'nothing');
+    final entries = (m.engine.treasury['entries'] as List).cast<Map>();
+    expect(entries.length, 2, reason: 'a zero amount is refused');
+    expect(entries.first, {'date': '2026-11-05', 'amount': 12.5, 'note': 'first'});
+    expect(entries.last['amount'], 1137);
+    expect(m.engine.revenueTotal(), 1149.5);
+    expect(tester.widget<Text>(key('treasury-total')).data, '1,150', reason: 'Math.round(1149.5)');
+    expect(find.bySemanticsLabel('BHD this week 1,149.5'), findsOneWidget);
+    expect(find.text('BHD 12.5'), findsOneWidget);
+    expect(find.text('BHD 1,137'), findsOneWidget);
+    final wk = m.engine.weekView();
+    expect([wk.counted, wk.earned], [true, 1149.5]);
+  });
+
+  testWidgets('Treasury: two clients, a third only after the cap confirm; removing one', (tester) async {
+    final m = await model({}, today: '2026-11-05');
+    await openTreasuryPage(tester, m);
+    Future<void> add(String name) async {
+      await reveal(tester, 'client-name');
+      await tester.enterText(key('client-name'), name);
+      await tester.enterText(key('client-price'), '300');
+      await reveal(tester, 'client-add');
+      await tester.tap(key('client-add'));
+      await tester.pumpAndSettle();
+    }
+
+    await add('A');
+    await add('B');
+    expect((m.engine.treasury['clients'] as List).length, 2);
+    await add('C');
+    expect(find.text('Add a third client?'), findsOneWidget);
+    await tester.tap(key('client-cancel'));
+    await tester.pumpAndSettle();
+    expect((m.engine.treasury['clients'] as List).length, 2);
+    await reveal(tester, 'client-add');
+    await tester.tap(key('client-add'));
+    await tester.pumpAndSettle();
+    await tester.tap(key('client-confirm'));
+    await tester.pumpAndSettle();
+    expect((m.engine.treasury['clients'] as List).length, 3);
+    expect(((m.engine.treasury['clients'] as List).last as Map)['price'], 300);
+    await reveal(tester, 'client-del-0');
+    await tester.tap(key('client-del-0'));
+    await tester.pumpAndSettle();
+    expect([for (final c in m.engine.treasury['clients'] as List) (c as Map)['name']], ['B', 'C']);
+  });
+
+  testWidgets('Treasury: the offer saves, and an earning offer locks and changes', (tester) async {
+    final m = await model({}, today: '2026-11-05');
+    await openTreasuryPage(tester, m);
+    await reveal(tester, 'offer-field');
+    await tester.enterText(key('offer-field'), 'Clinics: WhatsApp agent, 14 days, BHD 500');
+    await reveal(tester, 'offer-save');
+    await tester.tap(key('offer-save'));
+    await tester.pumpAndSettle();
+    expect(m.engine.treasury['offer'], 'Clinics: WhatsApp agent, 14 days, BHD 500');
+    expect(m.data.niches.length, 6);
+    await reveal(tester, 'niche-lock');
+    await tester.tap(key('niche-lock'));
+    await tester.pumpAndSettle();
+    expect(m.engine.treasury['niche'], 'clinics');
+    await reveal(tester, 'move-4');
+    expect(key('move-4'), findsOneWidget);
+    await reveal(tester, 'niche-change');
+    await tester.tap(key('niche-change'));
+    await tester.pumpAndSettle();
+    expect(m.engine.treasury['niche'], '');
   });
 }

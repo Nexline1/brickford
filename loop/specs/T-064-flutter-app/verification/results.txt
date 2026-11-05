@@ -10,7 +10,7 @@ base 2160899 (git diff --stat is empty), so every web-app gate measures the same
   verify-flows                        pass (first run, no re-run needed)
   verify-shell                        pass
   verify-contrast                     pass
-  verify-app (export + parity + plants) pass, 20 checks; plants stale-json and rest-day exit 1
+  verify-app (export + parity + plants) pass, 20 checks; plants rest-dow and stale-json exit 1
   verify-design                       FAIL 1/2656: Inter FontFace "unloaded" at 390px light
   verify-offline                      FAIL 1/53:   Inter FontFace "unloaded" offline
   verify-density                      FAIL: 3 new (/courses sub lines wrap at 320), 4 stale (/monk et al.)

@@ -59,6 +59,14 @@ abstract final class Tokens {
   /// Watched, quiz still to pass (3.3:1 on white: a glyph, never body text).
   static const half = Color(0xFFC77700);
 
+  /// Calendar marks (glyphs only, never text). Missed: a red ring, 4.9:1 on
+  /// white. Ahead: a grey ring, 3.1:1 (the non-text 3:1 rule). The half ring's
+  /// unfilled half and a rest day's moon are quieter on purpose.
+  static const missed = Color(0xFFC8323A);
+  static const ringOpen = Color(0xFF9095A3);
+  static const ringTrack = Color(0xFFDCDFE6);
+  static const restMark = Color(0xFFC4C8D2);
+
   /// The floating bar's frosted fill.
   static const frost = Color(0xE6FFFFFF);
 

@@ -744,6 +744,87 @@ class Engine {
     return w < 1 ? 1 : w;
   }
 
+  /// app.js isSealDay: every Sunday from the first revision Sunday on.
+  bool isSealDay(String iso) => dowOf(iso) == 0 && ge(iso, revisionWeek(1).sun);
+
+  /// The week sealed for revision week [r] (V.review's rule: a week sealed
+  /// under an earlier start can carry the same number, so it counts only if
+  /// it was sealed on or after this week began), or null.
+  Map<String, dynamic>? sealedWeek(int r) {
+    final from = revisionWeek(r).from;
+    for (final x in (S['weeks'] as List? ?? const [])) {
+      if (x is! Map) continue;
+      final w = x['week'];
+      final n = w is num ? w : num.tryParse('$w');
+      if (n == r && ge((x['date'] ?? '').toString(), from)) return x.cast<String, dynamic>();
+    }
+    return null;
+  }
+
+  /// app.js weekRowFor's week: a rest day belongs to the week just worked.
+  int weekOf(String iso) {
+    final i = studyIndex(iso) >= 0 ? studyIndex(iso) : studyIndex(prevStudyDay(iso));
+    final w = fdiv(i < 0 ? 0 : i, STUDY_WEEK) + 1;
+    return w < 1 ? 1 : w;
+  }
+
+  // ---------- the gates (T-038) ----------
+  /// app.js gateRec: a gate's stored record in any of its shapes.
+  ({String? date, String? at, bool passed}) gateRec(Object? raw, int n) {
+    if (raw is Map) {
+      final date = truthy(raw['date']) ? raw['date'].toString() : null;
+      final at = truthy(raw['at']) ? raw['at'].toString() : null;
+      return (date: date, at: at, passed: raw['passed'] == true && date != null);
+    }
+    String midnight(String iso) => DateTime(int.parse(iso.substring(0, 4)), int.parse(iso.substring(5, 7)), int.parse(iso.substring(8, 10)))
+        .toUtc()
+        .toIso8601String();
+    if (raw is String && RegExp(r'^\d{4}-\d\d-\d\d$').hasMatch(raw)) return (date: raw, at: midnight(raw), passed: true);
+    if (raw == true) {
+      String? ts;
+      final ledgers = [S['ledger'], ..._map(S['foreignLedgers']).values];
+      for (final l in ledgers) {
+        if (l is! List) continue;
+        for (final e in l) {
+          if (e is Map && e['type'] == 'gate' && e['ref'] == 'gate$n' && e['data'] is Map && truthy((e['data'] as Map)['passed']) &&
+              truthy(e['ts']) && (ts == null || e['ts'].toString().compareTo(ts) > 0)) {
+            ts = e['ts'].toString();
+          }
+        }
+      }
+      return ts != null
+          ? (date: localISO(DateTime.parse(ts).toLocal()), at: ts, passed: true)
+          : (date: START_DATE, at: midnight(START_DATE), passed: true);
+    }
+    return (date: null, at: null, passed: false);
+  }
+
+  /// app.js gatePlan: each gate's target is the previous gate's completion date
+  /// (its target while still open) plus this gate's duration in study days.
+  List<({int n, String label, String target, String? doneDate})> gatePlan() {
+    var base = START_DATE;
+    final gates = _map(S['gates']);
+    return [
+      for (final g in D.gates)
+        () {
+          final n = (g['n'] as num).toInt();
+          final rec = gateRec(gates['$n'], n);
+          final doneDate = rec.passed ? rec.date : null;
+          final target = addStudyDays(base, ((g['months'] as num) * 30.4).round());
+          base = doneDate ?? target;
+          return (n: n, label: (g['label'] ?? '').toString(), target: target, doneDate: doneDate);
+        }(),
+    ];
+  }
+
+  /// The open gate whose target is [iso] (the calendar's diamond), or null.
+  ({int n, String label, String target, String? doneDate})? gateOn(String iso) {
+    for (final g in gatePlan()) {
+      if (g.doneDate == null && g.target == iso) return g;
+    }
+    return null;
+  }
+
   // ---------- Monk Mode (T-052, T-054, T-057, T-062) ----------
   static const MONK = (from: '2026-11-01', days: 21, url: 'https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z');
   static const MONK_SYNCS = false;

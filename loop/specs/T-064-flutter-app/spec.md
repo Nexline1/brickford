@@ -98,3 +98,7 @@ Branch loop/T-064-flutter-2. Plan = the "Stage 2" section of the approved plan f
 Order: (3) Sync + Monk Mode; (4) quizzes + Problems/Exams; (5) Week/Sunday seal, Record, Proof, Treasury; (6) Atlas, Practice, Recall/Review, Drill, Electives, guide, transcript, then offline.
 Token rules: one builder per stage, sonnet, no separate reviewer; I verify independently by script (analyze, tests, verify-app, verify-boot, scope diff) and merge. Port from platform/js/app.js, do not re-derive.
 Stage 3 = sync (Profile > Sync: GitHub token + repo, push/pull of progress/brickford-state.json using the SAME mergeState rules, offline/latch rules as the web app; the token is never logged or shown) and Monk Mode (#/monk: priorities, day plan, 21-day map, Also section; MONK_SYNCS stays false, monk data never leaves the device).
+
+---
+## Stage 4 (owner order, 5 Nov): lecture quizzes + Problems and Exams
+Port from platform/js/app.js and platform/data (quiz-*.js, summaries, workshop.js): the lecture quiz and the quiz gate (a lecture with a quiz is cleared only when its quiz is passed, unless grandfathered; attempts stored as S.lessons[k].quiz and S.quizAttempts), the Problems page (due now: quizzes owed, psets and labs unlocked by a cleared lecture, NeetCode problems), Exams. Same state shape as the web app, synced through the stage-3 merge. Design: the existing app design; barely any words; parity blocks in verify-app (quiz scoring, gate, problemsDue, pset/lab due) plus plants.

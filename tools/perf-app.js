@@ -3,7 +3,8 @@
 //
 //   node tools/perf-app.js [out file]      run tools/build-app.sh first; prints a table, and writes it to [out file]
 //
-// Measures, in one run, on a seeded state (a few lectures done, a ledger, sync not configured, clock 2026-11-04):
+// Two walks of the same route, semantics on (controls found by identifier, arrival timed) and off (what a phone without
+// VoiceOver runs; the scrolling is measured here), on a seeded state (a few lectures done, a ledger, sync not configured, clock 2026-11-04):
 //   - navigation -> Flutter's first frame, and how much of that is after the data files arrived;
 //   - frame times (requestAnimationFrame deltas from an injected loop) while scrolling Home, Learn (courses and the
 //     lecture list), Build, Library and the Calendar: median, p95, worst, and frames over 50 ms;
@@ -75,151 +76,169 @@ const f1 = n => (Number.isFinite(n) ? n.toFixed(1) : "-");
   const BASE = "http://localhost:" + server.address().port + "/brickford/";
   const browser = await chromium.launch();
   const W = 375, H = 812;
-  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, serviceWorkers: "block" });
-  await ctx.clock.setFixedTime(new Date("2026-11-04T12:00:00Z"));
-  await ctx.route(/youtube\.com|ytimg\.com/, r => r.abort());
-  await ctx.addInitScript(s => {
-    try { localStorage.setItem("flutter.darhikmah_v1", s); } catch (_) {}
-    window.__ff = null;
-    window.addEventListener("flutter-first-frame", () => { window.__ff = performance.now(); });
-    // The frame probe: one rAF loop for the page's life; samples are kept only while a window is open.
-    window.__frames = null; let last = 0;
-    const loop = t => { if (window.__frames && last) window.__frames.push([t, t - last]); last = t; requestAnimationFrame(loop); };
-    requestAnimationFrame(loop);
-    // Semantics on from the start (the placeholder is clicked the moment it exists), so the Home tab's arrival is seen.
-    window.__home = null;
-    new MutationObserver(() => {
-      const p = document.querySelector("flt-semantics-placeholder"); if (p && !window.__sem) { window.__sem = true; p.click(); }
-      if (window.__home === null && document.querySelector('[flt-semantics-identifier="tab-Home"]')) window.__home = performance.now();
-    }).observe(document, { subtree: true, childList: true });
-    window.__t0 = null; window.__hit = null; window.__obs = null;
-    addEventListener("pointerup", e => { window.__t0 = e.timeStamp; }, true);
-    // arm(sel): from now on, note the first moment a node matching sel is in the DOM.
-    window.__arm = sel => {
-      window.__hit = null; if (window.__obs) window.__obs.disconnect();
-      const check = () => { if (window.__hit === null && document.querySelector(sel)) { window.__hit = performance.now(); window.__obs.disconnect(); } };
-      window.__obs = new MutationObserver(check);
-      window.__obs.observe(document, { subtree: true, childList: true, attributes: true });
-      return !document.querySelector(sel);
-    };
-  }, JSON.stringify(JSON.stringify(seed())));
-  const page = await ctx.newPage();
-  const cdp = await ctx.newCDPSession(page);
-  await cdp.send("Emulation.setCPUThrottlingRate", { rate: THROTTLE });
-  const errors = [];
-  page.on("pageerror", e => errors.push(e.message));
-
-  const rows = [];      // [section, name, ...cells]
-  const log = (...a) => { process.stderr.write(a.join(" ") + "\n"); };
-
-  // ---- start: navigation -> first frame ----
-  // (Resource timing is not reliable once the clock is fixed, so the arrival times are Node's: ~10 ms coarse.)
-  const arrived = { js: 0, wasm: 0, data: 0 }; let tnav = 0;
-  page.on("requestfinished", r => {
-    const u = r.url(), t = Date.now() - tnav;
-    if (/main\.dart\.js/.test(u)) arrived.js = t; else if (/canvaskit\.wasm/.test(u)) arrived.wasm = t; else if (/assets\/data\/[^/]*\.json/.test(u)) arrived.data = Math.max(arrived.data, t);
-  });
-  tnav = Date.now();
-  await page.goto(BASE + "app-web/", { waitUntil: "load" });
-  await page.waitForFunction(() => window.__ff !== null, null, { timeout: 120000 });
-  await page.waitForFunction(() => window.__home !== null, null, { timeout: 120000 });
-  const start = Object.assign({ first: await page.evaluate(() => window.__ff), home: await page.evaluate(() => window.__home) }, arrived);
-  await page.waitForTimeout(2500);
-  await page.waitForTimeout(800);
-
+  const state = JSON.stringify(JSON.stringify(seed()));
   const sel = id => `[flt-semantics-identifier="${id}"]`;
-  const center = async (s, nth = 0) => {
-    const el = page.locator(s).nth(nth);
-    await el.waitFor({ timeout: 20000 });
-    const b = await el.boundingBox();
-    return [b.x + b.width / 2, b.y + b.height / 2];
-  };
-  const click = async (s, nth = 0) => { const [x, y] = await center(s, nth); await page.mouse.click(x, y); };
-
-  // Frame stats from a window of [t, delta] samples.
+  const errors = [], coords = {};   // coords: where each control was, found by the semantics run, replayed by the plain run
   const stats = fr => { const d = fr.map(x => x[1]); return { n: d.length, med: pct(d, 0.5), p95: pct(d, 0.95), worst: Math.max(0, ...d), over50: d.filter(x => x > 50).length }; };
+  const log = (...a) => process.stderr.write(a.join(" ") + "\n");
 
-  // Scroll the sheet down then back up by wheel steps (a wheel step is an immediate jump; one step per ~frame).
-  async function scroll(name, steps = 22, dy = 120) {
-    await page.mouse.move(W / 2, 560);
-    const before = await page.screenshot();
+  // One walk through the app. sem = the semantics tree is on (controls found by identifier; "ident" measurable; the
+  // a11y tree costs a frame, and VoiceOver is the only thing that turns it on, on a phone). !sem = the plain app: controls
+  // are tapped where the semantics run found them, and the scrolling is measured here.
+  async function walk(sem) {
+    const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, serviceWorkers: "block" });
+    await ctx.clock.setFixedTime(new Date("2026-11-04T12:00:00Z"));
+    await ctx.route(/youtube\.com|ytimg\.com/, r => r.abort());
+    await ctx.addInitScript(([s, sem]) => {
+      try { localStorage.setItem("flutter.darhikmah_v1", s); } catch (_) {}
+      window.__ff = null;
+      window.addEventListener("flutter-first-frame", () => { window.__ff = performance.now(); });
+      // The frame probe: one rAF loop for the page's life; samples are kept only while a window is open.
+      window.__frames = null; let last = 0;
+      const loop = t => { if (window.__frames && last) window.__frames.push([t, t - last]); last = t; requestAnimationFrame(loop); };
+      requestAnimationFrame(loop);
+      window.__home = null; window.__t0 = null; window.__hit = null; window.__obs = null;
+      if (sem) new MutationObserver(() => {   // semantics on from the start; note when the Home tab arrives
+        const p = document.querySelector("flt-semantics-placeholder"); if (p && !window.__sem) { window.__sem = true; p.click(); }
+        if (window.__home === null && document.querySelector('[flt-semantics-identifier="tab-Home"]')) window.__home = performance.now();
+      }).observe(document, { subtree: true, childList: true });
+      addEventListener("pointerup", e => { window.__t0 = e.timeStamp; }, true);
+      // arm(sel): from now on, note the first moment a node matching sel is in the DOM.
+      window.__arm = sel => {
+        window.__hit = null; if (window.__obs) window.__obs.disconnect();
+        const check = () => { if (window.__hit === null && document.querySelector(sel)) { window.__hit = performance.now(); window.__obs.disconnect(); } };
+        window.__obs = new MutationObserver(check);
+        window.__obs.observe(document, { subtree: true, childList: true, attributes: true });
+        return !document.querySelector(sel);
+      };
+    }, [state, sem]);
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: THROTTLE });
+    page.on("pageerror", e => errors.push(e.message));
+    const res = { start: {}, scroll: [], open: [] };
+
+    // (Resource timing is not reliable once the clock is fixed, so the arrival times are Node's: ~10 ms coarse.)
+    const arrived = { js: 0, wasm: 0, data: 0 }; let tnav = 0;
+    page.on("requestfinished", r => {
+      const u = r.url(), t = Date.now() - tnav;
+      if (/main\.dart\.js/.test(u)) arrived.js = t; else if (/canvaskit\.wasm/.test(u)) arrived.wasm = t; else if (/assets\/data\/[^/]*\.json/.test(u)) arrived.data = Math.max(arrived.data, t);
+    });
+    tnav = Date.now();
+    await page.goto(BASE + "app-web/", { waitUntil: "load" });
+    await page.waitForFunction(() => window.__ff !== null, null, { timeout: 120000 });
+    if (sem) await page.waitForFunction(() => window.__home !== null, null, { timeout: 120000 });
+    res.start = Object.assign({ first: await page.evaluate(() => window.__ff), home: await page.evaluate(() => window.__home) }, arrived);
+    await page.waitForTimeout(sem ? 2500 : 6000);   // the plain run can not see Home arrive: give it time
+
+    const click = async id => {
+      let x, y;
+      if (sem) {
+        const el = page.locator(sel(id)).first();
+        await el.waitFor({ timeout: 20000 });
+        const b = await el.boundingBox(); x = b.x + b.width / 2; y = b.y + b.height / 2; coords[id] = [x, y];
+      } else { if (!coords[id]) throw new Error("no coordinates for " + id); [x, y] = coords[id]; }
+      await page.mouse.click(x, y);
+    };
+    const settle = ms => page.waitForTimeout(ms);
     const grab = () => page.evaluate(() => { const f = window.__frames; window.__frames = null; return f; });
-    let fr = [];
-    await page.evaluate(() => { window.__frames = []; });
-    for (let i = 0; i < steps; i++) { await page.mouse.wheel(0, dy); await page.waitForTimeout(16); }
-    await page.waitForTimeout(250);
-    fr = fr.concat(await grab());
-    const moved = !before.equals(await page.screenshot());   // outside the window: a screenshot is not a frame to count
-    await page.evaluate(() => { window.__frames = []; });
-    for (let i = 0; i < steps + 4; i++) { await page.mouse.wheel(0, -dy); await page.waitForTimeout(16); }
-    await page.waitForTimeout(250);
-    fr = fr.concat(await grab());
-    const s = stats(fr);
-    rows.push(["scroll", name + (moved ? "" : " (DID NOT MOVE)"), s.n, f1(s.med), f1(s.p95), f1(s.worst), s.over50]);
-    log("  scrolled", name, JSON.stringify(s));
+
+    // Scroll the sheet down then back up by wheel steps (a wheel step is an immediate jump; one step per ~frame).
+    async function scroll(name, steps = 22, dy = 120) {
+      if (sem) return;
+      await page.mouse.move(W / 2, 560);
+      const before = await page.screenshot();
+      let fr = [];
+      await page.evaluate(() => { window.__frames = []; });
+      for (let i = 0; i < steps; i++) { await page.mouse.wheel(0, dy); await page.waitForTimeout(16); }
+      await page.waitForTimeout(250);
+      fr = fr.concat(await grab());
+      const moved = !before.equals(await page.screenshot());   // outside the window: a screenshot is not a frame to count
+      await page.evaluate(() => { window.__frames = []; });
+      for (let i = 0; i < steps + 4; i++) { await page.mouse.wheel(0, -dy); await page.waitForTimeout(16); }
+      await page.waitForTimeout(250);
+      fr = fr.concat(await grab());
+      const s = stats(fr);
+      res.scroll.push([name + (moved ? "" : " (DID NOT MOVE)"), s.n, f1(s.med), f1(s.p95), f1(s.worst), s.over50]);
+      log("  scrolled", name, JSON.stringify(s));
+    }
+
+    // Tap [tapId]; with semantics, wait for [wantId] to appear: ident = tap -> its first sighting. settled = tap -> the end
+    // of the last frame over 32 ms in the 1.2 s after (the plain run has only this); worst = the longest frame in that window.
+    async function open(name, tapId, wantId) {
+      if (sem) {
+        const absent = await page.evaluate(s => window.__arm(s), sel(wantId));
+        if (!absent) throw new Error(name + ": " + wantId + " was already on screen");
+      }
+      await page.evaluate(() => { window.__frames = []; window.__t0 = null; });
+      await click(tapId);
+      if (sem) await page.waitForFunction(() => window.__hit !== null, null, { timeout: 20000 });
+      await settle(1300);
+      const r = await page.evaluate(() => { const f = window.__frames; window.__frames = null; return { f, t0: window.__t0, hit: window.__hit }; });
+      const t0 = r.t0 ?? r.f[0][0];
+      const inWin = r.f.filter(x => x[0] >= t0 && x[0] <= t0 + 1200);
+      const long = inWin.filter(x => x[1] > 32).map(x => x[0]);
+      const ident = sem ? r.hit - t0 : NaN, settled = Math.max(sem ? ident : 0, (long.length ? Math.max(...long) : 0) - t0);
+      const worst = Math.max(0, ...inWin.map(x => x[1]));
+      res.open.push([name, ident, settled, worst]);
+      log("  opened", sem ? "(sem)" : "(plain)", name, "ident", f1(ident), "settled", f1(settled), "worst", f1(worst));
+    }
+    const back = async id => {
+      await click(id);
+      if (sem) await page.waitForFunction(s => !document.querySelector(s), sel(id), { timeout: 20000 });
+      await settle(900);
+    };
+
+    await scroll("Home", 14);
+    await open("tab Learn", "tab-Learn", "learn-tab-courses");
+    await scroll("Learn (courses)");
+    await click("learn-tab-all"); await settle(1200);
+    await scroll("Learn (lecture list)", 40);
+    await click("learn-tab-courses"); await settle(800);
+    await open("Atlas", "learn-tool-atlas", "back");
+    await back("back");
+    await open("tab Build", "tab-Build", "chip-treasury");
+    await scroll("Build");
+    await open("tab Profile", "tab-Profile", "chip-record");
+    await open("Library", "chip-library", "back");
+    await scroll("Library");
+    await back("back");
+    await click("tab-Home"); await settle(1000);
+    await open("Calendar", "chip-calendar", "cal-prev");
+    await scroll("Calendar", 10);
+    await open("Calendar day sheet", "cal-2026-11-03", "day-row");
+    await scroll("Calendar day sheet", 8);
+    await page.mouse.click(W / 2, 40); await settle(900);
+    await back("back");
+    await open("Monk", "chip-monk", "back");
+    await back("back");
+    await open("Lecture", "lecture", "lesson-mark");
+    await back("lesson-back");
+    await ctx.close();
+    return res;
   }
 
-  // Tap [tapSel], wait for [wantSel] to appear; ident = tap -> its first sighting, settled = to the last frame over 32 ms.
-  async function open(name, tapSel, wantSel, nth = 0) {
-    const absent = await page.evaluate(s => window.__arm(s), wantSel);
-    if (!absent) throw new Error(name + ": " + wantSel + " was already on screen");
-    await page.evaluate(() => { window.__frames = []; window.__t0 = null; });
-    await click(tapSel, nth);
-    await page.waitForFunction(() => window.__hit !== null, null, { timeout: 20000 });
-    await page.waitForTimeout(1200);
-    const r = await page.evaluate(() => { const f = window.__frames; window.__frames = null; return { f, t0: window.__t0, hit: window.__hit }; });
-    const t0 = r.t0 ?? r.f[0][0];
-    const long = r.f.filter(x => x[1] > 32 && x[0] >= t0 && x[0] <= t0 + 1200).map(x => x[0]);
-    const ident = r.hit - t0, settled = Math.max(ident, (long.length ? Math.max(...long) : 0) - t0);
-    const worst = Math.max(0, ...r.f.filter(x => x[0] >= t0 && x[0] <= t0 + 1200).map(x => x[1]));
-    rows.push(["open", name, f1(ident), f1(settled), f1(worst)]);
-    log("  opened", name, "ident", f1(ident), "settled", f1(settled), "worst", f1(worst));
-  }
-  const back = async (id = "back") => {
-    await click(sel(id));
-    await page.waitForFunction(s => !document.querySelector(s), sel(id), { timeout: 20000 });
-    await page.waitForTimeout(700);
-  };
-
-  // ---- the walk ----
-  await scroll("Home", 14);
-  await open("tab Learn", sel("tab-Learn"), sel("learn-tab-courses"));
-  await scroll("Learn (courses)");
-  await click(sel("learn-tab-all")); await page.waitForTimeout(1200);
-  await scroll("Learn (lecture list)", 40);
-  await click(sel("learn-tab-courses")); await page.waitForTimeout(800);
-  await open("Atlas", sel("learn-tool-atlas"), sel("back"));
-  await back();
-  await open("tab Build", sel("tab-Build"), sel("chip-treasury"));
-  await scroll("Build");
-  await open("tab Profile", sel("tab-Profile"), sel("chip-record"));
-  await open("Library", sel("chip-library"), sel("back"));
-  await scroll("Library");
-  await back();
-  await click(sel("tab-Home")); await page.waitForTimeout(1000);
-  await open("Calendar", sel("chip-calendar"), sel("cal-prev"));
-  await scroll("Calendar", 10);
-  await open("Calendar day sheet", sel("cal-2026-11-03"), sel("day-row"));
-  await scroll("Calendar day sheet", 8);
-  await page.mouse.click(W / 2, 40); await page.waitForTimeout(900);
-  await back();
-  await open("Monk", sel("chip-monk"), sel("back"));
-  await back();
-  await open("Lecture", sel("lecture"), sel("lesson-mark"));
-  await back("lesson-back");
+  // PLAIN_ONLY=1 COORDS=file: skip the semantics walk and reuse the coordinates it saved (quick iteration; no ident column).
+  const plainOnly = process.env.PLAIN_ONLY === "1" && process.env.COORDS && fs.existsSync(process.env.COORDS);
+  let A;
+  if (plainOnly) { Object.assign(coords, JSON.parse(fs.readFileSync(process.env.COORDS, "utf8"))); A = { start: {}, scroll: [], open: [] }; }
+  else { A = await walk(true); if (process.env.COORDS) fs.writeFileSync(process.env.COORDS, JSON.stringify(coords)); }   // semantics on: where things are, and when they arrive
+  const B = await walk(false);    // semantics off: what the phone does
 
   // ---- the table ----
   const out = [];
   const pad = (s, n) => String(s).padEnd(n), lpad = (s, n) => String(s).padStart(n);
   out.push(`perf-app: ${W}x${H} dpr 2, CPU throttle ${THROTTLE}x, Chromium ${browser.version()} (software GL), seeded state, clock 2026-11-04`);
   out.push("");
-  out.push(`start: splash frame ${f1(start.first)} ms after navigation; Home on screen ${f1(start.home)} ms (main.dart.js in at ${f1(start.js)}, canvaskit.wasm at ${f1(start.wasm)}, last data JSON in at ${f1(start.data)}; ${f1(start.home - start.data)} ms from the last data file to Home: decode, build, first frame)`);
+  const st = A.start;
+  out.push(`start (plain): splash frame ${f1(B.start.first)} ms after navigation`);
+  if (!plainOnly) out.push(`start (semantics on): splash ${f1(st.first)} ms; Home on screen ${f1(st.home)} ms (main.dart.js in at ${f1(st.js)}, canvaskit.wasm at ${f1(st.wasm)}, last data JSON in at ${f1(st.data)}; ${f1(st.home - st.data)} ms from the last data file to Home: decode, build, first frame)`);
   out.push("");
-  out.push(pad("scrolling (frame = rAF delta, ms)", 36) + lpad("frames", 8) + lpad("median", 8) + lpad("p95", 8) + lpad("worst", 8) + lpad(">50ms", 7));
-  for (const r of rows.filter(r => r[0] === "scroll")) out.push(pad(r[1], 36) + lpad(r[2], 8) + lpad(r[3], 8) + lpad(r[4], 8) + lpad(r[5], 8) + lpad(r[6], 7));
+  out.push(pad("scrolling, semantics off (frame ms)", 36) + lpad("frames", 8) + lpad("median", 8) + lpad("p95", 8) + lpad("worst", 8) + lpad(">50ms", 7));
+  for (const r of B.scroll) out.push(pad(r[0], 36) + lpad(r[1], 8) + lpad(r[2], 8) + lpad(r[3], 8) + lpad(r[4], 8) + lpad(r[5], 7));
   out.push("");
-  out.push(pad("opening (ms from the tap)", 36) + lpad("ident", 8) + lpad("settled", 9) + lpad("worst frame", 13));
-  for (const r of rows.filter(r => r[0] === "open")) out.push(pad(r[1], 36) + lpad(r[2], 8) + lpad(r[3], 9) + lpad(r[4], 13));
+  out.push(pad("opening (ms from the tap)", 36) + lpad("ident", 8) + lpad("settled", 9) + lpad("worst", 7) + "   |" + lpad("settled", 9) + lpad("worst", 7) + "   (left: semantics on; right: off)");
+  B.open.forEach((b, i) => { const r = A.open[i] || [b[0], NaN, NaN, NaN]; out.push(pad(b[0], 36) + lpad(f1(r[1]), 8) + lpad(f1(r[2]), 9) + lpad(f1(r[3]), 7) + "   |" + lpad(f1(b[2]), 9) + lpad(f1(b[3]), 7)); });
   out.push("");
   out.push(errors.length ? "page errors: " + errors.slice(0, 3).join(" | ") : "no page errors");
   const text = out.join("\n");

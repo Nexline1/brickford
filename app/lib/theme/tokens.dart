@@ -126,5 +126,5 @@ abstract final class Tokens {
   static const barClearance = barHeight + barGap + 24;
 
   static const sheetBorderRadius = BorderRadius.only(topLeft: Radius.circular(sheetRadius), topRight: Radius.circular(sheetRadius));
-  static const sheetShadow = [BoxShadow(color: Colors.black12, blurRadius: 20.0, offset: Offset(0, -5))];
+  static const sheetShadow = [BoxShadow(color: Colors.black12, blurRadius: 12.0, offset: Offset(0, -4))];
 }

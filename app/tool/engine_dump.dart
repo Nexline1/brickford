@@ -652,7 +652,6 @@ Map<String, dynamic> pagesDump(Map<String, dynamic> fx, BrickfordData data) {
       'events': [for (final x in e.ledger) [(x as Map)['type'], x['ref'], x['data']]],
     };
   }
-  final e0 = Engine(data, null, today: () => fx['planClock'] as String);
   out['standing'] = [for (final x in P['standing'] as List) () {
     final r = standing(x as num);
     return [r.$1, r.$2];

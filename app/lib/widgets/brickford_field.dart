@@ -15,10 +15,7 @@ class BrickfordField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final bool autofocus;
 
-  static const _none = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(Tokens.radius)),
-    borderSide: BorderSide.none,
-  );
+  static const _none = OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(Tokens.radius)), borderSide: BorderSide.none);
 
   @override
   Widget build(BuildContext context) {

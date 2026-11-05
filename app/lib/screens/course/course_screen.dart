@@ -33,18 +33,30 @@ class CourseScreen extends StatelessWidget {
     final c = m.data.course(cid)!;
     final units = (c['units'] as List? ?? const []);
     final n = courseCounts(m, cid, unit: unit);
-    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('${c['code']}', style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w700)),
-      SizedBox(height: 4.h),
-      Text(unit != null ? '${units[unit!]['name']}' : '${c['title']}',
-          maxLines: 2, overflow: TextOverflow.ellipsis, style: display(22, weight: FontWeight.w600)),
-      SizedBox(height: 10.h),
-      Row(children: [
-        Stat(icon: Icons.check_circle_outline, value: '${n.cleared}/${n.total}', semantic: 'cleared'),
-        SizedBox(width: 18.w),
-        Stat(icon: Icons.visibility_outlined, value: '${n.done}', semantic: 'watched'),
-      ]),
-    ]);
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${c['code']}',
+          style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w700),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          unit != null ? '${units[unit!]['name']}' : '${c['title']}',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: display(22, weight: FontWeight.w600),
+        ),
+        SizedBox(height: 10.h),
+        Row(
+          children: [
+            Stat(icon: Icons.check_circle_outline, value: '${n.cleared}/${n.total}', semantic: 'cleared'),
+            SizedBox(width: 18.w),
+            Stat(icon: Icons.visibility_outlined, value: '${n.done}', semantic: 'watched'),
+          ],
+        ),
+      ],
+    );
     return Scaffold(
       backgroundColor: Tokens.midnight,
       body: SheetScaffold(
@@ -59,8 +71,11 @@ class CourseScreen extends StatelessWidget {
                   leading: LessonGlyph(m.markOf(lessonKey(cid, ui, li))),
                   title: '${units[ui]['lessons'][li]['t']}',
                   meta: units[ui]['lessons'][li]['min'] != null ? "${units[ui]['lessons'][li]['min']}m" : null,
-                  onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => LessonScreen(cid: cid, ui: ui, li: li))),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => LessonScreen(cid: cid, ui: ui, li: li),
+                    ),
+                  ),
                 ),
             ],
         ],

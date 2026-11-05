@@ -22,8 +22,11 @@ class VideoEmbed extends StatelessWidget {
         final el = _createElement('iframe'.toJS);
         el.callMethod('setAttribute'.toJS, 'src'.toJS, src.toJS);
         el.callMethod('setAttribute'.toJS, 'title'.toJS, 'YouTube video player'.toJS);
-        el.callMethod('setAttribute'.toJS, 'allow'.toJS,
-            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'.toJS);
+        el.callMethod(
+          'setAttribute'.toJS,
+          'allow'.toJS,
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'.toJS,
+        );
         el.callMethod('setAttribute'.toJS, 'allowfullscreen'.toJS, ''.toJS);
         el.callMethod('setAttribute'.toJS, 'referrerpolicy'.toJS, 'strict-origin-when-cross-origin'.toJS);
         final style = el.getProperty<JSObject>('style'.toJS);
@@ -39,6 +42,9 @@ class VideoEmbed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Full-bleed: it fills the box the lecture screen gives it.
-    return ColoredBox(color: Colors.black, child: HtmlElementView(viewType: _viewType()));
+    return ColoredBox(
+      color: Colors.black,
+      child: HtmlElementView(viewType: _viewType()),
+    );
   }
 }

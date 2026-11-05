@@ -18,19 +18,19 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static IconData trackIcon(String track) => switch (track) {
-        'Theory' => Icons.functions,
-        'Build' => Icons.construction,
-        'Publish' => Icons.record_voice_over_outlined,
-        _ => Icons.circle_outlined,
-      };
+    'Theory' => Icons.functions,
+    'Build' => Icons.construction,
+    'Publish' => Icons.record_voice_over_outlined,
+    _ => Icons.circle_outlined,
+  };
 
   static String greeting(int hour) => hour < 5
       ? 'Good evening'
       : hour < 12
-          ? 'Good morning'
-          : hour < 18
-              ? 'Good afternoon'
-              : 'Good evening';
+      ? 'Good morning'
+      : hour < 18
+      ? 'Good afternoon'
+      : 'Good evening';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -64,23 +64,44 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Text(HomeScreen.greeting(DateTime.now().hour), style: display(30)),
         SizedBox(height: 8.h),
-        Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
-          Text('Day ', style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500)),
-          Text('$dayN', key: const ValueKey('home-day'), style: body(16, color: Tokens.onMidnight, weight: FontWeight.w800)),
-          Text(' / $total', style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500)),
-        ]),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              'Day ',
+              style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
+            ),
+            Text(
+              '$dayN',
+              key: const ValueKey('home-day'),
+              style: body(16, color: Tokens.onMidnight, weight: FontWeight.w800),
+            ),
+            Text(
+              ' / $total',
+              style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
+            ),
+          ],
+        ),
         SizedBox(height: 14.h),
-        Wrap(spacing: 18.w, runSpacing: 6.h, children: [
-          Stat(icon: Icons.local_fire_department_outlined, value: '${e.streak()}', semantic: 'streak'),
-          Stat(icon: Icons.task_alt, value: '$doneN/${real.length}', semantic: 'cleared today'),
-          if (owed > 0) Stat(icon: Icons.history, value: owed > 20 ? '20+' : '$owed', semantic: 'owed'),
-          if (rest) const Stat(icon: Icons.bedtime_outlined, value: '', semantic: 'rest day'),
-        ]),
+        Wrap(
+          spacing: 18.w,
+          runSpacing: 6.h,
+          children: [
+            Stat(icon: Icons.local_fire_department_outlined, value: '${e.streak()}', semantic: 'streak'),
+            Stat(icon: Icons.task_alt, value: '$doneN/${real.length}', semantic: 'cleared today'),
+            if (owed > 0) Stat(icon: Icons.history, value: owed > 20 ? '20+' : '$owed', semantic: 'owed'),
+            if (rest) const Stat(icon: Icons.bedtime_outlined, value: '', semantic: 'rest day'),
+          ],
+        ),
       ],
     );
 
-    void open(String cid, int ui, int li) =>
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => LessonScreen(cid: cid, ui: ui, li: li)));
+    void open(String cid, int ui, int li) => Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => LessonScreen(cid: cid, ui: ui, li: li),
+      ),
+    );
 
     final (IconData icon, String label) = switch (next.kind) {
       'lecture' => (next.workAhead ? Icons.fast_forward_rounded : Icons.play_arrow_rounded, 'Play'),
@@ -91,7 +112,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _ => (Icons.check, 'Done'),
     };
 
-    final shown = [for (final it in items) if (only == null || (!it.pseudo && it.code == only)) it];
+    final shown = [
+      for (final it in items)
+        if (only == null || (!it.pseudo && it.code == only)) it,
+    ];
 
     return SheetScaffold(
       tabbed: true,
@@ -101,11 +125,13 @@ class _HomeScreenState extends State<HomeScreen> {
       header: header,
       children: [
         if (codes.length > 1) ...[
-          ChipRow(children: [
-            BrickChip(key: const ValueKey('chip-all'), label: 'All', selected: only == null, onTap: () => setState(() => only = null)),
-            for (final c in codes)
-              BrickChip(key: ValueKey('chip-$c'), label: c, selected: only == c, onTap: () => setState(() => only = c)),
-          ]),
+          ChipRow(
+            children: [
+              BrickChip(key: const ValueKey('chip-all'), label: 'All', selected: only == null, onTap: () => setState(() => only = null)),
+              for (final c in codes)
+                BrickChip(key: ValueKey('chip-$c'), label: c, selected: only == c, onTap: () => setState(() => only = c)),
+            ],
+          ),
           SizedBox(height: 18.h),
         ],
         _NextUp(
@@ -137,8 +163,12 @@ class _HomeScreenState extends State<HomeScreen> {
         if (items.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 32.h),
-            child: Icon(rest ? Icons.bedtime_outlined : Icons.event_available, size: 48, color: Tokens.quiet,
-                semanticLabel: rest ? 'rest day' : 'nothing scheduled'),
+            child: Icon(
+              rest ? Icons.bedtime_outlined : Icons.event_available,
+              size: 48,
+              color: Tokens.quiet,
+              semanticLabel: rest ? 'rest day' : 'nothing scheduled',
+            ),
           ),
       ],
     );
@@ -160,28 +190,40 @@ class _NextUp extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Tokens.cardRadius),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white, Tokens.accentWash],
-        ),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white, Tokens.accentWash]),
         border: Border.all(color: Tokens.hairline),
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          LeadTile(icon: icon, color: Tokens.accent, fg: Colors.white),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              if (code.isNotEmpty)
-                Text(code, style: body(11.5, color: Tokens.ink2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8)),
-              Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: body(15.5, weight: FontWeight.w700, height: 1.3)),
-            ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              LeadTile(icon: icon, color: Tokens.accent, fg: Colors.white),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (code.isNotEmpty)
+                      Text(
+                        code,
+                        style: body(11.5, color: Tokens.ink2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8),
+                      ),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: body(15.5, weight: FontWeight.w700, height: 1.3),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ]),
-        SizedBox(height: 14.h),
-        PillButton(key: const ValueKey('home-next'), icon: icon, label: label, onPressed: onPressed),
-      ]),
+          SizedBox(height: 14.h),
+          PillButton(key: const ValueKey('home-next'), icon: icon, label: label, onPressed: onPressed),
+        ],
+      ),
     );
   }
 }

@@ -14,13 +14,24 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = AppScope.of(context);
     final e = m.engine;
-    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      BigCount(icon: Icons.local_fire_department, semantic: 'streak over best', value: '${e.streak()}', total: '${e.bestStreak()}', valueKey: const ValueKey('profile-streak')),
-      SizedBox(height: 10.h),
-      Wrap(spacing: 22.w, runSpacing: 8.h, children: [
-        Stat(icon: Icons.verified_outlined, value: '${e.studyDays.toSet().length}', semantic: 'days sealed'),
-      ]),
-    ]);
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BigCount(
+          icon: Icons.local_fire_department,
+          semantic: 'streak over best',
+          value: '${e.streak()}',
+          total: '${e.bestStreak()}',
+          valueKey: const ValueKey('profile-streak'),
+        ),
+        SizedBox(height: 10.h),
+        Wrap(
+          spacing: 22.w,
+          runSpacing: 8.h,
+          children: [Stat(icon: Icons.verified_outlined, value: '${e.studyDays.toSet().length}', semantic: 'days sealed')],
+        ),
+      ],
+    );
     return SheetScaffold(
       tabbed: true,
       header: header,

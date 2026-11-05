@@ -11,15 +11,7 @@ import '../theme/tokens.dart';
 import 'blocks.dart';
 
 class SheetScaffold extends StatelessWidget {
-  const SheetScaffold({
-    super.key,
-    this.header,
-    this.trailing,
-    this.canvas,
-    required this.children,
-    this.onBack,
-    this.tabbed = false,
-  });
+  const SheetScaffold({super.key, this.header, this.trailing, this.canvas, required this.children, this.onBack, this.tabbed = false});
 
   /// What this screen shows on the canvas under the branding: numbers, badges.
   final Widget? header;
@@ -61,13 +53,18 @@ class SheetScaffold extends StatelessWidget {
                   ],
                   const BrandMark(),
                   SizedBox(width: 10.w),
-                  Expanded(child: Text('Brickford', maxLines: 1, overflow: TextOverflow.ellipsis, style: display(20))),
+                  Expanded(
+                    child: Text('Brickford', maxLines: 1, overflow: TextOverflow.ellipsis, style: display(20)),
+                  ),
                   ?trailing,
                 ],
               ),
             ),
-            SizedBox(height: 16.h),
+            // The screen's numbers sit at the foot of the canvas, just above the sheet.
+            // (Spacer then header, not Align: a header Column would fill an Align.)
+            const Spacer(),
             ?header,
+            SizedBox(height: 30.h),
           ],
         ),
       ),
@@ -78,7 +75,13 @@ class SheetScaffold extends StatelessWidget {
       color: Tokens.midnight,
       child: Stack(
         children: [
-          Positioned(top: 0, left: 0, right: 0, height: Tokens.headerHeight.h, child: canvas ?? branding),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: canvas != null ? Tokens.headerHeight.h : Tokens.sheetTop.h,
+            child: canvas ?? branding,
+          ),
           Positioned(
             top: Tokens.sheetTop.h,
             left: 0,
@@ -86,11 +89,7 @@ class SheetScaffold extends StatelessWidget {
             bottom: 0,
             child: Container(
               key: sheetKey,
-              decoration: const BoxDecoration(
-                color: Tokens.sheet,
-                borderRadius: Tokens.sheetBorderRadius,
-                boxShadow: Tokens.sheetShadow,
-              ),
+              decoration: const BoxDecoration(color: Tokens.sheet, borderRadius: Tokens.sheetBorderRadius, boxShadow: Tokens.sheetShadow),
               child: ClipRRect(
                 borderRadius: Tokens.sheetBorderRadius,
                 child: ListView(

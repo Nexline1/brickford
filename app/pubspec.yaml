@@ -21,9 +21,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Listed folder by folder, never `assets/` whole: the built web app is copied
-  # into this same folder for GitHub Pages (tools/build-app.sh), and its own
-  # assets/ output must not be bundled back in.
+  # Listed folder by folder, never `assets/` whole, so a stray copy of a web
+  # build's own assets/ output (see .gitignore) can never be bundled back in.
   assets:
     - assets/data/
     - assets/fonts/inter/

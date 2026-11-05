@@ -20,9 +20,18 @@ class CommunityScreen extends StatelessWidget {
       total += n.total;
       cleared += n.cleared;
     }
-    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      BigCount(icon: Icons.record_voice_over, semantic: 'storytelling lectures cleared', value: '$cleared', total: '$total', valueKey: const ValueKey('community-count')),
-    ]);
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BigCount(
+          icon: Icons.record_voice_over,
+          semantic: 'storytelling lectures cleared',
+          value: '$cleared',
+          total: '$total',
+          valueKey: const ValueKey('community-count'),
+        ),
+      ],
+    );
     return SheetScaffold(
       tabbed: true,
       header: header,
@@ -41,7 +50,11 @@ class CommunityScreen extends StatelessWidget {
                 title: '${u['name']}',
                 meta: '${n.cleared}/${n.total}',
                 below: ProgressBar(n.total == 0 ? 0 : n.cleared / n.total),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseScreen(cid: id, unit: ui))),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => CourseScreen(cid: id, unit: ui),
+                  ),
+                ),
               );
             }(),
         ],

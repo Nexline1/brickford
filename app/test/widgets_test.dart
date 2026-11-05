@@ -40,10 +40,7 @@ void main() {
     final sheet = tester.widget<Container>(find.byKey(SheetScaffold.sheetKey).first);
     final deco = sheet.decoration! as BoxDecoration;
     expect(deco.color, Colors.white);
-    expect(
-      deco.borderRadius,
-      const BorderRadius.only(topLeft: Radius.circular(36.0), topRight: Radius.circular(36.0)),
-    );
+    expect(deco.borderRadius, const BorderRadius.only(topLeft: Radius.circular(36.0), topRight: Radius.circular(36.0)));
     final r = deco.borderRadius! as BorderRadius;
     expect(r.bottomLeft, Radius.zero);
     expect(r.bottomRight, Radius.zero);
@@ -53,7 +50,9 @@ void main() {
     final top = tester.getTopLeft(find.byKey(SheetScaffold.sheetKey).first).dy;
     expect(top, closeTo(240, 0.5));
     expect(find.text('Brickford'), findsWidgets);
-    final scroll = tester.widget<ListView>(find.descendant(of: find.byKey(SheetScaffold.sheetKey).first, matching: find.byType(ListView)).first);
+    final scroll = tester.widget<ListView>(
+      find.descendant(of: find.byKey(SheetScaffold.sheetKey).first, matching: find.byType(ListView)).first,
+    );
     expect(scroll.physics, isA<BouncingScrollPhysics>());
   });
 
@@ -85,7 +84,11 @@ void main() {
     final button = tester.widget<ElevatedButton>(find.descendant(of: pills.first, matching: find.byType(ElevatedButton)));
     final style = button.style!;
     for (final states in <Set<WidgetState>>[
-      {}, {WidgetState.hovered}, {WidgetState.focused}, {WidgetState.pressed}, {WidgetState.disabled},
+      {},
+      {WidgetState.hovered},
+      {WidgetState.focused},
+      {WidgetState.pressed},
+      {WidgetState.disabled},
     ]) {
       expect(style.elevation!.resolve(states), 0, reason: 'elevation in $states');
     }

@@ -7,5 +7,7 @@ The Flutter build of Brickford. `platform/` stays the live web app until parity.
   `node tools/verify-app.js` holds the port to the JS, date by date.
 - Fonts: Playfair Display and Inter, bundled under `assets/fonts/` (OFL, licences beside them);
   `GoogleFonts.config.allowRuntimeFetching` is false, so nothing is fetched at runtime.
-- Web build: `tools/build-app.sh` builds with `--base-href /brickford/app/` and copies the output
-  into this folder, which GitHub Pages serves at `/brickford/app/`.
+- Web build: `tools/build-app.sh` builds with `--base-href /brickford/app-web/` and copies the
+  output to the top-level `app-web/`, which GitHub Pages serves at `/brickford/app-web/`.
+  `app/index.html` (hand-written) forwards `/brickford/app/` there. No build output is tracked
+  in this folder; `.gitignore` keeps it out.

@@ -38,37 +38,39 @@ class _ShellState extends State<Shell> {
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Scaffold(
       backgroundColor: Tokens.midnight,
-      body: Stack(children: [
-        Positioned.fill(
-          child: IndexedStack(
-            index: index,
-            children: const [HomeScreen(), MarketScreen(), CommunityScreen(), ProfileScreen()],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: IndexedStack(index: index, children: const [HomeScreen(), MarketScreen(), CommunityScreen(), ProfileScreen()]),
           ),
-        ),
-        Positioned(
-          left: 16.w,
-          right: 16.w,
-          bottom: Tokens.barGap + bottom,
-          child: Row(children: [
-            Expanded(
-              child: BrickfordBar(
-                key: const ValueKey('brickford-tabs'),
-                index: index,
-                tabs: tabs,
-                onSelect: (i) => setState(() => index = i),
-              ),
+          Positioned(
+            left: 16.w,
+            right: 16.w,
+            bottom: Tokens.barGap + bottom,
+            child: Row(
+              children: [
+                Expanded(
+                  child: BrickfordBar(
+                    key: const ValueKey('brickford-tabs'),
+                    index: index,
+                    tabs: tabs,
+                    onSelect: (i) => setState(() => index = i),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                FrostButton(
+                  key: const ValueKey('brickford-search'),
+                  icon: Icons.search,
+                  tooltip: 'Search',
+                  id: 'search',
+                  size: Tokens.barHeight,
+                  onPressed: () => showSearchSheet(context),
+                ),
+              ],
             ),
-            SizedBox(width: 10.w),
-            FrostButton(
-              key: const ValueKey('brickford-search'),
-              icon: Icons.search,
-              tooltip: 'Search',
-              size: Tokens.barHeight,
-              onPressed: () => showSearchSheet(context),
-            ),
-          ]),
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -98,18 +100,20 @@ class BrickfordBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(Tokens.barHeight / 2),
               border: Border.all(color: Tokens.hairline),
             ),
-            child: Row(children: [
-              for (var i = 0; i < tabs.length; i++)
-                Expanded(
-                  child: BarTab(
-                    key: ValueKey('tab-${tabs[i].$3}'),
-                    icon: i == index ? tabs[i].$2 : tabs[i].$1,
-                    label: tabs[i].$3,
-                    selected: i == index,
-                    onTap: () => onSelect(i),
+            child: Row(
+              children: [
+                for (var i = 0; i < tabs.length; i++)
+                  Expanded(
+                    child: BarTab(
+                      key: ValueKey('tab-${tabs[i].$3}'),
+                      icon: i == index ? tabs[i].$2 : tabs[i].$1,
+                      label: tabs[i].$3,
+                      selected: i == index,
+                      onTap: () => onSelect(i),
+                    ),
                   ),
-                ),
-            ]),
+              ],
+            ),
           ),
         ),
       ),
@@ -128,6 +132,7 @@ class BarTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final fg = selected ? Tokens.accent : Tokens.ink2;
     return Semantics(
+      identifier: 'tab-$label',
       selected: selected,
       button: true,
       label: label,
@@ -138,11 +143,18 @@ class BarTab extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(26),
           onTap: onTap,
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon, size: 22, color: fg),
-            const SizedBox(height: 2),
-            Text(label, maxLines: 1, style: body(10, color: fg, weight: FontWeight.w700)),
-          ]),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 22, color: fg),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                style: body(10, color: fg, weight: FontWeight.w700),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -168,38 +180,44 @@ Future<void> showSearchSheet(BuildContext context) {
       expand: false,
       initialChildSize: 0.9,
       maxChildSize: 0.94,
-      builder: (_, scroll) => StatefulBuilder(builder: (context, setState) {
-        final needle = q.toLowerCase();
-        final hits = needle.isEmpty
-            ? const []
-            : all.where((f) => '${f.code} ${f.l['t']}'.toLowerCase().contains(needle)).take(60).toList();
-        return ListView(
-          controller: scroll,
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 28.h),
-          children: [
-            BrickfordField(
-              key: const ValueKey('search-field'),
-              icon: Icons.search,
-              hint: 'Search',
-              autofocus: true,
-              onChanged: (v) => setState(() => q = v.trim()),
-            ),
-            SizedBox(height: 14.h),
-            for (final f in hits)
-              ItemBlock(
-                leading: LessonGlyph(m.markOf(f.key)),
-                subtitle: f.code,
-                title: '${f.l['t']}',
-                meta: f.l['min'] != null ? "${f.l['min']}m" : null,
-                onTap: () {
-                  Navigator.of(sheet).pop();
-                  nav.push(MaterialPageRoute(builder: (_) => LessonScreen(cid: f.cid, ui: f.ui, li: f.li)));
-                },
+      builder: (_, scroll) => StatefulBuilder(
+        builder: (context, setState) {
+          final needle = q.toLowerCase();
+          final hits = needle.isEmpty
+              ? const []
+              : all.where((f) => '${f.code} ${f.l['t']}'.toLowerCase().contains(needle)).take(60).toList();
+          return ListView(
+            controller: scroll,
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 28.h),
+            children: [
+              BrickfordField(
+                key: const ValueKey('search-field'),
+                icon: Icons.search,
+                hint: 'Search',
+                autofocus: true,
+                onChanged: (v) => setState(() => q = v.trim()),
               ),
-          ],
-        );
-      }),
+              SizedBox(height: 14.h),
+              for (final f in hits)
+                ItemBlock(
+                  leading: LessonGlyph(m.markOf(f.key)),
+                  subtitle: f.code,
+                  title: '${f.l['t']}',
+                  meta: f.l['min'] != null ? "${f.l['min']}m" : null,
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    nav.push(
+                      MaterialPageRoute(
+                        builder: (_) => LessonScreen(cid: f.cid, ui: f.ui, li: f.li),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          );
+        },
+      ),
     ),
   );
 }

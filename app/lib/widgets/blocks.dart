@@ -38,29 +38,47 @@ class BrandMark extends StatelessWidget {
 /// A round frosted button, 44x44: over the video, in the branding row, and
 /// the bar's search button (at [size]).
 class FrostButton extends StatelessWidget {
-  const FrostButton({super.key, required this.icon, required this.tooltip, required this.onPressed, this.dark = false, this.size = 44});
+  const FrostButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.dark = false,
+    this.size = 44,
+    this.id,
+  });
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
   final bool dark;
   final double size;
 
+  /// The semantics identifier (what a browser harness finds it by).
+  final String? id;
+
   @override
   Widget build(BuildContext context) {
     final fill = dark ? Colors.white.withValues(alpha: 0.16) : Tokens.frost;
     final fg = dark ? Colors.white : Tokens.ink;
-    return Tooltip(
-      message: tooltip,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Material(
-            color: fill,
-            shape: CircleBorder(side: BorderSide(color: dark ? Colors.white24 : Tokens.hairline)),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: onPressed,
-              child: SizedBox(width: size, height: size, child: Icon(icon, size: size * 0.42, color: fg, semanticLabel: tooltip)),
+    return Semantics(
+      identifier: id,
+      child: Tooltip(
+        message: tooltip,
+        child: ClipOval(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Material(
+              color: fill,
+              shape: CircleBorder(side: BorderSide(color: dark ? Colors.white24 : Tokens.hairline)),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: onPressed,
+                child: SizedBox(
+                  width: size,
+                  height: size,
+                  child: Icon(icon, size: size * 0.42, color: fg, semanticLabel: tooltip),
+                ),
+              ),
             ),
           ),
         ),
@@ -89,12 +107,18 @@ class BrickChip extends StatelessWidget {
         onTap: onTap,
         child: Container(
           height: 44,
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 14.w),
           alignment: Alignment.center,
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (icon != null) ...[Icon(icon, size: 17, color: fg), SizedBox(width: 6.w)],
-            Text(label, style: body(13.5, color: fg, weight: FontWeight.w600)),
-          ]),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[Icon(icon, size: 17, color: fg), SizedBox(width: 6.w)],
+              Text(
+                label,
+                style: body(13.5, color: fg, weight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -137,7 +161,11 @@ class LeadTile extends StatelessWidget {
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
       child: icon != null
           ? Icon(icon, size: 22, color: fg)
-          : Text(text ?? '', maxLines: 1, style: body(12.5, color: fg, weight: FontWeight.w800)),
+          : Text(
+              text ?? '',
+              maxLines: 1,
+              style: body(12.5, color: fg, weight: FontWeight.w800),
+            ),
     );
   }
 }
@@ -174,16 +202,32 @@ class ItemBlock extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: body(14.5, weight: FontWeight.w700, height: 1.3)),
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: body(14.5, weight: FontWeight.w700, height: 1.3),
+                        ),
                         if (subtitle != null) ...[
                           SizedBox(height: 2.h),
-                          Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: body(12, color: Tokens.ink2, weight: FontWeight.w500)),
+                          Text(
+                            subtitle!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: body(12, color: Tokens.ink2, weight: FontWeight.w500),
+                          ),
                         ],
                         if (below != null) ...[SizedBox(height: 8.h), below!],
                       ],
                     ),
                   ),
-                  if (meta != null) ...[SizedBox(width: 8.w), Text(meta!, style: body(12.5, color: Tokens.ink2, weight: FontWeight.w700))],
+                  if (meta != null) ...[
+                    SizedBox(width: 8.w),
+                    Text(
+                      meta!,
+                      style: body(12.5, color: Tokens.ink2, weight: FontWeight.w700),
+                    ),
+                  ],
                   if (onTap != null) ...[SizedBox(width: 8.w), const Icon(Icons.arrow_forward_ios, size: 14, color: Tokens.quiet)],
                 ],
               ),
@@ -248,15 +292,20 @@ class FallbackTile extends StatelessWidget {
           colors: [Color(0xFF1F4D3A), Color(0xFF14231D), Tokens.midnight],
         ),
       ),
-      child: Stack(children: [
-        Positioned(right: -30, top: -30, child: Opacity(opacity: 0.5, child: BrandMark(size: 120))),
-        if (code != null)
-          Positioned(
-            left: 14,
-            bottom: 12,
-            child: Text(code!, style: body(12, color: Colors.white70, weight: FontWeight.w800).copyWith(letterSpacing: 1.2)),
-          ),
-      ]),
+      child: Stack(
+        children: [
+          Positioned(right: 18, top: 16, child: Opacity(opacity: 0.55, child: BrandMark(size: 30))),
+          if (code != null)
+            Positioned(
+              left: 14,
+              bottom: 12,
+              child: Text(
+                code!,
+                style: body(12, color: Colors.white70, weight: FontWeight.w800).copyWith(letterSpacing: 1.2),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -264,7 +313,16 @@ class FallbackTile extends StatelessWidget {
 /// The dark lecture card: code and glyph, the title in white, the thumbnail
 /// with a round play button.
 class LectureCard extends StatelessWidget {
-  const LectureCard({super.key, required this.title, this.code, this.minutes, this.videoId, required this.mark, required this.onTap, this.span});
+  const LectureCard({
+    super.key,
+    required this.title,
+    this.code,
+    this.minutes,
+    this.videoId,
+    required this.mark,
+    required this.onTap,
+    this.span,
+  });
   final String title;
   final String? code;
   final Object? minutes;
@@ -277,49 +335,71 @@ class LectureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 14.h),
-      child: Material(
-        color: Tokens.card,
-        borderRadius: BorderRadius.circular(Tokens.cardRadius),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: EdgeInsets.all(14.w),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                LessonGlyph(mark, size: 20, onDark: true),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: Text([code, span].whereType<String>().join('  ·  '),
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: body(11.5, color: Tokens.onMidnight2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8)),
-                ),
-                if (minutes != null) Text('${minutes}m', style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w600)),
-              ]),
-              SizedBox(height: 8.h),
-              Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                  style: body(16, color: Colors.white, weight: FontWeight.w700, height: 1.3)),
-              SizedBox(height: 12.h),
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(Tokens.radius),
-                  child: Stack(fit: StackFit.expand, children: [
-                    VideoThumb(videoId: videoId, code: code),
-                    Positioned(
-                      right: 10,
-                      bottom: 10,
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                        child: const Icon(Icons.play_arrow_rounded, color: Tokens.ink, size: 28, semanticLabel: 'play'),
+      child: Semantics(
+        identifier: 'lecture',
+        child: Material(
+          color: Tokens.card,
+          borderRadius: BorderRadius.circular(Tokens.cardRadius),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: EdgeInsets.all(14.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      LessonGlyph(mark, size: 20, onDark: true),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          [code, span].whereType<String>().join('  ·  '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: body(11.5, color: Tokens.onMidnight2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8),
+                        ),
+                      ),
+                      if (minutes != null)
+                        Text(
+                          '${minutes}m',
+                          style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w600),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: body(16, color: Colors.white, weight: FontWeight.w700, height: 1.3),
+                  ),
+                  SizedBox(height: 12.h),
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(Tokens.radius),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          VideoThumb(videoId: videoId, code: code),
+                          Positioned(
+                            right: 10,
+                            bottom: 10,
+                            child: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                              child: const Icon(Icons.play_arrow_rounded, color: Tokens.ink, size: 28, semanticLabel: 'play'),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ]),
-                ),
+                  ),
+                ],
               ),
-            ]),
+            ),
           ),
         ),
       ),
@@ -339,11 +419,17 @@ class RhythmBadge extends StatelessWidget {
       height: 36,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 17, color: Tokens.accent),
-        SizedBox(width: 6.w),
-        Text(label, style: body(13, color: Tokens.ink, weight: FontWeight.w800)),
-      ]),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 17, color: Tokens.accent),
+          SizedBox(width: 6.w),
+          Text(
+            label,
+            style: body(13, color: Tokens.ink, weight: FontWeight.w800),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -360,11 +446,17 @@ class Stat extends StatelessWidget {
     return Semantics(
       label: '$semantic $value',
       excludeSemantics: true,
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 18, color: Tokens.onMidnight2),
-        SizedBox(width: 5.w),
-        Text(value, style: body(15, color: Tokens.onMidnight, weight: FontWeight.w700)),
-      ]),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: Tokens.onMidnight2),
+          SizedBox(width: 5.w),
+          Text(
+            value,
+            style: body(15, color: Tokens.onMidnight, weight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -380,12 +472,19 @@ class BigCount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
-      if (icon != null) ...[Icon(icon, size: 28, color: Tokens.accent, semanticLabel: semantic), SizedBox(width: 8.w)],
-      Text(value, key: valueKey, style: display(46)),
-      SizedBox(width: 6.w),
-      Text('/ $total', style: body(15, color: Tokens.onMidnight2, weight: FontWeight.w600)),
-    ]);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        if (icon != null) ...[Icon(icon, size: 28, color: Tokens.accent, semanticLabel: semantic), SizedBox(width: 8.w)],
+        Text(value, key: valueKey, style: display(46)),
+        SizedBox(width: 6.w),
+        Text(
+          '/ $total',
+          style: body(15, color: Tokens.onMidnight2, weight: FontWeight.w600),
+        ),
+      ],
+    );
   }
 }
 
@@ -417,11 +516,20 @@ class SheetLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 14.h, bottom: 10.h),
-      child: Row(children: [
-        Icon(icon, size: 18, color: Tokens.quiet),
-        SizedBox(width: 8.w),
-        Expanded(child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: body(14, color: Tokens.ink, weight: FontWeight.w800))),
-      ]),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Tokens.quiet),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: body(14, color: Tokens.ink, weight: FontWeight.w800),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -443,7 +551,11 @@ Future<void> showListSheet(BuildContext context, {required String title, require
         physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 28.h),
         children: [
-          Text(title, textAlign: TextAlign.center, style: body(16, weight: FontWeight.w700)),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: body(16, weight: FontWeight.w700),
+          ),
           SizedBox(height: 16.h),
           ...rows,
         ],

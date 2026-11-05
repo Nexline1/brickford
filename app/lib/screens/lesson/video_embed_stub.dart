@@ -12,9 +12,14 @@ class VideoEmbed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(fit: StackFit.expand, children: [
-      VideoThumb(videoId: videoId, code: code),
-      const Center(child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 56, semanticLabel: 'video')),
-    ]);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        VideoThumb(videoId: videoId, code: code),
+        const Center(
+          child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 56, semanticLabel: 'video'),
+        ),
+      ],
+    );
   }
 }

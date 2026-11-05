@@ -39,8 +39,12 @@ class PillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The reference's action label: uppercase, letter-spaced.
-    final text = Text(label.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis,
-        style: body(13.5, color: null, weight: FontWeight.w700).copyWith(letterSpacing: 1.2));
+    final text = Text(
+      label.toUpperCase(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: body(13.5, color: null, weight: FontWeight.w700).copyWith(letterSpacing: 1.2),
+    );
     final button = ElevatedButton(
       style: styleFor(tone),
       onPressed: onPressed,

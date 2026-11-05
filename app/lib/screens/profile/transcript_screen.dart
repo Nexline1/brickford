@@ -59,6 +59,7 @@ class TranscriptScreen extends StatelessWidget {
               leading: g.doneDate != null ? const LeadTile(icon: Icons.check_rounded, color: Tokens.done, fg: Colors.white) : LeadTile(text: '${g.n}'),
               title: 'Gate ${g.n} — ${g.label}',
               subtitle: g.req,
+              subtitleLines: 3,
               meta: g.doneDate ?? (g.left >= 0 ? '${g.left}d' : '${-g.left}d over'),
               onTap: g.n == nx?.n
                   ? () => _gateSheet(context, g, true)

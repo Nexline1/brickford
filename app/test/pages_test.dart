@@ -125,6 +125,8 @@ void main() {
     await profile(t, m, 'chip-guide');
     expect(key('guide-title'), findsOneWidget);
     await t.scrollUntilVisible(key('guide-laws'), 300, scrollable: sheetScroll());
+    await t.ensureVisible(key('guide-laws'));
+    await t.pumpAndSettle();
     await t.tap(key('guide-laws'));
     await t.pumpAndSettle();
     expect(find.text('Never just watch'), findsOneWidget);

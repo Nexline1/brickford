@@ -125,7 +125,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       children: [
         Expanded(
           child: week == null
-              ? const SizedBox.shrink()
+              ? Align(alignment: Alignment.centerLeft, child: Icon(rest ? Icons.bedtime_outlined : Icons.mic_none_rounded, size: 44, color: Tokens.gold, semanticLabel: rest ? 'rest day' : 'practice'))
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -164,9 +164,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
           ),
           SizedBox(height: 14.h),
           if (rest)
-            const ItemBlock(key: ValueKey('practice-rest'), leading: LeadTile(icon: Icons.bedtime_outlined), title: 'Saturday', subtitle: 'Nothing owed today.'),
+            const ItemBlock(key: ValueKey('practice-rest'), id: 'practice-rest', leading: LeadTile(icon: Icons.bedtime_outlined), title: 'Saturday', subtitle: 'Nothing owed today.'),
           if (rev != null) ...[
-            ItemBlock(key: const ValueKey('practice-review'), leading: const LeadTile(icon: Icons.history_edu_outlined), title: rev.label, subtitle: rev.hint),
+            ItemBlock(key: const ValueKey('practice-review'), id: 'practice-review', leading: const LeadTile(icon: Icons.history_edu_outlined), title: rev.label, subtitle: rev.hint),
             BrickfordField(id: 'field-revNotes', icon: Icons.edit_note_rounded, hint: 'What the recording shows', controller: _c['revNotes'], minLines: 3, maxLines: 5),
             SizedBox(height: 10.h),
             PillButton(key: const ValueKey('practice-log-review'), id: 'practice-log-review', label: 'Log the review', icon: Icons.check_rounded, onPressed: () => _log('repReview', const ['revNotes'])),
@@ -293,7 +293,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     final clips = _clips;
     if (clips == null) return const SizedBox(height: 44, key: ValueKey('practice-loading'));
     if (clips.isEmpty) {
-      return Padding(padding: EdgeInsets.only(bottom: 8.h), child: Text('Nothing recorded yet. Press the red button and talk.', key: const ValueKey('practice-empty'), style: body(13, color: Tokens.ink2)));
+      return Padding(padding: EdgeInsets.only(bottom: 8.h), child: Text(m.recorder.hand ? 'Nothing recorded yet.' : 'Nothing recorded yet. Press the red button and talk.', key: const ValueKey('practice-empty'), style: body(13, color: Tokens.ink2)));
     }
     return Column(children: [for (final c in clips) _ClipRow(key: ValueKey('clip-${c.key}'), clip: c, playing: _playing == c.key && (_player?.playing ?? false), onPlay: () => _play(m, c), onRename: () => _rename(m, c), onDelete: () => _delete(m, c))]);
   }

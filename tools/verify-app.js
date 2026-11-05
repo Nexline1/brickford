@@ -58,6 +58,18 @@
 //    measured end to end, not re-implemented in the test.
 //    Plants: quiz-pass-mark (the bank pass mark 70 -> 75), quiz-gate (the gate day
 //    counts as grandfathered), pset-due (a ticked pset stays due).
+//
+// 6. PRACTICE, GATES, TRANSCRIPT, WORKSHOP, METHOD, LIBRARY (T-064 stage 6b). Practice: repsDue, practiceDefault,
+//    clockLabel, recDay and the four rep forms' handler are lifted out of app.js's own text (vm) and run over 15 states
+//    and 36 form entries; the rendered #/practice page gives the week's dots, the open tab and the logged lists.
+//    setGate runs through the test hook (the order guard: only the next gate can be passed, only the last unmarked);
+//    #/transcript and #/workshop are read from the rendered pages; Method's curve is read from retentionSVG's own
+//    output; DOCS, DOC_CARD and LINKS are read from app.js's source and md() runs over the five real documents.
+//    The recorder (microphone, IndexedDB) is I/O with no arithmetic: the widget tests drive it with a fake backend,
+//    and tools/shoot-app-stage6b.js runs it for real against Chromium's fake microphone.
+//    Plants: practice-week (today's bank entry not counted in "N of 6"), practice-rule (four jokes make a humour
+//    rep), practice-due (a recording exactly four weeks old owes no review), gate-order (any gate can be passed),
+//    workshop-count (a lab counts only once its proof URL is typed), doc-kinds (a three-dash rule is a paragraph).
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), vm = require("vm");
 const { execFileSync, spawnSync } = require("child_process");

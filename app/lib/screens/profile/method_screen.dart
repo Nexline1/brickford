@@ -39,11 +39,14 @@ class MethodScreen extends StatelessWidget {
             decoration: BoxDecoration(color: Tokens.fieldFill, borderRadius: BorderRadius.circular(Tokens.radius)),
             child: Column(
               children: [
-                AspectRatio(
-                  aspectRatio: RetentionCurve.W / RetentionCurve.H,
-                  child: Semantics(
+                LayoutBuilder(
+                  builder: (context, box) => Semantics(
                     label: 'Retention decays quickly without recall; each recall resets it and flattens the decay',
-                    child: CustomPaint(key: const ValueKey('method-curve'), painter: _CurvePainter(RetentionCurve())),
+                    child: CustomPaint(
+                      key: const ValueKey('method-curve'),
+                      size: Size(box.maxWidth, box.maxWidth * RetentionCurve.H / RetentionCurve.W + _CurvePainter.top),
+                      painter: _CurvePainter(RetentionCurve()),
+                    ),
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -64,7 +67,7 @@ class MethodScreen extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 8.h),
             child: Text('All four, or it counts as watched — not proven.', style: body(12.5, color: Tokens.ink2)),
           ),
-          for (final (i, s) in steps.indexed) ItemBlock(key: ValueKey('method-step-${i + 1}'), leading: LeadTile(text: '${i + 1}'), title: s.$1, subtitle: s.$2),
+          for (final (i, s) in steps.indexed) ItemBlock(key: ValueKey('method-step-${i + 1}'), leading: LeadTile(text: '${i + 1}'), title: s.$1, subtitle: s.$2, subtitleLines: 3),
           SheetLabel(Icons.replay_rounded, 'Then it comes back'),
           Container(
             padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 12.w),
@@ -176,22 +179,25 @@ class _CurvePainter extends CustomPainter {
   _CurvePainter(this.c);
   final RetentionCurve c;
 
+  /// Room above the plot for the "100%" label, so it never sits on the curve.
+  static const top = 18.0;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final sx = size.width / RetentionCurve.W, sy = size.height / RetentionCurve.H;
-    Offset at((double, double) p) => Offset(p.$1 * sx, p.$2 * sy);
+    final sx = size.width / RetentionCurve.W, sy = sx;
+    Offset at((double, double) p) => Offset(p.$1 * sx, p.$2 * sy + top);
     final axis = Paint()..color = Tokens.ringOpen..strokeWidth = 1;
-    final y0 = RetentionCurve.Y(0) * sy, x0 = RetentionCurve.pad * sx;
+    final y0 = RetentionCurve.Y(0) * sy + top, x0 = RetentionCurve.pad * sx;
     canvas.drawLine(Offset(x0, y0), Offset((RetentionCurve.W - 10) * sx, y0), axis);
-    canvas.drawLine(Offset(x0, y0), Offset(x0, RetentionCurve.Y(100) * sy), axis);
-    void label(String t, Offset o) {
+    canvas.drawLine(Offset(x0, y0), Offset(x0, RetentionCurve.Y(100) * sy + top), axis);
+    void label(String t, Offset o, {bool right = false}) {
       final tp = TextPainter(text: TextSpan(text: t, style: body(11, color: Tokens.ink2, weight: FontWeight.w600)), textDirection: TextDirection.ltr)..layout();
-      tp.paint(canvas, o);
+      tp.paint(canvas, right ? Offset(o.dx - tp.width, o.dy) : o);
     }
 
-    label('100%', Offset(0, RetentionCurve.Y(100) * sy - 6));
-    label('day 0', Offset(x0, size.height - 14));
-    label('day 130', Offset((RetentionCurve.W - 50) * sx, size.height - 14));
+    label('100%', const Offset(0, 0));
+    label('day 0', Offset(x0, y0 + 3));
+    label('day 130', Offset((RetentionCurve.W - 10) * sx, y0 + 3), right: true);
     // watch once: dashed 4 3
     final dash = Paint()..color = Tokens.missed..style = PaintingStyle.stroke..strokeWidth = 2;
     final pp = Path()..moveTo(at(c.passive.first).dx, at(c.passive.first).dy);

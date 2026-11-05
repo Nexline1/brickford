@@ -46,8 +46,8 @@ class GuideScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget row(String n, String title, String sub, [String? route]) => ItemBlock(leading: n.isEmpty ? null : LeadTile(text: n), title: title, subtitle: sub, onTap: _go(context, route));
-    Widget room(String name, String when, String what, String route) => ItemBlock(title: name, subtitle: what, meta: when, onTap: _go(context, route));
+    Widget row(String n, String title, String sub, [String? route]) => ItemBlock(leading: n.isEmpty ? null : LeadTile(text: n), title: title, subtitle: sub, subtitleLines: 4, onTap: _go(context, route));
+    Widget room(String name, String when, String what, String route) => ItemBlock(title: name, subtitle: what, subtitleLines: 4, meta: when, onTap: _go(context, route));
     return Scaffold(
       backgroundColor: Tokens.midnight,
       body: SheetScaffold(
@@ -127,7 +127,7 @@ class GuideScreen extends StatelessWidget {
             ],
           ),
           SheetLabel(Icons.phone_iphone_rounded, 'On your phone'),
-          row('', 'Install it', 'iPhone: Safari → Share → Add to Home Screen. Android: Chrome → ⋮ → Install app'),
+          row('', 'Install it', 'iPhone: Safari → Share → Add to Home Screen. Android: Chrome → menu → Install app'),
           row('', 'Offline', 'everything works without a connection except the videos; progress syncs when you are back online'),
           SizedBox(height: 6.h),
           Container(

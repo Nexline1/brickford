@@ -35,6 +35,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
       leading: labDone(l) ? const LeadTile(icon: Icons.check_rounded, color: Tokens.done, fg: Colors.white) : const LeadTile(icon: Icons.build_outlined),
       title: '${l['title']}',
       subtitle: firstClause('${l['req']}'),
+      subtitleLines: 2,
       meta: '~${l['hours']} h',
       onTap: () => showLabSheet(context, l),
     );

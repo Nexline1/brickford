@@ -2,6 +2,8 @@
 // root the way the web app does (../README.md, relative to the page, which from
 // /brickford/app-web/ is /brickford/README.md) and laid out as a readable page.
 // If it cannot be fetched the page says so and offers the file itself.
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,7 +21,8 @@ typedef DocLoader = Future<String> Function(Uri url);
 Future<String> _httpLoad(Uri url) async {
   final r = await http.get(url);
   if (r.statusCode != 200) throw StateError('${r.statusCode}');
-  return r.body;
+  // The bytes as UTF-8, whatever charset the server names (a static host often names none).
+  return utf8.decode(r.bodyBytes, allowMalformed: true);
 }
 
 DocLoader docLoader = _httpLoad;
@@ -46,7 +49,10 @@ class _DocScreenState extends State<DocScreen> {
   void initState() {
     super.initState();
     docLoader(docUrl(doc.file)).then((t) {
-      if (mounted) setState(() => blocks = parseMd(t));
+      // The page's own heading carries the title; a document's first h1 repeats it.
+      final b = parseMd(t);
+      if (b.isNotEmpty && b.first.kind == 'h1') b.removeAt(0);
+      if (mounted) setState(() => blocks = b);
     }, onError: (_) {
       if (mounted) setState(() => failed = true);
     });
@@ -67,10 +73,11 @@ class _DocScreenState extends State<DocScreen> {
     var at = 0;
     for (final m in re.allMatches(s)) {
       if (m.start > at) out.add(TextSpan(text: s.substring(at, m.start)));
+      // Bold and italic hold more markup (app.js replaces in turn, so code or a link can sit inside them).
       if (m.group(1) != null) {
-        out.add(TextSpan(text: m.group(1), style: const TextStyle(fontWeight: FontWeight.w800)));
+        out.add(TextSpan(children: _inline(m.group(1)!, base), style: const TextStyle(fontWeight: FontWeight.w800)));
       } else if (m.group(2) != null) {
-        out.add(TextSpan(text: m.group(2), style: const TextStyle(fontStyle: FontStyle.italic)));
+        out.add(TextSpan(children: _inline(m.group(2)!, base), style: const TextStyle(fontStyle: FontStyle.italic)));
       } else if (m.group(3) != null) {
         out.add(TextSpan(text: m.group(3), style: base.copyWith(fontFamily: 'monospace', backgroundColor: Tokens.fieldFill)));
       } else {

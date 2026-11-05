@@ -7,6 +7,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../course/course_screen.dart';
+import '../practice/practice_screen.dart';
 import '../treasury/treasury_screen.dart';
 
 class BuildScreen extends StatelessWidget {
@@ -41,9 +42,11 @@ class BuildScreen extends StatelessWidget {
         ChipRow(
           children: [
             Semantics(identifier: 'chip-treasury', child: BrickChip(key: const ValueKey('chip-treasury'), label: 'Treasury', icon: Icons.savings_outlined, selected: false, onTap: () => openTreasury(context))),
+            Semantics(identifier: 'chip-practice', child: BrickChip(key: const ValueKey('chip-practice'), label: 'Practice', icon: Icons.mic_none_rounded, selected: false, onTap: () => openPractice(context))),
           ],
         ),
         SizedBox(height: 14.h),
+        ?practiceRow(context, m),
         for (final id in ids) ...[
           for (var ui = 0; ui < ((m.data.course(id)!['units'] as List?) ?? const []).length; ui++)
             () {

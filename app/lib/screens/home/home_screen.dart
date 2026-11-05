@@ -18,6 +18,7 @@ import '../calendar/calendar_screen.dart';
 import '../learn/recall_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../monk/monk_screen.dart';
+import '../practice/practice_screen.dart';
 import '../quiz/quiz_screen.dart';
 import '../week/week_screen.dart';
 
@@ -224,6 +225,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _ReviewRow(n: reviewsN, onPressed: openRecall),
           SizedBox(height: 18.h),
         ],
+        // The first rep owed (app.js: the dashboard's row to #/practice); repsDue is empty on a rest day.
+        ?practiceRow(context, m),
         for (final it in shown)
           if (it.pseudo)
             ItemBlock(

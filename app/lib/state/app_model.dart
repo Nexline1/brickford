@@ -14,16 +14,21 @@ import '../engine/dates.dart';
 import '../engine/engine.dart';
 import '../engine/learn.dart';
 import '../engine/monk.dart';
+import '../engine/pages.dart';
+import '../engine/practice.dart';
 import '../engine/quiz.dart';
 import '../engine/record.dart';
+import 'audio.dart';
+import 'recorder.dart';
 import 'sync.dart';
 
 class AppModel extends ChangeNotifier {
   /// [today] fixes the date (tests, screenshots); the default is the device's local date.
   /// [now] is the wall clock (Monk's Now/Next, sync timestamps); [client] and
   /// [offline] are the sync's network, replaced by a fake in tests.
-  AppModel(this.data, this.prefs, {String Function()? today, DateTime Function()? now, this.client, this.offline})
+  AppModel(this.data, this.prefs, {String Function()? today, DateTime Function()? now, this.client, this.offline, AudioBackend? audio, this.recorderClock})
     : engine = Engine(data, _load(prefs), today: today),
+      audio = audio ?? createAudioBackend(),
       now = now ?? DateTime.now {
     // app.js's load: a device id (kept, never reset), and gates in the shape that syncs.
     // In memory only, like there: opening the app saves nothing and arms no push.
@@ -40,6 +45,10 @@ class AppModel extends ChangeNotifier {
   }
 
   final DateTime Function() now;
+  final AudioBackend audio;
+
+  /// Elapsed time for the recorder (a test's fake clock); the stopwatch by default.
+  final Duration Function()? recorderClock;
   final http.Client? client;
   final bool Function()? offline;
 
@@ -252,6 +261,53 @@ class AppModel extends ChangeNotifier {
   }
 
   void lockNiche(String id) => _write(() => engine.lockNiche(id));
+
+  // ---------- Practice (stage 6b): the reps, the recorder, the gates ----------
+
+  /// The hand form's logging (app.js's repBank / repStory / repHumor / repReview).
+  RepResult logRep(String act, Map<String, String> values) {
+    final r = engine.logRepForm(act, values, _ts());
+    if (r.ok) {
+      persist();
+      notifyListeners();
+    }
+    return r;
+  }
+
+  /// What the Practice page's hand-form fields hold now (the recorded humour rep
+  /// takes the five attempts and the keeper from them, as the web page does).
+  Map<String, String> Function() practiceForm = () => const {};
+
+  /// The last thing the recorder wants said (a toast): taken once by the Practice page.
+  String? practiceNote;
+
+  /// The one recorder; created on first use. A finished clip is logged here, not in a
+  /// page, so a recording that ends after the page was left is still kept and logged.
+  late final PracticeRecorder recorder = PracticeRecorder(
+    audio,
+    today: () => today,
+    clock: recorderClock,
+    onClip: (kind, date, seconds, title, kept) {
+      final r = engine.logRecordedRep(kind, date, seconds, title, kept: kept, v: practiceForm(), ts: _ts());
+      if (r.ok) persist();
+      practiceNote = r.msg;
+      notifyListeners();
+    },
+    onShort: () {
+      practiceNote = 'Under a second \u2014 nothing kept. Hold it and talk.';
+      notifyListeners();
+    },
+  );
+
+  /// Pass the next gate / unmark the last one passed (the Transcript's confirm sheet); false when refused.
+  bool setGate(int n, bool pass) {
+    final ok = engine.setGate(n, pass, _ts());
+    if (ok) {
+      persist();
+      notifyListeners();
+    }
+    return ok;
+  }
 
   /// The lesson page records itself as the one to resume, only when it changed
   /// (the web app's rule: a render is a read; this runs once, on open).

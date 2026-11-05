@@ -67,8 +67,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -968,6 +968,192 @@ async function runLearnJS(browser, fx) {
   return out;
 }
 
+// ---------- Practice, gates, Transcript, Workshop, Method, Library (T-064 stage 6b) ----------
+// Practice: repsDue, practiceDefault, clockLabel, recDay and the four rep forms' handler are lifted out of app.js's
+// own text (vm); the rendered #/practice page gives the week's dots, the open tab and the logged lists. The recorder
+// itself (microphone, IndexedDB) is I/O with no arithmetic: it is covered by the widget tests, with a fake backend.
+// Gates: setGate through the test hook. Transcript and Workshop: the rendered pages. Method: retentionSVG's paths.
+// Library: DOCS, LINKS and the tiny markdown (md) over the five real documents.
+const REPS = over => Object.assign({ bank: [], story: [], humor: [], review: [] }, over);
+const bk = (date, what, why) => ({ date, what, why });
+const stry = (date, seconds, takes, from) => ({ date, seconds, takes, from });
+const hum = (date, attempts, keeper, seconds) => Object.assign({ date, attempts, keeper }, seconds ? { seconds } : {});
+const DOC_FILES = ["README.md", "phase-1-curriculum.md", "coding-diagnostic.md", "earning-offers.md", "progress-log.md"];
+function pagesFixtures(plan) {
+  const st = over => baseState(over), F = plan.flat;
+  const g = (date, at) => ({ date, at: at || date + "T09:00:00.000Z", passed: true });
+  const long = REPS({
+    bank: Array.from({ length: 12 }, (_, i) => bk("2026-10-" + String(14 + i).padStart(2, "0"), "entry " + i, i % 3 ? "why " + i : "")),
+    story: [stry("2026-10-09", 45, 1, "a"), stry("2026-10-16", 88.5, 3, "b"), stry("2026-10-23", 120, 2, "c"), stry("2026-10-30", 61, 1, "d"), stry("2026-11-06", 70, 1, "e")],
+    humor: [hum("2026-10-09", ["a", "b", "c", "d", "e"], 0), hum("2026-10-16", ["a", "b", "", "", ""], 2), hum("2026-10-23", ["", "", "", "", ""], 0, 75), hum("2026-10-30", ["a", "b", "c", "d", "e"], 5), hum("2026-11-06", ["a", "b", "c", "d", "e"], 0, 3725)],
+    review: [{ date: "2026-10-12", notes: "x".repeat(120) }, { date: "2026-10-20", notes: "short" }, { date: "2026-11-02", notes: "three" }, { date: "2026-11-04", notes: "four" }],
+  });
+  const practice = [
+    { name: "nothing logged, a study day", clock: "2026-11-05", state: st({}) },
+    { name: "Thursday: the bank logged on three days of the week (Mon, Tue, today)", clock: "2026-11-05", state: st({ reps: REPS({ bank: [bk("2026-11-02", "a", "b"), bk("2026-11-03", "c", ""), bk("2026-11-05", "today", "why")] }) }) },
+    { name: "Friday: story and humour owed", clock: "2026-11-06", state: st({ reps: REPS({ bank: [bk("2026-11-02", "a", "b")] }) }) },
+    { name: "Friday: the story recorded today, humour still owed", clock: "2026-11-06", state: st({ reps: REPS({ bank: [bk("2026-11-06", "a", "b")], story: [stry("2026-11-06", 75, 2, "the napkin one")] }) }) },
+    { name: "Friday: both done today; last week's do not count towards it", clock: "2026-11-06", state: st({ reps: REPS({ story: [stry("2026-11-03", 60, 1, "x"), stry("2026-11-06", 60, 1, "x")], humor: [hum("2026-11-02", ["a", "b", "c", "d", "e"], 1), hum("2026-11-06", ["a", "b", "c", "d", "e"], 1)] }) }) },
+    { name: "Friday: only last week's story and humour (still owed)", clock: "2026-11-06", state: st({ reps: REPS({ story: [stry("2026-10-30", 60, 1, "x")], humor: [hum("2026-10-30", ["a", "b", "c", "d", "e"], 1)] }) }) },
+    { name: "Saturday: a rest day owes nothing, and says so", clock: "2026-11-07", state: st({ reps: REPS({ bank: [bk("2026-11-06", "a", "")] }) }) },
+    { name: "Sunday: the second study day of the week", clock: "2026-11-08", state: st({}) },
+    { name: "Friday: the first day of a new week, last week's bank lights no dot", clock: "2026-11-06", state: st({ reps: REPS({ bank: [bk("2026-11-05", "a", ""), bk("2026-11-04", "b", "")] }) }) },
+    { name: "before the start", clock: "2026-09-20", state: st({}) },
+    { name: "the monthly review is owed: a story four weeks old, no review", clock: "2026-11-05", state: st({ reps: REPS({ story: [stry("2026-10-08", 40, 1, "x")] }) }) },
+    { name: "the monthly review is owed again: the last one is four weeks old", clock: "2026-11-05", state: st({ reps: REPS({ story: [stry("2026-10-08", 40, 1, "x")], review: [{ date: "2026-10-08", notes: "n" }] }) }) },
+    { name: "the review is not owed: written since", clock: "2026-11-05", state: st({ reps: REPS({ story: [stry("2026-10-08", 40, 1, "x")], review: [{ date: "2026-10-09", notes: "n" }] }) }) },
+    { name: "the story is only 27 days old: no review yet", clock: "2026-11-05", state: st({ reps: REPS({ story: [stry("2026-10-09", 40, 1, "x")] }) }) },
+    { name: "a long history: twelve bank entries, five stories, five humour reps (written and recorded), four reviews", clock: "2026-11-06", state: st({ reps: long }) },
+  ];
+  const D4 = ["a", "b", "c", "d"], D5 = ["a", "b", "c", "d", "e"].map((x, i) => ["joke" + i, x]);
+  const joke = (n, extra) => Object.assign(Object.fromEntries(D5.slice(0, n)), extra);
+  const forms = [
+    ["2026-11-05", "repBank", { bankWhat: "  a client asked  ", bankWhy: " he got it " }], ["2026-11-05", "repBank", { bankWhat: "", bankWhy: "x" }], ["2026-11-05", "repBank", { bankWhat: "   " }],
+    ["2026-11-05", "repBank", { bankWhat: "only what" }], ["2026-10-03", "repBank", { bankWhat: "a Saturday before the start" }], ["2026-09-20", "repBank", { bankWhat: "before the start" }],
+    ["2026-11-07", "repBank", { bankWhat: "on a rest day" }], ["2026-11-07", "repStory", { repSecs: "30" }], ["2026-11-07", "repHumor", joke(5)], ["2026-11-07", "repReview", { revNotes: "n" }],
+    ["2026-11-06", "repStory", { repSecs: "45" }], ["2026-11-06", "repStory", { repSecs: "0" }], ["2026-11-06", "repStory", { repSecs: "" }], ["2026-11-06", "repStory", {}], ["2026-11-06", "repStory", { repSecs: "abc" }],
+    ["2026-11-06", "repStory", { repSecs: "90" }], ["2026-11-06", "repStory", { repSecs: "91" }], ["2026-11-06", "repStory", { repSecs: "12.5", repTakes: "3", repWhich: " the napkin one " }],
+    ["2026-11-06", "repStory", { repSecs: "60", repTakes: "0" }], ["2026-11-06", "repStory", { repSecs: "60", repTakes: "abc" }], ["2026-11-06", "repStory", { repSecs: " 7 ", repTakes: "2abc" }], ["2026-11-06", "repStory", { repSecs: "-5" }],
+    ["2026-11-06", "repHumor", joke(0)], ["2026-11-06", "repHumor", joke(4)], ["2026-11-06", "repHumor", joke(2)], ["2026-11-06", "repHumor", Object.assign(joke(5), { joke2: "   " })],
+    ["2026-11-06", "repHumor", joke(5)], ["2026-11-06", "repHumor", joke(5, { jokeKeep: "3" })], ["2026-11-06", "repHumor", joke(5, { jokeKeep: "5" })], ["2026-11-06", "repHumor", joke(5, { jokeKeep: "6" })],
+    ["2026-11-06", "repHumor", joke(5, { jokeKeep: "1" })], ["2026-11-06", "repHumor", joke(5, { jokeKeep: "0" })], ["2026-11-06", "repHumor", joke(5, { jokeKeep: "2.5" })], ["2026-11-06", "repHumor", joke(5, { jokeKeep: "abc" })],
+    ["2026-11-06", "repReview", { revNotes: "" }], ["2026-11-06", "repReview", { revNotes: "  what the recording shows  " }],
+  ].map(([clock, act, vals], i) => ({ name: i + " " + act + " " + clock + " " + JSON.stringify(vals), clock, act, vals }));
+  const gates = [
+    { name: "none passed: pass 2 refused, pass 1, unmark 2 refused, unmark 1, unmark 1 refused", clock: "2026-11-05", state: st({}), steps: [[2, true], [1, true], [2, false], [1, false], [1, false]] },
+    { name: "two passed (an object, a legacy date): unmark 1 refused, unmark 2, pass 3 refused, pass 2, pass 3", clock: "2026-11-05", state: st({ gates: { 1: g("2026-10-30"), 2: "2026-11-02" } }), steps: [[1, false], [2, false], [3, true], [2, true], [3, true]] },
+    { name: "all five passed (legacy true): pass 5 refused, unmark 5, unmark 4, pass 4, pass 5", clock: "2026-11-05", state: st({ gates: { 1: g("2026-10-30"), 2: g("2026-11-01"), 3: g("2026-11-02"), 4: g("2026-11-03"), 5: true } }), steps: [[5, true], [5, false], [4, false], [4, true], [5, true]] },
+  ];
+  const lv = (keys, on) => lessonsOn(keys, on, { verified: true, verifiedAt: on });
+  const proven = st({
+    lessons: Object.assign({}, lv(F.math110.slice(0, 14), "2026-10-20"), lv(F.math120.slice(0, 5), "2026-10-22"), lv(F.ai200.slice(0, 6), "2026-10-24"), lessonsOn(F.math130.slice(0, 4), "2026-10-26")),
+    gates: { 1: g("2026-10-30") }, quizAttempts: { "linear-algebra": [{ date: "2026-10-25", score: 11, total: 15, pct: 73 }, { date: "2026-10-28", score: 13, total: 15, pct: 87 }], calculus: [{ date: "2026-10-29", score: 7, total: 15, pct: 47 }] },
+    problems: { "Arrays & Hashing|Two Sum": "2026-10-27", "Stack|Min Stack": true },
+  });
+  const done = {};
+  [].concat(F.math110, F.math120, F.math130, F.ai210).forEach(k => { done[k] = { done: true, doneAt: "2026-10-20", notes: "", checks: [], verified: true, verifiedAt: "2026-10-21" }; });
+  const transcript = [
+    { name: "nothing begun", clock: "2026-11-05", state: st({}) },
+    { name: "proven and watched lectures, a best exam, gate 1 passed", clock: "2026-11-05", state: proven },
+    { name: "a full set proven in phase 0 courses, and a clock in phase 2 (more courses counted)", clock: "2027-05-05", state: st({ lessons: done, gates: { 1: g("2026-10-30"), 2: g("2027-01-02") }, quizAttempts: { "linear-algebra": [{ date: "2026-10-25", score: 15, total: 15, pct: 100 }] } }) },
+    { name: "every gate passed, a gate overdue", clock: "2030-06-01", state: st({ gates: { 1: g("2026-10-30"), 2: g("2027-01-02"), 3: g("2027-06-02") } }) },
+  ];
+  const wl = (ids, proof) => Object.fromEntries(ids.map((id, i) => [id, { done: true, proof: i % 2 ? "https://github.com/x/" + id : "" }]));
+  const workshop = [
+    { name: "phase 0, nothing ticked", clock: "2026-10-12", state: st({}) },
+    { name: "phase 1 (week 5), a lab and psets ticked", clock: "2026-11-05", state: st({ labs: wl(["flashcards-cli"]), psets: { "1806-ps1": true, "1806-ps2": true, "s110-sp1": true } }) },
+    { name: "phase 2, labs with and without proof", clock: "2027-05-05", state: st({ labs: wl(["flashcards-cli", "tokenizer", "resnet-cifar"]), psets: { "1806-ps1": true } }) },
+    { name: "phase 3", clock: "2028-06-15", state: st({}) },
+  ];
+  const STANDING = [-1, 0, 0.4, 0.5, 1, 49, 49.5, 50, 69.9, 70, 84.99, 85, 100, 120];
+  const CLOCKS = [0, 0.4, 0.5, 1.5, 59.6, 60, 90, 3599.5, 3600, 3725, 86400.4, -3];
+  return { practice, forms, gates, transcript, workshop, standing: STANDING, clocks: CLOCKS, recDays: ["2026-10-20", "2026-11-07", "2027-01-01", "2028-02-29", "2026-12-31"], docs: DOC_FILES.map(f => ({ file: f, text: fs.readFileSync(path.join(ROOT, f), "utf8") })) };
+}
+
+// The pieces of app.js the practice page needs, lifted by name; the form handler is lifted marker to marker.
+function jsReps(start) {
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const a = src.indexOf('const iso = todayISO();\n          if (isRestDay(iso) && iso >= D.START_DATE) {\n            toast(REST_NAME'), b = src.indexOf('          save(); render();\n        } else if (act === "resetStreak")', a);
+  const rs = src.indexOf("const recDay = iso =>"), re = src.indexOf("const recSecs", rs);
+  if (a < 0 || b < 0 || rs < 0 || re < 0) throw new Error("jsReps: the rep handler or recDay not found in app.js");
+  const ctx = { D: { START_DATE: start }, __today: start, S: null, __events: [], __toast: [], REST_NAME: "Saturday" };
+  vm.createContext(ctx);
+  vm.runInContext("const todayISO = () => __today; const toast = m => __toast.push(m); const logEvent = (t, r, d) => __events.push([t, r, JSON.parse(JSON.stringify(d || {}))]);\n" +
+    vmExtract(["pad2", "addDaysISO", "daysBetween", "dowOf", "REST_DOW", "isRestDay", "_restK", "restOffset", "restsWithin", "studyIndex", "dateForStudy", "SPEECH_OFF_DOW", "STUDY_WEEK", "weekOf", "repsDue", "practiceDefault", "logRep", "clockLabel", "standing"]) + "\n" + src.slice(rs, re) +
+    "\nthis.__f = { setToday: t => { __today = t; }, setS: s => { S = s; }, repsDue, practiceDefault, clockLabel, recDay, standing," +
+    " form: (act, vals) => { __toast.length = 0; __events.length = 0; const $ = sel => { const k = sel.slice(1); return k in vals ? { value: vals[k] } : null; };\n(function () {\n" + src.slice(a, b) + "\n})();" +
+    " return { msg: __toast[0] || null, reps: JSON.parse(JSON.stringify(S.reps)), events: __events.slice() }; } };", ctx);
+  return ctx.__f;
+}
+
+async function runPagesJS(browser, fx) {
+  const out = { errors: [], practice: {}, forms: {}, gates: {}, transcript: {}, workshop: {}, standing: null, clocks: null, recDays: null, curve: null, docs: null, md: {} };
+  const P = fx.pages, R = jsReps(fx.START), clone = o => JSON.parse(JSON.stringify(o));
+  const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : ""; };
+  const readPractice = () => {
+    const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : ""; };
+    const wt = document.querySelector(".pr-week-t"), log = document.querySelector("details.pr-log");
+    const hist = log && log.querySelector(".ghead + .glist"), cnt = log && [...log.querySelectorAll(".u-body > .glist")].find(g => g !== hist);
+    const rows = host => host ? [...host.querySelectorAll(".grow")].map(r => [t(r, ".g-t"), t(r, ".g-s"), t(r, ".g-v")]) : [];
+    return {
+      weekT: wt ? wt.textContent.trim() : null,
+      dots: [...document.querySelectorAll(".weekdots .wd")].map(d => ["on", "ahead", "now"].filter(c => d.classList.contains(c)).join(" ")),
+      tab: [...document.querySelectorAll(".pr-seg button")].filter(b => b.getAttribute("aria-pressed") === "true").map(b => b.textContent.trim()).join(""),
+      above: [...document.querySelectorAll(".view-enter > .card.one")].map(c => [t(c, ".one-kind"), t(c, ".one-hint")]),
+      counts: rows(cnt), history: rows(hist),
+    };
+  };
+  for (const f of P.practice) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/practice"; });
+    await p.waitForSelector(".pr-seg", { timeout: 15000 });
+    const pg = await p.evaluate(readPractice);
+    R.setToday(f.clock); R.setS(clone(f.state));
+    out.practice[f.name] = { due: R.repsDue().map(d => [d.kind, d.label, d.hint]), tabDefault: R.practiceDefault(), page: pg };
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  for (const f of P.forms) { R.setToday(f.clock); R.setS({ reps: { bank: [], story: [], humor: [], review: [] } }); out.forms[f.name] = R.form(f.act, f.vals); }
+  out.standing = P.standing.map(x => R.standing(x)); out.clocks = P.clocks.map(x => R.clockLabel(x)); out.recDays = P.recDays.map(x => R.recDay(x));
+  for (const f of P.gates) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    out.gates[f.name] = await p.evaluate(steps => { const T = window.__brickfordTest; return steps.map(([n, pass]) => { const ok = T.setGate(n, pass); return [ok, T.gatePlan().map(g => g.n + "@" + g.target + ":" + (g.doneDate || "-"))]; }); }, f.steps);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  const readTranscript = () => {
+    const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : ""; };
+    const one = document.querySelector(".view-enter > .card.one");
+    return {
+      overall: t(document, ".card.feature .mono"), pill: t(document, ".card.feature .pill"), next: one ? [t(one, ".one-kind"), t(one, ".one-hint")] : null,
+      counts: [...document.querySelectorAll(".onecounts > div")].map(d => [t(d, "b"), t(d, "span")]),
+      gates: [...document.querySelector(".ghead + .glist").querySelectorAll(".grow")].map(r => [t(r, ".g-lead"), t(r, ".g-t"), t(r, ".g-s"), t(r, ".g-v")]),
+      rows: [...document.querySelectorAll("details.unit table tbody tr")].map(tr => [t(tr.children[0], "strong"), t(tr.children[0], "div"), tr.children[2].textContent.trim(), tr.children[3].textContent.trim()]),
+    };
+  };
+  for (const f of P.transcript) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/transcript"; });
+    await p.waitForSelector(".card.feature", { timeout: 15000 });
+    out.transcript[f.name] = await p.evaluate(readTranscript);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  const readWorkshop = () => {
+    const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : ""; };
+    const lab = el => [t(el, ".pb-lt-t"), t(el, ".pb-lt-d"), t(el, ".pb-h"), el.querySelector("input[data-lab]").checked];
+    const later = [...document.querySelectorAll("details.unit")].find(d => t(d, ".u-name") === "Labs in the other phases");
+    return {
+      all: t(document.querySelector("#pbAll"), "summary .pill"), phaseLabs: [...document.querySelectorAll("#pbLabs .pb-lab")].map(lab),
+      later: later ? [t(later, "summary .pill"), [...later.querySelectorAll(".card")].map(c => [t(c, "h2"), [...c.querySelectorAll("input[data-lab]")].map(i => i.closest("div").querySelector("strong").textContent.trim() + "|" + i.checked)])] : null,
+      sets: [t(document.querySelector("#pbSets"), "summary .pill"), [...document.querySelectorAll("#pbSets .card")].map(c => [t(c, "h3"), c.querySelector("a").getAttribute("href"), [...c.querySelectorAll("label")].map(l => t(l, ".check-label") + "|" + l.querySelector("input").checked)])],
+    };
+  };
+  for (const f of P.workshop) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/workshop"; });
+    await p.waitForSelector("#pbAll", { timeout: 15000 });
+    out.workshop[f.name] = await p.evaluate(readWorkshop);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  // Method: the curve's points, read from retentionSVG's own output
+  const cctx = { D: {} }; vm.createContext(cctx);
+  const svg = vm.runInContext(vmExtract(["retentionSVG"]) + "\nretentionSVG()", cctx);
+  const pts = d => [...d.matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map(m => [parseFloat(m[1]), parseFloat(m[2])]);
+  const paths = [...svg.matchAll(/<path d="([^"]+)"/g)].map(m => pts(m[1]));
+  out.curve = { passive: paths[0], spaced: paths[1], dots: [...svg.matchAll(/<circle cx="([\d.]+)" cy="([\d.]+)"/g)].map(m => [parseFloat(m[1]), parseFloat(m[2])]) };
+  // Library: DOCS, DOC_CARD and LINKS as written in app.js; md() over the five documents (the kinds of block, in order)
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const docs = src.slice(src.indexOf("const DOCS = ["), src.indexOf("];", src.indexOf("const DOCS = [")));
+  out.docs = {
+    docs: [...docs.matchAll(/\{ id: "(\w+)", file: "([^"]+)", title: "([^"]+)", sub: "([^"]+)" \}/g)].map(m => m.slice(1)),
+    cards: [...src.slice(src.indexOf("const DOC_CARD = {"), src.indexOf("};", src.indexOf("const DOC_CARD = {"))).matchAll(/(\w+): \["([^"]+)", "([^"]+)"\]/g)].map(m => m.slice(1)),
+    links: [...src.slice(src.indexOf("const LINKS = ["), src.indexOf("];", src.indexOf("const LINKS = ["))).matchAll(/\["([^"]+)", "([^"]+)"\]/g)].map(m => m.slice(1)),
+    shown: +src.match(/const LINKS_SHOWN = (\d+);/)[1],
+  };
+  const mctx = {}; vm.createContext(mctx);
+  vm.runInContext(vmExtract(["esc", "md"]) + "\nthis.__md = md;", mctx);
+  for (const d of P.docs) out.md[d.file] = [...mctx.__md(d.text).matchAll(/<(h1|h2|h3|p|li|blockquote|hr|tr)\b/g)].map(m => m[1] === "blockquote" ? "quote" : m[1] === "tr" ? "table" : m[1]);
+  return out;
+}
+
 // ---------- the two engines ----------
 async function runJS(browser, fx) {
   const out = { fixtures: {} };
@@ -1106,6 +1292,12 @@ function diff(a, b, at, out, label) {
     "recall-interval": ["lib/engine/learn.dart", "const BOXES = [2, 7, 21, 60, 120];", "const BOXES = [2, 7, 14, 60, 120];"],   // the third box comes back after 14 days, not 21
     "drill-pick": ["lib/engine/learn.dart", "if (pool.length < 5) {", "if (pool.length < 6) {"],   // a drill of exactly five misses is padded to ten
     "elective-fits": ["lib/engine/learn.dart", "(e['phase'] as num) <= now + 1", "(e['phase'] as num) <= now"],   // only the current phase fits: the page is empty for the first six months
+    "practice-week": ["lib/engine/practice.dart", "if (on) logged++;", "if (on && lt(iso, today)) logged++;"],   // today's bank entry is not counted in "N of 6 days"
+    "practice-rule": ["lib/engine/practice.dart", "if (n < 5) return RepResult(false,", "if (n < 4) return RepResult(false,"],   // four jokes make a humour rep
+    "practice-due": ["lib/engine/practice.dart", "le('${e['date']}', old4));", "lt('${e['date']}', old4));"],   // a recording exactly four weeks old does not yet owe the monthly review
+    "gate-order": ["lib/engine/pages.dart", "if (g == null || g.n != n) return false;", "if (g == null) return false;"],   // any gate can be passed or unmarked, not only the next or the last
+    "workshop-count": ["lib/engine/pages.dart", "labsDone: D.labs.where((l) => truthy(_map(labs[l['id']])['done'])).length,", "labsDone: D.labs.where((l) => truthy(_map(labs[l['id']])['proof'])).length,"],   // a lab counts as done only once its proof URL is typed
+    "doc-kinds": ["lib/engine/pages.dart", "RegExp(r'^---+$')", "RegExp(r'^----+$')"],   // a three-dash rule is a paragraph
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1115,7 +1307,7 @@ function diff(a, b, at, out, label) {
     fs.cpSync(path.join(ROOT, "app/tool"), path.join(engineRoot, "tool"), { recursive: true });
     const pf = path.join(engineRoot, file), src = fs.readFileSync(pf, "utf8");
     if (!src.includes(was)) throw new Error("plant " + argPlant + ": `" + was + "` not found in " + file);
-    fs.writeFileSync(pf, src.replace(was, now));
+    fs.writeFileSync(pf, src.replace(was, () => now));   // a function, so a `$'` in the plant is text, not a replacement pattern
   }
   if (argPlant === "rest-dow") {
     engineRoot = path.join(scratch, "app");
@@ -1161,6 +1353,7 @@ function diff(a, b, at, out, label) {
     fx.quiz = quizFixtures(plan, fx.fixtures);
     fx.record = recordFixtures(plan);
     fx.learn = learnFixtures(plan);
+    fx.pages = pagesFixtures(plan);
     fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -1358,7 +1551,7 @@ function diff(a, b, at, out, label) {
     }
 
     // 9. Atlas, Recall, Drill, Electives (stage 6a)
-    {
+    if (!process.env.VERIFY_ONLY) {
       const tL = Date.now();
       const jl = await runLearnJS(browser, fx);
       console.log("  learn:       " + fx.learn.atlas.length + " Atlas pages, " + Math.round((Date.now() - tL) / 1000) + "s");
@@ -1397,6 +1590,50 @@ function diff(a, b, at, out, label) {
         jl.drill["only locked misses: padded, never from a lecture not reached"].misses.length === 0 && dsz("only locked misses: padded, never from a lecture not reached") === 10 &&
         dsz("one lecture watched, one miss") < 10 && jl.drill["stray indices and an unknown bank are skipped"].misses.length >= 2,
         fx.learn.drill.map(f => dsz(f.name)).join("/"));
+    }
+
+    // 10. Practice, gates, Transcript, Workshop, Method, Library (stage 6b)
+    {
+      const tP = Date.now();
+      const jp = await runPagesJS(browser, fx);
+      console.log("  pages:       " + fx.pages.practice.length + " Practice states, " + fx.pages.forms.length + " rep forms, " + Math.round((Date.now() - tP) / 1000) + "s");
+      check("the stage 6b block ran in app.js without page errors", jp.errors.length === 0, jp.errors.slice(0, 3).join(" | "));
+      const dp = dart.pages || {}, idx = (at, i) => i, one = (name, a, b) => { const out = []; diff(a, b, [], out, idx); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      for (const f of fx.pages.practice) one("parity: Practice — " + f.name + " (owed " + jp.practice[f.name].due.map(d => d[0]).join("/") + "; week " + jp.practice[f.name].page.weekT + "; tab " + jp.practice[f.name].page.tab + ")", jp.practice[f.name], dp.practice && dp.practice[f.name]);
+      for (const f of fx.pages.forms) one("parity: rep form " + f.name.slice(0, 90) + " -> " + String(jp.forms[f.name].msg).slice(0, 40), jp.forms[f.name], dp.forms && dp.forms[f.name]);
+      one("parity: standing() over " + fx.pages.standing.length + " percentages, clockLabel over " + fx.pages.clocks.length + " lengths, recDay over " + fx.pages.recDays.length + " dates", [jp.standing, jp.clocks, jp.recDays], [dp.standing, dp.clocks, dp.recDays]);
+      for (const f of fx.pages.gates) one("parity: setGate — " + f.name, jp.gates[f.name], dp.gates && dp.gates[f.name]);
+      for (const f of fx.pages.transcript) one("parity: Transcript — " + f.name + " (" + jp.transcript[f.name].overall + ", " + jp.transcript[f.name].pill + ")", jp.transcript[f.name], dp.transcript && dp.transcript[f.name]);
+      for (const f of fx.pages.workshop) one("parity: Workshop — " + f.name + " (" + jp.workshop[f.name].all + " done, " + jp.workshop[f.name].phaseLabs.length + " labs this phase)", jp.workshop[f.name], dp.workshop && dp.workshop[f.name]);
+      one("parity: Method's retention curve (" + jp.curve.passive.length + " + " + jp.curve.spaced.length + " points, " + jp.curve.dots.length + " recalls)", jp.curve, dp.curve);
+      one("parity: the Library's documents, cards and outside links (" + jp.docs.docs.length + " documents, " + jp.docs.links.length + " links)", jp.docs, dp.docs);
+      one("parity: the tiny markdown's blocks over the " + fx.pages.docs.length + " real documents (" + Object.values(jp.md).reduce((a, k) => a + k.length, 0) + " blocks)", jp.md, dp.md);
+      // Reach: the fixtures must hit what the plants break.
+      const PR = jp.practice, tw = PR["Thursday: the bank logged on three days of the week (Mon, Tue, today)"].page, fr = PR["Friday: story and humour owed"], lh = PR["a long history: twelve bank entries, five stories, five humour reps (written and recorded), four reviews"].page;
+      check("the Practice fixtures reach today's dot on (three of six), the Friday story and humour, a rest day, a new week, an owed monthly review and its edges, and a history that folds ten, four and three",
+        tw.weekT === "3 of 6 days this week" && tw.dots[5] === "on now" && fr.due.map(d => d[0]).join() === "bank,story,humor" && fr.tabDefault === "story" && PR["Saturday: a rest day owes nothing, and says so"].page.above.length === 1 &&
+        PR["Friday: the first day of a new week, last week's bank lights no dot"].page.dots.every(d => !d.startsWith("on")) && PR["the monthly review is owed: a story four weeks old, no review"].due.some(d => d[0] === "review") &&
+        PR["the monthly review is owed again: the last one is four weeks old"].due.some(d => d[0] === "review") && !PR["the review is not owed: written since"].due.some(d => d[0] === "review") &&
+        !PR["the story is only 27 days old: no review yet"].due.some(d => d[0] === "review") && PR["before the start"].due.length === 0 && PR["before the start"].page.weekT === null &&
+        PR["Friday: only last week's story and humour (still owed)"].due.length === 3 && !PR["Friday: both done today; last week's do not count towards it"].due.some(d => d[0] === "story") && lh.history.length === 10 + 4 + 4 + 3 && lh.counts.length === 4,
+        "week " + tw.weekT + "; long history " + lh.history.length + " rows");
+      const FM = jp.forms, ok = n => Object.values(FM).filter(x => x.msg && /^Logged|^Review logged/.test(x.msg)).length;
+      check("the rep-form fixtures reach each refusal, each success, the rest day and the 90-second cap, a fractional length, a keeper of 0 / 1 / 5 / 6 / 2.5, and a Saturday before the start that still logs",
+        ok() >= 14 && Object.values(FM).filter(x => /^Saturday is a rest day/.test(x.msg || "")).length === 4 && Object.values(FM).some(x => /^Five attempts, not 4/.test(x.msg || "")) && Object.values(FM).some(x => /The cap is 90/.test(x.msg || "")) &&
+        Object.values(FM).some(x => (x.reps.story[0] || {}).seconds === 12.5) && Object.values(FM).some(x => (x.reps.humor[0] || {}).keeper === 2.5) && Object.values(FM).some(x => (x.reps.humor[0] || {}).keeper === 0 && (x.events[0] || [])[2].keeper === 6) &&
+        Object.entries(FM).some(([k, x]) => k.includes("2026-10-03") && x.reps.bank.length === 1),
+        ok() + " logged, " + Object.keys(FM).length + " cases");
+      const G = jp.gates;
+      check("the gate fixtures reach a pass out of order (refused), an unmark of a gate that is not the last (refused), a pass and an unmark that move every later target, and the last gate",
+        Object.values(G).every(s => s.some(x => x[0] === false) && s.some(x => x[0] === true)) && G["none passed: pass 2 refused, pass 1, unmark 2 refused, unmark 1, unmark 1 refused"][1][1].join() !== G["none passed: pass 2 refused, pass 1, unmark 2 refused, unmark 1, unmark 1 refused"][0][1].join() &&
+        G["all five passed (legacy true): pass 5 refused, unmark 5, unmark 4, pass 4, pass 5"][1][0] === true,
+        Object.values(G).map(s => s.map(x => x[0] ? "T" : "F").join("")).join(" "));
+      const TR = jp.transcript, WS = jp.workshop;
+      check("the Transcript fixtures reach every standing but one, an overdue gate, all gates passed, mastered courses counted, and the Workshop fixtures reach every phase with labs ticked and psets ticked",
+        TR["nothing begun"].pill === "Not begun" && TR["proven and watched lectures, a best exam, gate 1 passed"].rows.some(r => /Started|Developing|Proficient/.test(r[3])) && TR["every gate passed, a gate overdue"].gates.some(g => /d over$/.test(g[3])) &&
+        TR["a full set proven in phase 0 courses, and a clock in phase 2 (more courses counted)"].counts.length === 3 && Object.values(WS).every(w => w.phaseLabs.length > 0) && Object.values(WS).some(w => w.sets[1].some(c => c[2].some(i => i.endsWith("|true")))) &&
+        Object.values(WS).some(w => w.phaseLabs.some(l => l[3] === true)) && new Set(Object.values(WS).map(w => w.phaseLabs[0][0])).size === 4,
+        Object.entries(TR).map(([n, x]) => x.overall + " " + x.pill).join("; "));
     }
   } finally {
     await browser.close();

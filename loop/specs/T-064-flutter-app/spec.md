@@ -92,3 +92,9 @@ Branch loop/T-064-flutter-2. Plan = the "Stage 2" section of the approved plan f
 - Day view: bottom sheet with a drag handle; header (weekday, date, "Day N · Week W"); one row per scheduled lecture with glyph (tick = watched+cleared, half ring = watched, quiz pending, empty ring = not watched), short title, track, minutes; row opens the lecture screen. Past days use the frozen plan (reuse studyAnchor, T-063). Barely any words.
 - Entry points: Home (chip/day count) and a Calendar button.
 - Gates: flutter analyze clean; widget tests (grid status per day for a fixture; row glyphs match lessonCleared); verify-app gains a dayStatus parity block (Dart vs JS, every day Oct-Dec 2026, on a Saturday clock and a study-day clock); 375x812 screenshots (month, day sheet, a rest-day Saturday); taps >= 44; rebuild app-web/ via tools/build-app.sh; platform/, sw.js, CLAUDE.md untouched; re-run existing gates and report the pre-existing failures (offline Inter, design, density, clip on main) separately.
+
+---
+## Owner, 5 Nov: "I love it, but there's a lot of pages missing" → build in this order, minimise tokens, port the existing web pages into the new design (do not redesign logic)
+Order: (3) Sync + Monk Mode; (4) quizzes + Problems/Exams; (5) Week/Sunday seal, Record, Proof, Treasury; (6) Atlas, Practice, Recall/Review, Drill, Electives, guide, transcript, then offline.
+Token rules: one builder per stage, sonnet, no separate reviewer; I verify independently by script (analyze, tests, verify-app, verify-boot, scope diff) and merge. Port from platform/js/app.js, do not re-derive.
+Stage 3 = sync (Profile > Sync: GitHub token + repo, push/pull of progress/brickford-state.json using the SAME mergeState rules, offline/latch rules as the web app; the token is never logged or shown) and Monk Mode (#/monk: priorities, day plan, 21-day map, Also section; MONK_SYNCS stays false, monk data never leaves the device).

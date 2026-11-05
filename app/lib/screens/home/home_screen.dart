@@ -15,6 +15,7 @@ import '../../widgets/sheet_scaffold.dart';
 import '../calendar/calendar_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../monk/monk_screen.dart';
+import '../quiz/quiz_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -180,7 +181,13 @@ class _HomeScreenState extends State<HomeScreen> {
           label: label,
           title: next.title,
           code: next.code,
-          onPressed: next.opensLesson ? () => open(next.cid!, next.ui!, next.li!) : null,
+          onPressed: next.kind == 'quiz' && next.seen && next.opensLesson
+              ? () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => QuizScreen.lecture(lessonKey(next.cid!, next.ui!, next.li!))),
+                )
+              : next.opensLesson
+              ? () => open(next.cid!, next.ui!, next.li!)
+              : null,
         ),
         SizedBox(height: 18.h),
         for (final it in shown)

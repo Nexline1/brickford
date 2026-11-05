@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../engine/dates.dart';
 import '../engine/engine.dart';
 import '../engine/monk.dart';
+import '../engine/quiz.dart';
 import 'sync.dart';
 
 class AppModel extends ChangeNotifier {
@@ -130,6 +131,44 @@ class AppModel extends ChangeNotifier {
     persist();
     notifyListeners();
   }
+
+  // ---------- quizzes, Problems, Exams (stage 4): each write is app.js's, then save() ----------
+
+  /// A lecture quiz finished: the pass is recorded once (recordQuizPass), and
+  /// the lecture is cleared everywhere that reads lessonCleared.
+  void passedQuiz(String k, SittingResult r) {
+    engine.recordQuizPass(k, r, now().toUtc().toIso8601String());
+    persist();
+    notifyListeners();
+  }
+
+  /// A bank sitting finished: the attempt, and the misses it adds or clears.
+  void sat(String bankId, BankSitting s, List<int> map) {
+    engine.recordExam(bankId, s, map);
+    persist();
+    notifyListeners();
+  }
+
+  void _write(void Function() f) {
+    f();
+    persist();
+    notifyListeners();
+  }
+
+  void tickPset(String id, bool on) => _write(() => engine.setPset(id, on));
+  void tickLab(String id, bool on) => _write(() => engine.setLab(id, on));
+  void labProof(String id, String url) => _write(() => engine.setLabProof(id, url));
+  void tickProblem(String key, bool on) => _write(() => engine.setProblem(key, on));
+  bool recordDiag(String id, double? v) {
+    final ok = engine.recordDiag(id, v);
+    if (ok) {
+      persist();
+      notifyListeners();
+    }
+    return ok;
+  }
+
+  void recordDiagDone(String id) => _write(() => engine.recordDiagDone(id));
 
   /// The lesson page records itself as the one to resume, only when it changed
   /// (the web app's rule: a render is a read; this runs once, on open).

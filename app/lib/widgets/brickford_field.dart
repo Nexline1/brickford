@@ -16,6 +16,7 @@ class BrickfordField extends StatelessWidget {
     this.onSubmitted,
     this.autofocus = false,
     this.obscure = false,
+    this.keyboardType,
   });
 
   final IconData icon;
@@ -26,6 +27,7 @@ class BrickfordField extends StatelessWidget {
 
   /// A secret: dots, no suggestions, no autocorrect.
   final bool obscure;
+  final TextInputType? keyboardType;
 
   static const _none = OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(Tokens.radius)), borderSide: BorderSide.none);
 
@@ -37,6 +39,7 @@ class BrickfordField extends StatelessWidget {
       onSubmitted: onSubmitted,
       autofocus: autofocus,
       obscureText: obscure,
+      keyboardType: keyboardType,
       enableSuggestions: !obscure,
       autocorrect: !obscure,
       style: body(15),

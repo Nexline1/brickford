@@ -76,9 +76,8 @@ class _TreasuryScreenState extends State<TreasuryScreen> {
     final m = AppScope.of(context);
     final e = m.engine;
     final t = e.treasury;
-    final entries = (t['entries'] as List).whereType<Map>().toList();
-    final clients = (t['clients'] as List).whereType<Map>().toList();
-    final total = e.revenueTotal();
+    final entries = e.ledgerRows();
+    final clients = e.clientRows();
     final week = e.weekView();
     _offer ??= TextEditingController(text: '${t['offer'] ?? ''}');
     final niches = m.data.niches;
@@ -92,7 +91,7 @@ class _TreasuryScreenState extends State<TreasuryScreen> {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(numText(jsRound(total)), key: const ValueKey('treasury-total'), style: display(46)),
+            Text(e.totalText(), key: const ValueKey('treasury-total'), style: display(46)),
             SizedBox(width: 8.w),
             Text('BHD', style: body(15, color: Tokens.onMidnight2, weight: FontWeight.w700)),
           ],
@@ -129,8 +128,8 @@ class _TreasuryScreenState extends State<TreasuryScreen> {
           if (!recommended) ...[SizedBox(height: 6.h), Text('${n['pain']}', style: body(13, color: Tokens.ink2, height: 1.4))],
           SizedBox(height: 14.h),
           recommended
-              ? PillButton(key: const ValueKey('niche-lock'), label: 'Lock', icon: Icons.lock_outline, onPressed: () => m.lockNiche('${n['id']}'))
-              : PillButton(key: const ValueKey('niche-change'), label: 'Change', icon: Icons.swap_horiz, tone: PillTone.quiet, onPressed: () => m.lockNiche('')),
+              ? PillButton(key: const ValueKey('niche-lock'), id: 'niche-lock', label: 'Lock', icon: Icons.lock_outline, onPressed: () => m.lockNiche('${n['id']}'))
+              : PillButton(key: const ValueKey('niche-change'), id: 'niche-change', label: 'Change', icon: Icons.swap_horiz, tone: PillTone.quiet, onPressed: () => m.lockNiche('')),
         ],
       ),
     );
@@ -142,12 +141,12 @@ class _TreasuryScreenState extends State<TreasuryScreen> {
         header: header,
         children: [
           const SheetLabel(Icons.payments_outlined, 'Payments'),
-          BrickfordField(key: const ValueKey('entry-amount'), icon: Icons.payments_outlined, hint: 'BHD', controller: _amount, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+          BrickfordField(key: const ValueKey('entry-amount'), id: 'entry-amount', icon: Icons.payments_outlined, hint: 'BHD', controller: _amount, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
           SizedBox(height: 10.h),
-          BrickfordField(key: const ValueKey('entry-note'), icon: Icons.notes, hint: 'Client / deliverable', controller: _note),
+          BrickfordField(key: const ValueKey('entry-note'), id: 'entry-note', icon: Icons.notes, hint: 'Client / deliverable', controller: _note),
           SizedBox(height: 10.h),
           PillButton(
-            key: const ValueKey('entry-add'),
+            key: const ValueKey('entry-add'), id: 'entry-add',
             label: 'Record',
             icon: Icons.add,
             onPressed: () {
@@ -164,39 +163,39 @@ class _TreasuryScreenState extends State<TreasuryScreen> {
               padding: EdgeInsets.symmetric(vertical: 10.h),
               child: const Center(child: Icon(Icons.receipt_long_outlined, size: 40, color: Tokens.quiet, semanticLabel: 'no payments yet')),
             ),
-          for (var i = entries.length - 1; i >= 0; i--)
+          for (var i = 0; i < entries.length; i++)
             ItemBlock(
               key: ValueKey('entry-$i'),
               leading: const LeadTile(icon: Icons.south_west, color: Colors.white, fg: Tokens.done),
-              title: fmtBHD(jsPlus(entries[i]['amount'])),
-              subtitle: '${entries[i]['note'] ?? ''}'.isEmpty ? null : '${entries[i]['note']}',
-              meta: '${entries[i]['date']}',
+              title: entries[i].amount,
+              subtitle: entries[i].note.isEmpty ? null : entries[i].note,
+              meta: entries[i].date,
             ),
           const SheetLabel(Icons.people_outline, 'Clients'),
           for (var i = 0; i < clients.length; i++)
             ItemBlock(
               key: ValueKey('client-$i'),
-              leading: LeadTile(text: '${clients[i]['name']}'.isEmpty ? '?' : '${clients[i]['name']}'.substring(0, 1).toUpperCase()),
-              title: '${clients[i]['name']}',
-              subtitle: '${clients[i]['project'] ?? ''}'.isEmpty ? null : '${clients[i]['project']}',
-              meta: fmtBHD(jsOr0(clients[i]['price'])),
+              leading: LeadTile(text: clients[i].name.isEmpty ? '?' : clients[i].name.substring(0, 1).toUpperCase()),
+              title: clients[i].name,
+              subtitle: clients[i].project.isEmpty ? null : clients[i].project,
+              meta: clients[i].price,
               below: Align(
                 alignment: Alignment.centerRight,
-                child: StepButton(key: ValueKey('client-del-$i'), icon: Icons.close, tooltip: 'Remove client', onPressed: () => m.removeClient(i)),
+                child: StepButton(key: ValueKey('client-del-$i'), id: 'client-del-$i', icon: Icons.close, tooltip: 'Remove client', onPressed: () => m.removeClient(i)),
               ),
             ),
-          BrickfordField(key: const ValueKey('client-name'), icon: Icons.person_outline, hint: 'Client', controller: _clName),
+          BrickfordField(key: const ValueKey('client-name'), id: 'client-name', icon: Icons.person_outline, hint: 'Client', controller: _clName),
           SizedBox(height: 10.h),
-          BrickfordField(key: const ValueKey('client-project'), icon: Icons.work_outline, hint: 'Scope', controller: _clProject),
+          BrickfordField(key: const ValueKey('client-project'), id: 'client-project', icon: Icons.work_outline, hint: 'Scope', controller: _clProject),
           SizedBox(height: 10.h),
-          BrickfordField(key: const ValueKey('client-price'), icon: Icons.payments_outlined, hint: 'BHD', controller: _clPrice, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+          BrickfordField(key: const ValueKey('client-price'), id: 'client-price', icon: Icons.payments_outlined, hint: 'BHD', controller: _clPrice, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
           SizedBox(height: 10.h),
-          PillButton(key: const ValueKey('client-add'), label: 'Add', icon: Icons.person_add_alt, tone: PillTone.quiet, onPressed: () => _addClient(m)),
+          PillButton(key: const ValueKey('client-add'), id: 'client-add', label: 'Add', icon: Icons.person_add_alt, tone: PillTone.quiet, onPressed: () => _addClient(m)),
           const SheetLabel(Icons.edit_note, 'The one offer'),
-          BrickfordField(key: const ValueKey('offer-field'), icon: Icons.sell_outlined, hint: 'Niche, deliverable, days, fixed BHD price', controller: _offer, minLines: 3, maxLines: 6),
+          BrickfordField(key: const ValueKey('offer-field'), id: 'offer-field', icon: Icons.sell_outlined, hint: 'Niche, deliverable, days, fixed BHD price', controller: _offer, minLines: 3, maxLines: 6),
           SizedBox(height: 10.h),
           PillButton(
-            key: const ValueKey('offer-save'),
+            key: const ValueKey('offer-save'), id: 'offer-save',
             label: 'Save',
             icon: Icons.check,
             tone: PillTone.quiet,

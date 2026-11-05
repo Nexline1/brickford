@@ -43,9 +43,9 @@ class ProfileScreen extends StatelessWidget {
       children: [
         ChipRow(
           children: [
-            BrickChip(key: const ValueKey('chip-record'), label: 'Record', icon: Icons.verified_outlined, selected: false, onTap: () => openRecord(context)),
-            BrickChip(key: const ValueKey('chip-treasury'), label: 'Treasury', icon: Icons.savings_outlined, selected: false, onTap: () => openTreasury(context)),
-            BrickChip(key: const ValueKey('chip-library'), label: 'Library', icon: Icons.menu_book_outlined, selected: false, onTap: () => openLibrary(context)),
+            Semantics(identifier: 'chip-record', child: BrickChip(key: const ValueKey('chip-record'), label: 'Record', icon: Icons.verified_outlined, selected: false, onTap: () => openRecord(context))),
+            Semantics(identifier: 'chip-treasury', child: BrickChip(key: const ValueKey('chip-treasury'), label: 'Treasury', icon: Icons.savings_outlined, selected: false, onTap: () => openTreasury(context))),
+            Semantics(identifier: 'chip-library', child: BrickChip(key: const ValueKey('chip-library'), label: 'Library', icon: Icons.menu_book_outlined, selected: false, onTap: () => openLibrary(context))),
           ],
         ),
         SizedBox(height: 14.h),

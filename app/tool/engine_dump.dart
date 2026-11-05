@@ -14,6 +14,8 @@ import 'dart:convert';
 import 'dart:io';
 
 // ignore: avoid_relative_lib_imports
+import '../lib/engine/dates.dart';
+// ignore: avoid_relative_lib_imports
 import '../lib/engine/engine.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/merge.dart';
@@ -23,6 +25,8 @@ import '../lib/engine/monk.dart';
 import '../lib/engine/problems.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/quiz.dart';
+// ignore: avoid_relative_lib_imports
+import '../lib/engine/record.dart';
 
 String schedKey(List<SchedItem> items) => items
     .map((it) => '${it.track}:${it.key}${it.dayN != null || it.spanN != null ? '@${it.dayN}/${it.spanN}' : ''}')
@@ -181,6 +185,148 @@ Map<String, dynamic> quizDump(Map<String, dynamic> fx, BrickfordData data, Strin
   return out;
 }
 
+/// The record answers (T-064 stage 5): the ledger chain and its tamper checks,
+/// the Week page and the seal, the streak reset and the day seal, the Record
+/// page's numbers, and the Treasury sums and formatting.
+Map<String, dynamic> recordDump(Map<String, dynamic> fx, BrickfordData data) {
+  final R = fx['record'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  Engine eng(Map f) => Engine(data, copy(f['state']) as Map<String, dynamic>?, today: () => f['clock'] as String);
+  Map<String, dynamic> chain(ChainCheck c) => {'ok': c.ok, 'count': c.count, 'brokenAt': c.brokenAt, 'head': c.head};
+  final out = <String, dynamic>{};
+
+  // ---- the ledger: the same events through logEvent, then tampered ----
+  final L = R['ledger'] as Map<String, dynamic>;
+  final e0 = Engine(data, null, today: () => fx['planClock'] as String);
+  final entries = <Map<String, dynamic>>[
+    for (final ev in L['events'] as List) copy(e0.logEvent(ev['type'] as String, ev['ref'], ev['data'], ev['ts'] as String)) as Map<String, dynamic>,
+  ];
+  out['ledger'] = {
+    'entries': entries,
+    'preimages': [for (final e in entries) preimage(e)],
+    'lines': [for (final e in entries) e0.eventLine(e)],
+    'verify': chain(e0.verifyChain()),
+    'head': e0.chainHead(),
+    'tamper': {
+      for (final t in L['tamper'] as List)
+        t['name'] as String: () {
+          final c = copy(entries) as List;
+          switch (t['op']) {
+            case 'set':
+              (c[t['i'] as int] as Map)[t['field']] = t['value'];
+            case 'drop':
+              c.removeAt(t['i'] as int);
+            case 'swap':
+              final a = c[t['i'] as int];
+              c[t['i'] as int] = c[t['j'] as int];
+              c[t['j'] as int] = a;
+          }
+          return {...chain(verifyEntries(c)), 'text': verifyRecordText(jsonEncode({'entries': c}))};
+        }(),
+    },
+  };
+  out['sha'] = {for (final s in R['sha'] as List) s as String: sha256Hex(s)};
+
+  // ---- the Week page ----
+  out['weeks'] = {
+    for (final f in R['weeks'] as List)
+      f['name'] as String: () {
+        final v = eng(f).weekView();
+        return {
+          'w': 'Week ${v.w}',
+          'tiles': ['${v.dsa}', '${v.proven}', null, v.counted ? numText(v.earned) : null],
+          'dsa': v.dsa,
+          'counted': v.counted,
+          'revValue': v.counted ? v.earned : null,
+          'state': v.state,
+          'past': [for (final x in v.past) [x.title, x.date, x.shipped.isEmpty ? 'nothing shipped' : x.shipped, x.metrics, x.notes]],
+        };
+      }(),
+  };
+  out['seals'] = {
+    for (final f in R['seals'] as List)
+      f['name'] as String: () {
+        final e = eng(f), i = f['input'] as Map;
+        final r = e.sealWeek(shipped: i['shipped'] as String, notes: i['notes'] as String, posts: i['posts'] as num, revenue: i['rev'] as num?, ts: '${f['clock']}T12:00:00.000Z');
+        return {'weeks': copy(e.S['weeks']), 'ledger': copy(e.ledger), if (r == null) 'refused': true};
+      }(),
+  };
+  out['refused'] = {
+    for (final f in R['refused'] as List)
+      f['name'] as String: () {
+        final e = eng(f);
+        final r = e.sealWeek(shipped: 'x', notes: '', posts: 1, revenue: 1, ts: '${f['clock']}T12:00:00.000Z');
+        return {'sealed': r != null, 'weeks': copy(e.S['weeks']), 'ledger': copy(e.ledger)};
+      }(),
+  };
+  out['sealDates'] = {
+    for (final d in (R['sealDates'] as List).cast<String>())
+      d: {'w': e0.revisionWeekOf(d), 'sealDay': e0.isSealDay(d), 'ready': e0.canSealWeek(d)},
+  };
+  out['revLectures'] = [for (var n = 1; n <= RecordEngine.revisionPdfs; n++) e0.revisionLectures(n)];
+
+  // ---- the streak reset and the day seal ----
+  out['streak'] = {
+    for (final f in R['streaks'] as List)
+      f['name'] as String: () {
+        final e = eng(f), ts = '${f['clock']}T12:00:00.000Z';
+        final before = {'streak': e.streak(), 'best': e.bestStreak()};
+        e.resetStreak(ts);
+        final afterReset = {'streakFrom': e.settings['streakFrom'], 'streak': e.streak(), 'best': e.bestStreak(), 'ledger': copy(e.ledger)};
+        e.sealDay(ts);
+        return {
+          'before': before,
+          'afterReset': afterReset,
+          'after': {'studyDays': copy(e.S['studyDays']), 'streak': e.streak(), 'best': e.bestStreak(), 'ledger': copy(e.ledger)},
+        };
+      }(),
+  };
+
+  // ---- the Record page ----
+  out['record'] = {
+    for (final f in R['records'] as List)
+      f['name'] as String: () {
+        final e = eng(f), today = e.todayISO();
+        final lastSunday = addDaysISO(today, -dowOf(today)), first = addDaysISO(lastSunday, -7 * 25);
+        final led = e.ledger, c = e.verifyChain();
+        return {
+          'tiles': ['${e.streak()}', '${e.bestStreak()}', '${e.provenCount()}'],
+          'heat': [for (var wk = 0; wk < 26; wk++) for (var d = 0; d < 7; d++) e.heatLevel(addDaysISO(first, 7 * wk + d))],
+          'seals': [
+            for (final x in led.reversed.take(4)) [e.sealName(x as Map), e.shortHash('${x['hash']}')],
+            if (led.isNotEmpty && (led.reversed.take(4).last as Map)['i'] == 0) ['Genesis', 'the first link'],
+          ],
+          'chain': led.isEmpty ? 'none' : c.ok ? 'ok' : 'broken at ${c.brokenAt}',
+        };
+      }(),
+  };
+
+  // ---- the Treasury ----
+  final T = R['treasury'] as Map<String, dynamic>;
+  out['treasury'] = {
+    'amounts': [
+      for (final v in T['amounts'] as List) [fmtBHD(v as num), numText(v), jsRound(v)],
+    ],
+    'states': {
+      for (final f in T['states'] as List)
+        f['name'] as String: () {
+          final e = eng(f), t = e.treasury;
+          return {
+            'total': e.revenueTotal(),
+            'totalText': e.totalText(),
+            'counts': () {
+              final cells = [if (e.revenueTotal() > 0) e.totalText(), '${(t['clients'] as List).length} / 2', if ((t['entries'] as List).isNotEmpty) '${(t['entries'] as List).length}'];
+              return cells.length > 1 ? cells : <String>[];
+            }(),
+            'rows': [for (final r in e.ledgerRows()) [r.date, r.amount, r.note]],
+            'clients': [for (final r in e.clientRows()) [r.name, r.project, r.price]],
+          };
+        }(),
+    },
+  };
+  return out;
+}
+
 void main(List<String> args) {
   final dir = args[0];
   final fx = jsonDecode(File(args[1]).readAsStringSync()) as Map<String, dynamic>;
@@ -330,5 +476,6 @@ void main(List<String> args) {
     'phoneOk': [for (final d in (mk['phones'] as List)) mkPhoneOk(d == null ? <String, dynamic>{} : (d as Map).cast<String, dynamic>())],
   };
   out['quiz'] = quizDump(fx, data, dir);
+  out['record'] = recordDump(fx, data);
   stdout.write(jsonEncode(out));
 }

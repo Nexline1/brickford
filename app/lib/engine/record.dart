@@ -15,6 +15,7 @@ import 'dart:convert';
 
 import 'dates.dart';
 import 'engine.dart';
+import 'problems.dart' show stableSorted;
 import 'quiz.dart';
 
 const ledgerGenesis = 'brickford-genesis';
@@ -35,7 +36,7 @@ double jsOr0(Object? v) {
 }
 
 /// Math.round.
-num jsRound(num x) => (x + 0.5).floor();
+num jsRound(num x) => x.isNaN || x.isInfinite ? x : (x + 0.5).floor();
 
 String _jsNum(num v) {
   if (v is int) return '$v';
@@ -375,11 +376,32 @@ extension RecordEngine on Engine {
   // ---------- the Sunday week (V.review, logWeek) ----------
 
   /// The seal is Sunday only: the revision week's own Sunday has come (today >= sun).
-  bool canSealWeek() => ge(todayISO(), revisionWeek(revisionWeekOf(todayISO())).sun);
+  bool canSealWeek([String? iso]) {
+    final t = iso ?? todayISO();
+    return ge(t, revisionWeek(revisionWeekOf(t)).sun);
+  }
 
   double revenueTotal() => treasury['entries'] is List
       ? (treasury['entries'] as List).fold<double>(0, (a, e) => a + (e is Map ? jsOr0(e['amount']) : 0))
       : 0;
+
+  /// V.record's "lectures proven": lessons marked verified.
+  int provenCount() => lessons.values.where((l) => l is Map && truthy(l['verified'])).length;
+
+  /// V.treasury's "BHD collected": Math.round(total), as the web page prints it.
+  String totalText() => '${jsRound(revenueTotal())}';
+
+  /// The revenue ledger, newest first: date, fmtBHD(amount), note.
+  List<({String date, String amount, String note})> ledgerRows() => [
+    for (final x in ((treasury['entries'] as List?) ?? const []).reversed)
+      if (x is Map) (date: _s(x['date']), amount: fmtBHD(jsPlus(x['amount'])), note: _s(x['note'])),
+  ];
+
+  /// The clients table: name, project, fmtBHD(price).
+  List<({String name, String project, String price})> clientRows() => [
+    for (final c in ((treasury['clients'] as List?) ?? const []))
+      if (c is Map) (name: _s(c['name']), project: _s(c['project']), price: fmtBHD(jsOr0(c['price']))),
+  ];
 
   WeekView weekView() {
     final today = todayISO(), w = revisionWeekOf(today), rw = revisionWeek(w), from = rw.from, sun = rw.sun;
@@ -397,8 +419,11 @@ extension RecordEngine on Engine {
             final n = daysBetween(today, sun);
             return 'Opens Sunday ${jsShortDay(sun)} · $n day${n == 1 ? '' : 's'}';
           }();
-    final past = [for (final x in (S['weeks'] as List? ?? const [])) if (x is Map) x.cast<String, dynamic>()]
-      ..sort((a, b) => ((jsPlus(b['week'])).isNaN ? 0 : jsPlus(b['week'])).compareTo((jsPlus(a['week'])).isNaN ? 0 : jsPlus(a['week'])));
+    double wk(Object? v) => jsPlus(v).isNaN ? 0 : jsPlus(v);
+    final past = stableSorted(
+      [for (final x in (S['weeks'] as List? ?? const [])) if (x is Map) x.cast<String, dynamic>()],
+      (a, b) => wk(b['week']).compareTo(wk(a['week'])),
+    );
     return WeekView(
       w: w,
       from: from,

@@ -19,6 +19,7 @@ class BrickfordField extends StatelessWidget {
     this.keyboardType,
     this.minLines,
     this.maxLines = 1,
+    this.id,
   });
 
   final IconData icon;
@@ -34,11 +35,14 @@ class BrickfordField extends StatelessWidget {
   /// A multi-line field (the Treasury's offer): grows between [minLines] and [maxLines].
   final int? minLines, maxLines;
 
+  /// The semantics identifier (what a browser harness finds it by).
+  final String? id;
+
   static const _none = OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(Tokens.radius)), borderSide: BorderSide.none);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    final field = TextField(
       controller: controller,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
@@ -65,5 +69,6 @@ class BrickfordField extends StatelessWidget {
         focusedErrorBorder: _none,
       ),
     );
+    return id == null ? field : Semantics(identifier: id, child: field);
   }
 }

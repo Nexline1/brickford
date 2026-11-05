@@ -91,11 +91,11 @@ class _WeekScreenState extends State<WeekScreen> {
                   label: 'Posts',
                   child: Row(
                     children: [
-                      StepButton(key: const ValueKey('posts-minus'), icon: Icons.remove, tooltip: 'Fewer posts', onPressed: posts > 0 ? () => setState(() => posts--) : null),
+                      StepButton(key: const ValueKey('posts-minus'), id: 'posts-minus', icon: Icons.remove, tooltip: 'Fewer posts', onPressed: posts > 0 ? () => setState(() => posts--) : null),
                       Expanded(
                         child: Text('$posts', key: const ValueKey('week-posts-n'), textAlign: TextAlign.center, style: display(28, color: Tokens.ink)),
                       ),
-                      StepButton(key: const ValueKey('posts-plus'), icon: Icons.add, tooltip: 'More posts', onPressed: () => setState(() => posts++)),
+                      StepButton(key: const ValueKey('posts-plus'), id: 'posts-plus', icon: Icons.add, tooltip: 'More posts', onPressed: () => setState(() => posts++)),
                     ],
                   ),
                 ),
@@ -120,12 +120,12 @@ class _WeekScreenState extends State<WeekScreen> {
             ],
           ),
           SizedBox(height: 16.h),
-          BrickfordField(key: const ValueKey('week-shipped'), icon: Icons.rocket_launch_outlined, hint: 'Shipped', controller: _shipped),
+          BrickfordField(key: const ValueKey('week-shipped'), id: 'week-shipped', icon: Icons.rocket_launch_outlined, hint: 'Shipped', controller: _shipped),
           SizedBox(height: 10.h),
-          BrickfordField(key: const ValueKey('week-notes'), icon: Icons.block_outlined, hint: 'In the way', controller: _notes),
+          BrickfordField(key: const ValueKey('week-notes'), id: 'week-notes', icon: Icons.block_outlined, hint: 'In the way', controller: _notes),
           SizedBox(height: 16.h),
           PillButton(
-            key: const ValueKey('week-seal'),
+            key: const ValueKey('week-seal'), id: 'week-seal',
             label: sealed ? 'Sealed' : 'Seal',
             icon: v.canSeal ? Icons.verified_outlined : Icons.lock_outline,
             tone: sealed ? PillTone.done : PillTone.primary,

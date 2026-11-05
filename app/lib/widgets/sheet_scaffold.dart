@@ -49,7 +49,7 @@ class SheetScaffold extends StatelessWidget {
               child: Row(
                 children: [
                   if (onBack != null) ...[
-                    FrostButton(icon: Icons.arrow_back_ios_new, tooltip: 'Back', onPressed: onBack!, dark: true),
+                    FrostButton(icon: Icons.arrow_back_ios_new, tooltip: 'Back', id: 'back', onPressed: onBack!, dark: true),
                     SizedBox(width: 12.w),
                   ],
                   const Crest(height: 32),

@@ -55,14 +55,15 @@ class StatTile extends StatelessWidget {
 
 /// A 44x44 round step button.
 class StepButton extends StatelessWidget {
-  const StepButton({super.key, required this.icon, required this.tooltip, required this.onPressed});
+  const StepButton({super.key, required this.icon, required this.tooltip, required this.onPressed, this.id});
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
+  final String? id;
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
+    final button = Tooltip(
       message: tooltip,
       child: Material(
         color: Colors.white,
@@ -74,6 +75,7 @@ class StepButton extends StatelessWidget {
         ),
       ),
     );
+    return id == null ? button : Semantics(identifier: id, child: button);
   }
 }
 

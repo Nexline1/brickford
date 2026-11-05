@@ -305,7 +305,7 @@ void main() {
     expect(entries.first, {'date': '2026-11-05', 'amount': 12.5, 'note': 'first'});
     expect(entries.last['amount'], 1137);
     expect(m.engine.revenueTotal(), 1149.5);
-    expect(tester.widget<Text>(key('treasury-total')).data, '1,150', reason: 'Math.round(1149.5)');
+    expect(tester.widget<Text>(key('treasury-total')).data, '1150', reason: 'Math.round(1149.5), printed plain as the web page does');
     expect(find.bySemanticsLabel('BHD this week 1,149.5'), findsOneWidget);
     expect(find.text('BHD 12.5'), findsOneWidget);
     expect(find.text('BHD 1,137'), findsOneWidget);

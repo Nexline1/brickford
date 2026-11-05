@@ -66,7 +66,7 @@ class RecordScreen extends StatelessWidget {
     final e = m.engine;
     final today = e.todayISO();
     final rest = e.isRestDay(today) && ge(today, e.START_DATE);
-    final proven = e.lessons.values.where((l) => l is Map && truthy(l['verified'])).length;
+    final proven = e.provenCount();
     final chain = e.verifyChain();
     final led = e.ledger;
     final seals = led.reversed.take(4).map((x) => (x as Map)).toList();
@@ -106,7 +106,7 @@ class RecordScreen extends StatelessWidget {
                     leading: LeadTile(icon: Icons.check, color: Tokens.done, fg: Colors.white),
                     title: 'Sealed',
                   )
-                : PillButton(key: const ValueKey('record-seal'), label: 'Seal today', icon: Icons.task_alt, onPressed: () => m.sealDay()),
+                : PillButton(key: const ValueKey('record-seal'), id: 'record-seal', label: 'Seal today', icon: Icons.task_alt, onPressed: () => m.sealDay()),
           const SheetLabel(Icons.grid_view_rounded, 'Sealed days'),
           Container(
             key: const ValueKey('record-heat'),
@@ -172,7 +172,7 @@ class RecordScreen extends StatelessWidget {
           ],
           SizedBox(height: 14.h),
           PillButton(
-            key: const ValueKey('record-proof'),
+            key: const ValueKey('record-proof'), id: 'record-proof',
             label: 'Proof',
             icon: Icons.shield_outlined,
             tone: PillTone.dark,
@@ -180,7 +180,7 @@ class RecordScreen extends StatelessWidget {
           ),
           SizedBox(height: 10.h),
           PillButton(
-            key: const ValueKey('record-reset'),
+            key: const ValueKey('record-reset'), id: 'record-reset',
             label: 'Reset streak',
             icon: Icons.restart_alt,
             tone: PillTone.quiet,

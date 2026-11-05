@@ -97,12 +97,12 @@ class _ProofScreenState extends State<ProofScreen> {
             Row(
               children: [
                 Expanded(
-                  child: PillButton(key: const ValueKey('proof-copy-head'), label: 'Head', icon: Icons.content_copy, tone: PillTone.quiet, onPressed: () => _copy(head, 'Head hash copied')),
+                  child: PillButton(key: const ValueKey('proof-copy-head'), id: 'proof-copy-head', label: 'Head', icon: Icons.content_copy, tone: PillTone.quiet, onPressed: () => _copy(head, 'Head hash copied')),
                 ),
                 SizedBox(width: 10.w),
                 Expanded(
                   child: PillButton(
-                    key: const ValueKey('proof-copy-record'),
+                    key: const ValueKey('proof-copy-record'), id: 'proof-copy-record',
                     label: 'Record',
                     icon: Icons.ios_share,
                     tone: PillTone.quiet,
@@ -125,15 +125,15 @@ class _ProofScreenState extends State<ProofScreen> {
               subtitle: '${(e.anchors[i] as Map)['date']} · ${e.shortHash('${(e.anchors[i] as Map)['head']}')}',
               below: Align(
                 alignment: Alignment.centerRight,
-                child: StepButton(key: ValueKey('anchor-del-$i'), icon: Icons.delete_outline, tooltip: 'Remove anchor', onPressed: () => m.removeAnchor(i)),
+                child: StepButton(key: ValueKey('anchor-del-$i'), id: 'anchor-del-$i', icon: Icons.delete_outline, tooltip: 'Remove anchor', onPressed: () => m.removeAnchor(i)),
               ),
             ),
-          BrickfordField(key: const ValueKey('anchor-where'), icon: Icons.public, hint: 'Where published', controller: _where),
+          BrickfordField(key: const ValueKey('anchor-where'), id: 'anchor-where', icon: Icons.public, hint: 'Where published', controller: _where),
           SizedBox(height: 10.h),
-          BrickfordField(key: const ValueKey('anchor-url'), icon: Icons.link, hint: 'Link', controller: _url, keyboardType: TextInputType.url),
+          BrickfordField(key: const ValueKey('anchor-url'), id: 'anchor-url', icon: Icons.link, hint: 'Link', controller: _url, keyboardType: TextInputType.url),
           SizedBox(height: 10.h),
           PillButton(
-            key: const ValueKey('anchor-add'),
+            key: const ValueKey('anchor-add'), id: 'anchor-add',
             label: 'Anchor head',
             icon: Icons.anchor,
             onPressed: () {
@@ -145,7 +145,7 @@ class _ProofScreenState extends State<ProofScreen> {
             },
           ),
           const SheetLabel(Icons.fact_check_outlined, 'Verify a record'),
-          PillButton(key: const ValueKey('proof-verify'), label: 'Paste', icon: Icons.content_paste, tone: PillTone.dark, onPressed: _verifyClipboard),
+          PillButton(key: const ValueKey('proof-verify'), id: 'proof-verify', label: 'Paste', icon: Icons.content_paste, tone: PillTone.dark, onPressed: _verifyClipboard),
           if (result != null) ...[
             SizedBox(height: 12.h),
             Row(

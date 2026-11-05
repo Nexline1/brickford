@@ -180,6 +180,7 @@ class SyncService extends ChangeNotifier {
 
   /// Hidden (backgrounded, or the page going away): push what is pending.
   void onHidden() {
+    m.flush();
     if (_hidden) return;
     _hidden = true;
     _hides++;
@@ -251,6 +252,7 @@ class SyncService extends ChangeNotifier {
   /// [dir] is "pull" or "push". Resolves true when it did what was asked.
   Future<bool> run(String dir) async {
     if (!hasToken) return false;
+    m.flush(); // what a push sends, and what a pull merges into, is on disk first
     if (_busy) {
       if (dir == 'push') _pushAgain = true;
       return false;

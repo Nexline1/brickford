@@ -25,7 +25,7 @@ Future<void> main() async {
   runApp(const SplashApp());
   final data = await AppModel.loadData(rootBundle);
   final prefs = await SharedPreferences.getInstance();
-  runApp(BrickfordApp(model: AppModel(data, prefs)));
+  runApp(BrickfordApp(model: AppModel(data, prefs, saveDelay: const Duration(milliseconds: 400))));
 }
 
 /// The phone column: the design is 375x812, so a wide window shows it at most
@@ -125,6 +125,9 @@ class _SyncHooksState extends State<_SyncHooks> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Anything not yet written goes to storage the moment the page is no longer the one in front
+    // (inactive too: on an iPhone it is the last notice before the page can be frozen).
+    if (state != AppLifecycleState.resumed) widget.sync.m.flush();
     switch (state) {
       case AppLifecycleState.resumed:
         widget.sync.onVisible();

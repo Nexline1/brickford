@@ -40,6 +40,7 @@ class _ProofScreenState extends State<ProofScreen> {
   }
 
   Future<void> _copy(String text, String what) async {
+    AppScope.of(context).flush(); // an export is of what is on disk too
     await Clipboard.setData(ClipboardData(text: text));
     if (mounted) toast(context, what);
   }

@@ -1,6 +1,8 @@
 // The four tabs: Home, Learn, Build, Profile, under a floating frosted
 // bar (icon + tiny label per tab, a soft pill behind the selected one) with a
 // separate round search button beside it.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -24,6 +26,34 @@ class Shell extends StatefulWidget {
 class _ShellState extends State<Shell> {
   int index = 0;
 
+  /// The tabs built so far. Home is built at once; the others are built when first visited, or by [_warm]
+  /// while the reader is still on Home, so startup builds one screen instead of four and a notification
+  /// rebuilds only the screens that exist.
+  final _built = <int>{0};
+
+  Timer? _warming;
+
+  @override
+  void initState() {
+    super.initState();
+    _warm(1);
+  }
+
+  @override
+  void dispose() {
+    _warming?.cancel();
+    super.dispose();
+  }
+
+  void _warm(int i) {
+    if (i > 3) return;
+    _warming = Timer(Duration(milliseconds: i == 1 ? 1500 : 700), () {
+      if (!mounted) return;
+      if (_built.add(i)) setState(() {});
+      _warm(i + 1);
+    });
+  }
+
   static const tabs = [
     (Icons.home_outlined, Icons.home_rounded, 'Home'),
     (Icons.school_outlined, Icons.school, 'Learn'),
@@ -39,7 +69,15 @@ class _ShellState extends State<Shell> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: IndexedStack(index: index, children: const [HomeScreen(), LearnScreen(), BuildScreen(), ProfileScreen()]),
+            child: IndexedStack(
+              index: index,
+              children: [
+                const HomeScreen(),
+                if (_built.contains(1)) const LearnScreen() else const SizedBox.shrink(),
+                if (_built.contains(2)) const BuildScreen() else const SizedBox.shrink(),
+                if (_built.contains(3)) const ProfileScreen() else const SizedBox.shrink(),
+              ],
+            ),
           ),
           Positioned(
             left: 16.w,
@@ -52,7 +90,10 @@ class _ShellState extends State<Shell> {
                     key: const ValueKey('brickford-tabs'),
                     index: index,
                     tabs: tabs,
-                    onSelect: (i) => setState(() => index = i),
+                    onSelect: (i) => setState(() {
+                      _built.add(i);
+                      index = i;
+                    }),
                   ),
                 ),
                 SizedBox(width: 10.w),

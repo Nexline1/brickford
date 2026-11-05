@@ -110,3 +110,7 @@ Port from platform/js/app.js (V.week, logWeek, the seal and revision weeks, V.re
 ---
 ## Stage 6a (owner "Continue", 5 Nov): Atlas, Recall, Drill, Electives (all under Learn)
 Port from platform/js/app.js (V.atlas, the course and unit pages, V.recall, V.drill, the spaced-review scheduler and S.review, V.electives). Existing design, barely any words; parity blocks + plants in verify-app (review scheduler due dates, drill picks, electives data). Same S shape, synced via the stage-3 merge.
+
+---
+## Stage 6b (owner "Continue", 5 Nov): Practice (recorder), transcript, guide, method, workshop
+Practice goes under Build; transcript, guide, method and workshop are readable pages under Profile (the Library gains the guides and outside links stage 5 left out). Port from platform/js/app.js (V.practice and the recorder, V.transcript, V.guide, V.method, V.workshop, DOCS). Recordings stay on the device (IndexedDB on web, or whatever the web app does); transcription is paused (T-046), so the recorder only records. State plainly what an iPhone can do (MediaRecorder support, microphone permission). Same S shape, existing design, barely any words; parity blocks and plants in verify-app where there is logic (practice streak/reps, workshop gating).

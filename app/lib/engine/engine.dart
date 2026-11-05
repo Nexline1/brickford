@@ -54,6 +54,7 @@ class BrickfordData {
     required this.psets,
     required this.labs,
     this.niches = const [],
+    this.electives = const [],
     required this.gates,
     required this.diagnostics,
     required this.weekPlan,
@@ -80,6 +81,7 @@ class BrickfordData {
 
   /// DAR.NICHES: the earning offers the Treasury locks one of.
   final List<Map<String, dynamic>> niches;
+  final List<Map<String, dynamic>> electives;
   final List<Map<String, dynamic>> gates;
   final List<Map<String, dynamic>> diagnostics;
   final List<Map<String, dynamic>> weekPlan;
@@ -109,6 +111,7 @@ class BrickfordData {
       psets: list(work['PSETS']),
       labs: list(work['LABS']),
       niches: list(work['NICHES'] ?? const []),
+      electives: list(work['ELECTIVES'] ?? const []),
       gates: list(gates['GATES']),
       diagnostics: list(gates['DIAGNOSTICS']),
       weekPlan: list(gates['WEEK_PLAN']),

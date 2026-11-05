@@ -428,5 +428,133 @@
    "edge": "High ticket, low competition.",
    "verdict": "Wrong for now — conservative buyers and a 2-month sales cycle you can't afford at ≤2h/day. Phase 2 candidate."
   }
+ ],
+ "ELECTIVES": [
+  {
+   "id": "mitx-686x",
+   "provider": "edX · MITx",
+   "what": "6.86x — Machine Learning with Python",
+   "phase": 1,
+   "cost": "Free audit · ~$300 verified cert",
+   "verdict": "The rigorous graded ML theory pass. Take alongside/after AI 200 if you want structure and a certificate worth showing.",
+   "url": "https://www.edx.org/learn/machine-learning/massachusetts-institute-of-technology-machine-learning-with-python-from-linear-models-to-deep-learning"
+  },
+  {
+   "id": "mitx-18650",
+   "provider": "edX · MITx",
+   "what": "18.6501x — Fundamentals of Statistics",
+   "phase": 2,
+   "cost": "Free audit · ~$300 verified cert",
+   "verdict": "Post-Stat-110 rigor (MLE, hypothesis testing, asymptotics). Only if the researcher fork calls.",
+   "url": "https://www.edx.org/learn/statistics/massachusetts-institute-of-technology-fundamentals-of-statistics"
+  },
+  {
+   "id": "cs231n",
+   "provider": "Stanford",
+   "what": "CS231n — Deep Learning for Computer Vision",
+   "phase": 2,
+   "cost": "Free (lectures + notes public)",
+   "verdict": "The canonical vision course. Pairs exactly with the Paper Room's vision unit; the notes are gold.",
+   "url": "http://cs231n.stanford.edu/"
+  },
+  {
+   "id": "cs224n",
+   "provider": "Stanford",
+   "what": "CS224n — NLP with Deep Learning",
+   "phase": 2,
+   "cost": "Free (lectures public)",
+   "verdict": "The canonical NLP course. Take the transformer/pretraining lectures after AI 200; skip what CS336 covers deeper.",
+   "url": "https://web.stanford.edu/class/cs224n/"
+  },
+  {
+   "id": "cs229",
+   "provider": "Stanford",
+   "what": "CS229 — Machine Learning (Ng's original)",
+   "phase": 2,
+   "cost": "Free (lectures + notes public)",
+   "verdict": "Classical ML theory: SVMs, EM, learning theory. Read the notes even if you skip lectures — interviews love this material.",
+   "url": "https://cs229.stanford.edu/"
+  },
+  {
+   "id": "cs336",
+   "provider": "Stanford",
+   "what": "CS336 — Language Modeling from Scratch",
+   "phase": 2,
+   "cost": "Free (lectures + assignments public)",
+   "verdict": "Already your AI 310 Unit I spine. Do the public assignments — they are the practice.",
+   "url": "https://cs336.stanford.edu/"
+  },
+  {
+   "id": "cmu-10714",
+   "provider": "CMU",
+   "what": "10-714 — Deep Learning Systems",
+   "phase": 2,
+   "cost": "Free (lectures + homework public)",
+   "verdict": "Already your SYS 250 Unit I spine. The homework (build 'needle' from scratch) is the whole point — do all of it.",
+   "url": "https://dlsyscourse.org/"
+  },
+  {
+   "id": "fastai-p2",
+   "provider": "fast.ai",
+   "what": "Part 2 — From Deep Learning Foundations to Stable Diffusion",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "Builds diffusion from scratch, Karpathy-style. Take after the DDPM paper lesson lands.",
+   "url": "https://course.fast.ai/Lessons/part2.html"
+  },
+  {
+   "id": "hf-llm",
+   "provider": "Hugging Face",
+   "what": "The LLM Course",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "The practical HF-ecosystem layer: tokenizers, TRL, deployment. Snack-sized chapters — take alongside AI 310.",
+   "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+  },
+  {
+   "id": "hf-agents",
+   "provider": "Hugging Face",
+   "what": "The Agents Course",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "You already build agents for clients — this formalizes it and feeds the agent lab.",
+   "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+  },
+  {
+   "id": "dlai-short",
+   "provider": "DeepLearning.AI",
+   "what": "Short courses (RAG, evals, agents…)",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "Snacks, not spine. 1–2 hours each when you need a specific tool; never let them displace Deep Track hours.",
+   "url": "https://www.deeplearning.ai/short-courses/"
+  },
+  {
+   "id": "arena",
+   "provider": "ARENA",
+   "what": "Alignment Research Engineer Accelerator curriculum",
+   "phase": 3,
+   "cost": "Free (self-study track)",
+   "verdict": "The researcher fork's practical curriculum — RES 400 Unit II walks its interpretability chapter.",
+   "url": "https://www.arena.education/"
+  },
+  {
+   "id": "mit-6s191",
+   "provider": "MIT",
+   "what": "6.S191 — Introduction to Deep Learning",
+   "phase": 1,
+   "cost": "Free",
+   "verdict": "Fast annual survey of the field. Watch 2–3 lectures for breadth; your spine is deeper.",
+   "url": "http://introtodeeplearning.com/"
+  },
+  {
+   "id": "mackay-book",
+   "provider": "Cambridge",
+   "what": "MacKay — Information Theory, Inference, and Learning Algorithms",
+   "phase": 2,
+   "cost": "Free PDF",
+   "verdict": "The book behind MATH 210 Unit III. Work exercises from ch. 1–6 as psets — it teaches thinking, not formulas.",
+   "url": "https://www.inference.org.uk/mackay/itila/book.html"
+  }
  ]
 }

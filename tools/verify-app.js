@@ -67,8 +67,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -829,7 +829,17 @@ function learnFixtures(plan) {
     dr("stray indices and an unknown bank are skipped", { calculus: [0, 1, 999, -1, "x"], nope: [1], "linear-algebra": [lockedLA[0]] }),
     dr("one lecture watched, one miss", { "linear-algebra": [unlockedLA[0]] }, { [afters[0]]: { done: true, doneAt: "2026-10-20", notes: "", checks: [] } }),
   ];
-  return { atlas, courseFixtures: [3, 4, 5], recall, drill };
+  // Electives: the page at each phase (what fits now and what is further out), and the status tap over a sequence.
+  const electives = {
+    pages: [
+      { name: "phase 0 (week 1)", clock: "2026-10-20", state: st({}) },
+      { name: "phase 1, statuses set", clock: "2026-11-04", state: st({ electives: { "mitx-686x": "planned", "mit-6s191": "done" } }) },
+      { name: "phase 2, an unknown status", clock: plan.d300, state: st({ electives: { cs231n: "done", cs224n: "planned", cs229: "bogus" } }) },
+      { name: "phase 3, everything fits", clock: plan.d500, state: st({}) },
+    ],
+    taps: { clock: "2026-11-04", state: st({ electives: { cs231n: "done", cs229: "bogus" } }), ids: ["mitx-686x", "mitx-686x", "mitx-686x", "cs231n", "cs229", "arena"] },
+  };
+  return { atlas, courseFixtures: [3, 4, 5], recall, drill, electives };
 }
 
 // The recall grading handler and V.drill's pick, lifted out of app.js's own text (marker to marker), so what
@@ -869,7 +879,7 @@ const pickProps = (pick, misses, unlocked) => ({
 const DRILL_SEEDS = [1, 2, 3, 4];
 
 async function runLearnJS(browser, fx) {
-  const out = { errors: [], atlas: {}, units: {}, recall: {}, grades: [], drill: {} };
+  const out = { errors: [], atlas: {}, units: {}, recall: {}, grades: [], drill: {}, electives: {} };
   const L = fx.learn;
   const readAtlas = () => {
     const t = (el, sel) => { const e = el.querySelector(sel); return e ? e.textContent.trim() : null; };
@@ -922,6 +932,32 @@ async function runLearnJS(browser, fx) {
   }
   const R = jsRecall();
   out.grades = L.recall.grades.map(c => R.run(c.clock, c.k, c.rv, c.grade));
+  // Electives: the rendered page at each phase, then the status tap
+  const readElectives = () => {
+    const rows = tb => [...tb.querySelectorAll("tbody tr")].map(tr => { const td = tr.children;
+      return [td[0].textContent.trim(), td[1].textContent.trim(), td[2].textContent.trim(), td[3].textContent.trim(), td[4].textContent.trim(), td[5].querySelector("a").getAttribute("href"), td[6].textContent.trim()]; });
+    const open = document.querySelector(".view-enter > .card .table-wrap table"), later = document.querySelector("details.unit table"), note = document.querySelector("p.note");
+    return { open: open ? rows(open) : [], later: later ? rows(later) : [], note: note ? note.textContent.trim() : null };
+  };
+  out.electives = { pages: {}, taps: [] };
+  for (const f of L.electives.pages) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/electives"; });
+    await p.waitForSelector(".view-enter .page-head", { timeout: 15000 });
+    await p.waitForFunction(() => document.querySelector("th, p.note"), null, { timeout: 15000 });
+    out.electives.pages[f.name] = await p.evaluate(readElectives);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  {
+    const f = L.electives.taps, { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/electives"; });
+    await p.waitForFunction(() => document.querySelector("[data-elective]"), null, { timeout: 15000 });
+    for (const id of f.ids) {
+      await p.evaluate(x => document.querySelector('[data-elective="' + x + '"]').click(), id);
+      out.electives.taps.push(await p.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1")).electives));
+    }
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
   // Drill: the lifted pick over seeds; the candidates it draws from, from the lifted missPool and unlockedIdx
   const D = jsDrill(JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")), JSON.parse(fs.readFileSync(path.join(exporter.OUT, "quizzes.json"), "utf8")));
   for (const f of L.drill) {
@@ -1069,6 +1105,7 @@ function diff(a, b, at, out, label) {
     "atlas-count": ["lib/engine/learn.dart", "tracker ? dsaCount() : st!.verified,", "tracker ? dsaCount() : st!.done,"],   // a tile counts the lectures watched as proven
     "recall-interval": ["lib/engine/learn.dart", "const BOXES = [2, 7, 21, 60, 120];", "const BOXES = [2, 7, 14, 60, 120];"],   // the third box comes back after 14 days, not 21
     "drill-pick": ["lib/engine/learn.dart", "if (pool.length < 5) {", "if (pool.length < 6) {"],   // a drill of exactly five misses is padded to ten
+    "elective-fits": ["lib/engine/learn.dart", "(e['phase'] as num) <= now + 1", "(e['phase'] as num) <= now"],   // only the current phase fits: the page is empty for the first six months
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1106,7 +1143,7 @@ function diff(a, b, at, out, label) {
       D.COURSES.forEach(c => { flat[c.id] = []; (c.units || []).forEach((u, ui) => u.lessons.forEach((_, li) => { flat[c.id].push(c.id + "." + ui + "." + li); keys.push(c.id + "." + ui + "." + li); })); });
       const dayKeys = Array.from({ length: 14 }, (_, i) => T.scheduledFor(T.dateForStudy(i)).filter(it => !it.pseudo).map(it => it.cid + "." + it.ui + "." + it.li));
       const rev = [null].concat(Array.from({ length: 7 }, (_, i) => { const w = T.revisionWeek(i + 1); return { from: w.from, to: w.to, sun: w.sun }; }));
-      return { start: D.START_DATE, end: T.dateForStudy(1093), d300: T.dateForStudy(300), flat, keys, dayKeys, rev };
+      return { start: D.START_DATE, end: T.dateForStudy(1093), d300: T.dateForStudy(300), d500: T.dateForStudy(500), flat, keys, dayKeys, rev };
     });
     await pre.ctx.close();
     const LAST = addDays(plan.end, 7);
@@ -1332,6 +1369,8 @@ function diff(a, b, at, out, label) {
       for (const f of fx.learn.recall.pages) one("parity: Recall — " + f.name + " (" + jl.recall[f.name].due.length + " cards, " + jl.recall[f.name].next.length + " coming up; due order, the interval pill, the eight and six caps)", jl.recall[f.name], dl.recall && dl.recall[f.name]);
       one("parity: grading a recall (forgot, shaky, solid) — S.review and the recall event on " + fx.learn.recall.grades.length + " cases: boxes 0-4, 9 and none, lapses none/0/1/3, three clocks across a leap day and a year end, and a lecture not in the rotation", jl.grades, dl.grades);
       for (const f of fx.learn.drill) one("parity: Drill — " + f.name + " (" + jl.drill[f.name].misses.length + " unlocked misses, " + jl.drill[f.name].unlocked.length + " unlocked in all; pick size " + jl.drill[f.name].picks[0].size + ")", jl.drill[f.name], dl.drill && dl.drill[f.name]);
+      for (const f of fx.learn.electives.pages) one("parity: Electives — " + f.name + " (" + jl.electives.pages[f.name].open.length + " fit now, " + jl.electives.pages[f.name].later.length + " further out; the phase rule, the verdict, the status)", jl.electives.pages[f.name], dl.electives && dl.electives.pages && dl.electives.pages[f.name]);
+      one("parity: the status tap (none, planned, done, none; an unknown status is cleared) over " + fx.learn.electives.taps.ids.length + " taps", jl.electives.taps, dl.electives && dl.electives.taps);
       // Reach: the fixtures must hit what the plants break.
       const A = jl.atlas, pv = A["proven and watched lectures, gate 1 passed, exams, DSA"], all = A["every gate passed (object, legacy date, legacy true)"];
       check("the Atlas fixtures reach a passed gate, all gates passed, a pre-start pin, proven below watched (a count that differs), a best exam in the mastery, DSA on the tracker, and later chips with +N",
@@ -1346,6 +1385,12 @@ function diff(a, b, at, out, label) {
         jl.recall["no reviews at all"].nothing.startsWith("Prove a lecture") && new Set(gr.map(g => g.rv && g.rv.box)).size >= 5 && gr.some(g => g.rv === null && g.events.length === 0) &&
         gr.some(g => g.rv && g.rv.due === "2028-02-29") && gr.some(g => g.rv && g.rv.lapses === 4),
         rp.counts.join("/") + " due/scheduled; " + rp.due.length + " cards");
+      const EP = jl.electives.pages;
+      check("the Electives fixtures reach a phase with rows further out, one where all fit, a done, a planned and an unknown status, and a tap sequence that ends back at none",
+        EP["phase 0 (week 1)"].open.length > 0 && EP["phase 0 (week 1)"].later.length > 0 && EP["phase 0 (week 1)"].open.length < EP["phase 2, an unknown status"].open.length && EP["phase 3, everything fits"].later.length === 0 &&
+        EP["phase 1, statuses set"].open.some(r => r[6] === "done") && EP["phase 1, statuses set"].open.some(r => r[6] === "planned") && EP["phase 2, an unknown status"].open.some(r => r[1].startsWith("CS229") && r[6] === "—") &&
+        JSON.stringify(jl.electives.taps.map(t => t["mitx-686x"] || null)) === JSON.stringify(["planned", "done", null, null, null, null]) && jl.electives.taps[4].cs229 === undefined,
+        Object.entries(EP).map(([n, x]) => n + ": " + x.open.length + "+" + x.later.length).join("; "));
       check("the Drill fixtures reach nothing to drill, a locked miss, three and four misses padded to ten, five not padded, the cap of ten, and a padded pick that excludes lectures not reached",
         dsz("nothing watched, no misses") === 0 && jl.drill["a miss in a course not started"].misses.length === 0 && dsz("three misses, padded to ten from what is taught") === 10 &&
         dsz("four misses, padded") === 10 && dsz("five misses, not padded") === 5 && dsz("six misses") === 6 && dsz("ten misses") === 10 && dsz("thirteen misses across two banks, capped at ten") === 10 &&

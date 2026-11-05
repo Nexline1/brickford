@@ -419,6 +419,42 @@ Map<String, dynamic> learnDump(Map<String, dynamic> fx, BrickfordData data) {
         };
       }(),
   };
+
+  // ---- Electives: the page at each phase, and the status tap over a sequence ----
+  final elx = L['electives'] as Map<String, dynamic>;
+  List<List<String>> rows(Engine e, List<Map<String, dynamic>> xs) => [
+    for (final x in xs)
+      [
+        '${x['provider']}',
+        '${x['what']}',
+        x['phase'] is num ? 'Phase ${(x['phase'] as num).toInt()}' : 'Any',
+        '${x['cost']}',
+        '${x['verdict']}',
+        '${x['url']}',
+        e.electiveStatus('${x['id']}') ?? '—',
+      ],
+  ];
+  out['electives'] = {
+    'pages': {
+      for (final f in elx['pages'] as List)
+        f['name'] as String: () {
+          final e = eng(f as Map<String, dynamic>);
+          final v = e.electives();
+          return {'open': rows(e, v.open), 'later': rows(e, v.later), 'note': v.open.isEmpty ? 'Nothing lines up with Phase ${e.currentPhase()} yet.' : null};
+        }(),
+    },
+    'taps': () {
+      final f = elx['taps'] as Map<String, dynamic>;
+      final e = eng(f);
+      return [
+        for (final id in f['ids'] as List)
+          () {
+            e.cycleElective(id as String);
+            return copy(e.S['electives']);
+          }(),
+      ];
+    }(),
+  };
   return out;
 }
 

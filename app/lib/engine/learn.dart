@@ -11,7 +11,7 @@ import 'dart:math' as math;
 
 import 'dates.dart';
 import 'engine.dart';
-import 'problems.dart' show stableSorted;
+import 'problems.dart';
 import 'quiz.dart';
 import 'record.dart';
 
@@ -377,5 +377,35 @@ extension ReviewEngine on Engine {
       byBank.putIfAbsent(pool[j].bankId, () => (m: <int>[], c: <int>[])).c.add(pool[j].idx);
     }
     byBank.forEach((b, v) => updateMisses(b, v.m, v.c));
+  }
+}
+
+// ---------- Electives (app.js V.electives) ----------
+
+extension ElectivesEngine on Engine {
+  /// Outside courses: the ones that fit now (the current phase and the next one, or any) and the rest, further out.
+  ({List<Map<String, dynamic>> open, List<Map<String, dynamic>> later}) electives() {
+    final now = currentPhase();
+    bool fits(Map<String, dynamic> e) => e['phase'] == null || (e['phase'] as num) <= now + 1;
+    return (open: D.electives.where(fits).toList(), later: D.electives.where((e) => !fits(e)).toList());
+  }
+
+  /// planned | done, or null.
+  String? electiveStatus(String id) {
+    final v = _m(S['electives'])[id];
+    return v == 'planned' || v == 'done' ? v as String : null;
+  }
+
+  /// The status tap: none -> planned -> done -> none (anything else is cleared, as on the web).
+  void cycleElective(String id) {
+    final el = _m(S['electives']);
+    final cur = el[id];
+    if (!truthy(cur)) {
+      el[id] = 'planned';
+    } else if (cur == 'planned') {
+      el[id] = 'done';
+    } else {
+      el.remove(id);
+    }
   }
 }

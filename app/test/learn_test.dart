@@ -7,6 +7,7 @@ import 'package:app/engine/learn.dart';
 import 'package:app/engine/quiz.dart';
 import 'package:app/engine/record.dart';
 import 'package:app/main.dart';
+import 'package:app/screens/learn/electives_screen.dart';
 import 'package:app/screens/learn/recall_screen.dart';
 import 'package:app/screens/quiz/quiz_screen.dart';
 import 'package:app/widgets/question_view.dart';
@@ -39,6 +40,9 @@ Future<void> openLearn(WidgetTester tester, AppModel m) async {
 }
 
 Future<void> tool(WidgetTester tester, String id) async {
+  // The tools are a row of chips that scrolls sideways: bring this one in.
+  await tester.ensureVisible(find.byKey(ValueKey('learn-tool-$id')));
+  await tester.pumpAndSettle();
   await tester.tap(find.byKey(ValueKey('learn-tool-$id')));
   await tester.pumpAndSettle();
 }
@@ -219,5 +223,33 @@ void main() {
     await openLearn(tester, m);
     await tool(tester, 'drill');
     expect(find.byKey(const ValueKey('drill-empty')), findsOneWidget);
+  });
+
+  // ---------- Electives ----------
+
+  testWidgets('Electives: what fits the phase first, the rest further out; the status tile cycles none, planned, done, none', (tester) async {
+    final m = await model({}, today: '2026-10-20'); // plan week 1: phase 0, so only phase-1-or-earlier fits
+    await openLearn(tester, m);
+    await tool(tester, 'electives');
+    expect(find.byType(ElectivesScreen), findsOneWidget);
+    final v = m.engine.electives();
+    expect(v.open.map((x) => x['id']), ['mitx-686x', 'mit-6s191']);
+    expect(v.later.length, m.data.electives.length - 2);
+    expect(find.byKey(const ValueKey('elective-mitx-686x')), findsOneWidget);
+    final tile = find.byKey(const ValueKey('elective-status-mitx-686x'));
+    expect(tester.getSize(tile).width >= 44 && tester.getSize(tile).height >= 44, isTrue);
+    Future<String?> tap() async {
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+      return m.engine.electiveStatus('mitx-686x');
+    }
+
+    expect([await tap(), await tap(), await tap()], ['planned', 'done', null]);
+    expect(m.engine.S['electives'], isEmpty, reason: 'back to none removes the key, as the web does');
+    // A row opens its verdict and the source.
+    await tester.tap(find.byKey(const ValueKey('elective-mitx-686x')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('elective-open-mitx-686x')), findsOneWidget);
+    expect(find.textContaining('rigorous graded ML theory'), findsOneWidget);
   });
 }

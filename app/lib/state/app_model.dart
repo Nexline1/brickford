@@ -161,6 +161,13 @@ class AppModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// The Electives status tap: none -> planned -> done -> none.
+  void cycleElective(String id) {
+    engine.cycleElective(id);
+    persist();
+    notifyListeners();
+  }
+
   /// A drill finished: right answers leave the miss pool, wrong ones stay in it.
   void drilled(List<BankQ> pool, BankSitting s) {
     engine.recordDrill(pool, s);

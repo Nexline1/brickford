@@ -17,6 +17,7 @@ import '../course/course_screen.dart';
 import '../quiz/quiz_screen.dart';
 import 'atlas_screen.dart';
 import 'diag_screen.dart';
+import 'electives_screen.dart';
 import 'recall_screen.dart';
 import 'problem_sheets.dart';
 
@@ -72,6 +73,7 @@ class _LearnScreenState extends State<LearnScreen> {
           ('atlas', Icons.map_outlined, 'Atlas', const AtlasScreen()),
           ('recall', Icons.psychology_alt_outlined, e.reviewsDue().isEmpty ? 'Recall' : 'Recall · ${e.reviewsDue().length}', const RecallScreen()),
           ('drill', Icons.bolt_outlined, 'Drill', const QuizScreen.drill()),
+          ('electives', Icons.explore_outlined, 'Electives', const ElectivesScreen()),
         ])
           Semantics(
             identifier: 'learn-tool-$id',

@@ -112,7 +112,7 @@ class _MarketScreenState extends State<MarketScreen> {
         for (final p in psetItems)
           ItemBlock(
             leading: truthy((m.engine.S['psets'] as Map)[p.item['id']])
-                ? const LeadTile(icon: Icons.check_rounded, color: Tokens.accent, fg: Colors.white)
+                ? const LeadTile(icon: Icons.check_rounded, color: Tokens.done, fg: Colors.white)
                 : const LeadTile(icon: Icons.assignment_outlined),
             subtitle: '${p.group['course']}',
             title: '${p.item['label']}',

@@ -2,7 +2,7 @@
 // and a lecture read as the same shape language: a green disc with a tick
 // (done / cleared), a half ring (part / watched with the quiz still open), a
 // red ring (missed), a grey ring (ahead / not watched), a muted moon (rest),
-// and a small accent diamond for a gate's target date.
+// and a small gold diamond for a gate's target date.
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -136,7 +136,7 @@ class _GlyphPainter extends CustomPainter {
         ..lineTo(at.dx, at.dy + d)
         ..lineTo(at.dx - d, at.dy)
         ..close();
-      canvas.drawPath(diamond, Paint()..color = Tokens.accent);
+      canvas.drawPath(diamond, Paint()..color = Tokens.goldInk);
       canvas.drawPath(
         diamond,
         Paint()

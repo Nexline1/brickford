@@ -156,7 +156,7 @@ class DaySheet extends StatelessWidget {
         if (gate != null)
           ItemBlock(
             key: const ValueKey('day-gate'),
-            leading: const LeadTile(icon: Icons.diamond_outlined, color: Tokens.accent, fg: Colors.white),
+            leading: const LeadTile(icon: Icons.diamond_outlined, color: Tokens.gold, fg: Tokens.espresso),
             title: 'Gate ${gate.n}',
             subtitle: gate.label,
           ),

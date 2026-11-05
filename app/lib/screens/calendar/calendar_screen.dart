@@ -339,8 +339,8 @@ class SealTile extends StatelessWidget {
       child: ItemBlock(
         leading: LeadTile(
           icon: Icons.verified_outlined,
-          color: sealed ? Tokens.accent : Colors.white,
-          fg: sealed ? Colors.white : Tokens.accent,
+          color: sealed ? Tokens.gold : Colors.white,
+          fg: sealed ? Tokens.espresso : Tokens.goldInk,
         ),
         title: 'Week $week',
         subtitle: range,

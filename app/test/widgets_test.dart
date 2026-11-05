@@ -49,7 +49,7 @@ void main() {
     // The sheet starts at 240 of the 812 design height, over a 280-high branding layer.
     final top = tester.getTopLeft(find.byKey(SheetScaffold.sheetKey).first).dy;
     expect(top, closeTo(240, 0.5));
-    expect(find.text('Brickford'), findsWidgets);
+    expect(find.text('BRICKFORD'), findsWidgets);
     final scroll = tester.widget<ListView>(
       find.descendant(of: find.byKey(SheetScaffold.sheetKey).first, matching: find.byType(ListView)).first,
     );

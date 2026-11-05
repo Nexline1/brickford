@@ -1,0 +1,4 @@
+page.waitForFunction: Target page, context or browser has been closed
+    at /home/user/bf-T-064-2/tools/verify-clip.js:218:22 {
+  log: []
+}

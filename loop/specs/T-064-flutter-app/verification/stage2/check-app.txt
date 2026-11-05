@@ -1,8 +1,8 @@
 verify-app
-  ok    app/assets/data/*.json is fresh against platform/data/*.js (tools/export-data.js --check) — 8 files, byte-identical
+  ok    app/assets/data/*.json is fresh against platform/data/*.js (tools/export-data.js --check) — 9 files, byte-identical
   plan 2026-10-16 .. day 1094 2030-04-14, 1284 dates to 2030-04-21, 7 fixtures, 494 lessons
-  dart engine: 32s
-  app.js:      58s
+  dart engine: 31s
+  app.js:      60s
   ok    app.js ran without page errors
   ok    parity: the plan (dates, studyIndex, prevStudyDay, addStudyDays, revision weeks, monkDay, monkScore, constants)
   ok    parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
@@ -39,4 +39,4 @@ verify-app
   ok    plant stale-json exits 1 — exit 1; caught by: app/assets/data/*.json is fresh against platform/data/*.js (tools/export-data.js --check); parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: empty, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
   ok    plant rest-status exits 1 — exit 1; caught by: parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: owner (days 1-8 watched before the gate) @ 2026-10-25: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
 
-all 36 checks passed (361s)
+all 36 checks passed (368s)

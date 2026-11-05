@@ -1,4 +1,4 @@
-  ok    /brickford/app/ forwards to /brickford/app-web/ — http://localhost:45401/brickford/app-web/
+  ok    /brickford/app/ forwards to /brickford/app-web/ — http://localhost:46147/brickford/app-web/
   shot  loop/specs/T-064-flutter-app/shots/home.png
   ok    tab-Home is at least 44x44 — 64x50
   ok    tab-Market is at least 44x44 — 64x50
@@ -31,10 +31,10 @@
   shot  loop/specs/T-064-flutter-app/shots/stage2-saturday-past-day.png
   ok    the 4 lecture rows of 2026-10-27 are at least 44x44 — 1 ids measured
   ok    the calendar (2026-11-07) ran without page errors
-  ok    the root sw.js is registered for the whole site (http://localhost:45401/brickford/) and controls /app-web/ too — scope http://localhost:45401/brickford/
+  ok    the root sw.js is registered for the whole site (http://localhost:46147/brickford/) and controls /app-web/ too — scope http://localhost:46147/brickford/
   ok    under it, /app-web/ loads and renders, with no page errors
   ok    sw.js answers none of /app-web/'s requests (they go to the network as if it were not there) — 22 requests, 0 from the worker
-  ok    the app registers no service worker of its own — http://localhost:45401/brickford/
+  ok    the app registers no service worker of its own — http://localhost:46147/brickford/
   ok    platform/ still loads under the same worker afterwards — 200 (from the worker)
 
 all checks passed

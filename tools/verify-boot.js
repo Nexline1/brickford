@@ -64,11 +64,14 @@ const PROBE = () => {
   });
   window.addEventListener("flutter-first-frame", () => { window.__probe.firstFrame = performance.now() - window.__probe.t0; });
   const iv = setInterval(() => {
-    const n = document.getElementById("bootNum");
-    if (n) window.__probe.lines.push(n.textContent); else clearInterval(iv);
+    const sh = document.querySelector("#boot .sheen"), b = document.getElementById("boot");
+    if (sh && b) window.__probe.lines.push({ x: Math.round(sh.getBoundingClientRect().x), text: b.innerText.replace(/\s+/g, " ").slice(0, 80) });
+    else clearInterval(iv);
   }, 200);
 };
-const mbOf = line => { const m = /([\d.]+) of ~([\d.]+) MB/.exec(line || ""); return m ? [+m[1], +m[2]] : null; };
+// What the loading screen shows: no count, no progress text, and a sheen that moves.
+const shineOf = lines => ({ xs: new Set(lines.map(l => l.x)).size, text: lines.map(l => l.text).join(" | ") });
+const hasNumbers = text => /\d+(\.\d+)?\s*(MB|KB|%)|of\s*~|\bLoading/i.test(text);
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -113,15 +116,11 @@ const mbOf = line => { const m = /([\d.]+) of ~([\d.]+) MB/.exec(line || ""); re
       check("  it renders the app: first frame, boot screen gone, Home on screen", probe.firstFrame != null && home > 0 && !lastBoot,
         probe.firstFrame != null ? "first frame at " + Math.round(probe.firstFrame) + " ms" : "boot screen still says: " + (lastBoot || "").slice(0, 160));
       if (entry === "app-web/") {
-        check("the boot screen is on screen at the first paint (DOMContentLoaded), with the wordmark and the count",
+        check("the boot screen is on screen at the first paint (DOMContentLoaded), with the wordmark",
           probe.boot0 && probe.boot0.display !== "none" && /BRICKFORD/.test(probe.boot0.text), JSON.stringify(probe.boot0));
-        const nums = probe.lines.map(mbOf).filter(Boolean);
-        const last = nums[nums.length - 1] || [0, 0];
-        const rising = nums.some((x, i) => i > 0 && x[0] > nums[i - 1][0]);
-        const appBytes = reqs.filter(r => r.at).reduce((a, r) => a + (r.bytes || 0), 0) / 1048576;
-        check("the boot count is real progress: it rises, and ends at or under its total and near what was transferred", rising && last[0] <= last[1] + 0.05 && last[0] > 0.75 * appBytes,
-          nums.length + " samples; last " + last[0] + " of ~" + last[1] + " MB; " + appBytes.toFixed(1) + " MB fetched by the time Home was up; e.g. " +
-          [...new Set(probe.lines)].filter((_, i, a) => i % Math.max(1, Math.floor(a.length / 5)) === 0).slice(0, 6).join(" | "));
+        const sh = shineOf(probe.lines);
+        check("the loading screen shows no size, progress or 'Loading' text, and the crest's sheen moves", !hasNumbers(sh.text) && (probe.lines.length === 0 || sh.xs > 1),
+          probe.lines.length + " samples, " + sh.xs + " distinct sheen positions; text: " + (sh.text.slice(0, 120) || "(none)"));
         const got = new Set(reqs.map(r => r.u.split("?")[0]));
         check("startup does not read summaries.json (it loads when a lecture opens)", !got.has("assets/assets/data/summaries.json"), [...got].filter(u => /data\//.test(u)).join(", "));
         const boot = BOOT_FILES.filter(f => !/canvaskit\//.test(f));
@@ -137,7 +136,7 @@ const mbOf = line => { const m = /([\d.]+) of ~([\d.]+) MB/.exec(line || ""); re
       await ctx.close();
     }
 
-    // ---- 2b: a slow line (about 2 bars of LTE): the count climbs while the screen waits ----
+    // ---- 2b: a slow line (about 2 bars of LTE): the sheen keeps moving while the screen waits ----
     {
       const ctx = await fresh({ serviceWorkers: "block" });
       const page = await ctx.newPage();
@@ -150,11 +149,10 @@ const mbOf = line => { const m = /([\d.]+) of ~([\d.]+) MB/.exec(line || ""); re
       let ok = true;
       try { await booted(page, 90000); } catch (e) { ok = false; }
       const probe = await page.evaluate(() => window.__probe);
-      const nums = probe.lines.map(mbOf).filter(Boolean).map(x => x[0]);
-      const steps = new Set(nums).size, mono = nums.every((x, i) => !i || x >= nums[i - 1]);
-      check("on a 1.2 MB/s line the boot screen stays up and its count climbs in real steps until the first frame",
-        ok && steps >= 5 && mono && nums.length > 10,
-        nums.length + " samples, " + steps + " distinct values, " + (nums[0] || 0) + " -> " + (nums[nums.length - 1] || 0) + " MB; first frame at " +
+      const sh = shineOf(probe.lines);
+      check("on a 1.2 MB/s line the boot screen stays up with no numbers, and the sheen keeps moving until the first frame",
+        ok && probe.lines.length > 10 && sh.xs > 3 && !hasNumbers(sh.text),
+        probe.lines.length + " samples, " + sh.xs + " distinct sheen positions; first frame at " +
         (probe.firstFrame != null ? (probe.firstFrame / 1000).toFixed(1) + " s" : "never"));
       await ctx.close();
     }

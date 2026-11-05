@@ -2,6 +2,7 @@
 //
 //   node tools/verify-app.js                 the gate: freshness, parity, then the plants
 //   node tools/verify-app.js --plant NAME    one planted defect; must exit 1 (the gate runs these itself)
+//   node tools/verify-app.js --no-plants     the parity checks only (a quick look while editing)
 //
 // Four things, each of which fails the gate on its own:
 //
@@ -66,8 +67,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due"].includes(process.argv[process.argv.indexOf("--plant") + 1]);
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum"].includes(process.argv[process.argv.indexOf("--plant") + 1]);
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -110,11 +111,11 @@ function jsPure(startDate) {
   const code = vmExtract(["pad2", "addDaysISO", "daysBetween", "dowOf", "REST_DOW", "isRestDay", "_restK", "restOffset",
     "restsWithin", "studyIndex", "dateForStudy", "prevStudyDay", "studyToday", "studyAnchor", "QUIZ_GATE_FROM",
     "firstWatched", "grandfathered", "MONK_PRI", "localISO", "firstSunday", "revisionWeek", "canon", "mergeQuiz", "mergeState", "gateRec",
-    "syncPayload", "MONK_SYNCS", "mkHHMM", "quizPassed", "recordQuizPass", "updateMisses", "bestQuiz"]);
+    "syncPayload", "MONK_SYNCS", "mkHHMM", "quizPassed", "recordQuizPass", "updateMisses", "bestQuiz", "revisionWeekOf", "isSealDay"]);
   ctx.S = null;
   vm.runInContext("const todayISO = () => __today; const logEvent = () => {}; const save = () => {};\n" + code +
     "\nthis.__f = { prevStudyDay, studyAnchor, grandfathered, MONK_PRI, setToday: t => { __today = t; }, mkHHMM," +
-    " mergeState, syncPayload, setS: s => { S = s; }, getS: () => S, quizPassed, recordQuizPass, updateMisses, bestQuiz };", ctx);
+    " mergeState, syncPayload, setS: s => { S = s; }, getS: () => S, quizPassed, recordQuizPass, updateMisses, bestQuiz, revisionWeek, revisionWeekOf, isSealDay };", ctx);
   return ctx.__f;
 }
 
@@ -516,6 +517,238 @@ async function runQuizJS(browser, fx, pure) {
   return out;
 }
 
+// ---------- record fixtures (T-064 stage 5) ----------
+// app.js's ledger, lifted into a VM with a scripted clock: sha256 (an IIFE, so cut out by its bounds), canon,
+// logEvent, verifyChain, preimage and eventLine, all app.js's own text.
+function jsLedger() {
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const end = "\n  })();", i = src.indexOf("const sha256 = (function () {"), j = src.indexOf(end, i) + end.length;
+  if (i < 0 || j < end.length) throw new Error("jsLedger: sha256 not found in app.js");
+  const ctx = { S: { ledger: [] }, __ts: [] };
+  ctx.Date = class { toISOString() { return ctx.__ts.shift(); } };
+  vm.createContext(ctx);
+  vm.runInContext("const save = () => {}; const syncSoon = () => {};\n" + src.slice(i, j) + "\n" +
+    vmExtract(["GENESIS", "canon", "logEvent", "verifyChain", "chainHead", "preimage", "EV_LABEL", "eventLine", "fmtBHD", "numText", "revenueTotal"]) +
+    "\nthis.__f = { sha256, canon, logEvent, verifyChain, chainHead, preimage, eventLine, fmtBHD, numText, revenueTotal };", ctx);
+  const f = ctx.__f;
+  return Object.assign({}, f, {
+    build(events) { ctx.S = { ledger: [] }; events.forEach(ev => { ctx.__ts.push(ev.ts); f.logEvent(ev.type, ev.ref, ev.data); }); return clone(ctx.S.ledger); },
+    setS(s) { ctx.S = s; },
+  });
+}
+const REC_EVENTS = [
+  { type: "day", ref: "2026-10-16", data: {}, ts: "2026-10-16T08:01:02.003Z" },
+  { type: "lesson", ref: "math110.0.0", data: { done: true }, ts: "2026-10-16T09:00:00.000Z" },
+  { type: "quiz", ref: "math110.0.0", data: { total: 5, firstTry: 4 }, ts: "2026-10-16T09:20:11.500Z" },
+  { type: "quiz", ref: "math110.1.2", data: { firstTry: 0, total: 0 }, ts: "2026-10-17T09:20:11.500Z" },
+  { type: "exam", ref: "calc-bank", data: { pct: 80, total: 15, score: 12 }, ts: "2026-10-18T10:00:00.000Z" },
+  { type: "lab", ref: "flashcards-cli", data: { done: true }, ts: "2026-10-19T10:00:00.000Z" },
+  { type: "lab", ref: "flashcards-cli", data: { done: false }, ts: "2026-10-19T10:05:00.000Z" },
+  { type: "problem", ref: "Arrays|Two Sum", data: { solved: true }, ts: "2026-10-20T10:00:00.000Z" },
+  { type: "problem", ref: "Arrays|Two Sum", data: { solved: false }, ts: "2026-10-20T10:01:00.000Z" },
+  { type: "diagnostic", ref: "coding", data: { score: null }, ts: "2026-10-21T10:00:00.000Z" },
+  { type: "diagnostic", ref: "mit-18-06", data: { score: 72 }, ts: "2026-10-21T11:00:00.000Z" },
+  { type: "gate", ref: "gate1", data: { passed: true }, ts: "2026-10-22T11:00:00.000Z" },
+  { type: "gate", ref: "gate1", data: { passed: false }, ts: "2026-10-22T11:30:00.000Z" },
+  { type: "week", ref: "week3", data: { shipped: "a repo — دليل 🚀 \"quoted\" \\ back\ttab\n", revenue: 1149.5, posts: 3, dsa: 2 }, ts: "2026-11-08T12:00:00.000Z" },
+  { type: "week", ref: "week4", data: { shipped: "", revenue: 0, posts: 0, dsa: 0 }, ts: "2026-11-15T12:00:00.000Z" },
+  { type: "streak", ref: "2026-11-05", data: { was: 9, best: 14 }, ts: "2026-11-05T12:00:00.000Z" },
+  { type: "streak", ref: "2026-11-06", data: { was: 0, best: 0 }, ts: "2026-11-06T12:00:00.000Z" },
+  { type: "day", ref: 0, data: null, ts: "2026-11-06T12:00:01.000Z" },
+  { type: "rep", ref: "story", data: { seconds: 94, z: { y: [1, 2.5, { b: null, a: "\u007f \u0000é" }], a: -0.5 } }, ts: "2026-11-06T12:01:00.000Z" },
+  { type: "rep", ref: "story", data: {}, ts: "2026-11-06T12:02:00.000Z" },
+  { type: "rep", ref: "humor", data: { keeper: 3 }, ts: "2026-11-06T12:03:00.000Z" },
+  { type: "rep", ref: "humor", data: { keeper: 0 }, ts: "2026-11-06T12:04:00.000Z" },
+  { type: "rep", ref: "bank", data: {}, ts: "2026-11-06T12:05:00.000Z" },
+  { type: "rep", ref: "review", data: {}, ts: "2026-11-06T12:06:00.000Z" },
+  { type: "rep", ref: "other", data: {}, ts: "2026-11-06T12:07:00.000Z" },
+  { type: "quiz", ref: "nope.0.0", data: {}, ts: "2026-11-06T12:08:00.000Z" },
+  { type: "mystery", ref: "math110.99.0", data: { n: [100, 1e-7, 1.5e300, 12345678901, 0.1 + 0.2, -0, 1e21, 123456789.123456789] }, ts: "2026-11-06T12:09:00.000Z" },
+];
+const REC_TAMPER = [
+  { name: "an entry's data edited", op: "set", i: 4, field: "data", value: { pct: 100, score: 15, total: 15 } },
+  { name: "a timestamp edited", op: "set", i: 5, field: "ts", value: "2026-01-01T00:00:00.000Z" },
+  { name: "a prev pointer edited", op: "set", i: 7, field: "prev", value: "brickford-genesis" },
+  { name: "an entry removed", op: "drop", i: 2 },
+  { name: "the last hash replaced", op: "set", i: REC_EVENTS.length - 1, field: "hash", value: "0".repeat(64) },
+  { name: "two entries swapped", op: "swap", i: 8, j: 9 },
+  { name: "an index edited", op: "set", i: 6, field: "i", value: 7 },
+  { name: "a type edited", op: "set", i: 1, field: "type", value: "quiz" },
+];
+const REC_SHA = ["", "abc", "a".repeat(55), "a".repeat(56), "a".repeat(64), "a".repeat(1000), "héllo — دليل 😀"];
+const REC_AMOUNTS = [0, 1, 12.5, 150, 1149.5, 1234567.891, 0.005, 0.004, 0.015, 2.675, 1.005, -2.5, -0.5, -1234.567, 99999.995, 1e6, 0.1 + 0.2, 8.125, 3.14159, 12.345, 100, 7.1];
+const lessonsOn = (keys, on, more) => Object.fromEntries(keys.map(k => [k, Object.assign({ done: true, doneAt: on, notes: "", checks: [] }, more)]));
+
+function recordFixtures(plan) {
+  const L = jsLedger(), ledger = L.build(REC_EVENTS);
+  const tampered = clone(ledger); tampered[2].data = { done: false };
+  const days9 = range("2026-10-26", "2026-11-04").filter(d => new Date(d + "T00:00:00Z").getUTCDay() !== 6);
+  const longRun = range("2026-10-16", "2026-10-22").filter(d => new Date(d + "T00:00:00Z").getUTCDay() !== 6).concat(days9);
+  const k = i => plan.keys[i];
+  const heat = {
+    lessons: Object.assign({}, lessonsOn([k(0), k(1), k(2), k(3), k(4)], "2026-11-02"), lessonsOn([k(5), k(6), k(7)], "2026-11-03"), lessonsOn([k(8)], "2026-11-04"),
+      lessonsOn([k(9), k(10)], "2026-11-01"), lessonsOn([k(16), k(17)], "2026-10-29"), lessonsOn([k(11)], "2026-10-20", { verified: true, verifiedAt: "2026-10-20" }), lessonsOn([k(12)], "2026-10-21", { verified: true })),
+    problems: { "Arrays|Two Sum": "2026-11-01", "Arrays|Valid Anagram": "2026-11-01", "Stack|Min Stack": "2026-10-28", "Stack|Other": true, "Stack|None": false },
+    studyDays: days9,
+  };
+  const wk = (week, date, shipped, extra) => Object.assign({ week, date, shipped, dsa: 1, posts: 0, revenue: 0, notes: "" }, extra);
+  const entries = [{ date: "2026-10-31", amount: 50, note: "" }, { date: "2026-11-01", amount: 100.25, note: "clinic" }, { date: "2026-11-07", amount: 20, note: "a & <b>" }, { date: "2026-11-08", amount: 7, note: "" }];
+  const counted = { treasury: { offer: "", clients: [], niche: "", entries }, lessons: Object.assign({}, heat.lessons, {
+    [k(13)]: { done: true, verified: true, verifiedAt: "2026-11-03" }, [k(14)]: { verified: true, verifiedAt: "2026-11-08" }, [k(15)]: { verified: true, verifiedAt: "2026-11-01" } }),
+    problems: heat.problems };
+  const weeksSealed = [wk(3, "2026-09-27", "old start"), wk(3, "2026-11-08", "x".repeat(70) + " — tail", { dsa: 4, posts: 2, revenue: 12.5, notes: "late" }),
+    wk("2", "2026-11-01", "", { dsa: 2, posts: 1, revenue: 1149.5 }), wk(1, "2026-10-25", "first", { posts: 5 })];
+  const st = over => baseState(over);
+  return {
+    ledger: { events: REC_EVENTS, tamper: REC_TAMPER },
+    sha: REC_SHA,
+    weeks: [
+      { name: "Wednesday: nothing sealed, an empty treasury (typed BHD)", clock: "2026-11-04", state: st({}) },
+      { name: "Sunday: a counted treasury, proven lectures and DSA in the week", clock: "2026-11-08", state: st(counted) },
+      { name: "Sunday: sealed, a pre-reset week 3 beside it, a long line, a string week number", clock: "2026-11-08", state: st({ weeks: weeksSealed }) },
+      { name: "Monday: week 4 opens, the seal is past", clock: "2026-11-09", state: st({ weeks: weeksSealed }) },
+      { name: "Wednesday before the start", clock: "2026-10-14", state: st({}) },
+      { name: "the first seal Sunday (25 Oct)", clock: "2026-10-25", state: st({ problems: heat.problems }) },
+      { name: "Saturday, the rest day", clock: "2026-11-07", state: st(counted) },
+    ],
+    seals: [
+      { name: "counted treasury", clock: "2026-11-08", state: st(counted), input: { shipped: " a repo ", notes: " slow ", posts: 3, rev: null } },
+      { name: "typed revenue on the first seal Sunday", clock: "2026-10-25", state: st({ problems: heat.problems }), input: { shipped: "", notes: "", posts: 0, rev: 12.5 } },
+      { name: "re-sealing replaces this week's, the pre-reset one stays", clock: "2026-11-08", state: st({ weeks: weeksSealed }), input: { shipped: "again", notes: "", posts: 1, rev: 3 } },
+      { name: "another week's seal is appended", clock: "2026-11-08", state: st({ weeks: [wk(2, "2026-11-01", "w2")] }), input: { shipped: "w3", notes: "n", posts: 2, rev: 0 } },
+    ],
+    refused: [
+      { name: "Wednesday", clock: "2026-11-04", state: st({ weeks: weeksSealed }) },
+      { name: "Saturday", clock: "2026-11-07", state: st({}) },
+      { name: "Monday", clock: "2026-11-09", state: st({}) },
+      { name: "before the start", clock: "2026-10-14", state: st({}) },
+    ],
+    sealDates: range(addDays(plan.start, -3), addDays(plan.start, 70)),
+    streaks: [
+      { name: "a run into today with a Saturday inside", clock: "2026-11-04", state: st({ studyDays: days9 }) },
+      { name: "today not sealed yet", clock: "2026-11-05", state: st({ studyDays: days9 }) },
+      { name: "an older, longer best behind a gap", clock: "2026-11-05", state: st({ studyDays: longRun }) },
+      { name: "the Saturday rest day", clock: "2026-11-07", state: st({ studyDays: days9 }) },
+      { name: "a second reset over an earlier streakFrom", clock: "2026-11-05", state: st({ studyDays: days9, settings: Object.assign(baseState().settings, { streakFrom: "2026-10-28" }) }) },
+      { name: "no sealed days at all", clock: "2026-11-05", state: st({}) },
+    ],
+    records: [
+      { name: "empty", clock: "2026-11-05", state: st({}) },
+      { name: "active: a full chain, heat levels 0-4, proven lectures", clock: "2026-11-05", state: st(Object.assign({}, heat, { ledger })) },
+      { name: "tampered chain on a Saturday clock", clock: "2026-11-07", state: st(Object.assign({}, heat, { ledger: tampered })) },
+      { name: "three links: Genesis among the newest four", clock: "2026-11-05", state: st({ ledger: ledger.slice(0, 3), studyDays: days9 }) },
+    ],
+    treasury: {
+      amounts: REC_AMOUNTS,
+      states: [
+        { name: "empty", clock: "2026-11-05", state: st({}) },
+        { name: "clients only", clock: "2026-11-05", state: st({ treasury: { offer: "", niche: "", entries: [], clients: [{ name: "A", project: "p", price: 300 }, { name: "B", project: "", price: "oops" }] } }) },
+        { name: "payments, junk amounts, two clients", clock: "2026-11-05", state: st({ treasury: { offer: "x", niche: "", clients: [{ name: "A", project: "p & q", price: 300 }, { name: "B", project: "", price: 1234.5 }],
+          entries: [{ date: "2026-11-02", amount: 150, note: "clinic" }, { date: "2026-11-03", amount: 1137.5, note: "x & <y>" }, { date: "2026-11-04", amount: "12.345", note: "" },
+            { date: "2026-11-04", amount: 0.1, note: "" }, { date: "2026-11-04", amount: 0.2, note: "" }, { date: "2026-11-05", amount: "abc", note: "junk" }, { date: "2026-11-05", amount: -40, note: "refund" }] } }) },
+      ],
+    },
+  };
+}
+
+const readWeek = () => {
+  const q = (s, r) => Array.from((r || document).querySelectorAll(s)), t = (e, s) => e.querySelector(s).textContent, rev = document.querySelector("#rvRev");
+  return { w: document.querySelector("h1").textContent, tiles: q(".wk-tiles .wk-tile").map(x => { const b = x.querySelector("b"); return b ? b.textContent : null; }),
+    dsa: +document.querySelector("#rvDsa").value, counted: !!rev && rev.type === "hidden", revValue: rev && rev.type === "hidden" ? +rev.value : null,
+    state: document.querySelector(".wk-state").textContent,
+    past: q(".wk-weeks .wk-card:not(.wk-slot)").map(c => [t(c, ".wk-h b"), t(c, ".wk-h span"), t(c, ".wk-s"), t(c, ".wk-m"), t(c, ".wk-notes")]) };
+};
+const readRecord = () => {
+  const q = s => Array.from(document.querySelectorAll(s)), meta = q(".ghead .gh-meta").map(m => m.textContent)[1];
+  return { tiles: q(".pf-tiles .at-days b").map(b => b.textContent),
+    heat: q(".heat .hc").map(c => c.classList.contains("void") ? -1 : c.classList.contains("rest") ? -2 : +[...c.classList].find(k => /^l\d$/.test(k)).slice(1)),
+    seals: q(".pf-seals .seal").map(s => [s.querySelector("b").textContent, s.querySelector(".seal-h").textContent]),
+    chain: meta === "none yet" ? "none" : meta === "newest first" ? "ok" : meta.replace("chain broken at entry ", "broken at ") };
+};
+const readTreasury = () => {
+  const q = (s, r) => Array.from((r || document).querySelectorAll(s)), tables = q("table");
+  const rows = h => { const t = tables.find(x => x.querySelector("th") && x.querySelector("th").textContent === h); return t ? q("tbody tr", t).map(tr => q("td", tr).map(td => td.textContent).slice(0, 3)) : []; };
+  return { counts: q(".onecounts b").map(b => b.textContent), rows: rows("Date"), clients: rows("Client") };
+};
+
+async function runRecordJS(browser, fx, pure) {
+  const R = fx.record, out = { errors: [], ledger: {}, weeks: {}, seals: {}, streak: {}, record: {}, treasury: { states: {} } };
+  const L = jsLedger();
+  // ledger: the chain, its tampered forms, the preimages, the lines, sha256 vectors
+  const entries = L.build(R.ledger.events);
+  out.ledger = { entries, preimages: entries.map(e => L.preimage(e)), lines: entries.map(e => L.eventLine(e)), head: L.chainHead() };
+  L.setS({ ledger: clone(entries) });
+  const norm = v => ({ ok: v.ok, count: v.count, brokenAt: v.brokenAt == null ? null : v.brokenAt, head: v.head == null ? null : v.head });
+  out.ledger.verify = norm(L.verifyChain());
+  out.ledger.tamper = Object.fromEntries(R.ledger.tamper.map(t => {
+    const c = clone(entries);
+    if (t.op === "set") c[t.i][t.field] = clone(t.value); else if (t.op === "drop") c.splice(t.i, 1); else { const a = c[t.i]; c[t.i] = c[t.j]; c[t.j] = a; }
+    const v = L.verifyChain(c);
+    return [t.name, Object.assign(norm(v), { text: v.ok ? "ok" : "chain breaks at entry " + v.brokenAt + " of " + c.length })];
+  }));
+  out.sha = Object.fromEntries(R.sha.map(s => [s, L.sha256(s)]));
+  // the Week page, the seal, the sealing dates
+  for (const f of R.weeks) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/review"; });
+    await p.waitForSelector(".wk-state", { timeout: 15000 });
+    out.weeks[f.name] = await p.evaluate(readWeek); out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  for (const f of R.seals) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/review"; });
+    await p.waitForSelector("[data-act=logWeek]", { timeout: 15000 });
+    await p.evaluate(i => {
+      document.querySelector("#rvShipped").value = i.shipped; document.querySelector("#rvNotes").value = i.notes; document.querySelector("#rvPosts").value = String(i.posts);
+      const rev = document.querySelector("#rvRev"); if (rev && rev.type !== "hidden" && i.rev != null) rev.value = String(i.rev);
+    }, f.input);
+    await p.click("[data-act=logWeek]");
+    out.seals[f.name] = await p.evaluate(() => { const S = JSON.parse(localStorage.getItem("darhikmah_v1")); return { weeks: S.weeks, ledger: S.ledger }; });
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  out.sealDates = Object.fromEntries(R.sealDates.map(d => { const w = pure.revisionWeekOf(d); return [d, { w, sealDay: pure.isSealDay(d), ready: d >= pure.revisionWeek(w).sun }]; }));
+  { const { ctx, page: p, errors } = await page(browser, fx.planClock, null);
+    out.revLectures = await p.evaluate(n => Array.from({ length: n }, (_, i) => window.__brickfordTest.revisionLectures(i + 1)), 6);
+    out.errors = out.errors.concat(errors); await ctx.close(); }
+  // the streak reset (on the Record page) and the day seal (on the dashboard)
+  for (const f of R.streaks) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    const T = () => ({ streak: window.__brickfordTest.streak(), best: window.__brickfordTest.bestStreak() });
+    const before = await p.evaluate(T);
+    await p.evaluate(() => { window.confirm = () => true; location.hash = "#/record"; });
+    await p.waitForSelector("[data-act=resetStreak]", { timeout: 15000 });
+    await p.click("[data-act=resetStreak]");
+    const afterReset = await p.evaluate(() => { const S = JSON.parse(localStorage.getItem("darhikmah_v1")), T = window.__brickfordTest;
+      return { streakFrom: S.settings.streakFrom, streak: T.streak(), best: T.bestStreak(), ledger: S.ledger }; });
+    await p.evaluate(() => { location.hash = "#/"; });
+    await p.waitForSelector("[data-act=resetStreak]", { state: "detached", timeout: 15000 });
+    await p.waitForTimeout(100);
+    if (await p.evaluate(() => !!document.querySelector("[data-act=studied]"))) await p.click("[data-act=studied]");
+    const after = await p.evaluate(() => { const S = JSON.parse(localStorage.getItem("darhikmah_v1")), T = window.__brickfordTest;
+      return { studyDays: S.studyDays, streak: T.streak(), best: T.bestStreak(), ledger: S.ledger }; });
+    out.streak[f.name] = { before, afterReset, after }; out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  // the Record page
+  for (const f of R.records) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/record"; });
+    await p.waitForSelector(".pf-tiles", { timeout: 15000 });
+    out.record[f.name] = await p.evaluate(readRecord); out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  // the Treasury: fmtBHD / numText / revenueTotal lifted, the page rendered
+  out.treasury.amounts = R.treasury.amounts.map(v => [L.fmtBHD(v), L.numText(v), Math.round(v)]);
+  for (const f of R.treasury.states) {
+    L.setS(clone(Object.assign({ ledger: [] }, f.state)));
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/treasury"; });
+    await p.waitForSelector("#trOffer", { timeout: 15000 });
+    const pg = await p.evaluate(readTreasury);
+    out.treasury.states[f.name] = { total: L.revenueTotal(), totalText: String(Math.round(L.revenueTotal())), counts: pg.counts, rows: pg.rows, clients: pg.clients };
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  return out;
+}
+
 // ---------- the two engines ----------
 async function runJS(browser, fx) {
   const out = { fixtures: {} };
@@ -647,6 +880,9 @@ function diff(a, b, at, out, label) {
     "monk-times": ["lib/engine/engine.dart", "isha: 14,", "isha: 15,"],                                      // Isha at 15 degrees, not 14
     "quiz-pass-mark": ["lib/engine/quiz.dart", "const examPassAt = 70;", "const examPassAt = 75;"],            // a bank's pass mark, 70 -> 75
     "quiz-gate": ["lib/engine/engine.dart", "fw != null && lt(fw, QUIZ_GATE_FROM);", "fw != null && le(fw, QUIZ_GATE_FROM);"],   // the gate day itself counts as before the gate
+    "ledger-hash": ["lib/engine/record.dart", "final keys = [for (final k in v.keys) '$k']..sort();", "final keys = [for (final k in v.keys) '$k'];"],   // canon no longer sorts keys: the chain hash differs from the web app's
+    "seal-guard": ["lib/engine/record.dart", "return ge(t, revisionWeek(revisionWeekOf(t)).sun);", "return ge(t, revisionWeek(revisionWeekOf(t)).from);"],   // the seal opens on the week's first day, not its Sunday
+    "treasury-sum": ["lib/engine/record.dart", "(a, e) => a + (e is Map ? jsOr0(e['amount']) : 0))", "(a, e) => a + (e is Map ? jsOr0(e['amount']).floorToDouble() : 0))"],   // every payment loses its cents
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -700,6 +936,7 @@ function diff(a, b, at, out, label) {
       light: LIGHT, merge: mergeFixtures(plan), payload: payloadFixtures(), monk: monkFixture(),
     };
     fx.quiz = quizFixtures(plan, fx.fixtures);
+    fx.record = recordFixtures(plan);
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
     const fxFile = path.join(scratch, "fixtures.json");
@@ -850,13 +1087,57 @@ function diff(a, b, at, out, label) {
         exM.rows.some(r => r[0] === "card" && r[4] === "good:70%") && exM.rows.some(r => r[0] === "card" && r[4] === "crimson:69%") && tags.has("good:done") &&
         ex.some(x => x.rows.some(r => r[0] === "lock")) && ex.some(x => x.rows[0][4] !== "") && ex.some(x => x.rows[0][4] === ""), [...tags].join(", "));
     }
+
+    // 8. record: the ledger chain, the Week page and the seal, the streak reset, the Record page, the Treasury
+    {
+      const pure = jsPure(fx.START);
+      const tR = Date.now();
+      const jr = await runRecordJS(browser, fx, pure);
+      console.log("  record:      " + fx.record.ledger.events.length + " ledger events, " + fx.record.weeks.length + " week pages, " + fx.record.seals.length + " seals, " + fx.record.streaks.length + " streaks, " +
+        fx.record.records.length + " record pages, " + fx.record.treasury.states.length + " treasuries, " + Math.round((Date.now() - tR) / 1000) + "s");
+      check("the record block ran in app.js without page errors", jr.errors.length === 0, jr.errors.slice(0, 3).join(" | "));
+      const dr = dart.record || {}, idx = (at, i) => i, one = (name, a, b, label) => { const out = []; diff(a, b, [], out, label || idx); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      const dl = dr.ledger || {};
+      one("parity: the hash chain — logEvent over " + fx.record.ledger.events.length + " events (every field of every entry, so every hash and prev), byte for byte with app.js's sha256 and canon", jr.ledger.entries, dl.entries);
+      one("parity: the preimage of every entry (the exact bytes hashed), the head hash and verifyChain", { p: jr.ledger.preimages, head: jr.ledger.head, v: jr.ledger.verify }, { p: dl.preimages, head: dl.head, v: dl.verify });
+      one("parity: sha256 on " + fx.record.sha.length + " vectors (padding at 55/56/64 bytes, UTF-8, a long message)", jr.sha, dr.sha);
+      one("parity: eventLine for every kind of entry", jr.ledger.lines, dl.lines);
+      one("parity: a tampered chain breaks where verifyChain says, and the record-file check names the same entry — " + fx.record.ledger.tamper.length + " tamperings", jr.ledger.tamper, dl.tamper, (at, i) => i);
+      for (const f of fx.record.weeks) one("parity: Week page — " + f.name + " (" + jr.weeks[f.name].state + ")", jr.weeks[f.name], dr.weeks && dr.weeks[f.name]);
+      for (const f of fx.record.seals) one("parity: sealing the week — " + f.name + " (S.weeks and the week event, hash included)", jr.seals[f.name], dr.seals && dr.seals[f.name]);
+      one("parity: revisionWeekOf, isSealDay and the Sunday guard on " + fx.record.sealDates.length + " dates", jr.sealDates, dr.sealDates);
+      one("parity: revisionLectures for the " + jr.revLectures.length + " revision PDFs", jr.revLectures, dr.revLectures);
+      const refused = dr.refused || {}, sealDates = jr.sealDates;
+      check("the seal is refused off its Sunday: nothing is written on a Wednesday, Saturday, Monday or before the start", fx.record.refused.every(f => refused[f.name] && refused[f.name].sealed === false &&
+        refused[f.name].ledger.length === 0 && JSON.stringify(refused[f.name].weeks) === JSON.stringify(f.state.weeks)), Object.keys(refused).map(k => k + "=" + refused[k].sealed).join(", "));
+      check("the guard opens exactly on the Sundays that seal (and only there)", Object.entries(sealDates).every(([d, x]) => (new Date(d + "T00:00:00Z").getUTCDay() === 0 && x.sealDay) === x.ready) &&
+        Object.entries(sealDates).filter(([, x]) => x.ready).length >= 9 && Object.keys(dr.sealDates || {}).every(d => dr.sealDates[d].ready === sealDates[d].ready),
+        Object.entries(sealDates).filter(([, x]) => x.ready).length + " Sundays open");
+      for (const f of fx.record.streaks) one("parity: streak reset and day seal — " + f.name + " (streak " + jr.streak[f.name].before.streak + " -> " + jr.streak[f.name].afterReset.streak + " -> " + jr.streak[f.name].after.streak + ", best " + jr.streak[f.name].before.best + ")",
+        jr.streak[f.name], dr.streak && dr.streak[f.name]);
+      for (const f of fx.record.records) one("parity: Record page — " + f.name + " (tiles " + jr.record[f.name].tiles.join("/") + ", chain " + jr.record[f.name].chain + ")", jr.record[f.name], dr.record && dr.record[f.name]);
+      one("parity: fmtBHD, numText and Math.round on " + fx.record.treasury.amounts.length + " amounts (halves, thirds, groups, negatives)", jr.treasury.amounts, dr.treasury && dr.treasury.amounts);
+      for (const f of fx.record.treasury.states) one("parity: Treasury — " + f.name + " (total " + jr.treasury.states[f.name].total + ")", jr.treasury.states[f.name], dr.treasury && dr.treasury.states && dr.treasury.states[f.name]);
+      // Reach: the fixtures must hit what the plants break.
+      const jl = jr.ledger, w2 = jr.weeks["Sunday: sealed, a pre-reset week 3 beside it, a long line, a string week number"], rc = jr.record["active: a full chain, heat levels 0-4, proven lectures"];
+      check("the record fixtures reach unsorted keys with unicode, a re-seal beside a pre-reset week, every heat level, a broken chain, Genesis, a streak reset and a counted week",
+        jl.entries.some(e => JSON.stringify(Object.keys(e.data)) !== JSON.stringify(Object.keys(e.data).sort()) && Object.keys(e.data).length > 1) &&
+        jl.entries.some(e => /[^\x00-\x7f]/.test(JSON.stringify(e.data))) && w2.past.length === 4 && w2.past[1][2].length === 60 &&
+        [0, 1, 2, 3, 4].every(l => rc.heat.includes(l)) && rc.heat.includes(-1) && rc.heat.includes(-2) &&
+        Object.values(jr.ledger.tamper).every(t => !t.ok) && jr.record["tampered chain on a Saturday clock"].chain === "broken at 2" &&
+        jr.record["three links: Genesis among the newest four"].seals.some(s => s[0] === "Genesis") &&
+        Object.values(jr.streak).some(x => x.before.streak > 0 && x.afterReset.streak === 0 && x.after.best >= x.before.best) &&
+        jr.weeks["Sunday: a counted treasury, proven lectures and DSA in the week"].counted === true && jr.weeks["Sunday: a counted treasury, proven lectures and DSA in the week"].tiles[3] === "120.25" &&
+        jr.weeks["Wednesday: nothing sealed, an empty treasury (typed BHD)"].counted === false,
+        jl.entries.length + " links; week 3 earned " + jr.weeks["Sunday: a counted treasury, proven lectures and DSA in the week"].tiles[3]);
+    }
   } finally {
     await browser.close();
     fs.rmSync(scratch, { recursive: true, force: true });
   }
 
   // 3. plants (only from the gate itself, never from inside a plant)
-  if (!argPlant) {
+  if (!argPlant && !process.argv.includes("--no-plants")) {
     for (const name of PLANTS) {
       const res = spawnSync(process.execPath, [__filename, "--plant", name], { encoding: "utf8", maxBuffer: 1 << 28 });
       const caught = (res.stdout.match(/^ {2}FAIL {2}.*$/gm) || []).map(l => l.replace(/^ {2}FAIL {2}/, "").split(" — ")[0]);

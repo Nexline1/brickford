@@ -102,3 +102,7 @@ Stage 3 = sync (Profile > Sync: GitHub token + repo, push/pull of progress/brick
 ---
 ## Stage 4 (owner order, 5 Nov): lecture quizzes + Problems and Exams
 Port from platform/js/app.js and platform/data (quiz-*.js, summaries, workshop.js): the lecture quiz and the quiz gate (a lecture with a quiz is cleared only when its quiz is passed, unless grandfathered; attempts stored as S.lessons[k].quiz and S.quizAttempts), the Problems page (due now: quizzes owed, psets and labs unlocked by a cleared lecture, NeetCode problems), Exams. Same state shape as the web app, synced through the stage-3 merge. Design: the existing app design; barely any words; parity blocks in verify-app (quiz scoring, gate, problemsDue, pset/lab due) plus plants.
+
+---
+## Stage 5 (owner order, 5 Nov): Week + Sunday seal, Record, Proof, Treasury
+Port from platform/js/app.js (V.week, logWeek, the seal and revision weeks, V.record, the hash-chain ledger and its events including the quiz/exam events stage 4 skipped, V.proof, V.treasury), same S shape, synced through the stage-3 merge; the Sunday revision PDFs open from the Library entry. Existing app design, barely any words; parity blocks and plants in verify-app (ledger chain hash, revision weeks, weekly seal merge, treasury totals).

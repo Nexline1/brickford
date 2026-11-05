@@ -9,13 +9,16 @@ import '../theme/tokens.dart';
 enum PillTone { primary, quiet, done, dark }
 
 class PillButton extends StatelessWidget {
-  const PillButton({super.key, required this.label, this.icon, this.onPressed, this.tone = PillTone.primary, this.expand = true});
+  const PillButton({super.key, required this.label, this.icon, this.onPressed, this.tone = PillTone.primary, this.expand = true, this.id});
 
   final String label;
   final IconData? icon;
   final VoidCallback? onPressed;
   final PillTone tone;
   final bool expand;
+
+  /// The semantics identifier (what a browser harness finds it by).
+  final String? id;
 
   static ButtonStyle styleFor(PillTone tone) {
     final (bg, fg) = switch (tone) {
@@ -57,6 +60,7 @@ class PillButton extends StatelessWidget {
         ],
       ),
     );
-    return expand ? SizedBox(width: double.infinity, child: button) : button;
+    final sized = expand ? SizedBox(width: double.infinity, child: button) : button;
+    return id == null ? sized : Semantics(identifier: id, child: sized);
   }
 }

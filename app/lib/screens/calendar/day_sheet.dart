@@ -21,6 +21,7 @@ import '../../widgets/blocks.dart';
 import '../../widgets/day_glyph.dart';
 import '../home/home_screen.dart';
 import '../lesson/lesson_screen.dart';
+import '../week/week_screen.dart';
 import 'calendar_screen.dart';
 
 Future<void> showDaySheet(BuildContext context, String iso) {
@@ -168,6 +169,11 @@ class DaySheet extends StatelessWidget {
             range: shortRange(seal.from, seal.to),
             sunday: seal.sun,
             sealed: e.sealedWeek(seal.r) != null,
+            onTap: () {
+              final nav = Navigator.of(context);
+              nav.pop();
+              nav.push(MaterialPageRoute(builder: (_) => const WeekScreen()));
+            },
           ),
         if (items.isEmpty)
           Padding(

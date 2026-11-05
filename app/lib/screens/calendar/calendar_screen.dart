@@ -14,6 +14,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/day_glyph.dart';
 import '../../widgets/sheet_scaffold.dart';
+import '../week/week_screen.dart';
 import 'day_sheet.dart';
 
 const monthNames = [
@@ -200,7 +201,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               range: shortRange(rw.from, rw.to),
               sunday: rw.sun,
               sealed: sealed,
-              onTap: () => showDaySheet(context, rw.sun),
+              onTap: () => openWeek(context),
             ),
         ],
       ),

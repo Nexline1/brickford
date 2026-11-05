@@ -6,6 +6,8 @@
 import 'dart:convert';
 
 import 'package:app/engine/record.dart';
+import 'package:app/engine/engine.dart' show truthy;
+import 'package:app/engine/quiz.dart';
 import 'package:app/main.dart';
 import 'package:app/screens/library/library_screen.dart';
 import 'package:app/state/app_model.dart';
@@ -104,5 +106,155 @@ void main() {
   test('Library: the revision PDFs resolve beside app-web/', () {
     expect(revisionUrl(3), endsWith('/revision/week-03.pdf'));
     expect(RecordEngine.revisionPdfs, 6);
+  });
+
+  // ---------------------------------------------------------------- Record
+
+  // Mon 26 Oct .. Wed 4 Nov sealed, the Saturday rest day (31 Oct) stepped over: nine days.
+  const nine = ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-11-01', '2026-11-02', '2026-11-03', '2026-11-04'];
+
+  Future<void> openRecordPage(WidgetTester tester, AppModel m) async {
+    await open(tester, m);
+    await tester.tap(key('tab-Profile'));
+    await tester.pumpAndSettle();
+    await tester.tap(key('chip-record'));
+    await tester.pumpAndSettle();
+  }
+
+  test('canon and sha256 are the web app\'s: sorted keys, 150.0 is 150, the standard digest', () {
+    expect(sha256Hex('abc'), 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+    expect(sha256Hex('a' * 1000), '41edece42d63e8d9bf515a9ba6932e1c20cbc9f5a5d134645adb5db1b9737ea3');
+    expect(canon({'b': 150.0, 'a': [1, 2.5, null, 'x"\n'], 'c': true}), '{"a":[1,2.5,null,"x\\"\\n"],"b":150,"c":true}');
+    expect(fmtBHD(1149.5), 'BHD 1,149.5');
+    expect(fmtBHD(150), 'BHD 150');
+    expect(fmtBHD(0.1 + 0.2), 'BHD 0.3');
+  });
+
+  testWidgets('Record: the streak, the best, the days sealed; sealing today writes the day and the chain', (tester) async {
+    final m = await model({'studyDays': nine}, today: '2026-11-05');
+    await openRecordPage(tester, m);
+    expect(tester.widget<Text>(key('record-streak')).data, '9');
+    expect(find.bySemanticsLabel('days sealed 9'), findsOneWidget);
+    expect(key('record-heat'), findsOneWidget);
+    await tester.tap(key('record-seal'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(key('record-streak')).data, '10');
+    expect(m.engine.studyDays.contains('2026-11-05'), isTrue);
+    final ev = m.engine.ledger.single as Map;
+    expect([ev['type'], ev['ref'], ev['i'], ev['prev']], ['day', '2026-11-05', 0, ledgerGenesis]);
+    expect(m.engine.verifyChain().ok, isTrue);
+    expect(key('record-sealed'), findsOneWidget);
+    expect(find.text('Deep Track day sealed'), findsOneWidget);
+  });
+
+  testWidgets('Record: the reset moves the line and deletes nothing; the best streak stays', (tester) async {
+    final m = await model({'studyDays': nine}, today: '2026-11-05');
+    await openRecordPage(tester, m);
+    await tester.ensureVisible(key('record-reset'));
+    await tester.tap(key('record-reset'));
+    await tester.pumpAndSettle();
+    await tester.tap(key('reset-confirm'));
+    await tester.pumpAndSettle();
+    expect(m.engine.settings['streakFrom'], '2026-11-05');
+    expect(m.engine.streak(), 0);
+    expect(m.engine.bestStreak(), 9, reason: 'bestStreak ignores streakFrom');
+    expect(m.engine.studyDays.length, 9, reason: 'nothing deleted');
+    final ev = m.engine.ledger.single as Map;
+    expect(ev['type'], 'streak');
+    expect(ev['data'], {'was': 9, 'best': 9});
+    expect(tester.widget<Text>(key('record-streak')).data, '0');
+    await tester.tap(key('record-seal'));
+    await tester.pumpAndSettle();
+    expect(m.engine.streak(), 1);
+    expect(m.engine.bestStreak(), 10);
+  });
+
+  testWidgets('Record: a tampered ledger shows where the chain breaks', (tester) async {
+    final m = await model({'studyDays': nine}, today: '2026-11-05');
+    m.sealDay();
+    m.resetStreak();
+    expect(m.engine.verifyChain().ok, isTrue);
+    ((m.engine.ledger.first as Map)['data'] as Map)['x'] = 1;
+    await openRecordPage(tester, m);
+    expect(tester.widget<Text>(key('record-broken')).data, 'broken at 0');
+    expect(m.engine.verifyChain().brokenAt, 0);
+  });
+
+  test('the writers: lesson, quiz-free events, lab, problem and diagnostic each add one link', () async {
+    final m = await model({}, today: '2026-11-05');
+    m.toggleDone('math110.0.0');
+    m.tickLab('flashcards-cli', true);
+    m.tickProblem('Arrays|Two Sum', true);
+    m.recordDiag('coding', 71.5);
+    final t = [for (final e in m.engine.ledger) (e as Map)['type']];
+    expect(t, ['lesson', 'lab', 'problem', 'diagnostic']);
+    expect((m.engine.ledger.last as Map)['data'], {'score': 72});
+    expect(m.engine.verifyChain().ok, isTrue);
+    expect((m.engine.ledger[1] as Map)['data'], {'done': true});
+  });
+
+  testWidgets('Proof: anchors need a chain, record the head, and can be removed', (tester) async {
+    final m = await model({'studyDays': nine}, today: '2026-11-05');
+    expect(m.addAnchor('a commit', ''), 'Nothing to anchor yet.');
+    expect(m.addAnchor('', ''), 'Say where you published it.');
+    m.sealDay();
+    await openRecordPage(tester, m);
+    await tester.ensureVisible(key('record-proof'));
+    await tester.tap(key('record-proof'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(key('proof-status')).data, '1');
+    await tester.enterText(key('anchor-where'), 'a commit');
+    await tester.ensureVisible(key('anchor-add'));
+    await tester.tap(key('anchor-add'));
+    await tester.pumpAndSettle();
+    expect(m.engine.anchors.length, 1);
+    expect((m.engine.anchors.single as Map)['head'], m.engine.chainHead());
+    expect((m.engine.anchors.single as Map)['where'], 'a commit');
+    await tester.ensureVisible(key('anchor-del-0'));
+    await tester.tap(key('anchor-del-0'));
+    await tester.pumpAndSettle();
+    expect(m.engine.anchors, isEmpty);
+  });
+
+  test('a record file verifies, and says where it breaks', () async {
+    final m = await model({'studyDays': nine}, today: '2026-11-05');
+    m.sealDay();
+    m.resetStreak();
+    m.toggleDone('math110.0.0');
+    final bundle = m.engine.recordBundle(isoStamp(m.now()));
+    final ok = verifyRecordText(jsonEncode(bundle));
+    expect(ok, startsWith('3 entries verify'));
+    expect(verifyRecordText('nope'), 'Not valid JSON.');
+    expect(verifyRecordText('{"entries":[]}'), 'No entries in that file.');
+    final bad = jsonDecode(jsonEncode(bundle)) as Map<String, dynamic>;
+    ((bad['entries'] as List)[1] as Map)['ref'] = 'edited';
+    expect(verifyRecordText(jsonEncode(bad)), 'chain breaks at entry 1 of 3');
+    final pre = jsonDecode(jsonEncode(bundle)) as Map<String, dynamic>;
+    ((pre['entries'] as List)[2] as Map)['preimage'] = 'something else';
+    expect(verifyRecordText(jsonEncode(pre)), 'entry 2 does not hash to its stated value');
+    expect(truthy(bundle['head']), isTrue);
+  });
+
+  test('a lecture quiz pass and a bank sitting each add their link, as the web app writes them', () async {
+    final m = await model({}, today: '2026-10-27');
+    m.passedQuiz('math110.0.0', const SittingResult(total: 5, firstTry: 4, attempts: 6, missed: []));
+    final s = BankSitting([
+      {'q': 'one', 'opts': ['a', 'b'], 'a': 0},
+      {'q': 'two', 'opts': ['a', 'b'], 'a': 1},
+    ], 2, rand: () => 0.5);
+    while (!s.over) {
+      s.answer(s.q!['a']);
+      s.next();
+    }
+    m.sat('bank-x', s, [0, 1]);
+    final ev = [for (final e in m.engine.ledger) e as Map];
+    expect([for (final e in ev) e['type']], ['quiz', 'exam']);
+    expect(ev[0]['ref'], 'math110.0.0');
+    expect(ev[0]['data'], {'firstTry': 4, 'total': 5});
+    expect(ev[1]['ref'], 'bank-x');
+    expect(ev[1]['data'], {'score': 2, 'total': 2, 'pct': 100});
+    expect(m.engine.verifyChain().ok, isTrue);
+    expect(m.engine.eventLine(ev[1]), 'Examination · bank-x · 100% (2/2)');
+    expect(m.engine.eventLine(ev[0]), 'Lecture quiz passed · math110.0.0 · 4 of 5 first try');
   });
 }

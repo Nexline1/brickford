@@ -1,0 +1,42 @@
+verify-app
+  ok    app/assets/data/*.json is fresh against platform/data/*.js (tools/export-data.js --check) — 8 files, byte-identical
+  plan 2026-10-16 .. day 1094 2030-04-14, 1284 dates to 2030-04-21, 7 fixtures, 494 lessons
+  dart engine: 32s
+  app.js:      58s
+  ok    app.js ran without page errors
+  ok    parity: the plan (dates, studyIndex, prevStudyDay, addStudyDays, revision weeks, monkDay, monkScore, constants)
+  ok    parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: empty, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: before the start @ 2026-10-10: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: before the start, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: owner (days 1-8 watched before the gate) @ 2026-10-25: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: owner (days 1-8 watched before the gate), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: gate (watched before and after, quizzes, seals, streakFrom), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: rest-day clock (Sat 7 Nov) @ 2026-11-07: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: rest-day clock (Sat 7 Nov), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: worked ahead @ 2026-10-20: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: worked ahead, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: phase 2 (spine done, day 301) @ 2027-10-01: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: phase 2 (spine done, day 301), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: calendar: empty @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: empty @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: before the start @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: before the start @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: owner (days 1-8 watched before the gate) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: owner (days 1-8 watched before the gate) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: rest-day clock (Sat 7 Nov) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: rest-day clock (Sat 7 Nov) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: worked ahead @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: worked ahead @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: phase 2 (spine done, day 301) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: phase 2 (spine done, day 301) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    the fixtures reach every day status (across them), and in the gate fixture both lessonCleared answers, a streak, a backlog, re-anchored work ahead and a rest-day anchor — statuses missed/rest/today/upcoming/completed/partial; streak 10, best 10, backlog 12; rest-day anchor 18
+  ok    the calendar block reaches every day status, a past Saturday as rest on both clocks, and gate targets — missed/rest/upcoming/today/completed/partial; 14 fixture x clock runs, 92 dates each
+  ok    plant rest-dow exits 1 — exit 1; caught by: parity: the plan (dates, studyIndex, prevStudyDay, addStudyDays, revision weeks, monkDay, monkScore, constants); parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: empty, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    plant stale-json exits 1 — exit 1; caught by: app/assets/data/*.json is fresh against platform/data/*.js (tools/export-data.js --check); parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: empty, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    plant rest-status exits 1 — exit 1; caught by: parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: owner (days 1-8 watched before the gate) @ 2026-10-25: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+
+all 36 checks passed (361s)

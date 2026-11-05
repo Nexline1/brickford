@@ -236,7 +236,7 @@ class _MonkScreenState extends State<MonkScreen> {
         .where((p) => p.m > min)
         .firstOrNull;
     return [
-      const SheetLabel(Icons.schedule, 'Now'),
+      const SheetLabel(Icons.schedule, 'Plan'),
       _TimeRow(
         key: const ValueKey('monk-now'),
         time: 'Now',
@@ -392,14 +392,16 @@ class _MonkScreenState extends State<MonkScreen> {
         runSpacing: 8.h,
         children: [
           for (final h in MONK_HABITS)
-            Semantics(
-              identifier: 'monk-habit-${h.$1}',
-              child: BrickChip(
-                key: ValueKey('monk-habit-${h.$1}'),
-                label: h.$2,
-                icon: Engine.mkHabitDone(d, h.$1) ? Icons.check : null,
-                selected: Engine.mkHabitDone(d, h.$1),
-                onTap: () => m.monkPatch((x) => x[h.$1] = !truthy(x[h.$1])),
+            IntrinsicWidth(
+              child: Semantics(
+                identifier: 'monk-habit-${h.$1}',
+                child: BrickChip(
+                  key: ValueKey('monk-habit-${h.$1}'),
+                  label: h.$2,
+                  icon: Engine.mkHabitDone(d, h.$1) ? Icons.check : null,
+                  selected: Engine.mkHabitDone(d, h.$1),
+                  onTap: () => m.monkPatch((x) => x[h.$1] = !truthy(x[h.$1])),
+                ),
               ),
             ),
         ],
@@ -690,7 +692,9 @@ class _PriorityCard extends StatelessWidget {
             pr = d['prayers'] is Map ? d['prayers'] as Map : const {};
         return Column(
           children: [
-            Row(
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final s in Engine.monkSlots())
                   toggle(
@@ -709,6 +713,7 @@ class _PriorityCard extends StatelessWidget {
                     }),
                   ),
               ],
+              ),
             ),
             if (streak > 0)
               Padding(
@@ -748,7 +753,9 @@ class _PriorityCard extends StatelessWidget {
         );
       default:
         final g = d['german'] is Map ? d['german'] as Map : const {};
-        return Row(
+        return IntrinsicHeight(
+          child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final x in Engine.MONK_GERMAN)
               toggle(
@@ -767,6 +774,7 @@ class _PriorityCard extends StatelessWidget {
                 }),
               ),
           ],
+          ),
         );
     }
   }
@@ -869,6 +877,7 @@ class _Toggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final fg = on ? Tokens.espresso : Colors.white;
     return Semantics(
+      identifier: key is ValueKey ? (key as ValueKey).value as String : null,
       button: true,
       toggled: on,
       label: '$label $sub',
@@ -981,7 +990,9 @@ class _Round extends StatelessWidget {
   final bool dark;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
+  Widget build(BuildContext context) => Semantics(
+    identifier: key is ValueKey ? (key as ValueKey).value as String : null,
+    child: Tooltip(
     message: tooltip,
     child: Material(
       color: dark ? Tokens.badge : Colors.white,
@@ -1004,6 +1015,7 @@ class _Round extends StatelessWidget {
           ),
         ),
       ),
+    ),
     ),
   );
 }

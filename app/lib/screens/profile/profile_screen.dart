@@ -44,6 +44,7 @@ class ProfileScreen extends StatelessWidget {
             final look = syncLook(m.sync.status);
             return ItemBlock(
               key: const ValueKey('profile-sync'),
+              id: 'profile-sync',
               leading: LeadTile(icon: look.icon, color: Tokens.card, fg: look.onDark),
               subtitle: syncSub(m.sync),
               title: look.word,

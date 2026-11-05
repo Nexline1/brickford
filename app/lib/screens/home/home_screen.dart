@@ -50,9 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final idx = e.studyToday();
     final rest = e.isRestDay(today) && today.compareTo(e.START_DATE) >= 0;
     // On a rest day the page number is the day just worked (weekNumber's rule).
-    final dayN = idx >= 0
-        ? idx + 1
-        : (today.compareTo(e.START_DATE) < 0 ? 0 : e.studyAnchor() + 1);
+    final dayN = idx >= 0 ? idx + 1 : (today.compareTo(e.START_DATE) < 0 ? 0 : e.studyAnchor() + 1);
     final total = e.studyIndex(e.dateForStudy(1093)) + 1;
     final monk = e.monkDay(today);
     final items = e.scheduledFor(today);
@@ -76,28 +74,16 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   'Day ',
-                  style: body(
-                    16,
-                    color: Tokens.onMidnight2,
-                    weight: FontWeight.w500,
-                  ),
+                  style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
                 ),
                 Text(
                   '$dayN',
                   key: const ValueKey('home-day'),
-                  style: body(
-                    16,
-                    color: Tokens.onMidnight,
-                    weight: FontWeight.w800,
-                  ),
+                  style: body(16, color: Tokens.onMidnight, weight: FontWeight.w800),
                 ),
                 Text(
                   ' / $total',
-                  style: body(
-                    16,
-                    color: Tokens.onMidnight2,
-                    weight: FontWeight.w500,
-                  ),
+                  style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
                 ),
               ],
             ),
@@ -117,28 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
           spacing: 18.w,
           runSpacing: 6.h,
           children: [
-            Stat(
-              icon: Icons.local_fire_department_outlined,
-              value: '${e.streak()}',
-              semantic: 'streak',
-            ),
-            Stat(
-              icon: Icons.task_alt,
-              value: '$doneN/${real.length}',
-              semantic: 'cleared today',
-            ),
-            if (owed > 0)
-              Stat(
-                icon: Icons.history,
-                value: owed > 20 ? '20+' : '$owed',
-                semantic: 'owed',
-              ),
-            if (rest)
-              const Stat(
-                icon: Icons.bedtime_outlined,
-                value: '',
-                semantic: 'rest day',
-              ),
+            Stat(icon: Icons.local_fire_department_outlined, value: '${e.streak()}', semantic: 'streak'),
+            Stat(icon: Icons.task_alt, value: '$doneN/${real.length}', semantic: 'cleared today'),
+            if (owed > 0) Stat(icon: Icons.history, value: owed > 20 ? '20+' : '$owed', semantic: 'owed'),
+            if (rest) const Stat(icon: Icons.bedtime_outlined, value: '', semantic: 'rest day'),
           ],
         ),
       ],
@@ -151,14 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     final (IconData icon, String label) = switch (next.kind) {
-      'lecture' => (
-        next.workAhead ? Icons.fast_forward_rounded : Icons.play_arrow_rounded,
-        'Play',
-      ),
-      'quiz' => (
-        next.seen ? Icons.quiz_outlined : Icons.lock_open_rounded,
-        'Quiz',
-      ),
+      'lecture' => (next.workAhead ? Icons.fast_forward_rounded : Icons.play_arrow_rounded, 'Play'),
+      'quiz' => (next.seen ? Icons.quiz_outlined : Icons.lock_open_rounded, 'Quiz'),
       'resume' => (Icons.replay, 'Resume'),
       'recall' => (Icons.psychology_alt_outlined, 'Recall'),
       'rest' => (Icons.bedtime_outlined, 'Rest'),
@@ -206,19 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             if (codes.length > 1) ...[
-              BrickChip(
-                key: const ValueKey('chip-all'),
-                label: 'All',
-                selected: only == null,
-                onTap: () => setState(() => only = null),
-              ),
+              BrickChip(key: const ValueKey('chip-all'), label: 'All', selected: only == null, onTap: () => setState(() => only = null)),
               for (final c in codes)
-                BrickChip(
-                  key: ValueKey('chip-$c'),
-                  label: c,
-                  selected: only == c,
-                  onTap: () => setState(() => only = c),
-                ),
+                BrickChip(key: ValueKey('chip-$c'), label: c, selected: only == c, onTap: () => setState(() => only = c)),
             ],
           ],
         ),
@@ -228,9 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
           label: label,
           title: next.title,
           code: next.code,
-          onPressed: next.opensLesson
-              ? () => open(next.cid!, next.ui!, next.li!)
-              : null,
+          onPressed: next.opensLesson ? () => open(next.cid!, next.ui!, next.li!) : null,
         ),
         SizedBox(height: 18.h),
         for (final it in shown)
@@ -245,9 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
               key: ValueKey('home-lesson-${it.key}'),
               title: it.title,
               code: it.code,
-              span: it.spanN != null && it.spanN! > 1
-                  ? '${it.dayN}/${it.spanN}'
-                  : null,
+              span: it.spanN != null && it.spanN! > 1 ? '${it.dayN}/${it.spanN}' : null,
               minutes: it.l?['min'],
               videoId: it.l?['v'] as String?,
               mark: m.markOf(it.key),
@@ -271,13 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
 /// The next-up card: a soft accent-washed gradient, the one action's title,
 /// and the primary pill.
 class _NextUp extends StatelessWidget {
-  const _NextUp({
-    required this.icon,
-    required this.label,
-    required this.title,
-    required this.code,
-    this.onPressed,
-  });
+  const _NextUp({required this.icon, required this.label, required this.title, required this.code, this.onPressed});
   final IconData icon;
   final String label, title, code;
   final VoidCallback? onPressed;
@@ -289,11 +231,7 @@ class _NextUp extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Tokens.cardRadius),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white, Tokens.accentWash],
-        ),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white, Tokens.accentWash]),
         border: Border.all(color: Tokens.hairline),
       ),
       child: Column(
@@ -310,11 +248,7 @@ class _NextUp extends StatelessWidget {
                     if (code.isNotEmpty)
                       Text(
                         code,
-                        style: body(
-                          11.5,
-                          color: Tokens.ink2,
-                          weight: FontWeight.w700,
-                        ).copyWith(letterSpacing: 0.8),
+                        style: body(11.5, color: Tokens.ink2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8),
                       ),
                     Text(
                       title,
@@ -328,12 +262,7 @@ class _NextUp extends StatelessWidget {
             ],
           ),
           SizedBox(height: 14.h),
-          PillButton(
-            key: const ValueKey('home-next'),
-            icon: icon,
-            label: label,
-            onPressed: onPressed,
-          ),
+          PillButton(key: const ValueKey('home-next'), icon: icon, label: label, onPressed: onPressed),
         ],
       ),
     );

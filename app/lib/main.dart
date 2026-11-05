@@ -77,12 +77,8 @@ class BrickfordApp extends StatelessWidget {
                 child: ScreenUtilInit(
                   designSize: const Size(375, 812),
                   minTextAdapt: true,
-                  builder: (context, _) => MaterialApp(
-                    title: 'Brickford',
-                    debugShowCheckedModeBanner: false,
-                    theme: brickfordTheme(),
-                    home: const Shell(),
-                  ),
+                  builder: (context, _) =>
+                      MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
                 ),
               ),
             ),
@@ -123,9 +119,7 @@ class _SyncHooksState extends State<_SyncHooks> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         widget.sync.onVisible();
-      case AppLifecycleState.hidden ||
-          AppLifecycleState.paused ||
-          AppLifecycleState.detached:
+      case AppLifecycleState.hidden || AppLifecycleState.paused || AppLifecycleState.detached:
         widget.sync.onHidden();
       case AppLifecycleState.inactive:
         break;

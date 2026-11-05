@@ -15,29 +15,12 @@ import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 
 /// The status in the app's words and glyphs, shared by the screen and the Profile row.
-({String word, IconData icon, Color onDark}) syncLook(SyncStatus s) =>
-    switch (s) {
-      SyncStatus.synced => (
-        word: 'Synced',
-        icon: Icons.cloud_done_outlined,
-        onDark: Tokens.doneOnDark,
-      ),
-      SyncStatus.offline => (
-        word: 'Offline',
-        icon: Icons.cloud_off_outlined,
-        onDark: Tokens.onMidnight2,
-      ),
-      SyncStatus.attention => (
-        word: 'Needs attention',
-        icon: Icons.error_outline,
-        onDark: Tokens.gold,
-      ),
-      SyncStatus.notConnected => (
-        word: 'Not connected',
-        icon: Icons.link_off,
-        onDark: Tokens.onMidnight2,
-      ),
-    };
+({String word, IconData icon, Color onDark}) syncLook(SyncStatus s) => switch (s) {
+  SyncStatus.synced => (word: 'Synced', icon: Icons.cloud_done_outlined, onDark: Tokens.doneOnDark),
+  SyncStatus.offline => (word: 'Offline', icon: Icons.cloud_off_outlined, onDark: Tokens.onMidnight2),
+  SyncStatus.attention => (word: 'Needs attention', icon: Icons.error_outline, onDark: Tokens.gold),
+  SyncStatus.notConnected => (word: 'Not connected', icon: Icons.link_off, onDark: Tokens.onMidnight2),
+};
 
 /// "just now · 1 other device", or why there is nothing to say.
 String syncSub(SyncService s) {
@@ -54,8 +37,7 @@ class SyncScreen extends StatefulWidget {
 }
 
 class _SyncScreenState extends State<SyncScreen> {
-  final token = TextEditingController(),
-      repo = TextEditingController(text: SyncService.defaultRepo);
+  final token = TextEditingController(), repo = TextEditingController(text: SyncService.defaultRepo);
   String? problem;
 
   @override
@@ -75,32 +57,19 @@ class _SyncScreenState extends State<SyncScreen> {
         final err = sync.error;
         final header = Row(
           children: [
-            Icon(
-              look.icon,
-              size: 40,
-              color: look.onDark,
-              semanticLabel: look.word,
-            ),
+            Icon(look.icon, size: 40, color: look.onDark, semanticLabel: look.word),
             SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    look.word,
-                    key: const ValueKey('sync-status'),
-                    style: display(26),
-                  ),
+                  Text(look.word, key: const ValueKey('sync-status'), style: display(26)),
                   SizedBox(height: 4.h),
                   Text(
                     syncSub(sync),
                     key: const ValueKey('sync-sub'),
-                    style: body(
-                      14,
-                      color: Tokens.onMidnight2,
-                      weight: FontWeight.w500,
-                    ),
+                    style: body(14, color: Tokens.onMidnight2, weight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -121,14 +90,9 @@ class _SyncScreenState extends State<SyncScreen> {
                   decoration: BoxDecoration(
                     color: Tokens.fieldFill,
                     borderRadius: BorderRadius.circular(Tokens.radius),
-                    border: const Border(
-                      left: BorderSide(color: Tokens.missed, width: 4),
-                    ),
+                    border: const Border(left: BorderSide(color: Tokens.missed, width: 4)),
                   ),
-                  child: Text(
-                    '${err['msg']}',
-                    style: body(13.5, weight: FontWeight.w600, height: 1.35),
-                  ),
+                  child: Text('${err['msg']}', style: body(13.5, weight: FontWeight.w600, height: 1.35)),
                 ),
               if (!sync.hasToken) ...[
                 BrickfordField(
@@ -139,23 +103,14 @@ class _SyncScreenState extends State<SyncScreen> {
                   obscure: true,
                 ),
                 SizedBox(height: 12.h),
-                BrickfordField(
-                  key: const ValueKey('sync-repo'),
-                  icon: Icons.folder_outlined,
-                  hint: 'owner/name',
-                  controller: repo,
-                ),
+                BrickfordField(key: const ValueKey('sync-repo'), icon: Icons.folder_outlined, hint: 'owner/name', controller: repo),
                 if (problem != null)
                   Padding(
                     padding: EdgeInsets.only(top: 10.h),
                     child: Text(
                       problem!,
                       key: const ValueKey('sync-problem'),
-                      style: body(
-                        13,
-                        color: Tokens.missed,
-                        weight: FontWeight.w600,
-                      ),
+                      style: body(13, color: Tokens.missed, weight: FontWeight.w600),
                     ),
                   ),
                 SizedBox(height: 16.h),
@@ -210,11 +165,7 @@ class _SyncScreenState extends State<SyncScreen> {
                     child: Text(
                       sync.message,
                       key: const ValueKey('sync-message'),
-                      style: body(
-                        13,
-                        color: Tokens.ink2,
-                        weight: FontWeight.w600,
-                      ),
+                      style: body(13, color: Tokens.ink2, weight: FontWeight.w600),
                     ),
                   ),
                 SizedBox(height: 18.h),
@@ -247,6 +198,4 @@ class _SyncScreenState extends State<SyncScreen> {
   }
 }
 
-void openSync(BuildContext context) =>
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const SyncScreen()));
+void openSync(BuildContext context) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SyncScreen()));

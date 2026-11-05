@@ -14,12 +14,15 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = AppScope.of(context);
     final e = m.engine;
-    final header = Wrap(spacing: 22.w, runSpacing: 8.h, children: [
-      Stat(icon: Icons.local_fire_department_outlined, value: '${e.streak()}', semantic: 'streak'),
-      Stat(icon: Icons.emoji_events_outlined, value: '${e.bestStreak()}', semantic: 'best streak'),
-      Stat(icon: Icons.verified_outlined, value: '${e.studyDays.toSet().length}', semantic: 'days sealed'),
+    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      BigCount(icon: Icons.local_fire_department, semantic: 'streak over best', value: '${e.streak()}', total: '${e.bestStreak()}', valueKey: const ValueKey('profile-streak')),
+      SizedBox(height: 10.h),
+      Wrap(spacing: 22.w, runSpacing: 8.h, children: [
+        Stat(icon: Icons.verified_outlined, value: '${e.studyDays.toSet().length}', semantic: 'days sealed'),
+      ]),
     ]);
     return SheetScaffold(
+      tabbed: true,
       header: header,
       children: [
         for (final c in m.data.courses)
@@ -29,6 +32,7 @@ class ProfileScreen extends StatelessWidget {
               final n = courseCounts(m, id);
               return ItemBlock(
                 key: ValueKey('profile-course-$id'),
+                leading: LeadTile(text: '${c['code']}'.split(' ').last),
                 subtitle: '${c['code']}',
                 title: '${c['title']}',
                 meta: '${n.cleared}/${n.total}',

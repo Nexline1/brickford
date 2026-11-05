@@ -33,7 +33,11 @@ class AppModel extends ChangeNotifier {
   static Future<BrickfordData> loadData(AssetBundle bundle) async {
     final text = <String, String>{};
     for (final f in BrickfordData.files) {
-      text[f] = await bundle.loadString('assets/data/$f');
+      // load + utf8.decode, not loadString: loadString decodes anything over
+      // 50 KB on a compute() isolate, which never completes inside a widget
+      // test's fake clock (and buys nothing for a one-off read at launch).
+      final bytes = await bundle.load('assets/data/$f');
+      text[f] = utf8.decode(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
     }
     return BrickfordData.fromText(text);
   }

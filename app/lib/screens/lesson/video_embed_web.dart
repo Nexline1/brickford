@@ -10,9 +10,10 @@ external JSObject _createElement(JSString tag);
 final _registered = <String>{};
 
 class VideoEmbed extends StatelessWidget {
-  const VideoEmbed({super.key, required this.src, this.videoId});
+  const VideoEmbed({super.key, required this.src, this.videoId, this.code});
   final String src;
   final String? videoId;
+  final String? code;
 
   String _viewType() {
     final type = 'brickford-yt-${src.hashCode}';
@@ -37,12 +38,7 @@ class VideoEmbed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: ColoredBox(color: Colors.black, child: HtmlElementView(viewType: _viewType())),
-      ),
-    );
+    // Full-bleed: it fills the box the lecture screen gives it.
+    return ColoredBox(color: Colors.black, child: HtmlElementView(viewType: _viewType()));
   }
 }

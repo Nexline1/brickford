@@ -1,80 +1,84 @@
-// The blueprint's viewport: a midnight canvas holding the branding, and a
-// white sheet with 36px top corners laid over it, the screen's content
-// scrolling inside the sheet (skill_ui_blueprint.md §1-2).
+// The blueprint's viewport (skill_ui_blueprint.md §1-2): a Stack whose base
+// layer is the midnight canvas holding the branding, and a white sheet laid
+// over it from 240 (design px) down, 36px top corners only, a black12 blur-20
+// shadow cast upward, the screen's content scrolling inside it with
+// BouncingScrollPhysics.
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../state/app_model.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
+import 'blocks.dart';
 
 class SheetScaffold extends StatelessWidget {
-  const SheetScaffold({super.key, this.header, required this.children, this.onBack});
+  const SheetScaffold({
+    super.key,
+    this.header,
+    this.trailing,
+    this.canvas,
+    required this.children,
+    this.onBack,
+    this.tabbed = false,
+  });
 
   /// What this screen shows on the canvas under the branding: numbers, badges.
   final Widget? header;
 
+  /// The right end of the branding row (a persistent badge).
+  final Widget? trailing;
+
+  /// Replaces the branding layer entirely (the lecture's video).
+  final Widget? canvas;
+
   /// The sheet's content, in a bouncing scroll.
   final List<Widget> children;
 
-  /// A back control in the branding row (pushed screens).
+  /// A frosted round back button in the branding row (pushed screens).
   final VoidCallback? onBack;
+
+  /// A tab screen: the sheet's scroll clears the floating bar.
+  final bool tabbed;
 
   static const sheetKey = ValueKey('brickford-sheet');
   static const canvasKey = ValueKey('brickford-canvas');
 
   @override
   Widget build(BuildContext context) {
-    final identity = AppScope.of(context).data.identity;
+    final branding = SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 44,
+              child: Row(
+                children: [
+                  if (onBack != null) ...[
+                    FrostButton(icon: Icons.arrow_back_ios_new, tooltip: 'Back', onPressed: onBack!, dark: true),
+                    SizedBox(width: 12.w),
+                  ],
+                  const BrandMark(),
+                  SizedBox(width: 10.w),
+                  Expanded(child: Text('Brickford', maxLines: 1, overflow: TextOverflow.ellipsis, style: display(20))),
+                  ?trailing,
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+            ?header,
+          ],
+        ),
+      ),
+    );
+
     return ColoredBox(
       key: canvasKey,
       color: Tokens.midnight,
       child: Stack(
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: Tokens.headerHeight.h,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 14.h, 24.w, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        if (onBack != null)
-                          Padding(
-                            padding: EdgeInsets.only(right: 4.w),
-                            child: IconButton(
-                              onPressed: onBack,
-                              tooltip: 'Back',
-                              icon: const Icon(Icons.arrow_back_ios_new, color: Tokens.onMidnight, size: 20),
-                              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                            ),
-                          ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Brickford', style: display(26)),
-                              SizedBox(height: 2.h),
-                              Text(identity['motto']?.toString() ?? '',
-                                  style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w500)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.h),
-                    ?header,
-                  ],
-                ),
-              ),
-            ),
-          ),
+          Positioned(top: 0, left: 0, right: 0, height: Tokens.headerHeight.h, child: canvas ?? branding),
           Positioned(
             top: Tokens.sheetTop.h,
             left: 0,
@@ -91,7 +95,7 @@ class SheetScaffold extends StatelessWidget {
                 borderRadius: Tokens.sheetBorderRadius,
                 child: ListView(
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 28.h),
+                  padding: EdgeInsets.fromLTRB(20.w, 26.h, 20.w, tabbed ? Tokens.barClearance : 32.h),
                   children: children,
                 ),
               ),

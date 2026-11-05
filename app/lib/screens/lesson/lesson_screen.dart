@@ -1,5 +1,9 @@
-// One lecture: the video, Mark watched, and the summary. Opening it records
-// it as the lecture to resume (once, in initState: a build is a read).
+// One lecture: the video full-bleed on the canvas with frosted round back and
+// more buttons over it, then on the sheet the title, Mark watched, and the
+// summary. Opening it records it as the lecture to resume (once: a build is a
+// read).
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -58,6 +62,51 @@ class _LessonScreenState extends State<LessonScreen> {
     return widget.li < ls.length ? (ls[widget.li] as Map).cast<String, dynamic>() : null;
   }
 
+  /// The more button: the rest of this unit, as a list sheet.
+  void _more(AppModel m, Map<String, dynamic> c, Map<String, dynamic> u) {
+    final ls = (u['lessons'] as List).cast<Map>();
+    showListSheet(context, title: '${u['name']}', rows: [
+      for (var li = 0; li < ls.length; li++)
+        Padding(
+          padding: EdgeInsets.only(bottom: 12.h),
+          child: Row(children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(width: 72, height: 48, child: VideoThumb(videoId: ls[li]['v'] as String?, code: '${c['code']}')),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('${ls[li]['t']}', maxLines: 2, overflow: TextOverflow.ellipsis,
+                    style: body(14, weight: FontWeight.w700, height: 1.3)),
+                if (ls[li]['min'] != null) Text("${ls[li]['min']}m", style: body(12, color: Tokens.ink2)),
+              ]),
+            ),
+            SizedBox(width: 8.w),
+            LessonGlyph(m.markOf(lessonKey(widget.cid, widget.ui, li)), size: 22),
+            SizedBox(width: 8.w),
+            li == widget.li
+                ? const SizedBox(width: 72, height: 44, child: Icon(Icons.graphic_eq, color: Tokens.accent, semanticLabel: 'playing'))
+                : SizedBox(
+                    width: 72,
+                    child: ElevatedButton(
+                      style: PillButton.styleFor(PillTone.dark).copyWith(
+                        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                        minimumSize: const WidgetStatePropertyAll(Size(72, 44)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (_) => LessonScreen(cid: widget.cid, ui: widget.ui, li: li)));
+                      },
+                      child: Text('View', style: body(13, color: null, weight: FontWeight.w700)),
+                    ),
+                  ),
+          ]),
+        ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final m = AppScope.of(context);
@@ -66,7 +115,10 @@ class _LessonScreenState extends State<LessonScreen> {
     final l = _lesson(c);
     final k = lessonKey(widget.cid, widget.ui, widget.li);
     if (c == null || u == null || l == null) {
-      return SheetScaffold(onBack: () => Navigator.of(context).maybePop(), children: const []);
+      return Scaffold(
+        backgroundColor: Tokens.midnight,
+        body: SheetScaffold(onBack: () => Navigator.of(context).maybePop(), children: const []),
+      );
     }
     final v = l['v'] as String?;
     final playlist = u['playlist'] as String?;
@@ -81,34 +133,54 @@ class _LessonScreenState extends State<LessonScreen> {
     final sm = m.data.summaries[k] is Map ? (m.data.summaries[k] as Map).cast<String, dynamic>() : null;
     final checks = m.engine.lessonQuiz(k);
 
-    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        LessonGlyph(mark, size: 20),
-        SizedBox(width: 8.w),
-        Text('${c['code']}', style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w700)),
-        if (l['min'] != null) ...[
-          SizedBox(width: 10.w),
-          Text("${l['min']}m", style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w600)),
-        ],
-      ]),
-      SizedBox(height: 6.h),
-      Text(l['t']?.toString() ?? '', maxLines: 3, overflow: TextOverflow.ellipsis, style: display(20, weight: FontWeight.w600)),
+    // The video fills the width at 16:9, never so tall the sheet would cover its controls.
+    final top = MediaQuery.paddingOf(context).top;
+    final w = MediaQuery.sizeOf(context).width;
+    final videoH = math.min(w * 9 / 16, Tokens.sheetTop.h - top - 14);
+    final canvas = Stack(children: [
+      Positioned(
+        top: top,
+        left: 0,
+        right: 0,
+        height: videoH,
+        child: src != null
+            ? VideoEmbed(key: const ValueKey('lesson-video'), src: src, videoId: v, code: '${c['code']}')
+            : FallbackTile(code: '${c['code']}'),
+      ),
+      Positioned(
+        top: top + 10,
+        left: 12,
+        child: FrostButton(icon: Icons.arrow_back, tooltip: 'Back', onPressed: () => Navigator.of(context).maybePop()),
+      ),
+      Positioned(
+        top: top + 10,
+        right: 12,
+        child: FrostButton(key: const ValueKey('lesson-more'), icon: Icons.more_horiz, tooltip: 'More', onPressed: () => _more(m, c, u)),
+      ),
     ]);
 
     return Scaffold(
       backgroundColor: Tokens.midnight,
       body: SheetScaffold(
-        onBack: () => Navigator.of(context).maybePop(),
-        header: header,
+        canvas: canvas,
         children: [
-          if (src != null) VideoEmbed(src: src, videoId: v),
-          if (link != null) ItemBlock(leading: const Icon(Icons.menu_book_outlined, color: Tokens.quiet), title: link),
-          SizedBox(height: 16.h),
+          Row(children: [
+            LessonGlyph(mark, size: 20),
+            SizedBox(width: 8.w),
+            Text('${c['code']}', style: body(12, color: Tokens.ink2, weight: FontWeight.w800).copyWith(letterSpacing: 0.8)),
+            if (l['min'] != null) ...[
+              SizedBox(width: 10.w),
+              Text("${l['min']}m", style: body(12, color: Tokens.ink2, weight: FontWeight.w600)),
+            ],
+          ]),
+          SizedBox(height: 8.h),
+          Text(l['t']?.toString() ?? '', style: display(24, color: Tokens.ink, weight: FontWeight.w700)),
+          SizedBox(height: 18.h),
           PillButton(
             key: const ValueKey('lesson-mark'),
             icon: watched ? Icons.check_circle : Icons.visibility_outlined,
             label: watched ? 'Watched' : 'Mark watched',
-            tone: watched ? PillTone.done : PillTone.primary,
+            tone: watched ? PillTone.quiet : PillTone.primary,
             onPressed: () => m.toggleDone(k),
           ),
           if (mark == LessonMark.watched && checks != null)
@@ -117,9 +189,13 @@ class _LessonScreenState extends State<LessonScreen> {
               child: Row(children: [
                 const Icon(Icons.quiz_outlined, size: 18, color: Tokens.half),
                 SizedBox(width: 6.w),
-                Text('${checks.length}', style: body(14, color: Tokens.half, weight: FontWeight.w700)),
+                Text('${checks.length}', style: body(14, color: Tokens.ink, weight: FontWeight.w700)),
               ]),
             ),
+          if (link != null) ...[
+            SizedBox(height: 14.h),
+            ItemBlock(leading: const LeadTile(icon: Icons.menu_book_outlined), title: link),
+          ],
           if (sm != null) ...[
             SizedBox(height: 22.h),
             Text(plain(sm['takeaway']), style: body(16, weight: FontWeight.w700, height: 1.4)),

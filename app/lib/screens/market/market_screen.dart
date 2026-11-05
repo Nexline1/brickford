@@ -1,6 +1,6 @@
-// Market (stage 1): the real Problems and Exams from the data. NeetCode
-// categories with what is solved, the problem sets, and the exams (the
-// official diagnostics and the course question banks). Searchable.
+// Market (stage 1): the real work from the data. The problem sets, the exams
+// (the official diagnostics and the course question banks) and the NeetCode
+// categories with what is solved, behind a chip row.
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -9,11 +9,9 @@ import '../../state/app_model.dart';
 import '../../theme/theme.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
-import '../../widgets/brickford_field.dart';
-import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 
-enum _Tab { problems, psets, exams }
+enum _Tab { psets, exams, problems }
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -22,30 +20,9 @@ class MarketScreen extends StatefulWidget {
 }
 
 class _MarketScreenState extends State<MarketScreen> {
-  _Tab tab = _Tab.problems;
-  String q = '';
+  _Tab tab = _Tab.psets;
 
-  bool _hit(String s) => q.isEmpty || s.toLowerCase().contains(q.toLowerCase());
-
-  void _detail(BuildContext context, String title, List<Widget> rows) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Tokens.sheet,
-      showDragHandle: true,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: Tokens.sheetBorderRadius),
-      builder: (_) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.6,
-        builder: (_, scroll) => ListView(
-          controller: scroll,
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 28.h),
-          children: [Text(title, style: display(20, color: Tokens.ink, weight: FontWeight.w600)), SizedBox(height: 14.h), ...rows],
-        ),
-      ),
-    );
-  }
+  void _detail(BuildContext context, String title, List<Widget> rows) => showListSheet(context, title: title, rows: rows);
 
   Widget _line(IconData icon, String text) => Padding(
         padding: EdgeInsets.only(bottom: 10.h),
@@ -77,37 +54,35 @@ class _MarketScreenState extends State<MarketScreen> {
     final banks = d.quizzes.entries.toList();
     final exams = d.diagnostics.length + banks.length;
 
-    final header = Wrap(spacing: 22.w, runSpacing: 8.h, children: [
-      Stat(icon: Icons.code, value: '$solved/$totalProblems', semantic: 'problems solved'),
-      Stat(icon: Icons.assignment_outlined, value: '$psetsDone/${psetItems.length}', semantic: 'problem sets done'),
-      Stat(icon: Icons.school_outlined, value: '$exams', semantic: 'exams'),
+    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      BigCount(icon: Icons.assignment, semantic: 'problem sets done', value: '$psetsDone', total: '${psetItems.length}', valueKey: const ValueKey('market-count')),
+      SizedBox(height: 10.h),
+      Wrap(spacing: 22.w, runSpacing: 8.h, children: [
+        Stat(icon: Icons.school_outlined, value: '$exams', semantic: 'exams'),
+        Stat(icon: Icons.code, value: '$solved/$totalProblems', semantic: 'problems solved'),
+      ]),
     ]);
 
-    final tabs = Row(children: [
-      for (final (t, icon, n) in [
-        (_Tab.problems, Icons.code, totalProblems),
-        (_Tab.psets, Icons.assignment_outlined, psetItems.length),
-        (_Tab.exams, Icons.school_outlined, exams),
-      ]) ...[
-        Expanded(
-          child: PillButton(
-            key: ValueKey('market-tab-${t.name}'),
-            icon: icon,
-            label: '$n',
-            tone: tab == t ? PillTone.primary : PillTone.quiet,
-            onPressed: () => setState(() => tab = t),
-          ),
+    final tabs = ChipRow(children: [
+      for (final (t, icon, label) in [
+        (_Tab.psets, Icons.assignment_outlined, 'Sets'),
+        (_Tab.exams, Icons.school_outlined, 'Exams'),
+        (_Tab.problems, Icons.code, 'Code'),
+      ])
+        BrickChip(
+          key: ValueKey('market-tab-${t.name}'),
+          icon: icon,
+          label: label,
+          selected: tab == t,
+          onTap: () => setState(() => tab = t),
         ),
-        if (t != _Tab.exams) SizedBox(width: 8.w),
-      ],
     ]);
 
     final List<Widget> list = switch (tab) {
       _Tab.problems => [
           for (final e in problems.entries)
-            if (_hit(e.key) || e.value.any(_hit))
               ItemBlock(
-                leading: const Icon(Icons.code, color: Tokens.quiet),
+                leading: const LeadTile(icon: Icons.code),
                 title: e.key,
                 meta: '${e.value.where((p) => solvedSet.contains('${e.key}|$p')).length}/${e.value.length}',
                 onTap: () => _detail(context, e.key, [
@@ -118,10 +93,10 @@ class _MarketScreenState extends State<MarketScreen> {
         ],
       _Tab.psets => [
           for (final p in psetItems)
-            if (_hit('${p.item['label']} ${p.group['course']}'))
               ItemBlock(
-                leading: Icon(truthy((m.engine.S['psets'] as Map)[p.item['id']]) ? Icons.check_circle : Icons.assignment_outlined,
-                    color: Tokens.quiet),
+                leading: truthy((m.engine.S['psets'] as Map)[p.item['id']])
+                    ? const LeadTile(icon: Icons.check_rounded, color: Tokens.accent, fg: Colors.white)
+                    : const LeadTile(icon: Icons.assignment_outlined),
                 subtitle: '${p.group['course']}',
                 title: '${p.item['label']}',
                 onTap: () => _detail(context, '${p.item['label']}', [
@@ -133,9 +108,8 @@ class _MarketScreenState extends State<MarketScreen> {
         ],
       _Tab.exams => [
           for (final x in d.diagnostics)
-            if (_hit('${x['title']} ${x['subject']}'))
               ItemBlock(
-                leading: const Icon(Icons.timer_outlined, color: Tokens.quiet),
+                leading: const LeadTile(icon: Icons.timer_outlined),
                 subtitle: '${x['subject']}',
                 title: '${x['title']}',
                 meta: '${x['minutes']}m',
@@ -147,9 +121,8 @@ class _MarketScreenState extends State<MarketScreen> {
                 ]),
               ),
           for (final b in banks)
-            if (_hit('${(b.value as Map)['title']} ${(b.value as Map)['course']}'))
               ItemBlock(
-                leading: const Icon(Icons.quiz_outlined, color: Tokens.quiet),
+                leading: const LeadTile(icon: Icons.quiz_outlined),
                 subtitle: '${(b.value as Map)['course']}',
                 title: '${(b.value as Map)['title']}',
                 meta: '${((b.value as Map)['questions'] as List).length}',
@@ -162,10 +135,9 @@ class _MarketScreenState extends State<MarketScreen> {
     };
 
     return SheetScaffold(
+      tabbed: true,
       header: header,
       children: [
-        BrickfordField(icon: Icons.search, hint: 'Search', onChanged: (v) => setState(() => q = v.trim())),
-        SizedBox(height: 14.h),
         tabs,
         SizedBox(height: 16.h),
         ...list,

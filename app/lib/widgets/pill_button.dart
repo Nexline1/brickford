@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
 
-enum PillTone { primary, quiet, done }
+enum PillTone { primary, quiet, done, dark }
 
 class PillButton extends StatelessWidget {
   const PillButton({super.key, required this.label, this.icon, this.onPressed, this.tone = PillTone.primary, this.expand = true});
@@ -22,6 +22,7 @@ class PillButton extends StatelessWidget {
       PillTone.primary => (Tokens.primary, Tokens.onPrimary),
       PillTone.quiet => (Tokens.fieldFill, Tokens.ink),
       PillTone.done => (Tokens.done, Colors.white),
+      PillTone.dark => (Tokens.card, Colors.white),
     };
     return ElevatedButton.styleFrom(
       backgroundColor: bg,
@@ -37,7 +38,9 @@ class PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: body(15, color: null, weight: FontWeight.w600));
+    // The reference's action label: uppercase, letter-spaced.
+    final text = Text(label.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis,
+        style: body(13.5, color: null, weight: FontWeight.w700).copyWith(letterSpacing: 1.2));
     final button = ElevatedButton(
       style: styleFor(tone),
       onPressed: onPressed,

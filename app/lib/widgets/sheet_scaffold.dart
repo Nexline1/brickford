@@ -9,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
 import 'blocks.dart';
+import 'crest.dart';
 
 class SheetScaffold extends StatelessWidget {
   const SheetScaffold({super.key, this.header, this.trailing, this.canvas, required this.children, this.onBack, this.tabbed = false});
@@ -51,10 +52,15 @@ class SheetScaffold extends StatelessWidget {
                     FrostButton(icon: Icons.arrow_back_ios_new, tooltip: 'Back', onPressed: onBack!, dark: true),
                     SizedBox(width: 12.w),
                   ],
-                  const BrandMark(),
+                  const Crest(height: 32),
                   SizedBox(width: 10.w),
                   Expanded(
-                    child: Text('Brickford', maxLines: 1, overflow: TextOverflow.ellipsis, style: display(20)),
+                    child: Text(
+                      'BRICKFORD',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: display(17, color: Tokens.onMidnight).copyWith(letterSpacing: 17 * 0.14),
+                    ),
                   ),
                   ?trailing,
                 ],

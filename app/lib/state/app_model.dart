@@ -4,6 +4,7 @@
 // can merge the two with the web app's mergeState rules unchanged.
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,17 +31,34 @@ class AppModel extends ChangeNotifier {
     }
   }
 
+  static Future<String> _read(AssetBundle bundle, String f) async {
+    // load + utf8.decode, not loadString: loadString decodes anything over
+    // 50 KB on a compute() isolate, which never completes inside a widget
+    // test's fake clock (and buys nothing for a one-off read).
+    final bytes = await bundle.load('assets/data/$f');
+    return utf8.decode(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+  }
+
+  /// Startup's data: everything but summaries.json (see [ensureSummaries]).
   static Future<BrickfordData> loadData(AssetBundle bundle) async {
     final text = <String, String>{};
     for (final f in BrickfordData.files) {
-      // load + utf8.decode, not loadString: loadString decodes anything over
-      // 50 KB on a compute() isolate, which never completes inside a widget
-      // test's fake clock (and buys nothing for a one-off read at launch).
-      final bytes = await bundle.load('assets/data/$f');
-      text[f] = utf8.decode(bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+      text[f] = await _read(bundle, f);
     }
     return BrickfordData.fromText(text);
   }
+
+  Future<void>? _summaries;
+
+  /// summaries.json (1.9 MB), read the first time a lecture page asks for it
+  /// rather than at startup; listeners rebuild when it lands.
+  Future<void> ensureSummaries([AssetBundle? bundle]) => _summaries ??= () async {
+    final raw = await _read(bundle ?? rootBundle, 'summaries.json');
+    final v = jsonDecode(raw);
+    data.summaries = v is Map ? v.cast<String, dynamic>() : <String, dynamic>{};
+    data.summariesLoaded = true;
+    notifyListeners();
+  }();
 
   Future<void> _save() => prefs.setString(storageKey, jsonEncode(engine.S));
 

@@ -49,6 +49,7 @@ class BrickfordData {
     required this.identity,
     required this.courses,
     required this.summaries,
+    required this.quizKeys,
     required this.quizzes,
     required this.psets,
     required this.labs,
@@ -63,7 +64,15 @@ class BrickfordData {
   final String startDate;
   final Map<String, dynamic> identity;
   final List<Map<String, dynamic>> courses;
-  final Map<String, dynamic> summaries;
+  /// summaries.json: read when a lecture opens, not at startup (it is 1.9 MB),
+  /// so empty until [summariesLoaded]. The quiz gate never waits on it: it
+  /// asks [quizKeys].
+  Map<String, dynamic> summaries;
+  bool summariesLoaded = false;
+
+  /// quiz-keys.json: the lectures whose summary carries checks (app.js
+  /// lessonQuiz(k) != null), exported from the same data.
+  final Set<String> quizKeys;
   final Map<String, dynamic> quizzes;
   final List<Map<String, dynamic>> psets;
   final List<Map<String, dynamic>> labs;
@@ -73,11 +82,15 @@ class BrickfordData {
   final Map<String, dynamic> drills;
   final List<String> speechCourseIds;
 
+  /// What startup reads.
   static const files = [
-    'meta.json', 'courses.json', 'summaries.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
+    'meta.json', 'courses.json', 'quiz-keys.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
   ];
 
-  /// From the decoded text of [files], keyed by file name.
+  /// Read later, on first need.
+  static const lazyFiles = ['summaries.json'];
+
+  /// From the decoded text of [files] (and [lazyFiles], when given), keyed by file name.
   factory BrickfordData.fromText(Map<String, String> text) {
     Map<String, dynamic> obj(String f) => _map(jsonDecode(text[f]!));
     List<Map<String, dynamic>> list(Object? v) => (v as List).map((e) => _map(e)).toList();
@@ -86,7 +99,8 @@ class BrickfordData {
       startDate: meta['START_DATE'] as String,
       identity: _map(meta['IDENTITY']),
       courses: list(jsonDecode(text['courses.json']!)),
-      summaries: obj('summaries.json'),
+      summaries: text['summaries.json'] != null ? obj('summaries.json') : <String, dynamic>{},
+      quizKeys: (jsonDecode(text['quiz-keys.json']!) as List).cast<String>().toSet(),
       quizzes: obj('quizzes.json'),
       psets: list(work['PSETS']),
       labs: list(work['LABS']),
@@ -95,7 +109,7 @@ class BrickfordData {
       weekPlan: list(gates['WEEK_PLAN']),
       drills: _map(story['DRILLS']),
       speechCourseIds: (story['courses'] as List).cast<String>(),
-    );
+    )..summariesLoaded = text['summaries.json'] != null;
   }
 
   Map<String, dynamic>? course(String id) {
@@ -520,6 +534,11 @@ class Engine {
   // ---------- the lecture quiz gate (T-043) ----------
   static const QUIZ_GATE_FROM = '2026-10-24';
 
+  /// lessonQuiz(k) != null, answered from quiz-keys.json so it holds before
+  /// summaries.json is read. Every gate decision goes through this.
+  bool hasQuiz(String k) => D.quizKeys.contains(k);
+
+  /// The checks themselves (the lesson page), once summaries.json is read.
   List<dynamic>? lessonQuiz(String k) {
     final sm = D.summaries[k];
     if (sm is! Map) return null;
@@ -542,7 +561,7 @@ class Engine {
 
   bool lessonCleared(String k) {
     final st = _map(lessons[k]);
-    return truthy(st['done']) && (quizPassed(k) || lessonQuiz(k) == null || grandfathered(st));
+    return truthy(st['done']) && (quizPassed(k) || !hasQuiz(k) || grandfathered(st));
   }
 
   // The lecture's own date in the plan, read with no work-ahead re-anchoring.
@@ -564,7 +583,7 @@ class Engine {
   }
 
   bool lessonBlocks(String k) =>
-      lessonQuiz(k) != null &&
+      hasQuiz(k) &&
       !quizPassed(k) &&
       !grandfathered(lessons[k] is Map ? _map(lessons[k]) : null) &&
       ge(planDateOf(k) ?? '9999', QUIZ_GATE_FROM);
@@ -709,7 +728,7 @@ class Engine {
   NextAction lectureAction(SchedItem nextUp, List<SchedItem> real, bool workAhead) {
     final nk = nextUp.key;
     final root = lockRoot(nextUp.cid!, nextUp.ui!, nextUp.li!);
-    final watchedOpen = truthy(_map(lessons[nk])['done']) && lessonQuiz(nk) != null && !quizPassed(nk);
+    final watchedOpen = truthy(_map(lessons[nk])['done']) && hasQuiz(nk) && !quizPassed(nk);
     if (root != null || watchedOpen) {
       final cid = root?.cid ?? nextUp.cid!, ui = root?.ui ?? nextUp.ui!, li = root?.li ?? nextUp.li!;
       final t = root != null ? (root.l['t'] as String? ?? '') : nextUp.title;
@@ -742,6 +761,87 @@ class Engine {
   int revisionWeekOf(String iso) {
     final w = (daysBetween(firstSunday(), iso) / 7).ceil();
     return w < 1 ? 1 : w;
+  }
+
+  /// app.js isSealDay: every Sunday from the first revision Sunday on.
+  bool isSealDay(String iso) => dowOf(iso) == 0 && ge(iso, revisionWeek(1).sun);
+
+  /// The week sealed for revision week [r] (V.review's rule: a week sealed
+  /// under an earlier start can carry the same number, so it counts only if
+  /// it was sealed on or after this week began), or null.
+  Map<String, dynamic>? sealedWeek(int r) {
+    final from = revisionWeek(r).from;
+    for (final x in (S['weeks'] as List? ?? const [])) {
+      if (x is! Map) continue;
+      final w = x['week'];
+      final n = w is num ? w : num.tryParse('$w');
+      if (n == r && ge((x['date'] ?? '').toString(), from)) return x.cast<String, dynamic>();
+    }
+    return null;
+  }
+
+  /// app.js weekRowFor's week: a rest day belongs to the week just worked.
+  int weekOf(String iso) {
+    final i = studyIndex(iso) >= 0 ? studyIndex(iso) : studyIndex(prevStudyDay(iso));
+    final w = fdiv(i < 0 ? 0 : i, STUDY_WEEK) + 1;
+    return w < 1 ? 1 : w;
+  }
+
+  // ---------- the gates (T-038) ----------
+  /// app.js gateRec: a gate's stored record in any of its shapes.
+  ({String? date, String? at, bool passed}) gateRec(Object? raw, int n) {
+    if (raw is Map) {
+      final date = truthy(raw['date']) ? raw['date'].toString() : null;
+      final at = truthy(raw['at']) ? raw['at'].toString() : null;
+      return (date: date, at: at, passed: raw['passed'] == true && date != null);
+    }
+    String midnight(String iso) => DateTime(int.parse(iso.substring(0, 4)), int.parse(iso.substring(5, 7)), int.parse(iso.substring(8, 10)))
+        .toUtc()
+        .toIso8601String();
+    if (raw is String && RegExp(r'^\d{4}-\d\d-\d\d$').hasMatch(raw)) return (date: raw, at: midnight(raw), passed: true);
+    if (raw == true) {
+      String? ts;
+      final ledgers = [S['ledger'], ..._map(S['foreignLedgers']).values];
+      for (final l in ledgers) {
+        if (l is! List) continue;
+        for (final e in l) {
+          if (e is Map && e['type'] == 'gate' && e['ref'] == 'gate$n' && e['data'] is Map && truthy((e['data'] as Map)['passed']) &&
+              truthy(e['ts']) && (ts == null || e['ts'].toString().compareTo(ts) > 0)) {
+            ts = e['ts'].toString();
+          }
+        }
+      }
+      return ts != null
+          ? (date: localISO(DateTime.parse(ts).toLocal()), at: ts, passed: true)
+          : (date: START_DATE, at: midnight(START_DATE), passed: true);
+    }
+    return (date: null, at: null, passed: false);
+  }
+
+  /// app.js gatePlan: each gate's target is the previous gate's completion date
+  /// (its target while still open) plus this gate's duration in study days.
+  List<({int n, String label, String target, String? doneDate})> gatePlan() {
+    var base = START_DATE;
+    final gates = _map(S['gates']);
+    return [
+      for (final g in D.gates)
+        () {
+          final n = (g['n'] as num).toInt();
+          final rec = gateRec(gates['$n'], n);
+          final doneDate = rec.passed ? rec.date : null;
+          final target = addStudyDays(base, ((g['months'] as num) * 30.4).round());
+          base = doneDate ?? target;
+          return (n: n, label: (g['label'] ?? '').toString(), target: target, doneDate: doneDate);
+        }(),
+    ];
+  }
+
+  /// The open gate whose target is [iso] (the calendar's diamond), or null.
+  ({int n, String label, String target, String? doneDate})? gateOn(String iso) {
+    for (final g in gatePlan()) {
+      if (g.doneDate == null && g.target == iso) return g;
+    }
+    return null;
   }
 
   // ---------- Monk Mode (T-052, T-054, T-057, T-062) ----------

@@ -3,7 +3,7 @@
 //   node tools/verify-app.js                 the gate: freshness, parity, then the plants
 //   node tools/verify-app.js --plant NAME    one planted defect; must exit 1 (the gate runs these itself)
 //
-// Three things, each of which fails the gate on its own:
+// Four things, each of which fails the gate on its own:
 //
 // 1. FRESHNESS. app/assets/data/*.json is what tools/export-data.js would
 //    write from platform/data/*.js right now, byte for byte. A curriculum edit
@@ -32,6 +32,14 @@
 //    never been shown to catch anything:
 //      rest-dow    the Dart engine with REST_DOW = 5 (Friday)
 //      stale-json  app/assets/data with one lesson's minutes changed
+//      rest-status the Dart dayStatus with a past Saturday no longer "rest"
+//                  (it falls through to missed/partial, which is how the web
+//                  calendar would paint three years of Saturdays red)
+//
+// 4. CALENDAR (T-064 stage 2). What the Flutter calendar draws: dayStatus,
+//    scheduledFor (the day sheet's rows) and gatePlan (the diamonds) for every
+//    date from 2026-10-01 to 2026-12-31, for each state fixture above under a
+//    Saturday clock and under a study-day clock, Dart against app.js.
 //    Each runs in a scratch copy; nothing in the repo is modified.
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), vm = require("vm");
@@ -42,7 +50,9 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json"];
+const PLANTS = ["rest-dow", "stale-json", "rest-status"];
+const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
+const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
 const argPlant = (() => { const i = process.argv.indexOf("--plant"); return i < 0 ? null : process.argv[i + 1]; })();
 if (argPlant && !PLANTS.includes(argPlant)) { console.log("unknown plant " + argPlant); process.exit(2); }
@@ -212,6 +222,27 @@ async function runJS(browser, fx) {
   return out;
 }
 
+// The calendar block: each fixture's state under each calendar clock, read through the hook.
+async function runCalendarJS(browser, fx) {
+  const out = {};
+  for (const f of fx.fixtures) {
+    for (const clock of fx.calendar.clocks) {
+      const { ctx, page: p, errors } = await page(browser, clock, f.state);
+      out[f.name + " @ " + clock] = await p.evaluate(({ dates, schedSrc }) => {
+        const T = window.__brickfordTest, schedKey = eval(schedSrc);
+        return {
+          status: dates.map(d => T.dayStatus(d)),
+          sched: dates.map(d => schedKey(T.scheduledFor(d))),
+          gates: T.gatePlan().map(g => g.n + ":" + g.target + ":" + (g.doneDate || "")),
+        };
+      }, { dates: fx.calendar.dates, schedSrc: schedKey.toString() });
+      if (errors.length) throw new Error("app.js page errors under " + clock + ": " + errors.slice(0, 2).join(" | "));
+      await ctx.close();
+    }
+  }
+  return out;
+}
+
 function runDart(fxFile, dataDir, engineRoot) {
   const tool = path.join(engineRoot, "tool/engine_dump.dart");
   const res = spawnSync(DART, ["run", tool, dataDir, fxFile], { encoding: "utf8", maxBuffer: 1 << 30, cwd: ROOT });
@@ -244,6 +275,16 @@ function diff(a, b, at, out, label) {
     const p = path.join(dataDir, "courses.json"), c = JSON.parse(fs.readFileSync(p, "utf8"));
     c[0].units[0].lessons[0].min += 60;           // MATH 110's first lecture an hour longer: re-packs the Theory windows
     fs.writeFileSync(p, JSON.stringify(c, null, 1) + "\n");
+  }
+  if (argPlant === "rest-status") {
+    engineRoot = path.join(scratch, "app");
+    fs.cpSync(path.join(ROOT, "app/lib/engine"), path.join(engineRoot, "lib/engine"), { recursive: true });
+    fs.cpSync(path.join(ROOT, "app/tool"), path.join(engineRoot, "tool"), { recursive: true });
+    const p = path.join(engineRoot, "lib/engine/engine.dart"), src = fs.readFileSync(p, "utf8");
+    const was = "if (isRestDay(iso) && ge(iso, START_DATE)) return 'rest';";
+    const planted = src.replace(was, "if (isRestDay(iso) && ge(iso, START_DATE) && !lt(iso, today)) return 'rest';");
+    if (planted === src) throw new Error("plant rest-status: the rest line of dayStatus not found in engine.dart");
+    fs.writeFileSync(p, planted);
   }
   if (argPlant === "rest-dow") {
     engineRoot = path.join(scratch, "app");
@@ -282,6 +323,7 @@ function diff(a, b, at, out, label) {
       revisionWeeks: Math.ceil(dates.length / 7) + 1,
       monkDays: MONK_PROBES,
       fixtures: fixturesFrom(plan).map(f => Object.assign(f, { walk: dates })),
+      calendar: { dates: range(CAL_FROM, CAL_TO), clocks: CAL_CLOCKS },
     };
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -293,6 +335,7 @@ function diff(a, b, at, out, label) {
     console.log("  dart engine: " + Math.round((Date.now() - tDart) / 1000) + "s");
     const tJs = Date.now();
     const js = await runJS(browser, fx);
+    js.calendar = await runCalendarJS(browser, fx);
     console.log("  app.js:      " + Math.round((Date.now() - tJs) / 1000) + "s");
     check("app.js ran without page errors", js.errors.length === 0, js.errors.slice(0, 3).join(" | "));
 
@@ -305,9 +348,16 @@ function diff(a, b, at, out, label) {
       sections.push([f.name + ", clock walked over " + dates.length + " dates: studyAnchor, scheduledFor(today), streak, backlogCount",
         js.fixtures[f.name].walk, dart.fixtures[f.name] && dart.fixtures[f.name].walk]);
     });
-    sections.forEach(([name, a, b]) => {
+    const calDates = fx.calendar.dates;
+    const byCal = (at, i) => (["status", "sched"].includes(at[at.length - 1]) ? calDates[i] : i);
+    fx.fixtures.forEach(f => CAL_CLOCKS.forEach(clock => {
+      const k = f.name + " @ " + clock;
+      sections.push(["calendar: " + k + " (" + (new Date(clock + "T00:00:00Z").getUTCDay() === 6 ? "Saturday" : "study-day") + " clock): dayStatus, scheduledFor, gatePlan on " +
+        CAL_FROM + ".." + CAL_TO, js.calendar[k], dart.calendar && dart.calendar[k], byCal]);
+    }));
+    sections.forEach(([name, a, b, label]) => {
       const out = [];
-      diff(a, b, [], out, byDate);
+      diff(a, b, [], out, label || byDate);
       check("parity: " + name, out.length === 0, out.length ? out.length + (out.length > 400 ? "+" : "") + " differ; " + out.slice(0, 4).join("; ") : "");
     });
     // The parity is only worth something if the fixtures reach the branches.
@@ -321,6 +371,14 @@ function diff(a, b, at, out, label) {
       g.fixed.streak > 0 && g.fixed.backlogCount > 0 && reanchored && r.fixed.studyAnchor >= 0,
       "statuses " + [...statuses].join("/") + "; streak " + g.fixed.streak + ", best " + g.fixed.bestStreak + ", backlog " + g.fixed.backlogCount +
       "; rest-day anchor " + r.fixed.studyAnchor);
+    // The calendar block reaches what the calendar draws: every status, and a past Saturday on each clock.
+    const calStatuses = new Set([].concat(...Object.values(js.calendar).map(x => x.status)));
+    const pastSat = calDates.indexOf("2026-10-31");
+    check("the calendar block reaches every day status, a past Saturday as rest on both clocks, and gate targets",
+      ["completed", "partial", "missed", "today", "upcoming", "rest"].every(s => calStatuses.has(s)) &&
+      CAL_CLOCKS.every(c => js.calendar[fx.fixtures[3].name + " @ " + c].status[pastSat] === "rest") &&
+      Object.values(js.calendar).every(x => x.gates.length > 0),
+      [...calStatuses].join("/") + "; " + Object.keys(js.calendar).length + " fixture x clock runs, " + calDates.length + " dates each");
   } finally {
     await browser.close();
     fs.rmSync(scratch, { recursive: true, force: true });

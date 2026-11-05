@@ -3,6 +3,9 @@
 // shadow is black12 blur 20 offset (0, -5); fields are #F3F4F6, radius 16,
 // with no border in any state; pills are radius 16 with elevation 0 in every
 // state. Plus Home on the real data at a fixed date.
+import 'dart:convert';
+
+import 'package:app/engine/engine.dart';
 import 'package:app/main.dart';
 import 'package:app/shell.dart';
 import 'package:app/state/app_model.dart';
@@ -49,7 +52,7 @@ void main() {
     // The sheet starts at 240 of the 812 design height, over a 280-high branding layer.
     final top = tester.getTopLeft(find.byKey(SheetScaffold.sheetKey).first).dy;
     expect(top, closeTo(240, 0.5));
-    expect(find.text('Brickford'), findsWidgets);
+    expect(find.text('BRICKFORD'), findsWidgets);
     final scroll = tester.widget<ListView>(
       find.descendant(of: find.byKey(SheetScaffold.sheetKey).first, matching: find.byType(ListView)).first,
     );
@@ -151,5 +154,31 @@ void main() {
     expect(un['done'], isFalse);
     expect(un.containsKey('doneAt'), isFalse);
     expect(un['firstDoneAt'], '2026-11-04');
+  });
+
+  testWidgets('startup does not read summaries.json; quiz-keys.json is exactly lessonQuiz != null; a lecture reads it on open', (tester) async {
+    final m = await model('2026-11-04');
+    expect(m.data.summariesLoaded, isFalse);
+    expect(m.data.summaries, isEmpty);
+    // The index agrees with the summaries it was exported from.
+    final full = BrickfordData.fromText({
+      for (final f in [...BrickfordData.files, ...BrickfordData.lazyFiles])
+        f: utf8.decode((await rootBundle.load('assets/data/$f')).buffer.asUint8List()),
+    });
+    final withChecks = {
+      for (final e in full.summaries.entries)
+        if (e.value is Map && (e.value as Map)['checks'] is List && ((e.value as Map)['checks'] as List).isNotEmpty) e.key,
+    };
+    expect(m.data.quizKeys, withChecks);
+    expect(withChecks, isNotEmpty);
+    await pumpApp(tester, m);
+    final first = m.engine.realSched('2026-11-04').first;
+    final card = find.byKey(ValueKey('home-lesson-${first.key}'));
+    await tester.ensureVisible(card);
+    await tester.pumpAndSettle();
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    expect(m.data.summariesLoaded, isTrue);
+    expect(m.data.summaries.length, full.summaries.length);
   });
 }

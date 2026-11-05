@@ -50,6 +50,10 @@ function build(root) {
     "courses.json": D.COURSES,
     "lessons.json": lessons,
     "summaries.json": D.SUMMARIES || {},
+    // The quiz gate's one question at startup, "does lecture k have a quiz?",
+    // without the 1.9 MB of summaries (the app reads those when a lecture
+    // opens). app.js lessonQuiz's own test: sm && sm.checks && sm.checks.length.
+    "quiz-keys.json": Object.keys(D.SUMMARIES || {}).filter(k => { const sm = D.SUMMARIES[k]; return !!(sm && sm.checks && sm.checks.length); }),
     "quizzes.json": D.QUIZZES || {},
     "workshop.json": { PSETS: D.PSETS || [], LABS: D.LABS || [] },
     "gates.json": { GATES: D.GATES, DIAGNOSTICS: D.DIAGNOSTICS, WEEK_PLAN: D.WEEK_PLAN },

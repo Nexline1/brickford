@@ -12,12 +12,16 @@ import 'shell.dart';
 import 'state/app_model.dart';
 import 'theme/theme.dart';
 import 'theme/tokens.dart';
+import 'widgets/crest.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // The fonts are bundled (assets/fonts/, OFL): nothing is fetched, so the app
   // renders the same with no connection.
   GoogleFonts.config.allowRuntimeFetching = false;
+  // The crest lockup while the plan is read (the web shell paints the same
+  // lockup before the engine is up, so there is no blank frame between).
+  runApp(const SplashApp());
   final data = await AppModel.loadData(rootBundle);
   final prefs = await SharedPreferences.getInstance();
   runApp(BrickfordApp(model: AppModel(data, prefs)));
@@ -26,6 +30,29 @@ Future<void> main() async {
 /// The phone column: the design is 375x812, so a wide window shows it at most
 /// [maxWidth] wide, centred, rather than scaling every measure up 3x.
 const maxWidth = 480.0;
+
+/// The splash: the crest, BRICKFORD and SELF-BUILT UNIVERSITY on midnight.
+class SplashApp extends StatelessWidget {
+  const SplashApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      builder: (context, _) => MaterialApp(
+        title: 'Brickford',
+        debugShowCheckedModeBanner: false,
+        theme: brickfordTheme(),
+        home: const Scaffold(
+          key: ValueKey('splash'),
+          backgroundColor: Tokens.midnight,
+          body: Center(child: CrestLockup(height: 132)),
+        ),
+      ),
+    );
+  }
+}
 
 class BrickfordApp extends StatelessWidget {
   const BrickfordApp({super.key, required this.model});
@@ -47,12 +74,8 @@ class BrickfordApp extends StatelessWidget {
               child: ScreenUtilInit(
                 designSize: const Size(375, 812),
                 minTextAdapt: true,
-                builder: (context, _) => MaterialApp(
-                  title: 'Brickford',
-                  debugShowCheckedModeBanner: false,
-                  theme: brickfordTheme(),
-                  home: const Shell(),
-                ),
+                builder: (context, _) =>
+                    MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
               ),
             ),
           ),

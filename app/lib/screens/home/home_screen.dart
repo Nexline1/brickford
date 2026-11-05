@@ -12,6 +12,7 @@ import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
+import '../calendar/calendar_screen.dart';
 import '../lesson/lesson_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -65,21 +66,34 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(HomeScreen.greeting(DateTime.now().hour), style: display(30)),
         SizedBox(height: 8.h),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(
-              'Day ',
-              style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  'Day ',
+                  style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
+                ),
+                Text(
+                  '$dayN',
+                  key: const ValueKey('home-day'),
+                  style: body(16, color: Tokens.onMidnight, weight: FontWeight.w800),
+                ),
+                Text(
+                  ' / $total',
+                  style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
+                ),
+              ],
             ),
-            Text(
-              '$dayN',
-              key: const ValueKey('home-day'),
-              style: body(16, color: Tokens.onMidnight, weight: FontWeight.w800),
-            ),
-            Text(
-              ' / $total',
-              style: body(16, color: Tokens.onMidnight2, weight: FontWeight.w500),
+            SizedBox(width: 12.w),
+            FrostButton(
+              key: const ValueKey('home-calendar'),
+              id: 'home-calendar',
+              icon: Icons.calendar_month_outlined,
+              tooltip: 'Calendar',
+              dark: true,
+              onPressed: () => openCalendar(context),
             ),
           ],
         ),
@@ -124,16 +138,26 @@ class _HomeScreenState extends State<HomeScreen> {
           : null,
       header: header,
       children: [
-        if (codes.length > 1) ...[
-          ChipRow(
-            children: [
+        ChipRow(
+          children: [
+            Semantics(
+              identifier: 'chip-calendar',
+              child: BrickChip(
+                key: const ValueKey('chip-calendar'),
+                label: 'Calendar',
+                icon: Icons.calendar_month_outlined,
+                selected: false,
+                onTap: () => openCalendar(context),
+              ),
+            ),
+            if (codes.length > 1) ...[
               BrickChip(key: const ValueKey('chip-all'), label: 'All', selected: only == null, onTap: () => setState(() => only = null)),
               for (final c in codes)
                 BrickChip(key: ValueKey('chip-$c'), label: c, selected: only == c, onTap: () => setState(() => only = c)),
             ],
-          ),
-          SizedBox(height: 18.h),
-        ],
+          ],
+        ),
+        SizedBox(height: 18.h),
         _NextUp(
           icon: icon,
           label: label,

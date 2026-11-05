@@ -90,5 +90,22 @@ void main(List<String> args) {
     fixtures[name] = {'fixed': fixed, 'walk': walk};
   }
   out['fixtures'] = fixtures;
+
+  // ---- the calendar (T-064 stage 2): each fixture's state under each calendar clock ----
+  final cal = fx['calendar'] as Map<String, dynamic>;
+  final calDates = (cal['dates'] as List).cast<String>();
+  final calendar = <String, dynamic>{};
+  for (final f in fx['fixtures'] as List) {
+    for (final clock in (cal['clocks'] as List).cast<String>()) {
+      final state = (jsonDecode(jsonEncode(f['state'])) as Map?)?.cast<String, dynamic>();
+      final e = Engine(data, state, today: () => clock);
+      calendar['${f['name']} @ $clock'] = {
+        'status': [for (final d in calDates) e.dayStatus(d)],
+        'sched': [for (final d in calDates) schedKey(e.scheduledFor(d))],
+        'gates': [for (final g in e.gatePlan()) '${g.n}:${g.target}:${g.doneDate ?? ''}'],
+      };
+    }
+  }
+  out['calendar'] = calendar;
   stdout.write(jsonEncode(out));
 }

@@ -44,7 +44,7 @@ class CommunityScreen extends StatelessWidget {
               return ItemBlock(
                 key: ValueKey('community-unit-$id-$ui'),
                 leading: n.total > 0 && n.cleared == n.total
-                    ? const LeadTile(icon: Icons.check_rounded, color: Tokens.accent, fg: Colors.white)
+                    ? const LeadTile(icon: Icons.check_rounded, color: Tokens.done, fg: Colors.white)
                     : LeadTile(text: '${ui + 1}'),
                 subtitle: '${m.data.course(id)!['code']}',
                 title: '${u['name']}',

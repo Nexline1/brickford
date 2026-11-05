@@ -31,21 +31,49 @@ abstract final class Tokens {
   /// Unselected chip edge, bar edge.
   static const hairline = Color(0xFFE2E4EA);
 
-  /// THE accent, the one brand colour: Brickford green. 4.5:1 against white
-  /// (so white labels on it, and it as text on the sheet, pass AA) and 4.1:1
-  /// against midnight (icons, fills and large type on the canvas pass the 3:1
-  /// non-text rule). No colour clears 4.5:1 on both #12141C and white: the
-  /// best possible is 4.3:1 each, so this sits on the white side of that.
-  static const accent = Color(0xFF10875B);
+  // ---- the brand (T-064 brand) ----
+  // The web app's identity before the T-051 iOS palette (platform/css/style.css
+  // history, platform/icons): the gold crest on a dark panel, navy for the tint
+  // and filled buttons. Ratios are WCAG 2 contrast, measured.
+
+  /// The crest's gold (platform/icons, the drawer's seal): 7.3:1 on midnight.
+  /// Crest, canvas highlights and badges on the canvas. Never on white (2.5:1).
+  static const gold = Color(0xFFC89B60);
+
+  /// The lighter caramel (--crest): 8.4:1 on midnight. Highlights on the canvas.
+  static const goldHi = Color(0xFFD3A874);
+
+  /// Gold where it sits on the white sheet (the gate diamond, a seal's icon):
+  /// the old light --gold, 5.6:1 on white.
+  static const goldInk = Color(0xFF8A5F12);
+
+  /// The espresso of the app icon's ground: the ink on a gold fill (6.2:1).
+  static const espresso = Color(0xFF2B2118);
+
+  /// THE accent: Brickford navy (--accent / --accent-fill, Light). 8.2:1 with
+  /// white either way round, so a white label on it and it as text on the
+  /// sheet both pass AA; 6.9:1 on [accentWash]. It is 2.3:1 on midnight, so on
+  /// the canvas the tint is [navyOnDark] instead.
+  static const accent = Color(0xFF1E4F8F);
   static const onAccent = Colors.white;
 
-  /// A pale wash of the accent: the next-up card's gradient, the selected
-  /// tab's soft pill.
-  static const accentWash = Color(0xFFE3F2EA);
+  /// Navy on the dark canvas and dark cards (the old Dark --accent): 8.0:1 on midnight.
+  static const navyOnDark = Color(0xFF78AEF0);
 
-  /// The primary action is the accent.
+  /// A navy fill on dark (the old Dark --accent-fill): white on it is 5.3:1.
+  static const navyFillOnDark = Color(0xFF2F6BBD);
+
+  /// A pale wash of the navy (--accent-soft): the next-up card's gradient,
+  /// the selected tab's soft pill.
+  static const accentWash = Color(0xFFE6EDF6);
+
+  /// The primary action is the navy.
   static const primary = accent;
   static const onPrimary = onAccent;
+
+  /// A persistent badge on the canvas (§5, Rhythm): a raised midnight with a
+  /// gold hairline. White on it 15.8:1, gold on it 6.3:1.
+  static const badge = Color(0xFF1E2230);
 
   /// The dark lecture card on the white sheet.
   static const card = Color(0xFF1A1D27);
@@ -53,11 +81,23 @@ abstract final class Tokens {
   /// A progress bar's empty track, on a field-filled block.
   static const track = Color(0xFFDCDFE6);
 
-  /// Cleared / done: the accent.
-  static const done = accent;
+  /// Cleared / done: the one green left, and only as the semantic "done" tick
+  /// (and the Watched pill's fill). 5.1:1 on white, and white on it 5.1:1.
+  static const done = Color(0xFF2E7D4F);
+
+  /// The done tick on a dark card: 7.6:1 on [card].
+  static const doneOnDark = Color(0xFF5CC28A);
 
   /// Watched, quiz still to pass (3.3:1 on white: a glyph, never body text).
   static const half = Color(0xFFC77700);
+
+  /// Calendar marks (glyphs only, never text). Missed: a red ring, 4.9:1 on
+  /// white. Ahead: a grey ring, 3.2:1 (the non-text 3:1 rule). The half ring's
+  /// unfilled half and a rest day's moon are quieter on purpose.
+  static const missed = Color(0xFFC8323A);
+  static const ringOpen = Color(0xFF8A8F9D);
+  static const ringTrack = Color(0xFFDCDFE6);
+  static const restMark = Color(0xFFC4C8D2);
 
   /// The floating bar's frosted fill.
   static const frost = Color(0xE6FFFFFF);

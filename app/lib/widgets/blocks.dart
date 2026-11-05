@@ -1,4 +1,4 @@
-// Small shared pieces: the brand orb, frosted round buttons, chips, the
+// Small shared pieces: frosted round buttons, chips, the
 // separated item block with its trailing arrow (blueprint §5, Academics), the
 // dark lecture card, the lesson glyph, the persistent badge (§5, Rhythm), a
 // stat on the canvas, a progress bar, and the video thumbnail with its
@@ -11,29 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../state/app_model.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
-
-/// The brand mark: a soft glowing orb in the accent (the reference's orb).
-class BrandMark extends StatelessWidget {
-  const BrandMark({super.key, this.size = 26});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const RadialGradient(
-          center: Alignment(-0.35, -0.4),
-          colors: [Color(0xFFB9F0D2), Color(0xFF3FBF86), Tokens.accent],
-          stops: [0, 0.45, 1],
-        ),
-        boxShadow: [BoxShadow(color: const Color(0xFF3FBF86).withValues(alpha: 0.45), blurRadius: 14)],
-      ),
-    );
-  }
-}
+import 'crest.dart';
 
 /// A round frosted button, 44x44: over the video, in the branding row, and
 /// the bar's search button (at [size]).
@@ -249,7 +227,7 @@ class LessonGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (mark) {
-      LessonMark.cleared => (Icons.check_circle, onDark ? const Color(0xFF3FBF86) : Tokens.done, 'cleared'),
+      LessonMark.cleared => (Icons.check_circle, onDark ? Tokens.doneOnDark : Tokens.done, 'cleared'),
       LessonMark.watched => (Icons.timelapse, onDark ? const Color(0xFFF2A93B) : Tokens.half, 'watched, quiz open'),
       LessonMark.none => (Icons.radio_button_unchecked, onDark ? Tokens.onMidnight2 : Tokens.quiet, 'not watched'),
     };
@@ -289,12 +267,16 @@ class FallbackTile extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1F4D3A), Color(0xFF14231D), Tokens.midnight],
+          colors: [Tokens.accent, Color(0xFF172238), Tokens.midnight],
         ),
       ),
       child: Stack(
         children: [
-          Positioned(right: 18, top: 16, child: Opacity(opacity: 0.55, child: BrandMark(size: 30))),
+          Positioned(
+            right: 18,
+            top: 14,
+            child: Opacity(opacity: 0.8, child: Crest(height: 34, cut: Color(0xFF172238), semantic: null)),
+          ),
           if (code != null)
             Positioned(
               left: 14,
@@ -407,7 +389,7 @@ class LectureCard extends StatelessWidget {
   }
 }
 
-/// A persistent badge on the canvas (§5, Rhythm): white, with a live dot.
+/// A persistent badge on the canvas (§5, Rhythm): raised midnight, a gold hairline and a gold icon.
 class RhythmBadge extends StatelessWidget {
   const RhythmBadge({super.key, required this.icon, required this.label});
   final IconData icon;
@@ -418,15 +400,19 @@ class RhythmBadge extends StatelessWidget {
     return Container(
       height: 36,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(
+        color: Tokens.badge,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Tokens.gold.withValues(alpha: 0.55)),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 17, color: Tokens.accent),
+          Icon(icon, size: 17, color: Tokens.gold),
           SizedBox(width: 6.w),
           Text(
             label,
-            style: body(13, color: Tokens.ink, weight: FontWeight.w800),
+            style: body(13, color: Colors.white, weight: FontWeight.w800),
           ),
         ],
       ),
@@ -476,7 +462,7 @@ class BigCount extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        if (icon != null) ...[Icon(icon, size: 28, color: Tokens.accent, semanticLabel: semantic), SizedBox(width: 8.w)],
+        if (icon != null) ...[Icon(icon, size: 28, color: Tokens.gold, semanticLabel: semantic), SizedBox(width: 8.w)],
         Text(value, key: valueKey, style: display(46)),
         SizedBox(width: 6.w),
         Text(

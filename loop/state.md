@@ -153,3 +153,10 @@
     - verify-offline (Inter loads offline), verify-design, verify-density and verify-clip FAIL on main itself (reproduced verify-offline on 2160899). Probably the unreviewed T-051-1 merge (#29); the --accent/Inter font loading needs a look.
     - CLAUDE.md gate lines for verify-app and shoot-app (needs the owner's OK).
     - Next stages: Calendar+day view, Monk, Profile with GitHub sync, Market, Community, offline.
+- 2026-11-05: T-064 stage 2 merged as PR #33 (main 7660038), no separate review (owner's tokens). Calendar + day sheet, the crest + brand colours (owner said they saw no logo and no brand colours in stage 1), a real loader and a boot-failure screen (the owner's iPhone on LTE showed only a blank screen; cause unknown, likely the ~11.6 MB first load or an iOS startup failure; no WebKit here). Independent checks: analyze clean, 18 tests, verify-app 36/36, verify-boot, no diff in platform/ sw.js CLAUDE.md.
+  - **Follow-ups:**
+    - Fix the web app's Publish track so it honours studyAnchor (past days' Publish rows shift on Fri/Sat; the Flutter app copies it).
+    - verify-offline (Inter), verify-design, verify-density and verify-clip fail on main.
+    - CLAUDE.md gate lines for verify-app, verify-boot and shoot-app (owner's OK).
+    - The reference screenshot says the owner sees blank on iPhone; waiting for their retry with the new build.
+    - Stage 3: Monk Mode.

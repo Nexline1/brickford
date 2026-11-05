@@ -47,14 +47,23 @@ class FrostButton extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Material(
               color: fill,
-              shape: CircleBorder(side: BorderSide(color: dark ? Colors.white24 : Tokens.hairline)),
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: dark ? Colors.white24 : Tokens.hairline,
+                ),
+              ),
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: onPressed,
                 child: SizedBox(
                   width: size,
                   height: size,
-                  child: Icon(icon, size: size * 0.42, color: fg, semanticLabel: tooltip),
+                  child: Icon(
+                    icon,
+                    size: size * 0.42,
+                    color: fg,
+                    semanticLabel: tooltip,
+                  ),
                 ),
               ),
             ),
@@ -68,7 +77,13 @@ class FrostButton extends StatelessWidget {
 /// A selectable chip: fully round, dark filled when selected, white with a
 /// hairline when not. 44 high, so it is a tap target and not a label.
 class BrickChip extends StatelessWidget {
-  const BrickChip({super.key, required this.label, required this.selected, required this.onTap, this.icon});
+  const BrickChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -79,7 +94,9 @@ class BrickChip extends StatelessWidget {
     final fg = selected ? Colors.white : Tokens.ink;
     return Material(
       color: selected ? Tokens.card : Colors.white,
-      shape: StadiumBorder(side: BorderSide(color: selected ? Tokens.card : Tokens.hairline)),
+      shape: StadiumBorder(
+        side: BorderSide(color: selected ? Tokens.card : Tokens.hairline),
+      ),
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: onTap,
@@ -90,7 +107,10 @@ class BrickChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[Icon(icon, size: 17, color: fg), SizedBox(width: 6.w)],
+              if (icon != null) ...[
+                Icon(icon, size: 17, color: fg),
+                SizedBox(width: 6.w),
+              ],
               Text(
                 label,
                 style: body(13.5, color: fg, weight: FontWeight.w600),
@@ -125,7 +145,13 @@ class ChipRow extends StatelessWidget {
 
 /// The rounded-square tile at the start of a row.
 class LeadTile extends StatelessWidget {
-  const LeadTile({super.key, this.icon, this.text, this.color = Colors.white, this.fg = Tokens.ink});
+  const LeadTile({
+    super.key,
+    this.icon,
+    this.text,
+    this.color = Colors.white,
+    this.fg = Tokens.ink,
+  });
   final IconData? icon;
   final String? text;
   final Color color, fg;
@@ -136,7 +162,10 @@ class LeadTile extends StatelessWidget {
       width: 44,
       height: 44,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: icon != null
           ? Icon(icon, size: 22, color: fg)
           : Text(
@@ -149,7 +178,15 @@ class LeadTile extends StatelessWidget {
 }
 
 class ItemBlock extends StatelessWidget {
-  const ItemBlock({super.key, this.leading, required this.title, this.subtitle, this.meta, this.onTap, this.below});
+  const ItemBlock({
+    super.key,
+    this.leading,
+    required this.title,
+    this.subtitle,
+    this.meta,
+    this.onTap,
+    this.below,
+  });
 
   final Widget? leading;
   final String title;
@@ -184,7 +221,11 @@ class ItemBlock extends StatelessWidget {
                           title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: body(14.5, weight: FontWeight.w700, height: 1.3),
+                          style: body(
+                            14.5,
+                            weight: FontWeight.w700,
+                            height: 1.3,
+                          ),
                         ),
                         if (subtitle != null) ...[
                           SizedBox(height: 2.h),
@@ -192,7 +233,11 @@ class ItemBlock extends StatelessWidget {
                             subtitle!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: body(12, color: Tokens.ink2, weight: FontWeight.w500),
+                            style: body(
+                              12,
+                              color: Tokens.ink2,
+                              weight: FontWeight.w500,
+                            ),
                           ),
                         ],
                         if (below != null) ...[SizedBox(height: 8.h), below!],
@@ -203,10 +248,21 @@ class ItemBlock extends StatelessWidget {
                     SizedBox(width: 8.w),
                     Text(
                       meta!,
-                      style: body(12.5, color: Tokens.ink2, weight: FontWeight.w700),
+                      style: body(
+                        12.5,
+                        color: Tokens.ink2,
+                        weight: FontWeight.w700,
+                      ),
                     ),
                   ],
-                  if (onTap != null) ...[SizedBox(width: 8.w), const Icon(Icons.arrow_forward_ios, size: 14, color: Tokens.quiet)],
+                  if (onTap != null) ...[
+                    SizedBox(width: 8.w),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Tokens.quiet,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -219,7 +275,12 @@ class ItemBlock extends StatelessWidget {
 
 /// Not watched, watched with its quiz still open, cleared.
 class LessonGlyph extends StatelessWidget {
-  const LessonGlyph(this.mark, {super.key, this.size = 24, this.onDark = false});
+  const LessonGlyph(
+    this.mark, {
+    super.key,
+    this.size = 24,
+    this.onDark = false,
+  });
   final LessonMark mark;
   final double size;
   final bool onDark;
@@ -227,9 +288,21 @@ class LessonGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (mark) {
-      LessonMark.cleared => (Icons.check_circle, onDark ? Tokens.doneOnDark : Tokens.done, 'cleared'),
-      LessonMark.watched => (Icons.timelapse, onDark ? const Color(0xFFF2A93B) : Tokens.half, 'watched, quiz open'),
-      LessonMark.none => (Icons.radio_button_unchecked, onDark ? Tokens.onMidnight2 : Tokens.quiet, 'not watched'),
+      LessonMark.cleared => (
+        Icons.check_circle,
+        onDark ? Tokens.doneOnDark : Tokens.done,
+        'cleared',
+      ),
+      LessonMark.watched => (
+        Icons.timelapse,
+        onDark ? const Color(0xFFF2A93B) : Tokens.half,
+        'watched, quiz open',
+      ),
+      LessonMark.none => (
+        Icons.radio_button_unchecked,
+        onDark ? Tokens.onMidnight2 : Tokens.quiet,
+        'not watched',
+      ),
     };
     return Icon(icon, color: color, size: size, semanticLabel: label);
   }
@@ -250,7 +323,8 @@ class VideoThumb extends StatelessWidget {
     return Image.network(
       'https://i.ytimg.com/vi/$id/hqdefault.jpg',
       fit: BoxFit.cover,
-      frameBuilder: (_, child, frame, sync) => frame == null && !sync ? tile : child,
+      frameBuilder: (_, child, frame, sync) =>
+          frame == null && !sync ? tile : child,
       errorBuilder: (_, _, _) => tile,
     );
   }
@@ -275,7 +349,10 @@ class FallbackTile extends StatelessWidget {
           Positioned(
             right: 18,
             top: 14,
-            child: Opacity(opacity: 0.8, child: Crest(height: 34, cut: Color(0xFF172238), semantic: null)),
+            child: Opacity(
+              opacity: 0.8,
+              child: Crest(height: 34, cut: Color(0xFF172238), semantic: null),
+            ),
           ),
           if (code != null)
             Positioned(
@@ -283,7 +360,11 @@ class FallbackTile extends StatelessWidget {
               bottom: 12,
               child: Text(
                 code!,
-                style: body(12, color: Colors.white70, weight: FontWeight.w800).copyWith(letterSpacing: 1.2),
+                style: body(
+                  12,
+                  color: Colors.white70,
+                  weight: FontWeight.w800,
+                ).copyWith(letterSpacing: 1.2),
               ),
             ),
         ],
@@ -339,13 +420,21 @@ class LectureCard extends StatelessWidget {
                           [code, span].whereType<String>().join('  ·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: body(11.5, color: Tokens.onMidnight2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8),
+                          style: body(
+                            11.5,
+                            color: Tokens.onMidnight2,
+                            weight: FontWeight.w700,
+                          ).copyWith(letterSpacing: 0.8),
                         ),
                       ),
                       if (minutes != null)
                         Text(
                           '${minutes}m',
-                          style: body(12, color: Tokens.onMidnight2, weight: FontWeight.w600),
+                          style: body(
+                            12,
+                            color: Tokens.onMidnight2,
+                            weight: FontWeight.w600,
+                          ),
                         ),
                     ],
                   ),
@@ -354,7 +443,12 @@ class LectureCard extends StatelessWidget {
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: body(16, color: Colors.white, weight: FontWeight.w700, height: 1.3),
+                    style: body(
+                      16,
+                      color: Colors.white,
+                      weight: FontWeight.w700,
+                      height: 1.3,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   AspectRatio(
@@ -371,8 +465,16 @@ class LectureCard extends StatelessWidget {
                             child: Container(
                               width: 48,
                               height: 48,
-                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                              child: const Icon(Icons.play_arrow_rounded, color: Tokens.ink, size: 28, semanticLabel: 'play'),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.play_arrow_rounded,
+                                color: Tokens.ink,
+                                size: 28,
+                                semanticLabel: 'play',
+                              ),
                             ),
                           ),
                         ],
@@ -390,14 +492,23 @@ class LectureCard extends StatelessWidget {
 }
 
 /// A persistent badge on the canvas (§5, Rhythm): raised midnight, a gold hairline and a gold icon.
+/// With [onTap] it is a button: the badge stays 36 high and its hit area is 44.
 class RhythmBadge extends StatelessWidget {
-  const RhythmBadge({super.key, required this.icon, required this.label});
+  const RhythmBadge({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.onTap,
+    this.id,
+  });
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
+  final String? id;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final badge = Container(
       height: 36,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
@@ -417,12 +528,29 @@ class RhythmBadge extends StatelessWidget {
         ],
       ),
     );
+    if (onTap == null) return badge;
+    return Semantics(
+      identifier: id,
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(height: 44, child: Center(child: badge)),
+      ),
+    );
   }
 }
 
 /// An icon and a number on the canvas.
 class Stat extends StatelessWidget {
-  const Stat({super.key, required this.icon, required this.value, required this.semantic});
+  const Stat({
+    super.key,
+    required this.icon,
+    required this.value,
+    required this.semantic,
+  });
   final IconData icon;
   final String value;
   final String semantic;
@@ -449,7 +577,14 @@ class Stat extends StatelessWidget {
 
 /// A big number over its total, on the canvas (Playfair numerals).
 class BigCount extends StatelessWidget {
-  const BigCount({super.key, required this.value, required this.total, this.valueKey, this.icon, this.semantic});
+  const BigCount({
+    super.key,
+    required this.value,
+    required this.total,
+    this.valueKey,
+    this.icon,
+    this.semantic,
+  });
   final String value;
   final String total;
   final Key? valueKey;
@@ -462,7 +597,10 @@ class BigCount extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        if (icon != null) ...[Icon(icon, size: 28, color: Tokens.gold, semanticLabel: semantic), SizedBox(width: 8.w)],
+        if (icon != null) ...[
+          Icon(icon, size: 28, color: Tokens.gold, semanticLabel: semantic),
+          SizedBox(width: 8.w),
+        ],
         Text(value, key: valueKey, style: display(46)),
         SizedBox(width: 6.w),
         Text(
@@ -521,7 +659,11 @@ class SheetLabel extends StatelessWidget {
 }
 
 /// The modal list sheet with a drag handle (the reference's "In this reel").
-Future<void> showListSheet(BuildContext context, {required String title, required List<Widget> rows}) {
+Future<void> showListSheet(
+  BuildContext context, {
+  required String title,
+  required List<Widget> rows,
+}) {
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: Tokens.sheet,

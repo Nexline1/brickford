@@ -4,6 +4,7 @@
 // with no border in any state; pills are radius 16 with elevation 0 in every
 // state. Plus Home on the real data at a fixed date.
 import 'package:app/main.dart';
+import 'package:app/shell.dart';
 import 'package:app/state/app_model.dart';
 import 'package:app/widgets/brickford_field.dart';
 import 'package:app/widgets/pill_button.dart';
@@ -52,14 +53,15 @@ void main() {
     final top = tester.getTopLeft(find.byKey(SheetScaffold.sheetKey).first).dy;
     expect(top, closeTo(240, 0.5));
     expect(find.text('Brickford'), findsWidgets);
-    final scroll = tester.widget<ListView>(find.descendant(of: find.byKey(SheetScaffold.sheetKey).first, matching: find.byType(ListView)));
+    final scroll = tester.widget<ListView>(find.descendant(of: find.byKey(SheetScaffold.sheetKey).first, matching: find.byType(ListView)).first);
     expect(scroll.physics, isA<BouncingScrollPhysics>());
   });
 
   testWidgets('fields: #F3F4F6 fill, radius 16, BorderSide.none in every state, black45 prefix icon, explicit padding', (tester) async {
     final m = await model('2026-11-04');
     await pumpApp(tester, m);
-    await tester.tap(find.text('Market'));
+    // The field lives in the round search button's sheet.
+    await tester.tap(find.byKey(const ValueKey('brickford-search')));
     await tester.pumpAndSettle();
     final field = tester.widget<TextField>(find.descendant(of: find.byType(BrickfordField), matching: find.byType(TextField)));
     final d = field.decoration!;
@@ -91,6 +93,26 @@ void main() {
     expect(shape.borderRadius, BorderRadius.circular(16.0));
   });
 
+  testWidgets('the floating bar has exactly 4 tabs, Home Market Community Profile, and switches', (tester) async {
+    await pumpApp(tester, await model('2026-11-04'));
+    final bar = find.byKey(const ValueKey('brickford-tabs'));
+    expect(bar, findsOneWidget);
+    final tabs = find.descendant(of: bar, matching: find.byType(BarTab));
+    expect(tabs, findsNWidgets(4));
+    expect([for (final t in tester.widgetList<BarTab>(tabs)) t.label], ['Home', 'Market', 'Community', 'Profile']);
+    expect(tester.widget<BarTab>(tabs.first).selected, isTrue);
+    // Every tab is a full fingertip: at least 44 x 44.
+    for (final e in tabs.evaluate()) {
+      final size = (e.renderObject! as RenderBox).size;
+      expect(size.width >= 44 && size.height >= 44, isTrue, reason: 'tab is $size');
+    }
+    // The search button is separate from the bar, and round.
+    expect(find.descendant(of: bar, matching: find.byKey(const ValueKey('brickford-search'))), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('tab-Profile')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<BarTab>(find.byKey(const ValueKey('tab-Profile'))).selected, isTrue);
+  });
+
   testWidgets('Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs', (tester) async {
     await pumpApp(tester, await model('2026-11-04'));
     expect(tester.widget<Text>(find.byKey(const ValueKey('home-day'))).data, '17');
@@ -108,7 +130,10 @@ void main() {
     final m = await model('2026-11-04');
     await pumpApp(tester, m);
     final first = m.engine.realSched('2026-11-04').first;
-    await tester.tap(find.byKey(ValueKey('home-lesson-${first.key}')));
+    final card = find.byKey(ValueKey('home-lesson-${first.key}'));
+    await tester.ensureVisible(card);
+    await tester.pumpAndSettle();
+    await tester.tap(card);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('lesson-mark')));
     await tester.pumpAndSettle();
@@ -116,5 +141,12 @@ void main() {
     expect(st['done'], isTrue);
     expect(st['doneAt'], '2026-11-04');
     expect(m.prefs.getString(AppModel.storageKey), contains('"doneAt":"2026-11-04"'));
+    // Unmarking keeps the first watch, as the web app does: firstDoneAt, no doneAt.
+    await tester.tap(find.byKey(const ValueKey('lesson-mark')));
+    await tester.pumpAndSettle();
+    final un = m.lesson(first.key);
+    expect(un['done'], isFalse);
+    expect(un.containsKey('doneAt'), isFalse);
+    expect(un['firstDoneAt'], '2026-11-04');
   });
 }

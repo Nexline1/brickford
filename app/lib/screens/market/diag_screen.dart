@@ -132,11 +132,14 @@ class _DiagScreenState extends State<DiagScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: PillButton(
-                        key: const ValueKey('diag-begin'),
-                        label: 'Begin',
-                        icon: Icons.play_arrow_rounded,
-                        onPressed: _running ? null : _begin,
+                      child: Semantics(
+                        identifier: 'diag-begin',
+                        child: PillButton(
+                          key: const ValueKey('diag-begin'),
+                          label: 'Begin',
+                          icon: Icons.play_arrow_rounded,
+                          onPressed: _running ? null : _begin,
+                        ),
                       ),
                     ),
                     SizedBox(width: 10.w),
@@ -164,7 +167,10 @@ class _DiagScreenState extends State<DiagScreen> {
               onSubmitted: (_) => _record(m),
             ),
             SizedBox(height: 10.h),
-            PillButton(key: const ValueKey('diag-record'), label: 'Record', icon: Icons.fact_check_outlined, onPressed: () => _record(m)),
+            Semantics(
+              identifier: 'diag-record',
+              child: PillButton(key: const ValueKey('diag-record'), label: 'Record', icon: Icons.fact_check_outlined, onPressed: () => _record(m)),
+            ),
             if (_bad)
               Padding(
                 padding: EdgeInsets.only(top: 8.h),

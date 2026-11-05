@@ -84,6 +84,23 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('a missed numeric question comes back as a new question with an empty field', (tester) async {
+    final m = await model('2026-10-27', gateState);
+    await openQuiz(tester, m, rand: () => 0.0); // the order [1, 0]: the numeric question first
+    final field = find.descendant(of: find.byKey(const ValueKey('quiz-num')), matching: find.byType(TextField));
+    expect(current(tester).q['opts'], isNull);
+    await answer(tester, right: false);
+    expect(tester.widget<TextField>(field).controller!.text, 'zzz');
+    await tester.tap(find.byKey(const ValueKey('quiz-next')));
+    await tester.pumpAndSettle();
+    await answer(tester, right: true); // the option question
+    await tester.tap(find.byKey(const ValueKey('quiz-next')));
+    await tester.pumpAndSettle();
+    expect(current(tester).again, isTrue);
+    expect(current(tester).q['opts'], isNull, reason: 'the miss is back');
+    expect(tester.widget<TextField>(field).controller!.text, isEmpty, reason: 'not the text of the wrong answer');
+  });
+
   testWidgets('passing the quiz clears the lecture: the record has the web shape, Home and the glyph follow', (tester) async {
     final m = await model('2026-10-27', gateState);
     expect(m.markOf(k), LessonMark.watched);

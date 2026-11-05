@@ -80,8 +80,10 @@ const state = {
     await tap("tab-Market");
     await page.waitForSelector('[flt-semantics-identifier="due-quiz-math110.0.0"]', { timeout: 10000 });
     await shot("problems");
-    await sized(["due-quiz-math110.0.0", "due-catchup-math110.1.1", "due-pset-1806-ps1", "due-lab-flashcards-cli", "market-tab-due", "market-tab-exams", "market-tab-code", "market-tab-all"],
-      "the Problems rows and the four chips");
+    await sized(["due-quiz-math110.0.0", "due-catchup-math110.1.1", "due-pset-1806-ps1", "market-tab-due", "market-tab-exams", "market-tab-code"], "the Problems rows and the chips");
+    await page.mouse.move(W / 2, 500); await page.mouse.wheel(0, 700); await page.waitForTimeout(700);
+    await sized(["due-lab-flashcards-cli"], "a lab row, scrolled to");
+    await page.mouse.wheel(0, -1400); await page.waitForTimeout(500);
 
     // ---- the lecture quiz, answered for real ----
     await tap("due-quiz-math110.0.0");
@@ -89,11 +91,18 @@ const state = {
     await shot("quiz-question");
     const checks = sm["math110.0.0"].checks;
     let shownFeedback = false, tries = 0, steps = 0;
-    for (; steps < 14 && !(await has("quiz-done")); steps++) {
+    const ANY = '[flt-semantics-identifier="opt-0"], [flt-semantics-identifier="quiz-num"], [flt-semantics-identifier="quiz-done"]';
+    for (; steps < 14; steps++) {
+      await page.waitForSelector(ANY, { timeout: 10000 });
+      if (await has("quiz-done")) break;
       if (await has("opt-0")) {
         const n = (await has("opt-3")) ? 4 : (await has("opt-2")) ? 3 : 2;
         if (steps === 0) await sized(Array.from({ length: n }, (_, i) => "opt-" + i), "the answer options");
-        await tap("opt-" + (tries++ % n));
+        // The options are reshuffled on every showing: find the right one by its text, as a reader would.
+        const mcq = checks.find(q => q.opts), want = mcq.opts[mcq.a];
+        let pick = 0;
+        if (tries++ > 0 || steps > 0) for (let i = 0; i < n; i++) if (((await id("opt-" + i).evaluate(e => e.getAttribute("aria-label") || e.textContent)) || "").includes(want)) pick = i;
+        await tap("opt-" + (tries === 1 ? 0 : pick));   // the first showing is answered wrong on purpose, for the feedback shot
       } else {
         const num = checks.find(q => q.num != null).num;
         await tap("quiz-num");
@@ -117,7 +126,16 @@ const state = {
     await tap("market-tab-exams");
     await page.waitForSelector('[flt-semantics-identifier="exam-sit"]', { timeout: 10000 });
     await shot("exams");
-    await sized(["exam-sit", "exam-linear-algebra"], "the exam hero's Sit and an open exam");
+    await sized(["exam-sit"], "the exam hero's Sit");
+    await page.mouse.move(W / 2, 500); await page.mouse.wheel(0, 640); await page.waitForTimeout(700);
+    await shot("exams-more");
+    await sized(["exam-linear-algebra"], "an open exam, scrolled to");
+    await page.mouse.wheel(0, -1400); await page.waitForTimeout(500);
+    // the diagnostic: the exam clock, the paper, the honest score
+    await tap("exam-sit");
+    await page.waitForSelector('[flt-semantics-identifier="diag-begin"]', { timeout: 10000 });
+    await shot("diag");
+    await sized(["diag-begin"], "Begin");
     check("no page or console errors, and no host but this one was asked", errors.length === 0 && hosts.size === 0, errors.slice(0, 3).join(" | ") + [...hosts].join(","));
     await ctx.close();
   } finally {

@@ -183,7 +183,9 @@ class _MarketScreenState extends State<MarketScreen> {
           leading: _examTile(x),
           subtitle: x.code,
           title: x.title,
-          meta: x.verdict == 'pass' || x.verdict == 'gap' ? '${x.score}%' : (x.verdict == 'logged' ? null : x.size.split(' ').first),
+          meta: x.verdict == 'pass' || x.verdict == 'gap'
+              ? '${x.score}%'
+              : (x.verdict == 'logged' ? null : '${x.size.split(' ').first}${x.kind == 'diag' ? 'm' : ''}'),
           onTap: () => _sit(x),
         ),
       for (final x in shut)
@@ -300,7 +302,11 @@ class _ExamHero extends StatelessWidget {
             spacing: 16.w,
             runSpacing: 6.h,
             children: [
-              Stat(icon: x.kind == 'diag' ? Icons.timer_outlined : Icons.quiz_outlined, value: x.size.split(' ').first, semantic: x.size),
+              Stat(
+                icon: x.kind == 'diag' ? Icons.timer_outlined : Icons.quiz_outlined,
+                value: '${x.size.split(' ').first}${x.kind == 'diag' ? 'm' : ''}',
+                semantic: x.size,
+              ),
               if (x.pass != null) Stat(icon: Icons.flag_circle_outlined, value: '${x.pass}%', semantic: 'pass at'),
             ],
           ),

@@ -36,6 +36,9 @@ class _QuizScreenState extends State<QuizScreen> {
   bool? ok;
   bool saved = false;
 
+  /// Which showing this is: a miss that comes back is a new question view, with an empty field.
+  int shown = 0;
+
   bool get isLecture => widget.k != null;
 
   @override
@@ -72,6 +75,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _next(AppModel m) {
     s!.next();
+    shown++;
     if (s!.over && !saved) {
       saved = true;
       final x = s!;
@@ -153,7 +157,7 @@ class _QuizScreenState extends State<QuizScreen> {
             ..._result(m, x)
           else
             QuestionView(
-              key: ValueKey('q-${x.pos}-${x.again}-${x is MasterySitting ? x.bi : x.pos}'),
+              key: ValueKey('q-$shown'),
               q: x.q!,
               answered: x.answered,
               ok: ok,

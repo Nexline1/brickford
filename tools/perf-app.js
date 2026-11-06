@@ -66,7 +66,7 @@ function seed() {
     e.hash = crypto.createHash("sha256").update(canon(e)).digest("hex");
     ledger.push(e);
   });
-  return { lessons, studyDays: days, ledger };
+  return { lessons, studyDays: days, ledger, monkStart: "2026-11-01" };   // T-065: Monk runs from 1 Nov, so the walk opens the Monk page, not the Start page
 }
 
 const pct = (a, p) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(p * s.length))] : NaN; };

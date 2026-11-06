@@ -70,6 +70,16 @@
 //    Plants: practice-week (today's bank entry not counted in "N of 6"), practice-rule (four jokes make a humour
 //    rep), practice-due (a recording exactly four weeks old owes no review), gate-order (any gate can be passed),
 //    workshop-count (a lab counts only once its proof URL is typed), doc-kinds (a three-dash rule is a paragraph).
+//
+// 7. THE MONK START (T-065). The Monk start date is state (S.monkStart), written once by startMonk and synced; app.js
+//    and the Dart port answer the same questions: monkDay with a start and with none over the window around each
+//    start (before it, day 1 .. 21, after it, a leap day, a year end); startMonk scenarios (writes today once, a later
+//    call on another day returns false and changes nothing, an empty string is not a start, an existing start is
+//    kept); monkFocus and monkLive with no start; mergeState on a matrix (both directions, the same date, remote
+//    only, local only, and an absent, empty, null or non-date remote); and the payload's Monk keys (exactly
+//    ["monkStart"] when started, none otherwise). Plants: monk-start-overwrites (startMonk overwrites a start),
+//    monk-merge-later (the merge takes the later date), monk-payload-monk (S.monk in the payload), monk-day-unstarted
+//    (monkDay answers a day number with no start).
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), vm = require("vm");
 const { execFileSync, spawnSync } = require("child_process");
@@ -79,8 +89,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -199,7 +209,7 @@ const MONK_PROBES = [null, {}, { prayers: { fajr: true, dhuhrAsr: true, maghribI
 const clone = v => JSON.parse(JSON.stringify(v));
 const strip = v => Array.isArray(v) ? v.map(strip) : v && typeof v === "object"
   ? Object.fromEntries(Object.entries(v).filter(([, x]) => x != null).map(([k, x]) => [k, strip(x)])) : v;
-const PROJ = ["lessons", "studyDays", "problems", "psets", "electives", "labs", "diag", "quizAttempts", "weeks", "review", "concepts", "anchors", "reps", "foreignLedgers", "gates", "monk"];
+const PROJ = ["lessons", "studyDays", "problems", "psets", "electives", "labs", "diag", "quizAttempts", "weeks", "review", "concepts", "anchors", "reps", "foreignLedgers", "gates", "monk", "monkStart"];
 const projectS = S => strip(JSON.parse(JSON.stringify(Object.assign(Object.fromEntries(PROJ.map(k => [k, S[k]])), { streakFrom: S.settings.streakFrom }))));
 // app.js's DEFAULT plus the load-time additions (ledger, concepts, anchors, foreignLedgers), complete, so the JS VM and Dart start equal.
 const baseState = over => Object.assign({
@@ -234,6 +244,7 @@ function mergeFixtures(plan) {
       foreignLedgers: { "dev-laptop": [ev("lesson", "A", {}, "2026-10-20T09:00:00.000Z")] },
       gates: { 1: { date: "2026-10-20", at: "2026-10-20T00:00:00.000Z", passed: true } },
       monk: { days: { "2026-11-05": { nosin: true, at: "2026-11-05T05:00:00.000Z" } } },
+      monkStart: "2026-11-06",
       settings: { lastBackup: null, dailyStart: "08:00", streakFrom: "2026-10-19", lastSyncAt: null, syncError: null, deviceId: "dev-phone" },
     }),
     remote: remoteFile({
@@ -255,11 +266,14 @@ function mergeFixtures(plan) {
         humor: [{ date: "2026-10-22", attempts: ["a1"] }, { date: "2026-10-23", attempts: ["b1"] }], review: [{ date: "2026-10-31" }, { date: "2026-10-30" }] },
       gates: { 1: { date: "2026-10-25", at: "2026-10-25T08:00:00.000Z", passed: true }, 2: "2026-11-01" },
       monk: { days: { "2026-11-05": { work: 10, at: "2030-01-01T00:00:00.000Z" }, "2026-11-04": { nosin: true, at: "2026-11-04T05:00:00.000Z" } } },
+      monkStart: "2026-11-02",
       settings: { theme: "dark", dailyStart: "07:00", streakFrom: "2026-10-23" },
     }, { "dev-laptop": [ev("lesson", "A", {}, "2026-10-18T09:00:00.000Z"), ev("lesson", "B", {}, "2026-10-21T09:00:00.000Z")],
       "dev-phone": [ev("x", "own", {}, "2026-10-01T00:00:00.000Z")], "dev-tablet": [ev("lesson", "F", {}, "2026-10-28T09:00:00.000Z")] }),
   };
   const sf = (name, mine, theirs) => ({ name: "streakFrom " + name, local: baseState({ settings: { ...baseState().settings, streakFrom: mine } }), remote: remoteFile({ settings: { streakFrom: theirs } }) });
+  // T-065: the Monk start. `undefined` is "no such key"; JSON drops it, so it is absent on both sides.
+  const ms = (name, mine, theirs) => ({ name: "monkStart " + name, local: baseState(mine === undefined ? {} : { monkStart: mine }), remote: remoteFile(theirs === undefined ? {} : { monkStart: theirs }) });
   const wkOf = (name, local, remote) => ({ name: "sealed week " + name, local: baseState({ weeks: local }), remote: remoteFile({ weeks: remote }) });
   const q = (passedAt, at, firstTry, total, attempts) => ({ passedAt, at, firstTry, total, attempts });
   const lessonPair = (name, mine, theirs) => ({ name: "lessons: " + name, local: baseState({ lessons: { L: mine } }), remote: remoteFile({ lessons: { L: theirs } }) });
@@ -267,6 +281,13 @@ function mergeFixtures(plan) {
     diverge,
     sf("remote later wins", "2026-10-20", "2026-11-01"), sf("remote earlier is ignored", "2026-11-01", "2026-10-20"),
     sf("local unset, remote set", null, "2026-10-30"), sf("remote null changes nothing", "2026-10-30", null),
+    ms("remote only", undefined, "2026-11-06"), ms("remote earlier than local", "2026-11-06", "2026-11-02"), ms("remote later than local", "2026-11-02", "2026-11-06"),
+    ms("same date", "2026-11-06", "2026-11-06"), ms("local only", "2026-11-06", undefined), ms("neither", undefined, undefined),
+    ms("remote empty never clears", "2026-11-06", ""), ms("remote null never clears", "2026-11-06", null), ms("remote not a date never clears", "2026-11-06", "tomorrow"),
+    ms("remote one-digit day is not a date", "2026-11-06", "2026-11-2"), ms("remote number is not a date", "2026-11-06", 20261102),
+    ms("remote empty, local none", undefined, ""), ms("remote null, local none", undefined, null), ms("remote not a date, local none", undefined, "2026-11-6"),
+    ms("remote with a trailing newline, local none", undefined, "2026-11-06\n"), ms("remote datetime, local none", undefined, "2026-11-06T00:00:00Z"),
+    ms("local empty takes the remote", "", "2026-11-06"),
     wkOf("pre-reset local kept beside the new remote", [{ week: 3, date: before(3), seal: "old" }], [{ week: 3, date: after(3), seal: "new" }]),
     wkOf("new local kept beside the pre-reset remote", [{ week: 3, date: after(3), seal: "new" }], [{ week: 3, date: before(3), seal: "old" }]),
     wkOf("same side: the later seal wins, the earlier is ignored",
@@ -296,8 +317,10 @@ function payloadFixtures() {
   return [
     { name: "a full device, monk in S", local: m.local },
     { name: "a bare device with a theme", local: baseState({ settings: { ...baseState().settings, theme: "dark", streakFrom: "2026-11-01" } }) },
+    { name: "a device that has not started Monk, with Monk days stored", local: baseState({ monk: { days: { "2026-11-05": { nosin: true, at: "2026-11-05T05:00:00.000Z" } }, loops: { s1: { text: "t", done: false, at: "x" } } } }) },
   ];
 }
+const MONK_START = "2026-11-01";   // T-065: the start the focus and sum probes below were written against (it used to be a constant in app.js)
 const MONK_DATES = ["2026-11-01", "2026-11-11", "2026-11-21", "2026-12-21", "2027-03-20", "2027-06-21", "2028-02-29"];
 function monkFixture() {
   const days = {};
@@ -308,9 +331,25 @@ function monkFixture() {
   days["2026-11-04"] = { prayers: pr(false, false, false), nosin: true, work: 4, scripts: 1, gym: 1, clips: 12, stream: 1 };
   days["2026-11-05"] = { prayers: pr(true, true, true), nosin: true, work: 10, bfh: 3, german: { podcast: true, speak: true, write: true, read: true }, clips: 6, shorts: 1 };
   days["2026-11-08"] = { work: 7, stream: 2, clips: 30 };
-  return { dates: MONK_DATES, days, sumDates: ["2026-11-05", "2026-11-08", "2026-11-30", "2026-12-02"],
+  return { start: MONK_START, dates: MONK_DATES, days, sumDates: ["2026-11-05", "2026-11-08", "2026-11-30", "2026-12-02"],
     focusDates: ["2026-10-31", "2026-11-01", "2026-11-02", "2026-11-05", "2026-11-08", "2026-11-20"],
     phones: [null, {}, { phone: 0 }, { phone: 1.5 }, { phone: 2 }, { phone: 3 }] };
+}
+
+// T-065: the Monk start. monkDay over the window around each start, startMonk scenarios (a clock per step),
+// and the starts monkLive is asked about.
+function mstartFixture() {
+  const around = s => range(addDays(s, -3), addDays(s, 24));          // 3 days before, day 1 .. 21, and 3 days after
+  const wide = range("2026-10-28", "2026-12-08");
+  const starts = ["2026-11-01", "2026-11-06", "2026-12-31", "2028-02-20"];   // a year end and a leap day fall inside the last two windows
+  const cases = [{ name: "not started", state: null, dates: wide }, { name: "an empty start is not a start", state: { monkStart: "" }, dates: wide }]
+    .concat(starts.map(st => ({ name: "started " + st, state: { monkStart: st }, dates: around(st) })));
+  const scenarios = [
+    { name: "unset: the 6th starts it, the 9th and the 27th change nothing", clock: "2026-11-06", state: null, steps: ["2026-11-06", "2026-11-09", "2026-11-27"] },
+    { name: "set to the 1st: the 6th returns false and keeps it", clock: "2026-11-06", state: { monkStart: "2026-11-01" }, steps: ["2026-11-06", "2026-11-07"] },
+    { name: "an empty start is not a start: the 6th starts it", clock: "2026-11-06", state: { monkStart: "" }, steps: ["2026-11-06", "2026-11-08"] },
+  ];
+  return { cases, scenarios, liveStarts: [null, "2026-11-01", "2026-11-03", "2026-11-05", "2026-12-01"] };
 }
 
 // The merge block: app.js's own mergeState (lifted into a VM) over each fixture, the live hook's `changed` as a cross-check.
@@ -334,7 +373,7 @@ async function runMergeJS(browser, fx, pure) {
   return out;
 }
 async function runMonkJS(browser, fx, pure) {
-  const { ctx, page: p, errors } = await page(browser, fx.planClock, null);
+  const { ctx, page: p, errors } = await page(browser, fx.planClock, { monkStart: fx.monk.start });
   const m = await p.evaluate(mk => {
     const T = window.__brickfordTest, plan = {}, times = {};
     mk.dates.forEach(d => { times[d] = T.monkPrayerTimes(d); plan[d] = T.monkPlanFor(d); });
@@ -359,6 +398,38 @@ async function runMonkJS(browser, fx, pure) {
       phoneOk: m.phoneOk,
     },
   };
+}
+
+async function runMStartJS(browser, fx) {
+  const out = { errors: [], monkDay: {}, focus: null, live: {}, start: {} };
+  for (const c of fx.mstart.cases) {
+    const { ctx, page: p, errors } = await page(browser, fx.planClock, c.state);
+    out.monkDay[c.name] = await p.evaluate(ds => ds.map(d => window.__brickfordTest.monkDay(d)), c.dates);
+    out.errors = out.errors.concat(errors);
+    await ctx.close();
+  }
+  {
+    const { ctx, page: p, errors } = await page(browser, fx.planClock, null);
+    out.focus = await p.evaluate(mk => Object.fromEntries(mk.focusDates.map(d => { const f = window.__brickfordTest.monkFocus(mk.days, d); return [d, f && { days: f.days, key: f.key }]; })), fx.monk);
+    out.errors = out.errors.concat(errors);
+    await ctx.close();
+  }
+  // monkLive is not on the hook: its line is lifted out of app.js and run with MONK.from set to each start.
+  const live = { MONK: { from: null } }; vm.createContext(live);
+  vm.runInContext(vmExtract(["monkLive"]) + "\nthis.__live = monkLive;", live);
+  for (const st of fx.mstart.liveStarts) { live.MONK.from = st; out.live[String(st)] = Object.keys(live.__live(fx.monk.days)).sort(); }
+  for (const sc of fx.mstart.scenarios) {
+    const { ctx, page: p, errors } = await page(browser, sc.clock, sc.state);
+    const steps = [];
+    for (const step of sc.steps) {
+      await p.clock.setFixedTime(noon(step));
+      steps.push(await p.evaluate(st => { const T = window.__brickfordTest, r = T.startMonk(); return [r, T.MONK.from, T.monkDay(st)]; }, step));
+    }
+    out.start[sc.name] = steps;
+    out.errors = out.errors.concat(errors);
+    await ctx.close();
+  }
+  return out;
 }
 
 // ---------- quiz, Problems, Exams fixtures (T-064 stage 4) ----------
@@ -1310,6 +1381,11 @@ function diff(a, b, at, out, label) {
     "gate-order": ["lib/engine/pages.dart", "if (g == null || g.n != n) return false;", "if (g == null) return false;"],   // any gate can be passed or unmarked, not only the next or the last
     "workshop-count": ["lib/engine/pages.dart", "labsDone: D.labs.where((l) => truthy(_map(labs[l['id']])['done'])).length,", "labsDone: D.labs.where((l) => truthy(_map(labs[l['id']])['proof'])).length,"],   // a lab counts as done only once its proof URL is typed
     "doc-kinds": ["lib/engine/pages.dart", "RegExp(r'^---+$')", "RegExp(r'^----+$')"],   // a three-dash rule is a paragraph
+    // T-065: the Monk start
+    "monk-start-overwrites": ["lib/engine/engine.dart", "    if (monkFrom != null) return false;\n    S['monkStart'] = todayISO();", "    S['monkStart'] = todayISO();"],   // startMonk overwrites an existing start
+    "monk-merge-later": ["lib/engine/merge.dart", "rm.compareTo(mine) < 0", "rm.compareTo(mine) > 0"],   // the merge takes the later date
+    "monk-payload-monk": ["lib/engine/merge.dart", "if (truthy(S['monkStart'])) state['monkStart'] = S['monkStart'];", "if (truthy(S['monkStart'])) state['monkStart'] = S['monkStart'];\n  state['monk'] = S['monk'];"],   // S.monk in the payload
+    "monk-day-unstarted": ["lib/engine/engine.dart", "    if (from == null) return null;\n    final n = daysBetween(from, iso) + 1;", "    final n = daysBetween(from ?? '2026-11-01', iso) + 1;"],   // monkDay answers a day number with no start
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1360,7 +1436,7 @@ function diff(a, b, at, out, label) {
       monkDays: MONK_PROBES,
       fixtures: fixturesFrom(plan).map(f => Object.assign(f, { walk: dates })),
       calendar: { dates: range(CAL_FROM, CAL_TO), clocks: CAL_CLOCKS },
-      light: LIGHT, merge: mergeFixtures(plan), payload: payloadFixtures(), monk: monkFixture(),
+      light: LIGHT, merge: mergeFixtures(plan), payload: payloadFixtures(), monk: monkFixture(), mstart: mstartFixture(),
     };
     fx.quiz = quizFixtures(plan, fx.fixtures);
     fx.record = recordFixtures(plan);
@@ -1448,8 +1524,23 @@ function diff(a, b, at, out, label) {
         fx.payload.every(f => !("monk" in (jm.payload[f.name].state || {})) && !("monk" in ((dart.payload[f.name] || {}).state || {}))) &&
         JSON.stringify(jm.merge["monk: a remote monk is never read"].state.monk) === JSON.stringify(fx.merge.find(f => f.name.startsWith("monk:")).local.monk) &&
         jm.merge["monk: a remote monk is never read"].changed === 0);
+      // T-065: the only Monk key in the payload is the start date, and only when there is one.
+      const monkKeys = o => Object.keys((o || {}).state || {}).filter(k => /monk/i.test(k)).join();
+      check("the payload's Monk keys are exactly [monkStart] when a start is set, and none when it is not — app.js and Dart, " + fx.payload.length + " devices",
+        fx.payload.every(f => { const want = f.local.monkStart ? "monkStart" : ""; return monkKeys(jm.payload[f.name]) === want && monkKeys(dart.payload && dart.payload[f.name]) === want; }) &&
+        fx.payload.some(f => f.local.monkStart) && fx.payload.some(f => !f.local.monkStart && f.local.monk && f.local.monk.days));
       // Reach: the fixtures must exercise the branches the plants break.
       const m = jm.merge, wkN = n => (m["sealed week " + n].state.weeks || []).length;
+      const ms0 = n => m["monkStart " + n];
+      check("the Monk start merge fixtures reach the rules: the earlier date stands whichever side it is on, none takes the other's, and an empty, null or non-date remote never clears or sets one",
+        ms0("remote only").state.monkStart === "2026-11-06" && ms0("remote only").changed === 1 &&
+        ms0("remote earlier than local").state.monkStart === "2026-11-02" && ms0("remote earlier than local").changed === 1 &&
+        ms0("remote later than local").state.monkStart === "2026-11-02" && ms0("remote later than local").changed === 0 &&
+        ms0("same date").changed === 0 && ms0("local only").state.monkStart === "2026-11-06" && ms0("neither").state.monkStart === undefined &&
+        ["empty never clears", "null never clears", "not a date never clears", "one-digit day is not a date", "number is not a date"].every(n => ms0("remote " + n).state.monkStart === "2026-11-06" && ms0("remote " + n).changed === 0) &&
+        ["empty, local none", "null, local none", "not a date, local none", "with a trailing newline, local none", "datetime, local none"].every(n => ms0("remote " + n).state.monkStart === undefined && ms0("remote " + n).changed === 0) &&
+        ms0("local empty takes the remote").state.monkStart === "2026-11-06" &&
+        m["two devices that diverge"].state.monkStart === "2026-11-02");
       check("the merge fixtures reach the later-streakFrom rule, the kept-beside sealed week and the doneAt / quiz merges",
         m["streakFrom remote later wins"].state.streakFrom === "2026-11-01" && m["streakFrom remote earlier is ignored"].state.streakFrom === "2026-11-01" &&
         wkN("pre-reset local kept beside the new remote") === 2 && wkN("new local kept beside the pre-reset remote") === 2 &&
@@ -1482,6 +1573,31 @@ function diff(a, b, at, out, label) {
       const f5 = jk.out.focus["2026-11-05"];
       check("the monk fixtures reach a focus line, a month sum and a Friday-free week", !!f5 && f5.days >= 2 && jk.out.sums["2026-11-05"].week.shorts > 0 && jk.out.sums["2026-11-08"].month.clips > 0,
         f5 ? f5.label + " " + f5.rate + "% over " + f5.days + " days" : "no focus");
+    }
+
+    // 6b. the Monk start (T-065)
+    if (!process.env.VERIFY_ONLY) {
+      const jm2 = await runMStartJS(browser, fx);
+      check("the Monk start block ran in app.js without page errors", jm2.errors.length === 0, jm2.errors.slice(0, 3).join(" | "));
+      const dms = dart.mstart || {}, one = (name, a, b) => { const out = []; diff(a, b, [], out, (at, i) => i); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      for (const c of fx.mstart.cases) {
+        const days = jm2.monkDay[c.name], at = c.dates.length;
+        one("parity: monkDay — " + c.name + " (" + at + " dates)", days, dms.monkDay && dms.monkDay[c.name]);
+      }
+      const day1 = c => { const st = c.state && c.state.monkStart; const d = jm2.monkDay[c.name], first = d.findIndex(x => x !== null); return !!st && d.filter(x => x !== null).join() === Array.from({ length: 21 }, (_, i) => i + 1).join() && c.dates[first] === st; };
+      const started = fx.mstart.cases.filter(c => c.state && c.state.monkStart);
+      check("the monkDay windows reach the rules: nothing when not started or empty, and day 1 on the start date .. day 21, nothing before or after, for " + started.length + " starts",
+        jm2.monkDay["not started"].every(x => x === null) && jm2.monkDay["an empty start is not a start"].every(x => x === null) && started.every(day1));
+      one("parity: monkFocus with no start (null on every date, " + fx.monk.focusDates.length + " dates)", jm2.focus, dms.focus);
+      check("monkFocus with no start is null on every date in app.js", Object.values(jm2.focus).every(f => f === null));
+      one("parity: monkLive (days before the start never count; none count without one) — " + fx.mstart.liveStarts.length + " starts", jm2.live, dms.live);
+      check("monkLive reaches both sides of the start: nothing without one, a prefix cut off with one", jm2.live["null"].length === 0 && jm2.live["2026-11-03"].join() === "2026-11-03,2026-11-04,2026-11-05,2026-11-08" && jm2.live["2026-11-01"].length === 6 && jm2.live["2026-12-01"].length === 0);
+      for (const sc of fx.mstart.scenarios) one("parity: startMonk — " + sc.name, jm2.start[sc.name], dms.start && dms.start[sc.name]);
+      const S0 = jm2.start[fx.mstart.scenarios[0].name], S1 = jm2.start[fx.mstart.scenarios[1].name], S2 = jm2.start[fx.mstart.scenarios[2].name];
+      check("startMonk in app.js writes today once, returns false after, and an existing or empty start behaves the same way",
+        JSON.stringify(S0) === JSON.stringify([[true, "2026-11-06", 1], [false, "2026-11-06", 4], [false, "2026-11-06", null]]) &&
+        JSON.stringify(S1) === JSON.stringify([[false, "2026-11-01", 6], [false, "2026-11-01", 7]]) &&
+        JSON.stringify(S2) === JSON.stringify([[true, "2026-11-06", 1], [false, "2026-11-06", 3]]));
     }
 
     // 7. quiz, Problems, Exams

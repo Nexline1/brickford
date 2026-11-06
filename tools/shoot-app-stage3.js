@@ -34,6 +34,7 @@ function serve() {
 }
 
 const monkState = {
+  monkStart: "2026-11-01",   // T-065: Monk has no start until the owner presses Start
   monk: { days: {
     "2026-11-01": { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: true }, nosin: true, work: 10, bfh: 3, german: { podcast: true, speak: true, write: true, read: true }, meditate: true, gym: 1 },
     "2026-11-02": { prayers: { fajr: true, dhuhrAsr: true, maghribIsha: false }, nosin: true, work: 8, bfh: 3, german: { podcast: true, speak: true }, read: true },

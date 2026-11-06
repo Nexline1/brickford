@@ -317,6 +317,10 @@ void main() {
     await tester.pump(); // the fill's clock starts on the first frame after the press
     await tester.pump(const Duration(milliseconds: 700));
     expect(filled(tester), closeTo(700 / 1500, 0.02));
+    // The sweep covers that share of the whole button, top to bottom, not of its label.
+    expect(tester.getSize(fill()).width, closeTo(size.width * 700 / 1500, size.width * 0.02));
+    expect(tester.getSize(fill()).height, size.height);
+    expect(tester.getTopLeft(fill()), tester.getTopLeft(find.byKey(hold)));
     await g.up();
     await tester.pump();
     expect(filled(tester), 0);

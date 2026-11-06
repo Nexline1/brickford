@@ -58,7 +58,11 @@ class MonkStartScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: Tokens.midnight,
     body: SheetScaffold(
-      header: Text('Monk Mode', key: const ValueKey('monk-start-head'), style: display(26)),
+      header: Text(
+        'Monk Mode',
+        key: const ValueKey('monk-start-head'),
+        style: display(26),
+      ),
       onBack: () => Navigator.of(context).pop(),
       children: [
         SheetLabel(Icons.grid_view_rounded, '${Engine.MONK.days} days'),
@@ -99,7 +103,10 @@ class _EmptyMap extends StatelessWidget {
                         child: AspectRatio(
                           aspectRatio: 1,
                           child: DecoratedBox(
-                            decoration: BoxDecoration(color: Tokens.fieldFill, borderRadius: BorderRadius.circular(10)),
+                            decoration: BoxDecoration(
+                              color: Tokens.fieldFill,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ),
@@ -114,7 +121,11 @@ class _EmptyMap extends StatelessWidget {
 }
 
 class _StartSheet extends StatefulWidget {
-  const _StartSheet({required this.model, required this.onStarted, required this.onCancel});
+  const _StartSheet({
+    required this.model,
+    required this.onStarted,
+    required this.onCancel,
+  });
   final AppModel model;
   final VoidCallback onStarted, onCancel;
 
@@ -129,7 +140,12 @@ class _StartSheetState extends State<_StartSheet> {
   Widget build(BuildContext context) {
     final today = widget.model.today;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(
+        20.w,
+        0,
+        20.w,
+        24.h + MediaQuery.viewInsetsOf(context).bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,9 +172,19 @@ class _StartSheetState extends State<_StartSheet> {
                 constraints: const BoxConstraints(minHeight: 48),
                 child: Row(
                   children: [
-                    Icon(ack ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, color: ack ? Tokens.accent : Tokens.quiet),
+                    Icon(
+                      ack
+                          ? Icons.check_box_rounded
+                          : Icons.check_box_outline_blank_rounded,
+                      color: ack ? Tokens.accent : Tokens.quiet,
+                    ),
                     SizedBox(width: 12.w),
-                    Expanded(child: Text("I understand it can't be reset", style: body(14.5, weight: FontWeight.w600))),
+                    Expanded(
+                      child: Text(
+                        "I understand it can't be reset",
+                        style: body(14.5, weight: FontWeight.w600),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -169,12 +195,22 @@ class _StartSheetState extends State<_StartSheet> {
             children: [
               Expanded(
                 flex: 2,
-                child: PillButton(key: const ValueKey('monk-start-cancel'), label: 'Cancel', tone: PillTone.quiet, onPressed: widget.onCancel),
+                child: PillButton(
+                  key: const ValueKey('monk-start-cancel'),
+                  id: 'monk-start-cancel',
+                  label: 'Cancel',
+                  tone: PillTone.quiet,
+                  onPressed: widget.onCancel,
+                ),
               ),
               SizedBox(width: 10.w),
               Expanded(
                 flex: 3,
-                child: MonkHoldButton(key: const ValueKey('monk-start-hold'), enabled: ack, onHeld: widget.onStarted),
+                child: MonkHoldButton(
+                  key: const ValueKey('monk-start-hold'),
+                  enabled: ack,
+                  onHeld: widget.onStarted,
+                ),
               ),
             ],
           ),
@@ -188,7 +224,12 @@ class _StartSheetState extends State<_StartSheet> {
 /// end of [monkHold] with the press unbroken. Disabled it does nothing, and a press that is let go, slides
 /// off the button, loses focus or is interrupted puts the fill back to nothing.
 class MonkHoldButton extends StatefulWidget {
-  const MonkHoldButton({super.key, required this.enabled, required this.onHeld, this.duration = monkHold});
+  const MonkHoldButton({
+    super.key,
+    required this.enabled,
+    required this.onHeld,
+    this.duration = monkHold,
+  });
   final bool enabled;
   final VoidCallback onHeld;
   final Duration duration;
@@ -197,10 +238,14 @@ class MonkHoldButton extends StatefulWidget {
   State<MonkHoldButton> createState() => _MonkHoldButtonState();
 }
 
-class _MonkHoldButtonState extends State<MonkHoldButton> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _MonkHoldButtonState extends State<MonkHoldButton>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   // The wait is a timer from the press, the fill only shows it (app.js: setTimeout beside the animation), so the
   // decision does not depend on how many frames a slow phone drew.
-  late final AnimationController _fill = AnimationController(vsync: this, duration: widget.duration);
+  late final AnimationController _fill = AnimationController(
+    vsync: this,
+    duration: widget.duration,
+  );
   Timer? _timer;
   bool _holding = false;
 
@@ -251,7 +296,8 @@ class _MonkHoldButtonState extends State<MonkHoldButton> with SingleTickerProvid
 
   bool _inside(PointerEvent e) {
     final box = context.findRenderObject();
-    return box is RenderBox && (Offset.zero & box.size).contains(e.localPosition);
+    return box is RenderBox &&
+        (Offset.zero & box.size).contains(e.localPosition);
   }
 
   @override
@@ -261,7 +307,11 @@ class _MonkHoldButtonState extends State<MonkHoldButton> with SingleTickerProvid
       'HOLD TO START',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: body(13.5, color: on ? Tokens.onPrimary : Tokens.ink2, weight: FontWeight.w700).copyWith(letterSpacing: 1.2),
+      style: body(
+        13.5,
+        color: on ? Tokens.onPrimary : Tokens.ink2,
+        weight: FontWeight.w700,
+      ).copyWith(letterSpacing: 1.2),
     );
     return Semantics(
       identifier: 'monk-start-hold',
@@ -276,7 +326,9 @@ class _MonkHoldButtonState extends State<MonkHoldButton> with SingleTickerProvid
         },
         onKeyEvent: (node, e) {
           final k = e.logicalKey;
-          if (k != LogicalKeyboardKey.space && k != LogicalKeyboardKey.enter) return KeyEventResult.ignored;
+          if (k != LogicalKeyboardKey.space && k != LogicalKeyboardKey.enter) {
+            return KeyEventResult.ignored;
+          }
           if (e is KeyDownEvent) _begin();
           if (e is KeyUpEvent) _stop();
           return KeyEventResult.handled;
@@ -292,31 +344,36 @@ class _MonkHoldButtonState extends State<MonkHoldButton> with SingleTickerProvid
           onPointerUp: (_) => _stop(),
           onPointerCancel: (_) => _stop(),
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(Tokens.radius)),
-            child: Container(
-              height: 52,
+            borderRadius: const BorderRadius.all(
+              Radius.circular(Tokens.radius),
+            ),
+            child: ColoredBox(
               color: on ? Tokens.primary : Tokens.fieldFill,
-              alignment: Alignment.center,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // The sweep is a darker pass over the button, so the white label only gains contrast as it fills.
-                  Positioned.fill(
-                    child: AnimatedBuilder(
-                      animation: _fill,
-                      builder: (_, _) => Align(
-                        alignment: Alignment.centerLeft,
-                        child: FractionallySizedBox(
-                          key: const ValueKey('monk-start-fill'),
-                          widthFactor: _fill.value,
-                          heightFactor: 1,
-                          child: const ColoredBox(color: Color(0x4D000000)),
+              child: SizedBox(
+                height: 52,
+                // The Stack is as big as the button, not as its label, or the sweep would only cover the label.
+                child: Stack(
+                  fit: StackFit.expand,
+                  alignment: Alignment.center,
+                  children: [
+                    // The sweep is a darker pass over the button, so the white label only gains contrast as it fills.
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _fill,
+                        builder: (_, _) => Align(
+                          alignment: Alignment.centerLeft,
+                          child: FractionallySizedBox(
+                            key: const ValueKey('monk-start-fill'),
+                            widthFactor: _fill.value,
+                            heightFactor: 1,
+                            child: const ColoredBox(color: Color(0x4D000000)),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  label,
-                ],
+                    Center(child: label),
+                  ],
+                ),
               ),
             ),
           ),

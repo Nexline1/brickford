@@ -242,6 +242,44 @@ class Engine {
   Map<String, dynamic> get settings => S['settings'] as Map<String, dynamic>;
   List<String> get studyDays => (S['studyDays'] as List).whereType<String>().toList();
 
+  // ---------- the memo (T-064 perf) ----------
+  // scheduledFor, backlogCount, streak, bestStreak, dayStatus and firstOwed are pure functions of S, the
+  // date and the data, and the screens ask for them on every build (Home, the Calendar's 35 cells, Profile).
+  // The app (AppModel) switches [memoize] on and calls [touch] whenever S may have changed; the answers are
+  // kept until then, and dropped when the date rolls over. Off by default, so a bare Engine (the parity
+  // harness, tests that edit S directly) computes every call afresh exactly as before. The memo never
+  // answers while [planOnly] is set: that flag changes what scheduledFor means.
+  bool memoize = false;
+  int _rev = 0;
+
+  /// The state revision: bumped by [touch].
+  int get rev => _rev;
+
+  /// S changed (or may have): every memoised answer is stale.
+  void touch() => _rev++;
+
+  int _memoRev = -1;
+  String _memoToday = '';
+  final Map<String, List<SchedItem>> _schedMemo = {};
+  final Map<String, String> _statusMemo = {};
+  int? _streakMemo, _bestMemo, _backlogMemo;
+  ({SchedItem? v})? _owedMemo;
+
+  /// True when answers may be kept; clears them first when S or the date moved on since they were made.
+  bool _memoLive() {
+    if (!memoize || planOnly) return false;
+    final t = todayISO();
+    if (_memoRev != _rev || _memoToday != t) {
+      _schedMemo.clear();
+      _statusMemo.clear();
+      _streakMemo = _bestMemo = _backlogMemo = null;
+      _owedMemo = null;
+      _memoRev = _rev;
+      _memoToday = t;
+    }
+    return true;
+  }
+
   // ---------- six days a week ----------
   static const int REST_DOW = 6; // 0 = Sunday … 6 = Saturday
   bool isRestDay(String iso) => dowOf(iso) == REST_DOW;
@@ -338,6 +376,11 @@ class Engine {
 
   // ---------- the streak ----------
   int streak() {
+    if (_memoLive()) return _streakMemo ??= _streak();
+    return _streak();
+  }
+
+  int _streak() {
     final set = studyDays.toSet();
     final floor = truthy(settings['streakFrom']) ? settings['streakFrom'] as String : '';
     var n = 0;
@@ -357,6 +400,11 @@ class Engine {
   }
 
   int bestStreak() {
+    if (_memoLive()) return _bestMemo ??= _bestStreak();
+    return _bestStreak();
+  }
+
+  int _bestStreak() {
     final days = studyDays..sort();
     var best = 0, run = 0;
     String? prev;
@@ -456,6 +504,12 @@ class Engine {
   static const int P2_DAY = 182;
 
   List<SchedItem> scheduledFor(String iso) {
+    if (!_memoLive()) return _scheduledFor(iso);
+    // A copy each time: callers own the list they get, as they did before the memo.
+    return [...(_schedMemo[iso] ??= _scheduledFor(iso))];
+  }
+
+  List<SchedItem> _scheduledFor(String iso) {
     final d = studyIndex(iso);
     if (d < 0) return [];
     final items = <SchedItem>[];
@@ -656,6 +710,11 @@ class Engine {
   }
 
   int backlogCount() {
+    if (_memoLive()) return _backlogMemo ??= _backlogCount();
+    return _backlogCount();
+  }
+
+  int _backlogCount() {
     final today = todayISO();
     final from = firstActivityISO();
     if (from == null) return 0;
@@ -670,6 +729,11 @@ class Engine {
   }
 
   SchedItem? firstOwed() {
+    if (_memoLive()) return (_owedMemo ??= (v: _firstOwed())).v;
+    return _firstOwed();
+  }
+
+  SchedItem? _firstOwed() {
     final today = todayISO(), from = firstActivityISO();
     if (from == null) return null;
     for (var iso = gt(from, START_DATE) ? from : START_DATE; lt(iso, today); iso = addDaysISO(iso, 1)) {
@@ -683,6 +747,11 @@ class Engine {
 
   /// completed | partial | missed | today | upcoming | rest
   String dayStatus(String iso) {
+    if (_memoLive()) return _statusMemo[iso] ??= _dayStatus(iso);
+    return _dayStatus(iso);
+  }
+
+  String _dayStatus(String iso) {
     final today = todayISO();
     if (isRestDay(iso) && ge(iso, START_DATE)) return 'rest';
     if (gt(iso, today)) return 'upcoming';

@@ -1,6 +1,6 @@
 // The blueprint's viewport (skill_ui_blueprint.md §1-2): a Stack whose base
 // layer is the midnight canvas holding the branding, and a white sheet laid
-// over it from 240 (design px) down, 36px top corners only, a black12 blur-20
+// over it from 240 (design px) down, 36px top corners only, a black12 soft blur-12
 // shadow cast upward, the screen's content scrolling inside it with
 // BouncingScrollPhysics.
 import 'package:flutter/material.dart';
@@ -98,10 +98,14 @@ class SheetScaffold extends StatelessWidget {
               decoration: const BoxDecoration(color: Tokens.sheet, borderRadius: Tokens.sheetBorderRadius, boxShadow: Tokens.sheetShadow),
               child: ClipRRect(
                 borderRadius: Tokens.sheetBorderRadius,
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(20.w, 26.h, 20.w, tabbed ? Tokens.barClearance : 32.h),
-                  children: children,
+                // The scrolling content is its own layer: a scrolled frame repaints this, not the sheet's
+                // shadow, the canvas behind it or the floating bar above it.
+                child: RepaintBoundary(
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(20.w, 26.h, 20.w, tabbed ? Tokens.barClearance : 32.h),
+                    children: children,
+                  ),
                 ),
               ),
             ),

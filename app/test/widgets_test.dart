@@ -1,6 +1,6 @@
 // The blueprint, measured on the widgets themselves (skill_ui_blueprint.md):
 // the canvas is #12141C, the sheet's top corners are 36 and nothing else, its
-// shadow is black12 blur 20 offset (0, -5); fields are #F3F4F6, radius 16,
+// shadow is black12 blur 12 offset (0, -4) (was blur 20 before the perf round); fields are #F3F4F6, radius 16,
 // with no border in any state; pills are radius 16 with elevation 0 in every
 // state. Plus Home on the real data at a fixed date.
 import 'dart:convert';
@@ -48,7 +48,7 @@ void main() {
     final r = deco.borderRadius! as BorderRadius;
     expect(r.bottomLeft, Radius.zero);
     expect(r.bottomRight, Radius.zero);
-    expect(deco.boxShadow, const [BoxShadow(color: Colors.black12, blurRadius: 20.0, offset: Offset(0, -5))]);
+    expect(deco.boxShadow, const [BoxShadow(color: Colors.black12, blurRadius: 12.0, offset: Offset(0, -4))]);
 
     // The sheet starts at 240 of the 812 design height, over a 280-high branding layer.
     final top = tester.getTopLeft(find.byKey(SheetScaffold.sheetKey).first).dy;

@@ -2,6 +2,7 @@
 // shared_preferences under the web app's key, in the web app's shape
 // (lessons[k] = {done, doneAt, firstDoneAt, quiz, ...}), so the sync stage
 // can merge the two with the web app's mergeState rules unchanged.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -26,7 +27,7 @@ class AppModel extends ChangeNotifier {
   /// [today] fixes the date (tests, screenshots); the default is the device's local date.
   /// [now] is the wall clock (Monk's Now/Next, sync timestamps); [client] and
   /// [offline] are the sync's network, replaced by a fake in tests.
-  AppModel(this.data, this.prefs, {String Function()? today, DateTime Function()? now, this.client, this.offline, AudioBackend? audio, this.recorderClock})
+  AppModel(this.data, this.prefs, {String Function()? today, DateTime Function()? now, this.client, this.offline, AudioBackend? audio, this.recorderClock, this.saveDelay = Duration.zero})
     : engine = Engine(data, _load(prefs), today: today),
       audio = audio ?? createAudioBackend(),
       now = now ?? DateTime.now {
@@ -42,6 +43,9 @@ class AppModel extends ChangeNotifier {
       final g = engine.gateRec(gates[k], int.tryParse(k) ?? 0);
       gates[k] = {'date': g.date, 'at': g.at, 'passed': g.passed};
     }
+    // From here every write goes through persist() or notifyListeners(), and both touch() the engine,
+    // so its memoised schedule, streak, backlog and day statuses are dropped when S moves.
+    engine.memoize = true;
   }
 
   final DateTime Function() now;
@@ -115,11 +119,59 @@ class AppModel extends ChangeNotifier {
     }
   }
 
-  /// app.js save(): S to storage, and a push 4 s out unless quiet.
+  /// Every notification means S may have changed: the engine's memo is dropped first, so a listener
+  /// that rebuilds in response reads fresh answers.
+  @override
+  void notifyListeners() {
+    engine.touch();
+    super.notifyListeners();
+  }
+
+  /// How long a change waits for further changes before S is written (jsonEncode of the whole state plus a
+  /// storage write, which is too much to do on every tap and every keystroke). Zero writes at once, which is what
+  /// the tests that read storage straight after a change expect; main.dart passes 400 ms.
+  final Duration saveDelay;
+  Timer? _saveTimer;
+  bool _dirty = false;
+  DateTime? _dirtySince;
+
+  /// Whether S has changes not yet in storage.
+  bool get unsaved => _dirty;
+
+  /// app.js save(): S to storage (after [saveDelay], and never later than 2 s after the first unsaved
+  /// change), and a push 4 s out unless quiet. Nothing is lost: [flush] runs when the page is hidden,
+  /// before a sync and before an export.
   Future<void> persist() {
-    final f = prefs.setString(storageKey, jsonEncode(engine.S));
+    engine.touch();
     if (_quiet == 0) sync.soon();
-    return f;
+    if (saveDelay == Duration.zero) return _store();
+    final at = now();
+    if (!_dirty) _dirtySince = at;
+    _dirty = true;
+    _saveTimer?.cancel();
+    if (at.difference(_dirtySince!) >= const Duration(seconds: 2)) return flush();
+    _saveTimer = Timer(saveDelay, flush);
+    return Future<void>.value();
+  }
+
+  /// Write any unsaved change now.
+  Future<void> flush() {
+    _saveTimer?.cancel();
+    _saveTimer = null;
+    if (!_dirty) return Future<void>.value();
+    return _store();
+  }
+
+  Future<void> _store() {
+    _dirty = false;
+    _dirtySince = null;
+    return prefs.setString(storageKey, jsonEncode(engine.S));
+  }
+
+  @override
+  void dispose() {
+    flush();
+    super.dispose();
   }
 
   /// The record changed under the screen (a merge brought work in).

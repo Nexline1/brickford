@@ -102,8 +102,9 @@ abstract final class Tokens {
   /// The record button's dot on the dark card: 4.6:1 on [card] (a glyph, never text).
   static const rec = Color(0xFFE5484D);
 
-  /// The floating bar's frosted fill.
-  static const frost = Color(0xE6FFFFFF);
+  /// The floating bar's frosted fill. 98% white: with no blur behind it (a live BackdropFilter was what made the
+  /// phone lag) 90% and even 95% let the text scrolling underneath read through, so the fill is denser.
+  static const frost = Color(0xFAFFFFFF);
 
   // ---- geometry ----
   /// The sheet's top corners: exactly 36, upper points only.
@@ -126,5 +127,5 @@ abstract final class Tokens {
   static const barClearance = barHeight + barGap + 24;
 
   static const sheetBorderRadius = BorderRadius.only(topLeft: Radius.circular(sheetRadius), topRight: Radius.circular(sheetRadius));
-  static const sheetShadow = [BoxShadow(color: Colors.black12, blurRadius: 20.0, offset: Offset(0, -5))];
+  static const sheetShadow = [BoxShadow(color: Colors.black12, blurRadius: 12.0, offset: Offset(0, -4))];
 }

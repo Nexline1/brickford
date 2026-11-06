@@ -119,6 +119,7 @@ class CourseScreen extends StatelessWidget {
                 for (var li = 0; li < (units[ui]['lessons'] as List).length; li++)
                   ItemBlock(
                     key: ValueKey('lesson-$cid-$ui-$li'),
+                    id: 'lesson-row-$cid-$ui-$li',
                     leading: LessonGlyph(m.markOf(lessonKey(cid, ui, li))),
                     title: '${units[ui]['lessons'][li]['t']}',
                     meta: units[ui]['lessons'][li]['min'] != null ? "${units[ui]['lessons'][li]['min']}m" : null,

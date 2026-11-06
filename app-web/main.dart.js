@@ -48946,46 +48946,46 @@ A.a5x.prototype={
 $1(a){return B.CC},
 $S:225}
 A.ks.prototype={
-F(b0){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1=this,a2=null,a3="tracker",a4="lessons",a5={},a6=b0.ae(t.T).f,a7=a1.c,a8=a6.r.iK(a7),a9=t.g.a(a8.h(0,"units"))
-if(a9==null)a9=B.ah
-s=a1.d
-r=A.a1G(a6,a7,s)
-q=A.V(A.f(a8.h(0,"code")),a2,a2,a2,a2,A.a1().$4$color$fontSize$fontWeight$height(B.ad,$.e().O(12),B.r,a2),a2,a2)
-p=A.E(a2,4*$.e().gI(),a2)
+F(b2){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3=this,a4=null,a5="tracker",a6="lessons",a7={},a8=b2.ae(t.T).f,a9=a3.c,b0=a8.r.iK(a9),b1=t.g.a(b0.h(0,"units"))
+if(b1==null)b1=B.ah
+s=a3.d
+r=A.a1G(a8,a9,s)
+q=A.V(A.f(b0.h(0,"code")),a4,a4,a4,a4,A.a1().$4$color$fontSize$fontWeight$height(B.ad,$.e().O(12),B.r,a4),a4,a4)
+p=A.E(a4,4*$.e().gI(),a4)
 o=s==null
 n=!o
-m=n?A.f(J.bJ(J.bJ(a9,s),"name")):A.f(a8.h(0,"title"))
-m=A.V(m,a2,2,B.a1,a2,A.dw().$4$color$fontSize$fontWeight$height(B.f,$.e().O(22),B.R,1.1),a2,a2)
-l=A.E(a2,10*$.e().gI(),a2)
+m=n?A.f(J.bJ(J.bJ(b1,s),"name")):A.f(b0.h(0,"title"))
+m=A.V(m,a4,2,B.a1,a4,A.dw().$4$color$fontSize$fontWeight$height(B.f,$.e().O(22),B.R,1.1),a4,a4)
+l=A.E(a4,10*$.e().gI(),a4)
 k=t.p
 j=A.a([],k)
-if(A.a3(a8.h(0,a3)))j.push(new A.dP(B.fq,""+A.CV(a6.x)+"/150","problems solved",a2))
-else B.b.H(j,A.a([new A.dP(B.ih,""+r.a+"/"+r.c,"cleared",a2),A.E(a2,a2,18*$.e().gU()),new A.dP(B.q2,""+r.b,"watched",a2)],k))
-i=A.b8(A.a([q,p,m,l,A.aK(j,B.q,a2,B.j,B.m,a2)],k),B.z,B.j,B.m)
-h=new A.a59(a1,b0)
-g=o&&J.bs(a9)>1
-a5.a=null
-if(o){q=J.aN(a9)
+if(A.a3(b0.h(0,a5)))j.push(new A.dP(B.fq,""+A.CV(a8.x)+"/150","problems solved",a4))
+else B.b.H(j,A.a([new A.dP(B.ih,""+r.a+"/"+r.c,"cleared",a4),A.E(a4,a4,18*$.e().gU()),new A.dP(B.q2,""+r.b,"watched",a4)],k))
+i=A.b8(A.a([q,p,m,l,A.aK(j,B.q,a4,B.j,B.m,a4)],k),B.z,B.j,B.m)
+h=new A.a59(a3,b2)
+g=o&&J.bs(b1)>1
+a7.a=null
+if(o){q=J.aN(b1)
 p=t.j
 o=t.f
-m=a7+"."
-l=a6.x.b
+m=a9+"."
+l=a8.x.b
 j=t.P
 f=t.N
 e=t.z
 d=0
-for(;;){if(!(d<q.gv(a9)&&a5.a==null))break
-for(c=m+d+".",b=0;b<J.bs(p.a(J.bJ(q.h(a9,d),a4)));++b){a=j.a(l.h(0,a4)).h(0,c+b)
-if(!A.a3((o.b(a)?a.aB(0,f,e):B.c3).h(0,"done"))){a5.a=new A.XZ(b,d)
+for(;;){if(!(d<q.gv(b1)&&a7.a==null))break
+for(c=m+d+".",b=0;b<J.bs(p.a(J.bJ(q.h(b1,d),a6)));++b){a=j.a(l.h(0,a6)).h(0,c+b)
+if(!A.a3((o.b(a)?a.aB(0,f,e):B.c3).h(0,"done"))){a7.a=new A.XZ(b,d)
 break}}++d}}q=A.a([],k)
-if(A.a3(a8.h(0,a3)))B.b.H(q,a1.am9(b0,a6,a8))
-if(a5.a!=null&&!A.a3(a8.h(0,a3))){p=r.b>0?"Continue":"Start"
-B.b.H(q,A.a([new A.bZ(p,B.ds,new A.a55(a5,h),B.a4,!0,"course-continue",B.a6s),A.E(a2,14*$.e().gI(),a2)],k))}if(g)for(a7=J.aN(a9),d=0;d<a7.gv(a9);++d)q.push(new A.a56(a1,a6,d,a9,b0).$0())
-else for(p=J.aN(a9),o=t.j,m="lesson-"+a7+"-",l=t.O,a7+=".",d=0;d<p.gv(a9);++d)if(!n||s===d)for(k=""+d,j=m+k+"-",k=a7+k+".",b=0;b<J.bs(o.a(J.bJ(p.h(a9,d),a4)));++b){f=""+b
-e=a6.rC(k+f)
-c=A.f(J.bJ(J.bJ(J.bJ(p.h(a9,d),a4),b),"t"))
-a0=J.bJ(J.bJ(J.bJ(p.h(a9,d),a4),b),"min")!=null?A.f(J.bJ(J.bJ(J.bJ(p.h(a9,d),a4),b),"min"))+"m":a2
-q.push(new A.bf(new A.o8(e,24,!1,a2),c,a2,a0,new A.a57(h,d,b),a2,1,a2,new A.u(j+f,l)))}return A.dN(B.l,A.dt(a2,a2,q,i,new A.a58(b0),a2,!1,a2))},
+if(A.a3(b0.h(0,a5)))B.b.H(q,a3.am9(b2,a8,b0))
+if(a7.a!=null&&!A.a3(b0.h(0,a5))){p=r.b>0?"Continue":"Start"
+B.b.H(q,A.a([new A.bZ(p,B.ds,new A.a55(a7,h),B.a4,!0,"course-continue",B.a6s),A.E(a4,14*$.e().gI(),a4)],k))}if(g)for(a9=J.aN(b1),d=0;d<a9.gv(b1);++d)q.push(new A.a56(a3,a8,d,b1,b2).$0())
+else for(p=J.aN(b1),o=t.j,m="lesson-"+a9+"-",l=t.O,k="lesson-row-"+a9+"-",a9+=".",d=0;d<p.gv(b1);++d)if(!n||s===d)for(j=""+d,f=m+j+"-",e=k+j+"-",j=a9+j+".",b=0;b<J.bs(o.a(J.bJ(p.h(b1,d),a6)));++b){c=""+b
+a0=a8.rC(j+c)
+a1=A.f(J.bJ(J.bJ(J.bJ(p.h(b1,d),a6),b),"t"))
+a2=J.bJ(J.bJ(J.bJ(p.h(b1,d),a6),b),"min")!=null?A.f(J.bJ(J.bJ(J.bJ(p.h(b1,d),a6),b),"min"))+"m":a4
+q.push(new A.bf(new A.o8(a0,24,!1,a4),a1,a4,a2,new A.a57(h,d,b),a4,1,e+c,new A.u(f+c,l)))}return A.dN(B.l,A.dt(a4,a4,q,i,new A.a58(b2),a4,!1,a4))},
 am9(a,b,c){var s,r,q,p,o,n,m="problems",l=t.f,k=l.a(b.x.b.h(0,m)),j=l.b(c.h(0,m))?l.a(c.h(0,m)).aB(0,t.N,t.z):B.c3
 l=A.a([],t.p)
 for(s=j.ghy(),s=s.gX(s),r=t.j;s.n();){q=s.gL()

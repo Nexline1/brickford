@@ -1,6 +1,6 @@
-// One lecture: the video full-bleed on the canvas with frosted round back and
-// more buttons over it, then on the sheet the title, Mark watched, and the
-// summary. Opening it records it as the lecture to resume (once: a build is a
+// One lecture: on the midnight canvas a control row (Back, the crest, More), the
+// video full-width at 16:9 directly below it, then on the sheet the title, Mark
+// watched, and the summary. Opening it records it as the lecture to resume (once: a build is a
 // read).
 import 'dart:math' as math;
 
@@ -12,10 +12,34 @@ import '../../state/app_model.dart';
 import '../../theme/theme.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
+import '../../widgets/crest.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../quiz/quiz_screen.dart';
 import 'video_embed.dart';
+
+/// Where the lecture's pieces sit, top to bottom, in logical pixels: the control row
+/// under the status bar, the video directly below it at 16:9, the sheet from the
+/// video's foot. The sheet never starts higher than [floor] (where every other
+/// screen's sheet starts), and on a screen so wide that 16:9 would take the page the
+/// video stops at half the height and YouTube letterboxes inside it.
+class LessonFrame {
+  const LessonFrame._(this.rowH, this.videoTop, this.videoH, this.sheetTop);
+
+  /// The control row: [FrostButton]s are 44 high, with [rowTop] (design px) above and [rowGap] below.
+  static const rowGap = 8.0;
+  static double get rowTop => 12.h;
+  static double get rowHeight => rowTop + 44 + rowGap;
+
+  final double rowH, videoTop, videoH, sheetTop;
+  double get videoBottom => videoTop + videoH;
+
+  factory LessonFrame.compute({required double safeTop, required Size size, required double rowH, required double floor}) {
+    final videoTop = safeTop + rowH;
+    final videoH = math.min(size.width * 9 / 16, size.height * 0.5);
+    return LessonFrame._(rowH, videoTop, videoH, math.max(floor, videoTop + videoH));
+  }
+}
 
 /// Summary prose is written as HTML with KaTeX `$...$` for the web app; here
 /// it is shown as plain text: tags dropped, entities decoded, and the math
@@ -323,36 +347,66 @@ class _LessonScreenState extends State<LessonScreen> {
     final sm = m.data.summaries[k] is Map ? (m.data.summaries[k] as Map).cast<String, dynamic>() : null;
     final checks = m.engine.lessonQuiz(k);
 
-    // The video fills the width at 16:9, never so tall the sheet would cover its controls.
-    final top = MediaQuery.paddingOf(context).top;
-    final w = MediaQuery.sizeOf(context).width;
-    final videoH = math.min(w * 9 / 16, Tokens.sheetTop.h - top - 14);
+    // Top to bottom: the control row, the video at 16:9, the white sheet. Nothing overlaps the
+    // video: on the web it is an <iframe> in front of the canvas that takes every touch in its
+    // own rectangle, so a Back or More painted over it could be seen but not tapped.
+    final mq = MediaQuery.of(context);
+    final f = LessonFrame.compute(safeTop: mq.padding.top, size: mq.size, rowH: LessonFrame.rowHeight, floor: Tokens.sheetTop.h);
     final canvas = Stack(
       children: [
         Positioned(
-          top: top,
+          top: mq.padding.top,
           left: 0,
           right: 0,
-          height: videoH,
+          height: f.rowH,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, LessonFrame.rowGap),
+            child: Row(
+              children: [
+                FrostButton(
+                  id: 'lesson-back',
+                  icon: Icons.arrow_back_ios_new,
+                  tooltip: 'Back',
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  dark: true,
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Crest(height: 32),
+                      SizedBox(width: 10.w),
+                      Flexible(
+                        child: Text(
+                          'BRICKFORD',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: display(17, color: Tokens.onMidnight).copyWith(letterSpacing: 17 * 0.14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                FrostButton(
+                  key: const ValueKey('lesson-more'),
+                  id: 'lesson-more',
+                  icon: Icons.more_horiz,
+                  tooltip: 'More',
+                  onPressed: () => _more(m, c, u),
+                  dark: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: f.videoTop,
+          left: 0,
+          right: 0,
+          height: f.videoH,
           child: src != null
               ? VideoEmbed(key: const ValueKey('lesson-video'), src: src, videoId: v, code: '${c['code']}')
-              : FallbackTile(code: '${c['code']}'),
-        ),
-        Positioned(
-          top: top + 10,
-          left: 12,
-          child: FrostButton(id: 'lesson-back', icon: Icons.arrow_back, tooltip: 'Back', onPressed: () => Navigator.of(context).maybePop()),
-        ),
-        Positioned(
-          top: top + 10,
-          right: 12,
-          child: FrostButton(
-            key: const ValueKey('lesson-more'),
-            id: 'lesson-more',
-            icon: Icons.more_horiz,
-            tooltip: 'More',
-            onPressed: () => _more(m, c, u),
-          ),
+              : FallbackTile(key: const ValueKey('lesson-video'), code: '${c['code']}'),
         ),
       ],
     );
@@ -361,6 +415,8 @@ class _LessonScreenState extends State<LessonScreen> {
       backgroundColor: Tokens.midnight,
       body: SheetScaffold(
         canvas: canvas,
+        canvasHeight: f.sheetTop,
+        sheetTop: f.sheetTop,
         children: [
           Row(
             children: [

@@ -1,26 +1,26 @@
 perf-app: 375x812 dpr 2, CPU throttle 4x, Chromium 153.0.8010.12 (software GL), seeded state, clock 2026-11-04
 
-start (plain): splash frame 2835.0 ms after navigation
-start (semantics on): splash 3171.0 ms; Home on screen 5217.0 ms (main.dart.js in at 445.0, canvaskit.wasm at 439.0, last data JSON in at 4278.0; 939.0 ms from the last data file to Home: decode, build, first frame)
+start (plain): splash frame 2643.0 ms after navigation
+start (semantics on): splash 2824.0 ms; Home on screen 5004.0 ms (main.dart.js in at 385.0, canvaskit.wasm at 378.0, last data JSON in at 4083.0; 921.0 ms from the last data file to Home: decode, build, first frame)
 
 scrolling, semantics off (frame ms)   frames  median     p95   worst  >50ms
-Home                                     118    16.0   172.0   285.0     34
-Learn (courses)                          170    19.0   130.0   151.0     80
-Learn (lecture list)                     285    16.0   118.0   158.0     75
-Build                                    161    20.0   129.0   155.0     77
-Library                                  164    78.0   119.0   159.0     86
-Calendar (DID NOT MOVE)                  106    16.0    18.0    25.0      0
-Calendar day sheet (DID NOT MOVE)         94    16.0    19.0    25.0      0
+Home                                     119    16.0   165.0   232.0     37
+Learn (courses)                          166    18.0   118.0   142.0     77
+Learn (lecture list)                     279    16.0   104.0   167.0     77
+Build                                    161    21.0   114.0   130.0     80
+Library                                  162    78.0   113.0   173.0     88
+Calendar (DID NOT MOVE)                  104    16.0    17.0    19.0      0
+Calendar day sheet (DID NOT MOVE)         94    16.0    17.0    21.0      0
 
 opening (ms from the tap)              ident  settled  worst   |  settled  worst   (left: semantics on; right: off)
-tab Learn                              393.0    538.0  381.0   |    533.0  182.0
-Atlas                                  853.0    919.0  613.0   |    924.0  468.0
-tab Build                              183.0    508.0  194.0   |    553.0  133.0
-tab Profile                            194.0    541.0  207.0   |    520.0  142.0
-Library                                515.0    622.0  312.0   |    712.0  316.0
-Calendar                               760.0    779.0  462.0   |    427.0  423.0
-Calendar day sheet                     574.0    717.0  299.0   |    521.0  205.0
-Monk                                   581.0    858.0  378.0   |   1056.0  367.0
-Lecture                                498.0    995.0  325.0   |   1180.0  511.0
+tab Learn                              258.0    545.0  255.0   |    507.0  191.0
+Atlas                                  770.0    788.0  474.0   |   1181.0  365.0
+tab Build                              162.0    549.0  168.0   |    532.0  181.0
+tab Profile                            180.0    523.0  187.0   |    502.0  170.0
+Library                                609.0    625.0  430.0   |    624.0  271.0
+Calendar                               673.0    687.0  387.0   |   1164.0  692.0
+Calendar day sheet                     393.0    538.0  225.0   |    525.0  254.0
+Monk                                   523.0    747.0  329.0   |    835.0  273.0
+Lecture                                574.0   1184.0  478.0   |   1171.0  359.0
 
 no page errors

@@ -1,0 +1,62 @@
+# node tools/check-lesson-controls.js   (the fixed build in app-web/, then the plants)
+
+375x812  (a lecture with a YouTube video)
+  ok    the lecture has a YouTube <iframe> — https://www.youtube.com/embed/ryLdyDrBfvI?list=PL590CCC2BC5AF3BC1
+  ok    lesson-back and lesson-more are on the page
+        back 20,12 44x44   more 311,12 44x44   iframe 0,64 375x211
+  ok    Back is at least 44x44 — 44x44
+  ok    Back's rectangle does not meet the iframe's
+  ok    Back's rectangle does not meet any platform view's
+  ok    nothing at Back's centre is the iframe or a platform view — stack: FLT-SEMANTICS > FLUTTER-VIEW > BODY > HTML
+  ok    More is at least 44x44 — 44x44
+  ok    More's rectangle does not meet the iframe's
+  ok    More's rectangle does not meet any platform view's
+  ok    nothing at More's centre is the iframe or a platform view — stack: FLT-SEMANTICS > FLUTTER-VIEW > BODY > HTML
+  ok    the video is directly under the control row — gap 8px
+  ok    the video is full width and 16:9 — 375x210.9
+  ok    Back and More sit left and right of the screen's middle
+  shot  loop/specs/T-064-flutter-app/shots/lesson-controls-video-375.png
+  ok    the semantics layer is there to be made transparent
+  ok    a click at More's centre opens the unit's sheet
+  ok    a click at Back's centre goes back to the previous screen — on Home
+  ok    no page errors
+
+390x844  (a lecture with a YouTube video)
+  ok    the lecture has a YouTube <iframe> — https://www.youtube.com/embed/ryLdyDrBfvI?list=PL590CCC2BC5AF3BC1
+  ok    lesson-back and lesson-more are on the page
+        back 21,12 44x44   more 325,12 44x44   iframe 0,64 390x219
+  ok    Back is at least 44x44 — 44x44
+  ok    Back's rectangle does not meet the iframe's
+  ok    Back's rectangle does not meet any platform view's
+  ok    nothing at Back's centre is the iframe or a platform view — stack: FLT-SEMANTICS > FLUTTER-VIEW > BODY > HTML
+  ok    More is at least 44x44 — 44x44
+  ok    More's rectangle does not meet the iframe's
+  ok    More's rectangle does not meet any platform view's
+  ok    nothing at More's centre is the iframe or a platform view — stack: FLT-SEMANTICS > FLUTTER-VIEW > BODY > HTML
+  ok    the video is directly under the control row — gap 8px
+  ok    the video is full width and 16:9 — 390x219.4
+  ok    Back and More sit left and right of the screen's middle
+  shot  loop/specs/T-064-flutter-app/shots/lesson-controls-video-390.png
+  ok    the semantics layer is there to be made transparent
+  ok    a click at More's centre opens the unit's sheet
+  ok    a click at Back's centre goes back to the previous screen — on Home
+  ok    no page errors
+
+375x812  (a lecture with no video: the fallback tile, the same layout)
+  ok    this lecture has no iframe
+  ok    Back and More are where they are on a lecture with a video (same row, 44x44) — 20,12 44x44
+  shot  loop/specs/T-064-flutter-app/shots/lesson-controls-novideo-375.png
+  ok    a click at Back's centre goes back
+  ok    no page errors
+
+390x844  (a lecture with no video: the fallback tile, the same layout)
+  ok    this lecture has no iframe
+  ok    Back and More are where they are on a lecture with a video (same row, 44x44) — 21,12 44x44
+  shot  loop/specs/T-064-flutter-app/shots/lesson-controls-novideo-390.png
+  ok    a click at Back's centre goes back
+  ok    no page errors
+
+  ok    plant overlay-controls exits 1 — FAIL  Back's rectangle does not meet the iframe's
+
+all checks passed
+exit 0

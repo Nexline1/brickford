@@ -479,7 +479,7 @@ void main(List<String> args) {
       'START_DATE': e.START_DATE,
       'REST_DOW': Engine.REST_DOW,
       'QUIZ_GATE_FROM': Engine.QUIZ_GATE_FROM,
-      'MONK': {'from': Engine.MONK.from, 'days': Engine.MONK.days},
+      'MONK': {'from': e.monkFrom, 'days': Engine.MONK.days},
       'MONK_PRI': [for (final p in Engine.MONK_PRI) p.$1],
       'dateForStudy': [for (var i = 0; i < (fx['studyN'] as int); i++) e.dateForStudy(i)],
       'studyIndex': [for (final d in dates) e.studyIndex(d)],
@@ -560,7 +560,7 @@ void main(List<String> args) {
       ? [for (final x in v) strip(x)]
       : v;
   Map<String, dynamic> project(Engine e) => {
-    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk'])
+    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk', 'monkStart'])
       k: e.S[k],
     'streakFrom': e.settings['streakFrom'],
   };
@@ -604,11 +604,48 @@ void main(List<String> args) {
     'focus': {
       for (final d in (mk['focusDates'] as List).cast<String>())
         d: () {
-          final f = monkFocus(monkDays, d);
+          final f = monkFocus(monkDays, d, mk['start'] as String?);
           return f == null ? null : {'days': f.days, 'key': f.key, 'label': f.label, 'rate': f.rate, 'fix': f.fix};
         }(),
     },
     'phoneOk': [for (final d in (mk['phones'] as List)) mkPhoneOk(d == null ? <String, dynamic>{} : (d as Map).cast<String, dynamic>())],
+  };
+  // ---- T-065: the Monk start. monkDay with a start and with none, monkFocus and monkLive with none, and startMonk ----
+  final ms = fx['mstart'] as Map<String, dynamic>;
+  Engine fresh(Object? state, String Function() clock) => Engine(data, (copy(state) as Map?)?.cast<String, dynamic>(), today: clock);
+  out['mstart'] = {
+    'monkDay': {
+      for (final c in ms['cases'] as List)
+        c['name'] as String: () {
+          final e = fresh(c['state'], () => fx['planClock'] as String);
+          return [for (final d in (c['dates'] as List).cast<String>()) e.monkDay(d)];
+        }(),
+    },
+    'focus': {
+      for (final d in (mk['focusDates'] as List).cast<String>())
+        d: () {
+          final f = monkFocus(monkDays, d, null);
+          return f == null ? null : {'days': f.days, 'key': f.key};
+        }(),
+    },
+    'live': {
+      for (final s in (ms['liveStarts'] as List)) '$s': monkLive(monkDays, s as String?).keys.toList()..sort(),
+    },
+    'start': {
+      for (final sc in ms['scenarios'] as List)
+        sc['name'] as String: () {
+          var now = sc['clock'] as String;
+          final e = fresh(sc['state'], () => now);
+          return [
+            for (final step in (sc['steps'] as List).cast<String>())
+              () {
+                now = step;
+                final r = e.startMonk();
+                return [r, e.monkFrom, e.monkDay(step)];
+              }(),
+          ];
+        }(),
+    },
   };
   out['quiz'] = quizDump(fx, data, dir);
   out['record'] = recordDump(fx, data);

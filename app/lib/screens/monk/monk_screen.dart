@@ -5,6 +5,9 @@
 // and Also (habits, phone, numbers, the week, open loops, tomorrow's plan).
 //
 // Local only: S.monk never syncs (MONK_SYNCS = false), and no write here arms a push.
+// The one thing that syncs is the start date (T-065): until the owner starts it
+// the screen is one Start button over 21 empty days (monk_start.dart), with no
+// day, score or plan to show.
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -21,6 +24,7 @@ import '../../widgets/blocks.dart';
 import '../../widgets/brickford_field.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
+import 'monk_start.dart';
 
 void openMonk(BuildContext context) =>
     Navigator.of(context)
@@ -149,17 +153,22 @@ class _MonkScreenState extends State<MonkScreen> {
   @override
   Widget build(BuildContext context) {
     final m = AppScope.of(context);
-    final iso = m.today,
-        n = m.engine.monkDay(iso),
-        before = lt(iso, Engine.MONK.from);
-    final d = m.monkRec(iso), days = m.monkDays, w = mkDow(iso);
+    final from = m.monkFrom;
+    // T-065: nothing to show until it is started.
+    if (from == null) return const MonkStartScreen();
+    final iso = m.today, n = m.engine.monkDay(iso), before = lt(iso, from);
+    // Days logged before the start never count (app.js monkLive).
+    final days = m.monkLiveDays, w = mkDow(iso);
+    final d = days[iso] is Map
+        ? (days[iso] as Map).cast<String, dynamic>()
+        : const <String, dynamic>{};
     final sc = Engine.monkScore(d);
     final weeks = (Engine.MONK.days / 7).ceil();
     final week = n != null ? 'Week ${(n - 1) ~/ 7 + 1} of $weeks' : '';
     final head = n != null
         ? 'Day $n of ${Engine.MONK.days}'
         : before
-        ? 'Starts ${int.parse(Engine.MONK.from.substring(8))} ${_months[int.parse(Engine.MONK.from.substring(5, 7)) - 1]}'
+        ? 'Starts ${int.parse(from.substring(8))} ${_months[int.parse(from.substring(5, 7)) - 1]}'
         : '${Engine.MONK.days} days done';
 
     final header = Row(
@@ -200,14 +209,15 @@ class _MonkScreenState extends State<MonkScreen> {
             m: m,
             d: d,
             days: days,
+            from: from,
             iso: iso,
             score: sc,
             sel: sel,
             onSel: (i) => setState(() => sel = sel == i ? null : i),
           ),
           ..._nowNext(m, iso),
-          ..._map(m, iso, days),
-          ..._focus(days, iso),
+          ..._map(m, iso, days, from),
+          ..._focus(days, iso, from),
           ..._also(m, d, w),
           ..._numbers(m, d, w),
           ..._sums(days, iso),
@@ -281,7 +291,12 @@ class _MonkScreenState extends State<MonkScreen> {
   }
 
   // ---------- the 21 days, three weeks of seven ----------
-  List<Widget> _map(AppModel m, String iso, Map<String, dynamic> days) {
+  List<Widget> _map(
+    AppModel m,
+    String iso,
+    Map<String, dynamic> days,
+    String from,
+  ) {
     final weeks = (Engine.MONK.days / 7).ceil();
     var sum = 0, past = 0;
     final rows = <Widget>[];
@@ -293,7 +308,7 @@ class _MonkScreenState extends State<MonkScreen> {
           cells.add(const Expanded(child: SizedBox()));
           continue;
         }
-        final di = addDaysISO(Engine.MONK.from, k);
+        final di = addDaysISO(from, k);
         var pct = -1;
         if (!gt(di, iso)) {
           pct = Engine.monkScore(
@@ -337,8 +352,8 @@ class _MonkScreenState extends State<MonkScreen> {
   }
 
   // ---------- Focus: the weakest priority and its one-line fix ----------
-  List<Widget> _focus(Map<String, dynamic> days, String iso) {
-    final f = monkFocus(days, iso);
+  List<Widget> _focus(Map<String, dynamic> days, String iso, String from) {
+    final f = monkFocus(days, iso, from);
     return [
       const SheetLabel(Icons.center_focus_strong_outlined, 'Focus'),
       Container(
@@ -355,9 +370,9 @@ class _MonkScreenState extends State<MonkScreen> {
         ),
         child: f == null
             ? Text(
-                iso == Engine.MONK.from
+                iso == from
                     ? 'Starts tomorrow'
-                    : 'Starts ${int.parse(addDaysISO(Engine.MONK.from, 1).substring(8))} ${_months[int.parse(Engine.MONK.from.substring(5, 7)) - 1]}',
+                    : 'Starts ${int.parse(addDaysISO(from, 1).substring(8))} ${_months[int.parse(from.substring(5, 7)) - 1]}',
                 style: body(14.5, color: Tokens.ink2, weight: FontWeight.w600),
               )
             : Column(
@@ -576,6 +591,7 @@ class _PriorityCard extends StatelessWidget {
     required this.m,
     required this.d,
     required this.days,
+    required this.from,
     required this.iso,
     required this.score,
     required this.sel,
@@ -583,7 +599,7 @@ class _PriorityCard extends StatelessWidget {
   });
   final AppModel m;
   final Map<String, dynamic> d, days;
-  final String iso;
+  final String from, iso;
   final ({int done, int n, int pct}) score;
   final int? sel;
   final ValueChanged<int> onSel;
@@ -625,7 +641,7 @@ class _PriorityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pri = Engine.MONK_PRI;
-    final streak = monkPrayerStreak(days, iso);
+    final streak = monkPrayerStreak(days, iso, from);
     return Container(
       key: const ValueKey('monk-card'),
       padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 14.h),

@@ -6,6 +6,7 @@ import 'package:app/engine/engine.dart';
 import 'package:app/engine/monk.dart';
 import 'package:app/main.dart';
 import 'package:app/screens/monk/monk_screen.dart';
+import 'package:app/screens/monk/monk_start.dart';
 import 'package:app/state/app_model.dart';
 import 'package:app/state/sync.dart';
 import 'package:flutter/material.dart';
@@ -18,14 +19,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const today = '2026-11-05'; // a Thursday, Monk day 5
 
-/// [at] is the wall clock, local: Monk's Now/Next reads it.
-Future<AppModel> model({Map<String, dynamic>? monk, String date = today, DateTime? at, http.Client? client, bool token = false}) async {
+/// [at] is the wall clock, local: Monk's Now/Next reads it. T-065: Monk has no start until the owner presses
+/// Start, so every scenario that reads a Monk day carries the start these tests were written against (1 Nov);
+/// [start] null is the not-started state.
+Future<AppModel> model({Map<String, dynamic>? monk, String date = today, String Function()? clock, DateTime? at, http.Client? client, bool token = false, String? start = '2026-11-01'}) async {
   SharedPreferences.setMockInitialValues({
-    if (monk != null) AppModel.storageKey: jsonEncode({'monk': monk}),
+    if (monk != null || start != null) AppModel.storageKey: jsonEncode({'monk': ?monk, 'monkStart': ?start}),
     if (token) SyncService.tokenKey: 'github_pat_FAKE',
   });
   final data = await AppModel.loadData(rootBundle);
-  return AppModel(data, await SharedPreferences.getInstance(), today: () => date, now: () => at ?? DateTime(2026, 11, 5, 8, 15), client: client);
+  return AppModel(data, await SharedPreferences.getInstance(), today: clock ?? () => date, now: () => at ?? DateTime(2026, 11, 5, 8, 15), client: client);
 }
 
 Future<void> show(WidgetTester tester, AppModel m) async {
@@ -174,7 +177,7 @@ void main() {
     expect(find.textContaining('21 days · avg'), findsOneWidget);
     // Focus: the weakest priority of the 4 monk days before today.
     await tester.scrollUntilVisible(find.byKey(const ValueKey('monk-focus')), 300, scrollable: scroll);
-    final f = monkFocus(m.monkDays, today)!;
+    final f = monkFocus(m.monkDays, today, m.monkFrom)!;
     expect(find.text('${f.label} · ${f.rate}%'), findsOneWidget);
     // A seeded loop closes; a new one opens.
     await tester.scrollUntilVisible(find.byKey(const ValueKey('monk-loop-new')), 300, scrollable: scroll);
@@ -208,6 +211,235 @@ void main() {
     await show(tester, m2);
     final size = tester.getSize(find.byKey(const ValueKey('home-monk')));
     expect(size.height, greaterThanOrEqualTo(44));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  // ---------- T-065: the one-time Start ----------
+
+  const hold = ValueKey('monk-start-hold');
+  const ack = ValueKey('monk-start-ack');
+  Finder fill() => find.byKey(const ValueKey('monk-start-fill'));
+  double filled(WidgetTester tester) => tester.widget<FractionallySizedBox>(fill()).widthFactor!;
+
+  /// The Monk screen's Start button, open to the sheet, on a Friday with nothing started.
+  Future<AppModel> openSheet(WidgetTester tester, {String date = '2026-11-06'}) async {
+    final m = await model(start: null, date: date);
+    await show(tester, m);
+    await tester.tap(find.byKey(const ValueKey('chip-monk')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('monk-start')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(hold), findsOneWidget);
+    return m;
+  }
+
+  testWidgets('not started: monkDay is null on every date, and neither the Monk screen nor Home shows a day, a score or a plan', (tester) async {
+    final m = await model(start: null, monk: {'days': {'2026-11-03': {'nosin': true}}});
+    expect(m.monkFrom, isNull);
+    for (final d in ['2026-10-31', '2026-11-01', '2026-11-05', '2026-11-21', '2026-11-22', '2027-01-01', '2028-02-29']) {
+      expect(m.engine.monkDay(d), isNull, reason: d);
+    }
+    expect(monkFocus(m.monkDays, today, m.monkFrom), isNull);
+    expect(m.monkLiveDays, isEmpty); // nothing counts without a start
+    expect(m.monkDays.containsKey('2026-11-03'), isTrue); // and nothing stored was deleted
+    await show(tester, m);
+    // Home: the one Start button, no "Day N / 21", and 44 x 44 or more.
+    expect(find.byKey(const ValueKey('home-monk-start')), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-monk')), findsNothing);
+    expect(find.textContaining(' / 21'), findsNothing);
+    final hb = tester.getSize(find.byKey(const ValueKey('home-monk-start')));
+    expect(hb.height >= 44 && hb.width >= 44, isTrue, reason: '$hb');
+    // The Monk screen: 21 empty days and one Start button, nothing else.
+    await tester.tap(find.byKey(const ValueKey('chip-monk')));
+    await tester.pumpAndSettle();
+    expect(find.byType(MonkStartScreen), findsOneWidget);
+    expect(find.byKey(const ValueKey('monk-start')), findsOneWidget);
+    final sb = tester.getSize(find.byKey(const ValueKey('monk-start')));
+    expect(sb.height >= 44 && sb.width >= 44, isTrue, reason: '$sb');
+    expect(find.descendant(of: find.byKey(const ValueKey('monk-start-map')), matching: find.byType(AspectRatio)), findsNWidgets(21));
+    for (final k in ['monk-head', 'monk-ring', 'monk-card', 'monk-now', 'monk-focus', 'monk-plan-save', 'monk-loop-new']) {
+      expect(find.byKey(ValueKey(k)), findsNothing, reason: k);
+    }
+    expect(find.textContaining('of 21'), findsNothing);
+    expect(find.textContaining('Starts '), findsNothing);
+    // Looking at it wrote nothing, and started nothing.
+    expect(m.engine.S.containsKey('monkStart'), isFalse);
+    expect(m.prefs.getString(AppModel.storageKey), jsonEncode({'monk': {'days': {'2026-11-03': {'nosin': true}}}}));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('startMonk writes today once, saves it, and returns false the second time even on another day', (tester) async {
+    var date = '2026-11-06';
+    final m = await model(start: null, clock: () => date, monk: {'days': {'2026-11-03': {'nosin': true}}});
+    final before = jsonEncode(m.engine.S['monk']);
+    expect(m.startMonk(), isTrue);
+    expect(m.monkFrom, '2026-11-06');
+    expect(m.engine.monkDay('2026-11-06'), 1);
+    expect(m.engine.monkDay('2026-11-26'), 21);
+    expect(m.engine.monkDay('2026-11-27'), isNull);
+    expect(jsonDecode(m.prefs.getString(AppModel.storageKey)!)['monkStart'], '2026-11-06');
+    date = '2026-11-09';
+    expect(m.startMonk(), isFalse);
+    expect(m.monkFrom, '2026-11-06'); // not the 9th
+    expect(jsonEncode(m.engine.S['monk']), before); // S.monk untouched
+    // An empty string is not a start.
+    final e = (await model(start: '')).engine;
+    expect(e.monkFrom, isNull);
+    expect(e.startMonk(), isTrue);
+  });
+
+  testWidgets('the sheet: it says what it costs, the hold is disabled until the box is ticked, and a tap, a short hold, a slide-off and a closed sheet do not start it', (tester) async {
+    final m = await openSheet(tester);
+    expect(find.text("21 days. Day 1 is today (Fri 6 Nov). This can't be undone or reset."), findsOneWidget);
+    expect(find.text("I understand it can't be reset"), findsOneWidget);
+    final box = tester.getCenter(find.byKey(hold));
+    final size = tester.getSize(find.byKey(hold));
+    expect(size.height >= 44 && size.width >= 44, isTrue, reason: '$size');
+    expect(tester.widget<MonkHoldButton>(find.byKey(hold)).enabled, isFalse);
+    // Unticked: even a long press does nothing, and the fill never moves.
+    var g = await tester.startGesture(box);
+    await tester.pump(const Duration(seconds: 2));
+    expect(filled(tester), 0);
+    await g.up();
+    await tester.pumpAndSettle();
+    expect(m.monkFrom, isNull);
+    // Ticked: the button is live.
+    await tester.tap(find.byKey(ack));
+    await tester.pumpAndSettle();
+    expect(tester.widget<MonkHoldButton>(find.byKey(hold)).enabled, isTrue);
+    // A single tap does nothing.
+    await tester.tap(find.byKey(hold));
+    await tester.pump(const Duration(seconds: 2));
+    expect(m.monkFrom, isNull);
+    expect(filled(tester), 0);
+    // 0.7 s then letting go: the fill was moving, and goes back; waiting on changes nothing.
+    g = await tester.startGesture(box);
+    await tester.pump(); // the fill's clock starts on the first frame after the press
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(filled(tester), closeTo(700 / 1500, 0.02));
+    await g.up();
+    await tester.pump();
+    expect(filled(tester), 0);
+    await tester.pump(const Duration(seconds: 3));
+    expect(m.monkFrom, isNull);
+    // Sliding off the button aborts it, even if the finger stays down past 1.5 s.
+    g = await tester.startGesture(box);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(filled(tester), greaterThan(0));
+    await g.moveTo(box + const Offset(0, -200));
+    await tester.pump();
+    expect(filled(tester), 0);
+    await tester.pump(const Duration(seconds: 3));
+    expect(m.monkFrom, isNull);
+    await g.up();
+    await tester.pump();
+    // Closing the sheet during a hold aborts it.
+    g = await tester.startGesture(box);
+    await tester.pump(const Duration(milliseconds: 700));
+    Navigator.of(tester.element(find.byKey(hold))).pop();
+    await tester.pump(const Duration(seconds: 3));
+    await g.up();
+    await tester.pumpAndSettle();
+    expect(find.byKey(hold), findsNothing);
+    expect(m.monkFrom, isNull);
+    expect(m.prefs.getString(AppModel.storageKey), isNull); // nothing was written
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('a 1.5 s hold starts it: the sheet closes, the screen reads Day 1 of 21, and Cancel starts nothing', (tester) async {
+    final m = await openSheet(tester);
+    await tester.tap(find.byKey(const ValueKey('monk-start-cancel')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(hold), findsNothing);
+    expect(m.monkFrom, isNull);
+    await tester.tap(find.byKey(const ValueKey('monk-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(ack));
+    await tester.pumpAndSettle();
+    final g = await tester.startGesture(tester.getCenter(find.byKey(hold)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1400));
+    expect(m.monkFrom, isNull); // not yet
+    expect(filled(tester), closeTo(1400 / 1500, 0.02));
+    await tester.pump(const Duration(milliseconds: 200));
+    await g.up();
+    await tester.pumpAndSettle();
+    expect(m.monkFrom, '2026-11-06');
+    expect(find.byKey(hold), findsNothing);
+    expect(find.byType(MonkStartScreen), findsNothing);
+    expect(find.text('Day 1 of 21'), findsOneWidget);
+    expect(find.byKey(const ValueKey('monk-ring')), findsOneWidget);
+    expect(find.byKey(const ValueKey('monk-start')), findsNothing);
+    // Back on Home the badge is the day, not Start.
+    Navigator.of(tester.element(find.byType(MonkScreen))).pop();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('home-monk-start')), findsNothing);
+    expect(find.text('Day 1 / 21'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Start from Home\'s badge, by keyboard: Enter held 0.7 s aborts, held 1.5 s starts', (tester) async {
+    final m = await model(start: null, date: '2026-11-06');
+    await show(tester, m);
+    await tester.tap(find.byKey(const ValueKey('home-monk-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(ack));
+    await tester.pumpAndSettle();
+    Focus.of(tester.element(find.descendant(of: find.byKey(hold), matching: find.byType(Listener)).first)).requestFocus();
+    await tester.pump();
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(filled(tester), closeTo(700 / 1500, 0.02));
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(filled(tester), 0);
+    await tester.pump(const Duration(seconds: 2));
+    expect(m.monkFrom, isNull);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.enter);
+    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(m.monkFrom, '2026-11-06');
+    expect(find.byKey(hold), findsNothing);
+    expect(find.text('Day 1 / 21'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-monk-start')), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('started on day 21 it still shows Day 21; the day after, Home shows nothing and the Monk screen reads 21 days done', (tester) async {
+    final m = await model(date: '2026-11-21');
+    await show(tester, m);
+    expect(find.text('Day 21 / 21'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    final m2 = await model(date: '2026-11-22');
+    await show(tester, m2);
+    expect(find.byKey(const ValueKey('home-monk')), findsNothing);
+    expect(find.byKey(const ValueKey('home-monk-start')), findsNothing); // started, so no Start either
+    await tester.tap(find.byKey(const ValueKey('chip-monk')));
+    await tester.pumpAndSettle();
+    expect(find.text('21 days done'), findsOneWidget);
+    expect(find.byKey(const ValueKey('monk-start')), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('days logged before the start never count on the Monk screen, and stay stored', (tester) async {
+    final m = await model(start: '2026-11-05', monk: {
+      'days': {
+        '2026-11-03': {'shorts': 5, 'work': 12, 'nosin': true},
+        '2026-11-05': {'shorts': 2},
+      },
+    });
+    expect(m.monkLiveDays.keys, ['2026-11-05']);
+    expect(m.monkDays.keys, containsAll(['2026-11-03', '2026-11-05']));
+    await show(tester, m);
+    await openFromHome(tester);
+    final scroll = find.descendant(of: find.byKey(const ValueKey('brickford-sheet')), matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(find.text('Short-form'), 300, scrollable: scroll);
+    expect(find.text('2 / 8'), findsOneWidget); // the 5 on the 3rd is not in the week
+    await tester.scrollUntilVisible(find.text('Work hours'), 300, scrollable: scroll);
+    expect(find.text('0 / 70'), findsOneWidget); // nor the 12 work hours
     await tester.pumpWidget(const SizedBox());
   });
 }

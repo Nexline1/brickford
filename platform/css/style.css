@@ -3292,6 +3292,7 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
 .mk-actions .btn { min-height: 44px; }
 /* T-065: before the start, the 21 empty days over the one Start button. */
 .mk-start .heat { max-width: calc(var(--wk, 3) * 32px); margin-top: var(--sp-3); }
+.mk-start .btn { min-height: 44px; }
 /* The start sheet's last button is HELD, not tapped (MONK_HOLD in app.js). Its
    sweep is a darker pass over the button, so the white label only gains contrast
    as it fills. app.js draws it with the Web Animations API, which reduced motion

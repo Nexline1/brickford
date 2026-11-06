@@ -2328,8 +2328,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await page.waitForTimeout(300);
     await page.mouse.move(2, 2);
     await page.waitForTimeout(1500);
+    await page.mouse.move(c.x, c.y);   // back on the button before letting go: a release on the dimmed page would dismiss the sheet, which is not what this measures
     await page.mouse.up();
-    check("(ms) a hold that slides off the button does not start it (1.8 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    check("(ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
     // The real one.
     const before = await writes(page);
     c = await holdCentre(page);

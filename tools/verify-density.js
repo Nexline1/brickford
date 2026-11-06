@@ -66,7 +66,8 @@ const MAX_WORDS = 12;
 function seed([nowMs]) {
   if (window.top !== window) return;
   const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
-  const s = { lessons: {}, problems: {}, studyDays: [], review: {}, settings: { theme: "light", themeNavyOnce: true } };
+  // T-065: the Monk start is state now (S.monkStart); this clock is day 1 of the 1 Nov start the baseline was measured on.
+  const s = { lessons: {}, problems: {}, studyDays: [], review: {}, monkStart: "2026-11-01", settings: { theme: "light", themeNavyOnce: true } };
   for (let i = 0; i < 4; i++) s.studyDays.push(iso(i));
   s.lessons["math110.0.13"] = { done: true, verified: true, doneAt: iso(1), notes: "n", checks: [true], solved: 3, recall: "x".repeat(200), verifiedAt: iso(1) };
   s.lessons["math110.0.0"] = { done: true, verified: false, doneAt: iso(2), notes: "", checks: [] };

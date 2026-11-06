@@ -9,7 +9,9 @@ import 'dart:convert';
 
 import 'package:app/engine/dates.dart';
 import 'package:app/engine/engine.dart';
+import 'package:app/engine/problems.dart';
 import 'package:app/main.dart';
+import 'package:app/widgets/blocks.dart' show ItemBlock;
 import 'package:app/state/app_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -143,6 +145,25 @@ void main() {
     expect(heard, 0);
     m.refresh(); // a change to the record does
     expect(heard, 1);
+  });
+
+  testWidgets('a long list builds only the rows near the screen (Learn > All feeds a lazy ListView, not one Column)', (tester) async {
+    final m = await model({});
+    tester.view.physicalSize = const Size(375 * 3, 812 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(BrickfordApp(model: m));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tab-Learn')));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byKey(const ValueKey('learn-tab-exams')), const Offset(-300, 0)); // the chip row scrolls
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('learn-tab-all')));
+    await tester.pumpAndSettle();
+    final total = m.engine.allPsets().length + m.data.labs.length;
+    final built = find.byType(ItemBlock, skipOffstage: false).evaluate().length;
+    expect(total, greaterThan(30), reason: 'a list worth being lazy about');
+    expect(built, lessThan(total ~/ 2), reason: '$built of $total rows built at the top of the list');
   });
 
   group('the debounced save', () {

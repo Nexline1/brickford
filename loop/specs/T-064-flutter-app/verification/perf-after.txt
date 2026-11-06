@@ -1,0 +1,26 @@
+perf-app: 375x812 dpr 2, CPU throttle 4x, Chromium 153.0.8010.12 (software GL), seeded state, clock 2026-11-04
+
+start (plain): splash frame 2835.0 ms after navigation
+start (semantics on): splash 3171.0 ms; Home on screen 5217.0 ms (main.dart.js in at 445.0, canvaskit.wasm at 439.0, last data JSON in at 4278.0; 939.0 ms from the last data file to Home: decode, build, first frame)
+
+scrolling, semantics off (frame ms)   frames  median     p95   worst  >50ms
+Home                                     118    16.0   172.0   285.0     34
+Learn (courses)                          170    19.0   130.0   151.0     80
+Learn (lecture list)                     285    16.0   118.0   158.0     75
+Build                                    161    20.0   129.0   155.0     77
+Library                                  164    78.0   119.0   159.0     86
+Calendar (DID NOT MOVE)                  106    16.0    18.0    25.0      0
+Calendar day sheet (DID NOT MOVE)         94    16.0    19.0    25.0      0
+
+opening (ms from the tap)              ident  settled  worst   |  settled  worst   (left: semantics on; right: off)
+tab Learn                              393.0    538.0  381.0   |    533.0  182.0
+Atlas                                  853.0    919.0  613.0   |    924.0  468.0
+tab Build                              183.0    508.0  194.0   |    553.0  133.0
+tab Profile                            194.0    541.0  207.0   |    520.0  142.0
+Library                                515.0    622.0  312.0   |    712.0  316.0
+Calendar                               760.0    779.0  462.0   |    427.0  423.0
+Calendar day sheet                     574.0    717.0  299.0   |    521.0  205.0
+Monk                                   581.0    858.0  378.0   |   1056.0  367.0
+Lecture                                498.0    995.0  325.0   |   1180.0  511.0
+
+no page errors

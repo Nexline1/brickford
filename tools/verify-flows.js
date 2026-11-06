@@ -137,6 +137,13 @@
 // measured as it is, never retried (fail-closed). Whether the state arrived is
 // what the checks measure; their predicates are as they were.
 //
+// And, since T-065 (loop/specs/T-065-monk-start/spec.md), Monk Mode's start:
+//
+//   (ms) before it, #/monk and the dashboard offer one Start button and no day; the sheet it opens
+//       names the cost and asks for a tick; its last button must be PRESSED AND HELD 1.5 s (a click,
+//       a short hold and a slide off the button start nothing; Space or Enter held works too); then
+//       one write stores the day and both places read Day 1 of 21.
+//
 //   node tools/verify-flows.js                 # gate
 //   node tools/verify-flows.js --shots <dir>   # also write a screenshot per flow
 "use strict";
@@ -2172,7 +2179,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];
   for (const w of WIDTHS) {
     console.log("\nT-054 Monk Mode at " + w + "px:");
-    const { ctx, page, errors } = await fresh(browser, w, null, "/", MK_DAY);
+    const { ctx, page, errors } = await fresh(browser, w, { monkStart: MK_DAY }, "/", MK_DAY);   // T-065: the start is state now; this one pins day 1 = 1 Nov
     const monk = () => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || null);
     const w0 = await writes(page);
     await go(page, "/monk");
@@ -2250,6 +2257,133 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- T-065: Start Monk Mode, one press-and-hold (loop/specs/T-065-monk-start/spec.md) ----
+  // Nothing stored, on Fri 6 Nov 2026 (any day will do: the day it is pressed is day 1), at 390 and 1280:
+  // the page and the dashboard offer Start and no day; the sheet says what it costs; its last button is
+  // dead until the box is ticked; a click, a short hold, a hold that slides off the button and a hold
+  // with the box unticked each start nothing; ticking and holding 1.5 s starts it with one write, and
+  // then the page and the dashboard read Day 1 of 21 with Start gone. At 1280 once more by keyboard.
+  const ST_DAY = "2026-11-06";
+  const startSheet = page => page.evaluate(() => { const d = document.querySelector("dialog.sheet");
+    if (!d || !d.open) return null;
+    const h = d.querySelector("[data-monk-hold]"), a = d.querySelector("[data-monk-ack]"), r = h.getBoundingClientRect();
+    return { lede: d.querySelector(".sheet-lede").textContent.trim(), ack: d.querySelector(".check-label").textContent.trim(), hold: h.textContent.trim(),
+      disabled: h.disabled, checked: a.checked, w: r.width, h: r.height }; });
+  const monkStored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart || null);
+  const holdCentre = async page => { const b = await page.locator("[data-monk-hold]").boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
+  const monkHead = page => page.evaluate(() => ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim());
+  for (const w of WIDTHS) {
+    console.log("\nT-065 Start Monk Mode at " + w + "px:");
+    const { ctx, page, errors } = await fresh(browser, w, null, "/", ST_DAY);
+    const w0 = await writes(page);
+    await go(page, "/monk");
+    const pg = await page.evaluate(() => { const b = [...document.querySelectorAll("#view [data-monk-start]")], r = b[0] ? b[0].getBoundingClientRect() : null;
+      return { n: b.length, t: b[0] ? b[0].textContent.trim() : "", w: r ? r.width : 0, h: r ? r.height : 0, day: /Day \d+ of \d+/.test(document.querySelector("#view").textContent) }; });
+    check("(ms) the Monk page offers one Start Monk Mode button, at least 44x44, and no day number", pg.n === 1 && pg.t === "Start Monk Mode" && pg.w >= 44 && pg.h >= 44 && !pg.day, JSON.stringify(pg));
+    await go(page, "/");
+    const dr = await page.evaluate(() => { const b = [...document.querySelectorAll("#view [data-monk-start]")];
+      return { n: b.length, t: b[0] ? b[0].textContent.replace(/◐/, "").trim() : "", h: b[0] ? b[0].getBoundingClientRect().height : 0, day: /Day \d+ of 21/.test(document.querySelector("#view").textContent) }; });
+    check("(ms) the dashboard's Monk row is one Start Monk Mode button, at least 44 high, and no day number", dr.n === 1 && dr.t === "Start Monk Mode" && dr.h >= 44 && !dr.day, JSON.stringify(dr));
+    check("(ms) looking at both wrote nothing and started nothing", (await writes(page)) === w0 && (await monkStored(page)) === null, (await writes(page)) + " writes");
+
+    // The dashboard's row opens the sheet; Cancel and Escape close it and store nothing.
+    await page.click("#view button.monk-row");
+    await page.waitForSelector("dialog.sheet[open]");
+    const s0 = await startSheet(page);
+    check("(ms) the sheet says \"21 days. Day 1 is today (Fri 6 Nov). This can't be undone or reset.\", asks \"I understand it can't be reset\", and its last button reads Hold to start, dead and at least 44x44",
+      !!s0 && /^21 days\. Day 1 is today \(Fri,? 6 Nov\)\. This can't be undone or reset\.$/.test(s0.lede) && s0.ack === "I understand it can't be reset" && s0.hold === "Hold to start" &&
+      s0.disabled === true && s0.checked === false && s0.w >= 44 && s0.h >= 44, JSON.stringify(s0));
+    await page.click("dialog.sheet [data-sheet-cancel]");
+    check("(ms) Cancel closes the sheet and starts nothing", !(await startSheet(page)) && (await monkStored(page)) === null && (await writes(page)) === w0);
+    await page.click("#view button.monk-row");
+    await page.waitForSelector("dialog.sheet[open]");
+    await page.keyboard.press("Escape");
+    check("(ms) Escape closes the sheet and starts nothing", !(await startSheet(page)) && (await monkStored(page)) === null && (await writes(page)) === w0);
+
+    await go(page, "/monk");
+    await page.click("#view [data-monk-start]");
+    await page.waitForSelector("dialog.sheet[open]");
+    await shot(page, "monk-start-sheet-" + w);
+    // The box unticked: the button is dead, and holding it does nothing.
+    let c = await holdCentre(page);
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await page.waitForTimeout(1700);
+    await page.mouse.up();
+    check("(ms) with the box unticked, holding the button 1.7 s starts nothing", (await monkStored(page)) === null);
+    await page.click("dialog.sheet .check-row");
+    const s1 = await startSheet(page);
+    check("(ms) ticking the box enables the button", !!s1 && s1.checked === true && s1.disabled === false, JSON.stringify(s1));
+    // Ticked: none of these may start it. Each waits past the 1.5 s it would have needed.
+    await page.click("[data-monk-hold]");
+    await page.waitForTimeout(1700);
+    check("(ms) a single click on the final button does NOT start it (1.7 s later: nothing stored, sheet still open)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await page.waitForTimeout(700);
+    await page.mouse.up();
+    await page.waitForTimeout(1000);
+    check("(ms) a 0.7 s hold, let go, does not start it (1.7 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    await page.mouse.down();
+    await page.waitForTimeout(300);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(1500);
+    await page.mouse.move(c.x, c.y);   // back on the button before letting go: a release on the dimmed page would dismiss the sheet, which is not what this measures
+    await page.mouse.up();
+    check("(ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    // The real one. (If an earlier press already started it or closed the sheet, say so and stop here
+    // rather than fail on a missing button: a harness error would hide which check caught it.)
+    if (!(await startSheet(page))) {
+      check(false, "(ms) the sheet is still open for the real hold (an earlier press started it or closed it)");
+      await ctx.close();
+      continue;
+    }
+    const before = await writes(page);
+    c = await holdCentre(page);
+    await page.mouse.move(c.x, c.y);
+    const t0 = Date.now();
+    await page.mouse.down();
+    await page.waitForFunction(() => !!JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart, null, { timeout: 6000 });
+    const held = Date.now() - t0;
+    await page.mouse.up();
+    await page.waitForFunction(() => !document.querySelector("dialog.sheet") && !!document.querySelector("#view .mk-head"), null, { timeout: 4000 });
+    check("(ms) ticked and held, it starts after about 1.5 s (" + held + " ms), stores " + ST_DAY + " in one write, and the sheet closes",
+      held >= 1400 && held < 4500 && (await monkStored(page)) === ST_DAY && (await writes(page)) - before === 1, held + " ms; " + ((await writes(page)) - before) + " write(s); " + (await monkStored(page)));
+    check("(ms) the page then reads Day 1 of 21, with no Start button left", (await monkHead(page)) === "Day 1 of 21" && (await page.evaluate(() => document.querySelectorAll("[data-monk-start]").length)) === 0, await monkHead(page));
+    await shot(page, "monk-started-" + w);
+    await go(page, "/");
+    const dd = await page.evaluate(() => { const a = document.querySelector("#view a.monk-row"); return { head: a ? a.closest(".glist").previousElementSibling.textContent : null, start: document.querySelectorAll("[data-monk-start]").length }; });
+    check("(ms) the dashboard row then reads Monk ModeDay 1 of 21, with no Start button left", dd.head === "Monk ModeDay 1 of 21" && dd.start === 0, JSON.stringify(dd));
+    check("(ms) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    console.log("\nT-065 Start Monk Mode by keyboard at 1280px:");
+    const { ctx, page, errors } = await fresh(browser, 1280, null, "/", ST_DAY);
+    await go(page, "/monk");
+    await page.focus("#view [data-monk-start]");
+    await page.keyboard.press("Enter");
+    await page.waitForSelector("dialog.sheet[open]");
+    await page.focus("[data-monk-ack]");
+    await page.keyboard.press("Space");
+    await page.focus("[data-monk-hold]");
+    await page.keyboard.down("Enter");
+    await page.waitForTimeout(600);
+    await page.keyboard.up("Enter");
+    await page.waitForTimeout(1000);
+    check("(ms) by keyboard: the box ticked with Space, then Enter held 0.6 s and released starts nothing", (await monkStored(page)) === null && !!(await startSheet(page)), String(await monkStored(page)));
+    const t0 = Date.now();
+    await page.keyboard.down("Space");
+    await page.waitForFunction(() => !!JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart, null, { timeout: 6000 });
+    const held = Date.now() - t0;
+    await page.keyboard.up("Space");
+    await page.waitForFunction(() => !document.querySelector("dialog.sheet") && !!document.querySelector("#view .mk-head"), null, { timeout: 4000 });
+    check("(ms) by keyboard: Space held starts it after about 1.5 s (" + held + " ms), and the page reads Day 1 of 21",
+      held >= 1400 && held < 4500 && (await monkStored(page)) === ST_DAY && (await monkHead(page)) === "Day 1 of 21", held + " ms; " + (await monkHead(page)));
+    check("(ms) no page errors (keyboard)", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -2258,7 +2392,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
       "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
       "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028); " +
-      "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054)"
+      "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054); " +
+      "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

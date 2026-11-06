@@ -33,6 +33,9 @@ const START = "2026-10-16";
 const DAY_1094 = "2030-04-14";           // dateForStudy(1093)
 const BASELINE = "2030-04-15";           // addStudyDays(START, 1094)
 const WALK_TO = "2030-04-27";            // past the finish, so the whole plan is walked
+// T-065: the Monk start is S.monkStart (written once, by the Start button), no longer a constant
+// in app.js. Every fixture below that pinned the old 2026-11-01 start now carries it in its state.
+const MONK_START = "2026-11-01", STARTED = { monkStart: MONK_START };
 
 // ---------- calendar arithmetic, independent of the app ----------
 const addDays = (iso, n) => {
@@ -945,7 +948,7 @@ async function scenario(browser, now, state, tz) {
   // counted in calendar days (a Saturday counts); the dashboard shows the row only inside those
   // 21 days, linking to #/monk.
   for (const [now, want] of [["2026-10-31", null], ["2026-11-01", 1], ["2026-11-03", 3], ["2026-11-21", 21], ["2026-11-22", null]]) {
-    const probe = await scenario(browser, now, null);
+    const probe = await scenario(browser, now, STARTED);
     await probe.page.evaluate(() => { location.hash = "#/"; });
     await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
     const r = await probe.page.evaluate(() => {
@@ -977,7 +980,7 @@ async function scenario(browser, now, state, tz) {
   // line and PRAYER_METHOD in app.js are the whole change.
   const PRAYER_TABLE = { method: { fajr: 17.7, maghrib: 4.5, isha: 14, combine: true }, days: { "2026-10-22": { fajr: "04:24", dhuhr: "11:22", maghrib: "17:20" }, "2026-12-06": { fajr: "04:51", dhuhr: "11:29", maghrib: "17:04" }, "2027-01-15": { fajr: "05:07", dhuhr: "11:47", maghrib: "17:25" } } };
   {
-    const probe = await scenario(browser, "2026-10-28", null);
+    const probe = await scenario(browser, "2026-10-28", STARTED);
     const toMin = hm => +hm.slice(0, 2) * 60 + +hm.slice(3);
     const r = await probe.page.evaluate(days => {
       const T = window.__brickfordTest;
@@ -1177,7 +1180,7 @@ async function scenario(browser, now, state, tz) {
   // T-057 review: the Also count on #/monk reads the phone rule. Wed 4 Nov
   // (day 6 since T-061; it was day 8): {phone: 0} is 1 of 5, nothing logged is 0 of 5.
   for (const [rec, want] of [[{ phone: 0, at: "2026-11-04T09:00:00.000Z" }, "1 of 5"], [null, "0 of 5"]]) {
-    const probe = await scenario(browser, "2026-11-04", rec ? { studyDays: [], monk: { days: { "2026-11-04": rec } } } : null);
+    const probe = await scenario(browser, "2026-11-04", rec ? { studyDays: [], monkStart: MONK_START, monk: { days: { "2026-11-04": rec } } } : STARTED);
     await probe.page.evaluate(() => { location.hash = "#/monk"; });
     await probe.page.waitForSelector("#view #mkAlso", { state: "attached" });
     const got = await probe.page.evaluate(() => { const g = document.querySelector("#view #mkAlso").previousElementSibling;
@@ -1185,6 +1188,126 @@ async function scenario(browser, now, state, tz) {
     check("the Also count with " + (rec ? "{phone: 0}" : "nothing logged") + " reads " + want, got[0] === "Also" && got[1] === want, JSON.stringify(got));
     check("no page errors (Also count, " + want + ")", probe.errors.length === 0, probe.errors.join(" | "));
     await probe.ctx.close();
+  }
+
+  // T-065: Monk Mode starts when the owner presses Start, and that date is the one thing of
+  // Monk that syncs. Expected values are stated here, never read from the app.
+  //
+  // Not started: no day on any date, and the page and the dashboard offer Start in place of a
+  // day number, a score or a plan. Opening them starts nothing.
+  {
+    const probe = await scenario(browser, "2026-11-06", null);
+    const r = await probe.page.evaluate(() => { const T = window.__brickfordTest;
+      return { from: T.MONK.from, days: ["2025-01-01", "2026-10-31", "2026-11-01", "2026-11-06", "2026-11-26", "2026-11-27", "2030-01-01"].map(d => T.monkDay(d)),
+        focus: T.monkFocus({ "2026-11-05": { prayers: {} } }, "2026-11-06") }; });
+    check("T-065 not started: MONK.from is null, monkDay is null on every date, and there is no focus to compute",
+      r.from === null && r.days.every(d => d === null) && r.focus === null, JSON.stringify(r));
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view .mk-start", { state: "attached" });
+    const m = await probe.page.evaluate(() => ({ btn: [...document.querySelectorAll("#view [data-monk-start]")].map(b => b.textContent.trim()),
+      text: document.querySelector("#view").textContent, extra: document.querySelectorAll("#view .mk-head, #view #mkPri, #view #mkMap, #view [data-mk-pray], #view [data-mk-save]").length }));
+    check("T-065 not started: the Monk page is one Start Monk Mode button, with no day number, no score and no plan",
+      m.btn.length === 1 && m.btn[0] === "Start Monk Mode" && !/Day \d+ of \d+|Starts \d|days done/.test(m.text) && m.extra === 0, JSON.stringify({ btn: m.btn, extra: m.extra }));
+    await probe.page.evaluate(() => { location.hash = "#/"; });
+    await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
+    const d = await probe.page.evaluate(() => { const b = [...document.querySelectorAll("#view [data-monk-start]")];
+      return { btn: b.map(x => [x.tagName, x.textContent.replace(/◐/, "").trim(), Math.round(x.getBoundingClientRect().height)]), link: !!document.querySelector("#view a.monk-row"),
+        text: document.querySelector("#view").textContent };
+    });
+    check("T-065 not started: the dashboard's Monk row is one 44px Start Monk Mode button, no day number",
+      d.btn.length === 1 && d.btn[0][0] === "BUTTON" && d.btn[0][1] === "Start Monk Mode" && d.btn[0][2] >= 44 && !d.link && !/Day \d+ of 21/.test(d.text), JSON.stringify(d.btn));
+    const stored = await probe.page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+    check("T-065 not started: opening the page and the dashboard starts nothing (no monkStart stored)", !("monkStart" in stored), Object.keys(stored).join(","));
+    check("no page errors (T-065 not started)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // Days logged before the start never count: the store keeps them, the page does not read them.
+  // Started Fri 6 Nov, with 9 short-form and 30 work hours logged on Tue 3 Nov (the old store) and 2
+  // short-form on the 6th: this week (Sun 1 - Sat 7 Nov) reads 2 / 8 and 0 / 70, not 11 and 30.
+  {
+    const probe = await scenario(browser, "2026-11-06", { monkStart: "2026-11-06", monk: { days: {
+      "2026-11-03": { shorts: 9, work: 30, at: "2026-11-03T20:00:00.000Z" }, "2026-11-06": { shorts: 2, at: "2026-11-06T09:00:00.000Z" } } } });
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view .mk-head", { state: "attached" });
+    const r = await probe.page.evaluate(() => { const v = {};
+      for (const row of document.querySelectorAll("#view .mk-static")) { const t = row.querySelector(".g-t"), g = row.querySelector(".g-v");
+        if (t && g && /^(Short-form|Work hours)$/.test(t.textContent.trim())) v[t.textContent.trim()] = g.textContent.trim(); }
+      return { v, stored: JSON.parse(localStorage.getItem("darhikmah_v1")).monk.days["2026-11-03"] }; });
+    check("T-065 days logged before the start never count: this week reads Short-form 2 / 8 and Work hours 0 / 70, and the old day is still stored",
+      r.v["Short-form"] === "2 / 8" && r.v["Work hours"] === "0 / 70" && !!r.stored && r.stored.shorts === 9, JSON.stringify(r));
+    check("no page errors (T-065 old days)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // startMonk() writes today's date, once. The clock then moves three days: a second call changes
+  // nothing and says so, and the days count from the first date (day 21 is the 26th, the 27th is past).
+  {
+    const probe = await scenario(browser, "2026-11-06", null);
+    const read = () => probe.page.evaluate(() => { const T = window.__brickfordTest;
+      return { from: T.MONK.from, stored: JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart || null }; });
+    const a = await probe.page.evaluate(() => window.__brickfordTest.startMonk());
+    const afterFirst = await read();
+    await probe.ctx.clock.setFixedTime(new Date("2026-11-09T12:00:00Z"));
+    const b = await probe.page.evaluate(() => window.__brickfordTest.startMonk());
+    const afterSecond = await read();
+    const days = await probe.page.evaluate(() => ["2026-11-05", "2026-11-06", "2026-11-09", "2026-11-26", "2026-11-27"].map(d => window.__brickfordTest.monkDay(d)));
+    check("T-065 startMonk(): writes today's date, 2026-11-06, in memory and in storage, and returns true",
+      a === true && afterFirst.from === "2026-11-06" && afterFirst.stored === "2026-11-06", JSON.stringify({ a, ...afterFirst }));
+    check("T-065 startMonk(): a second call, three days later, changes nothing and returns false",
+      b === false && afterSecond.from === "2026-11-06" && afterSecond.stored === "2026-11-06", JSON.stringify({ b, ...afterSecond }));
+    check("T-065 the 21 days count from the start: the 5th null, the 6th day 1, the 9th day 4, the 26th day 21, the 27th null",
+      JSON.stringify(days) === JSON.stringify([null, 1, 4, 21, null]), JSON.stringify(days));
+    check("no page errors (T-065 startMonk)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // mergeState: first write wins. One side only is taken; with both, the EARLIER date stands, in
+  // either direction; an absent, empty or non-date remote value can never clear what this device has.
+  {
+    const MS = [
+      ["both sides, this device's is earlier: kept", "2026-11-03", { monkStart: "2026-11-06" }, "2026-11-03", 0],
+      ["both sides, the remote's is earlier: taken", "2026-11-06", { monkStart: "2026-11-03" }, "2026-11-03", 1],
+      ["both sides, the same date: unchanged", "2026-11-04", { monkStart: "2026-11-04" }, "2026-11-04", 0],
+      ["remote only: taken", null, { monkStart: "2026-11-04" }, "2026-11-04", 1],
+      ["local only, the remote has no monkStart (an older device): kept", "2026-11-04", {}, "2026-11-04", 0],
+      ["local only, the remote's is empty: kept", "2026-11-04", { monkStart: "" }, "2026-11-04", 0],
+      ["local only, the remote's is null: kept", "2026-11-04", { monkStart: null }, "2026-11-04", 0],
+      ["local only, the remote's is not a date: kept", "2026-11-04", { monkStart: "soon" }, "2026-11-04", 0],
+      ["neither has one: still none", null, {}, null, 0],
+      ["remote only, and not a date: not taken", null, { monkStart: "soon" }, null, 0],
+    ];
+    for (const [name, local, rs, want, changed] of MS) {
+      const probe = await scenario(browser, "2026-11-06", local ? { monkStart: local } : null);
+      const r = await probe.page.evaluate(rs => { const T = window.__brickfordTest; const m = T.mergeState({ v: 1, state: rs }); return { from: T.MONK.from, changed: m.changed }; }, rs);
+      check("T-065 mergeState, " + name + " (" + (want || "none") + ")", r.from === want && r.changed === changed, JSON.stringify(r));
+      check("no page errors (T-065 mergeState)", probe.errors.length === 0, probe.errors.join(" | "));
+      await probe.ctx.close();
+    }
+  }
+
+  // importBackup (through the Restore control, as the owner would): a backup can add a start where
+  // there is none, and can never replace or clear one.
+  {
+    const IMP = [
+      ["this device has a start, the backup has none: kept", "2026-11-03", undefined, "2026-11-03"],
+      ["this device has a start, the backup's is later: kept", "2026-11-03", "2026-11-09", "2026-11-03"],
+      ["this device has a start, the backup's is earlier: kept, never replaced", "2026-11-03", "2026-10-01", "2026-11-03"],
+      ["this device has none, the backup has one: added", null, "2026-11-02", "2026-11-02"],
+      ["neither has one: still none", null, undefined, null],
+      ["this device has none, the backup's is not a date: still none", null, "soon", null],
+    ];
+    for (const [name, local, backup, want] of IMP) {
+      const probe = await scenario(browser, "2026-11-06", local ? { monkStart: local } : null);
+      const file = { lessons: {}, studyDays: ["2026-10-20"] };
+      if (backup !== undefined) file.monkStart = backup;
+      await probe.page.setInputFiles("#importFile", { name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+      await probe.page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").studyDays || []).includes("2026-10-20"), null, { timeout: 5000 });
+      const r = await probe.page.evaluate(() => ({ stored: JSON.parse(localStorage.getItem("darhikmah_v1")).monkStart || null, from: window.__brickfordTest.MONK.from }));
+      check("T-065 importBackup, " + name + " (" + (want || "none") + ")", r.stored === want && r.from === want, JSON.stringify(r));
+      check("no page errors (T-065 importBackup)", probe.errors.length === 0, probe.errors.join(" | "));
+      await probe.ctx.close();
+    }
   }
 
   // T-063: on a rest day the past must stay frozen. studyToday() is -1 on a Saturday,

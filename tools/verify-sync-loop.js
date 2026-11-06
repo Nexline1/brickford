@@ -738,7 +738,7 @@ async function session(browser, { putOk }) {
     await ctx.addInitScript(m => {
       if (window.top !== window) return;
       localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
-      if (!sessionStorage.getItem("seeded")) { localStorage.setItem("darhikmah_v1", JSON.stringify({ studyDays: [], monk: m })); sessionStorage.setItem("seeded", "1"); }
+      if (!sessionStorage.getItem("seeded")) { localStorage.setItem("darhikmah_v1", JSON.stringify({ studyDays: [], monkStart: "2026-11-01", monk: m })); sessionStorage.setItem("seeded", "1"); }   // T-065: Monk is drawn only once started
     }, localMonk);
     const page = await ctx.newPage();
     const errors = [];
@@ -777,6 +777,10 @@ async function session(browser, { putOk }) {
       c54("(m3) a manual push was made and read", puts.length > p1 && !!parsed && !!parsed.state, puts.length - p1 + " PUT(s)");
       c54("(m3) the push's state has no monk key", !!parsed && !!parsed.state && !("monk" in parsed.state), parsed && parsed.state ? Object.keys(parsed.state).join(",") : "");
       c54("(m3) and none of the monk text anywhere in it (\"" + MARK + "\", \"remote loop\")", body.length > 0 && !body.includes(MARK) && !body.includes("remote loop"), "");
+      // T-065: the one thing of Monk that leaves is its start date. Exactly that key, and a date.
+      const monkKeys = parsed && parsed.state ? Object.keys(parsed.state).filter(k => /monk/i.test(k)) : null;
+      c54("(m3) only monkStart leaves: of every Monk key in the push's state, exactly monkStart, holding the date 2026-11-01",
+        !!monkKeys && monkKeys.join() === "monkStart" && parsed.state.monkStart === "2026-11-01", JSON.stringify(monkKeys));
       const b = await st();
       c54("(m3) after the push merged the remote, local monk still has only its own data (+ today's tick)",
         !!b.monk && JSON.stringify(b.monk.days["2026-10-31"]) === JSON.stringify(localMonk.days["2026-10-31"]) && !b.monk.days["2026-10-24"] && !b.monk.loops.theirs && !!b.monk.loops.mine,
@@ -800,7 +804,7 @@ async function session(browser, { putOk }) {
       fs.writeFileSync(path.join(dir, "js/app.js"), app.replace(FLIP, "const MONK_SYNCS = true;"));
       const at = (d, h) => d + "T" + String(h).padStart(2, "0") + ":00:00.000Z";
       const T = "2026-11-01";
-      const local = { studyDays: [], monk: {
+      const local = { studyDays: [], monkStart: T, monk: {   // T-065: Monk is drawn only once started
         days: { "2026-10-30": { work: 6, at: at(T, 9) }, "2026-10-31": { work: 2, at: at(T, 1) }, "2026-10-29": { gym: 1, at: at(T, 2) } },
         plans: { "2026-11-02": { business: "mine newer", at: at(T, 8) }, "2026-11-03": { business: "mine older", at: at(T, 1) } },
         loops: { s1: { text: "seed", done: false, at: "2026-10-22T00:00:00.000Z" }, keep: { text: "local done", done: true, at: at(T, 7) }, solo: { text: "local only", done: false, at: at(T, 3) } } } };
@@ -852,9 +856,61 @@ async function session(browser, { putOk }) {
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   }
 
+  // ---- T-065: the Monk start date is the one thing of Monk that syncs ----
+  // (s1) a pull of a remote that has a start: this device (none yet) takes it through mergeState, and
+  // the Monk page, drawn as Start a moment before, repaints to the day it makes today. (s2) pressing and
+  // holding Start pushes at once - inside the 4 s the debounce would take - with the date and no
+  // other Monk key in the state.
+  console.log("\nThe Monk start date syncs (T-065):");
+  for (const half of ["pull", "push"]) {
+    const NOW = "2026-11-05", REMOTE_START = "2026-11-02";
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+    await ctx.clock.setFixedTime(new Date(NOW + "T12:00:00Z"));
+    await ctx.addInitScript(() => { if (window.top === window) localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"); });
+    const page = await ctx.newPage();
+    const errors = [], puts = [];
+    page.on("pageerror", e => errors.push(e.message));
+    const remote = { v: 1, device: "device-b", ledgers: {}, state: half === "pull" ? { studyDays: [], monkStart: REMOTE_START } : { studyDays: [] } };
+    await page.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET")
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stubsha", content: Buffer.from(JSON.stringify(remote)).toString("base64") }) });
+      try { puts.push({ t: Date.now(), state: JSON.parse(Buffer.from(JSON.parse(route.request().postData()).content, "base64").toString()).state }); } catch (e) { puts.push({ t: Date.now(), state: null }); }
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    try {
+      await page.goto(URL + "/monk", { waitUntil: "load" });
+      if (half === "pull") {
+        await page.waitForFunction(() => { const h = document.querySelector("#view .mk-head .one-kind"); return !!h && /^Day \d+ of 21$/.test(h.textContent.trim()); }, null, { timeout: 8000 });
+        const st = await page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+        const head = await page.evaluate(() => document.querySelector("#view .mk-head .one-kind").textContent.trim());
+        c54("(s1) a pull of a remote with a start gives this device that start (" + REMOTE_START + "), stored, and the page repaints to Day 4 of 21",
+          st.monkStart === REMOTE_START && head === "Day 4 of 21", JSON.stringify({ stored: st.monkStart, head }));
+      } else {
+        await page.waitForFunction(() => !!(JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt, null, { timeout: 8000 });
+        await page.waitForSelector("#view [data-monk-start]");
+        await page.click("#view [data-monk-start]");
+        await page.waitForSelector("dialog.sheet[open] [data-monk-ack]");
+        await page.click("dialog.sheet .check-row");
+        const box = await page.locator("[data-monk-hold]").boundingBox();
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        const p0 = puts.length;
+        await page.mouse.down();
+        await page.waitForFunction(() => !!JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart, null, { timeout: 5000 });
+        const started = Date.now();
+        await page.mouse.up();
+        for (; puts.length === p0 && Date.now() - started < 3500;) await page.waitForTimeout(50);
+        const last = puts[puts.length - 1], lag = last ? last.t - started : null;
+        c54("(s2) holding Start pushes at once (" + (puts.length - p0) + " PUT, " + lag + " ms after the write, inside the debounce's 4 s) with monkStart " + NOW,
+          puts.length > p0 && !!last.state && last.state.monkStart === NOW && lag < 3500, JSON.stringify(last && last.state ? Object.keys(last.state).filter(k => /monk/i.test(k)) : "no push"));
+      }
+      c54("(s) no page errors (" + half + ")", errors.length === 0, errors.join(" | "));
+    } catch (e) { check(false, "(s) the " + half + " half ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    await ctx.close();
+  }
+
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065)");
   process.exit(fails ? 1 : 0);
 })();

@@ -1,0 +1,11 @@
+# T-065 — Monk Mode: reset, and a one-time irreversible Start button (both apps)
+
+Owner, 2026-11-06: "Reset the monk mode and create a button in the platform for me to click on to start the monk challenge (irreversible). I can't reset anymore."
+Answers: button in BOTH apps (web platform/ and the Flutter app); the challenge starts on the day the owner taps it (that day = day 1, any day), 21 days; the start date IS synced (public progress file; only this one date, everything else about Monk stays device-only).
+
+Full design: the "Monk Mode: reset, and a one-time Start button" section of the approved plan. Summary:
+- S.monkStart (ISO date, absent until started), separate from S.monk. MONK.from is derived from it (not the constant 2026-11-01); MONK.days stays 21. monkDay(iso) is null when not started / before the start / after day 21. Old S.monk.days entries stay stored and never count.
+- startMonk() writes monkStart = todayISO() only when unset; no UI changes or clears it. mergeState: one side only -> take it; both -> keep the EARLIER date. importBackup keeps an existing monkStart. syncPayload carries monkStart and nothing else from Monk (MONK_SYNCS stays false for S.monk).
+- Button: before the start the Monk page and the dashboard row show "Start Monk Mode"; a confirmation sheet says "21 days. Day 1 is today (<date>). This can't be undone or reset.", requires ticking "I understand it can't be reset" and then pressing and holding (~1.5 s) the final button; a single tap can't start it. After the start: "Day N of 21"; after day 21: "21 days done". Push right after the start.
+- PR 1 (this branch, web): platform/js/app.js, index.html tokens, the Monk page + dashboard states + sheet, the sync-format change. Every pinned monk fixture in verify-logic / verify-design / verify-flows / verify-sync-loop that assumed 2026-11-01 now sets monkStart in its fixture state; list each moved assertion old -> new in verification/changed-assertions.md (nothing loosened). New checks and plants as in the plan. The old "monk never leaves the device" sync-loop assertion is narrowed to exactly "only monkStart leaves" and a plant that re-adds S.monk to the payload must still fail.
+- PR 2 (after this merges): the Flutter app, same rules, parity blocks in verify-app.

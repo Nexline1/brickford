@@ -382,6 +382,14 @@
     const rf = (r.settings || {}).streakFrom;
     if (rf && rf > (S.settings.streakFrom || "")) { S.settings.streakFrom = rf; changed++; }
 
+    // T-065: the Monk start date, the one piece of Monk that syncs. First write
+    // wins: a side with none takes the other's, and with two the EARLIER date
+    // stands, so every device settles on the same day and an older device that
+    // has not heard of the start can never clear it. A remote value that is not
+    // a date is ignored.
+    const rm = r.monkStart;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(rm || "") && (!S.monkStart || rm < S.monkStart)) { S.monkStart = rm; changed++; }
+
     // Ledgers stay per device and are never re-hashed: rewriting a chain would
     // orphan any head hash already published as an anchor.
     const ledgers = remote.ledgers || {};
@@ -662,6 +670,8 @@
     state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart, streakFrom: S.settings.streakFrom };
     // T-054: Monk Mode is private until T-053; see MONK_SYNCS.
     if (MONK_SYNCS && S.monk) state.monk = S.monk;
+    // T-065: the start date alone leaves the device; nothing else of Monk does.
+    if (S.monkStart) state.monkStart = S.monkStart;
     const ledgers = Object.assign({}, S.foreignLedgers);
     ledgers[S.settings.deviceId] = S.ledger;
     return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
@@ -1273,13 +1283,28 @@
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
   const QUIZ_GATE_FROM = "2026-10-24";                 // the day after the fix merges (T-056 r3): everything watched on the merge day counts; a Saturday, so the gate starts with Sunday's lectures
-  // T-052: the owner's monk mode (T-057: MONK.days days from MONK.from; T-062: 1 Nov to 21 Nov 2026) lives on its
+  // T-052: the owner's monk mode (T-057: MONK.days days from MONK.from) lives on its
   // own dashboard, a private claude.ai page that reads the calendar and the
   // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
   // which keeps one row out to that page (MONK.url). The day counts
   // calendar days, Saturdays included: it is a life plan, not the study plan.
-  const MONK = Object.freeze({ from: "2026-11-01", days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
-  function monkDay(iso) { const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
+  // T-065: the start is no longer a date in this file. It is S.monkStart, written
+  // once by startMonk() on the day the owner presses and holds Start, and
+  // MONK.from reads it: null until then, and every reader handles null.
+  const MONK = Object.freeze({ get from() { return S.monkStart || null; }, days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  function monkDay(iso) { if (!MONK.from) return null; const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
+  // The one write to S.monkStart in the app, and nothing resets or clears it
+  // (mergeState keeps the earlier date, importBackup keeps this device's).
+  // Called from the sheet's hold handler, never from a render. It persists
+  // through save() like any user action, then pushes at once instead of
+  // waiting out the debounce, so the date reaches the other devices.
+  function startMonk() {
+    if (S.monkStart) return false;
+    S.monkStart = todayISO();
+    save();
+    if (ghToken()) { clearTimeout(pushTimer); runSync("push"); }
+    return true;
+  }
   // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
   // Ported from loop/design/monk-mode.html, with the owner's amendment of
   // 2026-10-23: Ja'fari (Tehran) times, the five prayers kept in three
@@ -1396,6 +1421,7 @@
   // The weakest of the five priorities over the seven days before `today` (monk days only).
   function monkFocus(days, today, method) {
     days = days || {};
+    if (!MONK.from) return null;                      // T-065: not started, no days to count
     const end = addDaysISO(today, -1), list = [];
     for (let i = addDaysISO(end, -6); i <= end; i = addDaysISO(i, 1)) if (i >= MONK.from) list.push(i);
     if (!list.length) return null;
@@ -2478,6 +2504,10 @@
       // ---- T-052: monk mode, one tap away while its MONK.days days run ----
       (function () {
         const n = monkDay(todayISO());
+        // T-065: not started, the row is the one Start button (it opens the sheet).
+        if (!MONK.from) return '<div class="ghead">Monk Mode<span class="gh-meta">' + MONK.days + ' days</span></div>' +
+          '<div class="glist"><button type="button" class="grow monk-row" data-monk-start>' +
+          '<span class="g-lead">◐</span><span class="g-main"><span class="g-t">Start Monk Mode</span></span></button></div>';
         if (!n) return "";
         return '<div class="ghead">Monk Mode<span class="gh-meta">Day ' + n + " of " + MONK.days + "</span></div>" +
           '<div class="glist"><a class="grow monk-row" href="#/monk">' +
@@ -5822,6 +5852,15 @@
     return s;
   }
   V.monk = function () {
+    // T-065: until the owner starts it there is no day, no score and no plan to
+    // show: the 21 empty days and the one Start button (it opens the sheet).
+    if (!MONK.from) {
+      const col = '<div class="hcol">' + '<span class="hc"></span>'.repeat(7) + "</div>";
+      return '<div class="view-enter mk">' + folio("Monk Mode", MONK.days + " days") +
+        '<div class="card one mk-start"><div class="one-kind">' + MONK.days + " days</div>" +
+        '<div class="heat" style="--wk:3" aria-hidden="true">' + col + col + col + "</div>" +
+        '<button type="button" class="btn lg one-go" data-monk-start>Start Monk Mode</button></div></div>';
+    }
     const iso = todayISO(), n = monkDay(iso), before = iso < MONK.from;
     const M = S.monk || {}, days = M.days || {}, d = days[iso] || {}, w = mkDow(iso), sc = monkScore(d);
     const from = Number(MONK.from.slice(8)) + " " + mkNice(MONK.from).split(" ").pop();
@@ -6018,6 +6057,7 @@
   // ---------- actions ----------
   function wire(root, route) {
     if (route === "/monk") wireMonk(root);
+    $$("[data-monk-start]", root).forEach(b => { b.onclick = monkStartSheet; });   // T-065: the page's and the dashboard's Start
     // A lecture's player, if one was just drawn: start the handshake.
     // And again the moment the frame has loaded: whatever was said before
     // that went to a page that was not the player yet.
@@ -6688,15 +6728,63 @@
     dlg.showModal();
   }
 
+  // ---------- the Monk Mode start sheet (T-065) ----------
+  // Starting is irreversible, so a tap cannot do it. The sheet says what it
+  // costs, wants a tick, and then its last button must be PRESSED AND HELD for
+  // MONK_HOLD ms - the pointer, or Space/Enter on the keyboard. The sweep is the
+  // wait; letting go, leaving the button, losing focus or closing the sheet puts
+  // it back. A click does nothing. Same shape as gateSheet: a native modal
+  // <dialog> on <body>, outside #view, focus kept inside, Escape closes it.
+  const MONK_HOLD = 1500;
+  function monkStartSheet() {
+    if (MONK.from) return;
+    const old = $("dialog.sheet");
+    if (old) old.remove();
+    const dlg = document.createElement("dialog");
+    dlg.className = "sheet";
+    dlg.setAttribute("aria-labelledby", "sheetTitle");
+    dlg.innerHTML = '<div class="sheet-in"><h2 id="sheetTitle">Start Monk Mode</h2>' +
+      '<p class="sheet-lede">' + MONK.days + " days. Day 1 is today (" + esc(mkNice(todayISO())) + "). This can't be undone or reset.</p>" +
+      '<div class="sheet-reqs"><label class="check-row"><input type="checkbox" data-monk-ack><span class="checkbox">' + CHECK_SVG +
+      '</span><span class="check-label">I understand it can\'t be reset</span></label></div>' +
+      '<div class="sheet-go"><button class="btn ghost" type="button" data-sheet-cancel>Cancel</button>' +
+      '<button class="btn mk-hold" type="button" data-monk-hold disabled><i></i><span>Hold to start</span></button></div></div>';
+    document.body.appendChild(dlg);
+    const ack = $("[data-monk-ack]", dlg), hold = $("[data-monk-hold]", dlg), fill = $("i", hold);
+    let timer = null, sweep = null;
+    const stop = () => { clearTimeout(timer); timer = null; if (sweep) { sweep.cancel(); sweep = null; } };
+    const begin = () => {
+      if (timer || hold.disabled) return;
+      sweep = fill.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: MONK_HOLD, easing: "linear", fill: "forwards" });
+      timer = setTimeout(() => { stop(); dlg.close(); if (startMonk()) render(); }, MONK_HOLD);
+    };
+    ack.onchange = () => { hold.disabled = !ack.checked; if (hold.disabled) stop(); };
+    hold.addEventListener("pointerdown", e => { if (e.button === 0) begin(); });
+    ["pointerup", "pointerleave", "pointercancel", "keyup", "blur"].forEach(t => hold.addEventListener(t, stop));
+    hold.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (!e.repeat) begin(); } });
+    hold.addEventListener("contextmenu", e => e.preventDefault());
+    const close = () => { if (dlg.open) dlg.close(); };
+    dlg.addEventListener("close", () => { stop(); dlg.remove(); window.removeEventListener("hashchange", close); });
+    window.addEventListener("hashchange", close);
+    $("[data-sheet-cancel]", dlg).onclick = close;
+    dlg.onclick = e => { if (e.target === dlg) close(); };
+    dlg.showModal();
+  }
+
   function importBackup(file) {
     const r = new FileReader();
     r.onload = () => {
       try {
         const data = JSON.parse(r.result);
         if (!data || typeof data !== "object" || !("lessons" in data)) throw new Error("bad file");
+        const kept = S.monkStart;
         S = Object.assign({}, DEFAULT, data);
         S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
         S.settings = Object.assign({}, DEFAULT.settings, S.settings);
+        // T-065: a backup can add the Monk start where this device has none; it
+        // can never replace or clear one (and a value that is not a date is dropped).
+        if (kept) S.monkStart = kept;
+        else if (!/^\d{4}-\d{2}-\d{2}$/.test(S.monkStart || "")) delete S.monkStart;
         save(); render();
         toast("Backup restored. Welcome back, scholar.");
       } catch (e) { toast("That file is not a valid backup."); }
@@ -7253,6 +7341,8 @@
     gatePlan, setGate, mergeState,
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
     QUIZ_GATE_FROM, monkDay, MONK, schedDone,
+    // T-065, for tools/verify-logic.js: the one write to the Monk start (a second call is a no-op).
+    startMonk,
     // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
     MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, mkPhoneOk, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
     lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,

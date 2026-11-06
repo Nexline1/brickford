@@ -3290,6 +3290,17 @@ div.lq-tile .lq-go { color: var(--ink-2); font-weight: 400; }
 .mk-chips { flex-wrap: wrap; }
 .mk-chip { flex: 1 1 4.5rem; }
 .mk-actions .btn { min-height: 44px; }
+/* T-065: before the start, the 21 empty days over the one Start button. */
+.mk-start .heat { max-width: calc(var(--wk, 3) * 32px); margin-top: var(--sp-3); }
+/* The start sheet's last button is HELD, not tapped (MONK_HOLD in app.js). Its
+   sweep is a darker pass over the button, so the white label only gains contrast
+   as it fills. app.js draws it with the Web Animations API, which reduced motion
+   does not collapse: it is the wait itself, not decoration. No scroll, selection
+   or callout may take the press from the finger. */
+.mk-hold { position: relative; overflow: hidden; min-width: 160px; touch-action: none;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.mk-hold > i { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.3); transform: scaleX(0); transform-origin: left; pointer-events: none; }
+.mk-hold > span { position: relative; }
 
 /* ---------- The phone's type ceiling (T-051-1) ----------
    The owner's iPhone, 2026-10-29: row titles wrapping to five lines, section

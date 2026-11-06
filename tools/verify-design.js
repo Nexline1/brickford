@@ -5301,6 +5301,10 @@ function t28SeedClips(list) {
   let t54Checks = 0;
   const c54 = (name, ok, detail) => { t54Checks++; return check(name, ok, detail); };
   const T54_DAY = "2026-11-04", T54_PREV = "2026-11-03";
+  // T-065: the start is state now (S.monkStart), not a constant, so every fixture here carries
+  // the 1 Nov start the pinned numbers were written for. It is added beside a state's own
+  // patch, which stays null where the state stores nothing else.
+  const T54_START = "2026-11-01", t54Patch = st => Object.assign({ monkStart: T54_START }, st.patch);
   const T54_STATES = [
     { name: "day 4 with a day logged", now: new Date(T54_DAY + "T12:00:00Z"), head: "Day 4 of 21", pri: "1 of 5", ring: "20%", also: "2 of 5", patch: { monk: {
       days: { [T54_DAY]: { prayers: { fajr: true }, nosin: true, german: { podcast: true, speak: true }, brickford: true, bfh: 1.5, work: 8, meditate: true, phone: 1.5, at: T54_DAY + "T09:00:00.000Z" },
@@ -5360,7 +5364,7 @@ function t28SeedClips(list) {
       for (const st of T54_STATES) {
         const at = o.w + "px " + theme + ", " + st.name;
         console.log("\nT-054 " + at);
-        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, empty: true, now: st.now, patch: st.patch }, o));
+        const { ctx, page, errors } = await t26bFresh(Object.assign({ theme, empty: true, now: st.now, patch: t54Patch(st) }, o));
         await themePainted(page, theme, "T-054 " + at);
         const w0 = await writesNow(page);
         await go(page, "/monk");
@@ -5399,7 +5403,7 @@ function t28SeedClips(list) {
   for (const w of [320, 390, 768, 1024, 1100, 1280, 1440]) {
     for (const root of [16, 24]) {
       const st = T54_STATES[0], at = w + "px root " + root + ", " + st.name;
-      const { ctx, page, errors } = await t26bFresh({ theme: "dark", empty: true, now: st.now, patch: st.patch, w, h: 900, mobile: w < 860, root });
+      const { ctx, page, errors } = await t26bFresh({ theme: "dark", empty: true, now: st.now, patch: t54Patch(st), w, h: 900, mobile: w < 860, root });
       await go(page, "/monk");
       await page.click("#view details.mk-day > summary");
       const m = await page.evaluate(t54Measure);

@@ -35,14 +35,14 @@ A recording stays on the device — the push carries the rep, never the audio:
   ok    every push's state has exactly the keys syncPayload sends
 A background repaint leaves a playing recording and a recording in progress alone:
   ok    (1) a push merged in the laptop's entry and asked for a background repaint while the recording played
-  ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.94})
+  ok    (1) the playing <audio> is the same element, attached and still playing after it ({"attached":true,"same":true,"playing":true,"t":3.92})
   ok    (1) no page errors
   ok    (2) a push merged in the laptop's entry and asked for a background repaint while recording
   ok    (2) the record button is the same element, still recording and still focused after it ({"attached":true,"same":true,"recording":true,"focus":true,"time":"0:04 / 1:30"})
   ok    (2) Enter then stops it and the second recording is kept (2 in the list)
   ok    (2) no page errors
   ok    (3) a push merged in the laptop's entry and asked for a background repaint while the clip was paused part-way
-  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.545,"attached":true,"same":true,"paused":true,"t":1.545}; the view says 2 logged, storage holds 3)
+  ok    (3) the paused <audio> is the same element, attached, at the same place ({"t0":1.55,"attached":true,"same":true,"paused":true,"t":1.55}; the view says 2 logged, storage holds 3)
   ok    (4) played to its end, the skipped repaint runs: the view says 3 logged, storage holds 3
   ok    (3)(4) no page errors
   ok    (5) a push merged in the laptop's entry while the prompt was open, and the repaint waited (the view says 2 logged, storage holds 3)
@@ -92,7 +92,7 @@ Monk Mode stays on the device (T-054):
 The Monk start date syncs (T-065):
   ok    (s1) a pull of a remote with a start gives this device that start (2026-11-02), stored, and the page repaints to Day 4 of 21 — {"stored":"2026-11-02","head":"Day 4 of 21"}
   ok    (s) no page errors (pull)
-  ok    (s2) holding Start pushes at once (1 PUT, 16 ms after the write, inside the debounce's 4 s) with monkStart 2026-11-05 — ["monkStart"]
+  ok    (s2) holding Start pushes at once (1 PUT, 12 ms after the write, inside the debounce's 4 s) with monkStart 2026-11-05 — ["monkStart"]
   ok    (s) no page errors (push)
 
 PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065)

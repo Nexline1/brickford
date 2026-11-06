@@ -187,6 +187,8 @@
   ok    T-065 not started: the dashboard's Monk row is one 44px Start Monk Mode button, no day number — [["BUTTON","Start Monk Mode",44]]
   ok    T-065 not started: opening the page and the dashboard starts nothing (no monkStart stored)
   ok    no page errors (T-065 not started)
+  ok    T-065 days logged before the start never count: this week reads Short-form 2 / 8 and Work hours 0 / 70, and the old day is still stored — {"v":{"Short-form":"2 / 8","Work hours":"0 / 70"},"stored":{"shorts":9,"work":30,"at":"2026-11-03T20:00:00.000Z"}}
+  ok    no page errors (T-065 old days)
   ok    T-065 startMonk(): writes today's date, 2026-11-06, in memory and in storage, and returns true — {"a":true,"from":"2026-11-06","stored":"2026-11-06"}
   ok    T-065 startMonk(): a second call, three days later, changes nothing and returns false — {"b":false,"from":"2026-11-06","stored":"2026-11-06"}
   ok    T-065 the 21 days count from the start: the 5th null, the 6th day 1, the 9th day 4, the 26th day 21, the 27th null — [null,1,4,21,null]
@@ -229,5 +231,5 @@
   ok    the test hook exists only under #__test — absent on #/
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-2 of 230 invariant(s) FAILED
+2 of 232 invariant(s) FAILED
 exit 1

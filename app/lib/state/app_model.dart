@@ -370,8 +370,25 @@ class AppModel extends ChangeNotifier {
     quiet(persist);
   }
 
-  // ---------- Monk Mode (local only: MONK_SYNCS is false, so no write here arms a push) ----------
+  // ---------- Monk Mode (local only: MONK_SYNCS is false, so no write here arms a push; the start date is the exception) ----------
   String _stamp() => now().toUtc().toIso8601String();
+
+  /// The Monk start date (S.monkStart, T-065), or null until the owner starts it.
+  String? get monkFrom => engine.monkFrom;
+
+  /// The days that count (app.js monkLive): none before the start, and none at all while there is no start.
+  Map<String, dynamic> get monkLiveDays => monkLive(monkDays, engine.monkFrom);
+
+  /// app.js startMonk: today becomes day 1, once. False, and nothing changes, when it already has a start.
+  /// A user action (the start sheet's hold), never called from a build. It saves like any user action, then pushes
+  /// at once instead of waiting out the debounce, so the date reaches the other devices.
+  bool startMonk() {
+    if (!engine.startMonk()) return false;
+    persist();
+    notifyListeners();
+    if (sync.hasToken) unawaited(sync.pushNow());
+    return true;
+  }
 
   Map<String, dynamic> get monkDays => ((engine.S['monk'] as Map?)?['days'] as Map?)?.cast<String, dynamic>() ?? const {};
   Map<String, dynamic> get monkPlans => ((engine.S['monk'] as Map?)?['plans'] as Map?)?.cast<String, dynamic>() ?? const {};

@@ -7,7 +7,8 @@
 //   - every save arms a push 4 s out, except a "quiet" one: a render is a read,
 //     and so is anything the app writes about its own sync (syncOk, syncFailed)
 //     and Monk Mode, which never syncs (MONK_SYNCS = false, S.monk is not in
-//     the payload and a remote one is ignored);
+//     the payload and a remote one is ignored). The one exception is the start
+//     date (S.monkStart, T-065), which syncs and is pushed the moment it is set;
 //   - a rejected token is latched (no more automatic pushes), but a manual pull
 //     or push always runs and a success lifts the latch;
 //   - no answer at all is the network, not GitHub: no syncError, never the
@@ -145,6 +146,13 @@ class SyncService extends ChangeNotifier {
     if (!hasToken) return;
     _markOwed();
     armPush();
+  }
+
+  /// A push now, not 4 s out (T-065: the Monk start date must reach the other devices at once). The debounce is
+  /// cancelled; like every push it merges before it writes, and like a manual push it runs even when latched.
+  Future<bool> pushNow() {
+    _timer?.cancel();
+    return run('push');
   }
 
   void armPush() {

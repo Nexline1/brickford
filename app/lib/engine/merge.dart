@@ -8,14 +8,18 @@
 // comparator that never returns 0.
 //
 // MONK_SYNCS is false: a remote `monk` is not read at all, and the payload
-// never carries one. tools/verify-app.js runs app.js's own mergeState over the
-// same fixtures and compares the merged state key by key.
+// never carries one. The one piece of Monk that syncs is `monkStart` (T-065):
+// the earlier date stands, a remote that is not a date is ignored.
+// tools/verify-app.js runs app.js's own mergeState over the same fixtures and
+// compares the merged state key by key.
 // ignore_for_file: non_constant_identifier_names
 library;
 
 import 'dart:convert';
 
 import 'engine.dart';
+
+final _isoDate = RegExp(r'^\d{4}-\d{2}-\d{2}$');
 
 Map<String, dynamic> _m(Object? v) => v is Map ? v.cast<String, dynamic>() : <String, dynamic>{};
 List<dynamic> _l(Object? v) => v is List ? v : <dynamic>[];
@@ -351,6 +355,18 @@ int mergeState(Engine e, Object? remote) {
     changed++;
   }
 
+  // T-065: the Monk start date, the one piece of Monk that syncs. First write wins: a side with none takes the
+  // other's, and with two the EARLIER date stands, so every device settles on the same day and an older device
+  // that has not heard of the start can never clear it. A remote value that is not a date is ignored.
+  final rm = r['monkStart'];
+  if (rm is String && _isoDate.hasMatch(rm)) {
+    final mine = S['monkStart'];
+    if (!truthy(mine) || (mine is String && rm.compareTo(mine) < 0)) {
+      S['monkStart'] = rm;
+      changed++;
+    }
+  }
+
   // Ledgers stay per device and are never re-hashed.
   final ledgers = _m(remote['ledgers']);
   final foreign = _ensureMap(S, 'foreignLedgers');
@@ -382,7 +398,7 @@ int mergeState(Engine e, Object? remote) {
   return changed;
 }
 
-/// What a push writes (app.js syncPayload). `monk` is never in it.
+/// What a push writes (app.js syncPayload). `monk` is never in it; `monkStart` (T-065) is, when set.
 Map<String, dynamic> syncPayload(Engine e, {DateTime? now}) {
   final S = e.S, state = <String, dynamic>{};
   for (final k in [
@@ -396,6 +412,8 @@ Map<String, dynamic> syncPayload(Engine e, {DateTime? now}) {
     if (st.containsKey(k)) settings[k] = st[k];
   }
   state['settings'] = settings;
+  // T-065: the start date alone leaves the device; nothing else of Monk does.
+  if (truthy(S['monkStart'])) state['monkStart'] = S['monkStart'];
   final ledgers = <String, dynamic>{..._m(S['foreignLedgers'])};
   ledgers['${st['deviceId']}'] = S['ledger'];
   return {

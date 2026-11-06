@@ -929,13 +929,32 @@ class Engine {
     return null;
   }
 
-  // ---------- Monk Mode (T-052, T-054, T-057, T-062) ----------
-  static const MONK = (from: '2026-11-01', days: 21, url: 'https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z');
+  // ---------- Monk Mode (T-052, T-054, T-057, T-062, T-065) ----------
+  // T-065: the start is no longer a date in this file. It is S['monkStart'],
+  // written once by startMonk on the day the owner presses and holds Start;
+  // [monkFrom] reads it: null until then, and every reader handles null.
+  static const MONK = (days: 21, url: 'https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z');
   static const MONK_SYNCS = false;
 
+  /// app.js MONK.from: the Monk start date, or null while it has not been started.
+  String? get monkFrom {
+    final v = S['monkStart'];
+    return v is String && v.isNotEmpty ? v : null;
+  }
+
   int? monkDay(String iso) {
-    final n = daysBetween(MONK.from, iso) + 1;
+    final from = monkFrom;
+    if (from == null) return null;
+    final n = daysBetween(from, iso) + 1;
     return n >= 1 && n <= MONK.days ? n : null;
+  }
+
+  /// app.js startMonk, the engine's half: today's date becomes the start, only when there is none.
+  /// False (and nothing changes) on every later call. AppModel.startMonk persists and pushes.
+  bool startMonk() {
+    if (monkFrom != null) return false;
+    S['monkStart'] = todayISO();
+    return true;
   }
 
   static const PRAYER_METHOD = (fajr: 17.7, maghrib: 4.5, isha: 14, combine: true);

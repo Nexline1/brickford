@@ -3,6 +3,8 @@
 // the tests also hunt for in every place it must not appear.
 import 'dart:convert';
 
+import 'package:app/engine/engine.dart';
+import 'package:app/engine/merge.dart';
 import 'package:app/main.dart';
 import 'package:app/screens/profile/sync_screen.dart';
 import 'package:app/state/app_model.dart';
@@ -49,6 +51,9 @@ class FakeGitHub {
 }
 
 final noon = DateTime.utc(2026, 11, 5, 12);
+
+/// "No monkStart key at all" (as opposed to null).
+const _absent = Object();
 
 Future<AppModel> model(
   FakeGitHub gh, {
@@ -366,5 +371,98 @@ void main() {
     await show(await m0(synced: false));
     expect(sub(), 'Never synced');
     expect(syncLook(SyncStatus.synced).word, 'Synced');
+  });
+
+  // ---------- T-065: the Monk start date, the one piece of Monk that syncs ----------
+
+  Future<({int changed, String? start})> mergedStart(WidgetTester tester, {Object? local, Object? remote = _absent}) async {
+    final m = await model(FakeGitHub(), token: false, state: {'monkStart': ?local});
+    final r = remote == _absent ? <String, dynamic>{} : {'monkStart': remote};
+    final changed = mergeState(m.engine, remoteWith(r));
+    return (changed: changed, start: m.engine.S['monkStart'] as String?);
+  }
+
+  testWidgets('the Monk start merges by "first write wins": none takes the other\'s, two keep the EARLIER, and nothing that is not a date ever clears or replaces it', (tester) async {
+    Future<void> expectMerge(String name, {Object? local, Object? remote = _absent, String? start, required int changed}) async {
+      final r = await mergedStart(tester, local: local, remote: remote);
+      expect((r.start, r.changed), (start, changed), reason: name);
+    }
+
+    await expectMerge('remote only', remote: '2026-11-06', start: '2026-11-06', changed: 1);
+    await expectMerge('remote earlier than local', local: '2026-11-06', remote: '2026-11-02', start: '2026-11-02', changed: 1);
+    await expectMerge('remote later than local', local: '2026-11-02', remote: '2026-11-06', start: '2026-11-02', changed: 0);
+    await expectMerge('the same date', local: '2026-11-06', remote: '2026-11-06', start: '2026-11-06', changed: 0);
+    await expectMerge('local only (the remote has none)', local: '2026-11-06', start: '2026-11-06', changed: 0);
+    await expectMerge('neither', changed: 0);
+    for (final bad in <Object?>['', null, 'tomorrow', '2026-11-6', '2026-11-06T00:00:00Z', ' 2026-11-06', '2026-11-06\n', 20261106, true, <String>['2026-11-06'], <String, dynamic>{}]) {
+      await expectMerge('a remote start of ${jsonEncode(bad)} never clears one', local: '2026-11-06', remote: bad, start: '2026-11-06', changed: 0);
+      await expectMerge('a remote start of ${jsonEncode(bad)} is never taken', remote: bad, start: null, changed: 0);
+    }
+  });
+
+  testWidgets('the payload carries monkStart when it is set and nothing else of Monk; not started, it carries no Monk key at all', (tester) async {
+    final monk = {'days': {'2026-11-05': {'nosin': true, 'work': 10}}, 'plans': {'2026-11-06': {'business': 'secretplan'}}, 'loops': {'s1': {'text': 'secretloop', 'done': false, 'at': 'x'}}};
+    final started = await model(FakeGitHub(), state: {'monk': monk, 'monkStart': '2026-11-01'});
+    var state = syncPayload(started.engine)['state'] as Map<String, dynamic>;
+    expect(state.keys.where((k) => RegExp('monk', caseSensitive: false).hasMatch(k)).toList(), ['monkStart']);
+    expect(state['monkStart'], '2026-11-01');
+    expect(jsonEncode(syncPayload(started.engine)), allOf(isNot(contains('secretplan')), isNot(contains('secretloop')), isNot(contains('nosin'))));
+    final fresh = await model(FakeGitHub(), state: {'monk': monk});
+    state = syncPayload(fresh.engine)['state'] as Map<String, dynamic>;
+    expect(state.keys.where((k) => RegExp('monk', caseSensitive: false).hasMatch(k)), isEmpty);
+    expect(Engine.MONK_SYNCS, isFalse);
+  });
+
+  testWidgets('starting pushes at once (inside the 4 s debounce, and only once), carrying the date; with no token nothing is sent', (tester) async {
+    final gh = FakeGitHub();
+    final m = await model(gh);
+    expect(m.startMonk(), isTrue);
+    await tester.pump();
+    await tester.pump();
+    expect(gh.puts, hasLength(1)); // no waiting out the debounce
+    expect(((gh.file!['state'] as Map)['monkStart']), '2026-11-05');
+    expect(m.sync.owed, isFalse);
+    // The debounce a save arms was cancelled by the push, so nothing follows it.
+    final n = gh.calls.length;
+    await tester.pump(const Duration(seconds: 30));
+    expect(gh.calls.length, n);
+    expect(gh.puts, hasLength(1));
+    expect(m.startMonk(), isFalse); // a second press writes nothing and pushes nothing
+    await tester.pump(const Duration(seconds: 10));
+    expect(gh.puts, hasLength(1));
+    // No token: the start is kept on the device and nothing leaves it.
+    final gh2 = FakeGitHub();
+    final m2 = await model(gh2, token: false);
+    expect(m2.startMonk(), isTrue);
+    await tester.pump(const Duration(seconds: 10));
+    expect(gh2.calls, isEmpty);
+    expect(m2.monkFrom, '2026-11-05');
+  });
+
+  testWidgets('a pulled start repaints the open Monk screen from Start to Day 3 of 21', (tester) async {
+    final gh = FakeGitHub();
+    final m = await model(gh);
+    tester.view.physicalSize = const Size(375 * 3, 812 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(BrickfordApp(model: m));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('chip-monk')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('monk-start')), findsOneWidget);
+    gh.file = remoteWith({'monkStart': '2026-11-03'});
+    final done = m.sync.run('pull');
+    await tester.pump();
+    expect(await done, isTrue);
+    await tester.pumpAndSettle();
+    expect(m.monkFrom, '2026-11-03');
+    expect(find.text('Day 3 of 21'), findsOneWidget);
+    expect(find.byKey(const ValueKey('monk-start')), findsNothing);
+    // It was persisted by the pull's own (quiet) save, and the pull did not arm a push.
+    expect(jsonDecode(m.prefs.getString(AppModel.storageKey)!)['monkStart'], '2026-11-03');
+    final n = gh.calls.length;
+    await tester.pump(const Duration(seconds: 30));
+    expect(gh.calls.length, n);
+    await tester.pumpWidget(const SizedBox());
   });
 }

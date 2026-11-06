@@ -1,13 +1,16 @@
 // Monk Mode's arithmetic: a 1:1 port of monkPrayerTimes, monkPlanFor,
 // monkWeekSums, monkMonthSums, monkFocus and the page's Now/Next helpers in
-// platform/js/app.js (T-054, T-057; T-064 stage 3). monkDay, monkScore, MONK
-// and MONK_PRI are already in engine.dart.
+// platform/js/app.js (T-054, T-057; T-064 stage 3). monkDay, monkScore, MONK,
+// MONK_PRI and the start date (T-065: Engine.monkFrom, null until started) are
+// already in engine.dart. The functions here that count from the start take it
+// as `from`, so the not-started case cannot be forgotten by a caller.
 //
 // PORTED, NOT REDESIGNED: Ja'fari times for Manama (Fajr 17.7, Maghrib 4.5,
 // Isha 14 degrees), the five prayers in three combined blocks, the owner's
 // routine. tools/verify-app.js compares these with app.js over 7 dates.
 //
-// PRIVACY: S.monk never leaves the device (MONK_SYNCS = false).
+// PRIVACY: S.monk never leaves the device (MONK_SYNCS = false). Only the start
+// date (S.monkStart, T-065) syncs.
 // ignore_for_file: non_constant_identifier_names, constant_identifier_names
 library;
 
@@ -169,6 +172,14 @@ const MONK_FIX = {
 
 double _num(Object? v) => v is num ? v.toDouble() : (v is String ? (double.tryParse(v) ?? 0) : 0);
 
+/// app.js monkLive: days logged before the start never count (the old store stays,
+/// nothing is deleted); nothing counts while there is no start.
+Map<String, dynamic> monkLive(Map<String, dynamic>? days, String? from) => {
+  if (from != null)
+    for (final e in (days ?? const <String, dynamic>{}).entries)
+      if (e.key.compareTo(from) >= 0) e.key: e.value,
+};
+
 double mkSum(Map<String, dynamic> days, String key, String from, String to) {
   var t = 0.0;
   for (var i = from; le(i, to); i = addDaysISO(i, 1)) {
@@ -189,11 +200,12 @@ Map<String, double> monkMonthSums(Map<String, dynamic>? days, String iso) {
 }
 
 /// The weakest of the five priorities over the seven days before [today] (monk days only).
-({int days, String key, String label, int rate, String fix})? monkFocus(Map<String, dynamic>? days, String today) {
+({int days, String key, String label, int rate, String fix})? monkFocus(Map<String, dynamic>? days, String today, String? from) {
   days ??= const {};
+  if (from == null) return null; // T-065: not started, no days to count
   final end = addDaysISO(today, -1), list = <String>[];
   for (var i = addDaysISO(end, -6); le(i, end); i = addDaysISO(i, 1)) {
-    if (ge(i, Engine.MONK.from)) list.add(i);
+    if (ge(i, from)) list.add(i);
   }
   if (list.isEmpty) return null;
   int rate(bool Function(Map<String, dynamic>) f) =>
@@ -208,12 +220,12 @@ Map<String, double> monkMonthSums(Map<String, dynamic>? days, String iso) {
 }
 
 /// A prayer-day streak: full days back from [today] (app.js monkPrayerStreak).
-int monkPrayerStreak(Map<String, dynamic> days, String today) {
+int monkPrayerStreak(Map<String, dynamic> days, String today, String from) {
   final n = Engine.monkSlots().length;
   bool full(String i) => Engine.mkPrayed(days[i] is Map ? (days[i] as Map).cast<String, dynamic>() : <String, dynamic>{}) == n;
   var s = 0, i = today;
   if (!full(i)) i = addDaysISO(i, -1);
-  while (ge(i, Engine.MONK.from) && full(i)) {
+  while (ge(i, from) && full(i)) {
     s++;
     i = addDaysISO(i, -1);
   }

@@ -18,6 +18,7 @@ import '../calendar/calendar_screen.dart';
 import '../learn/recall_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../monk/monk_screen.dart';
+import '../monk/monk_start.dart';
 import '../practice/practice_screen.dart';
 import '../quiz/quiz_screen.dart';
 import '../week/week_screen.dart';
@@ -142,7 +143,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return SheetScaffold(
       tabbed: true,
-      trailing: monk != null
+      // T-065: until the owner starts Monk Mode the badge is the one Start button (it opens the sheet); after
+      // day 21 there is nothing here (the Monk chip still opens the screen, which reads "21 days done").
+      trailing: e.monkFrom == null
+          ? RhythmBadge(
+              key: const ValueKey('home-monk-start'),
+              id: 'home-monk-start',
+              icon: Icons.self_improvement,
+              label: 'Start Monk Mode',
+              onTap: () => openMonkStart(context),
+            )
+          : monk != null
           ? RhythmBadge(
               key: const ValueKey('home-monk'),
               id: 'home-monk',

@@ -19,8 +19,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<AppModel> model(String today) async {
-  SharedPreferences.setMockInitialValues({});
+/// [monkStart] (T-065): Monk has no start until the owner presses Start, so a test that reads a Monk day carries one.
+Future<AppModel> model(String today, {String? monkStart}) async {
+  SharedPreferences.setMockInitialValues({if (monkStart != null) AppModel.storageKey: jsonEncode({'monkStart': monkStart})});
   final data = await AppModel.loadData(rootBundle);
   return AppModel(data, await SharedPreferences.getInstance(), today: () => today);
 }
@@ -173,14 +174,14 @@ void main() {
   });
 
   testWidgets('Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs', (tester) async {
-    await pumpApp(tester, await model('2026-11-04'));
+    await pumpApp(tester, await model('2026-11-04', monkStart: '2026-11-01'));
     expect(tester.widget<Text>(find.byKey(const ValueKey('home-day'))).data, '17');
     expect(find.text('Day 4 / 21'), findsOneWidget);
     for (final t in ['Home', 'Learn', 'Build', 'Profile']) {
       expect(find.text(t), findsOneWidget);
     }
     // Saturday 7 Nov is a rest day: still the day just worked, nothing scheduled.
-    await pumpApp(tester, await model('2026-11-07'));
+    await pumpApp(tester, await model('2026-11-07', monkStart: '2026-11-01'));
     expect(tester.widget<Text>(find.byKey(const ValueKey('home-day'))).data, '19');
     expect(find.byIcon(Icons.bedtime_outlined), findsWidgets);
   });

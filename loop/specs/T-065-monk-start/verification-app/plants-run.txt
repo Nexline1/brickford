@@ -1,0 +1,4 @@
+plant monk-start-overwrites: exit 1 (want 1), failing checks 3, files byte-identical after: yes
+plant monk-merge-later: exit 1 (want 1), failing checks 3, files byte-identical after: yes
+plant monk-payload-monk: exit 1 (want 1), failing checks 5, files byte-identical after: yes
+plant monk-day-unstarted: exit 1 (want 1), failing checks 2, files byte-identical after: yes

@@ -64,5 +64,5 @@ payload's state matching /monk/i are exactly `['monkStart']` when a start is set
   unset local); the payload's Monk keys; the push is immediate (inside the debounce, once, nothing after, nothing without
   a token); a pulled start repaints the open Monk screen.
 - verify-app: parity blocks for monkDay (6 windows), startMonk (3 scenarios), monkFocus and monkLive with no start, the
-  merge matrix (21 new fixtures), the payload keys (3 devices), and four plants
-  (`monk-start-overwrites`, `monk-merge-later`, `monk-payload-monk`, `monk-day-unstarted`).
+  merge matrix (17 new fixtures), the payload keys (3 devices), and four plants
+  (`monk-start-overwrites`, `monk-merge-later`, `monk-payload-monk`, `monk-day-unstarted`), each run with the engine files cmp-checked afterwards.

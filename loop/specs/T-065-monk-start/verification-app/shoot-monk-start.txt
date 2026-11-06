@@ -1,0 +1,30 @@
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-1-home.png
+  ok    Home shows Start Monk Mode, not a day
+  ok    Home's Start Monk Mode is at least 44x44 — 163x44
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-2-monk-not-started.png
+  ok    the Monk screen has the Start button and none of the day's controls
+  ok    the Monk screen's Start Monk Mode is at least 44x44 — 335x44
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-3-sheet.png
+  ok    the sheet is open with the box, Cancel and the hold button
+  ok    unticked, even a 1.7 s press does not start it
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-4-sheet-ticked.png
+  ok    Hold to start is at least 44x44 — 195x52
+  ok    the box is at least 44x44 — 335x48
+  ok    a plain click on Hold to start does nothing
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-5-holding.png (held; 796 ms to take)
+  ok    a 0.7 s hold, then letting go, does not start it
+  ok    sliding off the button during a hold does not start it
+  ok    nothing has been pushed so far — 0 pushes
+  ok    a 1.5 s hold starts it: monkStart is today, written once — 2026-11-06
+  ok    the sheet is gone
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-6-monk-day-1.png
+  ok    the Monk screen reads Day 1 of 21
+  ok    the Start button is gone from the Monk screen
+  ok    the date was pushed at once (under 4 s from the press that started it; a debounced push would be 5.5 s), once, and only the start left of Monk — 1 pushes
+  ok    no second push follows after the debounce — 1 pushes
+  shot  loop/specs/T-065-monk-start/verification-app/shots/monk-start-7-home-started.png
+  ok    Home shows the day, not Start
+  ok    no page or console errors
+
+all checks passed
+exit 0

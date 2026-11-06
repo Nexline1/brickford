@@ -64,13 +64,13 @@ const PROBE = () => {
   });
   window.addEventListener("flutter-first-frame", () => { window.__probe.firstFrame = performance.now() - window.__probe.t0; });
   const iv = setInterval(() => {
-    const sh = document.querySelector("#boot .sheen"), b = document.getElementById("boot");
-    if (sh && b) window.__probe.lines.push({ x: Math.round(sh.getBoundingClientRect().x), text: b.innerText.replace(/\s+/g, " ").slice(0, 80) });
+    const c = document.querySelector("#boot .crest svg"), b = document.getElementById("boot");
+    if (c && b) window.__probe.lines.push({ x: Math.round(c.getBoundingClientRect().x), anim: document.getAnimations().filter(a => a instanceof CSSAnimation).length, text: b.innerText.replace(/\s+/g, " ").slice(0, 80) });
     else clearInterval(iv);
   }, 200);
 };
-// What the loading screen shows: no count, no progress text, and a sheen that moves.
-const shineOf = lines => ({ xs: new Set(lines.map(l => l.x)).size, text: lines.map(l => l.text).join(" | ") });
+// What the loading screen shows: no count, no progress text, and a crest that stays still (no animation, no 3D).
+const shineOf = lines => ({ xs: new Set(lines.map(l => l.x)).size, anim: Math.max(0, ...lines.map(l => l.anim || 0)), text: lines.map(l => l.text).join(" | ") });
 const hasNumbers = text => /\d+(\.\d+)?\s*(MB|KB|%)|of\s*~|\bLoading/i.test(text);
 
 (async () => {
@@ -119,8 +119,8 @@ const hasNumbers = text => /\d+(\.\d+)?\s*(MB|KB|%)|of\s*~|\bLoading/i.test(text
         check("the boot screen is on screen at the first paint (DOMContentLoaded), with the wordmark",
           probe.boot0 && probe.boot0.display !== "none" && /BRICKFORD/.test(probe.boot0.text), JSON.stringify(probe.boot0));
         const sh = shineOf(probe.lines);
-        check("the loading screen shows no size, progress or 'Loading' text, and the crest's sheen moves", !hasNumbers(sh.text) && (probe.lines.length === 0 || sh.xs > 1),
-          probe.lines.length + " samples, " + sh.xs + " distinct sheen positions; text: " + (sh.text.slice(0, 120) || "(none)"));
+        check("the loading screen shows no size, progress or 'Loading' text, and the crest is a still logo (no animation, no 3D)", !hasNumbers(sh.text) && sh.anim === 0 && sh.xs <= 1,
+          probe.lines.length + " samples, " + sh.xs + " distinct crest positions, " + sh.anim + " running animations; text: " + (sh.text.slice(0, 120) || "(none)"));
         const got = new Set(reqs.map(r => r.u.split("?")[0]));
         check("startup does not read summaries.json (it loads when a lecture opens)", !got.has("assets/assets/data/summaries.json"), [...got].filter(u => /data\//.test(u)).join(", "));
         const boot = BOOT_FILES.filter(f => !/canvaskit\//.test(f));
@@ -136,7 +136,7 @@ const hasNumbers = text => /\d+(\.\d+)?\s*(MB|KB|%)|of\s*~|\bLoading/i.test(text
       await ctx.close();
     }
 
-    // ---- 2b: a slow line (about 2 bars of LTE): the sheen keeps moving while the screen waits ----
+    // ---- 2b: a slow line (about 2 bars of LTE): the still crest waits, with no numbers ----
     {
       const ctx = await fresh({ serviceWorkers: "block" });
       const page = await ctx.newPage();
@@ -150,9 +150,9 @@ const hasNumbers = text => /\d+(\.\d+)?\s*(MB|KB|%)|of\s*~|\bLoading/i.test(text
       try { await booted(page, 90000); } catch (e) { ok = false; }
       const probe = await page.evaluate(() => window.__probe);
       const sh = shineOf(probe.lines);
-      check("on a 1.2 MB/s line the boot screen stays up with no numbers, and the sheen keeps moving until the first frame",
-        ok && probe.lines.length > 10 && sh.xs > 3 && !hasNumbers(sh.text),
-        probe.lines.length + " samples, " + sh.xs + " distinct sheen positions; first frame at " +
+      check("on a 1.2 MB/s line the boot screen stays up with no numbers, and only the still crest, until the first frame",
+        ok && probe.lines.length > 10 && sh.anim === 0 && !hasNumbers(sh.text),
+        probe.lines.length + " samples, " + sh.anim + " running animations; first frame at " +
         (probe.firstFrame != null ? (probe.firstFrame / 1000).toFixed(1) + " s" : "never"));
       await ctx.close();
     }

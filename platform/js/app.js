@@ -1293,6 +1293,9 @@
   // MONK.from reads it: null until then, and every reader handles null.
   const MONK = Object.freeze({ get from() { return S.monkStart || null; }, days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
   function monkDay(iso) { if (!MONK.from) return null; const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
+  // Days logged before the start never count (the old store stays, nothing is deleted),
+  // so the week and month sums on #/monk draw only from the start on.
+  const monkLive = days => { const o = {}; Object.keys(days || {}).forEach(k => { if (MONK.from && k >= MONK.from) o[k] = days[k]; }); return o; };
   // The one write to S.monkStart in the app, and nothing resets or clears it
   // (mergeState keeps the earlier date, importBackup keeps this device's).
   // Called from the sheet's hold handler, never from a render. It persists
@@ -5862,7 +5865,7 @@
         '<button type="button" class="btn lg one-go" data-monk-start>Start Monk Mode</button></div></div>';
     }
     const iso = todayISO(), n = monkDay(iso), before = iso < MONK.from;
-    const M = S.monk || {}, days = M.days || {}, d = days[iso] || {}, w = mkDow(iso), sc = monkScore(d);
+    const M = S.monk || {}, days = monkLive(M.days), d = days[iso] || {}, w = mkDow(iso), sc = monkScore(d);
     const from = Number(MONK.from.slice(8)) + " " + mkNice(MONK.from).split(" ").pop();
     const head = n ? "Day " + n + " of " + MONK.days : before ? "Starts " + from : MONK.days + " days done";
     const weeks = Math.ceil(MONK.days / 7), week = n ? "Week " + (Math.floor((n - 1) / 7) + 1) + " of " + weeks : "";

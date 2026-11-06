@@ -1222,6 +1222,24 @@ async function scenario(browser, now, state, tz) {
     await probe.ctx.close();
   }
 
+  // Days logged before the start never count: the store keeps them, the page does not read them.
+  // Started Fri 6 Nov, with 9 short-form and 30 work hours logged on Tue 3 Nov (the old store) and 2
+  // short-form on the 6th: this week (Sun 1 - Sat 7 Nov) reads 2 / 8 and 0 / 70, not 11 and 30.
+  {
+    const probe = await scenario(browser, "2026-11-06", { monkStart: "2026-11-06", monk: { days: {
+      "2026-11-03": { shorts: 9, work: 30, at: "2026-11-03T20:00:00.000Z" }, "2026-11-06": { shorts: 2, at: "2026-11-06T09:00:00.000Z" } } } });
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view .mk-head", { state: "attached" });
+    const r = await probe.page.evaluate(() => { const v = {};
+      for (const row of document.querySelectorAll("#view .mk-static")) { const t = row.querySelector(".g-t"), g = row.querySelector(".g-v");
+        if (t && g && /^(Short-form|Work hours)$/.test(t.textContent.trim())) v[t.textContent.trim()] = g.textContent.trim(); }
+      return { v, stored: JSON.parse(localStorage.getItem("darhikmah_v1")).monk.days["2026-11-03"] }; });
+    check("T-065 days logged before the start never count: this week reads Short-form 2 / 8 and Work hours 0 / 70, and the old day is still stored",
+      r.v["Short-form"] === "2 / 8" && r.v["Work hours"] === "0 / 70" && !!r.stored && r.stored.shorts === 9, JSON.stringify(r));
+    check("no page errors (T-065 old days)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
   // startMonk() writes today's date, once. The clock then moves three days: a second call changes
   // nothing and says so, and the days count from the first date (day 21 is the 26th, the 27th is past).
   {

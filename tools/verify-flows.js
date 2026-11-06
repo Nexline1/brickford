@@ -2331,7 +2331,13 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await page.mouse.move(c.x, c.y);   // back on the button before letting go: a release on the dimmed page would dismiss the sheet, which is not what this measures
     await page.mouse.up();
     check("(ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
-    // The real one.
+    // The real one. (If an earlier press already started it or closed the sheet, say so and stop here
+    // rather than fail on a missing button: a harness error would hide which check caught it.)
+    if (!(await startSheet(page))) {
+      check(false, "(ms) the sheet is still open for the real hold (an earlier press started it or closed it)");
+      await ctx.close();
+      continue;
+    }
     const before = await writes(page);
     c = await holdCentre(page);
     await page.mouse.move(c.x, c.y);

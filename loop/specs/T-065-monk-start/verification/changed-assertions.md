@@ -79,6 +79,7 @@ same slot, same 44px height, and no assertion of theirs reads it.
   second call, three days later, returns false and changes nothing; the 21 days count from it; mergeState x 10
   (both directions, same date, remote-only, local-only, absent/empty/null/non-date remote, neither); importBackup
   x 6 through the Restore control.
+- verify-logic: days logged before the start never count (Short-form 2 / 8, Work hours 0 / 70 on the first week, old day still stored).
 - verify-sync-loop: (m3) only monkStart leaves; (s1) a pulled start is applied through mergeState and the open
   Monk page repaints; (s2) pressing and holding Start pushes inside the 4 s debounce.
 - verify-flows: Start on the page and the dashboard at 390/1280 (44px, no day), the sheet's words and tick, Cancel

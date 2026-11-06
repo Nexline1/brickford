@@ -1,0 +1,42 @@
+plants against /home/user/bf-T-065-web (8331c7f)
+app.js sha256 before: dca6c025a4050f95bf1243eb9aa16a3324a020d5b6095c71b30f54edec49ecf3
+== plant start-overwrites -> node tools/verify-logic.js
+  restored /home/user/bf-T-065-web/platform/js/app.js (cmp identical)
+  FAIL  T-065 startMonk(): a second call, three days later, changes nothing and returns false — {"b":true,"from":"2026-11-09","stored":"2026-11-09"}
+  FAIL  T-065 the 21 days count from the start: the 5th null, the 6th day 1, the 9th day 4, the 26th day 21, the 27th null — [null,null,1,18,19]
+2 of 230 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant merge-takes-later -> node tools/verify-logic.js
+  restored /home/user/bf-T-065-web/platform/js/app.js (cmp identical)
+  FAIL  T-065 mergeState, both sides, this device's is earlier: kept (2026-11-03) — {"from":"2026-11-06","changed":1}
+  FAIL  T-065 mergeState, both sides, the remote's is earlier: taken (2026-11-03) — {"from":"2026-11-06","changed":0}
+2 of 230 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant payload-has-monk -> node tools/verify-sync-loop.js
+  restored /home/user/bf-T-065-web/platform/js/app.js (cmp identical)
+  FAIL  (m3) the push's state has no monk key — lessons,problems,quizAttempts,quizMisses,diag,gates,studyDays,weeks,labs,psets,electives,treasury,review,concepts,anchors,reps,settings,monk,monkStart
+  FAIL  (m3) and none of the monk text anywhere in it ("MONK-PRIVATE-7f3a", "remote loop")
+  FAIL  (m3) only monkStart leaves: of every Monk key in the push's state, exactly monkStart, holding the date 2026-11-01 — ["monk","monkStart"]
+FAIL — 3 assertions broken
+  exit 1 (caught, as required)
+== plant click-starts -> node tools/verify-flows.js
+  restored /home/user/bf-T-065-web/platform/js/app.js (cmp identical)
+  FAIL  (j) a Shift-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 0 new page(s); this page at #/
+  FAIL  (ms) a single click on the final button does NOT start it (1.7 s later: nothing stored, sheet still open)
+  FAIL  (ms) a 0.7 s hold, let go, does not start it (1.7 s after the press)
+  FAIL  (ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)
+  exit 2 (NOT CAUGHT)
+== plant import-replaces -> node tools/verify-logic.js
+  restored /home/user/bf-T-065-web/platform/js/app.js (cmp identical)
+  FAIL  T-065 importBackup, this device has a start, the backup has none: kept (2026-11-03) — {"stored":null,"from":null}
+  FAIL  T-065 importBackup, this device has a start, the backup's is later: kept (2026-11-03) — {"stored":"2026-11-09","from":"2026-11-09"}
+  FAIL  T-065 importBackup, this device has a start, the backup's is earlier: kept, never replaced (2026-11-03) — {"stored":"2026-10-01","from":"2026-10-01"}
+3 of 230 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant no-immediate-push -> node tools/verify-sync-loop.js
+  restored /home/user/bf-T-065-web/platform/js/app.js (cmp identical)
+  FAIL  (s2) holding Start pushes at once (0 PUT, null ms after the write, inside the debounce's 4 s) with monkStart 2026-11-05 — "no push"
+FAIL — 1 assertion broken
+  exit 1 (caught, as required)
+app.js sha256 after:  dca6c025a4050f95bf1243eb9aa16a3324a020d5b6095c71b30f54edec49ecf3
+plants: 5 of 6 caught (each gate exit 1)

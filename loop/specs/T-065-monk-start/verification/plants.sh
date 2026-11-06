@@ -43,7 +43,7 @@ PY
   echo "exit $rc" >> "$OUT/plant-$name.txt"
 }
 
-want="${*:-start-overwrites merge-takes-later payload-has-monk click-starts import-replaces no-immediate-push}"
+want="${*:-start-overwrites merge-takes-later payload-has-monk click-starts import-replaces no-immediate-push old-days-count}"
 for n in $want; do case "$n" in
   # (a) startMonk lets a second press overwrite the first date.
   start-overwrites) plant "$n" "$APP" logic '    if (S.monkStart) return false;
@@ -62,6 +62,8 @@ for n in $want; do case "$n" in
   # (f) the start waits out the 4 s debounce instead of pushing at once.
   no-immediate-push) plant "$n" "$APP" sync-loop '    if (ghToken()) { clearTimeout(pushTimer); runSync("push"); }
 ' '' ;;
+  # (g) days logged before the start count again on the Monk page (the old store leaks into the week sums).
+  old-days-count) plant "$n" "$APP" logic 'days = monkLive(M.days), d = days[iso]' 'days = M.days || {}, d = days[iso]' ;;
   *) echo "unknown plant $n"; MISSED=$((MISSED + 1)) ;;
 esac; done
 echo "app.js sha256 after:  $(sha256sum "$APP" | cut -d' ' -f1)"

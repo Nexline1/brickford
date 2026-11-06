@@ -102,9 +102,9 @@ abstract final class Tokens {
   /// The record button's dot on the dark card: 4.6:1 on [card] (a glyph, never text).
   static const rec = Color(0xFFE5484D);
 
-  /// The floating bar's frosted fill. 95% white: with no blur behind it (a live BackdropFilter was what made the
-  /// phone lag) 90% let the text scrolling underneath read through, so the fill is a little denser.
-  static const frost = Color(0xF2FFFFFF);
+  /// The floating bar's frosted fill. 98% white: with no blur behind it (a live BackdropFilter was what made the
+  /// phone lag) 90% and even 95% let the text scrolling underneath read through, so the fill is denser.
+  static const frost = Color(0xFAFFFFFF);
 
   // ---- geometry ----
   /// The sheet's top corners: exactly 36, upper points only.

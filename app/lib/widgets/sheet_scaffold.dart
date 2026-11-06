@@ -12,7 +12,17 @@ import 'blocks.dart';
 import 'crest.dart';
 
 class SheetScaffold extends StatelessWidget {
-  const SheetScaffold({super.key, this.header, this.trailing, this.canvas, required this.children, this.onBack, this.tabbed = false});
+  const SheetScaffold({
+    super.key,
+    this.header,
+    this.trailing,
+    this.canvas,
+    required this.children,
+    this.onBack,
+    this.tabbed = false,
+    this.canvasHeight,
+    this.sheetTop,
+  });
 
   /// What this screen shows on the canvas under the branding: numbers, badges.
   final Widget? header;
@@ -31,6 +41,12 @@ class SheetScaffold extends StatelessWidget {
 
   /// A tab screen: the sheet's scroll clears the floating bar.
   final bool tabbed;
+
+  /// Overrides for a screen whose canvas is not the branding (the lecture: a control
+  /// row, then a video that must not be covered). Logical pixels, not design px.
+  /// Left null, a [canvas] is [Tokens.headerHeight] tall and the sheet starts at
+  /// [Tokens.sheetTop], so every other screen is laid out exactly as it was.
+  final double? canvasHeight, sheetTop;
 
   static const sheetKey = ValueKey('brickford-sheet');
   static const canvasKey = ValueKey('brickford-canvas');
@@ -85,11 +101,11 @@ class SheetScaffold extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: canvas != null ? Tokens.headerHeight.h : Tokens.sheetTop.h,
+            height: canvasHeight ?? (canvas != null ? Tokens.headerHeight.h : Tokens.sheetTop.h),
             child: canvas ?? branding,
           ),
           Positioned(
-            top: Tokens.sheetTop.h,
+            top: sheetTop ?? Tokens.sheetTop.h,
             left: 0,
             right: 0,
             bottom: 0,

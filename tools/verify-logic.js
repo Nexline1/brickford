@@ -24,10 +24,18 @@ const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index
 // and so does this block — on purpose, in the same commit. Reset six (2026-10-06)
 // moved the start to 2026-10-05, and every dated fixture below moved forward two
 // weeks with it, weekdays unchanged, so each still sits inside the plan.
-const START = "2026-10-05";
-const DAY_1094 = "2030-04-02";           // dateForStudy(1093)
-const BASELINE = "2030-04-03";           // addStudyDays(START, 1094)
-const WALK_TO = "2030-04-15";            // past the finish, so the whole plan is walked
+// Reset seven (T-056, 2026-10-23) moved it to Friday 2026-10-16. A Monday start
+// becoming a Friday one cannot keep both a fixture's plan day and its weekday,
+// so every study-day fixture moved 10 study days (dateForStudy(studyIndex) under
+// the old start, replicated, not counted by hand) and keeps its plan day; each
+// Saturday fixture was re-picked as the Saturday its scenario needs.
+const START = "2026-10-16";
+const DAY_1094 = "2030-04-14";           // dateForStudy(1093)
+const BASELINE = "2030-04-15";           // addStudyDays(START, 1094)
+const WALK_TO = "2030-04-27";            // past the finish, so the whole plan is walked
+// T-065: the Monk start is S.monkStart (written once, by the Start button), no longer a constant
+// in app.js. Every fixture below that pinned the old 2026-11-01 start now carries it in its state.
+const MONK_START = "2026-11-01", STARTED = { monkStart: MONK_START };
 
 // ---------- calendar arithmetic, independent of the app ----------
 const addDays = (iso, n) => {
@@ -74,9 +82,9 @@ async function scenario(browser, now, state, tz) {
   const planDays = days.filter(d => d >= START);
   const saturdays = planDays.filter(isSat);
 
-  // ---- pure date functions: one scenario, empty state, a fixed Tuesday ----
+  // ---- pure date functions: one scenario, empty state, plan day 14 (Sun 1 Nov) ----
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20", null);
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", null);
     const r = await page.evaluate(({ days, saturdays }) => {
       const T = window.__brickfordTest;
       const idx = {};
@@ -92,7 +100,7 @@ async function scenario(browser, now, state, tz) {
         base: T.addStudyDays(window.DAR.START_DATE, 1094),
         idx, back, satSched, satStatus,
         day1Sched: T.scheduledFor(window.DAR.START_DATE).length,
-        missedTue: T.dayStatus("2026-10-13"),     // a past study day, nothing done
+        missedTue: T.dayStatus("2026-10-25"),     // a past study day (plan day 8), nothing done
       };
     }, { days, saturdays });
 
@@ -133,23 +141,24 @@ async function scenario(browser, now, state, tz) {
     const stBad = saturdays.filter(d => r.satStatus[d] !== "rest");
     check('dayStatus(Saturday) = "rest"', stBad.length === 0 && r.missedTue === "missed",
       stBad.length ? stBad.length + " Saturday(s) not rest, first " + stBad[0] + " -> " + r.satStatus[stBad[0]]
-                   : "every Saturday rest; an untouched past Tuesday is \"" + r.missedTue + "\" (not vacuous)");
+                   : "every Saturday rest; an untouched past study day is \"" + r.missedTue + "\" (not vacuous)");
     check("no page errors (date scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
 
   // ---- the streak ----
-  // Today is Tuesday 20 Oct. Sealed: Mon 5 – Wed 7 Oct (an old run of 3), then
-  // Mon 12 – Fri 16 Oct and Sun 18 – Tue 20 Oct. Saturday 17 Oct is not sealed
-  // and must be stepped over: the current run is 8, not 3.
-  const sealed = ["2026-10-05", "2026-10-06", "2026-10-07",
-    "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
-    "2026-10-18", "2026-10-19", "2026-10-20"];
+  // Today is Sunday 1 Nov (plan day 14). Sealed: Fri 16 – Mon 19 Oct, plan days
+  // 1-3 (an old run of 3), then Fri 23 – Fri 30 Oct and Sun 1 Nov, plan days
+  // 7-14. Saturdays 24 and 31 Oct are not sealed and must be stepped over: the
+  // current run is 8, not 1.
+  const sealed = ["2026-10-16", "2026-10-18", "2026-10-19",
+    "2026-10-23", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28",
+    "2026-10-29", "2026-10-30", "2026-11-01"];
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20", { studyDays: sealed });
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", { studyDays: sealed });
     const r = await page.evaluate(() => ({ s: window.__brickfordTest.streak(), b: window.__brickfordTest.bestStreak() }));
     check("streak steps over an unsealed Saturday", r.s === 8,
-      "run Mon 12 – Tue 20 Oct across unsealed Sat 17 Oct: expected 8, got " + r.s);
+      "run Fri 23 Oct – Sun 1 Nov across unsealed Sats 24 and 31 Oct: expected 8, got " + r.s);
     // Known app bug: bestStreak counts a sealed Saturday (app.js:572-587). Owned
     // by a follow-up item; its fix must add the assertion bestStreak() === 8 for
     // the sealed-Saturday fixture below. Until then no check here claims that
@@ -158,27 +167,27 @@ async function scenario(browser, now, state, tz) {
     check("no page errors (streak scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // The same run with Saturday 17 Oct SEALED as well: a rest day is never
+  // The same run with Saturday 31 Oct SEALED as well: a rest day is never
   // counted, even when there is a seal on it, so the run is still 8, not 9.
   // bestStreak is deliberately not asserted on this fixture (known app bug above).
   {
-    const withSat = sealed.concat(["2026-10-17"]).sort();
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20", { studyDays: withSat });
+    const withSat = sealed.concat(["2026-10-31"]).sort();
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", { studyDays: withSat });
     const s = await page.evaluate(() => window.__brickfordTest.streak());
     check("streak does not count a sealed Saturday", s === 8,
-      "run Mon 12 – Tue 20 Oct with Sat 17 Oct sealed: expected 8, got " + s);
+      "run Fri 23 Oct – Sun 1 Nov with Sat 31 Oct sealed: expected 8, got " + s);
     check("no page errors (sealed-Saturday scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-20",
-      { studyDays: sealed, settings: { streakFrom: "2026-10-19" } });
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01",
+      { studyDays: sealed, settings: { streakFrom: "2026-10-30" } });
     const r = await page.evaluate(() => ({ s: window.__brickfordTest.streak(), b: window.__brickfordTest.bestStreak() }));
-    check("streak stops at streakFrom", r.s === 2, "streakFrom 19 Oct: expected 2, got " + r.s);
+    check("streak stops at streakFrom", r.s === 2, "streakFrom 30 Oct: expected 2, got " + r.s);
     // Known app bug: bestStreak counts a sealed Saturday (app.js:572-587). Owned
     // by a follow-up item; its fix must add the assertion bestStreak() === 8 for
     // the sealed-Saturday fixture above.
-    check("bestStreak ignores streakFrom", r.b === 8, "streakFrom 19 Oct: expected 8, got " + r.b);
+    check("bestStreak ignores streakFrom", r.b === 8, "streakFrom 30 Oct: expected 8, got " + r.b);
     check("no page errors (streakFrom scenario)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
@@ -193,17 +202,17 @@ async function scenario(browser, now, state, tz) {
   // (1) The only day between the first activity and today is a Saturday, so
   //     nothing can be owed.
   {
-    const { ctx, page, errors } = await scenario(browser, "2026-10-18", { studyDays: ["2026-10-17"] });
+    const { ctx, page, errors } = await scenario(browser, "2026-11-01", { studyDays: ["2026-10-31"] });
     const n = await page.evaluate(() => window.__brickfordTest.backlogCount());
     check("a rest day owes no lessons (backlogCount)", n === 0, "expected 0, got " + n);
     check("no page errors (backlog scenario 1)", errors.length === 0, errors.join(" | "));
     await ctx.close();
   }
-  // (2) Mon 12 to Mon 19 Oct, nothing watched: the backlog is exactly the
+  // (2) Fri 23 to Fri 30 Oct, nothing watched: the backlog is exactly the
   //     lectures scheduled on the seven non-Saturdays (Saturday is left out by
   //     the calendar here, not by the app; see the note above on the skip).
   {
-    const from = "2026-10-12", today = "2026-10-20";
+    const from = "2026-10-23", today = "2026-11-01";
     const owedDays = range(from, addDays(today, -1)).filter(d => !isSat(d));
     const { ctx, page, errors } = await scenario(browser, today, { studyDays: [from] });
     const r = await page.evaluate(owedDays => {
@@ -234,7 +243,7 @@ async function scenario(browser, now, state, tz) {
       await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
       if (withoutSpch) await ctx.route(/\/data\/storytelling\.js/, r => r.fulfill({ status: 200,
         contentType: "application/javascript", body: "/* storytelling removed for the isolation check */" }));
-      await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+      await ctx.clock.setFixedTime(new Date("2026-11-01T12:00:00Z"));
       const page = await ctx.newPage();
       const errors = [];
       page.on("pageerror", e => errors.push(e.message));
@@ -308,9 +317,9 @@ async function scenario(browser, now, state, tz) {
 
     // (1) A legacy `true` is passed on a date that does not move: START_DATE
     //     with no gate event, and the LOCAL date of its last passing gate event
-    //     when there is one. Two different days (Tue 20 Oct and Tue 3 Nov) must
+    //     when there is one. Two different days (Sun 1 Nov and Sun 15 Nov) must
     //     give the same plan. Read as "today", every later target slides daily.
-    const DAY_A = "2026-10-20", DAY_B = "2026-11-03";
+    const DAY_A = "2026-11-01", DAY_B = "2026-11-15";
     {
       const plans = [];
       for (const day of [DAY_A, DAY_B]) {
@@ -326,21 +335,21 @@ async function scenario(browser, now, state, tz) {
       check("no page errors (legacy true scenarios)", plans.every(p => p.errors.length === 0), plans.map(p => p.errors.join(" | ")).join(" "));
     }
     {
-      // In Bahrain (UTC+3) 22:30Z on 7 Oct is 01:30 on the 8th. The last
-      // PASSING event wins: passed on the 6th, passed again late on the 7th
-      // (UTC), then an unmark on the 9th that the old merge undid (which is
-      // how a `true` outlives its unmark) — so 8 Oct, local. The first event
-      // would say the 6th, the last of any kind the 9th, a UTC reading the 7th.
-      const ledger = [gateEvent(0, "2026-10-06T10:00:00.000Z", 1, true), gateEvent(1, "2026-10-07T22:30:00.000Z", 1, true),
-                      gateEvent(2, "2026-10-09T09:00:00.000Z", 1, false)];
+      // In Bahrain (UTC+3) 22:30Z on 19 Oct is 01:30 on the 20th. The last
+      // PASSING event wins: passed on the 18th, passed again late on the 19th
+      // (UTC), then an unmark on the 21st that the old merge undid (which is
+      // how a `true` outlives its unmark) — so 20 Oct, local. The first event
+      // would say the 18th, the last of any kind the 21st, a UTC reading the 19th.
+      const ledger = [gateEvent(0, "2026-10-18T10:00:00.000Z", 1, true), gateEvent(1, "2026-10-19T22:30:00.000Z", 1, true),
+                      gateEvent(2, "2026-10-21T09:00:00.000Z", 1, false)];
       const plans = [];
       for (const day of [DAY_A, DAY_B]) {
         const { ctx, page, errors } = await scenario(browser, day, { gates: { 1: true }, ledger }, "Asia/Bahrain");
         plans.push({ plan: await readPlan(page), errors });
         await ctx.close();
       }
-      const want = expectPlan({ 1: "2026-10-08" });
-      check("a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 7 Oct 22:30Z is 8 Oct; a later unmark event is not it), the same on two days",
+      const want = expectPlan({ 1: "2026-10-20" });
+      check("a legacy true takes the local date of its last PASSING gate event (Asia/Bahrain: 19 Oct 22:30Z is 20 Oct; a later unmark event is not it), the same on two days",
         same(plans[0].plan, plans[1].plan) && same(plans[0].plan, want),
         DAY_A + ": " + show(plans[0].plan) + " | " + DAY_B + ": " + show(plans[1].plan) + " | want " + show(want));
       check("no page errors (legacy true with a gate event)", plans.every(p => p.errors.length === 0), plans.map(p => p.errors.join(" | ")).join(" "));
@@ -392,9 +401,9 @@ async function scenario(browser, now, state, tz) {
 
     // (3) Only the next gate can be passed, only the last passed one unmarked.
     //     A refused call stores nothing and logs nothing. Run in Bahrain at
-    //     22:30Z on 20 Oct, which is 01:30 on the 21st there: a pass is dated
+    //     22:30Z on 1 Nov, which is 01:30 on the 2nd there: a pass is dated
     //     by the local calendar, as everything else here is.
-    const DAY_LOCAL = "2026-10-21";
+    const DAY_LOCAL = "2026-11-02";
     {
       const { ctx, page, errors } = await scenario(browser, DAY_A + "T22:30:00Z", null, "Asia/Bahrain");
       const r = await page.evaluate(() => {
@@ -419,7 +428,7 @@ async function scenario(browser, now, state, tz) {
       check("an out-of-order pass is impossible: Gate 3, 2 or 5 before Gate 1 is refused, stores nothing and logs nothing",
         r.early.every(x => x === false) && r.earlyGates === "{}" && r.earlyEvents === 0 && r.earlyOpen,
         "returned " + r.early.join(",") + ", stored " + r.earlyGates + ", " + r.earlyEvents + " gate event(s)");
-      check("the next gate can be passed: stored as { date: today (local: 21 Oct in Bahrain), at, passed: true }, and Gate 3 is still refused after it",
+      check("the next gate can be passed: stored as { date: today (local: 2 Nov in Bahrain), at, passed: true }, and Gate 3 is still refused after it",
         r.first === true && !!r.firstRec && r.firstRec.date === DAY_LOCAL && r.firstRec.passed === true && /^\d{4}-\d\d-\d\dT/.test(r.firstRec.at || "") &&
           r.skip === false && r.second === true,
         "pass 1 " + r.first + " " + JSON.stringify(r.firstRec) + "; pass 3 " + r.skip + "; pass 2 " + r.second);
@@ -437,20 +446,20 @@ async function scenario(browser, now, state, tz) {
     //     — and the other direction (a later pass beats an earlier unmark), so
     //     "the unmark always wins" cannot pass for last-writer-wins.
     {
-      const T1 = "2026-10-19T08:00:00.000Z", T2 = "2026-10-19T20:00:00.000Z";
-      const P1 = { date: "2026-10-19", at: T1, passed: true }, U2 = { date: null, at: T2, passed: false };
-      const U1 = { date: null, at: T1, passed: false }, P2 = { date: "2026-10-19", at: T2, passed: true };
+      const T1 = "2026-10-30T08:00:00.000Z", T2 = "2026-10-30T20:00:00.000Z";
+      const P1 = { date: "2026-10-30", at: T1, passed: true }, U2 = { date: null, at: T2, passed: false };
+      const U1 = { date: null, at: T1, passed: false }, P2 = { date: "2026-10-30", at: T2, passed: true };
       const cases = [
         ["the device that passed (t1) pulls the unmark (t2): open", { 1: P1 }, { 1: U2 }, null],
         ["the device that unmarked (t2) pulls the pass (t1): still open", { 1: U2 }, { 1: P1 }, null],
-        ["an unmark (t2) pulls a legacy date string for that day (00:00): still open", { 1: U2 }, { 1: "2026-10-19" }, null],
-        ["a legacy date string here pulls a newer unmark: open", { 1: "2026-10-12" }, { 1: U2 }, null],
-        ["an unmark (t1) pulls a later pass (t2): passed", { 1: U1 }, { 1: P2 }, "2026-10-19"],
-        ["a legacy false (no time) pulls a timed pass: passed", { 1: false }, { 1: P1 }, "2026-10-19"],
+        ["an unmark (t2) pulls a legacy date string for that day (00:00): still open", { 1: U2 }, { 1: "2026-10-30" }, null],
+        ["a legacy date string here pulls a newer unmark: open", { 1: "2026-10-23" }, { 1: U2 }, null],
+        ["an unmark (t1) pulls a later pass (t2): passed", { 1: U1 }, { 1: P2 }, "2026-10-30"],
+        ["a legacy false (no time) pulls a timed pass: passed", { 1: false }, { 1: P1 }, "2026-10-30"],
         // The remote's own ledger carries the event, so it has to be merged
-        // before the gates are: otherwise this reads START_DATE (5 Oct).
-        ["nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day", {}, { 1: true }, "2026-10-07",
-          { phone: [gateEvent(0, "2026-10-07T09:00:00.000Z", 1, true)] }],
+        // before the gates are: otherwise this reads START_DATE (16 Oct).
+        ["nothing here pulls a legacy true whose gate event is in the remote's ledger: passed that day", {}, { 1: true }, "2026-10-19",
+          { phone: [gateEvent(0, "2026-10-19T09:00:00.000Z", 1, true)] }],
       ];
       const got = [];
       for (const [name, local, remote, want, ledgers] of cases) {
@@ -470,7 +479,7 @@ async function scenario(browser, now, state, tz) {
         got.slice(2, 4).every(c => c.r.done === c.want), got.slice(2, 4).map(line).join("; "));
       check("LWW merge is last-writer-wins, not unmark-wins: a later pass beats an earlier unmark, and a timed pass beats a legacy false",
         got.slice(4, 6).every(c => c.r.done === c.want), got.slice(4, 6).map(line).join("; "));
-      check("a remote legacy true is dated by its gate event in the remote's own ledger (7 Oct, not START_DATE)",
+      check("a remote legacy true is dated by its gate event in the remote's own ledger (19 Oct, not START_DATE)",
         got[6].r.done === got[6].want, line(got[6]));
       {
         const { ctx, page, errors } = await scenario(browser, DAY_A, { gates: { 1: P1, 2: U2 } });
@@ -486,15 +495,15 @@ async function scenario(browser, now, state, tz) {
   // ---- the lecture quiz gate (T-043) ----
   // loop/specs/T-043-lecture-quiz-gate/spec.md. "Done" is watched AND
   // cleared: the quiz passed, no quiz at all, or first watched before the
-  // gate shipped (grandfathered). Tue 6 Oct schedules three MATH 120 lectures
+  // gate shipped (grandfathered). Sun 18 Oct (plan day 2) schedules three MATH 120 lectures
   // and one SPCH 100 lecture that have quizzes, and two AI 200 lectures that
   // have none. Every expectation is worked out here from the fixture and the
   // summaries' checks (the data), never from schedDone. Every date is derived
   // from the app's QUIZ_GATE_FROM (review r1): grandfathered = gate - 1,
   // gated = gate + 1, the clock at gate + 5 — so any ship date works.
   {
-    const P = "2026-10-06";
-    const probe = await scenario(browser, "2026-10-20", null);
+    const P = "2026-10-18";
+    const probe = await scenario(browser, "2026-11-01", null);
     const GATE = await probe.page.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM);
     await probe.ctx.close();
     const BEFORE = addDays(GATE, -1), AFTER = addDays(GATE, 1), TODAY = addDays(GATE, 5);
@@ -569,6 +578,11 @@ async function scenario(browser, now, state, tz) {
     const gated = await run("gated", watched(AFTER));
     const pass = await run("passed", passed(AFTER));
     const gf = await run("grandfathered", watched(BEFORE));
+    // Review r2, finding 4: the owner's own day. Lectures watched on 23 Oct
+    // (the expected merge day) are grandfathered; one watched ON the gate day
+    // needs its quiz (the comparison is a strict <).
+    const on23 = await run("watched 23 Oct", watched("2026-10-23"));
+    const onGate = await run("watched on the gate day", watched(GATE));
     const sealedRun = await run("gated, with ten sealed days", watched(AFTER), () => ({ studyDays: run10.slice().sort() }));
     const sealedBare = await run("no lectures, the same ten sealed days", () => ({}), () => ({ studyDays: run10.slice().sort() }));
     const nQ = gated.meta.items.filter(i => i.quiz).length, nNo = gated.meta.items.length - nQ;
@@ -579,6 +593,11 @@ async function scenario(browser, now, state, tz) {
       gated.r.sched.every(s => s.got === s.want) && gated.r.sched.some(s => !s.got) && gated.r.sched.some(s => s.got), schedLine(gated));
     check("schedDone: a passed quiz makes a watched lecture done", pass.r.sched.every(s => s.got === s.want && s.got), schedLine(pass));
     check("schedDone: watched before the gate is done without a quiz (grandfathered)", gf.r.sched.every(s => s.got === s.want && s.got), schedLine(gf));
+    check("T-056 r3: QUIZ_GATE_FROM is 2026-10-24, so lectures watched on Fri 23 Oct count as done with no quiz (grandfathered) and the day paints completed",
+      GATE === "2026-10-24" && on23.r.sched.every(s => s.got === s.want && s.got) && on23.r.status === "completed", schedLine(on23) + "; " + on23.r.status);
+    check("T-056 r3: a lecture watched ON the gate day (" + GATE + ") still needs its quiz (strict <): not done, the day partial",
+      onGate.r.sched.every(s => s.got === s.want) && onGate.r.sched.some(s => !s.got) && onGate.r.status === "partial", schedLine(onGate) + "; " + onGate.r.status);
+    check("no page errors (T-056 r3 gate-day fixtures)", on23.errors.length === 0 && onGate.errors.length === 0, on23.errors.concat(onGate.errors).join(" | "));
     check("dayStatus follows: partial while a quiz is open, completed once passed or grandfathered",
       gated.r.status === "partial" && pass.r.status === "completed" && gf.r.status === "completed",
       "gated " + gated.r.status + ", passed " + pass.r.status + ", grandfathered " + gf.r.status);
@@ -662,10 +681,669 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // ---- T-056: reset seven keeps what was watched, and nothing goes half done ----
+  // loop/specs/T-056-reset-seven. The owner watched the lectures of the OLD
+  // plan's days 1-8 (START 2026-10-05) between 16 and 22 Oct, no quizzes, and
+  // asked for 16 Oct to be day 1 without rewatching anything. Nothing about a
+  // lecture is keyed by date, so those lectures are the new plan's days 1-8
+  // too. Under the gate T-043 shipped (16 Oct) every one of them would need its
+  // quiz and days 1-7 would paint "Part" — the half-done bug. With the gate at
+  // this change's ship date they are grandfathered: the days paint done, the
+  // quizzes wait on the catch-up list, and on Sun 25 Oct (day 8, its lectures
+  // already watched) the next action is the first lecture not yet watched,
+  // read from the work-ahead plan, never a watched one. The old plan is read
+  // from the app itself, curriculum.js served with the old START_DATE.
+  {
+    const GATE = await (async () => { const p = await scenario(browser, "2026-11-01", null);
+      const g = await p.page.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM); await p.ctx.close(); return g; })();
+    const oldCtx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
+    await oldCtx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
+    const curSrc = require("fs").readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/curriculum.js"), "utf8");
+    const oldSrc = curSrc.replace(/DAR\.START_DATE = "[0-9-]+";/, 'DAR.START_DATE = "2026-10-05";');
+    await oldCtx.route(/\/data\/curriculum\.js/, r => r.fulfill({ status: 200, contentType: "application/javascript", body: oldSrc }));
+    await oldCtx.clock.setFixedTime(new Date("2026-10-04T12:00:00Z"));
+    const oldPage = await oldCtx.newPage();
+    await oldPage.goto(URL + "/__test", { waitUntil: "load" });
+    await oldPage.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
+    const oldPlan = await oldPage.evaluate(() => { const T = window.__brickfordTest, keys = [];
+      for (let i = 0; i < 8; i++) T.scheduledFor(T.dateForStudy(i)).forEach(it => { if (!it.pseudo) { const k = it.cid + "." + it.ui + "." + it.li; if (keys.indexOf(k) < 0) keys.push(k); } });
+      return { start: window.DAR.START_DATE, keys }; });
+    await oldCtx.close();
+    const WATCH_ON = ["2026-10-16", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22"];
+    const lessons = {};
+    oldPlan.keys.forEach((k, i) => { lessons[k] = { done: true, doneAt: WATCH_ON[i % WATCH_ON.length], notes: "", checks: [] }; });
+    const NOW = "2026-10-25";
+    const DAYS7 = ["2026-10-16", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"];
+    const { ctx, page, errors } = await scenario(browser, NOW, { lessons });
+    const r = await page.evaluate(([DAYS7, NOW]) => {
+      const T = window.__brickfordTest, sums = window.DAR.SUMMARIES || {};
+      return { start: window.DAR.START_DATE, idx: DAYS7.map(d => T.studyIndex(d)), nowIdx: T.studyIndex(NOW),
+        status: DAYS7.map(d => T.dayStatus(d)), sat17: T.dayStatus("2026-10-17"),
+        sched: DAYS7.concat([NOW]).map(d => T.scheduledFor(d).filter(it => !it.pseudo).map(it => [it.cid + "." + it.ui + "." + it.li, T.schedDone(it)])),
+        cu: T.catchUpQuizzes().map(x => x.k), quizK: Object.keys(sums).filter(k => ((sums[k] || {}).checks || []).length) };
+    }, [DAYS7, NOW]);
+    const watchedK = new Set(oldPlan.keys);
+    const withQuiz = oldPlan.keys.filter(k => r.quizK.indexOf(k) >= 0);
+    check("T-056 fixture: the old plan's days 1-8 read from START 2026-10-05 (" + oldPlan.keys.length + " lectures), watched 16-22 Oct, no quiz passed; " + withQuiz.length + " of them have a quiz; gate " + GATE,
+      oldPlan.start === "2026-10-05" && oldPlan.keys.length > 20 && withQuiz.length > 5 && r.start === "2026-10-16" &&
+        r.idx.join() === "0,1,2,3,4,5,6" && r.nowIdx === 7 && r.sat17 === "rest",
+      "new indices " + r.idx.join() + ", 25 Oct index " + r.nowIdx + ", Sat 17 Oct " + r.sat17);
+    const notDone = r.sched.flat().filter(([k, d]) => !d).map(([k]) => k);
+    check("T-056: every lecture the new plan puts on days 1-8 was watched and counts as done (grandfathered, no quiz needed)",
+      r.sched.every(day => day.length > 0) && r.sched.flat().every(([k, d]) => watchedK.has(k) && d),
+      notDone.length ? "not done: " + notDone.join(",") : r.sched.map(d => d.length).join("+") + " lectures");
+    check("T-056: days 1-7 (16-23 Oct, Sat 17 Oct rest) paint completed, none partial",
+      r.status.every(s => s === "completed"), DAYS7.map((d, i) => d.slice(5) + " " + r.status[i]).join(", "));
+    const cuMissing = withQuiz.filter(k => r.cu.indexOf(k) < 0);
+    check("T-056: their quizzes stay on the catch-up list", cuMissing.length === 0, cuMissing.length ? "missing " + cuMissing.join(",") : r.cu.length + " on the list");
+    // The calendar, as drawn: no "Part" dot on those days, and no lock on the day view.
+    await page.evaluate(() => { location.hash = "#/calendar"; });
+    await page.waitForSelector("#view [data-cal-day='2026-10-16']", { state: "attached", timeout: 8000 });
+    const cal = await page.evaluate(DAYS7 => DAYS7.map(d => { const c = document.querySelector("#view [data-cal-day='" + d + "'] .cmark");
+      return c ? c.className.replace("cmark ", "") : "none"; }), DAYS7);
+    check("T-056: the calendar draws days 1-7 done (dfull), no Part (dhalf)", cal.every(c => c === "dfull"), DAYS7.map((d, i) => d.slice(5) + " " + cal[i]).join(", "));
+    // The dashboard on Sun 25 Oct: the next action and the rail.
+    await page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); location.hash = "#/"; });
+    await page.waitForFunction(() => !document.querySelector("#view [data-logic-stale]") && document.querySelector("#view .card.one.lead .one-go"), null, { timeout: 8000 });
+    const dash = await page.evaluate(() => { const lead = document.querySelector("#view .card.one.lead"), rail = document.querySelector("#rail a.btn");
+      return { href: lead.querySelector(".one-go").getAttribute("href"), kind: lead.querySelector(".one-kind").textContent,
+        hint: lead.querySelector(".one-hint").textContent, backlog: window.__brickfordTest.backlogCount(), rail: rail ? rail.getAttribute("href") : null,
+        lessonLinks: [...document.querySelectorAll("#view a[href^='#/lesson/']")].filter(a => !a.classList.contains("done-row")).map(a => a.getAttribute("href")),
+        doneRows: document.querySelectorAll("#view a.done-row[href^='#/lesson/']").length }; });
+    const keyOf = h => { const m = /^#\/lesson\/([^/]+)\/(\d+)\/(\d+)$/.exec(h || ""); return m ? m[1] + "." + m[2] + "." + m[3] : null; };
+    const nk = keyOf(dash.href);
+    const firstUnwatched = nk ? await page.evaluate(nk => { const cid = nk.split(".")[0], c = window.DAR.COURSES.find(x => x.id === cid), flat = [];
+      c.units.forEach((u, ui) => u.lessons.forEach((_, li) => flat.push(cid + "." + ui + "." + li))); return flat; }, nk) : [];
+    const prevK = firstUnwatched[firstUnwatched.indexOf(nk) - 1];
+    check("T-056: on Sun 25 Oct (day 8, its lectures already watched) the next action opens the first lecture not yet watched",
+      !!nk && !watchedK.has(nk) && !!prevK && watchedK.has(prevK) && !/^(Quiz|Watch): /.test(dash.kind) && keyOf(dash.rail) === nk,
+      JSON.stringify({ next: nk, title: dash.kind, prev: prevK, rail: dash.rail }));
+    const rewatch = dash.lessonLinks.map(keyOf).filter(k => k && watchedK.has(k) && k !== nk);
+    check("T-056: nothing on the dashboard asks to re-watch a watched lecture (a watched one shows only as a ticked done row)",
+      !watchedK.has(nk) && rewatch.length === 0 && dash.doneRows > 0, rewatch.length ? "open links to watched: " + rewatch.join(",")
+        : dash.lessonLinks.length + " open lesson link(s), none watched; " + dash.doneRows + " ticked done row(s)");
+    check("T-056: nothing is owed, so the work-ahead card says \"ahead of plan\"", dash.backlog === 0 && /today is done · ahead of plan$/.test(dash.hint),
+      "backlog " + dash.backlog + ", hint \"" + dash.hint + "\"");
+    check("no page errors (T-056 watched days)", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+    // Review r1, finding 4: the same, with one earlier lecture (MATH 130's
+    // first, plan day 3) never watched. Today is still cleared, so the card
+    // works ahead, but it must not claim "ahead of plan": it says what is
+    // owed, as the dashboard's "owed from earlier days" row counts it.
+    const owedK = "math130.0.0";
+    const less = Object.assign({}, lessons); delete less[owedK];
+    const o = await scenario(browser, NOW, { lessons: less });
+    await o.page.evaluate(() => { location.hash = "#/"; });
+    await o.page.waitForSelector("#view .card.one.lead .one-go", { timeout: 8000 });
+    const od = await o.page.evaluate(() => ({ today: window.__brickfordTest.scheduledFor(window.__brickfordTest.dateForStudy(7)).filter(it => !it.pseudo).every(it => window.__brickfordTest.schedDone(it)),
+      backlog: window.__brickfordTest.backlogCount(), hint: document.querySelector("#view .card.one.lead .one-hint").textContent,
+      href: document.querySelector("#view .card.one.lead .one-go").getAttribute("href") }));
+    check("T-056: today cleared with a lecture owed (" + owedK + "): the card says \"today is done · 1 owed\", never \"ahead of plan\"",
+      od.today && od.backlog === 1 && /today is done · 1 owed$/.test(od.hint) && !/ahead of plan/.test(od.hint) && !less[keyOf(od.href)],
+      JSON.stringify(od));
+    // Review r2, finding 2: and the card opens THAT lecture — the earliest
+    // owed, in plan order — not the next study day's first uncleared one.
+    check("T-056: with " + owedK + " owed, the work-ahead card opens it (the first lecture not watched, in plan order)",
+      keyOf(od.href) === owedK,
+      JSON.stringify(od));
+    check("no page errors (T-056 owed)", o.errors.length === 0, o.errors.join(" | "));
+    await o.ctx.close();
+  }
+
+  // ---- T-056 r2: Sunday stays the seal-and-revision day (owner, "Keep Sunday") ----
+  // With a Friday start, plan weeks run Fri-Thu, so "Seal the week · Week N"
+  // on a Sunday named a plan week two days in. The owner kept Sunday: each
+  // Sunday seals and revises the six study days before it, Sun-Fri, and the
+  // first, Sun 25 Oct, takes the start to Fri 23 Oct (days 1-7). Revision
+  // weeks are not plan weeks. The ranges below are the owner's, written out;
+  // the week a date answers to is worked out here from the Sundays alone (the
+  // first revision Sunday on or after it), never from the app's arithmetic.
+  {
+    const OWNER = [["2026-10-16", "2026-10-23", "2026-10-25"], ["2026-10-25", "2026-10-30", "2026-11-01"], ["2026-11-01", "2026-11-06", "2026-11-08"],
+      ["2026-11-08", "2026-11-13", "2026-11-15"], ["2026-11-15", "2026-11-20", "2026-11-22"], ["2026-11-22", "2026-11-27", "2026-11-29"]];
+    const isSun = iso => new Date(iso + "T00:00:00Z").getUTCDay() === 0;
+    const revSundays = days.filter(d => isSun(d) && d >= "2026-10-25");
+    const revOf = d => 1 + revSundays.findIndex(s => s >= d);
+    const span = planDays.filter(d => d <= "2028-10-15");
+    const p = await scenario(browser, "2026-11-01", null);
+    const r = await p.page.evaluate(span => { const T = window.__brickfordTest;
+      const weeks = []; for (let n = 1; T.revisionWeek(n).sun <= span[span.length - 1]; n++) weeks.push(T.revisionWeek(n));
+      return { weeks, of: span.map(d => T.revisionWeekOf(d)), ics: T.buildICS(),
+        study: span.filter(d => T.studyIndex(d) >= 0) }; }, span);
+    const got6 = r.weeks.slice(0, 6).map(w => [w.from, w.to, w.sun]);
+    check("T-056 r2: revision weeks 1-6 are the owner's: 16-23 Oct (revised Sun 25 Oct), then 25-30 Oct, 1-6 Nov, 8-13 Nov, 15-20 Nov, 22-27 Nov, each revised the Sunday after",
+      JSON.stringify(got6) === JSON.stringify(OWNER) && r.weeks.slice(0, 6).every((w, i) => w.r === i + 1), JSON.stringify(got6));
+    const ofBad = span.map((d, i) => [d, r.of[i], revOf(d)]).filter(x => x[1] !== x[2]);
+    check("T-056 r2: every date to Oct 2028 answers to the revision week of the first revision Sunday on or after it (" + span.length + " dates)",
+      ofBad.length === 0, ofBad.length ? ofBad.length + " wrong, first " + ofBad[0].join(" -> ") : "first " + span[0] + " -> " + r.of[0]);
+    const cover = {}; let shapeBad = null;
+    r.weeks.forEach(w => {
+      const inW = r.study.filter(d => d >= w.from && d <= w.to);
+      inW.forEach(d => { cover[d] = (cover[d] || 0) + 1; });
+      const want = w.r === 1 ? 7 : 6;
+      if (!shapeBad && (inW.length !== want || !isSun(w.sun) || new Date(w.to + "T00:00:00Z").getUTCDay() !== 5 || w.to !== addDays(w.sun, -2) ||
+        (w.r > 1 && w.from !== addDays(w.sun, -7)))) shapeBad = JSON.stringify(w) + " holds " + inW.length + " study days";
+    });
+    const last = r.weeks[r.weeks.length - 1].to;
+    const coverBad = r.study.filter(d => d <= last && cover[d] !== 1);
+    check("T-056 r2: the revision weeks partition the study days: week 1 holds 7, every other 6, each ends on a Friday and is revised two days later, a Sunday",
+      !shapeBad && coverBad.length === 0 && r.weeks.length > 100, shapeBad || (coverBad.length ? coverBad.length + " study day(s) not in exactly one week, first " + coverBad[0] : r.weeks.length + " weeks to " + last));
+    const ev = (r.ics.split("BEGIN:VEVENT").find(e => /UID:brickford-review@/.test(e)) || "");
+    check("T-056 r2: the exported calendar's weekly review starts Sun 25 Oct 18:00, weekly on Sundays (BYDAY=SU)",
+      /DTSTART:20261025T180000/.test(ev) && /RRULE:FREQ=WEEKLY;BYDAY=SU\r\n/.test(ev), ev.replace(/\r\n/g, " | ").slice(0, 200));
+    check("no page errors (T-056 r2 arithmetic)", p.errors.length === 0, p.errors.join(" | "));
+    await p.ctx.close();
+
+    // The calendar's day view offers the seal only on a revision Sunday, and
+    // names the week it seals; the Week page seals that week, never the plan
+    // week in progress. One clock per day.
+    const short = iso => Number(iso.slice(8)) + " " + new Date(iso + "T00:00:00Z").toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+    const label = n => { const [a, b] = OWNER[n - 1]; return "Week " + n + " · " + (a.slice(0, 7) === b.slice(0, 7) ? Number(a.slice(8)) + "–" + short(b) : short(a) + "–" + short(b)); };
+    const DAYS = [["2026-10-18", null, 1, "Opens Sunday 25 Oct · 7 days"], ["2026-10-23", null, 1, "Opens Sunday 25 Oct · 2 days"],
+      ["2026-10-24", null, 1, "Opens Sunday 25 Oct · 1 day"], ["2026-10-25", 1, 1, "Ready to seal"], ["2026-10-26", null, 2, "Opens Sunday 1 Nov · 6 days"],
+      ["2026-10-30", null, 2, "Opens Sunday 1 Nov · 2 days"], ["2026-11-01", 2, 2, "Ready to seal"], ["2026-11-05", null, 3, "Opens Sunday 8 Nov · 3 days"],
+      ["2026-11-08", 3, 3, "Ready to seal"]];
+    for (const [d, sealN, weekN, state] of DAYS) {
+      const s = await scenario(browser, d, null);
+      await s.page.evaluate(() => { location.hash = "#/calendar"; });
+      await s.page.waitForSelector("#view .cd-hb", { timeout: 8000 });
+      const tiles = await s.page.evaluate(() => [...document.querySelectorAll("#view .cd-hb")].map(a =>
+        [a.querySelector(".tl-t").textContent, a.querySelector(".tl-m").textContent.replace(/ /g, " ")]));
+      const seal = tiles.filter(t => t[0] === "Seal the week");
+      check("T-056 r2: " + d + " (" + new Date(d + "T00:00:00Z").toLocaleString("en-US", { weekday: "short", timeZone: "UTC" }) + ") " +
+          (sealN ? "offers the seal, \"30 min · " + label(sealN) + "\"" : "offers no seal"),
+        sealN ? seal.length === 1 && seal[0][1] === "30 min · " + label(sealN) : seal.length === 0, JSON.stringify(seal));
+      await s.page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); location.hash = "#/review"; });
+      await s.page.waitForFunction(() => !document.querySelector("#view [data-logic-stale]") && document.querySelector("#view .wk-state"), null, { timeout: 8000 });
+      const wk = await s.page.evaluate(() => ({ h1: document.querySelector("#view h1").textContent, state: document.querySelector("#view .wk-state").textContent }));
+      check("T-056 r2: " + d + " the Week page is \"Week " + weekN + "\" and reads \"" + state + "\"", wk.h1 === "Week " + weekN && wk.state === state, JSON.stringify(wk));
+      if (d === "2026-11-01") {
+        await s.page.fill("#rvShipped", "a repo");
+        await s.page.click("#view [data-act=logWeek]");
+        await s.page.waitForFunction(() => /Sealed/.test((document.querySelector("#view .wk-state") || {}).textContent || ""), null, { timeout: 8000 });
+        const st = await s.page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+        const e = (st.ledger || [])[(st.ledger || []).length - 1];
+        check("T-056 r2: sealing on Sun 1 Nov (plan day 14, plan week 3 running) stores revision week 2 (25-30 Oct), and the chain says week2",
+          (st.weeks || []).length === 1 && st.weeks[0].week === 2 && st.weeks[0].date === d && !!e && e.type === "week" && e.ref === "week2",
+          JSON.stringify({ weeks: st.weeks, ev: e && { type: e.type, ref: e.ref } }));
+      }
+      check("no page errors (T-056 r2 " + d + ")", s.errors.length === 0, s.errors.join(" | "));
+      await s.ctx.close();
+    }
+
+    // Review r2, finding 3: a week sealed under an earlier start (Week 1 on
+    // 11 Oct, reset six's plan) carries the same number as revision week 1.
+    // On Sun 25 Oct it must not read as this week's seal, and sealing must
+    // keep it and append the new one. (Review r3: across a sync too, below.)
+    {
+      const OLD = { week: 1, date: "2026-10-11", shipped: "an old-plan repo", dsa: 1, posts: 0, revenue: 0, notes: "before reset seven" };
+      const o = await scenario(browser, "2026-10-25", { weeks: [OLD] });
+      await o.page.evaluate(() => { location.hash = "#/review"; });
+      await o.page.waitForSelector("#view .wk-state", { timeout: 8000 });
+      const st0 = await o.page.evaluate(() => document.querySelector("#view .wk-state").textContent);
+      check("T-056 r3: Sun 25 Oct with a pre-reset Week 1 sealed 11 Oct: the Week page reads \"Ready to seal\", not \"Sealed 11 Oct\"", st0 === "Ready to seal", "\"" + st0 + "\"");
+      await o.page.fill("#rvShipped", "flashcards-cli");
+      await o.page.click("#view [data-act=logWeek]");
+      await o.page.waitForFunction(() => /Sealed/.test((document.querySelector("#view .wk-state") || {}).textContent || ""), null, { timeout: 8000 }).catch(() => {});
+      const after = await o.page.evaluate(() => ({ state: document.querySelector("#view .wk-state").textContent,
+        weeks: (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").weeks || []) }));
+      check("T-056 r3: sealing it keeps the pre-reset entry exactly and appends this week's (week 1, 25 Oct); the page reads \"Sealed 25 Oct\"",
+        after.state === "Sealed 25 Oct" && after.weeks.length === 2 && JSON.stringify(after.weeks[0]) === JSON.stringify(OLD) &&
+          after.weeks[1].week === 1 && after.weeks[1].date === "2026-10-25" && after.weeks[1].shipped === "flashcards-cli", JSON.stringify(after));
+      check("no page errors (T-056 r3 pre-reset week)", o.errors.length === 0, o.errors.join(" | "));
+      await o.ctx.close();
+    }
+
+    // Review r3: and across a sync. mergeState matched weeks by number alone,
+    // so a pulled new Week 1 replaced the local old one. Remote [old, new] is
+    // pulled into local [old, new], [old] and [new]; each time exactly one old
+    // and one new Week 1 remain (read off the Week page's past list), and the
+    // same pull again changes nothing.
+    {
+      const OLD = { week: 1, date: "2026-10-11", shipped: "an old-plan repo", dsa: 1, posts: 0, revenue: 0, notes: "before reset seven" };
+      const NEW = { week: 1, date: "2026-10-25", shipped: "flashcards-cli", dsa: 0, posts: 0, revenue: 0, notes: "" };
+      for (const [name, local] of [["[old, new]", [OLD, NEW]], ["[old]", [OLD]], ["[new]", [NEW]]]) {
+        const m = await scenario(browser, "2026-11-01", { weeks: local });
+        await m.page.evaluate(() => { location.hash = "#/review"; });
+        await m.page.waitForSelector("#view .wk-weeks", { timeout: 8000 });
+        const r = await m.page.evaluate(remote => {
+          const T = window.__brickfordTest, pull = () => T.mergeState({ v: 1, device: "other", state: { weeks: JSON.parse(JSON.stringify(remote)) }, ledgers: {} }).changed;
+          const first = pull(), second = pull();
+          T.render();
+          const cards = [...document.querySelectorAll("#view .wk-weeks > details .wk-h")].map(h => h.textContent.replace(/\u00a0/g, " "));
+          return { first, second, cards };
+        }, [OLD, NEW]);
+        const old1 = r.cards.filter(c => c === "Week 111 Oct").length, new1 = r.cards.filter(c => c === "Week 125 Oct").length;
+        check("T-056 r4: remote [old, new] pulled into local " + name + ": exactly one pre-reset Week 1 (11 Oct) and one new Week 1 (25 Oct), and a second pull changes 0",
+          old1 === 1 && new1 === 1 && r.cards.length === 2 && r.second === 0, JSON.stringify(r));
+        check("no page errors (T-056 r4 merge " + name + ")", m.errors.length === 0, m.errors.join(" | "));
+        await m.ctx.close();
+      }
+    }
+
+    // The Library's Sunday revision tiles: one per PDF, each its revision
+    // week's range and the lectures the plan as drawn puts in it (counted
+    // here from scheduledFor on an empty state, distinct lectures, pseudo
+    // blocks left out, exactly as tools/revision-pdf.js counts them).
+    const l = await scenario(browser, "2026-11-01", null);
+    const lib = await l.page.evaluate(OWNER => { const T = window.__brickfordTest;
+      const counts = OWNER.map(([a, b]) => { const k = new Set();
+        for (let d = new Date(a + "T00:00:00Z"); d.toISOString().slice(0, 10) <= b; d.setUTCDate(d.getUTCDate() + 1))
+          T.scheduledFor(d.toISOString().slice(0, 10)).forEach(it => { if (!it.pseudo) k.add(it.cid + "." + it.ui + "." + it.li); });
+        return k.size; });
+      location.hash = "#/library";
+      return counts; }, OWNER);
+    await l.page.waitForSelector("#view .lb-rev a", { timeout: 8000 });
+    const tiles = await l.page.evaluate(() => [...document.querySelectorAll("#view .lb-rev a")].map(a =>
+      [a.getAttribute("href"), a.querySelector(".pb-t").textContent, a.querySelector(".pb-d").textContent]));
+    const wantT = OWNER.map((_, i) => ["../revision/week-0" + (i + 1) + ".pdf", "Week " + (i + 1), label(i + 1).replace(/^Week \d+ · /, "") + " · " + lib[i] + " lectures"]);
+    check("T-056 r2: the Library's six Sunday revision tiles are the revision weeks, each its range and its lecture count (" + lib.join(", ") + ")",
+      JSON.stringify(tiles) === JSON.stringify(wantT) && lib.every(n => n > 0), JSON.stringify(tiles));
+    check("no page errors (T-056 r2 Library)", l.errors.length === 0, l.errors.join(" | "));
+    await l.ctx.close();
+  }
+
+  // T-062 moved day 1 to Sun 1 Nov (day 21 Sat 21 Nov). T-052: the monk-mode row. Day 1 was Fri 30 Oct 2026 and day 21 is Thu 19 Nov 2026 (T-061:
+  // the owner reset the start to 30 Oct; T-057 had 21 days from 28 Oct, before it 90 from 24 Oct),
+  // counted in calendar days (a Saturday counts); the dashboard shows the row only inside those
+  // 21 days, linking to #/monk.
+  for (const [now, want] of [["2026-10-31", null], ["2026-11-01", 1], ["2026-11-03", 3], ["2026-11-21", 21], ["2026-11-22", null]]) {
+    const probe = await scenario(browser, now, STARTED);
+    await probe.page.evaluate(() => { location.hash = "#/"; });
+    await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
+    const r = await probe.page.evaluate(() => {
+      const T = window.__brickfordTest;
+      const a = document.querySelector("#view a.monk-row");
+      return { url: T.MONK.url, row: !!a,
+        href: a ? a.getAttribute("href") : null, blank: a ? a.target === "_blank" : null,
+        head: a ? a.closest(".glist").previousElementSibling.textContent : null,
+        h: a ? Math.round(a.getBoundingClientRect().height) : null };
+    });
+    const day = await probe.page.evaluate(d => window.__brickfordTest.monkDay(d), now);
+    // T-054 changed where the row goes: #/monk in the same window (it was
+    // MONK.url in a new tab). The day, the head and the 44px are as they were.
+    const ok = day === want && (want === null
+      ? !r.row
+      : r.row && r.href === "#/monk" && r.blank === false && r.head === "Monk ModeDay " + want + " of 21" && r.h >= 44);
+    check("monk mode on " + now + ": " + (want === null ? "no row" : "day " + want + " of 21, a 44px row opening #/monk in the same window"), ok, JSON.stringify({ day, ...r }));
+    check("no page errors (monk mode " + now + ")", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // T-054: the Monk Mode page's arithmetic (loop/specs/T-054-monk-page/spec.md,
+  // with the owner's amendment of 2026-10-23: Ja'fari Tehran, prayers combined
+  // into 3). Expected values are stated here or worked out here in Node, never
+  // read from the app.
+  //
+  // The prayer table is ONE line: the method the app must ship and the Manama
+  // times it must give, within a minute. When the owner settles a method, this
+  // line and PRAYER_METHOD in app.js are the whole change.
+  const PRAYER_TABLE = { method: { fajr: 17.7, maghrib: 4.5, isha: 14, combine: true }, days: { "2026-10-22": { fajr: "04:24", dhuhr: "11:22", maghrib: "17:20" }, "2026-12-06": { fajr: "04:51", dhuhr: "11:29", maghrib: "17:04" }, "2027-01-15": { fajr: "05:07", dhuhr: "11:47", maghrib: "17:25" } } };
+  {
+    const probe = await scenario(browser, "2026-10-28", STARTED);
+    const toMin = hm => +hm.slice(0, 2) * 60 + +hm.slice(3);
+    const r = await probe.page.evaluate(days => {
+      const T = window.__brickfordTest;
+      const out = { method: T.PRAYER_METHOD, syncs: T.MONK_SYNCS, times: {} };
+      for (const d of days) out.times[d] = T.monkPrayerTimes(d);
+      return out;
+    }, Object.keys(PRAYER_TABLE.days));
+    check("PRAYER_METHOD is the table's method (" + JSON.stringify(PRAYER_TABLE.method) + ")",
+      JSON.stringify(r.method) === JSON.stringify(PRAYER_TABLE.method), JSON.stringify(r.method));
+    check("MONK_SYNCS ships false until T-053", r.syncs === false, String(r.syncs));
+    for (const [d, want] of Object.entries(PRAYER_TABLE.days)) {
+      const got = r.times[d] || {};
+      const off = Object.keys(want).map(k => [k, typeof got[k] === "number" ? Math.abs(got[k] - toMin(want[k])) : Infinity]);
+      check("prayer times, Manama, " + d + ": " + Object.entries(want).map(([k, v]) => k + " " + v).join(", ") + " within 1 minute",
+        off.every(([, m]) => m <= 1), off.map(([k, m]) => k + " off by " + (isFinite(m) ? m.toFixed(2) : "missing")).join(", "));
+    }
+
+    // The port is the reference's: loop/design/monk-mode.html's own
+    // prayerTimes, read from the file and run here, against the app's on all
+    // 90 days, to 0.01 minute. The table above allows a minute, which a date
+    // one day out stays inside (the times move under a minute a day); this
+    // does not.
+    {
+      const html = require("fs").readFileSync(path.join(path.resolve(__dirname, ".."), "loop/design/monk-mode.html"), "utf8");
+      const a = html.indexOf("  const d2r"), b = html.indexOf("  // ---------- the routine");
+      const geo = /const LAT = ([\d.]+), LNG = ([\d.]+), TZH = (\d+)/.exec(html);
+      let ref = null;
+      try { ref = a > 0 && b > a && geo ? new Function("LAT", "LNG", "TZH", html.slice(a, b) + "\nreturn prayerTimes;")(+geo[1], +geo[2], +geo[3]) : null; } catch (e) { ref = null; }
+      const span90 = range("2026-10-24", "2027-01-21");
+      const app = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkPrayerTimes(d)), span90);
+      const KEYS = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+      const worst = ref ? span90.map((d, i) => { const r0 = ref(d); return KEYS.map(k => [d + " " + k, Math.abs(app[i][k] - r0[k])]); }).flat().sort((x, y) => y[1] - x[1])[0] : null;
+      check("prayer times equal the reference's prayerTimes (loop/design/monk-mode.html) on all " + span90.length + " days, to 0.01 minute",
+        !!worst && span90.length === 90 && worst[1] < 0.01, worst ? "worst " + worst[0] + " off by " + worst[1].toFixed(4) + " min" : "could not read the reference's prayerTimes");
+    }
+
+    // Combined and separate: the slots, and the prayer blocks in the routine.
+    // 23 Oct 2026 is a Friday: no Jumu'ah, the grave visit stays.
+    const FRI = "2026-10-23";
+    const c = await probe.page.evaluate(d => {
+      const T = window.__brickfordTest, on = T.PRAYER_METHOD, off = Object.assign({}, on, { combine: false });
+      const pick = m => ({ slots: T.monkSlots(m).map(s => s.label), pt: T.monkPrayerTimes(d, m),
+        blocks: T.monkPlanFor(d, m).filter(e => e.kind === "prayer").map(e => [e.title, e.start, e.end - e.start]),
+        titles: T.monkPlanFor(d, m).map(e => e.title) });
+      return { on: pick(on), off: pick(off) };
+    }, FRI);
+    const near = (a, b) => Math.abs(a - b) < 1e-9;
+    check("combine on: 3 chips, Fajr, Dhuhr & Asr, Maghrib & Isha", c.on.slots.join("|") === "Fajr|Dhuhr & Asr|Maghrib & Isha", c.on.slots.join("|"));
+    check("combine on: 3 prayer blocks, Fajr 15 min at Fajr, Dhuhr & Asr 25 min at Dhuhr, Maghrib & Isha 25 min at Maghrib",
+      c.on.blocks.length === 3 && c.on.blocks[0][0] === "Fajr" && near(c.on.blocks[0][1], c.on.pt.fajr) && c.on.blocks[0][2] === 15 &&
+      c.on.blocks[1][0] === "Dhuhr & Asr" && near(c.on.blocks[1][1], c.on.pt.dhuhr) && c.on.blocks[1][2] === 25 &&
+      c.on.blocks[2][0] === "Maghrib & Isha" && near(c.on.blocks[2][1], c.on.pt.maghrib) && c.on.blocks[2][2] === 25, JSON.stringify(c.on.blocks));
+    check("combine off: 5 chips and 5 prayer blocks, each at its own time",
+      c.off.slots.join("|") === "Fajr|Dhuhr|Asr|Maghrib|Isha" && c.off.blocks.length === 5 &&
+      ["fajr", "dhuhr", "asr", "maghrib", "isha"].every((k, i) => near(c.off.blocks[i][1], c.off.pt[k])), JSON.stringify(c.off.blocks));
+    // The owner's routine (amendment 2026-10-23, second message), every
+    // block but the prayers, by weekday, stated here as the table was given.
+    const BASE = [[330, 10, "Journaling"], [340, 20, "Meditation"], [360, 90, "Gym"], [360, 45, "German \u2014 Easy German podcast"],
+      [450, 180, "Brickford \u2014 Deep Track"], [630, 45, "Scripting"], [720, 120, "Working \u2014 business"], [830, 10, "Post short-form"], [840, 90, "Nap"],
+      [930, 10, "German \u2014 speaking"], [940, 10, "German \u2014 writing"], [950, 70, "Working \u2014 business"], [1080, 25, "German \u2014 reading"],
+      [1105, 155, "Working \u2014 business"], [1260, 55, "Reading"], [1315, 5, "Plan tomorrow"]];
+    const ROUTINE = dw => {
+      let b = BASE.map(x => x.slice());
+      if (dw === 0 || dw === 3) b[6][2] = "Editing \u2014 stream \u2192 clips";
+      if (dw === 2 || dw === 6) b = b.filter(x => x[0] !== 1105).concat([[1140, 120, "Stream (English)"]]);
+      if (dw === 5) b.push([480, 60, "Grandmother \u2014 grave visit"]);
+      if (dw === 0) b.push([1080, 30, "Weekly review"]);
+      return b.map(x => x.join(" ")).sort();
+    };
+    const WEEK = range("2026-10-25", "2026-10-31");
+    const rt = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkPlanFor(d).filter(e => e.kind !== "prayer").map(e => [e.start, e.end - e.start, e.title].join(" ")).sort()), WEEK);
+    WEEK.forEach((d, i) => {
+      const want = ROUTINE(new Date(d + "T00:00:00Z").getUTCDay());
+      const miss = want.filter(x => !rt[i].includes(x)), extra = rt[i].filter(x => !want.includes(x));
+      check("the routine on " + d + " (" + ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(d + "T00:00:00Z").getUTCDay()] + "): " + want.length + " blocks as the owner gave them",
+        miss.length === 0 && extra.length === 0, "missing " + JSON.stringify(miss) + ", extra " + JSON.stringify(extra));
+    });
+    check("Friday " + FRI + ": no Jumu'ah block, the grave visit stays",
+      !c.on.titles.some(t => /jumu/i.test(t)) && !c.off.titles.some(t => /jumu/i.test(t)) && c.on.titles.includes("Grandmother — grave visit"), c.on.titles.join(", "));
+
+    // The day score (T-057): the owner's five priorities and nothing else —
+    // prayer on time (all 3 blocks), no sin (nosin === true), work >= 10 h,
+    // Brickford >= 3 h (the NEW key bfh; an old boolean `brickford` is not
+    // hours), German (all 4 chips). n is 5 whatever the prayer method.
+    // Each fixture says what it gets, by hand.
+    const ALL3 = { fajr: true, dhuhrAsr: true, maghribIsha: true };
+    const GER = { podcast: true, speak: true, write: true, read: true };
+    const PRI = { prayers: ALL3, nosin: true, work: 10, bfh: 3, german: GER };
+    const ALSO = { meditate: true, read: true, clean: true, plan: true, phone: 1, gym: 1, shorts: 2, video: 1, scripts: 1, stream: 1, clips: 4, book: 1, brickford: true };
+    const without = k => { const o = Object.assign({}, PRI); delete o[k]; return o; };
+    const SCORE = [
+      ["nothing logged", {}, 0],
+      ["all five priorities, every Also item undone", PRI, 5],
+      ["every Also item done, no priorities", ALSO, 0],
+      ["all five and every Also item", Object.assign({}, ALSO, PRI), 5],
+      ["brickford: true alone does not satisfy Brickford", { brickford: true }, 0],
+      ["four priorities + brickford: true instead of bfh", Object.assign(without("bfh"), { brickford: true }), 4],
+      ["bfh 3 counts", { bfh: 3 }, 1],
+      ["bfh 2.5 does not", { bfh: 2.5 }, 0],
+      ["work 10 counts", { work: 10 }, 1],
+      ["work 9.5 does not", { work: 9.5 }, 0],
+      ["nosin required: the other four, nosin missing", without("nosin"), 4],
+      ["nosin required: the other four, nosin false", Object.assign({}, PRI, { nosin: false }), 4],
+      ["nosin true alone", { nosin: true }, 1],
+      ["Fajr only is not prayer on time", { prayers: { fajr: true } }, 0],
+      ["German 3 of 4 does not count", { german: { podcast: true, speak: true, write: true } }, 0],
+      ["German as a bare true (the old shape) does not count", { german: true }, 0],
+      ["a separate-prayer key does not count when combined", { prayers: { dhuhr: true, asr: true } }, 0],
+    ];
+    const sc = await probe.page.evaluate(F => F.map(([, rec]) => window.__brickfordTest.monkScore(rec)), SCORE);
+    SCORE.forEach(([name, , done], i) => {
+      const want = { done, n: 5, pct: Math.round(100 * done / 5) };
+      check("score: " + name + " = " + done + " of 5 (" + want.pct + "%)", JSON.stringify(sc[i]) === JSON.stringify(want), JSON.stringify(sc[i]));
+    });
+    const sc5 = await probe.page.evaluate(() => { const T = window.__brickfordTest, off = Object.assign({}, T.PRAYER_METHOD, { combine: false });
+      return [T.monkScore({ prayers: { fajr: true, dhuhr: true, asr: true, maghrib: true, isha: true }, work: 10 }, off),
+        T.monkScore({ prayers: { fajr: true, dhuhr: true, asr: true, maghrib: true }, work: 10 }, off)]; });
+    check("score, combine off: all 5 prayers + work = 2 of 5; 4 of 5 prayers + work = 1 of 5",
+      JSON.stringify(sc5) === JSON.stringify([{ done: 2, n: 5, pct: 40 }, { done: 1, n: 5, pct: 20 }]), JSON.stringify(sc5));
+    const md = await probe.page.evaluate(() => ({ from: window.__brickfordTest.MONK.from, days: window.__brickfordTest.MONK.days }));
+    check("MONK is 21 days from Sun 1 Nov 2026 (T-062; T-061 had Fri 30 Oct)", md.from === "2026-11-01" && md.days === 21, JSON.stringify(md));
+
+    // Weeks run Sunday to Saturday: every day from the Sunday before day 1 to
+    // the Saturday after day 90, against getUTCDay() here.
+    const span = range("2026-10-18", "2027-01-23");
+    const ws = await probe.page.evaluate(ds => ds.map(d => window.__brickfordTest.monkWeekStart(d)), span);
+    const wsBad = span.filter((d, i) => ws[i] !== addDays(d, -new Date(d + "T00:00:00Z").getUTCDay()) || new Date(ws[i] + "T00:00:00Z").getUTCDay() !== 0);
+    check("weeks start on Sunday: " + span.length + " days, each in the week of the Sunday on or before it", wsBad.length === 0, wsBad.slice(0, 3).map(d => d + " -> " + ws[span.indexOf(d)]).join(", "));
+
+    // The weekly and monthly sums on a fixture. Wednesday 28 Oct 2026: its
+    // week is Sun 25 Oct to Sat 31 Oct, so Sat 24 Oct and Sun 1 Nov are out.
+    const DAYS = {
+      "2026-10-24": { shorts: 5, stream: 1, work: 12, gym: 1, clips: 3 },
+      "2026-10-25": { shorts: 2, work: 8.5, gym: 1, clips: 5, scripts: 1 },
+      "2026-10-28": { shorts: 1, stream: 1, work: 10, video: 1 },
+      "2026-10-31": { shorts: 3, stream: 1, book: 1, work: 11.5, gym: 1, scripts: 2 },
+      "2026-11-01": { shorts: 9, work: 9, clips: 4, stream: 1 },
+    };
+    const sums = await probe.page.evaluate(D => { const T = window.__brickfordTest;
+      return { wk: T.monkWeekSums(D, "2026-10-28"), wkSun: T.monkWeekSums(D, "2026-10-25"), wkSat: T.monkWeekSums(D, "2026-10-31"),
+        oct: T.monkMonthSums(D, "2026-10-28"), nov: T.monkMonthSums(D, "2026-11-01") }; }, DAYS);
+    const WK = { shorts: 6, stream: 2, video: 1, scripts: 3, gym: 2, book: 1, work: 30 };
+    const same = (a, b) => Object.keys(b).every(k => a && a[k] === b[k]);
+    check("this week (Sun 25 - Sat 31 Oct) from Wed 28 Oct: " + JSON.stringify(WK), same(sums.wk, WK), JSON.stringify(sums.wk));
+    check("the same week from its Sunday and from its Saturday", same(sums.wkSun, WK) && same(sums.wkSat, WK), JSON.stringify([sums.wkSun, sums.wkSat]));
+    check("this month: October streams 3, clips 8; November streams 1, clips 4",
+      same(sums.oct, { stream: 3, clips: 8 }) && same(sums.nov, { stream: 1, clips: 4 }), JSON.stringify([sums.oct, sums.nov]));
+
+    // Focus this week (T-057): the weakest of the five priorities over the 7
+    // days before today, with its fix. Today Fri 6 Nov (day 8; T-061 moved it
+    // from Wed 4 Nov with day 1): the window is 30 Oct - 5 Nov, all 7 monk days
+    // (day 1 is 30 Oct). Every Also item is undone
+    // on every day, so a gate that ranked them would pick one of those (0%).
+    // Prayers all 3 on 5 of them (71%), German on 1 (14%), the rest on all 7:
+    // German is the weakest. On the other 6 days German is 3 of its 4 chips.
+    const WIN = range("2026-11-01", "2026-11-07");  // T-062: today Sun 8 Nov, day 8
+    const FOCUS = {};
+    WIN.forEach((d, i) => {
+      FOCUS[d] = Object.assign({}, PRI, { prayers: i < 5 ? ALL3 : { fajr: true }, german: i === 0 ? GER : { podcast: true, speak: true, read: true } });
+    });
+    FOCUS["2026-10-31"] = { german: false };           // before day 1: not counted
+    const f = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-08"), FOCUS);
+    check("focus this week: German 1.5 h at 14% over 7 days, with its fix (Also items, all 0%, are not candidates)",
+      !!f && f.days === 7 && f.key === "german" && f.label === "German 1.5 h" && f.rate === 14 && /German listening/.test(f.fix || ""), JSON.stringify(f));
+    // The same week with No sin on 2 of 7 days and German on all: No sin is the weakest.
+    const FOCUS2 = {};
+    WIN.forEach((d, i) => { FOCUS2[d] = Object.assign({}, PRI, { nosin: i < 2 }); });
+    const f2 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-08"), FOCUS2);
+    check("focus this week: No sin today at 29% over 7 days, with a one-line fix",
+      !!f2 && f2.days === 7 && f2.key === "nosin" && f2.label === "No sin today" && f2.rate === 29 && typeof f2.fix === "string" && f2.fix.length > 10 && !/\n/.test(f2.fix), JSON.stringify(f2));
+    // Brickford ticked as the old boolean every day, bfh never: Brickford 3 h is the weakest, at 0%.
+    const FOCUS3 = {};
+    WIN.forEach(d => { FOCUS3[d] = Object.assign(without("bfh"), { brickford: true, bfh: d === WIN[0] ? 2.5 : undefined }); });
+    const f3 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-08"), FOCUS3);
+    check("focus this week: Brickford 3 h at 0% when only the old boolean (and 2.5 h once) was logged",
+      !!f3 && f3.key === "bfh" && f3.label === "Brickford 3 h" && f3.rate === 0 && /Deep Track/.test(f3.fix || ""), JSON.stringify(f3));
+    // The pre-start filter (T-057 review; T-061 moved today from Sat 31 Oct with day 1): today
+    // Mon 2 Nov, the window is 26 Oct - 1 Nov and only 30 Oct - 1 Nov are monk days. 26-29 Oct
+    // have every priority but German (so counted, German would be the weakest at 3 of 7, 43%);
+    // 30 Oct - 1 Nov have every priority but No sin.
+    // Counting only the monk days, German is 100% and No sin 0%.
+    const PRE = {};
+    range("2026-10-28", "2026-10-31").forEach(d => { PRE[d] = without("german"); });  // T-062: today Wed 4 Nov, window 28 Oct - 3 Nov
+    range("2026-11-01", "2026-11-03").forEach(d => { PRE[d] = without("nosin"); });
+    const f4 = await probe.page.evaluate(D => window.__brickfordTest.monkFocus(D, "2026-11-04"), PRE);
+    check("focus on Wed 4 Nov: 3 monk days (1-3 Nov), the days before day 1 not counted: No sin at 0%",
+      !!f4 && f4.days === 3 && f4.key === "nosin" && f4.rate === 0, JSON.stringify(f4));
+    // Phone under 2 h: not in the score, but it drives the Also count and the stepper's green.
+    const PH = [["phone 0", { phone: 0 }, true], ["phone 1.5", { phone: 1.5 }, true], ["phone exactly 2", { phone: 2 }, false],
+      ["phone missing", {}, false], ["phone null", { phone: null }, false]];
+    const ph = await probe.page.evaluate(F => F.map(([, rec]) => window.__brickfordTest.mkPhoneOk(rec)), PH);
+    PH.forEach(([name, , want], i) => check("phone under 2 h: " + name + " -> " + want, ph[i] === want, String(ph[i])));
+    check("no page errors (monk arithmetic)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // T-057 review: the Also count on #/monk reads the phone rule. Wed 4 Nov
+  // (day 6 since T-061; it was day 8): {phone: 0} is 1 of 5, nothing logged is 0 of 5.
+  for (const [rec, want] of [[{ phone: 0, at: "2026-11-04T09:00:00.000Z" }, "1 of 5"], [null, "0 of 5"]]) {
+    const probe = await scenario(browser, "2026-11-04", rec ? { studyDays: [], monkStart: MONK_START, monk: { days: { "2026-11-04": rec } } } : STARTED);
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view #mkAlso", { state: "attached" });
+    const got = await probe.page.evaluate(() => { const g = document.querySelector("#view #mkAlso").previousElementSibling;
+      return [g.firstChild.textContent, (g.querySelector(".gh-meta") || {}).textContent]; });
+    check("the Also count with " + (rec ? "{phone: 0}" : "nothing logged") + " reads " + want, got[0] === "Also" && got[1] === want, JSON.stringify(got));
+    check("no page errors (Also count, " + want + ")", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // T-065: Monk Mode starts when the owner presses Start, and that date is the one thing of
+  // Monk that syncs. Expected values are stated here, never read from the app.
+  //
+  // Not started: no day on any date, and the page and the dashboard offer Start in place of a
+  // day number, a score or a plan. Opening them starts nothing.
+  {
+    const probe = await scenario(browser, "2026-11-06", null);
+    const r = await probe.page.evaluate(() => { const T = window.__brickfordTest;
+      return { from: T.MONK.from, days: ["2025-01-01", "2026-10-31", "2026-11-01", "2026-11-06", "2026-11-26", "2026-11-27", "2030-01-01"].map(d => T.monkDay(d)),
+        focus: T.monkFocus({ "2026-11-05": { prayers: {} } }, "2026-11-06") }; });
+    check("T-065 not started: MONK.from is null, monkDay is null on every date, and there is no focus to compute",
+      r.from === null && r.days.every(d => d === null) && r.focus === null, JSON.stringify(r));
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view .mk-start", { state: "attached" });
+    const m = await probe.page.evaluate(() => ({ btn: [...document.querySelectorAll("#view [data-monk-start]")].map(b => b.textContent.trim()),
+      text: document.querySelector("#view").textContent, extra: document.querySelectorAll("#view .mk-head, #view #mkPri, #view #mkMap, #view [data-mk-pray], #view [data-mk-save]").length }));
+    check("T-065 not started: the Monk page is one Start Monk Mode button, with no day number, no score and no plan",
+      m.btn.length === 1 && m.btn[0] === "Start Monk Mode" && !/Day \d+ of \d+|Starts \d|days done/.test(m.text) && m.extra === 0, JSON.stringify({ btn: m.btn, extra: m.extra }));
+    await probe.page.evaluate(() => { location.hash = "#/"; });
+    await probe.page.waitForSelector("#view .dash-title", { state: "attached" });
+    const d = await probe.page.evaluate(() => { const b = [...document.querySelectorAll("#view [data-monk-start]")];
+      return { btn: b.map(x => [x.tagName, x.textContent.replace(/◐/, "").trim(), Math.round(x.getBoundingClientRect().height)]), link: !!document.querySelector("#view a.monk-row"),
+        text: document.querySelector("#view").textContent };
+    });
+    check("T-065 not started: the dashboard's Monk row is one 44px Start Monk Mode button, no day number",
+      d.btn.length === 1 && d.btn[0][0] === "BUTTON" && d.btn[0][1] === "Start Monk Mode" && d.btn[0][2] >= 44 && !d.link && !/Day \d+ of 21/.test(d.text), JSON.stringify(d.btn));
+    const stored = await probe.page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+    check("T-065 not started: opening the page and the dashboard starts nothing (no monkStart stored)", !("monkStart" in stored), Object.keys(stored).join(","));
+    check("no page errors (T-065 not started)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // Days logged before the start never count: the store keeps them, the page does not read them.
+  // Started Fri 6 Nov, with 9 short-form and 30 work hours logged on Tue 3 Nov (the old store) and 2
+  // short-form on the 6th: this week (Sun 1 - Sat 7 Nov) reads 2 / 8 and 0 / 70, not 11 and 30.
+  {
+    const probe = await scenario(browser, "2026-11-06", { monkStart: "2026-11-06", monk: { days: {
+      "2026-11-03": { shorts: 9, work: 30, at: "2026-11-03T20:00:00.000Z" }, "2026-11-06": { shorts: 2, at: "2026-11-06T09:00:00.000Z" } } } });
+    await probe.page.evaluate(() => { location.hash = "#/monk"; });
+    await probe.page.waitForSelector("#view .mk-head", { state: "attached" });
+    const r = await probe.page.evaluate(() => { const v = {};
+      for (const row of document.querySelectorAll("#view .mk-static")) { const t = row.querySelector(".g-t"), g = row.querySelector(".g-v");
+        if (t && g && /^(Short-form|Work hours)$/.test(t.textContent.trim())) v[t.textContent.trim()] = g.textContent.trim(); }
+      return { v, stored: JSON.parse(localStorage.getItem("darhikmah_v1")).monk.days["2026-11-03"] }; });
+    check("T-065 days logged before the start never count: this week reads Short-form 2 / 8 and Work hours 0 / 70, and the old day is still stored",
+      r.v["Short-form"] === "2 / 8" && r.v["Work hours"] === "0 / 70" && !!r.stored && r.stored.shorts === 9, JSON.stringify(r));
+    check("no page errors (T-065 old days)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // startMonk() writes today's date, once. The clock then moves three days: a second call changes
+  // nothing and says so, and the days count from the first date (day 21 is the 26th, the 27th is past).
+  {
+    const probe = await scenario(browser, "2026-11-06", null);
+    const read = () => probe.page.evaluate(() => { const T = window.__brickfordTest;
+      return { from: T.MONK.from, stored: JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart || null }; });
+    const a = await probe.page.evaluate(() => window.__brickfordTest.startMonk());
+    const afterFirst = await read();
+    await probe.ctx.clock.setFixedTime(new Date("2026-11-09T12:00:00Z"));
+    const b = await probe.page.evaluate(() => window.__brickfordTest.startMonk());
+    const afterSecond = await read();
+    const days = await probe.page.evaluate(() => ["2026-11-05", "2026-11-06", "2026-11-09", "2026-11-26", "2026-11-27"].map(d => window.__brickfordTest.monkDay(d)));
+    check("T-065 startMonk(): writes today's date, 2026-11-06, in memory and in storage, and returns true",
+      a === true && afterFirst.from === "2026-11-06" && afterFirst.stored === "2026-11-06", JSON.stringify({ a, ...afterFirst }));
+    check("T-065 startMonk(): a second call, three days later, changes nothing and returns false",
+      b === false && afterSecond.from === "2026-11-06" && afterSecond.stored === "2026-11-06", JSON.stringify({ b, ...afterSecond }));
+    check("T-065 the 21 days count from the start: the 5th null, the 6th day 1, the 9th day 4, the 26th day 21, the 27th null",
+      JSON.stringify(days) === JSON.stringify([null, 1, 4, 21, null]), JSON.stringify(days));
+    check("no page errors (T-065 startMonk)", probe.errors.length === 0, probe.errors.join(" | "));
+    await probe.ctx.close();
+  }
+
+  // mergeState: first write wins. One side only is taken; with both, the EARLIER date stands, in
+  // either direction; an absent, empty or non-date remote value can never clear what this device has.
+  {
+    const MS = [
+      ["both sides, this device's is earlier: kept", "2026-11-03", { monkStart: "2026-11-06" }, "2026-11-03", 0],
+      ["both sides, the remote's is earlier: taken", "2026-11-06", { monkStart: "2026-11-03" }, "2026-11-03", 1],
+      ["both sides, the same date: unchanged", "2026-11-04", { monkStart: "2026-11-04" }, "2026-11-04", 0],
+      ["remote only: taken", null, { monkStart: "2026-11-04" }, "2026-11-04", 1],
+      ["local only, the remote has no monkStart (an older device): kept", "2026-11-04", {}, "2026-11-04", 0],
+      ["local only, the remote's is empty: kept", "2026-11-04", { monkStart: "" }, "2026-11-04", 0],
+      ["local only, the remote's is null: kept", "2026-11-04", { monkStart: null }, "2026-11-04", 0],
+      ["local only, the remote's is not a date: kept", "2026-11-04", { monkStart: "soon" }, "2026-11-04", 0],
+      ["neither has one: still none", null, {}, null, 0],
+      ["remote only, and not a date: not taken", null, { monkStart: "soon" }, null, 0],
+    ];
+    for (const [name, local, rs, want, changed] of MS) {
+      const probe = await scenario(browser, "2026-11-06", local ? { monkStart: local } : null);
+      const r = await probe.page.evaluate(rs => { const T = window.__brickfordTest; const m = T.mergeState({ v: 1, state: rs }); return { from: T.MONK.from, changed: m.changed }; }, rs);
+      check("T-065 mergeState, " + name + " (" + (want || "none") + ")", r.from === want && r.changed === changed, JSON.stringify(r));
+      check("no page errors (T-065 mergeState)", probe.errors.length === 0, probe.errors.join(" | "));
+      await probe.ctx.close();
+    }
+  }
+
+  // importBackup (through the Restore control, as the owner would): a backup can add a start where
+  // there is none, and can never replace or clear one.
+  {
+    const IMP = [
+      ["this device has a start, the backup has none: kept", "2026-11-03", undefined, "2026-11-03"],
+      ["this device has a start, the backup's is later: kept", "2026-11-03", "2026-11-09", "2026-11-03"],
+      ["this device has a start, the backup's is earlier: kept, never replaced", "2026-11-03", "2026-10-01", "2026-11-03"],
+      ["this device has none, the backup has one: added", null, "2026-11-02", "2026-11-02"],
+      ["neither has one: still none", null, undefined, null],
+      ["this device has none, the backup's is not a date: still none", null, "soon", null],
+    ];
+    for (const [name, local, backup, want] of IMP) {
+      const probe = await scenario(browser, "2026-11-06", local ? { monkStart: local } : null);
+      const file = { lessons: {}, studyDays: ["2026-10-20"] };
+      if (backup !== undefined) file.monkStart = backup;
+      await probe.page.setInputFiles("#importFile", { name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+      await probe.page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").studyDays || []).includes("2026-10-20"), null, { timeout: 5000 });
+      const r = await probe.page.evaluate(() => ({ stored: JSON.parse(localStorage.getItem("darhikmah_v1")).monkStart || null, from: window.__brickfordTest.MONK.from }));
+      check("T-065 importBackup, " + name + " (" + (want || "none") + ")", r.stored === want && r.from === want, JSON.stringify(r));
+      check("no page errors (T-065 importBackup)", probe.errors.length === 0, probe.errors.join(" | "));
+      await probe.ctx.close();
+    }
+  }
+
+  // T-063: on a rest day the past must stay frozen. studyToday() is -1 on a Saturday,
+  // and windowFor re-anchored every past day to the first unfinished lesson.
+  {
+    const FRI = "2026-10-30", SAT = "2026-10-31";     // 15 plan days in, then the rest day
+    const probe = await scenario(browser, FRI, null);
+    const first = await probe.page.evaluate(([S, F]) => {
+      const T = window.__brickfordTest, out = {};
+      for (let d = new Date(S + "T00:00:00Z"); d.toISOString().slice(0, 10) <= F; d.setUTCDate(d.getUTCDate() + 1))
+        T.scheduledFor(d.toISOString().slice(0, 10)).forEach(it => { if (!it.pseudo) out[it.cid + "." + it.ui + "." + it.li] = 1; });
+      return Object.keys(out).slice(0, 8);
+    }, [START, "2026-10-19"]);
+    await probe.ctx.close();
+    const lessons = {};
+    first.forEach(k => { lessons[k] = { done: true, doneAt: "2026-10-17T10:00:00.000Z", firstDoneAt: "2026-10-17T10:00:00.000Z" }; });
+    const state = { lessons, studyDays: ["2026-10-16", "2026-10-17", "2026-10-19"] };
+    const past = range(START, FRI).filter(d => !isSat(d));
+    const read = async now => { const sc = await scenario(browser, now, state);
+      const r = await sc.page.evaluate(([days, sat]) => { const T = window.__brickfordTest; return { days: days.map(d => T.scheduledFor(d).map(it => it.pseudo ? "p:" + it.short : it.cid + "." + it.ui + "." + it.li)), sat: T.scheduledFor(sat).length }; }, [past, SAT]);
+      await sc.ctx.close(); return r; };
+    const onFri = await read(FRI), onSat = await read(SAT);
+    const diff = past.filter((d, i) => JSON.stringify(onFri.days[i]) !== JSON.stringify(onSat.days[i]));
+    check("rest day: every past day's plan equals the Friday's (past stays frozen)", diff.length === 0 && first.length > 0, diff.length + " day(s) differ, first " + diff[0]);
+    check("rest day: its own schedule is still empty", onSat.sat === 0, String(onSat.sat));
+    const pre = await scenario(browser, "2026-10-10", null), fri0 = await scenario(browser, FRI, null);
+    const a = await pre.page.evaluate(d => window.__brickfordTest.scheduledFor(d).map(it => it.cid + "." + it.ui + "." + it.li), START);
+    const b = await fri0.page.evaluate(d => window.__brickfordTest.scheduledFor(d).map(it => it.cid + "." + it.ui + "." + it.li), START);
+    await pre.ctx.close(); await fri0.ctx.close();
+    check("before the start: day 1 is the fixed plan, unchanged", a.length > 0 && JSON.stringify(a) === JSON.stringify(b), JSON.stringify(a));
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
-    await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+    await ctx.clock.setFixedTime(new Date("2026-11-01T12:00:00Z"));
     await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
     const page = await ctx.newPage();
     await page.goto(URL + "/", { waitUntil: "load" });

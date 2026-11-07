@@ -1,0 +1,40 @@
+  ok    /brickford/app/ forwards to /brickford/app-web/ — http://localhost:46147/brickford/app-web/
+  shot  loop/specs/T-064-flutter-app/shots/home.png
+  ok    tab-Home is at least 44x44 — 64x50
+  ok    tab-Market is at least 44x44 — 64x50
+  ok    tab-Community is at least 44x44 — 64x50
+  ok    tab-Profile is at least 44x44 — 64x50
+  ok    search is at least 44x44 — 64x64
+  ok    Home lists today's lectures as cards
+  shot  loop/specs/T-064-flutter-app/shots/home-scrolled.png
+  shot  loop/specs/T-064-flutter-app/shots/lesson.png
+  shot  loop/specs/T-064-flutter-app/shots/lesson-watched.png
+  ok    Mark watched writes S.lessons[k] = {done, doneAt} in the web app's shape — math120.1.1 {"done":true,"notes":"","checks":[],"doneAt":"2026-11-04"}
+  shot  loop/specs/T-064-flutter-app/shots/market.png
+  shot  loop/specs/T-064-flutter-app/shots/community.png
+  shot  loop/specs/T-064-flutter-app/shots/profile.png
+  shot  loop/specs/T-064-flutter-app/shots/search.png
+  ok    no page or console errors
+  ok    every request for the app's own files is answered
+  ok    no third-party host is asked for anything but the lecture's video
+  ok    Home's calendar button is at least 44x44 — 44x44
+  shot  loop/specs/T-064-flutter-app/shots/stage2-month.png
+  ok    the 30 day cells of 2026-11 and the month buttons (2026-11-04) are at least 44x44 — 33 ids measured
+  shot  loop/specs/T-064-flutter-app/shots/stage2-day-sheet.png
+  ok    the 3 lecture rows of 2026-11-03 are at least 44x44 — 1 ids measured
+  ok    the calendar (2026-11-04) ran without page errors
+  ok    Home's calendar button is at least 44x44 — 44x44
+  shot  loop/specs/T-064-flutter-app/shots/stage2-month-saturday.png
+  ok    the 30 day cells of 2026-11 and the month buttons (2026-11-07) are at least 44x44 — 33 ids measured
+  shot  loop/specs/T-064-flutter-app/shots/stage2-month-progress.png
+  shot  loop/specs/T-064-flutter-app/shots/stage2-rest-saturday.png
+  shot  loop/specs/T-064-flutter-app/shots/stage2-saturday-past-day.png
+  ok    the 4 lecture rows of 2026-10-27 are at least 44x44 — 1 ids measured
+  ok    the calendar (2026-11-07) ran without page errors
+  ok    the root sw.js is registered for the whole site (http://localhost:46147/brickford/) and controls /app-web/ too — scope http://localhost:46147/brickford/
+  ok    under it, /app-web/ loads and renders, with no page errors
+  ok    sw.js answers none of /app-web/'s requests (they go to the network as if it were not there) — 22 requests, 0 from the worker
+  ok    the app registers no service worker of its own — http://localhost:46147/brickford/
+  ok    platform/ still loads under the same worker afterwards — 200 (from the worker)
+
+all checks passed

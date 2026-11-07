@@ -1,0 +1,13 @@
+T-033 lecture quizzes: AI 200 9/15, AI 210 8/8, AI 300 0/16, AI 310 23/23, RES 400 1/18 — 270 checks (199 MCQ, 71 numeric); answer slots A-D AI 200 12/12/12/12, AI 210 11/12/12/12, AI 300 0/0/0/0, AI 310 25/25/24/25, RES 400 1/2/1/1; unique longest 32, unique shortest 20
+SPCH 100: 170 lessons, 46.4 h of video — A1 3.33h, A2 1.23h, A3 5.47h, A4 4.12h, A5 5.18h, A6 4.50h, A7 7.37h, A8 3.90h, B1 2.08h, B2 1.87h, B3 1.45h, B4 1.93h, B5 1.68h, B6 1.42h, B7 0.90h
+SPCH check options: answer unique longest in 91 of 513 (17.7%), unique shortest in 92 (17.9%); bound 171
+SPCH attributions: 558 names in lessons, 266 credits with sources checked
+  FAIL T-056 r2 revision tile 1 is 16–23 Oct (revised 2026-10-25), 34 lectures: got {"n":1,"from":"2026-10-16","to":"2026-10-23","sun":"2026-10-25","dates":"16–25 Oct","lectures":34}
+  FAIL T-056 r2 revision tile 2 is 25–30 Oct (revised 2026-11-01), 19 lectures: got {"n":2,"from":"2026-10-25","to":"2026-10-30","sun":"2026-11-01","dates":"25 Oct–1 Nov","lectures":19}
+  FAIL T-056 r2 revision tile 3 is 1–6 Nov (revised 2026-11-08), 15 lectures: got {"n":3,"from":"2026-11-01","to":"2026-11-06","sun":"2026-11-08","dates":"1–8 Nov","lectures":15}
+  FAIL T-056 r2 revision tile 4 is 8–13 Nov (revised 2026-11-15), 14 lectures: got {"n":4,"from":"2026-11-08","to":"2026-11-13","sun":"2026-11-15","dates":"8–15 Nov","lectures":14}
+  FAIL T-056 r2 revision tile 5 is 15–20 Nov (revised 2026-11-22), 14 lectures: got {"n":5,"from":"2026-11-15","to":"2026-11-20","sun":"2026-11-22","dates":"15–22 Nov","lectures":14}
+  FAIL T-056 r2 revision tile 6 is 22–27 Nov (revised 2026-11-29), 12 lectures: got {"n":6,"from":"2026-11-22","to":"2026-11-27","sun":"2026-11-29","dates":"22–29 Nov","lectures":12}
+
+6 of 40303 checks FAILED
+exit 1

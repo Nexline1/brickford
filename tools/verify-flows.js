@@ -47,7 +47,7 @@
 //   (o) Seal the week stores exactly what it stored before the page changed
 //       shape: { week, date, shipped, dsa, posts, revenue, notes }, those keys
 //       in that order and nothing else, in two saves, with the counted DSA and
-//       BHD equal to the fixture's (worked out here from the plan week's
+//       BHD equal to the fixture's (worked out here from the revision week's
 //       dates), the week sealed before untouched, and the chain's week event
 //       as before — at 1440 and 390 in dark and light, the payments on both
 //       edges of the week and on its Saturday; once with an empty ledger,
@@ -137,6 +137,13 @@
 // measured as it is, never retried (fail-closed). Whether the state arrived is
 // what the checks measure; their predicates are as they were.
 //
+// And, since T-065 (loop/specs/T-065-monk-start/spec.md), Monk Mode's start:
+//
+//   (ms) before it, #/monk and the dashboard offer one Start button and no day; the sheet it opens
+//       names the cost and asks for a tick; its last button must be PRESSED AND HELD 1.5 s (a click,
+//       a short hold and a slide off the button start nothing; Space or Enter held works too); then
+//       one write stores the day and both places read Day 1 of 21.
+//
 //   node tools/verify-flows.js                 # gate
 //   node tools/verify-flows.js --shots <dir>   # also write a screenshot per flow
 "use strict";
@@ -145,8 +152,8 @@ const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const { acrossReload } = require("./lib-reload");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
-// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
-const TODAY = "2026-10-20";               // a Tuesday: a study day with lectures scheduled
+// Plan day 14 (moved with reset seven, START 2026-10-16; was 2026-10-20 under START 2026-10-05, 2026-10-06 under 2026-09-21).
+const TODAY = "2026-11-01";               // a Sunday: a study day with lectures scheduled
 const WIDTHS = [390, 1280];
 const shotsAt = process.argv.indexOf("--shots");
 const SHOTS = shotsAt > 0 ? path.resolve(process.argv[shotsAt + 1]) : null;
@@ -163,7 +170,7 @@ function check(name, ok, detail) {
 // `boot` is the first hash: "/" for the flows a reader starts from Today, and
 // "/__test" for the ones that need the test hook (it is only installed when
 // the page boots on a hash carrying __test).
-async function fresh(browser, w, state, boot) {
+async function fresh(browser, w, state, boot, now) {
   const ctx = await browser.newContext({
     viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860,
   });
@@ -171,7 +178,7 @@ async function fresh(browser, w, state, boot) {
     if (/api\.github\.com/.test(r.request().url())) githubHits++;
     return r.abort();
   });
-  await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+  await ctx.clock.setFixedTime(new Date((now || TODAY) + "T12:00:00Z"));
   if (state) await ctx.addInitScript(s => { if (window.top === window) localStorage.setItem("darhikmah_v1", s); }, JSON.stringify(state));
   await ctx.addInitScript(countWrites);
   const page = await ctx.newPage();
@@ -226,8 +233,8 @@ const CUR = lessonOf(LECTURE.cid, LECTURE.ui, LECTURE.li);
 // resume flows' contexts carry lecture 13 watched with its quiz passed —
 // a quiz pass added to the fixture, nothing else. Their own lecture (14) is
 // untouched by it.
-const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
-  quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
+const PREV_PASSED = { "math110.0.12": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
+  quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 3, total: 3, attempts: 3 } } };
 const unlocked = st => Object.assign({}, st || {}, { lessons: Object.assign({}, PREV_PASSED, (st || {}).lessons || {}) });
 
 // The page going to the background, as the page sees it: visibilityState,
@@ -357,15 +364,25 @@ const sheetState = page => page.evaluate(() => {
 });
 const sheetGone = page => page.waitForFunction(() => !document.querySelector("dialog.sheet"), null, { timeout: 4000 }).then(() => true, () => false);
 
-// Watched lectures unlock quiz questions, so flow (b) starts with some watched.
+// Watched lectures unlock quiz questions, so flow (b) starts with some watched,
+// the day before the quiz gate (QUIZ_GATE_FROM, read from app.js): watched
+// before it shipped, as they were when this fixture was written (T-056).
+const GATE = /const QUIZ_GATE_FROM = "(\d{4}-\d\d-\d\d)"/.exec(fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/js/app.js"), "utf8"))[1];
+const BEFORE_GATE = (d => { d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); })(new Date(GATE + "T00:00:00Z"));
 const WATCHED = {};
-for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: "2026-10-15", notes: "", checks: [] };
+for (let i = 0; i < 16; i++) WATCHED["math110.0." + i] = { done: true, doneAt: BEFORE_GATE, notes: "", checks: [] };
 
 
-// ---- T-026c: the plan week the pinned clock is in, walked here ----
-// Study days from START_DATE (curriculum.js), Saturdays skipped; week w is
-// study days (w-1)*6 .. w*6-1. The Seal flow's expected numbers are worked out
-// from its own fixture and these dates, never read from the page.
+// ---- T-026c: the week the pinned clock seals, walked here ----
+// T-056 r2 (owner, "Keep Sunday"): the Week page seals the REVISION week, not
+// the plan week. Revision Sundays are every Sunday from the first one with a
+// study week behind it (Sun 25 Oct since reset seven); the week a date answers
+// to is the first revision Sunday on or after it, and runs from the Sunday
+// before (week 1: START_DATE) to the day before its own Sunday, so its Saturday
+// is in it. On Sun 1 Nov that is week 2, 25-31 Oct (study days 25-30 Oct) —
+// plan week 3 (Fri 30 Oct - Thu 5 Nov) is two days in and must not be sealed.
+// The Seal flow's expected numbers are worked out from its own fixture and
+// these dates, never read from the page.
 const T26C_WEEK = (() => {
   const vm = require("vm");
   const sandbox = { window: {} };
@@ -375,29 +392,39 @@ const T26C_WEEK = (() => {
   const study = [];
   for (const d = new Date(sandbox.window.DAR.START_DATE + "T00:00:00Z"); study.length < 400; d.setUTCDate(d.getUTCDate() + 1))
     if (d.getUTCDay() !== 6) study.push(d.toISOString().slice(0, 10));
-  let pos = 0;
-  for (let i = 0; i < study.length && study[i] <= TODAY; i++) pos = i;
-  const w = Math.floor(pos / 6) + 1;
-  return { w, from: study[(w - 1) * 6], to: study[w * 6 - 1] };
+  const start = sandbox.window.DAR.START_DATE, sundays = [];
+  for (const d = new Date(start + "T00:00:00Z"); sundays.length < 60; d.setUTCDate(d.getUTCDate() + 1)) {
+    const iso = d.toISOString().slice(0, 10);
+    if (d.getUTCDay() === 0 && study.some(x => x < iso)) sundays.push(iso);   // a Sunday with study days behind it
+  }
+  // The first such Sunday may still be inside the first week (a Friday start
+  // has one study day before Sun 18 Oct): the first revision Sunday is the
+  // first one with a full Sun-Fri week behind it, week 1 taking what precedes.
+  const firstRev = sundays.find(s => { const d = new Date(s + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - 7); return d.toISOString().slice(0, 10) >= start; });
+  const revs = sundays.filter(s => s >= firstRev);
+  const k = revs.findIndex(s => s >= TODAY), sun = revs[k];
+  const back = n => { const d = new Date(sun + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
+  return { w: k + 1, from: k === 0 ? start : back(7), to: back(1), sun };
 })();
 // Two problems solved, a lecture proven this week, a week already sealed —
 // which a seal must leave exactly as it was — and payments on both edges of
-// the plan week and its rest day: the Sunday that ends the week before and
-// the Monday after (neither counts), its Monday, a weekday, its Saturday and
-// its Sunday (all four count).
+// the week and its rest day: the Saturday that ends the week before and the
+// Sunday it is sealed on, which starts the week after (neither counts), its
+// Sunday, a weekday, its Saturday and its Friday (all four count). T-056 r2:
+// the week sealed on Sun 1 Nov is revision week 2, Sun 25 - Sat 31 Oct.
 const T26C_SEAL_STATE = (theme, entries) => ({
   settings: { theme, themeNavyOnce: true },
-  problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-17", "Arrays & Hashing|Valid Anagram": "2026-10-19" },
-  lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-19", verifiedAt: "2026-10-19", notes: "", checks: [] } },
+  problems: { "Arrays & Hashing|Contains Duplicate": "2026-10-24", "Arrays & Hashing|Valid Anagram": "2026-10-30" },
+  lessons: { "math110.0.13": { done: true, verified: true, doneAt: "2026-10-30", verifiedAt: "2026-10-30", notes: "", checks: [] } },
   treasury: { offer: "", clients: [], niche: "", entries: entries || [
-    { date: "2026-10-18", amount: 999, note: "the last day of the week before" },
-    { date: "2026-10-19", amount: 120, note: "pilot" },
-    { date: "2026-10-20", amount: 30.5, note: "a referral" },
-    { date: "2026-10-24", amount: 7, note: "the rest day" },
-    { date: "2026-10-25", amount: 2.25, note: "the last day of the week" },
-    { date: "2026-10-26", amount: 500, note: "the first day of the week after" },
+    { date: "2026-10-24", amount: 999, note: "the last day of the week before" },
+    { date: "2026-10-25", amount: 120, note: "pilot" },
+    { date: "2026-10-28", amount: 30.5, note: "a referral" },
+    { date: "2026-10-31", amount: 7, note: "the rest day" },
+    { date: "2026-10-30", amount: 2.25, note: "the last study day of the week" },
+    { date: "2026-11-01", amount: 500, note: "the first day of the week after" },
   ] },
-  weeks: [{ week: 1, date: "2026-10-11", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
+  weeks: [{ week: 1, date: "2026-10-25", shipped: "flashcards-cli", dsa: 4, posts: 1, revenue: 120, notes: "the router broke twice" }],
 });
 const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T26C_WEEK.from && e.date <= T26C_WEEK.to)
   .reduce((a, e) => a + e.amount, 0) * 100) / 100;
@@ -483,8 +510,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // answered wrong, the rest right; the answers are read from the summary's
     // own checks (window.DAR), by the bank index the card carries.
     {
-      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
-        quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
+      const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
       const { ctx, page, errors } = await fresh(browser, w, { lessons: PREV }, "/__test");
       await go(page, "/");
       const before = await todayCount(page);
@@ -736,7 +763,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // seeked there (iOS, on an ordinary open). Left at that moment, the
     // lecture must keep the point it was opened at.
     {
-      const T10 = "2026-10-20T10:00:00.000Z";
+      const T10 = "2026-11-01T10:00:00.000Z";
       const seeded = { lessons: { [LK]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 } } };
       const { ctx, page, errors } = await fresh(browser, w, unlocked(seeded), "/__test");
       await go(page, LROUTE);
@@ -1071,8 +1098,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   };
   for (const theme of ["dark", "light"]) for (const w of [1440, 390]) await sealFlow(theme, w);
   await sealFlow("dark", 390, [], 75.5);
-  await sealFlow("dark", 390, [{ date: "2026-10-18", amount: 999, note: "the last day of the week before" },
-                              { date: "2026-10-26", amount: 500, note: "the first day of the week after" }]);
+  await sealFlow("dark", 390, [{ date: "2026-10-24", amount: 999, note: "the last day of the week before" },
+                              { date: "2026-11-01", amount: 500, note: "the first day of the week after" }]);
 
   // ---- (p) record yourself, and (q) no microphone (T-028) ----
   // A second Chromium, launched with a fake microphone: --use-fake-ui-for-
@@ -1893,9 +1920,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // render — the quiz card on screen is the same element, still on the miss.
   console.log("\nrewatch from a miss (once, 1280px)");
   {
-    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-16", notes: "", checks: [],
-        quiz: { passedAt: "2026-10-16", at: "2026-10-16T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
-      "math120.1.0": { done: true, doneAt: "2026-10-20", notes: "", checks: [] } } };
+    const st = { lessons: { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
+        quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } },
+      "math120.1.0": { done: true, doneAt: "2026-11-01", notes: "", checks: [] } } };
     const { ctx, page, errors } = await fresh(browser, 1280, st, "/__test");
     await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.forEach(q => { q.at = 95; }));
     await go(page, "/lesson/math120/1/0");
@@ -1925,7 +1952,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // a stub GitHub, both inside this context; the pull is the one boot() makes.
   console.log("\nsync (once)");
   {
-    const T9 = "2026-10-20T09:00:00.000Z", T10 = "2026-10-20T10:00:00.000Z", T11 = "2026-10-20T11:00:00.000Z";
+    const T9 = "2026-11-01T09:00:00.000Z", T10 = "2026-11-01T10:00:00.000Z", T11 = "2026-11-01T11:00:00.000Z";
     const A = "math110.0.13", B = "math110.0.14", C = "math110.0.15";
     const local = { lessons: {
       [A]: { done: false, notes: "", checks: [], pos: 754, posAt: T10 },   // theirs is newer, and further along
@@ -2138,6 +2165,225 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- T-054: Monk Mode, #/monk (loop/specs/T-054-monk-page/spec.md) ----
+  // At 390 and 1280, on Fri 30 Oct 2026 (day 1 of 21 since T-061 moved day 1 to 30 Oct; T-057 had it on Wed 28 Oct, day 5 of 90 before that), nothing stored:
+  //   opening the page writes nothing (twice, and after a repaint);
+  //   a prayer chip, No sin (a toggle), a German chip, the work and Brickford-hours steppers and a new loop each write exactly
+  //   once, on the press, and the page shows it; the four seed loops are
+  //   on screen before anything is stored, and stored with the first loop;
+  //   saving tomorrow's plan writes once, ticks today's "Plan tomorrow", and
+  //   with the clock moved to Sat 31 Oct (day 2) is that day's Top 3.
+  const MK_DAY = "2026-11-01", MK_NEXT = "2026-11-02";  // T-062: day 1 is Sun 1 Nov, day 2 Mon 2 Nov (was 30/31 Oct)
+  const SEED_LOOPS = ["Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop",
+    "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
+    "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];
+  for (const w of WIDTHS) {
+    console.log("\nT-054 Monk Mode at " + w + "px:");
+    const { ctx, page, errors } = await fresh(browser, w, { monkStart: MK_DAY }, "/", MK_DAY);   // T-065: the start is state now; this one pins day 1 = 1 Nov
+    const monk = () => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monk || null);
+    const w0 = await writes(page);
+    await go(page, "/monk");
+    await go(page, "/");
+    await go(page, "/monk");
+    const w1 = await writes(page);
+    const first = await page.evaluate(() => ({
+      head: ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim(),
+      loops: [...document.querySelectorAll("#view [data-mk-loop] .g-t")].map(n => n.textContent.trim()),
+      chips: [...document.querySelectorAll("#view [data-mk-pray]")].map(b => b.dataset.mkPray) }));
+    check("(m) opening #/monk writes nothing (" + w0 + " -> " + w1 + ", opened twice)", w1 === w0 && !(await monk()));
+    check("(m) the page is day 1 of 21 with 3 prayer chips and the 4 seed loops, before anything is stored",
+      first.head === "Day 1 of 21" && first.chips.join() === "fajr,dhuhrAsr,maghribIsha" && JSON.stringify(first.loops) === JSON.stringify(SEED_LOOPS), JSON.stringify(first));
+    const once = async (sel, name, ok) => {
+      const before = await writes(page);
+      await markView(page);
+      await page.click(sel);
+      await viewReplaced(page);
+      const after = await writes(page), m = await monk();
+      const pressed = await page.evaluate(s => { const b = document.querySelector(s); return b ? b.getAttribute("aria-pressed") : null; }, sel);
+      check("(m) " + name + ": exactly one write, on the press, and the page shows it", after - before === 1 && !!m && ok(m, pressed), (after - before) + " write(s); " + JSON.stringify(m && m.days && m.days[MK_DAY]) + "; aria-pressed " + pressed);
+    };
+    const isISO = v => typeof v === "string" && !isNaN(Date.parse(v)) && /T/.test(v);
+    await once("#view [data-mk-pray=fajr]", "the Fajr chip", (m, p) => m.days[MK_DAY].prayers.fajr === true && isISO(m.days[MK_DAY].at) && p === "true");
+    // T-057: the Brickford habit toggle became the bfh hours stepper; No sin is the toggle pressed here.
+    await once("#view [data-mk-habit=nosin]", "the No sin toggle", (m, p) => m.days[MK_DAY].nosin === true && m.days[MK_DAY].prayers.fajr === true && p === "true");
+    await once("#view [data-mk-german=podcast]", "the German podcast chip", (m, p) => JSON.stringify(m.days[MK_DAY].german) === JSON.stringify({ podcast: true }) && m.days[MK_DAY].nosin === true && p === "true");
+    await once("#view [data-mk-num=work][data-d='0.5']", "the work-hours stepper (+0.5)", m => m.days[MK_DAY].work === 0.5);
+    const outText = await page.evaluate(() => ((document.querySelector("#view [data-mk-out=work]") || {}).textContent || "").trim());
+    check("(m) the stepper reads 0.5 / 10", outText === "0.5 / 10", outText);
+    await once("#view [data-mk-num=bfh][data-d='0.5']", "the Brickford-hours stepper (+0.5), under bfh, no boolean brickford written", m => m.days[MK_DAY].bfh === 0.5 && !("brickford" in m.days[MK_DAY]) && m.days[MK_DAY].work === 0.5);
+    const bfhText = await page.evaluate(() => ((document.querySelector("#view [data-mk-out=bfh]") || {}).textContent || "").trim());
+    check("(m) the Brickford stepper reads 0.5 / 3", bfhText === "0.5 / 3", bfhText);
+    // A new loop: the first write to loops stores the four seeds with it.
+    {
+      const before = await writes(page);
+      await page.fill("#mkLoopNew", "Reply to the venue");
+      await markView(page);
+      await page.click("#view [data-mk-add]");
+      await viewReplaced(page);
+      const m = await monk(), after = await writes(page);
+      const texts = m && m.loops ? Object.values(m.loops).map(l => l.text) : [];
+      check("(m) adding a loop: one write, the four seeds stored first, then the new one",
+        after - before === 1 && texts.length === 5 && SEED_LOOPS.every(t => texts.includes(t)) && texts.includes("Reply to the venue") &&
+        Object.values(m.loops).every(l => isISO(l.at) && l.done === false), (after - before) + " write(s); " + JSON.stringify(texts));
+    }
+    // Tomorrow's plan.
+    {
+      await page.fill("#mkPlanBusiness", "Call two venues");
+      await page.fill("#mkPlanContent", "Script the Bahrain video");
+      await page.fill("#mkPlanEducation", "MATH 120 lecture 4");
+      const before = await writes(page);
+      await markView(page);
+      await page.click("#view [data-mk-save]");
+      await viewReplaced(page);
+      const m = await monk(), after = await writes(page);
+      const plan = m && m.plans && m.plans[MK_NEXT];
+      check("(m) saving tomorrow's plan: one write, the three fields under " + MK_NEXT + ", and today's Plan tomorrow ticked",
+        after - before === 1 && !!plan && plan.business === "Call two venues" && plan.content === "Script the Bahrain video" && plan.education === "MATH 120 lecture 4" &&
+        isISO(plan.at) && m.days[MK_DAY].plan === true, (after - before) + " write(s); " + JSON.stringify(plan));
+      const top = await page.evaluate(() => [...document.querySelectorAll("#view #mkTop3 .g-t")].map(n => n.textContent.trim()));
+      check("(m) today's Top 3 is still today's (the defaults), not tomorrow's", top.length === 3 && !top.includes("Call two venues"), JSON.stringify(top));
+      await ctx.clock.setFixedTime(new Date(MK_NEXT + "T12:00:00Z"));
+      await go(page, "/");
+      const w2 = await writes(page);
+      await go(page, "/monk");
+      const top2 = await page.evaluate(() => [...document.querySelectorAll("#view #mkTop3 .g-t")].map(n => n.textContent.trim()));
+      const head2 = await page.evaluate(() => ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim());
+      check("(m) the clock moved to " + MK_NEXT + ": day 2, and the Top 3 is the plan saved last night, with no write",
+        head2 === "Day 2 of 21" && JSON.stringify(top2) === JSON.stringify(["Call two venues", "Script the Bahrain video", "MATH 120 lecture 4"]) && (await writes(page)) === w2,
+        head2 + " " + JSON.stringify(top2));
+    }
+    await shot(page, "monk-" + w);
+    check("(m) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // ---- T-065: Start Monk Mode, one press-and-hold (loop/specs/T-065-monk-start/spec.md) ----
+  // Nothing stored, on Fri 6 Nov 2026 (any day will do: the day it is pressed is day 1), at 390 and 1280:
+  // the page and the dashboard offer Start and no day; the sheet says what it costs; its last button is
+  // dead until the box is ticked; a click, a short hold, a hold that slides off the button and a hold
+  // with the box unticked each start nothing; ticking and holding 1.5 s starts it with one write, and
+  // then the page and the dashboard read Day 1 of 21 with Start gone. At 1280 once more by keyboard.
+  const ST_DAY = "2026-11-06";
+  const startSheet = page => page.evaluate(() => { const d = document.querySelector("dialog.sheet");
+    if (!d || !d.open) return null;
+    const h = d.querySelector("[data-monk-hold]"), a = d.querySelector("[data-monk-ack]"), r = h.getBoundingClientRect();
+    return { lede: d.querySelector(".sheet-lede").textContent.trim(), ack: d.querySelector(".check-label").textContent.trim(), hold: h.textContent.trim(),
+      disabled: h.disabled, checked: a.checked, w: r.width, h: r.height }; });
+  const monkStored = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart || null);
+  const holdCentre = async page => { const b = await page.locator("[data-monk-hold]").boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
+  const monkHead = page => page.evaluate(() => ((document.querySelector("#view .mk-head .one-kind") || {}).textContent || "").trim());
+  for (const w of WIDTHS) {
+    console.log("\nT-065 Start Monk Mode at " + w + "px:");
+    const { ctx, page, errors } = await fresh(browser, w, null, "/", ST_DAY);
+    const w0 = await writes(page);
+    await go(page, "/monk");
+    const pg = await page.evaluate(() => { const b = [...document.querySelectorAll("#view [data-monk-start]")], r = b[0] ? b[0].getBoundingClientRect() : null;
+      return { n: b.length, t: b[0] ? b[0].textContent.trim() : "", w: r ? r.width : 0, h: r ? r.height : 0, day: /Day \d+ of \d+/.test(document.querySelector("#view").textContent) }; });
+    check("(ms) the Monk page offers one Start Monk Mode button, at least 44x44, and no day number", pg.n === 1 && pg.t === "Start Monk Mode" && pg.w >= 44 && pg.h >= 44 && !pg.day, JSON.stringify(pg));
+    await go(page, "/");
+    const dr = await page.evaluate(() => { const b = [...document.querySelectorAll("#view [data-monk-start]")];
+      return { n: b.length, t: b[0] ? b[0].textContent.replace(/◐/, "").trim() : "", h: b[0] ? b[0].getBoundingClientRect().height : 0, day: /Day \d+ of 21/.test(document.querySelector("#view").textContent) }; });
+    check("(ms) the dashboard's Monk row is one Start Monk Mode button, at least 44 high, and no day number", dr.n === 1 && dr.t === "Start Monk Mode" && dr.h >= 44 && !dr.day, JSON.stringify(dr));
+    check("(ms) looking at both wrote nothing and started nothing", (await writes(page)) === w0 && (await monkStored(page)) === null, (await writes(page)) + " writes");
+
+    // The dashboard's row opens the sheet; Cancel and Escape close it and store nothing.
+    await page.click("#view button.monk-row");
+    await page.waitForSelector("dialog.sheet[open]");
+    const s0 = await startSheet(page);
+    check("(ms) the sheet says \"21 days. Day 1 is today (Fri 6 Nov). This can't be undone or reset.\", asks \"I understand it can't be reset\", and its last button reads Hold to start, dead and at least 44x44",
+      !!s0 && /^21 days\. Day 1 is today \(Fri,? 6 Nov\)\. This can't be undone or reset\.$/.test(s0.lede) && s0.ack === "I understand it can't be reset" && s0.hold === "Hold to start" &&
+      s0.disabled === true && s0.checked === false && s0.w >= 44 && s0.h >= 44, JSON.stringify(s0));
+    await page.click("dialog.sheet [data-sheet-cancel]");
+    check("(ms) Cancel closes the sheet and starts nothing", !(await startSheet(page)) && (await monkStored(page)) === null && (await writes(page)) === w0);
+    await page.click("#view button.monk-row");
+    await page.waitForSelector("dialog.sheet[open]");
+    await page.keyboard.press("Escape");
+    check("(ms) Escape closes the sheet and starts nothing", !(await startSheet(page)) && (await monkStored(page)) === null && (await writes(page)) === w0);
+
+    await go(page, "/monk");
+    await page.click("#view [data-monk-start]");
+    await page.waitForSelector("dialog.sheet[open]");
+    await shot(page, "monk-start-sheet-" + w);
+    // The box unticked: the button is dead, and holding it does nothing.
+    let c = await holdCentre(page);
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await page.waitForTimeout(1700);
+    await page.mouse.up();
+    check("(ms) with the box unticked, holding the button 1.7 s starts nothing", (await monkStored(page)) === null);
+    await page.click("dialog.sheet .check-row");
+    const s1 = await startSheet(page);
+    check("(ms) ticking the box enables the button", !!s1 && s1.checked === true && s1.disabled === false, JSON.stringify(s1));
+    // Ticked: none of these may start it. Each waits past the 1.5 s it would have needed.
+    await page.click("[data-monk-hold]");
+    await page.waitForTimeout(1700);
+    check("(ms) a single click on the final button does NOT start it (1.7 s later: nothing stored, sheet still open)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await page.waitForTimeout(700);
+    await page.mouse.up();
+    await page.waitForTimeout(1000);
+    check("(ms) a 0.7 s hold, let go, does not start it (1.7 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    await page.mouse.down();
+    await page.waitForTimeout(300);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(1500);
+    await page.mouse.move(c.x, c.y);   // back on the button before letting go: a release on the dimmed page would dismiss the sheet, which is not what this measures
+    await page.mouse.up();
+    check("(ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)", (await monkStored(page)) === null && !!(await startSheet(page)));
+    // The real one. (If an earlier press already started it or closed the sheet, say so and stop here
+    // rather than fail on a missing button: a harness error would hide which check caught it.)
+    if (!(await startSheet(page))) {
+      check(false, "(ms) the sheet is still open for the real hold (an earlier press started it or closed it)");
+      await ctx.close();
+      continue;
+    }
+    const before = await writes(page);
+    c = await holdCentre(page);
+    await page.mouse.move(c.x, c.y);
+    const t0 = Date.now();
+    await page.mouse.down();
+    await page.waitForFunction(() => !!JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart, null, { timeout: 6000 });
+    const held = Date.now() - t0;
+    await page.mouse.up();
+    await page.waitForFunction(() => !document.querySelector("dialog.sheet") && !!document.querySelector("#view .mk-head"), null, { timeout: 4000 });
+    check("(ms) ticked and held, it starts after about 1.5 s (" + held + " ms), stores " + ST_DAY + " in one write, and the sheet closes",
+      held >= 1400 && held < 4500 && (await monkStored(page)) === ST_DAY && (await writes(page)) - before === 1, held + " ms; " + ((await writes(page)) - before) + " write(s); " + (await monkStored(page)));
+    check("(ms) the page then reads Day 1 of 21, with no Start button left", (await monkHead(page)) === "Day 1 of 21" && (await page.evaluate(() => document.querySelectorAll("[data-monk-start]").length)) === 0, await monkHead(page));
+    await shot(page, "monk-started-" + w);
+    await go(page, "/");
+    const dd = await page.evaluate(() => { const a = document.querySelector("#view a.monk-row"); return { head: a ? a.closest(".glist").previousElementSibling.textContent : null, start: document.querySelectorAll("[data-monk-start]").length }; });
+    check("(ms) the dashboard row then reads Monk ModeDay 1 of 21, with no Start button left", dd.head === "Monk ModeDay 1 of 21" && dd.start === 0, JSON.stringify(dd));
+    check("(ms) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  {
+    console.log("\nT-065 Start Monk Mode by keyboard at 1280px:");
+    const { ctx, page, errors } = await fresh(browser, 1280, null, "/", ST_DAY);
+    await go(page, "/monk");
+    await page.focus("#view [data-monk-start]");
+    await page.keyboard.press("Enter");
+    await page.waitForSelector("dialog.sheet[open]");
+    await page.focus("[data-monk-ack]");
+    await page.keyboard.press("Space");
+    await page.focus("[data-monk-hold]");
+    await page.keyboard.down("Enter");
+    await page.waitForTimeout(600);
+    await page.keyboard.up("Enter");
+    await page.waitForTimeout(1000);
+    check("(ms) by keyboard: the box ticked with Space, then Enter held 0.6 s and released starts nothing", (await monkStored(page)) === null && !!(await startSheet(page)), String(await monkStored(page)));
+    const t0 = Date.now();
+    await page.keyboard.down("Space");
+    await page.waitForFunction(() => !!JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").monkStart, null, { timeout: 6000 });
+    const held = Date.now() - t0;
+    await page.keyboard.up("Space");
+    await page.waitForFunction(() => !document.querySelector("dialog.sheet") && !!document.querySelector("#view .mk-head"), null, { timeout: 4000 });
+    check("(ms) by keyboard: Space held starts it after about 1.5 s (" + held + " ms), and the page reads Day 1 of 21",
+      held >= 1400 && held < 4500 && (await monkStored(page)) === ST_DAY && (await monkHead(page)) === "Day 1 of 21", held + " ms; " + (await monkHead(page)));
+    check("(ms) no page errors (keyboard)", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -2145,7 +2391,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     ? "PASS — " + checks + " checks: 9 flows (open, answer, mark watched, resume, render-is-a-read, under-a-second, the player's own frame, a lab ticked on Problems, a gate passed and unmarked through its confirm sheet) x " +
       WIDTHS.length + " widths, each in a fresh context; the resume point's sync merge, an unmarked gate that survives a pull of the pass (both devices), a slow phone's late player, and the tab bar's slide, tap and scroll memory once, and the answer slot uniform across all multiple-choice mounts, every question graded by the option rather than the slot; " +
       "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
-      "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028)"
+      "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028); " +
+      "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054); " +
+      "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

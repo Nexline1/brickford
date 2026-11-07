@@ -1,0 +1,25 @@
+T-064 stage 2 (+ brand, + boot): gate results, 5 Nov 2026 (branch loop/T-064-flutter-2, base main e8cd89d)
+
+platform/, sw.js, CLAUDE.md, loop/config.md and progress/ have no diff against e8cd89d.
+
+  verify-content     pass
+  verify-logic       pass, 189 invariants
+  verify-sync-loop   pass
+  verify-shell       pass
+  verify-contrast    pass
+  verify-flows       1 of 328 failed, and the failing check changes between runs: (p) chain-whole on the first run,
+                     (j) Ctrl-touch on the rerun (check-flows*.txt). Main e8cd89d fails both (p) and (j) in one run
+                     (base-e8cd89d-flows.txt), so this is pre-existing flakiness, not this branch.
+  verify-app         pass, 36 checks: freshness, plan + 7 fixtures, the calendar block (14 fixture x clock runs over
+                     2026-10-01..2026-12-31, Sat 7 Nov and Thu 5 Nov clocks), plants rest-dow, stale-json and
+                     rest-status each exit 1 (plant-rest-status.txt: all 14 calendar runs catch it)
+  verify-boot        pass (verify-boot.txt)
+  shoot-app          pass (shoot-app.txt)
+  flutter analyze / flutter test   clean / 18 passed
+
+Known pre-existing failures, run on this branch and on a detached checkout of main e8cd89d in the same container:
+  verify-offline   FAIL 1/53   (Inter FontFace "unloaded" offline)     identical on main
+  verify-design    FAIL 1/2656 (Inter FontFace "unloaded" at 390px)    identical on main
+  verify-density   FAIL 3 new, 4 stale                                  identical on main
+  verify-clip      FAIL 0 new, 1 stale                                  identical verdict and findings on main
+                   (element count 142512 vs 142494; the stale entry is the same)

@@ -1,0 +1,26 @@
+
+BELOW THRESHOLD — 21 case(s)
+  light    a.active                            3.41 < 4.5  15px  /@390                     fg rgb(0, 122, 255) on rgb(224, 238, 252)  "Dashboard"
+  light    a.btn.ghost                         3.44 < 4.5  15px  /course/cs150@390         fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Concept examination"
+  light    button#numGo.btn.ghost              3.44 < 4.5  15px  /lesson/math110/0/13@390  fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Submit"
+  light    button.btn.ghost                    3.44 < 4.5  15px  /lesson/math110/0/13@390  fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Unmark watched"
+  light    span.btn.ghost.pd-go                3.44 < 4.5  15px  /workshop@390             fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Take it"
+  light    a.btn.ghost.tiny                    3.44 < 4.5  12px  /workshop@390             fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Open ↗"
+  light    button#quitBtn.btn.ghost            3.44 < 4.5  15px  /quiz/linear-algebra@390  fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Leave examination"
+  light    button.btn.tiny.ghost               3.44 < 4.5  12px  /monk@390                 fg rgb(0, 122, 255) on rgb(224, 239, 255)  "Add"
+  light    span.dnum                           3.54 < 4.5  11.5px  /calendar@390             fg rgb(0, 122, 255) on rgb(230, 242, 255)  "29"
+  light    a.at-concepts                       3.6 < 4.5  15px  /atlas@390                fg rgb(0, 122, 255) on rgb(242, 242, 247)  "Concept map →"
+  light    div.kicker                          3.6 < 4.5  12px  /course/math110@390       fg rgb(0, 122, 255) on rgb(242, 242, 247)  "MATH 110 · Mathematics"
+  light    a                                   3.6 < 4.5  12px  /lesson/math110/0/13@390  fg rgb(0, 122, 255) on rgb(242, 242, 247)  "MATH 110"
+  light    summary                             3.6 < 4.5  15px  /lesson/math110/0/13@390  fg rgb(0, 122, 255) on rgb(242, 242, 247)  "Read the 6 steps"
+  light    b                                   3.6 < 4.5  16.8px  /concept/la-eigen@390     fg rgb(0, 122, 255) on rgb(242, 242, 247)  "19.7°"
+  light    div.pill.gold                       3.6 < 4.5  12px  /quiz/linear-algebra@390  fg rgb(0, 122, 255) on rgb(242, 242, 247)  "MATH 110 · Question 1 of 3"
+  light    span                                3.6 < 4.5  12px  /calendar@390             fg rgb(0, 122, 255) on rgb(242, 242, 247)  "◆ Gate"
+  light    div.beat-n.mono                     3.62 < 4.5  10.9px  /lesson/math110/0/13@390  fg rgb(0, 122, 255) on rgb(235, 244, 255)  "1"
+  light    span.mnum                           3.62 < 4.5  11.2px  /method@390               fg rgb(0, 122, 255) on rgb(235, 244, 255)  "1"
+  light    li.rt-pin                           4.02 < 4.5  13px  /atlas@390                fg rgb(0, 122, 255) on rgb(255, 255, 255)  "You are here · day 12"
+  light    button.btn.ghost.lq-rewatch         4.02 < 4.5  15px  /lesson/math110/0/13@390  fg rgb(0, 122, 255) on rgb(255, 255, 255)  "Rewatch"
+  light    strong                              4.02 < 4.5  15px  /transcript@390           fg rgb(0, 122, 255) on rgb(255, 255, 255)  "MATH 110"
+
+21 contrast problem(s) across 128 page-renders
+exit 1

@@ -1,0 +1,12 @@
+plant (a) a write during render -> verify-flows exit 1 (16 FAIL lines)
+  FAIL  (m) opening #/monk writes nothing (0 -> 2, opened twice)
+  FAIL  (m) the Fajr chip: exactly one write, on the press, and the page shows it — 2 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z"}; aria-pressed true
+  FAIL  (m) the Brickford habit: exactly one write, on the press, and the page shows it — 2 write(s); {"prayers":{"fajr":true},"at":"2026-10-28T12:00:00.000Z","brickford":true}; aria-pressed true
+plant (b) monk in the push while MONK_SYNCS is false -> verify-sync-loop exit 1 (2 FAIL lines)
+  FAIL  (m3) the push's state has no monk key — lessons,problems,quizAttempts,quizMisses,diag,gates,studyDays,weeks,labs,psets,electives,treasury,review,concepts,anchors,reps,settings,monk
+  FAIL  (m3) and none of the monk text anywhere in it ("MONK-PRIVATE-7f3a", "remote loop")
+plant (c) an off-by-one in prayerTimes -> verify-logic exit 0 (0 FAIL lines)
+plant (d) Monk rows that do not wrap at 320px / a 24px root -> verify-design exit 1 (4 FAIL lines)
+  FAIL  T-054 320px root 16, day 7 with a day logged: nothing wider than the window, no text outside a box that clips it (Full day open) —  span.g-v "until 14:00" outside div#mkNow.glist; span.g-v "
+  FAIL  T-054 320px root 24, day 7 with a day logged: nothing wider than the window, no text outside a box that clips it (Full day open) —  span.g-v "until 14:00" outside div#mkNow.glist; span.g-v "
+  FAIL  T-054 390px root 24, day 7 with a day logged: nothing wider than the window, no text outside a box that clips it (Full day open) —  span.g-v "until 14:00" outside div#mkNow.glist; span.g-v "

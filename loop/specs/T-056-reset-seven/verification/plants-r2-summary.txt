@@ -1,0 +1,39 @@
+== plant seal-on-non-sunday -> node tools/verify-logic.js
+  restored /home/user/bf-T-056/platform/js/app.js (cmp identical)
+  FAIL  T-056 r2: 2026-10-26 (Mon) offers no seal — [["Seal the week","30 min · Week 2 · 25–30 Oct"]]
+  FAIL  T-056 r2: 2026-10-30 (Fri) offers no seal — [["Seal the week","30 min · Week 2 · 25–30 Oct"]]
+  FAIL  T-056 r2: 2026-11-05 (Thu) offers no seal — [["Seal the week","30 min · Week 3 · 1–6 Nov"]]
+3 of 151 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant seal-labels-plan-week -> node tools/verify-logic.js
+  restored /home/user/bf-T-056/platform/js/app.js (cmp identical)
+  FAIL  T-056 r2: 2026-10-25 (Sun) offers the seal, "30 min · Week 1 · 16–23 Oct" — [["Seal the week","30 min · Week 2 · 16–23 Oct"]]
+  FAIL  T-056 r2: 2026-11-01 (Sun) offers the seal, "30 min · Week 2 · 25–30 Oct" — [["Seal the week","30 min · Week 3 · 25–30 Oct"]]
+  FAIL  T-056 r2: 2026-11-08 (Sun) offers the seal, "30 min · Week 3 · 1–6 Nov" — [["Seal the week","30 min · Week 4 · 1–6 Nov"]]
+3 of 151 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant library-tile-range -> node tools/verify-content.js
+  restored /home/user/bf-T-056/platform/js/app.js (cmp identical)
+  FAIL T-056 r2 revision tile 1 is 16–23 Oct (revised 2026-10-25), 34 lectures: got {"n":1,"from":"2026-10-16","to":"2026-10-23","sun":"2026-10-25","dates":"16–25 Oct","lectures":34}
+  FAIL T-056 r2 revision tile 2 is 25–30 Oct (revised 2026-11-01), 19 lectures: got {"n":2,"from":"2026-10-25","to":"2026-10-30","sun":"2026-11-01","dates":"25 Oct–1 Nov","lectures":19}
+  FAIL T-056 r2 revision tile 3 is 1–6 Nov (revised 2026-11-08), 15 lectures: got {"n":3,"from":"2026-11-01","to":"2026-11-06","sun":"2026-11-08","dates":"1–8 Nov","lectures":15}
+  FAIL T-056 r2 revision tile 4 is 8–13 Nov (revised 2026-11-15), 14 lectures: got {"n":4,"from":"2026-11-08","to":"2026-11-13","sun":"2026-11-15","dates":"8–15 Nov","lectures":14}
+  FAIL T-056 r2 revision tile 5 is 15–20 Nov (revised 2026-11-22), 14 lectures: got {"n":5,"from":"2026-11-15","to":"2026-11-20","sun":"2026-11-22","dates":"15–22 Nov","lectures":14}
+  FAIL T-056 r2 revision tile 6 is 22–27 Nov (revised 2026-11-29), 12 lectures: got {"n":6,"from":"2026-11-22","to":"2026-11-27","sun":"2026-11-29","dates":"22–29 Nov","lectures":12}
+  exit 1 (caught, as required)
+== plant review-seals-plan-week -> node tools/verify-design.js
+  restored /home/user/bf-T-056/platform/js/app.js (cmp identical)
+  FAIL  1440px dark /review: the header is h1 "Week 2" and "Every Sunday: what shipped, what didn’t. Seal it in two minutes." — {"h1":"Week 3","sub":"Every Sunday: what shipped, what didn’t. Seal it in two minutes."}
+  FAIL  1440px dark /review: lectures proven is the lectures proven between 2026-10-25 and 2026-10-31 (4), counted, "counted for you" — 1 "counted for you"
+  FAIL  1440px dark /review: the ledger has entries, so BHD earned is counted: those dated 2026-10-25 to 2026-10-31, its rest day included (1,149.5), "from Treasury", and Seal reads it (rvRev 1149.5) — 500 "from Treasury", rvRev {"type":"hidden","value":"500"}
+  FAIL  1440px dark /review: beside it the state reads "Ready to seal" — "Opens Sunday 8 Nov · 7 days"
+  FAIL  390px dark /review: the header is h1 "Week 2" and "Every Sunday: what shipped, what didn’t. Seal it in two minutes." — {"h1":"Week 3","sub":"Every Sunday: what shipped, what didn’t. Seal it in two minutes."}
+  FAIL  390px dark /review: lectures proven is the lectures proven between 2026-10-25 and 2026-10-31 (4), counted, "counted for you" — 1 "counted for you"
+  FAIL  390px dark /review: the ledger has entries, so BHD earned is counted: those dated 2026-10-25 to 2026-10-31, its rest day included (1,149.5), "from Treasury", and Seal reads it (rvRev 1149.5) — 500 "from Treasury", rvRev {"type":"hidden","value":"500"}
+  FAIL  390px dark /review: beside it the state reads "Ready to seal" — "Opens Sunday 8 Nov · 7 days"
+  FAIL  1440px light /review: the header is h1 "Week 2" and "Every Sunday: what shipped, what didn’t. Seal it in two minutes." — {"h1":"Week 3","sub":"Every Sunday: what shipped, what didn’t. Seal it in two minutes."}
+  FAIL  1440px light /review: lectures proven is the lectures proven between 2026-10-25 and 2026-10-31 (4), counted, "counted for you" — 1 "counted for you"
+  FAIL  1440px light /review: the ledger has entries, so BHD earned is counted: those dated 2026-10-25 to 2026-10-31, its rest day included (1,149.5), "from Treasury", and Seal reads it (rvRev 1149.5) — 500 "from Treasury", rvRev {"type":"hidden","value":"500"}
+  FAIL  1440px light /review: beside it the state reads "Ready to seal" — "Opens Sunday 8 Nov · 7 days"
+  exit 1 (caught, as required)
+done

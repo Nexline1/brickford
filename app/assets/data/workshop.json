@@ -1,0 +1,560 @@
+{
+ "PSETS": [
+  {
+   "course": "MATH 110",
+   "title": "MIT 18.06 problem sets & exams",
+   "url": "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/pages/assignments/",
+   "items": [
+    {
+     "id": "1806-ps1",
+     "after": "math110.1.1",
+     "label": "Pset 1 — Ax = b, elimination"
+    },
+    {
+     "id": "1806-ps2",
+     "after": "math110.1.4",
+     "label": "Pset 2 — LU, transposes"
+    },
+    {
+     "id": "1806-ps3",
+     "after": "math110.1.5",
+     "label": "Pset 3 — vector spaces, nullspace"
+    },
+    {
+     "id": "1806-ps4",
+     "after": "math110.1.9",
+     "label": "Pset 4 — independence, four subspaces"
+    },
+    {
+     "id": "1806-ps5",
+     "after": "math110.1.14",
+     "label": "Pset 5 — orthogonality, projections"
+    },
+    {
+     "id": "1806-ps6",
+     "after": "math110.1.16",
+     "label": "Pset 6 — least squares, Gram-Schmidt"
+    },
+    {
+     "id": "1806-ps7",
+     "after": "math110.1.19",
+     "label": "Pset 7 — determinants"
+    },
+    {
+     "id": "1806-ps8",
+     "after": "math110.1.21",
+     "label": "Pset 8 — eigenvalues, diagonalization"
+    },
+    {
+     "id": "1806-ps9",
+     "after": "math110.1.27",
+     "label": "Pset 9 — symmetric & positive definite"
+    },
+    {
+     "id": "1806-ps10",
+     "after": "math110.1.30",
+     "label": "Pset 10 — SVD, linear transformations"
+    },
+    {
+     "id": "1806-exams",
+     "after": "math110.1.32",
+     "label": "The three quizzes (under exam conditions)"
+    }
+   ]
+  },
+  {
+   "course": "MATH 120",
+   "title": "MIT 18.01 problem sets & exams",
+   "url": "https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/pages/syllabus/",
+   "items": [
+    {
+     "id": "1801-ps1",
+     "after": "math120.1.6",
+     "label": "Unit 1 — differentiation psets"
+    },
+    {
+     "id": "1801-ps2",
+     "after": "math120.1.14",
+     "label": "Unit 2 — applications of differentiation"
+    },
+    {
+     "id": "1801-ps3",
+     "after": "math120.1.21",
+     "label": "Unit 3 — the definite integral"
+    },
+    {
+     "id": "1801-ps4",
+     "after": "math120.1.28",
+     "label": "Unit 4 — techniques of integration"
+    },
+    {
+     "id": "1801-ps5",
+     "after": "math120.1.33",
+     "label": "Unit 5 — exploring the infinite (series)"
+    },
+    {
+     "id": "1801-exams",
+     "after": "math120.1.29",
+     "label": "Unit exams 1–4 (under exam conditions)"
+    }
+   ]
+  },
+  {
+   "course": "MATH 130",
+   "title": "Stat 110 strategic practice",
+   "url": "https://stat110.hsites.harvard.edu/strategic-practice-problems",
+   "items": [
+    {
+     "id": "s110-sp1",
+     "after": "math130.0.1",
+     "label": "SP 1 — naive definition, counting"
+    },
+    {
+     "id": "s110-sp2",
+     "after": "math130.0.4",
+     "label": "SP 2 — conditional probability, Bayes"
+    },
+    {
+     "id": "s110-sp3",
+     "after": "math130.0.7",
+     "label": "SP 3 — independence, discrete r.v.s"
+    },
+    {
+     "id": "s110-sp4",
+     "after": "math130.0.9",
+     "label": "SP 4 — expectation, indicators"
+    },
+    {
+     "id": "s110-sp5",
+     "after": "math130.0.12",
+     "label": "SP 5 — continuous r.v.s, Normal"
+    },
+    {
+     "id": "s110-sp6",
+     "after": "math130.0.17",
+     "label": "SP 6 — LOTUS, moments"
+    },
+    {
+     "id": "s110-sp7",
+     "after": "math130.0.18",
+     "label": "SP 7 — joint distributions"
+    },
+    {
+     "id": "s110-sp8",
+     "after": "math130.0.21",
+     "label": "SP 8 — covariance, transformations"
+    },
+    {
+     "id": "s110-sp9",
+     "after": "math130.0.26",
+     "label": "SP 9 — conditional expectation"
+    },
+    {
+     "id": "s110-sp10",
+     "after": "math130.0.28",
+     "label": "SP 10 — inequalities, LLN, CLT"
+    },
+    {
+     "id": "s110-sp11",
+     "after": "math130.0.32",
+     "label": "SP 11 — Markov chains"
+    },
+    {
+     "id": "s110-final",
+     "after": "math130.0.33",
+     "label": "A practice final (3h, exam conditions)"
+    }
+   ]
+  },
+  {
+   "course": "MATH 210",
+   "title": "18.S096 homework + MacKay exercises",
+   "url": "https://ocw.mit.edu/courses/18-s096-matrix-calculus-for-machine-learning-and-beyond-january-iap-2023/pages/assignments/",
+   "items": [
+    {
+     "id": "ms096-hw1",
+     "after": "math210.0.5",
+     "label": "18.S096 homework 1"
+    },
+    {
+     "id": "ms096-hw2",
+     "after": "math210.0.10",
+     "label": "18.S096 homework 2"
+    },
+    {
+     "id": "mackay-ch2",
+     "after": "math210.2.1",
+     "label": "MacKay ch. 2 exercises (probability & entropy)"
+    },
+    {
+     "id": "mackay-ch4",
+     "after": "math210.2.2",
+     "label": "MacKay ch. 4 exercises (source coding)"
+    },
+    {
+     "id": "mackay-ch8",
+     "after": "math210.2.6",
+     "label": "MacKay ch. 8–9 exercises (channel capacity)"
+    }
+   ]
+  }
+ ],
+ "LABS": [
+  {
+   "id": "flashcards-cli",
+   "after": "ai200.0.0",
+   "phase": 0,
+   "hours": 4,
+   "title": "Spaced-repetition flashcards CLI (no AI)",
+   "req": "SM-2-style scheduling, JSON persistence, crash-safe input, pushed to GitHub as your first repo."
+  },
+  {
+   "id": "neetcode-10",
+   "after": "ai200.0.0",
+   "phase": 0,
+   "hours": 2,
+   "title": "The NeetCode 10, unaided",
+   "req": "The 10 diagnostic problems solved with AI off; verdict logged in the coding diagnostic doc."
+  },
+  {
+   "id": "micrograd-blind",
+   "after": "ai200.1.0",
+   "phase": 1,
+   "hours": 8,
+   "title": "Micrograd from a blank file",
+   "req": "Autograd engine + MLP that trains on a toy dataset — written from memory, no reference open."
+  },
+  {
+   "id": "tokenizer",
+   "after": "ai200.1.7",
+   "phase": 1,
+   "hours": 6,
+   "title": "BPE tokenizer from scratch",
+   "req": "Encode/decode round-trips perfectly; vocab of 512 trained on your own corpus."
+  },
+  {
+   "id": "gpt-arabic",
+   "after": "ai200.1.6",
+   "phase": 1,
+   "hours": 20,
+   "title": "GPT on your own Arabic corpus",
+   "req": "Character-level GPT trained end to end on Arabic text you collected; samples posted publicly."
+  },
+  {
+   "id": "kaggle-entry",
+   "after": "ai210.0.5",
+   "phase": 1,
+   "hours": 12,
+   "title": "Kaggle competition entry",
+   "req": "Beat the sample-submission baseline on a live competition; write up what actually moved the score."
+  },
+  {
+   "id": "blog-deepdive",
+   "after": "ai200.1.4",
+   "phase": 1,
+   "hours": 6,
+   "title": "One technical deep-dive post",
+   "req": "A post that teaches backprop or attention from scratch — clear enough that a stranger thanks you."
+  },
+  {
+   "id": "deploy-space",
+   "after": "ai210.0.1",
+   "phase": 1,
+   "hours": 4,
+   "title": "Ship a model demo",
+   "req": "Any trained model behind a public UI (HF Space or similar); link works from a phone."
+  },
+  {
+   "id": "resnet-cifar",
+   "after": "ai300.0.1",
+   "phase": 2,
+   "hours": 10,
+   "title": "CIFAR-10 ResNet at 93%+",
+   "req": "Trained from scratch — no pretrained weights; ablation table covering at least 3 design choices."
+  },
+  {
+   "id": "gpt2-repro",
+   "after": "ai200.1.8",
+   "phase": 2,
+   "hours": 20,
+   "title": "Reproduce a GPT-2 (124M) training run",
+   "req": "nanoGPT-style run on an open corpus; loss curve matches the expected shape and you can explain every hyperparameter."
+  },
+  {
+   "id": "lora-finetune",
+   "after": "ai300.2.1",
+   "phase": 2,
+   "hours": 8,
+   "title": "LoRA finetune, by hand",
+   "req": "LoRA implemented without the peft library; task eval beats the base model; adapter <1% of params."
+  },
+  {
+   "id": "eval-harness",
+   "after": "ai310.1.3",
+   "phase": 2,
+   "hours": 8,
+   "title": "Build an eval harness",
+   "req": "≥3 tasks, deterministic seeds, one command produces a scored report; used on your own finetunes."
+  },
+  {
+   "id": "cuda-matmul",
+   "after": "sys250.1.4",
+   "phase": 2,
+   "hours": 10,
+   "title": "CUDA matmul kernel",
+   "req": "Tiled shared-memory kernel ≥10× naive; benchmark chart against cuBLAS included."
+  },
+  {
+   "id": "kernel-profile",
+   "after": "sys250.1.0",
+   "phase": 2,
+   "hours": 6,
+   "title": "Profile and speed up a real model",
+   "req": "torch.profiler trace of a training step; one bottleneck found and fixed with before/after numbers."
+  },
+  {
+   "id": "oss-pr",
+   "after": "ai310.1.0",
+   "phase": 2,
+   "hours": 12,
+   "title": "Merged open-source PR",
+   "req": "A non-trivial PR merged into an ML repo you actually use (not a typo fix)."
+  },
+  {
+   "id": "rag-system",
+   "after": "ai300.3.3",
+   "phase": 3,
+   "hours": 10,
+   "title": "RAG over your own documents, no framework",
+   "req": "Retrieval + generation built from parts; faithfulness measured with and without retrieval."
+  },
+  {
+   "id": "dpo-run",
+   "after": "ai300.2.2",
+   "phase": 2,
+   "hours": 10,
+   "title": "DPO alignment run",
+   "req": "DPO on a small model with a public preference dataset; win-rate vs the SFT base reported."
+  },
+  {
+   "id": "interp-notebook",
+   "after": "res400.1.1",
+   "phase": 3,
+   "hours": 8,
+   "title": "Interpretability notebook",
+   "req": "Induction heads reproduced on a 2-layer model with TransformerLens; published with plots."
+  },
+  {
+   "id": "agent-tools",
+   "after": "ai310.1.5",
+   "phase": 3,
+   "hours": 10,
+   "title": "Agent with tools",
+   "req": "An LLM agent with ≥3 tools completes a multi-step task unaided; failure modes documented."
+  },
+  {
+   "id": "inference-api",
+   "after": "ai310.1.4",
+   "phase": 3,
+   "hours": 8,
+   "title": "Deploy an inference API",
+   "req": "A quantized model served publicly; p95 latency and cost per 1k tokens documented."
+  }
+ ],
+ "NICHES": [
+  {
+   "id": "clinics",
+   "pick": true,
+   "name": "Private clinics — dental, derma, physio",
+   "market": "Bahrain first, then Saudi via referrals",
+   "pain": "Every unanswered WhatsApp after hours is a lost 30–200 BHD appointment; no-shows quietly eat 10–20% of revenue; reception can't cover evenings or weekends.",
+   "offer": "Bilingual (Arabic/English) WhatsApp receptionist: booking, reminders that cut no-shows, FAQ, and review requests.",
+   "pricing": "BHD 400–700 setup + 60–100/mo retainer",
+   "edge": "Your Arabic+English agent already exists; patients live on WhatsApp; the owner-doctor answers their own phone — one decision-maker, fast close.",
+   "verdict": "THE PICK. Real budgets, monthly retainers, and the same build resells to every clinic in the Gulf."
+  },
+  {
+   "id": "carrental",
+   "pick": false,
+   "name": "Car rental & dealerships",
+   "market": "Bahrain + Saudi (WhatsApp-heavy inquiry flow)",
+   "pain": "Huge after-hours inquiry volume; the first responder wins the booking; staff drown in repetitive availability questions.",
+   "offer": "WhatsApp agent for instant availability, qualification, and booking handoff.",
+   "pricing": "BHD 500–900 setup + retainer",
+   "edge": "Inquiry volume makes ROI obvious in week one.",
+   "verdict": "Strong #2 — bigger tickets than salons, but the owner is harder to reach than a clinic's."
+  },
+  {
+   "id": "restaurants",
+   "pick": false,
+   "name": "Restaurants & cafés",
+   "market": "Bahrain — you know this world from the inside",
+   "pain": "Missed reservations and order questions during rush hours; no one owns the WhatsApp inbox.",
+   "offer": "Reservations + menu FAQ + order-status agent.",
+   "pricing": "BHD 250–450 setup + small retainer",
+   "edge": "You RAN a coffee shop — instant credibility and vocabulary with owners.",
+   "verdict": "Fallback #1 — fastest doors to open for your first 1–2 logos, but budgets are thin and churn is high. Don't build the business here."
+  },
+  {
+   "id": "salons",
+   "pick": false,
+   "name": "Salons & aesthetic studios",
+   "market": "Bahrain, Instagram-driven",
+   "pain": "Booking chaos across Instagram DMs and WhatsApp; no-shows on peak slots.",
+   "offer": "Booking + reminder agent unified over WhatsApp/Instagram.",
+   "pricing": "BHD 200–350 setup",
+   "edge": "Quick yes from owner-operators.",
+   "verdict": "Volume play — good for confidence reps early, bad for margin. Graduate out fast."
+  },
+  {
+   "id": "realestate",
+   "pick": false,
+   "name": "Real-estate agencies (your paused niche)",
+   "market": "Bahrain/Dubai",
+   "pain": "Speed-to-lead decides who gets the viewing; agents leak leads constantly.",
+   "offer": "Instant lead-response + qualification agent feeding a sheet/CRM.",
+   "pricing": "BHD 700–1,200 setup",
+   "edge": "You know the players from last time.",
+   "verdict": "Parked, deliberately. Commission-driven owners haggle, retainers churn when the market cools, and momentum here was already lost once. Reopen only on a warm referral."
+  },
+  {
+   "id": "lawfirms",
+   "pick": false,
+   "name": "Law & consulting firms",
+   "market": "Bahrain + GCC",
+   "pain": "Expensive partners doing free phone triage; unqualified consults burn billable hours.",
+   "offer": "Client-intake qualification agent + calendar handoff.",
+   "pricing": "BHD 800–1,500 setup",
+   "edge": "High ticket, low competition.",
+   "verdict": "Wrong for now — conservative buyers and a 2-month sales cycle you can't afford at ≤2h/day. Phase 2 candidate."
+  }
+ ],
+ "ELECTIVES": [
+  {
+   "id": "mitx-686x",
+   "provider": "edX · MITx",
+   "what": "6.86x — Machine Learning with Python",
+   "phase": 1,
+   "cost": "Free audit · ~$300 verified cert",
+   "verdict": "The rigorous graded ML theory pass. Take alongside/after AI 200 if you want structure and a certificate worth showing.",
+   "url": "https://www.edx.org/learn/machine-learning/massachusetts-institute-of-technology-machine-learning-with-python-from-linear-models-to-deep-learning"
+  },
+  {
+   "id": "mitx-18650",
+   "provider": "edX · MITx",
+   "what": "18.6501x — Fundamentals of Statistics",
+   "phase": 2,
+   "cost": "Free audit · ~$300 verified cert",
+   "verdict": "Post-Stat-110 rigor (MLE, hypothesis testing, asymptotics). Only if the researcher fork calls.",
+   "url": "https://www.edx.org/learn/statistics/massachusetts-institute-of-technology-fundamentals-of-statistics"
+  },
+  {
+   "id": "cs231n",
+   "provider": "Stanford",
+   "what": "CS231n — Deep Learning for Computer Vision",
+   "phase": 2,
+   "cost": "Free (lectures + notes public)",
+   "verdict": "The canonical vision course. Pairs exactly with the Paper Room's vision unit; the notes are gold.",
+   "url": "http://cs231n.stanford.edu/"
+  },
+  {
+   "id": "cs224n",
+   "provider": "Stanford",
+   "what": "CS224n — NLP with Deep Learning",
+   "phase": 2,
+   "cost": "Free (lectures public)",
+   "verdict": "The canonical NLP course. Take the transformer/pretraining lectures after AI 200; skip what CS336 covers deeper.",
+   "url": "https://web.stanford.edu/class/cs224n/"
+  },
+  {
+   "id": "cs229",
+   "provider": "Stanford",
+   "what": "CS229 — Machine Learning (Ng's original)",
+   "phase": 2,
+   "cost": "Free (lectures + notes public)",
+   "verdict": "Classical ML theory: SVMs, EM, learning theory. Read the notes even if you skip lectures — interviews love this material.",
+   "url": "https://cs229.stanford.edu/"
+  },
+  {
+   "id": "cs336",
+   "provider": "Stanford",
+   "what": "CS336 — Language Modeling from Scratch",
+   "phase": 2,
+   "cost": "Free (lectures + assignments public)",
+   "verdict": "Already your AI 310 Unit I spine. Do the public assignments — they are the practice.",
+   "url": "https://cs336.stanford.edu/"
+  },
+  {
+   "id": "cmu-10714",
+   "provider": "CMU",
+   "what": "10-714 — Deep Learning Systems",
+   "phase": 2,
+   "cost": "Free (lectures + homework public)",
+   "verdict": "Already your SYS 250 Unit I spine. The homework (build 'needle' from scratch) is the whole point — do all of it.",
+   "url": "https://dlsyscourse.org/"
+  },
+  {
+   "id": "fastai-p2",
+   "provider": "fast.ai",
+   "what": "Part 2 — From Deep Learning Foundations to Stable Diffusion",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "Builds diffusion from scratch, Karpathy-style. Take after the DDPM paper lesson lands.",
+   "url": "https://course.fast.ai/Lessons/part2.html"
+  },
+  {
+   "id": "hf-llm",
+   "provider": "Hugging Face",
+   "what": "The LLM Course",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "The practical HF-ecosystem layer: tokenizers, TRL, deployment. Snack-sized chapters — take alongside AI 310.",
+   "url": "https://huggingface.co/learn/llm-course/chapter1/1"
+  },
+  {
+   "id": "hf-agents",
+   "provider": "Hugging Face",
+   "what": "The Agents Course",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "You already build agents for clients — this formalizes it and feeds the agent lab.",
+   "url": "https://huggingface.co/learn/agents-course/unit0/introduction"
+  },
+  {
+   "id": "dlai-short",
+   "provider": "DeepLearning.AI",
+   "what": "Short courses (RAG, evals, agents…)",
+   "phase": 2,
+   "cost": "Free",
+   "verdict": "Snacks, not spine. 1–2 hours each when you need a specific tool; never let them displace Deep Track hours.",
+   "url": "https://www.deeplearning.ai/short-courses/"
+  },
+  {
+   "id": "arena",
+   "provider": "ARENA",
+   "what": "Alignment Research Engineer Accelerator curriculum",
+   "phase": 3,
+   "cost": "Free (self-study track)",
+   "verdict": "The researcher fork's practical curriculum — RES 400 Unit II walks its interpretability chapter.",
+   "url": "https://www.arena.education/"
+  },
+  {
+   "id": "mit-6s191",
+   "provider": "MIT",
+   "what": "6.S191 — Introduction to Deep Learning",
+   "phase": 1,
+   "cost": "Free",
+   "verdict": "Fast annual survey of the field. Watch 2–3 lectures for breadth; your spine is deeper.",
+   "url": "http://introtodeeplearning.com/"
+  },
+  {
+   "id": "mackay-book",
+   "provider": "Cambridge",
+   "what": "MacKay — Information Theory, Inference, and Learning Algorithms",
+   "phase": 2,
+   "cost": "Free PDF",
+   "verdict": "The book behind MATH 210 Unit III. Work exercises from ch. 1–6 as psets — it teaches thinking, not formulas.",
+   "url": "https://www.inference.org.uk/mackay/itila/book.html"
+  }
+ ]
+}

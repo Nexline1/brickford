@@ -1,0 +1,43 @@
+Replicated studyIndex/dateForStudy (platform/js/app.js), old START 2026-10-05 vs new 2026-10-16:
+old d1094 2030-04-02 baseline 2030-04-03
+new d1094 2030-04-14 baseline 2030-04-15
+discarded 10 first rest [ '2026-10-17' ]
+2026-10-20 Tue old day 14 -> new 2026-11-01 Sun | new day of same date 4
+2026-11-01 Sun old day 24 -> new 2026-11-12 Thu | new day of same date 14
+
+Old -> new fixture map (study days +10 study days; a Saturday to the Saturday of the same plan week):
+2026-10-05 Mon d1 -> 2026-10-16 Fri d1
+2026-10-06 Tue d2 -> 2026-10-18 Sun d2
+2026-10-07 Wed d3 -> 2026-10-19 Mon d3
+2026-10-08 Thu d4 -> 2026-10-20 Tue d4
+2026-10-09 Fri d5 -> 2026-10-21 Wed d5
+2026-10-10 Sat d0 -> 2026-10-17 Sat d0
+2026-10-11 Sun d6 -> 2026-10-22 Thu d6
+2026-10-12 Mon d7 -> 2026-10-23 Fri d7
+2026-10-13 Tue d8 -> 2026-10-25 Sun d8
+2026-10-14 Wed d9 -> 2026-10-26 Mon d9
+2026-10-15 Thu d10 -> 2026-10-27 Tue d10
+2026-10-16 Fri d11 -> 2026-10-28 Wed d11
+2026-10-17 Sat d0 -> 2026-10-24 Sat d0
+2026-10-18 Sun d12 -> 2026-10-29 Thu d12
+2026-10-19 Mon d13 -> 2026-10-30 Fri d13
+2026-10-20 Tue d14 -> 2026-11-01 Sun d14
+2026-10-21 Wed d15 -> 2026-11-02 Mon d15
+2026-10-22 Thu d16 -> 2026-11-03 Tue d16
+2026-10-23 Fri d17 -> 2026-11-04 Wed d17
+2026-10-24 Sat d0 -> 2026-10-31 Sat d0
+2026-10-25 Sun d18 -> 2026-11-05 Thu d18
+2026-10-26 Mon d19 -> 2026-11-06 Fri d19
+2026-10-27 Tue d20 -> 2026-11-08 Sun d20
+2026-10-28 Wed d21 -> 2026-11-09 Mon d21
+2026-10-29 Thu d22 -> 2026-11-10 Tue d22
+2026-10-30 Fri d23 -> 2026-11-11 Wed d23
+2026-10-31 Sat d0 -> 2026-11-07 Sat d0
+2026-11-01 Sun d24 -> 2026-11-12 Thu d24
+2026-11-02 Mon d25 -> 2026-11-13 Fri d25
+2026-11-03 Tue d26 -> 2026-11-15 Sun d26
+2026-11-04 Wed d27 -> 2026-11-16 Mon d27
+2026-11-05 Thu d28 -> 2026-11-17 Tue d28
+2026-11-06 Fri d29 -> 2026-11-18 Wed d29
+2026-11-07 Sat d0 -> 2026-11-14 Sat d0
+2026-11-08 Sun d30 -> 2026-11-19 Thu d30

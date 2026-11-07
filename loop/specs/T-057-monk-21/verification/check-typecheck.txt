@@ -1,0 +1,2 @@
+typecheck: all JS parses
+exit 0

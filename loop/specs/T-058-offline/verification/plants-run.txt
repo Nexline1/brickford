@@ -1,0 +1,110 @@
+plants against e838f5b, 2026-10-29T04:55:43Z
+== plant data-file-left-out -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  this version's cache brickford-20261029c holds index.html, everything it loads, and the manifest's icons (35 entries; missing /platform/data/quiz-dsa.js?v=20261029c)
+  FAIL  every platform/data, js and css file on disk is in it (27 files; missing /platform/data/quiz-dsa.js)
+  FAIL  offline, nothing of ours failed to load and nothing threw (/platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED, /platform/data/quiz-dsa.js?v=20261029c net::ERR_FAILED)
+  FAIL  revision/week-03.pdf taken and never answered: the worker is active anyway, in 0.6s (under 15s), its shell complete (35 of 36)
+FAIL — 4 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant index-cache-first -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  the next launch runs B: index.html came from the network, past a fresh HTTP cache (/platform/js/app.js?v=20261029c)
+  FAIL  B's worker is in charge, its cache is there and A's is gone (caches: brickford-20261029c, brickford-files)
+  FAIL  and an offline launch after the update is B too, not A (/platform/js/app.js?v=20261029c)
+FAIL — 3 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant offline-push-rejected -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  marking the lecture watched offline is saved locally, and records no sync error ({"msg":"Token rejected — offline","at":"2026-11-01T12:00:00.000Z","fatal":true})
+  FAIL  /sync offline reads "Connected, but failing"; Push says it will sync later and records no error, so nothing is latched ({"msg":"Token rejected — offline","at":"2026-11-01T12:00:00.000Z","fatal":true})
+  FAIL  the dashboard's sync row reads "Synced", and nothing says sync is failing
+  FAIL  back online, exactly one push (0 PUTs)
+  FAIL  and it succeeded: no sync error, no latch, the offline tick still there ({"msg":"Token rejected — offline","at":"2026-11-01T12:00:00.000Z","fatal":true})
+FAIL — 5 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant old-caches-kept -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  B's worker is in charge, its cache is there and A's is gone (caches: brickford-20261029c, brickford-files, brickford-20261029cupdate)
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant no-timeout -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  index.html and the font stylesheet taken and never answered: the app opens from the cache in 15.0s (under 5s)
+  FAIL  a revision PDF and a Library document the same way, whole, in 10.0s (under 5s)
+FAIL — 2 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant fill-in-install -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/sw.js (cmp identical)
+  FAIL  revision/week-03.pdf taken and never answered: the worker is active anyway, in 15.3s (under 15s), its shell complete (0 of 36)
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant owed-ignored-at-boot -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  the relaunch pushes it: owed "6" when closed, then exactly one PUT (0), carrying the tick (null), and nothing owed after ("8")
+  FAIL  the internet back, the next launch pushes what was owed and reads Synced, nothing owed
+FAIL — 2 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant busy-push-dropped -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  once the pull is answered, the push it held up is made, carrying the tick (no PUT in 10s)
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant no-answer-is-failure -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  the dashboard says "Offline · will sync", not "Sync is failing"; no sync error; the sync is owed (onLine true, error {"msg":"Failed to fetch","at":"2026-11-01T12:00:00.000Z","fatal":false}, owed null)
+  FAIL  the internet back, the next launch pushes what was owed and reads Synced, nothing owed
+  FAIL  a push cut off while the page is hidden (cut): owed (false), the row reads "Synced" and never read "Offline · will sync" (0 times), and the next lecture opens with its frame (0 panels drawn)
+  FAIL  a launch whose first sync request is cut, the network fine: the lecture's loading frame stays (0 panels drawn, frame math110.0.1), since the network answered the app's own question (1 asked); the push stays owed (false; request cut true)
+FAIL — 4 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant frame-kept-when-net-down -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  a lesson there: its frame, whose player never answered, becomes the "Video needs a connection" panel (1 iframes)
+  FAIL  a panel on screen, the page hidden and shown again once the internet is back: its frame returns in place in 0.0s (under 5s), 0 GitHub requests meanwhile
+FAIL — 2 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant offline-before-latch -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  latched by a 401, then offline: the row reads "Offline · will sync · never", "Sync is failing" stays, /sync reads "Connected, but failing" (never "will sync")
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant standalone-new-tab -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  navigator.standalone (iOS): no tile carries a target (["_blank","_blank","_blank","_blank","_blank","_blank"]), Week 1 opens in the same window (a new tab), offline, out of the cache (1714587 bytes from /revision/week-01.pdf, identical to the file)
+  FAIL  display-mode: standalone (Android, desktop): no tile carries a target either (["_blank","_blank","_blank","_blank","_blank","_blank"])
+FAIL — 2 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant scope-platform-only -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/manifest.json (cmp identical)
+  FAIL  manifest: name, short_name, standalone; scope /platform/ is the worker's (/) and covers revision/, start_url /platform/ and id /platform/ inside it; 192 and 512 icons plus a maskable 512, each the size it says
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant register-on-file -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/index.html (cmp identical)
+  FAIL  file:// renders as before and never calls register() (1 calls: ../sw.js?v=20261029c, spy installed, 0 registrations)
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant no-probe-on-panel -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  the internet back, no relaunch, no online event: the next lecture opens with its frame in 8.0s (under 5s), 0 GitHub requests meanwhile
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant hidden-fail-sets-netdown -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  a push cut off while the page is hidden (cut): owed (true), the row reads "Synced" and never read "Offline · will sync" (1 times), and the next lecture opens with its frame (0 panels drawn)
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant no-probe-on-visible -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  a panel on screen, the page hidden and shown again once the internet is back: its frame returns in place in 8.0s (under 5s), 0 GitHub requests meanwhile
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+== plant frame-gone-on-sync-signal -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  a launch whose first sync request is cut, the network fine: the lecture's loading frame stays (1 panels drawn, frame math110.0.1), since the network answered the app's own question (2 asked); the push stays owed (true; request cut true)
+FAIL — 1 of 50 offline checks failed
+  exit 1 (caught, as required)
+
+PLANTS: every plant caught (exit 1), every restore cmp-identical
+exit 0

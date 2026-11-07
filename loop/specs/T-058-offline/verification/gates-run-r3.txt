@@ -1,0 +1,9 @@
+gates against 7bce208 + working tree (the r3 change), 2026-10-29T05:46:04Z; only these four were run, the rest are from 83d48b2
+== typecheck: typecheck
+   exit 0 (2s) 
+== offline: node tools/verify-offline.js
+   exit 0 (69s) PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (51 checks)
+== offline-2: node tools/verify-offline.js
+   exit 0 (72s) PASS — offline: 25 routes, 5 documents and 6 revision PDFs with no connection, one push on return, A to B on the next launch (51 checks)
+== sync-loop: node tools/verify-sync-loop.js
+   exit 0 (154s) PASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves t

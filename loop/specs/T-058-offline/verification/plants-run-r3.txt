@@ -1,0 +1,9 @@
+plant no-probe-on-online, 2026-10-29T05:51:01Z
+== plant no-probe-on-online -> node tools/verify-offline.js
+  restored /home/user/bf-T-058/platform/js/app.js (cmp identical)
+  FAIL  no token, the panel up for a probe that failed: on the online event the frame returns in place in 8.0s (under 5s), no navigation, no trip to the foreground, the page not repainted (true)
+FAIL — 1 of 51 offline checks failed
+  exit 1 (caught, as required)
+
+PLANTS: every plant caught (exit 1), every restore cmp-identical
+exit 0

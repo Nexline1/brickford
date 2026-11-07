@@ -1,0 +1,2 @@
+PLANT rest-day-reanchors-past: caught (exit 1)
+PLANT glyph-always-empty: caught (exit 1)

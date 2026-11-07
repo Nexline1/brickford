@@ -16,7 +16,7 @@ const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const URL = "file://" + path.join(path.resolve(__dirname, ".."), "platform/index.html") + "#";
 
 const ROUTES = ["/", "/atlas", "/courses", "/exams", "/record", "/calendar",
-                "/library", "/guide", "/practice", "/transcript", "/workshop", "/treasury"];
+                "/library", "/guide", "/practice", "/transcript", "/workshop", "/treasury", "/monk"];
 const DESKTOP = [1536, 1440, 1370, 1280, 1100, 1040, 900, 861];
 const PHONE = [320, 390, 430, 768, 860];
 // Wider than ROUTES: the frame check needs the DETAIL pages too, because the
@@ -44,15 +44,15 @@ function seedProgress() {
 let fails = 0;
 const check = (ok, msg) => { if (!ok) { fails++; console.log("  FAIL  " + msg); } };
 
-// Every context runs on a pinned clock and timezone: Tuesday 20 Oct 2026, noon
+// Every context runs on a pinned clock and timezone: Sunday 1 Nov 2026, noon
 // UTC — the study day verify-flows and verify-clip use. This gate read the real
 // date until 2026-10-06, and went red on the day /record's heatmap first had
 // anything to draw (14 study days after START_DATE), with no code change at all.
 // A gate whose answer depends on the day it runs only passes on the day it was
 // written (loop/lessons.md). Pinned AFTER that day on purpose, so the heatmap is
 // always on screen and always measured.
-// Plan day 14 (moved with reset six, START 2026-10-05; was 2026-10-06 under START 2026-09-21).
-const FIXED_NOW = new Date("2026-10-20T12:00:00Z");
+// Plan day 14 (moved with reset seven, START 2026-10-16; was 2026-10-20 under START 2026-10-05, 2026-10-06 under 2026-09-21).
+const FIXED_NOW = new Date("2026-11-01T12:00:00Z");
 async function freshContext(browser, opts) {
   const ctx = await browser.newContext(Object.assign({ timezoneId: "UTC" }, opts));
   await ctx.clock.setFixedTime(FIXED_NOW);
@@ -80,13 +80,15 @@ async function freshContext(browser, opts) {
           visible: side.checkVisibility(),
           inline: side.getAttribute("style") || "",
           links: side.querySelectorAll(".nav a").length,
+          monk: !!side.querySelector(".nav a[href='#/monk']"),
           menu: getComputedStyle(document.querySelector(".menu-btn")).display,
           col: Math.round(vb.x) + "-" + Math.round(vb.right),
         };
       });
       check(m.visible && m.x === 0 && m.w > 180, w + "px " + r + ": sidebar off-screen (x=" + m.x + ")");
       check(m.inline === "", w + "px " + r + ": sidebar carries an inline style (" + m.inline + ")");
-      check(m.links >= 10, w + "px " + r + ": only " + m.links + " nav links");
+      // T-054: 12 links since Monk Mode joined Rhythm (was ">= 10" with 11).
+      check(m.links === 12 && m.monk, w + "px " + r + ": " + m.links + " nav links, not 12 with Monk Mode (#/monk)");
       check(m.menu === "none", w + "px " + r + ": hamburger showing beside the sidebar");
       columns.add(m.col);
     }

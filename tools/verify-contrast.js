@@ -33,7 +33,7 @@ const ROUTES = [
   "/lesson/math110/0/13", "/concept/la-eigen",
   "/workshop", "/electives", "/exams", "/quiz/linear-algebra", "/recall",
   "/method", "/record", "/transcript", "/review", "/calendar", "/library",
-  "/treasury", "/sync", "/drill", "/guide", "/practice",
+  "/treasury", "/sync", "/drill", "/guide", "/practice", "/monk",
   // /settings was in this list and has never existed — renderInner fell through
   // to the dashboard, so it measured Today twice and called it two routes. The
   // not-found view that replaced that fallthrough is a real page now, so it is

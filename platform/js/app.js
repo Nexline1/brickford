@@ -102,6 +102,10 @@
     return dateForStudy(base + n);
   }
   const studyToday = () => studyIndex(todayISO());
+  // T-063: the slot windowing treats as "today". On a rest day studyToday() is -1, which
+  // re-anchored every past day to the first unfinished lesson; use the last study day instead.
+  // Before the start it stays -1. Windowing only; a rest day itself still schedules nothing.
+  const studyAnchor = () => { const i = studyToday(); return i >= 0 || todayISO() < D.START_DATE ? i : studyIndex(prevStudyDay(todayISO())); };
   function nextStudyDay(iso) {
     let cur = addDaysISO(iso, 1);
     for (let guard = 0; guard < 14 && isRestDay(cur); guard++) cur = addDaysISO(cur, 1);
@@ -250,6 +254,11 @@
         "X-GitHub-Api-Version": "2022-11-28",
       },
       body: body ? JSON.stringify(body) : undefined,
+    }).catch(e => {
+      // T-058 r1: no answer at all (no HTTP status) is the network, not GitHub.
+      const x = new Error((e && e.message) || "No connection");
+      x.network = true;
+      throw x;
     });
   }
 
@@ -317,9 +326,13 @@
         if (!seen.has(k)) { S.quizAttempts[b].push(a2); seen.add(k); changed++; }
       });
     });
-    // weeks: by week number, later entry wins
+    // weeks: by week number, later entry wins. T-056 r4: a week sealed under an
+    // earlier start can carry the same number, so two entries are the same
+    // seal only when both sit on the same side of that revision week's start;
+    // otherwise the remote one is kept beside the local one, never over it.
     (r.weeks || []).forEach(w => {
-      const i = S.weeks.findIndex(x => +x.week === +w.week);
+      const wFrom = revisionWeek(+w.week).from, side = x => (x.date || "") >= wFrom;
+      const i = S.weeks.findIndex(x => +x.week === +w.week && side(x) === side(w));
       if (i < 0) { S.weeks.push(w); changed++; }
       else if ((w.date || "") > (S.weeks[i].date || "")) { S.weeks[i] = w; changed++; }
     });
@@ -362,8 +375,20 @@
     // reset on the phone would be silently undone by the next pull from the
     // laptop — and taking the later date also means a reset can never be
     // un-done by an older device that has not heard about it yet.
+    // T-054: Monk Mode merges per day, plan and loop by the newer `at`, and
+    // never deletes. While MONK_SYNCS is false a remote `monk` is not read at all.
+    if (MONK_SYNCS && r.monk && typeof r.monk === "object") changed += mergeMonk(r.monk);
+
     const rf = (r.settings || {}).streakFrom;
     if (rf && rf > (S.settings.streakFrom || "")) { S.settings.streakFrom = rf; changed++; }
+
+    // T-065: the Monk start date, the one piece of Monk that syncs. First write
+    // wins: a side with none takes the other's, and with two the EARLIER date
+    // stands, so every device settles on the same day and an older device that
+    // has not heard of the start can never clear it. A remote value that is not
+    // a date is ignored.
+    const rm = r.monkStart;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(rm || "") && (!S.monkStart || rm < S.monkStart)) { S.monkStart = rm; changed++; }
 
     // Ledgers stay per device and are never re-hashed: rewriting a chain would
     // orphan any head hash already published as an anchor.
@@ -398,9 +423,112 @@
     return { passedAt: first.passedAt, at: first.at, firstTry: better.firstTry, total: better.total, attempts: better.attempts };
   }
 
+  // ---- T-054: Monk Mode's store. Created on the first write (never by a
+  // render); the four seed loops come with the first loops object.
+  function monkStore() {
+    if (!S.monk || typeof S.monk !== "object") S.monk = {};
+    const m = S.monk;
+    if (!m.days || typeof m.days !== "object") m.days = {};
+    if (!m.plans || typeof m.plans !== "object") m.plans = {};
+    if (!m.loops || typeof m.loops !== "object") m.loops = monkSeedLoops();
+    return m;
+  }
+  function mergeMonk(rm) {
+    const m = monkStore();
+    let n = 0;
+    ["days", "plans", "loops"].forEach(part => {
+      const theirs = rm[part] || {};
+      Object.keys(theirs).forEach(k => {
+        const t = theirs[k], mine = m[part][k];
+        if (!t || typeof t !== "object") return;
+        if (!mine || (t.at || "") > (mine.at || "")) { m[part][k] = t; n++; }
+      });
+    });
+    return n;
+  }
+  // Every monk write ends here: it is a save() like any other, but while
+  // MONK_SYNCS is false it arms no push — the push would carry nothing of it,
+  // and its commit time alone would say when a prayer was ticked.
+  function monkSave() {
+    if (MONK_SYNCS) { save(); return; }
+    syncQuiet++;
+    try { save(); } finally { syncQuiet--; }
+  }
+
   // One code path for both directions so the manual buttons and the automatic
   // pull-on-open cannot drift apart.
   let syncBusy = false;
+  // T-058: offline is not a failure. A request the network never carried is
+  // not GitHub's answer, so it records no syncError: no banner, no repaint, and
+  // never the rejection latch. What it owes is remembered (below), and the
+  // `online` event (boot) pushes once through armPush, the same automatic
+  // path a save takes, so every rule below still holds.
+  const offline = () => navigator.onLine === false;
+  // T-058 r1: navigator.onLine stays true on a Wi-Fi with no internet behind
+  // it. So the app also goes by its own requests: one that got no answer at
+  // all (the sync, or the lesson's check in probeNet) sets netDown, and any
+  // answer clears it. Memory only; a launch finds out again.
+  let netDown = false;
+  const noNet = () => offline() || netDown;
+  // T-058 r2: a sync's lost request is a question, not an answer. One reset
+  // connection used to hide every video for the rest of the session: netDown
+  // was set, the lesson drew its panel, and nothing asked again. Now the app
+  // asks the network itself (probeNet) before it believes a sync, and only
+  // the probe's own failure (sure) takes away a frame that is still loading.
+  function netState(down, sure) {
+    if (down && sure) videoGone();
+    if (netDown === down) return;
+    netDown = down;
+    paintSync();
+    if (!down) { if (!offline()) videoBack(); }
+    else if (!sure) probeNet();
+  }
+  // T-058 r2: iOS cuts a page's requests as it goes to the background, so a
+  // request that was out while the page was hidden says nothing about the
+  // network: it leaves netDown alone (a sync only marks itself owed). A mark
+  // taken as a request starts; hiddenSince(mark) is true if the page was
+  // hidden then, is now, or was in between. Coming back to the foreground
+  // with netDown set asks the network again.
+  let hides = 0;
+  const hiddenMark = () => document.visibilityState === "hidden" ? -1 : hides;
+  const hiddenSince = m => m === -1 || m !== hides || document.visibilityState === "hidden";
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") hides++;
+    else if (netDown) probeNet();
+  });
+  // T-058 r1: a sync this device owes — saved work not yet pushed, or a sync
+  // the network did not carry — kept in its own key, NOT in darhikmah_v1, so
+  // the state's shape is untouched and the debt outlives the app being closed
+  // offline. A counter: a push clears it only when no save came in while that
+  // push was out. While it is set, boot and coming back to the page push (a
+  // push merges first, so nothing a pull would bring is lost).
+  const OWED = "brickford_sync_pending";
+  const owedMark = () => { try { return localStorage.getItem(OWED); } catch (e) { return null; } };
+  function markOwed() { try { localStorage.setItem(OWED, String((parseInt(owedMark(), 10) || 0) + 1)); } catch (e) {} }
+  function clearOwed(mark) { try { if (owedMark() === mark) localStorage.removeItem(OWED); } catch (e) {} }
+  // A push asked for while another sync was out: run once that one is done.
+  let pushAgain = false;
+  const OFFLINE_SAY = "Offline — this device will sync when the connection is back.";
+  // The sync status in words, wherever it is drawn (the dashboard row, /sync).
+  // The online and offline events repaint these words in place: never the page.
+  // A rejected token comes first (r1): latched, this device will not sync when
+  // the connection is back either, so "will sync" would be a promise it
+  // cannot keep.
+  const latched = () => !!(S.settings.syncError && S.settings.syncError.fatal);
+  function syncWords() {
+    const last = S.settings.lastSyncAt || S.settings.lastSync;
+    if (latched()) return { t: "Synced", v: "failing" };
+    return noNet() ? { t: "Offline · will sync", v: agoLabel(last) }
+      : { t: "Synced", v: S.settings.syncError ? "failing" : agoLabel(last) };
+  }
+  const syncHead = () => !ghToken() ? "Not connected" : latched() ? "Connected, but failing" : noNet() ? "Offline · will sync"
+    : S.settings.syncError ? "Connected, but failing" : "Connected";
+  function paintSync() {
+    const w = syncWords();
+    $$("#view [data-sync-t]").forEach(el => { el.textContent = w.t; });
+    $$("#view [data-sync-v]").forEach(el => { el.textContent = w.v; });
+    $$("#view [data-sync-head]").forEach(el => { el.textContent = syncHead(); });
+  }
   // A sync that fails silently is worse than one that never ran: the device goes
   // on looking connected while its record quietly diverges. `say` only ever
   // reaches the /sync page, and four of the five callers pass nothing - the boot
@@ -419,6 +547,7 @@
     S.settings.syncError = null;
     save();
     syncQuiet--;
+    paintSync();   // T-058: "just now", in place
     if (transition && !rendering) render({ background: true });
   }
   // A rejected token is not a bad moment on the network, it is a configuration
@@ -435,10 +564,14 @@
   }
   function runSync(dir, say) {
     say = say || function () {};
-    if (!ghToken() || syncBusy) return Promise.resolve(false);
+    if (!ghToken()) return Promise.resolve(false);
+    if (syncBusy) { if (dir === "push") pushAgain = true; return Promise.resolve(false); }
+    if (offline()) { markOwed(); say(OFFLINE_SAY); return Promise.resolve(false); }
     syncBusy = true;
+    const seen = hiddenMark();   // T-058 r2: a request cut while hidden is not the network
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
+      netState(false);   // an answer, whatever it says: the network is there
       if (res.status === 404) return { missing: true };
       if (res.status === 401 || res.status === 403) throw new Error("Token rejected \u2014 it needs Contents: Read and write on " + SYNC_REPO + ".");
       if (!res.ok) throw new Error("GitHub returned " + res.status + ".");
@@ -473,6 +606,7 @@
         mergedIn = mergeState(remote).changed;
         syncQuiet--;
       }
+      const mark = owedMark();   // what this push carries; a later save keeps the debt
       const body = {
         message: "progress: " + todayISO() + " from " + S.settings.deviceId +
           (mergedIn ? " (merged " + mergedIn + ")" : ""),
@@ -482,6 +616,7 @@
       return ghFetch("PUT", body).then(res2 => {
         if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
+        clearOwed(mark);
         syncOk(); say("");
         // If the push pulled work in on its way past, the screen is out of date.
         if (mergedIn) { render({ background: true }); toast("Pushed — " + mergedIn + " change" + (mergedIn === 1 ? "" : "s") + " merged in."); }
@@ -489,6 +624,10 @@
         return true;
       });
     }).catch(err => {
+      // T-058: the connection went while the request was out, or (r1) the
+      // request got no answer at all: offline either way, not an error.
+      // HTTP statuses (a rejected token, a 409, a 500) go on as before.
+      if (offline() || err.network) { markOwed(); if (!hiddenSince(seen)) netState(true); say(OFFLINE_SAY); return false; }
       const before = S.settings.syncError && S.settings.syncError.msg;
       syncFailed(err.message);
       say('<span style="color:var(--bad);">' + esc(err.message) + "</span>");
@@ -499,13 +638,22 @@
       // identical error says nothing the first one did not.
       if (!rendering && before !== err.message) render({ background: true });
       return false;
-    }).then(v => { syncBusy = false; return v; });
+    }).then(v => {
+      syncBusy = false;
+      if (pushAgain) { pushAgain = false; runSync("push"); }
+      return v;
+    });
   }
 
   // Push shortly after progress changes, so sync is not a chore to remember.
   let pushTimer = null;
   function syncSoon() {
     if (!ghToken() || syncQuiet) return;
+    markOwed();   // T-058 r1: owed until a push carries it, even across a relaunch
+    armPush();
+  }
+  function armPush() {
+    if (!ghToken()) return;
     // Latched off after a rejection. syncOk() clears syncError, and connecting
     // or forgetting a token clears it too, so a fixed token lifts this on the
     // next manual pull or push — which is exactly when you would try again.
@@ -520,6 +668,10 @@
      "weeks", "labs", "psets", "electives", "treasury", "review", "concepts", "anchors", "reps"]
       .forEach(k => state[k] = S[k]);
     state.settings = { theme: S.settings.theme, dailyStart: S.settings.dailyStart, streakFrom: S.settings.streakFrom };
+    // T-054: Monk Mode is private until T-053; see MONK_SYNCS.
+    if (MONK_SYNCS && S.monk) state.monk = S.monk;
+    // T-065: the start date alone leaves the device; nothing else of Monk does.
+    if (S.monkStart) state.monkStart = S.monkStart;
     const ledgers = Object.assign({}, S.foreignLedgers);
     ledgers[S.settings.deviceId] = S.ledger;
     return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
@@ -893,9 +1045,8 @@
       "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
       "END:VEVENT",
     ].join("\r\n"));
-    const startDow = new Date(D.START_DATE + "T00:00:00").getDay();
-    // A Sunday start date must not review a week that hasn't run yet.
-    const sunday = addDaysISO(D.START_DATE, (7 - startDow) % 7 || 7);
+    // The first revision Sunday (T-056 r2): never one before a week has run.
+    const sunday = revisionWeek(1).sun;
     events.push([
       "BEGIN:VEVENT", "UID:brickford-review@brickford.local", "DTSTAMP:" + stamp,
       "DTSTART:" + ymd(sunday) + "T180000", "DTEND:" + ymd(sunday) + "T183000",
@@ -1041,7 +1192,7 @@
     // packed from REAL video minutes to fill the ~2h block — ~5 short 3B1B
     // chapters, or one 50-minute MIT lecture. Future days re-anchor if you
     // work ahead (see windowFor).
-    const dT = studyToday();
+    const dT = studyAnchor();
     const rotIdx = d % 3, rot = THEORY_ROT[rotIdx];
     const rotFlat = flatLessons(rot);
     const turn = Math.floor(d / 3);
@@ -1131,7 +1282,163 @@
   // counted, and nothing they touched is re-coloured; their quizzes go to the
   // catch-up list instead). Everything here is DERIVED from S.lessons on every
   // read: the lock is never stored, so there is nothing to fall out of date.
-  const QUIZ_GATE_FROM = "2026-10-16";                 // the ship date
+  const QUIZ_GATE_FROM = "2026-10-24";                 // the day after the fix merges (T-056 r3): everything watched on the merge day counts; a Saturday, so the gate starts with Sunday's lectures
+  // T-052: the owner's monk mode (T-057: MONK.days days from MONK.from) lives on its
+  // own dashboard, a private claude.ai page that reads the calendar and the
+  // inbox, which this app cannot. The dashboard row links to #/monk (T-054),
+  // which keeps one row out to that page (MONK.url). The day counts
+  // calendar days, Saturdays included: it is a life plan, not the study plan.
+  // T-065: the start is no longer a date in this file. It is S.monkStart, written
+  // once by startMonk() on the day the owner presses and holds Start, and
+  // MONK.from reads it: null until then, and every reader handles null.
+  const MONK = Object.freeze({ get from() { return S.monkStart || null; }, days: 21, url: "https://claude.ai/artifact/44WXCMiUaxiwt6jebgcS2Z" });
+  function monkDay(iso) { if (!MONK.from) return null; const n = daysBetween(MONK.from, iso) + 1; return n >= 1 && n <= MONK.days ? n : null; }
+  // Days logged before the start never count (the old store stays, nothing is deleted),
+  // so the week and month sums on #/monk draw only from the start on.
+  const monkLive = days => { const o = {}; Object.keys(days || {}).forEach(k => { if (MONK.from && k >= MONK.from) o[k] = days[k]; }); return o; };
+  // The one write to S.monkStart in the app, and nothing resets or clears it
+  // (mergeState keeps the earlier date, importBackup keeps this device's).
+  // Called from the sheet's hold handler, never from a render. It persists
+  // through save() like any user action, then pushes at once instead of
+  // waiting out the debounce, so the date reaches the other devices.
+  function startMonk() {
+    if (S.monkStart) return false;
+    S.monkStart = todayISO();
+    save();
+    if (ghToken()) { clearTimeout(pushTimer); runSync("push"); }
+    return true;
+  }
+  // ---------- T-054: Monk Mode, the arithmetic (loop/specs/T-054-monk-page) ----------
+  // Ported from loop/design/monk-mode.html, with the owner's amendment of
+  // 2026-10-23: Ja'fari (Tehran) times, the five prayers kept in three
+  // combined blocks, no Jumu'ah, and the owner's routine. Everything here is
+  // a pure read of what it is handed; the page and the hook both call it.
+  //
+  // PRIVACY: until T-053 (private sync) ships, S.monk never leaves this device.
+  // syncPayload() leaves it out, mergeState() ignores a remote one, and a monk
+  // write arms no push (a commit's time alone would say when a prayer was
+  // ticked). T-053 flips this one constant.
+  const MONK_SYNCS = false;
+  // Fajr and Isha by the sun's depression angle; Maghrib too (4.5°, not
+  // sunset). `combine`: three blocks (Fajr, Dhuhr & Asr, Maghrib & Isha), else five.
+  const PRAYER_METHOD = Object.freeze({ fajr: 17.7, maghrib: 4.5, isha: 14, combine: true });
+  const MONK_GEO = Object.freeze({ lat: 26.2285, lng: 50.586, tzh: 3 });   // Manama
+  const mkDow = iso => new Date(iso + "T00:00:00Z").getUTCDay();             // 0 = Sunday
+  const monkWeekStart = iso => addDaysISO(iso, -mkDow(iso));                  // weeks run Sunday to Saturday
+  const mkHHMM = m => { const r = Math.round(m); return pad2(Math.floor(r / 60) % 24) + ":" + pad2(r % 60); };
+  const mkDur = m => { const r = Math.round(m); return r >= 60 ? Math.floor(r / 60) + "h " + (r % 60) + "m" : r + "m"; };
+  function monkPrayerTimes(iso, method) {
+    const M = method || PRAYER_METHOD, LAT = MONK_GEO.lat, LNG = MONK_GEO.lng;
+    const d2r = Math.PI / 180, r2d = 180 / Math.PI;
+    const S_ = x => Math.sin(x * d2r), C_ = x => Math.cos(x * d2r), T_ = x => Math.tan(x * d2r);
+    const fix = (a, b) => { a = a - b * Math.floor(a / b); return a < 0 ? a + b : a; };
+    const julian = (y, m, d) => { if (m <= 2) { y -= 1; m += 12; } const A = Math.floor(y / 100), B = 2 - A + Math.floor(A / 4);
+      return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5; };
+    const sun = jd => { const D0 = jd - 2451545, g = fix(357.529 + 0.98560028 * D0, 360), q = fix(280.459 + 0.98564736 * D0, 360),
+      L = fix(q + 1.915 * S_(g) + 0.02 * S_(2 * g), 360), e = 23.439 - 0.00000036 * D0;
+      const RA = Math.atan2(C_(e) * S_(L), C_(L)) * r2d / 15; return { decl: Math.asin(S_(e) * S_(L)) * r2d, eqt: q / 15 - fix(RA, 24) }; };
+    const jd = julian(+iso.slice(0, 4), +iso.slice(5, 7), +iso.slice(8, 10)) - LNG / (15 * 24);
+    const noon = t => fix(12 - sun(jd + t).eqt, 24);
+    const at = (angle, t, ccw) => { const dc = sun(jd + t).decl, n = noon(t),
+      v = (1 / 15) * Math.acos((-S_(angle) - S_(dc) * S_(LAT)) / (C_(dc) * C_(LAT))) * r2d; return n + (ccw ? -v : v); };
+    const asr = t => { const dc = sun(jd + t).decl; return at(-Math.atan(1 / (1 + T_(Math.abs(LAT - dc)))) * r2d, t, false); };
+    const adj = MONK_GEO.tzh - LNG / 15, m = h => (h + adj) * 60;
+    return { fajr: m(at(M.fajr, 5 / 24, true)), sunrise: m(at(0.833, 6 / 24, true)), dhuhr: m(noon(12 / 24)),
+      asr: m(asr(13 / 24)), maghrib: m(at(M.maghrib, 18 / 24, false)), isha: m(at(M.isha, 18 / 24, false)) };
+  }
+  // The chips, and the prayer blocks of the day. `at` is the time it is prayed at.
+  function monkSlots(method) {
+    return (method || PRAYER_METHOD).combine
+      ? [{ k: "fajr", label: "Fajr", at: "fajr", mins: 15 }, { k: "dhuhrAsr", label: "Dhuhr & Asr", at: "dhuhr", mins: 25 },
+         { k: "maghribIsha", label: "Maghrib & Isha", at: "maghrib", mins: 25 }]
+      : [["fajr", "Fajr"], ["dhuhr", "Dhuhr"], ["asr", "Asr"], ["maghrib", "Maghrib"], ["isha", "Isha"]].map(([k, l]) => ({ k, label: l, at: k, mins: 15 }));
+  }
+  // The owner's routine (amendment 2026-10-23, second message), in minutes from midnight.
+  function monkPlanFor(iso, method) {
+    const w = mkDow(iso), pt = monkPrayerTimes(iso, method), ev = [];
+    const add = (start, mins, title, kind) => ev.push({ start, end: start + mins, title, kind: kind || "" });
+    monkSlots(method).forEach(s => add(pt[s.at], s.mins, s.label, "prayer"));
+    add(330, 10, "Journaling"); add(340, 20, "Meditation");
+    add(360, 90, "Gym"); add(360, 45, "German — Easy German podcast");
+    add(450, 180, "Brickford — Deep Track");
+    if (w === 5) add(480, 60, "Grandmother — grave visit");
+    add(630, 45, "Scripting");
+    add(720, 120, w === 0 || w === 3 ? "Editing — stream → clips" : "Working — business");
+    add(830, 10, "Post short-form"); add(840, 90, "Nap");
+    add(930, 10, "German — speaking"); add(940, 10, "German — writing"); add(950, 70, "Working — business");
+    add(1080, 25, "German — reading");
+    if (w === 0) add(1080, 30, "Weekly review");
+    if (w === 2 || w === 6) add(1140, 120, "Stream (English)"); else add(1105, 155, "Working — business");
+    add(1260, 55, "Reading"); add(1315, 5, "Plan tomorrow");
+    return ev.sort((a, b) => a.start - b.start);
+  }
+  const MONK_GERMAN = [["podcast", "Podcast", 45], ["speak", "Speak", 10], ["write", "Write", 10], ["read", "Read", 25]];
+  // T-057: the owner's five priorities, in his order. They alone make the
+  // ring, the day score, the map and the focus. Brickford is hours under its
+  // own key `bfh`: an old boolean `brickford` is not 3 hours, and is left alone.
+  const MONK_PRI = [["prayers", "Prayer on time"], ["nosin", "No sin today"], ["work", "Work 10 h"], ["bfh", "Brickford 3 h"], ["german", "German 1.5 h"]];
+  // Everything else is "Also": done or not, it is not counted in the ring.
+  const MONK_HABITS = [["meditate", "Meditate"], ["read", "Read"], ["clean", "No TikTok · IG · YouTube"], ["plan", "Plan tomorrow"]];
+  // German is done only when all four of its chips are.
+  const mkHabitDone = (d, k) => k === "german" ? !!d.german && typeof d.german === "object" && MONK_GERMAN.every(([g]) => !!d.german[g]) : !!d[k];
+  const mkPrayed = (d, method) => monkSlots(method).filter(s => !!(d.prayers && d.prayers[s.k])).length;
+  const mkHours = (d, k, h) => typeof d[k] === "number" && d[k] >= h;
+  function mkPriDone(d, k, method) {
+    if (k === "prayers") return mkPrayed(d, method) === monkSlots(method).length;
+    if (k === "nosin") return d.nosin === true;
+    if (k === "work") return mkHours(d, "work", 10);
+    if (k === "bfh") return mkHours(d, "bfh", 3);
+    return mkHabitDone(d, k);
+  }
+  const mkPhoneOk = d => d.phone != null && d.phone < 2;
+  function monkScore(d, method) {
+    d = d || {};
+    const done = MONK_PRI.filter(([k]) => mkPriDone(d, k, method)).length, n = MONK_PRI.length;
+    return { done, n, pct: Math.round(100 * done / n) };
+  }
+  const MONK_WEEK = [["shorts", "Short-form", 8], ["stream", "Streams", 2], ["video", "Videos", 2], ["scripts", "Scripts", 4], ["gym", "Gym", 5], ["book", "Book", 1], ["work", "Work hours", 70]];
+  const MONK_MONTH = [["stream", "Streams", 8], ["clips", "Clips", 36]];
+  function mkSum(days, key, from, to) { let t = 0; for (let i = from; i <= to; i = addDaysISO(i, 1)) t += +((days[i] || {})[key] || 0); return t; }
+  function monkWeekSums(days, iso) {
+    const a = monkWeekStart(iso), b = addDaysISO(a, 6), out = {};
+    MONK_WEEK.forEach(([k]) => { out[k] = mkSum(days || {}, k, a, b); });
+    return out;
+  }
+  function monkMonthSums(days, iso) {
+    const a = iso.slice(0, 8) + "01", b = addDaysISO(addDaysISO(a, 32).slice(0, 8) + "01", -1), out = {};
+    MONK_MONTH.forEach(([k]) => { out[k] = mkSum(days || {}, k, a, b); });
+    return out;
+  }
+  const MONK_FIX = {
+    prayers: "Stop what you're doing at the adhan alert. Pray first, then open anything else.",
+    german: "Do German listening on the run and speaking on the drive. Don't save it for later.",
+    nosin: "When the pull comes, get up and change rooms. Don't negotiate with it.",
+    bfh: "Start the Deep Track before you check any messages.",
+    meditate: "Meditate straight after journaling, same spot every day.",
+    read: "Leave your phone in another room at 21:00 and read 20 pages.",
+    clean: "Delete TikTok, Instagram and YouTube from the phone for the " + MONK.days + " days.",
+    plan: "The 21:55 alert is your cue: tick today, write tomorrow's 3, lights out.",
+    work: "Protect the 12:00 and 18:25 blocks. No calls, no phone.",
+    phone: "Set a 2-hour screen-time limit and keep the phone out of reach while you work.",
+  };
+  // The weakest of the five priorities over the seven days before `today` (monk days only).
+  function monkFocus(days, today, method) {
+    days = days || {};
+    if (!MONK.from) return null;                      // T-065: not started, no days to count
+    const end = addDaysISO(today, -1), list = [];
+    for (let i = addDaysISO(end, -6); i <= end; i = addDaysISO(i, 1)) if (i >= MONK.from) list.push(i);
+    if (!list.length) return null;
+    const rate = f => Math.round(100 * list.filter(i => f(days[i] || {})).length / list.length);
+    const rows = MONK_PRI.map(([k, l]) => [k, l, rate(d => mkPriDone(d, k, method))]);
+    rows.sort((a, b) => a[2] - b[2]);
+    return { days: list.length, key: rows[0][0], label: rows[0][1], rate: rows[0][2], fix: MONK_FIX[rows[0][0]] || "" };
+  }
+  const MONK_SEED_AT = "2026-10-22T00:00:00.000Z";   // older than any real edit, so the merge never prefers a seed
+  const MONK_SEEDS = [
+    "Carousel 'Top 5 Claude Code skills': approved twice 6 Oct, never rebuilt: rebuild or drop",
+    "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
+    "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];
+  const monkSeedLoops = () => { const o = {}; MONK_SEEDS.forEach((t, i) => { o["s" + (i + 1)] = { text: t, done: false, at: MONK_SEED_AT }; }); return o; };
   function lessonQuiz(k) {
     const sm = (D.SUMMARIES || {})[k];
     return sm && sm.checks && sm.checks.length ? sm.checks : null;
@@ -1309,6 +1616,18 @@
     }
     return owed.size;
   }
+  // T-056 r3: the earliest owed lecture in plan order — the first not cleared
+  // on the first day backlogCount() counts as owing one. Null when none is owed.
+  function firstOwed() {
+    const today = todayISO(), from = firstActivityISO();
+    if (!from) return null;
+    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
+      if (isRestDay(iso)) continue;
+      const it = realSched(iso).find(x => !schedDone(x));
+      if (it) return it;
+    }
+    return null;
+  }
   // Status of a calendar day: judged against ITS OWN scheduled lessons —
   // catching up late still turns the day green. Falls back to activity
   // for days beyond the scheduled syllabus.
@@ -1468,7 +1787,28 @@
     const real = realSched(todayISO());
     const nextUp = real.find(it => !schedDone(it));
     const due = reviewsDue();
-    if (nextUp) {
+    if (nextUp) return lectureAction(nextUp, real, false);
+    if (due.length) return {
+      href: "#/recall", kind: "recall", code: "RECALL",
+      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
+      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
+      hint: "due before new material", verb: "Start",
+    };
+    // T-056: today's lectures are all cleared (watched earlier, say), so the
+    // next thing is the first lecture not yet cleared, read from the next
+    // study day's plan, which the work-ahead logic (windowFor) re-anchors at
+    // the first unfinished lecture. Never a watched one, and ahead of Resume,
+    // which would point back at a lecture already seen.
+    // T-056 r3: but when something is owed, the owner's rule is "the first
+    // lecture I haven't watched": the earliest owed one, in plan order.
+    if (real.length) {
+      const ahead = (backlogCount() > 0 && firstOwed()) || realSched(addStudyDays(todayISO(), 1)).find(it => !schedDone(it));
+      if (ahead) return lectureAction(ahead, real, true);
+    }
+    return idleAction();
+  }
+  function lectureAction(nextUp, real, workAhead) {
+    {
       const c = D.COURSES.find(x => x.id === nextUp.cid);
       // T-043: when the next lecture is locked, or watched with its quiz still
       // to pass, the next thing to do is that quiz, so the card says so.
@@ -1499,16 +1839,18 @@
         fac: c ? facClass(c) : "",
         label: clipTitle(nextUp.l.t, 34),
         hint: (nextUp.l.min ? nextUp.l.min + "m video · " : "") +
-              (real.indexOf(nextUp) + 1) + " of " + real.length + " today",
+              (workAhead ? workAheadHint() : (real.indexOf(nextUp) + 1) + " of " + real.length + " today"),
         verb: "Open",
       };
     }
-    if (due.length) return {
-      href: "#/recall", kind: "recall", code: "RECALL",
-      title: due.length + " lecture" + (due.length === 1 ? "" : "s") + " due",
-      label: "Recall " + due.length + " lecture" + (due.length === 1 ? "" : "s"),
-      hint: "due before new material", verb: "Start",
-    };
+  }
+  // "Ahead of plan" only when nothing is owed; otherwise the count, worded
+  // and capped as the dashboard's "owed from earlier days" row words it.
+  function workAheadHint() {
+    const owed = backlogCount();
+    return owed > 0 ? "today is done · " + (owed > 20 ? "20+" : owed) + " owed" : "today is done · ahead of plan";
+  }
+  function idleAction() {
     if (S.settings.lastLesson) {
       const L = S.settings.lastLesson;
       return {
@@ -2162,6 +2504,20 @@
       '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + " \u25b8</a>" +
       "</div>" +
 
+      // ---- T-052: monk mode, one tap away while its MONK.days days run ----
+      (function () {
+        const n = monkDay(todayISO());
+        // T-065: not started, the row is the one Start button (it opens the sheet).
+        if (!MONK.from) return '<div class="ghead">Monk Mode<span class="gh-meta">' + MONK.days + ' days</span></div>' +
+          '<div class="glist"><button type="button" class="grow monk-row" data-monk-start>' +
+          '<span class="g-lead">◐</span><span class="g-main"><span class="g-t">Start Monk Mode</span></span></button></div>';
+        if (!n) return "";
+        return '<div class="ghead">Monk Mode<span class="gh-meta">Day ' + n + " of " + MONK.days + "</span></div>" +
+          '<div class="glist"><a class="grow monk-row" href="#/monk">' +
+          '<span class="g-lead">\u25d0</span><span class="g-main"><span class="g-t">Open today\u2019s dashboard</span>' +
+          '<span class="g-s">prayers, habits, tomorrow\u2019s plan</span></span></a></div>';
+      })() +
+
       // ---- Anything wrong, in one place ----
       //
       // Two alert banners in a component of their own (.task.owed, with its own
@@ -2298,8 +2654,8 @@
       })() +
       (ghToken()
         ? '<a class="grow" href="#/sync"><span class="g-lead"></span>' +
-          '<span class="g-main"><span class="g-t">Synced</span></span>' +
-          '<span class="g-v">' + esc(S.settings.syncError ? "failing" : agoLabel(S.settings.lastSyncAt || S.settings.lastSync)) + "</span></a>"
+          '<span class="g-main"><span class="g-t" data-sync-t>' + esc(syncWords().t) + "</span></span>" +
+          '<span class="g-v" data-sync-v>' + esc(syncWords().v) + "</span></a>"
         : "") +
       (backupAge === null || backupAge > 14
         ? '<button class="grow" data-act="backup"><span class="g-lead"></span>' +
@@ -2967,7 +3323,15 @@
           '<div class="lq-ws">' + esc(c.title) + "</div></div>" +
           '<button class="btn ghost lq-rewatch" type="button" data-act="rewatch">Rewatch</button></div>'
         : src
-        ? '<div class="video-frame"><iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'
+        ? (function () {
+            const frame = '<iframe src="' + src + '"' + (l.v ? ' data-k="' + k + '" data-v="' + l.v + '"' : "") + ' title="' + esc(l.t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+            // T-058: offline, a frame could only hold an error page. A plain
+            // panel takes its place, carrying the frame it stands in for, which
+            // videoBack() puts there when the connection returns.
+            return noNet()
+              ? '<div class="card video-off" data-frame="' + esc(frame) + '">' + VIDEO_OFF + "</div>"
+              : '<div class="video-frame">' + frame + "</div>";
+          })()
         : l.paper
           ? '<div class="card">This lesson is a paper — the reading is the lecture.</div>'
           : l.read
@@ -3296,7 +3660,8 @@
       dObj.toLocaleString("en-US", { month: "long" });
     const day = Math.max(1, studyIndex(iso) + 1);
     const { w, row } = weekRowFor(iso);
-    const isSunday = dObj.getDay() === 0;
+    // T-056 r2: a revision Sunday seals the revision week it ends, named.
+    const sealW = isSealDay(iso) ? revisionWeek(revisionWeekOf(iso)) : null;
     const first = todayISO() > D.START_DATE ? todayISO() : D.START_DATE;
     const status = dayStatus(iso);
     const gate = gatePlan().find(g => !g.doneDate && g.target === iso);
@@ -3332,7 +3697,9 @@
       return '<a class="cd-blk ' + (c ? facClass(c) : "") + (dn ? " done" : "") + (lk ? " locked" : "") + '" href="#/lesson/' + (lk ? lk.cid + "/" + lk.ui + "/" + lk.li : it.cid + "/" + it.ui + "/" + it.li) + '">' +
         '<span class="cd-bar" aria-hidden="true"></span>' +
         '<span class="cd-main"><span class="cd-k">' + esc(it.code) + " · " + esc(it.track) + "</span>" +
-        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>' : "") +
+        '<span class="cd-t">' + (dn ? '<span class="cd-ok" role="img" aria-label="done">✓</span>'
+          : (S.lessons[it.cid + "." + it.ui + "." + it.li] || {}).done ? '<span class="cd-st cd-part" role="img" aria-label="watched, quiz not passed"></span>'
+          : '<span class="cd-st cd-ring" role="img" aria-label="not watched"></span>') +
         (lk ? '<span class="cd-lock" role="img" aria-label="locked">' + lockSVG() + "</span>" : "") + esc(it.l.t) + "</span></span>" +
         '<span class="cd-r"><span>' + dur + "</span><span>" + (it.spanN > 1 ? "part " + it.dayN + " of " + it.spanN : "lecture " + n) + "</span></span></a>";
     };
@@ -3353,7 +3720,7 @@
       ["Drill", 10, pool ? pool + " missed" : "", "#/drill"],
       ["Publish", 30, "one post", "#/review"],
       ["Workshop", 0, "this week’s build", "#/workshop"],
-    ].concat(isSunday ? [["Seal the week", 30, "Week " + w, "#/review"]] : []);
+    ].concat(sealW ? [["Seal the week", 30, "Week " + sealW.r + " \u00b7 " + shortRange(sealW.from, sealW.to), "#/review"]] : []);
     const mins = habits.reduce((a, h) => a + h[1], 0);
     const about = "about " + (mins >= 60 ? Math.floor(mins / 60) + " h" + (mins % 60 ? " " + pad2(mins % 60) : "") : mins + " min");
     const habit = ([t, m, d, href]) => '<a class="at-tile cd-hb" href="' + href + '"><span class="tl-main">' +
@@ -3666,8 +4033,7 @@
 
       '<div class="card"><div class="vseal">' +
       '<div class="vico ' + (state === "ok" ? "ok" : "bad") + '">' + (state === "ok" ? "\u2713" : "!") + "</div>" +
-      '<div class="vtext"><div class="vhead">' +
-      (state === "ok" ? "Connected" : state === "broken" ? "Connected, but failing" : "Not connected") + "</div>" +
+      '<div class="vtext"><div class="vhead" data-sync-head>' + syncHead() + "</div>" +
       '<div class="muted">' +
       (last ? "Last successful sync " + esc(agoLabel(last)) : "This device has never synced.") +
       (devs ? " \u00b7 " + devs + " other device" + (devs === 1 ? "" : "s") : "") + "</div></div></div>" +
@@ -4278,6 +4644,41 @@
   function weekSpan(w) {
     return { from: dateForStudy((w - 1) * STUDY_WEEK), to: dateForStudy(w * STUDY_WEEK - 1) };
   }
+  // ---- T-056 r2: the revision week (owner, 2026-10-23: "Keep Sunday") ----
+  // Sunday is the seal-and-revision day whatever weekday the plan started on.
+  // Revision week r is the study days Sunday..Friday before its Sunday, `sun`;
+  // week 1 also takes the study days before the first Sunday, so with the
+  // Friday start it is 16-23 Oct (days 1-7), revised Sun 25 Oct. These are
+  // NOT plan weeks (weekNumber/weekSpan count from START_DATE, Fri-Thu since
+  // reset seven): a seal names the days just worked, never a plan week still
+  // running. A Sunday start revises its first week a week later, not that day.
+  function firstSunday() { return addDaysISO(D.START_DATE, (7 - dowOf(D.START_DATE)) % 7); }
+  function revisionWeek(r) {
+    const sun = addDaysISO(firstSunday(), 7 * r);
+    return { r, from: r === 1 ? D.START_DATE : addDaysISO(sun, -7), to: prevStudyDay(sun), sun };
+  }
+  // The revision week a date answers to: the first whose Sunday is on or after
+  // it (on a revision Sunday, the week that Sunday seals).
+  function revisionWeekOf(iso) { return Math.max(1, Math.ceil(daysBetween(firstSunday(), iso) / 7)); }
+  // The Sundays that seal: every Sunday from the first revision Sunday on.
+  function isSealDay(iso) { return dowOf(iso) === 0 && iso >= revisionWeek(1).sun; }
+  // The lectures the plan as drawn puts in revision week r (no work-ahead
+  // re-anchoring, so progress never changes it): distinct lectures, pseudo
+  // blocks left out — what tools/revision-pdf.js prints for that week.
+  function revisionLectures(r) {
+    const { from, to } = revisionWeek(r), keys = new Set();
+    planOnly = true;
+    try {
+      for (let iso = from; iso <= to; iso = addDaysISO(iso, 1))
+        scheduledFor(iso).forEach(it => { if (!it.pseudo) keys.add(lessonKey(it.cid, it.ui, it.li)); });
+    } finally { planOnly = false; }
+    return keys.size;
+  }
+  // "16–23 Oct", or "26 Oct–1 Nov" across a month.
+  function shortRange(a, b) {
+    const d = iso => new Date(iso + "T00:00:00");
+    return (a.slice(0, 7) === b.slice(0, 7) ? String(d(a).getDate()) : shortDay(a)) + "\u2013" + shortDay(b);
+  }
   const shortDay = iso => { const d = new Date(iso + "T00:00:00");
     return d.getDate() + " " + d.toLocaleString("en-US", { month: "short" }); };
   const numText = v => (Math.round(v * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
@@ -4291,10 +4692,14 @@
   // { week, date, shipped, dsa, posts, revenue, notes }. DSA is the running
   // total, as that field always was (the dashboard draws it "over time").
   V.review = function () {
-    const w = weekNumber(), today = todayISO();
-    const { from, to } = weekSpan(w);
-    const inWeek = iso => typeof iso === "string" && iso >= from && iso <= to;
-    const sealed = S.weeks.find(x => +x.week === w);
+    // T-056 r2: the revision week, sealed on its Sunday. Its Saturday is in
+    // it (a payment logged on the rest day belongs to the week just worked).
+    const today = todayISO(), w = revisionWeekOf(today);
+    const { from, sun } = revisionWeek(w);
+    const inWeek = iso => typeof iso === "string" && iso >= from && iso < sun;
+    // T-056 r3: a week sealed under an earlier start can carry the same
+    // number; it is this week only if it was sealed on or after this week began.
+    const sealed = S.weeks.find(x => +x.week === w && (x.date || "") >= from);
     const dsa = dsaCount();
     const proven = Object.values(S.lessons).filter(l => l && l.verified && inWeek(l.verifiedAt)).length;
     // BHD is counted from the Treasury ledger once it has any entry at all (a
@@ -4314,9 +4719,9 @@
       "<span>" + label + '</span><em class="wk-hand">tap to edit</em></span></label>';
 
     const state = sealed ? "Sealed " + shortDay(sealed.date)
-      : today >= to ? "Ready to seal"
-      : (() => { const n = daysBetween(today, to);
-          return "Opens " + new Date(to + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(to) +
+      : today >= sun ? "Ready to seal"
+      : (() => { const n = daysBetween(today, sun);
+          return "Opens " + new Date(sun + "T00:00:00").toLocaleString("en-US", { weekday: "long" }) + " " + shortDay(sun) +
             " · " + n + " day" + (n === 1 ? "" : "s"); })();
 
     // Past weeks, newest first. A card opens to its notes: a <details>, so
@@ -4370,7 +4775,7 @@
     const dailyLink = gcalUrl("Brickford — Deep Track",
       "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan.",
       { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS });
-    const nextSunday = addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7);
+    const nextSunday = [addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7), revisionWeek(1).sun].sort()[1];
     const reviewLink = gcalUrl("Brickford — Weekly Review (seal the week)",
       "No shipped artifact = a failed week. Fill the row before the day ends.",
       { startDate: nextSunday, atTime: "18:00", durationMin: 30, recur: "FREQ=WEEKLY;BYDAY=SU" });
@@ -5310,6 +5715,13 @@
       mod("Library", "reference", "The founding documents and the outside courses.", "#/library") +
       "</div></div></details>" +
 
+      // T-058: the owner asked for it as an app, and for it to work offline.
+      '<div class="ghead">On your phone</div>' +
+      '<div class="glist">' +
+      row("", "Install it", "iPhone: Safari → Share → Add to Home Screen. Android: Chrome → ⋮ → Install app", null) +
+      row("", "Offline", "everything works without a connection except the videos; progress syncs when you are back online", null) +
+      "</div>" +
+
       '<div class="card" style="margin-top:16px;"><h2>Right now — Phase 0, weeks 1–2</h2>' +
       '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:4px;">Four things, then Phase 1 opens: three math diagnostics (≥70%), the coding diagnostic, GitHub/blog/X, and the Treasury’s first five moves.</p>' +
       '<div style="margin-top:12px;"><a class="btn" href="#/exams">Sit the diagnostics</a></div></div>' +
@@ -5349,6 +5761,27 @@
     ["nanoGPT", "https://github.com/karpathy/nanoGPT"],
   ];
   const LINKS_SHOWN = 5;
+  // T-055: the revision weeks with a PDF in revision/ (weeks 1..REVISION_PDFS).
+  // T-056 r2: each tile's dates and lecture count are the revision week's own
+  // (revisionWeek, revisionLectures), never a table of an older start's dates.
+  const REVISION_PDFS = 6;
+  // T-058 r1: in the Home Screen app a tile opens its PDF in the app's own
+  // window, not a new tab. On an iPhone a new tab leaves the app for a Safari
+  // view that does not share the app's storage, so the worker and its cached
+  // PDFs would not be there offline. manifest.json's scope is the site root
+  // (../), so revision/ is inside the app and iOS keeps the PDF in its
+  // window. A read: nothing is stored. Not seen on an iPhone by any gate.
+  const standalone = () => navigator.standalone === true ||
+    !!(window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  function revisionTiles() {
+    const out = [];
+    for (let n = 1; n <= REVISION_PDFS; n++) {
+      const rw = revisionWeek(n);
+      out.push({ n, from: rw.from, to: rw.to, sun: rw.sun, dates: shortRange(rw.from, rw.to), lectures: revisionLectures(n),
+        href: "../revision/week-" + String(n).padStart(2, "0") + ".pdf" });
+    }
+    return out;
+  }
   V.library = function () {
     const glyph = '<span class="pb-glyph lb-ic" aria-hidden="true"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5.5h8M5 9h8M5 12.5h5"/></svg></span>';
     const doc = (href, t, m, cls) => '<a class="at-tile pb-mode lb-doc' + (cls ? " " + cls : "") + '" href="' + href + '">' + glyph +
@@ -5372,6 +5805,16 @@
       '<div class="at-tiles lb-docs lb-guides">' +
       guides.map(d => doc("#/doc/" + d.id, face(d)[0], face(d)[1], d.id === "log" ? "lb-old" : "")).join("") + "</div>" +
 
+      // T-055: the Sunday revision PDFs (T-035), one per revision week, made by
+      // tools/revision-pdf.js into revision/ at the repo root. They open in a
+      // new tab, or in the Home Screen app's own window (T-058 r1,
+      // standalone); the browser's own viewer handles the PDF.
+      '<div class="ghead">Sunday revision<span class="gh-meta">' + REVISION_PDFS + " weeks</span></div>" +
+      '<div class="at-tiles lb-docs lb-rev">' +
+      revisionTiles().map(t => '<a class="at-tile pb-mode lb-doc" href="' + t.href +
+        '"' + (standalone() ? "" : ' target="_blank" rel="noopener"') + ">" + glyph + '<span class="pb-t">Week ' + t.n + "</span>" +
+        '<span class="pb-d">' + esc(t.dates) + " \u00b7 " + t.lectures + " lectures</span></a>").join("") + "</div>" +
+
       '<div class="ghead">Outside links<span class="gh-meta">' + LINKS.length + "</span></div>" +
       '<div class="at-chips lb-links">' +
       LINKS.map(([t, u], i) => '<a class="at-chip" href="' + u + '" target="_blank" rel="noopener"' +
@@ -5383,6 +5826,211 @@
 
   // Not a fallback to Today: an answer. Says what was asked for, and offers the
   // two places worth going from a dead link.
+  // =================== T-054: Monk Mode (#/monk) ===================
+  // loop/specs/T-054-monk-page/spec.md; the layout, logic and copy mirror
+  // loop/design/monk-mode.html. A render is a read: nothing here creates
+  // S.monk — the seed loops are drawn from monkSeedLoops() until the first
+  // write stores them. Typed text not yet saved lives in monkDraft (memory).
+  let monkDraft = {};
+  const mkNice = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const mkNowMin = () => { const t = new Date(); return t.getHours() * 60 + t.getMinutes(); };
+  const mkRow = (tm, title, v, cls) => '<div class="grow mk-static' + (cls ? " " + cls : "") + '">' +
+    (tm != null ? '<span class="mk-tm">' + esc(tm) + "</span>" : "") +
+    '<span class="g-main"><span class="g-t">' + esc(title) + "</span></span>" + (v ? '<span class="g-v">' + esc(v) + "</span>" : "") + "</div>";
+  function monkNowRows(iso) {
+    const min = mkNowMin(), evs = monkPlanFor(iso);
+    const cur = evs.filter(e => e.start <= min && min < e.end).sort((a, b) => (b.kind === "prayer") - (a.kind === "prayer") || b.start - a.start)[0];
+    const nxt = evs.find(e => e.start > min);
+    const pt = monkPrayerTimes(iso), np = monkSlots().map(s => ({ l: s.label, m: pt[s.at] })).find(p => p.m > min);
+    let h = cur ? mkRow("Now", cur.title, "until " + mkHHMM(cur.end), "mk-cur") : mkRow("Now", "Free", "");
+    if (nxt) h += mkRow(mkHHMM(nxt.start), nxt.title, "in " + mkDur(nxt.start - min));
+    if (np && !(nxt && nxt.kind === "prayer" && Math.abs(nxt.start - np.m) < 20)) h += mkRow(mkHHMM(np.m), np.l, "adhan · in " + mkDur(np.m - min));
+    return h;
+  }
+  function monkPrayerStreak(days, today) {
+    const n = monkSlots().length, full = i => mkPrayed(days[i] || {}) === n;
+    let s = 0, i = today;
+    if (!full(i)) i = addDaysISO(i, -1);
+    while (i >= MONK.from && full(i)) { s++; i = addDaysISO(i, -1); }
+    return s;
+  }
+  V.monk = function () {
+    // T-065: until the owner starts it there is no day, no score and no plan to
+    // show: the 21 empty days and the one Start button (it opens the sheet).
+    if (!MONK.from) {
+      const col = '<div class="hcol">' + '<span class="hc"></span>'.repeat(7) + "</div>";
+      return '<div class="view-enter mk">' + folio("Monk Mode", MONK.days + " days") +
+        '<div class="card one mk-start"><div class="one-kind">' + MONK.days + " days</div>" +
+        '<div class="heat" style="--wk:3" aria-hidden="true">' + col + col + col + "</div>" +
+        '<button type="button" class="btn lg one-go" data-monk-start>Start Monk Mode</button></div></div>';
+    }
+    const iso = todayISO(), n = monkDay(iso), before = iso < MONK.from;
+    const M = S.monk || {}, days = monkLive(M.days), d = days[iso] || {}, w = mkDow(iso), sc = monkScore(d);
+    const from = Number(MONK.from.slice(8)) + " " + mkNice(MONK.from).split(" ").pop();
+    const head = n ? "Day " + n + " of " + MONK.days : before ? "Starts " + from : MONK.days + " days done";
+    const weeks = Math.ceil(MONK.days / 7), week = n ? "Week " + (Math.floor((n - 1) / 7) + 1) + " of " + weeks : "";
+    const gh = (t, meta) => '<div class="ghead">' + esc(t) + (meta ? '<span class="gh-meta">' + esc(meta) + "</span>" : "") + "</div>";
+    const tick = on => on ? CHECK_SVG : '<span class="mk-ring"></span>';
+
+    // ---- Now / Next, and the full day behind a disclosure ----
+    const min = mkNowMin(), evs = monkPlanFor(iso);
+    const nowHTML = gh("Now", "Plan") + '<div class="glist" id="mkNow">' + monkNowRows(iso) + "</div>" +
+      '<details class="glist mk-day"><summary class="grow"><span class="g-main"><span class="g-t">Full day</span></span><span class="g-v">' + evs.length + " blocks</span></summary>" +
+      evs.map(e => mkRow(mkHHMM(e.start), e.title, "", e.end <= min ? "muted-row" : "")).join("") + "</details>";
+
+    // ---- Top 3 today: last night's plan, or the day-type defaults ----
+    const plan = (M.plans || {})[iso] || {};
+    const def = { business: "Decide the business idea: one hour, one page",
+      content: w === 2 || w === 6 ? "Stream at 19:00, script ready by 18:00" : w === 0 || w === 3 ? "Cut 4–5 clips from the stream" : "Script one video, post one short",
+      education: "Today’s Brickford lectures + their quizzes" };
+    const topHTML = gh("Top 3 today", plan.at ? "Planned" : "") + '<div class="glist" id="mkTop3">' +
+      [["business", "B"], ["content", "C"], ["education", "E"]].map(([k, g]) =>
+        '<div class="grow mk-static mk-top"><span class="g-lead">' + g + '</span><span class="g-main"><span class="g-t">' + esc(plan[k] || def[k]) + "</span></span></div>").join("") + "</div>";
+
+    // ---- A stepper row (hours and counts), the page's one stepper shape ----
+    const numRow = ([k, l, step, target, cmp], attr) => {
+      const v = +(d[k] || 0), good = cmp === ">=" ? v >= target : cmp === "<" ? d[k] != null && v < target : false;
+      return '<div ' + (attr || "") + 'class="grow mk-static mk-num"><span class="g-main"><span class="g-t">' + l + '</span></span><span class="mk-step">' +
+        '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + -step + '" aria-label="Less: ' + l + '">−</button>' +
+        '<output data-mk-out="' + k + '"' + (good ? ' class="mk-good"' : "") + ">" + v + (cmp ? " / " + target : "") + "</output>" +
+        '<button type="button" class="btn tiny bare" data-mk-num="' + k + '" data-d="' + step + '" aria-label="More: ' + l + '">+</button></span></div>';
+    };
+    const toggle = (k, l, attr) => '<button type="button" ' + (attr || "") + 'class="grow mk-habit' + (d[k] ? " done-row" : "") + '" data-mk-habit="' + k + '" aria-pressed="' + !!d[k] + '">' +
+      '<span class="g-lead">' + tick(!!d[k]) + '</span><span class="g-main"><span class="g-t">' + esc(l) + "</span></span></button>";
+
+    // ---- T-057: the five priorities, in the owner's order ----
+    const pt = monkPrayerTimes(iso), ps = monkPrayerStreak(days, iso), pr = d.prayers || {}, nSlots = monkSlots().length, pDone = mkPrayed(d);
+    const ger = d.german && typeof d.german === "object" ? d.german : {}, gDone = MONK_GERMAN.filter(([g]) => ger[g]).length;
+    const priHTML = gh("Priorities", sc.done + " of " + sc.n) + '<div class="glist" id="mkPri">' +
+      '<div class="grow mk-static' + (pDone === nSlots ? " done-row" : "") + '" data-mk-pri="prayers"><span class="g-lead">' + tick(pDone === nSlots) + '</span><span class="g-main"><span class="g-t">Prayer on time</span></span><span class="g-v">' +
+        (ps ? ps + "-day streak · " : "") + pDone + " of " + nSlots + "</span></div>" +
+      '<div class="mk-chips">' + monkSlots().map(s => '<button type="button" class="mk-chip" data-mk-pray="' + s.k + '" aria-pressed="' + !!pr[s.k] + '">' +
+        esc(s.label) + "<small>" + mkHHMM(pt[s.at]) + "</small></button>").join("") + "</div>" +
+      toggle("nosin", "No sin today", 'data-mk-pri="nosin" ') +
+      numRow(["work", "Work 10 h", 0.5, 10, ">="], 'data-mk-pri="work" ') +
+      numRow(["bfh", "Brickford 3 h", 0.5, 3, ">="], 'data-mk-pri="bfh" ') +
+      '<div class="grow mk-static' + (gDone === 4 ? " done-row" : "") + '" data-mk-pri="german"><span class="g-lead">' + tick(gDone === 4) + '</span><span class="g-main"><span class="g-t">German 1.5 h</span></span><span class="g-v">' + gDone + " of 4</span></div>" +
+      '<div class="mk-chips mk-german">' + MONK_GERMAN.map(([g, l, mins]) => '<button type="button" class="mk-chip" data-mk-german="' + g + '" aria-pressed="' + !!ger[g] + '">' +
+        l + "<small>" + mins + " min</small></button>").join("") + "</div></div>";
+
+    // ---- Also: the rest of the day, done as before, not in the ring ----
+    const alsoDone = MONK_HABITS.filter(([k]) => mkHabitDone(d, k)).length + (mkPhoneOk(d) ? 1 : 0);
+    const alsoHTML = gh("Also", alsoDone + " of " + (MONK_HABITS.length + 1)) + '<div class="glist" id="mkAlso">' +
+      MONK_HABITS.map(([k, l]) => toggle(k, l)).join("") + numRow(["phone", "Phone hours", 0.5, 2, "<"]) + "</div>";
+
+    // ---- Numbers ----
+    const NUMS = [["gym", "Gym", 1], ["shorts", "Short-form posted", 1],
+      ["video", "Videos published", 1], ["scripts", "Scripts written", 1], ["stream", "Streams done", 1], ["clips", "Clips cut", 1], ["book", "Books finished", 1]];
+    const numHTML = gh("Numbers") + '<div class="glist">' + NUMS
+      .filter(([k]) => k !== "stream" || w === 2 || w === 6).filter(([k]) => k !== "clips" || w === 0 || w === 3 || (d.clips || 0) > 0)
+      .map(r => numRow(r)).join("") + "</div>";
+
+    // ---- This week (Sunday to Saturday) and this month ----
+    const prog = (l, v, t) => { const p = Math.min(100, Math.round(100 * v / t));
+      return '<div class="grow mk-static"><span class="g-main"><span class="g-t">' + l + '</span></span><span class="g-v">' + +v.toFixed(1) + " / " + t +
+        '</span><span class="mk-bar" aria-hidden="true"><i style="width:' + p + '%"></i></span></div>'; };
+    const ws = monkWeekStart(iso), wk = monkWeekSums(days, iso), mo = monkMonthSums(days, iso);
+    const strip = x => x.replace(/^\w+ /, "");
+    const sumHTML = gh("This week", strip(mkNice(ws)) + " – " + strip(mkNice(addDaysISO(ws, 6)))) + '<div class="glist">' + MONK_WEEK.map(([k, l, t]) => prog(l, wk[k], t)).join("") + "</div>" +
+      gh("This month", new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" })) + '<div class="glist">' + MONK_MONTH.map(([k, l, t]) => prog(l, mo[k], t)).join("") + "</div>";
+
+    // ---- MONK.days days (21: 3 week columns x 7 days), by the day's score: the five priorities ----
+    let cols = "", sum = 0, past = 0;
+    for (let c = 0; c < weeks; c++) {
+      cols += '<div class="hcol">';
+      for (let r = 0; r < 7; r++) {
+        const k = c * 7 + r;
+        if (k >= MONK.days) { cols += '<span class="hc void"></span>'; continue; }
+        const di = addDaysISO(MONK.from, k);
+        if (di > iso) { cols += '<span class="hc' + '" title="' + esc(mkNice(di)) + '"></span>'; continue; }
+        const p = monkScore(days[di]).pct;
+        if (di < iso) { sum += p; past++; }
+        const lv = p >= 90 ? "l4" : p >= 70 ? "l3" : p >= 40 ? "l2" : p > 0 ? "l1" : "l0";
+        cols += '<span class="hc ' + lv + (di === iso ? " now" : "") + '" title="' + esc(mkNice(di)) + " · " + p + '%"></span>';
+      }
+      cols += "</div>";
+    }
+    const mapHTML = gh(MONK.days + " days", past ? "avg " + Math.round(sum / past) + "%" : "") +
+      '<div class="glist mk-mapbox"><div class="heat" id="mkMap" style="--wk:' + weeks + '" role="img" aria-label="Daily score, ' + MONK.days + ' days">' + cols + "</div></div>";
+
+    // ---- Focus this week: the weakest priority, and its one-line fix ----
+    const f = monkFocus(days, iso);
+    const focusHTML = gh("Focus this week") + '<div class="glist">' + (f
+      ? '<div class="grow mk-static"><span class="g-main"><span class="g-t">' + esc(f.label) + " · " + f.rate + '%</span><span class="g-s">' + esc(f.fix) + "</span></span></div>"
+      : mkRow(null, iso === MONK.from ? "Starts tomorrow" : "Starts " + Number(addDaysISO(MONK.from, 1).slice(8)) + " " + mkNice(MONK.from).split(" ").pop(), "", "muted-row")) + "</div>";
+
+    // ---- Open loops ----
+    const loops = M.loops || monkSeedLoops();
+    const ids = Object.keys(loops).sort((a, b) => (!!loops[a].done - !!loops[b].done) || (loops[a].at || "").localeCompare(loops[b].at || "") || a.localeCompare(b, "en", { numeric: true }));
+    const open = ids.filter(k => !loops[k].done).length;
+    const loopHTML = gh("Open loops", open ? open + " open" : "") + '<div class="glist">' + (ids.length ? ids.map(k =>
+      '<button type="button" class="grow mk-habit' + (loops[k].done ? " done-row" : "") + '" data-mk-loop="' + esc(k) + '" aria-pressed="' + !!loops[k].done + '">' +
+      '<span class="g-lead">' + tick(!!loops[k].done) + '</span><span class="g-main"><span class="g-t">' + esc(loops[k].text) + "</span></span></button>").join("")
+      : mkRow(null, "Nothing open", "", "muted-row")) + "</div>" +
+      '<form class="glist mk-add" id="mkLoopForm"><div class="grow mk-static mk-field"><label for="mkLoopNew">New</label>' +
+      '<input id="mkLoopNew" autocomplete="off" maxlength="200" placeholder="Something to close" value="' + esc(monkDraft.loop || "") + '">' +
+      '<button type="submit" class="btn tiny ghost" data-mk-add>Add</button></div></form>';
+
+    // ---- Plan tomorrow ----
+    const tm = addDaysISO(iso, 1), tp = (M.plans || {})[tm] || {};
+    const fld = (k, l) => { const v = monkDraft[k] != null ? monkDraft[k] : tp[k] || "", id = "mkPlan" + capFirst(k);
+      return '<div class="grow mk-static mk-field"><label for="' + id + '">' + l + '</label><input id="' + id + '" data-mk-plan="' + k + '" autocomplete="off" maxlength="200" value="' + esc(v) + '"></div>'; };
+    const planHTML = gh("Plan tomorrow", mkNice(tm)) + '<div class="glist">' + fld("business", "Business") + fld("content", "Content") + fld("education", "Education") + "</div>" +
+      '<div class="mk-actions"><button type="button" class="btn" data-mk-save>Save tomorrow’s plan</button>' +
+      (tp.at ? '<span class="mk-note">Saved for ' + esc(mkNice(tm)) + "</span>" : "") + "</div>";
+
+    const extHTML = '<div class="glist mk-extbox"><a class="grow mk-ext" href="' + MONK.url + '" target="_blank" rel="noopener"><span class="g-main"><span class="g-t">Calendar and inbox</span></span></a></div>';
+
+    return '<div class="view-enter mk">' + folio("Monk Mode", week || mkNice(iso)) +
+      '<div class="card one mk-head"><div class="mk-hl"><div class="one-kind">' + esc(head) + '</div><div class="one-hint">' + esc(mkNice(iso) + (week ? " · " + week : "")) + "</div></div>" +
+      ringHTML(sc.pct, sc.pct + "%", "", "good", 64) + "</div>" +
+      nowHTML + priHTML + topHTML + mapHTML + focusHTML + alsoHTML + numHTML + sumHTML + loopHTML + planHTML + extHTML + "</div>";
+  };
+  function wireMonk(root) {
+    const iso = todayISO(), stamp = () => new Date().toISOString();
+    const dayPatch = fn => { const m = monkStore(), d = Object.assign({}, m.days[iso]); fn(d); d.at = stamp(); m.days[iso] = d; monkSave(); render(); };
+    $$("[data-mk-pray]", root).forEach(b => { b.onclick = () => dayPatch(d => { const p = Object.assign({}, d.prayers), k = b.dataset.mkPray; p[k] = !p[k]; d.prayers = p; }); });
+    $$("[data-mk-german]", root).forEach(b => { b.onclick = () => dayPatch(d => {
+      const g = Object.assign({}, d.german && typeof d.german === "object" ? d.german : {}), k = b.dataset.mkGerman; g[k] = !g[k]; d.german = g; }); });
+    $$("[data-mk-habit]", root).forEach(b => { b.onclick = () => dayPatch(d => { const k = b.dataset.mkHabit; d[k] = !d[k]; }); });
+    $$("[data-mk-num]", root).forEach(b => { b.onclick = () => dayPatch(d => {
+      const k = b.dataset.mkNum; let v = Math.max(0, Math.round((+(d[k] || 0) + +b.dataset.d) * 2) / 2);
+      if (k === "gym") v = Math.min(1, v);                    // one session a day
+      d[k] = v; }); });
+    $$("[data-mk-loop]", root).forEach(b => { b.onclick = () => {
+      const m = monkStore(), l = m.loops[b.dataset.mkLoop]; if (!l) return;
+      m.loops[b.dataset.mkLoop] = Object.assign({}, l, { done: !l.done, at: stamp() }); monkSave(); render(); }; });
+    const form = $("#mkLoopForm", root);
+    if (form) form.onsubmit = e => {
+      e.preventDefault();
+      const inp = $("#mkLoopNew", root), text = (inp.value || "").trim().slice(0, 200);
+      if (!text) return;
+      const m = monkStore();
+      m.loops["l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)] = { text, done: false, at: stamp() };
+      monkDraft.loop = ""; monkSave(); render();
+    };
+    const ln = $("#mkLoopNew", root);
+    if (ln) ln.oninput = () => { monkDraft.loop = ln.value; };
+    $$("[data-mk-plan]", root).forEach(i => { i.oninput = () => { monkDraft[i.dataset.mkPlan] = i.value; }; });
+    // Typing is what a background repaint would interrupt; it waits, and runs on leaving the field.
+    $$(".mk-field input", root).forEach(i => i.addEventListener("blur", bgReplay));
+    const sv = $("[data-mk-save]", root);
+    if (sv) sv.onclick = () => {
+      const m = monkStore(), tm = addDaysISO(iso, 1), at = stamp(), p = { at };
+      $$("[data-mk-plan]", root).forEach(i => { p[i.dataset.mkPlan] = (i.value || "").trim().slice(0, 200); });
+      m.plans[tm] = p;
+      m.days[iso] = Object.assign({}, m.days[iso], { plan: true, at });  // saving it is today's "Plan tomorrow"
+      monkDraft = {}; monkSave(); render();
+    };
+    // Now / Next follows the clock: the rows are rewritten in place (a read,
+    // nothing stored); a new day repaints the page.
+    timerH = setInterval(() => {
+      if (route() !== "/monk") return;
+      if (todayISO() !== iso) { render({ background: true }); return; }
+      const g = $("#mkNow"); if (g) g.innerHTML = monkNowRows(iso);
+    }, 30000);
+  }
+
   V.notFound = function (r) {
     return '<div class="view-enter">' + folio("Not found") + '<div class="page-head">' +
       '<div class="sub">Nothing in Brickford answers to <code>#' + esc(r) + "</code>. It may have been renamed, or the link may be old.</div></div>" +
@@ -5411,11 +6059,17 @@
 
   // ---------- actions ----------
   function wire(root, route) {
+    if (route === "/monk") wireMonk(root);
+    $$("[data-monk-start]", root).forEach(b => { b.onclick = monkStartSheet; });   // T-065: the page's and the dashboard's Start
     // A lecture's player, if one was just drawn: start the handshake.
     // And again the moment the frame has loaded: whatever was said before
     // that went to a page that was not the player yet.
     const yt = $(".video-frame iframe[data-k]", root);
-    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); }
+    if (yt) { hailPlayer(yt); yt.addEventListener("load", () => hailPlayer(yt)); probeNet(); }
+    // T-058 r2: a panel drawn for netDown (not for navigator.onLine) asks the
+    // network itself: an answer puts the frame back (netState → videoBack).
+    // Nothing else would, while the panel stands where the frame would ask.
+    if ($(".video-off[data-frame]", root) && !offline()) probeNet();
     // T-043: the lecture's quiz, mounted once the view is on screen — never
     // from the render, which only leaves the empty mount.
     const lq = $("#lqMount", root);
@@ -5688,7 +6342,7 @@
           S.diag[m[1]] = { score: null, date: todayISO() };
           logEvent("diagnostic", m[1], { score: null }); save(); render(); toast("Diagnostic marked complete.");
         } else if (act === "logWeek") {
-          const w = weekNumber();
+          const w = revisionWeekOf(todayISO());      // T-056 r2: the revision week, as the page shows it
           const entry = {
             week: w, date: todayISO(),
             shipped: $("#rvShipped").value.trim(),
@@ -5697,7 +6351,10 @@
             revenue: +$("#rvRev").value || 0,
             notes: $("#rvNotes").value.trim(),
           };
-          const i = S.weeks.findIndex(x => +x.week === w);
+          // T-056 r3: re-sealing replaces this week's entry; one from an earlier
+          // start with the same number is kept, and the new one appended.
+          const wFrom = revisionWeek(w).from;
+          const i = S.weeks.findIndex(x => +x.week === w && (x.date || "") >= wFrom);
           if (i >= 0) S.weeks[i] = entry; else S.weeks.push(entry);
           logEvent("week", "week" + w, { shipped: entry.shipped, dsa: entry.dsa, posts: entry.posts, revenue: entry.revenue });
           save(); render();
@@ -6074,15 +6731,63 @@
     dlg.showModal();
   }
 
+  // ---------- the Monk Mode start sheet (T-065) ----------
+  // Starting is irreversible, so a tap cannot do it. The sheet says what it
+  // costs, wants a tick, and then its last button must be PRESSED AND HELD for
+  // MONK_HOLD ms - the pointer, or Space/Enter on the keyboard. The sweep is the
+  // wait; letting go, leaving the button, losing focus or closing the sheet puts
+  // it back. A click does nothing. Same shape as gateSheet: a native modal
+  // <dialog> on <body>, outside #view, focus kept inside, Escape closes it.
+  const MONK_HOLD = 1500;
+  function monkStartSheet() {
+    if (MONK.from) return;
+    const old = $("dialog.sheet");
+    if (old) old.remove();
+    const dlg = document.createElement("dialog");
+    dlg.className = "sheet";
+    dlg.setAttribute("aria-labelledby", "sheetTitle");
+    dlg.innerHTML = '<div class="sheet-in"><h2 id="sheetTitle">Start Monk Mode</h2>' +
+      '<p class="sheet-lede">' + MONK.days + " days. Day 1 is today (" + esc(mkNice(todayISO())) + "). This can't be undone or reset.</p>" +
+      '<div class="sheet-reqs"><label class="check-row"><input type="checkbox" data-monk-ack><span class="checkbox">' + CHECK_SVG +
+      '</span><span class="check-label">I understand it can\'t be reset</span></label></div>' +
+      '<div class="sheet-go"><button class="btn ghost" type="button" data-sheet-cancel>Cancel</button>' +
+      '<button class="btn mk-hold" type="button" data-monk-hold disabled><i></i><span>Hold to start</span></button></div></div>';
+    document.body.appendChild(dlg);
+    const ack = $("[data-monk-ack]", dlg), hold = $("[data-monk-hold]", dlg), fill = $("i", hold);
+    let timer = null, sweep = null;
+    const stop = () => { clearTimeout(timer); timer = null; if (sweep) { sweep.cancel(); sweep = null; } };
+    const begin = () => {
+      if (timer || hold.disabled) return;
+      sweep = fill.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: MONK_HOLD, easing: "linear", fill: "forwards" });
+      timer = setTimeout(() => { stop(); dlg.close(); if (startMonk()) render(); }, MONK_HOLD);
+    };
+    ack.onchange = () => { hold.disabled = !ack.checked; if (hold.disabled) stop(); };
+    hold.addEventListener("pointerdown", e => { if (e.button === 0) begin(); });
+    ["pointerup", "pointerleave", "pointercancel", "keyup", "blur"].forEach(t => hold.addEventListener(t, stop));
+    hold.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (!e.repeat) begin(); } });
+    hold.addEventListener("contextmenu", e => e.preventDefault());
+    const close = () => { if (dlg.open) dlg.close(); };
+    dlg.addEventListener("close", () => { stop(); dlg.remove(); window.removeEventListener("hashchange", close); });
+    window.addEventListener("hashchange", close);
+    $("[data-sheet-cancel]", dlg).onclick = close;
+    dlg.onclick = e => { if (e.target === dlg) close(); };
+    dlg.showModal();
+  }
+
   function importBackup(file) {
     const r = new FileReader();
     r.onload = () => {
       try {
         const data = JSON.parse(r.result);
         if (!data || typeof data !== "object" || !("lessons" in data)) throw new Error("bad file");
+        const kept = S.monkStart;
         S = Object.assign({}, DEFAULT, data);
         S.treasury = Object.assign({}, DEFAULT.treasury, S.treasury);
         S.settings = Object.assign({}, DEFAULT.settings, S.settings);
+        // T-065: a backup can add the Monk start where this device has none; it
+        // can never replace or clear one (and a value that is not a date is dropped).
+        if (kept) S.monkStart = kept;
+        else if (!/^\d{4}-\d{2}-\d{2}$/.test(S.monkStart || "")) delete S.monkStart;
         save(); render();
         toast("Backup restored. Welcome back, scholar.");
       } catch (e) { toast("That file is not a valid backup."); }
@@ -6174,9 +6879,12 @@
   // T-043: a lecture quiz part-way through is the same: a repaint would throw
   // the sitting away (leaving keeps nothing), so a background one waits.
   const quizLive = () => !!document.querySelector("#view #lqMount .lq-card");
+  // T-054: a Monk Mode field being typed in (its text is kept in monkDraft,
+  // but a repaint would still take the caret away). Replayed on blur.
+  const monkTyping = () => { const a = document.activeElement; return !!a && !!a.closest && !!a.closest("#view .mk-field"); };
   let bgSkipped = false;
   function bgReplay() {
-    setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen()) render({ background: true }); }, 0);
+    setTimeout(() => { if (bgSkipped && !mediaBusy() && !videoOnScreen() && !monkTyping()) render({ background: true }); }, 0);
   }
 
   // ---------- resume points (T-016) ----------
@@ -6314,6 +7022,8 @@
   // that never re-renders, so a quiz part-way through stays where it is.
   // The start is the resume mechanism's own (T-016's start=).
   function expandVideo(at) {
+    // T-058: no frame without a connection; it could only show an error page.
+    if (noNet()) { toast("Video needs a connection."); return; }
     const bar = $("#view #lqWatched");
     const f = ytFrame();
     const base = bar ? bar.dataset.src : f ? f.dataset.src0 : null;
@@ -6337,6 +7047,52 @@
     nf.addEventListener("load", () => hailPlayer(nf));
     box.scrollIntoView({ block: "nearest" });
   }
+  const VIDEO_OFF = "Video needs a connection. The summary, quiz and notes on this page work offline.";
+  // T-058 r1: the network turned out not to be there (netState; r2: the
+  // probe's own failure, never a sync's word alone), and the
+  // lecture's frame was drawn before that was known. A frame whose player has
+  // never answered (heardFrom) holds an error page or a portal's, not a
+  // video: it becomes the panel, carrying itself for videoBack(). A player
+  // that has answered is a video on screen and is never touched, and neither
+  // is a playlist frame (no data-k: it never answers, so it cannot be told).
+  function videoGone() {
+    const f = ytFrame();
+    if (!f || heardFrom === f) return;
+    const box = f.closest(".video-frame");
+    if (!box) return;
+    clearInterval(hailH);
+    const off = document.createElement("div");
+    off.className = "card video-off";
+    off.setAttribute("data-frame", f.outerHTML);
+    off.textContent = VIDEO_OFF;
+    box.replaceWith(off);
+  }
+  // T-058 r1: is there a network behind navigator.onLine? Asked when a lesson
+  // draws its frame, so a device with no sync token finds out too: a HEAD for
+  // ../sw.js, which the worker does not answer for (it answers GETs only). Only
+  // a request that fails counts; there is no timeout, so a slow network is
+  // never taken for none. http(s) only: the gates' file:// pages have no network.
+  // r2: asked as well when a sync's request goes unanswered (netState), when
+  // the panel is drawn (wire) and when the page comes back with netDown set, so
+  // the panel always has a way back. A failure while hidden counts for nothing.
+  function probeNet() {
+    if (!/^https?:$/.test(location.protocol) || offline()) return;
+    const seen = hiddenMark();
+    fetch("../sw.js", { method: "HEAD", cache: "no-store" }).then(() => netState(false), () => { if (!hiddenSince(seen)) netState(true, true); });
+  }
+  // T-058: the connection is back, and a lecture drawn offline has its panel
+  // where the video goes. The frame it carries goes in its place, the frame
+  // the page would have drawn. Not a render: nothing else on the page moves.
+  function videoBack() {
+    const off = $("#view .video-off[data-frame]");
+    if (!off) return;
+    const box = document.createElement("div");
+    box.className = "video-frame";
+    box.innerHTML = off.dataset.frame;
+    off.replaceWith(box);
+    const f = box.querySelector("iframe[data-k]");
+    if (f) { hailPlayer(f); f.addEventListener("load", () => hailPlayer(f)); }
+  }
   // Leaving the lecture: the route changes (registered ahead of the render
   // that replaces the frame) or the page goes away (ahead of the push).
   function leaveLecture() {
@@ -6356,7 +7112,7 @@
   // moment it is free (bgReplay).
   function render(opts) {
     if (rendering) return;
-    if (opts && opts.background && (videoOnScreen() || mediaBusy() || quizLive())) { bgSkipped = true; return; }
+    if (opts && opts.background && (videoOnScreen() || mediaBusy() || quizLive() || monkTyping())) { bgSkipped = true; return; }
     bgSkipped = false;
     rendering = true;
     // opts.after runs once the view is rebuilt, on either path below (T-026c:
@@ -6421,6 +7177,7 @@
     else if (r === "/guide") html = V.guide();
     else if (r === "/calendar") html = V.calendar();
     else if (r === "/library") html = V.library();
+    else if (r === "/monk") html = V.monk();
     else if (seg[0] === "doc") html = V.doc(seg[1]);
     // Every unrecognised hash used to render the dashboard, silently. A typo, a
     // stale bookmark or a route that was renamed all looked like "you are on
@@ -6536,7 +7293,8 @@
     render();
     // Pull once on open so a device that has been away is current before the
     // first tap, and push anything still pending when the tab goes away.
-    if (ghToken()) runSync("pull");
+    // T-058 r1: a push instead while a sync is owed (it merges first).
+    if (ghToken()) runSync(owedMark() ? "push" : "pull");
     // Pull again whenever the page comes back to the foreground. Pulling only on
     // load meant a phone with the tab already open — the normal case, since iOS
     // resumes rather than reloads — never saw progress made on the laptop.
@@ -6551,7 +7309,7 @@
       if (document.visibilityState === "visible") {
         if (Date.now() - lastPull < 20000) return;   // do not hammer the API
         lastPull = Date.now();
-        runSync("pull");
+        runSync(owedMark() ? "push" : "pull");
       } else {
         runSync("push");
       }
@@ -6561,6 +7319,17 @@
     // The resume point is kept first, so the push carries it.
     window.addEventListener("pagehide", leaveLecture);
     window.addEventListener("pagehide", () => { if (ghToken()) runSync("push"); });
+    // T-058: the connection going and coming back. The sync words change in
+    // place and a lecture drawn offline gets its video back; neither repaints
+    // the page. What is owed is pushed once, through armPush: the automatic
+    // path, latch and all.
+    window.addEventListener("offline", paintSync);
+    window.addEventListener("online", () => {
+      paintSync();
+      if (!netDown) videoBack();
+      else probeNet();   // T-058 r3: netDown is the network's word, so ask it again (a device with no token has no sync to)
+      if (owedMark()) armPush();
+    });
   }
   if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
     // T-016, for tools/verify-flows.js: a message as the lecture's player would
@@ -6574,8 +7343,14 @@
     // merge, handed a remote file's shape.
     gatePlan, setGate, mergeState,
     // T-043, for tools/verify-logic.js and verify-flows.js: reads only.
-    QUIZ_GATE_FROM, schedDone, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
-    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf });
+    QUIZ_GATE_FROM, monkDay, MONK, schedDone,
+    // T-065, for tools/verify-logic.js: the one write to the Monk start (a second call is a no-op).
+    startMonk,
+    // T-054, for tools/verify-logic.js: Monk Mode's arithmetic, reads only.
+    MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, mkPhoneOk, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
+    lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
+    // T-056 r2, for verify-logic, verify-content and tools/revision-pdf.js: the revision weeks (reads only).
+    revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

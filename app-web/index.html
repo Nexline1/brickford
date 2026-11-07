@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- flutter build replaces this with --base-href (tools/build-app.sh passes /brickford/app-web/). -->
+  <base href="/brickford/app-web/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <script>
+    /* Flutter's engine (full-page mode) deletes every <meta name=viewport> at startup and appends its own,
+       "width=device-width, initial-scale=1.0, maximum-scale=5.0", which gives the zoom back. Keep the
+       engine's meta but pin its scale: maximum-scale=1, user-scalable=no (no focus zoom, no sideways drift). */
+    (function () {
+      function pin() {
+        var ms = document.head.querySelectorAll('meta[name="viewport"]');
+        for (var i = 0; i < ms.length; i++) {
+          var c = ms[i].getAttribute("content") || "";
+          if (/maximum-scale=1(\.0)?(,|$)/.test(c) && /user-scalable=no/.test(c)) continue;
+          ms[i].setAttribute("content", c.replace(/,?\s*(maximum-scale|user-scalable)=[^,]*/g, "") + ", maximum-scale=1, user-scalable=no");
+        }
+      }
+      new MutationObserver(pin).observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ["content"] });
+      pin();
+    })();
+  </script>
+  <meta name="description" content="Brickford, the Flutter app.">
+  <meta name="theme-color" content="#12141C">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Brickford">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+  <title>Brickford</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; background: #12141C; }
+    /* iOS Safari zooms the page (and shifts it sideways) when a text field under 16px takes focus.
+       The fields are already >= 16px in Dart (fieldStyle); this holds the engine's hidden editing
+       input to the same floor, whatever it is handed. */
+    input, textarea, flt-text-editing-host input, flt-text-editing-host textarea { font-size: 16px !important; }
+    /* The boot screen (T-064 boot). Static HTML, so it is on screen from the
+       first paint, before any script: the crest and the wordmark. It stays
+       until Flutter reports its first frame. */
+    #boot { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 24px; box-sizing: border-box; background: #12141C; color: #fff;
+      font: 15px/1.45 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; transition: opacity .25s; }
+    #boot .wm { margin-top: 18px; font: 700 24px/1 Georgia, "Times New Roman", serif; letter-spacing: 0.14em; }
+    #boot .rule { width: 40px; height: 1px; background: #C89B60; margin: 9px 0; }
+    #boot .est { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; color: #A9AEC2; }
+    /* The crest: just the logo, still. No numbers, no motion: it is only a wait. */
+    #boot .crest { width: 112px; height: 125px; }
+    #boot .crest svg { display: block; width: 100%; height: 100%; }
+    #boot .fail { display: none; max-width: 460px; width: 100%; margin-top: 26px; font-size: 14px; color: #E6E8EF; }
+    #boot.failed .fail { display: block; }
+    #boot.failed { justify-content: flex-start; overflow: auto; }
+    #boot .fail h1 { font: 700 19px/1.3 Georgia, serif; margin: 0 0 8px; color: #fff; }
+    #boot .fail pre { white-space: pre-wrap; word-break: break-word; background: #1E2230; border: 1px solid #2E3344;
+      border-radius: 12px; padding: 12px; font: 12px/1.5 ui-monospace, Menlo, monospace; color: #E6E8EF; }
+    #boot .fail button { margin-top: 14px; min-height: 48px; width: 100%; border: 0; border-radius: 16px; background: #1E4F8F;
+      color: #fff; font: 700 14px/1 -apple-system, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+    #boot.gone { opacity: 0; pointer-events: none; }
+  </style>
+  <script>
+  /* T-064 boot: progress, the first-frame watch, and the failure screen.
+     Plain ES5 with no Flutter dependency, run before flutter.js, so "Reset and
+     reload" works when everything else is broken. Bytes are counted for real:
+     same-origin fetch() bodies as they stream (CanvasKit's wasm, the data, the
+     fonts) and finished <script> loads (main.dart.js) from the resource timing
+     entries. The total is the build's own sum, written in by tools/build-app.sh. */
+  (function () {
+    var TOTAL = +"12639123" || 0, LIMIT = 25000, t0 = Date.now();
+    var streamed = 0, scripts = {}, booted = false, failed = false, errs = [], origFetch = window.fetch;
+    function $(id) { return document.getElementById(id); }
+    function got() { var n = streamed; for (var k in scripts) n += scripts[k]; return n; }
+    function mb(n) { return (n / 1048576).toFixed(1); }
+    function paint() {
+      if (booted) return;
+      var n = got(), s = Math.floor((Date.now() - t0) / 1000);
+      var line = "Loading\u2026 " + mb(n) + (TOTAL ? " of ~" + mb(TOTAL) + " MB" : " MB") + " \u00b7 " + s + " s";
+      var f = $("bootFailNum"); if (f) f.textContent = line;
+    }
+    function caps() {
+      var c = document.createElement("canvas"), gl = false, gl2 = false;
+      try { gl = !!(c.getContext("webgl") || c.getContext("experimental-webgl")); } catch (e) {}
+      try { gl2 = !!document.createElement("canvas").getContext("webgl2"); } catch (e) {}
+      return "WebGL " + (gl ? "yes" : "NO") + " \u00b7 WebGL2 " + (gl2 ? "yes" : "NO") +
+        " \u00b7 WebAssembly " + (typeof WebAssembly === "object" ? "yes" : "NO") +
+        (typeof WebAssembly === "object" ? " (streaming " + (WebAssembly.instantiateStreaming ? "yes" : "no") + ")" : "");
+    }
+    function fail(why) {
+      if (booted) return;
+      if (why) errs.push(String(why));
+      var b = $("boot"); if (!b) return;
+      failed = true;
+      b.className = "failed";
+      $("bootWhy").textContent = errs.length ? errs.slice(0, 4).join("\n") : "No first frame after " + LIMIT / 1000 + " s, and no error was reported.";
+      $("bootEnv").textContent = "URL  " + location.href + "\nUA   " + navigator.userAgent + "\n" + caps();
+      paint();
+    }
+    window.__bootFail = fail;
+    function reset() {
+      var done = false, go = function () { if (done) return; done = true; location.reload(); };
+      setTimeout(go, 4000);                       /* reload whatever the promises do */
+      var p = [];
+      try { if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations)
+        p.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })); } catch (e) {}
+      try { if (window.caches && caches.keys)
+        p.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches["delete"](k); })); })); } catch (e) {}
+      try { Promise.all(p).then(go, go); } catch (e) { go(); }
+    }
+    window.__bootReset = reset;
+    function done() {
+      if (booted) return;
+      booted = true;
+      if (origFetch) window.fetch = origFetch;
+      var b = $("boot"); if (!b) return;
+      b.className += " gone";
+      setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 300);
+    }
+    window.addEventListener("flutter-first-frame", done);
+    window.addEventListener("error", function (e) {
+      var t = e.target;
+      if (t && t !== window && (t.tagName === "SCRIPT" || t.tagName === "LINK")) fail("Could not load " + (t.src || t.href));
+      else if (e.message) fail(e.message + (e.filename ? " (" + e.filename + ":" + e.lineno + ")" : ""));
+    }, true);
+    window.addEventListener("unhandledrejection", function (e) {
+      var r = e.reason; fail("Unhandled: " + (r && (r.stack || r.message) || r));
+    });
+    setTimeout(function () { if (!booted) fail(); }, LIMIT);
+    setInterval(paint, 250);
+    /* Finished non-fetch loads: scripts (main.dart.js, flutter.js, canvaskit.js) and XHRs. */
+    try {
+      new PerformanceObserver(function (list) {
+        list.getEntries().forEach(function (en) {
+          if (en.initiatorType !== "fetch") scripts[en.name] = en.decodedBodySize || en.encodedBodySize || en.transferSize || 0;
+        });
+        paint();
+      }).observe({ type: "resource", buffered: true });
+    } catch (e) {}
+    /* Same-origin fetches, counted as their bodies stream. Any surprise and the
+       original response goes back untouched; after the first frame fetch() is
+       the browser's own again. */
+    if (origFetch && window.TransformStream && window.Response && window.ReadableStream) {
+      window.fetch = function (input) {
+        var url = typeof input === "string" ? input : (input && input.url) || "";
+        var same = true; try { same = new URL(url, location.href).origin === location.origin; } catch (e) {}
+        return origFetch.apply(this, arguments).then(function (r) {
+          if (booted || !same || !r || !r.body || !r.ok) return r;
+          try {
+            var ts = new TransformStream({ transform: function (c, ctl) { streamed += c.byteLength || 0; ctl.enqueue(c); } });
+            var nr = new Response(r.body.pipeThrough(ts), { status: r.status, statusText: r.statusText, headers: r.headers });
+            try { Object.defineProperty(nr, "url", { value: r.url }); } catch (e) {}
+            return nr;
+          } catch (e) { return r; }
+        });
+      };
+    }
+  })();
+  </script>
+</head>
+<body>
+  <div id="boot" role="status" aria-live="polite" aria-label="Loading Brickford">
+    <!-- The crest: the .crest SVG of platform/index.html, its CSS classes resolved to the brand colours. -->
+    <div class="crest"><svg viewBox="0 0 200 224" role="img" aria-label="Brickford crest"><path fill="#C89B60" d="M18 16 H182 V118 C182 168 143 199 100 212 C57 199 18 168 18 118 Z"/><path fill="none" stroke="#12141C" stroke-width="3" opacity="0.55" d="M30 28 H170 V118 C170 160 137 187 100 199 C63 187 30 160 30 118 Z"/><polygon fill="#12141C" points="54.2,99.7 40.3,98.4 44.3,81.8 57.3,87.0"/><polygon fill="#12141C" points="58.1,84.9 45.4,79.1 54.6,64.8 65.2,73.9"/><polygon fill="#12141C" points="66.7,72.3 56.6,62.6 69.9,52.1 77.0,64.2"/><polygon fill="#12141C" points="78.9,63.1 72.5,50.7 88.6,45.1 91.3,58.8"/><polygon fill="#12141C" points="93.5,58.5 91.5,44.6 108.5,44.6 106.5,58.5"/><polygon fill="#12141C" points="108.7,58.8 111.4,45.1 127.5,50.7 121.1,63.1"/><polygon fill="#12141C" points="123.0,64.2 130.1,52.1 143.4,62.6 133.3,72.3"/><polygon fill="#12141C" points="134.8,73.9 145.4,64.8 154.6,79.1 141.9,84.9"/><polygon fill="#12141C" points="142.7,87.0 155.7,81.8 159.7,98.4 145.8,99.7"/><polygon fill="#12141C" points="100,58 142,84 58,84"/><rect fill="#12141C" x="58" y="88" width="84" height="7" rx="1"/><rect fill="#12141C" x="63.0" y="99" width="9" height="47"/><rect fill="#12141C" x="84.5" y="99" width="9" height="47"/><rect fill="#12141C" x="106.0" y="99" width="9" height="47"/><rect fill="#12141C" x="127.5" y="99" width="9" height="47"/><rect fill="#12141C" x="52" y="150" width="96" height="7" rx="1"/><rect fill="#12141C" x="46" y="161" width="108" height="7" rx="1"/><path fill="none" stroke="#12141C" stroke-width="3.4" stroke-linecap="round" d="M60.0 178 C38.0 158 30.0 118 48.0 78"/><ellipse fill="#12141C" cx="51.0" cy="178.0" rx="10.5" ry="5.2" transform="rotate(58 51.0 178.0)"/><ellipse fill="#12141C" cx="41.2" cy="166.4" rx="10.0" ry="5.0" transform="rotate(52 41.2 166.4)"/><ellipse fill="#12141C" cx="34.1" cy="152.1" rx="9.4" ry="4.7" transform="rotate(47 34.1 152.1)"/><ellipse fill="#12141C" cx="30.0" cy="135.5" rx="8.9" ry="4.5" transform="rotate(41 30.0 135.5)"/><ellipse fill="#12141C" cx="29.2" cy="117.3" rx="8.4" ry="4.2" transform="rotate(35 29.2 117.3)"/><ellipse fill="#12141C" cx="32.1" cy="97.9" rx="7.8" ry="4.0" transform="rotate(30 32.1 97.9)"/><ellipse fill="#12141C" cx="39.0" cy="78.0" rx="7.3" ry="3.7" transform="rotate(24 39.0 78.0)"/><path fill="none" stroke="#12141C" stroke-width="3.4" stroke-linecap="round" d="M140.0 178 C162.0 158 170.0 118 152.0 78"/><ellipse fill="#12141C" cx="149.0" cy="178.0" rx="10.5" ry="5.2" transform="rotate(-58 149.0 178.0)"/><ellipse fill="#12141C" cx="158.8" cy="166.4" rx="10.0" ry="5.0" transform="rotate(-52 158.8 166.4)"/><ellipse fill="#12141C" cx="165.9" cy="152.1" rx="9.4" ry="4.7" transform="rotate(-47 165.9 152.1)"/><ellipse fill="#12141C" cx="170.0" cy="135.5" rx="8.9" ry="4.5" transform="rotate(-41 170.0 135.5)"/><ellipse fill="#12141C" cx="170.8" cy="117.3" rx="8.4" ry="4.2" transform="rotate(-35 170.8 117.3)"/><ellipse fill="#12141C" cx="167.9" cy="97.9" rx="7.8" ry="4.0" transform="rotate(-30 167.9 97.9)"/><ellipse fill="#12141C" cx="161.0" cy="78.0" rx="7.3" ry="3.7" transform="rotate(-24 161.0 78.0)"/><rect fill="#12141C" x="93" y="35" width="14" height="14" transform="rotate(45 100 42)"/><rect fill="#12141C" x="94" y="177" width="12" height="12" transform="rotate(45 100 183)"/></svg></div>
+    <div class="wm">BRICKFORD</div><div class="rule"></div><div class="est">SELF-BUILT UNIVERSITY</div>
+    <div class="fail" role="alert">
+      <h1>Brickford hasn&rsquo;t started</h1>
+      <pre id="bootWhy"></pre>
+      <p id="bootFailNum"></p>
+      <pre id="bootEnv"></pre>
+      <button type="button" id="bootReset" onclick="(window.__bootReset||function(){location.reload()})()">Reset and reload</button>
+    </div>
+  </div>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

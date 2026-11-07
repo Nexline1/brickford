@@ -1,0 +1,3 @@
+  FAIL  rest day: every past day's plan equals the Friday's (past stays frozen) — 8 day(s) differ, first 2026-10-16
+
+1 of 189 invariant(s) FAILED

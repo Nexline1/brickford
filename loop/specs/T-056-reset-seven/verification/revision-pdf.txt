@@ -1,0 +1,120 @@
+week 1 · Fri 16 – Fri 23 October 2026, revised Sun 25 Oct (app Week page: {"to":1,"sun":1,"after":2})
+   1  math110.0.0  summary  Vectors
+   2  math110.0.1  summary  Linear combinations, span, and basis vectors
+   3  math110.0.2  summary  Linear transformations and matrices
+   4  math110.0.3  summary  Matrix multiplication as composition
+   5  math110.0.4  summary  Three-dimensional linear transformations
+   6  math110.0.5  summary  The determinant
+   7  ai200.0.0    MISSING  But what is a neural network?
+   8  ai200.0.1    MISSING  Gradient descent — how neural networks learn
+   9  math120.0.0  summary  The essence of calculus
+  10  math120.0.1  summary  The paradox of the derivative
+  11  math120.0.2  summary  Derivative formulas through geometry
+  12  ai200.0.2    MISSING  What is backpropagation really doing?
+  13  ai200.0.3    MISSING  Backpropagation calculus
+  14  spch100.0.0  summary  Homework for Life — finding the story in an ordinary day
+  15  math130.0.0  summary  Probability and Counting
+  16  ai200.1.0    summary  Micrograd — spelled-out intro to neural networks and backpropagation
+  17  spch100.0.1  summary  Five ways to improve your professional voice
+  18  math110.0.6  summary  Inverse matrices, column space and null space
+  19  math110.0.7  summary  Nonsquare matrices as transformations between dimensions
+  20  math110.0.8  summary  Dot products and duality
+  21  math110.0.9  summary  Cross products
+  22  math110.0.10 summary  Cross products in the light of linear transformations
+  23  spch100.0.2  summary  Think faster, talk smarter — structure under pressure
+  24  math120.0.3  summary  Visualizing the chain rule and product rule
+  25  math120.0.4  summary  What's so special about Euler's number e?
+  26  math120.0.5  summary  Implicit differentiation, what's going on here?
+  27  math130.0.1  summary  Story Proofs, Axioms of Probability
+  28  ai200.1.1    summary  Makemore 1 — bigram character-level language model
+  29  spch100.1.0  summary  The Pixar story spine — six prompts that hold a story up
+  30  spch100.1.1  summary  How to easily be funnier in conversations
+  31  math110.0.11 summary  Cramer's rule, explained geometrically
+  32  math110.0.12 summary  Change of basis
+  33  math110.0.13 summary  Eigenvectors and eigenvalues
+  34  math110.0.14 summary  A quick trick for computing eigenvalues
+  34 lectures, 30 summarised, 4 missing → revision/week-01.pdf
+week 2 · Sun 25 – Fri 30 October 2026, revised Sun 1 Nov (app Week page: {"to":2,"sun":2,"after":3})
+   1  math120.0.6  summary  Limits, L'Hôpital's rule, and epsilon delta definitions
+   2  math120.0.7  summary  Integration and the fundamental theorem of calculus
+   3  math120.0.8  summary  What does area have to do with slope?
+   4  math120.0.9  summary  Higher order derivatives
+   5  ai200.1.1    summary  Makemore 1 — bigram character-level language model
+   6  spch100.2.0  summary  What is a story — and why tell one
+   7  math130.0.2  summary  Birthday Problem, Properties of Probability
+   8  ai200.1.2    summary  Makemore 2 — MLP, following Bengio et al. 2003
+   9  spch100.2.1  summary  The five-second moment: the instant a story is about
+  10  math110.0.15 summary  Abstract vector spaces
+  11  math110.1.0  summary  The Geometry of Linear Equations
+  12  math120.0.10 summary  Taylor series
+  13  math120.0.11 summary  The other way to visualize derivatives
+  14  ai200.1.3    summary  Makemore 3 — activations, gradients, BatchNorm
+  15  spch100.2.2  summary  Anecdote, bait and reflection — the two building blocks
+  16  spch100.2.3  summary  The elephant: a reason to listen in the first thirty seconds
+  17  math130.0.3  summary  Conditional Probability
+  18  spch100.2.4  summary  The clues to a great story — make me care
+  19  math110.1.1  summary  Elimination with Matrices
+  19 lectures, 19 summarised, 0 missing → revision/week-02.pdf
+week 3 · Sun 1 – Fri 6 November 2026, revised Sun 8 Nov (app Week page: {"to":3,"sun":3,"after":4})
+   1  math120.1.0  summary  Rate of Change
+   2  ai200.1.4    summary  Makemore 4 — becoming a backprop ninja (DO NOT SKIP)
+   3  spch100.2.5  summary  The shapes of stories — fortune drawn over time
+   4  math130.0.4  summary  Conditioning Continued, Law of Total Probability
+   5  spch100.2.6  summary  Building a story live: know the end, start close to it
+   6  math110.1.2  summary  Multiplication and Inverse Matrices
+   7  math120.1.1  summary  Limits
+   8  ai200.1.5    summary  Makemore 5 — building a WaveNet
+   9  spch100.2.7  summary  And, But, Yet, Therefore — structure in one breath
+  10  spch100.2.8  summary  Structure is what they know, and when — the Nemo flashbacks
+  11  spch100.2.9  summary  Write what you know — the feeling under the monster story
+  12  math130.0.5  summary  Monty Hall, Simpson's Paradox
+  13  spch100.2.10 summary  Credibility before vulnerability — five tips for a story in a talk
+  14  math110.1.3  summary  Factorization into A = LU
+  15  ai200.1.6    summary  Let's build GPT — from scratch, in code
+  15 lectures, 15 summarised, 0 missing → revision/week-03.pdf
+week 4 · Sun 8 – Fri 13 November 2026, revised Sun 15 Nov (app Week page: {"to":4,"sun":4,"after":5})
+   1  math120.1.2  summary  Derivatives
+   2  ai200.1.6    summary  Let's build GPT — from scratch, in code
+   3  spch100.2.11 summary  Promise, progress, payoff — why a middle drags and an ending lands (start at 19:28)
+   4  math130.0.6  summary  Gambler's Ruin and Random Variables
+   5  math110.1.4  summary  Transposes, Permutations, Spaces R^n
+   6  ai200.1.7    summary  Let's build the GPT Tokenizer
+   7  math120.1.3  summary  Chain Rule
+   8  spch100.3.0  summary  Homework for Life, sharpened — and the pickle story
+   9  spch100.3.1  summary  Seeing with storyteller eyes — notice the flag
+  10  spch100.3.2  summary  A photo folder called Stories
+  11  math130.0.7  summary  Random Variables and Their Distributions
+  12  spch100.3.3  summary  First, last, best, worst — mining the past
+  13  math110.1.5  summary  Column Space and Nullspace
+  14  ai200.1.8    summary  Let's reproduce GPT-2 (124M)
+  14 lectures, 14 summarised, 0 missing → revision/week-04.pdf
+week 5 · Sun 15 – Fri 20 November 2026, revised Sun 22 Nov (app Week page: {"to":5,"sun":5,"after":6})
+   1  math120.1.4  summary  Implicit Differentiation
+   2  ai200.1.8    summary  Let's reproduce GPT-2 (124M)
+   3  spch100.3.4  summary  Personal signature stories — make them, then bank them
+   4  math130.0.8  summary  Expectation, Indicator Random Variables, Linearity
+   5  spch100.3.5  summary  Twelve lessons: zoom in, quote it, use 'how are you?'
+   6  spch100.3.6  summary  Most of the work is finding — and killing
+   7  math110.1.6  summary  Solving Ax = 0: Pivot Variables, Special Solutions
+   8  spch100.3.7  summary  The taste gap — volume on a deadline
+   9  spch100.4.0  summary  The voice toolbox — register, prosody, pace, and a warm-up
+  10  math120.1.5  summary  Exponential and Log
+  11  spch100.4.1  summary  The five dials — rate, volume, melody, tone, pause
+  12  math130.0.9  summary  Expectation Continued
+  13  ai200.2.0    MISSING  Intro to Large Language Models
+  14  math110.1.7  summary  Solving Ax = b: Row Reduced Form R
+  14 lectures, 13 summarised, 1 missing → revision/week-05.pdf
+week 6 · Sun 22 – Fri 27 November 2026, revised Sun 29 Nov (app Week page: {"to":6,"sun":6,"after":7})
+   1  math120.1.6  summary  Exam 1 Review
+   2  ai200.2.1    MISSING  Deep dive into LLMs like ChatGPT
+   3  spch100.4.1  summary  The five dials — rate, volume, melody, tone, pause
+   4  math130.0.10 summary  The Poisson distribution
+   5  spch100.4.2  summary  Melody, volume, and the descending scale
+   6  math110.1.8  summary  Independence, Basis, and Dimension
+   7  math120.1.7  summary  Linear and Quadratic Approximations
+   8  spch100.4.3  summary  The pause — tie it to a breath
+   9  math130.0.11 summary  Discrete vs. Continuous, the Uniform
+  10  spch100.4.4  summary  Five body-language habits that read as confidence
+  11  math110.1.9  summary  The Four Fundamental Subspaces
+  12  ai210.0.0    summary  Lesson 1: Getting started
+  12 lectures, 11 summarised, 1 missing → revision/week-06.pdf

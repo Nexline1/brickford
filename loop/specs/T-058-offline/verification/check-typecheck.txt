@@ -1,0 +1,2 @@
+node --check: 38 files OK (platform/js, platform/data, tools, and sw.js)
+exit 0

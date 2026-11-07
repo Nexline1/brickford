@@ -1,0 +1,153 @@
+plants against /home/user/bf-T-051-1 (a64b2e1)
+== plant density-two-line-sub -> node tools/verify-density.js
+  restored /home/user/bf-T-051-1/platform/js/app.js (cmp identical)
+NEW — 2 finding(s) not in tools/verify-density.baseline.json
+  FAIL  sub|320|/|before new material, and the cards that are due come first   (sub on 4 lines)
+  FAIL  sub|390|/|before new material, and the cards that are due come first   (sub on 3 lines)
+STALE — 1 baseline finding(s) no longer occur; delete them from the baseline
+FAIL — 34 route-renders (17 routes x 320/390px, Light); 1983 first-viewport words in all; 155 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 18, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 21, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 2 new, 1 stale, 0 over
+  exit 1 (caught, as required)
+== plant density-dashboard-sentence -> node tools/verify-density.js
+  restored /home/user/bf-T-051-1/platform/js/app.js (cmp identical)
+OVER — first-viewport words above the ceiling in 1 route-width(s)
+  FAIL  320 /: 64 words in the first viewport (ceiling 48)
+NEW — 2 finding(s) not in tools/verify-density.baseline.json
+  FAIL  long|320|/|Every lecture you finish today moves the whole plan one real step clos   (16 words)
+  FAIL  long|390|/|Every lecture you finish today moves the whole plan one real step clos   (16 words)
+FAIL — 34 route-renders (17 routes x 320/390px, Light); 1996 first-viewport words in all; 156 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 19, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 21, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 2 new, 0 stale, 1 over
+  exit 1 (caught, as required)
+== plant density-more-words -> node tools/verify-density.js
+  restored /home/user/bf-T-051-1/platform/js/app.js (cmp identical)
+OVER — first-viewport words above the ceiling in 1 route-width(s)
+  FAIL  390 /: 94 words in the first viewport (ceiling 88)
+FAIL — 34 route-renders (17 routes x 320/390px, Light); 1988 first-viewport words in all; 156 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 19, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 21, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 0 new, 0 stale, 1 over
+  exit 1 (caught, as required)
+== plant row-title-22-density -> node tools/verify-density.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+OVER — first-viewport words above the ceiling in 3 route-width(s)
+  FAIL  320 /: 52 words in the first viewport (ceiling 48)
+  FAIL  390 /transcript: 75 words in the first viewport (ceiling 70)
+  FAIL  390 /sync: 93 words in the first viewport (ceiling 74)
+NEW — 12 finding(s) not in tools/verify-density.baseline.json
+  FAIL  title|320|/|Rate of Change   (title on 2 lines)
+  FAIL  title|320|/|Lectures proven   (title on 2 lines)
+  FAIL  title|320|/transcript|Gate 4 — The fork   (title on 2 lines)
+  FAIL  title|320|/transcript|Gate 5 — Arrival   (title on 2 lines)
+  FAIL  title|320|/sync|Generate a token   (title on 2 lines)
+  FAIL  title|320|/monk|Cut 4–5 clips from the stream   (title on 2 lines)
+  FAIL  title|320|/monk|No TikTok · IG · YouTube   (title on 2 lines)
+  exit 1 (caught, as required)
+== plant row-title-22-design -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  390px light: the iOS type scale — no text in the view over 17px but the page's 34px large title (24 routes; figures, covers and the transcript's wordmark aside) — 92 — / span.g-t "Open today’s dashboard" 22px/600; / span.g-t "This device is not syncing" 22px/600; / span.g-t "4 lectures owed from earlier" 22px/600; / span.g-t "Rate of Change" 22px/600
+  FAIL  390px light /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 14 — .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  390px light /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 18 — .g-t 22px/400 (want 400) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  390px dark /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 14 — .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  390px dark /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 18 — .g-t 22px/400 (want 400) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  1280px light /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 14 — .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  1280px light /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 18 — .g-t 22px/400 (want 400) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  1280px dark /: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 14 — .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+  FAIL  1280px dark /course/math110: .g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2 — 18 — .g-t 22px/400 (want 400) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS; .g-t 22px/600 (want 600) -apple-system, BlinkMacS
+FAIL — 9 of 2652 design checks failed
+  exit 1 (caught, as required)
+== plant button-paints-44 -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  390px light /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Open ▸" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px light /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Continue ▸" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "Rewatch" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px light /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px light /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. span.btn.pd-go "Take it" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px light: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — / a.btn.lg "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; /course/math110 a.btn.lg "Continue ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; / a.btn "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px
+  FAIL  390px dark /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Open ▸" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px dark /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Continue ▸" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. button.btn.ghost "Rewatch" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px dark /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px dark /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. span.btn.pd-go "Take it" corner 17.0x22.0 for half-height 22.0 (declared 340px 440px)
+  FAIL  390px dark: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — / a.btn.lg "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; /course/math110 a.btn.lg "Continue ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; / a.btn "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px
+  exit 1 (caught, as required)
+== plant contrast-accent-stock -> node tools/verify-contrast.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+BELOW THRESHOLD — 21 case(s)
+21 contrast problem(s) across 128 page-renders
+  exit 1 (caught, as required)
+== plant inter-not-precached -> node tools/verify-offline.js
+  restored /home/user/bf-T-051-1/sw.js (cmp identical)
+  FAIL  this version's cache brickford-20261029e holds index.html, everything it loads, and the manifest's icons (36 entries; missing /platform/fonts/inter-latin-standard-normal.woff2, /platform/fonts/inter-latin-ext-standard-normal.woff2)
+  FAIL  and the 2 self-hosted Inter woff2 files in platform/fonts, each named by css/style.css and held; missing /platform/fonts/inter-latin-ext-standard-normal.woff2, /platform/fonts/inter-latin-standard-normal.woff2
+  FAIL  Inter, self-hosted, loads offline (FontFace status error, unloaded)
+  FAIL  offline, nothing of ours failed to load and nothing threw (/platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED, /platform/fonts/inter-latin-standard-normal.woff2 net::ERR_FAILED)
+  FAIL  revision/week-03.pdf taken and never answered: the worker is active anyway, in 0.6s (under 15s), its shell complete (36 of 38)
+FAIL — 5 of 53 offline checks failed
+  exit 1 (caught, as required)
+== plant hover-opacity -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  1280px light hover: every button, forced :hover, keeps opacity 1 and its label >= 4.5:1 on its fill — filled, tinted and text kinds — 41 — / a.btn.lg "Open ▸" filled #fdfdfe on #1d72c7 4.86:1, opacity 0.88; /course/math110 a.btn.lg "Continue ▸" filled #fdfdfe on #1d72c7 4.86:1, opacity 0.88; /lesson/math110/0/13 button.btn.ghost "Rewatch" text #1f78d2 on #e4effa 3.84:1, opacity 0.88; /lesson/math110/0/13 button#numGo.btn.ghost "Submit" tinted #1f6bb7 on #d2e4f6 4.19:1, opacity 0.88
+  FAIL  390px light hover (hover: none): a forced :hover changes no button's fill, label or opacity — 46 — / a.btn.lg "Open ▸" rgb(0, 113, 227)/1 -> rgb(0, 113, 227)/0.88; / a.btn "Open ▸" rgb(0, 113, 227)/1 -> rgb(0, 113, 227)/0.88; /course/math110 a.btn.lg "Continue ▸" rgb(0, 113, 227)/1 -> rgb(0, 113, 227)/0.88
+  FAIL  1280px dark hover: every button, forced :hover, keeps opacity 1 and its label >= 4.5:1 on its fill — filled, tinted and text kinds — 41 — / a.btn.lg "Open ▸" filled #e0e0e0 on #0054aa 5.58:1, opacity 0.88; /course/math110 a.btn.lg "Continue ▸" filled #e0e0e0 on #0054aa 5.58:1, opacity 0.88; /lesson/math110/0/13 button.btn.ghost "Rewatch" text #3c8de4 on #202936 4.26:1, opacity 0.88; /lesson/math110/0/13 button#numGo.btn.ghost "Submit" tinted #5d9ee4 on #223346 4.60:1, opacity 0.88
+  FAIL  390px dark hover (hover: none): a forced :hover changes no button's fill, label or opacity — 47 — / a.btn.lg "Open ▸" rgb(0, 113, 227)/1 -> rgb(0, 113, 227)/0.88; / a.btn "Open ▸" rgb(0, 113, 227)/1 -> rgb(0, 113, 227)/0.88; /course/math110 a.btn.lg "Continue ▸" rgb(0, 113, 227)/1 -> rgb(0, 113, 227)/0.88
+FAIL — 4 of 2652 design checks failed
+  exit 1 (caught, as required)
+== plant crest-is-gold -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  1280px light sidebar: the crest is --crest (#d3a874, the brand's, not --gold) with --panel cut-outs (holes in the seal, T-025) — field #c93400 (--crest #d3a874, --gold #c93400), cut #ffffff
+  FAIL  1280px dark sidebar: the crest is --crest (#e0b35a, the brand's, not --gold) with --panel cut-outs (holes in the seal, T-025) — field #ff9f0a (--crest #e0b35a, --gold #ff9f0a), cut #1c1c1e
+FAIL — 2 of 2652 design checks failed
+  exit 1 (caught, as required)
+== plant meta-uppercase -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  390px light /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 — "Day 3 of 21" 13px uppercase #6e6e73 lining-nums tabular-nums; "2" 13px uppercase #6e6e73 lining-nums tabular-nums; "1 lecture · 52m" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  390px light /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "5" 13px uppercase #6e6e73 lining-nums tabular-nums; "5 locked" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  390px light /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "where you left off" 13px uppercase #6e6e73 lining-nums tabular-nums; "5 more" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  390px light /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "2" 13px uppercase #6e6e73 lining-nums tabular-nums; "unlocks as you go" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  390px dark /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 — "Day 3 of 21" 13px uppercase #98989d lining-nums tabular-nums; "2" 13px uppercase #98989d lining-nums tabular-nums; "1 lecture · 52m" 13px uppercase #98989d lining-nums tabular-nums
+  FAIL  390px dark /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "5" 13px uppercase #98989d lining-nums tabular-nums; "5 locked" 13px uppercase #98989d lining-nums tabular-nums
+  FAIL  390px dark /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "where you left off" 13px uppercase #98989d lining-nums tabular-nums; "5 more" 13px uppercase #98989d lining-nums tabular-nums
+  FAIL  390px dark /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "2" 13px uppercase #98989d lining-nums tabular-nums; "unlocks as you go" 13px uppercase #98989d lining-nums tabular-nums
+  FAIL  1280px light /: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 5 — "Day 3 of 21" 13px uppercase #6e6e73 lining-nums tabular-nums; "2" 13px uppercase #6e6e73 lining-nums tabular-nums; "1 lecture · 52m" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  1280px light /exams: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "5" 13px uppercase #6e6e73 lining-nums tabular-nums; "5 locked" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  1280px light /courses: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "where you left off" 13px uppercase #6e6e73 lining-nums tabular-nums; "5 more" 13px uppercase #6e6e73 lining-nums tabular-nums
+  FAIL  1280px light /workshop: every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px) — 2 — "2" 13px uppercase #6e6e73 lining-nums tabular-nums; "unlocks as you go" 13px uppercase #6e6e73 lining-nums tabular-nums
+  exit 1 (caught, as required)
+== plant manifest-espresso -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/manifest.json (cmp identical)
+  FAIL  install: manifest.json theme_color is the default theme's --panel (#1c1c1e, as index.html's meta) and background_color its --bg (#000000) — theme_color #2b2118, meta #1c1c1e, background_color #000000
+FAIL — 1 of 2652 design checks failed
+  exit 1 (caught, as required)
+== plant border-painted -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  390px light: every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box, a transparent edge on all four sides) — 106 — / a.btn.lg "Open ▸" painted 34.0px (padding-box, edge alpha 255/255/255/255); / a.btn "Open ▸" painted 34.0px (padding-box, edge alpha 255/255/255/255); /lesson/math110/0/13 button.btn.ghost "Rewatch" painted 34.0px (padding-box, edge alpha 255/255/255/255); /lesson/math110/0/13 button#numGo.btn.ghost "Submit" painted 34.0px (padding-box, edge alpha 255/255/255/255)
+  FAIL  1280px light: every button PAINTS a 30-38px capsule (iOS's 34-36), under 44px, inside its box (background-clip: padding-box, a transparent edge on all four sides) — 15 — / a.btn.lg "Open ▸" painted 34.0px (padding-box, edge alpha 255/255/255/255); / a.btn "Open ▸" painted 34.0px (padding-box, edge alpha 255/255/255/255); /course/math110 a.btn.lg "Continue ▸" painted 34.0px (padding-box, edge alpha 255/255/255/255); /course/math110 a.btn "Open ▸" painted 34.0px (padding-box, edge alpha 255/255/255/255)
+FAIL — 2 of 2652 design checks failed
+  exit 1 (caught, as required)
+== plant edge-inset -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  390px light /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Open ▸" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px light /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Continue ▸" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "Rewatch" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px light /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px light /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. span.btn.pd-go "Take it" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px light: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — / a.btn.lg "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; /course/math110 a.btn.lg "Continue ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; / a.btn "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px
+  FAIL  390px dark /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Open ▸" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px dark /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Continue ▸" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. button.btn.ghost "Rewatch" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px dark /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px dark /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. span.btn.pd-go "Take it" corner 12.0x17.0 for half-height 17.0 (declared 340px 440px)
+  FAIL  390px dark: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — / a.btn.lg "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; /course/math110 a.btn.lg "Continue ▸" #ffffff on #0071e3/255 4.70:1 340px 440px; / a.btn "Open ▸" #ffffff on #0071e3/255 4.70:1 340px 440px
+  exit 1 (caught, as required)
+== plant corners-999 -> node tools/verify-design.js
+  restored /home/user/bf-T-051-1/platform/css/style.css (cmp identical)
+  FAIL  390px light /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Open ▸" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px light /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Continue ▸" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px light /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "Rewatch" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px light /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px light /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. span.btn.pd-go "Take it" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px light: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — / a.btn.lg "Open ▸" #ffffff on #0071e3/255 4.70:1 999px; /course/math110 a.btn.lg "Continue ▸" #ffffff on #0071e3/255 4.70:1 999px; / a.btn "Open ▸" #ffffff on #0071e3/255 4.70:1 999px
+  FAIL  390px dark /: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Open ▸" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px dark /course/math110: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 2 of 2, e.g. a.btn.lg "Continue ▸" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px dark /lesson/math110/0/13: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. button.btn.ghost "Rewatch" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px dark /calendar: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 4 of 4, e.g. button.btn.ghost "" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px dark /workshop: every visible .btn — filled, ghost, danger or bare — PAINTS a capsule: each corner a circle of half its painted height (T-051-1; the outlined kinds were 12px) — 3 of 3, e.g. span.btn.pd-go "Take it" corner 22.0x17.0 for half-height 17.0 (declared 999px)
+  FAIL  390px dark: the primary action — every filled .btn and at least one .btn.lg paints a capsule (T-051-1 r1; it read 999px), a white label on the filled tint (#0071e3, 4.70:1), label --accent-fill-ink, >= 4.5:1 — / a.btn.lg "Open ▸" #ffffff on #0071e3/255 4.70:1 999px; /course/math110 a.btn.lg "Continue ▸" #ffffff on #0071e3/255 4.70:1 999px; / a.btn "Open ▸" #ffffff on #0071e3/255 4.70:1 999px
+  exit 1 (caught, as required)
+plants: 15 of 15 caught (each gate exit 1)
+plants.sh exit 0

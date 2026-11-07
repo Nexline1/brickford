@@ -1,0 +1,9 @@
+design2 0
+shell 0
+contrast 0
+off1 0
+off2 0
+density 1
+clip 0
+clipLA 0
+ALLDONE

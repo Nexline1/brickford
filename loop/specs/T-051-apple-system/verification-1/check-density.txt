@@ -1,0 +1,2 @@
+PASS — 34 route-renders (17 routes x 320/390px, Light); 1983 first-viewport words in all; 156 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 19, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 21, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 0 new, 0 stale, 0 over
+exit 0

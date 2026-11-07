@@ -29,3 +29,12 @@ Sync currently writes `progress/brickford-state.json` to the PUBLIC repo `Nexlin
   - (b) the migration skipping the merge, which drops one side's lessons;
   - (c) the public file read again after `syncMovedAt` is set.
 - Every gate passes, and the `?v=` tokens are bumped.
+
+## Amendment, 2026-11-07 (owner: "all of my progress went wiped out in DIA ... finalize syncing devices asap")
+Cause of the wipe: a new browser has empty localStorage, and nothing was ever synced. `progress/brickford-state.json` does NOT exist in the public repo on any branch or in its history (checked with `git log --all -- progress/brickford-state.json`: empty). So no device has ever completed a push; the real progress lives only in the original browsers/phone.
+Consequences for this item:
+- **No migration code.** There is no public file to read, so item 2 (the one-time migration from the public file, `syncMovedAt`, plants b and c) is dropped. The new build never reads or writes the public repo. (Re-check `git log --all -- progress/brickford-state.json` before merge: if a public file appeared, stop and tell the owner.)
+- `SYNC_REPO` / `defaultRepo` become `Nexline1/brickford-private`, in BOTH the web app (platform/js/app.js) and the Flutter app (app/lib/state/sync.dart). Same path, same merge rules, same token, same latch rules.
+- **404 means two things on a private repo.** GitHub answers 404 (not 403) for a private repo a fine-grained token has no access to, and also 404 for a file that does not exist yet. The app must tell them apart: on a 404 from the file, ask GET /repos/{repo}; a 404 there means "Sync can't reach brickford-private: give your token access to it" (shown in the existing sync-error row, same latch: automatic pushes stop, manual Pull/Push always run and a success lifts the latch); a 200 means the file is simply missing (first push creates it).
+- **A new device restores from the file.** Acceptance adds: a fresh empty device with a token pulls a stub remote that holds lessons, studyDays, settings.streakFrom and monkStart, and shows them; pushing from a fresh empty device cannot remove anything the remote holds (the merge-before-write rule).
+- The two apps' on-screen sync text names the private repo (web: the two lines that say `SYNC_REPO`; Flutter: the Profile/sync screen).

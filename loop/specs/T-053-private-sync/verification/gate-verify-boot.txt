@@ -1,0 +1,26 @@
+  ok    /brickford/app/ ends on /brickford/app-web/ — http://localhost:32905/brickford/app-web/
+  ok      it renders the app: first frame, boot screen gone, Home on screen — first frame at 800 ms
+  ok      no host but this one (no CDN fonts or CanvasKit)
+  ok      no page errors
+  ok    /brickford/app ends on /brickford/app-web/ — http://localhost:32905/brickford/app-web/
+  ok      it renders the app: first frame, boot screen gone, Home on screen — first frame at 735 ms
+  ok      no host but this one (no CDN fonts or CanvasKit)
+  ok      no page errors
+  ok    /brickford/app-web/ ends on /brickford/app-web/ — http://localhost:32905/brickford/app-web/
+  ok      it renders the app: first frame, boot screen gone, Home on screen — first frame at 815 ms
+  ok    the boot screen is on screen at the first paint (DOMContentLoaded), with the wordmark — {"display":"flex","text":"BRICKFORD\nSELF-BUILT UNIVERSITY"}
+  ok    the loading screen shows no size, progress or 'Loading' text, and the crest is a still logo (no animation, no 3D) — 3 samples, 1 distinct crest positions, 0 running animations; text: BRICKFORD SELF-BUILT UNIVERSITY | BRICKFORD SELF-BUILT UNIVERSITY | BRICKFORD SELF-BUILT UNIVERSITY
+  ok    startup does not read summaries.json (it loads when a lecture opens) — assets/assets/data/meta.json, assets/assets/data/courses.json, assets/assets/data/quiz-keys.json, assets/assets/data/quizzes.json, assets/assets/data/workshop.json, assets/assets/data/gates.json, assets/assets/data/storytelling.json
+  ok    the boot total's file list matches what a start reads (CanvasKit aside: Chromium takes canvaskit/chromium/) — 18 files; read too: , canvaskit/chromium/canvaskit.js, canvaskit/chromium/canvaskit.wasm, assets/fonts/fallback/Roboto-Regular.ttf
+  ok    the data JSON is served minified — [{"id":"math110","instructor":{"name":"G
+  ok      no host but this one (no CDN fonts or CanvasKit)
+  ok      no page errors
+  ok    on a 1.2 MB/s line the boot screen stays up with no numbers, and only the still crest, until the first frame — 37 samples, 0 running animations; first frame at 7.7 s
+  ok    main.dart.js blocked: the failure screen, with the error, URL, user agent, WebGL/WebGL2/WebAssembly and Reset and reload — BRICKFORD SELF-BUILT UNIVERSITY Brickford hasn’t started Could not load http://localhost:32905/brickford/app-web/main.dart.js Loading… 5.3 of ~12.1 MB · 0 s URL http://localhost:32905/brickford/app-web/ UA Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.80
+  ok    canvaskit.wasm hanging: the failure screen at 25 s, saying no first frame came — 25 s; BRICKFORD SELF-BUILT UNIVERSITY Brickford hasn’t started No first frame after 25 s, and no error was reported. Loading… 3.2 of ~12.1 MB · 25 s URL http://localhost:32905/brickford/app-web/ UA Mozilla/
+  ok    after /brickford/platform/ registered sw.js (1 worker, 2 caches), /brickford/app-web/ in the same context renders
+  ok    sw.js answers none of /app-web/'s requests — 22 requests, 0 from the worker
+  ok    Reset and reload, with the app broken: every worker unregistered, every cache deleted, the page reloaded — before {"regs":1,"caches":2}, after {"regs":0,"caches":0}
+
+all checks passed
+exit 0

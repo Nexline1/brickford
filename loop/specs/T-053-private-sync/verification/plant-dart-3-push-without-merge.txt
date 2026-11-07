@@ -1,0 +1,95 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.1.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.3 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+9 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/user/bf-T-053/app/test/sync_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: a pull merges the remote in, sends the token only to api.github.com, and ignores a remote monk
+00:00 +1: a push merges first, then writes the payload with the sha, and never carries monk
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a string starting with 'progress: 2026-11-05 from 1huhu2o0 (merged 3)'
+  Actual: 'progress: 2026-11-05 from 1huhu2o0'
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/user/bf-T-053/app/test/sync_test.dart:149:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/user/bf-T-053/app/test/sync_test.dart line 149
+The test description was:
+  a push merges first, then writes the payload with the sha, and never carries monk
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +1 -1: a push merges first, then writes the payload with the sha, and never carries monk [E]
+  Test failed. See exception logs above.
+  The test description was: a push merges first, then writes the payload with the sha, and never carries monk
+  
+00:00 +1 -1: a push to an empty repo creates the file, with no sha
+00:00 +2 -1: a save arms a push 4 s out; a render, a lesson open, a monk write and a sync outcome arm none
+00:00 +3 -1: a rejected token is latched: automatic pushes stop, a manual pull runs, a success lifts it
+00:00 +4 -1: no answer is the network, not a rejection: offline, owed in its own key, pushed on the next start
+00:00 +5 -1: offline() says so without asking; coming back online arms what is owed through the debounce
+00:00 +6 -1: hiding the app pushes; coming back pulls, but not twice inside 20 s
+00:00 +7 -1: the token is never shown, printed or stored in the state: the screen says Saved
+00:02 +8 -1: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:04 +9 -1: (a) pulls and pushes go only to the private repo's file, and a device that stored the old public repo is not sent there
+00:04 +10 -1: (b) a 404 on the file and on the repo: the new error, latched for automatic pushes only; manual Pull and Push run; a success clears it
+00:04 +11 -1: (b) the same 404 split on the PUT: a push told 404 asks the repo and says the same line
+00:04 +12 -1: (c) a 404 on the file with the repo answering is not an error: Pull says Nothing stored yet, Push creates the file with no sha
+00:04 +13 -1: (d) a new empty device with a token pulls a remote that holds lessons, studyDays, streakFrom and monkStart, and shows them
+00:04 +14 -1: (e) a push from a new empty device removes nothing the remote holds: it merges before it writes
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following NoSuchMethodError was thrown running a test:
+The method '[]' was called on null.
+Receiver: null
+Tried calling: []("verified")
+
+When the exception was thrown, this was the stack:
+#0      Object.noSuchMethod (dart:core-patch/object_patch.dart:38:5)
+#1      main.<anonymous closure> (file:///home/user/bf-T-053/app/test/sync_test.dart:529:52)
+<asynchronous suspension>
+#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  (e) a push from a new empty device removes nothing the remote holds: it merges before it writes
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +14 -2: (e) a push from a new empty device removes nothing the remote holds: it merges before it writes [E]
+  Test failed. See exception logs above.
+  The test description was: (e) a push from a new empty device removes nothing the remote holds: it merges before it writes
+  
+00:04 +14 -2: the Monk start merges by "first write wins": none takes the other's, two keep the EARLIER, and nothing that is not a date ever clears or replaces it
+00:05 +15 -2: the payload carries monkStart when it is set and nothing else of Monk; not started, it carries no Monk key at all
+00:05 +16 -2: starting pushes at once (inside the 4 s debounce, and only once), carrying the date; with no token nothing is sent
+00:05 +17 -2: a pulled start repaints the open Monk screen from Start to Day 3 of 21
+00:05 +18 -2: (tearDownAll)
+00:05 +18 -2: Some tests failed.
+
+Failing tests:
+  /home/user/bf-T-053/app/test/sync_test.dart: (e) a push from a new empty device removes nothing the remote holds: it merges before it writes
+  /home/user/bf-T-053/app/test/sync_test.dart: a push merges first, then writes the payload with the sha, and never carries monk
+exit 1 (restored byte-identically, cmp)

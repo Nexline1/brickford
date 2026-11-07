@@ -552,6 +552,20 @@ void main(List<String> args) {
   }
   out['calendar'] = calendar;
 
+  // ---- the Publish anchor (T-066): Publish items and dayStatus under a Thursday, Friday, Saturday, Sunday and Monday clock ----
+  final pb = fx['publish'] as Map<String, dynamic>;
+  final pbDates = (pb['dates'] as List).cast<String>();
+  out['publish'] = {
+    for (final clock in heavy ? (pb['clocks'] as List).cast<String>() : const <String>[])
+      clock: () {
+        final e = Engine(data, (jsonDecode(jsonEncode(pb['state'])) as Map).cast<String, dynamic>(), today: () => clock);
+        return {
+          'pub': [for (final d in pbDates) schedKey(e.scheduledFor(d).where((it) => it.track == 'Publish').toList())],
+          'status': [for (final d in pbDates) e.dayStatus(d)],
+        };
+      }(),
+  };
+
   // ---- sync (T-064 stage 3): mergeState over each fixture, and the payload ----
   dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
   dynamic strip(Object? v) => v is Map

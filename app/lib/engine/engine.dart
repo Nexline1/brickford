@@ -348,6 +348,20 @@ class Engine {
     return i >= 0 || lt(todayISO(), START_DATE) ? i : studyIndex(prevStudyDay(todayISO()));
   }
 
+  /// T-066: the same for Publish. speechSlot(today) is -1 on a Friday (the rep day) and a Saturday, which
+  /// re-anchored every past Storytelling day to the first unwatched lecture. This is the slot of the last
+  /// speech day on or before today; -1 before the start. Windowing only: a Friday still schedules nothing.
+  int speechAnchor() {
+    final t = todayISO();
+    if (lt(t, START_DATE)) return -1;
+    var c = t;
+    for (var i = 0; i < 7; i++, c = addDaysISO(c, -1)) {
+      final s = speechSlot(c);
+      if (s >= 0) return s;
+    }
+    return -1;
+  }
+
   String nextStudyDay(String iso) {
     var cur = addDaysISO(iso, 1);
     for (var guard = 0; guard < 14 && isRestDay(cur); guard++) {
@@ -589,7 +603,7 @@ class Engine {
     ];
     if (speechFlat.isNotEmpty) {
       if (sd >= 0) {
-        final sToday = speechSlot(todayISO());
+        final sToday = speechAnchor();
         final sw = windowFor('s:speech', speechFlat, SPEECH_BUDGET, sd, sToday);
         if (sw != null) {
           for (final k in sw.idxs) {

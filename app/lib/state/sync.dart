@@ -49,13 +49,16 @@ class SyncService extends ChangeNotifier {
   final bool Function() _offline;
   final Duration debounce;
 
-  static const defaultRepo = 'Nexline1/brickford';
+  // T-053: progress lives in a PRIVATE repo; the public one is never read or written.
+  static const defaultRepo = 'Nexline1/brickford-private';
+  // What an earlier build named, and stored on the device when it connected (repoKey). It is read as unset.
+  static const _oldPublicRepo = 'Nexline1/brickford';
   static const syncPath = 'progress/brickford-state.json';
   static const tokenKey = 'brickford_gh_token';
   static const repoKey = 'brickford_gh_repo';
   static const owedKey = 'brickford_sync_pending';
   static final repoShape = RegExp(r'^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$');
-  static final _fatal = RegExp(r'not accessible|token rejected|bad credentials|requires authentication|401|403', caseSensitive: false);
+  static final _fatal = RegExp(r"not accessible|token rejected|can't reach|bad credentials|requires authentication|401|403", caseSensitive: false);
   static const offlineSay = 'Offline — this device will sync when the connection is back.';
 
   Engine get _e => m.engine;
@@ -72,7 +75,10 @@ class SyncService extends ChangeNotifier {
   // ---------- the connection (the only reader of the token) ----------
   String get _token => m.prefs.getString(tokenKey) ?? '';
   bool get hasToken => _token.isNotEmpty;
-  String get repo => m.prefs.getString(repoKey) ?? defaultRepo;
+  String get repo {
+    final r = m.prefs.getString(repoKey);
+    return r == null || r.isEmpty || r == _oldPublicRepo ? defaultRepo : r;
+  }
 
   /// A new token deserves a fresh verdict: the old one's rejection must not keep this device latched off.
   /// Returns an error to show, or null when it was saved.
@@ -228,16 +234,30 @@ class SyncService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<http.Response> _gh(String method, [Map<String, dynamic>? body]) {
-    final base = Uri.parse('https://api.github.com/repos/$repo/contents/$syncPath');
+  /// [repoOnly] asks about the repository itself (see _repoReachable), not the file.
+  Future<http.Response> _gh(String method, [Map<String, dynamic>? body, bool repoOnly = false]) {
+    final base = Uri.parse('https://api.github.com/repos/$repo${repoOnly ? '' : '/contents/$syncPath'}');
     final headers = {
       'Authorization': 'Bearer $_token',
       'Accept': 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
     };
     return method == 'GET'
-        ? _client.get(base.replace(queryParameters: {'ref': 'main'}), headers: headers)
+        ? _client.get(repoOnly ? base : base.replace(queryParameters: {'ref': 'main'}), headers: headers)
         : _client.put(base, headers: {...headers, 'Content-Type': 'application/json'}, body: jsonEncode(body));
+  }
+
+  String get _rejected => 'Token rejected — it needs Contents: Read and write on $repo.';
+
+  /// T-053: on a private repo GitHub answers 404, not 403, to a token that has no access, and 404 as well for
+  /// a file that does not exist yet. So a 404 from the file says nothing: this asks the repo itself. It passes
+  /// [res] through when the repo answers (the file is just missing) and throws when the repo is a 404 too.
+  Future<http.Response> _repoReachable(http.Response res) async {
+    final r = await _gh('GET', null, true);
+    if (r.statusCode == 404) throw _SyncError("Sync can't reach ${repo.split('/').last}: give your token access to it.");
+    if (r.statusCode == 401 || r.statusCode == 403) throw _SyncError(_rejected);
+    if (r.statusCode < 200 || r.statusCode >= 300) throw _SyncError('GitHub returned ${r.statusCode}.');
+    return res;
   }
 
   void _ok() {
@@ -275,14 +295,15 @@ class SyncService extends ChangeNotifier {
     _say('Contacting GitHub…');
     var done = false;
     try {
-      final res = await _gh('GET');
+      var res = await _gh('GET');
       _netState(false); // an answer, whatever it says: the network is there
+      if (res.statusCode == 404) res = await _repoReachable(res); // the repo answered: only the file is missing
       var missing = false;
       Map<String, dynamic> file = {};
       if (res.statusCode == 404) {
         missing = true;
       } else if (res.statusCode == 401 || res.statusCode == 403) {
-        throw _SyncError('Token rejected — it needs Contents: Read and write on $repo.');
+        throw _SyncError(_rejected);
       } else if (res.statusCode < 200 || res.statusCode >= 300) {
         throw _SyncError('GitHub returned ${res.statusCode}.');
       } else {
@@ -309,7 +330,8 @@ class SyncService extends ChangeNotifier {
           'content': base64.encode(utf8.encode(encodePayload(syncPayload(_e, now: m.now())))),
           if (!missing && file['sha'] != null) 'sha': file['sha'],
         };
-        final res2 = await _gh('PUT', body);
+        var res2 = await _gh('PUT', body);
+        if (res2.statusCode == 404) res2 = await _repoReachable(res2);
         if (res2.statusCode == 409) throw const _SyncError('The remote moved while pushing. Pull, then push again.');
         if (res2.statusCode < 200 || res2.statusCode >= 300) {
           String? why;

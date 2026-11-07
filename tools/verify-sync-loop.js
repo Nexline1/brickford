@@ -27,6 +27,12 @@
 // gate fails with that reason. With no unload report the attempt is measured
 // as it is, never retried (fail-closed). Whether the state arrived is what the
 // checks measure; their predicates are as they were.
+//
+// T-053 (loop/specs/T-053-private-sync/spec.md): progress lives in the PRIVATE
+// repo Nexline1/brickford-private. The last section stubs it the way GitHub
+// answers (a 404 for a token with no access AND for a file not written yet) and
+// asserts the app tells the two apart, never touches the public repo, restores
+// a new device from the file, and merges before it writes.
 const path = require("path");
 const { chromium } = require("/opt/node22/lib/node_modules/playwright");
 const { acrossReload } = require("./lib-reload");
@@ -908,9 +914,169 @@ async function session(browser, { putOk }) {
     await ctx.close();
   }
 
+  // ---- T-053: progress sync lives in the PRIVATE repo ----
+  // GitHub answers 404 (not 403) to a fine-grained token with no access to a
+  // private repo, and 404 as well for a file that is not there yet. So a 404 from
+  // the file alone says nothing: the app must ask the repo (GET /repos/<repo>).
+  // The stub below is that GitHub. It records EVERY api.github.com request from
+  // every scenario in `seen`, so a single stray request to the public repo
+  // (a pull, a push, a repo probe) fails (a).
+  console.log("\nSync lives in the private repo (T-053):");
+  {
+    const PRIV = "/repos/Nexline1/brickford-private";
+    const FILE = PRIV + "/contents/progress/brickford-state.json";
+    const NOFIX = "Sync can't reach brickford-private: give your token access to it.";
+    const NOW = "2026-11-05";
+    const seen = [];
+    const t53 = (ok, msg) => check(ok, msg);
+    // A device that has worked: what the new-device checks restore from.
+    const REMOTE = { v: 1, updatedAt: "2026-11-05T09:00:00Z", device: "device-b", ledgers: { "device-b": [{ date: "2026-11-02", kind: "lesson", ref: "math110.0.0", hash: "h1" }] },
+      state: { lessons: { "math110.0.0": { done: true, doneAt: "2026-11-02", firstDoneAt: "2026-11-02", verified: true, notes: "from the laptop" } },
+        studyDays: ["2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05"], settings: { streakFrom: "2026-11-04" }, monkStart: "2026-11-02" } };
+    const handler = st => route => {
+      const rq = route.request(), u = new (require("url").URL)(rq.url()), m = rq.method();   // this file's own URL is the page address
+      seen.push(m + " " + u.pathname);
+      const json = (status, o) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(o) });
+      if (u.pathname === PRIV) { st.log.push(m + " repo"); return st.repo === 200 ? json(200, { full_name: "Nexline1/brickford-private", private: true }) : json(404, { message: "Not Found" }); }
+      if (u.pathname === FILE) {
+        st.log.push(m + " file");
+        if (st.repo !== 200) return json(404, { message: "Not Found" });
+        if (m === "GET") return st.file ? json(200, { sha: st.file.sha, content: Buffer.from(st.file.text).toString("base64") }) : json(404, { message: "Not Found" });
+        const body = JSON.parse(rq.postData());
+        if (st.file ? body.sha !== st.file.sha : "sha" in body) return json(st.file ? 409 : 422, { message: "sha does not match" });
+        const text = Buffer.from(body.content, "base64").toString();
+        st.puts.push({ sha: body.sha, state: JSON.parse(text).state, ledgers: JSON.parse(text).ledgers });
+        st.file = { sha: "sha-" + st.puts.length, text };
+        return json(200, { content: { sha: st.file.sha } });
+      }
+      return json(404, { message: "Not Found" });   // anywhere else: recorded in `seen`, fails (a)
+    };
+    const device = async st => {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+      await ctx.clock.setFixedTime(new Date(NOW + "T12:00:00Z"));
+      await ctx.addInitScript(() => { if (window.top === window) localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"); });
+      const page = await ctx.newPage();
+      const errors = [];
+      page.on("pageerror", e => errors.push(e.message));
+      await page.route("https://api.github.com/**", handler(st));
+      return { ctx, page, errors, stored: () => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}")) };
+    };
+    const until = async (page, fn, ms) => { for (const t0 = Date.now(); Date.now() - t0 < (ms || 8000);) { if (await fn()) return true; await page.waitForTimeout(100); } return false; };
+    // A Pull pressed while a sync is out is dropped (runSync is busy), so press again until the proof shows.
+    const pressUntil = async (page, sel, proof) => { for (const t0 = Date.now(); Date.now() - t0 < 8000;) { await page.click(sel); if (await until(page, proof, 700)) return true; } return false; };
+    const msgIs = (page, re) => () => page.evaluate(r => new RegExp(r).test((document.querySelector("#syncMsg") || {}).textContent || ""), re.source);
+    const err = async d => ((await d.stored()).settings || {}).syncError || null;
+    const scenario = async (name, st, fn) => {
+      const d = await device(st);
+      try { await fn(d); t53(d.errors.length === 0, name + " no page errors" + (d.errors.length ? " — " + d.errors.join(" | ") : "")); }
+      catch (e) { check(false, name + " ran to its end without a harness error — " + e.message.split("\n")[0]); }
+      await d.ctx.close();
+    };
+    const newStub = (repo, file) => ({ repo, file, log: [], puts: [] });
+
+    // (b) no access: the file is 404 and so is the repo.
+    {
+      const st = newStub(404, null);
+      await scenario("(b)", st, async d => {
+        await d.page.goto(URL + "/lesson/math110/0/0", { waitUntil: "load" });
+        await until(d.page, async () => !!(await err(d)));
+        const e = (await err(d)) || {};
+        t53(e.msg === NOFIX && e.fatal === true, "(b) file 404 and repo 404: the error is \"" + NOFIX + "\" and it is fatal (" + JSON.stringify(e.msg) + ")");
+        t53(st.log.slice(0, 2).join(",") === "GET file,GET repo", "(b) the repo was asked after the file's 404 (" + st.log.join(",") + ")");
+        const n0 = st.log.length;
+        await d.page.click("[data-act='toggleDone']");
+        await d.page.waitForTimeout(5500);   // past the 4 s an armed automatic push would take
+        t53(st.log.length === n0, "(b) latched: a save arms no automatic push (" + (st.log.length - n0) + " requests after it)");
+        await d.page.goto(URL + "/sync", { waitUntil: "load" });
+        await d.page.waitForSelector("[data-act='syncPush']");
+        t53(await d.page.evaluate(w => [...document.querySelectorAll("#view .note")].some(n => n.textContent.indexOf(w) >= 0), NOFIX), "(b) the existing error row on /sync shows the line");
+        await d.page.click("[data-act='syncPush']");
+        const said = await until(d.page, msgIs(d.page, /^Sync can't reach brickford-private: give your token access to it\.$/));
+        t53(said && st.log.length > n0 && st.puts.length === 0, "(b) a manual Push still runs while latched, says why, and wrote nothing (" + (st.log.length - n0) + " requests)");
+        const n1 = st.log.length;
+        await d.page.click("[data-act='syncPull']");
+        t53(await until(d.page, () => st.log.length >= n1 + 2) && await until(d.page, msgIs(d.page, /^Sync can't reach/)), "(b) a manual Pull still runs while latched (" + (st.log.length - n1) + " requests)");
+        st.repo = 200;   // the owner gives the token access; the repo is empty of our file
+        await d.page.click("[data-act='syncPush']");
+        const wrote = await until(d.page, () => st.puts.length === 1);
+        t53(wrote && !(await err(d)), "(b) a later success clears the error (" + JSON.stringify(await err(d)) + ")");
+        await d.page.goto(URL + "/lesson/math110/0/0", { waitUntil: "load" });
+        await d.page.click("[data-act='toggleDone']");
+        t53(await until(d.page, () => st.puts.length >= 2, 8000), "(b) and the latch is lifted: a save arms an automatic push again");
+      });
+    }
+
+    // (c) the repo is there, the file is not: not an error.
+    {
+      const st = newStub(200, null);
+      await scenario("(c)", st, async d => {
+        await d.page.goto(URL + "/sync", { waitUntil: "load" });
+        await d.page.waitForSelector("[data-act='syncPull']");
+        const said = await pressUntil(d.page, "[data-act='syncPull']", msgIs(d.page, /Nothing stored yet/));
+        t53(said && !(await err(d)) && st.log.indexOf("GET repo") >= 0, "(c) file 404 and repo 200: Pull says \"Nothing stored yet\", records no error, and the repo was asked");
+        await d.page.click("[data-act='syncPush']");
+        const wrote = await until(d.page, () => st.puts.length >= 1);
+        t53(wrote && st.puts[0].sha === undefined && !!st.puts[0].state && !(await err(d)), "(c) Push creates the file: the PUT carries no sha, and no error is recorded");
+      });
+    }
+
+    // (d) a new device restores from the file. The first sync at launch finds the remote empty; then the remote
+    // holds the work, and Pull has to bring all of it in and show it.
+    {
+      const st = newStub(200, null);
+      await scenario("(d)", st, async d => {
+        await d.page.goto(URL + "/sync", { waitUntil: "load" });
+        await until(d.page, () => st.log.indexOf("GET repo") >= 0);
+        t53(Object.keys((await d.stored()).lessons || {}).length === 0, "(d) the device starts empty");
+        st.file = { sha: "sha-remote", text: JSON.stringify(REMOTE) };
+        const pulled = await pressUntil(d.page, "[data-act='syncPull']", async () => Object.keys((await d.stored()).lessons || {}).length > 0);
+        const s = await d.stored();
+        t53(pulled && (s.lessons["math110.0.0"] || {}).verified === true && JSON.stringify(s.studyDays) === JSON.stringify(REMOTE.state.studyDays) &&
+          (s.settings || {}).streakFrom === "2026-11-04" && s.monkStart === "2026-11-02",
+          "(d) Pull stores the lessons, studyDays, settings.streakFrom and monkStart (" + JSON.stringify({ l: Object.keys(s.lessons || {}), d: (s.studyDays || []).length, f: (s.settings || {}).streakFrom, m: s.monkStart }) + ")");
+        await d.page.evaluate(() => { location.hash = "#/record"; });
+        await d.page.waitForSelector("#view .pf-tile");
+        const tiles = await d.page.evaluate(() => Object.fromEntries([...document.querySelectorAll("#view .pf-tile")].map(t => [t.querySelector(".at-days > span").textContent, t.querySelector("b").textContent])));
+        t53(tiles["day streak"] === "2" && tiles["longest streak"] === "4" && tiles["lectures proven"] === "1",
+          "(d) the Record page shows them: streak 2 since the reset, longest 4, 1 proven (" + JSON.stringify(tiles) + ")");
+        await d.page.evaluate(() => { location.hash = "#/monk"; });
+        await d.page.waitForFunction(() => { const h = document.querySelector("#view .mk-head .one-kind"); return !!h && /^Day \d+ of 21$/.test(h.textContent.trim()); }, null, { timeout: 8000 });
+        const head = await d.page.evaluate(() => document.querySelector("#view .mk-head .one-kind").textContent.trim());
+        t53(head === "Day 4 of 21", "(d) and Monk Mode counts from the pulled start: " + head);
+      });
+    }
+
+    // (e) a push from a new device cannot remove anything the remote holds: it merges before it writes. The device
+    // launches against an empty remote (so no pull has brought anything in), the remote then gains the work, and
+    // the first thing this device does is Push.
+    {
+      const st = newStub(200, null);
+      await scenario("(e)", st, async d => {
+        await d.page.goto(URL + "/sync", { waitUntil: "load" });
+        await until(d.page, () => st.log.indexOf("GET repo") >= 0);
+        st.file = { sha: "sha-remote", text: JSON.stringify(REMOTE) };
+        await d.page.click("[data-act='syncPush']");
+        const wrote = await until(d.page, () => st.puts.length >= 1);
+        const p = st.puts[0] || { state: {}, ledgers: {} }, r = REMOTE.state;
+        t53(wrote && p.sha === "sha-remote", "(e) a push from an empty device writes over the remote's sha, not blind (" + p.sha + ")");
+        t53(wrote && !!(p.state.lessons || {})["math110.0.0"] && r.studyDays.every(x => (p.state.studyDays || []).indexOf(x) >= 0) &&
+          (p.state.settings || {}).streakFrom === r.settings.streakFrom && p.state.monkStart === r.monkStart && !!(p.ledgers || {})["device-b"],
+          "(e) the pushed file still holds every lesson, study day, streakFrom, monkStart and the other device's ledger the remote held");
+      });
+    }
+
+    // (a) everything above, in one list.
+    {
+      const allowed = ["GET " + PRIV, "GET " + FILE, "PUT " + FILE];
+      const stray = [...new Set(seen)].filter(x => allowed.indexOf(x) < 0);
+      t53(seen.indexOf("GET " + FILE) >= 0 && seen.indexOf("PUT " + FILE) >= 0, "(a) pulls and pushes went to repos/Nexline1/brickford-private/contents/progress/brickford-state.json");
+      t53(stray.length === 0, "(a) nothing else was requested: no public repo path, no other URL" + (stray.length ? " — " + stray.join(", ") : " (" + seen.length + " requests)"));
+    }
+  }
+
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065), and sync lives in the private repo only, tells a missing file from no access, restores a new device and merges before it writes (T-053)");
   process.exit(fails ? 1 : 0);
 })();

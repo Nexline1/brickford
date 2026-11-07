@@ -240,13 +240,17 @@
   // push and rewrites nothing; the next ordinary save() stores the new shape.
   Object.keys(S.gates || (S.gates = {})).forEach(k => { S.gates[k] = gateRec(S.gates[k], k); });
 
-  const SYNC_REPO = "Nexline1/brickford";
+  // T-053: progress lives in a PRIVATE repo; the public one is never read or
+  // written by the app. Anyone can read the public repo, notes and recall included.
+  const SYNC_REPO = "Nexline1/brickford-private";
   const SYNC_PATH = "progress/brickford-state.json";
+  const SYNC_NO_ACCESS = "Sync can't reach brickford-private: give your token access to it.";
   const ghToken = () => { try { return localStorage.getItem("brickford_gh_token") || ""; } catch (e) { return ""; } };
 
-  function ghFetch(method, body) {
-    const url = "https://api.github.com/repos/" + SYNC_REPO + "/contents/" + SYNC_PATH;
-    return fetch(method === "GET" ? url + "?ref=main" : url, {
+  // repoOnly asks about the repository itself (see repoReachable), not the file.
+  function ghFetch(method, body, repoOnly) {
+    const url = "https://api.github.com/repos/" + SYNC_REPO + (repoOnly ? "" : "/contents/" + SYNC_PATH);
+    return fetch(method === "GET" && !repoOnly ? url + "?ref=main" : url, {
       method: method,
       headers: {
         Authorization: "Bearer " + ghToken(),
@@ -259,6 +263,20 @@
       const x = new Error((e && e.message) || "No connection");
       x.network = true;
       throw x;
+    });
+  }
+
+  // T-053: on a private repo GitHub answers 404, not 403, to a token that has no
+  // access, and 404 as well for a file that does not exist yet. A 404 from the
+  // file is therefore ambiguous; this asks the repo itself. It passes the
+  // response through when the repo answers (the file is just missing), and
+  // throws the access error when the repo is a 404 too.
+  function repoReachable(res) {
+    return ghFetch("GET", null, true).then(r => {
+      if (r.status === 404) throw new Error(SYNC_NO_ACCESS);
+      if (r.status === 401 || r.status === 403) throw new Error(TOKEN_REJECTED);
+      if (!r.ok) throw new Error("GitHub returned " + r.status + ".");
+      return res;
     });
   }
 
@@ -554,7 +572,8 @@
   // that will fail identically every time. Marking it lets syncSoon stop
   // arming pushes that cannot succeed — otherwise every save pokes a dead
   // endpoint forever, two API calls at a time.
-  const FATAL_SYNC = /not accessible|token rejected|bad credentials|requires authentication|401|403/i;
+  const FATAL_SYNC = /not accessible|token rejected|can't reach|bad credentials|requires authentication|401|403/i;
+  const TOKEN_REJECTED = "Token rejected \u2014 it needs Contents: Read and write on " + SYNC_REPO + ".";
   function syncFailed(msg) {
     syncQuiet++;
     const text = String(msg || "Sync failed");
@@ -572,8 +591,10 @@
     say("Contacting GitHub\u2026");
     return ghFetch("GET").then(res => {
       netState(false);   // an answer, whatever it says: the network is there
-      if (res.status === 404) return { missing: true };
-      if (res.status === 401 || res.status === 403) throw new Error("Token rejected \u2014 it needs Contents: Read and write on " + SYNC_REPO + ".");
+      return res.status === 404 ? repoReachable(res) : res;
+    }).then(res => {
+      if (res.status === 404) return { missing: true };   // the repo answered: only the file is missing
+      if (res.status === 401 || res.status === 403) throw new Error(TOKEN_REJECTED);
       if (!res.ok) throw new Error("GitHub returned " + res.status + ".");
       return res.json();
     }).then(file => {
@@ -613,7 +634,7 @@
         content: btoa(unescape(encodeURIComponent(JSON.stringify(syncPayload(), null, 1)))),
       };
       if (!file.missing && file.sha) body.sha = file.sha;
-      return ghFetch("PUT", body).then(res2 => {
+      return ghFetch("PUT", body).then(res2 => res2.status === 404 ? repoReachable(res2) : res2).then(res2 => {
         if (res2.status === 409) throw new Error("The remote moved while pushing. Pull, then push again.");
         if (!res2.ok) return res2.json().then(j => { throw new Error(j.message || ("GitHub returned " + res2.status)); });
         clearOwed(mark);

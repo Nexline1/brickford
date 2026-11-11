@@ -1,0 +1,103 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.1.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.3 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+9 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/user/bf-T-066/app/test/calendar_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:02 +1: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:04 +2: the day sheet: one row per lecture, glyphs match lessonCleared; a past day keeps its plan on a Saturday
+00:05 +3: a rest-day Saturday: the moon, the week, and no rows
+00:05 +4: a seal Sunday carries its revision week; the calendar shows this week's seal tile
+00:06 +5: T-066: the Publish items of a past day are the same on a Thursday, Friday and Saturday clock; Fridays and Saturdays schedule none
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: [
+            'Theory:math120.0.0',
+            'Theory:math120.0.1',
+            'Theory:math120.0.2',
+            'Build:ai200.0.2',
+            'Build:ai200.0.3',
+            'Publish:spch100.0.0'
+          ]
+  Actual: [
+            'Theory:math120.0.0',
+            'Theory:math120.0.1',
+            'Theory:math120.0.2',
+            'Build:ai200.0.2',
+            'Build:ai200.0.3',
+            'Publish:spch100.2.2',
+            'Publish:spch100.2.3'
+          ]
+   Which: at location [5] is 'Publish:spch100.2.2' instead of 'Publish:spch100.0.0'
+Friday clock, 2026-10-18
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/user/bf-T-066/app/test/calendar_test.dart:230:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/user/bf-T-066/app/test/calendar_test.dart line 230
+The test description was:
+  T-066: the Publish items of a past day are the same on a Thursday, Friday and Saturday clock;
+  Fridays and Saturdays schedule none
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +5 -1: T-066: the Publish items of a past day are the same on a Thursday, Friday and Saturday clock; Fridays and Saturdays schedule none [E]
+  Test failed. See exception logs above.
+  The test description was: T-066: the Publish items of a past day are the same on a Thursday, Friday and Saturday clock; Fridays and Saturdays schedule none
+  
+00:06 +5 -1: T-066: on a Saturday the month grid shows the watched Storytelling days as done
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: DayMark:<DayMark.done>
+  Actual: DayMark:<DayMark.part>
+2026-10-18
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/user/bf-T-066/app/test/calendar_test.dart:269:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/user/bf-T-066/app/test/calendar_test.dart line 269
+The test description was:
+  T-066: on a Saturday the month grid shows the watched Storytelling days as done
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +5 -2: T-066: on a Saturday the month grid shows the watched Storytelling days as done [E]
+  Test failed. See exception logs above.
+  The test description was: T-066: on a Saturday the month grid shows the watched Storytelling days as done
+  
+00:07 +5 -2: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:08 +6 -2: (tearDownAll)
+00:08 +6 -2: Some tests failed.
+
+Failing tests:
+  /home/user/bf-T-066/app/test/calendar_test.dart: T-066: on a Saturday the month grid shows the watched Storytelling days as done
+  /home/user/bf-T-066/app/test/calendar_test.dart: T-066: the Publish items of a past day are the same on a Thursday, Friday and Saturday clock; Fridays and Saturdays schedule none
+exit 1
+restored-identical

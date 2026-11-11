@@ -1340,6 +1340,64 @@ async function scenario(browser, now, state, tz) {
     check("before the start: day 1 is the fixed plan, unchanged", a.length > 0 && JSON.stringify(a) === JSON.stringify(b), JSON.stringify(a));
   }
 
+  // T-066: the Publish track had T-063's fault on a Friday and a Saturday. Storytelling rests on
+  // Friday (the weekly rep) and Saturday, so speechSlot(today) is -1 on both, and windowFor
+  // re-anchored every past Publish day to the first UNWATCHED SPCH lecture: a day whose Storytelling
+  // was watched listed other lectures and read "partial". The past must be the same on Thu, Fri, Sat.
+  {
+    const THU = "2026-11-05", FRI2 = "2026-11-06", SAT2 = "2026-11-07", LAST_WATCHED = "2026-10-27", AHEAD_TO = "2026-11-12";
+    const isPub = k => k.startsWith("Publish:"), lessonOf = k => k.split(":")[1];
+    const read = async (now, state, dates) => {
+      const sc = await scenario(browser, now, state);
+      const r = await sc.page.evaluate(ds => { const T = window.__brickfordTest, sched = {}, status = {};
+        ds.forEach(d => { sched[d] = T.scheduledFor(d).map(it => it.pseudo ? "p:" + it.short : it.track + ":" + it.cid + "." + it.ui + "." + it.li); status[d] = T.dayStatus(d); });
+        return { sched, status }; }, dates);
+      await sc.ctx.close(); return r;
+    };
+    // The fixed plan, read before the start with nothing watched: nothing re-anchors.
+    const plan = (await read("2026-10-10", null, range(START, "2026-12-31"))).sched;
+    const watchedDays = range(START, LAST_WATCHED).filter(d => !isSat(d));
+    const speechWatched = watchedDays.filter(d => plan[d].some(isPub));
+    // Watched before the quiz gate (grandfathered), every track, on the first plan days: 8 speech days.
+    const lessons = {};
+    watchedDays.forEach(d => plan[d].filter(k => !k.startsWith("p:")).forEach(k => { lessons[lessonOf(k)] = { done: true, doneAt: "2026-10-17T10:00:00.000Z", firstDoneAt: "2026-10-17T10:00:00.000Z" }; }));
+    const state = { lessons, studyDays: [] };
+    const past = range(START, THU);
+    const [onThu, onFri, onSat] = [await read(THU, state, past), await read(FRI2, state, range(START, FRI2)), await read(SAT2, state, range(START, SAT2))];
+    const sameAs = (a, b, ds, what) => ds.filter(d => JSON.stringify(a[what][d]) !== JSON.stringify(b[what][d]));
+    const planDiff = [...sameAs(onThu, onFri, past, "sched"), ...sameAs(onThu, onSat, past, "sched")];
+    check("Publish anchor: every past day's plan (Publish items included) is the same on a Thursday, Friday and Saturday clock",
+      planDiff.length === 0 && speechWatched.length === 8 && past.reduce((n, d) => n + onSat.sched[d].filter(isPub).length, 0) > 0,
+      planDiff.length ? planDiff.length + " day(s) differ, first " + planDiff[0] + ": Thu " + JSON.stringify(onThu.sched[planDiff[0]].filter(isPub)) + ", Fri/Sat " +
+        JSON.stringify((onFri.sched[planDiff[0]] || []).filter(isPub)) + " / " + JSON.stringify((onSat.sched[planDiff[0]] || []).filter(isPub)) : speechWatched.length + " watched speech days");
+    const pastBefore = past.filter(d => d < THU);                   // on the Thursday itself dayStatus is "today"
+    const statusDiff = [...sameAs(onThu, onFri, pastBefore, "status"), ...sameAs(onThu, onSat, pastBefore, "status")];
+    check("Publish anchor: every past day's status is the same on a Thursday, Friday and Saturday clock", statusDiff.length === 0,
+      statusDiff.length ? statusDiff.length + " day(s) differ, first " + statusDiff[0] + ": Thu " + onThu.status[statusDiff[0]] + ", Fri " + onFri.status[statusDiff[0]] + ", Sat " + onSat.status[statusDiff[0]] : pastBefore.length + " days");
+    const pubBad = speechWatched.filter(d => JSON.stringify(onSat.sched[d].filter(isPub)) !== JSON.stringify(plan[d].filter(isPub)) || onSat.status[d] !== "completed");
+    check("Publish anchor: on a Saturday each watched Storytelling day lists its own lectures from the fixed plan and is completed, not part",
+      pubBad.length === 0 && speechWatched.length > 0,
+      pubBad.length ? pubBad.length + " day(s), first " + pubBad[0] + " lists " + JSON.stringify(onSat.sched[pubBad[0]].filter(isPub)) + " (plan " + JSON.stringify(plan[pubBad[0]].filter(isPub)) + "), status " + onSat.status[pubBad[0]] : speechWatched.length + " speech days");
+    const fridays = range(START, SAT2).filter(d => new Date(d + "T00:00:00Z").getUTCDay() === 5);
+    check("Publish anchor: a Friday schedules no Publish item (its rep is the work), and a Saturday schedules nothing",
+      fridays.length >= 3 && fridays.every(d => !onSat.sched[d].some(isPub) && !onFri.sched[d].some(isPub) && onFri.sched[d].length > 0) && onSat.sched[SAT2].length === 0,
+      fridays.length + " Fridays; Saturday " + onSat.sched[SAT2].length + " items");
+    // Unchanged where it already worked: on a Sunday or Monday clock, past days are the fixed plan, and with the SPCH
+    // lectures watched ahead the days after today re-anchor to the first unwatched one (the work-ahead mechanism).
+    const aheadKeys = range(START, AHEAD_TO).flatMap(d => plan[d].filter(isPub));
+    const order = [...new Set(range(START, "2026-12-31").flatMap(d => plan[d].filter(isPub)))];
+    const doneUpTo = [...new Set(aheadKeys)];
+    const aheadState = { lessons: Object.fromEntries(doneUpTo.map(k => [lessonOf(k), { done: true, doneAt: "2026-10-17T10:00:00.000Z", firstDoneAt: "2026-10-17T10:00:00.000Z" }])), studyDays: [] };
+    for (const clock of ["2026-11-08", "2026-11-09"]) {
+      const dates = range(START, "2026-11-14"), r = await read(clock, aheadState, dates);
+      const pastOk = dates.filter(d => d <= clock).every(d => JSON.stringify(r.sched[d].filter(isPub)) === JSON.stringify(plan[d].filter(isPub)));
+      const later = [...new Set(dates.filter(d => d > clock).flatMap(d => r.sched[d].filter(isPub)))];
+      check("Publish anchor: on a " + (clock === "2026-11-08" ? "Sunday" : "Monday") + " clock the past is the fixed plan and the work-ahead still re-anchors after today",
+        pastOk && later.length > 0 && JSON.stringify(later) === JSON.stringify(order.slice(doneUpTo.length, doneUpTo.length + later.length)),
+        "after " + clock + ": " + JSON.stringify(later) + ", expected from " + order[doneUpTo.length]);
+    }
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

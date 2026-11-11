@@ -10,6 +10,7 @@
 // also held to markForStatus(engine.dayStatus).
 import 'dart:convert';
 
+import 'package:app/engine/dates.dart';
 import 'package:app/engine/engine.dart';
 import 'package:app/main.dart';
 import 'package:app/screens/calendar/calendar_screen.dart';
@@ -203,6 +204,71 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('cal-2026-11-08')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('day-seal')), findsOneWidget);
+  });
+
+  // T-066: the Publish track anchored on speechSlot(today), which is -1 on a Friday (the rep day) and
+  // on a Saturday, so every past Storytelling day re-anchored to the first UNWATCHED lecture: a day
+  // whose Storytelling was watched listed other lectures and read "part". The past is the same on
+  // Thursday, Friday and Saturday.
+  List<String> daysFrom(String a, String b) => [for (var d = a; !lt(b, d); d = addDaysISO(d, 1)) d];
+  List<String> sched(Engine e, String d) => [for (final it in e.scheduledFor(d)) '${it.track}:${it.key}'];
+  List<String> publish(List<String> l) => [for (final x in l) if (x.startsWith('Publish:')) x];
+
+  testWidgets('T-066: the Publish items of a past day are the same on a Thursday, Friday and Saturday clock; Fridays and Saturdays schedule none', (tester) async {
+    const thu = '2026-11-05', fri = '2026-11-06', sat = '2026-11-07';
+    final data = await AppModel.loadData(rootBundle);
+    final plan = Engine(data, null, today: () => '2026-10-10'); // before the start: the fixed plan
+    final watchedDays = [for (final d in daysFrom(plan.START_DATE, '2026-10-27')) if (plan.studyIndex(d) >= 0) d];
+    final speechWatched = [for (final d in watchedDays) if (publish(sched(plan, d)).isNotEmpty) d];
+    expect(speechWatched.length, 8, reason: 'eight watched Storytelling days');
+    final lessons = {for (final d in watchedDays) for (final it in plan.realSched(d)) it.key: watched('2026-10-17')};
+    Engine at(String clock) => Engine(data, jsonDecode(jsonEncode({'lessons': lessons})) as Map<String, dynamic>, today: () => clock);
+    final onThu = at(thu), onFri = at(fri), onSat = at(sat);
+
+    var publishItems = 0;
+    for (final d in daysFrom(plan.START_DATE, thu)) {
+      expect(sched(onFri, d), sched(onThu, d), reason: 'Friday clock, $d');
+      expect(sched(onSat, d), sched(onThu, d), reason: 'Saturday clock, $d');
+      if (d != thu) {
+        expect(onFri.dayStatus(d), onThu.dayStatus(d), reason: 'Friday clock status, $d');
+        expect(onSat.dayStatus(d), onThu.dayStatus(d), reason: 'Saturday clock status, $d');
+      }
+      publishItems += publish(sched(onSat, d)).length;
+    }
+    expect(publishItems, greaterThan(0));
+    for (final d in speechWatched) {
+      expect(publish(sched(onSat, d)), publish(sched(plan, d)), reason: 'Saturday clock lists $d from the fixed plan');
+      expect(onSat.dayStatus(d), 'completed', reason: '$d is completed, not part');
+    }
+    final fridays = [for (final d in daysFrom(plan.START_DATE, sat)) if (dowOf(d) == 5) d];
+    expect(fridays.length, greaterThanOrEqualTo(3));
+    for (final d in fridays) {
+      expect(publish(sched(onSat, d)), isEmpty, reason: 'Friday $d, Saturday clock');
+      expect(publish(sched(onFri, d)), isEmpty, reason: 'Friday $d, Friday clock');
+      expect(sched(onFri, d), isNotEmpty, reason: 'Friday $d still has Theory and Build');
+    }
+    expect(onSat.scheduledFor(sat), isEmpty);
+  });
+
+  testWidgets('T-066: on a Saturday the month grid shows the watched Storytelling days as done', (tester) async {
+    final data = await AppModel.loadData(rootBundle);
+    final plan = Engine(data, null, today: () => '2026-10-10');
+    final days = ['2026-10-18', '2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22'];
+    for (final d in days) {
+      expect(publish(sched(plan, d)), isNotEmpty, reason: '$d has a Storytelling lecture');
+    }
+    final m = await model('2026-11-07', {
+      'lessons': {for (final d in days) for (final it in plan.realSched(d)) it.key: watched('2026-10-17')},
+    });
+    await pump(tester, m);
+    await openCalendarFromHome(tester);
+    await tester.tap(find.byKey(const ValueKey('cal-prev')));
+    await tester.pumpAndSettle();
+    expect(find.text('October'), findsOneWidget);
+    for (final d in days) {
+      expect(markAt(tester, d), DayMark.done, reason: d);
+      expect(markAt(tester, d), markForStatus(m.engine.dayStatus(d)), reason: d);
+    }
   });
 
   testWidgets('tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44', (tester) async {

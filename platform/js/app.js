@@ -106,6 +106,10 @@
   // re-anchored every past day to the first unfinished lesson; use the last study day instead.
   // Before the start it stays -1. Windowing only; a rest day itself still schedules nothing.
   const studyAnchor = () => { const i = studyToday(); return i >= 0 || todayISO() < D.START_DATE ? i : studyIndex(prevStudyDay(todayISO())); };
+  // T-066: the same for Publish. speechSlot(today) is -1 on a Friday (the rep day) and a Saturday, which
+  // re-anchored every past Storytelling day to the first unwatched lecture. This is the slot of the last
+  // speech day on or before today; -1 before the start. Windowing only: a Friday still schedules nothing.
+  const speechAnchor = () => { const t = todayISO(); if (t < D.START_DATE) return -1; let c = t; for (let i = 0; i < 7; i++, c = addDaysISO(c, -1)) { const s = speechSlot(c); if (s >= 0) return s; } return -1; };
   function nextStudyDay(iso) {
     let cur = addDaysISO(iso, 1);
     for (let guard = 0; guard < 14 && isRestDay(cur); guard++) cur = addDaysISO(cur, 1);
@@ -1287,7 +1291,7 @@
       .reduce((a, cid) => a.concat(flatLessons(cid)), []);
     if (speechFlat.length) {
       if (sd >= 0) {
-        const sToday = speechSlot(todayISO());
+        const sToday = speechAnchor();
         const sw = windowFor("s:speech", speechFlat, SPEECH_BUDGET, sd, sToday);
         if (sw) sw.idxs.forEach(k =>
           items.push(Object.assign({ track: "Publish", dayN: sw.dayN, spanN: sw.spanN }, speechFlat[k])));

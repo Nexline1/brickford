@@ -59,6 +59,13 @@
 //    Plants: quiz-pass-mark (the bank pass mark 70 -> 75), quiz-gate (the gate day
 //    counts as grandfathered), pset-due (a ticked pset stays due).
 //
+// 6. PUBLISH ANCHOR (T-066). Storytelling has no Friday and no Saturday, so on those clocks
+//    the past Publish days must still be the plan (the last speech day is "today"): Publish
+//    items and dayStatus for every date from the start to day 40, with the first ten plan
+//    days watched, on a Thursday, Friday, Saturday, Sunday and Monday clock, Dart against
+//    app.js, and each engine's Friday and Saturday against its own Thursday.
+//    Plant: publish-anchor (the Dart Publish block anchors on speechSlot(today) again).
+//
 // 6. PRACTICE, GATES, TRANSCRIPT, WORKSHOP, METHOD, LIBRARY (T-064 stage 6b). Practice: repsDue, practiceDefault,
 //    clockLabel, recDay and the four rep forms' handler are lifted out of app.js's own text (vm) and run over 15 states
 //    and 36 form entries; the rendered #/practice page gives the week's dots, the open tab and the logged lists.
@@ -89,7 +96,7 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted"];
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor"];
 const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
@@ -1318,6 +1325,27 @@ async function runCalendarJS(browser, fx) {
   return out;
 }
 
+// T-066: the first ten plan days watched before the quiz gate (eight Storytelling days), read on a Thursday, a Friday and
+// a Saturday (no speech day of their own), a Sunday and a Monday.
+function publishFixture(plan) {
+  const lessons = {};
+  plan.dayKeys.slice(0, 10).flat().forEach(k => { lessons[k] = { done: true, doneAt: plan.start, notes: "", checks: [] }; });
+  return { state: { lessons }, clocks: ["2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"], dates: range(plan.start, plan.d40) };
+}
+async function runPublishJS(browser, fx) {
+  const out = {};
+  for (const clock of fx.publish.clocks) {
+    const { ctx, page: p, errors } = await page(browser, clock, fx.publish.state);
+    out[clock] = await p.evaluate(({ dates, schedSrc }) => {
+      const T = window.__brickfordTest, schedKey = eval(schedSrc);
+      return { pub: dates.map(d => schedKey(T.scheduledFor(d).filter(it => it.track === "Publish"))), status: dates.map(d => T.dayStatus(d)) };
+    }, { dates: fx.publish.dates, schedSrc: schedKey.toString() });
+    if (errors.length) throw new Error("app.js page errors under " + clock + ": " + errors.slice(0, 2).join(" | "));
+    await ctx.close();
+  }
+  return out;
+}
+
 function runDart(fxFile, dataDir, engineRoot) {
   const tool = path.join(engineRoot, "tool/engine_dump.dart");
   const res = spawnSync(DART, ["run", tool, dataDir, fxFile], { encoding: "utf8", maxBuffer: 1 << 30, cwd: ROOT });
@@ -1386,6 +1414,8 @@ function diff(a, b, at, out, label) {
     "monk-merge-later": ["lib/engine/merge.dart", "rm.compareTo(mine) < 0", "rm.compareTo(mine) > 0"],   // the merge takes the later date
     "monk-payload-monk": ["lib/engine/merge.dart", "if (truthy(S['monkStart'])) state['monkStart'] = S['monkStart'];", "if (truthy(S['monkStart'])) state['monkStart'] = S['monkStart'];\n  state['monk'] = S['monk'];"],   // S.monk in the payload
     "monk-day-unstarted": ["lib/engine/engine.dart", "    if (from == null) return null;\n    final n = daysBetween(from, iso) + 1;", "    final n = daysBetween(from ?? '2026-11-01', iso) + 1;"],   // monkDay answers a day number with no start
+    // T-066: the Publish track anchors on speechSlot(today) again, which is -1 on a Friday and a Saturday
+    "publish-anchor": ["lib/engine/engine.dart", "final sToday = speechAnchor();", "final sToday = speechSlot(todayISO());"],
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1423,7 +1453,7 @@ function diff(a, b, at, out, label) {
       D.COURSES.forEach(c => { flat[c.id] = []; (c.units || []).forEach((u, ui) => u.lessons.forEach((_, li) => { flat[c.id].push(c.id + "." + ui + "." + li); keys.push(c.id + "." + ui + "." + li); })); });
       const dayKeys = Array.from({ length: 14 }, (_, i) => T.scheduledFor(T.dateForStudy(i)).filter(it => !it.pseudo).map(it => it.cid + "." + it.ui + "." + it.li));
       const rev = [null].concat(Array.from({ length: 7 }, (_, i) => { const w = T.revisionWeek(i + 1); return { from: w.from, to: w.to, sun: w.sun }; }));
-      return { start: D.START_DATE, end: T.dateForStudy(1093), d300: T.dateForStudy(300), d500: T.dateForStudy(500), flat, keys, dayKeys, rev };
+      return { start: D.START_DATE, end: T.dateForStudy(1093), d40: T.dateForStudy(39), d300: T.dateForStudy(300), d500: T.dateForStudy(500), flat, keys, dayKeys, rev };
     });
     await pre.ctx.close();
     const LAST = addDays(plan.end, 7);
@@ -1442,6 +1472,7 @@ function diff(a, b, at, out, label) {
     fx.record = recordFixtures(plan);
     fx.learn = learnFixtures(plan);
     fx.pages = pagesFixtures(plan);
+    fx.publish = publishFixture(plan);
     fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -1455,6 +1486,7 @@ function diff(a, b, at, out, label) {
       const tJs = Date.now();
       const js = await runJS(browser, fx);
       js.calendar = await runCalendarJS(browser, fx);
+      js.publish = await runPublishJS(browser, fx);
       console.log("  app.js:      " + Math.round((Date.now() - tJs) / 1000) + "s");
       check("app.js ran without page errors", js.errors.length === 0, js.errors.slice(0, 3).join(" | "));
 
@@ -1498,6 +1530,35 @@ function diff(a, b, at, out, label) {
         CAL_CLOCKS.every(c => js.calendar[fx.fixtures[3].name + " @ " + c].status[pastSat] === "rest") &&
         Object.values(js.calendar).every(x => x.gates.length > 0),
         [...calStatuses].join("/") + "; " + Object.keys(js.calendar).length + " fixture x clock runs, " + calDates.length + " dates each");
+
+      // T-066: the Publish anchor. Parity first, then each engine against its own Thursday: the past must not move on a Friday or a Saturday.
+      const PB = fx.publish, pd = PB.dates, [cThu, cFri, cSat] = PB.clocks, byPub = (at, i) => (["pub", "status"].includes(at[at.length - 1]) ? pd[i] : i);
+      const dowName = c => ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date(c + "T00:00:00Z").getUTCDay()];
+      PB.clocks.forEach(c => {
+        const out = [];
+        diff(js.publish[c], dart.publish && dart.publish[c], [], out, byPub);
+        check("parity: Publish items and dayStatus, the first ten plan days watched, " + dowName(c) + " clock " + c + ", " + pd.length + " dates (start .. day 40)", out.length === 0,
+          out.length ? out.length + " differ; " + out.slice(0, 4).join("; ") : "");
+      });
+      const dow = d => new Date(d + "T00:00:00Z").getUTCDay();
+      const moved = res => {
+        const bad = [];
+        pd.forEach((d, i) => { if (d > cThu) return; [cFri, cSat].forEach(c => {
+          if (res[c].pub[i] !== res[cThu].pub[i]) bad.push(d + " Publish on " + dowName(c) + ": " + (res[c].pub[i] || "-") + " (Thursday: " + (res[cThu].pub[i] || "-") + ")");
+          else if (d < cThu && res[c].status[i] !== res[cThu].status[i]) bad.push(d + " status on " + dowName(c) + ": " + res[c].status[i] + " (Thursday: " + res[cThu].status[i] + ")");
+        }); });
+        return bad;
+      };
+      [["app.js", js.publish], ["dart", dart.publish || {}]].forEach(([who, res]) => {
+        const bad = res[cThu] ? moved(res) : ["no Thursday run"];
+        check("Publish anchor, " + who + ": every past day's Publish items and status are the same on a Thursday, Friday and Saturday clock", bad.length === 0, bad.slice(0, 3).join("; "));
+      });
+      // Reach: the watched Storytelling days exist and read completed on the Saturday clock; no Friday has a Publish item on its own clock; a Saturday has none.
+      const watchedPub = pd.map((d, i) => i).filter(i => js.publish[cThu].pub[i] && pd[i] < "2026-10-28" && dow(pd[i]) !== 6);
+      check("the Publish fixture reaches eight watched Storytelling days that read completed on the Saturday clock, Fridays with no Publish item, and a Saturday with none",
+        watchedPub.length === 8 && watchedPub.every(i => js.publish[cSat].status[i] === "completed") &&
+        pd.every((d, i) => (dow(d) !== 5 && dow(d) !== 6) || js.publish[cFri].pub[i] === "") && pd.some(d => dow(d) === 5 && d < cThu),
+        watchedPub.length + " watched Storytelling days; statuses on the Saturday clock: " + [...new Set(watchedPub.map(i => js.publish[cSat].status[i]))].join("/"));
     }
 
     // 5. sync: app.js's mergeState and syncPayload (lifted into a VM), the live hook's `changed` as a cross-check, and Dart.

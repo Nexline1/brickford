@@ -1871,7 +1871,7 @@
     const owed = new Set();
     for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;                 // a day off owes nothing
-      realSched(iso).forEach(it => { const k = lessonKey(it.cid, it.ui, it.li); if (!schedDone(it) && !v2Rescheduled(iso, k) && !it.l.optional) owed.add(k); });
+      realSched(iso).forEach(it => { const k = lessonKey(it.cid, it.ui, it.li); if (it.l.optional) return; if (!schedDone(it) && !v2Rescheduled(iso, k)) owed.add(k); });
     }
     return owed.size;
   }
@@ -3951,7 +3951,10 @@
         const L = lessonLabel(r.k);
         if (typeof L === "string") return "";
         const n = practiceItems(r.k).length, done = practiceItems(r.k).filter(it => prTried(it, practiceOf(r.k, it.id))).length;
-        return '<a class="grow" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '"><span class="g-lead">' + (done === n && !r.due ? "✓" : "") + "</span>" +
+        // A watched lecture is a ticked done row (the dashboard never asks to re-watch one, T-056);
+        // what is left to practise is the line under it.
+        const seen = !!(S.lessons[r.k] || {}).done;
+        return '<a class="grow' + (seen ? " done-row" : "") + '" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '"><span class="g-lead">' + (seen ? "✓" : "") + "</span>" +
           '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
           '<span class="g-s">' + esc(L.code) + " · " + done + " of " + n + " answered" + (r.due ? " · " + r.due + " due again" : "") + "</span></span></a>";
       }).join("") +

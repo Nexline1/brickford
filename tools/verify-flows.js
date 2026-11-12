@@ -2496,7 +2496,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       g0.headers["anthropic-dangerous-direct-browser-access"] === "true" && /^\d{4}-\d\d-\d\d$/.test(g0.headers["anthropic-version"] || ""),
       grades.length + " request(s), version " + g0.headers["anthropic-version"]);
     check("(pr) the request holds only the question, the checklist and the answer (and the grading instruction and JSON schema)",
-      JSON.stringify(Object.keys(body).sort()) === JSON.stringify(["max_tokens", "messages", "model", "output_config", "system"]) &&
+      JSON.stringify(Object.keys(body).sort()) === JSON.stringify(["fallbacks", "max_tokens", "messages", "model", "output_config", "system"]) &&
+      body.fallbacks === "default" && g0.headers["anthropic-beta"] === "server-side-fallback-2026-07-01" &&
       (body.messages || []).length === 1 && JSON.stringify(Object.keys(content).sort()) === JSON.stringify(["answer", "key_points", "question"]) &&
       content.question === itW.q && content.answer === essay && JSON.stringify(content.key_points) === JSON.stringify(itW.points) &&
       body.output_config.format.type === "json_schema",

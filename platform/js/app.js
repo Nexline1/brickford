@@ -3850,7 +3850,8 @@
   const AI_KEY = "brickford_anthropic_key";
   const aiKey = () => { try { return localStorage.getItem(AI_KEY) || ""; } catch (e) { return ""; } };
   const AI_URL = "https://api.anthropic.com/v1/messages";
-  const AI_MODEL = "claude-sonnet-5-5", AI_VERSION = "2026-10-21";
+  // Claude Opus 5.5, the default model; a refusal falls back server-side ("default" routing).
+  const AI_MODEL = "claude-opus-5-5", AI_VERSION = "2026-10-21", AI_BETA = "server-side-fallback-2026-07-01";
   const AI_SCHEMA = {
     type: "object", additionalProperties: false, required: ["points", "correction"],
     properties: {
@@ -3869,6 +3870,7 @@
         "to fix, in at most two sentences, addressed to the student. Judge the mathematics and the reasoning, not the wording.",
       messages: [{ role: "user", content: JSON.stringify({ question: it.q, key_points: points, answer: answer }) }],
       output_config: { format: { type: "json_schema", schema: AI_SCHEMA } },
+      fallbacks: "default",
     };
   }
   function practiceGrade(list, k, it) {
@@ -3883,10 +3885,11 @@
     fetch(AI_URL, {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": AI_VERSION,
-                 "anthropic-dangerous-direct-browser-access": "true" },
+                 "anthropic-dangerous-direct-browser-access": "true", "anthropic-beta": AI_BETA },
       body: JSON.stringify(gradeRequest(it, ps.answer)),
     }).then(r => r.json().catch(() => ({})).then(d => {
       if (!r.ok) throw new Error((d && d.error && d.error.message) || "HTTP " + r.status);
+      if (d && d.stop_reason === "refusal") throw new Error("declined");
       const t = ((d && d.content) || []).find(b => b && b.type === "text");
       const g = JSON.parse(t ? t.text : "");
       if (!g || !Array.isArray(g.points) || typeof g.correction !== "string") throw new Error("an answer in the wrong shape");

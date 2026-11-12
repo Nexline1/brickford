@@ -63,6 +63,7 @@ function serve() {
     const lessons = { "math110.0.0": { done: true, doneAt: START, notes: "", checks: [] }, "ai200.0.0": { done: true, doneAt: START, notes: "", checks: [] } };
     // shared_preferences on the web keeps strings JSON-quoted under "flutter.".
     await ctx.addInitScript(([k, s]) => {
+      if (window.top !== window) return;   // the lecture's (aborted) YouTube frame has no storage of its own
       if (!localStorage.getItem("flutter.darhikmah_v1")) localStorage.setItem("flutter.darhikmah_v1", JSON.stringify(s));
       if (!localStorage.getItem("flutter.brickford_anthropic_key")) localStorage.setItem("flutter.brickford_anthropic_key", JSON.stringify(k));
     }, [FAKE_KEY, JSON.stringify({ lessons })]);
@@ -81,12 +82,12 @@ function serve() {
     const click = async x => { const b = await box(x); await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2); await page.waitForTimeout(800); return b; };
     const size = async (x, label) => { const b = await box(x); check(label + " is at least 44x44", !!b && b.width >= 44 && b.height >= 44, b ? Math.round(b.width) + "x" + Math.round(b.height) : "missing"); };
     // Scroll the sheet (the wheel over its middle) until [x] sits between the top bar and the foot of the screen.
-    const reveal = async (x, top = 150) => {
-      for (let i = 0; i < 40; i++) {
+    const reveal = async (x, top = 150, bottom = 40) => {
+      for (let i = 0; i < 80; i++) {
         const b = (await has(x)) ? await box(x) : null;
-        if (b && b.y >= top && b.y + b.height <= H - 40) return true;
+        if (b && b.y >= top && b.y + b.height <= H - bottom) return true;
         await page.mouse.move(W / 2, H * 0.6);
-        await page.mouse.wheel(0, b && b.y < top ? -160 : 160);
+        await page.mouse.wheel(0, b ? (b.y < top ? -160 : 160) : 500);
         await page.waitForTimeout(250);
       }
       return false;
@@ -94,7 +95,7 @@ function serve() {
     const stored = async () => { const raw = await page.evaluate(() => localStorage.getItem("flutter.darhikmah_v1")); return raw ? JSON.parse(JSON.parse(raw)) : {}; };
 
     // ---- Home: Today's practice ----
-    check("Home has Today's practice with MATH 110's first lecture", await reveal("home-practice-math110.0.0"));
+    check("Home has Today's practice with MATH 110's first lecture", await reveal("home-practice-math110.0.0", 150, 300));
     await shot("1-home-today");
     await size("home-practice-math110.0.0", "the Today's practice row");
 
@@ -121,7 +122,7 @@ function serve() {
     await page.goBack().catch(() => {});
     await page.waitForTimeout(600);
     if (!(await has("home-practice-ai200.0.0"))) { const back = await box("lesson-back").catch(() => null); if (back) { await page.mouse.click(back.x + back.width / 2, back.y + back.height / 2); await page.waitForTimeout(900); } }
-    check("Home has AI 200's first lecture under Today's practice", await reveal("home-practice-ai200.0.0"));
+    check("Home has AI 200's first lecture under Today's practice", await reveal("home-practice-ai200.0.0", 150, 120));
     await click("home-practice-ai200.0.0");
     await page.waitForTimeout(800);
     check("the written item's field is there", await reveal("pr-in-p1", 300));

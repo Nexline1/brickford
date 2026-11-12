@@ -50,7 +50,7 @@ An added course counts as done only when its problem sets and one timed exam are
 | | Old plan | New plan |
 |---|---|---|
 | Karpathy finished | 26 Nov 2026, with no Python | 28 Feb 2027, after the bridge |
-| Last lecture | 17 Jan 2028 | 31 Jan 2028, with all seven added courses |
+| Last lecture | 17 Jan 2028 | 28 Jan 2028, with all seven added courses (31 Jan before 18.03 lecture 18, which has no video, was taken off the schedule in step 2) |
 | 16th paper rebuilt | 11 Jun 2028 | 29 May 2028 |
 | Finish (day 1094) | 14 Apr 2030 | 14 Apr 2030, unchanged |
 

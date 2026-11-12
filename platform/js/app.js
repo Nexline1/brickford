@@ -1210,6 +1210,14 @@
   function scheduledFor(iso) {
     const d = studyIndex(iso);
     if (d < 0) return [];          // before the start, or a rest day
+    // T-067: from the cutover on, Plan v2 (below). Every date before it runs the v1
+    // path, unchanged, so past days keep the lessons they had.
+    if (iso >= PLAN_V2_FROM) return scheduledV2(iso, d);
+    return scheduledV1(iso);
+  }
+  function scheduledV1(iso) {
+    const d = studyIndex(iso);
+    if (d < 0) return [];
     const items = [];
 
     // ---- Theory ----
@@ -1263,7 +1271,9 @@
     // The spine (Zero to Hero → fast.ai), packed by real minutes into the
     // ~1.5h block: short primer videos pair up; a 2h+ Karpathy build spans
     // several days ("day 2 of 4"). Future days re-anchor if you work ahead.
-    const spineFlat = flatLessons("ai200").concat(flatLessons("ai210"));
+    // T-067: the second-pass unit (lessons with an `alias`) is Plan v2's; the v1 spine is
+    // the lessons it always had, so appending that unit moves nothing on a v1 date.
+    const spineFlat = flatLessons("ai200").filter(f => !f.l.alias).concat(flatLessons("ai210"));
     const bw = windowFor("b:spine", spineFlat, BUILD_BUDGET, d, dT < 0 ? -1 : dT);
     let buildAdded = false;
     if (bw) {
@@ -1283,8 +1293,13 @@
       }
     }
 
-    // ---- Publish ----
-    // The fourth subject. Five days a week; Friday carries the weekly rep.
+    publishFor(iso, items);
+    return items;
+  }
+  // ---- Publish ----
+  // The fourth subject. Five days a week; Friday carries the weekly rep. The same
+  // under v1 and v2 (T-067: Storytelling is unchanged at 40 effort-minutes).
+  function publishFor(iso, items) {
     const sd = speechSlot(iso);
     const speechFlat = SPEECH_COURSES
       .filter(cid => D.COURSES.some(c => c.id === cid))
@@ -1297,7 +1312,166 @@
           items.push(Object.assign({ track: "Publish", dayN: sw.dayN, spanN: sw.spanN }, speechFlat[k])));
       }
     }
+  }
+  // ---------- Plan v2 (T-067, loop/specs/T-067-plan-v2) ----------
+  // From PLAN_V2_FROM on, each day's lectures come from one ordered line per track,
+  // derived from the prerequisite map (DAR.PREREQ): a lecture is scheduled only once
+  // everything it needs is scheduled before it. The algorithm is tools/plan-dates.js's
+  // simulation, ported line for line (tools/verify-logic.js holds the two equal, day by
+  // day); app/lib/engine/engine.dart ports this one (tools/verify-app.js).
+  //   - Math & Physics (Theory) gets 90 effort-minutes a day; the core courses rotate by
+  //     readiness, and the other additions run only on a day none of them has one ready.
+  //   - AI / Python / Build gets 60; Fridays carry the no-code talks, then the Missing
+  //     Semester, in their own lane. When the math line is finished its 90 go here.
+  //   - Storytelling is unchanged (publishFor). Practice is not lecture time.
+  // A lesson flagged `optional`, or with no video, reading or paper, is never scheduled,
+  // but stays watchable and counts if watched. Like v1 the plan is fixed: progress never
+  // reshuffles it, so it is computed once.
+  const PLAN_V2_FROM = "2026-11-22";                // a Sunday: the cutover (owner, 12 Nov)
+  const V2_MATH = 90, V2_AI = 60;
+  const V2_MATH_CORE = ["math110", "math120", "math130", "phys100", "math210", "math140"];
+  const V2_MATH_ADDS = ["math160", "phys300", "math150", "phys200"];   // math150 and phys200 alternate
+  const V2_AI_COURSES = ["cs100", "ai200", "ai210", "ai300", "sys250", "ai310", "res400", "cs150", "cs110"];
+  // What v1 put before the cutover counts as done (it stays owed on its own day), except
+  // Build: only the primer and Micrograd to Makemore 4 were watched (owner, 10 Nov); the
+  // rest of the spine is re-scheduled after the second pass.
+  const V2_BUILD_KEPT = /^ai200\.(0\.\d+|1\.[0-4])$/;
+  const V2_WATCHED = ["ai200.0.0", "ai200.0.1", "ai200.0.2", "ai200.0.3", "ai200.1.0", "ai200.1.1", "ai200.1.2", "ai200.1.3", "ai200.1.4"];
+  const v2Schedulable = l => !l.optional && !!(l.v || l.read || l.paper);
+  let _v2 = null;
+  function planV2() {
+    if (_v2) return _v2;
+    const PRE = D.PREREQ || {};
+    const needs = k => (PRE[k] || {}).needs || [];
+    let cut = studyIndex(PLAN_V2_FROM);
+    if (cut < 0) cut = studyIndex(addStudyDays(PLAN_V2_FROM, 0));
+    const doneDay = {}, done = new Set();
+    const was = planOnly;
+    planOnly = true;
+    try {
+      for (let d = 0; d < cut; d++) scheduledV1(dateForStudy(d)).forEach(it => {
+        if (it.pseudo || !it.cid) return;
+        const k = lessonKey(it.cid, it.ui, it.li);
+        if (it.track === "Build" && !V2_BUILD_KEPT.test(k)) return;
+        done.add(k); doneDay[k] = -1;
+      });
+    } finally { planOnly = was; }
+    V2_WATCHED.forEach(k => { done.add(k); doneDay[k] = -1; });
+    const Q = {};
+    V2_MATH_CORE.concat(V2_MATH_ADDS, V2_AI_COURSES).forEach(cid => {
+      Q[cid] = !D.COURSES.some(c => c.id === cid) ? [] : flatLessons(cid)
+        .map(f => ({ k: lessonKey(f.cid, f.ui, f.li), f }))
+        .filter(e => v2Schedulable(e.f.l) && !done.has(e.k));
+    });
+    let sameDay = new Set();
+    const ready = (e, day) => needs(e.k).every(n => (doneDay[n] != null && doneDay[n] < day) || (doneDay[n] === day && sameDay.has(n)));
+    const span = { MATH: null, AI: null, FRI: null };
+    const remove = e => { const q = Q[e.f.cid]; q.splice(q.indexOf(e), 1); };
+    // Packed like packWindows: a lecture over 1.15 x the budget spans days ("part 2 of 4");
+    // otherwise the same course's next lectures join it up to 1.05 x the budget.
+    function take(lane, budget, first, day, next) {
+      const e = EFFORT(first.f.l.min || 50);
+      remove(first);
+      if (e > budget * 1.15) {
+        const n = Math.ceil(e / budget);
+        span[lane] = { e: first, k: 1, n };
+        return [{ e: first, k: 1, n }];
+      }
+      const got = [{ e: first }];
+      let eff = e;
+      doneDay[first.k] = day; sameDay.add(first.k);
+      for (;;) {
+        const nx = next();
+        if (!nx || !ready(nx, day)) break;
+        const ej = EFFORT(nx.f.l.min || 50);
+        if (ej > budget * 1.15 || eff + ej > budget * 1.05) break;
+        remove(nx); eff += ej; got.push({ e: nx }); doneDay[nx.k] = day; sameDay.add(nx.k);
+      }
+      return got;
+    }
+    function cont(lane, day) {
+      const s = span[lane];
+      s.k++;
+      const it = { e: s.e, k: s.k, n: s.n };
+      if (s.k >= s.n) { doneDay[s.e.k] = day; span[lane] = null; }
+      return [it];
+    }
+    let rot = 0, altMath = "phys200", altAI = "cs150";
+    const pair = ["math150", "phys200"];
+    const mathAll = V2_MATH_CORE.concat(V2_MATH_ADDS);
+    const aiMain = () => [...Q.cs100.filter(e => e.f.ui <= 1), ...Q.ai200.filter(e => e.f.ui === 3), ...Q.ai200.filter(e => e.f.ui === 1),
+      ...Q.ai300, ...(altAI === "cs150" ? [...Q.ai210, ...Q.cs150] : [...Q.cs150, ...Q.ai210]), ...Q.sys250, ...Q.ai310, ...Q.res400];
+    const aiFriday = () => [...Q.cs100.filter(e => e.f.ui === 2), ...Q.ai200.filter(e => e.f.ui === 2), ...Q.cs110];
+    const rows = {}, keys = new Set();
+    let last = 1093;
+    for (let day = cut; day < 1094; day++) {
+      const iso = dateForStudy(day);
+      sameDay = new Set();
+      const row = { math: [], ai: [], toAI: false };
+      if (span.MATH) row.math = cont("MATH", day);
+      else {
+        for (let t = 0; t < V2_MATH_CORE.length; t++) {
+          const c = V2_MATH_CORE[(rot + t) % V2_MATH_CORE.length], nx = Q[c][0];
+          if (nx && ready(nx, day)) { row.math = take("MATH", V2_MATH, nx, day, () => Q[c][0]); rot = (rot + t + 1) % V2_MATH_CORE.length; break; }
+        }
+        if (!row.math.length) {
+          const order = V2_MATH_ADDS.filter(c => !pair.includes(c)).concat(altMath === "phys200" ? pair : pair.slice().reverse());
+          for (const c of order) {
+            const nx = Q[c][0];
+            if (nx && ready(nx, day)) { row.math = take("MATH", V2_MATH, nx, day, () => Q[c][0]); if (pair.includes(c)) altMath = c; break; }
+          }
+        }
+      }
+      const mathDone = !mathAll.some(c => Q[c].length) && !span.MATH;
+      const aiBudget = mathDone ? V2_MATH + V2_AI : V2_AI;
+      const pick = (lane, list) => {
+        for (const e of list) if (ready(e, day)) {
+          if (e.f.cid === "ai210" || e.f.cid === "cs150") altAI = e.f.cid;
+          return take(lane, aiBudget, e, day, () => { const nx = Q[e.f.cid][0]; return nx && nx.f.ui === e.f.ui ? nx : null; });
+        }
+        return null;
+      };
+      const main = () => span.AI ? cont("AI", day) : pick("AI", aiMain());
+      if (dowOf(iso) === SPEECH_OFF_DOW) row.ai = (span.FRI ? cont("FRI", day) : pick("FRI", aiFriday())) || main() || [];
+      else row.ai = main() || (span.FRI ? null : pick("FRI", aiFriday())) || [];
+      row.toAI = mathDone;
+      row.math.concat(row.ai).forEach(x => keys.add(x.e.k));
+      rows[day] = row;
+      if (!Object.keys(Q).some(c => Q[c].length) && !span.MATH && !span.AI && !span.FRI) { last = day; break; }
+    }
+    return (_v2 = { cut, rows, keys, last });
+  }
+  function scheduledV2(iso, d) {
+    const row = planV2().rows[d];
+    const items = [];
+    const put = (track, xs) => xs.forEach(x => items.push(Object.assign({ track, dayN: x.n ? x.k : undefined, spanN: x.n }, x.e.f)));
+    if (row && row.math.length) put("Theory", row.math);
+    else if (!row) items.push({ track: "Theory", pseudo: true, short: "Frontier", t: "Frontier study on your fork — new papers, ARENA, outside courses", href: "#/electives" });
+    else if (!row.toAI) items.push({ track: "Theory", pseudo: true, short: "Psets", t: "Problem sets & exam prep — MIT psets, Stat 110 practice, checkpoint exams", href: "#/workshop" });
+    if (row && row.ai.length) put("Build", row.ai);
+    else items.push({ track: "Build", pseudo: true, short: "Frontier", t: "Frontier build — ship on your fork: labs, open source, product", href: "#/workshop" });
+    publishFor(iso, items);
     return items;
+  }
+  // A lecture v1 put on a date before the cutover that v2 schedules again later: not owed
+  // on its v1 day (the day itself keeps it, and still turns green once it is watched).
+  const v2Rescheduled = (iso, k) => iso < PLAN_V2_FROM && planV2().keys.has(k);
+  // The map read the other way: the lectures that need k ("Leads to" on the lesson page).
+  let _leadsTo = null;
+  function leadsTo(k) {
+    if (!_leadsTo) {
+      _leadsTo = {};
+      Object.keys(D.PREREQ || {}).forEach(x => (D.PREREQ[x].needs || []).forEach(n => (_leadsTo[n] = _leadsTo[n] || []).push(x)));
+    }
+    return _leadsTo[k] || [];
+  }
+  // Plan v2 as one ordered line per track: each course where the plan first reaches it.
+  function planLines() {
+    const rows = planV2().rows, out = { Theory: [], Build: [] };
+    Object.keys(rows).map(Number).sort((a, b) => a - b).forEach(d => [["Theory", rows[d].math], ["Build", rows[d].ai]].forEach(([t, xs]) =>
+      xs.forEach(x => { if (out[t].indexOf(x.e.f.cid) < 0) out[t].push(x.e.f.cid); })));
+    out.Publish = SPEECH_COURSES.filter(cid => D.COURSES.some(c => c.id === cid));
+    return out;
   }
   // ---------- the lecture quiz gate (T-043) ----------
   // A lecture counts for the day only once it is watched AND cleared, and the
@@ -1464,8 +1638,19 @@
     "Carousel 'OpenAI agent broke into a health portal': approved 24 Sep, never built: drop or reframe",
     "Connect your main Gmail in Claude", "Allow huggingface.co in the cloud environment"];
   const monkSeedLoops = () => { const o = {}; MONK_SEEDS.forEach((t, i) => { o["s" + (i + 1)] = { text: t, done: false, at: MONK_SEED_AT }; }); return o; };
+  // T-067: a lesson by its key (cached), and the key its summary and quiz live under: a
+  // second-pass lesson carries `alias`, the first-pass lecture it re-uses them from.
+  let _lessonAt = null;
+  function lessonAt(k) {
+    if (!_lessonAt) {
+      _lessonAt = {};
+      D.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => { _lessonAt[lessonKey(c.id, ui, li)] = l; })));
+    }
+    return _lessonAt[k] || null;
+  }
+  const sumKey = k => (lessonAt(k) || {}).alias || k;
   function lessonQuiz(k) {
-    const sm = (D.SUMMARIES || {})[k];
+    const sm = (D.SUMMARIES || {})[sumKey(k)];
     return sm && sm.checks && sm.checks.length ? sm.checks : null;
   }
   const quizPassed = k => !!((S.lessons[k] || {}).quiz || {}).passedAt;
@@ -1502,7 +1687,8 @@
   // watched or not (it stays owed, and on the catch-up list once watched).
   // From go-live on: it has a quiz, the quiz is not passed, and it is not
   // grandfathered. A quiz-less lecture never blocks.
-  const lessonBlocks = k => !!lessonQuiz(k) && !quizPassed(k) && !grandfathered(S.lessons[k]) &&
+  // T-067: an optional lecture is never scheduled, so it never blocks the one after it.
+  const lessonBlocks = k => !(lessonAt(k) || {}).optional && !!lessonQuiz(k) && !quizPassed(k) && !grandfathered(S.lessons[k]) &&
     (planDateOf(k) || "9999") >= QUIZ_GATE_FROM;
   // The lecture that locks (cid, ui, li), or null. The first lecture of a
   // course is never locked, and neither is one already watched — the lock
@@ -1637,7 +1823,7 @@
     const owed = new Set();
     for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;                 // a day off owes nothing
-      realSched(iso).forEach(it => { if (!schedDone(it)) owed.add(lessonKey(it.cid, it.ui, it.li)); });
+      realSched(iso).forEach(it => { const k = lessonKey(it.cid, it.ui, it.li); if (!schedDone(it) && !v2Rescheduled(iso, k)) owed.add(k); });
     }
     return owed.size;
   }
@@ -1648,7 +1834,7 @@
     if (!from) return null;
     for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
-      const it = realSched(iso).find(x => !schedDone(x));
+      const it = realSched(iso).find(x => !schedDone(x) && !v2Rescheduled(iso, lessonKey(x.cid, x.ui, x.li)));
       if (it) return it;
     }
     return null;
@@ -3314,7 +3500,7 @@
       (qr.firstTry || 0) + " right on the first try · " + (today ? "counted for today" : "counted") + "</div></div>" +
       '<a class="btn" href="' + nextHref + '">' + (after ? "Next lecture →" : "Back to today") + "</a></div>";
     // The first concept this lecture teaches: its own page holds the sketch pad.
-    const sm = (D.SUMMARIES || {})[k] || {};
+    const sm = (D.SUMMARIES || {})[sumKey(k)] || {};
     const sketchId = (lessonWhy[0] || {}).id || (sm.concepts || []).find(id => conceptById(id));
     const sketchC = sketchId ? conceptById(sketchId) : null;
     const tile = (tag, href, ic, t, m, goLbl, extra) =>
@@ -3398,6 +3584,10 @@
           '<span class="lsn-run">' + esc(runtime) + "</span></div>"
         : "") +
 
+      // T-067: where this lecture sits on the map. What it needs (ticked once watched)
+      // and what it leads to, as rows, the register's own shape.
+      mapRowsHTML(k) +
+
       // Previous and next were two buttons, one of them filled — a second
       // primary action under the page's one. They are the unit's neighbours
       // now, as rows with their frames (T-016): next first, because that is
@@ -3419,6 +3609,27 @@
         : "") +
       "</div></div>";
   };
+
+  function mapRowsHTML(k) {
+    const row = (kk, tick) => {
+      const p = kk.split("."), c = D.COURSES.find(x => x.id === p[0]), l = lessonAt(kk);
+      if (!c || !l) return "";
+      const dn = tick && !!(S.lessons[kk] || {}).done;
+      return '<a class="grow ' + facClass(c) + (dn ? " done-row" : "") + '" href="#/lesson/' + p.join("/") + '">' +
+        (tick ? '<span class="g-lead">' + (dn ? "\u2713" : "") + "</span>" : "") +
+        '<span class="g-main"><span class="g-t">' + esc(l.t) + '</span><span class="g-s">' + esc(c.code) + "</span></span></a>";
+    };
+    const needs = ((D.PREREQ || {})[k] || {}).needs || [], leads = leadsTo(k);
+    const seen = needs.filter(n => (S.lessons[n] || {}).done).length;
+    return (needs.length
+        ? '<div class="ghead">Needs<span class="gh-meta">' + seen + " of " + needs.length + " watched</span></div>" +
+          '<div class="glist lsn-needs">' + needs.map(n => row(n, true)).join("") + "</div>"
+        : "") +
+      (leads.length
+        ? '<div class="ghead">Leads to<span class="gh-meta">' + leads.length + " lecture" + (leads.length === 1 ? "" : "s") + "</span></div>" +
+          '<div class="glist lsn-leads">' + leads.map(n => row(n, false)).join("") + "</div>"
+        : "");
+  }
 
   V.exams = function () {
     const diagSat = D.DIAGNOSTICS.filter(d => (S.diag[d.id] || {}).score != null).length;
@@ -4008,7 +4219,7 @@
   // a tap (a <details>, so opening it is the browser's and writes nothing) —
   // and with no "Check yourself" where the lecture's own quiz is the check.
   function summaryHTML(k, o) {
-    const sm = (D.SUMMARIES || {})[k];
+    const sm = (D.SUMMARIES || {})[sumKey(k)];
     if (!sm) return "";
     return '<div class="ghead">Summary<span class="gh-meta">' +
       sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</span></div>" +
@@ -4305,6 +4516,14 @@
           '<div class="at-chips">' + later.slice(0, 5).map(chip).join("") +
           (more > 0 ? '<a class="at-chip more" href="#/courses?later" aria-label="' + more + ' more opening later">+' + more + "</a>" : "") + "</div>"
         : "") +
+      // T-067: Plan v2 as one ordered line per track, in the order the plan reaches each course.
+      (function () {
+        const lines = planLines();
+        return [["Math & Physics", lines.Theory], ["AI / Python", lines.Build], ["Storytelling", lines.Publish]].filter(x => x[1].length).map(([lab, ids]) =>
+          '<div class="ghead">' + esc(lab) + '<span class="gh-meta">in order</span></div>' +
+          '<div class="at-chips at-path">' + ids.map(cid => '<a class="at-step" href="#/course/' + cid + '"><b>' +
+            esc((D.COURSES.find(c => c.id === cid) || {}).code || cid) + "</b></a>").join("") + "</div>").join("");
+      })() +
       // The concept map used to be a row of its own in "The rest of it"; it is
       // one link now, under the chips.
       (CONCEPTS().length ? '<div><a class="at-concepts" href="#/concept/' + CONCEPTS()[0].id + '">Concept map →</a></div>' : "") +
@@ -6235,7 +6454,7 @@
           }
           render(); toast("Sketch saved. Now reveal and compare.");
         } else if (act === "startSummaryCheck") {
-          const sm = (D.SUMMARIES || {})[b.dataset.k];
+          const sm = (D.SUMMARIES || {})[sumKey(b.dataset.k)];
           const mount = $("#sumCheck");
           if (!sm || !mount || !window.DAR.Quiz) return;
           DAR.Quiz.mount(mount, { title: "Summary check", course: "Review", perSitting: sm.checks.length, questions: sm.checks }, {
@@ -7357,6 +7576,8 @@
     });
   }
   if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
+    // T-067, for verify-logic and tools/plan-dates.js: the cutover and the v1 path (reads only).
+    PLAN_V2_FROM, scheduledV1, firstOwed: () => { const it = firstOwed(); return it ? lessonKey(it.cid, it.ui, it.li) : null; },
     // T-016, for tools/verify-flows.js: a message as the lecture's player would
     // send it, handed to playerEvent — so it WRITES through the same path a
     // real player message does (a pause or an end saves); only the

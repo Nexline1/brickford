@@ -1398,6 +1398,181 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // ---- T-067: Plan v2 (loop/specs/T-067-plan-v2) ----
+  // From PLAN_V2_FROM the day's lectures come from the prerequisite map. Five things
+  // must hold, each with a planted bug in loop/specs/T-067-plan-v2/verification/plants.sh:
+  //  (a) every date before the cutover schedules exactly what main scheduled (the
+  //      snapshot tools/plan-v1-snapshot.js took from origin/main 183cff5, replayed
+  //      with its own fixtures and Thursday/Friday/Saturday/Sunday clocks);
+  //  (b) every v2 day equals tools/plan-dates.js's simulation (lesson keys per track,
+  //      with part n of m), from the cutover to the last lecture;
+  //  (c) no v2 day schedules a lecture before one of its `needs`, and no track jumps
+  //      more than one level between consecutive lectures;
+  //  (d) no v2 day is over its budget, and an optional or video-less lecture is never
+  //      scheduled;
+  //  (e) a v1 lecture that v2 schedules again later is not owed on its v1 day, which
+  //      still lists it.
+  {
+    const fs = require("fs");
+    const SNAP = JSON.parse(fs.readFileSync(path.join(__dirname, "verify-logic.v1-snapshot.json"), "utf8"));
+    const { schedKey } = require("./plan-v1-snapshot.js");
+    // (a)
+    let diffs = [], dates = 0;
+    for (const f of SNAP.fixtures) for (const clock of SNAP.clocks) {
+      const want = SNAP.sched[f.name + " @ " + clock];
+      const { ctx, page, errors } = await scenario(browser, clock, f.state);
+      const got = await page.evaluate(({ ds, src }) => { const T = window.__brickfordTest, key = eval(src), o = {}; ds.forEach(d => { o[d] = key(T.scheduledFor(d)); }); return o; },
+        { ds: Object.keys(want), src: schedKey.toString() });
+      Object.keys(want).forEach(d => { dates++; if (got[d] !== want[d]) diffs.push(f.name + " @ " + clock + " " + d + ": main " + (want[d] || "-") + " | now " + (got[d] || "-")); });
+      if (errors.length) diffs.push("page errors: " + errors.join(" | "));
+      await ctx.close();
+    }
+    check("v2: every date before " + SNAP.cutover + " schedules exactly what main scheduled (" + SNAP.fixtures.length + " states x " + SNAP.clocks.length + " clocks)",
+      diffs.length === 0 && dates > 100, diffs.length ? diffs.length + " differ, first: " + diffs.slice(0, 2).join("; ") : dates + " date readings identical");
+
+    // The plan, read once on an empty state.
+    const PD = require("./plan-dates.js");
+    const { ctx, page, errors } = await scenario(browser, "2026-11-12", null);
+    const app = await page.evaluate(() => {
+      const T = window.__brickfordTest, D = window.DAR;
+      const cutIdx = T.studyIndex(T.PLAN_V2_FROM), days = [], dates = [], v2 = [], v1Keys = [];
+      for (let d = 0; d < 1300; d++) dates.push(T.dateForStudy(d));
+      for (let d = 0; d < cutIdx; d++) days.push({ d, iso: dates[d], items: T.scheduledV1(dates[d]).filter(i => !i.pseudo && i.cid).map(i => ({ key: i.cid + "." + i.ui + "." + i.li, track: i.track })) });
+      for (let d = cutIdx; d < 1094; d++) v2.push({ d, iso: dates[d], items: T.scheduledFor(dates[d]).filter(i => !i.pseudo).map(i => ({ key: i.cid + "." + i.ui + "." + i.li, track: i.track, dayN: i.dayN, spanN: i.spanN,
+        min: i.l.min || 0, optional: !!i.l.optional, media: !!(i.l.v || i.l.read || i.l.paper) })) });
+      return { cutIdx, cut: T.PLAN_V2_FROM, days, dates, v2, PREREQ: D.PREREQ };
+    });
+    await ctx.close();
+    check("no page errors (plan v2 scenario)", errors.length === 0, errors.join(" | "));
+    const sim = PD.simulate({ days: app.days, dates: app.dates, cutIdx: app.cutIdx }, true);
+    const part = i => i.key + (i.spanN > 1 ? "#" + i.dayN + "/" + i.spanN : "");
+    const lastSim = sim.schedule[sim.schedule.length - 1].d;
+    // (b)
+    const byDay = {};
+    app.v2.forEach(r => { byDay[r.d] = r; });
+    const simDiff = [];
+    for (let d = app.cutIdx; d <= lastSim; d++) {
+      const row = sim.schedule.find(x => x.d === d) || { math: [], ai: [] }, a = byDay[d];
+      const fmt = xs => xs.map(i => i.x.key + (i.n > 1 ? "#" + i.k + "/" + i.n : "")).join(" ");
+      const mine = tr => a.items.filter(i => i.track === tr).map(part).join(" ");
+      if (fmt(row.math) !== mine("Theory") || fmt(row.ai) !== mine("Build"))
+        simDiff.push(app.dates[d] + ": plan-dates " + fmt(row.math) + " | " + fmt(row.ai) + "; app " + mine("Theory") + " | " + mine("Build"));
+    }
+    const lectures = new Set([].concat(...app.v2.map(r => r.items.filter(i => i.track !== "Publish").map(i => i.key))));
+    check("v2: every day from " + app.cut + " to the last lecture (" + app.dates[lastSim] + ") equals tools/plan-dates.js's simulation, track by track",
+      simDiff.length === 0 && lectures.size > 300, simDiff.length ? simDiff.length + " day(s) differ, first: " + simDiff.slice(0, 2).join("; ")
+        : (lastSim - app.cutIdx + 1) + " study days, " + lectures.size + " lectures");
+    // (c) prerequisites first. A lecture's position is (day, place in the day); a need is met by
+    // its LAST part strictly before, or earlier the same day. Before the cutover: what v1 put
+    // there (all but the re-scheduled Build) and the first pass the owner watched.
+    const doneAt = {}, firstAt = {};
+    app.days.forEach(r => r.items.forEach(i => { if (i.track !== "Build" || /^ai200\.(0\.\d+|1\.[0-4])$/.test(i.key)) doneAt[i.key] = [-1, 0]; }));
+    ["ai200.0.0", "ai200.0.1", "ai200.0.2", "ai200.0.3", "ai200.1.0", "ai200.1.1", "ai200.1.2", "ai200.1.3", "ai200.1.4"].forEach(k => { doneAt[k] = [-1, 0]; });
+    const order = { Theory: [], Build: [] };
+    app.v2.forEach(r => r.items.filter(i => i.track !== "Publish").forEach((i, pos) => {
+      if (!(i.spanN > 1) || i.dayN === 1) { firstAt[i.key] = [r.d, pos]; order[i.track].push(i.key); }
+      if (!(i.spanN > 1) || i.dayN === i.spanN) doneAt[i.key] = [r.d, pos];
+    }));
+    const before = (a, b) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
+    const early = [];
+    Object.keys(firstAt).forEach(k => ((app.PREREQ[k] || {}).needs || []).forEach(n => {
+      if (!doneAt[n] || !before(doneAt[n], firstAt[k])) early.push(k + " on " + app.dates[firstAt[k][0]] + " needs " + n + (doneAt[n] ? " (done " + (doneAt[n][0] < 0 ? "before" : app.dates[doneAt[n][0]]) + ")" : " (never scheduled)"));
+    }));
+    check("v2: no lecture is scheduled before one of its needs", early.length === 0 && Object.keys(firstAt).length > 300,
+      early.length ? early.length + ", first: " + early.slice(0, 3).join("; ") : Object.keys(firstAt).length + " lectures, every need met first");
+    const jumps = [];
+    Object.keys(order).forEach(t => order[t].forEach((k, i) => {
+      if (!i) return;
+      const a = (app.PREREQ[order[t][i - 1]] || {}).level, b = (app.PREREQ[k] || {}).level;
+      if (!(a >= 1 && b >= 1) || Math.abs(a - b) > 1) jumps.push(t + " " + order[t][i - 1] + " (" + a + ") -> " + k + " (" + b + ")");
+    }));
+    check("v2: no track jumps more than one level between consecutive lectures", jumps.length === 0 && order.Theory.length > 100 && order.Build.length > 100,
+      jumps.length ? jumps.length + ", first: " + jumps.slice(0, 3).join("; ") : "Math & Physics " + order.Theory.length + ", AI / Python " + order.Build.length + " lectures in order");
+    // (d) budgets: 90 for Math & Physics, 60 for AI / Python (150 once the math line is done).
+    // A day packs to 1.05 x the budget; one lecture alone may reach 1.15 x; a longer one spans
+    // days, each part at most the budget. Effort as app.js: min x 1.8 + 4.
+    const EFF = m => (m || 50) * 1.8 + 4;
+    let lastTheory = 0;
+    app.v2.forEach(r => { if (r.items.some(i => i.track === "Theory")) lastTheory = r.d; });
+    const over = [], never = [];
+    app.v2.forEach(r => {
+      [["Theory", 90], ["Build", r.d >= lastTheory ? 150 : 60]].forEach(([t, B]) => {
+        const xs = r.items.filter(i => i.track === t);
+        if (!xs.length) return;
+        if (xs.length === 1 && xs[0].spanN > 1) { if (EFF(xs[0].min) / xs[0].spanN > B) over.push(app.dates[r.d] + " " + t + " " + part(xs[0])); return; }
+        const e = xs.reduce((a, i) => a + EFF(i.min), 0);
+        if (xs.some(i => i.spanN > 1) || e > B * (xs.length === 1 ? 1.15 : 1.05)) over.push(app.dates[r.d] + " " + t + " " + Math.round(e) + " of " + B);
+      });
+      r.items.forEach(i => { if (i.optional || !i.media) never.push(app.dates[r.d] + " " + i.key + (i.optional ? " (optional)" : " (no video)")); });
+    });
+    check("v2: no day is over its budget (Math & Physics 90, AI / Python 60, 150 once the math line ends)", over.length === 0,
+      over.length ? over.length + ", first: " + over.slice(0, 3).join("; ") : app.v2.length + " study days");
+    check("v2: an optional or video-less lecture is never scheduled", never.length === 0,
+      never.length ? never.length + ", first: " + never.slice(0, 3).join("; ") : "none on " + app.v2.length + " study days");
+    // (e) the backlog on the Saturday before the cutover, nothing watched since the start:
+    // exactly the lectures v1 put on those days, less the ones v2 schedules again.
+    {
+      const today = "2026-11-21";
+      const owedDays = range(START, addDays(today, -1)).filter(d => !isSat(d));
+      const { ctx, page, errors } = await scenario(browser, today, { studyDays: [START] });
+      const r = await page.evaluate(owedDays => {
+        // Storytelling is not re-planned: a SPCH lecture spanning the cutover is the same lecture continuing.
+        const T = window.__brickfordTest, all = new Set(), later = new Set();
+        for (let d = T.studyIndex(T.PLAN_V2_FROM); d < 1094; d++) T.scheduledFor(T.dateForStudy(d)).forEach(it => { if (!it.pseudo && it.track !== "Publish") later.add(it.cid + "." + it.ui + "." + it.li); });
+        const onDay = {};
+        owedDays.forEach(d => T.scheduledFor(d).filter(it => !it.pseudo).forEach(it => { const k = it.cid + "." + it.ui + "." + it.li; all.add(k); (onDay[k] = onDay[k] || []).push(d); }));
+        const moved = [...all].filter(k => later.has(k));
+        return { n: T.backlogCount(), expect: all.size - moved.length, moved, first: T.firstOwed(), statusOf: moved.length ? T.dayStatus(onDay[moved[0]][0]) : null, kept: moved.length ? onDay[moved[0]][0] : null };
+      }, owedDays);
+      check("v2: a v1 lecture v2 schedules again is not owed on its v1 day, which still lists it (backlogCount, firstOwed)",
+        r.n === r.expect && r.moved.length > 0 && r.n > 0 && !r.moved.includes(r.first) && r.statusOf === "missed",
+        "owed " + r.n + " (expected " + r.expect + "), " + r.moved.length + " re-scheduled by v2, e.g. " + r.moved.slice(0, 3).join(" ") +
+        " (still on " + r.kept + ", which reads " + r.statusOf + "); first owed " + r.first);
+      check("no page errors (plan v2 backlog)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    // (f) the pages: a lecture lists what it Needs (ticked once watched) and what it Leads to, and
+    // the Atlas draws one ordered line per track, in the order the plan first reaches each course.
+    {
+      const { ctx, page, errors } = await scenario(browser, "2026-11-12",
+        { lessons: { "cs100.0.8": { done: true, doneAt: "2026-11-10", notes: "", checks: [] } } });
+      await page.evaluate(() => { location.hash = "#/lesson/ai200/3/0"; });
+      await page.waitForSelector("#view .lsn-needs", { timeout: 8000 });
+      const L = await page.evaluate(() => {
+        const rows = sel => [...document.querySelectorAll("#view " + sel + " a.grow")].map(a => ({ href: a.getAttribute("href"), done: a.classList.contains("done-row"),
+          tick: (a.querySelector(".g-lead") || {}).textContent || "" }));
+        const head = t => [...document.querySelectorAll("#view .ghead")].map(h => h.textContent).find(x => x.startsWith(t)) || "";
+        return { needs: rows(".lsn-needs"), leads: rows(".lsn-leads"), needsHead: head("Needs"), leadsHead: head("Leads to"), want: window.DAR.PREREQ["ai200.3.0"].needs };
+      });
+      const hrefOf = k => "#/lesson/" + k.split(".").join("/");
+      check("v2: a lecture page lists its Needs in the map's order, the watched one ticked, and Leads to",
+        JSON.stringify(L.needs.map(r => r.href)) === JSON.stringify(L.want.map(hrefOf)) &&
+        L.needs.every(r => r.done === (r.href === hrefOf("cs100.0.8")) && (r.tick === "✓") === r.done) &&
+        L.needsHead === "Needs1 of " + L.want.length + " watched" && L.leads.some(r => r.href === hrefOf("ai200.3.1")) && /^Leads to\d+ lecture/.test(L.leadsHead),
+        L.needsHead + ": " + L.needs.map(r => r.href.slice(9) + (r.done ? " (ticked)" : "")).join(", ") + "; " + L.leadsHead + ": " + L.leads.map(r => r.href.slice(9)).join(", "));
+      await page.click("#view .lsn-leads a[href='" + hrefOf("ai200.3.1") + "']");
+      await page.waitForFunction(() => location.hash === "#/lesson/ai200/3/1", null, { timeout: 8000 });
+      check("v2: a Leads to row opens that lecture", true, "#/lesson/ai200/3/1");
+      await page.evaluate(() => { location.hash = "#/atlas"; });
+      await page.waitForSelector("#view .at-path", { timeout: 8000 });
+      const A = await page.evaluate(() => {
+        const T = window.__brickfordTest, want = { Theory: [], Build: [] };
+        for (let d = T.studyIndex(T.PLAN_V2_FROM); d < 1094; d++) T.scheduledFor(T.dateForStudy(d)).forEach(it => {
+          if (!it.pseudo && want[it.track] && want[it.track].indexOf(it.code) < 0) want[it.track].push(it.code); });
+        const lines = [...document.querySelectorAll("#view .at-path")].map(p => ({ head: p.previousElementSibling.textContent,
+          codes: [...p.querySelectorAll("a.at-step")].map(a => a.textContent.trim()) }));
+        return { lines, want };
+      });
+      check("v2: the Atlas shows one ordered line per track (Math & Physics, AI / Python, Storytelling), each in the plan's order",
+        A.lines.length === 3 && /^Math & Physics/.test(A.lines[0].head) && /^AI \/ Python/.test(A.lines[1].head) && /^Storytelling/.test(A.lines[2].head) &&
+        JSON.stringify(A.lines[0].codes) === JSON.stringify(A.want.Theory) && JSON.stringify(A.lines[1].codes) === JSON.stringify(A.want.Build) &&
+        JSON.stringify(A.lines[2].codes) === JSON.stringify(["SPCH 100"]),
+        A.lines.map(l => l.head.replace("in order", "") + ": " + l.codes.join(" > ")).join(" | "));
+      check("no page errors (plan v2 pages)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

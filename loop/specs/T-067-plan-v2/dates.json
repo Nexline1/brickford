@@ -1,0 +1,265 @@
+{
+ "cutover": "2026-11-22",
+ "cutIdx": 31,
+ "day1094": "2030-04-14",
+ "oldLast": "2028-06-11",
+ "oldLastNoSpch": "2028-06-11",
+ "coreLast": "2027-08-27",
+ "plusLast": "2028-01-28",
+ "karpathyDone": "2027-02-24",
+ "bridgeDone": "2027-01-04",
+ "secondPassStart": "2027-01-05",
+ "pyDone": "2027-01-04",
+ "mathFoundationDone": "2027-04-21",
+ "gatesA": [
+  "2026-12-27",
+  "2027-05-18",
+  "2027-12-16",
+  "2028-07-16",
+  "2030-04-15"
+ ],
+ "plusKarpathyDone": "2027-02-28",
+ "plusPaper16": "2028-05-29",
+ "plusPaper6": "2027-09-27",
+ "plusMathFoundation": "2027-06-03",
+ "plusAdds": {
+  "cs110": [
+   "2027-02-12",
+   "2027-07-16"
+  ],
+  "cs150": [
+   "2027-03-16",
+   "2027-06-03"
+  ],
+  "math140": [
+   "2027-02-23",
+   "2027-06-14"
+  ],
+  "math160": [
+   "2027-07-14",
+   "2027-09-01"
+  ],
+  "math150": [
+   "2027-10-03",
+   "2027-12-14"
+  ],
+  "phys300": [
+   "2027-09-02",
+   "2027-10-01"
+  ],
+  "phys200": [
+   "2027-10-04",
+   "2027-12-20"
+  ]
+ },
+ "counts": {
+  "math110": {
+   "code": "MATH 110",
+   "core": 51,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1850,
+   "coreMin": 1850,
+   "prov": false
+  },
+  "math120": {
+   "code": "MATH 120",
+   "core": 46,
+   "optional": 1,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1903,
+   "coreMin": 1852,
+   "prov": false
+  },
+  "math130": {
+   "code": "MATH 130",
+   "core": 33,
+   "optional": 1,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1609,
+   "coreMin": 1571,
+   "prov": false
+  },
+  "ai200": {
+   "code": "AI 200",
+   "core": 19,
+   "optional": 1,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 2023,
+   "coreMin": 1963,
+   "prov": false
+  },
+  "ai210": {
+   "code": "AI 210",
+   "core": 6,
+   "optional": 2,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 755,
+   "coreMin": 545,
+   "prov": false
+  },
+  "phys100": {
+   "code": "PHYS 100",
+   "core": 32,
+   "optional": 5,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1782,
+   "coreMin": 1527,
+   "prov": false
+  },
+  "math210": {
+   "code": "MATH 210",
+   "core": 38,
+   "optional": 0,
+   "duplicate": 1,
+   "skipped": 0,
+   "min": 2125,
+   "coreMin": 2060,
+   "prov": false
+  },
+  "ai300": {
+   "code": "AI 300",
+   "core": 16,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 354,
+   "coreMin": 156,
+   "prov": false
+  },
+  "sys250": {
+   "code": "SYS 250",
+   "core": 36,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 2220,
+   "coreMin": 2220,
+   "prov": false
+  },
+  "ai310": {
+   "code": "AI 310",
+   "core": 23,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1338,
+   "coreMin": 1338,
+   "prov": false
+  },
+  "res400": {
+   "code": "RES 400",
+   "core": 18,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1028,
+   "coreMin": 1028,
+   "prov": false
+  },
+  "spch100": {
+   "code": "SPCH 100",
+   "core": 170,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 2786,
+   "coreMin": 2786,
+   "prov": false
+  },
+  "cs100": {
+   "code": "CS 100",
+   "core": 13,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 3,
+   "min": 1242,
+   "coreMin": 999,
+   "prov": true,
+   "add": false
+  },
+  "cs110": {
+   "code": "CS 110",
+   "core": 11,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 613,
+   "coreMin": 613,
+   "prov": true,
+   "add": true
+  },
+  "cs150": {
+   "code": "CS 150",
+   "core": 21,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1163,
+   "coreMin": 1163,
+   "prov": true,
+   "add": true
+  },
+  "math140": {
+   "code": "MATH 140",
+   "core": 35,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1700,
+   "coreMin": 1700,
+   "prov": true,
+   "add": true
+  },
+  "math160": {
+   "code": "MATH 160",
+   "core": 22,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1680,
+   "coreMin": 1680,
+   "prov": true,
+   "add": true
+  },
+  "math150": {
+   "code": "MATH 150",
+   "core": 32,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 1,
+   "min": 1572,
+   "coreMin": 1524,
+   "prov": true,
+   "add": true
+  },
+  "phys300": {
+   "code": "PHYS 300",
+   "core": 10,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1022,
+   "coreMin": 1022,
+   "prov": true,
+   "add": true
+  },
+  "phys200": {
+   "code": "PHYS 200",
+   "core": 36,
+   "optional": 0,
+   "duplicate": 0,
+   "skipped": 0,
+   "min": 1810,
+   "coreMin": 1810,
+   "prov": true,
+   "add": true
+  }
+ }
+}

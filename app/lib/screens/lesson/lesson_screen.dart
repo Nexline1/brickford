@@ -344,7 +344,9 @@ class _LessonScreenState extends State<LessonScreen> {
     final link = (l['read'] ?? l['paper'])?.toString();
     final mark = m.markOf(k);
     final watched = truthy(m.lesson(k)['done']);
-    final sm = m.data.summaries[k] is Map ? (m.data.summaries[k] as Map).cast<String, dynamic>() : null;
+    final sk = m.engine.sumKey(k);   // T-067: a second-pass lesson reads its first pass's summary
+    final sm = m.data.summaries[sk] is Map ? (m.data.summaries[sk] as Map).cast<String, dynamic>() : null;
+    final needs = m.engine.needsOf(k), leads = m.engine.leadsTo(k);
     final checks = m.engine.lessonQuiz(k);
 
     // Top to bottom: the control row, the video at 16:9, the white sheet. Nothing overlaps the
@@ -504,7 +506,37 @@ class _LessonScreenState extends State<LessonScreen> {
               Text(plain(sm['watch']), style: body(14.5, height: 1.5)),
             ],
           ],
+          // T-067: where this lecture sits on the map, as app.js's lesson page has it.
+          if (needs.isNotEmpty) ...[
+            SheetLabel(Icons.call_split, 'Needs · ${needs.where((n) => truthy(m.lesson(n)['done'])).length} of ${needs.length} watched'),
+            for (final n in needs) _mapRow(m, n, tick: true),
+          ],
+          if (leads.isNotEmpty) ...[
+            SheetLabel(Icons.arrow_forward, 'Leads to'),
+            for (final n in leads) _mapRow(m, n, tick: false),
+          ],
         ],
+      ),
+    );
+  }
+
+  /// One lecture on the map: its title and course, ticked when watched ("Needs"); a tap opens it.
+  Widget _mapRow(AppModel m, String key, {required bool tick}) {
+    final p = key.split('.');
+    final c = m.data.course(p[0]);
+    final l = m.engine.lessonAt(key);
+    if (c == null || l == null || p.length != 3) return const SizedBox.shrink();
+    final done = truthy(m.lesson(key)['done']);
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: ItemBlock(
+        id: 'lesson-map-$key',
+        leading: LeadTile(icon: tick ? (done ? Icons.check : Icons.radio_button_unchecked) : Icons.arrow_forward, fg: tick && done ? Tokens.done : Tokens.ink),
+        title: '${l['t']}',
+        subtitle: '${c['code']}',
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => LessonScreen(cid: p[0], ui: int.parse(p[1]), li: int.parse(p[2]))),
+        ),
       ),
     );
   }

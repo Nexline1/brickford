@@ -8,6 +8,7 @@
  },
  "sources": [
   "platform/data/curriculum.js",
+  "platform/data/prerequisites.js",
   "platform/data/concepts-linear-algebra.js",
   "platform/data/summaries-math110.js",
   "platform/data/summaries-math110-mit.js",

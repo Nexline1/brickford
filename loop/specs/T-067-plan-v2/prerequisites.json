@@ -1,0 +1,5017 @@
+{
+ "_provisional": {
+  "cs100.0.0": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 0 - Functions, Variables\", CS50, 1:45:38",
+  "cs100.0.1": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 1 - Conditionals\", CS50, 56:08",
+  "cs100.0.2": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 2 - Loops\", CS50, 1:20:47",
+  "cs100.0.3": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 3 - Exceptions\", CS50, 44:36 (CORRECTED: the id first proposed, LW7g1169dDI, was wrong)",
+  "cs100.0.4": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 4 - Libraries\", CS50, 1:17:29 (CORRECTED: the id first proposed, u51Zjlnui4Y, was wrong)",
+  "cs100.0.5": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 5 - Unit Tests\", CS50, 50:54",
+  "cs100.0.6": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 6 - File I/O\", CS50, 1:32:25",
+  "cs100.0.7": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 7 - Regular Expressions\", CS50, 2:05:00",
+  "cs100.0.8": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 8 - Object-Oriented Programming\", CS50, 2:47:42",
+  "cs100.0.9": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 9 - Et Cetera\", CS50, 2:29:04",
+  "cs100.1.0": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"Python NumPy Tutorial for Beginners\", freeCodeCamp.org, 58:10",
+  "cs100.1.1": "proposed lecture; verified 12 Nov 2026 (oEmbed + YouTube search): \"PyTorch for Deep Learning & Machine Learning – Full Course\", freeCodeCamp.org, 25:37:26 in all; the 150-minute chapter-00 slice and its start/stop timestamps are NOT verified (the watch page, which carries the chapter list, is behind YouTube's bot check)",
+  "cs100.2.0": "proposed lecture; verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 7:58",
+  "cs100.2.1": "proposed lecture; verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 27:14",
+  "cs100.2.2": "proposed lecture; verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 26:10",
+  "cs100.2.3": "proposed lecture; verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 22:43",
+  "ai200.3.0": "proposed lecture; verified 12 Nov 2026: same id as ai200.1.0, in Karpathy's playlist PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "ai200.3.1": "proposed lecture; verified 12 Nov 2026: same id as ai200.1.1, in Karpathy's playlist PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "ai200.3.2": "proposed lecture; verified 12 Nov 2026: same id as ai200.1.2, in Karpathy's playlist PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "ai200.3.3": "proposed lecture; verified 12 Nov 2026: same id as ai200.1.3, in Karpathy's playlist PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "ai200.3.4": "proposed lecture; verified 12 Nov 2026: same id as ai200.1.4, in Karpathy's playlist PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "cs110.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 1: Course Overview + The Shell (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 48:17",
+  "cs110.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 2: Shell Tools and Scripting (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 48:56",
+  "cs110.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 3: Editors (Vim) (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 48:27",
+  "cs110.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 4: Data Wrangling (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 50:04",
+  "cs110.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 5: Command-line Environment (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 56:07",
+  "cs110.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 6: Version Control (git) (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 1:25:00",
+  "cs110.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 7: Debugging and Profiling (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 54:14",
+  "cs110.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 8: Metaprogramming (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 49:53",
+  "cs110.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 9: Security and Cryptography (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 1:01:00",
+  "cs110.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 10: Potpourri (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 57:55",
+  "cs110.0.10": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 11: Q&A (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 53:53",
+  "cs150.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"1. Algorithms and Computation\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 45:39",
+  "cs150.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"2. Data Structures and Dynamic Arrays\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 50:18",
+  "cs150.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"3. Sets and Sorting\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:56",
+  "cs150.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"4. Hashing\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:55",
+  "cs150.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"5. Linear Sorting\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 51:57",
+  "cs150.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"6. Binary Trees, Part 1\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 50:59",
+  "cs150.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"7. Binary Trees, Part 2: AVL\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 54:09",
+  "cs150.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"8. Binary Heaps\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 50:52",
+  "cs150.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"9. Breadth-First Search\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:53",
+  "cs150.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"10. Depth-First Search\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:23",
+  "cs150.0.10": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"11. Weighted Shortest Paths\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:33",
+  "cs150.0.11": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"12. Bellman-Ford\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:40",
+  "cs150.0.12": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"13. Dijkstra\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:22",
+  "cs150.0.13": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"14. APSP and Johnson\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 56:53",
+  "cs150.0.14": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"15. Dynamic Programming, Part 1: SRTBOT, Fib, DAGs, Bowling\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:18",
+  "cs150.0.15": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"16. Dynamic Programming, Part 2: LCS, LIS, Coins\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 58:44",
+  "cs150.0.16": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"17. Dynamic Programming, Part 3: APSP, Parens, Piano\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 1:03:45",
+  "cs150.0.17": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"18. Dynamic Programming, Part 4: Rods, Subset Sum, Pseudopolynomial\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 1:03:45",
+  "cs150.0.18": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"19. Complexity\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 59:09",
+  "cs150.0.19": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"20. Course Review\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 55:35",
+  "cs150.0.20": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"21. Algorithms—Next Steps\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 59:26",
+  "math140.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 1: Dot product | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 38:41",
+  "math140.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 2: Determinants; cross product | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 52:51",
+  "math140.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 3: Matrices; inverse matrices | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:05",
+  "math140.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 4: Square systems; equations of planes | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:02",
+  "math140.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 5: Parametric equations for lines and curves | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:50",
+  "math140.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 6: Velocity, acceleration; Kepler's second law | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:04",
+  "math140.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 7: Review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:50",
+  "math140.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 8: Level curves; partial derivatives; tangent plane | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 46:13",
+  "math140.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 9: Max-min problems; least squares | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:44",
+  "math140.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 10: Second derivative test; boundaries & infinity | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 52:18",
+  "math140.0.10": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 11: Differentials; chain rule | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:09",
+  "math140.0.11": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 12: Gradient; directional derivative; tangent plane | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:10",
+  "math140.0.12": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 13: Lagrange multipliers | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:10",
+  "math140.0.13": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 14: Non-independent variables | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:11",
+  "math140.0.14": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 15: Partial differential equations; review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 45:23",
+  "math140.0.15": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 16: Double integrals | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:00",
+  "math140.0.16": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 17: Double integrals in polar coords; applications | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:30",
+  "math140.0.17": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 18: Change of variables | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:55",
+  "math140.0.18": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 19: Vector fields and line integrals in the plane | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:09",
+  "math140.0.19": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 20: Path independence and conservative fields | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:23",
+  "math140.0.20": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 21: Gradient fields and potential functions | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:11",
+  "math140.0.21": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 22: Green's theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 46:45",
+  "math140.0.22": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 23: Flux; normal form of Green's theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:13",
+  "math140.0.23": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 24: Simply connected regions; review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:00",
+  "math140.0.24": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 25: Triple integrals in rectangular & cylindrical | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:42",
+  "math140.0.25": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 26: Spherical coordinates; surface area | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:05",
+  "math140.0.26": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 27: Vector fields in 3D; surface integrals & flux | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:34",
+  "math140.0.27": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 28: Divergence theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:16",
+  "math140.0.28": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 29: Divergence theorem (cont.): applications & proof | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:13",
+  "math140.0.29": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 30: Line integrals in space, curl, exactness... | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:42",
+  "math140.0.30": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 31: Stokes' theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:21",
+  "math140.0.31": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 32: Stokes' theorem (cont.); review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:09",
+  "math140.0.32": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 33: Topological considerations; Maxwell's equations | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 28:39",
+  "math140.0.33": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 34: Final review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 43:54",
+  "math140.0.34": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 35: Final review (cont.) | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:52",
+  "math160.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"1. Introduction to Statistics\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:03",
+  "math160.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"2. Introduction to Statistics (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:09",
+  "math160.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"3. Parametric Inference\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:22:37",
+  "math160.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"4. Parametric Inference (cont.) and Maximum Likelihood Estimation\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:57",
+  "math160.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"5. Maximum Likelihood Estimation (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:16:32",
+  "math160.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"6. Maximum Likelihood Estimation (cont.) and the Method of Moments\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:19:09",
+  "math160.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"7. Parametric Hypothesis Testing\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:51",
+  "math160.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"8. Parametric Hypothesis Testing (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:33",
+  "math160.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"9. Parametric Hypothesis Testing (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:21:22",
+  "math160.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"11. Parametric Hypothesis Testing (cont.) and Testing Goodness of Fit\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:22:48",
+  "math160.0.10": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"12. Testing Goodness of Fit (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:21:17",
+  "math160.0.11": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"13. Regression\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:16:02",
+  "math160.0.12": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"14. Regression (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:13:59",
+  "math160.0.13": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"15. Regression (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:15:29",
+  "math160.0.14": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"17. Bayesian Statistics\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:05",
+  "math160.0.15": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"18. Bayesian Statistics (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:03:06",
+  "math160.0.16": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"19. Principal Component Analysis\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:12",
+  "math160.0.17": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"20. Principal Component Analysis (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:16:53",
+  "math160.0.18": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"21. Generalized Linear Models\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:15:14",
+  "math160.0.19": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"22. Generalized Linear Models (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:20",
+  "math160.0.20": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"23. Generalized Linear Models (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:21",
+  "math160.0.21": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"24. Generalized Linear Models (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 54:45",
+  "math150.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 1 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 48:56",
+  "math150.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 2 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:45",
+  "math150.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 3 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:23",
+  "math150.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 4 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:14",
+  "math150.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 5 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:47",
+  "math150.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 6 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:29",
+  "math150.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 7 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 41:10",
+  "math150.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 8 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:36",
+  "math150.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 9 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:01",
+  "math150.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 10 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:24",
+  "math150.0.10": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 11 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:32",
+  "math150.0.11": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 12 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:24",
+  "math150.0.12": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 13 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:56",
+  "math150.0.13": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 14 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:26",
+  "math150.0.14": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 15 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 49:32",
+  "math150.0.15": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 16 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 49:29",
+  "math150.0.16": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 17 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:47",
+  "math150.0.17": "proposed course (needs owner approval); unverified: Mattuck's lecture 18 is not in the official playlist; that slot holds pRIEYR5JHQA (\"18.03 Profs. Miller and Vandiver 3/15/10 Lecture\", mittechtv), a different 2010 lecture",
+  "math150.0.18": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 19 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:40",
+  "math150.0.19": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 20 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 51:08",
+  "math150.0.20": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 21 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:20",
+  "math150.0.21": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 22 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:08",
+  "math150.0.22": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 23 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:55",
+  "math150.0.23": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 24 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:05",
+  "math150.0.24": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 25 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 49:07",
+  "math150.0.25": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 26 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:38",
+  "math150.0.26": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 27 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:27",
+  "math150.0.27": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 28 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:53",
+  "math150.0.28": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 29 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 48:54",
+  "math150.0.29": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 30 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:07",
+  "math150.0.30": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 31 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:11",
+  "math150.0.31": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 32 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:53",
+  "math150.0.32": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 33 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:10",
+  "phys300.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 1\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:47:39",
+  "phys300.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 2\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 54:13",
+  "phys300.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 3\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:53:27",
+  "phys300.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 4\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:42:35",
+  "phys300.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 5\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:35:45",
+  "phys300.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 6\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 2:03:30",
+  "phys300.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 7\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:50:27",
+  "phys300.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 8\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:28:46",
+  "phys300.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 9\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:41:08",
+  "phys300.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 10\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 2:04:25",
+  "phys200.0.0": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 01: What holds our world together? | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 47:49",
+  "phys200.0.1": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 02: Electric Field and Dipoles | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:25",
+  "phys200.0.2": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 03: Electric Flux and Gauss's Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:05",
+  "phys200.0.3": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 04: Electrostatic Potential and Electric Energy | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:03",
+  "phys200.0.4": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 05: Electrostatic Shielding (Faraday Cage) | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:59",
+  "phys200.0.5": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 06: High-Voltage Breakdown and Lightning | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 52:37",
+  "phys200.0.6": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 07: Capacitance and Field Energy | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:27",
+  "phys200.0.7": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 08: Polarization and Dielectrics | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:03",
+  "phys200.0.8": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 09: Currents, Resistivity and Ohm's Law | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:00",
+  "phys200.0.9": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 10: Batteries and EMF | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:05",
+  "phys200.0.10": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 11: Magnetic field and Lorentz Force | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:50",
+  "phys200.0.11": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 12: Review Exam 1 (Secret Top!) | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:45",
+  "phys200.0.12": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 13: Moving Charges in B-fields | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 48:58",
+  "phys200.0.13": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 14: Biot-Savart Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:25",
+  "phys200.0.14": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 15: Ampère's Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 47:20",
+  "phys200.0.15": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 16: Electromagnetic Induction | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:27",
+  "phys200.0.16": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 17: Motional EMF and Dynamos | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:54",
+  "phys200.0.17": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 18: Displacement Current and Synchronous Motors | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:14",
+  "phys200.0.18": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 19: How do magicians levitate women? | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:43",
+  "phys200.0.19": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 20: Inductance and RL Circuit | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:57",
+  "phys200.0.20": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 21: Magnetic Materials | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 46:22",
+  "phys200.0.21": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 22: Hysteresis and Electromagnets | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 54:04",
+  "phys200.0.22": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 23: Review for Exam 2 | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:58",
+  "phys200.0.23": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 24: Transformers, Car Coils and RC Circuits | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:23",
+  "phys200.0.24": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 25: Driven LRC Circuits and Resonance | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:14",
+  "phys200.0.25": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 26: Traveling Waves and Standing Waves | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:10",
+  "phys200.0.26": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 27: Resonance and Destructive Resonance | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:54",
+  "phys200.0.27": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 28: Index of Refraction and Poynting Vector | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:19",
+  "phys200.0.28": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 29: Snell's Law, Refraction and Total Reflection | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:58",
+  "phys200.0.29": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 30: Polarizers and Malus's Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:30",
+  "phys200.0.30": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 31: Rainbows | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:39",
+  "phys200.0.31": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 32: Review for Exam 3 | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:28",
+  "phys200.0.32": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 33: Double-Slit Interference and Interferometers | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:39",
+  "phys200.0.33": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 34: Gratings and Resolving Power | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:32",
+  "phys200.0.34": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 35: Doppler Effect and The Big Bang | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:27",
+  "phys200.0.35": "proposed course (needs owner approval); verified 12 Nov 2026 (oEmbed/playlist): \"Lec 36: Farewell Special | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:29"
+ },
+ "_note": "Generated by tools/plan-dates.js from plan-data.js. needs = prerequisites; level 1 intro, 2 core, 3 advanced; status is the audit mark.",
+ "math110.0.0": {
+  "needs": [],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.1": {
+  "needs": [
+   "math110.0.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.2": {
+  "needs": [
+   "math110.0.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.3": {
+  "needs": [
+   "math110.0.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.4": {
+  "needs": [
+   "math110.0.3"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.5": {
+  "needs": [
+   "math110.0.4"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.6": {
+  "needs": [
+   "math110.0.5"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.7": {
+  "needs": [
+   "math110.0.6"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.8": {
+  "needs": [
+   "math110.0.7"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.9": {
+  "needs": [
+   "math110.0.8"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.10": {
+  "needs": [
+   "math110.0.9"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.11": {
+  "needs": [
+   "math110.0.10"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.12": {
+  "needs": [
+   "math110.0.11"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.13": {
+  "needs": [
+   "math110.0.12"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.14": {
+  "needs": [
+   "math110.0.13"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.0.15": {
+  "needs": [
+   "math110.0.14"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math110.1.0": {
+  "needs": [
+   "math110.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.1": {
+  "needs": [
+   "math110.1.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.2": {
+  "needs": [
+   "math110.1.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.3": {
+  "needs": [
+   "math110.1.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.4": {
+  "needs": [
+   "math110.1.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.5": {
+  "needs": [
+   "math110.1.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.6": {
+  "needs": [
+   "math110.1.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.7": {
+  "needs": [
+   "math110.1.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.8": {
+  "needs": [
+   "math110.1.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.9": {
+  "needs": [
+   "math110.1.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.10": {
+  "needs": [
+   "math110.1.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.11": {
+  "needs": [
+   "math110.1.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.12": {
+  "needs": [
+   "math110.1.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.13": {
+  "needs": [
+   "math110.1.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.14": {
+  "needs": [
+   "math110.1.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.15": {
+  "needs": [
+   "math110.1.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.16": {
+  "needs": [
+   "math110.1.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.17": {
+  "needs": [
+   "math110.1.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.18": {
+  "needs": [
+   "math110.1.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.19": {
+  "needs": [
+   "math110.1.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.20": {
+  "needs": [
+   "math110.1.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.21": {
+  "needs": [
+   "math110.1.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.22": {
+  "needs": [
+   "math110.1.21",
+   "math120.1.14",
+   "math120.1.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.23": {
+  "needs": [
+   "math110.1.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.24": {
+  "needs": [
+   "math110.1.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.25": {
+  "needs": [
+   "math110.1.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.26": {
+  "needs": [
+   "math110.1.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.27": {
+  "needs": [
+   "math110.1.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.28": {
+  "needs": [
+   "math110.1.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.29": {
+  "needs": [
+   "math110.1.28"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.30": {
+  "needs": [
+   "math110.1.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.31": {
+  "needs": [
+   "math110.1.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.32": {
+  "needs": [
+   "math110.1.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.33": {
+  "needs": [
+   "math110.1.32"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math110.1.34": {
+  "needs": [
+   "math110.1.33"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.0.0": {
+  "needs": [],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.1": {
+  "needs": [
+   "math120.0.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.2": {
+  "needs": [
+   "math120.0.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.3": {
+  "needs": [
+   "math120.0.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.4": {
+  "needs": [
+   "math120.0.3"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.5": {
+  "needs": [
+   "math120.0.4"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.6": {
+  "needs": [
+   "math120.0.5"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.7": {
+  "needs": [
+   "math120.0.6"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.8": {
+  "needs": [
+   "math120.0.7"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.9": {
+  "needs": [
+   "math120.0.8"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.10": {
+  "needs": [
+   "math120.0.9"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.0.11": {
+  "needs": [
+   "math120.0.10"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "math120.1.0": {
+  "needs": [
+   "math120.0.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.1": {
+  "needs": [
+   "math120.1.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.2": {
+  "needs": [
+   "math120.1.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.3": {
+  "needs": [
+   "math120.1.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.4": {
+  "needs": [
+   "math120.1.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.5": {
+  "needs": [
+   "math120.1.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.6": {
+  "needs": [
+   "math120.1.5"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "math120.1.7": {
+  "needs": [
+   "math120.1.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.8": {
+  "needs": [
+   "math120.1.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.9": {
+  "needs": [
+   "math120.1.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.10": {
+  "needs": [
+   "math120.1.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.11": {
+  "needs": [
+   "math120.1.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.12": {
+  "needs": [
+   "math120.1.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.13": {
+  "needs": [
+   "math120.1.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.14": {
+  "needs": [
+   "math120.1.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.15": {
+  "needs": [
+   "math120.1.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.16": {
+  "needs": [
+   "math120.1.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.17": {
+  "needs": [
+   "math120.1.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.18": {
+  "needs": [
+   "math120.1.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.19": {
+  "needs": [
+   "math120.1.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.20": {
+  "needs": [
+   "math120.1.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.21": {
+  "needs": [
+   "math120.1.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.22": {
+  "needs": [
+   "math120.1.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.23": {
+  "needs": [
+   "math120.1.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.24": {
+  "needs": [
+   "math120.1.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.25": {
+  "needs": [
+   "math120.1.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.26": {
+  "needs": [
+   "math120.1.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.27": {
+  "needs": [
+   "math120.1.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.28": {
+  "needs": [
+   "math120.1.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.29": {
+  "needs": [
+   "math120.1.28"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.30": {
+  "needs": [
+   "math120.1.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.31": {
+  "needs": [
+   "math120.1.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.32": {
+  "needs": [
+   "math120.1.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.33": {
+  "needs": [
+   "math120.1.32"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math120.1.34": {
+  "needs": [
+   "math120.1.33"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.0": {
+  "needs": [],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.1": {
+  "needs": [
+   "math130.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.2": {
+  "needs": [
+   "math130.0.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.3": {
+  "needs": [
+   "math130.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.4": {
+  "needs": [
+   "math130.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.5": {
+  "needs": [
+   "math130.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.6": {
+  "needs": [
+   "math130.0.5",
+   "math120.1.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.7": {
+  "needs": [
+   "math130.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.8": {
+  "needs": [
+   "math130.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.9": {
+  "needs": [
+   "math130.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.10": {
+  "needs": [
+   "math130.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.11": {
+  "needs": [
+   "math130.0.10",
+   "math120.1.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.12": {
+  "needs": [
+   "math130.0.11",
+   "math120.1.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.13": {
+  "needs": [
+   "math130.0.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.14": {
+  "needs": [
+   "math130.0.13"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "math130.0.15": {
+  "needs": [
+   "math130.0.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.16": {
+  "needs": [
+   "math130.0.15",
+   "math120.1.33"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.17": {
+  "needs": [
+   "math130.0.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.18": {
+  "needs": [
+   "math130.0.17",
+   "math140.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.19": {
+  "needs": [
+   "math130.0.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.20": {
+  "needs": [
+   "math130.0.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.21": {
+  "needs": [
+   "math130.0.20",
+   "math140.0.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.22": {
+  "needs": [
+   "math130.0.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.23": {
+  "needs": [
+   "math130.0.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.24": {
+  "needs": [
+   "math130.0.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.25": {
+  "needs": [
+   "math130.0.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.26": {
+  "needs": [
+   "math130.0.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.27": {
+  "needs": [
+   "math130.0.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.28": {
+  "needs": [
+   "math130.0.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.29": {
+  "needs": [
+   "math130.0.28",
+   "math110.1.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.30": {
+  "needs": [
+   "math130.0.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.31": {
+  "needs": [
+   "math130.0.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.32": {
+  "needs": [
+   "math130.0.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math130.0.33": {
+  "needs": [
+   "math130.0.32"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.0.0": {
+  "needs": [],
+  "level": 1,
+  "status": "core"
+ },
+ "ai200.0.1": {
+  "needs": [
+   "ai200.0.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "ai200.0.2": {
+  "needs": [
+   "ai200.0.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "ai200.0.3": {
+  "needs": [
+   "ai200.0.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "ai200.1.0": {
+  "needs": [
+   "ai200.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.1.1": {
+  "needs": [
+   "ai200.1.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.1.2": {
+  "needs": [
+   "ai200.1.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.1.3": {
+  "needs": [
+   "ai200.1.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.1.4": {
+  "needs": [
+   "ai200.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.1.5": {
+  "needs": [
+   "ai200.3.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.1.6": {
+  "needs": [
+   "ai200.1.5",
+   "cs100.2.2",
+   "math110.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.1.7": {
+  "needs": [
+   "ai200.1.6",
+   "cs100.0.7",
+   "cs100.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.1.8": {
+  "needs": [
+   "ai200.1.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.2.0": {
+  "needs": [],
+  "level": 1,
+  "status": "optional"
+ },
+ "ai200.2.1": {
+  "needs": [],
+  "level": 2,
+  "status": "core"
+ },
+ "ai210.0.0": {
+  "needs": [
+   "cs100.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai210.0.1": {
+  "needs": [
+   "ai210.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai210.0.2": {
+  "needs": [
+   "ai210.0.1",
+   "ai200.3.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai210.0.3": {
+  "needs": [
+   "ai210.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai210.0.4": {
+  "needs": [
+   "ai210.0.3",
+   "ai200.3.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai210.0.5": {
+  "needs": [
+   "ai210.0.4"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "ai210.0.6": {
+  "needs": [
+   "ai210.0.4"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "ai210.0.7": {
+  "needs": [
+   "ai210.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.0": {
+  "needs": [
+   "math120.1.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.1": {
+  "needs": [
+   "phys100.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.2": {
+  "needs": [
+   "phys100.0.1",
+   "math120.1.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.3": {
+  "needs": [
+   "phys100.0.2",
+   "math110.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.4": {
+  "needs": [
+   "phys100.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.5": {
+  "needs": [
+   "phys100.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.6": {
+  "needs": [
+   "phys100.0.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.7": {
+  "needs": [
+   "phys100.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.8": {
+  "needs": [
+   "phys100.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.9": {
+  "needs": [
+   "phys100.0.8"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "phys100.0.10": {
+  "needs": [
+   "phys100.0.8",
+   "math120.1.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.11": {
+  "needs": [
+   "phys100.0.10",
+   "math120.1.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.12": {
+  "needs": [
+   "phys100.0.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.13": {
+  "needs": [
+   "phys100.0.12",
+   "math120.1.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.14": {
+  "needs": [
+   "phys100.0.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.15": {
+  "needs": [
+   "phys100.0.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.16": {
+  "needs": [
+   "phys100.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.17": {
+  "needs": [
+   "phys100.0.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.18": {
+  "needs": [
+   "phys100.0.17"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "phys100.0.19": {
+  "needs": [
+   "phys100.0.17",
+   "math120.1.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.20": {
+  "needs": [
+   "phys100.0.19",
+   "math110.0.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.21": {
+  "needs": [
+   "phys100.0.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.22": {
+  "needs": [
+   "phys100.0.21",
+   "math120.1.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.23": {
+  "needs": [
+   "phys100.0.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.24": {
+  "needs": [
+   "phys100.0.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.25": {
+  "needs": [
+   "phys100.0.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.26": {
+  "needs": [
+   "phys100.0.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.27": {
+  "needs": [
+   "phys100.0.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.28": {
+  "needs": [
+   "phys100.0.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.29": {
+  "needs": [
+   "phys100.0.28"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "phys100.0.30": {
+  "needs": [
+   "phys100.0.28"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.31": {
+  "needs": [
+   "phys100.0.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.32": {
+  "needs": [
+   "phys100.0.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.33": {
+  "needs": [
+   "phys100.0.32"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.34": {
+  "needs": [
+   "phys100.0.33"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys100.0.35": {
+  "needs": [
+   "phys100.0.34"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "phys100.0.36": {
+  "needs": [
+   "phys100.0.34"
+  ],
+  "level": 2,
+  "status": "optional"
+ },
+ "math210.0.0": {
+  "needs": [
+   "math110.1.34",
+   "math120.1.34",
+   "math140.0.11"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.1": {
+  "needs": [
+   "math210.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.2": {
+  "needs": [
+   "math210.0.1",
+   "math140.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.3": {
+  "needs": [
+   "math210.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.4": {
+  "needs": [
+   "math210.0.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.5": {
+  "needs": [
+   "math210.0.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.6": {
+  "needs": [
+   "math210.0.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.7": {
+  "needs": [
+   "math210.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.8": {
+  "needs": [
+   "math210.0.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.9": {
+  "needs": [
+   "math210.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.10": {
+  "needs": [
+   "math210.0.9"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.11": {
+  "needs": [
+   "math210.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.12": {
+  "needs": [
+   "math210.0.11"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.13": {
+  "needs": [
+   "math210.0.12"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.14": {
+  "needs": [
+   "math210.0.13"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.15": {
+  "needs": [
+   "math210.0.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.0.16": {
+  "needs": [
+   "math210.0.15"
+  ],
+  "level": 3,
+  "status": "duplicate-of:math210.0.10"
+ },
+ "math210.1.0": {
+  "needs": [
+   "math210.0.15",
+   "ai200.3.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.1.1": {
+  "needs": [
+   "math210.1.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.1.2": {
+  "needs": [
+   "math210.1.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.1.3": {
+  "needs": [
+   "math210.1.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.1.4": {
+  "needs": [
+   "math210.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.1.5": {
+  "needs": [
+   "math210.1.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.0": {
+  "needs": [
+   "math210.1.5",
+   "math130.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.1": {
+  "needs": [
+   "math210.2.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.2": {
+  "needs": [
+   "math210.2.1",
+   "math130.0.28"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.3": {
+  "needs": [
+   "math210.2.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.4": {
+  "needs": [
+   "math210.2.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.5": {
+  "needs": [
+   "math210.2.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.6": {
+  "needs": [
+   "math210.2.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.7": {
+  "needs": [
+   "math210.2.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.8": {
+  "needs": [
+   "math210.2.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.9": {
+  "needs": [
+   "math210.2.8",
+   "math130.0.22"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.10": {
+  "needs": [
+   "math210.2.9"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.11": {
+  "needs": [
+   "math210.2.10",
+   "math130.0.32"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.12": {
+  "needs": [
+   "math210.2.11"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.13": {
+  "needs": [
+   "math210.2.12"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.14": {
+  "needs": [
+   "math210.2.13"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math210.2.15": {
+  "needs": [
+   "math210.2.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.0.0": {
+  "needs": [
+   "ai210.0.7",
+   "sys250.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.0.1": {
+  "needs": [
+   "ai300.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.0.2": {
+  "needs": [
+   "ai300.0.1",
+   "ai300.1.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.0.3": {
+  "needs": [
+   "ai300.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.1.0": {
+  "needs": [
+   "ai200.1.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.1.1": {
+  "needs": [
+   "ai300.1.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.1.2": {
+  "needs": [
+   "ai300.1.1",
+   "ai200.1.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.1.3": {
+  "needs": [
+   "ai300.1.2",
+   "ai310.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.2.0": {
+  "needs": [
+   "ai310.0.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.2.1": {
+  "needs": [
+   "ai300.2.0",
+   "math110.1.29",
+   "ai310.1.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.2.2": {
+  "needs": [
+   "ai300.2.1",
+   "ai310.0.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.2.3": {
+  "needs": [
+   "ai300.2.2",
+   "ai310.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.3.0": {
+  "needs": [
+   "sys250.1.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.3.1": {
+  "needs": [
+   "ai300.3.0",
+   "ai310.0.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.3.2": {
+  "needs": [
+   "ai300.3.1",
+   "math210.2.13",
+   "math130.0.29"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai300.3.3": {
+  "needs": [
+   "ai300.3.2",
+   "ai310.1.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.0": {
+  "needs": [
+   "ai200.1.8",
+   "math210.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.1": {
+  "needs": [
+   "sys250.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.2": {
+  "needs": [
+   "sys250.0.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.3": {
+  "needs": [
+   "sys250.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.4": {
+  "needs": [
+   "sys250.0.3",
+   "ai200.3.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.5": {
+  "needs": [
+   "sys250.0.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.6": {
+  "needs": [
+   "sys250.0.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.7": {
+  "needs": [
+   "sys250.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.8": {
+  "needs": [
+   "sys250.0.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.9": {
+  "needs": [
+   "sys250.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.10": {
+  "needs": [
+   "sys250.0.9"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.11": {
+  "needs": [
+   "sys250.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.12": {
+  "needs": [
+   "sys250.0.11"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.13": {
+  "needs": [
+   "sys250.0.12"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.14": {
+  "needs": [
+   "sys250.0.13"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.15": {
+  "needs": [
+   "sys250.0.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.16": {
+  "needs": [
+   "sys250.0.15"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.17": {
+  "needs": [
+   "sys250.0.16"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.18": {
+  "needs": [
+   "sys250.0.17"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.19": {
+  "needs": [
+   "sys250.0.18"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.20": {
+  "needs": [
+   "sys250.0.19"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.21": {
+  "needs": [
+   "sys250.0.20"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.22": {
+  "needs": [
+   "sys250.0.21"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.0.23": {
+  "needs": [
+   "sys250.0.22"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.0": {
+  "needs": [
+   "sys250.0.23"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.1": {
+  "needs": [
+   "sys250.1.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.2": {
+  "needs": [
+   "sys250.1.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.3": {
+  "needs": [
+   "sys250.1.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.4": {
+  "needs": [
+   "sys250.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.5": {
+  "needs": [
+   "sys250.1.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.6": {
+  "needs": [
+   "sys250.1.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.7": {
+  "needs": [
+   "sys250.1.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.8": {
+  "needs": [
+   "sys250.1.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.9": {
+  "needs": [
+   "sys250.1.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.10": {
+  "needs": [
+   "sys250.1.9"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "sys250.1.11": {
+  "needs": [
+   "sys250.1.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.0": {
+  "needs": [
+   "ai200.1.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.1": {
+  "needs": [
+   "ai310.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.2": {
+  "needs": [
+   "ai310.0.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.3": {
+  "needs": [
+   "ai310.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.4": {
+  "needs": [
+   "ai310.0.3",
+   "sys250.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.5": {
+  "needs": [
+   "ai310.0.4",
+   "sys250.1.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.6": {
+  "needs": [
+   "ai310.0.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.7": {
+  "needs": [
+   "ai310.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.8": {
+  "needs": [
+   "ai310.0.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.9": {
+  "needs": [
+   "ai310.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.10": {
+  "needs": [
+   "ai310.0.9"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.11": {
+  "needs": [
+   "ai310.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.12": {
+  "needs": [
+   "ai310.0.11"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.13": {
+  "needs": [
+   "ai310.0.12"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.14": {
+  "needs": [
+   "ai310.0.13"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.15": {
+  "needs": [
+   "ai310.0.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.0.16": {
+  "needs": [
+   "ai310.0.15",
+   "res400.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.1.0": {
+  "needs": [
+   "ai310.0.16",
+   "math160.0.21"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.1.1": {
+  "needs": [
+   "ai310.1.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.1.2": {
+  "needs": [
+   "ai310.1.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.1.3": {
+  "needs": [
+   "ai310.1.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.1.4": {
+  "needs": [
+   "ai310.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai310.1.5": {
+  "needs": [
+   "ai310.1.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.0": {
+  "needs": [
+   "math130.0.32",
+   "math130.0.26"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.1": {
+  "needs": [
+   "res400.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.2": {
+  "needs": [
+   "res400.0.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.3": {
+  "needs": [
+   "res400.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.4": {
+  "needs": [
+   "res400.0.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.5": {
+  "needs": [
+   "res400.0.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.6": {
+  "needs": [
+   "res400.0.5",
+   "math210.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.7": {
+  "needs": [
+   "res400.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.8": {
+  "needs": [
+   "res400.0.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.0.9": {
+  "needs": [
+   "res400.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.1.0": {
+  "needs": [
+   "ai200.1.6",
+   "math110.1.29"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.1.1": {
+  "needs": [
+   "res400.1.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.1.2": {
+  "needs": [
+   "res400.1.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.1.3": {
+  "needs": [
+   "res400.1.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.1.4": {
+  "needs": [
+   "res400.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.2.0": {
+  "needs": [
+   "ai200.1.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.2.1": {
+  "needs": [
+   "res400.2.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "res400.2.2": {
+  "needs": [
+   "res400.2.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "spch100.0.0": {
+  "needs": [],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.0.1": {
+  "needs": [
+   "spch100.0.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.0.2": {
+  "needs": [
+   "spch100.0.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.1.0": {
+  "needs": [
+   "spch100.0.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.1.1": {
+  "needs": [
+   "spch100.1.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.0": {
+  "needs": [
+   "spch100.1.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.1": {
+  "needs": [
+   "spch100.2.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.2": {
+  "needs": [
+   "spch100.2.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.3": {
+  "needs": [
+   "spch100.2.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.4": {
+  "needs": [
+   "spch100.2.3"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.5": {
+  "needs": [
+   "spch100.2.4"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.6": {
+  "needs": [
+   "spch100.2.5"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.7": {
+  "needs": [
+   "spch100.2.6"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.8": {
+  "needs": [
+   "spch100.2.7"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.9": {
+  "needs": [
+   "spch100.2.8"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.10": {
+  "needs": [
+   "spch100.2.9"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.2.11": {
+  "needs": [
+   "spch100.2.10"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.0": {
+  "needs": [
+   "spch100.2.11"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.1": {
+  "needs": [
+   "spch100.3.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.2": {
+  "needs": [
+   "spch100.3.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.3": {
+  "needs": [
+   "spch100.3.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.4": {
+  "needs": [
+   "spch100.3.3"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.5": {
+  "needs": [
+   "spch100.3.4"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.6": {
+  "needs": [
+   "spch100.3.5"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.3.7": {
+  "needs": [
+   "spch100.3.6"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.0": {
+  "needs": [
+   "spch100.3.7"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.1": {
+  "needs": [
+   "spch100.4.0"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.2": {
+  "needs": [
+   "spch100.4.1"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.3": {
+  "needs": [
+   "spch100.4.2"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.4": {
+  "needs": [
+   "spch100.4.3"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.5": {
+  "needs": [
+   "spch100.4.4"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.6": {
+  "needs": [
+   "spch100.4.5"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.7": {
+  "needs": [
+   "spch100.4.6"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.8": {
+  "needs": [
+   "spch100.4.7"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.9": {
+  "needs": [
+   "spch100.4.8"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.10": {
+  "needs": [
+   "spch100.4.9"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.11": {
+  "needs": [
+   "spch100.4.10"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.4.12": {
+  "needs": [
+   "spch100.4.11"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "spch100.5.0": {
+  "needs": [
+   "spch100.4.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.1": {
+  "needs": [
+   "spch100.5.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.2": {
+  "needs": [
+   "spch100.5.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.3": {
+  "needs": [
+   "spch100.5.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.4": {
+  "needs": [
+   "spch100.5.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.5": {
+  "needs": [
+   "spch100.5.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.6": {
+  "needs": [
+   "spch100.5.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.7": {
+  "needs": [
+   "spch100.5.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.8": {
+  "needs": [
+   "spch100.5.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.9": {
+  "needs": [
+   "spch100.5.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.10": {
+  "needs": [
+   "spch100.5.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.11": {
+  "needs": [
+   "spch100.5.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.12": {
+  "needs": [
+   "spch100.5.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.13": {
+  "needs": [
+   "spch100.5.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.14": {
+  "needs": [
+   "spch100.5.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.15": {
+  "needs": [
+   "spch100.5.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.5.16": {
+  "needs": [
+   "spch100.5.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.0": {
+  "needs": [
+   "spch100.5.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.1": {
+  "needs": [
+   "spch100.6.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.2": {
+  "needs": [
+   "spch100.6.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.3": {
+  "needs": [
+   "spch100.6.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.4": {
+  "needs": [
+   "spch100.6.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.5": {
+  "needs": [
+   "spch100.6.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.6": {
+  "needs": [
+   "spch100.6.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.7": {
+  "needs": [
+   "spch100.6.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.8": {
+  "needs": [
+   "spch100.6.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.9": {
+  "needs": [
+   "spch100.6.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.10": {
+  "needs": [
+   "spch100.6.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.11": {
+  "needs": [
+   "spch100.6.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.12": {
+  "needs": [
+   "spch100.6.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.13": {
+  "needs": [
+   "spch100.6.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.14": {
+  "needs": [
+   "spch100.6.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.15": {
+  "needs": [
+   "spch100.6.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.16": {
+  "needs": [
+   "spch100.6.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.17": {
+  "needs": [
+   "spch100.6.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.18": {
+  "needs": [
+   "spch100.6.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.19": {
+  "needs": [
+   "spch100.6.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.6.20": {
+  "needs": [
+   "spch100.6.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.0": {
+  "needs": [
+   "spch100.6.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.1": {
+  "needs": [
+   "spch100.7.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.2": {
+  "needs": [
+   "spch100.7.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.3": {
+  "needs": [
+   "spch100.7.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.4": {
+  "needs": [
+   "spch100.7.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.5": {
+  "needs": [
+   "spch100.7.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.6": {
+  "needs": [
+   "spch100.7.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.7": {
+  "needs": [
+   "spch100.7.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.8": {
+  "needs": [
+   "spch100.7.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.9": {
+  "needs": [
+   "spch100.7.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.10": {
+  "needs": [
+   "spch100.7.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.11": {
+  "needs": [
+   "spch100.7.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.12": {
+  "needs": [
+   "spch100.7.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.13": {
+  "needs": [
+   "spch100.7.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.7.14": {
+  "needs": [
+   "spch100.7.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.0": {
+  "needs": [
+   "spch100.7.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.1": {
+  "needs": [
+   "spch100.8.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.2": {
+  "needs": [
+   "spch100.8.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.3": {
+  "needs": [
+   "spch100.8.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.4": {
+  "needs": [
+   "spch100.8.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.5": {
+  "needs": [
+   "spch100.8.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.6": {
+  "needs": [
+   "spch100.8.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.7": {
+  "needs": [
+   "spch100.8.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.8": {
+  "needs": [
+   "spch100.8.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.9": {
+  "needs": [
+   "spch100.8.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.10": {
+  "needs": [
+   "spch100.8.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.11": {
+  "needs": [
+   "spch100.8.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.8.12": {
+  "needs": [
+   "spch100.8.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.0": {
+  "needs": [
+   "spch100.8.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.1": {
+  "needs": [
+   "spch100.9.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.2": {
+  "needs": [
+   "spch100.9.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.3": {
+  "needs": [
+   "spch100.9.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.4": {
+  "needs": [
+   "spch100.9.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.5": {
+  "needs": [
+   "spch100.9.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.6": {
+  "needs": [
+   "spch100.9.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.7": {
+  "needs": [
+   "spch100.9.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.8": {
+  "needs": [
+   "spch100.9.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.9": {
+  "needs": [
+   "spch100.9.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.10": {
+  "needs": [
+   "spch100.9.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.11": {
+  "needs": [
+   "spch100.9.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.12": {
+  "needs": [
+   "spch100.9.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.13": {
+  "needs": [
+   "spch100.9.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.14": {
+  "needs": [
+   "spch100.9.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.15": {
+  "needs": [
+   "spch100.9.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.16": {
+  "needs": [
+   "spch100.9.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.17": {
+  "needs": [
+   "spch100.9.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.18": {
+  "needs": [
+   "spch100.9.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.19": {
+  "needs": [
+   "spch100.9.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.20": {
+  "needs": [
+   "spch100.9.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.21": {
+  "needs": [
+   "spch100.9.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.9.22": {
+  "needs": [
+   "spch100.9.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.10.0": {
+  "needs": [
+   "spch100.9.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.10.1": {
+  "needs": [
+   "spch100.10.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.10.2": {
+  "needs": [
+   "spch100.10.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.11.0": {
+  "needs": [
+   "spch100.10.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.11.1": {
+  "needs": [
+   "spch100.11.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.11.2": {
+  "needs": [
+   "spch100.11.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.11.3": {
+  "needs": [
+   "spch100.11.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.11.4": {
+  "needs": [
+   "spch100.11.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.11.5": {
+  "needs": [
+   "spch100.11.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.12.0": {
+  "needs": [
+   "spch100.11.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.12.1": {
+  "needs": [
+   "spch100.12.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.12.2": {
+  "needs": [
+   "spch100.12.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.12.3": {
+  "needs": [
+   "spch100.12.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.12.4": {
+  "needs": [
+   "spch100.12.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.12.5": {
+  "needs": [
+   "spch100.12.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.0": {
+  "needs": [
+   "spch100.12.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.1": {
+  "needs": [
+   "spch100.13.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.2": {
+  "needs": [
+   "spch100.13.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.3": {
+  "needs": [
+   "spch100.13.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.4": {
+  "needs": [
+   "spch100.13.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.5": {
+  "needs": [
+   "spch100.13.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.6": {
+  "needs": [
+   "spch100.13.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.7": {
+  "needs": [
+   "spch100.13.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.8": {
+  "needs": [
+   "spch100.13.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.9": {
+  "needs": [
+   "spch100.13.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.10": {
+  "needs": [
+   "spch100.13.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.13.11": {
+  "needs": [
+   "spch100.13.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.14.0": {
+  "needs": [
+   "spch100.13.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.14.1": {
+  "needs": [
+   "spch100.14.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.14.2": {
+  "needs": [
+   "spch100.14.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.14.3": {
+  "needs": [
+   "spch100.14.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.14.4": {
+  "needs": [
+   "spch100.14.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.14.5": {
+  "needs": [
+   "spch100.14.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.15.0": {
+  "needs": [
+   "spch100.14.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.15.1": {
+  "needs": [
+   "spch100.15.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.15.2": {
+  "needs": [
+   "spch100.15.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.0": {
+  "needs": [
+   "spch100.15.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.1": {
+  "needs": [
+   "spch100.16.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.2": {
+  "needs": [
+   "spch100.16.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.3": {
+  "needs": [
+   "spch100.16.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.4": {
+  "needs": [
+   "spch100.16.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.5": {
+  "needs": [
+   "spch100.16.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "spch100.16.6": {
+  "needs": [
+   "spch100.16.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs100.0.0": {
+  "needs": [],
+  "level": 1,
+  "status": "skipped"
+ },
+ "cs100.0.1": {
+  "needs": [],
+  "level": 1,
+  "status": "skipped"
+ },
+ "cs100.0.2": {
+  "needs": [],
+  "level": 1,
+  "status": "skipped"
+ },
+ "cs100.0.3": {
+  "needs": [],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.0.4": {
+  "needs": [
+   "cs100.0.3"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.0.5": {
+  "needs": [
+   "cs100.0.4"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.0.6": {
+  "needs": [
+   "cs100.0.5"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.0.7": {
+  "needs": [
+   "cs100.0.6"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.0.8": {
+  "needs": [
+   "cs100.0.7"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.0.9": {
+  "needs": [
+   "cs100.0.8"
+  ],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.1.0": {
+  "needs": [],
+  "level": 2,
+  "status": "core"
+ },
+ "cs100.1.1": {
+  "needs": [
+   "cs100.1.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs100.2.0": {
+  "needs": [],
+  "level": 1,
+  "status": "core"
+ },
+ "cs100.2.1": {
+  "needs": [
+   "cs100.2.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs100.2.2": {
+  "needs": [
+   "cs100.2.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs100.2.3": {
+  "needs": [
+   "cs100.2.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.3.0": {
+  "needs": [
+   "cs100.0.8",
+   "cs100.0.9",
+   "math120.0.3",
+   "ai200.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.3.1": {
+  "needs": [
+   "ai200.3.0",
+   "cs100.1.1",
+   "math110.0.3",
+   "math130.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.3.2": {
+  "needs": [
+   "ai200.3.1",
+   "math130.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "ai200.3.3": {
+  "needs": [
+   "ai200.3.2",
+   "math130.0.13"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "ai200.3.4": {
+  "needs": [
+   "ai200.3.3",
+   "math110.1.2",
+   "math120.1.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "cs110.0.0": {
+  "needs": [],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.1": {
+  "needs": [
+   "cs110.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.2": {
+  "needs": [
+   "cs110.0.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.3": {
+  "needs": [
+   "cs110.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.4": {
+  "needs": [
+   "cs110.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.5": {
+  "needs": [
+   "cs110.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.6": {
+  "needs": [
+   "cs110.0.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.7": {
+  "needs": [
+   "cs110.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.8": {
+  "needs": [
+   "cs110.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.9": {
+  "needs": [
+   "cs110.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs110.0.10": {
+  "needs": [
+   "cs110.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.0": {
+  "needs": [
+   "ai200.1.8",
+   "cs100.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.1": {
+  "needs": [
+   "cs150.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.2": {
+  "needs": [
+   "cs150.0.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.3": {
+  "needs": [
+   "cs150.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.4": {
+  "needs": [
+   "cs150.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.5": {
+  "needs": [
+   "cs150.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.6": {
+  "needs": [
+   "cs150.0.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.7": {
+  "needs": [
+   "cs150.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.8": {
+  "needs": [
+   "cs150.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.9": {
+  "needs": [
+   "cs150.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.10": {
+  "needs": [
+   "cs150.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.11": {
+  "needs": [
+   "cs150.0.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.12": {
+  "needs": [
+   "cs150.0.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.13": {
+  "needs": [
+   "cs150.0.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.14": {
+  "needs": [
+   "cs150.0.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.15": {
+  "needs": [
+   "cs150.0.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.16": {
+  "needs": [
+   "cs150.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.17": {
+  "needs": [
+   "cs150.0.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.18": {
+  "needs": [
+   "cs150.0.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.19": {
+  "needs": [
+   "cs150.0.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "cs150.0.20": {
+  "needs": [
+   "cs150.0.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.0": {
+  "needs": [
+   "math120.1.34",
+   "math110.0.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.1": {
+  "needs": [
+   "math140.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.2": {
+  "needs": [
+   "math140.0.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.3": {
+  "needs": [
+   "math140.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.4": {
+  "needs": [
+   "math140.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.5": {
+  "needs": [
+   "math140.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.6": {
+  "needs": [
+   "math140.0.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.7": {
+  "needs": [
+   "math140.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.8": {
+  "needs": [
+   "math140.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.9": {
+  "needs": [
+   "math140.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.10": {
+  "needs": [
+   "math140.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.11": {
+  "needs": [
+   "math140.0.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.12": {
+  "needs": [
+   "math140.0.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.13": {
+  "needs": [
+   "math140.0.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.14": {
+  "needs": [
+   "math140.0.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.15": {
+  "needs": [
+   "math140.0.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.16": {
+  "needs": [
+   "math140.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.17": {
+  "needs": [
+   "math140.0.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.18": {
+  "needs": [
+   "math140.0.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.19": {
+  "needs": [
+   "math140.0.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.20": {
+  "needs": [
+   "math140.0.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.21": {
+  "needs": [
+   "math140.0.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.22": {
+  "needs": [
+   "math140.0.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.23": {
+  "needs": [
+   "math140.0.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.24": {
+  "needs": [
+   "math140.0.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.25": {
+  "needs": [
+   "math140.0.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.26": {
+  "needs": [
+   "math140.0.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.27": {
+  "needs": [
+   "math140.0.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.28": {
+  "needs": [
+   "math140.0.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.29": {
+  "needs": [
+   "math140.0.28"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.30": {
+  "needs": [
+   "math140.0.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.31": {
+  "needs": [
+   "math140.0.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.32": {
+  "needs": [
+   "math140.0.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.33": {
+  "needs": [
+   "math140.0.32"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math140.0.34": {
+  "needs": [
+   "math140.0.33"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math160.0.0": {
+  "needs": [
+   "math130.0.33",
+   "math140.0.34"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.1": {
+  "needs": [
+   "math160.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.2": {
+  "needs": [
+   "math160.0.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.3": {
+  "needs": [
+   "math160.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.4": {
+  "needs": [
+   "math160.0.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.5": {
+  "needs": [
+   "math160.0.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.6": {
+  "needs": [
+   "math160.0.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.7": {
+  "needs": [
+   "math160.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.8": {
+  "needs": [
+   "math160.0.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.9": {
+  "needs": [
+   "math160.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.10": {
+  "needs": [
+   "math160.0.9"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.11": {
+  "needs": [
+   "math160.0.10"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.12": {
+  "needs": [
+   "math160.0.11"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.13": {
+  "needs": [
+   "math160.0.12"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.14": {
+  "needs": [
+   "math160.0.13"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.15": {
+  "needs": [
+   "math160.0.14"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.16": {
+  "needs": [
+   "math160.0.15"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.17": {
+  "needs": [
+   "math160.0.16"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.18": {
+  "needs": [
+   "math160.0.17"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.19": {
+  "needs": [
+   "math160.0.18"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.20": {
+  "needs": [
+   "math160.0.19"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math160.0.21": {
+  "needs": [
+   "math160.0.20"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "math150.0.0": {
+  "needs": [
+   "math140.0.34",
+   "math110.1.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.1": {
+  "needs": [
+   "math150.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.2": {
+  "needs": [
+   "math150.0.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.3": {
+  "needs": [
+   "math150.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.4": {
+  "needs": [
+   "math150.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.5": {
+  "needs": [
+   "math150.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.6": {
+  "needs": [
+   "math150.0.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.7": {
+  "needs": [
+   "math150.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.8": {
+  "needs": [
+   "math150.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.9": {
+  "needs": [
+   "math150.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.10": {
+  "needs": [
+   "math150.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.11": {
+  "needs": [
+   "math150.0.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.12": {
+  "needs": [
+   "math150.0.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.13": {
+  "needs": [
+   "math150.0.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.14": {
+  "needs": [
+   "math150.0.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.15": {
+  "needs": [
+   "math150.0.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.16": {
+  "needs": [
+   "math150.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.17": {
+  "needs": [
+   "math150.0.16"
+  ],
+  "level": 2,
+  "status": "skipped"
+ },
+ "math150.0.18": {
+  "needs": [
+   "math150.0.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.19": {
+  "needs": [
+   "math150.0.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.20": {
+  "needs": [
+   "math150.0.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.21": {
+  "needs": [
+   "math150.0.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.22": {
+  "needs": [
+   "math150.0.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.23": {
+  "needs": [
+   "math150.0.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.24": {
+  "needs": [
+   "math150.0.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.25": {
+  "needs": [
+   "math150.0.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.26": {
+  "needs": [
+   "math150.0.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.27": {
+  "needs": [
+   "math150.0.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.28": {
+  "needs": [
+   "math150.0.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.29": {
+  "needs": [
+   "math150.0.28"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.30": {
+  "needs": [
+   "math150.0.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.31": {
+  "needs": [
+   "math150.0.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "math150.0.32": {
+  "needs": [
+   "math150.0.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys300.0.0": {
+  "needs": [
+   "math210.2.15",
+   "phys100.0.33",
+   "math130.0.28",
+   "math140.0.12"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.1": {
+  "needs": [
+   "phys300.0.0"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.2": {
+  "needs": [
+   "phys300.0.1"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.3": {
+  "needs": [
+   "phys300.0.2"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.4": {
+  "needs": [
+   "phys300.0.3"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.5": {
+  "needs": [
+   "phys300.0.4"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.6": {
+  "needs": [
+   "phys300.0.5"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.7": {
+  "needs": [
+   "phys300.0.6"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.8": {
+  "needs": [
+   "phys300.0.7"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys300.0.9": {
+  "needs": [
+   "phys300.0.8"
+  ],
+  "level": 3,
+  "status": "core"
+ },
+ "phys200.0.0": {
+  "needs": [
+   "phys100.0.34",
+   "math140.0.34"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.1": {
+  "needs": [
+   "phys200.0.0"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.2": {
+  "needs": [
+   "phys200.0.1"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.3": {
+  "needs": [
+   "phys200.0.2"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.4": {
+  "needs": [
+   "phys200.0.3"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.5": {
+  "needs": [
+   "phys200.0.4"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.6": {
+  "needs": [
+   "phys200.0.5"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.7": {
+  "needs": [
+   "phys200.0.6"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.8": {
+  "needs": [
+   "phys200.0.7"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.9": {
+  "needs": [
+   "phys200.0.8"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.10": {
+  "needs": [
+   "phys200.0.9"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.11": {
+  "needs": [
+   "phys200.0.10"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.12": {
+  "needs": [
+   "phys200.0.11"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.13": {
+  "needs": [
+   "phys200.0.12"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.14": {
+  "needs": [
+   "phys200.0.13"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.15": {
+  "needs": [
+   "phys200.0.14"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.16": {
+  "needs": [
+   "phys200.0.15"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.17": {
+  "needs": [
+   "phys200.0.16"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.18": {
+  "needs": [
+   "phys200.0.17"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.19": {
+  "needs": [
+   "phys200.0.18"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.20": {
+  "needs": [
+   "phys200.0.19"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.21": {
+  "needs": [
+   "phys200.0.20"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.22": {
+  "needs": [
+   "phys200.0.21"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.23": {
+  "needs": [
+   "phys200.0.22"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.24": {
+  "needs": [
+   "phys200.0.23"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.25": {
+  "needs": [
+   "phys200.0.24"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.26": {
+  "needs": [
+   "phys200.0.25"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.27": {
+  "needs": [
+   "phys200.0.26"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.28": {
+  "needs": [
+   "phys200.0.27"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.29": {
+  "needs": [
+   "phys200.0.28"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.30": {
+  "needs": [
+   "phys200.0.29"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.31": {
+  "needs": [
+   "phys200.0.30"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.32": {
+  "needs": [
+   "phys200.0.31"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.33": {
+  "needs": [
+   "phys200.0.32"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.34": {
+  "needs": [
+   "phys200.0.33"
+  ],
+  "level": 2,
+  "status": "core"
+ },
+ "phys200.0.35": {
+  "needs": [
+   "phys200.0.34"
+  ],
+  "level": 2,
+  "status": "core"
+ }
+}

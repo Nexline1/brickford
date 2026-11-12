@@ -22,7 +22,9 @@ DAR.LABS = [
     req: "Encode/decode round-trips perfectly; vocab of 512 trained on your own corpus." },
   { id: "gpt-arabic", after: "ai200.1.6", phase: 1, hours: 20, title: "GPT on your own Arabic corpus",
     req: "Character-level GPT trained end to end on Arabic text you collected; samples posted publicly." },
-  { id: "kaggle-entry", after: "ai210.0.5", phase: 1, hours: 12, title: "Kaggle competition entry",
+  // T-067: was after ai210.0.5 (random forests), optional in Plan v2 and never scheduled; fast.ai
+  // lesson 5 builds a tabular model from scratch, and v2 reaches it in phase 1.
+  { id: "kaggle-entry", after: "ai210.0.4", phase: 1, hours: 12, title: "Kaggle competition entry",
     req: "Beat the sample-submission baseline on a live competition; write up what actually moved the score." },
   { id: "blog-deepdive", after: "ai200.1.4", phase: 1, hours: 6, title: "One technical deep-dive post",
     req: "A post that teaches backprop or attention from scratch — clear enough that a stranger thanks you." },

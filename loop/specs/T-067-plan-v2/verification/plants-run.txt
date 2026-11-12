@@ -1,0 +1,89 @@
+plants against /home/user/bf-T-067-v2 (174673d)
+sha256 before:
+  58f4130a5e96fc3208f16c154ab34ec508cea73f3dec42dec8cf2a521ac1eef0  platform/js/app.js
+  4f7c845c12f0004a05ba41dc90caa4d43ae7fd78016b67d0b7e6e11656c5c05f  platform/data/prerequisites.js
+  3cb43ff6240286af107cf289807ed6d875f1c114179061af23541519f6418ef6  platform/data/curriculum.js
+== plant v1-spine-alias -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every date before 2026-11-22 schedules exactly what main scheduled (2 states x 4 clocks) — 1 differ, first: worked ahead @ 2026-11-19 2026-11-20: main Theory:math110.1.18 Build:ai210.0.2@1/2 | now Theory:math110.1.18 Build:ai200.3.0@1/3
+1 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant v2-early -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every date before 2026-11-22 schedules exactly what main scheduled (2 states x 4 clocks) — 48 differ, first: empty @ 2026-11-19 2026-11-15: main Theory:math120.1.4 Build:ai200.1.8@2/5 Publish:spch100.3.4 | now Theory:math110.1.6 Build:cs100.0.3@1
+  FAIL  v2: a v1 lecture v2 schedules again is not owed on its v1 day, which still lists it (backlogCount, firstOwed) — owed 91 (expected 82), 13 re-scheduled by v2, e.g. ai200.1.5 ai200.1.6 ai200.1.7 (still on 2026-11-04, which reads missed); first owed mat
+2 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant budget-ai -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every day from 2026-11-22 to the last lecture (2028-01-28) equals tools/plan-dates.js's simulation, track by track — 354 day(s) differ, first: 2026-12-10: plan-dates math120.1.14 | cs100.0.8#1/6; app math120.1.14 | cs100.0.8#1/5; 2026-12-13: plan
+  FAIL  v2: no day is over its budget (Math & Physics 90, AI / Python 60, 150 once the math line ends) — 69, first: 2026-12-10 Build cs100.0.8#1/5; 2026-12-13 Build cs100.0.8#2/5; 2026-12-14 Build cs100.0.8#3/5
+2 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant needs-ignored -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every day from 2026-11-22 to the last lecture (2028-01-28) equals tools/plan-dates.js's simulation, track by track — 352 day(s) differ, first: 2026-11-25: plan-dates math110.1.9 | cs100.0.4#2/3; app phys100.0.0 phys100.0.1 | cs100.0.4#2/3; 2026-1
+  FAIL  v2: no lecture is scheduled before one of its needs — 26, first: phys100.0.0 on 2026-11-25 needs math120.1.17 (done 2027-02-04); math210.0.0 on 2026-11-26 needs math110.1.34 (done 2027-05-31); math210.0.0 on 2026-11-26 needs math120.1.34 (done 2027-0
+2 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant level-jump -> node tools/verify-logic.js
+  restored platform/data/prerequisites.js (cmp identical)
+  FAIL  v2: no track jumps more than one level between consecutive lectures — 2, first: Build cs100.0.3 (1) -> cs100.0.4 (3); Build cs100.0.4 (3) -> cs100.2.0 (1)
+1 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant pack-over -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every day from 2026-11-22 to the last lecture (2028-01-28) equals tools/plan-dates.js's simulation, track by track — 314 day(s) differ, first: 2027-01-11: plan-dates math130.0.13 | ai200.3.0#5/5; app math130.0.13 math130.0.15 | ai200.3.0#5/5; 202
+  FAIL  v2: no day is over its budget (Math & Physics 90, AI / Python 60, 150 once the math line ends) — 11, first: 2027-01-11 Theory 129 of 90; 2027-04-16 Theory 138 of 90; 2027-04-20 Theory 132 of 90
+2 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant optional-scheduled -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every day from 2026-11-22 to the last lecture (2028-01-28) equals tools/plan-dates.js's simulation, track by track — 369 day(s) differ, first: 2026-11-22: plan-dates math110.1.8 | cs100.0.3#1/2; app math110.1.8 | cs100.0.0#1/4; 2026-11-23: plan-d
+  FAIL  v2: an optional or video-less lecture is never scheduled — 29, first: 2026-11-22 cs100.0.0 (optional); 2026-11-23 math120.1.6 (optional); 2026-11-23 cs100.0.0 (optional)
+2 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant videoless-scheduled -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: every day from 2026-11-22 to the last lecture (2028-01-28) equals tools/plan-dates.js's simulation, track by track — 20 day(s) differ, first: 2027-11-11: plan-dates math150.0.18 | ai300.1.3#2/2; app math150.0.17 | ai300.1.3#2/2; 2027-11-14: plan-
+  FAIL  v2: an optional or video-less lecture is never scheduled — 1, first: 2027-11-11 math150.0.17 (no video)
+2 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant backlog-owes -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: a v1 lecture v2 schedules again is not owed on its v1 day, which still lists it (backlogCount, firstOwed) — owed 93 (expected 89), 4 re-scheduled by v2, e.g. ai200.1.5 ai200.1.6 ai200.1.7 (still on 2026-11-04, which reads missed); first owed math
+1 of 251 invariant(s) FAILED
+  exit 1 (caught, as required)
+== plant content-unknown-need -> node tools/verify-content.js
+  restored platform/data/prerequisites.js (cmp identical)
+  FAIL T-045 lab kaggle-entry (phase 1): its after lecture ai210.0.4 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab deploy-space (phase 1): its after lecture ai210.0.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab resnet-cifar (phase 2): its after lecture ai300.0.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab lora-finetune (phase 2): its after lecture ai300.2.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab eval-harness (phase 2): its after lecture ai310.1.3 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab cuda-matmul (phase 2): its after lecture sys250.1.4 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab kernel-profile (phase 2): its after lecture sys250.1.0 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab oss-pr (phase 2): its after lecture ai310.1.0 is scheduled null, phase none — in its phase or earlier
+  exit 1 (caught, as required)
+== plant content-cycle -> node tools/verify-content.js
+  restored platform/data/prerequisites.js (cmp identical)
+  FAIL T-045 lab kaggle-entry (phase 1): its after lecture ai210.0.4 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab deploy-space (phase 1): its after lecture ai210.0.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab resnet-cifar (phase 2): its after lecture ai300.0.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab lora-finetune (phase 2): its after lecture ai300.2.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab eval-harness (phase 2): its after lecture ai310.1.3 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab cuda-matmul (phase 2): its after lecture sys250.1.4 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab kernel-profile (phase 2): its after lecture sys250.1.0 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab oss-pr (phase 2): its after lecture ai310.1.0 is scheduled null, phase none — in its phase or earlier
+  exit 1 (caught, as required)
+== plant content-ledger -> node tools/verify-content.js
+  restored platform/data/curriculum.js (cmp identical)
+  FAIL T-067 ledger: ai300.0.1 still points at GWt6Fu05voI (it now points at DAOcjicFr1Y — a unit or lesson was inserted, reordered or re-pointed)
+1 of 47654 checks FAILED
+  exit 1 (caught, as required)
+sha256 after:
+  58f4130a5e96fc3208f16c154ab34ec508cea73f3dec42dec8cf2a521ac1eef0  platform/js/app.js
+  4f7c845c12f0004a05ba41dc90caa4d43ae7fd78016b67d0b7e6e11656c5c05f  platform/data/prerequisites.js
+  3cb43ff6240286af107cf289807ed6d875f1c114179061af23541519f6418ef6  platform/data/curriculum.js
+0 plant(s) not caught
+exit 0

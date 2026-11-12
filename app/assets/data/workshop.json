@@ -242,7 +242,7 @@
   },
   {
    "id": "kaggle-entry",
-   "after": "ai210.0.5",
+   "after": "ai210.0.4",
    "phase": 1,
    "hours": 12,
    "title": "Kaggle competition entry",

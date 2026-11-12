@@ -66,6 +66,11 @@
 //    app.js, and each engine's Friday and Saturday against its own Thursday.
 //    Plant: publish-anchor (the Dart Publish block anchors on speechSlot(today) again).
 //
+// 6b. PLAN V2 (T-067). From PLAN_V2_FROM the plan is derived from the prerequisite map (app.js planV2, ported
+//    in engine.dart); the parity above already covers every date from the start to day 1094 + 7, so Dart and
+//    JS agree on every v2 day, the backlog and dayStatus. Plants: plan-v2-budget (the Dart AI / Python budget
+//    61, not 60), plan-v2-backlog (the Dart backlog owes a v1 lecture v2 re-schedules).
+//
 // 6. PRACTICE, GATES, TRANSCRIPT, WORKSHOP, METHOD, LIBRARY (T-064 stage 6b). Practice: repsDue, practiceDefault,
 //    clockLabel, recDay and the four rep forms' handler are lifted out of app.js's own text (vm) and run over 15 states
 //    and 36 form entries; the rendered #/practice page gives the week's dots, the open tab and the logged lists.
@@ -96,7 +101,7 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor"];
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog"];
 const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
@@ -1416,6 +1421,10 @@ function diff(a, b, at, out, label) {
     "monk-day-unstarted": ["lib/engine/engine.dart", "    if (from == null) return null;\n    final n = daysBetween(from, iso) + 1;", "    final n = daysBetween(from ?? '2026-11-01', iso) + 1;"],   // monkDay answers a day number with no start
     // T-066: the Publish track anchors on speechSlot(today) again, which is -1 on a Friday and a Saturday
     "publish-anchor": ["lib/engine/engine.dart", "final sToday = speechAnchor();", "final sToday = speechSlot(todayISO());"],
+    // T-067: Plan v2. The Dart AI / Python budget one effort-minute over app.js's (every v2 day re-packs), and
+    // the Dart backlog owing a v1 lecture that v2 schedules again.
+    "plan-v2-budget": ["lib/engine/engine.dart", "static const int V2_MATH = 90, V2_AI = 60;", "static const int V2_MATH = 90, V2_AI = 61;"],
+    "plan-v2-backlog": ["lib/engine/engine.dart", "if (!schedDone(it) && !v2Rescheduled(iso, it.key)) owed.add(it.key);", "if (!schedDone(it)) owed.add(it.key);"],
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {

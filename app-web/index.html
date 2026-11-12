@@ -69,7 +69,7 @@
      fonts) and finished <script> loads (main.dart.js) from the resource timing
      entries. The total is the build's own sum, written in by tools/build-app.sh. */
   (function () {
-    var TOTAL = +"12640290" || 0, LIMIT = 25000, t0 = Date.now();
+    var TOTAL = +"12706764" || 0, LIMIT = 25000, t0 = Date.now();
     var streamed = 0, scripts = {}, booted = false, failed = false, errs = [], origFetch = window.fetch;
     function $(id) { return document.getElementById(id); }
     function got() { var n = streamed; for (var k in scripts) n += scripts[k]; return n; }

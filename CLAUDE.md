@@ -174,6 +174,28 @@ Consequences that must hold, because each one is a way the platform could quietl
 If the rest day ever changes, change `REST_DOW` and nothing else — every other behaviour is
 derived from it.
 
+## Plan v2 (T-067, from Sunday 22 November 2026)
+
+Not a reset: `START_DATE`, day 1094, the gates, sealed days, the streak and watched lectures did not move.
+
+- **The cutover.** `scheduledFor(iso)` runs the v1 path for every date before `PLAN_V2_FROM`
+  (`2026-11-22`) and `planV2()` from it on (`platform/js/app.js`, ported 1:1 in
+  `app/lib/engine/engine.dart`). Past days keep their v1 lists; a v1 lecture that v2 schedules again
+  later is not owed on its v1 day (`backlogCount`, `firstOwed`), and that day still turns green once
+  it is watched.
+- **The map.** `platform/data/prerequisites.js` (`DAR.PREREQ[lessonKey] = { needs, level }`). A lecture
+  is scheduled only after everything it needs. Budgets: Math & Physics 90, AI / Python 60 (150 once the
+  math line ends), Storytelling 40 unchanged; Fridays carry the no-code talks, then the Missing Semester.
+  The algorithm is `tools/plan-dates.js`'s simulation; `verify-logic` holds the app equal to it day by day.
+- **Keys are append-only.** New courses and units go at the end; `data/curriculum-ledger.json` pins every
+  lesson key (SPCH 100 has its own ledger) and `verify-content` fails if one moves. The second pass
+  (`ai200.3.*`) re-uses the first pass's video, summary and quiz through `alias`.
+- **Optional.** A lesson with `optional: true`, or with no video, reading or paper (`math150.0.17`), is
+  never scheduled, stays watchable, counts if watched, and never locks the lecture after it.
+- **Where the plan lives:** `loop/specs/T-067-plan-v2/` (`plan.md`, `plan-data.js`, `prerequisites.json`,
+  `sequence.md`, `dates.md`). Change the map there, regenerate with `node tools/plan-dates.js`, then copy
+  it into `prerequisites.js`; the content gate fails while the two differ.
+
 ## The streak, and what resetting it may touch
 
 The streak is **derived**, never stored. `streak()` walks back from today over `S.studyDays`,

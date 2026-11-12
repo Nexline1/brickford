@@ -20,7 +20,7 @@
 - **Papers wait for the lecture that teaches their idea** (Attention for Build GPT, Chinchilla for CS336's scaling laws, LoRA for the SVD and fine-tuning, DDPM for variational methods and the multivariate normal).
 
 <!-- BEGIN GENERATED -->
-685 lectures (494 real, 191 provisional), 741 edges. Checks: every needed key exists; no core lecture needs an optional or duplicate one. Cycle check: `node tools/audit-lectures.js --check-prereqs`.
+683 lectures (494 real, 189 provisional), 739 edges. Checks: every needed key exists; no core lecture needs an optional or duplicate one. Cycle check: `node tools/audit-lectures.js --check-prereqs`.
 
 ### Every cross-course edge
 
@@ -31,8 +31,8 @@
 | math130.0.11 Discrete vs. Continuous, the Uniform | math120.1.15 Definite Integrals |
 | math130.0.12 Normal distribution | math120.1.22 Exam 3 Review |
 | math130.0.16 Moment Generating Functions | math120.1.33 Taylor's Series |
-| math130.0.18 Joint, Conditional, and Marginal Distributions | math140.0.15 Lecture 16 — Double integrals |
-| math130.0.21 Transformations and Convolutions | math140.0.17 Lecture 18 — Change of variables |
+| math130.0.18 Joint, Conditional, and Marginal Distributions | math140.0.15 Lec 16: Double integrals |
+| math130.0.21 Transformations and Convolutions | math140.0.17 Lec 18: Change of variables |
 | math130.0.29 Chi-Square, Student-t, Multivariate Normal | math110.1.25 Symmetric Matrices and Positive Definiteness |
 | ai200.1.6 Let's build GPT — from scratch, in code | cs100.2.2 Attention in transformers, step by step (Deep Learning ch. 6); math110.0.8 Dot products and duality |
 | ai200.1.7 Let's build the GPT Tokenizer | cs100.0.7 Lecture 7 — Regular Expressions; cs100.0.6 Lecture 6 — File I/O |
@@ -48,8 +48,8 @@
 | phys100.0.19 Rotating Rigid Bodies, Inertia, and Axis Theorems | math120.1.19 Volumes |
 | phys100.0.20 Angular Momentum | math110.0.10 Cross products in the light of linear transformations |
 | phys100.0.22 Kepler's Laws, Elliptical Orbits, and Maneuvers | math120.1.29 Exam 4 Review |
-| math210.0.0 Lecture 1 Part 1: Introduction and Motivation | math110.1.34 Final Course Review; math120.1.34 Final Review; math140.0.11 Lecture 12 — Gradient; directional derivative; tangent plane |
-| math210.0.2 Lecture 2 Part 1: Derivatives in Higher Dimensions: Jacobians and Matrix Functions | math140.0.10 Lecture 11 — Differentials; chain rule |
+| math210.0.0 Lecture 1 Part 1: Introduction and Motivation | math110.1.34 Final Course Review; math120.1.34 Final Review; math140.0.11 Lec 12: Gradient; directional derivative; tangent plane |
+| math210.0.2 Lecture 2 Part 1: Derivatives in Higher Dimensions: Jacobians and Matrix Functions | math140.0.10 Lec 11: Differentials; chain rule |
 | math210.1.0 Loss functions and optimization (CS231n Lecture 3) | ai200.3.0 Micrograd — spelled-out intro to neural networks and backpropagation (second pass, typing along) |
 | math210.2.0 Introduction to Information Theory | math130.0.8 Expectation, Indicator Random Variables, Linearity |
 | math210.2.2 Entropy and Data Compression (II): Shannon's Source Coding Theorem, The Bent Coin Lottery | math130.0.28 Law of Large Numbers and Central Limit Theorem |
@@ -73,7 +73,7 @@
 | ai310.0.4 Lecture 5: GPUs | sys250.1.3 Compute and Memory Basics |
 | ai310.0.5 Lecture 6: Kernels, Triton | sys250.1.8 Practitioners Guide to Triton |
 | ai310.0.16 Lecture 17: Alignment - RL 2 | res400.0.6 Policy Gradient Methods |
-| ai310.1.0 The Hugging Face LLM course — pipeline fundamentals | math160.0.23 MIT 18.650, full course — lecture 24 |
+| ai310.1.0 The Hugging Face LLM course — pipeline fundamentals | math160.0.21 24. Generalized Linear Models (cont.) |
 | res400.0.0 Introduction to Reinforcement Learning | math130.0.32 Markov Chains Continued Further; math130.0.26 Conditional Expectation given an R.V. |
 | res400.0.6 Policy Gradient Methods | math210.0.6 Lecture 4 Part 1: Gradients and Inner Products in Other Vector Spaces |
 | res400.1.0 A Mathematical Framework for Transformer Circuits | ai200.1.6 Let's build GPT — from scratch, in code; math110.1.29 Singular Value Decomposition |
@@ -83,12 +83,12 @@
 | ai200.3.2 Makemore 2 — MLP, following Bengio et al. 2003 (second pass, typing along) | math130.0.7 Random Variables and Their Distributions |
 | ai200.3.3 Makemore 3 — activations, gradients, BatchNorm (second pass, typing along) | math130.0.13 Location, Scale, and LOTUS |
 | ai200.3.4 Makemore 4 — becoming a backprop ninja (DO NOT SKIP) (second pass, typing along) | math110.1.2 Multiplication and Inverse Matrices; math120.1.3 Chain Rule |
-| cs150.0.0 Lecture 1 — Algorithms and Computation | ai200.1.8 Let's reproduce GPT-2 (124M); cs100.0.9 Lecture 9 — Et Cetera (sets, comprehensions, generators, *args, map) |
-| math140.0.0 Lecture 1 — Dot product | math120.1.34 Final Review; math110.0.10 Cross products in the light of linear transformations |
-| math160.0.0 MIT 18.650, full course — lecture 1 | math130.0.33 A Look Ahead; math140.0.34 Lecture 35 — Final review (cont.) |
-| math150.0.0 MIT 18.03, full course — lecture 1 | math140.0.34 Lecture 35 — Final review (cont.); math110.1.21 Diagonalization and Powers of A |
-| phys300.0.0 Stanford Statistical Mechanics — lecture 1 | math210.2.15 Data Modelling With Neural Networks (II): Content-Addressable Memories And State; phys100.0.33 Ideal-Gas Law; math130.0.28 Law of Large Numbers and Central Limit Theorem; math140.0.12 Lecture 13 — Lagrange multipliers |
-| phys200.0.0 MIT 8.02, full course — lecture 1 | phys100.0.34 Heisenberg's Uncertainty Principle; math140.0.34 Lecture 35 — Final review (cont.) |
+| cs150.0.0 1. Algorithms and Computation | ai200.1.8 Let's reproduce GPT-2 (124M); cs100.0.9 Lecture 9 — Et Cetera (sets, comprehensions, generators, *args, map) |
+| math140.0.0 Lec 1: Dot product | math120.1.34 Final Review; math110.0.10 Cross products in the light of linear transformations |
+| math160.0.0 1. Introduction to Statistics | math130.0.33 A Look Ahead; math140.0.34 Lec 35: Final review (cont.) |
+| math150.0.0 Lec 1 | math140.0.34 Lec 35: Final review (cont.); math110.1.21 Diagonalization and Powers of A |
+| phys300.0.0 Statistical Mechanics Lecture 1 | math210.2.15 Data Modelling With Neural Networks (II): Content-Addressable Memories And State; phys100.0.33 Ideal-Gas Law; math130.0.28 Law of Large Numbers and Central Limit Theorem; math140.0.12 Lec 13: Lagrange multipliers |
+| phys200.0.0 Lec 01: What holds our world together? | phys100.0.34 Heisenberg's Uncertainty Principle; math140.0.34 Lec 35: Final review (cont.) |
 
 ### Non-default edges inside a course
 
@@ -107,5 +107,5 @@
 | cs100.1.0 NumPy for beginners (freeCodeCamp, Keith Galli) | (none: chain removed) |
 | cs100.2.0 Large Language Models explained briefly | (none: chain removed) |
 | ai200.3.0 Micrograd — spelled-out intro to neural networks and backpropagation (second pass, typing along) | ai200.0.3 |
-| cs110.0.0 Lecture 1 — Course overview + the shell | (none: chain removed) |
+| cs110.0.0 Lecture 1: Course Overview + The Shell (2020) | (none: chain removed) |
 <!-- END GENERATED -->

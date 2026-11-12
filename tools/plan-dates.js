@@ -45,7 +45,7 @@ for (const pc of P.PROVISIONAL) {
   pc.units.forEach((u, k) => {
     const ui = pc.unitIndex != null ? pc.unitIndex + k : k;
     let lessons = u.lessons;
-    if (u.alias) lessons = u.alias.map(a => ({ t: byKey[a].t + " (second pass, typing along)", v: byKey[a].v, min: byKey[a].min, check: "same video as " + a + " (in the data)", alias: a }));
+    if (u.alias) lessons = u.alias.map(a => ({ t: byKey[a].t + " (second pass, typing along)", v: byKey[a].v, min: byKey[a].min, check: "verified 12 Nov 2026: same id as " + a + ", in Karpathy's playlist PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ", alias: a }));
     if (u.titles) lessons = u.titles.map((t, i) => ({ t: `Lecture ${i + 1} — ${t}`, v: null, min: u.min, check: u.check }));
     if (u.count) lessons = Array.from({ length: u.count }, (_, i) => ({ t: `${u.name} — lecture ${i + 1}`, v: null, min: u.min, check: u.check }));
     lessons.forEach((l, li) => {

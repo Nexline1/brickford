@@ -34,27 +34,27 @@ Generated from prerequisites.json by tools/plan-dates.js. Cutover 2026-11-22 = s
 | 37 | Fri 2026-11-27 | math110.1.10 Matrix Spaces; Rank 1; Small World Graphs | cs100.2.0† Large Language Models explained briefly | weekly recorded rep |
 | 38 | Sun 2026-11-29 | math120.1.9 Max-min | cs100.0.5† Lecture 5 — Unit Tests (part 1/2) | spch100.4.5 |
 | 39 | Mon 2026-11-30 | math110.1.11 Graphs, Networks, Incidence Matrices | cs100.0.5† Lecture 5 — Unit Tests (part 2/2) | spch100.4.5 |
-| 40 | Tue 2026-12-01 | math120.1.10 Related Rates | cs100.0.6† Lecture 6 — File I/O (part 1/4) | spch100.4.6 |
-| 41 | Wed 2026-12-02 | math110.1.12 Quiz 1 Review | cs100.0.6† Lecture 6 — File I/O (part 2/4) | spch100.4.6 |
-| 42 | Thu 2026-12-03 | math120.1.11 Newton's Method | cs100.0.6† Lecture 6 — File I/O (part 3/4) | spch100.4.7 |
+| 40 | Tue 2026-12-01 | math120.1.10 Related Rates | cs100.0.6† Lecture 6 — File I/O (part 1/3) | spch100.4.6 |
+| 41 | Wed 2026-12-02 | math110.1.12 Quiz 1 Review | cs100.0.6† Lecture 6 — File I/O (part 2/3) | spch100.4.6 |
+| 42 | Thu 2026-12-03 | math120.1.11 Newton's Method | cs100.0.6† Lecture 6 — File I/O (part 3/3) | spch100.4.7 |
 | 43 | Fri 2026-12-04 | math110.1.13 Orthogonal Vectors and Subspaces | cs100.2.1† Transformers, the tech behind LLMs (Deep Learning ch. 5) | weekly recorded rep |
-| 44 | Sun 2026-12-06 | math120.1.12 Mean Value Theorem | cs100.0.6† Lecture 6 — File I/O (part 4/4) | spch100.4.7 |
-| 45 | Mon 2026-12-07 | math110.1.14 Projections onto Subspaces | cs100.0.7† Lecture 7 — Regular Expressions (part 1/4) | spch100.4.7 |
-| 46 | Tue 2026-12-08 | math120.1.13 Antiderivatives | cs100.0.7† Lecture 7 — Regular Expressions (part 2/4) | spch100.4.8 |
-| 47 | Wed 2026-12-09 | math110.1.15 Projection Matrices and Least Squares | cs100.0.7† Lecture 7 — Regular Expressions (part 3/4) | spch100.4.8 |
-| 48 | Thu 2026-12-10 | math120.1.14 Differential Equations | cs100.0.7† Lecture 7 — Regular Expressions (part 4/4) | spch100.4.9 |
+| 44 | Sun 2026-12-06 | math120.1.12 Mean Value Theorem | cs100.0.7† Lecture 7 — Regular Expressions (part 1/4) | spch100.4.7 |
+| 45 | Mon 2026-12-07 | math110.1.14 Projections onto Subspaces | cs100.0.7† Lecture 7 — Regular Expressions (part 2/4) | spch100.4.7 |
+| 46 | Tue 2026-12-08 | math120.1.13 Antiderivatives | cs100.0.7† Lecture 7 — Regular Expressions (part 3/4) | spch100.4.8 |
+| 47 | Wed 2026-12-09 | math110.1.15 Projection Matrices and Least Squares | cs100.0.7† Lecture 7 — Regular Expressions (part 4/4) | spch100.4.8 |
+| 48 | Thu 2026-12-10 | math120.1.14 Differential Equations | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 1/6) | spch100.4.9 |
 | 49 | Fri 2026-12-11 | math110.1.16 Orthogonal Matrices and Gram-Schmidt | cs100.2.2† Attention in transformers, step by step (Deep Learning ch. 6 | weekly recorded rep |
-| 50 | Sun 2026-12-13 | math120.1.15 Definite Integrals | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 1/6) | spch100.4.10 |
-| 51 | Mon 2026-12-14 | math130.0.11 Discrete vs. Continuous, the Uniform | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 2/6) | spch100.4.11 |
-| 52 | Tue 2026-12-15 | math110.1.17 Properties of Determinants | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 3/6) | spch100.4.12 |
-| 53 | Wed 2026-12-16 | math120.1.16 First Fundamental Theorem | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 4/6) | spch100.5.0 |
-| 54 | Thu 2026-12-17 | math110.1.18 Determinant Formulas and Cofactors | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 5/6) | spch100.5.1 |
+| 50 | Sun 2026-12-13 | math120.1.15 Definite Integrals | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 2/6) | spch100.4.10 |
+| 51 | Mon 2026-12-14 | math130.0.11 Discrete vs. Continuous, the Uniform | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 3/6) | spch100.4.11 |
+| 52 | Tue 2026-12-15 | math110.1.17 Properties of Determinants | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 4/6) | spch100.4.12 |
+| 53 | Wed 2026-12-16 | math120.1.16 First Fundamental Theorem | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 5/6) | spch100.5.0 |
+| 54 | Thu 2026-12-17 | math110.1.18 Determinant Formulas and Cofactors | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 6/6) | spch100.5.1 |
 | 55 | Fri 2026-12-18 | math120.1.17 Second Fundamental Theorem | cs100.2.3† How might LLMs store facts (Deep Learning ch. 7) | weekly recorded rep |
-| 56 | Sun 2026-12-20 | phys100.0.0 Introduction + phys100.0.1 Units, Dimensions, and Scaling Arguments | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 6/6) | spch100.5.2 |
-| 57 | Mon 2026-12-21 | math110.1.19 Cramer's Rule, Inverse Matrix, and Volume | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 1/4) | spch100.5.3, spch100.5.4 |
-| 58 | Tue 2026-12-22 | math120.1.18 Applications to Logarithms | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 2/4) | spch100.5.5 |
-| 59 | Wed 2026-12-23 | phys100.0.2 Introduction to Kinematics | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 3/4) | spch100.5.6, spch100.5.7 |
-| 60 | Thu 2026-12-24 | math110.1.20 Eigenvalues and Eigenvectors | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 4/4) | spch100.5.8 |
+| 56 | Sun 2026-12-20 | phys100.0.0 Introduction + phys100.0.1 Units, Dimensions, and Scaling Arguments | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 1/5) | spch100.5.2 |
+| 57 | Mon 2026-12-21 | math110.1.19 Cramer's Rule, Inverse Matrix, and Volume | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 2/5) | spch100.5.3, spch100.5.4 |
+| 58 | Tue 2026-12-22 | math120.1.18 Applications to Logarithms | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 3/5) | spch100.5.5 |
+| 59 | Wed 2026-12-23 | phys100.0.2 Introduction to Kinematics | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 4/5) | spch100.5.6, spch100.5.7 |
+| 60 | Thu 2026-12-24 | math110.1.20 Eigenvalues and Eigenvectors | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 5/5) | spch100.5.8 |
 | 61 | Fri 2026-12-25 | math120.1.19 Volumes | ai200.2.1 Deep dive into LLMs like ChatGPT (part 1/7) | weekly recorded rep |
 | 62 | Sun 2026-12-27 | phys100.0.3 Vectors | cs100.1.0† NumPy for beginners (freeCodeCamp, Keith Galli) (part 1/2) | spch100.5.9 |
 | 63 | Mon 2026-12-28 | math110.1.21 Diagonalization and Powers of A | cs100.1.0† NumPy for beginners (freeCodeCamp, Keith Galli) (part 2/2) | spch100.5.9 |

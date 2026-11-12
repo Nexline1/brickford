@@ -5,7 +5,7 @@
  "oldLast": "2028-06-11",
  "oldLastNoSpch": "2028-06-11",
  "coreLast": "2027-08-27",
- "plusLast": "2028-02-02",
+ "plusLast": "2028-01-31",
  "karpathyDone": "2027-02-24",
  "bridgeDone": "2027-01-04",
  "secondPassStart": "2027-01-05",
@@ -25,7 +25,7 @@
  "plusAdds": {
   "cs110": [
    "2027-02-12",
-   "2027-07-09"
+   "2027-07-16"
   ],
   "cs150": [
    "2027-03-16",
@@ -37,19 +37,19 @@
   ],
   "math160": [
    "2027-07-14",
-   "2027-09-07"
+   "2027-09-01"
   ],
   "math150": [
-   "2027-10-13",
-   "2027-12-27"
+   "2027-10-03",
+   "2027-12-16"
   ],
   "phys300": [
-   "2027-09-08",
-   "2027-10-12"
+   "2027-09-02",
+   "2027-10-01"
   ],
   "phys200": [
-   "2027-10-14",
-   "2027-12-31"
+   "2027-10-04",
+   "2027-12-21"
   ]
  },
  "counts": {
@@ -179,8 +179,8 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 3,
-   "min": 1232,
-   "coreMin": 977,
+   "min": 1242,
+   "coreMin": 999,
    "prov": true,
    "add": false
   },
@@ -190,8 +190,8 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 572,
-   "coreMin": 572,
+   "min": 613,
+   "coreMin": 613,
    "prov": true,
    "add": true
   },
@@ -201,8 +201,8 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 1176,
-   "coreMin": 1176,
+   "min": 1163,
+   "coreMin": 1163,
    "prov": true,
    "add": true
   },
@@ -212,19 +212,19 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 1750,
-   "coreMin": 1750,
+   "min": 1700,
+   "coreMin": 1700,
    "prov": true,
    "add": true
   },
   "math160": {
    "code": "MATH 160",
-   "core": 24,
+   "core": 22,
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 1800,
-   "coreMin": 1800,
+   "min": 1680,
+   "coreMin": 1680,
    "prov": true,
    "add": true
   },
@@ -234,8 +234,8 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 1650,
-   "coreMin": 1650,
+   "min": 1572,
+   "coreMin": 1572,
    "prov": true,
    "add": true
   },
@@ -245,8 +245,8 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 1050,
-   "coreMin": 1050,
+   "min": 1022,
+   "coreMin": 1022,
    "prov": true,
    "add": true
   },
@@ -256,8 +256,8 @@
    "optional": 0,
    "duplicate": 0,
    "skipped": 0,
-   "min": 1800,
-   "coreMin": 1800,
+   "min": 1810,
+   "coreMin": 1810,
    "prov": true,
    "add": true
   }

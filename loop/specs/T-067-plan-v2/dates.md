@@ -34,23 +34,23 @@ Computed by tools/plan-dates.js: the OLD dates are read from the real app (sched
 | AI 210 | 2026-11-27 (day 37) | 2026-12-18 (day 55) | 2027-03-28 (day 140) | 2027-04-20 (day 160) |
 | PHYS 100 | 2027-05-17 (day 183) | 2027-11-01 (day 327) | 2027-04-13 (day 154) | 2027-03-26 (day 139) |
 | MATH 210 | 2027-05-17 (day 183) | 2027-06-30 (day 221) | 2027-06-02 (day 197) | 2027-07-13 (day 232) |
-| AI 300 | 2027-05-17 (day 183) | 2028-06-11 (day 518) | 2027-08-11 (day 257) | 2028-01-17 (day 393) |
-| SYS 250 | 2027-07-01 (day 222) | 2027-09-22 (day 293) | 2027-06-23 (day 215) | 2027-10-04 (day 303) |
-| AI 310 | 2027-09-23 (day 294) | 2027-11-15 (day 339) | 2027-08-10 (day 256) | 2028-01-16 (day 392) |
-| RES 400 | 2027-11-16 (day 340) | 2028-01-17 (day 393) | 2027-08-27 (day 271) | 2028-02-02 (day 407) |
+| AI 300 | 2027-05-17 (day 183) | 2028-06-11 (day 518) | 2027-08-11 (day 257) | 2028-01-14 (day 391) |
+| SYS 250 | 2027-07-01 (day 222) | 2027-09-22 (day 293) | 2027-06-23 (day 215) | 2027-10-05 (day 304) |
+| AI 310 | 2027-09-23 (day 294) | 2027-11-15 (day 339) | 2027-08-10 (day 256) | 2028-01-13 (day 390) |
+| RES 400 | 2027-11-16 (day 340) | 2028-01-17 (day 393) | 2027-08-27 (day 271) | 2028-01-31 (day 405) |
 | SPCH 100 | 2026-10-18 (day 2) | 2027-07-04 (day 224) | unchanged: 2027-07-04 (day 224) | unchanged |
 | CS 100 | not scheduled | not scheduled | 2027-01-04 (day 69) | 2027-01-04 (day 69) |
-| CS 110 | not scheduled | not scheduled | — | 2027-07-09 (day 229) |
+| CS 110 | not scheduled | not scheduled | — | 2027-07-16 (day 235) |
 | CS 150 | not scheduled | not scheduled | — | 2027-06-03 (day 198) |
 | MATH 140 | not scheduled | not scheduled | — | 2027-06-14 (day 207) |
-| MATH 160 | not scheduled | not scheduled | — | 2027-09-07 (day 280) |
-| MATH 150 | not scheduled | not scheduled | — | 2027-12-27 (day 375) |
-| PHYS 300 | not scheduled | not scheduled | — | 2027-10-12 (day 310) |
-| PHYS 200 | not scheduled | not scheduled | — | 2027-12-31 (day 379) |
+| MATH 160 | not scheduled | not scheduled | — | 2027-09-01 (day 275) |
+| MATH 150 | not scheduled | not scheduled | — | 2027-12-16 (day 366) |
+| PHYS 300 | not scheduled | not scheduled | — | 2027-10-01 (day 301) |
+| PHYS 200 | not scheduled | not scheduled | — | 2027-12-21 (day 370) |
 
 Old: the last lecture of any kind lands 2028-06-11 (day 518); excluding Storytelling 2028-06-11 (day 518). Never scheduled by the old plan: none.
 New, core only: last lecture 2027-08-27 (day 271); the math foundation (MATH 110/120/130) ends 2027-04-21 (day 161), so Phase-2 work opens then instead of fixed day 183; the Karpathy pass ends 2027-02-24 (day 113); the 16th paper's reimplementation ends 2028-03-24 (day 451).
-New, everything included (core + the seven additions; option A): Zero to Hero done 2027-02-28 (day 116); last lecture 2028-02-02 (day 407); the 16th paper ends 2028-05-29 (day 507).
+New, everything included (core + the seven additions; option A): Zero to Hero done 2027-02-28 (day 116); last lecture 2028-01-31 (day 405); the 16th paper ends 2028-05-29 (day 507).
 Unscheduled leftovers: core none; with additions none.
 
 ### Gates under option A (chosen 12 Nov: unchanged)
@@ -59,11 +59,11 @@ Unscheduled leftovers: core none; with additions none.
 |---|---|---|---:|---|
 | 1 Calibration | Diagnostics done · blog live · first paid client | 2026-12-27 (day 62) | 0 of 16 | CS 110, CS 150, MATH 140, MATH 160, MATH 150, PHYS 300, PHYS 200 |
 | 2 Core skills | GPT from scratch · 150 DSA problems · 20+ posts · 5+ repos | 2027-05-18 (day 184) | 3 of 16 | CS 110, CS 150, MATH 140, MATH 160, MATH 150, PHYS 300, PHYS 200 |
-| 3 Research legs | 6+ paper reimplementations · first merged open-source PR | 2027-12-16 (day 366) | 9 of 16 | MATH 150, PHYS 200 |
+| 3 Research legs | 6+ paper reimplementations · first merged open-source PR | 2027-12-16 (day 366) | 9 of 16 | PHYS 200 |
 | 4 The fork | Fork chosen (researcher / engineer / founder) · portfolio getting replies | 2028-07-16 (day 548) | 16 of 16 | none |
 | 5 Arrival | Employed in a real AI role (Gulf / remote / Germany) or founder with revenue | 2030-04-15 (day 1095) | 16 of 16 | none |
 
-No gate moves: the targets are what the app's gatePlan() gives today (cumulative months × 30.4 study days, walked with dateForStudy), and day 1094 stays 2030-04-14. With everything included the last lecture is 2028-02-02 (day 407) and the 16th paper 2028-05-29 (day 507), both before gate 4 (2028-07-16 (day 548)).
+No gate moves: the targets are what the app's gatePlan() gives today (cumulative months × 30.4 study days, walked with dateForStudy), and day 1094 stays 2030-04-14. With everything included the last lecture is 2028-01-31 (day 405) and the 16th paper 2028-05-29 (day 507), both before gate 4 (2028-07-16 (day 548)).
 
 Paper reimplementations (everything included, 21 study days each in the practice block): 1. ai300.1.0 ends 2027-03-26; 2. ai300.1.1 ends 2027-04-20; 3. ai300.1.2 ends 2027-05-14; 4. ai300.0.0 ends 2027-08-09; 5. ai300.0.1 ends 2027-09-02; 6. ai300.0.2 ends 2027-09-27; 7. ai300.0.3 ends 2027-10-21; 8. ai300.3.0 ends 2027-11-15; 9. ai300.3.1 ends 2027-12-09; 10. ai300.3.2 ends 2028-01-03; 11. ai300.1.3 ends 2028-01-27; 12. ai300.2.0 ends 2028-02-21; 13. ai300.2.1 ends 2028-03-16; 14. ai300.2.2 ends 2028-04-10; 15. ai300.2.3 ends 2028-05-04; 16. ai300.3.3 ends 2028-05-29.
 <!-- END GENERATED -->

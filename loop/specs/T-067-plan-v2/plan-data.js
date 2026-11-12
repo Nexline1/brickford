@@ -140,7 +140,7 @@ const NEEDS = {
   // the seven additions (tutor's decision, 12 Nov)
   "math140.0.0": ["math120.1.34", "math110.0.10"],                       // 18.02 after 18.01
   "math160.0.0": ["math130.0.33", "math140.0.34"],                       // 18.650 after Stat 110 and 18.02
-  "ai310.1.0": ["math160.0.23"],                                         // ... and before AI 310 Unit II
+  "ai310.1.0": ["math160.0.21"],                                         // ... and before AI 310 Unit II
   "math150.0.0": ["math140.0.34", "math110.1.21"],                       // 18.03 after 18.02
   "phys200.0.0": ["phys100.0.34", "math140.0.34"],                       // 8.02 after 8.01 and 18.02
   "phys300.0.0": ["math210.2.15", "phys100.0.33", "math130.0.28", "math140.0.12"],   // straight after MacKay
@@ -158,61 +158,1250 @@ const REPLACE = {
 };
 
 // ---------------- proposed lectures (provisional keys) ----------------
-// v: a YouTube id, with `unverified` when it was not confirmed by any tool in
-// this session. min: approximate where marked.
+// Every video id below was checked on 12 Nov 2026 against YouTube itself (oEmbed for
+// title and channel; the official playlist or a search result for the length). `check`
+// records what was seen. Two ids first proposed from memory were wrong and are corrected.
 const PROVISIONAL = [
-  { course: "cs100", code: "CS 100", title: "Python for ML (bridge)", units: [
-    { name: "Unit I — CS50P 2022 (Harvard, David J. Malan)", lessons: [
-      { t: "Lecture 0 — Functions, Variables", v: "JP7ITIXGpHk", min: 105, check: "title and ~1h45 confirmed by web search; transcript not read" },
-      { t: "Lecture 1 — Conditionals", v: "_b6NgY_pMdw", min: 60, check: "unverified" },
-      { t: "Lecture 2 — Loops", v: "-7xg8pGcP6w", min: 90, check: "unverified" },
-      { t: "Lecture 3 — Exceptions", v: "LW7g1169dDI", min: 56, check: "unverified" },
-      { t: "Lecture 4 — Libraries", v: "u51Zjlnui4Y", min: 80, check: "unverified" },
-      { t: "Lecture 5 — Unit Tests", v: "tIrcxwLqzjQ", min: 55, check: "unverified" },
-      { t: "Lecture 6 — File I/O", v: "KD-Yoel6EVQ", min: 107, check: "unverified" },
-      { t: "Lecture 7 — Regular Expressions", v: "hy3sd9MOAcc", min: 120, check: "unverified" },
-      { t: "Lecture 8 — Object-Oriented Programming", v: "e4fwY9ZsxPw", min: 167, check: "title and 2h47 confirmed by web search; id not confirmed" },
-      { t: "Lecture 9 — Et Cetera (sets, comprehensions, generators, *args, map)", v: "6pgodt1mezg", min: 100, check: "unverified" },
-    ] },
-    { name: "Unit II — Arrays and tensors", lessons: [
-      { t: "NumPy for beginners (freeCodeCamp, Keith Galli)", v: "QUT1VHiLmmI", min: 58, check: "unverified" },
-      { t: "PyTorch fundamentals: tensors, shapes, indexing, matmul, broadcasting (Learn PyTorch for Deep Learning, chapter 00, Daniel Bourke)", v: "V_xro1bcAuA", min: 150, check: "unverified; a 150-minute slice of a 25-hour video — timestamps to be fixed from the transcript" },
-    ] },
-    { name: "Unit III — No-code AI (3Blue1Brown)", lessons: [
-      { t: "Large Language Models explained briefly", v: "LPZh9BOjkQs", min: 8, check: "unverified" },
-      { t: "Transformers, the tech behind LLMs (Deep Learning ch. 5)", v: "wjZofJX0v4M", min: 27, check: "title and ~27 min confirmed by web search; id not confirmed" },
-      { t: "Attention in transformers, step by step (Deep Learning ch. 6)", v: "eMlx5fFNoYc", min: 26, check: "title and ~26 min confirmed by web search; id not confirmed" },
-      { t: "How might LLMs store facts (Deep Learning ch. 7)", v: "9-Jl0dxWQs8", min: 23, check: "unverified" },
-    ] },
-  ] },
-  { course: "ai200", unitIndex: 3, units: [
-    { name: "Unit IV — Second pass: type along", alias: ["ai200.1.0", "ai200.1.1", "ai200.1.2", "ai200.1.3", "ai200.1.4"] },
-  ] },
-  // The seven additions (tutor's decision, 12 Nov), in priority order. Lecture lists,
-  // counts and lengths are from the courses' published listings as remembered; NOTHING
-  // here was confirmed in this session (no transcript tool, no youtube.com). Playlist
-  // ids are candidates to check, not facts.
-  { course: "cs110", code: "CS 110", title: "The Missing Semester of Your CS Education — MIT (2020)", addition: 1,
-    playlist: "PLyzOVJj3bHQuloKGG59rS43e29ro7I57J (unverified)",
-    units: [{ name: "Missing Semester 2020", min: 52, check: "unverified", titles: ["Course overview + the shell", "Shell tools and scripting", "Editors (Vim)", "Data wrangling", "Command-line environment", "Version control (Git)", "Debugging and profiling", "Metaprogramming", "Security and cryptography", "Potpourri", "Q&A"] }] },
-  { course: "cs150", code: "CS 150", title: "Introduction to Algorithms — MIT 6.006 (Spring 2020)", addition: 2,
-    playlist: "PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY (unverified)",
-    units: [{ name: "MIT 6.006 Spring 2020 (lectures)", min: 56, check: "unverified", titles: ["Algorithms and Computation", "Data Structures and Dynamic Arrays", "Sets and Sorting", "Hashing", "Linear Sorting", "Binary Trees, Part 1", "Binary Trees, Part 2: AVL", "Binary Heaps", "Breadth-First Search", "Depth-First Search", "Weighted Shortest Paths", "Bellman-Ford", "Dijkstra", "All-Pairs Shortest Paths and Johnson", "Dynamic Programming 1: SRT BOT, Fibonacci", "Dynamic Programming 2: LCS, LIS, Coins", "Dynamic Programming 3: APSP, Parens, Piano", "Dynamic Programming 4: Rods, Subset Sum, Pseudopolynomial", "Complexity", "Course Review", "Algorithms — Next Steps"] }] },
-  { course: "math140", code: "MATH 140", title: "Multivariable Calculus — MIT 18.02 (Denis Auroux, Fall 2007)", addition: 3,
-    playlist: "PL4C4C8A7D06566F38 (unverified)",
-    units: [{ name: "MIT 18.02, full course", min: 50, check: "unverified", titles: ["Dot product", "Determinants; cross product", "Matrices; inverse matrices", "Square systems; equations of planes", "Parametric equations for lines and curves", "Velocity, acceleration; Kepler's second law", "Review", "Partial derivatives", "Max-min problems; least squares", "Second derivative test; boundaries and infinity", "Differentials; chain rule", "Gradient; directional derivative; tangent plane", "Lagrange multipliers", "Non-independent variables", "Partial differential equations; review", "Double integrals", "Double integrals in polar coordinates; applications", "Change of variables", "Vector fields and line integrals in the plane", "Path independence and conservative fields", "Gradient fields and potential functions", "Green's theorem", "Flux; normal form of Green's theorem", "Simply connected regions; review", "Triple integrals in rectangular and cylindrical coordinates", "Spherical coordinates; surface area", "Vector fields in 3D; surface integrals and flux", "Divergence theorem", "Divergence theorem (cont.): applications and proof", "Line integrals in space, curl, exactness and potentials", "Stokes' theorem", "Stokes' theorem (cont.); review", "Maxwell's equations", "Final review", "Final review (cont.)"] }] },
-  { course: "math160", code: "MATH 160", title: "Statistics for Applications — MIT 18.650 (Philippe Rigollet, Fall 2016)", addition: 4,
-    playlist: "PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0 (unverified)",
-    units: [{ name: "MIT 18.650, full course", count: 24, min: 75, check: "count, length and titles unverified" }] },
-  { course: "math150", code: "MATH 150", title: "Differential Equations — MIT 18.03 (Arthur Mattuck, Spring 2006)", addition: 5,
-    playlist: "PLEC88901EBADDD980 (unverified)",
-    units: [{ name: "MIT 18.03, full course", count: 33, min: 50, check: "count and length unverified; the Laplace-transform lectures (about 19–22) are the first trim if behind" }] },
-  { course: "phys300", code: "PHYS 300", title: "Statistical Mechanics — Stanford (Leonard Susskind, 2013)", addition: 6,
-    playlist: "(not identified; unverified)",
-    units: [{ name: "Stanford Statistical Mechanics", count: 10, min: 105, check: "count and length unverified" }] },
-  { course: "phys200", code: "PHYS 200", title: "Electricity and Magnetism — MIT 8.02 (Walter Lewin, Spring 2002)", addition: 7,
-    playlist: "(not identified; unverified)",
-    units: [{ name: "MIT 8.02, full course", count: 36, min: 50, check: "count and length unverified" }] },
+ {
+  "course": "cs100",
+  "code": "CS 100",
+  "title": "Python for ML (bridge)",
+  "units": [
+   {
+    "name": "Unit I — CS50P 2022 (Harvard, David J. Malan)",
+    "lessons": [
+     {
+      "t": "Lecture 0 — Functions, Variables",
+      "v": "JP7ITIXGpHk",
+      "min": 106,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 0 - Functions, Variables\", CS50, 1:45:38"
+     },
+     {
+      "t": "Lecture 1 — Conditionals",
+      "v": "_b6NgY_pMdw",
+      "min": 56,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 1 - Conditionals\", CS50, 56:08"
+     },
+     {
+      "t": "Lecture 2 — Loops",
+      "v": "-7xg8pGcP6w",
+      "min": 81,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 2 - Loops\", CS50, 1:20:47"
+     },
+     {
+      "t": "Lecture 3 — Exceptions",
+      "v": "LW7g1169v7w",
+      "min": 45,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 3 - Exceptions\", CS50, 44:36 (CORRECTED: the id first proposed, LW7g1169dDI, was wrong)"
+     },
+     {
+      "t": "Lecture 4 — Libraries",
+      "v": "MztLZWibctI",
+      "min": 77,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 4 - Libraries\", CS50, 1:17:29 (CORRECTED: the id first proposed, u51Zjlnui4Y, was wrong)"
+     },
+     {
+      "t": "Lecture 5 — Unit Tests",
+      "v": "tIrcxwLqzjQ",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 5 - Unit Tests\", CS50, 50:54"
+     },
+     {
+      "t": "Lecture 6 — File I/O",
+      "v": "KD-Yoel6EVQ",
+      "min": 92,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 6 - File I/O\", CS50, 1:32:25"
+     },
+     {
+      "t": "Lecture 7 — Regular Expressions",
+      "v": "hy3sd9MOAcc",
+      "min": 125,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 7 - Regular Expressions\", CS50, 2:05:00"
+     },
+     {
+      "t": "Lecture 8 — Object-Oriented Programming",
+      "v": "e4fwY9ZsxPw",
+      "min": 168,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 8 - Object-Oriented Programming\", CS50, 2:47:42"
+     },
+     {
+      "t": "Lecture 9 — Et Cetera (sets, comprehensions, generators, *args, map)",
+      "v": "6pgodt1mezg",
+      "min": 149,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"CS50P - Lecture 9 - Et Cetera\", CS50, 2:29:04"
+     }
+    ]
+   },
+   {
+    "name": "Unit II — Arrays and tensors",
+    "lessons": [
+     {
+      "t": "NumPy for beginners (freeCodeCamp, Keith Galli)",
+      "v": "QUT1VHiLmmI",
+      "min": 58,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"Python NumPy Tutorial for Beginners\", freeCodeCamp.org, 58:10"
+     },
+     {
+      "t": "PyTorch fundamentals: tensors, shapes, indexing, matmul, broadcasting (Learn PyTorch for Deep Learning, chapter 00, Daniel Bourke)",
+      "v": "V_xro1bcAuA",
+      "min": 150,
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"PyTorch for Deep Learning & Machine Learning – Full Course\", freeCodeCamp.org, 25:37:26 in all; the 150-minute chapter-00 slice and its start/stop timestamps are NOT verified (the watch page, which carries the chapter list, is behind YouTube's bot check)"
+     }
+    ]
+   },
+   {
+    "name": "Unit III — No-code AI (3Blue1Brown)",
+    "lessons": [
+     {
+      "t": "Large Language Models explained briefly",
+      "v": "LPZh9BOjkQs",
+      "min": 8,
+      "check": "verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 7:58"
+     },
+     {
+      "t": "Transformers, the tech behind LLMs (Deep Learning ch. 5)",
+      "v": "wjZofJX0v4M",
+      "min": 27,
+      "check": "verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 27:14"
+     },
+     {
+      "t": "Attention in transformers, step by step (Deep Learning ch. 6)",
+      "v": "eMlx5fFNoYc",
+      "min": 26,
+      "check": "verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 26:10"
+     },
+     {
+      "t": "How might LLMs store facts (Deep Learning ch. 7)",
+      "v": "9-Jl0dxWQs8",
+      "min": 23,
+      "check": "verified 12 Nov 2026 in 3Blue1Brown's playlist PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi, 22:43"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "ai200",
+  "unitIndex": 3,
+  "units": [
+   {
+    "name": "Unit IV — Second pass: type along",
+    "alias": [
+     "ai200.1.0",
+     "ai200.1.1",
+     "ai200.1.2",
+     "ai200.1.3",
+     "ai200.1.4"
+    ]
+   }
+  ]
+ },
+ {
+  "course": "cs110",
+  "code": "CS 110",
+  "title": "The Missing Semester of Your CS Education — MIT (IAP 2020)",
+  "addition": 1,
+  "playlist": "PLyzOVJj3bHQuloKGG59rS43e29ro7I57J",
+  "units": [
+   {
+    "name": "Missing Semester IAP 2020",
+    "lessons": [
+     {
+      "t": "Lecture 1: Course Overview + The Shell (2020)",
+      "v": "Z56Jmr9Z34Q",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 1: Course Overview + The Shell (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 48:17"
+     },
+     {
+      "t": "Lecture 2: Shell Tools and Scripting (2020)",
+      "v": "kgII-YWo3Zw",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 2: Shell Tools and Scripting (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 48:56"
+     },
+     {
+      "t": "Lecture 3: Editors (Vim) (2020)",
+      "v": "a6Q8Na575qc",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 3: Editors (Vim) (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 48:27"
+     },
+     {
+      "t": "Lecture 4: Data Wrangling (2020)",
+      "v": "sz_dsktIjt4",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 4: Data Wrangling (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 50:04"
+     },
+     {
+      "t": "Lecture 5: Command-line Environment (2020)",
+      "v": "e8BO_dYxk5c",
+      "min": 56,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 5: Command-line Environment (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 56:07"
+     },
+     {
+      "t": "Lecture 6: Version Control (git) (2020)",
+      "v": "2sjqTHE0zok",
+      "min": 85,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 6: Version Control (git) (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 1:25:00"
+     },
+     {
+      "t": "Lecture 7: Debugging and Profiling (2020)",
+      "v": "l812pUnKxME",
+      "min": 54,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 7: Debugging and Profiling (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 54:14"
+     },
+     {
+      "t": "Lecture 8: Metaprogramming (2020)",
+      "v": "_Ms1Z4xfqv4",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 8: Metaprogramming (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 49:53"
+     },
+     {
+      "t": "Lecture 9: Security and Cryptography (2020)",
+      "v": "tjwobAmnKTo",
+      "min": 61,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 9: Security and Cryptography (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 1:01:00"
+     },
+     {
+      "t": "Lecture 10: Potpourri (2020)",
+      "v": "JZDt-PRq0uo",
+      "min": 58,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 10: Potpourri (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 57:55"
+     },
+     {
+      "t": "Lecture 11: Q&A (2020)",
+      "v": "Wz50FvGG6xU",
+      "min": 54,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lecture 11: Q&A (2020)\", Missing Semester (MIT), playlist PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, 53:53"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "cs150",
+  "code": "CS 150",
+  "title": "Introduction to Algorithms — MIT 6.006 (Spring 2020)",
+  "addition": 2,
+  "playlist": "PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY",
+  "units": [
+   {
+    "name": "MIT 6.006 Spring 2020 — the 21 lectures (problem sessions and quiz reviews left out)",
+    "lessons": [
+     {
+      "t": "1. Algorithms and Computation",
+      "v": "ZA-tUyM_y7s",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"1. Algorithms and Computation\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 45:39"
+     },
+     {
+      "t": "2. Data Structures and Dynamic Arrays",
+      "v": "CHhwJjR0mZA",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"2. Data Structures and Dynamic Arrays\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 50:18"
+     },
+     {
+      "t": "3. Sets and Sorting",
+      "v": "oS9aPzUNG-s",
+      "min": 53,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"3. Sets and Sorting\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:56"
+     },
+     {
+      "t": "4. Hashing",
+      "v": "Nu8YGneFCWE",
+      "min": 53,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"4. Hashing\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:55"
+     },
+     {
+      "t": "5. Linear Sorting",
+      "v": "yndgIDO0zQQ",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"5. Linear Sorting\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 51:57"
+     },
+     {
+      "t": "6. Binary Trees, Part 1",
+      "v": "76dhtgZt38A",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"6. Binary Trees, Part 1\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 50:59"
+     },
+     {
+      "t": "7. Binary Trees, Part 2: AVL",
+      "v": "U1JYwHcFfso",
+      "min": 54,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"7. Binary Trees, Part 2: AVL\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 54:09"
+     },
+     {
+      "t": "8. Binary Heaps",
+      "v": "Xnpo1atN-Iw",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"8. Binary Heaps\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 50:52"
+     },
+     {
+      "t": "9. Breadth-First Search",
+      "v": "oFVYVzlvk9c",
+      "min": 53,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"9. Breadth-First Search\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:53"
+     },
+     {
+      "t": "10. Depth-First Search",
+      "v": "IBfWDYSffUU",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"10. Depth-First Search\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 52:23"
+     },
+     {
+      "t": "11. Weighted Shortest Paths",
+      "v": "5cF5Bgv59Sc",
+      "min": 58,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"11. Weighted Shortest Paths\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:33"
+     },
+     {
+      "t": "12. Bellman-Ford",
+      "v": "f9cVS_URPc0",
+      "min": 58,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"12. Bellman-Ford\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:40"
+     },
+     {
+      "t": "13. Dijkstra",
+      "v": "NSHizBK9JD8",
+      "min": 57,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"13. Dijkstra\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:22"
+     },
+     {
+      "t": "14. APSP and Johnson",
+      "v": "EmSmaW-ud6A",
+      "min": 57,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"14. APSP and Johnson\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 56:53"
+     },
+     {
+      "t": "15. Dynamic Programming, Part 1: SRTBOT, Fib, DAGs, Bowling",
+      "v": "r4-cftqTcdI",
+      "min": 57,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"15. Dynamic Programming, Part 1: SRTBOT, Fib, DAGs, Bowling\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 57:18"
+     },
+     {
+      "t": "16. Dynamic Programming, Part 2: LCS, LIS, Coins",
+      "v": "KLBCUx1is2c",
+      "min": 59,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"16. Dynamic Programming, Part 2: LCS, LIS, Coins\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 58:44"
+     },
+     {
+      "t": "17. Dynamic Programming, Part 3: APSP, Parens, Piano",
+      "v": "TDo3r5M1LNo",
+      "min": 64,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"17. Dynamic Programming, Part 3: APSP, Parens, Piano\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 1:03:45"
+     },
+     {
+      "t": "18. Dynamic Programming, Part 4: Rods, Subset Sum, Pseudopolynomial",
+      "v": "i9OAOk0CUQE",
+      "min": 64,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"18. Dynamic Programming, Part 4: Rods, Subset Sum, Pseudopolynomial\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 1:03:45"
+     },
+     {
+      "t": "19. Complexity",
+      "v": "JbafQJx1CIA",
+      "min": 59,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"19. Complexity\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 59:09"
+     },
+     {
+      "t": "20. Course Review",
+      "v": "2NMtS1ecb3o",
+      "min": 56,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"20. Course Review\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 55:35"
+     },
+     {
+      "t": "21. Algorithms—Next Steps",
+      "v": "4nXw-f6NJ9s",
+      "min": 59,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"21. Algorithms—Next Steps\", MIT OpenCourseWare, playlist PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY, 59:26"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "math140",
+  "code": "MATH 140",
+  "title": "Multivariable Calculus — MIT 18.02 (Denis Auroux, Fall 2007)",
+  "addition": 3,
+  "playlist": "PL4C4C8A7D06566F38",
+  "units": [
+   {
+    "name": "MIT 18.02, full course",
+    "lessons": [
+     {
+      "t": "Lec 1: Dot product",
+      "v": "PxCxlsl_YwY",
+      "min": 39,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 1: Dot product | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 38:41"
+     },
+     {
+      "t": "Lec 2: Determinants; cross product",
+      "v": "9FLItlbBUPY",
+      "min": 53,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 2: Determinants; cross product | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 52:51"
+     },
+     {
+      "t": "Lec 3: Matrices; inverse matrices",
+      "v": "bHdzkFrgRcA",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 3: Matrices; inverse matrices | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:05"
+     },
+     {
+      "t": "Lec 4: Square systems; equations of planes",
+      "v": "YBajUR3EFSM",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 4: Square systems; equations of planes | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:02"
+     },
+     {
+      "t": "Lec 5: Parametric equations for lines and curves",
+      "v": "57jzPlxf4fk",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 5: Parametric equations for lines and curves | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:50"
+     },
+     {
+      "t": "Lec 6: Velocity, acceleration; Kepler's second law",
+      "v": "0D4BbCa4gHo",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 6: Velocity, acceleration; Kepler's second law | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:04"
+     },
+     {
+      "t": "Lec 7: Review",
+      "v": "U1EcnfTKXJ0",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 7: Review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:50"
+     },
+     {
+      "t": "Lec 8: Level curves; partial derivatives; tangent plane",
+      "v": "dK3NEf13nPc",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 8: Level curves; partial derivatives; tangent plane | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 46:13"
+     },
+     {
+      "t": "Lec 9: Max-min problems; least squares",
+      "v": "UYe98CcxPbs",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 9: Max-min problems; least squares | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:44"
+     },
+     {
+      "t": "Lec 10: Second derivative test; boundaries & infinity",
+      "v": "3_goGnJm5sA",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 10: Second derivative test; boundaries & infinity | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 52:18"
+     },
+     {
+      "t": "Lec 11: Differentials; chain rule",
+      "v": "7eZVshlT33Q",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 11: Differentials; chain rule | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:09"
+     },
+     {
+      "t": "Lec 12: Gradient; directional derivative; tangent plane",
+      "v": "2XraaWefBd8",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 12: Gradient; directional derivative; tangent plane | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:10"
+     },
+     {
+      "t": "Lec 13: Lagrange multipliers",
+      "v": "15HVevXRsBA",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 13: Lagrange multipliers | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:10"
+     },
+     {
+      "t": "Lec 14: Non-independent variables",
+      "v": "23xbkrpQuAo",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 14: Non-independent variables | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:11"
+     },
+     {
+      "t": "Lec 15: Partial differential equations; review",
+      "v": "ChiM2-MV-qM",
+      "min": 45,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 15: Partial differential equations; review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 45:23"
+     },
+     {
+      "t": "Lec 16: Double integrals",
+      "v": "YP_B0AapU0c",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 16: Double integrals | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:00"
+     },
+     {
+      "t": "Lec 17: Double integrals in polar coords; applications",
+      "v": "60e4hdCi1D4",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 17: Double integrals in polar coords; applications | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:30"
+     },
+     {
+      "t": "Lec 18: Change of variables",
+      "v": "UZb9hZIAvL4",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 18: Change of variables | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:55"
+     },
+     {
+      "t": "Lec 19: Vector fields and line integrals in the plane",
+      "v": "xrypSZU8cBE",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 19: Vector fields and line integrals in the plane | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:09"
+     },
+     {
+      "t": "Lec 20: Path independence and conservative fields",
+      "v": "o7UCBjGsRTE",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 20: Path independence and conservative fields | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:23"
+     },
+     {
+      "t": "Lec 21: Gradient fields and potential functions",
+      "v": "z5TPjZrsp2k",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 21: Gradient fields and potential functions | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:11"
+     },
+     {
+      "t": "Lec 22: Green's theorem",
+      "v": "tYdoS0tkAHA",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 22: Green's theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 46:45"
+     },
+     {
+      "t": "Lec 23: Flux; normal form of Green's theorem",
+      "v": "_CdoRiNSrqI",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 23: Flux; normal form of Green's theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:13"
+     },
+     {
+      "t": "Lec 24: Simply connected regions; review",
+      "v": "PnPIqh7Frlw",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 24: Simply connected regions; review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:00"
+     },
+     {
+      "t": "Lec 25: Triple integrals in rectangular & cylindrical",
+      "v": "44R5HgbrUmc",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 25: Triple integrals in rectangular & cylindrical | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:42"
+     },
+     {
+      "t": "Lec 26: Spherical coordinates; surface area",
+      "v": "RMBGQtwkoyU",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 26: Spherical coordinates; surface area | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 51:05"
+     },
+     {
+      "t": "Lec 27: Vector fields in 3D; surface integrals & flux",
+      "v": "phk05iSMezA",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 27: Vector fields in 3D; surface integrals & flux | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:34"
+     },
+     {
+      "t": "Lec 28: Divergence theorem",
+      "v": "WfEQabCGAqI",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 28: Divergence theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:16"
+     },
+     {
+      "t": "Lec 29: Divergence theorem (cont.): applications & proof",
+      "v": "wu8kXZSAp20",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 29: Divergence theorem (cont.): applications & proof | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:13"
+     },
+     {
+      "t": "Lec 30: Line integrals in space, curl, exactness...",
+      "v": "seO7-TwXH_I",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 30: Line integrals in space, curl, exactness... | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 49:42"
+     },
+     {
+      "t": "Lec 31: Stokes' theorem",
+      "v": "tzoYhe3H5dM",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 31: Stokes' theorem | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:21"
+     },
+     {
+      "t": "Lec 32: Stokes' theorem (cont.); review",
+      "v": "sr7kCpzAuYw",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 32: Stokes' theorem (cont.); review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 50:09"
+     },
+     {
+      "t": "Lec 33: Topological considerations; Maxwell's equations",
+      "v": "BChhAS1sFvA",
+      "min": 29,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 33: Topological considerations; Maxwell's equations | MIT 18.02 Multivariable Calculus, Fall 07\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 28:39"
+     },
+     {
+      "t": "Lec 34: Final review",
+      "v": "ZwpwmGP5ITM",
+      "min": 44,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 34: Final review | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 43:54"
+     },
+     {
+      "t": "Lec 35: Final review (cont.)",
+      "v": "24v9onS9Kcg",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 35: Final review (cont.) | MIT 18.02 Multivariable Calculus, Fall 2007\", MIT OpenCourseWare, playlist PL4C4C8A7D06566F38, 48:52"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "math160",
+  "code": "MATH 160",
+  "title": "Statistics for Applications — MIT 18.650 (Philippe Rigollet, Fall 2016)",
+  "addition": 4,
+  "playlist": "PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0",
+  "units": [
+   {
+    "name": "MIT 18.650 — 22 lectures (lectures 10 and 16 were never published)",
+    "lessons": [
+     {
+      "t": "1. Introduction to Statistics",
+      "v": "VPZD_aij8H0",
+      "min": 78,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"1. Introduction to Statistics\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:03"
+     },
+     {
+      "t": "2. Introduction to Statistics (cont.)",
+      "v": "C_W1adH-NVE",
+      "min": 77,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"2. Introduction to Statistics (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:09"
+     },
+     {
+      "t": "3. Parametric Inference",
+      "v": "TSkDZbGS94k",
+      "min": 83,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"3. Parametric Inference\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:22:37"
+     },
+     {
+      "t": "4. Parametric Inference (cont.) and Maximum Likelihood Estimation",
+      "v": "rLlZpnT02ZU",
+      "min": 78,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"4. Parametric Inference (cont.) and Maximum Likelihood Estimation\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:57"
+     },
+     {
+      "t": "5. Maximum Likelihood Estimation (cont.)",
+      "v": "0Va2dOLqUfM",
+      "min": 77,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"5. Maximum Likelihood Estimation (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:16:32"
+     },
+     {
+      "t": "6. Maximum Likelihood Estimation (cont.) and the Method of Moments",
+      "v": "JTbZP0yt9qc",
+      "min": 79,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"6. Maximum Likelihood Estimation (cont.) and the Method of Moments\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:19:09"
+     },
+     {
+      "t": "7. Parametric Hypothesis Testing",
+      "v": "phbw9r1iUDI",
+      "min": 79,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"7. Parametric Hypothesis Testing\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:51"
+     },
+     {
+      "t": "8. Parametric Hypothesis Testing (cont.)",
+      "v": "4HRhg4eUiMo",
+      "min": 79,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"8. Parametric Hypothesis Testing (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:33"
+     },
+     {
+      "t": "9. Parametric Hypothesis Testing (cont.)",
+      "v": "QXkOaifVfW4",
+      "min": 81,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"9. Parametric Hypothesis Testing (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:21:22"
+     },
+     {
+      "t": "11. Parametric Hypothesis Testing (cont.) and Testing Goodness of Fit",
+      "v": "a66tfLdr6oY",
+      "min": 83,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"11. Parametric Hypothesis Testing (cont.) and Testing Goodness of Fit\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:22:48"
+     },
+     {
+      "t": "12. Testing Goodness of Fit (cont.)",
+      "v": "vMaKx9fmJHE",
+      "min": 81,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"12. Testing Goodness of Fit (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:21:17"
+     },
+     {
+      "t": "13. Regression",
+      "v": "yP1S37BiEsQ",
+      "min": 76,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"13. Regression\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:16:02"
+     },
+     {
+      "t": "14. Regression (cont.)",
+      "v": "JBIz7UadY5M",
+      "min": 74,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"14. Regression (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:13:59"
+     },
+     {
+      "t": "15. Regression (cont.)",
+      "v": "V4xOdtqic3o",
+      "min": 75,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"15. Regression (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:15:29"
+     },
+     {
+      "t": "17. Bayesian Statistics",
+      "v": "bFZ-0FH5hfs",
+      "min": 78,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"17. Bayesian Statistics\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:05"
+     },
+     {
+      "t": "18. Bayesian Statistics (cont.)",
+      "v": "k2inA31Gups",
+      "min": 63,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"18. Bayesian Statistics (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:03:06"
+     },
+     {
+      "t": "19. Principal Component Analysis",
+      "v": "WW3ZJHPwvyg",
+      "min": 77,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"19. Principal Component Analysis\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:12"
+     },
+     {
+      "t": "20. Principal Component Analysis (cont.)",
+      "v": "a1ZCeFpeW0o",
+      "min": 77,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"20. Principal Component Analysis (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:16:53"
+     },
+     {
+      "t": "21. Generalized Linear Models",
+      "v": "X-ix97pw0xY",
+      "min": 75,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"21. Generalized Linear Models\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:15:14"
+     },
+     {
+      "t": "22. Generalized Linear Models (cont.)",
+      "v": "mc1y8m9-hOM",
+      "min": 77,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"22. Generalized Linear Models (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:17:20"
+     },
+     {
+      "t": "23. Generalized Linear Models (cont.)",
+      "v": "OYcdw5vOgIc",
+      "min": 78,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"23. Generalized Linear Models (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 1:18:21"
+     },
+     {
+      "t": "24. Generalized Linear Models (cont.)",
+      "v": "lWW54ts9Ubo",
+      "min": 55,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"24. Generalized Linear Models (cont.)\", MIT OpenCourseWare, playlist PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0, 54:45"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "math150",
+  "code": "MATH 150",
+  "title": "Differential Equations — MIT 18.03 (Arthur Mattuck, Spring 2006)",
+  "addition": 5,
+  "playlist": "PLEC88901EBADDD980",
+  "units": [
+   {
+    "name": "MIT 18.03, full course (the Laplace-transform lectures are the first trim if behind)",
+    "lessons": [
+     {
+      "t": "Lec 1",
+      "v": "XDhJ8lVGbl8",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 1 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 48:56"
+     },
+     {
+      "t": "Lec 2",
+      "v": "LbKKzMag5Rc",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 2 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:45"
+     },
+     {
+      "t": "Lec 3",
+      "v": "tVzaX9u6YAE",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 3 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:23"
+     },
+     {
+      "t": "Lec 4",
+      "v": "WBJ_iXudb-s",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 4 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:14"
+     },
+     {
+      "t": "Lec 5",
+      "v": "te6Mplq3DCU",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 5 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:47"
+     },
+     {
+      "t": "Lec 6",
+      "v": "EQJBp6Ym-6A",
+      "min": 45,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 6 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:29"
+     },
+     {
+      "t": "Lec 7",
+      "v": "SioXozu-Loo",
+      "min": 41,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 7 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 41:10"
+     },
+     {
+      "t": "Lec 8",
+      "v": "MdzfsfBNJIw",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 8 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:36"
+     },
+     {
+      "t": "Lec 9",
+      "v": "vP-oRQqmeg4",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 9 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:01"
+     },
+     {
+      "t": "Lec 10",
+      "v": "YQ7HEE8-OfA",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 10 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:24"
+     },
+     {
+      "t": "Lec 11",
+      "v": "rZ3-nFV6l8w",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 11 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:32"
+     },
+     {
+      "t": "Lec 12",
+      "v": "eyNm7XGJr4s",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 12 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:24"
+     },
+     {
+      "t": "Lec 13",
+      "v": "9KbpbBMThTE",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 13 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:56"
+     },
+     {
+      "t": "Lec 14",
+      "v": "Y9_zrupnz0Q",
+      "min": 44,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 14 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:26"
+     },
+     {
+      "t": "Lec 15",
+      "v": "EWWw0jryj1A",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 15 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 49:32"
+     },
+     {
+      "t": "Lec 16",
+      "v": "xWa5_OXI6VM",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 16 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 49:29"
+     },
+     {
+      "t": "Lec 17",
+      "v": "yD0_EQLxHcw",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 17 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:47"
+     },
+     {
+      "t": "Lec 18",
+      "v": null,
+      "min": 48,
+      "check": "unverified: Mattuck's lecture 18 is not in the official playlist; that slot holds pRIEYR5JHQA (\"18.03 Profs. Miller and Vandiver 3/15/10 Lecture\", mittechtv), a different 2010 lecture"
+     },
+     {
+      "t": "Lec 19",
+      "v": "sZ2qulI6GEk",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 19 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:40"
+     },
+     {
+      "t": "Lec 20",
+      "v": "qZHseRxAWZ8",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 20 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 51:08"
+     },
+     {
+      "t": "Lec 21",
+      "v": "3ejfkMHr_DE",
+      "min": 44,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 21 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:20"
+     },
+     {
+      "t": "Lec 22",
+      "v": "_YVcjNmjHik",
+      "min": 44,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 22 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:08"
+     },
+     {
+      "t": "Lec 23",
+      "v": "peYvLk_HZdw",
+      "min": 45,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 23 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 44:55"
+     },
+     {
+      "t": "Lec 24",
+      "v": "MCrDzhpu3-s",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 24 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:05"
+     },
+     {
+      "t": "Lec 25",
+      "v": "heBvViSi9xQ",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 25 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 49:07"
+     },
+     {
+      "t": "Lec 26",
+      "v": "hEtWqTPPXuc",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 26 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:38"
+     },
+     {
+      "t": "Lec 27",
+      "v": "e3FfmXtkppM",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 27 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:27"
+     },
+     {
+      "t": "Lec 28",
+      "v": "2SuTN8rpe4I",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 28 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 46:53"
+     },
+     {
+      "t": "Lec 29",
+      "v": "zreI4HllD80",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 29 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 48:54"
+     },
+     {
+      "t": "Lec 30",
+      "v": "uNOyxQwIV8o",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 30 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:07"
+     },
+     {
+      "t": "Lec 31",
+      "v": "UJG0f0BSX14",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 31 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 47:11"
+     },
+     {
+      "t": "Lec 32",
+      "v": "z-meBrqcy_I",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 32 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 45:53"
+     },
+     {
+      "t": "Lec 33",
+      "v": "kRR9EVzr4lc",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 33 | MIT 18.03 Differential Equations, Spring 2006\", MIT OpenCourseWare, playlist PLEC88901EBADDD980, 50:10"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "phys300",
+  "code": "PHYS 300",
+  "title": "Statistical Mechanics — Stanford (Leonard Susskind, Spring 2013)",
+  "addition": 6,
+  "playlist": "PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe",
+  "units": [
+   {
+    "name": "Stanford Statistical Mechanics",
+    "lessons": [
+     {
+      "t": "Statistical Mechanics Lecture 1",
+      "v": "D1RzvXDXyqA",
+      "min": 108,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 1\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:47:39"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 2",
+      "v": "MCRHXHskWnE",
+      "min": 54,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 2\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 54:13"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 3",
+      "v": "EmM1jOV1uSY",
+      "min": 113,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 3\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:53:27"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 4",
+      "v": "rhFkYjaM5kE",
+      "min": 103,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 4\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:42:35"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 5",
+      "v": "2BJYXuZZK3c",
+      "min": 96,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 5\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:35:45"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 6",
+      "v": "bW30Rj6w8VI",
+      "min": 124,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 6\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 2:03:30"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 7",
+      "v": "sg15UClUY48",
+      "min": 110,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 7\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:50:27"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 8",
+      "v": "3hh0lJZbUfo",
+      "min": 89,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 8\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:28:46"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 9",
+      "v": "AT4_S9vQJgc",
+      "min": 101,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 9\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 1:41:08"
+     },
+     {
+      "t": "Statistical Mechanics Lecture 10",
+      "v": "IWtcFAP3ju4",
+      "min": 124,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Statistical Mechanics Lecture 10\", Stanford (via playlist PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe; lecture 1 confirmed on the Stanford channel by search), 2:04:25"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "course": "phys200",
+  "code": "PHYS 200",
+  "title": "Electricity and Magnetism — MIT 8.02 (Walter Lewin, Spring 2002)",
+  "addition": 7,
+  "playlist": "PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu",
+  "units": [
+   {
+    "name": "MIT 8.02, full course",
+    "lessons": [
+     {
+      "t": "Lec 01: What holds our world together?",
+      "v": "Lx64cq0HeXY",
+      "min": 48,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 01: What holds our world together? | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 47:49"
+     },
+     {
+      "t": "Lec 02: Electric Field and Dipoles",
+      "v": "JSa7_pEVdpA",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 02: Electric Field and Dipoles | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:25"
+     },
+     {
+      "t": "Lec 03: Electric Flux and Gauss's Law",
+      "v": "vxasQBBlWmk",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 03: Electric Flux and Gauss's Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:05"
+     },
+     {
+      "t": "Lec 04: Electrostatic Potential and Electric Energy",
+      "v": "5aQdZ26uR7E",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 04: Electrostatic Potential and Electric Energy | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:03"
+     },
+     {
+      "t": "Lec 05: Electrostatic Shielding (Faraday Cage)",
+      "v": "79xMsqRp6dE",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 05: Electrostatic Shielding (Faraday Cage) | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:59"
+     },
+     {
+      "t": "Lec 06: High-Voltage Breakdown and Lightning",
+      "v": "heot2R99YNk",
+      "min": 53,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 06: High-Voltage Breakdown and Lightning | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 52:37"
+     },
+     {
+      "t": "Lec 07: Capacitance and Field Energy",
+      "v": "PgE9oBDIgdc",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 07: Capacitance and Field Energy | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:27"
+     },
+     {
+      "t": "Lec 08: Polarization and Dielectrics",
+      "v": "wcBCmIgqNII",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 08: Polarization and Dielectrics | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:03"
+     },
+     {
+      "t": "Lec 09: Currents, Resistivity and Ohm's Law",
+      "v": "imlqEKrfS-k",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 09: Currents, Resistivity and Ohm's Law | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:00"
+     },
+     {
+      "t": "Lec 10: Batteries and EMF",
+      "v": "1-9KnN9k810",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 10: Batteries and EMF | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:05"
+     },
+     {
+      "t": "Lec 11: Magnetic field and Lorentz Force",
+      "v": "X4dXXnUMHbQ",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 11: Magnetic field and Lorentz Force | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:50"
+     },
+     {
+      "t": "Lec 12: Review Exam 1 (Secret Top!)",
+      "v": "bOAwbtnnXVw",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 12: Review Exam 1 (Secret Top!) | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:45"
+     },
+     {
+      "t": "Lec 13: Moving Charges in B-fields",
+      "v": "PeGs4Eec_lc",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 13: Moving Charges in B-fields | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 48:58"
+     },
+     {
+      "t": "Lec 14: Biot-Savart Law",
+      "v": "72P9wQeuf3Y",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 14: Biot-Savart Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:25"
+     },
+     {
+      "t": "Lec 15: Ampère's Law",
+      "v": "1dCChkEGi_c",
+      "min": 47,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 15: Ampère's Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 47:20"
+     },
+     {
+      "t": "Lec 16: Electromagnetic Induction",
+      "v": "FUUMCT7FjaI",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 16: Electromagnetic Induction | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:27"
+     },
+     {
+      "t": "Lec 17: Motional EMF and Dynamos",
+      "v": "fOyuov4fimQ",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 17: Motional EMF and Dynamos | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:54"
+     },
+     {
+      "t": "Lec 18: Displacement Current and Synchronous Motors",
+      "v": "0sCthNvl56I",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 18: Displacement Current and Synchronous Motors | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:14"
+     },
+     {
+      "t": "Lec 19: How do magicians levitate women?",
+      "v": "bf6mp13W0UA",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 19: How do magicians levitate women? | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:43"
+     },
+     {
+      "t": "Lec 20: Inductance and RL Circuit",
+      "v": "PMTOVRyPLOI",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 20: Inductance and RL Circuit | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:57"
+     },
+     {
+      "t": "Lec 21: Magnetic Materials",
+      "v": "TJGRatHJgEI",
+      "min": 46,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 21: Magnetic Materials | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 46:22"
+     },
+     {
+      "t": "Lec 22: Hysteresis and Electromagnets",
+      "v": "4Wkf0gqqBYQ",
+      "min": 54,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 22: Hysteresis and Electromagnets | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 54:04"
+     },
+     {
+      "t": "Lec 23: Review for Exam 2",
+      "v": "Wu3H1_IuPY8",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 23: Review for Exam 2 | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:58"
+     },
+     {
+      "t": "Lec 24: Transformers, Car Coils and RC Circuits",
+      "v": "56PhOQyiWaU",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 24: Transformers, Car Coils and RC Circuits | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:23"
+     },
+     {
+      "t": "Lec 25: Driven LRC Circuits and Resonance",
+      "v": "qHwQueQQe0E",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 25: Driven LRC Circuits and Resonance | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:14"
+     },
+     {
+      "t": "Lec 26: Traveling Waves and Standing Waves",
+      "v": "hZCsnd257w0",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 26: Traveling Waves and Standing Waves | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:10"
+     },
+     {
+      "t": "Lec 27: Resonance and Destructive Resonance",
+      "v": "S9gr4w_U9Qs",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 27: Resonance and Destructive Resonance | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:54"
+     },
+     {
+      "t": "Lec 28: Index of Refraction and Poynting Vector",
+      "v": "Hd29jEaGERk",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 28: Index of Refraction and Poynting Vector | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:19"
+     },
+     {
+      "t": "Lec 29: Snell's Law, Refraction and Total Reflection",
+      "v": "8lSMnhS5eWk",
+      "min": 50,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 29: Snell's Law, Refraction and Total Reflection | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:58"
+     },
+     {
+      "t": "Lec 30: Polarizers and Malus's Law",
+      "v": "pibfW8KEkfc",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 30: Polarizers and Malus's Law | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:30"
+     },
+     {
+      "t": "Lec 31: Rainbows",
+      "v": "6Hl7BLXq5vA",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 31: Rainbows | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 50:39"
+     },
+     {
+      "t": "Lec 32: Review for Exam 3",
+      "v": "phU8sYuFjAo",
+      "min": 51,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 32: Review for Exam 3 | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:28"
+     },
+     {
+      "t": "Lec 33: Double-Slit Interference and Interferometers",
+      "v": "1l_q6YqKTMQ",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 33: Double-Slit Interference and Interferometers | 8.02 Electricity and Magnetism (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:39"
+     },
+     {
+      "t": "Lec 34: Gratings and Resolving Power",
+      "v": "tWC0A9WrFG8",
+      "min": 52,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 34: Gratings and Resolving Power | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 51:32"
+     },
+     {
+      "t": "Lec 35: Doppler Effect and The Big Bang",
+      "v": "NgTKGODFu4I",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 35: Doppler Effect and The Big Bang | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:27"
+     },
+     {
+      "t": "Lec 36: Farewell Special",
+      "v": "FXYQQfUuH8g",
+      "min": 49,
+      "check": "verified 12 Nov 2026 (oEmbed/playlist): \"Lec 36: Farewell Special | 8.02 Electricity and Magnetism, Spring 2002 (Walter Lewin)\", For the Allure of Physics (the channel PHYS 100 already uses), playlist PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu, 49:29"
+     }
+    ]
+   }
+  ]
+ }
 ];
 
 module.exports = { COURSE_REASON, MARKS, VIDEO_REUSED, LEVEL_DEFAULT, LEVEL, NEEDS, REPLACE, PROVISIONAL };

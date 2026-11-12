@@ -11,6 +11,7 @@ import 'dart:math' as math;
 
 import 'dates.dart';
 import 'engine.dart';
+import 'lecture_practice.dart';
 import 'problems.dart';
 import 'quiz.dart';
 import 'record.dart';
@@ -245,11 +246,18 @@ const BOXES = [2, 7, 21, 60, 120];
 typedef LessonLabel = ({String code, String cid, int ui, int li, String title});
 
 class RecallItem {
-  const RecallItem(this.k, this.label, this.box, this.lapses, this.due);
+  const RecallItem(this.k, this.label, this.box, this.lapses, this.due, {this.practiceN, this.question});
   final String k;
   final LessonLabel label;
   final int box, lapses;
   final String due;
+
+  /// T-067 step 3: a practice item due again is a card too: its place in the lecture's list (1-based) and its question.
+  final int? practiceN;
+  final String? question;
+
+  /// " · practice N" after the title (a card) or the course code (coming up), as V.recall writes it.
+  String get practiceTag => practiceN == null ? '' : ' \u00b7 practice $practiceN';
 
   /// The web pill: "interval 7d · 2 lapses".
   String get pill => 'interval ${BOXES[box.clamp(0, BOXES.length - 1)]}d${lapses > 0 ? ' · $lapses lapse${lapses == 1 ? '' : 's'}' : ''}';
@@ -324,13 +332,15 @@ extension ReviewEngine on Engine {
     final today = todayISO();
     final dueKeys = reviewsDue();
     String dueOf(String k) => _m(review[k])['due'] is String ? _m(review[k])['due'] as String : '';
-    final all = review.keys.where((k) => truthy(_m(lessons[k])['verified'])).toList();
+    final all = review.keys.where((k) => isPracticeKey(k) ? practiceRef(k) != null : truthy(_m(lessons[k])['verified'])).toList();
     final nextKeys = stableSorted(all.where((k) => dueOf(k).isNotEmpty && dueOf(k).compareTo(today) > 0), (a, b) => dueOf(a).compareTo(dueOf(b))).take(6);
     RecallItem? item(String k) {
-      final L = lessonLabel(k);
+      final pr = practiceRef(k);
+      final L = lessonLabel(pr != null ? pr.k : k);
       if (L == null) return null;
       final rv = _m(review[k]);
-      return RecallItem(k, L, rv['box'] is num ? (rv['box'] as num).toInt() : 0, rv['lapses'] is num ? (rv['lapses'] as num).toInt() : 0, dueOf(k));
+      return RecallItem(k, L, rv['box'] is num ? (rv['box'] as num).toInt() : 0, rv['lapses'] is num ? (rv['lapses'] as num).toInt() : 0, dueOf(k),
+          practiceN: pr == null ? null : pr.i + 1, question: pr == null ? null : '${pr.it['q']}');
     }
 
     return RecallData(

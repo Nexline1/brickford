@@ -38,10 +38,12 @@ class SyncScreen extends StatefulWidget {
 
 class _SyncScreenState extends State<SyncScreen> {
   final token = TextEditingController(), repo = TextEditingController(text: SyncService.defaultRepo);
-  String? problem;
+  final aiKey = TextEditingController();
+  String? problem, aiProblem;
 
   @override
   void dispose() {
+    aiKey.dispose();
     token.dispose();
     repo.dispose();
     super.dispose();
@@ -49,7 +51,7 @@ class _SyncScreenState extends State<SyncScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sync = AppScope.of(context).sync;
+    final m = AppScope.of(context), sync = m.sync;
     return ListenableBuilder(
       listenable: sync,
       builder: (context, _) {
@@ -188,6 +190,50 @@ class _SyncScreenState extends State<SyncScreen> {
                     tone: PillTone.quiet,
                     onPressed: sync.forget,
                   ),
+                ),
+              ],
+              // T-067 step 3: the Anthropic key for Grade with Claude. On this device only (shared_preferences);
+              // never synced (it is not in S), never shown back: once saved this says "Saved".
+              SheetLabel(Icons.auto_awesome_outlined, 'Grade with Claude'),
+              if (m.hasAiKey) ...[
+                ItemBlock(
+                  key: const ValueKey('ai-key-saved'),
+                  leading: const LeadTile(icon: Icons.key_outlined),
+                  title: 'Anthropic key',
+                  meta: 'Saved',
+                ),
+                Text('It never leaves this device except to grade.', style: body(12.5, color: Tokens.ink2, height: 1.35)),
+                SizedBox(height: 10.h),
+                PillButton(
+                  key: const ValueKey('ai-key-forget'),
+                  id: 'ai-key-forget',
+                  icon: Icons.key_off_outlined,
+                  label: 'Forget key',
+                  tone: PillTone.quiet,
+                  onPressed: () => setState(m.forgetAiKey),
+                ),
+              ] else ...[
+                BrickfordField(key: const ValueKey('ai-key'), id: 'ai-key', icon: Icons.key_outlined, hint: 'sk-ant-\u2026', controller: aiKey, obscure: true),
+                if (aiProblem != null)
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.h),
+                    child: Text(aiProblem!, style: body(13, color: Tokens.missed, weight: FontWeight.w600)),
+                  ),
+                SizedBox(height: 12.h),
+                PillButton(
+                  key: const ValueKey('ai-key-save'),
+                  id: 'ai-key-save',
+                  icon: Icons.save_outlined,
+                  label: 'Save key',
+                  onPressed: () => setState(() {
+                    aiProblem = m.saveAiKey(aiKey.text);
+                    if (aiProblem == null) aiKey.clear();
+                  }),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  'Stays on this device and is never synced. It is sent only to api.anthropic.com, with one practice answer, when you press Grade.',
+                  style: body(12.5, color: Tokens.ink2, height: 1.35),
                 ),
               ],
             ],

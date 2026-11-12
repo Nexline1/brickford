@@ -16,6 +16,7 @@ import '../../widgets/crest.dart';
 import '../../widgets/pill_button.dart';
 import '../../widgets/sheet_scaffold.dart';
 import '../quiz/quiz_screen.dart';
+import 'practice_block.dart';
 import 'video_embed.dart';
 
 /// Where the lecture's pieces sit, top to bottom, in logical pixels: the control row
@@ -467,6 +468,8 @@ class _LessonScreenState extends State<LessonScreen> {
                 ),
               ),
             ),
+          // T-067 step 3: the lecture's own problems, under the quiz, once it is watched (app.js: st.done ? practiceHTML(k)).
+          if (watched) PracticeBlock(k: k),
           if (link != null) ...[
             SizedBox(height: 14.h),
             ItemBlock(

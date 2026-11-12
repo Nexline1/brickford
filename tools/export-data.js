@@ -60,6 +60,8 @@ function build(root) {
     "storytelling.json": { courses: SPEECH, DRILLS: D.DRILLS || {} },
     // T-067: DAR.PREREQ, the prerequisite map Plan v2 is scheduled from.
     "prereq.json": D.PREREQ || {},
+    // T-067 step 3: DAR.PRACTICE, the practice items under each lecture's quiz (platform/data/practice-*.js).
+    "practice.json": D.PRACTICE || {},
   };
   const text = {};
   for (const [name, v] of Object.entries(out)) text[name] = json(v, name);

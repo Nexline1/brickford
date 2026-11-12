@@ -24,6 +24,7 @@ library;
 import 'dart:convert';
 
 import 'dates.dart';
+import 'lecture_practice.dart';
 
 /// JS truthiness, for porting `a || b`, `!!a` and `if (a)` faithfully.
 bool truthy(Object? v) {
@@ -61,6 +62,7 @@ class BrickfordData {
     required this.drills,
     required this.speechCourseIds,
     this.prereq = const {},
+    this.practice = const {},
   });
 
   /// DAR.START_DATE.
@@ -92,10 +94,13 @@ class BrickfordData {
   /// prereq.json, DAR.PREREQ (T-067): per lesson key, { needs: [key, …], level }.
   final Map<String, dynamic> prereq;
 
+  /// practice.json, DAR.PRACTICE (T-067 step 3): per lesson key, the practice items under its quiz.
+  final Map<String, dynamic> practice;
+
   /// What startup reads.
   static const files = [
     'meta.json', 'courses.json', 'quiz-keys.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
-    'prereq.json',
+    'prereq.json', 'practice.json',
   ];
 
   /// Read later, on first need.
@@ -123,6 +128,7 @@ class BrickfordData {
       drills: _map(story['DRILLS']),
       speechCourseIds: (story['courses'] as List).cast<String>(),
       prereq: text['prereq.json'] != null ? obj('prereq.json') : const {},
+      practice: text['practice.json'] != null ? obj('practice.json') : const {},
     )..summariesLoaded = text['summaries.json'] != null;
   }
 
@@ -216,6 +222,8 @@ Map<String, dynamic> normalizeState(Map<String, dynamic>? stored) {
   s['reps'] = {...d['reps'] as Map<String, dynamic>, ..._map(s['reps'])};
   s['settings'] = {...d['settings'] as Map<String, dynamic>, ..._map(s['settings'])};
   s['review'] = s['review'] is Map ? _map(s['review']) : <String, dynamic>{};
+  // T-067 step 3: practice answers, S.practice[lessonKey][itemId] (app.js load: an object, or {}).
+  s['practice'] = s['practice'] is Map ? _map(s['practice']) : <String, dynamic>{};
   if (s['monk'] is! Map) s['monk'] = <String, dynamic>{};
   for (final k in ['lessons', 'problems', 'labs', 'psets']) {
     s[k] = _map(s[k]);
@@ -1044,6 +1052,8 @@ class Engine {
     final today = todayISO();
     final review = _map(S['review']);
     final keys = review.keys.where((k) {
+      // T-067 step 3: a practice item due again (app.js reviewsDue), when its item still exists.
+      if (isPracticeKey(k)) return practiceRef(k) != null && le(_map(review[k])['due'].toString(), today);
       final st = lessons[k];
       return st is Map && truthy(st['verified']) && le(_map(review[k])['due'].toString(), today);
     }).toList();

@@ -355,6 +355,28 @@ int mergeState(Engine e, Object? remote) {
     changed++;
   }
 
+  // T-067 step 3: practice answers merge per item; the newer `at` wins, and an item only one side has is kept.
+  // Nothing is deleted.
+  final rp = r['practice'];
+  if (rp is Map) {
+    final practice = _ensureMap(S, 'practice');
+    for (final k in rp.keys.toList()) {
+      final theirs = rp[k];
+      if (theirs is! Map) continue;
+      for (final id in theirs.keys.toList()) {
+        final t = theirs[id];
+        if (t is! Map) continue;
+        final mine = practice['$k'] is Map ? (practice['$k'] as Map).cast<String, dynamic>() : (practice['$k'] = <String, dynamic>{});
+        practice['$k'] = mine;
+        final m0 = mine['$id'];
+        if (!truthy(m0) || _s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) > 0) {
+          mine['$id'] = t;
+          changed++;
+        }
+      }
+    }
+  }
+
   // T-065: the Monk start date, the one piece of Monk that syncs. First write wins: a side with none takes the
   // other's, and with two the EARLIER date stands, so every device settles on the same day and an older device
   // that has not heard of the start can never clear it. A remote value that is not a date is ignored.
@@ -398,7 +420,8 @@ int mergeState(Engine e, Object? remote) {
   return changed;
 }
 
-/// What a push writes (app.js syncPayload). `monk` is never in it; `monkStart` (T-065) is, when set.
+/// What a push writes (app.js syncPayload). `monk` is never in it; `monkStart` (T-065) is, when set; `practice`
+/// (T-067 step 3) is, once there are answers. The Anthropic key is never in it.
 Map<String, dynamic> syncPayload(Engine e, {DateTime? now}) {
   final S = e.S, state = <String, dynamic>{};
   for (final k in [
@@ -414,6 +437,9 @@ Map<String, dynamic> syncPayload(Engine e, {DateTime? now}) {
   state['settings'] = settings;
   // T-065: the start date alone leaves the device; nothing else of Monk does.
   if (truthy(S['monkStart'])) state['monkStart'] = S['monkStart'];
+  // T-067 step 3: practice answers, once there are any. The Anthropic key is not in S at all
+  // (shared_preferences brickford_anthropic_key), so it cannot travel.
+  if (S['practice'] is Map && (S['practice'] as Map).isNotEmpty) state['practice'] = S['practice'];
   final ledgers = <String, dynamic>{..._m(S['foreignLedgers'])};
   ledgers['${st['deviceId']}'] = S['ledger'];
   return {

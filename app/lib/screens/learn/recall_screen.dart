@@ -45,7 +45,7 @@ class RecallScreen extends StatelessWidget {
               ItemBlock(
                 key: ValueKey('recall-next-${it.k}'),
                 leading: const LeadTile(icon: Icons.schedule),
-                subtitle: it.label.code,
+                subtitle: it.label.code + it.practiceTag,
                 title: it.label.title,
                 meta: it.due.substring(5),
               ),
@@ -80,7 +80,7 @@ class _RecallCard extends StatelessWidget {
                   children: [
                     Text(L.code, style: body(11.5, color: Tokens.ink2, weight: FontWeight.w700).copyWith(letterSpacing: 0.8)),
                     SizedBox(height: 2.h),
-                    Text(L.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: body(14.5, weight: FontWeight.w700, height: 1.3)),
+                    Text(L.title + it.practiceTag, maxLines: 2, overflow: TextOverflow.ellipsis, style: body(14.5, weight: FontWeight.w700, height: 1.3)),
                   ],
                 ),
               ),
@@ -118,6 +118,16 @@ class _RecallCard extends StatelessWidget {
               ),
             ],
           ),
+          // T-067 step 3: a practice item due again shows its question; solve it again on paper, then judge.
+          if (it.question != null) ...[
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.only(right: 8.w),
+              child: Text(plain(it.question), key: ValueKey('recall-q-${it.k}'), style: body(14, height: 1.45)),
+            ),
+            SizedBox(height: 4.h),
+            Text('Solve it again on paper before you open anything. Then judge honestly.', style: body(12.5, color: Tokens.ink2)),
+          ],
           SizedBox(height: 12.h),
           Padding(
             padding: EdgeInsets.only(right: 8.w),

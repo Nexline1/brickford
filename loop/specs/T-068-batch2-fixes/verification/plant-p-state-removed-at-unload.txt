@@ -16,7 +16,7 @@
   ok    (c) watched with the quiz still to pass: the card says "Quiz: <title>" with "Start", to this lecture — {"kind":"Quiz: Rate of Change","verb":"Start ▸","href":"#/lesson/math120/1/0"}
   ok    (c) the dashboard count does not move on "watched" alone — 0 / 3 -> 0 / 3
   ok    (c) a miss shows why and turns its segment red — {"seg":["miss",""],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    (c) the missed question comes back with its options reshuffled — first [2,3,0,1], again [0,3,1,2]
+  ok    (c) the missed question comes back with its options reshuffled — first [1,3,2,0], again [2,1,0,3]
   ok    (c) the sitting asks every question, and the miss once more — 3 answers for 2 questions
   ok    (c) the pass card shows firstTry = n-1 and that it counted for today — "✓Lecture passed2 of 2 · 1 right on the first try · counted for todayNext lecture →"
   ok    (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-11-01","at":"2026-11-01T12:00:00.000Z","firstTry":1,"total":2,"attempts":3}; events [{"firstTry":1,"total":2}]
@@ -74,8 +74,8 @@
   ok    (a) nothing watched: the card says to watch the first lecture in the chain, then take its quiz, with "Open" — "Watch: Limits, L'Hôpital's rule, and epsilon delta definitions, then its quiz", "Open ▸"
   ok    (a) its button opens that lecture — at #/lesson/math120/0/6, h1 "7. Limits, L'Hôpital's rule, and epsilon delta definitions"
   ok    (a) no page errors
-  ok    (b) a question is on screen — 4 options
-  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite.", options locked true, next button visible
+  ok    (b) a question is on screen — numeric
+  ok    (b) the answer registers: graded, locked and marked — feedback "Not quite — the answer is 1.", options locked true, next button visible
   ok    (b) the sitting moves on — 1 question(s) marked done in the progress strip
   ok    (b) no page errors
   ok    (c) the dashboard shows a count for today, and its next lecture is open — 0 / 3 today, next #/lesson/math120/1/0
@@ -86,7 +86,7 @@
   ok    (c) watched with the quiz still to pass: the card says "Quiz: <title>" with "Start", to this lecture — {"kind":"Quiz: Rate of Change","verb":"Start ▸","href":"#/lesson/math120/1/0"}
   ok    (c) the dashboard count does not move on "watched" alone — 0 / 3 -> 0 / 3
   ok    (c) a miss shows why and turns its segment red — {"seg":["ok","miss"],"why":"Not quite. A wiggly curve may cross its tangent line again elsewhere. What actually pins the tangent down is that secant slopes through a nearby point converge to it as that point approaches. This one comes back at the end."}
-  ok    (c) the missed question comes back with its options reshuffled — first [1,0,2,3], again [3,2,1,0]
+  ok    (c) the missed question comes back with its options reshuffled — first [2,1,3,0], again [1,2,0,3]
   ok    (c) the sitting asks every question, and the miss once more — 3 answers for 2 questions
   ok    (c) the pass card shows firstTry = n-1 and that it counted for today — "✓Lecture passed2 of 2 · 1 right on the first try · counted for todayNext lecture →"
   ok    (c) the record is stored once, on finish: nothing written while answering, one quiz event, firstTry n-1 of n — writes while answering 0, at finish 1; record {"passedAt":"2026-11-01","at":"2026-11-01T12:00:00.000Z","firstTry":1,"total":2,"attempts":3}; events [{"firstTry":1,"total":2}]
@@ -177,13 +177,13 @@ record yourself (T-028)
   ok    (p) 390px (tapped): the record button is idle, labelled, and the timer reads 0:00 / 1:30 — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":false}
   ok    (p) 390px (tapped): while recording the button says Stop, the dot is a rounded square (radius under half its width), and the timer counts m:ss / 1:30 — {"on":true,"label":"Stop recording","time":"0:02 / 1:30","w":40,"radius":8,"focus":true}
   ok    (p) 390px (tapped): nothing was written while recording — 0 write(s)
-  ok    (p) 390px (tapped): one clip in IndexedDB brickford_audio/clips, key 2026-11-01-1, { date, seconds >= 1, kind story, title "Story · Sun 1 Nov" } and a non-empty audio Blob — {"list":[{"key":"2026-11-01-1","date":"2026-11-01","seconds":2,"kind":"story","title":"Story · Sun 1 Nov","fields":"blob,date,kind,seconds,title","blob":{"size":25209,"type":"audio/webm;codecs=opus"}}]}
+  ok    (p) 390px (tapped): one clip in IndexedDB brickford_audio/clips, key 2026-11-01-1, { date, seconds >= 1, kind story, title "Story · Sun 1 Nov" } and a non-empty audio Blob — {"list":[{"key":"2026-11-01-1","date":"2026-11-01","seconds":2,"kind":"story","title":"Story · Sun 1 Nov","fields":"blob,date,kind,seconds,title","blob":{"size":25210,"type":"audio/webm;codecs=opus"}}]}
   ok    (p) 390px (tapped): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}] ev {"type":"rep","ref":"story","data":{"date":"2026-11-01","seconds":2}}
   ok    (p) 390px (tapped): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 390px (tapped): after stop the button is idle again and holds the focus (or the page did not move it) — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 390px (tapped): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/c63b2888-9b62-4de5-89bc-c66c0b7e02aa","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/c63b2888-9b62-4de5-89bc-c66c0b7e02aa","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/c63b2888-9b62-4de5-89bc-c66c0b7e02aa","dl":{"href":"blob:null/c63b2888-9b62-4de5-89bc-c66c0b7e02aa","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/65de387f-2877-4461-b3cf-a191574e033f","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/65de387f-2877-4461-b3cf-a191574e033f","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 390px (tapped): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/65de387f-2877-4461-b3cf-a191574e033f","dl":{"href":"blob:null/65de387f-2877-4461-b3cf-a191574e033f","name":"Story · Sun 1 Nov.webm"}}]
   ok    (p) 390px (tapped): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 390px (tapped): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 390px (tapped): no page errors
@@ -195,14 +195,14 @@ record yourself (T-028)
   ok    (p) 1280px (keyboard): reps.story gains exactly one entry for today, { date, seconds, takes, from } with the clip's seconds, through the form's path (chain: rep story) — [{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}] ev {"type":"rep","ref":"story","data":{"date":"2026-11-01","seconds":2}}
   ok    (p) 1280px (keyboard): no audio anywhere in localStorage (no data: URL, base64, object URL, database name or Blob field)
   ok    (p) 1280px (keyboard): after stop the button is idle again and holds the focus — {"on":false,"label":"Start recording","time":"0:00 / 1:30","w":78,"radius":50,"focus":true}
-  ok    (p) 1280px (keyboard): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/f908a954-ac1e-4997-9df6-911f64fab52b","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/f908a954-ac1e-4997-9df6-911f64fab52b","name":"Story · Sun 1 Nov.webm"}}]
-  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/f908a954-ac1e-4997-9df6-911f64fab52b","dl":{"href":"blob:null/f908a954-ac1e-4997-9df6-911f64fab52b","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): the list shows it: "Story · Sun 1 Nov", "Sun 1 Nov · 0:02", with a download link to a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/13476245-5c48-487a-bc7a-bde4654ca033","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): no <audio> until play is pressed — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":null,"dl":{"href":"blob:null/13476245-5c48-487a-bc7a-bde4654ca033","name":"Story · Sun 1 Nov.webm"}}]
+  ok    (p) 1280px (keyboard): play creates its <audio>, and its src is a blob: URL — [{"key":"2026-11-01-1","title":"Story · Sun 1 Nov","meta":"Sun 1 Nov · 0:02","audio":"blob:null/13476245-5c48-487a-bc7a-bde4654ca033","dl":{"href":"blob:null/13476245-5c48-487a-bc7a-bde4654ca033","name":"Story · Sun 1 Nov.webm"}}]
   ok    (p) 1280px (keyboard): the title renames inline: IndexedDB holds "The napkin one", and nothing is written to localStorage — ["The napkin one"], 0 write(s)
   ok    (p) 1280px (keyboard): delete asks first, then removes the clip from IndexedDB and the list; the rep stays logged; nothing written to localStorage — dialogs ["Delete “The napkin one”?\n\nIt is kept only on this device, so it cannot be brought back. The rep stays logged."], clips 0, reps.story 1
   ok    (p) 1280px (keyboard): no page errors
   ok    (p) auto-stop: with window.__recLimit = 2 one press records, the timer reads m:ss / 0:02, and it stops on its own at the limit — {"r1":{"on":true,"label":"Stop recording","time":"0:00 / 0:02","w":56,"radius":50,"focus":true},"r2":{"on":false,"label":"Start recording","time":"0:00 / 0:02","w":78,"radius":50,"focus":true}}
-  ok    (p) auto-stop: one humour clip, 1 to 3 seconds, title "Humour · Sun 1 Nov" — [{"key":"2026-11-01-1","date":"2026-11-01","seconds":2,"kind":"humor","title":"Humour · Sun 1 Nov","fields":"blob,date,kind,seconds,title","blob":{"size":24244,"type":"audio/webm;codecs=opus"}}]
+  ok    (p) auto-stop: one humour clip, 1 to 3 seconds, title "Humour · Sun 1 Nov" — [{"key":"2026-11-01-1","date":"2026-11-01","seconds":2,"kind":"humor","title":"Humour · Sun 1 Nov","fields":"blob,date,kind,seconds,title","blob":{"size":24558,"type":"audio/webm;codecs=opus"}}]
   ok    (p) auto-stop: logged through the humour rep path — reps.humor gains one entry for today, reps.story none — {"bank":[],"story":[],"humor":[{"date":"2026-11-01","attempts":["","","","",""],"keeper":0,"seconds":2}],"review":[]}
   ok    (p) auto-stop: no page errors
   ok    (p) a Saturday: the "Nothing owed today" card sits above the recorder — {"rest":true,"above":true}
@@ -212,7 +212,7 @@ record yourself (T-028)
   ok    (p) the track ends under the recorder: the clip is finished anyway — one clip, one rep whose seconds is a number equal to the clip's, its chain event the same, nothing reading "undefined" — {"clips":[["2026-11-01-1",2]],"story":[{"date":"2026-11-01","seconds":2,"takes":1,"from":"Story · Sun 1 Nov"}],"ev":{"date":"2026-11-01","seconds":2}}
   ok    (p) the track ends under the recorder: the button is idle again
   ok    (p) the track ends under the recorder: the next recording, started inside the first one's 3s, runs to its full length (3 of a 3s limit), not cut short by the first one's timer — [["2026-11-01-1",2],["2026-11-01-2",3]]
-  FAIL  (p) the track ends under the recorder: the reload is measured, the stamp written last before it and the state both there at document start — {"state":false,"local":"r1834.1.1794525988515","session":null}
+  FAIL  (p) the track ends under the recorder: the reload is measured, the stamp written last before it and the state both there at document start — {"state":false,"local":"r16456.1.1794526737386","session":null}
   FAIL  (p) the track ends under the recorder: after a reload /record says the chain is whole ("newest first", not "chain broken") — none yet
   ok    (p) the recorder stops by itself: no page errors
   ok    (p) the prompt is open and the reader leaves the page: while the prompt is open the button shows it is starting (aria-busy, "Starting…")
@@ -266,7 +266,7 @@ the tab bar (once, 390px)
   ok    (j) a Ctrl-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
   ok    (j) a Shift-tap (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
   ok    (j) a plain touch lifted with Ctrl (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
-  FAIL  (j) a plain touch lifted with Shift (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 0 new page(s); this page at #/
+  ok    (j) a plain touch lifted with Shift (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 1 new page(s); this page at #/; new page #/courses
   ok    (j) a pen barrel-button (right) press on the Courses tab at 390 leaves this page on #/ — this page at #/
   ok    (j) a plain tap on the Courses tab at 390 still switches to it — #/courses
   ok    (j) modifier-tap: no page errors
@@ -279,7 +279,7 @@ a slow phone (once, 390px)
 multiple choice (once)
   info  as written in the data — 4 options: 315/616/228/84
   ok    (k) every multiple-choice question was mounted and its answer found — 1243 questions, 9944 mounts, 0 unfound
-  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 25%, B 25%, C 25%, D 25% of 9944
+  ok    (k) 4-option questions: the answer lands in every slot about equally (within 5 points of 25%) — A 24%, B 26%, C 25%, D 25% of 9944
   ok    (k) choosing the right option is graded right, wherever it was shuffled to — 1243 of 1243
   ok    (k) choosing a wrong option is graded wrong, and the right one is marked — 1243 of 1243
   ok    (k) no page errors
@@ -306,6 +306,7 @@ sync (once)
 
 gate sync (once)
   note  (n) gate sync: no unload report arrived (attempt 1) — measured as it is, not retried — no unload report arrived; at document start the localStorage stamp present
+  FAIL  (n) gate sync: the reload is measured, the stamp written last before it and the state both there at document start — {"state":false,"local":"r16456.2.1794526772517","session":null}
   FAIL  (n) after a pull from a stub remote that still holds the pass, the unmark sticks (Gate 1 open, pass 1 offered) — pass {"date":"2026-11-01","at":"2026-11-01T12:00:00.000Z","passed":true}, unmark {"date":null,"at":"2026-11-01T12:05:00.000Z","passed":false}, pulled true (1 GET), now {"date":"2026-11-01","at":"2026-11-01T12:00:00.000Z","passed":true}, controls pass 2, unmark 1
   FAIL  (n) the push that follows carries the unmark, so the remote loses the pass — {"1":{"date":"2026-11-01","at":"2026-11-01T12:00:00.000Z","passed":true}}
   ok    (n) no page errors (this device)
@@ -372,7 +373,7 @@ T-065 Start Monk Mode at 390px:
   ok    (ms) a single click on the final button does NOT start it (1.7 s later: nothing stored, sheet still open)
   ok    (ms) a 0.7 s hold, let go, does not start it (1.7 s after the press)
   ok    (ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)
-  ok    (ms) ticked and held, it starts after about 1.5 s (1481 ms), stores 2026-11-06 in one write, and the sheet closes — 1481 ms; 1 write(s); 2026-11-06
+  ok    (ms) ticked and held, it starts after about 1.5 s (1477 ms), stores 2026-11-06 in one write, and the sheet closes — 1477 ms; 1 write(s); 2026-11-06
   ok    (ms) the page then reads Day 1 of 21, with no Start button left — Day 1 of 21
   ok    (ms) the dashboard row then reads Monk ModeDay 1 of 21, with no Start button left — {"head":"Monk ModeDay 1 of 21","start":0}
   ok    (ms) no page errors
@@ -389,14 +390,14 @@ T-065 Start Monk Mode at 1280px:
   ok    (ms) a single click on the final button does NOT start it (1.7 s later: nothing stored, sheet still open)
   ok    (ms) a 0.7 s hold, let go, does not start it (1.7 s after the press)
   ok    (ms) a hold that slides off the button does not start it, nor does coming back (1.8 s after the press)
-  ok    (ms) ticked and held, it starts after about 1.5 s (1489 ms), stores 2026-11-06 in one write, and the sheet closes — 1489 ms; 1 write(s); 2026-11-06
+  ok    (ms) ticked and held, it starts after about 1.5 s (1483 ms), stores 2026-11-06 in one write, and the sheet closes — 1483 ms; 1 write(s); 2026-11-06
   ok    (ms) the page then reads Day 1 of 21, with no Start button left — Day 1 of 21
   ok    (ms) the dashboard row then reads Monk ModeDay 1 of 21, with no Start button left — {"head":"Monk ModeDay 1 of 21","start":0}
   ok    (ms) no page errors
 
 T-065 Start Monk Mode by keyboard at 1280px:
   ok    (ms) by keyboard: the box ticked with Space, then Enter held 0.6 s and released starts nothing — null
-  ok    (ms) by keyboard: Space held starts it after about 1.5 s (1450 ms), and the page reads Day 1 of 21 — 1450 ms; Day 1 of 21
+  ok    (ms) by keyboard: Space held starts it after about 1.5 s (1457 ms), and the page reads Day 1 of 21 — 1457 ms; Day 1 of 21
   ok    (ms) no page errors (keyboard)
 
 practice items (T-067 step 3):
@@ -420,5 +421,5 @@ practice items (T-067 step 3):
 
   ok    no network sync (GitHub requests from test contexts) — 0 request(s)
 
-7 of 379 flow check(s) FAILED
+7 of 380 flow check(s) FAILED
 exit 1

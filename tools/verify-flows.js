@@ -2046,12 +2046,16 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // still holds the pass exactly as this device stored it. A reload makes the
   // boot pull. Then the other device: the pass here, the unmark over there.
   console.log("\ngate sync (once)");
+  // T-068: this device reloads over http://127.0.0.1, for the reason the (p) recorder block does (file:// storage
+  // lost on a reload, in the browser, before any script runs); the other device below never reloads and stays on file://.
+  const N_HTTP = await serveDir(path.join(path.resolve(__dirname, ".."), "platform"));
   await acrossReload({ label: "(n) gate sync", check, fail: why => check(why, false) }, async (check, reload) => {
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true });
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true, serviceWorkers: "block" });
     await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
     let remote = null, put = null, gets = 0, gotPut = null;
     await ctx.route(/^https?:/, r => {
       const req = r.request();
+      if (req.url().startsWith(N_HTTP.base.replace(/index\.html#$/, ""))) return r.continue();
       if (!/api\.github\.com/.test(req.url())) return r.abort();
       if (!remote) return r.abort();             // no token yet: nothing may reach here
       if (req.method() === "GET") { gets++; return r.fulfill({ status: 200, contentType: "application/json",
@@ -2064,7 +2068,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     const page = await ctx.newPage();
     const errors = [];
     page.on("pageerror", e => errors.push(e.message));
-    await page.goto(URL + "/transcript", { waitUntil: "load" });
+    await page.goto(N_HTTP.base + "/transcript", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     // Declared out here: the other device below is seeded with them, and a
     // harness error inside this try must not turn into a ReferenceError there.
@@ -2087,7 +2091,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       theUnmark = (await gatesStored(page))[1];
       remote = { v: 1, updatedAt: TODAY + "T12:00:30.000Z", device: "phone", ledgers: {}, state: { gates: { 1: thePass } } };
       await page.evaluate(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
-      await reload(page, { waitUntil: "load" });
+      const proof = await reload(page, { waitUntil: "load" });
+      check("(n) gate sync: the reload is measured, the stamp written last before it and the state both there at document start",
+        !!proof.boot.state && proof.boot.local === proof.stamp, JSON.stringify(proof.boot));
       const pulled = await page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt,
         null, { timeout: 8000 }).then(() => true, () => false);
       await page.waitForSelector("#view [data-gate]");
@@ -2096,7 +2102,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         !!thePass && thePass.passed === true && !!theUnmark && theUnmark.passed === false && pulled && gets > 0 &&
           !!after.g && after.g.passed === false && after.g.at === theUnmark.at && after.ctl === "pass 1",
         "pass " + JSON.stringify(thePass) + ", unmark " + JSON.stringify(theUnmark) + ", pulled " + pulled + " (" + gets + " GET), now " + JSON.stringify(after.g) + ", controls " + after.ctl);
-      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.goto(N_HTTP.base + "/sync", { waitUntil: "load" });
       await page.waitForSelector("[data-act='syncPush']", { timeout: 8000 });
       put = null;
       const putSeen = new Promise(r => { gotPut = r; });
@@ -2141,6 +2147,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     check("(n) no page errors (the other device)", errors2.length === 0, errors2.join(" | "));
     await ctx2.close();
   });
+  await N_HTTP.close();
 
   // ---- (pd) T-045: Problems, as what is due now ----
   // A lecture watched with its quiz not passed, and 18.06 Pset 1 unlocked

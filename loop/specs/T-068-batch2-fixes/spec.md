@@ -87,6 +87,14 @@ not persist across the reload (the reloaded page's state stripped of its ledger)
 fails it.
 verify-flows is run 3 times after the fix.
 
+Found while doing that: the third run failed in the other verify-flows block that reloads,
+(n) gate sync, with the same note ("at document start the localStorage stamp missing").
+Same cause, same fix: that block's first device, the one that reloads, is served over http
+with the same proof check. The second device never reloads and stays on file://. Its
+assertions are unchanged. A plant (the app removes its state at pagehide) fails both proof
+checks. The 3 runs are then repeated: `verify-flows-run1..3.txt`. The first 3, which only
+had the (p) fix, are kept as `verify-flows-p-only-run1..3.txt`.
+
 ## Gates (one at a time, outputs in `verification/`)
 verify-content, verify-logic, verify-sync-loop, verify-shell, verify-flows x3,
 verify-contrast, `TZ=America/Los_Angeles node tools/verify-clip.js`; flutter analyze,

@@ -1,0 +1,69 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.2.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  material_ui 1.10.0 (1.11.0 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.4 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_android 2.5.4 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/user/bf-T-067-pa/app/test/lecture_practice_test.dart
+00:00 +0: practice.json is the web DAR.PRACTICE: 112 items under 45 lectures, four types
+00:00 +1: every numeric item is right at its own answer (and with a decimal comma), and wrong just outside its tolerance
+00:00 +2: a wrong numeric answer is marked missed and comes back in Recall; a right one counts as solved unaided
+00:00 +3: a worked item: Partly and Missed go into the review, Got it does not; Again clears the answer
+00:00 +4: an output item: the printed text spacing aside, or the same number
+00:00 +5: the merge: per item, the newer `at` wins; an item only one side has is kept; nothing is deleted
+00:00 +6: the sync payload carries practice once there are answers, and never the key
+00:00 +6 -1: the sync payload carries practice once there are answers, and never the key [E]
+  Expected: {
+              'math110.0.0': {
+                'p1': {
+                  'answer': '1',
+                  'mark': 'ok',
+                  'ticks': [],
+                  'grade': null,
+                  'at': '2026-11-12T09:30:15.123Z'
+                }
+              }
+            }
+    Actual: <null>
+     Which: expected a map
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/lecture_practice_test.dart 196:5               main.<fn>
+  
+00:00 +6 -1: a push carries practice to the remote file, and no PUT holds the key
+00:00 +6 -2: a push carries practice to the remote file, and no PUT holds the key [E]
+  type 'Null' is not a subtype of type 'Map<dynamic, dynamic>' in type cast
+  test/lecture_practice_test.dart 215:66  main.<fn>
+  
+00:00 +6 -2: today's practice: the lectures scheduled today with items, then the ones with items due again
+00:00 +7 -2: this week's answers: the text the web copies
+00:00 +8 -2: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:02 +9 -2: a lecture not yet watched has no Practice block
+00:03 +10 -2: a numeric answer: Check grades it; the unaided count moves
+00:03 +11 -2: a written answer: the key points and the model answer stay hidden under 80 characters
+00:05 +12 -2: Grade with Claude sends exactly one request: the allowed headers and body keys, the stub key, nothing else
+00:05 +13 -2: a refusal falls back to self-check in one line, stores nothing, and the marks stay
+00:06 +14 -2: an API error, no key and offline each fall back the same way; the last two send nothing
+00:07 +15 -2: readGrade: a refusal, an HTTP error, a body that is not JSON and a wrong shape each give a reason, never a grade
+00:07 +16 -2: the key is saved on the device, never shown back, and never in S
+00:07 +17 -2: Some tests failed.
+
+Failing tests:
+  /home/user/bf-T-067-pa/app/test/lecture_practice_test.dart: a push carries practice to the remote file, and no PUT holds the key
+  /home/user/bf-T-067-pa/app/test/lecture_practice_test.dart: the sync payload carries practice once there are answers, and never the key
+exit 1

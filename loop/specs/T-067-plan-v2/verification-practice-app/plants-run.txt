@@ -1,0 +1,27 @@
+plants against /home/user/bf-T-067-pa (2d0e851)
+sha256 before:
+  bee4b1bedc30f50a9804c28a8058d6fbd7259602591d335a1790a3c9b1ae70e0  app/lib/engine/merge.dart
+  f024852fe557dea9a0cc6d5266b2163bb2459082309fb07e5bf28e0bc9f7300f  app/lib/state/sync.dart
+  b567881584b4e6066b1a22ffd4e7278ef3abe5b49cb2267ffc27d1d76c87751f  app/lib/screens/lesson/practice_block.dart
+== plant payload-drops-practice -> flutter test test/lecture_practice_test.dart
+  restored app/lib/engine/merge.dart (cmp identical)
+  failed: a push carries practice to the remote file, and no PUT holds the key
+  failed: the sync payload carries practice once there are answers, and never the key
+  exit 1, the named test failed (caught, as required)
+== plant key-leak -> flutter test test/lecture_practice_test.dart
+  restored app/lib/state/sync.dart (cmp identical)
+  failed: a push carries practice to the remote file, and no PUT holds the key
+  exit 1, the named test failed (caught, as required)
+== plant worked-visible -> flutter test test/lecture_practice_test.dart
+  restored app/lib/screens/lesson/practice_block.dart (cmp identical)
+  failed: a worked solution is hidden before an attempt, and shows after one with the three marks
+  exit 1, the named test failed (caught, as required)
+== plant merge-older -> flutter test test/lecture_practice_test.dart
+  restored app/lib/engine/merge.dart (cmp identical)
+  failed: the merge: per item, the newer `at` wins; an item only one side has is kept; nothing is deleted
+  exit 1, the named test failed (caught, as required)
+sha256 after:
+  bee4b1bedc30f50a9804c28a8058d6fbd7259602591d335a1790a3c9b1ae70e0  app/lib/engine/merge.dart
+  f024852fe557dea9a0cc6d5266b2163bb2459082309fb07e5bf28e0bc9f7300f  app/lib/state/sync.dart
+  b567881584b4e6066b1a22ffd4e7278ef3abe5b49cb2267ffc27d1d76c87751f  app/lib/screens/lesson/practice_block.dart
+0 plant(s) not caught

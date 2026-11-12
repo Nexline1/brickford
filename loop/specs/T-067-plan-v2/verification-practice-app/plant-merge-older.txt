@@ -1,0 +1,58 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.2.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  material_ui 1.10.0 (1.11.0 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.4 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_android 2.5.4 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/user/bf-T-067-pa/app/test/lecture_practice_test.dart
+00:00 +0: practice.json is the web DAR.PRACTICE: 112 items under 45 lectures, four types
+00:00 +1: every numeric item is right at its own answer (and with a decimal comma), and wrong just outside its tolerance
+00:00 +2: a wrong numeric answer is marked missed and comes back in Recall; a right one counts as solved unaided
+00:00 +3: a worked item: Partly and Missed go into the review, Got it does not; Again clears the answer
+00:00 +4: an output item: the printed text spacing aside, or the same number
+00:00 +5: the merge: per item, the newer `at` wins; an item only one side has is kept; nothing is deleted
+00:00 +5 -1: the merge: per item, the newer `at` wins; an item only one side has is kept; nothing is deleted [E]
+  Expected: 'theirs newer'
+    Actual: 'old'
+     Which: is different.
+            Expected: theirs new ...
+              Actual: old
+                      ^
+             Differ at offset 0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/lecture_practice_test.dart 185:5               main.<fn>
+  
+00:00 +5 -1: the sync payload carries practice once there are answers, and never the key
+00:00 +6 -1: a push carries practice to the remote file, and no PUT holds the key
+00:00 +7 -1: today's practice: the lectures scheduled today with items, then the ones with items due again
+00:00 +8 -1: this week's answers: the text the web copies
+00:00 +9 -1: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:02 +10 -1: a lecture not yet watched has no Practice block
+00:03 +11 -1: a numeric answer: Check grades it; the unaided count moves
+00:03 +12 -1: a written answer: the key points and the model answer stay hidden under 80 characters
+00:04 +13 -1: Grade with Claude sends exactly one request: the allowed headers and body keys, the stub key, nothing else
+00:05 +14 -1: a refusal falls back to self-check in one line, stores nothing, and the marks stay
+00:06 +15 -1: an API error, no key and offline each fall back the same way; the last two send nothing
+00:06 +16 -1: readGrade: a refusal, an HTTP error, a body that is not JSON and a wrong shape each give a reason, never a grade
+00:06 +17 -1: the key is saved on the device, never shown back, and never in S
+00:07 +18 -1: Some tests failed.
+
+Failing tests:
+  /home/user/bf-T-067-pa/app/test/lecture_practice_test.dart: the merge: per item, the newer `at` wins; an item only one side has is kept; nothing is deleted
+exit 1

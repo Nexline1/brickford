@@ -1,69 +1,67 @@
-# The Python bridge (CS 100, proposed)
+# The Python bridge (CS 100): the shorter one
 
-**Recommendation: CS50P 2022 (Harvard, David J. Malan), all ten lectures, then two short array-and-tensor sessions, with 3Blue1Brown's LLM chapters on Fridays.** About 8 weeks at the new pace (cutover 22 Nov 2026 → Micrograd second pass from 18 Jan 2027, computed in `dates.md`), and two thirds of the time is typing, not watching.
+**Decision (owner, 12 Nov): the shorter bridge.** CS50 already taught variables, functions, conditionals and loops, so CS50P lectures 0–2 are **skipped** (still in the data, unscheduled). The bridge is CS50P lectures 3–9, then a NumPy hour and a PyTorch-tensors session. The no-code 3Blue1Brown chapters and Karpathy's Deep dive run alongside on Fridays.
 
-## What could not be checked — read this first
+**Computed length** (`dates.md`): from the cutover, Sunday 22 Nov 2026, to Monday 4 Jan 2027. That is 38 study days, about **6 study weeks**, not the 5 asked for. The coding lectures fill 5 of every 6 days, and the 6th (Friday) carries the no-code talks. Typed along, CS50P 3–9 is 707 minutes of video, plus 58 for NumPy and 150 for PyTorch. The Karpathy second pass starts Tuesday 5 Jan 2027.
 
-The brief asks for a choice made **after reading the transcripts**. That did not happen, and nothing below should be treated as checked:
+## Verification (12 Nov 2026)
 
-- `Yt_T` (youtube-transcript.ai) refused every call: *"This MCP server needs a free API key (10 requests a day)… Create a key at youtube-transcript.ai/get-api-key, then reconnect with the key in its URL."*
-- `Youtube_Transcribt` returned "An unexpected error occurred" (or nothing) for every video tried, including one already in the curriculum (`fNk_zzaMoSs`).
-- From this container, youtube.com answers 403 at the proxy and cs50.harvard.edu does not resolve, so neither oEmbed metadata nor CS50's own transcripts could be fetched.
-- A web search did confirm three facts: CS50P Lecture 0 "Functions, Variables" is `JP7ITIXGpHk` at about 1 h 45; CS50P Lecture 8 "Object-Oriented Programming" runs about 2 h 47; 3Blue1Brown's Deep Learning chapters 5 and 6 are about 27 and 26 minutes. Everything else (the other ids and lengths) is from memory and is marked `unverified` in `plan-data.js`.
+The transcript tools were down all session: `Yt_T` needs an API key, and `Youtube_Transcribt` errored on every video. Later in the session youtube.com became reachable from the container. **Every new video id was then checked against YouTube itself**:
+- oEmbed for the title and channel, which also proves the video exists and is public;
+- the official playlist page, or a YouTube search result, for the length.
 
-**To unblock:** give `Yt_T` an API key (the owner creates one at youtube-transcript.ai and reconnects the server), or allow `www.youtube.com` and `cs50.harvard.edu` in this environment's network settings. Then each id below gets checked by transcript and its transcript stored next to this file, before step 2 writes anything into `platform/data`.
+YouTube's watch pages answer with a bot check, so lengths came from playlists and search results, not from watch pages.
 
-The choice itself does not hang on the transcripts: CS50P is the course the owner's own CS50 teacher built for exactly this gap, with graded problem sets. The transcripts are needed to fix the ids, the minutes, and the "what each teaches" column below, and to write the practice items in step 3.
-
-## Why CS50P, and not the others
-
-| Candidate | Verdict |
-|---|---|
-| **CS50P 2022** (10 lectures, ~15.5 h, free on CS50's YouTube channel and on cs50.harvard.edu/python) | **Chosen.** Same teacher as the CS50 the owner finished, so no new style to learn. Each lecture has a problem set of 4–6 small programs with an automatic checker (`check50`), which is exactly the "unsolved problems with a way to correct them" the owner asked for. It covers the four things Karpathy assumes and the owner lacks: functions and loops written fluently, classes with dunder methods (`__add__`, `__repr__` — Micrograd's `Value` is nothing else), list comprehensions and `*args`, and regular expressions (the GPT-2 tokenizer's split pattern is a regex). |
-| A short crash course (e.g. a 1–4 h "Python for beginners") | **Rejected as the main course.** It shows syntax once and gives no problems; the owner's trouble is not syntax recognition but writing code alone. Useful only as a refresher if a CS50P week is missed. |
-| NumPy + PyTorch tensor basics | **Kept, after CS50P, short.** Makemore 1 is broadcasting from its first minutes; Micrograd is plain Python and does not need it. Two sessions: a NumPy hour (arrays, shapes, axis sums, broadcasting) and a 2.5 h slice of a PyTorch-fundamentals course (tensors, dtypes, indexing, `@`, `view`, `sum(dim, keepdim)`, broadcasting rules). |
-| 3Blue1Brown Deep Learning ch. 5–7 + "LLMs explained briefly" | **Kept, on Fridays, no code.** They keep the subject alive while the coding weeks are slow, and chapter 6 (attention) is a stated prerequisite of "Let's build GPT" in the map. |
-| Karpathy "Deep dive into LLMs" (`ai200.2.1`, already in the data) | **Moved forward** into the bridge Fridays, split across seven of them. No code. Its one-hour cousin `ai200.2.0` becomes optional. |
+- **188 of 189 new lecture ids verified**, each with its real title, channel and length recorded in `check` in `plan-data.js`. That covers the bridge, the second pass and all seven additions.
+- **2 ids corrected.** Both were from memory and wrong: CS50P Lecture 3 "Exceptions" is `LW7g1169v7w` (not `LW7g1169dDI`), and CS50P Lecture 4 "Libraries" is `MztLZWibctI` (not `u51Zjlnui4Y`).
+- **Lengths corrected.** For example, CS50P 9 runs 2 h 29, not 1 h 40. Every date was recomputed from the real minutes.
+- **1 gap, kept unverified.** MIT 18.03's official playlist has no Mattuck lecture 18. Its slot holds `pRIEYR5JHQA`, a different 2010 lecture by Miller and Vandiver. `math150.0.17` has no video until a source is found.
+- **Not verified:** the PyTorch slice. `V_xro1bcAuA` is verified as freeCodeCamp's 25 h 37 PyTorch course. The 150-minute "chapter 00" slice and its start and stop times are not, because the chapter list is on the watch page.
+- **Transcripts were not read.** The ids, titles and lengths are confirmed. What each lecture teaches, in the table below, comes from the course pages and titles. Step 3's practice items must be written from transcripts, so a transcript key is still needed (see README).
 
 ## The bridge, in order
 
-Minutes are video. "Practice" is the 2 h block (about 75 min coding, 45 min math problems) and is not lecture time. Each CS50P lecture spans the days `plan-dates.js` gives it at 60 effort-minutes a day (EFFORT = min × 1.8 + 4), so a 105-minute lecture is four days of about 26 minutes of video each, typed along, with that day's problems in the practice block.
+"Practice" means the 2-hour block: about 75 minutes of coding and 45 minutes of math. It is not lecture time.
 
-| Key | Lecture | Video id | Min | Teaches | Needed by | Practice (CS50P problem set unless noted) |
+| Key | Lecture | Video id (verified) | Min | Teaches | Needed by | Practice (the CS50P problem set unless noted) |
 |---|---|---|---:|---|---|---|
-| cs100.0.0 | CS50P 0 — Functions, Variables | `JP7ITIXGpHk` (search-confirmed) | 105 | `print`, `input`, `str`/`int`/`float`, f-strings, `def`, `return`, scope | everything | Problem Set 0 (Indoor Voice, Playback Speed, Making Faces, Einstein, Tip Calculator) |
-| cs100.0.1 | CS50P 1 — Conditionals | `_b6NgY_pMdw` (unverified) | 60 | `if/elif/else`, `and/or`, `match` | everything | Problem Set 1 |
-| cs100.0.2 | CS50P 2 — Loops | `-7xg8pGcP6w` (unverified) | 90 | `while`, `for`, `range`, lists, dicts, nested loops | Makemore 1 (counting bigrams in a dict) | Problem Set 2 |
-| cs100.0.3 | CS50P 3 — Exceptions | `LW7g1169dDI` (unverified) | 56 | `try/except/else`, `raise` | reading tracebacks in every Karpathy notebook | Problem Set 3 |
-| cs100.0.4 | CS50P 4 — Libraries | `u51Zjlnui4Y` (unverified) | 80 | `import`, `random`, `statistics`, `pip`, APIs, `sys.argv` | fast.ai 1 (map: `ai210.0.0`) | Problem Set 4 |
-| cs100.0.5 | CS50P 5 — Unit Tests | `tIrcxwLqzjQ` (unverified) | 55 | `assert`, `pytest` | checking your own Micrograd against PyTorch | Problem Set 5 |
-| cs100.0.6 | CS50P 6 — File I/O | `KD-Yoel6EVQ` (unverified) | 107 | `open`, `with`, CSV, reading a file line by line | Makemore 1 (`names.txt`), the tokenizer | Problem Set 6 |
-| cs100.0.7 | CS50P 7 — Regular Expressions | `hy3sd9MOAcc` (unverified) | 120 | `re`, patterns, groups | the GPT-2 tokenizer's split regex (`ai200.1.7`) | Problem Set 7 |
-| cs100.0.8 | CS50P 8 — Object-Oriented Programming | `e4fwY9ZsxPw` (length search-confirmed, id unverified) | 167 | classes, `__init__`, `__str__`, properties, operator overloading, class methods, inheritance | **Micrograd** (`Value.__add__`, `__mul__`, `__radd__`); `nn.Module` everywhere after | Problem Set 8 + a 40-line `Value` class with `+` and `*` before watching Micrograd |
-| cs100.0.9 | CS50P 9 — Et Cetera | `6pgodt1mezg` (unverified) | 100 | sets, globals, type hints, docstrings, `argparse`, unpacking, `*args/**kwargs`, `map`, list and dict comprehensions, generators | every Karpathy file (comprehensions are his default idiom) | Problem Set 9 / Final Project idea (start it; finish in the project block) |
-| cs100.1.0 | NumPy for beginners (freeCodeCamp, Keith Galli) | `QUT1VHiLmmI` (unverified) | 58 | arrays, `shape`, slicing, `sum(axis=)`, broadcasting | Makemore 1 | 20 array exercises; by hand predict every shape before running |
-| cs100.1.1 | PyTorch fundamentals, chapter 00 of *Learn PyTorch for Deep Learning* (Daniel Bourke) | `V_xro1bcAuA` (unverified; a 150-min slice of a 25 h video — timestamps from the transcript) | 150 | tensors, dtypes, devices, indexing, `@`, `view`/`reshape`, `sum(dim, keepdim)`, broadcasting rules | **Makemore 1** (`N / N.sum(1, keepdim=True)` is the lecture's famous broadcasting trap) | the chapter's exercises; then redo the bigram count table in NumPy and in PyTorch |
-| cs100.2.0 | 3B1B — Large Language Models explained briefly | `LPZh9BOjkQs` (unverified) | 8 | what an LLM does, in one picture | motivation | one written paragraph: what is predicted, from what |
-| cs100.2.1 | 3B1B — Transformers, the tech behind LLMs (ch. 5) | `wjZofJX0v4M` (length search-confirmed) | 27 | tokens, embeddings, the unembedding, softmax with temperature | Build GPT | explain softmax with temperature in writing |
-| cs100.2.2 | 3B1B — Attention in transformers, step by step (ch. 6) | `eMlx5fFNoYc` (length search-confirmed) | 26 | queries, keys, values, masking, heads | **Build GPT** (`ai200.1.6`, in the map) | draw one attention pattern by hand for a 4-token sentence |
-| cs100.2.3 | 3B1B — How might LLMs store facts (ch. 7) | `9-Jl0dxWQs8` (unverified) | 23 | the MLP block, superposition | RES 400 interpretability, later | one written paragraph |
-| ai200.2.1 | Karpathy — Deep dive into LLMs like ChatGPT (in the data) | `7xTGNNLPyMI` (in the data) | 211 | pretraining, tokens, post-training, RL, hallucination | context for everything after | one written summary per Friday part |
+| cs100.0.0–0.2 | CS50P 0–2: Functions and Variables, Conditionals, Loops | `JP7ITIXGpHk`, `_b6NgY_pMdw`, `-7xg8pGcP6w` | 106, 56, 81 | — | — | **skipped**: covered by CS50 |
+| cs100.0.3 | CS50P 3 — Exceptions | `LW7g1169v7w` | 45 | `try/except/else`, `raise` | reading tracebacks in every Karpathy notebook | Problem Set 3 |
+| cs100.0.4 | CS50P 4 — Libraries | `MztLZWibctI` | 77 | `import`, `random`, `statistics`, `pip`, APIs, `sys.argv` | fast.ai 1 (`ai210.0.0`) | Problem Set 4 |
+| cs100.0.5 | CS50P 5 — Unit Tests | `tIrcxwLqzjQ` | 51 | `assert`, `pytest` | checking your own Micrograd against PyTorch | Problem Set 5 |
+| cs100.0.6 | CS50P 6 — File I/O | `KD-Yoel6EVQ` | 92 | `open`, `with`, CSV | Makemore 1 (`names.txt`), the tokenizer | Problem Set 6 |
+| cs100.0.7 | CS50P 7 — Regular Expressions | `hy3sd9MOAcc` | 125 | `re`, patterns, groups | the GPT-2 tokenizer's split regex (`ai200.1.7`) | Problem Set 7 |
+| cs100.0.8 | CS50P 8 — Object-Oriented Programming | `e4fwY9ZsxPw` | 168 | classes, `__init__`, `__str__`, properties, operator overloading, inheritance | **Micrograd** (`Value.__add__`, `__mul__`); `nn.Module` everywhere after | Problem Set 8, plus a 40-line `Value` class with `+` and `*` before Micrograd |
+| cs100.0.9 | CS50P 9 — Et Cetera | `6pgodt1mezg` | 149 | sets, type hints, `argparse`, unpacking, `*args`, `map`, comprehensions, generators | every Karpathy file | Problem Set 9 |
+| cs100.1.0 | NumPy for beginners (freeCodeCamp, Keith Galli) | `QUT1VHiLmmI` | 58 | arrays, `shape`, slicing, `sum(axis=)`, broadcasting | Makemore 1 | 20 array exercises: predict every shape before running |
+| cs100.1.1 | PyTorch fundamentals (freeCodeCamp, Daniel Bourke), chapter 00 slice | `V_xro1bcAuA` (slice unverified) | 150 | tensors, dtypes, indexing, `@`, `view`, `sum(dim, keepdim)`, broadcasting | **Makemore 1** (`N / N.sum(1, keepdim=True)`) | the chapter's exercises, then the bigram count table in NumPy and in PyTorch |
+| cs100.2.0 | 3B1B — Large Language Models explained briefly | `LPZh9BOjkQs` | 8 | what an LLM does | motivation | one written paragraph |
+| cs100.2.1 | 3B1B — Transformers, the tech behind LLMs (ch. 5) | `wjZofJX0v4M` | 27 | tokens, embeddings, softmax with temperature | Build GPT | explain temperature in writing |
+| cs100.2.2 | 3B1B — Attention in transformers, step by step (ch. 6) | `eMlx5fFNoYc` | 26 | queries, keys, values, masking, heads | **Build GPT** (`ai200.1.6`) | draw one attention pattern by hand |
+| cs100.2.3 | 3B1B — How might LLMs store facts (ch. 7) | `9-Jl0dxWQs8` | 23 | the MLP block, superposition | RES 400 interpretability | one written paragraph |
+| ai200.2.1 | Karpathy — Deep dive into LLMs like ChatGPT (in the data) | `7xTGNNLPyMI` | 211 | pretraining, post-training, RL, hallucination | context | one written summary per Friday part |
 
-Total video ≈ 1,230 minutes (20.5 h), plus the Deep dive's 3.5 h already in the data.
+**Easy NeetCode problems start in week 3 of the bridge**: two a day in the coding block, Arrays & Hashing first, in Python, with no AI.
 
-**Easy NeetCode problems start in week 4 of the bridge** (after Loops and Exceptions): two a day in the coding block, Arrays & Hashing first (CS 150's own list), solved in Python with no AI.
+**After the talks, Fridays carry MIT Missing Semester** (from 12 Feb 2027; see `additions.md`).
+
+## Why CS50P (unchanged reasoning)
+
+CS50P has the same teacher as the CS50 the owner finished. Each lecture has a problem set with an automatic checker, which gives "unsolved problems with a way to correct them". It covers what Karpathy assumes: classes with dunder methods, comprehensions, `*args`, regular expressions and file handling.
+
+A short crash course was rejected: it gives no problems. NumPy and PyTorch are kept short, because Makemore 1 is broadcasting from its first minutes.
 
 ## Then the Karpathy second pass
 
-The second pass re-uses the same videos under new keys (`ai200.3.0`–`ai200.3.4`, the plan's "Second pass: type along" unit), so the first-pass watch history stays intact. Typing along at about 35 minutes of video a day, with each lecture followed in the practice block by "rebuild it without the video". The map gates each one on the math it needs:
+Same videos under new keys `ai200.3.0`–`ai200.3.4`. All 9 Zero to Hero ids were verified in Karpathy's playlist `PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ`. He is typed along at about 31 minutes of video a day, and each lecture is followed by "rebuild it without the video".
 
 | Lecture | Needs, besides the previous lecture |
 |---|---|
-| Micrograd (`ai200.3.0`) | CS50P 8 (classes) and 9 (comprehensions), the chain rule (`math120.0.3`), 3B1B backprop calculus (`ai200.0.3`) |
-| Makemore 1 (`ai200.3.1`) | PyTorch tensors and broadcasting (`cs100.1.1`), matrix multiplication (`math110.0.3`), conditional probability (`math130.0.3`) |
+| Micrograd (`ai200.3.0`) | CS50P 8 and 9, the chain rule (`math120.0.3`), 3B1B backprop calculus |
+| Makemore 1 (`ai200.3.1`) | PyTorch tensors (`cs100.1.1`), matrix multiplication (`math110.0.3`), conditional probability (`math130.0.3`) |
 | Makemore 2 (`ai200.3.2`) | random variables and distributions (`math130.0.7`) |
-| Makemore 3 (`ai200.3.3`) | location and scale of a distribution (`math130.0.13`) |
-| Makemore 4 (`ai200.3.4`) | the multivariable chain rule (`math120.2.4`, the new bridge unit) |
-| Makemore 5 → Build GPT → Tokenizer → GPT-2 (original keys `ai200.1.5`–`1.8`) | attention (`cs100.2.2`) and dot products (`math110.0.8`) before GPT; regex and file I/O (`cs100.0.7`, `cs100.0.6`) before the tokenizer |
+| Makemore 3 (`ai200.3.3`) | location and scale (`math130.0.13`) |
+| Makemore 4 (`ai200.3.4`) | matrix multiplication's readings (`math110.1.2`) and the chain rule (`math120.1.3`); 18.02 comes later and is not needed here |
+| Makemore 5 → Build GPT → Tokenizer → GPT-2 | attention (`cs100.2.2`) and dot products before GPT; regex and file I/O before the tokenizer |
 
-Computed result (`dates.md`): the bridge ends 17 Jan 2027, the second pass and the rest of Zero to Hero end 7 Mar 2027.
+Computed: Zero to Hero done **28 Feb 2027** with everything included (24 Feb if no addition ran).

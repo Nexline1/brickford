@@ -1,24 +1,36 @@
-# Old vs new dates — computed
+# Old vs new dates — computed (option A, everything included)
 
-**How.** `node tools/plan-dates.js` opens the real app in Chromium with a fixed clock and a fresh state, reads `window.__brickfordTest` (the hook `tools/verify-logic.js` uses), and calls the app's own `scheduledFor` on every study day 0–1093 for the OLD dates and its own `dateForStudy` for every calendar date. The NEW dates are the v2 simulation described in `sequence.md` (Math & Physics 90, AI 60, Storytelling 40 effort-minutes; papers reimplemented in the practice block, 21 study days each, one after another, starting after GPT-2). Nothing was estimated by hand. Day 1094 is 2030-04-14 and the gate baseline 2030-04-15, as the code says (the one-day gap CLAUDE.md describes).
+**How.** `node tools/plan-dates.js` opens the real app in Chromium with a fixed clock and a fresh state. It reads `window.__brickfordTest`, the hook `tools/verify-logic.js` uses, and calls the app's own `scheduledFor` on every study day 0–1093 for the OLD dates, and its own `dateForStudy` for every calendar date.
+
+The NEW dates come from the v2 simulation in `sequence.md`:
+- budgets: Math & Physics 90, AI 60, Storytelling 40 effort-minutes;
+- the shorter bridge and the seven additions;
+- the real video lengths, checked on 12 Nov;
+- papers reimplemented in the practice block, 21 study days each, one after another, from the end of GPT-2.
+
+Nothing was estimated by hand. Day 1094 is 2030-04-14 and the gate baseline is 2030-04-15, as the code says.
+
+**Decision (owner, 12 Nov): option A.** Lectures come sooner, and the gates and day 1094 do not move.
 
 ## Summary
 
-| | Old (v1, as the app schedules today) | New, core only | New, core + proposed courses |
+| | Old (v1, as the app schedules today) | **New: the plan (everything included)** | New, core only (for reference) |
 |---|---|---|---|
-| Python bridge done | — (there is none) | 17 Jan 2027 | 17 Jan 2027 |
-| Karpathy Zero to Hero done | 26 Nov 2026 (day 36, no Python first) | 7 Mar 2027 (second pass, typed along) | 7 Mar 2027 |
-| Math foundation (18.06, 18.01, Stat 110) done | 28 Feb 2027 | 23 Apr 2027 | 31 May 2027 |
-| PHYS 100 done | 1 Nov 2027 | 15 Apr 2027 | 16 May 2027 |
-| Last lecture (excluding papers and Storytelling) | 17 Jan 2028 (RES 400) | **2 Sep 2027** | **5 Dec 2027** |
-| 16th paper reimplementation done | 11 Jun 2028 | 26 Apr 2028 | 26 Apr 2028 |
+| Python bridge done | — (there is none) | 4 Jan 2027 | 4 Jan 2027 |
+| Zero to Hero done | 26 Nov 2026 (day 36, with no Python first) | **28 Feb 2027** (second pass, typed along) | 24 Feb 2027 |
+| Math foundation (18.06, 18.01, Stat 110) done | 28 Feb 2027 | 3 Jun 2027 | 21 Apr 2027 |
+| PHYS 100 done | 1 Nov 2027 | 26 Mar 2027 | 13 Apr 2027 |
+| Last lecture (excluding Storytelling) | 17 Jan 2028 (RES 400) | **31 Jan 2028** (RES 400) | 27 Aug 2027 |
+| 6th paper reimplementation done (gate 3 needs 6) | — | 27 Sep 2027 | 15 Aug 2027 |
+| 16th paper reimplementation done | 11 Jun 2028 | **29 May 2028** | 16 Apr 2028 |
 | Storytelling done | 4 Jul 2027 | unchanged | unchanged |
 
-Three things the numbers say plainly:
+What the numbers say:
 
-1. **The math foundation ends later than in v1, on purpose.** v1 ran 18.06, 18.01 and Stat 110 side by side with no regard for prerequisites, so Stat 110's continuous lectures came before the integrals they use. v2 waits for them; Stat 110 finishes about ten weeks later (23 Apr instead of 8 Feb 2027), 18.06 and 18.01 six days earlier.
-2. **Everything after the foundation comes much sooner.** Phase 2 opens when the foundation ends instead of on fixed day 183, and the Math & Physics block's 90 minutes pass to the AI line once math is done. The last lecture moves from Jan 2028 to Sep 2027 (core) — 4½ months sooner — or to Dec 2027 with all four proposed courses (about 104 hours more) still six weeks sooner than v1.
-3. **The papers are now the bottleneck, and lectures cannot shorten them.** Sixteen reimplementations at three weeks each are 336 study days of practice. They start after GPT-2 (Mar 2027) and end 26 Apr 2028, only six weeks before v1's 11 Jun 2028.
+1. **The seven additions cost about five months of lecture calendar.** That is about 159 hours of video, and it buys 18.02, 18.03, 8.02, statistical mechanics, 18.650, 6.006 and Missing Semester. With them, the last lecture lands on 31 Jan 2028, two weeks after v1's last lecture, which had none of them. Without them it would be 27 Aug 2027.
+2. **No gate moves, and everything fits.** Every lecture ends before gate 4 (16 Jul 2028), and so does the 16th paper (29 May 2028). By gate 3 (16 Dec 2027), 9 of 16 papers are reimplemented; gate 3 needs 6. Only 8.02 is still running at gate 3. It is first in the drop order, so if the owner is behind at gate 3, 8.02 is deferred.
+3. **The math foundation ends later than in v1, on purpose.** Stat 110 now waits for the calculus its continuous half uses, and its joint-density and transformation lectures wait for 18.02's double integrals and change of variables. 18.06 and 18.01 end slightly earlier than in v1.
+4. **The papers are still the long pole.** Lectures do not decide the late gates.
 
 <!-- BEGIN GENERATED -->
 Computed by tools/plan-dates.js: the OLD dates are read from the real app (scheduledFor on every study day, fresh state, through window.__brickfordTest); the NEW dates are the v2 simulation. Calendar: START 2026-10-16, Saturday rest, day 1094 = 2030-04-14. Cutover 2026-11-22 = study day 32.
@@ -68,16 +80,10 @@ No gate moves: the targets are what the app's gatePlan() gives today (cumulative
 Paper reimplementations (everything included, 21 study days each in the practice block): 1. ai300.1.0 ends 2027-03-26; 2. ai300.1.1 ends 2027-04-20; 3. ai300.1.2 ends 2027-05-14; 4. ai300.0.0 ends 2027-08-09; 5. ai300.0.1 ends 2027-09-02; 6. ai300.0.2 ends 2027-09-27; 7. ai300.0.3 ends 2027-10-21; 8. ai300.3.0 ends 2027-11-15; 9. ai300.3.1 ends 2027-12-09; 10. ai300.3.2 ends 2028-01-03; 11. ai300.1.3 ends 2028-01-27; 12. ai300.2.0 ends 2028-02-21; 13. ai300.2.1 ends 2028-03-16; 14. ai300.2.2 ends 2028-04-10; 15. ai300.2.3 ends 2028-05-04; 16. ai300.3.3 ends 2028-05-29.
 <!-- END GENERATED -->
 
-## Option A or option B
+## Option A, decided
 
-**Option A — lectures sooner, gates and day 1094 unchanged.** The gate targets stay where the app puts them today (27 Dec 2026, 18 May 2027, 16 Dec 2027, 16 Jul 2028, 15 Apr 2030). Lectures finish by Sep 2027 (or Dec 2027 with the added courses), which leaves gate 3 and gate 4 with months of room for what they actually measure: reimplementations, a merged open-source PR, a portfolio, and an original project.
+The gate targets stay where the app puts them today: 27 Dec 2026, 18 May 2027, 16 Dec 2027, 16 Jul 2028, 15 Apr 2030. Day 1094 stays 14 Apr 2030.
 
-**Option B — gates shortened.** Each gate is pulled to when its content is done (rules under the table). Computed result: gate 2 on 2 May 2027 (16 days sooner), gate 3 on 25 Aug 2027 (3.7 months sooner), gate 4 on 27 Apr 2028 (2.6 months sooner), gate 5 on **25 Jan 2030 instead of 15 Apr 2030 — 80 days sooner**. With the proposed courses the dates are the same, because the papers, not the lectures, decide gates 3 and 4.
+The time option A frees is spent on the seven additions, and on the reimplementations and the first original result, which are what gates 3 and 4 measure. If the owner passes gates early, the app already pulls the later targets forward on its own.
 
-What B costs, plainly:
-- **It buys 80 days at the very end, and nothing more.** Gate 5 — employed in a real AI role or a founder with revenue — is 18 months, and study speed cannot shorten being hired or earning revenue.
-- **Gate 3 drops from 6 months to 3.3.** Six paper reimplementations and a first merged open-source PR by 25 Aug 2027 means the first papers start while the math foundation is still running. The PR depends on other people's review times, which the plan does not control.
-- **Gate 2 keeps its content but loses slack.** 150 DSA problems, 20+ posts and 5+ repos by 2 May 2027, with the GPT project block reduced to the 48 study days after GPT-2.
-- **A missed target costs more.** The gates are adaptive (passing late pushes every later target), so a tighter gate that slips moves everything after it, and a dashboard that is always behind is the pattern this repository's reset history warns about.
-
-**Recommendation: A.** Take the speed as room, not as an earlier finish line: it is what makes the four proposed courses (18.02, 18.03, 8.02, statistical mechanics) fit with no gate moving, and it gives the reimplementations and the first original result — the things a self-taught scientist is judged on — the time they need. If the owner later passes gates early, the app already pulls the later targets forward on its own; that is option B earned instead of promised.
+Option B was costed in the first draft: shortening the gates bought 80 days at the very end. It was not chosen.

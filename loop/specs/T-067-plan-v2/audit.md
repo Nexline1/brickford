@@ -4,7 +4,7 @@
 
 **How it was built.** `node tools/audit-lectures.js > audit-raw.txt` lists all 494 lectures and every candidate overlapping pair (TF-IDF cosine over title, takeaway and beats, within and across courses). Each pair was judged by hand; the judgements live in one file, `plan-data.js`, and `node tools/plan-dates.js` writes the table below from it. The raw script is reproducible (same output byte for byte on a second run).
 
-**Honest limit.** 39 lectures have no summary (AI 200 Units I and III, AI 300, RES 400), so they were judged by title, source and position only. No transcript could be read this session (see `python-bridge.md`, "What could not be checked").
+**Honest limit.** 39 lectures have no summary (AI 200 Units I and III, AI 300, RES 400), so they were judged by title, source and position only. No transcript could be read this session; the new videos' ids, titles and lengths were checked against YouTube directly (see `python-bridge.md`).
 
 ## What the pairs showed
 
@@ -17,35 +17,25 @@
 - **Integration techniques stay core.** The 10 Nov idea was to mark them optional; the 12 Nov goal overrides it: physics (8.01, and 8.02 if approved) and Stat 110 densities use substitution, parts and partial fractions constantly.
 - **SPCH 100:** no near-duplicate. The strongest pair scores 0.28 and is a part-one/part-two lesson. All 170 core.
 
-## Headline
+## Headline (owner approved all eleven cuts, 12 Nov)
 
-| | Lectures | Core | Optional | Duplicate |
-|---|---:|---:|---:|---:|
-| Existing curriculum | 494 | 483 | 10 | 1 |
-| Proposed: Python bridge, second pass, multivariable bridge | 28 | 28 | 0 | 0 |
-| Proposed later courses (need approval) | 114 | 114 | 0 | 0 |
+| | Lectures | Core | Optional | Duplicate | Skipped |
+|---|---:|---:|---:|---:|---:|
+| Existing curriculum | 494 | 483 | 10 | 1 | 0 |
+| Python bridge (CS 100) and Karpathy second pass | 21 | 18 | 0 | 0 | 3 |
+| The seven additions (tutor's decision, 12 Nov) — see `additions.md` | 168 | 168 | 0 | 0 | 0 |
 
-Optional: `math120.1.6`, `math130.0.14`, `ai200.2.0`, `ai210.0.5`, `ai210.0.6`, `phys100.0.9`, `phys100.0.18`, `phys100.0.29`, `phys100.0.35`, `phys100.0.36`. Duplicate: `math210.0.16`. Trimming saves about 11 hours of video (614 optional minutes plus the 65-minute duplicate) out of 320 hours, about 3.5% — as the goal requires, option A's speed comes from five hours a day and a better order, not from cutting.
+Optional: `math120.1.6`, `math130.0.14`, `ai200.2.0`, `ai210.0.5`, `ai210.0.6`, `phys100.0.9`, `phys100.0.18`, `phys100.0.29`, `phys100.0.35`, `phys100.0.36`. Duplicate: `math210.0.16`. Trimming saves about 11 hours of video (614 optional minutes plus the 65-minute duplicate) out of 320 hours, about 3.5%. Option A's speed comes from five hours a day and a better order, not from cutting.
 
-## What the curriculum lacks for this goal
+Skipped: CS50P lectures 0–2 (`cs100.0.0`–`cs100.0.2`: functions and variables, conditionals, loops), which CS50 already taught (owner, 12 Nov: the shorter bridge). They stay in the data, unscheduled.
 
-Proposals only; nothing is added to the data. Lecture counts and lengths are from the courses' published listings as I know them and were **not** checked this session — the transcript tools and the course sites were unreachable (details in `python-bridge.md`). Each must be checked by transcript before it is added, per `docs/CONTENT-STANDARD.md`.
+MATH 110's four review lectures stay core (owner default, 12 Nov). The 1.3-hour Khan multivariable bridge proposed in the first draft is **dropped**: MIT 18.02 replaces it.
 
-| Gap | Proposal | Lectures | Hours | Why |
-|---|---|---:|---:|---|
-| Partial derivatives, gradient, Jacobian, double integrals (short, now) | Khan Academy multivariable calculus, the videos by Grant Sanderson (3Blue1Brown's author): 7 chosen videos as a new last unit of MATH 120 (`math120.2.*`) | 7 | ~1.3 | Makemore 4 and MATH 210 need gradients and Jacobians; Stat 110's joint densities need double integrals. Ids not chosen yet. |
-| Multivariable calculus in full | MIT 18.02, Denis Auroux, Fall 2007 (MIT OpenCourseWare playlist) → MATH 140 | 35 | ~29 | Line and surface integrals, Green, Stokes, divergence: the language of electromagnetism and of any field theory. |
-| Differential equations | MIT 18.03, Arthur Mattuck, Spring 2006 (MIT OCW) → MATH 150 | 33 | ~27.5 | Dynamics, oscillators, Laplace and Fourier: physics runs on ODEs, and neural ODEs and diffusion models do too. |
-| Electromagnetism | MIT 8.02, Walter Lewin, Spring 2002 (same lecturer as PHYS 100) → PHYS 200 | 36 | ~30 | The second pillar of classical physics; needs 18.02. |
-| Statistical physics | Stanford, Leonard Susskind, Statistical Mechanics (2013) → PHYS 300 | 10 | ~17.5 | Entropy, Boltzmann distribution, partition functions: the physics under softmax, energy-based models, diffusion and much of ML theory. Placed after MacKay's entropy lectures. |
-| Statistics (inference) | MIT 18.650, Philippe Rigollet, Fall 2016 — listed, not sequenced | ~24 | ~30 | Stat 110 is probability; estimation, tests and regression are a separate course. A scientist needs it for every experiment. |
-| Quantum mechanics | MIT 8.04, Allan Adams, Spring 2013 — listed, not sequenced | ~24 | ~30 | The next physics after E&M if the physics side grows; also the door to quantum computing. |
-| Algorithms lectures | MIT 6.006, Spring 2020 — listed, not sequenced | ~21 | ~20 | CS 150 has the NeetCode 150 problems but **no lectures at all**; the problems teach patterns, not analysis. |
-| Convex optimisation | Stanford EE364A, Stephen Boyd — listed, not sequenced | ~19 | ~25 | MATH 210 has Boyd's book chapters 2–3 as reading; the lectures are the full version. |
+## What the curriculum lacked, and what was decided
 
-The first five rows are in `prerequisites.json` (MATH 140, MATH 150, PHYS 200, PHYS 300 under provisional keys) and in the "with additions" columns of `dates.md`. The last four are named for the owner to consider; they are not in any computed date.
+The first draft listed the gaps (multivariable calculus, differential equations, electromagnetism, statistical physics, statistics, an algorithms course, tooling). The tutor decided on 12 Nov to add exactly seven courses, in this priority order: MIT Missing Semester, MIT 6.006, MIT 18.02, MIT 18.650, MIT 18.03, Susskind's Statistical Mechanics, MIT 8.02. `additions.md` gives each one's reason, what it unlocks, its prerequisites, its slot and hours, the rules for additions, the drop order if behind at gate 3, and the "not now" list (EE364A, 8.04, CS229, CS231n, real analysis, 18.065, architecture, signal processing). Every video id of all seven was checked against YouTube on 12 Nov (see `python-bridge.md`, "Verification").
 
-**An honest note.** A self-taught route to science is judged on published work, not on lectures watched. The paper reimplementations (AI 300) and the first original result matter more than any lecture in this table. The gates already say this (gate 3: six reimplementations and a merged open-source PR) and they are kept. The Nobel ambition does not change this audit: it is reached, if at all, through original results, and the plan's job is to make the owner able to produce them.
+**An honest note.** A self-taught route to science is judged on published work, not on lectures watched. The paper reimplementations (AI 300) and the first original result matter more than any lecture in this table. The gates already say this (gate 3: six reimplementations and a merged open-source PR), and they are kept.
 
 ## The table
 

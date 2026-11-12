@@ -300,7 +300,7 @@ const esc = s => String(s).replace(/\|/g, "/");
   replaceGenerated("prerequisites.md", pre);
 
   // ---- sequence ----
-  const r = runs.core;
+  const r = runs.plus;   // the plan: option A, everything included
   const fmtItems = items => items.map(i => `${i.x.key}${i.x.real ? "" : "†"} ${esc(i.x.t).slice(0, 60)}${i.n > 1 ? ` (part ${i.k}/${i.n})` : ""}`).join(" + ") || "—";
   const wd = iso => new Date(iso + "T00:00:00Z").toUTCString().slice(0, 3);
   const speechOn = iso => { const day = app.days.find(x => x.iso === iso); return day ? day.items.filter(i => i.track === "Publish").map(i => i.key).join(", ") : ""; };

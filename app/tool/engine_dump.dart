@@ -20,6 +20,8 @@ import '../lib/engine/engine.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/learn.dart';
 // ignore: avoid_relative_lib_imports
+import '../lib/engine/lecture_practice.dart';
+// ignore: avoid_relative_lib_imports
 import '../lib/engine/merge.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/monk.dart';
@@ -373,10 +375,10 @@ Map<String, dynamic> learnDump(Map<String, dynamic> fx, BrickfordData data) {
       f['name'] as String: () {
         final r = eng(f as Map<String, dynamic>).recallData();
         return {
-          'due': [for (final it in r.due) [it.k, it.label.code, it.label.title, it.pill, it.crimson]],
+          'due': [for (final it in r.due) [it.k, it.label.code, it.label.title + it.practiceTag, it.pill, it.crimson]],
           'counts': r.dueN == 0 ? null : ['${r.dueN}', '${r.scheduled}'],
           'nothing': r.dueN > 0 ? null : (r.scheduled > 0 ? '${r.scheduled} lecture${r.scheduled == 1 ? '' : 's'} scheduled ahead.' : 'Prove a lecture and it enters the rotation.'),
-          'next': [for (final it in r.next) [it.label.title, it.label.code, it.due.substring(5)]],
+          'next': [for (final it in r.next) [it.label.title, it.label.code + it.practiceTag, it.due.substring(5)]],
         };
       }(),
   };
@@ -574,7 +576,7 @@ void main(List<String> args) {
       ? [for (final x in v) strip(x)]
       : v;
   Map<String, dynamic> project(Engine e) => {
-    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk', 'monkStart'])
+    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk', 'monkStart', 'practice'])
       k: e.S[k],
     'streakFrom': e.settings['streakFrom'],
   };
@@ -665,7 +667,73 @@ void main(List<String> args) {
   out['record'] = recordDump(fx, data);
   out['learn'] = learnDump(fx, data);
   out['pages'] = pagesDump(fx, data);
+  out['lpr'] = lprDump(fx, data);
   stdout.write(jsonEncode(out));
+}
+
+/// T-067 step 3: the practice items under a lecture's quiz, shaped as tools/verify-app.js reads app.js.
+Map<String, dynamic> lprDump(Map<String, dynamic> fx, BrickfordData data) {
+  final L = fx['lpr'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  Map<String, dynamic> item(String k, String id) => (data.practice[k] as List).cast<Map>().firstWhere((x) => x['id'] == id).cast<String, dynamic>();
+  final out = <String, dynamic>{
+    'consts': {'AI_URL': AI_URL, 'AI_MODEL': AI_MODEL, 'WRITE_MIN': WRITE_MIN, 'post': true},
+    'headers': gradeHeaders('sk-ant-test-stub'),
+    'grade': [
+      for (final g in L['num'] as List) [for (final v in g['given'] as List) gradeAnswer((g['it'] as Map).cast<String, dynamic>(), v)],
+    ],
+    'output': [
+      for (final it in L['outItems'] as List) [for (final v in L['printed'] as List) outputOk((it as Map).cast<String, dynamic>(), v as String)],
+    ],
+    'request': {
+      for (final g in L['graded'] as List)
+        '${g['k']}/${g['id']}': [for (final a in L['answers'] as List) jsonEncode(gradeRequest(item(g['k'] as String, g['id'] as String), a as String))],
+    },
+  };
+  final dash = <String, dynamic>{};
+  for (final f in L['dash'] as List) {
+    final e = Engine(data, (copy(f['state']) as Map?)?.cast<String, dynamic>(), today: () => f['clock'] as String);
+    final d = e.practiceDash();
+    dash[f['name'] as String] = d == null
+        ? null
+        : {
+            'items': '${d.items} items',
+            'rows': [for (final r in d.rows) ['#/lesson/${r.k.replaceAll('.', '/')}', r.title, r.sub, r.seen]],
+            'copy': d.week > 0 ? d.weekSub : null,
+            'text': d.week > 0 ? e.weekText().text : null,
+          };
+  }
+  out['dash'] = dash;
+  // The lesson page's handlers, in order, on one engine under the steps' clock.
+  final S0 = L['steps'] as Map<String, dynamic>, ts = '${S0['clock']}T12:00:00.000Z';
+  final e = Engine(data, (copy(S0['state']) as Map).cast<String, dynamic>(), today: () => S0['clock'] as String);
+  final msgs = <String, dynamic>{};
+  for (final lec in S0['lectures'] as List) {
+    final k = lec[0] as String;
+    msgs[k] = [
+      for (final st in lec[1] as List)
+        () {
+          final act = st[0] as String, id = st[1] as String;
+          switch (act) {
+            case 'check':
+              return e.practiceAnswer(k, item(k, id), st[2] as String, ts);
+            case 'mark':
+              e.practiceMark(k, id, st[2] as String, ts);
+            case 'again':
+              e.practiceAgain(k, id, ts);
+            case 'tick':
+              e.practiceTick(k, id, st[2] as int, st[3] as bool, ts);
+          }
+          return null;
+        }(),
+    ];
+  }
+  out['steps'] = {
+    'msgs': msgs,
+    'practice': copy(e.S['practice']),
+    'review': {for (final en in e.review.entries) if (en.key.startsWith('p:')) en.key: copy(en.value)},
+  };
+  return out;
 }
 
 /// Practice, gates, Transcript, Workshop, Method and Library (stage 6b), shaped as tools/verify-app.js reads app.js's pages.

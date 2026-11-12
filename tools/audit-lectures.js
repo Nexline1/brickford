@@ -141,8 +141,8 @@ pairs.filter(p => lectures[p.i].cid !== lectures[p.j].cid).slice(0, 150).forEach
 P(""); P("## Candidate overlaps WITHIN a course, excluding SPCH 100 (non-adjacent, cosine >= 0.25, at most 120)");
 pairs.filter(p => lectures[p.i].cid === lectures[p.j].cid && lectures[p.i].cid !== "spch100" && !adjacent(p) && p.s >= 0.25).slice(0, 120).forEach(p => P(fmt(p)));
 
-P(""); P("## Candidate overlaps WITHIN SPCH 100 (any two lessons, cosine >= 0.30, at most 120)");
-pairs.filter(p => lectures[p.i].cid === "spch100" && lectures[p.j].cid === "spch100" && p.s >= 0.30).slice(0, 120).forEach(p => P(fmt(p)));
+P(""); P("## Candidate overlaps WITHIN SPCH 100 (any two lessons, cosine >= 0.20, at most 120)");
+pairs.filter(p => lectures[p.i].cid === "spch100" && lectures[p.j].cid === "spch100" && p.s >= 0.20).slice(0, 120).forEach(p => P(fmt(p)));
 
 P(""); P("## Adjacent lessons within a unit with cosine >= 0.40 (often a two-part lecture; listed for completeness)");
 pairs.filter(p => adjacent(p) && p.s >= 0.40).forEach(p => P(fmt(p)));

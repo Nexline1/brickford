@@ -812,7 +812,21 @@ spch100.16.6 | SPCH 100 | 26 | How Johnny Harris writes a video — the promise,
 0.255  math110.1.22 "Differential Equations and exp(At)"  <->  math110.1.32 "Quiz 3 Review"  [eigenvector eigenvalue differential diagonalisable eigenvalu imaginary]
 0.255  math110.0.5 "The determinant"  <->  math110.1.19 "Cramer's Rule, Inverse Matrix, and Volume"  [determinant volume parallelogram parallelepip cube area]
 
-## Candidate overlaps WITHIN SPCH 100 (any two lessons, cosine >= 0.30, at most 120)
+## Candidate overlaps WITHIN SPCH 100 (any two lessons, cosine >= 0.20, at most 120)
+0.275  spch100.6.19 "Act-outs, part one — show, don't tell: play what the character wants"  <->  spch100.6.20 "Act-outs, part two — stage the scene, play the honest reaction (stop at 8:20)"  [outs scene act play charact plays]
+0.259  spch100.8.6 "Three kinds of conversation, and the deep question"  <->  spch100.8.12 "Supercommunicators — match the conversation, loop for understanding"  [convers deep charl duhigg match emotional]
+0.258  spch100.13.8 "Reading from a prompter — write it to be said, break it into breaths, rehearse on the glass"  <->  spch100.13.9 "Why a prompter read still sounds fake — the setup, the head space, and your own words"  [script prompt teleprompt cue spoken natural]
+0.247  spch100.0.0 "Homework for Life — finding the story in an ordinary day"  <->  spch100.3.0 "Homework for Life, sharpened — and the pickle story"  [homework sharpen lens life dicks story]
+0.233  spch100.13.6 "Sounding natural from a script — conversational lines, one sentence at a time"  <->  spch100.13.10 "Sounding natural on air — an anchor's prompter habits"  [conversational sound natural edit yourself pace]
+0.222  spch100.13.1 "When to look at the lens, and when to look away"  <->  spch100.13.2 "What low energy and nervous movement look like"  [lens eyes camera away piece]
+0.220  spch100.4.11 "Stage movement — give every place and person a spot, and go back to it"  <->  spch100.4.12 "Move with a purpose — the action in the story, and the stage as a timeline"  [stage spot walks move place walk]
+0.218  spch100.0.2 "Think faster, talk smarter — structure under pressure"  <->  spch100.4.6 "Nerves: treat the symptoms and the sources"  [symptom structure anxiety benefit sourc nerv]
+0.218  spch100.4.1 "The five dials — rate, volume, melody, tone, pause"  <->  spch100.4.2 "Melody, volume, and the descending scale"  [melody volume voice breath emotion pitch]
+0.216  spch100.13.1 "When to look at the lens, and when to look away"  <->  spch100.13.11 "Body language on camera — you fill the frame, so everything is bigger"  [lens camera eyes contact eye view]
+0.210  spch100.5.5 "Thought groups — chunk, link, and pause by meaning"  <->  spch100.5.7 "Stop translating: chunks, self-talk, keep it short"  [chunk link short word listen speak]
+0.209  spch100.13.0 "Talk to one person — how TV presenters own the words"  <->  spch100.13.6 "Sounding natural from a script — conversational lines, one sentence at a time"  [script rhythm person natural camera coach]
+0.207  spch100.6.9 "The levity list — exaggeration, contrast, rule of three"  <->  spch100.6.10 "Three ways to add humour to a speech"  [exagger misdirection humour recall techniqu built]
+0.203  spch100.5.12 "Word stress — the syllable that is higher and longer"  <->  spch100.5.13 "Intonation — the melody that carries attitude"  [stress stres syllabl pitch rachel american]
 
 ## Adjacent lessons within a unit with cosine >= 0.40 (often a two-part lecture; listed for completeness)
 0.657  ai200.0.0 "But what is a neural network?"  <->  ai200.0.1 "Gradient descent — how neural networks learn"  [neural network]

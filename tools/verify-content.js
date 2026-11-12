@@ -26,7 +26,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-ai310.js",
  "platform/data/summaries-res400.js",
  "platform/data/storytelling.js",
- "platform/data/practice-math110.js", "platform/data/practice-math120.js", "platform/data/practice-math130.js", "platform/data/practice-ai200.js"]
+ "platform/data/practice-math110.js", "platform/data/practice-math120.js", "platform/data/practice-math130.js", "platform/data/practice-phys100.js", "platform/data/practice-ai200.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
 const D = ctx.DAR;
@@ -3195,6 +3195,22 @@ const pMin = (f, a, b) => { const g = (Math.sqrt(5) - 1) / 2; let c = b - g * (b
 const pGridMax = (f, a, b, n) => { let m = -Infinity; n = n || 300000; for (let i = 0; i <= n; i++) m = Math.max(m, f(a + (b - a) * i / n)); return m; };
 const pCols = cols => cols[0].map((_, i) => cols.map(c => c[i]));   // columns -> a matrix
 const pInc = (n, edges) => edges.map(([a, b]) => { const r = new Array(n).fill(0); r[a] = -1; r[b] = 1; return r; });
+// T-068 (batch 2): three more independent routes.
+// The big formula: a sum over every permutation with its parity, never elimination or cofactors.
+const pDetPerm = M => { const n = M.length, out = [];
+  const walk = (p, left) => { if (!left.length) { out.push(p); return; } left.forEach((c, i) => walk(p.concat(c), left.slice(0, i).concat(left.slice(i + 1)))); };
+  walk([], M.map((_, i) => i));
+  return out.reduce((s, p) => { let sg = 1; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (p[i] > p[j]) sg = -sg;
+    return s + sg * p.reduce((t, c, r) => t * M[r][c], 1); }, 0); };
+// A fitted line by covariance over variance, never the normal equations: [C, D].
+const pFit = (ts, ys) => { const mt = ts.reduce((a, b) => a + b) / ts.length, my = ys.reduce((a, b) => a + b) / ys.length;
+  const D = pDot(ts.map(t => t - mt), ys.map(y => y - my)) / pDot(ts.map(t => t - mt), ts.map(t => t - mt)); return [my - D * mt, D]; };
+// y' = f(x, y) stepped with classical Runge-Kutta, never separated.
+const pRK4 = (f, x0, y0, x1, n) => { n = n || 20000; const h = (x1 - x0) / n; let x = x0, y = y0;
+  for (let i = 0; i < n; i++) { const k1 = f(x, y), k2 = f(x + h / 2, y + h * k1 / 2), k3 = f(x + h / 2, y + h * k2 / 2), k4 = f(x + h, y + h * k3);
+    y += h * (k1 + 2 * k2 + 2 * k3 + k4) / 6; x += h; } return y; };
+// The point of the line through a nearest to b, by minimising the squared distance (no a.b/a.a).
+const pNear = (a, b) => { const d2 = t => b.reduce((s, x, i) => s + (x - t * a[i]) ** 2, 0); const t = pMin(d2, -100, 100); return { t, p: a.map(x => t * x), d2: d2(t) }; };
 const expectedPractice = {
   "math110.0.0/p1": [2, -3].map((x, i) => x + [-5, 4][i])[1],
   "math110.0.0/p2": [3, -1].map(x => -2 * x).map((x, i) => x + [1, 5][i])[0],
@@ -3290,6 +3306,48 @@ const expectedPractice = {
   "math120.1.11/p3": (function () { const f = x => x ** 3 - 2; let x = 1; for (let i = 0; i < 2; i++) x = x - f(x) / pD(f, x); return x; })(),
   "math120.1.12/p1": pRoot(c => pD(x => x ** 3, c) - (27 - 0) / 3, 0.001, 3),
   "math120.1.12/p2": 5 + pInt(() => 2, 1, 4),
+  // T-068, batch 2: the lectures Plan v2 schedules 7 to 20 Dec.
+  "math110.1.14/p1": pNear([1, 1, 2], [5, 1, 6]).t,
+  "math110.1.14/p2": pNear([1, 2, 2], [0, 0, 1]).p[1],                         // column 3 of P is P e3
+  "math110.1.14/p3": (function () { const n = pCross([1, 1, 0], [0, 1, 1]), b = [1, 2, 3], k = pDot(b, n) / pDot(n, n);   // b minus its normal part
+                       return b[1] - k * n[1]; })(),
+  "math110.1.15/p1": pFit([0, 1, 2], [0, 1, 5])[1],
+  "math110.1.15/p2": pNear([1, 1, 1], [3, 1, 2]).d2,
+  "math110.1.15/p3": pFit([-1, 0, 1], [1, 1, 4])[0],
+  "math110.1.16/p1": (function () { const b = [1, 2, 3, 6]; return b[3] - pNear([1, 1, 1, 1], b).p[3]; })(),
+  "math110.1.16/p2": (function () { const q1 = [1, 1, 1, 1].map(x => x / 2), q2 = [1, -1, 1, -1].map(x => x / 2), b = [3, 1, 4, 2];   // the full normal equations, solved
+                       return pSolve2([[pDot(q1, q1), pDot(q1, q2)], [pDot(q2, q1), pDot(q2, q2)]], [pDot(q1, b), pDot(q2, b)])[1]; })(),
+  "math110.1.16/p3": (function () { const n = pCross([1, 1, 0], [1, 0, 1]), c = [0, 1, 1];   // in 3D, C is c's part along the normal of span(a, b)
+                       return pDot(c, n) / pDot(n, n) * n[0]; })(),
+  "math110.1.17/p1": (function () { const M = [[2, 1, 0], [0, 1, 1], [0, 0, 1]]; return pSarrus(M) === 2 ? pSarrus(M.map(r => r.map(x => 3 * x))) : NaN; })(),
+  "math110.1.17/p2": pDetPerm([[2, 1, 3], [4, 5, 7], [-2, 2, 1]]),
+  "math110.1.17/p3": (function () { const M = [[2, 1, 0, 0], [1, 2, 0, 0], [0, 0, 1, 1], [0, 0, 0, 1]];
+                       return pDetPerm(M) === 3 ? pDetPerm(M.map(r => r.map(x => 2 * x))) : NaN; })(),
+  "math110.1.18/p1": (function () { const A = a12 => [[2, a12, 3], [0, 4, 5], [1, -1, 2]]; return pSarrus(A(1)) - pSarrus(A(0)); })(),   // det is linear in a12; C12 is its coefficient
+  "math110.1.18/p2": pDetPerm([0, 1, 2, 3, 4].map(i => [0, 1, 2, 3, 4].map(j => (i === j ? 2 : Math.abs(i - j) === 1 ? 1 : 0)))),
+  "math110.1.18/p3": pDetPerm([[1, 2, 3], [5, 0, 0], [2, 1, 4]]),
+  "math120.1.13/p1": 5 + pD(Math.cbrt, 125) * 0.3,
+  "math120.1.13/p2": pInt(x => x * x * (x ** 3 + 1) ** 4, 0, 1),
+  "math120.1.13/p3": pInt(x => Math.log(x) ** 2 / x, 1, Math.E ** 2),
+  "math120.1.14/p1": pRK4((x, y) => 2 * x * y, 0, 2, 1),
+  "math120.1.14/p2": pRK4((x, y) => 3 * y / x, 1, 2, 2),
+  "math120.1.14/p3": pRK4((x, y) => y * y, 0, 1, 0.5),
+  "math120.1.15/p1": (function () { let s = 0; for (let i = 1; i <= 4; i++) s += 0.5 * (0.5 * i) ** 2; return s; })(),
+  "math120.1.15/p2": (function () { const n = 100000, h = 2 / n; let s = 0; for (let i = 0; i < n; i++) s += h * ((i + 0.5) * h) ** 3; return s; })(),   // midpoint sum
+  "math120.1.15/p3": pInt(x => 2 * x, 0, 4),
+  "math120.1.16/p1": pInt(Math.sqrt, 1, 4),
+  "math120.1.16/p2": pInt(x => x * (x * x + 1) ** 3, 0, 1),
+  "math120.1.16/p3": pInt(t => t * t - 4 * t + 3, 0, 4),
+  "math120.1.17/p1": pD(x => pInt(t => Math.sqrt(1 + t ** 3), 0, x), 2),
+  "math120.1.17/p2": pInt(x => 1 / (1 + x), 0, 3) / 3,
+  "math120.1.17/p3": pD(x => pInt(t => Math.sqrt(t * t + 16), x, 3), 0),
+  "math130.0.11/p1": pInt(() => 1 / (6 - 2), 3, 4.5),
+  "math130.0.11/p2": (function () { const f = () => 1 / 4, m = pInt(x => x * f(x), 0, 4); return pInt(x => (x - m) ** 2 * f(x), 0, 4); })(),   // the definition, not E(X^2) - (EX)^2
+  "math130.0.11/p3": (function () { const f = x => 3 * x * x, m = pInt(x => x * f(x), 0, 1); return pInt(x => (x - m) ** 2 * f(x), 0, 1); })(),
+  "phys100.0.0/p1": 145000 * 12 * 2.54 / 100 / 1000,                            // feet to inches to centimetres
+  "phys100.0.1/p1": (935 - 924) / 10,                                           // in millimetres, then centimetres
+  "phys100.0.1/p2": Math.sqrt(9 ** 3) / 9,                                      // M grows as S^3, d as the root of M, l as S
+  "phys100.0.1/p3": (2 * Math.PI * Math.sqrt(2 / 9.8)) / (2 * Math.PI * Math.sqrt(0.5 / 9.8)),   // the full period formula
   "math130.0.10/p1": (function () { let s = 0, t = 1; for (let k = 0; k < 60; k++) { s += t; t *= 2 / (k + 1); } return 1 / s; })(),   // 1 / sum 2^k/k!
   "math130.0.10/p2": (function () { let pairs = 0; for (let i = 0; i < 30; i++) for (let j = i + 1; j < 30; j++) pairs++; return 1 - Math.exp(-pairs / 365); })(),
   "math130.0.10/p3": (function () { let p = 0.996 ** 500, s = 0; for (let k = 0; k < 500; k++) { p *= (500 - k) / (k + 1) * (0.004 / 0.996); s += p; } return s; })(),   // sum of P(X=k), k >= 1

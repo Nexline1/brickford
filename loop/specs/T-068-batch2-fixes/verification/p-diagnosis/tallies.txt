@@ -1,0 +1,12 @@
+Tallies from the diagnosis runs on 2026-11-12 (Playwright 1.56.1, headless Chromium), transcribed from their console output.
+
+diag-p.js (the (p) flow, file://), 30 runs:   28 ledger 2 after reload; 2 state NULL (first version, crashed reading null)
+diag-p.js (the (p) flow, file://), 40 runs:   32 ok; 8 localStorage EMPTY at document start (lsLen 0), sessionStorage intact (__seeded "1"); before the reload every run had the state with ledger 2
+diag-p.js via provenReload (file://), 40 runs: 36 ok; 4 lost (state and stamp missing at document start); unload report received in 0 of 40
+diag-p.js via provenReload (http://127.0.0.1), 40 runs: 40 ok, stamp and state at document start
+
+plain.js (bare write then reload, file://), 40 each: plain 8 lost, gum 9, idb 9, wait 2s 12, reload twice 7, new page instead of reload 7
+witness.js (file://) 80: 54 ok; 26 lost, of which a sibling page saw the stamp in 9 and not in 17
+witness.js with a keeper page held open (file://): 60 ok / 20 lost; touching localStorage in the keeper: 40 ok / 20 lost
+httpw.js (bare write then reload, http://127.0.0.1) 80: 80 ok
+bind.js / cons.js / wname.js: a report sent at pagehide or unload through exposeBinding, console.log or window.name arrived 0 times

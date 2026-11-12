@@ -3,6 +3,8 @@
 // over it from 240 (design px) down, 36px top corners only, a black12 soft blur-12
 // shadow cast upward, the screen's content scrolling inside it with
 // BouncingScrollPhysics.
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -59,6 +61,10 @@ class SheetScaffold extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          // T-068: brand row at the top, the screen's numbers at the foot, just above the sheet. Space
+          // between them rather than a Spacer, so the layer can also be laid out at its natural height
+          // (a Spacer needs a bounded one): see _GrowingCanvas.
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
               height: 44,
@@ -82,15 +88,52 @@ class SheetScaffold extends StatelessWidget {
                 ],
               ),
             ),
-            // The screen's numbers sit at the foot of the canvas, just above the sheet.
-            // (Spacer then header, not Align: a header Column would fill an Align.)
-            const Spacer(),
-            ?header,
-            SizedBox(height: 30.h),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ?header,
+                SizedBox(height: 30.h),
+              ],
+            ),
           ],
         ),
       ),
     );
+
+    final sheet = Container(
+      key: sheetKey,
+      decoration: const BoxDecoration(color: Tokens.sheet, borderRadius: Tokens.sheetBorderRadius, boxShadow: Tokens.sheetShadow),
+      child: ClipRRect(
+        borderRadius: Tokens.sheetBorderRadius,
+        // The scrolling content is its own layer: a scrolled frame repaints this, not the sheet's
+        // shadow, the canvas behind it or the floating bar above it.
+        child: RepaintBoundary(
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(20.w, 26.h, 20.w, tabbed ? Tokens.barClearance : 32.h),
+            children: children,
+          ),
+        ),
+      ),
+    );
+
+    // The branding layer (T-068): on a short screen, or under a tall status bar, the brand row and the
+    // screen's numbers need more than sheetTop. The layer then takes its natural height and the sheet
+    // starts below it, instead of the numbers overflowing under the sheet. Where they fit, nothing moves.
+    if (canvas == null && canvasHeight == null && sheetTop == null) {
+      return ColoredBox(
+        key: canvasKey,
+        color: Tokens.midnight,
+        child: CustomMultiChildLayout(
+          delegate: _GrowingCanvas(Tokens.sheetTop.h),
+          children: [
+            LayoutId(id: _GrowingCanvas.canvas, child: branding),
+            LayoutId(id: _GrowingCanvas.sheet, child: sheet),
+          ],
+        ),
+      );
+    }
 
     return ColoredBox(
       key: canvasKey,
@@ -104,30 +147,28 @@ class SheetScaffold extends StatelessWidget {
             height: canvasHeight ?? (canvas != null ? Tokens.headerHeight.h : Tokens.sheetTop.h),
             child: canvas ?? branding,
           ),
-          Positioned(
-            top: sheetTop ?? Tokens.sheetTop.h,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              key: sheetKey,
-              decoration: const BoxDecoration(color: Tokens.sheet, borderRadius: Tokens.sheetBorderRadius, boxShadow: Tokens.sheetShadow),
-              child: ClipRRect(
-                borderRadius: Tokens.sheetBorderRadius,
-                // The scrolling content is its own layer: a scrolled frame repaints this, not the sheet's
-                // shadow, the canvas behind it or the floating bar above it.
-                child: RepaintBoundary(
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(20.w, 26.h, 20.w, tabbed ? Tokens.barClearance : 32.h),
-                    children: children,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          Positioned(top: sheetTop ?? Tokens.sheetTop.h, left: 0, right: 0, bottom: 0, child: sheet),
         ],
       ),
     );
   }
+}
+
+/// The branding layer at least [top] high and as tall as its content needs; the sheet from its foot down.
+class _GrowingCanvas extends MultiChildLayoutDelegate {
+  _GrowingCanvas(this.top);
+  final double top;
+  static const canvas = #canvas, sheet = #sheet;
+
+  @override
+  void performLayout(Size size) {
+    final c = layoutChild(canvas, BoxConstraints(minWidth: size.width, maxWidth: size.width, minHeight: math.min(top, size.height)));
+    positionChild(canvas, Offset.zero);
+    final y = math.min(c.height, size.height);
+    layoutChild(sheet, BoxConstraints.tight(Size(size.width, size.height - y)));
+    positionChild(sheet, Offset(0, y));
+  }
+
+  @override
+  bool shouldRelayout(_GrowingCanvas old) => old.top != top;
 }

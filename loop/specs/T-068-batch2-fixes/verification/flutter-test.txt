@@ -1,0 +1,170 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.2.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  material_ui 1.10.0 (1.11.0 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.4 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_android 2.5.4 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/user/bf-T-068/app/test/quiz_test.dart
+00:00 +0: /home/user/bf-T-068/app/test/quiz_test.dart: answering: the feedback and the explanation appear, a miss turns its segment red and comes back
+00:00 +1: /home/user/bf-T-068/app/test/quiz_test.dart: answering: the feedback and the explanation appear, a miss turns its segment red and comes back
+00:00 +2: /home/user/bf-T-068/app/test/quiz_test.dart: answering: the feedback and the explanation appear, a miss turns its segment red and comes back
+00:00 +3: /home/user/bf-T-068/app/test/quiz_test.dart: answering: the feedback and the explanation appear, a miss turns its segment red and comes back
+00:01 +4: /home/user/bf-T-068/app/test/perf_test.dart: a long list builds only the rows near the screen (Learn > All feeds a lazy ListView, not one Column)
+00:01 +5: /home/user/bf-T-068/app/test/quiz_test.dart: a missed numeric question comes back as a new question with an empty field
+00:01 +6: /home/user/bf-T-068/app/test/quiz_test.dart: a missed numeric question comes back as a new question with an empty field
+00:01 +7: /home/user/bf-T-068/app/test/quiz_test.dart: a missed numeric question comes back as a new question with an empty field
+00:01 +8: /home/user/bf-T-068/app/test/quiz_test.dart: a missed numeric question comes back as a new question with an empty field
+00:02 +9: /home/user/bf-T-068/app/test/quiz_test.dart: a missed numeric question comes back as a new question with an empty field
+00:02 +10: /home/user/bf-T-068/app/test/quiz_test.dart: a missed numeric question comes back as a new question with an empty field
+00:02 +11: /home/user/bf-T-068/app/test/quiz_test.dart: passing the quiz clears the lecture: the record has the web shape, Home and the glyph follow
+00:02 +12: /home/user/bf-T-068/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:02 +13: /home/user/bf-T-068/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:02 +14: /home/user/bf-T-068/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:03 +15: /home/user/bf-T-068/app/test/pages_test.dart: the Library opens a document as a readable page, fetched relative to the site root
+00:04 +16: /home/user/bf-T-068/app/test/monk_test.dart: tap a badge, tap its controls: prayers, no sin, hours, German; every write is local and arms no push
+00:05 +17: /home/user/bf-T-068/app/test/monk_test.dart: tap a badge, tap its controls: prayers, no sin, hours, German; every write is local and arms no push
+00:05 +18: /home/user/bf-T-068/app/test/pages_test.dart: the Library lists five outside links, then +5 shows all ten
+00:06 +19: /home/user/bf-T-068/app/test/monk_test.dart: Now / Next follow the clock and the Ja'fari prayer times
+00:06 +20: /home/user/bf-T-068/app/test/pages_test.dart: the Transcript passes the next gate only through its confirm sheet, every requirement ticked
+00:07 +21: /home/user/bf-T-068/app/test/monk_test.dart: the 21-day map, the focus line, loops and tomorrow's plan
+00:07 +22: /home/user/bf-T-068/app/test/pages_test.dart: the Handbook, the Method and the Workshop open as readable pages
+00:07 +23: /home/user/bf-T-068/app/test/pages_test.dart: the Handbook, the Method and the Workshop open as readable pages
+00:07 +24: /home/user/bf-T-068/app/test/pages_test.dart: the Handbook, the Method and the Workshop open as readable pages
+00:07 +25: /home/user/bf-T-068/app/test/pages_test.dart: the Handbook, the Method and the Workshop open as readable pages
+00:07 +26: /home/user/bf-T-068/app/test/monk_test.dart: the sheet: it says what it costs, the hold is disabled until the box is ticked, and a tap, a short hold, a slide-off and a closed sheet do not start it
+00:08 +27: /home/user/bf-T-068/app/test/monk_test.dart: a 1.5 s hold starts it: the sheet closes, the screen reads Day 1 of 21, and Cancel starts nothing
+00:08 +28: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 320x568: the control row and the video do not overlap; the sheet starts at the video's foot
+00:08 +29: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 320x568: the control row and the video do not overlap; the sheet starts at the video's foot
+00:09 +30: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 320x568: the control row and the video do not overlap; the sheet starts at the video's foot
+00:09 +31: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 320x568: the control row and the video do not overlap; the sheet starts at the video's foot
+00:09 +32: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 375x812: the control row and the video do not overlap; the sheet starts at the video's foot
+00:09 +33: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 390x844: the control row and the video do not overlap; the sheet starts at the video's foot
+00:09 +34: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 390x844: the control row and the video do not overlap; the sheet starts at the video's foot
+00:09 +35: /home/user/bf-T-068/app/test/lesson_controls_test.dart: a lecture with a video at 430x932: the control row and the video do not overlap; the sheet starts at the video's foot
+00:10 +36: /home/user/bf-T-068/app/test/lesson_controls_test.dart: below a status bar the whole row and the video are below it, and the controls stay out of the video
+00:10 +37: /home/user/bf-T-068/app/test/lesson_controls_test.dart: on a short, wide screen the video stops at half the height, and the sheet still starts at its foot
+00:10 +38: /home/user/bf-T-068/app/test/widgets_test.dart: the canvas is deep midnight #12141C and the sheet is the blueprint sheet
+00:11 +39: /home/user/bf-T-068/app/test/widgets_test.dart: the canvas is deep midnight #12141C and the sheet is the blueprint sheet
+00:11 +40: /home/user/bf-T-068/app/test/lesson_controls_test.dart: Back goes back and More opens the unit's lectures, from the control row
+00:11 +41: /home/user/bf-T-068/app/test/widgets_test.dart: fields: #F3F4F6 fill, radius 16, BorderSide.none in every state, black45 prefix icon, explicit padding
+00:11 +42: /home/user/bf-T-068/app/test/widgets_test.dart: fields: #F3F4F6 fill, radius 16, BorderSide.none in every state, black45 prefix icon, explicit padding
+00:11 +43: /home/user/bf-T-068/app/test/widgets_test.dart: fields: #F3F4F6 fill, radius 16, BorderSide.none in every state, black45 prefix icon, explicit padding
+00:12 +44: /home/user/bf-T-068/app/test/widgets_test.dart: pills: radius 16, elevation 0 when idle, hovered, focused, pressed and disabled
+00:12 +45: /home/user/bf-T-068/app/test/widgets_test.dart: the floating bar has exactly 4 tabs, Home Learn Build Profile, and switches
+00:12 +46: /home/user/bf-T-068/app/test/widgets_test.dart: entry points moved: courses on Learn, Treasury on Build, neither on Profile
+00:12 +47: /home/user/bf-T-068/app/test/widgets_test.dart: entry points moved: courses on Learn, Treasury on Build, neither on Profile
+00:12 +48: /home/user/bf-T-068/app/test/widgets_test.dart: entry points moved: courses on Learn, Treasury on Build, neither on Profile
+00:12 +49: /home/user/bf-T-068/app/test/widgets_test.dart: entry points moved: courses on Learn, Treasury on Build, neither on Profile
+00:12 +50: /home/user/bf-T-068/app/test/practice_test.dart: logging a rep: the bank form, a refusal then the entry, the dot lights
+00:14 +51: /home/user/bf-T-068/app/test/practice_test.dart: logging a rep: the bank form, a refusal then the entry, the dot lights
+00:14 +52: /home/user/bf-T-068/app/test/practice_test.dart: logging a rep: the bank form, a refusal then the entry, the dot lights
+00:14 +53: /home/user/bf-T-068/app/test/practice_test.dart: logging a rep: the bank form, a refusal then the entry, the dot lights
+00:14 +54: /home/user/bf-T-068/app/test/widgets_test.dart: Mark watched stores lessons[k] in the web app's shape
+00:15 +55: /home/user/bf-T-068/app/test/practice_test.dart: the recorder states in the page: idle, starting, recording, stopped
+00:15 +56: /home/user/bf-T-068/app/test/widgets_test.dart: startup does not read summaries.json; quiz-keys.json is exactly lessonQuiz != null; a lecture reads it on open
+00:15 +57: /home/user/bf-T-068/app/test/practice_test.dart: a press under a second keeps nothing and logs nothing
+00:15 +58: /home/user/bf-T-068/app/test/practice_test.dart: permission denied, and no device: the hand form and no record button
+00:16 +59: /home/user/bf-T-068/app/test/practice_test.dart: permission denied, and no device: the hand form and no record button
+00:16 +60: /home/user/bf-T-068/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+00:17 +61: /home/user/bf-T-068/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+00:17 +62: /home/user/bf-T-068/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+00:18 +63: /home/user/bf-T-068/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+00:18 +64: /home/user/bf-T-068/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+00:18 +65: /home/user/bf-T-068/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+00:19 +66: /home/user/bf-T-068/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+00:19 +67: /home/user/bf-T-068/app/test/problems_test.dart: Exams: the ranked list, a diagnostic is recorded against its gate, a bank sitting is recorded with its pass mark
+00:20 +68: /home/user/bf-T-068/app/test/record_test.dart: the seal is Sunday only: the revision week own Sunday and no other day
+00:20 +69: /home/user/bf-T-068/app/test/record_test.dart: the seal is Sunday only: the revision week own Sunday and no other day
+00:20 +70: /home/user/bf-T-068/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+00:21 +71: /home/user/bf-T-068/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+00:21 +72: /home/user/bf-T-068/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+00:22 +73: /home/user/bf-T-068/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+00:22 +74: /home/user/bf-T-068/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+00:22 +75: /home/user/bf-T-068/app/test/record_test.dart: the seal button is dead on a Wednesday
+00:22 +76: /home/user/bf-T-068/app/test/record_test.dart: Library: the revision PDFs resolve beside app-web/
+00:22 +77: /home/user/bf-T-068/app/test/record_test.dart: canon and sha256 are the web app's: sorted keys, 150.0 is 150, the standard digest
+00:22 +78: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +79: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +80: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +81: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +82: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +83: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +84: /home/user/bf-T-068/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+00:23 +85: /home/user/bf-T-068/app/test/lecture_practice_test.dart: the sync payload carries practice once there are answers, and never the key
+00:23 +86: /home/user/bf-T-068/app/test/record_test.dart: Record: the reset moves the line and deletes nothing; the best streak stays
+00:23 +87: /home/user/bf-T-068/app/test/record_test.dart: Record: the reset moves the line and deletes nothing; the best streak stays
+00:23 +88: /home/user/bf-T-068/app/test/record_test.dart: Record: the reset moves the line and deletes nothing; the best streak stays
+00:23 +89: /home/user/bf-T-068/app/test/record_test.dart: Record: the reset moves the line and deletes nothing; the best streak stays
+00:23 +90: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:24 +91: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:24 +92: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:25 +93: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:25 +94: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:25 +95: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:25 +96: /home/user/bf-T-068/app/test/record_test.dart: Treasury: adding payments updates the ledger, the total and the week, in the web app's decimals
+00:25 +97: /home/user/bf-T-068/app/test/record_test.dart: Treasury: adding payments updates the ledger, the total and the week, in the web app's decimals
+00:25 +98: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a numeric answer: Check grades it; the unaided count moves
+00:26 +99: /home/user/bf-T-068/app/test/record_test.dart: Treasury: two clients, a third only after the cap confirm; removing one
+00:26 +100: /home/user/bf-T-068/app/test/record_test.dart: Treasury: two clients, a third only after the cap confirm; removing one
+00:27 +101: /home/user/bf-T-068/app/test/lecture_practice_test.dart: Grade with Claude sends exactly one request: the allowed headers and body keys, the stub key, nothing else
+00:27 +102: /home/user/bf-T-068/app/test/record_test.dart: Treasury: the offer saves, and an earning offer locks and changes
+00:27 +103: /home/user/bf-T-068/app/test/lecture_practice_test.dart: a refusal falls back to self-check in one line, stores nothing, and the marks stay
+00:28 +104: /home/user/bf-T-068/app/test/lecture_practice_test.dart: an API error, no key and offline each fall back the same way; the last two send nothing
+00:28 +105: /home/user/bf-T-068/app/test/home_overflow_test.dart: Home at 320x568 with a 0pt top inset, badge "Start Monk Mode": nothing overflows
+00:28 +106: /home/user/bf-T-068/app/test/home_overflow_test.dart: Home at 320x568 with a 0pt top inset, badge "Start Monk Mode": nothing overflows
+00:28 +107: /home/user/bf-T-068/app/test/home_overflow_test.dart: Home at 320x568 with a 0pt top inset, badge "Start Monk Mode": nothing overflows
+00:29 +108: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:29 +109: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:30 +110: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:30 +111: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +112: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +113: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +114: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +115: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +116: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +117: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +118: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +119: /home/user/bf-T-068/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:31 +120: /home/user/bf-T-068/app/test/sync_test.dart: the token is never shown, printed or stored in the state: the screen says Saved
+00:32 +121: /home/user/bf-T-068/app/test/sync_test.dart: the token is never shown, printed or stored in the state: the screen says Saved
+00:32 +122: /home/user/bf-T-068/app/test/calendar_test.dart: the day sheet: one row per lecture, glyphs match lessonCleared; a past day keeps its plan on a Saturday
+00:33 +123: /home/user/bf-T-068/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:33 +124: /home/user/bf-T-068/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:33 +125: /home/user/bf-T-068/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:33 +126: /home/user/bf-T-068/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:34 +127: /home/user/bf-T-068/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:34 +128: /home/user/bf-T-068/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:34 +129: /home/user/bf-T-068/app/test/sync_test.dart: (a) pulls and pushes go only to the private repo's file, and a device that stored the old public repo is not sent there
+00:34 +130: /home/user/bf-T-068/app/test/sync_test.dart: (b) a 404 on the file and on the repo: the new error, latched for automatic pushes only; manual Pull and Push run; a success clears it
+00:34 +131: /home/user/bf-T-068/app/test/sync_test.dart: (b) the same 404 split on the PUT: a push told 404 asks the repo and says the same line
+00:34 +132: /home/user/bf-T-068/app/test/sync_test.dart: (c) a 404 on the file with the repo answering is not an error: Pull says Nothing stored yet, Push creates the file with no sha
+00:34 +133: /home/user/bf-T-068/app/test/sync_test.dart: (d) a new empty device with a token pulls a remote that holds lessons, studyDays, streakFrom and monkStart, and shows them
+00:35 +134: /home/user/bf-T-068/app/test/sync_test.dart: (e) a push from a new empty device removes nothing the remote holds: it merges before it writes
+00:35 +135: /home/user/bf-T-068/app/test/sync_test.dart: the Monk start merges by "first write wins": none takes the other's, two keep the EARLIER, and nothing that is not a date ever clears or replaces it
+00:35 +136: /home/user/bf-T-068/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:35 +137: /home/user/bf-T-068/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:35 +138: /home/user/bf-T-068/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:36 +139: /home/user/bf-T-068/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:37 +140: /home/user/bf-T-068/app/test/learn_test.dart: Atlas counts: proven (not watched) in a tile, watched in a unit, and the tracker counts DSA
+00:37 +141: /home/user/bf-T-068/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:38 +142: /home/user/bf-T-068/app/test/learn_test.dart: Home shows the review row only while something is due, with its button into Recall
+00:38 +143: /home/user/bf-T-068/app/test/learn_test.dart: Drill: ten questions (three misses padded from what is taught); right answers leave the miss pool, a wrong one stays
+00:39 +144: /home/user/bf-T-068/app/test/learn_test.dart: Drill with nothing taught shows nothing to drill
+00:39 +145: /home/user/bf-T-068/app/test/learn_test.dart: Electives: what fits the phase first, the rest further out; the status tile cycles none, planned, done, none
+00:40 +146: /home/user/bf-T-068/app/test/learn_test.dart: (tearDownAll)
+00:40 +146: All tests passed!
+exit 0

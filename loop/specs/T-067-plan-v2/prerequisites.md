@@ -1,4 +1,23 @@
-# prerequisites
+# The prerequisite map
+
+**Files.** `prerequisites.json` is the machine-readable map: one entry per lecture, `{ "needs": [keys], "level": 1|2|3, "status": "core"|"optional"|"duplicate-of:<key>" }`, for all 494 existing lectures and 142 proposed ones. Proposed keys are listed with a note under `_provisional` (`cs100.*` the Python bridge, `ai200.3.*` the Karpathy second pass, `math120.2.*` the multivariable bridge, `math140.*`, `math150.*`, `phys200.*`, `phys300.*` the proposed later courses). It is generated from `plan-data.js` by `node tools/plan-dates.js`; edit `plan-data.js`, never the JSON.
+
+**Checks.** `node tools/audit-lectures.js --check-prereqs` asserts that every existing lecture has an entry, every key is real or declared provisional, every level is 1–3, every needed key exists, and the graph has no cycle (exits 1 otherwise). It currently reports 636 entries, 0 cycles, 0 failures. `plan-dates.js` adds two more: no core lecture needs an optional or duplicate one, and in the simulated sequence no track jumps more than one level between consecutive lectures (0 jumps).
+
+**The default rule.** A lecture needs the previous core lecture of its own unit; the first lecture of a unit needs the last core lecture of the unit before (same course). So course order is kept everywhere — MATH 110's order is unchanged, as the owner asked — and only the edges below are hand-made. They were taken from the summaries (takeaways and beats), not from transcripts, which could not be read this session.
+
+**Levels.** 1 intro (3Blue1Brown units, CS50P, Storytelling Units I–V, no-code talks), 2 core (the MIT/Harvard full courses, 8.01, Karpathy's Micrograd to Makemore 2, fast.ai, the multivariable bridge, NumPy/PyTorch), 3 advanced (Makemore 3 onward, MATH 210, SYS 250, AI 310, RES 400, the Paper Room, statistical mechanics).
+
+## The edges that shape the path
+
+- **Python before any Karpathy code:** Micrograd needs CS50P lectures 8 (classes) and 9 (comprehensions); Makemore 1 needs the PyTorch tensors session; the tokenizer needs regular expressions and file I/O; fast.ai 1 needs CS50P 4 (libraries).
+- **Calculus before backprop:** Micrograd needs the chain rule (`math120.0.3`) and 3B1B's backprop calculus; Makemore 4 needs the multivariable chain rule (`math120.2.4`).
+- **Linear algebra and probability before the bigram model:** Makemore 1 needs matrix multiplication (`math110.0.3`) and conditional probability (`math130.0.3`); Build GPT needs dot products (`math110.0.8`) and 3B1B's attention chapter.
+- **Single-variable calculus before 8.01:** PHYS 100 starts after the Second Fundamental Theorem (`math120.1.17`): by then the owner has derivatives and integrals, which is all 8.01 uses (MIT students take 8.01 alongside 18.01). Later lectures wait on the matching calculus: oscillators on differential equations (`math120.1.14`), work on the Fundamental Theorem, moment of inertia on volumes, Kepler on polar coordinates.
+- **Calculus before Stat 110's continuous half:** densities need definite integrals, the normal needs the √π integral (`math120.1.22`), MGFs need Taylor series, joint densities need double integrals (`math120.2.6`), transformations need the Jacobian (`math120.2.5`).
+- **Foundations before MATH 210:** matrix calculus waits for the end of 18.06, of 18.01 and of the multivariable bridge; MacKay waits for expectation, the law of large numbers and Markov chains.
+- **The spine before systems and research:** SYS 250 and CS336 wait for GPT-2 (`ai200.1.8`); CS336's GPU and Triton lectures wait for the matching GPU MODE lectures; RL waits for Markov chains and conditional expectation; interpretability waits for Build GPT and the SVD.
+- **Papers wait for the lecture that teaches their idea** (Attention for Build GPT, Chinchilla for CS336's scaling laws, LoRA for the SVD and fine-tuning, DDPM for variational methods and the multivariate normal).
 
 <!-- BEGIN GENERATED -->
 636 lectures (494 real, 142 provisional), 696 edges. Checks: every needed key exists; no core lecture needs an optional or duplicate one. Cycle check: `node tools/audit-lectures.js --check-prereqs`.

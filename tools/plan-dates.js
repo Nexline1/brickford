@@ -330,7 +330,7 @@ const esc = s => String(s).replace(/\|/g, "/");
   fs.writeFileSync(path.join(SPEC, "dates.json"), JSON.stringify({
     cutover: CUTOVER, cutIdx: cut, day1094: date(1093), oldLast: date(oldAllLast), oldLastNoSpch: date(oldAllLastNoSpch),
     coreLast: date(lastAll(runs.core)), plusLast: date(lastAll(runs.plus)), karpathyDone: date(runs.core.doneDay["ai200.1.8"]),
-    bridgeDone: date(lastOf(runs.core, ["cs100"])), mathFoundationDone: date(lastOf(runs.core, ["math110", "math120", "math130"])),
+    bridgeDone: date(lastOf(runs.core, ["cs100"])), secondPassStart: date(runs.core.schedule.find(rw => rw.ai.some(i => i.x.key === "ai200.3.0")).d), pyDone: date(Math.max(runs.core.doneDay["cs100.1.1"], runs.core.doneDay["cs100.0.9"])), mathFoundationDone: date(lastOf(runs.core, ["math110", "math120", "math130"])),
     gatesA: gateA.map(date), gatesBcore: bc.map(date), gatesBplus: bp.map(date), counts,
   }, null, 1) + "\n");
   console.log(JSON.stringify(JSON.parse(fs.readFileSync(path.join(SPEC, "dates.json"), "utf8")), (k, v) => k === "counts" ? undefined : v));

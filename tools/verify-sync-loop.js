@@ -1065,7 +1065,7 @@ async function session(browser, { putOk }) {
       });
     }
 
-    // (f) T-067 step 3: practice answers. A pull merges them per item by `at`, both ways
+    // (pr) T-067 step 3: practice answers. A pull merges them per item by `at`, both ways
     // (the newer local answer stays, the newer remote one comes in, a remote-only one is
     // added); a push carries them; the Anthropic key, set on the device, is in no PUT;
     // and sitting on the lecture's Practice block, re-rendered by route changes, arms no
@@ -1079,7 +1079,7 @@ async function session(browser, { putOk }) {
         p3: { answer: "dependent", mark: "partly", at: "2026-11-05T09:30:00.000Z", grade: { points: [{ point: "x", verdict: "met" }], correction: "y", at: "2026-11-05T09:31:00.000Z" } } } };
       const st = newStub(200, { sha: "sha-remote", text: JSON.stringify(RF) });
       let claude = 0;
-      await scenario("(f)", st, async d => {
+      await scenario("(pr)", st, async d => {
         await d.ctx.addInitScript(([s, k]) => { if (window.top === window && !sessionStorage.getItem("seeded")) {
           localStorage.setItem("darhikmah_v1", s); localStorage.setItem("brickford_anthropic_key", k); sessionStorage.setItem("seeded", "1"); } }, [JSON.stringify(local), KEY]);
         await d.page.route("https://api.anthropic.com/**", r => { claude++; return r.abort(); });
@@ -1087,17 +1087,17 @@ async function session(browser, { putOk }) {
         const merged = await until(d.page, async () => !!(((await d.stored()).practice || {})[K] || {}).p3);
         const p = ((await d.stored()).practice || {})[K] || {};
         t53(merged && p.p1.answer === "3" && p.p2.answer === "2" && p.p3.answer === "dependent" && (p.p3.grade || {}).correction === "y",
-          "(f) a pull merges practice per item by at: the newer local p1 stays, the newer remote p2 comes in, the remote-only p3 is added (" +
+          "(pr) a pull merges practice per item by at: the newer local p1 stays, the newer remote p2 comes in, the remote-only p3 is added (" +
           [p.p1, p.p2, p.p3].map(x => x ? x.answer : "-").join(", ") + ")");
         const n0 = st.puts.length;
         await d.page.click("[data-act='syncPush']");
         const pushed = await until(d.page, () => st.puts.length > n0);
         const put = st.puts[st.puts.length - 1] || { state: {} }, pp = ((put.state || {}).practice || {})[K] || {};
         t53(pushed && pp.p1.answer === "3" && pp.p2.answer === "2" && pp.p3.answer === "dependent",
-          "(f) a push carries the merged practice to the private repo (" + Object.keys(pp).join(", ") + ")");
+          "(pr) a push carries the merged practice to the private repo (" + Object.keys(pp).join(", ") + ")");
         const file = st.file ? st.file.text : "";
         t53(pushed && file.indexOf(KEY) < 0 && file.indexOf("brickford_anthropic_key") < 0 && file.indexOf("sk-ant") < 0,
-          "(f) the Anthropic key is in no PUT: not the key, not its storage name (" + file.length + " bytes pushed)");
+          "(pr) the Anthropic key is in no PUT: not the key, not its storage name (" + file.length + " bytes pushed)");
         // Sit on the Practice block: four renders by route change, then past the 4 s an armed push would take.
         await until(d.page, () => true, 600);
         const before = st.log.length;
@@ -1108,7 +1108,7 @@ async function session(browser, { putOk }) {
         const drawn = await d.page.evaluate(() => document.querySelectorAll("#view .pr-item").length);
         await d.page.waitForTimeout(5500);
         t53(drawn === 3 && st.log.length === before && claude === 0,
-          "(f) rendering the Practice block (" + drawn + " items, a stored grading among them) arms no push and asks Claude nothing (" +
+          "(pr) rendering the Practice block (" + drawn + " items, a stored grading among them) arms no push and asks Claude nothing (" +
           (st.log.length - before) + " GitHub request(s), " + claude + " to Claude)");
       });
     }

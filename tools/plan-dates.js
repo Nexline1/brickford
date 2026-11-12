@@ -46,6 +46,7 @@ for (const pc of P.PROVISIONAL) {
     const ui = pc.unitIndex != null ? pc.unitIndex + k : k;
     let lessons = u.lessons;
     if (u.alias) lessons = u.alias.map(a => ({ t: byKey[a].t + " (second pass, typing along)", v: byKey[a].v, min: byKey[a].min, check: "same video as " + a + " (in the data)", alias: a }));
+    if (u.titles) lessons = u.titles.map((t, i) => ({ t: `Lecture ${i + 1} — ${t}`, v: null, min: u.min, check: u.check }));
     if (u.count) lessons = Array.from({ length: u.count }, (_, i) => ({ t: `${u.name} — lecture ${i + 1}`, v: null, min: u.min, check: u.check }));
     lessons.forEach((l, li) => {
       const key = `${pc.course}.${ui}.${li}`;
@@ -131,9 +132,14 @@ function simulate(app, withAdditions) {
   // the rest of 18.01 instead of waiting behind series and techniques.
   const qid = x => x.cid === "math120" && x.ui === 2 ? "math120b" : x.cid;
   const queue = id => L.filter(x => qid(x) === id && include(x));
-  const mathCourses = ["math110", "math120", "math120b", "math130", "phys100", "math210"].concat(withAdditions ? ["math140", "math150", "phys200", "phys300"] : []);
-  const Q = {}; mathCourses.concat(["cs100", "ai200", "ai210", "ai300", "sys250", "ai310", "res400"]).forEach(c => (Q[c] = queue(c)));
-  const ready = (x, day) => needs[x.key].every(n => doneDay[n] != null && doneDay[n] < day || (doneDay[n] === day && sameDayOK(n, day)));
+  // Core courses rotate; 18.02 (an addition) joins that rotation and so alternates with MATH 210.
+  // The other math-line additions run only on a day no core course has a ready lecture, in the
+  // tutor's priority order (18.650, statistical mechanics), with 18.03 and 8.02 alternating.
+  const mathCourses = ["math110", "math120", "math130", "phys100", "math210"].concat(withAdditions ? ["math140"] : []);
+  const mathAdds = withAdditions ? ["math160", "phys300", "math150", "phys200"] : [];
+  let altMath = "phys200", altAI = "cs150";
+  const Q = {}; mathCourses.concat(mathAdds, ["cs100", "ai200", "ai210", "ai300", "sys250", "ai310", "res400", "cs150", "cs110"]).forEach(c => (Q[c] = queue(c)));
+  const ready = (x, day) => needs[x.key].every(n => (!withAdditions && byKey[n].addition) || doneDay[n] != null && doneDay[n] < day || (doneDay[n] === day && sameDayOK(n, day)));
   let sameDay = new Set();
   const sameDayOK = n => sameDay.has(n);
   const schedule = [];                        // per day: { d, iso, math:[...], ai:[...] }
@@ -141,8 +147,8 @@ function simulate(app, withAdditions) {
   const span = { MATH: null, AI: null, FRI: null };      // { x, k, n }
   let rot = 0;
   const dowOf = iso => new Date(iso + "T00:00:00Z").getUTCDay();
-  const aiMain = () => [...Q.cs100.filter(x => x.ui <= 1), ...Q.ai200.filter(x => x.ui === 3), ...Q.ai200.filter(x => x.ui === 1), ...Q.ai210, ...Q.ai300, ...Q.sys250, ...Q.ai310, ...Q.res400];
-  const aiFriday = () => [...Q.cs100.filter(x => x.ui === 2), ...Q.ai200.filter(x => x.ui === 2)];
+  const aiMain = () => [...Q.cs100.filter(x => x.ui <= 1), ...Q.ai200.filter(x => x.ui === 3), ...Q.ai200.filter(x => x.ui === 1), ...Q.ai300, ...(altAI === "cs150" ? [...Q.ai210, ...Q.cs150] : [...Q.cs150, ...Q.ai210]), ...Q.sys250, ...Q.ai310, ...Q.res400];
+  const aiFriday = () => [...Q.cs100.filter(x => x.ui === 2), ...Q.ai200.filter(x => x.ui === 2), ...Q.cs110];
   const remove = x => { const q = Q[qid(x)]; q.splice(q.indexOf(x), 1); };
   function take(track, budget, first, day, sameCourseNext) {
     // pack like app.js packWindows: a lesson over 1.15×budget spans days; otherwise fill to 1.05×budget
@@ -182,13 +188,21 @@ function simulate(app, withAdditions) {
         const nx = Q[c][0];
         if (nx && ready(nx, day)) { row.math = take("MATH", V2.MATH, nx, day, () => Q[c][0]); rot = (rot + t + 1) % mathCourses.length; break; }
       }
+      if (!row.math.length) {
+        const order = mathAdds.filter(c => c !== "math150" && c !== "phys200");
+        const pair = altMath === "phys200" ? ["math150", "phys200"] : ["phys200", "math150"];
+        for (const c of order.concat(mathAdds.length ? pair : [])) {
+          const nx = Q[c][0];
+          if (nx && ready(nx, day)) { row.math = take("MATH", V2.MATH, nx, day, () => Q[c][0]); if (c === "math150" || c === "phys200") altMath = c; break; }
+        }
+      }
     }
     // AI / PYTHON / BUILD track. Fridays carry the no-code talks (their own lane: a long talk
     // continues on the NEXT Friday, so it never blocks the coding line). Once the Math &
     // Physics line is finished, its 90 minutes go to this line (theory stays ~3 h a day).
-    const mathDone = !mathCourses.some(c => Q[c].length) && !span.MATH;
+    const mathDone = !mathCourses.concat(mathAdds).some(c => Q[c].length) && !span.MATH;
     const aiBudget = mathDone ? V2.MATH + V2.AI : V2.AI;
-    const pick = (lane, list) => { for (const x of list) if (ready(x, day)) return take(lane, aiBudget, x, day, () => { const q = Q[qid(x)]; const nx = q[0]; return nx && nx.ui === x.ui ? nx : null; }); return null; };
+    const pick = (lane, list) => { for (const x of list) if (ready(x, day)) { if (x.cid === "ai210" || x.cid === "cs150") altAI = x.cid; return take(lane, aiBudget, x, day, () => { const q = Q[qid(x)]; const nx = q[0]; return nx && nx.ui === x.ui ? nx : null; }); } return null; };
     const main = () => span.AI ? continueSpan("AI", day) : pick("AI", aiMain());
     if (dowOf(iso) === 5) row.ai = (span.FRI ? continueSpan("FRI", day) : pick("FRI", aiFriday())) || main() || [];
     else row.ai = main() || (span.FRI ? null : pick("FRI", aiFriday())) || [];
@@ -265,9 +279,9 @@ const esc = s => String(s).replace(/\|/g, "/");
 
   // ---- audit table ----
   const counts = {};
-  L.forEach(x => { const c = counts[x.cid] = counts[x.cid] || { code: x.code, core: 0, optional: 0, duplicate: 0, min: 0, coreMin: 0, prov: !x.real, add: x.addition }; const s = status(x.key); c[s.startsWith("duplicate") ? "duplicate" : s]++; c.min += x.min; if (s === "core") c.coreMin += P.VIDEO_REUSED[x.key] ? 0 : x.min; });
-  let audit = "### Counts per course\n\n| Course | Lectures | Core | Optional | Duplicate | Core video hours |\n|---|---:|---:|---:|---:|---:|\n";
-  Object.entries(counts).forEach(([cid, c]) => { audit += `| ${c.code} (${cid})${c.add ? " — proposed" : c.prov ? " — proposed" : ""} | ${c.core + c.optional + c.duplicate} | ${c.core} | ${c.optional} | ${c.duplicate} | ${(c.coreMin / 60).toFixed(1)} |\n`; });
+  L.forEach(x => { const c = counts[x.cid] = counts[x.cid] || { code: x.code, core: 0, optional: 0, duplicate: 0, skipped: 0, min: 0, coreMin: 0, prov: !x.real, add: x.addition }; const s = status(x.key); c[s.startsWith("duplicate") ? "duplicate" : s]++; c.min += x.min; if (s === "core") c.coreMin += P.VIDEO_REUSED[x.key] ? 0 : x.min; });
+  let audit = "### Counts per course\n\n| Course | Lectures | Core | Optional | Duplicate | Skipped | Core video hours |\n|---|---:|---:|---:|---:|---:|---:|\n";
+  Object.entries(counts).forEach(([cid, c]) => { audit += `| ${c.code} (${cid})${c.add ? " — proposed" : c.prov ? " — proposed" : ""} | ${c.core + c.optional + c.duplicate + c.skipped} | ${c.core} | ${c.optional} | ${c.duplicate} | ${c.skipped} | ${(c.coreMin / 60).toFixed(1)} |\n`; });
   audit += "\n### Every lecture\n\nLevel: 1 intro, 2 core, 3 advanced. Provisional keys (not yet in the data) are marked †.\n";
   let lastU = "";
   L.forEach(x => {
@@ -306,8 +320,8 @@ const esc = s => String(s).replace(/\|/g, "/");
   // ---- dates ----
   const label = d => d < 0 ? "before cutover" : `${date(d)} (day ${d + 1})`;
   let dt = `Computed by tools/plan-dates.js: the OLD dates are read from the real app (scheduledFor on every study day, fresh state, through window.__brickfordTest); the NEW dates are the v2 simulation. Calendar: START ${D.START_DATE}, Saturday rest, day 1094 = ${date(1093)}. Cutover ${CUTOVER} = study day ${cut + 1}.\n\n`;
-  dt += "### When each course's last lecture lands\n\n| Course | Old first | Old last | New (core only) | New (core + proposed additions) |\n|---|---|---|---|---|\n";
-  courseIds.concat(["cs100", "math140", "math150", "phys200", "phys300"]).forEach(cid => {
+  dt += "### When each course's last lecture lands\n\n| Course | Old first | Old last | New (core only, for reference) | New (everything included — the plan) |\n|---|---|---|---|---|\n";
+  courseIds.filter(c => c !== "cs150").concat(["cs100", "cs110", "cs150", "math140", "math160", "math150", "phys300", "phys200"]).forEach(cid => {
     const code = (byKey[L.find(x => x.cid === cid)?.key] || {}).code || cid;
     if (!L.some(x => x.cid === cid)) return;
     const ol = oldCourseLast(cid), of = oldCourseFirst(cid);
@@ -317,13 +331,16 @@ const esc = s => String(s).replace(/\|/g, "/");
   const lastAll = rr => Math.max(...Object.values(rr.doneDay));
   dt += `\nOld: the last lecture of any kind lands ${label(oldAllLast)}; excluding Storytelling ${label(oldAllLastNoSpch)}. Never scheduled by the old plan: ${notScheduledOld.length ? notScheduledOld.join(", ") : "none"}.\n`;
   dt += `New, core only: last lecture ${label(lastAll(runs.core))}; the math foundation (MATH 110/120/130) ends ${label(lastOf(runs.core, ["math110", "math120", "math130"]))}, so Phase-2 work opens then instead of fixed day 183; the Karpathy pass ends ${label(runs.core.doneDay["ai200.1.8"])}; the 16th paper's reimplementation ends ${label(runs.core.paperEnd[runs.core.papers[15]?.key])}.\n`;
-  dt += `New, core + proposed additions: last lecture ${label(lastAll(runs.plus))}; the 16th paper ends ${label(runs.plus.paperEnd[runs.plus.papers[15]?.key])}.\n`;
+  dt += `New, everything included (core + the seven additions; option A): Zero to Hero done ${label(runs.plus.doneDay["ai200.1.8"])}; last lecture ${label(lastAll(runs.plus))}; the 16th paper ends ${label(runs.plus.paperEnd[runs.plus.papers[15]?.key])}.\n`;
   dt += `Unscheduled leftovers: core ${runs.core.left.length ? runs.core.left.join(" ") : "none"}; with additions ${runs.plus.left.length ? runs.plus.left.join(" ") : "none"}.\n`;
-  dt += "\n### Gates\n\n| Gate | Requirement | A: unchanged | B: shortened (core only) | B: shortened (with additions) |\n|---|---|---|---|---|\n";
-  const bc = gatesB(runs.core), bp = gatesB(runs.plus);
-  D.GATES.forEach((g, i) => { dt += `| ${g.n} ${g.label} | ${esc(g.req)} | ${label(gateA[i])} — ${g.months} mo | ${label(bc[i])} — ${((bc[i] - (i ? bc[i - 1] : 0)) / 30.4).toFixed(1)} mo | ${label(bp[i])} — ${((bp[i] - (i ? bp[i - 1] : 0)) / 30.4).toFixed(1)} mo |\n`; });
-  dt += `\nB rules (study days): gate 1 unchanged; gate 2 = Karpathy pass done + ${GATE2_PROJECT_DAYS} (the original-GPT project block); gate 3 = the 6th paper reimplementation done; gate 4 = the later of (last SYS 250 / AI 310 / RES 400 / MATH 210 lecture + ${GATE4_CONSOLIDATION_DAYS}) and the 16th paper reimplementation done (v1 put all 16 papers before the fork); gate 5 = gate 4 + ${GATE5_DAYS} (18 months: being hired or earning revenue does not go faster because study did). Each gate is never earlier than the one before.\n`;
-  dt += `\nPaper reimplementations (core run, ${PAPER_PRACTICE_DAYS} study days each in the practice block): ` + runs.core.papers.map((p, i) => `${i + 1}. ${p.key} ends ${date(runs.core.paperEnd[p.key])}`).join("; ") + ".\n";
+  // Option A (owner, 12 Nov): gates and day 1094 unchanged. Show what the full plan has done by each gate.
+  const R = runs.plus;
+  const papersBy = d => R.papers.filter(p => R.paperEnd[p.key] <= d).length;
+  const addsLeft = d => ["cs110", "cs150", "math140", "math160", "math150", "phys300", "phys200"].filter(c => lastOf(R, [c]) > d).map(c => byKey[c + ".0.0"].code);
+  dt += "\n### Gates under option A (chosen 12 Nov: unchanged)\n\n| Gate | Requirement | Target (unchanged) | Papers reimplemented by then | Added courses still running then |\n|---|---|---|---:|---|\n";
+  D.GATES.forEach((g, i) => { const d = gateA[i]; dt += `| ${g.n} ${g.label} | ${esc(g.req)} | ${label(d)} | ${papersBy(d)} of 16 | ${addsLeft(d).join(", ") || "none"} |\n`; });
+  dt += `\nNo gate moves: the targets are what the app's gatePlan() gives today (cumulative months × 30.4 study days, walked with dateForStudy), and day 1094 stays ${date(1093)}. With everything included the last lecture is ${label(lastAll(R))} and the 16th paper ${label(R.paperEnd[R.papers[15]?.key])}, both before gate 4 (${label(gateA[3])}).\n`;
+  dt += `\nPaper reimplementations (everything included, ${PAPER_PRACTICE_DAYS} study days each in the practice block): ` + R.papers.map((p, i) => `${i + 1}. ${p.key} ends ${date(R.paperEnd[p.key])}`).join("; ") + ".\n";
   replaceGenerated("dates.md", dt);
 
   // machine-readable summary for README
@@ -331,7 +348,7 @@ const esc = s => String(s).replace(/\|/g, "/");
     cutover: CUTOVER, cutIdx: cut, day1094: date(1093), oldLast: date(oldAllLast), oldLastNoSpch: date(oldAllLastNoSpch),
     coreLast: date(lastAll(runs.core)), plusLast: date(lastAll(runs.plus)), karpathyDone: date(runs.core.doneDay["ai200.1.8"]),
     bridgeDone: date(lastOf(runs.core, ["cs100"])), secondPassStart: date(runs.core.schedule.find(rw => rw.ai.some(i => i.x.key === "ai200.3.0")).d), pyDone: date(Math.max(runs.core.doneDay["cs100.1.1"], runs.core.doneDay["cs100.0.9"])), mathFoundationDone: date(lastOf(runs.core, ["math110", "math120", "math130"])),
-    gatesA: gateA.map(date), gatesBcore: bc.map(date), gatesBplus: bp.map(date), counts,
+    gatesA: gateA.map(date), plusKarpathyDone: date(runs.plus.doneDay["ai200.1.8"]), plusPaper16: date(runs.plus.paperEnd[runs.plus.papers[15].key]), plusPaper6: date(runs.plus.paperEnd[runs.plus.papers[5].key]), plusMathFoundation: date(lastOf(runs.plus, ["math110", "math120", "math130"])), plusAdds: Object.fromEntries(["cs110", "cs150", "math140", "math160", "math150", "phys300", "phys200"].map(c => [c, [date(firstOf(runs.plus, [c])), date(lastOf(runs.plus, [c]))]])), counts,
   }, null, 1) + "\n");
   console.log(JSON.stringify(JSON.parse(fs.readFileSync(path.join(SPEC, "dates.json"), "utf8")), (k, v) => k === "counts" ? undefined : v));
 })().catch(e => { console.error(e); process.exit(1); });

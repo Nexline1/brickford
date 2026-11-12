@@ -26,90 +26,89 @@ Generated from prerequisites.json by tools/plan-dates.js. Cutover 2026-11-22 = s
 
 | Study day | Date | Math & Physics (~1 h 30) | AI / Python (~1 h) | Storytelling (~40 min, unchanged) |
 |---:|---|---|---|---|
-| 32 | Sun 2026-11-22 | math110.1.8 Independence, Basis, and Dimension | cs100.0.0† Lecture 0 — Functions, Variables (part 1/4) | spch100.4.1 |
-| 33 | Mon 2026-11-23 | math120.1.7 Linear and Quadratic Approximations | cs100.0.0† Lecture 0 — Functions, Variables (part 2/4) | spch100.4.2 |
-| 34 | Tue 2026-11-24 | math120.2.0† Multivariable functions — what a function of two inputs look + math120.2.1† Partial derivatives + math120.2.2† The gradient + math120.2.3† Directional derivatives, and why the gradient is steepest as | cs100.0.0† Lecture 0 — Functions, Variables (part 3/4) | spch100.4.2 |
-| 35 | Wed 2026-11-25 | math130.0.10 The Poisson distribution | cs100.0.0† Lecture 0 — Functions, Variables (part 4/4) | spch100.4.3 |
-| 36 | Thu 2026-11-26 | math110.1.9 The Four Fundamental Subspaces | cs100.0.1† Lecture 1 — Conditionals (part 1/2) | spch100.4.4 |
-| 37 | Fri 2026-11-27 | math120.1.8 Curve Sketching | cs100.2.0† Large Language Models explained briefly | weekly recorded rep |
-| 38 | Sun 2026-11-29 | math120.2.4† The multivariable chain rule + math120.2.5† The Jacobian matrix + math120.2.6† Double integrals | cs100.0.1† Lecture 1 — Conditionals (part 2/2) | spch100.4.5 |
-| 39 | Mon 2026-11-30 | math110.1.10 Matrix Spaces; Rank 1; Small World Graphs | cs100.0.2† Lecture 2 — Loops (part 1/3) | spch100.4.5 |
-| 40 | Tue 2026-12-01 | math120.1.9 Max-min | cs100.0.2† Lecture 2 — Loops (part 2/3) | spch100.4.6 |
-| 41 | Wed 2026-12-02 | math110.1.11 Graphs, Networks, Incidence Matrices | cs100.0.2† Lecture 2 — Loops (part 3/3) | spch100.4.6 |
-| 42 | Thu 2026-12-03 | math120.1.10 Related Rates | cs100.0.3† Lecture 3 — Exceptions (part 1/2) | spch100.4.7 |
-| 43 | Fri 2026-12-04 | math110.1.12 Quiz 1 Review | cs100.2.1† Transformers, the tech behind LLMs (Deep Learning ch. 5) | weekly recorded rep |
-| 44 | Sun 2026-12-06 | math120.1.11 Newton's Method | cs100.0.3† Lecture 3 — Exceptions (part 2/2) | spch100.4.7 |
-| 45 | Mon 2026-12-07 | math110.1.13 Orthogonal Vectors and Subspaces | cs100.0.4† Lecture 4 — Libraries (part 1/3) | spch100.4.7 |
-| 46 | Tue 2026-12-08 | math120.1.12 Mean Value Theorem | cs100.0.4† Lecture 4 — Libraries (part 2/3) | spch100.4.8 |
-| 47 | Wed 2026-12-09 | math110.1.14 Projections onto Subspaces | cs100.0.4† Lecture 4 — Libraries (part 3/3) | spch100.4.8 |
-| 48 | Thu 2026-12-10 | math120.1.13 Antiderivatives | cs100.0.5† Lecture 5 — Unit Tests (part 1/2) | spch100.4.9 |
-| 49 | Fri 2026-12-11 | math110.1.15 Projection Matrices and Least Squares | cs100.2.2† Attention in transformers, step by step (Deep Learning ch. 6 | weekly recorded rep |
-| 50 | Sun 2026-12-13 | math120.1.14 Differential Equations | cs100.0.5† Lecture 5 — Unit Tests (part 2/2) | spch100.4.10 |
-| 51 | Mon 2026-12-14 | math110.1.16 Orthogonal Matrices and Gram-Schmidt | cs100.0.6† Lecture 6 — File I/O (part 1/4) | spch100.4.11 |
-| 52 | Tue 2026-12-15 | math120.1.15 Definite Integrals | cs100.0.6† Lecture 6 — File I/O (part 2/4) | spch100.4.12 |
-| 53 | Wed 2026-12-16 | math130.0.11 Discrete vs. Continuous, the Uniform | cs100.0.6† Lecture 6 — File I/O (part 3/4) | spch100.5.0 |
-| 54 | Thu 2026-12-17 | math110.1.17 Properties of Determinants | cs100.0.6† Lecture 6 — File I/O (part 4/4) | spch100.5.1 |
-| 55 | Fri 2026-12-18 | math120.1.16 First Fundamental Theorem | cs100.2.3† How might LLMs store facts (Deep Learning ch. 7) | weekly recorded rep |
-| 56 | Sun 2026-12-20 | math110.1.18 Determinant Formulas and Cofactors | cs100.0.7† Lecture 7 — Regular Expressions (part 1/4) | spch100.5.2 |
-| 57 | Mon 2026-12-21 | math120.1.17 Second Fundamental Theorem | cs100.0.7† Lecture 7 — Regular Expressions (part 2/4) | spch100.5.3, spch100.5.4 |
-| 58 | Tue 2026-12-22 | phys100.0.0 Introduction + phys100.0.1 Units, Dimensions, and Scaling Arguments | cs100.0.7† Lecture 7 — Regular Expressions (part 3/4) | spch100.5.5 |
-| 59 | Wed 2026-12-23 | math110.1.19 Cramer's Rule, Inverse Matrix, and Volume | cs100.0.7† Lecture 7 — Regular Expressions (part 4/4) | spch100.5.6, spch100.5.7 |
-| 60 | Thu 2026-12-24 | math120.1.18 Applications to Logarithms | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 1/6) | spch100.5.8 |
-| 61 | Fri 2026-12-25 | phys100.0.2 Introduction to Kinematics | ai200.2.1 Deep dive into LLMs like ChatGPT (part 1/7) | weekly recorded rep |
-| 62 | Sun 2026-12-27 | math110.1.20 Eigenvalues and Eigenvectors | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 2/6) | spch100.5.9 |
-| 63 | Mon 2026-12-28 | math120.1.19 Volumes | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 3/6) | spch100.5.9 |
-| 64 | Tue 2026-12-29 | phys100.0.3 Vectors | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 4/6) | spch100.5.10 |
-| 65 | Wed 2026-12-30 | math110.1.21 Diagonalization and Powers of A | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 5/6) | spch100.5.11 |
-| 66 | Thu 2026-12-31 | math120.1.20 Work, Probability | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 6/6) | spch100.5.11 |
-| 67 | Fri 2027-01-01 | phys100.0.4 The Motion of Projectiles | ai200.2.1 Deep dive into LLMs like ChatGPT (part 2/7) | weekly recorded rep |
-| 68 | Sun 2027-01-03 | math110.1.22 Differential Equations and exp(At) | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 1/4) | spch100.5.11 |
-| 69 | Mon 2027-01-04 | math120.1.21 Numerical Integration | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 2/4) | spch100.5.12, spch100.5.13, spch100.5.14 |
-| 70 | Tue 2027-01-05 | phys100.0.5 Uniform Circular Motion | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 3/4) | spch100.5.15 |
-| 71 | Wed 2027-01-06 | math110.1.23 Markov Matrices; Fourier Series | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 4/4) | spch100.5.16 |
-| 72 | Thu 2027-01-07 | math120.1.22 Exam 3 Review | cs100.1.0† NumPy for beginners (freeCodeCamp, Keith Galli) (part 1/2) | spch100.6.0 |
-| 73 | Fri 2027-01-08 | math130.0.12 Normal distribution | ai200.2.1 Deep dive into LLMs like ChatGPT (part 3/7) | weekly recorded rep |
-| 74 | Sun 2027-01-10 | phys100.0.6 Newton's First, Second, and Third Laws | cs100.1.0† NumPy for beginners (freeCodeCamp, Keith Galli) (part 2/2) | spch100.6.1 |
-| 75 | Mon 2027-01-11 | math110.1.24 Quiz 2 Review | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 1/5) | spch100.6.2, spch100.6.3 |
-| 76 | Tue 2027-01-12 | math120.1.23 Trig Integrals | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 2/5) | spch100.6.4, spch100.6.5 |
-| 77 | Wed 2027-01-13 | math130.0.13 Location, Scale, and LOTUS | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 3/5) | spch100.6.6, spch100.6.7, spch100.6.8 |
-| 78 | Thu 2027-01-14 | phys100.0.7 Weight, Perceived Gravity, and Weightlessnes | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 4/5) | spch100.6.9 |
-| 79 | Fri 2027-01-15 | math110.1.25 Symmetric Matrices and Positive Definiteness | ai200.2.1 Deep dive into LLMs like ChatGPT (part 4/7) | weekly recorded rep |
+| 32 | Sun 2026-11-22 | math110.1.8 Independence, Basis, and Dimension | cs100.0.3† Lecture 3 — Exceptions (part 1/2) | spch100.4.1 |
+| 33 | Mon 2026-11-23 | math120.1.7 Linear and Quadratic Approximations | cs100.0.3† Lecture 3 — Exceptions (part 2/2) | spch100.4.2 |
+| 34 | Tue 2026-11-24 | math130.0.10 The Poisson distribution | cs100.0.4† Lecture 4 — Libraries (part 1/3) | spch100.4.2 |
+| 35 | Wed 2026-11-25 | math110.1.9 The Four Fundamental Subspaces | cs100.0.4† Lecture 4 — Libraries (part 2/3) | spch100.4.3 |
+| 36 | Thu 2026-11-26 | math120.1.8 Curve Sketching | cs100.0.4† Lecture 4 — Libraries (part 3/3) | spch100.4.4 |
+| 37 | Fri 2026-11-27 | math110.1.10 Matrix Spaces; Rank 1; Small World Graphs | cs100.2.0† Large Language Models explained briefly | weekly recorded rep |
+| 38 | Sun 2026-11-29 | math120.1.9 Max-min | cs100.0.5† Lecture 5 — Unit Tests (part 1/2) | spch100.4.5 |
+| 39 | Mon 2026-11-30 | math110.1.11 Graphs, Networks, Incidence Matrices | cs100.0.5† Lecture 5 — Unit Tests (part 2/2) | spch100.4.5 |
+| 40 | Tue 2026-12-01 | math120.1.10 Related Rates | cs100.0.6† Lecture 6 — File I/O (part 1/4) | spch100.4.6 |
+| 41 | Wed 2026-12-02 | math110.1.12 Quiz 1 Review | cs100.0.6† Lecture 6 — File I/O (part 2/4) | spch100.4.6 |
+| 42 | Thu 2026-12-03 | math120.1.11 Newton's Method | cs100.0.6† Lecture 6 — File I/O (part 3/4) | spch100.4.7 |
+| 43 | Fri 2026-12-04 | math110.1.13 Orthogonal Vectors and Subspaces | cs100.2.1† Transformers, the tech behind LLMs (Deep Learning ch. 5) | weekly recorded rep |
+| 44 | Sun 2026-12-06 | math120.1.12 Mean Value Theorem | cs100.0.6† Lecture 6 — File I/O (part 4/4) | spch100.4.7 |
+| 45 | Mon 2026-12-07 | math110.1.14 Projections onto Subspaces | cs100.0.7† Lecture 7 — Regular Expressions (part 1/4) | spch100.4.7 |
+| 46 | Tue 2026-12-08 | math120.1.13 Antiderivatives | cs100.0.7† Lecture 7 — Regular Expressions (part 2/4) | spch100.4.8 |
+| 47 | Wed 2026-12-09 | math110.1.15 Projection Matrices and Least Squares | cs100.0.7† Lecture 7 — Regular Expressions (part 3/4) | spch100.4.8 |
+| 48 | Thu 2026-12-10 | math120.1.14 Differential Equations | cs100.0.7† Lecture 7 — Regular Expressions (part 4/4) | spch100.4.9 |
+| 49 | Fri 2026-12-11 | math110.1.16 Orthogonal Matrices and Gram-Schmidt | cs100.2.2† Attention in transformers, step by step (Deep Learning ch. 6 | weekly recorded rep |
+| 50 | Sun 2026-12-13 | math120.1.15 Definite Integrals | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 1/6) | spch100.4.10 |
+| 51 | Mon 2026-12-14 | math130.0.11 Discrete vs. Continuous, the Uniform | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 2/6) | spch100.4.11 |
+| 52 | Tue 2026-12-15 | math110.1.17 Properties of Determinants | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 3/6) | spch100.4.12 |
+| 53 | Wed 2026-12-16 | math120.1.16 First Fundamental Theorem | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 4/6) | spch100.5.0 |
+| 54 | Thu 2026-12-17 | math110.1.18 Determinant Formulas and Cofactors | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 5/6) | spch100.5.1 |
+| 55 | Fri 2026-12-18 | math120.1.17 Second Fundamental Theorem | cs100.2.3† How might LLMs store facts (Deep Learning ch. 7) | weekly recorded rep |
+| 56 | Sun 2026-12-20 | phys100.0.0 Introduction + phys100.0.1 Units, Dimensions, and Scaling Arguments | cs100.0.8† Lecture 8 — Object-Oriented Programming (part 6/6) | spch100.5.2 |
+| 57 | Mon 2026-12-21 | math110.1.19 Cramer's Rule, Inverse Matrix, and Volume | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 1/4) | spch100.5.3, spch100.5.4 |
+| 58 | Tue 2026-12-22 | math120.1.18 Applications to Logarithms | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 2/4) | spch100.5.5 |
+| 59 | Wed 2026-12-23 | phys100.0.2 Introduction to Kinematics | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 3/4) | spch100.5.6, spch100.5.7 |
+| 60 | Thu 2026-12-24 | math110.1.20 Eigenvalues and Eigenvectors | cs100.0.9† Lecture 9 — Et Cetera (sets, comprehensions, generators, *ar (part 4/4) | spch100.5.8 |
+| 61 | Fri 2026-12-25 | math120.1.19 Volumes | ai200.2.1 Deep dive into LLMs like ChatGPT (part 1/7) | weekly recorded rep |
+| 62 | Sun 2026-12-27 | phys100.0.3 Vectors | cs100.1.0† NumPy for beginners (freeCodeCamp, Keith Galli) (part 1/2) | spch100.5.9 |
+| 63 | Mon 2026-12-28 | math110.1.21 Diagonalization and Powers of A | cs100.1.0† NumPy for beginners (freeCodeCamp, Keith Galli) (part 2/2) | spch100.5.9 |
+| 64 | Tue 2026-12-29 | math120.1.20 Work, Probability | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 1/5) | spch100.5.10 |
+| 65 | Wed 2026-12-30 | phys100.0.4 The Motion of Projectiles | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 2/5) | spch100.5.11 |
+| 66 | Thu 2026-12-31 | math110.1.22 Differential Equations and exp(At) | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 3/5) | spch100.5.11 |
+| 67 | Fri 2027-01-01 | math120.1.21 Numerical Integration | ai200.2.1 Deep dive into LLMs like ChatGPT (part 2/7) | weekly recorded rep |
+| 68 | Sun 2027-01-03 | phys100.0.5 Uniform Circular Motion | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 4/5) | spch100.5.11 |
+| 69 | Mon 2027-01-04 | math110.1.23 Markov Matrices; Fourier Series | cs100.1.1† PyTorch fundamentals: tensors, shapes, indexing, matmul, bro (part 5/5) | spch100.5.12, spch100.5.13, spch100.5.14 |
+| 70 | Tue 2027-01-05 | math120.1.22 Exam 3 Review | ai200.3.0† Micrograd — spelled-out intro to neural networks and backpro (part 1/5) | spch100.5.15 |
+| 71 | Wed 2027-01-06 | math130.0.12 Normal distribution | ai200.3.0† Micrograd — spelled-out intro to neural networks and backpro (part 2/5) | spch100.5.16 |
+| 72 | Thu 2027-01-07 | phys100.0.6 Newton's First, Second, and Third Laws | ai200.3.0† Micrograd — spelled-out intro to neural networks and backpro (part 3/5) | spch100.6.0 |
+| 73 | Fri 2027-01-08 | math110.1.24 Quiz 2 Review | ai200.2.1 Deep dive into LLMs like ChatGPT (part 3/7) | weekly recorded rep |
+| 74 | Sun 2027-01-10 | math120.1.23 Trig Integrals | ai200.3.0† Micrograd — spelled-out intro to neural networks and backpro (part 4/5) | spch100.6.1 |
+| 75 | Mon 2027-01-11 | math130.0.13 Location, Scale, and LOTUS | ai200.3.0† Micrograd — spelled-out intro to neural networks and backpro (part 5/5) | spch100.6.2, spch100.6.3 |
+| 76 | Tue 2027-01-12 | phys100.0.7 Weight, Perceived Gravity, and Weightlessnes | ai200.3.1† Makemore 1 — bigram character-level language model (second p (part 1/4) | spch100.6.4, spch100.6.5 |
+| 77 | Wed 2027-01-13 | math110.1.25 Symmetric Matrices and Positive Definiteness | ai200.3.1† Makemore 1 — bigram character-level language model (second p (part 2/4) | spch100.6.6, spch100.6.7, spch100.6.8 |
+| 78 | Thu 2027-01-14 | math120.1.24 Inverse Substitution | ai200.3.1† Makemore 1 — bigram character-level language model (second p (part 3/4) | spch100.6.9 |
+| 79 | Fri 2027-01-15 | math130.0.15 Exponential Distribution | ai200.2.1 Deep dive into LLMs like ChatGPT (part 4/7) | weekly recorded rep |
 
 ### After that, week by week (six study days each)
 
 | Week | From | Math & Physics | AI / Python / Build |
 |---:|---|---|---|
-| 9 | 2027-01-17 | 6 lectures: math120.1.24 Inverse Substitution … phys100.0.10 Hooke's Law, Simple Harmonic Oscil | 3 lectures: cs100.1.1 PyTorch fundamentals: tensors, sha … ai200.2.1 Deep dive into LLMs like ChatGPT |
-| 10 | 2027-01-24 | 6 lectures: math110.1.27 Positive Definite Matrices and Min … phys100.0.12 Resistive Forces | 3 lectures: ai200.3.0 Micrograd — spelled-out intro to n … ai200.2.1 Deep dive into LLMs like ChatGPT |
-| 11 | 2027-01-31 | 6 lectures: math110.1.29 Singular Value Decomposition … phys100.0.14 Orbits and Escape Velocity | 3 lectures: ai200.3.2 Makemore 2 — MLP, following Bengio … ai200.2.1 Deep dive into LLMs like ChatGPT |
-| 12 | 2027-02-07 | 6 lectures: math110.1.31 Change of Basis; Image Compression … phys100.0.16 Elastic and Inelastic Collisions | 2 lectures: ai200.3.3 Makemore 3 — activations, gradient … ai200.3.4 Makemore 4 — becoming a backprop n |
-| 13 | 2027-02-14 | 6 lectures: math110.1.33 Left and Right Inverses; Pseudoinv … math130.0.16 Moment Generating Functions | 2 lectures: ai200.1.5 Makemore 5 — building a WaveNet … ai200.1.6 Let's build GPT — from scratch, in |
-| 14 | 2027-02-21 | 5 lectures: phys100.0.19 Rotating Rigid Bodies, Inertia, an … math210.0.0 Lecture 1 Part 1: Introduction and | 2 lectures: ai200.1.7 Let's build the GPT Tokenizer … ai200.1.8 Let's reproduce GPT-2 (124M) |
-| 15 | 2027-02-28 | 6 lectures: math130.0.18 Joint, Conditional, and Marginal D … math210.0.2 Lecture 2 Part 1: Derivatives in H | ai200.1.8 Let's reproduce GPT-2 (124M) |
-| 16 | 2027-03-07 | 6 lectures: math210.0.2 Lecture 2 Part 1: Derivatives in H … phys100.0.24 Rolling Motion, Gyroscopes | 3 lectures: ai200.1.8 Let's reproduce GPT-2 (124M) … ai210.0.1 Lesson 2: Deployment |
-| 17 | 2027-03-14 | 6 lectures: math210.0.4 Lecture 3 Part 1: Kronecker Produc … phys100.0.26 Elasticity and Young's Modulus | 3 lectures: ai210.0.1 Lesson 2: Deployment … ai210.0.3 Lesson 4: Natural language (NLP) |
-| 18 | 2027-03-21 | 5 lectures: math210.0.6 Lecture 4 Part 1: Gradients and In … math130.0.25 Conditional Expectation Continued | 3 lectures: ai210.0.3 Lesson 4: Natural language (NLP) … ai210.0.7 Lesson 8: Convolutions (CNNs) |
-| 19 | 2027-03-28 | 6 lectures: phys100.0.28 Hydrostatics, Archimedes' Principl … math130.0.27 Inequalities | 3 lectures: ai210.0.7 Lesson 8: Convolutions (CNNs) … ai300.1.1 BERT — Pre-training Deep Bidirecti |
-| 20 | 2027-04-04 | 5 lectures: phys100.0.31 Pendulums and Springs … math210.0.11 Lecture 6 Part 1: Adjoint Differen | 2 lectures: ai300.1.2 GPT-2 — Language Models are Unsupe … sys250.0.0 Introduction and Logistics |
-| 21 | 2027-04-11 | 6 lectures: math130.0.29 Chi-Square, Student-t, Multivariat … math210.0.13 Lecture 7 Part 1: Derivatives of R | 3 lectures: sys250.0.1 ML Refresher / Softmax Regression … sys250.0.3 "Manual" Neural Networks |
-| 22 | 2027-04-18 | 6 lectures: math210.0.13 Lecture 7 Part 1: Derivatives of R … math130.0.33 A Look Ahead | 3 lectures: sys250.0.3 "Manual" Neural Networks … sys250.0.5 Automatic Differentiation Implemen |
-| 23 | 2027-04-25 | 3 lectures: math210.1.0 Loss functions and optimization (C … math210.1.2 Training neural networks II — mome | 3 lectures: sys250.0.6 Fully connected networks, optimiza … sys250.0.8 Neural Network Library Implementat |
-| 24 | 2027-05-02 | 5 lectures: math210.1.3 Why momentum really works — read a … math210.2.1 Entropy and Data Compression (I):  | 3 lectures: sys250.0.8 Neural Network Library Implementat … sys250.0.10 Convolutional Networks |
-| 25 | 2027-05-09 | 4 lectures: math210.2.2 Entropy and Data Compression (II): … math210.2.5 Noisy Channel Coding (I): Inferenc | 3 lectures: sys250.0.10 Convolutional Networks … ai300.0.1 ResNet — Deep Residual Learning (2 |
-| 26 | 2027-05-16 | 4 lectures: math210.2.6 Noisy Channel Coding (II): The Cap … math210.2.9 An Introduction To Bayesian Infere | 4 lectures: ai300.0.1 ResNet — Deep Residual Learning (2 … sys250.0.11 Hardware Acceleration |
-| 27 | 2027-05-23 | 3 lectures: math210.2.10 Approximating Probability Distribu … math210.2.12 Approximating Probability Distribu | 4 lectures: sys250.0.11 Hardware Acceleration … sys250.0.14 Implementing Convolutions |
-| 28 | 2027-05-30 | 4 lectures: math210.2.12 Approximating Probability Distribu … math210.2.15 Data Modelling With Neural Network | 3 lectures: sys250.0.14 Implementing Convolutions … sys250.0.16 Generative Adversarial Networks |
-| 29 | 2027-06-06 | — | 7 lectures: sys250.0.17 Generative Adversarial Networks Im … sys250.0.23 Machine Learning Compilation and D |
-| 30 | 2027-06-13 | — | 6 lectures: sys250.1.0 How to profile CUDA kernels in PyT … sys250.1.5 CUDA Performance Checklist |
-| 31 | 2027-06-20 | — | 6 lectures: sys250.1.6 Reductions … sys250.1.10 int8 tensorcore matmul for Turing |
-| 32 | 2027-06-27 | — | 6 lectures: sys250.1.11 Mosaic GPU … ai300.3.1 Mixtral — Mixture of Experts (2024 |
-| 33 | 2027-07-04 | — | 6 lectures: ai300.3.2 DDPM — Denoising Diffusion Probabi … ai310.0.8 Lecture 9: Scaling laws 1 |
-| 34 | 2027-07-11 | — | 6 lectures: ai300.1.3 Chinchilla — Training Compute-Opti … ai310.0.13 Lecture 14: Data 2 |
-| 35 | 2027-07-18 | — | 5 lectures: ai310.0.14 Lecture 15: Alignment - SFT/RLHF … res400.0.1 Markov Decision Process |
-| 36 | 2027-07-25 | — | 3 lectures: res400.0.2 Planning by Dynamic Programming … res400.0.4 Model Free Control |
-| 37 | 2027-08-01 | — | 4 lectures: res400.0.5 Value Function Approximation … ai310.1.0 The Hugging Face LLM course — pipe |
-| 38 | 2027-08-08 | — | 6 lectures: ai310.1.1 Supervised finetuning in practice  … ai310.1.3 Evals — lm-evaluation-harness, con |
-| 39 | 2027-08-15 | — | 5 lectures: ai310.1.4 Serving — vLLM, PagedAttention, an … res400.0.8 Exploration and Exploitation |
-| 40 | 2027-08-22 | — | 5 lectures: res400.0.8 Exploration and Exploitation … res400.1.2 Toy Models of Superposition |
-| 41 | 2027-08-29 | — | 5 lectures: res400.1.3 ARENA — Transformer Interpretabili … res400.2.2 Karpathy — A Survival Guide to a P |
+| 9 | 2027-01-17 | 6 lectures: phys100.0.8 Frictional Forces … math120.1.26 Integration by Parts | 4 lectures: ai200.3.1 Makemore 1 — bigram character-leve … ai200.2.1 Deep dive into LLMs like ChatGPT |
+| 10 | 2027-01-24 | 6 lectures: phys100.0.11 Work, Energy, and Universal Gravit … math120.1.28 Polar Coordinates | 3 lectures: ai200.3.3 Makemore 3 — activations, gradient … ai200.2.1 Deep dive into LLMs like ChatGPT |
+| 11 | 2027-01-31 | 6 lectures: phys100.0.13 Equation of Motion for Simple Harm … math120.1.30 Indeterminate Forms | 4 lectures: ai200.3.4 Makemore 4 — becoming a backprop n … ai200.2.1 Deep dive into LLMs like ChatGPT |
+| 12 | 2027-02-07 | 6 lectures: phys100.0.15 Momentum and Its Conservation … math120.1.32 Infinite Series | 2 lectures: ai200.1.6 Let's build GPT — from scratch, in … ai200.1.7 Let's build the GPT Tokenizer |
+| 13 | 2027-02-14 | 6 lectures: phys100.0.17 Momentum of Individual Objects, Ro … math120.1.34 Final Review | 2 lectures: ai200.1.7 Let's build the GPT Tokenizer … ai200.1.8 Let's reproduce GPT-2 (124M) |
+| 14 | 2027-02-21 | 5 lectures: math130.0.17 MGFs Continued … phys100.0.21 Torque | 2 lectures: ai200.1.8 Let's reproduce GPT-2 (124M) … ai300.1.0 Attention Is All You Need (2017) |
+| 15 | 2027-02-28 | 5 lectures: math210.0.1 Lecture 1 Part 2: Derivatives as L … math130.0.20 Covariance and Correlation | 2 lectures: ai300.1.1 BERT — Pre-training Deep Bidirecti … ai300.1.2 GPT-2 — Language Models are Unsupe |
+| 16 | 2027-03-07 | 6 lectures: phys100.0.23 Doppler Effect, Binary Stars, Neut … math130.0.22 Beta distribution | 2 lectures: ai210.0.0 Lesson 1: Getting started … ai210.0.1 Lesson 2: Deployment |
+| 17 | 2027-03-14 | 5 lectures: phys100.0.25 Static Equilibrium, Stability, Rop … math210.0.6 Lecture 4 Part 1: Gradients and In | 2 lectures: ai210.0.2 Lesson 3: Neural net foundations … ai210.0.3 Lesson 4: Natural language (NLP) |
+| 18 | 2027-03-21 | 6 lectures: math130.0.24 Order Statistics and Conditional E … math210.0.8 Lecture 5 Part 1: Derivative of Ma | 2 lectures: ai210.0.4 Lesson 5: From-scratch model … ai210.0.7 Lesson 8: Convolutions (CNNs) |
+| 19 | 2027-03-28 | 6 lectures: math130.0.26 Conditional Expectation given an R … math210.0.10 Lecture 5 Part 3: Differentiation  | 3 lectures: ai210.0.7 Lesson 8: Convolutions (CNNs) … ai310.0.1 Lec. 2: Pytorch, Resource Accounti |
+| 20 | 2027-04-04 | 5 lectures: math130.0.28 Law of Large Numbers and Central L … phys100.0.33 Ideal-Gas Law | 3 lectures: ai310.0.1 Lec. 2: Pytorch, Resource Accounti … sys250.0.1 ML Refresher / Softmax Regression |
+| 21 | 2027-04-11 | 5 lectures: math210.0.12 Lecture 6 Part 2: Calculus of Vari … math130.0.31 Markov Chains Continued | 3 lectures: sys250.0.2 "Manual" Neural Networks … sys250.0.4 Automatic Differentiation |
+| 22 | 2027-04-18 | 5 lectures: math210.0.14 Lecture 7 Part 2: Second Derivativ … math210.1.0 Loss functions and optimization (C | 2 lectures: sys250.0.5 Automatic Differentiation Implemen … sys250.0.6 Fully connected networks, optimiza |
+| 23 | 2027-04-25 | 4 lectures: math210.1.1 Training neural networks I — init, … math210.1.4 An overview of gradient descent op | 3 lectures: sys250.0.7 Neural Network Abstractions … sys250.0.9 Normalization and Regularization |
+| 24 | 2027-05-02 | 5 lectures: math210.1.5 Convexity — Boyd & Vandenberghe ch … math210.2.3 Entropy and Data Compression (III) | 3 lectures: sys250.0.9 Normalization and Regularization … ai300.0.0 AlexNet — ImageNet Classification  |
+| 25 | 2027-05-09 | 5 lectures: math210.2.3 Entropy and Data Compression (III) … math210.2.7 Noisy Channel Coding (III): The No | 3 lectures: ai300.0.0 AlexNet — ImageNet Classification  … ai300.0.2 ViT — An Image Is Worth 16x16 Word |
+| 26 | 2027-05-16 | 4 lectures: math210.2.7 Noisy Channel Coding (III): The No … math210.2.10 Approximating Probability Distribu | 3 lectures: ai300.0.3 CLIP — Learning Transferable Visua … sys250.0.12 Lecture - 12 GPU Acceleration |
+| 27 | 2027-05-23 | 3 lectures: math210.2.11 Approximating Probability Distribu … math210.2.13 Approximating Probability Distribu | 3 lectures: sys250.0.13 Hardware Acceleration Implemention … sys250.0.15 Training Large Models |
+| 28 | 2027-05-30 | 2 lectures: math210.2.14 Data Modelling With Neural Network … math210.2.15 Data Modelling With Neural Network | 5 lectures: sys250.0.15 Training Large Models … sys250.0.19 RNN Implementation |
+| 29 | 2027-06-06 | — | 7 lectures: sys250.0.20 Transformers and Attention … sys250.1.2 Getting Started With CUDA for Pyth |
+| 30 | 2027-06-13 | — | 6 lectures: sys250.1.3 Compute and Memory Basics … ai300.3.0 FlashAttention — Fast and Memory-E |
+| 31 | 2027-06-20 | — | 6 lectures: sys250.1.8 Practitioners Guide to Triton … ai310.0.3 Lecture 4: Mixture of experts |
+| 32 | 2027-06-27 | — | 6 lectures: ai300.3.1 Mixtral — Mixture of Experts (2024 … ai310.0.7 Lecture 8: Parallelism 2 |
+| 33 | 2027-07-04 | — | 6 lectures: ai310.0.8 Lecture 9: Scaling laws 1 … ai310.0.12 Lecture 13: Data 1 |
+| 34 | 2027-07-11 | — | 6 lectures: ai310.0.13 Lecture 14: Data 2 … res400.0.1 Markov Decision Process |
+| 35 | 2027-07-18 | — | 4 lectures: res400.0.1 Markov Decision Process … res400.0.4 Model Free Control |
+| 36 | 2027-07-25 | — | 4 lectures: res400.0.4 Model Free Control … ai310.0.16 Lecture 17: Alignment - RL 2 |
+| 37 | 2027-08-01 | — | 6 lectures: ai310.1.0 The Hugging Face LLM course — pipe … ai310.1.2 Quantization — GGUF, AWQ, bitsandb |
+| 38 | 2027-08-08 | — | 5 lectures: ai310.1.3 Evals — lm-evaluation-harness, con … res400.0.7 Integrating Learning and Planning |
+| 39 | 2027-08-15 | — | 4 lectures: res400.0.8 Exploration and Exploitation … res400.1.1 In-context Learning and Induction  |
+| 40 | 2027-08-22 | — | 6 lectures: res400.1.2 Toy Models of Superposition … res400.2.2 Karpathy — A Survival Guide to a P |
 <!-- END GENERATED -->

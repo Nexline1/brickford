@@ -52,25 +52,28 @@ The first five rows are in `prerequisites.json` (MATH 140, MATH 150, PHYS 200, P
 <!-- BEGIN GENERATED -->
 ### Counts per course
 
-| Course | Lectures | Core | Optional | Duplicate | Core video hours |
-|---|---:|---:|---:|---:|---:|
-| MATH 110 (math110) | 51 | 51 | 0 | 0 | 30.8 |
-| MATH 120 (math120) | 54 | 53 | 1 | 0 | 32.2 |
-| MATH 130 (math130) | 34 | 33 | 1 | 0 | 26.2 |
-| AI 200 (ai200) | 20 | 19 | 1 | 0 | 32.7 |
-| AI 210 (ai210) | 8 | 6 | 2 | 0 | 9.1 |
-| PHYS 100 (phys100) | 37 | 32 | 5 | 0 | 25.4 |
-| MATH 210 (math210) | 39 | 38 | 0 | 1 | 34.3 |
-| AI 300 (ai300) | 16 | 16 | 0 | 0 | 2.6 |
-| SYS 250 (sys250) | 36 | 36 | 0 | 0 | 37.0 |
-| AI 310 (ai310) | 23 | 23 | 0 | 0 | 22.3 |
-| RES 400 (res400) | 18 | 18 | 0 | 0 | 17.1 |
-| SPCH 100 (spch100) | 170 | 170 | 0 | 0 | 46.4 |
-| CS 100 (cs100) — proposed | 16 | 16 | 0 | 0 | 20.5 |
-| MATH 140 (math140) — proposed | 35 | 35 | 0 | 0 | 29.2 |
-| MATH 150 (math150) — proposed | 33 | 33 | 0 | 0 | 27.5 |
-| PHYS 200 (phys200) — proposed | 36 | 36 | 0 | 0 | 30.0 |
-| PHYS 300 (phys300) — proposed | 10 | 10 | 0 | 0 | 17.5 |
+| Course | Lectures | Core | Optional | Duplicate | Skipped | Core video hours |
+|---|---:|---:|---:|---:|---:|---:|
+| MATH 110 (math110) | 51 | 51 | 0 | 0 | 0 | 30.8 |
+| MATH 120 (math120) | 47 | 46 | 1 | 0 | 0 | 30.9 |
+| MATH 130 (math130) | 34 | 33 | 1 | 0 | 0 | 26.2 |
+| AI 200 (ai200) | 20 | 19 | 1 | 0 | 0 | 32.7 |
+| AI 210 (ai210) | 8 | 6 | 2 | 0 | 0 | 9.1 |
+| PHYS 100 (phys100) | 37 | 32 | 5 | 0 | 0 | 25.4 |
+| MATH 210 (math210) | 39 | 38 | 0 | 1 | 0 | 34.3 |
+| AI 300 (ai300) | 16 | 16 | 0 | 0 | 0 | 2.6 |
+| SYS 250 (sys250) | 36 | 36 | 0 | 0 | 0 | 37.0 |
+| AI 310 (ai310) | 23 | 23 | 0 | 0 | 0 | 22.3 |
+| RES 400 (res400) | 18 | 18 | 0 | 0 | 0 | 17.1 |
+| SPCH 100 (spch100) | 170 | 170 | 0 | 0 | 0 | 46.4 |
+| CS 100 (cs100) — proposed | 16 | 13 | 0 | 0 | 3 | 16.3 |
+| CS 110 (cs110) — proposed | 11 | 11 | 0 | 0 | 0 | 9.5 |
+| CS 150 (cs150) — proposed | 21 | 21 | 0 | 0 | 0 | 19.6 |
+| MATH 140 (math140) — proposed | 35 | 35 | 0 | 0 | 0 | 29.2 |
+| MATH 160 (math160) — proposed | 24 | 24 | 0 | 0 | 0 | 30.0 |
+| MATH 150 (math150) — proposed | 33 | 33 | 0 | 0 | 0 | 27.5 |
+| PHYS 300 (phys300) — proposed | 10 | 10 | 0 | 0 | 0 | 17.5 |
+| PHYS 200 (phys200) — proposed | 36 | 36 | 0 | 0 | 0 | 30.0 |
 
 ### Every lecture
 
@@ -779,9 +782,9 @@ Level: 1 intro, 2 core, 3 advanced. Provisional keys (not yet in the data) are m
 
 | Key | Min | Lvl | Title | Mark | Reason |
 |---|---:|---:|---|---|---|
-| cs100.0.0 † | 105 | 1 | Lecture 0 — Functions, Variables | core | proposed lecture, see python-bridge.md |
-| cs100.0.1 † | 60 | 1 | Lecture 1 — Conditionals | core | proposed lecture, see python-bridge.md |
-| cs100.0.2 † | 90 | 1 | Lecture 2 — Loops | core | proposed lecture, see python-bridge.md |
+| cs100.0.0 † | 105 | 1 | Lecture 0 — Functions, Variables | skipped | covered by CS50 (finished 2026): variables, functions — shorter bridge, owner 12 Nov |
+| cs100.0.1 † | 60 | 1 | Lecture 1 — Conditionals | skipped | covered by CS50: conditionals — shorter bridge, owner 12 Nov |
+| cs100.0.2 † | 90 | 1 | Lecture 2 — Loops | skipped | covered by CS50: loops, lists, dicts — shorter bridge, owner 12 Nov |
 | cs100.0.3 † | 56 | 1 | Lecture 3 — Exceptions | core | proposed lecture, see python-bridge.md |
 | cs100.0.4 † | 80 | 1 | Lecture 4 — Libraries | core | proposed lecture, see python-bridge.md |
 | cs100.0.5 † | 55 | 1 | Lecture 5 — Unit Tests | core | proposed lecture, see python-bridge.md |
@@ -816,57 +819,116 @@ Level: 1 intro, 2 core, 3 advanced. Provisional keys (not yet in the data) are m
 | ai200.3.3 † | 116 | 3 | Makemore 3 — activations, gradients, BatchNorm (second pass, typing along) | core | the AI spine: built in code, redone typing along after the Python bridge |
 | ai200.3.4 † | 115 | 3 | Makemore 4 — becoming a backprop ninja (DO NOT SKIP) (second pass, typing along) | core | the AI spine: built in code, redone typing along after the Python bridge |
 
-#### MATH 120 — 
+#### CS 110 — The Missing Semester of Your CS Education — MIT (2020)
 
 | Key | Min | Lvl | Title | Mark | Reason |
 |---|---:|---:|---|---|---|
-| math120.2.0 † | 10 | 2 | Multivariable functions — what a function of two inputs looks like | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
-| math120.2.1 † | 10 | 2 | Partial derivatives | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
-| math120.2.2 † | 10 | 2 | The gradient | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
-| math120.2.3 † | 12 | 2 | Directional derivatives, and why the gradient is steepest ascent | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
-| math120.2.4 † | 12 | 2 | The multivariable chain rule | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
-| math120.2.5 † | 12 | 2 | The Jacobian matrix | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
-| math120.2.6 † | 12 | 2 | Double integrals | core | single-variable calculus: 8.01, Stat 110's continuous half and MATH 210 all stand on it |
+| cs110.0.0 † | 52 | 2 | Lecture 1 — Course overview + the shell | core | proposed addition, see audit.md |
+| cs110.0.1 † | 52 | 2 | Lecture 2 — Shell tools and scripting | core | proposed addition, see audit.md |
+| cs110.0.2 † | 52 | 2 | Lecture 3 — Editors (Vim) | core | proposed addition, see audit.md |
+| cs110.0.3 † | 52 | 2 | Lecture 4 — Data wrangling | core | proposed addition, see audit.md |
+| cs110.0.4 † | 52 | 2 | Lecture 5 — Command-line environment | core | proposed addition, see audit.md |
+| cs110.0.5 † | 52 | 2 | Lecture 6 — Version control (Git) | core | proposed addition, see audit.md |
+| cs110.0.6 † | 52 | 2 | Lecture 7 — Debugging and profiling | core | proposed addition, see audit.md |
+| cs110.0.7 † | 52 | 2 | Lecture 8 — Metaprogramming | core | proposed addition, see audit.md |
+| cs110.0.8 † | 52 | 2 | Lecture 9 — Security and cryptography | core | proposed addition, see audit.md |
+| cs110.0.9 † | 52 | 2 | Lecture 10 — Potpourri | core | proposed addition, see audit.md |
+| cs110.0.10 † | 52 | 2 | Lecture 11 — Q&A | core | proposed addition, see audit.md |
+
+#### CS 150 — Introduction to Algorithms — MIT 6.006 (Spring 2020)
+
+| Key | Min | Lvl | Title | Mark | Reason |
+|---|---:|---:|---|---|---|
+| cs150.0.0 † | 56 | 2 | Lecture 1 — Algorithms and Computation | core | proposed addition, see audit.md |
+| cs150.0.1 † | 56 | 2 | Lecture 2 — Data Structures and Dynamic Arrays | core | proposed addition, see audit.md |
+| cs150.0.2 † | 56 | 2 | Lecture 3 — Sets and Sorting | core | proposed addition, see audit.md |
+| cs150.0.3 † | 56 | 2 | Lecture 4 — Hashing | core | proposed addition, see audit.md |
+| cs150.0.4 † | 56 | 2 | Lecture 5 — Linear Sorting | core | proposed addition, see audit.md |
+| cs150.0.5 † | 56 | 2 | Lecture 6 — Binary Trees, Part 1 | core | proposed addition, see audit.md |
+| cs150.0.6 † | 56 | 2 | Lecture 7 — Binary Trees, Part 2: AVL | core | proposed addition, see audit.md |
+| cs150.0.7 † | 56 | 2 | Lecture 8 — Binary Heaps | core | proposed addition, see audit.md |
+| cs150.0.8 † | 56 | 2 | Lecture 9 — Breadth-First Search | core | proposed addition, see audit.md |
+| cs150.0.9 † | 56 | 2 | Lecture 10 — Depth-First Search | core | proposed addition, see audit.md |
+| cs150.0.10 † | 56 | 2 | Lecture 11 — Weighted Shortest Paths | core | proposed addition, see audit.md |
+| cs150.0.11 † | 56 | 2 | Lecture 12 — Bellman-Ford | core | proposed addition, see audit.md |
+| cs150.0.12 † | 56 | 2 | Lecture 13 — Dijkstra | core | proposed addition, see audit.md |
+| cs150.0.13 † | 56 | 2 | Lecture 14 — All-Pairs Shortest Paths and Johnson | core | proposed addition, see audit.md |
+| cs150.0.14 † | 56 | 2 | Lecture 15 — Dynamic Programming 1: SRT BOT, Fibonacci | core | proposed addition, see audit.md |
+| cs150.0.15 † | 56 | 2 | Lecture 16 — Dynamic Programming 2: LCS, LIS, Coins | core | proposed addition, see audit.md |
+| cs150.0.16 † | 56 | 2 | Lecture 17 — Dynamic Programming 3: APSP, Parens, Piano | core | proposed addition, see audit.md |
+| cs150.0.17 † | 56 | 2 | Lecture 18 — Dynamic Programming 4: Rods, Subset Sum, Pseudopolynomial | core | proposed addition, see audit.md |
+| cs150.0.18 † | 56 | 2 | Lecture 19 — Complexity | core | proposed addition, see audit.md |
+| cs150.0.19 † | 56 | 2 | Lecture 20 — Course Review | core | proposed addition, see audit.md |
+| cs150.0.20 † | 56 | 2 | Lecture 21 — Algorithms — Next Steps | core | proposed addition, see audit.md |
 
 #### MATH 140 — Multivariable Calculus — MIT 18.02 (Denis Auroux, Fall 2007)
 
 | Key | Min | Lvl | Title | Mark | Reason |
 |---|---:|---:|---|---|---|
-| math140.0.0 † | 50 | 2 | MIT 18.02, full course — lecture 1 | core | proposed addition, see audit.md |
-| math140.0.1 † | 50 | 2 | MIT 18.02, full course — lecture 2 | core | proposed addition, see audit.md |
-| math140.0.2 † | 50 | 2 | MIT 18.02, full course — lecture 3 | core | proposed addition, see audit.md |
-| math140.0.3 † | 50 | 2 | MIT 18.02, full course — lecture 4 | core | proposed addition, see audit.md |
-| math140.0.4 † | 50 | 2 | MIT 18.02, full course — lecture 5 | core | proposed addition, see audit.md |
-| math140.0.5 † | 50 | 2 | MIT 18.02, full course — lecture 6 | core | proposed addition, see audit.md |
-| math140.0.6 † | 50 | 2 | MIT 18.02, full course — lecture 7 | core | proposed addition, see audit.md |
-| math140.0.7 † | 50 | 2 | MIT 18.02, full course — lecture 8 | core | proposed addition, see audit.md |
-| math140.0.8 † | 50 | 2 | MIT 18.02, full course — lecture 9 | core | proposed addition, see audit.md |
-| math140.0.9 † | 50 | 2 | MIT 18.02, full course — lecture 10 | core | proposed addition, see audit.md |
-| math140.0.10 † | 50 | 2 | MIT 18.02, full course — lecture 11 | core | proposed addition, see audit.md |
-| math140.0.11 † | 50 | 2 | MIT 18.02, full course — lecture 12 | core | proposed addition, see audit.md |
-| math140.0.12 † | 50 | 2 | MIT 18.02, full course — lecture 13 | core | proposed addition, see audit.md |
-| math140.0.13 † | 50 | 2 | MIT 18.02, full course — lecture 14 | core | proposed addition, see audit.md |
-| math140.0.14 † | 50 | 2 | MIT 18.02, full course — lecture 15 | core | proposed addition, see audit.md |
-| math140.0.15 † | 50 | 2 | MIT 18.02, full course — lecture 16 | core | proposed addition, see audit.md |
-| math140.0.16 † | 50 | 2 | MIT 18.02, full course — lecture 17 | core | proposed addition, see audit.md |
-| math140.0.17 † | 50 | 2 | MIT 18.02, full course — lecture 18 | core | proposed addition, see audit.md |
-| math140.0.18 † | 50 | 2 | MIT 18.02, full course — lecture 19 | core | proposed addition, see audit.md |
-| math140.0.19 † | 50 | 2 | MIT 18.02, full course — lecture 20 | core | proposed addition, see audit.md |
-| math140.0.20 † | 50 | 2 | MIT 18.02, full course — lecture 21 | core | proposed addition, see audit.md |
-| math140.0.21 † | 50 | 2 | MIT 18.02, full course — lecture 22 | core | proposed addition, see audit.md |
-| math140.0.22 † | 50 | 2 | MIT 18.02, full course — lecture 23 | core | proposed addition, see audit.md |
-| math140.0.23 † | 50 | 2 | MIT 18.02, full course — lecture 24 | core | proposed addition, see audit.md |
-| math140.0.24 † | 50 | 2 | MIT 18.02, full course — lecture 25 | core | proposed addition, see audit.md |
-| math140.0.25 † | 50 | 2 | MIT 18.02, full course — lecture 26 | core | proposed addition, see audit.md |
-| math140.0.26 † | 50 | 2 | MIT 18.02, full course — lecture 27 | core | proposed addition, see audit.md |
-| math140.0.27 † | 50 | 2 | MIT 18.02, full course — lecture 28 | core | proposed addition, see audit.md |
-| math140.0.28 † | 50 | 2 | MIT 18.02, full course — lecture 29 | core | proposed addition, see audit.md |
-| math140.0.29 † | 50 | 2 | MIT 18.02, full course — lecture 30 | core | proposed addition, see audit.md |
-| math140.0.30 † | 50 | 2 | MIT 18.02, full course — lecture 31 | core | proposed addition, see audit.md |
-| math140.0.31 † | 50 | 2 | MIT 18.02, full course — lecture 32 | core | proposed addition, see audit.md |
-| math140.0.32 † | 50 | 2 | MIT 18.02, full course — lecture 33 | core | proposed addition, see audit.md |
-| math140.0.33 † | 50 | 2 | MIT 18.02, full course — lecture 34 | core | proposed addition, see audit.md |
-| math140.0.34 † | 50 | 2 | MIT 18.02, full course — lecture 35 | core | proposed addition, see audit.md |
+| math140.0.0 † | 50 | 2 | Lecture 1 — Dot product | core | proposed addition, see audit.md |
+| math140.0.1 † | 50 | 2 | Lecture 2 — Determinants; cross product | core | proposed addition, see audit.md |
+| math140.0.2 † | 50 | 2 | Lecture 3 — Matrices; inverse matrices | core | proposed addition, see audit.md |
+| math140.0.3 † | 50 | 2 | Lecture 4 — Square systems; equations of planes | core | proposed addition, see audit.md |
+| math140.0.4 † | 50 | 2 | Lecture 5 — Parametric equations for lines and curves | core | proposed addition, see audit.md |
+| math140.0.5 † | 50 | 2 | Lecture 6 — Velocity, acceleration; Kepler's second law | core | proposed addition, see audit.md |
+| math140.0.6 † | 50 | 2 | Lecture 7 — Review | core | proposed addition, see audit.md |
+| math140.0.7 † | 50 | 2 | Lecture 8 — Partial derivatives | core | proposed addition, see audit.md |
+| math140.0.8 † | 50 | 2 | Lecture 9 — Max-min problems; least squares | core | proposed addition, see audit.md |
+| math140.0.9 † | 50 | 2 | Lecture 10 — Second derivative test; boundaries and infinity | core | proposed addition, see audit.md |
+| math140.0.10 † | 50 | 2 | Lecture 11 — Differentials; chain rule | core | proposed addition, see audit.md |
+| math140.0.11 † | 50 | 2 | Lecture 12 — Gradient; directional derivative; tangent plane | core | proposed addition, see audit.md |
+| math140.0.12 † | 50 | 2 | Lecture 13 — Lagrange multipliers | core | proposed addition, see audit.md |
+| math140.0.13 † | 50 | 2 | Lecture 14 — Non-independent variables | core | proposed addition, see audit.md |
+| math140.0.14 † | 50 | 2 | Lecture 15 — Partial differential equations; review | core | proposed addition, see audit.md |
+| math140.0.15 † | 50 | 2 | Lecture 16 — Double integrals | core | proposed addition, see audit.md |
+| math140.0.16 † | 50 | 2 | Lecture 17 — Double integrals in polar coordinates; applications | core | proposed addition, see audit.md |
+| math140.0.17 † | 50 | 2 | Lecture 18 — Change of variables | core | proposed addition, see audit.md |
+| math140.0.18 † | 50 | 2 | Lecture 19 — Vector fields and line integrals in the plane | core | proposed addition, see audit.md |
+| math140.0.19 † | 50 | 2 | Lecture 20 — Path independence and conservative fields | core | proposed addition, see audit.md |
+| math140.0.20 † | 50 | 2 | Lecture 21 — Gradient fields and potential functions | core | proposed addition, see audit.md |
+| math140.0.21 † | 50 | 2 | Lecture 22 — Green's theorem | core | proposed addition, see audit.md |
+| math140.0.22 † | 50 | 2 | Lecture 23 — Flux; normal form of Green's theorem | core | proposed addition, see audit.md |
+| math140.0.23 † | 50 | 2 | Lecture 24 — Simply connected regions; review | core | proposed addition, see audit.md |
+| math140.0.24 † | 50 | 2 | Lecture 25 — Triple integrals in rectangular and cylindrical coordinates | core | proposed addition, see audit.md |
+| math140.0.25 † | 50 | 2 | Lecture 26 — Spherical coordinates; surface area | core | proposed addition, see audit.md |
+| math140.0.26 † | 50 | 2 | Lecture 27 — Vector fields in 3D; surface integrals and flux | core | proposed addition, see audit.md |
+| math140.0.27 † | 50 | 2 | Lecture 28 — Divergence theorem | core | proposed addition, see audit.md |
+| math140.0.28 † | 50 | 2 | Lecture 29 — Divergence theorem (cont.): applications and proof | core | proposed addition, see audit.md |
+| math140.0.29 † | 50 | 2 | Lecture 30 — Line integrals in space, curl, exactness and potentials | core | proposed addition, see audit.md |
+| math140.0.30 † | 50 | 2 | Lecture 31 — Stokes' theorem | core | proposed addition, see audit.md |
+| math140.0.31 † | 50 | 2 | Lecture 32 — Stokes' theorem (cont.); review | core | proposed addition, see audit.md |
+| math140.0.32 † | 50 | 2 | Lecture 33 — Maxwell's equations | core | proposed addition, see audit.md |
+| math140.0.33 † | 50 | 2 | Lecture 34 — Final review | core | proposed addition, see audit.md |
+| math140.0.34 † | 50 | 2 | Lecture 35 — Final review (cont.) | core | proposed addition, see audit.md |
+
+#### MATH 160 — Statistics for Applications — MIT 18.650 (Philippe Rigollet, Fall 2016)
+
+| Key | Min | Lvl | Title | Mark | Reason |
+|---|---:|---:|---|---|---|
+| math160.0.0 † | 75 | 3 | MIT 18.650, full course — lecture 1 | core | proposed addition, see audit.md |
+| math160.0.1 † | 75 | 3 | MIT 18.650, full course — lecture 2 | core | proposed addition, see audit.md |
+| math160.0.2 † | 75 | 3 | MIT 18.650, full course — lecture 3 | core | proposed addition, see audit.md |
+| math160.0.3 † | 75 | 3 | MIT 18.650, full course — lecture 4 | core | proposed addition, see audit.md |
+| math160.0.4 † | 75 | 3 | MIT 18.650, full course — lecture 5 | core | proposed addition, see audit.md |
+| math160.0.5 † | 75 | 3 | MIT 18.650, full course — lecture 6 | core | proposed addition, see audit.md |
+| math160.0.6 † | 75 | 3 | MIT 18.650, full course — lecture 7 | core | proposed addition, see audit.md |
+| math160.0.7 † | 75 | 3 | MIT 18.650, full course — lecture 8 | core | proposed addition, see audit.md |
+| math160.0.8 † | 75 | 3 | MIT 18.650, full course — lecture 9 | core | proposed addition, see audit.md |
+| math160.0.9 † | 75 | 3 | MIT 18.650, full course — lecture 10 | core | proposed addition, see audit.md |
+| math160.0.10 † | 75 | 3 | MIT 18.650, full course — lecture 11 | core | proposed addition, see audit.md |
+| math160.0.11 † | 75 | 3 | MIT 18.650, full course — lecture 12 | core | proposed addition, see audit.md |
+| math160.0.12 † | 75 | 3 | MIT 18.650, full course — lecture 13 | core | proposed addition, see audit.md |
+| math160.0.13 † | 75 | 3 | MIT 18.650, full course — lecture 14 | core | proposed addition, see audit.md |
+| math160.0.14 † | 75 | 3 | MIT 18.650, full course — lecture 15 | core | proposed addition, see audit.md |
+| math160.0.15 † | 75 | 3 | MIT 18.650, full course — lecture 16 | core | proposed addition, see audit.md |
+| math160.0.16 † | 75 | 3 | MIT 18.650, full course — lecture 17 | core | proposed addition, see audit.md |
+| math160.0.17 † | 75 | 3 | MIT 18.650, full course — lecture 18 | core | proposed addition, see audit.md |
+| math160.0.18 † | 75 | 3 | MIT 18.650, full course — lecture 19 | core | proposed addition, see audit.md |
+| math160.0.19 † | 75 | 3 | MIT 18.650, full course — lecture 20 | core | proposed addition, see audit.md |
+| math160.0.20 † | 75 | 3 | MIT 18.650, full course — lecture 21 | core | proposed addition, see audit.md |
+| math160.0.21 † | 75 | 3 | MIT 18.650, full course — lecture 22 | core | proposed addition, see audit.md |
+| math160.0.22 † | 75 | 3 | MIT 18.650, full course — lecture 23 | core | proposed addition, see audit.md |
+| math160.0.23 † | 75 | 3 | MIT 18.650, full course — lecture 24 | core | proposed addition, see audit.md |
 
 #### MATH 150 — Differential Equations — MIT 18.03 (Arthur Mattuck, Spring 2006)
 
@@ -905,6 +967,21 @@ Level: 1 intro, 2 core, 3 advanced. Provisional keys (not yet in the data) are m
 | math150.0.30 † | 50 | 2 | MIT 18.03, full course — lecture 31 | core | proposed addition, see audit.md |
 | math150.0.31 † | 50 | 2 | MIT 18.03, full course — lecture 32 | core | proposed addition, see audit.md |
 | math150.0.32 † | 50 | 2 | MIT 18.03, full course — lecture 33 | core | proposed addition, see audit.md |
+
+#### PHYS 300 — Statistical Mechanics — Stanford (Leonard Susskind, 2013)
+
+| Key | Min | Lvl | Title | Mark | Reason |
+|---|---:|---:|---|---|---|
+| phys300.0.0 † | 105 | 3 | Stanford Statistical Mechanics — lecture 1 | core | proposed addition, see audit.md |
+| phys300.0.1 † | 105 | 3 | Stanford Statistical Mechanics — lecture 2 | core | proposed addition, see audit.md |
+| phys300.0.2 † | 105 | 3 | Stanford Statistical Mechanics — lecture 3 | core | proposed addition, see audit.md |
+| phys300.0.3 † | 105 | 3 | Stanford Statistical Mechanics — lecture 4 | core | proposed addition, see audit.md |
+| phys300.0.4 † | 105 | 3 | Stanford Statistical Mechanics — lecture 5 | core | proposed addition, see audit.md |
+| phys300.0.5 † | 105 | 3 | Stanford Statistical Mechanics — lecture 6 | core | proposed addition, see audit.md |
+| phys300.0.6 † | 105 | 3 | Stanford Statistical Mechanics — lecture 7 | core | proposed addition, see audit.md |
+| phys300.0.7 † | 105 | 3 | Stanford Statistical Mechanics — lecture 8 | core | proposed addition, see audit.md |
+| phys300.0.8 † | 105 | 3 | Stanford Statistical Mechanics — lecture 9 | core | proposed addition, see audit.md |
+| phys300.0.9 † | 105 | 3 | Stanford Statistical Mechanics — lecture 10 | core | proposed addition, see audit.md |
 
 #### PHYS 200 — Electricity and Magnetism — MIT 8.02 (Walter Lewin, Spring 2002)
 
@@ -946,19 +1023,4 @@ Level: 1 intro, 2 core, 3 advanced. Provisional keys (not yet in the data) are m
 | phys200.0.33 † | 50 | 2 | MIT 8.02, full course — lecture 34 | core | proposed addition, see audit.md |
 | phys200.0.34 † | 50 | 2 | MIT 8.02, full course — lecture 35 | core | proposed addition, see audit.md |
 | phys200.0.35 † | 50 | 2 | MIT 8.02, full course — lecture 36 | core | proposed addition, see audit.md |
-
-#### PHYS 300 — Statistical Mechanics — Stanford (Leonard Susskind, 2013)
-
-| Key | Min | Lvl | Title | Mark | Reason |
-|---|---:|---:|---|---|---|
-| phys300.0.0 † | 105 | 3 | Stanford Statistical Mechanics — lecture 1 | core | proposed addition, see audit.md |
-| phys300.0.1 † | 105 | 3 | Stanford Statistical Mechanics — lecture 2 | core | proposed addition, see audit.md |
-| phys300.0.2 † | 105 | 3 | Stanford Statistical Mechanics — lecture 3 | core | proposed addition, see audit.md |
-| phys300.0.3 † | 105 | 3 | Stanford Statistical Mechanics — lecture 4 | core | proposed addition, see audit.md |
-| phys300.0.4 † | 105 | 3 | Stanford Statistical Mechanics — lecture 5 | core | proposed addition, see audit.md |
-| phys300.0.5 † | 105 | 3 | Stanford Statistical Mechanics — lecture 6 | core | proposed addition, see audit.md |
-| phys300.0.6 † | 105 | 3 | Stanford Statistical Mechanics — lecture 7 | core | proposed addition, see audit.md |
-| phys300.0.7 † | 105 | 3 | Stanford Statistical Mechanics — lecture 8 | core | proposed addition, see audit.md |
-| phys300.0.8 † | 105 | 3 | Stanford Statistical Mechanics — lecture 9 | core | proposed addition, see audit.md |
-| phys300.0.9 † | 105 | 3 | Stanford Statistical Mechanics — lecture 10 | core | proposed addition, see audit.md |
 <!-- END GENERATED -->

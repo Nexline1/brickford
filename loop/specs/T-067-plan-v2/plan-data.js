@@ -31,6 +31,10 @@ const COURSE_REASON = {
   spch100: "Storytelling is core for the founder side (12 Nov); no near-duplicate found (max similarity 0.28, all part-one/part-two pairs)",
 };
 const MARKS = {
+  // the shorter bridge (owner, 12 Nov): what CS50 already taught is skipped
+  "cs100.0.0": ["skipped", "covered by CS50 (finished 2026): variables, functions — shorter bridge, owner 12 Nov"],
+  "cs100.0.1": ["skipped", "covered by CS50: conditionals — shorter bridge, owner 12 Nov"],
+  "cs100.0.2": ["skipped", "covered by CS50: loops, lists, dicts — shorter bridge, owner 12 Nov"],
   // MATH 110 — kept core by the owner's rule even where it repeats
   "math110.1.12": ["core", "revision hour (Quiz 1 review); kept only because MATH 110 is unchanged by decision — candidate optional if the owner allows"],
   "math110.1.24": ["core", "revision hour (Quiz 2 review); kept only because MATH 110 is unchanged — candidate optional"],
@@ -89,7 +93,7 @@ const LEVEL_DEFAULT = {           // course or course.unit → level
   "ai200.0": 1, "ai200.1": 2, "ai200.2": 1, "ai200.3": 2, ai210: 2, phys100: 2,
   math210: 3, ai300: 3, sys250: 3, ai310: 3, res400: 3,
   spch100: 2, "spch100.0": 1, "spch100.1": 1, "spch100.2": 1, "spch100.3": 1, "spch100.4": 1,
-  "cs100.0": 1, "cs100.1": 2, "cs100.2": 1, math140: 2, math150: 2, phys200: 2, phys300: 3,
+  "cs100.0": 1, "cs100.1": 2, "cs100.2": 1, math140: 2, math150: 2, phys200: 2, phys300: 3, math160: 3, cs150: 2, cs110: 2,
 };
 const LEVEL = {
   "ai200.1.3": 3, "ai200.1.4": 3, "ai200.1.5": 3, "ai200.1.6": 3, "ai200.1.7": 3, "ai200.1.8": 3,
@@ -98,20 +102,18 @@ const LEVEL = {
 
 // ---------------- prerequisites beyond the default chain ----------------
 const NEEDS = {
-  // calculus ← linear algebra / calculus bridge
-  "math120.2.0": ["math120.1.5", "math110.0.8"],
   // probability ← calculus
   "math130.0.11": ["math120.1.15"], "math130.0.12": ["math120.1.22"], "math130.0.16": ["math120.1.33"],
-  "math130.0.18": ["math120.2.6"], "math130.0.21": ["math120.2.5"], "math130.0.29": ["math110.1.25"],
+  "math130.0.18": ["math140.0.15"], "math130.0.21": ["math140.0.17"], "math130.0.29": ["math110.1.25"],
   "math130.0.6": ["math120.1.14"],
   // linear algebra ← calculus (timing only; MATH 110 order is unchanged)
-  "math110.1.22": ["math120.1.14", "math120.1.5"], "math110.1.27": ["math120.2.2"],
+  "math110.1.22": ["math120.1.14", "math120.1.5"],
   // physics ← calculus and vectors
   "phys100.0.0": ["math120.1.17"], "phys100.0.2": ["math120.1.3"], "phys100.0.3": ["math110.0.8"],
   "phys100.0.10": ["math120.1.14"], "phys100.0.11": ["math120.1.16"], "phys100.0.13": ["math120.1.7"],
   "phys100.0.19": ["math120.1.19"], "phys100.0.20": ["math110.0.10"], "phys100.0.22": ["math120.1.29"],
   // MATH 210 ← the whole foundation
-  "math210.0.0": ["math110.1.34", "math120.1.34", "math120.2.5"],
+  "math210.0.0": ["math110.1.34", "math120.1.34", "math140.0.11"], "math210.0.2": ["math140.0.10"],
   "math210.1.0": ["ai200.3.0"], "math210.2.0": ["math130.0.8"], "math210.2.2": ["math130.0.28"],
   "math210.2.9": ["math130.0.22"], "math210.2.11": ["math130.0.32"],
   // the Python bridge and the Karpathy second pass
@@ -119,7 +121,7 @@ const NEEDS = {
   "ai200.3.1": ["cs100.1.1", "math110.0.3", "math130.0.3"],
   "ai200.3.2": ["math130.0.7"],
   "ai200.3.3": ["math130.0.13"],
-  "ai200.3.4": ["math120.2.4"],
+  "ai200.3.4": ["math110.1.2", "math120.1.3"],   // matrix products + the chain rule; 18.02 comes later
   "ai200.1.6": ["cs100.2.2", "math110.0.8"],
   "ai200.1.7": ["cs100.0.7", "cs100.0.6"],
   // fast.ai
@@ -135,10 +137,14 @@ const NEEDS = {
   "ai300.3.0": ["sys250.1.7"], "ai300.3.1": ["ai310.0.3"], "ai300.3.2": ["math210.2.13", "math130.0.29"],
   "ai300.3.3": ["ai310.1.5"],
   // proposed additions
-  "math140.0.0": ["math120.1.34", "math110.0.10", "math120.2.5"],
-  "math150.0.0": ["math120.1.34", "math110.1.21"],
-  "phys200.0.0": ["phys100.0.34", "math140.0.18"], "phys200.0.12": ["math140.0.34"],
-  "phys300.0.0": ["phys100.0.33", "math130.0.28", "math210.2.2", "math140.0.12"],
+  // the seven additions (tutor's decision, 12 Nov)
+  "math140.0.0": ["math120.1.34", "math110.0.10"],                       // 18.02 after 18.01
+  "math160.0.0": ["math130.0.33", "math140.0.34"],                       // 18.650 after Stat 110 and 18.02
+  "ai310.1.0": ["math160.0.23"],                                         // ... and before AI 310 Unit II
+  "math150.0.0": ["math140.0.34", "math110.1.21"],                       // 18.03 after 18.02
+  "phys200.0.0": ["phys100.0.34", "math140.0.34"],                       // 8.02 after 8.01 and 18.02
+  "phys300.0.0": ["math210.2.15", "phys100.0.33", "math130.0.28", "math140.0.12"],   // straight after MacKay
+  "cs150.0.0": ["ai200.1.8", "cs100.0.9"],                               // 6.006 right after Zero to Hero
 };
 // Entries whose default chain is REPLACED, not added to.
 const REPLACE = {
@@ -148,8 +154,7 @@ const REPLACE = {
   "res400.1.0": ["ai200.1.6", "math110.1.29"], "res400.2.0": ["ai200.1.8"],
   "ai300.0.0": ["ai210.0.7", "sys250.0.10"], "ai300.1.0": ["ai200.1.6"], "ai300.2.0": ["ai310.0.14"],
   "ai300.3.0": ["sys250.1.7"],
-  "cs100.2.0": [], "cs100.1.0": ["cs100.0.2"],
-  "math120.2.0": ["math120.1.5", "math110.0.8"],   // partial derivatives need derivatives, not series
+  "cs100.2.0": [], "cs100.1.0": [], "cs110.0.0": [],
 };
 
 // ---------------- proposed lectures (provisional keys) ----------------
@@ -183,27 +188,31 @@ const PROVISIONAL = [
   { course: "ai200", unitIndex: 3, units: [
     { name: "Unit IV — Second pass: type along", alias: ["ai200.1.0", "ai200.1.1", "ai200.1.2", "ai200.1.3", "ai200.1.4"] },
   ] },
-  { course: "math120", unitIndex: 2, units: [
-    { name: "Unit III — Multivariable bridge (Khan Academy, Grant Sanderson)", lessons: [
-      { t: "Multivariable functions — what a function of two inputs looks like", v: null, min: 10, check: "ids not chosen yet" },
-      { t: "Partial derivatives", v: null, min: 10, check: "ids not chosen yet" },
-      { t: "The gradient", v: null, min: 10, check: "ids not chosen yet" },
-      { t: "Directional derivatives, and why the gradient is steepest ascent", v: null, min: 12, check: "ids not chosen yet" },
-      { t: "The multivariable chain rule", v: null, min: 12, check: "ids not chosen yet" },
-      { t: "The Jacobian matrix", v: null, min: 12, check: "ids not chosen yet" },
-      { t: "Double integrals", v: null, min: 12, check: "ids not chosen yet" },
-    ] },
-  ] },
-  // Proposed later courses — for approval. Lecture counts and lengths are from
-  // the courses' published listings as remembered, NOT checked in this session.
-  { course: "math140", code: "MATH 140", title: "Multivariable Calculus — MIT 18.02 (Denis Auroux, Fall 2007)", addition: true,
-    units: [{ name: "MIT 18.02, full course", count: 35, min: 50, check: "count and length unverified" }] },
-  { course: "math150", code: "MATH 150", title: "Differential Equations — MIT 18.03 (Arthur Mattuck, Spring 2006)", addition: true,
-    units: [{ name: "MIT 18.03, full course", count: 33, min: 50, check: "count and length unverified" }] },
-  { course: "phys200", code: "PHYS 200", title: "Electricity and Magnetism — MIT 8.02 (Walter Lewin, Spring 2002)", addition: true,
-    units: [{ name: "MIT 8.02, full course", count: 36, min: 50, check: "count and length unverified" }] },
-  { course: "phys300", code: "PHYS 300", title: "Statistical Mechanics — Stanford (Leonard Susskind, 2013)", addition: true,
+  // The seven additions (tutor's decision, 12 Nov), in priority order. Lecture lists,
+  // counts and lengths are from the courses' published listings as remembered; NOTHING
+  // here was confirmed in this session (no transcript tool, no youtube.com). Playlist
+  // ids are candidates to check, not facts.
+  { course: "cs110", code: "CS 110", title: "The Missing Semester of Your CS Education — MIT (2020)", addition: 1,
+    playlist: "PLyzOVJj3bHQuloKGG59rS43e29ro7I57J (unverified)",
+    units: [{ name: "Missing Semester 2020", min: 52, check: "unverified", titles: ["Course overview + the shell", "Shell tools and scripting", "Editors (Vim)", "Data wrangling", "Command-line environment", "Version control (Git)", "Debugging and profiling", "Metaprogramming", "Security and cryptography", "Potpourri", "Q&A"] }] },
+  { course: "cs150", code: "CS 150", title: "Introduction to Algorithms — MIT 6.006 (Spring 2020)", addition: 2,
+    playlist: "PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY (unverified)",
+    units: [{ name: "MIT 6.006 Spring 2020 (lectures)", min: 56, check: "unverified", titles: ["Algorithms and Computation", "Data Structures and Dynamic Arrays", "Sets and Sorting", "Hashing", "Linear Sorting", "Binary Trees, Part 1", "Binary Trees, Part 2: AVL", "Binary Heaps", "Breadth-First Search", "Depth-First Search", "Weighted Shortest Paths", "Bellman-Ford", "Dijkstra", "All-Pairs Shortest Paths and Johnson", "Dynamic Programming 1: SRT BOT, Fibonacci", "Dynamic Programming 2: LCS, LIS, Coins", "Dynamic Programming 3: APSP, Parens, Piano", "Dynamic Programming 4: Rods, Subset Sum, Pseudopolynomial", "Complexity", "Course Review", "Algorithms — Next Steps"] }] },
+  { course: "math140", code: "MATH 140", title: "Multivariable Calculus — MIT 18.02 (Denis Auroux, Fall 2007)", addition: 3,
+    playlist: "PL4C4C8A7D06566F38 (unverified)",
+    units: [{ name: "MIT 18.02, full course", min: 50, check: "unverified", titles: ["Dot product", "Determinants; cross product", "Matrices; inverse matrices", "Square systems; equations of planes", "Parametric equations for lines and curves", "Velocity, acceleration; Kepler's second law", "Review", "Partial derivatives", "Max-min problems; least squares", "Second derivative test; boundaries and infinity", "Differentials; chain rule", "Gradient; directional derivative; tangent plane", "Lagrange multipliers", "Non-independent variables", "Partial differential equations; review", "Double integrals", "Double integrals in polar coordinates; applications", "Change of variables", "Vector fields and line integrals in the plane", "Path independence and conservative fields", "Gradient fields and potential functions", "Green's theorem", "Flux; normal form of Green's theorem", "Simply connected regions; review", "Triple integrals in rectangular and cylindrical coordinates", "Spherical coordinates; surface area", "Vector fields in 3D; surface integrals and flux", "Divergence theorem", "Divergence theorem (cont.): applications and proof", "Line integrals in space, curl, exactness and potentials", "Stokes' theorem", "Stokes' theorem (cont.); review", "Maxwell's equations", "Final review", "Final review (cont.)"] }] },
+  { course: "math160", code: "MATH 160", title: "Statistics for Applications — MIT 18.650 (Philippe Rigollet, Fall 2016)", addition: 4,
+    playlist: "PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0 (unverified)",
+    units: [{ name: "MIT 18.650, full course", count: 24, min: 75, check: "count, length and titles unverified" }] },
+  { course: "math150", code: "MATH 150", title: "Differential Equations — MIT 18.03 (Arthur Mattuck, Spring 2006)", addition: 5,
+    playlist: "PLEC88901EBADDD980 (unverified)",
+    units: [{ name: "MIT 18.03, full course", count: 33, min: 50, check: "count and length unverified; the Laplace-transform lectures (about 19–22) are the first trim if behind" }] },
+  { course: "phys300", code: "PHYS 300", title: "Statistical Mechanics — Stanford (Leonard Susskind, 2013)", addition: 6,
+    playlist: "(not identified; unverified)",
     units: [{ name: "Stanford Statistical Mechanics", count: 10, min: 105, check: "count and length unverified" }] },
+  { course: "phys200", code: "PHYS 200", title: "Electricity and Magnetism — MIT 8.02 (Walter Lewin, Spring 2002)", addition: 7,
+    playlist: "(not identified; unverified)",
+    units: [{ name: "MIT 8.02, full course", count: 36, min: 50, check: "count and length unverified" }] },
 ];
 
 module.exports = { COURSE_REASON, MARKS, VIDEO_REUSED, LEVEL_DEFAULT, LEVEL, NEEDS, REPLACE, PROVISIONAL };

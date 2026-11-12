@@ -4521,7 +4521,7 @@
         const lines = planLines();
         return [["Math & Physics", lines.Theory], ["AI / Python", lines.Build], ["Storytelling", lines.Publish]].filter(x => x[1].length).map(([lab, ids]) =>
           '<div class="ghead">' + esc(lab) + '<span class="gh-meta">in order</span></div>' +
-          '<div class="at-chips at-path">' + ids.map(cid => '<a class="at-chip" href="#/course/' + cid + '"><b>' +
+          '<div class="at-chips at-path">' + ids.map(cid => '<a class="at-step" href="#/course/' + cid + '"><b>' +
             esc((D.COURSES.find(c => c.id === cid) || {}).code || cid) + "</b></a>").join("") + "</div>").join("");
       })() +
       // The concept map used to be a row of its own in "The rest of it"; it is

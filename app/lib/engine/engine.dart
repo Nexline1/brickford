@@ -60,6 +60,7 @@ class BrickfordData {
     required this.weekPlan,
     required this.drills,
     required this.speechCourseIds,
+    this.prereq = const {},
   });
 
   /// DAR.START_DATE.
@@ -88,9 +89,13 @@ class BrickfordData {
   final Map<String, dynamic> drills;
   final List<String> speechCourseIds;
 
+  /// prereq.json, DAR.PREREQ (T-067): per lesson key, { needs: [key, …], level }.
+  final Map<String, dynamic> prereq;
+
   /// What startup reads.
   static const files = [
     'meta.json', 'courses.json', 'quiz-keys.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
+    'prereq.json',
   ];
 
   /// Read later, on first need.
@@ -117,6 +122,7 @@ class BrickfordData {
       weekPlan: list(gates['WEEK_PLAN']),
       drills: _map(story['DRILLS']),
       speechCourseIds: (story['courses'] as List).cast<String>(),
+      prereq: text['prereq.json'] != null ? obj('prereq.json') : const {},
     )..summariesLoaded = text['summaries.json'] != null;
   }
 
@@ -526,6 +532,14 @@ class Engine {
   List<SchedItem> _scheduledFor(String iso) {
     final d = studyIndex(iso);
     if (d < 0) return [];
+    // T-067: from the cutover on, Plan v2. Every date before it runs the v1 path, unchanged.
+    if (ge(iso, PLAN_V2_FROM)) return scheduledV2(iso, d);
+    return scheduledV1(iso);
+  }
+
+  List<SchedItem> scheduledV1(String iso) {
+    final d = studyIndex(iso);
+    if (d < 0) return [];
     final items = <SchedItem>[];
 
     // ---- Theory ----
@@ -571,7 +585,8 @@ class Engine {
     }
 
     // ---- Build ----
-    final spineFlat = [...flatLessons('ai200'), ...flatLessons('ai210')];
+    // T-067: the second-pass unit (lessons with an `alias`) is Plan v2's; the v1 spine is the lessons it had.
+    final spineFlat = [...flatLessons('ai200').where((f) => !truthy(f.l['alias'])), ...flatLessons('ai210')];
     final bw = windowFor('b:spine', spineFlat, BUILD_BUDGET, d, dT < 0 ? -1 : dT);
     var buildAdded = false;
     if (bw != null) {
@@ -596,7 +611,12 @@ class Engine {
       }
     }
 
-    // ---- Publish ----
+    publishFor(iso, items);
+    return items;
+  }
+
+  /// The Publish block, the same under v1 and v2.
+  void publishFor(String iso, List<SchedItem> items) {
     final sd = speechSlot(iso);
     final speechFlat = <FlatLesson>[
       for (final cid in SPEECH_COURSES.where((cid) => D.course(cid) != null)) ...flatLessons(cid),
@@ -612,7 +632,240 @@ class Engine {
         }
       }
     }
+  }
+
+  // ---------- Plan v2 (T-067): app.js planV2, ported line for line ----------
+  static const PLAN_V2_FROM = '2026-11-22';
+  static const int V2_MATH = 90, V2_AI = 60;
+  static const V2_MATH_CORE = ['math110', 'math120', 'math130', 'phys100', 'math210', 'math140'];
+  static const V2_MATH_ADDS = ['math160', 'phys300', 'math150', 'phys200'];
+  static const V2_AI_COURSES = ['cs100', 'ai200', 'ai210', 'ai300', 'sys250', 'ai310', 'res400', 'cs150', 'cs110'];
+  static final V2_BUILD_KEPT = RegExp(r'^ai200\.(0\.\d+|1\.[0-4])$');
+  static const V2_WATCHED = ['ai200.0.0', 'ai200.0.1', 'ai200.0.2', 'ai200.0.3', 'ai200.1.0', 'ai200.1.1', 'ai200.1.2', 'ai200.1.3', 'ai200.1.4'];
+  static bool v2Schedulable(Map<String, dynamic> l) =>
+      !truthy(l['optional']) && (truthy(l['v']) || truthy(l['read']) || truthy(l['paper']));
+
+  PlanV2? _v2;
+  PlanV2 planV2() {
+    if (_v2 != null) return _v2!;
+    List<String> needs(String k) => [for (final n in (_map(D.prereq[k])['needs'] as List? ?? const [])) n as String];
+    var cut = studyIndex(PLAN_V2_FROM);
+    if (cut < 0) cut = studyIndex(addStudyDays(PLAN_V2_FROM, 0));
+    final doneDay = <String, int>{}, done = <String>{};
+    final was = planOnly;
+    planOnly = true;
+    try {
+      for (var d = 0; d < cut; d++) {
+        for (final it in scheduledV1(dateForStudy(d))) {
+          if (it.pseudo || it.cid == null) continue;
+          final k = it.key;
+          if (it.track == 'Build' && !V2_BUILD_KEPT.hasMatch(k)) continue;
+          done.add(k);
+          doneDay[k] = -1;
+        }
+      }
+    } finally {
+      planOnly = was;
+    }
+    for (final k in V2_WATCHED) {
+      done.add(k);
+      doneDay[k] = -1;
+    }
+    final Q = <String, List<FlatLesson>>{};
+    for (final cid in [...V2_MATH_CORE, ...V2_MATH_ADDS, ...V2_AI_COURSES]) {
+      Q[cid] = D.course(cid) == null ? <FlatLesson>[] : flatLessons(cid).where((f) => v2Schedulable(f.l) && !done.contains(f.key)).toList();
+    }
+    var sameDay = <String>{};
+    bool ready(FlatLesson e, int day) => needs(e.key).every((n) {
+          final dd = doneDay[n];
+          return (dd != null && dd < day) || (dd == day && sameDay.contains(n));
+        });
+    final span = <String, V2Part?>{'MATH': null, 'AI': null, 'FRI': null};
+    void remove(FlatLesson e) => Q[e.cid]!.remove(e);
+    List<V2Part> take(String lane, num budget, FlatLesson first, int day, FlatLesson? Function() next) {
+      final e = EFFORT(_min(first.l));
+      remove(first);
+      if (e > budget * 1.15) {
+        final n = (e / budget).ceil();
+        span[lane] = V2Part(first, 1, n);
+        return [V2Part(first, 1, n)];
+      }
+      final got = [V2Part(first)];
+      var eff = e;
+      doneDay[first.key] = day;
+      sameDay.add(first.key);
+      for (;;) {
+        final nx = next();
+        if (nx == null || !ready(nx, day)) break;
+        final ej = EFFORT(_min(nx.l));
+        if (ej > budget * 1.15 || eff + ej > budget * 1.05) break;
+        remove(nx);
+        eff += ej;
+        got.add(V2Part(nx));
+        doneDay[nx.key] = day;
+        sameDay.add(nx.key);
+      }
+      return got;
+    }
+
+    List<V2Part> cont(String lane, int day) {
+      final s = span[lane]!;
+      final k = s.k! + 1;
+      final it = V2Part(s.e, k, s.n);
+      if (k >= s.n!) {
+        doneDay[s.e.key] = day;
+        span[lane] = null;
+      } else {
+        span[lane] = V2Part(s.e, k, s.n);
+      }
+      return [it];
+    }
+
+    var rot = 0;
+    var altMath = 'phys200', altAI = 'cs150';
+    const pair = ['math150', 'phys200'];
+    final mathAll = [...V2_MATH_CORE, ...V2_MATH_ADDS];
+    List<FlatLesson> aiMain() => [
+          ...Q['cs100']!.where((e) => e.ui <= 1),
+          ...Q['ai200']!.where((e) => e.ui == 3),
+          ...Q['ai200']!.where((e) => e.ui == 1),
+          ...Q['ai300']!,
+          ...(altAI == 'cs150' ? [...Q['ai210']!, ...Q['cs150']!] : [...Q['cs150']!, ...Q['ai210']!]),
+          ...Q['sys250']!,
+          ...Q['ai310']!,
+          ...Q['res400']!,
+        ];
+    List<FlatLesson> aiFriday() => [...Q['cs100']!.where((e) => e.ui == 2), ...Q['ai200']!.where((e) => e.ui == 2), ...Q['cs110']!];
+    final rows = <int, V2Row>{};
+    final keys = <String>{};
+    var last = 1093;
+    for (var day = cut; day < 1094; day++) {
+      final iso = dateForStudy(day);
+      sameDay = <String>{};
+      var math = <V2Part>[];
+      if (span['MATH'] != null) {
+        math = cont('MATH', day);
+      } else {
+        for (var t = 0; t < V2_MATH_CORE.length; t++) {
+          final c = V2_MATH_CORE[(rot + t) % V2_MATH_CORE.length];
+          final nx = _at(Q[c]!, 0);
+          if (nx != null && ready(nx, day)) {
+            math = take('MATH', V2_MATH, nx, day, () => _at(Q[c]!, 0));
+            rot = (rot + t + 1) % V2_MATH_CORE.length;
+            break;
+          }
+        }
+        if (math.isEmpty) {
+          final order = [...V2_MATH_ADDS.where((c) => !pair.contains(c)), ...(altMath == 'phys200' ? pair : pair.reversed)];
+          for (final c in order) {
+            final nx = _at(Q[c]!, 0);
+            if (nx != null && ready(nx, day)) {
+              math = take('MATH', V2_MATH, nx, day, () => _at(Q[c]!, 0));
+              if (pair.contains(c)) altMath = c;
+              break;
+            }
+          }
+        }
+      }
+      final mathDone = !mathAll.any((c) => Q[c]!.isNotEmpty) && span['MATH'] == null;
+      final aiBudget = mathDone ? V2_MATH + V2_AI : V2_AI;
+      List<V2Part>? pick(String lane, List<FlatLesson> list) {
+        for (final e in list) {
+          if (ready(e, day)) {
+            if (e.cid == 'ai210' || e.cid == 'cs150') altAI = e.cid;
+            return take(lane, aiBudget, e, day, () {
+              final nx = _at(Q[e.cid]!, 0);
+              return nx != null && nx.ui == e.ui ? nx : null;
+            });
+          }
+        }
+        return null;
+      }
+
+      List<V2Part>? main() => span['AI'] != null ? cont('AI', day) : pick('AI', aiMain());
+      final List<V2Part> ai;
+      if (dowOf(iso) == SPEECH_OFF_DOW) {
+        ai = (span['FRI'] != null ? cont('FRI', day) : pick('FRI', aiFriday())) ?? main() ?? [];
+      } else {
+        ai = main() ?? (span['FRI'] != null ? null : pick('FRI', aiFriday())) ?? [];
+      }
+      for (final x in [...math, ...ai]) {
+        keys.add(x.e.key);
+      }
+      rows[day] = V2Row(math, ai, mathDone);
+      if (!Q.values.any((q) => q.isNotEmpty) && span['MATH'] == null && span['AI'] == null && span['FRI'] == null) {
+        last = day;
+        break;
+      }
+    }
+    return _v2 = PlanV2(cut, rows, keys, last);
+  }
+
+  List<SchedItem> scheduledV2(String iso, int d) {
+    final row = planV2().rows[d];
+    final items = <SchedItem>[];
+    void put(String track, List<V2Part> xs) {
+      for (final x in xs) {
+        items.add(SchedItem.lesson(track, x.e, x.n != null ? x.k : null, x.n));
+      }
+    }
+
+    if (row != null && row.math.isNotEmpty) {
+      put('Theory', row.math);
+    } else if (row == null) {
+      items.add(SchedItem.pseudo('Theory', 'Frontier', 'Frontier study on your fork — new papers, ARENA, outside courses', '#/electives'));
+    } else if (!row.toAI) {
+      items.add(SchedItem.pseudo('Theory', 'Psets', 'Problem sets & exam prep — MIT psets, Stat 110 practice, checkpoint exams', '#/workshop'));
+    }
+    if (row != null && row.ai.isNotEmpty) {
+      put('Build', row.ai);
+    } else {
+      items.add(SchedItem.pseudo('Build', 'Frontier', 'Frontier build — ship on your fork: labs, open source, product', '#/workshop'));
+    }
+    publishFor(iso, items);
     return items;
+  }
+
+  /// A lecture v1 put before the cutover that v2 schedules again later: not owed on its v1 day.
+  bool v2Rescheduled(String iso, String k) => lt(iso, PLAN_V2_FROM) && planV2().keys.contains(k);
+
+  /// The map read the other way: the lectures that need [k] ("Leads to").
+  Map<String, List<String>>? _leadsTo;
+  List<String> leadsTo(String k) {
+    if (_leadsTo == null) {
+      _leadsTo = {};
+      for (final x in D.prereq.keys) {
+        for (final n in (_map(D.prereq[x])['needs'] as List? ?? const [])) {
+          (_leadsTo!['$n'] ??= []).add(x);
+        }
+      }
+    }
+    return _leadsTo![k] ?? const [];
+  }
+
+  List<String> needsOf(String k) => [for (final n in (_map(D.prereq[k])['needs'] as List? ?? const [])) '$n'];
+
+  /// A lesson by its key, and the key its summary and quiz live under (a second-pass lesson's `alias`).
+  Map<String, Map<String, dynamic>>? _lessonAt;
+  Map<String, dynamic>? lessonAt(String k) {
+    if (_lessonAt == null) {
+      _lessonAt = {};
+      for (final c in D.courses) {
+        final units = (c['units'] as List?) ?? const [];
+        for (var ui = 0; ui < units.length; ui++) {
+          final ls = units[ui]['lessons'] as List;
+          for (var li = 0; li < ls.length; li++) {
+            _lessonAt![lessonKey(c['id'] as String, ui, li)] = _map(ls[li]);
+          }
+        }
+      }
+    }
+    return _lessonAt![k];
+  }
+
+  String sumKey(String k) {
+    final a = lessonAt(k)?['alias'];
+    return a is String && a.isNotEmpty ? a : k;
   }
 
   // ---------- the lecture quiz gate (T-043) ----------
@@ -620,11 +873,12 @@ class Engine {
 
   /// lessonQuiz(k) != null, answered from quiz-keys.json so it holds before
   /// summaries.json is read. Every gate decision goes through this.
-  bool hasQuiz(String k) => D.quizKeys.contains(k);
+  /// T-067: a second-pass lesson asks under its `alias` (app.js lessonQuiz reads sumKey(k)).
+  bool hasQuiz(String k) => D.quizKeys.contains(sumKey(k));
 
   /// The checks themselves (the lesson page), once summaries.json is read.
   List<dynamic>? lessonQuiz(String k) {
-    final sm = D.summaries[k];
+    final sm = D.summaries[sumKey(k)];
     if (sm is! Map) return null;
     final checks = sm['checks'];
     return checks is List && checks.isNotEmpty ? checks : null;
@@ -667,6 +921,7 @@ class Engine {
   }
 
   bool lessonBlocks(String k) =>
+      !truthy(lessonAt(k)?['optional']) &&
       hasQuiz(k) &&
       !quizPassed(k) &&
       !grandfathered(lessons[k] is Map ? _map(lessons[k]) : null) &&
@@ -736,7 +991,7 @@ class Engine {
     for (var iso = gt(from, START_DATE) ? from : START_DATE; lt(iso, today); iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
       for (final it in realSched(iso)) {
-        if (!schedDone(it)) owed.add(it.key);
+        if (!schedDone(it) && !v2Rescheduled(iso, it.key)) owed.add(it.key);
       }
     }
     return owed.length;
@@ -753,7 +1008,7 @@ class Engine {
     for (var iso = gt(from, START_DATE) ? from : START_DATE; lt(iso, today); iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
       for (final x in realSched(iso)) {
-        if (!schedDone(x)) return x;
+        if (!schedDone(x) && !v2Rescheduled(iso, x.key)) return x;
       }
     }
     return null;
@@ -1032,4 +1287,24 @@ class Engine {
     }
     lessons[k] = st;
   }
+}
+
+/// One part of a Plan v2 day: a lecture, or part [k] of [n] of a long one.
+class V2Part {
+  const V2Part(this.e, [this.k, this.n]);
+  final FlatLesson e;
+  final int? k, n;
+}
+
+class V2Row {
+  const V2Row(this.math, this.ai, this.toAI);
+  final List<V2Part> math, ai;
+  final bool toAI;
+}
+
+class PlanV2 {
+  const PlanV2(this.cut, this.rows, this.keys, this.last);
+  final int cut, last;
+  final Map<int, V2Row> rows;
+  final Set<String> keys;
 }

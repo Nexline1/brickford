@@ -1531,6 +1531,46 @@ async function scenario(browser, now, state, tz) {
       check("no page errors (plan v2 backlog)", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
+    // (f) the pages: a lecture lists what it Needs (ticked once watched) and what it Leads to, and
+    // the Atlas draws one ordered line per track, in the order the plan first reaches each course.
+    {
+      const { ctx, page, errors } = await scenario(browser, "2026-11-12",
+        { lessons: { "cs100.0.8": { done: true, doneAt: "2026-11-10", notes: "", checks: [] } } });
+      await page.evaluate(() => { location.hash = "#/lesson/ai200/3/0"; });
+      await page.waitForSelector("#view .lsn-needs", { timeout: 8000 });
+      const L = await page.evaluate(() => {
+        const rows = sel => [...document.querySelectorAll("#view " + sel + " a.grow")].map(a => ({ href: a.getAttribute("href"), done: a.classList.contains("done-row"),
+          tick: (a.querySelector(".g-lead") || {}).textContent || "" }));
+        const head = t => [...document.querySelectorAll("#view .ghead")].map(h => h.textContent).find(x => x.startsWith(t)) || "";
+        return { needs: rows(".lsn-needs"), leads: rows(".lsn-leads"), needsHead: head("Needs"), leadsHead: head("Leads to"), want: window.DAR.PREREQ["ai200.3.0"].needs };
+      });
+      const hrefOf = k => "#/lesson/" + k.split(".").join("/");
+      check("v2: a lecture page lists its Needs in the map's order, the watched one ticked, and Leads to",
+        JSON.stringify(L.needs.map(r => r.href)) === JSON.stringify(L.want.map(hrefOf)) &&
+        L.needs.every(r => r.done === (r.href === hrefOf("cs100.0.8")) && (r.tick === "✓") === r.done) &&
+        L.needsHead === "Needs1 of " + L.want.length + " watched" && L.leads.some(r => r.href === hrefOf("ai200.3.1")) && /^Leads to\d+ lecture/.test(L.leadsHead),
+        L.needsHead + ": " + L.needs.map(r => r.href.slice(9) + (r.done ? " (ticked)" : "")).join(", ") + "; " + L.leadsHead + ": " + L.leads.map(r => r.href.slice(9)).join(", "));
+      await page.click("#view .lsn-leads a[href='" + hrefOf("ai200.3.1") + "']");
+      await page.waitForFunction(() => location.hash === "#/lesson/ai200/3/1", null, { timeout: 8000 });
+      check("v2: a Leads to row opens that lecture", true, "#/lesson/ai200/3/1");
+      await page.evaluate(() => { location.hash = "#/atlas"; });
+      await page.waitForSelector("#view .at-path", { timeout: 8000 });
+      const A = await page.evaluate(() => {
+        const T = window.__brickfordTest, want = { Theory: [], Build: [] };
+        for (let d = T.studyIndex(T.PLAN_V2_FROM); d < 1094; d++) T.scheduledFor(T.dateForStudy(d)).forEach(it => {
+          if (!it.pseudo && want[it.track] && want[it.track].indexOf(it.code) < 0) want[it.track].push(it.code); });
+        const lines = [...document.querySelectorAll("#view .at-path")].map(p => ({ head: p.previousElementSibling.textContent,
+          codes: [...p.querySelectorAll("a.at-step")].map(a => a.textContent.trim()) }));
+        return { lines, want };
+      });
+      check("v2: the Atlas shows one ordered line per track (Math & Physics, AI / Python, Storytelling), each in the plan's order",
+        A.lines.length === 3 && /^Math & Physics/.test(A.lines[0].head) && /^AI \/ Python/.test(A.lines[1].head) && /^Storytelling/.test(A.lines[2].head) &&
+        JSON.stringify(A.lines[0].codes) === JSON.stringify(A.want.Theory) && JSON.stringify(A.lines[1].codes) === JSON.stringify(A.want.Build) &&
+        JSON.stringify(A.lines[2].codes) === JSON.stringify(["SPCH 100"]),
+        A.lines.map(l => l.head.replace("in order", "") + ": " + l.codes.join(" > ")).join(" | "));
+      check("no page errors (plan v2 pages)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
   }
 
   // The hook is test-only: an ordinary load must not publish it.

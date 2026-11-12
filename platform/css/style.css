@@ -2601,14 +2601,16 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 
 /* ---- opens later ---- */
 .at-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.at-chip {
+/* T-067: .at-step is the same pill for Plan v2's path (one ordered line per track); a
+   class of its own so the "opens later" chips stay countable on their own. */
+.at-chip, .at-step {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px;
   background: var(--surface); color: var(--ink-2); text-decoration: none;
   font-size: var(--fs-subhead); font-variant-numeric: tabular-nums;
 }
-.at-chip:hover { text-decoration: none; }
-.at-chip b { color: var(--ink); font-weight: 600; }
+.at-chip:hover, .at-step:hover { text-decoration: none; }
+.at-chip b, .at-step b { color: var(--ink); font-weight: 600; }
 .at-concepts { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font-size: var(--fs-subhead); color: var(--accent); }
 
 /* ---- Courses: the filter ---- */
@@ -2659,7 +2661,7 @@ html.drawer-open, html.drawer-open body { overflow: hidden; }
 .shelf-empty { font-size: var(--fs-subhead); color: var(--ink-2); padding: 0 4px; }
 
 /* The press: a scale only, so nothing a press shows changes colour. */
-.at-tile:active, .at-chip:active, .book:active, .seg button:active {
+.at-tile:active, .at-chip:active, .at-step:active, .book:active, .seg button:active {
   transform: scale(0.985); transition: transform 100ms ease-out;
 }
 

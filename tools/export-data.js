@@ -58,6 +58,8 @@ function build(root) {
     "workshop.json": { PSETS: D.PSETS || [], LABS: D.LABS || [], NICHES: D.NICHES || [], ELECTIVES: D.ELECTIVES || [] },
     "gates.json": { GATES: D.GATES, DIAGNOSTICS: D.DIAGNOSTICS, WEEK_PLAN: D.WEEK_PLAN },
     "storytelling.json": { courses: SPEECH, DRILLS: D.DRILLS || {} },
+    // T-067: DAR.PREREQ, the prerequisite map Plan v2 is scheduled from.
+    "prereq.json": D.PREREQ || {},
   };
   const text = {};
   for (const [name, v] of Object.entries(out)) text[name] = json(v, name);

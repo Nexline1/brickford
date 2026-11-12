@@ -1,4 +1,53 @@
-# audit
+# T-067 audit — every lecture, judged against the goal
+
+**Goal (owner, 12 Nov):** AI scientist — a top-tier engineer in math and physics in computing — and a founder. So the full math and the physics stay core, computing engineering stays core, research craft stays core, Storytelling stays core. Only true duplicates and what no path needs are cut, and "cut" means the `optional` flag: nothing is deleted, an optional lecture stays watchable and counts if watched.
+
+**How it was built.** `node tools/audit-lectures.js > audit-raw.txt` lists all 494 lectures and every candidate overlapping pair (TF-IDF cosine over title, takeaway and beats, within and across courses). Each pair was judged by hand; the judgements live in one file, `plan-data.js`, and `node tools/plan-dates.js` writes the table below from it. The raw script is reproducible (same output byte for byte on a second run).
+
+**Honest limit.** 39 lectures have no summary (AI 200 Units I and III, AI 300, RES 400), so they were judged by title, source and position only. No transcript could be read this session (see `python-bridge.md`, "What could not be checked").
+
+## What the pairs showed
+
+- **True duplicates (marked).** `math210.0.16` repeats `math210.0.10`: same worked example (a = sin x, b = a/y, z = b + x), same sum-over-paths argument. Three AI 300 lessons re-use a video the plan already plays: `ai300.1.2` (GPT-2 paper) is the "Let's build GPT" video `ai200.1.6`; `ai300.3.1` (Mixtral) is CS336's MoE lecture `ai310.0.3`. Those two stay core as papers but are scheduled as reading and reimplementation only, with no re-watch.
+- **A data defect found in passing.** `ai300.0.1` (ResNet) points at the AlexNet video `DAOcjicFr1Y`, the same id as `ai300.0.0`. Fix the video in step 2.
+- **Overlaps that are NOT duplicates (kept core).** 3Blue1Brown and MIT on the same topic (eigenvectors, e, Taylor, Cramer): intuition first, then the algebra; two levels by design. The GPU cluster (`sys250.0.12`, `sys250.1.3`, `ai310.0.4`): three lecturers at three depths. Training tricks (`ai200.1.3`, `math210.1.1`, `sys250.0.6/0.9`): each pass is one level up and adds something. The autodiff cluster (`ai200.1.0`, `sys250.0.4`, `math210.0.10`): code, then a framework, then the mathematics.
+- **Revision lectures.** Exam reviews re-teach rather than teach. Pure reviews are optional (`math120.1.6`, `math130.0.14`, `phys100.0.9/0.18/0.29`); the practice engine (step 3) does their job with problems. Reviews that carry new material stay core (`math120.1.22` derives the Gaussian integral √π; `math120.1.29` teaches polar area; `math120.1.34` teaches power-series operations). The four MATH 110 reviews stay core only because MATH 110 is unchanged by decision — **owner decision 1.**
+- **Talks.** `ai200.2.0` (Intro to LLMs, 1 h) is the short version of `ai200.2.1` (Deep dive, 3.5 h): optional. `phys100.0.35/0.36` (Lewin's memoir and his last public lecture) are inspiration, not curriculum: optional.
+- **fast.ai 6 and 7** (random forests, collaborative filtering): optional, as the plan allowed.
+- **Integration techniques stay core.** The 10 Nov idea was to mark them optional; the 12 Nov goal overrides it: physics (8.01, and 8.02 if approved) and Stat 110 densities use substitution, parts and partial fractions constantly.
+- **SPCH 100:** no near-duplicate. The strongest pair scores 0.28 and is a part-one/part-two lesson. All 170 core.
+
+## Headline
+
+| | Lectures | Core | Optional | Duplicate |
+|---|---:|---:|---:|---:|
+| Existing curriculum | 494 | 483 | 10 | 1 |
+| Proposed: Python bridge, second pass, multivariable bridge | 28 | 28 | 0 | 0 |
+| Proposed later courses (need approval) | 114 | 114 | 0 | 0 |
+
+Optional: `math120.1.6`, `math130.0.14`, `ai200.2.0`, `ai210.0.5`, `ai210.0.6`, `phys100.0.9`, `phys100.0.18`, `phys100.0.29`, `phys100.0.35`, `phys100.0.36`. Duplicate: `math210.0.16`. Trimming saves about 11 hours of video (614 optional minutes plus the 65-minute duplicate) out of 320 hours, about 3.5% — as the goal requires, option A's speed comes from five hours a day and a better order, not from cutting.
+
+## What the curriculum lacks for this goal
+
+Proposals only; nothing is added to the data. Lecture counts and lengths are from the courses' published listings as I know them and were **not** checked this session — the transcript tools and the course sites were unreachable (details in `python-bridge.md`). Each must be checked by transcript before it is added, per `docs/CONTENT-STANDARD.md`.
+
+| Gap | Proposal | Lectures | Hours | Why |
+|---|---|---:|---:|---|
+| Partial derivatives, gradient, Jacobian, double integrals (short, now) | Khan Academy multivariable calculus, the videos by Grant Sanderson (3Blue1Brown's author): 7 chosen videos as a new last unit of MATH 120 (`math120.2.*`) | 7 | ~1.3 | Makemore 4 and MATH 210 need gradients and Jacobians; Stat 110's joint densities need double integrals. Ids not chosen yet. |
+| Multivariable calculus in full | MIT 18.02, Denis Auroux, Fall 2007 (MIT OpenCourseWare playlist) → MATH 140 | 35 | ~29 | Line and surface integrals, Green, Stokes, divergence: the language of electromagnetism and of any field theory. |
+| Differential equations | MIT 18.03, Arthur Mattuck, Spring 2006 (MIT OCW) → MATH 150 | 33 | ~27.5 | Dynamics, oscillators, Laplace and Fourier: physics runs on ODEs, and neural ODEs and diffusion models do too. |
+| Electromagnetism | MIT 8.02, Walter Lewin, Spring 2002 (same lecturer as PHYS 100) → PHYS 200 | 36 | ~30 | The second pillar of classical physics; needs 18.02. |
+| Statistical physics | Stanford, Leonard Susskind, Statistical Mechanics (2013) → PHYS 300 | 10 | ~17.5 | Entropy, Boltzmann distribution, partition functions: the physics under softmax, energy-based models, diffusion and much of ML theory. Placed after MacKay's entropy lectures. |
+| Statistics (inference) | MIT 18.650, Philippe Rigollet, Fall 2016 — listed, not sequenced | ~24 | ~30 | Stat 110 is probability; estimation, tests and regression are a separate course. A scientist needs it for every experiment. |
+| Quantum mechanics | MIT 8.04, Allan Adams, Spring 2013 — listed, not sequenced | ~24 | ~30 | The next physics after E&M if the physics side grows; also the door to quantum computing. |
+| Algorithms lectures | MIT 6.006, Spring 2020 — listed, not sequenced | ~21 | ~20 | CS 150 has the NeetCode 150 problems but **no lectures at all**; the problems teach patterns, not analysis. |
+| Convex optimisation | Stanford EE364A, Stephen Boyd — listed, not sequenced | ~19 | ~25 | MATH 210 has Boyd's book chapters 2–3 as reading; the lectures are the full version. |
+
+The first five rows are in `prerequisites.json` (MATH 140, MATH 150, PHYS 200, PHYS 300 under provisional keys) and in the "with additions" columns of `dates.md`. The last four are named for the owner to consider; they are not in any computed date.
+
+**An honest note.** A self-taught route to science is judged on published work, not on lectures watched. The paper reimplementations (AI 300) and the first original result matter more than any lecture in this table. The gates already say this (gate 3: six reimplementations and a merged open-source PR) and they are kept. The Nobel ambition does not change this audit: it is reached, if at all, through original results, and the plan's job is to make the owner able to produce them.
+
+## The table
 
 <!-- BEGIN GENERATED -->
 ### Counts per course

@@ -10,7 +10,7 @@ const ROOT_T055 = path.resolve(__dirname, "..");
 
 const ROOT = path.resolve(__dirname, "..");
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
-["platform/data/curriculum.js", "platform/data/workshop.js", "platform/js/figures.js", "platform/js/lab.js",
+["platform/data/curriculum.js", "platform/data/prerequisites.js", "platform/data/workshop.js", "platform/js/figures.js", "platform/js/lab.js",
  "platform/data/concepts-linear-algebra.js",
  "platform/data/quiz-linear-algebra.js","platform/data/quiz-calculus.js","platform/data/quiz-probability.js",
  "platform/data/quiz-dsa.js","platform/data/quiz-zero-to-hero.js","platform/data/quiz-math-for-ml.js",
@@ -3091,6 +3091,72 @@ let APP_T = null;                        // the app's test hook, kept for T-055'
   }
   ok(files.length === weeks.length, "T-055 every revision PDF is linked (" + files.length + " files, " + weeks.length + " linked)");
 }
+
+// ---------- T-067: Plan v2 — the prerequisite map, the flags, the ledger ----------
+// The v2 scheduler (app.js planV2, ported in app/lib/engine) schedules a lecture only
+// after everything DAR.PREREQ says it needs. Every way that map can be wrong is silent
+// in the browser: a `needs` key that resolves to nothing is never met, so the lecture
+// (and everything after it) is never scheduled; a cycle does the same to every lecture
+// on it; a core lecture that needs an optional or video-less one waits for something
+// that is never scheduled. And keys are positional, so a lesson inserted rather than
+// appended re-points the owner's progress: the ledger pins every key to its video, as
+// SPCH 100's does, and only ever grows.
+const PRE = D.PREREQ || {};
+const preJSON = JSON.parse(fs.readFileSync(path.join(ROOT, "loop/specs/T-067-plan-v2/prerequisites.json"), "utf8"));
+const lessonByKey = {};
+D.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => { lessonByKey[c.id + "." + ui + "." + li] = l; })));
+const v2Sched = l => !l.optional && !!(l.v || l.read || l.paper);
+let preEdges = 0;
+ok(Object.keys(PRE).length > 600, "T-067 DAR.PREREQ is loaded (" + Object.keys(PRE).length + " lectures)");
+Object.keys(lessonByKey).forEach(k => ok(!!PRE[k], "T-067 " + k + ": has an entry in DAR.PREREQ (needs and level)"));
+Object.keys(PRE).forEach(k => {
+  const e = PRE[k], l = lessonByKey[k];
+  ok(!!l, "T-067 DAR.PREREQ " + k + ": is a real lesson");
+  ok(Array.isArray(e.needs), "T-067 " + k + ": needs is a list");
+  ok([1, 2, 3].includes(e.level), "T-067 " + k + ": level is 1, 2 or 3 (" + e.level + ")");
+  (e.needs || []).forEach(n => {
+    preEdges++;
+    ok(!!lessonByKey[n], "T-067 " + k + ": needs " + n + ", which exists");
+    ok(n !== k, "T-067 " + k + ": does not need itself");
+    if (l && v2Sched(l) && lessonByKey[n]) ok(v2Sched(lessonByKey[n]), "T-067 " + k + " (scheduled) needs " + n + ", which is never scheduled (optional or no video)");
+  });
+  const j = preJSON[k];
+  ok(!!j && JSON.stringify(j.needs) === JSON.stringify(e.needs) && j.level === e.level,
+    "T-067 " + k + ": DAR.PREREQ equals loop/specs/T-067-plan-v2/prerequisites.json (the map the plan was computed from)");
+  if (l && j) ok(v2Sched(l) === (j.status === "core"), "T-067 " + k + ": scheduled by v2 exactly when the audit marks it core (" + j.status +
+    (l.optional ? ", flagged optional" : "") + (l.v || l.read || l.paper ? "" : ", no video") + ")");
+});
+(function acyclicPrereq() {
+  const state = {};
+  let cycle = null;
+  const visit = (k, stack) => {
+    if (cycle || state[k] === 2) return;
+    if (state[k] === 1) { cycle = stack.slice(stack.indexOf(k)).concat(k).join(" -> "); return; }
+    state[k] = 1;
+    ((PRE[k] || {}).needs || []).forEach(n => visit(n, stack.concat(k)));
+    state[k] = 2;
+  };
+  Object.keys(PRE).forEach(k => visit(k, []));
+  ok(!cycle, "T-067 the prerequisite map has no cycle" + (cycle ? " (cycle: " + cycle + ")" : ""));
+})();
+// The second pass re-uses the first pass's video, summary and quiz by alias.
+Object.keys(lessonByKey).forEach(k => {
+  const l = lessonByKey[k];
+  if (!l.alias) return;
+  const a = lessonByKey[l.alias];
+  ok(!!a && !a.alias && a.v === l.v && a.min === l.min, "T-067 " + k + ": alias " + l.alias + " is a real first-pass lecture with the same video and length");
+});
+// The ledger: every key in every course but SPCH 100 (which has its own) pinned to its video.
+const curLedger = JSON.parse(fs.readFileSync(path.join(ROOT, "data/curriculum-ledger.json"), "utf8")).keys;
+Object.keys(curLedger).forEach(k => {
+  const l = lessonByKey[k];
+  ok(!!l && (l.v || null) === curLedger[k], "T-067 ledger: " + k + " still points at " + curLedger[k] +
+    (l ? " (it now points at " + (l.v || null) + " — a unit or lesson was inserted, reordered or re-pointed)" : " (the key no longer exists)"));
+});
+Object.keys(lessonByKey).filter(k => !/^spch/.test(k)).forEach(k =>
+  ok(k in curLedger, "T-067 " + k + ": is pinned in data/curriculum-ledger.json (append one line for a new lesson)"));
+console.log("T-067 Plan v2: " + Object.keys(PRE).length + " lectures in the map, " + preEdges + " edges, no cycle; " +
+  Object.keys(curLedger).length + " keys in the curriculum ledger; " + Object.keys(lessonByKey).filter(k => lessonByKey[k].optional).length + " optional");
 
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + t45Items + " problem sets and labs unlocked by a real lecture, " + numChecked + " numeric answers recomputed, "

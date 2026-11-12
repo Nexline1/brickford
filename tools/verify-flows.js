@@ -2413,6 +2413,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     };
     const grades = [];
     const { ctx, page, errors } = await fresh(browser, 390, PR_STATE, "/", PR_DAY);
+    let later = null;
+    // A planted bug can take away a field the next step needs: that is a failed check, not a crashed gate.
+    try {
     await go(page, "/lesson/math110/1/8");
     await page.waitForSelector("#view .pr-list");
     const kinds = await page.evaluate(() => [...document.querySelectorAll("#view .pr-item")].map(e => e.dataset.prType).join(","));
@@ -2519,10 +2522,11 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       copied.indexOf(essay) >= 0 && copied.indexOf("Independence, Basis, and Dimension") >= 0 && copied.indexOf("<") < 0 && copied.indexOf(KEY) < 0,
       copied.split("\n").length + " lines");
     check("(pr) no page errors", errors.length === 0, errors.join(" | "));
-    const later = await prStore(page);
+    later = await prStore(page);
+    } catch (e) { check("(pr) the practice flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
     await ctx.close();
     // Two days on: the missed items are due in Recall, and on the dashboard.
-    {
+    if (later) {
       const { ctx, page, errors } = await fresh(browser, 390, later, "/", PR_LATER);
       await go(page, "/recall");
       await page.waitForSelector("#view .pr-recall");

@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../engine/dates.dart';
 import '../engine/engine.dart';
 import '../engine/learn.dart';
+import '../engine/lecture_practice.dart';
 import '../engine/monk.dart';
 import '../engine/pages.dart';
 import '../engine/practice.dart';
@@ -359,6 +360,81 @@ class AppModel extends ChangeNotifier {
       notifyListeners();
     }
     return ok;
+  }
+
+  // ---------- T-067 step 3: the practice items under a lecture's quiz ----------
+  // Each write is the web handler's (wirePractice), then save(). A build never writes.
+
+  /// Check / Submit: null when stored, else the refusal to show (a toast).
+  String? practiceAnswer(String k, Map<String, dynamic> it, String v) {
+    final why = engine.practiceAnswer(k, it, v, _ts());
+    if (why == null) _write(() {});
+    return why;
+  }
+
+  void practiceMark(String k, String id, String mark) => _write(() => engine.practiceMark(k, id, mark, _ts()));
+  void practiceAgain(String k, String id) => _write(() => engine.practiceAgain(k, id, _ts()));
+  void practiceTick(String k, String id, int j, bool on) => _write(() => engine.practiceTick(k, id, j, on, _ts()));
+
+  /// Per item, in memory: the last grading message (app.js prMsg).
+  final practiceMsg = <String, String>{};
+
+  /// The items being graded right now.
+  final grading = <String>{};
+
+  // The owner's Anthropic key: shared_preferences [AI_KEY], on this device only. It is not in S, so neither
+  // persist() nor the sync payload can carry it; it is never shown back, and never logged.
+  String get _aiKey => prefs.getString(AI_KEY) ?? '';
+  bool get hasAiKey => _aiKey.isNotEmpty;
+
+  /// Save the key (Sync screen). An error to show, or null.
+  String? saveAiKey(String v) {
+    final t = v.trim();
+    if (t.isEmpty) return 'Paste the key first.';
+    prefs.setString(AI_KEY, t);
+    notifyListeners();
+    return null;
+  }
+
+  void forgetAiKey() {
+    prefs.remove(AI_KEY);
+    notifyListeners();
+  }
+
+  /// The Anthropic client: the injected one (tests stub it), else one of its own.
+  late final http.Client _grader = client ?? http.Client();
+
+  /// Grade with Claude (app.js practiceGrade): one POST to the Messages API with the question, the checklist
+  /// (or the worked solution) and the answer. Without a key, offline, on a refusal or any error, the item stays
+  /// on self-check and says so in one line.
+  Future<void> practiceGrade(String k, Map<String, dynamic> it) async {
+    final id = '${it['id']}', mk = '$k/$id', key = _aiKey, ps = engine.practiceOf(k, id);
+    void say(String msg) {
+      practiceMsg[mk] = msg;
+      grading.remove(mk);
+      notifyListeners();
+    }
+
+    if (key.isEmpty) return say(noKeySay);
+    if (sync.noNet) return say(offlineSay);
+    if (!prTried(it, ps) || grading.contains(mk)) return;
+    grading.add(mk);
+    practiceMsg.remove(mk);
+    notifyListeners();
+    final req = http.Request('POST', Uri.parse(AI_URL))
+      ..headers.addAll(gradeHeaders(key))
+      ..bodyBytes = utf8.encode(jsonEncode(gradeRequest(it, '${ps!['answer']}')));
+    ({Map<String, dynamic>? grade, String? why}) r;
+    try {
+      final res = await http.Response.fromStream(await _grader.send(req));
+      r = readGrade(res.statusCode, utf8.decode(res.bodyBytes, allowMalformed: true));
+    } catch (_) {
+      r = (grade: null, why: 'Failed to fetch');   // what the browser's fetch says when there is no answer
+    }
+    if (r.grade == null) return say(gradeFailSay(r.why ?? 'no answer'));
+    engine.practiceSetGrade(k, id, r.grade!, _ts());
+    persist();
+    say('');
   }
 
   /// The lesson page records itself as the one to resume, only when it changed

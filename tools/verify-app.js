@@ -92,6 +92,15 @@
 //    ["monkStart"] when started, none otherwise). Plants: monk-start-overwrites (startMonk overwrites a start),
 //    monk-merge-later (the merge takes the later date), monk-payload-monk (S.monk in the payload), monk-day-unstarted
 //    (monkDay answers a day number with no start).
+//
+// 8. LECTURE PRACTICE (T-067 step 3, Flutter). The practice items under a lecture's quiz, app.js against the Dart port
+//    (app/lib/engine/lecture_practice.dart): numeric grading of every item's answer and near misses (numOk lifted out of
+//    quiz-engine.js), outputOk, gradeRequest byte for byte as JSON with the request's headers cut from practiceGrade's own
+//    text, "Today's practice" and "Copy this week's answers" read from the rendered dashboard (the clipboard stubbed), the
+//    lesson page's Check / marks / Again / ticks driven in the rendered page with S read back from localStorage; the
+//    practice merge over a fixture matrix and the payload's practice key (section 5's fixtures); practice items due
+//    again in Recall (section 6a's fixtures). Plants: practice-payload-drop (the Dart payload drops practice, which is
+//    what a Flutter push did before the port), practice-merge-older (the merge takes the older `at`).
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), vm = require("vm");
 const { execFileSync, spawnSync } = require("child_process");
@@ -101,8 +110,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -221,13 +230,13 @@ const MONK_PROBES = [null, {}, { prayers: { fajr: true, dhuhrAsr: true, maghribI
 const clone = v => JSON.parse(JSON.stringify(v));
 const strip = v => Array.isArray(v) ? v.map(strip) : v && typeof v === "object"
   ? Object.fromEntries(Object.entries(v).filter(([, x]) => x != null).map(([k, x]) => [k, strip(x)])) : v;
-const PROJ = ["lessons", "studyDays", "problems", "psets", "electives", "labs", "diag", "quizAttempts", "weeks", "review", "concepts", "anchors", "reps", "foreignLedgers", "gates", "monk", "monkStart"];
+const PROJ = ["lessons", "studyDays", "problems", "psets", "electives", "labs", "diag", "quizAttempts", "weeks", "review", "concepts", "anchors", "reps", "foreignLedgers", "gates", "monk", "monkStart", "practice"];
 const projectS = S => strip(JSON.parse(JSON.stringify(Object.assign(Object.fromEntries(PROJ.map(k => [k, S[k]])), { streakFrom: S.settings.streakFrom }))));
 // app.js's DEFAULT plus the load-time additions (ledger, concepts, anchors, foreignLedgers), complete, so the JS VM and Dart start equal.
 const baseState = over => Object.assign({
   v: 1, lessons: {}, problems: {}, quizAttempts: {}, quizMisses: {}, diag: {}, gates: {}, studyDays: [], weeks: [], labs: {}, psets: {}, electives: {},
   treasury: { offer: "", clients: [], entries: [], niche: "" }, reps: { bank: [], story: [], humor: [], review: [] }, review: {}, concepts: {}, anchors: [],
-  ledger: [], foreignLedgers: {}, monk: {},
+  ledger: [], foreignLedgers: {}, monk: {}, practice: {},
   settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null, lastSyncAt: null, syncError: null, deviceId: "dev-phone" },
 }, over);
 const remoteFile = (state, ledgers) => ({ v: 1, updatedAt: "2026-11-05T10:00:00.000Z", device: "dev-laptop", state, ledgers: ledgers || {} });
@@ -300,6 +309,8 @@ function mergeFixtures(plan) {
     ms("remote empty, local none", undefined, ""), ms("remote null, local none", undefined, null), ms("remote not a date, local none", undefined, "2026-11-6"),
     ms("remote with a trailing newline, local none", undefined, "2026-11-06\n"), ms("remote datetime, local none", undefined, "2026-11-06T00:00:00Z"),
     ms("local empty takes the remote", "", "2026-11-06"),
+    // T-067 step 3: practice answers, per item by `at` (the newer wins; a tie keeps mine; one side only is kept).
+    ...practiceMergeFixtures(),
     wkOf("pre-reset local kept beside the new remote", [{ week: 3, date: before(3), seal: "old" }], [{ week: 3, date: after(3), seal: "new" }]),
     wkOf("new local kept beside the pre-reset remote", [{ week: 3, date: after(3), seal: "new" }], [{ week: 3, date: before(3), seal: "old" }]),
     wkOf("same side: the later seal wins, the earlier is ignored",
@@ -324,12 +335,52 @@ function mergeFixtures(plan) {
     { name: "a remote that is not a file is ignored", local: diverge.local, remote: null },
   ];
 }
+// T-067 step 3: practice answers on two devices.
+const prAt = (d, h) => d + "T" + (h || "08:00") + ":00.000Z";
+const PR_LOCAL = {
+  "math110.0.0": {
+    p1: { answer: "1", mark: "ok", ticks: [], grade: null, at: prAt("2026-11-10") },
+    p2: { answer: "4", mark: "missed", ticks: [], grade: null, at: prAt("2026-11-12") },
+    p3: { answer: "(1,-1)", mark: "partly", ticks: [], grade: { points: [{ point: "Add the first components", verdict: "met" }], correction: "c", at: prAt("2026-11-11") }, at: prAt("2026-11-11") },
+  },
+  "ai200.0.0": { p1: { answer: "a written answer", mark: null, ticks: [true, false, true], grade: null, at: prAt("2026-11-09") } },
+};
+function practiceMergeFixtures() {
+  const pm = (name, mine, theirs) => ({ name: "practice: " + name, local: baseState(mine === undefined ? {} : { practice: mine }), remote: remoteFile(theirs === undefined ? {} : { practice: theirs }) });
+  const one = (answer, at, more) => Object.assign({ answer, mark: null, ticks: [], grade: null }, at === undefined ? {} : { at }, more || {});
+  return [
+    pm("the newer remote item wins", { "math110.0.0": { p1: one("mine", prAt("2026-11-10")) } }, { "math110.0.0": { p1: one("theirs", prAt("2026-11-11")) } }),
+    pm("the older remote item is ignored", { "math110.0.0": { p1: one("mine", prAt("2026-11-11")) } }, { "math110.0.0": { p1: one("theirs", prAt("2026-11-10")) } }),
+    pm("a tie keeps mine", { "math110.0.0": { p1: one("mine", prAt("2026-11-11")) } }, { "math110.0.0": { p1: one("theirs", prAt("2026-11-11")) } }),
+    pm("seconds apart on one day", { "math110.0.0": { p1: one("mine", "2026-11-11T08:00:00.000Z") } }, { "math110.0.0": { p1: one("theirs", "2026-11-11T08:00:01.000Z") } }),
+    pm("remote only: a new lecture and a new item", { "math110.0.0": { p1: one("mine", prAt("2026-11-11")) } },
+      { "math110.0.0": { p2: one("theirs p2", prAt("2026-11-01")) }, "ai200.0.0": { p1: one("theirs ai", prAt("2026-11-02")) } }),
+    pm("local only is kept", PR_LOCAL, {}),
+    pm("an empty remote practice changes nothing", PR_LOCAL, undefined),
+    pm("a local item without `at` loses to any remote one with it", { "math110.0.0": { p1: one("mine, no at") } }, { "math110.0.0": { p1: one("theirs", "2000-01-01T00:00:00.000Z") } }),
+    pm("a remote item without `at` never beats a local one", { "math110.0.0": { p1: one("mine", prAt("2026-11-01")) } }, { "math110.0.0": { p1: one("theirs, no at") } }),
+    pm("neither has `at`: mine stays", { "math110.0.0": { p1: one("mine, no at") } }, { "math110.0.0": { p1: one("theirs, no at") } }),
+    pm("a null, a string and a number in the remote are skipped", { "math110.0.0": { p1: one("mine", prAt("2026-11-01")) } },
+      { "math110.0.0": { p1: null, p2: "x", p3: 5 }, "math110.0.1": null, "math110.0.2": "nope" }),
+    pm("a remote practice that is a string is ignored", { "math110.0.0": { p1: one("mine", prAt("2026-11-01")) } }, "nope"),
+    pm("a remote practice that is null is ignored", { "math110.0.0": { p1: one("mine", prAt("2026-11-01")) } }, null),
+    pm("a local null item takes the remote", { "math110.0.0": { p1: null } }, { "math110.0.0": { p1: one("theirs", prAt("2026-11-01")) } }),
+    pm("a whole device each way: three newer, two older, two new", PR_LOCAL, {
+      "math110.0.0": { p1: one("r1", prAt("2026-11-12")), p2: one("r2", prAt("2026-11-11")), p3: one("r3", prAt("2026-11-12", "09:00")) },
+      "ai200.0.0": { p1: one("r4", prAt("2026-11-10")), p2: one("r5", prAt("2026-11-01")) },
+      "math110.0.8": { p3: one("[1]", prAt("2026-11-03")) },
+    }),
+  ];
+}
 function payloadFixtures() {
   const m = mergeFixtures({ rev: Array.from({ length: 8 }, (_, i) => ({ from: addDays("2026-10-05", 7 * i) })) })[0];
   return [
     { name: "a full device, monk in S", local: m.local },
     { name: "a bare device with a theme", local: baseState({ settings: { ...baseState().settings, theme: "dark", streakFrom: "2026-11-01" } }) },
     { name: "a device that has not started Monk, with Monk days stored", local: baseState({ monk: { days: { "2026-11-05": { nosin: true, at: "2026-11-05T05:00:00.000Z" } }, loops: { s1: { text: "t", done: false, at: "x" } } } }) },
+    // T-067 step 3: practice answers travel once there are any; an empty S.practice adds no key.
+    { name: "a device with practice answers and a grade", local: baseState({ practice: PR_LOCAL, review: { "p:math110.0.0:p2": { box: 0, due: "2026-11-14", last: "2026-11-12", lapses: 0 } } }) },
+    { name: "a device whose practice is empty", local: baseState({ practice: {} }) },
   ];
 }
 const MONK_START = "2026-11-01";   // T-065: the start the focus and sum probes below were written against (it used to be a constant in app.js)
@@ -440,6 +491,149 @@ async function runMStartJS(browser, fx) {
     out.start[sc.name] = steps;
     out.errors = out.errors.concat(errors);
     await ctx.close();
+  }
+  return out;
+}
+
+// ---------- lecture practice (T-067 step 3, Flutter) ----------
+// The practice items under a lecture's quiz. app.js's own code on each side: numOk lifted out of quiz-engine.js,
+// outputOk, gradeRequest, AI_SCHEMA, AI_MODEL and the request's headers lifted out of app.js (the headers object
+// literal is cut from practiceGrade's own text); "Today's practice" and "Copy this week's answers" read from the
+// rendered dashboard (the copy through a stubbed clipboard); the Check / mark / Again / tick handlers driven in the
+// rendered lesson page, S read back from localStorage. Nothing here calls the network: every route is aborted.
+const PRACTICE = () => JSON.parse(fs.readFileSync(path.join(exporter.OUT, "practice.json"), "utf8"));
+function cutBlock(src, start) {
+  const i = src.indexOf(start);
+  if (i < 0) throw new Error("cutBlock: `" + start + "` not found");
+  let j = src.indexOf("{", i), depth = 0;
+  for (; j < src.length; j++) { if (src[j] === "{") depth++; else if (src[j] === "}" && --depth === 0) break; }
+  return src.slice(i, j + 1);
+}
+function jsLecturePractice() {
+  const src = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const ctx = {}; vm.createContext(ctx);
+  vm.runInContext(vmExtract(["numOk"], "platform/js/quiz-engine.js") + "\nthis.DAR = { Quiz: { numOk } }; const DAR = this.DAR;", ctx);
+  const grade = vmExtract(["practiceGrade"]);
+  const headers = (grade.match(/headers: (\{[^}]*\})/) || [])[1];
+  if (!headers) throw new Error("jsLecturePractice: the request headers not found in practiceGrade");
+  const post = /fetch\(AI_URL, \{\s*method: "POST",/.test(grade);
+  vm.runInContext(vmExtract(["AI_URL", "AI_MODEL", "outputOk", "gradeRequest", "WRITE_MIN"]) + "\n" + cutBlock(src, "const AI_SCHEMA = {") + ";\n" +
+    "const headersOf = key => (" + headers + ");\n" +
+    "this.__lp = { AI_URL, AI_MODEL, WRITE_MIN, outputOk, gradeRequest, headersOf, numOk: DAR.Quiz.numOk };", ctx);
+  return Object.assign(ctx.__lp, { post });
+}
+function lprFixtures(plan) {
+  const P = PRACTICE(), keys = Object.keys(P);
+  const num = [], outs = [], graded = [];
+  keys.forEach(k => P[k].forEach(it => {
+    if (it.type === "numeric") num.push(Object.assign({ k, id: it.id, num: it.num }, it.tol != null ? { tol: it.tol } : {}));
+    if (it.type === "output") outs.push({ k, id: it.id, out: it.out });
+    if (it.type === "write" || it.type === "worked") graded.push({ k, id: it.id });
+  }));
+  // Numeric: each item's own answer, a decimal comma, inside and just outside its tolerance, and the usual noise.
+  const given = it => {
+    const tol = it.tol != null ? it.tol : 1e-6, n = it.num;
+    return [String(n), String(n).replace(".", ","), String(n + tol * 0.5), String(n - tol * 0.5), String(n + tol * 1.5), String(n - tol * 1.5),
+      String(n + tol * 10), String(-n), String(n) + "0", String(n) + "abc", String(n) + " ", "", "abc", String(Math.round(n)), n.toFixed(1), n.toFixed(3), n.toFixed(5),
+      "1,000", "−" + Math.abs(n), "+" + n, "0x" + Math.abs(Math.round(n)).toString(16), String(n * 10), String(n / 10)];
+  };
+  // Output: the real items, then edge outs; each against the same printed values.
+  const outItems = outs.map(o => ({ out: o.out })).concat(["12", " 3.50 ", "0x10", "", "Infinity", "1e3", "5.", ".5", "-0", "[1, 2]", "a  b", "-0x10", "1_000"].map(out => ({ out })));
+  const printed = ["12", "12.0", " 12 ", "12,0", "13", "[-2,10,9]", "[-2, 10, 9]\n", "[-2, 10, 8]", "3.5", "3,5", "16", "0x10", "", "Infinity", "1000", "5", ".5", "0.5",
+    "0", "-0", "abc", "[1,2]", "ab", "a b", "1000.0000001", "1e3", "-16"];
+  const answers = ["", "x", "A long answer with \"quotes\", a backslash \\ and a tab\t, a newline\nand unicode: naïve — ✓ 😀 </script> & <b>.", "  padded  "];
+  // Today's practice: clocks on study days whose plan has lectures with practice items (read from the plan), a rest day, before the start.
+  const [d1, d2] = plan.prDays, sat = (() => { let d = d1.d; while (new Date(d + "T00:00:00Z").getUTCDay() !== 6) d = addDays(d, 1); return d; })();
+  const k0 = d1.keys[0], it0 = P[k0];
+  const rv = (due, box) => ({ box: box || 0, due, last: addDays(due, -2), lapses: 0 });
+  const watchedL = ks => Object.fromEntries(ks.map(k => [k, { done: true, doneAt: addDays(d1.d, -1), notes: "", checks: [] }]));
+  const ans = (answer, at, mark) => ({ answer, mark: mark === undefined ? null : mark, ticks: [], grade: null, at });
+  const dueReviews = {
+    "p:math110.0.3:p1": rv(addDays(d1.d, -1)), "p:math110.0.3:p2": rv(addDays(d1.d, -1)), "p:math110.0.1:p3": rv(addDays(d1.d, -3), 1),
+    "p:math110.0.3:p9": rv(addDays(d1.d, -9)), "p:nope.0.0:p1": rv(addDays(d1.d, -9)), "p:math120.0.0:p1": rv(addDays(d1.d, 1)),
+    ["p:" + k0 + ":" + it0[0].id]: rv(d1.d),
+  };
+  const weekly = clock => ({
+    "math110.0.0": { p1: ans("1", prAt(clock), "ok"), p2: ans("4", prAt(addDays(clock, -6), "00:00"), "missed"), p3: ans("(1,-1)", prAt(addDays(clock, -7), "23:59"), "partly") },
+    "math110.0.8": { p3: ans("[1, 2]", addDays(clock, -2), "ok"), p1: ans("0", undefined, "ok") },
+    "ai200.0.0": { p1: ans("A written answer of some length, about what a neuron holds and how the layers pass it on.", prAt(addDays(clock, -1)), "weird") },
+    "math120.0.1": { p2: ans("", prAt(clock)), p1: ans("8", prAt(clock)) },
+    "nope.0.0": { p1: ans("ghost", prAt(clock)) },
+  });
+  const dash = [
+    { name: "a practice day, nothing answered", clock: d1.d, state: null },
+    { name: "a practice day, watched and partly answered", clock: d1.d, state: { lessons: watchedL([k0]), practice: { [k0]: Object.fromEntries(it0.map((it, i) => [it.id, ans(i === 0 ? "x" : i === 1 ? "" : "y", prAt(d1.d))])) } } },
+    { name: "items due again: ties, a ghost item, a ghost lecture, one not yet due, one scheduled today", clock: d1.d, state: { review: dueReviews, practice: weekly(d1.d) } },
+    { name: "the second practice day, items due again", clock: d2.d, state: { review: dueReviews, lessons: watchedL(d2.keys) } },
+    { name: "a rest day: no lectures, items due again and this week's answers", clock: sat, state: { review: dueReviews, practice: weekly(sat) } },
+    { name: "before the start: nothing at all", clock: addDays(plan.start, -3), state: null },
+    { name: "before the start: only this week's answers", clock: addDays(plan.start, -1), state: { practice: weekly(addDays(plan.start, -1)) } },
+  ];
+  // The lesson page's handlers: Check (right, wrong, empty, too short), the three marks, Again, a tick.
+  const long = "Each neuron holds a number, its activation, computed as a weighted sum of the layer before plus a bias, squashed.";
+  const steps = {
+    clock: "2026-11-12",
+    state: { lessons: watchedL(["math110.0.0", "math110.0.8", "ai200.0.0", "math120.0.0"]) },
+    lectures: [
+      ["math110.0.0", [["check", "p1", ""], ["check", "p1", " 1 "], ["check", "p2", "-5,0"], ["check", "p3", "(1,-1)"], ["mark", "p3", "partly"], ["again", "p1"], ["check", "p1", "2"], ["again", "p3"], ["check", "p3", "(0,0)"], ["mark", "p3", "missed"]]],
+      ["math110.0.8", [["check", "p3", "[ 12 ]"], ["again", "p3"], ["check", "p3", "12.0"], ["check", "p1", "0.0000001"], ["check", "p2", "5abc"]]],
+      ["ai200.0.0", [["check", "p1", "Too short to count."], ["check", "p1", long], ["mark", "p1", "ok"], ["again", "p1"], ["check", "p1", long + " Again."],
+        ["tick", "p1", 2, true], ["tick", "p1", 0, true], ["tick", "p1", 2, false], ["tick", "p1", 4, true]]],
+      ["math120.0.0", [["check", "p2", "28.275"], ["check", "p1", "12.01"]]],
+    ],
+  };
+  return { num: num.map(it => ({ it, given: given(it) })), outItems, printed, graded, answers, dash, steps };
+}
+
+async function runLprJS(browser, fx) {
+  const L = fx.lpr, J = jsLecturePractice(), P = PRACTICE(), item = (k, id) => P[k].find(x => x.id === id);
+  const out = { errors: [], grade: [], output: [], request: {}, headers: J.headersOf("sk-ant-test-stub"), consts: { AI_URL: J.AI_URL, AI_MODEL: J.AI_MODEL, WRITE_MIN: J.WRITE_MIN, post: J.post }, dash: {}, steps: {} };
+  out.grade = L.num.map(({ it, given }) => given.map(g => J.numOk(it, g)));
+  out.output = L.outItems.map(it => L.printed.map(v => J.outputOk(it, v)));
+  L.graded.forEach(({ k, id }) => { out.request[k + "/" + id] = L.answers.map(a => JSON.stringify(J.gradeRequest(item(k, id), a))); });
+  const readDash = () => {
+    const sec = document.querySelector(".pr-today");
+    if (!sec) return null;
+    const t = (el, sel) => { const e = el && el.querySelector(sel); return e ? e.textContent : null; };
+    const copy = sec.querySelector('[data-act="copyWeek"]');
+    let text = null;
+    if (copy) {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: x => { window.__copied = x; return Promise.resolve(); } } });
+      copy.click();
+      text = window.__copied;
+    }
+    return { items: t(sec.previousElementSibling, ".gh-meta"),
+      rows: [...sec.querySelectorAll("a.grow")].map(a => [a.getAttribute("href"), t(a, ".g-t"), t(a, ".g-s"), a.classList.contains("done-row")]),
+      copy: copy ? t(copy, ".g-s") : null, text };
+  };
+  for (const f of L.dash) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    await p.evaluate(() => { location.hash = "#/"; });
+    await p.waitForFunction(() => [...document.querySelectorAll("#view .ghead")].some(g => /Where you stand/.test(g.textContent)), null, { timeout: 15000 });
+    out.dash[f.name] = await p.evaluate(readDash);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  {
+    const S0 = L.steps, { ctx, page: p, errors } = await page(browser, S0.clock, S0.state);
+    out.steps.msgs = {};
+    for (const [k, list] of S0.lectures) {
+      await p.evaluate(k => { location.hash = "#/lesson/" + k.replace(/\./g, "/"); }, k);
+      await p.waitForSelector('.pr-list[data-pr-k="' + k + '"]', { timeout: 15000 });
+      out.steps.msgs[k] = await p.evaluate(list => list.map(([act, id, v, on]) => {
+        const toast = document.getElementById("toast");
+        toast.textContent = "";
+        const box = () => document.querySelector('.pr-item[data-pr-id="' + id + '"]');
+        if (act === "check") { box().querySelector(".pr-in").value = v; box().querySelector('[data-pr="check"]').click(); }
+        else if (act === "mark") box().querySelector('[data-pr="mark"][data-m="' + v + '"]').click();
+        else if (act === "again") box().querySelector('[data-pr="again"]').click();
+        else if (act === "tick") { const c = box().querySelector('input[data-pr-tick="' + v + '"]'); c.checked = on; c.dispatchEvent(new Event("change", { bubbles: true })); }
+        return toast.textContent || null;
+      }), list);
+    }
+    const st = await p.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1")));
+    out.steps.practice = st.practice;
+    out.steps.review = Object.fromEntries(Object.entries(st.review || {}).filter(([k]) => k.startsWith("p:")));
+    out.errors = out.errors.concat(errors); await ctx.close();
   }
   return out;
 }
@@ -897,6 +1091,11 @@ function learnFixtures(plan) {
       { name: "nothing due, scheduled ahead", clock: "2026-10-01", state: many },
       { name: "nothing due, one scheduled", clock: "2026-11-10", state: future },
       { name: "no reviews at all", clock: "2026-11-10", state: st({ lessons: verifiedL([KS[0]]) }) },
+      // T-067 step 3: practice items due again are cards (with their place, "practice N"), beside a proven lecture;
+      // a ghost item and a ghost lecture never show; one not yet due is coming up.
+      { name: "practice items due again, a ghost item, a ghost lecture, one coming up", clock: "2026-11-10", state: st({ lessons: verifiedL([KS[0]]), review: {
+        [KS[0]]: rv(1, "2026-11-08", 0), "p:math110.0.0:p2": rv(0, "2026-11-09", 1), "p:math110.0.0:p3": rv(0, "2026-11-09", 2), "p:ai200.0.3:p2": rv(0, "2026-11-10", 0),
+        "p:math110.0.0:p9": rv(0, "2026-11-01", 0), "p:nope.0.0:p1": rv(0, "2026-11-01", 0), "p:math120.0.5:p2": rv(1, "2026-11-15", 0) } }) },
     ],
     grades: [],
   };
@@ -1425,6 +1624,10 @@ function diff(a, b, at, out, label) {
     // the Dart backlog owing a v1 lecture that v2 schedules again.
     "plan-v2-budget": ["lib/engine/engine.dart", "static const int V2_MATH = 90, V2_AI = 60;", "static const int V2_MATH = 90, V2_AI = 61;"],
     "plan-v2-backlog": ["lib/engine/engine.dart", "if (!schedDone(it) && !v2Rescheduled(iso, it.key)) owed.add(it.key);", "if (!schedDone(it)) owed.add(it.key);"],
+    // T-067 step 3 (Flutter): the Dart payload drops practice (what a Flutter push did before this port), and the
+    // practice merge takes the OLDER `at`.
+    "practice-payload-drop": ["lib/engine/merge.dart", "  if (S['practice'] is Map && (S['practice'] as Map).isNotEmpty) state['practice'] = S['practice'];\n", ""],
+    "practice-merge-older": ["lib/engine/merge.dart", "_s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) > 0", "_s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) < 0"],
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1462,7 +1665,13 @@ function diff(a, b, at, out, label) {
       D.COURSES.forEach(c => { flat[c.id] = []; (c.units || []).forEach((u, ui) => u.lessons.forEach((_, li) => { flat[c.id].push(c.id + "." + ui + "." + li); keys.push(c.id + "." + ui + "." + li); })); });
       const dayKeys = Array.from({ length: 14 }, (_, i) => T.scheduledFor(T.dateForStudy(i)).filter(it => !it.pseudo).map(it => it.cid + "." + it.ui + "." + it.li));
       const rev = [null].concat(Array.from({ length: 7 }, (_, i) => { const w = T.revisionWeek(i + 1); return { from: w.from, to: w.to, sun: w.sun }; }));
-      return { start: D.START_DATE, end: T.dateForStudy(1093), d40: T.dateForStudy(39), d300: T.dateForStudy(300), d500: T.dateForStudy(500), flat, keys, dayKeys, rev };
+      // T-067 step 3: the first two study days whose plan has lectures with practice items (and those lectures).
+      const prDays = [];
+      for (let i = 0; i < 400 && prDays.length < 2; i++) {
+        const d = T.dateForStudy(i), ks = T.scheduledFor(d).filter(it => !it.pseudo).map(it => it.cid + "." + it.ui + "." + it.li).filter(k => (D.PRACTICE || {})[k]);
+        if (ks.length) prDays.push({ d, keys: ks });
+      }
+      return { start: D.START_DATE, end: T.dateForStudy(1093), d40: T.dateForStudy(39), d300: T.dateForStudy(300), d500: T.dateForStudy(500), flat, keys, dayKeys, rev, prDays };
     });
     await pre.ctx.close();
     const LAST = addDays(plan.end, 7);
@@ -1482,6 +1691,7 @@ function diff(a, b, at, out, label) {
     fx.learn = learnFixtures(plan);
     fx.pages = pagesFixtures(plan);
     fx.publish = publishFixture(plan);
+    fx.lpr = lprFixtures(plan);
     fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -1619,6 +1829,56 @@ function diff(a, b, at, out, label) {
         m["lessons: quiz: the earlier pass, the better first-try sitting"].state.lessons.L.quiz.passedAt === "2026-10-25" &&
         m["two devices that diverge"].changed > 20,
         "diverge: " + m["two devices that diverge"].changed + " changes");
+      // T-067 step 3: the practice merge and payload reach their rules (the parity above holds Dart to them).
+      const pa = n => m["practice: " + n], ans = (x, k, id) => (((x.state.practice || {})[k] || {})[id] || {}).answer;
+      check("the practice merge fixtures reach the rules: the newer `at` wins, the older and a tie keep mine, one side only is kept, a missing `at` never wins, non-objects are skipped",
+        ans(pa("the newer remote item wins"), "math110.0.0", "p1") === "theirs" && pa("the newer remote item wins").changed === 1 &&
+        ans(pa("the older remote item is ignored"), "math110.0.0", "p1") === "mine" && pa("the older remote item is ignored").changed === 0 &&
+        ans(pa("a tie keeps mine"), "math110.0.0", "p1") === "mine" && ans(pa("seconds apart on one day"), "math110.0.0", "p1") === "theirs" &&
+        ans(pa("remote only: a new lecture and a new item"), "ai200.0.0", "p1") === "theirs ai" && ans(pa("remote only: a new lecture and a new item"), "math110.0.0", "p1") === "mine" &&
+        ans(pa("a local item without `at` loses to any remote one with it"), "math110.0.0", "p1") === "theirs" &&
+        ans(pa("a remote item without `at` never beats a local one"), "math110.0.0", "p1") === "mine" &&
+        pa("a null, a string and a number in the remote are skipped").changed === 0 && pa("a whole device each way: three newer, two older, two new").changed === 5,
+        "a whole device: " + pa("a whole device each way: three newer, two older, two new").changed + " changes");
+      const prKeys = o => Object.keys((o || {}).state || {}).filter(k => k === "practice").join();
+      check("the payload carries practice for a device with answers and not for one without, and no payload holds an Anthropic key — app.js and Dart, " + fx.payload.length + " devices",
+        fx.payload.every(f => { const want = f.local.practice && Object.keys(f.local.practice).length ? "practice" : ""; return prKeys(jm.payload[f.name]) === want && prKeys(dart.payload && dart.payload[f.name]) === want; }) &&
+        fx.payload.some(f => f.local.practice && Object.keys(f.local.practice).length) && fx.payload.some(f => f.local.practice && !Object.keys(f.local.practice).length) &&
+        !/sk-ant|anthropic/i.test(JSON.stringify(jm.payload) + JSON.stringify(dart.payload || {})));
+    }
+
+    // 5b. lecture practice (T-067 step 3, Flutter): grading, the request, Today's practice, the week's copy, the handlers.
+    if (!process.env.VERIFY_ONLY) {
+      const tL = Date.now();
+      const jl = await runLprJS(browser, fx), dl = dart.lpr || {}, L = fx.lpr;
+      console.log("  practice:    " + L.num.length + " numeric items, " + L.outItems.length + " outputs, " + L.graded.length + " graded items, " + L.dash.length + " dashboards, " + Math.round((Date.now() - tL) / 1000) + "s");
+      check("the lecture-practice block ran in app.js without page errors", jl.errors.length === 0, jl.errors.slice(0, 3).join(" | "));
+      const one = (name, a, b) => { const out = []; diff(a, b, [], out, (at, i) => i); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      one("parity: numeric grading of every practice item — " + L.num.length + " items x " + L.num[0].given.length + " answers (its own answer, a decimal comma, inside and just outside its tolerance, noise)", jl.grade, dl.grade);
+      one("parity: outputOk — " + L.outItems.length + " printed values (the real items and edge cases) x " + L.printed.length + " answers", jl.output, dl.output);
+      one("parity: gradeRequest, byte for byte as JSON — " + L.graded.length + " written and worked items x " + L.answers.length + " answers", jl.request, dl.request);
+      one("parity: the request's headers (the stub key) and its constants (URL, model, POST, WRITE_MIN)", { h: jl.headers, c: jl.consts }, { h: dl.headers, c: dl.consts });
+      for (const f of L.dash) one("parity: Today's practice and the week's copy — " + f.name + " @ " + f.clock, jl.dash[f.name], dl.dash && dl.dash[f.name]);
+      one("parity: the lesson page's handlers (Check right / wrong / empty / too short, the three marks, Again, ticks) — the messages, S.practice and the review", jl.steps, dl.steps);
+      // The request is the one the brief names, and nothing more.
+      const rq = JSON.parse(Object.values(jl.request)[0][2]), content = JSON.parse(rq.messages[0].content);
+      check("the request: model claude-opus-5-5, fallbacks \"default\", a json_schema output format, one user message holding only question, key_points and answer; exactly five headers",
+        Object.keys(rq).join() === "model,max_tokens,system,messages,output_config,fallbacks" && rq.model === "claude-opus-5-5" && rq.fallbacks === "default" &&
+        rq.output_config.format.type === "json_schema" && rq.messages.length === 1 && Object.keys(content).join() === "question,key_points,answer" &&
+        Object.keys(jl.headers).sort().join() === "anthropic-beta,anthropic-dangerous-direct-browser-access,anthropic-version,content-type,x-api-key" &&
+        jl.headers["anthropic-version"] === "2026-10-21" && jl.headers["anthropic-beta"] === "server-side-fallback-2026-07-01" && jl.headers["anthropic-dangerous-direct-browser-access"] === "true" && jl.consts.post,
+        Object.keys(rq).join());
+      // Reach: the fixtures must hit what the plants and the rules break.
+      const D = Object.values(jl.dash), rows = [].concat(...D.filter(Boolean).map(d => d.rows));
+      check("the practice fixtures reach: every item right at its own answer and wrong outside its tolerance; an output right by text and by number; " +
+        "Today's practice with scheduled rows, due-again rows, a watched row, the week's copy and an empty dashboard; both refusals and the review",
+        jl.grade.every(r => r[0] === true && r[1] === true && r[4] === false && r[5] === false) &&
+        jl.output[0][0] === true && jl.output[0][1] === true && jl.output[0][4] === false && jl.output.some(r => r[5] === true) &&
+        rows.some(r => !/due again/.test(r[2])) && rows.some(r => / 2 due again/.test(r[2])) && rows.some(r => r[3] === true) &&
+        D.some(d => d && d.text && /self-marked undefined/.test(d.text) && /checked wrong/.test(d.text)) && D.some(d => d === null) && D.some(d => d && !d.rows.length && d.copy) &&
+        [].concat(...Object.values(jl.steps.msgs)).includes("Answer first.") && [].concat(...Object.values(jl.steps.msgs)).includes("At least 80 characters: a real attempt first.") &&
+        Object.keys(jl.steps.review).length >= 3,
+        rows.length + " rows; review keys " + Object.keys(jl.steps.review).join(", "));
     }
 
     // 6. monk: the prayer times, the day plan, the sums and the focus

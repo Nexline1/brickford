@@ -1,0 +1,1062 @@
+{
+ "math110.0.0": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Add $(2,-3)$ and $(-5,4)$. The second component of the sum is:",
+   "num": 1,
+   "expl": "Componentwise: $-3+4=1$. Tip to tail, you walk 3 down and then 4 up."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Compute $-2\\,(3,-1) + (1,5)$. The first component is:",
+   "num": -5,
+   "expl": "Scaling by $-2$ flips and doubles: $(-6,2)$. Then add $(1,5)$: $(-5,7)$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Walk $(4,1)$, then $(-2,3)$, then $(-1,-5)$, tip to tail. Where do you end up?",
+   "result": "$(1,-1)$",
+   "steps": [
+    "Add the first components: $4-2-1=1$.",
+    "Add the second components: $1+3-5=-1$.",
+    "You end at $(1,-1)$: the walk and the coordinate sums are the same fact."
+   ]
+  }
+ ],
+ "math110.0.1": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$(2,-1)$ and $(-6,3)$ span only a line. Find $k$ with $(-6,3) = k\\,(2,-1)$.",
+   "num": -3,
+   "expl": "$-6 = 2k$ and $3 = -k$ both give $k=-3$: one vector is a multiple of the other."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Write $(7,4) = a\\,(1,1) + b\\,(1,-1)$. What is $a$?",
+   "num": 5.5,
+   "expl": "$a+b=7$ and $a-b=4$. Add them: $2a=11$, so $a=5.5$ and $b=1.5$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Do $(1,3)$ and $(2,5)$ span the plane? Decide, and say why.",
+   "result": "Yes: neither is a multiple of the other, so together they reach every point.",
+   "steps": [
+    "If $(2,5)=k(1,3)$ then $k=2$ from the first component but $k=5/3$ from the second.",
+    "No single $k$ works, so the vectors are not collinear.",
+    "Two non-collinear vectors in the plane span all of $\\mathbb{R}^2$."
+   ]
+  }
+ ],
+ "math110.0.2": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Build the matrix of a $90°$ clockwise rotation from where $\\hat\\imath$ and $\\hat\\jmath$ land. Its top-right entry is:",
+   "num": 1,
+   "expl": "$\\hat\\imath \\to (0,-1)$ and $\\hat\\jmath \\to (1,0)$. As columns: $\\begin{pmatrix}0&1\\\\-1&0\\end{pmatrix}$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "A transformation sends $\\hat\\imath$ to $(2,1)$ and $\\hat\\jmath$ to $(-1,3)$. Where does $(3,2)$ land? Enter the second component.",
+   "num": 9,
+   "expl": "$3\\,(2,1) + 2\\,(-1,3) = (4,9)$: the same combination of where the basis vectors landed."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Reflect the plane across the line $y=x$. Read the matrix off where $\\hat\\imath$ and $\\hat\\jmath$ land.",
+   "result": "$\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}$",
+   "steps": [
+    "$\\hat\\imath=(1,0)$ reflects to $(0,1)$: that is the first column.",
+    "$\\hat\\jmath=(0,1)$ reflects to $(1,0)$: that is the second column.",
+    "So the matrix swaps the two coordinates of any vector."
+   ]
+  }
+ ],
+ "math110.0.3": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Rotate first with $R=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}$, then shear with $S=\\begin{pmatrix}1&1\\\\0&1\\end{pmatrix}$. The composite is $SR$. Its bottom-right entry is:",
+   "num": 0,
+   "expl": "$R$ sends $\\hat\\jmath$ to $(-1,0)$, and $S$ leaves $(-1,0)$ alone, so the second column of $SR$ is $(-1,0)$. Compare $RS$, whose bottom-right entry is 1: order matters."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Apply $M_1=\\begin{pmatrix}2&0\\\\0&1\\end{pmatrix}$ and then $M_2=\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$ to $(1,1)$. The first component of the result is:",
+   "num": 4,
+   "expl": "$M_1(1,1)=(2,1)$, then $M_2(2,1)=(2+2,\\,1)=(4,1)$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Track $\\hat\\imath$ and $\\hat\\jmath$ to find $AB$ for $A=\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$ and $B=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}$.",
+   "result": "$AB=\\begin{pmatrix}2&1\\\\1&0\\end{pmatrix}$",
+   "steps": [
+    "$B$ acts first. It sends $\\hat\\imath$ to $(0,1)$; then $A$ sends $(0,1)$ to $(2,1)$. First column $(2,1)$.",
+    "$B$ sends $\\hat\\jmath$ to $(1,0)$; then $A$ sends $(1,0)$ to $(1,0)$. Second column $(1,0)$."
+   ]
+  }
+ ],
+ "math110.0.4": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Rotate space $90°$ about the z-axis, counter-clockwise seen from above, so $\\hat\\imath$ lands on $(0,1,0)$. The first component of the second column (where $\\hat\\jmath$ lands) is:",
+   "num": -1,
+   "expl": "$\\hat\\jmath=(0,1,0)$ turns to $(-1,0,0)$, and $\\hat k$ does not move."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The matrix with columns $(1,0,2)$, $(0,1,0)$ and $(1,1,1)$ is applied to $(2,1,-1)$. The third component of the result is:",
+   "num": 3,
+   "expl": "$2\\,(1,0,2) + 1\\,(0,1,0) - 1\\,(1,1,1) = (1,0,3)$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Stretch space by 2 along x, leave y alone, and flip z. Write the matrix.",
+   "result": "$\\begin{pmatrix}2&0&0\\\\0&1&0\\\\0&0&-1\\end{pmatrix}$",
+   "steps": [
+    "$\\hat\\imath$ lands on $(2,0,0)$, $\\hat\\jmath$ on $(0,1,0)$, $\\hat k$ on $(0,0,-1)$.",
+    "Those three are the columns, so the matrix is diagonal."
+   ]
+  }
+ ],
+ "math110.0.5": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$\\det\\begin{pmatrix}4&0\\\\0&-3\\end{pmatrix}$ is:",
+   "num": -12,
+   "expl": "A 4-by-3 rectangle has area 12; the negative sign says space was flipped."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "$\\det\\begin{pmatrix}2&6\\\\1&3\\end{pmatrix}$ is:",
+   "num": 0,
+   "expl": "$2\\cdot3-6\\cdot1=0$: the second column is three times the first, so the square collapses onto a line."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "A transformation has determinant 5. What happens to a triangle of area 2? And with determinant $-5$?",
+   "result": "Area 10 both times; with $-5$ the triangle is also flipped over.",
+   "num": 10,
+   "steps": [
+    "Every area scales by $|\\det|$: $2\\times5=10$.",
+    "A negative determinant flips orientation but scales area by the same 5."
+   ]
+  }
+ ],
+ "math110.0.6": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "A $3\\times3$ matrix squashes all of space onto a line. Its rank is:",
+   "num": 1,
+   "expl": "Rank is the dimension of the output: a line is one-dimensional."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "A $4\\times6$ matrix has rank 2. The dimension of its null space is:",
+   "num": 4,
+   "expl": "Six input dimensions, two survive; the other $6-2=4$ are squashed to zero."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "$A=\\begin{pmatrix}1&2\\\\2&4\\end{pmatrix}$. Does $A\\vec x=(3,6)$ have solutions? Does $A\\vec x=(3,5)$?",
+   "result": "$(3,6)$: infinitely many. $(3,5)$: none.",
+   "steps": [
+    "$\\det A = 0$: the plane collapses onto the line through $(1,2)$.",
+    "$(3,6)=3\\,(1,2)$ lies on that line, so a whole line of inputs lands on it.",
+    "$(3,5)$ is not a multiple of $(1,2)$, so nothing lands there."
+   ]
+  }
+ ],
+ "math110.0.7": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "A matrix maps 5D space to 3D. How many rows does it have?",
+   "num": 3,
+   "expl": "Rows count the output's dimensions: each column is a 3D landing spot, one per input basis vector."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The $1\\times2$ matrix $\\begin{pmatrix}3&-2\\end{pmatrix}$ sends $(4,5)$ to:",
+   "num": 2,
+   "expl": "$4\\cdot3 + 5\\cdot(-2) = 2$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "A $3\\times2$ matrix has columns $(1,0,1)$ and $(0,1,1)$. Where does $(2,3)$ land, and what is the image of the whole plane?",
+   "result": "$(2,3,5)$; the image is a plane through the origin inside 3D.",
+   "steps": [
+    "$2\\,(1,0,1)+3\\,(0,1,1)=(2,3,5)$.",
+    "Two independent columns span a plane, so 2D goes to a tilted plane in 3D, never all of it."
+   ]
+  }
+ ],
+ "math110.0.8": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$(2,-1,3)\\cdot(4,5,-1)$ is:",
+   "num": 0,
+   "expl": "$8-5-3=0$: the two vectors are perpendicular."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "$\\vec v=(3,4)$ and $\\hat u=(0.6,\\,0.8)$, a unit vector. The length of the projection of $\\vec v$ onto $\\hat u$ is:",
+   "num": 5,
+   "expl": "$\\hat u$ has length 1, so the dot product is the projected length: $1.8+3.2=5$."
+  },
+  {
+   "id": "p3",
+   "type": "output",
+   "q": "In Python, write a function dot(v, w) that multiplies matching entries and adds them, then print dot([1, 2, 3], [4, -5, 6]). What does it print?",
+   "code": "def dot(v, w):\n    return sum(a * b for a, b in zip(v, w))\n\nprint(dot([1, 2, 3], [4, -5, 6]))\n",
+   "out": "12"
+  }
+ ],
+ "math110.0.9": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$\\vec v=(4,1)$ and $\\vec w=(-1,2)$. The 2D cross product $\\vec v\\times\\vec w$ is:",
+   "num": 9,
+   "expl": "$\\det\\begin{pmatrix}4&-1\\\\1&2\\end{pmatrix}=8+1=9$, positive because $\\vec w$ is counter-clockwise from $\\vec v$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The area of the parallelogram spanned by $(2,3)$ and $(5,1)$ is:",
+   "num": 13,
+   "expl": "$\\det = 2\\cdot1-5\\cdot3=-13$. Area is the absolute value."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Compute the 3D cross product $(1,2,0)\\times(0,1,3)$.",
+   "result": "$(6,-3,1)$",
+   "steps": [
+    "First: $2\\cdot3-0\\cdot1=6$.",
+    "Second: $0\\cdot0-1\\cdot3=-3$.",
+    "Third: $1\\cdot1-2\\cdot0=1$."
+   ]
+  }
+ ],
+ "math110.0.10": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Two perpendicular vectors of lengths 3 and 5 span a parallelogram. Its area, and so the length of their cross product, is:",
+   "num": 15,
+   "expl": "Perpendicular, so the area is base times height: $3\\times5$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "$\\vec v=(1,0,0)$ and $\\vec w=(0,2,0)$. The third component of $\\vec v\\times\\vec w$ is:",
+   "num": 2,
+   "expl": "$1\\cdot2-0\\cdot0=2$. The result $(0,0,2)$ is perpendicular to both, with length equal to the area 2."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Find the volume of the box spanned by $(1,0,0)$, $(1,2,0)$ and $(0,1,3)$ as a dot product with a cross product.",
+   "result": "6",
+   "num": 6,
+   "steps": [
+    "$(1,2,0)\\times(0,1,3)=(6,-3,1)$.",
+    "Dot with $(1,0,0)$: $6$.",
+    "That is $\\det$ of the three columns: base area times perpendicular height."
+   ]
+  }
+ ],
+ "math110.0.11": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$A=\\begin{pmatrix}2&1\\\\1&3\\end{pmatrix}$, $\\vec v=(7,11)$. Cramer's rule gives $x=$",
+   "num": 2,
+   "expl": "$\\det A=5$; put $\\vec v$ in column one: $\\det\\begin{pmatrix}7&1\\\\11&3\\end{pmatrix}=10$. So $x=10/5$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Same system. Cramer's rule gives $y=$",
+   "num": 3,
+   "expl": "Put $\\vec v$ in column two: $\\det\\begin{pmatrix}2&7\\\\1&11\\end{pmatrix}=15$, and $15/5=3$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Solve $4x-y=5$, $2x+3y=13$ by Cramer's rule.",
+   "result": "$x=2,\\ y=3$",
+   "steps": [
+    "$\\det\\begin{pmatrix}4&-1\\\\2&3\\end{pmatrix}=14$.",
+    "$x=\\det\\begin{pmatrix}5&-1\\\\13&3\\end{pmatrix}/14=28/14=2$.",
+    "$y=\\det\\begin{pmatrix}4&5\\\\2&13\\end{pmatrix}/14=42/14=3$."
+   ]
+  }
+ ],
+ "math110.0.12": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Her basis vectors are $(1,2)$ and $(3,-1)$ in our coordinates. The vector she calls $(2,1)$ has our second coordinate:",
+   "num": 3,
+   "expl": "$2\\,(1,2)+1\\,(3,-1)=(5,3)$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Same basis. Our vector $(7,0)$, in her coordinates, has first coordinate:",
+   "num": 1,
+   "expl": "Solve $a(1,2)+b(3,-1)=(7,0)$: $2a=b$, then $a+6a=7$, so $a=1$, $b=2$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Her basis is $(1,1)$ and $(-1,1)$. Translate our $90°$ rotation $M=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}$ into her language: compute $A^{-1}MA$.",
+   "result": "$\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}$, the same matrix",
+   "steps": [
+    "$A=\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}$, $MA=\\begin{pmatrix}-1&-1\\\\1&-1\\end{pmatrix}$.",
+    "$A^{-1}=\\tfrac12\\begin{pmatrix}1&1\\\\-1&1\\end{pmatrix}$, so $A^{-1}MA=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}$.",
+    "Her grid is ours rotated and scaled, and a rotation looks the same from a rotated grid."
+   ]
+  }
+ ],
+ "math110.0.13": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "The largest eigenvalue of $\\begin{pmatrix}5&2\\\\0&-1\\end{pmatrix}$ is:",
+   "num": 5,
+   "expl": "Triangular: the eigenvalues are the diagonal entries, 5 and $-1$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The smallest eigenvalue of $\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}$ is:",
+   "num": 2,
+   "expl": "$\\det(A-\\lambda I)=\\lambda^2-7\\lambda+10=(\\lambda-5)(\\lambda-2)$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Find an eigenvector of $\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}$ for $\\lambda=5$.",
+   "result": "$(1,1)$, or any multiple of it",
+   "steps": [
+    "$A-5I=\\begin{pmatrix}-1&1\\\\2&-2\\end{pmatrix}$.",
+    "The first row says $-x+y=0$, so $y=x$.",
+    "Check: $A(1,1)=(5,5)=5\\,(1,1)$."
+   ]
+  }
+ ],
+ "math110.0.14": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Use the mean and product trick on $\\begin{pmatrix}6&2\\\\2&3\\end{pmatrix}$. The larger eigenvalue is:",
+   "num": 7,
+   "expl": "$m=4.5$, $p=18-4=14$, so $\\lambda=4.5\\pm\\sqrt{20.25-14}=4.5\\pm2.5$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "For $\\begin{pmatrix}1&4\\\\2&-1\\end{pmatrix}$, the positive eigenvalue is:",
+   "num": 3,
+   "expl": "$m=0$ and $p=-1-8=-9$, so $\\lambda=\\pm\\sqrt{9}$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Find the eigenvalues of $\\begin{pmatrix}5&1\\\\2&4\\end{pmatrix}$ without writing the polynomial.",
+   "result": "6 and 3",
+   "steps": [
+    "Mean of the diagonal: $m=4.5$.",
+    "Product: $p=\\det=20-2=18$.",
+    "$\\lambda=4.5\\pm\\sqrt{20.25-18}=4.5\\pm1.5$."
+   ]
+  }
+ ],
+ "math110.0.15": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "In the basis $1, x, x^2, x^3$, differentiate $2x^3-x^2+7x$ by matrix. The coefficient of $x^2$ in the result is:",
+   "num": 6,
+   "expl": "Coordinates $(0,7,-1,2)$ go to $(7,-2,6,0)$, which reads $6x^2-2x+7$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The same matrix applied to $4x^3+3x^2$. The coefficient of $x$ in the result is:",
+   "num": 6,
+   "expl": "$12x^2+6x$: the $3x^2$ term becomes $6x$."
+  },
+  {
+   "id": "p3",
+   "type": "output",
+   "q": "Store $3x^3+5x^2-2x+8$ in Python as the list [8, -2, 5, 3], constant first. Build the derivative's list the way the matrix does: multiply each coefficient by its power and shift it down one place. Print the list. What does it print?",
+   "code": "p = [8, -2, 5, 3]\nd = [i * p[i] for i in range(1, len(p))]\nprint(d)\n",
+   "out": "[-2, 10, 9]"
+  }
+ ],
+ "math110.1.8": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$A=\\begin{pmatrix}1&2&0&1&1\\\\2&4&1&3&0\\\\3&6&1&4&1\\end{pmatrix}$. The dimension of its null space is:",
+   "num": 3,
+   "expl": "Row 3 is row 1 plus row 2, so the rank is 2, and $5-2=3$ free variables."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The columns $(1,0,1)$, $(0,1,1)$ and $(1,1,2)$ span a space of dimension:",
+   "num": 2,
+   "expl": "The third column is the sum of the first two; the first two are independent."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Are $(1,2,1)$, $(2,1,0)$ and $(0,3,2)$ independent? If not, find the combination that gives zero.",
+   "result": "Dependent: $2v_1 - v_2 - v_3 = \\vec 0$",
+   "steps": [
+    "Put them in the columns of a $3\\times3$ matrix and eliminate: a free variable appears.",
+    "$2\\,(1,2,1)-(2,1,0)=(0,3,2)$, which is $v_3$.",
+    "So $2v_1-v_2-v_3=\\vec 0$, a nonzero combination."
+   ]
+  }
+ ],
+ "math110.1.9": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "A $5\\times7$ matrix has rank 3. The dimension of its left null space is:",
+   "num": 2,
+   "expl": "$N(A^{T})$ lives in $\\mathbb{R}^m$ with dimension $m-r=5-3$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The same matrix. The dimension of its null space is:",
+   "num": 4,
+   "expl": "$N(A)$ lives in $\\mathbb{R}^n$ with dimension $n-r=7-3$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Inside the $3\\times3$ matrices, the upper triangular ones form a subspace $U$ and the symmetric ones a subspace $S$. What is the dimension of $U+S$?",
+   "result": "9: every $3\\times3$ matrix",
+   "num": 9,
+   "steps": [
+    "$\\dim U=6$ and $\\dim S=6$.",
+    "Their intersection is the diagonal matrices, dimension 3.",
+    "$\\dim(U+S)=6+6-3=9$, which is all of the $3\\times3$ matrices."
+   ]
+  }
+ ],
+ "math110.1.10": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$\\vec u=(1,2,3)$ and $\\vec v=(4,-1)$. The entry in row 3, column 1 of $\\vec u\\vec v^{T}$ is:",
+   "num": 12,
+   "expl": "Entry $(i,j)$ of $\\vec u\\vec v^{T}$ is $u_i v_j$: $3\\cdot4$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The vectors in $\\mathbb{R}^5$ whose five components sum to zero form a subspace of dimension:",
+   "num": 4,
+   "expl": "It is the null space of the $1\\times5$ matrix of ones, rank 1: $5-1=4$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Write $\\begin{pmatrix}2&4&6\\\\3&6&9\\end{pmatrix}$ as one column times one row.",
+   "result": "$\\begin{pmatrix}2\\\\3\\end{pmatrix}\\begin{pmatrix}1&2&3\\end{pmatrix}$",
+   "steps": [
+    "Every row is a multiple of $(1,2,3)$: row 1 is twice it, row 2 three times.",
+    "The multipliers $(2,3)$ form the column, so the matrix has rank one."
+   ]
+  }
+ ],
+ "math110.1.11": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "A connected graph has 6 nodes and 9 edges. The number of independent loops is:",
+   "num": 4,
+   "expl": "Euler: nodes $-$ edges $+$ loops $=1$, so loops $=9-6+1$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Its incidence matrix is $9\\times6$. Its rank is:",
+   "num": 5,
+   "expl": "The null space is the constant vectors (one dimension), so the rank is $6-1$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "A triangle with edges $1\\to2$, $2\\to3$ and $1\\to3$. Write its incidence matrix and a nonzero vector in its left null space.",
+   "result": "$A=\\begin{pmatrix}-1&1&0\\\\0&-1&1\\\\-1&0&1\\end{pmatrix}$, $\\vec y=(1,1,-1)$",
+   "steps": [
+    "Each row has $-1$ at the edge's start node and $+1$ at its end.",
+    "Go round the loop: edge 1, then edge 2, then edge 3 backwards: $\\vec y=(1,1,-1)$.",
+    "Check $A^{T}\\vec y=\\vec 0$: currents round a loop balance at every node."
+   ]
+  }
+ ],
+ "math110.1.12": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$U$ is $4\\times2$ with rank 2. The $8\\times4$ matrix $C=\\begin{pmatrix}U&U\\\\U&0\\end{pmatrix}$ has rank:",
+   "num": 4,
+   "expl": "Subtract the first block column from the second: $\\begin{pmatrix}U&0\\\\U&-U\\end{pmatrix}$. Each $U$ contributes its rank 2."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "A $3\\times5$ matrix has a 2-dimensional null space. Its rank is:",
+   "num": 3,
+   "expl": "$r=n-\\dim N(A)=5-2$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Can a $3\\times3$ matrix have its column space equal to its null space?",
+   "result": "No: it would need $r=3-r$, and 1.5 is not a rank.",
+   "steps": [
+    "$\\dim C(A)=r$ and $\\dim N(A)=3-r$.",
+    "Equal spaces need equal dimensions: $r=3-r$.",
+    "No whole number solves it. (For $2\\times2$ it can happen, with $r=1$.)"
+   ]
+  }
+ ],
+ "math110.1.13": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$A=\\begin{pmatrix}1&0\\\\1&1\\\\1&3\\end{pmatrix}$. The entry of $A^{T}A$ in row 2, column 2 is:",
+   "num": 10,
+   "expl": "Column 2 dotted with itself: $0+1+9$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The same $A$. $\\det(A^{T}A)$ is:",
+   "num": 14,
+   "expl": "$A^{T}A=\\begin{pmatrix}3&4\\\\4&10\\end{pmatrix}$, so $30-16=14$, nonzero because the columns are independent."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Find a basis for the vectors in $\\mathbb{R}^3$ orthogonal to the row space of $\\begin{pmatrix}1&2&-1\\end{pmatrix}$.",
+   "result": "$(-2,1,0)$ and $(1,0,1)$",
+   "steps": [
+    "Orthogonal to the row space is the null space: $x+2y-z=0$.",
+    "Two free variables, $y$ and $z$.",
+    "$y=1,z=0$ gives $(-2,1,0)$; $y=0,z=1$ gives $(1,0,1)$. Dimensions $1+2=3$."
+   ]
+  }
+ ],
+ "math120.0.0": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$A(x)$ is the area under $y=3x^{2}$ from 0 to $x$. The ratio $dA/dx$ at $x=2$ is:",
+   "num": 12,
+   "expl": "Nudging $x$ adds a thin sliver of height $3x^{2}$ and width $dx$, so $dA/dx=3\\cdot2^{2}$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Summing rings $2\\pi r\\,dr$ from $r=0$ to $r=3$ is the area under $y=2\\pi r$ from 0 to 3. That area, to two decimals, is:",
+   "num": 28.27,
+   "tol": 0.01,
+   "expl": "A triangle of base 3 and height $6\\pi$: $\\tfrac12\\cdot3\\cdot6\\pi=9\\pi$, the disc's area."
+  }
+ ],
+ "math120.0.1": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "For $s(t)=t^{2}$, the derivative at $t=4$ is:",
+   "num": 8,
+   "expl": "$\\frac{(4+dt)^{2}-16}{dt}=8+dt$, which approaches 8."
+  },
+  {
+   "id": "p2",
+   "type": "worked",
+   "q": "For $s(t)=t^{2}+t$, simplify $\\dfrac{s(3+dt)-s(3)}{dt}$ and say what it approaches.",
+   "result": "$7+dt$, which approaches 7",
+   "num": 7,
+   "steps": [
+    "$s(3+dt)=9+6\\,dt+dt^{2}+3+dt$ and $s(3)=12$.",
+    "The difference is $7\\,dt+dt^{2}$; divide by $dt$: $7+dt$.",
+    "As $dt$ shrinks the ratio approaches 7. That limit is the derivative."
+   ]
+  }
+ ],
+ "math120.0.2": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "By the power rule, the derivative of $x^{4}$ at $x=3$ is:",
+   "num": 108,
+   "expl": "$4x^{3}$ at 3: $4\\cdot27$. The cube's three faces become a hypercube's four."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The derivative of $\\cos\\theta$ at $\\theta=\\pi/2$ is:",
+   "num": -1,
+   "expl": "$\\frac{d}{d\\theta}\\cos\\theta=-\\sin\\theta$, and $\\sin(\\pi/2)=1$: at the top of the circle the x-coordinate falls fastest."
+  }
+ ],
+ "math120.0.3": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "By the chain rule, the derivative of $(3x+1)^{2}$ at $x=1$ is:",
+   "num": 24,
+   "expl": "Outer: $2(3x+1)$, which is 8 at $x=1$. Inner: 3. Multiply."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "By the product rule, the derivative of $x^{2}\\sin x$ at $x=\\pi$, to two decimals, is:",
+   "num": -9.87,
+   "tol": 0.01,
+   "expl": "$2x\\sin x+x^{2}\\cos x$ at $\\pi$: $0+\\pi^{2}(-1)$."
+  }
+ ],
+ "math120.0.4": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "The proportionality constant for base 16 divided by the constant for base 2 is:",
+   "num": 4,
+   "expl": "The constants are $\\ln 16$ and $\\ln 2$, and $16=2^{4}$."
+  }
+ ],
+ "math120.0.5": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "On the circle $x^{2}+y^{2}=13$, the slope $dy/dx$ at $(2,3)$, to three decimals, is:",
+   "num": -0.667,
+   "tol": 0.001,
+   "expl": "$2x\\,dx+2y\\,dy=0$ gives $dy/dx=-x/y=-2/3$."
+  },
+  {
+   "id": "p2",
+   "type": "worked",
+   "q": "On the curve $xy=6$, find $dy/dx$ at $(2,3)$ by differentiating implicitly.",
+   "result": "$-3/2$",
+   "num": -1.5,
+   "steps": [
+    "The product changes by $x\\,dy+y\\,dx$.",
+    "It must stay 6, so $x\\,dy+y\\,dx=0$ and $dy/dx=-y/x$.",
+    "At $(2,3)$: $-3/2$."
+   ]
+  }
+ ],
+ "math120.0.6": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$\\displaystyle\\lim_{x\\to3}\\frac{x^{2}-9}{x-3}$ equals:",
+   "num": 6,
+   "expl": "Both vanish at 3. Compare nudges: $2x\\,dx$ against $dx$, so $2\\cdot3$."
+  },
+  {
+   "id": "p2",
+   "type": "worked",
+   "q": "Find $\\displaystyle\\lim_{x\\to0}\\frac{\\sin(3x)}{x}$ by comparing how much the top and the bottom change.",
+   "result": "3",
+   "num": 3,
+   "steps": [
+    "Both are 0 at $x=0$.",
+    "The top changes by $3\\cos(0)\\,dx=3\\,dx$; the bottom by $dx$.",
+    "The $dx$ cancel: the limit is 3."
+   ]
+  }
+ ],
+ "math120.0.7": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "A car's velocity is $v(t)=t(10-t)$. The distance it travels between $t=0$ and $t=6$ is:",
+   "num": 108,
+   "expl": "An antiderivative is $5t^{2}-t^{3}/3$; at 6 it is $180-72$, at 0 it is 0."
+  },
+  {
+   "id": "p2",
+   "type": "worked",
+   "q": "$v(t)=6-2t$ for $t$ from 0 to 5. Find the displacement, and the distance actually travelled.",
+   "result": "Displacement 5; distance 13",
+   "num": 5,
+   "steps": [
+    "$\\int_0^5 (6-2t)\\,dt=[6t-t^{2}]_0^5=5$.",
+    "$v$ is negative after $t=3$: that area subtracts.",
+    "Distance adds both pieces: $9$ forward and $4$ back, so 13."
+   ]
+  }
+ ],
+ "math120.0.8": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "The average value of $\\sin x$ on $[0,\\pi]$, to three decimals, is:",
+   "num": 0.637,
+   "tol": 0.001,
+   "expl": "The area is 2 and the width is $\\pi$: $2/\\pi$, the slope of $-\\cos x$ between the endpoints."
+  }
+ ],
+ "math120.0.9": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "For $f(x)=x^{4}$, the second derivative at $x=2$ is:",
+   "num": 48,
+   "expl": "$f'=4x^{3}$, $f''=12x^{2}$, and $12\\cdot4=48$."
+  }
+ ],
+ "math120.0.10": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Using $e^{x}\\approx1+x+\\tfrac{x^{2}}{2}$, estimate $e^{0.2}$.",
+   "num": 1.22,
+   "tol": 0.001,
+   "expl": "$1+0.2+0.02$. The true value is $1.2214\\ldots$; the next term, $x^{3}/6$, is the gap."
+  },
+  {
+   "id": "p2",
+   "type": "worked",
+   "q": "Write the quadratic Taylor polynomial of $\\sqrt{x}$ at $a=4$ and use it to estimate $\\sqrt{4.1}$.",
+   "result": "$2+\\tfrac{x-4}{4}-\\tfrac{(x-4)^{2}}{64}$; $\\sqrt{4.1}\\approx2.0248$",
+   "num": 2.0248,
+   "tol": 0.0001,
+   "steps": [
+    "$f(4)=2$, $f'(x)=\\tfrac{1}{2\\sqrt x}$ so $f'(4)=\\tfrac14$.",
+    "$f''(x)=-\\tfrac{1}{4x^{3/2}}$ so $f''(4)=-\\tfrac{1}{32}$; divide by $2!$: $-\\tfrac{1}{64}$.",
+    "At $x=4.1$: $2+0.025-0.00015625=2.02484$."
+   ]
+  }
+ ],
+ "math120.0.11": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Read as a transformation of the number line, $x^{3}$ stretches a small cluster of points near the input 2 by a factor of:",
+   "num": 12,
+   "expl": "The local stretch factor is the derivative $3x^{2}$ at 2."
+  }
+ ],
+ "math120.1.7": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Use the linear approximation of $\\sqrt{1+x}$ near 0 to estimate $\\sqrt{1.06}$.",
+   "num": 1.03,
+   "tol": 0.0005,
+   "expl": "$\\sqrt{1+x}\\approx1+\\tfrac{x}{2}$, so $1+0.03$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The quadratic approximation of $e^{0.1}$, to four decimals, is:",
+   "num": 1.105,
+   "tol": 0.0005,
+   "expl": "$1+x+\\tfrac{x^{2}}{2}=1+0.1+0.005$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Find the coefficient of $x$ in the linear approximation of $e^{2x}(1+x)^{3}$ near 0.",
+   "result": "5",
+   "num": 5,
+   "steps": [
+    "$e^{2x}\\approx1+2x$ and $(1+x)^{3}\\approx1+3x$.",
+    "Multiply and drop $x^{2}$: $1+5x$."
+   ]
+  }
+ ],
+ "math120.1.8": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$f(x)=x^{3}-12x$. The value of $f$ at its positive critical point is:",
+   "num": -16,
+   "expl": "$f'=3x^{2}-12=0$ at $x=2$; $f(2)=8-24$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "Where does $f(x)=x^{3}-6x^{2}+1$ change from concave down to concave up? Enter $x$.",
+   "num": 2,
+   "expl": "$f''=6x-12$ is negative before 2 and positive after."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Sketch $f(x)=\\dfrac{x}{x^{2}+1}$: critical points with their values, and both ends.",
+   "result": "Max $\\tfrac12$ at $x=1$, min $-\\tfrac12$ at $x=-1$; both ends tend to 0",
+   "num": 0.5,
+   "steps": [
+    "$f'=\\dfrac{1-x^{2}}{(x^{2}+1)^{2}}$: zero at $x=\\pm1$.",
+    "$f(1)=\\tfrac12$, $f(-1)=-\\tfrac12$; $f$ is odd.",
+    "For large $|x|$, $f\\approx1/x\\to0$; so $x=1$ is the maximum and $x=-1$ the minimum."
+   ]
+  }
+ ],
+ "math120.1.9": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "The smallest value of $x+\\dfrac{4}{x}$ for $x>0$ is:",
+   "num": 4,
+   "expl": "$1-4/x^{2}=0$ at $x=2$; both ends go to infinity, so $2+2$ is the minimum."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "The largest value of $x\\,e^{-x}$ for $x\\ge0$, to three decimals, is:",
+   "num": 0.368,
+   "tol": 0.001,
+   "expl": "$f'=(1-x)e^{-x}$ is zero at $x=1$; $f(0)=0$ and $f\\to0$ at infinity, so $1/e$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Find the largest value of $f(x)=x^{3}-3x$ on $[0,3]$. Check the critical points and the ends.",
+   "result": "18, at the endpoint $x=3$",
+   "num": 18,
+   "steps": [
+    "$f'=3x^{2}-3=0$ at $x=1$ inside the interval: $f(1)=-2$.",
+    "Ends: $f(0)=0$ and $f(3)=27-9=18$.",
+    "The maximum sits at an endpoint, where $f'\\neq0$."
+   ]
+  }
+ ],
+ "math120.1.10": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "An open box with a square base and volume 32 uses the least material. Its height is:",
+   "num": 2,
+   "expl": "Area $x^{2}+4xy$ with $y=32/x^{2}$: $x^{2}+128/x$. Then $2x=128/x^{2}$ gives $x=4$, $y=2$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "A wire of length 12 is cut in two and each piece bent into a square. The least total area enclosed is:",
+   "num": 4.5,
+   "expl": "$(x/4)^{2}+((12-x)/4)^{2}$ is least at $x=6$: two squares of side 1.5. The ends, one square, give 9."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "A 10 ft ladder leans on a wall. Its foot slides away at 2 ft/s. How fast is the top sliding down when the foot is 6 ft out?",
+   "result": "1.5 ft/s",
+   "num": 1.5,
+   "steps": [
+    "$x^{2}+y^{2}=100$; differentiate in time first: $2x\\,x'+2y\\,y'=0$.",
+    "Now plug in: $x=6$, $y=8$, $x'=2$.",
+    "$y'=-\\tfrac{6\\cdot2}{8}=-1.5$: falling at 1.5 ft/s."
+   ]
+  }
+ ],
+ "math120.1.11": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "Newton's method for $\\sqrt{10}$ from $x_0=3$. To four decimals, $x_1$ is:",
+   "num": 3.1667,
+   "tol": 0.0001,
+   "expl": "Average the guess with $10/\\text{guess}$: $\\tfrac12(3+10/3)=19/6$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "A conical tank, point down, is 8 ft deep with radius 4 at the top. Water flows in at 3 ft³ per minute. $dh/dt$ at depth 6 ft, in ft per minute to three decimals, is:",
+   "num": 0.106,
+   "tol": 0.001,
+   "expl": "$r=h/2$, so $V=\\pi h^{3}/12$ and $V'=\\tfrac{\\pi h^{2}}{4}h'$. Then $h'=\\tfrac{4\\cdot3}{36\\pi}=\\tfrac{1}{3\\pi}$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Run two Newton steps on $f(x)=x^{3}-2$ from $x_0=1$.",
+   "result": "$x_1=4/3$, $x_2\\approx1.2639$",
+   "num": 1.2639,
+   "tol": 0.0001,
+   "steps": [
+    "$x_{n+1}=x_n-\\dfrac{x_n^{3}-2}{3x_n^{2}}$.",
+    "$x_1=1-\\tfrac{-1}{3}=\\tfrac43$.",
+    "$x_2=\\tfrac43-\\dfrac{64/27-2}{16/3}=1.26389$. The cube root of 2 is $1.25992$."
+   ]
+  }
+ ],
+ "math120.1.12": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "For $f(x)=x^{3}$ on $[0,3]$, the value of $c$ the Mean Value Theorem promises, to three decimals, is:",
+   "num": 1.732,
+   "tol": 0.001,
+   "expl": "The average slope is $27/3=9$; $3c^{2}=9$ gives $c=\\sqrt3$, inside $(0,3)$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "$f'(x)\\ge2$ on $[1,4]$ and $f(1)=5$. The least possible value of $f(4)$ is:",
+   "num": 11,
+   "expl": "$f(4)-f(1)=f'(c)\\cdot3\\ge6$."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "Prove $e^{x}\\ge1+x$ for $x\\ge0$, the three-line way.",
+   "result": "$g(x)=e^{x}-1-x$ has $g(0)=0$ and $g'(x)=e^{x}-1\\ge0$, so $g\\ge0$.",
+   "steps": [
+    "Form the difference: $g(x)=e^{x}-1-x$.",
+    "Check the start: $g(0)=0$.",
+    "$g'(x)=e^{x}-1\\ge0$ for $x\\ge0$, and by the Mean Value Theorem $g$ cannot decrease."
+   ]
+  }
+ ],
+ "math130.0.10": [
+  {
+   "id": "p1",
+   "type": "numeric",
+   "q": "$X\\sim\\mathrm{Pois}(2)$. $P(X=0)$, to four decimals, is:",
+   "num": 0.1353,
+   "tol": 0.0001,
+   "expl": "$P(X=0)=e^{-\\lambda}\\lambda^{0}/0!=e^{-2}$."
+  },
+  {
+   "id": "p2",
+   "type": "numeric",
+   "q": "By the Poisson approximation, the probability that some two of 30 people share a birthday, to three decimals, is:",
+   "num": 0.696,
+   "tol": 0.001,
+   "expl": "$\\lambda=\\binom{30}{2}/365=435/365$ pairs expected. $P(\\text{none})\\approx e^{-\\lambda}$; complement it."
+  },
+  {
+   "id": "p3",
+   "type": "worked",
+   "q": "$X\\sim\\mathrm{Bin}(500,\\,0.004)$. Approximate $P(X\\ge1)$ with a Poisson, then compute it exactly.",
+   "result": "Poisson $1-e^{-2}\\approx0.8647$; exact $1-0.996^{500}\\approx0.8652$",
+   "num": 0.865,
+   "tol": 0.001,
+   "steps": [
+    "$\\lambda=np=500\\cdot0.004=2$.",
+    "Poisson: $P(X\\ge1)=1-e^{-2}=0.8647$.",
+    "Exact: $1-0.996^{500}=0.8652$. Many trials, each unlikely: the two agree to three places."
+   ]
+  }
+ ],
+ "ai200.0.0": [
+  {
+   "id": "p1",
+   "type": "write",
+   "q": "In the digit-recognising network, what does one neuron in a hidden layer compute? Say what its weights do and what its bias does.",
+   "points": [
+    "A neuron holds one number, its activation, between 0 and 1.",
+    "It takes a weighted sum of every activation in the previous layer.",
+    "The weights are the pattern it looks for: positive where it wants ink, negative where it wants none.",
+    "The bias shifts the sum: how high it must be before the neuron lights up.",
+    "A squashing function (sigmoid, or ReLU) turns the sum into the activation.",
+    "784, 16, 16, 10 neurons give about 13,000 weights and biases, and learning means choosing them."
+   ],
+   "model": "Each neuron holds an activation, a number between 0 and 1. It computes a weighted sum of all the activations in the layer before it, adds a bias, and squashes the result with a sigmoid (or ReLU). The weights act as a pattern: large positive weights on the pixels where it wants ink and negative ones around them, so the sum is large only when that pattern is present. The bias sets the threshold, how large the sum must be before the neuron is meaningfully active. With 784 inputs, two hidden layers of 16 and 10 outputs, the network has about 13,002 such weights and biases, and learning means finding good values for all of them."
+  }
+ ],
+ "ai200.0.1": [
+  {
+   "id": "p1",
+   "type": "write",
+   "q": "What does the cost function measure, and how does gradient descent use it to make the network better?",
+   "points": [
+    "The cost compares the network's output with the desired output: the sum of squared differences.",
+    "It is averaged over all the training examples.",
+    "It is one number that depends on all 13,000 weights and biases.",
+    "The negative gradient points in the direction that lowers the cost fastest.",
+    "Each step moves every weight and bias a little in that direction, proportional to the slope; then repeat.",
+    "The size of each gradient component says how sensitive the cost is to that parameter."
+   ],
+   "model": "For one training image the cost adds up the squared differences between the ten output activations and the desired output (1 for the right digit, 0 for the rest); the cost of the network is the average of that over all the training examples. Seen this way the cost is a single function of all 13,002 weights and biases. Its gradient says which way to move them to increase the cost fastest, so gradient descent steps the other way: it computes the negative gradient, nudges every parameter by a small multiple of its component, and repeats until the cost settles in a local minimum. Each component's size also tells you how much that parameter matters right now."
+  }
+ ],
+ "ai200.0.2": [
+  {
+   "id": "p1",
+   "type": "write",
+   "q": "Without formulas: how does one training example 'want' to change the weights and biases, and how are the wishes of many examples combined?",
+   "points": [
+    "The example wants the correct output neuron raised and the others lowered, in proportion to how far off each is.",
+    "An activation can be raised three ways: its bias, its weights, or the activations feeding it.",
+    "Weights from brighter neurons matter more: change those in proportion to their activation.",
+    "The changes wanted of the previous layer are passed back and become that layer's targets: backward, layer by layer.",
+    "Average the nudges over all examples, in practice over random mini-batches (stochastic gradient descent)."
+   ],
+   "model": "Take one image of a 2. It wants the output neuron for 2 pushed up and every other output pushed down, each by an amount proportional to how wrong it is. Any one activation can be raised by increasing its bias, by increasing the weights from the previous layer (most usefully those from neurons that are already bright, so 'neurons that fire together wire together'), or by changing the previous layer's activations in the direction of the weights. That last wish cannot be granted directly, so the desired changes are added up over all the outputs and handed back to the layer before, which repeats the process: this backwards pass is backpropagation. Doing it for every training example and averaging gives the negative gradient; in practice it is averaged over small random mini-batches, which is stochastic gradient descent."
+  }
+ ],
+ "ai200.0.3": [
+  {
+   "id": "p1",
+   "type": "write",
+   "q": "With one neuron per layer, write the chain rule for $\\partial C/\\partial w^{(L)}$ and explain what each factor means.",
+   "points": [
+    "The cost for one example is $C=(a^{(L)}-y)^{2}$.",
+    "$z^{(L)}=w^{(L)}a^{(L-1)}+b^{(L)}$ and $a^{(L)}=\\sigma(z^{(L)})$.",
+    "$\\partial C/\\partial w^{(L)}=a^{(L-1)}\\,\\sigma'(z^{(L)})\\,2(a^{(L)}-y)$.",
+    "The factor $a^{(L-1)}$: a weight matters more when the neuron feeding it is active.",
+    "For the bias, $\\partial z/\\partial b=1$; for the previous activation, $\\partial z/\\partial a^{(L-1)}=w^{(L)}$, which carries the chain one layer back.",
+    "With many neurons per layer the same rule holds with indices, summing over every path through the next layer."
+   ],
+   "model": "Write the last step as a chain: $z^{(L)}=w^{(L)}a^{(L-1)}+b^{(L)}$, $a^{(L)}=\\sigma(z^{(L)})$, $C=(a^{(L)}-y)^{2}$. A nudge to $w^{(L)}$ nudges $z$, which nudges $a$, which nudges $C$, so $\\partial C/\\partial w^{(L)}=\\frac{\\partial z}{\\partial w}\\frac{\\partial a}{\\partial z}\\frac{\\partial C}{\\partial a}=a^{(L-1)}\\,\\sigma'(z^{(L)})\\,2(a^{(L)}-y)$. The last factor is how wrong the output is, the middle one how responsive the neuron is, and the first how active the input neuron was. The bias has $\\partial z/\\partial b=1$. Replacing $\\partial z/\\partial w$ by $\\partial z/\\partial a^{(L-1)}=w^{(L)}$ gives the sensitivity to the previous activation, and repeating the argument one layer back is backpropagation. With many neurons the formulas gain indices, and a neuron's sensitivity sums over all the paths through the next layer."
+  },
+  {
+   "id": "p2",
+   "type": "write",
+   "q": "Explain, end to end, how a neural network learns: forward pass, loss, gradient, backpropagation, update.",
+   "points": [
+    "Forward pass: the input flows through the layers, each a weighted sum, a bias and a nonlinearity, to an output.",
+    "Loss: one number that compares the output with the target and says how wrong the network is.",
+    "Gradient: the partial derivative of the loss with respect to every weight and bias.",
+    "Backpropagation computes it with the chain rule, from the output back to the input, reusing each layer's result.",
+    "Update: every parameter takes a small step against its gradient, scaled by the learning rate.",
+    "Repeat over many mini-batches until the loss stops falling, and check on examples the network never saw."
+   ],
+   "model": "Training repeats one loop. In the forward pass an input (an image, a sentence) goes through the network layer by layer; each layer takes weighted sums of the previous activations, adds biases and applies a nonlinearity, and the last layer produces a prediction. The loss turns the gap between that prediction and the right answer into a single number, for example squared error or cross-entropy. The gradient is the list of partial derivatives of that loss with respect to every weight and bias: how much the loss would change if each one moved a little. Backpropagation computes all of them at once by applying the chain rule from the output backwards, so each layer's sensitivities are built from the next layer's instead of being recomputed. The update moves every parameter a small step in the direction that lowers the loss, by the learning rate times its gradient. Doing this over many random mini-batches drives the loss down; the network has learned when it also does well on examples it was never trained on."
+  }
+ ]
+}

@@ -3,16 +3,19 @@
 // lectures as dark cards with a glyph each. Numbers, glyphs and the lecture
 // titles; nothing else to read.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../engine/dates.dart';
 import '../../engine/engine.dart';
+import '../../engine/lecture_practice.dart';
 import '../../engine/record.dart';
 import '../../state/app_model.dart';
 import '../../theme/theme.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
 import '../../widgets/pill_button.dart';
+import '../../widgets/record_widgets.dart' show toast;
 import '../../widgets/sheet_scaffold.dart';
 import '../calendar/calendar_screen.dart';
 import '../learn/recall_screen.dart';
@@ -266,9 +269,54 @@ class _HomeScreenState extends State<HomeScreen> {
               semanticLabel: rest ? 'rest day' : 'nothing scheduled',
             ),
           ),
+        // T-067 step 3: the problems of today's lectures, and practice due again (app.js practiceDashHTML).
+        ...practiceToday(context, m),
       ],
     );
   }
+}
+
+/// "Today's practice": the lectures scheduled today that have practice items and the ones with items due again,
+/// then "Copy this week's answers" when there are any. Nothing when there is neither.
+List<Widget> practiceToday(BuildContext context, AppModel m) {
+  final d = m.engine.practiceDash();
+  if (d == null) return const [];
+  return [
+    SheetLabel(Icons.edit_outlined, 'Today\u2019s practice · ${d.items} items'),
+    for (final r in d.rows)
+      ItemBlock(
+        key: ValueKey('home-practice-${r.k}'),
+        id: 'home-practice-${r.k}',
+        leading: LeadTile(icon: r.seen ? Icons.check : Icons.edit_outlined, fg: r.seen ? Tokens.done : Tokens.ink),
+        title: r.title,
+        subtitle: r.sub,
+        onTap: () {
+          final p = r.k.split('.');
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => LessonScreen(cid: p[0], ui: int.parse(p[1]), li: int.parse(p[2]))));
+        },
+      ),
+    if (d.week > 0)
+      ItemBlock(
+        key: const ValueKey('home-practice-copy'),
+        id: 'home-practice-copy',
+        leading: const LeadTile(icon: Icons.content_copy),
+        title: 'Copy this week\u2019s answers',
+        subtitle: d.weekSub,
+        subtitleLines: 2,
+        onTap: () async {
+          final w = m.engine.weekText();
+          try {
+            await Clipboard.setData(ClipboardData(text: w.text));
+            if (context.mounted) toast(context, 'Copied ${w.n} answer${w.n == 1 ? '' : 's'}. Paste them into a chat.');
+          } catch (_) {
+            // As the web does when the clipboard refuses: the text itself, to select and copy.
+            if (!context.mounted) return;
+            toast(context, 'Select and copy the text below.');
+            showListSheet(context, title: 'This week\u2019s answers', rows: [SelectableText(w.text, key: const ValueKey('home-practice-week-text'), style: body(13.5, height: 1.45))]);
+          }
+        },
+      ),
+  ];
 }
 
 /// The next-up card: a soft accent-washed gradient, the one action's title,

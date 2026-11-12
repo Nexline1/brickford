@@ -1,0 +1,27 @@
+  ok    Home has Today's practice with MATH 110's first lecture
+  shot  loop/specs/T-067-plan-v2/verification-practice-app/shots/practice-1-home-today.png
+  ok    the Today's practice row is at least 44x44 — 335x64
+  ok    the lecture's Practice block is there
+  shot  loop/specs/T-067-plan-v2/verification-practice-app/shots/practice-2-not-tried.png
+  ok    nothing is revealed before an attempt: no mark buttons
+  ok    Check is at least 44x44 — 94x44
+  ok    after the attempt the three marks are there
+  shot  loop/specs/T-067-plan-v2/verification-practice-app/shots/practice-3-worked-revealed.png
+  ok    the ok mark is at least 44x44 — 92x44
+  ok    the partly mark is at least 44x44 — 99x44
+  ok    the missed mark is at least 44x44 — 99x44
+  ok    the answer is stored (no mark yet)
+  ok    Home has AI 200's first lecture under Today's practice
+  ok    the written item's field is there
+  ok    under 80 characters the key points stay hidden
+  ok    the Grade button is there after 80 characters
+  ok    Grade with Claude is at least 44x44 — 307x44
+  ok    one request reached the stub, with the stub key as its header — 1 requests
+  ok    the request's body keys are the six the web sends
+  ok    the answer's grade is shown
+  shot  loop/specs/T-067-plan-v2/verification-practice-app/shots/practice-4-write-graded.png
+  ok    the grade is stored, the key is not
+  ok    no page or console errors
+
+all checks passed
+exit 0

@@ -1,0 +1,193 @@
+{
+ "cutover": "2026-11-22",
+ "cutIdx": 31,
+ "day1094": "2030-04-14",
+ "oldLast": "2028-06-11",
+ "oldLastNoSpch": "2028-06-11",
+ "coreLast": "2027-09-02",
+ "plusLast": "2027-12-05",
+ "karpathyDone": "2027-03-07",
+ "bridgeDone": "2027-01-17",
+ "mathFoundationDone": "2027-04-25",
+ "gatesA": [
+  "2026-12-27",
+  "2027-05-18",
+  "2027-12-16",
+  "2028-07-16",
+  "2030-04-15"
+ ],
+ "gatesBcore": [
+  "2026-12-27",
+  "2027-05-02",
+  "2027-08-25",
+  "2028-04-27",
+  "2030-01-25"
+ ],
+ "gatesBplus": [
+  "2026-12-27",
+  "2027-05-02",
+  "2027-08-25",
+  "2028-04-27",
+  "2030-01-25"
+ ],
+ "counts": {
+  "math110": {
+   "code": "MATH 110",
+   "core": 51,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1850,
+   "coreMin": 1850,
+   "prov": false
+  },
+  "math120": {
+   "code": "MATH 120",
+   "core": 53,
+   "optional": 1,
+   "duplicate": 0,
+   "min": 1981,
+   "coreMin": 1930,
+   "prov": false
+  },
+  "math130": {
+   "code": "MATH 130",
+   "core": 33,
+   "optional": 1,
+   "duplicate": 0,
+   "min": 1609,
+   "coreMin": 1571,
+   "prov": false
+  },
+  "ai200": {
+   "code": "AI 200",
+   "core": 19,
+   "optional": 1,
+   "duplicate": 0,
+   "min": 2023,
+   "coreMin": 1963,
+   "prov": false
+  },
+  "ai210": {
+   "code": "AI 210",
+   "core": 6,
+   "optional": 2,
+   "duplicate": 0,
+   "min": 755,
+   "coreMin": 545,
+   "prov": false
+  },
+  "phys100": {
+   "code": "PHYS 100",
+   "core": 32,
+   "optional": 5,
+   "duplicate": 0,
+   "min": 1782,
+   "coreMin": 1527,
+   "prov": false
+  },
+  "math210": {
+   "code": "MATH 210",
+   "core": 38,
+   "optional": 0,
+   "duplicate": 1,
+   "min": 2125,
+   "coreMin": 2060,
+   "prov": false
+  },
+  "ai300": {
+   "code": "AI 300",
+   "core": 16,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 354,
+   "coreMin": 156,
+   "prov": false
+  },
+  "sys250": {
+   "code": "SYS 250",
+   "core": 36,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 2220,
+   "coreMin": 2220,
+   "prov": false
+  },
+  "ai310": {
+   "code": "AI 310",
+   "core": 23,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1338,
+   "coreMin": 1338,
+   "prov": false
+  },
+  "res400": {
+   "code": "RES 400",
+   "core": 18,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1028,
+   "coreMin": 1028,
+   "prov": false
+  },
+  "spch100": {
+   "code": "SPCH 100",
+   "core": 170,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 2786,
+   "coreMin": 2786,
+   "prov": false
+  },
+  "cs100": {
+   "code": "CS 100",
+   "core": 16,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1232,
+   "coreMin": 1232,
+   "prov": true,
+   "add": false
+  },
+  "math140": {
+   "code": "MATH 140",
+   "core": 35,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1750,
+   "coreMin": 1750,
+   "prov": true,
+   "add": true
+  },
+  "math150": {
+   "code": "MATH 150",
+   "core": 33,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1650,
+   "coreMin": 1650,
+   "prov": true,
+   "add": true
+  },
+  "phys200": {
+   "code": "PHYS 200",
+   "core": 36,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1800,
+   "coreMin": 1800,
+   "prov": true,
+   "add": true
+  },
+  "phys300": {
+   "code": "PHYS 300",
+   "core": 10,
+   "optional": 0,
+   "duplicate": 0,
+   "min": 1050,
+   "coreMin": 1050,
+   "prov": true,
+   "add": true
+  }
+ }
+}

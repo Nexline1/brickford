@@ -25,7 +25,8 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-ai210.js",
  "platform/data/summaries-ai310.js",
  "platform/data/summaries-res400.js",
- "platform/data/storytelling.js"]
+ "platform/data/storytelling.js",
+ "platform/data/practice-math110.js", "platform/data/practice-math120.js", "platform/data/practice-math130.js", "platform/data/practice-ai200.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
 const D = ctx.DAR;
@@ -3159,6 +3160,227 @@ Object.keys(lessonByKey).filter(k => !/^spch/.test(k)).forEach(k =>
   ok(k in curLedger, "T-067 " + k + ": is pinned in data/curriculum-ledger.json (append one line for a new lesson)"));
 console.log("T-067 Plan v2: " + Object.keys(PRE).length + " lectures in the map, " + preEdges + " edges, " + (preCycle ? "a CYCLE (" + preCycle + ")" : "no cycle") + "; " +
   Object.keys(curLedger).length + " keys in the curriculum ledger; " + Object.keys(lessonByKey).filter(k => lessonByKey[k].optional).length + " optional");
+
+// ---------- T-067 step 3: practice items (DAR.PRACTICE) ----------
+// docs/CONTENT-STANDARD.md, "Practice items". Every way an item can be wrong
+// fails quietly in the browser, as the summaries do: an unknown key is a
+// lecture with no Practice block, a wrong `num` marks a right answer wrong and
+// sends it to Recall for months. So: the shape, every key real, every numeric
+// answer recomputed below by a different route than the item states (numeric
+// derivatives and integrals, elimination, a grid search, a series), every
+// `output` item's reference solution run with python3 and its printed value
+// compared, and a coverage ratchet.
+const PRACTICE = D.PRACTICE || {};
+const PTYPES = ["numeric", "output", "worked", "write"];
+// app.js practiceTarget, restated: the item count a lecture's gate asks for.
+const pTarget = l => (l && l.solve) || (!(l && l.min) ? 2 : l.min <= 15 ? 1 : l.min <= 35 ? 2 : 3);
+const pDot = (u, v) => u.reduce((s, x, i) => s + x * v[i], 0);
+const pCross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const pSarrus = m => m[0][0] * m[1][1] * m[2][2] + m[0][1] * m[1][2] * m[2][0] + m[0][2] * m[1][0] * m[2][1]
+  - m[0][2] * m[1][1] * m[2][0] - m[0][0] * m[1][2] * m[2][1] - m[0][1] * m[1][0] * m[2][2];
+const pSolve2 = (A, b) => {            // elimination, not Cramer
+  const f = A[1][0] / A[0][0], a22 = A[1][1] - f * A[0][1], b2 = b[1] - f * b[0];
+  const y = b2 / a22; return [(b[0] - A[0][1] * y) / A[0][0], y];
+};
+const pD = (f, x, h) => { h = h || 1e-5; return (f(x + h) - f(x - h)) / (2 * h); };
+const pD2 = (f, x, h) => { h = h || 1e-4; return (f(x + h) - 2 * f(x) + f(x - h)) / (h * h); };
+const pInt = (f, a, b, n) => {         // Simpson, n even
+  n = n || 20000; const h = (b - a) / n; let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * h);
+  return s * h / 3;
+};
+const pRoot = (f, a, b) => { for (let i = 0; i < 200; i++) { const m = (a + b) / 2; if ((f(a) > 0) === (f(m) > 0)) a = m; else b = m; } return (a + b) / 2; };
+const pMin = (f, a, b) => { const g = (Math.sqrt(5) - 1) / 2; let c = b - g * (b - a), d = a + g * (b - a);
+  for (let i = 0; i < 300; i++) { if (f(c) < f(d)) b = d; else a = c; c = b - g * (b - a); d = a + g * (b - a); } return (a + b) / 2; };
+const pGridMax = (f, a, b, n) => { let m = -Infinity; n = n || 300000; for (let i = 0; i <= n; i++) m = Math.max(m, f(a + (b - a) * i / n)); return m; };
+const pCols = cols => cols[0].map((_, i) => cols.map(c => c[i]));   // columns -> a matrix
+const pInc = (n, edges) => edges.map(([a, b]) => { const r = new Array(n).fill(0); r[a] = -1; r[b] = 1; return r; });
+const expectedPractice = {
+  "math110.0.0/p1": [2, -3].map((x, i) => x + [-5, 4][i])[1],
+  "math110.0.0/p2": [3, -1].map(x => -2 * x).map((x, i) => x + [1, 5][i])[0],
+  "math110.0.1/p1": (function () { const a = -6 / 2, b = 3 / -1; return a === b ? a : NaN; })(),
+  "math110.0.1/p2": pSolve2([[1, 1], [1, -1]], [7, 4])[0],
+  "math110.0.2/p1": Math.round(-Math.sin(-Math.PI / 2)),                        // R(-90deg), entry (1,2) = -sin
+  "math110.0.2/p2": matmul([[2, -1], [1, 3]], [[3], [2]])[1][0],
+  "math110.0.3/p1": matmul([[1, 1], [0, 1]], [[0, -1], [1, 0]])[1][1],
+  "math110.0.3/p2": matmul([[1, 2], [0, 1]], matmul([[2, 0], [0, 1]], [[1], [1]]))[0][0],
+  "math110.0.4/p1": Math.round(-Math.sin(Math.PI / 2)),                          // Rz(90deg), entry (1,2)
+  "math110.0.4/p2": matmul(pCols([[1, 0, 2], [0, 1, 0], [1, 1, 1]]), [[2], [1], [-1]])[2][0],
+  "math110.0.5/p1": det2([[4, 0], [0, -3]]),
+  "math110.0.5/p2": det2([[2, 6], [1, 3]]),
+  "math110.0.5/p3": 2 * Math.abs(det2([[5, 0], [0, 1]])),
+  "math110.0.6/p1": rank([[1, 2, 3], [2, 4, 6], [3, 6, 9]]),
+  "math110.0.6/p2": (function () { const r1 = [1, 0, 2, 0, 1, 3], r2 = [0, 1, 1, 4, 0, 2];
+                      return 6 - rank([r1, r2, r1.map((x, i) => x + r2[i]), r1.map((x, i) => x - r2[i])]); })(),
+  "math110.0.7/p1": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]].length,   // R^5 -> R^3: one row per output
+  "math110.0.7/p2": matmul([[3, -2]], [[4], [5]])[0][0],
+  "math110.0.8/p1": pDot([2, -1, 3], [4, 5, -1]),
+  "math110.0.8/p2": Math.hypot(3, 4) * Math.cos(Math.atan2(4, 3) - Math.atan2(0.8, 0.6)),
+  "math110.0.8/p3": "" + pDot([1, 2, 3], [4, -5, 6]),
+  "math110.0.9/p1": det2(pCols([[4, 1], [-1, 2]])),
+  "math110.0.9/p2": (function () { const p = [[0, 0], [2, 3], [7, 4], [5, 1]];   // shoelace on the parallelogram
+                      let s = 0; for (let i = 0; i < 4; i++) { const a = p[i], b = p[(i + 1) % 4]; s += a[0] * b[1] - b[0] * a[1]; } return Math.abs(s) / 2; })(),
+  "math110.0.10/p1": 3 * 5 * Math.sin(Math.PI / 2),
+  "math110.0.10/p2": pCross([1, 0, 0], [0, 2, 0])[2],
+  "math110.0.10/p3": pSarrus([[1, 1, 0], [0, 2, 1], [0, 0, 3]]),
+  "math110.0.11/p1": pSolve2([[2, 1], [1, 3]], [7, 11])[0],
+  "math110.0.11/p2": pSolve2([[2, 1], [1, 3]], [7, 11])[1],
+  "math110.0.12/p1": [1, 2].map((x, i) => 2 * x + 1 * [3, -1][i])[1],
+  "math110.0.12/p2": pSolve2([[1, 3], [2, -1]], [7, 0])[0],
+  "math110.0.13/p1": Math.max.apply(null, eig2([[5, 2], [0, -1]])),
+  "math110.0.13/p2": Math.min.apply(null, eig2([[4, 1], [2, 3]])),
+  "math110.0.14/p1": Math.max.apply(null, eig2([[6, 2], [2, 3]])),
+  "math110.0.14/p2": Math.max.apply(null, eig2([[1, 4], [2, -1]])),
+  "math110.0.15/p1": (function () { const Dm = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (j === i + 1 ? j : 0)));
+                       return matmul(Dm, [[0], [7], [-1], [2]])[2][0]; })(),
+  "math110.0.15/p2": pD2(x => 4 * x ** 3 + 3 * x * x, 0),   // the coefficient of x in f' is f''(0)
+  "math110.0.15/p3": "[" + [8, -2, 5, 3].slice(1).map((c, i) => (i + 1) * c).join(", ") + "]",
+  "math110.1.8/p1": 5 - rank([[1, 2, 0, 1, 1], [2, 4, 1, 3, 0], [3, 6, 1, 4, 1]]),
+  "math110.1.8/p2": rank(pCols([[1, 0, 1], [0, 1, 1], [1, 1, 2]])),
+  "math110.1.9/p1": (function () { const r = [[1, 0, 2, 0, 1, 1, 0], [0, 1, 1, 0, 0, 2, 1], [0, 0, 0, 1, 3, 1, 1]];
+                      const A = r.concat([r[0].map((x, i) => x + r[1][i]), r[1].map((x, i) => x - r[2][i])]); return A.length - rank(A); })(),
+  "math110.1.9/p2": (function () { const r = [[1, 0, 2, 0, 1, 1, 0], [0, 1, 1, 0, 0, 2, 1], [0, 0, 0, 1, 3, 1, 1]];
+                      const A = r.concat([r[0].map((x, i) => x + r[1][i]), r[1].map((x, i) => x - r[2][i])]); return A[0].length - rank(A); })(),
+  "math110.1.9/p3": (function () { const E = (i, j) => { const m = new Array(9).fill(0); m[3 * i + j] = 1; return m; }, out = [];
+                      for (let i = 0; i < 3; i++) for (let j = i; j < 3; j++) { out.push(E(i, j)); out.push(E(i, j).map((x, t) => x + E(j, i)[t])); }
+                      return rank(out); })(),
+  "math110.1.10/p1": matmul([[1], [2], [3]], [[4, -1]])[2][0],
+  "math110.1.10/p2": 5 - rank([[1, 1, 1, 1, 1]]),
+  "math110.1.11/p1": (function () { const A = pInc(6, [[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5]]); return A.length - rank(A); })(),   // K(3,3)
+  "math110.1.11/p2": rank(pInc(6, [[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5]])),
+  "math110.1.12/p1": (function () { const U = [[1, 0], [0, 1], [1, 1], [2, 3]];
+                       return rank(U.map(r => r.concat(r)).concat(U.map(r => r.concat([0, 0])))); })(),
+  "math110.1.12/p2": rank([[1, 0, 0, 1, 1], [0, 1, 0, 1, 0], [0, 0, 1, 0, 1]]),
+  "math110.1.13/p1": pDot([0, 1, 3], [0, 1, 3]),
+  "math110.1.13/p2": (function () { const c1 = [1, 1, 1], c2 = [0, 1, 3]; return pDot(c1, c1) * pDot(c2, c2) - pDot(c1, c2) ** 2; })(),   // Gram determinant
+  "math120.0.0/p1": pD(x => pInt(t => 3 * t * t, 0, x, 200), 2),
+  "math120.0.0/p2": pInt(r => 2 * Math.PI * r, 0, 3),
+  "math120.0.1/p1": pD(t => t * t, 4),
+  "math120.0.1/p2": pD(t => t * t + t, 3),
+  "math120.0.2/p1": pD(x => x ** 4, 3),
+  "math120.0.2/p2": pD(Math.cos, Math.PI / 2),
+  "math120.0.3/p1": pD(x => (3 * x + 1) ** 2, 1),
+  "math120.0.3/p2": pD(x => x * x * Math.sin(x), Math.PI),
+  "math120.0.4/p1": pD(t => 16 ** t, 0) / pD(t => 2 ** t, 0),
+  "math120.0.5/p1": pD(x => Math.sqrt(13 - x * x), 2),
+  "math120.0.5/p2": pD(x => 6 / x, 2),
+  "math120.0.6/p1": (function () { const x = 3 + 1e-7; return (x * x - 9) / (x - 3); })(),
+  "math120.0.6/p2": Math.sin(3e-7) / 1e-7,
+  "math120.0.7/p1": pInt(t => t * (10 - t), 0, 6),
+  "math120.0.7/p2": pInt(t => 6 - 2 * t, 0, 5),
+  "math120.0.8/p1": pInt(Math.sin, 0, Math.PI) / Math.PI,
+  "math120.0.9/p1": pD2(x => x ** 4, 2),
+  "math120.0.10/p1": Math.exp(0) + pD(Math.exp, 0) * 0.2 + pD2(Math.exp, 0) * 0.04 / 2,
+  "math120.0.10/p2": Math.sqrt(4) + pD(Math.sqrt, 4) * 0.1 + pD2(Math.sqrt, 4) * 0.01 / 2,
+  "math120.0.11/p1": pD(x => x ** 3, 2),
+  "math120.1.7/p1": 1 + pD(x => Math.sqrt(1 + x), 0) * 0.06,
+  "math120.1.7/p2": 1 + pD(Math.exp, 0) * 0.1 + pD2(Math.exp, 0) * 0.01 / 2,
+  "math120.1.7/p3": pD(x => Math.exp(2 * x) * (1 + x) ** 3, 0),
+  "math120.1.8/p1": (function () { const f = x => x ** 3 - 12 * x; return f(pRoot(x => pD(f, x), 0.5, 10)); })(),
+  "math120.1.8/p2": pRoot(x => pD2(y => y ** 3 - 6 * y * y + 1, x), -10, 10.3),
+  "math120.1.8/p3": pGridMax(x => x / (x * x + 1), -20, 20),
+  "math120.1.9/p1": (function () { const f = x => x + 4 / x; return f(pMin(f, 0.01, 50)); })(),
+  "math120.1.9/p2": pGridMax(x => x * Math.exp(-x), 0, 30),
+  "math120.1.9/p3": pGridMax(x => x ** 3 - 3 * x, 0, 3),
+  "math120.1.10/p1": (function () { const x = pMin(s => s * s + 4 * s * (32 / (s * s)), 0.5, 20); return 32 / (x * x); })(),
+  "math120.1.10/p2": (function () { const f = x => (x / 4) ** 2 + ((12 - x) / 4) ** 2; return f(pMin(f, 0, 12)); })(),
+  "math120.1.10/p3": -pD(t => Math.sqrt(100 - (6 + 2 * t) ** 2), 0),
+  "math120.1.11/p1": (function () { const f = x => x * x - 10; return 3 - f(3) / pD(f, 3); })(),
+  "math120.1.11/p2": (function () { const h = V => Math.cbrt(12 * V / Math.PI), V6 = Math.PI * 216 / 12; return pD(t => h(V6 + 3 * t), 0); })(),
+  "math120.1.11/p3": (function () { const f = x => x ** 3 - 2; let x = 1; for (let i = 0; i < 2; i++) x = x - f(x) / pD(f, x); return x; })(),
+  "math120.1.12/p1": pRoot(c => pD(x => x ** 3, c) - (27 - 0) / 3, 0.001, 3),
+  "math120.1.12/p2": 5 + pInt(() => 2, 1, 4),
+  "math130.0.10/p1": (function () { let s = 0, t = 1; for (let k = 0; k < 60; k++) { s += t; t *= 2 / (k + 1); } return 1 / s; })(),   // 1 / sum 2^k/k!
+  "math130.0.10/p2": (function () { let pairs = 0; for (let i = 0; i < 30; i++) for (let j = i + 1; j < 30; j++) pairs++; return 1 - Math.exp(-pairs / 365); })(),
+  "math130.0.10/p3": (function () { let p = 0.996 ** 500, s = 0; for (let k = 0; k < 500; k++) { p *= (500 - k) / (k + 1) * (0.004 / 0.996); s += p; } return s; })(),   // sum of P(X=k), k >= 1
+};
+let pItems = 0, pNums = 0, pRuns = 0;
+const pByType = {}, pByCourse = {};
+const noTagP = t => !/<[a-zA-Z/]/.test(t || "");
+const childP = require("child_process");
+Object.keys(PRACTICE).forEach(k => {
+  const items = PRACTICE[k], l = lessonByKey[k];
+  ok(lessonKeys.has(k), "T-067 practice " + k + ": keys a lecture that exists");
+  ok(Array.isArray(items) && items.length > 0, "T-067 practice " + k + ": is a non-empty list");
+  if (!Array.isArray(items)) return;
+  // Maths and physics are sized by practiceTarget (the plan); elsewhere the gate asks for min(target, items).
+  if (/^(math|phys)/.test(k)) ok(!l || items.length >= pTarget(l), "T-067 practice " + k + ": " + items.length + " item(s), at least the " + pTarget(l) + " practiceTarget asks for");
+  const seen = new Set();
+  items.forEach((it, i) => {
+    const at = "T-067 practice " + k + "/" + (it.id || "#" + i);
+    pItems++;
+    pByType[it.type] = (pByType[it.type] || 0) + 1;
+    const cc = k.split(".")[0]; pByCourse[cc] = pByCourse[cc] || {}; pByCourse[cc][it.type] = (pByCourse[cc][it.type] || 0) + 1;
+    ok(/^p\d+$/.test(it.id || "") && !seen.has(it.id), at + ": a unique id p1, p2, ... (its state is stored under it)");
+    seen.add(it.id);
+    ok(PTYPES.indexOf(it.type) >= 0, at + ": type is one of " + PTYPES.join(", ") + " (" + it.type + ")");
+    ok(typeof it.q === "string" && it.q.length > 10, at + ": has a question");
+    // q, expl, result, steps, points and model are raw HTML for KaTeX; code is shown escaped.
+    [["q", it.q], ["expl", it.expl], ["result", it.result], ["model", it.model]].concat((it.steps || []).map((s, j) => ["step " + j, s]), (it.points || []).map((s, j) => ["point " + j, s]))
+      .forEach(([w, t]) => ok(noTagP(t), at + " " + w + ": no bare '<' before a letter or a slash (raw HTML)"));
+    if (it.type === "numeric") {
+      ok(typeof it.num === "number" && isFinite(it.num), at + ": num is a finite number");
+      ok(typeof it.expl === "string" && it.expl.length > 10, at + ": has an explanation that teaches");
+    }
+    if (it.type === "worked") {
+      ok(typeof it.result === "string" && it.result.length > 0, at + ": states its result");
+      ok(Array.isArray(it.steps) && it.steps.length >= 2, at + ": has at least two worked steps");
+      ok(it.num == null || (typeof it.num === "number" && isFinite(it.num)), at + ": num, when given, is a finite number");
+    }
+    if (it.type === "write") {
+      ok(Array.isArray(it.points) && it.points.length >= 4 && it.points.length <= 6, at + ": has a 4-6 point checklist (" + (it.points || []).length + ")");
+      ok(typeof it.model === "string" && it.model.length >= 200, at + ": has a model answer");
+    }
+    ok(it.tol == null || (typeof it.tol === "number" && it.tol >= 0), at + ": tol, when given, is a non-negative number");
+    if (it.type === "output") {
+      ok(typeof it.code === "string" && it.code.length > 0 && typeof it.out === "string" && it.out.length > 0, at + ": has reference code and the value it prints");
+      let printed = null;
+      try { printed = childP.execFileSync("python3", ["-I", "-c", it.code || ""], { timeout: 15000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim(); }
+      catch (e) { printed = "(python3 failed: " + String(e.message).split("\n")[0] + ")"; }
+      pRuns++;
+      ok(printed === String(it.out).trim(), at + ": the reference solution, run with python3, prints " + JSON.stringify(it.out) + " (printed " + JSON.stringify(printed) + ")");
+      const e = expectedPractice[k + "/" + it.id];
+      ok(e !== undefined && String(e) === String(it.out).trim(), at + ": out " + JSON.stringify(it.out) + " is recomputed in expectedPractice (" + JSON.stringify(e) + ")");
+      if (e !== undefined) pNums++;
+    }
+    if (typeof it.num === "number") {
+      const e = expectedPractice[k + "/" + it.id];
+      const tol = Math.max(it.tol != null ? it.tol : 1e-6, 1e-6 * Math.max(1, Math.abs(it.num)));
+      ok(typeof e === "number" && isFinite(e) && Math.abs(e - it.num) <= tol,
+        at + ": num " + it.num + " is recomputed in expectedPractice (" + e + ", within " + tol + ")");
+      pNums++;
+    }
+  });
+});
+Object.keys(expectedPractice).forEach(x => {
+  const [k, id] = x.split("/"), it = (PRACTICE[k] || []).find(t => t.id === id);
+  ok(!!it && (typeof it.num === "number" || it.type === "output"), "T-067 expectedPractice " + x + ": names an item with a num or an output (no stale entries)");
+});
+// The coverage ratchet. Core maths and physics: every non-optional lecture with
+// a video, reading or paper in a course whose id starts math or phys. The count
+// WITHOUT items must equal the baseline file exactly: more is a lecture that lost
+// its items, fewer means the baseline has to come down with the new items, so it
+// can only ever go down. And from the pinned clock, every core maths or physics
+// lecture the scheduler puts in the next 14 days must have items (the plan's
+// "no lecture ships to the calendar without its problems").
+const P_BASE = path.join(__dirname, "verify-content.practice-baseline.json");
+const pBase = JSON.parse(fs.readFileSync(P_BASE, "utf8"));
+const coreMP = Object.keys(lessonByKey).filter(k => /^(math|phys)/.test(k) && !lessonByKey[k].optional &&
+  !!(lessonByKey[k].v || lessonByKey[k].read || lessonByKey[k].paper));
+const uncovered = coreMP.filter(k => !(PRACTICE[k] || []).length);
+ok(uncovered.length === pBase.uncovered, "T-067 practice ratchet: " + uncovered.length + " core maths/physics lectures have no items; the baseline in " +
+  path.basename(P_BASE) + " says " + pBase.uncovered + (uncovered.length < pBase.uncovered ? " (lower the baseline to " + uncovered.length + ": it only goes down)" : uncovered.length > pBase.uncovered ? " (a lecture lost its items)" : ""));
+const P_CLOCK = pBase.clock;
+const pWindow = [];
+if (APP_T) for (let d = P_CLOCK; d <= addDaysP(P_CLOCK, 14); d = addDaysP(d, 1))
+  APP_T.scheduledFor(d).forEach(it => { if (!it.pseudo && it.cid && /^(math|phys)/.test(it.cid) && !(it.l || {}).optional) pWindow.push(d + " " + it.cid + "." + it.ui + "." + it.li); });
+function addDaysP(iso, n) { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+ok(pWindow.length >= 10, "T-067 practice: the scheduler (test hook) puts core maths/physics lectures in the 14 days from " + P_CLOCK + " (" + pWindow.length + ", not vacuous)");
+pWindow.forEach(x => ok((PRACTICE[x.split(" ")[1]] || []).length > 0, "T-067 practice: " + x + " is scheduled within 14 days of " + P_CLOCK + " and has practice items"));
+console.log("T-067 practice: " + pItems + " items on " + Object.keys(PRACTICE).length + " lectures (" + PTYPES.map(t => (pByType[t] || 0) + " " + t).join(", ") + "); " +
+  pNums + " answers recomputed, " + pRuns + " reference solutions run with python3; " + uncovered.length + " of " + coreMP.length +
+  " core maths/physics lectures still without items; " + new Set(pWindow.map(x => x.split(" ")[1])).size + " lectures in the 14 days from " + P_CLOCK + ", all covered" +
+  "\n  by course: " + Object.keys(pByCourse).map(c => c + " " + Object.keys(pByCourse[c]).map(t => pByCourse[c][t] + " " + t).join("/")).join(", "));
 
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + t45Items + " problem sets and labs unlocked by a real lecture, " + numChecked + " numeric answers recomputed, "

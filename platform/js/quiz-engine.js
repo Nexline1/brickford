@@ -15,6 +15,22 @@
     }
     return a;
   }
+  // The one numeric grader (T-067 step 3: the quiz, the exam and the practice
+  // items all use it). A comma alone is a decimal comma, as it always was here
+  // ("2,5" is 2.5). Spaces, thin spaces and underscores are grouping and go;
+  // with a point present, or with more than one comma, the commas are grouping
+  // too ("1,234.5", "1,000,000").
+  function numValue(given) {
+    let t = String(given).trim().replace(/[\s\u2009\u202f_]/g, "");
+    if (t.indexOf(".") >= 0 || (t.match(/,/g) || []).length > 1) t = t.replace(/,/g, "");
+    else t = t.replace(",", ".");
+    return parseFloat(t);
+  }
+  function numOk(q, given) {
+    const tol = q.tol != null ? q.tol : 1e-6;
+    const v = numValue(given);
+    return isFinite(v) && Math.abs(v - q.num) <= tol;
+  }
   function math(el) {
     if (window.renderMathInElement) {
       try {
@@ -78,9 +94,7 @@
     }
     function grade(given) {
       if (q.opts) return given === q.a;
-      const tol = q.tol != null ? q.tol : 1e-6;
-      const v = parseFloat(String(given).replace(",", "."));
-      return isFinite(v) && Math.abs(v - q.num) <= tol;
+      return numOk(q, given);
     }
     function answer(given, btn) {
       if (answered) return;
@@ -143,6 +157,7 @@
   }
 
   DAR.Quiz = {
+    numOk,   // T-067 step 3: the practice items grade with this, the same function
     /**
      * mount(container, bank, opts)
      * opts.onFinish(result {score,total,pct}) — called once at the seal screen.
@@ -227,9 +242,7 @@
 
       function grade(q, given) {
         if (q.opts) return given === q.a;
-        const tol = q.tol != null ? q.tol : 1e-6;
-        const v = parseFloat(String(given).replace(",", "."));
-        return isFinite(v) && Math.abs(v - q.num) <= tol;
+        return numOk(q, given);
       }
 
       function showFeedback(q, ok, givenIdx) {

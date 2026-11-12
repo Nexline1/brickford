@@ -6,7 +6,6 @@
 // Parity with app.js on the same inputs is tools/verify-app.js; these pin the behaviour on the Dart side.
 import 'dart:convert';
 
-import 'package:app/engine/engine.dart';
 import 'package:app/engine/learn.dart';
 import 'package:app/engine/lecture_practice.dart';
 import 'package:app/engine/merge.dart';

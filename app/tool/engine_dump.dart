@@ -705,10 +705,10 @@ Map<String, dynamic> lprDump(Map<String, dynamic> fx, BrickfordData data) {
   }
   out['dash'] = dash;
   // The lesson page's handlers, in order, on one engine under the steps' clock.
-  final S0 = L['steps'] as Map<String, dynamic>, ts = '${S0['clock']}T12:00:00.000Z';
-  final e = Engine(data, (copy(S0['state']) as Map).cast<String, dynamic>(), today: () => S0['clock'] as String);
+  final steps = L['steps'] as Map<String, dynamic>, ts = '${steps['clock']}T12:00:00.000Z';
+  final e = Engine(data, (copy(steps['state']) as Map).cast<String, dynamic>(), today: () => steps['clock'] as String);
   final msgs = <String, dynamic>{};
-  for (final lec in S0['lectures'] as List) {
+  for (final lec in steps['lectures'] as List) {
     final k = lec[0] as String;
     msgs[k] = [
       for (final st in lec[1] as List)

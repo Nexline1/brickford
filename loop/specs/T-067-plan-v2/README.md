@@ -1,80 +1,72 @@
-# Plan v2 — the audit, in one page
+# Plan v2: the plan, in one page
 
-Nothing in the app has changed yet. This is the audit you approve before step 2.
+Nothing in the app has changed yet. This is the plan you approved on 12 Nov, written out with the dates the app itself computes.
 
-## What stays, what goes
+## What you decided
 
-- **Almost everything stays.** Of 494 lectures, 483 are core.
-- **10 are optional.** Optional means "not scheduled". You can still watch them, and they still count.
-  - Pure exam reviews: 18.01 Exam 1 review, Stat 110 midterm review, three 8.01 reviews. Your practice problems will do their job.
-  - Karpathy's "Intro to LLMs". It is the short version of his "Deep dive", which you keep.
-  - fast.ai 6 and 7 (random forests, recommendations). No path here needs them.
-  - Walter Lewin's memoir and his farewell lecture. Inspiring, but not new physics.
-- **1 is a true duplicate.** MATH 210 lecture 8.2 repeats lecture 5.3 with the same example.
-- **Two paper lessons re-use videos you already watch** (GPT-2, Mixtral). They become reading and coding only.
-- **One data error found:** the ResNet lesson plays the AlexNet video. Step 2 fixes it.
-- The cut is small on purpose. Your goal needs the full math and physics.
+- **Speed: option A.** Lectures come sooner. The gates and the finish date do not move.
+- **Cuts: all eleven approved.** Ten lectures are optional, and one is a duplicate. Optional means "not scheduled"; you can still watch them, and they still count.
+- **The shorter Python bridge.** You already know variables, functions, conditionals and loops from CS50, so those three CS50P lectures are skipped.
+- **MATH 110's reviews stay. Storytelling stays at 40 minutes a day.**
 
-## What is added
+## The order
 
-- **A Python bridge (CS 100), about 8 weeks.** CS50P by David Malan, your CS50 teacher. Ten lectures, each with real problem sets and an automatic checker. Then one NumPy hour and one PyTorch tensors session.
-- **No-code AI lectures on Fridays** during the bridge: 3Blue1Brown on transformers and attention, then Karpathy's "Deep dive into LLMs".
-- **Karpathy again, from Micrograd, typing along.** About 30 minutes of video a day. After each lecture: rebuild it without the video.
-- **A short multivariable unit** (7 videos, about 1.3 hours): partial derivatives, gradient, chain rule, Jacobian, double integrals. Makemore 4 and MATH 210 need it.
-- **Proposed later courses, for you to approve:**
-  - MIT 18.02 Multivariable Calculus (35 lectures, ~29 h)
-  - MIT 18.03 Differential Equations (33 lectures, ~27 h)
-  - MIT 8.02 Electricity and Magnetism, Walter Lewin (36 lectures, ~30 h)
-  - Stanford Statistical Mechanics, Leonard Susskind (10 lectures, ~17 h)
-  - Also named, not scheduled: statistics (MIT 18.650), quantum mechanics (MIT 8.04), algorithms lectures (MIT 6.006), convex optimisation (Stanford EE364A).
+Every lecture comes **after** the lectures it needs. Python classes come before Micrograd. Matrix multiplication and conditional probability come before the bigram model. Integrals come before Stat 110's continuous part. Calculus comes before physics.
 
-## Your new day
+1. **22 Nov 2026 to 4 Jan 2027: the Python bridge.** CS50P lectures 3–9 (exceptions, libraries, tests, files, regex, classes, and the rest), then NumPy and PyTorch tensors. On Fridays: 3Blue1Brown on transformers and attention, then Karpathy's "Deep dive into LLMs". This takes about 6 weeks, not 5, because Fridays carry the talks.
+2. **5 Jan to 28 Feb 2027: Karpathy again, from Micrograd, typing along.** About 30 minutes of video a day, then "rebuild it without the video".
+3. **Then:** the papers, fast.ai alternating with MIT 6.006, systems (SYS 250), CS336 and research (RES 400).
+4. **The math and physics line runs all along:** 18.06, 18.01, Stat 110 and 8.01 (8.01 from 20 Dec 2026), then MATH 210 alternating with 18.02, then 18.650, statistical mechanics, 18.03 and 8.02.
+
+The full day-by-day table for the first 8 weeks is in `sequence.md`.
+
+## Your day
 
 Six days a week, about 5 hours.
 
 | Block | Time | What |
 |---|---|---|
 | Math & Physics | 1 h 30 | one lecture with notes |
-| AI / Python | 1 h | the bridge, then Karpathy; Fridays: a no-code AI talk |
+| AI / Python | 1 h | the bridge, then Karpathy, then the rest. Fridays: a no-code talk, later Missing Semester |
 | Storytelling | 40 min | unchanged |
 | Practice | 2 h | 75 min coding, 45 min math problems and one written answer |
 
-Every lecture now comes **after** the lectures it needs. Examples: Python classes before Micrograd. Matrix multiplication and conditional probability before the bigram model. Integrals before Stat 110's continuous part. Calculus before physics.
+No added course ever takes time from the 75 minutes of coding.
 
-## The first weeks (from Sunday 22 Nov 2026)
+## What each added course is for
 
-- **Weeks 1–8:** CS50P lectures 0–9, then NumPy and PyTorch. Alongside: 18.06, 18.01, Stat 110 and the multivariable unit. Physics starts 22 Dec, right after the calculus it needs.
-- **Week 9 (18 Jan 2027):** Micrograd again, typed along. Then Makemore 1–5, Build GPT, the tokenizer, GPT-2.
-- **7 Mar 2027:** Zero to Hero done. Then fast.ai, the papers, systems, CS336, research.
+1. **MIT Missing Semester (about 10 h).** The shell, Git, Vim, debugging and scripting: the tools every lab and open-source project assumes. You need them before your first open-source pull request.
+2. **MIT 6.006 Algorithms (about 19 h).** Why the NeetCode patterns work: analysis, hashing, trees, graphs, dynamic programming. You need it for interviews, and to read systems papers.
+3. **MIT 18.02 Multivariable Calculus (about 28 h).** Gradients, Jacobians, multiple integrals, Green and Stokes. MATH 210, statistics, 18.03 and 8.02 all stand on it.
+4. **MIT 18.650 Statistics (about 28 h).** How to go from data back to a model: estimates, tests, error bars, regression. Every experiment and every eval needs it.
+5. **MIT 18.03 Differential Equations (about 26 h).** Equations of motion, oscillators, Fourier and Laplace. They are the language of physics, and of diffusion models.
+6. **Stanford Statistical Mechanics, Susskind (about 17 h).** Entropy, the Boltzmann distribution, free energy. This is the physics under softmax, energy-based models and diffusion. It comes right after MacKay's information theory.
+7. **MIT 8.02 Electricity and Magnetism, Lewin (about 30 h).** The second pillar of classical physics. Same teacher as your 8.01.
 
-The full day-by-day table is in `sequence.md`.
+An added course counts as done only when its problem sets and one timed exam are done. If you are behind at gate 3: defer 8.02 first, then trim 18.03's Laplace lectures, then defer statistical mechanics. Never drop 18.02, 18.650, 6.006 or Missing Semester. The full list, and the courses deliberately left for later, are in `additions.md`.
 
 ## The dates (computed by the app, not guessed)
 
 | | Old plan | New plan |
 |---|---|---|
-| Karpathy finished | 26 Nov 2026, with no Python | 7 Mar 2027, after the bridge |
-| Last lecture | 17 Jan 2028 | 2 Sep 2027 (5 Dec 2027 with the four added courses) |
-| 16th paper rebuilt | 11 Jun 2028 | 26 Apr 2028 |
+| Karpathy finished | 26 Nov 2026, with no Python | 28 Feb 2027, after the bridge |
+| Last lecture | 17 Jan 2028 | 31 Jan 2028, with all seven added courses |
+| 16th paper rebuilt | 11 Jun 2028 | 29 May 2028 |
+| Finish (day 1094) | 14 Apr 2030 | 14 Apr 2030, unchanged |
 
-**Option A:** lectures sooner. The gates and the finish (15 Apr 2030) stay the same.
+**No gate moves.** Gate 3 is 16 Dec 2027; by then 9 of the 16 papers are rebuilt, and it needs 6. Gate 4 is 16 Jul 2028; by then every lecture and all 16 papers are done.
 
-**Option B:** gates shortened too. The finish moves to 25 Jan 2030, **80 days sooner**. That is all it buys, because the last gate is 18 months of getting hired or earning revenue, and studying faster cannot shorten that. B also squeezes gate 3 (six papers and a merged open-source PR) from 6 months to 3.3.
+## The honest part
 
-**My recommendation: A.** Use the time you gain for the added physics and math, and for the papers and your first original result. If you pass gates early, the app moves the later gates forward by itself.
+Lectures make you literate; they do not make you a scientist. What gets a self-taught person taken seriously is public, checkable work: reimplementations that reproduce the paper's numbers, merged PRs in libraries people use, and at least one original result written up clearly enough for a stranger to rerun. A Nobel is not something a curriculum can aim at; pick problems worth decades and let the rest follow.
 
-## What I could not check
+## What still blocks step 2
 
-The transcript tools did not work in this session (one needs an API key, the other failed on every video). YouTube and the CS50 site were blocked here. So the new video ids and lengths are **not verified**. A web search confirmed only CS50P lecture 0's id and two lengths. Before step 2 adds anything, every new video must be checked by transcript. To make that possible: give the Yt_T transcript tool a free API key (youtube-transcript.ai), or allow youtube.com and cs50.harvard.edu in the environment's network settings.
+- **The video ids are checked.** All 189 new videos were checked against YouTube itself: title, channel and length. 188 are verified. Two ids I had from memory were wrong and are now corrected. One video is missing: MIT 18.03 lecture 18 is not in MIT's playlist, so it needs another source.
+- **The transcripts are not read.** The transcript tool needs a free API key (youtube-transcript.ai). YouTube's watch pages, which carry the chapter lists, are behind a bot check from this machine. Without transcripts:
+  - the PyTorch "chapter 00" start and stop times cannot be fixed;
+  - 18.03's Laplace lectures cannot be named exactly;
+  - the practice problems in step 3 cannot be written from what each lecture actually says.
+- **To unblock:** give the transcript tool an API key, or give this machine full youtube.com access (the watch pages too).
 
-## Your decisions
-
-1. **A or B?** I recommend A.
-2. **Approve the optional list** above (10 lectures) and the one duplicate.
-3. **MATH 110's four review lectures:** keep them (you said linear algebra stays unchanged), or make them optional like the other reviews?
-4. **Approve the Python bridge:** CS50P, then NumPy and PyTorch, about 8 weeks.
-5. **Approve the added courses:** 18.02, 18.03, 8.02, statistical mechanics. Any of the four extra ones too?
-6. **Storytelling time:** keep 40 minutes a day (your earlier choice), or 30? 30 makes SPCH 100 take about a quarter longer.
-7. **Allow the transcript check** (an API key or the two websites), so the new videos can be verified.
-
-Files: `audit.md` (every lecture, with the reason), `python-bridge.md`, `prerequisites.md` and `prerequisites.json`, `sequence.md`, `dates.md`. Regenerate with `node tools/audit-lectures.js` and `node tools/plan-dates.js`.
+Files: `additions.md`, `audit.md` (every lecture, with its reason), `python-bridge.md`, `prerequisites.md` and `prerequisites.json`, `sequence.md`, `dates.md`. Regenerate everything with `node tools/audit-lectures.js` and `node tools/plan-dates.js`.

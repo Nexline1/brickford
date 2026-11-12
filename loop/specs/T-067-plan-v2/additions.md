@@ -1,18 +1,20 @@
 # The seven additions (tutor's decision, 12 Nov)
 
-Exactly these seven, in priority order. They are in `plan-data.js` and `prerequisites.json` under provisional keys, and in every date in `dates.md` and `sequence.md` (option A, everything included). **No id, playlist, lecture count or length below was confirmed in this session**: the transcript tools were down and youtube.com was blocked (see `python-bridge.md`). Each is marked `unverified` in the data and must be checked by transcript before step 2 writes it into `platform/data`.
+Exactly these seven, in priority order. They are in `plan-data.js` and `prerequisites.json` under provisional keys, and in every date in `dates.md` and `sequence.md` (option A, everything included).
 
-| # | Course | Key | Lectures × min | Hours | Line and slot | Computed dates (first → last lecture) |
+**Every video id was checked against YouTube on 12 Nov 2026.** oEmbed gave the title and channel, and the official playlist gave the length. The real title, channel and length of each lecture are in `check` in `plan-data.js`. 167 of the 168 lectures are verified. The exception is MIT 18.03 lecture 18: Mattuck's lecture is missing from the official playlist, and its slot holds a different 2010 lecture. Transcripts were not read (see `python-bridge.md`).
+
+| # | Course | Key | Lectures (verified) | Hours | Line and slot | Computed dates (first → last lecture) |
 |---:|---|---|---|---:|---|---|
-| 1 | **MIT Missing Semester** (2020) | `cs110.0.0–0.10` | 11 × ~52 | ~9.5 | AI line, **Fridays**, after the bridge's no-code talks end; before the first open-source PR | 12 Feb → 9 Jul 2027 |
-| 2 | **MIT 6.006 Introduction to Algorithms** (Spring 2020) | `cs150.0.0–0.20` (CS 150's first lecture unit) | 21 × ~56 | ~19.5 | AI line, right after Zero to Hero, **alternating with AI 210** | 16 Mar → 3 Jun 2027 |
-| 3 | **MIT 18.02 Multivariable Calculus** (Auroux, Fall 2007) | `math140.0.0–0.34` | 35 × ~50 | ~29 | Math line, after 18.01, **alternating with MATH 210** (it joins the core rotation). Replaces the 1.3 h Khan multivariable bridge, which is dropped | 23 Feb → 14 Jun 2027 |
-| 4 | **MIT 18.650 Statistics for Applications** (Rigollet, Fall 2016) | `math160.0.0–0.23` | 24 × ~75 | ~30 | Math line, after Stat 110 and 18.02, **before AI 310 Unit II** (`ai310.1.0` needs its last lecture) | 14 Jul → 7 Sep 2027 |
-| 5 | **MIT 18.03 Differential Equations** (Mattuck, Spring 2006) | `math150.0.0–0.32` | 33 × ~50 | ~27.5 | Math line, after 18.02, **in rotation with 8.02** | 13 Oct → 27 Dec 2027 |
-| 6 | **Statistical Mechanics** (Susskind, Stanford 2013) | `phys300.0.0–0.9` | 10 × ~105 | ~17.5 | Math line, **straight after MacKay** (`math210.2.15`) | 8 Sep → 12 Oct 2027 |
-| 7 | **MIT 8.02 Electricity and Magnetism** (Lewin, Spring 2002) | `phys200.0.0–0.35` | 36 × ~50 | ~30 | Math line, **last**; after 8.01 and 18.02, in rotation with 18.03 | 14 Oct → 31 Dec 2027 |
+| 1 | **MIT Missing Semester** (IAP 2020), playlist `PLyzOVJj3bHQuloKGG59rS43e29ro7I57J` | `cs110.0.0–0.10` | 11 | 10.2 | AI line, **Fridays**, after the bridge's no-code talks end; before the first open-source PR | 12 Feb → 16 Jul 2027 |
+| 2 | **MIT 6.006 Introduction to Algorithms** (Spring 2020), `PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY` | `cs150.0.0–0.20` (CS 150's first lecture unit) | 21 lectures; problem sessions and quiz reviews left out | 19.4 | AI line, right after Zero to Hero, **alternating with AI 210** | 16 Mar → 3 Jun 2027 |
+| 3 | **MIT 18.02 Multivariable Calculus** (Auroux, Fall 2007), `PL4C4C8A7D06566F38` | `math140.0.0–0.34` | 35 | 28.3 | Math line, after 18.01, **alternating with MATH 210** (it joins the core rotation). It replaces the 1.3 h Khan multivariable bridge, which is dropped | 23 Feb → 14 Jun 2027 |
+| 4 | **MIT 18.650 Statistics for Applications** (Rigollet, Fall 2016), `PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0` | `math160.0.0–0.21` | 22 (lectures 10 and 16 were never published) | 28.0 | Math line, after Stat 110 and 18.02, **before AI 310 Unit II** (`ai310.1.0` needs its last lecture) | 14 Jul → 1 Sep 2027 |
+| 5 | **MIT 18.03 Differential Equations** (Mattuck, Spring 2006), `PLEC88901EBADDD980` | `math150.0.0–0.32` | 33 (32 verified; lecture 18 missing) | 26.2 | Math line, after 18.02, **in rotation with 8.02** | 3 Oct → 16 Dec 2027 |
+| 6 | **Statistical Mechanics** (Susskind, Stanford, Spring 2013), Stanford's videos via `PLpi18tMShZSAQFNTb8Ji7EgCFP9lXbkOe` | `phys300.0.0–0.9` | 10 | 17.0 | Math line, **straight after MacKay** (`math210.2.15`) | 2 Sep → 1 Oct 2027 |
+| 7 | **MIT 8.02 Electricity and Magnetism** (Lewin, Spring 2002), `PLUdYlQf0_sSsfcNOPSNPQKHDhSjTJATPu`: the "For the Allure of Physics" channel, which PHYS 100 already uses | `phys200.0.0–0.35` | 36 | 30.2 | Math line, **last**; after 8.01 and 18.02, in rotation with 18.03 | 4 Oct → 21 Dec 2027 |
 
-Total about 163 hours of video. Candidate playlists (all unverified): Missing Semester `PLyzOVJj3bHQuloKGG59rS43e29ro7I57J`; 6.006 `PLUl4u3cNGP63EdVPNLG3ToM6LaEUuStEY`; 18.02 `PL4C4C8A7D06566F38`; 18.650 `PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0`; 18.03 `PLEC88901EBADDD980`; Susskind and 8.02 not identified.
+In all: about 159 hours of video.
 
 ## Why each, and what it unlocks
 
@@ -32,8 +34,8 @@ Total about 163 hours of video. Candidate playlists (all unverified): Missing Se
 
 ## If behind at gate 3 (16 Dec 2027): the drop order
 
-1. Defer **8.02** (computed to be still running at gate 3).
-2. Trim **18.03's Laplace-transform lectures** (about lectures 19–22; exact numbers to be fixed from the transcripts).
+1. Defer **8.02** (computed: the only addition still running at gate 3, 16 Dec 2027; it ends 21 Dec).
+2. Trim **18.03's Laplace-transform lectures** (about lectures 19–22 of the playlist; the exact numbers need the transcripts, because the playlist titles are only "Lec n").
 3. Defer **statistical mechanics**.
 
 **Never drop** 18.02, 18.650, 6.006 or Missing Semester.

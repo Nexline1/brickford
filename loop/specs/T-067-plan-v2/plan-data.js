@@ -9,6 +9,8 @@
 //               needs the previous NON-optional lecture of its own unit, and the
 //               first lecture of a unit needs the last one of the unit before
 //               (same course), unless REPLACE says otherwise.
+//   (Step 2, T-067: these lectures are now in platform/data under the same keys; tools/plan-dates.js
+//   reads them from there and uses PROVISIONAL only for the `addition` flag and the notes.)
 //   PROVISIONAL — proposed lectures under provisional keys. Video ids marked
 //               `unverified` were NOT checked by transcript (see python-bridge.md:
 //               both transcript tools were down for this audit) and must be
@@ -66,6 +68,8 @@ const MARKS = {
   // AI 210
   "ai210.0.5": ["optional", "random forests: tabular ML no path in this plan needs (12 Nov: fast.ai 6–7 at most optional)"],
   "ai210.0.6": ["optional", "collaborative filtering: no path needs it; its gradient-accumulation tip is in ai310.0.6"],
+  // MATH 150 (18.03): the one lecture with no video (step 2: the key is kept, never scheduled)
+  "math150.0.17": ["skipped", "no video: Mattuck's lecture 18 is missing from MIT's playlist (its slot holds a different 2010 lecture); the key is kept and never scheduled until a source is found"],
   // PHYS 100
   "phys100.0.9": ["optional", "exam review of lectures 1–5: revision, no new idea"],
   "phys100.0.18": ["optional", "exam review of lectures 6–15: revision, no new idea"],

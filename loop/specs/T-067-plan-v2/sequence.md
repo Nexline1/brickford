@@ -129,16 +129,15 @@ Generated from prerequisites.json by tools/plan-dates.js. Cutover 2026-11-22 = s
 | 49 | 2027-10-24 | 6 lectures: math150.0.9 Lec 10 … phys200.0.11 Lec 12: Review Exam 1 (Secret Top! | 3 lectures: ai300.3.2 DDPM — Denoising Diffusion Probabi … ai310.0.5 Lecture 6: Kernels, Triton |
 | 50 | 2027-10-31 | 6 lectures: math150.0.12 Lec 13 … phys200.0.14 Lec 15: Ampère's Law | 3 lectures: ai310.0.5 Lecture 6: Kernels, Triton … ai310.0.7 Lecture 8: Parallelism 2 |
 | 51 | 2027-11-07 | 6 lectures: math150.0.15 Lec 16 … phys200.0.17 Lec 18: Displacement Current and S | 3 lectures: ai310.0.7 Lecture 8: Parallelism 2 … ai300.1.3 Chinchilla — Training Compute-Opti |
-| 52 | 2027-11-14 | 6 lectures: math150.0.18 Lec 19 … phys200.0.20 Lec 21: Magnetic Materials | 3 lectures: ai300.1.3 Chinchilla — Training Compute-Opti … ai310.0.10 Lecture 11: Scaling laws 2 |
-| 53 | 2027-11-21 | 6 lectures: math150.0.21 Lec 22 … phys200.0.23 Lec 24: Transformers, Car Coils an | 3 lectures: ai310.0.10 Lecture 11: Scaling laws 2 … ai310.0.12 Lecture 13: Data 1 |
-| 54 | 2027-11-28 | 6 lectures: math150.0.24 Lec 25 … phys200.0.26 Lec 27: Resonance and Destructive  | 3 lectures: ai310.0.12 Lecture 13: Data 1 … ai310.0.14 Lecture 15: Alignment - SFT/RLHF |
-| 55 | 2027-12-05 | 6 lectures: math150.0.27 Lec 28 … phys200.0.29 Lec 30: Polarizers and Malus's Law | 3 lectures: ai310.0.14 Lecture 15: Alignment - SFT/RLHF … ai310.0.15 Lecture 16: Alignment - RL 1 |
-| 56 | 2027-12-12 | 6 lectures: math150.0.30 Lec 31 … phys200.0.32 Lec 33: Double-Slit Interference a | 2 lectures: res400.0.0 Introduction to Reinforcement Lear … res400.0.1 Markov Decision Process |
-| 57 | 2027-12-19 | 3 lectures: phys200.0.33 Lec 34: Gratings and Resolving Pow … phys200.0.35 Lec 36: Farewell Special | 3 lectures: res400.0.1 Markov Decision Process … res400.0.3 Model-Free Prediction |
-| 58 | 2027-12-26 | — | 4 lectures: res400.0.3 Model-Free Prediction … res400.0.6 Policy Gradient Methods |
-| 59 | 2028-01-02 | — | 6 lectures: res400.0.6 Policy Gradient Methods … ai300.2.2 DPO — Direct Preference Optimizati |
-| 60 | 2028-01-09 | — | 6 lectures: ai300.2.3 LLaMA — Open and Efficient Foundat … ai300.3.3 RAG — Retrieval-Augmented Generati |
-| 61 | 2028-01-16 | — | 3 lectures: res400.0.7 Integrating Learning and Planning … res400.0.9 Classic Games |
-| 62 | 2028-01-23 | — | 6 lectures: res400.1.0 A Mathematical Framework for Trans … res400.2.0 Hamming — You and Your Research |
-| 63 | 2028-01-30 | — | 2 lectures: res400.2.1 How to read a paper — the three-pa … res400.2.2 Karpathy — A Survival Guide to a P |
+| 52 | 2027-11-14 | 6 lectures: math150.0.19 Lec 20 … phys200.0.20 Lec 21: Magnetic Materials | 3 lectures: ai300.1.3 Chinchilla — Training Compute-Opti … ai310.0.10 Lecture 11: Scaling laws 2 |
+| 53 | 2027-11-21 | 6 lectures: math150.0.22 Lec 23 … phys200.0.23 Lec 24: Transformers, Car Coils an | 3 lectures: ai310.0.10 Lecture 11: Scaling laws 2 … ai310.0.12 Lecture 13: Data 1 |
+| 54 | 2027-11-28 | 6 lectures: math150.0.25 Lec 26 … phys200.0.26 Lec 27: Resonance and Destructive  | 3 lectures: ai310.0.12 Lecture 13: Data 1 … ai310.0.14 Lecture 15: Alignment - SFT/RLHF |
+| 55 | 2027-12-05 | 6 lectures: math150.0.28 Lec 29 … phys200.0.29 Lec 30: Polarizers and Malus's Law | 3 lectures: ai310.0.14 Lecture 15: Alignment - SFT/RLHF … ai310.0.15 Lecture 16: Alignment - RL 1 |
+| 56 | 2027-12-12 | 6 lectures: math150.0.31 Lec 32 … phys200.0.33 Lec 34: Gratings and Resolving Pow | 2 lectures: res400.0.0 Introduction to Reinforcement Lear … res400.0.1 Markov Decision Process |
+| 57 | 2027-12-19 | 2 lectures: phys200.0.34 Lec 35: Doppler Effect and The Big … phys200.0.35 Lec 36: Farewell Special | 4 lectures: res400.0.1 Markov Decision Process … res400.0.4 Model Free Control |
+| 58 | 2027-12-26 | — | 4 lectures: res400.0.4 Model Free Control … ai310.0.16 Lecture 17: Alignment - RL 2 |
+| 59 | 2028-01-02 | — | 6 lectures: ai310.1.0 The Hugging Face LLM course — pipe … ai310.1.2 Quantization — GGUF, AWQ, bitsandb |
+| 60 | 2028-01-09 | — | 5 lectures: ai310.1.3 Evals — lm-evaluation-harness, con … res400.0.7 Integrating Learning and Planning |
+| 61 | 2028-01-16 | — | 4 lectures: res400.0.8 Exploration and Exploitation … res400.1.1 In-context Learning and Induction  |
+| 62 | 2028-01-23 | — | 6 lectures: res400.1.2 Toy Models of Superposition … res400.2.2 Karpathy — A Survival Guide to a P |
 <!-- END GENERATED -->

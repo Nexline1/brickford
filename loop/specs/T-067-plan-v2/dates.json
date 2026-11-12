@@ -5,7 +5,7 @@
  "oldLast": "2028-06-11",
  "oldLastNoSpch": "2028-06-11",
  "coreLast": "2027-08-27",
- "plusLast": "2028-01-31",
+ "plusLast": "2028-01-28",
  "karpathyDone": "2027-02-24",
  "bridgeDone": "2027-01-04",
  "secondPassStart": "2027-01-05",
@@ -41,7 +41,7 @@
   ],
   "math150": [
    "2027-10-03",
-   "2027-12-16"
+   "2027-12-14"
   ],
   "phys300": [
    "2027-09-02",
@@ -49,7 +49,7 @@
   ],
   "phys200": [
    "2027-10-04",
-   "2027-12-21"
+   "2027-12-20"
   ]
  },
  "counts": {
@@ -230,12 +230,12 @@
   },
   "math150": {
    "code": "MATH 150",
-   "core": 33,
+   "core": 32,
    "optional": 0,
    "duplicate": 0,
-   "skipped": 0,
+   "skipped": 1,
    "min": 1572,
-   "coreMin": 1572,
+   "coreMin": 1524,
    "prov": true,
    "add": true
   },

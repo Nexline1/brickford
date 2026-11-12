@@ -61,7 +61,7 @@ The first draft listed the gaps (multivariable calculus, differential equations,
 | CS 150 (cs150) — proposed | 21 | 21 | 0 | 0 | 0 | 19.4 |
 | MATH 140 (math140) — proposed | 35 | 35 | 0 | 0 | 0 | 28.3 |
 | MATH 160 (math160) — proposed | 22 | 22 | 0 | 0 | 0 | 28.0 |
-| MATH 150 (math150) — proposed | 33 | 33 | 0 | 0 | 0 | 26.2 |
+| MATH 150 (math150) — proposed | 33 | 32 | 0 | 0 | 1 | 25.4 |
 | PHYS 300 (phys300) — proposed | 10 | 10 | 0 | 0 | 0 | 17.0 |
 | PHYS 200 (phys200) — proposed | 36 | 36 | 0 | 0 | 0 | 30.2 |
 
@@ -939,7 +939,7 @@ Level: 1 intro, 2 core, 3 advanced. Provisional keys (not yet in the data) are m
 | math150.0.14 † | 50 | 2 | Lec 15 | core | proposed addition, see audit.md |
 | math150.0.15 † | 49 | 2 | Lec 16 | core | proposed addition, see audit.md |
 | math150.0.16 † | 46 | 2 | Lec 17 | core | proposed addition, see audit.md |
-| math150.0.17 † | 48 | 2 | Lec 18 | core | proposed addition, see audit.md |
+| math150.0.17 † | 48 | 2 | Lec 18 | skipped | no video: Mattuck's lecture 18 is missing from MIT's playlist (its slot holds a different 2010 lecture); the key is kept and never scheduled until a source is found |
 | math150.0.18 † | 48 | 2 | Lec 19 | core | proposed addition, see audit.md |
 | math150.0.19 † | 51 | 2 | Lec 20 | core | proposed addition, see audit.md |
 | math150.0.20 † | 44 | 2 | Lec 21 | core | proposed addition, see audit.md |

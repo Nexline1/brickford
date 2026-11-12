@@ -3,7 +3,7 @@
 Owner, 13 Nov: asked for near goals; approved "put these into the app as your next three checkpoints".
 
 ## What
-A small "Checkpoints" block on the web dashboard and the Flutter Home (and a row on the Record page): three dated checkpoints, each a short tick list. Barely any words. Ticks are stored in `S.checkpoints[id][itemId] = {done, at}`, merged per item by `at`, synced like the rest (private repo). Data lives in `platform/data/checkpoints.js` (`DAR.CHECKPOINTS`), exported to Flutter. A checkpoint shows days left; past its date it reads "late", never red-shames, and can still be ticked. Nothing here touches the schedule, the gates, the streak or START_DATE.
+A small "Checkpoints" block on the web dashboard (and a row on the Record page). WEB ONLY: owner chose the website as the one app on 13 Nov: three dated checkpoints, each a short tick list. Barely any words. Ticks are stored in `S.checkpoints[id][itemId] = {done, at}`, merged per item by `at`, synced like the rest (private repo). Data lives in `platform/data/checkpoints.js` (`DAR.CHECKPOINTS`). The Flutter merge must still carry `checkpoints` untouched through a push (pass-through, like any unknown key), so a phone sync never drops the ticks. A checkpoint shows days left; past its date it reads "late", never red-shames, and can still be ticked. Nothing here touches the schedule, the gates, the streak or START_DATE.
 
 ## The three checkpoints (owner-approved text)
 1. **6 Dec 2026 — Prove the routine**
@@ -32,9 +32,12 @@ Everything else is a manual tick.
 ## Acceptance
 - verify-logic: ticks merge both ways by `at`; a render writes nothing (render is a read); days-left arithmetic on pinned clocks incl. a rest day; auto-ticks follow state; nothing in scheduledFor/dayStatus/streak changes (existing invariants).
 - verify-flows: tick and untick an item at 390 and 1280, one write each; 44px targets.
-- verify-app: Dart/JS parity for the merge, days-left, auto-ticks and the weekly number; export fresh.
-- Flutter widget test for the Home block; plants: merge takes older `at`, a render that writes, auto-tick ignoring state.
+- verify-app: a push from the Flutter app keeps `checkpoints` intact (pass-through check + plant).
+- Plants: merge takes older `at`, a render that writes, auto-tick ignoring state, Flutter push drops checkpoints.
 - No change to platform/data/curriculum.js, CLAUDE.md, sw.js.
 
 ## After this ships: FEATURE FREEZE for 8 weeks (owner agreed direction, 13 Nov critique)
 Only bug fixes and the weekly practice batches until about 10 Jan 2027. One app decision pending with the owner.
+
+## App decision (owner, 13 Nov): the WEBSITE is the one app
+New features go to platform/ only. The Flutter app (`/app/`) stays live and keeps syncing, gets bug fixes only, and must never drop data it does not understand on a push. No new Flutter screens.

@@ -1065,6 +1065,54 @@ async function session(browser, { putOk }) {
       });
     }
 
+    // (pr) T-067 step 3: practice answers. A pull merges them per item by `at`, both ways
+    // (the newer local answer stays, the newer remote one comes in, a remote-only one is
+    // added); a push carries them; the Anthropic key, set on the device, is in no PUT;
+    // and sitting on the lecture's Practice block, re-rendered by route changes, arms no
+    // push and asks Claude nothing.
+    {
+      const KEY = "sk-ant-test-stub-sync-0123456789", K = "math110.1.8";
+      const local = { studyDays: ["2026-11-05"], lessons: { [K]: { done: true, doneAt: "2026-11-05", notes: "", checks: [], quiz: { passedAt: "2026-11-05", total: 2, firstTry: 2 } } },
+        practice: { [K]: { p1: { answer: "3", mark: "ok", at: "2026-11-05T10:00:00.000Z" }, p2: { answer: "5", mark: "missed", at: "2026-11-05T08:00:00.000Z" } } } };
+      const RF = JSON.parse(JSON.stringify(REMOTE));
+      RF.state.practice = { [K]: { p1: { answer: "4", mark: "missed", at: "2026-11-05T07:00:00.000Z" }, p2: { answer: "2", mark: "ok", at: "2026-11-05T09:00:00.000Z" },
+        p3: { answer: "dependent", mark: "partly", at: "2026-11-05T09:30:00.000Z", grade: { points: [{ point: "x", verdict: "met" }], correction: "y", at: "2026-11-05T09:31:00.000Z" } } } };
+      const st = newStub(200, { sha: "sha-remote", text: JSON.stringify(RF) });
+      let claude = 0;
+      await scenario("(pr)", st, async d => {
+        await d.ctx.addInitScript(([s, k]) => { if (window.top === window && !sessionStorage.getItem("seeded")) {
+          localStorage.setItem("darhikmah_v1", s); localStorage.setItem("brickford_anthropic_key", k); sessionStorage.setItem("seeded", "1"); } }, [JSON.stringify(local), KEY]);
+        await d.page.route("https://api.anthropic.com/**", r => { claude++; return r.abort(); });
+        await d.page.goto(URL + "/sync", { waitUntil: "load" });
+        const merged = await until(d.page, async () => !!(((await d.stored()).practice || {})[K] || {}).p3);
+        const p = ((await d.stored()).practice || {})[K] || {};
+        t53(merged && p.p1.answer === "3" && p.p2.answer === "2" && p.p3.answer === "dependent" && (p.p3.grade || {}).correction === "y",
+          "(pr) a pull merges practice per item by at: the newer local p1 stays, the newer remote p2 comes in, the remote-only p3 is added (" +
+          [p.p1, p.p2, p.p3].map(x => x ? x.answer : "-").join(", ") + ")");
+        const n0 = st.puts.length;
+        await d.page.click("[data-act='syncPush']");
+        const pushed = await until(d.page, () => st.puts.length > n0);
+        const put = st.puts[st.puts.length - 1] || { state: {} }, pp = ((put.state || {}).practice || {})[K] || {};
+        t53(pushed && pp.p1.answer === "3" && pp.p2.answer === "2" && pp.p3.answer === "dependent",
+          "(pr) a push carries the merged practice to the private repo (" + Object.keys(pp).join(", ") + ")");
+        const file = st.file ? st.file.text : "";
+        t53(pushed && file.indexOf(KEY) < 0 && file.indexOf("brickford_anthropic_key") < 0 && file.indexOf("sk-ant") < 0,
+          "(pr) the Anthropic key is in no PUT: not the key, not its storage name (" + file.length + " bytes pushed)");
+        // Sit on the Practice block: four renders by route change, then past the 4 s an armed push would take.
+        await until(d.page, () => true, 600);
+        const before = st.log.length;
+        for (const r of ["/lesson/math110/1/8", "/", "/lesson/math110/1/8", "/recall", "/lesson/math110/1/8"]) {
+          await d.page.evaluate(h => { location.hash = h; }, "#" + r);
+          await d.page.waitForTimeout(250);
+        }
+        const drawn = await d.page.evaluate(() => document.querySelectorAll("#view .pr-item").length);
+        await d.page.waitForTimeout(5500);
+        t53(drawn === 3 && st.log.length === before && claude === 0,
+          "(pr) rendering the Practice block (" + drawn + " items, a stored grading among them) arms no push and asks Claude nothing (" +
+          (st.log.length - before) + " GitHub request(s), " + claude + " to Claude)");
+      });
+    }
+
     // (a) everything above, in one list.
     {
       const allowed = ["GET " + PRIV, "GET " + FILE, "PUT " + FILE];
@@ -1077,6 +1125,6 @@ async function session(browser, { putOk }) {
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065), and sync lives in the private repo only, tells a missing file from no access, restores a new device and merges before it writes (T-053)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065), and sync lives in the private repo only, tells a missing file from no access, restores a new device and merges before it writes (T-053), and practice answers merge both ways by at, the Anthropic key is in no PUT, and a render of the Practice block arms no push (T-067 step 3)");
   process.exit(fails ? 1 : 0);
 })();

@@ -230,6 +230,9 @@
   S.review = S.review || {};
   S.concepts = S.concepts || {};
   S.anchors = S.anchors || [];
+  // T-067 step 3: practice answers, S.practice[lessonKey][itemId] = {answer, mark, at, ...}.
+  // Load-time normalisation like the lines above: in memory, no save().
+  S.practice = S.practice && typeof S.practice === "object" ? S.practice : {};
 
   // ---------- cross-device sync ----------
   // localStorage is per-browser by definition, so the phone and the laptop are
@@ -403,6 +406,22 @@
 
     const rf = (r.settings || {}).streakFrom;
     if (rf && rf > (S.settings.streakFrom || "")) { S.settings.streakFrom = rf; changed++; }
+
+    // T-067 step 3: practice answers merge per item; the newer `at` wins, and an
+    // item only one side has is kept. Nothing is deleted.
+    if (r.practice && typeof r.practice === "object") {
+      if (!S.practice || typeof S.practice !== "object") S.practice = {};
+      Object.keys(r.practice).forEach(k => {
+        const theirs = r.practice[k];
+        if (!theirs || typeof theirs !== "object") return;
+        Object.keys(theirs).forEach(id => {
+          const t = theirs[id];
+          if (!t || typeof t !== "object") return;
+          const mine = S.practice[k] || (S.practice[k] = {});
+          if (!mine[id] || (t.at || "") > (mine[id].at || "")) { mine[id] = t; changed++; }
+        });
+      });
+    }
 
     // T-065: the Monk start date, the one piece of Monk that syncs. First write
     // wins: a side with none takes the other's, and with two the EARLIER date
@@ -697,6 +716,9 @@
     if (MONK_SYNCS && S.monk) state.monk = S.monk;
     // T-065: the start date alone leaves the device; nothing else of Monk does.
     if (S.monkStart) state.monkStart = S.monkStart;
+    // T-067 step 3: practice answers, once there are any. The Anthropic key is not
+    // in S at all (localStorage brickford_anthropic_key), so it cannot travel.
+    if (S.practice && Object.keys(S.practice).length) state.practice = S.practice;
     const ledgers = Object.assign({}, S.foreignLedgers);
     ledgers[S.settings.deviceId] = S.ledger;
     return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
@@ -887,21 +909,46 @@
     if (m <= 35) return 2;
     return 3;
   }
-  function lessonGates(st, l) {
+  // T-067 step 3: a lecture with practice items counts the items marked right
+  // (or "got it") instead of the manual counter, and asks for no more than it has.
+  function practiceNeed(l, k) {
+    const n = k ? practiceItems(k).length : 0;
+    return n ? Math.min(practiceTarget(l), n) : practiceTarget(l);
+  }
+  function lessonGates(st, l, k) {
     st = st || {};
-    const need = practiceTarget(l);
+    const need = practiceNeed(l, k);
+    const solved = k && practiceItems(k).length ? practiceSolvedN(k) : (st.solved || 0);
     return [
       { id: "recall", label: "Recalled cold", ok: (st.recall || "").trim().length >= RECALL_MIN,
         hint: "write what the lecture established, from memory" },
       { id: "rebuild", label: "Rebuilt from memory", ok: [0, 1, 2].every(i => (st.checks || [])[i]),
         hint: "tick the three rebuild steps" },
-      { id: "solve", label: (st.solved || 0) + " of " + need + " problems unaided", ok: (st.solved || 0) >= need,
+      { id: "solve", label: solved + " of " + need + " problems unaided", ok: solved >= need,
         hint: "solve " + need + " problems without help" },
       { id: "explain", label: "Explained plainly", ok: (st.notes || "").trim().length >= EXPLAIN_MIN,
         hint: "explain it in a few plain sentences" },
     ];
   }
-  const lessonCanVerify = (st, l) => lessonGates(st, l).every(g => g.ok);
+  const lessonCanVerify = (st, l, k) => lessonGates(st, l, k).every(g => g.ok);
+
+  // ---------- T-067 step 3: practice items ----------
+  // DAR.PRACTICE[lessonKey] (platform/data/practice-*.js), answered under the
+  // lecture's quiz. State is S.practice[lessonKey][itemId] = {answer, mark, at}
+  // (plus ticks for a checklist, grade for a Claude grading), merged per item by
+  // `at`. A missed or partly item goes into the spaced review under its own key,
+  // "p:<lessonKey>:<itemId>", and comes back in Recall.
+  const WRITE_MIN = 80;                                  // characters of a real written attempt
+  const practiceItems = k => ((D.PRACTICE || {})[k]) || [];
+  const practiceOf = (k, id) => ((S.practice || {})[k] || {})[id] || null;
+  const practiceKey = (k, id) => "p:" + k + ":" + id;
+  const isPracticeKey = k => /^p:[^:]+:[^:]+$/.test(k);
+  function practiceRef(pk) {
+    const m = /^p:([^:]+):([^:]+)$/.exec(pk);
+    const it = m ? practiceItems(m[1]).find(x => x.id === m[2]) : null;
+    return it ? { k: m[1], id: m[2], it } : null;
+  }
+  const practiceSolvedN = k => practiceItems(k).filter(it => (practiceOf(k, it.id) || {}).mark === "ok").length;
 
   // ---------- spaced recall ----------
   // A verified lecture comes back on a widening schedule. Forgetting it resets
@@ -915,6 +962,7 @@
   function reviewsDue() {
     const today = todayISO();
     return Object.keys(S.review).filter(k => {
+      if (isPracticeKey(k)) return !!practiceRef(k) && S.review[k].due <= today;
       const st = S.lessons[k];
       return st && st.verified && S.review[k].due <= today;
     }).sort((a, b) => S.review[a].due < S.review[b].due ? -1 : 1);
@@ -1823,7 +1871,7 @@
     const owed = new Set();
     for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;                 // a day off owes nothing
-      realSched(iso).forEach(it => { const k = lessonKey(it.cid, it.ui, it.li); if (!schedDone(it) && !v2Rescheduled(iso, k)) owed.add(k); });
+      realSched(iso).forEach(it => { const k = lessonKey(it.cid, it.ui, it.li); if (it.l.optional) return; if (!schedDone(it) && !v2Rescheduled(iso, k)) owed.add(k); });
     }
     return owed.size;
   }
@@ -1834,7 +1882,7 @@
     if (!from) return null;
     for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
-      const it = realSched(iso).find(x => !schedDone(x) && !v2Rescheduled(iso, lessonKey(x.cid, x.ui, x.li)));
+      const it = realSched(iso).find(x => !schedDone(x) && !v2Rescheduled(iso, lessonKey(x.cid, x.ui, x.li)) && !x.l.optional);
       if (it) return it;
     }
     return null;
@@ -1847,7 +1895,8 @@
     if (isRestDay(iso) && iso >= D.START_DATE) return "rest";
     if (iso > today) return "upcoming";
     if (iso === today) return "today";
-    const sched = realSched(iso);
+    // T-067 step 3: an optional lecture is never owed, so it cannot leave a day missed or partial.
+    const sched = realSched(iso).filter(it => !it.l.optional);
     if (sched.length) {
       const done = sched.filter(schedDone).length;
       if (done === sched.length) return "completed";
@@ -2819,6 +2868,8 @@
       // shapes below the day's work, on the page whose whole job is the day's
       // work. They are rows in one group now, in the order you would ask for
       // them, and each one goes where it is about.
+      // T-067 step 3: the problems of today's lectures, and practice due again.
+      practiceDashHTML() +
       '<div class="ghead">Where you stand</div>' +
       '<div class="glist">' +
       (g
@@ -3354,10 +3405,13 @@
     const quiz = lessonQuiz(k);
     const passed = quizPassed(k);
     const cleared = lessonCleared(k);
-    const gates = lessonGates(st, l);
+    const gates = lessonGates(st, l, k);
     const gatesOk = gates.filter(g => g.ok).length;
     const canVerify = gatesOk === 4;
-    const need = practiceTarget(l);
+    const need = practiceNeed(l, k);
+    // T-067 step 3: with practice items, the items count; the manual counter is for lectures without.
+    const prN = practiceItems(k).length;
+    const solvedN = prN ? practiceSolvedN(k) : (st.solved || 0);
     const rv = S.review[k];
     // The concepts this lecture teaches already carry a sentence on where the
     // idea shows up in AI. Reuse it rather than writing new prose.
@@ -3440,6 +3494,7 @@
 
       // 3 · solve, from a real source with solutions
       '<div style="margin-top:16px;"><div class="field">3 · Solve ' + need + ' problems unaided</div>' +
+      (prN ? '<div class="muted" data-pr-gate>' + solvedN + " of " + need + " solved in Practice</div></div>" :
       '<div style="font-size:var(--fs-small); color:var(--ink-2);">' + esc(c.practice ? c.practice.label : "Problems from the course source") + "</div>" +
       '<div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
       (c.practice ? '<a class="btn ghost" href="' + c.practice.url + '" target="_blank" rel="noopener">Open problems ↗</a>' : "") +
@@ -3448,7 +3503,7 @@
       '<button class="btn ghost" data-solve="-1" aria-label="one fewer">−</button>' +
       '<span class="mono" id="solvedN" style="min-width:2.5em; text-align:center;">' + (st.solved || 0) + "</span>" +
       '<button class="btn ghost" data-solve="1" aria-label="one more">+</button>' +
-      "</span></div></div>" +
+      "</span></div></div>") +
 
       // 4 · explain
       '<div style="margin-top:16px;"><label class="field" for="lessonNotes">4 · Explain it plainly — this becomes your post</label>' +
@@ -3518,7 +3573,7 @@
         "Three minutes, no notes: write what this lecture established and why.", "Start 3:00",
         ' type="button" data-act="recallTimer" data-open-prove="1"') +
       tile(c.practice ? "a" : "div", c.practice ? c.practice.url : null, "Σ", "Practice problems",
-        esc(c.practice ? c.practice.label : "Problems from the course source") + " · " + (st.solved || 0) + " of " + need + " solved unaided.",
+        esc(c.practice ? c.practice.label : "Problems from the course source") + " · " + solvedN + " of " + need + " solved unaided.",
         c.practice ? "Open ↗" : "Count them under Prove mastery",
         c.practice ? ' target="_blank" rel="noopener"' : "") +
       "</div>" +
@@ -3568,6 +3623,8 @@
         ? '<div class="lq-mount" id="lqMount" data-k="' + k + '"></div>'
         : "") +
       (st.done && quiz && passed ? passHTML() : "") +
+      // T-067 step 3: the lecture's own problems, under the quiz, once it is watched.
+      (st.done ? practiceHTML(k) : "") +
       (st.done && cleared ? deeperHTML() : "") +
 
       // The summary, on the page the lecture is on, folded under its heading.
@@ -3629,6 +3686,284 @@
         ? '<div class="ghead">Leads to<span class="gh-meta">' + leads.length + " lecture" + (leads.length === 1 ? "" : "s") + "</span></div>" +
           '<div class="glist lsn-leads">' + leads.map(n => row(n, false)).join("") + "</div>"
         : "");
+  }
+
+  // ---------- T-067 step 3: the Practice block ----------
+  // Rendering is a read: nothing here writes. Answers are written by the
+  // handlers in wirePractice (the reader acted), and an item is repainted in
+  // place, so a live quiz above it and the scroll position survive.
+  const PR_TYPE = { numeric: "Number", output: "Code · run it in Replit", worked: "On paper", write: "Written" };
+  const PR_MARK = { ok: ["Got it", "good"], partly: ["Partly", "gold"], missed: ["Missed", "crimson"] };
+  const prMsg = {};                                  // per item, in memory: the last grading message
+  const prTried = (it, ps) => !!(ps && typeof ps.answer === "string" && ps.answer.trim() &&
+    (it.type !== "write" || ps.answer.trim().length >= WRITE_MIN));
+  function practiceHTML(k) {
+    const items = practiceItems(k);
+    if (!items.length) return "";
+    return '<div class="ghead pr-head">Practice<span class="gh-meta" data-pr-count>' + practiceSolvedN(k) + " of " + items.length + " solved</span></div>" +
+      '<div class="pr-list" data-pr-k="' + esc(k) + '">' + items.map((it, i) => practiceItemHTML(k, it, i)).join("") + "</div>";
+  }
+  function practiceItemHTML(k, it, i) {
+    const ps = practiceOf(k, it.id) || {};
+    const tried = prTried(it, ps);
+    const auto = it.type === "numeric" || it.type === "output";
+    const head = '<div class="pr-n">' + (i + 1) + " · " + esc(PR_TYPE[it.type] || it.type) + "</div>" + '<div class="pr-q">' + it.q + "</div>";
+    let body;
+    if (!tried) {
+      body = it.type === "write"
+        ? '<textarea class="pr-in" aria-label="Your answer" placeholder="Your answer, in your own words"></textarea>' +
+          '<div class="pr-row"><button class="btn ghost" type="button" data-pr="check">Submit</button>' +
+          '<span class="note pr-len">0 / ' + WRITE_MIN + "</span></div>"
+        : '<div class="lq-num"><input type="text" class="pr-in" aria-label="Your answer" autocomplete="off"' +
+          (it.type === "numeric" ? ' inputmode="decimal" placeholder="A number"' : it.type === "output" ? ' placeholder="What it prints"' : ' placeholder="Your result"') + ">" +
+          '<button class="btn ghost" type="button" data-pr="check">Check</button></div>';
+    } else {
+      const mine = '<div class="pr-ans">' + esc(ps.answer) + "</div>";
+      if (auto) {
+        const right = ps.mark === "ok";
+        body = '<div class="pr-v"><span class="pill ' + (right ? "good" : "crimson") + '">' + (right ? "Right" : "Not quite") + "</span> " +
+          (right ? esc(ps.answer) : esc(ps.answer) + " · the answer is " + esc(it.type === "numeric" ? String(it.num) : it.out)) + "</div>" +
+          (it.expl ? '<div class="expl">' + it.expl + "</div>" : "") +
+          (it.type === "output" ? '<pre class="pr-code">' + esc(it.code) + "</pre>" : "");
+      } else {
+        const ticks = ps.ticks || [];
+        body = mine +
+          (it.type === "worked"
+            ? '<div class="expl pr-sol"><div><strong>Answer</strong> ' + it.result + "</div>" +
+              '<ol class="pr-steps">' + it.steps.map(t => "<li>" + t + "</li>").join("") + "</ol></div>"
+            : '<div class="pr-sol"><div class="field">Key points</div>' +
+              it.points.map((t, j) => '<label class="check-row"><input type="checkbox" data-pr-tick="' + j + '"' + (ticks[j] ? " checked" : "") + ">" +
+                '<span class="checkbox">' + CHECK_SVG + '</span><span class="check-label">' + t + "</span></label>").join("") +
+              '<div class="expl"><strong>Model answer</strong> ' + it.model + "</div></div>");
+        const g = ps.grade, key = !!aiKey(), net = !noNet();
+        body += '<div class="pr-grade">' +
+          (g ? '<ul class="pr-gl">' + (g.points || []).map(p => '<li class="pr-g-' + esc(p.verdict) + '"><span class="pr-gm" aria-hidden="true">' +
+                (p.verdict === "met" ? "✓" : p.verdict === "partly" ? "½" : "✗") + "</span> " + esc(p.point) + " <span class=\"pr-gv\">" + esc(p.verdict) + "</span></li>").join("") + "</ul>" +
+               '<div class="expl"><strong>Correction</strong> ' + esc(g.correction || "") + "</div>" : "") +
+          '<button class="btn ghost" type="button" data-pr="grade"' + (key && net ? "" : " disabled") + ">" + (g ? "Grade again" : "Grade with Claude") + "</button>" +
+          '<span class="note pr-msg">' + esc(prMsg[k + "/" + it.id] ||
+            (!key ? "No Claude key on this device (Sync): self-check above." : !net ? "Offline: self-check above." : "")) + "</span></div>";
+      }
+      body += '<div class="pr-row">' +
+        (ps.mark && !auto ? '<span class="pill ' + PR_MARK[ps.mark][1] + '">' + PR_MARK[ps.mark][0] + "</span>" : "") +
+        (!auto && !ps.mark
+          ? ["ok", "partly", "missed"].map(m => '<button class="btn ghost" type="button" data-pr="mark" data-m="' + m + '">' + PR_MARK[m][0] + "</button>").join("")
+          : '<button class="btn ghost" type="button" data-pr="again">Again</button>') + "</div>";
+    }
+    return '<div class="card pr-item" data-pr-id="' + esc(it.id) + '" data-pr-type="' + esc(it.type) + '">' + head + body + "</div>";
+  }
+  // The printed value: the same text, spacing aside, or the same number by the quiz's grader.
+  function outputOk(it, v) {
+    const norm = x => String(x).replace(/\s+/g, "");
+    if (norm(v) === norm(it.out)) return true;
+    const n = Number(String(it.out).trim());
+    return isFinite(n) && String(it.out).trim() !== "" && DAR.Quiz.numOk({ num: n }, v);
+  }
+  function practicePut(k, id, patch) {
+    if (!S.practice[k]) S.practice[k] = {};
+    S.practice[k][id] = Object.assign({}, S.practice[k][id] || {}, patch, { at: new Date().toISOString() });
+  }
+  // Repaint one item and the counters that read it. When the solved count moved,
+  // the gates under "Prove mastery" read it too, so the page is redrawn where the
+  // reader is, unless a quiz or a video is live above (they would restart): then
+  // only the item, and the gates catch up on the next render.
+  function practicePaint(list, k, id, solvedBefore) {
+    const items = practiceItems(k), i = items.findIndex(x => x.id === id);
+    if (solvedBefore !== practiceSolvedN(k) && !quizLive() && !videoOnScreen()) {
+      const y = window.scrollY;
+      const st = S.lessons[k];
+      if (st && $("#lessonNotes")) st.notes = $("#lessonNotes").value;
+      if (st && $("#lessonRecall")) st.recall = $("#lessonRecall").value;
+      render({ after: () => window.scrollTo({ top: y, behavior: "instant" }) });
+      return;
+    }
+    const el = list.querySelector('.pr-item[data-pr-id="' + id + '"]');
+    if (!el || i < 0) return;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = practiceItemHTML(k, items[i], i);
+    const fresh = tmp.firstElementChild;
+    el.replaceWith(fresh);
+    renderMath(fresh);
+    const cnt = $("#view [data-pr-count]");
+    if (cnt) cnt.textContent = practiceSolvedN(k) + " of " + items.length + " solved";
+  }
+  function wirePractice(list) {
+    const k = list.dataset.prK;
+    const itemOf = el => { const box = el.closest(".pr-item"); return box ? practiceItems(k).find(x => x.id === box.dataset.prId) || null : null; };
+    const answer = (it, box) => {
+      const inp = box.querySelector(".pr-in"), v = inp ? inp.value.trim() : "";
+      if (!v) { toast("Answer first."); return false; }
+      if (it.type === "write" && v.length < WRITE_MIN) { toast("At least " + WRITE_MIN + " characters: a real attempt first."); return false; }
+      const mark = it.type === "numeric" ? (DAR.Quiz.numOk(it, v) ? "ok" : "missed")
+        : it.type === "output" ? (outputOk(it, v) ? "ok" : "missed") : null;
+      practicePut(k, it.id, { answer: v, mark: mark, ticks: [], grade: null });
+      if (mark === "missed") scheduleReview(practiceKey(k, it.id), 0);
+      return true;
+    };
+    list.addEventListener("click", ev => {
+      const b = ev.target.closest("[data-pr]");
+      if (!b || !list.contains(b) || b.disabled) return;
+      const it = itemOf(b), box = b.closest(".pr-item");
+      if (!it) return;
+      const before = practiceSolvedN(k), act = b.dataset.pr;
+      if (act === "check") { if (!answer(it, box)) return; }
+      else if (act === "mark") {
+        const m = b.dataset.m;
+        practicePut(k, it.id, { mark: m });
+        if (m === "partly" || m === "missed") scheduleReview(practiceKey(k, it.id), 0);
+      } else if (act === "again") practicePut(k, it.id, { answer: "", mark: null, ticks: [], grade: null });
+      else if (act === "grade") { practiceGrade(list, k, it); return; }
+      else return;
+      save();
+      practicePaint(list, k, it.id, before);
+    });
+    list.addEventListener("keydown", ev => {
+      if (ev.key !== "Enter" || !ev.target.matches("input.pr-in")) return;
+      const box = ev.target.closest(".pr-item"), go = box && box.querySelector('[data-pr="check"]');
+      if (go) go.click();
+    });
+    list.addEventListener("input", ev => {
+      if (!ev.target.matches("textarea.pr-in")) return;
+      const n = ev.target.closest(".pr-item").querySelector(".pr-len");
+      if (n) n.textContent = ev.target.value.trim().length + " / " + WRITE_MIN;
+    });
+    list.addEventListener("change", ev => {
+      const t = ev.target;
+      if (!t.matches("input[data-pr-tick]")) return;
+      const it = itemOf(t);
+      if (!it) return;
+      const ticks = ((practiceOf(k, it.id) || {}).ticks || []).slice();
+      ticks[+t.dataset.prTick] = t.checked;
+      practicePut(k, it.id, { ticks });
+      save();
+    });
+  }
+
+  // ---------- T-067 step 3: Grade with Claude ----------
+  // The owner's own Anthropic key, on this device only: localStorage
+  // brickford_anthropic_key. It is not in S, so neither save() nor the sync
+  // payload can carry it; it is never rendered (the Sync page says only that one
+  // is saved) and never logged. One Messages API request per press, straight
+  // from the browser, holding the question, the checklist (or the worked
+  // solution) and the answer, nothing else. Without a key, offline, or on any
+  // error, the item stays on self-check and says so in one line.
+  const AI_KEY = "brickford_anthropic_key";
+  const aiKey = () => { try { return localStorage.getItem(AI_KEY) || ""; } catch (e) { return ""; } };
+  const AI_URL = "https://api.anthropic.com/v1/messages";
+  // Claude Opus 5.5, the default model; a refusal falls back server-side ("default" routing).
+  const AI_MODEL = "claude-opus-5-5", AI_VERSION = "2026-10-21", AI_BETA = "server-side-fallback-2026-07-01";
+  const AI_SCHEMA = {
+    type: "object", additionalProperties: false, required: ["points", "correction"],
+    properties: {
+      points: { type: "array", items: { type: "object", additionalProperties: false, required: ["point", "verdict"],
+        properties: { point: { type: "string" }, verdict: { type: "string", enum: ["met", "partly", "missing"] } } } },
+      correction: { type: "string" },
+    },
+  };
+  function gradeRequest(it, answer) {
+    const points = it.type === "write" ? it.points : it.steps.concat(["Result: " + it.result]);
+    return {
+      model: AI_MODEL,
+      max_tokens: 1024,
+      system: "You grade one student answer against the key points of a model solution. For each key point, in order, " +
+        "say whether the answer meets it: met, partly or missing. Then give exactly one correction: the most important thing " +
+        "to fix, in at most two sentences, addressed to the student. Judge the mathematics and the reasoning, not the wording.",
+      messages: [{ role: "user", content: JSON.stringify({ question: it.q, key_points: points, answer: answer }) }],
+      output_config: { format: { type: "json_schema", schema: AI_SCHEMA } },
+      fallbacks: "default",
+    };
+  }
+  function practiceGrade(list, k, it) {
+    const key = aiKey(), ps = practiceOf(k, it.id) || {};
+    const say = m => { prMsg[k + "/" + it.id] = m; practicePaint(list, k, it.id, practiceSolvedN(k)); };
+    if (!key) return say("No Claude key on this device (Sync): self-check above.");
+    if (noNet()) return say("Offline: self-check above.");
+    if (!prTried(it, ps)) return;
+    const box = list.querySelector('.pr-item[data-pr-id="' + it.id + '"]'), btn = box && box.querySelector('[data-pr="grade"]');
+    if (btn) { btn.disabled = true; btn.textContent = "Grading…"; }
+    delete prMsg[k + "/" + it.id];
+    fetch(AI_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": AI_VERSION,
+                 "anthropic-dangerous-direct-browser-access": "true", "anthropic-beta": AI_BETA },
+      body: JSON.stringify(gradeRequest(it, ps.answer)),
+    }).then(r => r.json().catch(() => ({})).then(d => {
+      if (!r.ok) throw new Error((d && d.error && d.error.message) || "HTTP " + r.status);
+      if (d && d.stop_reason === "refusal") throw new Error("declined");
+      const t = ((d && d.content) || []).find(b => b && b.type === "text");
+      const g = JSON.parse(t ? t.text : "");
+      if (!g || !Array.isArray(g.points) || typeof g.correction !== "string") throw new Error("an answer in the wrong shape");
+      return g;
+    })).then(g => {
+      practicePut(k, it.id, { grade: { points: g.points.map(p => ({ point: String(p.point || ""), verdict: ["met", "partly", "missing"].indexOf(p.verdict) >= 0 ? p.verdict : "missing" })),
+        correction: g.correction, at: new Date().toISOString() } });
+      save();
+      say("");
+    }).catch(e => say("Claude could not grade this (" + String((e && e.message) || "no answer").slice(0, 80) + "): self-check above."));
+  }
+
+  // ---------- T-067 step 3: today's practice, and this week's answers ----------
+  // The lectures scheduled today that have items, and the lectures with practice
+  // items due again in the spaced review. Derived on every read.
+  function practiceToday() {
+    const rows = [];
+    realSched(todayISO()).forEach(it => {
+      const k = lessonKey(it.cid, it.ui, it.li);
+      if (practiceItems(k).length && !rows.some(r => r.k === k)) rows.push({ k, due: 0 });
+    });
+    reviewsDue().filter(isPracticeKey).forEach(pk => {
+      const ref = practiceRef(pk);
+      if (!ref) return;
+      let row = rows.find(r => r.k === ref.k);
+      if (!row) rows.push(row = { k: ref.k, due: 0 });
+      row.due++;
+    });
+    return rows;
+  }
+  // The last seven days' answers (today and the six before), by lecture.
+  function weekAnswers() {
+    const from = addDaysISO(todayISO(), -6), out = [];
+    Object.keys(S.practice || {}).sort().forEach(k => practiceItems(k).forEach((it, i) => {
+      const ps = practiceOf(k, it.id);
+      if (ps && ps.answer && String(ps.at || "").slice(0, 10) >= from) out.push({ k, it, i, ps });
+    }));
+    return out;
+  }
+  function weekText() {
+    const rows = weekAnswers(), plain = t => String(t || "").replace(/<[^>]*>/g, "");
+    const mark = { ok: "got it", partly: "partly", missed: "missed" };
+    let last = null, s = "Brickford practice, " + addDaysISO(todayISO(), -6) + " to " + todayISO() + "\n" +
+      "Please review: for each answer, say whether it is right, name the mistake if there is one, and give one correction.\n";
+    rows.forEach(r => {
+      if (r.k !== last) {
+        const L = lessonLabel(r.k);
+        s += "\n" + (typeof L === "string" ? r.k : L.code + " · " + L.title) + "\n";
+        last = r.k;
+      }
+      s += (r.i + 1) + ". " + plain(r.it.q) + "\n   My answer: " + r.ps.answer +
+        (r.ps.mark ? " (" + (r.it.type === "numeric" || r.it.type === "output" ? (r.ps.mark === "ok" ? "checked right" : "checked wrong") : "self-marked " + mark[r.ps.mark]) + ")" : "") + "\n";
+    });
+    return { text: s, n: rows.length };
+  }
+  function practiceDashHTML() {
+    const rows = practiceToday(), wk = weekAnswers().length;
+    if (!rows.length && !wk) return "";
+    return '<div class="ghead">Today’s practice<span class="gh-meta">' + rows.reduce((a, r) => a + practiceItems(r.k).length, 0) + " items</span></div>" +
+      '<div class="glist pr-today">' +
+      rows.map(r => {
+        const L = lessonLabel(r.k);
+        if (typeof L === "string") return "";
+        const n = practiceItems(r.k).length, done = practiceItems(r.k).filter(it => prTried(it, practiceOf(r.k, it.id))).length;
+        // A watched lecture is a ticked done row (the dashboard never asks to re-watch one, T-056);
+        // what is left to practise is the line under it.
+        const seen = !!(S.lessons[r.k] || {}).done;
+        return '<a class="grow' + (seen ? " done-row" : "") + '" href="#/lesson/' + L.cid + "/" + L.ui + "/" + L.li + '"><span class="g-lead">' + (seen ? "✓" : "") + "</span>" +
+          '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
+          '<span class="g-s">' + esc(L.code) + " · " + done + " of " + n + " answered" + (r.due ? " · " + r.due + " due again" : "") + "</span></span></a>";
+      }).join("") +
+      (wk ? '<button class="grow" type="button" data-act="copyWeek"><span class="g-lead"></span><span class="g-main"><span class="g-t">Copy this week’s answers</span>' +
+            '<span class="g-s">' + wk + " answer" + (wk === 1 ? "" : "s") + " and their questions, for a review in chat</span></span></button>" : "") +
+      "</div>" + '<textarea id="weekOut" class="pr-week" readonly hidden aria-label="This week’s answers"></textarea>';
   }
 
   V.exams = function () {
@@ -4313,6 +4648,17 @@
         '<div style="margin-top:10px;"><button class="btn" data-act="syncConnect">Connect</button></div>' +
         '<p class="note">Anyone with this device can read the token. Scope it to the one repo; Forget it before lending the device.</p></div>') +
 
+      // T-067 step 3: the Anthropic key for Grade with Claude. Stored on this device
+      // only; never shown back, never synced (it is not in S).
+      '<div class="card" style="margin-top:16px;"><h2>Grade with Claude</h2>' +
+      (aiKey()
+        ? '<p class="muted">A key is saved on this device. It never leaves it except to grade.</p>' +
+          '<div class="row-actions"><button class="btn ghost" data-act="aiKeyForget">Forget key</button></div>'
+        : '<div style="margin-top:12px;"><label class="field" for="aiKeyIn">Anthropic API key</label>' +
+          '<input id="aiKeyIn" type="password" placeholder="sk-ant-\u2026" autocomplete="off"></div>' +
+          '<div style="margin-top:10px;"><button class="btn" data-act="aiKeySave">Save key</button></div>' +
+          '<p class="note">Stays in this browser and is never synced. It is sent only to api.anthropic.com, with one practice answer, when you press Grade.</p>') +
+      "</div>" +
       // The commonest failure is not a bug: the token lives in this browser's
       // storage, so a device where it was never entered syncs nothing at all.
       // Two cards of prose read once and never again, on a page whose actual job
@@ -4660,18 +5006,21 @@
 
   V.recall = function () {
     const due = reviewsDue();
-    const all = Object.keys(S.review).filter(k => (S.lessons[k] || {}).verified);
+    const all = Object.keys(S.review).filter(k => isPracticeKey(k) ? !!practiceRef(k) : (S.lessons[k] || {}).verified);
     const next = all.filter(k => S.review[k].due > todayISO())
       .sort((a, b) => S.review[a].due < S.review[b].due ? -1 : 1).slice(0, 6);
     const card = k => {
-      const L = lessonLabel(k);
+      // T-067 step 3: a practice item due again is a card too, with its question.
+      const pr = practiceRef(k);
+      const L = lessonLabel(pr ? pr.k : k);
       if (typeof L === "string") return "";
       const rv = S.review[k];
       return '<div class="card"><div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;">' +
         '<div><div style="font-size:var(--fs-tiny); letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); font-weight:600;">' + esc(L.code) + "</div>" +
-        '<div style="color:var(--ink); font-weight:600;">' + esc(L.title) + "</div></div>" +
+        '<div style="color:var(--ink); font-weight:600;">' + esc(L.title) + (pr ? " \u00b7 practice " + (practiceItems(pr.k).indexOf(pr.it) + 1) : "") + "</div></div>" +
         '<span class="pill' + (rv.lapses > 1 ? " crimson" : "") + '">interval ' + BOXES[rv.box] + "d" + (rv.lapses ? " · " + rv.lapses + " lapse" + (rv.lapses === 1 ? "" : "s") : "") + "</span></div>" +
-        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:8px;">Say it out loud before you open anything. Then judge honestly.</p>' +
+        (pr ? '<div class="pr-q pr-recall">' + pr.it.q + "</div>" : "") +
+        '<p style="font-size:var(--fs-small); color:var(--ink-2); margin-top:8px;">' + (pr ? "Solve it again on paper before you open anything. Then judge honestly." : "Say it out loud before you open anything. Then judge honestly.") + "</p>" +
         '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' +
         '<button class="btn ghost" data-recall="forgot" data-k="' + esc(k) + '">Forgot</button>' +
         '<button class="btn ghost" data-recall="shaky" data-k="' + esc(k) + '">Shaky</button>' +
@@ -4694,11 +5043,11 @@
         ? '<div class="ghead">Coming up<span class="gh-meta">' + next.length + "</span></div>" +
           '<div class="glist">' +
           next.map(k => {
-            const L = lessonLabel(k);
+            const pr = practiceRef(k), L = lessonLabel(pr ? pr.k : k);
             if (typeof L === "string") return "";
             return '<div class="grow"><span class="g-lead"></span>' +
               '<span class="g-main"><span class="g-t">' + esc(L.title) + "</span>" +
-              '<span class="g-s">' + esc(L.code) + "</span></span>" +
+              '<span class="g-s">' + esc(L.code) + (pr ? " \u00b7 practice " + (practiceItems(pr.k).indexOf(pr.it) + 1) : "") + "</span></span>" +
               '<span class="g-v">' + esc(S.review[k].due.slice(5)) + "</span></div>";
           }).join("") + "</div>"
         : "") +
@@ -6325,6 +6674,9 @@
         onFinish: res => { recordQuizPass(k, res); render(); toast("Passed. " + res.firstTry + " of " + res.total + " on the first try."); },
       });
     }
+    // T-067 step 3: the lecture's Practice block (its handlers write; the render did not).
+    const prl = $(".pr-list", root);
+    if (prl) wirePractice(prl);
     // T-026a: the Courses filter. In memory, and a swap of the shelf alone:
     // no save() (a render is a read, and this is not even a render), and no
     // render(), so the page keeps its scroll.
@@ -6492,6 +6844,21 @@
           // not keep this device latched off.
           syncQuiet++; S.settings.syncError = null; save(); syncQuiet--;
           render(); toast("Connected. Pull to bring this device up to date.");
+        } else if (act === "aiKeySave") {
+          // T-067 step 3: the Anthropic key, on this device only. No save(): it is not in S.
+          const v = $("#aiKeyIn") ? $("#aiKeyIn").value.trim() : "";
+          if (!v) { toast("Paste the key first."); return; }
+          try { localStorage.setItem(AI_KEY, v); } catch (e) { toast("Could not store the key."); return; }
+          render(); toast("Key saved on this device.");
+        } else if (act === "aiKeyForget") {
+          try { localStorage.removeItem(AI_KEY); } catch (e) {}
+          render(); toast("Key forgotten.");
+        } else if (act === "copyWeek") {
+          const w = weekText(), out = $("#weekOut");
+          const show = () => { if (out) { out.value = w.text; out.hidden = false; out.select(); } toast("Select and copy the text below."); };
+          try {
+            navigator.clipboard.writeText(w.text).then(() => toast("Copied " + w.n + " answer" + (w.n === 1 ? "" : "s") + ". Paste them into a chat."), show);
+          } catch (e) { show(); }
         } else if (act === "syncForget") {
           try { localStorage.removeItem("brickford_gh_token"); } catch (e) {}
           syncQuiet++; S.settings.syncError = null; save(); syncQuiet--;
@@ -6556,7 +6923,7 @@
             else { if (st.doneAt) st.firstDoneAt = firstWatched(st); delete st.doneAt; }
           }
           if (act === "verify") {
-            if (!lessonCanVerify(st, ls)) { S.lessons[k] = st; save(); render(); toast("Finish the four gates first."); return; }
+            if (!lessonCanVerify(st, ls, k)) { S.lessons[k] = st; save(); render(); toast("Finish the four gates first."); return; }
             st.verified = true; st.verifiedAt = todayISO();
             if (!st.done) { st.done = true; st.doneAt = st.doneAt || todayISO(); }
             S.lessons[k] = st;

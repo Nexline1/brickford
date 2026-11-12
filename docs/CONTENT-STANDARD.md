@@ -58,6 +58,40 @@ the learner is most receptive; do not waste it on "Incorrect."
 Distractors must encode **real** errors — the sign slip, the transposed index, the
 confusion the `miss` field names. Never filler.
 
+## Practice items
+
+Unsolved problems for one lecture, in `platform/data/practice-<course>.js` as
+`DAR.PRACTICE[lessonKey] = [items]`, shown under the lecture's quiz once it is watched
+(owner-approved in `loop/specs/T-067-plan-v2/plan.md`, step 3).
+
+| type | fields | how it is checked |
+|---|---|---|
+| `numeric` | `q`, `num`, `tol`?, `expl` | the quiz engine's numeric grader (a decimal comma reads as a point; there is no grouping separator, so no answer needs one) |
+| `output` | `q`, `code`, `out` | run in Replit; the printed value is compared with `out` |
+| `worked` | `q`, `result`, `steps`, `num`? | solved on paper; the steps appear only after an attempt, then got it / partly / missed |
+| `write` | `q`, `points` (4–6), `model` | a written answer; the checklist and the model answer appear only after 80 characters |
+
+- **Similar, never identical.** Same method as the lecture's worked example, different
+  numbers or a different setup. A problem the summary already solves teaches recognition.
+- **Sized by the lecture.** Maths and physics carry at least `practiceTarget` items: 1 up to
+  15 minutes, 2 up to 35, 3 beyond. The "N problems unaided" gate counts the items solved
+  and asks for no more than the lecture has.
+- **Every answer recomputed.** Each `num` and each `out` has an entry in `expectedPractice`
+  in `tools/verify-content.js`, derived by a different route than the item states (a numeric
+  derivative for a power rule, elimination for Cramer, a grid search for a maximum). Each
+  `output` item's `code` is run with `python3` in the gate and must print `out`.
+- **No bare `<`** before a letter or a slash, and no tags: `q`, `expl`, `result`, `steps`,
+  `points` and `model` are raw HTML so KaTeX can see the `$...$`. `code` is shown escaped.
+- **Ids are forever.** `p1`, `p2`, ... An answer is stored under `S.practice[lessonKey][id]`
+  and a missed item's review under `p:<lessonKey>:<id>`; renumbering re-points both.
+- **Coverage only goes down.** The count of core maths and physics lectures without items is
+  pinned in `tools/verify-content.practice-baseline.json`, and every core maths or physics
+  lecture the scheduler puts in the 14 days from its pinned clock must have items. Lower the
+  baseline in the same commit as the items that earn it.
+- **Grade with Claude** sends only the question, the checklist (or the worked steps) and the
+  answer, with the owner's own key, which lives in `localStorage` `brickford_anthropic_key`
+  on that device alone. Without a key, offline or on an error, the item stays on self-check.
+
 ## Correctness
 
 Non-negotiable, because a wrong item does not just fail to teach: the spaced scheduler

@@ -1,0 +1,16 @@
+plants against /home/user/bf-T-067-p (b85a96e)
+sha256 before:
+  7c81653bfdea153b1b070704822d756c002304d47430dd6c3db8cb26609c86ca  platform/js/app.js
+  ea5d7db18cc1e42d853c34ba82756ef316c28a7dd3950c00299b690d2e7719a2  platform/data/practice-math110.js
+  08f8e9985ab431522796d1920c10a3342de7f8b43c9563ddf3f8ce40dbbaf592  tools/verify-content.practice-baseline.json
+== plant worked-visible -> node tools/verify-flows.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  (pr) a worked solution is not in the page before an attempt (no steps, no answer in the DOM) — 2 solution element(s)
+  FAIL  (pr) the practice flow ran to its end without a harness error — page.fill: Timeout 30000ms exceeded.
+2 of 366 flow check(s) FAILED
+  exit 1, the named check failed (caught, as required)
+sha256 after:
+  7c81653bfdea153b1b070704822d756c002304d47430dd6c3db8cb26609c86ca  platform/js/app.js
+  ea5d7db18cc1e42d853c34ba82756ef316c28a7dd3950c00299b690d2e7719a2  platform/data/practice-math110.js
+  08f8e9985ab431522796d1920c10a3342de7f8b43c9563ddf3f8ce40dbbaf592  tools/verify-content.practice-baseline.json
+0 plant(s) not caught

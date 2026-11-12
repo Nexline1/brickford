@@ -1,0 +1,36 @@
+plants against /home/user/bf-T-067-p (b85a96e)
+sha256 before:
+  7c81653bfdea153b1b070704822d756c002304d47430dd6c3db8cb26609c86ca  platform/js/app.js
+  ea5d7db18cc1e42d853c34ba82756ef316c28a7dd3950c00299b690d2e7719a2  platform/data/practice-math110.js
+  08f8e9985ab431522796d1920c10a3342de7f8b43c9563ddf3f8ce40dbbaf592  tools/verify-content.practice-baseline.json
+== plant wrong-numeric -> node tools/verify-content.js
+  restored platform/data/practice-math110.js (cmp identical)
+  FAIL T-067 practice math110.0.5/p1: num 12 is recomputed in expectedPractice (-12, within 0.000012)
+1 of 49249 checks FAILED
+  exit 1, the named check failed (caught, as required)
+== plant ratchet-loosened -> node tools/verify-content.js
+  restored tools/verify-content.practice-baseline.json (cmp identical)
+  FAIL T-067 practice ratchet: 294 core maths/physics lectures have no items; the baseline in verify-content.practice-baseline.json says 295 (lower the baseline to 294: it only goes down)
+1 of 49249 checks FAILED
+  exit 1, the named check failed (caught, as required)
+== plant optional-owed -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  v2: a v1 lecture v2 schedules again is not owed on its v1 day, which still lists it (backlogCount, firstOwed) — owed 89 (expected 88), 4 re-scheduled by v2, e.g. ai200.1.5 ai200.1.6 ai200.1.7 (still on 2026-11-04, which reads missed); first owed math
+  FAIL  T-067: an optional lecture is never owed, a past v1 day included (backlogCount 0, firstOwed none, its days completed) — optional on the v1 days: ai200.2.0 (first on 2026-11-19); 92 others watched; owed 1, first owed null, 19 Nov completed, 20 Nov com
+2 of 253 invariant(s) FAILED
+  exit 1, the named check failed (caught, as required)
+== plant key-leak -> node tools/verify-sync-loop.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  every push's state has exactly the keys syncPayload sends — got anchors,concepts,diag,electives,gates,grading,labs,lessons,problems,psets,quizAttempts,quizMisses,reps,review,settings,studyDays,treasury,weeks
+  FAIL  (pr) the Anthropic key is in no PUT: not the key, not its storage name (1779 bytes pushed)
+FAIL — 2 assertions broken
+  exit 1, the named check failed (caught, as required)
+== plant worked-visible -> node tools/verify-flows.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  (pr) a worked solution is not in the page before an attempt (no steps, no answer in the DOM) — 2 solution element(s)
+  exit 2, the named check failed (NOT CAUGHT)
+sha256 after:
+  7c81653bfdea153b1b070704822d756c002304d47430dd6c3db8cb26609c86ca  platform/js/app.js
+  ea5d7db18cc1e42d853c34ba82756ef316c28a7dd3950c00299b690d2e7719a2  platform/data/practice-math110.js
+  08f8e9985ab431522796d1920c10a3342de7f8b43c9563ddf3f8ce40dbbaf592  tools/verify-content.practice-baseline.json
+1 plant(s) not caught

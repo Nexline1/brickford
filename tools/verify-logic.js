@@ -1522,13 +1522,46 @@ async function scenario(browser, now, state, tz) {
         const onDay = {};
         owedDays.forEach(d => T.scheduledFor(d).filter(it => !it.pseudo).forEach(it => { const k = it.cid + "." + it.ui + "." + it.li; all.add(k); (onDay[k] = onDay[k] || []).push(d); }));
         const moved = [...all].filter(k => later.has(k));
-        return { n: T.backlogCount(), expect: all.size - moved.length, moved, first: T.firstOwed(), statusOf: moved.length ? T.dayStatus(onDay[moved[0]][0]) : null, kept: moved.length ? onDay[moved[0]][0] : null };
+        // T-067 step 3: an optional lecture is never owed either (its own check follows), so it is not expected here.
+        const L = {}; window.DAR.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => { L[c.id + "." + ui + "." + li] = l; })));
+        const optional = [...all].filter(k => L[k].optional && !later.has(k));
+        return { n: T.backlogCount(), expect: all.size - moved.length - optional.length, moved, optional, first: T.firstOwed(), statusOf: moved.length ? T.dayStatus(onDay[moved[0]][0]) : null, kept: moved.length ? onDay[moved[0]][0] : null };
       }, owedDays);
       check("v2: a v1 lecture v2 schedules again is not owed on its v1 day, which still lists it (backlogCount, firstOwed)",
-        r.n === r.expect && r.moved.length > 0 && r.n > 0 && !r.moved.includes(r.first) && r.statusOf === "missed",
+        r.n === r.expect && r.moved.length > 0 && r.n > 0 && !r.moved.includes(r.first) && !r.optional.includes(r.first) && r.statusOf === "missed",
         "owed " + r.n + " (expected " + r.expect + "), " + r.moved.length + " re-scheduled by v2, e.g. " + r.moved.slice(0, 3).join(" ") +
         " (still on " + r.kept + ", which reads " + r.statusOf + "); first owed " + r.first);
       check("no page errors (plan v2 backlog)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+    // (e2) T-067 step 3: an optional lecture is never owed, on a past v1 day included. v1 put the
+    // optional "Intro to Large Language Models" (ai200.2.0) on 19 and 20 Nov. Clock Sat 21 Nov,
+    // everything else those days scheduled watched with its quiz passed, the optional one not:
+    // nothing is owed, nothing comes first, and both days read completed.
+    {
+      const today = "2026-11-21";
+      const owedDays = range(START, addDays(today, -1)).filter(d => !isSat(d));
+      const probe = await scenario(browser, today, { studyDays: [START] });
+      const keys = await probe.page.evaluate(owedDays => {
+        const T = window.__brickfordTest, L = {}, out = { done: [], optional: [] };
+        window.DAR.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => { L[c.id + "." + ui + "." + li] = l; })));
+        owedDays.forEach(d => T.scheduledFor(d).filter(it => !it.pseudo).forEach(it => {
+          const k = it.cid + "." + it.ui + "." + it.li, list = L[k].optional ? out.optional : out.done;
+          if (list.indexOf(k) < 0) list.push(k);
+          if (L[k].optional) out.optDay = out.optDay || d;
+        }));
+        return out;
+      }, owedDays);
+      await probe.ctx.close();
+      const lessons = {};
+      keys.done.forEach(k => { lessons[k] = { done: true, doneAt: "2026-11-20", notes: "", checks: [], quiz: { passedAt: "2026-11-20", total: 1, firstTry: 1 } }; });
+      const { ctx, page, errors } = await scenario(browser, today, { studyDays: [START], lessons });
+      const r = await page.evaluate(([a, b]) => { const T = window.__brickfordTest; return { n: T.backlogCount(), first: T.firstOwed(), s19: T.dayStatus(a), s20: T.dayStatus(b) }; }, ["2026-11-19", "2026-11-20"]);
+      check("T-067: an optional lecture is never owed, a past v1 day included (backlogCount 0, firstOwed none, its days completed)",
+        keys.optional.indexOf("ai200.2.0") >= 0 && keys.optDay === "2026-11-19" && r.n === 0 && r.first === null && r.s19 === "completed" && r.s20 === "completed",
+        "optional on the v1 days: " + keys.optional.join(",") + " (first on " + keys.optDay + "); " + keys.done.length + " others watched; owed " + r.n +
+        ", first owed " + r.first + ", 19 Nov " + r.s19 + ", 20 Nov " + r.s20);
+      check("no page errors (optional never owed)", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }
     // (f) the pages: a lecture lists what it Needs (ticked once watched) and what it Leads to, and

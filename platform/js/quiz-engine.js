@@ -142,7 +142,19 @@
     step();
   }
 
+  // T-067 step 3: the practice items are graded by this same rule: the grade()
+  // functions below, a decimal comma read as a point, within q.tol (1e-6 when
+  // unset). There is no grouping-separator handling ("1,000" reads as 1), and the
+  // Dart port (app/lib/engine/quiz.dart gradeAnswer) is held equal to grade() by
+  // tools/verify-app.js, so the rule is not changed here, only exposed.
+  function numOk(q, given) {
+    const tol = q.tol != null ? q.tol : 1e-6;
+    const v = parseFloat(String(given).replace(",", "."));
+    return isFinite(v) && Math.abs(v - q.num) <= tol;
+  }
+
   DAR.Quiz = {
+    numOk,
     /**
      * mount(container, bank, opts)
      * opts.onFinish(result {score,total,pct}) — called once at the seal screen.

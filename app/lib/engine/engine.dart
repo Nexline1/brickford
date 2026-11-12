@@ -991,6 +991,7 @@ class Engine {
     for (var iso = gt(from, START_DATE) ? from : START_DATE; lt(iso, today); iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
       for (final it in realSched(iso)) {
+        if (truthy(it.l?['optional'])) continue;   // T-067 step 3: an optional lecture is never owed (app.js backlogCount)
         if (!schedDone(it) && !v2Rescheduled(iso, it.key)) owed.add(it.key);
       }
     }
@@ -1008,7 +1009,7 @@ class Engine {
     for (var iso = gt(from, START_DATE) ? from : START_DATE; lt(iso, today); iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
       for (final x in realSched(iso)) {
-        if (!schedDone(x) && !v2Rescheduled(iso, x.key)) return x;
+        if (!schedDone(x) && !v2Rescheduled(iso, x.key) && !truthy(x.l?['optional'])) return x;
       }
     }
     return null;
@@ -1025,7 +1026,7 @@ class Engine {
     if (isRestDay(iso) && ge(iso, START_DATE)) return 'rest';
     if (gt(iso, today)) return 'upcoming';
     if (iso == today) return 'today';
-    final sched = realSched(iso);
+    final sched = realSched(iso).where((it) => !truthy(it.l?['optional'])).toList();   // T-067 step 3 (app.js dayStatus)
     if (sched.isNotEmpty) {
       final done = sched.where(schedDone).length;
       if (done == sched.length) return 'completed';

@@ -3330,3 +3330,29 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     line-height: var(--lh-headline); letter-spacing: var(--tr-headline);
   }
 }
+
+/* ---------- T-067 step 3: a lecture's Practice block ----------
+   Cards in a list, the quiz's own pieces (.lq-num, .expl, .pill, .check-row)
+   inside them; nothing here paints a background or an alpha ink. */
+.pr-list { max-width: 780px; }
+.pr-n { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pr-q { font-size: var(--fs-small); color: var(--ink); line-height: 1.65; margin: var(--sp-1) 0 var(--sp-3); overflow-x: auto; overflow-y: hidden; }
+.pr-q.pr-recall { margin: var(--sp-2) 0 0; }
+.pr-ans { font-size: var(--fs-small); color: var(--ink); line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; border-left: 2px solid var(--line-strong); padding-left: var(--sp-3); }
+.pr-v { font-size: var(--fs-small); color: var(--ink); overflow-wrap: anywhere; }
+.pr-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: var(--sp-3); }
+.pr-steps { margin: var(--sp-2) 0 0; padding-left: 1.25rem; }
+.pr-steps li + li { margin-top: 4px; }
+.pr-sol { margin-top: var(--sp-3); }
+.pr-code { font-family: "JetBrains Mono", monospace; font-size: var(--fs-tiny); color: var(--ink); white-space: pre; overflow-x: auto; margin-top: var(--sp-2); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--radius); }
+.pr-grade { margin-top: var(--sp-3); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pr-grade .expl, .pr-gl { flex-basis: 100%; }
+.pr-gl { margin: 0; padding: 0; list-style: none; font-size: var(--fs-small); color: var(--ink); }
+.pr-gl li + li { margin-top: 4px; }
+.pr-gm { display: inline-block; width: 1.2em; font-weight: 700; }
+.pr-g-met .pr-gm { color: var(--good); }
+.pr-g-missing .pr-gm { color: var(--bad); }
+.pr-gv { color: var(--ink-2); font-size: var(--fs-tiny); }
+.pr-msg:empty { display: none; }
+.pr-msg { margin-top: 0; }
+.pr-week { margin-top: var(--sp-2); width: 100%; }

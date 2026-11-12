@@ -2384,6 +2384,165 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- (pr) T-067 step 3: practice items ----
+  // Under a watched lecture's quiz: a numeric item answered right and wrong, a
+  // worked solution that is not in the page until an attempt, a written answer
+  // whose checklist is not in the page under 80 characters, a missed item back
+  // in Recall two days on, Grade with Claude against a stub (one request, only
+  // the question, the checklist and the answer; the key in no DOM, no body and
+  // no stored state), its fallback without a key, and Copy this week's answers.
+  {
+    console.log("\npractice items (T-067 step 3):");
+    const PR_DAY = "2026-11-22", PR_LATER = "2026-11-24";
+    const KEY = "sk-ant-test-stub-not-a-real-key-0123456789";
+    const W = { done: true, doneAt: PR_DAY, notes: "", checks: [] };
+    const PR_STATE = { studyDays: ["2026-11-20"], lessons: {
+      "math110.1.8": Object.assign({ quiz: { passedAt: PR_DAY, total: 2, firstTry: 2 } }, W),
+      "ai200.0.3": Object.assign({}, W, { doneAt: "2026-10-20" }) } };
+    const PRK = "math110.1.8", PRI = await (async () => {
+      const ctx0 = { window: {} }; ctx0.window.DAR = {};
+      require("vm").runInNewContext(fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/practice-math110.js"), "utf8") +
+        fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/data/practice-ai200.js"), "utf8"), Object.assign(ctx0, { DAR: ctx0.window.DAR }));
+      return ctx0.window.DAR.PRACTICE;
+    })();
+    const item = id => "#view .pr-item[data-pr-id='" + id + "']";
+    const prStore = page => page.evaluate(() => JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"));
+    const answerIt = async (page, id, v) => {
+      await page.fill(item(id) + " .pr-in", v);
+      await page.click(item(id) + " [data-pr='check']");
+    };
+    const grades = [];
+    const { ctx, page, errors } = await fresh(browser, 390, PR_STATE, "/", PR_DAY);
+    let later = null;
+    // A planted bug can take away a field the next step needs: that is a failed check, not a crashed gate.
+    try {
+    await go(page, "/lesson/math110/1/8");
+    await page.waitForSelector("#view .pr-list");
+    const kinds = await page.evaluate(() => [...document.querySelectorAll("#view .pr-item")].map(e => e.dataset.prType).join(","));
+    check("(pr) a watched lecture shows its Practice block under the quiz, one card per item", kinds === PRI[PRK].map(i => i.type).join(","), kinds);
+    // numeric, right and wrong
+    await answerIt(page, "p1", String(PRI[PRK][0].num));
+    await page.waitForSelector(item("p1") + " .pill.good");
+    await answerIt(page, "p2", String(PRI[PRK][1].num + 3));
+    await page.waitForSelector(item("p2") + " .pill.crimson");
+    let s = await prStore(page);
+    const p = (s.practice || {})[PRK] || {};
+    check("(pr) a numeric item answered right is marked right, stored as ok, and counts toward the gate",
+      (p.p1 || {}).mark === "ok" && (p.p1 || {}).answer === String(PRI[PRK][0].num) &&
+      await page.evaluate(() => (document.querySelector("#view [data-pr-count]") || {}).textContent) === "1 of 3 solved",
+      JSON.stringify(p.p1) + "; " + await page.evaluate(() => (document.querySelector("#view [data-pr-count]") || {}).textContent));
+    check("(pr) a numeric item answered wrong shows the answer, is stored as missed, and enters the spaced review",
+      (p.p2 || {}).mark === "missed" && ((s.review || {})["p:" + PRK + ":p2"] || {}).due === PR_LATER &&
+      new RegExp("the answer is " + PRI[PRK][1].num).test(await page.textContent(item("p2"))), JSON.stringify(p.p2) + " " + JSON.stringify((s.review || {})["p:" + PRK + ":p2"]));
+    // worked: the solution is not in the page before an attempt
+    const before = await page.evaluate(sel => { const e = document.querySelector(sel); return { steps: e.querySelectorAll(".pr-steps, .pr-sol").length, html: e.innerHTML }; }, item("p3"));
+    const stepText = PRI[PRK][2].steps[1];
+    check("(pr) a worked solution is not in the page before an attempt (no steps, no answer in the DOM)",
+      before.steps === 0 && before.html.indexOf(stepText) < 0, before.steps + " solution element(s)");
+    await answerIt(page, "p3", "dependent");
+    await page.waitForSelector(item("p3") + " .pr-steps");
+    const after = await page.evaluate(sel => document.querySelectorAll(sel + " .pr-steps li").length, item("p3"));
+    await page.click(item("p3") + " [data-pr='mark'][data-m='missed']");
+    await page.waitForSelector(item("p3") + " .pill.crimson");
+    s = await prStore(page);
+    check("(pr) after an attempt the worked steps show, and Missed is stored and scheduled for review",
+      after === PRI[PRK][2].steps.length && ((s.practice[PRK] || {}).p3 || {}).mark === "missed" && !!(s.review || {})["p:" + PRK + ":p3"], after + " steps");
+    // write: the checklist is not in the page under 80 characters
+    await go(page, "/lesson/ai200/0/3");
+    await page.waitForSelector(item("p2") + " textarea.pr-in");
+    await answerIt(page, "p2", "Forward, loss, gradient, backprop, update. Done.");
+    await page.waitForTimeout(300);
+    const short = await page.evaluate(sel => ({ ticks: document.querySelectorAll(sel + " [data-pr-tick]").length, model: document.querySelector(sel).innerHTML.indexOf("Model answer") }), item("p2"));
+    s = await prStore(page);
+    check("(pr) a written answer under 80 characters reveals no checklist and no model answer, and stores nothing",
+      short.ticks === 0 && short.model < 0 && !((s.practice || {})["ai200.0.3"] || {}).p2, JSON.stringify(short));
+    const essay = "The forward pass runs the input through each layer to a prediction; the loss scores it against the target; " +
+      "backpropagation applies the chain rule from the output back to get the gradient of the loss for every weight; each weight then steps against its gradient.";
+    await answerIt(page, "p2", essay);
+    await page.waitForSelector(item("p2") + " [data-pr-tick]", { state: "attached" });
+    const ticks = await page.evaluate(sel => document.querySelectorAll(sel + " [data-pr-tick]").length, item("p2"));
+    await page.click(item("p2") + " .check-row >> nth=0");
+    await page.waitForTimeout(200);
+    s = await prStore(page);
+    check("(pr) at 80 characters or more the checklist and the model answer appear, and a tick is stored",
+      ticks === PRI["ai200.0.3"][1].points.length && (((s.practice["ai200.0.3"] || {}).p2 || {}).ticks || [])[0] === true, ticks + " points");
+    // Grade with Claude: no key yet, so the button is off and the line says why
+    const noKey = await page.evaluate(sel => { const b = document.querySelector(sel + " [data-pr='grade']"); return { off: !!(b && b.disabled), msg: (document.querySelector(sel + " .pr-msg") || {}).textContent }; }, item("p2"));
+    check("(pr) without a key, Grade with Claude is off and one line falls back to self-check", noKey.off && /self-check/.test(noKey.msg || ""), JSON.stringify(noKey));
+    await go(page, "/sync");
+    await page.waitForSelector("#aiKeyIn");
+    await page.fill("#aiKeyIn", KEY);
+    await page.click("[data-act='aiKeySave']");
+    await page.waitForSelector("[data-act='aiKeyForget']");
+    await page.route("https://api.anthropic.com/**", route => {
+      const rq = route.request();
+      grades.push({ url: rq.url(), method: rq.method(), headers: rq.headers(), body: rq.postData() });
+      const it = PRI["ai200.0.3"][1];
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ type: "message", role: "assistant",
+        content: [{ type: "text", text: JSON.stringify({ points: it.points.map((t, i) => ({ point: t, verdict: i < 4 ? "met" : "missing" })),
+          correction: "Say what the learning rate does, and that the loop repeats over mini-batches." }) }] }) });
+    });
+    await go(page, "/lesson/ai200/0/3");
+    await page.waitForSelector(item("p2") + " [data-pr='grade']:not([disabled])");
+    await page.click(item("p2") + " [data-pr='grade']");
+    await page.waitForSelector(item("p2") + " .pr-gl li");
+    await page.waitForTimeout(300);
+    const g0 = grades[0] || { headers: {}, body: "{}" }, body = JSON.parse(g0.body || "{}");
+    let content = {};
+    try { content = JSON.parse(((body.messages || [])[0] || {}).content || "{}"); } catch (e) {}
+    const itW = PRI["ai200.0.3"][1];
+    check("(pr) Grade with Claude sends exactly one Messages API request with the key in its header and the browser-access header",
+      grades.length === 1 && g0.method === "POST" && g0.url === "https://api.anthropic.com/v1/messages" && g0.headers["x-api-key"] === KEY &&
+      g0.headers["anthropic-dangerous-direct-browser-access"] === "true" && /^\d{4}-\d\d-\d\d$/.test(g0.headers["anthropic-version"] || ""),
+      grades.length + " request(s), version " + g0.headers["anthropic-version"]);
+    check("(pr) the request holds only the question, the checklist and the answer (and the grading instruction and JSON schema)",
+      JSON.stringify(Object.keys(body).sort()) === JSON.stringify(["fallbacks", "max_tokens", "messages", "model", "output_config", "system"]) &&
+      body.fallbacks === "default" && g0.headers["anthropic-beta"] === "server-side-fallback-2026-07-01" &&
+      (body.messages || []).length === 1 && JSON.stringify(Object.keys(content).sort()) === JSON.stringify(["answer", "key_points", "question"]) &&
+      content.question === itW.q && content.answer === essay && JSON.stringify(content.key_points) === JSON.stringify(itW.points) &&
+      body.output_config.format.type === "json_schema",
+      "body " + Object.keys(body).join(",") + "; content " + Object.keys(content).join(","));
+    s = await prStore(page);
+    const g = (((s.practice || {})["ai200.0.3"] || {}).p2 || {}).grade || {};
+    const verdicts = await page.evaluate(sel => document.querySelectorAll(sel + " .pr-gl li").length, item("p2"));
+    check("(pr) the verdict per key point and the one correction are shown and stored with the item",
+      verdicts === itW.points.length && (g.points || []).length === itW.points.length && /learning rate/.test(g.correction || "") &&
+      /learning rate/.test(await page.textContent(item("p2"))), verdicts + " verdicts");
+    const leak = await page.evaluate(k => ({ dom: document.documentElement.outerHTML.indexOf(k) >= 0, state: (localStorage.getItem("darhikmah_v1") || "").indexOf(k) >= 0 }), KEY);
+    check("(pr) the key appears nowhere in the DOM, the request body or the stored progress state",
+      !leak.dom && !leak.state && (g0.body || "").indexOf(KEY) < 0, JSON.stringify(leak));
+    // Copy this week's answers
+    await go(page, "/");
+    await page.waitForSelector("#view [data-act='copyWeek']");
+    await page.evaluate(() => { navigator.clipboard.writeText = t => { window.__copied = t; return Promise.resolve(); }; });   // the clipboard, stubbed
+    await page.click("#view [data-act='copyWeek']");
+    await page.waitForFunction(() => typeof window.__copied === "string", null, { timeout: 4000 }).catch(() => {});
+    const copied = await page.evaluate(() => window.__copied || "");
+    check("(pr) Copy this week's answers produces the questions and the answers as plain text",
+      /^Brickford practice, 2026-11-16 to 2026-11-22/.test(copied) && copied.indexOf("My answer: " + PRI[PRK][0].num) >= 0 &&
+      copied.indexOf(essay) >= 0 && copied.indexOf("Independence, Basis, and Dimension") >= 0 && copied.indexOf("<") < 0 && copied.indexOf(KEY) < 0,
+      copied.split("\n").length + " lines");
+    check("(pr) no page errors", errors.length === 0, errors.join(" | "));
+    later = await prStore(page);
+    } catch (e) { check("(pr) the practice flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+    await ctx.close();
+    // Two days on: the missed items are due in Recall, and on the dashboard.
+    if (later) {
+      const { ctx, page, errors } = await fresh(browser, 390, later, "/", PR_LATER);
+      await go(page, "/recall");
+      await page.waitForSelector("#view .pr-recall");
+      const cards = await page.evaluate(() => [...document.querySelectorAll("#view .pr-recall")].map(e => e.textContent));
+      const q2 = PRI[PRK][1].q.split("$")[0];
+      check("(pr) a missed item comes back in Recall when its review is due", cards.length === 2 && cards.some(t => t.indexOf(q2) >= 0), cards.length + " practice card(s)");
+      await page.click("#view [data-recall='solid'][data-k='p:" + PRK + ":p2']");
+      await page.waitForTimeout(300);
+      const rv = ((await prStore(page)).review || {})["p:" + PRK + ":p2"] || {};
+      check("(pr) grading it Solid in Recall pushes it out like any review", rv.box === 1 && rv.due > PR_LATER, JSON.stringify(rv));
+      check("(pr) no page errors (Recall)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -2393,7 +2552,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       "Seal the week at 1440/390 x 2 themes, once with an empty ledger (BHD typed) and once with none of the ledger in the week (a counted 0), the stored week the shape it always was (T-026c); " +
       "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028); " +
       "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054); " +
-      "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065)"
+      "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065); " +
+      "practice items at 390 — numeric right and wrong, a worked solution and a written checklist kept out of the page until an attempt, Grade with Claude against a stub (one request, only the question, checklist and answer, the key nowhere), Copy this week, and a missed item back in Recall (T-067 step 3)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

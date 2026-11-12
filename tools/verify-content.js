@@ -3126,6 +3126,7 @@ Object.keys(PRE).forEach(k => {
   if (l && j) ok(v2Sched(l) === (j.status === "core"), "T-067 " + k + ": scheduled by v2 exactly when the audit marks it core (" + j.status +
     (l.optional ? ", flagged optional" : "") + (l.v || l.read || l.paper ? "" : ", no video") + ")");
 });
+let preCycle = null;
 (function acyclicPrereq() {
   const state = {};
   let cycle = null;
@@ -3138,6 +3139,7 @@ Object.keys(PRE).forEach(k => {
   };
   Object.keys(PRE).forEach(k => visit(k, []));
   ok(!cycle, "T-067 the prerequisite map has no cycle" + (cycle ? " (cycle: " + cycle + ")" : ""));
+  preCycle = cycle;
 })();
 // The second pass re-uses the first pass's video, summary and quiz by alias.
 Object.keys(lessonByKey).forEach(k => {
@@ -3155,7 +3157,7 @@ Object.keys(curLedger).forEach(k => {
 });
 Object.keys(lessonByKey).filter(k => !/^spch/.test(k)).forEach(k =>
   ok(k in curLedger, "T-067 " + k + ": is pinned in data/curriculum-ledger.json (append one line for a new lesson)"));
-console.log("T-067 Plan v2: " + Object.keys(PRE).length + " lectures in the map, " + preEdges + " edges, no cycle; " +
+console.log("T-067 Plan v2: " + Object.keys(PRE).length + " lectures in the map, " + preEdges + " edges, " + (preCycle ? "a CYCLE (" + preCycle + ")" : "no cycle") + "; " +
   Object.keys(curLedger).length + " keys in the curriculum ledger; " + Object.keys(lessonByKey).filter(k => lessonByKey[k].optional).length + " optional");
 
 console.log("\n" + (fail === 0

@@ -1,0 +1,21 @@
+plants against /home/user/bf-T-067-v2 (174673d)
+sha256 before:
+  58f4130a5e96fc3208f16c154ab34ec508cea73f3dec42dec8cf2a521ac1eef0  platform/js/app.js
+  4f7c845c12f0004a05ba41dc90caa4d43ae7fd78016b67d0b7e6e11656c5c05f  platform/data/prerequisites.js
+  3cb43ff6240286af107cf289807ed6d875f1c114179061af23541519f6418ef6  platform/data/curriculum.js
+== plant content-cycle -> node tools/verify-content.js
+  restored platform/data/prerequisites.js (cmp identical)
+  FAIL T-045 lab kaggle-entry (phase 1): its after lecture ai210.0.4 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab deploy-space (phase 1): its after lecture ai210.0.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab resnet-cifar (phase 2): its after lecture ai300.0.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab lora-finetune (phase 2): its after lecture ai300.2.1 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab eval-harness (phase 2): its after lecture ai310.1.3 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab cuda-matmul (phase 2): its after lecture sys250.1.4 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab kernel-profile (phase 2): its after lecture sys250.1.0 is scheduled null, phase none — in its phase or earlier
+  FAIL T-045 lab oss-pr (phase 2): its after lecture ai310.1.0 is scheduled null, phase none — in its phase or earlier
+  exit 1 (caught, as required)
+sha256 after:
+  58f4130a5e96fc3208f16c154ab34ec508cea73f3dec42dec8cf2a521ac1eef0  platform/js/app.js
+  4f7c845c12f0004a05ba41dc90caa4d43ae7fd78016b67d0b7e6e11656c5c05f  platform/data/prerequisites.js
+  3cb43ff6240286af107cf289807ed6d875f1c114179061af23541519f6418ef6  platform/data/curriculum.js
+0 plant(s) not caught

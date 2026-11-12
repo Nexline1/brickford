@@ -1234,14 +1234,15 @@
   "status": "core"
  },
  "phys100.0.0": {
-  "needs": [],
+  "needs": [
+   "math120.1.17"
+  ],
   "level": 2,
   "status": "core"
  },
  "phys100.0.1": {
   "needs": [
-   "phys100.0.0",
-   "math120.1.17"
+   "phys100.0.0"
   ],
   "level": 2,
   "status": "core"

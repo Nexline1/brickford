@@ -40,7 +40,7 @@
 | ai210.0.0 Lesson 1: Getting started | cs100.0.4 Lecture 4 — Libraries |
 | ai210.0.2 Lesson 3: Neural net foundations | ai200.3.0 Micrograd — spelled-out intro to neural networks and backpropagation (second pass, typing along) |
 | ai210.0.4 Lesson 5: From-scratch model | ai200.3.2 Makemore 2 — MLP, following Bengio et al. 2003 (second pass, typing along) |
-| phys100.0.1 Units, Dimensions, and Scaling Arguments | math120.1.17 Second Fundamental Theorem |
+| phys100.0.0 Introduction | math120.1.17 Second Fundamental Theorem |
 | phys100.0.2 Introduction to Kinematics | math120.1.3 Chain Rule |
 | phys100.0.3 Vectors | math110.0.8 Dot products and duality |
 | phys100.0.10 Hooke's Law, Simple Harmonic Oscillator | math120.1.14 Differential Equations |

@@ -107,7 +107,7 @@ const NEEDS = {
   // linear algebra ← calculus (timing only; MATH 110 order is unchanged)
   "math110.1.22": ["math120.1.14", "math120.1.5"], "math110.1.27": ["math120.2.2"],
   // physics ← calculus and vectors
-  "phys100.0.1": ["math120.1.17"], "phys100.0.2": ["math120.1.3"], "phys100.0.3": ["math110.0.8"],
+  "phys100.0.0": ["math120.1.17"], "phys100.0.2": ["math120.1.3"], "phys100.0.3": ["math110.0.8"],
   "phys100.0.10": ["math120.1.14"], "phys100.0.11": ["math120.1.16"], "phys100.0.13": ["math120.1.7"],
   "phys100.0.19": ["math120.1.19"], "phys100.0.20": ["math110.0.10"], "phys100.0.22": ["math120.1.29"],
   // MATH 210 ← the whole foundation

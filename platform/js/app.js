@@ -5201,8 +5201,6 @@
       '<div class="sub">Every lecture you prove is sealed into a record nobody can quietly edit.</div></div>' +
 
       '<div class="at-tiles pf-tiles">' + tile(cur, "day streak") + tile(best, "longest streak") + tile(proven, "lectures proven") + "</div>" +
-      // T-069: the next checkpoint, one row (the block itself is on Today).
-      checkpointRowHTML() +
 
       '<div class="ghead">Sealed days<span class="gh-meta">last 6 months</span></div>' +
       '<div class="card pf-heat">' + heatmapHTML(26) +
@@ -5214,6 +5212,10 @@
       (!led.length ? "none yet" : v.ok ? "newest first" : "chain broken at entry " + v.brokenAt) + "</span></div>" +
       (led.length ? '<div class="pf-seals">' + sealsHTML + "</div>"
         : '<p class="shelf-empty">The first lecture you prove starts the chain.</p>') +
+
+      // T-069: the next checkpoint, one row (the block itself is on Today). After the
+      // seals, so the page still opens on the run, the sealed days and the chain.
+      checkpointRowHTML() +
 
       // Everything you touch a few times a year, as pills. The reset keeps its
       // confirmation and sits last, in its danger colour; it is never filled.

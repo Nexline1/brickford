@@ -14,6 +14,8 @@ import 'dart:convert';
 import 'dart:io';
 
 // ignore: avoid_relative_lib_imports
+import '../lib/engine/checkpoints.dart';
+// ignore: avoid_relative_lib_imports
 import '../lib/engine/dates.dart';
 // ignore: avoid_relative_lib_imports
 import '../lib/engine/engine.dart';
@@ -576,7 +578,7 @@ void main(List<String> args) {
       ? [for (final x in v) strip(x)]
       : v;
   Map<String, dynamic> project(Engine e) => {
-    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk', 'monkStart', 'practice'])
+    for (final k in ['lessons', 'studyDays', 'problems', 'psets', 'electives', 'labs', 'diag', 'quizAttempts', 'weeks', 'review', 'concepts', 'anchors', 'reps', 'foreignLedgers', 'gates', 'monk', 'monkStart', 'practice', 'checkpoints'])
       k: e.S[k],
     'streakFrom': e.settings['streakFrom'],
   };
@@ -668,7 +670,34 @@ void main(List<String> args) {
   out['learn'] = learnDump(fx, data);
   out['pages'] = pagesDump(fx, data);
   out['lpr'] = lprDump(fx, data);
+  out['cp'] = cpDump(fx, data);
   stdout.write(jsonEncode(out));
+}
+
+/// T-069: the checkpoints as drawn (checkpointsView, the week's number, the words), and a push: the remote file
+/// merged in, then the payload's checkpoints.
+Map<String, dynamic> cpDump(Map<String, dynamic> fx, BrickfordData data) {
+  final C = fx['cp'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  return {
+    'view': {
+      for (final f in C['view'] as List)
+        f['name'] as String: () {
+          final e = Engine(data, (copy(f['state']) as Map?)?.cast<String, dynamic>(), today: () => f['clock'] as String);
+          final vs = e.checkpointsView(), n = e.problemsThisWeek();
+          return {'view': [for (final v in vs) v.toJson()], 'week': n, 'metas': [for (final v in vs) v.meta], 'weekLine': cpWeekLine(n)};
+        }(),
+    },
+    'push': {
+      for (final f in C['push'] as List)
+        f['name'] as String: () {
+          final e = Engine(data, (copy(f['local']) as Map).cast<String, dynamic>(), today: () => fx['planClock'] as String);
+          final n = mergeState(e, copy(f['remote']));
+          final cps = (syncPayload(e)['state'] as Map)['checkpoints'];
+          return {'changed': n, if (cps != null) 'checkpoints': cps};
+        }(),
+    },
+  };
 }
 
 /// T-067 step 3: the practice items under a lecture's quiz, shaped as tools/verify-app.js reads app.js.

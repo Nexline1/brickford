@@ -25,6 +25,7 @@ import '../monk/monk_start.dart';
 import '../practice/practice_screen.dart';
 import '../quiz/quiz_screen.dart';
 import '../week/week_screen.dart';
+import 'checkpoints_block.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -271,6 +272,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         // T-067 step 3: the problems of today's lectures, and practice due again (app.js practiceDashHTML).
         ...practiceToday(context, m),
+        // T-069: the three near checkpoints, and the week's solved problems (app.js checkpointsHTML).
+        ...checkpointsBlock(context, m),
       ],
     );
   }

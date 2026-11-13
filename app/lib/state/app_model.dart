@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../engine/checkpoints.dart';
 import '../engine/dates.dart';
 import '../engine/engine.dart';
 import '../engine/learn.dart';
@@ -359,6 +360,14 @@ class AppModel extends ChangeNotifier {
       persist();
       notifyListeners();
     }
+    return ok;
+  }
+
+  // ---------- T-069: the near checkpoints ----------
+  /// The reader's tick (app.js's data-cp-tick handler): stored and saved once, or nothing for an auto item.
+  bool cpToggle(String cid, String iid, bool on) {
+    final ok = engine.cpToggle(cid, iid, on, _ts());
+    if (ok) _write(() {});
     return ok;
   }
 

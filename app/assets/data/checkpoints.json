@@ -1,0 +1,81 @@
+[
+ {
+  "id": "c1",
+  "date": "2026-12-06",
+  "title": "Prove the routine",
+  "items": [
+   {
+    "id": "routine",
+    "t": "Study 10 of the 12 study days, 4 h or more each"
+   },
+   {
+    "id": "cs50p",
+    "t": "CS50P lectures 3–5 done, problem sets submitted",
+    "auto": {
+     "watched": [
+      "cs100.0.3",
+      "cs100.0.4",
+      "cs100.0.5"
+     ]
+    }
+   },
+   {
+    "id": "sameday",
+    "t": "Every practice problem solved the same day as its math lecture"
+   },
+   {
+    "id": "nn",
+    "t": "Half a page: how a neural network learns, graded"
+   }
+  ]
+ },
+ {
+  "id": "c2",
+  "date": "2027-01-04",
+  "title": "The Python bridge is done",
+  "items": [
+   {
+    "id": "bridge",
+    "t": "All CS50P problem sets from lecture 3 submitted; NumPy and PyTorch basics done"
+   },
+   {
+    "id": "neetcode",
+    "t": "25 easy NeetCode problems solved without help",
+    "auto": {
+     "dsa": 25
+    }
+   },
+   {
+    "id": "exam1",
+    "t": "MIT 18.06 Exam 1, timed 50 min, closed book, 70% or more"
+   },
+   {
+    "id": "post1",
+    "t": "First public post live: \"What I learned in my first 10 weeks\""
+   }
+  ]
+ },
+ {
+  "id": "c3",
+  "date": "2027-02-28",
+  "title": "You can build what you watched",
+  "items": [
+   {
+    "id": "micrograd",
+    "t": "Micrograd rebuilt from a blank file, no video, timed, on GitHub"
+   },
+   {
+    "id": "makemore",
+    "t": "Makemore bigram and MLP rebuilt the same way"
+   },
+   {
+    "id": "exam1801",
+    "t": "One timed MIT 18.01 exam, 70% or more"
+   },
+   {
+    "id": "posts3",
+    "t": "Three posts published, each explaining one thing you built"
+   }
+  ]
+ }
+]

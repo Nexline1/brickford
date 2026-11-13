@@ -15,6 +15,7 @@
 - summaryHTML injects prose raw, so no bare `<` before a letter in content (`\lt`, or `&lt;` for code).
 - Bump every `?v=` cache token in platform/index.html when any JS/CSS/data file changes (sed the token).
 - Tap targets 44x44 on phone widths. Measure with checkVisibility(), not the bounding box (closed <details>).
+- A focusable but invisible checkbox in a 44px row must cover the row (inset:0), not shrink to 1x1: verify-shell counts the 1x1 box as a control (T-069).
 
 ## Verification habits
 - After a plan reset, move each pinned clock to the same plan day (if the start weekday changes, plan day and weekday cannot both hold: keep the plan day, re-pick weekday fixtures, derive gate-relative dates from QUIZ_GATE_FROM). Keeping the weekday preserves plan-day and weekday content but not the month grid, which gains or loses pre-start cells: re-plant the bug for every fixture that picks a calendar cell by position or first match (reset six silently turned verify-design's Saturday check into a pre-start-day check). An unchanged clip baseline is a measurement, not a consequence.
@@ -30,3 +31,4 @@
 - A check's name must claim only what its fixture can violate: plant the exact bug the name promises to catch (a random draw can hide a whole layout, e.g. numeric answers).
 - A layout fix is measured on the label box as well as the tab box: a rule that fits the boxes can push text out of them at a width next door.
 - A gate's summary line counts one unit on pass and fail, and prints a pass only when its own fail count is zero.
+- A new section on a page can shift a harness that reads by position (verify-app reads /record's 2nd .gh-meta): grep the harnesses for the route before adding a .ghead above existing ones (T-069).

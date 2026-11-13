@@ -1,0 +1,383 @@
+verify-app
+  ok    app/assets/data/*.json is fresh against platform/data/*.js (tools/export-data.js --check) — 12 files, byte-identical
+  plan 2026-10-16 .. day 1094 2030-04-14, 1284 dates to 2030-04-21, 7 fixtures, 683 lessons
+  dart engine: 20s
+  app.js:      49s
+  ok    app.js ran without page errors
+  ok    parity: the plan (dates, studyIndex, prevStudyDay, addStudyDays, revision weeks, monkDay, monkScore, constants)
+  ok    parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: empty, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: before the start @ 2026-10-10: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: before the start, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: owner (days 1-8 watched before the gate) @ 2026-10-25: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: owner (days 1-8 watched before the gate), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: gate (watched before and after, quizzes, seals, streakFrom), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: rest-day clock (Sat 7 Nov) @ 2026-11-07: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: rest-day clock (Sat 7 Nov), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: worked ahead @ 2026-10-20: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: worked ahead, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: phase 2 (spine done, day 301) @ 2027-10-01: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog
+  ok    parity: phase 2 (spine done, day 301), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount
+  ok    parity: calendar: empty @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: empty @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: before the start @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: before the start @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: owner (days 1-8 watched before the gate) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: owner (days 1-8 watched before the gate) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: gate (watched before and after, quizzes, seals, streakFrom) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: rest-day clock (Sat 7 Nov) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: rest-day clock (Sat 7 Nov) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: worked ahead @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: worked ahead @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: phase 2 (spine done, day 301) @ 2026-11-07 (Saturday clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    parity: calendar: phase 2 (spine done, day 301) @ 2026-11-05 (study-day clock): dayStatus, scheduledFor, gatePlan on 2026-10-01..2026-12-31
+  ok    the fixtures reach every day status (across them), and in the gate fixture both lessonCleared answers, a streak, a backlog, re-anchored work ahead and a rest-day anchor — statuses missed/rest/today/upcoming/completed/partial; streak 10, best 10, backlog 12; rest-day anchor 18
+  ok    the calendar block reaches every day status, a past Saturday as rest on both clocks, and gate targets — missed/rest/upcoming/today/completed/partial; 14 fixture x clock runs, 92 dates each
+  ok    parity: Publish items and dayStatus, the first ten plan days watched, Thursday clock 2026-11-05, 47 dates (start .. day 40)
+  ok    parity: Publish items and dayStatus, the first ten plan days watched, Friday clock 2026-11-06, 47 dates (start .. day 40)
+  ok    parity: Publish items and dayStatus, the first ten plan days watched, Saturday clock 2026-11-07, 47 dates (start .. day 40)
+  ok    parity: Publish items and dayStatus, the first ten plan days watched, Sunday clock 2026-11-08, 47 dates (start .. day 40)
+  ok    parity: Publish items and dayStatus, the first ten plan days watched, Monday clock 2026-11-09, 47 dates (start .. day 40)
+  ok    Publish anchor, app.js: every past day's Publish items and status are the same on a Thursday, Friday and Saturday clock
+  ok    Publish anchor, dart: every past day's Publish items and status are the same on a Thursday, Friday and Saturday clock
+  ok    the Publish fixture reaches eight watched Storytelling days that read completed on the Saturday clock, Fridays with no Publish item, and a Saturday with none — 8 watched Storytelling days; statuses on the Saturday clock: completed
+  merge:       68 fixtures, 7 payloads, 12s
+  ok    the merge ran in app.js without page errors
+  ok    the lifted mergeState and the live one on the test hook count the same changes on every fixture — 68 fixtures
+  ok    parity: mergeState — two devices that diverge (34 changes)
+  ok    parity: mergeState — streakFrom remote later wins (1 changes)
+  ok    parity: mergeState — streakFrom remote earlier is ignored (0 changes)
+  ok    parity: mergeState — streakFrom local unset, remote set (1 changes)
+  ok    parity: mergeState — streakFrom remote null changes nothing (0 changes)
+  ok    parity: mergeState — monkStart remote only (1 changes)
+  ok    parity: mergeState — monkStart remote earlier than local (1 changes)
+  ok    parity: mergeState — monkStart remote later than local (0 changes)
+  ok    parity: mergeState — monkStart same date (0 changes)
+  ok    parity: mergeState — monkStart local only (0 changes)
+  ok    parity: mergeState — monkStart neither (0 changes)
+  ok    parity: mergeState — monkStart remote empty never clears (0 changes)
+  ok    parity: mergeState — monkStart remote null never clears (0 changes)
+  ok    parity: mergeState — monkStart remote not a date never clears (0 changes)
+  ok    parity: mergeState — monkStart remote one-digit day is not a date (0 changes)
+  ok    parity: mergeState — monkStart remote number is not a date (0 changes)
+  ok    parity: mergeState — monkStart remote empty, local none (0 changes)
+  ok    parity: mergeState — monkStart remote null, local none (0 changes)
+  ok    parity: mergeState — monkStart remote not a date, local none (0 changes)
+  ok    parity: mergeState — monkStart remote with a trailing newline, local none (0 changes)
+  ok    parity: mergeState — monkStart remote datetime, local none (0 changes)
+  ok    parity: mergeState — monkStart local empty takes the remote (1 changes)
+  ok    parity: mergeState — practice: the newer remote item wins (1 changes)
+  ok    parity: mergeState — practice: the older remote item is ignored (0 changes)
+  ok    parity: mergeState — practice: a tie keeps mine (0 changes)
+  ok    parity: mergeState — practice: seconds apart on one day (1 changes)
+  ok    parity: mergeState — practice: remote only: a new lecture and a new item (2 changes)
+  ok    parity: mergeState — practice: local only is kept (0 changes)
+  ok    parity: mergeState — practice: an empty remote practice changes nothing (0 changes)
+  ok    parity: mergeState — practice: a local item without `at` loses to any remote one with it (1 changes)
+  ok    parity: mergeState — practice: a remote item without `at` never beats a local one (0 changes)
+  ok    parity: mergeState — practice: neither has `at`: mine stays (0 changes)
+  ok    parity: mergeState — practice: a null, a string and a number in the remote are skipped (0 changes)
+  ok    parity: mergeState — practice: a remote practice that is a string is ignored (0 changes)
+  ok    parity: mergeState — practice: a remote practice that is null is ignored (0 changes)
+  ok    parity: mergeState — practice: a local null item takes the remote (1 changes)
+  ok    parity: mergeState — practice: a whole device each way: three newer, two older, two new (5 changes)
+  ok    parity: mergeState — checkpoints: the newer remote tick wins (1 changes)
+  ok    parity: mergeState — checkpoints: the older remote tick is ignored (0 changes)
+  ok    parity: mergeState — checkpoints: a tie keeps mine (0 changes)
+  ok    parity: mergeState — checkpoints: seconds apart on one day (1 changes)
+  ok    parity: mergeState — checkpoints: remote only: a new checkpoint and a new item (2 changes)
+  ok    parity: mergeState — checkpoints: local only is kept (0 changes)
+  ok    parity: mergeState — checkpoints: an empty remote checkpoints changes nothing (0 changes)
+  ok    parity: mergeState — checkpoints: a remote tick without `at` never beats a local one (0 changes)
+  ok    parity: mergeState — checkpoints: a local tick without `at` loses to any remote one with it (1 changes)
+  ok    parity: mergeState — checkpoints: nulls, strings, numbers and arrays in the remote are skipped (0 changes)
+  ok    parity: mergeState — checkpoints: a remote checkpoints that is a list is ignored (0 changes)
+  ok    parity: mergeState — checkpoints: a remote checkpoints that is null is ignored (0 changes)
+  ok    parity: mergeState — checkpoints: a local null tick, and a local checkpoint that is a list, take the remote (2 changes)
+  ok    parity: mergeState — checkpoints: a whole device each way: two newer, one older, two new (4 changes)
+  ok    parity: mergeState — sealed week pre-reset local kept beside the new remote (1 changes)
+  ok    parity: mergeState — sealed week new local kept beside the pre-reset remote (1 changes)
+  ok    parity: mergeState — sealed week same side: the later seal wins, the earlier is ignored (1 changes)
+  ok    parity: mergeState — sealed week both sides of two weeks at once (3 changes)
+  ok    parity: mergeState — lessons: both watched, the earlier doneAt stands (1 changes)
+  ok    parity: mergeState — lessons: quiz: the earlier pass, the better first-try sitting (1 changes)
+  ok    parity: mergeState — lessons: quiz: only the remote passed (1 changes)
+  ok    parity: mergeState — lessons: quiz: only the local passed (0 changes)
+  ok    parity: mergeState — lessons: quiz: a tie on share, the longer quiz wins (1 changes)
+  ok    parity: mergeState — lessons: quiz passes survive the further-along copy (2 changes)
+  ok    parity: mergeState — lessons: firstDoneAt is the earliest either side knows (1 changes)
+  ok    parity: mergeState — lessons: an ended lecture (pos cleared, newer posAt) beats an older point (1 changes)
+  ok    parity: mergeState — lessons: the older pause does not move the newer one (0 changes)
+  ok    parity: mergeState — monk: a remote monk is never read (0 changes)
+  ok    parity: mergeState — a legacy true gate finds its ledger event (2 changes)
+  ok    parity: mergeState — an empty remote changes nothing (0 changes)
+  ok    parity: mergeState — a remote that is not a file is ignored (0 changes)
+  ok    parity: syncPayload — a full device, monk in S
+  ok    parity: syncPayload — a bare device with a theme
+  ok    parity: syncPayload — a device that has not started Monk, with Monk days stored
+  ok    parity: syncPayload — a device with practice answers and a grade
+  ok    parity: syncPayload — a device whose practice is empty
+  ok    parity: syncPayload — a device with checkpoint ticks
+  ok    parity: syncPayload — a device whose checkpoints are empty
+  ok    the payload never carries monk, and the merge never reads a remote one
+  ok    the payload's Monk keys are exactly [monkStart] when a start is set, and none when it is not — app.js and Dart, 7 devices
+  ok    the Monk start merge fixtures reach the rules: the earlier date stands whichever side it is on, none takes the other's, and an empty, null or non-date remote never clears or sets one
+  ok    the merge fixtures reach the later-streakFrom rule, the kept-beside sealed week and the doneAt / quiz merges — diverge: 34 changes
+  ok    the practice merge fixtures reach the rules: the newer `at` wins, the older and a tie keep mine, one side only is kept, a missing `at` never wins, non-objects are skipped — a whole device: 5 changes
+  ok    the payload carries practice for a device with answers and not for one without, and no payload holds an Anthropic key — app.js and Dart, 7 devices
+  practice:    98 numeric items, 19 outputs, 54 graded items, 7 dashboards, 2s
+  ok    the lecture-practice block ran in app.js without page errors
+  ok    parity: numeric grading of every practice item — 98 items x 23 answers (its own answer, a decimal comma, inside and just outside its tolerance, noise)
+  ok    parity: outputOk — 19 printed values (the real items and edge cases) x 27 answers
+  ok    parity: gradeRequest, byte for byte as JSON — 54 written and worked items x 4 answers
+  ok    parity: the request's headers (the stub key) and its constants (URL, model, POST, WRITE_MIN)
+  ok    parity: Today's practice and the week's copy — a practice day, nothing answered @ 2026-10-16
+  ok    parity: Today's practice and the week's copy — a practice day, watched and partly answered @ 2026-10-16
+  ok    parity: Today's practice and the week's copy — items due again: ties, a ghost item, a ghost lecture, one not yet due, one scheduled today @ 2026-10-16
+  ok    parity: Today's practice and the week's copy — the second practice day, items due again @ 2026-10-18
+  ok    parity: Today's practice and the week's copy — a rest day: no lectures, items due again and this week's answers @ 2026-10-17
+  ok    parity: Today's practice and the week's copy — before the start: nothing at all @ 2026-10-13
+  ok    parity: Today's practice and the week's copy — before the start: only this week's answers @ 2026-10-15
+  ok    parity: the lesson page's handlers (Check right / wrong / empty / too short, the three marks, Again, ticks) — the messages, S.practice and the review
+  ok    the request: model claude-opus-5-5, fallbacks "default", a json_schema output format, one user message holding only question, key_points and answer; exactly five headers — model,max_tokens,system,messages,output_config,fallbacks
+  ok    the practice fixtures reach: every item right at its own answer and wrong outside its tolerance; an output right by text and by number; Today's practice with scheduled rows, due-again rows, a watched row, the week's copy and an empty dashboard; both refusals and the review — 36 rows; review keys p:math110.0.0:p3, p:math110.0.0:p1, p:math110.0.8:p3, p:math120.0.0:p1
+  ok    the monk block ran in app.js without page errors
+  ok    parity: monkPrayerTimes minutes (raw to 1e-6 and rounded) — 7 dates x 6 times
+  ok    parity: monk HH:MM of every prayer time
+  ok    parity: monk monkPlanFor (the day's blocks, in order)
+  ok    parity: monk monkSlots
+  ok    parity: monk monkWeekSums, monkMonthSums, monkWeekStart
+  ok    parity: monk monkFocus
+  ok    parity: monk mkPhoneOk
+  ok    the monk fixtures reach a focus line, a month sum and a Friday-free week — German 1.5 h 25% over 4 days
+  ok    the Monk start block ran in app.js without page errors
+  ok    parity: monkDay — not started (42 dates)
+  ok    parity: monkDay — an empty start is not a start (42 dates)
+  ok    parity: monkDay — started 2026-11-01 (28 dates)
+  ok    parity: monkDay — started 2026-11-06 (28 dates)
+  ok    parity: monkDay — started 2026-12-31 (28 dates)
+  ok    parity: monkDay — started 2028-02-20 (28 dates)
+  ok    the monkDay windows reach the rules: nothing when not started or empty, and day 1 on the start date .. day 21, nothing before or after, for 4 starts
+  ok    parity: monkFocus with no start (null on every date, 6 dates)
+  ok    monkFocus with no start is null on every date in app.js
+  ok    parity: monkLive (days before the start never count; none count without one) — 5 starts
+  ok    monkLive reaches both sides of the start: nothing without one, a prefix cut off with one
+  ok    parity: startMonk — unset: the 6th starts it, the 9th and the 27th change nothing
+  ok    parity: startMonk — set to the 1st: the 6th returns false and keeps it
+  ok    parity: startMonk — an empty start is not a start: the 6th starts it
+  ok    startMonk in app.js writes today once, returns false after, and an existing or empty start behaves the same way
+  quiz:        10 sittings, 12 Problems/Exams pages, 4s
+  ok    the quiz block ran in app.js without page errors
+  ok    parity: grading — gradeAnswer against quiz-engine.js grade() over 9 questions x 44 answers (the comma, the tolerance, parseFloat's prefix)
+  ok    parity: sitting — lecture quiz, 8 checks, seed 1 (11 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — lecture quiz, 8 checks, seed 77 (11 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — lecture quiz, a decimal answer (3 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — lecture quiz, a tolerance (11 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — lecture quiz, options only (4 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — bank linear-algebra, 15 of 40 (15 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — bank dsa, 15 of 30 (15 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — bank math-for-ml, 12 of 30 (12 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — bank calculus, perSitting above the 7 unlocked (7 questions shown: draw, option order, outcome, result)
+  ok    parity: sitting — bank probability, perSitting 0 means 15 (15 questions shown: draw, option order, outcome, result)
+  ok    parity: the gate — lessonCleared, grandfathered, quizPassed on 10 lectures, lockedBy on all 683, catchUpQuizzes
+  ok    parity: recordQuizPass (a pass kept, a worse sitting ignored, a better one kept), updateMisses, bestQuiz
+  ok    parity: problemsDue — empty (0 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — empty (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — before the start (0 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — before the start (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — owner (days 1-8 watched before the gate) (38 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — owner (days 1-8 watched before the gate) (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — gate (watched before and after, quizzes, seals, streakFrom) (48 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — gate (watched before and after, quizzes, seals, streakFrom) (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — rest-day clock (Sat 7 Nov) (48 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — rest-day clock (Sat 7 Nov) (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — worked ahead (75 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — worked ahead (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — phase 2 (spine done, day 301) (197 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — phase 2 (spine done, day 301) (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — problems: owed, catch-up, due and ticked psets and labs (4 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — problems: owed, catch-up, due and ticked psets and labs (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — problems: a miss pool, one question locked (3 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — problems: a miss pool, one question locked (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — exams: sat, boundary scores, a gate-less diagnostic with a score (4 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — exams: sat, boundary scores, a gate-less diagnostic with a score (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — exams: gate 1 already passed (4 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — exams: gate 1 already passed (11 rows: hero, open, locked, verdicts)
+  ok    parity: problemsDue — exams: every diagnostic sat (4 due: quizzes, catch-up, psets, labs, review; the next three locked; psetDue and labDue per item)
+  ok    parity: Exams — exams: every diagnostic sat (11 rows: hero, open, locked, verdicts)
+  ok    the quiz fixtures reach a miss that comes back, a decimal comma, a wrong bank answer, and a lecture quiz that cost attempts — 104 questions shown
+  ok    the Problems fixtures reach every kind of row, a pset ticked and so not due, a lab not yet in its phase, and the next locked items — catchup/pset/lab/quiz/review; 4 due in the mix
+  ok    the Exams fixtures reach a pass at 70, a gap at 69, a logged diagnostic, locked banks, and a hero with days to the gate — , good:70%, crimson:69%, good:done, good:100%, good:88%
+  record:      27 ledger events, 7 week pages, 4 seals, 6 streaks, 4 record pages, 3 treasuries, 7s
+  ok    the record block ran in app.js without page errors
+  ok    parity: the hash chain — logEvent over 27 events (every field of every entry, so every hash and prev), byte for byte with app.js's sha256 and canon
+  ok    parity: the preimage of every entry (the exact bytes hashed), the head hash and verifyChain
+  ok    parity: sha256 on 7 vectors (padding at 55/56/64 bytes, UTF-8, a long message)
+  ok    parity: eventLine for every kind of entry
+  ok    parity: a tampered chain breaks where verifyChain says, and the record-file check names the same entry — 8 tamperings
+  ok    parity: Week page — Wednesday: nothing sealed, an empty treasury (typed BHD) (Opens Sunday 8 Nov · 4 days)
+  ok    parity: Week page — Sunday: a counted treasury, proven lectures and DSA in the week (Ready to seal)
+  ok    parity: Week page — Sunday: sealed, a pre-reset week 3 beside it, a long line, a string week number (Sealed 8 Nov)
+  ok    parity: Week page — Monday: week 4 opens, the seal is past (Opens Sunday 15 Nov · 6 days)
+  ok    parity: Week page — Wednesday before the start (Opens Sunday 25 Oct · 11 days)
+  ok    parity: Week page — the first seal Sunday (25 Oct) (Ready to seal)
+  ok    parity: Week page — Saturday, the rest day (Opens Sunday 8 Nov · 1 day)
+  ok    parity: sealing the week — counted treasury (S.weeks and the week event, hash included)
+  ok    parity: sealing the week — typed revenue on the first seal Sunday (S.weeks and the week event, hash included)
+  ok    parity: sealing the week — re-sealing replaces this week's, the pre-reset one stays (S.weeks and the week event, hash included)
+  ok    parity: sealing the week — another week's seal is appended (S.weeks and the week event, hash included)
+  ok    parity: revisionWeekOf, isSealDay and the Sunday guard on 74 dates
+  ok    parity: revisionLectures for the 6 revision PDFs
+  ok    the seal is refused off its Sunday: nothing is written on a Wednesday, Saturday, Monday or before the start — Wednesday=false, Saturday=false, Monday=false, before the start=false
+  ok    the guard opens exactly on the Sundays that seal (and only there) — 9 Sundays open
+  ok    parity: streak reset and day seal — a run into today with a Saturday inside (streak 9 -> 1 -> 1, best 9)
+  ok    parity: streak reset and day seal — today not sealed yet (streak 9 -> 0 -> 1, best 9)
+  ok    parity: streak reset and day seal — an older, longer best behind a gap (streak 9 -> 0 -> 1, best 9)
+  ok    parity: streak reset and day seal — the Saturday rest day (streak 0 -> 0 -> 0, best 9)
+  ok    parity: streak reset and day seal — a second reset over an earlier streakFrom (streak 7 -> 0 -> 1, best 9)
+  ok    parity: streak reset and day seal — no sealed days at all (streak 0 -> 0 -> 1, best 0)
+  ok    parity: Record page — empty (tiles 0/0/0, chain none)
+  ok    parity: Record page — active: a full chain, heat levels 0-4, proven lectures (tiles 9/9/2, chain ok)
+  ok    parity: Record page — tampered chain on a Saturday clock (tiles 0/9/2, chain broken at 2)
+  ok    parity: Record page — three links: Genesis among the newest four (tiles 9/9/0, chain ok)
+  ok    parity: fmtBHD, numText and Math.round on 22 amounts (halves, thirds, groups, negatives)
+  ok    parity: Treasury — empty (total 0)
+  ok    parity: Treasury — clients only (total 0)
+  ok    parity: Treasury — payments, junk amounts, two clients (total 1260.145)
+  ok    the record fixtures reach unsorted keys with unicode, a re-seal beside a pre-reset week, every heat level, a broken chain, Genesis, a streak reset and a counted week — 27 links; week 3 earned 120.25
+  learn:       7 Atlas pages, 5s
+  ok    the Atlas block ran in app.js without page errors
+  ok    parity: Atlas — before the start (1 running, 19 courses later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: Atlas — a Saturday, the first rest day (1 running, 19 courses later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: Atlas — day 17, nothing done (6 running, 14 courses later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: Atlas — proven and watched lectures, gate 1 passed, exams, DSA (6 running, 14 courses later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: Atlas — worked ahead (6 running, 14 courses later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: Atlas — phase 2, gates 1 and 2 passed (16 running, 4 courses later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: Atlas — every gate passed (object, legacy date, legacy true) (20 running, null later; route, next gate, fill, tiles' proven counts and mastery)
+  ok    parity: unit counts on every course page — proven and watched lectures, gate 1 passed, exams, DSA (51 units)
+  ok    parity: unit counts on every course page — worked ahead (51 units)
+  ok    parity: unit counts on every course page — phase 2, gates 1 and 2 passed (51 units)
+  ok    parity: Recall — many due: ties, a ghost key, more than eight, nine ahead (7 cards, 6 coming up; due order, the interval pill, the eight and six caps)
+  ok    parity: Recall — fewer due on an earlier day (7 cards, 6 coming up; due order, the interval pill, the eight and six caps)
+  ok    parity: Recall — nothing due, scheduled ahead (0 cards, 5 coming up; due order, the interval pill, the eight and six caps)
+  ok    parity: Recall — nothing due, one scheduled (0 cards, 1 coming up; due order, the interval pill, the eight and six caps)
+  ok    parity: Recall — no reviews at all (0 cards, 0 coming up; due order, the interval pill, the eight and six caps)
+  ok    parity: Recall — practice items due again, a ghost item, a ghost lecture, one coming up (4 cards, 1 coming up; due order, the interval pill, the eight and six caps)
+  ok    parity: grading a recall (forgot, shaky, solid) — S.review and the recall event on 255 cases: boxes 0-4, 9 and none, lapses none/0/1/3, three clocks across a leap day and a year end, and a lecture not in the rotation
+  ok    parity: Drill — nothing watched, no misses (0 unlocked misses, 0 unlocked in all; pick size 0)
+  ok    parity: Drill — a miss in a course not started (0 unlocked misses, 0 unlocked in all; pick size 0)
+  ok    parity: Drill — three misses, padded to ten from what is taught (3 unlocked misses, 54 unlocked in all; pick size 10)
+  ok    parity: Drill — four misses, padded (4 unlocked misses, 54 unlocked in all; pick size 10)
+  ok    parity: Drill — five misses, not padded (5 unlocked misses, 54 unlocked in all; pick size 5)
+  ok    parity: Drill — six misses (6 unlocked misses, 54 unlocked in all; pick size 6)
+  ok    parity: Drill — ten misses (10 unlocked misses, 54 unlocked in all; pick size 10)
+  ok    parity: Drill — thirteen misses across two banks, capped at ten (13 unlocked misses, 54 unlocked in all; pick size 10)
+  ok    parity: Drill — only locked misses: padded, never from a lecture not reached (0 unlocked misses, 54 unlocked in all; pick size 10)
+  ok    parity: Drill — stray indices and an unknown bank are skipped (2 unlocked misses, 54 unlocked in all; pick size 10)
+  ok    parity: Drill — one lecture watched, one miss (1 unlocked misses, 4 unlocked in all; pick size 4)
+  ok    parity: Electives — phase 0 (week 1) (2 fit now, 12 further out; the phase rule, the verdict, the status)
+  ok    parity: Electives — phase 1, statuses set (13 fit now, 1 further out; the phase rule, the verdict, the status)
+  ok    parity: Electives — phase 2, an unknown status (14 fit now, 0 further out; the phase rule, the verdict, the status)
+  ok    parity: Electives — phase 3, everything fits (14 fit now, 0 further out; the phase rule, the verdict, the status)
+  ok    parity: the status tap (none, planned, done, none; an unknown status is cleared) over 6 taps
+  ok    the Atlas fixtures reach a passed gate, all gates passed, a pre-start pin, proven below watched (a count that differs), a best exam in the mastery, DSA on the tracker, and later chips with +N — math110 6 of 51 proven 42%; math120 0 of 47 proven 0%; math130 0 of 34 proven 0%; cs150 3 of 150 problems 25%; ai200 3 of 20 proven 15%; spch100 0 of 170 proven 0%
+  ok    the Recall fixtures reach a tie on the due date, a crimson pill (two lapses), the eight-card cap with a key that names no lecture, six coming up of nine, nothing due and its two messages, and every box and grade — 11/20 due/scheduled; 7 cards
+  ok    the Electives fixtures reach a phase with rows further out, one where all fit, a done, a planned and an unknown status, and a tap sequence that ends back at none — phase 0 (week 1): 2+12; phase 1, statuses set: 13+1; phase 2, an unknown status: 14+0; phase 3, everything fits: 14+0
+  ok    the Drill fixtures reach nothing to drill, a locked miss, three and four misses padded to ten, five not padded, the cap of ten, and a padded pick that excludes lectures not reached — 0/0/10/10/5/6/10/10/10/10/4
+  pages:       15 Practice states, 36 rep forms, 5s
+  ok    the stage 6b block ran in app.js without page errors
+  ok    parity: Practice — nothing logged, a study day (owed bank; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — Thursday: the bank logged on three days of the week (Mon, Tue, today) (owed ; week 3 of 6 days this week; tab Story)
+  ok    parity: Practice — Friday: story and humour owed (owed bank/story/humor; week 0 of 6 days this week; tab Story)
+  ok    parity: Practice — Friday: the story recorded today, humour still owed (owed humor; week 1 of 6 days this week; tab Humour)
+  ok    parity: Practice — Friday: both done today; last week's do not count towards it (owed bank; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — Friday: only last week's story and humour (still owed) (owed bank/story/humor; week 0 of 6 days this week; tab Story)
+  ok    parity: Practice — Saturday: a rest day owes nothing, and says so (owed ; week null; tab Story)
+  ok    parity: Practice — Sunday: the second study day of the week (owed bank; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — Friday: the first day of a new week, last week's bank lights no dot (owed bank/story/humor; week 0 of 6 days this week; tab Story)
+  ok    parity: Practice — before the start (owed ; week null; tab Story)
+  ok    parity: Practice — the monthly review is owed: a story four weeks old, no review (owed bank/review; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — the monthly review is owed again: the last one is four weeks old (owed bank/review; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — the review is not owed: written since (owed bank; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — the story is only 27 days old: no review yet (owed bank; week 0 of 6 days this week; tab Story bank)
+  ok    parity: Practice — a long history: twelve bank entries, five stories, five humour reps (written and recorded), four reviews (owed bank; week 0 of 6 days this week; tab Story bank)
+  ok    parity: rep form 0 repBank 2026-11-05 {"bankWhat":"  a client asked  ","bankWhy":" he got it "} -> Logged. The bank is the input to every o
+  ok    parity: rep form 1 repBank 2026-11-05 {"bankWhat":"","bankWhy":"x"} -> Write what happened first — an empty ent
+  ok    parity: rep form 2 repBank 2026-11-05 {"bankWhat":"   "} -> Write what happened first — an empty ent
+  ok    parity: rep form 3 repBank 2026-11-05 {"bankWhat":"only what"} -> Logged. The bank is the input to every o
+  ok    parity: rep form 4 repBank 2026-10-03 {"bankWhat":"a Saturday before the start"} -> Logged. The bank is the input to every o
+  ok    parity: rep form 5 repBank 2026-09-20 {"bankWhat":"before the start"} -> Logged. The bank is the input to every o
+  ok    parity: rep form 6 repBank 2026-11-07 {"bankWhat":"on a rest day"} -> Saturday is a rest day — nothing owed.
+  ok    parity: rep form 7 repStory 2026-11-07 {"repSecs":"30"} -> Saturday is a rest day — nothing owed.
+  ok    parity: rep form 8 repHumor 2026-11-07 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e"} -> Saturday is a rest day — nothing owed.
+  ok    parity: rep form 9 repReview 2026-11-07 {"revNotes":"n"} -> Saturday is a rest day — nothing owed.
+  ok    parity: rep form 10 repStory 2026-11-06 {"repSecs":"45"} -> Logged, and inside 90s.
+  ok    parity: rep form 11 repStory 2026-11-06 {"repSecs":"0"} -> How long was it? The 90-second cap is th
+  ok    parity: rep form 12 repStory 2026-11-06 {"repSecs":""} -> How long was it? The 90-second cap is th
+  ok    parity: rep form 13 repStory 2026-11-06 {} -> How long was it? The 90-second cap is th
+  ok    parity: rep form 14 repStory 2026-11-06 {"repSecs":"abc"} -> How long was it? The 90-second cap is th
+  ok    parity: rep form 15 repStory 2026-11-06 {"repSecs":"90"} -> Logged, and inside 90s.
+  ok    parity: rep form 16 repStory 2026-11-06 {"repSecs":"91"} -> Logged — 91s. The cap is 90.
+  ok    parity: rep form 17 repStory 2026-11-06 {"repSecs":"12.5","repTakes":"3","repWhich":" the napkin one "} -> Logged, and inside 90s.
+  ok    parity: rep form 18 repStory 2026-11-06 {"repSecs":"60","repTakes":"0"} -> Logged, and inside 90s.
+  ok    parity: rep form 19 repStory 2026-11-06 {"repSecs":"60","repTakes":"abc"} -> Logged, and inside 90s.
+  ok    parity: rep form 20 repStory 2026-11-06 {"repSecs":" 7 ","repTakes":"2abc"} -> Logged, and inside 90s.
+  ok    parity: rep form 21 repStory 2026-11-06 {"repSecs":"-5"} -> Logged, and inside 90s.
+  ok    parity: rep form 22 repHumor 2026-11-06 {} -> Five attempts, not 0. Volume is the mech
+  ok    parity: rep form 23 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d"} -> Five attempts, not 4. Volume is the mech
+  ok    parity: rep form 24 repHumor 2026-11-06 {"joke0":"a","joke1":"b"} -> Five attempts, not 2. Volume is the mech
+  ok    parity: rep form 25 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"   ","joke3":"d","joke4":"e"} -> Five attempts, not 4. Volume is the mech
+  ok    parity: rep form 26 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e"} -> Logged. No keeper this week — that is a 
+  ok    parity: rep form 27 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged, one keeper.
+  ok    parity: rep form 28 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged, one keeper.
+  ok    parity: rep form 29 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged, one keeper.
+  ok    parity: rep form 30 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged, one keeper.
+  ok    parity: rep form 31 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged. No keeper this week — that is a 
+  ok    parity: rep form 32 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged, one keeper.
+  ok    parity: rep form 33 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d","joke4":"e","jokeK -> Logged. No keeper this week — that is a 
+  ok    parity: rep form 34 repReview 2026-11-06 {"revNotes":""} -> A review with no writing is a rewatch.
+  ok    parity: rep form 35 repReview 2026-11-06 {"revNotes":"  what the recording shows  "} -> Review logged.
+  ok    parity: standing() over 14 percentages, clockLabel over 12 lengths, recDay over 5 dates
+  ok    parity: setGate — none passed: pass 2 refused, pass 1, unmark 2 refused, unmark 1, unmark 1 refused
+  ok    parity: setGate — two passed (an object, a legacy date): unmark 1 refused, unmark 2, pass 3 refused, pass 2, pass 3
+  ok    parity: setGate — all five passed (legacy true): pass 5 refused, unmark 5, unmark 4, pass 4, pass 5
+  ok    parity: Transcript — nothing begun (0%, Not begun)
+  ok    parity: Transcript — proven and watched lectures, a best exam, gate 1 passed (12%, Started · Grade D)
+  ok    parity: Transcript — a full set proven in phase 0 courses, and a clock in phase 2 (more courses counted) (22%, Started · Grade D)
+  ok    parity: Transcript — every gate passed, a gate overdue (0%, Not begun)
+  ok    parity: Workshop — phase 0, nothing ticked (0 / 54 done, 2 labs this phase)
+  ok    parity: Workshop — phase 1 (week 5), a lab and psets ticked (4 / 54 done, 6 labs this phase)
+  ok    parity: Workshop — phase 2, labs with and without proof (4 / 54 done, 8 labs this phase)
+  ok    parity: Workshop — phase 3 (0 / 54 done, 4 labs this phase)
+  ok    parity: Method's retention curve (66 + 94 points, 4 recalls)
+  ok    parity: the Library's documents, cards and outside links (5 documents, 10 links)
+  ok    parity: the tiny markdown's blocks over the 5 real documents (164 blocks)
+  ok    the Practice fixtures reach today's dot on (three of six), the Friday story and humour, a rest day, a new week, an owed monthly review and its edges, and a history that folds ten, four and three — week 3 of 6 days this week; long history 21 rows
+  ok    the rep-form fixtures reach each refusal, each success, the rest day and the 90-second cap, a fractional length, a keeper of 0 / 1 / 5 / 6 / 2.5, and a Saturday before the start that still logs — 21 logged, 36 cases
+  ok    the gate fixtures reach a pass out of order (refused), an unmark of a gate that is not the last (refused), a pass and an unmark that move every later target, and the last gate — FTFTF FTFTT FTTTT
+  ok    the Transcript fixtures reach every standing but one, an overdue gate, all gates passed, mastered courses counted, and the Workshop fixtures reach every phase with labs ticked and psets ticked — 0% Not begun; 12% Started · Grade D; 22% Started · Grade D; 0% Not begun
+  checkpoints: 13 states, 4 pushes, 3s
+  ok    the checkpoints block ran in app.js without page errors
+  ok    parity: checkpoints — empty, a Saturday @ 2026-11-14 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — empty, the eve of the first (a Saturday) @ 2026-12-05 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — empty, the first's own day @ 2026-12-06 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — empty, the day after the first @ 2026-12-07 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — empty, past all three @ 2027-03-01 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — before the start @ 2026-10-13 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — auto: CS50P 3 and 4 watched, 24 solved @ 2026-11-16 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — auto: CS50P 3-5 watched, 25 solved but 3 of them unticked @ 2026-11-16 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — auto: CS50P 3-5 watched, 26 ticked, stored unticks on both auto items @ 2026-11-16 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — odd stored shapes, the third checkpoint all ticked, a ghost checkpoint @ 2026-11-16 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — practice: the week's number on a study day @ 2026-11-16 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — practice: the week's number on a Saturday @ 2026-11-21 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: checkpoints — practice: one solved @ 2026-11-16 (days left, auto-ticks, ticks, the week's number, the drawn words)
+  ok    parity: a push's checkpoints — a phone with no ticks pushes over a laptop's file with ticks
+  ok    parity: a push's checkpoints — a phone with its own ticks pushes over a laptop's: both kept, the newer per item
+  ok    parity: a push's checkpoints — a phone with ticks pushes over a file that has none
+  ok    parity: a push's checkpoints — neither has ticks: the payload has no checkpoints key
+  ok    the checkpoint fixtures reach: days left on a Saturday, today, late, done; both auto-ticks false and true, a stored untick not overriding one; the week's number 0, 1 and more — Saturday 22/51/106; week 3; auto true/false
+  ok    a Flutter push keeps checkpoints: over a laptop's file the phone's payload carries every remote tick, with its own newer ones; with ticks on neither side there is no key — app.js and Dart — dart push 1: {"c1":{"routine":{"done":false,"at":"2026-11-13T08:00:00.000Z"},"nn":{"done":true,"at":"2026-11-13T08:00:00.000Z"},"sameday":{"done":false,"at":"2026-11-12T08:00:00.000Z"}},"c3":{"micrograd":{"done":true,"at":"2026-11-11T08:00:00.000Z"}}}
+  ok    the checkpoint merge fixtures reach the rules: the newer `at` wins (an untick too), the older and a tie keep mine, one side only is kept, a missing `at` never wins, non-objects are skipped — a whole device: 4 changes
+  ok    plant rest-dow exits 1 — exit 1; caught by: parity: the plan (dates, studyIndex, prevStudyDay, addStudyDays, revision weeks, monkDay, monkScore, constants); parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog; parity: empty, clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCount

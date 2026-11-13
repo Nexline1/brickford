@@ -26,7 +26,7 @@ const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
  "platform/data/summaries-ai310.js",
  "platform/data/summaries-res400.js",
  "platform/data/storytelling.js",
- "platform/data/practice-math110.js", "platform/data/practice-math120.js", "platform/data/practice-math130.js", "platform/data/practice-phys100.js", "platform/data/practice-ai200.js"]
+ "platform/data/practice-math110.js", "platform/data/practice-math120.js", "platform/data/practice-math130.js", "platform/data/practice-phys100.js", "platform/data/practice-ai200.js", "platform/data/practice-cs100.js"]
   .forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
 
 const D = ctx.DAR;
@@ -3351,6 +3351,15 @@ const expectedPractice = {
   "math130.0.10/p1": (function () { let s = 0, t = 1; for (let k = 0; k < 60; k++) { s += t; t *= 2 / (k + 1); } return 1 / s; })(),   // 1 / sum 2^k/k!
   "math130.0.10/p2": (function () { let pairs = 0; for (let i = 0; i < 30; i++) for (let j = i + 1; j < 30; j++) pairs++; return 1 - Math.exp(-pairs / 365); })(),
   "math130.0.10/p3": (function () { let p = 0.996 ** 500, s = 0; for (let k = 0; k < 500; k++) { p *= (500 - k) / (k + 1) * (0.004 / 0.996); s += p; } return s; })(),   // sum of P(X=k), k >= 1
+  // T-070: CS50P lectures 3 to 5. Each `out` is derived here in JS, not by re-running the item's program
+  // (which the gate also runs with python3): Python's int() rule restated as a regex, shuffle's return value as
+  // the language defines it, argv as a list holding the program name, and the bug's fixed points by solving.
+  "cs100.0.3/p1": (function () { const xs = ["12", "dog", "-3", "4.5", "0"], isInt = s => /^\s*[-+]?\d+\s*$/.test(s);
+                     return xs.filter(isInt).reduce((t, s) => t + Number(s), 0) + " " + xs.filter(s => !isInt(s)).length; })(),
+  "cs100.0.4/p1": "None " + ["ace", "two", "three"].length,                     // shuffle works in place and returns None
+  "cs100.0.4/p2": "arguments: " + (["count.py"].length - 1),                   // argv[0] is the program's own name
+  "cs100.0.5/p1": [1, 2, 0, -2, 5].filter(n => n * (n - 2) === 0).length,       // 2n = n^2 exactly when n(n - 2) = 0
+  "cs100.0.5/p2": (function () { let c = 0; for (let n = -1000; n <= 1000; n++) if (n + n === n * n) c++; return c; })(),   // by search, not by factoring
 };
 let pItems = 0, pNums = 0, pRuns = 0;
 const pByType = {}, pByCourse = {};

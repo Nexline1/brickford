@@ -119,32 +119,45 @@ class CrestPainter extends CustomPainter {
 
 /// The lockup, as the web app's drawer sets it: the crest, BRICKFORD in
 /// letter-spaced caps, a gold hairline, and SELF-BUILT UNIVERSITY under it.
+///
+/// The splash draws it, and web/index.html's #boot draws the same lockup in CSS
+/// px before the engine is up (T-072), so every measure is a fixed fraction of
+/// [height] in logical px: no ScreenUtil .sp (which scaled the text but not the
+/// crest, so the two screens disagreed on every phone but a 375x812 one), no
+/// system text scale, and even leading, which is CSS's half-leading. For
+/// height 132: crest 132 tall, a 21.12 gap, BRICKFORD 26.4/1.1 at .14em, a
+/// 39.6x1 rule with 9.24 above and below, SELF-BUILT UNIVERSITY 11.22/1.2 at .2em.
 class CrestLockup extends StatelessWidget {
   const CrestLockup({super.key, this.height = 120});
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Crest(height: height),
-        SizedBox(height: height * 0.16),
-        Text(
-          'BRICKFORD',
-          style: display(height * 0.2, color: Tokens.onMidnight).copyWith(letterSpacing: height * 0.2 * 0.14),
-        ),
-        Container(
-          width: height * 0.3,
-          height: 1,
-          margin: EdgeInsets.symmetric(vertical: height * 0.07),
-          color: Tokens.gold,
-        ),
-        Text(
-          'SELF-BUILT UNIVERSITY',
-          style: body(height * 0.085, color: Tokens.onMidnight2, weight: FontWeight.w600).copyWith(letterSpacing: height * 0.085 * 0.2),
-        ),
-      ],
+    final wm = height * 0.2, est = height * 0.085;
+    return MediaQuery.withNoTextScaling(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Crest(height: height),
+          SizedBox(height: height * 0.16),
+          Text(
+            'BRICKFORD',
+            style: display(wm, color: Tokens.onMidnight).copyWith(
+                fontSize: wm, letterSpacing: wm * 0.14, height: 1.1, leadingDistribution: TextLeadingDistribution.even),
+          ),
+          Container(
+            width: height * 0.3,
+            height: 1,
+            margin: EdgeInsets.symmetric(vertical: height * 0.07),
+            color: Tokens.gold,
+          ),
+          Text(
+            'SELF-BUILT UNIVERSITY',
+            style: body(est, color: Tokens.onMidnight2, weight: FontWeight.w600).copyWith(
+                fontSize: est, letterSpacing: est * 0.2, height: 1.2, leadingDistribution: TextLeadingDistribution.even),
+          ),
+        ],
+      ),
     );
   }
 }

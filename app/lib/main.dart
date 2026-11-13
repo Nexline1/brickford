@@ -1,5 +1,6 @@
 // Brickford, the Flutter app (T-064). platform/ is the live web app; this is
 // its port, stage 1: data, engine, Home and the lesson page.
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -20,12 +21,71 @@ Future<void> main() async {
   // The fonts are bundled (assets/fonts/, OFL): nothing is fetched, so the app
   // renders the same with no connection.
   GoogleFonts.config.allowRuntimeFetching = false;
-  // The crest lockup while the plan is read (the web shell paints the same
-  // lockup before the engine is up, so there is no blank frame between).
-  runApp(const SplashApp());
+  // T-072: google_fonts loads a face the first time a style asks for it, so the
+  // first frame of anything painted before then is in the engine's fallback
+  // (Roboto), and reflows a moment later. The splash waits for its two faces,
+  // and the app for the faces Home draws, before either is shown.
+  await fontsReady(splashFonts);
+  // The crest lockup while the plan is read (web/index.html's #boot paints the
+  // same lockup before the engine is up and fades out over it).
+  final app = Completer<Widget>();
+  runApp(BootApp(app: app.future));
   final data = await AppModel.loadData(rootBundle);
   final prefs = await SharedPreferences.getInstance();
-  runApp(BrickfordApp(model: AppModel(data, prefs, saveDelay: const Duration(milliseconds: 400))));
+  await fontsReady(shellFonts);
+  app.complete(BrickfordApp(model: AppModel(data, prefs, saveDelay: const Duration(milliseconds: 400))));
+}
+
+/// The faces the splash draws: BRICKFORD and SELF-BUILT UNIVERSITY.
+List<TextStyle> splashFonts() => [GoogleFonts.playfairDisplay(fontWeight: FontWeight.w700), GoogleFonts.inter(fontWeight: FontWeight.w600)];
+
+/// The faces Home draws on its first frame (tools/boot-files.js lists the same files).
+List<TextStyle> shellFonts() => [
+      GoogleFonts.playfairDisplay(fontWeight: FontWeight.w700),
+      for (final w in const [FontWeight.w400, FontWeight.w500, FontWeight.w600, FontWeight.w700, FontWeight.w800]) GoogleFonts.inter(fontWeight: w),
+    ];
+
+/// Asks google_fonts for [styles] (building a style starts its load) and waits
+/// for them. A face that fails or hangs must never hold the app, so this gives
+/// up after 8 s and the text falls back as it did before.
+Future<void> fontsReady(List<TextStyle> Function() styles) async {
+  try {
+    styles();
+    await GoogleFonts.pendingFonts().timeout(const Duration(seconds: 8));
+  } catch (_) {}
+}
+
+/// How long the boot screens take to hand over: web/index.html's #boot fades
+/// out over the splash in the same time (transition: opacity .25s).
+const bootFade = Duration(milliseconds: 250);
+
+/// The splash until [app] is ready, then one [bootFade] cross-fade to it.
+class BootApp extends StatefulWidget {
+  const BootApp({super.key, required this.app});
+  final Future<Widget> app;
+  @override
+  State<BootApp> createState() => _BootAppState();
+}
+
+class _BootAppState extends State<BootApp> {
+  Widget? _app;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.app.then((a) {
+      if (mounted) setState(() => _app = a);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: bootFade,
+      layoutBuilder: (current, previous) => Stack(fit: StackFit.expand, alignment: Alignment.center, children: [...previous, ?current]),
+      child: _app ?? const SplashApp(),
+    );
+  }
 }
 
 /// The phone column: the design is 375x812, so a wide window shows it at most

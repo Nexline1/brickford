@@ -139,7 +139,7 @@ async function oneLockup(browser, BASE) {
   const first = css.wm.family.split(",")[0].replace(/"/g, "").trim();
   const face = css.faces.find(f => f.family === first);
   check("HTML boot: BRICKFORD is set in the bundled Playfair Display Bold, loaded (not a fallback, not Georgia)",
-    /playfair/i.test(first) && !/georgia/i.test(css.wm.family) && css.wm.weight === "700" && !!face && face.status === "loaded",
+    /playfair/i.test(first) && css.wm.weight === "700" && !!face && face.weight === "700" && face.status === "loaded",
     "font-family " + css.wm.family + " " + css.wm.weight + " " + css.wm.size + "; face " + (face ? face.weight + " " + face.status : "none"));
 
   // The Flutter splash on its own: the boot screen hidden, the data held (so the splash stays),

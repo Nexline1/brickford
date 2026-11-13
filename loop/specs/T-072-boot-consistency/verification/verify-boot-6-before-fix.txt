@@ -1,0 +1,5 @@
+  FAIL  HTML boot: BRICKFORD is set in the bundled Playfair Display Bold, loaded (not a fallback, not Georgia) — font-family Georgia, "Times New Roman", serif 700 24px; face none
+  FAIL  HTML boot and Flutter splash: crest, wordmark, rule and subtitle in the same boxes (within 1px) — HTML crest 149,329.5 92x110; wordmark 106.5,467 172.5x16.5; rule 175,497 40x1; subtitle 106.5,509.5 175x9 | Flutter crest 146.5,321.5 97x115.5; wordmark 98.5,472.5 192.5x21; rule 175,504.5 40x1; subtitle 103,519.5 184x8.5
+  FAIL  the first Flutter frame has the final glyphs: BRICKFORD and SELF-BUILT UNIVERSITY as wide as after the fonts settle (fonts held 3 s) — first crest 146.5,321.5 97x115.5; wordmark 109,468.5 172.5x22; rule 175,504.5 40x1; subtitle 109.5,518 171.5x9.5 | settled crest 146.5,321.5 97x115.5; wordmark 98.5,472.5 192.5x21; rule 175,504.5 40x1; subtitle 103,519.5 184x8.5
+
+3 check(s) FAILED

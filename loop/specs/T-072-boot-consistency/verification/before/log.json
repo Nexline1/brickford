@@ -1,0 +1,683 @@
+{
+ "firstFrameMs": 7841.5,
+ "fontsAtFirstFrame": [
+  {
+   "f": "MaterialIcons-Regular.otf",
+   "end": 6425,
+   "type": "fetch"
+  },
+  {
+   "f": "Roboto-Regular.ttf",
+   "end": 6653,
+   "type": "fetch"
+  }
+ ],
+ "requests": [
+  {
+   "u": "FontManifest.json",
+   "at": 6208
+  },
+  {
+   "u": "MaterialIcons-Regular.otf",
+   "at": 6431
+  },
+  {
+   "u": "Roboto-Regular.ttf",
+   "at": 6679
+  },
+  {
+   "u": "meta.json",
+   "at": 8381
+  },
+  {
+   "u": "AssetManifest.bin.json",
+   "at": 8382
+  },
+  {
+   "u": "courses.json",
+   "at": 8789
+  },
+  {
+   "u": "PlayfairDisplay-Bold.ttf",
+   "at": 8928
+  },
+  {
+   "u": "quiz-keys.json",
+   "at": 8979
+  },
+  {
+   "u": "Inter-Regular.ttf",
+   "at": 9273
+  },
+  {
+   "u": "Inter-SemiBold.ttf",
+   "at": 9279
+  },
+  {
+   "u": "quizzes.json",
+   "at": 9283
+  },
+  {
+   "u": "workshop.json",
+   "at": 9455
+  },
+  {
+   "u": "gates.json",
+   "at": 9616
+  },
+  {
+   "u": "storytelling.json",
+   "at": 9974
+  },
+  {
+   "u": "prereq.json",
+   "at": 10161
+  },
+  {
+   "u": "practice.json",
+   "at": 10396
+  },
+  {
+   "u": "checkpoints.json",
+   "at": 10554
+  },
+  {
+   "u": "Inter-Medium.ttf",
+   "at": 11663
+  },
+  {
+   "u": "Inter-ExtraBold.ttf",
+   "at": 11671
+  },
+  {
+   "u": "Inter-Bold.ttf",
+   "at": 11803
+  }
+ ],
+ "shots": [
+  {
+   "f": "t000172.png",
+   "t": 172,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": "01-t000172.png"
+  },
+  {
+   "f": "t000350.png",
+   "t": 350,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t000526.png",
+   "t": 526,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t000682.png",
+   "t": 682,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t000851.png",
+   "t": 851,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001013.png",
+   "t": 1013,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001177.png",
+   "t": 1177,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001337.png",
+   "t": 1337,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001495.png",
+   "t": 1495,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001641.png",
+   "t": 1641,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001792.png",
+   "t": 1792,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t001943.png",
+   "t": 1943,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002094.png",
+   "t": 2094,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002237.png",
+   "t": 2237,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002390.png",
+   "t": 2390,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002541.png",
+   "t": 2541,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002687.png",
+   "t": 2687,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002834.png",
+   "t": 2834,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t002986.png",
+   "t": 2986,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t003137.png",
+   "t": 3137,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t003290.png",
+   "t": 3290,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t003444.png",
+   "t": 3444,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t003594.png",
+   "t": 3594,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t003747.png",
+   "t": 3747,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t003912.png",
+   "t": 3912,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004054.png",
+   "t": 4054,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004207.png",
+   "t": 4207,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004360.png",
+   "t": 4360,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004510.png",
+   "t": 4510,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004660.png",
+   "t": 4660,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004806.png",
+   "t": 4806,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t004962.png",
+   "t": 4962,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t005112.png",
+   "t": 5112,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t005262.png",
+   "t": 5262,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t005415.png",
+   "t": 5415,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t005578.png",
+   "t": 5578,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t006137.png",
+   "t": 6137,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t006312.png",
+   "t": 6312,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t006464.png",
+   "t": 6464,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t006622.png",
+   "t": 6622,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t006782.png",
+   "t": 6782,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t006947.png",
+   "t": 6947,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t007097.png",
+   "t": 7097,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t007260.png",
+   "t": 7260,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t007411.png",
+   "t": 7411,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t007571.png",
+   "t": 7571,
+   "boot": true,
+   "bootOpacity": "1",
+   "ff": false,
+   "kept": null
+  },
+  {
+   "f": "t007730.png",
+   "t": 7730,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": "02-t007730.png"
+  },
+  {
+   "f": "t008571.png",
+   "t": 8571,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t008728.png",
+   "t": 8728,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t008881.png",
+   "t": 8881,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t009033.png",
+   "t": 9033,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": "03-t009033.png"
+  },
+  {
+   "f": "t009202.png",
+   "t": 9202,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t009365.png",
+   "t": 9365,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": "04-t009365.png"
+  },
+  {
+   "f": "t009527.png",
+   "t": 9527,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t009681.png",
+   "t": 9681,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t009836.png",
+   "t": 9836,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t009992.png",
+   "t": 9992,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t010139.png",
+   "t": 10139,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t010291.png",
+   "t": 10291,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t010449.png",
+   "t": 10449,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t010608.png",
+   "t": 10608,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": "05-t010608.png"
+  },
+  {
+   "f": "t011694.png",
+   "t": 11694,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": "06-t011694.png"
+  },
+  {
+   "f": "t012399.png",
+   "t": 12399,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t012627.png",
+   "t": 12627,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t012841.png",
+   "t": 12841,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t013175.png",
+   "t": 13175,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t013384.png",
+   "t": 13384,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t013684.png",
+   "t": 13684,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t013928.png",
+   "t": 13928,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t014146.png",
+   "t": 14146,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t014375.png",
+   "t": 14375,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t014596.png",
+   "t": 14596,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  },
+  {
+   "f": "t014809.png",
+   "t": 14809,
+   "boot": false,
+   "bootOpacity": null,
+   "ff": true,
+   "kept": null
+  }
+ ]
+}

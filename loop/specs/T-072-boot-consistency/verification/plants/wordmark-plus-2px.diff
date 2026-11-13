@@ -1,0 +1,4 @@
+71c71
+<     #boot .wm { margin: calc(21.12px - 3.48px) 0 -3.48px; font: 700 26.4px/36px "Brickford Playfair", Georgia, serif;
+---
+>     #boot .wm { margin: calc(21.12px - 3.48px) 0 -3.48px; font: 700 28.4px/36px "Brickford Playfair", Georgia, serif;

@@ -3,6 +3,7 @@
 // splash, the palette is midnight + white sheet + gold crest + navy, no stage-1
 // green is left anywhere in lib/, and every pair the app paints text with
 // clears WCAG AA, measured here rather than asserted in a comment.
+import 'dart:async';
 import 'dart:io';
 
 import 'package:app/main.dart';
@@ -12,6 +13,7 @@ import 'package:app/widgets/crest.dart';
 import 'package:app/widgets/pill_button.dart';
 import 'package:app/widgets/sheet_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -104,5 +106,56 @@ void main() {
     expect(tester.getSize(find.byType(Crest)).height, greaterThanOrEqualTo(100));
     expect(find.text('BRICKFORD'), findsOneWidget);
     expect(find.text('SELF-BUILT UNIVERSITY'), findsOneWidget);
+  });
+
+  // T-072: the HTML boot screen (web/index.html #boot) paints this lockup in CSS px before the
+  // engine is up, so it has to be one fixed set of numbers: no ScreenUtil .sp, no system text
+  // scale, even leading (CSS half-leading), and the heights the CSS line-heights copy.
+  testWidgets('the splash lockup is the same logical px at every screen size and text scale (T-072)', (tester) async {
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    for (final size in const [Size(375, 812), Size(390, 844), Size(430, 932), Size(1280, 800)]) {
+      tester.view.physicalSize = size * 2;
+      tester.view.devicePixelRatio = 2;
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(const SplashApp());
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(Crest)), const Size(132 * 200 / 224, 132), reason: '$size');
+      final wm = tester.widget<Text>(find.text('BRICKFORD')).style!;
+      expect(wm.fontFamily, contains('PlayfairDisplay'));
+      expect(wm.fontWeight, FontWeight.w700);
+      expect(wm.fontSize, closeTo(26.4, 1e-9), reason: '$size');
+      expect(wm.letterSpacing, closeTo(26.4 * 0.14, 1e-9));
+      expect(wm.height, 1.1);
+      expect(wm.leadingDistribution, TextLeadingDistribution.even);
+      final est = tester.widget<Text>(find.text('SELF-BUILT UNIVERSITY')).style!;
+      expect(est.fontFamily, contains('Inter'));
+      expect(est.fontWeight, FontWeight.w600);
+      expect(est.fontSize, closeTo(11.22, 1e-9), reason: '$size');
+      expect(est.letterSpacing, closeTo(11.22 * 0.2, 1e-9));
+      expect(est.height, 1.2);
+      expect(est.leadingDistribution, TextLeadingDistribution.even);
+      for (final t in ['BRICKFORD', 'SELF-BUILT UNIVERSITY']) {
+        expect(tester.renderObject<RenderParagraph>(find.text(t)).textScaler, TextScaler.noScaling, reason: '$t at $size');
+      }
+    }
+  });
+
+  testWidgets('BootApp: the splash until the app is ready, then one 250 ms cross-fade (T-072)', (tester) async {
+    final ready = Completer<Widget>();
+    await tester.pumpWidget(BootApp(app: ready.future));
+    await tester.pumpAndSettle();
+    expect(find.byType(SplashApp), findsOneWidget);
+    expect(bootFade, const Duration(milliseconds: 250));
+    ready.complete(const ColoredBox(key: ValueKey('next'), color: Color(0xFF000000)));
+    await tester.pump(); // the future resolves and the switch is built
+    await tester.pump(); // the fade's ticker takes its start time
+    await tester.pump(const Duration(milliseconds: 125));
+    expect(find.byType(SplashApp), findsOneWidget, reason: 'mid-fade both are on screen');
+    expect(find.byKey(const ValueKey('next')), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 130));
+    expect(find.byType(SplashApp), findsNothing);
+    expect(find.byKey(const ValueKey('next')), findsOneWidget);
   });
 }

@@ -33,6 +33,10 @@
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
   <title>Brickford</title>
   <link rel="manifest" href="manifest.json">
+  <!-- T-072: the boot screen's two faces, the very files the app bundles (same origin, no other host),
+       fetched first so the lockup is drawn once, in its own glyphs, and Flutter's later fetch is a cache hit. -->
+  <link rel="preload" href="assets/assets/fonts/playfair/PlayfairDisplay-Bold.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/assets/fonts/inter/Inter-SemiBold.ttf" as="font" type="font/ttf" crossorigin>
   <style>
     html, body { margin: 0; background: #12141C; }
     /* iOS Safari zooms the page (and shifts it sideways) when a text field under 16px takes focus.
@@ -41,15 +45,36 @@
     input, textarea, flt-text-editing-host input, flt-text-editing-host textarea { font-size: 16px !important; }
     /* The boot screen (T-064 boot). Static HTML, so it is on screen from the
        first paint, before any script: the crest and the wordmark. It stays
-       until Flutter reports its first frame. */
+       until Flutter reports its first frame.
+       T-072: it is the Flutter splash's lockup to the pixel (CrestLockup(height: 132) in
+       lib/widgets/crest.dart, fixed logical px): crest 132 tall, a 21.12 gap, BRICKFORD
+       26.4/1.1 at .14em in Playfair Display Bold, a 39.6x1 rule with 9.24 above and below,
+       SELF-BUILT UNIVERSITY 11.22/1.2 at .2em in Inter SemiBold. font-display: block, so the
+       words wait for their own face rather than flash a fallback. tools/verify-boot.js
+       section 6 measures both screens.
+       Two things CSS does differently from Flutter, undone here:
+       - the baseline. Flutter's 1.1 / 1.2 line boxes are smaller than the faces' content area
+         (negative leading), and a browser rounds the ascent and floors the half-leading, which put
+         the subtitle 1px off. So each line-height is the face's own rounded content height at its
+         size (no leading, so every engine puts the baseline at the rounded ascent: Playfair 29+7 =
+         36px at 26.4, Inter 11+3 = 14px at 11.22), and negative margins of half the difference set
+         that box exactly over Flutter's (29.04: -3.48px; 13.464: -0.268px).
+       - letter-spacing. CSS adds it after the last letter too and centres that, Flutter centres
+         the ink; padding-left of the same amount puts the words back on the centre line. */
+    @font-face { font-family: "Brickford Playfair"; src: url("assets/assets/fonts/playfair/PlayfairDisplay-Bold.ttf") format("truetype");
+      font-weight: 700; font-style: normal; font-display: block; }
+    @font-face { font-family: "Brickford Inter"; src: url("assets/assets/fonts/inter/Inter-SemiBold.ttf") format("truetype");
+      font-weight: 600; font-style: normal; font-display: block; }
     #boot { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center;
       justify-content: center; padding: 24px; box-sizing: border-box; background: #12141C; color: #fff;
       font: 15px/1.45 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; transition: opacity .25s; }
-    #boot .wm { margin-top: 18px; font: 700 24px/1 Georgia, "Times New Roman", serif; letter-spacing: 0.14em; }
-    #boot .rule { width: 40px; height: 1px; background: #C89B60; margin: 9px 0; }
-    #boot .est { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; color: #A9AEC2; }
+    #boot .wm { margin: calc(21.12px - 3.48px) 0 -3.48px; font: 700 26.4px/36px "Brickford Playfair", Georgia, serif;
+      letter-spacing: 0.14em; padding-left: 0.14em; }
+    #boot .rule { width: 39.6px; height: 1px; background: #C89B60; margin: 9.24px 0; }
+    #boot .est { margin: -0.268px 0; font: 600 11.22px/14px "Brickford Inter", -apple-system, system-ui, sans-serif;
+      letter-spacing: 0.2em; padding-left: 0.2em; color: #A9AEC2; }
     /* The crest: just the logo, still. No numbers, no motion: it is only a wait. */
-    #boot .crest { width: 112px; height: 125px; }
+    #boot .crest { width: calc(132px * 200 / 224); height: 132px; }
     #boot .crest svg { display: block; width: 100%; height: 100%; }
     #boot .fail { display: none; max-width: 460px; width: 100%; margin-top: 26px; font-size: 14px; color: #E6E8EF; }
     #boot.failed .fail { display: block; }
@@ -69,7 +94,7 @@
      fonts) and finished <script> loads (main.dart.js) from the resource timing
      entries. The total is the build's own sum, written in by tools/build-app.sh. */
   (function () {
-    var TOTAL = +"12809863" || 0, LIMIT = 25000, t0 = Date.now();
+    var TOTAL = +"12815244" || 0, LIMIT = 25000, t0 = Date.now();
     var streamed = 0, scripts = {}, booted = false, failed = false, errs = [], origFetch = window.fetch;
     function $(id) { return document.getElementById(id); }
     function got() { var n = streamed; for (var k in scripts) n += scripts[k]; return n; }
@@ -129,11 +154,12 @@
     });
     setTimeout(function () { if (!booted) fail(); }, LIMIT);
     setInterval(paint, 250);
-    /* Finished non-fetch loads: scripts (main.dart.js, flutter.js, canvaskit.js) and XHRs. */
+    /* Finished non-fetch loads: scripts (main.dart.js, flutter.js, canvaskit.js) and XHRs. Not the
+       boot screen's preloaded fonts ("link"/"css"): Flutter fetches those again, counted below. */
     try {
       new PerformanceObserver(function (list) {
         list.getEntries().forEach(function (en) {
-          if (en.initiatorType !== "fetch") scripts[en.name] = en.decodedBodySize || en.encodedBodySize || en.transferSize || 0;
+          if (en.initiatorType !== "fetch" && en.initiatorType !== "link" && en.initiatorType !== "css") scripts[en.name] = en.decodedBodySize || en.encodedBodySize || en.transferSize || 0;
         });
         paint();
       }).observe({ type: "resource", buffered: true });

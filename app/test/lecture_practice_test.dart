@@ -94,11 +94,11 @@ Future<void> type(WidgetTester t, Finder f, String text) async {
 const longAnswer = 'Each neuron takes a weighted sum of the activations before it, adds a bias, and squashes it with a sigmoid.';
 
 void main() {
-  test('practice.json is the web DAR.PRACTICE: 112 items under 45 lectures, four types', () async {
+  test('practice.json is the web DAR.PRACTICE: 149 items under 58 lectures, four types (T-068 batch 2: was 112 under 45)', () async {
     final m = await model();
     final all = [for (final v in m.data.practice.values) ...(v as List)];
-    expect(m.data.practice.length, 45);
-    expect(all.length, 112);
+    expect(m.data.practice.length, 58);
+    expect(all.length, 149);
     expect({for (final it in all) it['type']}, {'numeric', 'output', 'worked', 'write'});
   });
 
@@ -114,7 +114,7 @@ void main() {
         n++;
       }
     }
-    expect(n, 73);
+    expect(n, 98);
   });
 
   test('a wrong numeric answer is marked missed and comes back in Recall; a right one counts as solved unaided', () async {

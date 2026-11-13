@@ -13,4 +13,16 @@ Object.assign(DAR.PRACTICE, {
       steps: ["$\\lambda=np=500\\cdot0.004=2$.", "Poisson: $P(X\\ge1)=1-e^{-2}=0.8647$.",
               "Exact: $1-0.996^{500}=0.8652$. Many trials, each unlikely: the two agree to three places."] },
   ],
+  // Batch 2 (T-068): scheduled 14 Dec.
+  "math130.0.11": [
+    { id: "p1", type: "numeric", q: "$X$ is uniform on $(2,6)$. $P(3\\le X\\le4.5)$ is:", num: 0.375,
+      expl: "The density is $\\tfrac14$ on the interval, so the probability is length times density: $1.5\\cdot\\tfrac14$." },
+    { id: "p2", type: "numeric", q: "$X$ is uniform on $(0,4)$. Using LOTUS for $E(X^{2})$, $\\mathrm{Var}(X)$ to three decimals is:", num: 1.333, tol: 0.001,
+      expl: "$E(X^{2})=\\int_{0}^{4}x^{2}\\cdot\\tfrac14\\,dx=\\tfrac{16}{3}$ and $E(X)=2$, so $\\tfrac{16}{3}-4=\\tfrac43$. In general $(b-a)^{2}/12$." },
+    { id: "p3", type: "worked", q: "$X$ has PDF $f(x)=3x^{2}$ on $(0,1)$. Check it is valid, then find $E(X)$ and, with LOTUS, $\\mathrm{Var}(X)$.",
+      result: "$E(X)=\\tfrac34$, $\\mathrm{Var}(X)=\\tfrac{3}{80}=0.0375$", num: 0.0375, tol: 0.0001,
+      steps: ["$f\\ge0$ and $\\int_{0}^{1}3x^{2}dx=1$: valid. Note $f(1)=3$, above 1, and that is fine.",
+              "$E(X)=\\int_{0}^{1}x\\cdot3x^{2}dx=\\tfrac34$; by LOTUS $E(X^{2})=\\int_{0}^{1}x^{2}\\cdot3x^{2}dx=\\tfrac35$.",
+              "$\\mathrm{Var}(X)=\\tfrac35-\\tfrac{9}{16}=\\tfrac{3}{80}$."] },
+  ],
 });

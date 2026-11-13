@@ -319,9 +319,24 @@ async function viewReplaced(page) {
   await page.waitForFunction(() => document.querySelector("#view > *") &&
     !document.querySelector("#view [data-flow-stale]"), null, { timeout: 8000 });
 }
-async function go(page, route) {
+// T-068: platform/ served on 127.0.0.1, an ephemeral port, node's own http (no dependency). For the one
+// block whose reload file:// storage cannot carry (the (p) recorder block, below). { base, close }.
+function serveDir(dir) {
+  const http = require("http");
+  const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml",
+    ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".pdf": "application/pdf" };
+  const srv = http.createServer((q, r) => {
+    const rel = decodeURIComponent(q.url.split("?")[0]), f = path.join(dir, rel);
+    if (!f.startsWith(dir + path.sep)) { r.writeHead(403); return r.end(); }
+    fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); return r.end(); }
+      r.writeHead(200, { "content-type": TYPES[path.extname(f)] || "application/octet-stream", "cache-control": "no-store" }); r.end(d); });
+  });
+  return new Promise(res => srv.listen(0, "127.0.0.1", () => res({ base: "http://127.0.0.1:" + srv.address().port + "/index.html#",
+    close: () => new Promise(c => { srv.close(() => c()); srv.closeAllConnections(); }) })));
+}
+async function go(page, route, base) {
   await markView(page);
-  await page.goto(URL + route, { waitUntil: "load" });
+  await page.goto((base || URL) + route, { waitUntil: "load" });
   await viewReplaced(page);
 }
 const todayCount = page => page.evaluate(() => {
@@ -1170,9 +1185,11 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     else await page.click("#view .pr-rec");
   };
   const DAY = new Date(TODAY + "T00:00:00Z").toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).replace(",", "");
-  async function micFresh(br, w, state, now, init) {
-    const ctx = await br.newContext({ viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860, isMobile: w < 860 });
-    await ctx.route(/^https?:/, r => { if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
+  async function micFresh(br, w, state, now, init, base) {
+    const ctx = await br.newContext({ viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860, isMobile: w < 860,
+      ...(base ? { serviceWorkers: "block" } : {}) });
+    await ctx.route(/^https?:/, r => { if (base && r.request().url().startsWith(base.replace(/#$/, "").replace(/index\.html$/, ""))) return r.continue();
+      if (/api\.github\.com/.test(r.request().url())) githubHits++; return r.abort(); });
     await ctx.clock.setFixedTime(new Date((now || TODAY) + "T12:00:00Z"));
     if (state) await ctx.addInitScript(s => { if (window.top === window && !sessionStorage.getItem("__seeded")) { sessionStorage.setItem("__seeded", "1"); localStorage.setItem("darhikmah_v1", s); } }, JSON.stringify(state));
     await ctx.addInitScript(countWrites);
@@ -1181,7 +1198,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     const errors = [], dialogs = [];
     page.on("pageerror", e => errors.push(e.message));
     page.on("dialog", d => { dialogs.push(d.message()); d.accept().catch(() => {}); });
-    await page.goto(URL + "/practice", { waitUntil: "load" });
+    await page.goto((base || URL) + "/practice", { waitUntil: "load" });
     await page.waitForSelector("#view .seg");
     return { ctx, page, errors, dialogs };
   }
@@ -1344,8 +1361,18 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // press) lands inside the second and cuts it under a second. With the limit
   // set only before the second press, the leak would have fired at 90s, long
   // after this case ended, and the check could never fail.
+  //
+  // T-068: this block reloads over http://127.0.0.1, not file://. Its "none yet" was not the app: read back
+  // just before the reload the state held the ledger every time, but headless Chromium starts a reloaded
+  // file:// page with localStorage EMPTY about one reload in five (any file:// reload, with or without a
+  // microphone, after a 2s wait or none), and lib-reload's retry cannot fire because nothing an unloading
+  // document sends ever reaches Playwright, so no unload report arrives. Over http the same reload lost
+  // nothing in 120 tries. loop/specs/T-068-batch2-fixes/verification/p-diagnosis/ has the scripts and counts.
+  // The reload is still proven: the stamp written last before it, and the state, must be there at
+  // document start, or the reloaded page was never measured and that is said, not "none yet".
+  const P_HTTP = await serveDir(path.join(path.resolve(__dirname, ".."), "platform"));
   await acrossReload({ label: "(p) the recorder stops by itself", check, fail: why => check("(p) the recorder stops by itself: " + why, false) }, async (check, reload) => {
-    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, captureStreams);
+    const { ctx, page, errors } = await micFresh(micBrowser, 1280, P_STATE, null, captureStreams, P_HTTP.base);
     try {
       await pickTab(page, "story");
       await page.evaluate(() => { window.__recLimit = 3; });
@@ -1369,9 +1396,11 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       const db2 = await clipsInDB(page), second = db2.list.find(c => c.key === TODAY + "-2");
       check("(p) the track ends under the recorder: the next recording, started inside the first one's 3s, runs to its full length (3 of a 3s limit), not cut short by the first one's timer",
         !!second && second.seconds === 3, JSON.stringify(db2.list.map(c => [c.key, c.seconds])));
-      await reload(page, { waitUntil: "load" });
+      const proof = await reload(page, { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      await go(page, "/record");
+      check("(p) the track ends under the recorder: the reload is measured, the stamp written last before it and the state both there at document start",
+        !!proof.boot.state && proof.boot.local === proof.stamp, JSON.stringify(proof.boot));
+      await go(page, "/record", P_HTTP.base);
       const seals = await page.evaluate(() => { const g = [...document.querySelectorAll("#view .ghead")].find(x => /Latest seals/.test(x.textContent));
         return g ? ((g.querySelector(".gh-meta") || {}).textContent || "").trim() : null; });
       check("(p) the track ends under the recorder: after a reload /record says the chain is whole (\"newest first\", not \"chain broken\")", seals === "newest first", String(seals));
@@ -1379,6 +1408,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     check("(p) the recorder stops by itself: no page errors", errors.length === 0, errors.join(" | "));
     await ctx.close();
   });
+  await P_HTTP.close();
 
   // A start still waiting on the microphone prompt (held open 1.5s) is
   // cancelled by leaving the page or picking another tab: the stream that
@@ -2016,12 +2046,16 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // still holds the pass exactly as this device stored it. A reload makes the
   // boot pull. Then the other device: the pass here, the unmark over there.
   console.log("\ngate sync (once)");
+  // T-068: this device reloads over http://127.0.0.1, for the reason the (p) recorder block does (file:// storage
+  // lost on a reload, in the browser, before any script runs); the other device below never reloads and stays on file://.
+  const N_HTTP = await serveDir(path.join(path.resolve(__dirname, ".."), "platform"));
   await acrossReload({ label: "(n) gate sync", check, fail: why => check(why, false) }, async (check, reload) => {
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true });
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: true, serviceWorkers: "block" });
     await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
     let remote = null, put = null, gets = 0, gotPut = null;
     await ctx.route(/^https?:/, r => {
       const req = r.request();
+      if (req.url().startsWith(N_HTTP.base.replace(/index\.html#$/, ""))) return r.continue();
       if (!/api\.github\.com/.test(req.url())) return r.abort();
       if (!remote) return r.abort();             // no token yet: nothing may reach here
       if (req.method() === "GET") { gets++; return r.fulfill({ status: 200, contentType: "application/json",
@@ -2034,7 +2068,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     const page = await ctx.newPage();
     const errors = [];
     page.on("pageerror", e => errors.push(e.message));
-    await page.goto(URL + "/transcript", { waitUntil: "load" });
+    await page.goto(N_HTTP.base + "/transcript", { waitUntil: "load" });
     await page.waitForSelector("#view > *");
     // Declared out here: the other device below is seeded with them, and a
     // harness error inside this try must not turn into a ReferenceError there.
@@ -2057,7 +2091,9 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       theUnmark = (await gatesStored(page))[1];
       remote = { v: 1, updatedAt: TODAY + "T12:00:30.000Z", device: "phone", ledgers: {}, state: { gates: { 1: thePass } } };
       await page.evaluate(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
-      await reload(page, { waitUntil: "load" });
+      const proof = await reload(page, { waitUntil: "load" });
+      check("(n) gate sync: the reload is measured, the stamp written last before it and the state both there at document start",
+        !!proof.boot.state && proof.boot.local === proof.stamp, JSON.stringify(proof.boot));
       const pulled = await page.waitForFunction(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).lastSyncAt,
         null, { timeout: 8000 }).then(() => true, () => false);
       await page.waitForSelector("#view [data-gate]");
@@ -2066,7 +2102,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
         !!thePass && thePass.passed === true && !!theUnmark && theUnmark.passed === false && pulled && gets > 0 &&
           !!after.g && after.g.passed === false && after.g.at === theUnmark.at && after.ctl === "pass 1",
         "pass " + JSON.stringify(thePass) + ", unmark " + JSON.stringify(theUnmark) + ", pulled " + pulled + " (" + gets + " GET), now " + JSON.stringify(after.g) + ", controls " + after.ctl);
-      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.goto(N_HTTP.base + "/sync", { waitUntil: "load" });
       await page.waitForSelector("[data-act='syncPush']", { timeout: 8000 });
       put = null;
       const putSeen = new Promise(r => { gotPut = r; });
@@ -2111,6 +2147,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     check("(n) no page errors (the other device)", errors2.length === 0, errors2.join(" | "));
     await ctx2.close();
   });
+  await N_HTTP.close();
 
   // ---- (pd) T-045: Problems, as what is due now ----
   // A lecture watched with its quiz not passed, and 18.06 Pset 1 unlocked

@@ -3360,11 +3360,24 @@ const expectedPractice = {
   "cs100.0.4/p2": "arguments: " + (["count.py"].length - 1),                   // argv[0] is the program's own name
   "cs100.0.5/p1": [1, 2, 0, -2, 5].filter(n => n * (n - 2) === 0).length,       // 2n = n^2 exactly when n(n - 2) = 0
   "cs100.0.5/p2": (function () { let c = 0; for (let n = -1000; n <= 1000; n++) if (n + n === n * n) c++; return c; })(),   // by search, not by factoring
+  // T-071: NumPy for beginners. The ring is classified by position, never by replaying the assignments: a cell is
+  // inside when it is off every edge; (2, 3) was written last. nbytes = rows * cols * 2 bytes (int16).
+  "cs100.1.0/p1": (function () { const R = 4, C = 6, at = (r, c) => (r === 2 && c === 3) ? 5 : (r > 0 && r < R - 1 && c > 0 && c < C - 1) ? 0 : 1;
+                     return "(" + R + ", " + C + ") " + (R * C * 2) + " " + at(2, 3) + " " + at(1, 1) + " " + at(0, 3); })(),
+};
+// T-071: numpy is not a dependency and may be missing here. Every `output` item whose code imports numpy has a
+// plain-Python restatement with lists below; it is ALWAYS run and must print `out`, and the item's own NumPy code
+// is run too whenever numpy is importable. So the check is never skipped, only narrowed to the list version.
+const pListRef = {
+  "cs100.1.0/p1": "g = [[1] * 6 for _ in range(4)]\nfor r in range(1, len(g) - 1):\n    for c in range(1, len(g[0]) - 1):\n        g[r][c] = 0\ng[2][3] = 5\nitemsize = 2  # int16\nprint((len(g), len(g[0])), len(g) * len(g[0]) * itemsize, g[2][3], g[1][1], g[0][3])\n",
 };
 let pItems = 0, pNums = 0, pRuns = 0;
 const pByType = {}, pByCourse = {};
 const noTagP = t => !/<[a-zA-Z/]/.test(t || "");
 const childP = require("child_process");
+const pHasNumpy = (function () { try { childP.execFileSync("python3", ["-I", "-c", "import numpy"], { timeout: 15000, stdio: "ignore" }); return true; } catch (e) { return false; } })();
+const pPy = src => { try { return childP.execFileSync("python3", ["-I", "-c", src || ""], { timeout: 15000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim(); }
+  catch (e) { return "(python3 failed: " + String(e.message).split("\n")[0] + ")"; } };
 Object.keys(PRACTICE).forEach(k => {
   const items = PRACTICE[k], l = lessonByKey[k];
   ok(lessonKeys.has(k), "T-067 practice " + k + ": keys a lecture that exists");
@@ -3401,11 +3414,16 @@ Object.keys(PRACTICE).forEach(k => {
     ok(it.tol == null || (typeof it.tol === "number" && it.tol >= 0), at + ": tol, when given, is a non-negative number");
     if (it.type === "output") {
       ok(typeof it.code === "string" && it.code.length > 0 && typeof it.out === "string" && it.out.length > 0, at + ": has reference code and the value it prints");
-      let printed = null;
-      try { printed = childP.execFileSync("python3", ["-I", "-c", it.code || ""], { timeout: 15000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim(); }
-      catch (e) { printed = "(python3 failed: " + String(e.message).split("\n")[0] + ")"; }
-      pRuns++;
-      ok(printed === String(it.out).trim(), at + ": the reference solution, run with python3, prints " + JSON.stringify(it.out) + " (printed " + JSON.stringify(printed) + ")");
+      const usesNp = /^\s*(import numpy|from numpy)/m.test(it.code || ""), lref = pListRef[k + "/" + it.id];
+      if (usesNp) ok(typeof lref === "string" && !/numpy/.test(lref), at + ": imports numpy, so it has a plain-Python list restatement in pListRef that does not");
+      if (!usesNp || pHasNumpy) {
+        const printed = pPy(it.code); pRuns++;
+        ok(printed === String(it.out).trim(), at + ": the reference solution, run with python3, prints " + JSON.stringify(it.out) + " (printed " + JSON.stringify(printed) + ")");
+      }
+      if (typeof lref === "string") {
+        const printed = pPy(lref); pRuns++;
+        ok(printed === String(it.out).trim(), at + ": its plain-Python list restatement, run with python3, prints " + JSON.stringify(it.out) + " (printed " + JSON.stringify(printed) + ")");
+      }
       const e = expectedPractice[k + "/" + it.id];
       ok(e !== undefined && String(e) === String(it.out).trim(), at + ": out " + JSON.stringify(it.out) + " is recomputed in expectedPractice (" + JSON.stringify(e) + ")");
       if (e !== undefined) pNums++;
@@ -3418,6 +3436,10 @@ Object.keys(PRACTICE).forEach(k => {
       pNums++;
     }
   });
+});
+Object.keys(pListRef).forEach(x => {
+  const [k, id] = [x.slice(0, x.lastIndexOf("/")), x.slice(x.lastIndexOf("/") + 1)], it = (PRACTICE[k] || []).find(t => t.id === id);
+  ok(!!it && it.type === "output" && /^\s*(import numpy|from numpy)/m.test(it.code || ""), "T-071 pListRef " + x + ": names an output item whose code imports numpy (no stale entries)");
 });
 Object.keys(expectedPractice).forEach(x => {
   const [k, id] = x.split("/"), it = (PRACTICE[k] || []).find(t => t.id === id);
@@ -3445,7 +3467,7 @@ function addDaysP(iso, n) { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate
 ok(pWindow.length >= 10, "T-067 practice: the scheduler (test hook) puts core maths/physics lectures in the 14 days from " + P_CLOCK + " (" + pWindow.length + ", not vacuous)");
 pWindow.forEach(x => ok((PRACTICE[x.split(" ")[1]] || []).length > 0, "T-067 practice: " + x + " is scheduled within 14 days of " + P_CLOCK + " and has practice items"));
 console.log("T-067 practice: " + pItems + " items on " + Object.keys(PRACTICE).length + " lectures (" + PTYPES.map(t => (pByType[t] || 0) + " " + t).join(", ") + "); " +
-  pNums + " answers recomputed, " + pRuns + " reference solutions run with python3; " + uncovered.length + " of " + coreMP.length +
+  pNums + " answers recomputed, " + pRuns + " reference solutions run with python3 (numpy " + (pHasNumpy ? "importable" : "not importable: " + Object.keys(pListRef).length + " NumPy item(s) checked by their list restatement") + "); " + uncovered.length + " of " + coreMP.length +
   " core maths/physics lectures still without items; " + new Set(pWindow.map(x => x.split(" ")[1])).size + " lectures in the 14 days from " + P_CLOCK + ", all covered" +
   "\n  by course: " + Object.keys(pByCourse).map(c => c + " " + Object.keys(pByCourse[c]).map(t => pByCourse[c][t] + " " + t).join("/")).join(", "));
 

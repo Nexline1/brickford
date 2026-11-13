@@ -1,1 +1,2 @@
 typecheck: all files pass node --check
+exit 0

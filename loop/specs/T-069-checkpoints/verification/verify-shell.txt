@@ -23,3 +23,4 @@
   844x390  insets 47/47/21  all 12 landscape checks passed (capsule, tabs, Next card on 2 routes)
 
 PASS — shell intact across 8 desktop widths x 13 routes and 5 phone widths, frame clear on 25 routes, phone landscape inside the safe-area insets on 3 routes (1212 checks)
+exit 0

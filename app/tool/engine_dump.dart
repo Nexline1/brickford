@@ -694,7 +694,7 @@ Map<String, dynamic> cpDump(Map<String, dynamic> fx, BrickfordData data) {
           final e = Engine(data, (copy(f['local']) as Map).cast<String, dynamic>(), today: () => fx['planClock'] as String);
           final n = mergeState(e, copy(f['remote']));
           final cps = (syncPayload(e)['state'] as Map)['checkpoints'];
-          return {'changed': n, if (cps != null) 'checkpoints': cps};
+          return {'changed': n, 'checkpoints': ?cps};
         }(),
     },
   };

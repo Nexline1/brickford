@@ -7,3 +7,4 @@ T-067 practice: 149 items on 58 lectures (98 numeric, 2 output, 44 worked, 5 wri
   by course: math110 54 numeric/25 worked/2 output, math120 37 numeric/16 worked, math130 4 numeric/2 worked, phys100 3 numeric/1 worked, ai200 5 write
 
 PASS — 49781 checks, 54 problem sets and labs unlocked by a real lecture, 14 numeric answers recomputed, 170 drills, 12 concepts, 12 figures, 3 interactive, 455 lecture summaries (491 numerics recomputed), 40 questions gated (210 untagged), lecture quizzes AI 200 9/20, AI 210 8/8, AI 300 0/16, AI 310 23/23, RES 400 1/18
+exit 0

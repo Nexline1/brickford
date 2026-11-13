@@ -1,0 +1,40 @@
+00:42 +124: /home/user/bf-T-072/app/test/calendar_test.dart: the day sheet: one row per lecture, glyphs match lessonCleared; a past day keeps its plan on a Saturday
+00:43 +125: /home/user/bf-T-072/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:44 +126: /home/user/bf-T-072/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:44 +127: /home/user/bf-T-072/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:44 +128: /home/user/bf-T-072/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+00:45 +129: /home/user/bf-T-072/app/test/calendar_test.dart: T-066: on a Saturday the month grid shows the watched Storytelling days as done
+00:45 +130: /home/user/bf-T-072/app/test/calendar_test.dart: T-066: on a Saturday the month grid shows the watched Storytelling days as done
+00:45 +131: /home/user/bf-T-072/app/test/sync_test.dart: (b) a 404 on the file and on the repo: the new error, latched for automatic pushes only; manual Pull and Push run; a success clears it
+00:45 +132: /home/user/bf-T-072/app/test/calendar_test.dart: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:45 +133: /home/user/bf-T-072/app/test/calendar_test.dart: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:45 +134: /home/user/bf-T-072/app/test/calendar_test.dart: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:45 +135: /home/user/bf-T-072/app/test/calendar_test.dart: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:45 +136: /home/user/bf-T-072/app/test/calendar_test.dart: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:45 +137: /home/user/bf-T-072/app/test/sync_test.dart: the Monk start merges by "first write wins": none takes the other's, two keep the EARLIER, and nothing that is not a date ever clears or replaces it
+00:45 +138: /home/user/bf-T-072/app/test/sync_test.dart: the payload carries monkStart when it is set and nothing else of Monk; not started, it carries no Monk key at all
+00:45 +139: /home/user/bf-T-072/app/test/sync_test.dart: starting pushes at once (inside the 4 s debounce, and only once), carrying the date; with no token nothing is sent
+00:45 +140: /home/user/bf-T-072/app/test/sync_test.dart: a pulled start repaints the open Monk screen from Start to Day 3 of 21
+00:46 +141: /home/user/bf-T-072/app/test/sync_test.dart: (tearDownAll)
+00:46 +141: /home/user/bf-T-072/app/test/learn_test.dart: (setUpAll)
+00:46 +141: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:47 +142: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:47 +143: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:47 +144: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:47 +145: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:47 +146: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:47 +147: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:48 +148: /home/user/bf-T-072/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:48 +149: /home/user/bf-T-072/app/test/checkpoints_test.dart: the Home block a tap ticks an item and a second unticks it, one write each, { done, at } stored, the count repainted
+00:48 +150: /home/user/bf-T-072/app/test/checkpoints_test.dart: the Home block a tap ticks an item and a second unticks it, one write each, { done, at } stored, the count repainted
+00:49 +151: /home/user/bf-T-072/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:49 +152: /home/user/bf-T-072/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:49 +153: /home/user/bf-T-072/app/test/checkpoints_test.dart: the Home block a folded checkpoint opens, and past its date it reads late and can still be ticked
+00:50 +154: /home/user/bf-T-072/app/test/checkpoints_test.dart: the Home block a folded checkpoint opens, and past its date it reads late and can still be ticked
+00:50 +155: /home/user/bf-T-072/app/test/learn_test.dart: Drill: ten questions (three misses padded from what is taught); right answers leave the miss pool, a wrong one stays
+00:50 +156: /home/user/bf-T-072/app/test/learn_test.dart: Drill: ten questions (three misses padded from what is taught); right answers leave the miss pool, a wrong one stays
+00:51 +157: /home/user/bf-T-072/app/test/learn_test.dart: Drill with nothing taught shows nothing to drill
+00:51 +158: /home/user/bf-T-072/app/test/learn_test.dart: Electives: what fits the phase first, the rest further out; the status tile cycles none, planned, done, none
+00:52 +159: /home/user/bf-T-072/app/test/learn_test.dart: (tearDownAll)
+00:52 +159: All tests passed!
+EXIT 0

@@ -16,6 +16,7 @@
 - Bump every `?v=` cache token in platform/index.html when any JS/CSS/data file changes (sed the token).
 - Tap targets 44x44 on phone widths. Measure with checkVisibility(), not the bounding box (closed <details>).
 - A focusable but invisible checkbox in a 44px row must cover the row (inset:0), not shrink to 1x1: verify-shell counts the 1x1 box as a control (T-069).
+- A screen drawn twice (HTML boot, then Flutter) must share units and faces: no ScreenUtil .sp in one only, each font loaded before its first frame (google_fonts loads lazily; the first frame was Roboto), and CSS baselines round, so give lines zero leading and offset with margins (T-072).
 
 ## Verification habits
 - After a plan reset, move each pinned clock to the same plan day (if the start weekday changes, plan day and weekday cannot both hold: keep the plan day, re-pick weekday fixtures, derive gate-relative dates from QUIZ_GATE_FROM). Keeping the weekday preserves plan-day and weekday content but not the month grid, which gains or loses pre-start cells: re-plant the bug for every fixture that picks a calendar cell by position or first match (reset six silently turned verify-design's Saturday check into a pre-start-day check). An unchanged clip baseline is a measurement, not a consequence.

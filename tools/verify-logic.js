@@ -1606,6 +1606,230 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // ---- T-069: the near checkpoints (loop/specs/T-069-checkpoints/spec.md) ----
+  // Ticks merge per item by `at`, both ways; drawing Today and Proof writes
+  // nothing; days left is calendar arithmetic on pinned clocks (a Saturday among
+  // them), "late" past the date and never red; the auto-ticks follow the state
+  // and nothing stored overrides them; and a full set of ticks moves nothing in
+  // scheduledFor, dayStatus, streak, backlogCount or the gates.
+  {
+    const daysTo = (a, b) => Math.round((Date.parse(b + "T00:00:00Z") - Date.parse(a + "T00:00:00Z")) / 864e5);
+    const at = (d, h) => d + "T" + (h || "08:00") + ":00.000Z";
+    const tk = (done, when) => ({ done, at: when });
+    const view = page => page.evaluate(() => window.__brickfordTest.checkpointsView());
+    const doneOf = (v, c, i) => { const x = (v.find(y => y.id === c) || { items: [] }).items.find(y => y.id === i); return x ? x.done : undefined; };
+
+    // (1) merge, both ways. Device A and device B each hold ticks the other has
+    // not seen, some on the same item at different times.
+    const A = { c1: { routine: tk(true, at("2026-11-10")), sameday: tk(true, at("2026-11-12")), nn: tk(false, at("2026-11-09")) },
+                c3: { micrograd: tk(true, at("2026-11-11")) } };
+    const B = { c1: { routine: tk(false, at("2026-11-11")), sameday: tk(false, at("2026-11-12", "07:59")), nn: tk(true, at("2026-11-13")) },
+                c2: { exam1: tk(true, at("2026-11-12")) } };
+    const pullInto = async (local, remote) => {
+      const { ctx, page, errors } = await scenario(browser, "2026-11-14", { checkpoints: local });
+      const r = await page.evaluate(rm => {
+        const T = window.__brickfordTest, file = { v: 1, device: "other", state: { checkpoints: JSON.parse(JSON.stringify(rm)) }, ledgers: {} };
+        const first = T.mergeState(file).changed, second = T.mergeState(file).changed;
+        return { first, second, v: T.checkpointsView() };
+      }, remote);
+      await ctx.close();
+      return Object.assign(r, { errors });
+    };
+    const ab = await pullInto(A, B), ba = await pullInto(B, A);
+    const want = { routine: false, sameday: true, nn: true, micrograd: true, exam1: true };
+    const got = r => ({ routine: doneOf(r.v, "c1", "routine"), sameday: doneOf(r.v, "c1", "sameday"), nn: doneOf(r.v, "c1", "nn"),
+      micrograd: doneOf(r.v, "c3", "micrograd"), exam1: doneOf(r.v, "c2", "exam1") });
+    check("T-069: checkpoint ticks merge per item by `at`, both ways: the newer tick wins (an untick included), an item only one side has is kept, and both devices end the same",
+      JSON.stringify(got(ab)) === JSON.stringify(want) && JSON.stringify(got(ba)) === JSON.stringify(want) &&
+      ab.first === 3 && ba.first === 2 && ab.second === 0 && ba.second === 0 && JSON.stringify(ab.v) === JSON.stringify(ba.v),
+      "A<-B " + JSON.stringify(got(ab)) + " (" + ab.first + ", then " + ab.second + "); B<-A " + JSON.stringify(got(ba)) + " (" + ba.first + ", then " + ba.second + ")");
+    const odd = await pullInto({ c1: { routine: tk(true, at("2026-11-10")) } },
+      { c1: { routine: tk(false), nn: null, sameday: "yes", cs50p: [1] }, c2: [tk(true, at("2030-01-01"))], c3: "x" });
+    check("T-069: a remote tick without `at` never beats a local one, and nulls, strings and arrays in the remote are skipped",
+      doneOf(odd.v, "c1", "routine") === true && odd.first === 0 && doneOf(odd.v, "c2", "bridge") === false, JSON.stringify(got(odd)) + ", " + odd.first + " change(s)");
+    check("no page errors (T-069 merge)", ab.errors.length + ba.errors.length + odd.errors.length === 0, ab.errors.concat(ba.errors, odd.errors).join(" | "));
+
+    // (2) a render is a read: the progress state is written zero times while
+    // Today and Proof are drawn, again and again, with ticks, auto-ticks and
+    // practice answers in it.
+    {
+      const seed = { checkpoints: A, lessons: { "cs100.0.3": { done: true, doneAt: "2026-11-02" } }, problems: { "Arrays & Hashing|Two Sum": "2026-11-02" },
+        practice: { "math110.0.0": { p1: { answer: "1", mark: "ok", at: at("2026-11-13") } } } };
+      const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });
+      await ctx.route("https://api.github.com/**", r => { githubHits++; return r.abort(); });
+      await ctx.clock.setFixedTime(new Date("2026-11-14T12:00:00Z"));
+      await ctx.addInitScript(s => { if (window.top === window) localStorage.setItem("darhikmah_v1", s); }, JSON.stringify(seed));
+      await ctx.addInitScript(() => {
+        if (window.top !== window) return;
+        window.__stateWrites = 0;
+        const set = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (k, v) { if (k === "darhikmah_v1") window.__stateWrites++; return set.call(this, k, v); };
+      });
+      const page = await ctx.newPage();
+      const errors = [];
+      page.on("pageerror", e => errors.push(e.message));
+      await page.goto(URL + "/__test", { waitUntil: "load" });
+      await page.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 10000 });
+      const before = await page.evaluate(() => localStorage.getItem("darhikmah_v1"));
+      const drawn = [];
+      for (const r of ["/", "/record", "/", "/record"]) {
+        await page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); });
+        await page.evaluate(r => { location.hash = "#" + r; }, r);
+        await page.waitForFunction(() => document.querySelector("#view > *") && !document.querySelector("#view [data-logic-stale]"), null, { timeout: 8000 });
+        await page.evaluate(() => { window.__brickfordTest.render(); window.__brickfordTest.render(); });
+        drawn.push(await page.evaluate(r => !!document.querySelector(r === "/" ? "#view .cp-list" : "#view .cp-rec"), r));
+      }
+      const after = await page.evaluate(() => ({ w: window.__stateWrites, s: localStorage.getItem("darhikmah_v1") }));
+      check("T-069: a render is a read: drawing Today's Checkpoints block and Proof's checkpoint row 4 times (and 8 renders) writes the progress state 0 times and leaves it byte-identical",
+        drawn.every(Boolean) && after.w === 0 && after.s === before, "drawn " + drawn.join(",") + "; " + after.w + " write(s); state " + (after.s === before ? "unchanged" : "CHANGED"));
+      check("no page errors (T-069 render)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+
+    // (3) days left, on pinned clocks: a Saturday (a rest day), the study day
+    // after it, the eve of the first checkpoint (a Saturday too), its own day,
+    // the day after it, and a clock past all three. Expected from the calendar
+    // here, not from the app.
+    {
+      const CLOCKS = ["2026-11-14", "2026-11-15", "2026-12-05", "2026-12-06", "2026-12-07", "2027-03-01"];
+      const runs = [];
+      for (const clock of CLOCKS) {
+        const { ctx, page, errors } = await scenario(browser, clock, null, clock === "2026-12-07" ? "America/Los_Angeles" : undefined);
+        await page.evaluate(() => { location.hash = "#/"; });
+        await page.waitForSelector("#view .cp-list", { timeout: 8000 });
+        const r = await page.evaluate(() => {
+          const T = window.__brickfordTest;
+          const metas = [...document.querySelectorAll("#view [data-cp-meta]")].map(e => ({ id: e.dataset.cpMeta, text: e.textContent, color: getComputedStyle(e).color }));
+          const probe = document.createElement("span");
+          probe.style.color = "var(--bad)";
+          document.body.appendChild(probe);
+          const bad = getComputedStyle(probe).color;
+          probe.remove();
+          return { v: T.checkpointsView(), dates: window.DAR.CHECKPOINTS.map(c => [c.id, c.date]), metas, bad, sat: new Date().getUTCDay() === 6 };
+        });
+        runs.push(Object.assign(r, { clock, errors }));
+        await ctx.close();
+      }
+      const word = left => left < 0 ? "late" : left === 0 ? "today" : left + "d left";
+      const bad = [];
+      runs.forEach(r => r.dates.forEach(([id, date], i) => {
+        const left = daysTo(r.clock, date), v = r.v[i], m = r.metas.find(x => x.id === id);
+        if (!v || v.left !== left) bad.push(r.clock + " " + id + ": left " + (v && v.left) + ", want " + left);
+        if (!m || !m.text.endsWith(word(left))) bad.push(r.clock + " " + id + ": drawn \"" + (m && m.text) + "\", want …" + word(left));
+      }));
+      check("T-069: days left is calendar days to each checkpoint on " + CLOCKS.length + " pinned clocks (two Saturdays, the day itself reads today, the day after reads late)",
+        bad.length === 0 && runs[0].sat && runs[2].sat, bad.slice(0, 4).join("; ") || runs.map(r => r.clock + ": " + r.v.map(v => v.left).join("/")).join(" | "));
+      const late = runs[runs.length - 1], lateMeta = late.metas[0], open = runs[0].metas[0];
+      check("T-069: past its date a checkpoint reads \"late\" in the same ink as one that is not (never the bad colour), and can still be ticked",
+        late.v.every(v => v.state === "late") && lateMeta.color === open.color && lateMeta.color !== late.bad,
+        lateMeta.text + " in " + lateMeta.color + " (an open one: " + open.color + ")");
+      check("no page errors (T-069 days left)", runs.every(r => r.errors.length === 0), runs.map(r => r.errors.join(" | ")).join(" "));
+      // Still tickable when late: one tick on the late clock, stored.
+      const { ctx, page, errors } = await scenario(browser, "2027-03-01", null);
+      await page.evaluate(() => { location.hash = "#/"; });
+      await page.waitForSelector("#view .cp-list", { timeout: 8000 });
+      await page.evaluate(() => { const d = document.querySelector('#view details.cp[data-cp="c1"]'); d.open = true; });
+      await page.click('#view label:has(input[data-cp-tick="c1|nn"])');
+      const st = await page.evaluate(() => (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").checkpoints || {}).c1 || {});
+      check("T-069: a late checkpoint's item ticks and is stored", !!st.nn && st.nn.done === true && /^2027-03-01T/.test(st.nn.at), JSON.stringify(st));
+      check("no page errors (T-069 late tick)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+
+    // (4) the auto-ticks follow the state, and a stored tick never overrides one.
+    {
+      const W = { done: true, doneAt: "2026-11-02", notes: "", checks: [] };
+      const probs = n => { const o = {}; for (let i = 0; i < n; i++) o["Cat|P" + i] = "2026-11-0" + (1 + (i % 9)); return o; };
+      const cases = [
+        ["nothing watched, nothing solved", {}, false, false],
+        ["CS50P 3 and 4 watched, 24 solved", { lessons: { "cs100.0.3": W, "cs100.0.4": W }, problems: probs(24) }, false, false],
+        ["CS50P 3-5 watched, 25 solved", { lessons: { "cs100.0.3": W, "cs100.0.4": W, "cs100.0.5": W }, problems: probs(25) }, true, true],
+        ["CS50P 5 unmarked again, 25 solved with 2 unticked (false)", { lessons: { "cs100.0.3": W, "cs100.0.4": W, "cs100.0.5": { done: false, firstDoneAt: "2026-11-02" } },
+          problems: Object.assign(probs(25), { "Cat|P0": false, "Cat|P1": false }) }, false, false],
+        ["stored ticks on both auto items, nothing watched or solved", { checkpoints: { c1: { cs50p: tk(true, at("2026-11-13")) }, c2: { neetcode: tk(true, at("2026-11-13")) } } }, false, false],
+        ["stored unticks on both auto items, all watched and 30 solved", { lessons: { "cs100.0.3": W, "cs100.0.4": W, "cs100.0.5": W }, problems: probs(30),
+          checkpoints: { c1: { cs50p: tk(false, at("2026-11-13")) }, c2: { neetcode: tk(false, at("2026-11-13")) } } }, true, true],
+      ];
+      const res = [];
+      for (const [name, state, wantCs, wantNc] of cases) {
+        const { ctx, page, errors } = await scenario(browser, "2026-11-14", state);
+        const v = await view(page);
+        res.push({ name, ok: doneOf(v, "c1", "cs50p") === wantCs && doneOf(v, "c2", "neetcode") === wantNc &&
+          v[0].items.find(x => x.id === "cs50p").auto === true && v[1].items.find(x => x.id === "neetcode").auto === true &&
+          v.every(c => c.items.filter(x => x.auto).length === (c.id === "c3" ? 0 : 1)), got: [doneOf(v, "c1", "cs50p"), doneOf(v, "c2", "neetcode")], errors });
+        await ctx.close();
+      }
+      check("T-069: the auto-ticks follow the state (CS50P 3-5 watched; 25 on the CS 150 tracker), and a stored tick or untick never overrides them",
+        res.every(r => r.ok), res.map(r => r.name + " " + r.got.join("/") + (r.ok ? "" : " WRONG")).join("; "));
+      // On the page: an auto item is drawn ticked and disabled, and pressing it stores nothing.
+      const { ctx, page, errors } = await scenario(browser, "2026-11-14", cases[2][1]);
+      await page.evaluate(() => { location.hash = "#/"; });
+      await page.waitForSelector("#view .cp-list", { timeout: 8000 });
+      const box = await page.evaluate(() => { const i = document.querySelector('#view input[data-cp-tick="c1|cs50p"]'); return { checked: i.checked, disabled: i.disabled }; });
+      await page.click('#view label:has(input[data-cp-tick="c1|cs50p"])', { force: true });   // Playwright calls a disabled control's label not enabled; the press is the reader's
+      const after = await page.evaluate(() => ({ checked: document.querySelector('#view input[data-cp-tick="c1|cs50p"]').checked, st: JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").checkpoints || {} }));
+      check("T-069: an auto item is drawn ticked and cannot be ticked by hand (a press changes nothing and stores nothing)",
+        box.checked && box.disabled && after.checked && !(after.st.c1 && after.st.c1.cs50p), JSON.stringify(box) + " -> " + JSON.stringify(after));
+      check("no page errors (T-069 auto-ticks)", res.every(r => r.errors.length === 0) && errors.length === 0, res.map(r => r.errors.join(" | ")).join(" ") + errors.join(" | "));
+      await ctx.close();
+    }
+
+    // (5) the week's number: practice items marked ok whose last change is today
+    // or one of the six days before; a missed one, an older one, an item that
+    // does not exist and a lecture that does not exist do not count.
+    {
+      const PRK = await (async () => { const { ctx, page } = await scenario(browser, "2026-11-14", null);
+        const r = await page.evaluate(() => { const P = window.DAR.PRACTICE; const ks = Object.keys(P).filter(k => P[k].length >= 3).slice(0, 2); return ks.map(k => [k, P[k].map(x => x.id)]); });
+        await ctx.close(); return r; })();
+      const [[k1, ids1], [k2, ids2]] = PRK;
+      const ok = (d, h) => ({ answer: "1", mark: "ok", at: at(d, h) });
+      const practice = {
+        [k1]: { [ids1[0]]: ok("2026-11-14", "23:59"), [ids1[1]]: ok("2026-11-08", "00:00"), [ids1[2]]: ok("2026-11-07", "23:59"), p99: ok("2026-11-13") },
+        [k2]: { [ids2[0]]: Object.assign(ok("2026-11-13"), { mark: "missed" }), [ids2[1]]: Object.assign(ok("2026-11-12"), { mark: "partly" }), [ids2[2]]: ok("2026-11-10") },
+        "nope.0.0": { p1: ok("2026-11-13") },
+      };
+      const { ctx, page, errors } = await scenario(browser, "2026-11-14", { practice });
+      const n = await page.evaluate(() => window.__brickfordTest.problemsThisWeek());
+      await page.evaluate(() => { location.hash = "#/"; });
+      await page.waitForSelector("#view [data-cp-week]", { timeout: 8000 });
+      const line = await page.textContent("#view [data-cp-week]");
+      check("T-069: problems solved this week counts the items marked got it or checked right in the last 7 days (today and the six before), nothing else",
+        n === 3 && line === "3 problems solved this week", n + "; \"" + line + "\"");
+      check("no page errors (T-069 week)", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+    }
+
+    // (6) the plan does not move: the same reads with and without a full set of
+    // ticks (every manual item ticked, and some unticked) on a study day and a Saturday.
+    {
+      const full = { c1: {}, c2: {}, c3: {} };
+      ["routine", "sameday", "nn", "cs50p"].forEach(i => { full.c1[i] = tk(true, at("2026-11-12")); });
+      ["bridge", "exam1", "post1", "neetcode"].forEach(i => { full.c2[i] = tk(true, at("2026-11-12")); });
+      ["micrograd", "makemore"].forEach(i => { full.c3[i] = tk(false, at("2026-11-12")); });
+      const base = { lessons: { "math110.0.0": { done: true, doneAt: "2026-10-16", notes: "", checks: [] } }, studyDays: ["2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13"] };
+      const reads = async (clock, state) => {
+        const { ctx, page, errors } = await scenario(browser, clock, state);
+        const r = await page.evaluate(() => {
+          const T = window.__brickfordTest, out = { sched: [], status: [] };
+          for (let i = -3; i < 120; i++) { const iso = new Date(Date.parse(window.DAR.START_DATE + "T00:00:00Z") + i * 864e5).toISOString().slice(0, 10);
+            out.sched.push(T.scheduledFor(iso).map(it => it.track + ":" + (it.pseudo ? it.short : it.cid + "." + it.ui + "." + it.li)).join(" ")); out.status.push(T.dayStatus(iso)); }
+          out.streak = T.streak(); out.best = T.bestStreak(); out.backlog = T.backlogCount(); out.gates = T.gatePlan().map(g => g.n + "@" + g.target + ":" + (g.doneDate || ""));
+          return out;
+        });
+        await ctx.close();
+        return { r, errors };
+      };
+      const diffs = [];
+      for (const clock of ["2026-11-13", "2026-11-14"]) {
+        const a = await reads(clock, base), b = await reads(clock, Object.assign({}, base, { checkpoints: full }));
+        if (JSON.stringify(a.r) !== JSON.stringify(b.r)) diffs.push(clock);
+        if (a.errors.length || b.errors.length) diffs.push(clock + " errors " + a.errors.concat(b.errors).join(" | "));
+      }
+      check("T-069: a full set of checkpoint ticks moves nothing in scheduledFor, dayStatus (123 dates), streak, bestStreak, backlogCount or the gates, on a study day and a Saturday",
+        diffs.length === 0, diffs.join("; ") || "identical");
+    }
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

@@ -1519,5 +1519,41 @@
    ],
    "model": "Two things stop a test from using this file. First, the last line calls main() unconditionally, so the moment test_calculator.py imports calculator, main runs and sits waiting for input. Guarding it with if __name__ == \"__main__\": main() means it runs when you execute calculator.py yourself but not when another file imports it. Second, the actual work, squaring, happens inside main between an input() and a print(), so there is nothing a test can call with a number and check. Pull it out into a function like def square(n): return n * n, which takes an argument and returns a value. Then test_calculator.py can import square and assert square(2) == 4, square(3) == 9, square(-3) == 9 and square(0) == 0, and pytest runs those for you. Only the thin main, the user input and printing, is left untested."
   }
+ ],
+ "cs100.1.0": [
+  {
+   "id": "p1",
+   "type": "output",
+   "q": "Make g = np.ones((4, 6), dtype='int16'). With ONE slice assignment that uses negative ends, set everything except the outer ring to 0; then set the element in row 2, column 3 to 5. Finally run print(g.shape, g.nbytes, g[2, 3], g[1, 1], g[0, 3]). What does it print?",
+   "code": "import numpy as np\n\ng = np.ones((4, 6), dtype='int16')\ng[1:-1, 1:-1] = 0\ng[2, 3] = 5\nprint(g.shape, g.nbytes, g[2, 3], g[1, 1], g[0, 3])\n",
+   "out": "(4, 6) 48 5 0 1",
+   "expl": "shape is (rows, columns), so (4, 6). nbytes is size times itemsize: 24 elements of 2 bytes each (int16), 48. The slice 1:-1 stops before the last index, so rows 1-2 and columns 1-4 become 0 and the ring stays 1: g[0, 3] is on the top edge (1), g[1, 1] is just inside it (0). g[2, 3] was written after the zeros, so it is 5. Indices count from 0."
+  },
+  {
+   "id": "p2",
+   "type": "worked",
+   "q": "a = np.array([1, 2, 3]), then b = a and c = a.copy(). Next b[0] = 7, then a += 1, then c[2] = 0. What do print(a), print(b) and print(c) show, and why?",
+   "result": "a is [8 3 4], b is [8 3 4], c is [1 2 0].",
+   "steps": [
+    "b = a does not copy anything: it gives the same array a second name. c = a.copy() makes a separate array holding 1 2 3 at that moment.",
+    "b[0] = 7 changes the one array that a and b both name: it is now 7 2 3. c is untouched, still 1 2 3.",
+    "a += 1 adds 1 to every element of that same shared array, element by element: 8 3 4. b shows it too, because b is that array.",
+    "c[2] = 0 changes only the copy: 1 2 0. So a and b print [8 3 4] and c prints [1 2 0]. If you want to change b without touching a, take b = a.copy()."
+   ]
+  },
+  {
+   "id": "p3",
+   "type": "write",
+   "q": "A friend asks why anyone bothers with NumPy when Python already has lists. Using what the lecture says, give the reasons.",
+   "points": [
+    "Fixed types: a NumPy int is a fixed number of bytes (int32 is 4, int16 is 2, int8 is 1), while a Python int carries its value plus its type, a reference count and a size, so it is much bigger.",
+    "Less work per element: the array has one type, so NumPy does not check the type of every element as it goes.",
+    "Contiguous memory: the values sit next to each other, where a list holds pointers to objects scattered around memory.",
+    "That layout lets the processor use SIMD (one instruction on several values at once) and use its cache better, which is where the speed comes from.",
+    "Element-wise maths: a * b multiplies item by item, which a list does not do, on top of everything a list can do (insert, delete, append, concatenate).",
+    "It is the base the rest stands on: Pandas, SciPy, plotting, images and ML tensors are all arrays."
+   ],
+   "model": "The short answer is speed, and the lecture gives three reasons for it. First, NumPy stores numbers with a fixed type: an int32 is 4 bytes, and you can choose int16 or int8 to use 2 or 1, while a Python int is a full object carrying its value, its type, a reference count and a size, so it takes far more room. Second, because every element has the same type, NumPy does not have to check each element's type as it works. Third, an array's values sit next to each other in memory, where a list is a set of pointers to objects scattered all over; contiguous values let the CPU apply one instruction to several numbers at once (SIMD) and make better use of its cache. On top of that, NumPy does element-wise maths, so a * b multiplies two arrays item by item, which lists cannot do. And it is the base of scientific Python: Pandas is built on it, and images and ML tensors are arrays."
+  }
  ]
 }

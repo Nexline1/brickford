@@ -1,0 +1,48 @@
+plants against /home/user/bf-T-069 (0b787c9)
+sha256 before:
+  c7e6a44b1986af96b095e6351f8647271f69dc21d0742485ac88b00d85c5f23b  platform/js/app.js
+  27b99885074cece2f7cc584051798d10726de8ddda8e3eee7f2409a2c3931f78  app/lib/engine/merge.dart
+  3b56595fb9453ca83adca495fa8d15caa391c0f168d99a0900d85d83484f71bf  app/lib/screens/home/checkpoints_block.dart
+== plant web-merge-older -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  T-069: checkpoint ticks merge per item by `at`, both ways: the newer tick wins (an untick included), an item only one side has is kept, and both devices end the same — A<-B {"routine":true,"sameday":false,"nn":false,"micrograd":true,"exam1":true} (2,
+  FAIL  T-069: a remote tick without `at` never beats a local one, and nulls, strings and arrays in the remote are skipped — {"routine":false,"sameday":false,"nn":false,"micrograd":false,"exam1":false}, 1 change(s)
+2 of 269 invariant(s) FAILED
+  exit 1, the named check failed (caught, as required)
+== plant web-render-writes -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  render is a read: loading and drawing /atlas, /transcript and / leaves the old shapes as stored — UTC true,true,false; America/Los_Angeles true,true,false
+  FAIL  T-069: a render is a read: drawing Today's Checkpoints block and Proof's checkpoint row 4 times (and 8 renders) writes the progress state 0 times and leaves it byte-identical — drawn true,true,true,true; 6 write(s); state CHANGED
+2 of 269 invariant(s) FAILED
+  exit 1, the named check failed (caught, as required)
+== plant web-auto-ignores-state -> node tools/verify-logic.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  T-069: the auto-ticks follow the state (CS50P 3-5 watched; 25 on the CS 150 tracker), and a stored tick or untick never overrides them — nothing watched, nothing solved true/false WRONG; CS50P 3 and 4 watched, 24 solved true/false WRONG; CS50P 3-5 wa
+1 of 269 invariant(s) FAILED
+  exit 1, the named check failed (caught, as required)
+== plant web-tick-writes-twice -> node tools/verify-flows.js
+  restored platform/js/app.js (cmp identical)
+  FAIL  (cp) a tap ticks an item: one write, { done: true, at } stored, the count reads 1/4, the checkpoint stays open — {"checked":true,"meta":"1/4 · 6 Dec · 20d left","open":true,"st":{"done":true,"at":"2026-11-16T12:00:00.000Z"},"w":2}
+  FAIL  (cp) a second tap unticks it: one write, { done: false, at } stored (the untick kept, so it syncs), the count reads 0/4 — {"checked":false,"meta":"0/4 · 6 Dec · 20d left","open":true,"st":{"done":false,"at":"2026-11-16T12:00:00.000Z"},"w":2}
+  FAIL  (cp) drawing Proof and Today again writes nothing, and Today still shows the untick — 1 write(s) on render
+  FAIL  (cp) Space on the focused box ticks an item: one write, { done: true, at } stored, the count reads 1/4, the checkpoint stays open — {"checked":true,"meta":"1/4 · 6 Dec · 20d left","open":true,"st":{"done":true,"at":"2026-11-16T12:00:00.000Z"},"w":2
+  FAIL  (cp) a click unticks it: one write, { done: false, at } stored (the untick kept, so it syncs), the count reads 0/4 — {"checked":false,"meta":"0/4 · 6 Dec · 20d left","open":true,"st":{"done":false,"at":"2026-11-16T12:00:00.000Z"},"w":2}
+  FAIL  (cp) drawing Proof and Today again writes nothing, and Today still shows the untick — 1 write(s) on render
+6 of 390 flow check(s) FAILED
+  exit 1, the named check failed (caught, as required)
+== plant flutter-push-drops -> flutter test (app/)
+  restored app/lib/engine/merge.dart (cmp identical)
+00:45 +146 -1: /home/user/bf-T-069/app/test/checkpoints_test.dart: a push carries the checkpoints: the laptop ticks in the remote file survive the phone push, and the phone tick is added [E]
+00:48 +156 -1: Some tests failed.
+  exit 1, the named check failed (caught, as required)
+== plant flutter-home-never-unticks -> flutter test (app/)
+  restored app/lib/screens/home/checkpoints_block.dart (cmp identical)
+00:53 +150 -1: /home/user/bf-T-069/app/test/checkpoints_test.dart: the Home block a tap ticks an item and a second unticks it, one write each, { done, at } stored, the count repainted [E]
+00:54 +156 -1: Some tests failed.
+  exit 1, the named check failed (caught, as required)
+sha256 after:
+  c7e6a44b1986af96b095e6351f8647271f69dc21d0742485ac88b00d85c5f23b  platform/js/app.js
+  27b99885074cece2f7cc584051798d10726de8ddda8e3eee7f2409a2c3931f78  app/lib/engine/merge.dart
+  3b56595fb9453ca83adca495fa8d15caa391c0f168d99a0900d85d83484f71bf  app/lib/screens/home/checkpoints_block.dart
+0 plant(s) not caught
+plants.sh exit 0

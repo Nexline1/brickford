@@ -62,6 +62,8 @@ function build(root) {
     "prereq.json": D.PREREQ || {},
     // T-067 step 3: DAR.PRACTICE, the practice items under each lecture's quiz (platform/data/practice-*.js).
     "practice.json": D.PRACTICE || {},
+    // T-069: DAR.CHECKPOINTS, the three near checkpoints (platform/data/checkpoints.js).
+    "checkpoints.json": D.CHECKPOINTS || [],
   };
   const text = {};
   for (const [name, v] of Object.entries(out)) text[name] = json(v, name);

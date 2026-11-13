@@ -2580,6 +2580,48 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     }
   }
 
+  // ---- (cp) T-069: the near checkpoints ----
+  // On Today, at 390 (tapped) and 1280 (ticked by keyboard, unticked by mouse):
+  // an item ticked and unticked is one write each, { done, at } stored, the
+  // checkpoint's count repainted in place and the fold left open; every row and
+  // fold head of the block is at least 44x44; drawing the block writes nothing.
+  for (const w of WIDTHS) {
+    console.log("\ncheckpoints (T-069) at " + w + "px:");
+    const CP_DAY = "2026-11-16";
+    const { ctx, page, errors } = await fresh(browser, w, null, "/", CP_DAY);
+    try {
+      await page.waitForSelector("#view .cp-list");
+      const w0 = await writes(page);
+      const small = await page.evaluate(() => [...document.querySelectorAll("#view .cp-list summary, #view .cp-list label.check-row")]
+        .filter(el => el.checkVisibility()).map(el => { const b = el.getBoundingClientRect(); return { t: el.textContent.trim().slice(0, 24), w: b.width, h: b.height }; }));
+      check("(cp) every fold head and tick row of the Checkpoints block is at least 44x44 (" + small.length + " on screen)",
+        small.length >= 7 && small.every(b => b.w >= 44 && b.h >= 44), small.filter(b => b.w < 44 || b.h < 44).map(b => b.t + " " + Math.round(b.w) + "x" + Math.round(b.h)).join(", ") || small.length + " targets");
+      const ITEM = '#view input[data-cp-tick="c1|sameday"]', ROW = "#view label:has(" + ITEM.slice(6) + ")";
+      const read = () => page.evaluate(sel => ({ checked: document.querySelector(sel).checked, meta: document.querySelector('#view [data-cp-meta="c1"]').textContent,
+        open: document.querySelector('#view details.cp[data-cp="c1"]').open, st: ((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").checkpoints || {}).c1 || {}).sameday || null }), ITEM);
+      if (w < 860) await page.tap(ROW);
+      else { await page.focus(ITEM); await page.keyboard.press("Space"); }
+      await page.waitForFunction(sel => document.querySelector(sel).checked, ITEM, { timeout: 4000 });
+      const on = Object.assign(await read(), { w: (await writes(page)) - w0 });
+      check("(cp) " + (w < 860 ? "a tap" : "Space on the focused box") + " ticks an item: one write, { done: true, at } stored, the count reads 1/4, the checkpoint stays open",
+        on.w === 1 && on.checked && on.st && on.st.done === true && /^2026-11-16T/.test(on.st.at) && on.meta.startsWith("1/4 \u00b7 6 Dec \u00b7 20d left") && on.open, JSON.stringify(on));
+      const w1 = await writes(page);
+      if (w < 860) await page.tap(ROW); else await page.click(ROW);
+      await page.waitForFunction(sel => !document.querySelector(sel).checked, ITEM, { timeout: 4000 });
+      const off = Object.assign(await read(), { w: (await writes(page)) - w1 });
+      check("(cp) " + (w < 860 ? "a second tap" : "a click") + " unticks it: one write, { done: false, at } stored (the untick kept, so it syncs), the count reads 0/4",
+        off.w === 1 && !off.checked && off.st && off.st.done === false && !!off.st.at && off.meta.startsWith("0/4") && off.open, JSON.stringify(off));
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await go(page, "/record");
+      await go(page, "/");
+      check("(cp) drawing Proof and Today again writes nothing, and Today still shows the untick", (await writes(page)) - w1 === 1 &&
+        !(await page.evaluate(sel => document.querySelector(sel).checked, ITEM)), ((await writes(page)) - w1 - 1) + " write(s) on render");
+      await shot(page, "checkpoints-" + w);
+    } catch (e) { check("(cp) the checkpoints flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+    check("(cp) no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -2590,7 +2632,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       "record yourself at 390/1280 with a fake microphone — the clip in IndexedDB, one rep through the form's path, no audio in localStorage, play, rename and delete, the 1:30 stop on a shortened limit, a Saturday — and no microphone (denied, and no device) at 390/1280, the line and the form by hand (T-028); " +
       "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054); " +
       "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065); " +
-      "practice items at 390 — numeric right and wrong, a worked solution and a written checklist kept out of the page until an attempt, Grade with Claude against a stub (one request, only the question, checklist and answer, the key nowhere), Copy this week, and a missed item back in Recall (T-067 step 3)"
+      "practice items at 390 — numeric right and wrong, a worked solution and a written checklist kept out of the page until an attempt, Grade with Claude against a stub (one request, only the question, checklist and answer, the key nowhere), Copy this week, and a missed item back in Recall (T-067 step 3); " +
+      "checkpoints at 390 (tapped) and 1280 (keyboard, then mouse) — tick and untick one write each, 44x44 targets, drawing writes nothing (T-069)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

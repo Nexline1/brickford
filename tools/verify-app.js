@@ -101,6 +101,13 @@
 //    practice merge over a fixture matrix and the payload's practice key (section 5's fixtures); practice items due
 //    again in Recall (section 6a's fixtures). Plants: practice-payload-drop (the Dart payload drops practice, which is
 //    what a Flutter push did before the port), practice-merge-older (the merge takes the older `at`).
+//
+// 9. CHECKPOINTS (T-069). The near checkpoints: checkpointsView (days left on pinned clocks, a Saturday among them;
+//    the auto-ticks from watched lectures and the CS 150 count; stored ticks, odd shapes), problemsThisWeek and the
+//    words the block draws, from app.js's hook and its rendered dashboard against the Dart port
+//    (app/lib/engine/checkpoints.dart); the merge per item by `at` and the payload's checkpoints key (section 5's
+//    fixtures); and a Flutter push (the remote file merged in, then the payload) keeps every remote tick.
+//    Plants: checkpoints-payload-drop, checkpoints-merge-older, checkpoints-auto-ignores-state.
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), vm = require("vm");
 const { execFileSync, spawnSync } = require("child_process");
@@ -110,8 +117,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -230,13 +237,13 @@ const MONK_PROBES = [null, {}, { prayers: { fajr: true, dhuhrAsr: true, maghribI
 const clone = v => JSON.parse(JSON.stringify(v));
 const strip = v => Array.isArray(v) ? v.map(strip) : v && typeof v === "object"
   ? Object.fromEntries(Object.entries(v).filter(([, x]) => x != null).map(([k, x]) => [k, strip(x)])) : v;
-const PROJ = ["lessons", "studyDays", "problems", "psets", "electives", "labs", "diag", "quizAttempts", "weeks", "review", "concepts", "anchors", "reps", "foreignLedgers", "gates", "monk", "monkStart", "practice"];
+const PROJ = ["lessons", "studyDays", "problems", "psets", "electives", "labs", "diag", "quizAttempts", "weeks", "review", "concepts", "anchors", "reps", "foreignLedgers", "gates", "monk", "monkStart", "practice", "checkpoints"];
 const projectS = S => strip(JSON.parse(JSON.stringify(Object.assign(Object.fromEntries(PROJ.map(k => [k, S[k]])), { streakFrom: S.settings.streakFrom }))));
 // app.js's DEFAULT plus the load-time additions (ledger, concepts, anchors, foreignLedgers), complete, so the JS VM and Dart start equal.
 const baseState = over => Object.assign({
   v: 1, lessons: {}, problems: {}, quizAttempts: {}, quizMisses: {}, diag: {}, gates: {}, studyDays: [], weeks: [], labs: {}, psets: {}, electives: {},
   treasury: { offer: "", clients: [], entries: [], niche: "" }, reps: { bank: [], story: [], humor: [], review: [] }, review: {}, concepts: {}, anchors: [],
-  ledger: [], foreignLedgers: {}, monk: {}, practice: {},
+  ledger: [], foreignLedgers: {}, monk: {}, practice: {}, checkpoints: {},
   settings: { lastBackup: null, dailyStart: "08:00", streakFrom: null, lastSyncAt: null, syncError: null, deviceId: "dev-phone" },
 }, over);
 const remoteFile = (state, ledgers) => ({ v: 1, updatedAt: "2026-11-05T10:00:00.000Z", device: "dev-laptop", state, ledgers: ledgers || {} });
@@ -311,6 +318,8 @@ function mergeFixtures(plan) {
     ms("local empty takes the remote", "", "2026-11-06"),
     // T-067 step 3: practice answers, per item by `at` (the newer wins; a tie keeps mine; one side only is kept).
     ...practiceMergeFixtures(),
+    // T-069: checkpoint ticks, per item by `at` (the newer wins, an untick too; a tie keeps mine; one side only is kept).
+    ...checkpointMergeFixtures(),
     wkOf("pre-reset local kept beside the new remote", [{ week: 3, date: before(3), seal: "old" }], [{ week: 3, date: after(3), seal: "new" }]),
     wkOf("new local kept beside the pre-reset remote", [{ week: 3, date: after(3), seal: "new" }], [{ week: 3, date: before(3), seal: "old" }]),
     wkOf("same side: the later seal wins, the earlier is ignored",
@@ -372,6 +381,99 @@ function practiceMergeFixtures() {
     }),
   ];
 }
+// T-069: checkpoint ticks on two devices.
+const cpT = (done, at) => Object.assign({ done }, at === undefined ? {} : { at });
+const CP_LOCAL = { c1: { routine: cpT(true, prAt("2026-11-10")), sameday: cpT(false, prAt("2026-11-12")) }, c3: { micrograd: cpT(true, prAt("2026-11-11")) } };
+function checkpointMergeFixtures() {
+  const cm = (name, mine, theirs) => ({ name: "checkpoints: " + name, local: baseState(mine === undefined ? {} : { checkpoints: mine }), remote: remoteFile(theirs === undefined ? {} : { checkpoints: theirs }) });
+  return [
+    cm("the newer remote tick wins", { c1: { routine: cpT(true, prAt("2026-11-10")) } }, { c1: { routine: cpT(false, prAt("2026-11-11")) } }),
+    cm("the older remote tick is ignored", { c1: { routine: cpT(true, prAt("2026-11-11")) } }, { c1: { routine: cpT(false, prAt("2026-11-10")) } }),
+    cm("a tie keeps mine", { c1: { routine: cpT(true, prAt("2026-11-11")) } }, { c1: { routine: cpT(false, prAt("2026-11-11")) } }),
+    cm("seconds apart on one day", { c1: { routine: cpT(true, "2026-11-11T08:00:00.000Z") } }, { c1: { routine: cpT(false, "2026-11-11T08:00:01.000Z") } }),
+    cm("remote only: a new checkpoint and a new item", { c1: { routine: cpT(true, prAt("2026-11-11")) } }, { c1: { nn: cpT(true, prAt("2026-11-01")) }, c2: { exam1: cpT(true, prAt("2026-11-02")) } }),
+    cm("local only is kept", CP_LOCAL, {}),
+    cm("an empty remote checkpoints changes nothing", CP_LOCAL, undefined),
+    cm("a remote tick without `at` never beats a local one", { c1: { routine: cpT(true, prAt("2026-11-01")) } }, { c1: { routine: cpT(false) } }),
+    cm("a local tick without `at` loses to any remote one with it", { c1: { routine: cpT(true) } }, { c1: { routine: cpT(false, "2000-01-01T00:00:00.000Z") } }),
+    cm("nulls, strings, numbers and arrays in the remote are skipped", { c1: { routine: cpT(true, prAt("2026-11-01")) } },
+      { c1: { routine: null, nn: "x", sameday: 5, cs50p: [true] }, c2: null, c3: "nope", c4: [cpT(true, prAt("2030-01-01"))] }),
+    cm("a remote checkpoints that is a list is ignored", CP_LOCAL, [{ c1: { routine: cpT(false, prAt("2030-01-01")) } }]),
+    cm("a remote checkpoints that is null is ignored", CP_LOCAL, null),
+    cm("a local null tick, and a local checkpoint that is a list, take the remote", { c1: { routine: null }, c2: [1] },
+      { c1: { routine: cpT(false, prAt("2026-11-01")) }, c2: { exam1: cpT(true, prAt("2026-11-01")) } }),
+    cm("a whole device each way: two newer, one older, two new", CP_LOCAL, {
+      c1: { routine: cpT(false, prAt("2026-11-12")), sameday: cpT(true, prAt("2026-11-11")), nn: cpT(true, prAt("2026-11-09")) },
+      c3: { micrograd: cpT(false, prAt("2026-11-11", "09:00")) }, c2: { post1: cpT(true, prAt("2026-11-03")) },
+    }),
+  ];
+}
+// T-069: what a Flutter push writes about checkpoints: the remote file merged in, then the payload.
+function cpPushFixtures() {
+  return [
+    { name: "a phone with no ticks pushes over a laptop's file with ticks", local: baseState(), remote: remoteFile({ checkpoints: CP_LOCAL, lessons: { "cs100.0.3": { done: true } } }) },
+    { name: "a phone with its own ticks pushes over a laptop's: both kept, the newer per item", local: baseState({ checkpoints: { c1: { routine: cpT(false, prAt("2026-11-13")), nn: cpT(true, prAt("2026-11-13")) } } }),
+      remote: remoteFile({ checkpoints: CP_LOCAL }) },
+    { name: "a phone with ticks pushes over a file that has none", local: baseState({ checkpoints: CP_LOCAL }), remote: remoteFile({ practice: {} }) },
+    { name: "neither has ticks: the payload has no checkpoints key", local: baseState(), remote: remoteFile({}) },
+  ];
+}
+// T-069: the checkpoints as drawn, on pinned clocks: a Saturday, the first checkpoint's eve, day and day after, a
+// clock past all three, before the start; auto-ticks from watched lectures and the CS 150 count; odd stored shapes;
+// and practice answers for the week's number.
+function cpFixtures(plan) {
+  const P = PRACTICE(), ks = Object.keys(P).filter(k => P[k].length >= 3).slice(0, 3);
+  const W = { done: true, doneAt: "2026-11-02", notes: "", checks: [] };
+  const probs = n => Object.fromEntries(Array.from({ length: n }, (_, i) => ["Cat|P" + i, i % 7 === 6 ? false : "2026-11-02"]));
+  const ok = (d, h, mark) => ({ answer: "1", mark: mark === undefined ? "ok" : mark, ticks: [], grade: null, at: d && prAt(d, h) });
+  const week = clock => ({
+    [ks[0]]: { [P[ks[0]][0].id]: ok(clock, "23:59"), [P[ks[0]][1].id]: ok(addDays(clock, -6), "00:00"), [P[ks[0]][2].id]: ok(addDays(clock, -7), "23:59"), p99: ok(clock) },
+    [ks[1]]: { [P[ks[1]][0].id]: ok(clock, "08:00", "missed"), [P[ks[1]][1].id]: ok(clock, "08:00", "partly"), [P[ks[1]][2].id]: ok(addDays(clock, -2)) },
+    [ks[2]]: { [P[ks[2]][0].id]: ok(addDays(clock, 1)), [P[ks[2]][1].id]: ok(null), [P[ks[2]][2].id]: "nope" },
+    "nope.0.0": { p1: ok(clock) },
+  });
+  const odd = { c1: { routine: cpT(true, prAt("2026-11-10")), sameday: cpT("yes", prAt("2026-11-10")), nn: null, cs50p: cpT(true, prAt("2026-11-10")) },
+    c2: [cpT(true)], c3: { micrograd: cpT(true, prAt("2026-11-10")), makemore: cpT(true, prAt("2026-11-10")), exam1801: cpT(true, prAt("2026-11-10")), posts3: cpT(true, prAt("2026-11-10")) },
+    c9: { x: cpT(true, prAt("2026-11-10")) } };
+  return {
+    view: [
+      { name: "empty, a Saturday", clock: "2026-11-14", state: null },
+      { name: "empty, the eve of the first (a Saturday)", clock: "2026-12-05", state: null },
+      { name: "empty, the first's own day", clock: "2026-12-06", state: null },
+      { name: "empty, the day after the first", clock: "2026-12-07", state: null },
+      { name: "empty, past all three", clock: "2027-03-01", state: null },
+      { name: "before the start", clock: addDays(plan.start, -3), state: null },
+      { name: "auto: CS50P 3 and 4 watched, 24 solved", clock: "2026-11-16", state: { lessons: { "cs100.0.3": W, "cs100.0.4": W }, problems: probs(24) } },
+      { name: "auto: CS50P 3-5 watched, 25 solved but 3 of them unticked", clock: "2026-11-16", state: { lessons: { "cs100.0.3": W, "cs100.0.4": W, "cs100.0.5": W }, problems: probs(25) } },
+      { name: "auto: CS50P 3-5 watched, 26 ticked, stored unticks on both auto items", clock: "2026-11-16",
+        state: { lessons: { "cs100.0.3": W, "cs100.0.4": W, "cs100.0.5": W }, problems: probs(30), checkpoints: { c1: { cs50p: cpT(false, prAt("2026-11-13")) }, c2: { neetcode: cpT(false, prAt("2026-11-13")) } } } },
+      { name: "odd stored shapes, the third checkpoint all ticked, a ghost checkpoint", clock: "2026-11-16", state: { checkpoints: odd } },
+      { name: "practice: the week's number on a study day", clock: "2026-11-16", state: { practice: week("2026-11-16"), checkpoints: CP_LOCAL } },
+      { name: "practice: the week's number on a Saturday", clock: "2026-11-21", state: { practice: week("2026-11-21") } },
+      { name: "practice: one solved", clock: "2026-11-16", state: { practice: { [ks[0]]: { [P[ks[0]][0].id]: ok("2026-11-15") } } } },
+    ],
+    push: cpPushFixtures(),
+  };
+}
+async function runCpJS(browser, fx, pure) {
+  const out = { errors: [], view: {}, push: {} };
+  for (const f of fx.cp.view) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    const r = await p.evaluate(() => { const T = window.__brickfordTest; return { view: T.checkpointsView(), week: T.problemsThisWeek() }; });
+    await p.evaluate(() => { location.hash = "#/"; });
+    await p.waitForSelector("#view [data-cp-week]", { timeout: 15000 });
+    const drawn = await p.evaluate(() => ({ metas: [...document.querySelectorAll("#view [data-cp-meta]")].map(e => e.textContent), weekLine: document.querySelector("#view [data-cp-week]").textContent }));
+    out.view[f.name] = Object.assign(r, drawn);
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  for (const f of fx.cp.push) {
+    pure.setS(clone(f.local));
+    const changed = pure.mergeState(clone(f.remote)).changed;
+    out.push[f.name] = strip(clone({ changed, checkpoints: pure.syncPayload().state.checkpoints }));
+  }
+  return out;
+}
+
 function payloadFixtures() {
   const m = mergeFixtures({ rev: Array.from({ length: 8 }, (_, i) => ({ from: addDays("2026-10-05", 7 * i) })) })[0];
   return [
@@ -381,6 +483,9 @@ function payloadFixtures() {
     // T-067 step 3: practice answers travel once there are any; an empty S.practice adds no key.
     { name: "a device with practice answers and a grade", local: baseState({ practice: PR_LOCAL, review: { "p:math110.0.0:p2": { box: 0, due: "2026-11-14", last: "2026-11-12", lapses: 0 } } }) },
     { name: "a device whose practice is empty", local: baseState({ practice: {} }) },
+    // T-069: checkpoint ticks travel once there are any; an empty S.checkpoints adds no key.
+    { name: "a device with checkpoint ticks", local: baseState({ checkpoints: CP_LOCAL }) },
+    { name: "a device whose checkpoints are empty", local: baseState({ checkpoints: {} }) },
   ];
 }
 const MONK_START = "2026-11-01";   // T-065: the start the focus and sum probes below were written against (it used to be a constant in app.js)
@@ -1628,6 +1733,12 @@ function diff(a, b, at, out, label) {
     // practice merge takes the OLDER `at`.
     "practice-payload-drop": ["lib/engine/merge.dart", "  if (S['practice'] is Map && (S['practice'] as Map).isNotEmpty) state['practice'] = S['practice'];\n", ""],
     "practice-merge-older": ["lib/engine/merge.dart", "_s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) > 0", "_s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) < 0"],
+    // T-069: the Dart payload drops checkpoints (a Flutter push would then drop the laptop's ticks), the checkpoint
+    // merge takes the OLDER `at`, and the Dart auto-tick ignores the state (CS50P 3-5 always done).
+    "checkpoints-payload-drop": ["lib/engine/merge.dart", "  if (S['checkpoints'] is Map && (S['checkpoints'] as Map).isNotEmpty) state['checkpoints'] = S['checkpoints'];\n", ""],
+    "checkpoints-merge-older": ["lib/engine/merge.dart", "        if (!truthy(m0) || _s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) > 0) {\n          mine['$id'] = t;\n          changed++;\n        }\n      }\n    }\n  }\n\n  // T-065",
+      "        if (!truthy(m0) || _s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) < 0) {\n          mine['$id'] = t;\n          changed++;\n        }\n      }\n    }\n  }\n\n  // T-065"],
+    "checkpoints-auto-ignores-state": ["lib/engine/checkpoints.dart", "return (a['watched'] as List).every((k) => truthy(_m(lessons['$k'])['done']));", "return true;"],
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1692,6 +1803,7 @@ function diff(a, b, at, out, label) {
     fx.pages = pagesFixtures(plan);
     fx.publish = publishFixture(plan);
     fx.lpr = lprFixtures(plan);
+    fx.cp = cpFixtures(plan);
     fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -2092,6 +2204,47 @@ function diff(a, b, at, out, label) {
         TR["a full set proven in phase 0 courses, and a clock in phase 2 (more courses counted)"].counts.length === 3 && Object.values(WS).every(w => w.phaseLabs.length > 0) && Object.values(WS).some(w => w.sets[1].some(c => c[2].some(i => i.endsWith("|true")))) &&
         Object.values(WS).some(w => w.phaseLabs.some(l => l[3] === true)) && new Set(Object.values(WS).map(w => w.phaseLabs[0][0])).size === 4,
         Object.entries(TR).map(([n, x]) => x.overall + " " + x.pill).join("; "));
+    }
+    // 5c. checkpoints (T-069): the view (days left, auto-ticks, stored ticks), the week's number and the words the
+    // block draws, read from app.js's hook and its rendered dashboard; the merge and the payload are section 5's
+    // fixtures; and a Flutter push: the remote file merged in, then what the payload carries.
+    if (!process.env.VERIFY_ONLY) {
+      const tC = Date.now();
+      const jc = await runCpJS(browser, fx, jsPure(fx.START)), dc = dart.cp || {};
+      console.log("  checkpoints: " + fx.cp.view.length + " states, " + fx.cp.push.length + " pushes, " + Math.round((Date.now() - tC) / 1000) + "s");
+      check("the checkpoints block ran in app.js without page errors", jc.errors.length === 0, jc.errors.slice(0, 3).join(" | "));
+      const one = (name, a, b) => { const out = []; diff(a, b, [], out, (at, i) => i); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      for (const f of fx.cp.view) one("parity: checkpoints — " + f.name + " @ " + f.clock + " (days left, auto-ticks, ticks, the week's number, the drawn words)", jc.view[f.name], dc.view && dc.view[f.name]);
+      for (const f of fx.cp.push) one("parity: a push's checkpoints — " + f.name, jc.push[f.name], dc.push && dc.push[f.name]);
+      // Reach, and what the push must hold.
+      const V = jc.view, lefts = n => V[n].view.map(v => v.left).join("/"), st = n => V[n].view.map(v => v.state).join("/");
+      const auto = n => V[n].view[0].items.find(x => x.id === "cs50p").done + "/" + V[n].view[1].items.find(x => x.id === "neetcode").done;
+      check("the checkpoint fixtures reach: days left on a Saturday, today, late, done; both auto-ticks false and true, a stored untick not overriding one; the week's number 0, 1 and more",
+        lefts("empty, a Saturday") === "22/51/106" && st("empty, the first's own day") === "today/open/open" && st("empty, the day after the first") === "late/open/open" &&
+        st("empty, past all three") === "late/late/late" && V["odd stored shapes, the third checkpoint all ticked, a ghost checkpoint"].view[2].state === "done" &&
+        auto("auto: CS50P 3 and 4 watched, 24 solved") === "false/false" && auto("auto: CS50P 3-5 watched, 25 solved but 3 of them unticked") === "true/false" &&
+        auto("auto: CS50P 3-5 watched, 26 ticked, stored unticks on both auto items") === "true/true" &&
+        V["empty, a Saturday"].week === 0 && V["practice: one solved"].week === 1 && V["practice: the week's number on a study day"].week === 3 &&
+        V["practice: one solved"].weekLine === "1 problem solved this week",
+        "Saturday " + lefts("empty, a Saturday") + "; week " + V["practice: the week's number on a study day"].week + "; auto " + auto("auto: CS50P 3-5 watched, 25 solved but 3 of them unticked"));
+      const P0 = fx.cp.push, pushed = (who, i) => ((who === "dart" ? (dc.push || {}) : jc.push)[P0[i].name] || {}).checkpoints;
+      check("a Flutter push keeps checkpoints: over a laptop's file the phone's payload carries every remote tick, with its own newer ones; with ticks on neither side there is no key — app.js and Dart",
+        ["js", "dart"].every(w => JSON.stringify(pushed(w, 0)) === JSON.stringify(CP_LOCAL) &&
+          pushed(w, 1) && pushed(w, 1).c1.routine.done === false && pushed(w, 1).c1.nn.done === true && pushed(w, 1).c1.sameday.done === false && pushed(w, 1).c3.micrograd.done === true &&
+          JSON.stringify(pushed(w, 2)) === JSON.stringify(CP_LOCAL) && pushed(w, 3) === undefined),
+        "dart push 1: " + JSON.stringify(pushed("dart", 1)));
+      // The merge and payload fixtures (section 5) reach the checkpoint rules too.
+      const jm2 = {}; { const pure = jsPure(fx.START); fx.merge.filter(f => f.name.startsWith("checkpoints: ")).forEach(f => { pure.setS(clone(f.local)); jm2[f.name.slice(13)] = { changed: pure.mergeState(clone(f.remote)).changed, cp: clone(pure.getS().checkpoints) }; }); }
+      const d2 = (n, c, i) => ((jm2[n].cp[c] || {})[i] || {}).done;
+      check("the checkpoint merge fixtures reach the rules: the newer `at` wins (an untick too), the older and a tie keep mine, one side only is kept, a missing `at` never wins, non-objects are skipped",
+        d2("the newer remote tick wins", "c1", "routine") === false && jm2["the newer remote tick wins"].changed === 1 &&
+        d2("the older remote tick is ignored", "c1", "routine") === true && jm2["the older remote tick is ignored"].changed === 0 &&
+        d2("a tie keeps mine", "c1", "routine") === true && d2("seconds apart on one day", "c1", "routine") === false &&
+        d2("remote only: a new checkpoint and a new item", "c2", "exam1") === true && d2("a remote tick without `at` never beats a local one", "c1", "routine") === true &&
+        d2("a local tick without `at` loses to any remote one with it", "c1", "routine") === false &&
+        jm2["nulls, strings, numbers and arrays in the remote are skipped"].changed === 0 && jm2["a remote checkpoints that is a list is ignored"].changed === 0 &&
+        jm2["a whole device each way: two newer, one older, two new"].changed === 4,
+        "a whole device: " + jm2["a whole device each way: two newer, one older, two new"].changed + " changes");
     }
   } finally {
     await browser.close();

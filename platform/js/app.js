@@ -233,6 +233,8 @@
   // T-067 step 3: practice answers, S.practice[lessonKey][itemId] = {answer, mark, at, ...}.
   // Load-time normalisation like the lines above: in memory, no save().
   S.practice = S.practice && typeof S.practice === "object" ? S.practice : {};
+  // T-069: checkpoint ticks, S.checkpoints[checkpointId][itemId] = {done, at}. In memory, no save().
+  S.checkpoints = S.checkpoints && typeof S.checkpoints === "object" && !Array.isArray(S.checkpoints) ? S.checkpoints : {};
 
   // ---------- cross-device sync ----------
   // localStorage is per-browser by definition, so the phone and the laptop are
@@ -419,6 +421,25 @@
           if (!t || typeof t !== "object") return;
           const mine = S.practice[k] || (S.practice[k] = {});
           if (!mine[id] || (t.at || "") > (mine[id].at || "")) { mine[id] = t; changed++; }
+        });
+      });
+    }
+
+    // T-069: checkpoint ticks merge per item like practice answers: the newer `at`
+    // wins, an item only one side has is kept, and nothing is deleted. Anything
+    // that is not an object (an array included) is skipped.
+    const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
+    if (isObj(r.checkpoints)) {
+      if (!isObj(S.checkpoints)) S.checkpoints = {};
+      Object.keys(r.checkpoints).forEach(c => {
+        const theirs = r.checkpoints[c];
+        if (!isObj(theirs)) return;
+        Object.keys(theirs).forEach(id => {
+          const t = theirs[id];
+          if (!isObj(t)) return;
+          const mine = isObj(S.checkpoints[c]) ? S.checkpoints[c] : (S.checkpoints[c] = {});
+          const m = isObj(mine[id]) ? mine[id] : null;
+          if (!mine[id] || String(t.at || "") > String((m && m.at) || "")) { mine[id] = t; changed++; }
         });
       });
     }
@@ -719,6 +740,8 @@
     // T-067 step 3: practice answers, once there are any. The Anthropic key is not
     // in S at all (localStorage brickford_anthropic_key), so it cannot travel.
     if (S.practice && Object.keys(S.practice).length) state.practice = S.practice;
+    // T-069: checkpoint ticks, once there are any.
+    if (S.checkpoints && Object.keys(S.checkpoints).length) state.checkpoints = S.checkpoints;
     const ledgers = Object.assign({}, S.foreignLedgers);
     ledgers[S.settings.deviceId] = S.ledger;
     return { v: 1, updatedAt: new Date().toISOString(), device: S.settings.deviceId, state: state, ledgers: ledgers };
@@ -2870,6 +2893,8 @@
       // them, and each one goes where it is about.
       // T-067 step 3: the problems of today's lectures, and practice due again.
       practiceDashHTML() +
+      // T-069: the three near checkpoints, and the week's solved problems.
+      checkpointsHTML() +
       '<div class="ghead">Where you stand</div>' +
       '<div class="glist">' +
       (g
@@ -3964,6 +3989,94 @@
       (wk ? '<button class="grow" type="button" data-act="copyWeek"><span class="g-lead"></span><span class="g-main"><span class="g-t">Copy this week’s answers</span>' +
             '<span class="g-s">' + wk + " answer" + (wk === 1 ? "" : "s") + " and their questions, for a review in chat</span></span></button>" : "") +
       "</div>" + '<textarea id="weekOut" class="pr-week" readonly hidden aria-label="This week’s answers"></textarea>';
+  }
+
+  // ---------- T-069: the near checkpoints ----------
+  // DAR.CHECKPOINTS (platform/data/checkpoints.js): three dated tick lists. A tick
+  // is S.checkpoints[c][item] = {done, at}; an item with `auto` is derived from
+  // what the app already knows and is never stored. Everything here is a read
+  // except cpToggle, which only the reader's own tick calls. Nothing here touches
+  // the schedule, the gates, the streak or START_DATE.
+  const CP_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const cpDateLabel = iso => +iso.slice(8, 10) + " " + CP_MON[+iso.slice(5, 7) - 1];
+  const cpList = () => D.CHECKPOINTS || [];
+  // An auto item's answer (true / false), or null for a manual one.
+  function cpAuto(it) {
+    const a = it && it.auto;
+    if (!a) return null;
+    if (a.watched) return a.watched.every(k => !!(S.lessons[k] && S.lessons[k].done));
+    if (a.dsa) return dsaCount() >= a.dsa;
+    return null;
+  }
+  // Calendar days from today to the checkpoint's date: 0 on the day, negative after it.
+  const cpDaysLeft = c => daysBetween(todayISO(), c.date);
+  function checkpointsView() {
+    const store = S.checkpoints || {};
+    return cpList().map(c => {
+      const mine = store[c.id] && typeof store[c.id] === "object" ? store[c.id] : {};
+      const items = c.items.map(it => {
+        const a = cpAuto(it), t = mine[it.id];
+        return { id: it.id, done: a != null ? a : !!(t && typeof t === "object" && t.done), auto: a != null };
+      });
+      const left = cpDaysLeft(c), n = items.filter(x => x.done).length;
+      return { id: c.id, date: c.date, left: left, n: n, of: items.length,
+        state: n === items.length ? "done" : left < 0 ? "late" : left === 0 ? "today" : "open", items: items };
+    });
+  }
+  // "Problems solved this week": practice items marked got it or checked right
+  // (mark "ok") whose last change is today or one of the six days before.
+  function problemsThisWeek() {
+    const from = addDaysISO(todayISO(), -6), to = todayISO();
+    let n = 0;
+    Object.keys(S.practice || {}).forEach(k => practiceItems(k).forEach(it => {
+      const ps = practiceOf(k, it.id), d = ps ? String(ps.at || "").slice(0, 10) : "";
+      if (ps && ps.mark === "ok" && d >= from && d <= to) n++;
+    }));
+    return n;
+  }
+  // The reader's tick. False (and nothing stored) for an auto item or an unknown one.
+  function cpToggle(cid, iid, on) {
+    const c = cpList().find(x => x.id === cid), it = c && c.items.find(x => x.id === iid);
+    if (!it || cpAuto(it) != null) return false;
+    if (!S.checkpoints[cid] || typeof S.checkpoints[cid] !== "object" || Array.isArray(S.checkpoints[cid])) S.checkpoints[cid] = {};
+    S.checkpoints[cid][iid] = { done: !!on, at: new Date().toISOString() };
+    return true;
+  }
+  // "23d left", "today", "late" (never red), or "done".
+  const cpWhen = v => v.state === "done" ? "done" : v.state === "late" ? "late" : v.state === "today" ? "today" : v.left + "d left";
+  const cpMeta = v => v.n + "/" + v.of + " \u00b7 " + cpDateLabel(v.date) + " \u00b7 " + cpWhen(v);
+  const cpWeekLine = n => n + " problem" + (n === 1 ? "" : "s") + " solved this week";
+  // The dashboard block: the first checkpoint not yet done is open, the rest folded.
+  function checkpointsHTML() {
+    const vs = checkpointsView();
+    if (!vs.length) return "";
+    const open = vs.findIndex(v => v.state !== "done");
+    return '<div class="ghead">Checkpoints<span class="gh-meta" data-cp-week>' + cpWeekLine(problemsThisWeek()) + "</span></div>" +
+      '<div class="cp-list">' + vs.map((v, i) => {
+        const c = cpList()[i];
+        return '<details class="unit cp" data-cp="' + esc(v.id) + '"' + (i === open ? " open" : "") + ">" +
+          '<summary><span class="u-name">' + esc(c.title) + "</span>" +
+          '<span class="cp-meta" data-cp-meta="' + esc(v.id) + '">' + esc(cpMeta(v)) + "</span></summary>" +
+          '<div class="u-body">' + v.items.map((x, j) =>
+            '<label class="check-row' + (x.auto ? " cp-auto" : "") + '"><input type="checkbox" data-cp-tick="' + esc(v.id + "|" + x.id) + '"' +
+            (x.done ? " checked" : "") + (x.auto ? " disabled" : "") + '><span class="checkbox">' + CHECK_SVG + "</span>" +
+            '<span class="check-label">' + esc(c.items[j].t) + "</span></label>").join("") +
+          "</div></details>";
+      }).join("") + "</div>";
+  }
+  // The Record page's one row: the next checkpoint not yet done.
+  function checkpointRowHTML() {
+    const vs = checkpointsView();
+    if (!vs.length) return "";
+    const i = vs.findIndex(v => v.state !== "done");
+    const head = '<div class="ghead">Checkpoints<span class="gh-meta">' + cpWeekLine(problemsThisWeek()) + "</span></div>";
+    if (i < 0) return head + '<div class="glist cp-rec"><a class="grow done-row" href="#/"><span class="g-lead">\u2713</span>' +
+      '<span class="g-main"><span class="g-t">All ' + vs.length + " checkpoints done</span></span></a></div>";
+    const v = vs[i];
+    return head + '<div class="glist cp-rec"><a class="grow" href="#/"><span class="g-lead">' + (i + 1) + "</span>" +
+      '<span class="g-main"><span class="g-t">' + esc(cpList()[i].title) + "</span>" +
+      '<span class="g-s">' + esc(v.n + "/" + v.of + " \u00b7 " + cpDateLabel(v.date)) + "</span></span>" +
+      '<span class="g-v">' + esc(cpWhen(v)) + "</span></a></div>";
   }
 
   V.exams = function () {
@@ -5099,6 +5212,10 @@
       (!led.length ? "none yet" : v.ok ? "newest first" : "chain broken at entry " + v.brokenAt) + "</span></div>" +
       (led.length ? '<div class="pf-seals">' + sealsHTML + "</div>"
         : '<p class="shelf-empty">The first lecture you prove starts the chain.</p>') +
+
+      // T-069: the next checkpoint, one row (the block itself is on Today). After the
+      // seals, so the page still opens on the run, the sealed days and the chain.
+      checkpointRowHTML() +
 
       // Everything you touch a few times a year, as pills. The reset keeps its
       // confirmation and sits last, in its danger colour; it is never filled.
@@ -7013,6 +7130,17 @@
         S.lessons[k] = st; save(); render();
       };
     });
+    // T-069: a checkpoint tick. One save(), and the counts repainted in place, so
+    // a folded or opened checkpoint stays as the reader left it.
+    $$("[data-cp-tick]", root).forEach(cb => {
+      cb.onchange = () => {
+        const [cid, iid] = cb.dataset.cpTick.split("|");
+        if (!cpToggle(cid, iid, cb.checked)) { cb.checked = !cb.checked; return; }
+        save();
+        const v = checkpointsView().find(x => x.id === cid), meta = root.querySelector('[data-cp-meta="' + cid + '"]');
+        if (v && meta) meta.textContent = cpMeta(v);
+      };
+    });
     // problem tracker
     $$("[data-prob]", root).forEach(cb => {
       cb.onchange = () => {
@@ -7963,7 +8091,9 @@
     MONK_SYNCS, PRAYER_METHOD, monkPrayerTimes, monkSlots, monkPlanFor, monkScore, monkWeekStart, monkWeekSums, monkMonthSums, monkFocus, mkPhoneOk, lessonCleared, lockedBy: (cid, ui, li) => !!lockedBy(cid, ui, li), catchUpQuizzes,
     lockRoot: (cid, ui, li) => { const r = lockRoot(cid, ui, li); return r ? lessonKey(r.cid, r.ui, r.li) : null; }, planDateOf,
     // T-056 r2, for verify-logic, verify-content and tools/revision-pdf.js: the revision weeks (reads only).
-    revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS });
+    revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS,
+    // T-069, for verify-logic and verify-app: the checkpoints as drawn, and the week's number (reads only).
+    checkpointsView, problemsThisWeek });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

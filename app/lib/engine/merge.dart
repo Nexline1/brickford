@@ -377,6 +377,28 @@ int mergeState(Engine e, Object? remote) {
     }
   }
 
+  // T-069: checkpoint ticks merge per item like practice answers: the newer `at` wins, an item only one side has
+  // is kept, and nothing is deleted. Anything that is not an object (a list included) is skipped.
+  final rc0 = r['checkpoints'];
+  if (rc0 is Map) {
+    final cps = _ensureMap(S, 'checkpoints');
+    for (final c in rc0.keys.toList()) {
+      final theirs = rc0[c];
+      if (theirs is! Map) continue;
+      for (final id in theirs.keys.toList()) {
+        final t = theirs[id];
+        if (t is! Map) continue;
+        final mine = cps['$c'] is Map ? (cps['$c'] as Map).cast<String, dynamic>() : <String, dynamic>{};
+        cps['$c'] = mine;
+        final m0 = mine['$id'];
+        if (!truthy(m0) || _s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) > 0) {
+          mine['$id'] = t;
+          changed++;
+        }
+      }
+    }
+  }
+
   // T-065: the Monk start date, the one piece of Monk that syncs. First write wins: a side with none takes the
   // other's, and with two the EARLIER date stands, so every device settles on the same day and an older device
   // that has not heard of the start can never clear it. A remote value that is not a date is ignored.
@@ -421,7 +443,8 @@ int mergeState(Engine e, Object? remote) {
 }
 
 /// What a push writes (app.js syncPayload). `monk` is never in it; `monkStart` (T-065) is, when set; `practice`
-/// (T-067 step 3) is, once there are answers. The Anthropic key is never in it.
+/// (T-067 step 3) is, once there are answers; `checkpoints` (T-069) is, once there are ticks. The Anthropic key is
+/// never in it.
 Map<String, dynamic> syncPayload(Engine e, {DateTime? now}) {
   final S = e.S, state = <String, dynamic>{};
   for (final k in [
@@ -440,6 +463,8 @@ Map<String, dynamic> syncPayload(Engine e, {DateTime? now}) {
   // T-067 step 3: practice answers, once there are any. The Anthropic key is not in S at all
   // (shared_preferences brickford_anthropic_key), so it cannot travel.
   if (S['practice'] is Map && (S['practice'] as Map).isNotEmpty) state['practice'] = S['practice'];
+  // T-069: checkpoint ticks, once there are any.
+  if (S['checkpoints'] is Map && (S['checkpoints'] as Map).isNotEmpty) state['checkpoints'] = S['checkpoints'];
   final ledgers = <String, dynamic>{..._m(S['foreignLedgers'])};
   ledgers['${st['deviceId']}'] = S['ledger'];
   return {

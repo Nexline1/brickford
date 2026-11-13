@@ -63,6 +63,7 @@ class BrickfordData {
     required this.speechCourseIds,
     this.prereq = const {},
     this.practice = const {},
+    this.checkpoints = const [],
   });
 
   /// DAR.START_DATE.
@@ -97,10 +98,13 @@ class BrickfordData {
   /// practice.json, DAR.PRACTICE (T-067 step 3): per lesson key, the practice items under its quiz.
   final Map<String, dynamic> practice;
 
+  /// checkpoints.json, DAR.CHECKPOINTS (T-069): the three near checkpoints, each { id, date, title, items }.
+  final List<Map<String, dynamic>> checkpoints;
+
   /// What startup reads.
   static const files = [
     'meta.json', 'courses.json', 'quiz-keys.json', 'quizzes.json', 'workshop.json', 'gates.json', 'storytelling.json',
-    'prereq.json', 'practice.json',
+    'prereq.json', 'practice.json', 'checkpoints.json',
   ];
 
   /// Read later, on first need.
@@ -129,6 +133,7 @@ class BrickfordData {
       speechCourseIds: (story['courses'] as List).cast<String>(),
       prereq: text['prereq.json'] != null ? obj('prereq.json') : const {},
       practice: text['practice.json'] != null ? obj('practice.json') : const {},
+      checkpoints: text['checkpoints.json'] != null ? list(jsonDecode(text['checkpoints.json']!)) : const [],
     )..summariesLoaded = text['summaries.json'] != null;
   }
 
@@ -224,6 +229,8 @@ Map<String, dynamic> normalizeState(Map<String, dynamic>? stored) {
   s['review'] = s['review'] is Map ? _map(s['review']) : <String, dynamic>{};
   // T-067 step 3: practice answers, S.practice[lessonKey][itemId] (app.js load: an object, or {}).
   s['practice'] = s['practice'] is Map ? _map(s['practice']) : <String, dynamic>{};
+  // T-069: checkpoint ticks, S.checkpoints[checkpointId][itemId] = {done, at} (app.js load: an object, or {}).
+  s['checkpoints'] = s['checkpoints'] is Map ? _map(s['checkpoints']) : <String, dynamic>{};
   if (s['monk'] is! Map) s['monk'] = <String, dynamic>{};
   for (final k in ['lessons', 'problems', 'labs', 'psets']) {
     s[k] = _map(s[k]);

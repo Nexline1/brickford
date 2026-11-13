@@ -1,0 +1,4 @@
+wordmark-plus-2px: verify-boot exit 1; app-web/index.html restored byte-identical
+georgia: verify-boot exit 1; app-web/index.html restored byte-identical
+no-font-wait: verify-boot exit 1; app/lib/main.dart and app-web/ restored byte-identical
+PLANTS_DONE

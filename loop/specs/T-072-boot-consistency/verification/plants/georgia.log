@@ -1,0 +1,28 @@
+  ok    /brickford/app/ ends on /brickford/app-web/ — http://localhost:45385/brickford/app-web/
+  ok      it renders the app: first frame, boot screen gone, Home on screen — first frame at 823 ms
+  ok      no host but this one (no CDN fonts or CanvasKit)
+  ok      no page errors
+  ok    /brickford/app ends on /brickford/app-web/ — http://localhost:45385/brickford/app-web/
+  ok      it renders the app: first frame, boot screen gone, Home on screen — first frame at 776 ms
+  ok      no host but this one (no CDN fonts or CanvasKit)
+  ok      no page errors
+  ok    /brickford/app-web/ ends on /brickford/app-web/ — http://localhost:45385/brickford/app-web/
+  ok      it renders the app: first frame, boot screen gone, Home on screen — first frame at 733 ms
+  ok    the boot screen is on screen at the first paint (DOMContentLoaded), with the wordmark — {"display":"flex","text":"BRICKFORD\nSELF-BUILT UNIVERSITY"}
+  ok    the loading screen shows no size, progress or 'Loading' text, and the crest is a still logo (no animation, no 3D) — 3 samples, 1 distinct crest positions, 0 running animations; text: BRICKFORD SELF-BUILT UNIVERSITY | BRICKFORD SELF-BUILT UNIVERSITY | BRICKFORD SELF-BUILT UNIVERSITY
+  ok    startup does not read summaries.json (it loads when a lecture opens) — assets/assets/data/meta.json, assets/assets/data/courses.json, assets/assets/data/quiz-keys.json, assets/assets/data/quizzes.json, assets/assets/data/workshop.json, assets/assets/data/gates.json, assets/assets/data/storytelling.json, assets/assets/data/prereq.json, assets/assets/data/practice.json, assets/assets/data/checkpoints.json
+  ok    the boot total's file list matches what a start reads (CanvasKit aside: Chromium takes canvaskit/chromium/) — 21 files; read too: , canvaskit/chromium/canvaskit.js, canvaskit/chromium/canvaskit.wasm, assets/fonts/fallback/Roboto-Regular.ttf
+  ok    the data JSON is served minified — [{"id":"math110","instructor":{"name":"G
+  ok      no host but this one (no CDN fonts or CanvasKit)
+  ok      no page errors
+  ok    on a 1.2 MB/s line the boot screen stays up with no numbers, and only the still crest, until the first frame — 43 samples, 0 running animations; first frame at 8.6 s
+  ok    main.dart.js blocked: the failure screen, with the error, URL, user agent, WebGL/WebGL2/WebAssembly and Reset and reload — BRICKFORD SELF-BUILT UNIVERSITY Brickford hasn’t started Could not load http://localhost:45385/brickford/app-web/main.dart.js Loading… 5.3 of ~12.2 MB · 0 s URL http://localhost:45385/brickford/app-web/ UA Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.80
+  ok    canvaskit.wasm hanging: the failure screen at 25 s, saying no first frame came — 25 s; BRICKFORD SELF-BUILT UNIVERSITY Brickford hasn’t started No first frame after 25 s, and no error was reported. Loading… 3.3 of ~12.2 MB · 25 s URL http://localhost:45385/brickford/app-web/ UA Mozilla/
+  ok    after /brickford/platform/ registered sw.js (1 worker, 2 caches), /brickford/app-web/ in the same context renders
+  ok    sw.js answers none of /app-web/'s requests — 27 requests, 0 from the worker
+  ok    Reset and reload, with the app broken: every worker unregistered, every cache deleted, the page reloaded — before {"regs":1,"caches":2}, after {"regs":0,"caches":0}
+  FAIL  HTML boot: BRICKFORD is set in the bundled Playfair Display Bold, loaded (not a fallback, not Georgia) — font-family Georgia, "Times New Roman", serif 700 26.4px; face none
+  FAIL  HTML boot and Flutter splash: crest, wordmark, rule and subtitle in the same boxes (within 1px) — HTML crest 146.5,323 97x116; wordmark 100,473.5 189.5x18; rule 175,506 40x1; subtitle 105.5,518.5 179x9 | Flutter crest 146.5,324 97x115.5; wordmark 102,474 186x19.5; rule 175,506 40x1; subtitle 105.5,519 179x8.5
+  ok    the first Flutter frame has the final glyphs: BRICKFORD and SELF-BUILT UNIVERSITY as wide as after the fonts settle (fonts held 3 s) — first crest 146.5,324 97x115.5; wordmark 102,474 186x19.5; rule 175,506 40x1; subtitle 105.5,519 179x8.5 | settled crest 146.5,324 97x115.5; wordmark 102,474 186x19.5; rule 175,506 40x1; subtitle 105.5,519 179x8.5
+
+2 check(s) FAILED

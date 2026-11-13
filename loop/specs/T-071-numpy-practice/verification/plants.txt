@@ -1,0 +1,15 @@
+plant wrong-output (cs100.1.0/p1 out 48 -> 24): exit 1
+  FAIL T-067 practice cs100.1.0/p1: its plain-Python list restatement, run with python3, prints "(4, 6) 24 5 0 1" (printed "(4, 6) 48 5 0 1")
+  FAIL T-067 practice cs100.1.0/p1: out "(4, 6) 24 5 0 1" is recomputed in expectedPractice ("(4, 6) 48 5 0 1")
+2 of 49960 checks FAILED
+
+plant ratchet-raised (baseline 281 -> 282): exit 1
+  FAIL T-067 practice ratchet: 281 core maths/physics lectures have no items; the baseline in verify-content.practice-baseline.json says 282 (lower the baseline to 281: it only goes down)
+1 of 49960 checks FAILED
+
+plant no-list-ref (pListRef key renamed): exit 1
+  FAIL T-067 practice cs100.1.0/p1: imports numpy, so it has a plain-Python list restatement in pListRef that does not
+  FAIL T-071 pListRef cs100.1.0/pX: names an output item whose code imports numpy (no stale entries)
+2 of 49959 checks FAILED
+
+all three restored byte-identically (sha256sum -c OK)

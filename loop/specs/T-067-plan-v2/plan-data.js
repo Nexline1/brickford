@@ -246,10 +246,10 @@ const PROVISIONAL = [
       "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"Python NumPy Tutorial for Beginners\", freeCodeCamp.org, 58:10"
      },
      {
-      "t": "PyTorch fundamentals: tensors, shapes, indexing, matmul, broadcasting (Learn PyTorch for Deep Learning, chapter 00, Daniel Bourke)",
+      "t": "PyTorch fundamentals: tensors, shapes, indexing, matmul (freeCodeCamp, Daniel Bourke) — watch 1:22:08–3:52:58 of the 25 h video",
       "v": "V_xro1bcAuA",
       "min": 150,
-      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"PyTorch for Deep Learning & Machine Learning – Full Course\", freeCodeCamp.org, 25:37:26 in all; the 150-minute chapter-00 slice and its start/stop timestamps are NOT verified (the watch page, which carries the chapter list, is behind YouTube's bot check)"
+      "check": "verified 12 Nov 2026 (oEmbed + YouTube search): \"PyTorch for Deep Learning & Machine Learning – Full Course\", freeCodeCamp.org, 25:37:26 in all. Slice verified 13 Nov 2026 from the chapter list (get_video_details, T-073): chapters 13-29, 1:22:08 (13 Intro to tensors) to 3:52:58 (30 GPU), about 150 minutes"
      }
     ]
    },

@@ -3364,18 +3364,33 @@ const expectedPractice = {
   // inside when it is off every edge; (2, 3) was written last. nbytes = rows * cols * 2 bytes (int16).
   "cs100.1.0/p1": (function () { const R = 4, C = 6, at = (r, c) => (r === 2 && c === 3) ? 5 : (r > 0 && r < R - 1 && c > 0 && c < C - 1) ? 0 : 1;
                      return "(" + R + ", " + C + ") " + (R * C * 2) + " " + at(2, 3) + " " + at(1, 1) + " " + at(0, 3); })(),
+  // T-073: PyTorch fundamentals. No product is formed: shapes by the rule (outer dimensions of (3, 2) @ (2, 3) and of
+  // (2, 3) @ (3, 2)), each entry as one dot product, and the sum of every entry of A @ B.T as (column sums of A) dot
+  // (column sums of B), since sum_ij a_i . b_j = (sum_i a_i) . (sum_j b_j).
+  "cs100.1.1/p1": (function () { const A = [[1, 0], [2, 1], [0, 3]], B = [[4, 1], [2, 5], [1, 2]], dot = (u, v) => u[0] * v[0] + u[1] * v[1],
+                     colSum = M => [M.reduce((t, r) => t + r[0], 0), M.reduce((t, r) => t + r[1], 0)];
+                     return "(" + A.length + ", " + B.length + ") " + dot(A[0], B[0]) + " " + dot(A[2], B[1]) + " " + dot(colSum(A), colSum(B)) +
+                       " (" + A[0].length + ", " + B[0].length + ")"; })(),
 };
 // T-071: numpy is not a dependency and may be missing here. Every `output` item whose code imports numpy has a
 // plain-Python restatement with lists below; it is ALWAYS run and must print `out`, and the item's own NumPy code
 // is run too whenever numpy is importable. So the check is never skipped, only narrowed to the list version.
+// T-073: the same holds for torch (cs100.1.1), which is not a dependency either.
 const pListRef = {
   "cs100.1.0/p1": "g = [[1] * 6 for _ in range(4)]\nfor r in range(1, len(g) - 1):\n    for c in range(1, len(g[0]) - 1):\n        g[r][c] = 0\ng[2][3] = 5\nitemsize = 2  # int16\nprint((len(g), len(g[0])), len(g) * len(g[0]) * itemsize, g[2][3], g[1][1], g[0][3])\n",
+  "cs100.1.1/p1": "A = [[1, 0], [2, 1], [0, 3]]\nB = [[4, 1], [2, 5], [1, 2]]\nBT = [list(col) for col in zip(*B)]\n" +
+    "def matmul(X, Y):\n    assert len(X[0]) == len(Y), 'inner dimensions differ'\n    return [[sum(x * y for x, y in zip(row, col)) for col in zip(*Y)] for row in X]\n" +
+    "C = matmul(A, BT)\nD = matmul(BT, A)\nprint((len(C), len(C[0])), C[0][0], C[2][1], sum(sum(r) for r in C), (len(D), len(D[0])))\n",
 };
+// The libraries an `output` item may import only through a list restatement, and whether each is importable here.
+const pLibRe = /^\s*(?:import|from)\s+(numpy|torch)\b/m;
+const pLibOf = code => { const m = pLibRe.exec(code || ""); return m ? m[1] : null; };
 let pItems = 0, pNums = 0, pRuns = 0;
 const pByType = {}, pByCourse = {};
 const noTagP = t => !/<[a-zA-Z/]/.test(t || "");
 const childP = require("child_process");
-const pHasNumpy = (function () { try { childP.execFileSync("python3", ["-I", "-c", "import numpy"], { timeout: 15000, stdio: "ignore" }); return true; } catch (e) { return false; } })();
+const pHasLib = lib => { try { childP.execFileSync("python3", ["-I", "-c", "import " + lib], { timeout: 15000, stdio: "ignore" }); return true; } catch (e) { return false; } };
+const pHas = { numpy: pHasLib("numpy"), torch: pHasLib("torch") };
 const pPy = src => { try { return childP.execFileSync("python3", ["-I", "-c", src || ""], { timeout: 15000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim(); }
   catch (e) { return "(python3 failed: " + String(e.message).split("\n")[0] + ")"; } };
 Object.keys(PRACTICE).forEach(k => {
@@ -3414,9 +3429,9 @@ Object.keys(PRACTICE).forEach(k => {
     ok(it.tol == null || (typeof it.tol === "number" && it.tol >= 0), at + ": tol, when given, is a non-negative number");
     if (it.type === "output") {
       ok(typeof it.code === "string" && it.code.length > 0 && typeof it.out === "string" && it.out.length > 0, at + ": has reference code and the value it prints");
-      const usesNp = /^\s*(import numpy|from numpy)/m.test(it.code || ""), lref = pListRef[k + "/" + it.id];
-      if (usesNp) ok(typeof lref === "string" && !/numpy/.test(lref), at + ": imports numpy, so it has a plain-Python list restatement in pListRef that does not");
-      if (!usesNp || pHasNumpy) {
+      const lib = pLibOf(it.code), lref = pListRef[k + "/" + it.id];
+      if (lib) ok(typeof lref === "string" && !/numpy|torch/.test(lref), at + ": imports " + lib + ", so it has a plain-Python list restatement in pListRef that imports neither numpy nor torch");
+      if (!lib || pHas[lib]) {
         const printed = pPy(it.code); pRuns++;
         ok(printed === String(it.out).trim(), at + ": the reference solution, run with python3, prints " + JSON.stringify(it.out) + " (printed " + JSON.stringify(printed) + ")");
       }
@@ -3439,7 +3454,7 @@ Object.keys(PRACTICE).forEach(k => {
 });
 Object.keys(pListRef).forEach(x => {
   const [k, id] = [x.slice(0, x.lastIndexOf("/")), x.slice(x.lastIndexOf("/") + 1)], it = (PRACTICE[k] || []).find(t => t.id === id);
-  ok(!!it && it.type === "output" && /^\s*(import numpy|from numpy)/m.test(it.code || ""), "T-071 pListRef " + x + ": names an output item whose code imports numpy (no stale entries)");
+  ok(!!it && it.type === "output" && !!pLibOf(it.code), "T-071 pListRef " + x + ": names an output item whose code imports numpy or torch (no stale entries)");
 });
 Object.keys(expectedPractice).forEach(x => {
   const [k, id] = x.split("/"), it = (PRACTICE[k] || []).find(t => t.id === id);
@@ -3467,7 +3482,9 @@ function addDaysP(iso, n) { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate
 ok(pWindow.length >= 10, "T-067 practice: the scheduler (test hook) puts core maths/physics lectures in the 14 days from " + P_CLOCK + " (" + pWindow.length + ", not vacuous)");
 pWindow.forEach(x => ok((PRACTICE[x.split(" ")[1]] || []).length > 0, "T-067 practice: " + x + " is scheduled within 14 days of " + P_CLOCK + " and has practice items"));
 console.log("T-067 practice: " + pItems + " items on " + Object.keys(PRACTICE).length + " lectures (" + PTYPES.map(t => (pByType[t] || 0) + " " + t).join(", ") + "); " +
-  pNums + " answers recomputed, " + pRuns + " reference solutions run with python3 (numpy " + (pHasNumpy ? "importable" : "not importable: " + Object.keys(pListRef).length + " NumPy item(s) checked by their list restatement") + "); " + uncovered.length + " of " + coreMP.length +
+  pNums + " answers recomputed, " + pRuns + " reference solutions run with python3 (" + ["numpy", "torch"].map(lib => { const n = Object.keys(pListRef).filter(x => { const [k, id] = [x.slice(0, x.lastIndexOf("/")), x.slice(x.lastIndexOf("/") + 1)];
+    return pLibOf(((PRACTICE[k] || []).find(t => t.id === id) || {}).code) === lib; }).length;
+    return lib + " " + (pHas[lib] ? "importable" : "not importable: " + n + " item(s) checked by their list restatement"); }).join("; ") + "); " + uncovered.length + " of " + coreMP.length +
   " core maths/physics lectures still without items; " + new Set(pWindow.map(x => x.split(" ")[1])).size + " lectures in the 14 days from " + P_CLOCK + ", all covered" +
   "\n  by course: " + Object.keys(pByCourse).map(c => c + " " + Object.keys(pByCourse[c]).map(t => pByCourse[c][t] + " " + t).join("/")).join(", "));
 

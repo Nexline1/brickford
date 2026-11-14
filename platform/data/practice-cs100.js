@@ -22,6 +22,19 @@
 //     so verify-content also runs a plain-Python-list restatement of each NumPy
 //     `output` program; the printed values are chosen to need no NumPy formatting
 //     (a tuple and scalars, never a whole array).
+//   cs100.1.1 PyTorch fundamentals (V_xro1bcAuA, T-073), from
+//     loop/specs/T-073-pytorch-slice/sources/V_xro1bcAuA.examples.md: the lesson
+//     is the 1:22:08-3:52:58 slice of the 25 h video, and six sections of it,
+//     1:22:08-3:42:10, were read in full (reproducibility, 3:42:10-3:52:58, was
+//     not). The transcript is narration only, so the code in the notes is
+//     RECONSTRUCTED from what he says; only the values marked [HEARD] are quoted
+//     from him. Items use creation and dtypes, the three big errors, matmul and
+//     its shape rules, transpose, aggregation, reshape/view/squeeze/unsqueeze/
+//     permute and indexing. Left out on purpose: whether from_numpy() and
+//     .numpy() share memory (he says they do not; the notes flag that as wrong
+//     in general), so no item says it either way. torch is not a dependency
+//     either; its `output` item is checked the same way as NumPy's, by a
+//     plain-Python list restatement, and prints only shapes and scalars.
 //
 // Shapes as in practice-math110.js; rules in docs/CONTENT-STANDARD.md. An
 // `output` item's `code` is the reference solution (shown only after an
@@ -112,5 +125,26 @@ Object.assign(DAR.PRACTICE, {
                "Element-wise maths: a * b multiplies item by item, which a list does not do, on top of everything a list can do (insert, delete, append, concatenate).",
                "It is the base the rest stands on: Pandas, SciPy, plotting, images and ML tensors are all arrays."],
       model: "The short answer is speed, and the lecture gives three reasons for it. First, NumPy stores numbers with a fixed type: an int32 is 4 bytes, and you can choose int16 or int8 to use 2 or 1, while a Python int is a full object carrying its value, its type, a reference count and a size, so it takes far more room. Second, because every element has the same type, NumPy does not have to check each element's type as it works. Third, an array's values sit next to each other in memory, where a list is a set of pointers to objects scattered all over; contiguous values let the CPU apply one instruction to several numbers at once (SIMD) and make better use of its cache. On top of that, NumPy does element-wise maths, so a * b multiplies two arrays item by item, which lists cannot do. And it is the base of scientific Python: Pandas is built on it, and images and ML tensors are arrays." },
+  ],
+  // ---- Unit II: PyTorch fundamentals (Daniel Bourke), 1:22:08-3:52:58 of the video ----
+  "cs100.1.1": [
+    { id: "p1", type: "output", q: "Make A = torch.tensor([[1, 0], [2, 1], [0, 3]]) and B = torch.tensor([[4, 1], [2, 5], [1, 2]]). torch.matmul(A, B) fails, because both are 3x2. Multiply A by the transpose of B instead and call it C, and also make D = torch.matmul(B.T, A). Then run print(tuple(C.shape), C[0, 0].item(), C[2, 1].item(), C.sum().item(), tuple(D.shape)). What does it print?",
+      code: "import torch\n\nA = torch.tensor([[1, 0], [2, 1], [0, 3]])\nB = torch.tensor([[4, 1], [2, 5], [1, 2]])\nC = torch.matmul(A, B.T)\nD = torch.matmul(B.T, A)\nprint(tuple(C.shape), C[0, 0].item(), C[2, 1].item(), C.sum().item(), tuple(D.shape))\n",
+      out: "(3, 3) 4 15 53 (2, 2)",
+      expl: "B.T is 2x3, so A @ B.T is (3x2) @ (2x3): the inner dimensions (2 and 2) match and the result takes the outer ones, 3x3. B.T @ A is (2x3) @ (3x2), so it is 2x2: the same two tensors give a different shape depending on the order. C[0, 0] is row 0 of A against row 0 of B, 1*4 + 0*1 = 4, and C[2, 1] is row 2 of A against row 1 of B, 0*2 + 3*5 = 15. All nine entries add up to 53. .item() turns a one-number tensor into a plain Python int, so print shows 4, not tensor(4)." },
+    { id: "p2", type: "worked", q: "x = torch.arange(1., 13.). (a) Which of x.reshape(4, 3), x.reshape(5, 2), x.reshape(2, 6) and x.reshape(2, 7) fail? (b) Then y = x.view(3, 4) and y[1, 2] = 0: what is x[6] now? (c) What are the shapes of y.unsqueeze(dim=0), y.unsqueeze(dim=1) and y.unsqueeze(dim=0).squeeze()? (d) img = torch.rand(size=(64, 48, 3)) is height, width, colour channels: what is the shape of img.permute(2, 0, 1)?",
+      result: "(a) reshape(5, 2) and reshape(2, 7) fail. (b) x[6] is 0. (c) [1, 3, 4], [3, 1, 4], back to [3, 4]. (d) [3, 64, 48].",
+      steps: ["arange(1., 13.) stops before the end, so x holds 1 to 12: 12 elements, shape [12]. A reshape has to keep the element count: 4*3 = 12 and 2*6 = 12 work; 5*2 = 10 and 2*7 = 14 fail with shape '[5, 2]' is invalid for input of size 12.",
+              "view gives a new shape on the same memory, so writing through y writes into x. Row 1, column 2 of a 3x4 is element 1*4 + 2 = 6 counting from 0, which held 7; x[6] is now 0.",
+              "unsqueeze adds a dimension of size 1 at the position you give: dim=0 puts it in front, [1, 3, 4]; dim=1 puts it second, [3, 1, 4]. squeeze removes every size-1 dimension, so it goes back to [3, 4].",
+              "permute(2, 0, 1) builds the new shape from the old dimensions in that order: dimension 2 (3 channels), then 0 (64), then 1 (48), so [3, 64, 48], colour channels first. The 64 and 48 are different on purpose: with a square image you could not tell height from width."] },
+    { id: "p3", type: "write", q: "Bourke says three errors will be the ones you meet most in PyTorch. Name them, give an example of each from the lecture, and say how you would find and fix it.",
+      points: ["Wrong dtype: torch.mean on torch.arange(0, 100, 10) fails, because arange of integers gives int64 (long) and mean needs a floating-point type; fix with .type(torch.float32).",
+               "Wrong shape: torch.matmul of two 3x2 tensors fails (mat1 and mat2 shapes cannot be multiplied), because the inner dimensions must match; transpose one with .T, and the result has the outer dimensions.",
+               "Shape errors also come from reshape: the new shape must hold the same number of elements (9 elements cannot become [1, 7]).",
+               "Wrong device: a tensor on the GPU and one on the CPU cannot be used in the same operation; put them on the same device.",
+               "Find them by printing the tensor's .dtype, .shape and .device before and after a step (his visualize, visualize, visualize).",
+               "Not every mismatch errors: float16 times float32 ran in his test, so do not rely on an error to catch a wrong type."],
+      model: "The three are a tensor with the wrong datatype, the wrong shape, or on the wrong device. A dtype example: x = torch.arange(0, 100, 10) is int64, also called long, and torch.mean(x) stops with an error saying mean wants a floating-point or complex dtype; x.type(torch.float32).mean() gives 45. A shape example: two tensors that are both 3x2 cannot be matrix-multiplied, because the inner dimensions, 2 and 3, differ; transposing one of them with .T makes it (3x2) @ (2x3), and the answer takes the outer dimensions, 3x3. reshape fails the same way when the new shape does not hold the same number of elements. A device example: a tensor on the GPU and one on the CPU cannot meet in one operation, so both have to be moved to the same device. The habit that finds all three is to print .dtype, .shape and .device before and after each step. And not every mismatch announces itself: float16 times float32 ran without complaint in his test, so a missing error does not prove the types are right." },
   ],
 });

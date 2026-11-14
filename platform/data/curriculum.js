@@ -756,7 +756,7 @@ DAR.COURSES = [
         playlist: null,
         lessons: [
           { t: "NumPy for beginners (freeCodeCamp, Keith Galli)", v: "QUT1VHiLmmI", min: 58 },
-          { t: "PyTorch fundamentals: tensors, shapes, indexing, matmul, broadcasting (Learn PyTorch for Deep Learning, chapter 00, Daniel Bourke)", v: "V_xro1bcAuA", min: 150 },
+          { t: "PyTorch fundamentals: tensors, shapes, indexing, matmul (freeCodeCamp, Daniel Bourke) — watch 1:22:08–3:52:58 of the 25 h video", v: "V_xro1bcAuA", min: 150 },
         ],
       },
       {

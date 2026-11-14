@@ -1,0 +1,12 @@
+plant wrong-output (platform/data/practice-cs100.js): exit 1; planted file differed: yes; restored byte-identical: yes
+      FAIL T-067 practice cs100.1.1/p1: its plain-Python list restatement, run with python3, prints "(3, 3) 4 15 54 (2, 2)" (printed "(3, 3) 4 15 53 (2, 2)")
+      FAIL T-067 practice cs100.1.1/p1: out "(3, 3) 4 15 54 (2, 2)" is recomputed in expectedPractice ("(3, 3) 4 15 53 (2, 2)")
+    2 of 50007 checks FAILED
+plant list-restatement-removed (tools/verify-content.js): exit 1; planted file differed: yes; restored byte-identical: yes
+      FAIL T-067 practice cs100.1.1/p1: imports torch, so it has a plain-Python list restatement in pListRef that imports neither numpy nor torch
+    1 of 50005 checks FAILED
+plant ratchet-raised (tools/verify-content.practice-baseline.json): exit 1; planted file differed: yes; restored byte-identical: yes
+      FAIL T-067 practice ratchet: 281 core maths/physics lectures have no items; the baseline in verify-content.practice-baseline.json says 282 (lower the baseline to 281: it only goes down)
+    1 of 50007 checks FAILED
+?? loop/specs/T-073-pytorch-slice/verification/plants.txt
+PDONE

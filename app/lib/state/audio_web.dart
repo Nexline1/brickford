@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
+import '../engine/practice.dart' show clipExt;
 import 'recorder.dart';
 
 const _dbName = 'brickford_audio', _storeName = 'clips';
@@ -59,7 +60,7 @@ Future<T> _tx<T>(String mode, Future<T> Function(JSObject store) fn) async {
   }
 }
 
-String _ext(String type) => RegExp('ogg').hasMatch(type) ? '.ogg' : RegExp('mp4|aac|m4a').hasMatch(type) ? '.m4a' : RegExp('wav').hasMatch(type) ? '.wav' : '.webm';
+String _ext(String type) => clipExt(type);
 
 class _Mic implements MicSession {
   _Mic(this.stream);
@@ -266,6 +267,42 @@ class _Web implements AudioBackend {
   @override
   Future<void> delete(String key) => _tx<void>('readwrite', (st) async {
     await _req(st.callMethod<JSObject>('delete'.toJS, key.toJS));
+  });
+
+  @override
+  Future<List<String>> unuploaded() => _tx<List<String>>('readonly', (st) async {
+    final kk = ((await _req(st.callMethod<JSObject>('getAllKeys'.toJS)))! as JSArray<JSAny?>).toDart;
+    final vv = ((await _req(st.callMethod<JSObject>('getAll'.toJS)))! as JSArray<JSAny?>).toDart;
+    return [
+      for (var i = 0; i < kk.length && i < vv.length; i++)
+        if (_prop(vv[i] as JSObject, 'blob') != null && _prop(vv[i] as JSObject, 'remote') == null) _str(kk[i]),
+    ];
+  });
+
+  @override
+  Future<({String mime, String base64})?> payload(String key) async {
+    final v = await _tx<JSAny?>('readonly', (st) => _req(st.callMethod<JSObject>('get'.toJS, key.toJS)));
+    final blob = v == null ? null : _prop(v as JSObject, 'blob');
+    if (blob == null) return null;
+    // FileReader's data URL, cut after the comma: the browser does the base64.
+    final r = _g.getProperty<JSFunction>('FileReader'.toJS).callAsConstructor<JSObject>();
+    final done = Completer<String>();
+    r.setProperty('onload'.toJS, ((JSAny? _) => done.complete(_str(_prop(r, 'result')))).toJS);
+    r.setProperty('onerror'.toJS, ((JSAny? _) => done.completeError(StateError('could not read the clip'))).toJS);
+    r.callMethod<JSAny?>('readAsDataURL'.toJS, blob);
+    final url = await done.future;
+    return (mime: _str(_prop(blob as JSObject, 'type')), base64: url.substring(url.indexOf(',') + 1));
+  }
+
+  @override
+  Future<void> markRemote(String key, String sha, String at) => _tx<void>('readwrite', (st) async {
+    final v = await _req(st.callMethod<JSObject>('get'.toJS, key.toJS));
+    if (v == null) return; // deleted meanwhile: stays deleted
+    final remote = JSObject()
+      ..setProperty('sha'.toJS, sha.toJS)
+      ..setProperty('at'.toJS, at.toJS);
+    final o = _g.getProperty<JSObject>('Object'.toJS).callMethod<JSObject>('assign'.toJS, JSObject(), v, (JSObject()..setProperty('remote'.toJS, remote)));
+    await _req(st.callMethod<JSObject>('put'.toJS, o, key.toJS));
   });
 
   @override

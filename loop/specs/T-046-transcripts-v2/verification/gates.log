@@ -1,0 +1,16 @@
+T-046 v2 gates, TZ=America/Los_Angeles, 2026-11-15
+typecheck (node --check platform/js, platform/data, tools)   ok
+verify-content     exit 0  PASS 50016 checks (T-046 pin: TX_REVISION 40-hex recorded, TX_MODEL_MB 1115 = sum of notes.md bytes)
+verify-logic       exit 0  269 invariants
+verify-sync-loop   exit 0  (audio upload apart, to the private repo; no PUT carries the transcript)
+verify-shell       exit 0
+verify-contrast    exit 0  128 page-renders
+verify-flows       exit 0  447 checks (the (r) block: phone, desktop, pull, upload failure, Not now, failures)
+verify-clip        exit 1  0 new, 1 stale, 588 known  (the spec's expected result; same on main)
+verify-design      exit 1  1 of 2678: "390px light: the body face ... Inter" — fails identically on main 12a00d1 (1 of 2656). All 26 T-046 checks pass after the struck-filler tint went 10% -> 6% (Light measured 4.48, now 4.51).
+flutter analyze    No issues found
+flutter test       163 passed (incl. test/audio_upload_test.dart)
+verify-app         exit 0  408 checks, every plant exits 1 (new: parity audioPath, no payload carries transcript/audio/transcribe/audioGone)
+tools/build-app.sh exit 0  50 files, 22331304 bytes in app-web/
+verify-boot        exit 0  all checks passed (T-064 shots restored with git checkout + git clean)
+Plants (a)-(h): plants.log — ALL PLANTS EXIT 1, each file restored byte-identically (sha256 checked).

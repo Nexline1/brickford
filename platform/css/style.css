@@ -3118,7 +3118,7 @@ button.at-chip.lb-more { font-weight: 600; }
 
 /* ---- T-046: the transcript, under its clip (the desktop only) ----
    Every line here is text, so >= 4.5:1, including the struck fillers: --bad
-   on a 10% --bad tint over --surface (verify-design reads them). Controls are
+   on a 6% --bad tint over --surface (verify-design reads them; 10% measured 4.48:1 in Light). Controls are
    44px at every width. */
 .pr-txrow { flex: 1 0 100%; min-width: 0; }
 .pr-txrow:empty { display: none; }
@@ -3132,7 +3132,7 @@ button.at-chip.lb-more { font-weight: 600; }
 .tx-stats { font-size: var(--fs-footnote); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .tx-text { margin: 8px 0 0; color: var(--ink); line-height: 1.6; user-select: text; -webkit-user-select: text; overflow-wrap: anywhere; }
 .tx-f {
-  color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent);
+  color: var(--bad); background: color-mix(in srgb, var(--bad) 6%, transparent);
   text-decoration: line-through; border-radius: 3px; padding: 0 2px;
 }
 .tx-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }

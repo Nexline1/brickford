@@ -98,6 +98,19 @@ function seed(nowMs) {
 // numeric variants therefore run in a third state, "seeded-num": the same seed
 // plus the first sixteen MATH 110 unit-0 lectures watched (the set
 // verify-flows.js uses). Their keys carry "~num" on the route.
+//
+// A watched lecture mounts its own quiz under the video (#lqMount, the T-043
+// mastery sitting), and that is where a lecture's questions are answered now,
+// numeric ones included. The seeded state has two watched lectures, 0/13 and
+// 0/0, and both quizzes were swept, but unpinned: each opened on whatever the
+// shared PRNG had reached by its route. They happened to open one of each
+// kind, so both layouts were measured, by luck: one more random draw upstream,
+// or a reordered bank, could have turned both to the same kind with nothing
+// said. Both are pinned now, with their kinds asserted per route: 0/13 opens
+// multiple choice and 0/0 numeric. Each quiz is one question of each kind and
+// the order shuffle is the sitting's first random draw, so seed 1 opens the
+// multiple-choice one and seed 7 the numeric one. In "empty" nothing is
+// watched, so neither lecture has a quiz and the kind is "none".
 function seedNum(nowMs) {
   if (window.top !== window) return;
   const iso = d => new Date(nowMs - d * 86400000).toISOString().slice(0, 10);
@@ -110,16 +123,18 @@ function seedNum(nowMs) {
   s.weeks = [{ week: 1, date: iso(2), shipped: "repo", dsa: 4, posts: 1, revenue: 120, notes: "" }];
   localStorage.setItem("darhikmah_v1", JSON.stringify(s));
 }
-const DRAW_SEED = { "/quiz/linear-algebra": 1, "/drill": 1 };      // opens multiple choice (seeded)
+const DRAW_SEED = { "/quiz/linear-algebra": 1, "/drill": 1, "/lesson/math110/0/13": 1,   // multiple choice (seeded)
+  "/lesson/math110/0/0": 7 };                                                             // numeric (seeded)
 const plain = ROUTES.map(r => ({ route: r, key: r, seed: DRAW_SEED[r] }));
 const NUM_ROUTES = [
   { route: "/quiz/linear-algebra", key: "/quiz/linear-algebra~num", seed: 3 },
   { route: "/drill", key: "/drill~num", seed: 6 },
 ];
-// [name, seed function, routes, what the first drawn question must be]
+// [name, seed function, routes, what the first drawn question must be,
+//  and the routes whose first question must be something else]
 const STATES = [
   ["empty", null, plain, "none"],          // nothing watched: no question to draw
-  ["seeded", seed, plain, "mcq"],
+  ["seeded", seed, plain, "mcq", { "/lesson/math110/0/0": "num" }],
   ["seeded-num", seedNum, NUM_ROUTES, "num"],
 ];
 
@@ -161,7 +176,7 @@ const PROBE = function () {
   const failures = [];
   let renders = 0, elements = 0, githubHits = 0;
 
-  for (const [stateName, stateFn, routes, drawKind] of STATES) {
+  for (const [stateName, stateFn, routes, drawKind, kinds] of STATES) {
     for (const root of ROOTS) {
       for (const w of WIDTHS) {
         const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, reducedMotion: "reduce", hasTouch: w < 860, timezoneId: "UTC" });
@@ -229,9 +244,15 @@ const PROBE = function () {
           let drawWrong = "";
           if (drawSeed != null) {
             // The drill mounts its body a tick after the render, like the quiz.
-            await page.waitForFunction(() => { const m = document.querySelector("#drillMount, #quizMount"); return m && m.children.length > 0; }, null, { timeout: 8000 });
-            const kind = await page.evaluate(() => document.querySelector("#numAns") ? "num" : document.querySelector("#view .opt") ? "mcq" : "none");
-            if (kind !== drawKind) drawWrong = "pinned draw (seed " + drawSeed + ") opened " + kind + ", expected " + drawKind + " — content or the draw changed; re-pin the seed";
+            // A lecture has a quiz host only once it is watched; with none
+            // there is nothing to wait for, and the kind is "none". The kind is
+            // read inside the host, so nothing else on a lecture page counts.
+            const HOSTS = "#drillMount, #quizMount, #lqMount";
+            await page.waitForFunction(h => { const m = document.querySelector(h); return !m || m.children.length > 0; }, HOSTS, { timeout: 8000 });
+            const kind = await page.evaluate(h => { const m = document.querySelector(h);
+              return !m ? "none" : m.querySelector("#numAns") ? "num" : m.querySelector(".opt") ? "mcq" : "none"; }, HOSTS);
+            const want = (kinds && kinds[route]) || drawKind;
+            if (kind !== want) drawWrong = "pinned draw (seed " + drawSeed + ") opened " + kind + ", expected " + want + " — content or the draw changed; re-pin the seed";
           }
           await page.evaluate(() => Promise.all(document.getAnimations()
             .filter(a => !a.effect || a.effect.getComputedTiming().iterations !== Infinity)

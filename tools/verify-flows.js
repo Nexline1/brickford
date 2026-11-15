@@ -544,7 +544,10 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     // lecture 13; the fixture passes the quiz of the lecture before it (a
     // quiz pass added, nothing else), so it is open. One question is
     // answered wrong, the rest right; the answers are read from the summary's
-    // own checks (window.DAR), by the bank index the card carries.
+    // own checks (window.DAR), by the bank index the card carries. The numeric
+    // Submit is measured where it is pressed: its label whole, and 44x44 on a
+    // phone. A numeric answer row once squeezed "Submit" to "Submi" inside its
+    // own box, at phone widths, with every gate green.
     {
       const PREV = { "math120.0.11": { done: true, doneAt: "2026-10-28", notes: "", checks: [],
         quiz: { passedAt: "2026-10-28", at: "2026-10-28T10:00:00.000Z", firstTry: 2, total: 2, attempts: 2 } } };
@@ -594,7 +597,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       const bank = await page.evaluate(() => window.DAR.SUMMARIES["math120.1.0"].checks.map(q => ({ a: q.a, num: q.num, opts: q.opts ? q.opts.length : 0 })));
       const n = bank.length;
       const w0 = await writes(page);
-      let missedQ = null, firstOrder = null, againOrder = null, answeredN = 0, wFinish = null;
+      let missedQ = null, firstOrder = null, againOrder = null, answeredN = 0, wFinish = null, sub = null;
       for (let guard = 0; guard < 3 * n + 4; guard++) {
         const cur = await page.evaluate(() => { const c = document.querySelector("#view #lqMount .lq-card");
           return c ? { q: +c.dataset.q, order: [...c.querySelectorAll(".opt")].map(b => +b.dataset.o), head: (c.querySelector(".lq-n") || {}).textContent } : null; });
@@ -607,6 +610,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
           const pick = miss ? cur.order.findIndex(o => o !== b.a) : cur.order.indexOf(b.a);
           await page.click("#view #lqMount .opt >> nth=" + pick);
         } else {
+          if (!sub) sub = await page.evaluate(() => { const g = document.querySelector("#view #numGo"), r = g.getBoundingClientRect();
+            return { text: g.textContent.trim(), sw: g.scrollWidth, cw: g.clientWidth, w: r.width, h: r.height }; });
           await page.fill("#view #numAns", String(b.num));
           await page.click("#view #numGo");
         }
@@ -628,6 +633,10 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       check("(c) the missed question comes back with its options reshuffled", missedQ !== null && !!againOrder && againOrder.join() !== firstOrder.join() &&
         againOrder.slice().sort().join() === firstOrder.slice().sort().join(), "first " + JSON.stringify(firstOrder) + ", again " + JSON.stringify(againOrder));
       check("(c) the sitting asks every question, and the miss once more", answeredN === n + 1, answeredN + " answers for " + n + " questions");
+      const phone = w < 860;
+      check("(c) its numeric Submit reads whole, the label inside its own box" + (phone ? ", and is at least 44x44" : ""),
+        !!sub && sub.text === "Submit" && sub.sw <= sub.cw + 1 && (!phone || (sub.w >= 44 && sub.h >= 44)),
+        sub ? "\"" + sub.text + "\", content " + sub.sw + " in a " + sub.cw + "px box, " + Math.round(sub.w) + "x" + Math.round(sub.h) : "no numeric question in the sitting");
       const passCard = await page.evaluate(() => ((document.querySelector("#view .lq-pass") || {}).textContent || "").replace(/\s+/g, " ").trim());
       check("(c) the pass card shows firstTry = n-1 and that it counted for today",
         passCard.includes(n + " of " + n + " · " + (n - 1) + " right on the first try · counted for today") && /Next lecture/.test(passCard), "\"" + passCard + "\"");

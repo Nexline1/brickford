@@ -310,11 +310,18 @@ async function session(browser, { putOk }) {
     await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
     await ctx.addInitScript(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
     const page = await ctx.newPage();
-    const pushes = [];
+    const pushes = [], uploads = [];
     await page.route("https://api.github.com/**", route => {
       if (route.request().method() === "GET")
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) });
+      // T-046 v2: since the owner's 15 Nov decision the clip itself is uploaded to the private
+      // repo's audio/ folder (a file of its own, never the state). Those PUTs are counted apart
+      // and checked below; every PUT of anything else is a push and is read as before.
+      if (/\/contents\/audio\//.test(route.request().url())) {
+        uploads.push(route.request().url());
+        return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ content: { sha: "audiosha" } }) });
+      }
       try { pushes.push(Buffer.from(JSON.parse(route.request().postData()).content, "base64").toString()); } catch (e) { pushes.push("(unreadable push)"); }
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
     });
@@ -351,7 +358,82 @@ async function session(browser, { putOk }) {
       check(audio.length === 0, "no push carries audio or brickford_audio data" + (audio.length ? " — " + audio.join(" | ") : " (" + pushes.length + " push(es) read)"));
       const keys = parsed.map(p => p && p.state ? Object.keys(p.state).sort().join(",") : "(none)").filter(k => k !== SENT);
       check(parsed.length > 0 && keys.length === 0, "every push's state has exactly the keys syncPayload sends" + (keys.length ? " — got " + keys[0] : ""));
+      check(uploads.length === 1 && /^https:\/\/api\.github\.com\/repos\/Nexline1\/brickford-private\/contents\/audio\/2026-10-20-1\.webm$/.test(uploads[0]),
+        "the audio itself went once to the private repo's audio/ as a file of its own (T-046 v2): " + JSON.stringify(uploads));
     } catch (e) { check(false, "the recording half ran to its end without a harness error — " + e.message.split("\n")[0]); }
+    await ctx.close();
+    await mic.close();
+  }
+
+  // T-046: a transcript stays on the device too. The same recording on the
+  // laptop (1280, a fine pointer), then Download, with the pinned library URL
+  // answered by a stub module whose pipeline() returns a canned transcript (no
+  // network: the harness serves it, and --allow-file-access-from-files lets
+  // this file:// page make the module Worker). The transcript must be on the
+  // clip's IndexedDB record — so its absence from every PUT means something —
+  // and no PUT (the state pushes and the audio upload alike) may carry any of
+  // its text, a "transcript" or "chunks" field, or the device's transcription
+  // answer (settings in a push are theme, dailyStart and streakFrom only).
+  console.log("A transcript stays on the device — no push carries its text (T-046):");
+  {
+    const LIB = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+    const CHUNKS = [{ text: " I drew arrows on a napkin, king minus man plus woman.", timestamp: [0, 3.1] },
+                    { text: " She said it back better than I had.", timestamp: [3.1, 5.6] }];
+    const TEXT = CHUNKS.map(c => c.text).join("");
+    const STUB = "export async function pipeline() { return async function () { return " + JSON.stringify({ text: TEXT, chunks: CHUNKS }) + "; }; }";
+    const mic = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--allow-file-access-from-files"] });
+    const ctx = await mic.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce", timezoneId: "UTC" });
+    await ctx.clock.setFixedTime(new Date("2026-10-20T12:00:00Z"));
+    await ctx.addInitScript(() => localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"));
+    const pushes = [], puts = [];
+    await ctx.route(/^https?:/, r => r.abort());
+    await ctx.route(u => u.href === LIB, r => r.fulfill({ status: 200, contentType: "text/javascript", headers: { "access-control-allow-origin": "*" }, body: STUB }));
+    await ctx.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET")
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) });
+      let body = "(unreadable put)";
+      try { body = Buffer.from(JSON.parse(route.request().postData()).content, "base64").toString("latin1"); } catch (e) { /* kept as unreadable */ }
+      puts.push({ url: route.request().url(), body });
+      if (!/\/contents\/audio\//.test(route.request().url())) pushes.push(body);
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    const page = await ctx.newPage();
+    try {
+      await page.goto(URL + "/practice", { waitUntil: "load" });
+      await page.waitForSelector("#view [data-ptab=story]");
+      await page.click("#view [data-ptab=story]");
+      await page.click("#view .pr-rec");
+      await page.waitForFunction(() => /^0:0[1-9]/.test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), null, { timeout: 8000 });
+      await page.click("#view .pr-rec");
+      await page.waitForSelector("#view .pr-ask [data-tx=yes]", { timeout: 8000 });
+      await page.click("#view .pr-ask [data-tx=yes]");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-clip details.pr-tx"), null, { timeout: 15000 });
+      const stored = await page.evaluate(() => new Promise(res => {
+        const q = indexedDB.open("brickford_audio");
+        q.onerror = () => res(null);
+        q.onsuccess = () => { const g = q.result.transaction("clips").objectStore("clips").getAll();
+          g.onsuccess = () => { q.result.close(); res(g.result.map(v => (v.transcript || {}).text || null)); }; };
+      }));
+      check(!!stored && stored.length === 1 && stored[0] === TEXT, "the transcript is on the clip's IndexedDB record (" + JSON.stringify(stored) + ")");
+      await page.goto(URL + "/sync", { waitUntil: "load" });
+      await page.waitForSelector("[data-act='syncPush']");
+      const n0 = pushes.length;
+      await page.click("[data-act='syncPush']");
+      for (const t0 = Date.now(); pushes.length === n0 && Date.now() - t0 < 8000;) await page.waitForTimeout(100);
+      const parsed = pushes.map(p => { try { return JSON.parse(p); } catch (e) { return null; } });
+      check(pushes.length > n0 && parsed.some(p => p && p.state && ((p.state.reps || {}).story || []).length === 1),
+        "a push carried the recorded rep (" + pushes.length + " push(es))");
+      const words = ["king minus man plus woman", "arrows on a napkin", "better than I had"];
+      const leaks = puts.map((p, i) => { const w = words.find(x => p.body.includes(x)) || (/"(transcript|chunks|transcribe)"\s*:/.exec(p.body) || [])[0];
+        return w ? "PUT " + (i + 1) + " " + p.url.split("/contents/")[1] + ": " + w : null; }).filter(Boolean);
+      check(leaks.length === 0 && puts.some(p => /\/contents\/audio\//.test(p.url)), "no PUT — " + pushes.length + " push(es) and the audio upload — carries the transcript's text, a transcript or chunks field, or the transcription setting" +
+        (leaks.length ? " — " + leaks.join(" | ") : " (" + puts.length + " PUT(s) read)"));
+      check(puts.every(p => p.url.startsWith("https://api.github.com/repos/Nexline1/brickford-private/contents/")), "every PUT went to the private repo (" + puts.map(p => p.url.split("/contents/")[1]).join(", ") + ")");
+      const extra = parsed.filter(p => p && p.state && Object.keys(p.state.settings || {}).some(k => !["theme", "dailyStart", "streakFrom"].includes(k)));
+      check(parsed.length > 0 && extra.length === 0, "every push's settings are theme, dailyStart and streakFrom only" +
+        (extra.length ? " — got " + Object.keys(extra[0].state.settings).join(",") : ""));
+    } catch (e) { check(false, "the transcript half ran to its end without a harness error — " + e.message.split("\n")[0]); }
     await ctx.close();
     await mic.close();
   }
@@ -1125,6 +1207,6 @@ async function session(browser, { putOk }) {
   await browser.close();
   console.log(fails
     ? "\nFAIL — " + fails + " assertion" + (fails === 1 ? "" : "s") + " broken"
-    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device, and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065), and sync lives in the private repo only, tells a missing file from no access, restores a new device and merges before it writes (T-053), and practice answers merge both ways by at, the Anthropic key is in no PUT, and a render of the Practice block arms no push (T-067 step 3)");
+    : "\nPASS — sync never restarts the video, and a rejected token latches only the automatic push, and a pull never carries the theme, and a recording never leaves the device but as a file of its own in the private repo, nor its transcript (T-046), and a background repaint leaves a playing or paused recording and a recording in progress alone, and runs once they are done (T-028), and a quiz pass survives every merge (T-043), and Monk Mode never leaves the device but its start date while MONK_SYNCS is false and merges by the newer `at` when it is on (T-054), and the start date syncs both ways and is pushed at once when pressed (T-065), and sync lives in the private repo only, tells a missing file from no access, restores a new device and merges before it writes (T-053), and practice answers merge both ways by at, the Anthropic key is in no PUT, and a render of the Practice block arms no push (T-067 step 3)");
   process.exit(fails ? 1 : 0);
 })();

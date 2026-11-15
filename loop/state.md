@@ -2,6 +2,7 @@
 
 | date | item | rounds | result | blocker |
 |---|---|---|---|---|
+| 2026-11-15 | DISCOVER (inbox 2026-11-14) | 0 | Proposed T-074 (frozen scheduledFor + ISO firstDoneAt + docs/SYNCED-STATE.md, folds notes 2 and 4 to stay within 3 proposals), T-075 (owed banner), T-076 (mood ledger event). T-074/T-076 marked needs owner approval (state shape). Not built. | T-069 feature freeze (to ~10 Jan 2027) must be lifted by the owner; Flutter SDK not installed on this PC (BUILD/CHECK need flutter analyze/test) |
 | 2026-09-25 | design DISCOVER | 0 | Owner asked for a premium iOS-native redesign. Wrote loop/design/brief.md, before census (24 shots), specimen (Today + Course, light/dark; contrast worst 5.2:1, no target under 44). Proposed T-005 foundations, T-006 chrome, T-007 lists. | reference sites blocked by the network policy (403 at the proxy, retried) |
 | 2026-09-25 | T-001 | 3 | pr-open: PR #3. Round 1: log line claimed a pass after failing, comment over-claimed. Round 2: a sub-320 min-width rule spilled labels out of their tabs; removed in round 3. Reviewer APPROVED. | none (stacked on PRs #2 and #1, still unmerged) |
 | 2026-09-25 | T-000 | 4 | pr-open: PR #2. Round 4 (owner-granted) fixed the numeric-draw coverage, the stale evidence and the check names; reviewer APPROVED. Filed T-004 (bestStreak counts a sealed Saturday). | none (PR #1 still unmerged, so PR #2 carries the scaffold commit) |

@@ -11,6 +11,7 @@
 ## Code
 - app.js is one IIFE; nothing is exported. Tests drive the UI or use an explicitly spec'd hook.
 - A render is a read: any persist during a render goes through syncQuiet, or it arms a network push that re-enters render.
+- A new network write (an upload) hangs off an event (the save, the route arriving), never wire() or a view; test it by counting requests across forced renders and a wait, and let a harness that captured every PUT as a state push sort the new path apart rather than loosen its checks (T-046).
 - Background repaints use render({ background: true }). A repaint while a video is on screen destroys the iframe.
 - summaryHTML injects prose raw, so no bare `<` before a letter in content (`\lt`, or `&lt;` for code).
 - Bump every `?v=` cache token in platform/index.html when any JS/CSS/data file changes (sed the token).

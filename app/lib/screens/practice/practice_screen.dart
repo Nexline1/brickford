@@ -3,6 +3,8 @@
 //
 // PORTED, NOT REDESIGNED: the page's rules are app.js's (engine/practice.dart);
 // the recorder is state/recorder.dart. Barely any words: the prompt, the button.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -10,6 +12,7 @@ import '../../engine/engine.dart';
 import '../../engine/practice.dart';
 import '../../state/app_model.dart';
 import '../../state/recorder.dart';
+import '../../state/sync.dart';
 import '../../theme/theme.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/blocks.dart';
@@ -60,6 +63,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _m.practiceNote = null;
     _m.practiceForm = () => {for (final e in _c.entries) e.key: e.value.text};
     _loadClips();
+    // T-046: the page being opened is when clips not yet in the private repo are uploaded, once each.
+    // After the first frame: an event, never part of a build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_m.sync.audioOpen());
+    });
   }
 
   @override
@@ -295,7 +303,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
     if (clips.isEmpty) {
       return Padding(padding: EdgeInsets.only(bottom: 8.h), child: Text(m.recorder.hand ? 'Nothing recorded yet.' : 'Nothing recorded yet. Press the red button and talk.', key: const ValueKey('practice-empty'), style: body(13, color: Tokens.ink2)));
     }
-    return Column(children: [for (final c in clips) _ClipRow(key: ValueKey('clip-${c.key}'), clip: c, playing: _playing == c.key && (_player?.playing ?? false), onPlay: () => _play(m, c), onRename: () => _rename(m, c), onDelete: () => _delete(m, c))]);
+    return Column(children: [
+      for (final c in clips) _ClipRow(key: ValueKey('clip-${c.key}'), clip: c, playing: _playing == c.key && (_player?.playing ?? false), onPlay: () => _play(m, c), onRename: () => _rename(m, c), onDelete: () => _delete(m, c)),
+      // T-046: an upload that did not reach the private repo, in one muted line.
+      ListenableBuilder(
+        listenable: m.sync,
+        builder: (_, _) => m.sync.audioFailed.isEmpty
+            ? const SizedBox.shrink()
+            : Padding(padding: EdgeInsets.only(top: 8.h), child: Text(SyncService.audioFailLine, key: const ValueKey('practice-upfail'), style: body(13, color: Tokens.ink2))),
+      ),
+    ]);
   }
 
   Future<void> _play(AppModel m, StoredClip c) async {

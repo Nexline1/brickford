@@ -29,6 +29,7 @@ import 'package:http/http.dart' as http;
 
 import '../engine/engine.dart';
 import '../engine/merge.dart';
+import '../engine/practice.dart' show audioPath;
 import 'app_model.dart';
 import 'net_status.dart';
 
@@ -367,6 +368,65 @@ class SyncService extends ChangeNotifier {
       unawaited(run('push'));
     }
     return done;
+  }
+
+  // ---------- T-046: the audio, in the private repo ----------
+  // A kept clip is PUT to the sync repo at audio/<key><ext> (app.js audioUpload), base64, with this token;
+  // its record gets remote {sha, at}. From the save (AppModel's onClip) and from the Practice page being
+  // opened (audioOpen), once per clip per open: never from a build, never on a timer. A failure is kept in
+  // memory and the Practice page says [audioFailLine]. No token: nothing is tried. Transcripts are the
+  // laptop's (the web app) and never come near this.
+  static const audioFailLine = 'Audio stays on this device until your token can reach brickford-private';
+
+  /// The keys whose upload failed since the Practice page was last opened.
+  final audioFailed = <String>{};
+  final _uploading = <String>{};
+
+  Future<bool> uploadClip(String key) async {
+    if (!hasToken || _uploading.contains(key)) return false;
+    _uploading.add(key);
+    String? sha;
+    try {
+      final p = await m.audio.payload(key);
+      if (p != null) {
+        final url = Uri.parse('https://api.github.com/repos/$repo/contents/${audioPath(key, p.mime)}');
+        final headers = {'Authorization': 'Bearer $_token', 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'};
+        final res = await _client.put(url, headers: {...headers, 'Content-Type': 'application/json'},
+            body: jsonEncode({'message': 'audio: $key from ${_settings['deviceId']}', 'content': p.base64}));
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          sha = ((jsonDecode(res.body) as Map)['content'] as Map?)?['sha'] as String?;
+        } else if (res.statusCode == 422) {
+          // Already there (a reply lost on the way back): the same clip if it is the same size.
+          final g = await _client.get(url.replace(queryParameters: {'ref': 'main'}), headers: headers);
+          final j = g.statusCode == 200 ? jsonDecode(g.body) as Map : const {};
+          if (j['sha'] is String && j['size'] == (p.base64.length * 3 ~/ 4) - (p.base64.endsWith('==') ? 2 : p.base64.endsWith('=') ? 1 : 0)) sha = j['sha'] as String;
+        }
+        if (sha != null) await m.audio.markRemote(key, sha, m.now().toUtc().toIso8601String());
+      }
+    } catch (_) {
+      sha = null;
+    } finally {
+      _uploading.remove(key);
+    }
+    final failed = sha == null;
+    // Told only when the line would change: a sync never repaints a page for nothing.
+    if (failed ? audioFailed.add(key) : audioFailed.remove(key)) notifyListeners();
+    return !failed;
+  }
+
+  /// The Practice page was opened: every clip not yet uploaded is tried once, in turn.
+  Future<void> audioOpen() async {
+    if (!hasToken || !m.audio.storeSupported) return;
+    audioFailed.clear();
+    List<String> keys;
+    try {
+      keys = await m.audio.unuploaded();
+    } catch (_) {
+      return;
+    }
+    for (final k in keys) {
+      await uploadClip(k);
+    }
   }
 
   @override

@@ -8,7 +8,11 @@
 //     prompt) is a state, not an error: the hand form, and no record button.
 //   - Every way a recording ends (a press, the 90 s cap, leaving, the recorder
 //     stopping on its own) comes through one finish, exactly once.
-//   - Transcription is paused (T-046): this only records.
+//   - T-046 v2: a kept clip is uploaded to the private sync repo at
+//     audio/<key><ext> (SyncService.uploadClip, from the save and from the
+//     Practice page being opened, never from a build); its record gets
+//     remote {sha, at}. Transcription is the laptop's (the web app): the
+//     phone only records.
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -75,13 +79,22 @@ abstract class AudioBackend {
 
   /// Revokes the object URLs the last list made.
   void releaseUrls();
+
+  /// T-046: the keys of the clips with audio that have no `remote` yet.
+  Future<List<String>> unuploaded();
+
+  /// T-046: a clip's audio as base64 and its Blob type; null when it has none.
+  Future<({String mime, String base64})?> payload(String key);
+
+  /// T-046: the upload's answer on the clip's record, `remote: {sha, at}`.
+  Future<void> markRemote(String key, String sha, String at);
 }
 
 /// The phases the record button shows: idle, the prompt open, recording.
 enum RecPhase { idle, starting, recording }
 
 /// A finished recording that was long enough to be a rep.
-typedef ClipDone = void Function(String kind, String date, int seconds, String title, bool kept);
+typedef ClipDone = void Function(String kind, String date, int seconds, String title, bool kept, String? key);
 
 class PracticeRecorder extends ChangeNotifier {
   PracticeRecorder(this.backend, {required this.today, required this.onClip, required this.onShort, this.limit = REC_LIMIT, Duration Function()? clock})
@@ -211,12 +224,13 @@ class PracticeRecorder extends ChangeNotifier {
     final secs = _elapsed.round() < REC_MIN ? REC_MIN : _elapsed.round();
     final title = '${k == 'humor' ? 'Humour' : 'Story'} · ${recDay(_date)}';
     var kept = true;
+    String? key;
     try {
-      await backend.add(date: _date, seconds: secs, kind: k, title: title, audio: a);
+      key = await backend.add(date: _date, seconds: secs, kind: k, title: title, audio: a);
     } catch (_) {
       kept = false;
     }
-    onClip(k, _date, secs, title, kept); // logged even if the page was left: the web logs a recording that ends off-page
+    onClip(k, _date, secs, title, kept, key); // logged even if the page was left: the web logs a recording that ends off-page
     if (!_disposed) notifyListeners();
   }
 

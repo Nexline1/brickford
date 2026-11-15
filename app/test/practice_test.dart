@@ -63,6 +63,15 @@ class FakeAudio implements AudioBackend {
   void download(StoredClip clip) {}
   @override
   void releaseUrls() {}
+
+  // T-046: the uploads' side of the store.
+  final remote = <String, Map<String, String>>{};
+  @override
+  Future<List<String>> unuploaded() async => [for (final c in clips) if (!remote.containsKey(c.key)) c.key];
+  @override
+  Future<({String mime, String base64})?> payload(String key) async => clips.any((c) => c.key == key) ? (mime: 'audio/webm', base64: base64.encode(utf8.encode('audio of $key'))) : null;
+  @override
+  Future<void> markRemote(String key, String sha, String at) async => remote[key] = {'sha': sha, 'at': at};
 }
 
 class _P implements ClipPlayer {

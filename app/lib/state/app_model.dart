@@ -341,11 +341,13 @@ class AppModel extends ChangeNotifier {
     audio,
     today: () => today,
     clock: recorderClock,
-    onClip: (kind, date, seconds, title, kept) {
+    onClip: (kind, date, seconds, title, kept, key) {
       final r = engine.logRecordedRep(kind, date, seconds, title, kept: kept, v: practiceForm(), ts: _ts());
       if (r.ok) persist();
       practiceNote = r.msg;
       notifyListeners();
+      // T-046: the kept clip goes to the private repo (the end of a recording: an event, not a build).
+      if (kept && key != null) unawaited(sync.uploadClip(key));
     },
     onShort: () {
       practiceNote = 'Under a second \u2014 nothing kept. Hold it and talk.';

@@ -37,12 +37,15 @@ import 'history_go_stub.dart' if (dart.library.js_interop) 'history_go_web.dart'
 /// WidgetsApp would otherwise answer pushRouteInformation itself by pushing
 /// a named route this app does not have.
 class WebHistory extends NavigatorObserver with WidgetsBindingObserver {
-  WebHistory({this.enabled = kIsWeb, void Function(int delta)? go, Future<void> Function()? selectMulti, Future<void> Function(int depth)? report})
+  WebHistory({this.enabled = kIsWeb, this.repaintFrames = 10, void Function(int delta)? go, Future<void> Function()? selectMulti, Future<void> Function(int depth)? report})
       : _go = go ?? historyGo,
         _selectMulti = selectMulti ?? SystemNavigator.selectMultiEntryHistory,
         _report = report ?? ((d) => SystemNavigator.routeInformationUpdated(uri: Uri.parse('/'), state: d));
 
   final bool enabled;
+
+  /// Frames drawn, 100 ms apart, after the browser moves (see [_repaint]).
+  final int repaintFrames;
   final void Function(int delta) _go;
   final Future<void> Function() _selectMulti;
   final Future<void> Function(int depth) _report;
@@ -63,6 +66,24 @@ class WebHistory extends NavigatorObserver with WidgetsBindingObserver {
   bool _browserPop = false;
 
   int get depth => pages.length - 1;
+
+  /// T-078: after a back swipe Safari shows its snapshot of the page until
+  /// the page paints again, and the app, done in one frame, may have nothing
+  /// left to paint: the reader would be tapping a picture. So it draws a
+  /// frame every 100 ms for a second after the browser moves.
+  Timer? _repaintTimer;
+  @visibleForTesting
+  int repainted = 0;
+  void _repaint() {
+    _repaintTimer?.cancel();
+    if (repaintFrames <= 0) return;
+    var n = 0;
+    _repaintTimer = Timer.periodic(const Duration(milliseconds: 100), (tm) {
+      WidgetsBinding.instance.scheduleForcedFrame();
+      repainted++;
+      if (++n >= repaintFrames) tm.cancel();
+    });
+  }
 
   void _queueSync() {
     if (_syncQueued) return;
@@ -169,6 +190,14 @@ class WebHistory extends NavigatorObserver with WidgetsBindingObserver {
           for (final p in pages.sublist(to + 1).reversed.toList()) {
             nav.removeRoute(p);
           }
+          // T-078: the page landed on must answer the next tap. A swipe the
+          // app began under the finger and Safari then took over may never
+          // hear the finger lift, and while the navigator counts a gesture
+          // in progress every page ignores the pointer.
+          while (nav.userGestureInProgress) {
+            nav.didStopUserGesture();
+          }
+          _repaint();
         } finally {
           _browserPop = false;
         }

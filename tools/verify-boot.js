@@ -36,7 +36,8 @@
 //      snapshot was the boot splash). Back closes one page at a time, two
 //      deep; history.go(-2) closes both; the in-app back button rewinds the
 //      browser by one; Forward onto a closed page goes back to where the app
-//      is; Back from the shell leaves, as before.
+//      is; Back from the shell leaves, as before; and a page closed by Back
+//      leaves at once (T-077), because the swipe has already animated it.
 // Exits 1 on any failed assertion.
 "use strict";
 const fs = require("fs"), http = require("http"), path = require("path");
@@ -156,8 +157,25 @@ async function backNavigation(browser, BASE) {
     const len1 = await page.evaluate(() => history.length);
     // (history.length need not grow: the new entry replaces the forward entry the engine's old single history left.)
     check("7: opening Week pushes an entry of its own (depth 1)", w.on === "week" && w.depth === 1 && len1 >= len0, JSON.stringify(w) + " length " + len0 + " -> " + len1);
+    // T-077: how long Week stays on screen after Back. An iPhone's swipe has
+    // already slid it away, so Flutter must not slide it out again (300 ms).
+    await page.evaluate(() => {
+      window.__gone = null;
+      const t0 = performance.now();
+      addEventListener("popstate", () => {
+        const t1 = performance.now();
+        const iv = setInterval(() => {
+          if (!document.querySelector('[flt-semantics-identifier="week-dsa"]')) { window.__gone = Math.round(performance.now() - t1); clearInterval(iv); }
+        }, 5);
+      }, { once: true });
+    });
     const b = await act(() => page.goBack({ waitUntil: "commit" }));
+    const goneMs = await page.evaluate(() => window.__gone);
     check("7: Back (an iPhone's back swipe) closes Week and lands on Home, depth 0", b.on === "home" && b.depth === 0, JSON.stringify(b));
+    // Measured in headless Chromium: 428 ms with Flutter's own slide (T-076's build), 194 ms
+    // without it (the rest is the engine's popstate -> frame -> semantics round trip). The slide
+    // alone is 300 ms, so under 300 means it did not run.
+    check("7: Week is off the screen within 300 ms of Back: no second, Flutter-drawn slide after the swipe (T-077)", goneMs !== null && goneMs < 300, goneMs + " ms");
     const f = await act(() => page.goForward({ waitUntil: "commit" }));
     check("7: Forward onto the closed Week goes back to Home (no dead page)", f.on === "home" && f.depth === 0, JSON.stringify(f));
     await act(tap("chip-week"));

@@ -23,7 +23,9 @@ import 'history_go_stub.dart' if (dart.library.js_interop) 'history_go_web.dart'
 /// 0 is the shell, 1 the first page pushed on it, and so on.
 ///   - A back swipe, the browser's Back, or Forward: the engine reports the
 ///     depth it landed on as pushRouteInformation; the pages above that depth
-///     are popped (a sheet or dialog over them goes too). Forward to a page
+///     are removed at once, with no animation of Flutter's own (the browser
+///     has already animated it; T-077), and a sheet or dialog over them goes
+///     too. Forward to a page
 ///     that is gone is undone with history.go.
 ///   - A page closed in the app (its back button, a pop after an action, the
 ///     iOS edge gesture inside the app): history.go(-n) rewinds the browser
@@ -157,7 +159,16 @@ class WebHistory extends NavigatorObserver with WidgetsBindingObserver {
       if (nav != null && target != null) {
         _browserPop = true;
         try {
-          nav.popUntil((r) => r == target);
+          // T-077: no second animation. The browser has already animated
+          // this (an iPhone's swipe slides the page away itself), so a pop
+          // here replayed Flutter's own 300 ms slide on top of it, the page
+          // before sliding in a second time. A sheet or dialog over the
+          // page is popped first; then the pages above [target] are removed,
+          // which takes them off at once.
+          nav.popUntil((r) => r is PageRoute);
+          for (final p in pages.sublist(to + 1).reversed.toList()) {
+            nav.removeRoute(p);
+          }
         } finally {
           _browserPop = false;
         }

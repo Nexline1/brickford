@@ -1,0 +1,71 @@
+(a) the transcript is written into localStorage and the sync payload (onto the story rep) -> tools/verify-flows.js exit 1 (3 FAIL lines)
+      FAIL  (r) desktop, 1280px: and nowhere else — no storage key holds it, no PUT to GitHub carries it (2 read, the state push among them), the rep is the hand form's shape, the chain has no transcript event; the device remembers only "on" — {"pushed":true,"elsewh
+      FAIL  (r) desktop pull, 1280px: the pulled clip is transcribed: the 2.0s 48 kHz WAV reached the worker as 32000 samples (32000 at 16 kHz, within 10ms), and the transcript is on its record only — {"reports":[{"task":"automatic-speech-recognition","model":"onnx-
+      2 of 447 flow check(s) FAILED
+(a) the transcript is written into localStorage and the sync payload (onto the story rep) -> tools/verify-sync-loop.js exit 1 (2 FAIL lines)
+      FAIL  no PUT — 1 push(es) and the audio upload — carries the transcript's text, a transcript or chunks field, or the transcription setting — PUT 2 progress/brickford-state.json: king minus man plus woman
+      FAIL — 1 assertion broken
+(a) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(b) "I like it" is counted as a filler (like: always) -> tools/verify-flows.js exit 1 (4 FAIL lines)
+      FAIL  (r) desktop, 1280px: the fillers struck through are exactly ["um","like","actually","You know","you know","I mean","kind of","Okay so","right","Uh","so yeah"] — not "I like it", "Things like that", "a kind of map" or "Is that right?" — ["um","like","actu
+      FAIL  (r) desktop, 1280px: the chips give the total, then each filler's count in reading order: 11 fillers to cut, um ×1, like ×1, actually ×1, you know ×2, I mean ×1, kind of ×1, okay so ×1, right? ×1, uh ×1, so yeah ×1 — ["13 fillers to cut","um ×1","like ×3
+      FAIL  (j) a plain touch lifted with Shift (touch) on the Courses tab at 390 opens exactly 1 new page and leaves this one on #/ — 0 new page(s); this page at #/
+      3 of 447 flow check(s) FAILED
+(b) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(c) the model download starts without consent (the first use does not ask) -> tools/verify-flows.js exit 1 (6 FAIL lines)
+      FAIL  (r) desktop, 1280px: once the clip is saved the page asks first — "Download the speech model (~1115 MB, once)? It runs on this device; your audio never leaves your devices and your private repo.", Download and Not now — and before the answer nothing is i
+      FAIL  (r) desktop, 1280px: the flow ran to its end without a harness error — page.click: Timeout 30000ms exceeded.
+      FAIL  (r) desktop pull, 1280px: Transcribe asks the question first, and still nothing is imported — {"a":null,"lib":1}
+      FAIL  (r) desktop pull, 1280px: the flow ran to its end without a harness error — page.click: Timeout 30000ms exceeded.
+      FAIL  (r) Not now, 1280px: the flow ran to its end without a harness error — page.waitForSelector: Timeout 5000ms exceeded.
+      5 of 431 flow check(s) FAILED
+(c) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(d) the transcription runs on the main thread (no Worker: the library imported and run by the page) -> tools/verify-flows.js exit 1 (7 FAIL lines)
+      FAIL  (r) desktop, 1280px: Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it — {"workers":[],"lib":1,"hf":0}
+      FAIL  (r) desktop, 1280px: while it worked the row said "Loading the speech model… n%", then "Transcribing… n%" — ["Preparing the audio…","Loading the speech model… 0%"]
+      FAIL  (r) desktop, 1280px: no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread) — [{"at":2729.70000000007,"ms":399}]
+      FAIL  (r) desktop, 1280px: leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once, no second upload — {"workers":0,"lib":1,"reports":1,"puts":1}
+      FAIL  (r) failure, the download fails, 1280px: the row shows one muted line (Could not download the speech model. The recording is kept.) — {"key":"2026-10-30-1","go":true,"tx":false,"play":true,"lines":["Could not transcribe this one. The recording is kept."]
+      FAIL  (r) failure, out of memory, 1280px: the row shows one muted line (Not enough memory to transcribe this one. The recording is kept.) — {"key":"2026-10-30-1","go":true,"tx":false,"play":true,"lines":["Could not transcribe this one. The recording is kept."]
+      6 of 447 flow check(s) FAILED
+(d) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(e) an upload during a render (V.practice uploads what is not yet in the repo) -> tools/verify-flows.js exit 1 (5 FAIL lines)
+      FAIL  (r) desktop pull, 1280px: Practice opened lists /repos/Nexline1/brickford-private/contents/audio and downloads the one clip file it lacks, raw (README.md left alone) — ["/repos/Nexline1/brickford-private/contents/audio application/vnd.github+json","/repo
+      FAIL  (r) upload fails, 390px: three renders of the page and five seconds later, still one upload: a render is a read, and a failure is not retried in a loop — 4 upload(s)
+      FAIL  (r) upload fails, 390px: the next open of Practice tries it once more (2 uploads), and the line is still there — {"puts":5,"u2":{"lines":1,"text":"Audio stays on this device until your token can reach brickford-private","muted":true}}
+      FAIL  (r) upload fails, 390px: once the token can reach the repo, the next open uploads it (3 tries in all), the record gets remote, and the line is gone — {"puts":["/repos/Nexline1/brickford-private/contents/audio/2026-10-30-1.wav","/repos/Nexline1/brickford-
+      4 of 447 flow check(s) FAILED
+(e) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(f) the audio is uploaded to the public repo -> tools/verify-flows.js exit 1 (9 FAIL lines)
+      FAIL  (r) phone, 390px: the saved clip was uploaded once, by a PUT to /repos/Nexline1/brickford-private/contents/audio/2026-11-01-1.webm, and the bytes sent are the clip's — {"puts":["/repos/Nexline1/brickford/contents/audio/2026-11-01-1.webm"],"sent":25210,"s
+      FAIL  (r) phone, 390px: the clip's record gained remote { sha, at } — the sha GitHub answered — and nothing else — {"fields":"blob,date,kind,seconds,title","remote":null}
+      FAIL  (r) phone, 390px: the phone never lists or downloads audio/ (5 GitHub requests, all to the private repo), and no failure line — {"log":["GET /repos/Nexline1/brickford-private/contents/progress/brickford-state.json","PUT /repos/Nexline1/brickford/contents
+      FAIL  (r) desktop, 1280px: the transcript is on the clip's IndexedDB record as { text, chunks, model, at } — the stub's text and chunks, model onnx-community/whisper-large-v3-turbo@360ebcde2559d60bb474678be3c1de9ef347d01a — and the audio is untouched — {"field
+      FAIL  (r) desktop, 1280px: the clip was uploaded once to /repos/Nexline1/brickford-private/contents/audio/ (the laptop's own recordings go to the private repo too) — ["GET /repos/Nexline1/brickford-private/contents/progress/brickford-state.json","GET /repos/Ne
+      FAIL  (r) desktop, 1280px: leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once, no second upload — {"workers":1,"lib":1,"reports":1,"puts":2}
+      FAIL  (r) desktop pull, 1280px: the flow ran to its end without a harness error — page.waitForFunction: Timeout 10000ms exceeded.
+      FAIL  (r) upload fails, 390px: once the token can reach the repo, the next open uploads it (3 tries in all), the record gets remote, and the line is gone — {"puts":["/repos/Nexline1/brickford/contents/audio/2026-10-30-1.wav","/repos/Nexline1/brickford/contents
+(f) the audio is uploaded to the public repo -> tools/verify-sync-loop.js exit 1 (3 FAIL lines)
+      FAIL  the audio itself went once to the private repo's audio/ as a file of its own (T-046 v2): ["https://api.github.com/repos/Nexline1/brickford/contents/audio/2026-10-20-1.webm"]
+      FAIL  every PUT went to the private repo (audio/2026-10-20-1.webm, progress/brickford-state.json)
+      FAIL — 2 assertions broken
+(f) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(g) the model loads on the phone (every device counts as the desktop) -> tools/verify-flows.js exit 1 (6 FAIL lines)
+      FAIL  (r) phone, 390px: the saved clip was uploaded once, by a PUT to /repos/Nexline1/brickford-private/contents/audio/2026-10-30-1.webm, and the bytes sent are the clip's — {"puts":["/repos/Nexline1/brickford-private/contents/audio/2026-11-01-1.webm"],"sent":
+      FAIL  (r) phone, 390px: the clip's record gained remote { sha, at } — the sha GitHub answered — and nothing else — {"fields":"blob,date,kind,remote,seconds,title","remote":{"sha":"rsha1","at":"2026-11-01T12:00:00.000Z"}}
+      FAIL  (r) phone, 390px: the phone shows no Transcribe, no question, no transcript and no off line; no Worker was made and the library was never requested — {"any":{"ask":true,"go":2,"card":false,"off":false,"line":false},"workers":0,"lib":0}
+      FAIL  (r) phone, 390px: and after leaving and opening Practice again still none of it, and nothing imported — {"any2":{"ask":false,"go":1,"card":true,"off":false,"line":false},"workers":1,"lib":1}
+      FAIL  (r) phone, 390px: the phone never lists or downloads audio/ (5 GitHub requests, all to the private repo), and no failure line — {"log":["GET /repos/Nexline1/brickford-private/contents/progress/brickford-state.json","GET /repos/Nexline1/brickford-private/
+      5 of 447 flow check(s) FAILED
+(g) the model loads on the phone (every device counts as the desktop) -> tools/verify-design.js exit 1 (4 FAIL lines)
+      FAIL  390px light: the body face is -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif, and Inter (self-hosted, platform/fonts) is loaded and renders — font-family -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, 
+      FAIL  T-046 390px dark: a phone draws no transcript, no Transcribe, no question and no off line, even for a clip that has a transcript — #view [data-tx-go], #view details.pr-tx, #view .tx-text
+      FAIL  T-046 390px light: a phone draws no transcript, no Transcribe, no question and no off line, even for a clip that has a transcript — #view [data-tx-go], #view details.pr-tx, #view .tx-text
+      FAIL — 3 of 2678 design checks failed
+(g) restored platform/js/app.js byte-identically (sha256 6f52a9c852bf0993)
+(h) the Flutter app builds another upload path (.oga for ogg) -> tools/verify-app.js --no-plants exit 1 (2 FAIL lines)
+      FAIL  parity: audioPath — app.js and Dart build the same upload path for 8 clip keys and types, each audio/<key><ext> — 2026-11-07-12 audio/ogg;codecs=opus: js audio/2026-11-07-12.ogg, dart audio/2026-11-07-12.oga
+      1 of 374 checks FAILED (146s)
+(h) restored app/lib/engine/practice.dart byte-identically (sha256 23f6098ba2b88daf)
+ALL PLANTS EXIT 1
+EXIT 0

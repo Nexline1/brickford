@@ -78,6 +78,27 @@
 //       hand" and the manual form, on Story and then Humour, and logging by
 //       hand stores what it always stored.
 //
+// And, since T-046 (loop/specs/T-046-transcripts-v2/spec.md), record on the
+// phone, transcribe on the laptop — in a third Chromium, with the fake
+// microphone and --allow-file-access-from-files (a module Worker cannot be
+// made from a file:// page without it). The pinned library URL is a stub
+// module; GitHub is a stub (ghStub) answering the private repo only:
+//
+//   (r) the phone (390, tapped): a saved story is PUT once to
+//       brickford-private/contents/audio/<key>.webm with the clip's own bytes,
+//       the record gains remote { sha, at }; no Transcribe, question, card or
+//       off line, no Worker, no import, no listing of audio/. The laptop
+//       (1280): the question with the real size first, then Download, the
+//       stub asked for the pinned model, revision, q8, English; the
+//       transcript { text, chunks, model, at } on the IndexedDB record and in
+//       no storage key and no PUT; the struck fillers, chips, words, words per
+//       minute, Copy; no long task over 200ms. The desktop pull: audio/
+//       listed, the raw bytes stored in the clip shape, Transcribe, consent,
+//       transcript. An upload that fails: one muted line, the clip intact, no
+//       retry from three renders or five seconds, one per open after. Not now
+//       remembered; a kept clip transcribed on a press; no Worker, a failed
+//       download, out of memory and no speech each one muted line.
+//
 // And, since T-023 (loop/specs/T-023-floating-tab-bar/spec.md), the tab bar:
 //
 //   (j) slide (once, 390px, motion on): a finger 60% of the way from Today to
@@ -1582,6 +1603,534 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
     await ctx.close();
   }
 
+  // ---- (r) record on the phone, transcribe on the laptop (T-046 v2) ----
+  // loop/specs/T-046-transcripts-v2/spec.md. A third Chromium, with the fake
+  // microphone and --allow-file-access-from-files: a module Worker cannot be
+  // made from a file:// page without it (SecurityError, origin 'null' —
+  // measured in October), and the app is served over https in use. The pinned
+  // library URL is routed to a stub module whose pipeline() returns a canned
+  // transcript after a 400ms busy loop (the model's work: a long task on
+  // whichever thread runs it); the stub posts what it was asked for to
+  // https://tx-stub.test/report, which the harness answers itself. GitHub is
+  // answered by ghStub below (the private repo's state file, its audio/
+  // folder, uploads), so nothing reaches api.github.com, jsdelivr or
+  // huggingface.co. "Desktop" is 1280px with no touch ((pointer: fine));
+  // "phone" is 390px with touch ((pointer: coarse)) — measured.
+  console.log("\nrecord on the phone, transcribe on the laptop (T-046)");
+  const TX_PINNED = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+  const TX_PRIV = "/repos/Nexline1/brickford-private";
+  const TX_SRC = fs.readFileSync(path.join(path.resolve(__dirname, ".."), "platform/js/app.js"), "utf8");
+  const txConst = n => (new RegExp("const " + n + " = \"([^\"]*)\"").exec(TX_SRC) || [])[1];
+  const TX_MODEL = txConst("TX_MODEL"), TX_REVISION = txConst("TX_REVISION"), TX_MB = +((/const TX_MODEL_MB = (\d+);/.exec(TX_SRC) || [])[1]);
+  // The canned transcript: every filler rule fires once and is refused once.
+  // "I like it" (a verb), "Things like that" (a preposition), "a kind of map"
+  // (after a determiner) and "Is that right?" (a question, no comma) are not
+  // fillers; "So" alone opens a story and is not one either.
+  const TX_CHUNKS = [
+    { text: " So um, last Tuesday a client asked me, like, what an embedding actually is.", timestamp: [0, 4.2] },
+    { text: " I like it. Things like that matter.", timestamp: [4.2, 6.8] },
+    { text: " You know, I drew arrows on a napkin, you know, king minus man plus woman.", timestamp: [6.8, 11.5] },
+    { text: " I mean, it was a kind of map. I kind of froze.", timestamp: [11.5, 14.9] },
+    { text: " Okay so she said it back, right? Is that right? Uh, so yeah.", timestamp: [14.9, 19.0] },
+  ];
+  const TX_TEXT = TX_CHUNKS.map(c => c.text).join("");
+  // Worked out by hand from the text above, in reading order.
+  const TX_STRUCK = ["um", "like", "actually", "You know", "you know", "I mean", "kind of", "Okay so", "right", "Uh", "so yeah"];
+  const TX_CHIPS = ["11 fillers to cut", "um ×1", "like ×1", "actually ×1", "you know ×2", "I mean ×1", "kind of ×1", "okay so ×1",
+    "right? ×1", "uh ×1", "so yeah ×1"];
+  // Words by whitespace: a different count from the app's word pattern.
+  const TX_WORDS = TX_TEXT.trim().split(/\s+/).filter(t => /[A-Za-z0-9]/.test(t)).length;
+  const TX_MARK = "king minus man plus woman";     // a phrase only the transcript holds
+  const TX_ASK = "Download the speech model (~" + TX_MB + " MB, once)? It runs on this device; your audio never leaves your devices and your private repo. Each transcription then takes about a minute per 30 seconds of speech.";
+  const TX_UPFAIL = "Audio stays on this device until your token can reach brickford-private";
+  const txStub = mode => `
+const report = o => fetch("https://tx-stub.test/report", { method: "POST", body: JSON.stringify(o) }).catch(() => {});
+const wait = ms => new Promise(r => setTimeout(r, ms));
+export const env = {};
+export async function pipeline(task, model, opts) {
+  opts = opts || {};
+  const cb = typeof opts.progress_callback === "function" ? opts.progress_callback : () => {};
+  for (const p of [0, 40, 100]) { cb({ status: "progress_total", progress: p, loaded: p, total: 100 }); await wait(80); }
+  return async function (audio, o) {
+    o = o || {};
+    await report({ task, model, revision: opts.revision, dtype: opts.dtype, device: opts.device, f32: audio instanceof Float32Array,
+      len: audio && audio.length, timestamps: o.return_timestamps, chunk: o.chunk_length_s, language: o.language, job: o.task });
+    // The model's work, in a task of its own: a timer task is reported as a long
+    // task wherever it runs (a loop straight after a fetch's await was measured not to be).
+    await new Promise(r => setTimeout(() => { const t0 = performance.now(); while (performance.now() - t0 < 400) {} r(); }, 0));
+    if (o.streamer && typeof o.streamer.end === "function") o.streamer.end();
+    await wait(150);
+    ${mode === "oom" ? "throw new RangeError(\"Array buffer allocation failed\");"
+      : mode === "silence" ? "return { text: \" [BLANK_AUDIO]\", chunks: [{ text: \" [BLANK_AUDIO]\", timestamp: [0, 2] }] };"
+      : "return " + JSON.stringify({ text: TX_TEXT, chunks: TX_CHUNKS }) + ";"}
+  };
+}`;
+  // A 2.0s 440 Hz tone, 16-bit PCM WAV at 48 kHz (so the page has to resample it to 16 kHz).
+  const txWavBytes = () => {
+    const rate = 48000, n = rate * 2, b = Buffer.alloc(44 + n * 2);
+    b.write("RIFF", 0); b.writeUInt32LE(36 + n * 2, 4); b.write("WAVE", 8); b.write("fmt ", 12); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22);
+    b.writeUInt32LE(rate, 24); b.writeUInt32LE(rate * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write("data", 36); b.writeUInt32LE(n * 2, 40);
+    for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(8000 * Math.sin(2 * Math.PI * 440 * i / rate)), 44 + i * 2);
+    return b;
+  };
+  // GitHub, answered here. The private repo's state file (an empty remote),
+  // its audio/ folder (o.remote: [{ name, sha, bytes }], else 404), the raw
+  // bytes of a file in it, and uploads (o.putFail() true: a 403). Anything
+  // else, including any path of the public repo, is a 404. Every request is
+  // logged as it arrived; a PUT's content is decoded.
+  function ghStub(o) {
+    const log = [];
+    const handler = route => {
+      const q = route.request(), u = new globalThis.URL(q.url()), m = q.method(), p = u.pathname;
+      const ent = { method: m, url: q.url(), path: p, accept: q.headers().accept || "" };
+      if (m === "PUT") { try { const b = JSON.parse(q.postData() || "{}"); ent.message = b.message; ent.content = Buffer.from(b.content || "", "base64"); } catch (e) { ent.bad = true; } }
+      log.push(ent);
+      const json = (status, body) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+      if (p === TX_PRIV + "/contents/progress/brickford-state.json")
+        return m === "GET" ? json(200, { sha: "state0", content: Buffer.from("{}").toString("base64") }) : json(200, { content: { sha: "state1" } });
+      if (p === TX_PRIV + "/contents/audio" && m === "GET")
+        return o.remote ? json(200, o.remote.map(f => ({ name: f.name, path: "audio/" + f.name, sha: f.sha, size: f.bytes.length, type: "file" }))) : json(404, { message: "Not Found" });
+      const f = p.startsWith(TX_PRIV + "/contents/audio/") ? p.slice((TX_PRIV + "/contents/audio/").length) : null;
+      if (f && m === "PUT") return o.putFail && o.putFail() ? json(403, { message: "Resource not accessible by personal access token" })
+        : json(201, { content: { sha: "upsha" + log.filter(x => x.method === "PUT" && x.path === p).length, path: "audio/" + f } });
+      if (f && m === "GET") {
+        const r = (o.remote || []).find(x => x.name === f);
+        if (!r) return json(404, { message: "Not Found" });
+        return /raw/.test(ent.accept) ? route.fulfill({ status: 200, contentType: "application/octet-stream", body: r.bytes }) : json(200, { sha: r.sha, size: r.bytes.length });
+      }
+      return json(404, { message: "Not Found" });
+    };
+    return { log, handler, puts: () => log.filter(x => x.method === "PUT"), audioPuts: () => log.filter(x => x.method === "PUT" && /\/contents\/audio\//.test(x.path)) };
+  }
+  // Watched from document start: every Worker the page makes, every long
+  // task, and every text a transcription status line shows as it changes.
+  const txWatch = () => {
+    if (window.top !== window) return;
+    window.__workers = [];
+    const W = window.Worker;
+    if (typeof W === "function") window.Worker = function (url, opts) { window.__workers.push({ url: String(url), type: (opts || {}).type || "classic" }); return new W(url, opts); };
+    window.__long = [];
+    try { new PerformanceObserver(l => l.getEntries().forEach(e => window.__long.push({ at: e.startTime, ms: e.duration }))).observe({ type: "longtask", buffered: true }); } catch (e) { /* none */ }
+    window.__lines = [];
+    new MutationObserver(() => document.querySelectorAll("#view .tx-line").forEach(l => {
+      const t = l.textContent.trim(); if (window.__lines[window.__lines.length - 1] !== t) window.__lines.push(t); }))
+      .observe(document, { subtree: true, childList: true, characterData: true });
+  };
+  const noWorker = () => { if (window.top === window) { window.Worker = undefined; } };
+  const txBrowser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--allow-file-access-from-files"] });
+  // mode: "speech" | "silence" | "oom" serve the stub; null refuses the URL (the download fails).
+  // o: { token, remote, putFail, init, boot }.
+  async function txFresh(w, mode, state, o) {
+    o = o || {};
+    const ctx = await txBrowser.newContext({ viewport: { width: w, height: 900 }, timezoneId: "UTC", reducedMotion: "reduce", hasTouch: w < 860, isMobile: w < 860 });
+    const net = { lib: 0, hf: 0, other: 0, reports: [] }, gh = ghStub(o);
+    await ctx.route(/^https?:/, r => { const u = r.request().url(); if (/huggingface\.co/.test(u)) net.hf++; net.other++; return r.abort(); });
+    await ctx.route(/^https:\/\/api\.github\.com\//, gh.handler);
+    await ctx.route(/^https:\/\/tx-stub\.test\//, r => { try { net.reports.push(JSON.parse(r.request().postData() || "{}")); } catch (e) { net.reports.push({ bad: true }); }
+      return r.fulfill({ status: 204, headers: { "access-control-allow-origin": "*" } }); });
+    await ctx.route(u => u.href === TX_PINNED, r => { net.lib++; return mode
+      ? r.fulfill({ status: 200, contentType: "text/javascript", headers: { "access-control-allow-origin": "*", "cache-control": "no-store" }, body: txStub(mode) })
+      : r.abort(); });
+    await ctx.clock.setFixedTime(new Date(TODAY + "T12:00:00Z"));
+    await ctx.grantPermissions(["clipboard-read", "clipboard-write"]);
+    if (state) await ctx.addInitScript(s => { if (window.top === window && !sessionStorage.getItem("__seeded")) { sessionStorage.setItem("__seeded", "1"); localStorage.setItem("darhikmah_v1", s); } }, JSON.stringify(state));
+    if (o.token) await ctx.addInitScript(() => { if (window.top === window) localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness"); });
+    await ctx.addInitScript(countWrites);
+    await ctx.addInitScript(txWatch);
+    for (const f of [].concat(o.init || [])) await ctx.addInitScript(f);
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    page.on("dialog", d => d.accept().catch(() => {}));
+    await page.goto(URL + (o.boot || "/practice"), { waitUntil: "load" });
+    await page.waitForSelector(o.boot ? "#view > *" : "#view .seg");
+    return { ctx, page, errors, net, gh };
+  }
+  const until = async (fn, ms) => { for (const t0 = Date.now(); Date.now() - t0 < (ms || 8000);) { if (await fn()) return true; await new Promise(r => setTimeout(r, 100)); } return !!(await fn()); };
+  const listRead = page => page.waitForFunction(() => { const l = document.querySelector("#view #prClips"); return l && l.getAttribute("aria-busy") === "false"; }, null, { timeout: 5000 });
+  // Every clip as IndexedDB holds it, the transcript included, and its bytes (base64) when asked.
+  const txDB = (page, bytes) => page.evaluate(bytes => new Promise(res => {
+    const q = indexedDB.open("brickford_audio");
+    q.onupgradeneeded = () => q.transaction.abort();
+    q.onerror = () => res([]);
+    q.onsuccess = () => {
+      const db = q.result;
+      if (!db.objectStoreNames.contains("clips")) { db.close(); return res([]); }
+      const out = [], t = db.transaction("clips", "readonly");
+      t.objectStore("clips").openCursor().onsuccess = e => {
+        const c = e.target.result;
+        if (!c) return;
+        const v = c.value || {};
+        out.push({ key: c.key, date: v.date, seconds: v.seconds, kind: v.kind, title: v.title, fields: Object.keys(v).sort().join(","),
+          size: v.blob ? v.blob.size : 0, type: v.blob ? v.blob.type : "", blob: v.blob, transcript: v.transcript || null, remote: v.remote || null });
+        c.continue();
+      };
+      t.oncomplete = async () => {
+        db.close();
+        for (const c of out) { if (bytes && c.blob) { const u = new Uint8Array(await c.blob.arrayBuffer()); let s = ""; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); c.b64 = btoa(s); } delete c.blob; }
+        res(out.sort((a, b) => (a.key < b.key ? -1 : 1)));
+      };
+    };
+  }), !!bytes);
+  // The transcript anywhere but IndexedDB: every localStorage and
+  // sessionStorage value except the token, whose NAME is tested first.
+  const txElsewhere = page => page.evaluate(mark => {
+    const hits = [];
+    for (const [name, st] of [["localStorage", localStorage], ["sessionStorage", sessionStorage]])
+      for (let i = 0; i < st.length; i++) {
+        const k = st.key(i);
+        if (k === "brickford_gh_token") continue;
+        const v = st.getItem(k) || "";
+        if (v.includes(mark) || /"transcript"\s*:|"chunks"\s*:/.test(v)) hits.push(name + "." + k);
+      }
+    return hits;
+  }, TX_MARK);
+  // ...and in nothing sent to GitHub: every PUT's decoded content.
+  const txInPuts = gh => gh.puts().filter(x => x.content && (x.content.includes(TX_MARK) || /"(transcript|chunks|transcribe)"\s*:/.test(x.content.toString("latin1")))).map(x => x.path);
+  const txCard = page => page.evaluate(() => {
+    const d = document.querySelector("#view .pr-clip details.pr-tx");
+    if (!d) return null;
+    const card = d.querySelector(".tx-text");
+    return { open: d.open, struck: [...d.querySelectorAll(".tx-text s.tx-f")].map(s => s.textContent),
+      chips: [...d.querySelectorAll(".tx-chips .tx-chip")].map(c => c.textContent.trim()), total: !!d.querySelector(".tx-chips .tx-chip.tx-total:first-child"),
+      stats: ((d.querySelector(".tx-stats") || {}).textContent || "").trim(), note: ((d.querySelector(".tx-note") || {}).textContent || "").trim(),
+      text: card ? card.textContent : "", select: card ? getComputedStyle(card).userSelect : "", copy: !!d.querySelector("[data-tx-copy]") };
+  });
+  // A colour equal to --ink-2 as the page computes it: the muted text.
+  const mutedIs = () => { const p = document.createElement("span"); p.style.color = "var(--ink-2)"; document.body.appendChild(p); const c = getComputedStyle(p).color; p.remove(); return c; };
+  const rowState = page => page.evaluate(mutedIs => {
+    const ink2 = (new Function("return (" + mutedIs + ")()"))();
+    return [...document.querySelectorAll("#view .pr-clip")].map(r => {
+      const line = r.querySelectorAll(".pr-txrow .tx-line");
+      return { key: r.dataset.clip, go: !!r.querySelector("[data-tx-go]"), tx: !!r.querySelector("details.pr-tx"), play: !!r.querySelector(".pr-play"),
+        lines: [...line].map(l => l.textContent.trim()), muted: [...line].every(l => getComputedStyle(l).color === ink2) };
+    });
+  }, mutedIs.toString());
+  // Everything of transcription on the page: a phone must show none of it.
+  const txAny = page => page.evaluate(() => ({ ask: !!document.querySelector("#view .pr-ask"), go: document.querySelectorAll("#view [data-tx-go]").length,
+    card: !!document.querySelector("#view details.pr-tx"), off: !!document.querySelector("#view .pr-txoff"), line: !!document.querySelector("#view .tx-line") }));
+  const upLine = page => page.evaluate(mutedIs => { const l = document.querySelector("#view #prUp .pr-upfail"); const ink2 = (new Function("return (" + mutedIs + ")()"))();
+    return { lines: document.querySelectorAll("#view .pr-upfail").length, text: l ? l.textContent.trim() : null, muted: !!l && getComputedStyle(l).color === ink2 }; }, mutedIs.toString());
+  const asked = page => page.evaluate(() => { const a = document.querySelector("#view .pr-ask");
+    return a ? { text: ((a.querySelector(".pr-ask-t") || a).textContent || "").trim().replace(/\s+/g, " "), buttons: [...a.querySelectorAll("button")].map(b => b.textContent.trim()) } : null; });
+  // `t` is on the long-task entries' own timeline: document.timeline.currentTime
+  // (the fixed clock fakes performance.now onto another — measured in October).
+  const txNow = page => page.evaluate(() => ({ workers: window.__workers.slice(), lines: window.__lines.slice(), t: document.timeline.currentTime,
+    setting: (JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").settings || {}).transcribe }));
+  // A playable clip, written straight into IndexedDB the way the recorder keeps one.
+  const txSeedWav = ([c, b64]) => new Promise((res, rej) => {
+    const s = atob(b64), u = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+    const blob = new Blob([u], { type: "audio/wav" });
+    const q = indexedDB.open("brickford_audio", 1);
+    q.onupgradeneeded = () => { if (!q.result.objectStoreNames.contains("clips")) q.result.createObjectStore("clips"); };
+    q.onerror = () => rej(q.error);
+    q.onsuccess = () => { const t = q.result.transaction("clips", "readwrite");
+      t.objectStore("clips").put({ date: c.date, seconds: c.seconds, kind: c.kind, title: c.title, blob: blob }, c.key);
+      t.oncomplete = () => { q.result.close(); res(blob.size); }; t.onerror = () => rej(t.error); };
+  });
+  const TX_WAV = txWavBytes(), TX_WAV64 = TX_WAV.toString("base64");
+  const TX_SEED = { key: "2026-10-30-1", date: "2026-10-30", seconds: 72, kind: "story", title: "Story · Fri 30 Oct" };
+  const P_STATE_ON = { settings: { theme: "dark", themeNavyOnce: true, transcribe: "on" } };
+  // Seed a clip, then let the page read it: away and back, a render each (and an open).
+  async function txSeeded(page) {
+    const n = await page.evaluate(txSeedWav, [TX_SEED, TX_WAV64]);
+    await go(page, "/");
+    await go(page, "/practice");
+    await listRead(page);
+    await page.waitForFunction(k => !!document.querySelector("#view .pr-clip[data-clip='" + k + "']"), TX_SEED.key, { timeout: 5000 });
+    return n;
+  }
+  const tap = async (page, sel, w) => { if (w < 860) await page.tap(sel); else await page.click(sel); };
+  const recordOne = async (page, w, n) => {
+    await press(page, w < 860 ? "tap" : "click");
+    await page.waitForFunction(() => /^0:0[2-9] \/ 1:30$/.test(((document.querySelector("#view .pr-time") || {}).textContent || "").trim()), null, { timeout: 8000 });
+    await press(page, w < 860 ? "tap" : "click");
+    await page.waitForFunction(n => document.querySelectorAll("#view .pr-clip").length === n, n, { timeout: 8000 });
+  };
+  const privOnly = gh => gh.log.every(x => x.path.startsWith(TX_PRIV + "/"));
+
+  // (r) the phone, 390 (tapped): record a story; it is uploaded to the private
+  // repo's audio/ and that is all — no Transcribe, no question, no Worker, no
+  // library, no pull of audio/.
+  {
+    const at = "(r) phone, 390px";
+    const { ctx, page, errors, net, gh } = await txFresh(390, "speech", P_STATE, { token: true, remote: [{ name: "2026-10-30-1.wav", sha: "rsha1", bytes: TX_WAV }] });
+    try {
+      await pickTab(page, "story");
+      await listRead(page);
+      await recordOne(page, 390, 1);
+      const up = await until(() => gh.audioPuts().length >= 1 && gh.audioPuts().length === gh.audioPuts().length, 8000);
+      await until(async () => !!((await txDB(page))[0] || {}).remote, 4000);
+      const db = await txDB(page, true), c = db[0] || {}, p = gh.audioPuts();
+      check(at + ": the saved clip was uploaded once, by a PUT to " + TX_PRIV + "/contents/audio/" + c.key + ".webm, and the bytes sent are the clip's",
+        up && p.length === 1 && p[0].path === TX_PRIV + "/contents/audio/" + c.key + ".webm" && !!c.b64 && p[0].content && p[0].content.toString("base64") === c.b64,
+        JSON.stringify({ puts: p.map(x => x.path), sent: p[0] && p[0].content && p[0].content.length, size: c.size }));
+      check(at + ": the clip's record gained remote { sha, at } — the sha GitHub answered — and nothing else",
+        db.length === 1 && c.fields === "blob,date,kind,remote,seconds,title" && !!c.remote && c.remote.sha === "upsha1" && !isNaN(Date.parse(c.remote.at)) && Object.keys(c.remote).join(",") === "sha,at",
+        JSON.stringify({ fields: c.fields, remote: c.remote }));
+      const any = await txAny(page), s = await txNow(page), u = await upLine(page);
+      check(at + ": the phone shows no Transcribe, no question, no transcript and no off line; no Worker was made and the library was never requested",
+        !any.ask && any.go === 0 && !any.card && !any.off && !any.line && s.workers.length === 0 && net.lib === 0 && net.hf === 0, JSON.stringify({ any, workers: s.workers.length, lib: net.lib }));
+      // A planted phone that asks anyway: answer it, so an import would show.
+      if (any.ask) { await page.tap("#view .pr-ask [data-tx=yes]").catch(() => {}); await page.waitForTimeout(2000); }
+      await go(page, "/"); await go(page, "/practice"); await listRead(page); await page.waitForTimeout(500);
+      const any2 = await txAny(page), s2 = await txNow(page);
+      check(at + ": and after leaving and opening Practice again still none of it, and nothing imported",
+        !any2.ask && any2.go === 0 && s2.workers.length === 0 && net.lib === 0, JSON.stringify({ any2, workers: s2.workers.length, lib: net.lib }));
+      check(at + ": the phone never lists or downloads audio/ (" + gh.log.length + " GitHub requests, all to the private repo), and no failure line",
+        !gh.log.some(x => x.method === "GET" && /\/contents\/audio/.test(x.path)) && privOnly(gh) && u.lines === 0 && gh.audioPuts().length === 1,
+        JSON.stringify({ log: gh.log.map(x => x.method + " " + x.path), up: u }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (r) the laptop, 1280: record, consent, transcribe; the upload as on the
+  // phone; the transcript only on the clip's IndexedDB record.
+  {
+    const w = 1280, at = "(r) desktop, 1280px";
+    const { ctx, page, errors, net, gh } = await txFresh(w, "speech", P_STATE, { token: true });
+    try {
+      await pickTab(page, "story");
+      await listRead(page);
+      await recordOne(page, w, 1);
+      await page.waitForSelector("#view .pr-ask", { timeout: 5000 }).catch(() => {});
+      const a = await asked(page), n0 = await txNow(page);
+      check(at + ": once the clip is saved the page asks first — \"" + TX_ASK + "\", Download and Not now — and before the answer nothing is imported, no Worker exists and nothing is stored",
+        !!a && a.text === TX_ASK && a.buttons.join("|") === "Download|Not now" && net.lib === 0 && net.hf === 0 && n0.workers.length === 0 && n0.setting === undefined,
+        JSON.stringify({ a, lib: net.lib, workers: n0.workers, setting: n0.setting }));
+      const before = await txDB(page);
+      await page.click("#view .pr-ask [data-tx=yes]");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-clip details.pr-tx"), null, { timeout: 15000 });
+      await until(() => gh.audioPuts().length >= 1, 6000);
+      const n1 = await txNow(page);
+      check(at + ": Download made one module Worker (js/transcribe-worker.js?v=…), and the pinned library was imported once, by it",
+        n1.workers.length === 1 && n1.workers[0].type === "module" && /(^|\/)js\/transcribe-worker\.js\?v=\w+$/.test(n1.workers[0].url) && net.lib === 1 && net.hf === 0,
+        JSON.stringify({ workers: n1.workers, lib: net.lib, hf: net.hf }));
+      const db = await txDB(page), c = db[0] || {}, t = c.transcript || {}, rp = net.reports[0] || {};
+      check(at + ": the worker asked for automatic-speech-recognition with " + TX_MODEL + " at revision " + TX_REVISION + " (q8, wasm, English), with timestamps, and was handed 16 kHz mono Float32 PCM (" +
+        ((rp.len || 0) / 16000).toFixed(2) + "s for a " + c.seconds + "s clip)",
+        net.reports.length === 1 && rp.task === "automatic-speech-recognition" && rp.model === TX_MODEL && rp.revision === TX_REVISION && rp.dtype === "q8" && rp.device === "wasm" &&
+          rp.language === "english" && rp.job === "transcribe" && rp.f32 === true && rp.timestamps === true && Math.abs(rp.len / 16000 - c.seconds) <= 1, JSON.stringify(net.reports));
+      // T-075: the run shows a clock and an estimate, never a bare percentage
+      // (a 6 s clip sat at "Transcribing… 0%" for over a minute and looked dead).
+      check(at + ": while it worked the row said \"Loading the speech model… n%\", then \"Transcribing… m:ss · <estimate>. Keep this tab open.\" (a clock, not a percentage)",
+        n1.lines.some(l => /^Loading the speech model… \d{1,3}%$/.test(l)) && n1.lines.some(l => /^Transcribing… \d+:\d\d · (about (a minute|\d+ min) on a laptop|about \d+ min left|almost done)\. Keep this tab open\.$/.test(l)) &&
+          !n1.lines.some(l => /^Transcribing… \d{1,3}%$/.test(l)) &&
+          n1.lines.findIndex(l => /^Transcribing/.test(l)) > n1.lines.findIndex(l => /^Loading/.test(l)), JSON.stringify(n1.lines));
+      check(at + ": the transcript is on the clip's IndexedDB record as { text, chunks, model, at } — the stub's text and chunks, model " + TX_MODEL + "@" + TX_REVISION + " — and the audio is untouched",
+        db.length === 1 && c.fields === "blob,date,kind,remote,seconds,title,transcript" && Object.keys(t).join(",") === "text,chunks,model,at" && t.text === TX_TEXT &&
+          JSON.stringify(t.chunks) === JSON.stringify(TX_CHUNKS) && t.model === TX_MODEL + "@" + TX_REVISION && !isNaN(Date.parse(t.at)) && c.size === (before[0] || {}).size,
+        JSON.stringify({ fields: c.fields, keys: Object.keys(t), model: t.model, at: t.at, size: [c.size, (before[0] || {}).size] }));
+      check(at + ": the clip was uploaded once to " + TX_PRIV + "/contents/audio/ (the laptop's own recordings go to the private repo too)",
+        gh.audioPuts().length === 1 && gh.audioPuts()[0].path === TX_PRIV + "/contents/audio/" + c.key + ".webm" && privOnly(gh), JSON.stringify(gh.log.map(x => x.method + " " + x.path)));
+      // The rep's save armed a state push about 4s out: wait for it, then read every PUT.
+      const pushed = await until(() => gh.puts().some(x => /brickford-state\.json$/.test(x.path)), 9000);
+      const st = await stateNow(page), else1 = await txElsewhere(page), inPut = txInPuts(gh);
+      check(at + ": and nowhere else — no storage key holds it, no PUT to GitHub carries it (" + gh.puts().length + " read, the state push among them), the rep is the hand form's shape, the chain has no transcript event; the device remembers only \"on\"",
+        pushed && else1.length === 0 && inPut.length === 0 && Object.keys(((st.reps || {}).story || [])[0] || {}).join(",") === "date,seconds,takes,from" &&
+          !(st.ledger || []).some(e => /transcri/i.test(JSON.stringify(e))) && (st.settings || {}).transcribe === "on",
+        JSON.stringify({ pushed, elsewhere: else1, inPut, rep: ((st.reps || {}).story || [])[0], setting: (st.settings || {}).transcribe }));
+      await page.click("#view .pr-clip details.pr-tx > summary");
+      await page.waitForFunction(() => { const d = document.querySelector("#view .pr-clip details.pr-tx"); return d && d.open; }, null, { timeout: 4000 });
+      const card = await txCard(page);
+      check(at + ": the fillers struck through are exactly " + JSON.stringify(TX_STRUCK) + " — not \"I like it\", \"Things like that\", \"a kind of map\" or \"Is that right?\"",
+        !!card && JSON.stringify(card.struck) === JSON.stringify(TX_STRUCK), JSON.stringify(card && card.struck));
+      check(at + ": the chips give the total, then each filler's count in reading order: " + TX_CHIPS.join(", "),
+        !!card && card.total && JSON.stringify(card.chips) === JSON.stringify(TX_CHIPS), JSON.stringify(card && card.chips));
+      const wpm = Math.round(TX_WORDS * 60 / c.seconds);
+      check(at + ": the card says " + TX_WORDS + " words · " + wpm + " per minute (from the clip's " + c.seconds + " seconds), and \"Whisper can miss 'um' and 'uh'.\"",
+        !!card && card.stats === TX_WORDS + " words · " + wpm + " per minute" && card.note === "Whisper can miss 'um' and 'uh'.", JSON.stringify(card && [card.stats, card.note]));
+      check(at + ": the card's text is the transcript, selectable, with a Copy button",
+        !!card && card.text === TX_TEXT.trim() && card.select !== "none" && card.copy, JSON.stringify(card && { text: card.text.slice(0, 40), select: card.select, copy: card.copy }));
+      await page.click("#view .pr-clip [data-tx-copy]");
+      await page.waitForFunction(() => /Copied/.test((document.querySelector("#toast") || {}).textContent || ""), null, { timeout: 4000 }).catch(() => {});
+      const clip = await page.evaluate(() => navigator.clipboard.readText().catch(e => "(unreadable: " + e.message + ")"));
+      check(at + ": Copy puts the transcript on the clipboard", clip === TX_TEXT.trim(), JSON.stringify(clip.slice(0, 60)));
+      const long = await page.evaluate(t0 => window.__long.filter(e => e.at + e.ms >= t0 && e.ms >= 200), n0.t);
+      check(at + ": no long task of 200ms or more ran on the page from Download to the transcript (the model works off the main thread)", long.length === 0, JSON.stringify(long));
+      // A render is a read: away and back draws the transcript again and starts nothing.
+      await go(page, "/"); await go(page, "/practice"); await listRead(page); await page.waitForTimeout(300);
+      const n2 = await txNow(page);
+      check(at + ": leaving the page and coming back starts nothing — the same one Worker, no new import, the stub asked once, no second upload",
+        n2.workers.length === 1 && net.lib === 1 && net.reports.length === 1 && gh.audioPuts().length === 1 && (await rowState(page)).every(r => r.tx && !r.go),
+        JSON.stringify({ workers: n2.workers.length, lib: net.lib, reports: net.reports.length, puts: gh.audioPuts().length }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (r) the laptop pulls a clip the phone uploaded: audio/ lists it, its raw
+  // bytes come down into IndexedDB in the clip shape, and it is transcribed
+  // there after the question — at 1280.
+  {
+    const at = "(r) desktop pull, 1280px";
+    const REMOTE = [{ name: "2026-10-30-1.wav", sha: "rsha1", bytes: TX_WAV }, { name: "README.md", sha: "x", bytes: Buffer.from("not a clip") }];
+    const state = { settings: { theme: "dark", themeNavyOnce: true }, reps: { story: [{ date: "2026-10-30", seconds: 2, takes: 1, from: "The napkin, on the phone" }] } };
+    const { ctx, page, errors, net, gh } = await txFresh(1280, "speech", state, { token: true, remote: REMOTE });
+    try {
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-clip[data-clip='2026-10-30-1']"), null, { timeout: 10000 });
+      const db = await txDB(page, true), c = db.find(x => x.key === "2026-10-30-1") || {};
+      const gets = gh.log.filter(x => x.method === "GET" && /\/contents\/audio/.test(x.path));
+      check(at + ": Practice opened lists " + TX_PRIV + "/contents/audio and downloads the one clip file it lacks, raw (README.md left alone)",
+        gets.some(x => x.path === TX_PRIV + "/contents/audio") && gets.filter(x => /\/audio\/./.test(x.path)).map(x => x.path.split("/").pop() + " " + /raw/.test(x.accept)).join("|") === "2026-10-30-1.wav true" && privOnly(gh),
+        JSON.stringify(gets.map(x => x.path + " " + x.accept)));
+      check(at + ": it is stored in the clip shape — date from the key, the rep's seconds and title, kind story, the bytes as served, remote { sha } from the listing — and no upload of it",
+        db.length === 1 && c.fields === "blob,date,kind,remote,seconds,title" && c.date === "2026-10-30" && c.seconds === 2 && c.kind === "story" && c.title === "The napkin, on the phone" &&
+          c.type === "audio/wav" && c.b64 === TX_WAV64 && (c.remote || {}).sha === "rsha1" && gh.audioPuts().length === 0,
+        JSON.stringify({ n: db.length, fields: c.fields, date: c.date, seconds: c.seconds, kind: c.kind, title: c.title, type: c.type, same: c.b64 === TX_WAV64, remote: c.remote, puts: gh.audioPuts().length }));
+      const r0 = await rowState(page), s0 = await txNow(page);
+      check(at + ": its row offers Transcribe, and nothing was imported yet", r0.length === 1 && r0[0].go && net.lib === 0 && s0.workers.length === 0, JSON.stringify({ r0, lib: net.lib }));
+      await page.click("#view .pr-clip [data-tx-go]");
+      await page.waitForSelector("#view .pr-ask", { timeout: 4000 }).catch(() => {});
+      const a = await asked(page);
+      check(at + ": Transcribe asks the question first, and still nothing is imported", !!a && a.text === TX_ASK && net.lib === 0, JSON.stringify({ a, lib: net.lib }));
+      await page.click("#view .pr-ask [data-tx=yes]");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-clip details.pr-tx"), null, { timeout: 15000 });
+      const db2 = await txDB(page), c2 = db2[0] || {}, rp = net.reports[0] || {};
+      check(at + ": the pulled clip is transcribed: the 2.0s 48 kHz WAV reached the worker as " + (rp.len || 0) + " samples (32000 at 16 kHz, within 10ms), and the transcript is on its record only",
+        net.reports.length === 1 && Math.abs(rp.len - 32000) <= 160 && !!c2.transcript && c2.transcript.text === TX_TEXT && (await txElsewhere(page)).length === 0 && txInPuts(gh).length === 0,
+        JSON.stringify({ reports: net.reports, has: !!c2.transcript }));
+      await page.click("#view .pr-clip details.pr-tx > summary");
+      const card = await txCard(page), wpm = Math.round(TX_WORDS * 60 / 2);
+      check(at + ": words per minute come from the pulled clip's seconds: " + TX_WORDS + " words · " + wpm + " per minute at 2s",
+        !!card && card.stats === TX_WORDS + " words · " + wpm + " per minute", JSON.stringify(card && card.stats));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (r) an upload that fails: one muted line, the clip intact, no retry by
+  // itself and none from a render — only the next open of Practice. Booted on
+  // #/__test for the hook's foreground render() — at 390 (tapped).
+  {
+    const at = "(r) upload fails, 390px";
+    let fail = true;
+    const { ctx, page, errors, gh } = await txFresh(390, "speech", P_STATE, { token: true, putFail: () => fail, boot: "/__test" });
+    try {
+      await page.waitForFunction(() => !!window.__brickfordTest, null, { timeout: 8000 });
+      const size = await page.evaluate(txSeedWav, [TX_SEED, TX_WAV64]);
+      await go(page, "/practice");
+      await listRead(page);
+      await until(() => gh.audioPuts().length >= 1, 6000);
+      await page.waitForFunction(() => !!document.querySelector("#view #prUp .pr-upfail"), null, { timeout: 4000 }).catch(() => {});
+      const u1 = await upLine(page), c1 = (await txDB(page))[0] || {};
+      check(at + ": opening Practice tried the upload once; it failed, and the list says, in one muted line, \"" + TX_UPFAIL + "\"",
+        gh.audioPuts().length === 1 && u1.lines === 1 && u1.text === TX_UPFAIL && u1.muted, JSON.stringify({ puts: gh.audioPuts().length, u1 }));
+      check(at + ": the recording is intact — the same audio, no remote, still listed and playable",
+        c1.size === size && !c1.remote && (await rowState(page)).some(r => r.key === TX_SEED.key && r.play), JSON.stringify({ size: [c1.size, size], remote: c1.remote }));
+      for (let i = 0; i < 3; i++) { await markView(page); await page.evaluate(() => window.__brickfordTest.render()); await viewReplaced(page); await listRead(page); }
+      await page.waitForTimeout(5000);
+      check(at + ": three renders of the page and five seconds later, still one upload: a render is a read, and a failure is not retried in a loop",
+        gh.audioPuts().length === 1, gh.audioPuts().length + " upload(s)");
+      await go(page, "/"); await go(page, "/practice"); await listRead(page);
+      await until(() => gh.audioPuts().length >= 2, 6000); await page.waitForTimeout(300);
+      const u2 = await upLine(page);
+      check(at + ": the next open of Practice tries it once more (2 uploads), and the line is still there", gh.audioPuts().length === 2 && u2.text === TX_UPFAIL, JSON.stringify({ puts: gh.audioPuts().length, u2 }));
+      fail = false;
+      await go(page, "/"); await go(page, "/practice"); await listRead(page);
+      await until(async () => !!((await txDB(page))[0] || {}).remote, 6000);
+      await page.waitForFunction(() => !document.querySelector("#view .pr-upfail"), null, { timeout: 4000 }).catch(() => {});
+      const u3 = await upLine(page), c3 = (await txDB(page))[0] || {};
+      check(at + ": once the token can reach the repo, the next open uploads it (3 tries in all), the record gets remote, and the line is gone",
+        gh.audioPuts().length === 3 && !!c3.remote && u3.lines === 0 && privOnly(gh) && gh.audioPuts().every(x => x.path === TX_PRIV + "/contents/audio/" + TX_SEED.key + ".wav"),
+        JSON.stringify({ puts: gh.audioPuts().map(x => x.path), remote: c3.remote, u3 }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (r) "Not now", remembered on this device — at 1280.
+  {
+    const at = "(r) Not now, 1280px";
+    const { ctx, page, errors, net } = await txFresh(1280, "speech", P_STATE);
+    try {
+      await pickTab(page, "story");
+      await listRead(page);
+      await recordOne(page, 1280, 1);
+      await page.waitForSelector("#view .pr-ask", { timeout: 5000 });
+      await page.click("#view .pr-ask [data-tx=no]");
+      await page.waitForFunction(() => !document.querySelector("#view .pr-ask"), null, { timeout: 4000 }).catch(() => {});
+      const off = () => page.evaluate(() => { const o = document.querySelector("#view .pr-txoff");
+        return { ask: !!document.querySelector("#view .pr-ask"), line: o ? ((o.querySelector(".pr-txoff-t") || {}).textContent || "").trim() : null,
+          on: o ? ((o.querySelector("[data-tx=on]") || {}).textContent || "").trim() : null, go: document.querySelectorAll("#view [data-tx-go]").length }; });
+      const o1 = await off(), s1 = await txNow(page);
+      check(at + ": Not now closes the question; the list says \"Transcription is off on this device.\" with \"Turn on transcription\", and no row offers Transcribe",
+        !o1.ask && o1.line === "Transcription is off on this device." && o1.on === "Turn on transcription" && o1.go === 0, JSON.stringify(o1));
+      check(at + ": it is remembered on the device (settings.transcribe \"off\"); nothing was imported and no Worker was made",
+        s1.setting === "off" && net.lib === 0 && s1.workers.length === 0, JSON.stringify({ setting: s1.setting, lib: net.lib, workers: s1.workers.length }));
+      await go(page, "/"); await go(page, "/practice"); await listRead(page);
+      await pickTab(page, "story");
+      const o2 = await off();
+      await recordOne(page, 1280, 2);
+      await page.waitForTimeout(300);
+      const o3 = await off(), s3 = await txNow(page);
+      check(at + ": after leaving and coming back, and after a second recording, it is still off — no question, no import, no Worker",
+        !o2.ask && o2.line === "Transcription is off on this device." && !o3.ask && o3.line === "Transcription is off on this device." && net.lib === 0 && s3.workers.length === 0 && s3.setting === "off",
+        JSON.stringify({ o2, o3, lib: net.lib, workers: s3.workers.length }));
+      await page.click("#view .pr-txoff [data-tx=on]");
+      await page.waitForSelector("#view .pr-ask", { timeout: 4000 }).catch(() => {});
+      const a = await asked(page), s4 = await txNow(page);
+      check(at + ": \"Turn on transcription\" brings the question back, and still downloads nothing until it is answered",
+        !!a && a.text === TX_ASK && s4.setting === undefined && net.lib === 0 && s4.workers.length === 0, JSON.stringify({ a, setting: s4.setting, lib: net.lib }));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (r) a clip already kept, with transcription on: the render starts
+  // nothing; Transcribe does — at 1280, keyboard.
+  {
+    const at = "(r) Transcribe on a kept clip, 1280px";
+    const { ctx, page, errors, net } = await txFresh(1280, "speech", P_STATE_ON);
+    try {
+      await listRead(page);
+      const size = await txSeeded(page);
+      const r0 = await rowState(page), s0 = await txNow(page);
+      check(at + ": with transcription on, opening the page with an untranscribed clip starts nothing — no import, no Worker — and its row offers Transcribe",
+        r0.length === 1 && r0[0].go && !r0[0].tx && net.lib === 0 && s0.workers.length === 0, JSON.stringify({ r0, lib: net.lib, workers: s0.workers.length }));
+      await page.focus("#view .pr-clip [data-tx-go]");
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(() => !!document.querySelector("#view .pr-clip details.pr-tx"), null, { timeout: 15000 });
+      const db = await txDB(page), c = db[0] || {}, rp = net.reports[0] || {};
+      check(at + ": Transcribe ran it without asking again: the 2.0s 48 kHz WAV reached the worker as " + (rp.len || 0) + " samples (32000 at 16 kHz, within 10ms)",
+        !(await asked(page)) && net.reports.length === 1 && rp.f32 === true && Math.abs(rp.len - 32000) <= 160, JSON.stringify(net.reports));
+      check(at + ": the transcript is stored on that clip and the audio is untouched", !!c.transcript && c.transcript.text === TX_TEXT && c.size === size, JSON.stringify({ size: [c.size, size], has: !!c.transcript }));
+      await page.click("#view .pr-clip details.pr-tx > summary");
+      const card = await txCard(page), wpm = Math.round(TX_WORDS * 60 / TX_SEED.seconds);
+      check(at + ": words per minute come from the clip's own seconds: " + TX_WORDS + " words · " + wpm + " per minute at " + TX_SEED.seconds + "s",
+        !!card && card.stats === TX_WORDS + " words · " + wpm + " per minute", JSON.stringify(card && card.stats));
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+
+  // (r) the failure paths: one muted line each, and the recording intact.
+  const TX_FAILS = [
+    { name: "no Worker", mode: "speech", init: noWorker, line: /^This browser cannot run the speech model, so this one stays audio only\.$/ },
+    { name: "the download fails", mode: null, line: /^Could not download the speech model\. The recording is kept\.$/ },
+    { name: "out of memory", mode: "oom", line: /^Not enough memory to transcribe this one\. The recording is kept\.$/ },
+    { name: "no speech", mode: "silence", line: /^No speech found in this recording\.$/ },
+  ];
+  for (const f of TX_FAILS) {
+    const at = "(r) failure, " + f.name + ", 1280px";
+    const { ctx, page, errors, net } = await txFresh(1280, f.mode, P_STATE_ON, { init: f.init });
+    try {
+      await listRead(page);
+      const size = await txSeeded(page);
+      await page.click("#view .pr-clip [data-tx-go]");
+      await page.waitForFunction(() => { const r = document.querySelector("#view .pr-clip .pr-txrow .tx-line"); return r && !/…/.test(r.textContent); }, null, { timeout: 15000 });
+      const r = (await rowState(page))[0] || {}, db = await txDB(page), c = db[0] || {};
+      check(at + ": the row shows one muted line (" + f.line.source.replace(/^\^|\$$|\\/g, "") + ")", r.lines.length === 1 && f.line.test(r.lines[0]) && r.muted, JSON.stringify(r));
+      check(at + ": the recording is intact — the same audio, no transcript, still playable", c.size === size && !c.transcript && r.play && !r.tx, JSON.stringify({ size: [c.size, size], transcript: !!c.transcript, play: r.play }));
+      if (f.name === "no Worker") check(at + ": nothing was imported", net.lib === 0, "lib " + net.lib);
+    } catch (e) { check(at + ": the flow ran to its end without a harness error", false, e.message.split("\n")[0]); }
+    check(at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+  await txBrowser.close();
+
   // ---- (j) the tab bar you slide along (T-023) ----
   // Once, at 390x568, with motion ON (the spring is part of what is measured).
   // 568 tall so Today scrolls past 800 (at 844 it scrolls 548).
@@ -2633,7 +3182,8 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
       "Monk Mode at 390/1280 — opening writes nothing, a prayer chip, No sin, a German chip, the work and Brickford-hours steppers, a loop and tomorrow's plan one write each, and that plan as the next day's Top 3 (T-054); " +
       "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065); " +
       "practice items at 390 — numeric right and wrong, a worked solution and a written checklist kept out of the page until an attempt, Grade with Claude against a stub (one request, only the question, checklist and answer, the key nowhere), Copy this week, and a missed item back in Recall (T-067 step 3); " +
-      "checkpoints at 390 (tapped) and 1280 (keyboard, then mouse) — tick and untick one write each, 44x44 targets, drawing writes nothing (T-069)"
+      "checkpoints at 390 (tapped) and 1280 (keyboard, then mouse) — tick and untick one write each, 44x44 targets, drawing writes nothing (T-069); " +
+      "record on the phone, transcribe on the laptop — the upload to the private repo's audio/ at 390 and 1280, the phone with no transcription at all, consent, the transcript on IndexedDB only, fillers, counts, words per minute, Copy, the desktop pull, the upload failure and its retry per open, Not now, and every failure line (T-046)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(2); });

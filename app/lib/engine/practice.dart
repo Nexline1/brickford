@@ -33,6 +33,18 @@ String recDay(String iso) {
   return '${_dow[d.weekday % 7]} ${d.day} ${_mon[d.month - 1]}';
 }
 
+/// app.js clipExt: the file extension for a clip's Blob type.
+String clipExt(String type) => RegExp('ogg').hasMatch(type)
+    ? '.ogg'
+    : RegExp('mp4|aac|m4a').hasMatch(type)
+    ? '.m4a'
+    : RegExp('wav').hasMatch(type)
+    ? '.wav'
+    : '.webm';
+
+/// app.js audioPath (T-046): where a clip is kept in the private sync repo.
+String audioPath(String key, String type) => 'audio/$key${clipExt(type)}';
+
 /// What a rep kind is called (REP_VERB / PR_TABS / the counts' titles).
 const repTabs = [('story', 'Story'), ('humor', 'Humour'), ('bank', 'Story bank')];
 

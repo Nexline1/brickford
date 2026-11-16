@@ -665,6 +665,8 @@ void main(List<String> args) {
         }(),
     },
   };
+  // ---- T-046: the upload path of each clip key and Blob type ----
+  out['audioPaths'] = [for (final x in (fx['audioPaths'] as List? ?? const [])) audioPath((x as List)[0] as String, x[1] as String)];
   out['quiz'] = quizDump(fx, data, dir);
   out['record'] = recordDump(fx, data);
   out['learn'] = learnDump(fx, data);

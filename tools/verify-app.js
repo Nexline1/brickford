@@ -545,8 +545,15 @@ function payloadFixtures() {
     // T-069: checkpoint ticks travel once there are any; an empty S.checkpoints adds no key.
     { name: "a device with checkpoint ticks", local: baseState({ checkpoints: CP_LOCAL }) },
     { name: "a device whose checkpoints are empty", local: baseState({ checkpoints: {} }) },
+    // T-046: a laptop that transcribes and a phone that uploads keep only device settings about it
+    // (transcribe, audioGone); the reps are the hand form's. No payload may carry any of it.
+    { name: "a device with recordings, transcription on and a deleted upload", local: baseState({ settings: { ...baseState().settings, transcribe: "on", audioGone: ["2026-11-02-1"] },
+      reps: { ...baseState().reps, story: [{ date: "2026-11-02", seconds: 61, takes: 1, from: "Story · Mon 2 Nov" }], humor: [{ date: "2026-11-03", attempts: ["", "", "", "", ""], keeper: 0, seconds: 40 }] } }) },
   ];
 }
+// T-046: the clip keys and Blob types both apps upload, and the path each builds (audio/<key><ext>).
+const AUDIO_PATHS = [["2026-11-06-1", "audio/webm;codecs=opus"], ["2026-11-06-2", "audio/webm"], ["2026-11-07-12", "audio/ogg;codecs=opus"], ["2026-12-31-3", "audio/mp4"],
+  ["2027-01-01-1", "audio/aac"], ["2026-11-06-4", "audio/wav"], ["2026-11-06-5", ""], ["2028-02-29-1", "audio/x-m4a"]];
 const MONK_START = "2026-11-01";   // T-065: the start the focus and sum probes below were written against (it used to be a constant in app.js)
 const MONK_DATES = ["2026-11-01", "2026-11-11", "2026-11-21", "2026-12-21", "2027-03-20", "2027-06-21", "2028-02-29"];
 function monkFixture() {
@@ -1859,7 +1866,7 @@ function diff(a, b, at, out, label) {
       monkDays: MONK_PROBES,
       fixtures: fixturesFrom(plan).map(f => Object.assign(f, { walk: dates })),
       calendar: { dates: range(CAL_FROM, CAL_TO), clocks: CAL_CLOCKS },
-      light: LIGHT, merge: mergeFixtures(plan), payload: payloadFixtures(), monk: monkFixture(), mstart: mstartFixture(),
+      light: LIGHT, merge: mergeFixtures(plan), payload: payloadFixtures(), monk: monkFixture(), mstart: mstartFixture(), audioPaths: AUDIO_PATHS,
     };
     fx.quiz = quizFixtures(plan, fx.fixtures);
     fx.record = recordFixtures(plan);
@@ -1981,6 +1988,16 @@ function diff(a, b, at, out, label) {
         fx.payload.every(f => !("monk" in (jm.payload[f.name].state || {})) && !("monk" in ((dart.payload[f.name] || {}).state || {}))) &&
         JSON.stringify(jm.merge["monk: a remote monk is never read"].state.monk) === JSON.stringify(fx.merge.find(f => f.name.startsWith("monk:")).local.monk) &&
         jm.merge["monk: a remote monk is never read"].changed === 0);
+      // T-046: the upload path is the same in both apps, and no payload carries a transcript, audio or the device's transcription settings.
+      const jsAudio = (() => { const ctx = {}; vm.createContext(ctx); vm.runInContext(vmExtract(["clipExt", "audioPath"]) + "\nthis.__a = audioPath;", ctx); return ctx.__a; })();
+      const ap = AUDIO_PATHS.map(([k, t]) => ({ k, t, js: jsAudio(k, t), dart: ((dart.audioPaths || [])[AUDIO_PATHS.findIndex(x => x[0] === k && x[1] === t)]) }));
+      check("parity: audioPath — app.js and Dart build the same upload path for " + ap.length + " clip keys and types, each audio/<key><ext>",
+        ap.every(x => x.js === x.dart && x.js.startsWith("audio/" + x.k + ".") && /\.(webm|ogg|m4a|wav)$/.test(x.js)) && new Set(ap.map(x => x.js.split(".").pop())).size === 4,
+        ap.filter(x => x.js !== x.dart).map(x => x.k + " " + x.t + ": js " + x.js + ", dart " + x.dart).join("; ") || ap.map(x => x.js).join(" "));
+      const TX_LEAK = /"(transcript|transcribe|chunks|audio|audioGone|blob|remote)"\s*:|data:audio|;base64,|brickford_audio/;
+      const leaks = fx.payload.filter(f => TX_LEAK.test(JSON.stringify(jm.payload[f.name])) || TX_LEAK.test(JSON.stringify((dart.payload || {})[f.name] || {}))).map(f => f.name);
+      check("no payload carries a transcript, audio, or the device's transcription settings (transcribe, audioGone) — app.js and Dart, " + fx.payload.length + " devices, one with transcription on",
+        leaks.length === 0 && fx.payload.some(f => (f.local.settings || {}).transcribe === "on") && !!dart.payload, leaks.join("; "));
       // T-065: the only Monk key in the payload is the start date, and only when there is one.
       const monkKeys = o => Object.keys((o || {}).state || {}).filter(k => /monk/i.test(k)).join();
       check("the payload's Monk keys are exactly [monkStart] when a start is set, and none when it is not — app.js and Dart, " + fx.payload.length + " devices",

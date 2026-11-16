@@ -3488,6 +3488,46 @@ console.log("T-067 practice: " + pItems + " items on " + Object.keys(PRACTICE).l
   " core maths/physics lectures still without items; " + new Set(pWindow.map(x => x.split(" ")[1])).size + " lectures in the 14 days from " + P_CLOCK + ", all covered" +
   "\n  by course: " + Object.keys(pByCourse).map(c => c + " " + Object.keys(pByCourse[c]).map(t => pByCourse[c][t] + " " + t).join("/")).join(", "));
 
+// ---------- T-046: the speech model is pinned, not floating ----------
+// loop/specs/T-046-transcripts-v2/spec.md approves ONE dependency, pinned:
+// @huggingface/transformers@4.3.0 from jsdelivr, and the model
+// onnx-community/whisper-large-v3-turbo at a commit read from huggingface.co
+// and recorded in that folder's verification/notes.md. A revision of "main"
+// (or anything that is not 40 hex characters) would download whatever the
+// repo holds that day, so this fails unless the hash is real and written down
+// next to the model id. The consent question's size is the sum of the bytes
+// column notes.md records for every file the pipeline fetches. The worker's
+// ?v= token is the page's, so a bumped page can never run a stale worker.
+{
+  const app = fs.readFileSync(path.join(ROOT, "platform/js/app.js"), "utf8");
+  const html = fs.readFileSync(path.join(ROOT, "platform/index.html"), "utf8");
+  const workerPath = path.join(ROOT, "platform/js/transcribe-worker.js");
+  const notesPath = path.join(ROOT, "loop/specs/T-046-transcripts-v2/verification/notes.md");
+  const notes = fs.existsSync(notesPath) ? fs.readFileSync(notesPath, "utf8") : "";
+  const konst = name => { const m = new RegExp("const " + name + " = \"([^\"]*)\"").exec(app); return m ? m[1] : null; };
+  const lib = konst("TX_LIB"), model = konst("TX_MODEL"), rev = konst("TX_REVISION"), worker = konst("TX_WORKER");
+  const mb = /const TX_MODEL_MB = (\d+);/.exec(app);
+  const hex40 = !!rev && /^[0-9a-f]{40}$/.test(rev);
+  ok(lib === "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0",
+     "T-046: TX_LIB is the pinned library, https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0 (got " + lib + ")");
+  ok(model === "onnx-community/whisper-large-v3-turbo", "T-046: TX_MODEL is the pinned model, onnx-community/whisper-large-v3-turbo (got " + model + ")");
+  ok(hex40, "T-046: TX_REVISION is a 40-hex commit of " + model + " (got \"" + rev + "\") — read it from https://huggingface.co/api/models/" + model +
+     " and record it in loop/specs/T-046-transcripts-v2/verification/notes.md; until then the model is not pinned");
+  ok(hex40 && notes.includes("`" + rev + "`") && notes.includes("`" + model + "`"),
+     "T-046: verification/notes.md records the model id and its revision side by side");
+  const rows = [...notes.matchAll(/^\| `([^`]+)`[^|]*\| (\d+) \|$/gm)].map(m => ({ file: m[1], bytes: +m[2] }));
+  const total = rows.reduce((a, r) => a + r.bytes, 0);
+  ok(rows.some(r => r.file === "onnx/encoder_model_quantized.onnx") && rows.some(r => r.file === "onnx/decoder_model_merged_quantized.onnx"),
+     "T-046: notes.md sizes the q8 encoder and decoder (" + rows.map(r => r.file).join(", ") + ")");
+  ok(fs.existsSync(workerPath) && /dtype: "q8"/.test(fs.readFileSync(workerPath, "utf8")), "T-046: the worker asks for dtype q8, the files notes.md sized");
+  ok(!!mb && total > 0 && +mb[1] === Math.round(total / 1e6),
+     "T-046: TX_MODEL_MB (" + (mb && mb[1]) + ") is the real size the consent question states: the " + rows.length + " files in notes.md sum to " + total + " bytes (" + Math.round(total / 1e6) + " MB)");
+  const pageTok = (/css\/style\.css\?v=(\w+)/.exec(html) || [])[1], workerTok = ((worker || "").match(/\?v=(\w+)$/) || [])[1];
+  ok(!!worker && /^js\/transcribe-worker\.js\?v=\w+$/.test(worker) && fs.existsSync(workerPath),
+     "T-046: TX_WORKER is js/transcribe-worker.js with a ?v= token, and the file exists (got " + worker + ")");
+  ok(!!pageTok && workerTok === pageTok, "T-046: the worker's ?v= token (" + workerTok + ") is the page's (" + pageTok + ")");
+}
+
 console.log("\n" + (fail === 0
   ? "PASS — " + checks + " checks, " + t45Items + " problem sets and labs unlocked by a real lecture, " + numChecked + " numeric answers recomputed, "
     + Object.keys(D.DRILLS || {}).length + " drills, " + D.CONCEPTS.length + " concepts, " + Object.keys(D.FIG).length + " figures, "

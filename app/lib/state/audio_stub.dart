@@ -23,6 +23,12 @@ class _None implements AudioBackend {
   void download(StoredClip clip) {}
   @override
   void releaseUrls() {}
+  @override
+  Future<List<String>> unuploaded() async => const [];
+  @override
+  Future<({String mime, String base64})?> payload(String key) async => null;
+  @override
+  Future<void> markRemote(String key, String sha, String at) async {}
 }
 
 AudioBackend createAudioBackend() => _None();

@@ -37,7 +37,9 @@
 //      deep; history.go(-2) closes both; the in-app back button rewinds the
 //      browser by one; Forward onto a closed page goes back to where the app
 //      is; Back from the shell leaves, as before; and a page closed by Back
-//      leaves at once (T-077), because the swipe has already animated it.
+//      leaves at once (T-077), because the swipe has already animated it; and
+//      a drag from the left edge does nothing in the app (T-078): the swipe
+//      is the browser's, and two answering it showed the page twice.
 // Exits 1 on any failed assertion.
 "use strict";
 const fs = require("fs"), http = require("http"), path = require("path");
@@ -131,10 +133,14 @@ async function backNavigation(browser, BASE) {
   const { devices } = require("playwright");
   const ctx = await browser.newContext(Object.assign({}, devices["iPhone 13"], { serviceWorkers: "block" }));
   await ctx.route(/youtube\.com|ytimg\.com/, r => r.abort());
+  // Chromium still says "Linux" here, and Flutter reads navigator.platform to
+  // decide it is on iOS (and so whether its routes slide and swipe like iOS).
+  await ctx.addInitScript(() => Object.defineProperty(Navigator.prototype, "platform", { get: () => "iPhone" }));
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
-  const sem = () => page.evaluate(() => { const p = document.querySelector("flt-semantics-placeholder"); if (p) p.click(); });
+  // On "iOS" Flutter turns its semantics on from a touch on the placeholder, not a click.
+  const sem = async () => { const p = page.locator("flt-semantics-placeholder"); if (await p.count()) await p.first().tap({ force: true }).catch(() => {}); };
   const ids = () => page.evaluate(() => [...document.querySelectorAll("[flt-semantics-identifier]")].map(e => e.getAttribute("flt-semantics-identifier")));
   // Which screen is up, from what only that screen carries.
   const where = async () => {
@@ -178,7 +184,22 @@ async function backNavigation(browser, BASE) {
     check("7: Week is off the screen within 300 ms of Back: no second, Flutter-drawn slide after the swipe (T-077)", goneMs !== null && goneMs < 300, goneMs + " ms");
     const f = await act(() => page.goForward({ waitUntil: "commit" }));
     check("7: Forward onto the closed Week goes back to Home (no dead page)", f.on === "home" && f.depth === 0, JSON.stringify(f));
+    // T-078: a drag from the left edge is the browser's (Safari's) to answer; the
+    // app's own iOS swipe-back would move the page as well, a second copy of the
+    // page before showing through. In this harness nothing answers for Safari,
+    // so the page must simply stay where it is.
     await act(tap("chip-week"));
+    const sw = await act(async () => {
+      // A finger, not a mouse: touch events through the DevTools protocol.
+      const cdp = await page.context().newCDPSession(page);
+      const pt = x => [{ x, y: 400, id: 1 }];
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: pt(2) });
+      for (let i = 1; i <= 15; i++) { await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: pt(2 + i * 18) }); await page.waitForTimeout(16); }
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      await cdp.detach();
+    });
+    check("7: a drag from the left edge leaves Week where it is: the app has no swipe-back of its own on the web, so only the browser's moves (T-078)",
+      sw.on === "week" && sw.depth === 1, JSON.stringify(sw));
     const ib = await act(tap("back"));
     check("7: the in-app back button closes Week and rewinds the browser to depth 0", ib.on === "home" && ib.depth === 0, JSON.stringify(ib));
     await act(tap("tab-Profile"));

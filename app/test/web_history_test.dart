@@ -1,0 +1,97 @@
+// T-076: WebHistory keeps one browser history entry per page (see
+// lib/state/web_history.dart). These drive it with a fake browser.
+import 'package:app/state/web_history.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  late List<int> went, reported;
+  late WebHistory h;
+  late GlobalKey<NavigatorState> nav;
+
+  Future<void> pumpApp(WidgetTester t) async {
+    went = [];
+    reported = [];
+    nav = GlobalKey<NavigatorState>();
+    h = WebHistory(enabled: true, go: went.add, selectMulti: () async {}, report: (d) async => reported.add(d));
+    await t.pumpWidget(MaterialApp(navigatorKey: nav, navigatorObservers: [h], home: const Text('shell')));
+    h.ready = true;  // what _start does on the web once the engine answers
+    await t.pump();
+  }
+
+  Future<void> push(WidgetTester t, String name) async {
+    nav.currentState!.push(MaterialPageRoute<void>(builder: (_) => Text(name)));
+    await t.pumpAndSettle();
+  }
+
+  testWidgets('each page pushed gets an entry of its own, at its depth', (t) async {
+    await pumpApp(t);
+    await push(t, 'week');
+    await push(t, 'guide');
+    expect(h.depth, 2);
+    expect(reported, [1, 2]);
+    expect(went, isEmpty);
+  });
+
+  testWidgets('a page closed in the app rewinds the browser by one, and its echo is ignored', (t) async {
+    await pumpApp(t);
+    await push(t, 'week');
+    nav.currentState!.pop();
+    await t.pumpAndSettle();
+    expect(went, [-1]);
+    expect(await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 0)), isTrue);
+    expect(find.text('shell'), findsOneWidget);
+    expect(h.depth, 0);
+  });
+
+  testWidgets('Back (a swipe) closes pages down to the depth it landed on, without moving the browser again', (t) async {
+    await pumpApp(t);
+    await push(t, 'library');
+    await push(t, 'guide');
+    expect(await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 1)), isTrue);
+    await t.pumpAndSettle();
+    expect(find.text('library'), findsOneWidget);
+    expect(h.depth, 1);
+    expect(went, isEmpty);
+    expect(await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 0)), isTrue);
+    await t.pumpAndSettle();
+    expect(find.text('shell'), findsOneWidget);
+    expect(went, isEmpty);
+  });
+
+  testWidgets('a sheet over a page closes with it', (t) async {
+    await pumpApp(t);
+    await push(t, 'week');
+    showModalBottomSheet<void>(context: nav.currentContext!, builder: (_) => const Text('sheet'));
+    await t.pumpAndSettle();
+    expect(h.depth, 1, reason: 'a sheet has no entry');
+    await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 0));
+    await t.pumpAndSettle();
+    expect(find.text('sheet'), findsNothing);
+    expect(find.text('shell'), findsOneWidget);
+  });
+
+  testWidgets('Forward onto a closed page goes back to where the app is', (t) async {
+    await pumpApp(t);
+    await push(t, 'week');
+    nav.currentState!.pop();
+    await t.pumpAndSettle();
+    await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 0));  // the echo
+    went.clear();
+    expect(await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 1)), isTrue);
+    await t.pump();
+    expect(went, [-1]);
+    expect(find.text('shell'), findsOneWidget);
+  });
+
+  testWidgets('off the web it does nothing at all', (t) async {
+    went = [];
+    final off = WebHistory(enabled: false, go: went.add, selectMulti: () async {}, report: (_) async {});
+    final key = GlobalKey<NavigatorState>();
+    await t.pumpWidget(MaterialApp(navigatorKey: key, navigatorObservers: [off], home: const Text('shell')));
+    key.currentState!.push(MaterialPageRoute<void>(builder: (_) => const Text('week')));
+    await t.pumpAndSettle();
+    expect(off.pages, isEmpty);
+    expect(await off.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 0)), isFalse);
+  });
+}

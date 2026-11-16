@@ -6119,7 +6119,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261115b";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261116a";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",
@@ -6211,14 +6211,41 @@
   // ---- what the list shows (the desktop only) ----
   const txAskNow = () => (txDesktop() && txAsk && txClips.has(txAsk) && txSetting() !== "on" && txSetting() !== "off"
     ? '<div class="pr-ask" role="group" aria-label="Transcription"><p class="pr-ask-t">Download the speech model (~' + TX_MODEL_MB +
-      " MB, once)? It runs on this device; your audio never leaves your devices and your private repo.</p>" +
+      " MB, once)? It runs on this device; your audio never leaves your devices and your private repo. Each transcription then takes about a minute per 30 seconds of speech.</p>" +
       '<div class="pr-ask-b"><button type="button" class="btn" data-tx="yes">Download</button>' +
       '<button type="button" class="btn ghost" data-tx="no">Not now</button></div></div>' : "");
   const txOffNow = () => (txDesktop() && txSetting() === "off" && txClips.size
     ? '<div class="pr-txoff"><p class="pr-txoff-t">Transcription is off on this device.</p>' +
       '<button type="button" class="btn tiny ghost" data-tx="on">Turn on transcription</button></div>' : "");
-  const txProgress = s => (s.phase === "load" ? "Loading the speech model… " + (s.pct || 0) + "%"
-    : s.phase === "run" ? "Transcribing… " + (s.pct || 0) + "%" : "Preparing the audio…");
+  // T-075: the run is honest about time. Each 30 s window of audio takes about
+  // a minute on a laptop CPU (measured: 67 s for one window, 4.5 min for a
+  // 60 s clip), and a percentage only moves when a window ends, so a short
+  // clip sat at "0%" for its whole run and looked dead. The line is a clock
+  // instead, with an estimate: before the first window ends, "about a minute
+  // per 30 seconds of speech"; after it, the rest from the measured pace.
+  const txClock = sec => Math.floor(sec / 60) + ":" + String(Math.floor(sec % 60)).padStart(2, "0");
+  function txProgress(s) {
+    if (s.phase === "load") return "Loading the speech model… " + (s.pct || 0) + "%";
+    if (s.phase !== "run") return "Preparing the audio…";
+    const el = Math.max(0, (Date.now() - (s.t0 || Date.now())) / 1000), total = s.total || 1, done = Math.min(s.done || 0, total);
+    let rest;
+    if (done >= total) rest = "almost done";
+    else if (done > 0) { const m = Math.ceil(el / done * (total - done) / 60); rest = "about " + m + " min left"; }
+    else rest = total > 1 ? "about " + total + " min on a laptop" : "about a minute on a laptop";
+    return "Transcribing… " + txClock(el) + " · " + rest + ". Keep this tab open.";
+  }
+  // The clock ticks in place: one text node per running row, never a render
+  // and never a save. It stops itself when nothing is running.
+  let txTimer = 0;
+  function txTick() {
+    const run = Object.keys(txState).filter(k => txState[k].phase === "run");
+    if (!run.length) { clearInterval(txTimer); txTimer = 0; return; }
+    run.forEach(k => {
+      const row = $('#view #prClips .pr-clip[data-clip="' + CSS.escape(k) + '"] .tx-line');
+      if (row) row.textContent = txProgress(txState[k]);
+    });
+  }
+  const txTickOn = () => { if (!txTimer) txTimer = setInterval(txTick, 1000); };
   function txRowHTML(c) {
     if (!c || !txDesktop()) return "";
     if (c.transcript && typeof c.transcript.text === "string") return txCardHTML(c);
@@ -6314,7 +6341,8 @@
     if (!pcm.length) return txEnd(key, TX_MSG.silence);
     let w;
     try { w = txWorkerGet(); } catch (e) { return txEnd(key, TX_MSG.unsupported, true); }   // e.g. no Worker on this origin
-    txState[key] = { phase: txLoaded ? "run" : "load", pct: 0 };
+    txState[key] = txLoaded ? { phase: "run", pct: 0, t0: Date.now(), done: 0, total: 0 } : { phase: "load", pct: 0 };
+    if (txLoaded) txTickOn();
     txPaint();
     w.postMessage({ type: "run", id: key, lib: TX_LIB, model: TX_MODEL, revision: TX_REVISION, pcm: pcm }, [pcm.buffer]);
   }
@@ -6322,7 +6350,12 @@
     if (!m.id || m.id !== txBusy) return;
     if (m.type === "progress") {
       if (m.phase === "run") txLoaded = true;
-      txState[m.id] = { phase: m.phase === "run" ? "run" : "load", pct: Math.max(0, Math.min(100, m.pct | 0)) };
+      const was = txState[m.id] || {}, pct = Math.max(0, Math.min(100, m.pct | 0));
+      if (m.phase !== "run") txState[m.id] = { phase: "load", pct: pct };
+      else {
+        txState[m.id] = { phase: "run", pct: pct, t0: was.phase === "run" && was.t0 ? was.t0 : Date.now(), done: m.done | 0, total: m.total | 0 };
+        txTickOn();
+      }
       return txPaint();
     }
     if (m.type === "done") {

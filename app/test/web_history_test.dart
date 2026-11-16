@@ -59,6 +59,21 @@ void main() {
     expect(went, isEmpty);
   });
 
+  testWidgets('a page closed by the browser goes at once, with no slide of its own (T-077)', (t) async {
+    await pumpApp(t);
+    await push(t, 'library');
+    await push(t, 'guide');
+    await h.didPushRouteInformation(RouteInformation(uri: Uri.parse('/'), state: 0));
+    await t.pump();  // one frame: no 300 ms transition to wait for
+    expect(find.text('guide'), findsNothing);
+    expect(find.text('library'), findsNothing);
+    expect(find.text('shell'), findsOneWidget);
+    // The page underneath is already where it rests, not sliding in from the left.
+    final x0 = t.getTopLeft(find.text('shell')).dx;
+    await t.pumpAndSettle();
+    expect(t.getTopLeft(find.text('shell')).dx, x0);
+  });
+
   testWidgets('a sheet over a page closes with it', (t) async {
     await pumpApp(t);
     await push(t, 'week');

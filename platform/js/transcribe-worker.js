@@ -8,7 +8,9 @@
 // library URL, the pinned model and its revision (all three are constants in
 // app.js), and the clip as 16 kHz mono Float32 PCM, decoded on the page. It
 // gets back, for that id:
-//   { type: "progress", phase: "download" | "run", pct }
+//   { type: "progress", phase: "download" | "run", pct, done?, total? }
+//     (for "run", done and total count the 30 s windows: on a laptop CPU each
+//     takes about a minute, so the page shows a clock, not a frozen 0%)
 //   { type: "done", text, chunks: [{ text, timestamp }] }
 //   { type: "error", kind: "download" | "memory" | "failed", msg }
 // The audio never leaves the device: the library fetches the model's files
@@ -55,12 +57,12 @@ self.onmessage = async e => {
     // text is back, because a window can take more than one call.
     const windows = Math.max(1, 1 + Math.ceil((m.pcm.length - 30 * 16000) / (20 * 16000)));
     let done = 0;
-    self.postMessage({ type: "progress", id: m.id, phase: "run", pct: 0 });
+    self.postMessage({ type: "progress", id: m.id, phase: "run", pct: 0, done: 0, total: windows });
     // large-v3-turbo is multilingual: English, transcribed (not translated).
     const out = await asr(m.pcm, {
       language: "english", task: "transcribe",
       return_timestamps: true, chunk_length_s: 30, stride_length_s: 5,
-      streamer: { put() {}, end() { done++; self.postMessage({ type: "progress", id: m.id, phase: "run", pct: Math.min(99, Math.round(done / windows * 100)) }); } },
+      streamer: { put() {}, end() { done++; self.postMessage({ type: "progress", id: m.id, phase: "run", pct: Math.min(99, Math.round(done / windows * 100)), done: Math.min(done, windows), total: windows }); } },
     });
     const chunks = (out && out.chunks || []).map(c => ({ text: String(c.text || ""), timestamp: [c.timestamp[0], c.timestamp[1]] }));
     self.postMessage({ type: "done", id: m.id, text: String((out && out.text) || ""), chunks: chunks });

@@ -1641,7 +1641,7 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
   // Words by whitespace: a different count from the app's word pattern.
   const TX_WORDS = TX_TEXT.trim().split(/\s+/).filter(t => /[A-Za-z0-9]/.test(t)).length;
   const TX_MARK = "king minus man plus woman";     // a phrase only the transcript holds
-  const TX_ASK = "Download the speech model (~" + TX_MB + " MB, once)? It runs on this device; your audio never leaves your devices and your private repo.";
+  const TX_ASK = "Download the speech model (~" + TX_MB + " MB, once)? It runs on this device; your audio never leaves your devices and your private repo. Each transcription then takes about a minute per 30 seconds of speech.";
   const TX_UPFAIL = "Audio stays on this device until your token can reach brickford-private";
   const txStub = mode => `
 const report = o => fetch("https://tx-stub.test/report", { method: "POST", body: JSON.stringify(o) }).catch(() => {});
@@ -1913,8 +1913,11 @@ export async function pipeline(task, model, opts) {
         ((rp.len || 0) / 16000).toFixed(2) + "s for a " + c.seconds + "s clip)",
         net.reports.length === 1 && rp.task === "automatic-speech-recognition" && rp.model === TX_MODEL && rp.revision === TX_REVISION && rp.dtype === "q8" && rp.device === "wasm" &&
           rp.language === "english" && rp.job === "transcribe" && rp.f32 === true && rp.timestamps === true && Math.abs(rp.len / 16000 - c.seconds) <= 1, JSON.stringify(net.reports));
-      check(at + ": while it worked the row said \"Loading the speech model… n%\", then \"Transcribing… n%\"",
-        n1.lines.some(l => /^Loading the speech model… \d{1,3}%$/.test(l)) && n1.lines.some(l => /^Transcribing… \d{1,3}%$/.test(l)) &&
+      // T-075: the run shows a clock and an estimate, never a bare percentage
+      // (a 6 s clip sat at "Transcribing… 0%" for over a minute and looked dead).
+      check(at + ": while it worked the row said \"Loading the speech model… n%\", then \"Transcribing… m:ss · <estimate>. Keep this tab open.\" (a clock, not a percentage)",
+        n1.lines.some(l => /^Loading the speech model… \d{1,3}%$/.test(l)) && n1.lines.some(l => /^Transcribing… \d+:\d\d · (about (a minute|\d+ min) on a laptop|about \d+ min left|almost done)\. Keep this tab open\.$/.test(l)) &&
+          !n1.lines.some(l => /^Transcribing… \d{1,3}%$/.test(l)) &&
           n1.lines.findIndex(l => /^Transcribing/.test(l)) > n1.lines.findIndex(l => /^Loading/.test(l)), JSON.stringify(n1.lines));
       check(at + ": the transcript is on the clip's IndexedDB record as { text, chunks, model, at } — the stub's text and chunks, model " + TX_MODEL + "@" + TX_REVISION + " — and the audio is untouched",
         db.length === 1 && c.fields === "blob,date,kind,remote,seconds,title,transcript" && Object.keys(t).join(",") === "text,chunks,model,at" && t.text === TX_TEXT &&

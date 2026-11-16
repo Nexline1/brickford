@@ -1,0 +1,1 @@
+typecheck ok: every platform/js, platform/data and tools .js passes node --check

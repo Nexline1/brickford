@@ -155,6 +155,35 @@ async function session(browser, { putOk }) {
   // The rejection latch must stop the doomed automatic push and nothing else.
   // Getting this wrong in the other direction — latching a device off sync
   // permanently — would be worse than the loop it prevents.
+  // T-074: opening the app freezes each due lecture's scheduledFor during the first render. A render
+  // is a read: with activity to freeze and a token, sitting on the page arms no push.
+  console.log("The schedule freeze at boot arms no push (T-074):");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
+    await ctx.clock.setFixedTime(new Date("2026-11-01T12:00:00Z"));
+    await ctx.addInitScript(() => {
+      localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+      if (!localStorage.getItem("darhikmah_v1"))
+        localStorage.setItem("darhikmah_v1", JSON.stringify({ lessons: { "math110.0.0": { done: true, doneAt: "2026-10-16", notes: "", checks: [] } }, studyDays: ["2026-10-16"] }));
+    });
+    const page = await ctx.newPage();
+    let puts = 0;
+    await page.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) });
+      }
+      puts++;
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    await page.goto(URL + "/__test", { waitUntil: "load" });
+    await page.waitForTimeout(6000);
+    const frozen = await page.evaluate(() => Object.values(window.__brickfordTest.syncPayload().state.lessons).filter(l => l && l.scheduledFor).length);
+    check(frozen > 0, "the freeze ran (" + frozen + " lectures with scheduledFor in what a push would carry)");
+    check(puts === 0, "and it armed no push: nothing was PUT in 6s on a page nobody touched (" + puts + ")");
+    await ctx.close();
+  }
+
   console.log("A rejected token latches the automatic push, and only that:");
   {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });

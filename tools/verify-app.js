@@ -117,8 +117,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state", "t074-push-drops-scheduledfor", "t074-merge-later", "t074-unmark-overwrites"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state", "t074-push-drops-scheduledfor", "t074-merge-later", "t074-unmark-overwrites"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -470,6 +470,65 @@ async function runCpJS(browser, fx, pure) {
     pure.setS(clone(f.local));
     const changed = pure.mergeState(clone(f.remote)).changed;
     out.push[f.name] = strip(clone({ changed, checkpoints: pure.syncPayload().state.checkpoints }));
+  }
+  return out;
+}
+
+// T-074: the frozen schedule and the first-watch timestamp. A freeze fixture boots, then each step sets the clock and
+// renders (the freeze), and when asked presses the lesson page's toggle. A push: the remote file merged in, then the
+// payload's lessons. Every lesson projected to the four fields T-074 is about.
+const T074_FIELDS = ["done", "doneAt", "firstDoneAt", "scheduledFor"];
+const t074proj = L => Object.fromEntries(Object.entries(L || {}).filter(([, l]) => l && typeof l === "object" && T074_FIELDS.some(f => l[f] != null))
+  .map(([k, l]) => [k, Object.fromEntries(T074_FIELDS.filter(f => l[f] != null).map(f => [f, l[f]]))]));
+const T074_TS = "2026-11-02T08:00:00.000Z";
+function t074Fixtures() {
+  const W = (doneAt, o) => Object.assign({ done: true, doneAt, notes: "", checks: [] }, o || {});
+  return {
+    freeze: [
+      { name: "nothing done: mark, unmark a day on, mark two days on, a Saturday, a Sunday", clock: "2026-11-24", state: null,
+        steps: [{ clock: "2026-11-24", toggle: "math110.0.0" }, { clock: "2026-11-25", toggle: "math110.0.0" }, { clock: "2026-11-27", toggle: "math110.0.0" }, { clock: "2026-11-28" }, { clock: "2026-11-29" }] },
+      { name: "legacy watches from the start, walked across the v2 cutover, then unmark and re-mark", clock: "2026-11-19",
+        state: { lessons: { "math110.0.0": W("2026-10-16"), "ai200.0.0": W("2026-10-18", { firstDoneAt: "2026-10-17" }) }, studyDays: ["2026-10-16"] },
+        steps: [{ clock: "2026-11-20" }, { clock: "2026-11-21" }, { clock: "2026-11-22" }, { clock: "2026-11-23", toggle: "ai200.0.0" }, { clock: "2026-11-24", toggle: "ai200.0.0" }] },
+      { name: "a stored later scheduledFor and a stored timestamp are kept", clock: "2026-11-04",
+        state: { lessons: { "math110.0.0": W("2026-10-16", { scheduledFor: "2026-12-31", firstDoneAt: "2026-10-16T09:00:00.000Z" }) } },
+        steps: [{ clock: "2026-11-05" }, { clock: "2026-11-06", toggle: "math110.0.0" }, { clock: "2026-11-07", toggle: "math110.0.0" }] },
+    ],
+    push: [
+      { name: "a phone pushes over a laptop's file: the earlier scheduledFor, the timestamp over a same-day date, nothing dropped",
+        local: baseState({ lessons: { P: W("2026-11-02", { firstDoneAt: T074_TS, scheduledFor: "2026-11-02" }), Q: { scheduledFor: "2026-11-02" }, S: W("2026-11-04", { firstDoneAt: "2026-11-04", scheduledFor: "2026-11-01" }) } }),
+        remote: remoteFile({ lessons: { P: W("2026-11-02", { firstDoneAt: "2026-11-02", scheduledFor: "2026-11-03" }), Q: { scheduledFor: "2026-11-01" },
+          R: W("2026-10-30", { verified: true, firstDoneAt: "2026-10-30T07:00:00.000Z", scheduledFor: "2026-10-30" }), S: W("2026-11-04", { verified: true, firstDoneAt: "2026-11-04T06:00:00.000Z" }) } }) },
+      { name: "a phone with no T-074 fields pushes over a laptop's that has them", local: baseState({ lessons: { P: W("2026-11-02") } }),
+        remote: remoteFile({ lessons: { P: W("2026-11-02", { firstDoneAt: T074_TS, scheduledFor: "2026-10-30" }), Q: { scheduledFor: "2026-11-01" } } }) },
+    ],
+  };
+}
+async function runT074JS(browser, fx, pure) {
+  const out = { errors: [], freeze: {}, push: {} };
+  for (const f of fx.t074.freeze) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    const snap = async () => t074proj(await p.evaluate(() => window.__brickfordTest.syncPayload().state.lessons));
+    const snaps = [await snap()];
+    for (const s of f.steps) {
+      await p.clock.setFixedTime(noon(s.clock));
+      await p.evaluate(() => window.__brickfordTest.render());
+      if (s.toggle) {
+        await p.evaluate(k => { location.hash = "#/lesson/" + k.split(".").join("/"); }, s.toggle);
+        await p.waitForSelector("#view [data-act=toggleDone]", { timeout: 15000 });
+        const was = (await p.textContent("#view [data-act=toggleDone]")).trim();
+        await p.click("#view [data-act=toggleDone]");
+        await p.waitForFunction(w => ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() !== w, was, { timeout: 15000 });
+      }
+      snaps.push(await snap());
+    }
+    out.freeze[f.name] = snaps;
+    out.errors = out.errors.concat(errors); await ctx.close();
+  }
+  for (const f of fx.t074.push) {
+    pure.setS(clone(f.local));
+    const changed = pure.mergeState(clone(f.remote)).changed;
+    out.push[f.name] = { changed, lessons: t074proj(clone(pure.syncPayload().state.lessons)) };
   }
   return out;
 }
@@ -1739,6 +1798,11 @@ function diff(a, b, at, out, label) {
     "checkpoints-merge-older": ["lib/engine/merge.dart", "        if (!truthy(m0) || _s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) > 0) {\n          mine['$id'] = t;\n          changed++;\n        }\n      }\n    }\n  }\n\n  // T-065",
       "        if (!truthy(m0) || _s(t['at']).compareTo(_s(m0 is Map ? m0['at'] : null)) < 0) {\n          mine['$id'] = t;\n          changed++;\n        }\n      }\n    }\n  }\n\n  // T-065"],
     "checkpoints-auto-ignores-state": ["lib/engine/checkpoints.dart", "return (a['watched'] as List).every((k) => truthy(_m(lessons['$k'])['done']));", "return true;"],
+    // T-074: a Flutter push drops scheduledFor, the Dart merge takes the LATER scheduledFor, and the Dart unmark
+    // overwrites firstDoneAt.
+    "t074-push-drops-scheduledfor": ["lib/engine/merge.dart", "  state['settings'] = settings;", "  state['lessons'] = {for (final en in _m(S['lessons']).entries) en.key: ({..._m(en.value)}..remove('scheduledFor'))};  state['settings'] = settings;"],
+    "t074-merge-later": ["lib/engine/merge.dart", "[mine['scheduledFor'], theirs['scheduledFor']].where(truthy).map(_js).toList()..sort();", "[mine['scheduledFor'], theirs['scheduledFor']].where(truthy).map(_js).toList()..sort((a, b) => b.compareTo(a));"],
+    "t074-unmark-overwrites": ["lib/engine/engine.dart", "st.remove('doneAt');", "st['firstDoneAt'] = at; st.remove('doneAt');"],
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1804,6 +1868,7 @@ function diff(a, b, at, out, label) {
     fx.publish = publishFixture(plan);
     fx.lpr = lprFixtures(plan);
     fx.cp = cpFixtures(plan);
+    fx.t074 = t074Fixtures();
     fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -2245,6 +2310,28 @@ function diff(a, b, at, out, label) {
         jm2["nulls, strings, numbers and arrays in the remote are skipped"].changed === 0 && jm2["a remote checkpoints that is a list is ignored"].changed === 0 &&
         jm2["a whole device each way: two newer, one older, two new"].changed === 4,
         "a whole device: " + jm2["a whole device each way: two newer, one older, two new"].changed + " changes");
+    }
+    // 5d. T-074: the frozen schedule (boot, the clock walked, the toggle pressed) and a Flutter push of the T-074 fields.
+    if (!process.env.VERIFY_ONLY) {
+      const tT = Date.now();
+      const jt = await runT074JS(browser, fx, jsPure(fx.START)), dt = dart.t074 || {};
+      console.log("  T-074:       " + fx.t074.freeze.length + " freeze walks, " + fx.t074.push.length + " pushes, " + Math.round((Date.now() - tT) / 1000) + "s");
+      check("the T-074 block ran in app.js without page errors", jt.errors.length === 0, jt.errors.slice(0, 3).join(" | "));
+      const one = (name, a, b) => { const out = []; diff(a, b, [], out, (at, i) => i); check(name, out.length === 0, out.slice(0, 4).join("; ")); };
+      for (const f of fx.t074.freeze) one("parity: T-074 freeze and toggle — " + f.name + " (done, doneAt, firstDoneAt, scheduledFor after boot and " + f.steps.length + " steps)", jt.freeze[f.name], dt.freeze && dt.freeze[f.name]);
+      for (const f of fx.t074.push) one("parity: T-074 merge and push — " + f.name, jt.push[f.name], dt.push && dt.push[f.name]);
+      // Reach, and what the push must hold, on both sides.
+      const F = jt.freeze[fx.t074.freeze[0].name], a = F[1]["math110.0.0"] || {}, b = F[2]["math110.0.0"] || {}, c = F[3]["math110.0.0"] || {};
+      check("the T-074 freeze walks reach: a mark stamps firstDoneAt once (unmark and re-mark keep it), the walk freezes new days, a stored later scheduledFor stays",
+        a.firstDoneAt === "2026-11-24T12:00:00.000Z" && b.firstDoneAt === a.firstDoneAt && c.firstDoneAt === a.firstDoneAt && !b.done && c.done &&
+          Object.keys(F[5]).length > Object.keys(F[1]).length && jt.freeze[fx.t074.freeze[2].name].every(x => x["math110.0.0"].scheduledFor === "2026-12-31"),
+        JSON.stringify({ a, b, c, n1: Object.keys(F[1]).length, n5: Object.keys(F[5]).length }));
+      const P = fx.t074.push.map(f => f.name), pl = (w, i, k) => (((w === "dart" ? dt.push || {} : jt.push)[P[i]] || {}).lessons || {})[k] || {};
+      check("a Flutter push keeps scheduledFor and firstDoneAt: the earlier scheduledFor, a timestamp over a same-day date, the remote's fields filled in, nothing dropped — app.js and Dart",
+        ["js", "dart"].every(w => pl(w, 0, "P").scheduledFor === "2026-11-02" && pl(w, 0, "P").firstDoneAt === T074_TS && pl(w, 0, "Q").scheduledFor === "2026-11-01" &&
+          pl(w, 0, "R").scheduledFor === "2026-10-30" && pl(w, 0, "R").firstDoneAt === "2026-10-30T07:00:00.000Z" && pl(w, 0, "S").scheduledFor === "2026-11-01" &&
+          pl(w, 0, "S").firstDoneAt === "2026-11-04T06:00:00.000Z" && pl(w, 1, "P").scheduledFor === "2026-10-30" && pl(w, 1, "P").firstDoneAt === T074_TS && pl(w, 1, "Q").scheduledFor === "2026-11-01"),
+        "dart: " + JSON.stringify((dt.push || {})[P[0]]));
     }
   } finally {
     await browser.close();

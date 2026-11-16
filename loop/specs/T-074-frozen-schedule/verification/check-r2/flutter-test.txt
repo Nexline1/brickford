@@ -1,0 +1,186 @@
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.2.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  material_ui 1.10.0 (1.11.0 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.4 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_android 2.5.4 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.4 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading C:/Users/user/Downloads/New folder/bf-T-074/app/test/brand_test.dart
+00:00 +0: C:/Users/user/Downloads/New folder/bf-T-074/app/test/brand_test.dart: (setUpAll)
+00:00 +0: C:/Users/user/Downloads/New folder/bf-T-074/app/test/brand_test.dart: the palette: midnight, white, crest gold, navy; text pairs clear 4.5:1, glyphs 3:1
+00:00 +1: C:/Users/user/Downloads/New folder/bf-T-074/app/test/brand_test.dart: no stage-1 green is left in lib/ (the old accent, its wash, the orb gradient)
+00:00 +2: C:/Users/user/Downloads/New folder/bf-T-074/app/test/brand_test.dart: Home: the crest is the mark top-left in gold on midnight, BRICKFORD beside it; the primary pill is navy
+00:04 +3: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:04 +4: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:05 +5: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:05 +6: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-05)
+00:08 +7: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:09 +8: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:10 +9: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:10 +10: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:10 +11: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:10 +12: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:10 +13: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the month grid: each day carries its own dayStatus mark (clock 2026-11-07)
+00:11 +14: C:/Users/user/Downloads/New folder/bf-T-074/app/test/checkpoints_test.dart: the Home block the week line, the first checkpoint open with its four items, the others folded; building writes nothing
+00:14 +15: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: the day sheet: one row per lecture, glyphs match lessonCleared; a past day keeps its plan on a Saturday
+00:14 +16: C:/Users/user/Downloads/New folder/bf-T-074/app/test/checkpoints_test.dart: the Home block a tap ticks an item and a second unticks it, one write each, { done, at } stored, the count repainted
+00:15 +17: C:/Users/user/Downloads/New folder/bf-T-074/app/test/checkpoints_test.dart: the Home block a tap ticks an item and a second unticks it, one write each, { done, at } stored, the count repainted
+00:15 +18: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: a seal Sunday carries its revision week; the calendar shows this week's seal tile
+00:16 +19: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: a seal Sunday carries its revision week; the calendar shows this week's seal tile
+00:16 +20: C:/Users/user/Downloads/New folder/bf-T-074/app/test/checkpoints_test.dart: the Home block a folded checkpoint opens, and past its date it reads late and can still be ticked
+00:16 +21: C:/Users/user/Downloads/New folder/bf-T-074/app/test/checkpoints_test.dart: the Home block a folded checkpoint opens, and past its date it reads late and can still be ticked
+00:17 +22: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: T-066: on a Saturday the month grid shows the watched Storytelling days as done
+00:18 +23: C:/Users/user/Downloads/New folder/bf-T-074/app/test/checkpoints_test.dart: the Home block at 320 wide nothing in the block overflows
+00:18 +24: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: tap targets: every day, the month buttons, the day rows and both Home entry points are at least 44
+00:19 +25: C:/Users/user/Downloads/New folder/bf-T-074/app/test/calendar_test.dart: (tearDownAll)
+00:20 +25: C:/Users/user/Downloads/New folder/bf-T-074/app/test/frozen_schedule_test.dart: mark, unmark, mark: firstDoneAt is the first mark, a full timestamp, byte for byte
+00:20 +26: C:/Users/user/Downloads/New folder/bf-T-074/app/test/frozen_schedule_test.dart: boot freezes the due dates in memory, a legacy watch gains firstDoneAt, and a push keeps both
+00:21 +27: C:/Users/user/Downloads/New folder/bf-T-074/app/test/home_overflow_test.dart: (setUpAll)
+00:21 +27: C:/Users/user/Downloads/New folder/bf-T-074/app/test/home_overflow_test.dart: Home at 320x568 with a 0pt top inset, badge "Start Monk Mode": nothing overflows
+00:25 +28: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:26 +29: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:27 +30: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:27 +31: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Atlas lists the running courses and the later ones, and a course opens to its units, then a unit to its lectures
+00:30 +32: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Atlas counts: proven (not watched) in a tile, watched in a unit, and the tracker counts DSA
+00:30 +33: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +34: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +35: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +36: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +37: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +38: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +39: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:31 +40: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:32 +41: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:32 +42: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:32 +43: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: answering a Recall item reschedules it: solid moves a box out, forgot resets and counts a lapse, one event each
+00:32 +44: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:33 +45: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:37 +46: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:38 +47: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a worked solution is hidden before an attempt, and shows after one with the three marks
+00:39 +48: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Electives: what fits the phase first, the rest further out; the status tile cycles none, planned, done, none
+00:40 +49: C:/Users/user/Downloads/New folder/bf-T-074/app/test/learn_test.dart: Electives: what fits the phase first, the rest further out; the status tile cycles none, planned, done, none
+00:40 +50: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a numeric answer: Check grades it; the unaided count moves
+00:42 +51: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a written answer: the key points and the model answer stay hidden under 80 characters
+00:44 +52: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with a video at 320x568: the control row and the video do not overlap; the sheet starts at the video's foot
+00:46 +53: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with a video at 320x568: the control row and the video do not overlap; the sheet starts at the video's foot
+00:48 +54: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: a refusal falls back to self-check in one line, stores nothing, and the marks stay
+00:48 +55: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with a video at 375x812: the control row and the video do not overlap; the sheet starts at the video's foot
+00:49 +56: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: an API error, no key and offline each fall back the same way; the last two send nothing
+00:50 +57: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lecture_practice_test.dart: an API error, no key and offline each fall back the same way; the last two send nothing
+00:50 +58: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with a video at 430x932: the control row and the video do not overlap; the sheet starts at the video's foot
+00:50 +59: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with a video at 430x932: the control row and the video do not overlap; the sheet starts at the video's foot
+00:50 +60: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with a video at 430x932: the control row and the video do not overlap; the sheet starts at the video's foot
+00:50 +61: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: below a status bar the whole row and the video are below it, and the controls stay out of the video
+00:51 +62: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: on a short, wide screen the video stops at half the height, and the sheet still starts at its foot
+00:52 +63: C:/Users/user/Downloads/New folder/bf-T-074/app/test/lesson_controls_test.dart: a lecture with no video: the fallback tile is in the same box, so the screen does not jump
+00:53 +64: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:55 +65: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:56 +66: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:56 +67: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the ring counts only the five priorities, and a badge is done exactly when its rule is met
+00:58 +68: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: tap a badge, tap its controls: prayers, no sin, hours, German; every write is local and arms no push
+01:04 +69: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: the Library opens a document as a readable page, fetched relative to the site root
+01:05 +70: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: Now / Next follow the clock and the Ja'fari prayer times
+01:05 +71: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: a document that cannot be fetched says so and offers the file
+01:06 +72: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the 21-day map, the focus line, loops and tomorrow's plan
+01:08 +73: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the 21-day map, the focus line, loops and tomorrow's plan
+01:09 +74: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: the Transcript passes the next gate only through its confirm sheet, every requirement ticked
+01:10 +75: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: the Transcript passes the next gate only through its confirm sheet, every requirement ticked
+01:11 +76: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: the Transcript passes the next gate only through its confirm sheet, every requirement ticked
+01:11 +77: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: the Transcript passes the next gate only through its confirm sheet, every requirement ticked
+01:11 +78: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: the sheet: it says what it costs, the hold is disabled until the box is ticked, and a tap, a short hold, a slide-off and a closed sheet do not start it
+01:12 +79: C:/Users/user/Downloads/New folder/bf-T-074/app/test/pages_test.dart: the Handbook, the Method and the Workshop open as readable pages
+01:14 +80: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: a 1.5 s hold starts it: the sheet closes, the screen reads Day 1 of 21, and Cancel starts nothing
+01:14 +81: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: Start from Home's badge, by keyboard: Enter held 0.7 s aborts, held 1.5 s starts
+01:16 +82: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: started on day 21 it still shows Day 21; the day after, Home shows nothing and the Monk screen reads 21 days done
+01:16 +83: C:/Users/user/Downloads/New folder/bf-T-074/app/test/monk_test.dart: days logged before the start never count on the Monk screen, and stay stored
+01:17 +84: C:/Users/user/Downloads/New folder/bf-T-074/app/test/perf_test.dart: the memo answers exactly what an unmemoised engine does across a sequence of state changes
+01:18 +85: C:/Users/user/Downloads/New folder/bf-T-074/app/test/perf_test.dart: the memo holds until state changes: touch() and any notification drop it
+01:19 +86: C:/Users/user/Downloads/New folder/bf-T-074/app/test/perf_test.dart: the recorder (its tick) and the sync (its status) notify on their own, so no screen under AppScope rebuilds for them
+01:19 +87: C:/Users/user/Downloads/New folder/bf-T-074/app/test/perf_test.dart: a long list builds only the rows near the screen (Learn > All feeds a lazy ListView, not one Column)
+01:21 +88: C:/Users/user/Downloads/New folder/bf-T-074/app/test/perf_test.dart: a long list builds only the rows near the screen (Learn > All feeds a lazy ListView, not one Column)
+01:21 +89: C:/Users/user/Downloads/New folder/bf-T-074/app/test/perf_test.dart: a long list builds only the rows near the screen (Learn > All feeds a lazy ListView, not one Column)
+01:23 +90: C:/Users/user/Downloads/New folder/bf-T-074/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+01:23 +91: C:/Users/user/Downloads/New folder/bf-T-074/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+01:23 +92: C:/Users/user/Downloads/New folder/bf-T-074/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+01:24 +93: C:/Users/user/Downloads/New folder/bf-T-074/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+01:24 +94: C:/Users/user/Downloads/New folder/bf-T-074/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+01:24 +95: C:/Users/user/Downloads/New folder/bf-T-074/app/test/plan_v2_test.dart: the lesson screen lists Needs, ticked when watched, and Leads to; a row opens that lecture
+01:27 +96: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: what is owed: the bank daily, the story and humour on the speech-off Friday, nothing on Saturday, the review at four weeks
+01:28 +97: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: the forms refuse an empty entry and say why; a rep is logged once, sealed into the chain
+01:28 +98: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: the week is six dots; a dot is on when the bank was logged that day
+01:28 +99: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: logging a rep: the bank form, a refusal then the entry, the dot lights
+01:31 +100: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: logging a rep: the bank form, a refusal then the entry, the dot lights
+01:35 +101: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+01:38 +102: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: Problems lists the right items, the held-back ones are muted, and an item opens
+01:39 +103: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: a press under a second keeps nothing and logs nothing
+01:39 +104: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: passing an owed quiz takes it off Problems and unlocks the pset behind it
+01:42 +105: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: passing an owed quiz takes it off Problems and unlocks the pset behind it
+01:42 +106: C:/Users/user/Downloads/New folder/bf-T-074/app/test/practice_test.dart: a recording ends after the page was left: still kept and logged
+01:44 +107: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: Exams: the ranked list, a diagnostic is recorded against its gate, a bank sitting is recorded with its pass mark
+01:44 +108: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: Exams: the ranked list, a diagnostic is recorded against its gate, a bank sitting is recorded with its pass mark
+01:46 +109: C:/Users/user/Downloads/New folder/bf-T-074/app/test/problems_test.dart: the pass mark is 70: 70 passes, 69 is a gap, and nothing sat has no verdict
+01:48 +110: C:/Users/user/Downloads/New folder/bf-T-074/app/test/quiz_test.dart: answering: the feedback and the explanation appear, a miss turns its segment red and comes back
+01:50 +111: C:/Users/user/Downloads/New folder/bf-T-074/app/test/quiz_test.dart: answering: the feedback and the explanation appear, a miss turns its segment red and comes back
+01:55 +112: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+01:56 +113: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: sealing a week: the entry, the ledger event, a week from before the reset kept beside it
+01:57 +114: C:/Users/user/Downloads/New folder/bf-T-074/app/test/quiz_test.dart: passing the quiz clears the lecture: the record has the web shape, Home and the glyph follow
+01:58 +115: C:/Users/user/Downloads/New folder/bf-T-074/app/test/quiz_test.dart: passing the quiz clears the lecture: the record has the web shape, Home and the glyph follow
+01:58 +116: C:/Users/user/Downloads/New folder/bf-T-074/app/test/quiz_test.dart: passing the quiz clears the lecture: the record has the web shape, Home and the glyph follow
+01:58 +117: C:/Users/user/Downloads/New folder/bf-T-074/app/test/quiz_test.dart: passing the quiz clears the lecture: the record has the web shape, Home and the glyph follow
+01:59 +118: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+01:59 +119: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+01:59 +120: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Record: the streak, the best, the days sealed; sealing today writes the day and the chain
+02:00 +121: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Record: the reset moves the line and deletes nothing; the best streak stays
+02:03 +122: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (setUpAll)
+02:03 +122: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Record: a tampered ledger shows where the chain breaks
+02:04 +123: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Record: a tampered ledger shows where the chain breaks
+02:04 +124: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: a push merges first, then writes the payload with the sha, and never carries monk
+02:04 +125: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: the writers: lesson, quiz-free events, lab, problem and diagnostic each add one link
+02:04 +126: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: a push to an empty repo creates the file, with no sha
+02:04 +127: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Proof: anchors need a chain, record the head, and can be removed
+02:05 +128: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Proof: anchors need a chain, record the head, and can be removed
+02:05 +129: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Proof: anchors need a chain, record the head, and can be removed
+02:05 +130: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Proof: anchors need a chain, record the head, and can be removed
+02:05 +131: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Proof: anchors need a chain, record the head, and can be removed
+02:05 +132: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Proof: anchors need a chain, record the head, and can be removed
+02:07 +133: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the token is never shown, printed or stored in the state: the screen says Saved
+02:07 +134: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the token is never shown, printed or stored in the state: the screen says Saved
+02:07 +135: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the token is never shown, printed or stored in the state: the screen says Saved
+02:10 +136: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the token is never shown, printed or stored in the state: the screen says Saved
+02:12 +137: C:/Users/user/Downloads/New folder/bf-T-074/app/test/record_test.dart: Treasury: two clients, a third only after the cap confirm; removing one
+02:16 +138: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+02:18 +139: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the status in words: Not connected, Synced, Offline, Needs attention (and a latched one beats offline)
+02:19 +140: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (a) pulls and pushes go only to the private repo's file, and a device that stored the old public repo is not sent there
+02:19 +141: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (b) a 404 on the file and on the repo: the new error, latched for automatic pushes only; manual Pull and Push run; a success clears it
+02:19 +142: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (b) the same 404 split on the PUT: a push told 404 asks the repo and says the same line
+02:19 +143: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (c) a 404 on the file with the repo answering is not an error: Pull says Nothing stored yet, Push creates the file with no sha
+02:19 +144: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (d) a new empty device with a token pulls a remote that holds lessons, studyDays, streakFrom and monkStart, and shows them
+02:20 +145: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (e) a push from a new empty device removes nothing the remote holds: it merges before it writes
+02:20 +146: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the Monk start merges by "first write wins": none takes the other's, two keep the EARLIER, and nothing that is not a date ever clears or replaces it
+02:20 +147: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the Monk start merges by "first write wins": none takes the other's, two keep the EARLIER, and nothing that is not a date ever clears or replaces it
+02:21 +148: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: the payload carries monkStart when it is set and nothing else of Monk; not started, it carries no Monk key at all
+02:21 +149: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: starting pushes at once (inside the 4 s debounce, and only once), carrying the date; with no token nothing is sent
+02:21 +150: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: a pulled start repaints the open Monk screen from Start to Day 3 of 21
+02:23 +151: C:/Users/user/Downloads/New folder/bf-T-074/app/test/sync_test.dart: (tearDownAll)
+02:23 +151: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: (setUpAll)
+02:23 +151: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: the canvas is deep midnight #12141C and the sheet is the blueprint sheet
+02:26 +152: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: fields: #F3F4F6 fill, radius 16, BorderSide.none in every state, black45 prefix icon, explicit padding
+02:28 +153: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: pills: radius 16, elevation 0 when idle, hovered, focused, pressed and disabled
+02:28 +154: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: the floating bar has exactly 4 tabs, Home Learn Build Profile, and switches
+02:29 +155: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: entry points moved: courses on Learn, Treasury on Build, neither on Profile
+02:30 +156: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: search sheet: the field is at least 16px at phone widths, and the sheet shrinks above the keyboard
+02:34 +157: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: every BrickfordField, at any width, is at least 16px
+02:35 +158: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs
+02:35 +159: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: Mark watched stores lessons[k] in the web app's shape
+02:37 +160: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: startup does not read summaries.json; quiz-keys.json is exactly lessonQuiz != null; a lecture reads it on open
+02:37 +161: C:/Users/user/Downloads/New folder/bf-T-074/app/test/widgets_test.dart: (tearDownAll)
+02:37 +161: All tests passed!

@@ -48,7 +48,12 @@ class AppModel extends ChangeNotifier {
     // From here every write goes through persist() or notifyListeners(), and both touch() the engine,
     // so its memoised schedule, streak, backlog and day statuses are dropped when S moves.
     engine.memoize = true;
+    freezeSchedule();
   }
+
+  /// T-074: the due dates frozen at boot and when the app comes back on a new day (app.js freezeSchedule). In memory
+  /// only, like the load-time normalisation above: no save and no push; the next ordinary save stores it.
+  void freezeSchedule() => engine.freezeSchedule();
 
   final DateTime Function() now;
   final AudioBackend audio;
@@ -192,7 +197,7 @@ class AppModel extends ChangeNotifier {
 
   /// Mark watched / unmark (the web app's toggleDone).
   void toggleDone(String k) {
-    engine.toggleDone(k);
+    engine.toggleDone(k, _ts());
     engine.logEvent('lesson', k, {'done': truthy(lesson(k)['done'])}, _ts());
     persist();
     notifyListeners();

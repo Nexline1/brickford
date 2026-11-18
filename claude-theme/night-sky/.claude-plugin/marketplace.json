@@ -1,0 +1,5 @@
+{
+  "name": "night-sky",
+  "owner": { "name": "night-sky" },
+  "plugins": [{ "name": "night-sky", "source": "./" }]
+}

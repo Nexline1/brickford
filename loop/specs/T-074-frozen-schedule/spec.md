@@ -43,12 +43,12 @@ and a later refactor can't silently break it.
    firstDoneAt, scheduledFor}`, `state.studyDays`, and `ledgers.<deviceId>[].{ts, type, ref,
    data}`, with each field's format, when it is written, its merge rule, and that lateness is the
    reader's job (`firstDoneAt − scheduledFor`, date part). It covers the legacy date-only
-   `firstDoneAt` and the `mood` event (T-076, "planned" until that ships). It also states the
+   `firstDoneAt` and the `mood` event (T-080, "planned" until that ships). It also states the
    rule: **a change to any listed field updates this file and verify-logic's contract check in
    the same PR.**
 
 ## Out of scope
-The banner (T-077), mood (T-076), any email or notification, PROTECTED paths other than the state
+The banner (T-079), mood (T-080), any email or notification, PROTECTED paths other than the state
 shape named here, `platform/data/*` and `curriculum.js`, START_DATE / REST_DOW / plan, new
 dependencies.
 

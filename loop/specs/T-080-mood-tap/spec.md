@@ -1,4 +1,4 @@
-# T-076: One-tap mood, four slots a day, synced
+# T-080: One-tap mood, four slots a day, synced
 
 From inbox 2026-11-14 (owner), note 3. **Needs owner approval:** it adds a new ledger event type
 to the synced file (`progress/brickford-state.json`, PROTECTED). It only adds; nothing is dropped

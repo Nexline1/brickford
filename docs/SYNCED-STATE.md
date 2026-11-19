@@ -89,5 +89,5 @@ it is optional).
 
 ## Planned
 
-- **`mood` event** (T-076, planned, not shipped): a ledger event `type: "mood"`, one tap, four
-  slots a day. Its `ref` and `data` are defined when T-076 ships, and they join the table above then.
+- **`mood` event** (T-080, planned, not shipped): a ledger event `type: "mood"`, one tap, four
+  slots a day. Its `ref` and `data` are defined when T-080 ships, and they join the table above then.

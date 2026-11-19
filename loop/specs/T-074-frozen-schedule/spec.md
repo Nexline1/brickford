@@ -48,7 +48,7 @@ and a later refactor can't silently break it.
    the same PR.**
 
 ## Out of scope
-The banner (T-075), mood (T-076), any email or notification, PROTECTED paths other than the state
+The banner (T-077), mood (T-076), any email or notification, PROTECTED paths other than the state
 shape named here, `platform/data/*` and `curriculum.js`, START_DATE / REST_DOW / plan, new
 dependencies.
 

@@ -1,4 +1,4 @@
-# T-075: Unwatched-lecture banner on Today
+# T-077: Unwatched-lecture banner on Today
 
 From inbox 2026-11-14 (owner), note 1. Depends on T-074 (it reads the frozen `scheduledFor`).
 **Feature freeze:** T-069 froze features until about 10 Jan 2027, so building this needs the

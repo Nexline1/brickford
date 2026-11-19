@@ -28,6 +28,18 @@
 //      the bundled Playfair Display Bold (loaded, not a fallback), and the first
 //      Flutter frame already has the final glyphs: with every font held back
 //      3 s, its wordmark and subtitle are as wide as after the fonts settle.
+//   7. back navigation (T-076), at the iPhone 13 size: every page has its own
+//      browser history entry (the engine's multi-entry history, the entry's
+//      state its depth), so an iPhone's back swipe — Safari's history gesture,
+//      which slides in a snapshot of the entry it goes back to — lands on the
+//      page before, not on the one entry every page used to share (whose
+//      snapshot was the boot splash). Back closes one page at a time, two
+//      deep; history.go(-2) closes both; the in-app back button rewinds the
+//      browser by one; Forward onto a closed page goes back to where the app
+//      is; Back from the shell leaves, as before; and a page closed by Back
+//      leaves at once (T-077), because the swipe has already animated it; and
+//      a drag from the left edge does nothing in the app (T-078): the swipe
+//      is the browser's, and two answering it showed the page twice.
 // Exits 1 on any failed assertion.
 "use strict";
 const fs = require("fs"), http = require("http"), path = require("path");
@@ -117,6 +129,102 @@ const fmt = bs => bs.map((b, i) => (PARTS[i] || "extra") + " " + b.x + "," + b.y
 const sameBoxes = (a, b) => a.length === 4 && b.length === 4 &&
   a.every((p, i) => ["x", "y", "w", "h"].every(k => Math.abs(p[k] - b[i][k]) <= 1));
 
+async function backNavigation(browser, BASE) {
+  const { devices } = require("playwright");
+  const ctx = await browser.newContext(Object.assign({}, devices["iPhone 13"], { serviceWorkers: "block" }));
+  await ctx.route(/youtube\.com|ytimg\.com/, r => r.abort());
+  // Chromium still says "Linux" here, and Flutter reads navigator.platform to
+  // decide it is on iOS (and so whether its routes slide and swipe like iOS).
+  await ctx.addInitScript(() => Object.defineProperty(Navigator.prototype, "platform", { get: () => "iPhone" }));
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on("pageerror", e => errors.push(e.message));
+  // On "iOS" Flutter turns its semantics on from a touch on the placeholder, not a click.
+  const sem = async () => { const p = page.locator("flt-semantics-placeholder"); if (await p.count()) await p.first().tap({ force: true }).catch(() => {}); };
+  const ids = () => page.evaluate(() => [...document.querySelectorAll("[flt-semantics-identifier]")].map(e => e.getAttribute("flt-semantics-identifier")));
+  // Which screen is up, from what only that screen carries.
+  const where = async () => {
+    const s = await ids();
+    return s.includes("week-dsa") ? "week" : s.includes("lib-guide") ? "library" : s.includes("chip-library") ? "profile" : s.includes("chip-week") ? "home" : "other";
+  };
+  const depth = () => page.evaluate(() => { const h = history.state; return h && typeof h.state === "number" ? h.state : (h ? JSON.stringify(h) : null); });
+  const act = async (fn) => { await fn(); await page.waitForTimeout(1200); await sem(); return { on: await where(), depth: await depth() }; };
+  const tap = id => () => page.locator('[flt-semantics-identifier="' + id + '"]').first().click();
+  try {
+    await page.goto(BASE + "app-web/", { waitUntil: "commit" });
+    await page.waitForFunction(() => !document.getElementById("boot"), null, { timeout: 60000 });
+    await sem();
+    await page.waitForSelector('[flt-semantics-identifier="tab-Home"]', { timeout: 15000 });
+    await page.waitForTimeout(1200);
+    const home = { on: await where(), depth: await depth() };
+    check("7: once the app is up the browser's entry is the shell's (depth 0), not Flutter's single shared entry", home.on === "home" && home.depth === 0, JSON.stringify(home));
+    const len0 = await page.evaluate(() => history.length);
+    const w = await act(tap("chip-week"));
+    const len1 = await page.evaluate(() => history.length);
+    // (history.length need not grow: the new entry replaces the forward entry the engine's old single history left.)
+    check("7: opening Week pushes an entry of its own (depth 1)", w.on === "week" && w.depth === 1 && len1 >= len0, JSON.stringify(w) + " length " + len0 + " -> " + len1);
+    // T-077: how long Week stays on screen after Back. An iPhone's swipe has
+    // already slid it away, so Flutter must not slide it out again (300 ms).
+    await page.evaluate(() => {
+      window.__gone = null;
+      const t0 = performance.now();
+      addEventListener("popstate", () => {
+        const t1 = performance.now();
+        const iv = setInterval(() => {
+          if (!document.querySelector('[flt-semantics-identifier="week-dsa"]')) { window.__gone = Math.round(performance.now() - t1); clearInterval(iv); }
+        }, 5);
+      }, { once: true });
+    });
+    const b = await act(() => page.goBack({ waitUntil: "commit" }));
+    const goneMs = await page.evaluate(() => window.__gone);
+    check("7: Back (an iPhone's back swipe) closes Week and lands on Home, depth 0", b.on === "home" && b.depth === 0, JSON.stringify(b));
+    // Measured in headless Chromium: 428 ms with Flutter's own slide (T-076's build), 194 ms
+    // without it (the rest is the engine's popstate -> frame -> semantics round trip). The slide
+    // alone is 300 ms, so under 300 means it did not run.
+    check("7: Week is off the screen within 300 ms of Back: no second, Flutter-drawn slide after the swipe (T-077)", goneMs !== null && goneMs < 300, goneMs + " ms");
+    const f = await act(() => page.goForward({ waitUntil: "commit" }));
+    check("7: Forward onto the closed Week goes back to Home (no dead page)", f.on === "home" && f.depth === 0, JSON.stringify(f));
+    // T-078: a drag from the left edge is the browser's (Safari's) to answer; the
+    // app's own iOS swipe-back would move the page as well, a second copy of the
+    // page before showing through. In this harness nothing answers for Safari,
+    // so the page must simply stay where it is.
+    await act(tap("chip-week"));
+    const sw = await act(async () => {
+      // A finger, not a mouse: touch events through the DevTools protocol.
+      const cdp = await page.context().newCDPSession(page);
+      const pt = x => [{ x, y: 400, id: 1 }];
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: pt(2) });
+      for (let i = 1; i <= 15; i++) { await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: pt(2 + i * 18) }); await page.waitForTimeout(16); }
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      await cdp.detach();
+    });
+    check("7: a drag from the left edge leaves Week where it is: the app has no swipe-back of its own on the web, so only the browser's moves (T-078)",
+      sw.on === "week" && sw.depth === 1, JSON.stringify(sw));
+    const ib = await act(tap("back"));
+    check("7: the in-app back button closes Week and rewinds the browser to depth 0", ib.on === "home" && ib.depth === 0, JSON.stringify(ib));
+    await act(tap("tab-Profile"));
+    await act(tap("chip-library"));
+    const g = await act(tap("lib-guide"));
+    check("7: Profile > Library > Guide is depth 2", g.depth === 2, JSON.stringify(g));
+    const b1 = await act(() => page.goBack({ waitUntil: "commit" }));
+    const b2 = await act(() => page.goBack({ waitUntil: "commit" }));
+    check("7: Back from Guide lands on Library (depth 1), Back again on Profile (depth 0): one page at a time",
+      b1.on === "library" && b1.depth === 1 && b2.on === "profile" && b2.depth === 0, JSON.stringify([b1, b2]));
+    await act(tap("chip-library"));
+    await act(tap("lib-guide"));
+    const j = await act(() => page.evaluate(() => history.go(-2)));
+    check("7: history.go(-2) from Guide closes both pages and lands on Profile", j.on === "profile" && j.depth === 0, JSON.stringify(j));
+    await page.goBack({ waitUntil: "commit" }).catch(() => {});
+    await page.waitForTimeout(1200);
+    const out = await page.evaluate(() => location.href).catch(() => "?");
+    check("7: Back from the shell leaves the app, as it always did", !out.startsWith(BASE + "app-web/"), out);
+  } catch (e) {
+    check("7: back navigation ran to its end without a harness error", false, e.message.split("\n")[0]);
+  }
+  check("7: no page errors", errors.length === 0, errors.join(" | "));
+  await ctx.close();
+}
+
 async function oneLockup(browser, BASE) {
   const DPR = 2, VIEW = { width: 390, height: 844 };
   const ctxOf = () => browser.newContext({ viewport: VIEW, deviceScaleFactor: DPR, serviceWorkers: "block" });
@@ -192,8 +300,8 @@ async function oneLockup(browser, BASE) {
     await page.waitForSelector('[flt-semantics-identifier="tab-Home"]', { timeout: 15000 });
   };
   try {
-    // VERIFY_BOOT_ONLY=6 runs section 6 alone (a quick loop while working on the lockup; CHECK runs everything).
-    if (process.env.VERIFY_BOOT_ONLY !== "6") {
+    // VERIFY_BOOT_ONLY=6 (or 7) runs that section alone (a quick loop while working on the lockup; CHECK runs everything).
+    if (!process.env.VERIFY_BOOT_ONLY) {
       // ---- 1, 2, 5: the three ways in ----
       for (const [entry, shot] of [["app/", "boot-app-slash"], ["app", "boot-app-noslash"], ["app-web/", "boot-app-web"]]) {
         const ctx = await fresh({ serviceWorkers: "block" });
@@ -326,7 +434,10 @@ async function oneLockup(browser, BASE) {
     }
 
     // ---- 6: one lockup (T-072) ----
-    await oneLockup(browser, BASE);
+    if (!process.env.VERIFY_BOOT_ONLY || process.env.VERIFY_BOOT_ONLY === "6") await oneLockup(browser, BASE);
+
+    // ---- 7: back navigation (T-076) ----
+    if (!process.env.VERIFY_BOOT_ONLY || process.env.VERIFY_BOOT_ONLY === "7") await backNavigation(browser, BASE);
   } finally {
     await browser.close();
     server.close();

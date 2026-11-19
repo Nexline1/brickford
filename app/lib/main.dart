@@ -12,12 +12,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'shell.dart';
 import 'state/app_model.dart';
 import 'state/sync.dart';
+import 'state/web_history.dart';
 import 'theme/theme.dart';
 import 'theme/tokens.dart';
 import 'widgets/crest.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // T-076: before any MaterialApp, so it hears the browser's Back first.
+  final history = WebHistory();
+  WidgetsBinding.instance.addObserver(history);
   // The fonts are bundled (assets/fonts/, OFL): nothing is fetched, so the app
   // renders the same with no connection.
   GoogleFonts.config.allowRuntimeFetching = false;
@@ -33,7 +37,7 @@ Future<void> main() async {
   final data = await AppModel.loadData(rootBundle);
   final prefs = await SharedPreferences.getInstance();
   await fontsReady(shellFonts);
-  app.complete(BrickfordApp(model: AppModel(data, prefs, saveDelay: const Duration(milliseconds: 400))));
+  app.complete(BrickfordApp(model: AppModel(data, prefs, saveDelay: const Duration(milliseconds: 400)), history: history));
 }
 
 /// The faces the splash draws: BRICKFORD and SELF-BUILT UNIVERSITY.
@@ -116,8 +120,11 @@ class SplashApp extends StatelessWidget {
 }
 
 class BrickfordApp extends StatelessWidget {
-  const BrickfordApp({super.key, required this.model});
+  const BrickfordApp({super.key, required this.model, this.history});
   final AppModel model;
+
+  /// T-076: one browser history entry per page (null in tests).
+  final WebHistory? history;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +151,13 @@ class BrickfordApp extends StatelessWidget {
                         designSize: const Size(375, 812),
                         minTextAdapt: true,
                         builder: (context, _) =>
-                            MaterialApp(title: 'Brickford', debugShowCheckedModeBanner: false, theme: brickfordTheme(), home: const Shell()),
+                            MaterialApp(
+                              title: 'Brickford',
+                              debugShowCheckedModeBanner: false,
+                              theme: brickfordTheme(),
+                              navigatorObservers: [?history],
+                              home: const Shell(),
+                            ),
                       ),
                     ),
                   ),

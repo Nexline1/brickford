@@ -1,0 +1,17 @@
+typecheck 0
+verify-content 0
+verify-shell 0
+verify-contrast 0
+verify-logic 0
+verify-flows 0
+verify-clip 1
+verify-design 0
+verify-boot 0
+verify-offline 1
+verify-density 1
+verify-sync-loop 0
+main verify-content 0
+main verify-flows 2
+main verify-clip 1
+main verify-offline 1
+main verify-density 1

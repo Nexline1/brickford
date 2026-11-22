@@ -1920,16 +1920,46 @@
       });
     }
   }
-  function backlogCount() {
+  // T-079: every lecture not yet cleared, from the first activity up to and including today, once each:
+  // { k, it, title, due, late }. due is the frozen S.lessons[k].scheduledFor (T-074) when there is one, else
+  // the walk's date; late is study days from due to today, so a rest day never adds lateness. On a Saturday the
+  // study day before it has ended: Friday's lecture is 1 day late on the Saturday and still 1 on the Sunday
+  // (and backlogCount, which has always owed Friday's lectures on a Saturday, keeps doing so). Oldest first.
+  // A read: it never creates a lesson entry.
+  function owedList() {
     const today = todayISO();
     const from = firstActivityISO();
-    if (!from) return 0;                       // nothing started, nothing owed
-    const owed = new Set();
-    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso < today; iso = addDaysISO(iso, 1)) {
+    if (!from) return [];                      // nothing started, nothing owed
+    const now = isRestDay(today) ? studyIndex(prevStudyDay(today)) + 1 : studyIndex(today);
+    const out = [], seen = new Set();
+    for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso <= today; iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;                 // a day off owes nothing
-      realSched(iso).forEach(it => { const k = lessonKey(it.cid, it.ui, it.li); if (it.l.optional) return; if (!schedDone(it) && !v2Rescheduled(iso, k)) owed.add(k); });
+      realSched(iso).forEach(it => {
+        const k = lessonKey(it.cid, it.ui, it.li);
+        if (it.l.optional || seen.has(k) || schedDone(it) || v2Rescheduled(iso, k)) return;
+        seen.add(k);
+        const sf = (S.lessons[k] || {}).scheduledFor, due = sf && sf <= iso && studyIndex(sf) >= 0 ? sf : iso;   // a stored date later than the walk's, or not a study day, is not trusted
+        out.push({ k, it, title: it.l.t, due, late: Math.max(0, now - studyIndex(due)) });
+      });
     }
-    return owed.size;
+    return out.sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0));   // stable: walk order within a date
+  }
+  // The owed count Today shows: the entries of owedList() that are late (one source, two readers).
+  function backlogCount() { return owedList().filter(e => e.late > 0).length; }
+  // T-079: how late, in words. late 0 is today's own lecture.
+  const owedLabel = e => e.late > 1 ? e.late + " days late" : e.late === 1 ? "1 day late" : "today";
+  // T-079: the banner at the top of Today, one row per owed lecture, oldest first. Five rows, the rest in a
+  // closed <details>. Nothing when nothing is owed; never dismissable (it goes when the work is done).
+  function owedBannerHTML(list) {
+    if (!list.length) return "";
+    const row = e => '<a class="grow" data-owed="' + esc(e.k) + '" href="#/lesson/' + e.it.cid + "/" + e.it.ui + "/" + e.it.li + '">' +
+      '<span class="g-main"><span class="g-t">' + esc(e.title) + "</span></span>" +
+      '<span class="g-v">' + owedLabel(e) + "</span></a>";
+    const more = list.slice(5);
+    return '<div class="ghead owed-head">Not watched yet<span class="gh-meta">' + list.length + "</span></div>" +
+      '<div class="glist owed-list">' + list.slice(0, 5).map(row).join("") + "</div>" +
+      (more.length ? '<details class="unit owed-more"><summary><span class="u-name">+' + more.length + " more</span></summary>" +
+        '<div class="glist">' + more.map(row).join("") + "</div></details>" : "");
   }
   // T-056 r3: the earliest owed lecture in plan order — the first not cleared
   // on the first day backlogCount() counts as owing one. Null when none is owed.
@@ -2819,6 +2849,11 @@
         : "") +
       '<a class="btn lg one-go" href="' + cta.href + '">' + esc(cta.verb) + " \u25b8</a>" +
       "</div>" +
+
+      // ---- T-079: which lectures are behind and by how much ----
+      // First under the one next action, above every other block on Today. Above the hero it pushed the
+      // hero's button off a 320px screen, and the sticky Next bar came up over the list to repeat it.
+      owedBannerHTML(owedList()) +
 
       // ---- T-052: monk mode, one tap away while its MONK.days days run ----
       (function () {
@@ -6152,7 +6187,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261116b";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261121a";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",
@@ -8560,6 +8595,8 @@
   if (/__test/.test(location.hash)) window.__brickfordTest = Object.freeze({ REST_DOW, studyIndex, dateForStudy, addStudyDays, scheduledFor, dayStatus, streak, bestStreak, backlogCount, // test-only hook; these are reads, for tools/verify-logic.js (spec T-000)
     // T-067, for verify-logic and tools/plan-dates.js: the cutover and the v1 path (reads only).
     PLAN_V2_FROM, scheduledV1, firstOwed: () => { const it = firstOwed(); return it ? lessonKey(it.cid, it.ui, it.li) : null; },
+    // T-079, for verify-logic and verify-app: the owed list (a read), without the schedule item.
+    owedList: () => owedList().map(e => ({ k: e.k, title: e.title, due: e.due, late: e.late })),
     // T-016, for tools/verify-flows.js: a message as the lecture's player would
     // send it, handed to playerEvent — so it WRITES through the same path a
     // real player message does (a pause or an end saves); only the

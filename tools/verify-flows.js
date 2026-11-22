@@ -3171,6 +3171,70 @@ export async function pipeline(task, model, opts) {
     await ctx.close();
   }
 
+  // ---- (ob) T-079: the owed banner on Today (loop/specs/T-079-owed-banner/spec.md) ----
+  // Clock Sun 29 Nov, first activity Wed 25 Nov, nothing watched: Wednesday to Friday's lectures are owed
+  // and Sunday's are today's. The banner lists owedList() (verify-logic holds the list itself) in order, five
+  // rows and the rest in a closed <details>, each row 44px and labelled by its lateness. Drawing it writes
+  // nothing. Tapping a row opens that lecture; marking it watched removes the row. With nothing owed (no
+  // activity, and activity on a Saturday with nothing scheduled) there is no banner.
+  {
+    const OB_DAY = "2026-11-29", OB_SEED = { studyDays: ["2026-11-25"] };
+    const banner = page => page.evaluate(() => {
+      const rows = [...document.querySelectorAll("#view [data-owed]")], more = document.querySelector("#view details.owed-more");
+      return { head: !!document.querySelector("#view .owed-head"), keys: rows.map(r => r.dataset.owed), hrefs: rows.map(r => r.getAttribute("href")),
+        labels: rows.map(r => r.querySelector(".g-v").textContent), shown: rows.filter(r => r.checkVisibility()).length,
+        moreOpen: more ? more.open : null, moreLabel: more ? more.querySelector("summary").textContent.trim() : null,
+        small: [...rows, ...(more ? [more.querySelector("summary")] : [])].filter(r => r.checkVisibility()).map(r => r.getBoundingClientRect())
+          .filter(b => b.width < 44 || b.height < 44).map(b => Math.round(b.width) + "x" + Math.round(b.height)) };
+    });
+    const word = e => e.late > 1 ? e.late + " days late" : e.late === 1 ? "1 day late" : "today";
+    for (const w of WIDTHS) {
+      console.log("\nowed banner (T-079) at " + w + "px:");
+      const { ctx, page, errors } = await fresh(browser, w, OB_SEED, "/__test", OB_DAY);
+      try {
+        const list = await page.evaluate(() => window.__brickfordTest.owedList());
+        const w0 = await writes(page);
+        await go(page, "/");
+        const b = await banner(page);
+        check("(ob) the banner lists every owed lecture, oldest first, each labelled today / 1 day late / N days late (" + list.length + " owed)",
+          b.head && list.length > 5 && b.keys.join() === list.map(e => e.k).join() && b.labels.join() === list.map(word).join() &&
+            list.some(e => e.late > 1) && list.some(e => e.late === 1) && list.some(e => e.late === 0),
+          JSON.stringify({ rows: b.keys.length, labels: b.labels.slice(0, 6) }));
+        check("(ob) five rows show, the rest sit in a closed <details> reading +N more", b.shown === 5 && b.moreOpen === false && b.moreLabel === "+" + (list.length - 5) + " more",
+          b.shown + " shown, details " + b.moreOpen + " \"" + b.moreLabel + "\"");
+        check("(ob) every row on screen and the +N more fold are at least 44x44", b.small.length === 0, b.small.join(", ") || "all 44+");
+        check("(ob) drawing Today with the banner writes nothing", (await writes(page)) - w0 === 0, ((await writes(page)) - w0) + " write(s)");
+        // A row whose lecture has no quiz, so marking it watched clears it.
+        const i = await page.evaluate(keys => keys.findIndex(k => { const p = k.split("."), c = window.DAR.COURSES.find(x => x.id === p[0]), l = c.units[+p[1]].lessons[+p[2]];
+          return !((((window.DAR.SUMMARIES || {})[l.alias || k] || {}).checks || []).length); }), b.keys.slice(0, 5));
+        if (i < 0) throw new Error("no quiz-free lecture among the first five rows");
+        const k = b.keys[i];
+        await markView(page);
+        if (w < 860) await page.tap('#view [data-owed="' + k + '"]'); else await page.click('#view [data-owed="' + k + '"]');
+        await viewReplaced(page);
+        const at = await page.evaluate(() => location.hash);
+        check("(ob) " + (w < 860 ? "tapping" : "clicking") + " a row opens that lecture (" + k + ")", at === "#" + b.hrefs[i].slice(1) && at === "#/lesson/" + k.split(".").join("/"), at);
+        await page.click("#view [data-act=toggleDone]");
+        await page.waitForFunction(() => ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === "Unmark watched", null, { timeout: 8000 });
+        await go(page, "/");
+        const b2 = await banner(page);
+        check("(ob) marking it watched removes its row, and only its row", !b2.keys.includes(k) && b2.keys.join() === b.keys.filter(x => x !== k).join(), b2.keys.length + " rows, was " + b.keys.length);
+        await shot(page, "owed-banner-" + w);
+      } catch (e) { check("(ob) the owed-banner flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+      check("(ob) no page errors", errors.length === 0, errors.join(" | "));
+      await ctx.close();
+      for (const [name, seed, day] of [["no activity", null, OB_DAY], ["activity only on a Saturday, nothing scheduled", { studyDays: ["2026-11-28"] }, "2026-11-28"]]) {
+        const f = await fresh(browser, w, seed, "/__test", day);
+        await go(f.page, "/");
+        const n = await f.page.evaluate(() => window.__brickfordTest.owedList().length), e = await banner(f.page);
+        check("(ob) nothing owed (" + name + "): no banner", n === 0 && !e.head && e.keys.length === 0 && e.moreOpen === null && !f.page.isClosed() &&
+          !(await f.page.evaluate(() => !!document.querySelector("#view .owed-list"))), n + " owed, head " + e.head + ", " + e.keys.length + " rows");
+        check("(ob) no page errors (" + name + ")", f.errors.length === 0, f.errors.join(" | "));
+        await f.ctx.close();
+      }
+    }
+  }
+
   await browser.close();
   console.log("");
   check("no network sync (GitHub requests from test contexts)", githubHits === 0, githubHits + " request(s)");
@@ -3183,6 +3247,7 @@ export async function pipeline(task, model, opts) {
       "Start Monk Mode at 390/1280 — a tick, then a hold of 1.5 s (mouse, and Space at 1280) and no click, short hold or slide-off starts it, one write, Day 1 of 21 on the page and the dashboard (T-065); " +
       "practice items at 390 — numeric right and wrong, a worked solution and a written checklist kept out of the page until an attempt, Grade with Claude against a stub (one request, only the question, checklist and answer, the key nowhere), Copy this week, and a missed item back in Recall (T-067 step 3); " +
       "checkpoints at 390 (tapped) and 1280 (keyboard, then mouse) — tick and untick one write each, 44x44 targets, drawing writes nothing (T-069); " +
+      "the owed banner at 390 and 1280 — the owed list in order with its lateness, five rows and +N more, 44x44, drawing writes nothing, a row opens its lecture, watching it removes the row, no banner with nothing owed (T-079); " +
       "record on the phone, transcribe on the laptop — the upload to the private repo's audio/ at 390 and 1280, the phone with no transcription at all, consent, the transcript on IndexedDB only, fillers, counts, words per minute, Copy, the desktop pull, the upload failure and its retry per open, Not now, and every failure line (T-046)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);

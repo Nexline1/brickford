@@ -161,7 +161,10 @@ void main() {
     m.engine.review['math110.0.1']['due'] = '2026-11-01';
     m.refresh();
     await tester.pumpAndSettle();
-    await tester.dragUntilVisible(find.byKey(const ValueKey('home-review')), find.byType(Scrollable).last, const Offset(0, -120));
+    // T-079: the owed banner sits above the row now, so scroll to the button itself, not just the row's first edge.
+    await tester.dragUntilVisible(find.byKey(const ValueKey('home-review-go')), find.byType(Scrollable).last, const Offset(0, -120));
+    await tester.ensureVisible(find.byKey(const ValueKey('home-review-go')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('home-review')), findsOneWidget);
     expect(find.descendant(of: find.byKey(const ValueKey('home-review')), matching: find.textContaining('2', findRichText: true)), findsWidgets);
     final size = tester.getSize(find.byKey(const ValueKey('home-review-go')));

@@ -1,0 +1,6 @@
+01:29 +178: C:/Users/user/Downloads/New folder/bf-T-079/app/test/widgets_test.dart: every BrickfordField, at any width, is at least 16px
+01:29 +179: C:/Users/user/Downloads/New folder/bf-T-079/app/test/widgets_test.dart: Home on the real plan: 4 Nov 2026 is plan day 17 and Monk day 4 of 21; four tabs
+01:29 +180: C:/Users/user/Downloads/New folder/bf-T-079/app/test/widgets_test.dart: Mark watched stores lessons[k] in the web app's shape
+01:30 +181: C:/Users/user/Downloads/New folder/bf-T-079/app/test/widgets_test.dart: startup does not read summaries.json; quiz-keys.json is exactly lessonQuiz != null; a lecture reads it on open
+01:31 +182: C:/Users/user/Downloads/New folder/bf-T-079/app/test/widgets_test.dart: (tearDownAll)
+01:31 +182: All tests passed!

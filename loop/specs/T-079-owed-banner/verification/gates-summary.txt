@@ -1,0 +1,16 @@
+verify-content exit 0
+verify-sync-loop exit 0
+verify-shell exit 0
+verify-contrast exit 0
+verify-clip exit 2
+verify-design exit 0
+verify-density exit 1
+verify-offline exit 1
+verify-boot exit 1
+verify-logic exit 0
+verify-flows exit 0
+verify-clip (rerun) exit 1
+verify-boot (rerun) exit 0
+verify-sync-loop (with the T-079 check) exit 0
+verify-boot (after the app-web rebuild) exit 0
+verify-logic (final) exit 0

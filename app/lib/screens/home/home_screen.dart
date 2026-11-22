@@ -53,6 +53,9 @@ class _HomeScreenState extends State<HomeScreen> {
   /// The chip row's filter: null is All, otherwise a course code.
   String? only;
 
+  /// T-079: the owed banner's "+N more" fold, closed until tapped (in memory only).
+  bool owedOpen = false;
+
   @override
   Widget build(BuildContext context) {
     final m = AppScope.of(context);
@@ -235,6 +238,8 @@ class _HomeScreenState extends State<HomeScreen> {
               : null,
         ),
         SizedBox(height: 18.h),
+        // T-079 (app.js owedBannerHTML): which lectures are behind and by how much, first under the next action.
+        ...owedBanner(e.owedList(), open: owedOpen, onMore: () => setState(() => owedOpen = !owedOpen), onOpen: open),
         // The daily review (app.js: "Recall due"): only while something is due.
         if (reviewsN > 0) ...[
           _ReviewRow(n: reviewsN, onPressed: openRecall),
@@ -277,6 +282,37 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
+
+/// T-079: the owed banner. One row per owed lecture (oldest first) with "today", "1 day late" or "N days late",
+/// each opening its lecture; five rows, the rest behind a closed "+N more". Nothing when nothing is owed, and
+/// nothing to dismiss: it goes when the work is done. Building it writes nothing.
+List<Widget> owedBanner(List<OwedEntry> list, {required bool open, required VoidCallback onMore, required void Function(String cid, int ui, int li) onOpen}) {
+  if (list.isEmpty) return const [];
+  Widget row(OwedEntry o) => ItemBlock(
+    key: ValueKey('home-owed-${o.k}'),
+    id: 'home-owed-${o.k}',
+    leading: const LeadTile(icon: Icons.history),
+    title: o.title,
+    meta: o.label,
+    onTap: () => onOpen(o.it.cid!, o.it.ui!, o.it.li!),
+  );
+  final more = list.length - 5;
+  return [
+    SheetLabel(Icons.history, 'Not watched yet · ${list.length}', key: const ValueKey('home-owed')),
+    for (final o in list.take(5)) row(o),
+    if (more > 0) ...[
+      ItemBlock(
+        key: const ValueKey('home-owed-more'),
+        id: 'home-owed-more',
+        leading: Icon(open ? Icons.expand_less : Icons.expand_more, color: Tokens.quiet),
+        title: open ? 'Show fewer' : '+$more more',
+        onTap: onMore,
+      ),
+      if (open) for (final o in list.skip(5)) row(o),
+    ],
+    SizedBox(height: 8.h),
+  ];
 }
 
 /// "Today's practice": the lectures scheduled today that have practice items and the ones with items due again,

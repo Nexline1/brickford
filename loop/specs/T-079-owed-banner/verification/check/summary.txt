@@ -1,0 +1,18 @@
+typecheck 0
+verify-content 0
+verify-shell 0
+verify-contrast 0
+verify-logic 0
+verify-flows 0
+verify-clip 1
+verify-design 0
+verify-boot 1
+verify-offline 1
+verify-density 1
+verify-sync-loop 0
+lf-clone c55dc2a T-079: Today banner naming each owed lecture and how many study days late
+export-check 0
+flutter-analyze 0
+flutter-test 0
+verify-app(full) 0
+DONE

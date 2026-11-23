@@ -82,7 +82,7 @@ void main() {
     // The branding row's crest (the lecture cards' thumbnails carry a quieter one of their own).
     final crest = find.descendant(of: find.byKey(SheetScaffold.canvasKey).first, matching: find.byType(Crest)).first;
     final w = tester.widget<Crest>(crest);
-    expect(w.field, Tokens.gold);
+    expect(w.field, Tokens.crest);  // the owner's crest gold, 23 Nov 2026
     expect(w.cut, Tokens.midnight);
     final at = tester.getTopLeft(crest);
     expect(at.dx, lessThan(40));

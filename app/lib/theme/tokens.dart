@@ -40,6 +40,9 @@ abstract final class Tokens {
   /// Crest, canvas highlights and badges on the canvas. Never on white (2.5:1).
   static const gold = Color(0xFFC89B60);
 
+  /// The crest's own gold (the owner's artwork, 23 Nov 2026: #DFB46B on near-black).
+  static const crest = Color(0xFFDFB46B);
+
   /// The lighter caramel (--crest): 8.4:1 on midnight. Highlights on the canvas.
   static const goldHi = Color(0xFFD3A874);
 

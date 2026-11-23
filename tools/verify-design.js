@@ -906,7 +906,8 @@ function sideState() {
   const z = window.__dz;
   const s = document.querySelector("#sidebar"), cs = getComputedStyle(s);
   const act = document.querySelector(".sidebar .nav a.active"), as = act && getComputedStyle(act);
-  const field = document.querySelector(".crest .cr-field"), cut = document.querySelector(".crest .cr-cut");
+  // The crest (23 Nov 2026) is one gold mark on an open field: .cr-mark, and nothing painted over it.
+  const field = document.querySelector(".crest .cr-mark"), cut = document.querySelector(".crest svg > :not(.cr-mark)");
   // A token as the sidebar's contents see it (T-025: light's espresso sidebar
   // re-scopes its inks), resolved on a probe inside the nav.
   const sideTok = n => {
@@ -3133,9 +3134,11 @@ function t28SeedClips(list) {
       // T-051-1 r1: the field is --crest, pinned to the pre-T-051 brand colour
       // (it was --gold, which T-051-1 made iOS orange), so it still matches
       // the home-screen icon.
-      check(at + ": the crest is --crest (" + BRIEF[theme]["--crest"] + ", the brand's, not --gold) with --panel cut-outs (holes in the seal, T-025)",
-        !!s.field && __same(s.field, s.crest) && __same(s.field, hexBytes(BRIEF[theme]["--crest"])) && !__same(s.field, s.gold) && !!s.cut && __same(s.cut, s.panel),
-        "field " + (s.field ? hx(s.field) : "?") + " (--crest " + hx(s.crest) + ", --gold " + hx(s.gold) + "), cut " + (s.cut ? hx(s.cut) : "?"));
+      // 23 Nov 2026: the owner's crest is one mark on an open field (the sidebar shows
+      // through the shield), so there are no cut-outs to colour any more.
+      check(at + ": the crest is one mark in --crest (" + BRIEF[theme]["--crest"] + ", the brand's, not --gold), on an open field",
+        !!s.field && __same(s.field, s.crest) && __same(s.field, hexBytes(BRIEF[theme]["--crest"])) && !__same(s.field, s.gold) && !s.cut,
+        "mark " + (s.field ? hx(s.field) : "?") + " (--crest " + hx(s.crest) + ", --gold " + hx(s.gold) + ")" + (s.cut ? ", and something else painted over it" : ""));
       check(at + ": no page errors", errors.length === 0, errors.join(" | "));
       await ctx.close();
     }

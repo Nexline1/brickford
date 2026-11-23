@@ -1,14 +1,19 @@
 # App icons — how to replace them with your own logo
 
-These four PNGs are what iOS and Android use when Brickford is added to a home
-screen. They are the **full crest** — shield, keyline, laurel wreath, temple,
-diamond — rendered in the Parchment identity: brown `#5d3f26` on cream `#f8f4ec`.
-The install already works; replace them whenever you have your own artwork.
+These PNGs are what iOS and Android use when Brickford is added to a home
+screen, and what browsers show in the tab. Since 23 Nov 2026 they are the
+**owner's crest**: double-keyline shield, laurel wreath, temple, two diamonds,
+in gold `#DFB46B` on black `#090909`, traced from his artwork (left half
+mirrored, so it is exactly symmetric).
 
-Note the deliberate difference from the favicon: the browser-tab mark is a
-**simplified** crest, because at 16px the laurels and the keyline turn to mud. An
-app icon is 180-512px and has the resolution to carry the whole device. Two
-drawings of one crest, each sized for where it is used.
+**One master, everything generated.** `crest.svg` here is the only drawing.
+`node tools/crest-gen.js` writes it into the website's sidebar
+(`platform/index.html`, coloured by each theme's `--crest`), the phone app's
+boot screen (`app/web/index.html`), the Flutter painter
+(`app/lib/widgets/crest_data.dart`), and every PNG below, in both
+`platform/icons/` and `app/web/icons/`. To change the logo: replace the path in
+`crest.svg`, run the script, bump the `?v=` token, rebuild the app
+(`tools/build-app.sh`).
 
 ## Drop your files here, with these exact names
 
@@ -36,11 +41,11 @@ happened.
 
 ## Regenerating from the crest
 
-The current set was rasterised from the `.crest` SVG in `platform/index.html` at
-92% scale (66% for the maskable one), with the theme variables replaced by fixed
-values — an app icon cannot follow a theme. The crest artwork is 200x224, taller
-than wide, so it is centred in a square viewBox rather than stretched; stretching
-it makes the shield fat.
+`node tools/crest-gen.js` renders each icon in Chromium from `crest.svg`: the
+crest at 80% of the square on opaque black for the home-screen and install
+icons, 62% for the maskable one, and 94% for the tab icons (16/32/48), where
+every pixel counts. The crest is 200x224, taller than wide, so it is centred,
+never stretched.
 
 ## What this install does and does not do
 

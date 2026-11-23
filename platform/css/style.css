@@ -1173,10 +1173,9 @@ i.cmark { display: inline-block; vertical-align: -2px; margin-right: 4px; }
    sidebar is painted with, so the device reads as holes in the seal (T-025:
    the sidebar is the panel again). */
 .crest svg { width: 62px; height: 70px; display: block; margin: 0 auto; }
-.crest .cr-field { fill: var(--crest); }
-.crest .cr-key { fill: none; stroke: var(--panel); stroke-width: 3; opacity: 0.55; }
-.crest .cr-cut { fill: var(--panel); }
-.crest .cr-stem { fill: none; stroke: var(--panel); stroke-width: 3.4; stroke-linecap: round; }
+/* The crest (owner's artwork, 23 Nov 2026): one gold mark on an open field, so
+   the panel it sits on shows through the shield. tools/crest-gen.js writes it. */
+.crest .cr-mark { fill: var(--crest); }
 
 /* ---------- Faculty colour, applied where a subject is identified ---------- */
 .fac-math { --fac: var(--fac-math); }

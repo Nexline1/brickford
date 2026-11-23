@@ -117,8 +117,8 @@ const exporter = require("./export-data.js");
 const ROOT = path.resolve(__dirname, "..");
 const URL = "file://" + path.join(ROOT, "platform/index.html") + "#";
 const DART = process.env.DART || (fs.existsSync("/opt/flutter/bin/dart") ? "/opt/flutter/bin/dart" : "dart");
-const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state", "t074-push-drops-scheduledfor", "t074-merge-later", "t074-unmark-overwrites"];
-const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state", "t074-push-drops-scheduledfor", "t074-merge-later", "t074-unmark-overwrites"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
+const PLANTS = ["rest-dow", "stale-json", "rest-status", "merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "publish-anchor", "plan-v2-budget", "plan-v2-backlog", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state", "t074-push-drops-scheduledfor", "t074-merge-later", "t074-unmark-overwrites", "t079-owed-saturday-late", "t079-owed-optional", "t079-owed-due-replanned"];
+const LIGHT = ["merge-weeks", "merge-streak", "monk-times", "quiz-pass-mark", "quiz-gate", "pset-due", "ledger-hash", "seal-guard", "treasury-sum", "atlas-count", "recall-interval", "drill-pick", "elective-fits", "practice-week", "practice-rule", "practice-due", "gate-order", "workshop-count", "doc-kinds", "monk-start-overwrites", "monk-merge-later", "monk-payload-monk", "monk-day-unstarted", "practice-payload-drop", "practice-merge-older", "checkpoints-payload-drop", "checkpoints-merge-older", "checkpoints-auto-ignores-state", "t074-push-drops-scheduledfor", "t074-merge-later", "t074-unmark-overwrites", "t079-owed-saturday-late", "t079-owed-optional", "t079-owed-due-replanned"].includes(process.argv[process.argv.indexOf("--plant") + 1]) || !!process.env.VERIFY_ONLY;
 const CAL_FROM = "2026-10-01", CAL_TO = "2026-12-31";
 const CAL_CLOCKS = ["2026-11-07", "2026-11-05"];        // a Saturday (rest) clock and a study-day clock
 
@@ -529,6 +529,33 @@ async function runT074JS(browser, fx, pure) {
     pure.setS(clone(f.local));
     const changed = pure.mergeState(clone(f.remote)).changed;
     out.push[f.name] = { changed, lessons: t074proj(clone(pure.syncPayload().state.lessons)) };
+  }
+  return out;
+}
+
+// T-079: the owed list (owedList) and backlogCount, each fixture booted (the page freezes the schedule on its first
+// render; the Dart engine calls freezeSchedule, as AppModel does at boot). Every entry as [k, due, late].
+function t079Fixtures() {
+  const W = d => ({ done: true, doneAt: d, notes: "", checks: [] });
+  return [
+    { name: "the owner's shape: from the start, one watched, after the v2 cutover (v1 days, the optional ai200.2.0, Saturdays)", clock: "2026-11-25",
+      state: { lessons: { "math110.0.0": W("2026-10-16") }, studyDays: ["2026-10-16"] } },
+    { name: "owed Friday, the clock Friday", clock: "2026-11-27", state: { studyDays: ["2026-11-27"] } },
+    { name: "owed Friday, the clock Saturday (rest)", clock: "2026-11-28", state: { studyDays: ["2026-11-27"] } },
+    { name: "owed Friday, the clock Sunday", clock: "2026-11-29", state: { studyDays: ["2026-11-27"] } },
+    { name: "a frozen scheduledFor a day before the plan's date, the clock Sunday", clock: "2026-11-29",
+      state: { studyDays: ["2026-11-27"], lessons: { "math110.1.10": { scheduledFor: "2026-11-26" } } } },
+    { name: "a stored scheduledFor after the plan's date, and one on a Saturday (not trusted)", clock: "2026-11-29",
+      state: { studyDays: ["2026-11-27"], lessons: { "math110.1.10": { scheduledFor: "2026-12-31" }, "cs100.2.0": { scheduledFor: "2026-11-21" } } } },
+    { name: "nothing started", clock: "2026-11-29", state: null },
+  ];
+}
+async function runT079JS(browser, fx) {
+  const out = { errors: [], owed: {} };
+  for (const f of fx.t079) {
+    const { ctx, page: p, errors } = await page(browser, f.clock, f.state);
+    out.owed[f.name] = await p.evaluate(() => { const T = window.__brickfordTest; return { list: T.owedList().map(e => [e.k, e.due, e.late]), backlog: T.backlogCount() }; });
+    out.errors = out.errors.concat(errors); await ctx.close();
   }
   return out;
 }
@@ -1810,6 +1837,11 @@ function diff(a, b, at, out, label) {
     "t074-push-drops-scheduledfor": ["lib/engine/merge.dart", "  state['settings'] = settings;", "  state['lessons'] = {for (final en in _m(S['lessons']).entries) en.key: ({..._m(en.value)}..remove('scheduledFor'))};  state['settings'] = settings;"],
     "t074-merge-later": ["lib/engine/merge.dart", "[mine['scheduledFor'], theirs['scheduledFor']].where(truthy).map(_js).toList()..sort();", "[mine['scheduledFor'], theirs['scheduledFor']].where(truthy).map(_js).toList()..sort((a, b) => b.compareTo(a));"],
     "t074-unmark-overwrites": ["lib/engine/engine.dart", "st.remove('doneAt');", "st['firstDoneAt'] = at; st.remove('doneAt');"],
+    // T-079: the Dart owed list counts a Saturday as a late day (calendar days), lists an optional lecture, and takes
+    // due from the computed plan over a frozen scheduledFor.
+    "t079-owed-saturday-late": ["lib/engine/engine.dart", "final late = now - studyIndex(due);", "final late = daysBetween(due, today);"],
+    "t079-owed-optional": ["lib/engine/engine.dart", "if (truthy(it.l?['optional'])) continue;   // T-067 step 3: an optional lecture is never owed (app.js backlogCount)", ""],
+    "t079-owed-due-replanned": ["lib/engine/engine.dart", "final due = sf is String && sf.isNotEmpty && le(sf, iso) && studyIndex(sf) >= 0 ? sf : iso;", "final due = iso;"],
     "pset-due": ["lib/engine/problems.dart", "lessonCleared('${i['after']}') && !truthy(_m(S['psets'])[i['id']]);", "lessonCleared('${i['after']}');"],   // a ticked pset stays due
   };
   if (PLANT_EDITS[argPlant]) {
@@ -1876,6 +1908,7 @@ function diff(a, b, at, out, label) {
     fx.lpr = lprFixtures(plan);
     fx.cp = cpFixtures(plan);
     fx.t074 = t074Fixtures();
+    fx.t079 = t079Fixtures();
     fx.learn.courses = JSON.parse(fs.readFileSync(path.join(exporter.OUT, "courses.json"), "utf8")).map(c => ({ id: c.id, code: c.code, tracker: !!c.tracker }));
     console.log("  plan " + plan.start + " .. day 1094 " + plan.end + ", " + dates.length + " dates to " + LAST + ", " +
       fx.fixtures.length + " fixtures, " + plan.keys.length + " lessons");
@@ -2349,6 +2382,22 @@ function diff(a, b, at, out, label) {
           pl(w, 0, "R").scheduledFor === "2026-10-30" && pl(w, 0, "R").firstDoneAt === "2026-10-30T07:00:00.000Z" && pl(w, 0, "S").scheduledFor === "2026-11-01" &&
           pl(w, 0, "S").firstDoneAt === "2026-11-04T06:00:00.000Z" && pl(w, 1, "P").scheduledFor === "2026-10-30" && pl(w, 1, "P").firstDoneAt === T074_TS && pl(w, 1, "Q").scheduledFor === "2026-11-01"),
         "dart: " + JSON.stringify((dt.push || {})[P[0]]));
+    }
+    // 5e. T-079: the owed list behind the banner, and backlogCount, on the same fixtures in both engines.
+    if (!process.env.VERIFY_ONLY) {
+      const jo = await runT079JS(browser, fx), dd = dart.t079 || {};
+      check("the T-079 block ran in app.js without page errors", jo.errors.length === 0, jo.errors.slice(0, 3).join(" | "));
+      for (const f of fx.t079) {
+        const out = []; diff(jo.owed[f.name], dd[f.name], [], out, (at, i) => i);
+        check("parity: T-079 owedList and backlogCount — " + f.name + " @ " + f.clock + " (" + ((jo.owed[f.name] || {}).list || []).length + " owed)", out.length === 0, out.slice(0, 4).join("; "));
+      }
+      const O = fx.t079.map(f => jo.owed[f.name]), L = (i, k) => (O[i].list.find(e => e[0] === k) || []);
+      check("the T-079 fixtures reach: past and today's entries, late across a Saturday (Friday's 1 on Sat and Sun), an optional lecture on the walk left out, a frozen due used, untrusted stored dates ignored, an empty list, backlogCount = the late entries",
+        O[0].list.length > 20 && !O[0].list.some(e => e[0] === "ai200.2.0") && O[0].list.some(e => e[2] === 0) &&
+          O[1].list.every(e => e[2] === 0) && O[2].list.length === O[1].list.length && O[2].list.every(e => e[2] === 1) && O[3].list.some(e => e[1] === "2026-11-27" && e[2] === 1) &&
+          L(4, "math110.1.10")[1] === "2026-11-26" && L(4, "math110.1.10")[2] === 2 && L(5, "math110.1.10")[1] === "2026-11-27" && O[6].list.length === 0 &&
+          O.every(o => o.backlog === o.list.filter(e => e[2] > 0).length),
+        O.map(o => o.list.length + "/" + o.backlog).join(", "));
     }
   } finally {
     await browser.close();

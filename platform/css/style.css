@@ -2247,6 +2247,8 @@ a.grow::after, button.grow.nav::after {
 .grow.muted-row .g-v { color: var(--ink-2); }
 .grow.done-row .g-lead { color: var(--good); }
 .grow.done-row .g-t { color: var(--ink-2); font-weight: 400; }
+/* T-079: the owed banner is a list to scan, one line a row; the full title is on the lesson it opens. */
+.owed-list .g-t, .owed-more .g-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* A row that carries a control as well as text has to wrap. At 320px a button
    beside a title squeezed the title's content box to zero and clipped it
    entirely — found by the sweep, on /transcript, the first time around. */

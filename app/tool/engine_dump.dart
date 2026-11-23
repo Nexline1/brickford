@@ -674,8 +674,20 @@ void main(List<String> args) {
   out['lpr'] = lprDump(fx, data);
   out['cp'] = cpDump(fx, data);
   out['t074'] = t074Dump(fx, data);
+  out['t079'] = t079Dump(fx, data);
   stdout.write(jsonEncode(out));
 }
+
+/// T-079: the owed list and backlogCount per fixture, after the boot freeze (AppModel calls freezeSchedule), each
+/// entry as [k, due, late], shaped as tools/verify-app.js reads app.js.
+Map<String, dynamic> t079Dump(Map<String, dynamic> fx, BrickfordData data) => {
+  for (final f in (fx['t079'] as List? ?? const []))
+    f['name'] as String: () {
+      final e = Engine(data, (jsonDecode(jsonEncode(f['state'])) as Map?)?.cast<String, dynamic>(), today: () => f['clock'] as String);
+      e.freezeSchedule();
+      return {'list': [for (final o in e.owedList()) [o.k, o.due, o.late]], 'backlog': e.backlogCount()};
+    }(),
+};
 
 /// T-074: the frozen schedule and the first-watch timestamp. Each freeze fixture boots (freezeSchedule), then per step
 /// sets the clock and freezes, and when asked toggles (stamped at noon UTC, as the page's pinned clock) and freezes

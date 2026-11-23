@@ -178,6 +178,16 @@ class SchedItem {
   String get title => pseudo ? t! : (l!['t'] as String? ?? '');
 }
 
+/// One row of the owed banner (T-079, app.js owedList): the lecture, its due date and how many study days late.
+class OwedEntry {
+  const OwedEntry(this.k, this.it, this.title, this.due, this.late);
+  final String k, title, due;
+  final SchedItem it;
+  final int late;
+  /// "today", "1 day late" or "N days late" (app.js owedLabel).
+  String get label => late > 1 ? '$late days late' : late == 1 ? '1 day late' : 'today';
+}
+
 /// The dashboard's one next action (app.js nextAction), without the HTML.
 class NextAction {
   const NextAction(this.kind,
@@ -285,6 +295,7 @@ class Engine {
   final Map<String, String> _statusMemo = {};
   int? _streakMemo, _bestMemo, _backlogMemo;
   ({SchedItem? v})? _owedMemo;
+  List<OwedEntry>? _owedListMemo;
 
   /// True when answers may be kept; clears them first when S or the date moved on since they were made.
   bool _memoLive() {
@@ -295,6 +306,7 @@ class Engine {
       _statusMemo.clear();
       _streakMemo = _bestMemo = _backlogMemo = null;
       _owedMemo = null;
+      _owedListMemo = null;
       _memoRev = _rev;
       _memoToday = t;
     }
@@ -994,24 +1006,47 @@ class Engine {
     return first;
   }
 
+  /// The owed count Home shows: the entries of [owedList] that are late (app.js backlogCount, T-079).
   int backlogCount() {
     if (_memoLive()) return _backlogMemo ??= _backlogCount();
     return _backlogCount();
   }
 
-  int _backlogCount() {
+  int _backlogCount() => owedList().where((e) => e.late > 0).length;
+
+  /// T-079 (app.js owedList): every lecture not yet cleared, from the first activity up to and including today,
+  /// once each, oldest first. due is the frozen scheduledFor (T-074) when it is a study day on or before the walk's
+  /// date, else the walk's date; late is study days from due to today, a Saturday counting as the study day after
+  /// the Friday it follows (a rest day adds no lateness). A read: no lesson entry is created.
+  List<OwedEntry> owedList() {
+    if (_memoLive()) return _owedListMemo ??= _owedList();
+    return _owedList();
+  }
+
+  List<OwedEntry> _owedList() {
     final today = todayISO();
     final from = firstActivityISO();
-    if (from == null) return 0;
+    if (from == null) return [];
+    final now = isRestDay(today) ? studyIndex(prevStudyDay(today)) + 1 : studyIndex(today);
     final owed = <String>{};
-    for (var iso = gt(from, START_DATE) ? from : START_DATE; lt(iso, today); iso = addDaysISO(iso, 1)) {
+    final out = <OwedEntry>[];
+    for (var iso = gt(from, START_DATE) ? from : START_DATE; le(iso, today); iso = addDaysISO(iso, 1)) {
       if (isRestDay(iso)) continue;
       for (final it in realSched(iso)) {
         if (truthy(it.l?['optional'])) continue;   // T-067 step 3: an optional lecture is never owed (app.js backlogCount)
+        if (owed.contains(it.key)) continue;
         if (!schedDone(it) && !v2Rescheduled(iso, it.key)) owed.add(it.key);
+        if (!owed.contains(it.key)) continue;
+        final sf = _map(lessons[it.key])['scheduledFor'];
+        final due = sf is String && sf.isNotEmpty && le(sf, iso) && studyIndex(sf) >= 0 ? sf : iso;
+        final late = now - studyIndex(due);
+        out.add(OwedEntry(it.key, it, it.title, due, late < 0 ? 0 : late));
       }
     }
-    return owed.length;
+    // Stable: walk order within a date (List.sort is not stable, so the index breaks ties).
+    final idx = {for (var i = 0; i < out.length; i++) out[i]: i};
+    out.sort((a, b) { final c = a.due.compareTo(b.due); return c != 0 ? c : idx[a]!.compareTo(idx[b]!); });
+    return out;
   }
 
   SchedItem? firstOwed() {

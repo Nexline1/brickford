@@ -184,6 +184,39 @@ async function session(browser, { putOk }) {
     await ctx.close();
   }
 
+  // T-079: Today with the owed banner on screen, a token, and three forced renders: a render is a read, so
+  // nothing is written to storage and nothing is PUT.
+  console.log("The owed banner on Today writes nothing and arms no push (T-079):");
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    await ctx.clock.setFixedTime(new Date("2026-11-29T12:00:00Z"));
+    await ctx.addInitScript(() => {
+      localStorage.setItem("brickford_gh_token", "ghp_stub_token_for_the_harness");
+      if (!localStorage.getItem("darhikmah_v1")) localStorage.setItem("darhikmah_v1", JSON.stringify({ studyDays: ["2026-11-25"] }));
+      window.__stateWrites = 0;
+      const set = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (k, v) { if (k === "darhikmah_v1") window.__stateWrites++; return set.call(this, k, v); };
+    });
+    const page = await ctx.newPage();
+    let puts = 0;
+    await page.route("https://api.github.com/**", route => {
+      if (route.request().method() === "GET") return route.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify({ sha: "stubsha", content: Buffer.from("{}").toString("base64") }) });
+      puts++;
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "newsha" } }) });
+    });
+    await page.goto(URL + "/__test", { waitUntil: "load" });
+    await page.evaluate(() => { location.hash = "#/"; });
+    await page.waitForSelector("#view [data-owed]");
+    const w0 = await page.evaluate(() => window.__stateWrites);
+    for (let i = 0; i < 3; i++) await page.evaluate(() => window.__brickfordTest.render());
+    await page.waitForTimeout(6000);
+    const r = await page.evaluate(() => ({ rows: document.querySelectorAll("#view [data-owed]").length, w: window.__stateWrites }));
+    check(r.rows > 5, "the banner is on Today (" + r.rows + " owed rows)");
+    check(r.w - w0 === 0 && puts === 0, "and drawing it (boot and three forced renders) wrote nothing and PUT nothing in 6s (" + (r.w - w0) + " writes, " + puts + " PUTs)");
+    await ctx.close();
+  }
+
   console.log("A rejected token latches the automatic push, and only that:");
   {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });

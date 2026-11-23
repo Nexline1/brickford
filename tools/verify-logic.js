@@ -2078,6 +2078,99 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // ---- T-079: the owed list behind Today's banner (loop/specs/T-079-owed-banner/spec.md) ----
+  // The expected list is walked here from the hook's scheduledFor and the lesson data, never from owedList:
+  // each lecture not cleared, once, on the first study day from the first activity to today it is on (an
+  // optional one never, a v1 lecture v2 schedules again not on its v1 day), oldest first; late counts the
+  // non-Saturday dates after due up to today, by the calendar here, not by studyIndex. On a Saturday the
+  // Friday before it has ended, so a Saturday counts as the Sunday after it would: Friday's lecture is
+  // 1 late on both (a rest day adds no lateness), and Saturday's backlogCount still owes Friday's lectures.
+  {
+    const lateBy = (due, today) => range(addDays(due, 1), isSat(today) ? addDays(today, 1) : today).filter(d => !isSat(d)).length;
+    const expectOwed = (page, from, today, dueOf) => page.evaluate(([from, today]) => {
+      const T = window.__brickfordTest, v2 = new Set(), L = {};
+      window.DAR.COURSES.forEach(c => (c.units || []).forEach((u, ui) => u.lessons.forEach((l, li) => { L[c.id + "." + ui + "." + li] = l; })));
+      for (let d = T.studyIndex(T.PLAN_V2_FROM); d < 1094; d++) T.scheduledFor(T.dateForStudy(d)).forEach(it => { if (!it.pseudo && it.track !== "Publish") v2.add(it.cid + "." + it.ui + "." + it.li); });
+      const out = [], seen = new Set(), optional = [];
+      for (let t = new Date(from + "T00:00:00Z"); t.toISOString().slice(0, 10) <= today; t.setUTCDate(t.getUTCDate() + 1)) {
+        const iso = t.toISOString().slice(0, 10);
+        if (t.getUTCDay() === 6) continue;
+        T.scheduledFor(iso).forEach(it => {
+          if (it.pseudo) return;
+          const k = it.cid + "." + it.ui + "." + it.li;
+          if (L[k].optional) { if (!T.lessonCleared(k)) optional.push(k); return; }
+          if (seen.has(k) || T.lessonCleared(k) || (iso < T.PLAN_V2_FROM && v2.has(k))) return;
+          seen.add(k); out.push({ k, due: iso });
+        });
+      }
+      return { out, optional, got: T.owedList(), backlog: T.backlogCount() };
+    }, [from, today]).then(r => {
+      r.want = r.out.map(e => ({ k: e.k, due: (dueOf && dueOf[e.k]) || e.due })).sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0))
+        .map(e => Object.assign(e, { late: lateBy(e.due, today) }));
+      r.bad = [];
+      if (r.got.length !== r.want.length) r.bad.push(r.got.length + " entries, want " + r.want.length);
+      r.want.forEach((w, i) => { const g = r.got[i] || {}; if (g.k !== w.k || g.due !== w.due || g.late !== w.late) r.bad.push("#" + i + " got " + [g.k, g.due, g.late].join(" ") + ", want " + [w.k, w.due, w.late].join(" ")); });
+      return r;
+    });
+    // (1) The owner's shape: everything from the start, one lecture watched, the clock after the v2 cutover;
+    // the walk crosses v1 days (19 and 20 Nov carry the optional ai200.2.0) and Saturdays.
+    {
+      const today = "2026-11-25";
+      const seed = { lessons: { "math110.0.0": { done: true, doneAt: START, notes: "", checks: [] } }, studyDays: [START] };
+      const s = await scenario(browser, today, seed);
+      const r = await expectOwed(s.page, START, today);
+      check("T-079 (1): owedList on the owner fixture (" + START + " .. " + today + ") gives the right keys, order, due and late",
+        r.bad.length === 0 && r.want.length > 20 && r.want.some(e => e.late === 0) && r.want.some(e => e.late > 6),
+        r.bad.slice(0, 4).join("; ") || r.want.length + " owed, late " + r.want[0].late + " .. 0");
+      check("T-079 (1): an optional lecture is never listed (ai200.2.0 is on the walk, not watched)",
+        r.optional.indexOf("ai200.2.0") >= 0 && !r.got.some(e => e.k === "ai200.2.0"), "optional on the walk: " + r.optional.join(","));
+      const late = r.got.filter(e => e.late > 0).length;
+      check("T-079 (1): backlogCount equals the entries with late > 0", r.backlog === late && late > 0, "backlogCount " + r.backlog + ", late entries " + late);
+      check("no page errors (T-079 owner)", s.errors.length === 0, s.errors.join(" | "));
+      await s.ctx.close();
+    }
+    // (2) Owed on Friday 27 Nov, Saturday 28 rest, the clock Sunday 29: Friday's lectures are 1 day late, not 2.
+    // On the Saturday the list is Friday's, nothing new, and they are 1 late there too.
+    {
+      const FRI = "2026-11-27", SAT = "2026-11-28", SUN = "2026-11-29", seed = { studyDays: [FRI] };
+      const at = {};
+      for (const d of [FRI, SAT, SUN]) {
+        const s = await scenario(browser, d, seed);
+        at[d] = await expectOwed(s.page, FRI, d);
+        at[d].errors = s.errors;
+        await s.ctx.close();
+      }
+      const fri = at[SUN].got.filter(e => e.due === FRI);
+      check("T-079 (2): Fri owed, Sat rest, Sun today: Friday's lectures are late 1 (a Saturday adds no lateness), Sunday's late 0, keys and order right",
+        at[SUN].bad.length === 0 && fri.length > 0 && fri.every(e => e.late === 1) && at[SUN].got.some(e => e.due === SUN && e.late === 0),
+        at[SUN].bad.slice(0, 3).join("; ") || fri.length + " from Friday (late " + fri.map(e => e.late).join(",") + "), " + (at[SUN].got.length - fri.length) + " today");
+      const ks = x => x.got.map(e => e.k).join(" ");
+      check("T-079 (2): a Saturday clock adds no new entries (Saturday's list is Friday's, each late 1, as on Sunday)",
+        at[SAT].bad.length === 0 && ks(at[SAT]) === ks(at[FRI]) && at[SAT].got.length > 0 && at[SAT].got.every(e => e.late === 1) && at[FRI].got.every(e => e.late === 0),
+        at[SAT].bad.slice(0, 3).join("; ") || at[SAT].got.length + " on Sat (late " + at[SAT].got.map(e => e.late).join(",") + "), " + at[FRI].got.length + " on Fri");
+      check("T-079 (2): backlogCount equals the entries with late > 0 on Fri, Sat and Sun",
+        [FRI, SAT, SUN].every(d => at[d].backlog === at[d].got.filter(e => e.late > 0).length), [FRI, SAT, SUN].map(d => d.slice(5) + " " + at[d].backlog).join(", "));
+      check("no page errors (T-079 Fri/Sat/Sun)", [FRI, SAT, SUN].every(d => at[d].errors.length === 0), [].concat(...[FRI, SAT, SUN].map(d => at[d].errors)).join(" | "));
+    }
+    // (3) A frozen scheduledFor is the due date where the computed plan puts the lecture later: one of Friday's
+    // lectures stored with scheduledFor Thu 26 Nov (as a merge from another device can leave it), the clock Sunday.
+    // Working ahead does not produce this by itself: past and current slots never move (windowFor), so a
+    // lecture's frozen date and its walk date agree; a stored date is the only way to make them differ.
+    {
+      const FRI = "2026-11-27", SUN = "2026-11-29", THU = "2026-11-26";
+      const pr = await scenario(browser, SUN, { studyDays: [FRI] });
+      const k = (await pr.page.evaluate(() => window.__brickfordTest.owedList()))[0].k;
+      await pr.ctx.close();
+      const s = await scenario(browser, SUN, { studyDays: [FRI], lessons: { [k]: { scheduledFor: THU } } });
+      const r = await expectOwed(s.page, FRI, SUN, { [k]: THU });
+      const e = r.got.find(x => x.k === k) || {};
+      check("T-079 (3): a lesson with a frozen scheduledFor (" + k + " on " + THU + ", the computed plan says " + FRI + ") uses it: due " + THU + ", late 2, listed first",
+        r.bad.length === 0 && e.due === THU && e.late === 2 && r.got[0].k === k, r.bad.slice(0, 3).join("; ") || JSON.stringify(e));
+      check("no page errors (T-079 frozen)", s.errors.length === 0, s.errors.join(" | "));
+      await s.ctx.close();
+    }
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

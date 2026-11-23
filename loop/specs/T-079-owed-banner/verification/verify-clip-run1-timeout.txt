@@ -1,0 +1,10 @@
+page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "file:///C:/Users/user/Downloads/New%20folder/bf-T-079/platform/index.html#/__boot", waiting until "load"[22m
+
+    at C:\Users\user\Downloads\New folder\bf-T-079\tools\verify-clip.js:203:20 {
+  log: [
+    '  - navigating to "file:///C:/Users/user/Downloads/New%20folder/bf-T-079/platform/index.html#/__boot", waiting until "load"'
+  ],
+  name: 'TimeoutError'
+}

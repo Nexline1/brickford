@@ -903,7 +903,8 @@ class Engine {
 
   static String? firstWatched(Map<String, dynamic>? st) {
     if (st == null) return null;
-    final l = [st['doneAt'], st['firstDoneAt']].where(truthy).map((e) => e.toString()).toList()..sort();
+    // T-074: firstDoneAt can be a full timestamp; it is compared on its date part (app.js firstWatched).
+    final l = [st['doneAt'], st['firstDoneAt']].where(truthy).map((e) => e.toString()).map((s) => s.length > 10 ? s.substring(0, 10) : s).toList()..sort();
     return l.isEmpty ? null : l.first;
   }
 
@@ -1294,16 +1295,49 @@ class Engine {
   // ---------- writes ----------
 
   /// The lesson page's "Mark watched" toggle (app.js act === "toggleDone").
-  void toggleDone(String k) {
+  /// T-074: the first mark stamps firstDoneAt ([at], an ISO timestamp) once; unmark never writes it.
+  void toggleDone(String k, String at) {
     final st = lessons[k] is Map ? _map(lessons[k]) : <String, dynamic>{'done': false, 'notes': '', 'checks': <dynamic>[]};
     st['done'] = !truthy(st['done']);
     if (truthy(st['done'])) {
       st['doneAt'] = todayISO();
+      if (!truthy(st['firstDoneAt'])) st['firstDoneAt'] = at;
     } else {
-      if (truthy(st['doneAt'])) st['firstDoneAt'] = firstWatched(st);
       st.remove('doneAt');
     }
     lessons[k] = st;
+  }
+
+  // T-074 (app.js freezeSchedule): each lecture's due date stored once, from the later of the start and the first
+  // activity up to today; a legacy watched lesson gets firstDoneAt = doneAt. Runs once per date; returns the writes.
+  String? _frozenOn;
+  int freezeSchedule() {
+    final today = todayISO();
+    if (_frozenOn == today) return 0;
+    _frozenOn = today;
+    var n = 0;
+    for (final l in lessons.values) {
+      if (l is Map && truthy(l['done']) && truthy(l['doneAt']) && !truthy(l['firstDoneAt'])) {
+        l['firstDoneAt'] = l['doneAt'];
+        n++;
+      }
+    }
+    final from = firstActivityISO();
+    if (from != null) {
+      for (var iso = gt(from, START_DATE) ? from : START_DATE; le(iso, today); iso = addDaysISO(iso, 1)) {
+        for (final it in realSched(iso)) {   // a rest day schedules nothing
+          if (truthy(it.l?['optional']) || v2Rescheduled(iso, it.key)) continue;
+          if (lessons[it.key] is! Map) lessons[it.key] = <String, dynamic>{};
+          final st = _map(lessons[it.key]);
+          if (!truthy(st['scheduledFor'])) {
+            st['scheduledFor'] = iso;
+            n++;
+          }
+        }
+      }
+    }
+    if (n > 0) touch();
+    return n;
   }
 }
 

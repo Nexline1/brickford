@@ -34,3 +34,5 @@
 - A layout fix is measured on the label box as well as the tab box: a rule that fits the boxes can push text out of them at a width next door.
 - A gate's summary line counts one unit on pass and fail, and prints a pass only when its own fail count is zero.
 - A new section on a page can shift a harness that reads by position (verify-app reads /record's 2nd .gh-meta): grep the harnesses for the route before adding a .ghead above existing ones (T-069).
+- On a Windows checkout (core.autocrlf=true) export-data --check calls every JSON stale and each verify-app plant is then "caught" by that, proving nothing: run verify-app and build-app from an autocrlf=false clone, and read which check caught each plant (T-074).
+- A field written into an existing lesson entry can leave it without notes/checks: every handler that indexes st.checks/st.notes must default them, not only when the entry is missing (T-074 r1).

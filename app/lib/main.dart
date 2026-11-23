@@ -203,6 +203,7 @@ class _SyncHooksState extends State<_SyncHooks> with WidgetsBindingObserver {
     if (state != AppLifecycleState.resumed) widget.sync.m.flush();
     switch (state) {
       case AppLifecycleState.resumed:
+        widget.sync.m.freezeSchedule();   // T-074: a new day freezes its lectures
         widget.sync.onVisible();
       case AppLifecycleState.hidden || AppLifecycleState.paused || AppLifecycleState.detached:
         widget.sync.onHidden();

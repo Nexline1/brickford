@@ -673,7 +673,52 @@ void main(List<String> args) {
   out['pages'] = pagesDump(fx, data);
   out['lpr'] = lprDump(fx, data);
   out['cp'] = cpDump(fx, data);
+  out['t074'] = t074Dump(fx, data);
   stdout.write(jsonEncode(out));
+}
+
+/// T-074: the frozen schedule and the first-watch timestamp. Each freeze fixture boots (freezeSchedule), then per step
+/// sets the clock and freezes, and when asked toggles (stamped at noon UTC, as the page's pinned clock) and freezes
+/// again; every lesson's done, doneAt, firstDoneAt and scheduledFor after boot and after each step. A push: the remote
+/// file merged in, then the payload's lessons, projected the same way.
+Map<String, dynamic> t074Dump(Map<String, dynamic> fx, BrickfordData data) {
+  final T = fx['t074'] as Map<String, dynamic>;
+  dynamic copy(Object? v) => jsonDecode(jsonEncode(v));
+  const fields = ['done', 'doneAt', 'firstDoneAt', 'scheduledFor'];
+  Map<String, dynamic> proj(Object? lessons) => {
+    for (final en in (lessons as Map).entries)
+      if (en.value is Map && fields.any((f) => (en.value as Map)[f] != null))
+        '${en.key}': {for (final f in fields) if ((en.value as Map)[f] != null) f: (en.value as Map)[f]},
+  };
+  return {
+    'freeze': {
+      for (final f in T['freeze'] as List)
+        f['name'] as String: () {
+          var now = f['clock'] as String;
+          final e = Engine(data, (copy(f['state']) as Map?)?.cast<String, dynamic>(), today: () => now);
+          e.freezeSchedule();
+          final snaps = [proj(e.lessons)];
+          for (final s in f['steps'] as List) {
+            now = s['clock'] as String;
+            e.freezeSchedule();
+            if (s['toggle'] != null) {
+              e.toggleDone(s['toggle'] as String, isoStamp(DateTime.parse('${now}T12:00:00Z')));
+              e.freezeSchedule();
+            }
+            snaps.add(proj(e.lessons));
+          }
+          return snaps;
+        }(),
+    },
+    'push': {
+      for (final f in T['push'] as List)
+        f['name'] as String: () {
+          final e = Engine(data, (copy(f['local']) as Map).cast<String, dynamic>(), today: () => fx['planClock'] as String);
+          final n = mergeState(e, copy(f['remote']));
+          return {'changed': n, 'lessons': proj((syncPayload(e)['state'] as Map)['lessons'])};
+        }(),
+    },
+  };
 }
 
 /// T-069: the checkpoints as drawn (checkpointsView, the week's number, the words), and a push: the remote file

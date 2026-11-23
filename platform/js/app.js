@@ -328,8 +328,15 @@
         const early = mine.doneAt < theirs.doneAt ? mine.doneAt : theirs.doneAt;
         if (now.doneAt !== early) { now.doneAt = early; changed++; }
       }
-      const fd = [mine.firstDoneAt, theirs.firstDoneAt].filter(Boolean).sort()[0];
+      // T-074: the earlier date part wins; on the same day the full timestamp beats a date-only
+      // copy from an older device (then the smaller string, so both sides agree).
+      const fa = mine.firstDoneAt, fb = theirs.firstDoneAt;
+      const fd = !fa ? fb : !fb ? fa : fa.slice(0, 10) !== fb.slice(0, 10) ? (fa.slice(0, 10) < fb.slice(0, 10) ? fa : fb)
+        : fa.length !== fb.length ? (fa.length > fb.length ? fa : fb) : (fa <= fb ? fa : fb);
       if (fd && now.firstDoneAt !== fd) { now.firstDoneAt = fd; changed++; }
+      // T-074: the earlier scheduledFor wins; one side's value fills a missing one.
+      const sf = [mine.scheduledFor, theirs.scheduledFor].filter(Boolean).sort()[0];
+      if (sf && now.scheduledFor !== sf) { now.scheduledFor = sf; changed++; }
       if (now.pos !== keep.pos || now.posAt !== keep.posAt) {
         if (keep.pos == null) delete now.pos; else now.pos = keep.pos;
         if (keep.posAt == null) delete now.posAt; else now.posAt = keep.posAt;
@@ -1726,10 +1733,12 @@
   }
   const quizPassed = k => !!((S.lessons[k] || {}).quiz || {}).passedAt;
   // The first time a lecture was ever marked watched: the earlier of doneAt
-  // and firstDoneAt, which an unmark records before it deletes doneAt (review
-  // r1). So unmarking and re-marking a lecture watched before the gate keeps
-  // it grandfathered; doneAt itself stays the date of the latest watch.
-  const firstWatched = st => [st && st.doneAt, st && st.firstDoneAt].filter(Boolean).sort()[0] || null;
+  // and firstDoneAt, which the first mark stamps and nothing changes after
+  // (T-074; before it an unmark recorded it, review r1). So unmarking and
+  // re-marking a lecture watched before the gate keeps it grandfathered;
+  // doneAt itself stays the date of the latest watch. firstDoneAt can be a
+  // full timestamp, so both are compared on the date part.
+  const firstWatched = st => [st && st.doneAt, st && st.firstDoneAt].filter(Boolean).map(x => String(x).slice(0, 10)).sort()[0] || null;
   const grandfathered = st => !!(st && st.done && firstWatched(st) && firstWatched(st) < QUIZ_GATE_FROM);
   function lessonCleared(k) {
     const st = S.lessons[k] || {};
@@ -1886,6 +1895,30 @@
     Object.values(S.lessons).forEach(l => { if (l && l.doneAt && (!first || l.doneAt < first)) first = l.doneAt; });
     Object.values(S.problems).forEach(v => { if (typeof v === "string" && (!first || v < first)) first = v; });
     return first;
+  }
+  // T-074: each lecture's due date, stored once (S.lessons[k].scheduledFor) so a reader outside the
+  // app can tell when it was due (docs/SYNCED-STATE.md). Walks the study days from the later of the
+  // start and the first activity up to today; past and current slots never move (windowFor), so the
+  // first run backfills the true dates, and an existing value is never changed. A watched lesson with
+  // no firstDoneAt (before T-074) gets its doneAt, once. Runs on the first render of each date, and a
+  // render is a read: like the load-time normalisation above it changes S in memory only — no save(),
+  // so no push is armed and storage is not written (T-069's render gate) — and the next ordinary save
+  // stores it and the push after it carries it. Until then each load re-derives the same values.
+  let frozenOn = null;
+  function freezeSchedule() {
+    const today = todayISO();
+    if (frozenOn === today) return;
+    frozenOn = today;
+    Object.values(S.lessons).forEach(st => { if (st && st.done && st.doneAt && !st.firstDoneAt) st.firstDoneAt = st.doneAt; });
+    const from = firstActivityISO();
+    if (from) for (let iso = (from > D.START_DATE ? from : D.START_DATE); iso <= today; iso = addDaysISO(iso, 1)) {
+      realSched(iso).forEach(it => {                // a rest day schedules nothing
+        const k = lessonKey(it.cid, it.ui, it.li);
+        if (it.l.optional || v2Rescheduled(iso, k)) return;
+        const st = S.lessons[k] || (S.lessons[k] = {});
+        if (!st.scheduledFor) st.scheduledFor = iso;
+      });
+    }
   }
   function backlogCount() {
     const today = todayISO();
@@ -6119,7 +6152,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261116a";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261116b";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",
@@ -7473,6 +7506,7 @@
           if (!m) return;
           const k = lessonKey(m[1], +m[2], +m[3]);
           const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+          st.checks = st.checks || [];   // T-074: a frozen entry can be { scheduledFor } alone
           // always carry the open editors into state so nothing is lost
           if ($("#lessonNotes")) st.notes = $("#lessonNotes").value;
           if ($("#lessonRecall")) st.recall = $("#lessonRecall").value;
@@ -7480,13 +7514,14 @@
           const ls = cs && cs.units[+m[2]] ? cs.units[+m[2]].lessons[+m[3]] : null;
           if (act === "toggleDone") {
             st.done = !st.done;
-            if (st.done) st.doneAt = todayISO();
-            else { if (st.doneAt) st.firstDoneAt = firstWatched(st); delete st.doneAt; }
+            // T-074: the first mark stamps firstDoneAt, once; an unmark never writes it.
+            if (st.done) { st.doneAt = todayISO(); if (!st.firstDoneAt) st.firstDoneAt = new Date().toISOString(); }
+            else delete st.doneAt;
           }
           if (act === "verify") {
             if (!lessonCanVerify(st, ls, k)) { S.lessons[k] = st; save(); render(); toast("Finish the four gates first."); return; }
             st.verified = true; st.verifiedAt = todayISO();
-            if (!st.done) { st.done = true; st.doneAt = st.doneAt || todayISO(); }
+            if (!st.done) { st.done = true; st.doneAt = st.doneAt || todayISO(); if (!st.firstDoneAt) st.firstDoneAt = new Date().toISOString(); }
             S.lessons[k] = st;
             scheduleReview(k, 0);
             logEvent("verified", k, { solved: st.solved || 0 });
@@ -7567,6 +7602,7 @@
         if (!m) return;
         const k = lessonKey(m[1], +m[2], +m[3]);
         const st = S.lessons[k] || { done: false, notes: "", checks: [] };
+        st.checks = st.checks || [];   // T-074: a frozen entry can be { scheduledFor } alone
         st.checks[+cb.dataset.check] = cb.checked;
         // carry the open editors so a re-render cannot discard unsaved text
         if ($("#lessonNotes")) st.notes = $("#lessonNotes").value;
@@ -8323,6 +8359,7 @@
   let lastRoute = null;
   function renderInner() {
     clearInterval(timerH);
+    freezeSchedule();   // T-074: once per date, in memory (a render is a read)
     const r = route();
     // T-023: leaving a tab keeps its scroll position, in memory only.
     const prevRoute = lastRoute, moved = prevRoute !== r;
@@ -8543,7 +8580,9 @@
     // T-056 r2, for verify-logic, verify-content and tools/revision-pdf.js: the revision weeks (reads only).
     revisionWeek, revisionWeekOf, revisionLectures, revisionTiles, buildICS,
     // T-069, for verify-logic and verify-app: the checkpoints as drawn, and the week's number (reads only).
-    checkpointsView, problemsThisWeek });
+    checkpointsView, problemsThisWeek,
+    // T-074, for verify-logic's contract check and verify-app: what a push would write (a read).
+    syncPayload });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

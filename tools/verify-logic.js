@@ -1830,6 +1830,254 @@ async function scenario(browser, now, state, tz) {
     }
   }
 
+  // ---- T-074: the frozen schedule date, the first-watch timestamp, the reader contract ----
+  // loop/specs/T-074-frozen-schedule/spec.md. Every expectation is walked here from the hook's
+  // scheduledFor (the plan) and the calendar, never from the stored values it checks.
+  {
+    const CLK = "2026-11-25", NEXT = "2026-11-26";       // Wed after the v2 cutover; Thu
+    // S as a push would write it: the freeze is in memory until the next ordinary save (a render is a read).
+    const stored = page => page.evaluate(() => { const T = window.__brickfordTest; return T.syncPayload ? JSON.parse(JSON.stringify(T.syncPayload().state)) : JSON.parse(localStorage.getItem("darhikmah_v1") || "{}"); });
+    const sfOf = st => Object.fromEntries(Object.entries(st.lessons || {}).filter(([, l]) => l && l.scheduledFor).map(([k, l]) => [k, l.scheduledFor]));
+    // The expected freeze for [from .. to]: the first study day each non-optional lecture is on,
+    // with a v1 lecture that v2 schedules again later skipped on its v1 day.
+    const expectFreeze = (page, from, to) => page.evaluate(([from, to]) => {
+      const T = window.__brickfordTest, v2 = new Set();
+      for (let d = T.studyIndex(T.PLAN_V2_FROM); d < 1094; d++) T.scheduledFor(T.dateForStudy(d)).forEach(it => { if (!it.pseudo && it.track !== "Publish") v2.add(it.cid + "." + it.ui + "." + it.li); });
+      const exp = {}, resched = [];
+      for (let t = new Date(from + "T00:00:00Z"); t.toISOString().slice(0, 10) <= to; t.setUTCDate(t.getUTCDate() + 1)) {
+        const iso = t.toISOString().slice(0, 10);
+        if (t.getUTCDay() === 6) continue;
+        T.scheduledFor(iso).forEach(it => {
+          if (it.pseudo || (it.l && it.l.optional)) return;
+          const k = it.cid + "." + it.ui + "." + it.li;
+          if (iso < T.PLAN_V2_FROM && v2.has(k)) { resched.push([k, iso]); return; }
+          if (!exp[k]) exp[k] = iso;
+        });
+      }
+      return { exp, resched };
+    }, [from, to]);
+    const sameMap = (got, want) => { const ks = new Set(Object.keys(got).concat(Object.keys(want)));
+      return [...ks].filter(k => got[k] !== want[k]).map(k => k + ": got " + got[k] + ", want " + want[k]); };
+
+    // (1) after boot, from the first activity (the start) to today.
+    const seed = { lessons: { "math110.0.0": { done: true, doneAt: START, firstDoneAt: START + "T09:00:00.000Z", notes: "", checks: [] } }, studyDays: [START] };
+    const s1 = await scenario(browser, CLK, seed);
+    const want1 = await expectFreeze(s1.page, START, CLK);
+    const st1 = await stored(s1.page), got1 = sfOf(st1);
+    const bad1 = sameMap(got1, want1.exp);
+    check("T-074 (1): after boot every non-optional lecture on a study day from the first activity to today has scheduledFor = that date",
+      bad1.length === 0 && Object.keys(want1.exp).length > 20, bad1.slice(0, 4).join("; ") || Object.keys(got1).length + " lectures frozen, " + START + " .. " + CLK);
+    const satSf = Object.entries(got1).filter(([, d]) => isSat(d));
+    check("T-074 (1): a Saturday freezes nothing", satSf.length === 0, satSf.slice(0, 3).map(x => x.join(" ")).join("; ") || "no scheduledFor on a Saturday");
+    const onV1 = want1.resched.filter(([k, d]) => got1[k] === d);
+    check("T-074 (1): a v1 lecture that v2 reschedules is not frozen on its v1 day",
+      onV1.length === 0 && want1.resched.length > 0, onV1.slice(0, 3).map(x => x.join(" on ")).join("; ") || want1.resched.length + " v1 slots of rescheduled lectures skipped");
+
+    // The first render after the date changes freezes the new day and moves nothing frozen before.
+    await s1.ctx.clock.setFixedTime(new Date(NEXT + "T12:00:00Z"));
+    await s1.page.evaluate(() => window.__brickfordTest.render());
+    await s1.page.waitForTimeout(300);
+    const want1b = await expectFreeze(s1.page, START, NEXT), got1b = sfOf(await stored(s1.page)), bad1b = sameMap(got1b, want1b.exp);
+    check("T-074 (1): the first render after the date changes freezes the new day, the old dates unchanged",
+      bad1b.length === 0 && Object.keys(got1b).length > Object.keys(got1).length, bad1b.slice(0, 4).join("; ") || Object.keys(got1b).length + " frozen");
+    check("no page errors (T-074 freeze)", s1.errors.length === 0, s1.errors.join(" | "));
+    await s1.ctx.close();
+
+    // (2) working ahead: the next three study days' lectures marked, then the clock a day on.
+    // A planted wrong (later) value on a past lecture proves an existing scheduledFor is never rewritten.
+    {
+      const pr = await scenario(browser, CLK, null);
+      const ahead = await pr.page.evaluate(ds => ds.flatMap(d => window.__brickfordTest.scheduledFor(d).filter(it => !it.pseudo).map(it => it.cid + "." + it.ui + "." + it.li)),
+        ["2026-11-26", "2026-11-27", "2026-11-29"]);
+      await pr.ctx.close();
+      const st = JSON.parse(JSON.stringify(st1));
+      ahead.forEach(k => { st.lessons[k] = Object.assign({}, st.lessons[k] || {}, { done: true, doneAt: CLK, firstDoneAt: CLK + "T12:00:00.000Z" }); });
+      const odd = Object.keys(want1.exp).find(k => want1.exp[k] < "2026-11-01");
+      st.lessons[odd] = Object.assign({}, st.lessons[odd], { scheduledFor: "2026-12-31" });
+      const before = sfOf(st);
+      const s2 = await scenario(browser, NEXT, st);
+      const after = sfOf(await stored(s2.page));
+      const moved = Object.keys(before).filter(k => after[k] !== before[k]);
+      check("T-074 (2): working ahead and the clock a day on never change an existing scheduledFor (a stored later value included)",
+        moved.length === 0 && ahead.length > 0 && after[odd] === "2026-12-31",
+        moved.slice(0, 4).map(k => k + " " + before[k] + " -> " + after[k]).join("; ") || Object.keys(before).length + " kept, " + ahead.length + " lectures worked ahead");
+      check("no page errors (T-074 ahead)", s2.errors.length === 0, s2.errors.join(" | "));
+      await s2.ctx.close();
+    }
+
+    // (3) mark -> unmark -> mark through the lesson page, the clock moving between presses.
+    {
+      const sc = await scenario(browser, CLK, null);
+      const k = "math110.0.0";
+      const press = async want => {
+        await sc.page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-logic-stale", "1"); });
+        await sc.page.click("#view [data-act=toggleDone]");
+        await sc.page.waitForFunction(w => !document.querySelector("#view [data-logic-stale]") &&
+          ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === w, want, { timeout: 8000 });
+      };
+      const lesson = async () => ((await stored(sc.page)).lessons || {})[k] || {};
+      let a = {}, b = {}, c = {}, harness = "";
+      try {
+        await sc.page.evaluate(() => { location.hash = "#/lesson/math110/0/0"; });
+        await sc.page.waitForSelector("#view [data-act=toggleDone]", { timeout: 8000 });
+        await press("Unmark watched"); a = await lesson();
+        await sc.ctx.clock.setFixedTime(new Date(CLK + "T15:30:00Z"));
+        await press("Mark watched"); b = await lesson();
+        await sc.ctx.clock.setFixedTime(new Date(NEXT + "T08:00:00Z"));
+        await press("Unmark watched"); c = await lesson();
+      } catch (e) { harness = "harness: " + e.message.split("\n")[0] + " "; }
+      check("T-074 (3): mark, unmark, mark leaves firstDoneAt byte-identical to the first mark, a full timestamp",
+        !harness && /^\d{4}-\d{2}-\d{2}T/.test(a.firstDoneAt || "") && b.firstDoneAt === a.firstDoneAt && c.firstDoneAt === a.firstDoneAt &&
+          a.doneAt === CLK && !b.done && !("doneAt" in b) && c.done && c.doneAt === NEXT,
+        harness + JSON.stringify({ mark: a, unmark: b, again: c }));
+      check("no page errors (T-074 toggle)", sc.errors.length === 0, sc.errors.join(" | "));
+      await sc.ctx.close();
+    }
+
+    // (3b) review r2: the freeze leaves bare { scheduledFor } entries, and a Flutter mark on one adds no
+    // `checks`. Marking a bare owed lecture watched and ticking a check, and ticking a check on a watched
+    // entry with no `checks`, must both store checks[0] === true with no page error.
+    {
+      const sc = await scenario(browser, CLK, seed);
+      const k = await sc.page.evaluate(() => { const L = window.__brickfordTest.syncPayload().state.lessons;
+        return Object.keys(L).find(k => L[k].scheduledFor && !L[k].done && Object.keys(L[k]).length === 1 && !((((window.DAR.SUMMARIES || {})[k] || {}).checks || []).length)) || null; });
+      const tick = () => sc.page.evaluate(() => { const c = document.querySelector("#view [data-check]"); if (!c) return false;
+        c.checked = true; c.dispatchEvent(new Event("change", { bubbles: true })); return true; });
+      const lessonOf = kk => sc.page.evaluate(kk => ((JSON.parse(localStorage.getItem("darhikmah_v1") || "{}").lessons || {})[kk]) || null, kk);
+      let a = null, b = null, k2 = null, harness = "";
+      try {
+        await sc.page.evaluate(k => { location.hash = "#/lesson/" + k.split(".").join("/"); }, k);
+        await sc.page.waitForSelector("#view [data-act=toggleDone]", { timeout: 8000 });
+        await sc.page.click("#view [data-act=toggleDone]");
+        await sc.page.waitForFunction(() => ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === "Unmark watched", null, { timeout: 8000 });
+        if (!(await tick())) throw new Error("no check on the page");
+        await sc.page.waitForTimeout(300);
+        a = await lessonOf(k);
+        // A watched entry as a Flutter mark leaves it: no checks, no notes.
+        k2 = await sc.page.evaluate(k => { const L = window.__brickfordTest.syncPayload().state.lessons;
+          return Object.keys(L).find(x => x !== k && L[x].scheduledFor && !L[x].done && Object.keys(L[x]).length === 1 && !((((window.DAR.SUMMARIES || {})[x] || {}).checks || []).length)) || null; }, k);
+        await sc.page.evaluate(k2 => { const T = window.__brickfordTest;
+          T.mergeState({ v: 1, device: "phone", state: { lessons: { [k2]: { scheduledFor: "2026-10-16", done: true, doneAt: "2026-11-25", firstDoneAt: "2026-11-25T11:00:00.000Z" } } }, ledgers: {} });
+          location.hash = "#/lesson/" + k2.split(".").join("/"); }, k2);
+        await sc.page.waitForFunction(() => ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === "Unmark watched", null, { timeout: 8000 });
+        if (!(await tick())) throw new Error("no check on the second page");
+        await sc.page.waitForTimeout(300);
+        b = await lessonOf(k2);
+      } catch (e) { harness = "harness: " + e.message.split("\n")[0] + " "; }
+      check("T-074 r2: a bare frozen entry marked watched, then a check ticked, stores checks[0] = true; so does a watched entry with no checks (a Flutter mark)",
+        !harness && !!k && !!k2 && !!a && (a.checks || [])[0] === true && a.scheduledFor && !!b && (b.checks || [])[0] === true && sc.errors.length === 0,
+        harness + JSON.stringify({ k, a, k2, b }) + (sc.errors.length ? " errors: " + sc.errors.join(" | ") : ""));
+      await sc.ctx.close();
+    }
+
+    // (4) a legacy lesson gains firstDoneAt = doneAt; nothing else changes; grandfathering as before.
+    {
+      const pr = await scenario(browser, addDays(START, -1), null);
+      const GATE = await pr.page.evaluate(() => window.__brickfordTest.QUIZ_GATE_FROM);
+      const days8 = await pr.page.evaluate(() => { const T = window.__brickfordTest, out = [];
+        for (let i = 0; i < 8; i++) T.scheduledFor(T.dateForStudy(i)).forEach(it => { if (!it.pseudo) out.push(it.cid + "." + it.ui + "." + it.li); });
+        return [...new Set(out)]; });
+      const quizOf = await pr.page.evaluate(ks => Object.fromEntries(ks.map(k => [k, !!(((window.DAR.SUMMARIES || {})[k] || {}).checks || []).length])), days8);
+      await pr.ctx.close();
+      const LEG = { done: true, doneAt: "2026-10-20", notes: "kept", checks: [1], solved: 2 };
+      // The owner's fixture: plan days 1-8 watched before the gate (date-only, as stored then), and three edges:
+      // a timestamp the evening before the gate, one on the gate day, and one with no firstDoneAt watched after it.
+      const lessons = {};
+      days8.forEach(k => { lessons[k] = { done: true, doneAt: "2026-10-20", notes: "", checks: [] }; });
+      lessons["math110.0.0"] = LEG;
+      const qk = days8.filter(k => quizOf[k] && k !== "math110.0.0");
+      lessons[qk[0]] = { done: true, doneAt: "2026-11-02", firstDoneAt: addDays(GATE, -1) + "T23:30:00.000Z", notes: "", checks: [] };
+      lessons[qk[1]] = { done: true, doneAt: "2026-11-02", firstDoneAt: GATE + "T00:10:00.000Z", notes: "", checks: [] };
+      lessons[qk[2]] = { done: true, doneAt: "2026-11-02", notes: "", checks: [] };
+      const want = Object.fromEntries(Object.keys(lessons).map(k => { const l = lessons[k];
+        const fw = [l.doneAt, l.firstDoneAt && l.firstDoneAt.slice(0, 10)].filter(Boolean).sort()[0];
+        return [k, !quizOf[k] || fw < GATE]; }));
+      const sc = await scenario(browser, CLK, { lessons: JSON.parse(JSON.stringify(lessons)), studyDays: ["2026-10-20"] });
+      const st = await stored(sc.page);
+      const cleared = await sc.page.evaluate(ks => Object.fromEntries(ks.map(k => [k, window.__brickfordTest.lessonCleared(k)])), Object.keys(lessons));
+      const L0 = st.lessons["math110.0.0"];
+      const changed = Object.keys(lessons).flatMap(k => Object.keys(lessons[k]).filter(f => JSON.stringify(st.lessons[k][f]) !== JSON.stringify(lessons[k][f])).map(f => k + "." + f));
+      check("T-074 (4): a legacy {done, doneAt:\"2026-10-20\"} gains firstDoneAt \"2026-10-20\", and no existing field changes value",
+        L0.firstDoneAt === "2026-10-20" && changed.length === 0 && st.lessons[qk[2]].firstDoneAt === "2026-11-02",
+        changed.join(", ") || JSON.stringify(L0));
+      const off = Object.keys(want).filter(k => cleared[k] !== want[k]);
+      check("T-074 (4): grandfathering on the owner's fixture is as before (a timestamp's date part; the gate day is not grandfathered)",
+        off.length === 0 && qk.length >= 3 && want[qk[0]] === true && want[qk[1]] === false && want[qk[2]] === false,
+        off.map(k => k + " " + cleared[k]).join("; ") || Object.keys(want).length + " lessons");
+      check("no page errors (T-074 legacy)", sc.errors.length === 0, sc.errors.join(" | "));
+      await sc.ctx.close();
+    }
+
+    // (5) merge: the earlier scheduledFor both ways, the full timestamp kept on a same-day tie, nothing dropped.
+    {
+      const L = o => Object.assign({ done: false, notes: "", checks: [] }, o);
+      const TS = "2026-11-02T08:00:00.000Z";
+      const local = { lessons: {
+        "zz.0.0": L({ scheduledFor: "2026-11-02" }), "zz.0.1": L({ scheduledFor: "2026-11-01" }),
+        "zz.0.2": L({ scheduledFor: "2026-11-03" }), "zz.0.3": L({}),
+        "zz.0.4": L({ done: true, doneAt: "2026-11-02", firstDoneAt: TS }), "zz.0.5": L({ done: true, doneAt: "2026-11-02", firstDoneAt: "2026-11-02" }),
+        "zz.0.6": L({ done: true, doneAt: "2026-11-02", firstDoneAt: TS }),
+        "zz.0.7": L({ done: true, doneAt: "2026-11-02", firstDoneAt: TS, scheduledFor: "2026-10-30" }),
+        "zz.0.8": L({ done: true, doneAt: "2026-11-04", firstDoneAt: "2026-11-04T09:00:00.000Z", scheduledFor: "2026-11-01", verified: true }) } };
+      const remote = { lessons: {
+        "zz.0.0": L({ scheduledFor: "2026-11-01" }), "zz.0.1": L({ scheduledFor: "2026-11-02" }),
+        "zz.0.2": L({}), "zz.0.3": L({ scheduledFor: "2026-11-05" }),
+        "zz.0.4": L({ done: true, doneAt: "2026-11-02", firstDoneAt: "2026-11-02" }), "zz.0.5": L({ done: true, doneAt: "2026-11-02", firstDoneAt: TS }),
+        "zz.0.6": L({ done: true, doneAt: "2026-11-02", firstDoneAt: "2026-11-01" }),
+        "zz.0.7": L({ done: true, doneAt: "2026-11-03", verified: true, notes: "theirs" }),
+        "zz.0.8": L({ done: true, doneAt: "2026-11-04" }) } };
+      const want = {
+        "zz.0.0": { scheduledFor: "2026-11-01" }, "zz.0.1": { scheduledFor: "2026-11-01" },
+        "zz.0.2": { scheduledFor: "2026-11-03" }, "zz.0.3": { scheduledFor: "2026-11-05" },
+        "zz.0.4": { firstDoneAt: TS }, "zz.0.5": { firstDoneAt: TS }, "zz.0.6": { firstDoneAt: "2026-11-01" },
+        "zz.0.7": { verified: true, notes: "theirs", scheduledFor: "2026-10-30", firstDoneAt: TS },
+        "zz.0.8": { verified: true, scheduledFor: "2026-11-01", firstDoneAt: "2026-11-04T09:00:00.000Z" } };
+      const sc = await scenario(browser, CLK, local);
+      const live = await sc.page.evaluate(rm => { const T = window.__brickfordTest;
+        T.mergeState({ v: 1, device: "other", state: rm, ledgers: {} }); return T.syncPayload ? T.syncPayload().state.lessons : {}; }, remote);
+      const bad = Object.keys(want).filter(k => Object.keys(want[k]).some(f => (live[k] || {})[f] !== want[k][f])).map(k => k + " " + JSON.stringify(live[k]));
+      check("T-074 (5): merge takes the earlier scheduledFor both ways, keeps a full timestamp over a same-day date, drops neither side's fields",
+        bad.length === 0, bad.join("; ") || Object.keys(want).length + " cases");
+      check("no page errors (T-074 merge)", sc.errors.length === 0, sc.errors.join(" | "));
+      await sc.ctx.close();
+    }
+
+    // (8) the reader contract: every field docs/SYNCED-STATE.md lists is in a real payload, in its format.
+    {
+      const doc = require("fs").readFileSync(path.join(path.resolve(__dirname, ".."), "docs/SYNCED-STATE.md"), "utf8");
+      const rows = [...doc.matchAll(/^\| `([^`]+)` \| `([^`]+)` \|/gm)].map(m => ({ path: m[1], fmt: m[2].replace(/\\\|/g, "|") }));
+      const FMT = { bool: v => typeof v === "boolean", date: v => /^\d{4}-\d{2}-\d{2}$/.test(v),
+        datetime: v => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(v),
+        string: v => typeof v === "string", object: v => !!v && typeof v === "object" && !Array.isArray(v) };
+      const fmtOk = (fmt, v) => fmt.split("|").some(f => FMT[f] && FMT[f](v));
+      // Every value at a path: `*` is each value of an object, `[]` each item of an array.
+      const at = (obj, p) => p.split(".").reduce((vs, seg) => vs.flatMap(v => {
+        const arr = seg.endsWith("[]"), key = arr ? seg.slice(0, -2) : seg;
+        const xs = key === "*" ? (v && typeof v === "object" ? Object.values(v) : []) : (v && typeof v === "object" && key in v ? [v[key]] : []);
+        return arr ? xs.flatMap(x => Array.isArray(x) ? x : []) : xs;
+      }), [obj]);
+      const sc = await scenario(browser, CLK, seed);
+      let payload = null, harness = "";
+      try {
+        await sc.page.evaluate(() => { location.hash = "#/lesson/math110/0/1"; });
+        await sc.page.waitForSelector("#view [data-act=toggleDone]", { timeout: 8000 });
+        await sc.page.click("#view [data-act=toggleDone]");
+        await sc.page.waitForFunction(() => ((document.querySelector("#view [data-act=toggleDone]") || {}).textContent || "").trim() === "Unmark watched", null, { timeout: 8000 });
+        payload = await sc.page.evaluate(() => JSON.parse(JSON.stringify(window.__brickfordTest.syncPayload())));
+      } catch (e) { harness = "harness: " + e.message.split("\n")[0]; }
+      const bad = payload ? rows.map(r => {
+        const vs = at(payload, r.path), off = vs.filter(v => !fmtOk(r.fmt, v));
+        if (!r.fmt.split("|").every(f => FMT[f])) return r.path + ": unknown format " + r.fmt;
+        if (!vs.length) return r.path + ": missing";
+        return off.length ? r.path + ": " + JSON.stringify(off[0]) + " is not " + r.fmt : null;
+      }).filter(Boolean) : [harness];
+      check("T-074 (8): a synced payload has every field docs/SYNCED-STATE.md lists, in its stated format",
+        bad.length === 0 && rows.length >= 9, bad.join("; ") || rows.length + " fields: " + rows.map(r => r.path).join(", "));
+      check("no page errors (T-074 contract)", sc.errors.length === 0, sc.errors.join(" | "));
+      await sc.ctx.close();
+    }
+  }
+
   // The hook is test-only: an ordinary load must not publish it.
   {
     const ctx = await browser.newContext({ timezoneId: "UTC", reducedMotion: "reduce" });

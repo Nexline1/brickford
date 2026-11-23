@@ -117,6 +117,17 @@ Map<String, dynamic> _ensureMap(Map<String, dynamic> S, String key) {
   return S[key] = <String, dynamic>{};
 }
 
+/// T-074 (app.js firstDonePick): the earlier date part; on the same day the longer (the full timestamp), then the
+/// smaller string.
+String? _firstDonePick(String? a, String? b) {
+  if (a == null) return b;
+  if (b == null) return a;
+  final da = a.length > 10 ? a.substring(0, 10) : a, db = b.length > 10 ? b.substring(0, 10) : b;
+  if (da != db) return da.compareTo(db) < 0 ? a : b;
+  if (a.length != b.length) return a.length > b.length ? a : b;
+  return a.compareTo(b) <= 0 ? a : b;
+}
+
 List<dynamic> _ensureList(Map<String, dynamic> S, String key) {
   final v = S[key];
   if (v is List) return v;
@@ -183,10 +194,16 @@ int mergeState(Engine e, Object? remote) {
         changed++;
       }
     }
-    final fds = [mine['firstDoneAt'], theirs['firstDoneAt']].where(truthy).map(_js).toList()..sort();
-    final fd = fds.isEmpty ? null : fds.first;
+    // T-074: the earlier date part wins; on the same day the full timestamp beats a date-only copy.
+    final fd = _firstDonePick(truthy(mine['firstDoneAt']) ? _js(mine['firstDoneAt']) : null, truthy(theirs['firstDoneAt']) ? _js(theirs['firstDoneAt']) : null);
     if (fd != null && now['firstDoneAt'] != fd) {
       now['firstDoneAt'] = fd;
+      changed++;
+    }
+    // T-074: the earlier scheduledFor wins; one side's value fills a missing one.
+    final sfs = [mine['scheduledFor'], theirs['scheduledFor']].where(truthy).map(_js).toList()..sort();
+    if (sfs.isNotEmpty && now['scheduledFor'] != sfs.first) {
+      now['scheduledFor'] = sfs.first;
       changed++;
     }
     if (_get(now, 'pos') != keepPos || _get(now, 'posAt') != keepPosAt) {

@@ -1,0 +1,21 @@
+OVER — first-viewport words above the ceiling in 3 route-width(s)
+  FAIL  320 /practice: 43 words in the first viewport (ceiling 41)
+  FAIL  390 /lesson/math110/0/13: 94 words in the first viewport (ceiling 92)
+  FAIL  390 /record: 73 words in the first viewport (ceiling 65)
+NEW — 6 finding(s) not in tools/verify-density.baseline.json
+  FAIL  sub|320|/courses|47 lectures · 0 proven   (sub on 2 lines)
+  FAIL  sub|320|/courses|34 lectures · 0 proven   (sub on 2 lines)
+  FAIL  sub|320|/courses|20 lectures · 0 proven   (sub on 2 lines)
+  FAIL  title|320|/record|Prove the routine   (title on 2 lines)
+  FAIL  long|320|/sync|Stays in this browser and is never synced. It is sent only to api.anth   (22 words)
+  FAIL  long|390|/sync|Stays in this browser and is never synced. It is sent only to api.anth   (22 words)
+STALE — 6 baseline finding(s) no longer occur; delete them from the baseline
+  STALE  long|320|/monk|Stop what you're doing at the adhan alert. Pray first, then open anyth   (T-051 Monk)
+  STALE  long|390|/monk|Stop what you're doing at the adhan alert. Pray first, then open anyth   (T-051 Monk)
+  STALE  sub|320|/monk|Stop what you're doing at the adhan alert. Pray first, then open anyth   (T-051 Monk)
+  STALE  sub|390|/monk|Stop what you're doing at the adhan alert. Pray first, then open anyth   (T-051 Monk)
+  STALE  title|320|/|Open today’s dashboard   (T-051 Dashboard)
+  STALE  title|390|/|4 lectures owed from earlier days   (T-051 Dashboard)
+BELOW THE CEILING (lower it in the baseline) — 1
+  note  390 /: 83 (ceiling 88)
+FAIL — 34 route-renders (17 routes x 320/390px, Light); 1990 first-viewport words in all; 150 known findings (T-051 Courses/Atlas/Course 48, T-051 Dashboard 17, T-051 Exams/Proof/Record 23, T-051 Lesson + quiz 4, T-051 Monk 17, T-051 Practice/Library/Treasury/Drill 14, T-051 Problems 10, T-051 Week + Calendar 6, T-051-2 shell (the Sync sheet) 11), 6 new, 6 stale, 3 over

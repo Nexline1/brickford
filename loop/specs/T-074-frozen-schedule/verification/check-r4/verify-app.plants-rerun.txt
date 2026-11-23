@@ -1,0 +1,23 @@
+plant elective-fits exit 1:   FAIL  parity: Electives — phase 0 (week 1) (2 fit now, 12 further out; the phase rule, the verdict, the status) — open: js [["edX · M
+plant practice-week exit 1:   FAIL  parity: Practice — Thursday: the bank logged on three days of the week (Mon, Tue, today) (owed ; week 3 of 6 days this week; tab S
+plant practice-rule exit 1:   FAIL  parity: rep form 23 repHumor 2026-11-06 {"joke0":"a","joke1":"b","joke2":"c","joke3":"d"} -> Five attempts, not 4. Volume is the mec
+plant practice-due exit 1:   FAIL  parity: Practice — the monthly review is owed: a story four weeks old, no review (owed bank/review; week 0 of 6 days this week; ta
+plant gate-order exit 1:   FAIL  parity: setGate — none passed: pass 2 refused, pass 1, unmark 2 refused, unmark 1, unmark 1 refused — 0 / 0: js false, dart true
+plant workshop-count exit 1:   FAIL  parity: Workshop — phase 1 (week 5), a lab and psets ticked (4 / 54 done, 6 labs this phase) — all: js "4 / 54", dart "3 / 54"
+plant doc-kinds exit 1:   FAIL  parity: the tiny markdown's blocks over the 5 real documents (164 blocks) — README.md / 4: js "hr", dart "p"; README.md / 43: js "
+plant monk-start-overwrites exit 1:   FAIL  parity: startMonk — unset: the 6th starts it, the 9th and the 27th change nothing — 1 / 0: js false, dart true; 1 / 1: js "2026-
+plant monk-merge-later exit 1:   FAIL  parity: mergeState — two devices that diverge (34 changes) — changed: js 34, dart 33; state / monkStart: js "2026-11-02", dart "
+plant monk-payload-monk exit 1:   FAIL  parity: syncPayload — a full device, monk in S — state / monk: js undefined, dart {"days":{"2026-11-05":{"nosin":true,"at":"2026
+plant monk-day-unstarted exit 1:   FAIL  parity: monkDay — not started (42 dates) — 4: js null, dart 1; 5: js null, dart 2; 6: js null, dart 3; 7: js null, dart 4
+plant publish-anchor exit 1:   FAIL  parity: owner (days 1-8 watched before the gate), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCou
+plant plan-v2-budget exit 1:   FAIL  parity: empty @ 2026-11-04: scheduledFor + dayStatus on 1284 dates, lessonCleared, grandfathered, streak, backlog — 72 differ; sch
+plant plan-v2-backlog exit 1:   FAIL  parity: owner (days 1-8 watched before the gate), clock walked over 1284 dates: studyAnchor, scheduledFor(today), streak, backlogCou
+plant practice-payload-drop exit 1:   FAIL  parity: syncPayload — a device with practice answers and a grade — state / practice: js {"math110.0.0":{"p1":{"answer":"1","mark
+plant practice-merge-older exit 1:   FAIL  parity: mergeState — practice: the newer remote item wins (1 changes) — changed: js 1, dart 0; state / practice / math110.0.0 / 
+plant checkpoints-payload-drop exit 1:   FAIL  parity: syncPayload — a device with checkpoint ticks — state / checkpoints: js {"c1":{"routine":{"done":true,"at":"2026-11-10T08
+plant checkpoints-merge-older exit 1:   FAIL  parity: mergeState — checkpoints: the newer remote tick wins (1 changes) — changed: js 1, dart 0; state / checkpoints / c1 / rou
+plant checkpoints-auto-ignores-state exit 1:   FAIL  parity: checkpoints — empty, a Saturday @ 2026-11-14 (days left, auto-ticks, ticks, the week's number, the drawn words) — view /
+plant t074-push-drops-scheduledfor exit 1:   FAIL  parity: T-074 merge and push — a phone pushes over a laptop's file: the earlier scheduledFor, the timestamp over a same-day date, 
+plant t074-merge-later exit 1:   FAIL  parity: T-074 merge and push — a phone pushes over a laptop's file: the earlier scheduledFor, the timestamp over a same-day date, 
+plant t074-unmark-overwrites exit 1:   FAIL  parity: T-074 freeze and toggle — nothing done: mark, unmark a day on, mark two days on, a Saturday, a Sunday (done, doneAt, first
+DONE

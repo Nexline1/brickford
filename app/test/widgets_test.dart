@@ -201,13 +201,16 @@ void main() {
     expect(st['done'], isTrue);
     expect(st['doneAt'], '2026-11-04');
     expect(m.prefs.getString(AppModel.storageKey), contains('"doneAt":"2026-11-04"'));
-    // Unmarking keeps the first watch, as the web app does: firstDoneAt, no doneAt.
+    // T-074: the first mark stamps firstDoneAt (a full timestamp) once.
+    final firstAt = st['firstDoneAt'];
+    expect(firstAt, matches(RegExp(r'^\d{4}-\d{2}-\d{2}T')));
+    // Unmarking keeps the first watch, as the web app does: firstDoneAt untouched, no doneAt.
     await tester.tap(find.byKey(const ValueKey('lesson-mark')));
     await tester.pumpAndSettle();
     final un = m.lesson(first.key);
     expect(un['done'], isFalse);
     expect(un.containsKey('doneAt'), isFalse);
-    expect(un['firstDoneAt'], '2026-11-04');
+    expect(un['firstDoneAt'], firstAt);
   });
 
   testWidgets('startup does not read summaries.json; quiz-keys.json is exactly lessonQuiz != null; a lecture reads it on open', (tester) async {

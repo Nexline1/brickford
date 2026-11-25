@@ -3754,7 +3754,9 @@
       '<details class="unit lq-prove" id="proveBox"><summary><span class="u-name">Prove mastery · 4 gates</span>' +
       '<span class="pill">' + gatesOk + " of 4</span></summary>" + '<div class="u-body">' + proveHTML() + "</div></details>";
 
-    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
+    // T-083 #13: the kicker is a breadcrumb in sentence case — the course (a link back to it), then the unit.
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><nav class="kicker crumb" aria-label="Breadcrumb"><a href="#/course/' + cid + '">' + esc(c.code) + " · " + esc(c.title) + "</a>" +
+      '<span class="crumb-sep" aria-hidden="true"> \u203a </span>' + esc(u.name) + "</nav>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
       // T-080 PR 3: a reading layout of its own. On a desktop (from 1040px)
       // two columns — the video and the notes on the left, the quiz and the

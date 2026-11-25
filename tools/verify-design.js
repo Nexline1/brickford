@@ -921,7 +921,7 @@ function tabState() {
       const e = bar.querySelector(".tab-badge");
       if (!e || !e.checkVisibility()) return null;
       const bs = getComputedStyle(e), bg = z.bytes(bs.backgroundColor), fg = z.bytes(bs.color);
-      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/more']") };   // T-080 PR 2: the fifth tab is More (it holds Week); the badge rides there
+      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/review']") };   // T-083 #7: Week is a tab again, and the badge rides on it (T-080 PR 2 had it on More, which held Week)
     })(),
     tabs: [...bar.querySelectorAll("a")].map(a => {
       const t = getComputedStyle(a), g = a.querySelector(".glyph").getBoundingClientRect();
@@ -989,7 +989,7 @@ function chromeState() {
 // row, with what is wrong collected per rule.
 function listState() {
   const z = window.__dz;
-  const T = { surface: z.tok("--surface"), ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"), line: z.tok("--line") };
+  const T = { surface: z.tok("--surface"), ink: z.tok("--ink"), ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"), line: z.tok("--line") };
   const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
   const bad = {}, n = {};
   const note = (k, msg) => { (bad[k] = bad[k] || []).push(msg); };
@@ -1052,12 +1052,13 @@ function listState() {
       }
     });
   });
-  // T-051-1: the iOS grouped-list header, 13px regular uppercase --ink-2 (the
-  // owner's decision of 2026-10-22). Until T-051-1: sentence case, 20px, 600.
+  // T-083 #13 (the owner's "design fixes", brief §2.5): a section header in sentence case, 17px/600 in
+  // --ink, no tracking, no rule. T-051-1 (2026-10-22) had made it 13px regular uppercase --ink-2; before
+  // that it was sentence case, 20px, 600.
   vis("#view .ghead:not(.oh)").forEach(h => {
     cnt("ghead");
     const hs = getComputedStyle(h);
-    if (hs.textTransform !== "uppercase" || hs.fontSize !== "13px" || hs.fontWeight !== "400" || !z.same(z.bytes(hs.color), T.ink2) || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
+    if (hs.textTransform !== "none" || hs.fontSize !== "17px" || hs.fontWeight !== "600" || !z.same(z.bytes(hs.color), T.ink) || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
       note("head", "\"" + h.firstChild.textContent.trim().slice(0, 20) + "\" " + hs.textTransform + " " + hs.fontSize + "/" + hs.fontWeight + " " + z.hex(z.bytes(hs.color)) + " rule " + hs.borderBottomWidth);
     const m = h.querySelector(".gh-meta");
     if (m) {
@@ -3078,8 +3079,10 @@ function t28SeedClips(list) {
         blurOk(a.bf) && material(a.bg, a.bgTok, 0.78), "backdrop-filter " + a.bf + "; background " + hx(a.bg) + " (--bg " + hx(a.bgTok) + ")");
       check(where + ": the nav bar is 44px tall (±1) with no rule under it",
         near(a.h, 44, 1) && a.rule === 0, a.h + "px, border-bottom " + a.rule + "px");
-      check(where + ": the menu button leads, on screen (left edge >= 0), 44x44, in --accent",
-        a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left >= 0 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
+      // T-083 #7 (the owner's "design fixes"): one navigation on the phone — the tab bar and More. The drawer and
+      // its menu button are gone below 861px, so the bar's leading slot is empty (was: a 44x44 --accent button).
+      check(where + ": no menu button in the bar (the tab bar is the phone's one navigation)",
+        a.menu.w === 0 && a.menu.h === 0,
         Math.round(a.menu.w) + "x" + Math.round(a.menu.h) + " at x=" + Math.round(a.menu.left) + ", " + hx(a.menu.color));
       check(where + ": the day/week capsule trails, on --surface, in tabular numerals",
         // T-080 PR 3: "Day 35", never zero-padded (was \d{3}, "Day 035").
@@ -3224,7 +3227,7 @@ function t28SeedClips(list) {
       check(at + ": the active label on the bubble is at least 4.5:1", !!bb && bb.labelRatio >= 4.5,
         bb ? bb.labelRatio.toFixed(2) + ":1" : "no bubble");
       // The seed has one due review.
-      check(at + ": the More tab's badge (T-080 PR 2; it was the Review tab) counts the due reviews in a solid fill at >= 4.5:1",
+      check(at + ": the Week tab's badge (T-083 #7; it was on More, and before that the Review tab) counts the due reviews in a solid fill at >= 4.5:1",
         !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,
         t.badge ? "\"" + t.badge.text + "\" " + hx(t.badge.bg) + " " + t.badge.ratio.toFixed(2) + ":1" : "no badge shown");
       // The Next card over the capsule. T-080 PR 2: it exists on the dashboard
@@ -3294,10 +3297,10 @@ function t28SeedClips(list) {
         const want = due > 99 ? "99+" : String(due);
         const inside = (x, box) => x.l >= box.l - 0.5 && x.r <= box.r + 0.5 && x.t >= box.t - 0.5 && x.b <= box.b + 0.5;
         const f = n => n.toFixed(1);
-        check(at + ": the badge reads " + want + " and the More link's label keeps the full count",
-          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "More, " + due + " due",   // T-080 PR 2: the tab is More
+        check(at + ": the badge reads " + want + " and the Week link's label keeps the full count",
+          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "Week, " + due + " due",   // T-083 #7: the tab is Week (was More)
           m ? "root " + m.root + ", \"" + m.text + "\", aria-label \"" + m.label + "\"" : "no badge");
-        check(at + ": the badge sits inside the More tab and the capsule",
+        check(at + ": the badge sits inside the Week tab and the capsule",
           !!m && inside(m.badge, m.tab) && inside(m.badge, m.bar),
           m ? "badge " + f(m.badge.l) + ".." + f(m.badge.r) + ", tab " + f(m.tab.l) + ".." + f(m.tab.r) + ", capsule " + f(m.bar.l) + ".." + f(m.bar.r) : "no badge");
         check(at + ": no page errors", errors.length === 0, errors.join(" | "));
@@ -3441,7 +3444,7 @@ function t28SeedClips(list) {
     fill: "every visible .glist is an opaque --surface section",
     // 12px under T-007; 20px (--r-card) since T-024, the owner's decision.
     shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
-    head: "every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600)",
+    head: "every .ghead is a sentence-case section header: 17px, 600, --ink, with no rule (T-083 #13; T-051-1 had it uppercase, 13px, 400, --ink-2)",
     meta: "every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px)",
     height: "every .grow is at least 44px tall (56 with a subtitle)",
     type: ".g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2",
@@ -3590,7 +3593,9 @@ function t28SeedClips(list) {
         check(where + ": every text node on a pressed row is >= 4.5:1 (3:1 large)", r.texts > 0 && r.lowText.length === 0,
           r.lowText.length ? r.lowText.length + " — " + r.lowText.slice(0, 3).join("; ") : r.texts + " texts, least " + r.text.r.toFixed(2) + ":1 (" + r.text.at + ")");
       }
-      // The sidebar's own rows.
+      // The sidebar's own rows. T-083 #7: on a phone there is no sidebar (no drawer below 861px), so they are
+      // pressed at the desktop width only; the phone's navigation is the tab bar, pressed above.
+      if (mobile) { check(w + "px " + theme + " press: no page errors", errors.length === 0, errors.join(" | ")); await ctx.close(); continue; }
       await go(page, "/");
       if (!mobile) await page.evaluate(() => document.querySelector("#themeMenu").classList.add("open"));
       const ssel = ".sidebar .nav a, .sidebar .navrow, .sidebar .theme-menu button";

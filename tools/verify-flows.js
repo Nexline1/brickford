@@ -661,6 +661,102 @@ async function t083Flows(browser) {
   }
 }
 
+// ---- (ux2) T-083 batch 2: findings 6, 7, 8 and 13 (loop/specs/T-082-ux-review/findings.md) ----
+// The same fixture as batch 1 (uxFresh: Wed 25 Nov 2026, 31 lectures watched in plan order). Each
+// check was run against its bug put back and failed. `--only-t083b` runs this block alone.
+async function t083bFlows(browser) {
+  console.log("\nT-083: the UX review's fixes (batch 2)");
+  for (const w of WIDTHS) {
+    const at = w + "px";
+    const { ctx, page, errors } = await uxFresh(browser, w);
+    try {
+      // #6: a watched lecture reads video, notes (open), quiz, practice — on the phone in that order down
+      // the page; on a desktop the notes under the video and the side column holding the quiz and the
+      // practice only. No rail card on a lecture page. The steps are 17px in --ink.
+      await go(page, "/lesson/math110/0/5");
+      const L = await page.evaluate(() => {
+        const top = sel => { const e = document.querySelector(sel); return e && e.checkVisibility() ? Math.round(e.getBoundingClientRect().top + scrollY) : null; };
+        const side = document.querySelector("#view .lsn-side");
+        const probe = document.createElement("span"); probe.style.color = "var(--ink)"; document.querySelector("#view").appendChild(probe);
+        const ink = getComputedStyle(probe).color; probe.remove();
+        const sum = document.querySelector("#view .lsn-notes details.sum-more"), d = document.querySelector("#view .beat-d");
+        return { video: top("#view .lq-watched") ?? top("#view .video-frame"), notes: top("#view .lsn-notes .ghead"), quiz: top("#view #lqMount") ?? top("#view .lq-pass"),
+          practice: top("#view .pr-head"), open: !!sum && sum.open, rail: document.querySelectorAll("#view .rail-card").length,
+          side: side ? [...side.children].map(c => c.className.split(" ")[0] || c.tagName) : null,
+          beat: d ? { size: getComputedStyle(d).fontSize, color: getComputedStyle(d).color, ink } : null };
+      });
+      const ordered = [L.video, L.notes, L.quiz, L.practice].every(v => v !== null);
+      if (w < 860) check("(ux2 #6) " + at + ": a watched lecture reads video, then notes, then quiz, then practice down the page",
+        ordered && L.video < L.notes && L.notes < L.quiz && L.quiz < L.practice, JSON.stringify(L));
+      else check("(ux2 #6) " + at + ": the notes sit under the video, and the side column holds the quiz and the practice only",
+        ordered && L.video < L.notes && !!L.side && L.side.every(c => /^(lq-mount|lq-pass|ghead|pr-list|pr-card|pr-items|card)$/.test(c)) && !L.side.some(c => /rail|lq-deep/.test(c)), JSON.stringify(L.side));
+      check("(ux2 #6) " + at + ": the notes are open once the lecture is watched, their steps 17px in --ink, and there is no rail card on the page",
+        L.open && !!L.beat && L.beat.size === "17px" && L.beat.color === L.beat.ink && L.rail === 0, JSON.stringify({ open: L.open, beat: L.beat, rail: L.rail }));
+      await go(page, "/lesson/math110/0/13");
+      const shut = await page.evaluate(() => { const s = document.querySelector("#view details.sum-more"); return s ? s.open : null; });
+      check("(ux2 #6) " + at + ": on a lecture not yet watched the notes stay folded", shut === false, String(shut));
+
+      // #13: section heads, field labels and the kicker in sentence case; the lecture's kicker a breadcrumb to its course.
+      const cs = await page.evaluate(() => {
+        const one = sel => { const e = [...document.querySelectorAll(sel)].find(x => x.checkVisibility()); if (!e) return null;
+          const s = getComputedStyle(e); return { tt: s.textTransform, ls: parseFloat(s.letterSpacing) || 0, size: parseFloat(s.fontSize) }; };
+        const k = document.querySelector("#view .page-head .kicker"), a = k && k.querySelector('a[href="#/course/math110"]');
+        return { ghead: one("#view .ghead:not(.oh)"), kicker: one("#view .page-head .kicker"), crumb: a ? a.textContent.trim() : null, nav: k ? k.tagName : null };
+      });
+      await go(page, "/review");
+      const fld = await page.evaluate(() => { const e = [...document.querySelectorAll("#view .field")].find(x => x.checkVisibility()); if (!e) return null;
+        const s = getComputedStyle(e); return { tt: s.textTransform, ls: parseFloat(s.letterSpacing) || 0 }; });
+      const flat = x => !!x && x.tt === "none" && Math.abs(x.ls) <= 0.5;
+      check("(ux2 #13) " + at + ": .ghead, .field and the kicker are sentence case with no tracking (text-transform none, letter-spacing <= 0.5px)",
+        flat(cs.ghead) && flat(cs.kicker) && flat(fld), JSON.stringify({ ghead: cs.ghead, kicker: cs.kicker, field: fld }));
+      check("(ux2 #13) " + at + ": the lecture's kicker is a breadcrumb whose link is its course (\"MATH 110 · Linear Algebra\")",
+        cs.nav === "NAV" && cs.crumb === "MATH 110 · Linear Algebra", JSON.stringify(cs));
+
+      // #8: Problems — the legend first, one filled "Start next quiz", a fold per course with its count, the rows the control.
+      await go(page, "/workshop");
+      const P = await page.evaluate(() => {
+        const z = document.querySelector("#view"), fill = (() => { const p = document.createElement("span"); p.style.color = "var(--btn-bg)"; z.appendChild(p); const c = getComputedStyle(p).color; p.remove(); return c; })();
+        const filled = [...z.querySelectorAll("a, button, .btn")].filter(e => e.checkVisibility() && getComputedStyle(e).backgroundColor === fill).map(e => e.textContent.trim());
+        const pos = sel => { const e = z.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().top) : null; };
+        const groups = [...z.querySelectorAll("#pdDue > details.pd-group")].map(g => ({ key: g.dataset.group, n: +g.querySelector(":scope > summary .pill").textContent,
+          rows: g.querySelectorAll("[data-due]").length, open: g.open }));
+        const rows = [...z.querySelectorAll("#pdDue [data-due]")].map(n => n.matches("details") ? n.querySelector("summary") : n).filter(r => r.checkVisibility());
+        return { filled, how: pos(".pd-how"), next: pos(".pd-next"), due: pos("#pdDue"), groups,
+          pills: z.querySelectorAll("#pdDue .pd-go, #pdDue .pd-row .btn").length, /* a pset's opened fold keeps its source link: not the row's */ rowsOk: rows.length > 0 && rows.every(r => /^(A|SUMMARY)$/.test(r.tagName) && r.getBoundingClientRect().height >= 44),
+          nextHref: (z.querySelector(".pd-next a") || { getAttribute: () => null }).getAttribute("href"),
+          firstQuiz: (z.querySelector('#pdDue a[data-due="quiz"], #pdDue a[data-due="catchup"]') || { getAttribute: () => null }).getAttribute("href") };
+      });
+      check("(ux2 #8) " + at + ": the type legend is at the top, then one filled \"Start next quiz\" (the page's only filled button, opening the first quiz due), then Due now",
+        P.how !== null && P.next !== null && P.how < P.next && P.next < P.due && P.filled.length === 1 && /^Start next quiz/.test(P.filled[0]) && !!P.nextHref && P.nextHref === P.firstQuiz,
+        JSON.stringify({ how: P.how, next: P.next, due: P.due, filled: P.filled, nextHref: P.nextHref, firstQuiz: P.firstQuiz }));
+      const keys = P.groups.map(g => g.key);
+      check("(ux2 #8) " + at + ": what is due is one fold per course, each with its count, the first open, the rest closed (" + keys.join(", ") + ")",
+        P.groups.length >= 3 && new Set(keys).size === keys.length && P.groups.every(g => g.n === g.rows && g.n > 0) && P.groups[0].open && P.groups.slice(1).every(g => !g.open),
+        JSON.stringify(P.groups));
+      check("(ux2 #8) " + at + ": each row is the control (a link or its fold's summary, >= 44px) with no button or pill of its own",
+        P.pills === 0 && P.rowsOk, P.pills + " pill(s); rows ok " + P.rowsOk);
+
+      // #7: the phone's one navigation, and one name for Today.
+      if (w < 860) {
+        await go(page, "/more");
+        const N = await page.evaluate(() => ({
+          tabs: [...document.querySelectorAll("#tabbar a")].map(a => [...a.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join("").trim()),
+          menu: document.querySelector(".menu-btn").checkVisibility(), side: document.querySelector(".sidebar").checkVisibility(),
+          more: [...document.querySelectorAll("#view a.grow")].filter(a => a.checkVisibility()).map(a => a.getAttribute("href")),
+          settings: [...document.querySelectorAll("#view [data-open-settings]")].some(b => b.checkVisibility()),
+          names: /\b(Home|Dashboard)\b/.test(document.querySelector("#tabbar").textContent) }));
+        check("(ux2 #7) " + at + ": one navigation — no hamburger, no drawer; the tab bar is Today, Courses, Practice, Week, More; never \"Home\" or \"Dashboard\"",
+          !N.menu && !N.side && N.tabs.join() === "Today,Courses,Practice,Week,More" && !N.names, JSON.stringify(N));
+        const want = ["#/record", "#/workshop", "#/exams", "#/atlas", "#/calendar", "#/library", "#/monk", "#/treasury"];
+        check("(ux2 #7) " + at + ": More holds the rest — Proof, Problems, Exams, the Atlas, Calendar, Library, Monk Mode, Treasury — and Settings, and not the tabs' own pages",
+          want.every(h => N.more.includes(h)) && !N.more.includes("#/practice") && !N.more.includes("#/review") && N.settings, JSON.stringify(N.more));
+      }
+    } catch (e) { check("(ux2) " + at + ": the batch-2 flow ran to its end without a harness error", false, String(e.message).split("\n")[0]); }
+    check("(ux2) " + at + ": no page errors", errors.length === 0, errors.join(" | "));
+    await ctx.close();
+  }
+}
+
 // ---- T-038: the gates, and the confirm sheet ----
 const GATE1_REQ = (() => {
   const vm = require("vm");
@@ -754,8 +850,15 @@ const t26cEarned = st => Math.round(st.treasury.entries.filter(e => e.date >= T2
 (async () => {
   const browser = await chromium.launch();
   // T-083: `--only-t083` runs the UX block alone (how its plants were run).
+  if (process.argv.includes("--only-t083b")) {
+    await t083bFlows(browser);
+    await browser.close();
+    console.log("\n" + (fails === 0 ? "PASS — " + checks + " T-083 batch-2 checks" : fails + " of " + checks + " T-083 batch-2 check(s) FAILED"));
+    process.exit(fails === 0 ? 0 : 1);
+  }
   if (process.argv.includes("--only-t083")) {
     await t083Flows(browser);
+  await t083bFlows(browser);
     await browser.close();
     console.log("\n" + (fails === 0 ? "PASS — " + checks + " T-083 checks" : fails + " of " + checks + " T-083 check(s) FAILED"));
     process.exit(fails === 0 ? 0 : 1);
@@ -2528,7 +2631,7 @@ export async function pipeline(task, model, opts) {
     await page.mouse.up();
     await page.waitForTimeout(500);
     const afterMouse = await hash();
-    check("(j) a 40px vertical drag on Exams does not switch tabs (touch and pointer)",
+    check("(j) a 40px vertical drag on Practice (T-083: the third tab, was Exams) does not switch tabs (touch and pointer)",
       afterTouch === before && afterMouse === before, before + " -> touch " + afterTouch + ", pointer " + afterMouse);
 
     // Tap the active tab at scrollY 600 (T-083: was 800): back to the top.
@@ -3018,6 +3121,9 @@ export async function pipeline(task, model, opts) {
     const d0 = await due();
     check("(pd) /workshop lists the quiz waiting and the unlocked pset", d0.includes("quiz:math120.1.0") && d0.includes("pset:1806-ps1"), d0.join(", "));
     await markView(page);
+    // T-083 #8: the quiz's course fold is open (the first group: quizzes lead); pressed as the row it is.
+    if (!(await page.evaluate(() => { const a = document.querySelector('#view #pdDue a[data-due=quiz][data-id="math120.1.0"]'); return !!a && a.checkVisibility(); })))
+      await page.click('#view #pdDue details.pd-group:has(a[data-id="math120.1.0"]) > summary');
     await page.click('#view #pdDue a[data-due=quiz][data-id="math120.1.0"]');
     await viewReplaced(page);
     const opened = await page.waitForSelector("#view #lqMount .lq-card", { timeout: 4000 }).then(() => true, () => false);
@@ -3041,6 +3147,9 @@ export async function pipeline(task, model, opts) {
     const d1 = await due();
     check("(pd) passing it takes the quiz row off Problems", passed && !d1.includes("quiz:math120.1.0") && d1.includes("pset:1806-ps1"), "passed " + passed + "; " + d1.join(", "));
     const sel = '#view #pdDue details[data-due=pset][data-id="1806-ps1"]';
+    // T-083 #8: Problems is grouped by course, the first fold open; the pset's course is opened first, as a reader would.
+    if (!(await page.evaluate(s => { const g = document.querySelector(s); return !!g && g.closest("details.pd-group").open; }, sel)))
+      await page.click("#view #pdDue details.pd-group:has(" + sel.slice(6) + ") > summary");
     await page.click(sel + " > summary");
     const body = await page.evaluate(s => { const d = document.querySelector(s), a = d && d.querySelector(".pd-body a[href]"), cb = d && d.querySelector("input[data-pset]");
       return d ? { open: d.open, src: a ? a.getAttribute("href") : null, srcVis: !!a && a.checkVisibility(), cb: !!cb && cb.closest("label").checkVisibility() } : null; }, sel);
@@ -3566,6 +3675,7 @@ export async function pipeline(task, model, opts) {
       "checkpoints at 390 (tapped) and 1280 (keyboard, then mouse) — tick and untick one write each, 44x44 targets, drawing writes nothing (T-069); " +
       "the owed banner at 390 and 1280 — the owed list in order with its lateness, five rows and +N more, 44x44, drawing writes nothing, a row opens its lecture, watching it removes the row, no banner with nothing owed (T-079); " +
       "the UX review's fixes at 390 and 1280 — Today's order and at most 12 controls, one h1, no visible [hidden], drawn marks, every Next agreeing, In this unit's rows, Watched in --ink-2, the live toast and focus, Seal early asking first, Past weeks before a seal, Restore asking and Undo restoring (T-083); " +
+      "batch 2 at 390 and 1280 — a lecture's video, notes, quiz and practice in order with no rail, the phone's one navigation and More, Problems by course with one Start next quiz, sentence-case heads and the breadcrumb (T-083 #6 #7 #8 #13); " +
       "record on the phone, transcribe on the laptop — the upload to the private repo's audio/ at 390 and 1280, the phone with no transcription at all, consent, the transcript on IndexedDB only, fillers, counts, words per minute, Copy, the desktop pull, the upload failure and its retry per open, Not now, and every failure line (T-046)"
     : fails + " of " + checks + " flow check(s) FAILED"));
   process.exit(fails === 0 ? 0 : 1);

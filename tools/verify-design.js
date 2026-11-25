@@ -921,7 +921,7 @@ function tabState() {
       const e = bar.querySelector(".tab-badge");
       if (!e || !e.checkVisibility()) return null;
       const bs = getComputedStyle(e), bg = z.bytes(bs.backgroundColor), fg = z.bytes(bs.color);
-      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/more']") };   // T-080 PR 2: the fifth tab is More (it holds Week); the badge rides there
+      return { text: e.textContent.trim(), bg, ratio: z.ratio(z.over(fg, bg), bg), inReview: !!e.closest("a[data-route='/review']") };   // T-083 #7: Week is a tab again, and the badge rides on it (T-080 PR 2 had it on More, which held Week)
     })(),
     tabs: [...bar.querySelectorAll("a")].map(a => {
       const t = getComputedStyle(a), g = a.querySelector(".glyph").getBoundingClientRect();
@@ -989,7 +989,7 @@ function chromeState() {
 // row, with what is wrong collected per rule.
 function listState() {
   const z = window.__dz;
-  const T = { surface: z.tok("--surface"), ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"), line: z.tok("--line") };
+  const T = { surface: z.tok("--surface"), ink: z.tok("--ink"), ink2: z.tok("--ink-2"), ink3: z.tok("--ink-3"), line: z.tok("--line") };
   const vis = sel => [...document.querySelectorAll(sel)].filter(n => n.checkVisibility());
   const bad = {}, n = {};
   const note = (k, msg) => { (bad[k] = bad[k] || []).push(msg); };
@@ -1052,12 +1052,13 @@ function listState() {
       }
     });
   });
-  // T-051-1: the iOS grouped-list header, 13px regular uppercase --ink-2 (the
-  // owner's decision of 2026-10-22). Until T-051-1: sentence case, 20px, 600.
+  // T-083 #13 (the owner's "design fixes", brief §2.5): a section header in sentence case, 17px/600 in
+  // --ink, no tracking, no rule. T-051-1 (2026-10-22) had made it 13px regular uppercase --ink-2; before
+  // that it was sentence case, 20px, 600.
   vis("#view .ghead:not(.oh)").forEach(h => {
     cnt("ghead");
     const hs = getComputedStyle(h);
-    if (hs.textTransform !== "uppercase" || hs.fontSize !== "13px" || hs.fontWeight !== "400" || !z.same(z.bytes(hs.color), T.ink2) || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
+    if (hs.textTransform !== "none" || hs.fontSize !== "17px" || hs.fontWeight !== "600" || !z.same(z.bytes(hs.color), T.ink) || (parseFloat(hs.borderBottomWidth) || 0) !== 0)
       note("head", "\"" + h.firstChild.textContent.trim().slice(0, 20) + "\" " + hs.textTransform + " " + hs.fontSize + "/" + hs.fontWeight + " " + z.hex(z.bytes(hs.color)) + " rule " + hs.borderBottomWidth);
     const m = h.querySelector(".gh-meta");
     if (m) {
@@ -1889,6 +1890,10 @@ function t45Problems() {
   if (misses) want.push({ due: "review", id: "drill", title: "Daily review", tag: null, why: "questions you missed, served back until they stick", go: "Start", href: "#/drill" });
   const z = window.__dz, fill = z.tok("--btn-bg");
   const txt = (n, sel) => { const x = sel ? n.querySelector(sel) : n; return x ? x.textContent.replace(/\s+/g, " ").trim() : null; };
+  // T-083 #8: what is due is one fold per course, the first open. Every fold is opened here, as a reader
+  // would to see it, so each row is measured on screen.
+  document.querySelectorAll("#view #pdDue details.pd-group").forEach(d => { d.open = true; });
+  const nx = document.querySelector("#view .pd-next a"), nb = nx ? nx.getBoundingClientRect() : null;
   const rows = [...document.querySelectorAll("#view #pdDue [data-due]")].map(n => {
     const row = n.matches("details") ? n.querySelector("summary") : n, go = row.querySelector(".pd-go"), gr = go ? go.getBoundingClientRect() : null;
     const tag = row.querySelector(".pd-tag"), m = row.querySelector(".pd-m");
@@ -1909,6 +1914,11 @@ function t45Problems() {
   const empty = document.querySelector("#view .pd-empty"), ea = empty && empty.querySelector("a[href]");
   const all = document.querySelector("#view details#pbAll");
   return { phase, want, rows, soon, soonOk, count: txt(document, "#view .pd-count"),
+    next: nx ? { text: nx.textContent.trim(), href: nx.getAttribute("href"), t: nb.top, b: nb.bottom, w: nb.width, h: nb.height,
+      filled: (b => b[3] === 255 && z.same(b, fill, 2))(z.bytes(getComputedStyle(nx).backgroundColor)) } : null,
+    howFirst: (() => { const h = document.querySelector("#view .pd-how"), d = document.querySelector("#view #pdDue, #view .pd-empty");
+      return !!h && !!d && !!(h.compareDocumentPosition(d) & Node.DOCUMENT_POSITION_FOLLOWING); })(),
+    groups: [...document.querySelectorAll("#view #pdDue > details.pd-group")].map(g => ({ key: g.dataset.group, n: +g.querySelector(":scope > summary .pill").textContent, rows: g.querySelectorAll("[data-due]").length })),
     empty: empty ? { text: txt(empty), href: ea ? ea.getAttribute("href") : null } : null,
     how: [...document.querySelectorAll("#view .pd-how > div")].map(d => ({ b: txt(d, "b"), text: txt(d) })),
     howCols: new Set([...document.querySelectorAll("#view .pd-how > div")].map(d => Math.round(d.getBoundingClientRect().left))).size,
@@ -3078,8 +3088,10 @@ function t28SeedClips(list) {
         blurOk(a.bf) && material(a.bg, a.bgTok, 0.78), "backdrop-filter " + a.bf + "; background " + hx(a.bg) + " (--bg " + hx(a.bgTok) + ")");
       check(where + ": the nav bar is 44px tall (±1) with no rule under it",
         near(a.h, 44, 1) && a.rule === 0, a.h + "px, border-bottom " + a.rule + "px");
-      check(where + ": the menu button leads, on screen (left edge >= 0), 44x44, in --accent",
-        a.menu.w >= 44 && a.menu.h >= 44 && a.menu.left >= 0 && a.menu.left < 24 && __same(a.menu.color, a.menu.accent),
+      // T-083 #7 (the owner's "design fixes"): one navigation on the phone — the tab bar and More. The drawer and
+      // its menu button are gone below 861px, so the bar's leading slot is empty (was: a 44x44 --accent button).
+      check(where + ": no menu button in the bar (the tab bar is the phone's one navigation)",
+        a.menu.w === 0 && a.menu.h === 0,
         Math.round(a.menu.w) + "x" + Math.round(a.menu.h) + " at x=" + Math.round(a.menu.left) + ", " + hx(a.menu.color));
       check(where + ": the day/week capsule trails, on --surface, in tabular numerals",
         // T-080 PR 3: "Day 35", never zero-padded (was \d{3}, "Day 035").
@@ -3224,7 +3236,7 @@ function t28SeedClips(list) {
       check(at + ": the active label on the bubble is at least 4.5:1", !!bb && bb.labelRatio >= 4.5,
         bb ? bb.labelRatio.toFixed(2) + ":1" : "no bubble");
       // The seed has one due review.
-      check(at + ": the More tab's badge (T-080 PR 2; it was the Review tab) counts the due reviews in a solid fill at >= 4.5:1",
+      check(at + ": the Week tab's badge (T-083 #7; it was on More, and before that the Review tab) counts the due reviews in a solid fill at >= 4.5:1",
         !!t.badge && t.badge.inReview && t.badge.text === "1" && t.badge.bg[3] === 255 && t.badge.ratio >= 4.5,
         t.badge ? "\"" + t.badge.text + "\" " + hx(t.badge.bg) + " " + t.badge.ratio.toFixed(2) + ":1" : "no badge shown");
       // The Next card over the capsule. T-080 PR 2: it exists on the dashboard
@@ -3294,10 +3306,10 @@ function t28SeedClips(list) {
         const want = due > 99 ? "99+" : String(due);
         const inside = (x, box) => x.l >= box.l - 0.5 && x.r <= box.r + 0.5 && x.t >= box.t - 0.5 && x.b <= box.b + 0.5;
         const f = n => n.toFixed(1);
-        check(at + ": the badge reads " + want + " and the More link's label keeps the full count",
-          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "More, " + due + " due",   // T-080 PR 2: the tab is More
+        check(at + ": the badge reads " + want + " and the Week link's label keeps the full count",
+          !!m && m.root === root + "px" && m.shown && m.text === want && m.label === "Week, " + due + " due",   // T-083 #7: the tab is Week (was More)
           m ? "root " + m.root + ", \"" + m.text + "\", aria-label \"" + m.label + "\"" : "no badge");
-        check(at + ": the badge sits inside the More tab and the capsule",
+        check(at + ": the badge sits inside the Week tab and the capsule",
           !!m && inside(m.badge, m.tab) && inside(m.badge, m.bar),
           m ? "badge " + f(m.badge.l) + ".." + f(m.badge.r) + ", tab " + f(m.tab.l) + ".." + f(m.tab.r) + ", capsule " + f(m.bar.l) + ".." + f(m.bar.r) : "no badge");
         check(at + ": no page errors", errors.length === 0, errors.join(" | "));
@@ -3441,7 +3453,7 @@ function t28SeedClips(list) {
     fill: "every visible .glist is an opaque --surface section",
     // 12px under T-007; 20px (--r-card) since T-024, the owner's decision.
     shape: "every visible .glist has 20px corners and clips its rows (overflow hidden)",
-    head: "every .ghead is the iOS section header: uppercase, 13px, 400, --ink-2, with no rule (T-051-1; it was sentence case, 20px, 600)",
+    head: "every .ghead is a sentence-case section header: 17px, 600, --ink, with no rule (T-083 #13; T-051-1 had it uppercase, 13px, 400, --ink-2)",
     meta: "every .gh-meta is 13px --ink-2, not uppercased, with tabular numerals (T-051-1; it was 15px)",
     height: "every .grow is at least 44px tall (56 with a subtitle)",
     type: ".g-t is 17px in the body face, 600 (400 on a muted or done row); .g-s is 15px --ink-2",
@@ -3590,7 +3602,9 @@ function t28SeedClips(list) {
         check(where + ": every text node on a pressed row is >= 4.5:1 (3:1 large)", r.texts > 0 && r.lowText.length === 0,
           r.lowText.length ? r.lowText.length + " — " + r.lowText.slice(0, 3).join("; ") : r.texts + " texts, least " + r.text.r.toFixed(2) + ":1 (" + r.text.at + ")");
       }
-      // The sidebar's own rows.
+      // The sidebar's own rows. T-083 #7: on a phone there is no sidebar (no drawer below 861px), so they are
+      // pressed at the desktop width only; the phone's navigation is the tab bar, pressed above.
+      if (mobile) { check(w + "px " + theme + " press: no page errors", errors.length === 0, errors.join(" | ")); await ctx.close(); continue; }
       await go(page, "/");
       if (!mobile) await page.evaluate(() => document.querySelector("#themeMenu").classList.add("open"));
       const ssel = ".sidebar .nav a, .sidebar .navrow, .sidebar .theme-menu button";
@@ -4375,22 +4389,28 @@ function t28SeedClips(list) {
     const bad = m.rows.map(r => {
       const w = m.want.find(x => key(x) === key(r)); if (!w) return null;
       const why = w.due === "lab" ? !!r.why && r.why.endsWith(w.tail) && !clauseBad(r.why.slice(0, -w.tail.length), w.req) : r.why === w.why;
-      const ok = r.title === w.title && r.tag === w.tag && why && r.go === w.go && (!w.href || r.href === w.href) && r.visible && r.goW >= 44 && r.goH >= 44 && r.rowH >= 44;
+      // T-083 #8: the row is the control (a link, or its fold's summary): no action pill of its own (was Take it / Open / Start).
+      const ok = r.title === w.title && r.tag === w.tag && why && r.go === null && (!w.href || r.href === w.href) && r.visible && r.rowH >= 44;
       return ok ? null : JSON.stringify(r) + " want " + JSON.stringify(w);
     }).filter(Boolean);
-    chk(at + " /workshop: each due row has its title, its tag, its why-line and its action (Take it / Open / Start), the action and the row >= 44px",
+    chk(at + " /workshop: each due row has its title, its tag and its why-line, is itself the control (no pill; T-083 #8), and is >= 44px, in a fold per course whose count is its rows",
+      m.groups.every(g => g.n === g.rows && g.n > 0) && new Set(m.groups.map(g => g.key)).size === m.groups.length &&
       bad.length === 0, bad.join(" | ") || m.rows.map(r => r.tag + " \"" + r.why + "\"").join("; ") || "no rows");
     // t26bPrimary reads <a>/<button>; a row's action is a span painted like
     // a button inside the row (the row is the link), so both are counted.
+    // T-083 #8: the one filled primary is "Start next quiz" over the list, opening the first quiz due (quizzes, then
+    // catch-up, in plan order); with no quiz due there is none. It was the first row's own action.
     const filled = p.filled.map(f => f.text).concat(m.rows.filter(r => r.filled).map(r => r.go));
-    chk(at + " /workshop: at most one filled primary, and it is the first row's action", filled.length <= 1 && (m.rows.length ? m.rows[0].filled : true),
-      (filled.join(" | ") || "none") + (m.rows[0] ? ", first row " + m.rows[0].go + (m.rows[0].filled ? " filled" : "") : ""));
-    if (m.rows.length) chk(at + " /workshop: the primary is inside the first viewport", inView(p, m.rows[0]), where(m.rows[0]) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
+    const quizWant = m.want.find(x => x.due === "quiz") || m.want.find(x => x.due === "catchup") || null;
+    chk(at + " /workshop: at most one filled primary — \"Start next quiz\", opening the first quiz due — and none when no quiz is due",
+      filled.length <= 1 && (quizWant ? !!m.next && m.next.filled && /^Start next quiz/.test(m.next.text) && m.next.href === quizWant.href && filled.length === 1 : !m.next && filled.length === 0),
+      (filled.join(" | ") || "none") + "; next " + JSON.stringify(m.next) + "; first quiz " + (quizWant ? quizWant.href : "none"));
+    if (m.next) chk(at + " /workshop: the primary is inside the first viewport, and >= 44px tall", inView(p, m.next) && Math.round(m.next.h) >= 44, where(m.next) + ", room " + p.top.toFixed(0) + "-" + p.floor.toFixed(0));
     chk(at + " /workshop: the empty state shows exactly when nothing is due: \"Nothing due. Your next lecture is ‹title›.\" with a link",
       m.want.length ? !m.empty : !!m.empty && /^Nothing due\. Your next lecture is .+\.$/.test(m.empty.text) && /^#\/(lesson\/|courses)/.test(m.empty.href || ""),
       JSON.stringify(m.empty));
-    chk(at + " /workshop: \"How this works\" is three columns — Lecture quiz, Problem set, Lab — in the mockup's words",
-      m.how.length === 3 && m.how.every((h, i) => h.b === T45_HOW[i][0] && h.text === T45_HOW[i][0] + T45_HOW[i][1]) && m.howCols === (o.w >= 861 ? 3 : 1),
+    chk(at + " /workshop: \"How this works\" is three columns — Lecture quiz, Problem set, Lab — in the mockup's words, above what is due (T-083 #8: the legend first)",
+      m.howFirst && m.how.length === 3 && m.how.every((h, i) => h.b === T45_HOW[i][0] && h.text === T45_HOW[i][0] + T45_HOW[i][1]) && m.howCols === (o.w >= 861 ? 3 : 1),
       m.how.map(h => h.b).join(" | ") + ", " + m.howCols + " column(s)");
     chk(at + " /workshop: \"Coming up\" has 3 rows or fewer, each still locked and reading \"After lecture n · ‹title›\"",
       m.soon.length <= 3 && m.soonOk.length === 0, m.soon.length + " rows" + (m.soonOk.length ? "; " + m.soonOk.join("; ") : ": " + m.soon.map(r => r.meta).join(" | ")));
@@ -5241,6 +5261,7 @@ function t28SeedClips(list) {
       // T-080 PR 3: the rail's card is the lecture page's side column now (#view .lsn-side), visible there.
       railLock: !!document.querySelector("#view .lsn-side .rl-lock") && document.querySelector("#view .lsn-side .rl-lock").checkVisibility(),
       railRule: txt("#view .lsn-side .rl-rule"),
+      rail: !!document.querySelector("#view .rail-card"),
       todayRoot: (r => r ? "#/lesson/" + r.split(".").join("/") : null)(window.__brickfordTest.lockRoot("math120", 1, 0)),
     };
   }
@@ -5298,8 +5319,10 @@ function t28SeedClips(list) {
           c43(at + ": every text in the quiz card is >= 4.5:1 on what is behind it, the two marked options (wrong, correct) and their keys included",
             Array.isArray(m.lowInk) && m.lowInk.length === 0 && m.marked === 2, "marked options " + m.marked + ", their keys " + JSON.stringify(m.keyInk) + ":1; under 4.5: " + JSON.stringify(m.lowInk));
           c43(at + ": no \"Check yourself\" under the summary (the quiz is the check)", !m.check, String(m.check));
-          if (o.w === 1440) c43(at + ": the rail says how the ring counts and shows the next lecture locked",
-            m.railRule === "A lecture counts once its quiz is passed" && m.railLock, JSON.stringify({ rule: m.railRule, lock: m.railLock }));
+          // T-083 #6 (the owner's "design fixes"): no rail card on a lecture page — the side column holds the quiz and
+          // the practice only. (T-043 had the rail say how the ring counts and show the next lecture locked.)
+          if (o.w === 1440) c43(at + ": no rail card on the lecture page; the side column is the quiz and the practice (T-083 #6)",
+            m.railRule === null && !m.railLock && !m.rail, JSON.stringify({ rule: m.railRule, lock: m.railLock, rail: m.rail }));
         } else if (st.name === "passed, with Go deeper") {
           c43(at + ": the pass card — \"Lecture passed\", \"3 of 3 · 2 right on the first try\", --surface, \"Next lecture →\" the one primary",
             !!m.pass && m.pass.tick && /^Lecture passed\s*3 of 3 · 2 right on the first try · counted/.test(m.pass.text) && m.pass.bg && m.pass.btn === "Next lecture →" &&
@@ -5404,8 +5427,9 @@ function t28SeedClips(list) {
         t45Seen[key + st.name] = { count: +m.count, line: lineN };
         if (st.twin) {
           const tw = t45Seen[key + st.twin] || null, rv = m.rows[m.rows.length - 1] || {};
-          c45(at + ": the Daily review row is last, goes to #/drill, and it and its Start are >= 44px",
-            rv.due === "review" && rv.href === "#/drill" && rv.rowH >= 44 && rv.goW >= 44 && rv.goH >= 44 && rv.visible, JSON.stringify(rv));
+          // T-083 #8: the row is the control now (no Start pill).
+          c45(at + ": the Daily review row is last, goes to #/drill, and is itself the control, >= 44px",
+            rv.due === "review" && rv.href === "#/drill" && rv.rowH >= 44 && rv.go === null && rv.visible, JSON.stringify(rv));
           c45(at + ": it adds exactly 1 to the count and to the dashboard line (\"" + st.twin + "\": " + (tw ? tw.count + " / " + tw.line : "not measured") + ")",
             !!tw && +m.count === tw.count + 1 && lineN === tw.line + 1, "count " + m.count + ", line " + lineN);
         }
@@ -5830,8 +5854,10 @@ function t28SeedClips(list) {
           // column (the reading layout's second column), so the rail itself takes no room there either.
           const r2 = await page.evaluate(() => { const c = document.querySelector("#view .lsn-side .rail-card");
             return { rail: getComputedStyle(document.querySelector("#rail")).display, card: !!c && c.checkVisibility() }; });
-          c8(at + ": the Next up rail takes no room on /courses, and on a lecture page its card is shown in the page's side column",
-            r1.disp === "none" && r1.w === 0 && r2.card, "/courses display " + r1.disp + " width " + r1.w + "; lecture " + JSON.stringify(r2));
+          // T-083 #6 (the owner's "design fixes"): no rail card on a lecture page either — its side column is the
+          // quiz and the practice. (T-080 PR 3 drew the card at the top of that column.)
+          c8(at + ": the Next up rail takes no room on /courses, and a lecture page draws no rail card (T-083 #6)",
+            r1.disp === "none" && r1.w === 0 && !r2.card && r2.rail === "none" && !(await page.evaluate(() => !!document.querySelector("#view .rail-card"))), "/courses display " + r1.disp + " width " + r1.w + "; lecture " + JSON.stringify(r2));
         }
         // one filled button on each main route
         const many = [];

@@ -138,47 +138,52 @@ async function freshContext(browser, opts) {
     await ctx.close();
   }
 
-  // ---- below the breakpoint it is a drawer, and the drawer works ----
+  // ---- below the breakpoint: one navigation, and it reaches everything ----
+  // T-083 #7 (the owner's "design fixes", loop/specs/T-082-ux-review/findings.md): the phone had
+  // three navigation systems (a hamburger drawer, the tab bar and More). The drawer is gone below
+  // 861px, so this no longer opens and closes it; it asserts the contract that replaced it:
+  //   - no hamburger and no sidebar on screen;
+  //   - the tab bar is Today, Courses, Practice, Week, More, every tab at least 44x44;
+  //   - every route in ROUTES is reachable from the tab bar or More, by visible links, within two
+  //     taps of a page the bar opens (as the drawer reached them in one), and More offers Settings.
+  // Never weaker than the drawer was: a route the drawer reached and the phone cannot is a failure.
+  const TABS = ["Today", "Courses", "Practice", "Week", "More"];
   for (const w of PHONE) {
-    const ctx = await freshContext(browser, { viewport: { width: w, height: 860 }, hasTouch: true });
+    const ctx = await freshContext(browser, { viewport: { width: w, height: 860 }, hasTouch: true, reducedMotion: "reduce" });
     const page = await ctx.newPage();
     await page.goto(URL + "/", { waitUntil: "load" });
-    await page.waitForTimeout(350);
-    const read = () => page.evaluate(() => {
-      const s = document.querySelector(".sidebar");
-      return { x: Math.round(s.getBoundingClientRect().x), open: s.classList.contains("open"),
-               menu: getComputedStyle(document.querySelector(".menu-btn")).display };
-    });
-    // A spring has no duration, so waiting a fixed number of milliseconds for it
-    // is a race: this gate first failed at 768px with the drawer 1px short of
-    // open, which was my timer and not the app. "Two equal samples" is no
-    // better — a spring crawls near its target and rounds to the same integer
-    // for several frames before it snaps. Wait for the end state itself, with a
-    // deadline, so a drawer that never arrives still fails.
-    const arrive = async want => {
-      for (let i = 0; i < 60; i++) {
-        const now = await read();
-        if (want(now)) return now;
-        await page.waitForTimeout(50);
+    await page.waitForSelector("#view > *");
+    const bar = await page.evaluate(() => ({
+      menu: document.querySelector(".menu-btn").checkVisibility(), side: document.querySelector(".sidebar").checkVisibility(),
+      tabs: [...document.querySelectorAll("#tabbar a")].map(a => { const b = a.getBoundingClientRect();
+        return { t: [...a.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join("").trim(), href: a.getAttribute("href"), w: b.width, h: b.height, vis: a.checkVisibility() }; }) }));
+    check(!bar.menu, w + "px: a hamburger is on screen (T-083: no drawer below 861px)");
+    check(!bar.side, w + "px: the sidebar is on screen as a drawer (T-083: none below 861px)");
+    check(JSON.stringify(bar.tabs.map(t => t.t)) === JSON.stringify(TABS), w + "px: the tab bar reads " + bar.tabs.map(t => t.t).join(", ") + ", not " + TABS.join(", "));
+    const small = bar.tabs.filter(t => !t.vis || t.w < 44 || t.h < 44);
+    check(small.length === 0, w + "px: tabs under 44x44 or hidden: " + small.map(t => t.t + " " + Math.round(t.w) + "x" + Math.round(t.h)).join(", "));
+    // Breadth-first over visible in-app links, from the tab bar's pages, two levels deep.
+    const norm = h => (h || "").replace(/^#/, "").replace(/\?.*$/, "") || "/";
+    const seen = new Set(bar.tabs.map(t => norm(t.href)));
+    let frontier = [...seen], settings = false;
+    for (let depth = 0; depth < 2 && frontier.length; depth++) {
+      const next = [];
+      for (const r of frontier) {
+        // Proof the view was rebuilt: a marker on the current page must be gone (a hash change renders in place).
+        await page.evaluate(() => { const c = document.querySelector("#view > *"); if (c) c.setAttribute("data-shell-stale", "1"); });
+        await page.goto(URL + r, { waitUntil: "load" });
+        await page.waitForFunction(() => document.querySelector("#view > *") && !document.querySelector("#view [data-shell-stale]"), null, { timeout: 8000 }).catch(() => {});
+        const got = await page.evaluate(() => ({ links: [...document.querySelectorAll('#view a[href^="#/"]')].filter(a => a.checkVisibility()).map(a => a.getAttribute("href")),
+          set: [...document.querySelectorAll("#view [data-open-settings]")].some(b => b.checkVisibility()) }));
+        if (r === "/more" && got.set) settings = true;
+        got.links.map(norm).forEach(x => { if (!seen.has(x)) { seen.add(x); next.push(x); } });
       }
-      return read();
-    };
-    const shut0 = await read();
-    check(shut0.x <= -180, w + "px: drawer not tucked away at rest (x=" + shut0.x + ")");
-    check(shut0.menu !== "none", w + "px: no way to open the drawer — hamburger is display:none");
-    await page.click("#menuBtn");
-    const open = await arrive(s => s.x === 0 && s.open);
-    check(open.x === 0 && open.open, w + "px: drawer did not open (x=" + open.x + ")");
-    // Tap the scrim where a thumb would: right of the drawer. The scrim's centre is under the
-    // drawer itself, and clicking there only "closed" it by landing on a nav link, which stopped
-    // being true once the T-081 header moved the nav up.
-    const vw = page.viewportSize();
-    const dw = await page.evaluate(() => document.querySelector(".sidebar").getBoundingClientRect().right);
-    check(dw < vw.width - 8, w + "px: the open drawer leaves no scrim to tap (right edge " + dw + ")");
-    await page.mouse.click(vw.width - 6, Math.round(vw.height / 2));
-    const shut1 = await arrive(s => s.x <= -180 && !s.open);
-    check(shut1.x <= -180, w + "px: drawer did not close (x=" + shut1.x + ")");
-    console.log("  " + String(w).padStart(5) + "px  drawer opens and closes");
+      frontier = next.filter(x => !/^\/(lesson|course|concept|quiz|diag|doc)\//.test(x));   // detail pages are reached, not walked
+    }
+    const missing = ROUTES.filter(r => !seen.has(r));
+    check(missing.length === 0, w + "px: routes not reachable from the tab bar or More: " + missing.join(", "));
+    check(settings, w + "px: More offers no Settings row");
+    console.log("  " + String(w).padStart(5) + "px  no drawer; tabs " + bar.tabs.map(t => t.t).join("/") + "; " + (ROUTES.length - missing.length) + " of " + ROUTES.length + " routes reachable" + (settings ? ", Settings in More" : ", no Settings in More"));
     await ctx.close();
   }
 
@@ -239,7 +244,7 @@ async function freshContext(browser, opts) {
       check(!!m.name, at + ": running head has no page name");
       check(m.lines <= 1, at + ": running head wraps to " + m.lines + " lines");
       check(m.below, at + ": content starts underneath the running head");
-      check(!m.on, at + ": the menu button is sitting on text — " + m.on);
+      check(!m.on, at + ": the menu button is sitting on text — " + m.on);   // T-083: hidden below 861px, so its box is empty; kept for any width it returns at
       // T-023: the tab bar floats over the page, and content scrolls under it
       // by design — but at the END of the scroll nothing may be left under it.
       // That is what the page's bottom padding is for; take it away and the

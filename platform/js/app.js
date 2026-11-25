@@ -1168,7 +1168,7 @@
       // Six days, not seven. BYDAY lists every day except the rest day.
       "RRULE:FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS,
       "SUMMARY:Brickford — Deep Track",
-      "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan."),
+      "DESCRIPTION:" + esc("Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open Today for today's exact plan."),
       "END:VEVENT",
     ].join("\r\n"));
     // The first revision Sunday (T-056 r2): never one before a week has run.
@@ -2524,7 +2524,7 @@
   // press that moves under 10px is a tap; a press that moves vertically first
   // is the page's scroll and is let go. Tapping the tab you are on scrolls to
   // the top. None of this saves: it moves a transform and changes the hash.
-  const TAB_ROUTES = ["/", "/courses", "/exams", "/workshop", "/more"];   // T-080 PR 2: Review -> More
+  const TAB_ROUTES = ["/", "/courses", "/practice", "/review", "/more"];   // T-083 #7: the sidebar's first four, then More (was Exams, Problems)
   // Where each tab was left, in memory only. Never persisted: a scroll position
   // is not progress, and writing it would make every tab switch a save().
   const tabScroll = {};
@@ -3562,7 +3562,9 @@
       const ahead = lflat.findIndex(f => f.ui === +ui && f.li === +li) - lflat.indexOf(root);
       const rootNo = lflat.indexOf(root) + 1;
       const rootSeen = !!(S.lessons[lessonKey(root.cid, root.ui, root.li)] || {}).done;
-      return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
+      // T-083 #13: the kicker is a breadcrumb in sentence case — the course (a link back to it), then the unit.
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><nav class="kicker crumb" aria-label="Breadcrumb"><a href="#/course/' + cid + '">' + esc(c.code) + " · " + esc(c.title) + "</a>" +
+      '<span class="crumb-sep" aria-hidden="true"> \u203a </span>' + esc(u.name) + "</nav>" +
         "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
         '<div class="card lq-lock" data-lock="' + esc(lessonKey(lock.cid, lock.ui, lock.li)) + '" data-root="' + esc(lessonKey(root.cid, root.ui, root.li)) + '" data-ahead="' + ahead + '">' +
         '<span class="lq-lock-ic">' + lockSVG() + "</span>" +
@@ -3752,7 +3754,9 @@
       '<details class="unit lq-prove" id="proveBox"><summary><span class="u-name">Prove mastery · 4 gates</span>' +
       '<span class="pill">' + gatesOk + " of 4</span></summary>" + '<div class="u-body">' + proveHTML() + "</div></details>";
 
-    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><div class="kicker"><a href="#/course/' + cid + '">' + esc(c.code) + "</a> · " + esc(u.name) + "</div>" +
+    // T-083 #13: the kicker is a breadcrumb in sentence case — the course (a link back to it), then the unit.
+    return '<div class="view-enter ' + facClass(c) + '"><div class="page-head"><nav class="kicker crumb" aria-label="Breadcrumb"><a href="#/course/' + cid + '">' + esc(c.code) + " · " + esc(c.title) + "</a>" +
+      '<span class="crumb-sep" aria-hidden="true"> \u203a </span>' + esc(u.name) + "</nav>" +
       "<h1>" + (+li + 1) + ". " + esc(l.t) + "</h1></div>" +
       // T-080 PR 3: a reading layout of its own. On a desktop (from 1040px)
       // two columns — the video and the notes on the left, the quiz and the
@@ -3797,7 +3801,18 @@
           '<button class="btn lg" data-act="toggleDone">Mark watched</button>' +
           '<span class="lsn-run">' + esc(runtime) + "</span></div>") +
 
-      '</div><aside class="lsn-side" aria-label="Quiz and practice">' + railCardHTML(true) +
+      // T-083 #6 (the owner's "design fixes"): the notes come straight after the
+      // video — on a phone the order is video, notes, quiz, practice — and are
+      // open once the lecture is watched. The side column holds the quiz and the
+      // practice only: no rail card on a lecture page (it named a different
+      // lecture beside this one). The <iframe> is still drawn once per
+      // foreground render in .lsn-lead and never moved.
+      '</div><div class="lsn-notes">' +
+      summaryHTML(k, { noCheck: !!quiz, open: !!st.done }) +
+      // The drill is same-day work and deliberately NOT behind "watched": it is
+      // what turns watching into something, so it tells you what to listen for.
+      drillHTML(k) +
+      '</div><aside class="lsn-side" aria-label="Quiz and practice">' +
       // The quiz, the pass, and what comes after it.
       (st.done && quiz && !passed
         ? '<div class="lq-mount" id="lqMount" data-k="' + k + '"></div>'
@@ -3805,17 +3820,10 @@
       (st.done && quiz && passed ? passHTML() : "") +
       // T-067 step 3: the lecture's own problems, under the quiz, once it is watched.
       (st.done ? practiceHTML(k) : "") +
-      (st.done && cleared ? deeperHTML() : "") +
 
       '</aside><div class="lsn-body">' +
-      // The summary, on the page the lecture is on, folded under its heading.
-      // Its own "Check yourself" goes when the lecture has a quiz: the quiz is
-      // the check.
-      summaryHTML(k, { noCheck: !!quiz }) +
-
-      // The drill is same-day work and deliberately NOT behind "watched": it is
-      // what turns watching into something, so it tells you what to listen for.
-      drillHTML(k) +
+      // Go deeper, once the lecture is cleared: under the notes, out of the side column (T-083 #6).
+      (st.done && cleared ? deeperHTML() : "") +
 
       (st.done
         ? '<div class="lsn-act lsn-unmark"><button class="btn ghost" data-act="toggleDone">Unmark watched</button>' +
@@ -4814,7 +4822,8 @@
       sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</span></h2>" +
       '<div class="card">' +
       '<p class="sum-lead">' + sm.takeaway + "</p>" +
-      '<details class="sum-more"><summary>Read the ' + sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</summary>" +
+      // T-083 #6: open once the lecture is watched (o.open) — the notes are what the page is for then.
+      '<details class="sum-more"' + (o && o.open ? " open" : "") + '><summary>Read the ' + sm.beats.length + " step" + (sm.beats.length === 1 ? "" : "s") + "</summary>" +
       '<div class="beats">' +
       sm.beats.map((b, i) =>
         '<div class="beat"><div class="beat-n mono">' + (i + 1) + "</div>" +
@@ -5653,7 +5662,7 @@
     const start = S.settings.dailyStart || "08:00";
     const openGates = gatePlan().filter(g => !g.doneDate);
     const dailyLink = gcalUrl("Brickford — Deep Track",
-      "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open the Dashboard for today's exact plan.",
+      "Theory ~2h, Build ~1.5h, Drill ~10min, Publish ~30min. Open Today for today's exact plan.",
       { startDate: todayISO() > D.START_DATE ? todayISO() : D.START_DATE, durationMin: 300, recur: "FREQ=WEEKLY;BYDAY=" + ICS_STUDY_DAYS });
     const nextSunday = [addDaysISO(todayISO(), (7 - new Date(todayISO() + "T00:00:00").getDay()) % 7 || 7), revisionWeek(1).sun].sort()[1];
     const reviewLink = gcalUrl("Brickford — Weekly Review (seal the week)",
@@ -6290,7 +6299,7 @@
   const TX_MODEL = "onnx-community/whisper-large-v3-turbo";
   const TX_REVISION = "360ebcde2559d60bb474678be3c1de9ef347d01a";
   const TX_MODEL_MB = 1115;
-  const TX_WORKER = "js/transcribe-worker.js?v=20261129a";
+  const TX_WORKER = "js/transcribe-worker.js?v=20261130a";
   const TX_MSG = {
     unsupported: "This browser cannot run the speech model, so this one stays audio only.",
     download: "Could not download the speech model. The recording is kept.",
@@ -6771,8 +6780,10 @@
     // catalogue, as it was, behind "Everything". The first row's action is
     // the page's one filled primary.
     const P = problemsDue();
-    let first = true;
-    const go = label => { const c = first ? "btn" : "btn ghost"; first = false; return '<span class="' + c + ' pd-go">' + label + "</span>"; };
+    // T-083 #8 (the owner's "design fixes"): the row is the control — a link,
+    // or the summary of its fold — so it carries a chevron, not a button-shaped
+    // pill. Twenty-four identical "Take it" pills said nothing a row did not.
+    const go = () => '<span class="pd-chev" aria-hidden="true">' + CHEV + "</span>";
     const ic = g => '<span class="pd-ic" aria-hidden="true">' + g + "</span>";
     const body = (t, tag, m) => '<span class="pd-b"><span class="pd-t">' + esc(t) + '</span><span class="pd-m">' +
       (tag ? '<span class="pd-tag">' + tag + "</span> " : "") + esc(m) + "</span></span>";
@@ -6805,9 +6816,28 @@
         ? '<div class="pd-row muted" data-soon="pset" data-id="' + c.pset.id + '">' + ic(ICON.pen) + body("Problem set · " + c.pset.course + ", " + c.pset.label, "", at) + "</div>"
         : '<div class="pd-row muted" data-soon="lab" data-id="' + c.lab.id + '">' + ic(ICON.lab) + body("Lab · " + c.lab.title, "", at + " · Phase " + c.lab.phase) + "</div>";
     };
-    const rows = P.quizzes.map(q => quizRow(q, false)).concat(P.catchUp.map(q => quizRow(q, true)), P.psets.map(psetRow), P.labs.map(labDueRow),
-      P.review ? ['<a class="pd-row" data-due="review" data-id="drill" href="#/drill">' + ic(ICON.again) +
-        body("Daily review", "", "questions you missed, served back until they stick") + go("Start") + "</a>"] : []);
+    // T-083 #8: what is due, grouped by course — one fold per course with its
+    // count, the first open — then the labs, then the daily review. Within a
+    // group the order is the old one: quizzes, catch-up, problem sets.
+    const groups = [], groupOf = (key, title) => {
+      let g = groups.find(x => x.key === key);
+      if (!g) groups.push(g = { key, title, rows: [] });
+      return g;
+    };
+    const courseName = code => { const c = D.COURSES.find(x => x.code === code); return c ? c.title : ""; };
+    P.quizzes.forEach(q => groupOf(q.code, courseName(q.code)).rows.push(quizRow(q, false)));
+    P.catchUp.forEach(q => groupOf(q.code, courseName(q.code)).rows.push(quizRow(q, true)));
+    P.psets.forEach(i => groupOf(i.course, courseName(i.course)).rows.push(psetRow(i)));
+    P.labs.forEach(l => groupOf("Labs", "build projects").rows.push(labDueRow(l)));
+    if (P.review) groupOf("Daily review", "").rows.push('<a class="pd-row" data-due="review" data-id="drill" href="#/drill">' + ic(ICON.again) +
+      body("Daily review", "", "questions you missed, served back until they stick") + go("Start") + "</a>");
+    const rows = [].concat(...groups.map(g => g.rows));
+    const groupHTML = (g, i) => '<details class="unit pd-group" data-group="' + esc(g.key) + '"' + (i === 0 ? " open" : "") + ">" +
+      '<summary><span class="u-name">' + esc(g.key) + (g.title ? ' <span class="pd-gt">' + esc(g.title) + "</span>" : "") + "</span>" +
+      '<span class="pill">' + g.rows.length + "</span></summary>" +
+      '<div class="pd-list">' + g.rows.join("") + "</div></details>";
+    // The page's one filled button: the next quiz waiting (the first in plan order, catch-up after).
+    const nextQ = P.quizzes[0] || P.catchUp[0] || null;
     // Nothing due: the next lecture not yet cleared, from today on — or, when
     // a chain of unwatched lectures locks it, the first of that chain (the
     // one the lesson page's lock card would send you to).
@@ -6846,18 +6876,24 @@
         ).join("") + "</div>"
       ).join("") + "</div></div></details>";
 
+    const how = '<div class="pd-how" role="group" aria-label="How this works">' +
+      "<div><b>Lecture quiz</b>After every lecture. Pass it to count the lecture and open the next one.</div>" +
+      "<div><b>Problem set</b>Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions.</div>" +
+      "<div><b>Lab</b>A build project, one or two per phase. Done when it’s on GitHub and meets its checklist.</div></div>";
     return '<div class="view-enter"><div class="page-head"><h1>Problems</h1>' +
       '<div class="sub">Only what’s due now. Each item says what it is and why it’s here.</div></div>' +
+      // T-083 #8: the legend first, then the one filled action, then the groups.
+      how +
+      (nextQ
+        ? '<div class="pd-next"><a class="btn lg one-go" href="#/lesson/' + nextQ.cid + "/" + nextQ.ui + "/" + nextQ.li + '">Start next quiz' + CHEV + "</a>" +
+          '<p class="pd-next-t">' + esc(nextQ.code) + " \u00b7 " + esc(nextQ.title) + "</p></div>"
+        : "") +
       '<h2 class="ghead">Due now<span class="gh-meta pd-count">' + P.n + "</span></h2>" +
       (rows.length
-        ? '<div class="pd-list" id="pdDue">' + rows.join("") + "</div>"
+        ? '<div class="pd-groups" id="pdDue">' + groups.map(groupHTML).join("") + "</div>"
         : '<div class="card pd-empty"><p>Nothing due. Your next lecture is ' +
           (nextLec ? '<a href="#/lesson/' + nextLec.cid + "/" + nextLec.ui + "/" + nextLec.li + '">' + esc(nextLec.l.t) + "</a>" : '<a href="#/courses">in Courses</a>') +
           ".</p></div>") +
-      '<div class="pd-how" role="group" aria-label="How this works">' +
-      "<div><b>Lecture quiz</b>After every lecture. Pass it to count the lecture and open the next one.</div>" +
-      "<div><b>Problem set</b>Unlocks when you finish a unit. Pen and paper, checked against the course’s solutions.</div>" +
-      "<div><b>Lab</b>A build project, one or two per phase. Done when it’s on GitHub and meets its checklist.</div></div>" +
       (P.coming.length
         ? '<h2 class="ghead">Coming up<span class="gh-meta">unlocks as you go</span></h2>' +
           '<div class="pd-list pd-soon">' + P.coming.slice(0, 3).map(soonRow).join("") + "</div>"
@@ -7039,7 +7075,7 @@
       '<details class="unit"><summary><span class="u-name">The map</span>' +
       '<span class="pill">11 rooms</span><span class="u-prog" style="width:100%;"></span></summary>' +
       '<div class="u-body"><div class="glist">' +
-      mod("Dashboard", "daily", "The next lecture, the rest of today, and where you stand.", "#/") +
+      mod("Today", "daily", "The next lecture, the rest of today, and where you stand.", "#/") +
       mod("The Atlas", "weekly", "What is running now, the gates ahead, and what opens later.", "#/atlas") +
       mod("Courses", "reference", "Pick a lecture back up: what is running, what opens later, what is finished.", "#/courses") +
       mod("Problems", "daily", "Labs with proof URLs, pen-and-paper problem sets, and the daily drill.", "#/workshop") +
@@ -7373,17 +7409,18 @@
   // Life and Settings. A read: links, the due count, and the glyphs the sidebar
   // already draws. Settings opens the one sheet (wired in wire(), not here).
   const MORE_GROUPS = [
-    ["", [["/practice", "Practice"], ["/review", "Week"], ["/record", "Proof"]]],
-    // T-080 PR 3: the two the phone's tab bar also holds go last, so hiding them there leaves no gap.
-    ["Study tools", [["/atlas", "The Atlas"], ["/calendar", "Calendar"], ["/library", "Library"], ["/workshop", "Problems"], ["/exams", "Exams"]]],
+    // T-083 #7: Practice and Week are tabs on the phone now (.more-tab hides them there); they go last in
+    // their group so hiding them leaves no gap. Problems and Exams left the tab bar and show here again.
+    ["", [["/record", "Proof"], ["/practice", "Practice"], ["/review", "Week"]]],
+    ["Study tools", [["/workshop", "Problems"], ["/exams", "Exams"], ["/atlas", "The Atlas"], ["/calendar", "Calendar"], ["/library", "Library"]]],
     ["Life", [["/monk", "Monk Mode"], ["/treasury", "Treasury"]]],
   ];
-  const MORE_ROUTES = ["/more"].concat(...MORE_GROUPS.map(g => g[1].map(x => x[0]))).filter(x => x !== "/workshop" && x !== "/exams");
+  const MORE_ROUTES = ["/more"].concat(...MORE_GROUPS.map(g => g[1].map(x => x[0]))).filter(x => x !== "/practice" && x !== "/review");
   V.more = function () {
     const glyph = rt => { const g = $('#nav a[href="#' + rt + '"] svg'); return g ? g.outerHTML : ""; };
     const due = reviewsDue().length;
-    // T-080 PR 3: Problems and Exams are tabs in the phone's bar; .more-tab hides them here below 861px.
-    const row = ([rt, t]) => '<a class="grow' + (rt === "/workshop" || rt === "/exams" ? " more-tab" : "") + '" href="#' + rt + '"><span class="g-lead">' + glyph(rt) + "</span>" +
+    // T-083 #7: Practice and Week are tabs in the phone's bar; .more-tab hides them here below 861px.
+    const row = ([rt, t]) => '<a class="grow' + (rt === "/practice" || rt === "/review" ? " more-tab" : "") + '" href="#' + rt + '"><span class="g-lead">' + glyph(rt) + "</span>" +
       '<span class="g-main"><span class="g-t">' + esc(t) + "</span></span>" +
       (rt === "/review" && due ? '<span class="g-v">' + due + " due</span>" : "") + "</a>";
     return '<div class="view-enter more-page">' + folio("More") +
@@ -8741,7 +8778,7 @@
       badge.textContent = due > 99 ? "99+" : due ? String(due) : "";
       badge.hidden = !due;
       // T-080 PR 2: it rides on the More tab now, where Week is.
-      badge.parentElement.setAttribute("aria-label", due ? "More, " + due + " due" : "More");
+      badge.parentElement.setAttribute("aria-label", due ? "Week, " + due + " due" : "Week");   // T-083 #7: on the Week tab
     }
     if (tabbar) tabbar.sync();
     // Last, because it reads what the view drew AND, for a route with no h1 of
@@ -8825,7 +8862,10 @@
     $("#exportBtn").onclick = exportBackup;
     $("#importBtn").onclick = () => $("#importFile").click();
     $("#importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
-    mountDrawer();
+    // T-083 #7: no drawer. Below 861px the tab bar and More are the one
+    // navigation (the sidebar is display:none there); above it the sidebar is
+    // a column and never needed one. mountDrawer stays for nothing to call.
+    // mountDrawer();
     mountTabbar();
     // Before render: the frame is still the old lecture's when this runs.
     window.addEventListener("hashchange", leaveLecture);

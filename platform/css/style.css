@@ -664,7 +664,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    becomes the breadcrumb it already was. */
 .page-head { margin-bottom: var(--sp-4); }
 .page-head h1 { margin-top: 2px; }
-.page-head .kicker { font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.page-head .kicker { font-size: var(--fs-footnote); color: var(--accent); font-weight: 600; }   /* T-083 #13: sentence case, no tracking (was 12px uppercase +0.06em) */
 .page-head .kicker a { color: inherit; }
 .page-head .sub { color: var(--ink-2); font-size: var(--fs-small); max-width: 64ch; margin-top: 6px; }
 
@@ -839,7 +839,7 @@ textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
    quietly left every `<div class="field">` on the lesson page — "2 · Rebuild
    from memory", "3 · Solve N problems unaided" — rendering as plain body text
    where a small caps label was intended. It is a label class, not a form one. */
-.field { display: block; font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 4px; font-weight: 600; }
+.field { display: block; font-size: var(--fs-footnote); color: var(--ink-2); margin-bottom: 4px; font-weight: 600; }   /* T-083 #13: sentence case, no tracking (brief §2.5); was 12px uppercase +0.06em in --ink-3 */
 
 /* Checkboxes */
 .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: var(--radius); cursor: pointer; transition: background-color var(--t-micro) ease; }
@@ -1630,8 +1630,9 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
   display: grid; place-items: center; font-size: 0.68rem; font-weight: 600;
 }
 .beat-body { min-width: 0; flex: 1; }
-.beat-t { font-weight: 600; color: var(--ink); font-size: var(--fs-small); overflow-wrap: anywhere; }
-.beat-d { font-size: var(--fs-small); color: var(--ink-2); margin-top: 2px; overflow-wrap: anywhere; }
+/* T-083 #6: the notes are read, so the steps are body text — 17px in --ink at a reading leading (were 15px, the step in --ink-2). */
+.beat-t { font-weight: 600; color: var(--ink); font-size: var(--fs-headline); line-height: var(--lh-headline); overflow-wrap: anywhere; }
+.beat-d { font-size: var(--fs-body); line-height: 1.45; color: var(--ink); margin-top: 2px; overflow-wrap: anywhere; }
 .beat-fig { margin-top: 10px; max-width: 420px; }
 /* The lecture's one-sentence takeaway, at the head of its summary. It is the
    only thing in the block set larger than the body: read it and you have the
@@ -2202,8 +2203,10 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .ghead {
   display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px;
   margin: 2rem 0 0; padding: 0 4px 8px; font-family: var(--font-body); text-wrap: wrap;
-  font-size: var(--fs-footnote); font-weight: 400; line-height: var(--lh-footnote);
-  letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2);
+  /* T-083 #13 (brief §2.5): a section head is sentence case at 17/600 in --ink, like an
+     iOS headline; it was 13px uppercase +0.04em in --ink-2, the register's voice. */
+  font-size: var(--fs-headline); font-weight: 600; line-height: var(--lh-headline);
+  letter-spacing: var(--tr-headline); text-transform: none; color: var(--ink);
 }
 .ghead .gh-meta {
   margin-left: auto;
@@ -2220,8 +2223,8 @@ a, button, summary, label, .hc, .cal-cell { -webkit-tap-highlight-color: transpa
 .ghead.oh {
   margin: 0 0 10px; padding: 0 0 6px;
   border-bottom: 1.5px solid var(--ink);
-  font-size: var(--fs-tiny); font-weight: 600; line-height: var(--lh-body);
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+  font-size: var(--fs-footnote); font-weight: 600; line-height: var(--lh-body);
+  letter-spacing: 0; text-transform: none; color: var(--ink-2);   /* T-083 #13: sentence case (was 12px uppercase +0.08em) */
 }
 .ghead.oh .gh-meta { font-size: inherit; font-weight: inherit; color: inherit; }
 /* The section: a --surface fill on --bg with --r-card corners (20px, T-024).
@@ -3547,13 +3550,14 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
    1040px — where the rail used to stand beside it — two columns: the video and
    the notes, and a 320px side column with today's card, the quiz and the
    practice, sticky so it stays in view while the notes scroll. */
-.lsn-cols { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "lead" "side" "body"; }
+.lsn-cols { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "lead" "notes" "side" "body"; }   /* T-083 #6: notes after the video */
+.lsn-notes { grid-area: notes; min-width: 0; }
 .lsn-lead { grid-area: lead; min-width: 0; }
 .lsn-side { grid-area: side; min-width: 0; }
 .lsn-body { grid-area: body; min-width: 0; }
 .lsn-side .rail-card { display: none; }
 @media (min-width: 1040px) {
-  .lsn-cols { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "lead side" "body side"; grid-template-rows: auto 1fr; column-gap: var(--sp-4); align-items: start; }
+  .lsn-cols { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "lead side" "notes side" "body side"; grid-template-rows: auto auto 1fr; column-gap: var(--sp-4); align-items: start; }
   /* auto 1fr: the side column spans both rows, and any height it has beyond the
      lead goes to the second row, so the notes follow the video with no gap. */
   .lsn-side { position: sticky; top: var(--sp-4); align-self: start; }
@@ -3631,3 +3635,28 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .wk-none { margin-top: 0; }
 /* #9: Practice's fields are fingertip targets too (they measured 39-40px). */
 .pr-form input:not([type="checkbox"]):not([type="radio"]), .pr-form select, .pr-in, .pr-name { min-height: 44px; }
+
+/* ---------- T-083 batch 2 (loop/specs/T-082-ux-review/findings.md) ---------- */
+/* #7: one navigation on the phone. Below 861px there is no drawer: no
+   hamburger, no sidebar, no scrim; the tab bar and More hold every route. */
+@media (max-width: 860px) {
+  .menu-btn, .sidebar, .scrim, .edge-grab { display: none !important; }
+}
+/* #8: Problems — the legend on top, one filled action, a fold per course. */
+.pd-how:first-child, .page-head + .pd-how { margin-top: 0; }
+.pd-next { margin-top: var(--sp-4); }
+.pd-next .one-go { margin-top: 0; }
+.pd-next-t { margin-top: 6px; font-size: var(--fs-footnote); color: var(--ink-2); }
+.pd-groups { margin-top: 4px; }
+.pd-group .u-name { font-size: var(--fs-body); }
+.pd-group .pd-gt { font-weight: 400; color: var(--ink-2); }
+.pd-group > .pd-list { margin: 4px 0 12px; }
+.pd-chev { flex: none; margin-left: auto; color: var(--ink-3); display: inline-flex; }
+.pd-chev .chev { width: 12px; height: 12px; }
+details.pd-item[open] > summary .pd-chev { transform: rotate(90deg); }
+
+@media (max-width: 640px) {
+  /* The chevron stays on the row's line now that the pill under it is gone. */
+  .pd-row { flex-wrap: nowrap; }
+  .pd-b { flex: 1 1 0; }
+}

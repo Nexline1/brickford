@@ -1991,7 +1991,8 @@
         '<span class="g-lead">' + MONK_GLYPH + '</span><span class="g-main"><span class="g-t">Monk Mode</span>' +
         '<span class="g-s">Day ' + n + " of " + MONK.days + " \u00b7 prayers, habits, tomorrow\u2019s plan</span></span></a>");
     const owedRow = x => '<a class="grow" data-owed="' + esc(x.k) + '" href="#/lesson/' + x.it.cid + "/" + x.it.ui + "/" + x.it.li + '">' +
-      '<span class="g-main"><span class="g-t">' + esc(x.title) + "</span><span class=\"g-s\">not watched yet</span></span>" +
+      // An empty lead, as every other row in the strip has, so the text and the separators line up.
+      '<span class="g-lead"></span><span class="g-main"><span class="g-t">' + esc(x.title) + "</span><span class=\"g-s\">not watched yet</span></span>" +
       '<span class="g-v">' + owedLabel(x) + "</span></a>";
     const more = list.slice(5);
     const count = rows.length + list.length;

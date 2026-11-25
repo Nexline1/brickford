@@ -3474,13 +3474,16 @@ function t28SeedClips(list) {
   let ringsSeen = 0;
   for (const { w, h, mobile } of WIDTHS) {
     for (const theme of THEMES) {
-      const at = w + "px " + theme + " / keyboard ring";
+      // T-080 PR 2: measured on /more, whose Settings section is one row. The
+      // dashboard's one-row section (Monk Mode) folded into its "Needs you"
+      // strip, so "/" has none; the ring and the clip under test are the same.
+      const at = w + "px " + theme + " /more keyboard ring";
       console.log("\nthe keyboard ring, " + w + "px " + theme);
       const { ctx, page, errors } = await fresh(browser,
         { viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile, colorScheme: theme }, theme);
       await page.goto(URL + "/__boot", { waitUntil: "load" });
       await page.waitForSelector("#view > *");
-      await go(page, "/");
+      await go(page, "/more");
       const label = await page.evaluate(markOneRow);
       let tabs = 0, reached = false;
       if (label) {
@@ -3493,7 +3496,7 @@ function t28SeedClips(list) {
         }
       }
       check(at + ": Tab reaches the row of a one-row section", !!label && reached,
-        !label ? "no one-row .glist on /" : reached ? "\"" + label + "\" after " + tabs + " Tab presses" : "not reached in " + tabs + " presses");
+        !label ? "no one-row .glist on /more" : reached ? "\"" + label + "\" after " + tabs + " Tab presses" : "not reached in " + tabs + " presses");
       if (!reached) { await ctx.close(); continue; }
       await frames(page);
       const r = await page.evaluate(ringState);
